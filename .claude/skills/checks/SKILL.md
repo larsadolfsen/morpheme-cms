@@ -32,9 +32,8 @@ Announce "Using checks". Run every command from the root of this repository, on 
 | `main`, and the Release PR from any base | `full` | everything |
 | anything else, an empty base, an error in the selection | `full` | everything (when in doubt, run) |
 
-**Built (PR 6, test versions from a version line).** Not a Check job: `publish.yml` also runs on pushes to a line's branch (`0.[0-9]+`).
-`scripts/publish-next.mjs` (tested in `scripts/publish-next.test.mjs`, which also reads the workflow) decides the tag and refuses a version of another line;
-the job `release` (Release PR, `latest`) runs on `main` only. A workflow-only change is outside the starter and demo (`ci-changes.mjs`).
+**Removed (18 Nov 2026, was PR 6, test versions from a version line).** A merge into a line's branch stages nothing on npm; `publish.yml` still triggers on a
+line's branch, but its job `release` (Release PR, `latest`) and the `next` job run on `main` only. A workflow-only change is outside the starter and demo (`ci-changes.mjs`).
 
 **Built (PR 5, the daily full run on feature branches).** `.github/workflows/daily-full.yml` runs once a day (02:17 UTC; from `main`, as every schedule) and dispatches
 `check.yml` (`workflow_dispatch`, `level=full`) on each `feature/**` branch that has a commit `main` lacks, whose head has no `daily-full` status yet and has no full run
@@ -50,7 +49,7 @@ as before. `starter` has no build to take (it packs the package and builds the s
 every job shares are the local action `.github/actions/prepare` (Node, `npm ci`, the artifact, Chromium). Chromium is cached in
 `~/.cache/ms-playwright`, keyed on the Playwright version; a hit skips the download and only the system libraries are installed with apt.
 The job `build` keeps its tarball in Actions' cache under `scripts/ci-build-key.mjs`'s key (`lib/outputKey.mjs`: the hash of every tracked file
-the build can read, except `docs/`, `.claude/`, `.agents/`, `.changeset/` and `staging-watcher/`, and the Node major version; never file times) and
+the build can read, except `docs/`, `.claude/`, `.agents/`, and `.changeset/`, and the Node major version; never file times) and
 builds only on a miss, which happens on the first run of a pull request that changes an input; a push that changes none (docs, a changeset) and a
 re-run take the kept build. A root `.npmrc` (`prefer-offline`, no audit, no fund) makes `npm ci` use the npm cache first.
 An Actions cache is read only by the branch that saved it, the default branch and a pull request into its base branch, and `check.yml` runs only on pull
@@ -145,7 +144,7 @@ checks read it (`grep` the scripts and tests) and change the list and its test i
 
 **`starter` and `demo` are also skipped when no changed file can affect them** (`needsStarterDemo` in `scripts/ci-changes.mjs`; the job
 `changes` prints `starter_demo=false`). Both jobs work on the package as it ships (`starter` packs it, `demo` builds the editor and the
-demo), so only paths that neither reads are skipped: docs, `.claude/`, `.agents/`, changesets, the other workflows, `staging-watcher/`,
+demo), so only paths that neither reads are skipped: docs, `.claude/`, `.agents/`, changesets, the other workflows,
 `*.test.*` files and the static-only check scripts and allowlists (`check-language`, `check-phosphor`, `check-web`, `check-editor-colors`,
 `check-colors`, `check-css-values`, `check-density`, `phosphor-allowlist.json`, `web-allowlist.json`). Everything else runs them: `src/`,
 `theme/`, `lib/`, `pages/`, `site/`, `worker/`, `bin/`, `defaults/`, `starter/`, `demo/`, `release-notes/`, `package.json`, the lock file,

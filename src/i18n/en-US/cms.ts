@@ -39,6 +39,15 @@ export const cms = {
   noKv: 'The website has no KV namespace bound as PUSH, so it can’t look for new versions.',
   notManaged: 'The version is fixed in the website’s package.json, so it can’t be updated here.',
   slowUndo: 'The GitHub token can’t see whether the update worked, so a failed update is undone after 20 minutes.',
+  /** On the start screen, over a reason the site can't update itself (BlockedUpdateNotice.tsx); the reasons are in cmsBlocked.mjs. */
+  blockedTitle: 'Morpheme can’t update itself',
+  blockedNeedsNpm: (v: string) => `Version ${v} needs npm to install. Open Morpheme for the command.`,
+  blockedNoToken: 'Add a GITHUB_PUBLISH_TOKEN secret in Cloudflare so the website can update itself.',
+  blockedNoKv: 'Bind a KV namespace named PUSH in Cloudflare so the website can update itself.',
+  blockedTheme: (v: string, id: string) => `Version ${v} isn’t installed because the theme ${id} doesn’t work with it yet.`,
+  blockedApp: (v: string, id: string) => `Version ${v} isn’t installed because the app ${id} doesn’t work with it yet.`,
+  blockedThemeUnsure: (v: string, id: string) => `Version ${v} isn’t installed because Morpheme couldn’t check the theme ${id}.`,
+  blockedAppUnsure: (v: string, id: string) => `Version ${v} isn’t installed because Morpheme couldn’t check the app ${id}.`,
   /** The site's notifications (Notifications.tsx) and the commits the Worker writes, in the site's language. */
   notifyDone: (v: string) => `Morpheme was updated to ${v}`,
   notifyUndone: (v: string) => `The update of Morpheme to ${v} was undone because the website couldn’t be updated with it`,

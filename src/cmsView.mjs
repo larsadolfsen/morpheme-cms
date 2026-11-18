@@ -3,6 +3,7 @@
 // Depends on cms-version for version comparison.
 
 import { compareVersions } from '../lib/cms-version.mjs';
+import { blockedUpdate } from './cmsBlocked.mjs';
 
 export const DONE_SHOWN = 24 * 60 * 60 * 1000;
 
@@ -77,5 +78,5 @@ export function cmsView(status, now = Date.now()) {
     problems.push('slow-undo');
   }
 
-  return { running, checkedAt, latest, notes, action, npmCommand, update, problems };
+  return { running, checkedAt, latest, notes, action, npmCommand, update, problems, blocked: blockedUpdate(status) };
 }

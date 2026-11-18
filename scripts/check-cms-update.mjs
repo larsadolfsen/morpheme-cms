@@ -6,10 +6,8 @@ import { gzipSync } from 'node:zlib';
 import { config } from '../site/siteConfig.mjs';
 import { workerModules } from './worker-modules.mjs';
 
-const [{ RUNNING, checkForUpdate, cmsStatus, dailyCheck, handleCms, startUpdate, watchUpdate }, { GitHubError }] = await workerModules(
-  'cms-update.js',
-  'files.js',
-);
+const [{ RUNNING, checkForUpdate, cmsStatus, dailyCheck, handleCms, startUpdate, watchUpdate }, { GitHubError }, { releaseFor }] =
+  await workerModules('cms-update.js', 'files.js', 'store.js');
 
 const problems = [];
 const expect = (ok, what) => ok || problems.push(what);
@@ -75,7 +73,7 @@ const manifestOf = (version, extra = {}) => ({
  * notifications. `checks`: a commit's check run by its id ('success' | 'failure'; none: no run yet), `forbidden`: GitHub answers
  * the check runs with 403, `commitFails`: from which commit on `commitFiles` throws.
  */
-function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = true } = {}) {
+function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = true, contracts = 6, items = [], releases = {} } = {}) {
   const files = {
     'wrangler.jsonc': '{\n  "build": {\n    "command": "npm run check && npm run build",\n  },\n}\n',
     'package.json': JSON.stringify({ name: 'site', dependencies: { [PACKAGE]: range } }, null, 2) + '\n',
@@ -106,6 +104,8 @@ function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = t
     may: true,
     latest,
     readCount: 0,
+    items,
+    releases,
   };
   w.env = { GITHUB_PUBLISH_TOKEN: 'token', PUSH: w.kv };
   w.deps = {
@@ -113,6 +113,8 @@ function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = t
       w.readCount++;
       return { head: `head${w.commits.length}`, texts: paths.map((p) => files[p]) };
     },
+    readStoreItems: async () => w.items,
+    storeRelease: async (env, id, version) => w.releases[`${id}@${version}`] ?? null,
     commitFiles: async (env, head, headline, changes) => {
       if (w.failure && w.commits.length >= (w.commitFails ?? 0)) throw w.failure;
       for (const { path, text } of changes) files[path] = text;
@@ -133,7 +135,13 @@ function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = t
       if (url === 'https://registry.npmjs.org/-/package/@morphemecms%2fcms/dist-tags') return Response.json({ latest: w.latest });
       const manifest = /^https:\/\/registry\.npmjs\.org\/@morphemecms%2fcms\/(\d+\.\d+\.\d+)$/.exec(url);
       if (manifest) return Response.json(manifestOf(manifest[1], manifest[1] === w.latest ? manifestExtra : {}));
-      if (url.endsWith('.tgz')) return new Response(tarball({ 'package/CHANGELOG.md': CHANGELOG }));
+      if (url.endsWith('.tgz'))
+        return new Response(
+          tarball({
+            'package/CHANGELOG.md': CHANGELOG,
+            'package/lib/contracts.mjs': `export const APP_API = ${contracts};\nexport const APP_APIS = Object.freeze([${contracts}]);\nexport const THEME_API = ${contracts};\n`,
+          }),
+        );
       return new Response('{}', { status: 404 });
     },
     notify: async (env, notice, texts) => void w.notices.push({ notice, texts }),
@@ -286,7 +294,7 @@ for (const error of [new GitHubError('Forbidden', 403), new GitHubError('Resourc
   );
 }
 
-// 8. Without the token (or KV) nothing is asked and nothing is kept.
+// 8. Without the token (or KV) nothing is asked and no commit is made; without the token only the problem is kept (13 and 14).
 for (const [what, patch] of [
   ['without a key', { GITHUB_PUBLISH_TOKEN: undefined }],
   ['uden KV', { PUSH: undefined }],
@@ -295,7 +303,10 @@ for (const [what, patch] of [
   const env = { ...w.env, ...patch };
   await checkForUpdate(env, w.deps, T0);
   await watchUpdate(env, w.deps, T0);
-  expect(w.urls.length === 0 && w.readCount === 0 && w.kv.writes === 0 && w.commits.length === 0, `tjekket gjorde noget ${what}`);
+  expect(
+    w.urls.length === 0 && w.readCount === 0 && w.kv.writes === (what === 'without a key' ? 1 : 0) && w.commits.length === 0,
+    `tjekket gjorde noget ${what}`,
+  );
 }
 
 // 9. Check runs GitHub does not give: the update is undone after 20 minutes.
@@ -475,6 +486,111 @@ for (const [what, patch] of [
   const status = await cmsStatus(w.env, '0.2.0-next-1').catch((e) => e);
   expect(status?.running === '0.2.0-next-1', `en forudgivelse gav ${status?.message ?? status?.running}, ikke status`);
   expect(Array.isArray(status?.notes) && status.notes.length === 0, 'en forudgivelse gav noter');
+}
+
+// 13. The contract hold: a version is taken only when the store says every installed store theme and app (id@version) is written to its contracts.
+{
+  const record = (version) => JSON.stringify({ version, ref: version, files: [{ path: 'theme.json', oid: 'abc' }] }, null, 2);
+  const venus = { kind: 'theme', id: 'venus', record: record('1.3.0'), manifest: JSON.stringify({ name: 'Venus', version: '1.3.0' }) };
+  const mailchimp = { kind: 'app', id: 'mailchimp', record: record('2.0.0'), manifest: JSON.stringify({ api: 5, version: '2.0.0' }) };
+  const own = { kind: 'app', id: 'sara', record: null, manifest: JSON.stringify({ api: 5 }) };
+  const problemOf = (w) => stored(w.kv, 'cms:checked')?.problem;
+  const run = async (opts) => {
+    const w = world(opts);
+    await checkForUpdate(w.env, w.deps, T0);
+    return w;
+  };
+
+  const old = await run({ items: [venus, own], releases: { 'venus@1.3.0': { api: 5 } } });
+  expect(old.commits.length === 0 && stored(old.kv, 'cms:update') === null, 'a version a store theme is not written to was taken');
+  expect(
+    problemOf(old)?.kind === 'contract' && problemOf(old).detail === 'theme venus',
+    `the hold was recorded as ${JSON.stringify(problemOf(old))}`,
+  );
+  expect(stored(old.kv, 'cms:checked')?.latest === '0.1.1', 'the held check did not keep latest');
+
+  const app = await run({ items: [mailchimp], releases: { 'mailchimp@2.0.0': { api: 7 } } });
+  expect(app.commits.length === 0 && problemOf(app)?.detail === 'app mailchimp', 'a store app written to another contract was taken');
+
+  const behind = await run({ items: [venus, mailchimp, own], releases: { 'venus@1.3.0': { api: 6 }, 'mailchimp@2.0.0': { api: 6 } } });
+  expect(
+    behind.commits.length === 1 && !problemOf(behind),
+    'an installed release written to the contract (one behind the newest) was held',
+  );
+
+  const missing = await run({ items: [venus], releases: { 'venus@1.3.0': { missing: true } } });
+  expect(
+    missing.commits.length === 0 && /not in the store/.test(problemOf(missing)?.detail),
+    `a release the store does not know was recorded as ${JSON.stringify(problemOf(missing))}`,
+  );
+
+  const silent = await run({ items: [venus], releases: {} });
+  expect(
+    silent.commits.length === 0 && problemOf(silent)?.kind === 'contract' && /could not confirm/.test(problemOf(silent).detail),
+    `a silent store was recorded as ${JSON.stringify(problemOf(silent))}`,
+  );
+
+  const ownOnly = world({ items: [own] });
+  let asked = false;
+  ownOnly.deps.storeRelease = async () => void (asked = true);
+  await checkForUpdate(ownOnly.env, ownOnly.deps, T0);
+  expect(ownOnly.commits.length === 1 && !asked, 'a site with only its own app was held, or asked the store');
+
+  const unreadable = world({ items: [venus] });
+  const fetch = unreadable.deps.fetch;
+  unreadable.deps.fetch = async (url, init) =>
+    String(url).endsWith('.tgz') ? new Response(tarball({ 'package/CHANGELOG.md': CHANGELOG })) : fetch(url, init);
+  await checkForUpdate(unreadable.env, unreadable.deps, T0);
+  expect(unreadable.commits.length === 0 && problemOf(unreadable)?.kind === 'unreachable', 'unreadable contracts were taken on a guess');
+
+  const failing = world({ items: [venus] });
+  failing.deps.readStoreItems = async () => {
+    throw new Error('github');
+  };
+  await checkForUpdate(failing.env, failing.deps, T0);
+  expect(failing.commits.length === 0 && problemOf(failing)?.kind === 'unreachable', 'an unreadable site was taken');
+
+  // The Worker's own call of the store: one release, the site's key.
+  const calls = [];
+  const storeAnswering = (status, body) => async (url, init) => {
+    calls.push({ url: String(url), auth: init?.headers?.authorization });
+    if (status === 'throw') throw new Error('offline');
+    return new Response(JSON.stringify(body ?? {}), { status });
+  };
+  const keyed = { MORPHEME_STORE_KEY: 'key', MORPHEME_STORE_URL: 'https://store.example' };
+  const got = await releaseFor(keyed, 'theme_abc', '1.3.0', storeAnswering(200, { id: 'theme_abc', version: '1.3.0', api: 6 }));
+  expect(got?.api === 6, `a 200 gave ${JSON.stringify(got)}`);
+  expect(
+    calls[0]?.url === 'https://store.example/store/releases/theme_abc/1.3.0' && calls[0].auth === 'Bearer key',
+    `the call was ${JSON.stringify(calls[0])}`,
+  );
+  expect((await releaseFor(keyed, 'x', '1.0.0', storeAnswering(404)))?.missing === true, 'a 404 did not give missing');
+  expect((await releaseFor(keyed, 'x', '1.0.0', storeAnswering(500))) === null, 'a 500 did not give no answer');
+  expect((await releaseFor(keyed, 'x', '1.0.0', storeAnswering('throw'))) === null, 'an offline store did not give no answer');
+  expect((await releaseFor(keyed, 'x', '1.0.0', storeAnswering(200, { api: 'six' }))) === null, 'a 200 without an api number was taken');
+  const before = calls.length;
+  expect(
+    (await releaseFor({}, 'x', '1.0.0', storeAnswering(200, { api: 6 }))) === null && calls.length === before,
+    'a site without a store key asked the store',
+  );
+}
+
+// 14. No GitHub token: nothing is done, and the check says why (the KV is there to keep it). No KV: nothing, and no error.
+{
+  const w = world();
+  w.env = { PUSH: w.kv };
+  await checkForUpdate(w.env, w.deps, T0);
+  expect(w.commits.length === 0 && w.urls.length === 0, 'a site without a token went to npm or GitHub');
+  expect(
+    stored(w.kv, 'cms:checked')?.problem?.kind === 'no-token',
+    `no token was recorded as ${JSON.stringify(stored(w.kv, 'cms:checked'))}`,
+  );
+  const due = world();
+  due.env = { PUSH: due.kv };
+  await dailyCheck(due.env, due.deps, T0);
+  expect(stored(due.kv, 'cms:checked')?.problem?.kind === 'no-token', 'the daily check did not record a missing token');
+  const none = world();
+  expect((await dailyCheck({}, none.deps, T0)) === undefined && none.urls.length === 0, 'a site without KV did something');
 }
 
 if (problems.length) {

@@ -13,7 +13,7 @@ with Playwright named in the description (skill `material-3`).
 | Release | What |
 | :--- | :--- |
 | **0.18** | Steps 1 to 5: the shared globals, `Avatar`, `Card`, `List` and `ListItem`, and the site's cards and lists moved to them. It rides on 0.18's contract raise to 6 (the token rename): no extra raise. |
-| **0.18.1** | Away from Tailwind (`plans/2026-11-16-move-away-from-tailwind.md`, batches T01–T17 in `plans/2026-11-18-tailwind-batches.md`; contract 7, patch changesets, into `main` after the owner releases 0.18.0), **without** the card and list files below: 0.18 has already written them in plain CSS. |
+| **0.18.2** | Away from Tailwind (`plans/2026-11-16-move-away-from-tailwind.md`, batches T01–T17 in `plans/2026-11-18-tailwind-batches.md`; contract 7, patch changesets, into `main` after the owner releases 0.18.0), **without** the card and list files below: 0.18 has already written them in plain CSS. |
 | **0.19** | Step 6, the collection (lists and cards turn into each other), and step 7, viewports in the builder. |
 
 ## What 0.18 already has
@@ -114,7 +114,7 @@ A design: the Preview goes and the builder shows the page at M3's window sizes (
 
 - Steps 1 to 5 are one feature: their pull requests go into `feature/cards-lists`, cut from `0.18`, and the feature goes into
   `0.18` as one pull request when it is done (skill `pm`, *Feature branches and the way to `main`*). Step 2 can start at once.
-- The Tailwind session's plans (T11 and the block batches) drop the card and list files, and its release is 0.18.1.
+- The Tailwind session's plans (T11 and the block batches) drop the card and list files, and its release is 0.18.2.
 - The old `0.19` work: merge its open pull requests (#704, #818, #819) and `0.19` into `main` after `0.18` if possible, then cut
   a new `0.19` for steps 6 and 7 (owner, 17 November).
 

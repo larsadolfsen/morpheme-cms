@@ -11,15 +11,17 @@ import { cms as cmsEn } from '../src/i18n/en-US/cms';
 import { cms as cmsDa } from '../src/i18n/da-DK/cms';
 import { withCiBuild } from '../lib/build-command.mjs';
 import { addToLock, NeedsNpm } from '../lib/lockfile.mjs';
+import { contractHold, parseContracts } from '../lib/contractHold.mjs';
 import { checkDue, compareVersions, managedVersion, nextVersion, PACKAGE, siteZone, watchStep } from '../lib/cms-version.mjs';
 import { withInstallDefaults } from '../lib/npmrc.mjs';
 import { fileFromTar, gunzip, sectionsBetween } from '../lib/changelog.mjs';
 import { imageKey, notesFromTar, parseImagePath, withImageUrls } from '../lib/releaseNotes.mjs';
 import pkg from '../package.json';
 import { GitHubError } from './files.js';
-import { commitFiles, readFiles } from './github.js';
+import { commitFiles, readFiles, readStoreItems } from './github.js';
 import { json } from './not-found.js';
 import { notifyAll } from './push.js';
+import { releaseFor } from './store.js';
 import { mayEdit } from './session.js';
 
 /** The version this Worker itself runs. */
@@ -33,7 +35,15 @@ const NPM = 'https://registry.npmjs.org';
 const NPM_NAME = '@morphemecms%2fcms';
 const BUILD_APP = 'cloudflare-workers-and-pages';
 
-const defaultDeps = { readFiles, commitFiles, fetch: (...args) => fetch(...args), notify: notifyAll, mayEdit };
+const defaultDeps = {
+  readFiles,
+  readStoreItems,
+  storeRelease: releaseFor,
+  commitFiles,
+  fetch: (...args) => fetch(...args),
+  notify: notifyAll,
+  mayEdit,
+};
 
 /** The site's language for the commits: its own, else the same language, else Danish. */
 const siteTexts = () => {
@@ -99,6 +109,32 @@ async function tell(env, deps, key, version, error) {
   );
 }
 
+/**
+ * The theme or app installed from the store that the version cannot be shown to run (see contractHold), or null. The version's contracts are
+ * read from the lib/contracts.mjs in its npm tarball and the store says which contract each installed release is written to; throws when the tarball, the
+ * contracts or the site's folders cannot be read, and the store being silent holds: a version is never taken on a guess.
+ */
+async function heldByContract(env, deps, version) {
+  const manifest = await getJson(deps, `${NPM}/${NPM_NAME}/${version}`);
+  const res = await deps.fetch(manifest.dist.tarball);
+  if (!res.ok) throw new Error(`${res.status} tarball`);
+  const next = parseContracts(fileFromTar(await gunzip(new Uint8Array(await res.arrayBuffer())), 'package/lib/contracts.mjs'));
+  if (!next) throw new Error('contracts');
+  const items = await deps.readStoreItems(env, { apps: config.apps.folder, themes: config.themes });
+  // The store says which contract each installed release is written to; it is asked only for what came from the store.
+  const answers = new Map();
+  for (const { kind, id, record } of items) {
+    let version;
+    try {
+      version = JSON.parse(record ?? '').version;
+    } catch {
+      continue; // not from the store (a site's own folder)
+    }
+    answers.set(`${kind}:${id}`, typeof version === 'string' ? await deps.storeRelease(env, id, version) : null);
+  }
+  return contractHold(items, answers, next);
+}
+
 const putJson = (kv, key, value) => kv.put(key, JSON.stringify(value));
 
 /** Writes package.json and the lock for `version`, commits it and keeps `cms:update`. Throws NeedsNpm or a GitHubError. */
@@ -134,18 +170,18 @@ const versionsUnder = async (kv, prefix) => (await kv.list({ prefix })).keys.map
 /**
  * Each hour (the hourly cron, also on a site whose wrangler.jsonc is older than this): checks npm only when the day's check is
  * due (checkDue: once a day, from 03:00 in the site's time zone), else one KV read and nothing more. Staging is not slowed
- * down: its package.json asks for the tag `next`, which this never updates; it follows `next` by its deploy hook
- * (.github/workflows/staging-follows-next.yml).
+ * down: its package.json asks for the tag `next`, which this never updates; it follows `next` by its own Worker, which
+ * checks npm every hour and calls its deploy hook.
  */
 export async function dailyCheck(env, deps = defaultDeps, now = Date.now(), zone = siteZone(config)) {
-  if (!env.GITHUB_PUBLISH_TOKEN || !env.PUSH) return;
+  if (!env.PUSH) return; // nothing can be kept without it; the page says so (cmsStatus: kv)
   if (!checkDue(now, await env.PUSH.get('cms:checked', 'json'), zone)) return;
   return checkForUpdate(env, deps, now);
 }
 
 /** Asks npm for the newest version and takes it when it may (dailyCheck decides when). */
 export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) {
-  if (!env.GITHUB_PUBLISH_TOKEN || !env.PUSH) return;
+  if (!env.PUSH) return;
   const kv = env.PUSH;
   const update = await kv.get('cms:update', 'json');
   if (update?.state === 'waiting' || update?.state === 'undoing') return;
@@ -154,6 +190,7 @@ export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) 
   const record = (problem) =>
     putJson(kv, 'cms:checked', { at: iso(now), latest, ...(problem ? { problem } : {}), ...(before?.noChecks ? { noChecks: true } : {}) });
 
+  if (!env.GITHUB_PUBLISH_TOKEN) return record({ kind: 'no-token' });
   let site;
   try {
     site = await readSite(env, deps);
@@ -171,6 +208,23 @@ export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) 
   if (!next) return record();
   if (!(await kv.get(`cms:notes:${latest}`, 'json'))) await keepNotes(env, deps, managed.version, latest).catch(() => {});
   if (!next.auto) return record({ kind: next.why });
+  // A version whose contracts a theme or an app from the store is not written to is not taken by itself: the site would keep
+  // building, but lose that theme's or app's look. The owner presses Update (or the store has a newer version) when ready.
+  try {
+    const held = await heldByContract(env, deps, next.version);
+    if (held)
+      return record({
+        kind: 'contract',
+        detail: `${held.kind} ${held.id}${{ 'could-not-confirm': ': could not confirm', 'not-in-store': ': not in the store' }[held.why] ?? ''}`,
+        item: held.kind,
+        id: held.id,
+        why: held.why,
+        ...(held.has ? { has: held.has } : {}),
+        needs: held.needs,
+      });
+  } catch {
+    return record({ kind: 'unreachable' });
+  }
   try {
     await startUpdate(env, next.version, deps, now);
   } catch (e) {

@@ -54,7 +54,7 @@ Rule (owner, 2026-11-13): every icon is 24dp unless the component's M3 page prin
 
 | # | Where | What we have | What Material says (source) | Fix | Recorded |
 | - | ----- | ------------ | --------------------------- | --- | -------- |
-| 8 | 61 `text-sm`, 6 `text-xs`, 5 `text-base`, 63 `font-medium`, 6 `font-semibold` in `src/` and `theme/` | A loose size with a loose weight | m3.material.io/styles/typography/type-scale-tokens: a role sets size, line height, weight and tracking together. Only 12 role classes are used | large | partly (CSS sweep 9). Tailwind goes in 0.18.1 (`plans/2026-11-16-move-away-from-tailwind.md`); the card and list files are already plain CSS from the cards and lists plan, 18 Nov 2026 |
+| 8 | 61 `text-sm`, 6 `text-xs`, 5 `text-base`, 63 `font-medium`, 6 `font-semibold` in `src/` and `theme/` | A loose size with a loose weight | m3.material.io/styles/typography/type-scale-tokens: a role sets size, line height, weight and tracking together. Only 12 role classes are used | large | partly (CSS sweep 9). Tailwind goes in 0.18.2 (`plans/2026-11-16-move-away-from-tailwind.md`); the card and list files are already plain CSS from the cards and lists plan, 18 Nov 2026 |
 | 9 | 14px text inherits the page's 0.5px tracking: 326 elements at 14/20/400 with 0.5, 100 at 14/20/500 with 0.5, 204 at 14/20/500 with 0 | wrong tracking | Body medium is 14/20/400 with 0.25; label large and title small 14/20/500 with 0.1 | small | no |
 | 10 | Weight 600 on headings and labels (about 150 elements: "Main menu" 22/28/600, "Preview", list titles) | 600 | Baseline roles are weight 400 and 500; the label roles have a prominent weight of 700 (type page). M3 also has 15 emphasized styles with a higher weight; their weights could not be read (the page's token table did not parse), so the 600 is listed as in no baseline role, not as in no style | small | no |
 | 11 | Small buttons (152 measured) | line height 14px | Label large line height 20 | small | no |
@@ -223,7 +223,7 @@ M3 level with its shadow, through one global rule. `docs/superpowers/specs/2026-
 | 8 | Motion: the five hand-written animations, the fallback `--motion-*`, and the settle times | 18, 19, 20 | small |
 | 9 | Disabled and hover values: 38% and 10%, search bar hover 8%; the check rule (changed 18 Nov 2026: done as the five global state opacities of step 1 of the cards and lists plan) | 14, 15 | small |
 | 10 | Tap targets: the parts screen and field editors (the footer links are already their own pull request) | 7 | medium |
-| 11 | Type: loose Tailwind sizes and weights to the role classes, the inherited tracking, weight 600, small button and label line heights; screen by screen (changed 18 Nov 2026: belongs to the move away from Tailwind, 0.18.1) | 8 to 12 | large |
+| 11 | Type: loose Tailwind sizes and weights to the role classes, the inherited tracking, weight 600, small button and label line heights; screen by screen (changed 18 Nov 2026: belongs to the move away from Tailwind, 0.18.2) | 8 to 12 | large |
 | 12 | Spacing: the fractional rem values | 13 | small |
 | 13 | Words: "canceled", On/Off wording, then the long and passive texts | 24, 25, 27 | large, many small edits |
 
