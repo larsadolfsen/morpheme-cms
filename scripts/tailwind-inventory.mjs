@@ -1,7 +1,7 @@
 // The migration's progress meter (plan 2026-11-16-move-away-from-tailwind.md §1): what is left of Tailwind in the tree.
 //   node scripts/tailwind-inventory.mjs [--json] [--files]
 // It asks Tailwind's own design system (`tailwindcss`, installed until batch T16) which string in the markup is a valid utility, with the
-// repository's `@theme` blocks loaded, so a word like `flex` in a comment is not counted but `rounded-(--block-radius)` is. It counts
+// repository's `@theme` blocks loaded, so a word like `flex` in a comment is not counted but `rounded-(--mo-sys-block-radius)` is. It counts
 //   - utility uses in class attributes (the class, className and class:list attributes, also a class built by code inside their braces),
 //   - utility uses in strings of constants (in a .ts, .mjs or .js file, or outside the attributes in markup), reported apart,
 //   - `theme(--…)` uses, `@theme`, `@plugin`, `@source`, `@reference` and `@apply` in CSS, `--tw-` declarations, and `prose` in class attributes,
