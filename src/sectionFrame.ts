@@ -1,11 +1,11 @@
 // What the editor draws of an H1 or H2 section of a page or blog post: the dotted line at the start of each H2 section
-// (data-section-part=start), and, for a section with a colour, a box round all its parts as the site draws it
+// (data-section-part=start), the focus frame of the section the cursor is in (data-section-focus), and, for a section with a colour, a box round all its parts as the site draws it
 // (data-section-box=start|middle|end|only and data-section-color on each top-level node), and the image behind it (an image
 // box behind its parts, sized by placeBackdrops; data-section-width when it goes across the whole window). editor.css draws them. Exposes sectionFrame (a
 // Milkdown plugin). Uses lib/section-ranges.mjs, src/sectionBackdrop.mjs, src/sectionState.mjs and src/images.ts.
 import { $prose } from '@milkdown/kit/utils';
 import type { Node } from '@milkdown/kit/prose/model';
-import { Plugin } from '@milkdown/kit/prose/state';
+import { NodeSelection, Plugin, type Selection } from '@milkdown/kit/prose/state';
 import { Decoration, DecorationSet, type EditorView } from '@milkdown/kit/prose/view';
 import { drawnAddress, isSafeImage } from '../lib/section-marker.mjs';
 import { partKind, sectionPart, sectionRanges } from '../lib/section-ranges.mjs';
@@ -74,6 +74,35 @@ function sectionDecorations(doc: Node): Decoration[] {
   });
 }
 
+/** The focus frame (data-section-focus=start|middle|end|only on each top-level node of the section the cursor is in): editor.css draws it
+ *  only while the text itself has the focus, so the frame is gone when the cursor leaves. The section is the H1 or H2 section holding the
+ *  cursor; text before the first one is the page's top part; a page with none is one section. A selected block (a node selection) has its
+ *  own outline, so no section is marked then. */
+function focusDecorations(doc: Node, selection: Selection): Decoration[] {
+  if (selection instanceof NodeSelection || doc.childCount === 0) return [];
+  const nodes: Node[] = [];
+  doc.forEach((node) => void nodes.push(node));
+  const at = Math.min(selection.$from.index(0), nodes.length - 1);
+  const ranges: Range[] = sectionRanges(nodes.map((node) => ({ kind: partKind(node.type.name, node.attrs.level) })));
+  // Text before the first section is the top part; the gaps are none, a range runs to the next one's start.
+  const all: Range[] =
+    ranges.length && ranges[0].from > 0
+      ? [{ from: 0, to: ranges[0].from - 1 }, ...ranges]
+      : ranges.length
+        ? ranges
+        : [{ from: 0, to: nodes.length - 1 }];
+  const range = all.find((r) => at >= r.from && at <= r.to);
+  if (!range) return [];
+  const out: Decoration[] = [];
+  let pos = 0;
+  nodes.forEach((node, index) => {
+    if (index >= range.from && index <= range.to)
+      out.push(Decoration.node(pos, pos + node.nodeSize, { 'data-section-focus': sectionPart(index, range) }));
+    pos += node.nodeSize;
+  });
+  return out;
+}
+
 // Puts each image box over its section: from the top of its first part to the bottom of its last (the box is absolute in the text).
 function placeBackdrops(view: EditorView) {
   const host = view.dom as HTMLElement;
@@ -102,7 +131,10 @@ export const sectionFrame = (on: boolean) =>
   $prose(
     () =>
       new Plugin({
-        props: { decorations: on ? ({ doc }) => DecorationSet.create(doc, sectionDecorations(doc)) : () => null },
+        props: {
+          decorations: ({ doc, selection }) =>
+            DecorationSet.create(doc, [...(on ? sectionDecorations(doc) : []), ...focusDecorations(doc, selection)]),
+        },
         view: (view) => {
           let frame = 0;
           const place = () => {

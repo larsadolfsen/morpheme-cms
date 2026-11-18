@@ -19,14 +19,14 @@
 // it) steps through the states, up one at a time and from the highest back to the lowest (never to hidden), and its
 // close button hides it. Its resize button (`resizeLabel`, [data-bottom-sheet-resize]) does what a tap on the handle
 // does and has aria-expanded true while the sheet is above its lowest stop; its collapse button (`collapseLabel`,
-// [data-bottom-sheet-collapse]) sets the lowest stop, moves focus on to the handle, and shows (ui.css) only under
+// [data-bottom-sheet-collapse]) sets the lowest stop, moves focus on to the handle, and shows (bottom-sheet.css) only under
 // data-full, which is set while the sheet is expanded and as high as its max-height lets it be (also when the window
 // is resized). The decisions are sheet-stops.mjs's (tested); this only measures and applies them.
 // From the medium breakpoint a sheet with data-wide 'side-sheet' (the default; BottomSheet's `wide`) is a side sheet
-// (ui.css) and this does nothing to it: the handle, the header and the buttons do not act. It follows the media query:
+// (bottom-sheet.css) and this does nothing to it: the handle, the header and the buttons do not act. It follows the media query:
 // when the window gets that wide it drops a drag and the height it was dragged to, and when it gets narrower it applies
 // the marks again.
-// How high each state is, is ui.css's (data-state), read without being painted, so a theme sets it there. It gives its
+// How high each state is, is bottom-sheet.css's (data-state), read without being painted, so a theme sets it there. It gives its
 // state() and set(state) to show it in another (also again after it is hidden). The height follows with the site's
 // motion scheme; with reduced motion it changes at once.
 import { animate } from 'motion';
@@ -43,7 +43,7 @@ export type StandardBottomSheetControls = { state: () => BottomSheetState; set: 
 /** Lifts a modal sheet (a <dialog>, fixed to the layout viewport) above the on-screen keyboard: a phone's keyboard
  * shrinks only the visual viewport, so the sheet would stay under it or leave a strip of the page between. It sets
  * --keyboard-inset (how far the visual viewport's bottom is above the layout viewport's) and --visual-height (what is
- * visible) on the sheet and data-keyboard while the keyboard is up; ui.css lifts the sheet by the first, caps its height
+ * visible) on the sheet and data-keyboard while the keyboard is up; bottom-sheet.css lifts the sheet by the first, caps its height
  * by the second (the content scrolls inside) and the focused field is kept in view. A pinch-zoom is not a keyboard. It
  * returns what stops following. Used by bottomSheet() and by the editor's BottomSheet (src/ui.tsx). */
 export function followKeyboard(sheet: HTMLElement): () => void {
@@ -85,7 +85,7 @@ export function bottomSheet(sheet: HTMLDialogElement): BottomSheetControls {
   const panel = sheet.querySelector<HTMLElement>('[data-bottom-sheet-container]')!;
   const handle = sheet.querySelector<HTMLElement>('[data-bottom-sheet-handle]');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // On a computer (from the medium breakpoint) what data-wide says (ui.css): a dialog in the middle fades, a side sheet
+  // On a computer (from the medium breakpoint) what data-wide says (bottom-sheet.css): a dialog in the middle fades, a side sheet
   // slides in from the end, a sheet slides up; the dialog and the side sheet have no handle to drag.
   const wide = matchMedia(atLeast('medium'));
   const kind = () =>
@@ -175,11 +175,11 @@ export function standardBottomSheet(sheet: HTMLElement): StandardBottomSheetCont
   const collapseButton = sheet.querySelector<HTMLElement>('[data-bottom-sheet-collapse]');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const state = () => (sheet.dataset.state as BottomSheetState | undefined) ?? 'collapsed';
-  // A side sheet from the medium breakpoint (data-wide, ui.css): nothing here acts while it is one.
+  // A side sheet from the medium breakpoint (data-wide, bottom-sheet.css): nothing here acts while it is one.
   const wideQuery = matchMedia(atLeast('medium'));
   const asSideSheet = () => wideQuery.matches && sheet.dataset.wide === 'side-sheet';
 
-  // How high it is in a state, as ui.css draws it: set, measured and put back before anything is painted.
+  // How high it is in a state, as bottom-sheet.css draws it: set, measured and put back before anything is painted.
   function heightIn(s: BottomSheetState) {
     if (s === 'hidden') return 0;
     const was = { state: sheet.dataset.state, height: sheet.style.height };

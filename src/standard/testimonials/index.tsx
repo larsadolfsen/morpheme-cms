@@ -7,6 +7,7 @@ import { config } from '@site/config';
 import { defineBlock, names, withTags, type BlockData, type BlockProps } from '../../blocks';
 import { t } from '../../i18n';
 import { headFields } from '../head';
+import { columnsField } from '../columns';
 
 /** The tags of these testimonials, as buttons to filter by (List.tsx), each once, in the order they come. */
 export const tagsOf = (list: { categories?: string[] }[]) => [...new Set(list.flatMap((t) => t.categories ?? []))];
@@ -69,6 +70,7 @@ export default defineBlock({
       hint: t.blocks.testimonials.filterHint,
       only: { field: 'layout', is: ['list'] },
     },
+    columnsField({ field: 'layout', is: ['list'] }),
     { name: 'show', label: t.blocks.testimonials.show, type: 'select', required: true, default: 'categories', options: showOptions },
     {
       name: 'categories',

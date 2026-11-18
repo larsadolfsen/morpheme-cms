@@ -130,6 +130,7 @@ import trashIcon from '@phosphor-icons/core/assets/regular/trash.svg?raw';
 import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
 // ProseMirror's own styles: keep its invisible helpers (around images, at the end of lines) out of the layout.
 import '@milkdown/kit/prose/view/style/prosemirror.css';
+import { safeImageSrc } from '../lib/safe-url.mjs';
 
 // parts: the text in parts, for a fixed page's sections (partsOf in markdown.mjs). h1: the text of the page's H1 (its first
 // heading, without marks), null without one, undefined before the editor is made; setH1: makes it say so (a new H1 at the
@@ -1163,7 +1164,8 @@ function imageCard(
     box.style.cssText = cut.box;
   }
   const img = box.appendChild(document.createElement('img'));
-  img.src = shownAt(src);
+  const safeSrc = safeImageSrc(shownAt(src));
+  if (safeSrc) img.src = safeSrc;
   img.alt = '';
   if (cut) img.style.cssText = cut.img;
   if (node.attrs.title) img.title = node.attrs.title;
@@ -1403,7 +1405,7 @@ function textButtonWidth(label: string): number {
   if (width === undefined) {
     const ctx = document.createElement('canvas').getContext('2d');
     const root = getComputedStyle(document.body);
-    const given = root.getPropertyValue('--type-label-large-size').trim();
+    const given = root.getPropertyValue('--mo-sys-typescale-label-large-size').trim();
     const px = given.endsWith('rem') ? parseFloat(given) * 16 : parseFloat(given) || 14;
     if (ctx) ctx.font = `500 ${px}px ${root.fontFamily}`;
     width = Math.ceil((ctx?.measureText(label).width ?? label.length * 8) + 24);
@@ -1581,7 +1583,7 @@ function blockCard(
   let focus: Focus | null = null;
   // A grid (the Table): the column of the active cell.
   let col: number | null = null;
-  // A folding block (Questions and answers, Segmented list): the rows the owner opened or closed with the chevron, by row. A view state only: it is
+  // A folding block (Questions and answers, List - Expand): the rows the owner opened or closed with the chevron, by row. A view state only: it is
   // not in the block's content, the Markdown or undo, and typing redraws the block without losing it. A row not here is open while it is the active one.
   const folds: Record<number, boolean> = {};
   // Its tools in the text's one bar (blockBar.ts), made below: shown while a row is active.
@@ -1660,6 +1662,7 @@ function blockCard(
               }))}
               onPart={rowParts(node.attrs.props) ? (part) => pickPart(part) : undefined}
               rows={dynamic.rows}
+              oneColumn={node.attrs.props.columns === false}
               line={fromLine(node.attrs.props, ask.data)[0] ?? ''}
               empty={dynamic.rows.length === 0}
               editList={listPageOf(node.attrs.props) ? () => (location.hash = listPageOf(node.attrs.props)!) : undefined}
@@ -1723,17 +1726,32 @@ function blockCard(
     flushSync(() => root.render(image));
   };
   // A block just put in (a new List) starts with its first row active and the cursor in it (known by its props, which the new node keeps).
-  // The sheet it came from is closing and gives the focus back to what had it: wait until no sheet is open.
+  // The sheet it came from is closing and gives the focus back to what had it: start once it has closed (its `close` event, or a dialog that
+  // leaves the page), never by a timer's guess: a start while it is still open loses the focus to the button that opened it.
   const startAt = inline ? fresh.get(node.attrs.props) : undefined;
+  let stopStart = () => {};
   if (startAt !== undefined) {
     fresh.delete(node.attrs.props);
-    let tries = 0;
     const start = () => {
-      if (document.querySelector('dialog[open]') && tries++ < 30) return void setTimeout(start, 50);
       const row = Math.max(0, Math.min(startAt, rows().length - 1));
       change({ active: row, ...(spec!.grid ? { col: 0 } : {}), focus: { row, field: spec!.fields[0] } });
     };
-    setTimeout(start);
+    const waiting = () => !!document.querySelector('dialog[open]');
+    const check = () => {
+      if (waiting()) return;
+      stopStart();
+      start();
+    };
+    if (waiting()) {
+      const watcher = new MutationObserver(check);
+      watcher.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['open'] });
+      document.addEventListener('close', check, true);
+      stopStart = () => {
+        watcher.disconnect();
+        document.removeEventListener('close', check, true);
+        stopStart = () => {};
+      };
+    } else setTimeout(start);
   }
   draw();
   cards.add(draw);
@@ -2303,6 +2321,7 @@ function blockCard(
     stopEvent: () => true,
     ignoreMutation: () => true,
     destroy: () => {
+      stopStart();
       close();
       blockBar.unpoint(pointer);
       selectable.destroy();
@@ -3371,7 +3390,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       </Menu>
       <div
         ref={root}
-        className={`editor-text prose max-w-none rounded-b-panel border-x border-b border-outline-variant px-(--grid-margin) py-4 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
+        className={`editor-text prose max-w-none rounded-b-panel border-x border-b border-outline-variant px-(--mo-sys-grid-margin) py-4 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
         style={
           { '--editor-gap-text': JSON.stringify(t.text.typeHere), '--editor-empty-text': JSON.stringify(t.text.emptyHint) } as CSSProperties
         }

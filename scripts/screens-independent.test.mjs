@@ -1,11 +1,16 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { test } from 'node:test';
 
 // check:screens runs on every site (npx morpheme check:screens), and a site is not the demo: a row it opens in the pages or posts
 // list is one the check makes itself (FIXTURE_PAGE, "Check post") or the front page, never a title only the demo or the starter has
 // (a site without "Get started" timed out after 30 s there, and nothing after it ran).
-const source = readFileSync(new URL('./editor-screens.mjs', import.meta.url), 'utf8');
+// The check is the runner (editor-screens.mjs) and its units (screens/*.mjs and screens/support/*.mjs): the rules cover all of them.
+const files = [new URL('./editor-screens.mjs', import.meta.url)];
+for (const dir of ['./screens/', './screens/support/'])
+  for (const name of readdirSync(new URL(dir, import.meta.url)).sort())
+    if (name.endsWith('.mjs') && !name.endsWith('.test.mjs')) files.push(new URL(`${dir}${name}`, import.meta.url));
+const source = files.map((file) => readFileSync(file, 'utf8')).join('\n');
 const ALLOWED = ['FIXTURE_PAGE', 'UNLISTED_POST', "'Check post'", "'Home'"];
 
 test('The screens check opens only rows it has made itself or the front page', () => {

@@ -1,0 +1,21 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .image-grid {
+    --mo-comp-grid-columns: 2;
+  }
+}
+@layer components {
+  @media (width >= theme(--breakpoint-medium)) {
+    .image-grid {
+      --mo-comp-grid-columns: 3;
+    }
+  }
+}
+@layer components {
+  @media (width >= theme(--breakpoint-large)) {
+    .image-grid {
+      --mo-comp-grid-columns: 4;
+    }
+  }
+}

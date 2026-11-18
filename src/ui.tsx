@@ -126,12 +126,13 @@ import { swipeCloses } from '../lib/drawer-swipe.mjs';
 import { menuLayout } from '../lib/menu-layout.mjs';
 import { isTypeAheadKey, nextByLetter } from '../lib/menuTypeAhead.mjs';
 import { ariaShortcut, shortcutText } from './shortcuts';
+import { safeImageSrc } from '../lib/safe-url.mjs';
 
 // The parts Material 3 has (a button, an icon button, a chip, a carousel …) are the theme's UI parts
 // (packages/editor/theme/ui/, through themeUi.ts), the same the site draws, in the theme's design (its ui.css and
 // styles/global.css): here only what the editor gives them (its icons, what a tap does). The editor's own parts (the
-// SEO rating, the colour field, the form's layout …) take the theme's design from its variables (--block-radius,
-// --block-radius-small, --block-shadow and the site's colours).
+// SEO rating, the colour field, the form's layout …) take the theme's design from its variables (--mo-sys-block-radius,
+// --mo-sys-block-radius-small, --mo-sys-block-shadow and the site's colours).
 
 // ---------------------------------------------------------------------------------------------------
 // Buttons
@@ -361,8 +362,8 @@ const closeToolbar = {
   '--toolbar-gap': '0',
   '--toolbar-docked-padding-block': '0',
   '--toolbar-docked-padding-inline': '0',
-  '--toolbar-docked-line-width': '1px',
-  '--toolbar-docked-line': 'var(--color-outline-variant)',
+  '--mo-comp-toolbar-docked-line-width': '1px',
+  '--mo-comp-toolbar-docked-line': 'var(--color-outline-variant)',
 } as CSSProperties;
 
 // A tool's size in the text's bar: 44 by 44 dp with a 20 dp icon, outside the user's density choice (owner decision, 13 Nov; docs/material-deviations.md).
@@ -373,7 +374,10 @@ const toolbarTextSize = {
   paddingInline: '0',
   whiteSpace: 'nowrap',
 } as CSSProperties;
-const toolbarSize = { '--icon-button-size': '2.75rem', '--icon-button-icon-size': '1.25rem' } as CSSProperties;
+const toolbarSize = {
+  '--mo-comp-icon-button-small-container-height': '2.75rem',
+  '--mo-comp-icon-button-small-icon-size': '1.25rem',
+} as CSSProperties;
 // A tool with a menu there: as high as the others, its icon where an icon button's is (0.625rem in from its start) and
 // the arrow close after it, not a text button's room round a label it does not have (as over the selection, editor.css).
 const toolbarMenuSize = {
@@ -382,7 +386,7 @@ const toolbarMenuSize = {
   justifyContent: 'center',
   paddingInline: '0.125rem',
   gap: '0.125rem',
-  '--button-icon-size': '1.25rem',
+  '--mo-comp-button-medium-icon-size': '1.25rem',
 } as CSSProperties;
 
 // ---------------------------------------------------------------------------------------------------
@@ -772,7 +776,7 @@ function ColorSheet({
           aria-valuemax={100}
           aria-valuenow={Math.round(hsv.s * 100)}
           aria-valuetext={s.shadeValue(percent(hsv.s), percent(hsv.v))}
-          className={`relative h-48 rounded-(--block-radius) ${ring}`}
+          className={`relative h-48 rounded-(--mo-sys-block-radius) ${ring}`}
           style={{ background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${hsv.h} 100% 50%))` }}
           {...drag((x, y) => setHsv((c) => ({ ...c, s: x, v: 1 - y })))}
           onKeyDown={(e) =>
@@ -808,7 +812,7 @@ function ColorSheet({
           <span className={`${thumb} top-1/2 size-8`} style={{ left: `${(hsv.h / 360) * 100}%`, background: `hsl(${hsv.h} 100% 50%)` }} />
         </div>
         <div className="flex items-start gap-3">
-          <div className={`flex h-11 w-24 shrink-0 overflow-hidden rounded-(--block-radius-small) ${swatchEdge}`}>
+          <div className={`flex h-11 w-24 shrink-0 overflow-hidden rounded-(--mo-sys-block-radius-small) ${swatchEdge}`}>
             <span role="img" aria-label={s.before} title={s.before} className="flex-1" style={{ background: value }} />
             <span role="img" aria-label={s.after} title={s.after} className="flex-1" style={{ background: color }} />
           </div>
@@ -1375,7 +1379,9 @@ const PAGE = 100;
 export function ImagePick({ id, src, onPick, onRemove }: { id?: string; src?: string; onPick: () => void; onRemove?: () => void }) {
   return (
     <div className="flex items-center gap-4">
-      {src && <img src={src} alt="" className="size-20 shrink-0 rounded-(--block-radius) object-cover" />}
+      {safeImageSrc(src) && (
+        <img src={safeImageSrc(src)} alt="" className="size-20 shrink-0 rounded-(--mo-sys-block-radius) object-cover" />
+      )}
       <Button id={id} kind="outlined" size="small" onClick={onPick}>
         {src ? t.forms.changeImage : t.forms.pickImage}
       </Button>
@@ -1916,8 +1922,8 @@ export function ChoiceCards<T extends string>({
                 disabled
                   ? 'cursor-default opacity-50'
                   : chosen
-                    ? 'cursor-pointer text-on-secondary-container [--card-outlined-line:var(--color-accent)] [--card-outlined-surface:var(--color-secondary-container)]'
-                    : 'cursor-pointer hover:[--card-outlined-surface:var(--color-surface-container-high)]'
+                    ? 'cursor-pointer text-on-secondary-container [--mo-comp-outlined-card-container-color:var(--color-secondary-container)] [--mo-comp-outlined-card-outline-color:var(--color-accent)]'
+                    : 'cursor-pointer hover:[--mo-comp-outlined-card-container-color:var(--color-surface-container-high)]'
               }`}
             >
               <input
@@ -1954,7 +1960,7 @@ export const subListClass = `${siteListClass} ml-5 border-l border-outline-varia
 export type RowTone = 'accent' | 'delete' | 'muted' | 'sub';
 const toneClass: Record<RowTone, string> = {
   accent: 'text-primary',
-  delete: 'justify-center text-center font-medium text-(--mo-error)',
+  delete: 'justify-center text-center font-medium text-(--mo-sys-color-error)',
   muted: 'text-on-surface-variant',
   sub: 'text-on-surface/80',
 };
@@ -2201,7 +2207,7 @@ export function Menu({
         Object.assign(menu.current.style, {
           width: 'max-content',
           minWidth: `${width}px`,
-          maxWidth: `max(${width}px, var(--menu-width, 18rem))`,
+          maxWidth: `max(${width}px, var(--mo-comp-menu-width, 18rem))`,
         });
       }
       sitePlaceMenu(menu.current, anchor);
@@ -2397,7 +2403,7 @@ export function MenuRow<T extends string>({
 
 /** The fields of a sheet, between SheetTitle and SheetActions, scrolled when there are many. */
 export function SheetBody({ onSubmit, children }: { onSubmit?: (e: FormEvent<HTMLFormElement>) => void; children: ReactNode }) {
-  const className = 'min-h-0 flex-1 space-y-5 overflow-y-auto px-(--grid-margin) pt-2 pb-4';
+  const className = 'min-h-0 flex-1 space-y-5 overflow-y-auto px-(--mo-sys-grid-margin) pt-2 pb-4';
   return onSubmit ? (
     <form className={className} onSubmit={onSubmit}>
       {children}
@@ -2464,7 +2470,7 @@ export function SheetActions({
   return (
     <div className="shrink-0">
       <SiteDivider />
-      <div className="flex items-center gap-2 px-(--grid-margin) py-3">
+      <div className="flex items-center gap-2 px-(--mo-sys-grid-margin) py-3">
         {start}
         <Button kind="outlined" className="ml-auto" onClick={onCancel}>
           {cancel ?? t.common.cancel}
@@ -2505,10 +2511,10 @@ export function Preview({ children }: { children: ReactNode }) {
 export function ColorsPreview({ colors, title }: { colors: Record<string, string>; title: string }) {
   const p = t.colors.preview;
   const vars = {
-    ...Object.fromEntries(Object.entries(colors).map(([name, value]) => [`--mo-${name}`, value])),
-    '--button-filled-surface': 'var(--mo-primary)',
-    '--button-filled-hover': 'color-mix(in srgb, var(--mo-on-primary) 8%, var(--mo-primary))',
-    '--button-filled-text': 'var(--mo-on-primary)',
+    ...Object.fromEntries(Object.entries(colors).map(([name, value]) => [`--mo-sys-color-${name}`, value])),
+    '--mo-comp-button-filled-container-color': 'var(--mo-sys-color-primary)',
+    '--mo-comp-button-filled-hover': 'color-mix(in srgb, var(--mo-sys-color-on-primary) 8%, var(--mo-sys-color-primary))',
+    '--mo-comp-button-filled-label-text-color': 'var(--mo-sys-color-on-primary)',
   } as CSSProperties;
   return (
     <div
@@ -2573,7 +2579,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
     <>
       <ul
         aria-label={label}
-        className={`grid overflow-hidden rounded-(--block-radius) ${swatchEdge}`}
+        className={`grid overflow-hidden rounded-(--mo-sys-block-radius) ${swatchEdge}`}
         style={{ gridTemplateColumns: `repeat(${colors.length}, minmax(0, 1fr))` }}
       >
         {colors.map(({ color, name, disabled, locked, onChange, onLock }, i) => {
@@ -2582,7 +2588,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
           const vars = {
             background: color,
             color: text,
-            '--icon-button-standard-text': text,
+            '--mo-comp-icon-button-standard-icon-color': text,
             '--icon-button-standard-selected-text': text,
           } as CSSProperties;
           return (
@@ -2847,9 +2853,9 @@ export function LoadingIndicator({ children }: { children: ReactNode }) {
 
 // The theme's loading indicator as big as the text it is before, in its colour (on a filled button too).
 const inText = {
-  '--loading-indicator-size': '1.25em',
-  '--loading-indicator-shape-size': '1.125em',
-  '--loading-indicator-colour': 'currentColor',
+  '--mo-comp-loading-indicator-active-indicator-size': '1.25em',
+  '--mo-comp-loading-indicator-shape-size': '1.125em',
+  '--mo-comp-loading-indicator-active-indicator-color': 'currentColor',
 } as CSSProperties;
 
 /** What a list or a screen says when it has nothing to show (No …), or while it is fetched (`busy`,
@@ -2917,7 +2923,7 @@ export function FoldSection({
             id={`${id}-title`}
             aria-expanded={open}
             aria-controls={`${id}-body`}
-            className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--block-radius-small) px-3 py-[1.125rem] text-left text-title-large font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--mo-sys-block-radius-small) px-3 py-[1.125rem] text-left text-title-large font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
             onClick={onToggle}
           >
             <span className="min-w-0 flex-1 [text-box:trim-both_cap_alphabetic]">{title}</span>
@@ -2956,13 +2962,21 @@ export type Check = { ok: boolean; text: string; fix?: string };
 
 // The ring's colours for each status, as whole class names (so Tailwind finds them).
 const statusTones = {
-  good: { fill: 'fill-(--editor-status-good-surface)', stroke: 'stroke-(--editor-status-good)', text: 'text-(--editor-status-good-text)' },
-  average: {
-    fill: 'fill-(--editor-status-average-surface)',
-    stroke: 'stroke-(--editor-status-average)',
-    text: 'text-(--editor-status-average-text)',
+  good: {
+    fill: 'fill-(--mo-comp-editor-status-good-surface)',
+    stroke: 'stroke-(--mo-comp-editor-status-good)',
+    text: 'text-(--mo-comp-editor-status-good-text)',
   },
-  bad: { fill: 'fill-(--editor-status-bad-surface)', stroke: 'stroke-(--editor-status-bad)', text: 'text-(--editor-status-bad-text)' },
+  average: {
+    fill: 'fill-(--mo-comp-editor-status-average-surface)',
+    stroke: 'stroke-(--mo-comp-editor-status-average)',
+    text: 'text-(--mo-comp-editor-status-average-text)',
+  },
+  bad: {
+    fill: 'fill-(--mo-comp-editor-status-bad-surface)',
+    stroke: 'stroke-(--mo-comp-editor-status-bad)',
+    text: 'text-(--mo-comp-editor-status-bad-text)',
+  },
 };
 
 /** The score of checks from 0 to 100: the share that is fine (100 with none). */
@@ -3039,9 +3053,9 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
   }, [seen, score]);
   const mark = (ok: boolean) =>
     ok ? (
-      <span aria-hidden="true" className="mx-0.5 size-3 shrink-0 rounded-full bg-(--editor-status-good)" />
+      <span aria-hidden="true" className="mx-0.5 size-3 shrink-0 rounded-full bg-(--mo-comp-editor-status-good)" />
     ) : (
-      <svg aria-hidden="true" viewBox="0 0 12 12" className="size-4 shrink-0 fill-(--editor-status-bad)">
+      <svg aria-hidden="true" viewBox="0 0 12 12" className="size-4 shrink-0 fill-(--mo-comp-editor-status-bad)">
         <path d="M6 1 11.5 11H.5Z" />
       </svg>
     );
@@ -3109,7 +3123,7 @@ export function SharePreview({ image, domain, title, description }: { image: str
   return (
     <figure aria-label={t.forms.sharePreview} className={`${siteCardClass('outlined')} max-w-[500px] overflow-hidden p-0`}>
       <img
-        src={image}
+        src={safeImageSrc(image)}
         alt=""
         className={`aspect-[1.91/1] w-full bg-outline-variant/50 object-cover ${tall ? 'object-[50%_20%]' : ''}`}
         onLoad={(e) => setTall(e.currentTarget.naturalHeight >= e.currentTarget.naturalWidth)}
@@ -3295,7 +3309,7 @@ export function SectionList({
               type="button"
               aria-current={id === value ? 'location' : undefined}
               onClick={() => onChange(id)}
-              className="section-list-item flex w-full items-center gap-2 rounded-(--block-radius-small) px-2 py-2 text-start text-on-surface-variant transition-colors hover:text-on-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none aria-[current=location]:text-primary"
+              className="section-list-item flex w-full items-center gap-2 rounded-(--mo-sys-block-radius-small) px-2 py-2 text-start text-on-surface-variant transition-colors hover:text-on-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none aria-[current=location]:text-primary"
             >
               <span className="min-w-0">{label}</span>
               {badge ? <SiteBadge count={badge === true ? undefined : badge} /> : null}
@@ -3313,7 +3327,7 @@ export function SectionList({
  * scrolls. Its place is FormColumns' `pane`, against the window's end edge; below large it is not drawn. */
 export function SectionPane({ caption, title, children }: { caption: string; title: string; children: ReactNode }) {
   return (
-    <div className={`${siteCardClass('outlined')} max-h-[calc(100dvh-2*var(--section-pane-gap))] overflow-y-auto`}>
+    <div className={`${siteCardClass('outlined')} max-h-[calc(100dvh-2*var(--mo-sys-section-pane-gap))] overflow-y-auto`}>
       <p className="section-pane-caption m-0 text-on-surface-variant">{caption}</p>
       <h2 className="section-pane-title m-0 mb-3 text-on-surface">{title}</h2>
       {children}
@@ -3386,7 +3400,7 @@ export function MainDrawer({
 // `footer` is the bottom slot: the destinations' box grows to fill the rail, and the slot (the last child in it) is pushed to its end.
 function MainRail({ label, onOpen, footer, children }: { label: string; onOpen: () => void; footer?: ReactNode; children: ReactNode }) {
   return (
-    <aside className="editor-main-rail-frame sticky top-0 z-10 h-dvh shrink-0 self-start bg-(--navigation-rail-surface,var(--mo-surface)) pt-[env(safe-area-inset-top)]">
+    <aside className="editor-main-rail-frame sticky top-0 z-10 h-dvh shrink-0 self-start bg-(--mo-comp-navigation-rail-surface,var(--mo-sys-color-surface)) pt-[env(safe-area-inset-top)]">
       <SiteNavigationRail
         label={label}
         menuLabel={t.library.openMenu}
@@ -3412,7 +3426,12 @@ function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header
     <>
       <div className="editor-main-drawer-header flex min-h-(--top-app-bar-height,4rem) items-center gap-1 p-(--navigation-drawer-item-padding,0_1rem) py-0 ps-0">
         <div className="min-w-0 flex-1">{header}</div>
-        <MenuButton label={t.library.closeMenu} open onClick={onClick} className="-me-[calc((var(--icon-button-width)-1.5rem)/2)]" />
+        <MenuButton
+          label={t.library.closeMenu}
+          open
+          onClick={onClick}
+          className="-me-[calc((var(--mo-comp-icon-button-width)-1.5rem)/2)]"
+        />
       </div>
       <SiteDivider kind="middle-inset" className="mb-4" />
     </>
@@ -3801,7 +3820,7 @@ export function FormColumns({
   side?: ReactNode;
   cards?: boolean;
   sticky?: boolean;
-  /** A SectionPane, on large and wider screens against the window's end edge under the top bar (--section-pane-width
+  /** A SectionPane, on large and wider screens against the window's end edge under the top bar (--mo-sys-section-pane-width
    * wide, in an absolute strip along the content that its card sticks in while the form scrolls; editor.css lets the content column keep clear of it); below large nothing.
    * Instead of first and side. */
   pane?: ReactNode;
@@ -3819,8 +3838,8 @@ export function FormColumns({
       <div className="min-w-0 space-y-6 large:col-start-1 large:row-span-2 large:row-start-1">{main}</div>
       {side && <div className={`${right} ${first ? 'large:row-start-2' : 'large:row-span-2 large:row-start-1'}`}>{side}</div>}
       {pane && (
-        <div className="editor-section-pane hidden large:absolute large:inset-y-0 large:end-0 large:z-10 large:block large:w-(--section-pane-width) large:pe-(--section-pane-gap)">
-          <div className="large:sticky large:top-(--section-pane-gap) large:mt-(--section-pane-gap)">{pane}</div>
+        <div className="editor-section-pane hidden large:absolute large:inset-y-0 large:end-0 large:z-10 large:block large:w-(--mo-sys-section-pane-width) large:pe-(--mo-sys-section-pane-gap)">
+          <div className="large:sticky large:top-(--mo-sys-section-pane-gap) large:mt-(--mo-sys-section-pane-gap)">{pane}</div>
         </div>
       )}
     </div>
@@ -3843,7 +3862,12 @@ export function LeadingIcon({ icon: Glyph, selected = false, children }: { icon?
  * "Pages"). `alt` empty when the row's text says what it is. */
 export function LeadingImage({ src, alt = '' }: { src: string; alt?: string }) {
   return (
-    <img src={src} alt={alt} loading="lazy" className="size-10 rounded-(--block-radius-small) bg-surface-container-high object-cover" />
+    <img
+      src={safeImageSrc(src)}
+      alt={alt}
+      loading="lazy"
+      className="size-10 rounded-(--mo-sys-block-radius-small) bg-surface-container-high object-cover"
+    />
   );
 }
 
@@ -3852,7 +3876,7 @@ export type TokenKind = 'shape' | 'elevation' | 'font' | 'color';
 
 /** A sample of one of the theme's design tokens before its name in a row, as a ListItem's `leading`, beside its first
  * two lines as an icon,
- * drawn with the token itself (`value`, its CSS variable as CSS: `var(--radius)`), so it shows what the theme sets: a corner with its radius
+ * drawn with the token itself (`value`, its CSS variable as CSS: `var(--mo-sys-radius)`), so it shows what the theme sets: a corner with its radius
  * (shape), a surface with its shadow (elevation), "Aa" in its font (font; in `weight`, for a type role) and a round of its
  * colour (color). Material 3 has none; the editor's own. */
 export function LeadingToken({ kind, value, weight }: { kind: TokenKind; value: string; weight?: string }) {
@@ -3862,7 +3886,7 @@ export function LeadingToken({ kind, value, weight }: { kind: TokenKind; value: 
         <span className="size-10 border-t-2 border-l-2 border-primary bg-surface-container-high" style={{ borderTopLeftRadius: value }} />
       )}
       {kind === 'elevation' && (
-        <span className="size-8 rounded-(--block-radius) bg-surface-container-lowest" style={{ boxShadow: value }} />
+        <span className="size-8 rounded-(--mo-sys-block-radius) bg-surface-container-lowest" style={{ boxShadow: value }} />
       )}
       {kind === 'font' && (
         <span className="text-2xl leading-none" style={{ fontFamily: value, fontWeight: weight }}>

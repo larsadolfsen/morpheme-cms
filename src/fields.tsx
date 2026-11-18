@@ -245,12 +245,12 @@ export function HeadImage(props: Props) {
         type="button"
         onClick={pick}
         aria-label={text ? t.forms.changeImage : t.forms.pickImage}
-        className="relative block aspect-[16/10] w-full overflow-hidden rounded-(--theme-picture-radius) bg-surface-container medium:aspect-[16/9]"
+        className="relative block aspect-[16/10] w-full overflow-hidden rounded-(--mo-comp-theme-picture-radius) bg-surface-container medium:aspect-[16/9]"
       >
         {drawn ? (
           <img src={drawn} alt="" className="size-full object-cover" />
         ) : (
-          <span className="flex size-full items-center justify-center rounded-(--theme-picture-radius) text-on-surface-variant outline-2 -outline-offset-2 outline-outline-variant outline-dashed">
+          <span className="flex size-full items-center justify-center rounded-(--mo-comp-theme-picture-radius) text-on-surface-variant outline-2 -outline-offset-2 outline-outline-variant outline-dashed">
             {t.forms.pickImage}
           </span>
         )}
@@ -1089,7 +1089,7 @@ export function MenuList({
                       icon={CaretDown}
                       label={open === i ? t.forms.hideChildrenOf(nameOf(item)) : t.forms.showChildrenOf(nameOf(item))}
                       aria-expanded={open === i}
-                      className={`[&>svg]:transition-transform [&>svg]:duration-(--motion-spatial-duration) [&>svg]:ease-(--motion-ease) ${open === i ? '[&>svg]:rotate-180' : ''}`}
+                      className={`[&>svg]:transition-transform [&>svg]:duration-(--mo-sys-motion-spring-default-spatial-duration) [&>svg]:ease-(--motion-ease) ${open === i ? '[&>svg]:rotate-180' : ''}`}
                       onClick={() => setOpen(open === i ? null : i)}
                     />
                   )}

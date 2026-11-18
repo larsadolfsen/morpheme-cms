@@ -1,5 +1,5 @@
 // The color of an icon in a row or a card (`iconColor`): Text (nothing saved: the theme draws its own colour) or one of the site's color roles.
-// One field for every block that has icons (List, Segmented list, Cards), so they behave the same. The theme draws it (theme/styles/blocks.css,
+// One field for every block that has icons (List, List - Expand, Cards), so they behave the same. The theme draws it (theme/styles/blocks.css,
 // `data-icon-color`), so it follows the theme's colors in the editor, the Preview and on the site.
 import { t } from './i18n';
 import type { Field } from './schema';
@@ -13,10 +13,10 @@ export const iconColorOf = (value: unknown): string | undefined => iconColors.fi
 
 /** The choices, in order: Text is the default (no value). A choice too pale on the page is left out by `iconColorOptions` below. */
 export const iconColorChoices = [
-  { label: t.blocks.iconColor.text, value: '', swatch: 'var(--mo-on-surface)' },
-  { label: t.blocks.iconColor.primary, value: 'primary', swatch: 'var(--mo-primary)' },
-  { label: t.blocks.iconColor.secondary, value: 'secondary', swatch: 'var(--mo-secondary)' },
-  { label: t.blocks.iconColor.tertiary, value: 'tertiary', swatch: 'var(--mo-tertiary)' },
+  { label: t.blocks.iconColor.text, value: '', swatch: 'var(--mo-sys-color-on-surface)' },
+  { label: t.blocks.iconColor.primary, value: 'primary', swatch: 'var(--mo-sys-color-primary)' },
+  { label: t.blocks.iconColor.secondary, value: 'secondary', swatch: 'var(--mo-sys-color-secondary)' },
+  { label: t.blocks.iconColor.tertiary, value: 'tertiary', swatch: 'var(--mo-sys-color-tertiary)' },
 ];
 
 /** The field, next to an `icon`: always there where icons are offered (a block adds its own `only`, e.g. while Media is Icon). */

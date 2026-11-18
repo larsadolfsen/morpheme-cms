@@ -2,7 +2,7 @@
 // sideSheet(dialog) for a modal one, standardSideSheet(aside) for a standard one; each gives its open() and close().
 // Modal (<dialog> with sideSheetClass): native <dialog>, so focus moves into it and back, Escape closes it, and screen
 // readers know it is modal. It slides in from the side of the screen it stands at and out again, the scrim fading in
-// with it (ui.css); with reduced motion it appears and disappears at once. The page under it does not scroll while it is
+// with it (side-sheet.css); with reduced motion it appears and disappears at once. The page under it does not scroll while it is
 // open. It moves with the site's motion scheme (motionSpring, @morphemecms/cms/lib/motion.ts).
 // Standard (<aside>): not modal, the page stays usable. open() shows it and gives the sheet itself the focus (no control shows a focus ring
 // from the start); close() hides it and

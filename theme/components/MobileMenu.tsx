@@ -75,7 +75,7 @@ export default function MobileMenu({
     fadeIn: motionSpring('effects'),
     fadeOut: motionSpring('effects', 'fast'),
   }));
-  // The scrim is the dialog's ::backdrop, which inherits this variable from the dialog (ui.css), so it fades with the
+  // The scrim is the dialog's ::backdrop, which inherits this variable from the dialog (navigation-drawer.css), so it fades with the
   // effects' springs while the drawer moves with the spatial ones.
   const scrim = '--navigation-drawer-scrim-opacity';
 

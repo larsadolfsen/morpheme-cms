@@ -93,7 +93,7 @@ export const website = {
 
 export type Crumb = { name: string; href: string };
 
-/** A question with its answer as HTML (a "Questions and answers" block on the page). */
+/** A question with its answer as HTML (a row of a "List - Expand" marked as a FAQ). */
 export type Question = { question: string; answer: string };
 
 /** The page itself, with breadcrumbs when the page is not the front page, and as an FAQPage too when it
@@ -114,7 +114,7 @@ export function webPage({
   description?: string;
   image?: string;
   crumbs?: Crumb[];
-  /** The questions in the page's "Questions and answers" blocks, all of them in one FAQPage. */
+  /** The rows of the page's "List - Expand" blocks marked as a FAQ, all of them in one FAQPage. */
   questions?: Question[];
 }) {
   const url = abs(path);

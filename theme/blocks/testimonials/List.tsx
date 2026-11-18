@@ -15,10 +15,13 @@ export default function List({
   testimonials,
   filters,
   className,
+  oneColumn,
 }: {
   testimonials: TestimonialView[];
   filters: { slug: string; name: string }[];
   className?: string;
+  /** The setting Columns is off: one column, whatever the width (data-columns, blocks.css). */
+  oneColumn?: boolean;
 }) {
   const onSite = useOnSite();
   if (testimonials.length === 0 && !onSite) return <p className="block-empty">{say.none}</p>;
@@ -32,7 +35,7 @@ export default function List({
           ))}
         </div>
       )}
-      <RowList className="block-testimonial-rows">
+      <RowList className="block-testimonial-rows" data-columns={oneColumn ? 'one' : undefined}>
         {testimonials.map((t) => (
           <ListItem
             key={t.slug}

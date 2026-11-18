@@ -48,7 +48,7 @@ export function ContinueWidget() {
     return collection && file ? [{ edit, collection, file }] : [];
   });
   return (
-    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="[--card-padding:1rem_0_0.5rem]">
+    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="[--mo-comp-card-padding:1rem_0_0.5rem]">
       <h2 id={titleId} className="px-4 pb-2 font-medium">
         {t.library.continueTitle}
       </h2>
