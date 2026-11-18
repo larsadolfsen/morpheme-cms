@@ -8,16 +8,26 @@
 // Run by npm run check. A deliberate exception is an entry of EXEMPT with its reason.
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { UI_PART_FILES } from '../theme/styles/files.mjs';
+import { UI_PART_FILES, MATERIAL_FILES } from '../theme/styles/files.mjs';
 
 /** The parts that must read density: where their rule is, and which variable of the three groups they read. */
 export const PARTS = [
-  { name: 'button', file: 'theme/styles/ui.css', selector: '.button', reads: '--mo-sys-density-layout' },
+  { name: 'button', file: 'theme/styles/buttons.css', selector: '.button', reads: '--mo-sys-density-layout' },
   { name: 'chip', file: 'theme/styles/chips.css', selector: '.chip', reads: '--mo-sys-density-layout' },
-  { name: 'segmented button', file: 'theme/styles/ui.css', selector: '.segmented-button-segment', reads: '--mo-sys-density-layout' },
-  { name: 'text field', file: 'theme/styles/ui.css', selector: '.text-field', reads: '--mo-sys-density-layout' },
-  { name: 'choice group row', file: 'theme/styles/ui.css', selector: '.choice-group-list .list-item-container', reads: '--mo-sys-density' },
-  { name: 'list item', file: 'theme/styles/ui.css', selector: '.list-item-container', reads: '--mo-sys-density' },
+  {
+    name: 'segmented button',
+    file: 'theme/styles/button-groups.css',
+    selector: '.segmented-button-segment',
+    reads: '--mo-sys-density-layout',
+  },
+  { name: 'text field', file: 'theme/styles/text-field.css', selector: '.text-field', reads: '--mo-sys-density-layout' },
+  {
+    name: 'choice group row',
+    file: 'theme/styles/ui.css',
+    selector: '.choice-group-list .list-item-container',
+    reads: '--mo-sys-density',
+  },
+  { name: 'list item', file: 'theme/styles/list.css', selector: '.list-item-container', reads: '--mo-sys-density' },
   { name: 'setting row', file: 'theme/styles/switch.css', selector: '.setting-list > .setting-row', reads: '--mo-sys-density-layout' },
   {
     name: 'table cell',
@@ -99,9 +109,11 @@ export function findProblems(files) {
  * padding is often a token (--mo-comp-filled-text-field-container-height) that the rule reads. @param {URL} root */
 export function readStyles(root) {
   const files = {};
+  // The text field's height token (--mo-comp-filled-text-field-container-height) is in the ui tokens, so text-field.css reads them too.
   const tokenFolder = {
     'ui.css': 'ui',
-    'blocks.css': 'blocks',
+    'text-field.css': 'ui',
+    'list.css': 'ui',
     'person-facts.css': 'blocks',
     'base.css': 'base',
     'global.css': 'material',
@@ -113,10 +125,10 @@ export function readStyles(root) {
   for (const f of [
     'theme/styles/ui.css',
     ...UI_PART_FILES.map((f) => `theme/styles/${f}`),
-    'theme/styles/blocks.css',
     'theme/styles/blocks/person-facts.css',
     'theme/styles/base.css',
     'theme/styles/global.css',
+    ...MATERIAL_FILES.map((f) => `theme/styles/${f}`),
     'src/editor.css',
   ]) {
     const folder = tokenFolder[f.split('/').pop()];

@@ -41,6 +41,11 @@ The job `build` keeps its tarball in Actions' cache under `scripts/ci-build-key.
 the build can read, except `docs/`, `.claude/`, `.agents/`, `.changeset/` and `staging-watcher/`, and the Node major version; never file times) and
 builds only on a miss, which happens on the first run of a pull request that changes an input; a push that changes none (docs, a changeset) and a
 re-run take the kept build. A root `.npmrc` (`prefer-offline`, no audit, no fund) makes `npm ci` use the npm cache first.
+An Actions cache is read only by the branch that saved it, the default branch and a pull request into its base branch, and `check.yml` runs only on pull
+requests, so every pull request started with cold caches (npm's cache and Chromium). `.github/workflows/cache-fill.yml` runs on every push to
+`feature/**` and `0.*` (each merge into it, plus `workflow_dispatch`), does the same set-up as the jobs (`.github/actions/prepare`, so the same keys), and saves the
+caches for the next pull request into that branch. It builds and checks nothing and has `contents: read`. Not kept this way: the build (a pull request's
+inputs rarely equal the branch's), so the kept build still hits only on a re-run.
 A failed `build` leaves its jobs skipped, which the verdict turns red. The levels, `scripts/ci-changes.mjs` and the verdict are unchanged.
 
 **Built (PR 3, touched areas and the core set).** The feature and line levels run the 8 `screens` shards on the **core set** plus the
@@ -157,6 +162,24 @@ are all still red: when in doubt it stays red.
 | `node --test scripts/pending-shared.test.mjs` | `worker/*.js` changed | No pending I/O promise kept in module memory (`CLAUDE.md`, *Worker*). |
 | `cd .morpheme/demo/site && node ../../../scripts/measure-speed.mjs` | by hand, after `npm run build`, when a speed claim or a performance fix needs numbers (a few minutes, not in CI or `npm run check`; the numbers depend on the machine, so compare runs on the same one) | LCP, CLS, TBT, long tasks, long animation frames and the INP of scripted interactions (open menu, open a sheet, type, scroll, search) on the site's key pages and the editor's key screens, on a phone (375 px, CPU 4x) and a computer. `--runs N`, `--profile mobile\|desktop`, `--only <text>`, `--json <file>`; `CHROMIUM_PATH` for another Chromium. Baseline and method: `docs/performance-baseline.md`. |
 | `npm run check:contrast` | by hand, after `npm run build`, when colours or blocks changed (about 4 minutes per theme, not in CI) | WCAG AA contrast of every block's text, icons and control borders on each section colour, on the site and typed in place in the editor, light and dark, phone and computer. `--all` runs every installed theme; `CONTRAST_DENSITY=-1` checks the editor at Small density. |
+
+## While you work: `npm run check:fast`
+
+Added 18 Nov 2026 (plan `docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, A11). Run `npm run check:fast` after each step while you
+work. It compares the files you changed with the base branch (found by itself, or `--base <ref>`) and runs only what they can break: Prettier on
+the changed files, the static checks whose inputs changed, the unit tests in the folder of a changed file or naming it, `tsc`, and, when the
+build reads a changed file, the build, `check:editor` and the screens **core set plus the units of the touched areas**
+(`scripts/check-fast-plan.mjs`, over `isDocsOnly` and `needsStarterDemo` of `scripts/ci-changes.mjs` and `areasArg` of the screens map). It prints
+what it ran and what it skipped and why. A path nothing knows, a package or config file, no base branch and any error run everything
+(`--dry-run` prints the plan only). When the change reaches every screens area (a shared file such as `theme/styles/` or `src/ui.tsx`) it runs
+the core set only and says so; `--screens all` runs every unit.
+
+**It is not always quicker than `npm run check`.** On a change that reaches the build (a CSS file, `src/`, `theme/`), `check:fast` adds the screens core set
+(about 2 minutes) that `npm run check` does not run, so a CSS-only change took about 190 s against 110 s. It is quicker for docs, skills, tests and the Worker. For
+the quick mode while you iterate on a build-reaching change, run `npm run check:fast -- --screens none` (everything else, no screens); run the screens
+(without `--screens none`) before you hand the change over.
+
+`check:fast` is **not the gate**. `npm run check` stays what you run before the last push, and CI runs the full check.
 
 ## What to run before a push
 

@@ -175,6 +175,32 @@ re-run of run 44258369589 (head `2169576`, attempt 2) after attempt 1 had filled
   several minutes between runs (shard 2: 6m15s now, 6m24s cold), so one run is not a benchmark.
 ### A3 as built (touched areas and the core set)
 
+**The cache-fill workflow** (third pull request of A2). `.github/workflows/cache-fill.yml` runs on push to `feature/**` and `0.*` (and by hand),
+does `.github/actions/prepare` with the browser (the same keys as `check.yml`: npm's cache by the lock file, Chromium by the Playwright version) and
+saves the caches on that branch, where a pull request into it can read them. It builds nothing and has read-only permissions; a merge into a
+feature branch is a push, so it costs one extra run, free here. The build is not kept this way: a pull request's inputs rarely equal the
+branch's.
+
+**Proof that a pull request into the branch restores them** (#937, the sync of 0.18, the first pull request into `feature/build-check-speed`
+after the merge of #931; run 44268511487, head `fcb3e2c`). Cache-fill ran on the merge push (run 44266560124, 58 s, 08:23 UTC), saved the caches,
+and the pull request's jobs read them:
+
+- `build` job, `setup-node` (npm cache): `Cache restored from key: node-cache-Linux-x64-npm-f6ecbaac…` (174 MB, 2.7 s), then at the end
+  `Cache hit occurred on the primary key … not saving cache`; `npm ci` took 12 s.
+- A `screens` job (shard 3), the post step of the browser cache: `Cache hit occurred on the primary key playwright-Linux-1.65.0, not saving cache`,
+  and the same for `node-cache-Linux-x64-npm-f6ecbaac…`.
+- The kept build: `Cache not found for input keys: build-f7b8009e…` in the `build` job (expected, this pull request's inputs differ from the branch's),
+  followed by `Cache saved with key: build-f7b8009e…`.
+
+**What it gave in time.** The set-up of a `screens` shard (`prepare`: `npm ci`, the unpack, Chromium) was 25–45 s in five of six shards read and
+2m58s in one, with both caches restored. That is the same as the cold runs of #928 (26–45 s, and one shard of 4–6 minutes), so restoring the caches
+saves nothing that shows in the step times: the download was a small part of the set-up, and what remains (`npm ci` from the restored cache, the
+system libraries from apt, the unpack) is what takes the rest. The one slow shard in each run is therefore not the browser download. The caches
+are worth keeping for the network (one download of Chromium and of npm's cache per branch instead of per run), not for the minutes. **Open item** (owner of
+the next pull request that touches `prepare`: A12, CI slots from measured cost, or a later one): the slow `prepare` shard is still unexplained. Time
+`prepare`'s steps separately (apt, `npm ci`, the unpack, the browser; the composite action reports one step today), and look at the apt step
+(`playwright install --with-deps`), which runs on a hit too.
+
 Built in `lib/affected.mjs` (the engine, tested in `lib/affected.test.mjs`, reusable by track B with its own rules),
 `scripts/screens/support/areas.mjs` (the map, `AREAS`, `CORE_UNITS`; tested in `scripts/screens-areas.test.mjs`), `--areas` in the runner
 (`scripts/editor-screens.mjs`) and `areas=` from `scripts/ci-changes.mjs` into each `screens` shard of `check.yml`. The rules are in the `checks` skill, *Built (PR 3)*.
@@ -245,6 +271,7 @@ The CI timing of the whole check (before and after, same pull request) is read f
 - **tsc build info.** `npm run check:types` writes `.morpheme/tsc/types.tsbuildinfo` (`--incremental --tsBuildInfoFile`). `static` restores it from the Actions cache by
   `scripts/ci-tsc-key.mjs` (`lib/outputKey.mjs` over TypeScript's version, `tsconfig.types.json`, `package.json`, `package-lock.json`, the Node major): the key is the prefix, so a
   change to any of them starts cold. A changed source file is not in the key: the info holds a hash of every file it read and tsc compares them itself.
+  `cache-fill.yml` writes the same info on each push to a feature branch or version line, so a pull request into it restores a warm one.
   Checked: with a warm info, a new syntax error in a file is reported, and gone when the file is removed; a cold run and a warm one give the same result.
 
 **Measured (local, this development container, one run each, 18 November 2026; Node 22, TypeScript 7.0.2, `npm ci` done).** The CI run times are added from the first runs of this pull request.
@@ -259,6 +286,29 @@ The CI timing of the whole check (before and after, same pull request) is read f
 TypeScript 7 is so fast that the build info saves only about 0.4 s; the cache is kept as asked and costs almost nothing, but it is not where the time is.
 The saving in `static` is the second build (about 30 s of runner time, more on a CI runner) and Prettier over every file. `static` now waits for `build`, so its wall time
 is `build` plus the rest, still shorter than the screens shards that also wait for `build`.
+
+### A11 as built (`npm run check:fast`)
+
+`npm run check:fast` (`scripts/check-fast.mjs` runs, `scripts/check-fast-plan.mjs` decides; tests: `scripts/check-fast-plan.test.mjs`). It finds the base
+branch (the remote `main`, `0.*` or `feature/**` the branch is fewest commits ahead of, or `--base <ref>`), takes the changed paths (committed,
+staged, unstaged, untracked) and runs: Prettier on the changed files; the static checks whose inputs changed (a check leaves the plan only when no
+changed path is one it reads); the unit tests in the folder of a changed file or whose text names a changed path or file; `tsc` when a changed
+file is in its `include`; and, when the build reads a changed path (`needsStarterDemo`), the build, `check:site-types`, `check:editor` and the
+screens core set plus the touched areas (`areasArg`). It prints what it ran, what it skipped and why, and that CI and `npm run check` are the gate.
+When in doubt, everything: an unknown path (no rule in `areas.mjs`), a `..` path, no base branch, no changes, and a package or config file.
+One deliberate narrowing, from the brief ("no full run"): when the change reaches every area, the screens run the core set only, the plan lists
+"the units of every area" as skipped with the reason, and `--screens all` runs them. `--screens none` is the quick mode: the same plan without the screens (core set too), listed as skipped. `npm run check` is unchanged.
+
+**Measured** (18 November 2026, this development container, one run each, nothing else running; `--base HEAD` so only the one change counts):
+
+| Change | `check:fast` | `npm run check` |
+| :--- | :--- | :--- |
+| Docs only (a line in `docs/theme-grid.md`) | 9 s (format, language, token-names, density) | 111 s |
+| CSS only (a comment line in `theme/styles/ui.css`; every area, so the core set) | about 190 s (1 s format, 2 s language, 6 s token names, 12 s web, 28 s build, 136 s core screens, the rest under 5 s; 9 test files in under 1 s) | 110 s |
+
+Read it with care. For docs the saving is 12 times. For a CSS change `check:fast` is **slower** than `npm run check`, because it also runs the screens core
+set (136 s here), which `npm run check` does not; the work it adds is the screens check CI runs, and its static part is the same 25 s or less. A
+shared CSS file reaches every area, so no area narrowing helps there; a change inside one area's files (`src/Library.tsx`: `files,sheets`) runs 6 core units and the units of those areas.
 
 ## Track B. Site builds: a save goes live sooner
 

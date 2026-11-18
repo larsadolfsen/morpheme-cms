@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { UI_PART_FILES } from './files.mjs';
+import { UI_PART_FILES, MATERIAL_FILES } from './files.mjs';
 
 const read = (name) => readFileSync(new URL(name, import.meta.url), 'utf8');
 import { readdirSync } from 'node:fs';
@@ -151,7 +151,7 @@ test('outlined card keeps --mo-sys-elevation-level0-shadow', () => {
 });
 
 // The Material theme (global.css): colour at rest, a shadow only for the FAB and the lift.
-const globalCss = withTokens('./global.css', 'material');
+const globalCss = withTokens('./global.css', 'material') + MATERIAL_FILES.map((f) => read(`./${f}`)).join('');
 
 for (let level = 1; level <= 5; level++) {
   test(`global.css sets --mo-sys-elevation-level${level}-rest-shadow to no shadow`, () => {
