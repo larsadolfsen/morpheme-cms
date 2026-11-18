@@ -489,18 +489,32 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
   `os.availableParallelism()` (sharp's own threads counted), so the first build of a site, a cleared cache and a big
   upload are faster. Same outputs, byte for byte; a test compares them.
 
-#### Batch 4. Cloudflare can make the image sizes (about 42 s, the whole image step)
+#### Batch 4. Cloudflare makes the image sizes, through the site's Worker (about 42 s, the whole image step)
 
-- A site setting (Settings › Developer › Caching and builds, next to R2 caching): **Image sizes by Cloudflare**,
-  a switch, `On` / `Off`, off by default. When on, `Img.astro` and the Markdown image plugin write `srcset` addresses of
-  the form `/cdn-cgi/image/width=<w>,quality=78,format=auto/<image>` and the build makes no `_r/` variants; the build
-  still reads each image's size for `width` and `height`, and still makes the share image (`_s/`, 1200 × 630, cropped
-  around what matters) unless the share image moves to a transformation too (`fit=cover,gravity=auto`; compare the crop).
-- The editor turns it on only when the zone has transformations on, and says what it costs: a site like Sara's uses about
-  400 unique transformations a month, inside the free 5,000.
-- CSP: the addresses are on the site's own host, so `img-src 'self'` holds; check the Worker serves `/cdn-cgi/` paths
-  untouched (`run_worker_first` is on).
-- Batches 2 and 3 stay for sites without it and for the share images and video stills.
+**Decided** (owner, 18 November 2026: "Worker way it is"), replacing the plan's `/cdn-cgi/image/` addresses. Why (Cloudflare's docs, read
+18 November): `/cdn-cgi/image/` needs a zone with transformations turned on, so not a `workers.dev` address, and its troubleshooting page
+says "9524 — The /cdn-cgi/image/ resizing service could not perform resizing. This may happen when an image URL is intercepted by a
+Worker", which ours is (`run_worker_first`). A transformation made by the Worker (the Images binding, `env.IMAGES`, or `fetch()` with
+`cf.image`) "is available on any zone that hosts a Worker, including `*.workers.dev` subdomains".
+
+- **The Worker answers `/_img/<width>/<image>`** (`worker/`): it reads the original from the site's files, resizes it and converts it
+  (AVIF or WebP by the browser's `Accept`, `quality` 78) through the Images binding, and keeps the result in Cloudflare's cache with a
+  long cache time; a second request for the same size is a cache hit. Only widths the site uses are answered (the list the build's
+  `srcset` uses), so nobody can make the Worker produce endless sizes. The binding goes into the starter's `wrangler.jsonc`
+  (`"images": { "binding": "IMAGES" }`), and the CMS update adds it to existing sites.
+- **A site setting** (Settings › Developer › Caching and builds, next to R2 caching): **Image sizes by Cloudflare**, a switch, `On` /
+  `Off`, off by default, with one sentence on what it costs. When on, `Img.astro` and the Markdown image plugin write `srcset` addresses
+  of the form `/_img/<w>/<image>` and the build makes no `_r/` variants; it still reads each image's size for `width` and `height`, and
+  still makes the share image (`_s/`, 1200 × 630, cropped around what matters).
+- **Cost** (Cloudflare's pricing, read 18 November): the binding is billed per unique transformation (one image at one width, counted
+  once a month; format and quality not counted): 5,000 a month free, then $0.50 per 1,000 on Images Paid. A site like Sara's uses about
+  400. On the Images Free plan, a new size over 5,000 returns an error instead of a charge: the Worker then serves the original image.
+  Worker requests do not grow: the site's Worker already runs on every request (`run_worker_first: true`); the resize costs a few
+  milliseconds of CPU on the first request for a size.
+- **CSP:** the addresses are on the site's own host, so `img-src 'self'` holds.
+- **Checks:** the Worker's route with a test (sizes allowed, a size not on the list refused, the fallback to the original), and the
+  screens checks with the setting on (the `srcset` addresses) and off (as today).
+- Batches 2 and 3 stay for sites with the setting off, and for the share images and video stills.
 
 #### Batch 5. A faster install (about 5–10 s)
 
