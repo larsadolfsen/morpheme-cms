@@ -27,6 +27,7 @@ export const UI_PART_FILES = [
   'navigation-rail.css',
   'search.css',
   'toolbar.css',
+  'pickers.css',
 ];
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */
