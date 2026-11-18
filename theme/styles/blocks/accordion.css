@@ -13,6 +13,11 @@
     flex-shrink: 0;
     color: var(--mo-sys-block-muted);
   }
+  /* A chosen icon colour (data-icon-color) on the Accordion's lead and on a card's icon, which both read --mo-comp-icon-color. */
+  .block-accordion-lead[data-icon-color],
+  .block-card .block-card-icon[data-icon-color] {
+    color: var(--mo-comp-icon-color);
+  }
   /* The text button under the last row of "Segmented list" and "FAQ list" (ListButton.tsx). */
   .block-list-button {
     margin-top: 0.5rem;

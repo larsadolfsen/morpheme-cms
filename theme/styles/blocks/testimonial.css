@@ -3,10 +3,15 @@
   Testimonials list. Moved here from blocks.css with the rules unchanged and in the order they had
   (docs/superpowers/plans/2026-11-16-css-split.md). Imported by base.css right after blocks.css, in the same layer (components), so every rule
   that stayed in blocks.css after these still comes before them in the cascade; none of those rules sets a property of a testimonial's elements
-  at the same specificity (the collision check in the pull request). The rules the Testimonials share with other blocks (the margin of a block in
-  the text, the filter chips) stay in blocks.css.
+  at the same specificity (the collision check in the pull request). The margin of a Carousel, Testimonial cards or one Testimonial in the text, which the Carousel shares, is the first rule of this file.
 */
 @layer components {
+  /* "Testimonial cards": testimonials to leaf through (testimonials/Slider.tsx, a carousel: ui.css). */
+  .carousel.block-in-text,
+  .block-testimonials.block-in-text,
+  .block-testimonial.block-in-text {
+    margin-block: 2.5rem;
+  }
   /* "Testimonials list" (testimoniallist/Rows.tsx): the theme's list; a row the filter hides takes its divider with it. */
   .block-testimonial-rows > li:has(> [data-tags][hidden]) {
     display: none;

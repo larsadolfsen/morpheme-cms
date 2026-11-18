@@ -1,11 +1,4 @@
 @layer components {
-  /* "Testimonial cards": testimonials to leaf through (testimonials/Slider.tsx, a carousel: ui.css). */
-  .carousel.block-in-text,
-  .block-testimonials.block-in-text,
-  .block-testimonial.block-in-text {
-    margin-block: 2.5rem;
-  }
-
   /* The subhead: the small line under the headline (a byline, a date, a place). */
   /* "Image grid" (blocks/imagegrid/View.tsx): the tag filter over the staggered grid (.image-grid in ui.css), the text under an image on its card. The filter
      and its count are drawn hidden and shown by script.ts; the columns can be set to 2, 3 or 4 on a computer (data-columns). */
@@ -43,10 +36,6 @@
   }
   .block-imagegrid-grid > li[hidden] {
     display: none;
-  }
-  .block-accordion-lead[data-icon-color],
-  .block-card .block-card-icon[data-icon-color] {
-    color: var(--mo-comp-icon-color);
   }
 
   /* ---- end of "Checklist" and "Price cards" ---- */
