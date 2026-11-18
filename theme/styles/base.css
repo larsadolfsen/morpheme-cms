@@ -7,6 +7,9 @@
 @import './checkbox.css';
 /* The Chips and the chip sets come before ui.css for the same reason: a chip set in the search view is also .search-view-filters (Search.tsx), whose rules in ui.css set margin and padding at the same specificity and must win. */
 @import './chips.css';
+/* The Dialog and the Lightbox come before ui.css too: the date picker's and the time picker's dialogs are also .dialog-modal (DatePicker.tsx, TimePicker.tsx), and the picker rules in ui.css set the same properties at the same specificity and must win. */
+@import './dialog.css';
+@import './lightbox.css';
 /* The theme's UI components, as Material 3 names them (buttons, icon buttons), and the standard blocks of the editor,
    in this site's design (their variables below). */
 @import './ui.css';
