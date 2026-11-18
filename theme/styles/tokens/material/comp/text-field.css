@@ -22,5 +22,5 @@
   --mo-comp-text-field-filled-focus-line: var(--mo-sys-color-primary);
   --mo-comp-text-field-label-surface: var(--mo-sys-color-surface);
   --mo-comp-text-field-error: var(--mo-sys-color-error);
-  --mo-comp-text-field-disabled-opacity: 0.38;
+  --mo-comp-text-field-disabled-opacity: var(--mo-sys-state-disabled-state-layer-opacity);
 }

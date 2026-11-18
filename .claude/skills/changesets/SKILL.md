@@ -33,12 +33,14 @@ level its base branch does not allow is not merged; fix the changeset.
 | `0.20` and later | — | 0.20 and later lines follow the roadmap and are cut from the previous line's branch when their work starts | — |
 
 A version line's branch is never merged back the other way except as its release (the `pm` skill, *Two version lines at
-the same time*). Only `main` has a Release PR and builds `next` and `latest`; every merge to `main` stages a `next` build
-that only the owner approves on npmjs.com.
+the same time*). Only `main` has a Release PR and builds `latest`; every merge to `main` stages a `next` build, and every merge into a
+version line's branch stages a test version of that line (`0.18.0-next-<time>`) under its own tag `next-0.18`, never `next` and never `latest`
+(`publish.yml`, `scripts/publish-next.mjs`). The owner approves each on npmjs.com. A line whose pending changesets only reach a lower version
+(a patch on 0.18 calculates `0.17.1`) fails its stage on purpose: the line needs a `minor` changeset.
 
 ## What happens to the changesets
 
-Each merge to `main` stages a test version under npm's `next` tag for `morpheme-staging`. The *Release* pull request,
+Each merge to `main` stages a test version under npm's `next` tag for `morpheme-staging`; a merge into a line stages one under `next-<line>` for the sites that test that line. The *Release* pull request,
 merged only when the owner says go (skill `release`), turns the changesets into `CHANGELOG.md` and stages `latest`. A
 staged version is on npm only once the owner approves it with 2FA
 (`docs/superpowers/specs/2026-11-03-development-flow-and-releases-design.md`). Never edit `CHANGELOG.md` or the

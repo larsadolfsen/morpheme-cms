@@ -1,5 +1,5 @@
 // Progress indicators (m3.material.io/components/progress-indicators, .linear-progress-indicator and
-// .circular-progress-indicator in ../styles/progress-indicators.css): how far something has come (`value`, 0 to 1: determinate), as a
+// .circular-progress-indicator in ../styles/ui/progress-indicators.css): how far something has come (`value`, 0 to 1: determinate), as a
 // line that fills up (LinearProgressIndicator) or a ring (CircularProgressIndicator, where there is no room for a
 // line), the active indicator on its track; without `value` (indeterminate), that it is on its way, as stretches that
 // run along the line or round the ring. M3 Expressive's shape (`shape`: flat, the default, or wavy, the active

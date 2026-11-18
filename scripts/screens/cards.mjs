@@ -92,7 +92,7 @@ async function checkCardImage(width, height = 800) {
   await page.waitForTimeout(400);
   const picture = () =>
     page.evaluate(() => {
-      const box = document.querySelector('.block-card-picture');
+      const box = document.querySelector('.block-card-picture, .block-card .card-media');
       const r = box?.getBoundingClientRect();
       return box ? { ratio: Math.round((r.width / r.height) * 100) / 100, img: !!box.querySelector('img') } : null;
     });
@@ -138,7 +138,9 @@ async function checkCardImage(width, height = 800) {
     .click({ timeout: 3000 })
     .catch(() => {});
   await page.waitForTimeout(800);
-  const cut = await page.evaluate(() => document.querySelector('.block-card-picture img')?.getAttribute('style') ?? '');
+  const cut = await page.evaluate(
+    () => document.querySelector('.block-card-picture img, .block-card .card-media img')?.getAttribute('style') ?? '',
+  );
   if (!/transform/.test(cut)) problems.push(`${label}: the saved crop is not drawn on the card (style "${cut}")`);
   await page.screenshot({ path: join(shots, `card-image-${width}.png`) });
   await page.close();
@@ -249,9 +251,13 @@ async function checkCardHeadline(width, height) {
   // The system's test page (the demo's Blocks page, on a copy of any site: the starter has no Blocks page of its own).
   if (!(await onTestPage(sitePage, label))) return sitePage.close();
   const card = await sitePage.evaluate(() => {
-    const title = [...document.querySelectorAll('.block-card-title')].find((t) => t.textContent.trim() === 'Only a headline');
+    const title = [...document.querySelectorAll('.block-card-title, .block-card .card-headline')].find(
+      (t) => t.textContent.trim() === 'Only a headline',
+    );
     const card = title?.closest('.block-card');
-    return card ? { text: !!card.querySelector('.block-card-text'), height: card.getBoundingClientRect().height } : null;
+    return card
+      ? { text: !!card.querySelector('.block-card-text, .block-card .card-supporting'), height: card.getBoundingClientRect().height }
+      : null;
   });
   if (!card) problems.push(`${label} (site): the card "Only a headline" is not on the system's test page`);
   else if (card.text) problems.push(`${label} (site): a card without text draws an empty text element`);
@@ -365,7 +371,7 @@ async function checkCardIconText(width, height, scheme) {
       out.push({
         design,
         icon: getComputedStyle(icon).color,
-        title: getComputedStyle(card.querySelector('.block-card-title')).color,
+        title: getComputedStyle(card.querySelector('.block-card-title, .block-card .card-headline')).color,
         contrast: (a + 0.05) / (b + 0.05),
       });
     }
@@ -467,14 +473,14 @@ async function checkCardsCarousel(width, height) {
   // A card's media (image or video still) sits flush against the card's top and sides: no padding or margin above it.
   const flush = await page.evaluate(() =>
     [...document.querySelectorAll('.block-card')].flatMap((card) => {
-      const media = card.querySelector('.block-card-picture, .block-card-video');
+      const media = card.querySelector('.block-card-picture, .block-card-video, .block-card .card-media-slot');
       if (!media) return [];
       const c = card.getBoundingClientRect();
       const m = media.getBoundingClientRect();
       const border = parseFloat(getComputedStyle(card).borderTopWidth);
       const gaps = [m.top - c.top - border, m.left - c.left - border, c.right - border - m.right].map((n) => Math.round(n * 10) / 10);
       return gaps.some((g) => Math.abs(g) > 0.5)
-        ? [`${card.querySelector('.block-card-title')?.textContent}: top, left, right gaps ${gaps}`]
+        ? [`${card.querySelector('.block-card-title, .block-card .card-headline')?.textContent}: top, left, right gaps ${gaps}`]
         : [];
     }),
   );
@@ -549,9 +555,9 @@ async function checkCardsSpacing(width, height) {
       const c = r(card);
       const q = (sel) => card.querySelector(sel);
       const icon = q('.block-card-icon');
-      const title = q('.block-card-title');
-      const subhead = q('.block-card-subhead');
-      const text = q('.block-card-text');
+      const title = q('.block-card-title, .block-card .card-headline');
+      const subhead = q('.block-card-subhead, .block-card .card-subhead');
+      const text = q('.block-card-text, .block-card .card-supporting');
       const more = q('.block-card-more');
       const border = parseFloat(getComputedStyle(card).borderTopWidth);
       return {
@@ -565,7 +571,7 @@ async function checkCardsSpacing(width, height) {
         top: px(r(title).top - c.top - border),
       };
     };
-    const subheadCard = cards.find((c) => c.querySelector('.block-card-subhead'));
+    const subheadCard = cards.find((c) => c.querySelector('.block-card-subhead, .block-card .card-subhead'));
     const linkCard = cards.find((c) => c.querySelector('.block-card-more'));
     const iconCard = cards.find((c) => c.querySelector('.block-card-icon'));
     const colGap = cards.length > 1 ? px(r(cards[1]).left - r(cards[0]).right) : null;
@@ -623,7 +629,7 @@ async function checkCardMediaCorners(width, height) {
     return page.close();
   }
   const media = await page.evaluate(() =>
-    [...document.querySelectorAll('.block-card-picture, .block-card-video')].map((m) => {
+    [...document.querySelectorAll('.block-card-picture, .block-card-video, .block-card .card-media-slot')].map((m) => {
       const card = m.closest('.block-card');
       const c = getComputedStyle(card);
       const s = getComputedStyle(m);
@@ -672,7 +678,7 @@ async function checkCardVideoPlay(width, height) {
     problems.push(`${label}: /blocks/cards/ did not open`);
     return page.close();
   }
-  const facade = page.locator('.block-card-video a.video-facade').first();
+  const facade = page.locator('.block-card .card-media-slot a.video-facade').first();
   if (!(await facade.count())) {
     problems.push(`${label}: the Cards page has no video card`);
     return page.close();
@@ -680,8 +686,8 @@ async function checkCardVideoPlay(width, height) {
   await facade.scrollIntoViewIfNeeded();
   const box = () =>
     page.evaluate(() => {
-      const card = document.querySelector('.block-card-video').closest('.block-card');
-      const media = document.querySelector('.block-card-video').firstElementChild;
+      const card = document.querySelector('.block-card .card-media-slot:has(.video-facade, iframe)').closest('.block-card');
+      const media = document.querySelector('.block-card .card-media-slot:has(.video-facade, iframe)').firstElementChild;
       const r = (e) => e.getBoundingClientRect();
       const cs = getComputedStyle(media);
       return {
@@ -695,7 +701,7 @@ async function checkCardVideoPlay(width, height) {
     });
   const before = await box();
   await facade.click();
-  await page.waitForSelector('.block-card-video iframe', { timeout: 8000 });
+  await page.waitForSelector('.block-card .card-media-slot iframe', { timeout: 8000 });
   const after = await box();
   if (after.tag !== 'IFRAME') problems.push(`${label}: the video did not replace the still (${after.tag})`);
   if (after.card !== before.card) problems.push(`${label}: the card is ${after.card}px tall after the video starts, was ${before.card}px`);
@@ -767,7 +773,7 @@ async function checkCardsEditorSpacing(width, height) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#src/content/pages/blocks-cards.md'));
-  await page.waitForSelector('ul.block-cards .block-card-title', { timeout: 30_000 });
+  await page.waitForSelector('ul.block-cards .block-card-title, ul.block-cards .block-card .card-headline', { timeout: 30_000 });
   const measure = (index) =>
     page.evaluate((i) => {
       const r = (e) => e.getBoundingClientRect();
@@ -778,16 +784,18 @@ async function checkCardsEditorSpacing(width, height) {
       const c = r(card);
       const border = parseFloat(getComputedStyle(card).borderTopWidth);
       const media = card.querySelector('.block-card-icon');
-      const title = card.querySelector('.block-card-title');
-      const sub = card.querySelector('.block-card-subhead');
-      const text = card.querySelector('.block-card-text');
+      const title = card.querySelector('.block-card-title, .block-card .card-headline');
+      const sub = card.querySelector('.block-card-subhead, .block-card .card-subhead');
+      const text = card.querySelector('.block-card-text, .block-card .card-supporting');
       const cols = getComputedStyle(list).gridTemplateColumns.split(' ').length;
       return {
         sub: !!sub,
         top: px(r(media).top - c.top - border),
         left: px(r(title).left - c.left - border),
         right: px(c.right - border - r(title).right),
-        bottom: px(c.bottom - border - r(card.querySelector('.block-card-more, .block-card-actions') ?? text).bottom),
+        bottom: px(
+          c.bottom - border - r(card.querySelector('.block-card-more, .block-card-actions, .block-card .card-actions') ?? text).bottom,
+        ),
         cols,
         // Cards side by side are as high as the tallest of their row.
         rowHeights: cards.slice(0, cols).map((x) => px(r(x).height)),
@@ -817,7 +825,11 @@ async function checkCardsEditorSpacing(width, height) {
   // A tap in the card makes it active: its subhead row appears, with its hint, in the site's rhythm.
   // Focus in the headline is what makes a card active (InlineItems.tsx onFocus), on any width.
   await page.locator('ul.block-cards .block-card').first().locator('[data-field="title"]').focus();
-  await page.waitForSelector('ul.block-cards .block-card:first-child .block-card-subhead', { timeout: 10_000 }).catch(() => {});
+  await page
+    .waitForSelector('ul.block-cards .block-card:first-child .block-card-subhead, ul.block-cards .block-card:first-child .card-subhead', {
+      timeout: 10_000,
+    })
+    .catch(() => {});
   const active = await measure(0);
   want('the subhead row of the active card (present)', active.sub, true);
   if (active.sub) {
@@ -868,7 +880,7 @@ async function checkCardsElevation(width, height) {
   inEditor.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(inEditor, site);
   await inEditor.evaluate(() => (location.hash = '#src/content/pages/blocks-cards.md'));
-  await inEditor.waitForSelector('ul.block-cards .block-card-title', { timeout: 30_000 });
+  await inEditor.waitForSelector('ul.block-cards .block-card-title, ul.block-cards .block-card .card-headline', { timeout: 30_000 });
   judge('editor', await inEditor.evaluate(read));
   await inEditor.close();
 }

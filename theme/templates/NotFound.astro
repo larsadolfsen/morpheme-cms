@@ -4,7 +4,6 @@
 // page the visitor most likely meant (matched on the words in the address, in the browser; an outlined card,
 // ui/Card.tsx), and below that its sections: a text and any block by its type (PageBlock.astro).
 import Base from '@theme/layouts/Base.astro';
-import Icon from '@theme/components/Icon.astro';
 import Card from '@theme/ui/Card';
 import PageHeader from '@theme/components/PageHeader.astro';
 import Container from '@theme/components/Container.astro';
@@ -36,13 +35,7 @@ const spaceOf = (i: number) => (i === 0 ? 'mt-6 medium:mt-8' : space(i));
   <PageHeader title={heading} intro={intro} />
 
   <Container as="div" class="mt-8 medium:mt-12">
-    <Card href="" id="suggestion" hidden className="group flex max-w-2xl items-center justify-between gap-6">
-      <span>
-        <span class="mo-type-body-medium block text-on-surface-variant">{siteT.theme.didYouMean}</span>
-        <span id="suggestion-title" class="mo-type-title-large mt-1 block group-hover:text-primary"></span>
-      </span>
-      <Icon name="arrow-right" size={22} class="shrink-0 text-primary transition-transform group-hover:translate-x-0.5" />
-    </Card>
+    <Card href="" id="suggestion" hidden className="not-found-suggestion" headline="…" subhead={siteT.theme.didYouMean} />
   </Container>
 
   {sections.map((s, i) => {
@@ -110,7 +103,7 @@ const spaceOf = (i: number) => (i === 0 ? 'mt-6 medium:mt-8' : space(i));
     if (best && bestScore >= 0.4) {
       const link = document.getElementById('suggestion') as HTMLAnchorElement;
       link.href = best[0];
-      document.getElementById('suggestion-title')!.textContent = best[1];
+      link.querySelector('.card-headline')!.textContent = best[1];
       link.hidden = false;
     }
   </script>

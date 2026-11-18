@@ -27,7 +27,7 @@
   .theme-logo-role {
     display: var(--mo-comp-theme-logo-role-display);
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .theme-logo-role {
       display: var(--mo-comp-theme-logo-role-display-large);
     }
@@ -37,5 +37,33 @@
   }
   .theme-post-picture {
     object-fit: cover;
+  }
+  .theme-post-picture-empty {
+    background: var(--mo-sys-color-surface-container-high);
+  }
+  /* The blog page's list (PostList columns 2): one column, two from expanded (840 dp); the block in the text column is placed by text-section.css. */
+  .theme-post-list {
+    display: grid;
+    column-gap: var(--mo-sys-grid-gutter);
+  }
+  @media (width >= 52.5rem) {
+    .theme-post-list-columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  /* The headline is the list's own (body large, the list token; owner, 18 Nov 2026), so the post's title, an <h3> for the page's outline, takes
+     the headline's text and no margin of a heading. */
+  .theme-post-title {
+    margin: 0;
+    font: inherit;
+    letter-spacing: inherit;
+  }
+  /* The description: two lines, the list's three-line item has room for. */
+  .theme-post-excerpt {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 }

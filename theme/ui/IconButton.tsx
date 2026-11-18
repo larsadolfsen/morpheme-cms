@@ -1,4 +1,4 @@
-// An icon button (m3.material.io/components/icon-buttons, .icon-button in ../styles/ui.css): only an icon (`icon`, its
+// An icon button (m3.material.io/components/icon-buttons, .icon-button in ../styles/ui/buttons.css): only an icon (`icon`, its
 // name in the theme's icons, or in the editor an icon already made), its name (`label`) read by screen readers. Its kind (`kind`: standard, the default, filled,
 // tonal or outlined), its size (`size`: xsmall, small, the default, medium, large or xlarge), its width (`width`:
 // narrow, default or wide) and its shape (`shape`: round, the default, or square) are Material's names; how each looks

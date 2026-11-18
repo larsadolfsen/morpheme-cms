@@ -1,0 +1,9 @@
+/* The Material theme's page: the page's surface and the focus ring.
+   Moved here from global.css with its rules unchanged and in their order; imported by global.css (never by base.css: a theme that imports only base.css
+   must not get Material's values) first, in the old order of the rules. Imported one after the other in the old order, the rules
+   keep their place in the layer (docs/superpowers/plans/2026-11-16-css-split.md). */
+@layer base {
+  body {
+    background: var(--mo-sys-color-surface);
+  }
+}

@@ -413,6 +413,30 @@ function CardParts() {
               <p className="mt-1 text-on-surface-variant">{say.text}</p>
             </SiteCard>
             {cardKinds.map((k) => (
+              <SiteCard
+                key={`${k}-parts`}
+                kind={k}
+                media={<img src={exampleImage} alt="" />}
+                headline={say.anatomy.headline}
+                subhead={say.kinds[k]}
+                supporting={say.anatomy.supporting}
+                actions={
+                  <>
+                    <SiteButton kind="text">{say.anatomy.save}</SiteButton>
+                    <SiteButton kind="text">{say.anatomy.learnMore}</SiteButton>
+                  </>
+                }
+              />
+            ))}
+            <SiteCard
+              kind="outlined"
+              icon={<Svg name="heart" size={24} />}
+              headline={say.anatomy.headline}
+              supporting={say.anatomy.supporting}
+            />
+            <SiteCard href="" kind="filled" headline={say.anatomy.headline} subhead={say.link} supporting={say.anatomy.supporting} />
+            <SiteCard kind="outlined" selected headline={say.anatomy.headline} supporting={say.anatomy.supporting} />
+            {cardKinds.map((k) => (
               <SiteCard key={k} kind={k} dragged>
                 <p className="font-medium">{`${say.kinds[k]} · ${screens.dragged}`}</p>
                 <p className="mt-1 text-on-surface-variant">{say.text}</p>
@@ -453,7 +477,7 @@ function CardParts() {
               <SiteList aria-label={lists.lines}>
                 <SiteListItem href="" headline={one} trailingSupporting={lists.trailing} />
                 <SiteListItem href="" headline={one} supporting={say.supporting} trailingIcon="caret-right" />
-                <SiteListItem href="" overline={lists.overline} headline={one} supporting={say.supporting} trailingIcon="caret-right" />
+                <SiteListItem href="" subhead={lists.overline} headline={one} supporting={say.supporting} trailingIcon="caret-right" />
                 <SiteListItem
                   href=""
                   lines={3}

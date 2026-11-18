@@ -24,6 +24,8 @@ npm view @morphemecms/cms dist-tags --json
   release)."
 - The Release PR's version: `version` in its `package.json` diff. Its notes: the lines it adds to `CHANGELOG.md`.
 - Owner-visible changes: the Release PR must contain `release-notes/i18n/*/<version>.json` for them (notes have no screenshots); if it does not, say so in the question below.
+- Test versions of a line (`next-0.18`, `next-0.19`) are not a release step: they come from merges into a line's branch, never from this skill, and
+  `latest` and `next` are untouched by them. Only a merge into `main` moves `next`, which is what staging follows (below).
 - Staging: the newest build of the Worker `morpheme-staging` (Cloudflare connector, read-only - list builds). Stop if it
   failed ("Staging's newest build failed: <link>; fix main first"). If it is older than the newest `next` publish, or
   none is found, say so in the question below instead of stopping.

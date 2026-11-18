@@ -141,91 +141,6 @@
     }
   }
 
-  .card {
-    display: block;
-    border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
-    padding: var(--mo-comp-card-padding, 1rem);
-  }
-  /* The state layer (M3's): a card that is a link or a button, tinted in its text's colour over the whole card in its
-     shape, 8% when pointed at and 10% with focus from the keyboard. It is under the ripple (the ripple is the last in the
-     card) and does not take a click. */
-  :is(a, button).card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: currentColor;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity var(--mo-sys-motion-spring-default-effects);
-  }
-  @media (hover: hover) {
-    :is(a, button:enabled).card:hover::before {
-      opacity: var(--card-hover-layer, 0.08);
-    }
-  }
-
-  :is(a, button:enabled).card:focus-visible::before {
-    opacity: var(--card-focus-layer, 0.1);
-  }
-  .card-dragged {
-    cursor: grabbing;
-  }
-  .card-elevated {
-    background: var(--card-elevated-surface, var(--mo-sys-elevation-level1-color));
-    box-shadow:
-      inset 0 0 0 1px var(--card-elevated-line, transparent),
-      var(--mo-comp-card-shadow);
-  }
-  .card-filled {
-    background: var(--mo-comp-filled-card-container-color, var(--mo-sys-block-tint));
-    box-shadow:
-      inset 0 0 0 1px var(--mo-comp-card-filled-line, transparent),
-      var(--mo-comp-card-shadow);
-  }
-  .card-outlined {
-    background: var(--mo-comp-outlined-card-container-color, var(--mo-sys-elevation-level0-color));
-    box-shadow:
-      inset 0 0 0 1px var(--mo-comp-outlined-card-outline-color, var(--mo-sys-block-line)),
-      var(--mo-comp-card-shadow);
-  }
-  /* A card with media (CardMedia): the image to the card's edge, no padding, in the card's corners. */
-  .card-with-media {
-    position: relative;
-    padding: 0;
-    overflow: hidden;
-  }
-  .card-media {
-    display: block;
-    width: 100%;
-    overflow: hidden;
-    border-radius: inherit;
-  }
-  .card-media > picture {
-    display: contents;
-  }
-  .card-media img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  /* Selected (Material 3's Selection page: "a check mark icon, a checkbox component, a change in surface color, or a
-     combination"): the selected surface and a check mark. The only ring is the focus ring. */
-  .card-selected {
-    background: var(--card-selected-surface, var(--mo-sys-color-secondary-container));
-    color: var(--card-selected-text, var(--mo-sys-color-on-secondary-container));
-  }
-  .card-check {
-    position: absolute;
-    inset-block-start: 8px;
-    inset-inline-end: 8px;
-    box-sizing: content-box;
-    padding: 3px;
-    border-radius: 50%;
-    background: var(--mo-sys-color-primary);
-    color: var(--mo-sys-color-on-primary);
-  }
   /* The theme grid (docs/theme-grid.md; M3 Cards: "customized in code to show cards in staggered or mosaic grids"): columns of
      cards in their own heights, --mo-sys-grid-gutter apart both ways (16px on compact, 24px from medium: owner values; M3 Spacing says
      "Cards should maintain consistent horizontal spacing to establish a strong rhythm when their height varies" and prints no
@@ -281,6 +196,19 @@
   .block-card.card-outlined {
     border-color: var(--mo-comp-outlined-card-outline-color, var(--mo-sys-block-line));
   }
+  /* A card of the Cards block on the Card's parts (LinkCards.tsx): its text fills the card, so the link at the end and the buttons are at the bottom
+     and the cards of a row are as high as the tallest. */
+  .block-card > .card-body {
+    flex: 1;
+  }
+  .block-card > .card-body > .card-content {
+    margin-top: auto;
+    padding-top: var(--mo-comp-card-action-gap, 1rem);
+  }
+  .block-card .card-content > .block-card-more {
+    margin-top: 0;
+    padding-top: 0;
+  }
   /* An icon without a colour of its own (`iconColor`) is the text colour, as a row's icon is (Text in the editor's Icon color); v0.16.0 drew it in the accent. */
   .block-card-icon {
     color: var(--mo-sys-block-text);
@@ -315,6 +243,7 @@
     background: var(--mo-sys-block-tint);
     aspect-ratio: 3 / 2;
   }
+  .block-card .card-media img,
   .block-card-picture img {
     display: block;
     width: 100%;
@@ -404,28 +333,6 @@
     }
   }
 
-  .card-text {
-    display: block;
-    padding: var(--mo-comp-card-media-gap, 1rem) var(--mo-comp-card-padding, 1rem) var(--mo-comp-card-padding, 1rem);
-  }
-  .card-subhead,
-  .card-supporting {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .card-subhead {
-    -webkit-line-clamp: 1;
-    font-size: var(--mo-sys-typescale-label-medium-size, 0.75rem);
-    line-height: var(--mo-sys-typescale-label-medium-line-height, 1rem);
-    color: var(--mo-sys-block-muted);
-  }
-  .card-supporting {
-    -webkit-line-clamp: 2;
-    margin-top: var(--mo-comp-card-subhead-gap, 0.25rem);
-    font-size: var(--mo-sys-typescale-body-medium-size, 0.875rem);
-    line-height: var(--mo-sys-typescale-body-medium-line-height, 1.25rem);
-  }
   .block-card-subhead {
     margin-top: var(--mo-comp-card-subhead-gap, 0.25rem);
     font-size: var(--mo-sys-typescale-body-medium-size, 0.875rem);
@@ -509,7 +416,7 @@
     a.block-card:hover .block-card-arrow {
       translate: 0.25rem 0;
     }
-    a.block-card:hover .block-card-picture img {
+    a.block-card:hover :is(.block-card-picture, .card-media) img {
       scale: 1.03;
     }
   }
@@ -577,6 +484,27 @@
     /* The price is as large as the card has room for (cqi). */
     container-type: inline-size;
   }
+  /* On the Card's parts (pricecards/View.tsx): the text fills the card so the buttons are at the bottom, in the card's width; the label is the card's
+     icon part, the price its subhead (in the price's own type). */
+  .block-plan > .card-body {
+    flex: 1;
+  }
+  .block-plan .card-icon > .block-plan-badge {
+    margin-bottom: 0;
+  }
+  .block-plan .card-subhead > .block-plan-price {
+    margin: 0;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+  }
+  .block-plan .block-plan-amount {
+    color: var(--mo-sys-block-text);
+  }
+  .block-plan .card-actions > .block-plan-buttons {
+    flex: 1 1 100%;
+  }
   .block-plan-featured {
     box-shadow: inset 0 0 0 2px var(--mo-sys-block-accent);
   }
@@ -634,9 +562,17 @@
     text-align: center;
     line-height: 1.25;
   }
+  /* A related post's card (components/PostCard.tsx) is as high as its row; the 404 page's suggestion is at most 42rem wide. */
+  .post-card {
+    height: 100%;
+  }
+  .not-found-suggestion {
+    max-width: 42rem;
+  }
   @media (prefers-reduced-motion: reduce) {
     .block-card,
     .block-card-arrow,
+    .block-card .card-media img,
     .block-card-picture img {
       transition: none;
     }
