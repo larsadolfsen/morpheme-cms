@@ -7,14 +7,13 @@ import { readFileSync } from 'node:fs';
 import postcss from 'postcss';
 import selectorParser from 'postcss-selector-parser';
 import { THEME_PARTS, NOT_PARTS } from './themeParts.mjs';
+import { UI_PART_FILES } from '../theme/styles/files.mjs';
 import { partOf, partPieces, themeCoverage } from './themeCoverage.mjs';
 
 const stylesDir = new URL('../theme/styles/', import.meta.url);
 const baseCss = readFileSync(new URL('base.css', stylesDir), 'utf-8');
 // ui.css and the files its parts moved into (docs/superpowers/plans/2026-11-16-css-split.md).
-const uiCss = ['ui.css', 'divider.css', 'badge.css', 'snackbar.css', 'tooltip.css', 'checkbox.css', 'switch.css', 'radio-button.css']
-  .map((f) => readFileSync(new URL(f, stylesDir), 'utf-8'))
-  .join('\n');
+const uiCss = ['ui.css', ...UI_PART_FILES].map((f) => readFileSync(new URL(f, stylesDir), 'utf-8')).join('\n');
 const componentsCss = readFileSync(new URL('components.css', stylesDir), 'utf-8');
 const globalCss = readFileSync(new URL('global.css', stylesDir), 'utf-8');
 const materialCss = [baseCss, uiCss, componentsCss, globalCss].join('\n');

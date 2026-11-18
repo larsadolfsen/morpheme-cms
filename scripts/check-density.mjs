@@ -8,6 +8,7 @@
 // Run by npm run check. A deliberate exception is an entry of EXEMPT with its reason.
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { UI_PART_FILES } from '../theme/styles/files.mjs';
 
 /** The parts that must read density: where their rule is, and which variable of the three groups they read. */
 export const PARTS = [
@@ -100,10 +101,7 @@ export function readStyles(root) {
     );
   for (const f of [
     'theme/styles/ui.css',
-    'theme/styles/snackbar.css',
-    'theme/styles/checkbox.css',
-    'theme/styles/switch.css',
-    'theme/styles/radio-button.css',
+    ...UI_PART_FILES.map((f) => `theme/styles/${f}`),
     'theme/styles/blocks.css',
     'theme/styles/base.css',
     'theme/styles/global.css',
