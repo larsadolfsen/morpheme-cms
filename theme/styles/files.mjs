@@ -43,7 +43,7 @@ export const UI_PART_FILES = [
 export const SITE_SHELL_FILES = ['site-logo-post.css', 'site-action.css', 'site-page.css'];
 
 /** The files global.css imports after its own rules' place (what global.css held, the Material theme's look), relative to theme/styles/, in the order it imports them. Never imported by base.css: a theme that imports only base.css must not get Material's values. */
-export const MATERIAL_FILES = ['material/navigation.css', 'material/footer.css'];
+export const MATERIAL_FILES = ['material/prose-testimonial.css', 'material/navigation.css', 'material/footer.css'];
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */
 export const OTHER_BASE_FILES = [
