@@ -15,6 +15,7 @@ import {
   HEAVY,
   FILTERED,
   LIGHT_SKIPPED,
+  SKIPPED_AT,
 } from './ci-changes.mjs';
 
 test('docs-only: skills, docs, changeset and root notes', () => {
@@ -62,7 +63,11 @@ test('a docs pull request that also touches scripts/ runs everything', () => {
   assert.equal(isDocsOnly(['.claude/skills/checks/SKILL.md', 'scripts/check-language.mjs', '.changeset/a.md']), false);
 });
 
-const ok = Object.fromEntries(['changes', 'static', ...HEAVY].map((n) => [n, { result: 'success' }]));
+// The full level: every job ran but the smoke test, which its starter shards contain.
+const ok = {
+  ...Object.fromEntries(['changes', 'static', ...HEAVY].map((n) => [n, { result: 'success' }])),
+  'starter-smoke': { result: 'skipped' },
+};
 const skipHeavy = { ...ok, ...Object.fromEntries(HEAVY.map((n) => [n, { result: 'skipped' }])) };
 
 test('verdict: everything green', () => assert.deepEqual(verdict(ok, false), []));
@@ -78,7 +83,7 @@ test('verdict: failed or cancelled job is red in both modes', () => {
   }
 });
 test('verdict: a heavy job that ran on a docs-only pull request is red (decision disagrees)', () => {
-  assert.equal(verdict(ok, true).length, HEAVY.length);
+  assert.equal(verdict(ok, true).length, HEAVY.length - 1);
 });
 test('verdict: static skipped, changes failed or a job missing is red', () => {
   assert.ok(verdict({ ...ok, static: { result: 'skipped' } }, true).length);
@@ -166,8 +171,8 @@ test('verdict: starter or demo failed or cancelled is red when the filter let th
   }
 });
 test('verdict: starter or demo skipped although the filter said run is red', () => {
-  assert.equal(verdict(skipFiltered, false, true).length, FILTERED.length);
-  assert.equal(verdict(skipFiltered, false).length, FILTERED.length);
+  assert.equal(verdict(skipFiltered, false, true).length, FILTERED.length - 1);
+  assert.equal(verdict(skipFiltered, false).length, FILTERED.length - 1);
 });
 
 // The light check: a pull request into a version line skips screens-extra, demo and starter; main and the Release PR run everything.
@@ -183,17 +188,17 @@ test('light: the Release PR, an empty or unknown base is not light (when in doub
   for (const b of ['', undefined, '0.18.1', 'release/0.18', 'x0.18', '0.18\nmain']) assert.equal(isLight(b, 'fix/a'), false, String(b));
   assert.equal(isLight(), false);
 });
-test('light: only screens-extra, demo and starter are skipped, the screens shards still run', () => {
-  assert.deepEqual(LIGHT_SKIPPED.toSorted(), ['demo', 'screens-extra', 'starter']);
+test('light: the feature level skips screens-extra, demo, starter and the smoke test, the screens shards still run', () => {
+  assert.deepEqual(LIGHT_SKIPPED.toSorted(), ['demo', 'screens-extra', 'starter', 'starter-smoke']);
   assert.ok(!LIGHT_SKIPPED.includes('screens') && !LIGHT_SKIPPED.includes('static'));
 });
 test('verdict base 0.18: light with the three jobs skipped is green', () => assert.deepEqual(verdict(skipLight, false, true, true), []));
 test('verdict base main: the same skipped jobs are red, everything must pass', () => {
-  assert.equal(verdict(skipLight, false, true, false).length, LIGHT_SKIPPED.length);
+  assert.equal(verdict(skipLight, false, true, false).length, LIGHT_SKIPPED.length - 1);
   assert.deepEqual(verdict(ok, false, true, false), []);
 });
 test('verdict base 0.18: a light job that ran anyway is red (decision disagrees)', () => {
-  assert.equal(verdict(ok, false, true, true).length, LIGHT_SKIPPED.length);
+  assert.equal(verdict(ok, false, true, true).length, LIGHT_SKIPPED.length - 1);
 });
 test('verdict base 0.18: a skipped screens shard job, a failed or cancelled job is red', () => {
   assert.equal(verdict({ ...skipLight, screens: { result: 'skipped' } }, false, true, true).length, 1);
@@ -212,7 +217,7 @@ test('verdict: light and the starter/demo filter together are green', () => {
 });
 test('verdict: the Release PR (base main, not light) must have run everything', () => {
   const light = isLight('main', 'changeset-release/main');
-  assert.equal(verdict(skipLight, false, true, light).length, LIGHT_SKIPPED.length);
+  assert.equal(verdict(skipLight, false, true, light).length, LIGHT_SKIPPED.length - 1);
   assert.deepEqual(verdict(ok, false, true, light), []);
 });
 test('verdict: an empty diff on base 0.18 is light (it still runs the screens shards)', () => {
@@ -221,7 +226,7 @@ test('verdict: an empty diff on base 0.18 is light (it still runs the screens sh
 });
 test('verdict: a classification error (light missing or unknown) runs everything', () => {
   // The workflow passes light='' when `changes` printed nothing: the CLI reads only the exact word `true`.
-  assert.equal(verdict(skipLight, false, true, '' === 'true').length, LIGHT_SKIPPED.length);
+  assert.equal(verdict(skipLight, false, true, '' === 'true').length, LIGHT_SKIPPED.length - 1);
 });
 
 // The levels: the base branch gives feature, line or full; anything unknown is full (when in doubt, run).
@@ -258,7 +263,7 @@ test('level: feature and line are light (same jobs as today), full is not', () =
 test('verdict: a pull request into a feature branch runs the light jobs and is green', () => {
   const light = isLight('feature/css-split', 'fix/a');
   assert.deepEqual(verdict(skipLight, false, true, light), []);
-  assert.equal(verdict(ok, false, true, light).length, LIGHT_SKIPPED.length);
+  assert.equal(verdict(ok, false, true, light).length, LIGHT_SKIPPED.length - 1);
 });
 
 const OLD = 'aaa111';
@@ -345,4 +350,37 @@ test('formatScope: in doubt, everything', () => {
   assert.equal(formatScope(['', '\n'], '0.18', 'x'), 'all');
   assert.equal(formatScope(['../x'], '0.18', 'x'), 'all');
   assert.equal(formatScope(null, '0.18', 'x'), 'all');
+});
+
+// The line level (a version line, plan A4): demo and the starter smoke test run, the 4 starter shards and screens-extra are skipped.
+const lineOk = { ...ok, starter: { result: 'skipped' }, 'screens-extra': { result: 'skipped' }, 'starter-smoke': { result: 'success' } };
+test('line: demo and the starter smoke test run, the starter shards and screens-extra are skipped', () => {
+  assert.deepEqual(SKIPPED_AT.line.toSorted(), ['screens-extra', 'starter']);
+  assert.deepEqual(verdict(lineOk, false, true, 'line'), []);
+});
+test('line: the smoke test skipped, or a starter shard that ran, is red', () => {
+  assert.equal(verdict({ ...lineOk, 'starter-smoke': { result: 'skipped' } }, false, true, 'line').length, 1);
+  assert.equal(verdict({ ...lineOk, starter: { result: 'success' } }, false, true, 'line').length, 1);
+  assert.equal(verdict({ ...lineOk, demo: { result: 'skipped' } }, false, true, 'line').length, 1);
+});
+test('line: a failed or cancelled smoke test is red', () => {
+  for (const r of ['failure', 'cancelled'])
+    assert.equal(verdict({ ...lineOk, 'starter-smoke': { result: r } }, false, true, 'line').length, 1);
+});
+test('line: the starter filter skips demo and the smoke test together, and docs-only skips every heavy job', () => {
+  const none = { ...lineOk, demo: { result: 'skipped' }, 'starter-smoke': { result: 'skipped' } };
+  assert.deepEqual(verdict(none, false, false, 'line'), []);
+  assert.deepEqual(verdict(skipHeavy, true, true, 'line'), []);
+});
+test('full: the smoke test must be skipped (its starter shards ran), and the shards must run', () => {
+  assert.deepEqual(verdict(ok, false, true, 'full'), []);
+  assert.equal(verdict({ ...ok, 'starter-smoke': { result: 'success' } }, false, true, 'full').length, 1);
+  assert.equal(verdict({ ...ok, starter: { result: 'skipped' } }, false, true, 'full').length, 1);
+});
+test('feature: the smoke test and the shards are skipped, as before', () => {
+  assert.deepEqual(verdict(skipLight, false, true, 'feature'), []);
+});
+test('an unknown level is the full one (when in doubt, run)', () => {
+  assert.deepEqual(verdict(ok, false, true, 'nonsense'), []);
+  assert.equal(verdict(lineOk, false, true, 'nonsense').length, 3);
 });
