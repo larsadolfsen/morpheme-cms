@@ -13,7 +13,7 @@ the rendered result is identical, its changeset, its checks and what must merge 
 - The editor slices run beside the 0.19 line; each flows into `0.19` the same day (below).
 - Defaults of the plan's decisions: literal breakpoints with a check (T03, T10); `mo-` layout classes (T04); the editor's `src/` in five slices (T05 to T09); same result first, M3 tuning later (T13).
 - CI: at most **two** Tailwind batches in CI at once.
-- Open for the owner: whether 0.18.0 and 0.18.1 are released as a pair (the PM asks). I recommend yes: authors then migrate once, to 7 (the tokens of 6 and the Tailwind break of 7, one guide).
+- Decided (owner, 18 Nov): **0.18.0 and 0.18.1 are two separate releases.** Authors meet contract 6 and then 7; the guide (T02) is published first so anything released at 6 is already written without utilities.
 
 ## The batches
 
@@ -68,7 +68,7 @@ Not a batch of this repository. Sites update themselves to a minor or patch, so 
 
 ## Questions for the PM and the owner
 
-1. **Pair or not.** Release 0.18.0 and 0.18.1 as a pair, days apart? Recommend yes (authors migrate once).
+1. **Decided: two separate releases** (owner, 18 Nov). Nothing starts before the owner has released 0.18.0.
 2. **Surfaces.** About 24 static class attributes in the editor draw a background with a radius or a border (plus dynamic ones). The batches keep their look in named part rules and list them as **Surfaces**; whether any becomes a theme component is the owner's decision, later, never inside a migration (`developer` hard rule).
 3. **The store.** Contract 7 needs `morpheme-appstore` to accept and offer 7; T16 lists the files here that name 6, the PM asks for the matching PR there.
 4. **Release note.** Site owners see nothing. T16 carries a `patch` changeset for theme and app authors; the `release-notes` skill decides whether it also gets a note.
