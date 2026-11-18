@@ -6,6 +6,7 @@ import { cpSync, mkdirSync, renameSync, rmSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { binOf } from './bin.mjs';
+import { addDemoEditor } from './demo-editor.mjs';
 import { addNamesView } from './demo-names.mjs';
 import { addTypeView } from './demo-type.mjs';
 
@@ -46,3 +47,5 @@ console.log(`Names view: ${addNamesView(site)} pages`);
 // The Typography page's numbers (demo/public/demo-type.js), in that page only.
 console.log(`Typography view: ${addTypeView(site)} page`);
 run([join(self, 'bin/morpheme.mjs'), 'after-build']);
+// The editor without sign-in, for the demo and its Previews only (scripts/demo-editor.mjs; never in the package or the starter).
+console.log(`Demo editor: ${addDemoEditor(site)} files the editor can read`);
