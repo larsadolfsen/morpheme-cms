@@ -63,12 +63,12 @@
 @import './cards.css';
 @import './type.css';
 @import './blocks.css';
-/* The Panel, Panels, Points, Checklist, Media, Copy rows and Timeline blocks (moved out of blocks.css; they come right after it, in the same layer). */
-@import './blocks/panel.css';
-/* The Person, Icon list, Facts, Table and Badge blocks (moved out of blocks.css; they come right after it, in the same layer). */
-@import './blocks/person-facts.css';
-/* The Testimonials' own rules (moved out of blocks.css; they come right after it, in the same layer). */
+/* The blocks moved out of blocks.css come right after it, in the same layer and in the order their rules had in it: Testimonial, Panel and
+   the others, Person, Icon list, Facts, Table and Badge, then the Call to action and Prices. */
 @import './blocks/testimonial.css';
+@import './blocks/panel.css';
+@import './blocks/person-facts.css';
+@import './blocks/cta-prices.css';
 /* The designs of the lists (List, List - Expand): Default and Card. */
 @import './lists.css';
 /* The classes the standard theme's site shell uses with the theme's variables: the logo and post list, the action bar, the page. */

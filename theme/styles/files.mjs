@@ -51,9 +51,10 @@ export const OTHER_BASE_FILES = [
   'cards.css',
   'type.css',
   'blocks.css',
+  'blocks/testimonial.css',
   'blocks/panel.css',
   'blocks/person-facts.css',
-  'blocks/testimonial.css',
+  'blocks/cta-prices.css',
   'lists.css',
   ...SITE_SHELL_FILES,
 ];

@@ -13,9 +13,10 @@ const css = [
   ...[
     'ui.css',
     'blocks.css',
+    'blocks/testimonial.css',
     'blocks/panel.css',
     'blocks/person-facts.css',
-    'blocks/testimonial.css',
+    'blocks/cta-prices.css',
     'cards.css',
     'global.css',
     ...MATERIAL_FILES,
