@@ -63,8 +63,9 @@
 @import './cards.css';
 @import './type.css';
 @import './blocks.css';
-/* The blocks moved out of blocks.css come right after it, in the same layer and in the order their rules had in it: Testimonial, Panel and
-   the others, Person, Icon list, Facts, Table and Badge, then the Call to action and Prices. */
+/* The blocks moved out of blocks.css come right after it, in the same layer and in the order their rules had in it: Steps, Testimonial, Panel,
+   Person (with Icon list, Facts, Table and Badge), then Call to action and Prices. */
+@import './blocks/steps.css';
 @import './blocks/testimonial.css';
 @import './blocks/panel.css';
 @import './blocks/person-facts.css';
