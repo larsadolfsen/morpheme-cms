@@ -13,8 +13,9 @@
 // Generated files are git-ignored. Each is decided by content, not file times (a fresh clone gives every source a new time): the
 // record public/images/_variants.json names, for each output, the key of the source's hash and the sizes and quality it was made with.
 // An output is kept when its file exists and its key matches; else it is taken from the live site (MORPHEME_LIVE_URL, set by
-// `morpheme ci-build`) when the live record has the same key, else sharp makes it. Only new or changed images go through sharp.
+// `morpheme ci-build`) when the live record has the same key, else sharp makes it. Only new or changed images go through sharp, a few at a time (a pool sized by the cores).
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
 import { fetchLiveRecord, hashOf, keyOf, readRecord, RECORD_NAME, takeFromLive, writeRecord } from '../lib/variant-record.mjs';
@@ -86,11 +87,13 @@ for (const { dir, out } of SOURCES) {
 const manifest = {};
 let written = 0;
 
-for (const { file, url, outBase } of files) {
+/** One image's variants, its share image, its manifest entry and its record entries; null when its size cannot be read. */
+async function make({ file, url, outBase }) {
   const { width, height } = await sharp(file).metadata();
-  if (!width || !height) continue;
+  if (!width || !height) return null;
   const hash = hashOf(await fs.readFile(file));
   const variants = [];
+  const entries = {};
   for (const w of WIDTHS.filter((w) => w < width)) {
     const outRel = outBase.replace(/\.[a-z]+$/i, `-${w}.webp`);
     const out = path.join(OUT_DIR, outRel);
@@ -101,7 +104,7 @@ for (const { file, url, outBase } of files) {
       await sharp(file).resize({ width: w }).webp({ quality: WEBP_QUALITY }).toFile(out);
       written++;
     }
-    record[rel] = key;
+    entries[rel] = key;
     variants.push({ w, src: `/images/_r/${outRel}` });
   }
   const shareRel = outBase.replace(/\.[a-z]+$/i, '.jpg');
@@ -112,8 +115,32 @@ for (const { file, url, outBase } of files) {
     await shareCut(file, width, height).flatten({ background: '#ffffff' }).jpeg({ quality: SHARE_QUALITY, mozjpeg: true }).toFile(shareOut);
     written++;
   }
-  record[`_s/${shareRel}`] = shareKey;
-  manifest[url] = { width, height, variants, share: `/images/_s/${shareRel}` };
+  entries[`_s/${shareRel}`] = shareKey;
+  return { url, entries, entry: { width, height, variants, share: `/images/_s/${shareRel}` } };
+}
+
+// A small pool: the images are made side by side, and sharp's own threads (sharp.concurrency()) are counted, so the machine is not oversubscribed.
+// MORPHEME_IMAGE_JOBS sets the number of images at once (1 = one after another). The results are put together in the order of `files`
+// (and the record is written with sorted keys), so the outputs are the same whatever order the images finish in.
+const jobs = Math.max(
+  1,
+  Number.parseInt(process.env.MORPHEME_IMAGE_JOBS ?? '', 10) ||
+    Math.min(8, Math.floor(os.availableParallelism() / Math.max(1, sharp.concurrency()))),
+);
+const results = new Array(files.length);
+let next = 0;
+await Promise.all(
+  Array.from({ length: Math.min(jobs, files.length) }, async () => {
+    while (next < files.length) {
+      const i = next++;
+      results[i] = await make(files[i]);
+    }
+  }),
+);
+for (const r of results) {
+  if (!r) continue;
+  manifest[r.url] = r.entry;
+  Object.assign(record, r.entries);
 }
 
 await fs.mkdir(path.dirname(MANIFEST), { recursive: true });

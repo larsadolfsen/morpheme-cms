@@ -156,3 +156,24 @@ test('video stills come from the live site before YouTube is asked', async () =>
     server.close();
   }
 });
+
+test('images made side by side give the same files, manifest and record as one after another', async () => {
+  const make = async () => {
+    const dir = await site();
+    for (let i = 0; i < 6; i++)
+      await sharp({ create: { width: 900 + i * 90, height: 500 + i * 30, channels: 3, background: `#${i}a${i}f9c` } })
+        .png()
+        .toFile(path.join(dir, `public/images/uploads/2026/11/img-${i}.png`));
+    return dir;
+  };
+  const one = await make();
+  const many = await make();
+  await run('responsive-images', one, { MORPHEME_IMAGE_JOBS: '1' });
+  await run('responsive-images', many, { MORPHEME_IMAGE_JOBS: '4' });
+  assert.equal(manifestOf(many), manifestOf(one));
+  const bytes = (d) => fs.readFileSync(path.join(d, 'public/images/_variants.json'), 'utf8');
+  assert.equal(bytes(many), bytes(one));
+  assert.deepEqual(Object.keys(record(many)), Object.keys(record(many)).slice().sort());
+  for (const rel of Object.keys(record(one)))
+    assert.deepEqual(fs.readFileSync(path.join(many, 'public/images', rel)), fs.readFileSync(path.join(one, 'public/images', rel)));
+});

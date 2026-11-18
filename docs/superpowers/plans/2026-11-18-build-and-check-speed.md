@@ -499,6 +499,17 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
   `os.availableParallelism()` (sharp's own threads counted), so the first build of a site, a cleared cache and a big
   upload are faster. Same outputs, byte for byte; a test compares them.
 
+**As built (18 November 2026, 0.18).** `scripts/responsive-images.mjs` makes each image in a function (`make`) and runs them through a small
+pool: `MORPHEME_IMAGE_JOBS`, else `floor(os.availableParallelism() / sharp.concurrency())`, at most 8, at least 1 (`sharp.concurrency()` is
+sharp's own thread count per image, so the two are not multiplied). Each image returns its manifest entry and its record entries; they are
+put together in the order of the file list and the record is written with sorted keys, so the manifest, the record and every file are the same
+whatever order the images finish in. The record's keys and the live-site route (batch 2) are unchanged. `scripts/responsive-images.test.mjs`
+compares one at a time with four at a time (files, manifest and record byte for byte). Measured on 60 made-up 2400 × 1600 JPEGs, nothing kept
+(4 cores, sharp concurrency 1): 1 at a time 42.4–43.3 s, 2 at a time 21.4–22.6 s, 4 at a time 11.3–11.5 s, so about 3.8 times faster on 4 cores.
+On Workers Builds Free (2 vCPU) expect about half the time, not a quarter. An incremental build, where every variant is kept, makes no images
+and gains nothing. **Not done: the video stills.** There are few, and their time is the network (YouTube, Vimeo), not sharp, so a pool is not a
+clear win.
+
 #### Batch 4. Cloudflare can make the image sizes (about 42 s, the whole image step)
 
 - A site setting (Settings › Developer › Caching and builds, next to R2 caching): **Image sizes by Cloudflare**,
