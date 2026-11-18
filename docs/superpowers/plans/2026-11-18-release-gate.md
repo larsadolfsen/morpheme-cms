@@ -27,4 +27,4 @@ The release-per-feature flow after 0.18.2 (`2026-11-18-release-per-feature.md`, 
 
 - Only the owner releases (`CLAUDE.md`): the gate only blocks; it never stages or approves anything by itself.
 - The gate reads the version staging really runs (`GET /__staging/version`), never a rebuild trigger. Staging follows only npm's `next` tag (never `next-0.18`), rebuilt by its own hourly check; nothing on the 0.18 line is tried on staging until it is in `main`.
-- `staging-follows-next.yml` keeps rebuilding staging when `next` moves. `staging-watcher/` is not deployed (the backup Worker `morpheme-staging-watcher` was never deployed); the owner decides whether to deploy or delete it. Nothing is deleted here.
+- Staging's own Worker (the app CMS-version, `scripts/cms-rebuild.mjs` in `morpheme-staging`) checks npm every hour and calls its deploy hook, so staging rebuilds when `next` moves.

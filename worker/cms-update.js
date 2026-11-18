@@ -134,8 +134,8 @@ const versionsUnder = async (kv, prefix) => (await kv.list({ prefix })).keys.map
 /**
  * Each hour (the hourly cron, also on a site whose wrangler.jsonc is older than this): checks npm only when the day's check is
  * due (checkDue: once a day, from 03:00 in the site's time zone), else one KV read and nothing more. Staging is not slowed
- * down: its package.json asks for the tag `next`, which this never updates; it follows `next` by its deploy hook
- * (.github/workflows/staging-follows-next.yml).
+ * down: its package.json asks for the tag `next`, which this never updates; it follows `next` by its own Worker, which
+ * checks npm every hour and calls its deploy hook.
  */
 export async function dailyCheck(env, deps = defaultDeps, now = Date.now(), zone = siteZone(config)) {
   if (!env.GITHUB_PUBLISH_TOKEN || !env.PUSH) return;

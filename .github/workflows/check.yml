@@ -24,7 +24,7 @@
 #
 # A pull request that changes only files that neither `starter` nor `demo` read also skips those two (the 4 starter shards and the
 # demo): the job `changes` prints starter_demo=false, and scripts/ci-changes.mjs (needsStarterDemo) lists what is safe to skip
-# (docs, tests, .claude/, .agents/, changesets, the other workflows, staging-watcher/ and the static-only check scripts); the
+# (docs, tests, .claude/, .agents/, changesets, the other workflows and the static-only check scripts); the
 # workflow, ci-changes.mjs, the Release PR, an empty diff and any other path run them (when in doubt, run). `screens`,
 # `screens-extra` and `static` are not affected.
 #
