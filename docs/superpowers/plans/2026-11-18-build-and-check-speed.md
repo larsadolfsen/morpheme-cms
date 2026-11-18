@@ -106,6 +106,26 @@ docs pull requests:
 
 A2 and A7 use building blocks 1 and 3; A3 and A8 build on block 2; A11 uses block 2 for "the tests next to the changed files".
 
+### A6 as built (test versions from a version line)
+
+`publish.yml` runs on pushes to `main` and to a line's branch (`0.[0-9]+`: `0.17`, `0.18`, `0.19`, later lines). npm trusts only this one file, so the
+new job `next-line` is in it. On a line the job `release` (Release PR, `latest`, tag, GitHub release) does not run (`if: github.ref == 'refs/heads/main'`),
+so a line opens no Release PR and nothing of it can reach `latest`. `next-line` runs `changeset version --snapshot next` in its own checkout
+(nothing committed), then `scripts/publish-next.mjs`, then `npm stage publish --tag next-<line>`. It stages only, as `next` does: the owner approves on npmjs.com.
+
+- **Tag scheme: `next` stays for `main` alone; a line uses `next-<line>`** (`next-0.18`, `next-0.19`). Why: `staging-follows-next.yml`, the staging-watcher
+  and `morpheme-staging` read `next` and must see only what `main` stages; with one shared tag the line that merged last would win, and three lines run at
+  once. A site pins the exact version (`0.18.0-next-<timestamp>`), so it needs no tag; the tag is for finding the newest one
+  (`npm view @morphemecms/cms@next-0.18 version`). `latest` is never used.
+- **The version** is the changeset snapshot as today, `X.Y.Z-next-<14 digits>`; unique (the jobs share the group `publish-next`, one at a time) and
+  sorted by time within its base. The script refuses a version that does not start with the line's own `X.Y.` (a line with only patch changesets
+  calculates `0.17.1-next-…` on `0.18`): the job fails and stages nothing; add a `minor` changeset.
+- **Tested:** `scripts/publish-next.test.mjs` (tags, versions, skips, and the workflow's tag, no `latest`/tag/release in the job, `release` only on main).
+  Dry run by hand: `node scripts/publish-next.mjs --branch 0.18 --version 0.18.0-next-20261118120000 --base 0.17.0`. Nothing was published to test it.
+- **First real stage (the PM, after the merge into `feature/build-check-speed` and its way into `0.18`):** the first push to `0.18` after the workflow is on
+  `0.18` runs *Publish*; its job `next-line` must show `stage … under "next-0.18"`, and `npm view @morphemecms/cms dist-tags --json` must list `next-0.18`
+  (after the owner approves) with `next` and `latest` unchanged. Note: a workflow runs from the pushed branch's own copy, so `0.18` needs this file.
+
 ### A8 as built (screens parts balanced by time)
 
 Units are dealt to the shards by measured time (`scripts/screens/support/balance.mjs`, times in `scripts/screens/unit-times.json`,

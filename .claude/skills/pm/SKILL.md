@@ -75,9 +75,11 @@ line once, and the line goes into `main` once, when it is released):
    changed) and, for a change the owner can see, the owner's approval of the whole feature with its screenshots (section 4). Its
    changesets are the pieces' changesets. Then the PM deletes the feature branch.
 6. **The line into `main`, once.** A line's branch is merged into `main` when the owner has said go for its release (section 7), not
-   piece by piece. The test versions (`next`) the owner tries on `morpheme-staging` are built from the line's own branch. Until the
-   publish workflow can build a `next` version from a line's branch (`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A, its pull
-   request 6), the PM merges the line into `main` only when the owner asks for a test version, and says so in its report.
+   piece by piece. A merge into the line's branch stages a test version of the line
+   (`0.18.0-next-<time>`) under the npm tag `next-0.18` (`publish.yml`, job `next-line`; plan A6 as built). The owner approves it on npmjs.com; a
+   site pins the exact version, and only `main` moves `next` (which `morpheme-staging` follows). The PM never merges a line into `main` to get a test version. **First stage:** after the
+   first merge into a line, read the run of *Publish* for that merge (job `next-line`, step *plan* says `stage 0.18.0-next-…
+   under "next-0.18"`), tell the owner to approve it, and check `npm view @morphemecms/cms dist-tags --json` shows `next-0.18` and `next` unchanged.
 
 **Two version lines at the same time.** When two lines run together (for example `0.18` and `0.19`), each line has its own PM and
 its own branch, and each PM merges only into its own branch and its features. After each merge into the earlier line, the later
