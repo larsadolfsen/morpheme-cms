@@ -83,7 +83,43 @@ version line runs the light check (`static` and the 8 shards), about 8 minutes. 
 Each pull request updates the `checks` skill's *What CI runs* to what it built, and `scripts/ci-changes.test.mjs`. No test is skipped,
 disabled or deleted to save time: a unit leaves a level only by being outside the core set and outside the touched areas.
 
-A2 uses building blocks 1 and 3; A3 builds block 2.
+Added 18 November 2026 (owner: "optimize everything"), found in the workflow, the full run of #888 and the runs of the CTO's
+docs pull requests:
+
+7. **`static` does not build twice.** `npm run check` runs `npm run build` and Prettier on every file, so `static` builds the editor and
+   the demo again beside the screens jobs. It reuses the shared build (A2); at the feature and line levels Prettier checks only the
+   changed files and `tsc` keeps its build info (`.tsbuildinfo`) in the cache; the full level checks everything as today.
+8. **Screens parts balanced by time.** The 8 parts took 5.5 to 8.5 minutes. The units are split by their measured time (kept from the
+   last full run), so the slowest part sets a shorter wall time; the number of parts is chosen from the same numbers.
+9. **No demo build for a docs-only push.** Cloudflare's Workers Builds builds `morpheme-demo` on every push of every branch, docs
+   included. Its build watch paths (Settings > Build > Build watch paths; developers.cloudflare.com/workers/ci-cd/builds/build-watch-paths/)
+   exclude `docs/*`, `.claude/*`, `.changeset/*` and the root Markdown files. A dashboard setting, not code: the owner sets it (or tells
+   who may); the PM checks the next docs pull request skips the build.
+10. **A cancelled run is not a failure.** A push that supersedes a run cancels it (`concurrency`), and the job `check` then fails with
+    "cancelled, must be success", so every superseded head reports a red `check` that sessions investigate. The job `check` reports a
+    run cancelled by a newer push as cancelled (not failed); a job that fails is still a failure.
+11. **A fast local check.** `npm run check:fast`: Prettier on the changed files, `tsc` with its build info, `npm run check:language` and
+    the tests next to the changed files. The `developer` and `checks` skills ask for it before a push; CI runs the rest. `npm run check`
+    stays for the full local run.
+12. **CI slots follow the cost.** When A2, A3 and A7 are merged and a feature check takes a few minutes, the `pm` skill's limit of 3 runs
+    per PM is set again from the measured queue (more runs when they are short), so the slots do not become the bottleneck.
+
+A2 and A7 use building blocks 1 and 3; A3 and A8 build on block 2; A11 uses block 2 for "the tests next to the changed files".
+
+### A8 as built (screens parts balanced by time)
+
+Units are dealt to the shards by measured time (`scripts/screens/support/balance.mjs`, times in `scripts/screens/unit-times.json`,
+refreshed by `scripts/refresh-unit-times.mjs`; skill `checks`, *Built (PR 8)*). Slowest unit first, each to the shard with the least time so far;
+no times, or unreadable ones, deal by number as before.
+
+- **Before** (the run of #924, run 44252865810, 363 units, 8 shards dealt by number): the `screens` step took 8:23, 7:43, 7:28, 7:28, 7:28, 7:26,
+  6:48 and 5:26 (longest 503 s, shortest 326 s); the units add up to 3468 s, 433 s per shard if the shards were even; the longest unit is 94 s.
+- **Predicted** from the same times: 8 shards of 437 to 438 s (the longest 503 s becomes about 438 s, about 1 minute less). 6 shards give 583 s,
+  10 give 350 s, 12 give 292 s (`node scripts/refresh-unit-times.mjs <logs>` prints this table). Each job also spends about 30 to 60 s on setup.
+  The count stays 8: more shards only cut the wall time by their share and cost one runner and one setup each.
+- **After:** to be written from the first run of this pull request's `screens` jobs (a full run, `areas=all`, gives the numbers to compare; a
+  selected run is shorter by design).
+
 
 ### A3 as built (touched areas and the core set)
 
