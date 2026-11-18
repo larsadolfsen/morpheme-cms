@@ -1,8 +1,8 @@
-import { readFileSync } from 'node:fs';
 import { constants, inflateSync } from 'node:zlib';
 import { openEditor, removeVirtualFile, virtualFile } from '../built-site.mjs';
 import { toolWidth } from '../../src/textBar.mjs';
-import { DEFAULT_SCHEME, SPRINGS, browser, isMotionScheme, problems, site, springCss } from './support/context.mjs';
+import { DEFAULT_SCHEME, PACK, PACK_FOLDER, ROOT, SPRINGS, browser, isMotionScheme, problems, site, springCss } from './support/context.mjs';
+import { previewReference } from './support/icon-pack.mjs';
 import { barTools, menusSettled, openStyleMenu, pressInsert } from './support/shared.mjs';
 
 /** The bar has no divider (owner decision, 14 Nov) and Undo, Redo and Insert block stand at its right end in that order, then the ⋮ when there is one: `names` are the bar's buttons left to right,
@@ -931,14 +931,13 @@ async function checkSaveKeyNoAutosave() {
   await page.close();
 }
 
-/** Every Preview action of a page (the text bar's button, its row in the `⋮`, the Save bar's button) draws one icon, the monitor with a phone (Material Symbols' `devices`, Phosphor's `devices`, Lucide's `monitor-smartphone`; owner, 16 Nov 2026: "Use the monitor-cellphone icon for preview everywhere"). The Material pack's file is the reference. */
+/** Every Preview action of a page (the text bar's button, its row in the `⋮`, the Save bar's button) draws one icon, the monitor with a phone (Material Symbols' `devices`, Phosphor's `devices`, Lucide's `monitor-smartphone`; owner, 16 Nov 2026: "Use the monitor-cellphone icon for preview everywhere"). The Pack in use's file is the reference (Material Symbols unless the site or its theme chose another). */
 async function checkPreviewIcon(width) {
   const label = `${width}px Preview icon`;
   const touch = width < 600;
-  const reference = readFileSync(new URL('../../icons/material-symbols/devices.svg', import.meta.url), 'utf8').match(
-    /<path d="([^"]+)"/,
-  )?.[1];
-  if (!reference) return problems.push(`${label}: icons/material-symbols/devices.svg has no path`);
+  // The icon of the pack in use (Material Symbols unless the site or its theme chose another): its own file is the reference.
+  const reference = previewReference(PACK_FOLDER, ROOT);
+  if (!reference) return problems.push(`${label}: ${PACK_FOLDER}/devices.svg has no path`);
   const page = await browser.newPage({ viewport: { width, height: 812 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);

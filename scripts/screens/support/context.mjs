@@ -5,6 +5,9 @@ import { tmpdir } from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { build } from 'esbuild';
 import { serveBuilt, virtualFile } from '../../built-site.mjs';
+import { iconPack } from '@morphemecms/cms/site/theme.mjs';
+import { packFolder } from '@morphemecms/cms/site/icons.mjs';
+import { glyphProblems } from './icon-pack.mjs';
 
 // The editor is opened in Danish (locale da-DK below), so the texts it shows are read from its Danish messages. They are
 // TypeScript, which Node does not run in node_modules (ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING), so esbuild bundles
@@ -86,8 +89,13 @@ const PHOSPHOR_OK = [
   },
 ];
 export const phosphorGlyph = (d) => !PHOSPHOR_OK.some((ok) => d.startsWith(ok.d));
-export const phosphorProblem = (where, d) =>
-  `${where}: an icon is drawn as a Phosphor glyph (path "${d.slice(0, 24)}…") while Material Symbols is the icon pack in use: route it through the pack (Icon, or the pack's file) or allow it in PHOSPHOR_OK with a reason`;
+// The icon pack in use, as the editor resolves it (iconPack in site/theme.mjs: src/data/icons.json, else the theme's "icons", else
+// Material Symbols), and its folder from the site's root: what the checks of the icons expect follows it (icon-pack.mjs).
+export const PACK = iconPack();
+export const PACK_FOLDER = packFolder(PACK);
+/** The problems of one Phosphor glyph (its first path `d`) found in the editor's DOM: none while Phosphor is the pack in use. */
+export const phosphorProblems = (where, d) =>
+  glyphProblems(PACK, where, '<svg viewBox="0 0 256 256">', d, (x) => !phosphorGlyph(x));
 
 export const fallbackIcon = (name) =>
   `the icon "${name}" is from the whole of Material Symbols or Phosphor (not in the icon pack): give it an icon in each pack's map if it is to stay`;
@@ -104,9 +112,10 @@ for (const entry of readdirSync(DIST, { recursive: true, withFileTypes: true }))
   for (const [, name] of readFileSync(file, 'utf8').matchAll(/data-icon-missing="([^"]*)"/g))
     missingOn.set(name, new Set([...(missingOn.get(name) ?? []), `/${relative(DIST, file)}`]));
   for (const [, name] of readFileSync(file, 'utf8').matchAll(/data-icon-fallback="([^"]*)"/g)) fallbackAt(name, `/${relative(DIST, file)}`);
-  // The site's pages: a Phosphor glyph (the demo's pack is Material Symbols).
-  for (const [, d] of readFileSync(file, 'utf8').matchAll(/<svg[^>]*viewBox="0 0 256 256"[^>]*><path d="([^"]*)"/g))
-    if (phosphorGlyph(d) && SHARD === 1) problems.push(phosphorProblem(`/${relative(DIST, file)}`, d));
+  // The site's pages: a glyph of another pack than the one in use (the demo's pack is Material Symbols).
+  // (A Phosphor glyph is a finding unless Phosphor is the pack in use; then a Material Symbols glyph is: icon-pack.mjs.)
+  for (const [, tag, d] of readFileSync(file, 'utf8').matchAll(/(<svg[^>]*viewBox="[^"]*"[^>]*>)<path d="([^"]*)"/g))
+    if (SHARD === 1) problems.push(...glyphProblems(PACK, `/${relative(DIST, file)}`, tag, d, (x) => !phosphorGlyph(x)));
 }
 // The checks over the whole built site (here: its pages' icons) run in the first shard only.
 for (const [name, pages] of SHARD === 1 ? missingOn : []) {
