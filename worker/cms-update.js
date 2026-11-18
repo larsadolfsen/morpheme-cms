@@ -9,6 +9,7 @@
 import { config } from '@site/config';
 import { cms as cmsEn } from '../src/i18n/en-US/cms';
 import { cms as cmsDa } from '../src/i18n/da-DK/cms';
+import { withCiBuild } from '../lib/build-command.mjs';
 import { addToLock, NeedsNpm } from '../lib/lockfile.mjs';
 import { checkDue, compareVersions, managedVersion, nextVersion, PACKAGE, siteZone, watchStep } from '../lib/cms-version.mjs';
 import { fileFromTar, gunzip, sectionsBetween } from '../lib/changelog.mjs';
@@ -25,6 +26,7 @@ export const RUNNING = pkg.version;
 
 const PACKAGE_JSON = 'package.json';
 const LOCK = 'package-lock.json';
+const WRANGLER = 'wrangler.jsonc';
 const NPM = 'https://registry.npmjs.org';
 const NPM_NAME = '@morphemecms%2fcms';
 const BUILD_APP = 'cloudflare-workers-and-pages';
@@ -53,23 +55,27 @@ const written = (value, original) => JSON.stringify(value, null, 2) + (original?
 
 /** The files' texts parsed, and the branch's head. */
 async function readSite(env, deps) {
-  const { head, texts } = await deps.readFiles(env, [PACKAGE_JSON, LOCK]);
+  const { head, texts } = await deps.readFiles(env, [PACKAGE_JSON, LOCK, WRANGLER]);
   return {
     head,
     texts,
     packageJson: texts[0] ? JSON.parse(texts[0]) : null,
     lock: typeof texts[1] === 'string' ? JSON.parse(texts[1]) : null,
+    wrangler: texts[2],
   };
 }
 
-/** The files with `version` of the package in them, as changes for one commit. */
+/** The files with `version` of the package in them (and the build command moved to `morpheme ci-build`, when it is not), as changes for one commit. */
 async function filesFor(env, deps, site, version) {
   const manifest = await getJson(deps, `${NPM}/${NPM_NAME}/${version}`);
   if (!site.lock) throw new NeedsNpm('package-lock.json is missing.');
   const out = addToLock(site.packageJson, site.lock, manifest);
+  // A site whose build command is not `npx morpheme ci-build` is moved to it with the update (once: it then needs no change).
+  const wrangler = withCiBuild(site.wrangler);
   return [
     { path: PACKAGE_JSON, text: written(out.packageJson, site.texts[0]) },
     { path: LOCK, text: written(out.lock, site.texts[1]) },
+    ...(wrangler === null ? [] : [{ path: WRANGLER, text: wrangler }]),
   ];
 }
 

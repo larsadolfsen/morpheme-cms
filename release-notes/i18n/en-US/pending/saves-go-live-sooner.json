@@ -1,0 +1,7 @@
+{
+  "id": "saves-go-live-sooner",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Saves go live sooner",
+  "text": "A save reaches your site about a minute sooner, because a build that changes only content skips the code checks. The next Morpheme update moves your site to this faster build by itself. A new Morpheme version still runs every check."
+}
