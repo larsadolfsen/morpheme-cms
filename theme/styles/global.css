@@ -29,6 +29,7 @@
 @import './tokens/material/comp/toolbar.css';
 @import './tokens/material/comp/tooltip.css';
 @import './tokens/material/comp/top-app-bar.css';
+@import './tokens/material/registry.css';
 @import './tokens/material/ref.css';
 @import './tokens/material/sys.css';
 @import '@fontsource-variable/roboto';
