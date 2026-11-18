@@ -5,6 +5,7 @@
 
 /** The files that hold what ui.css held: one UI part each (the Divider, the Badge …), in the order base.css imports them. */
 export const UI_PART_FILES = [
+  'navigation-drawer.css', // right after ui.css in base.css, before divider.css: its section divider is a .divider too
   'divider.css',
   'badge.css',
   'loading-indicator.css',
