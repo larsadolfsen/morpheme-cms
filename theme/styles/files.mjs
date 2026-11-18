@@ -12,6 +12,8 @@ export const UI_PART_FILES = [
   'snackbar.css',
   'tooltip.css',
   'checkbox.css', // before ui.css in base.css: the list's selection box is a .checkbox, and the list's rules (in ui.css) must win over it
+  'dialog.css', // before ui.css in base.css: the pickers' dialogs are .dialog-modal too, and the picker rules (in ui.css) must win over it
+  'lightbox.css', // made of the dialog's classes, right after dialog.css
   'switch.css',
   'radio-button.css',
   'slider.css',

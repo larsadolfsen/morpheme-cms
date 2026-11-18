@@ -1,0 +1,118 @@
+/*
+  The Dialog (Dialog.tsx, ask.tsx): the container, the modal dialog in the middle of the screen over the scrim, the basic dialog's icon, headline,
+  supporting text, divider and actions, and the compact window. The doc paragraph with its variables is in tokens/ui/comp/.
+  Moved here from ui.css with its rules and keyframes unchanged and in their order, in the same layer. Imported by base.css BEFORE ui.css, like the Checkbox
+  and the Chips: the date picker's and the time picker's dialogs are `dialog-modal date-picker-dialog` and `dialog-modal time-picker-dialog` (DatePicker.tsx,
+  TimePicker.tsx), and the picker rules, still in ui.css, set the same properties at the same specificity and came after them; they must still win
+  (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* A dialog's container. */
+  .dialog {
+    border-radius: var(--mo-comp-dialog-container-shape, var(--mo-sys-block-radius));
+    background: var(--dialog-surface, var(--mo-sys-elevation-level3-color));
+    box-shadow:
+      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
+      var(--dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+  }
+  /* A modal dialog: in the middle of the screen over the scrim, coming up a little as it opens. */
+  .dialog-modal {
+    width: calc(100% - 2rem);
+    max-width: var(--dialog-max-width, 28rem);
+    margin: auto;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+  }
+  /* The dialog itself has the focus when it opens (dialogFocus.ts), so no control looks chosen: no ring on the container. */
+  .dialog-modal:focus {
+    outline: none;
+  }
+  .dialog-modal::backdrop {
+    background: var(
+      --mo-comp-dialog-scrim,
+      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent)
+    );
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .dialog-modal[open] {
+      animation: dialog-in var(--mo-sys-motion-spring-default-spatial);
+    }
+    .dialog-modal[open]::backdrop {
+      animation: dialog-scrim-in var(--mo-sys-motion-spring-slow-effects);
+    }
+  }
+  @keyframes dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(1rem) scale(0.98);
+    }
+  }
+  @keyframes dialog-scrim-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* A basic dialog with its parts: the icon and the headline, the supporting text, what else it shows (scrolling when
+     it is long), and the actions at its end. */
+  .dialog-basic {
+    display: flex;
+    flex-direction: column;
+    padding: var(--dialog-padding, 1.5rem);
+  }
+  .dialog-modal > .dialog-basic {
+    max-height: calc(100dvh - 3rem);
+  }
+  .dialog-icon {
+    flex-shrink: 0;
+    align-self: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--dialog-icon-color, var(--mo-sys-block-accent));
+  }
+  .dialog-headline {
+    flex-shrink: 0;
+    margin: 0 0 1rem;
+    font-size: var(--dialog-headline-size, var(--mo-sys-typescale-headline-small-size));
+    font-weight: var(--dialog-headline-weight, var(--mo-sys-typescale-headline-small-weight));
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+  }
+  .dialog-with-icon .dialog-headline {
+    text-align: center;
+  }
+  .dialog-supporting-text {
+    flex-shrink: 0;
+    color: var(--dialog-supporting-text-color, var(--mo-sys-block-muted));
+  }
+  .dialog-supporting-text > * + * {
+    margin-top: 0.75rem;
+  }
+  .dialog-basic .dialog-content {
+    min-height: 0;
+    margin-inline: calc(-1 * var(--dialog-padding, 1.5rem));
+    padding-inline: var(--dialog-padding, 1.5rem);
+    overflow-y: auto;
+  }
+  .dialog-supporting-text + .dialog-content {
+    margin-top: 1rem;
+  }
+  .dialog .dialog-divider {
+    flex-shrink: 0;
+    margin: 1rem calc(-1 * var(--dialog-padding, 1.5rem)) 0;
+  }
+  .dialog-actions {
+    display: flex;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+  .dialog-divider + .dialog-actions {
+    margin-top: 1rem;
+  }
+}
