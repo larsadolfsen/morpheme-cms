@@ -1,5 +1,5 @@
 // "Parts" › "Values" (#developer/parts/values): the theme's design tokens, as the theme in use sets them, to see them in one
-// place: the corners, one row for each size the theme uses (the theme's base, base.css and components.css, which every
+// place: the corners, one row for each size the theme uses (the theme's base, base.css and the site shell's files, which every
 // theme has, and its UI parts', ui.css: each part's own variable, else the one ui.css gives it instead), named by
 // Material 3's corner radius scale where the size is one of its steps, with what has it under; the shadows, one row for
 // each of Material 3's elevation levels (ui.css, set by the theme to its own look) with what has it under (the theme's
