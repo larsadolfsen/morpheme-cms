@@ -719,7 +719,14 @@ export const parts: Messages['parts'] = {
     /** The theme's cards and lists (Card.tsx, List.tsx in packages/editor/theme/ui/), under "UI-komponenter". */
     cardsAndLists: {
       title: 'Kort og lister',
-      card: 'En flade med det, der hører sammen: med ramme, hævet eller fyldt, også mens det trækkes. Hele kortet kan være et link.',
+      card: 'En flade med det, der hører sammen: med ramme, hævet eller fyldt, også mens det trækkes. Det kan have medie eller ikon, overskrift, underoverskrift, støttetekst og knapper. Hele kortet kan være et link, men så har det ingen knapper.',
+      anatomy: {
+        headline: 'Overskrift',
+        subhead: 'Underoverskrift',
+        supporting: 'Støttetekst, så lang som der skal til for at sige, hvad kortet handler om.',
+        learnMore: 'Læs mere',
+        save: 'Gem',
+      },
       avatar: 'Et rundt mærke med et bogstav eller et billede, 40 dp bredt. Det står først i et listepunkt og er et korts miniature.',
       list: 'Punkter under hinanden på én, to eller tre linjer, med ikon, avatar, billede, video, valg, tekst og pil, med eller uden streger imellem, eller hvert på sin egen flade. Et punkt kan gøre noget, når der trykkes, have handlinger ved siden af og have sin tekst side om side på en bred skærm.',
       kinds: { elevated: 'Hævet', filled: 'Fyldt', outlined: 'Med ramme' },

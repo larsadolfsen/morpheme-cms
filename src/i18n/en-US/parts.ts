@@ -745,7 +745,14 @@ export const parts = {
     /** The theme's cards and lists (Card.tsx, List.tsx in packages/editor/theme/ui/), under "UI components". */
     cardsAndLists: {
       title: 'Cards and lists',
-      card: "A surface with what belongs together: outlined, elevated, or filled, also while it's dragged. The whole card can be a link.",
+      card: "A surface with what belongs together: outlined, elevated, or filled, also while it's dragged. It can have media or an icon, a headline, a subhead, supporting text, and buttons. The whole card can be a link, but then it has no buttons.",
+      anatomy: {
+        headline: 'Headline',
+        subhead: 'Subhead',
+        supporting: 'Supporting text, as long as it takes to say what the card is about.',
+        learnMore: 'Learn more',
+        save: 'Save',
+      },
       avatar: "A round mark with a letter or an image, 40 dp across. It leads a list item, and it's the thumbnail of a card.",
       list: 'Items under each other on 1, 2, or 3 lines, with an icon, an avatar, an image, a video, a choice, text, and an arrow, with or without lines between them, or each on its own surface. An item can do something when tapped, have actions beside it, and have its text side by side on a wide screen.',
       kinds: { elevated: 'Elevated', filled: 'Filled', outlined: 'Outlined' },
