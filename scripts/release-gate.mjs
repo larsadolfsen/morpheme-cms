@@ -8,7 +8,7 @@
 // into main, so HEAD^1 is the main commit that is about to be released; after the merge HEAD^1 is the same commit):
 //   (a) `npm view @morphemecms/cms@next gitHead` equals HEAD^1. The Release PR adds only the version and the changelog, so the `next` build
 //       of that main commit is the code that will be `latest`.
-//   (b) GET <STAGING_URL>/__staging/version answers 200 with { "cms": <the next version> } (served by morpheme-staging's Worker, which answers
+//   (b) GET <STAGING_URL>/__staging/version answers 200 with the exact installed version as plain text (trimmed; written at build time, served by morpheme-staging's Worker, which answers
 //       200 only when its home page and /editor/ render).
 // The staging address is the repository variable STAGING_URL (Settings > Secrets and variables > Actions > Variables), for example
 // https://staging.example.com. It is not kept in the repository; an empty one fails the gate with a clear message.
@@ -56,18 +56,18 @@ async function checkStaging(fetchFn, stagingUrl, nextVersion) {
   const url = `${stagingUrl.trim().replace(/\/+$/, '')}${VERSION_PATH}`;
   let response;
   try {
-    response = await fetchFn(url, { headers: { accept: 'application/json' }, signal: AbortSignal.timeout(30_000) });
+    response = await fetchFn(url, { headers: { accept: 'text/plain' }, signal: AbortSignal.timeout(30_000) });
   } catch (error) {
     return notRunning(`${url} did not answer: ${error?.message ?? error}`);
   }
   if (response.status !== 200) return notRunning(`${url} answered ${response.status}`);
-  let body;
+  let running;
   try {
-    body = await response.json();
+    running = (await response.text()).trim();
   } catch {
-    return notRunning(`${url} did not answer JSON`);
+    return notRunning(`${url} did not answer a body`);
   }
-  if (body?.cms !== nextVersion) return notRunning(`it runs ${body?.cms ?? 'an unknown version'}`);
+  if (running !== nextVersion) return notRunning(`it runs ${running || 'an unknown version'}`);
   return '';
 }
 

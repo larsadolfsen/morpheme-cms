@@ -13,12 +13,12 @@ const view =
     if (values[field] instanceof Error) throw values[field];
     return values[field];
   };
-const answer = (status, body) => async () => ({ status, json: async () => body });
+const answer = (status, body) => async () => ({ status, text: async () => body });
 const run = (o = {}) =>
   gate({
     parent: PARENT,
     npmView: view(),
-    fetch: answer(200, { cms: V }),
+    fetch: answer(200, `${V}\n`),
     stagingUrl: 'https://staging.example.test/',
     ...o,
   });
@@ -29,7 +29,7 @@ test('all conditions hold: passes', async () => {
 
 test('asks staging at <url>/__staging/version', async () => {
   let asked = '';
-  await run({ fetch: async (url) => ((asked = url), { status: 200, json: async () => ({ cms: V }) }) });
+  await run({ fetch: async (url) => ((asked = url), { status: 200, text: async () => V }) });
   assert.equal(asked, 'https://staging.example.test/__staging/version');
 });
 
@@ -51,30 +51,30 @@ test('(a) npm failing fails', async () => {
 });
 
 test('(b) staging on another version fails', async () => {
-  const r = await run({ fetch: answer(200, { cms: '0.18.0-next-20261117000000' }) });
+  const r = await run({ fetch: answer(200, '0.18.0-next-20261117000000') });
   assert.equal(r.ok, false);
   assert.match(r.problems[0], new RegExp(`^staging does not run ${V} yet`));
 });
 
 test('(b) staging not answering 200 fails', async () => {
   for (const status of [404, 500, 503]) {
-    const r = await run({ fetch: answer(status, { cms: V }) });
+    const r = await run({ fetch: answer(status, V) });
     assert.equal(r.ok, false, String(status));
     assert.match(r.problems[0], new RegExp(`^staging does not run ${V} yet \\(.*${status}`));
   }
 });
 
-test('(b) staging unreachable, not JSON, or with no address fails', async () => {
+test('(b) staging unreachable, no body, or with no address fails', async () => {
   assert.match((await run({ fetch: async () => Promise.reject(new Error('down')) })).problems[0], /^staging does not run/);
   assert.match(
-    (await run({ fetch: async () => ({ status: 200, json: async () => Promise.reject(new Error('x')) }) })).problems[0],
-    /did not answer JSON/,
+    (await run({ fetch: async () => ({ status: 200, text: async () => Promise.reject(new Error('x')) }) })).problems[0],
+    /did not answer a body/,
   );
   assert.match((await run({ stagingUrl: '' })).problems[0], /STAGING_URL/);
 });
 
 test('both failing reports both', async () => {
-  const r = await run({ npmView: view({ gitHead: OTHER }), fetch: answer(500, {}) });
+  const r = await run({ npmView: view({ gitHead: OTHER }), fetch: answer(500, '') });
   assert.equal(r.problems.length, 2);
 });
 
