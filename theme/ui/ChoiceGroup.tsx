@@ -1,4 +1,4 @@
-// A choice group (.choice-group in ../styles/button-groups.css): one choice of a few, which takes its form by measuring, so it never
+// A choice group (.choice-group in ../styles/ui/button-groups.css): one choice of a few, which takes its form by measuring, so it never
 // squeezes. When every choice fits its label on one line at an equal share of the width, it is Material's connected button
 // group (m3.material.io/components/button-groups: ButtonGroup kind="connected" with a filled, small toggle Button
 // for each choice, aria-pressed; no check mark, the chosen one shows by its shape and colour); otherwise a list of radio

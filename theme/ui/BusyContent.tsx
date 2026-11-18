@@ -1,4 +1,4 @@
-// The inside of a busy Button or IconButton (.button-busy-content, .button-busy-indicator in ../styles/buttons.css): the
+// The inside of a busy Button or IconButton (.button-busy-content, .button-busy-indicator in ../styles/ui/buttons.css): the
 // usual content, hidden after the delay, and a loading indicator (aria-hidden) in the middle. Exposes BusyContent.
 // Reuses loadingIndicatorClass from ./LoadingIndicator.
 import type { ReactNode } from 'react';

@@ -1,4 +1,4 @@
-// A switch (m3.material.io/components/switch, .switch in ../styles/switch.css): a SettingRow (SettingRow.tsx) with its name
+// A switch (m3.material.io/components/switch, .switch in ../styles/ui/switch.css): a SettingRow (SettingRow.tsx) with its name
 // (`label`) and a line under it (`supporting`), and after them the track with its handle, all of it one <label>, so a
 // click anywhere switches it; the switch is a native <input type="checkbox" role="switch">, so Space switches it and screen readers say
 // "on"/"off". `icons`: the theme's icons in the handle, 'both' (a check when it is on, a cross when it is off) or

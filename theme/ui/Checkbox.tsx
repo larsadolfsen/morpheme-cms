@@ -1,4 +1,4 @@
-// A checkbox (m3.material.io/components/checkbox, .checkbox in ../styles/checkbox.css): the box, its name (`label`) beside
+// A checkbox (m3.material.io/components/checkbox, .checkbox in ../styles/ui/checkbox.css): the box, its name (`label`) beside
 // it and a line under the name (`supporting`), all of it one <label>, so a click anywhere ticks it. `checked`: ticked
 // from the start; `indeterminate`: neither ticked nor not (a choice over others, some of which are ticked; the browser
 // has it as a property, not an attribute, so on the site checkbox.script.ts sets it from data-indeterminate, and in the
