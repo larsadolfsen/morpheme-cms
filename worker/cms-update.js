@@ -11,6 +11,7 @@ import { cms as cmsEn } from '../src/i18n/en-US/cms';
 import { cms as cmsDa } from '../src/i18n/da-DK/cms';
 import { addToLock, NeedsNpm } from '../lib/lockfile.mjs';
 import { checkDue, compareVersions, managedVersion, nextVersion, PACKAGE, siteZone, watchStep } from '../lib/cms-version.mjs';
+import { withInstallDefaults } from '../lib/npmrc.mjs';
 import { fileFromTar, gunzip, sectionsBetween } from '../lib/changelog.mjs';
 import { imageKey, notesFromTar, parseImagePath, withImageUrls } from '../lib/releaseNotes.mjs';
 import pkg from '../package.json';
@@ -25,6 +26,7 @@ export const RUNNING = pkg.version;
 
 const PACKAGE_JSON = 'package.json';
 const LOCK = 'package-lock.json';
+const NPMRC = '.npmrc';
 const NPM = 'https://registry.npmjs.org';
 const NPM_NAME = '@morphemecms%2fcms';
 const BUILD_APP = 'cloudflare-workers-and-pages';
@@ -53,7 +55,7 @@ const written = (value, original) => JSON.stringify(value, null, 2) + (original?
 
 /** The files' texts parsed, and the branch's head. */
 async function readSite(env, deps) {
-  const { head, texts } = await deps.readFiles(env, [PACKAGE_JSON, LOCK]);
+  const { head, texts } = await deps.readFiles(env, [PACKAGE_JSON, LOCK, NPMRC]);
   return {
     head,
     texts,
@@ -67,9 +69,11 @@ async function filesFor(env, deps, site, version) {
   const manifest = await getJson(deps, `${NPM}/${NPM_NAME}/${version}`);
   if (!site.lock) throw new NeedsNpm('package-lock.json is missing.');
   const out = addToLock(site.packageJson, site.lock, manifest);
+  const npmrc = withInstallDefaults(site.texts[2]);
   return [
     { path: PACKAGE_JSON, text: written(out.packageJson, site.texts[0]) },
     { path: LOCK, text: written(out.lock, site.texts[1]) },
+    ...(npmrc === (site.texts[2] ?? null) ? [] : [{ path: NPMRC, text: npmrc }]),
   ];
 }
 

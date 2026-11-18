@@ -509,6 +509,10 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
   checks. Measure on the test site before and after.
 - Look at the site's 543 packages: what the site's `package.json` installs that only the editor's local checks need
   (Playwright and the like) moves to what `check:screens` installs on demand. Measure, then decide.
+- **Built (B5).** `starter/.npmrc` and the CMS update (`lib/npmrc.mjs`, used by `worker/cms-update.js`) add the three lines once, keep the
+  site's own lines and write nothing when they are there. Not measured: a Cloudflare test site cannot be reached from the build session, so the
+  seconds saved are unmeasured. The starter already leaves Playwright out (`scripts/starter.mjs`); nothing else in its `package.json` is only for local checks
+  (see the pull request for the sizes), so nothing moved.
 
 #### Batch 6. The editor's client bundle is not built on every save (about 10–13 s) — needs a design
 
