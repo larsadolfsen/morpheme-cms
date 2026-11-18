@@ -199,6 +199,19 @@ built, the levels are the ones the `checks` skill describes today; `check.yml` r
 lines, so the PM opens no feature branch before that plan's pull request 1 (checks on `feature/**`) is merged. The CI plan is the PM's
 first build task.
 
+**The morning read of the feature branches** (daily full run; plan A5, skill `checks`). Every morning, before anything else, read the `daily-full` commit status on each open
+feature branch's head, one call per branch:
+
+```
+for b in $(gh api "repos/larsadolfsen/morpheme-cms/git/matching-refs/heads/feature/" --jq '.[].ref|ltrimstr("refs/heads/")'); do
+  echo "$b: $(gh api "repos/larsadolfsen/morpheme-cms/commits/$b/statuses" --jq '[.[]|select(.context=="daily-full")][0]|if .==null then "no mark yet" else "\(.state) \(.description) \(.target_url)" end')"
+done
+```
+
+`success` is green. `failure`: read the run (`target_url`), find the piece that broke it and have its session fix it in a pull request into the feature branch; the branch is not run again
+until it has a new head (to re-run one by hand: *Run workflow* on `Check` for that branch, level `full`). `no mark yet` on a branch with new commits means the run is still going, was cancelled
+(tomorrow it runs again) or the limit of 6 a day left it for tomorrow. A branch cut before the daily run existed gets no run (a `422` in the `Daily full run` workflow) until the line is merged into it.
+
 **CI slots** (owner rules, 15 and 16 Nov 2026). A PM keeps at most 3 of its own pull requests in CI at a time, a `Check` run queued or
 running; a fourth gets its slot only when one has finished (merged, or its `check` finished). When several PMs run in this repository,
 each keeps to 3, and a PM asks the other PMs to hold new pull requests when the runner queue is long (`gh api

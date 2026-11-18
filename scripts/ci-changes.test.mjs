@@ -135,6 +135,7 @@ test('starter/demo: a static-only check script, a test file and another workflow
   assert.equal(needsStarterDemo(['.github/workflows/publish.yml', 'staging-watcher/index.js']), false);
   // The workflow that only fills the caches (cache-fill.yml) builds nothing the starter or the demo job reads.
   assert.equal(needsStarterDemo(['.github/workflows/cache-fill.yml']), false);
+  assert.equal(needsStarterDemo(['.github/workflows/daily-full.yml']), false);
   // check.yml and the action it uses run everything.
   assert.equal(needsStarterDemo(['.github/workflows/check.yml']), true);
   assert.equal(needsStarterDemo(['.github/actions/prepare/action.yml']), true);

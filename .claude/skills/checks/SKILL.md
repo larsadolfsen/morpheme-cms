@@ -11,7 +11,7 @@ Announce "Using checks". Run every command from the root of this repository, on 
 ## What CI runs
 
 **The direction (owner, 18 Nov 2026): test less, but always the important things.** Plan:
-`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A. The levels below are the target; PR 1 (levels), PR 2 (build once, cached Chromium) and PR 3 (core set and touched areas), PR 4 (starter smoke test), PR 8 (shards balanced by time) and A7 (`static` reads the build) are built (what runs today is in the next table and below), PR 5, 6 and the other new ones are not yet.
+`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A. The levels below are the target; PR 1 (levels), PR 2 (build once, cached Chromium) and PR 3 (core set and touched areas), PR 4 (starter smoke test), PR 5 (daily full run), PR 6 (test versions from a line), PR 8 (shards balanced by time) and A7 (`static` reads the build) are built (what runs today is in the next table and below), the other new ones are not yet.
 
 | Merge | Check |
 | :--- | :--- |
@@ -34,6 +34,13 @@ Announce "Using checks". Run every command from the root of this repository, on 
 **Built (PR 6, test versions from a version line).** Not a Check job: `publish.yml` also runs on pushes to a line's branch (`0.[0-9]+`).
 `scripts/publish-next.mjs` (tested in `scripts/publish-next.test.mjs`, which also reads the workflow) decides the tag and refuses a version of another line;
 the job `release` (Release PR, `latest`) runs on `main` only. A workflow-only change is outside the starter and demo (`ci-changes.mjs`).
+
+**Built (PR 5, the daily full run on feature branches).** `.github/workflows/daily-full.yml` runs once a day (02:17 UTC; from `main`, as every schedule) and dispatches
+`check.yml` (`workflow_dispatch`, `level=full`) on each `feature/**` branch that has a commit `main` lacks, whose head has no `daily-full` status yet and has no full run
+going; at most 6 a day (`scripts/daily-full.mjs`, tested in `scripts/daily-full.test.mjs`). The dispatched run is the same jobs at the full level (no diff, everything, all starter
+shards, no changeset check). The job `check` marks the head with the commit status `daily-full` (`success` or `failure`); a cancelled run writes no mark and runs again the next day; a head
+with a mark is not run again until it changes. Read it: `gh api repos/larsadolfsen/morpheme-cms/commits/<branch>/statuses --jq '[.[]|select(.context=="daily-full")][0]'`. A branch cut before
+this change needs its line merged into it first (its own `check.yml` must have `workflow_dispatch`). Details and cost: plan, "A5 as built".
 
 **Built (PR 2, build once, cache Chromium).** The job `build` (not on a docs-only pull request) runs `npm ci` and `npm run build` once and
 uploads one tarball, the artifact `build` (`.morpheme/demo/site` and `node_modules/@morphemecms/cms`, 18 MB, kept 1 day). `screens`,
