@@ -1,6 +1,0 @@
-{
-  "id": "blocked-update-notice",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "Startsiden fortæller, hvorfor hjemmesiden ikke kan opdatere sig selv, for eksempel et tema, der endnu ikke virker med den nye version"
-}
