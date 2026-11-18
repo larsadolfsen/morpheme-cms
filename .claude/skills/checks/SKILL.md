@@ -17,17 +17,18 @@ Announce "Using checks". Run every command from the root of this repository, on 
 | :--- | :--- |
 | A piece into `feature/<name>` | **Feature check:** `static`, the build, the **core screens** (the editor opens, a page saves and publishes, the theme builds) and the screens areas the change touches. No full shards, no `starter`. |
 | Every feature branch, once a day | The full check, so a break shows within a day. |
-| A feature branch or a single pull request into a version line | **Line check:** `static`, the core screens, the touched areas, `demo` and the starter **smoke test** (the site builds; open, edit, save, publish). |
-| A version line into `main` (its release) and the Release PR | **Full check:** everything, with all starter shards. |
+| A single pull request (a fix or a one-pull-request feature, a head that is not `feature/*`) into a version line | **Line check:** `static`, the core screens, the touched areas, `demo` and the starter **smoke test** (the site builds; open, edit, save, publish). |
+| A `feature/*` branch into its version line, a version line into `main` (its release) and the Release PR | **Full check:** everything, with all starter shards. |
 
 **Built (PR 1, checks on feature branches).** `check.yml` runs on pull requests into `main`, `0.17`, `0.18`, `0.19` and `feature/**`.
-`checkLevel(base, head)` in `scripts/ci-changes.mjs` gives the level from the base branch (the job `changes` prints `level=` beside
+`checkLevel(base, head)` in `scripts/ci-changes.mjs` gives the level from the base branch (and the head: a `feature/*` head into a line is `full`) (the job `changes` prints `level=` beside
 `light=`); it is tested for each level and the fallback in `scripts/ci-changes.test.mjs`:
 
 | Base branch | Level | What runs today |
 | :--- | :--- | :--- |
 | `feature/**` | `feature` | the light check: `static` and the 8 `screens` shards with the core units and the touched areas only (`--areas`, below) |
-| `0.*` (a version line) | `line` | the light check, as below, with the core units and the touched areas, `demo` and the starter smoke test (`starter-smoke`); not `screens-extra` and not the 4 starter shards |
+| `0.*` (a version line), head not `feature/*` | `line` | the light check, as below, with the core units and the touched areas, `demo` and the starter smoke test (`starter-smoke`); not `screens-extra` and not the 4 starter shards |
+| `0.*` (a version line), head `feature/*` (the feature into its line) | `full` | everything |
 | `main`, and the Release PR from any base | `full` | everything |
 | anything else, an empty base, an error in the selection | `full` | everything (when in doubt, run) |
 

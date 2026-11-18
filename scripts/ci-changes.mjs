@@ -2,7 +2,7 @@
 // Depends on node:process only; tested by scripts/ci-changes.test.mjs.
 //   node scripts/ci-changes.mjs docs-only <head ref>   reads the changed paths (one per line) on stdin and prints docs_only=true|false
 //   node scripts/ci-changes.mjs classify <head ref> [<base>]  the same, and also starter_demo=true|false (whether `starter` and `demo` must run)
-//                                                      level=feature|line|full (from the base branch), and light=true|false (the feature and line levels: the light check)
+//                                                      level=feature|line|full (from the base branch; a feature/* head into a version line is full), and light=true|false (the feature and line levels: the light check)
 //                                                      and areas=all|none|<area>,<area> (the screens areas the light check runs besides the core set; scripts/screens/support/areas.mjs)
 //                                                      and format=all|changed (whether Prettier checks every file or only the changed ones; see formatScope)
 //   node scripts/ci-changes.mjs verdict <docs_only> [<starter_demo> [<level: feature|line|full> [<run head sha> <current head sha>]]]  reads `needs` (JSON, as Actions gives it) on stdin; exits 1 when `check` must be red; prints cancelled=true and exits 0 when a newer push (the two head shas differ) cancelled the run
@@ -99,7 +99,8 @@ const levelOf = (light) => (light === true ? 'feature' : light in SKIPPED_AT ? l
 
 /**
  * The check level of a pull request, from its base branch (plan 2026-11-18-build-and-check-speed.md):
- * `feature/**` -> `feature`, `0.*` version lines -> `line`, `main` -> `full`. When in doubt, `full`: an empty or unknown base,
+ * `feature/**` -> `feature`, `0.*` version lines -> `line`, `main` -> `full`; the one exception: a pull request from a `feature/*` head
+ * into a version line (the feature into its line, once) is `full`. When in doubt, `full`: an empty or unknown base,
  * the Release PR, or anything else, so everything runs.
  * @param {string} [base] the pull request's base branch
  * @param {string} [headRef]
@@ -109,7 +110,7 @@ export function checkLevel(base = '', headRef = '') {
   if (headRef === RELEASE_BRANCH) return 'full';
   const b = String(base ?? '').trim();
   if (FEATURE_BRANCH.test(b) && b === base) return 'feature';
-  if (VERSION_LINE.test(b) && b === base) return 'line';
+  if (VERSION_LINE.test(b) && b === base) return FEATURE_BRANCH.test(String(headRef ?? '')) ? 'full' : 'line';
   return 'full';
 }
 

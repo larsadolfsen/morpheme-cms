@@ -2,11 +2,12 @@
 # check:screens, check:demo and check:starter), and that it has a changeset (.claude/skills/changesets), so each branch can always be
 # released.
 #
-# LEVELS (scripts/ci-changes.mjs checkLevel: feature/** -> feature, 0.* -> line, main -> full; unknown base -> full). The feature and
+# LEVELS (scripts/ci-changes.mjs checkLevel: feature/** -> feature, 0.* -> line, main -> full; unknown base -> full; and a pull request whose HEAD
+# branch is feature/* into a version line (the feature into its line, once) is FULL: light=false, all areas, Prettier on all files). The feature and
 # line levels run the core screens units and the units of the areas the diff touches (`areas` below; scripts/screens/support/areas.mjs);
 # the full level runs every unit.
 # TWO SIZES (owner, 16 Nov 2026: a merge into a version line shows on the demo within minutes). A pull request whose base is a version
-# line (0.17, 0.18, 0.19; not the Release PR) gets the LINE check: changes, static, the 8 screens shards, demo and the starter SMOKE TEST
+# line (0.17, 0.18, 0.19; not the Release PR, and not a feature/* head, which gets the full check) gets the LINE check: changes, static, the 8 screens shards, demo and the starter SMOKE TEST
 # (job starter-smoke, plan A4). It skips screens-extra and the 4 starter shards (14 to 20 minutes). A pull request into a feature branch gets the
 # FEATURE check, which also skips demo and the smoke test. A pull request into main (the merge of a version line,
 # merge-0.18-into-main-N) and the Release PR run EVERYTHING; nothing reaches npm `next` or the owner without a full run. The job
