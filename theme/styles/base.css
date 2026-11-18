@@ -64,6 +64,8 @@
 @import './blocks.css';
 /* The Person, Icon list, Facts, Table and Badge blocks (moved out of blocks.css; they come right after it, in the same layer). */
 @import './blocks/person-facts.css';
+/* The Testimonials' own rules (moved out of blocks.css; they come right after it, in the same layer). */
+@import './blocks/testimonial.css';
 /* The designs of the lists (List, List - Expand): Default and Card. */
 @import './lists.css';
 /* The classes the standard theme's site shell uses with the theme's variables: the logo and post list, the action bar, the page. */

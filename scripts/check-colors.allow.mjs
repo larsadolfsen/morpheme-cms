@@ -49,7 +49,7 @@ export const allow = [
   },
   {
     kind: 'fixed-colour',
-    file: /^(theme\/blocks\/testimonials\/Testimonial\.tsx|theme\/styles\/blocks\.css)$/,
+    file: /^(theme\/blocks\/testimonials\/Testimonial\.tsx|theme\/styles\/blocks(\/[a-z-]+)?\.css)$/,
     line: /mask-?[iI]mage|0 0 #0000/,
     reason: 'a mask fades by alpha only; #000 is its opaque stop; #0000 is no shadow',
   },
