@@ -184,7 +184,8 @@ for (const list of ['highlights', 'testimonials'])
   }
 
 // CHROMIUM_PATH: another Chromium than Playwright's own (one installed for another version of Playwright).
-export const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
+// `--list` only prints the units' names and never opens a page, so it launches no browser (a job without one can list the units).
+export const browser = LIST_ONLY ? null : await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
 // SCREENS_DIR (the temporary folder's morpheme-screens by default): where the images go.
 export const shots = process.env.SCREENS_DIR || join(tmpdir(), 'morpheme-screens');
 mkdirSync(shots, { recursive: true });
