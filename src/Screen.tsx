@@ -42,6 +42,7 @@ import { ariaShortcut, shortcutText } from './shortcuts';
 import { SiteLogoLink } from './SiteLogoLink';
 import { ScreenHidden } from './screenHidden';
 import { useTopBarSlot } from './topBarSlot';
+import { safeHref } from '../lib/safe-url.mjs';
 
 // `label` is the screen back goes to, named by the back arrow and the breadcrumbs. `guard` takes every
 // way out of the screen (back, the breadcrumbs and the logo) and goes it, after warning about changes
@@ -208,7 +209,7 @@ export default function Screen<T extends string>({
         {!full && !searchBar && <SiteLogoLink onClick={leave()} className={home ? 'hidden medium:flex' : 'hidden expanded:flex'} />}
         {back && (
           <a
-            href={back.href}
+            href={safeHref(back.href)}
             onClick={leave(() => up(back.href))}
             title={t.common.backTo(back.label)}
             aria-label={t.common.backTo(back.label)}
@@ -286,7 +287,7 @@ export default function Screen<T extends string>({
               <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-on-surface-variant">
                 {crumbs.map((c) => (
                   <span key={c.href} className="flex items-center gap-2">
-                    <a href={c.href} onClick={leave()} className="max-w-48 truncate hover:text-primary hover:underline">
+                    <a href={safeHref(c.href)} onClick={leave()} className="max-w-48 truncate hover:text-primary hover:underline">
                       {c.label}
                     </a>
                     <CaretRight size={14} className="shrink-0" />
