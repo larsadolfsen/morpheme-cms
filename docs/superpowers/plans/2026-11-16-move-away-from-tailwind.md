@@ -192,7 +192,7 @@ without naming it; `base.css`'s `body` and `:focus-visible` rules sit on top of 
 
 ### 1.9 The sibling repositories (counted 18 Nov) and what I could not see
 
-Attached 18 Nov at the PM's request, read only (shallow clones; `morpheme-apps` at `846b7410`, `morpheme-staging` at `5e26afd3`). Same method as §1 (Tailwind's design system with the CMS's `@theme` blocks; `git grep` for the rest).
+Attached 18 Nov, read only (shallow clones; `morpheme-apps` at `846b7410`, `morpheme-staging` at `5e26afd3`, `morpheme-website` at `da2bec91`). Same method as §1 (Tailwind's design system with the CMS's `@theme` blocks; `git grep` for the rest).
 
 **`morpheme-apps`** (the owner's apps and `themes/venus`):
 
@@ -205,9 +205,11 @@ Attached 18 Nov at the PM's request, read only (shallow clones; `morpheme-apps` 
 
 **`morpheme-staging`:** `src/themes/theme_fa395ad84690acbd` is an installed copy of venus (1 `theme(--breakpoint-medium)` in `styles/panels.css:104`, 1 `@theme inline` in `styles/global.css:43`; no utility), `src/apps` (two apps, `cms-version` and one more) has none; `package.json` lists the four packages (4 lines) and `.prettierrc.json` the plugin (2 lines). The theme copy is refreshed by the store when venus is re-released, not edited by hand.
 
-**What this means for the gate:** the real Tailwind work outside the CMS is small: venus (4 CSS edits), cookiescanner (4 attributes), the package lists and Prettier config of the two repositories. The larger work is contract migration that every app and venus need anyway: all eight apps move from 4 or 5 to 7, and venus's 145 old token reads move to `--mo-*` names. That is the strongest argument for releasing 0.18.0 and 0.18.1 as a pair: authors then do one migration, to 7.
+**`morpheme-website`** (235 files; its theme is `saturn`, which is not in this tree, so it is uncounted): `src/apps/cookiescanner` is the copy in use and has the same 4 class attributes (7 utility uses: `blocked.tsx:96`, `page.tsx:54`, `problems.tsx:106,188`); no `theme()`, `@theme`, `@apply`, `--tw-` or breakpoint variant anywhere; no utility in `src/content`. `package.json` lists the four packages (4 lines), `.prettierrc.json` the plugin (2 lines). Text that names Tailwind and goes stale: `CLAUDE.md:78`, `docs/rules.md:116`, `docs/platform.md:166`, `README.md:430,439` and two lines in `.agents/skills/site-editor-theme/SKILL.md` (one each in `site-editor-app` and `site-editor-block`); the other skills' hits are taste guides, not rules.
 
-**Not seen:** `morpheme-website`: attaching it was refused by the session's permission check, so I did not read it; its counts are unknown (it has its own `src/themes`, `src/apps` and, per `CLAUDE.md`, a copy of cookiescanner). The sites of real customers (their `src/themes`, `src/apps`, own content) are unknown too; `check:content` already scans a site's own files for breakpoints (`breakpointProblems`), so a site-side count can come from there.
+**What this means for the gate:** the real Tailwind work outside the CMS is small: venus (4 CSS edits), cookiescanner (4 attributes, in two copies: `morpheme-apps` and `morpheme-website`), the package lists and Prettier config of the three repositories, and a few lines of text in the website's docs. The larger work is contract migration that every app and venus need anyway: all eight apps move from 4 or 5 to 7, and venus's 145 old token reads move to `--mo-*` names. That is the strongest argument for releasing 0.18.0 and 0.18.1 as a pair: authors then do one migration, to 7.
+
+**Not seen:** the theme `saturn` that the website uses (not in the tree), and the sites of real customers (their `src/themes`, `src/apps`, own content) are unknown too; `check:content` already scans a site's own files for breakpoints (`breakpointProblems`), so a site-side count can come from there.
 - I could not read web.dev; I read the Modern Web Guidance in the repo's pinned `modern-web-guidance@1.0.0` (§2). I did not run `npm run check`, `check:screens`, or a build (brainstorm session).
 - Not checked: whether `lightningcss` is already in the install tree through Tailwind's engine (§2).
 
