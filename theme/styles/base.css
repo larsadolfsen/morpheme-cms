@@ -2,56 +2,36 @@
 @plugin '@tailwindcss/typography';
 /* Material's rules sit in the last layer, fallback: a theme's own unlayered rules beat them, whatever their specificity. */
 @layer theme, base, components, utilities, fallback;
-/* The Checkbox comes before ui.css on purpose: the list's selection box (List.tsx) is a .checkbox and a .list-item-select-box, and the list's rules, still
-   in ui.css, must keep winning over .checkbox's display and alignment, as they did when both were in ui.css, the checkbox's first. */
-@import './checkbox.css';
-/* The Chips and the chip sets come before ui.css for the same reason: a chip set in the search view is also .search-view-filters (Search.tsx), whose rules in ui.css set margin and padding at the same specificity and must win. */
-@import './chips.css';
-/* The Dialog and the Lightbox come before ui.css too: the date picker's and the time picker's dialogs are also .dialog-modal (DatePicker.tsx, TimePicker.tsx), and the picker rules in ui.css set the same properties at the same specificity and must win. */
-@import './dialog.css';
-@import './lightbox.css';
-/* The theme's UI components, as Material 3 names them (buttons, icon buttons), and the standard blocks of the editor,
-   in this site's design (their variables below). */
+/* The theme's UI components, as Material 3 names them (buttons, icon buttons, the menus, the lists …), one file for each part, imported in
+   the order their rules had in the file ui.css was before the split (docs/theme-css-split.md); and the standard blocks of the editor, in this
+   site's design (their variables below). */
 @import './ui.css';
-/* The Navigation drawer (modal and standard) comes right after ui.css, where its rules sat in it: before the Divider, which its section divider is also (a .divider, whose margin the drawer's rule, of higher specificity, outranks). */
-@import './navigation-drawer.css';
-/* The Divider (.divider, its inset and vertical kinds). */
-@import './divider.css';
-/* The Badge (.badge, its dot and number, the anchor on an icon). */
-@import './avatar.css';
-@import './badge.css';
-/* The Loading indicator and the Progress indicators (linear and circular). */
-@import './loading-indicator.css';
-@import './progress-indicators.css';
-/* The Snackbar (the stack that holds them and the message). */
-@import './snackbar.css';
-/* The Tooltip (plain and rich, anchored to what it is about). */
-@import './tooltip.css';
-/* The Switch (with its setting row) and the Radio button. */
-@import './switch.css';
-@import './radio-button.css';
-/* The Slider. */
-@import './slider.css';
-/* The Bottom sheet and the Side sheet. */
-@import './bottom-sheet.css';
-@import './side-sheet.css';
-/* The Tabs. */
-@import './tabs.css';
-/* The Top app bar. */
-@import './top-app-bar.css';
-/* The Menus (the menu, its items and groups, the dropdown menu, the exposed dropdown menu). */
-@import './menus.css';
-@import './navigation-bar.css';
-@import './navigation-rail.css';
-@import './search.css';
-@import './toolbar.css';
-@import './pickers.css';
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
-@import './blocks.css';
-/* The Person, Icon list, Facts, Table and Badge blocks (moved out of blocks.css; they come right after it, in the same layer). */
+/* In a site's layer of components, so the site's utilities (a margin on the steps) win over them: the blocks' tokens come before every block rule. */
+@import './tokens/blocks/comp/card.css';
+@import './tokens/blocks/comp/grid.css';
+@import './tokens/blocks/comp/icon.css';
+@import './tokens/blocks/comp/list.css';
+@import './tokens/blocks/registry.css';
+@import './tokens/blocks/sys.css';
+/* The blocks, one file for each block or family of blocks (blocks.css, the one file they were, is gone: docs/theme-css-split.md), in the order their
+   rules had in it: the text sections and what the text of a page shares first, then Steps, Accordion, Buttons and links, Testimonial, the Image grid,
+   Panel, Person (with Icon list, Facts, Table and Badge), Link row, Call to action and Prices, Checklist, and the fallback layer (prose …). */
+@import './blocks/text-section.css';
+@import './blocks/steps.css';
+@import './blocks/accordion.css';
+@import './blocks/buttons-links.css';
+@import './blocks/testimonial.css';
+@import './blocks/row.css';
+@import './blocks/panel.css';
 @import './blocks/person-facts.css';
+@import './blocks/link-row.css';
+@import './blocks/cta-prices.css';
+@import './blocks/checklist.css';
+/* The fallback layer of the blocks (prose, the video facade, the heading parts, the colours, the text alignment): right before the lists. */
+@import './blocks/prose.css';
 /* The designs of the lists (List, List - Expand): Default and Card. */
 @import './lists.css';
 /* The classes the standard theme's site shell uses with the theme's variables: the logo and post list, the action bar, the page. */
@@ -66,6 +46,11 @@
 @import './tokens/base/registry.css';
 @import './tokens/base/ref.css';
 @import './tokens/base/sys.css';
+/* The classes in the CMS's own code (this package, also from node_modules/, where Tailwind does not look by itself);
+   the names in the icon packs' maps (MATERIAL_SYMBOLS, LUCIDE, site/icons.mjs) and the tests' examples are not classes. */
+@source '../..';
+@source not '../../site/icons.mjs';
+@source not '../../**/*.test.mjs';
 /* Follow the system by default (Modern Web Guidance, dark-mode-toggle: the base stays `light dark`); a picked mode pins it. */
 @layer fallback {
   :root {

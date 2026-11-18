@@ -1,4 +1,4 @@
-// A text field (m3.material.io/components/text-fields, .text-field in ../styles/ui.css): a field to write in, with
+// A text field (m3.material.io/components/text-fields, .text-field in ../styles/text-field.css): a field to write in, with
 // its name (`label`), drawn in the field and moving above what is written, or only read by screen readers
 // (`hideLabel`, a field whose placeholder says what it is), or without one (no `label`: a form that names its fields
 // itself, the editor's, with a <label> for its `id`), and a line under it (`supporting`), or what is wrong with

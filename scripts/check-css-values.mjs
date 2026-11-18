@@ -69,7 +69,7 @@ for (const file of [...cssFiles, ...classFiles]) {
 const optional = [
   [/^--mo-/, 'colour roles and state layers: written into <head> from the colours'],
   [/^--(tw|color-|font-|breakpoint)/, 'Tailwind'],
-  [/pressed-radius$/, 'optional: no pressed corner change when unset (ui.css, header)'],
+  [/pressed-radius$/, 'optional: no pressed corner change when unset (buttons.css, header)'],
 ];
 for (const [file, n, name] of used)
   if (!defined.has(name) && !optional.some(([re]) => re.test(name)) && /\.(css|tsx|astro)$/.test(file))
