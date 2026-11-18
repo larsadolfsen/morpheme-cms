@@ -1,11 +1,11 @@
-// Checks that Material's CSS chain (theme/styles/: base, ui, blocks, components, global) sits in the fallback layer, so a theme wins.
-// Reads the five files with postcss; no browser, no build. Exposes nothing; run by node --test.
+// Checks that Material's CSS chain (theme/styles/: base, ui, blocks, the site shell's three files, global) sits in the fallback layer, so a theme wins.
+// Reads the files with postcss; no browser, no build. Exposes nothing; run by node --test.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import postcss from 'postcss';
 
-const names = ['base', 'ui', 'blocks', 'components', 'global'];
+const names = ['base', 'ui', 'blocks', 'site-logo-post', 'site-action', 'site-page', 'global'];
 const roots = Object.fromEntries(
   names.map((name) => [name, postcss.parse(readFileSync(new URL(`../theme/styles/${name}.css`, import.meta.url), 'utf8'))]),
 );

@@ -1,16 +1,16 @@
 ---
 title: "Lists"
-description: "Lists, expanding lists and FAQ lists, shown live, and the check list typed in the text."
+description: "Lists and expanding lists, in the Plain and the Segmented design, and expanding lists marked as a FAQ, shown live."
 path: "/blocks/lists/"
 seoTitle: "Lists | Morpheme"
-seoDescription: "Lists, expanding lists and FAQ lists, shown live, and the check list typed in the text."
+seoDescription: "Lists and expanding lists, in the Plain and the Segmented design, and expanding lists marked as a FAQ, shown live."
 ---
 
 # Lists
 
 [All blocks](/blocks/)
 
-Drawn by the List component: the List and List - Expand blocks, each in the Plain and the Segmented design, the FAQ list block, and the Check list type in text.
+Drawn by the List component: the List and List - Expand blocks, each in the Plain and the Segmented design, and a List - Expand marked as a FAQ. The check list is a type, on the Type page.
 
 ## List
 
@@ -161,14 +161,3 @@ With `Maximum rows`, only the first rows show and a text button shows the rest.
 With `Mark as FAQ` the rows are questions and answers, ready for Google to show in search results. An answer can have bold, italic, links and lists.
 
 <div data-block="expand" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;faq&quot;:true,&quot;items&quot;:[{&quot;title&quot;:&quot;Can I use a block more than once on a page?&quot;,&quot;text&quot;:&quot;Yes. Each copy has its own content.&quot;},{&quot;title&quot;:&quot;Can I turn a block off?&quot;,&quot;text&quot;:&quot;Yes, under Block settings. It can’t be added again until you turn it back on.&quot;}]}"></div>
-
-## Check list
-
-A check list is a type, not a block: it is typed in the text as a list with check marks (`- [x]`). Quick points with a check mark.
-
-Quick points with a check mark.
-
-- [x] Works on every phone
-- [x] Light and dark mode
-- [x] Photos sized for every screen
-- [x] No tracking before consent

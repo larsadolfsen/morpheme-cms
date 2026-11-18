@@ -1,7 +1,7 @@
 /*
   The Bottom sheet (BottomSheet.tsx, bottomSheet*Class; m3.material.io/components/bottom-sheets): the sheet, its container and drag handle, header,
   content, cover and footer, the standard sheet at the bottom of the screen, and the wide forms (a dialog, a side sheet or a sheet from the medium window).
-  The doc paragraph with its variables is in tokens/ui/comp/. The action bar's own rules (components.css) and the editor's (editor.css) stay after it.
+  The doc paragraph with its variables is in tokens/ui/comp/. The action bar's own rules (site-action.css) and the editor's (editor.css) stay after it.
   Moved here from ui.css with its rules unchanged and in their order, in the same layer, imported by base.css right after ui.css (docs/superpowers/plans/2026-11-16-css-split.md).
 */
 @layer components {

@@ -20,7 +20,7 @@
     gap: var(--toolbar-gap, 0.5rem);
   }
   /* Docked: the whole width, with a line over it; how wide its actions are is the component's own (the site's bar at
-     the bottom of a phone, components.css). */
+     the bottom of a phone, site-action.css). */
   .toolbar-docked {
     justify-content: space-between;
     padding: var(--toolbar-docked-padding-block, 0.75rem) var(--toolbar-docked-padding-inline, 1rem)

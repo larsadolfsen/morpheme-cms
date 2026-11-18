@@ -19,8 +19,13 @@ export const PARTS = [
   { name: 'choice group row', file: 'theme/styles/ui.css', selector: '.choice-group-list .list-item-container', reads: '--mo-sys-density' },
   { name: 'list item', file: 'theme/styles/ui.css', selector: '.list-item-container', reads: '--mo-sys-density' },
   { name: 'setting row', file: 'theme/styles/switch.css', selector: '.setting-list > .setting-row', reads: '--mo-sys-density-layout' },
-  { name: 'table cell', file: 'theme/styles/blocks.css', selector: '.block-table-grid :is(th, td)', reads: '--mo-sys-density' },
-  { name: 'table header', file: 'theme/styles/blocks.css', selector: '.block-table-grid thead th', reads: '--mo-sys-density' },
+  {
+    name: 'table cell',
+    file: 'theme/styles/blocks/person-facts.css',
+    selector: '.block-table-grid :is(th, td)',
+    reads: '--mo-sys-density',
+  },
+  { name: 'table header', file: 'theme/styles/blocks/person-facts.css', selector: '.block-table-grid thead th', reads: '--mo-sys-density' },
 ];
 
 /** Focused single-task parts: never denser than Medium, so they read neither --mo-sys-density nor --mo-sys-density-layout. */
@@ -94,7 +99,13 @@ export function findProblems(files) {
  * padding is often a token (--mo-comp-filled-text-field-container-height) that the rule reads. @param {URL} root */
 export function readStyles(root) {
   const files = {};
-  const tokenFolder = { 'ui.css': 'ui', 'blocks.css': 'blocks', 'base.css': 'base', 'global.css': 'material' };
+  const tokenFolder = {
+    'ui.css': 'ui',
+    'blocks.css': 'blocks',
+    'person-facts.css': 'blocks',
+    'base.css': 'base',
+    'global.css': 'material',
+  };
   const tokenFiles = (dir) =>
     readdirSync(new URL(dir, root), { withFileTypes: true }).flatMap((e) =>
       e.isDirectory() ? tokenFiles(`${dir}${e.name}/`) : e.name.endsWith('.css') ? [`${dir}${e.name}`] : [],
@@ -103,6 +114,7 @@ export function readStyles(root) {
     'theme/styles/ui.css',
     ...UI_PART_FILES.map((f) => `theme/styles/${f}`),
     'theme/styles/blocks.css',
+    'theme/styles/blocks/person-facts.css',
     'theme/styles/base.css',
     'theme/styles/global.css',
     'src/editor.css',

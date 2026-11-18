@@ -6,8 +6,7 @@
 export const textClasses = (html) =>
   html
     .match(/<div data-editor="text" class="([^"]*)"/)?.[1]
-    .replaceAll('&amp;', '&')
-    .replaceAll('&gt;', '>')
+    .replace(/&(amp|gt);/g, (_, entity) => (entity === 'amp' ? '&' : '>'))
     .split(/\s+/) ?? [];
 
 export const MEASURE = 'max-w-[var(--mo-sys-block-text-measure-max)]';

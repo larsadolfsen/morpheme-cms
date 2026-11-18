@@ -1,0 +1,80 @@
+/* The site's page: the mobile-menu scroll padding, the text's first image, the view transition, the page with a block beside it and the page title.
+   Moved here from components.css with its rules unchanged and in their order; imported by base.css where components.css was, in the same layers
+   (docs/superpowers/plans/2026-11-16-css-split.md). */
+@layer components {
+  /* With the bar of "Mobile menu" under the header (MobileNav.astro), a link to a part of a page stops below both. */
+  @media (width < theme(--breakpoint-large)) {
+    html:has([data-mobile-nav]) {
+      scroll-padding-top: 9.25rem;
+    }
+  }
+}
+
+@layer fallback {
+  /* An image that opens the text (a paragraph of its own) starts where a paragraph would: its space above would come on
+   top of the space under the page's heading. For every theme, also one with its own text style; outside the
+   layers, like the images' own space in the text. */
+  .prose > p:first-child > :where(img, .picture-crop):only-child {
+    margin-top: 0;
+  }
+}
+
+/* Going from one page of the site to another, the old page fades into the new (a cross-document view transition,
+   CSS only), so the colours change softly when every page has its own (content-based colour, packages/editor/site/pageColors.ts).
+   It does not touch the first paint or the first visit (Lighthouse), and a browser without it shows the page at once. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+@layer fallback {
+  @media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: var(--mo-comp-theme-page-fade);
+      animation-timing-function: var(--mo-sys-ease);
+    }
+  }
+
+  /* A page with a block beside its text (PageLayout.astro): the text, then the column (on a phone below the text); from medium
+   two columns, the one beside the text staying in view while the text is read; on the left for `sidebar-left`. */
+  .page-with-side > .page-side {
+    margin-top: 3rem;
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .page-with-side {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) var(--mo-comp-theme-side-width);
+      column-gap: var(--mo-comp-theme-side-gap);
+      align-items: start;
+    }
+    .page-with-side > .page-side {
+      margin-top: 0;
+      position: sticky;
+      top: 6rem;
+    }
+    /* Template sidebar-left: the column first, though it comes after the text in the page. */
+    .page-with-side[data-side='left'] {
+      grid-template-columns: var(--mo-comp-theme-side-width) minmax(0, 1fr);
+    }
+    .page-with-side[data-side='left'] > .page-side {
+      order: -1;
+    }
+  }
+
+  /* A page's and a post's title (PageHeader.astro, PageLayout.astro, PostLayout.astro, Home.astro): the display role, by
+   the variables above. */
+  .theme-title {
+    font-size: var(--mo-comp-theme-title-size, var(--mo-sys-typescale-display-small-size));
+    line-height: var(--mo-comp-theme-title-leading);
+    font-weight: var(--mo-sys-typescale-display-small-weight);
+    letter-spacing: var(--mo-sys-typescale-display-small-tracking);
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .theme-title {
+      font-size: var(--mo-comp-theme-title-size-large, var(--mo-sys-typescale-display-medium-size));
+      font-weight: var(--mo-sys-typescale-display-medium-weight);
+      letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
+    }
+  }
+}
