@@ -33,11 +33,6 @@ const RULES = [
 export const ALLOWED = [
   { file: 'src/editor.css', text: '73.5rem', why: 'the editor workspace’s own width, not a window breakpoint of the site' },
   { file: 'src/editor.css', text: '599.98px', why: 'the editor’s “below 600 dp” pages, one pixel-fraction under the medium breakpoint' },
-  {
-    file: 'src/PreviewScreen.tsx',
-    text: 'min-' + '[600px]',
-    why: 'temporary: moves to the medium variant in T06 (docs/superpowers/plans/2026-11-18-tailwind-t06-*.md)',
-  },
   ...[
     ['theme/styles/cards.css', '34rem'],
     ['theme/styles/cards.css', '40rem'],

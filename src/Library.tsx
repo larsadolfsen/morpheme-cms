@@ -410,8 +410,8 @@ export function IconPacks({ env, files }: { env: Env; files: RepoFile[] }) {
               supporting={
                 <>
                   {t.library.iconPackByline(x.author, x.license)}
-                  {from && <span className="block">{t.library.iconPackFrom(from)}</span>}
-                  {status && <span className="block">{status}</span>}
+                  {from && <span className="library-line">{t.library.iconPackFrom(from)}</span>}
+                  {status && <span className="library-line">{status}</span>}
                 </>
               }
             />
@@ -479,7 +479,7 @@ export function MotionSchemes({ env, files }: { env: Env; files: RepoFile[] }) {
             supporting={
               <>
                 {t.library.motionHints[scheme]}
-                {scheme === ofTheme && <span className="block">{t.library.motionOfTheme}</span>}
+                {scheme === ofTheme && <span className="library-line">{t.library.motionOfTheme}</span>}
               </>
             }
           />
@@ -532,16 +532,16 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
 
   return (
     <Screen title={of.name} wide back={backToThemes}>
-      <div className="mb-8 flex items-center gap-4 px-4">
-        <img src={of.icon} alt="" className="size-16 shrink-0 rounded-2xl" />
-        <span className="min-w-0 flex-1">
-          <span className="block truncate font-medium">{of.name}</span>
-          <span className="block truncate text-sm text-on-surface-variant">{t.library.themeByline(of.version, of.author)}</span>
-          {status && <span className="block text-sm text-on-surface-variant">{status}</span>}
+      <div className="mo-row library-theme-head">
+        <img src={of.icon} alt="" className="mo-keep library-theme-icon" />
+        <span className="mo-fill">
+          <span className="library-line mo-truncate library-name">{of.name}</span>
+          <span className="library-line mo-truncate library-byline">{t.library.themeByline(of.version, of.author)}</span>
+          {status && <span className="library-line library-byline">{status}</span>}
         </span>
       </div>
       {of.id !== chosen && themeInstalled(of.id) && (
-        <div className="mb-8">
+        <div className="library-section">
           <Button busy={saving} disabled={saving} onClick={use}>
             {t.library.useTheme}
           </Button>
@@ -549,15 +549,15 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
       )}
       <ThemeStoreButtons of={of} env={env} files={files} top />
       {of.screenshots.length > 0 && (
-        <section className="mb-8">
+        <section className="library-section">
           <GroupTitle>{t.library.themeLooks}</GroupTitle>
           <ImageCarousel label={t.library.themeLooks} images={of.screenshots.map((x) => ({ src: x.src, label: shotName(x.key) }))} />
         </section>
       )}
       {description && (
-        <section className="mb-8">
+        <section className="library-section">
           <GroupTitle>{t.library.themeAbout}</GroupTitle>
-          <p className="px-4">{description}</p>
+          <p className="library-inset">{description}</p>
         </section>
       )}
       {highlights.length > 0 && (
@@ -711,10 +711,10 @@ export function Blocks({ files }: { files: RepoFile[] }) {
           />
         }
         filter={filters.length > 0 && <Filters title={t.library.filter} selected={chips.length > 0} groups={filters} />}
-        className="mb-6"
+        className="library-toolbar"
       />
       {chips.length > 0 && (
-        <div className="-mt-2 mb-6 flex flex-wrap gap-2">
+        <div className="library-filters">
           {chips.map((c) => (
             <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
               {c.label}
@@ -723,7 +723,7 @@ export function Blocks({ files }: { files: RepoFile[] }) {
         </div>
       )}
       {!inGroups.length ? (
-        <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
+        <p className="library-empty">{t.common.noMatch}</p>
       ) : sort === 'group' ? (
         inGroups.map((g) => <PartGroup key={g.title} title={g.title} route="blocks" parts={g.parts} />)
       ) : (
@@ -817,15 +817,15 @@ export function Account({ user, files, onLogout }: { user: Viewer | null; files:
     <Screen title={user ? (user.name ?? user.login) : t.common.parts.account} back={{ href: '#', label: siteName }}>
       {/* Who is logged in, as plain text: nothing to tap. */}
       {user && (
-        <div className="mb-8">
+        <div className="library-section">
           <AccountRow user={user} supporting={t.library.githubAccount(user.login)} />
         </div>
       )}
-      <section className="mb-8">
+      <section className="library-section">
         <GroupTitle>{t.library.theme}</GroupTitle>
         <ThemePicker />
       </section>
-      <section className="mb-8">
+      <section className="library-section">
         <GroupTitle>{t.library.density}</GroupTitle>
         <div data-density-fixed>
           <DensityPicker />
@@ -850,9 +850,9 @@ function NotificationChoices({ files }: { files: RepoFile[] }) {
   );
   return (
     <>
-      <section className="mb-8">
+      <section className="library-section">
         <GroupTitle>{t.library.notifications}</GroupTitle>
-        <div className="space-y-5 px-4">
+        <div className="library-apps">
           <SwitchRow
             label={t.library.onDevice}
             hint={t.library.onDeviceHint}
@@ -867,9 +867,9 @@ function NotificationChoices({ files }: { files: RepoFile[] }) {
       {apps
         .filter((a) => a.notifications && installed.includes(a.id))
         .map((app) => (
-          <section key={app.id} className="mb-8">
+          <section key={app.id} className="library-section">
             <GroupTitle>{siteText(app.label)}</GroupTitle>
-            <div className="space-y-5 px-4">
+            <div className="library-apps">
               {Object.entries(app.notifications!.types).map(([id, label]) => choice(appType(app.id, id), siteText(label)))}
             </div>
           </section>
@@ -1493,7 +1493,7 @@ export function List({
         actions={
           orderable &&
           !selecting && (
-            <span className="flex shrink-0 pr-2">
+            <span className="library-row-actions">
               <IconButton
                 icon={ArrowUp}
                 label={t.common.moveUp}
@@ -1624,11 +1624,11 @@ export function List({
               />
             )
           }
-          className="mb-6"
+          className="library-toolbar"
         />
       )}
       {!appTab && chips.length > 0 && (
-        <div className="-mt-2 mb-6 flex flex-wrap gap-2">
+        <div className="library-filters">
           {chips.map((c) => (
             <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
               {c.label}
@@ -1667,7 +1667,7 @@ export function List({
           </Group>
         ))
       ) : (
-        <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
+        <p className="library-empty">{t.common.noMatch}</p>
       )}
       {/* A new entry: the list's FAB, or a FAB menu of its kinds when it has several (a pop-up: Standard or an app's, e.g. Mailchimp). */}
       <ListFab collection={collection} kinds={kinds} />
@@ -1680,15 +1680,15 @@ export function List({
 // and date (`children`), at the right on a computer, and there a page's or post's address before them (`address`).
 function Under({ item, address, children }: { item: Item; address?: boolean; children: ReactNode }) {
   return (
-    <span className="flex gap-6">
-      {address && <span className="hidden min-w-0 flex-1 truncate expanded:block">{item.path}</span>}
-      <span className="min-w-0 truncate expanded:ml-auto expanded:shrink-0 expanded:text-right">{children}</span>
+    <span className="library-under">
+      {address && <span className="library-under-address">{item.path}</span>}
+      <span className="library-under-status">{children}</span>
     </span>
   );
 }
 
 // A page's or post's status (Item.status) before its date or time.
-const Status = ({ item }: { item: Item }) => (item.status ? <span className="mr-2 font-medium text-primary">{item.status}</span> : null);
+const Status = ({ item }: { item: Item }) => (item.status ? <span className="library-status">{item.status}</span> : null);
 
 // The time a page was last saved, under its name (a space until it has come, so rows do not jump).
 function SavedTime({ item }: { item: Item }) {
@@ -1744,7 +1744,7 @@ function TreeRows({
               columns
               actions={
                 children.length > 0 && (
-                  <span className="shrink-0 pr-1.5">
+                  <span className="library-row-unfold">
                     <UnfoldButton
                       open={shown}
                       count={children.length}

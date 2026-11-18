@@ -145,7 +145,7 @@ export function PaletteBar({ className = '' }: { className?: string }) {
       label={t.palette.label}
       open={open}
       keys={ariaShortcut('Mod+K')}
-      className={`max-w-[45rem] min-w-0 flex-1 ${className}`}
+      className={`palette-bar ${className}`}
       onOpen={(button) => {
         button.focus({ preventScroll: true });
         openPalette();
@@ -174,7 +174,7 @@ export default function Screen<T extends string>({
   // The column's widest width (--mo-sys-column-width, editor.css) is the site's text column (theme `max-w-3xl`, as PostLayout.astro), on a
   // computer too; only `panel` (a form with its other fields beside the text) is wider, 72rem from large. editor.css (.editor-column) keeps it
   // centred on the window.
-  const width = panel ? 'editor-column large:[--mo-sys-column-width:72rem]' : 'editor-column';
+  const width = panel ? 'editor-column screen-panel' : 'editor-column';
   // A link out of the screen, through `guard`: the back arrow goes up (nav.ts), the other links as links.
   const leave = (go?: () => void) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!go && !back?.guard) return;
@@ -195,52 +195,52 @@ export default function Screen<T extends string>({
   const searchBar = home && !selection;
   const bar = (
     <TopAppBar>
-      <div className={`flex h-16 items-center px-2 medium:gap-3 medium:px-6 ${home ? 'gap-0.5' : 'gap-1'}`}>
+      <div className={`screen-bar ${home ? 'screen-bar-home' : 'screen-bar-sub'}`}>
         {menuButtonInTopBar && !back && (
           <MenuButton
             label={menu.open ? t.library.closeMenu : t.library.openMenu}
             open={menu.open}
             onClick={menu.toggle}
-            className="shrink-0"
+            className="mo-keep"
           />
         )}
         {/* The start screen's logo stands beside the site's name, which says the same: on a phone the name gets its width (the bar has four actions there). */}
         {/* Not on the start screen's bar from medium: the search bar gets the room (owner, 15 Nov: "The logo in the header is not a necessity. Usability is most important."). */}
-        {!full && !searchBar && <SiteLogoLink onClick={leave()} className={home ? 'hidden medium:flex' : 'hidden expanded:flex'} />}
+        {!full && !searchBar && <SiteLogoLink onClick={leave()} className={home ? 'screen-show-medium' : 'screen-show-expanded'} />}
         {back && (
           <a
             href={safeHref(back.href)}
             onClick={leave(() => up(back.href))}
             title={t.common.backTo(back.label)}
             aria-label={t.common.backTo(back.label)}
-            className={`flex size-12 shrink-0 items-center justify-center rounded-full hover:bg-surface-container-high ${full ? '' : 'expanded:hidden'}`}
+            className={`screen-back ${full ? '' : 'screen-narrow-only'}`}
           >
             <ArrowLeft size={24} />
           </a>
         )}
         {/* The start screen: from medium the top bar is the search bar and the title and status stand under it; on a phone the title stays in the bar and the search bar is the first thing in the page. */}
         <div
-          className={`min-w-0 flex-col ${searchBar ? 'flex flex-1 medium:hidden' : `flex flex-1 ${home ? 'medium:pl-1' : 'pl-1'} ${full ? '' : 'expanded:hidden'}`}`}
+          className={`screen-title ${searchBar ? 'screen-title-search' : `${home ? 'screen-title-home' : 'screen-title-sub'} ${full ? '' : 'screen-narrow-only'}`}`}
         >
-          <h1 className="truncate text-title-large">{title}</h1>
+          <h1 className="mo-truncate mo-type-title-large">{title}</h1>
           {status && (
-            <p data-subtitle className="truncate text-xs text-on-surface-variant">
+            <p data-subtitle className="mo-truncate screen-status">
               {status}
             </p>
           )}
         </div>
         {searchBar ? (
-          <PaletteBar className="hidden medium:flex" />
+          <PaletteBar className="palette-bar-wide" />
         ) : (
           <>
-            {!full && <div className="hidden min-w-0 flex-1 expanded:block" />}
+            {!full && <div className="screen-bar-gap" />}
             {!selection && <SearchButton />}
           </>
         )}
-        <div className="flex shrink-0 items-center justify-end gap-1">
+        <div className="mo-row mo-row-end mo-keep screen-bar-actions">
           {selection ?? (
             <>
-              {pageActions && <div className="flex items-center gap-1 expanded:hidden">{pageActions}</div>}
+              {pageActions && <div className="mo-row screen-bar-page-actions">{pageActions}</div>}
               {actions}
             </>
           )}
@@ -251,7 +251,7 @@ export default function Screen<T extends string>({
       </div>
       {tabs && (
         <div className="editor-bar-tabs">
-          <div className={`medium:px-6 ${width}`}>
+          <div className={`screen-tabs ${width}`}>
             <TabRow id={id} {...tabs} />
           </div>
         </div>
@@ -261,52 +261,49 @@ export default function Screen<T extends string>({
   if (hidden) return <div hidden>{children}</div>;
   if (full)
     return (
-      <div data-full-page className="flex min-h-0 w-full min-w-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)]">
+      <div data-full-page className="screen-full-page">
         {slot ? createPortal(bar, slot) : bar}
-        <main className="editor-screen-full flex min-h-0 flex-1 flex-col">{children}</main>
+        <main className="editor-screen-full screen-full-main">{children}</main>
       </div>
     );
   return (
-    <div className={`flex flex-col ${slot ? 'flex-1' : 'min-h-dvh'}`}>
+    <div className={`screen-frame ${slot ? 'screen-frame-slot' : 'screen-frame-page'}`}>
       {slot ? createPortal(bar, slot) : bar}
       {/* A row, so the column keeps its margins (editor.css .editor-column) and is as high as the rest of the window. */}
-      <div className="flex flex-1">
-        <main
-          data-clearance={fabs.count > 0}
-          className={`editor-screen flex min-w-0 flex-1 flex-col px-4 pt-6 pb-[env(safe-area-inset-bottom)] medium:px-6 medium:pt-8 medium:pb-4 ${width}`}
-        >
+      <div className="screen-row">
+        <main data-clearance={fabs.count > 0} className={`editor-screen screen-main ${width}`}>
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
           {searchBar && (
             // M3 specs, Measurements: the unfocused search bar is 24dp from the screen's edges (the page has 16dp).
-            <div className="mx-2 mb-6 flex medium:hidden">
-              <PaletteBar className="max-w-none" />
+            <div className="screen-search-bar">
+              <PaletteBar className="palette-bar-fill" />
             </div>
           )}
-          <div className={`mb-6 min-w-0 items-center gap-x-2 ${searchBar ? 'hidden medium:flex' : 'hidden expanded:flex'}`}>
+          <div className={`screen-heading ${searchBar ? 'screen-show-medium' : 'screen-show-expanded'}`}>
             {crumbs.length > 0 && (
-              <nav aria-label={t.library.breadcrumbs} className="flex shrink-0 items-center gap-2 text-on-surface-variant">
+              <nav aria-label={t.library.breadcrumbs} className="mo-row mo-keep screen-breadcrumbs">
                 {crumbs.map((c) => (
-                  <span key={c.href} className="flex items-center gap-2">
-                    <a href={safeHref(c.href)} onClick={leave()} className="max-w-48 truncate hover:text-primary hover:underline">
+                  <span key={c.href} className="mo-row">
+                    <a href={safeHref(c.href)} onClick={leave()} className="mo-truncate screen-crumb">
                       {c.label}
                     </a>
-                    <CaretRight size={14} className="shrink-0" />
+                    <CaretRight size={14} className="mo-keep" />
                   </span>
                 ))}
               </nav>
             )}
-            <h1 className={searchBar ? 'truncate text-title-large' : 'truncate font-medium'}>{title}</h1>
+            <h1 className={searchBar ? 'mo-truncate mo-type-title-large' : 'mo-truncate screen-title-plain'}>{title}</h1>
             {status && (
-              <p data-subtitle={searchBar ? '' : undefined} className="shrink-0 text-sm text-on-surface-variant">
+              <p data-subtitle={searchBar ? '' : undefined} className="mo-keep screen-status-line">
                 {status}
               </p>
             )}
             {/* The icons are taller than the text: the negative margin keeps the row's height. */}
-            {pageActions && <div className="-my-3 ml-auto flex shrink-0 items-center gap-1">{pageActions}</div>}
+            {pageActions && <div className="mo-row mo-keep screen-title-actions">{pageActions}</div>}
           </div>
           {/* The content flows as blocks; the footer goes to the bottom of a short screen. */}
           <FabPresenceContext.Provider value={fabs.report}>
-            <div className="min-w-0 data-[clearance=true]:mb-[var(--mo-comp-fab-room)]" data-clearance={fabs.count > 0}>
+            <div className="screen-content" data-clearance={fabs.count > 0}>
               {tabs ? (
                 <TabPanel id={id} value={tabs.value}>
                   {children}

@@ -14,7 +14,7 @@ const dividerKinds = ['full-width', 'inset', 'middle-inset'] as const;
 const sliderSizes = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
 
 export default function SelectionParts() {
-  const grid = 'grid gap-6 p-4 medium:grid-cols-2';
+  const grid = 'selection-columns';
   const sheet = (kind: 'standard' | 'modal', back = false) => (
     <SiteSideSheet
       kind={kind}
@@ -87,7 +87,7 @@ export default function SelectionParts() {
       </Part>
       <Part name="Slider" use={say.slider}>
         <Preview>
-          <div className="grid gap-8 p-4 medium:grid-cols-2">
+          <div className="selection-sliders">
             <SiteSlider label={say.volume} value={40} valueLabel />
             <SiteSlider label={say.count} max={10} value={6} stops valueLabel="always" />
             <SiteSlider label={say.price} max={1000} step={50} range={[200, 700]} handleLabels={say.handles} valueLabel="always" />
@@ -95,7 +95,7 @@ export default function SelectionParts() {
             <SiteSlider label={say.balance} min={-50} max={50} value={20} centered valueLabel />
             <SiteSlider label={say.balance} min={-50} max={50} step={10} value={-30} centered stops valueLabel="always" />
           </div>
-          <div className="grid gap-8 p-4 medium:grid-cols-2">
+          <div className="selection-sliders">
             {sliderSizes.map((size) => (
               <SiteSlider key={size} label={say.sliderSizes[size]} size={size} value={60} />
             ))}
@@ -104,7 +104,7 @@ export default function SelectionParts() {
             ))}
             <SiteSlider label={`${say.brightness}: ${say.sliderSizes.large}`} size="large" value={4} icon="sun" />
           </div>
-          <div className="flex flex-wrap items-end justify-center gap-10 p-4" role="group" aria-label={say.verticalSliders}>
+          <div className="selection-vertical-sliders" role="group" aria-label={say.verticalSliders}>
             <SiteSlider label={say.volume} orientation="vertical" value={40} valueLabel />
             <SiteSlider label={say.count} orientation="vertical" max={10} value={6} stops />
             <SiteSlider label={say.price} orientation="vertical" max={1000} step={50} range={[200, 700]} handleLabels={say.handles} />
@@ -114,17 +114,17 @@ export default function SelectionParts() {
       </Part>
       <Part name="Divider" use={say.divider}>
         <Preview>
-          <div className="space-y-6 py-4">
+          <div className="selection-dividers">
             {dividerKinds.map((k) => (
-              <div key={k} className="space-y-2">
-                <p className="px-4 text-sm text-on-surface-variant">{say.kinds[k]}</p>
+              <div key={k} className="selection-kind">
+                <p className="selection-kind-label">{say.kinds[k]}</p>
                 <SiteDivider kind={k} />
               </div>
             ))}
-            <div className="flex h-16 items-center gap-4 px-4">
-              <span className="text-sm text-on-surface-variant">{say.kinds.vertical}</span>
+            <div className="selection-vertical-dividers">
+              <span className="selection-small-label">{say.kinds.vertical}</span>
               <SiteDivider vertical />
-              <span className="text-sm text-on-surface-variant">{say.kinds['middle-inset']}</span>
+              <span className="selection-small-label">{say.kinds['middle-inset']}</span>
               <SiteDivider vertical kind="middle-inset" />
             </div>
           </div>
@@ -132,24 +132,24 @@ export default function SelectionParts() {
       </Part>
       <Part name="SideSheet" use={say.sideSheet}>
         <Preview>
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <p className="px-2 text-sm text-on-surface-variant">{say.sheetKinds.standard}</p>
-              <div className="flex h-80 overflow-hidden">
-                <p className="hidden min-w-0 flex-1 p-4 text-on-surface-variant medium:block">{say.page}</p>
+          <div className="selection-sheets">
+            <div className="selection-kind">
+              <p className="selection-sheet-label">{say.sheetKinds.standard}</p>
+              <div className="selection-sheet-stage">
+                <p className="selection-sheet-page">{say.page}</p>
                 {sheet('standard')}
               </div>
             </div>
-            <div className="space-y-2">
-              <p className="px-2 text-sm text-on-surface-variant">{say.sheetKinds.withBack}</p>
-              <div className="flex h-80 overflow-hidden">
-                <p className="hidden min-w-0 flex-1 p-4 text-on-surface-variant medium:block">{say.page}</p>
+            <div className="selection-kind">
+              <p className="selection-sheet-label">{say.sheetKinds.withBack}</p>
+              <div className="selection-sheet-stage">
+                <p className="selection-sheet-page">{say.page}</p>
                 {sheet('standard', true)}
               </div>
             </div>
-            <div className="space-y-2">
-              <p className="px-2 text-sm text-on-surface-variant">{say.sheetKinds.modal}</p>
-              <div className="ml-auto h-80 w-full max-w-sm">{sheet('modal')}</div>
+            <div className="selection-kind">
+              <p className="selection-sheet-label">{say.sheetKinds.modal}</p>
+              <div className="selection-modal-stage">{sheet('modal')}</div>
             </div>
           </div>
         </Preview>
