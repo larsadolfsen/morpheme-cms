@@ -40,6 +40,7 @@ export const OTHER_BASE_FILES = [
   'ui.css',
   'cards.css',
   'type.css',
+  'blocks/text-section.css',
   'blocks.css',
   'blocks/person-facts.css',
   'lists.css',
