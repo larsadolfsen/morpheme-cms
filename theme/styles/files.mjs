@@ -70,6 +70,7 @@ export const OTHER_BASE_FILES = [
   'ui.css',
   'cards.css',
   'type.css',
+  'prose.css',
   'layout.css',
   'blocks/text-section.css',
   'blocks/steps.css',
