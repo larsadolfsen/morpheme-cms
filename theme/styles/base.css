@@ -81,7 +81,9 @@
 @import './blocks/row.css';
 @import './blocks/panel.css';
 @import './blocks/person-facts.css';
+@import './blocks/link-row.css';
 @import './blocks/cta-prices.css';
+@import './blocks/checklist.css';
 /* The fallback layer of blocks.css (prose, the video facade, the heading parts, the colours, the text alignment), moved out as it was: right before the lists. */
 @import './blocks/prose.css';
 /* The designs of the lists (List, List - Expand): Default and Card. */
