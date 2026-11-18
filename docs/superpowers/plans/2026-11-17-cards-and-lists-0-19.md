@@ -112,7 +112,8 @@ A design: the Preview goes and the builder shows the page at M3's window sizes (
 
 ## Branches and order (the PM)
 
-- Steps 1 to 5 go into `0.18`, after the CSS split's moves they touch; step 2 can start at once.
+- Steps 1 to 5 are one feature: their pull requests go into `feature/cards-lists`, cut from `0.18`, and the feature goes into
+  `0.18` as one pull request when it is done (skill `pm`, *Feature branches and the way to `main`*). Step 2 can start at once.
 - The Tailwind session's plans (T11 and the block batches) drop the card and list files, and its release is 0.18.1.
 - The old `0.19` work: merge its open pull requests (#704, #818, #819) and `0.19` into `main` after `0.18` if possible, then cut
   a new `0.19` for steps 6 and 7 (owner, 17 November).

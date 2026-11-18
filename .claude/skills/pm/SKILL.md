@@ -22,8 +22,10 @@ request when all of this holds, one pull request at a time, and only after readi
 - its changeset has the level its base branch allows (skill `changesets`; read it each time, never work from memory);
 - for a change the owner can see, the owner has approved it (**The owner approves what the owner sees**).
 
-The light `check` (changes, static, the 8 screens shards) is enough to merge into a version line; a merge of a version line into `main`
-(`merge-0.18-into-main-N`) needs the full run green (skill `checks`, *What CI runs*). When a line is red after a merge, the PM fixes forward.
+The light `check` (changes, static, the 8 screens shards) is enough to merge into a feature branch or a version line; a merge of a
+feature branch into its line, or of a line into `main`, needs the full run green (skill `checks`, *What CI runs*). When a line is red
+after a merge, the PM fixes forward. Where a pull request goes, and when a line goes into `main`: **Feature branches and the way to
+`main`** below.
 
 A pull request that conflicts, has no `check` job or has the wrong changeset is not merged. The PM asks the session
 that owns it to merge `main` (or its base branch) into the branch (never a rebase, amend or force-push on someone else's
@@ -128,6 +130,28 @@ grouped into one session per part (for example Cards, Lists, page editor rows, t
 same menu overlap even when they touch different files, and the PM judges. Overlapping pull requests go one after another,
 and each merges the new base before its run. Docs-only pull requests (skills, notes, changesets) and small independent
 pull requests may share a slot. Two pull requests can each be green apart and break once both are merged.
+
+## Feature branches and the way to `main`
+
+Owner decision, 18 Nov 2026: the pieces of one feature are merged together first, the feature goes into its line once, and the line
+goes into `main` once, when it is released.
+
+- **A feature of several pull requests gets its own branch.** When the PM delegates a feature that takes more than one pull request
+  (the CSS split, cards and lists, the move away from Tailwind), it cuts a branch from the line, `feature/<name>` (for example
+  `feature/css-split`), and every session of that feature opens its pull request into it. The PM merges them there under **Merging**,
+  with the light `check`, one at a time. A single fix or a feature of one pull request goes straight into the line, as before.
+- **The line keeps flowing into the feature.** After each merge into the line, the PM merges the line into every open feature
+  branch (never the other way), so a feature never drifts far from its line.
+- **One pull request into the line.** When every piece is merged and the feature is done, the PM opens one pull request from the
+  feature branch into the line. It needs the full run green, the proofs the feature's plan asks for (for a pure move,
+  `npx morpheme compare-html` showing nothing changed) and, for a change the owner can see, the owner's approval of the
+  whole feature with its screenshots (**The owner approves what the owner sees**). Its changesets are the pieces' changesets.
+  Then the PM deletes the feature branch.
+- **A line goes into `main` once.** A line's branch is merged into `main` when the owner has said go for its release (**Two version
+  lines at the same time**, Phase 4 and 5), not piece by piece. The test versions (`next`) the owner tries on `morpheme-staging` are
+  built from the line's own branch. Until the publish workflow can build a `next` version from a line's branch (a build task the PM
+  delegates), the PM merges the line into `main` only when the owner asks for a test version, and says so in its report.
+- **The list.** Every open feature branch is on the PM's list (**Nothing left behind**) with its pieces: merged, waiting, not started.
 
 ## Phase 1 - Take stock (read-only)
 
