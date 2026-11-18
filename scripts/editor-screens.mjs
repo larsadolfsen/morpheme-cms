@@ -90,7 +90,8 @@ const dealt = assignShards(
   times,
 );
 const shardOf = new Map(chosen.map((u, i) => [u, dealt[i]]));
-if (SHARDS > 1) console.log(times ? 'Units dealt to the shards by their measured time.' : 'No unit times: units dealt to the shards by number.');
+if (SHARDS > 1)
+  console.log(times ? 'Units dealt to the shards by their measured time.' : 'No unit times: units dealt to the shards by number.');
 const numbers = new Map(units.map((u, i) => [u, i]));
 for (const u of chosen) {
   const { name, run } = u;

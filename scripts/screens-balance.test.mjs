@@ -35,8 +35,14 @@ test('a selection (a subset in any order) is dealt the same way: each unit once'
 });
 
 test('without times, or with unusable times, it deals by index % N as before', () => {
-  assert.deepEqual(assignShards(names, 8, null), names.map((_, i) => i % 8));
-  assert.deepEqual(assignShards(names, 8, new Map()), names.map((_, i) => i % 8));
+  assert.deepEqual(
+    assignShards(names, 8, null),
+    names.map((_, i) => i % 8),
+  );
+  assert.deepEqual(
+    assignShards(names, 8, new Map()),
+    names.map((_, i) => i % 8),
+  );
 });
 
 test('the result is the same on every call', () => {
@@ -45,14 +51,24 @@ test('the result is the same on every call', () => {
 
 test('the slowest shard is shorter than by index, and close to the best possible', () => {
   const heavy = new Map(names.map((n, i) => [n, i % 8 === 0 ? 60 : 2]));
-  const byIndex = Math.max(...shardLoads(names, 8, heavy, names.map((_, i) => i % 8)));
+  const byIndex = Math.max(
+    ...shardLoads(
+      names,
+      8,
+      heavy,
+      names.map((_, i) => i % 8),
+    ),
+  );
   const balanced = Math.max(...shardLoads(names, 8, heavy));
   assert.ok(balanced < byIndex, `${balanced} < ${byIndex}`);
   assert.equal(balanced, 60); // five 60 s units cannot be split: one shard each, the 2 s units fill the others
 });
 
 test('a unit with no time gets the average of the known ones', () => {
-  const t = new Map([['a', 10], ['b', 20]]);
+  const t = new Map([
+    ['a', 10],
+    ['b', 20],
+  ]);
   assert.deepEqual(weights(['a', 'b', 'new'], t), [10, 20, 15]);
 });
 
@@ -67,11 +83,14 @@ test('parseUnitLines reads the runner lines, with or without a CI timestamp', ()
     'card icon contrast 375px light card-outlined: 16.39',
     '2026-11-18T06:47:04.7404143Z unit 152 checkCardIconText 375 light: 17 s',
   ].join('\n');
-  assert.deepEqual([...parseUnitLines(log)], [
-    ['checkListColumns 375', 2],
-    ['screens 390', 41],
-    ['checkCardIconText 375 light', 17],
-  ]);
+  assert.deepEqual(
+    [...parseUnitLines(log)],
+    [
+      ['checkListColumns 375', 2],
+      ['screens 390', 41],
+      ['checkCardIconText 375 light', 17],
+    ],
+  );
 });
 
 test('readTimes returns null for a missing file, bad JSON or no usable time', () => {

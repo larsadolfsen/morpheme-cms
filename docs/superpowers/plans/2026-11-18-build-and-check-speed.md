@@ -106,6 +106,21 @@ docs pull requests:
 
 A2 and A7 use building blocks 1 and 3; A3 and A8 build on block 2; A11 uses block 2 for "the tests next to the changed files".
 
+### A8 as built (screens parts balanced by time)
+
+Units are dealt to the shards by measured time (`scripts/screens/support/balance.mjs`, times in `scripts/screens/unit-times.json`,
+refreshed by `scripts/refresh-unit-times.mjs`; skill `checks`, *Built (PR 8)*). Slowest unit first, each to the shard with the least time so far;
+no times, or unreadable ones, deal by number as before.
+
+- **Before** (the run of #924, run 44252865810, 363 units, 8 shards dealt by number): the `screens` step took 8:23, 7:43, 7:28, 7:28, 7:28, 7:26,
+  6:48 and 5:26 (longest 503 s, shortest 326 s); the units add up to 3468 s, 433 s per shard if the shards were even; the longest unit is 94 s.
+- **Predicted** from the same times: 8 shards of 437 to 438 s (the longest 503 s becomes about 438 s, about 1 minute less). 6 shards give 583 s,
+  10 give 350 s, 12 give 292 s (`node scripts/refresh-unit-times.mjs <logs>` prints this table). Each job also spends about 30 to 60 s on setup.
+  The count stays 8: more shards only cut the wall time by their share and cost one runner and one setup each.
+- **After:** to be written from the first run of this pull request's `screens` jobs (a full run, `areas=all`, gives the numbers to compare; a
+  selected run is shorter by design).
+
+
 ### A3 as built (touched areas and the core set)
 
 Built in `lib/affected.mjs` (the engine, tested in `lib/affected.test.mjs`, reusable by track B with its own rules),
