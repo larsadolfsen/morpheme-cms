@@ -1,6 +1,6 @@
 # Migrating a theme or an app away from Tailwind
 
-For authors of themes and apps. The CMS stops building Tailwind in 0.18.1, together with contract 7. A theme or an app
+For authors of themes and apps. The CMS stops building Tailwind in 0.18.2, together with contract 7. A theme or an app
 written to contract 7 uses no utility class, no `theme()`, no `@theme`, no `@apply` and no `@source`. This page says what
 to write instead. Everything on it can be done now: it works with the 0.18.0 CMS (contract 6) as well, so a theme or an app
 released at 6 without utilities needs only its contract number changed for 7.
@@ -137,6 +137,21 @@ Colours of a state come from the state layers (`--mo-sys-state-mo-hover-layer`, 
   and a class in [`tailwind-migration-classes.md`](tailwind-migration-classes.md).
 - Prove that nothing moved: build before and after and compare the pages. A change of margins is the one thing to watch:
   `space-y-*` becomes `gap`, which is the same space with another mechanism.
+
+## The `mo-` names
+
+Contract 7 also gives every class and custom property of ours the `mo-` prefix, so a theme or app migrates once. The pattern is
+[`class-names.md`](class-names.md): `.card` becomes `.mo-card`, `.card-body` becomes `.mo-card__body`, a state becomes `mo-is-<word>`, a block part
+becomes `mo-block-<type>__<part>`, and a hook or runtime value becomes `--mo-comp-<component>-<name>`. No old name stays.
+
+The map of every name is `docs/superpowers/plans/mo-names/map.json` in this repository (`npm run mo-names:map` makes it again): `classes` and
+`properties` map each old name to its `new` name, with the rule that made it and how many places define and use it. A name with
+`"status": "question"` has no new name yet; the owner decides it, and the map changes when the owner does. To migrate:
+
+1. Search your CSS, `.tsx` and `.astro` files for each class and `--` name your code defines or reads that has no `mo-`.
+2. Look it up in the map and write the new name everywhere: stylesheets, `class` and `className`, `classList`, `querySelector` and `closest`.
+3. Keep the classes of other libraries (`ProseMirror*`, an embed's own) as they are.
+4. `npm run check:mo-names` counts what is left in this repository; the migration is done when every count in your own folder is zero.
 
 ## Contract 7
 

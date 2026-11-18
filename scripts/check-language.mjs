@@ -135,7 +135,13 @@ const PICTURE_ALLOWED = [
   { token: /\bblocks\.picture\b|^\s*picture: \{/g, why: 'the i18n key of the image block texts: a code name, not a text' },
 ];
 for (const path of names) {
-  if (!PICTURE_PATHS.test(path) || path === 'CHANGELOG.md' || /^release-notes\/i18n\/[^/]+\/\d/.test(path)) continue;
+  if (
+    !PICTURE_PATHS.test(path) ||
+    path === 'CHANGELOG.md' ||
+    path === 'docs/superpowers/plans/mo-names/map.json' /* generated: lists stored class names such as picture-crop */ ||
+    /^release-notes\/i18n\/[^/]+\/\d/.test(path)
+  )
+    continue;
   if (!existsSync(`${root}${path}`) || isBinary(`${root}${path}`)) continue;
   readFileSync(`${root}${path}`, 'utf8')
     .split('\n')
