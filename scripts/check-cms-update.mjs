@@ -536,6 +536,77 @@ for (const [what, patch] of [
   );
 }
 
+// The same update rewrites every place the editor stores markdown: a list entry (body and front matter), a data file's markdown string,
+// a global and a block's props in a page; JSON is written again as the editor writes it, and the undo writes exactly those files back.
+{
+  const NAMES = [
+    ['body-small', 'mo-type-body-small'],
+    ['body-medium', 'mo-type-body-medium'],
+    ['body-large', 'mo-type-body-large'],
+    ['label-medium', 'mo-type-label-medium'],
+    ['color-accent', 'mo-has-accent-color'],
+    ['color-muted', 'mo-has-muted-color'],
+  ];
+  const markdown = (pick) => NAMES.map(([old, now]) => `<p class="${pick(old, now)}">${old}</p>`).join('\n\n') + '\n';
+  const json = (value) => JSON.stringify(value, null, 2) + '\n';
+  const props = (pick) =>
+    `<div data-block="text" data-props="${JSON.stringify({ text: markdown(pick) })
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')}"></div>\n`;
+  const site = (pick) => ({
+    'src/content/team/anna.md': `---\ntitle: Anna\nbio: "<span class=\\"${pick('color-accent', 'mo-has-accent-color')}\\">Hi</span>"\n---\n\n${markdown(pick)}`,
+    'src/data/notes.json': json({ title: 'body-small', note: markdown(pick), n: 3 }),
+    'src/data/footer.json': json({ columns: [{ heading: 'label-medium', text: markdown(pick) }] }),
+    'src/content/pages/p.md': `---\ntitle: P\n---\n\n${props(pick)}`,
+    'src/data/other.json': json({ a: 'body-small', b: ['x'] }),
+  });
+  const before = site((old) => old);
+  const after = site((old, now) => now);
+  const changed = Object.keys(before).filter((p) => before[p] !== after[p]);
+  const w = world({ range: '0.18.1', latest: '0.18.2', content: before });
+  await checkForUpdate(w.env, w.deps, T0);
+  const paths = w.commits[0]?.changes.map((c) => c.path) ?? [];
+  const notContent = (p) => !/^src\/(content|data)\//.test(p);
+  expect(w.commits.length === 1 && paths.includes('package.json'), 'the update did not commit the version once');
+  for (const p of changed) expect(w.files[p] === after[p], `${p} was not rewritten as the editor writes it`);
+  expect(
+    !paths.includes('src/data/other.json') && w.files['src/data/other.json'] === before['src/data/other.json'],
+    'a data file without class names changed',
+  );
+  expect(
+    changed.every((p) => paths.includes(p)) && paths.filter((p) => !notContent(p)).length === changed.length,
+    `the commit had ${paths.join()}, not the version and ${changed.join()}`,
+  );
+  expect(
+    JSON.stringify(stored(w.kv, 'cms:update')?.migrated?.slice().sort()) === JSON.stringify(changed.slice().sort()),
+    'cms:update did not list the rewritten files',
+  );
+  w.checks.c1 = 'failure';
+  await watchUpdate(w.env, w.deps, T0 + 2 * MINUTE);
+  expect(w.commits.length === 2, 'the failed update was not undone with one commit');
+  expect(
+    Object.keys(before).every((p) => w.files[p] === before[p]),
+    'the undo did not write exactly the rewritten files back',
+  );
+  expect(
+    w.commits[1]?.changes
+      .map((c) => c.path)
+      .filter((p) => p !== 'package.json' && p !== 'package-lock.json')
+      .sort()
+      .join() === changed.slice().sort().join(),
+    'the undo touched other files than the update rewrote',
+  );
+  // A second run changes nothing: the content the update wrote has nothing left to rewrite.
+  const again = world({ range: '0.18.1', latest: '0.18.2', content: after });
+  await checkForUpdate(again.env, again.deps, T0);
+  expect(
+    again.commits[0]?.changes.every((c) => notContent(c.path)) && !('migrated' in (stored(again.kv, 'cms:update') ?? {})),
+    'a second run rewrote content again',
+  );
+}
+
 if (problems.length) {
   console.error(problems.map((p) => `- ${p}`).join('\n'));
   process.exit(1);
