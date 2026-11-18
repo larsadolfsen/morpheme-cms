@@ -25,7 +25,7 @@ export const PARTS = [
 
 /** Focused single-task parts: never denser than Medium, so they read neither --mo-sys-density nor --mo-sys-density-layout. */
 export const FOCUSED = [
-  { name: 'menu item', file: 'theme/styles/ui.css', selector: '.menu-item' },
+  { name: 'menu item', file: 'theme/styles/menus.css', selector: '.menu-item' },
   { name: 'snackbar', file: 'theme/styles/snackbar.css', selector: '.snackbar' },
 ];
 

@@ -22,6 +22,7 @@ export const UI_PART_FILES = [
   'side-sheet.css',
   'tabs.css',
   'top-app-bar.css',
+  'menus.css',
 ];
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */
