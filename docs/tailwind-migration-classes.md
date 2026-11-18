@@ -106,7 +106,7 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `text-body-large` | 5 | `font-size: var(--mo-sys-typescale-body-large-size); line-height: var(--tw-leading, var(--mo-sys-typescale-body-large-line-height)); letter-spacing: var(--tw-tracking, var(--mo-sys-typescale-` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `text-center` | 5 | `text-align: center;` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
 | `top-0` | 5 | `top: 0px;` | the part's rule (`position`, `inset-*`, `z-index`, `overflow`) |
-| `transition-transform` | 5 | `transition-property: transform, translate, scale, rotate; transition-timing-function: var(--tw-ease, var(--default-transition-timing-function)); transition-duration: var(--tw-duration, var(-` | the motion tokens in the part's rule |
+| `transition-transform` | 5 | `transition-property: transform, translate, scale, rotate; transition-timing-function: var(--tw-ease, var(--mo-sys-default-transition-timing-function)); transition-duration: var(--tw-duration, var(-` | the motion tokens in the part's rule |
 | `break-all` | 4 | `word-break: break-all;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `expanded:grid-cols-2` | 4 | `@media (width >= 52.5rem) { .expanded:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }` | `@media (width >= 52.5rem)` in the part's rule, with the replacement of `grid-cols-2` |
 | `focus-visible:outline-none` | 4 | `--tw-outline-style: none; outline-style: none;` | `:focus-visible` selector in the part's rule |
@@ -242,7 +242,7 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `size-20` | 2 | `width: calc(var(--spacing) * 20); height: calc(var(--spacing) * 20);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
 | `top-2` | 2 | `top: calc(var(--spacing) * 2);` | the part's rule (`position`, `inset-*`, `z-index`, `overflow`) |
 | `tracking-tight` | 2 | `--tw-tracking: var(--tracking-tight); letter-spacing: var(--tracking-tight); } @property --tw-tracking { syntax: "*"; inherits: false;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
-| `transition-opacity` | 2 | `transition-property: opacity; transition-timing-function: var(--tw-ease, var(--default-transition-timing-function)); transition-duration: var(--tw-duration, var(--default-transition-duration` | the motion tokens in the part's rule |
+| `transition-opacity` | 2 | `transition-property: opacity; transition-timing-function: var(--tw-ease, var(--mo-sys-default-transition-timing-function)); transition-duration: var(--tw-duration, var(--mo-sys-default-transition-duration` | the motion tokens in the part's rule |
 | `underline` | 2 | `text-decoration-line: underline;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `uppercase` | 2 | `text-transform: uppercase;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `w-[36rem]` | 2 | `width: 36rem;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
@@ -269,7 +269,7 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `[&>.tooltip]:top-[calc(100%-0.5rem)]` | 1 | `.[&>.tooltip]:top-[calc(100%-0.5rem)] > .tooltip { top: calc(100% - 0.5rem);` | the part's rule; a custom property is set on the part's class |
 | `[&>svg]:duration-(--mo-sys-motion-spring-default-spatial-duration)` | 1 | `.[&>svg]:duration-(--mo-sys-motion-spring-default-spatial-duration) > svg { --tw-duration: var(--mo-sys-motion-spring-default-spatial-duration); transition-duration: var(--mo-sys-motion-spri` | the part's rule; a custom property is set on the part's class |
 | `[&>svg]:ease-(--motion-ease)` | 1 | `.[&>svg]:ease-(--motion-ease) > svg { --tw-ease: var(--motion-ease); transition-timing-function: var(--motion-ease); } @property --tw-ease { syntax: "*"; inherits: false;` | the part's rule; a custom property is set on the part's class |
-| `[&>svg]:transition-transform` | 1 | `.[&>svg]:transition-transform > svg { transition-property: transform, translate, scale, rotate; transition-timing-function: var(--tw-ease, var(--default-transition-timing-function)); transit` | the part's rule; a custom property is set on the part's class |
+| `[&>svg]:transition-transform` | 1 | `.[&>svg]:transition-transform > svg { transition-property: transform, translate, scale, rotate; transition-timing-function: var(--tw-ease, var(--mo-sys-default-transition-timing-function)); transit` | the part's rule; a custom property is set on the part's class |
 | `[contain:layout]` | 1 | `contain: layout;` | the part's rule; a custom property is set on the part's class |
 | `[container-type:size]` | 1 | `container-type: size;` | the part's rule; a custom property is set on the part's class |
 | `[mask-position:center]` | 1 | `mask-position: center;` | the part's rule; a custom property is set on the part's class |
@@ -558,7 +558,7 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `top-full` | 1 | `top: 100%;` | the part's rule (`position`, `inset-*`, `z-index`, `overflow`) |
 | `tracking-wide` | 1 | `--tw-tracking: var(--tracking-wide); letter-spacing: var(--tracking-wide); } @property --tw-tracking { syntax: "*"; inherits: false;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `transform-gpu` | 1 | `transform: translateZ(0) var(--tw-rotate-x, ) var(--tw-rotate-y, ) var(--tw-rotate-z, ) var(--tw-skew-x, ) var(--tw-skew-y, );` | the part's own rule |
-| `transition-[stroke-dasharray]` | 1 | `transition-property: stroke-dasharray; transition-timing-function: var(--tw-ease, var(--default-transition-timing-function)); transition-duration: var(--tw-duration, var(--default-transition` | the motion tokens in the part's rule |
+| `transition-[stroke-dasharray]` | 1 | `transition-property: stroke-dasharray; transition-timing-function: var(--tw-ease, var(--mo-sys-default-transition-timing-function)); transition-duration: var(--tw-duration, var(--default-transition` | the motion tokens in the part's rule |
 | `underline-offset-4` | 1 | `text-underline-offset: 4px;` | a `mo-type-*` class or the part's `font` from `--mo-sys-typescale-*`; other text rules in the part's rule |
 | `w-[calc(100%+1.5rem)]` | 1 | `width: calc(100% + 1.5rem);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |
 | `w-1` | 1 | `width: var(--spacing);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule (`--mo-measure` for a text width) |

@@ -25,7 +25,7 @@ After contract 7 nothing builds these for you. A class or rule that uses them do
 | A utility class | `flex items-center gap-2`, `px-4`, `text-sm`, `bg-surface` |
 | A responsive variant | `medium:grid-cols-2`, `expanded:flex`, `large:hidden`, `min-[600px]:p-4` |
 | A state variant | `hover:underline`, `focus-visible:outline-2`, `group-hover:opacity-100`, `has-[:checked]:bg-primary`, `aria-expanded:rotate-180`, `data-[open]:flex` |
-| An arbitrary value or property | `w-[22.5rem]`, `[--card-padding:1rem]`, `[&>svg]:size-5` |
+| An arbitrary value or property | `w-[22.5rem]`, `[--mo-comp-card-padding:1rem]`, `[&>svg]:size-5` |
 | `theme()` in CSS | `@media (width >= theme(--breakpoint-medium))` |
 | `@theme`, `@apply`, `@utility`, `@source`, `@plugin` | `@apply flex gap-2;` |
 | `--tw-*` custom properties | `var(--tw-prose-body)` |
@@ -125,7 +125,7 @@ container query is free of the table.
 | `aria-expanded:rotate-180` | `.part[aria-expanded='true'] { … }` |
 | `data-[open]:flex` | `.part[data-open] { … }` |
 
-Colours of a state come from the state layers (`--mo-hover`, `--mo-pressed`), not from a new colour.
+Colours of a state come from the state layers (`--mo-sys-state-mo-hover-layer`, `--mo-sys-state-mo-pressed-layer`), not from a new colour.
 
 ## How to check
 
