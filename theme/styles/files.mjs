@@ -15,6 +15,7 @@ export const UI_PART_FILES = [
   'chips.css', // before ui.css in base.css, like the Checkbox: a chip set is also .search-view-filters, whose rules (in ui.css) must win over it
   'dialog.css', // before ui.css in base.css: the pickers' dialogs are .dialog-modal too, and the picker rules (in ui.css) must win over it
   'lightbox.css', // made of the dialog's classes, right after dialog.css
+  'buttons.css', // before ui.css in base.css, after the Lightbox: where the buttons stood, so every part that is also a .button or .icon-button keeps its rank
   'switch.css',
   'radio-button.css',
   'slider.css',
