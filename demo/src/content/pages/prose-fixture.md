@@ -79,7 +79,7 @@ A block of code
 
 ![The Earth seen from space, with clouds over the ocean](/images/uploads/2026/10/earth-from-space.webp)
 
-<div class="picture-crop"><img src="/images/uploads/2026/10/andromeda.webp" alt="The Andromeda galaxy"></div>
+<picture><source srcset="/images/uploads/2026/10/andromeda.webp" type="image/webp"><img src="/images/uploads/2026/10/andromeda.webp" alt="The Andromeda galaxy"></picture>
 
 <video controls width="320"></video>
 
