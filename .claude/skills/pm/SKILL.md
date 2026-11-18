@@ -75,11 +75,9 @@ line once, and the line goes into `main` once, when it is released):
    changed) and, for a change the owner can see, the owner's approval of the whole feature with its screenshots (section 4). Its
    changesets are the pieces' changesets. Then the PM deletes the feature branch.
 6. **The line into `main`, once.** A line's branch is merged into `main` when the owner has said go for its release (section 7), not
-   piece by piece. A merge into the line's branch stages a test version of the line
-   (`0.18.0-next-<time>`) under the npm tag `next-0.18` (`publish.yml`, job `next-line`; plan A6 as built). The owner approves it on npmjs.com; a
-   site pins the exact version, and only `main` moves `next` (which `morpheme-staging` follows). The PM never merges a line into `main` to get a test version. **First stage:** after the
-   first merge into a line, read the run of *Publish* for that merge (job `next-line`, step *plan* says `stage 0.18.0-next-…
-   under "next-0.18"`), tell the owner to approve it, and check `npm view @morphemecms/cms dist-tags --json` shows `next-0.18` and `next` unchanged.
+   piece by piece. A merge into the line's branch stages nothing on npm (owner, 18 Nov 2026: nothing goes to npm unless the owner
+   is meant to approve it; plan A6 was removed). No test version exists for a line: the line is tried on staging only after it reaches `main` as `next`
+   (which `morpheme-staging` follows), and the PM never merges a line into `main` just to get a test version.
 
 **Two version lines at the same time.** When two lines run together (for example `0.18` and `0.19`), each line has its own PM and
 its own branch, and each PM merges only into its own branch and its features. After each merge into the earlier line, the later
@@ -255,6 +253,7 @@ other pull requests merge as usual, and only the newest run on the current head 
 - **Merge on the latest.** When that run is green on the current head, the PM merges the Release PR at once, as the `release` skill
   says, after the owner's explicit yes in the `release` skill's question. If the head moved meanwhile, it starts again from the new
   head. It never merges a Release PR whose head has no green `Check` run.
+- **Staged versions.** The PM never tells the owner not to approve a staged version. If a staged version will not be approved (superseded, untested, blocked by the release gate), the PM tells the owner once and the owner rejects it on npmjs.com's Staged Packages page; agents never reject. Before a carry to `main`, the PM checks that `next` will stage only what the owner should approve next.
 - **Not the PM's.** Approving the staged version on npmjs.com stays with the owner (2FA). The PM tells the owner when the version is
   staged, then verifies `latest`, the tag and the GitHub release (Phase 5 of the `release` skill).
 - **After.** The PM merges `main` into the later line and starts any follow-up that needed the new version (for example the sites that
