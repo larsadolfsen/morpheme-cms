@@ -14,7 +14,11 @@
   --mo-comp-search-bar-gap: 1rem;
   --mo-comp-search-bar-container-color: var(--mo-sys-color-surface-container-high);
   --mo-comp-search-bar-line: transparent;
-  --mo-comp-search-bar-hover: color-mix(in srgb, var(--mo-sys-color-on-surface) 8%, var(--mo-sys-color-surface-container-high));
+  --mo-comp-search-bar-hover: color-mix(
+    in srgb,
+    var(--mo-sys-color-on-surface) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+    var(--mo-sys-color-surface-container-high)
+  );
   --mo-comp-search-bar-supporting-text-color: var(--mo-sys-color-on-surface-variant);
   --mo-comp-search-view-radius: var(--mo-sys-shape-corner-extra-large);
   --mo-comp-search-view-line: transparent;

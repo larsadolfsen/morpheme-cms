@@ -198,7 +198,10 @@
     border-radius: var(--mo-comp-navigation-rail-active-indicator-shape, var(--mo-sys-shape-corner-full));
   }
   .navigation-rail-item:hover .navigation-rail-icon {
-    background: var(--mo-comp-navigation-rail-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
+    background: var(
+      --mo-comp-navigation-rail-indicator-hover,
+      color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
   }
   .navigation-rail-item[aria-current] .navigation-rail-icon {
     background: var(--mo-comp-navigation-rail-active-indicator-color, var(--mo-sys-block-tint));
@@ -230,7 +233,10 @@
     background: none;
   }
   .navigation-rail[data-expanded] .navigation-rail-item:hover .navigation-rail-indicator {
-    background: var(--mo-comp-navigation-rail-indicator-hover, color-mix(in srgb, currentColor 8%, transparent));
+    background: var(
+      --mo-comp-navigation-rail-indicator-hover,
+      color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
   }
   .navigation-rail[data-expanded] .navigation-rail-item[aria-current] .navigation-rail-indicator {
     background: var(--mo-comp-navigation-rail-active-indicator-color, var(--mo-sys-block-tint));

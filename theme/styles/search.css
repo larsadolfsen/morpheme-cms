@@ -30,7 +30,7 @@
     color: var(--search-bar-text, var(--mo-sys-block-text));
     box-shadow:
       inset 0 0 0 1px var(--mo-comp-search-bar-line, var(--mo-sys-block-line)),
-      var(--search-bar-shadow, var(--mo-sys-elevation-level0-shadow));
+      var(--search-bar-shadow, var(--mo-sys-elevation-level3-rest-shadow));
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .search-bar:has(> .search-bar-field:hover) {
@@ -98,7 +98,7 @@
   .search-bar:has(.search-bar-input:focus-visible) {
     box-shadow:
       inset 0 0 0 2px var(--mo-sys-block-accent),
-      var(--search-bar-shadow, var(--mo-sys-elevation-level0-shadow));
+      var(--search-bar-shadow, var(--mo-sys-elevation-level3-rest-shadow));
   }
   /* The view: over the whole screen on a phone; docked from the medium width, where the bar is (search.script.ts sets where), and
      as the editor draws it. */

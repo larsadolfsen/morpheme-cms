@@ -150,12 +150,12 @@ test('outlined card keeps --mo-sys-elevation-level0-shadow', () => {
   assert.equal(count(uiCss, '--mo-comp-card-shadow: var(--card-outlined-shadow, var(--mo-sys-elevation-level0-shadow));'), 1);
 });
 
-// The Material theme (global.css): colour at rest, a shadow only for the FAB and the lift.
+// The Material theme (global.css): resting shadows on, each level's rest shadow is that level's shadow.
 const globalCss = withTokens('./global.css', 'material');
 
 for (let level = 1; level <= 5; level++) {
-  test(`global.css sets --mo-sys-elevation-level${level}-rest-shadow to no shadow`, () => {
-    assert.equal(count(globalCss, `  --mo-sys-elevation-level${level}-rest-shadow: var(--mo-sys-elevation-level0-shadow);\n`), 1);
+  test(`global.css sets --mo-sys-elevation-level${level}-rest-shadow to level ${level}'s shadow (resting shadows on)`, () => {
+    assert.equal(count(globalCss, `  --mo-sys-elevation-level${level}-rest-shadow: var(--mo-sys-elevation-level${level}-shadow);\n`), 1);
   });
 }
 

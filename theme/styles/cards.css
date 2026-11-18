@@ -161,12 +161,12 @@
   }
   @media (hover: hover) {
     :is(a, button:enabled).card:hover::before {
-      opacity: var(--card-hover-layer, 0.08);
+      opacity: var(--card-hover-layer, var(--mo-sys-state-hover-state-layer-opacity));
     }
   }
 
   :is(a, button:enabled).card:focus-visible::before {
-    opacity: var(--card-focus-layer, 0.1);
+    opacity: var(--card-focus-layer, var(--mo-sys-state-focus-state-layer-opacity));
   }
   .card-dragged {
     cursor: grabbing;

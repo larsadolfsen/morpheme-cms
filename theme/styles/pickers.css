@@ -247,7 +247,7 @@
     background: var(--mo-comp-date-picker-day-hover, var(--mo-sys-block-tint));
   }
   .date-picker-day:disabled {
-    opacity: 0.38;
+    opacity: var(--mo-sys-state-disabled-state-layer-opacity);
     cursor: default;
   }
   .date-picker-day[aria-current='date'],
@@ -275,7 +275,7 @@
     color: var(--date-picker-range-text, var(--mo-sys-block-text));
   }
   .date-picker-cell[data-range='middle'] .date-picker-day:hover {
-    background: color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent);
+    background: color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent);
   }
 
   /* The years in a grid (modal), and a docked picker's months and years in a list. */
@@ -402,7 +402,11 @@
       color var(--mo-sys-motion-spring-default-effects);
   }
   .time-picker-box:hover {
-    background: color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-comp-time-picker-box-surface, var(--mo-sys-block-tint)));
+    background: color-mix(
+      in srgb,
+      var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+      var(--mo-comp-time-picker-box-surface, var(--mo-sys-block-tint))
+    );
   }
   .time-picker-box[aria-pressed='true'] {
     background: var(--mo-comp-time-picker-box-selected-surface, var(--mo-sys-block-accent));
@@ -564,7 +568,7 @@
     border-top: 1px solid var(--time-picker-period-line, var(--mo-sys-block-line));
   }
   .time-picker-period-button:hover {
-    background: color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent);
+    background: color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent);
   }
   .time-picker-period-button[aria-pressed='true'] {
     background: var(--time-picker-period-selected-surface, var(--mo-sys-color-primary-container));

@@ -235,7 +235,10 @@
   }
   @media (hover: hover) {
     .button-tonal:hover {
-      background: var(--mo-comp-button-tonal-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
+      background: var(
+        --mo-comp-button-tonal-hover,
+        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-block-tint))
+      );
       box-shadow: var(--button-tonal-hover-shadow, var(--button-tonal-shadow, var(--mo-sys-elevation-level1-shadow)));
     }
   }
@@ -279,7 +282,10 @@
   }
   @media (hover: hover) {
     .button-text:hover {
-      background: var(--mo-comp-button-text-hover, color-mix(in srgb, var(--mo-sys-block-accent) 8%, transparent));
+      background: var(
+        --mo-comp-button-text-hover,
+        color-mix(in srgb, var(--mo-sys-block-accent) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      );
     }
   }
 
@@ -292,7 +298,10 @@
   }
   @media (hover: hover) {
     .button-filled[aria-pressed='false']:hover {
-      background: var(--mo-comp-button-toggle-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
+      background: var(
+        --mo-comp-button-toggle-hover,
+        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-block-tint))
+      );
       box-shadow: var(--mo-sys-elevation-level1-shadow);
     }
   }
@@ -321,7 +330,11 @@
     .button-tonal[aria-pressed='true']:hover {
       background: var(
         --button-tonal-selected-hover,
-        color-mix(in srgb, var(--mo-sys-color-on-secondary) 10%, var(--mo-sys-color-secondary))
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-secondary)
+        )
       );
     }
   }
@@ -396,7 +409,11 @@
   }
   @media (hover: hover) {
     .icon-button-standard:hover {
-      background: color-mix(in srgb, currentColor 8%, var(--mo-comp-icon-button-standard-surface, transparent));
+      background: color-mix(
+        in srgb,
+        currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-comp-icon-button-standard-surface, transparent)
+      );
     }
   }
   /* Filled: the main action, in the accent. */
@@ -418,7 +435,11 @@
   }
   @media (hover: hover) {
     .icon-button-tonal:hover {
-      background: color-mix(in srgb, currentColor 8%, var(--mo-comp-icon-button-tonal-container-color, var(--mo-sys-block-tint)));
+      background: color-mix(
+        in srgb,
+        currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-comp-icon-button-tonal-container-color, var(--mo-sys-block-tint))
+      );
     }
   }
   /* Outlined: with a thin edge. */
@@ -446,7 +467,10 @@
   }
   @media (hover: hover) {
     .icon-button-filled[aria-pressed='false']:hover {
-      background: var(--mo-comp-button-toggle-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
+      background: var(
+        --mo-comp-button-toggle-hover,
+        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-block-tint))
+      );
     }
   }
   .icon-button-filled[aria-pressed='true'] {
@@ -478,7 +502,11 @@
   }
   @media (hover: hover) {
     .icon-button-tonal[aria-pressed='true']:hover {
-      background: color-mix(in srgb, currentColor 8%, var(--icon-button-tonal-selected-surface, var(--mo-sys-color-secondary-container)));
+      background: color-mix(
+        in srgb,
+        currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--icon-button-tonal-selected-surface, var(--mo-sys-color-secondary-container))
+      );
     }
   }
   .icon-button-outlined[aria-pressed='true'] {
@@ -1545,13 +1573,19 @@
   }
   .list-segmented > li > :is(a, button:enabled).list-item-container:hover,
   .list-segmented > li > .list-item-with-control:not(.list-item-disabled):hover {
-    background: var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent));
+    background: var(
+      --mo-comp-list-segmented-hover-surface,
+      color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
   }
   .list-segmented > li > :is(a, button:enabled).list-item-container:active,
   .list-segmented > li > .list-item-with-control:not(.list-item-disabled):active {
     background: var(
       --mo-comp-list-segmented-pressed-surface,
-      var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
+      var(
+        --mo-comp-list-segmented-hover-surface,
+        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      )
     );
   }
   .list-segmented > li > :is(a, button:enabled).list-item-container:focus-visible,
@@ -1561,7 +1595,10 @@
       --mo-comp-list-item-focus-surface,
       var(
         --mo-comp-list-segmented-pressed-surface,
-        var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
+        var(
+          --mo-comp-list-segmented-hover-surface,
+          color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+        )
       )
     );
   }
@@ -1569,12 +1606,18 @@
     border-radius: inherit;
   }
   .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:hover) {
-    background: var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent));
+    background: var(
+      --mo-comp-list-segmented-hover-surface,
+      color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
   }
   .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:active) {
     background: var(
       --mo-comp-list-segmented-pressed-surface,
-      var(--mo-comp-list-segmented-hover-surface, color-mix(in srgb, var(--mo-sys-block-text) 8%, transparent))
+      var(
+        --mo-comp-list-segmented-hover-surface,
+        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      )
     );
   }
   /* A disabled item on its own surface (M3 Expressive: a faint layer of the text's colour). */
@@ -1697,12 +1740,26 @@
     color: var(--fab-secondary-text, var(--mo-sys-color-on-secondary));
   }
   .fab-secondary:hover {
-    background: var(--fab-secondary-hover, color-mix(in srgb, var(--mo-sys-color-on-secondary) 8%, var(--mo-sys-color-secondary)));
+    background: var(
+      --fab-secondary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-secondary)
+      )
+    );
   }
   .fab-secondary:active {
     background: var(
       --fab-secondary-pressed,
-      var(--fab-secondary-hover, color-mix(in srgb, var(--mo-sys-color-on-secondary) 8%, var(--mo-sys-color-secondary)))
+      var(
+        --fab-secondary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-secondary)
+        )
+      )
     );
   }
   .fab-tertiary {
@@ -1710,12 +1767,26 @@
     color: var(--fab-tertiary-text, var(--mo-sys-color-on-tertiary));
   }
   .fab-tertiary:hover {
-    background: var(--fab-tertiary-hover, color-mix(in srgb, var(--mo-sys-color-on-tertiary) 8%, var(--mo-sys-color-tertiary)));
+    background: var(
+      --fab-tertiary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-tertiary)
+      )
+    );
   }
   .fab-tertiary:active {
     background: var(
       --fab-tertiary-pressed,
-      var(--fab-tertiary-hover, color-mix(in srgb, var(--mo-sys-color-on-tertiary) 8%, var(--mo-sys-color-tertiary)))
+      var(
+        --fab-tertiary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-tertiary)
+        )
+      )
     );
   }
   .fab-primary-container {
@@ -1725,7 +1796,11 @@
   .fab-primary-container:hover {
     background: var(
       --mo-comp-fab-primary-container-hover,
-      color-mix(in srgb, var(--mo-sys-color-on-primary-container) 8%, var(--mo-sys-color-primary-container))
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-primary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-primary-container)
+      )
     );
   }
   .fab-primary-container:active {
@@ -1733,7 +1808,11 @@
       --fab-primary-container-pressed,
       var(
         --mo-comp-fab-primary-container-hover,
-        color-mix(in srgb, var(--mo-sys-color-on-primary-container) 8%, var(--mo-sys-color-primary-container))
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-primary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-primary-container)
+        )
       )
     );
   }
@@ -1744,7 +1823,11 @@
   .fab-secondary-container:hover {
     background: var(
       --mo-comp-fab-secondary-container-hover,
-      color-mix(in srgb, var(--mo-sys-color-on-secondary-container) 8%, var(--mo-sys-color-secondary-container))
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-secondary-container)
+      )
     );
   }
   .fab-secondary-container:active {
@@ -1752,7 +1835,11 @@
       --fab-secondary-container-pressed,
       var(
         --mo-comp-fab-secondary-container-hover,
-        color-mix(in srgb, var(--mo-sys-color-on-secondary-container) 8%, var(--mo-sys-color-secondary-container))
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-secondary-container)
+        )
       )
     );
   }
@@ -1763,7 +1850,11 @@
   .fab-tertiary-container:hover {
     background: var(
       --fab-tertiary-container-hover,
-      color-mix(in srgb, var(--mo-sys-color-on-tertiary-container) 8%, var(--mo-sys-color-tertiary-container))
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-tertiary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-tertiary-container)
+      )
     );
   }
   .fab-tertiary-container:active {
@@ -1771,7 +1862,11 @@
       --fab-tertiary-container-pressed,
       var(
         --fab-tertiary-container-hover,
-        color-mix(in srgb, var(--mo-sys-color-on-tertiary-container) 8%, var(--mo-sys-color-tertiary-container))
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-tertiary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-tertiary-container)
+        )
       )
     );
   }
@@ -2001,14 +2096,20 @@
     height: var(--segmented-button-icon-size, 1.125rem);
   }
   .segmented-button-segment:not(:disabled):hover {
-    background: var(--segmented-button-hover, color-mix(in srgb, currentColor 8%, transparent));
+    background: var(
+      --segmented-button-hover,
+      color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
   }
   .segmented-button-segment[aria-pressed='true'] {
     background: var(--mo-comp-outlined-segmented-button-selected-container-color, var(--mo-sys-block-tint));
     color: var(--mo-comp-outlined-segmented-button-selected-label-text-color, var(--mo-sys-block-text));
   }
   .segmented-button-segment[aria-pressed='true']:not(:disabled):hover {
-    background: var(--mo-comp-segmented-button-selected-hover, color-mix(in srgb, var(--mo-sys-block-text) 8%, var(--mo-sys-block-tint)));
+    background: var(
+      --mo-comp-segmented-button-selected-hover,
+      color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-block-tint))
+    );
   }
   .segmented-button-segment:disabled {
     opacity: 0.45;
@@ -2255,12 +2356,26 @@
     color: var(--fab-secondary-text, var(--mo-sys-color-on-secondary));
   }
   .fab-menu-secondary > .fab-menu-button[aria-expanded='true']:hover {
-    background: var(--fab-secondary-hover, color-mix(in srgb, var(--mo-sys-color-on-secondary) 8%, var(--mo-sys-color-secondary)));
+    background: var(
+      --fab-secondary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-secondary)
+      )
+    );
   }
   .fab-menu-secondary > .fab-menu-button[aria-expanded='true']:active {
     background: var(
       --fab-secondary-pressed,
-      var(--fab-secondary-hover, color-mix(in srgb, var(--mo-sys-color-on-secondary) 8%, var(--mo-sys-color-secondary)))
+      var(
+        --fab-secondary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-secondary)
+        )
+      )
     );
   }
   .fab-menu-tertiary > .fab-menu-button[aria-expanded='true'] {
@@ -2268,12 +2383,26 @@
     color: var(--fab-tertiary-text, var(--mo-sys-color-on-tertiary));
   }
   .fab-menu-tertiary > .fab-menu-button[aria-expanded='true']:hover {
-    background: var(--fab-tertiary-hover, color-mix(in srgb, var(--mo-sys-color-on-tertiary) 8%, var(--mo-sys-color-tertiary)));
+    background: var(
+      --fab-tertiary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-tertiary)
+      )
+    );
   }
   .fab-menu-tertiary > .fab-menu-button[aria-expanded='true']:active {
     background: var(
       --fab-tertiary-pressed,
-      var(--fab-tertiary-hover, color-mix(in srgb, var(--mo-sys-color-on-tertiary) 8%, var(--mo-sys-color-tertiary)))
+      var(
+        --fab-tertiary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-tertiary)
+        )
+      )
     );
   }
   @media (prefers-reduced-motion: reduce) {
@@ -2436,7 +2565,7 @@
     width: var(--ripple-size);
     height: var(--ripple-size);
     background: radial-gradient(closest-side, var(--ripple-colour, currentColor) max(calc(100% - 70px), 65%), transparent 100%);
-    opacity: var(--ripple-opacity, 0.1);
+    opacity: var(--ripple-opacity, var(--mo-sys-state-pressed-state-layer-opacity));
     transform: translate(var(--ripple-to)) scale(var(--ripple-scale));
     animation:
       ripple-grow var(--ripple-duration, 450ms) cubic-bezier(0.2, 0, 0, 1),

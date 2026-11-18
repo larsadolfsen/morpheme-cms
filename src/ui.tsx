@@ -2513,7 +2513,8 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
   const vars = {
     ...Object.fromEntries(Object.entries(colors).map(([name, value]) => [`--mo-sys-color-${name}`, value])),
     '--mo-comp-button-filled-container-color': 'var(--mo-sys-color-primary)',
-    '--mo-comp-button-filled-hover': 'color-mix(in srgb, var(--mo-sys-color-on-primary) 8%, var(--mo-sys-color-primary))',
+    '--mo-comp-button-filled-hover':
+      'color-mix(in srgb, var(--mo-sys-color-on-primary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-color-primary))',
     '--mo-comp-button-filled-label-text-color': 'var(--mo-sys-color-on-primary)',
   } as CSSProperties;
   return (

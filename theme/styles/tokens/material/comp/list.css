@@ -39,7 +39,7 @@
   --mo-comp-list-list-item-selected-label-text-color: var(--mo-sys-color-on-secondary-container);
   --mo-comp-list-item-selected-weight: 400;
   --mo-comp-list-item-leading-icon-selected-color: var(--mo-sys-color-primary);
-  --mo-comp-list-item-disabled-opacity: 0.38;
+  --mo-comp-list-item-disabled-opacity: var(--mo-sys-state-disabled-state-layer-opacity);
   --mo-comp-list-segmented-gap: 0.125rem;
   --mo-comp-list-segmented-radius: var(--mo-sys-shape-corner-large);
   --mo-comp-list-segmented-inner-radius: var(--mo-sys-shape-corner-extra-small);
