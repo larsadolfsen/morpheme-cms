@@ -1,7 +1,7 @@
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { clickPreview, openEditor, virtualFile } from '../built-site.mjs';
-import { BUILT_PAGE, LIST_PAGE, block, browser, has, problems, shots, site } from './support/context.mjs';
+import { BUILT_PAGE, LIST_PAGE, ROOT, block, browser, has, problems, shots, site } from './support/context.mjs';
 import { barTools, liveLists, onTestPage, openStyleMenu, pressInsert, pressMore, pressTool, ratioOf } from './support/shared.mjs';
 
 /** The rows of a List and List - Expand are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
@@ -1325,6 +1325,8 @@ async function checkSectionsOnLoad(width, height) {
  * row wraps when it is too narrow for both (owner, 17 Nov 2026: "If there is two buttons they should be on a row"). */
 async function checkListButtonsRow(width) {
   const label = `${width}px list buttons row`;
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-lists.md')))
+    return void console.log(`${label}: skipped, the site has no Lists page, which the demo has.`);
   const page = await browser.newPage({ viewport: { width, height: width < 600 ? 800 : 900 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   const response = await page.goto(`${site}/blocks/lists/`).catch(() => null);
@@ -1374,6 +1376,8 @@ async function checkListButtonsRow(width) {
  * drawn above an open item or under it (owner, 17 Nov 2026: "A plain design list item that is open should have a bg color"). */
 async function checkOpenPlainExpand(width) {
   const label = `${width}px open plain expand item`;
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-lists.md')))
+    return void console.log(`${label}: skipped, the site has no Lists page, which the demo has.`);
   const page = await browser.newPage({ viewport: { width, height: width < 600 ? 800 : 900 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   const response = await page.goto(`${site}/blocks/lists/`).catch(() => null);
@@ -1423,6 +1427,8 @@ async function checkOpenPlainExpand(width) {
  * "There are dividers that shouldn't be there and corners that does not have the right radius"). */
 async function checkListColumnsLook(width) {
   const label = `${width}px lists in columns`;
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-lists.md')))
+    return void console.log(`${label}: skipped, the site has no Lists page, which the demo has.`);
   const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   const response = await page.goto(`${site}/blocks/lists/`).catch(() => null);
