@@ -101,7 +101,7 @@ docs pull requests:
 11. **A fast local check.** `npm run check:fast`: Prettier on the changed files, `tsc` with its build info, `npm run check:language` and
     the tests next to the changed files. The `developer` and `checks` skills ask for it before a push; CI runs the rest. `npm run check`
     stays for the full local run.
-12. **CI slots follow the cost.** When A2, A3 and A7 are merged and a feature check takes a few minutes, the `pm` skill's limit of 3 runs
+12. **CI slots follow the cost (built: see A12 as built).** When A2, A3 and A7 are merged and a feature check takes a few minutes, the `pm` skill's limit of 3 runs
     per PM is set again from the measured queue (more runs when they are short), so the slots do not become the bottleneck.
 
 A2 and A7 use building blocks 1 and 3; A3 and A8 build on block 2; A11 uses block 2 for "the tests next to the changed files".
@@ -248,10 +248,7 @@ and the pull request's jobs read them:
 2m58s in one, with both caches restored. That is the same as the cold runs of #928 (26–45 s, and one shard of 4–6 minutes), so restoring the caches
 saves nothing that shows in the step times: the download was a small part of the set-up, and what remains (`npm ci` from the restored cache, the
 system libraries from apt, the unpack) is what takes the rest. The one slow shard in each run is therefore not the browser download. The caches
-are worth keeping for the network (one download of Chromium and of npm's cache per branch instead of per run), not for the minutes. **Open item** (owner of
-the next pull request that touches `prepare`: A12, CI slots from measured cost, or a later one): the slow `prepare` shard is still unexplained. Time
-`prepare`'s steps separately (apt, `npm ci`, the unpack, the browser; the composite action reports one step today), and look at the apt step
-(`playwright install --with-deps`), which runs on a hit too.
+are worth keeping for the network (one download of Chromium and of npm's cache per branch instead of per run), not for the minutes. The slow shard is explained in *A12 as built* below.
 
 Built in `lib/affected.mjs` (the engine, tested in `lib/affected.test.mjs`, reusable by track B with its own rules),
 `scripts/screens/support/areas.mjs` (the map, `AREAS`, `CORE_UNITS`; tested in `scripts/screens-areas.test.mjs`), `--areas` in the runner
@@ -558,3 +555,32 @@ test site before and after and writes the numbers here.
 
 Release notes (skill `release-notes`): batch 1 ("Saves go live sooner"), batch 4 (the new setting); the others are
 internal.
+
+### A12 as built (CI slots from measured cost, and `prepare` timed)
+
+Measured on 18 November 2026 with `gh api` over the 27 successful or failed `Check` runs of that day (runs with 11 or 12 jobs; the 3-job
+runs are the dispatcher kind and are not counted).
+
+| Level | Runs read | Jobs | Runner-minutes | Longest job | Wait for a runner |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| Into a feature branch (`feature/build-check-speed`, `feature/cards-lists`) | 22 | 11-12 | 51-82, median 71 | 8.7-15.2 min, median 10.9 | 2-3 s in 19 runs, 63 s in 1, 318-341 s in 2 |
+| Into a version line (`0.18`) | 5 | 11 | 69-82, median 76 | 10.4-15 min | 2-3 s in 4 runs, 245 s in 1 |
+| Full (`main`, the Release PR) | 0 since A4 and A5 | | the last one, #888: about 135, 18 min | | the daily full run has not fired yet |
+
+The feature and line levels cost the same today (the line adds `demo` and the starter smoke; both are short). A run is 8 `screens` shards,
+`screens-extra`, `static`, `build` and, at the line level, `demo` and the smoke. Of the 27 runs, 3 or 4 overlapped in 13 (the most, 4, on
+`feature/cards-site-cards` at 11:14, waited 3 s), and the only long waits (245, 318 and 341 s) came with 3 overlapping. So the queue is not
+the bottleneck at 3 runs and mostly not at 4; the evidence for 4 is thin (one run with 4 overlapping), so the rule has a way back.
+**The rule** (`pm` skill, section 6): 4 light runs at once; a full-level run counts as 2; back to 3 when more than 2 runs wait over 2
+minutes; measure again after the first daily full runs.
+
+**Why one `prepare` shard takes 3 to 6 minutes.** `prepare` was timed from the log of the slow shard of run 44294061736 (`screens (8)`, 366 s;
+`screens (1)` took 145 s, the other six 28-44 s). Its steps: Node 10 s (npm cache restored), `npm ci` 9 s, artifact download and unpack 4 s,
+Playwright cache restore 6 s, and then `npx playwright install --with-deps chromium`: 5 min 40 s. All of it is `apt`: an `apt-get update` of
+31 s, then the font packages (`fonts-wqy-zenhei` and others, 21.9 MB) fetched from the runner's Ubuntu mirror at 74 kB/s (4 min 54 s), then
+2 s to unpack. The browser itself was a cache hit. So the slow shard is a slow mirror on that runner, not our code. The step runs on a hit
+too, because the system libraries and fonts are not in the Playwright cache. It is a plain mirror problem, so nothing is changed beyond
+the timing: `prepare` now prints `prepare timing: <step> <seconds>s` after `npm ci`, the unpack and the Playwright install, so the next runs
+show it without reading the whole log. **Next, if it keeps coming back:** cache the apt packages (`/var/cache/apt/archives`), or skip
+`--with-deps` and install only the libraries the screens need; both change what `prepare` installs, so they are a separate pull request.
+

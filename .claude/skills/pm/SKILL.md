@@ -212,11 +212,16 @@ done
 until it has a new head (to re-run one by hand: *Run workflow* on `Check` for that branch, level `full`). `no mark yet` on a branch with new commits means the run is still going, was cancelled
 (tomorrow it runs again) or the limit of 6 a day left it for tomorrow. A branch cut before the daily run existed gets no run (a `422` in the `Daily full run` workflow) until the line is merged into it.
 
-**CI slots** (owner rules, 15 and 16 Nov 2026). A PM keeps at most 3 of its own pull requests in CI at a time, a `Check` run queued or
-running; a fourth gets its slot only when one has finished (merged, or its `check` finished). When several PMs run in this repository,
-each keeps to 3, and a PM asks the other PMs to hold new pull requests when the runner queue is long (`gh api
-"repos/larsadolfsen/morpheme-cms/actions/runs?status=queued"` shows it). Why: one `Check` run is about 19 jobs and about 20 run at once,
-so more only queues. A session pushes, re-runs or merges its base into its pull request only when the PM says "your slot"; it may merge
+**CI slots** (owner rules, 15 and 16 Nov 2026; numbers re-set from measured cost on 18 Nov, plan A12). A PM keeps at most 4 of its own
+pull requests in CI at a time, a `Check` run queued or running, when their runs are the light ones (a pull request into a feature branch or a
+version line); a pull request whose run is the full level (into `main`, the Release PR, or a run started by hand with level `full`) counts as 2.
+A pull request that would go over gets its slot only when one has finished (merged, or its `check` finished). When several PMs run in this
+repository, each keeps to this, and a PM asks the other PMs to hold new pull requests when the runner queue is long (`gh api
+"repos/larsadolfsen/morpheme-cms/actions/runs?status=queued"` shows it). Why: a light `Check` run is now 11-12 jobs, about 70 runner-minutes
+and about 10 minutes (it was about 19 jobs and 135 runner-minutes at the full level), and the runner starts about 20 jobs at once. Of 27 recent
+light runs, 3 or 4 overlapped in 13 and all but 3 waited at most a minute for a runner (the 3 waited 4-6 minutes). Four light runs fit; a full
+run needs about twice the room. If the queue shows more than 2 runs waiting for over 2 minutes, go back to 3 until it shortens, and measure again.
+A session pushes, re-runs or merges its base into its pull request only when the PM says "your slot"; it may merge
 the base locally and run `npm run check`, but it does not push. The PM counts the active runs with the `queued` call above and
 `status=in_progress`, and gives the next slot when a pull request merges or goes red and is sent back. A push that supersedes a run is
 cancelled by `concurrency` (only the newest head counts). The PM may cancel a run it queued itself when a slot is needed (owner, 15
