@@ -22,15 +22,25 @@ export default function PostMeta({
   const inOverline = Tag === 'span';
   return (
     <Tag
-      className={['flex flex-wrap items-center gap-x-2', !inOverline && 'mo-type-body-medium text-on-surface-variant', className]
+      className={[
+        // The overline is one line (Material 3 Lists): it never wraps, and with a longer language (for example Danish dates and reading times)
+        // in a narrow row it tightens the gaps and, as a last resort, shortens the reading time with an ellipsis.
+        inOverline ? 'flex min-w-0 flex-nowrap items-center gap-x-1' : 'flex flex-wrap items-center gap-x-2',
+        !inOverline && 'mo-type-body-medium text-on-surface-variant',
+        className,
+      ]
         .filter(Boolean)
         .join(' ')}
     >
-      <time dateTime={post.date}>{post.dateText}</time>
-      <span aria-hidden="true">·</span>
-      <span className="inline-flex items-center gap-1">
-        <Svg name="clock" size={inOverline ? 12 : 15} />
-        {siteT.theme.readingTime(post.minutes)}
+      <time dateTime={post.date} className={inOverline ? 'shrink-0' : undefined}>
+        {post.dateText}
+      </time>
+      <span aria-hidden="true" className={inOverline ? 'shrink-0' : undefined}>
+        ·
+      </span>
+      <span className={inOverline ? 'inline-flex min-w-0 items-center gap-0.5' : 'inline-flex items-center gap-1'}>
+        <Svg name="clock" size={inOverline ? 12 : 15} className={inOverline ? 'shrink-0' : undefined} />
+        <span className={inOverline ? 'truncate' : undefined}>{siteT.theme.readingTime(post.minutes)}</span>
       </span>
       {tags && tags.length > 0 && (
         <>
