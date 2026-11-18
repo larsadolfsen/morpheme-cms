@@ -19,6 +19,12 @@
 @import './navigation-drawer.css';
 /* The Text field (the field, its label, supporting text and icons). It comes right after ui.css: the buttons it holds (the clear and show-password icon buttons, in ui.css) must lose to its rules, as before, and the exposed dropdown menu and the pickers (menus.css, pickers.css) set a field's parts after it. */
 @import './text-field.css';
+/* The FAB, the button groups (with the segmented button and the choice group) and the split button with the FAB menu come right after ui.css, in
+   their old order, before the Radio button: the choice group's list (.radio-group .choice-group-list) sets the same gap as .radio-group, and
+   .radio-group came after it in the old ui.css, so radio-button.css must still come after button-groups.css. The FAB menu's button is also a .fab. */
+@import './fab.css';
+@import './button-groups.css';
+@import './fab-menu.css';
 /* The Divider (.divider, its inset and vertical kinds). */
 @import './divider.css';
 /* The Badge (.badge, its dot and number, the anchor on an icon). */

@@ -31,6 +31,9 @@ export const UI_PART_FILES = [
   'search.css',
   'toolbar.css',
   'pickers.css',
+  'fab.css',
+  'button-groups.css',
+  'fab-menu.css',
 ];
 
 /** The site shell's files, what components.css held (the logo and post list, the action bar, the page), in the order base.css imports them. */
