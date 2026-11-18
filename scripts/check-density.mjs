@@ -15,7 +15,7 @@ export const PARTS = [
   { name: 'button', file: 'theme/styles/ui.css', selector: '.button', reads: '--mo-sys-density-layout' },
   { name: 'chip', file: 'theme/styles/chips.css', selector: '.chip', reads: '--mo-sys-density-layout' },
   { name: 'segmented button', file: 'theme/styles/ui.css', selector: '.segmented-button-segment', reads: '--mo-sys-density-layout' },
-  { name: 'text field', file: 'theme/styles/ui.css', selector: '.text-field', reads: '--mo-sys-density-layout' },
+  { name: 'text field', file: 'theme/styles/text-field.css', selector: '.text-field', reads: '--mo-sys-density-layout' },
   { name: 'choice group row', file: 'theme/styles/ui.css', selector: '.choice-group-list .list-item-container', reads: '--mo-sys-density' },
   { name: 'list item', file: 'theme/styles/ui.css', selector: '.list-item-container', reads: '--mo-sys-density' },
   { name: 'setting row', file: 'theme/styles/switch.css', selector: '.setting-list > .setting-row', reads: '--mo-sys-density-layout' },
@@ -94,7 +94,8 @@ export function findProblems(files) {
  * padding is often a token (--mo-comp-filled-text-field-container-height) that the rule reads. @param {URL} root */
 export function readStyles(root) {
   const files = {};
-  const tokenFolder = { 'ui.css': 'ui', 'blocks.css': 'blocks', 'base.css': 'base', 'global.css': 'material' };
+  // The text field's height token (--mo-comp-filled-text-field-container-height) is in the ui tokens, so text-field.css reads them too.
+  const tokenFolder = { 'ui.css': 'ui', 'text-field.css': 'ui', 'blocks.css': 'blocks', 'base.css': 'base', 'global.css': 'material' };
   const tokenFiles = (dir) =>
     readdirSync(new URL(dir, root), { withFileTypes: true }).flatMap((e) =>
       e.isDirectory() ? tokenFiles(`${dir}${e.name}/`) : e.name.endsWith('.css') ? [`${dir}${e.name}`] : [],

@@ -5,6 +5,7 @@
 
 /** The files that hold what ui.css held: one UI part each (the Divider, the Badge …), in the order base.css imports them. */
 export const UI_PART_FILES = [
+  'text-field.css', // right after ui.css in base.css: the icon buttons in ui.css lose to its rules, and menus.css and pickers.css come after it
   'divider.css',
   'badge.css',
   'loading-indicator.css',
