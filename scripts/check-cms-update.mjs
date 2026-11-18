@@ -408,6 +408,48 @@ for (const [what, patch] of [
   expect(direct?.to === '0.1.1' && direct.state === 'waiting', 'startUpdate gav ikke opdateringen');
 }
 
+// The update's commit adds the install lines to .npmrc once, keeps the site's own lines, and writes nothing when they are there.
+{
+  const lines = 'prefer-offline=true\naudit=false\nfund=false\n';
+  const none = world();
+  await startUpdate(none.env, '0.1.1', none.deps, T0);
+  expect(none.files['.npmrc'] === lines, `.npmrc was not created: ${JSON.stringify(none.files['.npmrc'])}`);
+  expect(
+    none.commits[0].changes
+      .map((c) => c.path)
+      .sort()
+      .join() === '.npmrc,package-lock.json,package.json,wrangler.jsonc',
+    'the commit did not hold package.json, the lock, wrangler.jsonc and .npmrc',
+  );
+  // The undo writes neither extra, even when the site lacks both again.
+  none.files['.npmrc'] = undefined;
+  none.files['wrangler.jsonc'] = '{\n  "build": {\n    "command": "npm run check && npm run build",\n  },\n}\n';
+  none.checks.c1 = 'failure';
+  await watchUpdate(none.env, none.deps, T0 + 2 * MINUTE);
+  expect(
+    none.commits.length === 2 &&
+      none.commits[1].changes
+        .map((c) => c.path)
+        .sort()
+        .join() === 'package-lock.json,package.json',
+    'the undo wrote more than package.json and the lock',
+  );
+  const own = world();
+  own.files['.npmrc'] = 'registry=https://example.com/\naudit=true\n';
+  await startUpdate(own.env, '0.1.1', own.deps, T0);
+  expect(
+    own.files['.npmrc'] === 'registry=https://example.com/\naudit=true\nprefer-offline=true\nfund=false\n',
+    `the .npmrc did not keep its own lines: ${JSON.stringify(own.files['.npmrc'])}`,
+  );
+  const done = world();
+  done.files['.npmrc'] = lines;
+  await startUpdate(done.env, '0.1.1', done.deps, T0);
+  expect(
+    done.commits[0].changes.every((c) => c.path !== '.npmrc') && done.files['.npmrc'] === lines,
+    'an .npmrc with the lines was written again',
+  );
+}
+
 // The page's notes: from the running version up to the newest, newest first.
 {
   const running = RUNNING.split('-')[0];
