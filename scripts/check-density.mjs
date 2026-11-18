@@ -14,9 +14,19 @@ import { UI_PART_FILES } from '../theme/styles/files.mjs';
 export const PARTS = [
   { name: 'button', file: 'theme/styles/ui.css', selector: '.button', reads: '--mo-sys-density-layout' },
   { name: 'chip', file: 'theme/styles/chips.css', selector: '.chip', reads: '--mo-sys-density-layout' },
-  { name: 'segmented button', file: 'theme/styles/button-groups.css', selector: '.segmented-button-segment', reads: '--mo-sys-density-layout' },
+  {
+    name: 'segmented button',
+    file: 'theme/styles/button-groups.css',
+    selector: '.segmented-button-segment',
+    reads: '--mo-sys-density-layout',
+  },
   { name: 'text field', file: 'theme/styles/ui.css', selector: '.text-field', reads: '--mo-sys-density-layout' },
-  { name: 'choice group row', file: 'theme/styles/button-groups.css', selector: '.choice-group-list .list-item-container', reads: '--mo-sys-density' },
+  {
+    name: 'choice group row',
+    file: 'theme/styles/button-groups.css',
+    selector: '.choice-group-list .list-item-container',
+    reads: '--mo-sys-density',
+  },
   { name: 'list item', file: 'theme/styles/ui.css', selector: '.list-item-container', reads: '--mo-sys-density' },
   { name: 'setting row', file: 'theme/styles/switch.css', selector: '.setting-list > .setting-row', reads: '--mo-sys-density-layout' },
   { name: 'table cell', file: 'theme/styles/blocks.css', selector: '.block-table-grid :is(th, td)', reads: '--mo-sys-density' },
