@@ -109,7 +109,7 @@
 }
 @layer components {
   .list > li:has(> * > .list-item-leading-avatar) {
-    --mo-comp-list-item-leading-size: var(--list-item-avatar-size, 2.5rem);
+    --mo-comp-list-item-leading-size: var(--mo-comp-avatar-size, 2.5rem);
   }
 }
 @layer components {

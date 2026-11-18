@@ -39,6 +39,7 @@
 import { useId, type HTMLAttributes, type MouseEvent, type ReactNode } from 'react';
 import { Glyph, Svg, type IconRef } from '@morphemecms/cms/src/icon';
 import { Link } from '@morphemecms/cms/src/standard/view';
+import Avatar from '@theme/ui/Avatar';
 import Checkbox from '@theme/ui/Checkbox';
 import RadioButton from '@theme/ui/RadioButton';
 import Switch, { type SwitchIcons } from '@theme/ui/Switch';
@@ -297,10 +298,12 @@ export function ListItem({
       <ListItemLeadingIcon icon={leadingIcon} selected={leadingIconSelected} />
     ) : typeof leadingAvatar === 'string' ? (
       <span className="list-item-leading list-item-leading-avatar" aria-hidden="true">
-        <span className="list-item-avatar">{leadingAvatar}</span>
+        <Avatar>{leadingAvatar}</Avatar>
       </span>
     ) : leadingAvatar ? (
-      <span className="list-item-leading list-item-leading-avatar">{image(leadingAvatar, 'avatar')}</span>
+      <span className="list-item-leading list-item-leading-avatar">
+        <Avatar image={leadingAvatar} />
+      </span>
     ) : leadingImage ? (
       <span className="list-item-leading list-item-leading-image">{image(leadingImage, 'image')}</span>
     ) : leadingVideo ? (

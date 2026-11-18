@@ -18,6 +18,7 @@
 /* The Divider (.divider, its inset and vertical kinds). */
 @import './divider.css';
 /* The Badge (.badge, its dot and number, the anchor on an icon). */
+@import './avatar.css';
 @import './badge.css';
 /* The Loading indicator and the Progress indicators (linear and circular). */
 @import './loading-indicator.css';
