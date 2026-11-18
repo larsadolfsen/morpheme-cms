@@ -204,7 +204,7 @@ export function scan(files) {
 export const COMPONENTS = [
   'avatar', 'badge', 'bottom-sheet', 'button', 'button-group', 'card', 'carousel', 'center', 'checkbox', 'chip', 'date-picker', 'dialog',
   'divider', 'extended-fab', 'fab', 'fab-menu', 'grid', 'icon', 'icon-button', 'lightbox', 'list', 'loading-indicator', 'menu', 'navigation',
-  'progress-indicator', 'radio', 'row', 'search', 'segmented-button', 'setting', 'side-sheet', 'slider', 'snackbar', 'split-button', 'stack',
+  'progress-indicator', 'radio', 'ripple', 'row', 'search', 'segmented-button', 'setting', 'side-sheet', 'slider', 'snackbar', 'split-button', 'stack',
   'switch', 'tabs', 'text-field', 'time-picker', 'toolbar', 'tooltip', 'top-app-bar',
 ]; // prettier-ignore
 
@@ -229,6 +229,21 @@ const longest = (name, list) => list.filter((c) => name === c || name.startsWith
 export function mapClass(name, existing = new Set()) {
   const q = (rule, question) => ({ rule, status: 'question', question });
   const ok = (rule, to, on) => ({ rule, status: 'settled', new: to, ...(on ? { on } : {}) });
+  let m0;
+  const pm = (rule, to, extra = {}) => ({ rule, status: 'settled', settledBy: 'PM', new: to, ...extra });
+  // PM defaults (18 Nov 2026), each in docs/class-names.md, *Settled by the PM*.
+  if (/^(?:-?[mp][trblxy]?-\d|gap(?:-[xy])?-\d|space-[xy]-\d)/.test(name))
+    return { rule: 'a Tailwind utility still defined in CSS', status: 'removed', note: 'removed by the Tailwind batches, no new name' };
+  if ((m0 = /^(circular|linear)-progress-indicator(?:-(.+))?$/.exec(name)))
+    return pm('progress indicator kind', m0[2] ? `mo-progress-indicator__${m0[2]}` : 'mo-progress-indicator', {
+      kind: `mo-is-${m0[1]}`,
+      on: 'mo-progress-indicator',
+    });
+  if (name === 'tab' || name.startsWith('tab-')) return pm('tabs', `mo-tabs__${name}`, { on: 'mo-tabs' });
+  if (name.startsWith('inline-')) return pm("the editor's inline block (M2)", `mo-editor-${name}`);
+  if (name.startsWith('site-')) return pm('site shell (M5)', `mo-${name}`);
+  if ((m0 = /^md-drawer(?:-(.+))?$/.exec(name)))
+    return pm('md-drawer is the navigation drawer', m0[1] ? `mo-navigation-drawer__${m0[1]}` : 'mo-navigation-drawer');
   const typeScale = /^(display|headline|title|body|label)-(large|medium|small)$/.exec(name);
   if (typeScale || name === 'lead') return ok('type class (already exists)', `mo-type-${name}`);
   let m;
@@ -256,8 +271,15 @@ export function mapClass(name, existing = new Set()) {
     const first = rest.split('-')[0];
     if (STATE_WORDS.includes(rest)) return ok('kind or state', `mo-is-${rest}`, `mo-${comp}`);
     if (rest.startsWith('with-')) return ok('what it holds', `mo-has-${rest.slice(5)}`, `mo-${comp}`);
-    if (STATE_WORDS.includes(first))
-      return q('kind or state with more words', `${name}: is "${rest}" a state ("mo-is-${first}" plus a part) or a part name?`);
+    if (STATE_WORDS.includes(first)) {
+      const after = rest.slice(first.length + 1);
+      if (/^(hover|focus|focus-visible|active|pressed)$/.test(after))
+        return pm('a state with a pseudo-class', `mo-is-${first}`, {
+          on: `mo-${comp}`,
+          note: `the ${after} stays the CSS pseudo-class: .mo-${comp}.mo-is-${first}:${after === 'pressed' ? 'active' : after}`,
+        });
+      return pm('a state with a part', `mo-${comp}__${after}`, { also: `mo-is-${first}`, on: `mo-${comp}` });
+    }
     return ok('component part', `mo-${comp}__${rest}`);
   }
   return q('no component or block', `${name} starts with no component or block name; which component, block or editor part is it?`);
@@ -268,8 +290,14 @@ export function mapProp(name, { declaredOnly = false } = {}) {
   const q = (rule, question) => ({ rule, status: 'question', question });
   const ok = (rule, to) => ({ rule, status: 'settled', new: to });
   const bare = name.slice(2);
+  if (bare.startsWith('tab-')) return { rule: 'tabs', status: 'settled', settledBy: 'PM', new: `--mo-comp-tabs-${bare.slice(4)}` };
   const comp = longest(bare, COMPONENTS);
   if (comp && bare !== comp) return ok(declaredOnly ? 'runtime value' : 'hook', `--mo-comp-${comp}-${bare.slice(comp.length + 1)}`);
+  if (/^(?:circular|linear)-progress-indicator-/.test(bare))
+    return q(
+      'progress indicator',
+      `${name}: --mo-comp-progress-indicator-… with or without the kind; M3's printed name decides (the owning M-PR).`,
+    );
   if (bare.startsWith('editor-')) return ok("the editor's own value", `--mo-comp-editor-${bare.slice(7)}`);
   const block = bare.startsWith('block-') ? longest(bare.slice(6), BLOCK_TYPES) : null;
   if (block) return ok('block hook', `--mo-comp-block-${block}-${bare.slice(6 + block.length + 1)}`.replace(/-$/, ''));
@@ -279,6 +307,27 @@ export function mapProp(name, { declaredOnly = false } = {}) {
   );
 }
 
+/** The block folders a name is used in (theme/blocks/<folder>/, theme/styles/blocks/<folder>*, src/standard/<folder>/). @param {Set<string>} files */
+export const blockFolders = (files) =>
+  [
+    ...new Set(
+      [...files]
+        .map((f) => /^(?:theme\/blocks|src\/standard|theme\/styles\/blocks)\/([a-z]+)/.exec(f)?.[1])
+        .filter((x) => BLOCK_TYPES.includes(x)),
+    ),
+  ].sort();
+
+/** The M-PR that owns a file's names (plan: M2 the editor, M3 the theme's UI, M4 the blocks, M5 the site shell and the rest). */
+export const ownerOfFile = (f) =>
+  /^src\/standard\/|^theme\/(blocks|styles\/blocks)\//.test(f)
+    ? 'M4'
+    : /^src\//.test(f)
+      ? 'M2'
+      : /^theme\/(ui|styles\/ui|styles\/tokens\/ui)/.test(f)
+        ? 'M3'
+        : 'M5';
+const ownersOf = (files) => [...new Set([...files].filter((f) => !/^(scripts|lib|bin|worker)\//.test(f)).map(ownerOfFile))].sort();
+
 /** The map: every name with its new name, its status and where it is used. @param {ReturnType<typeof scan>['names']} names @param {Set<string>} [mo] */
 export function buildMap(names) {
   const classes = {};
@@ -286,9 +335,25 @@ export function buildMap(names) {
   const taken = new Set();
   for (const k of [...names.classes.keys()].sort()) {
     const info = names.classes.get(k);
-    const m = mapClass(k);
+    let m = mapClass(k);
+    const folders = blockFolders(info.files);
+    if (m.status === 'question' && m.rule === 'block') {
+      // PM default: a block part whose type is not a folder name belongs to the block that draws it.
+      const outside = [...info.files].filter((f) => !/^(scripts|lib|bin|worker)\//.test(f) && !blockFolders(new Set([f])).length);
+      if (folders.length === 1 && !outside.length)
+        m = {
+          rule: 'block part, the block that draws it',
+          status: 'settled',
+          settledBy: 'PM',
+          new: `mo-block-${folders[0]}__${k.slice(6)}`,
+        };
+      else
+        m.question += folders.length
+          ? ` Drawn in block folder(s) ${folders.join(', ')}${outside.length ? ` and outside them (${outside.slice(0, 3).join(', ')}…)` : ''}: which block owns it?`
+          : ' It is drawn in no block folder (a shared block part).';
+    }
     if (m.new) taken.add(m.new);
-    classes[k] = { ...m, defined: info.defs, written: info.markup, files: info.files.size };
+    classes[k] = { ...m, defined: info.defs, written: info.markup, files: info.files.size, owners: ownersOf(info.files) };
   }
   const targets = new Map();
   for (const [k, v] of Object.entries(classes)) if (v.new) targets.set(v.new, [...(targets.get(v.new) ?? []), k]);
@@ -303,7 +368,7 @@ export function buildMap(names) {
   for (const k of [...names.props.keys()].sort()) {
     const info = names.props.get(k);
     const m = mapProp(k, { declaredOnly: info.declared > 0 && !info.files.size });
-    props[k] = { ...m, declared: info.declared, read: info.read, files: info.files.size };
+    props[k] = { ...m, declared: info.declared, read: info.read, files: info.files.size, owners: ownersOf(info.files) };
   }
   const propTargets = new Map();
   for (const [k, v] of Object.entries(props)) if (v.new) propTargets.set(v.new, [...(propTargets.get(v.new) ?? []), k]);
@@ -322,8 +387,9 @@ export function buildMap(names) {
     const groups = new Map();
     for (const [k, v] of Object.entries(obj))
       if (v.status === 'question') {
-        const g = groups.get(family(k)) ?? { family: family(k), rule: v.rule, question: v.question, names: [] };
+        const g = groups.get(family(k)) ?? { family: family(k), rule: v.rule, question: v.question, owners: [], names: [] };
         g.names.push(k);
+        g.owners = [...new Set([...g.owners, ...(v.owners ?? [])])].sort();
         groups.set(family(k), g);
       }
     return [...groups.values()].sort((a, b) => b.names.length - a.names.length || a.family.localeCompare(b.family));
@@ -331,8 +397,11 @@ export function buildMap(names) {
   const summary = {
     classes: Object.keys(classes).length,
     classesSettled: Object.values(classes).filter((v) => v.status === 'settled').length,
+    classesSettledByPm: Object.values(classes).filter((v) => v.settledBy === 'PM').length,
+    classesRemoved: Object.values(classes).filter((v) => v.status === 'removed').length,
     properties: Object.keys(props).length,
     propertiesSettled: Object.values(props).filter((v) => v.status === 'settled').length,
+    propertiesSettledByPm: Object.values(props).filter((v) => v.settledBy === 'PM').length,
   };
   return { summary, classes, properties: props, questions: { classes: open(classes), properties: open(props) } };
 }

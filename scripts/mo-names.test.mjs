@@ -49,13 +49,13 @@ test('mapClass follows the pattern: root, part, state, holds, block, editor, typ
 });
 
 test('a name the pattern does not settle is a question, never a guess', () => {
-  for (const n of ['site-block', 'block-price', 'choice-group', 'card-selected-hover']) {
+  for (const n of ['block-price', 'choice-group', 'theme-action-bar']) {
     const m = mapClass(n);
     assert.equal(m.status, 'question', n);
     assert.equal(m.new, undefined, n);
     assert.ok(m.question.includes(n), n);
   }
-  assert.equal(mapProp('--tab-gap').status, 'question');
+  assert.equal(mapProp('--choice-group-gap').status, 'question');
 });
 
 test('mapProp: a component hook or runtime value becomes --mo-comp-<component>-*', () => {
@@ -71,6 +71,38 @@ test('buildMap: two names with one target both become questions, and questions c
   const map = buildMap(names);
   assert.equal(map.classes['card-body'].new, 'mo-card__body');
   assert.deepEqual(map.questions.classes.find((g) => g.family === 'block-price').names, ['block-price-a', 'block-price-b']);
+});
+
+test('PM defaults (18 Nov): utilities are removed, progress, tabs, inline, site, drawer and a state with a part', () => {
+  assert.equal(mapClass('mb-8').status, 'removed');
+  assert.equal(mapClass('space-y-4').new, undefined);
+  assert.deepEqual(
+    [mapClass('circular-progress-indicator').new, mapClass('circular-progress-indicator').kind],
+    ['mo-progress-indicator', 'mo-is-circular'],
+  );
+  assert.equal(mapClass('linear-progress-indicator-track').new, 'mo-progress-indicator__track');
+  assert.equal(mapClass('tab-label').new, 'mo-tabs__tab-label');
+  assert.equal(mapClass('inline-faq').new, 'mo-editor-inline-faq');
+  assert.equal(mapClass('site-block-card').new, 'mo-site-block-card');
+  assert.equal(mapClass('md-drawer-head').new, 'mo-navigation-drawer__head');
+  assert.equal(mapClass('card-selected-hover').new, 'mo-is-selected');
+  assert.match(mapClass('card-selected-hover').note, /:hover/);
+  assert.deepEqual([mapClass('card-selected-title').new, mapClass('card-selected-title').also], ['mo-card__title', 'mo-is-selected']);
+  assert.equal(mapClass('card-selected-title').settledBy, 'PM');
+  assert.equal(mapProp('--tab-gap').new, '--mo-comp-tabs-gap');
+});
+
+test('a block part whose type is no folder name follows the block that draws it, only when one folder draws it', () => {
+  const { names } = scan({
+    'theme/blocks/pricecards/a.css': '.block-plan-amount { color: red }',
+    'theme/blocks/pricecards/View.tsx': '<p class="block-plan-amount block-shared">',
+    'theme/blocks/cards/b.css': '.block-shared { color: red }',
+  });
+  const map = buildMap(names);
+  assert.equal(map.classes['block-plan-amount'].new, 'mo-block-pricecards__plan-amount');
+  assert.equal(map.classes['block-plan-amount'].settledBy, 'PM');
+  assert.equal(map.classes['block-shared'].status, 'question');
+  assert.deepEqual(map.questions.classes[0].owners, ['M4']);
 });
 
 test('the ratchet fails on a rise and on a new file, and says what to lower', () => {
