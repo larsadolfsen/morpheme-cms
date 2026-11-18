@@ -28,3 +28,7 @@ test('a page without a column: the first paragraph is the lead; with a column it
   assert.equal(leadProblem(NARROW, 'left'), null);
   assert.ok(leadProblem([...NARROW, ...LEAD], 'left'));
 });
+
+test('textClasses decodes each entity once', () => {
+  assert.deepEqual(textClasses('<div data-editor="text" class="a&amp;gt;b [&amp;&gt;p]:x">'), ['a&gt;b', '[&>p]:x']);
+});

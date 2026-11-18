@@ -31,5 +31,8 @@ export const UI_PART_FILES = [
   'pickers.css',
 ];
 
+/** The site shell's files, what components.css held (the logo and post list, the action bar, the page), in the order base.css imports them. */
+export const SITE_SHELL_FILES = ['site-logo-post.css', 'site-action.css', 'site-page.css'];
+
 /** The other CSS files base.css imports, which are not parts of ui.css. */
-export const OTHER_BASE_FILES = ['ui.css', 'cards.css', 'type.css', 'blocks.css', 'lists.css', 'components.css'];
+export const OTHER_BASE_FILES = ['ui.css', 'cards.css', 'type.css', 'blocks.css', 'lists.css', ...SITE_SHELL_FILES];

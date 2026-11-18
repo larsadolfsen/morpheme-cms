@@ -1,0 +1,41 @@
+/* The site's logo and post list (Logo.astro, MobileMenu.tsx, the post list).
+   Moved here from components.css with its rules unchanged and in their order; imported by base.css where components.css was, in the same layers
+   (docs/superpowers/plans/2026-11-16-css-split.md). */
+@layer components {
+  /* The logo (Logo.astro, MobileMenu.tsx): the mark in its tile, the name and the role. */
+  .theme-logo-tile {
+    display: inline-grid;
+    flex-shrink: 0;
+    place-items: center;
+    border-radius: var(--mo-comp-theme-logo-tile-radius);
+    background: var(--mo-comp-theme-logo-tile);
+    padding: var(--mo-comp-theme-logo-tile-padding);
+  }
+  .theme-logo-mark {
+    width: calc(2.25rem * var(--mo-comp-theme-logo-mark-scale));
+    height: calc(2.5rem * var(--mo-comp-theme-logo-mark-scale));
+    background-color: var(--mo-comp-theme-logo-mark, var(--mo-sys-color-primary));
+  }
+  .theme-logo-mark-small {
+    width: calc(1.75rem * var(--mo-comp-theme-logo-mark-scale));
+    height: calc(2rem * var(--mo-comp-theme-logo-mark-scale));
+  }
+  .theme-logo-name {
+    font-size: var(--mo-comp-theme-logo-name-size);
+    font-weight: var(--mo-comp-theme-logo-name-weight);
+  }
+  .theme-logo-role {
+    display: var(--mo-comp-theme-logo-role-display);
+  }
+  @media (width >= theme(--breakpoint-medium)) {
+    .theme-logo-role {
+      display: var(--mo-comp-theme-logo-role-display-large);
+    }
+  }
+  .theme-post-list.list > li {
+    border-top: 1px solid var(--mo-sys-color-outline-variant);
+  }
+  .theme-post-picture {
+    object-fit: cover;
+  }
+}

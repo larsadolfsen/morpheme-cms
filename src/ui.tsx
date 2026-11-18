@@ -126,6 +126,7 @@ import { swipeCloses } from '../lib/drawer-swipe.mjs';
 import { menuLayout } from '../lib/menu-layout.mjs';
 import { isTypeAheadKey, nextByLetter } from '../lib/menuTypeAhead.mjs';
 import { ariaShortcut, shortcutText } from './shortcuts';
+import { safeImageSrc } from '../lib/safe-url.mjs';
 
 // The parts Material 3 has (a button, an icon button, a chip, a carousel …) are the theme's UI parts
 // (packages/editor/theme/ui/, through themeUi.ts), the same the site draws, in the theme's design (its ui.css and
@@ -1378,7 +1379,9 @@ const PAGE = 100;
 export function ImagePick({ id, src, onPick, onRemove }: { id?: string; src?: string; onPick: () => void; onRemove?: () => void }) {
   return (
     <div className="flex items-center gap-4">
-      {src && <img src={src} alt="" className="size-20 shrink-0 rounded-(--mo-sys-block-radius) object-cover" />}
+      {safeImageSrc(src) && (
+        <img src={safeImageSrc(src)} alt="" className="size-20 shrink-0 rounded-(--mo-sys-block-radius) object-cover" />
+      )}
       <Button id={id} kind="outlined" size="small" onClick={onPick}>
         {src ? t.forms.changeImage : t.forms.pickImage}
       </Button>
@@ -3120,7 +3123,7 @@ export function SharePreview({ image, domain, title, description }: { image: str
   return (
     <figure aria-label={t.forms.sharePreview} className={`${siteCardClass('outlined')} max-w-[500px] overflow-hidden p-0`}>
       <img
-        src={image}
+        src={safeImageSrc(image)}
         alt=""
         className={`aspect-[1.91/1] w-full bg-outline-variant/50 object-cover ${tall ? 'object-[50%_20%]' : ''}`}
         onLoad={(e) => setTall(e.currentTarget.naturalHeight >= e.currentTarget.naturalWidth)}
@@ -3860,7 +3863,7 @@ export function LeadingIcon({ icon: Glyph, selected = false, children }: { icon?
 export function LeadingImage({ src, alt = '' }: { src: string; alt?: string }) {
   return (
     <img
-      src={src}
+      src={safeImageSrc(src)}
       alt={alt}
       loading="lazy"
       className="size-10 rounded-(--mo-sys-block-radius-small) bg-surface-container-high object-cover"

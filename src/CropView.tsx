@@ -23,6 +23,7 @@ import { shownAt } from './images';
 import { ActionSheet, Button, FilterChip, IconButton, Slider, TopAppBar, useAtLeast } from './ui';
 import { useSheetBack } from './useSheetBack';
 import { t } from './i18n';
+import { safeImageSrc } from '../lib/safe-url.mjs';
 
 export type Cut = number[] | null;
 export type CropResult = { format: string; crop: Cut };
@@ -254,7 +255,7 @@ function CropDialog({
       >
         {picture && (
           <img
-            src={shownAt(src)}
+            src={safeImageSrc(shownAt(src))}
             alt=""
             draggable={false}
             className="crop-view-image"
