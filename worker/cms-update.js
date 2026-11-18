@@ -21,7 +21,7 @@ import { GitHubError } from './files.js';
 import { commitFiles, readFiles, readStoreItems } from './github.js';
 import { json } from './not-found.js';
 import { notifyAll } from './push.js';
-import { catalogFor } from './store.js';
+import { releaseFor } from './store.js';
 import { mayEdit } from './session.js';
 
 /** The version this Worker itself runs. */
@@ -38,7 +38,7 @@ const BUILD_APP = 'cloudflare-workers-and-pages';
 const defaultDeps = {
   readFiles,
   readStoreItems,
-  storeCatalog: catalogFor,
+  storeRelease: releaseFor,
   commitFiles,
   fetch: (...args) => fetch(...args),
   notify: notifyAll,
@@ -111,7 +111,7 @@ async function tell(env, deps, key, version, error) {
 
 /**
  * The theme or app installed from the store that the version cannot be shown to run (see contractHold), or null. The version's contracts are
- * read from the lib/contracts.mjs in its npm tarball and the store says which releases are written to them; throws when the tarball, the
+ * read from the lib/contracts.mjs in its npm tarball and the store says which contract each installed release is written to; throws when the tarball, the
  * contracts or the site's folders cannot be read, and the store being silent holds: a version is never taken on a guess.
  */
 async function heldByContract(env, deps, version) {
@@ -121,9 +121,18 @@ async function heldByContract(env, deps, version) {
   const next = parseContracts(fileFromTar(await gunzip(new Uint8Array(await res.arrayBuffer())), 'package/lib/contracts.mjs'));
   if (!next) throw new Error('contracts');
   const items = await deps.readStoreItems(env, { apps: config.apps.folder, themes: config.themes });
-  // The store says which releases are written to the next contracts; it is asked only when the site has something from the store.
-  const fromStore = items.some((x) => x.record);
-  return contractHold(items, fromStore ? await deps.storeCatalog(env, next) : null, next);
+  // The store says which contract each installed release is written to; it is asked only for what came from the store.
+  const answers = new Map();
+  for (const { kind, id, record } of items) {
+    let version;
+    try {
+      version = JSON.parse(record ?? '').version;
+    } catch {
+      continue; // not from the store (a site's own folder)
+    }
+    answers.set(`${kind}:${id}`, typeof version === 'string' ? await deps.storeRelease(env, id, version) : null);
+  }
+  return contractHold(items, answers, next);
 }
 
 const putJson = (kv, key, value) => kv.put(key, JSON.stringify(value));
@@ -206,10 +215,11 @@ export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) 
     if (held)
       return record({
         kind: 'contract',
-        detail: `${held.kind} ${held.id}${held.why === 'could-not-confirm' ? ': could not confirm' : ''}`,
+        detail: `${held.kind} ${held.id}${{ 'could-not-confirm': ': could not confirm', 'not-in-store': ': not in the store' }[held.why] ?? ''}`,
         item: held.kind,
         id: held.id,
         why: held.why,
+        ...(held.has ? { has: held.has } : {}),
         needs: held.needs,
       });
   } catch {

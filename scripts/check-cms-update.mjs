@@ -6,10 +6,8 @@ import { gzipSync } from 'node:zlib';
 import { config } from '../site/siteConfig.mjs';
 import { workerModules } from './worker-modules.mjs';
 
-const [{ RUNNING, checkForUpdate, cmsStatus, dailyCheck, handleCms, startUpdate, watchUpdate }, { GitHubError }] = await workerModules(
-  'cms-update.js',
-  'files.js',
-);
+const [{ RUNNING, checkForUpdate, cmsStatus, dailyCheck, handleCms, startUpdate, watchUpdate }, { GitHubError }, { releaseFor }] =
+  await workerModules('cms-update.js', 'files.js', 'store.js');
 
 const problems = [];
 const expect = (ok, what) => ok || problems.push(what);
@@ -75,15 +73,7 @@ const manifestOf = (version, extra = {}) => ({
  * notifications. `checks`: a commit's check run by its id ('success' | 'failure'; none: no run yet), `forbidden`: GitHub answers
  * the check runs with 403, `commitFails`: from which commit on `commitFiles` throws.
  */
-function world({
-  range = '0.1.0',
-  latest = '0.1.1',
-  manifestExtra = {},
-  lock = true,
-  contracts = 6,
-  items = [],
-  catalog = { apps: [], themes: [] },
-} = {}) {
+function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = true, contracts = 6, items = [], releases = {} } = {}) {
   const files = {
     'wrangler.jsonc': '{\n  "build": {\n    "command": "npm run check && npm run build",\n  },\n}\n',
     'package.json': JSON.stringify({ name: 'site', dependencies: { [PACKAGE]: range } }, null, 2) + '\n',
@@ -115,7 +105,7 @@ function world({
     latest,
     readCount: 0,
     items,
-    catalog,
+    releases,
   };
   w.env = { GITHUB_PUBLISH_TOKEN: 'token', PUSH: w.kv };
   w.deps = {
@@ -124,7 +114,7 @@ function world({
       return { head: `head${w.commits.length}`, texts: paths.map((p) => files[p]) };
     },
     readStoreItems: async () => w.items,
-    storeCatalog: async () => w.catalog,
+    storeRelease: async (env, id, version) => w.releases[`${id}@${version}`] ?? null,
     commitFiles: async (env, head, headline, changes) => {
       if (w.failure && w.commits.length >= (w.commitFails ?? 0)) throw w.failure;
       for (const { path, text } of changes) files[path] = text;
@@ -498,48 +488,51 @@ for (const [what, patch] of [
   expect(Array.isArray(status?.notes) && status.notes.length === 0, 'en forudgivelse gav noter');
 }
 
-// 13. The contract hold: a version is taken only when the store lists every installed store theme and app for its contracts.
+// 13. The contract hold: a version is taken only when the store says every installed store theme and app (id@version) is written to its contracts.
 {
   const record = (version) => JSON.stringify({ version, ref: version, files: [{ path: 'theme.json', oid: 'abc' }] }, null, 2);
   const venus = { kind: 'theme', id: 'venus', record: record('1.3.0'), manifest: JSON.stringify({ name: 'Venus', version: '1.3.0' }) };
   const mailchimp = { kind: 'app', id: 'mailchimp', record: record('2.0.0'), manifest: JSON.stringify({ api: 5, version: '2.0.0' }) };
   const own = { kind: 'app', id: 'sara', record: null, manifest: JSON.stringify({ api: 5 }) };
-  const listed = { apps: [{ id: 'mailchimp', version: '2.0.0' }], themes: [{ id: 'venus', version: '1.3.0' }] };
   const problemOf = (w) => stored(w.kv, 'cms:checked')?.problem;
+  const run = async (opts) => {
+    const w = world(opts);
+    await checkForUpdate(w.env, w.deps, T0);
+    return w;
+  };
 
-  const held = world({ items: [venus, own], catalog: { apps: [], themes: [{ id: 'venus', version: '1.4.0' }] } });
-  await checkForUpdate(held.env, held.deps, T0);
+  const old = await run({ items: [venus, own], releases: { 'venus@1.3.0': { api: 5 } } });
+  expect(old.commits.length === 0 && stored(old.kv, 'cms:update') === null, 'a version a store theme is not written to was taken');
   expect(
-    held.commits.length === 0 && stored(held.kv, 'cms:update') === null,
-    'a version the store does not list the installed theme for was taken',
+    problemOf(old)?.kind === 'contract' && problemOf(old).detail === 'theme venus',
+    `the hold was recorded as ${JSON.stringify(problemOf(old))}`,
   );
-  expect(
-    problemOf(held)?.kind === 'contract' && problemOf(held).detail === 'theme venus',
-    `the hold was recorded as ${JSON.stringify(problemOf(held))}`,
-  );
-  expect(stored(held.kv, 'cms:checked')?.latest === '0.1.1', 'the held check did not keep latest');
+  expect(stored(old.kv, 'cms:checked')?.latest === '0.1.1', 'the held check did not keep latest');
 
-  const app = world({ items: [mailchimp], catalog: { apps: [], themes: [] } });
-  await checkForUpdate(app.env, app.deps, T0);
+  const app = await run({ items: [mailchimp], releases: { 'mailchimp@2.0.0': { api: 7 } } });
+  expect(app.commits.length === 0 && problemOf(app)?.detail === 'app mailchimp', 'a store app written to another contract was taken');
+
+  const behind = await run({ items: [venus, mailchimp, own], releases: { 'venus@1.3.0': { api: 6 }, 'mailchimp@2.0.0': { api: 6 } } });
   expect(
-    app.commits.length === 0 && problemOf(app)?.detail === 'app mailchimp',
-    'a store app the store does not list for the contract was taken',
+    behind.commits.length === 1 && !problemOf(behind),
+    'an installed release written to the contract (one behind the newest) was held',
   );
 
-  const silent = world({ items: [venus], catalog: null });
-  await checkForUpdate(silent.env, silent.deps, T0);
+  const missing = await run({ items: [venus], releases: { 'venus@1.3.0': { missing: true } } });
+  expect(
+    missing.commits.length === 0 && /not in the store/.test(problemOf(missing)?.detail),
+    `a release the store does not know was recorded as ${JSON.stringify(problemOf(missing))}`,
+  );
+
+  const silent = await run({ items: [venus], releases: {} });
   expect(
     silent.commits.length === 0 && problemOf(silent)?.kind === 'contract' && /could not confirm/.test(problemOf(silent).detail),
     `a silent store was recorded as ${JSON.stringify(problemOf(silent))}`,
   );
 
-  const ok = world({ items: [venus, mailchimp, own], catalog: listed });
-  await checkForUpdate(ok.env, ok.deps, T0);
-  expect(ok.commits.length === 1 && !problemOf(ok), 'a version the store lists every installed release for was held');
-
-  const ownOnly = world({ items: [own], catalog: null });
+  const ownOnly = world({ items: [own] });
   let asked = false;
-  ownOnly.deps.storeCatalog = async () => void (asked = true);
+  ownOnly.deps.storeRelease = async () => void (asked = true);
   await checkForUpdate(ownOnly.env, ownOnly.deps, T0);
   expect(ownOnly.commits.length === 1 && !asked, 'a site with only its own app was held, or asked the store');
 
@@ -556,6 +549,30 @@ for (const [what, patch] of [
   };
   await checkForUpdate(failing.env, failing.deps, T0);
   expect(failing.commits.length === 0 && problemOf(failing)?.kind === 'unreachable', 'an unreadable site was taken');
+
+  // The Worker's own call of the store: one release, the site's key.
+  const calls = [];
+  const storeAnswering = (status, body) => async (url, init) => {
+    calls.push({ url: String(url), auth: init?.headers?.authorization });
+    if (status === 'throw') throw new Error('offline');
+    return new Response(JSON.stringify(body ?? {}), { status });
+  };
+  const keyed = { MORPHEME_STORE_KEY: 'key', MORPHEME_STORE_URL: 'https://store.example' };
+  const got = await releaseFor(keyed, 'theme_abc', '1.3.0', storeAnswering(200, { id: 'theme_abc', version: '1.3.0', api: 6 }));
+  expect(got?.api === 6, `a 200 gave ${JSON.stringify(got)}`);
+  expect(
+    calls[0]?.url === 'https://store.example/store/releases/theme_abc/1.3.0' && calls[0].auth === 'Bearer key',
+    `the call was ${JSON.stringify(calls[0])}`,
+  );
+  expect((await releaseFor(keyed, 'x', '1.0.0', storeAnswering(404)))?.missing === true, 'a 404 did not give missing');
+  expect((await releaseFor(keyed, 'x', '1.0.0', storeAnswering(500))) === null, 'a 500 did not give no answer');
+  expect((await releaseFor(keyed, 'x', '1.0.0', storeAnswering('throw'))) === null, 'an offline store did not give no answer');
+  expect((await releaseFor(keyed, 'x', '1.0.0', storeAnswering(200, { api: 'six' }))) === null, 'a 200 without an api number was taken');
+  const before = calls.length;
+  expect(
+    (await releaseFor({}, 'x', '1.0.0', storeAnswering(200, { api: 6 }))) === null && calls.length === before,
+    'a site without a store key asked the store',
+  );
 }
 
 // 14. No GitHub token: nothing is done, and the check says why (the KV is there to keep it). No KV: nothing, and no error.

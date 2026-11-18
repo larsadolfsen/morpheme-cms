@@ -1,5 +1,5 @@
 // What the editor asks of the store, through the Worker (the store's key never leaves it): the catalog and the files in it.
-// Exposes handleStore(request, env, ctx, ask) and STORE_URL; used by packages/editor/worker/index.js (/api/store/*).
+// Exposes handleStore(request, env, ctx, ask), releaseFor (the Worker's own call for one release, worker/cms-update.js) and STORE_URL; used by packages/editor/worker/index.js (/api/store/*).
 // Depends on packages/editor/worker/session.js (sign-in and access), packages/editor/worker/store-connection.js (the key) and packages/editor/lib/contracts.mjs (APP_API, THEME_API).
 //   GET /api/store/catalog       the store's catalog for this site's contracts; { connected: false } without a key
 //   GET /api/store/files/<oid>   a file of the store by its git id, streamed through with its content-type and cache-control
@@ -54,28 +54,24 @@ export async function handleStore(request, env, _ctx, ask = fetch) {
 }
 
 /**
- * The store's catalog for the contracts of a CMS version, for the Worker's own update (nobody is signed in): `{ apps, themes }` with the
- * releases written to them, or null when the site has no key or the store cannot be asked or does not answer. One call for each app contract.
- * @param {Record<string, any>} env @param {{ theme: number, apps: number[] }} contracts @param {typeof fetch} [ask]
+ * What the store says of one release, for the Worker's own update (nobody is signed in): `GET <store>/store/releases/<id>/<version>`,
+ * with the site's key as the editor's catalog call has it. `{ api }` for a 200, `{ missing: true }` for a 404 (the store does not know the
+ * release), `null` when the site has no key, the store answers anything else or does not answer.
+ * @param {Record<string, any>} env @param {string} id @param {string} version @param {typeof fetch} [ask]
  */
-export async function catalogFor(env, contracts, ask = fetch) {
+export async function releaseFor(env, id, version, ask = fetch) {
   const found = await storeKey(env).catch(() => null);
   if (!found) return null;
   const base = env.MORPHEME_STORE_URL ?? STORE_URL;
-  const out = { apps: [], themes: [] };
-  for (const app of contracts.apps) {
-    let json;
-    try {
-      const res = await ask(`${base}/store/catalog?app=${app}&theme=${contracts.theme}`, {
-        headers: { authorization: `Bearer ${found.key}` },
-      });
-      json = res.status === 200 ? await res.json() : null;
-    } catch {
-      return null;
-    }
-    if (!Array.isArray(json?.apps) || !Array.isArray(json?.themes)) return null;
-    out.apps.push(...json.apps.map(({ id, version }) => ({ id, version })));
-    out.themes.push(...json.themes.map(({ id, version }) => ({ id, version })));
+  try {
+    const res = await ask(`${base}/store/releases/${encodeURIComponent(id)}/${encodeURIComponent(version)}`, {
+      headers: { authorization: `Bearer ${found.key}` },
+    });
+    if (res.status === 404) return { missing: true };
+    if (res.status !== 200) return null;
+    const { api } = await res.json();
+    return Number.isInteger(api) ? { api } : null;
+  } catch {
+    return null;
   }
-  return out;
 }
