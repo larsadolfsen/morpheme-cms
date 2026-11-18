@@ -140,6 +140,8 @@ tested in `scripts/daily-full.test.mjs`.
 
 ### A6 as built (test versions from a version line)
 
+**Removed on 18 Nov 2026** (the job `next-line` and `scripts/publish-next.mjs`): owner rule, "A version is pushed to npm and I'm told not to touch it. Then it shouldn't be there." Nothing goes to npm unless the owner is meant to approve it; line work reaches npm only as `next`, when it reaches `main`.
+
 `publish.yml` runs on pushes to `main` and to a line's branch (`0.[0-9]+`: `0.17`, `0.18`, `0.19`, later lines). npm trusts only this one file, so the
 new job `next-line` is in it. On a line the job `release` (Release PR, `latest`, tag, GitHub release) does not run (`if: github.ref == 'refs/heads/main'`),
 so a line opens no Release PR and nothing of it can reach `latest`. `next-line` runs `changeset version --snapshot next` in its own checkout

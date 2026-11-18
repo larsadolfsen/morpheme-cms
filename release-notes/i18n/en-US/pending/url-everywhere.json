@@ -1,6 +1,0 @@
-{
-  "id": "url-everywhere",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "The editor says URL, not address, for a web address, such as Other URL and Copy URL"
-}

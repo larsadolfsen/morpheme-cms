@@ -1,6 +1,0 @@
-{
-  "id": "platform-real-names",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "Cloudflare and GitHub parts use their real names, such as R2 bucket, Cloudflare API token, Workers Paid and R2 caching and builds"
-}

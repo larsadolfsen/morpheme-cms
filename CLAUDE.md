@@ -50,8 +50,8 @@ release without the owner's explicit yes in the conversation. That means:
   released must already have run on `morpheme-staging` before anyone asks the owner for a release; a Release PR whose
   version was never seen on staging is never merged, even with an earlier yes (skill `release`, Phases 1 and 2).
 
-Merging an ordinary pull request only stages a test version under the npm tag `next`, and the owner decides about that
-version too. An agent that thinks a release is due says so to the owner and waits. When the owner says `/release`, the
+Merging an ordinary pull request into `main` only stages a test version under the npm tag `next`, and the owner decides about that
+version too; a merge into a version line's branch stages nothing on npm. An agent that thinks a release is due says so to the owner and waits. When the owner says `/release`, the
 session loads the `release` skill and follows its phases in order; it never releases any other way.
 
 ### Pull requests go to the PM

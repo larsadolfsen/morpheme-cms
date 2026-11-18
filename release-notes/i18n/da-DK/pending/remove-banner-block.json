@@ -1,6 +1,0 @@
-{
-  "id": "remove-banner-block",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "Blokken Banner er fjernet; brug i stedet en sektion med overskrift, tekst og Knapper"
-}

@@ -32,9 +32,8 @@ Announce "Using checks". Run every command from the root of this repository, on 
 | `main`, and the Release PR from any base | `full` | everything |
 | anything else, an empty base, an error in the selection | `full` | everything (when in doubt, run) |
 
-**Built (PR 6, test versions from a version line).** Not a Check job: `publish.yml` also runs on pushes to a line's branch (`0.[0-9]+`).
-`scripts/publish-next.mjs` (tested in `scripts/publish-next.test.mjs`, which also reads the workflow) decides the tag and refuses a version of another line;
-the job `release` (Release PR, `latest`) runs on `main` only. A workflow-only change is outside the starter and demo (`ci-changes.mjs`).
+**Removed (18 Nov 2026, was PR 6, test versions from a version line).** A merge into a line's branch stages nothing on npm; `publish.yml` still triggers on a
+line's branch, but its job `release` (Release PR, `latest`) and the `next` job run on `main` only. A workflow-only change is outside the starter and demo (`ci-changes.mjs`).
 
 **Built (PR 5, the daily full run on feature branches).** `.github/workflows/daily-full.yml` runs once a day (02:17 UTC; from `main`, as every schedule) and dispatches
 `check.yml` (`workflow_dispatch`, `level=full`) on each `feature/**` branch that has a commit `main` lacks, whose head has no `daily-full` status yet and has no full run

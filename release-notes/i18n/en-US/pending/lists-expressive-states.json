@@ -1,6 +1,0 @@
-{
-  "id": "lists-expressive-states",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "List rows show a soft layer when pointed at, with rounder corners when pressed, instead of changing colour and moving"
-}
