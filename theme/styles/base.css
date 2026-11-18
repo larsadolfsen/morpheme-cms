@@ -32,6 +32,8 @@
 /* The Bottom sheet and the Side sheet. */
 @import './bottom-sheet.css';
 @import './side-sheet.css';
+/* The Tabs. */
+@import './tabs.css';
 /* The Top app bar. */
 @import './top-app-bar.css';
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */

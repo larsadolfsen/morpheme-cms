@@ -20,6 +20,7 @@ export const UI_PART_FILES = [
   'slider.css',
   'bottom-sheet.css',
   'side-sheet.css',
+  'tabs.css',
   'top-app-bar.css',
 ];
 
