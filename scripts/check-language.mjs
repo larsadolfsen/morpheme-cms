@@ -36,7 +36,12 @@ function isBinary(file) {
 /** Whether a path is left out of the check. @param {string} path */
 function isSkipped(path) {
   if (isLanguagePath(path)) return true;
-  if (path === 'CHANGELOG.md' || path === 'package-lock.json') return true;
+  if (
+    path === 'CHANGELOG.md' ||
+    path === 'docs/superpowers/plans/mo-names/map.json' /* generated: it lists stored class names such as picture-crop */ ||
+    path === 'package-lock.json'
+  )
+    return true;
   if (path.startsWith('docs/superpowers/')) return true;
   if (!existsSync(`${root}${path}`)) return true;
   return isBinary(`${root}${path}`);
