@@ -40,7 +40,7 @@ export function isDocsOnly(paths, headRef = '') {
  * and the scripts they run (bin/morpheme.mjs, check-starter.mjs, starter.mjs, check-demo.mjs, demo-*.mjs, fixtures/ and every
  * script the commands list) are NOT here: they run the jobs. Each entry below was checked with grep to be read by neither job:
  *  - .claude/, .agents/ and .changeset/: agent skills and changeset files; nothing imports them.
- *  - other workflows (publish.yml, staging-follows-next.yml) and staging-watcher/: not run by Check, not imported by the package.
+ *  - other workflows (publish.yml, staging-follows-next.yml): not run by Check, not imported by the package.
  *  - *.test.* files: only `npm test` (job `static`) runs them (an exception: scripts/ci-changes.test.mjs, see RUN_ALL).
  *  - the static-only checks `npm run check` runs by itself, which no script, command or module imports: check-language.mjs,
  *    check-phosphor.mjs, check-web.mjs, check-editor-colors.mjs, check-colors.mjs, check-colors.allow.mjs, check-css-values.mjs,
@@ -54,7 +54,6 @@ const NO_STARTER_DEMO = [
   /^\.agents\/.+/,
   /^\.changeset\/.+/,
   /^\.github\/workflows\/(publish|staging-follows-next|cache-fill|daily-full)\.yml$/,
-  /^staging-watcher\/.+/,
   /\.test\.(mjs|js|ts|tsx)$/,
   /^scripts\/(check-language|check-phosphor|check-web|check-editor-colors|check-colors|check-colors\.allow|check-css-values|check-css-values\.allow|check-density)\.mjs$/,
   /^scripts\/(phosphor|web)-allowlist\.json$/,

@@ -82,7 +82,6 @@ export const RULES = [
   // The site's Worker: the screens answer the editor's requests themselves (scripts/built-site.mjs workerAnswer), they never import it.
   // `static` runs its test; the demo and starter jobs run it on a site.
   [/^worker\//, 'none'],
-  [/^staging-watcher\//, 'none'],
   // The static-only check scripts and allowlists: `npm run check` runs them, no screens unit imports them.
   [
     /^scripts\/(check-language|check-phosphor|check-web|check-editor-colors|check-colors|check-colors\.allow|check-css-values|check-css-values\.allow|check-density)\.mjs$/,
