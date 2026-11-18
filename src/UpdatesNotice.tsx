@@ -64,7 +64,7 @@ function PhotoCredit({ by, line }: { by: string | null; line: string }) {
   useEffect(() => () => clearTimeout(leave.current), []);
   return (
     <div
-      className="photo-credit"
+      className="mo-editor-photo-credit"
       onMouseEnter={show}
       onMouseLeave={hide}
       onFocus={show}
@@ -73,7 +73,7 @@ function PhotoCredit({ by, line }: { by: string | null; line: string }) {
       <SiteTooltip
         open={open}
         // Only `open` shows it: not the theme's fallback on hover and focus, which Escape could not close.
-        className="photo-credit-tooltip"
+        className="mo-editor-photo-credit-tooltip"
         supportingText={by ? t.library.photoBy(by) : t.library.photoFromUnsplash}
         action={{ label: t.library.photoLicense, href: `#${LICENSES_ROUTE}/${encodeURIComponent(`editions/${line}`)}` }}
       >
@@ -82,7 +82,7 @@ function PhotoCredit({ by, line }: { by: string | null; line: string }) {
           aria-label={t.library.photoInfo}
           aria-expanded={open}
           onClick={() => (open && Date.now() - openedAt.current < 400 ? undefined : open ? setOpen(false) : show())}
-          className="photo-credit-button"
+          className="mo-editor-photo-credit-button"
         >
           <Svg name="info" size={20} />
         </button>
@@ -119,25 +119,25 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       : t.library.cmsVersion(cms.version)
     : t.library.appsUpdated(updatedApps.length);
   return (
-    <SiteCard kind="elevated" as="section" role="status" aria-labelledby="updates-title" className="updates-notice">
-      <div className="updates-notice-body">
+    <SiteCard kind="elevated" as="section" role="status" aria-labelledby="updates-title" className="mo-editor-updates-notice">
+      <div className="mo-editor-updates-notice-body">
         {edition && (
-          <div className="updates-notice-photo">
-            <img src={edition.image} alt="" className="updates-notice-image" />
+          <div className="mo-editor-updates-notice-photo">
+            <img src={edition.image} alt="" className="mo-editor-updates-notice-image" />
           </div>
         )}
-        <div className="updates-notice-text">
-          <h2 id="updates-title" className="updates-notice-title">
+        <div className="mo-editor-updates-notice-text">
+          <h2 id="updates-title" className="mo-editor-updates-notice-title">
             {title}
           </h2>
           {place && (
-            <p className="updates-notice-place">
+            <p className="mo-editor-updates-notice-place">
               {place}
               <PhotoCredit by={edition.by} line={edition.line} />
             </p>
           )}
-          {news.length > 0 && <p className="updates-notice-counts">{t.library.noteCounts(features, improvements)}</p>}
-          <div className="updates-notice-actions">
+          {news.length > 0 && <p className="mo-editor-updates-notice-counts">{t.library.noteCounts(features, improvements)}</p>}
+          <div className="mo-editor-updates-notice-actions">
             <Button kind="text" size="small" onClick={close}>
               {t.common.close}
             </Button>
@@ -150,7 +150,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
         </div>
       </div>
       {updatedApps.length > 0 && (
-        <ul className={`${plainListClass} updates-notice-apps`}>
+        <ul className={`${plainListClass} mo-editor-updates-notice-apps`}>
           {updatedApps.map(({ app, version }) => (
             <ListItem
               key={app.id}

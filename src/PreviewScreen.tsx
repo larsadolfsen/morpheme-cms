@@ -78,18 +78,18 @@ export function PreviewScreen({ html, message, title }: { html: string | null; m
         onPointerMove={(e) => move(e, edge)}
         onPointerUp={() => (drag.current = null)}
         onPointerCancel={() => (drag.current = null)}
-        className="preview-handle"
+        className="mo-editor-preview-handle"
         style={{ width: grip, height: height * scale }}
       >
-        <span className="preview-handle-grip" />
+        <span className="mo-editor-preview-handle-grip" />
       </div>
     );
 
   return (
     <>
-      <div className="preview-bar">
-        <div className="preview-sizes">
-          <div className="preview-sizes-inner">
+      <div className="mo-editor-preview-bar">
+        <div className="mo-editor-preview-sizes">
+          <div className="mo-editor-preview-sizes-inner">
             <SegmentedButton
               label={t.preview.size}
               value={size}
@@ -98,14 +98,14 @@ export function PreviewScreen({ html, message, title }: { html: string | null; m
             />
           </div>
         </div>
-        <p className="preview-width" aria-live="polite" data-preview-width>
-          <span className="mo-type-title-medium preview-width-value">{width}</span> · {t.preview.sizes[size]}
+        <p className="mo-editor-preview-width" aria-live="polite" data-preview-width>
+          <span className="mo-type-title-medium mo-editor-preview-width-value">{width}</span> · {t.preview.sizes[size]}
         </p>
       </div>
       {/* The frame is drawn over the place (absolute), so its height never makes the page taller than the window. */}
-      <div className="preview-place">
-        <div ref={stage} className="preview-stage">
-          {!html && <p className="preview-message">{message}</p>}
+      <div className="mo-editor-preview-place">
+        <div ref={stage} className="mo-editor-preview-stage">
+          {!html && <p className="mo-editor-preview-message">{message}</p>}
           {html && room.width > 0 && (
             <>
               {handle(-1)}
@@ -113,7 +113,7 @@ export function PreviewScreen({ html, message, title }: { html: string | null; m
                 title={title}
                 srcDoc={html}
                 sandbox="allow-same-origin"
-                className="preview-frame"
+                className="mo-editor-preview-frame"
                 style={{
                   width,
                   height,

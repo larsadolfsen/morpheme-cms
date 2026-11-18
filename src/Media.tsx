@@ -185,9 +185,9 @@ function FileTile({ src, selected, ...rest }: { src: string; selected?: boolean;
   const Icon = fileIcons[fileKindOf(src)!];
   return (
     <SiteCard as="button" kind="filled" selected={selected} aria-label={nameOfSrc(src)} aria-pressed={selected} {...rest}>
-      <span className="mo-stack media-file-tile">
-        <Icon size={36} className="mo-keep media-muted" />
-        <span className="mo-clamp-2 media-file-name">{nameOfSrc(src)}</span>
+      <span className="mo-stack mo-editor-media-file-tile">
+        <Icon size={36} className="mo-keep mo-editor-media-muted" />
+        <span className="mo-clamp-2 mo-editor-media-file-name">{nameOfSrc(src)}</span>
       </span>
     </SiteCard>
   );
@@ -231,7 +231,7 @@ function Tile({
   };
   return (
     // Never the browser's own menu or viewer for an image held (a phone's image viewer over the details): select-none and no callout always.
-    <li className="media-tile">
+    <li className="mo-editor-media-tile">
       {fileKindOf(src) ? (
         <FileTile src={src} {...tile} />
       ) : (
@@ -243,10 +243,10 @@ function Tile({
         <span
           aria-hidden="true"
           data-tile-mark={selected ? 'on' : 'off'}
-          className={`media-tile-mark ${selecting ? 'media-tile-mark-on' : 'media-tile-mark-hover'}`}
+          className={`mo-editor-media-tile-mark ${selecting ? 'mo-editor-media-tile-mark-on' : 'mo-editor-media-tile-mark-hover'}`}
           onClick={() => row.onSelectedChange?.()}
         >
-          <span className={`media-tile-check ${selected ? 'media-tile-check-on' : 'media-tile-check-off'}`}>
+          <span className={`mo-editor-media-tile-check ${selected ? 'mo-editor-media-tile-check-on' : 'mo-editor-media-tile-check-off'}`}>
             {selected && <AnyIcon name="check" size={16} />}
           </span>
         </span>
@@ -446,7 +446,7 @@ function Gallery({
         date={!all && dateChoice}
       />
       {selection?.selecting && (
-        <div className="media-count">
+        <div className="mo-editor-media-count">
           {/* Material's photo grid: a count with a cross above the grid; the cross, or the count, unselects all. */}
           <SiteChip
             kind="input"
@@ -459,7 +459,7 @@ function Gallery({
         </div>
       )}
       {chips.length > 0 && (
-        <div className="media-chips">
+        <div className="mo-editor-media-chips">
           {chips.map((c) => (
             <InputChip key={c.label} removeLabel={t.media.removeFilter(c.label)} onRemove={c.clear}>
               {c.label}
@@ -468,8 +468,8 @@ function Gallery({
         </div>
       )}
       {groups.map((g) => (
-        <section key={g.key ?? 'all'} className="media-group">
-          {g.key !== null && <h2 className="media-group-title">{sort === 'name' ? g.key : dateName(g.key)}</h2>}
+        <section key={g.key ?? 'all'} className="mo-editor-media-group">
+          {g.key !== null && <h2 className="mo-editor-media-group-title">{sort === 'name' ? g.key : dateName(g.key)}</h2>}
           <Grid srcs={g.items} picked={picked} onPick={onPick} selection={selection} />
         </section>
       ))}
@@ -565,14 +565,14 @@ export function useMediaPicker(
               }}
             />
             {selection.count > 0 && (
-              <div className="media-pick-bar">
+              <div className="mo-editor-media-pick-bar">
                 <Button onClick={finish}>{t.media.addPicked(selection.count)}</Button>
               </div>
             )}
           </>
         ) : null}
         {many ? null : providers.length ? (
-          <div className="media-providers" role="group" aria-label={t.media.pick}>
+          <div className="mo-editor-media-providers" role="group" aria-label={t.media.pick}>
             <FilterChip selected={!provider} onClick={() => setSource(null)}>
               {t.media.providers.own}
             </FilterChip>
@@ -873,10 +873,10 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
           rename(src);
         }}
       >
-        <label htmlFor="media-name" className="media-label">
+        <label htmlFor="media-name" className="mo-editor-media-label">
           {t.media.name}
         </label>
-        <div className="mo-row media-name-row">
+        <div className="mo-row mo-editor-media-name-row">
           {editing ? (
             <>
               <TextField
@@ -887,7 +887,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
                 autoComplete="off"
                 onChange={(e) => setName(e.target.value)}
               />
-              <span className="media-name-ending">{endingOf(src)}</span>
+              <span className="mo-editor-media-name-ending">{endingOf(src)}</span>
               <IconButton
                 icon={X}
                 label={t.common.cancel}
@@ -907,7 +907,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
             </>
           ) : (
             <>
-              <span className="mo-fill media-name-text">{fileName(src)}</span>
+              <span className="mo-fill mo-editor-media-name-text">{fileName(src)}</span>
               {code && !code.includes(src) && (
                 <IconButton icon={PencilSimple} label={t.media.kinds[kindOf(src)].rename} onClick={() => setEditing(true)} />
               )}
@@ -915,12 +915,12 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
           )}
         </div>
         {editing && name !== stemOf(src) && slugify(name) && slugify(name) !== name && (
-          <SupportingText className="media-saved-as">{t.media.savedAs(`${slugify(name)}${endingOf(src)}`)}</SupportingText>
+          <SupportingText className="mo-editor-media-saved-as">{t.media.savedAs(`${slugify(name)}${endingOf(src)}`)}</SupportingText>
         )}
       </form>
       {!fileFirst && <FileView src={shownAt(src)} name={fileName(src)} />}
       <div>
-        <p className="media-used-title">{t.media.usedOn}</p>
+        <p className="mo-editor-media-used-title">{t.media.usedOn}</p>
         {usedBy.length || code?.includes(src) ? (
           <ul className={listClass}>
             {usedBy.map((f) => (
@@ -929,7 +929,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
             {code?.includes(src) && <ListItem tone="muted" headline={t.media.siteDesign} />}
           </ul>
         ) : (
-          <p className="media-muted">{t.media.noPages}</p>
+          <p className="mo-editor-media-muted">{t.media.noPages}</p>
         )}
       </div>
       {kindOf(src) === 'image' && <MediaAlt key={src} src={src} files={files} env={env} />}
@@ -973,7 +973,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
         )
       }
     >
-      <div hidden={detail} className="media-files">
+      <div hidden={detail} className="mo-editor-media-files">
         <div className="mo-fill">
           <Gallery
             srcs={filerAddresses(files)}
@@ -998,11 +998,11 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
       </div>
       {detail && src && (
         <>
-          <div className="media-details">{details(src, true)}</div>
+          <div className="mo-editor-media-details">{details(src, true)}</div>
           {total > 1 && (
-            <SiteToolbar label={t.media.fileTools} kind="docked" className="media-file-tools">
+            <SiteToolbar label={t.media.fileTools} kind="docked" className="mo-editor-media-file-tools">
               <IconButton icon="caret-left" label={t.media.previous} disabled={at <= 0} onClick={() => step(-1)} />
-              <span className="media-muted" aria-live="polite">
+              <span className="mo-editor-media-muted" aria-live="polite">
                 {t.media.position(at + 1, total)}
               </span>
               <IconButton icon="caret-right" label={t.media.next} disabled={at >= total - 1} onClick={() => step(1)} />

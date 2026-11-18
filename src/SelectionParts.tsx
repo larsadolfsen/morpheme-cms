@@ -14,7 +14,7 @@ const dividerKinds = ['full-width', 'inset', 'middle-inset'] as const;
 const sliderSizes = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
 
 export default function SelectionParts() {
-  const grid = 'selection-columns';
+  const grid = 'mo-editor-selection-columns';
   const sheet = (kind: 'standard' | 'modal', back = false) => (
     <SiteSideSheet
       kind={kind}
@@ -87,7 +87,7 @@ export default function SelectionParts() {
       </Part>
       <Part name="Slider" use={say.slider}>
         <Preview>
-          <div className="selection-sliders">
+          <div className="mo-editor-selection-sliders">
             <SiteSlider label={say.volume} value={40} valueLabel />
             <SiteSlider label={say.count} max={10} value={6} stops valueLabel="always" />
             <SiteSlider label={say.price} max={1000} step={50} range={[200, 700]} handleLabels={say.handles} valueLabel="always" />
@@ -95,7 +95,7 @@ export default function SelectionParts() {
             <SiteSlider label={say.balance} min={-50} max={50} value={20} centered valueLabel />
             <SiteSlider label={say.balance} min={-50} max={50} step={10} value={-30} centered stops valueLabel="always" />
           </div>
-          <div className="selection-sliders">
+          <div className="mo-editor-selection-sliders">
             {sliderSizes.map((size) => (
               <SiteSlider key={size} label={say.sliderSizes[size]} size={size} value={60} />
             ))}
@@ -104,7 +104,7 @@ export default function SelectionParts() {
             ))}
             <SiteSlider label={`${say.brightness}: ${say.sliderSizes.large}`} size="large" value={4} icon="sun" />
           </div>
-          <div className="selection-vertical-sliders" role="group" aria-label={say.verticalSliders}>
+          <div className="mo-editor-selection-vertical-sliders" role="group" aria-label={say.verticalSliders}>
             <SiteSlider label={say.volume} orientation="vertical" value={40} valueLabel />
             <SiteSlider label={say.count} orientation="vertical" max={10} value={6} stops />
             <SiteSlider label={say.price} orientation="vertical" max={1000} step={50} range={[200, 700]} handleLabels={say.handles} />
@@ -114,17 +114,17 @@ export default function SelectionParts() {
       </Part>
       <Part name="Divider" use={say.divider}>
         <Preview>
-          <div className="selection-dividers">
+          <div className="mo-editor-selection-dividers">
             {dividerKinds.map((k) => (
-              <div key={k} className="selection-kind">
-                <p className="selection-kind-label">{say.kinds[k]}</p>
+              <div key={k} className="mo-editor-selection-kind">
+                <p className="mo-editor-selection-kind-label">{say.kinds[k]}</p>
                 <SiteDivider kind={k} />
               </div>
             ))}
-            <div className="selection-vertical-dividers">
-              <span className="selection-small-label">{say.kinds.vertical}</span>
+            <div className="mo-editor-selection-vertical-dividers">
+              <span className="mo-editor-selection-small-label">{say.kinds.vertical}</span>
               <SiteDivider vertical />
-              <span className="selection-small-label">{say.kinds['middle-inset']}</span>
+              <span className="mo-editor-selection-small-label">{say.kinds['middle-inset']}</span>
               <SiteDivider vertical kind="middle-inset" />
             </div>
           </div>
@@ -132,24 +132,24 @@ export default function SelectionParts() {
       </Part>
       <Part name="SideSheet" use={say.sideSheet}>
         <Preview>
-          <div className="selection-sheets">
-            <div className="selection-kind">
-              <p className="selection-sheet-label">{say.sheetKinds.standard}</p>
-              <div className="selection-sheet-stage">
-                <p className="selection-sheet-page">{say.page}</p>
+          <div className="mo-editor-selection-sheets">
+            <div className="mo-editor-selection-kind">
+              <p className="mo-editor-selection-sheet-label">{say.sheetKinds.standard}</p>
+              <div className="mo-editor-selection-sheet-stage">
+                <p className="mo-editor-selection-sheet-page">{say.page}</p>
                 {sheet('standard')}
               </div>
             </div>
-            <div className="selection-kind">
-              <p className="selection-sheet-label">{say.sheetKinds.withBack}</p>
-              <div className="selection-sheet-stage">
-                <p className="selection-sheet-page">{say.page}</p>
+            <div className="mo-editor-selection-kind">
+              <p className="mo-editor-selection-sheet-label">{say.sheetKinds.withBack}</p>
+              <div className="mo-editor-selection-sheet-stage">
+                <p className="mo-editor-selection-sheet-page">{say.page}</p>
                 {sheet('standard', true)}
               </div>
             </div>
-            <div className="selection-kind">
-              <p className="selection-sheet-label">{say.sheetKinds.modal}</p>
-              <div className="selection-modal-stage">{sheet('modal')}</div>
+            <div className="mo-editor-selection-kind">
+              <p className="mo-editor-selection-sheet-label">{say.sheetKinds.modal}</p>
+              <div className="mo-editor-selection-modal-stage">{sheet('modal')}</div>
             </div>
           </div>
         </Preview>

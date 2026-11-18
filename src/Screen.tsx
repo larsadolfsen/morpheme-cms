@@ -145,7 +145,7 @@ export function PaletteBar({ className = '' }: { className?: string }) {
       label={t.palette.label}
       open={open}
       keys={ariaShortcut('Mod+K')}
-      className={`palette-bar ${className}`}
+      className={`mo-editor-palette-bar ${className}`}
       onOpen={(button) => {
         button.focus({ preventScroll: true });
         openPalette();
@@ -174,7 +174,7 @@ export default function Screen<T extends string>({
   // The column's widest width (--mo-sys-column-width, editor.css) is the site's text column (theme `max-w-3xl`, as PostLayout.astro), on a
   // computer too; only `panel` (a form with its other fields beside the text) is wider, 72rem from large. editor.css (.editor-column) keeps it
   // centred on the window.
-  const width = panel ? 'editor-column screen-panel' : 'editor-column';
+  const width = panel ? 'editor-column mo-editor-screen-panel' : 'editor-column';
   // A link out of the screen, through `guard`: the back arrow goes up (nav.ts), the other links as links.
   const leave = (go?: () => void) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!go && !back?.guard) return;
@@ -195,7 +195,7 @@ export default function Screen<T extends string>({
   const searchBar = home && !selection;
   const bar = (
     <TopAppBar>
-      <div className={`screen-bar ${home ? 'screen-bar-home' : 'screen-bar-sub'}`}>
+      <div className={`mo-editor-screen-bar ${home ? 'mo-editor-screen-bar-home' : 'mo-editor-screen-bar-sub'}`}>
         {menuButtonInTopBar && !back && (
           <MenuButton
             label={menu.open ? t.library.closeMenu : t.library.openMenu}
@@ -206,41 +206,43 @@ export default function Screen<T extends string>({
         )}
         {/* The start screen's logo stands beside the site's name, which says the same: on a phone the name gets its width (the bar has four actions there). */}
         {/* Not on the start screen's bar from medium: the search bar gets the room (owner, 15 Nov: "The logo in the header is not a necessity. Usability is most important."). */}
-        {!full && !searchBar && <SiteLogoLink onClick={leave()} className={home ? 'screen-show-medium' : 'screen-show-expanded'} />}
+        {!full && !searchBar && (
+          <SiteLogoLink onClick={leave()} className={home ? 'mo-editor-screen-show-medium' : 'mo-editor-screen-show-expanded'} />
+        )}
         {back && (
           <a
             href={safeHref(back.href)}
             onClick={leave(() => up(back.href))}
             title={t.common.backTo(back.label)}
             aria-label={t.common.backTo(back.label)}
-            className={`screen-back ${full ? '' : 'screen-narrow-only'}`}
+            className={`mo-editor-screen-back ${full ? '' : 'mo-editor-screen-narrow-only'}`}
           >
             <ArrowLeft size={24} />
           </a>
         )}
         {/* The start screen: from medium the top bar is the search bar and the title and status stand under it; on a phone the title stays in the bar and the search bar is the first thing in the page. */}
         <div
-          className={`screen-title ${searchBar ? 'screen-title-search' : `${home ? 'screen-title-home' : 'screen-title-sub'} ${full ? '' : 'screen-narrow-only'}`}`}
+          className={`mo-editor-screen-title ${searchBar ? 'mo-editor-screen-title-search' : `${home ? 'mo-editor-screen-title-home' : 'mo-editor-screen-title-sub'} ${full ? '' : 'mo-editor-screen-narrow-only'}`}`}
         >
           <h1 className="mo-truncate mo-type-title-large">{title}</h1>
           {status && (
-            <p data-subtitle className="mo-truncate screen-status">
+            <p data-subtitle className="mo-truncate mo-editor-screen-status">
               {status}
             </p>
           )}
         </div>
         {searchBar ? (
-          <PaletteBar className="palette-bar-wide" />
+          <PaletteBar className="mo-editor-palette-bar-wide" />
         ) : (
           <>
-            {!full && <div className="screen-bar-gap" />}
+            {!full && <div className="mo-editor-screen-bar-gap" />}
             {!selection && <SearchButton />}
           </>
         )}
-        <div className="mo-row mo-row-end mo-keep screen-bar-actions">
+        <div className="mo-row mo-row-end mo-keep mo-editor-screen-bar-actions">
           {selection ?? (
             <>
-              {pageActions && <div className="mo-row screen-bar-page-actions">{pageActions}</div>}
+              {pageActions && <div className="mo-row mo-editor-screen-bar-page-actions">{pageActions}</div>}
               {actions}
             </>
           )}
@@ -251,7 +253,7 @@ export default function Screen<T extends string>({
       </div>
       {tabs && (
         <div className="editor-bar-tabs">
-          <div className={`screen-tabs ${width}`}>
+          <div className={`mo-editor-screen-tabs ${width}`}>
             <TabRow id={id} {...tabs} />
           </div>
         </div>
@@ -261,30 +263,30 @@ export default function Screen<T extends string>({
   if (hidden) return <div hidden>{children}</div>;
   if (full)
     return (
-      <div data-full-page className="screen-full-page">
+      <div data-full-page className="mo-editor-screen-full-page">
         {slot ? createPortal(bar, slot) : bar}
-        <main className="editor-screen-full screen-full-main">{children}</main>
+        <main className="editor-screen-full mo-editor-screen-full-main">{children}</main>
       </div>
     );
   return (
-    <div className={`screen-frame ${slot ? 'screen-frame-slot' : 'screen-frame-page'}`}>
+    <div className={`mo-editor-screen-frame ${slot ? 'mo-editor-screen-frame-slot' : 'mo-editor-screen-frame-page'}`}>
       {slot ? createPortal(bar, slot) : bar}
       {/* A row, so the column keeps its margins (editor.css .editor-column) and is as high as the rest of the window. */}
-      <div className="screen-row">
-        <main data-clearance={fabs.count > 0} className={`editor-screen screen-main ${width}`}>
+      <div className="mo-editor-screen-row">
+        <main data-clearance={fabs.count > 0} className={`editor-screen mo-editor-screen-main ${width}`}>
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
           {searchBar && (
             // M3 specs, Measurements: the unfocused search bar is 24dp from the screen's edges (the page has 16dp).
-            <div className="screen-search-bar">
-              <PaletteBar className="palette-bar-fill" />
+            <div className="mo-editor-screen-search-bar">
+              <PaletteBar className="mo-editor-palette-bar-fill" />
             </div>
           )}
-          <div className={`screen-heading ${searchBar ? 'screen-show-medium' : 'screen-show-expanded'}`}>
+          <div className={`mo-editor-screen-heading ${searchBar ? 'mo-editor-screen-show-medium' : 'mo-editor-screen-show-expanded'}`}>
             {crumbs.length > 0 && (
-              <nav aria-label={t.library.breadcrumbs} className="mo-row mo-keep screen-breadcrumbs">
+              <nav aria-label={t.library.breadcrumbs} className="mo-row mo-keep mo-editor-screen-breadcrumbs">
                 {crumbs.map((c) => (
                   <span key={c.href} className="mo-row">
-                    <a href={safeHref(c.href)} onClick={leave()} className="mo-truncate screen-crumb">
+                    <a href={safeHref(c.href)} onClick={leave()} className="mo-truncate mo-editor-screen-crumb">
                       {c.label}
                     </a>
                     <CaretRight size={14} className="mo-keep" />
@@ -292,18 +294,18 @@ export default function Screen<T extends string>({
                 ))}
               </nav>
             )}
-            <h1 className={searchBar ? 'mo-truncate mo-type-title-large' : 'mo-truncate screen-title-plain'}>{title}</h1>
+            <h1 className={searchBar ? 'mo-truncate mo-type-title-large' : 'mo-truncate mo-editor-screen-title-plain'}>{title}</h1>
             {status && (
-              <p data-subtitle={searchBar ? '' : undefined} className="mo-keep screen-status-line">
+              <p data-subtitle={searchBar ? '' : undefined} className="mo-keep mo-editor-screen-status-line">
                 {status}
               </p>
             )}
             {/* The icons are taller than the text: the negative margin keeps the row's height. */}
-            {pageActions && <div className="mo-row mo-keep screen-title-actions">{pageActions}</div>}
+            {pageActions && <div className="mo-row mo-keep mo-editor-screen-title-actions">{pageActions}</div>}
           </div>
           {/* The content flows as blocks; the footer goes to the bottom of a short screen. */}
           <FabPresenceContext.Provider value={fabs.report}>
-            <div className="screen-content" data-clearance={fabs.count > 0}>
+            <div className="mo-editor-screen-content" data-clearance={fabs.count > 0}>
               {tabs ? (
                 <TabPanel id={id} value={tabs.value}>
                   {children}
