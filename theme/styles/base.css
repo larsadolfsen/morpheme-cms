@@ -12,6 +12,9 @@
 @import './divider.css';
 /* The Badge (.badge, its dot and number, the anchor on an icon). */
 @import './badge.css';
+/* The Loading indicator and the Progress indicators (linear and circular). */
+@import './loading-indicator.css';
+@import './progress-indicators.css';
 /* The Snackbar (the stack that holds them and the message). */
 @import './snackbar.css';
 /* The Tooltip (plain and rich, anchored to what it is about). */
