@@ -78,8 +78,20 @@ for (const width of [375, 768, 1280, 1580]) {
             if (one && w > 721) out.push(`${name} with Columns off is ${w}px wide, more than 720px`);
           }
           if (!before?.matches?.('p') || !before.closest('.prose')) continue;
-          if (left(block) !== left(before))
-            out.push(`${block.className.toString().split(' ')[0]} starts at ${left(block)}px, the text above it at ${left(before)}px`);
+          // Owner, 16 Nov 2026: "Full width on compact screens". Below 600px the layer of a plain List or List - Expand (no drawn container) reaches
+          // 16px past the text column on each side, so its box starts 16px before the text above it and its content (leading icon or text) is on
+          // the text's edge. From 600px, and in the segmented design, the box itself is on the text's edge.
+          const bleeds = width < 600 && block.matches('.block-list:not(.list-segmented), .block-accordion:not(.block-accordion-segmented)');
+          const name2 = block.className.toString().split(' ')[0];
+          if (left(block) !== left(before) - (bleeds ? 16 : 0))
+            out.push(
+              `${name2} starts at ${left(block)}px, the text above it at ${left(before)}px${bleeds ? ' (the layer is 16px wider on a compact screen)' : ''}`,
+            );
+          if (bleeds && block.matches('.block-list')) {
+            const lead = block.querySelector('.list-item-leading-icon, .list-item-leading') ?? block.querySelector('.list-item-content');
+            if (lead && left(lead) !== left(before))
+              out.push(`${name2}'s row content starts at ${left(lead)}px, the text above it at ${left(before)}px`);
+          }
         }
         return out;
       },

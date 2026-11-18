@@ -12,6 +12,7 @@ export const UI_PART_FILES = [
   'snackbar.css',
   'tooltip.css',
   'checkbox.css', // before ui.css in base.css: the list's selection box is a .checkbox, and the list's rules (in ui.css) must win over it
+  'chips.css', // before ui.css in base.css, like the Checkbox: a chip set is also .search-view-filters, whose rules (in ui.css) must win over it
   'dialog.css', // before ui.css in base.css: the pickers' dialogs are .dialog-modal too, and the picker rules (in ui.css) must win over it
   'lightbox.css', // made of the dialog's classes, right after dialog.css
   'switch.css',

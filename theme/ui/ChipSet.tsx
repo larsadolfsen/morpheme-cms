@@ -1,5 +1,5 @@
 // A chip set (Material's chips side by side, as Material's own web components group them, md-chip-set; .chip-set in
-// ../styles/ui.css): the theme's chips (`children`: Chip) in a group with its name (`label`, read by screen readers).
+// ../styles/chips.css): the theme's chips (`children`: Chip) in a group with its name (`label`, read by screen readers).
 // Its layout (`layout`): wrap (the default: on as many lines as they need) or scroll (on one line that scrolls sideways
 // when they are wider than it, as Material's chips do on a phone, without a scrollbar). Other attributes (data-…) go on
 // the group, and `className` after its own classes. An Astro component gives an element the same classes with
