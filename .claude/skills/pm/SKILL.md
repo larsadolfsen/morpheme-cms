@@ -139,7 +139,12 @@ goes into `main` once, when it is released.
 - **A feature of several pull requests gets its own branch.** When the PM delegates a feature that takes more than one pull request
   (the CSS split, cards and lists, the move away from Tailwind), it cuts a branch from the line, `feature/<name>` (for example
   `feature/css-split`), and every session of that feature opens its pull request into it. The PM merges them there under **Merging**,
-  with the light `check`, one at a time. A single fix or a feature of one pull request goes straight into the line, as before.
+  on a green **feature check**, one at a time. A single fix or a feature of one pull request goes straight into the line, as before.
+- **The check levels** (skill `checks`, *What CI runs*; owner, 18 Nov 2026: "test less, but the important things"): feature check for a
+  piece into a feature branch, the full check once a day on each feature branch, the line check into a line, the full check for a line
+  into `main`. `check.yml` runs today only on pull requests into `main` and the version lines, so a pull request into `feature/*` gets no
+  check: the PM's first build task is the CI plan (`docs/superpowers/plans/2026-11-18-ci-check-levels.md`), and it opens no feature
+  branch before that plan's first pull request (checks on `feature/**`) is merged.
 - **The line keeps flowing into the feature.** After each merge into the line, the PM merges the line into every open feature
   branch (never the other way), so a feature never drifts far from its line.
 - **One pull request into the line.** When every piece is merged and the feature is done, the PM opens one pull request from the
