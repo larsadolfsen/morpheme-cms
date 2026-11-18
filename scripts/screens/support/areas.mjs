@@ -88,6 +88,8 @@ export const RULES = [
     'none',
   ],
   [/^scripts\/(phosphor|web)-allowlist\.json$/, 'none'],
+  // The version-line check (job `static`, step on the changesets): reads changesets and package.json only.
+  [/^scripts\/(release-line\.mjs|release-lines\.json)$/, 'none'],
   // The token checks of `npm run check` and their lists (only check-css-tokens.mjs and check-token-names.mjs read them), and the checks
   // that `check:screens:extra` runs over the whole site: none is imported by a unit of scripts/screens/. The light levels skip
   // screens-extra; the full level runs it and every unit.
