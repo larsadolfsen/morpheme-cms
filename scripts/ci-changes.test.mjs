@@ -8,6 +8,7 @@ import {
   isLight,
   checkLevel,
   screensAreas,
+  formatScope,
   verdict,
   outcome,
   isSuperseded,
@@ -308,4 +309,35 @@ test('screensAreas: in doubt, everything', () => {
   assert.equal(screensAreas(['new-folder/a.js'], '0.18', 'x'), 'all');
   assert.equal(screensAreas(['src/ui.tsx'], '0.18', 'x'), 'all');
   assert.equal(screensAreas(null, '0.18', 'x'), 'all'); // an error inside: caught
+});
+test('formatScope: the full level and the Release PR check every file', () => {
+  assert.equal(formatScope(['src/a.tsx'], 'main', 'merge-0.18-into-main-1'), 'all');
+  assert.equal(formatScope(['src/a.tsx'], '', ''), 'all');
+  assert.equal(formatScope(['src/a.tsx'], 'unknown', ''), 'all');
+  assert.equal(formatScope(['src/a.tsx'], '0.18', 'changeset-release/main'), 'all');
+});
+test('formatScope: the feature and line levels check the changed files', () => {
+  assert.equal(formatScope(['src/a.tsx', '.changeset/a.md\n'], '0.18', 'x'), 'changed');
+  assert.equal(formatScope(['src/a.tsx'], 'feature/css-split', 'x'), 'changed');
+  assert.equal(formatScope(['docs/a.md'], '0.19', 'x'), 'changed');
+});
+test('formatScope: a change to Prettier, its packages or this workflow checks every file', () => {
+  for (const p of [
+    '.prettierrc.json',
+    '.prettierignore',
+    'starter/.prettierrc.json',
+    'prettier.config.mjs',
+    '.editorconfig',
+    'package.json',
+    'package-lock.json',
+    '.github/workflows/check.yml',
+  ]) {
+    assert.equal(formatScope(['src/a.tsx', p], '0.18', 'x'), 'all', p);
+  }
+});
+test('formatScope: in doubt, everything', () => {
+  assert.equal(formatScope([], '0.18', 'x'), 'all');
+  assert.equal(formatScope(['', '\n'], '0.18', 'x'), 'all');
+  assert.equal(formatScope(['../x'], '0.18', 'x'), 'all');
+  assert.equal(formatScope(null, '0.18', 'x'), 'all');
 });

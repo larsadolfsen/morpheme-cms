@@ -4,6 +4,7 @@
 //   node scripts/ci-changes.mjs classify <head ref> [<base>]  the same, and also starter_demo=true|false (whether `starter` and `demo` must run)
 //                                                      level=feature|line|full (from the base branch), and light=true|false (the feature and line levels: the light check)
 //                                                      and areas=all|none|<area>,<area> (the screens areas the light check runs besides the core set; scripts/screens/support/areas.mjs)
+//                                                      and format=all|changed (whether Prettier checks every file or only the changed ones; see formatScope)
 //   node scripts/ci-changes.mjs verdict <docs_only> [<starter_demo> [<light> [<run head sha> <current head sha>]]]  reads `needs` (JSON, as Actions gives it) on stdin; exits 1 when `check` must be red; prints cancelled=true and exits 0 when a newer push (the two head shas differ) cancelled the run
 import { argv, stdin, exit } from 'node:process';
 import { areasArg } from './screens/support/areas.mjs';
@@ -124,6 +125,38 @@ export function screensAreas(paths, base = '', headRef = '') {
   }
 }
 
+/**
+ * What decides how Prettier formats: its settings, its ignore file and the packages (the version of Prettier and its plugins). A change to
+ * one of these can change the result for files the pull request did not touch, so the whole repository is checked again.
+ */
+const FORMAT_SETTINGS = [
+  /(^|\/)\.prettier(rc|ignore)/,
+  /(^|\/)prettier\.config\./,
+  /(^|\/)\.editorconfig$/,
+  /^package(-lock)?\.json$/,
+  /^\.github\/workflows\/check\.yml$/,
+];
+
+/**
+ * What Prettier checks in the job `static`: `changed` (only the files the pull request changed against its base) at the light levels
+ * (`feature`, `line`), `all` at the full level, for the Release PR, for a change to Prettier's settings or packages, for an empty diff
+ * and on any error. When in doubt, `all`.
+ * @param {string[]} paths
+ * @param {string} [base] the pull request's base branch
+ * @param {string} [headRef]
+ * @returns {'all' | 'changed'}
+ */
+export function formatScope(paths, base = '', headRef = '') {
+  try {
+    if (!isLight(base, headRef) || headRef === RELEASE_BRANCH) return 'all';
+    const changed = paths.map((p) => p.trim()).filter(Boolean);
+    if (changed.length === 0 || changed.some((p) => p.includes('..'))) return 'all';
+    return changed.some((p) => FORMAT_SETTINGS.some((re) => re.test(p))) ? 'all' : 'changed';
+  } catch {
+    return 'all';
+  }
+}
+
 /** The jobs that are skipped on a docs-only pull request. `static` and `changes` always run. */
 export const HEAVY = ['screens', 'screens-extra', 'demo', 'starter'];
 /** The heavy jobs that are also skipped when no changed file can affect them (needsStarterDemo is false). */
@@ -199,6 +232,7 @@ if (import.meta.url === `file://${argv[1]}`) {
     console.log(`level=${checkLevel(argv[4] ?? '', arg)}`);
     console.log(`light=${isLight(argv[4] ?? '', arg)}`);
     console.log(`areas=${screensAreas(paths, argv[4] ?? '', arg)}`);
+    console.log(`format=${formatScope(paths, argv[4] ?? '', arg)}`);
   } else if (mode === 'verdict') {
     const { state, problems } = outcome(
       JSON.parse(input),

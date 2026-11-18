@@ -49,9 +49,11 @@
   },
   "scripts": {
     "build": "node scripts/demo-build.mjs",
-    "check": "npm run format:check && npm run check:language && npm run check:phosphor && npm run check:css-tokens && npm run check:token-names && npm run check:token-registry && npm run check:web && npm run check:editor-colors && npm run check:colors && npm run check:css-values && npm run check:density && npm run check:release-notes && npm test && npm run check:types && npm run build && npm run check:site-types && npm run check:editor",
+    "check": "npm run format:check && npm run check:source && npm run build && npm run check:built",
+    "check:source": "npm run check:language && npm run check:phosphor && npm run check:css-tokens && npm run check:token-names && npm run check:token-registry && npm run check:web && npm run check:editor-colors && npm run check:colors && npm run check:css-values && npm run check:density && npm run check:release-notes && npm test && npm run check:types",
+    "check:built": "npm run check:site-types && npm run check:editor",
     "check:site-types": "node scripts/check-site-types.mjs",
-    "check:types": "tsc -p tsconfig.types.json --noEmit",
+    "check:types": "tsc -p tsconfig.types.json --noEmit --incremental --tsBuildInfoFile .morpheme/tsc/types.tsbuildinfo",
     "check:editor": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:editor",
     "check:screens": "npm run check:screens:shard -- 1/1 && npm run check:screens:extra",
     "check:screens:shard": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:screens --shard",
