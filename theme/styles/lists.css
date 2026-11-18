@@ -77,12 +77,12 @@
       border-end-end-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small)));
     }
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-accordion:not(.block-accordion-segmented) {
       --mo-comp-list-expand-open-radius: var(--mo-sys-shape-corner-large);
     }
   }
-  @media (width < theme(--breakpoint-medium)) {
+  @media (width < 37.5rem) {
     .block-list:not(.list-segmented),
     .block-accordion:not(.block-accordion-segmented) {
       margin-inline: calc(-1 * var(--mo-sys-block-list-layer-room));

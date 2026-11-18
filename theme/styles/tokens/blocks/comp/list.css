@@ -40,7 +40,7 @@
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-accordion {
       --mo-comp-list-expand-padding-inline: 2rem;
     }
