@@ -11,7 +11,7 @@ Announce "Using checks". Run every command from the root of this repository, on 
 ## What CI runs
 
 **The direction (owner, 18 Nov 2026): test less, but always the important things.** Plan:
-`docs/superpowers/plans/2026-11-18-ci-check-levels.md`. The levels below are the target; PR 1 and 2 of the plan are built (what runs today is in the next table and below), PR 3-6 are not yet.
+`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A. The levels below are the target; PR 1 (levels), PR 2 (build once, cached Chromium) and PR 3 (core set and touched areas) are built (what runs today is in the next table and below), PR 4, 5 and 6 are not yet.
 
 | Merge | Check |
 | :--- | :--- |
@@ -26,8 +26,8 @@ Announce "Using checks". Run every command from the root of this repository, on 
 
 | Base branch | Level | What runs today |
 | :--- | :--- | :--- |
-| `feature/**` | `feature` | the light check: `static` and the 8 `screens` shards (as the line level, until PR 3) |
-| `0.*` (a version line) | `line` | the light check, as below (`demo` and the starter smoke test come in PR 4) |
+| `feature/**` | `feature` | the light check: `static` and the 8 `screens` shards with the core units and the touched areas only (`--areas`, below) |
+| `0.*` (a version line) | `line` | the light check, as below, with the core units and the touched areas (`demo` and the starter smoke test come in PR 4) |
 | `main`, and the Release PR from any base | `full` | everything |
 | anything else, an empty base, an error in the selection | `full` | everything (when in doubt, run) |
 
@@ -39,7 +39,28 @@ every job shares are the local action `.github/actions/prepare` (Node, `npm ci`,
 `~/.cache/ms-playwright`, keyed on the Playwright version; a hit skips the download and only the system libraries are installed with apt.
 A failed `build` leaves its jobs skipped, which the verdict turns red. The levels, `scripts/ci-changes.mjs` and the verdict are unchanged.
 
-Not built yet: the core set and touched areas (PR 3), the starter smoke test (PR 4), the daily
+**Built (PR 3, touched areas and the core set).** The feature and line levels run the 8 `screens` shards on the **core set** plus the
+**units of the touched areas**; the full level (`main`, the Release PR, an unknown base) runs every unit, unchanged.
+
+- **The map** is `RULES` in `scripts/screens/support/areas.mjs`, next to the areas (`scripts/screens/<area>.mjs`), read with the engine
+  `lib/affected.mjs` (`select(paths, rules)`; track B reads its own rules with it). A rule is `[pattern, areas | 'none' | 'all']`, the first
+  match decides. `'none'` is for what no screens unit reads (docs, tests, the Worker, the static-only checks), `'all'` for what can show
+  anywhere (`src/ui.tsx`, `src/editor.css`, `src/store.ts`, `src/i18n/`, `theme/styles/`, `theme/ui/`, most of `lib/`), and a narrow rule names
+  the area that owns a file **and its neighbours** (a change to `src/Library.tsx` runs `files` and `sheets`). **A path no rule knows runs
+  everything**, and `scripts/screens-areas.test.mjs` fails until every tracked path has a rule, so a new folder or file always gets a decision.
+- **The core set** is `CORE_UNITS` in the same file: `screens 390`, `screens 1280`, `key states` (every screen opens, icons exist),
+  `checkSaveKeyNoAutosave` (a page is edited and Save commits it) and `checkSpacingGrid 375` / `1280` (the theme builds and the site is drawn).
+  It runs on every pull request that is not docs-only. A unit leaves a level only by being outside the core set and outside the touched
+  areas; none is skipped, disabled or deleted.
+- **In CI** the job `changes` prints `areas=all|none|<area>,<area>` (`screensAreas` in `scripts/ci-changes.mjs`; `all` for the full level,
+  the Release PR, an empty diff, an unknown path and any error) and each `screens` shard runs `npm run check:screens:shard -- K/8 --areas <areas>`.
+  The selected units are spread over the 8 shards, so shard K runs every 8th selected unit. An `--areas` value the runner cannot read (an
+  unknown area, a missing core unit) runs every unit.
+- **Locally**, `npm run check:screens:shard -- K/N --areas files,sheets [--list]` runs or lists one part of a selection; `--areas none` is the
+  core set alone. **A new unit goes in its area's file and is in the selection of that area automatically**; a new area file needs its name in
+  `AREAS` and a rule (the test fails until it has both). A change to the screens harness (`scripts/screens/support/`, `scripts/editor-screens.mjs`) runs everything.
+
+Not built yet: the starter smoke test (PR 4), the daily
 full run on feature branches (PR 5), `next` builds from a version line (PR 6).
 
 Always tested, at every level: Prettier, types, `npm run check` (language, tokens, colours, rules), the changeset, the build, the core
@@ -50,7 +71,7 @@ merge into a version line shows on the demo within minutes). Its job `check` wai
 before the PM merges.
 
 - **Light check, base is a version line or a feature branch** (`0.17`, `0.18`, `0.19`, `feature/**`; not the Release PR): `changes`, `static` (Prettier, language, the
-  changeset, `npm run check`) and `check:screens` in its 8 shards. About 8 minutes (median of the shards 8.0, longest 10.9). It skips
+  changeset, `npm run check`) and `check:screens` in its 8 shards (the core units and the touched areas only, see *Built (PR 3)*; the numbers here are of the all-units run). About 8 minutes (median of the shards 8.0, longest 10.9). It skips
   `check:screens:extra`, `check:demo` and `check:starter` (the 4 starter shards take a median of 14.2 minutes, the longest 19.8). The
   PM may merge into a version line on a green light `check`.
 - **Full check, base is `main`**: the merge of a version line into `main` (`merge-0.18-into-main-N`) and the Release PR run everything:
@@ -59,8 +80,7 @@ before the PM merges.
 - The job `changes` decides with `isLight(base, head)` in `scripts/ci-changes.mjs` and prints `light=true|false`; an empty or unknown
   base, `main`, the Release PR or any error in the step gives `light=false`, so everything runs. The changeset check is in `static` and
   stays on every pull request.
-- To make the light check pick `screens` units from the changed files instead of all 8 shards, the screens units must first be split
-  per area (`scripts/editor-screens.mjs`, the PM's screens-split work); until then the light check runs all 8 shards.
+- The light check picks `screens` units from the changed files: the core set and the touched areas (*Built (PR 3)* above).
 
 **A docs-only pull request skips the heavy jobs** (`screens`, `screens-extra`, `demo`, `starter`); `static` (Prettier, language,
 changeset, `npm run check`) always runs. The first job `changes` decides from `git diff --name-only origin/<base>...HEAD`
@@ -83,9 +103,12 @@ and `static` run on every pull request that is not docs-only (`screens-extra` no
 to the skip list, first `grep` that neither job reads it (the list's comment says how), and change the list and its test only.
 
 A new push to a pull request cancels that pull request's older queued and running `Check` runs (`concurrency` in
-`check.yml`); only the newest head's run counts. `check` does not report the cancelled run as a failure: when some job is cancelled
-and none failed (the jobs after it are skipped), `outcome` in `scripts/ci-changes.mjs` says `cancelled`, and the job prints
-`cancelled=true` and ends without red. A job that really failed, also next to a cancelled one, and a job skipped wrongly are still red.
+`check.yml`); only the newest head's run counts. `check` does not report a run as failed when a newer push cancelled it: it looks up the pull request's current head
+(`gh api repos/<repo>/pulls/<n> --jq .head.sha`, token with `pull-requests: read`) and compares it with this run's
+`github.event.pull_request.head.sha`. Only when a job is cancelled, none failed and the two heads differ, `outcome` in
+`scripts/ci-changes.mjs` says `cancelled`: the job prints `cancelled=true` and ends without red. A cancel on the same head (a manual
+cancel, a lost runner, a timeout), a failed lookup, a job that really failed (also next to a cancelled one) and a job skipped wrongly
+are all still red: when in doubt it stays red.
 
 ## The commands
 
