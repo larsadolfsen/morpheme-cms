@@ -57,7 +57,7 @@ export default function PostList({
                 <span className="list-item-image theme-post-picture bg-surface-container-high" />
               )
             }
-            overline={<PostMeta post={post} as="span" />}
+            subhead={<PostMeta post={post} as="span" />}
             headline={<h3 className="mo-type-title-medium m-0">{post.title}</h3>}
             supporting={post.description ? <span className="line-clamp-2">{post.description}</span> : undefined}
           />

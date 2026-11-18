@@ -10,8 +10,8 @@
      16px in from their sides, 10px over and under their text and 12px between their elements, without lines between
      them; 20px icons; the label text in body large (16/24, 400, 0.5; a setting row's name too), the supporting text in
      body medium, the overline and the trailing text in label small; a state layer in the text's colour when pointed at
-     (8%) and pressed (10%), nothing moving aside; disabled at 38%, a segmented item on a 10% layer of the text's colour.
-     Their corners extra-small (4px), medium (12px) pointed at, pressed and selected; a selected one in the secondary
+     (8%), pressed and focused (10%) and dragged (16%), nothing moving aside and the text unchanged; disabled at 38%, a segmented item on a 10% layer of the text's colour.
+     Their corners extra-small (4px), medium (12px) pointed at, large (16px) pressed, focused, dragged and selected; a selected one in the secondary
      container. Segmented: 2px between the items, the list's outer corners medium (12px), each item on a surface
      container (a step up from the page; the editor puts the items on the surface over a container page, as Material's
      spec does, editor.css). */
@@ -24,27 +24,28 @@
   --mo-comp-list-item-gap: 0.75rem;
   --mo-comp-list-list-item-container-shape: var(--mo-sys-shape-corner-extra-small);
   --mo-comp-list-item-hover-radius: var(--mo-sys-shape-corner-medium);
-  --mo-comp-list-item-pressed-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-list-item-pressed-radius: var(--mo-sys-shape-corner-large);
   --mo-comp-list-item-selected-radius: var(--mo-sys-shape-corner-large);
   --mo-comp-list-item-icon-size: 1.25rem;
   --mo-comp-list-item-hover-surface: var(--mo-sys-state-mo-hover-layer);
   --mo-comp-list-item-pressed-surface: var(--mo-sys-state-mo-pressed-layer);
-  --mo-comp-list-item-hover-icon-color: var(--mo-sys-color-on-surface-variant);
   --mo-comp-list-item-focus-surface: var(--mo-sys-state-mo-pressed-layer);
-  /* M3 (Lists › Specs, token table): md.comp.list.focus.indicator.color = md.sys.color.secondary. */
-  --mo-comp-list-item-focus-indicator-color: var(--mo-sys-color-secondary);
-  --mo-comp-list-item-hover-text: var(--mo-sys-color-on-surface);
-  --mo-comp-list-item-hover-trailing-shift: 0;
+  /* The one focus ring, in primary (deviation FR1, docs/material-deviations.md; M3's list token is md.comp.list.focus.indicator.color = secondary); its
+     offset is the list's own, -3 dp (inside the item). */
+  --mo-comp-list-item-focus-indicator-color: var(--mo-sys-color-primary);
+  /* Dragged (M3 List - Common: level 4, the 0.16 dragged state layer, the selected corners 16 dp). */
+  --mo-comp-list-item-dragged-radius: var(--mo-sys-shape-corner-large);
+  /* The two columns of an item with `columns` (M3's content slot, Lists › Specs, Flexibility & slots). */
+  --mo-comp-list-item-columns-gap: 1.5rem;
   --mo-comp-list-list-item-selected-container-color: var(--mo-sys-color-secondary-container);
   --mo-comp-list-list-item-selected-label-text-color: var(--mo-sys-color-on-secondary-container);
-  --mo-comp-list-item-selected-weight: 400;
   --mo-comp-list-item-leading-icon-selected-color: var(--mo-sys-color-primary);
   --mo-comp-list-item-disabled-opacity: var(--mo-sys-state-disabled-state-layer-opacity);
   --mo-comp-list-segmented-gap: 0.125rem;
   --mo-comp-list-segmented-radius: var(--mo-sys-shape-corner-large);
   --mo-comp-list-segmented-inner-radius: var(--mo-sys-shape-corner-extra-small);
   --mo-comp-list-segmented-hover-radius: var(--mo-sys-shape-corner-medium);
-  --mo-comp-list-segmented-pressed-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-list-segmented-pressed-radius: var(--mo-sys-shape-corner-large);
   --mo-comp-list-segmented-selected-radius: var(--mo-sys-shape-corner-large);
   --mo-comp-list-segmented-padding-inline: 1rem;
   --mo-comp-list-list-item-segmented-container-color: var(--mo-sys-color-surface);
