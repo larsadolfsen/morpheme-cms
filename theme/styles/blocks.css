@@ -480,67 +480,6 @@
     mask-image: none;
   }
 
-  /* "Accordion": a row's text, the link to its page and links to more specific pages under it
-     (accordion/PageRow.tsx). */
-  .block-row-text {
-    max-width: var(--mo-sys-block-text-measure-max);
-    font-size: var(--mo-sys-typescale-body-large-size);
-    line-height: var(--mo-sys-typescale-body-large-line-height);
-    font-weight: var(--mo-sys-typescale-body-large-weight);
-    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
-    color: var(--mo-sys-block-muted);
-  }
-  .block-row-links {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem 1.5rem;
-    margin-top: 1rem;
-  }
-  /* Text buttons under a row's text (accordion/Accordion.tsx, accordion/PageRow.tsx): the same shift, so their labels line up with the text above. */
-  .block-row-links:has(> .button-text) {
-    margin-inline-start: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
-    column-gap: 0.5rem;
-    margin-block-end: calc((1.25rem - var(--mo-comp-button-medium-container-height, 3rem)) / 2);
-  }
-  /* The subhead: the small line under the headline (a byline, a date, a place). */
-  /* "Image grid" (blocks/imagegrid/View.tsx): the tag filter over the staggered grid (.image-grid in ui.css), the text under an image on its card. The filter
-     and its count are drawn hidden and shown by script.ts; the columns can be set to 2, 3 or 4 on a computer (data-columns). */
-  .block-imagegrid-filter {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-  }
-  .block-imagegrid-filter[hidden],
-  .block-imagegrid-count[hidden],
-  .block-imagegrid-empty[hidden],
-  .block-imagegrid-clear[hidden] {
-    display: none;
-  }
-  .block-imagegrid-clear {
-    padding: 0 0.75rem;
-    min-height: var(--mo-sys-target-size, 2.75rem);
-    border: 0;
-    background: none;
-    color: var(--mo-sys-color-primary);
-    font: inherit;
-    cursor: pointer;
-  }
-  .block-imagegrid-empty {
-    color: var(--mo-sys-block-muted);
-  }
-  .block-imagegrid-count {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-  .block-imagegrid-grid > li[hidden] {
-    display: none;
-  }
   .block-accordion-lead[data-icon-color],
   .block-card .block-card-icon[data-icon-color] {
     color: var(--mo-comp-icon-color);
