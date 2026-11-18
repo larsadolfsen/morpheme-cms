@@ -7,8 +7,8 @@ import { UI_PART_FILES, OTHER_BASE_FILES, MATERIAL_FILES } from './files.mjs';
 
 const base = readFileSync(new URL('./base.css', import.meta.url), 'utf8');
 const ui = readFileSync(new URL('./ui.css', import.meta.url), 'utf8');
-const importsOf = (text) => [...text.matchAll(/@import\s+'\.\/((?:blocks\/)?[^'/]+\.css)';/g)].map((m) => m[1]);
-/** The CSS files base.css imports from this folder or from blocks/ (the token files under tokens/ are listed by their folders), and ui.css, which imports the UI parts. */
+const importsOf = (text) => [...text.matchAll(/@import\s+'\.\/((?:blocks\/|ui\/)?[^'/]+\.css)';/g)].map((m) => m[1]);
+/** The CSS files base.css imports from this folder, from blocks/ or from ui/ (the token files under tokens/ are listed by their folders), and ui.css, which imports the UI parts. */
 const imported = [...importsOf(base), ...importsOf(ui)];
 
 test('the lists have no file twice', () => {
@@ -45,6 +45,7 @@ test('every CSS file of this folder is imported by base.css, except base.css and
   const here = [
     ...readdirSync(new URL('./', import.meta.url)).filter((f) => f.endsWith('.css') && !['base.css', 'global.css'].includes(f)),
     ...readdirSync(new URL('./blocks/', import.meta.url)).map((f) => `blocks/${f}`),
+    ...readdirSync(new URL('./ui/', import.meta.url)).map((f) => `ui/${f}`),
   ];
   assert.deepEqual(
     here.filter((f) => !imported.includes(f)),

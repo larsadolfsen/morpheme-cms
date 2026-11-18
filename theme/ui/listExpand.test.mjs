@@ -8,7 +8,7 @@ import test from 'node:test';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 const list = read('./List.tsx');
-const ui = read('../styles/list.css');
+const ui = read('../styles/ui/list.css');
 const blocks = readdirSync(new URL('../styles/blocks/', import.meta.url))
   .map((f) => read(`../styles/blocks/${f}`))
   .join('\n');
