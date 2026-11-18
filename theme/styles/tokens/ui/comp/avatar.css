@@ -1,0 +1,8 @@
+/* The avatar's own token (Material 3 Lists, Specs: "List list item leading avatar size", 40dp). The other avatar tokens
+   (--mo-comp-avatar-container-color, -label-text-color, -container-shape, -label-weight) only point at a --mo-sys-* token, so they are not declared:
+   avatar.css reads each with that token as its fallback (docs/theme-token-files.md, "Adding a token"). */
+@layer components {
+  :root {
+    --mo-comp-avatar-size: 2.5rem;
+  }
+}

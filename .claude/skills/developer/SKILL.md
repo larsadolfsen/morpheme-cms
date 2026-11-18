@@ -142,6 +142,7 @@ are `…/specs`, `…/guidelines` and `…/accessibility` under the same address
 | Grid (`.image-grid`, `.grid-span-full`; tokens `--mo-comp-grid-columns`, `--mo-sys-grid-gutter`, `--mo-sys-grid-margin`, `--mo-sys-grid-layout-columns`) | cards of different heights in columns, no holes; on any page of the editor and the site; `docs/theme-grid.md` | [grids](https://m3.material.io/foundations/layout/grids-spacing/grids) |
 | `Carousel` (`ui.tsx` `ImageCarousel`) | a scrolling row of images or cards | [carousel](https://m3.material.io/components/carousel/overview) |
 | `Divider` | separates content | [divider](https://m3.material.io/components/divider/overview) |
+| `Avatar` (`SiteAvatar`) | a round mark with a letter or an image: a list item's leading avatar, a card's thumbnail; M3 has no page of its own (Lists, Specs, *Leading avatar*) | [lists](https://m3.material.io/components/lists/specs) |
 | `Badge` | a count or dot on another part | [badges](https://m3.material.io/components/badges/overview) |
 | `Dialog` (`ui.tsx` `Dialog`, `ask.tsx`) | a question or a task that interrupts | [dialogs](https://m3.material.io/components/dialogs/overview) |
 | `BottomSheet` (`ui.tsx` `BottomSheet`, `ActionSheet`) | extra content or actions at the bottom on a phone, and the Save bar | [bottom-sheets](https://m3.material.io/components/bottom-sheets/overview) |

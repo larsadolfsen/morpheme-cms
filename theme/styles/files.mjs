@@ -7,6 +7,7 @@
 export const UI_PART_FILES = [
   'navigation-drawer.css', // right after ui.css in base.css, before divider.css: its section divider is a .divider too
   'divider.css',
+  'avatar.css', // right before badge.css in base.css: no other rule matches an .avatar
   'badge.css',
   'loading-indicator.css',
   'progress-indicators.css',
