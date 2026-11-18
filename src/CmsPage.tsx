@@ -15,6 +15,7 @@ import { EarlierVersions, LineNav } from './VersionLinePage';
 import { minorOf } from '../lib/releaseNotes.mjs';
 import { snackbar } from '../lib/snackbar';
 import { t } from './i18n';
+import { blockedText, type Blocked } from './blockedText';
 import { when } from './when';
 
 export const CMS_ROUTE = 'morpheme';
@@ -30,6 +31,7 @@ type View = {
   npmCommand: string | null;
   update: { state: UpdateState; to: string; at: string } | null;
   problems: Problem[];
+  blocked: Blocked | null;
 };
 type Status = object;
 
@@ -151,6 +153,11 @@ export default function CmsPage() {
                   <code>{view.npmCommand}</code>
                 </p>
               </div>
+            )}
+            {view.blocked?.kind === 'contract' && (
+              <StatusLine icon={WarningCircle} tone="accent">
+                {blockedText(view.blocked)}
+              </StatusLine>
             )}
             {view.problems.map((kind) => (
               <StatusLine key={kind} icon={WarningCircle} tone="accent">
