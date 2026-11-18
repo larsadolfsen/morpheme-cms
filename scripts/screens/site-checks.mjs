@@ -1,7 +1,7 @@
 import { openEditor } from '../built-site.mjs';
 import { allow, nestedUnits } from '../spacing-grid.allow.mjs';
 import { browser, problems, site } from './support/context.mjs';
-import { hintContrasts, onTestPage } from './support/shared.mjs';
+import { animationsSettled, hintContrasts, onTestPage } from './support/shared.mjs';
 
 /** The site's spacing is on the 4 dp grid (docs/superpowers/specs/2026-11-13-site-spacing-audit.md, step 6): every margin, padding and gap of what the demo's Blocks page draws is a multiple of 4 px (also 2, 6 and 10: Material 3's nested units), except what scripts/spacing-grid.allow.mjs allows with its reason. Run at 375 and 1280, as a value that follows the width is what drifts. */
 async function checkSpacingGrid(width, height) {
@@ -9,6 +9,7 @@ async function checkSpacingGrid(width, height) {
   const page = await browser.newPage({ viewport: { width, height } });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
+  await animationsSettled(page);
   const found = await page.evaluate(
     ([nested, allowed]) => {
       const sides = {
@@ -24,12 +25,17 @@ async function checkSpacingGrid(width, height) {
         if (style.display === 'none') continue;
         const parent = el.parentElement?.getBoundingClientRect();
         const box = el.getBoundingClientRect();
+        // A margin the stylesheet sets to auto (a card's actions pushed to its bottom with `margin-top: auto`, a centred box) comes out as the room left over,
+        // which is the box's or the window's height or width, never a spacing: the computed style map keeps the specified `auto`, so it is skipped by what the
+        // stylesheet says. A margin with a real value is still measured, so an off-grid one is not hidden.
+        const specified = el.computedStyleMap();
         // Margins that are auto (a centred box) come out as the room left over, which is the window's, not a spacing.
         const centred =
           parent && style.marginLeft === style.marginRight && Math.abs(box.left - parent.left - (parent.right - box.right)) < 1;
         for (const [kind, names] of Object.entries(sides)) {
           for (const name of names) {
             if (centred && (name === 'marginLeft' || name === 'marginRight')) continue;
+            if (kind === 'margin' && String(specified.get(name.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`))) === 'auto') continue;
             const n = parseFloat(style[name]);
             if (!Number.isFinite(n) || n === 0) continue;
             if (Math.abs(n / 4 - Math.round(n / 4)) < 0.01 || nested.includes(Math.abs(n))) continue;
