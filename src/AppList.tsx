@@ -393,7 +393,7 @@ export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; fi
       {name && (
         <div className="mo-editor-app-list-owner">
           <LeadingIcon icon={UserCircle} />
-          <span className="mo-fill">
+          <span className="mo-editor-app-list-owner-text">
             <span className="mo-truncate mo-editor-app-list-name">{name}</span>
             <span className="mo-truncate mo-editor-app-list-meta">
               {[theirs.length && t.apps.appCount(theirs.length), theirThemes.length && t.library.themeCount(theirThemes.length)]
@@ -768,7 +768,7 @@ function AppHead({
     <div className="mo-editor-app-list-heading">
       <div className="mo-editor-app-list-title-row">
         {icon}
-        <span className="mo-fill">
+        <span className="mo-editor-app-list-owner-text">
           <span className="mo-truncate mo-editor-app-list-name">{label}</span>
           <span className="mo-truncate mo-editor-app-list-meta">{t.apps.publisher(publisher)}</span>
           <span className="mo-truncate mo-editor-app-list-meta">{status}</span>

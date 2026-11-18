@@ -7,6 +7,9 @@
   :where(.mo-editor-nav-demo > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-200);
   }
+  .mo-editor-nav-demo > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
   .mo-editor-nav-demo-narrow {
     margin-inline: auto;
     max-inline-size: 24rem;
@@ -38,7 +41,7 @@
     padding: var(--mo-ref-space-100);
   }
   .mo-editor-nav-hint {
-    padding-block: var(--mo-ref-space-150);
+    padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
     font-size: 0.875rem;
     line-height: 1.25rem;
     color: var(--mo-sys-color-on-surface-variant);
@@ -51,6 +54,9 @@
   :where(.mo-editor-nav-search-demo > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-200);
   }
+  .mo-editor-nav-search-demo > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
   .mo-editor-nav-search-results {
     border-radius: 0.75rem;
     background-color: var(--mo-sys-color-surface-container-high);
@@ -62,6 +68,9 @@
   }
   :where(.mo-editor-nav-colors > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-nav-colors > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-nav-color-row {
     display: flex;
@@ -142,6 +151,9 @@
   :where(.mo-editor-field-item-fields > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-250);
   }
+  .mo-editor-field-item-fields > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
   .mo-editor-field-item-actions {
     display: flex;
     padding-inline-end: var(--mo-ref-space-75);
@@ -166,19 +178,23 @@
   }
   /* AppList.tsx */
   .mo-editor-app-list-search {
-    margin-block-end: var(--mo-ref-space-300);
+    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-app-list-empty {
-    margin-block-end: var(--mo-ref-space-400);
+    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
     padding-inline: var(--mo-ref-space-50);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-app-list-owner {
-    margin-block-end: var(--mo-ref-space-400);
+    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
     display: flex;
     align-items: center;
     gap: var(--mo-ref-space-150);
     padding-inline: var(--mo-ref-space-200);
+  }
+  .mo-editor-app-list-owner-text {
+    min-inline-size: 0;
+    flex: 1;
   }
   .mo-editor-app-list-name {
     display: block;
@@ -191,7 +207,7 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-app-list-heading {
-    margin-block-end: var(--mo-ref-space-400);
+    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
     padding-inline: var(--mo-ref-space-200);
   }
   .mo-editor-app-list-title-row {
@@ -200,11 +216,11 @@
     gap: var(--mo-ref-space-150);
   }
   .mo-editor-app-list-hint {
-    margin-block-start: var(--mo-ref-space-150);
+    margin-block-start: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-app-list-actions {
-    margin-block-end: var(--mo-ref-space-400);
+    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-app-list-pending {
     margin-block-start: var(--mo-ref-space-100);
@@ -215,7 +231,7 @@
     font-weight: 500;
   }
   .mo-editor-brand-hint {
-    margin-block-end: var(--mo-ref-space-150);
+    margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
     font-size: 0.875rem;
     line-height: 1.25rem;
     color: var(--mo-sys-color-on-surface-variant);
@@ -225,6 +241,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--mo-ref-space-200);
+    row-gap: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-brand-logo-preview {
     display: flex;
@@ -236,7 +253,7 @@
     border-color: var(--mo-sys-color-outline-variant);
     background-color: var(--mo-sys-color-surface-container-lowest);
     padding-inline: var(--mo-ref-space-200);
-    padding-block: var(--mo-ref-space-150);
+    padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-brand-logo-mark {
     block-size: var(--mo-ref-space-500);
@@ -303,6 +320,7 @@
     align-items: center;
     gap: var(--mo-ref-space-150);
     padding: var(--mo-ref-space-200);
+    row-gap: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-comm-tooltips {
     display: grid;
@@ -310,7 +328,7 @@
     padding: var(--mo-ref-space-200);
   }
   .mo-editor-comm-tooltip-plain {
-    padding-block-start: var(--mo-ref-space-400);
+    padding-block-start: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-comm-tooltip-rich {
     padding-block-start: 6rem;
@@ -325,6 +343,9 @@
   .mo-editor-parts-chips {
     padding: var(--mo-ref-space-200);
   }
+  .mo-editor-parts-chips > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
   .mo-editor-parts-chip-image {
     border-radius: 0.75rem;
     background-size: cover;
@@ -338,11 +359,17 @@
   :where(.mo-editor-parts-chip-sets > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-200);
   }
+  .mo-editor-parts-chip-sets > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
   :where(.mo-editor-parts-fields > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-parts-fields {
     padding: var(--mo-ref-space-200);
+  }
+  .mo-editor-parts-fields > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-parts-checkboxes {
     padding: var(--mo-ref-space-200);
@@ -384,8 +411,14 @@
   :where(.mo-editor-parts-sections > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-500);
   }
+  .mo-editor-parts-sections > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-500) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
   :where(.mo-editor-parts-intro > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-150);
+  }
+  .mo-editor-parts-intro > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-parts-intro-text {
     color: var(--mo-sys-color-on-surface-variant);
@@ -396,6 +429,9 @@
   }
   :where(.mo-editor-search-preview > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-150);
+  }
+  .mo-editor-search-preview > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-search-result {
     background-color: var(--mo-comp-google-background);
@@ -459,7 +495,7 @@
     line-height: 26px;
   }
   .mo-editor-search-title-phone {
-    margin-block-start: var(--mo-ref-space-150);
+    margin-block-start: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
     color: var(--mo-comp-google-title-phone);
   }
   .mo-editor-search-title-desktop {
@@ -512,6 +548,9 @@
   :where(.mo-editor-contain-choices > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-150);
   }
+  .mo-editor-contain-choices > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
   .mo-editor-contain-dialog {
     padding: var(--mo-ref-space-300);
   }
@@ -541,7 +580,7 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-contain-sheet-text {
-    margin-block-end: var(--mo-ref-space-150);
+    margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-contain-text {
@@ -553,6 +592,9 @@
   .mo-editor-contain-layouts {
     padding: var(--mo-ref-space-200);
   }
+  .mo-editor-contain-layouts > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
   .mo-editor-contain-panel {
     inline-size: 100%;
   }
@@ -562,6 +604,9 @@
   /* NavigationParts.tsx */
   :where(.mo-editor-nav-bars > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-nav-bars > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-nav-app-bar {
     display: flex;
@@ -603,6 +648,9 @@
   .mo-editor-nav-fields {
     padding: var(--mo-ref-space-200);
   }
+  .mo-editor-nav-fields > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
   .mo-editor-nav-field-pair {
     display: grid;
     gap: var(--mo-ref-space-300);
@@ -621,6 +669,9 @@
   :where(.mo-editor-nav-tabs > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-300);
   }
+  .mo-editor-nav-tabs > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  }
   /* BlockDialog.tsx */
   .mo-editor-block-dialog-note {
     font-size: 0.875rem;
@@ -631,6 +682,9 @@
   }
   :where(.mo-editor-block-dialog-fields > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-250);
+  }
+  .mo-editor-block-dialog-fields > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+    margin-block-end: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
   .mo-editor-block-dialog-search {
     margin-inline: var(--mo-ref-space-250);
@@ -663,6 +717,8 @@
     padding-inline: var(--mo-ref-space-100);
   }
   .mo-editor-block-dialog-title {
+    min-inline-size: 0;
+    flex: 1;
     font-size: var(--mo-sys-typescale-title-large-size);
     line-height: var(--mo-sys-typescale-title-large-line-height);
     letter-spacing: var(--mo-sys-typescale-title-large-tracking);
