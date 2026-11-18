@@ -529,23 +529,44 @@ Expected savings are for a content save on a site like Sara's (about 100 pages a
   `site/images.mjs`, `site/autolinks.mjs` and `site/pageColors.ts` are read-once caches and warnings, which is fine);
   the after-build steps read `dist/`, not memory. `compare-html` on the demo: the same HTML with and without the flag.
 
-**Tried 18 Nov 2026: not turned on.** The demo (37 pages, 4 vCPU, Astro 7.4.8) built with and without
-`experimental: { parallelPrerender: true }` in `astro.mjs`; the build works with the flag, but `compare-html` finds the HTML
-is not the same: 1 of 36 pages (`/blocks/lists/`) differs. The difference is React's `useId` value (`_r72R_` without the
-flag, `_r70R_` with it). A second build without the flag is identical to the first, so the ids are stable today and the
-flag is what changes them: the counter is shared by the pages one worker renders, so a page's ids depend on which worker
-renders it and in which order. Two builds of the same content with the flag could differ page by page, which breaks the
-"same HTML" proof and any incremental build (batch 8) that compares output.
+**Tried 18 Nov 2026: left off.** `experimental: { parallelPrerender: true }` in `astro.mjs`, Astro 7.4.8, measured on the demo (37
+pages) and on a synthetic site of 1027 pages (the demo with its 10 posts copied 99 times each, in a scratch folder, not committed).
+The build works with the flag on both.
 
-| Demo, 37 pages | Without | With the flag |
-| :--- | :--- | :--- |
-| Render step (`Completed in`) | 2.08 s | 3.07 s |
-| `[build]` total | 15.99 s | 15.14 s |
+**Why the HTML differs.** The React ids (`useId`, `_r72R_2_`) start with a prefix that `@astrojs/react` takes from a counter of the
+page (`context.js`: one counter per page render, +1 for every React component the page renders). The counter is not shared between
+pages, so a page's ids do not depend on which worker renders it. They depend on the order in which the page's own React components
+reach the counter, and a page renders its components concurrently, so the order follows the timing. Without the flag the timing is
+the same every run (3 of 3 builds identical); with 3 workers it moved on one page (`/blocks/lists/`: `_r72R_` against `_r70R_`; the
+same page with the ids normalised is identical). Is it harmless? In both builds the ids are unique on the page and every
+`aria-controls` points to an id on the page (3 ids, 3 references, none dangling), because an id and the attribute that names it come
+from the same render. Three builds with the flag on were identical to each other. So it is cosmetic: a changed number, not a broken
+link. The components that call `useId` and render on a site are `theme/blocks/MoreRows.tsx` (Show more), `theme/blocks/accordion/Accordion.tsx`
+and the theme's `List`, `Menu`, `Search`, `TextField`, `ChoiceGroup`, `ExposedDropdownMenu`, `FabMenu`, `SplitButton`, `BottomSheet`
+and `Tooltip`; only a page that renders several of them in one page, such as the Lists demo, can shift.
 
-The demo is too small to gain (workers start for 37 pages); the plan's 3 s is for 150 pages. The shared module caches
-(`site/images.mjs`, `site/autolinks.mjs`, `site/pageColors.ts`) were not the cause. Retry when the ids no longer depend
-on the render order (an `identifierPrefix` per page in the React renderer, or a later Astro) and measure on the test
-site (152 pages).
+**Measured** (1027 pages, 3 runs each, `taskset` to the vCPUs, the demo's `astro build`, no after-build; the step "generating
+static routes" and the whole build):
+
+| vCPUs (workers with the flag) | | Generating routes, 3 runs | Whole build, 3 runs |
+| :--- | :--- | :--- | :--- |
+| 4 (3 workers, Cloudflare Paid) | without | 12.3, 12.0, 11.6 s | 33.3, 33.5, 31.7 s |
+| | with | 7.9, 7.9, 8.3 s | 30.1, 28.5, 29.9 s |
+| 2 (1 worker, Cloudflare Free) | without | 11.7, 16.0, 15.4 s | 39.6, 40.6, 40.7 s |
+| | with | 22.0, 14.3, 20.3 s | 49.2, 39.8, 46.7 s |
+
+With 3 workers the route step is about 4 s (33 %) faster and the whole build about 3 s (10 %). With 1 worker there is no gain and the
+builds are slower and noisier (the worker is started for nothing). `compare-html`: 4 vCPU, without against with: 1 of 1026 pages
+differs (`/blocks/lists/`, the ids above); 2 vCPU, without against with: all 1026 the same (one worker keeps the order). The
+output of a site therefore depends on the number of vCPUs of the machine that builds it.
+
+**Recommendation: leave it off.** The output is not the same on every machine, and the gain is about 3 s of a build that is about
+30 s here and minutes on the real site, on the Paid plan only. Turning it on only on 4 or more vCPUs
+(`parallelPrerender: os.availableParallelism() >= 4`) would keep the Free plan unchanged, but it makes the HTML differ between
+machines and weakens the "same HTML" proof that batch 8 (incremental builds) and `compare-html` rely on. Retry when
+`@astrojs/react` gives each island a prefix that does not depend on the order (or Astro keeps the order), and measure on the test
+site first. The shared module caches (`site/images.mjs`, `site/autolinks.mjs`, `site/pageColors.ts`) were not the cause, and the
+after-build steps are untouched by the flag.
 
 #### Batch 8. Incremental builds (up to about 6 s) — verify first, after batch 2
 
