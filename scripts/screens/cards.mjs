@@ -402,7 +402,9 @@ async function checkCardsCarousel(width, height) {
   await page.waitForTimeout(500);
   // The page is in the site's language, whatever the browser's: the expected texts are the site's own, from its language files. The language is the
   // served `<html lang>`: the live attribute is rewritten to the browser's locale by the site's client script.
-  const { lang, where } = await pageLanguage(page);
+  const { lang, live, where } = await pageLanguage(page);
+  // The browser is en-US, the site's language is not necessarily: the live attribute must equal the served one (the client script must not rewrite it).
+  if (live !== lang) problems.push(`${label}: the live <html lang> is "${live}" but the server sent "${lang}"`);
   const say = blocksOf(lang).cards;
   const m = await root.evaluate((el) => {
     const row = el.querySelector('[data-carousel-items]');
