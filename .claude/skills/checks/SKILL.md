@@ -31,6 +31,10 @@ Announce "Using checks". Run every command from the root of this repository, on 
 | `main`, and the Release PR from any base | `full` | everything |
 | anything else, an empty base, an error in the selection | `full` | everything (when in doubt, run) |
 
+**Built (PR 6, test versions from a version line).** Not a Check job: `publish.yml` also runs on pushes to a line's branch (`0.[0-9]+`).
+`scripts/publish-next.mjs` (tested in `scripts/publish-next.test.mjs`, which also reads the workflow) decides the tag and refuses a version of another line;
+the job `release` (Release PR, `latest`) runs on `main` only. A workflow-only change is outside the starter and demo (`ci-changes.mjs`).
+
 **Built (PR 2, build once, cache Chromium).** The job `build` (not on a docs-only pull request) runs `npm ci` and `npm run build` once and
 uploads one tarball, the artifact `build` (`.morpheme/demo/site` and `node_modules/@morphemecms/cms`, 18 MB, kept 1 day). `screens`,
 `screens-extra` and `demo` need `build`; each runs `npm ci` (they still need `node_modules`), unpacks the tarball and runs its checks
