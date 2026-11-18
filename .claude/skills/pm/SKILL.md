@@ -76,7 +76,7 @@ line once, and the line goes into `main` once, when it is released):
    changesets are the pieces' changesets. Then the PM deletes the feature branch.
 6. **The line into `main`, once.** A line's branch is merged into `main` when the owner has said go for its release (section 7), not
    piece by piece. The test versions (`next`) the owner tries on `morpheme-staging` are built from the line's own branch. Until the
-   publish workflow can build a `next` version from a line's branch (`docs/superpowers/plans/2026-11-18-ci-check-levels.md`, its pull
+   publish workflow can build a `next` version from a line's branch (`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A, its pull
    request 6), the PM merges the line into `main` only when the owner asks for a test version, and says so in its report.
 
 **Two version lines at the same time.** When two lines run together (for example `0.18` and `0.19`), each line has its own PM and
@@ -192,7 +192,7 @@ PM did not start) or one that is blocked on a question. Before archiving, it put
 
 **Check levels** (skill `checks`, *What CI runs*; owner, 18 Nov 2026: "test less, but the important things"): the feature check for a
 piece into a feature branch, the full check once a day on each feature branch, the line check into a line, the full check for a
-feature branch into its line and for a line into `main`. Until the CI plan (`docs/superpowers/plans/2026-11-18-ci-check-levels.md`) is
+feature branch into its line and for a line into `main`. Until the CI plan (`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A) is
 built, the levels are the ones the `checks` skill describes today; `check.yml` runs only on pull requests into `main` and the version
 lines, so the PM opens no feature branch before that plan's pull request 1 (checks on `feature/**`) is merged. The CI plan is the PM's
 first build task.

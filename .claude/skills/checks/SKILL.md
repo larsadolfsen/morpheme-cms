@@ -11,7 +11,7 @@ Announce "Using checks". Run every command from the root of this repository, on 
 ## What CI runs
 
 **The direction (owner, 18 Nov 2026): test less, but always the important things.** Plan:
-`docs/superpowers/plans/2026-11-18-ci-check-levels.md`. The levels below are the target; PR 1 and 2 of the plan are built (what runs today is in the next table and below), PR 3-6 are not yet.
+`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A. The levels below are the target; PR 1 and 2 of the plan are built (what runs today is in the next table and below), PR 3-6 are not yet.
 
 | Merge | Check |
 | :--- | :--- |
