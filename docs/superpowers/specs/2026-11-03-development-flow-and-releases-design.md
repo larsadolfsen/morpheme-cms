@@ -34,7 +34,7 @@ Two sites show unreleased code, each for its own purpose:
 
 | Site | Built from | For |
 | --- | --- | --- |
-| `morpheme-demo` (exists, `wrangler.jsonc` at the root) | the repository itself, `main` and every branch (Cloudflare's branch previews) | looking at a change, also before it is merged; its repository is made up, so saving does not work |
+| `morpheme-demo` (exists, `wrangler.jsonc` at the root) | the repository itself: the live version line (Cloudflare's production branch) and every other branch (previews) | looking at a change, also before it is merged; its repository is made up, so saving does not work |
 | `morpheme-staging` (new) | `@morphemecms/cms@next` from npm | using the next version exactly as a customer would: install from npm, log in, edit, save |
 
 ## 1. Day-to-day work in morpheme-cms

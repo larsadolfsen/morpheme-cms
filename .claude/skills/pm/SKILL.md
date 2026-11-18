@@ -79,6 +79,11 @@ line once, and the line goes into `main` once, when it is released):
    is meant to approve it; plan A6 was removed). No test version exists for a line: the line is tried on staging only after it reaches `main` as `next`
    (which `morpheme-staging` follows), and the PM never merges a line into `main` just to get a test version.
 
+**A new line, and after every release.** When the PM starts a new line, it tells the owner to set the demo's production branch
+(Workers > `morpheme-demo` > Settings > Build > Branch control) to that line, so the demo shows it. After every release the PM merges
+`main` back into each live line the same day: a pull request that is a plain merge commit, with an empty changeset, never a squash.
+(The `0.18` line once stayed at 0.17.0 for a day after 0.18.0 was released, and the demo showed the wrong version.)
+
 **Two version lines at the same time.** When two lines run together (for example `0.18` and `0.19`), each line has its own PM and
 its own branch, and each PM merges only into its own branch and its features. After each merge into the earlier line, the later
 line's branch is merged forward as the `changesets` skill's table says, never the other way, and the PM tells the later line's PM

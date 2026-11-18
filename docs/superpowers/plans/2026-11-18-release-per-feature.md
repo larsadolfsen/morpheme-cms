@@ -31,6 +31,8 @@ The owner's words, 18 November:
 6. **One at a time.** The PM merges the next feature into `main` only after the owner has approved (or rejected) the staged version,
    and says so in its report. So there is never more than one version waiting.
 
+When the lines end, the owner sets the demo's production branch (Workers > `morpheme-demo` > Settings > Build > Branch control) to `main`.
+
 Why (owner and CTO, 18 November): the big releases stay as the roadmap's areas, a finished feature reaches the sites in days, the owner
 reviews every feature where it can be seen (site and editor) before its merge, every version is seen on staging before a release is asked,
 and the owner approves every release on npm before the sites get it.
