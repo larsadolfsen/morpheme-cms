@@ -28,7 +28,7 @@ export const allow = [
     reason: 'optical roundness: the container corner minus its padding or border',
   },
   {
-    file: /ui\.css$/,
+    file: /ui\.css$|menus\.css$/,
     line: /^--mo-comp-menu-item-radius, calc|^border-radius: var\(--mo-comp-menu-item-radius, calc/,
     reason: 'a menu item inside the container: the container corner minus its padding',
   },
