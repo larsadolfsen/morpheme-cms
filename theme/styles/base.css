@@ -49,8 +49,10 @@
 @import './blocks.css';
 /* The designs of the lists (List, List - Expand): Default and Card. */
 @import './lists.css';
-/* The theme's variables and the classes the standard theme's components use with them. */
-@import './components.css';
+/* The classes the standard theme's site shell uses with the theme's variables: the logo and post list, the action bar, the page. */
+@import './site-logo-post.css';
+@import './site-action.css';
+@import './site-page.css';
 @import './tokens/base/comp/card.css';
 @import './tokens/base/comp/carousel.css';
 @import './tokens/base/comp/chip.css';
@@ -286,7 +288,7 @@
 
   /* Motion.
    [data-reveal]: sections fade up once when scrolled into view (packages/editor/theme/scripts/motion.ts).
-   The top of a page stands still from the first paint; from another page of the site it fades in (components.css).
+   The top of a page stands still from the first paint; from another page of the site it fades in (site-page.css).
    Off for visitors who prefer reduced motion, and with the calm motion scheme ("Motion", data-motion-scheme). */
   @media (prefers-reduced-motion: no-preference) {
     .js:not([data-motion-scheme='calm']) [data-reveal] {

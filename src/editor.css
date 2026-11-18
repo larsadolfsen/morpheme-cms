@@ -1742,7 +1742,7 @@ dialog {
   overscroll-behavior: contain;
 }
 
-/* The first heading of a page's text is its title, drawn as the site draws it (.theme-title in the theme's components.css, and
+/* The first heading of a page's text is its title, drawn as the site draws it (.theme-title in the theme's site-page.css, and
    PageHeading.astro's width): the display role, by the theme's variables, not the weight of a heading in the middle of the text. */
 .editor-text .ProseMirror > h1:first-child {
   max-width: 22ch;

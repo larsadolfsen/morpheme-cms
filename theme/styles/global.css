@@ -562,7 +562,7 @@
     margin: 0.25rem 0 0.75rem 0.5rem;
     align-self: flex-start;
   }
-  /* On a phone with a bar at the bottom of the screen (a docked toolbar, components.css), the page's FAB is not shown; the
+  /* On a phone with a bar at the bottom of the screen (a docked toolbar, site-action.css), the page's FAB is not shown; the
    bar's buttons are the common buttons, round and as everywhere else (only pressed a little squarer), the filled one to
    the right, after the outlined one or the text. */
   @media (width < theme(--breakpoint-medium)) {
@@ -777,7 +777,7 @@
     margin-inline-start: -0.75rem;
   }
   /* Room under the footer's last line for the FAB, or for the bar at the bottom of the screen: in the footer instead of
-   under the page (components.css), so the footer reaches the bar. */
+   under the page (site-action.css), so the footer reaches the bar. */
   @media (width < theme(--breakpoint-medium)) {
     body:has(.theme-action-bar):has(.md-footer) {
       padding-bottom: 0;
