@@ -251,98 +251,6 @@
     text-decoration-thickness: 1px;
     text-underline-offset: 0.25em;
   }
-  /* "Buttons": buttons in a row, on a phone under each other in the full width (buttons/). The buttons are the
-     theme's (.button in ui.css), each of the kind it was given. */
-  .block-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  /* A form in a block or a pop-up (an app's: Mailchimp's signup): its fields (the theme's text fields, .text-field in
-     ui.css) and its button side by side, wrapping on a phone, and the answer under it. */
-  .block-form {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-  }
-  .block-form > .button {
-    flex: 1 0 auto;
-  }
-  .block-form > .text-field {
-    flex: 1 1 12rem;
-  }
-  /* The answer to a form, in the accent when it went wrong (data-failed). */
-  .block-message {
-    margin-top: 1rem;
-  }
-  .block-message[data-failed] {
-    color: var(--mo-sys-block-accent);
-  }
-
-  /* A link in a block's text: in the accent, underlined, thicker when
-     pointed at. */
-  .block-link {
-    color: var(--mo-sys-block-accent);
-    font-weight: 500;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.25em;
-  }
-  .block-link:hover {
-    text-decoration-thickness: 2px;
-  }
-  /* A link on its own line with an arrow after it ("All posts →"). */
-  .block-arrow-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-    color: var(--mo-sys-block-accent);
-    text-decoration: none;
-  }
-
-  /* "Blog posts": its posts as the blog shows them (the theme's PostList.tsx and BlogPosts.tsx), "All posts" under
-     them. */
-  .block-posts-in-text.block-in-text {
-    margin-block: 2.5rem;
-  }
-  .block-posts-all {
-    margin-top: 1.5rem;
-  }
-  /* In the editor's drawing: random posts, of how many; under all of them, how many more there are. */
-  .block-posts-note {
-    margin: 0 0 1rem;
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    font-weight: var(--mo-sys-typescale-body-medium-weight);
-    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    color: var(--mo-sys-block-muted);
-  }
-  .block-posts-more {
-    margin: 1rem 0 0;
-  }
-
-  /* Only for screen readers. */
-  .block-sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border-width: 0;
-  }
-  /* In a drawing in the editor, when there is nothing to show. */
-  .block-empty {
-    border-radius: var(--mo-sys-block-radius);
-    background: var(--mo-sys-block-tint);
-    padding: 1.5rem;
-    color: var(--mo-sys-block-muted);
-  }
 
   /* "Testimonial cards": testimonials to leaf through (testimonials/Slider.tsx, a carousel: ui.css). */
   .carousel.block-in-text,
@@ -352,16 +260,6 @@
   }
   /* "Testimonials list" (testimoniallist/Rows.tsx): the theme's list; a row the filter hides takes its divider with it. */
   .block-testimonial-rows > li:has(> [data-tags][hidden]) {
-    display: none;
-  }
-  /* Filter chips (the theme's Chip, ui.css) that filter what is under them ("Testimonials list"). */
-  .block-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-  }
-  .block-filters[hidden] {
     display: none;
   }
   /* One testimonial (testimonials/Testimonial.tsx), an outlined card (.card in ui.css): a big quotation mark, its tags,
@@ -821,12 +719,6 @@
     transform: translateX(3px);
   }
 
-  @media (width >= theme(--breakpoint-medium)) {
-    .block-buttons {
-      flex-direction: row;
-      flex-wrap: wrap;
-    }
-  }
   @media (width >= theme(--breakpoint-medium)) {
     .block-row-text {
       font-size: var(--mo-sys-typescale-body-large-size);

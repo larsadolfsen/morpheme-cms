@@ -50,6 +50,8 @@
 @import './cards.css';
 @import './type.css';
 @import './blocks.css';
+/* The Buttons, form, link, Blog posts, screen-reader and filter rules (moved out of blocks.css; they come right after it, before the CTA's, in the same layer). */
+@import './blocks/buttons-links.css';
 /* The Person, Icon list, Facts, Table and Badge blocks (moved out of blocks.css; they come right after it, in the same layer). */
 @import './blocks/person-facts.css';
 /* The Call to action and Prices blocks (moved out of blocks.css; they come right after it, in the same layer). */
