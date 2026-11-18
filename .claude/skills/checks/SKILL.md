@@ -11,7 +11,7 @@ Announce "Using checks". Run every command from the root of this repository, on 
 ## What CI runs
 
 **The direction (owner, 18 Nov 2026): test less, but always the important things.** Plan:
-`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A. The levels below are the target; PR 1 (levels) and PR 3 (core set and touched areas) are built (what runs today is in the next table), PR 2, 4, 5 and 6 are not yet.
+`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A. The levels below are the target; PR 1 (levels), PR 2 (build once, cached Chromium) and PR 3 (core set and touched areas) are built (what runs today is in the next table and below), PR 4, 5 and 6 are not yet.
 
 | Merge | Check |
 | :--- | :--- |
@@ -30,6 +30,14 @@ Announce "Using checks". Run every command from the root of this repository, on 
 | `0.*` (a version line) | `line` | the light check, as below, with the core units and the touched areas (`demo` and the starter smoke test come in PR 4) |
 | `main`, and the Release PR from any base | `full` | everything |
 | anything else, an empty base, an error in the selection | `full` | everything (when in doubt, run) |
+
+**Built (PR 2, build once, cache Chromium).** The job `build` (not on a docs-only pull request) runs `npm ci` and `npm run build` once and
+uploads one tarball, the artifact `build` (`.morpheme/demo/site` and `node_modules/@morphemecms/cms`, 18 MB, kept 1 day). `screens`,
+`screens-extra` and `demo` need `build`; each runs `npm ci` (they still need `node_modules`), unpacks the tarball and runs its checks
+as before. `starter` has no build to take (it packs the package and builds the starter itself), so it does not wait for `build`. The steps
+every job shares are the local action `.github/actions/prepare` (Node, `npm ci`, the artifact, Chromium). Chromium is cached in
+`~/.cache/ms-playwright`, keyed on the Playwright version; a hit skips the download and only the system libraries are installed with apt.
+A failed `build` leaves its jobs skipped, which the verdict turns red. The levels, `scripts/ci-changes.mjs` and the verdict are unchanged.
 
 **Built (PR 3, touched areas and the core set).** The feature and line levels run the 8 `screens` shards on the **core set** plus the
 **units of the touched areas**; the full level (`main`, the Release PR, an unknown base) runs every unit, unchanged.
@@ -52,11 +60,11 @@ Announce "Using checks". Run every command from the root of this repository, on 
   core set alone. **A new unit goes in its area's file and is in the selection of that area automatically**; a new area file needs its name in
   `AREAS` and a rule (the test fails until it has both). A change to the screens harness (`scripts/screens/support/`, `scripts/editor-screens.mjs`) runs everything.
 
-Not built yet: build once and cached Chromium (PR 2), the starter smoke test (PR 4), the daily
+Not built yet: the starter smoke test (PR 4), the daily
 full run on feature branches (PR 5), `next` builds from a version line (PR 6).
 
 Always tested, at every level: Prettier, types, `npm run check` (language, tokens, colours, rules), the changeset, the build, the core
-screens and the screens of what changed. Every browser job uses one shared build and a cached Chromium.
+screens and the screens of what changed. Every job that reads the build uses the one shared build, and every browser job a cached Chromium (PR 2).
 
 `.github/workflows/check.yml` runs on every pull request into `main`, `0.17`, `0.18`, `0.19` and `feature/**`, in two sizes (owner, 16 Nov 2026: a
 merge into a version line shows on the demo within minutes). Its job `check` waits for the jobs and must be green on the current head

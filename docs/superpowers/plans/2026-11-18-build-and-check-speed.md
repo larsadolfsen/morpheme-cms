@@ -127,7 +127,7 @@ A later pull request may split such a file by area; until then a path that can s
 
 **Sharding with a selection.** The selected units are spread over the same 8 shards (shard K runs every 8th selected unit), so a selection of 46
 units (`files,sheets`: 6 core units and 40 of the 357 others) gives shards of 6, 6, 6, 6, 6, 6, 5 and 5 units, against about 45 each for all 363. The
-matrix still has 8 jobs, so each job still installs and builds; shrinking the matrix with the selection waits for A2 (build once), which rewrites the same jobs.
+matrix still has 8 jobs, so each job still installs and builds; shrinking the matrix with the selection is not done here (A2, build once, has merged and a dynamic matrix would be its own change).
 
 **Timing (a representative light run).** Measured on one machine (this development container, Chromium 1243, a built demo), the `check:screens` step of shard 1 of 8 only, one run each, 18 November 2026:
 
@@ -141,7 +141,7 @@ So the screens step of a shard falls to about a quarter for a one-area change an
 it is one shard of eight on one machine, not a CI run; shard 1 also holds `screens 390` (68 s) and the one-time global icon checks, so the shortest
 shards are quicker than these. The time outside that step (`npm ci`, the build and the Chromium install, about 1 to 4 minutes in each of the 8 jobs) is unchanged, and
 three quarters of the pull requests in the history of 0.18 still select every unit, so the gain on a real run is smaller than the table.
-The CI timing of the whole check (before and after, same pull request) is measured once A2 has merged, because A2 changes the same jobs.
+The CI timing of the whole check (before and after, same pull request) is read from the first runs of this pull request and A2's against the numbers above.
 
 ## Track B. Site builds: a save goes live sooner
 
