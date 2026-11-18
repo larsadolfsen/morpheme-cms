@@ -40,6 +40,7 @@
 @import './menus.css';
 @import './navigation-bar.css';
 @import './navigation-rail.css';
+@import './search.css';
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
