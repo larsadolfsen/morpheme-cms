@@ -10,7 +10,7 @@ import { cardDesignProblems, cssIn } from './card-designs.mjs';
 // The stylesheets and their token files (theme/styles/tokens/, docs/theme-token-files.md).
 const styles = new URL('../theme/styles/', import.meta.url);
 const css = [
-  // blocks.css and the blocks/ files moved out of it come from the list the stylesheets are read by (theme/styles/files.mjs).
+  // the blocks/ files come from the list the stylesheets are read by (theme/styles/files.mjs).
   ...['ui.css', 'cards.css', 'global.css', ...OTHER_BASE_FILES.filter((f) => f.startsWith('blocks')), ...MATERIAL_FILES],
   ...readdirSync(new URL('tokens/', styles), { recursive: true })
     .filter((f) => f.endsWith('.css'))

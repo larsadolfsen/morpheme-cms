@@ -114,7 +114,6 @@ export function readStyles(root) {
     'ui.css': 'ui',
     'text-field.css': 'ui',
     'list.css': 'ui',
-    'blocks.css': 'blocks',
     'person-facts.css': 'blocks',
     'base.css': 'base',
     'global.css': 'material',
@@ -126,7 +125,6 @@ export function readStyles(root) {
   for (const f of [
     'theme/styles/ui.css',
     ...UI_PART_FILES.map((f) => `theme/styles/${f}`),
-    'theme/styles/blocks.css',
     'theme/styles/blocks/person-facts.css',
     'theme/styles/base.css',
     'theme/styles/global.css',

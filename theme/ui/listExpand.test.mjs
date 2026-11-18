@@ -3,13 +3,15 @@
 // <details>/<summary> (keyboard and screen readers from the browser), the FAQ is drawn on it and no longer by rules of its own, and
 // the script that glides it finds the part's classes. `check:screens` measures the real thing (375 and 1280 px).
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import test from 'node:test';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 const list = read('./List.tsx');
 const ui = read('../styles/list.css');
-const blocks = read('../styles/blocks.css');
+const blocks = readdirSync(new URL('../styles/blocks/', import.meta.url))
+  .map((f) => read(`../styles/blocks/${f}`))
+  .join('\n');
 const accordion = read('../blocks/accordion/Accordion.tsx');
 const script = read('../blocks/accordion/script.ts');
 
@@ -50,7 +52,7 @@ test('the FAQ is drawn on the part, with no accordion rules of its own left', ()
     '.block-accordion-body',
     '.block-accordion-title',
   ]) {
-    assert.ok(!blocks.includes(old), `blocks.css still has ${old}`);
+    assert.ok(!blocks.includes(old), `the blocks' CSS still has ${old}`);
   }
 });
 
