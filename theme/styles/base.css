@@ -81,6 +81,8 @@
 @import './blocks/panel.css';
 @import './blocks/person-facts.css';
 @import './blocks/cta-prices.css';
+/* The fallback layer of blocks.css (prose, the video facade, the heading parts, the colours, the text alignment), moved out as it was: right before the lists. */
+@import './blocks/prose.css';
 /* The designs of the lists (List, List - Expand): Default and Card. */
 @import './lists.css';
 /* The classes the standard theme's site shell uses with the theme's variables: the logo and post list, the action bar, the page. */
