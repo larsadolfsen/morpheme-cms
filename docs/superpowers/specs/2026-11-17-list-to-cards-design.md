@@ -22,7 +22,7 @@ item made one to one, and every card and list built on them; nothing stays out.
 - **M3 Expressive** where a component has it (Lists), else baseline (Cards have no Expressive variant: the four card pages
   were searched; "expressive" appears only for the container transform of "hero moments").
 - **Standard and reusable.** One rule for all parts, reused; no special case for one component.
-- **No Tailwind:** it goes in 0.18.1, before 0.19 (section 7).
+- **No Tailwind:** it goes in 0.18.2, before 0.19 (section 7).
 
 ## 2. Step 0: done in 0.18
 
@@ -150,9 +150,9 @@ remove the hover shift and the weight (not in the tokens); `columns` and `trunca
   card as its subhead (under it).
 - The blog list's headline (today title-medium) follows the list token (body-large).
 
-## 7. Tailwind: gone in 0.18.1
+## 7. Tailwind: gone in 0.18.2
 
-Owner, 18 November: the CSS split and the token files are done in 0.18; 0.18.1 moves away from Tailwind
+Owner, 18 November: the CSS split and the token files are done in 0.18; 0.18.2 moves away from Tailwind
 (`plans/2026-11-16-move-away-from-tailwind.md` on `0.18`: utilities, `prose`, the breakpoints as `--mo-` tokens, the packages).
 0.19 starts after it: plain CSS in the component files, container queries where a part adapts to its space (Modern web
 guidance, `form-factor-adaptation`). The M3 audit's type pull request 11 belongs to that plan.

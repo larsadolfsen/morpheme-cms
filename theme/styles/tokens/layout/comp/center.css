@@ -1,0 +1,8 @@
+/* The layout classes' tokens (docs/theme-layout-classes.md), declared once on :root; an element that needs another value sets the token on itself. See docs/theme-token-files.md. */
+
+@layer utilities {
+  :root {
+    /* The widest inline size of mo-center. none: the element is centred and as wide as its content allows; set a length (a measure) on the element. */
+    --mo-comp-center-measure: none;
+  }
+}
