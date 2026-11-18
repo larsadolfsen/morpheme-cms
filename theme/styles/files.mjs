@@ -41,6 +41,7 @@ export const OTHER_BASE_FILES = [
   'cards.css',
   'type.css',
   'blocks.css',
+  'blocks/steps.css',
   'blocks/person-facts.css',
   'lists.css',
   ...SITE_SHELL_FILES,
