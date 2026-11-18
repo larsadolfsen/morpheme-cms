@@ -11,7 +11,7 @@ Announce "Using checks". Run every command from the root of this repository, on 
 ## What CI runs
 
 **The direction (owner, 18 Nov 2026): test less, but always the important things.** Plan:
-`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A. The levels below are the target; PR 1 (levels), PR 2 (build once, cached Chromium) and PR 3 (core set and touched areas), PR 8 (shards balanced by time) and A7 (`static` reads the build) are built (what runs today is in the next table and below), PR 4, 5, 6 and the other new ones are not yet.
+`docs/superpowers/plans/2026-11-18-build-and-check-speed.md`, track A. The levels below are the target; PR 1 (levels), PR 2 (build once, cached Chromium) and PR 3 (core set and touched areas), PR 4 (starter smoke test), PR 8 (shards balanced by time) and A7 (`static` reads the build) are built (what runs today is in the next table and below), PR 5, 6 and the other new ones are not yet.
 
 | Merge | Check |
 | :--- | :--- |
@@ -27,7 +27,7 @@ Announce "Using checks". Run every command from the root of this repository, on 
 | Base branch | Level | What runs today |
 | :--- | :--- | :--- |
 | `feature/**` | `feature` | the light check: `static` and the 8 `screens` shards with the core units and the touched areas only (`--areas`, below) |
-| `0.*` (a version line) | `line` | the light check, as below, with the core units and the touched areas (`demo` and the starter smoke test come in PR 4) |
+| `0.*` (a version line) | `line` | the light check, as below, with the core units and the touched areas, `demo` and the starter smoke test (`starter-smoke`); not `screens-extra` and not the 4 starter shards |
 | `main`, and the Release PR from any base | `full` | everything |
 | anything else, an empty base, an error in the selection | `full` | everything (when in doubt, run) |
 
@@ -91,7 +91,15 @@ empty diff, any error and a change to Prettier's settings or packages (`.prettie
 check every file. `npm run check:types` keeps `.morpheme/tsc/types.tsbuildinfo`; `static` restores it from the cache under the key of `scripts/ci-tsc-key.mjs` (TypeScript, `tsconfig.types.json`,
 the lock file, Node), and tsc itself compares the source files, so a cold run and a warm one give the same result.
 
-Not built yet: the starter smoke test (PR 4), the daily
+**Built (PR 4, the starter smoke test).** `npm run check:starter -- --smoke` (`scripts/check-starter.mjs`): the same pack, install in a copy of the starter, the site's own
+`npm run check`, the migrate checks and `npm run build` as the shards run, then, instead of the screens in shards, the core screens set on the starter's content
+(`check:screens --areas none`: every screen opens, a page is edited and Save commits it) and `scripts/check-save-twice.mjs` (a page edited, saved twice and published). The
+job `starter-smoke` runs it once, at the **line level only**; the full level keeps the 4 `starter` shards and does not run the smoke test (the shards contain it), and the feature
+level runs neither. The line level also runs `demo` now. `SKIPPED_AT` in `scripts/ci-changes.mjs` says what each level skips (`feature`: `screens-extra`, `demo`, `starter`,
+`starter-smoke`; `line`: `screens-extra`, `starter`; `full`: `starter-smoke`); the job `check` passes the level to the verdict, so a job that runs where it should not, or is skipped where it should run, is red.
+`starter-smoke` is also skipped when `starter_demo` is false.
+
+Not built yet: the daily
 full run on feature branches (PR 5), `next` builds from a version line (PR 6).
 
 Always tested, at every level: Prettier, types, `npm run check` (language, tokens, colours, rules), the changeset, the build, the core
@@ -102,8 +110,8 @@ merge into a version line shows on the demo within minutes). Its job `check` wai
 before the PM merges.
 
 - **Light check, base is a version line or a feature branch** (`0.17`, `0.18`, `0.19`, `feature/**`; not the Release PR): `changes`, `static` (Prettier, language, the
-  changeset, `npm run check`) and `check:screens` in its 8 shards (the core units and the touched areas only, see *Built (PR 3)*; the numbers here are of the all-units run). About 8 minutes (median of the shards 8.0, longest 10.9). It skips
-  `check:screens:extra`, `check:demo` and `check:starter` (the 4 starter shards take a median of 14.2 minutes, the longest 19.8). The
+  changeset, `npm run check`) and `check:screens` in its 8 shards (the core units and the touched areas only, see *Built (PR 3)*; the numbers here are of the all-units run). About 8 minutes (median of the shards 8.0, longest 10.9). A version line
+  also runs `check:demo` and the starter smoke test (*Built (PR 4)*). It skips `check:screens:extra` and the 4 starter shards (a median of 14.2 minutes, the longest 19.8); a feature branch also skips `check:demo` and the smoke test. The
   PM may merge into a version line on a green light `check`.
 - **Full check, base is `main`**: the merge of a version line into `main` (`merge-0.18-into-main-N`) and the Release PR run everything:
   `static`, all 8 `screens` shards, `screens-extra`, `demo` and the 4 `starter` shards. A merge of a version line into `main` needs this
@@ -130,7 +138,7 @@ demo), so only paths that neither reads are skipped: docs, `.claude/`, `.agents/
 `check-colors`, `check-css-values`, `check-density`, `phosphor-allowlist.json`, `web-allowlist.json`). Everything else runs them: `src/`,
 `theme/`, `lib/`, `pages/`, `site/`, `worker/`, `bin/`, `defaults/`, `starter/`, `demo/`, `release-notes/`, `package.json`, the lock file,
 `wrangler.jsonc`, any other script, `check.yml` and `ci-changes.mjs` itself, the Release PR and an empty diff. `screens`, `screens-extra`
-and `static` run on every pull request that is not docs-only (`screens-extra` not on a light one). The job `check` treats a job skipped by this filter as green. To add a path
+and `static` run on every pull request that is not docs-only (`screens-extra` not on a light one, `demo` not on a feature one). The job `check` treats a job skipped by this filter as green. To add a path
 to the skip list, first `grep` that neither job reads it (the list's comment says how), and change the list and its test only.
 
 A new push to a pull request cancels that pull request's older queued and running `Check` runs (`concurrency` in
@@ -149,7 +157,7 @@ are all still red: when in doubt it stays red.
 | `npm run check:screens` | the editor changed (after `npm run build`) | All of the editor's screens open without errors, on a phone and a computer, and all icons exist; the site's margins, paddings and gaps on the Blocks page are on the 4 dp grid (`checkSpacingGrid`, exceptions with reasons in `scripts/spacing-grid.allow.mjs`). Each installed app's blocks are drawn on a test page of the app's own (`check-page.md`, `docs/app-contract.md`); an app without one is checked with default values and a warning that names it. The checks that measure the Blocks page (spacing, cards, tables) measure the system's test page (`scripts/core-blocks-page.mjs`), built on first use from a temporary copy of the site in `.astro/test-site/` and deleted when the run ends; `check:screens:extra` also checks that it is `noindex, nofollow` and in no sitemap, feed or list (`scripts/check-test-page.mjs`). |
 | `npm run check:screens:shard -- K/N` | to run one part of `check:screens` | Every N-th unit of the screens check (the runner is `scripts/editor-screens.mjs`; the units are in `scripts/screens/<area>.mjs`, one file per area, so **a new unit goes in its area's file and in no other place**: add its `checkSomething` function and its `unit(...)` line to that file's `register` function, and never edit `scripts/screens/order.txt`, which freezes the numbering of the units that existed when the check was split; a unit that is new is numbered after them, in the order of the files); add `--list` to print the part's units without running them. `node ../../../scripts/editor-screens.mjs --only <unit name> <dist>` runs one unit on its own (`CHROMIUM_PATH` for another Chromium). `check:screens:extra` runs the checks over the whole site (save twice, unlisted, preview). `check:screens` with no part runs everything. |
 | `node ../../../bin/morpheme.mjs check:themes` (in `.morpheme/demo/site/`) | a theme, the default theme, blocks or the editor changed | The same with each of the other themes. |
-| `npm run check:starter` | the starter, the Worker or what a site installs changed | The starter works as a site with the package from `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. |
+| `npm run check:starter` | the starter, the Worker or what a site installs changed | The starter works as a site with the package from `npm pack`: its own `npm run check` (the site's types and `check:worker`) and its build. `-- --smoke` adds only the core screens and a save-twice-and-publish run (about 5 minutes locally); `-- --screens --shard K/N` adds a part of every screen (CI's full level). |
 | `npm run check:demo` | the CMS, the default theme or the demo changed | The demo builds with the default theme and follows the editor's rules; its Blocks pages are in order: every example on the page of the component that draws it (a special block on its own page), none twice, every page in the index at `/blocks/` (`scripts/demo-blocks.mjs`). |
 | `npm run check:language` | text changed | No Danish text outside the language files (`i18n/da-DK/`); no old word for *image* (`scripts/check-language.mjs`). |
 | `npm run check:density` | a height or vertical padding in the theme changed | Every part of the theme with a height or vertical padding in the density list writes it with the density step; a menu, dialog or snackbar never gets denser than Medium, and no horizontal padding or text size follows density (`scripts/check-density.mjs`; the sizes at each step are in `check:screens`). |
