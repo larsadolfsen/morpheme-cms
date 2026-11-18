@@ -37,6 +37,45 @@ export async function readFolder(env, folder, depth, ctx, token = env.GITHUB_PUB
   }
 }
 
+/**
+ * The apps and themes in the site's folders with what says where each came from: `{ kind, id, record, manifest }` for each folder that
+ * has a store.json (`record` its text, `manifest` the text of its app.json or theme.json, or null). Only those two files are read.
+ */
+export async function readStoreItems(env, folders, ctx, token = env.GITHUB_PUBLISH_TOKEN) {
+  const files = filesOf(env, token, ctx);
+  try {
+    const at = await files.head();
+    const kinds = [
+      ['app', folders.apps, 'app.json'],
+      ['theme', folders.themes, 'theme.json'],
+    ];
+    const lists = await files.filesIn(
+      at.tree,
+      kinds.map(([, folder]) => folder),
+      2,
+    );
+    const found = kinds.flatMap(([kind, folder, manifestName], i) =>
+      lists[i]
+        .filter((f) => f.path.endsWith('/store.json') && f.path.split('/').length === folder.split('/').length + 2)
+        .map((f) => ({
+          kind,
+          id: f.path.split('/').slice(-2)[0],
+          record: f,
+          manifest: lists[i].find((m) => m.path === f.path.replace(/store\.json$/, manifestName)) ?? null,
+        })),
+    );
+    const texts = await files.texts(found.flatMap((x) => [x.record.oid, ...(x.manifest ? [x.manifest.oid] : [])]));
+    return found.map((x) => ({
+      kind: x.kind,
+      id: x.id,
+      record: texts.get(x.record.oid) ?? null,
+      manifest: x.manifest ? (texts.get(x.manifest.oid) ?? null) : null,
+    }));
+  } finally {
+    await files.finish('Worker reads');
+  }
+}
+
 /** Saves the files (`{ path, text }`, `{ path, text: null }` to delete one, or `{ path, bytes }` for an image) in one commit on the branch, if its head is still `head`; returns the new commit's id. */
 export async function commitFiles(env, head, headline, changes, ctx, token = env.GITHUB_PUBLISH_TOKEN) {
   const files = filesOf(env, token, ctx);

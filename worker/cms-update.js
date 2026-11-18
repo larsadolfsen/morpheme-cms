@@ -11,13 +11,15 @@ import { cms as cmsEn } from '../src/i18n/en-US/cms';
 import { cms as cmsDa } from '../src/i18n/da-DK/cms';
 import { withCiBuild } from '../lib/build-command.mjs';
 import { addToLock, NeedsNpm } from '../lib/lockfile.mjs';
+import { contractHold, parseContracts } from '../lib/contractHold.mjs';
+import { APP_APIS, THEME_API } from '../lib/contracts.mjs';
 import { checkDue, compareVersions, managedVersion, nextVersion, PACKAGE, siteZone, watchStep } from '../lib/cms-version.mjs';
 import { withInstallDefaults } from '../lib/npmrc.mjs';
 import { fileFromTar, gunzip, sectionsBetween } from '../lib/changelog.mjs';
 import { imageKey, notesFromTar, parseImagePath, withImageUrls } from '../lib/releaseNotes.mjs';
 import pkg from '../package.json';
 import { GitHubError } from './files.js';
-import { commitFiles, readFiles } from './github.js';
+import { commitFiles, readFiles, readStoreItems } from './github.js';
 import { json } from './not-found.js';
 import { notifyAll } from './push.js';
 import { mayEdit } from './session.js';
@@ -33,7 +35,7 @@ const NPM = 'https://registry.npmjs.org';
 const NPM_NAME = '@morphemecms%2fcms';
 const BUILD_APP = 'cloudflare-workers-and-pages';
 
-const defaultDeps = { readFiles, commitFiles, fetch: (...args) => fetch(...args), notify: notifyAll, mayEdit };
+const defaultDeps = { readFiles, readStoreItems, commitFiles, fetch: (...args) => fetch(...args), notify: notifyAll, mayEdit };
 
 /** The site's language for the commits: its own, else the same language, else Danish. */
 const siteTexts = () => {
@@ -99,6 +101,21 @@ async function tell(env, deps, key, version, error) {
   );
 }
 
+/**
+ * The theme or app installed from the store that the version cannot run (see contractHold), or null. The version's contracts are
+ * read from the lib/contracts.mjs in its npm tarball; throws when the tarball, the contracts or the site's folders cannot be read, so
+ * a version is never taken on a guess.
+ */
+async function heldByContract(env, deps, version) {
+  const manifest = await getJson(deps, `${NPM}/${NPM_NAME}/${version}`);
+  const res = await deps.fetch(manifest.dist.tarball);
+  if (!res.ok) throw new Error(`${res.status} tarball`);
+  const next = parseContracts(fileFromTar(await gunzip(new Uint8Array(await res.arrayBuffer())), 'package/lib/contracts.mjs'));
+  if (!next) throw new Error('contracts');
+  const items = await deps.readStoreItems(env, { apps: config.apps.folder, themes: config.themes });
+  return contractHold(items, next, { theme: THEME_API, apps: [...APP_APIS] });
+}
+
 const putJson = (kv, key, value) => kv.put(key, JSON.stringify(value));
 
 /** Writes package.json and the lock for `version`, commits it and keeps `cms:update`. Throws NeedsNpm or a GitHubError. */
@@ -138,14 +155,14 @@ const versionsUnder = async (kv, prefix) => (await kv.list({ prefix })).keys.map
  * (.github/workflows/staging-follows-next.yml).
  */
 export async function dailyCheck(env, deps = defaultDeps, now = Date.now(), zone = siteZone(config)) {
-  if (!env.GITHUB_PUBLISH_TOKEN || !env.PUSH) return;
+  if (!env.PUSH) return; // nothing can be kept without it; the page says so (cmsStatus: kv)
   if (!checkDue(now, await env.PUSH.get('cms:checked', 'json'), zone)) return;
   return checkForUpdate(env, deps, now);
 }
 
 /** Asks npm for the newest version and takes it when it may (dailyCheck decides when). */
 export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) {
-  if (!env.GITHUB_PUBLISH_TOKEN || !env.PUSH) return;
+  if (!env.PUSH) return;
   const kv = env.PUSH;
   const update = await kv.get('cms:update', 'json');
   if (update?.state === 'waiting' || update?.state === 'undoing') return;
@@ -154,6 +171,7 @@ export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) 
   const record = (problem) =>
     putJson(kv, 'cms:checked', { at: iso(now), latest, ...(problem ? { problem } : {}), ...(before?.noChecks ? { noChecks: true } : {}) });
 
+  if (!env.GITHUB_PUBLISH_TOKEN) return record({ kind: 'no-token' });
   let site;
   try {
     site = await readSite(env, deps);
@@ -171,6 +189,22 @@ export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) 
   if (!next) return record();
   if (!(await kv.get(`cms:notes:${latest}`, 'json'))) await keepNotes(env, deps, managed.version, latest).catch(() => {});
   if (!next.auto) return record({ kind: next.why });
+  // A version whose contracts a theme or an app from the store is not written to is not taken by itself: the site would keep
+  // building, but lose that theme's or app's look. The owner presses Update (or the store has a newer version) when ready.
+  try {
+    const held = await heldByContract(env, deps, next.version);
+    if (held)
+      return record({
+        kind: 'contract',
+        detail: `${held.kind} ${held.id}`,
+        item: held.kind,
+        id: held.id,
+        has: held.has,
+        needs: held.needs,
+      });
+  } catch {
+    return record({ kind: 'unreachable' });
+  }
   try {
     await startUpdate(env, next.version, deps, now);
   } catch (e) {
