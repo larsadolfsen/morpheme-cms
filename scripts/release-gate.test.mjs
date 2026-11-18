@@ -111,13 +111,13 @@ test('both failing reports both', async () => {
   assert.equal(r.problems.length, 2);
 });
 
-test('publish.yml: the gate runs in step stage before latest is staged, and not in the next jobs', () => {
+test('publish.yml: the gate runs in step stage before latest is staged, and not in the next job', () => {
   const y = readFileSync(new URL('../.github/workflows/publish.yml', import.meta.url), 'utf8');
   const stage = y.slice(y.indexOf('- id: stage'), y.indexOf('\n  latest:'));
   assert.ok(stage.indexOf('node scripts/release-gate.mjs') > -1);
   assert.ok(stage.indexOf('node scripts/release-gate.mjs') < stage.indexOf('npm stage publish --tag latest'));
   const rest = y.slice(y.indexOf('\n  next:'));
-  assert.ok(!rest.includes('release-gate'), 'next and next-line never run the gate');
+  assert.ok(!rest.includes('release-gate'), 'the next job never runs the gate');
 });
 
 test('check.yml: the gate job runs on the Release PR only and `check` waits for it', () => {
