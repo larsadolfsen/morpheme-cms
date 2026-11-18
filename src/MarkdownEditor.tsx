@@ -130,6 +130,7 @@ import trashIcon from '@phosphor-icons/core/assets/regular/trash.svg?raw';
 import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
 // ProseMirror's own styles: keep its invisible helpers (around images, at the end of lines) out of the layout.
 import '@milkdown/kit/prose/view/style/prosemirror.css';
+import { safeImageSrc } from '../lib/safe-url.mjs';
 
 // parts: the text in parts, for a fixed page's sections (partsOf in markdown.mjs). h1: the text of the page's H1 (its first
 // heading, without marks), null without one, undefined before the editor is made; setH1: makes it say so (a new H1 at the
@@ -1163,7 +1164,8 @@ function imageCard(
     box.style.cssText = cut.box;
   }
   const img = box.appendChild(document.createElement('img'));
-  img.src = shownAt(src);
+  const safeSrc = safeImageSrc(shownAt(src));
+  if (safeSrc) img.src = safeSrc;
   img.alt = '';
   if (cut) img.style.cssText = cut.img;
   if (node.attrs.title) img.title = node.attrs.title;
