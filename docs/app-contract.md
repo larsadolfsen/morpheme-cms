@@ -179,6 +179,23 @@ data only: a request template and a mapping. The Worker makes the requests, to t
 owner's key sealed in D1. The app has no code for it. The shape, the host rules, the credit saved with an image and the
 checks are in `docs/superpowers/specs/2026-11-11-media-providers.md`.
 
+## Contract 7: no Tailwind
+
+Announced; it takes effect when the Tailwind removal merges (batch T16 of `docs/superpowers/plans/2026-11-18-tailwind-batches.md`, released as 0.18.1).
+
+Contract 7 is contract 6 without Tailwind. A theme or an app written to 7 uses no utility class (`flex`, `px-4`,
+`medium:grid-cols-2`, `hover:underline`), no `theme()`, no `@theme`, no `@apply` and no `@source`, and no `--tw-*` custom
+property. The CMS no longer builds them: such a class or rule does nothing, without a message. `prose` and `not-prose` still
+work. A theme or an app writes layout with the `mo-` classes (`mo-row`, `mo-stack`, `mo-grid` …), breakpoints as
+`@media (width >= 37.5rem)` literals and states as CSS selectors. No key or file of `app.json` changes.
+
+`THEME_API` and `APP_API` become 7 and `APP_APIS` in `lib/contracts.mjs` becomes `[7]`, replacing 6. After that the editor reads
+contract 7 only, the store offers a CMS at 7 only apps and themes written to 7, and an installed app or theme written to 6 is
+refused with `The key "api" must be 7.` until its author publishes a new version. A published version is for ever, so it is
+not rewritten. An app or a theme written to 6 that already uses no utility needs only its `api` number changed.
+
+The migration, class by class, is `docs/tailwind-migration.md` and `docs/tailwind-migration-classes.md`.
+
 ## Contract 6: the design tokens' names
 
 Contract 6 renames every design token that is not Tailwind's to Material 3's pattern: `--mo-ref-*`, `--mo-sys-*` and
