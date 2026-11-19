@@ -124,7 +124,7 @@ async function checkUpdatesCard(width, height) {
   const box = await page.evaluate(() => {
     const card = document.querySelector('#updates-title').closest('section');
     const r = (e) => e && e.getBoundingClientRect().toJSON();
-    const cells = [...document.querySelectorAll('.mo-editor-dashboard-grid > *')].map(r);
+    const cells = [...document.querySelectorAll('.mo-editor-dashboard-grid > *')].map(r).filter((b) => b.height > 0);
     return {
       card: r(card),
       img: r(card.querySelector('img')),
