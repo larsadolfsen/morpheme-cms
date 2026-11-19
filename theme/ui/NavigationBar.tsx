@@ -22,7 +22,7 @@ export const navigationBarItemClass = 'mo-navigation-bar__item';
 
 /** The bar's classes with where its items' icons stand. */
 export const navigationBarClasses = (iconPosition: NavigationBarIconPosition = 'top') =>
-  iconPosition === 'top' ? navigationBarClass : `${navigationBarClass} navigation-bar-${iconPosition}`;
+  iconPosition === 'top' ? navigationBarClass : `${navigationBarClass} mo-navigation-bar__${iconPosition}`;
 
 export default function NavigationBar({
   label,
