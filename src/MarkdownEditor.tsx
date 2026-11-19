@@ -1419,7 +1419,7 @@ function rawIcon(svg: string): typeof TextB {
   if (!icon) {
     const html = svg.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
     icon = (() => (
-      <span aria-hidden="true" className="inline-flex" dangerouslySetInnerHTML={{ __html: html }} />
+      <span aria-hidden="true" className="mo-editor-inline-icon" dangerouslySetInnerHTML={{ __html: html }} />
     )) as unknown as typeof TextB;
     rawIcons.set(svg, icon);
   }
@@ -3241,16 +3241,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const moreGroups = moreContext.length + moreMain.length + blockMenu.length;
 
   return (
-    <div className="editor-text-box rounded-panel bg-surface-container-lowest">
-      <span className="sr-only" role="status" aria-live="polite">
+    <div className="editor-text-box mo-editor-text-surface">
+      <span className="mo-visually-hidden" role="status" aria-live="polite">
         {selecting ? t.text.blocksSelected(picked.places.length) : ''}
       </span>
       {/* The top edge of the text's box: it draws its own border and rounded corners, so the box's side lines start under it and never run past it when it sticks; no shadow. Stays at the top of the screen while scrolling through the text (under the safe area, as the top bar scrolls away). One row, 44 dp high: the text tools, a divider and the main tools; the `⋮` at its end has what does not fit (textBar.mjs). */}
-      <Toolbar
-        ref={toolbar}
-        label={t.text.tools}
-        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 rounded-t-panel border border-outline-variant pb-(--toolbar-docked-padding-block)"
-      >
+      <Toolbar ref={toolbar} label={t.text.tools} className="editor-tools mo-editor-tools-bar">
         <div ref={slideRow} className="editor-tools-slide">
           {plan.bar.context.length > 0 && (
             <div ref={contextBox} className="editor-tools-context">
@@ -3361,7 +3357,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           </MenuItem>
         ))}
         <MenuItem selected={!active.includes('textColor')} onClick={() => color(null)}>
-          <span className="text-on-surface">{t.text.noColor}</span>
+          <span className="mo-editor-on-surface">{t.text.noColor}</span>
         </MenuItem>
       </Menu>
       {/* Text style: the heading levels the text may have, a divider, then the body sizes, Label and Quote; the rows that do not apply (a heading in a list item, a list or Quote in a heading) are hidden (styleMenu.mjs). */}
@@ -3390,7 +3386,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       </Menu>
       <div
         ref={root}
-        className={`editor-text prose max-w-none rounded-b-panel border-x border-b border-outline-variant px-(--mo-sys-grid-margin) py-4 ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
+        className={`editor-text prose mo-editor-text-area ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
         style={
           { '--editor-gap-text': JSON.stringify(t.text.typeHere), '--editor-empty-text': JSON.stringify(t.text.emptyHint) } as CSSProperties
         }

@@ -4,6 +4,7 @@
 @reference '../theme/styles/base.css';
 @import './editor-density.css';
 @import './editor-screens.css';
+@import './editor-settings.css';
 
 /* Density (theme/styles/base.css) reaches the editor's own screens, not the page and post editing area: what is typed in place
    there keeps the theme's own step (--mo-sys-density-base) at every choice, as on the site, so a block is drawn as it will be. The

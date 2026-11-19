@@ -11,18 +11,11 @@
   "site/sections.ts": {
     "constants": 4
   },
-  "src/ActionParts.tsx": {
-    "utilities": 23,
-    "constants": 4
-  },
   "src/AddWidget.tsx": {
     "utilities": 1
   },
   "src/Advanced.tsx": {
     "utilities": 7
-  },
-  "src/App.tsx": {
-    "utilities": 28
   },
   "src/AppAdds.tsx": {
     "utilities": 11
@@ -48,12 +41,6 @@
   "src/AppSettingsTab.tsx": {
     "utilities": 1
   },
-  "src/ask.tsx": {
-    "utilities": 19
-  },
-  "src/Assistants.tsx": {
-    "utilities": 21
-  },
   "src/BlockDialog.tsx": {
     "utilities": 31
   },
@@ -61,17 +48,8 @@
     "utilities": 45,
     "constants": 11
   },
-  "src/BlockSettings.tsx": {
-    "utilities": 26
-  },
   "src/BrandForm.tsx": {
     "utilities": 48
-  },
-  "src/CmsPage.tsx": {
-    "utilities": 23
-  },
-  "src/Colors.tsx": {
-    "utilities": 19
   },
   "src/CommunicationParts.tsx": {
     "utilities": 44
@@ -88,12 +66,6 @@
   "src/CoverageSummary.tsx": {
     "utilities": 2
   },
-  "src/CropView.tsx": {
-    "utilities": 18
-  },
-  "src/DashboardEdit.tsx": {
-    "utilities": 18
-  },
   "src/DashboardGrid.tsx": {
     "utilities": 4
   },
@@ -108,9 +80,6 @@
   },
   "src/EditorFooter.tsx": {
     "utilities": 3
-  },
-  "src/EntryForm.tsx": {
-    "utilities": 24
   },
   "src/fields.tsx": {
     "utilities": 50
@@ -139,9 +108,6 @@
   "src/Keywords.tsx": {
     "utilities": 4
   },
-  "src/Licenses.tsx": {
-    "utilities": 19
-  },
   "src/LinkList.tsx": {
     "utilities": 4
   },
@@ -151,14 +117,8 @@
   "src/MainDrawerParts.tsx": {
     "utilities": 4
   },
-  "src/MarkdownEditor.tsx": {
-    "utilities": 19
-  },
   "src/MediaAlt.tsx": {
     "utilities": 3
-  },
-  "src/MediaProviderPicker.tsx": {
-    "utilities": 23
   },
   "src/MediaTags.tsx": {
     "utilities": 2
@@ -206,25 +166,8 @@
   "src/PartFields.tsx": {
     "utilities": 7
   },
-  "src/Parts.tsx": {
-    "utilities": 19,
-    "constants": 4
-  },
-  "src/PartsShown.tsx": {
-    "utilities": 16
-  },
-  "src/PickerParts.tsx": {
-    "utilities": 26,
-    "constants": 7
-  },
-  "src/Redirects.tsx": {
-    "utilities": 16
-  },
   "src/ReleaseNoteLines.tsx": {
     "utilities": 9
-  },
-  "src/ReleaseNotes.tsx": {
-    "utilities": 22
   },
   "src/ReleaseNoteSection.tsx": {
     "utilities": 4
@@ -261,9 +204,6 @@
   },
   "src/StoreSections.tsx": {
     "utilities": 1
-  },
-  "src/ThemeStore.tsx": {
-    "utilities": 30
   },
   "src/ThemeStoreScreen.tsx": {
     "utilities": 3
