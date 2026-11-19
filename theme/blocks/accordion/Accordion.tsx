@@ -1,4 +1,4 @@
-// Rows that fold out: the theme's List with `expand` (Material's "List - Expand", ui/List.tsx; .block-accordion in ../blocks.css only places it): the standard block "Questions and answers" (a question and
+// Rows that fold out: the theme's List with `expand` (Material's "List - Expand", ui/List.tsx; .mo-block-accordion in ../blocks.css only places it): the standard block "Questions and answers" (a question and
 // its answer as written: `html`), the "Accordion" block, and a site's own rows of pages (`page`: PageRow.tsx in
 // ../accordion/; this site's topics). The part draws native <details>/<summary>, no JavaScript: the same `name` (`group`; in the
 // editor, without one, its own) keeps only one row open at a time in each list (browsers without support allow
@@ -29,14 +29,14 @@ export default function Accordion({
   cut?: number;
   /** The setting Columns is off: one column, whatever the width (data-columns, blocks.css). */
   oneColumn?: boolean;
-  /** Design `segmented`: each row on its own surface (.block-accordion-segmented, global.css); else the rows are on the page, with a line between them. */
+  /** Design `segmented`: each row on its own surface (.mo-block-accordion__segmented, global.css); else the rows are on the page, with a line between them. */
   segmented?: boolean;
 }) {
   const own = useId();
   return (
     <List
       expand
-      className={segmented ? 'block-accordion block-accordion-segmented' : 'block-accordion'}
+      className={segmented ? 'mo-block-accordion mo-block-accordion__segmented' : 'mo-block-accordion'}
       data-columns={oneColumn ? 'one' : undefined}
     >
       {rows.map((row, i) => (
@@ -53,7 +53,7 @@ export default function Accordion({
               <Svg
                 name={row.icon}
                 size={24}
-                className="block-accordion-lead"
+                className="mo-block-accordion__lead"
                 iconColor={'iconColor' in row ? String(row.iconColor ?? '') || undefined : undefined}
               />
             ) : undefined
@@ -63,9 +63,9 @@ export default function Accordion({
         >
           {'html' in row ? (
             <>
-              {row.html && <div className="block-accordion-answer" dangerouslySetInnerHTML={{ __html: row.html }} />}
+              {row.html && <div className="mo-block-accordion__answer" dangerouslySetInnerHTML={{ __html: row.html }} />}
               {(row.href && row.link) || ('buttons' in row && row.buttons) ? (
-                <div className="block-row-links">
+                <div className="mo-block-accordion__row-links">
                   {row.href && row.link && (
                     <Button kind="text" href={row.href}>
                       {row.link}

@@ -40,7 +40,7 @@ export default function InlineNotice({ props, data, active, focus, onChange }: I
           <aside
             className={[
               cardClass('filled'),
-              'block-notice',
+              'mo-block-notice',
               'inline-notice',
               here ? 'inline-list-row-active' : 'inline-list-row-next',
             ].join(' ')}

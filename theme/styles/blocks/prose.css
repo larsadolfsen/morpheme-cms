@@ -1,7 +1,7 @@
 /*
   The prose rules of the blocks and the text, all in the fallback layer (a theme's own unlayered rules win over them, whatever their specificity): the
-  Steps heading's margin in the text (.prose .block-step-title), "Video" before it is played (.video-facade and the still), the head of a block
-  (.block-head), the text's label and body sizes (.prose .mo-type-label-medium, .mo-type-body-large …), the task list, the accent and muted colours, the text
+  Steps heading's margin in the text (.prose .mo-block-steps__step-title), "Video" before it is played (.mo-block-video__facade and the still), the head of a block
+  (.mo-block-head), the text's label and body sizes (.prose .mo-type-label-medium, .mo-type-body-large …), the task list, the accent and muted colours, the text
   alignment, and the first and last parts of a coloured section (.mo-text-section > :first-child, :last-child). Moved here from blocks.css with the
   rules unchanged and in the order they had (docs/superpowers/plans/2026-11-16-css-split.md); the Accordion's answer rule that sat between the
   first two groups lives in accordion.css. Imported by base.css after the block files and before lists.css, so it still comes after every other
@@ -9,12 +9,12 @@
 */
 @layer fallback {
   /* "Steps": the heading has no space above it, so the text's heading space (.prose h3, also in this layer) does not push it off the number. */
-  .prose .block-step-title {
+  .prose .mo-block-steps__step-title {
     margin-block: 0;
   }
   /* "Video": the video before it is played (video/, packages/editor/lib/video.mjs); the video takes its
    place. Outside the layers, as it is a link in the text's style (.prose), whose link style it undoes. */
-  .prose .video-facade {
+  .prose .mo-block-video__facade {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -32,31 +32,33 @@
   }
   /* A video without a still has no tint of its own in a card: the card's surface is already a tone (in a coloured section a veil), and two veils
      over each other left the title at 3.8:1. */
-  .prose :is(.block-card-video, .block-card .card-media-slot) .video-facade:not(.video-facade-still) {
+  .prose
+    :is(.mo-block-cards__card-video, .mo-block-cards__card .card-media-slot)
+    .mo-block-video__facade:not(.mo-block-video__facade-still) {
     background: transparent;
   }
   /* In a card the video is its media: flush against the card's top and sides (the card's wrapper clips the corners), none of the text's margin
      above or below it, which left a gap over the still. */
-  .prose :is(.block-card-video, .block-card .card-media-slot) .video-facade {
+  .prose :is(.mo-block-cards__card-video, .mo-block-cards__card .card-media-slot) .mo-block-video__facade {
     margin-block: 0;
     border-radius: 0;
   }
   /* The played video (the iframe that takes the link's place, Base.astro) keeps the still's box: the text's margin around an iframe and its corners
      (.prose iframe, base.css and global.css) would make the card grow when the video starts. */
-  .prose :is(.block-card-video, .block-card .card-media-slot) iframe {
+  .prose :is(.mo-block-cards__card-video, .mo-block-cards__card .card-media-slot) iframe {
     display: block;
     margin-block: 0;
     border-radius: 0;
   }
-  .prose .video-facade svg {
+  .prose .mo-block-video__facade svg {
     color: var(--mo-sys-block-accent);
     transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
-  .prose .video-facade:hover svg {
+  .prose .mo-block-video__facade:hover svg {
     transform: scale(1.08);
   }
   /* At most two lines; a longer title ends with "…" (the whole title is still the link's name). */
-  .video-facade-title {
+  .mo-block-video__facade-title {
     display: -webkit-box;
     max-width: 40ch;
     overflow: hidden;
@@ -71,7 +73,7 @@
   /* With a still from the video (packages/editor/scripts/video-thumbnails.mjs), as on YouTube: the still fills the
    box, the white play button in the middle of the box (not of the space above the title), the title
    at the bottom over a shade. */
-  .prose .video-facade-still {
+  .prose .mo-block-video__facade-still {
     position: relative;
     isolation: isolate;
     overflow: hidden;
@@ -83,14 +85,14 @@
     color: #fff;
     text-align: left;
   }
-  .prose .video-facade-still::after {
+  .prose .mo-block-video__facade-still::after {
     content: '';
     position: absolute;
     inset: 0;
     z-index: -1;
     background: linear-gradient(to bottom, rgb(0 0 0 / 0.15) 40%, rgb(0 0 0 / 0.75));
   }
-  .prose .video-facade-still .video-facade-image {
+  .prose .mo-block-video__facade-still .mo-block-video__facade-image {
     position: absolute;
     inset: 0;
     z-index: -2;
@@ -99,14 +101,14 @@
     margin: 0;
     object-fit: cover;
   }
-  .prose .video-facade-still svg {
+  .prose .mo-block-video__facade-still svg {
     position: absolute;
     inset: 0;
     margin: auto;
     color: #fff;
     filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.5));
   }
-  .video-facade-still .video-facade-title {
+  .mo-block-video__facade-still .mo-block-video__facade-title {
     font-size: var(--mo-sys-typescale-title-small-size);
     line-height: var(--mo-sys-typescale-title-small-line-height);
     font-weight: var(--mo-sys-typescale-title-small-weight);
@@ -115,11 +117,11 @@
     text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
   }
   @media (width >= 37.5rem) {
-    .prose .video-facade-still svg {
+    .prose .mo-block-video__facade-still svg {
       width: 4.5rem;
       height: 4.5rem;
     }
-    .video-facade-still .video-facade-title {
+    .mo-block-video__facade-still .mo-block-video__facade-title {
       font-size: var(--mo-sys-typescale-title-medium-size);
       line-height: var(--mo-sys-typescale-title-medium-line-height);
       font-weight: var(--mo-sys-typescale-title-medium-weight);
@@ -131,18 +133,18 @@
    heading is the text's own <h2>, without this): the subheading larger and quiet. A label in a text is in small capitals, spaced out, in the accent. Mostly in the text's style (.prose), so outside the layers, like the video above, whose
    margins it sets in place of the text's; a theme that places a block outside the text sets its own (.mo-placed-block in
    the standard theme). A label above a heading in a text has the same look. A theme gives it its own look outside the layers too (the standard theme: in the middle). */
-  .block-head {
+  .mo-block-head {
     margin-block: 2rem 1rem;
   }
-  .block-head:first-child {
+  .mo-block-head:first-child {
     margin-top: 0;
   }
-  .block-head > h2,
-  .block-head > .block-subheading {
+  .mo-block-head > h2,
+  .mo-block-head > .mo-block-head__subheading {
     margin-block: 0;
   }
-  .block-head > * + h2,
-  .block-head > * + .block-subheading {
+  .mo-block-head > * + h2,
+  .mo-block-head > * + .mo-block-head__subheading {
     margin-top: 0.75rem;
   }
   .prose .mo-type-label-medium {
@@ -152,7 +154,7 @@
     letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
     color: var(--mo-sys-block-accent);
   }
-  .block-head > .block-subheading {
+  .mo-block-head > .mo-block-head__subheading {
     font-size: var(--mo-sys-typescale-title-large-size);
     line-height: var(--mo-sys-typescale-title-large-line-height);
     font-weight: var(--mo-sys-typescale-title-large-weight);
@@ -258,10 +260,10 @@
 
   /* A paragraph or a smaller heading in a text aligned to the centre or the right (packages/editor/lib/text-align.mjs, the Align
    button of the editor); left is the text's own. Outside the layers, as the prose style is. */
-  .text-align-center {
+  .mo-has-text-align-center {
     text-align: center;
   }
-  .text-align-right {
+  .mo-has-text-align-right {
     text-align: right;
   }
 

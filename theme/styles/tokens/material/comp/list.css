@@ -56,14 +56,14 @@
 /* The List "expand" kind (ui.css) of "List - Expand" and "FAQ list". Its plain design is the rows on the page with a line between them; its
      card design has each item on its own surface container, 2px apart, 16px outer and 4px inner corners, and a state layer on the item pointed at. */
 @layer components {
-  .block-accordion {
+  .mo-block-accordion {
     --mo-comp-list-expand-surface: transparent;
     --mo-comp-list-expand-shadow: none;
     --mo-comp-list-expand-padding-block: 1rem;
   }
 }
 @layer components {
-  .block-accordion-segmented {
+  .mo-block-accordion__segmented {
     --mo-comp-list-expand-gap: 0.125rem;
     --mo-comp-list-expand-item-surface: var(--mo-sys-color-surface-container);
     --mo-comp-list-expand-item-radius: var(--mo-sys-shape-corner-extra-small);

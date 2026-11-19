@@ -1735,7 +1735,7 @@ async function checkVideoChangeLink(width, height = 800) {
   );
   if (!kept.includes('dQw4w9WgXcQ')) problems.push(`${label}: the video does not show the new link (${kept})`);
   // The Thumbnail field: the sheet has it, an image chosen there is the frame's still (the same View.tsx draws it, selected or not), and it is a local image.
-  const stillSrc = () => page.locator('.site-block-inline .video-facade-image').first().getAttribute('src');
+  const stillSrc = () => page.locator('.site-block-inline .mo-block-video__facade-image').first().getAttribute('src');
   // The sheet is still open (a phone's bottom sheet, a computer's side sheet); if not, Change link opens it.
   if (!(await sheetOpen().getByText('Thumbnail', { exact: true }).count())) {
     await page.locator('.editor-tools-context button[aria-label="Change link"]').first().click();

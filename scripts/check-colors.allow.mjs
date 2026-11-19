@@ -83,7 +83,7 @@ export const allow = [
   {
     kind: 'fixed-colour',
     file: /^theme\/styles\/blocks(\/[a-z-]+)?\.css$/,
-    line: /video-facade|^\s*(background: #000|color: #fff|background: linear-gradient\(to bottom, rgb|filter: drop-shadow|text-shadow)/,
+    line: /mo-block-video__facade|^\s*(background: #000|color: #fff|background: linear-gradient\(to bottom, rgb|filter: drop-shadow|text-shadow)/,
     reason: 'the video still: white title and play button over a black shade on an image, whatever the theme',
   },
   // Words, not colours.

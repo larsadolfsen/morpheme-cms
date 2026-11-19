@@ -8,7 +8,7 @@ export default function Steps({ view }: { view: StepsView }) {
   return (
     <>
       <BlockHead view={view} />
-      <StepList items={view.items} className={useInText() || 'block-in-text'} />
+      <StepList items={view.items} className={useInText() || 'mo-is-in-text'} />
     </>
   );
 }

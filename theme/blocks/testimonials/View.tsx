@@ -7,7 +7,7 @@ import type { TestimonialsView } from '@morphemecms/cms/src/standard/testimonial
 import { useInText } from '@morphemecms/cms/src/standard/view';
 
 export default function Testimonials({ view }: { view: TestimonialsView }) {
-  const inText = useInText() || 'block-in-text';
+  const inText = useInText() || 'mo-is-in-text';
   return (
     <>
       <BlockHead view={view} />

@@ -5,7 +5,7 @@ import { useInText } from '@morphemecms/cms/src/standard/view';
 
 export default function ButtonsBlock({ view }: { view: ButtonsView }) {
   return (
-    <div className={useInText('block-buttons')}>
+    <div className={useInText('mo-block-buttons')}>
       <Buttons buttons={view.buttons} />
     </div>
   );

@@ -177,9 +177,9 @@ function Carousels() {
             key: String(n),
             label: say.card(n),
             content: (
-              <div className="block-panel mo-editor-contain-panel">
-                <p className="block-panel-title">{say.card(n)}</p>
-                <p className="block-panel-text">{say.text}</p>
+              <div className="mo-block-panel mo-editor-contain-panel">
+                <p className="mo-block-panel__title">{say.card(n)}</p>
+                <p className="mo-block-panel__text">{say.text}</p>
               </div>
             ),
           }))}
@@ -196,9 +196,9 @@ function Carousels() {
               key: String(n),
               label: say.card(n),
               content: (
-                <div className="block-panel mo-editor-contain-panel">
-                  <p className="block-panel-title">{say.card(n)}</p>
-                  <p className="block-panel-text">{say.text}</p>
+                <div className="mo-block-panel mo-editor-contain-panel">
+                  <p className="mo-block-panel__title">{say.card(n)}</p>
+                  <p className="mo-block-panel__text">{say.text}</p>
                 </div>
               ),
             }))}

@@ -92,13 +92,15 @@ export default function InlineList({
         fold ? (
           <SiteList
             expand
-            className={segmented ? 'block-accordion block-accordion-segmented inline-segmented' : 'block-accordion inline-segmented'}
+            className={
+              segmented ? 'mo-block-accordion mo-block-accordion__segmented inline-segmented' : 'mo-block-accordion inline-segmented'
+            }
             data-columns={columnsAttr(props)}
           >
             {rows}
           </SiteList>
         ) : (
-          <SiteList kind={look} className="block-list inline-list" data-columns={columnsAttr(props)}>
+          <SiteList kind={look} className="mo-block-list inline-list" data-columns={columnsAttr(props)}>
             {rows}
           </SiteList>
         )
@@ -158,7 +160,7 @@ export default function InlineList({
               headline={field('title', t.blocks.list.title, next ? t.blocks.list.newRow : t.blocks.list.title)}
               trailing={linkSlot}
             >
-              <div className="block-accordion-answer">{withText && field('text', t.blocks.list.text, t.blocks.list.text)}</div>
+              <div className="mo-block-accordion__answer">{withText && field('text', t.blocks.list.text, t.blocks.list.text)}</div>
             </SiteListItem>
           );
         }
@@ -267,7 +269,7 @@ export function RowsFromList({
           ))}
         </div>
       )}
-      <SiteList className="block-list inline-list" data-columns={oneColumn ? 'one' : undefined} onClick={tapped}>
+      <SiteList className="mo-block-list inline-list" data-columns={oneColumn ? 'one' : undefined} onClick={tapped}>
         {rows.map((r, i) => (
           <SiteListItem
             key={i}

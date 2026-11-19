@@ -2,21 +2,21 @@
 
 @layer components {
   @media (width >= 37.5rem) {
-    .block-imagegrid-grid[data-columns='2'] {
+    .mo-block-imagegrid__grid[data-columns='2'] {
       --mo-comp-grid-columns: 2;
     }
   }
 }
 @layer components {
   @media (width >= 37.5rem) {
-    .block-imagegrid-grid[data-columns='3'] {
+    .mo-block-imagegrid__grid[data-columns='3'] {
       --mo-comp-grid-columns: 3;
     }
   }
 }
 @layer components {
   @media (width >= 37.5rem) {
-    .block-imagegrid-grid[data-columns='4'] {
+    .mo-block-imagegrid__grid[data-columns='4'] {
       --mo-comp-grid-columns: 4;
     }
   }

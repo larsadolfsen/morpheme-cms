@@ -89,7 +89,7 @@
   body {
     background: var(--mo-sys-color-surface);
     color: var(--mo-sys-color-on-surface);
-    font-family: var(--font-sans);
+    font-family: var(--mo-ref-typeface-plain);
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
     font-weight: var(--mo-sys-typescale-body-large-weight);
@@ -292,19 +292,19 @@
   }
 
   /* A block the theme places outside the text (Block.astro in EndBlock.astro and on the prices page): its
-   place gives the space around it, not the text's (.block-in-text). */
-  .mo-placed-block > .block-in-text {
+   place gives the space around it, not the text's (.mo-is-in-text). */
+  .mo-placed-block > .mo-is-in-text {
     margin-block: 0;
   }
   /* The heading of a block placed outside the text (a front-page section): as the theme's other section headings
-   (SectionHeading.tsx), not the text's; with a label or a subheading (.block-head, blocks.css) the space under the
+   (SectionHeading.tsx), not the text's; with a label or a subheading (.mo-block-head, blocks.css) the space under the
    whole head. */
   .mo-placed-block > h2,
-  .mo-placed-block > .block-head {
+  .mo-placed-block > .mo-block-head {
     margin-block: 0 2rem;
   }
   .mo-placed-block > h2,
-  .mo-placed-block > .block-head > h2 {
+  .mo-placed-block > .mo-block-head > h2 {
     font-size: var(--mo-sys-typescale-headline-large-size);
     line-height: var(--mo-sys-typescale-headline-large-line-height);
     font-weight: var(--mo-sys-typescale-headline-large-weight);
@@ -312,7 +312,7 @@
   }
   @media (width >= 37.5rem) {
     .mo-placed-block > h2,
-    .mo-placed-block > .block-head > h2 {
+    .mo-placed-block > .mo-block-head > h2 {
       font-size: var(--mo-sys-typescale-display-medium-size);
       line-height: var(--mo-sys-typescale-display-medium-line-height);
       font-weight: var(--mo-sys-typescale-display-medium-weight);
@@ -322,7 +322,7 @@
   /* Cards placed in the page's full width (a front-page section, PageBlock.astro): three in a row on a computer, as
    there is room for (in the text, two). */
   @media (width >= 52.5rem) {
-    .mo-placed-block .block-cards {
+    .mo-placed-block .mo-block-cards {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
@@ -330,7 +330,7 @@
   /* The mark before the name on a testimonial (the standard block's card): a small dot in the accent, which the standard
    theme's own look (global.css) makes an avatar with the initial. Another mark (e.g. a logo) is that
    theme's own (its global.css), not the standard theme's. */
-  .block-testimonial-mark {
+  .mo-block-testimonials__testimonial-mark {
     display: inline-block;
     flex-shrink: 0;
     width: 0.5rem;
@@ -341,7 +341,7 @@
 
   /* Boxes side by side ("Links", an app's boxes): the site's panels (outlined cards, ui.css, without a shadow), with
    more room on a computer and the heading of a section in it. */
-  .block-panels :is(.block-panel-title, .block-panel .card-headline) {
+  .mo-block-panels :is(.mo-block-panel__title, .mo-block-panel .card-headline) {
     font-size: var(--mo-sys-typescale-headline-small-size);
     line-height: var(--mo-sys-typescale-headline-small-line-height);
     font-weight: var(--mo-sys-typescale-headline-small-weight);

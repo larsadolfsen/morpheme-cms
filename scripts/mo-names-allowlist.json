@@ -3,7 +3,7 @@
   "files": {
     "demo/public/demo-names.js": {
       "classDefs": 0,
-      "markup": 37,
+      "markup": 30,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -15,25 +15,13 @@
     },
     "demo/src/apps/inline-example/blocks/tickets/Inline.tsx": {
       "classDefs": 0,
-      "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "demo/src/apps/inline-example/blocks/tickets/View.tsx": {
-      "classDefs": 0,
-      "markup": 1,
+      "markup": 2,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "lib/snackbar.ts": {
       "classDefs": 0,
       "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "lib/video.mjs": {
-      "classDefs": 0,
-      "markup": 4,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -45,13 +33,13 @@
     },
     "scripts/card-designs.mjs": {
       "classDefs": 0,
-      "markup": 4,
+      "markup": 3,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "scripts/check-contrast.mjs": {
       "classDefs": 0,
-      "markup": 10,
+      "markup": 9,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -63,31 +51,25 @@
     },
     "scripts/check-density.mjs": {
       "classDefs": 0,
-      "markup": 13,
+      "markup": 11,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "scripts/check-imagegrid.mjs": {
       "classDefs": 0,
-      "markup": 6,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "scripts/check-preview.mjs": {
       "classDefs": 0,
-      "markup": 10,
+      "markup": 5,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "scripts/check-text-measure.mjs": {
       "classDefs": 0,
-      "markup": 13,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "scripts/editor-roundtrip.mjs": {
-      "classDefs": 0,
-      "markup": 3,
+      "markup": 4,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -117,7 +99,7 @@
     },
     "scripts/screens/cards.mjs": {
       "classDefs": 0,
-      "markup": 141,
+      "markup": 67,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -127,21 +109,15 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "scripts/screens/demo-names.mjs": {
-      "classDefs": 0,
-      "markup": 5,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "scripts/screens/density.mjs": {
       "classDefs": 0,
-      "markup": 34,
+      "markup": 32,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "scripts/screens/files.mjs": {
       "classDefs": 0,
-      "markup": 5,
+      "markup": 3,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -153,13 +129,13 @@
     },
     "scripts/screens/inline-blocks.mjs": {
       "classDefs": 0,
-      "markup": 96,
+      "markup": 87,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "scripts/screens/lists.mjs": {
       "classDefs": 0,
-      "markup": 112,
+      "markup": 94,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -177,13 +153,13 @@
     },
     "scripts/screens/sections.mjs": {
       "classDefs": 0,
-      "markup": 34,
+      "markup": 23,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "scripts/screens/sheets.mjs": {
       "classDefs": 0,
-      "markup": 129,
+      "markup": 128,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -201,13 +177,13 @@
     },
     "scripts/screens/support/shared.mjs": {
       "classDefs": 0,
-      "markup": 22,
+      "markup": 20,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "scripts/screens/tables.mjs": {
       "classDefs": 0,
-      "markup": 30,
+      "markup": 22,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -265,27 +241,9 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/AppList.tsx": {
-      "classDefs": 0,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/BlockDialog.tsx": {
       "classDefs": 0,
       "markup": 4,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/BlockParts.tsx": {
-      "classDefs": 0,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/BrandForm.tsx": {
-      "classDefs": 0,
-      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -295,15 +253,9 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/CommunicationParts.tsx": {
-      "classDefs": 0,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/ContainmentParts.tsx": {
       "classDefs": 0,
-      "markup": 6,
+      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 1
     },
@@ -339,13 +291,13 @@
     },
     "src/InlineButtons.tsx": {
       "classDefs": 0,
-      "markup": 6,
+      "markup": 5,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "src/InlineCards.tsx": {
       "classDefs": 0,
-      "markup": 15,
+      "markup": 7,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -357,37 +309,37 @@
     },
     "src/InlineList.tsx": {
       "classDefs": 0,
-      "markup": 21,
+      "markup": 15,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "src/InlineLiveList.tsx": {
       "classDefs": 0,
-      "markup": 3,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "src/InlineNotice.tsx": {
       "classDefs": 0,
-      "markup": 5,
+      "markup": 4,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "src/InlinePriceCards.tsx": {
       "classDefs": 0,
-      "markup": 23,
+      "markup": 8,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "src/InlineSteps.tsx": {
       "classDefs": 0,
-      "markup": 8,
+      "markup": 2,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "src/InlineTable.tsx": {
       "classDefs": 0,
-      "markup": 5,
+      "markup": 3,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -409,18 +361,6 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/NavigationParts.tsx": {
-      "classDefs": 0,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/NavigationRestParts.tsx": {
-      "classDefs": 0,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/OwnList.tsx": {
       "classDefs": 0,
       "markup": 1,
@@ -436,12 +376,6 @@
     "src/Screen.tsx": {
       "classDefs": 0,
       "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/SearchPreview.tsx": {
-      "classDefs": 0,
-      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -506,7 +440,7 @@
       "propsRead": 2
     },
     "src/editor.css": {
-      "classDefs": 506,
+      "classDefs": 502,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 20
@@ -547,201 +481,21 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "theme/blocks/ArrowLink.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/BlockHead.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/ListButton.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/MoreRows.tsx": {
-      "classDefs": 0,
-      "markup": 7,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/Panel.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/Person.tsx": {
-      "classDefs": 0,
-      "markup": 4,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/accordion/Accordion.tsx": {
-      "classDefs": 0,
-      "markup": 6,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/accordion/PageRow.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "theme/blocks/accordion/script.ts": {
       "classDefs": 0,
       "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "theme/blocks/buttons/View.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/cards/LinkCards.tsx": {
-      "classDefs": 0,
-      "markup": 9,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/checklist/Checks.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/checklist/View.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/cookies/View.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "theme/blocks/imagegrid/View.tsx": {
       "classDefs": 0,
-      "markup": 6,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "theme/blocks/imagegrid/script.ts": {
       "classDefs": 0,
-      "markup": 4,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/links/LinkGroups.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/links/View.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/list/Rows.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/list/more.ts": {
-      "classDefs": 0,
       "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/list/script.ts": {
-      "classDefs": 0,
-      "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/notice/View.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/points/PointList.tsx": {
-      "classDefs": 0,
-      "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/points/View.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/posts/View.tsx": {
-      "classDefs": 0,
-      "markup": 7,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/pricecards/View.tsx": {
-      "classDefs": 0,
-      "markup": 12,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/steps/StepList.tsx": {
-      "classDefs": 0,
-      "markup": 7,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/steps/View.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/table/View.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/testimonials/List.tsx": {
-      "classDefs": 0,
-      "markup": 5,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/testimonials/Slider.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/testimonials/Testimonial.tsx": {
-      "classDefs": 0,
-      "markup": 15,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/blocks/video/View.tsx": {
-      "classDefs": 0,
-      "markup": 2,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -781,12 +535,6 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "theme/components/PopupButton.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "theme/components/PostList.tsx": {
       "classDefs": 0,
       "markup": 2,
@@ -800,103 +548,67 @@
       "propsRead": 0
     },
     "theme/styles/base.css": {
-      "classDefs": 18,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/blocks/accordion.css": {
-      "classDefs": 28,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/blocks/buttons-links.css": {
-      "classDefs": 21,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/blocks/checklist.css": {
-      "classDefs": 4,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/blocks/cta-prices.css": {
-      "classDefs": 35,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/blocks/link-row.css": {
-      "classDefs": 7,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/blocks/panel.css": {
-      "classDefs": 90,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 1
-    },
-    "theme/styles/blocks/person-facts.css": {
-      "classDefs": 34,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/blocks/prose.css": {
-      "classDefs": 43,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/blocks/row.css": {
       "classDefs": 9,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "theme/styles/blocks/steps.css": {
-      "classDefs": 12,
+    "theme/styles/blocks/accordion.css": {
+      "classDefs": 1,
+      "markup": 0,
+      "propsDeclared": 0,
+      "propsRead": 0
+    },
+    "theme/styles/blocks/buttons-links.css": {
+      "classDefs": 2,
+      "markup": 0,
+      "propsDeclared": 0,
+      "propsRead": 0
+    },
+    "theme/styles/blocks/panel.css": {
+      "classDefs": 18,
+      "markup": 0,
+      "propsDeclared": 0,
+      "propsRead": 0
+    },
+    "theme/styles/blocks/prose.css": {
+      "classDefs": 7,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "theme/styles/blocks/testimonial.css": {
-      "classDefs": 28,
+      "classDefs": 5,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "theme/styles/blocks/text-section.css": {
-      "classDefs": 12,
+      "classDefs": 3,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "theme/styles/cards.css": {
-      "classDefs": 124,
+      "classDefs": 48,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "theme/styles/lists.css": {
-      "classDefs": 36,
+      "classDefs": 13,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 1
     },
     "theme/styles/material/block-looks.css": {
-      "classDefs": 27,
+      "classDefs": 17,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "theme/styles/material/buttons-chips.css": {
-      "classDefs": 27,
+      "classDefs": 18,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 1
@@ -920,7 +632,7 @@
       "propsRead": 0
     },
     "theme/styles/material/prose-testimonial.css": {
-      "classDefs": 3,
+      "classDefs": 1,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
@@ -943,44 +655,14 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "theme/styles/tokens/base/comp/card.css": {
-      "classDefs": 2,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "theme/styles/tokens/base/comp/toolbar.css": {
       "classDefs": 1,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "theme/styles/tokens/blocks/comp/card.css": {
-      "classDefs": 4,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/blocks/comp/grid.css": {
-      "classDefs": 3,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/blocks/comp/list.css": {
-      "classDefs": 5,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "theme/styles/tokens/blocks/sys.css": {
-      "classDefs": 6,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/cards/comp/card.css": {
-      "classDefs": 4,
+      "classDefs": 1,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
@@ -991,20 +673,14 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "theme/styles/tokens/cards/comp/list.css": {
-      "classDefs": 2,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "theme/styles/tokens/lists/comp/list.css": {
-      "classDefs": 14,
+      "classDefs": 5,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "theme/styles/tokens/lists/sys.css": {
-      "classDefs": 4,
+      "classDefs": 1,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
@@ -1028,7 +704,7 @@
       "propsRead": 0
     },
     "theme/styles/tokens/material/comp/card.css": {
-      "classDefs": 8,
+      "classDefs": 1,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
@@ -1076,7 +752,7 @@
       "propsRead": 0
     },
     "theme/styles/tokens/material/comp/list.css": {
-      "classDefs": 3,
+      "classDefs": 1,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
