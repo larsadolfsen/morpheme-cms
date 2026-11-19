@@ -37,8 +37,14 @@ export const allow = [
     reason: "the colour picker's thumb is white over any colour",
   },
   {
+    kind: 'fixed-colour',
+    file: /^src\/editor-screens\.css$/,
+    line: /background-color: #fff/,
+    reason: "the Preview's frame: a page is shown on paper, whatever the editor's colours",
+  },
+  {
     kind: 'palette-class',
-    file: /^src\/(ui|PreviewScreen)\.tsx$/,
+    file: /^src\/ui\.tsx$/,
     line: /bg-white/,
     reason: "the Preview's frame: a page is shown on paper, whatever the editor's colours",
   },

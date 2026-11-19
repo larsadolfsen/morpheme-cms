@@ -519,7 +519,7 @@
     },
     "src/Library.tsx": {
       "classDefs": 0,
-      "markup": 19,
+      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -555,7 +555,7 @@
     },
     "src/Media.tsx": {
       "classDefs": 0,
-      "markup": 10,
+      "markup": 2,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -669,7 +669,7 @@
     },
     "src/Screen.tsx": {
       "classDefs": 0,
-      "markup": 12,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -693,7 +693,7 @@
     },
     "src/SelectionParts.tsx": {
       "classDefs": 0,
-      "markup": 11,
+      "markup": 3,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -747,7 +747,7 @@
     },
     "src/UpdatesNotice.tsx": {
       "classDefs": 0,
-      "markup": 12,
+      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -790,6 +790,18 @@
     "src/contextualMenu.ts": {
       "classDefs": 0,
       "markup": 3,
+      "propsDeclared": 0,
+      "propsRead": 0
+    },
+    "src/editor-density.css": {
+      "classDefs": 1,
+      "markup": 0,
+      "propsDeclared": 0,
+      "propsRead": 0
+    },
+    "src/editor-screens.css": {
+      "classDefs": 2,
+      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },

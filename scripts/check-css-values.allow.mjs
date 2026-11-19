@@ -2,6 +2,12 @@
 // the file, the line's text and the reason. Keep it small: a new entry is reviewed.
 export const allow = [
   {
+    file: /^src\/editor-screens\.css$/,
+    line: /^font-size: 0\.(875|75)rem|^line-height: 1(\.25)?rem|^border-radius: (0\.75|1)rem|^border-radius: calc\(infinity \* 1px\)/,
+    reason:
+      'the old text-sm, text-xs, rounded-xl, rounded-2xl and rounded-full (calc(infinity * 1px)) of the large screens, moved as they were (Tailwind batch T06: the same look first, the type roles and corner steps in the M3 pass, T13)',
+  },
+  {
     file: /(^|\/)styles\/prose\.css$/,
     line: /^(font-size|line-height|border-radius): /,
     reason:
