@@ -17,41 +17,41 @@
 @layer fallback {
   /* Reduced motion: slowly, and a value at once. */
   @media (prefers-reduced-motion: reduce) {
-    .loading-indicator-shape {
+    .mo-loading-indicator__shape {
       animation: loading-indicator-turn 6s linear infinite;
     }
-    .linear-progress-indicator-active,
-    .linear-progress-indicator-track,
-    .circular-progress-indicator-active,
-    .circular-progress-indicator-track,
-    .tooltip {
+    .mo-linear-progress-indicator__active,
+    .mo-linear-progress-indicator__track,
+    .mo-circular-progress-indicator__active,
+    .mo-circular-progress-indicator__track,
+    .mo-tooltip {
       transition: none;
     }
-    .linear-progress-indicator-indeterminate > .linear-progress-indicator-active,
-    .linear-progress-indicator-wavy.linear-progress-indicator-indeterminate .linear-progress-indicator-active,
-    .circular-progress-indicator-indeterminate > svg,
-    .circular-progress-indicator-indeterminate .circular-progress-indicator-active {
+    .mo-linear-progress-indicator__indeterminate > .mo-linear-progress-indicator__active,
+    .mo-linear-progress-indicator__wavy.mo-linear-progress-indicator__indeterminate .mo-linear-progress-indicator__active,
+    .mo-circular-progress-indicator__indeterminate > svg,
+    .mo-circular-progress-indicator__indeterminate .mo-circular-progress-indicator__active {
       animation-duration: 6s;
     }
-    .linear-progress-indicator-indeterminate > .linear-progress-indicator-active + .linear-progress-indicator-active,
-    .linear-progress-indicator-wavy.linear-progress-indicator-indeterminate
-      .linear-progress-indicator-active
-      + .linear-progress-indicator-active {
+    .mo-linear-progress-indicator__indeterminate > .mo-linear-progress-indicator__active + .mo-linear-progress-indicator__active,
+    .mo-linear-progress-indicator__wavy.mo-linear-progress-indicator__indeterminate
+      .mo-linear-progress-indicator__active
+      + .mo-linear-progress-indicator__active {
       animation-delay: 3.3s;
     }
     /* A wavy one's wave stands still. */
-    .linear-progress-indicator-wavy:not(.linear-progress-indicator-indeterminate) .linear-progress-indicator-active,
-    .circular-progress-indicator-wavy:not(.circular-progress-indicator-indeterminate) .circular-progress-indicator-active {
+    .mo-linear-progress-indicator__wavy:not(.mo-linear-progress-indicator__indeterminate) .mo-linear-progress-indicator__active,
+    .mo-circular-progress-indicator__wavy:not(.mo-circular-progress-indicator__indeterminate) .mo-circular-progress-indicator__active {
       animation: none;
     }
   }
 }
 @layer fallback {
   @media (prefers-reduced-motion: reduce) {
-    :is(a, button).card::before {
+    :is(a, button).mo-card::before {
       transition: none;
     }
-    .ripple-wave {
+    .mo-ripple__wave {
       animation: ripple-in 105ms linear;
     }
   }

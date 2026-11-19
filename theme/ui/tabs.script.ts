@@ -5,7 +5,7 @@
 // are left alone. Run on every page by the theme's Base.astro (blockScripts, packages/editor/site/blockScripts.ts); without a tab list it
 // does nothing.
 export default function tabs() {
-  document.querySelectorAll<HTMLElement>('.tabs[role="tablist"]').forEach((list) => {
+  document.querySelectorAll<HTMLElement>('.mo-tabs[role="tablist"]').forEach((list) => {
     const all = () =>
       [...list.querySelectorAll<HTMLButtonElement>('[role="tab"]')].filter((tab) => tab.closest('[role="tablist"]') === list);
     const open = (to: HTMLButtonElement, scroll = true) => {

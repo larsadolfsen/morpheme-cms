@@ -1,4 +1,4 @@
-// A slider (m3.material.io/components/sliders, .slider in ../styles/ui/slider.css): a value chosen between `min` and `max`
+// A slider (m3.material.io/components/sliders, .mo-slider in ../styles/ui/slider.css): a value chosen between `min` and `max`
 // (`value`; the standard slider, its active track from the start), in steps of `step` with a stop at each (`stops`),
 // from the middle (`centered`: the active track from the middle to the handle, for a value below and above a middle
 // one), or a range (`range`, its start and end, with two handles that cannot pass each other; `handleLabels` says what
@@ -25,11 +25,11 @@ export type SliderOrientation = 'horizontal' | 'vertical';
 /** A slider's classes: a range, `slider-range`; centered, `slider-centered`; its size but the default; vertical. */
 export const sliderClass = (range = false, size: SliderSize = 'xsmall', centered = false, orientation: SliderOrientation = 'horizontal') =>
   [
-    'slider',
-    range && 'slider-range',
-    centered && !range && 'slider-centered',
-    size !== 'xsmall' && `slider-${size}`,
-    orientation === 'vertical' && 'slider-vertical',
+    'mo-slider',
+    range && 'mo-slider__range',
+    centered && !range && 'mo-slider__centered',
+    size !== 'xsmall' && `mo-slider__${size}`,
+    orientation === 'vertical' && 'mo-slider__vertical',
   ]
     .filter(Boolean)
     .join(' ');
@@ -82,7 +82,7 @@ export default function Slider({
   // The icon only in a standard slider's track, and only where the track is thick enough to hold it.
   const inset = icon && !range && !middle && ['medium', 'large', 'xlarge'].includes(size) ? icon : undefined;
   const vertical = orientation === 'vertical';
-  const place = { '--slider-start': start, '--slider-end': end } as CSSProperties;
+  const place = { '--mo-comp-slider-start': start, '--mo-comp-slider-end': end } as CSSProperties;
   return (
     <div
       className={[sliderClass(Boolean(range), size, middle, orientation), className].filter(Boolean).join(' ')}
@@ -95,25 +95,25 @@ export default function Slider({
       onInput={(e: FormEvent<HTMLDivElement>) => updateSlider(e.currentTarget, e.target)}
     >
       {!hideLabel && (
-        <span className="slider-label" aria-hidden="true">
+        <span className="mo-slider__label" aria-hidden="true">
           {label}
         </span>
       )}
-      <div className="slider-control">
-        <span className="slider-track" aria-hidden="true">
-          {(range || middle) && <span className="slider-inactive-track slider-inactive-track-start" />}
-          <span className="slider-active-track">
-            {inset && <Svg name={inset} size={24} className="slider-icon" />}
-            {inset && <Svg name={inset} size={24} className="slider-icon slider-icon-inactive" />}
+      <div className="mo-slider__control">
+        <span className="mo-slider__track" aria-hidden="true">
+          {(range || middle) && <span className="mo-slider__inactive-track mo-slider__inactive-track-start" />}
+          <span className="mo-slider__active-track">
+            {inset && <Svg name={inset} size={24} className="mo-slider__icon" />}
+            {inset && <Svg name={inset} size={24} className="mo-slider__icon mo-slider__icon-inactive" />}
           </span>
-          <span className="slider-inactive-track slider-inactive-track-end" />
+          <span className="mo-slider__inactive-track mo-slider__inactive-track-end" />
           {stopValues.map((v) => {
             const { active, under } = stopState(v, values, min, max, middle);
             return (
               <span
                 key={v}
-                className="slider-stop"
-                style={{ '--slider-stop': (v - min) / (max - min) } as CSSProperties}
+                className="mo-slider__stop"
+                style={{ '--mo-comp-slider-stop': (v - min) / (max - min) } as CSSProperties}
                 data-slider-stop={v}
                 data-active={active ? '' : undefined}
                 data-under={under ? '' : undefined}
@@ -125,7 +125,7 @@ export default function Slider({
           <input
             key={`input-${i}`}
             type="range"
-            className="slider-input"
+            className="mo-slider__input"
             min={min}
             max={max}
             step={step}
@@ -141,7 +141,7 @@ export default function Slider({
           valueLabel && (
             <output
               key={`value-${i}`}
-              className={valueLabel === 'always' ? 'slider-value slider-value-always' : 'slider-value'}
+              className={valueLabel === 'always' ? 'mo-slider__value mo-slider__value-always' : 'mo-slider__value'}
               aria-hidden="true"
               data-slider-value=""
             >

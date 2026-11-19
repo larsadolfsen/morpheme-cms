@@ -1,4 +1,4 @@
-// A dialog (m3.material.io/components/dialogs, .dialog in ../styles/ui/dialog.css): Material's basic dialog. Full-screen dialogs are not
+// A dialog (m3.material.io/components/dialogs, .mo-dialog in ../styles/ui/dialog.css): Material's basic dialog. Full-screen dialogs are not
 // in the theme (owner, 14 Nov 2026: a full screen is a page with a back arrow, not a dialog).
 // Its container. With only `children` it is the container alone, with what is in it (a
 //   pop-up's box, PopupView.tsx; the date and time pickers); the cookie question is such a dialog that is not modal
@@ -16,9 +16,9 @@ import Divider from '@theme/ui/Divider';
 
 /** A dialog's container's class (`parts` when it has its headline, supporting text and actions), and the class of the
  * <dialog> a modal one is shown in. */
-export const dialogClass = 'dialog';
-export const dialogClassOf = (parts = false) => (parts ? 'dialog dialog-basic' : dialogClass);
-export const dialogModalClass = 'dialog-modal';
+export const dialogClass = 'mo-dialog';
+export const dialogClassOf = (parts = false) => (parts ? 'mo-dialog mo-dialog__basic' : dialogClass);
+export const dialogModalClass = 'mo-dialog__modal';
 
 export default function Dialog({
   icon,
@@ -41,13 +41,13 @@ export default function Dialog({
   children?: ReactNode;
 } & Record<string, unknown>) {
   const parts = Boolean(icon || headline || supportingText || actions);
-  const classes = [dialogClassOf(parts), icon && 'dialog-with-icon', className].filter(Boolean).join(' ');
+  const classes = [dialogClassOf(parts), icon && 'mo-has-icon', className].filter(Boolean).join(' ');
   const title = headline && (
-    <h2 id={headlineId} className="dialog-headline">
+    <h2 id={headlineId} className="mo-dialog__headline">
       {headline}
     </h2>
   );
-  const supporting = supportingText && <div className="dialog-supporting-text">{supportingText}</div>;
+  const supporting = supportingText && <div className="mo-dialog__supporting-text">{supportingText}</div>;
 
   // The container alone, as before the parts were there (a pop-up's box, the pickers).
   if (!parts)
@@ -59,12 +59,12 @@ export default function Dialog({
 
   return (
     <div className={classes} {...rest}>
-      {icon && <Svg name={icon} size={24} className="dialog-icon" />}
+      {icon && <Svg name={icon} size={24} className="mo-dialog__icon" />}
       {title}
       {supporting}
-      {children && <div className="dialog-content">{children}</div>}
-      {divider && <Divider className="dialog-divider" />}
-      {actions && <div className="dialog-actions">{actions}</div>}
+      {children && <div className="mo-dialog__content">{children}</div>}
+      {divider && <Divider className="mo-dialog__divider" />}
+      {actions && <div className="mo-dialog__actions">{actions}</div>}
     </div>
   );
 }

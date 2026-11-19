@@ -153,7 +153,7 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
                         if (e.key === 'Enter') e.preventDefault();
                       }}
                     />
-                    {view?.icon === 'arrow-right' && <Glyph icon={view.icon} size={18} className="button-trailing-icon" />}
+                    {view?.icon === 'arrow-right' && <Glyph icon={view.icon} size={18} className="mo-button__trailing-icon" />}
                   </span>
                 </div>
               )}

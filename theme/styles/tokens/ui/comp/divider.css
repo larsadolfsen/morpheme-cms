@@ -1,7 +1,7 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  .menu-divider {
+  .mo-menu__divider {
     --mo-comp-divider-color: var(--mo-comp-menu-divider-color, var(--mo-sys-block-line));
   }
 }

@@ -102,7 +102,7 @@ export function Dashboard({ dash, env, files }: { dash: DashboardEditing; env: E
           )}
         </>
       ) : (
-        <div className="image-grid mo-editor-dashboard-grid">
+        <div className="mo-staggered-grid mo-editor-dashboard-grid">
           {dash.shown.map(({ placement, definition }) => (
             // A widget with nothing to say renders nothing: its wrapper is then empty and hidden, so it leaves no gutter.
             <div key={placement.id} className={`${spanClass(definition.span)} mo-editor-widget-slot`}>

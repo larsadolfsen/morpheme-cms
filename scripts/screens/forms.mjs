@@ -26,17 +26,17 @@ async function checkUserInvalid(width, height, theme) {
   await input.scrollIntoViewIfNeeded();
   const read = () =>
     input.evaluate((el) => {
-      const root = el.closest('.text-field');
+      const root = el.closest('.mo-text-field');
       const shown = (node) => !!node && getComputedStyle(node).display !== 'none';
       const rect = root.getBoundingClientRect();
       return {
         invalid: el.matches(':user-invalid'),
-        edge: getComputedStyle(el.closest('.text-field-container')).boxShadow,
-        said: shown(root.querySelector('.text-field-invalid-text')),
-        supporting: shown(root.querySelector('.text-field-supporting:not(.text-field-invalid-text)')),
-        icon: shown(root.querySelector('.text-field-error-icon')),
+        edge: getComputedStyle(el.closest('.mo-text-field__container')).boxShadow,
+        said: shown(root.querySelector('.mo-text-field__invalid-text')),
+        supporting: shown(root.querySelector('.mo-text-field__supporting:not(.mo-text-field__invalid-text)')),
+        icon: shown(root.querySelector('.mo-text-field__error-icon')),
         aria: el.getAttribute('aria-invalid'),
-        described: (el.getAttribute('aria-describedby') ?? '').includes(root.querySelector('.text-field-invalid-text')?.id ?? '\0'),
+        described: (el.getAttribute('aria-describedby') ?? '').includes(root.querySelector('.mo-text-field__invalid-text')?.id ?? '\0'),
         height: Math.round(rect.height),
       };
     });
@@ -72,7 +72,7 @@ async function checkUserInvalid(width, height, theme) {
   if (right.edge !== before.edge) problems.push(`${label}: the edge did not return to the normal one after it was put right`);
   // The error line is read once, with the field (aria-describedby), not as an alert; and a number that cannot be read (validity.badInput)
   // says so in words instead of going red with none.
-  if (await page.locator('[data-part="TextField"] .text-field-invalid-text[role]').count())
+  if (await page.locator('[data-part="TextField"] .mo-text-field__invalid-text[role]').count())
     problems.push(`${label}: the error line has a role of its own (it is read with the field by aria-describedby)`);
   const number = page.locator('[data-part="TextField"] input[data-part="invalid-number"]').first();
   await number.scrollIntoViewIfNeeded();
@@ -80,8 +80,8 @@ async function checkUserInvalid(width, height, theme) {
   await page.keyboard.type('1e');
   await number.blur();
   const typed = await number.evaluate((el) => {
-    const root = el.closest('.text-field');
-    const line = root.querySelector('.text-field-invalid-text');
+    const root = el.closest('.mo-text-field');
+    const line = root.querySelector('.mo-text-field__invalid-text');
     return {
       bad: el.validity.badInput,
       invalid: el.matches(':user-invalid'),

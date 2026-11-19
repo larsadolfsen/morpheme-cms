@@ -7,7 +7,7 @@
 */
 @layer components {
   /* "Testimonial cards": testimonials to leaf through (testimonials/Slider.tsx, a carousel: ui.css). */
-  .carousel.mo-is-in-text,
+  .mo-carousel.mo-is-in-text,
   .mo-block-testimonials.mo-is-in-text,
   .mo-block-testimonials__testimonial.mo-is-in-text {
     margin-block: 2.5rem;
@@ -16,7 +16,7 @@
   .mo-block-testimonials__testimonial-rows > li:has(> [data-tags][hidden]) {
     display: none;
   }
-  /* One testimonial (testimonials/Testimonial.tsx), an outlined card (.card in ui.css): a big quotation mark, its tags,
+  /* One testimonial (testimonials/Testimonial.tsx), an outlined card (.mo-card in ui.css): a big quotation mark, its tags,
      the text (cut after seven lines with "Read more", or two with a link to the whole text) and the name. */
   .mo-block-testimonials__testimonial {
     display: flex;
@@ -46,7 +46,7 @@
     justify-content: flex-end;
     gap: 0.5rem;
   }
-  .mo-block-testimonials__testimonial-tags .chip {
+  .mo-block-testimonials__testimonial-tags .mo-chip {
     font-size: var(--mo-sys-typescale-label-large-size);
     line-height: var(--mo-sys-typescale-label-large-line-height);
     font-weight: var(--mo-sys-typescale-label-large-weight);

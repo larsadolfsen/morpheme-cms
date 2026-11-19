@@ -1,4 +1,4 @@
-// What a time picker shows when it is open (m3.material.io/components/time-pickers, .time-picker in ../styles/ui/pickers.css),
+// What a time picker shows when it is open (m3.material.io/components/time-pickers, .mo-time-picker in ../styles/ui/pickers.css),
 // drawn for the time and what is shown (`view`, `selecting`, `hour`, `minute`): one drawing for the site, where
 // timePicker.script.ts draws it in the time picker's <dialog> (TimePicker.tsx) each time something changes and does
 // what it is told by the data-time-picker-… attributes, and for the editor, which only draws it. Built on the theme's
@@ -74,7 +74,7 @@ const minutes = Array.from({ length: 12 }, (_, i) => i * 5);
 export const handOf = (selecting: 'hour' | 'minute', value: number, twelve = false) =>
   selecting === 'hour' ? { angle: (value % 12) * 30, inner: !twelve && value >= 12 } : { angle: value * 6, inner: false };
 
-const at = (angle: number) => ({ '--time-picker-angle': `${angle}deg` }) as CSSProperties;
+const at = (angle: number) => ({ '--mo-comp-time-picker-angle': `${angle}deg` }) as CSSProperties;
 
 export default function TimePickerContainer({
   view,
@@ -102,9 +102,15 @@ export default function TimePickerContainer({
   ];
   // AM and PM, beside the boxes (under them, horizontal).
   const period = twelve && (
-    <span className="time-picker-period" role="group" aria-label={texts.period}>
+    <span className="mo-time-picker__period" role="group" aria-label={texts.period}>
       {(['am', 'pm'] as const).map((p) => (
-        <button key={p} type="button" className="time-picker-period-button" aria-pressed={(p === 'pm') === pm} data-time-picker-action={p}>
+        <button
+          key={p}
+          type="button"
+          className="mo-time-picker__period-button"
+          aria-pressed={(p === 'pm') === pm}
+          data-time-picker-action={p}
+        >
           {texts[p]}
         </button>
       ))}
@@ -112,28 +118,33 @@ export default function TimePickerContainer({
   );
   return (
     <Dialog
-      className={['time-picker', orientation === 'horizontal' && 'time-picker-horizontal', twelve && 'time-picker-12h', className]
+      className={[
+        'mo-time-picker',
+        orientation === 'horizontal' && 'mo-time-picker__horizontal',
+        twelve && 'mo-time-picker__12h',
+        className,
+      ]
         .filter(Boolean)
         .join(' ')}
       data-view={view}
     >
-      <h2 id={headlineId} className="time-picker-headline">
+      <h2 id={headlineId} className="mo-time-picker__headline">
         {view === 'input' ? texts.enter : texts.select}
       </h2>
 
       {view === 'dial' ? (
         <>
-          <div className="time-picker-selector">
+          <div className="mo-time-picker__selector">
             {fields.map((f, i) => (
-              <span key={f.key} className="time-picker-selector-part">
+              <span key={f.key} className="mo-time-picker__selector-part">
                 {i === 1 && (
-                  <span className="time-picker-separator" aria-hidden="true">
+                  <span className="mo-time-picker__separator" aria-hidden="true">
                     {separator}
                   </span>
                 )}
                 <button
                   type="button"
-                  className="time-picker-box"
+                  className="mo-time-picker__box"
                   aria-label={`${f.label}: ${f.value}`}
                   aria-pressed={selecting === f.key}
                   data-time-picker-action={f.key}
@@ -145,7 +156,7 @@ export default function TimePickerContainer({
             {period}
           </div>
           <div
-            className="time-picker-dial"
+            className="mo-time-picker__dial"
             role="slider"
             tabIndex={0}
             aria-label={selecting === 'hour' ? texts.hour : texts.minute}
@@ -156,13 +167,13 @@ export default function TimePickerContainer({
             data-time-picker-dial={selecting}
           >
             <span
-              className="time-picker-dial-hand"
+              className="mo-time-picker__dial-hand"
               data-inner={hand.inner || undefined}
               data-between={(selecting === 'minute' && value % 5 !== 0) || undefined}
               style={at(hand.angle)}
               aria-hidden="true"
             >
-              <span className="time-picker-dial-knob" />
+              <span className="mo-time-picker__dial-knob" />
             </span>
             {(selecting === 'minute' ? minutes : twelve ? twelveHours : hours).map((n) => {
               const spot = handOf(selecting, n, twelve);
@@ -170,7 +181,7 @@ export default function TimePickerContainer({
               return (
                 <span
                   key={n}
-                  className="time-picker-dial-number"
+                  className="mo-time-picker__dial-number"
                   data-inner={spot.inner || undefined}
                   data-selected={picked || undefined}
                   style={at(spot.angle)}
@@ -183,11 +194,11 @@ export default function TimePickerContainer({
           </div>
         </>
       ) : (
-        <div className="time-picker-input">
+        <div className="mo-time-picker__input">
           {fields.map((f, i) => (
-            <span key={f.key} className="time-picker-selector-part">
+            <span key={f.key} className="mo-time-picker__selector-part">
               {i === 1 && (
-                <span className="time-picker-separator" aria-hidden="true">
+                <span className="mo-time-picker__separator" aria-hidden="true">
                   {separator}
                 </span>
               )}
@@ -200,7 +211,7 @@ export default function TimePickerContainer({
                 inputMode="numeric"
                 maxLength={2}
                 autoComplete="off"
-                className="time-picker-text-field"
+                className="mo-time-picker__text-field"
                 data-time-picker-input={i}
               />
             </span>
@@ -209,18 +220,18 @@ export default function TimePickerContainer({
         </div>
       )}
       {error && (
-        <p className="time-picker-error" role="alert">
+        <p className="mo-time-picker__error" role="alert">
           {error.message}
         </p>
       )}
 
-      <div className="time-picker-actions">
+      <div className="mo-time-picker__actions">
         <IconButton
           icon={view === 'dial' ? 'keyboard' : 'clock'}
           label={view === 'dial' ? texts.toInput : texts.toDial}
           data-time-picker-action="mode"
         />
-        <span className="time-picker-actions-end">
+        <span className="mo-time-picker__actions-end">
           <Button kind="text" size="small" data-time-picker-action="cancel">
             {texts.cancel}
           </Button>

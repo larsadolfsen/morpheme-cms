@@ -5,55 +5,57 @@
 @layer components {
   /* Text fields (their variables above): the filled one's corners square at the bottom, along its active indicator,
      which is 2px in the primary colour while it is written in or wrong. */
-  .text-field-filled .text-field-container {
+  :where(.mo-text-field).mo-is-filled .mo-text-field__container {
     border-radius: var(--mo-sys-shape-corner-extra-small) var(--mo-sys-shape-corner-extra-small) var(--mo-sys-shape-corner-none)
       var(--mo-sys-shape-corner-none);
   }
-  .text-field-filled .text-field-container:hover {
+  :where(.mo-text-field).mo-is-filled .mo-text-field__container:hover {
     background: color-mix(
       in srgb,
       var(--mo-sys-color-on-surface) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
       var(--mo-sys-color-surface-container-highest)
     );
   }
-  .text-field-filled .text-field-container:has(> .text-field-input:focus) {
+  :where(.mo-text-field).mo-is-filled .mo-text-field__container:has(> .mo-text-field__input:focus) {
     box-shadow: inset 0 -2px 0 var(--mo-sys-color-primary);
   }
-  .text-field-filled:is(
-      .text-field-error,
-      .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text))
+  :where(.mo-text-field).mo-is-filled:is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
     )
-    .text-field-container,
-  .text-field-filled:is(
-      .text-field-error,
-      .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text))
+    .mo-text-field__container,
+  :where(.mo-text-field)
+    .mo-is-filled:is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
     )
-    .text-field-container:hover,
-  .text-field-filled:is(
-      .text-field-error,
-      .text-field:where(:has(> .text-field-container > .text-field-input:user-invalid):has(.text-field-invalid-text))
+    .mo-text-field__container:hover,
+  :where(.mo-text-field)
+    .mo-is-filled:is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
     )
-    .text-field-container:has(> .text-field-input:focus) {
+    .mo-text-field__container:has(> .mo-text-field__input:focus) {
     box-shadow: inset 0 -2px 0 var(--mo-comp-text-field-error, var(--mo-sys-color-primary));
   }
 
   /* An M3 checkbox: an 18px box with a 2px edge in on-surface-variant and 2px corners, filled in the primary colour
      with the theme's tick in on-primary when ticked, in a round state layer (40px) when pointed at, 38% when it cannot
      be changed. */
-  .checkbox-box {
+  .mo-checkbox__box {
     width: 2.5rem;
     height: 2.5rem;
     margin: -0.5rem -0.6875rem -0.6875rem;
     border-radius: var(--mo-sys-shape-corner-full);
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .checkbox:hover .checkbox-box {
+  .mo-checkbox:hover .mo-checkbox__box {
     background: var(--mo-sys-state-mo-hover-layer);
   }
-  .checkbox:has(.checkbox-input:disabled):hover .checkbox-box {
+  .mo-checkbox:has(.mo-checkbox__input:disabled):hover .mo-checkbox__box {
     background: transparent;
   }
-  .checkbox-input {
+  .mo-checkbox__input {
     appearance: none;
     width: 1.125rem;
     height: 1.125rem;
@@ -63,27 +65,27 @@
       background-color var(--mo-sys-motion-spring-default-effects),
       border-color var(--mo-sys-motion-spring-default-effects);
   }
-  .checkbox-input:checked,
-  .checkbox-input[data-checked] {
+  .mo-checkbox__input:checked,
+  .mo-checkbox__input[data-checked] {
     border-color: var(--mo-sys-color-primary);
     background: var(--mo-sys-color-primary);
   }
-  .checkbox-input:checked + .checkbox-icon,
-  .checkbox-input[data-checked] + .checkbox-icon {
+  .mo-checkbox__input:checked + .mo-checkbox__icon,
+  .mo-checkbox__input[data-checked] + .mo-checkbox__icon {
     display: block;
     color: var(--mo-sys-color-on-primary);
   }
-  .checkbox-input:focus-visible {
+  .mo-checkbox__input:focus-visible {
     outline: 3px solid var(--mo-sys-color-primary);
     outline-offset: 2px;
   }
-  .checkbox-box:has(.checkbox-input:disabled) {
+  .mo-checkbox__box:has(.mo-checkbox__input:disabled) {
     opacity: var(--mo-sys-state-disabled-state-layer-opacity);
   }
 
   /* An M3 switch (its variables above): a round state layer (40px) around the handle when pointed at, in the primary
      colour when on; the handle off in on-surface-variant when pointed at or pressed. */
-  .switch-handle::before {
+  .mo-switch__handle::before {
     content: '';
     position: absolute;
     top: 50%;
@@ -94,66 +96,66 @@
     translate: -50% -50%;
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .switch:hover .switch-input:enabled + .switch-handle::before {
+  .mo-switch:hover .mo-switch__input:enabled + .mo-switch__handle::before {
     background: var(--mo-sys-state-mo-hover-layer);
   }
-  .switch:hover .switch-input:enabled:checked + .switch-handle::before {
+  .mo-switch:hover .mo-switch__input:enabled:checked + .mo-switch__handle::before {
     background: var(--mo-sys-color-primary-hover);
   }
   /* Focused and pressed: 10%, as M3's state layers (hover is 8%). */
-  .switch .switch-input:enabled:focus-visible + .switch-handle::before,
-  .switch .switch-input:enabled:active + .switch-handle::before {
+  .mo-switch .mo-switch__input:enabled:focus-visible + .mo-switch__handle::before,
+  .mo-switch .mo-switch__input:enabled:active + .mo-switch__handle::before {
     background: var(--mo-sys-state-mo-pressed-layer);
   }
-  .switch .switch-input:enabled:checked:focus-visible + .switch-handle::before,
-  .switch .switch-input:enabled:checked:active + .switch-handle::before {
+  .mo-switch .mo-switch__input:enabled:checked:focus-visible + .mo-switch__handle::before,
+  .mo-switch .mo-switch__input:enabled:checked:active + .mo-switch__handle::before {
     background: color-mix(in srgb, var(--mo-sys-color-primary) calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%), transparent);
   }
-  .switch:hover .switch-input:enabled:not(:checked) + .switch-handle,
-  .switch-input:enabled:active:not(:checked) + .switch-handle {
+  .mo-switch:hover .mo-switch__input:enabled:not(:checked) + .mo-switch__handle,
+  .mo-switch__input:enabled:active:not(:checked) + .mo-switch__handle {
     background: var(--mo-sys-color-on-surface-variant);
   }
-  .switch-input:focus-visible {
+  .mo-switch__input:focus-visible {
     outline: 3px solid var(--mo-sys-color-primary);
     outline-offset: 2px;
   }
 
   /* An M3 radio button: a 20px ring in on-surface-variant, chosen in the primary colour with a 10px dot in it, in a
      round state layer (40px) when pointed at, 38% when it cannot be chosen. */
-  .radio-button-box {
+  .mo-radio-button__box {
     width: 2.5rem;
     height: 2.5rem;
     margin: -0.5rem -0.625rem -0.625rem;
     border-radius: var(--mo-sys-shape-corner-full);
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .radio-button:hover .radio-button-box {
+  .mo-radio-button:hover .mo-radio-button__box {
     background: var(--mo-sys-state-mo-hover-layer);
   }
-  .radio-button:has(.radio-button-input:disabled):hover .radio-button-box {
+  .mo-radio-button:has(.mo-radio-button__input:disabled):hover .mo-radio-button__box {
     background: transparent;
   }
-  .radio-button-input {
+  .mo-radio-button__input {
     appearance: none;
     border: 2px solid var(--mo-sys-color-on-surface-variant);
     border-radius: var(--mo-sys-shape-corner-full);
     transition: border-color var(--mo-sys-motion-spring-default-effects);
   }
-  .radio-button-input:checked {
+  .mo-radio-button__input:checked {
     border-color: var(--mo-sys-color-primary);
     background: radial-gradient(circle closest-side, var(--mo-sys-color-primary) 62.5%, transparent calc(62.5% + 0.5px));
   }
-  .radio-button-input:focus-visible {
+  .mo-radio-button__input:focus-visible {
     outline: 3px solid var(--mo-sys-color-primary);
     outline-offset: 2px;
     border-radius: var(--mo-sys-shape-corner-full);
   }
-  .radio-button-box:has(.radio-button-input:disabled) {
+  .mo-radio-button__box:has(.mo-radio-button__input:disabled) {
     opacity: var(--mo-sys-state-disabled-state-layer-opacity);
   }
 
   /* An M3 slider's value: label large in its pill. */
-  .slider-value {
+  .mo-slider__value {
     min-width: 3rem;
     padding: 0.75rem 1rem;
   }

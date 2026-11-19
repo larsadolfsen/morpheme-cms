@@ -117,7 +117,7 @@
   title, body and label, each in a large, a medium and a small size, each with its size, line height, weight and
   tracking (letter spacing). All text on the site is set with one of them: every block (blocks.css), the text
   (base.css) and every part below has the role Material 3 gives it, and keeps its own variable where it has one
-  (--mo-comp-button-font-size, --chip-font-size …), so a theme can still give one part another size. A theme sets the scale to
+  (--mo-comp-button-font-size, --mo-comp-chip-font-size …), so a theme can still give one part another size. A theme sets the scale to
   its own look, in :root in its styles/global.css, and it is its text everywhere; the values here are Material 3's.
     --type-<role>-<size>-size, -line-height, -weight, -tracking   <role>: display, headline, title, body or label;
       <size>: large, medium or small

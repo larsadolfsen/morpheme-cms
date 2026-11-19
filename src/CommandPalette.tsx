@@ -274,7 +274,7 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
   useEffect(() => {
     if (!open) return;
     const shown = (el: Element) => el.getClientRects().length > 0;
-    const bar = [...document.querySelectorAll<HTMLElement>('header .search-bar')].find(shown);
+    const bar = [...document.querySelectorAll<HTMLElement>('header .mo-search-bar')].find(shown);
     const button = [...document.querySelectorAll<HTMLElement>('header button[aria-label="Search"]')].find(shown);
     const box = (bar ?? button)?.getBoundingClientRect();
     if (!box) return setDock(undefined);

@@ -1,4 +1,4 @@
-// A switch (m3.material.io/components/switch, .switch in ../styles/ui/switch.css): a SettingRow (SettingRow.tsx) with its name
+// A switch (m3.material.io/components/switch, .mo-switch in ../styles/ui/switch.css): a SettingRow (SettingRow.tsx) with its name
 // (`label`) and a line under it (`supporting`), and after them the track with its handle, all of it one <label>, so a
 // click anywhere switches it; the switch is a native <input type="checkbox" role="switch">, so Space switches it and screen readers say
 // "on"/"off". `icons`: the theme's icons in the handle, 'both' (a check when it is on, a cross when it is off) or
@@ -13,7 +13,7 @@ import SettingRow from './SettingRow';
 export type SwitchIcons = 'both' | 'selected';
 
 /** A switch's classes: with icons in its handle, `switch-icons`. */
-export const switchClass = (icons?: SwitchIcons) => (icons ? 'switch switch-icons' : 'switch');
+export const switchClass = (icons?: SwitchIcons) => (icons ? 'mo-switch mo-switch__icons' : 'mo-switch');
 
 export default function Switch({
   label,
@@ -40,11 +40,11 @@ export default function Switch({
       label={hideLabel ? null : label}
       supporting={hideLabel ? null : supporting}
     >
-      <span className="switch-track">
-        <input type="checkbox" role="switch" className="switch-input" aria-label={hideLabel ? label : undefined} {...on} {...rest} />
-        <span className="switch-handle">
-          {icons && <Svg name="check" size={16} className="switch-icon switch-icon-on" />}
-          {icons === 'both' && <Svg name="x" size={16} className="switch-icon switch-icon-off" />}
+      <span className="mo-switch__track">
+        <input type="checkbox" role="switch" className="mo-switch__input" aria-label={hideLabel ? label : undefined} {...on} {...rest} />
+        <span className="mo-switch__handle">
+          {icons && <Svg name="check" size={16} className="mo-switch__icon mo-switch__icon-on" />}
+          {icons === 'both' && <Svg name="x" size={16} className="mo-switch__icon mo-switch__icon-off" />}
         </span>
       </span>
     </SettingRow>

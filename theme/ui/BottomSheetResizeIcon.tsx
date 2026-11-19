@@ -6,8 +6,8 @@ import { Svg } from '@morphemecms/cms/src/icon';
 export default function BottomSheetResizeIcon({ size = 22 }: { size?: number; className?: string }) {
   return (
     <>
-      <Svg name="caret-up" size={size} className="bottom-sheet-resize-up" />
-      <Svg name="caret-down" size={size} className="bottom-sheet-resize-down" />
+      <Svg name="caret-up" size={size} className="mo-bottom-sheet__resize-up" />
+      <Svg name="caret-down" size={size} className="mo-bottom-sheet__resize-down" />
     </>
   );
 }

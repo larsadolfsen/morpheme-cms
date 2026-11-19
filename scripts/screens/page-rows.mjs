@@ -110,7 +110,7 @@ async function checkBlockRow(width, options = {}) {
     const r = card.getBoundingClientRect();
     const rowEl = card.querySelector(':scope > .site-block-row');
     const probe = document.createElement('div');
-    probe.className = 'card card-outlined';
+    probe.className = 'mo-card mo-is-outlined';
     card.parentElement.append(probe);
     const want = getComputedStyle(probe);
     const have = getComputedStyle(card);
@@ -152,9 +152,9 @@ async function checkBlockRow(width, options = {}) {
     .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
     .evaluateAll((els) => els.map((e) => [...e.classList]));
   for (const list of classes)
-    if (list.some((c) => !/^icon-button(-|$)/.test(c)))
+    if (list.some((c) => !/^mo-icon-button(__|$)/.test(c)))
       problems.push(`${label}: a row button has a class of its own (${list.join(' ')}); it must be the theme's icon button`);
-  if (classes.some((list) => !list.includes('icon-button') || !list.includes('icon-button-standard')))
+  if (classes.some((list) => !list.includes('mo-icon-button') || !list.includes('mo-icon-button__standard')))
     problems.push(`${label}: a row button is not the theme's standard icon button (${JSON.stringify(classes)})`);
   const hoverOf = async (locator) => {
     await locator.hover();
@@ -169,7 +169,7 @@ async function checkBlockRow(width, options = {}) {
     const probe = document.createElement('button');
     probe.type = 'button';
     probe.dataset.probe = 'icon';
-    probe.className = 'icon-button icon-button-standard';
+    probe.className = 'mo-icon-button mo-icon-button__standard';
     probe.innerHTML = document.querySelector('.site-block-row:not(.site-block-row-hover) [data-row="up"]')?.innerHTML ?? '';
     document.querySelector('.site-block-row:not(.site-block-row-hover) .site-block-row-inner').prepend(probe);
   });
@@ -185,13 +185,13 @@ async function checkBlockRow(width, options = {}) {
   if (await add.count()) {
     const addHover = await hoverOf(add);
     const classes2 = await add.evaluate((e) => [...e.classList]);
-    if (!classes2.includes('button') || !classes2.includes('button-text'))
+    if (!classes2.includes('mo-button') || !classes2.includes('mo-button__text'))
       problems.push(`${label}: Add list row is not the theme's text button (${classes2})`);
     const wantText = page.locator('[data-probe="text"]');
     await page.evaluate(() => {
       const probe = document.createElement('button');
       probe.dataset.probe = 'text';
-      probe.className = 'button button-text';
+      probe.className = 'mo-button mo-button__text';
       probe.textContent = 'x';
       document.querySelector('.site-block-card.site-block-inline').append(probe);
     });
@@ -326,7 +326,7 @@ async function checkBlockRow(width, options = {}) {
       if (!hovered.inside) problems.push(`${label}: the pointed block's row is not inside the dotted outline`);
       for (const name of ['Move up', 'Move down', 'Hide'])
         if (!hovered.names.includes(name)) problems.push(`${label}: the pointed block's row has no "${name}" (${hovered.names})`);
-      if (hovered.classes.some((c) => c !== 'icon-button icon-button-standard'))
+      if (hovered.classes.some((c) => c !== 'mo-icon-button mo-icon-button__standard'))
         problems.push(`${label}: the pointed block's buttons are not the theme icon button (${hovered.classes})`);
       if (!hovered.handle) problems.push(`${label}: the pointed block shows no drag handle`);
     }
@@ -637,9 +637,9 @@ async function checkLongPressDelete() {
   const cdp = await page.context().newCDPSession(page);
   for (const list of ['pages', 'blog']) {
     await page.evaluate((l) => (location.hash = `#list/${l}`), list);
-    await page.waitForSelector('main a.list-item-container');
+    await page.waitForSelector('main a.mo-list__item-container');
     await page.waitForTimeout(500);
-    const rows = page.locator('main a.list-item-container');
+    const rows = page.locator('main a.mo-list__item-container');
     // A row that is not a default page.
     const row = list === 'pages' ? rows.filter({ hasText: FIXTURE_PAGE }).first() : rows.filter({ hasText: 'Check post' }).first();
     await row.scrollIntoViewIfNeeded();
@@ -669,9 +669,9 @@ async function checkLongPressDelete() {
   // The front page: a press and hold selects it, but Delete says why it is kept.
   await page.reload();
   await page.evaluate(() => (location.hash = '#list/pages'));
-  await page.waitForSelector('main a.list-item-container');
+  await page.waitForSelector('main a.mo-list__item-container');
   await page.waitForTimeout(500);
-  const home = page.locator('main a.list-item-container', { hasText: 'Home' }).first();
+  const home = page.locator('main a.mo-list__item-container', { hasText: 'Home' }).first();
   if (await home.count()) {
     await home.scrollIntoViewIfNeeded();
     const box = await home.boundingBox();
@@ -1179,7 +1179,7 @@ async function checkChangeTo(width, height) {
     problems.push(`${label}: Change type is not the block's first row, before Select (${first.join(', ')})`);
   const opener = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
   if ((await opener.getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: Change type does not say it opens a menu`);
-  const rowIcon = await opener.locator('.menu-item-leading svg').first().innerHTML();
+  const rowIcon = await opener.locator('.mo-menu__item-leading svg').first().innerHTML();
   await opener.click();
   await page.waitForTimeout(200);
   const level = await menuRows();
@@ -1187,7 +1187,7 @@ async function checkChangeTo(width, height) {
   if (level.join() !== want) problems.push(`${label}: Change type's level is ${level.join(', ')}, not ${want}`);
   // The header of the level has the swap icon of the row (not a back arrow) and says where it goes.
   const header = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
-  if ((await header.locator('.menu-item-leading svg').first().innerHTML()) !== rowIcon)
+  if ((await header.locator('.mo-menu__item-leading svg').first().innerHTML()) !== rowIcon)
     problems.push(`${label}: the header of the Change type level does not draw the icon of its row`);
   if ((await header.getAttribute('aria-label')) !== 'Change type, back to menu')
     problems.push(`${label}: the header's name is "${await header.getAttribute('aria-label')}", not "Change type, back to menu"`);
@@ -1223,7 +1223,7 @@ async function checkChangeTo(width, height) {
     ['Parking', ''],
   ]);
   if (steps !== was) problems.push(`${label}: the Steps have ${steps}, not ${was}`);
-  const said = await page.locator('.snackbar-stack .snackbar', { hasText: 'Changed to Steps' }).count();
+  const said = await page.locator('.mo-snackbar__stack .mo-snackbar', { hasText: 'Changed to Steps' }).count();
   if (!said) problems.push(`${label}: no snackbar "Changed to Steps"`);
   // Ctrl+Z gives the List back, with its icon.
   await page.keyboard.press('Control+z');
@@ -1238,7 +1238,7 @@ async function checkChangeTo(width, height) {
   if (!(await hasIcon())) problems.push(`${label}: List → Steps → List lost the first row's icon`);
   if (JSON.stringify(await rows('title')) !== was)
     problems.push(`${label}: List → Steps → List has ${JSON.stringify(await rows('title'))}`);
-  await page.locator('.snackbar-stack .snackbar', { hasText: 'Changed to List' }).locator('.snackbar-action').first().click();
+  await page.locator('.mo-snackbar__stack .mo-snackbar', { hasText: 'Changed to List' }).locator('.mo-snackbar__action').first().click();
   await page.waitForTimeout(500);
   if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: the snackbar's Undo did not give Steps back`);
   // Steps → Table → List: the rows are the steps' titles and texts, with no header row; back in the List the first row has its icon again.
@@ -1276,14 +1276,15 @@ const rowPadding = () => {
       head = c.textContent.trim().toLowerCase();
       continue;
     }
-    const row = c.querySelector('.list-item-expand-summary, .list-item-container:has(> .list-item-trailing svg)');
-    if (!row || out[head] || row.querySelector(':scope > .list-item-leading:not(:empty), :scope > .list-item-leading-icon')) continue;
+    const row = c.querySelector('.mo-list__item-expand-summary, .mo-list__item-container:has(> .mo-list__item-trailing svg)');
+    if (!row || out[head] || row.querySelector(':scope > .mo-list__item-leading:not(:empty), :scope > .mo-list__item-leading-icon'))
+      continue;
     const box = row.getBoundingClientRect();
     const icons = [...row.querySelectorAll('svg')].filter((v) => v.getBoundingClientRect().width);
-    const title = row.querySelector('.list-item-content').getBoundingClientRect();
+    const title = row.querySelector('.mo-list__item-content').getBoundingClientRect();
     if (icons.length)
       out[head] = {
-        expand: row.matches('.list-item-expand-summary'),
+        expand: row.matches('.mo-list__item-expand-summary'),
         left: title.left - box.left,
         right: box.right - Math.max(...icons.map((v) => v.getBoundingClientRect().right)),
       };
@@ -1327,7 +1328,10 @@ async function checkPageLeftEdge(width) {
           first = n.textContent.trim() ? ([...range.getClientRects()].find((q) => q.width) ?? null) : null;
         }
         // Below 600 dp a plain list (not the segmented design) goes edge to edge (owner, 16 Nov 2026): at the viewport's left edge and as wide as it.
-        if (innerWidth < 600 && c.matches('.mo-block-list:not(.list-segmented), .mo-block-accordion:not(.mo-block-accordion__segmented)')) {
+        if (
+          innerWidth < 600 &&
+          c.matches('.mo-block-list:not(.mo-list__segmented), .mo-block-accordion:not(.mo-block-accordion__segmented)')
+        ) {
           const box = c.getBoundingClientRect();
           if (Math.abs(left) > 1 || Math.abs(box.width - innerWidth) > 1)
             out.push(`plain list ${c.className.toString().slice(0, 30)} at ${left}, ${box.width} wide, not edge to edge`);

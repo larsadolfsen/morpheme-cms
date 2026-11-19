@@ -14,7 +14,7 @@ const source = files.map((file) => readFileSync(file, 'utf8')).join('\n');
 const ALLOWED = ['FIXTURE_PAGE', 'UNLISTED_POST', "'Check post'", "'Home'"];
 
 test('The screens check opens only rows it has made itself or the front page', () => {
-  const rows = source.split('\n').filter((line) => /main a\.list-item-container/.test(line) && /hasText:/.test(line));
+  const rows = source.split('\n').filter((line) => /main a\.mo-list__item-container/.test(line) && /hasText:/.test(line));
   assert.ok(rows.length > 0, 'the check no longer filters list rows by text: update this test');
   for (const line of rows) {
     const text = line.match(/hasText:\s*([^}\s,]+)/)?.[1];

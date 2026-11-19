@@ -1,4 +1,4 @@
-// A button (m3.material.io/components/buttons, .button in ../styles/ui/buttons.css): a label, an icon before it (`icon`) and
+// A button (m3.material.io/components/buttons, .mo-button in ../styles/ui/buttons.css): a label, an icon before it (`icon`) and
 // evt. one after it (`trailingIcon`, the arrow; each its name, or in the editor an icon already made; its class button-trailing-icon, so a theme can hide or move it). Its
 // kind (`kind`: filled, the default, tonal, elevated, outlined or text), its size (`size`: xsmall, small, medium, the
 // default, large or xlarge) and its shape (`shape`: round, the default, or square) are Material's names; how each looks
@@ -9,7 +9,7 @@
 // never a toggle), else a <button> (`type`, button by default). Other attributes (data-…, aria-…, disabled) go on it, and `className`
 // after its own classes (its width). An Astro component without React gives an element the same classes with
 // buttonClass, and a toggle aria-pressed itself. With `busy` (a <button> only; a link ignores it) the button is
-// disabled, aria-busy and .button-busy while its action runs. Nothing else changes for the first --button-busy-delay
+// disabled, aria-busy and .mo-button__busy while its action runs. Nothing else changes for the first --mo-comp-button-busy-delay
 // (200 ms; M3 loading indicator); then the label and icons go, the button shrinks to a circle (its width becomes its
 // height) and a loading indicator in the label's colour, without a container, stands in the middle (aria-hidden: the
 // button keeps its name). When busy ends, it is the button again.
@@ -25,17 +25,24 @@ export type ButtonShape = (typeof buttonShapes)[number];
 
 /** A button's classes: its kind's and, unless it is medium, its size's and, unless it is round, its shape's. */
 export const buttonClass = (kind: ButtonKind = 'filled', size: ButtonSize = 'medium', shape: ButtonShape = 'round') =>
-  ['button', `button-${kind}`, size !== 'medium' && `button-${size}`, shape !== 'round' && `button-${shape}`].filter(Boolean).join(' ');
+  [
+    'mo-button',
+    kind === 'text' ? 'mo-button__text' : `mo-is-${kind}`,
+    size !== 'medium' && `mo-button__${size}`,
+    shape !== 'round' && `mo-button__${shape}`,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
 /** A toggle's icon (a Button's, an IconButton's, a navigation drawer item's): the icon, and the same icon filled while
- * it is on, where the site draws it filled (the theme shows the one of the state it is in: .<part>-unselected-icon,
- * .<part>-selected-icon). */
+ * it is on, where the site draws it filled (the theme shows the one of the state it is in: .mo-<part>__unselected-icon,
+ * .mo-<part>__selected-icon). */
 export function ToggleIcon({ part, name, size }: { part: 'button' | 'icon-button' | 'navigation-drawer'; name: string; size: number }) {
   if (!iconFile(name, 'fill')) return <Svg name={name} size={size} />;
   return (
     <>
-      <Svg name={name} size={size} className={`${part}-unselected-icon`} />
-      <Svg name={name} weight="fill" size={size} className={`${part}-selected-icon`} />
+      <Svg name={name} size={size} className={`mo-${part}__unselected-icon`} />
+      <Svg name={name} weight="fill" size={size} className={`mo-${part}__selected-icon`} />
     </>
   );
 }
@@ -70,15 +77,15 @@ export default function Button({
   const ref = useRef<HTMLButtonElement>(null);
   // The width it shrinks from (a width cannot move from auto), read while the label is still there.
   useEffect(() => {
-    if (isBusy && ref.current) ref.current.style.setProperty('--button-busy-from', `${ref.current.offsetWidth}px`);
+    if (isBusy && ref.current) ref.current.style.setProperty('--mo-comp-button-busy-from', `${ref.current.offsetWidth}px`);
   }, [isBusy]);
-  const classes = [buttonClass(kind, size, shape), isBusy && 'button-busy', className].filter(Boolean).join(' ');
+  const classes = [buttonClass(kind, size, shape), isBusy && 'mo-button__busy', className].filter(Boolean).join(' ');
   const toggle = selected !== undefined && href === undefined;
   const content = (
     <>
       {icon && (toggle && typeof icon === 'string' ? <ToggleIcon part="button" name={icon} size={20} /> : <Glyph icon={icon} size={20} />)}
       {children}
-      {trailingIcon && <Glyph icon={trailingIcon} size={18} className="button-trailing-icon" />}
+      {trailingIcon && <Glyph icon={trailingIcon} size={18} className="mo-button__trailing-icon" />}
     </>
   );
   return href === undefined ? (

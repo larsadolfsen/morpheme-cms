@@ -269,7 +269,9 @@ async function checkTextBar(width = 360) {
     if (rowIcons[name]?.startsWith('body_a') || rowIcons[name] === 'match_case' || rowIcons[name] === 'none')
       problems.push(`${label}: ${name} lost its own icon (${rowIcons[name]})`);
   const order = await page.evaluate(() =>
-    [...document.querySelectorAll('[role=menu] > li')].map((li) => (li.classList.contains('menu-divider') ? '-' : li.textContent.trim())),
+    [...document.querySelectorAll('[role=menu] > li')].map((li) =>
+      li.classList.contains('mo-menu__divider') ? '-' : li.textContent.trim(),
+    ),
   );
   if (order.join('|') !== 'Main heading|-|Body large|Body medium|Body small|Label|-|Quote')
     problems.push(
@@ -887,11 +889,11 @@ async function checkDiscardInBar(width) {
     await tap(dialog.getByRole('button', { name: 'Discard', exact: true }));
     await page.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 5000 });
     await page
-      .locator('.snackbar-stack .snackbar', { hasText: 'discarded' })
+      .locator('.mo-snackbar__stack .mo-snackbar', { hasText: 'discarded' })
       .first()
       .waitFor({ timeout: 10_000 })
       .catch(() => {});
-    if (!(await page.locator('.snackbar-stack .snackbar', { hasText: 'discarded' }).count()))
+    if (!(await page.locator('.mo-snackbar__stack .mo-snackbar', { hasText: 'discarded' }).count()))
       problems.push(`${at}: no message that the changes are discarded`);
     const now = await text();
     if (/typed here|waiting text/.test(now)) problems.push(`${at}: the page is not its published version (${now})`);

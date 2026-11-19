@@ -90,7 +90,7 @@ async function run(width, height) {
         problems.push(`${label}: ArrowLeft does not go back to image 2`);
       });
     const big = await dialog
-      .locator('.lightbox-item img')
+      .locator('.mo-lightbox__item img')
       .first()
       .evaluate((img) => img.getAttribute('srcset') !== null || img.src !== '');
     if (!big) problems.push(`${label}: the lightbox has no image`);

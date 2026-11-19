@@ -1,20 +1,20 @@
 /*
-  Setting rows (SettingRow.tsx): .setting-row, with its text (.setting-row-text: .setting-row-label and
-  .setting-row-supporting) and after it what sets it.
-    --setting-row-gap, --mo-comp-setting-row-label-weight, --setting-row-supporting-color   the room before what sets it, the name
-      and the line under it (else the switch's --switch-label-weight and --switch-supporting-color)
-  Switches (Switch.tsx, switchClass; m3.material.io/components/switch): .switch, a setting row, a <label>, and after the name the track
-  (.switch-track: the <input role="switch">,
-  .switch-input, drawn as the track with appearance: none, and its handle, .switch-handle, with the theme's icons,
-  .switch-icon-on and .switch-icon-off, when it has them: .switch-icons).
+  Setting rows (SettingRow.tsx): .mo-setting-row, with its text (.mo-setting-row__text: .mo-setting-row__label and
+  .mo-setting-row__supporting) and after it what sets it.
+    --mo-comp-setting-row-gap, --mo-comp-setting-row-label-weight, --mo-comp-setting-row-supporting-color   the room before what sets it, the name
+      and the line under it (else the switch's --mo-comp-switch-label-weight and --mo-comp-switch-supporting-color)
+  Switches (Switch.tsx, switchClass; m3.material.io/components/switch): .mo-switch, a setting row, a <label>, and after the name the track
+  (.mo-switch__track: the <input role="switch">,
+  .mo-switch__input, drawn as the track with appearance: none, and its handle, .mo-switch__handle, with the theme's icons,
+  .mo-switch__icon-on and .mo-switch__icon-off, when it has them: .mo-switch__icons).
     --mo-comp-switch-track-width, --mo-comp-switch-track-height, --mo-comp-switch-gap   the track, and the room between the name and it
     --mo-comp-switch-unselected-track-color, --mo-comp-switch-unselected-track-outline-color, --mo-comp-switch-track-outline-width   the track off, and its edge
-    --switch-track-checked-surface   the track on
+    --mo-comp-switch-track-checked-surface   the track on
     --mo-comp-switch-unselected-handle-width, --mo-comp-switch-unselected-icon-size, --mo-comp-switch-selected-handle-width, --mo-comp-switch-pressed-handle-width   the
       handle off, off with its icon, on, and while it is pressed
-    --mo-comp-switch-unselected-handle-color, --mo-comp-switch-selected-handle-color, --switch-handle-shadow   the handle off and on
-    --switch-icon-size, --mo-comp-switch-unselected-icon-color, --mo-comp-switch-selected-icon-color   the icons in the handle, off and on
-    --switch-label-weight, --switch-supporting-color   the name and the line under it
+    --mo-comp-switch-unselected-handle-color, --mo-comp-switch-selected-handle-color, --mo-comp-switch-handle-shadow   the handle off and on
+    --mo-comp-switch-icon-size, --mo-comp-switch-unselected-icon-color, --mo-comp-switch-selected-icon-color   the icons in the handle, off and on
+    --mo-comp-switch-label-weight, --mo-comp-switch-supporting-color   the name and the line under it
     --mo-comp-switch-disabled-opacity   a switch that cannot be changed
   Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
   the same property on these parts at the same specificity, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
@@ -23,35 +23,35 @@
   /* A setting's row (SettingRow.tsx): the name and the line under it, then what sets it, on one line; the switch's
      and the editor's dropdown row both. The name in a list item's label type (--list-item-headline-*), so a row with a
      switch reads as the list rows around it. */
-  .setting-row {
+  .mo-setting-row {
     display: flex;
     align-items: center;
-    gap: var(--setting-row-gap, 1rem);
+    gap: var(--mo-comp-setting-row-gap, 1rem);
   }
-  .setting-row-text {
+  .mo-setting-row__text {
     flex: 1;
     min-width: 0;
   }
-  .setting-row-label {
+  .mo-setting-row__label {
     display: block;
     font-size: var(--mo-comp-list-item-headline-size, var(--mo-sys-typescale-body-large-size));
     line-height: var(--mo-comp-list-item-headline-line-height, var(--mo-sys-typescale-body-large-line-height));
-    font-weight: var(--mo-comp-setting-row-label-weight, var(--switch-label-weight, 500));
+    font-weight: var(--mo-comp-setting-row-label-weight, var(--mo-comp-switch-label-weight, 500));
     letter-spacing: var(--mo-comp-list-item-headline-letter-spacing, var(--mo-sys-typescale-body-large-tracking));
   }
-  .setting-row-supporting {
+  .mo-setting-row__supporting {
     display: block;
-    color: var(--setting-row-supporting-color, var(--switch-supporting-color, var(--mo-sys-block-muted)));
+    color: var(--mo-comp-setting-row-supporting-color, var(--mo-comp-switch-supporting-color, var(--mo-sys-block-muted)));
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
-  /* A list of setting rows (.setting-list, the editor's settings screens): each row is a list item, at least one line
+  /* A list of setting rows (.mo-setting-list, the editor's settings screens): each row is a list item, at least one line
      high (--mo-comp-list-list-item-container-height) or, with a line under its name, two (--mo-comp-list-item-two-line-min-height), with the
      list item's padding, so the rows stand apart the same way; what sets a row is centred on it. A button after the
-     rows (.setting-list-action) has its icon at the left edge of the names. */
-  .setting-list > .setting-row {
+     rows (.mo-setting-list__action) has its icon at the left edge of the names. */
+  .mo-setting-list > .mo-setting-row {
     /* A settings form follows the layout density, and its row stays a target. */
     min-height: max(
       var(--mo-sys-target-size),
@@ -59,37 +59,37 @@
     );
     padding-block: var(--mo-comp-list-item-padding-block);
   }
-  .setting-list > .setting-row:has(.setting-row-supporting) {
+  .mo-setting-list > .mo-setting-row:has(.mo-setting-row__supporting) {
     min-height: max(
       var(--mo-sys-target-size),
       calc(var(--mo-comp-list-item-two-line-min-height) + var(--mo-sys-density-layout) * var(--mo-sys-density-step))
     );
   }
-  .setting-list > .setting-row > :not(.setting-row-text) {
+  .mo-setting-list > .mo-setting-row > :not(.mo-setting-row__text) {
     align-self: center;
   }
-  .setting-list-action {
+  .mo-setting-list__action {
     margin-inline-start: calc(-1 * var(--mo-comp-button-inline));
   }
   /* Switches: a setting row with the track and its handle after the name. */
-  .switch {
-    gap: var(--mo-comp-switch-gap, var(--setting-row-gap, 1rem));
+  .mo-switch {
+    gap: var(--mo-comp-switch-gap, var(--mo-comp-setting-row-gap, 1rem));
     cursor: pointer;
   }
-  .switch:has(.switch-input:disabled) {
+  .mo-switch:has(.mo-switch__input:disabled) {
     cursor: default;
   }
-  .switch-track {
+  .mo-switch__track {
     position: relative;
     display: grid;
     flex-shrink: 0;
     width: var(--mo-comp-switch-track-width, 2.75rem);
     height: var(--mo-comp-switch-track-height, 1.625rem);
   }
-  .switch-track:has(.switch-input:disabled) {
+  .mo-switch__track:has(.mo-switch__input:disabled) {
     opacity: var(--mo-comp-switch-disabled-opacity, 0.6);
   }
-  .switch-input {
+  .mo-switch__input {
     appearance: none;
     width: 100%;
     height: 100%;
@@ -99,12 +99,12 @@
     box-shadow: inset 0 0 0 var(--mo-comp-switch-track-outline-width, 0px) var(--mo-comp-switch-unselected-track-outline-color, transparent);
     cursor: inherit;
   }
-  .switch-input:checked {
-    background: var(--switch-track-checked-surface, var(--mo-sys-block-accent));
+  .mo-switch__input:checked {
+    background: var(--mo-comp-switch-track-checked-surface, var(--mo-sys-block-accent));
     box-shadow: none;
   }
   /* The handle: its centre half the track's height in from the end it stands at. */
-  .switch-handle {
+  .mo-switch__handle {
     position: absolute;
     top: 50%;
     left: calc(var(--mo-comp-switch-track-height, 1.625rem) / 2);
@@ -114,27 +114,27 @@
     place-items: center;
     border-radius: var(--mo-sys-shape-corner-full);
     background: var(--mo-comp-switch-unselected-handle-color, var(--mo-sys-block-surface));
-    box-shadow: var(--switch-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+    box-shadow: var(--mo-comp-switch-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));
     color: var(--mo-comp-switch-unselected-icon-color, var(--mo-sys-block-muted));
     pointer-events: none;
     translate: -50% -50%;
   }
   /* A switch that cannot be changed: no shadow (M3 Switch, Specs: disabled handle elevation level 0). */
-  .switch-input:disabled + .switch-handle {
+  .mo-switch__input:disabled + .mo-switch__handle {
     box-shadow: var(--mo-sys-elevation-level0-shadow);
   }
-  .switch-icons .switch-handle {
+  .mo-switch__icons .mo-switch__handle {
     width: var(--mo-comp-switch-unselected-icon-size, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
     height: var(--mo-comp-switch-unselected-icon-size, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
   }
-  .switch-input:checked + .switch-handle {
+  .mo-switch__input:checked + .mo-switch__handle {
     left: calc(100% - var(--mo-comp-switch-track-height, 1.625rem) / 2);
     width: var(--mo-comp-switch-selected-handle-width, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
     height: var(--mo-comp-switch-selected-handle-width, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
     background: var(--mo-comp-switch-selected-handle-color, var(--mo-sys-block-surface));
     color: var(--mo-comp-switch-selected-icon-color, var(--mo-sys-block-accent));
   }
-  .switch-input:enabled:active + .switch-handle {
+  .mo-switch__input:enabled:active + .mo-switch__handle {
     width: var(
       --mo-comp-switch-pressed-handle-width,
       var(--mo-comp-switch-selected-handle-width, var(--mo-comp-switch-unselected-handle-width, 1.25rem))
@@ -144,22 +144,22 @@
       var(--mo-comp-switch-selected-handle-width, var(--mo-comp-switch-unselected-handle-width, 1.25rem))
     );
   }
-  .switch-icon {
+  .mo-switch__icon {
     display: none;
-    width: var(--switch-icon-size, 1rem);
-    height: var(--switch-icon-size, 1rem);
+    width: var(--mo-comp-switch-icon-size, 1rem);
+    height: var(--mo-comp-switch-icon-size, 1rem);
   }
-  .switch-input:checked + .switch-handle > .switch-icon-on,
-  .switch-input:not(:checked) + .switch-handle > .switch-icon-off {
+  .mo-switch__input:checked + .mo-switch__handle > .mo-switch__icon-on,
+  .mo-switch__input:not(:checked) + .mo-switch__handle > .mo-switch__icon-off {
     display: block;
   }
   @media (prefers-reduced-motion: no-preference) {
-    .switch-input {
+    .mo-switch__input {
       transition:
         background-color var(--mo-sys-motion-spring-default-effects),
         box-shadow var(--mo-sys-motion-spring-default-effects);
     }
-    .switch-handle {
+    .mo-switch__handle {
       transition:
         left var(--mo-sys-motion-spring-default-spatial),
         width var(--mo-sys-motion-spring-fast-spatial),

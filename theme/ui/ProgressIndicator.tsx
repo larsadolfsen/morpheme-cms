@@ -1,5 +1,5 @@
-// Progress indicators (m3.material.io/components/progress-indicators, .linear-progress-indicator and
-// .circular-progress-indicator in ../styles/ui/progress-indicators.css): how far something has come (`value`, 0 to 1: determinate), as a
+// Progress indicators (m3.material.io/components/progress-indicators, .mo-linear-progress-indicator and
+// .mo-circular-progress-indicator in ../styles/ui/progress-indicators.css): how far something has come (`value`, 0 to 1: determinate), as a
 // line that fills up (LinearProgressIndicator) or a ring (CircularProgressIndicator, where there is no room for a
 // line), the active indicator on its track; without `value` (indeterminate), that it is on its way, as stretches that
 // run along the line or round the ring. M3 Expressive's shape (`shape`: flat, the default, or wavy, the active
@@ -9,7 +9,7 @@
 // (six round a thick one).
 // Screen readers read a progress bar named by `label`, with its value in percent when it is known. With reduced motion
 // the indeterminate ones move slowly, the wave stands still and a value changes at once. The value is the custom
-// property --progress on the element, so a script can change it (with aria-valuenow).
+// property --mo-comp-progress-indicator-progress on the element, so a script can change it (with aria-valuenow).
 import type { CSSProperties } from 'react';
 
 /** A progress indicator's shapes, as M3 Expressive names them. */
@@ -20,7 +20,7 @@ const clamp = (v: number) => Math.min(1, Math.max(0, v));
 // What a progress bar is to screen readers, and its value for the CSS (with the wave's measures for a wavy one).
 function progressbar(value: number | undefined, label: string, wave?: Record<string, string | number>) {
   const known = value !== undefined;
-  const style = { ...(known ? { '--progress': clamp(value) } : {}), ...wave } as CSSProperties;
+  const style = { ...(known ? { '--mo-comp-progress-indicator-progress': clamp(value) } : {}), ...wave } as CSSProperties;
   return {
     role: 'progressbar',
     'aria-label': label,
@@ -32,14 +32,16 @@ function progressbar(value: number | undefined, label: string, wave?: Record<str
 }
 
 const classes = (part: string, indeterminate?: boolean, shape: ProgressIndicatorShape = 'flat', thick = false) =>
-  [part, indeterminate && `${part}-indeterminate`, shape === 'wavy' && `${part}-wavy`, thick && `${part}-thick`].filter(Boolean).join(' ');
+  [part, indeterminate && `${part}__indeterminate`, shape === 'wavy' && `${part}__wavy`, thick && `${part}__thick`]
+    .filter(Boolean)
+    .join(' ');
 
 /** A linear progress indicator's classes: determinate or not, its shape and a thick track. */
 export const linearProgressIndicatorClass = (indeterminate?: boolean, shape?: ProgressIndicatorShape, thick?: boolean) =>
-  classes('linear-progress-indicator', indeterminate, shape, thick);
+  classes('mo-linear-progress-indicator', indeterminate, shape, thick);
 /** A circular progress indicator's classes: determinate or not, its shape and a thick track. */
 export const circularProgressIndicatorClass = (indeterminate?: boolean, shape?: ProgressIndicatorShape, thick?: boolean) =>
-  classes('circular-progress-indicator', indeterminate, shape, thick);
+  classes('mo-circular-progress-indicator', indeterminate, shape, thick);
 
 // The line's wave, in px: its height (amplitude) and length (wavelength), and a path of it long enough for any line,
 // from one wavelength before its start (where it flows in from), in quadratic curves, a peak and a trough each.
@@ -94,9 +96,9 @@ export function LinearProgressIndicator({
   const line = lines[indeterminate ? 'indeterminate' : 'determinate'];
   const wave = wavy
     ? {
-        '--linear-progress-indicator-amplitude': `${AMPLITUDE}px`,
-        '--linear-progress-indicator-wavelength': `${WAVELENGTH[indeterminate ? 'indeterminate' : 'determinate']}px`,
-        '--linear-progress-indicator-stretch': line.stretch.toFixed(4),
+        '--mo-comp-linear-progress-indicator-amplitude': `${AMPLITUDE}px`,
+        '--mo-comp-linear-progress-indicator-wavelength': `${WAVELENGTH[indeterminate ? 'indeterminate' : 'determinate']}px`,
+        '--mo-comp-linear-progress-indicator-stretch': line.stretch.toFixed(4),
       }
     : undefined;
   return (
@@ -107,23 +109,23 @@ export function LinearProgressIndicator({
     >
       {wavy ? (
         <>
-          {!indeterminate && <span className="linear-progress-indicator-track"></span>}
-          <svg className="linear-progress-indicator-wave" aria-hidden="true">
-            <path className="linear-progress-indicator-active" d={line.d} />
-            {indeterminate && <path className="linear-progress-indicator-active" d={line.d} />}
+          {!indeterminate && <span className="mo-linear-progress-indicator__track"></span>}
+          <svg className="mo-linear-progress-indicator__wave" aria-hidden="true">
+            <path className="mo-linear-progress-indicator__active" d={line.d} />
+            {indeterminate && <path className="mo-linear-progress-indicator__active" d={line.d} />}
           </svg>
-          {!indeterminate && <span className="linear-progress-indicator-stop"></span>}
+          {!indeterminate && <span className="mo-linear-progress-indicator__stop"></span>}
         </>
       ) : indeterminate ? (
         <>
-          <span className="linear-progress-indicator-active"></span>
-          <span className="linear-progress-indicator-active"></span>
+          <span className="mo-linear-progress-indicator__active"></span>
+          <span className="mo-linear-progress-indicator__active"></span>
         </>
       ) : (
         <>
-          <span className="linear-progress-indicator-active"></span>
-          <span className="linear-progress-indicator-track"></span>
-          <span className="linear-progress-indicator-stop"></span>
+          <span className="mo-linear-progress-indicator__active"></span>
+          <span className="mo-linear-progress-indicator__track"></span>
+          <span className="mo-linear-progress-indicator__stop"></span>
         </>
       )}
     </div>
@@ -150,11 +152,11 @@ export function CircularProgressIndicator({
       {...rest}
     >
       <svg viewBox="0 0 48 48" aria-hidden="true">
-        {!indeterminate && <circle className="circular-progress-indicator-track" {...ring} />}
+        {!indeterminate && <circle className="mo-circular-progress-indicator__track" {...ring} />}
         {wavy ? (
-          <path className="circular-progress-indicator-active" d={thick ? rings.wavyThick : rings.wavy} pathLength={100} fill="none" />
+          <path className="mo-circular-progress-indicator__active" d={thick ? rings.wavyThick : rings.wavy} pathLength={100} fill="none" />
         ) : (
-          <circle className="circular-progress-indicator-active" {...ring} />
+          <circle className="mo-circular-progress-indicator__active" {...ring} />
         )}
       </svg>
     </span>

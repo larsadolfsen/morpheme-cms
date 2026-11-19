@@ -1,6 +1,6 @@
 // An image tile (the Library's, the pickers'): the theme's Card with a media, the image only, in its own proportions
 // (`ratio`: width / height, so the box is there before the image loads), a button that picks it. `selected`: Material 3's
-// selection (a check mark and the selected surface, never a ring); undefined: not a choice. Cards in a grid (.image-grid) stand
+// selection (a check mark and the selected surface, never a ring); undefined: not a choice. Cards in a grid (.mo-staggered-grid) stand
 // in staggered columns. The image is `children` (the editor draws it fetched when near).
 import type { ReactNode } from 'react';
 import Card, { CardMedia, type CardKind } from './Card';

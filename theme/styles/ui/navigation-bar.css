@@ -1,56 +1,56 @@
 /*
   Navigation bar (NavigationBar, NavigationBarItem, navigationBarClasses; m3.material.io/components/navigation-bar):
-  .navigation-bar (a <nav>) with a .navigation-bar-item for each destination (the open one with aria-current), in it
-  .navigation-bar-indicator with its icon, .navigation-bar-icon (with room for a badge on it, .navigation-bar-badge: a dot
-  when empty, else its number), and .navigation-bar-label. Vertical items (the default): the icon over the label, the
-  pill behind the open one's icon. Horizontal items (M3 Expressive; .navigation-bar-start, and .navigation-bar-auto once
+  .mo-navigation-bar (a <nav>) with a .mo-navigation-bar__item for each destination (the open one with aria-current), in it
+  .mo-navigation-bar__indicator with its icon, .mo-navigation-bar__icon (with room for a badge on it, .mo-navigation-bar__badge: a dot
+  when empty, else its number), and .mo-navigation-bar__label. Vertical items (the default): the icon over the label, the
+  pill behind the open one's icon. Horizontal items (M3 Expressive; .mo-navigation-bar__start, and .mo-navigation-bar__auto once
   the bar is 600px wide): the icon beside the label, the items as wide as their content in the middle of the bar, the
   pill behind both.
-    --mo-comp-navigation-bar-container-height, --mo-comp-navigation-bar-container-color, --mo-comp-navigation-bar-line, --navigation-bar-shadow
-    --navigation-bar-item-gap, --mo-comp-navigation-bar-inactive-label-text-color, --mo-comp-navigation-bar-active-label-text-color
-    --mo-comp-navigation-bar-active-indicator-width, --navigation-bar-indicator-height, --mo-comp-navigation-bar-active-indicator-shape,
+    --mo-comp-navigation-bar-container-height, --mo-comp-navigation-bar-container-color, --mo-comp-navigation-bar-line, --mo-comp-navigation-bar-shadow
+    --mo-comp-navigation-bar-item-gap, --mo-comp-navigation-bar-inactive-label-text-color, --mo-comp-navigation-bar-active-label-text-color
+    --mo-comp-navigation-bar-active-indicator-width, --mo-comp-navigation-bar-indicator-height, --mo-comp-navigation-bar-active-indicator-shape,
     --mo-comp-navigation-bar-active-indicator-color, --mo-comp-navigation-bar-indicator-text, --mo-comp-navigation-bar-indicator-hover,
-    --navigation-bar-indicator-pressed
-    --navigation-bar-label-font-size, --navigation-bar-label-weight, --mo-comp-navigation-bar-label-selected-weight
-    --navigation-bar-horizontal-indicator-height, --navigation-bar-horizontal-indicator-padding,
-    --navigation-bar-horizontal-gap, --navigation-bar-horizontal-item-max-width,
-    --navigation-bar-horizontal-label-font-size   horizontal items
+    --mo-comp-navigation-bar-indicator-pressed
+    --mo-comp-navigation-bar-label-font-size, --mo-comp-navigation-bar-label-weight, --mo-comp-navigation-bar-label-selected-weight
+    --mo-comp-navigation-bar-horizontal-indicator-height, --mo-comp-navigation-bar-horizontal-indicator-padding,
+    --mo-comp-navigation-bar-horizontal-gap, --mo-comp-navigation-bar-horizontal-item-max-width,
+    --mo-comp-navigation-bar-horizontal-label-font-size   horizontal items
   Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
   the same property on these parts at the same specificity, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
 */
 @layer components {
   /* Navigation bar (m3.material.io/components/navigation-bar): the destinations side by side, each icon over its label. */
-  .navigation-bar {
+  .mo-navigation-bar {
     display: flex;
     min-height: var(--mo-comp-navigation-bar-container-height, 4.5rem);
     padding-bottom: env(safe-area-inset-bottom);
     background: var(--mo-comp-navigation-bar-container-color, var(--mo-sys-block-surface));
     box-shadow:
       inset 0 1px 0 var(--mo-comp-navigation-bar-line, var(--mo-sys-block-line)),
-      var(--navigation-bar-shadow, var(--mo-sys-elevation-level2-rest-shadow));
+      var(--mo-comp-navigation-bar-shadow, var(--mo-sys-elevation-level2-rest-shadow));
   }
-  .navigation-bar-item {
+  .mo-navigation-bar__item {
     display: flex;
     min-width: 0;
     flex: 1 1 0;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--navigation-bar-item-gap, 0.25rem);
+    gap: var(--mo-comp-navigation-bar-item-gap, 0.25rem);
     padding: 0.5rem 0.25rem;
     color: var(--mo-comp-navigation-bar-inactive-label-text-color, var(--mo-sys-block-muted));
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
   }
-  .navigation-bar-item[aria-current] {
+  .mo-navigation-bar__item[aria-current] {
     color: var(--mo-comp-navigation-bar-active-label-text-color, var(--mo-sys-block-text));
   }
-  .navigation-bar-item:focus-visible,
-  .navigation-rail-item:focus-visible {
+  .mo-navigation-bar__item:focus-visible,
+  .mo-navigation-rail__item:focus-visible {
     outline-offset: -2px;
   }
-  .navigation-bar-icon,
-  .navigation-rail-icon {
+  .mo-navigation-bar__icon,
+  .mo-navigation-rail__icon {
     position: relative;
     display: grid;
     flex-shrink: 0;
@@ -59,170 +59,170 @@
       background-color var(--mo-sys-motion-spring-default-effects),
       color var(--mo-sys-motion-spring-default-effects);
   }
-  .navigation-bar-indicator {
+  .mo-navigation-bar__indicator {
     display: contents;
   }
-  .navigation-bar-icon {
+  .mo-navigation-bar__icon {
     width: var(--mo-comp-navigation-bar-active-indicator-width, 4rem);
-    height: var(--navigation-bar-indicator-height, 2rem);
+    height: var(--mo-comp-navigation-bar-indicator-height, 2rem);
     border-radius: var(--mo-comp-navigation-bar-active-indicator-shape, var(--mo-sys-shape-corner-full));
   }
-  .navigation-bar-icon > svg,
-  .navigation-rail-icon > svg {
+  .mo-navigation-bar__icon > svg,
+  .mo-navigation-rail__icon > svg {
     width: 1.5rem;
     height: 1.5rem;
   }
-  .navigation-bar-item:hover .navigation-bar-icon {
+  .mo-navigation-bar__item:hover .mo-navigation-bar__icon {
     background: var(
       --mo-comp-navigation-bar-indicator-hover,
       color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
   }
-  .navigation-bar-item:active .navigation-bar-icon {
+  .mo-navigation-bar__item:active .mo-navigation-bar__icon {
     background: var(
-      --navigation-bar-indicator-pressed,
+      --mo-comp-navigation-bar-indicator-pressed,
       var(
         --mo-comp-navigation-bar-indicator-hover,
         color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
       )
     );
   }
-  .navigation-bar-item[aria-current] .navigation-bar-icon {
+  .mo-navigation-bar__item[aria-current] .mo-navigation-bar__icon {
     background: var(--mo-comp-navigation-bar-active-indicator-color, var(--mo-sys-block-tint));
     color: var(--mo-comp-navigation-bar-indicator-text, var(--mo-sys-block-accent));
   }
-  .navigation-bar-label,
-  .navigation-rail-label {
+  .mo-navigation-bar__label,
+  .mo-navigation-rail__label {
     max-width: 100%;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
     line-height: var(--mo-sys-typescale-label-medium-line-height);
   }
-  .navigation-bar-label {
-    font-size: var(--navigation-bar-label-font-size, var(--mo-sys-typescale-label-medium-size));
+  .mo-navigation-bar__label {
+    font-size: var(--mo-comp-navigation-bar-label-font-size, var(--mo-sys-typescale-label-medium-size));
     letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
-    font-weight: var(--navigation-bar-label-weight, var(--mo-sys-typescale-label-medium-weight));
+    font-weight: var(--mo-comp-navigation-bar-label-weight, var(--mo-sys-typescale-label-medium-weight));
   }
-  .navigation-bar-item[aria-current] .navigation-bar-label {
+  .mo-navigation-bar__item[aria-current] .mo-navigation-bar__label {
     font-weight: var(--mo-comp-navigation-bar-label-selected-weight, 700);
   }
   /* Horizontal items (M3 Expressive): the icon beside the label, the items as wide as their content in the middle of the
-     bar, the pill behind both. Always with .navigation-bar-start; with .navigation-bar-auto once the bar (its container)
+     bar, the pill behind both. Always with .mo-navigation-bar__start; with .mo-navigation-bar__auto once the bar (its container)
      is 600px wide, Material's medium window. The same rules twice, as a container query cannot hold the other. */
-  .navigation-bar-auto {
+  .mo-navigation-bar__auto {
     container: navigation-bar / inline-size;
   }
-  .navigation-bar-start .navigation-bar-item {
-    max-width: var(--navigation-bar-horizontal-item-max-width, 14rem);
+  .mo-navigation-bar__start .mo-navigation-bar__item {
+    max-width: var(--mo-comp-navigation-bar-horizontal-item-max-width, 14rem);
     flex: 0 1 auto;
     padding-inline: 0.25rem;
   }
-  .navigation-bar-start .navigation-bar-item:first-child {
+  .mo-navigation-bar__start .mo-navigation-bar__item:first-child {
     margin-inline-start: auto;
   }
-  .navigation-bar-start .navigation-bar-item:last-child {
+  .mo-navigation-bar__start .mo-navigation-bar__item:last-child {
     margin-inline-end: auto;
   }
-  .navigation-bar-start .navigation-bar-indicator {
+  .mo-navigation-bar__start .mo-navigation-bar__indicator {
     display: flex;
     min-width: 0;
-    height: var(--navigation-bar-horizontal-indicator-height, 2.5rem);
+    height: var(--mo-comp-navigation-bar-horizontal-indicator-height, 2.5rem);
     align-items: center;
-    gap: var(--navigation-bar-horizontal-gap, 0.5rem);
+    gap: var(--mo-comp-navigation-bar-horizontal-gap, 0.5rem);
     border-radius: var(--mo-comp-navigation-bar-active-indicator-shape, var(--mo-sys-shape-corner-full));
-    padding-inline: var(--navigation-bar-horizontal-indicator-padding, 1rem);
+    padding-inline: var(--mo-comp-navigation-bar-horizontal-indicator-padding, 1rem);
     transition:
       background-color var(--mo-sys-motion-spring-default-effects),
       color var(--mo-sys-motion-spring-default-effects);
   }
-  .navigation-bar-start .navigation-bar-item .navigation-bar-icon {
+  .mo-navigation-bar__start .mo-navigation-bar__item .mo-navigation-bar__icon {
     width: 1.5rem;
     height: 1.5rem;
     background: none;
     color: inherit;
   }
-  .navigation-bar-start .navigation-bar-label {
-    font-size: var(--navigation-bar-horizontal-label-font-size, var(--mo-sys-typescale-label-large-size));
+  .mo-navigation-bar__start .mo-navigation-bar__label {
+    font-size: var(--mo-comp-navigation-bar-horizontal-label-font-size, var(--mo-sys-typescale-label-large-size));
     line-height: var(--mo-sys-typescale-label-large-line-height);
   }
-  .navigation-bar-start .navigation-bar-badge:not(.badge-small) {
+  .mo-navigation-bar__start .mo-navigation-bar__badge:not(.mo-badge__small) {
     top: -0.625rem;
     left: 0.75rem;
   }
-  .navigation-bar-start .navigation-bar-item:hover .navigation-bar-indicator {
+  .mo-navigation-bar__start .mo-navigation-bar__item:hover .mo-navigation-bar__indicator {
     background: var(
       --mo-comp-navigation-bar-indicator-hover,
       color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
   }
-  .navigation-bar-start .navigation-bar-item:active .navigation-bar-indicator {
+  .mo-navigation-bar__start .mo-navigation-bar__item:active .mo-navigation-bar__indicator {
     background: var(
-      --navigation-bar-indicator-pressed,
+      --mo-comp-navigation-bar-indicator-pressed,
       var(
         --mo-comp-navigation-bar-indicator-hover,
         color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
       )
     );
   }
-  .navigation-bar-start .navigation-bar-item[aria-current] .navigation-bar-indicator {
+  .mo-navigation-bar__start .mo-navigation-bar__item[aria-current] .mo-navigation-bar__indicator {
     background: var(--mo-comp-navigation-bar-active-indicator-color, var(--mo-sys-block-tint));
     color: var(--mo-comp-navigation-bar-indicator-text, var(--mo-sys-block-accent));
   }
   @container navigation-bar (min-width: 37.5rem) {
-    .navigation-bar-auto .navigation-bar-item {
-      max-width: var(--navigation-bar-horizontal-item-max-width, 14rem);
+    .mo-navigation-bar__auto .mo-navigation-bar__item {
+      max-width: var(--mo-comp-navigation-bar-horizontal-item-max-width, 14rem);
       flex: 0 1 auto;
       padding-inline: 0.25rem;
     }
-    .navigation-bar-auto .navigation-bar-item:first-child {
+    .mo-navigation-bar__auto .mo-navigation-bar__item:first-child {
       margin-inline-start: auto;
     }
-    .navigation-bar-auto .navigation-bar-item:last-child {
+    .mo-navigation-bar__auto .mo-navigation-bar__item:last-child {
       margin-inline-end: auto;
     }
-    .navigation-bar-auto .navigation-bar-indicator {
+    .mo-navigation-bar__auto .mo-navigation-bar__indicator {
       display: flex;
       min-width: 0;
-      height: var(--navigation-bar-horizontal-indicator-height, 2.5rem);
+      height: var(--mo-comp-navigation-bar-horizontal-indicator-height, 2.5rem);
       align-items: center;
-      gap: var(--navigation-bar-horizontal-gap, 0.5rem);
+      gap: var(--mo-comp-navigation-bar-horizontal-gap, 0.5rem);
       border-radius: var(--mo-comp-navigation-bar-active-indicator-shape, var(--mo-sys-shape-corner-full));
-      padding-inline: var(--navigation-bar-horizontal-indicator-padding, 1rem);
+      padding-inline: var(--mo-comp-navigation-bar-horizontal-indicator-padding, 1rem);
       transition:
         background-color var(--mo-sys-motion-spring-default-effects),
         color var(--mo-sys-motion-spring-default-effects);
     }
-    .navigation-bar-auto .navigation-bar-item .navigation-bar-icon {
+    .mo-navigation-bar__auto .mo-navigation-bar__item .mo-navigation-bar__icon {
       width: 1.5rem;
       height: 1.5rem;
       background: none;
       color: inherit;
     }
-    .navigation-bar-auto .navigation-bar-label {
-      font-size: var(--navigation-bar-horizontal-label-font-size, var(--mo-sys-typescale-label-large-size));
+    .mo-navigation-bar__auto .mo-navigation-bar__label {
+      font-size: var(--mo-comp-navigation-bar-horizontal-label-font-size, var(--mo-sys-typescale-label-large-size));
       line-height: var(--mo-sys-typescale-label-large-line-height);
     }
-    .navigation-bar-auto .navigation-bar-badge:not(.badge-small) {
+    .mo-navigation-bar__auto .mo-navigation-bar__badge:not(.mo-badge__small) {
       top: -0.625rem;
       left: 0.75rem;
     }
-    .navigation-bar-auto .navigation-bar-item:hover .navigation-bar-indicator {
+    .mo-navigation-bar__auto .mo-navigation-bar__item:hover .mo-navigation-bar__indicator {
       background: var(
         --mo-comp-navigation-bar-indicator-hover,
         color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
       );
     }
-    .navigation-bar-auto .navigation-bar-item:active .navigation-bar-indicator {
+    .mo-navigation-bar__auto .mo-navigation-bar__item:active .mo-navigation-bar__indicator {
       background: var(
-        --navigation-bar-indicator-pressed,
+        --mo-comp-navigation-bar-indicator-pressed,
         var(
           --mo-comp-navigation-bar-indicator-hover,
           color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
         )
       );
     }
-    .navigation-bar-auto .navigation-bar-item[aria-current] .navigation-bar-indicator {
+    .mo-navigation-bar__auto .mo-navigation-bar__item[aria-current] .mo-navigation-bar__indicator {
       background: var(--mo-comp-navigation-bar-active-indicator-color, var(--mo-sys-block-tint));
       color: var(--mo-comp-navigation-bar-indicator-text, var(--mo-sys-block-accent));
     }

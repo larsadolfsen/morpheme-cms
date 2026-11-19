@@ -1,12 +1,12 @@
 /*
-  Avatar (Avatar in theme/ui/Avatar.tsx): .avatar, a round mark with a letter, or an <img> of an image (it fills the circle).
+  Avatar (Avatar in theme/ui/Avatar.tsx): .mo-avatar, a round mark with a letter, or an <img> of an image (it fills the circle).
   M3 Lists, Specs, "Leading avatar": 40dp, label 500. Its tokens are in tokens/ui/comp/avatar.css:
     --mo-comp-avatar-size (else 2.5rem, 40dp), --mo-comp-avatar-container-color (else --mo-sys-color-primary-container),
     --mo-comp-avatar-label-text-color (else --mo-sys-color-on-primary-container), --mo-comp-avatar-container-shape (else --mo-sys-shape-corner-full),
     --mo-comp-avatar-label-weight (else 500)
 */
 @layer components {
-  .avatar {
+  .mo-avatar {
     display: grid;
     width: var(--mo-comp-avatar-size, 2.5rem);
     height: var(--mo-comp-avatar-size, 2.5rem);

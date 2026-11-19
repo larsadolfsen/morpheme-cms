@@ -50,12 +50,12 @@ async function checkDensityParts(width, height, touch) {
   page.on('pageerror', (e) => problems.push(`${width}px density parts: ${e.message}`));
   await openEditor(page, site);
   const parts = `
-    <button class="button" data-part="button">Label</button>
-    <button class="chip" data-part="chip">Label</button>
-    <div class="segmented-button"><button class="segmented-button-segment" data-part="segment">One</button><button class="segmented-button-segment">Two</button></div>
-    <div class="text-field text-field-outlined"><div class="text-field-container"><input class="text-field-input" data-part="field"></div></div>
-    <div class="list-item-container" data-part="row"><div class="list-item-content"><span class="list-item-headline">Row</span></div></div>
-    <div class="menu-item" data-part="menu-item">Item</div>`;
+    <button class="mo-button" data-part="button">Label</button>
+    <button class="mo-chip" data-part="chip">Label</button>
+    <div class="mo-segmented-button"><button class="mo-segmented-button__segment" data-part="segment">One</button><button class="mo-segmented-button__segment">Two</button></div>
+    <div class="mo-text-field mo-is-outlined"><div class="mo-text-field__container"><input class="mo-text-field__input" data-part="field"></div></div>
+    <div class="mo-list__item-container" data-part="row"><div class="mo-list__item-content"><span class="mo-list__item-headline">Row</span></div></div>
+    <div class="mo-menu__item" data-part="menu-item">Item</div>`;
   const measure = (attr) =>
     page.evaluate(
       ([attr, parts]) => {
@@ -269,7 +269,7 @@ async function checkDensityScreens(width, height) {
       const host = document.createElement('div');
       host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
       host.innerHTML =
-        '<button class="button" data-part="button">Label</button><button class="chip" data-part="chip">Label</button><div class="text-field text-field-outlined"><div class="text-field-container"><input class="text-field-input" data-part="field"></div></div><div class="list-item-container" data-part="row"><div class="list-item-content"><span class="list-item-headline" data-part="headline">Row</span></div></div>';
+        '<button class="mo-button" data-part="button">Label</button><button class="mo-chip" data-part="chip">Label</button><div class="mo-text-field mo-is-outlined"><div class="mo-text-field__container"><input class="mo-text-field__input" data-part="field"></div></div><div class="mo-list__item-container" data-part="row"><div class="mo-list__item-content"><span class="mo-list__item-headline" data-part="headline">Row</span></div></div>';
       document.body.append(host);
       const got = {};
       for (const el of host.querySelectorAll('[data-part]')) {

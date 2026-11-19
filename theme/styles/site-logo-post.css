@@ -32,7 +32,7 @@
       display: var(--mo-comp-theme-logo-role-display-large);
     }
   }
-  .mo-post-list.list > li {
+  .mo-post-list.mo-list > li {
     border-top: 1px solid var(--mo-sys-color-outline-variant);
   }
   .mo-post-list__image {

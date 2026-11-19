@@ -45,7 +45,7 @@ export function datePickerField(field: HTMLElement) {
   const { locale } = texts;
   const modal = kind === 'modal';
   const text = field.querySelector<HTMLInputElement>('[data-date-picker-text]')!;
-  const textField = text.closest<HTMLElement>('.text-field');
+  const textField = text.closest<HTMLElement>('.mo-text-field');
   const opener = field.querySelector<HTMLButtonElement>('[data-date-picker-open]')!;
   const values = [...field.querySelectorAll<HTMLInputElement>('[data-date-picker-value]')];
   const dialog = field.querySelector<HTMLDialogElement>('[data-date-picker-dialog]')!;
@@ -139,7 +139,7 @@ export function datePickerField(field: HTMLElement) {
   }
 
   function mark(wrong: boolean) {
-    textField?.classList.toggle('text-field-error', wrong);
+    textField?.classList.toggle('mo-is-error', wrong);
     if (wrong) text.setAttribute('aria-invalid', 'true');
     else text.removeAttribute('aria-invalid');
   }
@@ -282,7 +282,7 @@ export function datePickerField(field: HTMLElement) {
     const list = target.closest<HTMLElement>('[data-date-picker-list]');
     if (list && target.matches('[role="option"]')) {
       const options = [...list.querySelectorAll<HTMLElement>('[role="option"]')];
-      const columns = list.classList.contains('date-picker-years') ? 3 : 1;
+      const columns = list.classList.contains('mo-date-picker__years') ? 3 : 1;
       const at = options.indexOf(target);
       const by: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -columns, ArrowDown: columns };
       const next = e.key === 'Home' ? 0 : e.key === 'End' ? options.length - 1 : e.key in by ? at + by[e.key] : -1;

@@ -210,7 +210,7 @@ function covers(row: HTMLElement, host: HTMLElement) {
   const items = [...card.querySelectorAll<HTMLElement>('[data-row]')].filter(
     (item) => !row.contains(item) && item.getBoundingClientRect().width < card.clientWidth * 0.9,
   );
-  const controls = [...card.querySelectorAll<HTMLElement>('button, a[href], summary, .list-item-expand-icon')].filter(
+  const controls = [...card.querySelectorAll<HTMLElement>('button, a[href], summary, .mo-list__item-expand-icon')].filter(
     (el) => !row.contains(el) && !el.closest('.site-block-handle'),
   );
   return [...items, ...controls].some(under);

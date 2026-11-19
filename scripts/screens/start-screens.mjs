@@ -235,7 +235,7 @@ async function checkSettingsAndMenu(width, height) {
   const drawer = '.editor-main-drawer-panel nav';
   if (width >= 1000) {
     // The standard drawer is open: four sections, the start screen and the cog, and the cog last, at the bottom.
-    const items = await page.evaluate(shownItems, `${drawer} .navigation-drawer-item`);
+    const items = await page.evaluate(shownItems, `${drawer} .mo-navigation-drawer__item`);
     const sections = items.filter((i) => i.tag === 'BUTTON').length;
     const links = items.filter((i) => i.tag === 'A').map((i) => i.href);
     // Under "Apps": Store, then the pages of the installed connectors, plugins and themes, and no app installed.
@@ -249,7 +249,7 @@ async function checkSettingsAndMenu(width, height) {
     const noIcon = await page.evaluate(
       ({ d, appRows }) =>
         [...document.querySelectorAll(appRows.map((h) => `${d} a[href="${h}"]`).join(', '))]
-          .filter((a) => !a.querySelector('.navigation-drawer-icon svg'))
+          .filter((a) => !a.querySelector('.mo-navigation-drawer__icon svg'))
           .map((a) => a.getAttribute('href')),
       { d: drawer, appRows },
     );
@@ -259,7 +259,7 @@ async function checkSettingsAndMenu(width, height) {
     // The modal drawer: open it with the top bar's button.
     await page.locator('header').getByRole('button', { name: '\u00c5bn menuen' }).first().click();
     await page.waitForTimeout(600);
-    checkCog(label, 'menuen', await page.evaluate(shownItems, `${drawer} .navigation-drawer-item`), height);
+    checkCog(label, 'menuen', await page.evaluate(shownItems, `${drawer} .mo-navigation-drawer__item`), height);
     await page.keyboard.press('Escape');
     await page.waitForTimeout(400);
   }
@@ -293,7 +293,7 @@ async function checkSettingsAndMenu(width, height) {
     await go('');
     await page.click('.editor-main-drawer-header button');
     await page.waitForTimeout(600);
-    checkCog(label, 'skinnen', await page.evaluate(shownItems, 'nav.editor-main-rail .navigation-rail-item'), height);
+    checkCog(label, 'skinnen', await page.evaluate(shownItems, 'nav.editor-main-rail .mo-navigation-rail__item'), height);
     const railCurrent = (hash) =>
       go(hash).then(() =>
         page.evaluate(() => document.querySelector('nav.editor-main-rail a[href="#settings"]')?.getAttribute('aria-current')),
@@ -628,7 +628,7 @@ async function checkMorpheme(page, state) {
     if (!text.includes(x)) problems.push(`morpheme (${state}): "${x}" is missing`);
   const bare = await page.evaluate(
     (connected) =>
-      [...document.querySelectorAll('main .list-item-container')]
+      [...document.querySelectorAll('main .mo-list__item-container')]
         .filter((row) => !row.matches('a[href], button') && !row.closest('li')?.querySelector('a[href], button'))
         .filter((row) => !row.innerText.startsWith(connected))
         .map((row) => row.innerText.trim().split('\n')[0]),
@@ -711,12 +711,12 @@ export function register(unit) {
             ),
           }));
           for (const d of new Set(state.phosphor)) problems.push(...phosphorProblems(`${width}px #${hash}`, d));
-          // No sheet from the bottom starts taller than --bottom-sheet-start-max-height (half the screen, Material 3), on a phone.
+          // No sheet from the bottom starts taller than --mo-comp-bottom-sheet-start-max-height (half the screen, Material 3), on a phone.
           if (width < 600) {
             const tooTall = await page.evaluate(() => {
               const cap = innerHeight / 2 + 1;
               const bad = [];
-              for (const d of document.querySelectorAll('dialog.editor-sheet.bottom-sheet:not(.editor-side-panel)')) {
+              for (const d of document.querySelectorAll('dialog.editor-sheet.mo-bottom-sheet:not(.editor-side-panel)')) {
                 if (d.open) continue;
                 d.showModal();
                 if (d.offsetHeight > cap) bad.push(`${d.getAttribute('aria-label') ?? d.className} (${Math.round(d.offsetHeight)}px)`);

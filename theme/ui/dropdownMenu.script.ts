@@ -16,8 +16,8 @@ const edge = 8;
 
 // A menu's own items, not its submenus', that can be chosen.
 const itemsOf = (menu: HTMLElement) =>
-  [...menu.querySelectorAll<HTMLElement>('.menu-item')].filter(
-    (i) => i.parentElement?.closest('.menu') === menu && !i.matches(':disabled, [aria-disabled="true"]'),
+  [...menu.querySelectorAll<HTMLElement>('.mo-menu__item')].filter(
+    (i) => i.parentElement?.closest('.mo-menu') === menu && !i.matches(':disabled, [aria-disabled="true"]'),
   );
 
 // The menu an item opens.
@@ -44,7 +44,7 @@ export default function dropdownMenu() {
     const button = root.querySelector<HTMLElement>('[data-dropdown-menu-button]');
     const menu = root.querySelector<HTMLElement>('[data-dropdown-menu-menu]');
     if (!button || !menu?.popover) return;
-    const menus = [menu, ...menu.querySelectorAll<HTMLElement>('.menu-submenu[popover]')];
+    const menus = [menu, ...menu.querySelectorAll<HTMLElement>('.mo-menu__submenu[popover]')];
     // Whether a menu that opens takes the focus to its first item (not a submenu the mouse opened, nor one a key
     // opened, which openOn gives the focus itself).
     let focusOnOpen: 'first' | null = 'first';
@@ -89,8 +89,8 @@ export default function dropdownMenu() {
     });
 
     menu.addEventListener('keydown', (e) => {
-      const item = (e.target as HTMLElement).closest<HTMLElement>('.menu-item');
-      const m = item?.parentElement?.closest<HTMLElement>('.menu');
+      const item = (e.target as HTMLElement).closest<HTMLElement>('.mo-menu__item');
+      const m = item?.parentElement?.closest<HTMLElement>('.mo-menu');
       if (!item || !m) return;
       const items = itemsOf(m);
       const at = items.indexOf(item);
@@ -113,7 +113,7 @@ export default function dropdownMenu() {
       // A letter: the next item whose label starts with it.
       if (to === undefined && isTypeAheadKey(e)) {
         const next = nextByLetter(
-          items.map((i) => i.querySelector('.menu-item-label')?.textContent ?? ''),
+          items.map((i) => i.querySelector('.mo-menu__item-label')?.textContent ?? ''),
           at,
           e.key,
         );
@@ -126,7 +126,7 @@ export default function dropdownMenu() {
 
     // A choice: tick it, or make it the chosen one of its group, then close the menu (a link is followed).
     menu.addEventListener('click', (e) => {
-      const item = (e.target as HTMLElement).closest<HTMLElement>('.menu-item');
+      const item = (e.target as HTMLElement).closest<HTMLElement>('.mo-menu__item');
       if (!item || submenuOf(item) || item.matches(':disabled, [aria-disabled="true"]')) return;
       const role = item.getAttribute('role');
       if (role === 'menuitemcheckbox') item.setAttribute('aria-checked', String(item.getAttribute('aria-checked') !== 'true'));
@@ -144,14 +144,14 @@ export default function dropdownMenu() {
     // menu, an open submenu there closes.
     menu.addEventListener('pointerover', (e) => {
       if (e.pointerType !== 'mouse') return;
-      const item = (e.target as HTMLElement).closest<HTMLElement>('.menu-item');
-      const m = item?.parentElement?.closest<HTMLElement>('.menu');
+      const item = (e.target as HTMLElement).closest<HTMLElement>('.mo-menu__item');
+      const m = item?.parentElement?.closest<HTMLElement>('.mo-menu');
       if (!item || !m) return;
       clearTimeout(resting);
       const sub = submenuOf(item);
       resting = window.setTimeout(() => {
-        m.querySelectorAll<HTMLElement>('.menu-submenu:popover-open').forEach((s) => {
-          if (s !== sub && s.parentElement?.closest('.menu') === m) s.hidePopover();
+        m.querySelectorAll<HTMLElement>('.mo-menu__submenu:popover-open').forEach((s) => {
+          if (s !== sub && s.parentElement?.closest('.mo-menu') === m) s.hidePopover();
         });
         if (sub && !sub.matches(':popover-open') && !item.matches(':disabled')) {
           focusOnOpen = null;

@@ -1,65 +1,65 @@
 /*
-  Checkboxes (Checkbox.tsx, checkboxClass, and checkbox.script.ts for the indeterminate state on the site): .checkbox, a
-  <label> with the box (.checkbox-box: the <input>, .checkbox-input, ticked :checked or neither :indeterminate, and the
-  theme's tick, .checkbox-icon, and dash, .checkbox-indeterminate-icon, shown by a theme that draws the box itself with
-  appearance: none) and its text (.checkbox-text: .checkbox-label and .checkbox-supporting); .checkbox-error when it
+  Checkboxes (Checkbox.tsx, checkboxClass, and checkbox.script.ts for the indeterminate state on the site): .mo-checkbox, a
+  <label> with the box (.mo-checkbox__box: the <input>, .mo-checkbox__input, ticked :checked or neither :indeterminate, and the
+  theme's tick, .mo-checkbox__icon, and dash, .mo-checkbox__indeterminate-icon, shown by a theme that draws the box itself with
+  appearance: none) and its text (.mo-checkbox__text: .mo-checkbox__label and .mo-checkbox__supporting); .mo-is-error when it
   is wrong (the <input> aria-invalid, and the line under it saying what is wrong).
-    --mo-comp-checkbox-container-size, --mo-comp-checkbox-offset, --mo-comp-checkbox-gap, --checkbox-color   the box, how far down beside the name it
+    --mo-comp-checkbox-container-size, --mo-comp-checkbox-offset, --mo-comp-checkbox-gap, --mo-comp-checkbox-color   the box, how far down beside the name it
       stands, the room before the name, and its colour ticked
-    --checkbox-label-weight, --checkbox-supporting-color   the name and the line under it
-    --checkbox-error   a wrong one's box, the ring round it and the line under it (else the text field's error)
+    --mo-comp-checkbox-label-weight, --mo-comp-checkbox-supporting-color   the name and the line under it
+    --mo-comp-checkbox-error   a wrong one's box, the ring round it and the line under it (else the text field's error)
   Moved here from ui.css with its rules unchanged and in their order, in the same layer. Unlike the other parts it is imported by base.css BEFORE ui.css:
-  the list's selection box (theme/ui/List.tsx) is a .checkbox and a .list-item-select-box, and the list's rules, still in ui.css, set display and
-  align-items at the same specificity; they came after .checkbox and must still win (docs/superpowers/plans/2026-11-16-css-split.md).
+  the list's selection box (theme/ui/List.tsx) is a .mo-checkbox and a .mo-list__item-select-box, and the list's rules, still in ui.css, set display and
+  align-items at the same specificity; they came after .mo-checkbox and must still win (docs/superpowers/plans/2026-11-16-css-split.md).
 */
 @layer components {
   /* Checkboxes (m3.material.io/components/checkbox): the box beside its name, the browser's own in the accent. */
-  .checkbox {
+  .mo-checkbox {
     display: flex;
     align-items: flex-start;
     gap: var(--mo-comp-checkbox-gap, 0.75rem);
     cursor: pointer;
   }
-  .checkbox:has(.checkbox-input:disabled) {
+  .mo-checkbox:has(.mo-checkbox__input:disabled) {
     cursor: default;
   }
-  .checkbox-box {
+  .mo-checkbox__box {
     position: relative;
     display: grid;
     flex-shrink: 0;
     place-items: center;
     margin-top: var(--mo-comp-checkbox-offset, 0.25rem);
   }
-  .checkbox-input {
+  .mo-checkbox__input {
     width: var(--mo-comp-checkbox-container-size, 1rem);
     height: var(--mo-comp-checkbox-container-size, 1rem);
     margin: 0;
-    accent-color: var(--checkbox-color, var(--mo-sys-block-accent));
+    accent-color: var(--mo-comp-checkbox-color, var(--mo-sys-block-accent));
     cursor: inherit;
   }
-  .checkbox-icon,
-  .checkbox-indeterminate-icon {
+  .mo-checkbox__icon,
+  .mo-checkbox__indeterminate-icon {
     position: absolute;
     display: none;
     pointer-events: none;
   }
   /* Wrong: the box in the error's colour with a ring round it, and the line under it saying why. */
-  .checkbox-error .checkbox-input {
+  :where(.mo-checkbox).mo-is-error .mo-checkbox__input {
     border-radius: 0.1875rem;
-    outline: 2px solid var(--checkbox-error, var(--mo-comp-text-field-error, var(--mo-sys-block-accent)));
+    outline: 2px solid var(--mo-comp-checkbox-error, var(--mo-comp-text-field-error, var(--mo-sys-block-accent)));
     outline-offset: 1px;
-    accent-color: var(--checkbox-error, var(--mo-comp-text-field-error, var(--mo-sys-block-accent)));
+    accent-color: var(--mo-comp-checkbox-error, var(--mo-comp-text-field-error, var(--mo-sys-block-accent)));
   }
-  .checkbox-error .checkbox-supporting {
-    color: var(--checkbox-error, var(--mo-comp-text-field-error, var(--mo-sys-block-accent)));
+  :where(.mo-checkbox).mo-is-error .mo-checkbox__supporting {
+    color: var(--mo-comp-checkbox-error, var(--mo-comp-text-field-error, var(--mo-sys-block-accent)));
   }
-  .checkbox-label {
+  .mo-checkbox__label {
     display: block;
-    font-weight: var(--checkbox-label-weight, 500);
+    font-weight: var(--mo-comp-checkbox-label-weight, 500);
   }
-  .checkbox-supporting {
+  .mo-checkbox__supporting {
     display: block;
-    color: var(--checkbox-supporting-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-checkbox-supporting-color, var(--mo-sys-block-muted));
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);

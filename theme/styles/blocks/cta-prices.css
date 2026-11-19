@@ -7,7 +7,7 @@
   (the collision check in the pull request).
 */
 @layer components {
-  /* An invitation, a filled card (.card in ui.css): an image, a heading and a text, and buttons under each other
+  /* An invitation, a filled card (.mo-card in ui.css): an image, a heading and a text, and buttons under each other
      (e.g. an app's booking block); on a computer the three side by side. */
   .mo-block-cta {
     display: grid;

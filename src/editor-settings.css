@@ -1697,7 +1697,7 @@
     border-style: solid;
     border-width: 1px;
     border-color: var(--mo-sys-color-outline-variant);
-    padding-block-end: var(--toolbar-docked-padding-block);
+    padding-block-end: var(--mo-comp-toolbar-docked-padding-block);
   }
 
   .mo-editor-two-columns {

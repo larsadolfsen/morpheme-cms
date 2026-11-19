@@ -1,4 +1,4 @@
-// A toolbar (m3.material.io/components/toolbars, M3 Expressive; .toolbar in ../styles/ui/toolbar.css): a row of actions (icon
+// A toolbar (m3.material.io/components/toolbars, M3 Expressive; .mo-toolbar in ../styles/ui/toolbar.css): a row of actions (icon
 // buttons, buttons), docked (`kind`: docked, the default: the whole width at the bottom of the screen, as the site's bar
 // on a phone, components/ActionBar.astro) or floating (a pill over the page), in its colour
 // (`color`: standard, the surface, the default, or vibrant, the accent), across or, floating, `vertical`. A floating one
@@ -17,10 +17,10 @@ export type ToolbarColor = 'standard' | 'vibrant';
 
 /** A toolbar's classes; `expanded` false: collapsed into its FAB. */
 export const toolbarClass = (kind: ToolbarKind = 'docked', color: ToolbarColor = 'standard', vertical = false, expanded = true) =>
-  `toolbar toolbar-${kind} toolbar-${color}${vertical && kind === 'floating' ? ' toolbar-vertical' : ''}${expanded ? '' : ' toolbar-collapsed'}`;
+  `mo-toolbar mo-toolbar__${kind} mo-toolbar__${color}${vertical && kind === 'floating' ? ' mo-toolbar__vertical' : ''}${expanded ? '' : ' mo-toolbar__collapsed'}`;
 
 /** The classes of the box round a floating toolbar and its FAB. */
-export const toolbarWithFabClass = (vertical = false) => `toolbar-with-fab${vertical ? ' toolbar-with-fab-vertical' : ''}`;
+export const toolbarWithFabClass = (vertical = false) => `mo-toolbar__with-fab${vertical ? ' mo-toolbar__with-fab-vertical' : ''}`;
 
 export default function Toolbar({
   label,

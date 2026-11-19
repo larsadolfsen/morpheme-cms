@@ -267,14 +267,14 @@ async function checkTableAlign(width, height) {
   await page.close();
 }
 
-/** The Table's outer box has the same corner radius as a card (the Cards block's `.card`: both read the theme's --mo-comp-card-radius), with its header clipped to it, on the built site at 375 and 1280 px. */
+/** The Table's outer box has the same corner radius as a card (the Cards block's `.mo-card`: both read the theme's --mo-comp-card-radius), with its header clipped to it, on the built site at 375 and 1280 px. */
 async function checkTableRadius(width, height) {
   const label = `${width}px table radius`;
   const page = await browser.newPage({ viewport: { width, height } });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
   const got = await page.evaluate(() => {
-    const card = document.querySelector('.card.mo-block-cards__card');
+    const card = document.querySelector('.mo-card.mo-block-cards__card');
     const host = card?.parentElement;
     if (!host) return null;
     const box = document.createElement('div');

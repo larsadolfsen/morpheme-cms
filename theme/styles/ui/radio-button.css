@@ -1,62 +1,62 @@
 /*
   Radio buttons (RadioButton.tsx, radioButtonClass, radioGroupClass; m3.material.io/components/radio-button): as the
-  checkbox, .radio-button, a <label> with the button (.radio-button-box: the <input>, .radio-button-input, the
-  browser's own in the accent, or the theme's with appearance: none) and its text (.radio-button-text:
-  .radio-button-label and .radio-button-supporting); the buttons of one choice in .radio-group, a <fieldset> with its
-  name in .radio-group-label.
-    --mo-comp-radio-button-icon-size, --mo-comp-radio-button-offset, --mo-comp-radio-button-gap, --radio-button-color   the button, how far down
+  checkbox, .mo-radio-button, a <label> with the button (.mo-radio-button__box: the <input>, .mo-radio-button__input, the
+  browser's own in the accent, or the theme's with appearance: none) and its text (.mo-radio-button__text:
+  .mo-radio-button__label and .mo-radio-button__supporting); the buttons of one choice in .mo-radio-group, a <fieldset> with its
+  name in .mo-radio-group__label.
+    --mo-comp-radio-button-icon-size, --mo-comp-radio-button-offset, --mo-comp-radio-button-gap, --mo-comp-radio-button-color   the button, how far down
       beside the name it stands, the room before the name, and its colour chosen
-    --radio-button-label-weight, --radio-button-supporting-color   the name and the line under it
-    --radio-group-gap, --mo-comp-radio-group-label-weight   the room between the buttons, and the choice's name over them
+    --mo-comp-radio-button-label-weight, --mo-comp-radio-button-supporting-color   the name and the line under it
+    --mo-comp-radio-group-gap, --mo-comp-radio-group-label-weight   the room between the buttons, and the choice's name over them
   Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
   the same property on these parts at the same specificity, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
 */
 @layer components {
   /* Radio buttons: as the checkbox, the browser's own button in the accent beside its name. */
-  .radio-button {
+  .mo-radio-button {
     display: flex;
     align-items: flex-start;
     gap: var(--mo-comp-radio-button-gap, 0.75rem);
     cursor: pointer;
   }
-  .radio-button:has(.radio-button-input:disabled) {
+  .mo-radio-button:has(.mo-radio-button__input:disabled) {
     cursor: default;
   }
-  .radio-button-box {
+  .mo-radio-button__box {
     position: relative;
     display: grid;
     flex-shrink: 0;
     place-items: center;
     margin-top: var(--mo-comp-radio-button-offset, 0.25rem);
   }
-  .radio-button-input {
+  .mo-radio-button__input {
     width: var(--mo-comp-radio-button-icon-size, 1rem);
     height: var(--mo-comp-radio-button-icon-size, 1rem);
     margin: 0;
-    accent-color: var(--radio-button-color, var(--mo-sys-block-accent));
+    accent-color: var(--mo-comp-radio-button-color, var(--mo-sys-block-accent));
     cursor: inherit;
   }
-  .radio-button-label {
+  .mo-radio-button__label {
     display: block;
-    font-weight: var(--radio-button-label-weight, 500);
+    font-weight: var(--mo-comp-radio-button-label-weight, 500);
   }
-  .radio-button-supporting {
+  .mo-radio-button__supporting {
     display: block;
-    color: var(--radio-button-supporting-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-radio-button-supporting-color, var(--mo-sys-block-muted));
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
-  .radio-group {
+  .mo-radio-group {
     display: grid;
-    gap: var(--radio-group-gap, 0.75rem);
+    gap: var(--mo-comp-radio-group-gap, 0.75rem);
     min-width: 0;
     margin: 0;
     border: 0;
     padding: 0;
   }
-  .radio-group-label {
+  .mo-radio-group__label {
     margin-bottom: 0.25rem;
     padding: 0;
     font-weight: var(--mo-comp-radio-group-label-weight, 600);

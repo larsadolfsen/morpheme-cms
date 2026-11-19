@@ -232,14 +232,14 @@ export function RowsFromList({
   // A tap on a row's top line, bottom line, icon or arrow picks the field shown there.
   const tapped = (e: MouseEvent<HTMLElement>) => {
     if (!onPart || !(e.target instanceof Element)) return;
-    const hit = e.target.closest('.list-item-headline, .list-item-supporting, .list-item-leading, .list-item-trailing');
+    const hit = e.target.closest('.mo-list__item-headline, .mo-list__item-supporting, .mo-list__item-leading, .mo-list__item-trailing');
     if (!hit) return;
     onPart(
-      hit.classList.contains('list-item-headline')
+      hit.classList.contains('mo-list__item-headline')
         ? 'title'
-        : hit.classList.contains('list-item-supporting')
+        : hit.classList.contains('mo-list__item-supporting')
           ? 'text'
-          : hit.classList.contains('list-item-leading')
+          : hit.classList.contains('mo-list__item-leading')
             ? 'icon'
             : 'href',
     );

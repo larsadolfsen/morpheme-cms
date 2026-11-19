@@ -42,7 +42,7 @@ export function timePickerField(field: HTMLElement) {
   const turned = matchMedia('(orientation: landscape) and (max-height: 30rem)');
   const shape = () => ({ timeFormat, orientation: orientation ?? (turned.matches ? 'horizontal' : 'vertical') }) as const;
   const text = field.querySelector<HTMLInputElement>('[data-time-picker-text]')!;
-  const textField = text.closest<HTMLElement>('.text-field');
+  const textField = text.closest<HTMLElement>('.mo-text-field');
   const opener = field.querySelector<HTMLButtonElement>('[data-time-picker-open]')!;
   const input = field.querySelector<HTMLInputElement>('[data-time-picker-value]')!;
   const dialog = field.querySelector<HTMLDialogElement>('[data-time-picker-dialog]')!;
@@ -94,7 +94,7 @@ export function timePickerField(field: HTMLElement) {
   }
 
   function mark(wrong: boolean) {
-    textField?.classList.toggle('text-field-error', wrong);
+    textField?.classList.toggle('mo-is-error', wrong);
     if (wrong) text.setAttribute('aria-invalid', 'true');
     else text.removeAttribute('aria-invalid');
   }
@@ -173,7 +173,7 @@ export function timePickerField(field: HTMLElement) {
     const y = e.clientY - box.top - box.height / 2;
     const angle = (Math.atan2(x, -y) * 180) / Math.PI + 360;
     if (state.selecting === 'minute') return Math.round(angle / 6) % 60;
-    const number = dial.querySelector<HTMLElement>('.time-picker-dial-number');
+    const number = dial.querySelector<HTMLElement>('.mo-time-picker__dial-number');
     const knob = number?.offsetWidth ?? 48;
     const inner = !twelve && Math.hypot(x, y) < box.width / 2 - knob * 0.875;
     return (Math.round(angle / 30) % 12) + (inner ? 12 : 0);

@@ -1,4 +1,4 @@
-// A segmented button (m3.material.io/components/segmented-buttons, .segmented-button in ../styles/ui/button-groups.css): a few
+// A segmented button (m3.material.io/components/segmented-buttons, .mo-segmented-button in ../styles/ui/button-groups.css): a few
 // choices side by side in one frame (`segments`), each a button with its label and evt. an icon, the chosen ones with
 // aria-pressed="true" and a check before the label (in the icon's place when it has one; the theme shows it or not). A segment with a
 // `swatch` (a CSS colour) shows a filled circle of it in every segment instead, in the check's place and with no check: the chosen one
@@ -21,8 +21,8 @@ export type Segment = {
 } & Record<string, unknown>;
 
 /** A segmented button's class, and its segments'. */
-export const segmentedButtonClass = 'segmented-button';
-export const segmentedButtonSegmentClass = 'segmented-button-segment';
+export const segmentedButtonClass = 'mo-segmented-button';
+export const segmentedButtonSegmentClass = 'mo-segmented-button__segment';
 
 export default function SegmentedButton({
   label,
@@ -51,12 +51,14 @@ export default function SegmentedButton({
           {...own}
         >
           {swatch ? (
-            <span className="segmented-button-swatch" style={{ background: swatch }} aria-hidden="true" />
+            <span className="mo-segmented-button__swatch" style={{ background: swatch }} aria-hidden="true" />
           ) : (
-            <Svg name="check" size={18} className="segmented-button-check" />
+            <Svg name="check" size={18} className="mo-segmented-button__check" />
           )}
-          {icon && <Glyph icon={icon} size={18} className="segmented-button-icon" />}
-          <span className={dots ? 'segmented-button-label segmented-button-label-hidden' : 'segmented-button-label'}>{name}</span>
+          {icon && <Glyph icon={icon} size={18} className="mo-segmented-button__icon" />}
+          <span className={dots ? 'mo-segmented-button__label mo-segmented-button__label-hidden' : 'mo-segmented-button__label'}>
+            {name}
+          </span>
         </button>
       ))}
     </div>
