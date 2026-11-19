@@ -484,7 +484,7 @@ for (const [what, patch] of [
   expect(Array.isArray(status?.notes) && status.notes.length === 0, 'en forudgivelse gav noter');
 }
 
-// The update that takes 0.18.2 rewrites the class names of the pages and posts in the same commit as the version, and the undo
+// The update that crosses into 0.19.0 (from any version below it) rewrites the class names of the pages and posts in the same commit as the version, and the undo
 // writes both back in one commit (class names saved in content, M6).
 {
   const page = (cls) => `---\ntitle: "body-small"\n---\n\n<p class="${cls[0]}">body-small</p>\n\n<span class="${cls[1]}">x</span>\n`;
@@ -493,7 +493,7 @@ for (const [what, patch] of [
     'src/content/blog/b.md': page(['body-large', 'color-muted']),
     'src/content/pages/c.md': page(['mo-type-label-medium', 'mo-has-accent-color']),
   };
-  const w = world({ range: '0.18.1', latest: '0.18.2', content: before });
+  const w = world({ range: '0.18.1', latest: '0.19.0', content: before });
   await checkForUpdate(w.env, w.deps, T0);
   expect(w.commits.length === 1, `the update made ${w.commits.length} commits, not 1`);
   const paths = w.commits[0]?.changes.map((c) => c.path) ?? [];
@@ -521,19 +521,29 @@ for (const [what, patch] of [
     'the undo did not write the class names back with the version',
   );
   expect(w.files['src/content/pages/c.md'] === before['src/content/pages/c.md'], 'the undo touched a page the update had not');
-  // An update to a version before 0.18.2, or from 0.18.2 on, leaves the content alone.
-  const old = world({ range: '0.18.0', latest: '0.18.1', content: before });
-  await checkForUpdate(old.env, old.deps, T0);
+  // An update that crosses into 0.19.0 from a 0.18.x patch rewrites too (a site already on 0.18.2 gets its content rewritten).
+  const patch = world({ range: '0.18.2', latest: '0.19.0', content: before });
+  await checkForUpdate(patch.env, patch.deps, T0);
   expect(
-    old.commits[0]?.changes.every((c) => !c.path.startsWith('src/content/')) && !('migrated' in (stored(old.kv, 'cms:update') ?? {})),
-    'an update to 0.18.1 rewrote content',
+    patch.commits[0]?.changes.some((c) => c.path === 'src/content/pages/a.md') &&
+      patch.files['src/content/pages/a.md'] === page(['mo-type-label-medium', 'mo-has-accent-color']) &&
+      stored(patch.kv, 'cms:update')?.migrated?.length === 2,
+    'an update from 0.18.2 to 0.19.0 did not rewrite content',
   );
-  const later = world({ range: '0.18.2', latest: '0.18.3', content: before });
-  await checkForUpdate(later.env, later.deps, T0);
-  expect(
-    later.commits[0]?.changes.every((c) => !c.path.startsWith('src/content/')),
-    'an update from 0.18.2 rewrote content',
-  );
+  // An update within 0.18.x, or from 0.19.0 on, leaves the content alone.
+  const noRewrite = async (range, latest) => {
+    const x = world({ range, latest, content: before });
+    await checkForUpdate(x.env, x.deps, T0);
+    expect(x.commits.length === 1, `the update ${range} to ${latest} made ${x.commits.length} commits`);
+    expect(
+      x.commits[0]?.changes.every((c) => !c.path.startsWith('src/content/')) && !('migrated' in (stored(x.kv, 'cms:update') ?? {})),
+      `an update from ${range} to ${latest} rewrote content`,
+    );
+  };
+  await noRewrite('0.18.0', '0.18.1');
+  await noRewrite('0.18.1', '0.18.2');
+  await noRewrite('0.18.2', '0.18.3');
+  await noRewrite('0.19.0', '0.19.1');
 }
 
 // The same update rewrites every place the editor stores markdown: a list entry (body and front matter), a data file's markdown string,
@@ -565,7 +575,7 @@ for (const [what, patch] of [
   const before = site((old) => old);
   const after = site((old, now) => now);
   const changed = Object.keys(before).filter((p) => before[p] !== after[p]);
-  const w = world({ range: '0.18.1', latest: '0.18.2', content: before });
+  const w = world({ range: '0.18.1', latest: '0.19.0', content: before });
   await checkForUpdate(w.env, w.deps, T0);
   const paths = w.commits[0]?.changes.map((c) => c.path) ?? [];
   const notContent = (p) => !/^src\/(content|data)\//.test(p);
@@ -599,7 +609,7 @@ for (const [what, patch] of [
     'the undo touched other files than the update rewrote',
   );
   // A second run changes nothing: the content the update wrote has nothing left to rewrite.
-  const again = world({ range: '0.18.1', latest: '0.18.2', content: after });
+  const again = world({ range: '0.18.1', latest: '0.19.0', content: after });
   await checkForUpdate(again.env, again.deps, T0);
   expect(
     again.commits[0]?.changes.every((c) => notContent(c.path)) && !('migrated' in (stored(again.kv, 'cms:update') ?? {})),

@@ -181,7 +181,7 @@ checks are in `docs/superpowers/specs/2026-11-11-media-providers.md`.
 
 ## Contract 7: no Tailwind
 
-Announced; it takes effect when the Tailwind removal merges (batch T16 of `docs/superpowers/plans/2026-11-18-tailwind-batches.md`, released as 0.18.2).
+Announced; it takes effect when the Tailwind removal merges (batch T16 of `docs/superpowers/plans/2026-11-18-tailwind-batches.md`, released as 0.19.0).
 
 Contract 7 is contract 6 without Tailwind. A theme or an app written to 7 uses no utility class (`flex`, `px-4`,
 `medium:grid-cols-2`, `hover:underline`), no `theme()`, no `@theme`, no `@apply` and no `@source`, and no `--tw-*` custom
