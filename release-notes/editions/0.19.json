@@ -1,0 +1,12 @@
+{
+  "name": "New Zealand",
+  "place": {
+    "en-US": "Sheep in the mist, New Zealand",
+    "da-DK": "Får i tågen, New Zealand"
+  },
+  "photo": {
+    "by": "Taylor Brandon",
+    "source": "https://unsplash.com/photos/herd-of-sheep-on-brown-grass-field-during-daytime-kSf9S2pDhf8",
+    "license": "https://unsplash.com/license"
+  }
+}
