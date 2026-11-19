@@ -31,7 +31,7 @@ async function checkInlineTable(width, height) {
           (e.children.length === 0 && /^(Next row|Next column|Add row)$/.test(e.textContent.trim())) ||
           ['placeholder', 'aria-label'].some((a) => /^(Next row|Next column|Add row)$/.test(e.getAttribute(a) ?? '')),
       ).length,
-      faded: document.querySelectorAll('.inline-table-cell-next').length,
+      faded: document.querySelectorAll('.mo-editor-inline-table-cell-next').length,
       outline: getComputedStyle(document.querySelector('.mo-editor-inline-table-cell-active')).outlineStyle,
       scroll:
         document.querySelector('.mo-editor-inline-table-box').scrollWidth <=
@@ -132,7 +132,7 @@ async function checkInlineTable(width, height) {
     menu: [...document.querySelectorAll('.mo-editor-tools [aria-label="Add row above"]')].filter(
       (b) => !b.closest('.mo-editor-tools-ghost'),
     ).length,
-    extra: document.querySelectorAll('[data-add-row], .inline-table-cell-next').length,
+    extra: document.querySelectorAll('[data-add-row], .mo-editor-inline-table-cell-next').length,
     rows: document.querySelectorAll('.mo-editor-inline-table-box tr[data-row]').length,
     cols: document.querySelectorAll('.mo-editor-inline-table-box thead th').length,
   }));

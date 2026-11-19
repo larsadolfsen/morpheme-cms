@@ -3,7 +3,7 @@
 :root,
 :is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   --mo-comp-icon-button-medium-container-shape-square: var(--mo-sys-shape-corner-large);
   /* Icon buttons: 48 by 48 with a 24px icon; standard in on-surface-variant without a container, tonal in the
      secondary container (the cross on a pop-up, as it can stand on an image). */

@@ -12,7 +12,7 @@
 /* Density (theme/styles/base.css) reaches the editor's own screens, not the page and post editing area: what is typed in place
    there keeps the theme's own step (--mo-sys-density-base) at every choice, as on the site, so a block is drawn as it will be. The
    derived variables are computed where they are declared, so they are declared again here. */
-.editor-text .ProseMirror {
+.mo-editor-text .ProseMirror {
   --mo-sys-density-user: 0;
   --mo-sys-density: clamp(-3, var(--mo-sys-density-base), 1);
   --mo-sys-density-layout: clamp(-1, var(--mo-sys-density-base), 1);
@@ -87,7 +87,7 @@
 }
 
 /* The text field (MarkdownEditor.tsx). The rest of the editor uses the site's Tailwind classes. */
-.editor-text .ProseMirror {
+.mo-editor-text .ProseMirror {
   min-height: 50dvh;
   outline: none;
 }
@@ -96,10 +96,10 @@
    sectionFrame.ts) or the block in focus (its own outline). The frame draws only while the text itself has the focus (:focus-visible), so it is gone when the
    cursor leaves, and it is a 2 px dotted line in the focus colour, the theme's primary role (a section on a colour swaps it to its on-colour, so it stands 3:1 on every section colour; Modern Web Guidance,
    accessibility: a focus indicator stays visible). */
-.editor-text .ProseMirror:focus-visible > [data-section-focus] {
+.mo-editor-text .ProseMirror:focus-visible > [data-section-focus] {
   position: relative;
 }
-.editor-text .ProseMirror:focus-visible > [data-section-focus]::after {
+.mo-editor-text .ProseMirror:focus-visible > [data-section-focus]::after {
   content: '';
   position: absolute;
   inset: 0 -0.5rem;
@@ -107,22 +107,22 @@
   border: 0 dotted var(--mo-sys-color-primary);
   border-inline-width: 2px;
 }
-.editor-text .ProseMirror:focus-visible > [data-section-focus]:is([data-section-box], [data-section-width='full'])::after {
+.mo-editor-text .ProseMirror:focus-visible > [data-section-focus]:is([data-section-box], [data-section-width='full'])::after {
   inset-inline: 0;
 }
-.editor-text
+.mo-editor-text
   .ProseMirror:focus-visible
   > :is([data-section-focus='start'], [data-section-focus='only']):not([data-section-part='start'])::after {
   border-block-start-width: 2px;
 }
-.editor-text .ProseMirror:focus-visible > :is([data-section-focus='end'], [data-section-focus='only'])::after {
+.mo-editor-text .ProseMirror:focus-visible > :is([data-section-focus='end'], [data-section-focus='only'])::after {
   border-block-end-width: 2px;
 }
 /* The section's own dotted line, at the start of an H2 section, takes the same clear line while the section has the focus. */
-.editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus] {
+.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus] {
   border-block-start-color: var(--mo-sys-color-primary);
 }
-.editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus]::after {
+.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus]::after {
   inset-block-start: -2px;
 }
 
@@ -133,18 +133,18 @@
 
 /* ProseMirror puts invisible helpers around an image (empty images and a line break). Next to a
    full-width image each gets a line of its own, which shows as empty space; hide them there. */
-.editor-text p:has(> .mo-site-picture) > :is(.ProseMirror-separator, .ProseMirror-trailingBreak) {
+.mo-editor-text p:has(> .mo-site-picture) > :is(.ProseMirror-separator, .ProseMirror-trailingBreak) {
   display: none !important;
 }
 
 /* A check list (`- [ ]`, "Check list" in the text style menu): Material Symbols' check icon (`check`, the owner's icon rule) in place of the bullet, in the theme's primary colour
    when the item is checked, dimmed when not, as the site draws it (theme/styles/blocks.css, .task-list-item). The icon is the item's own
    ::before, in the padding where the bullet was; a tap on it checks or unchecks the item (checkToggle, MarkdownEditor.tsx). */
-.editor-text .ProseMirror li[data-item-type='task'] {
+.mo-editor-text .ProseMirror li[data-item-type='task'] {
   list-style: none;
   position: relative;
 }
-.editor-text .ProseMirror li[data-item-type='task']::before {
+.mo-editor-text .ProseMirror li[data-item-type='task']::before {
   content: '';
   position: absolute;
   inset-inline-start: -1.75em;
@@ -158,25 +158,25 @@
     center / contain no-repeat;
   cursor: pointer;
 }
-.editor-text .ProseMirror li[data-item-type='task'][data-checked='true']::before {
+.mo-editor-text .ProseMirror li[data-item-type='task'][data-checked='true']::before {
   background-color: var(--mo-sys-color-primary);
 }
 
 /* Milkdown puts a paragraph in every list item; on the site, short lists have none. */
-.editor-text li > p {
+.mo-editor-text li > p {
   margin-block: 0;
 }
 
 /* The text field's own padding (MarkdownEditor.tsx: px-(--mo-sys-grid-margin) py-4); a section of the whole width reaches out of it. The sides are the theme's
    page margin, as on the site (16 dp compact, 24 dp from medium), so the text starts at the same distance from its edge as on the site. */
-.editor-text {
+.mo-editor-text {
   --mo-comp-editor-pad-x: var(--mo-sys-grid-margin, 1rem);
   --mo-comp-editor-pad-y: 1rem;
 }
 
 /* The dotted line at the start of an H2 section (data-section-part='start', sectionFrame.ts): a divider across the text. The line
    marks where a section starts; it is not the section's box. */
-.editor-text .ProseMirror > [data-section-part='start'] {
+.mo-editor-text .ProseMirror > [data-section-part='start'] {
   margin-block-start: var(--mo-comp-editor-section-gap);
   border-block-start: var(--mo-comp-editor-section-frame);
   padding-block-start: var(--mo-comp-editor-section-pad);
@@ -184,62 +184,62 @@
 
 /* The box of a section with a colour, as the site draws it (data-section-box, data-section-color, sectionFrame.ts): one box made of
    the parts' own backgrounds. The space between two parts is padding, not margin, so the box has no gaps. */
-.editor-text .ProseMirror > [data-section-box] {
+.mo-editor-text .ProseMirror > [data-section-box] {
   margin-block: 0;
   padding-inline: var(--mo-comp-editor-section-pad);
   padding-block: var(--mo-comp-editor-section-rhythm);
 }
 
-.editor-text .ProseMirror > :is(ul, ol)[data-section-box] {
+.mo-editor-text .ProseMirror > :is(ul, ol)[data-section-box] {
   padding-inline-start: calc(var(--mo-comp-editor-section-pad) + 1.625em);
 }
 
-.editor-text .ProseMirror > :is([data-section-box='start'], [data-section-box='only']) {
+.mo-editor-text .ProseMirror > :is([data-section-box='start'], [data-section-box='only']) {
   border-start-start-radius: var(--mo-sys-block-radius);
   border-start-end-radius: var(--mo-sys-block-radius);
   padding-block-start: var(--mo-comp-editor-section-pad);
 }
 
-.editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) {
+.mo-editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) {
   border-end-start-radius: var(--mo-sys-block-radius);
   border-end-end-radius: var(--mo-sys-block-radius);
   /* The space below a section's text belongs inside its colour: it runs down to the next section's divider (or the end of the text). */
   padding-block-end: calc(var(--mo-comp-editor-section-pad) + var(--mo-comp-editor-section-gap));
 }
 /* The gap above the next section's divider is that padding, not a second margin that would show white between them. */
-.editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) + [data-section-part='start'] {
+.mo-editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) + [data-section-part='start'] {
   margin-block-start: 0;
 }
 
 /* A section of the whole width (`width` full) reaches the text field's edges: no margin or corners at the sides, and none above the
    first section or below the last. Its text stays where the other text is. */
-.editor-text .ProseMirror > [data-section-box][data-section-width='full'] {
+.mo-editor-text .ProseMirror > [data-section-box][data-section-width='full'] {
   margin-inline: calc(-1 * var(--mo-comp-editor-pad-x));
   padding-inline: calc(var(--mo-comp-editor-pad-x) + var(--mo-comp-editor-section-pad));
   border-radius: 0;
 }
-.editor-text .ProseMirror > :is(ul, ol)[data-section-box][data-section-width='full'] {
+.mo-editor-text .ProseMirror > :is(ul, ol)[data-section-box][data-section-width='full'] {
   padding-inline-start: calc(var(--mo-comp-editor-pad-x) + var(--mo-comp-editor-section-pad) + 1.625em);
 }
 /* flow-root: the first section's negative margin stays on the section, it does not collapse into the text's own. */
-.editor-text .ProseMirror {
+.mo-editor-text .ProseMirror {
   display: flow-root;
 }
-.editor-text .ProseMirror > [data-section-box][data-section-width='full']:first-child,
-.editor-text .ProseMirror > [data-section-width='full'][data-section-part='start']:first-child {
+.mo-editor-text .ProseMirror > [data-section-box][data-section-width='full']:first-child,
+.mo-editor-text .ProseMirror > [data-section-width='full'][data-section-part='start']:first-child {
   margin-block-start: calc(-1 * var(--mo-comp-editor-pad-y));
 }
-.editor-text .ProseMirror > [data-section-box][data-section-width='full']:last-child {
+.mo-editor-text .ProseMirror > [data-section-box][data-section-width='full']:last-child {
   margin-block-end: calc(-1 * var(--mo-comp-editor-pad-y));
 }
 
 /* The colours are the theme's own (blocks.css). On a colour with its own text colour, the prose colours take it, so headings, bold
    and links stay readable. */
-.editor-text .ProseMirror > [data-section-color='surface'] {
+.mo-editor-text .ProseMirror > [data-section-color='surface'] {
   background: var(--mo-sys-block-surface);
 }
 
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary']) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary']) {
   --mo-comp-prose-body: var(--mo-sys-section-on);
   --mo-comp-prose-headings: var(--mo-sys-section-on);
   --mo-comp-prose-bold: var(--mo-sys-section-on);
@@ -257,7 +257,7 @@
   color: var(--mo-sys-section-on);
 }
 
-.editor-text .ProseMirror {
+.mo-editor-text .ProseMirror {
   --mo-comp-page-primary-container: var(--mo-sys-color-primary-container, var(--mo-sys-block-tint));
   --mo-comp-page-on-primary-container: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-text));
   --mo-comp-page-secondary-container: var(--mo-sys-color-secondary-container, var(--mo-sys-block-tint));
@@ -266,21 +266,21 @@
   --mo-comp-page-on-tertiary-container: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-text));
 }
 
-.editor-text .ProseMirror > [data-section-color='primary'] {
+.mo-editor-text .ProseMirror > [data-section-color='primary'] {
   --mo-sys-section-fill: var(--mo-sys-block-primary);
   --mo-sys-section-on: var(--mo-sys-block-on-primary);
   --mo-sys-section-container: var(--mo-comp-page-primary-container);
   --mo-sys-section-on-container: var(--mo-comp-page-on-primary-container);
 }
 
-.editor-text .ProseMirror > [data-section-color='secondary'] {
+.mo-editor-text .ProseMirror > [data-section-color='secondary'] {
   --mo-sys-section-fill: var(--mo-sys-block-secondary);
   --mo-sys-section-on: var(--mo-sys-block-on-secondary);
   --mo-sys-section-container: var(--mo-comp-page-secondary-container);
   --mo-sys-section-on-container: var(--mo-comp-page-on-secondary-container);
 }
 
-.editor-text .ProseMirror > [data-section-color='tertiary'] {
+.mo-editor-text .ProseMirror > [data-section-color='tertiary'] {
   --mo-sys-section-fill: var(--mo-sys-block-tertiary);
   --mo-sys-section-on: var(--mo-sys-block-on-tertiary);
   --mo-sys-section-container: var(--mo-comp-page-tertiary-container);
@@ -290,11 +290,11 @@
 /* The image behind a section (the widget before its first part, placed over the section's parts by sectionFrame.ts): it fills
    the section's box behind the text, darkened from below as on the site (blocks.css, :where(.mo-text-section).mo-has-image), and the text on it is
    the theme's colour for text on an image. */
-.editor-text .ProseMirror {
+.mo-editor-text .ProseMirror {
   position: relative;
 }
 
-.editor-text .mo-editor-section-picture {
+.mo-editor-text .mo-editor-section-picture {
   --mo-sys-section-shade: var(--mo-sys-block-hero-shade, var(--mo-sys-block-text));
   position: absolute;
   z-index: 0;
@@ -305,27 +305,27 @@
   border-radius: var(--mo-sys-block-radius);
 }
 
-.editor-text .mo-editor-section-picture[data-color='surface'] {
+.mo-editor-text .mo-editor-section-picture[data-color='surface'] {
   --mo-sys-section-shade: var(--mo-sys-block-surface);
 }
 
-.editor-text .mo-editor-section-picture[data-color='primary'] {
+.mo-editor-text .mo-editor-section-picture[data-color='primary'] {
   --mo-sys-section-shade: var(--mo-sys-block-primary);
 }
 
-.editor-text .mo-editor-section-picture[data-color='secondary'] {
+.mo-editor-text .mo-editor-section-picture[data-color='secondary'] {
   --mo-sys-section-shade: var(--mo-sys-block-secondary);
 }
 
-.editor-text .mo-editor-section-picture[data-color='tertiary'] {
+.mo-editor-text .mo-editor-section-picture[data-color='tertiary'] {
   --mo-sys-section-shade: var(--mo-sys-block-tertiary);
 }
 
-.editor-text .mo-editor-section-picture[data-width='full'] {
+.mo-editor-text .mo-editor-section-picture[data-width='full'] {
   border-radius: 0;
 }
 
-.editor-text .mo-editor-section-picture > img {
+.mo-editor-text .mo-editor-section-picture > img {
   margin: 0;
   position: absolute;
   inset: 0;
@@ -335,7 +335,7 @@
   object-fit: cover;
 }
 
-.editor-text .mo-editor-section-picture::after {
+.mo-editor-text .mo-editor-section-picture::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -347,26 +347,26 @@
   );
 }
 
-.editor-text .ProseMirror > [data-section-picture] {
+.mo-editor-text .ProseMirror > [data-section-picture] {
   position: relative;
   z-index: 1;
 }
 
-.editor-text .ProseMirror > [data-section-picture] {
+.mo-editor-text .ProseMirror > [data-section-picture] {
   background: transparent;
 }
 
 /* The page's own colours, kept before a section's parts swap them (the site keeps them on the section itself, blocks.css; here the parts
    are the swapped nodes, so they are kept one level up). A part on an image reads them, never its own swapped --block-… (that would
    point at itself and every colour of the part would be lost: the text then falls back to the page's, dark on the dark scrim). */
-.editor-text .ProseMirror {
+.mo-editor-text .ProseMirror {
   --mo-sys-section-text: var(--mo-sys-block-text);
   --mo-sys-section-surface: var(--mo-sys-block-surface);
   --mo-sys-section-picture-fill: var(--mo-sys-block-hero-shade, var(--mo-sys-block-text));
   --mo-sys-section-picture-on-fill: var(--mo-sys-block-hero-on-shade, var(--mo-sys-block-surface));
 }
 
-.editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) {
+.mo-editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) {
   --mo-comp-prose-body: var(--mo-sys-section-picture-on-fill);
   --mo-comp-prose-headings: var(--mo-sys-section-picture-on-fill);
   --mo-comp-prose-bold: var(--mo-sys-section-picture-on-fill);
@@ -378,13 +378,13 @@
   color: var(--mo-sys-section-picture-on-fill);
 }
 
-.editor-text .ProseMirror > [data-section-picture][data-section-width='full'] {
+.mo-editor-text .ProseMirror > [data-section-picture][data-section-width='full'] {
   border-radius: 0;
 }
 
 /* HTML in a line of text is kept as it is but cannot be edited here (on a line of its own it is a
    block, HTML in markdown.mjs). */
-.editor-text [data-type='html'] {
+.mo-editor-text [data-type='html'] {
   display: inline-block;
   max-width: 100%;
   overflow-wrap: anywhere;
@@ -885,22 +885,22 @@ html {
    looks on the site (src/apps/<app>/blocks/, previews.tsx) in a thin, dashed square frame, not text. Tapping it opens a row
    of icons on it with what can be done with it. The frame stands out a little to the sides, so the block
    lines up with the text. A image in the text is a card like it (in its paragraph). */
-.editor-text .mo-site-block {
+.mo-editor-text .mo-site-block {
   position: relative;
   margin-block: 1.5em;
   user-select: none;
 }
 
-.editor-text .mo-site-picture {
+.mo-editor-text .mo-site-picture {
   display: block;
   margin-block: 0;
 }
 
-.editor-text .mo-site-picture :is(img, .picture-crop) {
+.mo-editor-text .mo-site-picture :is(img, .picture-crop) {
   margin-block: 0;
 }
 
-.editor-text .mo-site-block-card {
+.mo-editor-text .mo-site-block-card {
   display: block;
   width: calc(100% + 2 * var(--mo-comp-editor-frame-outset));
   margin-inline: calc(-1 * var(--mo-comp-editor-frame-outset));
@@ -916,12 +916,12 @@ html {
   transition: border-color var(--mo-sys-motion-spring-default-effects);
 }
 
-.editor-text .mo-site-block-card:hover,
-.editor-text .mo-site-block-card[aria-pressed='true'] {
+.mo-editor-text .mo-site-block-card:hover,
+.mo-editor-text .mo-site-block-card[aria-pressed='true'] {
   border-color: var(--mo-sys-color-primary);
 }
 
-.editor-text .mo-site-block-handle {
+.mo-editor-text .mo-site-block-handle {
   position: absolute;
   top: 0.25rem;
   /* The block's top left corner (owner, 16 Nov): the one place to drag a block. A 48 dp touch target, drawn inside the frame, its edge 24 dp in from the frame's left
@@ -946,7 +946,7 @@ html {
 /* The active block's action row (blockRow.ts): inside the block's dotted outline (the card), at the top of its padding, 48 dp high, with the drag handle at its start, in the card's flow so
    the block makes room for it (its height opens with the spatial spring). Its buttons are the theme's standard icon buttons (iconButtonClass), no style of their own here.
    The block's drag handle is at the row's start, in the block's top left corner, 48 dp like the row (the row is as high as the handle's touch target). */
-.editor-text .mo-site-block-row {
+.mo-editor-text .mo-site-block-row {
   display: block;
   box-sizing: border-box;
   block-size: 3rem;
@@ -954,13 +954,13 @@ html {
 
 /* The row hugs the top of the outline: it is pulled up into the card's padding, so the space above it is the Card's gap (the theme's small step), not its full padding; the
    sides and the space below the content keep the Card's padding. Its margin opens with its height (blockRow.ts), so the block below moves by one smooth amount. */
-.editor-text .mo-site-block-row:not(.mo-site-block-row-hover) {
+.mo-editor-text .mo-site-block-row:not(.mo-site-block-row-hover) {
   margin-block-start: calc(var(--mo-comp-card-gap, 0.5rem) - var(--mo-comp-card-padding, 1rem));
 }
 
 /* The row of a block a mouse points at (not the active one): over the top of the block's content, inside its outline, in no flow, so pointing at a block never moves the page.
    It sits on the surface, as wide as its buttons and the handle, so the content under it stays readable; only the buttons take the pointer. */
-.editor-text .mo-site-block-row-hover {
+.mo-editor-text .mo-site-block-row-hover {
   position: absolute;
   z-index: 1;
   inset-block-start: calc(1.5px + var(--mo-comp-card-gap, 0.5rem));
@@ -969,11 +969,11 @@ html {
 }
 
 /* While blocks are being selected no block shows a row (the rings show on all of them). */
-.editor-text .mo-site-block-marks .mo-site-block-row-hover {
+.mo-editor-text .mo-site-block-marks .mo-site-block-row-hover {
   display: none;
 }
 
-.editor-text .mo-site-block-row-hover .mo-site-block-row-inner {
+.mo-editor-text .mo-site-block-row-hover .mo-site-block-row-inner {
   inline-size: fit-content;
   margin-inline-start: auto;
   border-radius: var(--mo-sys-shape-corner-full);
@@ -983,11 +983,11 @@ html {
   padding-inline-start: 0;
 }
 
-.editor-text .mo-site-block-row-moving {
+.mo-editor-text .mo-site-block-row-moving {
   overflow: clip;
 }
 
-.editor-text .mo-site-block-row-inner {
+.mo-editor-text .mo-site-block-row-inner {
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -999,52 +999,52 @@ html {
 }
 
 /* A hidden block's badge (32 dp, 16 dp from the frame's top and right) lies at the row's end: the buttons stop short of it. */
-.editor-text .mo-site-block-hidden .mo-site-block-row-inner {
+.mo-editor-text .mo-site-block-hidden .mo-site-block-row-inner {
   padding-inline-end: calc(3rem - var(--mo-comp-editor-frame-outset));
 }
 
 /* A button that cannot be used (a block that cannot move further): shown, in its place, with the reason; the theme's disabled look, no state layer. */
-.editor-text .mo-site-block-row [data-row][aria-disabled] {
+.mo-editor-text .mo-site-block-row [data-row][aria-disabled] {
   opacity: 0.35;
   cursor: default;
 }
 
-.editor-text .mo-site-block-row [data-row][aria-disabled]:hover {
+.mo-editor-text .mo-site-block-row [data-row][aria-disabled]:hover {
   background: transparent;
 }
 
-.editor-text .mo-site-block-has-row > .mo-site-block-handle {
+.mo-editor-text .mo-site-block-has-row > .mo-site-block-handle {
   /* In the row's start: the row's own height, below the card's border and gap from its top edge. */
   top: calc(1.5px + var(--mo-comp-card-gap, 0.5rem));
   opacity: 1;
 }
 
-.editor-text .mo-site-block-has-row > .mo-site-block-handle {
+.mo-editor-text .mo-site-block-has-row > .mo-site-block-handle {
   background: transparent;
 }
 
 /* Disabled while several blocks are selected: the theme's disabled colours, no grab cursor. */
-.editor-text .mo-site-block-handle[aria-disabled] {
+.mo-editor-text .mo-site-block-handle[aria-disabled] {
   color: color-mix(in srgb, var(--mo-sys-color-on-surface) 38%, transparent);
   cursor: default;
 }
 
 /* A block that is not active shows no handle (it is the start of the action row), with a mouse or a touch. A mouse pointing at a block shows the row's buttons over its top but not the handle:
    at the block's left it would cover the first item. The handle is there while the block is active, being dragged, in focus with the keyboard, or while blocks are being selected. Hidden, it takes no pointer. */
-.editor-text .mo-site-block-handle {
+.mo-editor-text .mo-site-block-handle {
   opacity: 0;
   pointer-events: none;
 }
 
-.editor-text :is(.mo-site-block-has-row, .mo-site-block-marks, .mo-site-block-dragging) > .mo-site-block-handle,
-.editor-text .mo-site-block-handle:focus-visible {
+.mo-editor-text :is(.mo-site-block-has-row, .mo-site-block-marks, .mo-site-block-dragging) > .mo-site-block-handle,
+.mo-editor-text .mo-site-block-handle:focus-visible {
   opacity: 1;
   pointer-events: auto;
 }
 
 /* The mark on a block that can be selected with others (Material's Selection page, the photo grid): a round circle centred on the block's top left corner (so it covers nothing in the block, as in M3's example), empty, filled with a check
    while the block is selected; a mouse sees it on the block pointed at, the active block shows it, and every block shows it once some block is selected; any other block shows none. Its target is 48 dp. */
-.editor-text .mo-site-block-mark {
+.mo-editor-text .mo-site-block-mark {
   position: absolute;
   /* Centred on the outline's corner curve: the card is the frame outset wider than the block on each side, and the 45 degree point of a corner with the Card's radius r (its
      1.5px line centred) lies r * (1 - cos 45) + 0.53px in from the corner, along both edges. */
@@ -1062,7 +1062,7 @@ html {
   transition: opacity var(--mo-sys-motion-spring-default-effects);
 }
 
-.editor-text .mo-site-block-mark-dot {
+.mo-editor-text .mo-site-block-mark-dot {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1078,11 +1078,11 @@ html {
   transition: border-color var(--mo-sys-motion-spring-default-effects);
 }
 
-.editor-text .mo-site-block:hover .mo-site-block-mark:not([data-mark='on']) .mo-site-block-mark-dot {
+.mo-editor-text .mo-site-block:hover .mo-site-block-mark:not([data-mark='on']) .mo-site-block-mark-dot {
   border-color: var(--mo-sys-color-primary);
 }
 
-.editor-text .mo-site-block-mark[data-mark='on'] .mo-site-block-mark-dot {
+.mo-editor-text .mo-site-block-mark[data-mark='on'] .mo-site-block-mark-dot {
   border-style: solid;
   border-color: var(--mo-sys-color-primary);
   background: var(--mo-sys-color-primary);
@@ -1090,45 +1090,45 @@ html {
   box-shadow: none;
 }
 
-.editor-text :is(.mo-site-block-marks, .mo-site-block-has-row) > .mo-site-block-mark {
+.mo-editor-text :is(.mo-site-block-marks, .mo-site-block-has-row) > .mo-site-block-mark {
   opacity: 1;
   pointer-events: auto;
 }
 
 @media (hover: hover) {
-  .editor-text .mo-site-block:hover .mo-site-block-mark {
+  .mo-editor-text .mo-site-block:hover .mo-site-block-mark {
     opacity: 1;
     pointer-events: auto;
   }
 }
 
 /* The block while it is dragged: raised, following the finger. A line shows the part it will go next to. */
-.editor-text .mo-site-block-dragging {
+.mo-editor-text .mo-site-block-dragging {
   z-index: 3;
 }
 
 /* The lifted box is the dotted outline with its row inside it, with its corners. */
-.editor-text .mo-site-block-dragging > .mo-site-block-card {
+.mo-editor-text .mo-site-block-dragging > .mo-site-block-card {
   box-shadow: var(--mo-sys-elevation-level4-shadow);
   background: var(--mo-sys-color-surface);
 }
 
-.editor-text .mo-site-part-drop-above {
+.mo-editor-text .mo-site-part-drop-above {
   box-shadow: 0 -3px 0 0 var(--mo-sys-color-primary);
 }
 
-.editor-text .mo-site-part-drop-below {
+.mo-editor-text .mo-site-part-drop-below {
   box-shadow: 0 3px 0 0 var(--mo-sys-color-primary);
 }
 
 /* A block in focus shows it with its own outline: a 2 px line in the focus colour, the primary role (a section on a colour swaps it to its
    on-colour). */
-.editor-text .mo-site-block-card:focus-visible {
+.mo-editor-text .mo-site-block-card:focus-visible {
   outline: 2px dotted var(--mo-sys-color-primary);
   outline-offset: 2px;
 }
 
-.editor-text .mo-site-block-hidden-badge {
+.mo-editor-text .mo-site-block-hidden-badge {
   position: absolute;
   z-index: 1;
   top: 1rem;
@@ -1144,19 +1144,19 @@ html {
 
 /* A block typed in place (InlineList.tsx, MarkdownEditor.tsx): the block as the site draws it, its text as fields. The frame is the
    block itself, not a button; it shows the focus ring while a row is being typed in, and the menu sits on a handle at its corner. */
-.editor-text .mo-site-block-inline {
+.mo-editor-text .mo-site-block-inline {
   cursor: text;
 }
 
-.editor-text .mo-site-block-inline .mo-site-block-preview {
+.mo-editor-text .mo-site-block-inline .mo-site-block-preview {
   pointer-events: auto;
 }
 
 /* Image grid typed in place (InlineImageGrid.tsx shows the filter's chips): they do nothing here; the Preview has the real filter. */
-.editor-text .mo-site-block-inline .mo-block-imagegrid__filter .chip {
+.mo-editor-text .mo-site-block-inline .mo-block-imagegrid__filter .chip {
   pointer-events: none;
 }
-.editor-text .mo-site-block-inline:focus-within {
+.mo-editor-text .mo-site-block-inline:focus-within {
   border-color: var(--mo-sys-color-primary);
   outline: 2px dotted var(--mo-sys-color-primary);
   outline-offset: 2px;
@@ -1212,7 +1212,7 @@ html {
 }
 
 /* A field typed in a row: no frame of its own, the text of the row as the site draws it, and the height of its text. */
-.editor-text .mo-editor-inline-list-field {
+.mo-editor-text .mo-editor-inline-list-field {
   display: block;
   width: 100%;
   margin: 0;
@@ -1230,58 +1230,58 @@ html {
   user-select: text;
 }
 
-.editor-text .mo-editor-inline-list-field:focus {
+.mo-editor-text .mo-editor-inline-list-field:focus {
   outline: none;
 }
 
 /* A row typed in place shows its focus: the editor's 2 px primary ring (owner, 15 Nov 2026), on a click as well as the keyboard. */
-.editor-text .mo-editor-inline-list-field:focus-visible {
+.mo-editor-text .mo-editor-inline-list-field:focus-visible {
   outline: 2px solid var(--mo-sys-color-primary);
   outline-offset: 2px;
   border-radius: var(--mo-sys-shape-corner-extra-small);
 }
 
-.editor-text .mo-editor-inline-list-field::placeholder {
+.mo-editor-text .mo-editor-inline-list-field::placeholder {
   color: currentColor;
   opacity: 1;
 }
 
 /* The media and link slots over the headline of the active card. */
-.editor-text .mo-editor-inline-card-slots {
+.mo-editor-text .mo-editor-inline-card-slots {
   display: flex;
   gap: 0.25rem;
   margin-bottom: 0.25rem;
 }
 
 /* A row of a list the owner made: its fields stacked in the order they were added; a slot has its name above it. */
-.editor-text .mo-editor-inline-fields {
+.mo-editor-text .mo-editor-inline-fields {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   white-space: normal;
 }
 
-.editor-text .mo-editor-inline-field-slot {
+.mo-editor-text .mo-editor-inline-field-slot {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.125rem;
 }
 
-.editor-text .mo-editor-inline-field-name {
+.mo-editor-text .mo-editor-inline-field-name {
   color: var(--mo-sys-color-on-surface-variant);
   font-size: var(--mo-sys-typescale-body-small-size, 0.75rem);
 }
 
 /* A List that reads a list: the line that says which, over its rows. */
-.editor-text .mo-editor-inline-list-from {
+.mo-editor-text .mo-editor-inline-list-from {
   margin: 0 0 0.5rem;
   color: var(--mo-sys-color-on-surface-variant);
   font-size: var(--mo-sys-typescale-body-medium-size);
 }
 
 /* A dynamic block that can pick the fields of its list: a text button for each part of a row (top line, bottom line, icon, link). */
-.editor-text .mo-editor-inline-list-parts {
+.mo-editor-text .mo-editor-inline-list-parts {
   display: flex;
   flex-wrap: wrap;
   gap: 0 0.5rem;
@@ -1290,21 +1290,21 @@ html {
 
 /* A typed row's icon slot is an element that draws nothing while the row is not active and has no icon (InlineIcon). The empty slot would still take the row's gap, so a
    row's title would start a gap further in than on the site, where a row without an icon has no slot: the rows share one inner padding, left and right. */
-.editor-text .list-item-leading:empty {
+.mo-editor-text .list-item-leading:empty {
   display: none;
 }
 
 /* The row being typed in has a dotted line round it in the text's own colour (3:1 on every section colour, unlike the section frame's quiet line); the empty row of an empty list is faded. */
-.editor-text .mo-editor-inline-list-row-active {
+.mo-editor-text .mo-editor-inline-list-row-active {
   outline: 2px dotted color-mix(in srgb, currentColor 70%, transparent);
   outline-offset: -2px;
 }
 
-.editor-text .mo-editor-inline-list-row-next:not(.mo-editor-inline-list-row-active) {
+.mo-editor-text .mo-editor-inline-list-row-next:not(.mo-editor-inline-list-row-active) {
   opacity: 0.55;
 }
 /* The chip over Cards that are a carousel on phones: in place they are typed stacked, so the choice is not forgotten. */
-.editor-text .mo-editor-inline-cards-chip {
+.mo-editor-text .mo-editor-inline-cards-chip {
   display: inline-block;
   margin-bottom: 0.5rem;
   border-radius: var(--mo-sys-shape-corner-full);
@@ -1314,7 +1314,7 @@ html {
   font-size: var(--mo-sys-typescale-body-small-size);
 }
 /* A card's media that is set: a button over it, a tap changes it (Cards, InlineCards.tsx). */
-.editor-text .mo-editor-inline-card-media {
+.mo-editor-text .mo-editor-inline-card-media {
   display: block;
   width: 100%;
   border: 0;
@@ -1324,12 +1324,12 @@ html {
   text-align: start;
   cursor: pointer;
 }
-.editor-text .mo-editor-inline-list-slot[aria-pressed='true'] {
+.mo-editor-text .mo-editor-inline-list-slot[aria-pressed='true'] {
   background: var(--mo-sys-color-secondary-container);
   color: var(--mo-sys-color-on-secondary-container);
 }
 /* A card's buttons while it is active: the text of each is typed on the button itself (InlineCards.tsx), drawn as a tonal pill. */
-.editor-text .mo-editor-inline-card-button {
+.mo-editor-text .mo-editor-inline-card-button {
   display: inline-flex;
   min-width: 6rem;
   min-height: 2.5rem;
@@ -1340,7 +1340,7 @@ html {
   color: var(--mo-sys-color-on-secondary-container);
 }
 /* A card's next button: empty and quiet (on-surface-variant, not an opacity, which kept it under 3:1) until it is made (Cards, InlineCards.tsx). */
-.editor-text .mo-editor-inline-card-next-button {
+.mo-editor-text .mo-editor-inline-card-next-button {
   color: var(--mo-sys-color-on-surface-variant);
 }
 
@@ -1523,26 +1523,26 @@ html {
 }
 
 /* Only drawn: the taps go to the card. */
-.editor-text .mo-site-block-preview {
+.mo-editor-text .mo-site-block-preview {
   pointer-events: none;
 }
 
 /* The space a block keeps around it on the site (a price card, a panel) is the frame's here. */
-.editor-text .mo-site-block-preview > :first-child {
+.mo-editor-text .mo-site-block-preview > :first-child {
   margin-top: 0;
 }
 
-.editor-text .mo-site-block-preview > :last-child {
+.mo-editor-text .mo-site-block-preview > :last-child {
   margin-bottom: 0;
 }
 
 /* A section of a fixed page in the type of the site's pages, not that of the text. */
-.editor-text .mo-site-block-section {
+.mo-editor-text .mo-site-block-section {
   font-size: 1.0625rem;
   line-height: 1.5;
 }
 
-.editor-text .mo-site-block-lines {
+.mo-editor-text .mo-site-block-lines {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -1556,12 +1556,12 @@ html {
    sections (SectionHeading, PageSection, the boxes on the front page and the prices page), the text
    a section takes as its own, the front page's subtitle and introduction (home/Hero.astro) and a
    page's introduction (PageHeader). Sizes, line heights and colours as the components' classes. */
-.editor-text .ProseMirror > [data-look] {
+.mo-editor-text .ProseMirror > [data-look] {
   margin-block: 1rem 0;
   max-width: none;
 }
 
-.editor-text .ProseMirror > h2[data-look] {
+.mo-editor-text .ProseMirror > h2[data-look] {
   margin-block: 2.5rem 0.75rem;
   color: var(--mo-sys-color-on-surface);
   font-weight: 500;
@@ -1569,69 +1569,69 @@ html {
   line-height: 1.25;
 }
 
-.editor-text .ProseMirror > [data-look='section'] {
+.mo-editor-text .ProseMirror > [data-look='section'] {
   font-size: 2.1rem;
 }
 
-.editor-text .ProseMirror > [data-look='page-section'] {
+.mo-editor-text .ProseMirror > [data-look='page-section'] {
   font-size: 2rem;
 }
 
-.editor-text .ProseMirror > h2[data-look='card-title'] {
+.mo-editor-text .ProseMirror > h2[data-look='card-title'] {
   font-size: 1.5rem;
   line-height: 2rem;
 }
 
-.editor-text .ProseMirror > h2[data-look='urgent'] {
+.mo-editor-text .ProseMirror > h2[data-look='urgent'] {
   font-size: 1.25rem;
   line-height: 1.75rem;
 }
 
-.editor-text .ProseMirror > [data-look~='section-intro'],
-.editor-text .ProseMirror > [data-look~='page-intro'] {
+.mo-editor-text .ProseMirror > [data-look~='section-intro'],
+.mo-editor-text .ProseMirror > [data-look~='page-intro'] {
   max-width: 52ch;
   color: var(--mo-sys-color-on-surface-variant);
   font-size: 1.125rem;
   line-height: 1.75rem;
 }
 
-.editor-text .ProseMirror > [data-look~='page-section-intro'] {
+.mo-editor-text .ProseMirror > [data-look~='page-section-intro'] {
   max-width: 52ch;
   color: var(--mo-sys-color-on-surface-variant);
   font-size: 1.0625rem;
   line-height: 1.5;
 }
 
-.editor-text .ProseMirror > [data-look~='about'],
-.editor-text .ProseMirror > [data-look~='large'] {
+.mo-editor-text .ProseMirror > [data-look~='about'],
+.mo-editor-text .ProseMirror > [data-look~='large'] {
   font-size: 1.125rem;
   line-height: 1.625;
 }
 
-.editor-text .ProseMirror > [data-look~='about'][data-look~='rest'],
-.editor-text .ProseMirror > [data-look~='note'] {
+.mo-editor-text .ProseMirror > [data-look~='about'][data-look~='rest'],
+.mo-editor-text .ProseMirror > [data-look~='note'] {
   color: var(--mo-sys-color-on-surface-variant);
 }
 
-.editor-text .ProseMirror > [data-look~='note'] {
+.mo-editor-text .ProseMirror > [data-look~='note'] {
   font-size: 1.0625rem;
   line-height: 1.5;
 }
 
-.editor-text .ProseMirror > [data-look~='small-note'] {
+.mo-editor-text .ProseMirror > [data-look~='small-note'] {
   color: var(--mo-sys-color-on-surface-variant);
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
-.editor-text .ProseMirror > [data-look='hero-subtitle'] {
+.mo-editor-text .ProseMirror > [data-look='hero-subtitle'] {
   max-width: 30ch;
   margin-top: 0;
   font-size: 1.5rem;
   line-height: 1.375;
 }
 
-.editor-text .ProseMirror > [data-look='hero-intro'] {
+.mo-editor-text .ProseMirror > [data-look='hero-intro'] {
   max-width: 40ch;
   color: var(--mo-sys-color-on-surface-variant);
   font-size: 1.125rem;
@@ -1639,32 +1639,32 @@ html {
 }
 
 @media (width >= 37.5rem) {
-  .editor-text .ProseMirror > [data-look='section'] {
+  .mo-editor-text .ProseMirror > [data-look='section'] {
     font-size: 3rem;
   }
 
-  .editor-text .ProseMirror > [data-look='page-section'] {
+  .mo-editor-text .ProseMirror > [data-look='page-section'] {
     font-size: 2.25rem;
   }
 
-  .editor-text .ProseMirror > h2[data-look='card-title'] {
+  .mo-editor-text .ProseMirror > h2[data-look='card-title'] {
     font-size: 1.875rem;
     line-height: 2.25rem;
   }
 
-  .editor-text .ProseMirror > [data-look='hero-subtitle'] {
+  .mo-editor-text .ProseMirror > [data-look='hero-subtitle'] {
     font-size: 1.875rem;
     line-height: 1.375;
   }
 
-  .editor-text .ProseMirror > [data-look~='page-intro'] {
+  .mo-editor-text .ProseMirror > [data-look~='page-intro'] {
     font-size: 1.25rem;
     line-height: 1.75rem;
   }
 }
 
 /* A block hidden on the site: faded and grey. */
-.editor-text .mo-site-block-hidden .mo-site-block-preview {
+.mo-editor-text .mo-site-block-hidden .mo-site-block-preview {
   opacity: 0.4;
   filter: grayscale(1);
 }
@@ -1750,7 +1750,7 @@ dialog {
 
 /* The first heading of a page's text is its title, drawn as the site draws it (.mo-page-title in the theme's site-page.css, and
    PageHeading.astro's width): the display role, by the theme's variables, not the weight of a heading in the middle of the text. */
-.editor-text .ProseMirror > h1:first-child {
+.mo-editor-text .ProseMirror > h1:first-child {
   max-width: 22ch;
   font-size: var(--mo-comp-theme-title-size, var(--mo-sys-typescale-display-small-size));
   line-height: var(--mo-comp-theme-title-leading);
@@ -1758,7 +1758,7 @@ dialog {
   letter-spacing: var(--mo-sys-typescale-display-small-tracking);
 }
 @media (width >= 37.5rem) {
-  .editor-text .ProseMirror > h1:first-child {
+  .mo-editor-text .ProseMirror > h1:first-child {
     font-size: var(--mo-comp-theme-title-size-large, var(--mo-sys-typescale-display-medium-size));
     font-weight: var(--mo-sys-typescale-display-medium-weight);
     letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
@@ -1767,97 +1767,97 @@ dialog {
 
 /* Notice and Video typed in place: the notice's text and the video's title are typed where the site draws them; the video's title
    stands under its frame, as text of the page does. */
-.editor-text .mo-editor-inline-notice {
+.mo-editor-text .mo-editor-inline-notice {
   display: block;
   cursor: text;
 }
 
-.editor-text .mo-editor-inline-notice p {
+.mo-editor-text .mo-editor-inline-notice p {
   margin: 0;
 }
 
-.editor-text .mo-editor-inline-video {
+.mo-editor-text .mo-editor-inline-video {
   display: grid;
   gap: 0.5rem;
 }
 
-.editor-text .mo-editor-inline-video-title {
+.mo-editor-text .mo-editor-inline-video-title {
   margin: 0;
   color: var(--mo-sys-color-on-surface-variant);
 }
 
 /* Buttons typed in place: the label is typed on the button itself, which has the width of its text; the default buttons shown while the block has none of its own. */
-.editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-field,
-.editor-text .mo-editor-inline-plans .mo-block-pricecards__plan-buttons .mo-editor-inline-list-field {
+.mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-field,
+.mo-editor-text .mo-editor-inline-plans .mo-block-pricecards__plan-buttons .mo-editor-inline-list-field {
   width: auto;
   min-width: 3ch;
   text-align: center;
 }
 
-.editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-slot {
+.mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-slot {
   color: inherit;
 }
 
 /* The text of an empty button, and its hint, are the button kind's own on-colour (filled on-primary, tonal on-secondary-container, elevated
    and outlined primary), the hint at the placeholder emphasis; never the text colour of the page. */
-.editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-field {
+.mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-field {
   color: inherit;
 }
 
-.editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-field::placeholder {
+.mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-field::placeholder {
   color: inherit;
   opacity: 1;
 }
 
-.editor-text .mo-editor-inline-buttons-shared {
+.mo-editor-text .mo-editor-inline-buttons-shared {
   display: contents;
   cursor: text;
 }
 
 /* The Table typed in place: the cells as the site draws them, each a field; the active cell has the dotted line, and the next row and the next
    column (shown while the block is active) are faded until typed in. */
-.editor-text .mo-editor-inline-table-box :is(th, td) {
+.mo-editor-text .mo-editor-inline-table-box :is(th, td) {
   height: auto;
 }
 
-.editor-text .mo-editor-inline-table-box textarea {
+.mo-editor-text .mo-editor-inline-table-box textarea {
   text-align: inherit;
 }
 
-.editor-text .mo-editor-inline-table-box .mo-editor-inline-table-cell-active {
+.mo-editor-text .mo-editor-inline-table-box .mo-editor-inline-table-cell-active {
   outline: var(--mo-comp-editor-section-frame);
   outline-offset: -2px;
 }
 
 /* The table the full width of the text. */
-.editor-text .mo-editor-inline-table-host {
+.mo-editor-text .mo-editor-inline-table-host {
   display: grid;
   justify-items: start;
 }
 
-.editor-text .mo-editor-inline-table-host > .mo-editor-inline-table-box {
+.mo-editor-text .mo-editor-inline-table-host > .mo-editor-inline-table-box {
   width: 100%;
 }
 
 /* Price cards typed in place: the points are fields in the card's checklist, and the button's label is typed on the button. */
-.editor-text .mo-editor-inline-plans .mo-editor-inline-plan-features .mo-editor-inline-list-field {
+.mo-editor-text .mo-editor-inline-plans .mo-editor-inline-plan-features .mo-editor-inline-list-field {
   min-width: 6ch;
 }
 
-.editor-text .mo-editor-inline-plans .mo-block-pricecards__plan-buttons .mo-editor-inline-button {
+.mo-editor-text .mo-editor-inline-plans .mo-block-pricecards__plan-buttons .mo-editor-inline-button {
   justify-content: center;
 }
 
-.editor-text .mo-editor-inline-plans .mo-editor-inline-list-add {
+.mo-editor-text .mo-editor-inline-plans .mo-editor-inline-list-add {
   align-self: flex-start;
 }
 
-.editor-text .mo-editor-inline-plans .mo-editor-inline-button-faded:not(:focus-within) {
+.mo-editor-text .mo-editor-inline-plans .mo-editor-inline-button-faded:not(:focus-within) {
   opacity: 0.55;
 }
 
 /* The FAQ's text button typed in place under its questions (while the block is active): its text, then the slot for its page. */
-.editor-text .mo-editor-inline-faq-button {
+.mo-editor-text .mo-editor-inline-faq-button {
   display: flex;
   min-height: 2.5rem;
   align-items: center;

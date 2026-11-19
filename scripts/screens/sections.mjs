@@ -330,8 +330,8 @@ async function checkFullWidthSection() {
     const measure = (full) =>
       page.evaluate((full) => {
         const pm = document.querySelector('.ProseMirror');
-        const field = pm.closest('.editor-text').getBoundingClientRect();
-        const border = (n) => parseFloat(getComputedStyle(pm.closest('.editor-text'))[n]);
+        const field = pm.closest('.mo-editor-text').getBoundingClientRect();
+        const border = (n) => parseFloat(getComputedStyle(pm.closest('.mo-editor-text'))[n]);
         const parts = [...pm.children].filter((n) => !n.classList.contains('mo-editor-section-picture'));
         parts.forEach((el, i) => {
           el.setAttribute('data-section-color', 'primary');
@@ -349,9 +349,9 @@ async function checkFullWidthSection() {
         };
       }, full);
     const inset = await measure(false);
-    if (process.env.SHOTS_FULL) await page.locator('.editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-inset-${width}.png` });
+    if (process.env.SHOTS_FULL) await page.locator('.mo-editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-inset-${width}.png` });
     const full = await measure(true);
-    if (process.env.SHOTS_FULL) await page.locator('.editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-${width}.png` });
+    if (process.env.SHOTS_FULL) await page.locator('.mo-editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-${width}.png` });
     if (inset.left < 1 || inset.radius === '0px')
       problems.push(`${width}px full-width section: the section of the text's width should stay inset with corners`);
     if (Math.abs(full.left) > 0.5 || Math.abs(full.right) > 0.5 || full.top > 0.5 || full.radius !== '0px')

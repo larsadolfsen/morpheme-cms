@@ -21,7 +21,7 @@
 :root,
 :is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* State layers: on-surface (or primary) over the element, at M3's state opacities (hover 0.08, pressed 0.1; tokens/ui/ref.css). */
   --mo-sys-state-mo-hover-layer: color-mix(
     in srgb,
@@ -73,7 +73,7 @@
    colours are in --section-… (blocks.css). */
 :is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   --mo-sys-color-on-surface: var(--mo-sys-section-on-accent);
   --mo-sys-color-on-surface-variant: var(--mo-sys-section-on-accent);
   --mo-sys-color-outline-variant: color-mix(in srgb, var(--mo-sys-section-on-accent) 35%, transparent);

@@ -9,7 +9,7 @@
    moved their parts here. */
 :where(:root),
 [data-density-fixed],
-.editor-text .ProseMirror {
+.mo-editor-text .ProseMirror {
   --mo-comp-editor-rhythm-150: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   --mo-comp-editor-rhythm-200: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   --mo-comp-editor-rhythm-250: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));

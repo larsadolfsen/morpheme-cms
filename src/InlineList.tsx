@@ -93,14 +93,16 @@ export default function InlineList({
           <SiteList
             expand
             className={
-              segmented ? 'mo-block-accordion mo-block-accordion__segmented inline-segmented' : 'mo-block-accordion inline-segmented'
+              segmented
+                ? 'mo-block-accordion mo-block-accordion__segmented mo-editor-inline-segmented'
+                : 'mo-block-accordion mo-editor-inline-segmented'
             }
             data-columns={columnsAttr(props)}
           >
             {rows}
           </SiteList>
         ) : (
-          <SiteList kind={look} className="mo-block-list inline-list" data-columns={columnsAttr(props)}>
+          <SiteList kind={look} className="mo-block-list mo-editor-inline-list" data-columns={columnsAttr(props)}>
             {rows}
           </SiteList>
         )
@@ -153,7 +155,11 @@ export default function InlineList({
                 'data-row': i,
                 'aria-current': here ? 'true' : undefined,
                 'aria-label': next ? t.blocks.list.newRow : t.blocks.list.rowOf(i + 1, items.length),
-                className: ['inline-list-row', here && 'mo-editor-inline-list-row-active', next && 'mo-editor-inline-list-row-next']
+                className: [
+                  'mo-editor-inline-list-row',
+                  here && 'mo-editor-inline-list-row-active',
+                  next && 'mo-editor-inline-list-row-next',
+                ]
                   .filter(Boolean)
                   .join(' '),
               }}
@@ -172,7 +178,7 @@ export default function InlineList({
             data-row={i}
             aria-current={here ? 'true' : undefined}
             aria-label={next ? t.blocks.list.newRow : t.blocks.list.rowOf(i + 1, items.length)}
-            className={['inline-list-row', here && 'mo-editor-inline-list-row-active', next && 'mo-editor-inline-list-row-next']
+            className={['mo-editor-inline-list-row', here && 'mo-editor-inline-list-row-active', next && 'mo-editor-inline-list-row-next']
               .filter(Boolean)
               .join(' ')}
             {...leadFor(r, here, i)}
@@ -249,31 +255,31 @@ export function RowsFromList({
     );
   };
   return (
-    <div className="inline-list-host">
+    <div className="mo-editor-inline-list-host">
       <p className="mo-editor-inline-list-from">{empty ? `${line}. ${t.blocks.rows.empty}` : line}</p>
       {undo && (
         <p className="mo-editor-inline-list-from">
           {undo.note}{' '}
-          <SiteButton kind="text" className="inline-list-edit" onClick={undo.run}>
+          <SiteButton kind="text" className="mo-editor-inline-list-edit" onClick={undo.run}>
             {undo.label}
           </SiteButton>
         </p>
       )}
       {editList && (
-        <SiteButton kind="text" className="inline-list-edit" onClick={editList}>
+        <SiteButton kind="text" className="mo-editor-inline-list-edit" onClick={editList}>
           {t.blocks.rows.editList}
         </SiteButton>
       )}
       {parts && onPart && (
         <div className="mo-editor-inline-list-parts" role="group" aria-label={t.blocks.rows.fieldShown}>
           {parts.map((p) => (
-            <SiteButton key={p.part} kind="text" className="inline-list-edit" onClick={() => onPart(p.part)}>
+            <SiteButton key={p.part} kind="text" className="mo-editor-inline-list-edit" onClick={() => onPart(p.part)}>
               {p.text}
             </SiteButton>
           ))}
         </div>
       )}
-      <SiteList className="mo-block-list inline-list" data-columns={oneColumn ? 'one' : undefined} onClick={tapped}>
+      <SiteList className="mo-block-list mo-editor-inline-list" data-columns={oneColumn ? 'one' : undefined} onClick={tapped}>
         {rows.map((r, i) => (
           <SiteListItem
             key={i}

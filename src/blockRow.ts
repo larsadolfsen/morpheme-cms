@@ -174,7 +174,7 @@ function syncPointed() {
   const card = row?.host.querySelector<HTMLElement>(':scope > .mo-site-block-card');
   const want = row && row.items.length && row.host !== shown?.host && (card?.clientWidth ?? 0) >= POINTED_MIN ? row : null;
   if (pointedAt && pointedAt.host !== want?.host) {
-    pointedAt.host.classList.remove('site-block-has-hover');
+    pointedAt.host.classList.remove('mo-site-block-has-hover');
     pointedAt.el.remove();
     pointedAt = null;
   }
@@ -185,13 +185,13 @@ function syncPointed() {
     el.setAttribute('role', 'group');
     el.innerHTML = '<div class="mo-site-block-row-inner"></div>';
     (want.host.querySelector<HTMLElement>(':scope > .mo-site-block-card') ?? want.host).prepend(el);
-    want.host.classList.add('site-block-has-hover');
+    want.host.classList.add('mo-site-block-has-hover');
     pointedAt = { host: want.host, el };
   }
   draw(pointedAt.el, want, want.host.querySelector(':scope > .mo-site-block-card')?.getAttribute('aria-label') ?? '');
   // The row also covers a whole column of a block that is wide enough (the second card of two): that item could then not be clicked, so the block shows its row only once it is active.
   if (covers(pointedAt.el, want.host)) {
-    pointedAt.host.classList.remove('site-block-has-hover');
+    pointedAt.host.classList.remove('mo-site-block-has-hover');
     pointedAt.el.remove();
     pointedAt = null;
   }

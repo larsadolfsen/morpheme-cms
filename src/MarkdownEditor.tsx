@@ -476,7 +476,7 @@ function blockSelectable(view: EditorView, dom: HTMLElement, card: HTMLElement, 
     const here = top();
     const on = here !== null && places.includes(here);
     dom.classList.toggle('mo-site-block-marks', places.length > 0);
-    dom.classList.toggle('site-block-selected', on);
+    dom.classList.toggle('mo-site-block-selected', on);
     mark.dataset.mark = on ? 'on' : 'off';
     dimHandle(dom.querySelector(':scope > .mo-site-block-handle'));
     if (places.length > 0) {
@@ -3387,7 +3387,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       </Menu>
       <div
         ref={root}
-        className={`editor-text prose mo-editor-text-area ${short ? 'mo-editor-text-short' : ''} ${spaced ? 'mo-editor-spaced' : ''}`}
+        className={`mo-editor-text prose mo-editor-text-area ${short ? 'mo-editor-text-short' : ''} ${spaced ? 'mo-editor-spaced' : ''}`}
         style={
           {
             '--mo-comp-editor-gap-text': JSON.stringify(t.text.typeHere),

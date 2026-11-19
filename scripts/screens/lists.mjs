@@ -212,10 +212,10 @@ async function checkChevronUnderHoverRow(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, { [BUILT_PAGE]: src });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await page.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
+  await page.waitForSelector('.mo-editor-inline-list-host details.list-item-expand', { timeout: 30_000 });
   await page.locator('.ProseMirror > p').first().click();
   await page.waitForFunction(() => !document.querySelector('.mo-editor-inline-list-row-active'), null, { timeout: 8000 });
-  const first = page.locator('.inline-list-host details.list-item-expand').first();
+  const first = page.locator('.mo-editor-inline-list-host details.list-item-expand').first();
   const icon = await first.locator('.list-item-expand-icon').boundingBox();
   await page.mouse.move(icon.x + icon.width / 2, icon.y + icon.height / 2);
   await page.waitForTimeout(500);
@@ -236,7 +236,7 @@ async function checkChevronUnderHoverRow(width) {
   // And a click on the chevron opens the row.
   await first.locator('.list-item-expand-icon').click();
   await page
-    .waitForFunction(() => document.querySelector('.inline-list-host details.list-item-expand')?.open, null, { timeout: 4000 })
+    .waitForFunction(() => document.querySelector('.mo-editor-inline-list-host details.list-item-expand')?.open, null, { timeout: 4000 })
     .catch(() => {});
   if (!(await first.evaluate((d) => d.open))) problems.push(`${label}: a click on the first row's chevron does not open it`);
   await page.close();
@@ -272,7 +272,7 @@ async function checkChevronRows(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, { [BUILT_PAGE]: src });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await page.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
+  await page.waitForSelector('.mo-editor-inline-list-host details.list-item-expand', { timeout: 30_000 });
   const undoOff = () => page.locator('.mo-editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (const [at, name] of [
     [0, 'List - Expand'],
@@ -285,14 +285,14 @@ async function checkChevronRows(width) {
       null,
       { timeout: 8000 },
     );
-    const host = page.locator('.inline-list-host').nth(at);
+    const host = page.locator('.mo-editor-inline-list-host').nth(at);
     const row = host.locator('details.list-item-expand').nth(1);
     const head = row.locator('summary');
     const state = () => head.getAttribute('aria-expanded');
     const shown = () =>
       page.waitForFunction(
         ([h, r]) => {
-          const d = document.querySelectorAll('.inline-list-host')[h].querySelectorAll('details.list-item-expand')[r];
+          const d = document.querySelectorAll('.mo-editor-inline-list-host')[h].querySelectorAll('details.list-item-expand')[r];
           const a = d.querySelector('.mo-block-accordion__answer');
           return d.open && !!a && a.getBoundingClientRect().height > 0;
         },
@@ -301,7 +301,7 @@ async function checkChevronRows(width) {
       );
     const shut = () =>
       page.waitForFunction(
-        ([h, r]) => !document.querySelectorAll('.inline-list-host')[h].querySelectorAll('details.list-item-expand')[r].open,
+        ([h, r]) => !document.querySelectorAll('.mo-editor-inline-list-host')[h].querySelectorAll('details.list-item-expand')[r].open,
         [at, 1],
         { timeout: 8000 },
       );
@@ -318,7 +318,7 @@ async function checkChevronRows(width) {
     const corners = await page
       .waitForFunction(
         ([h]) => {
-          const lis = [...document.querySelectorAll('.inline-list-host')[h].querySelectorAll('.list-expand > li')];
+          const lis = [...document.querySelectorAll('.mo-editor-inline-list-host')[h].querySelectorAll('.list-expand > li')];
           const r = (li) => {
             const c = getComputedStyle(li);
             return [c.borderTopLeftRadius, c.borderTopRightRadius, c.borderBottomRightRadius, c.borderBottomLeftRadius].map(parseFloat);
@@ -389,12 +389,12 @@ async function checkChevronRows(width) {
   fresh.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(fresh, site, { [BUILT_PAGE]: src });
   await fresh.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await fresh.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
+  await fresh.waitForSelector('.mo-editor-inline-list-host details.list-item-expand', { timeout: 30_000 });
   const undoBefore = await fresh.locator('.mo-editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (let h = 0; h < 2; h++) {
-    const icon = fresh.locator('.inline-list-host').nth(h).locator('.list-item-expand-icon').nth(1);
+    const icon = fresh.locator('.mo-editor-inline-list-host').nth(h).locator('.list-item-expand-icon').nth(1);
     await icon.click();
-    await fresh.waitForFunction((n) => document.querySelectorAll('.inline-list-host')[n].querySelectorAll('details')[1].open, h);
+    await fresh.waitForFunction((n) => document.querySelectorAll('.mo-editor-inline-list-host')[n].querySelectorAll('details')[1].open, h);
     await icon.click();
   }
   await fresh.waitForTimeout(300);
@@ -606,7 +606,8 @@ async function checkDynamicList(width, height) {
   if (!dynamic.inside) problems.push(`${label}: the dynamic toolbar reaches outside the screen`);
   await page.locator('.mo-site-block-preview button', { hasText: 'Undo' }).click();
   await page.waitForTimeout(400);
-  if (!(await page.locator('.inline-list-row[data-row]').count())) problems.push(`${label}: Undo did not bring the typed rows back`);
+  if (!(await page.locator('.mo-editor-inline-list-row[data-row]').count()))
+    problems.push(`${label}: Undo did not bring the typed rows back`);
   await page.close();
 }
 
@@ -759,7 +760,7 @@ async function checkOwnList(width, height) {
       .waitFor({ timeout: 15000 })
       .catch(() => problems.push(`${label}: the list page has no rows`));
     // The same list page as the testimonials: rows with Move up and Move down, `Add item`, no typed-in-place rows.
-    if (await page.locator('.inline-list-row').count()) problems.push(`${label}: the list page still has typed-in-place rows`);
+    if (await page.locator('.mo-editor-inline-list-row').count()) problems.push(`${label}: the list page still has typed-in-place rows`);
     for (const row of ['Web design', 'Hosting'])
       if (!(await page.getByText(row, { exact: true }).count())) problems.push(`${label}: no row "${row}"`);
     if ((await page.getByRole('button', { name: 'Move down' }).count()) < 2) problems.push(`${label}: the rows have no Move down`);
@@ -945,7 +946,8 @@ async function checkNewList(width, height, label) {
       .getByText('This list has no fields yet. Add the first one.')
       .waitFor({ timeout: 15000 })
       .catch(() => problems.push(`${label}: the new list's page does not say it has no fields`));
-    if (await page.locator('.inline-list-row').locator('visible=true').count()) problems.push(`${label}: an empty list shows a row`);
+    if (await page.locator('.mo-editor-inline-list-row').locator('visible=true').count())
+      problems.push(`${label}: an empty list shows a row`);
     // Making the list commits nothing: it is kept as a waiting version until the final Save.
     if (commits.length) problems.push(`${label}: Create committed (${commits.length} commits) before the final Save`);
     // Two body texts: the empty page's Add field, then Body text; the second through Edit list (the empty page's button is gone once there is a field).

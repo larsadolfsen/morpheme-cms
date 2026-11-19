@@ -100,7 +100,7 @@ async function checkBlockRow(width, options = {}) {
   if (rowBox && bar && rowBox.y + rowBox.height > bar.y && rowBox.y < bar.y + bar.height)
     problems.push(`${label}: the row lies under the text bar (${JSON.stringify({ rowBox, bar })})`);
   // The row is inside the outline, above the block's first item.
-  const firstItem = await page.locator('.mo-site-block-card .inline-list-row').first().boundingBox();
+  const firstItem = await page.locator('.mo-site-block-card .mo-editor-inline-list-row').first().boundingBox();
   if (rowBox && firstItem && rowBox.y + rowBox.height > firstItem.y + 1) problems.push(`${label}: the row overlaps the block's content`);
   const barNames = await page.locator('.mo-editor-tools button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   for (const name of ['Move up', 'Move down', 'Hide', 'Show'])
@@ -266,8 +266,8 @@ async function checkBlockRow(width, options = {}) {
   await page.waitForTimeout(reduced ? 200 : 900);
   if (await page.locator('.mo-site-block-row').count()) problems.push(`${label}: the row stays after the block is left`);
   // A real touch tap on the block's rows brings it back (a computer: a click).
-  if (phone) await page.locator('.inline-list-row').first().tap();
-  else await page.locator('.inline-list-row').first().click();
+  if (phone) await page.locator('.mo-editor-inline-list-row').first().tap();
+  else await page.locator('.mo-editor-inline-list-row').first().click();
   await page.waitForTimeout(reduced ? 200 : 900);
   if (!(await page.locator('.mo-site-block-row').count()))
     problems.push(`${label}: a ${phone ? 'tap' : 'click'} on the block did not bring its row back`);
@@ -319,7 +319,7 @@ async function checkBlockRow(width, options = {}) {
         inside: r.top >= c.top && r.bottom <= c.bottom && r.left >= c.left && r.right <= c.right,
         names: [...row.querySelectorAll('[data-row]')].map((b) => b.getAttribute('aria-label')),
         classes: [...row.querySelectorAll('[data-row]')].map((b) => [...b.classList].join(' ')),
-        handle: !!document.querySelector('.site-block-has-hover > .mo-site-block-handle'),
+        handle: !!document.querySelector('.mo-site-block-has-hover > .mo-site-block-handle'),
       };
     });
     if (!hovered) problems.push(`${label}: pointing at a block shows no action row`);
@@ -350,7 +350,7 @@ async function checkBlockRow(width, options = {}) {
       problems.push(`${label}: the pointed block's row stays after the mouse left`);
   }
   const opened = await sample(() =>
-    phone ? page.locator('.inline-list-row').first().tap() : page.locator('.inline-list-row').first().click(),
+    phone ? page.locator('.mo-editor-inline-list-row').first().tap() : page.locator('.mo-editor-inline-list-row').first().click(),
   );
   if (still && (opened.drift > 2 || opened.end > 1))
     problems.push(`${label}: opening the row moves the block's content (${JSON.stringify(opened)})`);
@@ -419,7 +419,7 @@ async function checkBlockVisibility(width) {
   now.forEach((state, i) => plain(state, `block ${i + 1} (none active)`));
   // Block 1 active.
   const tapOrClick = async (loc, position) => (phone ? loc.tap({ position }) : loc.click({ position }));
-  await tapOrClick(blocks.nth(0).locator('.inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
+  await tapOrClick(blocks.nth(0).locator('.mo-editor-inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
   await page.waitForTimeout(1000);
   await page.mouse.move(2, 2);
   await page.waitForTimeout(400);
@@ -449,10 +449,10 @@ async function checkBlockVisibility(width) {
   }
   // Another block becomes active: block 1 shows nothing any more.
   // (A tap on another block first closes the active block's row; the next one goes into the block, as before this change.)
-  await tapOrClick(blocks.nth(2).locator('.inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
+  await tapOrClick(blocks.nth(2).locator('.mo-editor-inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
   await page.waitForTimeout(1100);
   if (!(await read())[2].row) {
-    await tapOrClick(blocks.nth(2).locator('.inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
+    await tapOrClick(blocks.nth(2).locator('.mo-editor-inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
     await page.waitForTimeout(1100);
   }
   await page.mouse.move(2, 2);
@@ -518,7 +518,7 @@ async function checkBlockRowNarrow() {
   if (width >= 400) problems.push(`${label}: the block is ${width} px wide, not narrow (under 400)`);
   if (await page.locator('.mo-site-block-row-hover').count())
     problems.push(`${label}: a narrow block pointed at shows a row over its first item`);
-  await page.locator('.inline-list-row [data-field="title"]').first().click();
+  await page.locator('.mo-editor-inline-list-row [data-field="title"]').first().click();
   await page.waitForTimeout(600);
   if (!(await page.locator('.mo-editor-inline-list-row-active').count()))
     problems.push(`${label}: a click on the first item's field did not go into it`);
@@ -967,7 +967,7 @@ async function checkEmptyRow(width, height) {
   await page.locator('dialog[open] button', { hasText: 'Rows that open to show more.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   const dialog = page.locator('dialog[open]');
-  const rows = () => page.locator('.inline-list-row[data-row]:not(.mo-editor-inline-list-row-next)').count();
+  const rows = () => page.locator('.mo-editor-inline-list-row[data-row]:not(.mo-editor-inline-list-row-next)').count();
   const blocks = () => page.locator('.mo-site-block-inline').count();
   // A tap on the bar's button; `keys`: the button pressed with the cursor still in the block (a key, not a tap), so the empty row is still there.
   const press = async (name, keys) => {
@@ -1027,7 +1027,7 @@ async function checkEmptyRow(width, height) {
       await page.keyboard.type(word);
     }
     // The middle row is emptied (Delete, not Backspace, which would drop an empty row).
-    await page.locator('.inline-list-row[data-row="1"] [data-field="title"]').click();
+    await page.locator('.mo-editor-inline-list-row[data-row="1"] [data-field="title"]').click();
     await page.keyboard.press('Control+A');
     await page.keyboard.press('Delete');
     await page.waitForTimeout(200);
@@ -1056,7 +1056,7 @@ async function checkEmptyRow(width, height) {
     .locator('[data-add-row]')
     .count()
     .catch(() => 0);
-  await page.locator('.inline-list-row[data-row="0"] [data-field="title"]').click();
+  await page.locator('.mo-editor-inline-list-row[data-row="0"] [data-field="title"]').click();
   await page.keyboard.type(' again');
   await page.locator('[data-add-row]').tap();
   await page.waitForTimeout(300);
@@ -1144,16 +1144,16 @@ async function checkChangeTo(width, height) {
   const rows = (field) =>
     page.evaluate(
       (field) =>
-        [...document.querySelectorAll('.inline-list-host [data-row]')]
+        [...document.querySelectorAll('.mo-editor-inline-list-host [data-row]')]
           .filter((r) => !r.parentElement.closest('[data-row]'))
           .map((r) => [r.querySelector(`[data-field="${field}"]`)?.value ?? '', r.querySelector('[data-field="text"]')?.value ?? '']),
       field,
     );
   // A row that is not active shows its icon slot only when it has an icon: the second row is made active to look at the first.
   const hasIcon = async () => {
-    await page.locator('.inline-list [data-row="1"] [data-field="title"]').click();
+    await page.locator('.mo-editor-inline-list [data-row="1"] [data-field="title"]').click();
     await page.waitForTimeout(200);
-    return page.locator('.inline-list [data-row="0"] .mo-editor-inline-list-slot').count();
+    return page.locator('.mo-editor-inline-list [data-row="0"] .mo-editor-inline-list-slot').count();
   };
   if (!(await hasIcon())) problems.push(`${label}: the List's first row did not get an icon`);
   const menuRows = () =>
@@ -1220,7 +1220,7 @@ async function checkChangeTo(width, height) {
   await page.waitForTimeout(200);
   if (await page.locator('[role=menu]:visible').count()) problems.push(`${label}: Escape at the menu's own rows did not close it`);
   await changeTo('Steps');
-  if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: Change type › Steps did not make Steps`);
+  if (!(await page.locator('.mo-editor-inline-steps').count())) problems.push(`${label}: Change type › Steps did not make Steps`);
   const steps = JSON.stringify(await rows('title'));
   const was = JSON.stringify([
     ['Opening hours', 'Mon–Fri'],
@@ -1232,7 +1232,7 @@ async function checkChangeTo(width, height) {
   // Ctrl+Z gives the List back, with its icon.
   await page.keyboard.press('Control+z');
   await page.waitForTimeout(500);
-  if (!(await page.locator('.inline-list').count()) || !(await hasIcon()))
+  if (!(await page.locator('.mo-editor-inline-list').count()) || !(await hasIcon()))
     problems.push(`${label}: Ctrl+Z after Change type did not give the List back with its icon`);
   // List → Steps → List: the icon is back, and the snackbar's Undo gives Steps again.
   await page.locator('[data-row="0"] [data-field="title"]').click();
@@ -1244,7 +1244,7 @@ async function checkChangeTo(width, height) {
     problems.push(`${label}: List → Steps → List has ${JSON.stringify(await rows('title'))}`);
   await page.locator('.snackbar-stack .snackbar', { hasText: 'Changed to List' }).locator('.snackbar-action').first().click();
   await page.waitForTimeout(500);
-  if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: the snackbar's Undo did not give Steps back`);
+  if (!(await page.locator('.mo-editor-inline-steps').count())) problems.push(`${label}: the snackbar's Undo did not give Steps back`);
   // Steps → Table → List: the rows are the steps' titles and texts, with no header row; back in the List the first row has its icon again.
   await changeTo('Table');
   const table = await page.evaluate(() => ({
@@ -1256,7 +1256,7 @@ async function checkChangeTo(width, height) {
   if (JSON.stringify(table.rows) !== was || table.header)
     problems.push(`${label}: Steps → Table made ${JSON.stringify(table)}, not the rows ${was} with no header row`);
   await changeTo('List');
-  if (!(await page.locator('.inline-list').count()) || !(await hasIcon()))
+  if (!(await page.locator('.mo-editor-inline-list').count()) || !(await hasIcon()))
     problems.push(`${label}: Table → List did not give the List with its icon`);
   if (JSON.stringify(await rows('title')) !== was) problems.push(`${label}: Table → List has ${JSON.stringify(await rows('title'))}`);
   // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and a List - Expand's Markdown on their
@@ -1390,12 +1390,12 @@ async function checkPageLeftEdge(width) {
   for (const cursor of [false, true]) {
     if (cursor) await page.locator('.ProseMirror p').first().click();
     const got = await page.evaluate(() => {
-      const field = document.querySelector('.editor-text').getBoundingClientRect();
+      const field = document.querySelector('.mo-editor-text').getBoundingClientRect();
       const pm = document.querySelector('.ProseMirror');
       const text = pm.querySelector('p').getBoundingClientRect().left;
       const margin = parseFloat(getComputedStyle(document.documentElement).fontSize) * (innerWidth < 600 ? 1 : 1.5);
       const outset =
-        parseFloat(getComputedStyle(document.querySelector('.editor-text')).getPropertyValue('--mo-comp-editor-frame-outset')) || 0;
+        parseFloat(getComputedStyle(document.querySelector('.mo-editor-text')).getPropertyValue('--mo-comp-editor-frame-outset')) || 0;
       const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
       const blocks = [...pm.querySelectorAll(':scope > .mo-site-block')].map((b) => {
         const card = b.querySelector(':scope > .mo-site-block-card').getBoundingClientRect();

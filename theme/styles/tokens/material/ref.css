@@ -3,7 +3,7 @@
 :root,
 :is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* M3's elevation levels (m3.material.io/styles/elevation, as material-web draws them: a key and an ambient shadow),
      the same in light and dark mode. Every part takes its M3 level from them by default (ui.css). */
   --mo-sys-elevation-level0-shadow: 0 0 #0000;
@@ -52,7 +52,7 @@
 }
 :is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* The elevation levels' colours (ui.css, resolved at :root) are the surface containers: declared again here, so an elevated
      card, button, chip or sheet in the section takes the section's own containers, not the page's (white on near-white). */
   --mo-sys-elevation-level0-color: var(--mo-sys-color-surface);

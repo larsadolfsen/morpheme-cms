@@ -21,7 +21,7 @@ export default function InlineSteps({ items, props, active, focus, onChange }: I
         add={t.blocks.steps.addStep}
         onChange={onChange}
         paste
-        wrap={(steps) => <ol className="mo-block-steps inline-steps">{steps}</ol>}
+        wrap={(steps) => <ol className="mo-block-steps mo-editor-inline-steps">{steps}</ol>}
         renderItem={({ index: i, here, next, field }) => (
           <li
             key={i}
@@ -30,7 +30,7 @@ export default function InlineSteps({ items, props, active, focus, onChange }: I
             aria-label={next ? t.blocks.steps.newStep : t.blocks.steps.stepOf(i + 1, items.length)}
             className={[
               'mo-block-steps__step',
-              'inline-list-row',
+              'mo-editor-inline-list-row',
               here && 'mo-editor-inline-list-row-active',
               next && 'mo-editor-inline-list-row-next',
             ]

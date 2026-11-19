@@ -88,7 +88,7 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
               aria-label={next ? texts.newCard : texts.cardOf(i + 1, items.length)}
               className={[
                 card.featured === true ? 'mo-block-pricecards__plan mo-is-featured' : 'mo-block-pricecards__plan',
-                'inline-list-row',
+                'mo-editor-inline-list-row',
                 here && 'mo-editor-inline-list-row-active',
                 next && 'mo-editor-inline-list-row-next',
               ]

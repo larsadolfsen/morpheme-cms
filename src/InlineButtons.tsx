@@ -45,7 +45,7 @@ export default function InlineButtons({ items, data, active, focus, onChange, on
             aria-label={next ? t.blocks.buttons.newButton : t.blocks.buttons.buttonOf(i + 1, items.length)}
             className={[
               buttonClass(b?.kind),
-              'inline-list-row',
+              'mo-editor-inline-list-row',
               'mo-editor-inline-button',
               here && 'mo-editor-inline-list-row-active',
               next && 'mo-editor-inline-list-row-next',

@@ -295,7 +295,7 @@ export default function InlineItems({
   });
 
   return (
-    <div ref={root} className="inline-list-host">
+    <div ref={root} className="mo-editor-inline-list-host">
       {wrap ? wrap(body) : body}
       {editing && items.length > 0 && room && <InlineAdd label={add} onClick={() => addAfter(items.length - 1)} />}
     </div>

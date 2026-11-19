@@ -95,7 +95,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
         add={t.blocks.cards.addCard}
         onChange={onChange}
         paste="text"
-        wrap={(list) => <ul className={['mo-block-cards', 'inline-cards', colored].filter(Boolean).join(' ')}>{list}</ul>}
+        wrap={(list) => <ul className={['mo-block-cards', 'mo-editor-inline-cards', colored].filter(Boolean).join(' ')}>{list}</ul>}
         renderItem={({ item, index: i, here, next, field }) => {
           const card = cards[i];
           return (
@@ -107,7 +107,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                 aria-label={next ? t.blocks.cards.newCard : t.blocks.cards.cardOf(i + 1, items.length)}
                 className={[
                   'mo-block-cards__card',
-                  'inline-list-row',
+                  'mo-editor-inline-list-row',
                   here && 'mo-editor-inline-list-row-active',
                   next && 'mo-editor-inline-list-row-next',
                 ]

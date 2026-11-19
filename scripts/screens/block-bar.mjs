@@ -34,7 +34,7 @@ async function checkCardBar(width, height = 800) {
   await page.waitForTimeout(400);
   const selected = await page.evaluate(() => ({
     pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"]').length,
-    popup: document.querySelectorAll('.site-block-menu').length,
+    popup: document.querySelectorAll('.mo-site-block-menu').length,
     haspopup: document.querySelectorAll('.mo-site-block-card[aria-haspopup]').length,
     groups: [...document.querySelectorAll('.mo-editor-tools [role=group]')].map((g) => g.getAttribute('aria-label')),
   }));
@@ -587,7 +587,7 @@ async function checkBlockDrag(width) {
   if (phone) {
     // A touch sees a handle only on the active block (it is the end of the block's row); go into the second block first.
     if ((await opacity('0')) !== '0') problems.push(`${label}: a touch sees the handle of a block that is not active`);
-    const field = page.locator('.ProseMirror .mo-site-block').nth(1).locator('.inline-list-row [data-field]').first();
+    const field = page.locator('.ProseMirror .mo-site-block').nth(1).locator('.mo-editor-inline-list-row [data-field]').first();
     // The tap may land while the page still moves (a row opening or closing): tap again until the block is active (the wait is for its handle to show).
     for (let tries = 0; tries < 3; tries++) {
       await field.tap({ position: { x: 8, y: 8 } });
@@ -599,7 +599,7 @@ async function checkBlockDrag(width) {
     await page.mouse.move(5, 5);
     await page.waitForTimeout(400);
     if ((await opacity('0')) !== '0') problems.push(`${label}: a mouse sees a handle before the block is active`);
-    const field = page.locator('.ProseMirror .mo-site-block').nth(1).locator('.inline-list-row [data-field]').first();
+    const field = page.locator('.ProseMirror .mo-site-block').nth(1).locator('.mo-editor-inline-list-row [data-field]').first();
     const b = await field.boundingBox();
     await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
     await page.waitForTimeout(400);
@@ -851,7 +851,7 @@ async function checkBlockMove(width) {
     return;
   }
   const names = () => page.locator('.ProseMirror .mo-site-block-handle').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
-  const selected = () => page.locator('.ProseMirror .site-block-selected').count();
+  const selected = () => page.locator('.ProseMirror .mo-site-block-selected').count();
   const up = page.locator('.mo-editor-tools').getByRole('button', { name: 'Move up' });
   const down = page.locator('.mo-editor-tools').getByRole('button', { name: 'Move down' });
   const centre = async (loc) => {
@@ -877,7 +877,7 @@ async function checkBlockMove(width) {
     for (let tries = 0; tries < 3; tries++) {
       await blocks
         .nth(0)
-        .locator('.inline-list-row [data-field]')
+        .locator('.mo-editor-inline-list-row [data-field]')
         .first()
         .tap({ position: { x: 8, y: 8 } });
       if ((await handleOpacity(page, 0, '1')) === '1') break;
@@ -944,7 +944,7 @@ async function checkBlockMove(width) {
     if ((await selected()) !== 2) problems.push(`${label}: the moved blocks are not selected (${await selected()})`);
     const marked = await page
       .locator('.ProseMirror .mo-site-block')
-      .evaluateAll((els) => els.map((e) => e.classList.contains('site-block-selected')));
+      .evaluateAll((els) => els.map((e) => e.classList.contains('mo-site-block-selected')));
     if (JSON.stringify(marked) !== JSON.stringify([false, true, true]))
       problems.push(`${label}: the wrong blocks stay selected (${marked})`);
     if (!(await down.count()) || !(await up.count())) {
@@ -957,7 +957,7 @@ async function checkBlockMove(width) {
       const shape = await page.evaluate(() =>
         [...document.querySelector('.ProseMirror').children].map((c) =>
           c.classList.contains('mo-site-block') || c.querySelector(':scope > .mo-site-block')
-            ? `block${c.classList.contains('site-block-selected') || c.querySelector('.site-block-selected') ? '*' : ''}`
+            ? `block${c.classList.contains('mo-site-block-selected') || c.querySelector('.mo-site-block-selected') ? '*' : ''}`
             : c.textContent.trim()
               ? 'text'
               : 'gap',
@@ -1022,7 +1022,7 @@ async function checkBlockSelect(width) {
     await page.close();
     return;
   }
-  const selected = () => page.locator('.ProseMirror .site-block-selected').count();
+  const selected = () => page.locator('.ProseMirror .mo-site-block-selected').count();
   const status = () =>
     page
       .locator('[role=status]')
@@ -1043,7 +1043,7 @@ async function checkBlockSelect(width) {
     for (let tries = 0; tries < 3 && (await handleOpacity(page, 0, '1')) !== '1'; tries++)
       await blocks
         .nth(0)
-        .locator('.inline-list-row [data-field]')
+        .locator('.mo-editor-inline-list-row [data-field]')
         .first()
         .tap({ position: { x: 8, y: 8 } });
     const cdp = await page.context().newCDPSession(page);

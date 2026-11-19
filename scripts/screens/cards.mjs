@@ -89,7 +89,7 @@ async function checkCardImage(width, height = 800) {
     .catch(() => {});
   await page.waitForTimeout(500);
   const tap = (loc) => (phone ? loc.tap() : loc.click());
-  await tap(page.locator('.inline-list-row [data-field="title"]').first());
+  await tap(page.locator('.mo-editor-inline-list-row [data-field="title"]').first());
   await page.waitForTimeout(400);
   const picture = () =>
     page.evaluate(() => {
@@ -124,7 +124,7 @@ async function checkCardImage(width, height = 800) {
   const square = await picture();
   if (square?.ratio !== 1) problems.push(`${label}: after 1:1 the card's image box is ${square?.ratio}, not square`);
   // Crop in the bar: the crop view of the block's ratio only, no ratio chips; Save puts the ratio and the crop after the image's address.
-  await tap(page.locator('.inline-list-row [data-field="title"]').first());
+  await tap(page.locator('.mo-editor-inline-list-row [data-field="title"]').first());
   await page.waitForTimeout(400);
   await tap(page.locator('.mo-editor-tools-context button[aria-label="Crop"]').first());
   await page
@@ -164,12 +164,12 @@ async function checkCardClickActivates(width, height, how) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
-  await page.waitForSelector('.inline-cards [data-row="0"] [data-field="title"]');
+  await page.waitForSelector('.mo-editor-inline-cards [data-row="0"] [data-field="title"]');
   await page.keyboard.type('Tea');
-  await page.locator('.inline-list-host [data-add-row]').first().click();
+  await page.locator('.mo-editor-inline-list-host [data-add-row]').first().click();
   await page.keyboard.type('Cake');
   await page.waitForTimeout(300);
-  const target = page.locator('.inline-cards [data-row="0"] [data-field="title"]').first();
+  const target = page.locator('.mo-editor-inline-cards [data-row="0"] [data-field="title"]').first();
   await target.scrollIntoViewIfNeeded();
   const box = await target.boundingBox();
   const x = box.x + box.width / 2;
@@ -190,14 +190,14 @@ async function checkCardClickActivates(width, height, how) {
   else await page.mouse.click(x, y);
   await page.waitForTimeout(400);
   const state = await page.evaluate(() => ({
-    active: document.querySelector('.inline-cards [data-row="0"]')?.getAttribute('aria-current') === 'true',
+    active: document.querySelector('.mo-editor-inline-cards [data-row="0"]')?.getAttribute('aria-current') === 'true',
     focus: document.activeElement?.closest('[data-field]')?.getAttribute('data-field') ?? document.activeElement?.className ?? '',
   }));
   if (!state.active) problems.push(`${label}: the card is not active after it (focus is in "${state.focus}")`);
   // The same from outside the block: the cursor is in the paragraph above, so no card of the block is active, and a pointer in the second card's headline.
   await page.locator('.ProseMirror p').first().click();
   await page.waitForTimeout(300);
-  const second = page.locator('.inline-cards [data-row="1"] [data-field="title"]').first();
+  const second = page.locator('.mo-editor-inline-cards [data-row="1"] [data-field="title"]').first();
   await second.scrollIntoViewIfNeeded();
   const box2 = await second.boundingBox();
   const x2 = box2.x + box2.width / 2;
@@ -206,7 +206,7 @@ async function checkCardClickActivates(width, height, how) {
   else await page.mouse.click(x2, y2);
   await page.waitForTimeout(400);
   const outside = await page.evaluate(() => ({
-    active: document.querySelector('.inline-cards [data-row="1"]')?.getAttribute('aria-current') === 'true',
+    active: document.querySelector('.mo-editor-inline-cards [data-row="1"]')?.getAttribute('aria-current') === 'true',
     focus: document.activeElement?.closest('[data-field]')?.getAttribute('data-field') ?? document.activeElement?.className ?? '',
   }));
   if (!outside.active)
@@ -230,19 +230,19 @@ async function checkCardHeadline(width, height) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
-  await page.waitForSelector('.inline-cards [data-row="0"] [data-field="title"]');
+  await page.waitForSelector('.mo-editor-inline-cards [data-row="0"] [data-field="title"]');
   await page.keyboard.type('Tea');
   // The card being typed in keeps its text field, for the text to be typed next.
-  if (!(await page.locator('.inline-cards [data-row="0"] [data-field="text"]').count()))
+  if (!(await page.locator('.mo-editor-inline-cards [data-row="0"] [data-field="text"]').count()))
     problems.push(`${label}: the active card has no text field`);
-  await page.locator('.inline-list-host [data-add-row]').first().click();
+  await page.locator('.mo-editor-inline-list-host [data-add-row]').first().click();
   await page.keyboard.type('Cake');
   await page.keyboard.press('Enter');
   await page.keyboard.press('Enter');
   await page.keyboard.type('With cream');
   await page.waitForTimeout(300);
   const fields = await page.evaluate(() =>
-    [...document.querySelectorAll('.inline-cards [data-row]')]
+    [...document.querySelectorAll('.mo-editor-inline-cards [data-row]')]
       .map((c) => (c.querySelector('[data-field="text"]') ? 'text' : 'none'))
       .join(),
   );
@@ -1122,7 +1122,7 @@ async function checkIconColor(width, height, scheme = 'light') {
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(400);
   const drawn = await page.evaluate(() => {
-    const row = document.querySelector('.inline-list-row[data-icon-color="secondary"]');
+    const row = document.querySelector('.mo-editor-inline-list-row[data-icon-color="secondary"]');
     const probe = document.createElement('i');
     probe.style.color = 'var(--mo-sys-color-secondary)';
     document.body.append(probe);

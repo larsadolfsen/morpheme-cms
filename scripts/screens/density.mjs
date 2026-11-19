@@ -64,7 +64,7 @@ async function checkDensityParts(width, height, touch) {
         else root.setAttribute('data-density', attr);
         const host = document.createElement('div');
         host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
-        host.innerHTML = `<div data-where="screen">${parts}</div><div class="editor-text"><div class="ProseMirror" data-where="content">${parts}</div></div><div data-density-fixed data-where="fixed">${parts}</div>`;
+        host.innerHTML = `<div data-where="screen">${parts}</div><div class="mo-editor-text"><div class="ProseMirror" data-where="content">${parts}</div></div><div data-density-fixed data-where="fixed">${parts}</div>`;
         document.body.append(host);
         const got = {};
         for (const where of host.querySelectorAll('[data-where]'))
@@ -143,7 +143,7 @@ async function checkDensityLayout(width, height) {
         else root.setAttribute('data-density', attr);
         const host = document.createElement('div');
         host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
-        host.innerHTML = `<div data-where="screen">${layout}</div><div class="editor-text"><div class="ProseMirror" data-where="content">${layout}</div></div><div data-density-fixed data-where="fixed">${layout}</div>`;
+        host.innerHTML = `<div data-where="screen">${layout}</div><div class="mo-editor-text"><div class="ProseMirror" data-where="content">${layout}</div></div><div data-density-fixed data-where="fixed">${layout}</div>`;
         document.body.append(host);
         const px = (v) => Math.round(parseFloat(v) * 100) / 100;
         const got = {};
@@ -209,7 +209,7 @@ async function checkDensityTable(width, height) {
         else root.setAttribute('data-density', attr);
         const host = document.createElement('div');
         host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
-        host.innerHTML = `<div data-where="screen">${table}</div><div class="editor-text"><div class="ProseMirror" data-where="content">${table}</div></div><div data-density-fixed data-where="fixed">${table}</div>`;
+        host.innerHTML = `<div data-where="screen">${table}</div><div class="mo-editor-text"><div class="ProseMirror" data-where="content">${table}</div></div><div data-density-fixed data-where="fixed">${table}</div>`;
         document.body.append(host);
         const got = {};
         for (const where of host.querySelectorAll('[data-where]'))

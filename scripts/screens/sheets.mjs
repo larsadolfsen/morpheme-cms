@@ -1700,7 +1700,7 @@ async function checkVideoChangeLink(width, height = 800) {
   await page.waitForTimeout(400);
   if (await page.locator('.mo-editor-tools-context button[aria-label="Change link"]').count())
     problems.push(`${label}: Change link is on the bar while the video is not selected`);
-  await tap(page.locator('.inline-video-frame'));
+  await tap(page.locator('.mo-editor-inline-video-frame'));
   await page.waitForTimeout(700);
   if (await page.locator('.mo-site-block-inline .mo-editor-inline-list-slot').count())
     problems.push(`${label}: a slot is still drawn over the video frame`);
