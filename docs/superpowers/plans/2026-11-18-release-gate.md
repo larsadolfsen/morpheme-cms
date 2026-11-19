@@ -21,7 +21,7 @@ The release skill already said to check staging. A session skipped it, because P
 
 Merge into `main` → `next` test version staged → the owner approves it on npm → staging builds on it → the gate check goes green on the Release PR → the PM asks the release question → the owner says yes, the Release PR merges → the gate passes again → `latest` is staged → the owner approves it on npm.
 
-The release-per-feature flow after 0.18.2 (`2026-11-18-release-per-feature.md`, revised in the same docs PR) keeps this gate: every release runs on staging first.
+The release-per-feature flow from 0.19 (`2026-11-18-release-per-feature.md`, revised in the same docs PR) keeps this gate: every release runs on staging first.
 
 ## What stays
 

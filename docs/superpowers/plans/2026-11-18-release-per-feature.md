@@ -1,9 +1,9 @@
 # A release per feature, inside version lines (plan)
 
 Status: **approved by the owner, 18 November 2026** ("yes"), revised with the owner the same day. It replaces the version of this plan the owner approved earlier the
-same day ("Approve"), which had no version lines and a test version on npm per feature. **Takes effect after 0.18.2**: 0.18.0 (released),
-0.18.1 (fixes, from `main`) and 0.18.2 (Tailwind, contract 7) finish as planned, in that order; the pre-built editor is a feature of
-0.20 Build speed (owner, 19 November 2026; it was 0.18.3). The demo editor (below) can start at once.
+same day ("Approve"), which had no version lines and a test version on npm per feature. **Takes effect with 0.19**: 0.18.0 (released) and
+0.18.1 (fixes, from `main`) finish as planned; Tailwind (contract 7) is the first feature of the 0.19 line, 0.19.0, followed by 0.19.1 small UI
+fixes (owner, 19 November 2026; Tailwind was 0.18.2); the pre-built editor is a feature of 0.21 Build speed (it was 0.18.3). The demo editor (below) can start at once.
 
 The owner's words, 18 November:
 
@@ -14,7 +14,7 @@ The owner's words, 18 November:
 
 ## The flow
 
-1. **A line is an area of the roadmap** (0.19 maturity, 0.20 build speed …). Its first feature is released as `0.19.0`, each
+1. **A line is an area of the roadmap** (0.19 Tailwind and UI fixes, 0.20 maturity, 0.21 build speed …). Its first feature is released as `0.19.0`, each
    next feature as `0.19.1`, `0.19.2` … The line changes when the roadmap moves to its next area. A feature that raises the contract
    for themes or apps (`THEME_API`, `APP_API`) starts the next line.
 2. **A feature** is a branch from `main`, `feature/<name>`, with its pull requests merged into it (skill `pm`, section 2). A single fix
@@ -68,7 +68,7 @@ Nothing is written to GitHub. Guarded by four points (owner, "1-4 then"):
 
 1. **The demo editor** (can start now, a feature into `0.18`): points 1 and 2 above, PR 1 a proof that the editor opens and saves on a
    Preview. Points 3 and 4 are the owner's, in the dashboard; the PM tells the owner when the editor is merged.
-2. **The release on merge** (after 0.18.2 is released). On a push to `main`, the job `release` no longer opens a Release PR: it first
+2. **The release on merge** (after 0.19.0 is released). On a push to `main`, the job `release` no longer opens a Release PR: it first
    stages the test version `next` (the owner approves it; staging builds on it), and runs `release:version` only after staging's build
    of that `-next-` version has succeeded: it commits the version and `CHANGELOG.md` to `main` as the workflow's bot ("Version X.Y.Z")
    and stages `latest`; the job `latest` then makes the tag and the GitHub release as today. A push that is the workflow's own version
