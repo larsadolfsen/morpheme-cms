@@ -9,12 +9,12 @@
 // scrolling and keeps clear of a phone's notch. A screen's tabs (`tabs`) are the bottom of the bar, under the title, as wide
 // as the content, and stay with it. The back arrow goes to the screen above, back in the history when that is the screen
 // before (nav.ts up). The content is as wide as the site's text column, or wider for
-// a form with its fields beside the text (`panel`). The column (editor.css .editor-column) stands centred on the window,
+// a form with its fields beside the text (`panel`). The column (editor.css .mo-editor-column) stands centred on the window,
 // off-centre only as far as the panels beside it require.
 // Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
 // is short (the screen fills the column under the bar, TopBarLayout). While the screen has a floating action button
 // (fabPresence.tsx), the content leaves room for it above the footer (data-clearance, --mo-comp-fab-room) and the FAB stands above the
-// footer whenever the footer is in the window (useFabLift: --editor-fab-lift, editor.css), so it never covers the footer.
+// footer whenever the footer is in the window (useFabLift: --mo-comp-editor-fab-lift, editor.css), so it never covers the footer.
 import { useContext, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
@@ -172,9 +172,9 @@ export default function Screen<T extends string>({
   const menu = useMenuOpen();
   const { menuButtonInTopBar } = useMenuLayout();
   // The column's widest width (--mo-sys-column-width, editor.css) is the site's text column (theme `max-w-3xl`, as PostLayout.astro), on a
-  // computer too; only `panel` (a form with its other fields beside the text) is wider, 72rem from large. editor.css (.editor-column) keeps it
+  // computer too; only `panel` (a form with its other fields beside the text) is wider, 72rem from large. editor.css (.mo-editor-column) keeps it
   // centred on the window.
-  const width = panel ? 'editor-column mo-editor-screen-panel' : 'editor-column';
+  const width = panel ? 'mo-editor-column mo-editor-screen-panel' : 'mo-editor-column';
   // A link out of the screen, through `guard`: the back arrow goes up (nav.ts), the other links as links.
   const leave = (go?: () => void) => (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (!go && !back?.guard) return;
@@ -271,9 +271,9 @@ export default function Screen<T extends string>({
   return (
     <div className={`mo-editor-screen-frame ${slot ? 'mo-editor-screen-frame-slot' : 'mo-editor-screen-frame-page'}`}>
       {slot ? createPortal(bar, slot) : bar}
-      {/* A row, so the column keeps its margins (editor.css .editor-column) and is as high as the rest of the window. */}
+      {/* A row, so the column keeps its margins (editor.css .mo-editor-column) and is as high as the rest of the window. */}
       <div className="mo-editor-screen-row">
-        <main data-clearance={fabs.count > 0} className={`editor-screen mo-editor-screen-main ${width}`}>
+        <main data-clearance={fabs.count > 0} className={`mo-editor-screen mo-editor-screen-main ${width}`}>
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
           {searchBar && (
             // M3 specs, Measurements: the unfocused search bar is 24dp from the screen's edges (the page has 16dp).

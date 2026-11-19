@@ -28,7 +28,12 @@ export default function InlineSteps({ items, props, active, focus, onChange }: I
             data-row={i}
             aria-current={here ? 'step' : undefined}
             aria-label={next ? t.blocks.steps.newStep : t.blocks.steps.stepOf(i + 1, items.length)}
-            className={['mo-block-steps__step', 'inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next']
+            className={[
+              'mo-block-steps__step',
+              'inline-list-row',
+              here && 'mo-editor-inline-list-row-active',
+              next && 'mo-editor-inline-list-row-next',
+            ]
               .filter(Boolean)
               .join(' ')}
           >

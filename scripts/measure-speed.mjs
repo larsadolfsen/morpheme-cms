@@ -103,7 +103,7 @@ const EDITOR_SCENARIOS = [
   {
     name: 'editor: page with many blocks',
     hash: '#src/content/pages/blocks-lists.md',
-    ready: '.ProseMirror .site-block-card',
+    ready: '.ProseMirror .mo-site-block-card',
     acts: [
       ['scroll', scroll],
       ['type in a field', typeInPage],
@@ -158,7 +158,7 @@ async function typeInPage(page) {
 }
 async function editorSheet(page) {
   await page.locator('button[aria-label="Insert block"]:visible').first().click({ timeout: 5000 });
-  await page.waitForSelector('dialog[open], .editor-side-sheet', { timeout: 5000 });
+  await page.waitForSelector('dialog[open], .mo-editor-side-sheet', { timeout: 5000 });
 }
 async function scroll(page) {
   for (let i = 0; i < 8; i++) {

@@ -323,7 +323,7 @@ export function ToolbarButton({
           icon={Glyph && <Glyph />}
           trailingIcon={<CaretDown size={12} />}
           aria-label={label}
-          className="toolbar-menu-button"
+          className="mo-toolbar__menu-button"
           style={toolbarMenuSize}
           {...own}
         >
@@ -410,7 +410,7 @@ function placeTip(tip: HTMLElement, anchor: Element) {
 /** An element's name as a tooltip (`on`: its handlers, `tip`: beside it): the theme's plain tooltip (.tooltip-plain in
  * its ui.css), shown after a moment under the mouse, and at once when the element gets the focus from the keyboard;
  * gone when the mouse leaves, on a tap, on Escape and when it loses the focus. Not on a phone, where the element's name
- * is read out instead. It is a popover (.editor-tooltip in editor.css), so it stands over everything, also a sheet, and
+ * is read out instead. It is a popover (.mo-editor-tooltip in editor.css), so it stands over everything, also a sheet, and
  * is not cut off by a list's frame. `own`: the element's own handlers, called too. It is not read out, as it says the
  * element's name. */
 function useTooltip(text: string, own: TooltipHandlers = {}) {
@@ -423,7 +423,7 @@ function useTooltip(text: string, own: TooltipHandlers = {}) {
     if (!el?.showPopover || !anchor.isConnected) return;
     try {
       if (!el.matches(':popover-open')) el.showPopover();
-      // Only one tooltip is open at a time, so one anchor name does: the CSS (editor.css, .editor-tooltip) places it at the element.
+      // Only one tooltip is open at a time, so one anchor name does: the CSS (editor.css, .mo-editor-tooltip) places it at the element.
       if (anchoredByCss) (anchor as HTMLElement).style.setProperty('anchor-name', '--editor-tooltip');
       else placeTip(el, anchor);
       shownAt.current = anchor as HTMLElement;
@@ -470,7 +470,7 @@ function useTooltip(text: string, own: TooltipHandlers = {}) {
   return {
     on,
     tip: (
-      <span ref={tip} popover="manual" aria-hidden className="tooltip-plain editor-tooltip">
+      <span ref={tip} popover="manual" aria-hidden className="tooltip-plain mo-editor-tooltip">
         {text}
       </span>
     ),
@@ -1216,7 +1216,7 @@ export function SlotButton({
   return (
     <button
       type="button"
-      className="inline-list-slot"
+      className="mo-editor-inline-list-slot"
       aria-label={label}
       aria-pressed={pressed}
       aria-expanded={expanded}
@@ -1314,7 +1314,7 @@ export function IconPicker({
         <span className="mo-fill mo-truncate">{chosen ? chosen.label : value ? iconLabel(value) : t.forms.noIconYet}</span>
       </div>
       {open && (
-        <div id={grid} className="editor-reveal mo-editor-icon-picker-panel">
+        <div id={grid} className="mo-editor-reveal mo-editor-icon-picker-panel">
           {onSearch && (
             <TextField
               type="search"
@@ -1435,7 +1435,7 @@ export function FoldItem({
       truncate
       actions={tools && <span className="mo-keep mo-editor-fold-tools">{tools}</span>}
     >
-      {open && <div className="mo-editor-rhythm-200 editor-reveal mo-editor-fold-body">{children}</div>}
+      {open && <div className="mo-editor-rhythm-200 mo-editor-reveal mo-editor-fold-body">{children}</div>}
     </ListItem>
   );
 }
@@ -2170,7 +2170,7 @@ export function Menu({
   useLayoutEffect(() => {
     if (!anchor || !wide) return;
     const el = menu.current;
-    // A popover (always over everything, also a dialog), placed by CSS anchor positioning at the button (editor.css, .editor-menu);
+    // A popover (always over everything, also a dialog), placed by CSS anchor positioning at the button (editor.css, .mo-editor-menu);
     // where the browser lacks it, by the theme's script (sitePlaceMenu) as before.
     try {
       if (el && !el.matches(':popover-open')) el.showPopover();
@@ -2269,7 +2269,7 @@ export function Menu({
       ref={menu}
       role="menu"
       aria-label={label}
-      className="editor-menu dropdown-menu-menu mo-editor-focus-quiet"
+      className="mo-editor-menu dropdown-menu-menu mo-editor-focus-quiet"
       popover="manual"
       data-menu-attached={attached ? '' : undefined}
       data-menu-popup={popup}
@@ -2497,7 +2497,7 @@ export function Preview({ children }: { children: ReactNode }) {
     <div
       role="region"
       aria-label={t.common.preview}
-      className="site-block-preview not-prose mo-editor-block-preview"
+      className="mo-site-block-preview not-prose mo-editor-block-preview"
       onClickCapture={(e) => {
         if ((e.target as HTMLElement).closest('a[href]')) e.preventDefault();
       }}
@@ -2884,7 +2884,7 @@ export function FormHeading({ first, children }: { first?: boolean; children: Re
 /** A section of a long form that folds in and out (the sections of a page; Material 3 has no accordion, so it has its
  * own name): its heading, as large as a FormHeading, is a button with the arrow at its right, which turns while the
  * section is open, and a line under each section. The title's box is trimmed to the capitals and the baseline, so the space above and below the letters is equal; sections that follow each other touch (no gap from a parent's `space-y`), so the line above a title is as far from it as the line below. Folded, only the heading is shown; what is in it stays (hidden), so
- * the text and the fields keep what was written, and it shows softly when opened (.editor-reveal). It stops under the
+ * the text and the fields keep what was written, and it shows softly when opened (.mo-editor-reveal). It stops under the
  * top bar when the page scrolls to it. `ref`: the section, for what scrolls to it and marks it. `fixed`: always open,
  * its heading plain text in the same row, with no arrow and nothing to press (a page's and a post's Content). */
 export function FoldSection({
@@ -2929,7 +2929,7 @@ export function FoldSection({
           </button>
         )}
       </h2>
-      <div id={`${id}-body`} hidden={!open} className="mo-editor-rhythm-300 editor-reveal mo-editor-section-body">
+      <div id={`${id}-body`} hidden={!open} className="mo-editor-rhythm-300 mo-editor-reveal mo-editor-section-body">
         {children}
       </div>
     </section>
@@ -3070,7 +3070,7 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
         headline={text}
         trailing={<CaretDown size={18} className={`mo-keep mo-editor-fold-arrow ${shown ? 'mo-editor-arrow-flipped' : ''}`} />}
       >
-        {shown && <p className="editor-reveal mo-editor-check-fix">{item.fix}</p>}
+        {shown && <p className="mo-editor-reveal mo-editor-check-fix">{item.fix}</p>}
       </ListItem>
     ) : (
       <ListItem key={item.text} leading={mark(item.ok)} headline={text} />
@@ -3269,7 +3269,7 @@ export function SideSheet({
       onClose={onClose}
       onBack={onBack}
       backLabel={backLabel}
-      className="editor-reveal mo-editor-selection-pane"
+      className="mo-editor-reveal mo-editor-selection-pane"
     >
       <div className="mo-editor-rhythm-250">{children}</div>
     </SiteSideSheet>
@@ -3303,7 +3303,7 @@ export function SectionList({
               type="button"
               aria-current={id === value ? 'location' : undefined}
               onClick={() => onChange(id)}
-              className="section-list-item mo-row mo-editor-section-list-link"
+              className="mo-editor-section-list-item mo-row mo-editor-section-list-link"
             >
               <span className="mo-editor-section-list-label">{label}</span>
               {badge ? <SiteBadge count={badge === true ? undefined : badge} /> : null}
@@ -3322,8 +3322,8 @@ export function SectionList({
 export function SectionPane({ caption, title, children }: { caption: string; title: string; children: ReactNode }) {
   return (
     <div className={`${siteCardClass('outlined')} mo-editor-section-pane-card`}>
-      <p className="section-pane-caption mo-editor-section-pane-caption">{caption}</p>
-      <h2 className="section-pane-title mo-editor-section-pane-title">{title}</h2>
+      <p className="mo-editor-section-pane-caption mo-editor-section-pane-caption">{caption}</p>
+      <h2 className="mo-editor-section-pane-title mo-editor-section-pane-title">{title}</h2>
       {children}
     </div>
   );
@@ -3394,13 +3394,13 @@ export function MainDrawer({
 // `footer` is the bottom slot: the destinations' box grows to fill the rail, and the slot (the last child in it) is pushed to its end.
 function MainRail({ label, onOpen, footer, children }: { label: string; onOpen: () => void; footer?: ReactNode; children: ReactNode }) {
   return (
-    <aside className="editor-main-rail-frame mo-editor-main-rail-frame">
+    <aside className="mo-editor-main-rail-frame mo-editor-main-rail-frame">
       <SiteNavigationRail
         label={label}
         menuLabel={t.library.openMenu}
         expanded={false}
         onExpandedChange={onOpen}
-        className="editor-main-rail mo-editor-main-rail"
+        className="mo-editor-main-rail mo-editor-main-rail"
       >
         {children}
         {footer && <div className="mo-editor-main-footer">{footer}</div>}
@@ -3412,13 +3412,13 @@ function MainRail({ label, onOpen, footer, children }: { label: string; onOpen: 
 // The header row at the top of either drawer: `header` (the signed-in user on the first level, the back row on a section's
 // list; MainMenu.tsx) at the start and the menu button at the end, which closes the drawer and stays level with the top bar's
 // menu button. The header cell starts at the drawer items' outer edge: the row has no start padding, and the header (the
-// account row, the back row) brings the items' inline padding itself, so its pill (editor.css, .editor-main-drawer-header)
+// account row, the back row) brings the items' inline padding itself, so its pill (editor.css, .mo-editor-main-drawer-header)
 // has the shape of an item's and the avatar or arrow stands over the items' icons. The button is centred on the 1.5rem box
 // of the items' trailing arrows (a negative end margin from the button's own width). The row is the top bar's height (`--top-app-bar-height`), so the divider (middle inset) under it stands level with the top bar's line.
 function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header?: ReactNode }) {
   return (
     <>
-      <div className="editor-main-drawer-header mo-editor-main-drawer-header">
+      <div className="mo-editor-main-drawer-header mo-editor-main-drawer-header">
         <div className="mo-fill">{header}</div>
         <MenuButton label={t.library.closeMenu} open onClick={onClick} className="mo-editor-main-drawer-close" />
       </div>
@@ -3467,7 +3467,7 @@ function StandardMainDrawer({
     <aside className="mo-editor-main-drawer-frame">
       <SiteNavigationDrawer
         variant="standard"
-        className="editor-main-drawer-panel mo-editor-main-drawer-panel mo-editor-main-drawer-panel-full"
+        className="mo-editor-main-drawer-panel mo-editor-main-drawer-panel mo-editor-main-drawer-panel-full"
         onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
           if (e.key === 'Escape' && onEscape?.()) e.preventDefault();
         }}
@@ -3516,7 +3516,7 @@ function ModalMainDrawer({
     <dialog
       ref={dialog}
       aria-label={label}
-      className={`${siteNavigationDrawerDialogClass} ${siteNavigationDrawerBleedClass} editor-main-drawer`}
+      className={`${siteNavigationDrawerDialogClass} ${siteNavigationDrawerBleedClass} mo-editor-main-drawer`}
       onClose={() => onOpenChange(false)}
       onCancel={(e) => {
         if (escaped.current) e.preventDefault();
@@ -3535,7 +3535,7 @@ function ModalMainDrawer({
     >
       <SiteNavigationDrawer
         variant="modal"
-        className="editor-main-drawer-panel mo-editor-main-drawer-panel"
+        className="mo-editor-main-drawer-panel mo-editor-main-drawer-panel"
         onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
           escaped.current = false;
           if (e.key === 'Escape' && onEscape?.()) {
@@ -3823,7 +3823,7 @@ export function FormColumns({
       <div className="mo-editor-rhythm-300 mo-editor-screen-primary">{main}</div>
       {side && <div className={`${right} ${first ? 'mo-editor-screen-row-second' : 'mo-editor-screen-row-span'}`}>{side}</div>}
       {pane && (
-        <div className="editor-section-pane mo-editor-section-pane">
+        <div className="mo-editor-section-pane mo-editor-section-pane">
           <div className="mo-editor-section-pane-inner">{pane}</div>
         </div>
       )}
@@ -3906,7 +3906,7 @@ export function Dialog({ ref, className, children, ...rest }: DialogHTMLAttribut
  * it, on a <dialog> (`ref`; opened with showModal), with a SheetTitle and SheetBody, SheetList or SheetActions in it.
  * `full`: as high as the screen, and wider on a computer, with a whole page in it (the preview, PageFrame).
  * `panel`: the theme's modal side sheet (data-wide="side-sheet") at the window's end edge under the top bar, half the space
- * beside the start panel (.editor-side-panel in editor.css); the rest of the page stays in view, inert as under a dialog. */
+ * beside the start panel (.mo-editor-side-panel in editor.css); the rest of the page stays in view, inert as under a dialog. */
 export function BottomSheet({
   ref,
   full,
@@ -3935,7 +3935,7 @@ export function BottomSheet({
   return (
     <dialog
       ref={own}
-      className={[sheet, 'editor-sheet', 'mo-editor-sheet-phone', panel && 'editor-side-panel', className].filter(Boolean).join(' ')}
+      className={[sheet, 'mo-editor-sheet', 'mo-editor-sheet-phone', panel && 'mo-editor-side-panel', className].filter(Boolean).join(' ')}
       {...rest}
     >
       <div className={siteBottomSheetContainerClass()} data-wide={panel ? 'side-sheet' : undefined}>
@@ -4632,7 +4632,7 @@ const fabProps = ({ href, onClick, busy, disabled }: FabAction) => ({
   ...(href === undefined ? { disabled: disabled || busy, 'aria-busy': busy || undefined } : {}),
 });
 
-/** The screen's main actions at the bottom right (.editor-fab, editor.css): the theme's FAB menu, opened and closed as
+/** The screen's main actions at the bottom right (.mo-editor-fab, editor.css): the theme's FAB menu, opened and closed as
  * on the site (setUpFabMenu), or with one action that action as a FAB (its icon, its name as its tooltip and read by screen readers; a link, or a button); nothing without any. Drawn in a portal
  * on <body>, since the screen's entrance animation (a transform) would make its <main> the containing block of a fixed FAB. */
 export function FabMenu({ icon: Glyph, label, items }: { icon: Icon; label: string; items: FabAction[] }) {
@@ -4645,7 +4645,7 @@ export function FabMenu({ icon: Glyph, label, items }: { icon: Icon; label: stri
   }, [menu]);
   if (items.length === 0) return null;
   return createPortal(
-    <div ref={ref} className="editor-fab">
+    <div ref={ref} className="mo-editor-fab">
       {menu ? (
         <SiteFabMenu
           icon={<Glyph />}

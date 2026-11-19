@@ -48,7 +48,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
     return (
       <span className="mo-block-cards__card-actions inline-card-buttons">
         {list.map((b, n) => (
-          <span key={n} className="inline-card-button">
+          <span key={n} className="mo-editor-inline-card-button">
             <InlineField
               name={`button-${n}`}
               value={b.label ?? ''}
@@ -72,7 +72,12 @@ export default function InlineCards({ items, props, data, active, focus, onChang
             />
           </span>
         ))}
-        <SiteButton kind="text" data-add-button="" className="inline-card-next-button" onClick={() => set([...list, made()], list.length)}>
+        <SiteButton
+          kind="text"
+          data-add-button=""
+          className="mo-editor-inline-card-next-button"
+          onClick={() => set([...list, made()], list.length)}
+        >
           {t.blocks.cards.addButton}
         </SiteButton>
       </span>
@@ -80,7 +85,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
   };
   return (
     <>
-      {props.phone === 'carousel' && <span className="inline-cards-chip">{t.blocks.cards.carouselChip}</span>}
+      {props.phone === 'carousel' && <span className="mo-editor-inline-cards-chip">{t.blocks.cards.carouselChip}</span>}
       <InlineItems
         items={items}
         active={active}
@@ -100,7 +105,12 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                 data-row={i}
                 aria-current={here ? 'true' : undefined}
                 aria-label={next ? t.blocks.cards.newCard : t.blocks.cards.cardOf(i + 1, items.length)}
-                className={['mo-block-cards__card', 'inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next']
+                className={[
+                  'mo-block-cards__card',
+                  'inline-list-row',
+                  here && 'mo-editor-inline-list-row-active',
+                  next && 'mo-editor-inline-list-row-next',
+                ]
                   .filter(Boolean)
                   .join(' ')}
               >
@@ -109,7 +119,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                   // An image is its own tap target: a tap selects the card, and the bar has the image's tools (Change image, Crop, Alt text, Remove).
                   <button
                     type="button"
-                    className="inline-card-media"
+                    className="mo-editor-inline-card-media"
                     aria-label={t.blocks.cards.media}
                     onClick={() => (card.image ? !here && onChange({ active: i }) : onIcon(i))}
                   >
@@ -119,7 +129,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                   <>
                     {card && <CardMedia card={card} />}
                     {here && (
-                      <span className="inline-card-slots">
+                      <span className="mo-editor-inline-card-slots">
                         {kinds.map(({ kind, label, Icon }) => (
                           <InlineSlot
                             key={kind}

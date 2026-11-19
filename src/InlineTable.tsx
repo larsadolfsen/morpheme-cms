@@ -72,7 +72,7 @@ export default function InlineTable({ items, props, active, col, focus, onChange
       <Tag
         key={c}
         scope={Tag === 'th' ? 'col' : undefined}
-        className={[`mo-block-table__${align[c] ?? 'left'}`, 'inline-table-cell', here && 'inline-table-cell-active']
+        className={[`mo-block-table__${align[c] ?? 'left'}`, 'inline-table-cell', here && 'mo-editor-inline-table-cell-active']
           .filter(Boolean)
           .join(' ')}
       >
@@ -96,9 +96,9 @@ export default function InlineTable({ items, props, active, col, focus, onChange
   );
   const all = Array.from({ length: rows.length }, (_, r) => r);
   return (
-    <div ref={root} className="inline-list-host inline-table-host">
+    <div ref={root} className="inline-list-host mo-editor-inline-table-host">
       <div
-        className={[cardClass('outlined'), 'mo-block-table', 'mo-block-table__grid', 'inline-table-box'].join(' ')}
+        className={[cardClass('outlined'), 'mo-block-table', 'mo-block-table__grid', 'mo-editor-inline-table-box'].join(' ')}
         role="region"
         aria-label={t.blocks.table.label}
         data-striped={props.striped === true || undefined}

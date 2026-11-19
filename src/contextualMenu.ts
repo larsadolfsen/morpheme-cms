@@ -98,7 +98,7 @@ export function contextualMenu(opts: {
   dynamic?: { label: string; on: () => boolean; action: () => void };
 }) {
   const el = document.body.appendChild(document.createElement('div'));
-  el.className = 'contextual-menu';
+  el.className = 'mo-editor-contextual-menu';
   el.setAttribute('role', 'toolbar');
   el.setAttribute('aria-label', opts.name);
   el.hidden = true;
@@ -163,11 +163,11 @@ export function contextualMenu(opts: {
     el.classList.toggle('contextual-menu-docked', opts.compact());
     if (opts.compact()) {
       el.style.left = `${screen.offsetLeft + (screen.width - width) / 2}px`;
-      const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
+      const save = document.querySelector('.mo-editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
       el.style.top = `${Math.min(screen.offsetTop + screen.height, save) - height - 12}px`;
       return;
     }
-    const bar = document.querySelector('.editor-tools')?.getBoundingClientRect().bottom ?? 0;
+    const bar = document.querySelector('.mo-editor-tools')?.getBoundingClientRect().bottom ?? 0;
     el.style.left = `${Math.max(4, Math.min(box.left + box.width / 2 - width / 2, innerWidth - width - 4))}px`;
     el.style.top = `${Math.max(bar + 8, box.top - height - 10)}px`;
     // Out of sight with the block.

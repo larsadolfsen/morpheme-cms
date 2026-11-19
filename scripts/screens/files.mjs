@@ -298,7 +298,7 @@ async function checkFilesPane(width) {
     if (!got.tiles) problems.push(`${label}: the grid is not in view beside the details`);
     // The create button stands beside the open details, not on them.
     const overlap = await page.evaluate(() => {
-      const fab = document.querySelector('.editor-fab');
+      const fab = document.querySelector('.mo-editor-fab');
       const sheet = document.querySelector('aside.side-sheet-container:not([hidden])');
       if (!fab || !sheet) return 'missing';
       const f = fab.getBoundingClientRect();

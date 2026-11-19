@@ -214,21 +214,21 @@ async function checkChevronUnderHoverRow(width) {
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
   await page.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
   await page.locator('.ProseMirror > p').first().click();
-  await page.waitForFunction(() => !document.querySelector('.inline-list-row-active'), null, { timeout: 8000 });
+  await page.waitForFunction(() => !document.querySelector('.mo-editor-inline-list-row-active'), null, { timeout: 8000 });
   const first = page.locator('.inline-list-host details.list-item-expand').first();
   const icon = await first.locator('.list-item-expand-icon').boundingBox();
   await page.mouse.move(icon.x + icon.width / 2, icon.y + icon.height / 2);
   await page.waitForTimeout(500);
   const over = await page.evaluate((i) => {
-    const row = document.querySelector('.site-block-row-hover .site-block-row-inner')?.getBoundingClientRect();
+    const row = document.querySelector('.mo-site-block-row-hover .mo-site-block-row-inner')?.getBoundingClientRect();
     return !!row && row.left < i.x + i.width && row.right > i.x && row.top < i.y + i.height && row.bottom > i.y;
   }, icon);
   if (over) problems.push(`${label}: the hover row lies over the first row's chevron`);
   // The drag handle (in the block's top left corner) takes no pointer while a mouse only points at the block, and nothing of it lies over the chevron.
   const handle = await page.evaluate((i) => {
-    const el = document.querySelector('.ProseMirror .site-block > .site-block-handle');
+    const el = document.querySelector('.ProseMirror .mo-site-block > .mo-site-block-handle');
     const under = document.elementFromPoint(i.x + i.width / 2, i.y + i.height / 2);
-    return { hits: el ? getComputedStyle(el).pointerEvents : 'none', covers: !!under?.closest('.site-block-handle') };
+    return { hits: el ? getComputedStyle(el).pointerEvents : 'none', covers: !!under?.closest('.mo-site-block-handle') };
   }, icon);
   if (handle.hits !== 'none')
     problems.push(`${label}: the drag handle takes the pointer while the block is only pointed at (${handle.hits})`);
@@ -273,7 +273,7 @@ async function checkChevronRows(width) {
   await openEditor(page, site, { [BUILT_PAGE]: src });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
   await page.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
-  const undoOff = () => page.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled();
+  const undoOff = () => page.locator('.mo-editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (const [at, name] of [
     [0, 'List - Expand'],
     [1, 'Questions and answers'],
@@ -281,7 +281,7 @@ async function checkChevronRows(width) {
     // The cursor is out of every block: no row's settings panel narrows the page while a row is tapped.
     await page.locator('.ProseMirror > p').first().click();
     await page.waitForFunction(
-      () => !document.querySelector('.editor-side-sheet, dialog[open]') && !document.querySelector('.inline-list-row-active'),
+      () => !document.querySelector('.mo-editor-side-sheet, dialog[open]') && !document.querySelector('.mo-editor-inline-list-row-active'),
       null,
       { timeout: 8000 },
     );
@@ -390,7 +390,7 @@ async function checkChevronRows(width) {
   await openEditor(fresh, site, { [BUILT_PAGE]: src });
   await fresh.goto(`${site}/editor/#${BUILT_PAGE}`);
   await fresh.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
-  const undoBefore = await fresh.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled();
+  const undoBefore = await fresh.locator('.mo-editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (let h = 0; h < 2; h++) {
     const icon = fresh.locator('.inline-list-host').nth(h).locator('.list-item-expand-icon').nth(1);
     await icon.click();
@@ -398,7 +398,7 @@ async function checkChevronRows(width) {
     await icon.click();
   }
   await fresh.waitForTimeout(300);
-  if ((await fresh.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled()) !== undoBefore)
+  if ((await fresh.locator('.mo-editor-tools button[aria-label="Undo"]').first().isDisabled()) !== undoBefore)
     problems.push(`${label}: folding a row is an edit of the page (Undo changed)`);
   await fresh.close();
   await page.close();
@@ -422,7 +422,8 @@ async function checkListsAndBlocks(width) {
   const tops = () =>
     page.evaluate(() =>
       [...document.querySelector('.ProseMirror').children].map(
-        (c) => c.tagName.toLowerCase() + (c.matches('.site-block, [data-site-block]') || c.querySelector('.site-block') ? ':block' : ''),
+        (c) =>
+          c.tagName.toLowerCase() + (c.matches('.mo-site-block, [data-site-block]') || c.querySelector('.mo-site-block') ? ':block' : ''),
       ),
     );
   if ((await tops()).join() !== 'ul') {
@@ -449,7 +450,7 @@ async function checkListsAndBlocks(width) {
   // A text size picked in a list keeps the list: the text of the item gets the size (a span), and Body medium takes it away.
   await page.locator('.ProseMirror li > p').nth(0).click();
   const pick = async (name) => {
-    const direct = page.locator(`.editor-tools [aria-label="${name}"]:visible`);
+    const direct = page.locator(`.mo-editor-tools [aria-label="${name}"]:visible`);
     if (await direct.count()) await direct.first().click();
     else {
       await openStyleMenu(page);
@@ -468,12 +469,12 @@ async function checkListsAndBlocks(width) {
   await page.keyboard.press('End');
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
-  await page.waitForSelector('.ProseMirror .site-block, .ProseMirror [data-site-block]', { timeout: 8000 }).catch(() => {});
+  await page.waitForSelector('.ProseMirror .mo-site-block, .ProseMirror [data-site-block]', { timeout: 8000 }).catch(() => {});
   const shape = await page.evaluate(() =>
     [...document.querySelector('.ProseMirror').children].map((c) =>
       c.tagName === 'UL'
         ? `ul${c.querySelectorAll(':scope > li').length}`
-        : c.className.includes('site-block') || c.querySelector('.site-block')
+        : c.className.includes('mo-site-block') || c.querySelector('.mo-site-block')
           ? 'block'
           : c.tagName.toLowerCase(),
     ),
@@ -481,7 +482,7 @@ async function checkListsAndBlocks(width) {
   const joined = shape.join();
   if (!/^ul1,block(,p)?,ul\d$/.test(joined))
     problems.push(`${label}: a block inserted in a list item is not at the top level of the page (${joined})`);
-  if (await page.locator('.ProseMirror li .site-block').count()) problems.push(`${label}: a block is drawn inside a list item`);
+  if (await page.locator('.ProseMirror li .mo-site-block').count()) problems.push(`${label}: a block is drawn inside a list item`);
   await page.close();
 }
 
@@ -503,16 +504,16 @@ async function checkLiveList(width, height, { name, hint, items }) {
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
   try {
-    await page.waitForSelector('.site-block-inline [data-field="heading"]', { timeout: 8000 });
+    await page.waitForSelector('.mo-site-block-inline [data-field="heading"]', { timeout: 8000 });
   } catch {
     problems.push(`${label}: the block was not typed in place (no heading field)`);
     return page.close();
   }
   if (await page.locator('dialog[open]').count()) problems.push(`${label}: Insert opened a sheet`);
-  if (!(await page.locator(`.site-block-inline ${items}`).count())) problems.push(`${label}: the block shows none of the demo's items`);
+  if (!(await page.locator(`.mo-site-block-inline ${items}`).count())) problems.push(`${label}: the block shows none of the demo's items`);
   if (name === 'imagegrid') {
     // The filter's chips are drawn in the card and do nothing: a tap on one filters nothing.
-    const chips = page.locator('.site-block-inline [data-imagegrid-filter] [data-tag]');
+    const chips = page.locator('.mo-site-block-inline [data-imagegrid-filter] [data-tag]');
     if (!(await chips.count()) || !(await chips.first().isVisible())) problems.push(`${label}: the filter's chips are not drawn`);
     else if ((await chips.first().evaluate((c) => getComputedStyle(c).pointerEvents)) !== 'none')
       problems.push(`${label}: a chip is not inert`);
@@ -538,9 +539,9 @@ async function checkLiveList(width, height, { name, hint, items }) {
   await page.waitForTimeout(300);
   const drawn = await page.evaluate(
     (sel) => ({
-      field: !!document.querySelector('.site-block-inline [data-field="heading"]'),
-      heading: document.querySelector('.site-block-inline h2')?.textContent ?? '',
-      items: document.querySelectorAll(`.site-block-inline ${sel}`).length,
+      field: !!document.querySelector('.mo-site-block-inline [data-field="heading"]'),
+      heading: document.querySelector('.mo-site-block-inline h2')?.textContent ?? '',
+      items: document.querySelectorAll(`.mo-site-block-inline ${sel}`).length,
     }),
     items,
   );
@@ -565,14 +566,14 @@ async function checkDynamicList(width, height) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('Typed row');
   await page.waitForTimeout(300);
   // The block's tools are on the one bar (44 x 44 dp buttons, never scrolling) or in its ⋮ menu (rows of 44 dp).
   const bar = async () => {
     const { bar: buttons, more, names } = await barTools(page);
     const box = await page.evaluate(() => {
-      const el = document.querySelector('.editor-tools');
+      const el = document.querySelector('.mo-editor-tools');
       return { scrolls: el.scrollWidth > el.clientWidth + 2 };
     });
     return {
@@ -586,7 +587,7 @@ async function checkDynamicList(width, height) {
   if (!typed.inside) problems.push(`${label}: the toolbar reaches outside the screen`);
   if (typed.small) problems.push(`${label}: a toolbar button is under 44 dp`);
   await pressTool(page, 'Fill from a list');
-  const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
+  const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Rows from' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
   await panel.locator('button.text-field-input').first().click();
   await page.getByText('Testimonials', { exact: true }).locator('visible=true').last().click();
@@ -594,7 +595,7 @@ async function checkDynamicList(width, height) {
   // A phone's bottom sheet covers the block: closed, the block shows its state (the side panel on a computer stays open).
   if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
   await page.waitForTimeout(400);
-  const text = await page.locator('.site-block-preview').first().textContent();
+  const text = await page.locator('.mo-site-block-preview').first().textContent();
   if (!/From Testimonials · \d+ items?/.test(text ?? ''))
     problems.push(`${label}: no state line "From Testimonials · n items" (${text?.slice(0, 80)})`);
   if (!(await page.getByRole('button', { name: 'Edit list' }).count())) problems.push(`${label}: no "Edit list" button`);
@@ -603,7 +604,7 @@ async function checkDynamicList(width, height) {
   const dynamic = await bar();
   if (dynamic.labels.some((l) => /^Add (above|below)$/.test(l ?? ''))) problems.push(`${label}: a dynamic list has Add above or Add below`);
   if (!dynamic.inside) problems.push(`${label}: the dynamic toolbar reaches outside the screen`);
-  await page.locator('.site-block-preview button', { hasText: 'Undo' }).click();
+  await page.locator('.mo-site-block-preview button', { hasText: 'Undo' }).click();
   await page.waitForTimeout(400);
   if (!(await page.locator('.inline-list-row[data-row]').count())) problems.push(`${label}: Undo did not bring the typed rows back`);
   await page.close();
@@ -624,25 +625,25 @@ async function checkDynamicPicker(width, height) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await pressTool(page, 'Fill from a list');
-  const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
+  const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Rows from' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
   await panel.locator('button.text-field-input').first().click();
   await page.getByText('Highlights', { exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(500);
   if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
   await page.waitForTimeout(400);
-  const block = page.locator('.site-block-preview').first();
+  const block = page.locator('.mo-site-block-preview').first();
   const lines = () => block.locator('.list-item-supporting').allTextContents();
-  const buttons = () => block.locator('.inline-list-parts button').allTextContents();
+  const buttons = () => block.locator('.mo-editor-inline-list-parts button').allTextContents();
   if ((await block.locator('.list-item-headline').count()) !== 3)
     problems.push(`${label}: the block does not show the 3 items of the list`);
   const before = await buttons();
   if (before.join('|') !== 'Label text: Title|Supporting text: Body text|Icon: Icon|Link: Link')
     problems.push(`${label}: the part buttons are "${before.join('|')}", not the list's own fields`);
-  await block.locator('.inline-list-parts button', { hasText: 'Supporting text' }).click();
-  const choice = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
+  await block.locator('.mo-editor-inline-list-parts button', { hasText: 'Supporting text' }).click();
+  const choice = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Field shown' }).first();
   await choice.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the choice of fields did not open`));
   await choice.locator('button.text-field-input').first().click();
   await page.getByText('Title', { exact: true }).locator('visible=true').last().click();
@@ -657,7 +658,7 @@ async function checkDynamicPicker(width, height) {
   // A tap on the row's own bottom line opens the same choice.
   await block.locator('.list-item-supporting').first().click();
   await page
-    .locator('dialog[open], .editor-side-sheet')
+    .locator('dialog[open], .mo-editor-side-sheet')
     .filter({ hasText: 'Field shown' })
     .first()
     .waitFor({ timeout: 5000 })
@@ -689,7 +690,7 @@ async function checkListMenuOpens(width, height, touch) {
   else if (!touch && width >= 600) {
     // The menu is a popover at its button (CSS anchor positioning): on the screen, 8 dp or more from every edge, and touching the button's column.
     const at = await page.evaluate(() => {
-      const menu = document.querySelector('.editor-menu');
+      const menu = document.querySelector('.mo-editor-menu');
       const button = [...document.querySelectorAll('button[aria-label="List menu"]')].find((b) => b.getClientRects().length);
       if (!menu || !button) return null;
       const m = menu.getBoundingClientRect();
@@ -717,7 +718,7 @@ const ownListState = async (page) => {
     const seen = await page.evaluate(() => ({
       hash: location.hash,
       dialogs: [...document.querySelectorAll('dialog[open]')].map((d) => d.textContent.slice(0, 40)),
-      sideSheets: [...document.querySelectorAll('.editor-side-sheet')].map((e) => ({
+      sideSheets: [...document.querySelectorAll('.mo-editor-side-sheet')].map((e) => ({
         visible: e.checkVisibility(),
         text: e.textContent.slice(0, 40),
       })),
@@ -795,7 +796,7 @@ async function checkOwnList(width, height) {
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
     // From 600 dp it is the pane beside the page, below it the sheet (a dialog).
-    const sheet = (phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet').locator('visible=true')).filter({
+    const sheet = (phone ? page.locator('dialog[open]') : page.locator('.mo-editor-side-sheet').locator('visible=true')).filter({
       hasText: 'Fields',
     });
     await sheet
@@ -853,7 +854,7 @@ async function checkOwnList(width, height) {
     if (commits.length) problems.push(`${label}: Discard committed (${commits.length} commits)`);
     await removeBody();
     await sheet.locator('[aria-label="Close"]').first().click();
-    await page.locator('.editor-save-bar').getByRole('button', { name: /^Save/ }).click();
+    await page.locator('.mo-editor-save-bar').getByRole('button', { name: /^Save/ }).click();
     await page
       .getByRole('button', { name: 'Cancel' })
       .click({ timeout: 3000 })
@@ -903,14 +904,14 @@ async function checkNewList(width, height, label) {
     await button.click();
     const dialog = phone
       ? page.locator('dialog[open][aria-label="New list"]')
-      : page.locator('.editor-side-sheet').locator('visible=true').filter({ hasText: 'New list' });
+      : page.locator('.mo-editor-side-sheet').locator('visible=true').filter({ hasText: 'New list' });
     await dialog.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: New list did not open its dialog`));
     if ((await dialog.locator('input[type="checkbox"]').count()) !== 0) problems.push(`${label}: the dialog still has field switches`);
     const state = await page.evaluate(() => {
       const d =
         innerWidth < 600
           ? document.querySelector('dialog[open]')
-          : [...document.querySelectorAll('.editor-side-sheet')].find((x) => x.getClientRects().length > 0);
+          : [...document.querySelectorAll('.mo-editor-side-sheet')].find((x) => x.getClientRects().length > 0);
       const kind = (name) =>
         d.querySelector(`button:is([type="button"],[type="submit"])`) &&
         [...d.querySelectorAll('button')].find((b) => b.textContent.trim() === name);
@@ -965,7 +966,7 @@ async function checkNewList(width, height, label) {
     await pick(0);
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const edit = (phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet').locator('visible=true')).filter({
+    const edit = (phone ? page.locator('dialog[open]') : page.locator('.mo-editor-side-sheet').locator('visible=true')).filter({
       hasText: 'Fields',
     });
     await edit.getByRole('button', { name: 'Add field' }).click();
@@ -989,7 +990,7 @@ async function checkNewList(width, height, label) {
     if (await page.evaluate(() => location.hash !== '#list/zz-fresh-list')) problems.push(`${label}: Esc did not stay on the unsaved list`);
     // The Save: exactly one commit, with the list and both fields.
     const save = async () => {
-      await page.locator('.editor-save-bar').getByRole('button', { name: /^Save/ }).click();
+      await page.locator('.mo-editor-save-bar').getByRole('button', { name: /^Save/ }).click();
       // The first Save asks whether to send notifications.
       await page
         .getByRole('button', { name: 'Cancel' })
@@ -998,7 +999,7 @@ async function checkNewList(width, height, label) {
     };
     await save();
     await page
-      .waitForFunction(() => !document.querySelector('.editor-save-bar button'), null, { timeout: 15000 })
+      .waitForFunction(() => !document.querySelector('.mo-editor-save-bar button'), null, { timeout: 15000 })
       .catch(() => problems.push(`${label}: the save bar did not go after Save`));
     if (commits.length !== 1) problems.push(`${label}: the Save made ${commits.length} commits, not one`);
     const made = commits[0]?.changes.find((x) => x.path.endsWith('_list.json'));
@@ -1048,10 +1049,10 @@ async function checkNewList(width, height, label) {
     await page.waitForTimeout(300);
     await pressInsert(page, 'click');
     await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-    await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+    await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
     await page.keyboard.type('Typed row');
     await pressTool(page, 'Fill from a list');
-    const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
+    const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Rows from' }).first();
     await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
     await panel.locator('button.text-field-input').first().click();
     await page
@@ -1075,11 +1076,13 @@ async function checkNewList(width, height, label) {
     await part('Supporting text')
       .waitFor({ timeout: 8000 })
       .catch(() => problems.push(`${label}: the picked list shows no Supporting text part`));
-    const parts = await page.evaluate(() => [...document.querySelectorAll('.inline-list-parts button')].map((b) => b.textContent.trim()));
+    const parts = await page.evaluate(() =>
+      [...document.querySelectorAll('.mo-editor-inline-list-parts button')].map((b) => b.textContent.trim()),
+    );
     if (parts[0] !== 'Label text: Body text' || parts[1] !== 'Supporting text: Body text 2')
       problems.push(`${label}: the parts do not name the list's fields (${parts})`);
     await part('Supporting text').click();
-    const field = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
+    const field = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Field shown' }).first();
     await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Supporting text choice did not open`));
     await field.locator('button.text-field-input').first().click();
     const offered = await page.evaluate(() => {
@@ -1102,7 +1105,7 @@ async function checkNewList(width, height, label) {
     const before = commits.length;
     await page.getByRole('button', { name: 'List menu' }).first().click();
     await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
-    const again = (phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet').locator('visible=true')).filter({
+    const again = (phone ? page.locator('dialog[open]') : page.locator('.mo-editor-side-sheet').locator('visible=true')).filter({
       hasText: 'Fields',
     });
     await again.getByRole('button', { name: 'Add field' }).click();

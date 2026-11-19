@@ -60,7 +60,7 @@ export function InlineField({
     <textarea
       rows={1}
       data-field={name}
-      className="inline-list-field"
+      className="mo-editor-inline-list-field"
       value={value}
       aria-label={label}
       placeholder={placeholder}
@@ -154,7 +154,7 @@ export function foldOf(i: number, here: boolean, folds?: Record<number, boolean>
 /** The text button under the last item (`Add card`), shown while the block is active and has an item. */
 export function InlineAdd({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <SiteButton kind="text" data-add-row="" className="inline-list-add" onClick={onClick}>
+    <SiteButton kind="text" data-add-row="" className="mo-editor-inline-list-add" onClick={onClick}>
       {label}
     </SiteButton>
   );

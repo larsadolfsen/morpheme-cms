@@ -18,7 +18,12 @@ export default function Inline({ items, active, focus, onChange }: InlineViewPro
           data-row={i}
           aria-current={here ? 'true' : undefined}
           aria-label={next ? 'New ticket' : `Ticket ${i + 1} of ${items.length}`}
-          className={['block-tickets-row', 'inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next']
+          className={[
+            'block-tickets-row',
+            'inline-list-row',
+            here && 'mo-editor-inline-list-row-active',
+            next && 'mo-editor-inline-list-row-next',
+          ]
             .filter(Boolean)
             .join(' ')}
         >

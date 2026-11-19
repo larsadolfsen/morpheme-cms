@@ -787,8 +787,8 @@ async function checkNoContextMenu(width) {
   await check('the text', '.ProseMirror p');
   await pressInsert(page, touch ? 'tap' : 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active', { timeout: 8000 });
-  await check('a row of a List', '.inline-list-row-active');
+  await page.waitForSelector('.mo-editor-inline-list-row-active', { timeout: 8000 });
+  await check('a row of a List', '.mo-editor-inline-list-row-active');
   await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(200);
@@ -797,8 +797,8 @@ async function checkNoContextMenu(width) {
   await page.keyboard.press('Enter');
   await pressInsert(page, touch ? 'tap' : 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
-  await page.waitForSelector('.inline-table-cell-active textarea', { timeout: 8000 });
-  await check('a table cell', '.inline-table-cell-active textarea');
+  await page.waitForSelector('.mo-editor-inline-table-cell-active textarea', { timeout: 8000 });
+  await check('a table cell', '.mo-editor-inline-table-cell-active textarea');
   await page.close();
 }
 
@@ -816,9 +816,9 @@ async function checkIconSearch(width, height) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
-  await page.locator('.inline-list-row-active .inline-list-slot').first().tap();
+  await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot').first().tap();
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
   const first = await picker.getByRole('button').count();
@@ -878,7 +878,7 @@ async function checkIconSearch(width, height) {
   await hit.tap().catch(() => {});
   await page.waitForTimeout(500);
   const drawn = await page.evaluate(() =>
-    document.querySelector('.inline-list-row-active .inline-list-slot svg')?.getAttribute('data-icon-fallback'),
+    document.querySelector('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot svg')?.getAttribute('data-icon-fallback'),
   );
   if (drawn !== 'arrow_back') problems.push(`${label}: the picked icon is "${drawn}" in the row, not arrow_back`);
   await page.close();

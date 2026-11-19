@@ -39,7 +39,7 @@ export default function InlineLiveList({
         >
           {here ? (
             <InProse>
-              <hgroup className="mo-block-head inline-live-head inline-list-row-active">
+              <hgroup className="mo-block-head inline-live-head mo-editor-inline-list-row-active">
                 <h2>{field('heading', t.blocks.heading, t.blocks.heading)}</h2>
                 <p className="mo-block-head__subheading">{field('intro', t.blocks.subheading, t.blocks.subheading)}</p>
               </hgroup>

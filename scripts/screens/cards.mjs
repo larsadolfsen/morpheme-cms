@@ -21,9 +21,9 @@ async function checkImageGridAdd(width, height) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Images from Files, filtered by tag.' }).first().click();
-  await page.waitForSelector('.site-block-inline [data-field="heading"]', { timeout: 8000 });
-  await page.waitForSelector('.site-block-inline .mo-block-imagegrid__grid li', { timeout: 8000 });
-  const before = await page.locator('.site-block-inline .mo-block-imagegrid__grid li').count();
+  await page.waitForSelector('.mo-site-block-inline [data-field="heading"]', { timeout: 8000 });
+  await page.waitForSelector('.mo-site-block-inline .mo-block-imagegrid__grid li', { timeout: 8000 });
+  const before = await page.locator('.mo-site-block-inline .mo-block-imagegrid__grid li').count();
   await page.getByRole('button', { name: 'Add images' }).click();
   await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
   if (!(await page.locator('dialog[open]').getByText('Select images').count()))
@@ -38,16 +38,16 @@ async function checkImageGridAdd(width, height) {
   if (!(await add.count())) problems.push(`${label}: no button says it adds 2 images`);
   else await add.click();
   await page.waitForFunction(() => !document.querySelector('dialog[open] [data-media-tile]'), null, { timeout: 8000 });
-  const after = await page.locator('.site-block-inline .mo-block-imagegrid__grid li').count();
+  const after = await page.locator('.mo-site-block-inline .mo-block-imagegrid__grid li').count();
   if (after < 2 || after < before) problems.push(`${label}: the grid shows ${after} images after adding, ${before} before`);
   // A tap on an image: its sheet, with the text of its own; the card draws it.
-  await page.locator('.site-block-inline .mo-block-imagegrid__grid li a[data-image]').first().click();
+  await page.locator('.mo-site-block-inline .mo-block-imagegrid__grid li a[data-image]').first().click();
   const field = page.getByLabel('Alt text').first();
   try {
     await field.waitFor({ timeout: 8000 });
     await field.fill('Typed alt text');
     await page.waitForTimeout(400);
-    const alt = await page.locator('.site-block-inline .mo-block-imagegrid__grid li img').first().getAttribute('alt');
+    const alt = await page.locator('.mo-site-block-inline .mo-block-imagegrid__grid li img').first().getAttribute('alt');
     if (alt !== 'Typed alt text') problems.push(`${label}: the card's image has the alt text "${alt}", not the one typed in its sheet`);
   } catch {
     problems.push(`${label}: a tap on an image did not open its sheet with an alt text field`);
@@ -70,13 +70,13 @@ async function checkCardImage(width, height = 800) {
   await page.waitForTimeout(300);
   await pressInsert(page, phone ? 'tap' : 'click');
   await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('One');
   await page.waitForTimeout(300);
-  await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Image"]').click();
+  await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Image"]').click();
   await page.waitForTimeout(1000);
   await page
-    .locator('dialog[open] button, .editor-side-sheet button', { hasText: /^Select image$/ })
+    .locator('dialog[open] button, .mo-editor-side-sheet button', { hasText: /^Select image$/ })
     .first()
     .click();
   await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
@@ -103,18 +103,18 @@ async function checkCardImage(width, height = 800) {
   // The block's settings have Image aspect ratio (no Original); 1:1 makes every card's image a square, with no crop view opened.
   await page.getByRole('button', { name: 'Block settings' }).first().click();
   await page.waitForTimeout(900);
-  const settings = page.locator('dialog[open], .editor-side-sheet').last();
+  const settings = page.locator('dialog[open], .mo-editor-side-sheet').last();
   if (!(await settings.locator('label', { hasText: /^Image aspect ratio$/ }).count()))
     problems.push(`${label}: the block's settings have no Image aspect ratio`);
-  await page.locator('dialog[open] button, .editor-side-sheet button', { hasText: /^3:2$/ }).first().click();
+  await page.locator('dialog[open] button, .mo-editor-side-sheet button', { hasText: /^3:2$/ }).first().click();
   await page.waitForTimeout(300);
   const offered = await page.evaluate(() =>
-    [...document.querySelectorAll('dialog[open]:last-of-type button, .editor-menu button, [role="listbox"] *')].map((o) =>
+    [...document.querySelectorAll('dialog[open]:last-of-type button, .mo-editor-menu button, [role="listbox"] *')].map((o) =>
       o.textContent.trim(),
     ),
   );
   if (offered.includes('Original')) problems.push(`${label}: Image aspect ratio offers Original`);
-  await page.locator('dialog[open] button, .editor-menu button, [role="listbox"] *', { hasText: /^1:1$/ }).last().click();
+  await page.locator('dialog[open] button, .mo-editor-menu button, [role="listbox"] *', { hasText: /^1:1$/ }).last().click();
   await page.waitForTimeout(400);
   await settings
     .getByRole('button', { name: 'Save', exact: true })
@@ -126,16 +126,17 @@ async function checkCardImage(width, height = 800) {
   // Crop in the bar: the crop view of the block's ratio only, no ratio chips; Save puts the ratio and the crop after the image's address.
   await tap(page.locator('.inline-list-row [data-field="title"]').first());
   await page.waitForTimeout(400);
-  await tap(page.locator('.editor-tools-context button[aria-label="Crop"]').first());
+  await tap(page.locator('.mo-editor-tools-context button[aria-label="Crop"]').first());
   await page
-    .waitForSelector('dialog.crop-page[open]', { timeout: 8000 })
+    .waitForSelector('dialog.mo-editor-crop-page[open]', { timeout: 8000 })
     .catch(() => problems.push(`${label}: Crop did not open the crop page`));
-  if (await page.locator('.crop-view-ratios').count()) problems.push(`${label}: the crop view of a card shows aspect ratio chips`);
+  if (await page.locator('.mo-editor-crop-view-ratios').count())
+    problems.push(`${label}: the crop view of a card shows aspect ratio chips`);
   // Moving the image with the arrow keys (by 2 %) makes a crop of its own.
-  await page.locator('.crop-view-frame').focus();
+  await page.locator('.mo-editor-crop-view-frame').focus();
   for (const key of ['ArrowLeft', 'ArrowLeft', 'ArrowUp', 'ArrowUp']) await page.keyboard.press(key);
   await page
-    .locator('dialog.crop-page button', { hasText: /^Save$/ })
+    .locator('dialog.mo-editor-crop-page button', { hasText: /^Save$/ })
     .click({ timeout: 3000 })
     .catch(() => {});
   await page.waitForTimeout(800);
@@ -940,9 +941,9 @@ async function checkIconColor(width, height, scheme = 'light') {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
-  await page.locator('.inline-list-row-active .inline-list-slot').first().click();
+  await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot').first().click();
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
   // With no icon picked the Icon color row is there (Text chosen, the default), and no tile of the grid is selected, not even the cross of No icon.
@@ -1129,7 +1130,7 @@ async function checkIconColor(width, height, scheme = 'light') {
     probe.style.color = 'var(--mo-sys-color-primary)';
     const primary = getComputedStyle(probe).color;
     probe.remove();
-    return { row: !!row, icon: row ? getComputedStyle(row.querySelector('.inline-list-slot')).color : null, want, primary };
+    return { row: !!row, icon: row ? getComputedStyle(row.querySelector('.mo-editor-inline-list-slot')).color : null, want, primary };
   });
   if (!drawn.row) problems.push(`${label}: the row has no data-icon-color="secondary" after Secondary was picked`);
   else if (drawn.icon !== drawn.want) problems.push(`${label}: the icon is ${drawn.icon}, not the secondary color ${drawn.want}`);

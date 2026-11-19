@@ -153,7 +153,9 @@ export default function InlineList({
                 'data-row': i,
                 'aria-current': here ? 'true' : undefined,
                 'aria-label': next ? t.blocks.list.newRow : t.blocks.list.rowOf(i + 1, items.length),
-                className: ['inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next'].filter(Boolean).join(' '),
+                className: ['inline-list-row', here && 'mo-editor-inline-list-row-active', next && 'mo-editor-inline-list-row-next']
+                  .filter(Boolean)
+                  .join(' '),
               }}
               {...open.summary}
               {...leadFor(r, here, i)}
@@ -170,7 +172,9 @@ export default function InlineList({
             data-row={i}
             aria-current={here ? 'true' : undefined}
             aria-label={next ? t.blocks.list.newRow : t.blocks.list.rowOf(i + 1, items.length)}
-            className={['inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next'].filter(Boolean).join(' ')}
+            className={['inline-list-row', here && 'mo-editor-inline-list-row-active', next && 'mo-editor-inline-list-row-next']
+              .filter(Boolean)
+              .join(' ')}
             {...leadFor(r, here, i)}
             data-icon-color={r.icon ? iconColorOf(r.iconColor) : undefined}
             headline={field('title', t.blocks.list.title, next ? t.blocks.list.newRow : t.blocks.list.title)}
@@ -179,7 +183,7 @@ export default function InlineList({
                 <>
                   {twoLines && field('text', t.blocks.list.text, t.blocks.list.text)}
                   {here && (show.image || show.tags) && (
-                    <span className="inline-card-slots">
+                    <span className="mo-editor-inline-card-slots">
                       {show.image && (
                         <InlineSlot label={t.ownList.image} onClick={() => onImage?.(i)}>
                           {r.image ? <ImageSquare size={24} weight="fill" /> : <ImageSquare size={24} />}
@@ -246,9 +250,9 @@ export function RowsFromList({
   };
   return (
     <div className="inline-list-host">
-      <p className="inline-list-from">{empty ? `${line}. ${t.blocks.rows.empty}` : line}</p>
+      <p className="mo-editor-inline-list-from">{empty ? `${line}. ${t.blocks.rows.empty}` : line}</p>
       {undo && (
-        <p className="inline-list-from">
+        <p className="mo-editor-inline-list-from">
           {undo.note}{' '}
           <SiteButton kind="text" className="inline-list-edit" onClick={undo.run}>
             {undo.label}
@@ -261,7 +265,7 @@ export function RowsFromList({
         </SiteButton>
       )}
       {parts && onPart && (
-        <div className="inline-list-parts" role="group" aria-label={t.blocks.rows.fieldShown}>
+        <div className="mo-editor-inline-list-parts" role="group" aria-label={t.blocks.rows.fieldShown}>
           {parts.map((p) => (
             <SiteButton key={p.part} kind="text" className="inline-list-edit" onClick={() => onPart(p.part)}>
               {p.text}

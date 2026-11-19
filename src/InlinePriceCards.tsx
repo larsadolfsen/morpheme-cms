@@ -70,7 +70,7 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
         max={maxCards}
         onChange={onChange}
         wrap={(list) => (
-          <div className="mo-block-pricecards__plans inline-plans">
+          <div className="mo-block-pricecards__plans mo-editor-inline-plans">
             <ul className={`mo-block-pricecards__plans-list mo-block-pricecards__plans-${Math.max(1, items.length)}`}>{list}</ul>
           </div>
         )}
@@ -89,8 +89,8 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
               className={[
                 card.featured === true ? 'mo-block-pricecards__plan mo-is-featured' : 'mo-block-pricecards__plan',
                 'inline-list-row',
-                here && 'inline-list-row-active',
-                next && 'inline-list-row-next',
+                here && 'mo-editor-inline-list-row-active',
+                next && 'mo-editor-inline-list-row-next',
               ]
                 .filter(Boolean)
                 .join(' ')}
@@ -103,7 +103,7 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
               </p>
               <div className="mo-block-pricecards__plan-text">{field('text', texts.text, texts.text)}</div>
               {(list.length > 0 || here) && (
-                <List dividers="none" className="mo-block-checklist mo-block-pricecards__plan-features inline-plan-features">
+                <List dividers="none" className="mo-block-checklist mo-block-pricecards__plan-features mo-editor-inline-plan-features">
                   {list.map((text, j) => (
                     <ListItem
                       key={j}
@@ -132,7 +132,7 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
                 <SiteButton
                   kind="text"
                   data-add-feature=""
-                  className="inline-list-add"
+                  className="mo-editor-inline-list-add"
                   onClick={() => setFeatures(i, [...list, ''], `f${list.length}`)}
                 >
                   {texts.addFeature}
@@ -140,7 +140,11 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
               )}
               {(button || (here && !next)) && (
                 <div className="mo-block-buttons mo-block-pricecards__plan-buttons">
-                  <span className={[buttonClass(view?.kind), 'inline-button', !button && 'inline-button-faded'].filter(Boolean).join(' ')}>
+                  <span
+                    className={[buttonClass(view?.kind), 'mo-editor-inline-button', !button && 'mo-editor-inline-button-faded']
+                      .filter(Boolean)
+                      .join(' ')}
+                  >
                     {view?.icon && view.icon !== 'arrow-right' && <Glyph icon={view.icon} size={20} />}
                     <InlineField
                       name="button"

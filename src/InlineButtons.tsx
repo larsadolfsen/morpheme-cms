@@ -22,14 +22,14 @@ export default function InlineButtons({ items, data, active, focus, onChange, on
       fields={['label']}
       add={t.blocks.buttons.addButton}
       onChange={onChange}
-      wrap={(list) => <div className="mo-block-buttons inline-buttons">{list}</div>}
+      wrap={(list) => <div className="mo-block-buttons mo-editor-inline-buttons">{list}</div>}
       renderItem={({ item, index: i, here, next, editing, field }) => {
         // No buttons of its own and not being typed in: the default buttons as the site draws them; a tap starts the first own one.
         if (next && !editing && shared.length > 0)
           return (
             <div
               key={i}
-              className="inline-buttons-shared"
+              className="mo-editor-inline-buttons-shared"
               onClick={() => onChange({ items: [{ label: '' }], active: 0, focus: { row: 0, field: 'label' } })}
             >
               <Buttons buttons={shared} />
@@ -46,9 +46,9 @@ export default function InlineButtons({ items, data, active, focus, onChange, on
             className={[
               buttonClass(b?.kind),
               'inline-list-row',
-              'inline-button',
-              here && 'inline-list-row-active',
-              next && 'inline-list-row-next',
+              'mo-editor-inline-button',
+              here && 'mo-editor-inline-list-row-active',
+              next && 'mo-editor-inline-list-row-next',
             ]
               .filter(Boolean)
               .join(' ')}

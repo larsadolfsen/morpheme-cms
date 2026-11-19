@@ -150,7 +150,7 @@ Read 14 Nov 2026 on m3.material.io (Playwright, page text): `/components/dialogs
 
 ## The text bar
 
-Source: `src/editor.css` (`.editor-text-box`), `src/textBar.mjs`, `src/MarkdownEditor.tsx`. The bar is the editor workspace, so a deviation is allowed.
+Source: `src/editor.css` (`.mo-editor-text-box`), `src/textBar.mjs`, `src/MarkdownEditor.tsx`. The bar is the editor workspace, so a deviation is allowed.
 
 ### The text's box is 10.5 dp from the screen's edges on a phone
 
@@ -181,7 +181,7 @@ Read 13 Nov 2026 on m3.material.io (Playwright): `/foundations/interaction/selec
 
 ## The block's action row
 
-Source: `src/blockRow.ts`, `src/editor.css` (`.site-block-row`), `src/blockBar.ts` (`splitRow`). The block's own actions are the editor workspace, so a deviation is allowed. Read 14 Nov 2026 on m3.material.io (Playwright): `/components/icon-buttons/guidelines` and `/accessibility`.
+Source: `src/blockRow.ts`, `src/editor.css` (`.mo-site-block-row`), `src/blockBar.ts` (`splitRow`). The block's own actions are the editor workspace, so a deviation is allowed. Read 14 Nov 2026 on m3.material.io (Playwright): `/components/icon-buttons/guidelines` and `/accessibility`.
 
 ### The active block has a row of its own actions above its top item
 
@@ -242,7 +242,7 @@ Source: `docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-des
 
 ## The crop view
 
-Source: `src/CropView.tsx`, `src/editor.css` (`.crop-page`). Spec: `docs/superpowers/specs/2026-11-14-image-tools-design.md` (section 3). Read 14 Nov 2026 on m3.material.io (Playwright): `/components/dialogs/guidelines`, `/specs` and `/accessibility`, `/components/sliders/guidelines` and `/accessibility`, `/components/toolbars/guidelines`. The dialogs' and sliders' token tables stay collapsed in a text read, so no token value is quoted.
+Source: `src/CropView.tsx`, `src/editor.css` (`.mo-editor-crop-page`). Spec: `docs/superpowers/specs/2026-11-14-image-tools-design.md` (section 3). Read 14 Nov 2026 on m3.material.io (Playwright): `/components/dialogs/guidelines`, `/specs` and `/accessibility`, `/components/sliders/guidelines` and `/accessibility`, `/components/toolbars/guidelines`. The dialogs' and sliders' token tables stay collapsed in a text read, so no token value is quoted.
 
 ### C1. The crop view is a page of the editor on every width, not a dialog
 
@@ -253,7 +253,7 @@ Source: `src/CropView.tsx`, `src/editor.css` (`.crop-page`). Spec: `docs/superpo
 
 ## The FAB above the footer
 
-Source: `src/fabPresence.tsx` (`useFabLift`), `src/Screen.tsx`, `src/editor.css` (`.editor-fab`). Read 15 Nov 2026 on m3.material.io (Playwright, `document.body.innerText`, collapsed sections opened): `/components/floating-action-button/overview`, `/specs`, `/guidelines` and `/accessibility`. The specs print the container (56dp by 56dp) and no margin to the window's edge or to other parts, so the 16 dp margin is the one the editor already used, not M3's.
+Source: `src/fabPresence.tsx` (`useFabLift`), `src/Screen.tsx`, `src/editor.css` (`.mo-editor-fab`). Read 15 Nov 2026 on m3.material.io (Playwright, `document.body.innerText`, collapsed sections opened): `/components/floating-action-button/overview`, `/specs`, `/guidelines` and `/accessibility`. The specs print the container (56dp by 56dp) and no margin to the window's edge or to other parts, so the 16 dp margin is the one the editor already used, not M3's.
 
 ### F1. The FAB moves up while the footer is in the window
 
@@ -271,7 +271,7 @@ Source: `src/fabPresence.tsx` (`useFabLift`), `src/Screen.tsx`, `src/editor.css`
 
 ## A block's sheet on a phone
 
-Source: `src/BlockDialog.tsx` (the `subpage` look), `src/sheetPlacement.mjs`, `src/editor.css` (`.crop-page`, `.block-page`). Spec: `docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md` (4.2). Read 15 Nov 2026 on m3.material.io (Playwright): `/foundations/layout/canonical-examples/list-detail`, `/components/app-bars/guidelines`, `/specs` and `/accessibility`, `/components/dialogs/guidelines`, `/components/toolbars/overview` and `/guidelines`.
+Source: `src/BlockDialog.tsx` (the `subpage` look), `src/sheetPlacement.mjs`, `src/editor.css` (`.mo-editor-crop-page`, `.mo-editor-block-page`). Spec: `docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md` (4.2). Read 15 Nov 2026 on m3.material.io (Playwright): `/foundations/layout/canonical-examples/list-detail`, `/components/app-bars/guidelines`, `/specs` and `/accessibility`, `/components/dialogs/guidelines`, `/components/toolbars/overview` and `/guidelines`.
 
 ### B1. A block's fields on a phone are a subpage with Save in the standard bottom sheet
 
@@ -509,7 +509,7 @@ Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `the
 ### N6. The editor's drawers keep one width
 
 - **Material:** "Nav rail expanded container width minimum 220dp", "maximum 360dp" (it hugs its content).
-- **We do:** the editor's drawers (`.editor-main-drawer-panel`, `src/editor.css`) keep 360dp (at most the screen less 56dp) through their levels and sections, because the layout beside them counts on that width (`--mo-sys-section-pane-width`, the columns). Editor workspace only. **Date:** 2026-11-15.
+- **We do:** the editor's drawers (`.mo-editor-main-drawer-panel`, `src/editor.css`) keep 360dp (at most the screen less 56dp) through their levels and sections, because the layout beside them counts on that width (`--mo-sys-section-pane-width`, the columns). Editor workspace only. **Date:** 2026-11-15.
 
 ### N7. Values only the Specs images carry are left as they were
 

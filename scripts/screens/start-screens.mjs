@@ -228,11 +228,11 @@ async function checkSettingsAndMenu(width, height) {
   // The drawer's first level (in the page at both widths: the standard drawer, or the modal one, shut): no link to the moved screens.
   await go('');
   const drawerLinks = await page.evaluate(() =>
-    [...document.querySelectorAll('.editor-main-drawer-panel nav a[href^="#"]')].map((a) => a.getAttribute('href')),
+    [...document.querySelectorAll('.mo-editor-main-drawer-panel nav a[href^="#"]')].map((a) => a.getAttribute('href')),
   );
   for (const m of moved) if (drawerLinks.includes(`#${m}`)) problems.push(`${label} menu: the menu has a link to #${m}`);
 
-  const drawer = '.editor-main-drawer-panel nav';
+  const drawer = '.mo-editor-main-drawer-panel nav';
   if (width >= 1000) {
     // The standard drawer is open: four sections, the start screen and the cog, and the cog last, at the bottom.
     const items = await page.evaluate(shownItems, `${drawer} .navigation-drawer-item`);
@@ -291,12 +291,12 @@ async function checkSettingsAndMenu(width, height) {
   if (width >= 1000) {
     // The collapsed rail: the cog at its bottom, under every other destination.
     await go('');
-    await page.click('.editor-main-drawer-header button');
+    await page.click('.mo-editor-main-drawer-header button');
     await page.waitForTimeout(600);
-    checkCog(label, 'skinnen', await page.evaluate(shownItems, 'nav.editor-main-rail .navigation-rail-item'), height);
+    checkCog(label, 'skinnen', await page.evaluate(shownItems, 'nav.mo-editor-main-rail .navigation-rail-item'), height);
     const railCurrent = (hash) =>
       go(hash).then(() =>
-        page.evaluate(() => document.querySelector('nav.editor-main-rail a[href="#settings"]')?.getAttribute('aria-current')),
+        page.evaluate(() => document.querySelector('nav.mo-editor-main-rail a[href="#settings"]')?.getAttribute('aria-current')),
       );
     if ((await railCurrent('developer/caching')) !== 'page')
       problems.push(`${label} the rail #developer/caching: the cog must be selected`);
@@ -340,7 +340,7 @@ async function checkDashboardEdit(width, height) {
   // "Edit dashboard" is a text button below the last widget, not in the top bar, with its icon before the text.
   const editBox = await edit.first().boundingBox();
   const lastWidgetBottom = await page.evaluate(() => {
-    const main = document.querySelector('main.editor-screen');
+    const main = document.querySelector('main.mo-editor-screen');
     const headings = [...(main?.querySelectorAll('h2, h3') ?? [])];
     return Math.max(0, ...headings.map((h) => h.getBoundingClientRect().bottom));
   });
@@ -454,7 +454,7 @@ async function checkDashboardEdit(width, height) {
   const rhythmSheet =
     width < 600
       ? adding.getByRole('dialog', { name: daDashboard.settingsOf(rhythm), exact: true })
-      : adding.locator('.editor-side-sheet').filter({ hasText: daDashboard.settingsOf(rhythm) });
+      : adding.locator('.mo-editor-side-sheet').filter({ hasText: daDashboard.settingsOf(rhythm) });
   const openRhythm = async () => {
     await adding.getByRole('button', { name: daDashboard.cardMenu(rhythm), exact: true }).click();
     await adding.getByRole('menuitem', { name: daDashboard.settings, exact: true }).click();
@@ -481,7 +481,7 @@ async function checkDashboardEdit(width, height) {
   } catch (e) {
     const shown = await adding
       .evaluate(() => ({
-        sheets: [...document.querySelectorAll('.editor-side-sheet, dialog[open]')].map((n) => ({
+        sheets: [...document.querySelectorAll('.mo-editor-side-sheet, dialog[open]')].map((n) => ({
           visible: n.checkVisibility(),
           text: n.textContent.slice(0, 40),
         })),
@@ -716,7 +716,7 @@ export function register(unit) {
             const tooTall = await page.evaluate(() => {
               const cap = innerHeight / 2 + 1;
               const bad = [];
-              for (const d of document.querySelectorAll('dialog.editor-sheet.bottom-sheet:not(.editor-side-panel)')) {
+              for (const d of document.querySelectorAll('dialog.mo-editor-sheet.bottom-sheet:not(.mo-editor-side-panel)')) {
                 if (d.open) continue;
                 d.showModal();
                 if (d.offsetHeight > cap) bad.push(`${d.getAttribute('aria-label') ?? d.className} (${Math.round(d.offsetHeight)}px)`);

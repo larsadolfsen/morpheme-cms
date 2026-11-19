@@ -160,7 +160,7 @@ async function checkDensityLayout(width, height) {
             last: px(c('last').marginBlockEnd),
           };
         }
-        const screenEl = document.querySelector('.editor-screen');
+        const screenEl = document.querySelector('.mo-editor-screen');
         got.screen.top = screenEl ? px(getComputedStyle(screenEl).paddingTop) : null;
         host.remove();
         root.removeAttribute('data-density');
