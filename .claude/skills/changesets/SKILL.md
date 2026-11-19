@@ -28,9 +28,9 @@ level its base branch does not allow is not merged; fix the changeset.
 | :--- | :--- | :--- | :--- |
 | `main` | `patch` or empty until 0.18.1 is released; then the merge of `feature/tailwind` adds one `minor` (it is 0.19.0, owner, 19 Nov 2026), and from 0.19 the first feature of a line `minor`, every other feature and fix `patch` (`docs/superpowers/plans/2026-11-18-release-per-feature.md`) | the next release | — |
 | `0.17` | — | there is no `0.17` branch: the 0.17 work merges into `main` | — |
-| `0.18` | `patch` or empty only (CTO ruling, 18 Nov 2026: the next release is the fixes release 0.18.1) | the 0.18 work, the editor (`docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`) | `main` after each merge into `main` until 0.17 is released; then `main` after each release |
-| `0.19` | `minor`, `patch` or empty | the 0.19 work, Lists and data (`docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`); cut from `0.18` on 14 Nov 2026, and never merged into `0.18` or `main` until 0.17 and 0.18 are released and the owner says go | `0.18` after each merge into `0.18` |
-| `0.20` and later | — | 0.20 and later lines follow the roadmap and are cut from the previous line's branch when their work starts | — |
+| `0.18` | — | finished (owner, 19 Nov 2026): 0.18.1 is released and nothing goes into `0.18` any more | — |
+| `0.19` | — | there is no `0.19` branch: from 0.19 a feature is `feature/<name>` from `main` (`docs/superpowers/plans/2026-11-18-release-per-feature.md`) | — |
+| `feature/<name>` | `patch` or empty, plus the one `minor` of a line's first feature, added just before the feature goes into `main` | the pieces of one feature | `main` after each merge into `main` and after each release |
 
 **A line's level is kept by a check, not by care.** `scripts/release-lines.json` is the one place that says which lines have a fixed next release and the highest level
 each allows (`allow`) and the version series its releases stay in (`series`); a new line is one edit there, and this table is updated with it. A line whose
@@ -39,9 +39,7 @@ next version is to stay a patch release allows only `patch`. `scripts/release-li
 are not checked; the message names the file and the allowed level), and (b) a carry into `main` (`merge-<line>-into-main-<N>`) whose changesets compute a version outside the line's
 series (for `0.18`: `0.18.x`, never `0.19.0`). Raising a line's level is the owner's decision and an edit of `release-lines.json`.
 
-A version line's branch is never merged back the other way except as its release (the `pm` skill, *Two version lines at
-the same time*). Only `main` has a Release PR and builds `latest`; every merge to `main` stages a `next` build, which the owner approves on npmjs.com. A merge into a
-version line's branch stages nothing: line work reaches npm only as `next`, when it reaches `main` (`publish.yml`).
+A feature branch is never merged into another feature branch; it goes into `main` once (the `pm` skill, *The way of a change*). Only `main` has a Release PR and builds `latest`; every merge to `main` stages a `next` build, which the owner approves on npmjs.com and `morpheme-staging` builds. A merge into a feature branch stages nothing (`publish.yml`).
 
 ## What happens to the changesets
 
