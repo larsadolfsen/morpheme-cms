@@ -188,7 +188,7 @@ export default function Parts({ env }: { env: Env }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const fieldsDialog = useRef<HTMLDialogElement>(null);
   const pageDialog = useRef<HTMLDialogElement>(null);
-  const row = 'mo-editor-parts-row';
+  const row = 'mo-editor-settings-parts-row';
   const page = useMemo(() => exampleData().relations.pages[1].value, []);
 
   return (

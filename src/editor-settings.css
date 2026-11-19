@@ -109,6 +109,8 @@
       .mo-editor-section,
       .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
@@ -145,10 +147,6 @@
     padding-block-end: var(--mo-ref-space-100);
   }
 
-  .mo-editor-block {
-    display: block;
-  }
-
   .mo-editor-block-label {
     margin-block-end: var(--mo-ref-space-100);
     font-weight: 500;
@@ -161,12 +159,6 @@
 
   .mo-editor-byline-lines {
     line-height: 1.375;
-  }
-
-  .mo-editor-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--mo-ref-space-100);
   }
 
   .mo-editor-code-box {
@@ -234,10 +226,6 @@
     border-style: solid;
     border-width: 1.5px;
     border-color: currentcolor;
-  }
-
-  .mo-editor-dashboard-grid {
-    --mo-comp-grid-columns: 2;
   }
 
   .mo-editor-field-title {
@@ -322,6 +310,8 @@
       .mo-editor-section,
       .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
@@ -404,6 +394,8 @@
       .mo-editor-section,
       .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
@@ -481,6 +473,8 @@
       .mo-editor-section,
       .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
@@ -558,6 +552,8 @@
       .mo-editor-section,
       .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
@@ -635,6 +631,8 @@
       .mo-editor-section,
       .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
@@ -652,10 +650,6 @@
   .mo-editor-grab {
     cursor: grab;
     touch-action: none;
-  }
-
-  .mo-editor-group {
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
 
   .mo-editor-group-inset {
@@ -716,16 +710,6 @@
     display: inline-flex;
   }
 
-  .mo-editor-inline-row {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--mo-ref-space-150);
-  }
-
-  .mo-editor-inset {
-    padding-inline: var(--mo-ref-space-200);
-  }
-
   .mo-editor-intro {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
     color: var(--mo-sys-color-on-surface-variant);
@@ -781,10 +765,6 @@
     display: flex;
     justify-content: flex-end;
     padding-block-start: 13rem;
-  }
-
-  .mo-editor-muted {
-    color: var(--mo-sys-color-on-surface-variant);
   }
 
   .mo-editor-narrow-sample {
@@ -872,6 +852,8 @@
       .mo-editor-section,
       .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
@@ -967,6 +949,8 @@
       .mo-editor-section,
       .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
@@ -1059,6 +1043,8 @@
       .mo-editor-section,
       .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
@@ -1162,6 +1148,8 @@
       .mo-editor-section,
       .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
@@ -1174,19 +1162,6 @@
       .mo-editor-version-nav
     ) {
     margin-block-end: var(--mo-comp-editor-rhythm-500);
-  }
-
-  .mo-editor-parts-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--mo-ref-space-500);
-  }
-
-  .mo-editor-parts-row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--mo-ref-space-150);
   }
 
   .mo-editor-picker-box {
@@ -1282,6 +1257,8 @@
       .mo-editor-section,
       .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
@@ -1414,6 +1391,8 @@
       .mo-editor-section,
       .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
@@ -1494,6 +1473,8 @@
       .mo-editor-section,
       .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
@@ -1512,8 +1493,67 @@
     scroll-margin-block-start: 6rem;
   }
 
-  .mo-editor-section {
+  .mo-editor-settings-block {
+    display: block;
+  }
+
+  .mo-editor-settings-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mo-ref-space-100);
+  }
+
+  .mo-editor-settings-dashboard-grid {
+    --mo-comp-grid-columns: 2;
+  }
+
+  .mo-editor-settings-group {
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+  }
+
+  .mo-editor-settings-inline-row {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+  }
+
+  .mo-editor-settings-inset {
+    padding-inline: var(--mo-ref-space-200);
+  }
+
+  .mo-editor-settings-muted {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
+  .mo-editor-settings-parts-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mo-ref-space-500);
+  }
+
+  .mo-editor-settings-parts-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+  }
+
+  .mo-editor-settings-section {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
+  }
+
+  .mo-editor-settings-strong {
+    font-weight: 500;
+  }
+
+  .mo-editor-settings-trailing {
+    flex-shrink: 0;
+    padding-inline-end: var(--mo-ref-space-75);
+  }
+
+  .mo-editor-settings-wrap {
+    min-inline-size: 0;
+    overflow-wrap: break-word;
   }
 
   .mo-editor-signin {
@@ -1610,10 +1650,6 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
 
-  .mo-editor-strong {
-    font-weight: 500;
-  }
-
   .mo-editor-target-icon {
     margin-block-start: var(--mo-ref-space-50);
     flex-shrink: 0;
@@ -1662,11 +1698,6 @@
     border-width: 1px;
     border-color: var(--mo-sys-color-outline-variant);
     padding-block-end: var(--toolbar-docked-padding-block);
-  }
-
-  .mo-editor-trailing {
-    flex-shrink: 0;
-    padding-inline-end: var(--mo-ref-space-75);
   }
 
   .mo-editor-two-columns {
@@ -1720,10 +1751,5 @@
     outline-style: solid;
     outline-width: 2px;
     outline-color: var(--mo-sys-color-primary);
-  }
-
-  .mo-editor-wrap {
-    min-inline-size: 0;
-    overflow-wrap: break-word;
   }
 }

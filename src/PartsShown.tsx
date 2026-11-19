@@ -153,7 +153,7 @@ export function PartsShown({
         )}
       </div>
       <Shown.Provider value={{ group, style, query: search, sort, groups, order }}>
-        <div ref={list} className={sort === 'group' ? 'mo-editor-flow-10' : 'mo-editor-parts-list'}>
+        <div ref={list} className={sort === 'group' ? 'mo-editor-flow-10' : 'mo-editor-settings-parts-list'}>
           {headings.map((h) => (
             <div key={h.key} style={{ order: h.order }}>
               <FormHeading>{h.key}</FormHeading>

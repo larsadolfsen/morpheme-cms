@@ -8,6 +8,12 @@ export const allow = [
       "the old text-sm, text-base, text-2xl, leading-snug, rounded-lg, rounded-xl, rounded-2xl and the sign-in icon's and ratio box's own corners of the editor's settings and tools, moved as they were (Tailwind batch T08: the same look first, the type roles and corner steps in the M3 pass, T13)",
   },
   {
+    file: /editor-forms\.css$/,
+    line: /^(font-size: 20px|line-height: (22|26)px|letter-spacing: -0\.025em)/,
+    reason:
+      "the search result preview draws Google's own result at Google's own pixel sizes, and the logo preview draws the name at the site logo's tracking; neither is a step of the scale",
+  },
+  {
     file: /^src\/editor-rest\.css$/,
     line: /^font-size: (0\.875|1)rem|^line-height: 1\.(25|5)rem|^border-radius: (0\.5|0\.75)rem/,
     reason:

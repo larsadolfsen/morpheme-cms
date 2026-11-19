@@ -5,40 +5,8 @@
   "site/icons.mjs": {
     "constants": 1
   },
-  "src/AppList.tsx": {
-    "utilities": 48
-  },
-  "src/BlockDialog.tsx": {
-    "utilities": 31
-  },
-  "src/BlockParts.tsx": {
-    "utilities": 45,
-    "constants": 11
-  },
-  "src/BrandForm.tsx": {
-    "utilities": 48
-  },
-  "src/CommunicationParts.tsx": {
-    "utilities": 44
-  },
-  "src/ContainmentParts.tsx": {
-    "utilities": 39
-  },
   "src/editor.css": {
     "reference": 1
-  },
-  "src/fields.tsx": {
-    "utilities": 50
-  },
-  "src/NavigationParts.tsx": {
-    "utilities": 33,
-    "constants": 4
-  },
-  "src/NavigationRestParts.tsx": {
-    "utilities": 54
-  },
-  "src/SearchPreview.tsx": {
-    "utilities": 53
   },
   "theme/blocks/video/View.tsx": {
     "constants": 1
