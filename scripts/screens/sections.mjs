@@ -52,7 +52,7 @@ async function checkSectionCardContrast() {
           .flatMap((section) => ['', ...colors].map((color) => `${section}/${color}`))
           .map((id) => {
             const [section, color] = id.split('/');
-            const cardsColor = color ? ` block-cards-${color}` : '';
+            const cardsColor = color ? ` mo-block-cards__${color}` : '';
             return `<div class="mo-text-section mo-is-${section}" data-case="${id}"><div class="block-cards${cardsColor}"><div class="card card-filled block-card"><div class="prose block-card-video"><a class="video-facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="video-facade-title">Title</span></a></div><span class="block-card-title">Headline</span><p class="block-card-text">Text</p></div></div></div>`;
           })
           .join('');
