@@ -80,14 +80,14 @@ line once, and the line goes into `main` once, when it is released):
    (which `morpheme-staging` follows), and the PM never merges a line into `main` just to get a test version.
 
 **A new line, and after every release.** When the PM starts a new line, it tells the owner to set the demo's production branch
-(Workers > `morpheme-demo` > Settings > Build > Branch control) to that line, so the demo shows it. After every release the PM merges
+(Workers > `morpheme-demo` > Settings > Build > Branch control) to that line, so the demo shows it. The demo shows the development branch, which the owner sets as the Worker's production branch in Cloudflare (owner, 19 Nov 2026). After every release the PM merges
 `main` back into each live line the same day: a pull request that is a plain merge commit, with an empty changeset, never a squash.
 (The `0.18` line once stayed at 0.17.0 for a day after 0.18.0 was released, and the demo showed the wrong version.)
 
 **Two version lines at the same time.** When two lines run together (for example `0.18` and `0.19`), each line has its own PM and
 its own branch, and each PM merges only into its own branch and its features. After each merge into the earlier line, the later
 line's branch is merged forward as the `changesets` skill's table says, never the other way, and the PM tells the later line's PM
-(after each merge into 0.18, the 0.19 PM). The PM of the earlier line never merges a pull request of the later line (into its branch,
+(the 0.18 line is finished, owner, 19 Nov 2026: nothing goes into `0.18` any more, so no merge into it reaches the 0.19 PM). The PM of the earlier line never merges a pull request of the later line (into its branch,
 or the branch into `main`) and never plans its release. Nothing of the later line is merged into `main` until the earlier line is
 released. Only `main` has a Release PR. The owner still releases every version.
 

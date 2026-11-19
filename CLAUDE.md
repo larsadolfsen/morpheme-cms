@@ -114,7 +114,7 @@ Worker, the starter or the demo is a pull request here.
 - **`bin/`**: the `morpheme` CLI (image processing, build hooks, validation).
 - **`demo/`**: a made-up site laid over the starter, which the CMS is developed and checked with and which the themes'
   images are taken of. `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in
-  `.morpheme/demo/site/`; `wrangler.jsonc` puts it on the Worker `morpheme-demo`, whose address shows the live line (the demo Worker's production branch in Cloudflare), not `main`. Each branch gets its own Preview
+  `.morpheme/demo/site/`; `wrangler.jsonc` puts it on the Worker `morpheme-demo`, whose address shows the development branch. The owner sets that branch as the Worker's production branch in Cloudflare (owner, 19 Nov 2026). Each branch gets its own Preview
   (`npx wrangler preview`), whose address Cloudflare writes on the pull request; login and save do not work there.
   The demo's Blocks are an index (`/blocks/`) and one page for each main component or special block (`/blocks/<name>/`, the file
   `demo/src/content/pages/blocks-<name>.md`; the list and its rules are in `scripts/demo-blocks.mjs`).
