@@ -203,7 +203,7 @@ const looksLikeClasses = (words) =>
   words.length > 0 && words.every((w) => whyUtility(w)) && (words.length > 1 || /^(?:[^\s:]+:|.*-\[|\[)/.test(words[0]));
 
 const CSS_RULES = [
-  [/@import\s+(?:url\()?['"]tailwindcss/, "@import 'tailwindcss'"],
+  [/@import\s+(?:url\()?['"]tailwindcss/, '@import of tailwindcss'],
   [/@tailwind\b/, '@tailwind'],
   [/@theme\b/, '@theme'],
   [/@utility\b/, '@utility'],

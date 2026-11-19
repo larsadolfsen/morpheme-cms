@@ -47,7 +47,7 @@ test('a string of utilities in code fails, a lone word does not', () => {
 });
 
 test('a stylesheet fails on each Tailwind rule', () => {
-  fails('a.css', "@import 'tailwindcss';", /@import 'tailwindcss' in a stylesheet/);
+  fails('a.css', "@import 'tailwindcss';", /@import of tailwindcss in a stylesheet/);
   for (const rule of [
     '@theme { --x: 1 }',
     '@utility foo { a: b }',
