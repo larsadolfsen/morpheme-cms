@@ -26,18 +26,24 @@ level its base branch does not allow is not merged; fix the changeset.
 
 | Base branch | Allowed | What it collects | Merged into it |
 | :--- | :--- | :--- | :--- |
-| `main` | `patch` or empty until 0.18.1 is released; then the merge of `feature/tailwind` adds one `minor` (it is 0.19.0, owner, 19 Nov 2026), and from 0.19 the first feature of a line `minor`, every other feature and fix `patch` (`docs/superpowers/plans/2026-11-18-release-per-feature.md`) | the next release | — |
+| `main` | `patch` or empty (never `major`); the number is the one the feature set, not the level (above); `feature/tailwind` sets 0.19.0 (owner, 19 Nov 2026) | the next release | — |
 | `0.17` | — | there is no `0.17` branch: the 0.17 work merges into `main` | — |
 | `0.18` | — | finished (owner, 19 Nov 2026): 0.18.1 is released and nothing goes into `0.18` any more | — |
 | `0.19` | — | there is no `0.19` branch: from 0.19 a feature is `feature/<name>` from `main` (`docs/superpowers/plans/2026-11-18-release-per-feature.md`) | — |
 | `feature/<name>` | `patch` or empty, plus the one `minor` of a line's first feature, added just before the feature goes into `main` | the pieces of one feature | `main` after each merge into `main` and after each release |
 
-**A line's level is kept by a check, not by care.** `scripts/release-lines.json` is the one place that says which lines have a fixed next release and the highest level
-each allows (`allow`) and the version series its releases stay in (`series`); a new line is one edit there, and this table is updated with it. A line whose
-next version is to stay a patch release allows only `patch`. `scripts/release-line.mjs` (job `static`, tested in `scripts/release-line.test.mjs`) fails
-(a) a pull request into such a line's branch that adds or changes a changeset above `allow` (it compares the pull request's own diff with the base, so files it does not touch
-are not checked; the message names the file and the allowed level), and (b) a carry into `main` (`merge-<line>-into-main-<N>`) whose changesets compute a version outside the line's
-series (for `0.18`: `0.18.x`, never `0.19.0`). Raising a line's level is the owner's decision and an edit of `release-lines.json`.
+**The version is set when a feature starts** (owner, 19 Nov 2026; `docs/superpowers/plans/2026-11-19-version-at-feature-start.md`). A feature's first pull request
+sets `version` in `package.json` to the number the feature is released as, and runs `node scripts/starter.mjs` so `starter/package.json` pins the same number (`static` runs `node scripts/starter.mjs --check` at every level): the next patch above npm's `latest`, or the next minor `.0` when it starts a line
+(roadmap). A single fix straight into `main` sets its version in its own pull request the same way. **A changeset's level (`patch`, `minor`) no longer moves
+the version**: Changesets collects the notes and keeps the Release PR, and the release takes the number `package.json` says. No pull request after the
+feature's first changes it (the PM's move on a conflict, skill `pm`, is the exception), and `CHANGELOG.md` is still written only by the release.
+
+**The check** (`scripts/version-rule.mjs`, job `static`, tested in `scripts/version-rule.test.mjs`; it replaces the old series check `release-line.mjs` and
+`release-lines.json`): on a pull request into `main` and on a feature's first pull request (into `feature/*`, `version` differs from the base's), `version`
+is exactly one step above npm's `latest` (next patch or next minor `.0`) and not published; below `latest` fails. A `version` equal to `latest` with a
+non-empty changeset fails ("Set the feature's version") once `latest` is 0.19.0 or later; until then (`latest` 0.18.x, before `feature/tailwind` sets 0.19.0)
+it passes and Changesets still computes the number, so a fix with a patch or empty changeset keeps working. The level a changeset may have is only the
+note's: never `major`; `minor` for a feature that adds something, `patch` for a fix; empty for no release note.
 
 A feature branch is never merged into another feature branch; it goes into `main` once (the `pm` skill, *The way of a change*). Only `main` has a Release PR and builds `latest`; every merge to `main` stages a `next` build, which the owner approves on npmjs.com and `morpheme-staging` builds. A merge into a feature branch stages nothing (`publish.yml`).
 
