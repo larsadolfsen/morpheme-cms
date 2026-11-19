@@ -41,7 +41,11 @@ const re = {
 const roleFile = readFileSync(root + 'defaults/colors.ts', 'utf8');
 const textOf = new Map(files.map((f) => [f, readFileSync(root + f, 'utf8')]));
 const defined = new Set();
-for (const t of textOf.values()) for (const m of t.matchAll(/(--mo-[\w-]+)\s*:/g)) defined.add(m[1]);
+for (const t of textOf.values()) {
+  for (const m of t.matchAll(/(--mo-[\w-]+)['"]?\s*:/g)) defined.add(m[1]);
+  // A value that code sets on an element (a style object's key, or setProperty): a runtime value of a component, like --mo-comp-slider-start.
+  for (const m of t.matchAll(/setProperty\(\s*['"`](--mo-[\w-]+)['"`]/g)) defined.add(m[1]);
+}
 // The roles' own list (defaults/colors.ts colorRoles): the theme writes each one as --mo-sys-color-<name> from the site's colours.
 const generated = new Set(
   [...roleFile.slice(roleFile.indexOf('export const colorRoles')).matchAll(/^\s*'?([a-z-]+)'?:\s*'[a-zA-Z]+',?$/gm)].map(

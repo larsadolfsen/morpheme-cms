@@ -2,6 +2,14 @@
 // a new entry is reviewed. `todo` entries are a cause group that has its own fix pull request; the fix removes them.
 const any = /./;
 export const allow = [
+  // A hook a theme sets: the pressed shape of a button (Material 3's "Pressed shape"). Nothing sets it, and a read without a fallback is then
+  // invalid at computed-value time, which is how the pressed shape stays off (a hook was read as --button-pressed-radius, unseen by this check).
+  {
+    kind: 'undefined-role',
+    file: /^theme\/styles\/tokens\/ui\/comp\/(button|icon-button)\.css$/,
+    line: /--mo-comp-button-pressed-radius/,
+    reason: 'a hook for a theme to set; unset on purpose, so the pressed shape is not drawn (M3 pressed shape)',
+  },
   // The text style's keys and code blocks: the typography plugin's own greys, kept as they were (batch T13); a later, visible change moves them to roles.
   {
     kind: 'fixed-colour',
