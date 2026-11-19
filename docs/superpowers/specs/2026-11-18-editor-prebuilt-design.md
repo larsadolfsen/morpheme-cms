@@ -1,7 +1,7 @@
 # The editor pre-built in the package (design)
 
 Status: decided by the owner on 18 November 2026 ("2", then "Options 2 in 18.2"): batch B6 of
-`docs/superpowers/plans/2026-11-18-build-and-check-speed.md` is built as option 2, after Tailwind is gone (0.18.2), as a feature of **0.19 Build speed** (owner, 19 November
+`docs/superpowers/plans/2026-11-18-build-and-check-speed.md` is built as option 2, after Tailwind is gone (0.18.2), as a feature of **0.20 Build speed** (owner, 19 November
 2026; it was 0.18.3). The
 technical design below is the CTO's; the open points in section 7 are for the PR sessions to prove.
 

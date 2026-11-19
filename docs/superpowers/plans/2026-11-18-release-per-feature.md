@@ -3,7 +3,7 @@
 Status: **approved by the owner, 18 November 2026** ("yes"), revised with the owner the same day. It replaces the version of this plan the owner approved earlier the
 same day ("Approve"), which had no version lines and a test version on npm per feature. **Takes effect after 0.18.2**: 0.18.0 (released),
 0.18.1 (fixes, from `main`) and 0.18.2 (Tailwind, contract 7) finish as planned, in that order; the pre-built editor is a feature of
-0.19 Build speed (owner, 19 November 2026; it was 0.18.3). The demo editor (below) can start at once.
+0.20 Build speed (owner, 19 November 2026; it was 0.18.3). The demo editor (below) can start at once.
 
 The owner's words, 18 November:
 
@@ -14,7 +14,7 @@ The owner's words, 18 November:
 
 ## The flow
 
-1. **A line is an area of the roadmap** (0.19 the collection, 0.20 lists and data …). Its first feature is released as `0.19.0`, each
+1. **A line is an area of the roadmap** (0.19 maturity, 0.20 build speed …). Its first feature is released as `0.19.0`, each
    next feature as `0.19.1`, `0.19.2` … The line changes when the roadmap moves to its next area. A feature that raises the contract
    for themes or apps (`THEME_API`, `APP_API`) starts the next line.
 2. **A feature** is a branch from `main`, `feature/<name>`, with its pull requests merged into it (skill `pm`, section 2). A single fix

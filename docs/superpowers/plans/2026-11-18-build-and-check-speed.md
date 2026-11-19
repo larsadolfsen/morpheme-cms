@@ -550,9 +550,9 @@ Worker", which ours is (`run_worker_first`). A transformation made by the Worker
   seconds saved are unmeasured. The starter already leaves Playwright out (`scripts/starter.mjs`); nothing else in its `package.json` is only for local checks
   (see the pull request for the sizes), so nothing moved.
 
-#### Batch 6. The editor's client bundle is not built on every save (about 10–13 s) — decided: built in the package, 0.19
+#### Batch 6. The editor's client bundle is not built on every save (about 10–13 s) — decided: built in the package, 0.20
 
-**Decided** (owner, 18 November 2026: "2", then "Options 2 in 18.2"): the second way below, in **0.19 Build speed** (owner, 19 November 2026; it was 0.18.3) after Tailwind (0.18.2), on
+**Decided** (owner, 18 November 2026: "2", then "Options 2 in 18.2"): the second way below, in **0.20 Build speed** (owner, 19 November 2026; it was 0.18.3) after Tailwind (0.18.2), on
 `feature/editor-prebuilt`. Design and pull requests: `docs/superpowers/specs/2026-11-18-editor-prebuilt-design.md`. The first way is not built.
 
 
