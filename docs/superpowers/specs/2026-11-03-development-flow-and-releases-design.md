@@ -34,7 +34,7 @@ Two sites show unreleased code, each for its own purpose:
 
 | Site | Built from | For |
 | --- | --- | --- |
-| `morpheme-demo` (exists, `wrangler.jsonc` at the root) | the repository itself, `main` and every branch (Cloudflare's branch previews) | looking at a change, also before it is merged; its repository is made up, so saving does not work |
+| `morpheme-demo` (exists, `wrangler.jsonc` at the root) | the repository itself: the live version line (Cloudflare's production branch) and every other branch (previews) | looking at a change, also before it is merged; its repository is made up, so saving does not work |
 | `morpheme-staging` (new) | `@morphemecms/cms@next` from npm | using the next version exactly as a customer would: install from npm, log in, edit, save |
 
 ## 1. Day-to-day work in morpheme-cms
@@ -88,7 +88,7 @@ On each push to `main` that leaves changesets pending, the workflow:
 2. `npx changeset publish --tag next --no-git-tag` — publishes it under npm's `next` tag, with trusted publishing.
    npm's ranges (`^0.1.0`) never match a prerelease, and sites follow `latest`, so no site gets it by itself.
 3. The job ends after staging; it does not wait for the owner's approval (a newer merge would cancel the wait).
-   Instead `.github/workflows/staging-follows-next.yml` runs every ten minutes, compares
+   Instead a workflow (since 18 Nov 2026 replaced by staging's own Worker, which checks npm every hour and calls its deploy hook) ran every ten minutes, compares
    `npm view @morphemecms/cms@next version` with the version in the GitHub release `staging-marker`, and when they
    differ calls `curl -X POST "$STAGING_DEPLOY_HOOK"` (Cloudflare's Deploy Hooks) and updates the marker. Staging is
    rebuilt after any approval, however many merges came in between. An empty secret fails the run loudly.
@@ -145,7 +145,7 @@ itself, never bumps a version by hand, and never merges anything but the Release
 | File | When | What |
 | --- | --- | --- |
 | `.github/workflows/check.yml` (new) | each pull request into `main` | the checks and `changeset status` (section 1) |
-| `.github/workflows/publish.yml` (rewritten) | each push to `main` | job `release`: `changesets/action` (Release PR, or the stable publish); job `next`: the snapshot, staged only (section 2), when changesets are pending; `staging-follows-next.yml`: the deploy hook |
+| `.github/workflows/publish.yml` (rewritten) | each push to `main` | job `release`: `changesets/action` (Release PR, or the stable publish); job `next`: the snapshot, staged only (section 2), when changesets are pending; staging's own Worker rebuilds staging (the deploy hook) |
 
 Both publishing jobs stay in `publish.yml`, because npm's trusted publishing trusts one workflow file per package. The
 existing file's setup is kept: Node 24, npm 11 (trusted publishing needs 11.5.1 or newer), `id-token: write`, and
