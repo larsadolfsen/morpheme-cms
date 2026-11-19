@@ -188,9 +188,6 @@
   "src/OwnListSheet.tsx": {
     "utilities": 6
   },
-  "src/pageH1Panel.mjs": {
-    "constants": 3
-  },
   "src/PagePicker.tsx": {
     "utilities": 12
   },

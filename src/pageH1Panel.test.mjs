@@ -21,6 +21,15 @@ test('the header and the intro go in a panel of the colour', () => {
   assert.equal(intro.className, 'prose');
 });
 
+test('a panel with a colour takes away the header space, none gives it back', () => {
+  const doc = PAGE(PLAIN);
+  doc.querySelector('header').className = 'mo-container mo-page-header';
+  setH1Panel(doc, { color: 'surface' }, '');
+  assert.equal(doc.querySelector('header').className, 'mo-container mo-flush-top');
+  setH1Panel(doc, null, '');
+  assert.equal(doc.querySelector('header').className, 'mo-container mo-page-header');
+});
+
 test('without an intro the panel holds the header only', () => {
   const doc = PAGE(PLAIN);
   setH1Panel(doc, { color: 'primary' }, '  ');
