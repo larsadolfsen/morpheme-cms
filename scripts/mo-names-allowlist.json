@@ -73,12 +73,6 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "scripts/editor-roundtrip.mjs": {
-      "classDefs": 0,
-      "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "scripts/gen-token-registry.mjs": {
       "classDefs": 0,
       "markup": 0,
@@ -656,7 +650,7 @@
       "propsRead": 0
     },
     "theme/styles/blocks/prose.css": {
-      "classDefs": 9,
+      "classDefs": 7,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
