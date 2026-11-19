@@ -66,4 +66,10 @@ export const allow = [
     reason:
       "moved as it was from the utility classes leading-tight, leading-snug and rounded-full (batch T11, a pure migration): the line height of a wrapper whose parts set their own, and a portrait's full circle; the shape and type sweep takes them to the scales",
   },
+  {
+    file: /^theme\/styles\/reset\.css$/,
+    line: /^(line-height: 1\.5|font-size: 1em)/,
+    reason:
+      "the reset's values are Tailwind's preflight as it was (batch T14, a pure migration): the page's default line height before the body's own, and the code elements' size that keeps em from compounding",
+  },
 ];
