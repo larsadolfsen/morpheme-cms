@@ -249,7 +249,7 @@ const gapHere = $prose(
     }),
 );
 
-// A tap in the white below a section's last part, or between two sections (the text's own padding, no node there), puts the cursor in a
+// A tap in the white below the last block of a text, below a section's last part, or between two sections (the text's own padding, no node there), puts the cursor in a
 // free line there: the empty paragraph that is already after the part, or a new one that exists only in the editor (markdownOf leaves
 // an empty paragraph out of the saved text, so nothing is written unless something is typed in it).
 const tapBelow = $prose(
@@ -272,7 +272,17 @@ const tapBelow = $prose(
             let h2 = false;
             doc.forEach((node) => void (h2 ||= node.type.name === 'heading' && node.attrs.level === 2));
             // The end of the text (when it has sections), or the end of a section: the next part is the heading that starts another.
-            if (at.next ? !sections(at.next) : !h2) return false;
+            if (at.next ? !sections(at.next) : !h2) {
+              // Below the last block, a text with no section: the cursor goes to the end of that block when it is text, not to a gap after it
+              // (a gap has no text around it, so the text tools such as Align are off there).
+              if (at.next || !at.node.isTextblock) return false;
+              view.dispatch(
+                view.state.tr.setSelection(Selection.near(view.state.doc.resolve(at.pos + at.node.nodeSize - 1), -1)).scrollIntoView(),
+              );
+              view.focus();
+              event.preventDefault();
+              return true;
+            }
             let tr = view.state.tr;
             let free = at.pos + 1;
             if (!isGap(at.node)) {
