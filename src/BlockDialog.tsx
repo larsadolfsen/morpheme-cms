@@ -420,6 +420,7 @@ export function useBlockDialog(
   // The alt text sheet is for the text: its field has the focus when the sheet is open (a phone's keyboard comes up and the field is in view), unless the
   // image is decorative and has none.
   const altStep = open?.step === 'alt';
+  const altSrc = shownAt(String(values.src ?? ''));
   useEffect(() => {
     if (!altStep) return;
     const id = setTimeout(() => dialog.current?.querySelector<HTMLElement>('textarea, input[type=text]')?.focus(), 150);
@@ -852,9 +853,7 @@ export function useBlockDialog(
         {open?.step === 'alt' && (
           <>
             <SheetBody>
-              {isSafeImageSrc(shownAt(String(values.src ?? ''))) && (
-                <img src={shownAt(String(values.src ?? ''))} alt="" className="mo-editor-block-dialog-image" />
-              )}
+              {isSafeImageSrc(altSrc) && <img src={altSrc} alt="" className="mo-editor-block-dialog-image" />}
               <FieldList fields={altFields} value={values} onChange={(v) => setValues(v as BlockProps)} />
             </SheetBody>
             <SheetActions
