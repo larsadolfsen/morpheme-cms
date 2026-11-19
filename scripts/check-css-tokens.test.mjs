@@ -15,16 +15,14 @@ test('the root is :root, html or body, also with a class or an attribute, never 
   for (const s of ['.card', ':root .card', 'html body', 'main', '.a:root-ish']) assert.equal(isRootSelector(s), false, s);
 });
 
-test('declared tells the root, @theme and every other place apart, also in @layer and @media', () => {
+test('declared tells the root and every other place apart, also in @layer and @media', () => {
   const d = declared(`
     :root { --a: 1; --mo-b: 2; }
     @layer base { @media (min-width: 40rem) { html { --c: 1; } } }
     .card { --d: 1; }
-    @theme inline { --color-x: red; }
   `);
   assert.deepEqual([...d.root].sort(), ['--a', '--c', '--mo-b']);
-  assert.deepEqual([...d.theme], ['--color-x']);
-  assert.equal(d.all.size, 5);
+  assert.equal(d.all.size, 4);
 });
 
 test('a prefixed name on :root passes, an unprefixed one fails', () => {
@@ -47,16 +45,10 @@ test('count mode: a file may keep its count, never go over, and a new file gets 
   assert.deepEqual(run({ 'a.css': css + ":root[data-theme='dark'] { --a: 3; }" }, {}, a), []);
 });
 
-test('Tailwind: --tw-* on :root and its theme namespaces in @theme pass; an unknown name in @theme fails', () => {
-  assert.deepEqual(
-    run({
-      'a.css': ':root { --tw-ring: 0; } @theme inline { --color-primary: var(--mo-sys-color-primary); --breakpoint-medium: 37.5rem; }',
-    }),
-    [],
-  );
-  assert.match(run({ 'a.css': '@theme { --my-thing: 1; }' }).join('\n'), /--my-thing/);
-  // A Tailwind namespace on :root is still the page's namespace.
+test('no exemption for Tailwind: --tw-* and its old theme names on :root fail, and an @theme block is not read', () => {
+  assert.match(run({ 'a.css': ':root { --tw-ring: 0; }' }).join('\n'), /--tw-ring/);
   assert.match(run({ 'a.css': ':root { --color-primary: red; }' }).join('\n'), /--color-primary/);
+  assert.deepEqual(run({ 'a.css': '@theme { --my-thing: 1; }' }), []);
 });
 
 test('an app or theme that declares a name the CMS declares collides, on :root or on a block', () => {

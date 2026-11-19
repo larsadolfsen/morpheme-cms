@@ -332,7 +332,7 @@ export function ListItem({
   );
   const shortcut = !!press && !control && hasLead && selectOnLeading !== false;
 
-  const cut = truncate ? ' truncate' : '';
+  const cut = truncate ? ' mo-truncate' : '';
   const text = (
     <>
       {shown(subhead) && <span className="mo-list__item-overline">{subhead}</span>}

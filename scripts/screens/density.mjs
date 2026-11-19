@@ -128,13 +128,13 @@ async function checkDensityLayout(width, height) {
   page.on('pageerror', (e) => problems.push(`${width}px density layout: ${e.message}`));
   await openEditor(page, site);
   const layout = `
-    <div class="space-y-6"><p data-part="space-y">One</p><p>Two</p></div>
-    <p class="mb-8" data-part="mb">Margin</p>
-    <p class="pt-4" data-part="pt">Padding</p>
-    <p class="px-4" data-part="px">Side</p>
-    <div class="flex flex-col gap-4"><p data-part="gap">One</p><p>Two</p></div>
-    <p class="mb-2" data-part="small">Small gap</p>
-    <p class="mb-3 last:mb-0" data-part="last">Last</p>`;
+    <div class="mo-editor-stack-300"><p data-part="space-y">One</p><p>Two</p></div>
+    <p style="margin-block-end: var(--mo-comp-editor-rhythm-400)" data-part="mb">Margin</p>
+    <p style="padding-block-start: var(--mo-comp-editor-rhythm-200)" data-part="pt">Padding</p>
+    <p style="padding-inline-start: 1rem" data-part="px">Side</p>
+    <div style="display: flex; flex-direction: column; row-gap: var(--mo-comp-editor-rhythm-200)"><p data-part="gap">One</p><p>Two</p></div>
+    <p style="margin-block-end: 0.5rem" data-part="small">Small gap</p>
+    <p style="margin-block-end: 0" data-part="last">Last</p>`;
   const measure = (attr) =>
     page.evaluate(
       ([attr, layout]) => {

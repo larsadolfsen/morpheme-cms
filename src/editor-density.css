@@ -4,9 +4,7 @@
    var(--mo-comp-editor-rhythm-<default in px>) instead of a fixed space; horizontal spacing never follows density (owner rule), and a space
    under 12 px stays fixed.
    The tokens hold the sum, so they are declared where --mo-sys-density-layout is: on :root and again in the two places that set their own step
-   (the rows that pick the density, and the text typed in place; src/editor.css), because a custom property is resolved where it is declared.
-   src/editor.css still has the older rules keyed on the Tailwind class names (.mb-6, .space-y-4, .pt-6 …) until the editor batches have
-   moved their parts here. */
+   (the rows that pick the density, and the text typed in place; src/editor.css), because a custom property is resolved where it is declared. */
 :where(:root),
 [data-density-fixed],
 .mo-editor-text .ProseMirror {

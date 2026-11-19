@@ -48,10 +48,10 @@ test('scanTree counts utilities in class attributes, strings of .ts and .mjs, th
   const list = trackedFiles(root);
   assert.ok(list.includes('src/A.tsx'));
   const { files: found } = await scanTree(ROOT, list, root);
-  assert.equal(found['src/A.tsx'].utilities, 3, 'flex, gap-2 and hidden (nothing-here is not a utility)');
-  assert.equal(found['src/A.tsx'].constants, 2, '"border-[3px] mt-4"; a lone word like "flex" is not a class string');
-  assert.equal(found['site/s.ts'].constants, 2);
-  assert.equal(found['lib/m.mjs'].constants, 2, 'items-center justify-between (a lone "block" is a word)');
+  // Tailwind's design system is no dependency since T16 (batch T17 puts a frozen list in its place): no string is a utility, so only the CSS counts.
+  assert.equal(found['src/A.tsx'], undefined);
+  assert.equal(found['site/s.ts'], undefined);
+  assert.equal(found['lib/m.mjs'], undefined);
   assert.deepEqual(
     {
       theme: found['theme/x.css'].theme,

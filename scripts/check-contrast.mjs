@@ -69,9 +69,9 @@ const scan = `(root) => {
   const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
   const hex = (c) => '#' + c.slice(0, 3).map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
   const sectionOf = (el) => {
-    const s = el.closest('[class*="text-section-"], [data-section-color]');
+    const s = el.closest('.mo-text-section, [data-section-color]');
     if (!s) return 'surface';
-    return s.getAttribute('data-section-color') ?? (/text-section-(surface|primary|secondary|tertiary)/.exec(s.className)?.[1] ?? 'surface');
+    return s.getAttribute('data-section-color') ?? (/\bmo-is-(surface|primary|secondary|tertiary)\b/.exec(s.className)?.[1] ?? 'surface');
   };
   const blockOf = (el) => {
     const card = el.closest('.mo-site-block-card');

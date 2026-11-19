@@ -66,6 +66,3 @@
 :root {
   --mo-ref-typeface-plain: 'Roboto Variable', Roboto, ui-sans-serif, system-ui, sans-serif;
 }
-@theme inline {
-  --font-sans: var(--mo-ref-typeface-plain);
-}

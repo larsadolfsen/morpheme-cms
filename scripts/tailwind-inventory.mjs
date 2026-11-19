@@ -1,6 +1,6 @@
 // The migration's progress meter (plan 2026-11-16-move-away-from-tailwind.md §1): what is left of Tailwind in the tree.
 //   node scripts/tailwind-inventory.mjs [--json] [--files]
-// It asks Tailwind's own design system (`tailwindcss`, installed until batch T16) which string in the markup is a valid utility, with the
+// Until batch T16 it asked Tailwind's own design system (`tailwindcss`) which string in the markup is a valid utility, with the
 // repository's `@theme` blocks loaded, so a word like `flex` in a comment is not counted but `rounded-(--mo-sys-block-radius)` is. It counts
 //   - utility uses in class attributes (the class, className and class:list attributes, also a class built by code inside their braces),
 //   - utility uses in strings of constants (in a .ts, .mjs or .js file, or outside the attributes in markup), reported apart,
@@ -8,10 +8,9 @@
 // per folder, per file, per family and per variant. `--json` prints it as JSON, `--files` adds every file's counts to the text.
 // `scripts/check-tailwind.mjs` (the ratchet) reads the same counts through `scanTree`.
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, readdirSync } from 'node:fs';
-import { createRequire } from 'node:module';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const FOLDERS = ['theme', 'src', 'pages', 'starter', 'demo', 'site', 'lib', 'defaults', 'worker', 'bin'];
@@ -30,45 +29,11 @@ export function trackedFiles(root = ROOT) {
   return out.split('\0').filter((f) => f && existsSync(join(root, f)));
 }
 
-let designSystem = null;
-/** Tailwind's design system with this repository's `@theme` blocks (and the typography plugin), loaded once. */
-export async function loadDesignSystem(root = ROOT) {
-  if (designSystem) return designSystem;
-  const require = createRequire(join(root, 'package.json'));
-  const { __unstable__loadDesignSystem: load } = await import('tailwindcss');
-  const themes = readdirSync(join(root, 'theme/styles/tokens'))
-    .sort()
-    .map((origin) => join(root, `theme/styles/tokens/${origin}/ref.css`))
-    .filter(existsSync)
-    .map((f) => readFileSync(f, 'utf8'))
-    .join('\n');
-  const css = `@import 'tailwindcss';\n${themes}`;
-  designSystem = await load(css, {
-    base: join(root, 'theme/styles'),
-    loadStylesheet: async (id, base) => {
-      const path =
-        id === 'tailwindcss'
-          ? require.resolve('tailwindcss/index.css')
-          : id.startsWith('tailwindcss/')
-            ? require.resolve(id)
-            : require.resolve(id, { paths: [base] });
-      return { path, base: dirname(path), content: readFileSync(path, 'utf8') };
-    },
-    loadModule: async (id, base) => {
-      const path = require.resolve(id, { paths: [base] });
-      const module = await import(pathToFileURL(path).href);
-      return { path, base, module: module.default ?? module };
-    },
-  });
-  return designSystem;
-}
-
-/** Which of the candidates are valid utilities (a map candidate -> boolean), asked once for each distinct string. */
-async function validOf(candidates, root) {
-  const ds = await loadDesignSystem(root);
-  const list = [...candidates];
-  const css = ds.candidatesToCss(list);
-  return new Map(list.map((c, i) => [c, css[i] !== null && css[i] !== '']));
+/** Which of the candidates are valid utilities (a map candidate -> boolean). Tailwind's own design system told this until T16; it is no dependency any more
+ * (the package's peers do not list it), so no string is a utility here and only the at-rules, `theme(--`, `--tw-` and `prose` are counted. Batch T17 puts a
+ * frozen list of the utility names in its place. */
+async function validOf(candidates) {
+  return new Map([...candidates].map((c) => [c, false]));
 }
 
 // ---- Reading a file ---------------------------------------------------------------------------------------------------------------
@@ -292,7 +257,7 @@ export async function scanTree(root = ROOT, list = trackedFiles(root), filesRoot
   const reads = list.map((file) => [file, read(file, readFileSync(join(filesRoot, file), 'utf8'))]);
   const candidates = new Set();
   for (const [, r] of reads) for (const s of [...r.attributes, ...r.constants]) for (const w of tokens(s)) candidates.add(w);
-  const valid = await validOf(candidates, root);
+  const valid = await validOf(candidates);
   const files = {};
   const uses = [];
   for (const [file, r] of reads) {

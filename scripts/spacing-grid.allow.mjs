@@ -21,7 +21,7 @@ export const allow = [
     selector: '.prose ul.contains-task-list, .prose li.task-list-item',
     props: ['margin', 'padding'],
     reason:
-      "a check list in a text: the text style's list spaces in em (Tailwind typography), a list in a text and not a block's own spaces",
+      "a check list in a text: the text style's list spaces in em (the typography the theme had), a list in a text and not a block's own spaces",
   },
   {
     selector: '.mo-chip',

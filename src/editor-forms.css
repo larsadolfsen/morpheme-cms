@@ -7,7 +7,7 @@
   :where(.mo-editor-nav-demo > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-200);
   }
-  .mo-editor-nav-demo > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-nav-demo > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-nav-demo-narrow {
@@ -54,7 +54,7 @@
   :where(.mo-editor-nav-search-demo > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-200);
   }
-  .mo-editor-nav-search-demo > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-nav-search-demo > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-nav-search-results {
@@ -69,7 +69,7 @@
   :where(.mo-editor-nav-colors > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-200);
   }
-  .mo-editor-nav-colors > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-nav-colors > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-nav-color-row {
@@ -151,7 +151,7 @@
   :where(.mo-editor-field-item-fields > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-250);
   }
-  .mo-editor-field-item-fields > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-field-item-fields > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-250);
   }
   .mo-editor-field-item-actions {
@@ -343,7 +343,7 @@
   .mo-editor-parts-chips {
     padding: var(--mo-ref-space-200);
   }
-  .mo-editor-parts-chips > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-parts-chips > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-parts-chip-image {
@@ -359,7 +359,7 @@
   :where(.mo-editor-parts-chip-sets > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-200);
   }
-  .mo-editor-parts-chip-sets > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-parts-chip-sets > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   :where(.mo-editor-parts-fields > :not(:last-child)) {
@@ -368,7 +368,7 @@
   .mo-editor-parts-fields {
     padding: var(--mo-ref-space-200);
   }
-  .mo-editor-parts-fields > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-parts-fields > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
   .mo-editor-parts-checkboxes {
@@ -411,13 +411,13 @@
   :where(.mo-editor-parts-sections > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-500);
   }
-  .mo-editor-parts-sections > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-parts-sections > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-500);
   }
   :where(.mo-editor-parts-intro > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-150);
   }
-  .mo-editor-parts-intro > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-parts-intro > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-parts-intro-text {
@@ -430,7 +430,7 @@
   :where(.mo-editor-search-preview > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-150);
   }
-  .mo-editor-search-preview > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-search-preview > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-search-result {
@@ -548,7 +548,7 @@
   :where(.mo-editor-contain-choices > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-150);
   }
-  .mo-editor-contain-choices > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-contain-choices > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-contain-dialog {
@@ -592,7 +592,7 @@
   .mo-editor-contain-layouts {
     padding: var(--mo-ref-space-200);
   }
-  .mo-editor-contain-layouts > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-contain-layouts > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
   .mo-editor-contain-panel {
@@ -605,7 +605,7 @@
   :where(.mo-editor-nav-bars > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-200);
   }
-  .mo-editor-nav-bars > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-nav-bars > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-nav-app-bar {
@@ -648,7 +648,7 @@
   .mo-editor-nav-fields {
     padding: var(--mo-ref-space-200);
   }
-  .mo-editor-nav-fields > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-nav-fields > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
   .mo-editor-nav-field-pair {
@@ -669,7 +669,7 @@
   :where(.mo-editor-nav-tabs > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-300);
   }
-  .mo-editor-nav-tabs > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-nav-tabs > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
   /* BlockDialog.tsx */
@@ -683,7 +683,7 @@
   :where(.mo-editor-block-dialog-fields > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-250);
   }
-  .mo-editor-block-dialog-fields > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-block-dialog-fields > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-250);
   }
   .mo-editor-block-dialog-search {

@@ -243,7 +243,7 @@
     }
     padding-block: var(--mo-comp-editor-rhythm-200);
   }
-  .mo-editor-selection-dividers > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-selection-dividers > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
   :where(.mo-editor-selection-kind > :not(:last-child)) {
@@ -272,7 +272,7 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-300);
   }
-  .mo-editor-selection-sheets > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-selection-sheets > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
   .mo-editor-selection-sheet-label {
@@ -555,7 +555,7 @@
     }
     padding-inline: var(--mo-ref-space-200);
   }
-  .mo-editor-library-apps > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-library-apps > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-250);
   }
   .mo-editor-library-row-actions {
@@ -736,7 +736,7 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-200);
   }
-  .mo-editor-media-details > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-media-details > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-media-file-tools {

@@ -2954,7 +2954,7 @@ export function Group({ title, children }: { title?: string; children: ReactNode
  * counts up with it. */
 export type Check = { ok: boolean; text: string; fix?: string };
 
-// The ring's colours for each status, as whole class names (so Tailwind finds them).
+// The ring's colours for each status, as whole class names.
 const statusTones = {
   good: {
     fill: 'mo-editor-check-good-fill',

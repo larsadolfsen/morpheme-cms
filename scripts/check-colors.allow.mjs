@@ -64,12 +64,6 @@ export const allow = [
     reason: "the Preview's frame: a page is shown on paper, whatever the editor's colours",
   },
   {
-    kind: 'palette-class',
-    file: /^src\/PreviewScreen\.tsx$/,
-    line: /bg-white/,
-    reason: "the Preview's frame: a page is shown on paper, whatever the editor's colours",
-  },
-  {
     kind: 'fixed-colour',
     file: /^(lib\/dynamic-colors|defaults\/colors|demo\/src\/site\/colors)\.ts$/,
     line: /#000000|source: '#/,

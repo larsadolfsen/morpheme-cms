@@ -1,4 +1,4 @@
-/* The standard theme: its base (Tailwind, the blocks, its components' classes) and its own look over it, Material 3. */
+/* The standard theme: its base (the reset, the blocks, its components' classes) and its own look over it, Material 3. */
 @import './base.css';
 @import './tokens/material/comp/badge.css';
 @import './tokens/material/comp/bottom-sheet.css';
