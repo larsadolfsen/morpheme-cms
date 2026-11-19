@@ -4,7 +4,7 @@
    Logical properties, gap and the theme's tokens; a physical property only where the old class was physical on purpose. */
 @layer utilities {
   /* Space between the children, as the old space-y-* did it (the same margins at zero specificity, so a child's own margin rule still wins).
-     mo-editor-gapped keeps its gap; mo-editor-rhythm also takes the person's density step (the rule after this layer). */
+     mo-editor-gapped keeps its gap; mo-editor-rhythm also takes the person's density step (src/editor-density.css, the rule after this layer). */
   :where(.mo-editor-gapped-25 > :not(:last-child)) {
     margin-block: 0 var(--mo-ref-space-25);
   }
@@ -147,7 +147,7 @@
     inset-block-start: var(--mo-ref-space-50);
   }
   .mo-editor-empty-note {
-    padding-block: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block: var(--mo-comp-editor-rhythm-300);
     padding-inline: var(--mo-ref-space-200);
     text-align: center;
     color: var(--mo-sys-color-on-surface-variant);
@@ -403,7 +403,7 @@
   .mo-editor-icon-picker-grid,
   .mo-editor-icon-picker-more,
   .mo-editor-icon-picker-status {
-    margin-block-start: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-start: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-icon-picker-grid {
     display: grid;
@@ -451,7 +451,7 @@
   .mo-editor-fold-body {
     padding-inline: var(--mo-ref-space-200);
     padding-block-start: var(--mo-ref-space-50);
-    padding-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-sheet-chips,
   .mo-editor-chips {
@@ -486,7 +486,7 @@
     align-items: center;
     gap: var(--mo-ref-space-100);
     padding-inline: var(--mo-ref-space-150);
-    padding-block: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block: var(--mo-comp-editor-rhythm-200);
     text-align: center;
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
@@ -575,18 +575,18 @@
     overflow-y: auto;
     padding-inline: var(--mo-sys-grid-margin);
     padding-block-start: var(--mo-ref-space-100);
-    padding-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-sheet-list {
     min-block-size: 0;
     flex: 1;
     overflow-y: auto;
     padding-inline: var(--mo-ref-space-100);
-    padding-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-sheet-group-title {
     padding-inline: var(--mo-ref-space-150);
-    padding-block-start: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block-start: var(--mo-comp-editor-rhythm-200);
     padding-block-end: var(--mo-ref-space-50);
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
@@ -599,11 +599,11 @@
   }
   .mo-editor-sheet-actions {
     padding-inline: var(--mo-sys-grid-margin);
-    padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-sheet-footer {
     padding-inline: var(--mo-ref-space-250);
-    padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-sheet-handle {
     touch-action: none;
@@ -631,7 +631,7 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-form-heading {
-    padding-block-start: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block-start: var(--mo-comp-editor-rhythm-200);
     font-weight: 600;
   }
   .mo-editor-form-heading-first {
@@ -687,10 +687,10 @@
   }
   .mo-editor-section-body {
     padding-block-start: var(--mo-ref-space-100);
-    padding-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block-end: var(--mo-comp-editor-rhythm-400);
   }
   .mo-editor-section {
-    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
   .mo-editor-check-good-fill {
     fill: var(--mo-comp-editor-status-good-surface);
@@ -734,14 +734,14 @@
   .mo-editor-check-fix {
     padding-inline: var(--mo-ref-space-200);
     padding-inline-start: 2.75rem;
-    padding-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block-end: var(--mo-comp-editor-rhythm-150);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-score {
     --mo-comp-stack-gap: var(--mo-ref-space-150);
-    row-gap: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    row-gap: var(--mo-comp-editor-rhythm-150);
     align-items: center;
-    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
   .mo-editor-score-ring {
     position: relative;
@@ -807,7 +807,7 @@
     border: 0 solid var(--mo-sys-color-outline-variant);
     border-block-start-width: 1px;
     padding-inline: var(--mo-ref-space-200);
-    padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-share-preview-domain {
     display: block;
@@ -867,7 +867,7 @@
   /* The screen (Screen.tsx's columns), the side sheet beside it and the section list. */
   .mo-editor-screen-layout {
     --mo-comp-stack-gap: var(--mo-ref-space-300);
-    row-gap: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    row-gap: var(--mo-comp-editor-rhythm-300);
   }
   .mo-editor-screen-main {
     min-inline-size: 0;
@@ -1003,7 +1003,7 @@
     margin-inline-end: calc((var(--mo-comp-icon-button-width) - 1.5rem) / 2 * -1);
   }
   .mo-editor-main-drawer-header-divider {
-    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-main-drawer-divider {
     margin-block: var(--mo-ref-space-200);
@@ -1073,7 +1073,7 @@
   }
 }
 
-/* The vertical rhythm follows the person's density step (the rules at the end of editor.css, which keyed on the old space-y-* classes): a gap of
+/* The vertical rhythm follows the person's density step (the tokens of src/editor-density.css; the rules at the end of editor.css key on the old space-y-* classes): a gap of
    12 px or more between stacked parts takes the step, and a child with a margin of its own keeps it. Not in the layer, as the old rules were.
    The classes at the end of the list are the parts of this file that had a margin class (my-, mb-, m-0) before and so were left out. */
 .mo-editor-rhythm-150
@@ -1099,7 +1099,7 @@
     .mo-editor-section-pane-caption,
     .mo-editor-section-pane-title
   ) {
-  margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  margin-block-end: var(--mo-comp-editor-rhythm-150);
 }
 .mo-editor-rhythm-200
   > :not(
@@ -1124,7 +1124,7 @@
     .mo-editor-section-pane-caption,
     .mo-editor-section-pane-title
   ) {
-  margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  margin-block-end: var(--mo-comp-editor-rhythm-200);
 }
 .mo-editor-rhythm-250
   > :not(
@@ -1149,7 +1149,7 @@
     .mo-editor-section-pane-caption,
     .mo-editor-section-pane-title
   ) {
-  margin-block-end: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  margin-block-end: var(--mo-comp-editor-rhythm-250);
 }
 .mo-editor-rhythm-300
   > :not(
@@ -1174,7 +1174,7 @@
     .mo-editor-section-pane-caption,
     .mo-editor-section-pane-title
   ) {
-  margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  margin-block-end: var(--mo-comp-editor-rhythm-300);
 }
 
 /* The same parts inside a stack that is still written with space-y-* (the parts of src/ not yet moved off Tailwind): the rules at the end of
