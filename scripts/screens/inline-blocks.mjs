@@ -273,7 +273,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       const was = row.className;
       for (const kind of ['filled', 'tonal', 'outlined', 'text']) {
         row.classList.remove('mo-is-filled', 'mo-is-tonal', 'mo-is-outlined', 'mo-button__text');
-        row.classList.add(`button-${kind}`);
+        row.classList.add(kind === 'text' ? 'mo-button__text' : `mo-is-${kind}`);
         out[kind] = [getComputedStyle(field, '::placeholder').color, getComputedStyle(row).color, getComputedStyle(field).color];
       }
       row.className = was;
