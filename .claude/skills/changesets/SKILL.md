@@ -26,7 +26,7 @@ level its base branch does not allow is not merged; fix the changeset.
 
 | Base branch | Allowed | What it collects | Merged into it |
 | :--- | :--- | :--- | :--- |
-| `main` | `minor`, `patch` or empty for the 0.17 work, until `0.17.0` (Release PR #340) is released; after that the owner decides again | the current release (0.17) | — |
+| `main` | `patch` or empty until 0.18.1 is released; then the merge of `feature/tailwind` adds one `minor` (it is 0.19.0, owner, 19 Nov 2026), and from 0.19 the first feature of a line `minor`, every other feature and fix `patch` (`docs/superpowers/plans/2026-11-18-release-per-feature.md`) | the next release | — |
 | `0.17` | — | there is no `0.17` branch: the 0.17 work merges into `main` | — |
 | `0.18` | `patch` or empty only (CTO ruling, 18 Nov 2026: the next release is the fixes release 0.18.1) | the 0.18 work, the editor (`docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`) | none: the line is finished (owner, 19 Nov 2026), nothing goes into `0.18` any more |
 | `0.19` | `minor`, `patch` or empty | the 0.19 work, Lists and data (`docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`); cut from `0.18` on 14 Nov 2026, and never merged into `0.18` or `main` until 0.17 and 0.18 are released and the owner says go | `0.18` after each merge into `0.18` |
