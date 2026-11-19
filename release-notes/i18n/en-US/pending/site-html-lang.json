@@ -1,6 +1,0 @@
-{
-  "id": "site-html-lang",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "A page on your site keeps the site’s language in its lang setting, whatever language the visitor’s browser uses, so screen readers read it in the right language"
-}

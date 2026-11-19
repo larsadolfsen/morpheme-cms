@@ -1,5 +1,14 @@
 # @morphemecms/cms
 
+## 0.18.1
+
+### Patch Changes
+
+- 914cc83: The start screen says why the website can't update itself: a theme or app that doesn't work with the new version yet, a version that needs npm, a GitHub token that can't save, or a missing token or KV namespace.
+- 6ecef70: The peer range for postcss-selector-parser starts at 7.1.0 (it was 7.2.0), so a site with 7.1.x in its lockfile can update itself again; a test runs the real update on lockfiles of old and current starters.
+- 515242b: A page on your site keeps the site's language in its `lang` setting, whatever language the visitor's browser uses, so screen readers read it in the right language.
+- 08507d4: A site's nightly update no longer takes a version whose contract a theme or app from the store is not written to; it records the hold as a problem instead. A missing GitHub token is recorded as a problem too.
+
 ## 0.18.0
 
 ### Minor Changes
