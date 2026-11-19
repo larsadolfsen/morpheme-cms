@@ -49,7 +49,7 @@ for (const [style, [size, lineHeight, weight, tracking]] of Object.entries(M3)) 
     assert.equal(px(token(`mo-sys-typescale-${style}-line-height`)), lineHeight);
     assert.equal(Number(token(`mo-sys-typescale-${style}-weight`)), weight);
     assert.equal(px(token(`mo-sys-typescale-${style}-tracking`)), tracking);
-    assert.equal(token(`mo-sys-typescale-${style}-font`), 'var(--font-sans)');
+    assert.equal(token(`mo-sys-typescale-${style}-font`), 'var(--mo-ref-typeface-plain)');
   });
 }
 
