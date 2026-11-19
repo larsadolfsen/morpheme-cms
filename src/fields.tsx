@@ -138,7 +138,7 @@ const joined = (base: string, name: string | number) => (base ? `${base}.${name}
 
 /** The field that keeps a form from being saved (problemAt in check.ts), when it was found (a new
  * number each time, so it is shown again on the next try), and how to stop showing it: the item of a
- * list it is in is opened, it is scrolled to and its border flashes (.editor-wrong in editor.css),
+ * list it is in is opened, it is scrolled to and its border flashes (.mo-editor-wrong in editor.css),
  * until it is changed. Every form has it (useWrongField). */
 export type Wrong = { path: string; at: number; clear: () => void };
 export const WrongField = createContext<Wrong | null>(null);
@@ -171,10 +171,10 @@ function useMarked<T extends HTMLElement>(props: Props) {
   useEffect(() => {
     const el = box.current;
     if (!el) return;
-    el.classList.remove('editor-wrong');
+    el.classList.remove('mo-editor-wrong');
     if (!here) return;
     void el.offsetWidth;
-    el.classList.add('editor-wrong');
+    el.classList.add('mo-editor-wrong');
     el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }, [here, wrong?.at]);
   // A change in the marked field ends the marking.

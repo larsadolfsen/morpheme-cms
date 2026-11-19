@@ -26,7 +26,7 @@ export default function InlineNotice({ props, data, active, focus, onChange }: I
               role="button"
               tabIndex={0}
               aria-label={t.blocks.notice.text}
-              className="inline-notice"
+              className="mo-editor-inline-notice"
               onClick={(e) => {
                 e.preventDefault();
                 onChange({ active: 0, focus: { row: 0, field: 'text' } });
@@ -41,8 +41,8 @@ export default function InlineNotice({ props, data, active, focus, onChange }: I
             className={[
               cardClass('filled'),
               'mo-block-notice',
-              'inline-notice',
-              here ? 'inline-list-row-active' : 'inline-list-row-next',
+              'mo-editor-inline-notice',
+              here ? 'mo-editor-inline-list-row-active' : 'mo-editor-inline-list-row-next',
             ].join(' ')}
           >
             <p>{field('text', t.blocks.notice.text, t.blocks.notice.placeholder)}</p>

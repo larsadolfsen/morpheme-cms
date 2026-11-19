@@ -1,611 +1,90 @@
 {
   "why": "Ratchet counts until the renames M2 to M6 of docs/superpowers/plans/2026-11-18-mo-names-contract-7.md have landed: a file may keep these counts, never go over, and a new file gets none. Lower a count when it falls (npm run check:mo-names -- --list). M7 takes it to zero. What is not counted: NOT_RENAMED in scripts/mo-names.mjs.",
   "files": {
-    "demo/src/apps/inline-example/blocks/tickets/Inline.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "scripts/built-site.mjs": {
-      "classDefs": 0,
-      "markup": 4,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "scripts/check-contrast.mjs": {
-      "classDefs": 0,
-      "markup": 8,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 1
     },
     "scripts/check-css-tokens.mjs": {
-      "classDefs": 0,
-      "markup": 0,
-      "propsDeclared": 0,
       "propsRead": 1
     },
     "scripts/check-text-measure.mjs": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 1
     },
     "scripts/gen-token-registry.mjs": {
-      "classDefs": 0,
-      "markup": 0,
-      "propsDeclared": 0,
       "propsRead": 1
     },
-    "scripts/measure-speed.mjs": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "scripts/screens/block-bar.mjs": {
-      "classDefs": 0,
-      "markup": 66,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "scripts/screens/cards.mjs": {
-      "classDefs": 0,
-      "markup": 20,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "scripts/screens/choice-groups.mjs": {
-      "classDefs": 0,
-      "markup": 10,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "scripts/screens/density.mjs": {
-      "classDefs": 0,
-      "markup": 10,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "scripts/screens/files.mjs": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "scripts/screens/inline-blocks.mjs": {
-      "classDefs": 0,
-      "markup": 71,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 6
     },
     "scripts/screens/lists.mjs": {
-      "classDefs": 0,
-      "markup": 47,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "scripts/screens/page-rows.mjs": {
-      "classDefs": 0,
-      "markup": 98,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "scripts/screens/search-and-palette.mjs": {
-      "classDefs": 0,
-      "markup": 9,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "scripts/screens/sections.mjs": {
-      "classDefs": 0,
-      "markup": 19,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 2
     },
     "scripts/screens/sheets.mjs": {
-      "classDefs": 0,
-      "markup": 101,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 3
     },
     "scripts/screens/start-screens.mjs": {
-      "classDefs": 0,
-      "markup": 5,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "scripts/screens/support/shared.mjs": {
-      "classDefs": 0,
-      "markup": 20,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "scripts/screens/tables.mjs": {
-      "classDefs": 0,
-      "markup": 19,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "scripts/screens/text-bar.mjs": {
-      "classDefs": 0,
-      "markup": 40,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 1
     },
     "scripts/theme-screenshots.mjs": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 1
     },
     "site/images.mjs": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 1
     },
     "site/theme.mjs": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/App.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/BlockDialog.tsx": {
-      "classDefs": 0,
-      "markup": 4,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/CropView.tsx": {
-      "classDefs": 0,
-      "markup": 11,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/FormFrame.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/InlineButtons.tsx": {
-      "classDefs": 0,
-      "markup": 5,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/InlineCards.tsx": {
-      "classDefs": 0,
-      "markup": 7,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/InlineItems.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/InlineList.tsx": {
-      "classDefs": 0,
-      "markup": 8,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/InlineLiveList.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/InlineNotice.tsx": {
-      "classDefs": 0,
-      "markup": 4,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/InlinePriceCards.tsx": {
-      "classDefs": 0,
-      "markup": 7,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/InlineSteps.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/InlineTable.tsx": {
-      "classDefs": 0,
-      "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/InlineVideo.tsx": {
-      "classDefs": 0,
-      "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 2
     },
     "src/MarkdownEditor.tsx": {
-      "classDefs": 0,
-      "markup": 41,
-      "propsDeclared": 2,
-      "propsRead": 0
-    },
-    "src/Media.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/OwnList.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/PaneHost.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/Screen.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/SelectionBar.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 1
     },
     "src/SelectionParts.tsx": {
-      "classDefs": 0,
-      "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/ShortcutsSheet.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/blockRow.ts": {
-      "classDefs": 0,
-      "markup": 23,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/contextualMenu.ts": {
-      "classDefs": 0,
-      "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/editor-density.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 3
     },
     "src/editor.css": {
-      "classDefs": 477,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 6
-    },
-    "src/fabPresence.tsx": {
-      "classDefs": 0,
-      "markup": 0,
-      "propsDeclared": 1,
-      "propsRead": 0
-    },
-    "src/fields.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/sectionFrame.ts": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/topBarSlot.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "classDefs": 46
     },
     "src/ui.tsx": {
-      "classDefs": 0,
-      "markup": 25,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 1
     },
     "theme/components/BlogPosts.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 1
     },
     "theme/components/CookieConsent.astro": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 1
     },
     "theme/components/Logo.astro": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 2
     },
     "theme/layouts/Base.astro": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 1
     },
     "theme/styles/base.css": {
-      "classDefs": 6,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "classDefs": 6
     },
     "theme/styles/blocks/prose.css": {
-      "classDefs": 4,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "classDefs": 4
     },
     "theme/styles/blocks/testimonial.css": {
-      "classDefs": 3,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "classDefs": 3
     },
     "theme/styles/cards.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "classDefs": 1
     },
     "theme/styles/material/prose-testimonial.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "classDefs": 1
     },
     "theme/styles/site-logo-post.css": {
-      "classDefs": 3,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "classDefs": 3
     },
     "theme/styles/site-page.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/blocks/sys.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/badge.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/bottom-sheet.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/button.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/card.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/carousel.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/checkbox.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/chip.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/date-picker.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/dialog.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/fab.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/icon-button.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/list.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/menu.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/navigation.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/progress-indicator.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/radio.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/search.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/segmented-button.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/setting.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/side-sheet.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/slider.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/snackbar.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/split-button.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/switch.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/text-field.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/time-picker.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/toolbar.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/tooltip.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/comp/top-app-bar.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/ref.css": {
-      "classDefs": 2,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/styles/tokens/material/sys.css": {
-      "classDefs": 2,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "classDefs": 1
     },
     "theme/styles/ui/tooltip.css": {
-      "classDefs": 1,
-      "markup": 0,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "classDefs": 1
     },
     "worker/mcp-oauth.js": {
       "classDefs": 1,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
+      "markup": 1
     }
   }
 }

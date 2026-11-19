@@ -173,7 +173,7 @@ function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, Small> | n
       alt=""
       decoding="async"
       draggable={false}
-      className="editor-fade-in mo-cover"
+      className="mo-editor-fade-in mo-cover"
       onLoad={(e) => e.currentTarget.setAttribute('data-loaded', '')}
       onError={() => thumb && setFailed(true)}
     />

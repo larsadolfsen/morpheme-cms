@@ -53,7 +53,7 @@ export function ShortcutsSheet() {
     <BottomSheet
       ref={dialog}
       aria-label={t.palette.shortcuts}
-      className="shortcuts-dialog"
+      className="mo-editor-shortcuts-dialog"
       tabIndex={-1}
       onClose={closeShortcuts}
       onClick={(e) => e.target === dialog.current && dialog.current?.close()}
