@@ -76,7 +76,7 @@ The blocks' names (`theme/blocks/`, `theme/styles/blocks/`, `src/standard/` and 
 | `block-panel`, `block-panel-<part>` (`icon`, `part`, `text`, `title`), `block-panels`, `block-cta`, `block-cta-<part>`, `block-facts`, `block-facts-amount`, `block-media`, `block-media-<part>`, `block-person`, `block-person-<part>`, `block-timeline`, `block-timeline-<part>`, `block-link`, `block-link-row`, `block-link-row-<part>`, `block-arrow-link`, `block-icon-list`, `block-copy-rows`, `block-copy-value`, `block-badge`, `block-tag`, `block-terms`, `block-small-screens` | the same word with `mo-`, parts `mo-block-<root>__<part>` | shared parts no block folder owns: each is its own type |
 | `--step` (the timeline's runtime value) | `--mo-comp-block-timeline-step` | a value set on an element |
 
-Left alone, with the reason: `.carousel`, `.image-grid` (the theme's components, M3); `js` (the root's state, M5); `text-align-center`, `text-align-right` (the Markdown editor saves them in content, `lib/text-align.mjs`: M6's question); `contains-task-list`, `task-list-item` (the Markdown renderer's own classes); `body-*`, `label-medium`, `color-*` (saved in content, M6).
+Left alone, with the reason: `.carousel`, `.image-grid` (the theme's components, M3); `js` (the root's state, M5); `contains-task-list`, `task-list-item` (the Markdown renderer's own classes); `body-*`, `label-medium`, `color-*` (saved in content, M6).
 
 ## Settled in M2
 
@@ -96,6 +96,10 @@ The editor's own names (`src/`, `pages/`; the demo app block that reuses them). 
 The classes an inline block of an app writes itself (`inline-list-row-active`, `inline-list-row-next`: the demo's Tickets block) are renamed with the editor's: an app that draws its own inline rows reads them, so the changeset is a patch with a line for authors.
 
 Left to the theme's PR (M3), because the theme declares or draws them and the editor only overrides or reads them: `checkbox-text`, the hooks `--navigation-drawer-*`, `--tooltip-gap`, `--bottom-sheet-top-gap`, `--side-sheet-width`, `--toolbar-*`, `--icon-button-standard-selected-text`, `--dropdown-menu-gap`, `--keyboard-inset`, `--carousel-mask`, and every theme component's class the editor writes (`button`, `chip`, `list-item-*`, `text-field-input` …). Left to M4, M5 and M6: the block, site-shell and saved-in-content names the editor writes.
+
+## Settled in M6c
+
+The alignment of a paragraph or a smaller heading: `text-align-center`, `text-align-right` → `mo-has-text-align-center`, `mo-has-text-align-right` (what the block holds, `mo-has-<word>`). They are **not saved in content**: the editor writes only the line `<div data-align="center"></div>` (`lib/text-align.mjs`) and the site's pipeline (`rehypeAlign`) puts the class on the block after it, so no content is rewritten and `lib/content-class-names.mjs` is unchanged. A theme that styled the old classes uses the new ones. The other classes the editor writes into content (`lib/body-size.mjs`, `body-large.mjs`, `eyebrow.mjs`, `text-sizes.mjs`, `text-colors.mjs`) already have their `mo-` names (M6); nothing else the editor saves is an unprefixed class.
 
 ## A name the pattern does not settle
 

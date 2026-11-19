@@ -25,7 +25,7 @@ import { t } from './i18n';
 
 const { sizes, shapes } = t.parts.screens;
 const say = t.parts.screens.actions;
-const row = 'flex flex-wrap items-center gap-4';
+const row = 'mo-editor-sample-row';
 // Icons the site draws (icon.tsx).
 const channelIcons = ['phone', 'envelope-simple', 'chats'];
 const modeIcons = ['sun', 'moon'];
@@ -67,7 +67,7 @@ export default function ActionParts() {
     <>
       <Part name="ButtonGroup" use={say.buttonGroup}>
         <Preview>
-          <div className="space-y-4 p-4">
+          <div className="mo-editor-sample-stack-4">
             {buttonGroupKinds.map((kind) => (
               <div key={kind} className={row}>
                 <SiteButtonGroup kind={kind} label={say.group}>
@@ -138,12 +138,12 @@ export default function ActionParts() {
       </Part>
       <Part name="ChoiceGroup" use={say.choiceGroup}>
         <Preview>
-          <div className="space-y-6 p-4">
+          <div className="mo-editor-sample-stack-6">
             <StyleChoice styles={['filled', 'tonal', 'outlined']} />
             <StyleChoice styles={['filled', 'tonal', 'outlined']} form="list" />
-            <div className="space-y-2">
+            <div className="mo-editor-flow-2">
               <p className="mo-type-label-large">{say.narrow}</p>
-              <div className="max-w-80" data-choice-narrow>
+              <div className="mo-editor-narrow-sample" data-choice-narrow>
                 <StyleChoice styles={buttonStyles} />
               </div>
             </div>
@@ -152,7 +152,7 @@ export default function ActionParts() {
       </Part>
       <Part name="SplitButton" use={say.splitButton}>
         <Preview>
-          <div className="space-y-4 p-4">
+          <div className="mo-editor-sample-stack-4">
             <div className={row}>
               {splitButtonKinds.map((kind) => (
                 <SiteSplitButton key={kind} kind={kind} label={say.kinds[kind]} menuLabel={say.more}>
@@ -172,7 +172,7 @@ export default function ActionParts() {
                 {ways()}
               </SiteSplitButton>
             </div>
-            <div className="flex justify-end pb-44">
+            <div className="mo-editor-menu-sample">
               <SiteSplitButton icon="calendar-blank" label={say.book} menuLabel={say.more} open>
                 {ways()}
               </SiteSplitButton>
@@ -182,8 +182,8 @@ export default function ActionParts() {
       </Part>
       <Part name="FabMenu" use={say.fabMenu}>
         <Preview>
-          <div className="space-y-6 p-4">
-            <div className={`${row} justify-end`}>
+          <div className="mo-editor-sample-stack-6">
+            <div className={`${row} mo-row-end`}>
               {fabMenuKinds.map((kind) => (
                 <SiteFabMenu
                   key={kind}
@@ -200,13 +200,13 @@ export default function ActionParts() {
                 <SiteFabMenu key={size} size={size} icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} />
               ))}
             </div>
-            <div className="grid gap-6 medium:grid-cols-2">
+            <div className="mo-editor-two-columns">
               {fabMenuKinds.map((kind) => (
-                <div key={kind} className="flex justify-end pt-52">
+                <div key={kind} className="mo-editor-menu-sample-top">
                   <SiteFabMenu kind={kind} icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} open />
                 </div>
               ))}
-              <div className="flex justify-end pt-52">
+              <div className="mo-editor-menu-sample-top">
                 <SiteFabMenu size="large" icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} open />
               </div>
             </div>

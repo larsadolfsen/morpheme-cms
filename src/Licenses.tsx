@@ -94,7 +94,7 @@ function LicenseRow({
       supporting={
         under.length > 0 &&
         under.map((line) => (
-          <span key={line} className="block">
+          <span key={line} className="mo-editor-settings-block">
             {line}
           </span>
         ))
@@ -201,7 +201,12 @@ export default function Licenses() {
         <EmptyNote>{t.licenses.missing}</EmptyNote>
       ) : (
         <>
-          <SearchRow value={query} onChange={setQuery} label={t.common.searchIn(t.common.parts.licenses)} className="mb-6" />
+          <SearchRow
+            value={query}
+            onChange={setQuery}
+            label={t.common.searchIn(t.common.parts.licenses)}
+            className="mo-editor-settings-group"
+          />
           {groups.length ? (
             groups.map((g) => (
               <Group key={g.key} title={g.title}>
@@ -212,7 +217,7 @@ export default function Licenses() {
               </Group>
             ))
           ) : (
-            <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
+            <p className="mo-editor-no-match">{t.common.noMatch}</p>
           )}
         </>
       )}
@@ -261,18 +266,18 @@ export function LicensePage({ id }: { id: string }) {
               <OwnRow owner={(work ?? owner)!} name={isCms ? CMS_NAME : ownerName(owner!)} open={false} />
             )}
           </Group>
-          {photo && <img src={photo} alt={work!.name} className="mb-8 block h-auto w-full rounded-xl" />}
-          <section className="mb-8">
+          {photo && <img src={photo} alt={work!.name} className="mo-editor-license-photo" />}
+          <section className="mo-editor-settings-section">
             <GroupTitle>{t.licenses.text}</GroupTitle>
-            {work?.standard && <SupportingText className="mb-3 px-4">{t.licenses.standardText(work.license)}</SupportingText>}
+            {work?.standard && <SupportingText className="mo-editor-license-note">{t.licenses.standardText(work.license)}</SupportingText>}
             {text ? (
               paragraphsOf(text).map((p, i) => (
-                <p key={i} className="mb-3 px-4 break-words last:mb-0">
+                <p key={i} className="mo-editor-license-paragraph">
                   {p}
                 </p>
               ))
             ) : (
-              <p className="px-4 text-on-surface-variant">{t.licenses.noText}</p>
+              <p className="mo-editor-license-none">{t.licenses.noText}</p>
             )}
           </section>
         </>

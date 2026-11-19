@@ -302,7 +302,7 @@ function CropDialog({
                   {r > 0 && (
                     <span
                       aria-hidden="true"
-                      className="rounded-[3px] border-[1.5px] border-current"
+                      className="mo-editor-crop-ratio-box"
                       style={{ width: r >= 1 ? 18 : 18 * r, height: r >= 1 ? 18 / r : 18 }}
                     />
                   )}
@@ -318,7 +318,7 @@ function CropDialog({
         <Slider
           label={t.media.crop.zoom}
           hideLabel
-          className="flex-1"
+          className="mo-editor-grow"
           min={1}
           max={MAX_ZOOM}
           step={0.01}
@@ -345,16 +345,16 @@ function CropDialog({
       {shown && (
         <>
           <TopAppBar>
-            <div className="flex h-16 items-center gap-1 px-2 medium:gap-3 medium:px-6">
+            <div className="mo-editor-crop-bar">
               <IconButton icon="arrow-left" label={t.common.backTo(t.text.image)} onClick={() => void leave()} />
-              <h1 id={headline} className="min-w-0 flex-1 truncate text-title-large">
+              <h1 id={headline} className="mo-fill mo-truncate mo-type-title-large">
                 {t.media.crop.title}
               </h1>
             </div>
           </TopAppBar>
           <main className="crop-page-main">{body}</main>
           <ActionSheet label={t.common.saveChanges}>
-            <div className="flex justify-end gap-2">
+            <div className="mo-editor-crop-actions">
               {medium && (
                 <Button kind="outlined" onClick={() => void leave()}>
                   {t.common.cancel}
