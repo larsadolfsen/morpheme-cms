@@ -7,7 +7,7 @@ the rendered result is identical, its changeset, its checks and what must merge 
 
 ## Basis (owner, 18 Nov, confirmed in words)
 
-- **Release order (owner, 18 Nov): 0.18.0 (released), 0.18.1 (fixes, from `main`), 0.18.2 (Tailwind, contract 7), 0.18.3 (pre-built editor).** Contract 7 / Tailwind (0.18.2) is not released until `morpheme-apps` runs on it.
+- **Release order (owner, 18 Nov): 0.18.0 (released), 0.18.1 (fixes, from `main`), 0.18.2 (Tailwind, contract 7); the pre-built editor moved to 0.19 Build speed (owner, 19 Nov).** Contract 7 / Tailwind (0.18.2) is not released until `morpheme-apps` runs on it.
 - **Tailwind ships as 0.18.2, with contract 7**: `THEME_API` and `APP_API` go from 6 to 7 and `APP_APIS` becomes `[7]` (as the token rename did with `[6]`), in batch T16.
 - **Patch changesets only** (`patch` or empty, never `minor` or `major`, T16 too).
 - **The work goes into `main` after the owner releases 0.18.0**, and after the CSS split is done (for the batches that touch its files). **No build session starts before 0.18.0 is released**, and none without the PM's word.

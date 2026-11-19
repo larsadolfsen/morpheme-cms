@@ -1,8 +1,9 @@
 # A release per feature, inside version lines (plan)
 
 Status: **approved by the owner, 18 November 2026** ("yes"), revised with the owner the same day. It replaces the version of this plan the owner approved earlier the
-same day ("Approve"), which had no version lines and a test version on npm per feature. **Takes effect after 0.18.3**: 0.18.0 (released),
-0.18.1 (fixes, from `main`), 0.18.2 (Tailwind, contract 7) and 0.18.3 (pre-built editor) finish as planned, in that order. The demo editor (below) can start at once.
+same day ("Approve"), which had no version lines and a test version on npm per feature. **Takes effect after 0.18.2**: 0.18.0 (released),
+0.18.1 (fixes, from `main`) and 0.18.2 (Tailwind, contract 7) finish as planned, in that order; the pre-built editor is a feature of
+0.19 Build speed (owner, 19 November 2026; it was 0.18.3). The demo editor (below) can start at once.
 
 The owner's words, 18 November:
 
@@ -67,7 +68,7 @@ Nothing is written to GitHub. Guarded by four points (owner, "1-4 then"):
 
 1. **The demo editor** (can start now, a feature into `0.18`): points 1 and 2 above, PR 1 a proof that the editor opens and saves on a
    Preview. Points 3 and 4 are the owner's, in the dashboard; the PM tells the owner when the editor is merged.
-2. **The release on merge** (after 0.18.3 is released). On a push to `main`, the job `release` no longer opens a Release PR: it first
+2. **The release on merge** (after 0.18.2 is released). On a push to `main`, the job `release` no longer opens a Release PR: it first
    stages the test version `next` (the owner approves it; staging builds on it), and runs `release:version` only after staging's build
    of that `-next-` version has succeeded: it commits the version and `CHANGELOG.md` to `main` as the workflow's bot ("Version X.Y.Z")
    and stages `latest`; the job `latest` then makes the tag and the GitHub release as today. A push that is the workflow's own version
@@ -78,7 +79,7 @@ Nothing is written to GitHub. Guarded by four points (owner, "1-4 then"):
    merge into `main` at a time, each a release); `changesets` (the first feature of a line `minor`, every other feature and fix
    `patch`; never `major` below 1.0); `release` (the owner's approval on npm and the checks after it; no Release PR phase); `checks`
    (the levels without line branches).
-4. **The roadmap and the branches.** The roadmap's sections after 0.18.3 stay the lines, each an ordered list of features; the `0.19`
+4. **The roadmap and the branches.** The roadmap's sections from 0.19 on are the lines, each an ordered list of features; the `0.19`
    branch's open work (owner, 17 November: merge it first if possible) is merged into `main` or moved onto feature branches; the line
    branches are deleted when empty.
 
