@@ -33,12 +33,12 @@ function VersionEntry({ entry, photo }: { entry: VersionNotes; photo: boolean })
   const version = entry.version.split('-')[0];
   const name = entry.edition?.name ? t.library.cmsEdition(entry.edition.name, version) : t.library.cmsVersion(version);
   return (
-    <section className="space-y-5 border-t border-outline-variant pt-5 first-of-type:border-t-0 first-of-type:pt-0">
-      <div className="space-y-3">
+    <section className="mo-editor-note-section">
+      <div className="mo-editor-flow-3">
         <div>
-          <h3 className="text-title-large">{t.cms.newIn(name)}</h3>
+          <h3 className="mo-type-title-large">{t.cms.newIn(name)}</h3>
           {entry.date && (
-            <p className="text-sm text-on-surface-variant">
+            <p className="mo-editor-small-note">
               <time dateTime={entry.date}>{dayOf(entry.date)}</time>
             </p>
           )}
@@ -47,11 +47,11 @@ function VersionEntry({ entry, photo }: { entry: VersionNotes; photo: boolean })
           <img
             src={entry.edition.image}
             alt={entry.edition.place[locale] ?? entry.edition.place['en-US'] ?? entry.edition.name}
-            className="block aspect-[3/2] w-full rounded-xl object-cover"
+            className="mo-editor-note-image"
           />
         )}
       </div>
-      {!notes.length && entry.text && <p className="text-base">{entry.text}</p>}
+      {!notes.length && entry.text && <p className="mo-editor-body-text">{entry.text}</p>}
       {paragraphs.map((note) => (
         <ReleaseNoteSection key={note.id} note={note} />
       ))}
@@ -62,8 +62,8 @@ function VersionEntry({ entry, photo }: { entry: VersionNotes; photo: boolean })
 
 export function ReleaseNotes({ title, entries }: { title?: string; entries: VersionNotes[] }) {
   return (
-    <article className="mb-8 max-w-prose space-y-5 px-4 not-first:mt-8">
-      {title && <h2 className="text-2xl">{title}</h2>}
+    <article className="mo-editor-note-article">
+      {title && <h2 className="mo-editor-note-title">{title}</h2>}
       {entries.map((entry, i) => (
         // One photo per line: under its newest version's heading.
         <VersionEntry key={entry.version} entry={entry} photo={entry.edition?.line !== entries[i - 1]?.edition?.line} />

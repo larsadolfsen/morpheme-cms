@@ -6,6 +6,7 @@
 @import './editor-forms.css';
 @import './editor-rest.css';
 @import './editor-screens.css';
+@import './editor-settings.css';
 @import './editor-ui.css';
 
 /* Density (theme/styles/base.css) reaches the editor's own screens, not the page and post editing area: what is typed in place

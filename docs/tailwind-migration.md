@@ -1,6 +1,6 @@
 # Migrating a theme or an app away from Tailwind
 
-For authors of themes and apps. The CMS stops building Tailwind in 0.18.2, together with contract 7. A theme or an app
+For authors of themes and apps. The CMS stops building Tailwind in 0.19.0, together with contract 7. A theme or an app
 written to contract 7 uses no utility class, no `theme()`, no `@theme`, no `@apply` and no `@source`. This page says what
 to write instead. Everything on it can be done now: it works with the 0.18.0 CMS (contract 6) as well, so a theme or an app
 released at 6 without utilities needs only its contract number changed for 7.
@@ -27,7 +27,7 @@ After contract 7 nothing builds these for you. A class or rule that uses them do
 | An arbitrary value or property | `w-[22.5rem]`, `[--mo-comp-card-padding:1rem]`, `[&>svg]:size-5` |
 | `theme()` in CSS | `@media (width >= theme(--breakpoint-medium))` |
 | `@theme`, `@apply`, `@utility`, `@source`, `@plugin` | `@apply flex gap-2;` |
-| `--tw-*` custom properties | `var(--tw-translate-x)` (the text's colours are `--mo-comp-prose-*` since 0.18.2) |
+| `--tw-*` custom properties | `var(--tw-translate-x)` (the text's colours are `--mo-comp-prose-*` since 0.19.0) |
 | The typography plugin's classes other than `prose` and `not-prose` | `prose-lg`, `prose-invert`, `prose-a:underline` |
 
 Still works: `prose` and `not-prose`, `post-lead`, `lead` and the type classes `mo-type-display-large` … `mo-type-lead`

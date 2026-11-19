@@ -188,17 +188,17 @@ export default function Parts({ env }: { env: Env }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const fieldsDialog = useRef<HTMLDialogElement>(null);
   const pageDialog = useRef<HTMLDialogElement>(null);
-  const row = 'flex flex-wrap items-center gap-3';
+  const row = 'mo-editor-settings-parts-row';
   const page = useMemo(() => exampleData().relations.pages[1].value, []);
 
   return (
     <Screen title={t.parts.screens.editor} back={{ href: '#developer/parts', label: t.common.parts.editorParts }}>
-      <div className="space-y-10">
-        <p className="text-on-surface-variant">{t.parts.intro('packages/editor/src/ui.tsx')}</p>
+      <div className="mo-editor-flow-10">
+        <p className="mo-editor-settings-muted">{t.parts.intro('packages/editor/src/ui.tsx')}</p>
         <PartsShown groups={GROUPS} keep="parts">
           <PartGroup group="buttons">
             <Part name="ToolbarButton" use={use.toolbarButton}>
-              <div className="flex gap-0.5">
+              <div className="mo-editor-tight-row">
                 <ToolbarButton icon={TextB} label={sample.bold} selected onClick={() => {}} />
                 <ToolbarButton icon={AddBlockIcon} label={sample.insert} onClick={() => {}} />
                 <ToolbarButton icon={TextT} label={t.text.kind} menu={false} onClick={() => {}} />
@@ -415,7 +415,7 @@ export default function Parts({ env }: { env: Env }) {
 
           <PartGroup group="choices">
             <Part name="ChoiceTile" use={use.choiceTile}>
-              <div role="radiogroup" aria-label={sample.icon} className="grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2">
+              <div role="radiogroup" aria-label={sample.icon} className="mo-editor-icon-grid">
                 {[Heart, Leaf, Sun].map((Glyph, i) => (
                   <ChoiceTile key={sample.icons[i]} selected={tile === i} label={sample.icons[i]} onClick={() => setTile(i)}>
                     <Glyph size={24} />
@@ -474,7 +474,7 @@ export default function Parts({ env }: { env: Env }) {
                     tone="delete"
                     onClick={() => {}}
                     headline={
-                      <span className="inline-flex items-center gap-3">
+                      <span className="mo-editor-settings-inline-row">
                         <Trash size={18} />
                         {t.common.delete}
                       </span>
@@ -514,7 +514,7 @@ export default function Parts({ env }: { env: Env }) {
                   href="#developer/parts/editor"
                   headline={sample.pages}
                   actions={
-                    <span className="shrink-0 pr-1.5">
+                    <span className="mo-editor-settings-trailing">
                       <UnfoldButton
                         open={unfolded}
                         count={3}
@@ -526,7 +526,7 @@ export default function Parts({ env }: { env: Env }) {
                   }
                 />
                 {unfolded && (
-                  <li className="pb-2">
+                  <li className="mo-editor-below">
                     <ul className={subListClass}>
                       {[1, 2, 3].map((n) => (
                         <ListItem key={n} tone="sub" href="#developer/parts/editor" headline={sample.subpage(n)} />
@@ -752,7 +752,7 @@ export default function Parts({ env }: { env: Env }) {
             </Part>
 
             <Part name="SectionList, SectionPane" use={use.sectionList}>
-              <div className="max-w-xs">
+              <div className="mo-editor-narrow-xs">
                 <SectionPane caption={t.forms.sections.title} title={examples.pages[0]}>
                   <SectionList title={t.forms.sections.title} items={sectionItems} value={sectionPicked} onChange={setSectionPicked} />
                 </SectionPane>
@@ -764,7 +764,7 @@ export default function Parts({ env }: { env: Env }) {
             </Part>
 
             <Part name="ColorsPreview" use={use.colorsPreview}>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="mo-editor-pair-grid">
                 {(['light', 'dark'] as const).map((m) => (
                   <ColorsPreview key={m} colors={defaultColors[m]} title={t.colors.preview.title(t.colors[m])} />
                 ))}
@@ -1082,10 +1082,10 @@ function FieldTypes({ env }: { env: Env }) {
     <Fields.Provider value={context}>
       <WrongField.Provider value={wrongField.field}>
         <PartGroup group="fieldTypes">
-          {intro && <p className="text-on-surface-variant">{f.intro('packages/editor/src/fields.tsx')}</p>}
+          {intro && <p className="mo-editor-settings-muted">{f.intro('packages/editor/src/fields.tsx')}</p>}
           {types.map((type) => (
             <Part key={type.name} name={type.name} use={type.use}>
-              <div className="space-y-5">
+              <div className="mo-editor-flow-5">
                 <FieldList fields={type.fields} value={values} onChange={(v) => setValues(v as Record<string, unknown>)} />
               </div>
             </Part>

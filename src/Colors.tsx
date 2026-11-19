@@ -329,11 +329,11 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
   // A mode's little page and the pairs in it that are too hard to read.
   function preview(mode: Mode) {
     return (
-      <section className="space-y-4">
+      <section className="mo-editor-flow-4">
         <ColorsPreview colors={colors[mode]} title={t.colors.preview.title(t.colors[mode])} />
         {low[mode].length > 0 && (
           <ProblemNote alert>
-            <ul className="space-y-1">
+            <ul className="mo-editor-flow-1">
               {low[mode].map((pair) => (
                 <li key={`${pair.text}-${pair.on}`}>{t.colors.tooLow(pair.what, ratio(pair.ratio), ratio(pair.min))}</li>
               ))}
@@ -359,9 +359,9 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
           cards={false}
           sticky
           main={
-            <section className="space-y-5">
+            <section className="mo-editor-flow-5">
               <FormField label={d.base} hint={custom ? d.customHint : undefined}>
-                <div className="space-y-3">
+                <div className="mo-editor-flow-3">
                   <ColorTiles
                     label={d.base}
                     colors={BASE_COLORS.map((which, i) => ({
@@ -384,13 +384,13 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                 </div>
               </FormField>
               {custom && dynamic && (
-                <div className="space-y-4">
+                <div className="mo-editor-flow-4">
                   {asked.length > 0 && !dragging && (
-                    <div ref={question} className="scroll-mt-24">
+                    <div ref={question} className="mo-editor-scroll-target">
                       <Notice
                         title={d.fixTitle}
                         action={
-                          <div className="flex flex-wrap gap-2">
+                          <div className="mo-editor-settings-chips">
                             <Button size="small" onClick={fix}>
                               {d.fix}
                             </Button>
@@ -400,7 +400,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                           </div>
                         }
                       >
-                        <ul className="space-y-1">
+                        <ul className="mo-editor-flow-1">
                           {asked.map((p) => (
                             <li key={p.mode}>
                               {t.colors[p.mode]}: {d.hardText(d.primary, ratio(p.ratio), ratio(p.min))}
@@ -413,7 +413,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                   {keptPrimary && hardModes.length > 0 && (
                     <ProblemNote>
                       <p>{d.kept(d.primary)}</p>
-                      <ul className="space-y-1">
+                      <ul className="mo-editor-flow-1">
                         {hardModes.map((p) => (
                           <li key={p.mode}>
                             {t.colors[p.mode]}: {d.hardText(d.primary, ratio(p.ratio), ratio(p.min))}
@@ -450,7 +450,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                 label={custom ? d.custom : choice.harmony ? d.harmonies[choice.harmony as (typeof HARMONIES)[number]] : d.harmony}
                 hint={custom ? d.wheelHintCustom : d.harmonyHint}
               >
-                <div className="space-y-4">
+                <div className="mo-editor-flow-4">
                   <ChipSet label={d.harmony}>
                     {HARMONIES.map((h) => (
                       <FilterChip key={h} selected={choice.harmony === h} onClick={() => toHarmony(h)}>
@@ -500,7 +500,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
             </section>
           }
           side={
-            <div className="space-y-6">
+            <div className="mo-editor-flow-6">
               {MODES.map((m) => (
                 <div key={m}>{preview(m)}</div>
               ))}
@@ -515,7 +515,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
   function modeColors() {
     return (
       <>
-        <p className="text-on-surface-variant">{changing.length ? t.colors.pages.fallbackIntro(appNames) : t.colors.intro}</p>
+        <p className="mo-editor-settings-muted">{changing.length ? t.colors.pages.fallbackIntro(appNames) : t.colors.intro}</p>
         {loaded.unreadable && file && <ProblemNote>{t.colors.unreadable}</ProblemNote>}
         {/* On a wide computer screen the colours in the wide column, and the preview beside them, in view
           while they are changed. */}
@@ -525,7 +525,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
           first={preview(mode)}
           main={
             <>
-              <div className="grid gap-5 medium:grid-cols-2">
+              <div className="mo-editor-colors-columns">
                 {colorFields.map((field) => {
                   const id = `color-${mode}-${field.name}`;
                   return (
@@ -544,7 +544,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                   );
                 })}
               </div>
-              <section className="space-y-2">
+              <section className="mo-editor-flow-2">
                 <Button kind="outlined" size="small" disabled={isDefault || saving} onClick={() => setColors(defaultColors)}>
                   {t.colors.standard}
                 </Button>
@@ -614,7 +614,7 @@ function PageColors({ env, files, apps, mode }: { env: Env; files: RepoFile[]; a
 
   return (
     <>
-      <p className="text-on-surface-variant">{p.intro}</p>
+      <p className="mo-editor-settings-muted">{p.intro}</p>
       <Group title={p.apps}>
         {apps.map((app) => (
           <ListItem

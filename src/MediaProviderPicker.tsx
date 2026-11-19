@@ -99,14 +99,14 @@ export default function MediaProviderPicker({
   if (needsKey)
     return (
       <form
-        className="flex flex-col gap-3"
+        className="mo-editor-key-form"
         onSubmit={(e) => {
           e.preventDefault();
           void connect();
         }}
       >
-        <p className="font-medium">{text.keyTitle(provider.label)}</p>
-        <p className="text-on-surface-variant">{text.keyText(provider.label)}</p>
+        <p className="mo-editor-settings-strong">{text.keyTitle(provider.label)}</p>
+        <p className="mo-editor-settings-muted">{text.keyText(provider.label)}</p>
         <TextField
           label={text.keyLabel}
           type="password"
@@ -122,7 +122,7 @@ export default function MediaProviderPicker({
     );
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="mo-editor-key-form">
       <SearchBar value={query} onChange={setQuery} label={text.search(provider.label)} />
       {error ? (
         <Notice role="alert" title={error}>
@@ -130,17 +130,17 @@ export default function MediaProviderPicker({
         </Notice>
       ) : null}
       {items.length ? (
-        <ul className="grid grid-cols-3 gap-1.5 medium:grid-cols-4 expanded:grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] expanded:gap-2">
+        <ul className="mo-editor-image-results">
           {items.map((item) => (
             <li key={item.id}>
               <button
                 type="button"
                 disabled={busy}
-                className="group block aspect-square w-full overflow-hidden rounded-lg bg-surface-container-high disabled:opacity-60"
+                className="mo-editor-image-result"
                 aria-label={item.alt || text.credit(item.credit.name, provider.label)}
                 onClick={() => onPick(item)}
               >
-                <img src={providerImage(provider, item.thumb)} alt="" loading="lazy" className="size-full object-cover" />
+                <img src={providerImage(provider, item.thumb)} alt="" loading="lazy" className="mo-cover" />
               </button>
             </li>
           ))}

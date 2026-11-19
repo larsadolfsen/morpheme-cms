@@ -151,21 +151,9 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/ActionParts.tsx": {
-      "classDefs": 0,
-      "markup": 6,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/App.tsx": {
       "classDefs": 0,
-      "markup": 5,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/Assistants.tsx": {
-      "classDefs": 0,
-      "markup": 4,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -175,33 +163,9 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/BlockSettings.tsx": {
-      "classDefs": 0,
-      "markup": 5,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/CmsPage.tsx": {
-      "classDefs": 0,
-      "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/Colors.tsx": {
-      "classDefs": 0,
-      "markup": 8,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/CropView.tsx": {
       "classDefs": 0,
-      "markup": 12,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/EntryForm.tsx": {
-      "classDefs": 0,
-      "markup": 6,
+      "markup": 11,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -271,27 +235,15 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/Licenses.tsx": {
-      "classDefs": 0,
-      "markup": 6,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/MarkdownEditor.tsx": {
       "classDefs": 0,
-      "markup": 42,
+      "markup": 41,
       "propsDeclared": 2,
       "propsRead": 0
     },
     "src/Media.tsx": {
       "classDefs": 0,
       "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/MediaProviderPicker.tsx": {
-      "classDefs": 0,
-      "markup": 5,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -304,36 +256,6 @@
     "src/PaneHost.tsx": {
       "classDefs": 0,
       "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/Parts.tsx": {
-      "classDefs": 0,
-      "markup": 6,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/PartsShown.tsx": {
-      "classDefs": 0,
-      "markup": 5,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/PickerParts.tsx": {
-      "classDefs": 0,
-      "markup": 5,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/Redirects.tsx": {
-      "classDefs": 0,
-      "markup": 4,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/ReleaseNotes.tsx": {
-      "classDefs": 0,
-      "markup": 6,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -358,18 +280,6 @@
     "src/ShortcutsSheet.tsx": {
       "classDefs": 0,
       "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/ThemeStore.tsx": {
-      "classDefs": 0,
-      "markup": 6,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/ask.tsx": {
-      "classDefs": 0,
-      "markup": 4,
       "propsDeclared": 0,
       "propsRead": 0
     },

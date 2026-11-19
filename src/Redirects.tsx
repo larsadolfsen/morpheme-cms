@@ -360,7 +360,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
           backLabel: t.common.back,
           children: (
             <form
-              className="space-y-5"
+              className="mo-editor-flow-5"
               onSubmit={(e) => {
                 e.preventDefault();
                 save();
@@ -408,7 +408,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
             : undefined
       }
     >
-      <p className="mb-4 text-on-surface-variant">{tab === 'redirects' ? t.redirects.intro : t.redirects.missing.intro}</p>
+      <p className="mo-editor-intro">{tab === 'redirects' ? t.redirects.intro : t.redirects.missing.intro}</p>
       <SearchRow
         value={query}
         onChange={setQuery}
@@ -436,10 +436,10 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
             />
           )
         }
-        className="mb-6"
+        className="mo-editor-settings-group"
       />
       {tab === 'redirects' && shownPage && (
-        <div className="-mt-2 mb-6 flex flex-wrap gap-2">
+        <div className="mo-editor-filter-row">
           <InputChip removeLabel={t.library.removeFilter(pageName)} onRemove={() => setPage('')}>
             {pageName}
           </InputChip>
@@ -488,9 +488,9 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
                   onClick={() => open({ from: e.from, to: e.to, isNew: false })}
                   headline={e.from}
                   supporting={
-                    <span className="flex items-start gap-1.5">
-                      <ArrowRight size={14} className="mt-1 shrink-0" />
-                      <span className="min-w-0 break-words">{name(e.to)}</span>
+                    <span className="mo-editor-target-row">
+                      <ArrowRight size={14} className="mo-editor-target-icon" />
+                      <span className="mo-editor-settings-wrap">{name(e.to)}</span>
                     </span>
                   }
                   columns

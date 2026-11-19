@@ -40,7 +40,7 @@ export const themeHref = (id: string) => `#appearance/themes/${id}`;
 
 /** A theme's image (its theme.json's icon), where a row has its icon. */
 export function ThemeImage({ src }: { src: string }) {
-  return <img src={src} alt="" className="size-9 shrink-0 rounded-(--mo-sys-block-radius-small)" />;
+  return <img src={src} alt="" className="mo-editor-store-icon" />;
 }
 
 /** The store's themes for a screen: null while they are read, 'failed' when they could not be. */
@@ -282,16 +282,16 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
     <Screen title={of?.name ?? t.common.parts.themes} wide back={{ href: `#${STORE_THEMES}`, label: t.common.parts.themeStore }}>
       {of ? (
         <>
-          <div className="mb-8 flex items-center gap-4 px-4">
-            <img src={of.icon} alt="" className="size-16 shrink-0 rounded-2xl" />
-            <span className="min-w-0 flex-1">
-              <span className="block truncate font-medium">{of.name}</span>
-              <span className="block truncate text-sm text-on-surface-variant">{t.library.themeByline(of.version, of.author)}</span>
-              <span className="block text-sm text-on-surface-variant">{pending ? t.apps.pending : t.apps.notInstalled}</span>
+          <div className="mo-editor-store-head">
+            <img src={of.icon} alt="" className="mo-editor-store-icon-large" />
+            <span className="mo-fill">
+              <span className="mo-editor-store-name">{of.name}</span>
+              <span className="mo-editor-store-byline">{t.library.themeByline(of.version, of.author)}</span>
+              <span className="mo-editor-store-status">{pending ? t.apps.pending : t.apps.notInstalled}</span>
             </span>
           </div>
           {!pending && (
-            <div className="mb-8">
+            <div className="mo-editor-settings-section">
               <Button
                 disabled={actions.saving}
                 busy={actions.busy(of.id, 'install')}
@@ -302,15 +302,15 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
             </div>
           )}
           {images.length > 0 && (
-            <section className="mb-8">
+            <section className="mo-editor-settings-section">
               <GroupTitle>{t.library.themeLooks}</GroupTitle>
               <ImageCarousel label={t.library.themeLooks} images={images.map((x) => ({ src: x.src, label: shotName(x.key) }))} />
             </section>
           )}
           {of.description && (
-            <section className="mb-8">
+            <section className="mo-editor-settings-section">
               <GroupTitle>{t.library.themeAbout}</GroupTitle>
-              <p className="px-4">{of.description}</p>
+              <p className="mo-editor-settings-inset">{of.description}</p>
             </section>
           )}
           {of.highlights.length > 0 && (
@@ -339,7 +339,7 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
               >
                 {t.apps.uninstall}
               </Button>
-              <SupportingText className="mt-2">{t.library.themePendingHint}</SupportingText>
+              <SupportingText className="mo-editor-hint-space">{t.library.themePendingHint}</SupportingText>
             </div>
           )}
         </>
@@ -362,7 +362,7 @@ export function ThemeStoreButtons({ of, env, files, top }: { of: ThemeInfo; env:
   const update = themeUpdateOf(of, catalog);
   if (top)
     return update ? (
-      <div className="mb-8">
+      <div className="mo-editor-settings-section">
         <Button disabled={actions.saving} busy={actions.busy(of.id, 'update')} onClick={() => actions.update(update, of.store!)}>
           {t.apps.update(update.version)}
         </Button>
@@ -379,7 +379,7 @@ export function ThemeStoreButtons({ of, env, files, top }: { of: ThemeInfo; env:
       >
         {t.apps.uninstall}
       </Button>
-      <SupportingText className="mt-2">
+      <SupportingText className="mo-editor-hint-space">
         {!themeInstalled(of.id)
           ? t.library.themeUninstalled(of.name)
           : free

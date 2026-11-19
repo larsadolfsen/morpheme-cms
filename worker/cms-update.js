@@ -1,6 +1,6 @@
 // The Worker takes the CMS's new versions by itself: once a day, at night in the site's own time zone (dailyCheck, run by the hourly
 // cron: NIGHT_HOUR and checkDue in lib/cms-version.mjs), it asks npm for the newest @morphemecms/cms, commits the new exact
-// version in package.json and package-lock.json (and, for the version that reads only the new class names, 0.18.2, the `class` attributes of every content collection and data file, in the same commit), and each minute watches the commit's check run, undoing a version that did not build.
+// version in package.json and package-lock.json (and, for the version that reads only the new class names, 0.19.0, the `class` attributes of every content collection and data file, in the same commit), and each minute watches the commit's check run, undoing a version that did not build.
 // Exposes RUNNING, dailyCheck, checkForUpdate, startUpdate, watchUpdate, cmsStatus and handleCms (/api/cms, and GET /api/cms/note-image/<version>/<locale>/<id>,
 // behind the same login check). Needs GITHUB_PUBLISH_TOKEN and the KV binding PUSH. Keeps each new version's changelog text and release
 // notes (en-US, da-DK) as cms:notes:<version> and each paragraph's screenshot as cms:note-image:<version>:<locale>:<id>; cmsStatus returns
