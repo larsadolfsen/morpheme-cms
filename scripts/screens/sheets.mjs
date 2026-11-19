@@ -1470,7 +1470,7 @@ async function checkBlockSettingsPane(width) {
   await row.click();
   await page.waitForTimeout(500);
   const got = await page.evaluate(() => {
-    const aside = document.querySelector('aside.side-sheet-container:not([hidden])');
+    const aside = document.querySelector('aside.mo-side-sheet__container:not([hidden])');
     const box = aside?.getBoundingClientRect();
     const first = [...document.querySelectorAll('main button, main [role=button]')]
       .find((b) => /^Accordion/.test(b.textContent.trim()))

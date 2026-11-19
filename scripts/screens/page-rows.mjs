@@ -637,9 +637,9 @@ async function checkLongPressDelete() {
   const cdp = await page.context().newCDPSession(page);
   for (const list of ['pages', 'blog']) {
     await page.evaluate((l) => (location.hash = `#list/${l}`), list);
-    await page.waitForSelector('main a.list-item-container');
+    await page.waitForSelector('main a.mo-list__item-container');
     await page.waitForTimeout(500);
-    const rows = page.locator('main a.list-item-container');
+    const rows = page.locator('main a.mo-list__item-container');
     // A row that is not a default page.
     const row = list === 'pages' ? rows.filter({ hasText: FIXTURE_PAGE }).first() : rows.filter({ hasText: 'Check post' }).first();
     await row.scrollIntoViewIfNeeded();
@@ -669,9 +669,9 @@ async function checkLongPressDelete() {
   // The front page: a press and hold selects it, but Delete says why it is kept.
   await page.reload();
   await page.evaluate(() => (location.hash = '#list/pages'));
-  await page.waitForSelector('main a.list-item-container');
+  await page.waitForSelector('main a.mo-list__item-container');
   await page.waitForTimeout(500);
-  const home = page.locator('main a.list-item-container', { hasText: 'Home' }).first();
+  const home = page.locator('main a.mo-list__item-container', { hasText: 'Home' }).first();
   if (await home.count()) {
     await home.scrollIntoViewIfNeeded();
     const box = await home.boundingBox();

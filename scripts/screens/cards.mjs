@@ -283,11 +283,11 @@ async function checkImageGrid(width, height) {
     return page.close();
   }
   await page.goto(`${site}/editor/#files`);
-  await page.waitForSelector('ul.image-grid', { timeout: 30_000 });
+  await page.waitForSelector('ul.mo-grid', { timeout: 30_000 });
   const m = await page.evaluate(() => {
-    const grid = document.querySelector('ul.image-grid');
+    const grid = document.querySelector('ul.mo-grid');
     const gs = getComputedStyle(grid);
-    const tiles = [...grid.querySelectorAll('button.card')];
+    const tiles = [...grid.querySelectorAll('button.mo-card')];
     const media = tiles.map((t) => t.querySelector('.mo-card__media')).filter(Boolean);
     const plain = document.createElement('div');
     plain.className = 'mo-card mo-is-filled';
@@ -862,9 +862,9 @@ async function checkCardsElevation(width, height) {
   const read = () =>
     Object.fromEntries(
       [
-        ['elevated', 'ul.block-cards .block-card.card-elevated'],
-        ['filled', 'ul.block-cards .block-card.card-filled'],
-        ['outlined', 'ul.block-cards .block-card.card-outlined'],
+        ['elevated', 'ul.block-cards .block-card.mo-card.mo-is-elevated'],
+        ['filled', 'ul.block-cards .block-card.mo-card.mo-is-filled'],
+        ['outlined', 'ul.block-cards .block-card.mo-card.mo-is-outlined'],
         // The Image grid's elevated cards (the demo's "Image grid: elevated cards with caption, tags and credit"): elevated at rest too.
         ['gridElevated', '.block-imagegrid-grid .mo-card.mo-is-elevated'],
       ].map(([kind, selector]) => {

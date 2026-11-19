@@ -18,7 +18,7 @@ import {
 async function checkListMarkers(width) {
   const path = BUILT_PAGE;
   const markers = () =>
-    [...document.querySelectorAll('ul.list')].flatMap((ul) =>
+    [...document.querySelectorAll('ul.mo-list')].flatMap((ul) =>
       [ul, ...ul.children].flatMap((el) => {
         const s = getComputedStyle(el);
         const m = getComputedStyle(el, '::marker');
@@ -34,7 +34,7 @@ async function checkListMarkers(width) {
   page.on('pageerror', (e) => problems.push(`List markers: ${e.message}`));
   await openEditor(page, site, { [path]: LIST_PAGE });
   await page.goto(`${site}/editor/#${path}`);
-  await page.waitForSelector('ul.list', { timeout: 30_000 });
+  await page.waitForSelector('ul.mo-list', { timeout: 30_000 });
   const inEditor = await page.evaluate(markers);
   if (inEditor.length) problems.push(`${width}px editor: a List row has a list marker (${[...new Set(inEditor)].join('; ')})`);
   await clickPreview(page);
@@ -117,7 +117,7 @@ async function checkListLeftEdge(width) {
     verify('on the site', await page.evaluate(measure, 'main .prose'));
     // Edge to edge, the layer of a Default list's row has square corners, also pointed at (owner, 16 Nov 2026: "No border radius when full width").
     if (width < 600) {
-      const row = page.locator('main .prose ul.block-list:not(.mo-list__segmented) a.list-item-container').first();
+      const row = page.locator('main .prose ul.block-list:not(.mo-list__segmented) a.mo-list__item-container').first();
       await row.hover();
       await page.waitForTimeout(400);
       const radius = await row.evaluate(
@@ -212,10 +212,10 @@ async function checkChevronUnderHoverRow(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, { [BUILT_PAGE]: src });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await page.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
+  await page.waitForSelector('.inline-list-host details.mo-list__item-expand', { timeout: 30_000 });
   await page.locator('.ProseMirror > p').first().click();
   await page.waitForFunction(() => !document.querySelector('.inline-list-row-active'), null, { timeout: 8000 });
-  const first = page.locator('.inline-list-host details.list-item-expand').first();
+  const first = page.locator('.inline-list-host details.mo-list__item-expand').first();
   const icon = await first.locator('.mo-list__item-expand-icon').boundingBox();
   await page.mouse.move(icon.x + icon.width / 2, icon.y + icon.height / 2);
   await page.waitForTimeout(500);
@@ -236,7 +236,7 @@ async function checkChevronUnderHoverRow(width) {
   // And a click on the chevron opens the row.
   await first.locator('.mo-list__item-expand-icon').click();
   await page
-    .waitForFunction(() => document.querySelector('.inline-list-host details.list-item-expand')?.open, null, { timeout: 4000 })
+    .waitForFunction(() => document.querySelector('.inline-list-host details.mo-list__item-expand')?.open, null, { timeout: 4000 })
     .catch(() => {});
   if (!(await first.evaluate((d) => d.open))) problems.push(`${label}: a click on the first row's chevron does not open it`);
   await page.close();
@@ -272,7 +272,7 @@ async function checkChevronRows(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, { [BUILT_PAGE]: src });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await page.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
+  await page.waitForSelector('.inline-list-host details.mo-list__item-expand', { timeout: 30_000 });
   const undoOff = () => page.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (const [at, name] of [
     [0, 'List - Expand'],
@@ -286,13 +286,13 @@ async function checkChevronRows(width) {
       { timeout: 8000 },
     );
     const host = page.locator('.inline-list-host').nth(at);
-    const row = host.locator('details.list-item-expand').nth(1);
+    const row = host.locator('details.mo-list__item-expand').nth(1);
     const head = row.locator('summary');
     const state = () => head.getAttribute('aria-expanded');
     const shown = () =>
       page.waitForFunction(
         ([h, r]) => {
-          const d = document.querySelectorAll('.inline-list-host')[h].querySelectorAll('details.list-item-expand')[r];
+          const d = document.querySelectorAll('.inline-list-host')[h].querySelectorAll('details.mo-list__item-expand')[r];
           const a = d.querySelector('.block-accordion-answer');
           return d.open && !!a && a.getBoundingClientRect().height > 0;
         },
@@ -301,7 +301,7 @@ async function checkChevronRows(width) {
       );
     const shut = () =>
       page.waitForFunction(
-        ([h, r]) => !document.querySelectorAll('.inline-list-host')[h].querySelectorAll('details.list-item-expand')[r].open,
+        ([h, r]) => !document.querySelectorAll('.inline-list-host')[h].querySelectorAll('details.mo-list__item-expand')[r].open,
         [at, 1],
         { timeout: 8000 },
       );
@@ -389,7 +389,7 @@ async function checkChevronRows(width) {
   fresh.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(fresh, site, { [BUILT_PAGE]: src });
   await fresh.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await fresh.waitForSelector('.inline-list-host details.list-item-expand', { timeout: 30_000 });
+  await fresh.waitForSelector('.inline-list-host details.mo-list__item-expand', { timeout: 30_000 });
   const undoBefore = await fresh.locator('.editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (let h = 0; h < 2; h++) {
     const icon = fresh.locator('.inline-list-host').nth(h).locator('.mo-list__item-expand-icon').nth(1);
@@ -588,7 +588,7 @@ async function checkDynamicList(width, height) {
   await pressTool(page, 'Fill from a list');
   const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
-  await panel.locator('button.text-field-input').first().click();
+  await panel.locator('button.mo-text-field__input').first().click();
   await page.getByText('Testimonials', { exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(500);
   // A phone's bottom sheet covers the block: closed, the block shows its state (the side panel on a computer stays open).
@@ -628,7 +628,7 @@ async function checkDynamicPicker(width, height) {
   await pressTool(page, 'Fill from a list');
   const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
-  await panel.locator('button.text-field-input').first().click();
+  await panel.locator('button.mo-text-field__input').first().click();
   await page.getByText('Highlights', { exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(500);
   if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
@@ -644,7 +644,7 @@ async function checkDynamicPicker(width, height) {
   await block.locator('.inline-list-parts button', { hasText: 'Supporting text' }).click();
   const choice = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
   await choice.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the choice of fields did not open`));
-  await choice.locator('button.text-field-input').first().click();
+  await choice.locator('button.mo-text-field__input').first().click();
   await page.getByText('Title', { exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(500);
   if (phone && (await page.locator('dialog[open]').count())) await page.locator('dialog[open] [aria-label="Close"]').first().click();
@@ -1053,7 +1053,7 @@ async function checkNewList(width, height, label) {
     await pressTool(page, 'Fill from a list');
     const panel = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Rows from' }).first();
     await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
-    await panel.locator('button.text-field-input').first().click();
+    await panel.locator('button.mo-text-field__input').first().click();
     await page
       .getByText('ZZ Fresh list', { exact: true })
       .locator('visible=true')
@@ -1081,7 +1081,7 @@ async function checkNewList(width, height, label) {
     await part('Supporting text').click();
     const field = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Field shown' }).first();
     await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Supporting text choice did not open`));
-    await field.locator('button.text-field-input').first().click();
+    await field.locator('button.mo-text-field__input').first().click();
     const offered = await page.evaluate(() => {
       // The open choice is labelled with the field's name (Field shown), as a menu or a sheet of options.
       const choices = [...document.querySelectorAll('[aria-label="Field shown"]')].flatMap((m) =>
@@ -1232,18 +1232,18 @@ async function checkExpandList(width, height) {
   if (!(await onTestPage(page, label))) return page.close();
   // The segmented design (the segmented List - Expand) has the 16 px corner on its list; the plain design is the rows on the page, and
   // edge to edge on a phone with no corner (checkListLeftEdge), so it is not the one measured here.
-  const list = page.locator('ul.list.list-expand.block-accordion-segmented:has(> li:nth-child(2))').first();
+  const list = page.locator('ul.mo-list.mo-list__expand.block-accordion-segmented:has(> li:nth-child(2))').first();
   if (!(await list.count())) {
     problems.push(`${label}: no segmented List with expand and two items on the Blocks pages`);
     return page.close();
   }
   await list.evaluate((el) => el.scrollIntoView({ block: 'center' }));
-  const items = list.locator(':scope > li > details.list-item-expand');
+  const items = list.locator(':scope > li > details.mo-list__item-expand');
   const first = items.nth(0);
   const second = items.nth(1);
   const look = (item) =>
     item.evaluate((d) => {
-      const sum = d.querySelector(':scope > summary.list-item-container');
+      const sum = d.querySelector(':scope > summary.mo-list__item-container');
       const icon = sum?.querySelector('.mo-list__item-expand-icon');
       const head = sum?.querySelector('.mo-list__item-headline');
       const box = sum?.getBoundingClientRect();
@@ -1405,7 +1405,7 @@ async function checkOpenPlainExpand(width) {
     const li = document.querySelector('.block-accordion-segmented > li');
     return li ? getComputedStyle(li).backgroundColor : null;
   });
-  const items = plain.locator(':scope > li > details.list-item-expand');
+  const items = plain.locator(':scope > li > details.mo-list__item-expand');
   await items.nth(1).scrollIntoViewIfNeeded();
   await items.nth(1).locator('summary').click();
   await page.mouse.move(0, 0);

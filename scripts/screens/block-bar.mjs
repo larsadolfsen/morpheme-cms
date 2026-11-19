@@ -239,9 +239,9 @@ async function checkSelection() {
     await page.addInitScript(seed);
     await openEditor(page, site);
     await page.evaluate(() => (location.hash = '#list/pages'));
-    await page.waitForSelector('main a.list-item-container');
+    await page.waitForSelector('main a.mo-list__item-container');
     await page.waitForTimeout(500);
-    const rows = page.locator('main a.list-item-container');
+    const rows = page.locator('main a.mo-list__item-container');
     const centre = async (i) => {
       const row = rows.nth(i);
       await row.scrollIntoViewIfNeeded();
@@ -307,7 +307,7 @@ async function checkSelection() {
       if (await checked(page, 'main')) problems.push(`${label}: a mouse press and hold selected the row`);
       if ((await hash()) !== here) {
         await page.evaluate((h) => (location.hash = h), here);
-        await page.waitForSelector('main a.list-item-container');
+        await page.waitForSelector('main a.mo-list__item-container');
         await page.waitForTimeout(500);
       }
       // The list's header has no Select button: selecting starts from a row (Space on a focused row here).
@@ -397,9 +397,9 @@ async function checkDragSelect() {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#list/pages'));
-  await page.waitForSelector('main a.list-item-container');
+  await page.waitForSelector('main a.mo-list__item-container');
   await page.waitForTimeout(600);
-  const rows = page.locator('main a.list-item-container.list-item-selectable');
+  const rows = page.locator('main a.mo-list__item-container.mo-list__item-selectable');
   if ((await rows.count()) < 4) {
     problems.push(`${label}: fewer than 4 selectable rows`);
     await page.close();
@@ -477,9 +477,9 @@ async function checkTwoFinger() {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#list/pages'));
-  await page.waitForSelector('main a.list-item-container');
+  await page.waitForSelector('main a.mo-list__item-container');
   await page.waitForTimeout(600);
-  const rows = page.locator('main a.list-item-container.list-item-selectable');
+  const rows = page.locator('main a.mo-list__item-container.mo-list__item-selectable');
   if ((await rows.count()) < 2) {
     problems.push(`${label}: fewer than 2 selectable rows`);
     await page.close();
@@ -525,7 +525,7 @@ async function checkTwoFinger() {
   if (await checked()) problems.push(`${label}: a second finger on another row selected a row`);
   if ((await page.evaluate(() => location.hash)) !== here) {
     await page.evaluate((h) => (location.hash = h), here);
-    await page.waitForSelector('main a.list-item-container');
+    await page.waitForSelector('main a.mo-list__item-container');
     await page.waitForTimeout(500);
   }
   await page.close();
@@ -1143,9 +1143,9 @@ async function checkSelectionBox() {
     await page.addInitScript(seed);
     await openEditor(page, site);
     await page.evaluate(() => (location.hash = '#list/pages'));
-    await page.waitForSelector('main a.list-item-container');
+    await page.waitForSelector('main a.mo-list__item-container');
     await page.waitForTimeout(500);
-    const rows = page.locator('main a.list-item-container.list-item-selectable');
+    const rows = page.locator('main a.mo-list__item-container.mo-list__item-selectable');
     const n = await rows.count();
     if (n < 3) {
       problems.push(`${label}: fewer than 3 selectable rows (${n})`);

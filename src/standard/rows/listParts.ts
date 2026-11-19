@@ -10,7 +10,7 @@ import { t } from '../../i18n';
 import type { Field } from '../../schema';
 import type { InlineSpec } from '../../blocks';
 
-/** The texts of a list typed in place (the one `t.blocks.list`): the same words in both looks. */
+/** The texts of a list typed in place (the one `t.blocks.mo-list`): the same words in both looks. */
 export const listTexts = {
   addAbove: t.blocks.list.addAbove,
   addBelow: t.blocks.list.addBelow,

@@ -10,9 +10,9 @@ export const CARD_DESIGNS = ['outlined', 'filled', 'elevated'];
 export const CARD_COLORS = ['primary', 'secondary', 'tertiary'];
 
 /** The bodies of the rules whose selector has the class `.name` (nested rules and at-rules are looked into, as the built CSS keeps them). */
-function bodies(css, name) {
+function bodies(css, name, prefix = '') {
   const found = [];
-  const re = new RegExp(`\\.${name}(?![\\w-])[^{};]*\\{([^{}]*)\\}`, 'g');
+  const re = new RegExp(`${prefix}\\.${name}(?![\\w-])[^{};]*\\{([^{}]*)\\}`, 'g');
   for (const m of css.matchAll(re)) found.push(m[1]);
   return found;
 }
@@ -24,8 +24,8 @@ export function cardDesignProblems(css) {
   if (!bodies(css, 'block-cards-carousel').some((b) => /overflow-x\s*:\s*(auto|scroll)/.test(b)))
     problems.push('the Cards carousel on phones (.block-cards-carousel) does not scroll sideways (no overflow-x: auto)');
   for (const design of CARD_DESIGNS) {
-    if (!bodies(css, `card-${design}`).some((b) => /(^|[;\s])background(-color)?\s*:/.test(b)))
-      problems.push(`the card design "${design}" (.card-${design}) has no background`);
+    if (!bodies(css, `mo-is-${design}`, '(?::where\\()?\\.mo-card\\)?').some((b) => /(^|[;\s])background(-color)?\s*:/.test(b)))
+      problems.push(`the card design "${design}" (.mo-card.mo-is-${design}) has no background`);
   }
   for (const color of CARD_COLORS) {
     if (

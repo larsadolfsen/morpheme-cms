@@ -260,10 +260,10 @@ async function checkCommandPalette(width) {
   await page.waitForSelector(':is(header button[aria-label="Search"], [data-search-bar-button]):visible', { timeout: 15_000 });
   // A page of this site (the demo's and the starter's differ): the first of the pages list, found by its title further down.
   await page.evaluate(() => (location.hash = '#list/pages'));
-  await page.waitForSelector('main a.list-item-container', { timeout: 15_000 }).catch(() => {});
+  await page.waitForSelector('main a.mo-list__item-container', { timeout: 15_000 }).catch(() => {});
   const pageTitle = (
     await page
-      .locator('main a.list-item-container .mo-list__item-headline')
+      .locator('main a.mo-list__item-container .mo-list__item-headline')
       .first()
       .textContent({ timeout: 3000 })
       .catch(() => null)

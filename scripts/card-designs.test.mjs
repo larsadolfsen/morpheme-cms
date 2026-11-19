@@ -44,9 +44,9 @@ test('The CSS of a built site is read from its inlined <style> blocks as well as
     );
     writeFileSync(join(dir, 'b.css'), '.mo-card.mo-is-elevated{background:green}');
     const found = cssIn(dir);
-    assert.match(found, /card-filled/);
-    assert.match(found, /card-outlined/);
-    assert.match(found, /card-elevated/);
+    assert.match(found, /mo-is-filled/);
+    assert.match(found, /mo-is-outlined/);
+    assert.match(found, /mo-is-elevated/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

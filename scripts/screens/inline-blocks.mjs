@@ -309,7 +309,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
         .click({ timeout: 3000 })
         .catch(() => {});
       await page.waitForTimeout(300);
-      if (!(await page.locator('.inline-list-row-active.button-outlined').count()))
+      if (!(await page.locator('.inline-list-row-active.mo-button.mo-is-outlined').count()))
         problems.push(`${label}: choosing Outlined does not change the active button's style`);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);

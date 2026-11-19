@@ -58,5 +58,24 @@ export const THEME_PARTS = [
   { id: 'Logo', group: 'frame', prefixes: ['mo-logo'] },
 ];
 
-/** Classes of theme/styles/ui.css that belong to no part. @type {string[]} */
-export const NOT_PARTS = ['astro', 'material', 'comp', 'elevation', 'mo-ripple', 'mo-ripple__wave', 'block-card', 'js'];
+/** Classes of theme/styles/ui.css that belong to no part. A kind or a state (`mo-is-*`) and what a part holds (`mo-has-*`) are styled with the root of the part they sit on, so the root's part covers them. */
+export const NOT_PARTS = [
+  'astro',
+  'material',
+  'comp',
+  'elevation',
+  'mo-ripple',
+  'mo-ripple__wave',
+  'block-card',
+  'js',
+  'mo-is-filled',
+  'mo-is-tonal',
+  'mo-is-elevated',
+  'mo-is-outlined',
+  'mo-is-error',
+  'mo-is-selected',
+  'mo-has-icon',
+  'mo-has-media',
+  'mo-has-fab',
+  'mo-has-fab-vertical',
+];

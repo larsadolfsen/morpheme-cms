@@ -275,7 +275,7 @@ async function checkChoiceGroupFields(width, locale) {
     await page.keyboard.press('ArrowDown');
     const chosen = await style.evaluate((l) => [...l.querySelectorAll('input[type="radio"]')].findIndex((r) => r.checked));
     if (chosen !== 1) problems.push(`${label}: ArrowDown in ${say.style} did not choose the second style (${chosen})`);
-    if (!(await page.locator('.inline-list-row-active.button-tonal, .ProseMirror .mo-button.mo-is-tonal').count()))
+    if (!(await page.locator('.inline-list-row-active.mo-button.mo-is-tonal, .ProseMirror .mo-button.mo-is-tonal').count()))
       problems.push(`${label}: choosing Tonal by the arrow key did not change the button`);
     if (process.env.SHOTS_FULL) await sheet().screenshot({ path: `${process.env.SHOTS_FULL}-button-style-${width}-${locale}.png` });
   }

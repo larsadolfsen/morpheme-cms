@@ -716,7 +716,7 @@ export function register(unit) {
             const tooTall = await page.evaluate(() => {
               const cap = innerHeight / 2 + 1;
               const bad = [];
-              for (const d of document.querySelectorAll('dialog.editor-sheet.bottom-sheet:not(.editor-side-panel)')) {
+              for (const d of document.querySelectorAll('dialog.editor-sheet.mo-bottom-sheet:not(.editor-side-panel)')) {
                 if (d.open) continue;
                 d.showModal();
                 if (d.offsetHeight > cap) bad.push(`${d.getAttribute('aria-label') ?? d.className} (${Math.round(d.offsetHeight)}px)`);

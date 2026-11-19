@@ -47,7 +47,7 @@ export async function postsFor(
   return { posts: random ? pool : pool.slice(0, count), random };
 }
 export type PostChoice = {
-  /** "all": all of them, which "Blog posts" lists itself (StandardSite.posts.list), not by this. */
+  /** "all": all of them, which "Blog posts" lists itself (StandardSite.posts.mo-list), not by this. */
   show?: 'all' | 'categories' | 'picked';
   categories?: string[];
   /** How many, '3' to '6' (postCount in the standard block Blog posts' shared.ts). */
