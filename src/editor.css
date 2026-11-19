@@ -3,6 +3,7 @@
    (:where), so a theme's :root wins. */
 @reference '../theme/styles/base.css';
 @import './editor-density.css';
+@import './editor-forms.css';
 @import './editor-rest.css';
 @import './editor-screens.css';
 @import './editor-ui.css';

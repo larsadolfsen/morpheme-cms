@@ -46,7 +46,7 @@ const [sub, openSub] = say.subpages;
 const [mail, account] = say.drawerSections;
 const [backLabel] = say.drawerBack;
 const [inbox, messages, favourites, trash, profile] = say.drawerItems;
-const row = 'flex flex-wrap items-center gap-4';
+const row = 'mo-editor-nav-row';
 const kinds = ['primary', 'secondary'] as const;
 const bar = say.appBar;
 const flexible = ['medium-flexible', 'large-flexible'] as const;
@@ -135,10 +135,10 @@ export default function NavigationParts() {
     <>
       <Part name="TopAppBar" use={say.topAppBar}>
         <Preview>
-          <div className="space-y-4">
+          <div className="mo-editor-nav-bars">
             {[false, true].map((stuck) => (
-              <SiteAppBar key={String(stuck)} data-stuck={stuck || undefined} className="flex h-16 items-center gap-4 px-4">
-                <span className="mr-auto font-medium">{stuck ? say.stuck : say.name}</span>
+              <SiteAppBar key={String(stuck)} data-stuck={stuck || undefined} className="mo-editor-nav-app-bar">
+                <span className="mo-editor-nav-app-bar-title">{stuck ? say.stuck : say.name}</span>
                 <SiteIconButton icon="list" label={say.open} />
               </SiteAppBar>
             ))}
@@ -189,7 +189,7 @@ export default function NavigationParts() {
       </Part>
       <Part name="Menu" use={say.menu}>
         <Preview>
-          <div className="flex flex-wrap items-start gap-6 p-4">
+          <div className="mo-editor-nav-menus">
             <SiteMenu>
               <SiteMenuItem href="">{home}</SiteMenuItem>
               <SiteMenuItem href="" selected>
@@ -210,7 +210,7 @@ export default function NavigationParts() {
             <SiteMenu groups="divider" aria-label={menus.divider}>
               {groups()}
             </SiteMenu>
-            <div className="pb-24 medium:pr-72">
+            <div className="mo-editor-nav-menu-share">
               <SiteMenu aria-label={menus.share}>{groups(true)}</SiteMenu>
             </div>
           </div>
@@ -218,7 +218,7 @@ export default function NavigationParts() {
       </Part>
       <Part name="DropdownMenu" use={say.dropdownMenu}>
         <Preview>
-          <div className="flex flex-wrap items-start gap-6 p-4 pb-[26rem]">
+          <div className="mo-editor-nav-menus-tall">
             <SiteDropdownMenu label={menus.more}>{menuActions()}</SiteDropdownMenu>
             <SiteDropdownMenu label={menus.more} iconButton icon="list">
               {groups()}
@@ -233,11 +233,11 @@ export default function NavigationParts() {
       </Part>
       <Part name="ExposedDropdownMenu" use={say.exposedDropdownMenu}>
         <Preview>
-          <div className="space-y-6 p-4">
+          <div className="mo-editor-nav-fields">
             {(['outlined', 'filled'] as const).map((kind) => {
               const options = menus.options.map((label, i) => ({ value: String(i), label, disabled: i === 3 }));
               return (
-                <div key={kind} className="grid gap-6 medium:grid-cols-2" aria-label={menus.kinds[kind]} role="group">
+                <div key={kind} className="mo-editor-nav-field-pair" aria-label={menus.kinds[kind]} role="group">
                   <SiteTextFieldMenu kind={kind} label={menus.field} options={options} />
                   <SiteTextFieldMenu kind={kind} label={menus.field} options={options} value="1" />
                   <SiteTextFieldMenu kind={kind} label={menus.field} options={options} value="0" supporting={menus.supporting} />
@@ -251,7 +251,7 @@ export default function NavigationParts() {
       </Part>
       <Part name="NavigationDrawer" use={say.navigationDrawer}>
         <Preview>
-          <div className="flex flex-wrap items-start gap-6">
+          <div className="mo-editor-nav-drawers">
             <SiteNavigationDrawer>
               <SiteNavigationDrawerRow>
                 <SiteNavigationDrawerItem href="">{home}</SiteNavigationDrawerItem>
@@ -314,7 +314,7 @@ export default function NavigationParts() {
       </Part>
       <Part name="Tabs" use={say.tabs}>
         <Preview>
-          <div className="space-y-6">
+          <div className="mo-editor-nav-tabs">
             <SiteTabs>
               <SiteTab href="">{home}</SiteTab>
               <SiteTab href="" selected>
@@ -362,7 +362,7 @@ export default function NavigationParts() {
       </Part>
       <Part name="Fab" use={say.fab}>
         <Preview>
-          <div className="space-y-6 p-4">
+          <div className="mo-editor-nav-fields">
             <div className={row}>
               {fabKinds.map((k) => (
                 <SiteFab key={k} kind={k} icon="calendar-blank" label={say.kinds[k]} title={say.kinds[k]} />
