@@ -58,7 +58,7 @@ export default function Assistants() {
     <Screen title={t.common.parts.assistants} back={backFrom(ASSISTANTS_ROUTE)}>
       <SupportingText className="mo-editor-group-inset">{t.assistants.intro}</SupportingText>
       {problem && !state && (
-        <div className="mo-editor-inset">
+        <div className="mo-editor-settings-inset">
           <ProblemNote alert>{problem}</ProblemNote>
         </div>
       )}
@@ -69,9 +69,9 @@ export default function Assistants() {
         </div>
       )}
       {state?.ready && (
-        <section className="mo-editor-section">
+        <section className="mo-editor-settings-section">
           <GroupTitle>{t.assistants.connectTitle}</GroupTitle>
-          <div className="mo-editor-inset">
+          <div className="mo-editor-settings-inset">
             <SupportingText>{t.assistants.connectText}</SupportingText>
             <p className="mo-editor-code-row">
               <code aria-label={t.assistants.address} className="mo-editor-code-box">
@@ -85,7 +85,7 @@ export default function Assistants() {
         </section>
       )}
       {state && (
-        <section className="mo-editor-section">
+        <section className="mo-editor-settings-section">
           <GroupTitle>{t.assistants.connectedTitle}</GroupTitle>
           {state.connections.length === 0 ? (
             <EmptyNote>{t.assistants.none}</EmptyNote>

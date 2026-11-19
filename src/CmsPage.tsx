@@ -57,7 +57,7 @@ function StatusLine({ icon: Glyph, tone, children }: { icon?: Icon; tone?: 'acce
   return (
     <p className={`mo-editor-line ${tone ? 'mo-editor-primary-text' : ''}`}>
       {Glyph && <Glyph aria-hidden size={20} className="mo-keep" />}
-      <span className="mo-editor-wrap">{children}</span>
+      <span className="mo-editor-settings-wrap">{children}</span>
     </p>
   );
 }

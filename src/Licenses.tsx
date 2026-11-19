@@ -94,7 +94,7 @@ function LicenseRow({
       supporting={
         under.length > 0 &&
         under.map((line) => (
-          <span key={line} className="mo-editor-block">
+          <span key={line} className="mo-editor-settings-block">
             {line}
           </span>
         ))
@@ -201,7 +201,12 @@ export default function Licenses() {
         <EmptyNote>{t.licenses.missing}</EmptyNote>
       ) : (
         <>
-          <SearchRow value={query} onChange={setQuery} label={t.common.searchIn(t.common.parts.licenses)} className="mo-editor-group" />
+          <SearchRow
+            value={query}
+            onChange={setQuery}
+            label={t.common.searchIn(t.common.parts.licenses)}
+            className="mo-editor-settings-group"
+          />
           {groups.length ? (
             groups.map((g) => (
               <Group key={g.key} title={g.title}>
@@ -262,7 +267,7 @@ export function LicensePage({ id }: { id: string }) {
             )}
           </Group>
           {photo && <img src={photo} alt={work!.name} className="mo-editor-license-photo" />}
-          <section className="mo-editor-section">
+          <section className="mo-editor-settings-section">
             <GroupTitle>{t.licenses.text}</GroupTitle>
             {work?.standard && <SupportingText className="mo-editor-license-note">{t.licenses.standardText(work.license)}</SupportingText>}
             {text ? (

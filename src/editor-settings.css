@@ -76,7 +76,7 @@
     padding-block-end: var(--mo-ref-space-100);
   }
 
-  .mo-editor-block {
+  .mo-editor-settings-block {
     display: block;
   }
 
@@ -94,7 +94,7 @@
     line-height: 1.375;
   }
 
-  .mo-editor-chips {
+  .mo-editor-settings-chips {
     display: flex;
     flex-wrap: wrap;
     gap: var(--mo-ref-space-100);
@@ -167,7 +167,7 @@
     border-color: currentcolor;
   }
 
-  .mo-editor-dashboard-grid {
+  .mo-editor-settings-dashboard-grid {
     --mo-comp-grid-columns: 2;
   }
 
@@ -240,7 +240,7 @@
     touch-action: none;
   }
 
-  .mo-editor-group {
+  .mo-editor-settings-group {
     margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
 
@@ -302,13 +302,13 @@
     display: inline-flex;
   }
 
-  .mo-editor-inline-row {
+  .mo-editor-settings-inline-row {
     display: inline-flex;
     align-items: center;
     gap: var(--mo-ref-space-150);
   }
 
-  .mo-editor-inset {
+  .mo-editor-settings-inset {
     padding-inline: var(--mo-ref-space-200);
   }
 
@@ -369,7 +369,7 @@
     padding-block-start: 13rem;
   }
 
-  .mo-editor-muted {
+  .mo-editor-settings-muted {
     color: var(--mo-sys-color-on-surface-variant);
   }
 
@@ -615,7 +615,7 @@
     scroll-margin-block-start: 6rem;
   }
 
-  .mo-editor-section {
+  .mo-editor-settings-section {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
 
@@ -713,7 +713,7 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
 
-  .mo-editor-strong {
+  .mo-editor-settings-strong {
     font-weight: 500;
   }
 
@@ -767,7 +767,7 @@
     padding-block-end: var(--toolbar-docked-padding-block);
   }
 
-  .mo-editor-trailing {
+  .mo-editor-settings-trailing {
     flex-shrink: 0;
     padding-inline-end: var(--mo-ref-space-75);
   }
@@ -825,7 +825,7 @@
     outline-color: var(--mo-sys-color-primary);
   }
 
-  .mo-editor-wrap {
+  .mo-editor-settings-wrap {
     min-inline-size: 0;
     overflow-wrap: break-word;
   }

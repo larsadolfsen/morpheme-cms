@@ -90,7 +90,7 @@ export function Ask() {
           <div className="mo-editor-ask-notes">
             {question.notes.map((n) => (
               <section key={n.title}>
-                <h3 className="mo-editor-strong">{n.title}</h3>
+                <h3 className="mo-editor-settings-strong">{n.title}</h3>
                 {n.text.split(/\n\s*\n/).map((p, i) => (
                   <p key={i} className="mo-editor-ask-note">
                     {p}

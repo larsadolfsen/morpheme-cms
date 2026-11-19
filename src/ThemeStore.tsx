@@ -291,7 +291,7 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
             </span>
           </div>
           {!pending && (
-            <div className="mo-editor-section">
+            <div className="mo-editor-settings-section">
               <Button
                 disabled={actions.saving}
                 busy={actions.busy(of.id, 'install')}
@@ -302,15 +302,15 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
             </div>
           )}
           {images.length > 0 && (
-            <section className="mo-editor-section">
+            <section className="mo-editor-settings-section">
               <GroupTitle>{t.library.themeLooks}</GroupTitle>
               <ImageCarousel label={t.library.themeLooks} images={images.map((x) => ({ src: x.src, label: shotName(x.key) }))} />
             </section>
           )}
           {of.description && (
-            <section className="mo-editor-section">
+            <section className="mo-editor-settings-section">
               <GroupTitle>{t.library.themeAbout}</GroupTitle>
-              <p className="mo-editor-inset">{of.description}</p>
+              <p className="mo-editor-settings-inset">{of.description}</p>
             </section>
           )}
           {of.highlights.length > 0 && (
@@ -362,7 +362,7 @@ export function ThemeStoreButtons({ of, env, files, top }: { of: ThemeInfo; env:
   const update = themeUpdateOf(of, catalog);
   if (top)
     return update ? (
-      <div className="mo-editor-section">
+      <div className="mo-editor-settings-section">
         <Button disabled={actions.saving} busy={actions.busy(of.id, 'update')} onClick={() => actions.update(update, of.store!)}>
           {t.apps.update(update.version)}
         </Button>

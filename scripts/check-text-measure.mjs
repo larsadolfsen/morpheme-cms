@@ -70,7 +70,7 @@ for (const width of [375, 768, 1280, 1580]) {
           if (block.matches('.block-steps')) {
             if (w > 721) out.push(`${name} is ${w}px wide, more than 720px`);
           } else {
-            const grid = block.matches('.block-posts-rows') ? block.querySelector('.theme-post-list') : block;
+            const grid = block.matches('.block-posts-rows') ? block.querySelector('.mo-post-list') : block;
             const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
             // A post row has a thumbnail: its columns are at least 480px (two from 984px).
             // The setting Columns is off (data-columns="one"): one column at most 720px wide, whatever the width.

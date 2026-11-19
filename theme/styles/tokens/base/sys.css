@@ -47,7 +47,7 @@
   --mo-comp-theme-logo-role-display-large: block;
   /* The images in the list of posts (PostList.tsx, the blog's other posts). */
   --mo-comp-theme-post-picture-radius: var(--mo-sys-shape-corner-small);
-  /* A page's and a post's title (.theme-title): display small on a phone, display medium from md (the type scale,
+  /* A page's and a post's title (.mo-page-title): display small on a phone, display medium from md (the type scale,
      ui.css). */
   --mo-comp-theme-title-size: var(--mo-sys-typescale-display-small-size);
   --mo-comp-theme-title-leading: var(--mo-sys-typescale-display-small-line-height);
@@ -72,14 +72,14 @@
 }
 /* The first section on the front page (templates/Home.astro). */
 @layer components {
-  .theme-home-first {
+  .mo-home__first {
     --mo-comp-theme-section-space: var(--mo-comp-theme-home-first-space);
     --mo-comp-theme-section-space-large: var(--mo-comp-theme-home-first-space-large);
   }
 }
 /* The first block on the blog page (templates/Blog.astro). */
 @layer components {
-  .theme-blog-first {
+  .mo-blog__first {
     --mo-comp-theme-section-space: var(--mo-comp-theme-blog-first-space);
     --mo-comp-theme-section-space-large: var(--mo-comp-theme-blog-first-space-large);
   }
@@ -107,7 +107,7 @@
     0 1px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 6%, transparent),
     0 8px 24px -12px color-mix(in srgb, var(--mo-sys-color-shadow) 18%, transparent);
   /* The motion scheme's curve (blocks.css, lib/motion.ts). */
-  --mo-sys-ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
+  --mo-sys-ease: var(--mo-sys-motion-ease, cubic-bezier(0.2, 0, 0, 1));
   /* The standard blocks (blocks.css) in this design; in dark mode too, as they
      follow the tokens above. */
   --mo-sys-block-text: var(--mo-sys-color-on-surface);
@@ -161,7 +161,7 @@
     0 20px 40px -24px color-mix(in srgb, var(--mo-sys-color-shadow) 70%, transparent);
 }
 @layer fallback {
-  .prose.post-lead {
+  .prose.mo-post__lead {
     --mo-sys-prose-space: 1.5rem;
   }
 }

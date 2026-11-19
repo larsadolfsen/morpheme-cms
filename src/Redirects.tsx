@@ -436,7 +436,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
             />
           )
         }
-        className="mo-editor-group"
+        className="mo-editor-settings-group"
       />
       {tab === 'redirects' && shownPage && (
         <div className="mo-editor-filter-row">
@@ -490,7 +490,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
                   supporting={
                     <span className="mo-editor-target-row">
                       <ArrowRight size={14} className="mo-editor-target-icon" />
-                      <span className="mo-editor-wrap">{name(e.to)}</span>
+                      <span className="mo-editor-settings-wrap">{name(e.to)}</span>
                     </span>
                   }
                   columns

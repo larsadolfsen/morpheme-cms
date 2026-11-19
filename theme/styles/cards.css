@@ -18,7 +18,7 @@
   }
   .carousel-items {
     display: flex;
-    gap: var(--carousel-gap, 0.5rem);
+    gap: var(--mo-comp-carousel-gap, 0.5rem);
     overflow-x: auto;
     scroll-snap-type: x mandatory;
     scrollbar-width: none;
@@ -56,8 +56,8 @@
   }
   .carousel-indicator-dot > span {
     display: block;
-    width: var(--carousel-dot-size, 0.5rem);
-    height: var(--carousel-dot-size, 0.5rem);
+    width: var(--mo-comp-carousel-dot-size, 0.5rem);
+    height: var(--mo-comp-carousel-dot-size, 0.5rem);
     border-radius: var(--mo-sys-shape-corner-full);
     background: var(--mo-comp-carousel-dot-colour, var(--mo-sys-block-line));
     transition:
@@ -67,7 +67,7 @@
   }
   .carousel-indicator-dot[aria-current='true'] > span {
     width: var(--mo-comp-carousel-dot-selected-width, 1.25rem);
-    background: var(--carousel-dot-selected-colour, var(--mo-sys-block-accent));
+    background: var(--mo-comp-carousel-dot-selected-colour, var(--mo-sys-block-accent));
   }
   @container carousel (width >= 35.5rem) {
     .carousel-item {
@@ -88,21 +88,24 @@
   /* The contained layouts: within the text's width and as high as the theme says, what is in each item filling its
      mask with the item's corners; multi-browse's and a hero's masks moved and clipped by carouselLayout.ts (before it
      runs, every item as wide as a large one). */
-  .carousel-contained .carousel-items {
-    height: var(--carousel-height, 14rem);
-    gap: var(--carousel-contained-gap, 0.5rem);
+  .mo-carousel__contained .carousel-items {
+    height: var(--mo-comp-carousel-height, 14rem);
+    gap: var(--mo-comp-carousel-contained-gap, 0.5rem);
     margin: 0;
     padding: 0;
     scroll-padding-inline: 0;
   }
-  .carousel-contained .carousel-item {
-    width: var(--carousel-item-width, 75%);
+  .mo-carousel__contained .carousel-item {
+    width: var(--mo-comp-carousel-item-width, 75%);
   }
-  .carousel-multi-browse .carousel-item {
-    width: var(--carousel-item-width, var(--mo-comp-carousel-large-item-width));
+  .mo-carousel__multi-browse .carousel-item {
+    width: var(--mo-comp-carousel-item-width, var(--mo-comp-carousel-large-item-width));
   }
-  .carousel-hero .carousel-item {
-    width: var(--carousel-item-width, calc(100% - var(--mo-comp-carousel-small-item-max-width) - var(--carousel-contained-gap, 0.5rem)));
+  .mo-carousel__hero .carousel-item {
+    width: var(
+      --mo-comp-carousel-item-width,
+      calc(100% - var(--mo-comp-carousel-small-item-max-width) - var(--mo-comp-carousel-contained-gap, 0.5rem))
+    );
   }
   .carousel-item-mask {
     position: relative;
@@ -110,8 +113,10 @@
     min-width: 0;
     overflow: hidden;
     border-radius: var(--mo-comp-carousel-item-container-shape, var(--mo-sys-block-radius));
-    background: var(--carousel-item-surface, var(--mo-sys-block-tint));
-    clip-path: inset(0 var(--carousel-mask-inset, 0px) round var(--mo-comp-carousel-item-container-shape, var(--mo-sys-block-radius)));
+    background: var(--mo-comp-carousel-item-surface, var(--mo-sys-block-tint));
+    clip-path: inset(
+      0 var(--mo-comp-carousel-mask-inset, 0px) round var(--mo-comp-carousel-item-container-shape, var(--mo-sys-block-radius))
+    );
   }
   .carousel-item-mask > :is(img, image, video) {
     display: block;
@@ -120,23 +125,23 @@
     object-fit: cover;
   }
   /* Full-screen: one item at a time, as wide as the carousel, out to a phone's edges without corners there. */
-  .carousel-full-screen .carousel-items {
-    height: var(--carousel-full-screen-height, min(75svh, 36rem));
+  .mo-carousel__full-screen .carousel-items {
+    height: var(--mo-comp-carousel-full-screen-height, min(75svh, 36rem));
     gap: 0;
     margin: 0 calc(-1 * var(--mo-comp-carousel-bleed, 0rem));
   }
-  .carousel-full-screen .carousel-item {
+  .mo-carousel__full-screen .carousel-item {
     width: 100%;
     scroll-snap-stop: always;
   }
   @media (width < 37.5rem) {
-    .carousel-full-screen .carousel-item-mask {
+    .mo-carousel__full-screen .carousel-item-mask {
       border-radius: var(--mo-comp-carousel-full-screen-radius, 0);
       clip-path: none;
     }
   }
   @media (width >= 37.5rem) {
-    .carousel-full-screen .carousel-items {
+    .mo-carousel__full-screen .carousel-items {
       margin: 0;
     }
   }
@@ -160,11 +165,11 @@
   }
   /* A card across all the columns (a span of the whole grid; the cards before and after it pack in their own columns).
      Spans of other widths are not possible in columns: see docs/theme-grid.md. */
-  .image-grid > .grid-span-full {
+  .image-grid > .mo-grid__span-full {
     column-span: all;
   }
   @media (width < 37.5rem) {
-    .image-grid > .grid-span-compact {
+    .image-grid > .mo-grid__span-compact {
       column-span: all;
     }
   }
@@ -339,42 +344,42 @@
     line-height: var(--mo-sys-typescale-body-medium-line-height, 1.25rem);
     color: var(--mo-sys-block-muted);
   }
-  .block-cards-primary .block-card {
+  .mo-block-cards__primary .block-card {
     color: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-on-primary));
   }
-  .block-cards-secondary .block-card {
+  .mo-block-cards__secondary .block-card {
     color: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-on-secondary));
   }
-  .block-cards-tertiary .block-card {
+  .mo-block-cards__tertiary .block-card {
     color: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-on-tertiary));
   }
-  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary)
+  :is(.mo-block-cards__primary, .mo-block-cards__secondary, .mo-block-cards__tertiary)
     :is(.block-card-icon, .block-card-text, .block-card-subhead, .block-card-more) {
     color: inherit;
   }
-  .block-price-cards {
+  .mo-block-pricecards__cards {
     display: grid;
     gap: var(--mo-sys-grid-gutter);
   }
   /* A big price, an elevated card (.card in ui.css). */
-  .block-price-card {
+  .mo-block-pricecards__card {
     display: flex;
     flex-direction: column;
   }
-  .block-price-card-head {
+  .mo-block-pricecards__card-head {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
   }
-  .block-price-card-title {
+  .mo-block-pricecards__card-title {
     margin: 0;
     font-size: var(--mo-sys-typescale-headline-small-size);
     line-height: var(--mo-sys-typescale-headline-small-line-height);
     font-weight: var(--mo-sys-typescale-headline-small-weight);
     letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
   }
-  .block-price-amount {
+  .mo-block-pricecards__amount {
     margin-top: 1.5rem;
     font-size: var(--mo-sys-typescale-display-medium-size);
     line-height: var(--mo-sys-typescale-display-medium-line-height);
@@ -382,33 +387,33 @@
     letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
     font-variant-numeric: tabular-nums;
   }
-  .block-price-unit {
+  .mo-block-pricecards__unit {
     margin-top: var(--mo-comp-card-subhead-gap, 0.25rem);
     color: var(--mo-sys-block-muted);
   }
   /* A punch card's offer in a price card, a filled card with smaller corners. */
-  .block-price-extra {
+  .mo-block-pricecards__extra {
     margin-top: 1.5rem;
   }
-  .block-price-extra-title {
+  .mo-block-pricecards__extra-title {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-weight: 500;
   }
-  .block-price-extra-title svg {
+  .mo-block-pricecards__extra-title svg {
     color: var(--mo-sys-block-accent);
   }
-  .block-price-extra-text {
+  .mo-block-pricecards__extra-text {
     margin-top: var(--mo-comp-card-subhead-gap, 0.25rem);
     color: var(--mo-sys-block-muted);
   }
-  .block-price-extra-text strong {
+  .mo-block-pricecards__extra-text strong {
     color: var(--mo-sys-block-text);
     font-weight: 500;
     font-variant-numeric: tabular-nums;
   }
-  .block-price-card > .block-arrow-link {
+  .mo-block-pricecards__card > .block-arrow-link {
     align-self: flex-start;
     margin-top: var(--mo-comp-card-action-gap, 1rem);
   }
@@ -424,16 +429,16 @@
     .block-cards {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .block-price-cards {
+    .mo-block-pricecards__cards {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .block-price-card-title {
+    .mo-block-pricecards__card-title {
       font-size: var(--mo-sys-typescale-headline-medium-size);
       line-height: var(--mo-sys-typescale-headline-medium-line-height);
       font-weight: var(--mo-sys-typescale-headline-medium-weight);
       letter-spacing: var(--mo-sys-typescale-headline-medium-tracking);
     }
-    .block-price-amount {
+    .mo-block-pricecards__amount {
       font-size: var(--mo-sys-typescale-display-large-size);
       line-height: var(--mo-sys-typescale-display-large-line-height);
       font-weight: var(--mo-sys-typescale-display-large-weight);
@@ -563,10 +568,10 @@
     line-height: 1.25;
   }
   /* A related post's card (components/PostCard.tsx) is as high as its row; the 404 page's suggestion is at most 42rem wide. */
-  .post-card {
+  .mo-post-card {
     height: 100%;
   }
-  .not-found-suggestion {
+  .mo-not-found__suggestion {
     max-width: 42rem;
   }
   @media (prefers-reduced-motion: reduce) {

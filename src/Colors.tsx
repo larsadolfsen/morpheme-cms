@@ -390,7 +390,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                       <Notice
                         title={d.fixTitle}
                         action={
-                          <div className="mo-editor-chips">
+                          <div className="mo-editor-settings-chips">
                             <Button size="small" onClick={fix}>
                               {d.fix}
                             </Button>
@@ -515,7 +515,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
   function modeColors() {
     return (
       <>
-        <p className="mo-editor-muted">{changing.length ? t.colors.pages.fallbackIntro(appNames) : t.colors.intro}</p>
+        <p className="mo-editor-settings-muted">{changing.length ? t.colors.pages.fallbackIntro(appNames) : t.colors.intro}</p>
         {loaded.unreadable && file && <ProblemNote>{t.colors.unreadable}</ProblemNote>}
         {/* On a wide computer screen the colours in the wide column, and the preview beside them, in view
           while they are changed. */}
@@ -614,7 +614,7 @@ function PageColors({ env, files, apps, mode }: { env: Env; files: RepoFile[]; a
 
   return (
     <>
-      <p className="mo-editor-muted">{p.intro}</p>
+      <p className="mo-editor-settings-muted">{p.intro}</p>
       <Group title={p.apps}>
         {apps.map((app) => (
           <ListItem

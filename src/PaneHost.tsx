@@ -116,7 +116,7 @@ function Pane({ id, entry, top, nested }: { id: string; entry: PaneEntry; top: b
   return (
     <div
       ref={box}
-      className={top ? 'contents' : 'hidden'}
+      className={top ? 'mo-contents' : 'mo-hidden'}
       onBlur={(e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && latest.current.onBlur?.()}
     >
       <SiteSideSheet
@@ -154,5 +154,5 @@ export default function PaneHost() {
       setPanelOpen(false);
     };
   }, [shown]);
-  return <div ref={place} className="contents" />;
+  return <div ref={place} className="mo-contents" />;
 }

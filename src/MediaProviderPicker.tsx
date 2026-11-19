@@ -105,8 +105,8 @@ export default function MediaProviderPicker({
           void connect();
         }}
       >
-        <p className="mo-editor-strong">{text.keyTitle(provider.label)}</p>
-        <p className="mo-editor-muted">{text.keyText(provider.label)}</p>
+        <p className="mo-editor-settings-strong">{text.keyTitle(provider.label)}</p>
+        <p className="mo-editor-settings-muted">{text.keyText(provider.label)}</p>
         <TextField
           label={text.keyLabel}
           type="password"

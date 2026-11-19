@@ -194,7 +194,7 @@ export default function Parts({ env }: { env: Env }) {
   return (
     <Screen title={t.parts.screens.editor} back={{ href: '#developer/parts', label: t.common.parts.editorParts }}>
       <div className="mo-editor-flow-10">
-        <p className="mo-editor-muted">{t.parts.intro('packages/editor/src/ui.tsx')}</p>
+        <p className="mo-editor-settings-muted">{t.parts.intro('packages/editor/src/ui.tsx')}</p>
         <PartsShown groups={GROUPS} keep="parts">
           <PartGroup group="buttons">
             <Part name="ToolbarButton" use={use.toolbarButton}>
@@ -474,7 +474,7 @@ export default function Parts({ env }: { env: Env }) {
                     tone="delete"
                     onClick={() => {}}
                     headline={
-                      <span className="mo-editor-inline-row">
+                      <span className="mo-editor-settings-inline-row">
                         <Trash size={18} />
                         {t.common.delete}
                       </span>
@@ -514,7 +514,7 @@ export default function Parts({ env }: { env: Env }) {
                   href="#developer/parts/editor"
                   headline={sample.pages}
                   actions={
-                    <span className="mo-editor-trailing">
+                    <span className="mo-editor-settings-trailing">
                       <UnfoldButton
                         open={unfolded}
                         count={3}
@@ -1082,7 +1082,7 @@ function FieldTypes({ env }: { env: Env }) {
     <Fields.Provider value={context}>
       <WrongField.Provider value={wrongField.field}>
         <PartGroup group="fieldTypes">
-          {intro && <p className="mo-editor-muted">{f.intro('packages/editor/src/fields.tsx')}</p>}
+          {intro && <p className="mo-editor-settings-muted">{f.intro('packages/editor/src/fields.tsx')}</p>}
           {types.map((type) => (
             <Part key={type.name} name={type.name} use={type.use}>
               <div className="mo-editor-flow-5">

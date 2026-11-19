@@ -116,7 +116,7 @@ export function carouselLayout(root: HTMLElement): () => void {
       height: row!.clientHeight,
     });
     large = Math.max(...sizes);
-    row!.style.setProperty('--carousel-item-width', `${large}px`);
+    row!.style.setProperty('--mo-comp-carousel-item-width', `${large}px`);
     // Scrolled to the start, the large ones first; to the end, last; between, the layout's own.
     start = stateOf(
       [...sizes].sort((a, b) => b - a),
@@ -171,7 +171,7 @@ export function carouselLayout(root: HTMLElement): () => void {
         size = lerp(lines[j].size, lines[j + 1].size, t);
       }
       mask.style.transform = `translateX(${loc - c}px)`;
-      mask.style.setProperty('--carousel-mask-inset', `${Math.max(0, (large - size) / 2)}px`);
+      mask.style.setProperty('--mo-comp-carousel-mask-inset', `${Math.max(0, (large - size) / 2)}px`);
       item.style.setProperty('--carousel-mask', String(Math.max(0, Math.min(1, 1 - size / large))));
     });
   }
@@ -190,12 +190,12 @@ export function carouselLayout(root: HTMLElement): () => void {
     cancelAnimationFrame(frame);
     row.removeEventListener('scroll', onScroll);
     resized.disconnect();
-    row.style.removeProperty('--carousel-item-width');
+    row.style.removeProperty('--mo-comp-carousel-item-width');
     row.style.scrollPaddingInlineStart = '';
     items.forEach((item, i) => {
       item.style.removeProperty('--carousel-mask');
       masks[i]?.style.removeProperty('transform');
-      masks[i]?.style.removeProperty('--carousel-mask-inset');
+      masks[i]?.style.removeProperty('--mo-comp-carousel-mask-inset');
     });
   };
 }

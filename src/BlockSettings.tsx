@@ -470,7 +470,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
             ))}
           </ul>
         ) : (
-          <p className="mo-editor-muted">{shown.none}</p>
+          <p className="mo-editor-settings-muted">{shown.none}</p>
         )}
       </div>
     </>
@@ -492,7 +492,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
           />
         }
         filter={filters.length > 0 && <Filters title={t.library.filter} selected={chips.length > 0} groups={filters} />}
-        className="mo-editor-group"
+        className="mo-editor-settings-group"
       />
       {chips.length > 0 && (
         <div className="mo-editor-filter-row">

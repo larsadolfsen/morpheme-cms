@@ -204,7 +204,7 @@ export function EditableCards({
       <div aria-live="polite" className="mo-visually-hidden">
         {dash.announcement}
       </div>
-      <div ref={grid} className="image-grid mo-editor-dashboard-grid">
+      <div ref={grid} className="image-grid mo-editor-settings-dashboard-grid">
         {shown.map(({ placement, definition }) => {
           const dragging = drag?.id === placement.id;
           return (

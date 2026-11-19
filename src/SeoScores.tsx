@@ -132,7 +132,7 @@ export default function SeoScores({ files, env }: { files: RepoFile[]; env: Env 
       back={{ href: '#seo', label: t.common.parts.seo }}
       status={average === null ? undefined : t.seo.average(average)}
     >
-      <p className="mb-4 text-on-surface-variant">{t.seo.intro}</p>
+      <p className="mo-editor-note">{t.seo.intro}</p>
       <SearchRow
         value={query}
         onChange={setQuery}
@@ -147,10 +147,10 @@ export default function SeoScores({ files, env }: { files: RepoFile[]; env: Env 
           />
         }
         filter={<Filters title={t.library.filter} selected={chips.length > 0} groups={filters} />}
-        className="mb-6"
+        className="mo-editor-list-lead"
       />
       {chips.length > 0 && (
-        <div className="-mt-2 mb-6 flex flex-wrap gap-2">
+        <div className="mo-editor-filter-chips">
           {chips.map((c) => (
             <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
               {c.label}

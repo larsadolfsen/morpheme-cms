@@ -145,7 +145,7 @@ export function PartsShown({
           }
         />
         {groupTitle && (
-          <div className="mo-editor-chips">
+          <div className="mo-editor-settings-chips">
             <InputChip removeLabel={t.library.removeFilter(groupTitle)} onRemove={() => setGroup('')}>
               {groupTitle}
             </InputChip>
