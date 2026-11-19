@@ -9,38 +9,11 @@
     "utilities": 23,
     "constants": 4
   },
-  "src/AddWidget.tsx": {
-    "utilities": 1
-  },
-  "src/Advanced.tsx": {
-    "utilities": 7
-  },
   "src/App.tsx": {
     "utilities": 28
   },
-  "src/AppAdds.tsx": {
-    "utilities": 11
-  },
-  "src/AppConnection.tsx": {
-    "utilities": 2
-  },
-  "src/AppEnabledSwitch.tsx": {
-    "utilities": 2
-  },
-  "src/AppInfoTab.tsx": {
-    "utilities": 11
-  },
   "src/AppList.tsx": {
     "utilities": 48
-  },
-  "src/AppNotificationSwitches.tsx": {
-    "utilities": 3
-  },
-  "src/AppProblems.tsx": {
-    "utilities": 2
-  },
-  "src/AppSettingsTab.tsx": {
-    "utilities": 1
   },
   "src/ask.tsx": {
     "utilities": 19
@@ -70,17 +43,8 @@
   "src/CommunicationParts.tsx": {
     "utilities": 44
   },
-  "src/Consents.tsx": {
-    "utilities": 4
-  },
   "src/ContainmentParts.tsx": {
     "utilities": 39
-  },
-  "src/CoverageBadge.tsx": {
-    "utilities": 4
-  },
-  "src/CoverageSummary.tsx": {
-    "utilities": 2
   },
   "src/CropView.tsx": {
     "utilities": 18
@@ -88,20 +52,8 @@
   "src/DashboardEdit.tsx": {
     "utilities": 18
   },
-  "src/DashboardGrid.tsx": {
-    "utilities": 4
-  },
-  "src/DataForm.tsx": {
-    "utilities": 9
-  },
-  "src/Deleted.tsx": {
-    "utilities": 12
-  },
   "src/editor.css": {
     "reference": 1
-  },
-  "src/EditorFooter.tsx": {
-    "utilities": 3
   },
   "src/EntryForm.tsx": {
     "utilities": 24
@@ -109,59 +61,14 @@
   "src/fields.tsx": {
     "utilities": 50
   },
-  "src/FileView.tsx": {
-    "utilities": 9
-  },
-  "src/FirstRun.tsx": {
-    "utilities": 7
-  },
-  "src/FooterCopyright.tsx": {
-    "utilities": 5
-  },
-  "src/FooterDivider.tsx": {
-    "utilities": 4
-  },
-  "src/FooterLink.tsx": {
-    "utilities": 9
-  },
-  "src/FooterLinks.tsx": {
-    "utilities": 5
-  },
-  "src/FormFrame.tsx": {
-    "utilities": 12
-  },
-  "src/Keywords.tsx": {
-    "utilities": 4
-  },
   "src/Licenses.tsx": {
     "utilities": 19
-  },
-  "src/LinkList.tsx": {
-    "utilities": 4
-  },
-  "src/LinkSheet.tsx": {
-    "utilities": 1
-  },
-  "src/MainDrawerParts.tsx": {
-    "utilities": 4
   },
   "src/MarkdownEditor.tsx": {
     "utilities": 19
   },
-  "src/MediaAlt.tsx": {
-    "utilities": 3
-  },
   "src/MediaProviderPicker.tsx": {
     "utilities": 23
-  },
-  "src/MediaTags.tsx": {
-    "utilities": 2
-  },
-  "src/ModalSheetSample.tsx": {
-    "utilities": 4
-  },
-  "src/MorphemeConnection.tsx": {
-    "utilities": 2
   },
   "src/NavigationParts.tsx": {
     "utilities": 33,
@@ -169,33 +76,6 @@
   },
   "src/NavigationRestParts.tsx": {
     "utilities": 54
-  },
-  "src/NewListDialog.tsx": {
-    "utilities": 8
-  },
-  "src/Notifications.tsx": {
-    "utilities": 4
-  },
-  "src/OwnList.tsx": {
-    "utilities": 2
-  },
-  "src/OwnListSheet.tsx": {
-    "utilities": 6
-  },
-  "src/PagePicker.tsx": {
-    "utilities": 12
-  },
-  "src/pagePreview.tsx": {
-    "utilities": 4
-  },
-  "src/PaneHost.tsx": {
-    "utilities": 3
-  },
-  "src/PartFieldPage.tsx": {
-    "utilities": 1
-  },
-  "src/PartFields.tsx": {
-    "utilities": 7
   },
   "src/Parts.tsx": {
     "utilities": 19,
@@ -211,87 +91,18 @@
   "src/Redirects.tsx": {
     "utilities": 16
   },
-  "src/ReleaseNoteLines.tsx": {
-    "utilities": 9
-  },
   "src/ReleaseNotes.tsx": {
     "utilities": 22
-  },
-  "src/ReleaseNoteSection.tsx": {
-    "utilities": 4
   },
   "src/SearchPreview.tsx": {
     "utilities": 53
   },
-  "src/SectionSettings.tsx": {
-    "utilities": 1
-  },
-  "src/SectionsField.tsx": {
-    "utilities": 3
-  },
-  "src/SelectionBar.tsx": {
-    "utilities": 1
-  },
-  "src/SeoScores.tsx": {
-    "utilities": 8
-  },
-  "src/ShortcutsSheet.tsx": {
-    "utilities": 3
-  },
-  "src/SiteLogoLink.tsx": {
-    "utilities": 12
-  },
-  "src/standard/view.tsx": {
-    "utilities": 1
-  },
-  "src/StartStatus.tsx": {
-    "utilities": 6
-  },
-  "src/StoreSearchRow.tsx": {
-    "utilities": 6
-  },
-  "src/StoreSections.tsx": {
-    "utilities": 1
-  },
   "src/ThemeStore.tsx": {
     "utilities": 30
-  },
-  "src/ThemeStoreScreen.tsx": {
-    "utilities": 3
-  },
-  "src/Tokens.tsx": {
-    "utilities": 2
-  },
-  "src/ToolSelect.tsx": {
-    "utilities": 1
-  },
-  "src/topBarSlot.tsx": {
-    "utilities": 6
   },
   "src/ui.tsx": {
     "utilities": 657,
     "constants": 38
-  },
-  "src/VersionLinePage.tsx": {
-    "utilities": 6
-  },
-  "src/Versions.tsx": {
-    "utilities": 2
-  },
-  "src/widgets/blogRhythm.tsx": {
-    "utilities": 6
-  },
-  "src/widgets/continue.tsx": {
-    "utilities": 8
-  },
-  "src/widgets/status.tsx": {
-    "utilities": 7
-  },
-  "src/widgets/unfinished.tsx": {
-    "utilities": 13
-  },
-  "src/WidgetSettings.tsx": {
-    "utilities": 1
   },
   "theme/blocks/video/View.tsx": {
     "constants": 1

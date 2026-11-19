@@ -51,10 +51,10 @@ export function StoreSearchRow({
         label={label}
         sort={sortChoice(sort, pickSort)}
         filter={<Filters title={t.library.filter} selected={shown.length > 0} groups={groups} />}
-        className="mb-6"
+        className="mo-editor-list-lead"
       />
       {shown.length > 0 && (
-        <div className="-mt-2 mb-6 flex flex-wrap gap-2">
+        <div className="mo-editor-filter-chips">
           {shown.map((c) => (
             <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
               {c.label}

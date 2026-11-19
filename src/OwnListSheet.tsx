@@ -153,12 +153,12 @@ export default function OwnListSheet({
         onKeyDown={(e) => isActionEnter(e) && (e.preventDefault(), rename())}
       />
       <div>
-        <p className="mb-1 font-medium">{t.ownList.fields}</p>
+        <p className="mo-editor-subtitle-tight">{t.ownList.fields}</p>
         {definition.fields.map((f: { id: string; kind: string; label?: string }) => {
           const off = dropped.includes(f.id);
           const held = off ? heldBy(entries, f.id) : 0;
           return (
-            <div key={f.id} className="mb-3">
+            <div key={f.id} className="mo-editor-own-field">
               <FieldName
                 kind={t.ownList[f.kind as 'icon']}
                 value={nameOf(definition, f, kindNames())}
@@ -182,7 +182,7 @@ export default function OwnListSheet({
                 }
               />
               {off ? (
-                <div className="mb-2">
+                <div className="mo-editor-own-field-held">
                   <SupportingText>{t.ownList.held(held)}</SupportingText>
                   {held > 0 && (
                     <Button kind="text" disabled={busy} onClick={() => void remove(f.id, t.ownList.removeData)}>
@@ -198,7 +198,7 @@ export default function OwnListSheet({
             </div>
           );
         })}
-        <span ref={addAt} className="inline-block">
+        <span ref={addAt} className="mo-editor-inline-block">
           <Button kind="outlined" disabled={busy} aria-haspopup="menu" aria-expanded={adding} onClick={() => setAdding(!adding)}>
             {t.ownList.addField}
           </Button>
@@ -232,7 +232,7 @@ export default function OwnListSheet({
           onBack: () => void closeSheet(),
           backLabel: t.common.back,
           children: (
-            <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+            <form className="mo-editor-stack-250" onSubmit={(e) => e.preventDefault()}>
               {body}
             </form>
           ),

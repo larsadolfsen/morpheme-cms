@@ -286,7 +286,7 @@ export function usePagePreview(route: string, shown: boolean, name: string): [(d
 
   const page = shown && run.current > 0 && (
     <Screen full title={t.preview.title} status={name} back={{ href: `#${route}`, label: name, guard: (go) => go() }}>
-      <div data-preview-page className="flex min-h-0 flex-1 flex-col">
+      <div data-preview-page className="mo-editor-preview-page">
         <PreviewScreen html={html} message={problem || t.preview.making} title={t.preview.title} />
       </div>
     </Screen>

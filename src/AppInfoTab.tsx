@@ -92,29 +92,29 @@ export default function AppInfoTab({
   return (
     <>
       {images.length > 0 && (
-        <section className="mb-8">
+        <section className="mo-editor-group">
           <GroupTitle>{t.apps.screenshots}</GroupTitle>
           <ImageCarousel label={t.apps.screenshots} images={images} />
         </section>
       )}
       {description && (
-        <section className="mb-8">
+        <section className="mo-editor-group">
           <GroupTitle>{t.apps.about}</GroupTitle>
           {description.split(/\n\s*\n/).map((p) => (
-            <p key={p} className="mb-3 px-4 last:mb-0">
+            <p key={p} className="mo-editor-app-text">
               {p}
             </p>
           ))}
         </section>
       )}
       {news.length > 0 && (
-        <section className="mb-8">
+        <section className="mo-editor-group">
           <GroupTitle>{t.apps.news}</GroupTitle>
           {news.map((n) => (
-            <div key={n.version} className="mb-3 px-4 last:mb-0">
-              <h3 className="font-medium">{t.apps.version(n.version)}</h3>
+            <div key={n.version} className="mo-editor-app-text">
+              <h3 className="mo-editor-strong">{t.apps.version(n.version)}</h3>
               {n.text.split(/\n\s*\n/).map((p) => (
-                <p key={p} className="text-on-surface-variant">
+                <p key={p} className="mo-editor-muted">
                   {p}
                 </p>
               ))}

@@ -47,7 +47,7 @@ export function useInText(...classes: (string | false | undefined)[]): string {
 /** Something in the text's style (prose): on the site it is in the text already; in the editor it is drawn in a box of
  * that style. */
 export function InProse({ children }: { children: ReactNode }) {
-  return useOnSite() ? children : <div className="prose max-w-none">{children}</div>;
+  return useOnSite() ? children : <div className="prose mo-editor-prose-wide">{children}</div>;
 }
 
 /** A link on the site and on the editor's own screens (EditorOwn); in what the editor draws of the site only drawn (its

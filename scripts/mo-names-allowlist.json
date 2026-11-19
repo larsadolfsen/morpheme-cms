@@ -261,7 +261,7 @@
     },
     "src/Advanced.tsx": {
       "classDefs": 0,
-      "markup": 6,
+      "markup": 3,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -271,45 +271,9 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/AppAdds.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/AppConnection.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/AppEnabledSwitch.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/AppInfoTab.tsx": {
-      "classDefs": 0,
-      "markup": 5,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/AppList.tsx": {
       "classDefs": 0,
       "markup": 10,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/AppNotificationSwitches.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/AppProblems.tsx": {
-      "classDefs": 0,
-      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -367,12 +331,6 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/Consents.tsx": {
-      "classDefs": 0,
-      "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/ContainmentParts.tsx": {
       "classDefs": 0,
       "markup": 13,
@@ -393,24 +351,6 @@
     },
     "src/DashboardGrid.tsx": {
       "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/DataForm.tsx": {
-      "classDefs": 0,
-      "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/Deleted.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/EditorFooter.tsx": {
-      "classDefs": 0,
       "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
@@ -421,15 +361,9 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/FirstRun.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/FormFrame.tsx": {
       "classDefs": 0,
-      "markup": 4,
+      "markup": 2,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -493,33 +427,9 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/Keywords.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/Licenses.tsx": {
       "classDefs": 0,
       "markup": 6,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/LinkList.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/LinkSheet.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/MainDrawerParts.tsx": {
-      "classDefs": 0,
-      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -535,27 +445,9 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/MediaAlt.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/MediaProviderPicker.tsx": {
       "classDefs": 0,
       "markup": 5,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/ModalSheetSample.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/MorphemeConnection.tsx": {
-      "classDefs": 0,
-      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -571,43 +463,13 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/NewListDialog.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/Notifications.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/OwnList.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/OwnListSheet.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/PagePicker.tsx": {
       "classDefs": 0,
       "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "src/PaneHost.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/PartFields.tsx": {
       "classDefs": 0,
       "markup": 1,
       "propsDeclared": 0,
@@ -655,12 +517,6 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/SectionSettings.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/SelectionBar.tsx": {
       "classDefs": 0,
       "markup": 1,
@@ -673,31 +529,7 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/SeoScores.tsx": {
-      "classDefs": 0,
-      "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/ShortcutsSheet.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/SiteLogoLink.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/StoreSearchRow.tsx": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/StoreSections.tsx": {
       "classDefs": 0,
       "markup": 1,
       "propsDeclared": 0,
@@ -706,36 +538,6 @@
     "src/ThemeStore.tsx": {
       "classDefs": 0,
       "markup": 6,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/ThemeStoreScreen.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/Tokens.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/VersionLinePage.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/Versions.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/WidgetSettings.tsx": {
-      "classDefs": 0,
-      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -793,12 +595,6 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "src/pagePreview.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "src/sectionFrame.ts": {
       "classDefs": 0,
       "markup": 2,
@@ -807,7 +603,7 @@
     },
     "src/topBarSlot.tsx": {
       "classDefs": 0,
-      "markup": 2,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -818,12 +614,6 @@
       "propsRead": 0
     },
     "src/useSelection.ts": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/widgets/blogRhythm.tsx": {
       "classDefs": 0,
       "markup": 1,
       "propsDeclared": 0,
