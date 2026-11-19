@@ -7,7 +7,8 @@
   }
 }
 @layer utilities {
-  .\[\&\>p\:first-child\]\:mo-type-lead > p:first-child {
+  .mo-text-lead > p:first-child,
+  .mo-page__text:where(.mo-is-single-column) > p:first-child {
     --mo-sys-prose-space: 1.5rem;
   }
 }

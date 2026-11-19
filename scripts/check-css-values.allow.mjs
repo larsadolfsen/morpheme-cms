@@ -2,6 +2,12 @@
 // the file, the line's text and the reason. Keep it small: a new entry is reviewed.
 export const allow = [
   {
+    file: /^src\/editor-rest\.css$/,
+    line: /^font-size: (0\.875|1)rem|^line-height: 1\.(25|5)rem|^border-radius: (0\.5|0\.75)rem/,
+    reason:
+      "the old text-sm, text-base, rounded-lg and rounded-xl of the editor's small files, moved as they were (Tailwind batch T09: the same look first, the type roles and corner steps in the M3 pass, T13)",
+  },
+  {
     file: /^src\/editor-screens\.css$/,
     line: /^font-size: 0\.(875|75)rem|^line-height: 1(\.25)?rem|^border-radius: (0\.75|1)rem|^border-radius: calc\(infinity \* 1px\)/,
     reason:

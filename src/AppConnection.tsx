@@ -47,7 +47,7 @@ export default function AppConnection({ app }: { app: SiteApp }) {
 
   const ready = state.connected && !state.needsSignIn;
   return (
-    <section className="mb-8">
+    <section className="mo-editor-group">
       <GroupTitle>{t.apps.mcpConnectsTo(state.host)}</GroupTitle>
       <ul className={plainListClass}>
         <ListItem
@@ -55,7 +55,7 @@ export default function AppConnection({ app }: { app: SiteApp }) {
           supporting={t.apps.mcpUses(state.tools.join(', '))}
         />
       </ul>
-      <div className="px-4">
+      <div className="mo-editor-inset">
         {state.auth === 'token' && !ready && (
           <TextField
             label={t.apps.mcpToken}

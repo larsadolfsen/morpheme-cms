@@ -12,7 +12,7 @@ const { title, intro } = Astro.props;
 ---
 
 <Container as="header" class="mo-page-header">
-  <h1 class="theme-title mo-page-header__title">{title}</h1>
+  <h1 class="mo-page-title mo-page-header__title">{title}</h1>
   {intro && (
     <p class="mo-type-body-large mo-page-header__intro">
       <Inline text={intro} />

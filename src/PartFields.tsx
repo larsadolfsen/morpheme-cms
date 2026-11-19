@@ -60,11 +60,11 @@ export default function PartFields({
           first={<FieldList fields={fields} value={values} onChange={(v) => setValues(v as Record<string, unknown>)} />}
           main={
             <div>
-              <p className="mb-2 font-medium">{t.company.preview}</p>
-              <div className="space-y-6">
+              <p className="mo-editor-subtitle">{t.company.preview}</p>
+              <div className="mo-editor-stack-300">
                 {shown.map((s) => (
                   <section key={s.label}>
-                    {s.label && <h3 className="mb-2 text-sm font-medium text-on-surface-variant">{s.label}</h3>}
+                    {s.label && <h3 className="mo-editor-preview-label">{s.label}</h3>}
                     <Preview>{s.block}</Preview>
                   </section>
                 ))}

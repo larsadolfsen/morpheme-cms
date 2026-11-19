@@ -1,5 +1,5 @@
 // Every theme styles all three designs of a card (Material 3's Outlined, Filled and Elevated, `.card-outlined`, `.card-filled` and
-// `.card-elevated` in theme/ui/Card.tsx) and the three containers of a filled "Cards" block (`.block-cards-primary`, `-secondary`,
+// `.card-elevated` in theme/ui/Card.tsx) and the three containers of a filled "Cards" block (`.mo-block-cards__primary`, `-secondary`,
 // `-tertiary`), so a card never lacks a design when the owner swaps the theme (docs/superpowers/specs/2026-11-11-intuitive-editor-design.md,
 // finding 17). `cardDesignProblems(css)` says which the CSS of a built site leaves unstyled; check:themes (check-themes.mjs) fails a theme
 // with a problem. No dependencies.
@@ -29,9 +29,11 @@ export function cardDesignProblems(css) {
   }
   for (const color of CARD_COLORS) {
     if (
-      !bodies(css, `block-cards-${color}`).some((b) => /--mo-comp-filled-card-container-color\s*:|(^|[;\s])background(-color)?\s*:/.test(b))
+      !bodies(css, `mo-block-cards__${color}`).some((b) =>
+        /--mo-comp-filled-card-container-color\s*:|(^|[;\s])background(-color)?\s*:/.test(b),
+      )
     )
-      problems.push(`the filled card color "${color}" (.block-cards-${color}) has no surface`);
+      problems.push(`the filled card color "${color}" (.mo-block-cards__${color}) has no surface`);
   }
   return problems;
 }

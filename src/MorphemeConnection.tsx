@@ -22,9 +22,9 @@ function Connection({ again }: { again: () => void }) {
   ) : null;
   if (!body) return null;
   return (
-    <section className="mb-8">
+    <section className="mo-editor-group">
       <GroupTitle>{t.cms.storeConnection}</GroupTitle>
-      <div className="px-4">{body}</div>
+      <div className="mo-editor-inset">{body}</div>
     </section>
   );
 }

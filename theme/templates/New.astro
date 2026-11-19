@@ -23,26 +23,24 @@ const rows = pages
   <PageHeader title={siteT.theme.newPages} intro={siteT.theme.newPagesIntro} />
 
   {rows.length > 0 && (
-    <Container as="section" class="mt-12 medium:mt-16">
-      <ul class="rounded-panel border border-outline-variant px-5 medium:px-7">
-        {rows.map(({ page, current }, i) => (
-          <li id={previewId(page.data.path)} class:list={['scroll-mt-24 py-5', i > 0 && 'border-t border-outline-variant']}>
+    <Container as="section" class="mo-new">
+      <ul class="mo-new__list">
+        {rows.map(({ page, current }) => (
+          <li id={previewId(page.data.path)} class="mo-new__item">
             <p class="mo-type-title-medium">{pageHeading(page)}</p>
-            <p class="mt-1.5 flex flex-wrap gap-x-6 gap-y-1">
-              <a href={page.data.path} class="inline-flex items-center gap-1.5 text-primary hover:underline">
+            <p class="mo-new__links">
+              <a href={page.data.path} class="mo-new__link">
                 {siteT.theme.newVersion} <Icon name="arrow-right" size={16} />
               </a>
               {current ? (
-                <a href={current.data.path} class="inline-flex items-center gap-1.5 text-on-surface-variant hover:text-primary">
+                <a href={current.data.path} class="mo-new__current">
                   {siteT.theme.currentPage(displayTitle(current.data.title))}
                 </a>
               ) : (
-                <span class="text-on-surface-variant">{siteT.theme.newPage}</span>
+                <span class="mo-new__note">{siteT.theme.newPage}</span>
               )}
             </p>
-            {page.data.review && (
-              <p class="mt-2 max-w-[75ch] mo-type-body-medium whitespace-pre-line text-on-surface-variant">{page.data.review}</p>
-            )}
+            {page.data.review && <p class="mo-type-body-medium mo-new__review">{page.data.review}</p>}
           </li>
         ))}
       </ul>

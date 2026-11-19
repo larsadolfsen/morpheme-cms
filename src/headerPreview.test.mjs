@@ -13,8 +13,8 @@ const PAGE = `<!doctype html><html><body>
   <div data-editor="header-menu" class="start-class"><button>Menu</button></div>
   <a href="/" class="title">Logo</a>
   <nav data-editor="header-nav"><ul>
-    <li data-nav-item><a href="/" class="md-nav-item" aria-current="page">Forside</a></li>
-    <li data-nav-item><a href="/b/" class="md-nav-item md-nav-item-parent">Treatments</a>
+    <li data-nav-item><a href="/" class="mo-header__nav-item" aria-current="page">Forside</a></li>
+    <li data-nav-item><a href="/b/" class="mo-header__nav-item mo-has-children">Treatments</a>
       <button data-nav-toggle aria-controls="menu-1" aria-label="Pages under Treatments"></button>
       <div id="menu-1"><ul><li><a href="/b/a/">Arm</a></li></ul></div></li>
   </ul></nav>

@@ -13,8 +13,8 @@ const { size = 'md' } = Astro.props;
 ---
 
 <span class="mo-row mo-logo">
-  <span class="theme-logo-tile">
-    <LogoMark class:list={['theme-logo-mark', size === 'sm' && 'theme-logo-mark-small']} />
+  <span class="mo-logo__tile">
+    <LogoMark class:list={['mo-logo__mark', size === 'sm' && 'mo-is-small']} />
   </span>
   <span class="mo-logo__text">
     <span class="theme-logo-name mo-logo__name">{site.name}</span>
