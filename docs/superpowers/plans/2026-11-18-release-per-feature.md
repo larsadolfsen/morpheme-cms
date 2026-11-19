@@ -39,6 +39,11 @@ fixes that make it pass, a test and the migrations it shows are missing) stay on
 refactor, CI, docs, deleted branches) has no version of its own and goes with the release that uses it, or beside the line. Every
 design ends with its releases, cut this way, and the roadmap lists them.
 
+**A line that changes the UI ends with a fix release** (owner, 19 November 2026: "Everything that changes ui, must end with a fix
+release"). The last release of such a line, `X.Y.N` *UI fixes*, holds only fixes (`patch` changesets): what the owner and the checks
+found in the line's screens, sheets, blocks and pages on the demo and on staging, and the owner's list of small fixes. Nothing new goes
+into it. The next line starts only after it. A line that changes nothing a person sees (for example Build speed) has none.
+
 When the lines end, the owner sets the demo's production branch (Workers > `morpheme-demo` > Settings > Build > Branch control) to `main`.
 
 Why (owner and CTO, 18 November): the big releases stay as the roadmap's areas, a finished feature reaches the sites in days, the owner
