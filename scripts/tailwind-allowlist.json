@@ -100,10 +100,6 @@
   "src/ThemeStore.tsx": {
     "utilities": 30
   },
-  "src/ui.tsx": {
-    "utilities": 657,
-    "constants": 38
-  },
   "theme/blocks/video/View.tsx": {
     "constants": 1
   },
