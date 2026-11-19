@@ -270,12 +270,12 @@ async function checkSectionOnImage() {
         // The list row is the active one: the row typed in place, with its icon and arrow.
         await page
           // (At the field's left end: a block pointed at shows its row over its top right.)
-          .click('.site-block-inline [data-field="title"]', { position: { x: 8, y: 8 } })
+          .click('.mo-site-block-inline [data-field="title"]', { position: { x: 8, y: 8 } })
           .catch(() => problems.push(`${label}: the list row cannot be typed in place`));
         await page.mouse.move(0, 0);
-        await page.waitForFunction((src) => document.querySelector('.editor-section-picture img')?.complete, image);
+        await page.waitForFunction((src) => document.querySelector('.mo-editor-section-picture img')?.complete, image);
         const got = await page.evaluate(`(() => { ${ratioOf}
-          const strip = document.querySelector('.editor-section-picture');
+          const strip = document.querySelector('.mo-editor-section-picture');
           const img = strip.querySelector('img');
           const c = document.createElement('canvas'); c.width = c.height = 1;
           const g = c.getContext('2d'); g.drawImage(img, 0, 0, 1, 1);
@@ -292,13 +292,13 @@ async function checkSectionOnImage() {
             const front = pixel(css, 'rgb(' + back + ')');
             return (Math.max(lumOf(front), lumOf(back)) + 0.05) / (Math.min(lumOf(front), lumOf(back)) + 0.05);
           };
-          const row = document.querySelector('.inline-list-row-active');
+          const row = document.querySelector('.mo-editor-inline-list-row-active');
           const parts = {
             heading: document.querySelector('.ProseMirror > h2'),
             body: document.querySelector('.ProseMirror > h2 + p'),
             rowTitle: row.querySelector('[data-field="title"]'),
             rowText: row.querySelector('[data-field="text"]'),
-            icon: row.querySelector('.inline-list-slot'),
+            icon: row.querySelector('.mo-editor-inline-list-slot'),
             chevron: row.querySelector('.mo-list__item-trailing'),
           };
           const out = {};
@@ -330,9 +330,9 @@ async function checkFullWidthSection() {
     const measure = (full) =>
       page.evaluate((full) => {
         const pm = document.querySelector('.ProseMirror');
-        const field = pm.closest('.editor-text').getBoundingClientRect();
-        const border = (n) => parseFloat(getComputedStyle(pm.closest('.editor-text'))[n]);
-        const parts = [...pm.children].filter((n) => !n.classList.contains('editor-section-picture'));
+        const field = pm.closest('.mo-editor-text').getBoundingClientRect();
+        const border = (n) => parseFloat(getComputedStyle(pm.closest('.mo-editor-text'))[n]);
+        const parts = [...pm.children].filter((n) => !n.classList.contains('mo-editor-section-picture'));
         parts.forEach((el, i) => {
           el.setAttribute('data-section-color', 'primary');
           el.setAttribute('data-section-box', parts.length === 1 ? 'only' : i === 0 ? 'start' : i === parts.length - 1 ? 'end' : 'middle');
@@ -349,9 +349,9 @@ async function checkFullWidthSection() {
         };
       }, full);
     const inset = await measure(false);
-    if (process.env.SHOTS_FULL) await page.locator('.editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-inset-${width}.png` });
+    if (process.env.SHOTS_FULL) await page.locator('.mo-editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-inset-${width}.png` });
     const full = await measure(true);
-    if (process.env.SHOTS_FULL) await page.locator('.editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-${width}.png` });
+    if (process.env.SHOTS_FULL) await page.locator('.mo-editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-${width}.png` });
     if (inset.left < 1 || inset.radius === '0px')
       problems.push(`${width}px full-width section: the section of the text's width should stay inset with corners`);
     if (Math.abs(full.left) > 0.5 || Math.abs(full.right) > 0.5 || full.top > 0.5 || full.radius !== '0px')
@@ -375,7 +375,7 @@ async function checkSectionBackground(width, touch) {
     await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
     const got = await page.evaluate(() => {
       const pm = document.querySelector('.ProseMirror');
-      const parts = [...pm.children].filter((c) => !c.classList.contains('editor-section-picture'));
+      const parts = [...pm.children].filter((c) => !c.classList.contains('mo-editor-section-picture'));
       const blue = parts.filter((c) => c.dataset.sectionColor === 'primary');
       const next = parts[parts.indexOf(blue.at(-1)) + 1];
       const bottom = blue.at(-1).getBoundingClientRect().bottom;
@@ -423,7 +423,7 @@ async function checkTapBelowSection(width, touch) {
   const parts = () =>
     page.evaluate(() =>
       [...document.querySelector('.ProseMirror').children]
-        .filter((c) => !c.classList.contains('editor-section-picture'))
+        .filter((c) => !c.classList.contains('mo-editor-section-picture'))
         .map((c) => ({ tag: c.tagName, text: c.textContent, ...c.getBoundingClientRect().toJSON() })),
     );
   const tapAt = async (y) => {
@@ -461,15 +461,15 @@ async function checkFocusFrame() {
   // The frame of each top-level part: whether its ::after is drawn, and its colour's contrast on the part's own background.
   const read = (colors) => `(() => { ${ratioOf}
     const pm = document.querySelector('.ProseMirror');
-    const parts = [...pm.children].filter((e) => !e.classList.contains('editor-section-picture'));
+    const parts = [...pm.children].filter((e) => !e.classList.contains('mo-editor-section-picture'));
     const first = parts.findIndex((e) => e.textContent.includes('Alpha'));
     const last = parts.findIndex((e) => e.textContent.includes('Beta')) - 1;
     const rows = parts.map((e, i) => ({ inAlpha: i >= first && i <= last, text: e.textContent.trim().slice(0, 12), focus: e.dataset.sectionFocus ?? null, drawn: getComputedStyle(e, '::after').content !== 'none' && getComputedStyle(e, '::after').content !== 'normal', line: getComputedStyle(e, '::after').borderInlineStartStyle, width: getComputedStyle(e, '::after').borderInlineStartWidth }));
     const out = { editorOutline: getComputedStyle(pm).outlineStyle, focused: pm.matches(':focus-visible'), rows, contrast: {} };
     if (${colors}) {
       const alpha = parts[first];
-      const block = parts.find((e) => e.matches('.site-block-inline') || e.querySelector('.site-block-inline'));
-      const blockEl = block?.matches('.site-block-inline') ? block : block?.querySelector('.site-block-inline');
+      const block = parts.find((e) => e.matches('.mo-site-block-inline') || e.querySelector('.mo-site-block-inline'));
+      const blockEl = block?.matches('.mo-site-block-inline') ? block : block?.querySelector('.mo-site-block-inline');
       for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
         for (const e of parts.slice(first, last + 1)) { e.setAttribute('data-section-color', color); e.setAttribute('data-section-box', 'only'); }
         out.contrast[color] = {
@@ -528,11 +528,12 @@ async function checkFocusFrame() {
           problems.push(`${label}: with the cursor in the top text, "${r.text}" ${r.focus ? 'has' : 'lacks'} the frame`);
       }
       // A block in focus: its own outline shows it, no section frame, and the line stands 3:1 on every section colour.
-      await tap('.site-block-inline [data-field="title"]', { x: 8, y: 8 });
+      await tap('.mo-site-block-inline [data-field="title"]', { x: 8, y: 8 });
       await page
         .waitForFunction(
           () =>
-            !document.querySelector('.ProseMirror').matches(':focus-visible') && document.querySelector('.site-block-inline:focus-within'),
+            !document.querySelector('.ProseMirror').matches(':focus-visible') &&
+            document.querySelector('.mo-site-block-inline:focus-within'),
           null,
           { timeout: 10_000 },
         )

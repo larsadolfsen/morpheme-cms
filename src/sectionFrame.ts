@@ -18,7 +18,7 @@ type Range = { from: number; to: number };
 // The image behind a section: a box behind its parts, sized to them by placeBackdrops (not editable text).
 function imageStrip(src: string, alt: string, color: string | null, width: string | null, last: number): HTMLElement {
   const strip = document.createElement('div');
-  strip.className = 'editor-section-picture';
+  strip.className = 'mo-editor-section-picture';
   if (color) strip.dataset.color = color;
   if (width === 'full') strip.dataset.width = 'full';
   strip.dataset.last = String(last);
@@ -107,7 +107,7 @@ function focusDecorations(doc: Node, selection: Selection): Decoration[] {
 function placeBackdrops(view: EditorView) {
   const host = view.dom as HTMLElement;
   const hostRect = host.getBoundingClientRect();
-  host.querySelectorAll<HTMLElement>(':scope > .editor-section-picture').forEach((strip) => {
+  host.querySelectorAll<HTMLElement>(':scope > .mo-editor-section-picture').forEach((strip) => {
     const first = strip.nextElementSibling as HTMLElement | null;
     let last: HTMLElement | null = null;
     try {

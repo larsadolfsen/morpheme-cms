@@ -143,7 +143,7 @@ export type MarkdownHandle = {
   setH1: (text: string) => void;
   /** Whether the text has nothing but its H1 and blocks: no other text, so a title typed may write the H1. */
   bare: () => boolean;
-  /** Scrolls to the block (its number among the text's blocks) and marks it as wrong, as a field is (`.editor-wrong`), until the next try. */
+  /** Scrolls to the block (its number among the text's blocks) and marks it as wrong, as a field is (`.mo-editor-wrong`), until the next try. */
   showBlock: (at: number) => void;
   /** Leaves the empty rows out of the block (its number), or of every block without one (emptyRows.mjs); a block left with no row it must have is removed. */
   removeEmptyRows: (at?: number) => void;
@@ -243,7 +243,7 @@ const gapHere = $prose(
       props: {
         decorations: ({ doc, selection: { $from, empty } }) =>
           empty && $from.depth === 1 && isGap($from.parent)
-            ? DecorationSet.create(doc, [Decoration.node($from.before(), $from.after(), { class: 'editor-gap-here' })])
+            ? DecorationSet.create(doc, [Decoration.node($from.before(), $from.after(), { class: 'mo-editor-gap-here' })])
             : null,
       },
     }),
@@ -375,7 +375,7 @@ function move(view: EditorView, i: number, by: -1 | 1): number | null {
 type CardHost = HTMLElement & { select?: () => void; refresh?: () => void; describe?: (focus?: EditFocus) => void };
 function reopen(view: EditorView, k: number) {
   const el = partDOM(view, k);
-  const host = (el?.matches('.site-block') ? el : el?.querySelector('.site-block')) as CardHost | null;
+  const host = (el?.matches('.mo-site-block') ? el : el?.querySelector('.mo-site-block')) as CardHost | null;
   host?.select?.();
 }
 
@@ -468,17 +468,17 @@ let lastPicked: number | null = null;
 // read-only (blockSelecting). Returns `toggle` (what a tap does), `start` (select this one), and how to let go of it.
 function blockSelectable(view: EditorView, dom: HTMLElement, card: HTMLElement, top: () => number | null, inline: boolean) {
   const mark = dom.appendChild(document.createElement('span'));
-  mark.className = 'site-block-mark';
+  mark.className = 'mo-site-block-mark';
   mark.setAttribute('aria-hidden', 'true');
-  mark.innerHTML = `<span class="site-block-mark-dot">${blockMarkIcon}</span>`;
+  mark.innerHTML = `<span class="mo-site-block-mark-dot">${blockMarkIcon}</span>`;
   const sync = () => {
     const places = blockSelection.places();
     const here = top();
     const on = here !== null && places.includes(here);
-    dom.classList.toggle('site-block-marks', places.length > 0);
-    dom.classList.toggle('site-block-selected', on);
+    dom.classList.toggle('mo-site-block-marks', places.length > 0);
+    dom.classList.toggle('mo-site-block-selected', on);
     mark.dataset.mark = on ? 'on' : 'off';
-    dimHandle(dom.querySelector(':scope > .site-block-handle'));
+    dimHandle(dom.querySelector(':scope > .mo-site-block-handle'));
     if (places.length > 0) {
       card.setAttribute('role', 'checkbox');
       card.setAttribute('aria-checked', String(on));
@@ -506,7 +506,7 @@ function blockSelectable(view: EditorView, dom: HTMLElement, card: HTMLElement, 
   sync();
   // A tap or a click while blocks are selected toggles the block (not what it does otherwise): nothing in it takes the focus or opens.
   const picking = (e: Event) =>
-    blockSelection.places().length > 0 && !(e.target instanceof Element && e.target.closest('.site-block-handle'));
+    blockSelection.places().length > 0 && !(e.target instanceof Element && e.target.closest('.mo-site-block-handle'));
   dom.addEventListener('mousedown', (e) => picking(e) && e.preventDefault(), true);
   dom.addEventListener('pointerdown', (e) => picking(e) && e.preventDefault(), true);
   let swallow = false;
@@ -548,14 +548,14 @@ function blockSelectable(view: EditorView, dom: HTMLElement, card: HTMLElement, 
     const now = blockSelection.places();
     blockSelection.set(range(now.length ? now : [here], blocks, here, next));
     lastPicked = next;
-    partDOM(view, next)?.querySelector<HTMLElement>('.site-block-card')?.focus();
+    partDOM(view, next)?.querySelector<HTMLElement>('.mo-site-block-card')?.focus();
   });
   card.addEventListener('keyup', (e) => e.key === ' ' && e.target === card && e.preventDefault());
   // A touch or a pen held still on the card, not on text typed in it.
   let press: { id: number; x: number; y: number; timer: number } | null = null;
   const typed = (target: EventTarget | null) =>
     target instanceof Element &&
-    !!target.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"], .site-block-handle, .site-block-mark');
+    !!target.closest('input, textarea, select, [contenteditable=""], [contenteditable="true"], .mo-site-block-handle, .mo-site-block-mark');
   const release = () => {
     if (press) clearTimeout(press.timer);
     press = null;
@@ -604,7 +604,7 @@ const blockSelecting = $prose(
           view.setProps({});
           // The text lets go of the keyboard (a phone's stays shut), but a focused card keeps it: Space, Shift+Arrow and Escape work from it.
           const active = document.activeElement as HTMLElement | null;
-          if (blockSelection.places().length && !active?.matches('.site-block-card')) active?.blur?.();
+          if (blockSelection.places().length && !active?.matches('.mo-site-block-card')) active?.blur?.();
         });
         return {
           update: (next) => {
@@ -756,7 +756,7 @@ function blockHandle(
 ) {
   const handle = dom.appendChild(document.createElement('button'));
   handle.type = 'button';
-  handle.className = 'site-block-handle';
+  handle.className = 'mo-site-block-handle';
   handle.tabIndex = -1;
   handle.setAttribute('aria-label', t.text.dragBlock(name));
   handle.innerHTML = blockHandleIcon;
@@ -780,7 +780,7 @@ function blockHandle(
   };
   const marked: HTMLElement[] = [];
   const unmark = () => {
-    for (const el of marked.splice(0)) el.classList.remove('site-part-drop-above', 'site-part-drop-below');
+    for (const el of marked.splice(0)) el.classList.remove('mo-site-part-drop-above', 'mo-site-part-drop-below');
   };
   // Where it would land now: the places to move, and the line at the part it goes next to.
   const plan = () => {
@@ -809,7 +809,7 @@ function blockHandle(
     const { steps, list, self } = plan();
     const next = list[self + steps];
     if (steps && next) {
-      next.el.classList.add(steps < 0 ? 'site-part-drop-above' : 'site-part-drop-below');
+      next.el.classList.add(steps < 0 ? 'mo-site-part-drop-above' : 'mo-site-part-drop-below');
       marked.push(next.el);
     }
   };
@@ -828,7 +828,7 @@ function blockHandle(
     if (run) cancelAnimationFrame(run.frame);
     run = null;
     dom.style.transform = '';
-    dom.classList.remove('site-block-dragging');
+    dom.classList.remove('mo-site-block-dragging');
     unmark();
   };
   // The finger is down but has not moved (yet): a tap, a long press that selects, or the start of the drag.
@@ -842,7 +842,7 @@ function blockHandle(
     const { id, y } = pending;
     settle();
     run = { id, startY: y, y, scroll: scrollNow(), frame: 0 };
-    dom.classList.add('site-block-dragging');
+    dom.classList.add('mo-site-block-dragging');
     run.frame = requestAnimationFrame(tick);
   };
   handle.addEventListener('pointerdown', (e) => {
@@ -915,7 +915,7 @@ function cardBar(
     const target = e.target;
     if (
       target instanceof Element &&
-      (dom.contains(target) || target.closest('.editor-tools, .editor-menu, .editor-side-sheet, dialog[open], [data-keeps-block]'))
+      (dom.contains(target) || target.closest('.mo-editor-tools, .mo-editor-menu, .mo-editor-side-sheet, dialog[open], [data-keeps-block]'))
     )
       return;
     leave();
@@ -1054,7 +1054,7 @@ function liveLink(
     target: () => {
       const now = here();
       const dom = now && view.nodeDOM(now.pos);
-      return dom instanceof HTMLElement ? (dom.querySelector<HTMLElement>('.site-block-card') ?? null) : null;
+      return dom instanceof HTMLElement ? (dom.querySelector<HTMLElement>('.mo-site-block-card') ?? null) : null;
     },
   };
 }
@@ -1148,11 +1148,11 @@ function imageCard(
   pick: () => (() => Promise<string | null>) | undefined,
 ) {
   const dom = document.createElement('span');
-  dom.className = 'site-block site-picture';
+  dom.className = 'mo-site-block mo-site-picture';
   dom.contentEditable = 'false';
   const card = dom.appendChild(document.createElement('button'));
   card.type = 'button';
-  card.className = 'site-block-card';
+  card.className = 'mo-site-block-card';
   card.setAttribute('aria-label', t.text.image);
   // Cut to its format as on the site (crop.mjs): in a box of the format.
   const { src, format, crop, decorative } = splitPicture(node.attrs.src);
@@ -1554,27 +1554,27 @@ function blockCard(
   const spec = block?.inline;
   const Inline = block?.inlineView!; // drawn only when `inline` (typedInPlace: it has a view)
   const dom = document.createElement('div');
-  dom.className = hidden || over ? 'site-block site-block-hidden' : 'site-block';
+  dom.className = hidden || over ? 'mo-site-block mo-site-block-hidden' : 'mo-site-block';
   dom.contentEditable = 'false';
   const card = dom.appendChild(document.createElement(inline ? 'div' : 'button'));
   if (card instanceof HTMLButtonElement) card.type = 'button';
   else card.setAttribute('role', 'group');
-  card.className = inline ? 'site-block-card site-block-inline' : 'site-block-card';
+  card.className = inline ? 'mo-site-block-card mo-site-block-inline' : 'mo-site-block-card';
   const name = block?.nameOf?.(node.attrs.props) ?? block?.label ?? node.attrs.type;
   card.setAttribute('aria-label', name);
   // An eye struck through in the corner of a hidden block (for screen readers it says so in the description). A block typed in place stays the same
   // node view when it is hidden or shown, so its action row (blockRow.ts) stays open and says Show or Hide.
   const paintHidden = () => {
-    dom.classList.toggle('site-block-hidden', hidden || over);
-    card.querySelector(':scope > .site-block-hidden-badge')?.remove();
+    dom.classList.toggle('mo-site-block-hidden', hidden || over);
+    card.querySelector(':scope > .mo-site-block-hidden-badge')?.remove();
     if (!hidden) return;
     const badge = card.insertBefore(document.createElement('span'), card.firstChild);
-    badge.className = 'site-block-hidden-badge';
+    badge.className = 'mo-site-block-hidden-badge';
     badge.innerHTML = eyeSlashIcon.replace('<svg', '<svg width="18" height="18" fill="currentColor" aria-hidden="true"');
   };
   paintHidden();
   const shown = card.appendChild(document.createElement('div'));
-  shown.className = ask?.data.page ? 'site-block-preview site-block-section not-prose' : 'site-block-preview not-prose';
+  shown.className = ask?.data.page ? 'mo-site-block-preview mo-site-block-section not-prose' : 'mo-site-block-preview not-prose';
   // What is typed in place is for screen readers too; the image of any other block is not.
   if (!inline) shown.setAttribute('aria-hidden', 'true');
   const root = createRoot(shown);
@@ -1717,7 +1717,7 @@ function blockCard(
     card.setAttribute('aria-description', [hidden ? t.text.hiddenOnPage : '', ...lines].filter(Boolean).join('. '));
     // Without an image of it, what is in it, in lines.
     const image = preview(node.attrs.type, node.attrs.props, ask.data) ?? (
-      <div className="site-block-lines">
+      <div className="mo-site-block-lines">
         {lines.map((line, i) => (
           <span key={i}>{line}</span>
         ))}
@@ -2240,7 +2240,8 @@ function blockCard(
     // its settings close, and a row with nothing in it is dropped.
     const inside = (target: EventTarget | null) =>
       target instanceof Element &&
-      (dom.contains(target) || !!target.closest('.editor-tools, .editor-menu, .editor-side-sheet, dialog[open], [data-keeps-block]'));
+      (dom.contains(target) ||
+        !!target.closest('.mo-editor-tools, .mo-editor-menu, .mo-editor-side-sheet, dialog[open], [data-keeps-block]'));
     const away = (e: Event) => {
       if ((active === null && !dynSelected) || inside(e.target)) return;
       // A dynamic block has no row being typed in: the focus going back to the text (as a sheet opens or closes) is not leaving it, only a tap elsewhere is.
@@ -2275,7 +2276,7 @@ function blockCard(
   // chosen with others shows none.
   const pointer = {};
   dom.addEventListener('pointerenter', (e) => {
-    if (e.pointerType !== 'mouse' || dom.classList.contains('site-block-dragging') || blockSelection.places().length) return;
+    if (e.pointerType !== 'mouse' || dom.classList.contains('mo-site-block-dragging') || blockSelection.places().length) return;
     const split = splitRow(
       menuItems()
         .filter((it): it is CardItem => !!it)
@@ -2385,7 +2386,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   useEffect(() => {
     if (!levelShown.current && !moreLevel) return;
     levelShown.current = !!moreLevel;
-    document.querySelector<HTMLElement>('.editor-menu [role^="menuitem"]')?.focus({ preventScroll: true });
+    document.querySelector<HTMLElement>('.mo-editor-menu [role^="menuitem"]')?.focus({ preventScroll: true });
   }, [moreLevel]);
   const [colorAt, setColorAt] = useState<HTMLElement | null>(null);
   // The bar's width, in dp, measured with a ResizeObserver (never a timer): how many tools fit (textBar.mjs).
@@ -2561,9 +2562,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           if (node.type.name !== 'siteBlock' || ++n !== at) return;
           const el = view.nodeDOM(pos);
           if (!(el instanceof HTMLElement)) return;
-          for (const old of view.dom.querySelectorAll('.editor-wrong')) old.classList.remove('editor-wrong');
+          for (const old of view.dom.querySelectorAll('.mo-editor-wrong')) old.classList.remove('mo-editor-wrong');
           void el.offsetWidth;
-          el.classList.add('editor-wrong');
+          el.classList.add('mo-editor-wrong');
           el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
         });
       }),
@@ -3071,7 +3072,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     let ghost: HTMLElement | null = null;
     if (context) {
       ghost = context.cloneNode(true) as HTMLElement;
-      ghost.classList.add('editor-tools-ghost');
+      ghost.classList.add('mo-editor-tools-ghost');
       ghost.setAttribute('aria-hidden', 'true');
       ghost.setAttribute('inert', '');
     }
@@ -3159,7 +3160,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           key={id}
           icon={ALIGN_FACES[alignNow].node}
           label={t.text.alignmentIs(alignLabel(alignNow))}
-          menu={!!alignAt && alignAt.closest('.editor-tools') !== null && alignAt !== moreButton.current}
+          menu={!!alignAt && alignAt.closest('.mo-editor-tools') !== null && alignAt !== moreButton.current}
           disabled={!alignOn}
           onClick={(e) => setAlignAt(alignAt === e.currentTarget ? null : e.currentTarget)}
         />
@@ -3241,22 +3242,22 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const moreGroups = moreContext.length + moreMain.length + blockMenu.length;
 
   return (
-    <div className="editor-text-box mo-editor-text-surface">
+    <div className="mo-editor-text-box mo-editor-text-surface">
       <span className="mo-visually-hidden" role="status" aria-live="polite">
         {selecting ? t.text.blocksSelected(picked.places.length) : ''}
       </span>
       {/* The top edge of the text's box: it draws its own border and rounded corners, so the box's side lines start under it and never run past it when it sticks; no shadow. Stays at the top of the screen while scrolling through the text (under the safe area, as the top bar scrolls away). One row, 44 dp high: the text tools, a divider and the main tools; the `⋮` at its end has what does not fit (textBar.mjs). */}
-      <Toolbar ref={toolbar} label={t.text.tools} className="editor-tools mo-editor-tools-bar">
-        <div ref={slideRow} className="editor-tools-slide">
+      <Toolbar ref={toolbar} label={t.text.tools} className="mo-editor-tools mo-editor-tools-bar">
+        <div ref={slideRow} className="mo-editor-tools-slide">
           {plan.bar.context.length > 0 && (
-            <div ref={contextBox} className="editor-tools-context">
-              <div role="group" aria-label={block_?.name ?? t.text.textTools} className="editor-tools-group">
+            <div ref={contextBox} className="mo-editor-tools-context">
+              <div role="group" aria-label={block_?.name ?? t.text.textTools} className="mo-editor-tools-group">
                 {plan.bar.context.map(barButton)}
               </div>
             </div>
           )}
-          <div ref={mainBox} className="editor-tools-main">
-            <div role="group" aria-label={t.text.pageTools} className="editor-tools-group">
+          <div ref={mainBox} className="mo-editor-tools-main">
+            <div role="group" aria-label={t.text.pageTools} className="mo-editor-tools-group">
               {plan.bar.fixed.map(barButton)}
             </div>
             {plan.overflow && (
@@ -3386,9 +3387,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       </Menu>
       <div
         ref={root}
-        className={`editor-text prose mo-editor-text-area ${short ? 'editor-text-short' : ''} ${spaced ? 'editor-spaced' : ''}`}
+        className={`mo-editor-text prose mo-editor-text-area ${short ? 'mo-editor-text-short' : ''} ${spaced ? 'mo-editor-spaced' : ''}`}
         style={
-          { '--editor-gap-text': JSON.stringify(t.text.typeHere), '--editor-empty-text': JSON.stringify(t.text.emptyHint) } as CSSProperties
+          {
+            '--mo-comp-editor-gap-text': JSON.stringify(t.text.typeHere),
+            '--mo-comp-editor-empty-text': JSON.stringify(t.text.emptyHint),
+          } as CSSProperties
         }
       />
     </div>

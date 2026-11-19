@@ -44,7 +44,7 @@ export default function SelectionBar({
           {onSelectAll && total ? (
             <Checkbox
               label={t.library.selectAll}
-              className="selection-bar-all"
+              className="mo-editor-selection-bar-all"
               checked={count >= total}
               indeterminate={count > 0 && count < total}
               onChange={onSelectAll}

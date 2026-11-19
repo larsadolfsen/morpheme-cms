@@ -187,7 +187,7 @@ export function useUnsavedGuard(dirty: boolean, save: () => Promise<unknown>, di
 /** The bar at the bottom with `Save changes`, for a screen that is not a form (a list's, while its definition waits). */
 export function SaveBar({ saving, onSave }: { saving: boolean; onSave: () => Promise<unknown> }) {
   return (
-    <ActionSheet label={t.common.saveChanges} className="editor-save-bar">
+    <ActionSheet label={t.common.saveChanges} className="mo-editor-save-bar">
       <div className="mo-editor-form-actions">
         <Button
           kind="filled"
@@ -282,7 +282,7 @@ export default function FormFrame<T extends string>({
         </div>
       )}
       {!hidden && (dirty || saving || publish?.label || publishing) && (
-        <ActionSheet label={t.common.saveChanges} className="editor-save-bar">
+        <ActionSheet label={t.common.saveChanges} className="mo-editor-save-bar">
           {/* Preview beside Save, at the end of the bar, each as wide as its label. */}
           <div className="mo-editor-form-actions">
             {onPreview && (

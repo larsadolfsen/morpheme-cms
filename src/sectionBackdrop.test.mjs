@@ -17,6 +17,6 @@ test("a section of the whole width reaches the text field's edges", () => {
 
 test('the editor draws the image behind the text, not as a strip above the heading', () => {
   const css = readFileSync(new URL('./editor.css', import.meta.url), 'utf8');
-  assert.doesNotMatch(css, /editor-section-picture\s*\{[^}]*height:\s*9rem/);
-  assert.match(css, /editor-section-picture\s*\{[^}]*position:\s*absolute/);
+  assert.doesNotMatch(css, /mo-editor-section-picture\s*\{[^}]*height:\s*9rem/);
+  assert.match(css, /mo-editor-section-picture\s*\{[^}]*position:\s*absolute/);
 });

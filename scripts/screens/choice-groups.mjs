@@ -129,10 +129,10 @@ async function checkChoiceGroupFields(width, locale) {
   const path = 'src/content/pages/zz-choices.md';
   await openEditor(page, site, { [path]: CHOICE_PAGE });
   await page.goto(`${site}/editor/#${path}`);
-  await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 30_000 });
+  await page.waitForSelector('.ProseMirror .mo-site-block-card', { timeout: 30_000 });
   const sheet = () =>
     page
-      .locator('dialog[open], .editor-side-sheet')
+      .locator('dialog[open], .mo-editor-side-sheet')
       .filter({ has: page.locator('.mo-choice-group, .mo-segmented-button') })
       .last();
   // A sheet is closed by its Cancel (nothing was changed), else by Escape (the side panel on a computer).
@@ -142,7 +142,7 @@ async function checkChoiceGroupFields(width, locale) {
     );
     const named = cancel.filter({ hasText: /^(Cancel|Annuller)$/ });
     // On a phone the block's fields are a subpage: its back arrow is the first button of its app bar.
-    const subpage = page.locator('dialog[open].block-page header button').first();
+    const subpage = page.locator('dialog[open].mo-editor-block-page header button').first();
     if (await subpage.count()) await subpage.click();
     else if (await named.count()) await named.last().click();
     else if (await cancel.count()) await cancel.last().click();
@@ -150,7 +150,7 @@ async function checkChoiceGroupFields(width, locale) {
     await page.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 3000 }).catch(() => {});
     await page.waitForTimeout(300);
   };
-  const cards = page.locator('.ProseMirror > .site-block > .site-block-card');
+  const cards = page.locator('.ProseMirror > .mo-site-block > .mo-site-block-card');
   const count = await cards.count();
   const seen = [];
   const skipped = [];
@@ -183,7 +183,7 @@ async function checkChoiceGroupFields(width, locale) {
     }
     if (!(await sheet().count())) {
       const active = rowButton(page, say.block);
-      let button = (await active.count()) ? active : page.locator(`.site-block-row [data-row][aria-label="${say.block}"]:visible`);
+      let button = (await active.count()) ? active : page.locator(`.mo-site-block-row [data-row][aria-label="${say.block}"]:visible`);
       if (!(await button.count()) && !touch && (await card.locator('[data-field]').count())) {
         // A block whose items the hover row would cover (Cards) shows no hover row: a click in its first field makes the block the active one, which has its row.
         await card.locator('[data-field]').first().click();
@@ -195,7 +195,7 @@ async function checkChoiceGroupFields(width, locale) {
         await card.focus();
         await page.keyboard.press('Enter');
         await page.waitForTimeout(800);
-        button = page.locator(`.site-block-row [data-row][aria-label="${say.block}"]:visible`);
+        button = page.locator(`.mo-site-block-row [data-row][aria-label="${say.block}"]:visible`);
       }
       // Buttons has no block-level choice: its Style is in each button's Settings (below).
       if (!(await button.count()) && !(await sheet().count())) {
@@ -275,7 +275,7 @@ async function checkChoiceGroupFields(width, locale) {
     await page.keyboard.press('ArrowDown');
     const chosen = await style.evaluate((l) => [...l.querySelectorAll('input[type="radio"]')].findIndex((r) => r.checked));
     if (chosen !== 1) problems.push(`${label}: ArrowDown in ${say.style} did not choose the second style (${chosen})`);
-    if (!(await page.locator('.inline-list-row-active.mo-button.mo-is-tonal, .ProseMirror .mo-button.mo-is-tonal').count()))
+    if (!(await page.locator('.mo-editor-inline-list-row-active.mo-button.mo-is-tonal, .ProseMirror .mo-button.mo-is-tonal').count()))
       problems.push(`${label}: choosing Tonal by the arrow key did not change the button`);
     if (process.env.SHOTS_FULL) await sheet().screenshot({ path: `${process.env.SHOTS_FULL}-button-style-${width}-${locale}.png` });
   }
@@ -305,7 +305,7 @@ async function checkButtonStyleSamples(width, locale) {
     await page.waitForTimeout(500);
     await pressTool(page, say.settings).catch(() => problems.push(`${label}: the button has no ${say.settings}`));
     const here = page
-      .locator('dialog[open], .editor-side-sheet')
+      .locator('dialog[open], .mo-editor-side-sheet')
       .filter({ has: page.locator('.mo-choice-group') })
       .last();
     await here.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the settings did not open`));
@@ -403,7 +403,7 @@ async function checkButtonStyleOptions(width) {
   const md = `---\ntitle: "Elevated"\ndescription: "d"\n---\n\n# Elevated\n\nIntro.\n\n${block('buttons', { items: [{ label: 'Old one', to: 'page', kind: 'elevated' }] })}\n`;
   await openEditor(page, site, { [path]: md });
   await page.goto(`${site}/editor/#${path}`);
-  await page.waitForSelector('.ProseMirror .site-block-card, .ProseMirror .inline-buttons', { timeout: 30_000 });
+  await page.waitForSelector('.ProseMirror .mo-site-block-card, .ProseMirror .mo-editor-inline-buttons', { timeout: 30_000 });
   await page.locator('.ProseMirror [data-field="label"]').last().click();
   await page.waitForTimeout(300);
   if (!(await page.locator('.ProseMirror .mo-button.mo-is-tonal').count()))

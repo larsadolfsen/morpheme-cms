@@ -40,7 +40,7 @@ export default function InlineSingle({
     }
   });
   return (
-    <div ref={root} className="inline-list-host">
+    <div ref={root} className="mo-editor-inline-list-host">
       {render({
         here: active === 0,
         field: (name, label, placeholder) => (

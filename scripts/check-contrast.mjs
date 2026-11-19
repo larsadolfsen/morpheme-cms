@@ -74,11 +74,11 @@ const scan = `(root) => {
     return s.getAttribute('data-section-color') ?? (/\bmo-is-(surface|primary|secondary|tertiary)\b/.exec(s.className)?.[1] ?? 'surface');
   };
   const blockOf = (el) => {
-    const card = el.closest('.site-block-card');
+    const card = el.closest('.mo-site-block-card');
     if (card) return 'editor ' + (card.getAttribute('aria-label') ?? '').toLowerCase();
     for (let e = el; e && e !== document.body; e = e.parentElement) {
       const cls = typeof e.className === 'string' ? e.className : '';
-      const t = e.getAttribute('data-block') ?? (/\\bmo-is-in-text\\b/.test(cls) || e.classList.contains('site-block-inline') ? /\\bmo-block-([a-z]+)/.exec(cls)?.[1] : null);
+      const t = e.getAttribute('data-block') ?? (/\\bmo-is-in-text\\b/.test(cls) || e.classList.contains('mo-site-block-inline') ? /\\bmo-block-([a-z]+)/.exec(cls)?.[1] : null);
       if (t) return t;
     }
     for (let e = el; e && e !== document.body; e = e.parentElement) {
@@ -126,7 +126,7 @@ const scan = `(root) => {
   const opacityOf = (el) => { let o = 1; for (let e = el; e; e = e.parentElement) o *= parseFloat(getComputedStyle(e).opacity); return o; };
   const records = [];
   const push = (el, kind, front, back, min, extra) => {
-    const blockEl = el.closest('[data-block], .mo-is-in-text, .site-block-inline');
+    const blockEl = el.closest('[data-block], .mo-is-in-text, .mo-site-block-inline');
     const r = ratio(over(front, back), back);
     records.push({ block: blockOf(el), variant: variantOf(el, blockEl), section: sectionOf(el), kind, fg: hex(over(front, back)), bg: hex(back), ratio: r, min, text: (extra.text ?? '').slice(0, 40), manual: extra.manual, tag: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.split(/\\s+/)[0] : '') });
   };
@@ -274,15 +274,15 @@ try {
             await editor.mouse.move(0, 0);
             const view = `${theme} editor ${scheme} ${width}`;
             results.push(...unique(await editor.evaluate(`(${scan})(document.querySelector('.ProseMirror'))`), `${view} resting`));
-            const inline = await editor.locator('.ProseMirror .site-block-inline').count();
+            const inline = await editor.locator('.ProseMirror .mo-site-block-inline').count();
             for (let i = 0; i < inline; i++) {
-              const block = editor.locator('.ProseMirror .site-block-inline').nth(i);
+              const block = editor.locator('.ProseMirror .mo-site-block-inline').nth(i);
               await block.scrollIntoViewIfNeeded().catch(() => {});
-              const field = block.locator('input, textarea, [contenteditable="true"], .inline-list-field').first();
+              const field = block.locator('input, textarea, [contenteditable="true"], .mo-editor-inline-list-field').first();
               if (!(await field.count())) continue;
               await field.click({ timeout: 2000 }).catch(() => {});
               await editor.mouse.move(0, 0);
-              const records = await editor.evaluate(`(${scan})(document.querySelectorAll('.ProseMirror .site-block-inline')[${i}])`);
+              const records = await editor.evaluate(`(${scan})(document.querySelectorAll('.ProseMirror .mo-site-block-inline')[${i}])`);
               results.push(...unique(records, `${view} selected`));
             }
             await editor.close();

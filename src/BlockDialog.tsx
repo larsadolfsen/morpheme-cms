@@ -7,7 +7,7 @@
 // (the standard blocks, each app's under its name), the one picked as a chip. Also the sheet of a section's
 // settings (its colour, SectionSettings.tsx), which goes the same way as a block's fields: Cancel, Save, the question when closed changed.
 // The fields and the section settings are in the theme's side sheet (sheetPlacement.mjs): a standard one beside the page from
-// expanded (not modal: the page stays usable, .editor-side-sheet in editor.css), a modal one over the page below it
+// expanded (not modal: the page stays usable, .mo-editor-side-sheet in editor.css), a modal one over the page below it
 // (fields only; the section settings are the standard side sheet from medium, 600 dp). The modal one and the sheet from the bottom end with Save
 // (Insert) and Cancel. The standard one is live when the caller gives it the block (LiveBlock, liveSheet.mjs): each change goes to the
 // block at once, one undo step per field, and it follows the block through Undo and Redo; it has only its headline and close button
@@ -15,7 +15,7 @@
 // even when the window crosses the expanded breakpoint.
 // Their open, close, focus and Escape are the theme's (sideSheet() and standardSideSheet(), sideSheetControl.ts); leave() is their beforeClose.
 // On a compact window (a phone, below medium) a block's fields and a section's settings are a subpage of the page form instead (owner, 14 Nov: full-screen views are
-// pages), drawn as the crop view is (CropView.tsx; editor.css gives .block-page the crop page's layer and column): the top app bar with the back arrow and the block's name, the fields, and Save
+// pages), drawn as the crop view is (CropView.tsx; editor.css gives .mo-editor-block-page the crop page's layer and column): the top app bar with the back arrow and the block's name, the fields, and Save
 // (Insert) in the theme's standard bottom sheet (ActionSheet). It is a layer over the form (a modal <dialog>), so the form keeps its scroll place; it has a step of its own in the
 // history (useSheetBack), so the browser's and Android's back leave it; back with changes asks "Keep your changes?" (closeChanged).
 // Below medium the fields of a block on the page (edit with `keep`) are kept in a hidden copy in this browser while they are changed
@@ -75,7 +75,7 @@ export type EditFocus = 'alt';
 export function reachField(name: string) {
   let tries = 0;
   const go = () => {
-    const sheet = [...document.querySelectorAll<HTMLElement>('dialog[open], .editor-side-sheet')].at(-1);
+    const sheet = [...document.querySelectorAll<HTMLElement>('dialog[open], .mo-editor-side-sheet')].at(-1);
     const label = [...(sheet?.querySelectorAll('label') ?? [])].find((l) => l.textContent?.trim() === name);
     const target = label?.htmlFor ? sheet?.querySelector<HTMLElement>(`[id="${CSS.escape(label.htmlFor)}"]`) : null;
     if (!target) return void (tries++ < 40 && setTimeout(go, 50));
@@ -384,9 +384,9 @@ export function useBlockDialog(
   }, [look]);
   // The browser's and Android's back leave the subpage through leave() (the question when changed); staying in it gives the step back.
   const onBack = useCallback(async () => {
-    if (!(await latest.current.leave())) history.pushState({ ...history.state, sheet: 'block-page' }, '');
+    if (!(await latest.current.leave())) history.pushState({ ...history.state, sheet: 'mo-editor-block-page' }, '');
   }, []);
-  useSheetBack(look === 'subpage' && !!open, onBack, 'block-page');
+  useSheetBack(look === 'subpage' && !!open, onBack, 'mo-editor-block-page');
 
   // The hidden copy (below medium): kept 300 ms after each change while the fields differ from what was shown, deleted when they are
   // the same again; done() deletes it when the sheet is answered.
@@ -455,7 +455,7 @@ export function useBlockDialog(
   const typedIn = () => {
     const at = document.activeElement;
     const typing = 'input:not([type=checkbox]):not([type=radio]):not([type=button]), textarea, [contenteditable="true"]';
-    return at instanceof HTMLElement && at.closest('.editor-side-sheet') && at.matches(typing) ? at : null;
+    return at instanceof HTMLElement && at.closest('.mo-editor-side-sheet') && at.matches(typing) ? at : null;
   };
   const writeLive = (props: BlockProps) => live.current?.write(props, steps.current.change(typedIn()));
   const changeFields = (next: BlockProps) => {
@@ -864,12 +864,12 @@ export function useBlockDialog(
         )}
       </BottomSheet>
       {look === 'subpage' && ((block && open?.step === 'fields') || open?.step === 'section') && (
-        // A block's fields (or a section's settings) on a compact window: a page of the editor over the form, as the crop view is (editor.css .block-page): the top app
+        // A block's fields (or a section's settings) on a compact window: a page of the editor over the form, as the crop view is (editor.css .mo-editor-block-page): the top app
         // bar with the back arrow and the block's name, the fields, and Save (Insert) in the bottom sheet. Back (the arrow, Esc, the browser's
         // back) with changes asks "Keep your changes?"; the form under it stays as it was.
         <dialog
           ref={pageDialog}
-          className="block-page"
+          className="mo-editor-block-page"
           tabIndex={-1}
           aria-labelledby={headingId}
           onCancel={(e) => {
@@ -886,7 +886,7 @@ export function useBlockDialog(
               </h1>
             </div>
           </TopAppBar>
-          <main className="block-page-main">
+          <main className="mo-editor-block-page-main">
             <div className="mo-editor-block-dialog-fields">{open.step === 'section' ? sectionSettings : blockFields}</div>
           </main>
           <ActionSheet label={t.common.saveChanges}>

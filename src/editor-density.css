@@ -7,7 +7,7 @@
    (the rows that pick the density, and the text typed in place; src/editor.css), because a custom property is resolved where it is declared. */
 :where(:root),
 [data-density-fixed],
-.editor-text .ProseMirror {
+.mo-editor-text .ProseMirror {
   --mo-comp-editor-rhythm-150: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   --mo-comp-editor-rhythm-200: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   --mo-comp-editor-rhythm-250: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));

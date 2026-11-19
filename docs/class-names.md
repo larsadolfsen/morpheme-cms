@@ -76,7 +76,28 @@ The blocks' names (`theme/blocks/`, `theme/styles/blocks/`, `src/standard/` and 
 | `block-panel`, `block-panel-<part>` (`icon`, `part`, `text`, `title`), `block-panels`, `block-cta`, `block-cta-<part>`, `block-facts`, `block-facts-amount`, `block-media`, `block-media-<part>`, `block-person`, `block-person-<part>`, `block-timeline`, `block-timeline-<part>`, `block-link`, `block-link-row`, `block-link-row-<part>`, `block-arrow-link`, `block-icon-list`, `block-copy-rows`, `block-copy-value`, `block-badge`, `block-tag`, `block-terms`, `block-small-screens` | the same word with `mo-`, parts `mo-block-<root>__<part>` | shared parts no block folder owns: each is its own type |
 | `--step` (the timeline's runtime value) | `--mo-comp-block-timeline-step` | a value set on an element |
 
-Left alone, with the reason: `block-page`, `block-page-main` (the editor's own, M2); `.carousel`, `.image-grid` (the theme's components, M3); `js` (the root's state, M5); `contains-task-list`, `task-list-item` (the Markdown renderer's own classes); `body-*`, `label-medium`, `color-*` (saved in content, M6).
+Left alone, with the reason: `.carousel`, `.image-grid` (the theme's components, M3); `js` (the root's state, M5); `contains-task-list`, `task-list-item` (the Markdown renderer's own classes); `body-*`, `label-medium`, `color-*` (saved in content, M6).
+
+## Settled in M2
+
+The editor's own names (`src/`, `pages/`; the demo app block that reuses them). M1's map names stay for the `editor-*`, `inline-*` and `site-block-*` families (`editor-fab` → `mo-editor-fab`, `inline-list-slot` → `mo-editor-inline-list-slot`, `site-block-row` → `mo-site-block-row`). The names the map left as questions are settled by one rule: an editor part is `mo-editor-<old name>`, and the family keeps its words.
+
+| Old | New | Why |
+| :-- | :-- | :-- |
+| `block-page`, `block-page-main` | `mo-editor-block-page`, `mo-editor-block-page-main` | the editor's own page for a block's fields, not a block (`block-*` is M4's) |
+| `crop-page`, `crop-page-main`, `crop-view`, `crop-view-<part>` (`area`, `frame`, `hint`, `image`, `label`, `ratios`, `shade`, `zoom`) | `mo-editor-crop-page`, `mo-editor-crop-page-main`, `mo-editor-crop-view`, `mo-editor-crop-view-<part>` | the editor's own crop screen |
+| `contextual-menu` | `mo-editor-contextual-menu` | the editor's right-click and long-press menu |
+| `shortcuts-dialog` | `mo-editor-shortcuts-dialog` | the editor's shortcuts sheet |
+| `selection-bar-all` | `mo-editor-selection-bar-all` | a part of the editor's selection bar |
+| `section-list-item`, `section-pane-title`, `section-pane-caption` | `mo-editor-section-list-item`, `mo-editor-section-pane-title`, `mo-editor-section-pane-caption` | parts of the editor's section pane (`mo-editor-section-pane`) |
+| `toolbar-menu-button` | `mo-toolbar__menu-button` | M1's map (the editor's toolbar uses the theme's toolbar part) |
+| `--editor-fab-lift`, `--editor-gap-text`, `--editor-empty-text` | `--mo-comp-editor-fab-lift`, `--mo-comp-editor-gap-text`, `--mo-comp-editor-empty-text` | values the editor sets or reads on its own parts |
+
+`editor-text` (the editor's text root, which the theme's token files also select) → `mo-editor-text`, in the theme's token files too. The classes the editor writes as hooks without a stylesheet rule (`inline-list`, `inline-list-host`, `inline-list-row`, `inline-list-edit`, `inline-steps`, `inline-cards`, `inline-segmented`, `inline-segmented-buttons`, `inline-table-cell`, `inline-table-cell-next`, `inline-table-row-active`, `inline-video-frame`, `site-block-selected`, `site-block-has-hover`, `site-block-menu`, `contextual-menu-on`, `contextual-menu-docked`) get the same prefix by the same rule (`mo-editor-<name>`, `mo-<name>` for the `site-block-*` family), so no old editor name stays, though the ratchet counts only names a stylesheet defines. Keys in `localStorage` (`editor-sort-*`, `editor-sheet-copy:*`) and animation names are not classes and stay.
+
+The classes an inline block of an app writes itself (`inline-list`, `inline-list-row`, `inline-list-row-active`, `inline-list-row-next`: the demo's Tickets block) are renamed with the editor's: an app that draws its own inline rows reads them, so the changeset is a patch with a line for authors.
+
+Left to the theme's PR (M3), because the theme declares or draws them and the editor only overrides or reads them: `checkbox-text`, the hooks `--navigation-drawer-*`, `--tooltip-gap`, `--bottom-sheet-top-gap`, `--side-sheet-width`, `--toolbar-*`, `--icon-button-standard-selected-text`, `--dropdown-menu-gap`, `--keyboard-inset`, `--carousel-mask`, and every theme component's class the editor writes (`button`, `chip`, `list-item-*`, `text-field-input` …). Left to M4, M5 and M6: the block, site-shell and saved-in-content names the editor writes.
 
 ## Settled in M6c
 
