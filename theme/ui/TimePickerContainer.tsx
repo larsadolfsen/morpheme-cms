@@ -220,7 +220,7 @@ export default function TimePickerContainer({
         </div>
       )}
       {error && (
-        <p className="mo-is-error" role="alert">
+        <p className="mo-time-picker__error" role="alert">
           {error.message}
         </p>
       )}

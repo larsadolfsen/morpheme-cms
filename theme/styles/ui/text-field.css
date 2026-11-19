@@ -195,7 +195,7 @@
   }
   /* Outlined: the name on the edge, on the field's surface, at its start (also past the icon before it). */
   :where(.mo-text-field).mo-is-outlined .mo-text-field__input:focus + .mo-text-field__label,
-  :where(.mo-text-field) .mo-is-outlined .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
     top: 0;
     margin-left: -0.25rem;
     padding: 0 0.25rem;
@@ -207,7 +207,7 @@
     padding-top: 1.1rem;
   }
   :where(.mo-text-field).mo-is-filled .mo-text-field__input:focus + .mo-text-field__label,
-  :where(.mo-text-field) .mo-is-filled .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
+  :where(.mo-text-field).mo-is-filled .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
     top: 0.5rem;
     transform: none;
   }

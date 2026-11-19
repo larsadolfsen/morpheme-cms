@@ -76,6 +76,4 @@ export const NOT_PARTS = [
   'mo-is-selected',
   'mo-has-icon',
   'mo-has-media',
-  'mo-has-fab',
-  'mo-has-fab-vertical',
 ];

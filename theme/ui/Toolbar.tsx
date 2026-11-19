@@ -20,7 +20,7 @@ export const toolbarClass = (kind: ToolbarKind = 'docked', color: ToolbarColor =
   `mo-toolbar mo-toolbar__${kind} mo-toolbar__${color}${vertical && kind === 'floating' ? ' mo-toolbar__vertical' : ''}${expanded ? '' : ' mo-toolbar__collapsed'}`;
 
 /** The classes of the box round a floating toolbar and its FAB. */
-export const toolbarWithFabClass = (vertical = false) => `mo-has-fab${vertical ? ' mo-has-fab-vertical' : ''}`;
+export const toolbarWithFabClass = (vertical = false) => `mo-toolbar__with-fab${vertical ? ' mo-toolbar__with-fab-vertical' : ''}`;
 
 export default function Toolbar({
   label,

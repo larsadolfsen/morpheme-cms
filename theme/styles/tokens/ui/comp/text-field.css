@@ -33,7 +33,7 @@
 }
 @layer components {
   :where(.mo-text-field).mo-is-outlined .mo-text-field__input:focus + .mo-text-field__label,
-  :where(.mo-text-field) .mo-is-outlined .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
     --mo-comp-text-field-label-start: var(--mo-comp-text-field-padding, 1.25rem);
   }
 }

@@ -2,7 +2,7 @@
   Toolbars (Toolbar, toolbarClass, toolbar.script.ts; m3.material.io/components/toolbars, M3 Expressive): .mo-toolbar with
   its kind, .mo-toolbar__docked (the whole width with a line over it: the site's bar at the bottom of a phone) or .mo-toolbar__floating (a pill with its shadow, .mo-toolbar__vertical down instead of across), and
   its colour, .mo-toolbar__standard (the surface) or .mo-toolbar__vibrant (the accent, what stands on it turned around). A
-  floating one paired with a FAB stands with it in .mo-has-fab (.mo-has-fab-vertical: the FAB under it),
+  floating one paired with a FAB stands with it in .mo-toolbar__with-fab (.mo-toolbar__with-fab-vertical: the FAB under it),
   and .mo-toolbar__collapsed while only the FAB is shown.
     --mo-comp-toolbar-gap, --mo-comp-toolbar-fab-gap   the room between its actions, and between it and its FAB
     --mo-comp-toolbar-docked-padding-block, --mo-comp-toolbar-docked-padding-inline, --mo-comp-toolbar-docked-line, --mo-comp-toolbar-docked-line-width,
@@ -53,18 +53,18 @@
   }
   /* Paired with a FAB: the FAB beside a floating toolbar (under a vertical one); collapsed into it, only the FAB,
      the toolbar shrinking towards it. */
-  :where(.mo-toolbar).mo-has-fab {
+  .mo-toolbar__with-fab {
     display: inline-flex;
     align-items: center;
     gap: var(--mo-comp-toolbar-fab-gap, 0.5rem);
   }
-  :where(.mo-toolbar).mo-has-fab-vertical {
+  .mo-toolbar__with-fab-vertical {
     flex-direction: column;
   }
-  :where(.mo-toolbar).mo-has-fab > .mo-toolbar {
+  .mo-toolbar__with-fab > .mo-toolbar {
     transform-origin: right center;
   }
-  :where(.mo-toolbar).mo-has-fab-vertical > .mo-toolbar {
+  .mo-toolbar__with-fab-vertical > .mo-toolbar {
     transform-origin: center bottom;
   }
   .mo-toolbar__collapsed {
@@ -73,14 +73,14 @@
     scale: 0.6;
   }
   @media (prefers-reduced-motion: no-preference) {
-    :where(.mo-toolbar).mo-has-fab > .mo-toolbar {
+    .mo-toolbar__with-fab > .mo-toolbar {
       transition:
         opacity var(--mo-sys-motion-spring-default-effects),
         scale var(--mo-sys-motion-spring-fast-spatial),
         display var(--mo-sys-motion-spring-fast-spatial-duration) allow-discrete;
     }
     @starting-style {
-      :where(.mo-toolbar).mo-has-fab > .mo-toolbar:not(.mo-toolbar__collapsed) {
+      .mo-toolbar__with-fab > .mo-toolbar:not(.mo-toolbar__collapsed) {
         opacity: 0;
         scale: 0.6;
       }
