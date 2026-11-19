@@ -87,7 +87,7 @@
   .mo-text-field__trailing-action {
     --mo-comp-icon-button-standard-surface: transparent;
     --mo-comp-icon-button-standard-line: transparent;
-    --mo-comp-icon-button-standard-icon-color: var(--text-field-icon-color, var(--mo-sys-block-muted));
+    --mo-comp-icon-button-standard-icon-color: var(--mo-comp-text-field-icon-color, var(--mo-sys-block-muted));
   }
 }
 @layer components {

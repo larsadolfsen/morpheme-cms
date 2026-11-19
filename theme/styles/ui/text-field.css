@@ -18,12 +18,12 @@
     --mo-comp-filled-text-field-container-height, --mo-comp-text-field-padding, --mo-comp-text-field-radius, --mo-comp-text-field-font-size   the field
     --text-field-<kind>-surface, -line, -hover-line, -focus-line   each kind's colours and edge (resting, pointed at,
       written in)
-    --text-field-label-color, --text-field-supporting-color, --mo-comp-text-field-error   the name, the line, and what is wrong
+    --mo-comp-text-field-label-color, --mo-comp-text-field-supporting-color, --mo-comp-text-field-error   the name, the line, and what is wrong
     --mo-comp-text-field-label-surface   behind the name on an outlined field's edge (what the field stands on)
-    --text-field-icon-size, --text-field-icon-color, --mo-comp-text-field-icon-padding, --mo-comp-text-field-icon-gap   the icons, the
+    --mo-comp-text-field-icon-size, --mo-comp-text-field-icon-color, --mo-comp-text-field-icon-padding, --mo-comp-text-field-icon-gap   the icons, the
       room between the field's edge and an icon, and between an icon and what is written
-    --text-field-affix-color, --mo-comp-text-field-disabled-opacity   the prefix and the suffix, and a field that cannot be used
-    --text-field-multiline-radius   the corners of a field with several lines at most (else a pill's are too round)
+    --mo-comp-text-field-affix-color, --mo-comp-text-field-disabled-opacity   the prefix and the suffix, and a field that cannot be used
+    --mo-comp-text-field-multiline-radius   the corners of a field with several lines at most (else a pill's are too round)
 */
 @layer components {
   /* Text fields (m3.material.io/components/text-fields): the container draws the field (its surface and edge), with
@@ -139,7 +139,7 @@
     left: var(--mo-comp-text-field-label-start);
     max-width: calc(100% - var(--mo-comp-text-field-label-start) - var(--mo-comp-text-field-padding, 1.25rem));
     overflow: hidden;
-    color: var(--text-field-label-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-text-field-label-color, var(--mo-sys-block-muted));
     line-height: 1.25;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -163,7 +163,7 @@
     color: var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
   }
   .mo-text-field__input[readonly]:focus + .mo-text-field__label {
-    color: var(--text-field-label-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-text-field-label-color, var(--mo-sys-block-muted));
   }
   :where(.mo-text-field).mo-is-outlined .mo-text-field__input[aria-expanded='true'] + .mo-text-field__label {
     color: var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
@@ -203,9 +203,9 @@
   .mo-text-field__leading-icon,
   .mo-text-field__trailing-icon {
     flex-shrink: 0;
-    width: var(--text-field-icon-size, 1.25rem);
-    height: var(--text-field-icon-size, 1.25rem);
-    color: var(--text-field-icon-color, var(--mo-sys-block-muted));
+    width: var(--mo-comp-text-field-icon-size, 1.25rem);
+    height: var(--mo-comp-text-field-icon-size, 1.25rem);
+    color: var(--mo-comp-text-field-icon-color, var(--mo-sys-block-muted));
   }
   .mo-text-field__leading-icon {
     margin-inline-start: var(--mo-comp-text-field-icon-padding, 0.875rem);
@@ -237,7 +237,7 @@
   .mo-text-field__prefix,
   .mo-text-field__suffix {
     flex-shrink: 0;
-    color: var(--text-field-affix-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-text-field-affix-color, var(--mo-sys-block-muted));
     white-space: nowrap;
     opacity: 0;
     transition: opacity var(--mo-sys-motion-spring-default-effects);
@@ -289,7 +289,7 @@
     align-items: flex-start;
     border-radius: min(
       var(--mo-comp-text-field-radius, var(--mo-sys-block-control-radius)),
-      var(--text-field-multiline-radius, var(--mo-sys-block-radius))
+      var(--mo-comp-text-field-multiline-radius, var(--mo-sys-block-radius))
     );
   }
   .mo-text-field__multiline .mo-text-field__input {
@@ -302,7 +302,7 @@
   }
   .mo-text-field__multiline :is(.mo-text-field__leading-icon, .mo-text-field__trailing-icon) {
     margin-top: calc(
-      (var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) - var(--text-field-icon-size, 1.25rem)) / 2
+      (var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) - var(--mo-comp-text-field-icon-size, 1.25rem)) / 2
     );
   }
   .mo-text-field__multiline :is(.mo-text-field__prefix, .mo-text-field__suffix) {
@@ -323,7 +323,7 @@
     display: flex;
     gap: 1rem;
     margin: 0.25rem var(--mo-comp-text-field-padding, 1.25rem) 0;
-    color: var(--text-field-supporting-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-text-field-supporting-color, var(--mo-sys-block-muted));
     font-size: var(--mo-sys-typescale-body-small-size);
     line-height: var(--mo-sys-typescale-body-small-line-height);
     font-weight: var(--mo-sys-typescale-body-small-weight);

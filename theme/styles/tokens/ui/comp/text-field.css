@@ -10,11 +10,11 @@
 }
 @layer components {
   .mo-text-field__small {
-    --mo-comp-filled-text-field-container-height: var(--text-field-small-height, 2.5rem);
-    --mo-comp-text-field-padding: var(--text-field-small-padding, 0.75rem);
-    --mo-comp-text-field-font-size: var(--text-field-small-font-size, var(--mo-sys-typescale-body-medium-size));
-    --mo-comp-text-field-icon-padding: var(--text-field-small-icon-padding, 0.5rem);
-    --mo-comp-text-field-icon-gap: var(--text-field-small-icon-gap, 0.5rem);
+    --mo-comp-filled-text-field-container-height: var(--mo-comp-text-field-small-height, 2.5rem);
+    --mo-comp-text-field-padding: var(--mo-comp-text-field-small-padding, 0.75rem);
+    --mo-comp-text-field-font-size: var(--mo-comp-text-field-small-font-size, var(--mo-sys-typescale-body-medium-size));
+    --mo-comp-text-field-icon-padding: var(--mo-comp-text-field-small-icon-padding, 0.5rem);
+    --mo-comp-text-field-icon-gap: var(--mo-comp-text-field-small-icon-gap, 0.5rem);
   }
 }
 @layer components {
@@ -26,7 +26,7 @@
 @layer components {
   :where(.mo-text-field).mo-has-leading-icon .mo-text-field__label {
     --mo-comp-text-field-label-start: calc(
-      var(--mo-comp-text-field-icon-padding, 0.875rem) + var(--text-field-icon-size, 1.25rem) + var(--mo-comp-text-field-icon-gap, 0.75rem)
+      var(--mo-comp-text-field-icon-padding, 0.875rem) + var(--mo-comp-text-field-icon-size, 1.25rem) + var(--mo-comp-text-field-icon-gap, 0.75rem)
     );
   }
 }
