@@ -55,4 +55,4 @@ export const THEME_PARTS = [
 ];
 
 /** Classes of theme/styles/ui.css that belong to no part. @type {string[]} */
-export const NOT_PARTS = ['astro', 'material', 'comp', 'elevation', 'ripple', 'ripple-wave', 'block-card', 'js'];
+export const NOT_PARTS = ['astro', 'material', 'comp', 'elevation', 'ripple', 'ripple-wave', 'mo-block-cards__card', 'js'];

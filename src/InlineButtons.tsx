@@ -22,7 +22,7 @@ export default function InlineButtons({ items, data, active, focus, onChange, on
       fields={['label']}
       add={t.blocks.buttons.addButton}
       onChange={onChange}
-      wrap={(list) => <div className="block-buttons inline-buttons">{list}</div>}
+      wrap={(list) => <div className="mo-block-buttons inline-buttons">{list}</div>}
       renderItem={({ item, index: i, here, next, editing, field }) => {
         // No buttons of its own and not being typed in: the default buttons as the site draws them; a tap starts the first own one.
         if (next && !editing && shared.length > 0)

@@ -11,7 +11,7 @@ export default function Inline({ items, active, focus, onChange }: InlineViewPro
       fields={['title', 'text']}
       add="Add ticket"
       onChange={onChange}
-      wrap={(rows) => <ul className="block-list inline-list">{rows}</ul>}
+      wrap={(rows) => <ul className="mo-block-list inline-list">{rows}</ul>}
       renderItem={({ index: i, here, next, field }) => (
         <li
           key={i}

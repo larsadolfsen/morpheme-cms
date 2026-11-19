@@ -156,7 +156,7 @@ async function checkListDesigns(width, height) {
       await chooseOption(page, 'Segmented');
       await saveOrClose(page, 'last');
       // The rows are on their own surfaces now (the theme's segmented list, or the card class of the rows that fold out).
-      await page.locator('.list-segmented, .block-accordion-segmented').first().waitFor({ timeout: 8000 });
+      await page.locator('.list-segmented, .mo-block-accordion__segmented').first().waitFor({ timeout: 8000 });
     }
     await page.locator('[data-add-row]').waitFor({ timeout: 8000 });
     const got = await page.evaluate(() => ({
@@ -252,7 +252,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       problems.push(`${label}: the active card's media buttons are "${slots}", not "Icon,Image,Video"`);
     if (await page.locator('.inline-list-row-active [aria-label="Link"]').count())
       problems.push(`${label}: the card has a link slot (the link is in the toolbar)`);
-    const next = await page.locator('.inline-list-row-active .block-card-actions .inline-card-next-button').allTextContents();
+    const next = await page.locator('.inline-list-row-active .mo-block-cards__card-actions .inline-card-next-button').allTextContents();
     if (next.join() !== 'Add button')
       problems.push(`${label}: the active card's action area has "${next}", not the text button "Add button"`);
     if (width >= 1000 && !(await page.locator('.editor-tools button[aria-label="Link"]').count()))
@@ -576,15 +576,15 @@ async function checkSteps(width, height) {
   await page.waitForSelector('.inline-steps .inline-list-row-active [data-field="title"]');
   const steps = () =>
     page.evaluate(() =>
-      [...document.querySelectorAll('.inline-steps .block-step[data-row]:not(.inline-list-row-next)')].map((li) => ({
-        number: li.querySelector('.block-step-number').textContent,
+      [...document.querySelectorAll('.inline-steps .mo-block-steps__step[data-row]:not(.inline-list-row-next)')].map((li) => ({
+        number: li.querySelector('.mo-block-steps__step-number').textContent,
         title: li.querySelector('[data-field="title"]').value,
         text: li.querySelector('[data-field="text"]').value,
       })),
     );
   const faded = () => page.locator('.inline-steps .inline-list-row-next').count();
   if ((await faded()) !== 1) problems.push(`${label}: a new Steps block does not start with one faded, empty step`);
-  const number = await page.locator('.inline-steps .block-step-number').first().textContent();
+  const number = await page.locator('.inline-steps .mo-block-steps__step-number').first().textContent();
   if (number !== '1') problems.push(`${label}: the first step is numbered ${number}`);
   await page.keyboard.type('Order');
   await page.keyboard.press('Enter');
@@ -609,8 +609,8 @@ async function checkSteps(width, height) {
   // The heading's first line is centred on the number (within 1 px), read from the real boxes: the field's top plus its border and padding
   // plus half its line height, against the number's middle.
   const off = await page.evaluate(() =>
-    [...document.querySelectorAll('.inline-steps .block-step[data-row]:not(.inline-list-row-next)')].map((li) => {
-      const n = li.querySelector('.block-step-number').getBoundingClientRect();
+    [...document.querySelectorAll('.inline-steps .mo-block-steps__step[data-row]:not(.inline-list-row-next)')].map((li) => {
+      const n = li.querySelector('.mo-block-steps__step-number').getBoundingClientRect();
       const f = li.querySelector('[data-field="title"]');
       const c = getComputedStyle(f);
       const lh = parseFloat(c.lineHeight) || parseFloat(c.fontSize) * 1.2;
@@ -624,7 +624,7 @@ async function checkSteps(width, height) {
   // and the last draws none. Read from the real boxes, as a step is added, so the last one changes.
   const lineProblems = () =>
     page.evaluate(() => {
-      const lis = [...document.querySelectorAll('.inline-steps .block-step')];
+      const lis = [...document.querySelectorAll('.inline-steps .mo-block-steps__step')];
       const out = [];
       lis.forEach((li, i) => {
         const c = getComputedStyle(li, '::before');
@@ -635,8 +635,8 @@ async function checkSteps(width, height) {
         }
         if (!drawn) return out.push(`step ${i + 1} draws no line`);
         const r = li.getBoundingClientRect();
-        const to = lis[i + 1].querySelector('.block-step-number').getBoundingClientRect();
-        const from = li.querySelector('.block-step-number').getBoundingClientRect();
+        const to = lis[i + 1].querySelector('.mo-block-steps__step-number').getBoundingClientRect();
+        const from = li.querySelector('.mo-block-steps__step-number').getBoundingClientRect();
         const top = r.top + parseFloat(c.top);
         const bottom = r.bottom - parseFloat(c.bottom);
         if (Math.abs(top - (from.top + from.height / 2)) > 1 || Math.abs(bottom - (to.top + to.height / 2)) > 1)
@@ -700,7 +700,7 @@ async function checkSteps(width, height) {
     if (taken !== expected > 0)
       problems.push(`${label}: the paste ${html} was ${taken ? 'taken over' : 'left as it is'}, not the other way`);
     await p2.waitForTimeout(300);
-    const made = await p2.locator('.inline-steps .block-step[data-row]:not(.inline-list-row-next)').count();
+    const made = await p2.locator('.inline-steps .mo-block-steps__step[data-row]:not(.inline-list-row-next)').count();
     if (made !== expected) problems.push(`${label}: pasting ${html} made ${made} steps, not ${expected}`);
     await p2.close();
   }

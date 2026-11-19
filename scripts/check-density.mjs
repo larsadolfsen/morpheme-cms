@@ -32,10 +32,15 @@ export const PARTS = [
   {
     name: 'table cell',
     file: 'theme/styles/blocks/person-facts.css',
-    selector: '.block-table-grid :is(th, td)',
+    selector: '.mo-block-table__grid :is(th, td)',
     reads: '--mo-sys-density',
   },
-  { name: 'table header', file: 'theme/styles/blocks/person-facts.css', selector: '.block-table-grid thead th', reads: '--mo-sys-density' },
+  {
+    name: 'table header',
+    file: 'theme/styles/blocks/person-facts.css',
+    selector: '.mo-block-table__grid thead th',
+    reads: '--mo-sys-density',
+  },
 ];
 
 /** Focused single-task parts: never denser than Medium, so they read neither --mo-sys-density nor --mo-sys-density-layout. */

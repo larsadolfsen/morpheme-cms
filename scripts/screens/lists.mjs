@@ -40,7 +40,7 @@ async function checkListMarkers(width) {
   await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
-  await frame.waitForSelector('ul.block-list', { timeout: 30_000 });
+  await frame.waitForSelector('ul.mo-block-list', { timeout: 30_000 });
   const inPreview = await frame.evaluate(markers);
   if (inPreview.length) problems.push(`${width}px Preview: a List row has a list marker (${[...new Set(inPreview)].join('; ')})`);
   await page.close();
@@ -60,13 +60,13 @@ async function checkListLeftEdge(width) {
     const text = root.querySelector('p').getBoundingClientRect().left;
     const out = { text, wide: document.documentElement.scrollWidth - window.innerWidth, view: window.innerWidth, rows: [], cards: [] };
     // The card based blocks keep the normal side margin on a compact screen: only the Default list is edge to edge.
-    for (const el of root.querySelectorAll('.block-card, .block-plan, .block-testimonial')) {
+    for (const el of root.querySelectorAll('.mo-block-cards__card, .mo-block-pricecards__plan, .mo-block-testimonials__testimonial')) {
       const box = el.getBoundingClientRect();
       // The cards of a carousel run off the window on purpose.
       if (box.left >= window.innerWidth - 1 || el.closest('.carousel')) continue;
       out.cards.push({ name: el.className.split(' ')[0], left: box.left, right: box.right });
     }
-    for (const ul of root.querySelectorAll('ul.block-list')) {
+    for (const ul of root.querySelectorAll('ul.mo-block-list')) {
       const row = ul.querySelector('.list-item-container');
       if (!row) continue;
       const lead = row.querySelector('.list-item-leading-icon, .list-item-leading') ?? row.querySelector('.list-item-content');
@@ -112,12 +112,12 @@ async function checkListLeftEdge(width) {
     }
   };
   if (await onTestPage(page, label)) {
-    await page.waitForSelector('main .prose ul.block-list');
+    await page.waitForSelector('main .prose ul.mo-block-list');
     await animationsSettled(page);
     verify('on the site', await page.evaluate(measure, 'main .prose'));
     // Edge to edge, the layer of a Default list's row has square corners, also pointed at (owner, 16 Nov 2026: "No border radius when full width").
     if (width < 600) {
-      const row = page.locator('main .prose ul.block-list:not(.list-segmented) a.list-item-container').first();
+      const row = page.locator('main .prose ul.mo-block-list:not(.list-segmented) a.list-item-container').first();
       await row.hover();
       await page.waitForTimeout(400);
       const radius = await row.evaluate(
@@ -129,7 +129,7 @@ async function checkListLeftEdge(width) {
   }
   await openEditor(page, site, { [BUILT_PAGE]: LIST_PAGE });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await page.waitForSelector('.ProseMirror ul.block-list', { timeout: 30_000 });
+  await page.waitForSelector('.ProseMirror ul.mo-block-list', { timeout: 30_000 });
   await animationsSettled(page);
   verify('in the editor', await page.evaluate(measure, '.ProseMirror'));
   await page.close();
@@ -154,7 +154,7 @@ async function checkListColumns(width) {
     block('expand', { design: 'segmented', faq: true, columns: false, items: rows }),
   ].join('\n\n');
   const measure = () =>
-    [...document.querySelectorAll('ul.block-list, ul.block-accordion')].map((ul) => {
+    [...document.querySelectorAll('ul.mo-block-list, ul.mo-block-accordion')].map((ul) => {
       const w = Math.round(ul.getBoundingClientRect().width);
       return {
         name: ul.className.split(' ').find((c) => c.startsWith('block-')),
@@ -185,12 +185,12 @@ async function checkListColumns(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, { [BUILT_PAGE]: src });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await page.waitForSelector('ul.block-list', { timeout: 30_000 });
+  await page.waitForSelector('ul.mo-block-list', { timeout: 30_000 });
   verify('in the editor', await page.evaluate(measure));
   await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
-  await frame.waitForSelector('ul.block-list', { timeout: 30_000 });
+  await frame.waitForSelector('ul.mo-block-list', { timeout: 30_000 });
   verify('in the Preview', await frame.evaluate(measure));
   await page.close();
 }
@@ -293,7 +293,7 @@ async function checkChevronRows(width) {
       page.waitForFunction(
         ([h, r]) => {
           const d = document.querySelectorAll('.inline-list-host')[h].querySelectorAll('details.list-item-expand')[r];
-          const a = d.querySelector('.block-accordion-answer');
+          const a = d.querySelector('.mo-block-accordion__answer');
           return d.open && !!a && a.getBoundingClientRect().height > 0;
         },
         [at, 1],
@@ -331,7 +331,7 @@ async function checkChevronRows(width) {
             first: r(lis[0]),
             last: r(lis[2]),
             title: d.querySelector('summary [data-field]').getBoundingClientRect().left,
-            body: d.querySelector('.block-accordion-answer').getBoundingClientRect().left,
+            body: d.querySelector('.mo-block-accordion__answer').getBoundingClientRect().left,
           };
         },
         [at],
@@ -1135,7 +1135,7 @@ async function checkListRowColors() {
           const section = document.createElement('section');
           section.className = 'mo-text-section mo-is-' + color;
           section.innerHTML =
-            '<div class="prose"><h1>H1</h1><p>Text</p></div><div class="list block-list"><a class="list-item-container" href="#"><span class="list-item-leading list-item-leading-icon"><svg viewBox="0 0 10 10"></svg></span><span class="list-item-content"><span class="list-item-headline">Heading</span><span class="list-item-supporting">Text</span></span><span class="list-item-trailing"><svg viewBox="0 0 10 10"></svg></span></a></div>';
+            '<div class="prose"><h1>H1</h1><p>Text</p></div><div class="list mo-block-list"><a class="list-item-container" href="#"><span class="list-item-leading list-item-leading-icon"><svg viewBox="0 0 10 10"></svg></span><span class="list-item-content"><span class="list-item-headline">Heading</span><span class="list-item-supporting">Text</span></span><span class="list-item-trailing"><svg viewBox="0 0 10 10"></svg></span></a></div>';
           document.querySelector('main').append(section);
           const c = (sel) => getComputedStyle(section.querySelector(sel)).color;
           out[color] = {
@@ -1232,7 +1232,7 @@ async function checkExpandList(width, height) {
   if (!(await onTestPage(page, label))) return page.close();
   // The segmented design (the segmented List - Expand) has the 16 px corner on its list; the plain design is the rows on the page, and
   // edge to edge on a phone with no corner (checkListLeftEdge), so it is not the one measured here.
-  const list = page.locator('ul.list.list-expand.block-accordion-segmented:has(> li:nth-child(2))').first();
+  const list = page.locator('ul.list.list-expand.mo-block-accordion__segmented:has(> li:nth-child(2))').first();
   if (!(await list.count())) {
     problems.push(`${label}: no segmented List with expand and two items on the Blocks pages`);
     return page.close();
@@ -1345,13 +1345,15 @@ async function checkListButtonsRow(width) {
     problems.push(`${label}: the demo's Lists page (/blocks/lists/) did not open`);
     return page.close();
   }
-  const row = page.locator('.block-buttons-row:has(.block-more-button):has(.block-more-button ~ .block-list-button)').first();
+  const row = page
+    .locator('.mo-block-buttons__row:has(.mo-block-more__button):has(.mo-block-more__button ~ .mo-block-list__button)')
+    .first();
   if (!(await row.count())) {
     problems.push(`${label}: no list with a row limit has both Show more and a text button under it`);
     return page.close();
   }
   await row.scrollIntoViewIfNeeded();
-  await page.waitForFunction(() => document.querySelector('.block-more[data-cut]'), null, { timeout: 10_000 }).catch(() => {});
+  await page.waitForFunction(() => document.querySelector('.mo-block-more[data-cut]'), null, { timeout: 10_000 }).catch(() => {});
   const got = await row.evaluate((el) => {
     const [a, b] = [...el.children].map((c) => {
       const box = c.getBoundingClientRect();
@@ -1396,13 +1398,13 @@ async function checkOpenPlainExpand(width) {
     problems.push(`${label}: the demo's Lists page (/blocks/lists/) did not open`);
     return page.close();
   }
-  const plain = page.locator('.block-accordion:not(.block-accordion-segmented):has(> li:nth-child(3))').first();
+  const plain = page.locator('.mo-block-accordion:not(.mo-block-accordion__segmented):has(> li:nth-child(3))').first();
   if (!(await plain.count())) {
     problems.push(`${label}: no plain List - Expand with three items on the Lists page`);
     return page.close();
   }
   const segmentedSurface = await page.evaluate(() => {
-    const li = document.querySelector('.block-accordion-segmented > li');
+    const li = document.querySelector('.mo-block-accordion__segmented > li');
     return li ? getComputedStyle(li).backgroundColor : null;
   });
   const items = plain.locator(':scope > li > details.list-item-expand');
@@ -1448,7 +1450,7 @@ async function checkListColumnsLook(width) {
     return page.close();
   }
   const columns = await page.evaluate(() => {
-    const list = document.querySelector('.list-segmented.block-list:not([data-columns="one"]):has(> li:nth-child(3))');
+    const list = document.querySelector('.list-segmented.mo-block-list:not([data-columns="one"]):has(> li:nth-child(3))');
     if (!list) return null;
     const tops = [...list.children].map((li) => Math.round(li.getBoundingClientRect().top));
     return {
@@ -1481,7 +1483,7 @@ async function checkListColumnsLook(width) {
         problems.push(`${label}: with ${columns.count} columns, row ${i + 1}'s top and bottom left corners are ${r}, not ${want[i]}`);
     });
   }
-  const plain = page.locator('.block-accordion:not(.block-accordion-segmented):has(> li:nth-child(3))').first();
+  const plain = page.locator('.mo-block-accordion:not(.mo-block-accordion__segmented):has(> li:nth-child(3))').first();
   if (!(await plain.count())) problems.push(`${label}: no plain List - Expand with three items`);
   else {
     await plain.scrollIntoViewIfNeeded();

@@ -25,7 +25,7 @@ export default function Slider({
   className?: string;
 }) {
   const onSite = useOnSite();
-  if (testimonials.length === 0) return onSite ? null : <p className="block-empty">{say.none}</p>;
+  if (testimonials.length === 0) return onSite ? null : <p className="mo-block-testimonials__empty">{say.none}</p>;
   if (testimonials.length === 1) return <Testimonial testimonial={testimonials[0]} texts={texts} short={short} className={className} />;
   return (
     <Carousel

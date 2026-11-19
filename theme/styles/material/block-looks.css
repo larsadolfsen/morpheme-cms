@@ -4,43 +4,43 @@
    keep their place in the layer (docs/superpowers/plans/2026-11-16-css-split.md). */
 @layer components {
   /* "Notice": a filled card (the Card part, .card-filled) in the high surface container. */
-  .block-notice {
+  .mo-block-notice {
     border-left: 0;
   }
 
   /* "Steps": the numbers in the primary container. */
-  .block-step-number {
+  .mo-block-steps__step-number {
     background: var(--mo-sys-color-surface-container-high);
     color: var(--mo-sys-color-primary);
   }
-  .block-card-picture {
+  .mo-block-cards__card-picture {
     border-radius: var(--mo-comp-card-radius);
   }
-  .block-card-text {
+  .mo-block-cards__card-text {
     font-weight: 400;
   }
 
   /* Panels and the cards of testimonials and prices: outlined, filled and elevated cards (their variables above). A
      list in a panel reaches out to its sides, so its items' text is in line with the panel's. */
-  :is(.block-panel, .block-panel > .card-body > .card-content) > .list {
+  :is(.mo-block-panel, .mo-block-panel > .card-body > .card-content) > .list {
     margin-inline: -1rem;
   }
   /* No quotation mark: a glyph of the font, not one of the theme's icons. */
-  .block-testimonial-quote-mark {
+  .mo-block-testimonials__testimonial-quote-mark {
     display: none;
   }
-  .block-cta-title {
+  .mo-block-cta__title {
     font-size: var(--mo-sys-typescale-headline-small-size);
     line-height: var(--mo-sys-typescale-headline-small-line-height);
     font-weight: var(--mo-sys-typescale-headline-small-weight);
     letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
   }
-  .block-cta-picture {
+  .mo-block-cta__picture {
     border-radius: var(--mo-sys-shape-corner-large);
   }
 
   /* A link that is one row: a list item in a card, a state layer when pointed at. */
-  .block-link-row {
+  .mo-block-link-row {
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
 
