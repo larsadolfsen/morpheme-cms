@@ -78,6 +78,14 @@ If a pull request waits and no PM seems to be running, the session tells the own
 runs, the orchestrator (the owner's "To do list" session) may merge the pull requests of the sessions it started, by the
 rules in the `pm` skill.
 
+### Nothing is ready while a build is red or unchecked
+
+Owner, 19 Nov 2026 (after a merge was called done and release steps were given while staging's build failed): whoever merges, the PM,
+the orchestrator or any session the owner tells to, checks every Cloudflare build that merge starts (the demo, `morpheme-staging`, the
+store, the sites on `next`) and reports the merge as done only when they are green. No session tells the owner that something is ready,
+or gives the next step towards a release (approve `next`, `/release`), without having read the newest of those builds; a red one is
+reported with its cause instead (skill `pm`, *Cloudflare builds*).
+
 ### Roles
 
 The **CTO** (skill `cto`) finds out and decides with the owner what happens in the future, writes the specs and plans, and decides
