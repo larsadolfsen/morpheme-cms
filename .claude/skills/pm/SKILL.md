@@ -59,37 +59,29 @@ it started still never merge their own pull requests.
 roadmap, the open pull requests in this repository and in `morpheme-staging`, and the owner's sessions (`list_sessions`). Start the
 one list of everything in flight (**Nothing left behind**) and keep it current.
 
-**The way of a change** (owner decision, 18 Nov 2026: the pieces of one feature are merged together first, the feature goes into its
-line once, and the line goes into `main` once, when it is released):
+**The way of a change** (owner, 18 Nov 2026, `docs/superpowers/plans/2026-11-18-release-per-feature.md`; owner, 19 Nov 2026:
+branch → feature → `next` → live):
 
 1. **A plan.** The work comes from a plan or a spec in `docs/superpowers/`, or from the owner.
-2. **A feature branch, when it takes several pull requests.** For a feature of more than one pull request (the CSS split, cards and
-   lists, the move away from Tailwind) the PM cuts `feature/<name>` from the line, and every session of that feature opens its pull
-   request into it. A single fix or a feature of one pull request goes straight into the line.
+2. **A feature branch.** A feature is `feature/<name>`, cut from `main`, and every session of that feature opens its pull request
+   into it. A single fix is one pull request straight into `main`. There are no version-line branches: `0.18` is finished (owner,
+   19 Nov 2026) and nothing goes into it; a line is only an area of the roadmap and its version numbers.
 3. **Sessions** do the work (section 5) and report their pull request's link and head sha.
-4. **Merging** at the check level of the target (section 3 and 6): a piece into its feature branch on the feature check; after each
-   merge into the line, the PM merges the line into every open feature branch (never the other way), so no feature drifts far from
-   its line.
-5. **The feature into its line, once.** When every piece is merged, the PM opens one pull request from the feature branch into the
-   line: the full check green (CI gives a pull request from a `feature/*` head into a version line the full level by itself, `level=full`), the proofs the feature's plan asks for (for a pure move, `npx morpheme compare-html` showing nothing
-   changed) and, for a change the owner can see, the owner's approval of the whole feature with its screenshots (section 4). Its
-   changesets are the pieces' changesets. Then the PM deletes the feature branch.
-6. **The line into `main`, once.** A line's branch is merged into `main` when the owner has said go for its release (section 7), not
-   piece by piece. A merge into the line's branch stages nothing on npm (owner, 18 Nov 2026: nothing goes to npm unless the owner
-   is meant to approve it; plan A6 was removed). No test version exists for a line: the line is tried on staging only after it reaches `main` as `next`
-   (which `morpheme-staging` follows), and the PM never merges a line into `main` just to get a test version.
+4. **Merging** a piece into its feature branch on the feature check (sections 3 and 6). After each merge into `main`, the PM merges
+   `main` into every open feature branch (never the other way), so no feature drifts far from `main`.
+5. **The owner reviews the feature on the demo** (section 4), then **the feature goes into `main`, once**: one pull request from the
+   feature branch into `main`, the full check green, the proofs the feature's plan asks for (for a pure move, `npx morpheme
+   compare-html` showing nothing changed) and, for a change the owner can see, the owner's approval of the whole feature with its
+   screenshots. Its changesets are the pieces' changesets, plus one `minor` when it is the first feature of a line (skill
+   `changesets`). The merge stages `next` on npm, which the owner approves and `morpheme-staging` builds; the release follows
+   (section 7). Then the PM deletes the feature branch.
+6. **One at a time.** The PM merges the next feature into `main` only after the owner has approved or rejected the staged version,
+   so there is never more than one version waiting.
 
-**A new line, and after every release.** When the PM starts a new line, it tells the owner to set the demo's production branch
-(Workers > `morpheme-demo` > Settings > Build > Branch control) to that line, so the demo shows it. After every release the PM merges
-`main` back into each live line the same day: a pull request that is a plain merge commit, with an empty changeset, never a squash.
-(The `0.18` line once stayed at 0.17.0 for a day after 0.18.0 was released, and the demo showed the wrong version.)
-
-**Two version lines at the same time.** When two lines run together (for example `0.18` and `0.19`), each line has its own PM and
-its own branch, and each PM merges only into its own branch and its features. After each merge into the earlier line, the later
-line's branch is merged forward as the `changesets` skill's table says, never the other way, and the PM tells the later line's PM
-(after each merge into 0.18, the 0.19 PM). The PM of the earlier line never merges a pull request of the later line (into its branch,
-or the branch into `main`) and never plans its release. Nothing of the later line is merged into `main` until the earlier line is
-released. Only `main` has a Release PR. The owner still releases every version.
+**The demo, and after every release.** The demo (`morpheme-demo`) shows the feature being built, never the live site (owner, 19 Nov
+2026). When a feature starts, or the work moves to another feature, the PM tells the owner to set the demo's production branch
+(Workers > `morpheme-demo` > Settings > Build > Branch control) to it. After every release the PM merges `main` into each open feature
+branch the same day: a pull request that is a plain merge commit, with an empty changeset, never a squash.
 
 **Nothing left behind.** The PM keeps one list of everything in flight and works it until it is empty: pull requests waiting to
 merge; open feature branches with their pieces (merged, waiting, not started); sessions that went quiet without a pull request (it
@@ -133,7 +125,7 @@ show the editor (no sign-in), so the owner sees screenshots in the pull request.
 - *Approved*: the PM squash-merges under section 3 (the owner never merges). *What to change*: the PM sends the change to the
   session of the pull request, or starts a new session with the whole task and the pull request's link when that session is gone; the
   new head gets new screenshots and a new report.
-- **A feature branch** is approved once, as a whole, on its pull request into the line (section 2); its pieces need no approval.
+- **A feature branch** is approved once, as a whole, on its pull request into `main` (section 2); its pieces need no approval.
 - **A change nobody sees** (docs, tests, CI, Worker internals, tooling) needs no screenshots and no approval.
 - There is no separate "screenshots" session and no Artifact page: the images live in the pull request.
 
