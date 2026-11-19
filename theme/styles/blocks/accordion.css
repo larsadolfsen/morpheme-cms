@@ -117,7 +117,7 @@
 }
 
 @layer fallback {
-  /* The room under an open row is the body's padding alone: the last paragraph's margin (the text's, .prose in base.css, is in this layer
+  /* The room under an open row is the body's padding alone: the last paragraph's margin (the text's, .mo-prose in base.css, is in this layer
      too) adds none. A text button's own height is taken off its row (.mo-block-accordion__row-links above). */
   .mo-block-accordion__answer > :last-child {
     margin-bottom: 0;

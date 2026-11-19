@@ -42,7 +42,7 @@ for (const width of [375, 768, 1280, 1580]) {
         const out = [];
         const left = (e) => Math.round(e.getBoundingClientRect().left);
         if (document.documentElement.scrollWidth > width) out.push(`scrolls sideways (${document.documentElement.scrollWidth}px)`);
-        for (const root of document.querySelectorAll('.prose')) {
+        for (const root of document.querySelectorAll('.mo-prose')) {
           const paragraphs = [...root.querySelectorAll(':scope > p')];
           // The lead (first paragraph, its own 52ch) is not the measure.
           for (const p of paragraphs.slice(1)) {
@@ -79,7 +79,7 @@ for (const width of [375, 768, 1280, 1580]) {
             if (columns !== wanted) out.push(`${name} has ${columns} columns at ${w}px${one ? ' with Columns off' : ''}, not ${wanted}`);
             if (one && w > 721) out.push(`${name} with Columns off is ${w}px wide, more than 720px`);
           }
-          if (!before?.matches?.('p') || !before.closest('.prose')) continue;
+          if (!before?.matches?.('p') || !before.closest('.mo-prose')) continue;
           // Owner, 16 Nov 2026: "Full width on compact screens". Below 600px the layer of a plain List or List - Expand (no drawn container) reaches
           // 16px past the text column on each side, so its box starts 16px before the text above it and its content (leading icon or text) is on
           // the text's edge. From 600px, and in the segmented design, the box itself is on the text's edge.

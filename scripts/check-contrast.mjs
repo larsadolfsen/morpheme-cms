@@ -91,7 +91,7 @@ const scan = `(root) => {
   const variantOf = (el, blockEl) => {
     const out = new Set();
     for (let e = el; e && e !== document.body; e = e.parentElement) {
-      for (const c of typeof e.className === 'string' ? e.className.split(/\\s+/) : []) if (VARIANT.test(c) && !/^(ProseMirror|prose)/.test(c) && !c.startsWith('mo-is-')) out.add(c);
+      for (const c of typeof e.className === 'string' ? e.className.split(/\\s+/) : []) if (VARIANT.test(c) && !/^(ProseMirror|mo-prose)/.test(c) && !c.startsWith('mo-is-')) out.add(c);
       if (e === blockEl) break;
     }
     return [...out].sort().join(' ');

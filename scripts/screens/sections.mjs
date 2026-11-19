@@ -53,7 +53,7 @@ async function checkSectionCardContrast() {
           .map((id) => {
             const [section, color] = id.split('/');
             const cardsColor = color ? ` mo-block-cards__${color}` : '';
-            return `<div class="mo-text-section mo-is-${section}" data-case="${id}"><div class="mo-block-cards${cardsColor}"><div class="mo-card mo-is-filled mo-block-cards__card"><div class="prose mo-block-cards__card-video"><a class="mo-block-video__facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="mo-block-video__facade-title">Title</span></a></div><span class="mo-block-cards__card-title">Headline</span><p class="mo-block-cards__card-text">Text</p></div></div></div>`;
+            return `<div class="mo-text-section mo-is-${section}" data-case="${id}"><div class="mo-block-cards${cardsColor}"><div class="mo-card mo-is-filled mo-block-cards__card"><div class="mo-prose mo-block-cards__card-video"><a class="mo-block-video__facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="mo-block-video__facade-title">Title</span></a></div><span class="mo-block-cards__card-title">Headline</span><p class="mo-block-cards__card-text">Text</p></div></div></div>`;
           })
           .join('');
         document.body.insertAdjacentHTML('afterbegin', html);

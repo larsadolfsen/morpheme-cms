@@ -55,7 +55,7 @@ export const listClass = 'mo-list';
 
 /** A list is never in the text's style (prose, which gives a <ul> its bullets, its indent and its space): its rows are
  * Material's, wherever it is drawn (the site, the editor, the Preview). */
-const listOutOfProse = 'not-prose';
+const listOutOfProse = 'mo-is-not-prose';
 
 /** A list's classes: its kind's (none for standard), its dividers' (none for full-width; a segmented list has none) and
  * `list-expand` for a list whose items fold out (Material's "List - Expand": ListItem `expand`). */

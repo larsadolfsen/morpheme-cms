@@ -1,4 +1,4 @@
-/* The layer order is ours, the first statement of the sheet: `prose` (prose.css) sits right before `utilities`, so a utility rule still wins over `.prose`.
+/* The layer order is ours, the first statement of the sheet: `mo-prose` (prose.css) sits right before `utilities`, so a utility rule still wins over `.mo-prose`.
    Material's rules sit in the last layer, fallback: a theme's own unlayered rules beat them, whatever their specificity. */
 @layer base, components, prose, utilities, fallback;
 /* The reset, in the layer base, before every rule that builds on it. */
@@ -129,7 +129,7 @@
 }
 
 @layer fallback {
-  .prose {
+  .mo-prose {
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
@@ -137,7 +137,7 @@
   }
   /* A blog post's lead: its first paragraph, one step larger than the text (the lead tokens, ui.css: the title large's
      unless a theme sets them). */
-  .prose.mo-post__lead {
+  .mo-prose.mo-post__lead {
     font-size: var(--mo-sys-typescale-lead-size);
     line-height: var(--mo-sys-typescale-lead-line-height);
     font-weight: var(--mo-sys-typescale-lead-weight);
@@ -145,7 +145,7 @@
   }
   /* The text right after the lead (no image between): the space the prose puts between paragraphs (16px), not the
    larger space of a text under an image. In the fallback layer on purpose: it must beat the mt-10 / medium:mt-14 utilities. */
-  .prose.mo-post__lead + .prose {
+  .mo-prose.mo-post__lead + .mo-prose {
     margin-top: 1rem;
   }
   /* The text's spaces are on the 4dp grid (Material 3's spacing units are multiples of 4dp and 8dp; it prints no paragraph
@@ -153,52 +153,52 @@
    and .mo-post__lead), a title above 32px and below 12px (the h2's 56 and 28 are on the grid already). They replace the typography
    plugin's em spaces (17.5, 27.5, 35.19, 13.2), which land off the grid. Not the paragraphs of a list item, which the
    plugin spaces itself, and the first and last child keep no space, as the plugin has it. */
-  .prose :where(p):not(:where(li > p)) {
+  .mo-prose :where(p):not(:where(li > p)) {
     margin-block: 0 var(--mo-sys-prose-space, 1rem);
   }
   /* Not the headline of a list item (a post's title in the Blog posts block): its space and size are the list item's. */
-  .prose :where(h3):not(:where(.mo-list__item-headline h3)) {
+  .mo-prose :where(h3):not(:where(.mo-list__item-headline h3)) {
     margin-block: 2rem 0.75rem;
   }
-  .prose > :first-child {
+  .mo-prose > :first-child {
     margin-top: 0;
   }
-  .prose > :last-child {
+  .mo-prose > :last-child {
     margin-bottom: 0;
   }
   /* The text's headings, one role of the type scale for each level (tokens/ui/ref.css): H1 display small, H2 headline medium, H3 title
      large, H4 title medium, H5 title small, H6 label medium. */
-  .prose :where(h1) {
+  .mo-prose :where(h1) {
     font-size: var(--mo-sys-typescale-display-small-size);
     line-height: var(--mo-sys-typescale-display-small-line-height);
     font-weight: var(--mo-sys-typescale-display-small-weight);
     letter-spacing: var(--mo-sys-typescale-display-small-tracking);
   }
-  .prose :where(h2) {
+  .mo-prose :where(h2) {
     font-size: var(--mo-sys-typescale-headline-medium-size);
     line-height: var(--mo-sys-typescale-headline-medium-line-height);
     font-weight: var(--mo-sys-typescale-headline-medium-weight);
     letter-spacing: var(--mo-sys-typescale-headline-medium-tracking);
   }
-  .prose :where(h3):not(:where(.mo-list__item-headline h3)) {
+  .mo-prose :where(h3):not(:where(.mo-list__item-headline h3)) {
     font-size: var(--mo-sys-typescale-title-large-size);
     line-height: var(--mo-sys-typescale-title-large-line-height);
     font-weight: var(--mo-sys-typescale-title-large-weight);
     letter-spacing: var(--mo-sys-typescale-title-large-tracking);
   }
-  .prose :where(h4) {
+  .mo-prose :where(h4) {
     font-size: var(--mo-sys-typescale-title-medium-size);
     line-height: var(--mo-sys-typescale-title-medium-line-height);
     font-weight: var(--mo-sys-typescale-title-medium-weight);
     letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
   }
-  .prose :where(h5) {
+  .mo-prose :where(h5) {
     font-size: var(--mo-sys-typescale-title-small-size);
     line-height: var(--mo-sys-typescale-title-small-line-height);
     font-weight: var(--mo-sys-typescale-title-small-weight);
     letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
-  .prose :where(h6) {
+  .mo-prose :where(h6) {
     font-size: var(--mo-sys-typescale-label-medium-size);
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     font-weight: var(--mo-sys-typescale-label-medium-weight);
@@ -206,7 +206,7 @@
   }
   /* A quote in the text: body large, in the regular weight and upright (the plugin sets 500 and italic); its line beside it and its
      quote marks are the plugin's, in the theme's primary colour (--mo-comp-prose-quote-borders). */
-  .prose :where(blockquote) {
+  .mo-prose :where(blockquote) {
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
     font-weight: var(--mo-sys-typescale-body-large-weight);
@@ -214,24 +214,24 @@
     font-style: normal;
   }
   /* Code in a line (cookie names in the privacy policy): on a tint, without the plugin's backticks. */
-  .prose :where(:not(pre) > code):not(:where(.not-prose code)) {
+  .mo-prose :where(:not(pre) > code):not(:where(.mo-is-not-prose code)) {
     background: var(--mo-sys-color-surface-container-high);
     border-radius: 0.3em;
     padding: 0.1em 0.35em;
     font-weight: 500;
   }
-  .prose :where(:not(pre) > code):not(:where(.not-prose code))::before,
-  .prose :where(:not(pre) > code):not(:where(.not-prose code))::after {
+  .mo-prose :where(:not(pre) > code):not(:where(.mo-is-not-prose code))::before,
+  .mo-prose :where(:not(pre) > code):not(:where(.mo-is-not-prose code))::after {
     content: none;
   }
-  /* Not the links of a block in the text (not-prose): their look is the block's. */
-  .prose :where(a):not(:where(.not-prose a)) {
+  /* Not the links of a block in the text (mo-is-not-prose): their look is the block's. */
+  .mo-prose :where(a):not(:where(.mo-is-not-prose a)) {
     font-weight: 500;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
   }
-  /* Images in the text; not those in a block of the site in it (not-prose, RichText.astro). */
-  .prose :where(img):not(:where(.not-prose img)) {
+  /* Images in the text; not those in a block of the site in it (mo-is-not-prose, RichText.astro). */
+  .mo-prose :where(img):not(:where(.mo-is-not-prose img)) {
     border-radius: var(--mo-sys-radius);
     width: 100%;
     height: auto;
@@ -254,7 +254,7 @@
     border-radius: 0;
   }
   /* Video embeds (an embed that needs another size, an app's calendar, sets its own). */
-  .prose :where(iframe) {
+  .mo-prose :where(iframe) {
     width: 100%;
     aspect-ratio: 16 / 9;
     height: auto;

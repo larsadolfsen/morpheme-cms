@@ -1273,7 +1273,7 @@ async function checkChangeTo(width, height) {
  * collection), by the heading above it: the title's distance from the row's left edge and the chevron's from its right edge. Runs in the page. */
 const rowPadding = () => {
   const out = {};
-  const root = document.querySelector('.ProseMirror') ?? document.querySelector('main .prose');
+  const root = document.querySelector('.ProseMirror') ?? document.querySelector('main .mo-prose');
   let head = '';
   for (const c of root.children) {
     if (/^H[1-6]$/.test(c.tagName)) {
@@ -1311,7 +1311,7 @@ async function checkPageLeftEdge(width) {
   let sitePads = {};
   if (await onTestPage(page, label)) {
     const built = await page.evaluate(() => {
-      const prose = document.querySelector('main .prose');
+      const prose = document.querySelector('main .mo-prose');
       const text = prose.querySelector('p').getBoundingClientRect().left;
       const margin = parseFloat(getComputedStyle(document.documentElement).fontSize) * (innerWidth < 600 ? 1 : 1.5);
       const out = [];

@@ -18,7 +18,7 @@ export const allow = [
     reason: "inline code in a text: the text style's padding in em (0.07 and 0.245 of its size), the box around a few letters, not layout",
   },
   {
-    selector: '.prose ul.contains-task-list, .prose li.task-list-item',
+    selector: '.mo-prose ul.contains-task-list, .mo-prose li.task-list-item',
     props: ['margin', 'padding'],
     reason:
       "a check list in a text: the text style's list spaces in em (the typography the theme had), a list in a text and not a block's own spaces",

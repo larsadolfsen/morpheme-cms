@@ -11,7 +11,7 @@
 //                 `closest`, `matches`, `cn(`/`clsx(` arguments, and a `.name` selector inside any string; only names the stylesheets define,
 //                 so another library's class and a Tailwind utility are never counted here;
 //  - propsDeclared / propsRead: unprefixed custom properties declared (`--x:`, `setProperty('--x')`, `'--x':`) and read (`var(--x`, `getPropertyValue`).
-// Not counted: names in `NOT_RENAMED` (other libraries' classes, `prose` until T13), and `data-*` attributes.
+// Not counted: names in `NOT_RENAMED` (other libraries' classes), and `data-*` attributes.
 // Depends on: git (lists the files), postcss.
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
@@ -33,11 +33,6 @@ export const NOT_RENAMED = [
   { pattern: 'ProseMirror*', why: "ProseMirror's own classes" },
   { pattern: 'cm-*', why: "CodeMirror's own classes" },
   { pattern: 'calendly-*', why: "A store app's embed (Calendly's widget)" },
-  {
-    pattern: 'prose',
-    why: "the wrapper of rendered Markdown: the rules are ours since T13 (theme/styles/prose.css) but the name is stored in 423 places; a rename to `mo-prose` is the owner's later decision",
-  },
-  { pattern: 'not-prose', why: 'the opt-out of `prose` (see `prose`)' },
   { pattern: 'contains-task-list', why: "the Markdown renderer's own class on a task list (remark-gfm)" },
   { pattern: 'task-list-item', why: "the Markdown renderer's own class on a task list item (remark-gfm)" },
   { pattern: 'dark', why: 'The theme-mode class on <html>, a stored switch (docs/css-tokens.md), not a name of ours to prefix here' },

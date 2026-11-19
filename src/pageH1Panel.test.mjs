@@ -6,7 +6,7 @@ import { JSDOM } from 'jsdom';
 import { setH1Panel } from './pageH1Panel.mjs';
 
 const PAGE = (header) =>
-  new JSDOM(`<body><article><header>${header}</header><div><div data-editor="text" class="prose">x</div></div></article></body>`).window
+  new JSDOM(`<body><article><header>${header}</header><div><div data-editor="text" class="mo-prose">x</div></div></article></body>`).window
     .document;
 const PLAIN = '<h1 data-editor="heading">Title</h1>';
 
@@ -18,7 +18,7 @@ test('the header and the intro go in a panel of the colour', () => {
   assert.equal(panel.querySelector('h1').textContent, 'Title');
   const intro = panel.querySelector('[data-editor="intro"]');
   assert.equal(intro.innerHTML, '<p>Intro</p>');
-  assert.equal(intro.className, 'prose');
+  assert.equal(intro.className, 'mo-prose');
 });
 
 test('a panel with a colour takes away the header space, none gives it back', () => {

@@ -30,8 +30,12 @@ the pattern gives, and the PR that renames the component checks it against the p
 ## Not renamed
 
 Listed with reasons in `NOT_RENAMED` of `scripts/mo-names.mjs`: other libraries' classes (`ProseMirror*`, `cm-*`, a store app's embed such as
-`calendly-*`), `prose` and `not-prose` until T13 has its own (then `mo-prose`), and the `dark` class of the theme mode. Also not covered: `data-*`
+`calendly-*`), and the `dark` class of the theme mode. Also not covered: `data-*`
 attributes, ids and saved ids; Tailwind's own custom properties (`--tw-*` and its `@theme` namespaces, which T16 removes).
+
+## Settled in the last rename: `prose`
+
+`prose` → `mo-prose` (the text style: a component root). Its opt-out `not-prose` → `mo-is-not-prose`: it is a state an element takes in the text's style, not a component of its own, so the pattern gives `mo-is-<word>`. Both are saved in content (`<div class="not-prose">` in a page, a theme's wrapper), so they are in `CLASS_NAMES` of `lib/content-class-names.mjs`: the Worker's update into 0.19.0 and `npx morpheme migrate` rewrite them, and the revert brings them back. `NOT_RENAMED` no longer lists either; no exception is left for `prose`. The CSS layer `prose` is a layer name, not a class, and stays.
 
 ## Settled by the PM
 

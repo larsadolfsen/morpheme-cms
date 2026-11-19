@@ -2497,7 +2497,7 @@ export function Preview({ children }: { children: ReactNode }) {
     <div
       role="region"
       aria-label={t.common.preview}
-      className="mo-site-block-preview not-prose mo-editor-block-preview"
+      className="mo-site-block-preview mo-is-not-prose mo-editor-block-preview"
       onClickCapture={(e) => {
         if ((e.target as HTMLElement).closest('a[href]')) e.preventDefault();
       }}

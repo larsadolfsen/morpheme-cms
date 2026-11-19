@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { leadProblem, textClasses, widthProblem } from './side-width.mjs';
 
-const WIDE = ['prose', 'mo-page__text', 'mo-is-single-column'];
-const NARROW = ['prose', 'mo-page__text', 'mo-has-side'];
+const WIDE = ['mo-prose', 'mo-page__text', 'mo-is-single-column'];
+const NARROW = ['mo-prose', 'mo-page__text', 'mo-has-side'];
 
 test('a page without a column: text as wide as its container, the text measure for what is not a block', () => {
   assert.equal(widthProblem(WIDE, null), null);
@@ -17,7 +17,7 @@ test('a page with a column: text stops at the text measure', () => {
 });
 
 test('textClasses reads the classes of the text wrapper', () => {
-  const html = '<article data-template="single"><div data-editor="text" class="prose mo-page__text mo-is-single-column"></div>';
+  const html = '<article data-template="single"><div data-editor="text" class="mo-prose mo-page__text mo-is-single-column"></div>';
   assert.deepEqual(textClasses(html), WIDE);
 });
 

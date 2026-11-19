@@ -72,8 +72,8 @@
     padding-inline: var(--mo-sys-section-inset);
   }
   /* Only the background is the whole width: the content stays in the page's text column, as the text outside a section does (the
-     page's text keeps its paragraphs and headings at the text measure, PageLayout.astro; blocks, not-prose, span the container). */
-  :where(.mo-text-section).mo-is-full > :not(.not-prose, .mo-text-section__image) {
+     page's text keeps its paragraphs and headings at the text measure, PageLayout.astro; blocks, mo-is-not-prose, span the container). */
+  :where(.mo-text-section).mo-is-full > :not(.mo-is-not-prose, .mo-text-section__image) {
     max-width: var(--mo-sys-block-text-measure-max);
     min-width: min(var(--mo-sys-block-text-measure-min), 100%);
   }

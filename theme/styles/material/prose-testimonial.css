@@ -5,9 +5,9 @@
 
 @layer fallback {
   /* Long text: images with large corners. */
-  .prose :where(img):not(:where(.not-prose img)),
+  .mo-prose :where(img):not(:where(.mo-is-not-prose img)),
   .mo-site-picture__crop,
-  .prose :where(iframe) {
+  .mo-prose :where(iframe) {
     border-radius: var(--mo-sys-shape-corner-large);
   }
 
