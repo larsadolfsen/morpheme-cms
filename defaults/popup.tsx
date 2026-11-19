@@ -37,7 +37,7 @@ export function drawPopup(p: Record<string, any>, data: BlockData, part?: KindPa
     button: buttonOf(p, data),
   };
   return (
-    <div className="not-prose mx-auto max-w-md">
+    <div className="not-prose mo-popup-preview">
       <PopupView popup={popup} Part={part?.View} part={part?.viewOf(p, data)} />
     </div>
   );

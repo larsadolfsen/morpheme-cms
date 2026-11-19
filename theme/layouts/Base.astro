@@ -180,17 +180,14 @@ const jsonLd = {
     <slot name="head" />
     <AppSlot name="head" />
   </head>
-  <body class="flex min-h-dvh flex-col">
-    <a
-      href="#main-content"
-      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-full focus:bg-primary focus:px-4 focus:py-2 focus:text-on-primary"
-    >
+  <body class="mo-body">
+    <a href="#main-content" class="mo-skip-link">
       {siteT.theme.skipToContent}
     </a>
 
     <Header />
 
-    <main id="main-content" class="flex-1">
+    <main id="main-content" class="mo-main">
       <slot />
     </main>
 

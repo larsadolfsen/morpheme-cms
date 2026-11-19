@@ -18,9 +18,8 @@ export function setH1Panel(doc, settings, introHtml) {
   }
   // The layout's header has no space above a panel with a background (PageLayout.astro), and the usual space without one.
   const background = Boolean(settings?.color);
-  header.classList.toggle('pt-8', !background);
-  header.classList.toggle('medium:pt-14', !background);
-  header.classList.toggle('[&>.text-section]:mt-0', background);
+  header.classList.toggle('mo-page-header', !background);
+  header.classList.toggle('mo-flush-top', background);
   if (!settings) return;
   const panel = doc.createElement('section');
   panel.setAttribute('data-editor', 'h1-section');
