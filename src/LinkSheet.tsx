@@ -148,7 +148,7 @@ export function LinkAsk({ groups }: { groups: Group[] }) {
               {remove}
             </>
           ),
-          children: <div className="space-y-5">{fields}</div>,
+          children: <div className="mo-editor-stack-250">{fields}</div>,
         }
       : null,
   );

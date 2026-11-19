@@ -43,7 +43,7 @@ export default function SectionsField({ field, value, intro, page, off = [], onC
   const markdown = useMemo(() => sectionsToMarkdown(value, leads, field.intro ? intro : undefined), []);
   return (
     <div>
-      <span className="mb-1 block font-medium">{field.label}</span>
+      <span className="mo-editor-block mo-editor-subtitle-tight">{field.label}</span>
       <MarkdownEditor
         ref={editor}
         value={markdown}

@@ -14,12 +14,12 @@ export function StatusWidget(_props: WidgetProps) {
   const { builtAt } = useStartData();
   const titleId = useId();
   return (
-    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="[--mo-comp-card-padding:1rem]">
-      <h2 id={titleId} className="pb-2 font-medium">
+    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="mo-editor-widget-text">
+      <h2 id={titleId} className="mo-editor-widget-title">
         {t.library.statusTitle}
       </h2>
-      <p className="text-sm text-on-surface-variant">{builtAt ? t.library.lastPublished(when(builtAt)) : t.library.publishUnknown}</p>
-      <p className="text-sm text-on-surface-variant">{t.library.cmsVersion(shortVersion(version) as string)}</p>
+      <p className="mo-editor-caption">{builtAt ? t.library.lastPublished(when(builtAt)) : t.library.publishUnknown}</p>
+      <p className="mo-editor-caption">{t.library.cmsVersion(shortVersion(version) as string)}</p>
     </SiteCard>
   );
 }

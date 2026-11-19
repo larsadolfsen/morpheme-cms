@@ -40,7 +40,7 @@ export default function SectionSettings({
   const fields = [...(image ? (values.image ? [IMAGE, ALT] : [IMAGE]) : []), ...(width ? [WIDTH] : [])];
   const { color } = values;
   return (
-    <div className="space-y-5">
+    <div className="mo-editor-stack-250">
       <ul role="group" aria-label={t.text.sectionColor}>
         <Option selected={!color} onClick={() => onChange({ ...values, color: '' })}>
           {t.text.sectionColors.none}

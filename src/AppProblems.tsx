@@ -43,9 +43,9 @@ export default function AppProblems({ id }: { id: string }) {
   }, [id]);
   if (!found.length) return null;
   return (
-    <section className="mb-8">
+    <section className="mo-editor-group">
       <Notice title={t.apps.problemsTitle}>
-        <ul className="space-y-1">
+        <ul className="mo-editor-stack-50">
           {groupProblems(found).map((l, i) => (
             <li key={i}>{t.apps.problemLine(where(l), l.message)}</li>
           ))}

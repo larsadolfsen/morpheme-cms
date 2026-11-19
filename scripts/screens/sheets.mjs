@@ -1592,7 +1592,7 @@ async function checkLinkAndItemPanes(width) {
     }
     await page.waitForTimeout(700);
     const nested = await page.evaluate(() => {
-      const shown = [...document.querySelectorAll('aside.editor-side-sheet')].filter((a) => !a.closest('.hidden'));
+      const shown = [...document.querySelectorAll('aside.editor-side-sheet')].filter((a) => !a.closest('.hidden, .mo-hidden'));
       return {
         shown: shown.length,
         title: shown[0]?.querySelector('.side-sheet-headline')?.textContent,
@@ -1604,7 +1604,7 @@ async function checkLinkAndItemPanes(width) {
     await page.locator('aside.editor-side-sheet [data-side-sheet-back]').first().click();
     await page.waitForTimeout(600);
     const back = await page.evaluate(() => {
-      const shown = [...document.querySelectorAll('aside.editor-side-sheet')].filter((a) => !a.closest('.hidden'));
+      const shown = [...document.querySelectorAll('aside.editor-side-sheet')].filter((a) => !a.closest('.hidden, .mo-hidden'));
       return { shown: shown.length, title: shown[0]?.querySelector('.side-sheet-headline')?.textContent };
     });
     if (back.shown !== 1 || back.title === 'Link')

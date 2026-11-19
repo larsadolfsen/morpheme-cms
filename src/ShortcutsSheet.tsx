@@ -35,7 +35,7 @@ const Rows = ({ rows }: { rows: ShortcutRow[] }) =>
     <ListItem
       key={r.id}
       headline={r.label}
-      trailing={<kbd className="font-sans text-sm text-on-surface-variant">{shortcutText(r.key)}</kbd>}
+      trailing={<kbd className="mo-editor-shortcut-key">{shortcutText(r.key)}</kbd>}
     />
   ));
 

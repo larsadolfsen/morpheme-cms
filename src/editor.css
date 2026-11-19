@@ -3,6 +3,7 @@
    (:where), so a theme's :root wins. */
 @reference '../theme/styles/base.css';
 @import './editor-density.css';
+@import './editor-rest.css';
 @import './editor-screens.css';
 
 /* Density (theme/styles/base.css) reaches the editor's own screens, not the page and post editing area: what is typed in place

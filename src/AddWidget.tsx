@@ -36,7 +36,7 @@ export function AddWidget({
       <SheetTitle title={t.dashboard.addWidget} onClose={() => dialog.current?.close()} />
       <SheetList div>
         {groups.map((group) => (
-          <section key={group.source} className="mt-2">
+          <section key={group.source} className="mo-editor-sheet-group">
             {groups.length > 1 && <SheetGroupTitle>{group.label}</SheetGroupTitle>}
             <ul>
               {group.items.map(({ id, definition }) => (

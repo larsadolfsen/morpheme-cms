@@ -147,7 +147,7 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
           opener: opener.current,
           onBack: () => void closeSheet(),
           backLabel: t.common.back,
-          children: <div className="space-y-5">{details}</div>,
+          children: <div className="mo-editor-stack-250">{details}</div>,
         }
       : null,
   );
@@ -160,7 +160,7 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
       status={found ? t.consents.count(found.total) : undefined}
       actions={found && <IconLink icon={DownloadSimple} label={t.consents.download} href={`${CONSENT_API}?format=csv`} download />}
     >
-      <p className="mb-4 text-on-surface-variant">{t.consents.intro}</p>
+      <p className="mo-editor-note">{t.consents.intro}</p>
       <SearchRow
         value={query}
         onChange={setQuery}
@@ -174,7 +174,7 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
             onChange={pickSort}
           />
         }
-        className="mb-6"
+        className="mo-editor-list-lead"
       />
       {problem && <ProblemNote>{problem}</ProblemNote>}
       {found === undefined && !problem && <EmptyNote busy>{t.consents.loading}</EmptyNote>}
