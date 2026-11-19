@@ -963,19 +963,19 @@
     },
     "theme/layouts/Base.astro": {
       "classDefs": 0,
-      "markup": 2,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "theme/layouts/PageLayout.astro": {
       "classDefs": 0,
-      "markup": 5,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "theme/layouts/PostLayout.astro": {
       "classDefs": 0,
-      "markup": 3,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -1124,7 +1124,7 @@
       "propsRead": 0
     },
     "theme/styles/site-page.css": {
-      "classDefs": 11,
+      "classDefs": 14,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
@@ -1731,13 +1731,13 @@
     },
     "theme/templates/Home.astro": {
       "classDefs": 0,
-      "markup": 9,
+      "markup": 3,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "theme/templates/NotFound.astro": {
       "classDefs": 0,
-      "markup": 3,
+      "markup": 2,
       "propsDeclared": 0,
       "propsRead": 0
     },

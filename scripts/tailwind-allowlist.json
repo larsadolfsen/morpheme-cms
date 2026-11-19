@@ -1,15 +1,9 @@
 {
-  "defaults/popup.tsx": {
-    "utilities": 2
-  },
   "lib/snackbar.ts": {
     "constants": 2
   },
   "site/icons.mjs": {
     "constants": 1
-  },
-  "site/sections.ts": {
-    "constants": 4
   },
   "src/ActionParts.tsx": {
     "utilities": 23,
@@ -83,9 +77,6 @@
   "src/NavigationRestParts.tsx": {
     "utilities": 54
   },
-  "src/pageH1Panel.mjs": {
-    "constants": 3
-  },
   "src/Parts.tsx": {
     "utilities": 19,
     "constants": 4
@@ -119,20 +110,6 @@
   "theme/components/Popup.astro": {
     "constants": 1
   },
-  "theme/editor/previews.tsx": {
-    "utilities": 1
-  },
-  "theme/layouts/Base.astro": {
-    "utilities": 15
-  },
-  "theme/layouts/PageLayout.astro": {
-    "utilities": 5,
-    "constants": 2
-  },
-  "theme/layouts/PostLayout.astro": {
-    "utilities": 11,
-    "constants": 8
-  },
   "theme/styles/base.css": {
     "source": 3
   },
@@ -141,15 +118,5 @@
   },
   "theme/styles/tokens/material/ref.css": {
     "themeAt": 1
-  },
-  "theme/templates/Home.astro": {
-    "utilities": 10
-  },
-  "theme/templates/New.astro": {
-    "utilities": 31
-  },
-  "theme/templates/NotFound.astro": {
-    "utilities": 2,
-    "constants": 2
   }
 }
