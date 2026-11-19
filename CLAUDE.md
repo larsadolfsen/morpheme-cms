@@ -1,5 +1,8 @@
 # CLAUDE.md
 
+**Morpheme is a blazingly fast and user-friendly CMS built for modern coding** (owner, 19 Nov 2026). Weigh every choice
+against it.
+
 The rules every agent session in `@morphemecms/cms` follows. `AGENTS.md` points here. A `README.md` is written for
 people: no agent reads one for rules, and no rule lives in one.
 
