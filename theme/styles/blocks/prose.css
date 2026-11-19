@@ -32,18 +32,18 @@
   }
   /* A video without a still has no tint of its own in a card: the card's surface is already a tone (in a coloured section a veil), and two veils
      over each other left the title at 3.8:1. */
-  .prose :is(.block-card-video, .block-card .card-media-slot) .video-facade:not(.video-facade-still) {
+  .prose :is(.block-card-video, .block-card .mo-card__media-slot) .video-facade:not(.video-facade-still) {
     background: transparent;
   }
   /* In a card the video is its media: flush against the card's top and sides (the card's wrapper clips the corners), none of the text's margin
      above or below it, which left a gap over the still. */
-  .prose :is(.block-card-video, .block-card .card-media-slot) .video-facade {
+  .prose :is(.block-card-video, .block-card .mo-card__media-slot) .video-facade {
     margin-block: 0;
     border-radius: 0;
   }
   /* The played video (the iframe that takes the link's place, Base.astro) keeps the still's box: the text's margin around an iframe and its corners
      (.prose iframe, base.css and global.css) would make the card grow when the video starts. */
-  .prose :is(.block-card-video, .block-card .card-media-slot) iframe {
+  .prose :is(.block-card-video, .block-card .mo-card__media-slot) iframe {
     display: block;
     margin-block: 0;
     border-radius: 0;

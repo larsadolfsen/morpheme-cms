@@ -46,17 +46,17 @@ export default function FabMenu({
     <div className={[fabMenuClass(kind), className].filter(Boolean).join(' ')} data-fab-menu="" {...rest}>
       <button
         type="button"
-        className={`${fabClass(fabKind ?? kind, size)} fab-menu-button`}
+        className={`${fabClass(fabKind ?? kind, size)} mo-fab-menu__button`}
         aria-label={open ? closeLabel : label}
         aria-expanded={Boolean(open)}
         aria-controls={list}
         data-label={label}
         data-close-label={closeLabel}
       >
-        <Glyph icon={icon} size={24} className="fab-menu-icon" />
-        <Svg name="x" size={24} className="fab-menu-close-icon" />
+        <Glyph icon={icon} size={24} className="mo-fab-menu__icon" />
+        <Svg name="x" size={24} className="mo-fab-menu__close-icon" />
       </button>
-      <ul id={list} className="fab-menu-list" aria-label={label} hidden={!open}>
+      <ul id={list} className="mo-fab-menu__list" aria-label={label} hidden={!open}>
         {items.map(({ icon: glyph, label: name, ...item }) => (
           <li key={name}>
             <ExtendedFab icon={glyph} label={name} kind={`${kind}-container`} className="fab-menu-item" {...item} />

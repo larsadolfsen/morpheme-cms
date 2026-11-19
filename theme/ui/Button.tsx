@@ -9,7 +9,7 @@
 // never a toggle), else a <button> (`type`, button by default). Other attributes (data-…, aria-…, disabled) go on it, and `className`
 // after its own classes (its width). An Astro component without React gives an element the same classes with
 // buttonClass, and a toggle aria-pressed itself. With `busy` (a <button> only; a link ignores it) the button is
-// disabled, aria-busy and .button-busy while its action runs. Nothing else changes for the first --button-busy-delay
+// disabled, aria-busy and .button-busy while its action runs. Nothing else changes for the first --mo-comp-button-busy-delay
 // (200 ms; M3 loading indicator); then the label and icons go, the button shrinks to a circle (its width becomes its
 // height) and a loading indicator in the label's colour, without a container, stands in the middle (aria-hidden: the
 // button keeps its name). When busy ends, it is the button again.
@@ -70,7 +70,7 @@ export default function Button({
   const ref = useRef<HTMLButtonElement>(null);
   // The width it shrinks from (a width cannot move from auto), read while the label is still there.
   useEffect(() => {
-    if (isBusy && ref.current) ref.current.style.setProperty('--button-busy-from', `${ref.current.offsetWidth}px`);
+    if (isBusy && ref.current) ref.current.style.setProperty('--mo-comp-button-busy-from', `${ref.current.offsetWidth}px`);
   }, [isBusy]);
   const classes = [buttonClass(kind, size, shape), isBusy && 'button-busy', className].filter(Boolean).join(' ');
   const toggle = selected !== undefined && href === undefined;
@@ -78,7 +78,7 @@ export default function Button({
     <>
       {icon && (toggle && typeof icon === 'string' ? <ToggleIcon part="button" name={icon} size={20} /> : <Glyph icon={icon} size={20} />)}
       {children}
-      {trailingIcon && <Glyph icon={trailingIcon} size={18} className="button-trailing-icon" />}
+      {trailingIcon && <Glyph icon={trailingIcon} size={18} className="mo-button__trailing-icon" />}
     </>
   );
   return href === undefined ? (

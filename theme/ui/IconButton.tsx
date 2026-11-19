@@ -9,7 +9,7 @@
 // `href` it is a link (Link: on the site; in the editor only drawn; never a toggle), else a <button type="button">.
 // Other attributes (data-…, disabled) go on it, and `className` after its own classes (its place). An Astro component
 // without React gives an element the same classes with iconButtonClass, and a toggle aria-pressed itself. With `busy`
-// (a <button> only) it is disabled, aria-busy and .icon-button-busy: after --button-busy-delay (200 ms) the icon is
+// (a <button> only) it is disabled, aria-busy and .icon-button-busy: after --mo-comp-button-busy-delay (200 ms) the icon is
 // replaced by a loading indicator of its size (BusyContent); the button keeps its size.
 import { Glyph, type IconRef } from '@morphemecms/cms/src/icon';
 import Badge from '@theme/ui/Badge';

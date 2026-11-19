@@ -75,16 +75,16 @@ export function Tab({
   badge?: true | number;
   children: ReactNode;
 } & Record<string, unknown>) {
-  const mark = badge !== undefined && <Badge count={badge === true ? undefined : badge} className="tab-badge" />;
+  const mark = badge !== undefined && <Badge count={badge === true ? undefined : badge} className="mo-tabs__tab-badge" />;
   const content = (
-    <span className="tab-content">
+    <span className="mo-tabs__tab-content">
       {icon && (
-        <span className="tab-icon">
+        <span className="mo-tabs__tab-icon">
           <Glyph icon={icon} size={24} />
           {mark}
         </span>
       )}
-      <span className="tab-label">
+      <span className="mo-tabs__tab-label">
         {children}
         {!icon && mark}
       </span>

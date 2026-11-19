@@ -81,7 +81,7 @@ export default function ChoiceGroup({
   useBeforePaint(() => {
     if (form !== 'auto') return;
     const el = root.current;
-    const row = el?.querySelector<HTMLElement>(':scope > .choice-group-measure');
+    const row = el?.querySelector<HTMLElement>(':scope > .mo-choice-group__measure');
     if (!el || !row) return;
     const measure = () => {
       const buttons = [...row.children] as HTMLElement[];
@@ -114,19 +114,19 @@ export default function ChoiceGroup({
   useBeforePaint(() => {
     const el = root.current;
     if (!el) return;
-    for (const input of el.querySelectorAll<HTMLInputElement>(':scope > .choice-group-list input[type="radio"]'))
+    for (const input of el.querySelectorAll<HTMLInputElement>(':scope > .mo-choice-group__list input[type="radio"]'))
       input.checked = input.value === value;
     if (showing.current !== shown) {
       const was = showing.current;
       showing.current = shown;
       const active = document.activeElement as HTMLElement | null;
-      const from = was === 'buttons' ? '.choice-group-buttons' : '.choice-group-list';
+      const from = was === 'buttons' ? '.mo-choice-group__buttons' : '.mo-choice-group__list';
       if (active && active.closest(`.choice-group > ${from}`)?.parentElement === el) {
         const v = active.dataset.value ?? (active as HTMLInputElement).value;
         const to =
           shown === 'buttons'
-            ? [...el.querySelectorAll<HTMLElement>(':scope > .choice-group-buttons > button')].find((b) => b.dataset.value === v)
-            : [...el.querySelectorAll<HTMLInputElement>(':scope > .choice-group-list input[type="radio"]')].find((i) => i.value === v);
+            ? [...el.querySelectorAll<HTMLElement>(':scope > .mo-choice-group__buttons > button')].find((b) => b.dataset.value === v)
+            : [...el.querySelectorAll<HTMLInputElement>(':scope > .mo-choice-group__list input[type="radio"]')].find((i) => i.value === v);
         to?.focus();
       }
     }
@@ -154,11 +154,11 @@ export default function ChoiceGroup({
   };
 
   const swatchOf = (c: Choice) =>
-    c.swatch ? <span className="choice-group-swatch" style={{ background: c.swatch }} aria-hidden="true" /> : null;
+    c.swatch ? <span className="mo-choice-group__swatch" style={{ background: c.swatch }} aria-hidden="true" /> : null;
   const buttonContent = (c: Choice) => (
     <>
       {swatchOf(c)}
-      <span className={dots && c.swatch ? 'choice-group-label choice-group-label-hidden' : 'choice-group-label'}>{c.label}</span>
+      <span className={dots && c.swatch ? 'mo-choice-group__label mo-choice-group__label-hidden' : 'mo-choice-group__label'}>{c.label}</span>
     </>
   );
 
@@ -172,7 +172,7 @@ export default function ChoiceGroup({
       {...rest}
     >
       {form === 'auto' && (
-        <div className="button-group button-group-connected choice-group-measure" aria-hidden="true" inert>
+        <div className="mo-button-group mo-button-group__connected mo-choice-group__measure" aria-hidden="true" inert>
           {choices.map((c) => (
             <Button key={c.value} kind="filled" size="small" selected={false} icon={c.icon} tabIndex={-1}>
               {buttonContent(c)}
@@ -180,7 +180,7 @@ export default function ChoiceGroup({
           ))}
         </div>
       )}
-      <ButtonGroup kind="connected" label={label} className="choice-group-buttons" onKeyDown={onKeyDown}>
+      <ButtonGroup kind="connected" label={label} className="mo-choice-group__buttons" onKeyDown={onKeyDown}>
         {choices.map((c) => (
           <Button
             key={c.value}
@@ -200,7 +200,7 @@ export default function ChoiceGroup({
       </ButtonGroup>
       <RadioGroup
         label={label}
-        className="choice-group-list"
+        className="mo-choice-group__list"
         onChange={(e: { target: EventTarget }) => {
           const input = e.target as HTMLInputElement;
           if (input.type === 'radio' && input.checked) choose(input.value);
@@ -217,7 +217,7 @@ export default function ChoiceGroup({
                 control={{ type: 'radio-button', at: 'leading', name: group, value: c.value, checked: c.value === value }}
                 trailing={
                   trailing != null ? (
-                    <span className="choice-group-sample" aria-hidden="true" inert>
+                    <span className="mo-choice-group__sample" aria-hidden="true" inert>
                       {trailing}
                     </span>
                   ) : undefined

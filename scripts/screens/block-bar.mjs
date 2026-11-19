@@ -352,7 +352,7 @@ async function checkSelection() {
     const scope = onPage ? 'main' : 'dialog';
     await sheet.waitFor();
     await page.waitForTimeout(600);
-    const items = sheet.locator('[role=checkbox], .list-item-container', { hasText: /Selection check/ });
+    const items = sheet.locator('[role=checkbox], .mo-list__item-container', { hasText: /Selection check/ });
     if ((await items.count()) !== 3) {
       problems.push(`${label}: the notifications sheet does not show the three seeded notifications`);
     } else if (touch) {
@@ -1130,7 +1130,7 @@ async function checkSelectionBox() {
   const visible = (page) =>
     page.evaluate(
       () =>
-        [...document.querySelectorAll('main .list-item-select-box')].filter((b) => {
+        [...document.querySelectorAll('main .mo-list__item-select-box')].filter((b) => {
           const r = b.getBoundingClientRect();
           return getComputedStyle(b).display !== 'none' && getComputedStyle(b).visibility !== 'hidden' && r.width > 0;
         }).length,
@@ -1161,21 +1161,21 @@ async function checkSelectionBox() {
     if (await visible(page)) problems.push(`${label}: a selection box shows before anything is pointed at or selected`);
     // Each row with something leading it has its box after the text; each text-only row, before it.
     const slots = await page.evaluate(() =>
-      [...document.querySelectorAll('main .list-item-selectable')].every((r) => {
-        const box = r.querySelector(':scope > .list-item-select-box');
-        const lead = r.querySelector(':scope > .list-item-leading');
+      [...document.querySelectorAll('main .mo-list__item-selectable')].every((r) => {
+        const box = r.querySelector(':scope > .mo-list__item-select-box');
+        const lead = r.querySelector(':scope > .mo-list__item-leading');
         if (!box) return false;
-        return lead ? box.classList.contains('list-item-select-box-trailing') : box.classList.contains('list-item-select-box-leading');
+        return lead ? box.classList.contains('mo-list__item-select-box-trailing') : box.classList.contains('mo-list__item-select-box-leading');
       }),
     );
     if (!slots)
       problems.push(`${label}: a row's selection box is not in the slot Material prints (trailing with a leading visual, else leading)`);
-    const hasLead = (await rows.nth(1).locator(':scope > .list-item-leading').count()) > 0;
+    const hasLead = (await rows.nth(1).locator(':scope > .mo-list__item-leading').count()) > 0;
     const leadHtml = () =>
       hasLead
         ? rows
             .nth(1)
-            .locator(':scope > .list-item-leading')
+            .locator(':scope > .mo-list__item-leading')
             .evaluate((e) => e.outerHTML)
         : '';
     const leadBefore = await leadHtml();
@@ -1184,12 +1184,12 @@ async function checkSelectionBox() {
       const rb = await rows.nth(1).boundingBox();
       if (hasLead) {
         // A tap on what leads a row starts selecting and opens nothing; its target is at least 48 x 48.
-        const lb = await rows.nth(1).locator(':scope > .list-item-leading').boundingBox();
+        const lb = await rows.nth(1).locator(':scope > .mo-list__item-leading').boundingBox();
         const cx = lb.x + lb.width / 2;
         const cy = lb.y + lb.height / 2;
         const reach = await page.evaluate(
           ([x, y]) => {
-            const hit = (dx, dy) => !!document.elementFromPoint(x + dx, y + dy)?.closest('.list-item-leading');
+            const hit = (dx, dy) => !!document.elementFromPoint(x + dx, y + dy)?.closest('.mo-list__item-leading');
             return hit(-23, -23) && hit(23, -23) && hit(-23, 23) && hit(23, 23);
           },
           [cx, cy],
@@ -1214,7 +1214,7 @@ async function checkSelectionBox() {
       await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
       await page.waitForTimeout(250);
       if ((await visible(page)) !== 1) problems.push(`${label}: pointing at a row shows ${await visible(page)} boxes, not one`);
-      const box = rows.nth(1).locator(':scope > .list-item-select-box');
+      const box = rows.nth(1).locator(':scope > .mo-list__item-select-box');
       const bb = await box.boundingBox();
       if (!bb || bb.width < 47.9 || bb.height < 47.9) problems.push(`${label}: the box is smaller than 48 px (${bb?.width}x${bb?.height})`);
       await box.click();
@@ -1229,7 +1229,7 @@ async function checkSelectionBox() {
     if ((await visible(page)) !== n) problems.push(`${label}: after one is selected ${await visible(page)} of ${n} rows show their box`);
     const small = await page.evaluate(
       () =>
-        [...document.querySelectorAll('main .list-item-select-box')].filter((b) => {
+        [...document.querySelectorAll('main .mo-list__item-select-box')].filter((b) => {
           const r = b.getBoundingClientRect();
           return r.width < 47.9 || r.height < 47.9;
         }).length,
@@ -1239,11 +1239,11 @@ async function checkSelectionBox() {
     await page.waitForTimeout(900);
     const look = await rows.nth(1).evaluate((r) => {
       // The surface and the corner are the row's own, or its <li>'s in a segmented list.
-      const own = r.closest('.list-segmented > li') ?? r;
+      const own = r.closest('.mo-list__segmented > li') ?? r;
       const segmented = own !== r;
       const probe = document.createElement('div');
       probe.style.background = segmented
-        ? 'var(--list-segmented-selected-surface, var(--mo-sys-color-secondary-container))'
+        ? 'var(--mo-comp-list-segmented-selected-surface, var(--mo-sys-color-secondary-container))'
         : 'var(--mo-comp-list-list-item-selected-container-color)';
       probe.style.borderRadius = segmented ? 'var(--mo-comp-list-segmented-selected-radius)' : 'var(--mo-comp-list-item-selected-radius)';
       own.appendChild(probe);
@@ -1282,19 +1282,19 @@ async function checkSelectionBox() {
     const sheet = (page.viewportSize()?.width ?? 0) < 600 ? page.locator('main') : page.getByRole('dialog', { name: 'Notifications' });
     await sheet.waitFor();
     await page.waitForTimeout(600);
-    const items = sheet.locator('.list-item-selectable', { hasText: /Box check/ });
+    const items = sheet.locator('.mo-list__item-selectable', { hasText: /Box check/ });
     if ((await items.count()) !== 3) {
       problems.push(`${label}: the notifications sheet does not show the three seeded notifications`);
     } else {
       const first = items.nth(0);
       if (
-        !(await first.locator(':scope > .list-item-leading').count()) ||
-        !(await first.locator(':scope > .list-item-select-box-trailing').count())
+        !(await first.locator(':scope > .mo-list__item-leading').count()) ||
+        !(await first.locator(':scope > .mo-list__item-select-box-trailing').count())
       )
         problems.push(`${label}: a notification has no trailing box after its icon`);
       const b = await first.boundingBox();
       if (touch) {
-        const lb = await first.locator(':scope > .list-item-leading').boundingBox();
+        const lb = await first.locator(':scope > .mo-list__item-leading').boundingBox();
         await page.touchscreen.tap(lb.x + lb.width / 2, lb.y + lb.height / 2);
         await page.waitForTimeout(300);
         if ((await first.getAttribute('aria-checked')) !== 'true')
@@ -1303,7 +1303,7 @@ async function checkSelectionBox() {
         await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
         await page.waitForTimeout(250);
         const shown = await sheet
-          .locator('.list-item-select-box')
+          .locator('.mo-list__item-select-box')
           .evaluateAll(
             (all) => all.filter((e) => getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility !== 'hidden').length,
           );

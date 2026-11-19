@@ -9,7 +9,7 @@
 // (six round a thick one).
 // Screen readers read a progress bar named by `label`, with its value in percent when it is known. With reduced motion
 // the indeterminate ones move slowly, the wave stands still and a value changes at once. The value is the custom
-// property --progress on the element, so a script can change it (with aria-valuenow).
+// property --mo-comp-progress-indicator-progress on the element, so a script can change it (with aria-valuenow).
 import type { CSSProperties } from 'react';
 
 /** A progress indicator's shapes, as M3 Expressive names them. */
@@ -20,7 +20,7 @@ const clamp = (v: number) => Math.min(1, Math.max(0, v));
 // What a progress bar is to screen readers, and its value for the CSS (with the wave's measures for a wavy one).
 function progressbar(value: number | undefined, label: string, wave?: Record<string, string | number>) {
   const known = value !== undefined;
-  const style = { ...(known ? { '--progress': clamp(value) } : {}), ...wave } as CSSProperties;
+  const style = { ...(known ? { '--mo-comp-progress-indicator-progress': clamp(value) } : {}), ...wave } as CSSProperties;
   return {
     role: 'progressbar',
     'aria-label': label,
@@ -94,9 +94,9 @@ export function LinearProgressIndicator({
   const line = lines[indeterminate ? 'indeterminate' : 'determinate'];
   const wave = wavy
     ? {
-        '--linear-progress-indicator-amplitude': `${AMPLITUDE}px`,
-        '--linear-progress-indicator-wavelength': `${WAVELENGTH[indeterminate ? 'indeterminate' : 'determinate']}px`,
-        '--linear-progress-indicator-stretch': line.stretch.toFixed(4),
+        '--mo-comp-linear-progress-indicator-amplitude': `${AMPLITUDE}px`,
+        '--mo-comp-linear-progress-indicator-wavelength': `${WAVELENGTH[indeterminate ? 'indeterminate' : 'determinate']}px`,
+        '--mo-comp-linear-progress-indicator-stretch': line.stretch.toFixed(4),
       }
     : undefined;
   return (
@@ -107,23 +107,23 @@ export function LinearProgressIndicator({
     >
       {wavy ? (
         <>
-          {!indeterminate && <span className="linear-progress-indicator-track"></span>}
-          <svg className="linear-progress-indicator-wave" aria-hidden="true">
-            <path className="linear-progress-indicator-active" d={line.d} />
-            {indeterminate && <path className="linear-progress-indicator-active" d={line.d} />}
+          {!indeterminate && <span className="mo-linear-progress-indicator__track"></span>}
+          <svg className="mo-linear-progress-indicator__wave" aria-hidden="true">
+            <path className="mo-linear-progress-indicator__active" d={line.d} />
+            {indeterminate && <path className="mo-linear-progress-indicator__active" d={line.d} />}
           </svg>
-          {!indeterminate && <span className="linear-progress-indicator-stop"></span>}
+          {!indeterminate && <span className="mo-linear-progress-indicator__stop"></span>}
         </>
       ) : indeterminate ? (
         <>
-          <span className="linear-progress-indicator-active"></span>
-          <span className="linear-progress-indicator-active"></span>
+          <span className="mo-linear-progress-indicator__active"></span>
+          <span className="mo-linear-progress-indicator__active"></span>
         </>
       ) : (
         <>
-          <span className="linear-progress-indicator-active"></span>
-          <span className="linear-progress-indicator-track"></span>
-          <span className="linear-progress-indicator-stop"></span>
+          <span className="mo-linear-progress-indicator__active"></span>
+          <span className="mo-linear-progress-indicator__track"></span>
+          <span className="mo-linear-progress-indicator__stop"></span>
         </>
       )}
     </div>
@@ -150,11 +150,11 @@ export function CircularProgressIndicator({
       {...rest}
     >
       <svg viewBox="0 0 48 48" aria-hidden="true">
-        {!indeterminate && <circle className="circular-progress-indicator-track" {...ring} />}
+        {!indeterminate && <circle className="mo-circular-progress-indicator__track" {...ring} />}
         {wavy ? (
-          <path className="circular-progress-indicator-active" d={thick ? rings.wavyThick : rings.wavy} pathLength={100} fill="none" />
+          <path className="mo-circular-progress-indicator__active" d={thick ? rings.wavyThick : rings.wavy} pathLength={100} fill="none" />
         ) : (
-          <circle className="circular-progress-indicator-active" {...ring} />
+          <circle className="mo-circular-progress-indicator__active" {...ring} />
         )}
       </svg>
     </span>

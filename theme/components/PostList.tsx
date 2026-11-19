@@ -11,7 +11,7 @@ import List, { ListItem } from '@theme/ui/List';
 // Shows the number in data-random-posts of the posts in the list just before it, picked at random.
 const PICK = `(() => {
   const list = document.currentScript.previousElementSibling;
-  const items = [...list.children];
+  const items = [...mo-list.children];
   const shown = new Set();
   while (shown.size < Number(list.dataset.randomPosts)) shown.add(Math.floor(Math.random() * items.length));
   items.forEach((li, i) => (li.hidden = !shown.has(i)));
@@ -50,11 +50,11 @@ export default function PostList({
                 <Img
                   image={post.image}
                   alt=""
-                  className="list-item-image mo-post-list__image"
+                  className="mo-list__item-image mo-post-list__image"
                   sizes={`(min-width: ${BREAKPOINTS.medium}px) 128px, 88px`}
                 />
               ) : (
-                <span className="list-item-image mo-post-list__image mo-is-empty" />
+                <span className="mo-list__item-image mo-post-list__image mo-is-empty" />
               )
             }
             subhead={<PostMeta post={post} as="span" />}

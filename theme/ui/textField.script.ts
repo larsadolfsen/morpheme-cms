@@ -5,7 +5,7 @@
 import { pressTextField, syncInvalid, updateTextField } from './textFieldUpdate';
 
 export default function textField() {
-  document.querySelectorAll<HTMLElement>('[data-text-field], .text-field:has([data-error])').forEach((root) => {
+  document.querySelectorAll<HTMLElement>('[data-text-field], .mo-text-field:has([data-error])').forEach((root) => {
     root.addEventListener('input', () => updateTextField(root));
     root.addEventListener('click', (e) => {
       const button = (e.target as HTMLElement).closest<HTMLElement>('[data-text-field-clear], [data-text-field-visibility]');

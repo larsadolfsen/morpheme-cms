@@ -43,31 +43,31 @@ export default function ExposedDropdownMenu({
   const line = error || supporting;
   return (
     <div className={[exposedDropdownMenuClass(kind, !!error), className].filter(Boolean).join(' ')}>
-      <div className="text-field-container">
+      <div className="mo-text-field__container">
         <select
           id={field}
-          className="text-field-input exposed-dropdown-menu-select"
+          className="mo-text-field__input mo-exposed-dropdown-menu__select"
           defaultValue={value ?? ''}
           aria-invalid={error ? true : undefined}
           aria-describedby={line ? `${field}-supporting` : undefined}
           {...rest}
         >
           {/* Nothing chosen yet: an empty choice that is not in the menu. */}
-          {value === undefined && <option value="" hidden className="exposed-dropdown-menu-empty" />}
+          {value === undefined && <option value="" hidden className="mo-exposed-dropdown-menu__empty" />}
           {options.map((o) => (
-            <option key={o.value} value={o.value} disabled={o.disabled} className="exposed-dropdown-menu-option">
+            <option key={o.value} value={o.value} disabled={o.disabled} className="mo-exposed-dropdown-menu__option">
               {o.label}
             </option>
           ))}
         </select>
-        <label htmlFor={field} className="text-field-label">
+        <label htmlFor={field} className="mo-text-field__label">
           {label}
         </label>
-        <Svg name="caret-down" size={20} className="exposed-dropdown-menu-icon" />
+        <Svg name="caret-down" size={20} className="mo-exposed-dropdown-menu__icon" />
       </div>
       {line && (
-        <div className="text-field-supporting-row">
-          <p id={`${field}-supporting`} className="text-field-supporting">
+        <div className="mo-text-field__supporting-row">
+          <p id={`${field}-supporting`} className="mo-text-field__supporting">
             {line}
           </p>
         </div>

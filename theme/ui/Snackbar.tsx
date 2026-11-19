@@ -40,12 +40,12 @@ export default function Snackbar({
   const { label, ...actionRest } = action ?? { label: '' };
   return (
     <div role={error ? 'alert' : 'status'} className={[snackbarClass(longerAction), className].filter(Boolean).join(' ')} {...rest}>
-      <p className="snackbar-supporting-text">
+      <p className="mo-snackbar__supporting-text">
         {text}
         {links.map((link) => (
           <Fragment key={link.href + link.text}>
             {' '}
-            <Link href={link.href} className="snackbar-link">
+            <Link href={link.href} className="mo-snackbar__link">
               {link.text}
               <Svg name="arrow-right" size={14} />
             </Link>
@@ -53,7 +53,7 @@ export default function Snackbar({
         ))}
       </p>
       {(action || closeLabel) && (
-        <div className="snackbar-actions">
+        <div className="mo-snackbar__actions">
           {action && (
             <Button kind="text" size="small" className="snackbar-action" {...actionRest}>
               {label}

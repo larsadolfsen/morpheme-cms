@@ -18,11 +18,11 @@ export default function SettingRow({
   children?: ReactNode;
 }) {
   return (
-    <Tag className={['setting-row', className].filter(Boolean).join(' ')}>
+    <Tag className={['mo-setting-row', className].filter(Boolean).join(' ')}>
       {label != null && (
-        <span className="setting-row-text">
-          <span className="setting-row-label">{label}</span>
-          {supporting && <span className="setting-row-supporting">{supporting}</span>}
+        <span className="mo-setting-row__text">
+          <span className="mo-setting-row__label">{label}</span>
+          {supporting && <span className="mo-setting-row__supporting">{supporting}</span>}
         </span>
       )}
       {children}

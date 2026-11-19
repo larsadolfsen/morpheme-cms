@@ -23,7 +23,7 @@ export default function LoadingIndicator({
       className={[loadingIndicatorClass(contained), className].filter(Boolean).join(' ')}
       {...rest}
     >
-      <span className="loading-indicator-shape"></span>
+      <span className="mo-loading-indicator__shape"></span>
     </span>
   );
 }

@@ -127,14 +127,14 @@ export type ListItemControl = {
 
 /** What leads an item: anything (an image, a block's own). */
 export function ListItemLeading({ children }: { children: ReactNode }) {
-  return <span className="list-item-leading">{children}</span>;
+  return <span className="mo-list__item-leading">{children}</span>;
 }
 
 /** What leads an item, an icon (`icon`, or something drawn as one: `children`), in the muted colour; in the selected
  * colour in a selected item, or with `selected` (the open one, where the item itself is not drawn selected). */
 export function ListItemLeadingIcon({ icon, selected, children }: { icon?: IconRef; selected?: boolean; children?: ReactNode }) {
   return (
-    <span className={['list-item-leading list-item-leading-icon', selected && 'list-item-leading-icon-selected'].filter(Boolean).join(' ')}>
+    <span className={['mo-list__item-leading mo-list__item-leading-icon', selected && 'mo-list__item-leading-icon-selected'].filter(Boolean).join(' ')}>
       {icon ? <Glyph icon={icon} size={24} /> : children}
     </span>
   );
@@ -142,12 +142,12 @@ export function ListItemLeadingIcon({ icon, selected, children }: { icon?: IconR
 
 /** What trails an item as text: a number, a date. */
 export function ListItemTrailingSupporting({ children }: { children: ReactNode }) {
-  return <span className="list-item-trailing-supporting">{children}</span>;
+  return <span className="mo-list__item-trailing-supporting">{children}</span>;
 }
 
 /** What trails an item as an icon (an arrow), or anything (`children`). */
 export function ListItemTrailingIcon({ icon, children }: { icon?: IconRef; children?: ReactNode }) {
-  return <span className="list-item-trailing">{icon ? <Glyph icon={icon} size={24} /> : children}</span>;
+  return <span className="mo-list__item-trailing">{icon ? <Glyph icon={icon} size={24} /> : children}</span>;
 }
 
 /** The checkbox of a selectable item (Material's selection control in a list item's slot): drawn as the theme's Checkbox, but
@@ -156,7 +156,7 @@ export function ListItemTrailingIcon({ icon, children }: { icon?: IconRef; child
 export function ListItemSelectBox({ selected, at, onChange }: { selected: boolean; at: 'leading' | 'trailing'; onChange: () => void }) {
   return (
     <span
-      className={`checkbox list-item-select-box list-item-select-box-${at}`}
+      className={`mo-checkbox mo-list__item-select-box list-item-select-box-${at}`}
       aria-hidden="true"
       onClick={(e) => {
         e.preventDefault();
@@ -164,9 +164,9 @@ export function ListItemSelectBox({ selected, at, onChange }: { selected: boolea
         onChange();
       }}
     >
-      <span className="checkbox-box">
-        <span className="checkbox-input" data-checked={selected ? '' : undefined} />
-        <Svg name="check" size={14} className="checkbox-icon" />
+      <span className="mo-checkbox__box">
+        <span className="mo-checkbox__input" data-checked={selected ? '' : undefined} />
+        <Svg name="check" size={14} className="mo-checkbox__icon" />
       </span>
     </span>
   );
@@ -219,7 +219,7 @@ export function ListItem({
   leadingAvatar?: string | ListItemImage;
   leadingImage?: ListItemImage;
   leadingVideo?: ListItemImage;
-  /** An image (or its placeholder) the caller draws, with `.list-item-image` on it (srcset, sizes: a site's own image part). */
+  /** An image (or its placeholder) the caller draws, with `.mo-list__item-image` on it (srcset, sizes: a site's own image part). */
   leadingMedia?: ReactNode;
   /** Attributes of the item's <li> (hidden, data-…): the rest go on the item. */
   li?: HTMLAttributes<HTMLLIElement>;
@@ -273,7 +273,7 @@ export function ListItem({
 
   // The choice: the theme's part, named by the headline and described by the supporting text, without a name of its own.
   const choice = control && (
-    <span className="list-item-control">
+    <span className="mo-list__item-control">
       {(() => {
         const { type, at: _, icons, ...input } = control;
         const own = {
@@ -304,19 +304,19 @@ export function ListItem({
     ) : leadingIcon ? (
       <ListItemLeadingIcon icon={leadingIcon} selected={leadingIconSelected} />
     ) : typeof leadingAvatar === 'string' ? (
-      <span className="list-item-leading list-item-leading-avatar" aria-hidden="true">
+      <span className="mo-list__item-leading mo-list__item-leading-avatar" aria-hidden="true">
         <Avatar>{leadingAvatar}</Avatar>
       </span>
     ) : leadingAvatar ? (
-      <span className="list-item-leading list-item-leading-avatar">
+      <span className="mo-list__item-leading mo-list__item-leading-avatar">
         <Avatar image={leadingAvatar} />
       </span>
     ) : leadingImage ? (
-      <span className="list-item-leading list-item-leading-image">{image(leadingImage, 'image')}</span>
+      <span className="mo-list__item-leading mo-list__item-leading-image">{image(leadingImage, 'image')}</span>
     ) : leadingVideo ? (
-      <span className="list-item-leading list-item-leading-video">{image(leadingVideo, 'video')}</span>
+      <span className="mo-list__item-leading mo-list__item-leading-video">{image(leadingVideo, 'video')}</span>
     ) : leadingMedia != null ? (
-      <span className="list-item-leading list-item-leading-image">{leadingMedia}</span>
+      <span className="mo-list__item-leading mo-list__item-leading-image">{leadingMedia}</span>
     ) : null;
 
   // What leads the item that is not a choice: the item has a leading visual (the box goes after the text) or has none (the box leads).
@@ -329,13 +329,13 @@ export function ListItem({
   const cut = truncate ? ' truncate' : '';
   const text = (
     <>
-      {shown(subhead) && <span className="list-item-overline">{subhead}</span>}
+      {shown(subhead) && <span className="mo-list__item-overline">{subhead}</span>}
       {/* Ids only for a choice, which they name and describe. */}
-      <span id={control && `${id}-headline`} className={`list-item-headline${cut}`}>
+      <span id={control && `${id}-headline`} className={`mo-list__item-headline${cut}`}>
         {headline}
       </span>
       {shown(supporting) && (
-        <span id={control && `${id}-supporting`} className={`list-item-supporting${cut}`}>
+        <span id={control && `${id}-supporting`} className={`mo-list__item-supporting${cut}`}>
           {supporting}
         </span>
       )}
@@ -355,11 +355,11 @@ export function ListItem({
       {box && !hasLead ? box : lead}
       {control ? (
         // A second name for the choice's <input>, so a tap on the text (and, stretched, on the whole item) changes it.
-        <label htmlFor={`${id}-control`} className="list-item-content">
+        <label htmlFor={`${id}-control`} className="mo-list__item-content">
           {text}
         </label>
       ) : (
-        <span className="list-item-content">{text}</span>
+        <span className="mo-list__item-content">{text}</span>
       )}
       {tail}
     </>
@@ -387,7 +387,7 @@ export function ListItem({
           ...press,
           onClickCapture: (e: MouseEvent) => {
             const type = (e.nativeEvent as PointerEvent).pointerType;
-            if (!selecting && (type === 'touch' || type === 'pen') && (e.target as Element).closest('.list-item-leading')) {
+            if (!selecting && (type === 'touch' || type === 'pen') && (e.target as Element).closest('.mo-list__item-leading')) {
               e.preventDefault();
               e.stopPropagation();
               onSelectedChange(!selected);
@@ -404,16 +404,16 @@ export function ListItem({
         <details
           name={expandName}
           open={expandOpen}
-          className={['list-item-expand', detailsClass].filter(Boolean).join(' ')}
+          className={['mo-list__item-expand', detailsClass].filter(Boolean).join(' ')}
           {...detailsRest}
         >
-          <summary className={`${classes} list-item-expand-summary`} onClick={onClick} {...rest}>
+          <summary className={`${classes} mo-list__item-expand-summary`} onClick={onClick} {...rest}>
             {content}
-            <span className="list-item-expand-icon" aria-hidden="true">
+            <span className="mo-list__item-expand-icon" aria-hidden="true">
               <Glyph icon="caret-down" size={24} />
             </span>
           </summary>
-          <div className="list-item-expand-body">{children}</div>
+          <div className="mo-list__item-expand-body">{children}</div>
         </details>
       </li>
     );

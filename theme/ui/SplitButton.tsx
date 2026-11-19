@@ -45,21 +45,21 @@ export default function SplitButton({
   const menu = useId();
   return (
     <div className={[splitButtonClass, className].filter(Boolean).join(' ')} data-split-button="">
-      <Button kind={kind} size={size} icon={icon} href={href} disabled={disabled} className="split-button-leading" {...rest}>
+      <Button kind={kind} size={size} icon={icon} href={href} disabled={disabled} className="mo-split-button__leading" {...rest}>
         {label}
       </Button>
       <button
         type="button"
-        className={`${buttonClass(kind, size)} split-button-trailing`}
+        className={`${buttonClass(kind, size)} mo-split-button__trailing`}
         aria-label={menuLabel}
         aria-expanded={Boolean(open)}
         aria-controls={menu}
         disabled={disabled}
         data-split-button-toggle=""
       >
-        <Svg name="caret-down" size={20} className="split-button-arrow" />
+        <Svg name="caret-down" size={20} className="mo-split-button__arrow" />
       </button>
-      <Menu id={menu} className="split-button-menu" aria-label={menuLabel} hidden={!open} data-split-button-menu="">
+      <Menu id={menu} className="mo-split-button__menu" aria-label={menuLabel} hidden={!open} data-split-button-menu="">
         {children}
       </Menu>
     </div>

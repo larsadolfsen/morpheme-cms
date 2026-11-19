@@ -80,16 +80,16 @@
     transform: rotate(180deg);
   }
   .mo-header__nav-item[aria-current='page'],
-  li:has(.menu-item[aria-current='page']) > .mo-header__nav-item {
+  li:has(.mo-menu__item[aria-current='page']) > .mo-header__nav-item {
     background: var(--mo-sys-color-surface-container-high);
     color: var(--mo-sys-color-on-surface);
   }
   /* A menu (its variables above): a state layer with focus from the keyboard (the ripple when pressed), and the open page
    in the secondary container also when pointed at. */
-  .menu-item:focus-visible {
+  .mo-menu__item:focus-visible {
     background: var(--mo-sys-state-mo-pressed-layer);
   }
-  .menu-item[aria-current='page']:hover {
+  .mo-menu__item[aria-current='page']:hover {
     background: var(--mo-sys-color-surface-container-high);
   }
 
@@ -109,7 +109,7 @@
   }
 }
 @layer fallback {
-  .navigation-drawer > .extended-fab {
+  .mo-navigation-drawer > .mo-extended-fab {
     margin: 0.25rem 0 0.75rem 0.5rem;
     align-self: flex-start;
   }
@@ -121,7 +121,7 @@
       display: none;
     }
   }
-  .mo-action-bar__row > .button-filled {
+  .mo-action-bar__row > :where(.mo-button).mo-is-filled {
     order: 2;
   }
 
@@ -148,7 +148,7 @@
     margin-top: auto;
     padding: 1.5rem 0.25rem 0;
   }
-  .mo-navigation-drawer__actions .button {
+  .mo-navigation-drawer__actions .mo-button {
     flex: 1 1 auto;
     white-space: nowrap;
   }
@@ -160,55 +160,55 @@
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   /* An item with sub-pages: its link and the caret in one row, the active indicator around both. */
-  .navigation-drawer-row {
+  .mo-navigation-drawer__row {
     border-radius: var(--mo-sys-shape-corner-full);
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .navigation-drawer-row > .navigation-drawer-item,
-  .navigation-drawer-row > .navigation-drawer-item:hover,
-  .navigation-drawer-row > .navigation-drawer-item:focus-visible,
-  .navigation-drawer-row > .navigation-drawer-item:active {
+  .mo-navigation-drawer__row > .mo-navigation-drawer__item,
+  .mo-navigation-drawer__row > .mo-navigation-drawer__item:hover,
+  .mo-navigation-drawer__row > .mo-navigation-drawer__item:focus-visible,
+  .mo-navigation-drawer__row > .mo-navigation-drawer__item:active {
     background: none;
   }
-  .navigation-drawer-row:has(> .navigation-drawer-item:hover) {
+  .mo-navigation-drawer__row:has(> .mo-navigation-drawer__item:hover) {
     background: var(--mo-sys-state-mo-hover-layer);
   }
-  .navigation-drawer-row:has(> .navigation-drawer-item:focus-visible) {
+  .mo-navigation-drawer__row:has(> .mo-navigation-drawer__item:focus-visible) {
     background: var(--mo-sys-state-mo-pressed-layer);
   }
-  .navigation-drawer-row[data-active] {
+  .mo-navigation-drawer__row[data-active] {
     background: var(--mo-sys-color-secondary-container);
   }
-  .navigation-drawer-row[data-active] > .navigation-drawer-item {
+  .mo-navigation-drawer__row[data-active] > .mo-navigation-drawer__item {
     color: var(--mo-sys-color-on-secondary-container);
   }
-  .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:hover) {
+  .mo-navigation-drawer__row[data-active]:has(> .mo-navigation-drawer__item:hover) {
     background: color-mix(
       in srgb,
       var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
       var(--mo-sys-color-secondary-container)
     );
   }
-  .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:focus-visible) {
+  .mo-navigation-drawer__row[data-active]:has(> .mo-navigation-drawer__item:focus-visible) {
     background: color-mix(
       in srgb,
       var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%),
       var(--mo-sys-color-secondary-container)
     );
   }
-  .navigation-drawer-toggle {
+  .mo-navigation-drawer__toggle {
     margin-right: 0.25rem;
     color: var(--mo-sys-color-on-surface-variant);
   }
-  .navigation-drawer-toggle:focus-visible {
+  .mo-navigation-drawer__toggle:focus-visible {
     background: var(--mo-sys-state-mo-pressed-layer);
   }
   /* Directly in the drawer ("Call"), not in a row with a caret: as high as its content. */
-  .navigation-drawer > .navigation-drawer-item {
+  .mo-navigation-drawer > .mo-navigation-drawer__item {
     flex: none;
   }
   /* A sub-page: an item further in, its label in regular weight. */
-  .navigation-drawer-subitem {
+  .mo-navigation-drawer__subitem {
     min-height: 3.5rem;
     gap: 0.75rem;
     margin-left: 0;
@@ -218,14 +218,14 @@
     color: var(--mo-sys-color-on-surface-variant);
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .navigation-drawer-subitem:hover {
+  .mo-navigation-drawer__subitem:hover {
     background: var(--mo-sys-state-mo-hover-layer);
     color: var(--mo-sys-color-on-surface-variant);
   }
-  .navigation-drawer-subitem:focus-visible {
+  .mo-navigation-drawer__subitem:focus-visible {
     background: var(--mo-sys-state-mo-pressed-layer);
   }
-  .navigation-drawer-subitem[data-active] {
+  .mo-navigation-drawer__subitem[data-active] {
     background: var(--mo-sys-color-secondary-container);
     color: var(--mo-sys-color-on-secondary-container);
     font-weight: 400;

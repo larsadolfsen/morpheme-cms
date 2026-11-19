@@ -50,12 +50,12 @@ export function NavigationBarItem({
 }: { href: string; icon: string; label: ReactNode; selected?: boolean; badge?: true | number } & Record<string, unknown>) {
   return (
     <Link href={href} className={navigationBarItemClass} aria-current={selected ? 'page' : undefined} {...rest}>
-      <span className="navigation-bar-indicator">
-        <span className="navigation-bar-icon">
+      <span className="mo-navigation-bar__indicator">
+        <span className="mo-navigation-bar__icon">
           <Svg name={icon} size={24} />
-          {badge !== undefined && <Badge count={badge === true ? undefined : badge} className="navigation-bar-badge" />}
+          {badge !== undefined && <Badge count={badge === true ? undefined : badge} className="mo-navigation-bar__badge" />}
         </span>
-        <span className="navigation-bar-label">{label}</span>
+        <span className="mo-navigation-bar__label">{label}</span>
       </span>
     </Link>
   );

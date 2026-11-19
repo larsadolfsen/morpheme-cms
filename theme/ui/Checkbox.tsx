@@ -37,22 +37,22 @@ export default function Checkbox({
   const line = typeof error === 'string' && error ? error : supporting;
   return (
     <label className={[checkboxClass(Boolean(error)), className].filter(Boolean).join(' ')}>
-      <span className="checkbox-box">
+      <span className="mo-checkbox__box">
         <input
           ref={input}
           type="checkbox"
-          className="checkbox-input"
+          className="mo-checkbox__input"
           {...(rest.onChange ? { checked: Boolean(checked) } : { defaultChecked: checked })}
           aria-invalid={error ? true : undefined}
           data-indeterminate={indeterminate ? '' : undefined}
           {...rest}
         />
-        <Svg name="check" size={14} className="checkbox-icon" />
-        {indeterminate && <Svg name="minus" size={14} className="checkbox-indeterminate-icon" />}
+        <Svg name="check" size={14} className="mo-checkbox__icon" />
+        {indeterminate && <Svg name="minus" size={14} className="mo-checkbox__indeterminate-icon" />}
       </span>
-      <span className="checkbox-text">
-        <span className="checkbox-label">{label}</span>
-        {line && <span className="checkbox-supporting">{line}</span>}
+      <span className="mo-checkbox__text">
+        <span className="mo-checkbox__label">{label}</span>
+        {line && <span className="mo-checkbox__supporting">{line}</span>}
       </span>
     </label>
   );

@@ -110,7 +110,7 @@ async function checkBlockRow(width, options = {}) {
     const r = card.getBoundingClientRect();
     const rowEl = card.querySelector(':scope > .site-block-row');
     const probe = document.createElement('div');
-    probe.className = 'card card-outlined';
+    probe.className = 'mo-card mo-is-outlined';
     card.parentElement.append(probe);
     const want = getComputedStyle(probe);
     const have = getComputedStyle(card);
@@ -169,7 +169,7 @@ async function checkBlockRow(width, options = {}) {
     const probe = document.createElement('button');
     probe.type = 'button';
     probe.dataset.probe = 'icon';
-    probe.className = 'icon-button icon-button-standard';
+    probe.className = 'mo-icon-button mo-icon-button__standard';
     probe.innerHTML = document.querySelector('.site-block-row:not(.site-block-row-hover) [data-row="up"]')?.innerHTML ?? '';
     document.querySelector('.site-block-row:not(.site-block-row-hover) .site-block-row-inner').prepend(probe);
   });
@@ -191,7 +191,7 @@ async function checkBlockRow(width, options = {}) {
     await page.evaluate(() => {
       const probe = document.createElement('button');
       probe.dataset.probe = 'text';
-      probe.className = 'button button-text';
+      probe.className = 'mo-button mo-button__text';
       probe.textContent = 'x';
       document.querySelector('.site-block-card.site-block-inline').append(probe);
     });
@@ -1179,7 +1179,7 @@ async function checkChangeTo(width, height) {
     problems.push(`${label}: Change type is not the block's first row, before Select (${first.join(', ')})`);
   const opener = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
   if ((await opener.getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: Change type does not say it opens a menu`);
-  const rowIcon = await opener.locator('.menu-item-leading svg').first().innerHTML();
+  const rowIcon = await opener.locator('.mo-menu__item-leading svg').first().innerHTML();
   await opener.click();
   await page.waitForTimeout(200);
   const level = await menuRows();
@@ -1187,7 +1187,7 @@ async function checkChangeTo(width, height) {
   if (level.join() !== want) problems.push(`${label}: Change type's level is ${level.join(', ')}, not ${want}`);
   // The header of the level has the swap icon of the row (not a back arrow) and says where it goes.
   const header = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
-  if ((await header.locator('.menu-item-leading svg').first().innerHTML()) !== rowIcon)
+  if ((await header.locator('.mo-menu__item-leading svg').first().innerHTML()) !== rowIcon)
     problems.push(`${label}: the header of the Change type level does not draw the icon of its row`);
   if ((await header.getAttribute('aria-label')) !== 'Change type, back to menu')
     problems.push(`${label}: the header's name is "${await header.getAttribute('aria-label')}", not "Change type, back to menu"`);
@@ -1223,7 +1223,7 @@ async function checkChangeTo(width, height) {
     ['Parking', ''],
   ]);
   if (steps !== was) problems.push(`${label}: the Steps have ${steps}, not ${was}`);
-  const said = await page.locator('.snackbar-stack .snackbar', { hasText: 'Changed to Steps' }).count();
+  const said = await page.locator('.mo-snackbar__stack .mo-snackbar', { hasText: 'Changed to Steps' }).count();
   if (!said) problems.push(`${label}: no snackbar "Changed to Steps"`);
   // Ctrl+Z gives the List back, with its icon.
   await page.keyboard.press('Control+z');
@@ -1238,7 +1238,7 @@ async function checkChangeTo(width, height) {
   if (!(await hasIcon())) problems.push(`${label}: List → Steps → List lost the first row's icon`);
   if (JSON.stringify(await rows('title')) !== was)
     problems.push(`${label}: List → Steps → List has ${JSON.stringify(await rows('title'))}`);
-  await page.locator('.snackbar-stack .snackbar', { hasText: 'Changed to List' }).locator('.snackbar-action').first().click();
+  await page.locator('.mo-snackbar__stack .mo-snackbar', { hasText: 'Changed to List' }).locator('.snackbar-action').first().click();
   await page.waitForTimeout(500);
   if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: the snackbar's Undo did not give Steps back`);
   // Steps → Table → List: the rows are the steps' titles and texts, with no header row; back in the List the first row has its icon again.
@@ -1280,10 +1280,10 @@ const rowPadding = () => {
     if (!row || out[head] || row.querySelector(':scope > .list-item-leading:not(:empty), :scope > .list-item-leading-icon')) continue;
     const box = row.getBoundingClientRect();
     const icons = [...row.querySelectorAll('svg')].filter((v) => v.getBoundingClientRect().width);
-    const title = row.querySelector('.list-item-content').getBoundingClientRect();
+    const title = row.querySelector('.mo-list__item-content').getBoundingClientRect();
     if (icons.length)
       out[head] = {
-        expand: row.matches('.list-item-expand-summary'),
+        expand: row.matches('.mo-list__item-expand-summary'),
         left: title.left - box.left,
         right: box.right - Math.max(...icons.map((v) => v.getBoundingClientRect().right)),
       };

@@ -240,12 +240,12 @@ async function checkRedirectsSelection() {
     await openEditor(page, site);
     await page.evaluate(() => (location.hash = '#seo/redirects/all'));
     await page.waitForTimeout(1500);
-    const rows = page.locator('main .list-item-selectable');
+    const rows = page.locator('main .mo-list__item-selectable');
     if ((await rows.count()) < 2) {
       await page.close();
       continue;
     }
-    const checked = () => page.locator('main [role=checkbox][aria-checked=true], main [aria-pressed=true].list-item-selectable').count();
+    const checked = () => page.locator('main [role=checkbox][aria-checked=true], main [aria-pressed=true].mo-list__item-selectable').count();
     await rows.nth(0).focus();
     await page.keyboard.press('Space');
     await page.waitForTimeout(300);
@@ -320,7 +320,7 @@ async function checkLibraryAlt() {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
   const card = await page
-    .locator('.block-card-picture img[src$="andromeda.webp"], .block-card .card-media img[src$="andromeda.webp"]')
+    .locator('.block-card-picture img[src$="andromeda.webp"], .block-card .mo-card__media img[src$="andromeda.webp"]')
     .first()
     .getAttribute('alt');
   if (card !== 'The Andromeda galaxy among thousands of stars')

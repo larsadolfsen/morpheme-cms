@@ -31,7 +31,7 @@ test('the item is a details with its summary as the item (keyboard and screen re
 });
 
 test("the state layers and the focus ring are the List's own tokens, the corner is M3's 16dp", () => {
-  const summary = ui.slice(ui.indexOf('.list-item-expand-summary {'));
+  const summary = ui.slice(ui.indexOf('.mo-list__item-expand-summary {'));
   assert.match(summary, /--mo-comp-list-item-hover-surface/);
   assert.match(summary, /--mo-comp-list-item-focus-indicator-color/);
   assert.match(summary, /outline: 3px solid/);

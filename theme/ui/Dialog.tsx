@@ -43,11 +43,11 @@ export default function Dialog({
   const parts = Boolean(icon || headline || supportingText || actions);
   const classes = [dialogClassOf(parts), icon && 'dialog-with-icon', className].filter(Boolean).join(' ');
   const title = headline && (
-    <h2 id={headlineId} className="dialog-headline">
+    <h2 id={headlineId} className="mo-dialog__headline">
       {headline}
     </h2>
   );
-  const supporting = supportingText && <div className="dialog-supporting-text">{supportingText}</div>;
+  const supporting = supportingText && <div className="mo-dialog__supporting-text">{supportingText}</div>;
 
   // The container alone, as before the parts were there (a pop-up's box, the pickers).
   if (!parts)
@@ -59,12 +59,12 @@ export default function Dialog({
 
   return (
     <div className={classes} {...rest}>
-      {icon && <Svg name={icon} size={24} className="dialog-icon" />}
+      {icon && <Svg name={icon} size={24} className="mo-dialog__icon" />}
       {title}
       {supporting}
-      {children && <div className="dialog-content">{children}</div>}
-      {divider && <Divider className="dialog-divider" />}
-      {actions && <div className="dialog-actions">{actions}</div>}
+      {children && <div className="mo-dialog__content">{children}</div>}
+      {divider && <Divider className="mo-dialog__divider" />}
+      {actions && <div className="mo-dialog__actions">{actions}</div>}
     </div>
   );
 }

@@ -39,7 +39,7 @@ export function snackbar(next: SnackbarMessage | null) {
   // A popover, so it is in front of an open sheet or dialog too (they are in the top layer).
   stack.popover = 'manual';
   if (!stack.isConnected) document.body.append(stack);
-  for (const el of stack.querySelectorAll<HTMLElement>('.snackbar')) {
+  for (const el of stack.querySelectorAll<HTMLElement>('.mo-snackbar')) {
     if (working(el.dataset.text!) || el.dataset.text === next?.text) el.remove();
   }
   if (next) show(stack, next);
@@ -55,13 +55,13 @@ function show(stack: HTMLDivElement, { text, error, links = [], ms, element }: S
   const el = element ?? document.createElement('p');
   el.dataset.text = text;
   if (!element) {
-    el.className = 'snackbar';
+    el.className = 'mo-snackbar';
     el.setAttribute('role', error ? 'alert' : 'status');
     el.append(text);
   }
   for (const link of element ? [] : links) {
     const a = document.createElement('a');
-    a.className = 'snackbar-link';
+    a.className = 'mo-snackbar__link';
     a.href = link.href;
     a.innerHTML = arrow.replace('<svg', '<svg width="14" height="14" fill="currentColor" aria-hidden="true"');
     a.prepend(link.text);

@@ -16,7 +16,7 @@
   .block-testimonial-rows > li:has(> [data-tags][hidden]) {
     display: none;
   }
-  /* One testimonial (testimonials/Testimonial.tsx), an outlined card (.card in ui.css): a big quotation mark, its tags,
+  /* One testimonial (testimonials/Testimonial.tsx), an outlined card (.mo-card in ui.css): a big quotation mark, its tags,
      the text (cut after seven lines with "Read more", or two with a link to the whole text) and the name. */
   .block-testimonial {
     display: flex;
@@ -46,7 +46,7 @@
     justify-content: flex-end;
     gap: 0.5rem;
   }
-  .block-testimonial-tags .chip {
+  .block-testimonial-tags .mo-chip {
     font-size: var(--mo-sys-typescale-label-large-size);
     line-height: var(--mo-sys-typescale-label-large-line-height);
     font-weight: var(--mo-sys-typescale-label-large-weight);

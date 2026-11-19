@@ -90,7 +90,7 @@ for (const width of [375, 768, 1280, 1580]) {
               `${name2} starts at ${left(block)}px, the text above it at ${left(before)}px${bleeds ? ' (the layer is 16px wider on a compact screen)' : ''}`,
             );
           if (bleeds && block.matches('.block-list')) {
-            const lead = block.querySelector('.list-item-leading-icon, .list-item-leading') ?? block.querySelector('.list-item-content');
+            const lead = block.querySelector('.mo-list__item-leading-icon, .mo-list__item-leading') ?? block.querySelector('.mo-list__item-content');
             if (lead && left(lead) !== left(before))
               out.push(`${name2}'s row content starts at ${left(lead)}px, the text above it at ${left(before)}px`);
           }

@@ -29,7 +29,7 @@ export const cardClass = (kind: CardKind = 'outlined', { dragged = false, media 
  * edge. `ratio` (width / height) reserves its box before the image loads. */
 export function CardMedia({ ratio, className, children }: { ratio?: number; className?: string; children: ReactNode }) {
   return (
-    <span className={['card-media', className].filter(Boolean).join(' ')} style={ratio ? { aspectRatio: String(ratio) } : undefined}>
+    <span className={['mo-card__media', className].filter(Boolean).join(' ')} style={ratio ? { aspectRatio: String(ratio) } : undefined}>
       {children}
     </span>
   );
@@ -90,15 +90,15 @@ export default function Card({
   // The text, what the block put there and the action area, in Material 3's order, one after the other.
   const content = parts ? (
     <>
-      {slotMedia && <div className="card-media-slot">{media}</div>}
+      {slotMedia && <div className="mo-card__media-slot">{media}</div>}
       {body && (
-        <div className="card-body">
-          {icon && <div className="card-icon">{icon}</div>}
-          {headline && <Headline className="card-headline">{headline}</Headline>}
-          {subhead && <div className="card-subhead">{subhead}</div>}
-          {supporting && <div className="card-supporting">{supporting}</div>}
-          {children && <div className="card-content">{children}</div>}
-          {actions && <div className="card-actions">{actions}</div>}
+        <div className="mo-card__body">
+          {icon && <div className="mo-card__icon">{icon}</div>}
+          {headline && <Headline className="mo-card__headline">{headline}</Headline>}
+          {subhead && <div className="mo-card__subhead">{subhead}</div>}
+          {supporting && <div className="mo-card__supporting">{supporting}</div>}
+          {children && <div className="mo-card__content">{children}</div>}
+          {actions && <div className="mo-card__actions">{actions}</div>}
         </div>
       )}
     </>
@@ -108,7 +108,7 @@ export default function Card({
   return href === undefined ? (
     <Box className={classes} {...(Box === 'button' ? { type: 'button' as const } : {})} {...rest}>
       {content}
-      {selected && <Svg name="check" size={18} className="card-check" />}
+      {selected && <Svg name="check" size={18} className="mo-card__check" />}
     </Box>
   ) : (
     <Link href={href} className={classes} {...rest}>

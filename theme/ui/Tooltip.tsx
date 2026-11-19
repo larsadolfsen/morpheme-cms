@@ -34,15 +34,15 @@ export default function Tooltip({
   const rich = text === undefined;
   const { label, ...actionRest } = action ?? { label: '' };
   return (
-    <span className={['tooltip-anchor', className].filter(Boolean).join(' ')} data-tooltip="" data-tooltip-open={open || undefined}>
+    <span className={['mo-tooltip__anchor', className].filter(Boolean).join(' ')} data-tooltip="" data-tooltip-open={open || undefined}>
       {isValidElement(children) ? cloneElement(children, { 'aria-describedby': id }) : children}
       <span id={id} role={action ? undefined : 'tooltip'} className={tooltipClass(rich)}>
         {rich ? (
           <>
-            {subhead && <span className="tooltip-subhead">{subhead}</span>}
+            {subhead && <span className="mo-tooltip__subhead">{subhead}</span>}
             {supportingText && <span className="tooltip-supporting-text">{supportingText}</span>}
             {action && (
-              <span className="tooltip-actions">
+              <span className="mo-tooltip__actions">
                 <Button kind="text" size="small" className="tooltip-action" {...actionRest}>
                   {label}
                 </Button>

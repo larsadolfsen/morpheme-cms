@@ -21,31 +21,31 @@
     return style ? `${name} · ${style}` : name;
   };
   const PARTS = [
-    ['.button-group', named('ButtonGroup', 'button-group')],
-    ['.split-button', () => 'SplitButton'],
-    ['.button', named('Button', 'button')],
-    ['.icon-button', named('IconButton', 'icon-button')],
-    ['.fab', () => 'Fab'],
-    ['.card', named('Card', 'card')],
-    ['.chip-set', () => 'ChipSet'],
-    ['.chip', named('Chip', 'chip')],
-    ['.list-item-container', (el) => `ListItem · ${[...el.classList].find((c) => /^list-item-(one|two|three)-line$/.test(c))?.slice(10) ?? 'one-line'}`],
-    ['.list', (el) => (el.classList.contains('list-segmented') ? 'List · segmented' : 'List')],
+    ['.mo-button-group', named('ButtonGroup', 'button-group')],
+    ['.mo-split-button', () => 'SplitButton'],
+    ['.mo-button', named('Button', 'button')],
+    ['.mo-icon-button', named('IconButton', 'icon-button')],
+    ['.mo-fab', () => 'Fab'],
+    ['.mo-card', named('Card', 'card')],
+    ['.mo-chip__set', () => 'ChipSet'],
+    ['.mo-chip', named('Chip', 'chip')],
+    ['.mo-list__item-container', (el) => `ListItem · ${[...el.classList].find((c) => /^list-item-(one|two|three)-line$/.test(c))?.slice(10) ?? 'one-line'}`],
+    ['.mo-list', (el) => (el.classList.contains('mo-list__segmented') ? 'List · segmented' : 'List')],
     ['.carousel', () => 'Carousel'],
-    ['.text-field', named('TextField', 'text-field')],
-    ['.switch', () => 'Switch'],
-    ['.checkbox', () => 'Checkbox'],
-    ['.radio-button', () => 'RadioButton'],
-    ['.slider', () => 'Slider'],
-    ['.segmented-button', () => 'SegmentedButton'],
-    ['.tabs', named('Tabs', 'tabs')],
-    ['.badge', named('Badge', 'badge')],
-    ['.divider', () => 'Divider'],
-    ['.snackbar', () => 'Snackbar'],
-    ['.tooltip-anchor', () => 'Tooltip'],
+    ['.mo-text-field', named('TextField', 'text-field')],
+    ['.mo-switch', () => 'Switch'],
+    ['.mo-checkbox', () => 'Checkbox'],
+    ['.mo-radio-button', () => 'RadioButton'],
+    ['.mo-slider', () => 'Slider'],
+    ['.mo-segmented-button', () => 'SegmentedButton'],
+    ['.mo-tabs', named('Tabs', 'tabs')],
+    ['.mo-badge', named('Badge', 'badge')],
+    ['.mo-divider', () => 'Divider'],
+    ['.mo-snackbar', () => 'Snackbar'],
+    ['.mo-tooltip__anchor', () => 'Tooltip'],
     ['.video-facade', () => 'Video facade'],
   ];
-  // A theme's part has more than one class (`button`, `button-filled`): `.list-item-container` must not take `.list`, so each rule is
+  // A theme's part has more than one class (`mo-button`, `mo-is-filled`): `.mo-list__item-container` must not take `.mo-list`, so each rule is
   // matched on the element's own class list, never on a parent's.
   const partOf = (el) => {
     for (const [selector, label] of PARTS) if (el.matches(selector)) return label(el);
@@ -177,7 +177,7 @@
 
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'button button-outlined button-xsmall';
+  button.className = 'mo-button mo-is-outlined mo-button__xsmall';
   button.dataset.demoNames = 'toggle';
   button.textContent = 'Names';
   const show = () => {

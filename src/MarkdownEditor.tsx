@@ -3249,7 +3249,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       <Toolbar
         ref={toolbar}
         label={t.text.tools}
-        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 rounded-t-panel border border-outline-variant pb-(--toolbar-docked-padding-block)"
+        className="editor-tools sticky top-[env(safe-area-inset-top)] z-10 rounded-t-panel border border-outline-variant pb-(--mo-comp-toolbar-docked-padding-block)"
       >
         <div ref={slideRow} className="editor-tools-slide">
           {plan.bar.context.length > 0 && (

@@ -82,7 +82,7 @@ export function ExtendedFab({
       {...rest}
     >
       <Glyph icon={icon} size={24} />
-      <span className="extended-fab-label">{label}</span>
+      <span className="mo-extended-fab__label">{label}</span>
     </Action>
   );
 }

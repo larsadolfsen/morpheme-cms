@@ -12,14 +12,14 @@ const run = (cms, extensions = {}, a = none) => findProblems({ cms, extensions, 
 test('the root is :root, html or body, also with a class or an attribute, never a descendant', () => {
   for (const s of [':root', 'html', 'body', ":root[data-theme='dark']", 'html.dark', 'body:not(.x)', '.a, :root'])
     assert.equal(isRootSelector(s), true, s);
-  for (const s of ['.card', ':root .card', 'html body', 'main', '.a:root-ish']) assert.equal(isRootSelector(s), false, s);
+  for (const s of ['.mo-card', ':root .mo-card', 'html body', 'main', '.a:root-ish']) assert.equal(isRootSelector(s), false, s);
 });
 
 test('declared tells the root, @theme and every other place apart, also in @layer and @media', () => {
   const d = declared(`
     :root { --a: 1; --mo-b: 2; }
     @layer base { @media (min-width: 40rem) { html { --c: 1; } } }
-    .card { --d: 1; }
+    .mo-card { --d: 1; }
     @theme inline { --color-x: red; }
   `);
   assert.deepEqual([...d.root].sort(), ['--a', '--c', '--mo-b']);
@@ -33,7 +33,7 @@ test('a prefixed name on :root passes, an unprefixed one fails', () => {
 });
 
 test("an unprefixed name on a block, not on :root, is the block's own and passes", () => {
-  assert.deepEqual(run({ 'a.css': '.card { --sample-gap: 8px; }' }), []);
+  assert.deepEqual(run({ 'a.css': '.mo-card { --sample-gap: 8px; }' }), []);
 });
 
 test('count mode: a file may keep its count, never go over, and a new file gets none', () => {
@@ -60,7 +60,7 @@ test('Tailwind: --tw-* on :root and its theme namespaces in @theme pass; an unkn
 });
 
 test('an app or theme that declares a name the CMS declares collides, on :root or on a block', () => {
-  const cms = { 'theme.css': ':root { --mo-sys-color-primary: red; } .card { --sample-gap: 8px; }' };
+  const cms = { 'theme.css': ':root { --mo-sys-color-primary: red; } .mo-card { --sample-gap: 8px; }' };
   assert.match(
     run(cms, { 'apps/x/a.css': '.x { --mo-sys-color-primary: blue; }' }).join('\n'),
     /declares --mo-sys-color-primary, a name the CMS declares/,
@@ -85,7 +85,7 @@ test('the report lists :root names nothing reads and names one place reads', () 
   const styles = {
     'a.css':
       cms['a.css'] +
-      ' .card { gap: var(--sample-gap); } .card-b { gap: var(--sample-gap); } .chip { size: var(--text-size); } .badge { size: var(--text-size); }',
+      ' .mo-card { gap: var(--sample-gap); } .card-b { gap: var(--sample-gap); } .mo-chip { size: var(--text-size); } .mo-badge { size: var(--text-size); }',
   };
   const r = report(cms, readers(styles, { 'x.tsx': "el.style.setProperty('--text-size', '1')" }));
   assert.deepEqual(r.unread, ['--lonely', '--mo-x']);
@@ -95,7 +95,7 @@ test('the report lists :root names nothing reads and names one place reads', () 
   );
   const one = report(
     { 'a.css': ':root { --sample-gap: 8px; }' },
-    readers({ 'a.css': '.card { gap: var(--sample-gap); } .card:hover { gap: var(--sample-gap); }' }, {}),
+    readers({ 'a.css': '.mo-card { gap: var(--sample-gap); } .mo-card:hover { gap: var(--sample-gap); }' }, {}),
   );
   assert.deepEqual(one.single, [['--sample-gap', 'a.css:card']]);
 });

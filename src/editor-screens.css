@@ -108,11 +108,11 @@
     display: inline-flex;
     vertical-align: middle;
   }
-  .mo-editor-photo-credit-tooltip:not([data-tooltip-open]) > .tooltip {
+  .mo-editor-photo-credit-tooltip:not([data-tooltip-open]) > .mo-tooltip {
     visibility: hidden;
     opacity: 0%;
   }
-  .mo-editor-photo-credit-tooltip > .tooltip {
+  .mo-editor-photo-credit-tooltip > .mo-tooltip {
     inset-inline-start: auto;
     inset-inline-end: 0;
     inset-block-start: calc(100% - 0.5rem);

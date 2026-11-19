@@ -47,7 +47,7 @@
   }
 }
 /* ---- "Checklist" and "Price cards" ---- */
-/* "Checklist" (checklist/Checks.tsx), and what is included on a price card: a list without dividers (.list in
+/* "Checklist" (checklist/Checks.tsx), and what is included on a price card: a list without dividers (.mo-list in
      ui.css), a check before each line; with six or more (not on a card), two columns where there is room for 16rem
      each, never more. Nothing in it is tapped, so it is spaced as a bulleted or numbered list in the text (half a
      line between its lines, not the height of a list item one taps), and its checks start where the text around it

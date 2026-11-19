@@ -24,7 +24,7 @@ export const allow = [
       "a check list in a text: the text style's list spaces in em (Tailwind typography), a list in a text and not a block's own spaces",
   },
   {
-    selector: '.chip',
+    selector: '.mo-chip',
     props: ['padding'],
     reason:
       'a chip: Material 3 sets its height (32 dp), the room above and below its label is what is left of it (Density takes 2 px off each side)',

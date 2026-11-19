@@ -55,15 +55,15 @@ export default function SideSheet({
       aria-labelledby={kind === 'standard' ? headlineId : undefined}
       data-side-sheet-container=""
     >
-      <div className="side-sheet-header" data-has-back={onBack ? '' : undefined}>
+      <div className="mo-side-sheet__header" data-has-back={onBack ? '' : undefined}>
         {onBack && <IconButton icon="arrow-left" label={backLabel ?? ''} data-side-sheet-back="" onClick={onBack} />}
-        <h2 id={headlineId} className="side-sheet-headline">
+        <h2 id={headlineId} className="mo-side-sheet__headline">
           {headline}
         </h2>
         {closeLabel && <IconButton icon="x" label={closeLabel} data-side-sheet-close="" onClick={onClose} />}
       </div>
-      <div className="side-sheet-content">{children}</div>
-      {actions && <div className="side-sheet-actions">{actions}</div>}
+      <div className="mo-side-sheet__content">{children}</div>
+      {actions && <div className="mo-side-sheet__actions">{actions}</div>}
     </Container>
   );
 }

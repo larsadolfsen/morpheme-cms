@@ -64,19 +64,19 @@ export default function Chip({
   const pressed = kind === 'assist' ? undefined : kind === 'filter' ? Boolean(selected) : selected;
   const content = (
     <>
-      {kind === 'filter' && <Svg name="check" size={18} className="chip-check" />}
-      {avatar ? <img src={avatar} alt="" className="chip-avatar" /> : icon && <Glyph icon={icon} size={18} />}
+      {kind === 'filter' && <Svg name="check" size={18} className="mo-chip__check" />}
+      {avatar ? <img src={avatar} alt="" className="mo-chip__avatar" /> : icon && <Glyph icon={icon} size={18} />}
       {label}
-      {trailingIcon && !removable && <Glyph icon={trailingIcon} size={18} className="chip-trailing-icon" />}
+      {trailingIcon && !removable && <Glyph icon={trailingIcon} size={18} className="mo-chip__trailing-icon" />}
     </>
   );
   if (removable)
     return (
       <span className={classes} data-selected={selected ? '' : undefined} aria-disabled={disabled || undefined}>
-        <button type="button" className="chip-action" aria-pressed={pressed} disabled={disabled} {...rest}>
+        <button type="button" className="mo-chip__action" aria-pressed={pressed} disabled={disabled} {...rest}>
           {content}
         </button>
-        <button type="button" className="chip-remove" aria-label={removeLabel} disabled={disabled} onClick={onRemove}>
+        <button type="button" className="mo-chip__remove" aria-label={removeLabel} disabled={disabled} onClick={onRemove}>
           <Glyph icon={trailingIcon ?? 'x'} size={18} />
         </button>
       </span>

@@ -32,17 +32,17 @@ export default function Lightbox({
 } & Record<string, unknown>) {
   return (
     <dialog className={[lightboxModalClass, className].filter(Boolean).join(' ')} aria-label={label} data-lightbox="" {...rest}>
-      <div className={`${dialogClass} lightbox`}>
-        <div className="lightbox-header">
+      <div className={`${dialogClass} mo-lightbox`}>
+        <div className="mo-lightbox__header">
           <IconButton icon="x" label={closeLabel} data-dialog-close="" />
         </div>
-        <div className="lightbox-content">
-          <div className="lightbox-stage">
-            <IconButton icon="caret-left" label={previousLabel} className="lightbox-previous" data-lightbox-previous="" />
-            <ul className="lightbox-track" data-lightbox-track="" tabIndex={0} aria-label={label} />
-            <IconButton icon="caret-right" label={nextLabel} className="lightbox-next" data-lightbox-next="" />
+        <div className="mo-lightbox__content">
+          <div className="mo-lightbox__stage">
+            <IconButton icon="caret-left" label={previousLabel} className="mo-lightbox__previous" data-lightbox-previous="" />
+            <ul className="mo-lightbox__track" data-lightbox-track="" tabIndex={0} aria-label={label} />
+            <IconButton icon="caret-right" label={nextLabel} className="mo-lightbox__next" data-lightbox-next="" />
           </div>
-          <p className="lightbox-count" data-lightbox-count="" aria-live="polite" />
+          <p className="mo-lightbox__count" data-lightbox-count="" aria-live="polite" />
         </div>
       </div>
     </dialog>

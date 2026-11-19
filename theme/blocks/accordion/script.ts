@@ -6,7 +6,7 @@ import { motionTiming } from '@morphemecms/cms/lib/motion';
 
 export default function accordion() {
   const still = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const bodyOf = (d: HTMLDetailsElement) => d.querySelector<HTMLElement>('.list-item-expand-body')!;
+  const bodyOf = (d: HTMLDetailsElement) => d.querySelector<HTMLElement>('.mo-list__item-expand-body')!;
 
   // The text of a row that opens fades in and rises a little (also when find-in-page opens it).
   document.querySelectorAll<HTMLDetailsElement>('details.list-item-expand').forEach((d) =>

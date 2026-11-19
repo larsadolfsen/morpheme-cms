@@ -60,17 +60,17 @@ export default function TopAppBar({
       data-collapsed={(flexible && collapsed) || undefined}
       {...rest}
     >
-      {kind && leading && <div className="top-app-bar-leading">{leading}</div>}
+      {kind && leading && <div className="mo-top-app-bar__leading">{leading}</div>}
       {kind === 'search'
-        ? search && <div className="top-app-bar-search-bar">{search}</div>
+        ? search && <div className="mo-top-app-bar__search-bar">{search}</div>
         : kind &&
           headline !== undefined && (
-            <div className="top-app-bar-headline-group">
-              <Heading className="top-app-bar-headline">{headline}</Heading>
-              {subtitle && <p className="top-app-bar-subtitle">{subtitle}</p>}
+            <div className="mo-top-app-bar__headline-group">
+              <Heading className="mo-top-app-bar__headline">{headline}</Heading>
+              {subtitle && <p className="mo-top-app-bar__subtitle">{subtitle}</p>}
             </div>
           )}
-      {kind && trailing && <div className="top-app-bar-trailing">{trailing}</div>}
+      {kind && trailing && <div className="mo-top-app-bar__trailing">{trailing}</div>}
       {children}
     </header>
   );

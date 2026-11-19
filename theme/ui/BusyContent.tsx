@@ -7,9 +7,9 @@ import { loadingIndicatorClass } from './LoadingIndicator';
 export default function BusyContent({ children }: { children: ReactNode }) {
   return (
     <>
-      <span className="button-busy-content">{children}</span>
-      <span className={`${loadingIndicatorClass()} button-busy-indicator`} aria-hidden="true">
-        <span className="loading-indicator-shape"></span>
+      <span className="mo-button__busy-content">{children}</span>
+      <span className={`${loadingIndicatorClass()} mo-button__busy-indicator`} aria-hidden="true">
+        <span className="mo-loading-indicator__shape"></span>
       </span>
     </>
   );

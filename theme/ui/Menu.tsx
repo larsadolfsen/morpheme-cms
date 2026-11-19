@@ -68,14 +68,14 @@ export function MenuGroup({ label, children }: { label?: string; children: React
   const inMenu = useContext(InMenu);
   const id = useId();
   return (
-    <li className="menu-group" role={inMenu ? 'none' : undefined}>
+    <li className="mo-menu__group" role={inMenu ? 'none' : undefined}>
       {label && (
         // In a menu the group is named by it, and only the group is read.
-        <span id={id} className="menu-group-label" aria-hidden={inMenu || undefined}>
+        <span id={id} className="mo-menu__group-label" aria-hidden={inMenu || undefined}>
           {label}
         </span>
       )}
-      <ul className="menu-group-items" role={inMenu ? 'group' : undefined} aria-labelledby={label ? id : undefined}>
+      <ul className="mo-menu__group-items" role={inMenu ? 'group' : undefined} aria-labelledby={label ? id : undefined}>
         {children}
       </ul>
     </li>
@@ -85,7 +85,7 @@ export function MenuGroup({ label, children }: { label?: string; children: React
 /** A line between a menu's items (the theme's Divider). */
 export function MenuDivider() {
   return (
-    <li className="menu-divider" role="none">
+    <li className="mo-menu__divider" role="none">
       <Divider />
     </li>
   );
@@ -141,20 +141,20 @@ export function MenuItem({
   const content = (
     <>
       {(icon || checked !== undefined) && (
-        <span className="menu-item-leading">
-          {icon && <Glyph icon={icon} size={20} className="menu-item-icon" />}
-          {checked !== undefined && <Svg name="check" size={20} className="menu-item-check" />}
+        <span className="mo-menu__item-leading">
+          {icon && <Glyph icon={icon} size={20} className="mo-menu__item-icon" />}
+          {checked !== undefined && <Svg name="check" size={20} className="mo-menu__item-check" />}
         </span>
       )}
-      <span className="menu-item-text">
+      <span className="mo-menu__item-text">
         <span className="menu-item-label">{children}</span>
-        {supporting != null && supporting !== '' && <span className="menu-item-supporting">{supporting}</span>}
+        {supporting != null && supporting !== '' && <span className="mo-menu__item-supporting">{supporting}</span>}
       </span>
       {trailingSupporting != null && trailingSupporting !== '' && (
-        <span className="menu-item-trailing-supporting">{trailingSupporting}</span>
+        <span className="mo-menu__item-trailing-supporting">{trailingSupporting}</span>
       )}
-      {trailingIcon && <Glyph icon={trailingIcon} size={20} className="menu-item-trailing-icon" />}
-      {submenu !== undefined && <Svg name="caret-right" size={20} className="menu-item-trailing-icon menu-item-submenu-icon" />}
+      {trailingIcon && <Glyph icon={trailingIcon} size={20} className="mo-menu__item-trailing-icon" />}
+      {submenu !== undefined && <Svg name="caret-right" size={20} className="mo-menu__item-trailing-icon mo-menu__item-submenu-icon" />}
     </>
   );
 
@@ -162,7 +162,7 @@ export function MenuItem({
     const menu = `${id}-menu`;
     const anchor = anchorOf(id);
     return (
-      <li className="menu-item-submenu" role={inMenu ? 'none' : undefined}>
+      <li className="mo-menu__item-submenu" role={inMenu ? 'none' : undefined}>
         <button
           type="button"
           id={id}
@@ -180,7 +180,7 @@ export function MenuItem({
         </button>
         <ul
           id={menu}
-          className={`${menuClass} menu-submenu`}
+          className={`${menuClass} mo-menu__submenu`}
           role={inMenu ? 'menu' : undefined}
           aria-labelledby={id}
           popover={open ? undefined : 'auto'}
@@ -252,7 +252,7 @@ export function DropdownMenu({
     ...rest,
   };
   return (
-    <div className={['dropdown-menu', className].filter(Boolean).join(' ')} data-dropdown-menu="">
+    <div className={['mo-dropdown-menu', className].filter(Boolean).join(' ')} data-dropdown-menu="">
       {iconButton ? (
         <IconButton icon={icon ?? 'list'} label={label} {...button} />
       ) : (
@@ -266,7 +266,7 @@ export function DropdownMenu({
         aria-labelledby={id}
         color={color}
         groups={groups}
-        className="dropdown-menu-menu"
+        className="mo-dropdown-menu__menu"
         popover={open ? undefined : 'auto'}
         style={{ positionAnchor: anchor } as CSSProperties}
         data-dropdown-menu-menu=""

@@ -4,7 +4,7 @@
 // lib/drawerKeys.mjs (tested).
 import { drawerKeyTarget } from '@morphemecms/cms/lib/drawerKeys.mjs';
 
-const itemSelector = '.navigation-drawer-item, .navigation-drawer-subitem';
+const itemSelector = '.mo-navigation-drawer__item, .mo-navigation-drawer__subitem';
 
 /** The items in the drawer that can be focused now, in the order they stand. */
 const itemsOf = (root: HTMLElement) =>

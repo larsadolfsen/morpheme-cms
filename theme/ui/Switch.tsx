@@ -40,11 +40,11 @@ export default function Switch({
       label={hideLabel ? null : label}
       supporting={hideLabel ? null : supporting}
     >
-      <span className="switch-track">
-        <input type="checkbox" role="switch" className="switch-input" aria-label={hideLabel ? label : undefined} {...on} {...rest} />
-        <span className="switch-handle">
-          {icons && <Svg name="check" size={16} className="switch-icon switch-icon-on" />}
-          {icons === 'both' && <Svg name="x" size={16} className="switch-icon switch-icon-off" />}
+      <span className="mo-switch__track">
+        <input type="checkbox" role="switch" className="mo-switch__input" aria-label={hideLabel ? label : undefined} {...on} {...rest} />
+        <span className="mo-switch__handle">
+          {icons && <Svg name="check" size={16} className="mo-switch__icon mo-switch__icon-on" />}
+          {icons === 'both' && <Svg name="x" size={16} className="mo-switch__icon mo-switch__icon-off" />}
         </span>
       </span>
     </SettingRow>

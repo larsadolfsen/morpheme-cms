@@ -5,7 +5,7 @@
   specificity (the collision check in the pull request).
 */
 @layer components {
-  /* A quiet link that is one row, an outlined card (.card in ui.css) with smaller corners: a badge or an icon, a text
+  /* A quiet link that is one row, an outlined card (.mo-card in ui.css) with smaller corners: a badge or an icon, a text
      and an arrow, its edge in the accent when pointed at. */
   .block-link-row {
     display: flex;

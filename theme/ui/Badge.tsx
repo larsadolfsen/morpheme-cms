@@ -35,14 +35,14 @@ export default function Badge({
       {large && (count > max ? `${max}+` : count)}
     </span>
   );
-  const read = label && <span className="badge-label">{label}</span>;
+  const read = label && <span className="mo-badge__label">{label}</span>;
   return children === undefined ? (
     <>
       {badge}
       {read}
     </>
   ) : (
-    <span className="badge-anchor">
+    <span className="mo-badge__anchor">
       {children}
       {badge}
       {read}

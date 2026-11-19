@@ -53,7 +53,7 @@ async function checkSectionCardContrast() {
           .map((id) => {
             const [section, color] = id.split('/');
             const cardsColor = color ? ` mo-block-cards__${color}` : '';
-            return `<div class="mo-text-section mo-is-${section}" data-case="${id}"><div class="block-cards${cardsColor}"><div class="card card-filled block-card"><div class="prose block-card-video"><a class="video-facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="video-facade-title">Title</span></a></div><span class="block-card-title">Headline</span><p class="block-card-text">Text</p></div></div></div>`;
+            return `<div class="mo-text-section mo-is-${section}" data-case="${id}"><div class="block-cards${cardsColor}"><div class="mo-card mo-is-filled block-card"><div class="prose block-card-video"><a class="video-facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="video-facade-title">Title</span></a></div><span class="block-card-title">Headline</span><p class="block-card-text">Text</p></div></div></div>`;
           })
           .join('');
         document.body.insertAdjacentHTML('afterbegin', html);
@@ -64,7 +64,7 @@ async function checkSectionCardContrast() {
           return [...c.getImageData(0, 0, 1, 1).data];
         };
         return [...document.querySelectorAll('[data-case]')].flatMap((box) => {
-          const card = box.querySelector('.card');
+          const card = box.querySelector('.mo-card');
           const bg = rgba(getComputedStyle(card).backgroundColor);
           // The card's surface is opaque here (a container), or a veil of the section's on-colour: the section's colour under it.
           const under = rgba(getComputedStyle(box).backgroundColor);
@@ -299,7 +299,7 @@ async function checkSectionOnImage() {
             rowTitle: row.querySelector('[data-field="title"]'),
             rowText: row.querySelector('[data-field="text"]'),
             icon: row.querySelector('.inline-list-slot'),
-            chevron: row.querySelector('.list-item-trailing'),
+            chevron: row.querySelector('.mo-list__item-trailing'),
           };
           const out = {};
           for (const [name, el] of Object.entries(parts)) if (el) out[name] = contrast(el, getComputedStyle(el).color);

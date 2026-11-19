@@ -22,12 +22,12 @@ export default function RadioButton({
 }: { label: string; supporting?: string; checked?: boolean; className?: string } & Record<string, unknown>) {
   return (
     <label className={[radioButtonClass(), className].filter(Boolean).join(' ')}>
-      <span className="radio-button-box">
-        <input type="radio" className="radio-button-input" defaultChecked={checked} {...rest} />
+      <span className="mo-radio-button__box">
+        <input type="radio" className="mo-radio-button__input" defaultChecked={checked} {...rest} />
       </span>
       <span className="radio-button-text">
-        <span className="radio-button-label">{label}</span>
-        {supporting && <span className="radio-button-supporting">{supporting}</span>}
+        <span className="mo-radio-button__label">{label}</span>
+        {supporting && <span className="mo-radio-button__supporting">{supporting}</span>}
       </span>
     </label>
   );
@@ -43,7 +43,7 @@ export function RadioGroup({
 }: { label: string; className?: string; children: ReactNode } & Record<string, unknown>) {
   return (
     <fieldset className={[radioGroupClass(), className].filter(Boolean).join(' ')} {...rest}>
-      <legend className="radio-group-label">{label}</legend>
+      <legend className="mo-radio-group__label">{label}</legend>
       {children}
     </fieldset>
   );

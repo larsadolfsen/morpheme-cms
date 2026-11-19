@@ -1,16 +1,16 @@
 /*
-  Badges (Badge, badgeClass; m3.material.io/components/badges): .badge with .badge-small (a dot) or .badge-large (a
-  number); on what it is about in .badge-anchor (an icon, or an icon button: at its icon's top end corner), else after a
-  label (a navigation drawer's item: at its end); what screen readers read in .badge-label.
+  Badges (Badge, badgeClass; m3.material.io/components/badges): .mo-badge with .mo-badge__small (a dot) or .mo-badge__large (a
+  number); on what it is about in .mo-badge__anchor (an icon, or an icon button: at its icon's top end corner), else after a
+  label (a navigation drawer's item: at its end); what screen readers read in .mo-badge__label.
     --mo-comp-badge-surface, --mo-comp-badge-text, --mo-comp-badge-shape
-    --badge-small-size; --badge-large-size, --badge-padding, --badge-font-size, --badge-weight
+    --mo-comp-badge-small-size; --mo-comp-badge-large-size, --mo-comp-badge-padding, --mo-comp-badge-font-size, --mo-comp-badge-weight
   Moved here from ui.css with its rules unchanged; imported by base.css right after ui.css, in the same layer. No other rule sets the
   same property on a badge at the same specificity, so the position does not change what wins
   (docs/superpowers/plans/2026-11-16-css-split.md).
 */
 @layer components {
   /* Badges (m3.material.io/components/badges): a dot, or a number in a pill. Only seen. */
-  .badge {
+  .mo-badge {
     display: inline-flex;
     flex-shrink: 0;
     align-items: center;
@@ -21,33 +21,33 @@
     pointer-events: none;
   }
   /* A status tone (Badge `tone`): the dot in the tone's colour instead of the error colour. */
-  .badge[data-tone='ok'] {
+  .mo-badge[data-tone='ok'] {
     background: var(--mo-comp-badge-ok);
   }
-  .badge[data-tone='minor'] {
+  .mo-badge[data-tone='minor'] {
     background: var(--mo-comp-badge-minor);
   }
-  .badge[data-tone='major'] {
+  .mo-badge[data-tone='major'] {
     background: var(--mo-comp-badge-major);
   }
-  .badge[data-tone='unknown'] {
+  .mo-badge[data-tone='unknown'] {
     background: var(--mo-comp-badge-unknown, var(--mo-sys-color-outline));
   }
-  .badge-small {
-    width: var(--badge-small-size, 0.375rem);
-    height: var(--badge-small-size, 0.375rem);
+  .mo-badge__small {
+    width: var(--mo-comp-badge-small-size, 0.375rem);
+    height: var(--mo-comp-badge-small-size, 0.375rem);
   }
-  .badge-large {
-    min-width: var(--badge-large-size, 1rem);
-    height: var(--badge-large-size, 1rem);
-    padding: 0 var(--badge-padding, 0.25rem);
-    font-size: var(--badge-font-size, var(--mo-sys-typescale-label-small-size));
+  .mo-badge__large {
+    min-width: var(--mo-comp-badge-large-size, 1rem);
+    height: var(--mo-comp-badge-large-size, 1rem);
+    padding: 0 var(--mo-comp-badge-padding, 0.25rem);
+    font-size: var(--mo-comp-badge-font-size, var(--mo-sys-typescale-label-small-size));
     letter-spacing: var(--mo-sys-typescale-label-small-tracking);
-    font-weight: var(--badge-weight, var(--mo-sys-typescale-label-small-weight));
+    font-weight: var(--mo-comp-badge-weight, var(--mo-sys-typescale-label-small-weight));
     font-variant-numeric: tabular-nums;
     line-height: 1;
   }
-  .badge-label {
+  .mo-badge__label {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -57,22 +57,22 @@
   }
   /* On an icon: the dot just inside its top end corner, the number from near its end, half over its top. On an icon
      button: at its icon's corner. */
-  .badge-anchor {
+  .mo-badge__anchor {
     position: relative;
     display: inline-flex;
     vertical-align: middle;
   }
-  .badge-anchor > .badge-small {
+  .mo-badge__anchor > .mo-badge__small {
     position: absolute;
-    top: calc(var(--mo-comp-badge-anchor-inset, 0px) - var(--badge-small-size, 0.375rem) / 2);
-    left: calc(100% - var(--mo-comp-badge-anchor-inset, 0px) - var(--badge-small-size, 0.375rem));
+    top: calc(var(--mo-comp-badge-anchor-inset, 0px) - var(--mo-comp-badge-small-size, 0.375rem) / 2);
+    left: calc(100% - var(--mo-comp-badge-anchor-inset, 0px) - var(--mo-comp-badge-small-size, 0.375rem));
   }
-  .badge-anchor > .badge-large {
+  .mo-badge__anchor > .mo-badge__large {
     position: absolute;
-    top: calc(var(--mo-comp-badge-anchor-inset, 0px) - var(--badge-large-size, 1rem) / 2);
+    top: calc(var(--mo-comp-badge-anchor-inset, 0px) - var(--mo-comp-badge-large-size, 1rem) / 2);
     left: calc(100% - var(--mo-comp-badge-anchor-inset, 0px) - 0.25rem);
   }
-  .navigation-drawer-item > .badge {
+  .mo-navigation-drawer__item > .mo-badge {
     margin-inline-start: auto;
   }
 }

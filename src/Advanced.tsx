@@ -195,7 +195,7 @@ export default function Advanced({ env }: { env: Env }) {
     <Screen title={t.common.parts.caching} wide back={backFrom('caching')}>
       <section className="mo-editor-group">
         <GroupTitle>{t.advanced.r2Caching}</GroupTitle>
-        <div className="setting-list mo-editor-inset">
+        <div className="mo-setting-list mo-editor-inset">
           {problem ? (
             <ProblemNote>{problem}</ProblemNote>
           ) : !file ? (
@@ -226,7 +226,7 @@ export default function Advanced({ env }: { env: Env }) {
             </Notice>
           </div>
         )}
-        <div className="setting-list mo-editor-inset">
+        <div className="mo-setting-list mo-editor-inset">
           {buildProblem ? (
             <ProblemNote>{buildProblem}</ProblemNote>
           ) : (
@@ -251,7 +251,7 @@ export default function Advanced({ env }: { env: Env }) {
                 kind="text"
                 size="small"
                 icon={ArrowSquareOut}
-                className="setting-list-action"
+                className="mo-setting-list__action"
               >
                 {t.advanced.billing}
               </LinkButton>

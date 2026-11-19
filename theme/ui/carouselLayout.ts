@@ -8,7 +8,7 @@
 // scrolled to the end, at the end; between, the layout's own; and from one to the other the keylines move by
 // themselves, so that every item grows and shrinks as it passes. Widths from the theme (--mo-comp-carousel-large-item-width,
 // --mo-comp-carousel-small-item-min-width and -max-width, the gap and the height, in ui.css); what is masked of an item is on it
-// as --carousel-mask (0 to 1), for what is on it to fade. The site's carousel.script.ts and, in the editor, Carousel.tsx
+// as --mo-comp-carousel-mask (0 to 1), for what is on it to fade. The site's carousel.script.ts and, in the editor, Carousel.tsx
 // run it; it gives back what stops it. The other layouts ('uncontained', 'full-screen') are only ui.css.
 export type CarouselLayout = 'multi-browse' | 'uncontained' | 'hero' | 'full-screen';
 export type CarouselAlignment = 'start' | 'center';
@@ -172,7 +172,7 @@ export function carouselLayout(root: HTMLElement): () => void {
       }
       mask.style.transform = `translateX(${loc - c}px)`;
       mask.style.setProperty('--mo-comp-carousel-mask-inset', `${Math.max(0, (large - size) / 2)}px`);
-      item.style.setProperty('--carousel-mask', String(Math.max(0, Math.min(1, 1 - size / large))));
+      item.style.setProperty('--mo-comp-carousel-mask', String(Math.max(0, Math.min(1, 1 - size / large))));
     });
   }
 
@@ -193,7 +193,7 @@ export function carouselLayout(root: HTMLElement): () => void {
     row.style.removeProperty('--mo-comp-carousel-item-width');
     row.style.scrollPaddingInlineStart = '';
     items.forEach((item, i) => {
-      item.style.removeProperty('--carousel-mask');
+      item.style.removeProperty('--mo-comp-carousel-mask');
       masks[i]?.style.removeProperty('transform');
       masks[i]?.style.removeProperty('--mo-comp-carousel-mask-inset');
     });

@@ -8,14 +8,14 @@
 */
 @layer components {
   /* "Buttons": buttons in a row, on a phone under each other in the full width (buttons/). The buttons are the
-     theme's (.button in ui.css), each of the kind it was given. */
+     theme's (.mo-button in ui.css), each of the kind it was given. */
   .block-buttons {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
   }
 
-  /* A form in a block or a pop-up (an app's: Mailchimp's signup): its fields (the theme's text fields, .text-field in
+  /* A form in a block or a pop-up (an app's: Mailchimp's signup): its fields (the theme's text fields, .mo-text-field in
      ui.css) and its button side by side, wrapping on a phone, and the answer under it. */
   .block-form {
     display: flex;
@@ -23,10 +23,10 @@
     gap: 0.75rem;
     margin-top: 1.5rem;
   }
-  .block-form > .button {
+  .block-form > .mo-button {
     flex: 1 0 auto;
   }
-  .block-form > .text-field {
+  .block-form > .mo-text-field {
     flex: 1 1 12rem;
   }
   /* The answer to a form, in the accent when it went wrong (data-failed). */

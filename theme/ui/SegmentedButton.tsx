@@ -51,12 +51,12 @@ export default function SegmentedButton({
           {...own}
         >
           {swatch ? (
-            <span className="segmented-button-swatch" style={{ background: swatch }} aria-hidden="true" />
+            <span className="mo-segmented-button__swatch" style={{ background: swatch }} aria-hidden="true" />
           ) : (
-            <Svg name="check" size={18} className="segmented-button-check" />
+            <Svg name="check" size={18} className="mo-segmented-button__check" />
           )}
-          {icon && <Glyph icon={icon} size={18} className="segmented-button-icon" />}
-          <span className={dots ? 'segmented-button-label segmented-button-label-hidden' : 'segmented-button-label'}>{name}</span>
+          {icon && <Glyph icon={icon} size={18} className="mo-segmented-button__icon" />}
+          <span className={dots ? 'segmented-button-label mo-segmented-button__label-hidden' : 'segmented-button-label'}>{name}</span>
         </button>
       ))}
     </div>

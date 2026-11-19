@@ -56,7 +56,7 @@ export default function TimePicker({
   return (
     <div
       ref={box}
-      className={['time-picker-field', className].filter(Boolean).join(' ')}
+      className={['mo-time-picker__field', className].filter(Boolean).join(' ')}
       data-time-picker={JSON.stringify({ texts, timeFormat, orientation })}
     >
       <TextField
@@ -73,13 +73,13 @@ export default function TimePicker({
       <IconButton
         icon="clock"
         label={texts.select}
-        className="time-picker-field-button"
+        className="mo-time-picker__field-button"
         aria-haspopup="dialog"
         aria-expanded="false"
         data-time-picker-open=""
       />
       <input type="hidden" name={name} defaultValue={known ? value : ''} data-time-picker-value="" />
-      <dialog className="dialog-modal time-picker-dialog" aria-label={texts.select} data-time-picker-dialog=""></dialog>
+      <dialog className="mo-dialog__modal mo-time-picker__dialog" aria-label={texts.select} data-time-picker-dialog=""></dialog>
     </div>
   );
 }

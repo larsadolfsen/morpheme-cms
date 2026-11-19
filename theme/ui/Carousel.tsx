@@ -9,7 +9,7 @@
 //   between two small ones (`alignment` 'center'), for images to look at one by one, with the next one in sight.
 // - 'full-screen': one item at a time, as wide as the carousel, out to a phone's edges.
 // In the contained layouts (all but 'uncontained') an item's `content` fills its mask (.carousel-item-mask), as a
-// image should; a text on it can fade as it shrinks with --carousel-mask (0 to 1). Under them the theme's addition to
+// image should; a text on it can fade as it shrinks with --mo-comp-carousel-mask (0 to 1). Under them the theme's addition to
 // M3's carousel, a page indicator: a dot for each item (`indicatorLabels`, what each says to a screen reader), which
 // follows the scroll position and jumps to an item. On the site carousel.script.ts makes it work and shows it and lays
 // out multi-browse and hero, in the editor it works here. No autoplay: the visitor decides the pace. `label`: what the
@@ -85,18 +85,18 @@ export default function Carousel({
       data-carousel-layout={layout === 'uncontained' ? undefined : layout}
       data-carousel-alignment={layout === 'hero' && alignment === 'center' ? alignment : undefined}
     >
-      <ul ref={row} className="carousel-items" data-carousel-items="" onScroll={(e) => setShown(shownItem(e.currentTarget))}>
+      <ul ref={row} className="mo-carousel__items" data-carousel-items="" onScroll={(e) => setShown(shownItem(e.currentTarget))}>
         {items.map((item) => (
           <li
             key={item.key}
-            className="carousel-item"
+            className="mo-carousel__item"
             aria-roledescription={itemRoleDescription}
             aria-label={item.label}
             data-carousel-item=""
             tabIndex={item.focusable ? 0 : undefined}
           >
             {contained ? (
-              <div className="carousel-item-mask" data-carousel-mask="">
+              <div className="mo-carousel__item-mask" data-carousel-mask="">
                 {item.content}
               </div>
             ) : (
@@ -106,12 +106,12 @@ export default function Carousel({
         ))}
       </ul>
 
-      <div className="carousel-indicator" data-carousel-indicator="" hidden={onSite}>
+      <div className="mo-carousel__indicator" data-carousel-indicator="" hidden={onSite}>
         {items.map((item, i) => (
           <button
             key={item.key}
             type="button"
-            className="carousel-indicator-dot"
+            className="mo-carousel__indicator-dot"
             aria-label={indicatorLabels[i]}
             aria-current={onSite ? undefined : i === shown}
             data-carousel-dot=""

@@ -420,7 +420,7 @@
 }
 
 /* An element's name as the theme's plain tooltip (useTooltip in ui.tsx): a popover over everything, placed by the
-   script under or over the element; its look is the theme's .tooltip-plain. */
+   script under or over the element; its look is the theme's .mo-tooltip__plain. */
 .editor-tooltip {
   position: fixed;
   inset: auto;
@@ -437,32 +437,32 @@
   .editor-tooltip {
     position-anchor: --editor-tooltip;
     position-area: block-end;
-    inset: var(--tooltip-gap, 0.25rem) 0.5rem 0.5rem;
+    inset: var(--mo-comp-tooltip-gap, 0.25rem) 0.5rem 0.5rem;
     position-try-fallbacks: flip-block;
   }
 }
 
 /* The field that keeps a form from being saved (WrongField in fields.tsx): the edge of the theme's text field
-   (.text-field-input, its edge a box-shadow) in the accent colour, flashing gently three times; around the whole field
+   (.mo-text-field__input, its edge a box-shadow) in the accent colour, flashing gently three times; around the whole field
    when it has no box of its own (an image, icons, a switcher). It stays until the next try or a change. */
-.editor-wrong .text-field-input {
+.editor-wrong .mo-text-field__input {
   box-shadow:
     inset 0 0 0 2px var(--mo-sys-color-primary),
     0 0 0 3px color-mix(in srgb, var(--mo-sys-color-primary) 25%, transparent);
 }
 
-.editor-wrong:not(:has(.text-field-input)) {
+.editor-wrong:not(:has(.mo-text-field__input)) {
   border-radius: var(--mo-sys-shape-corner-large);
   outline: 2px solid var(--mo-sys-color-primary);
   outline-offset: 6px;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .editor-wrong .text-field-input {
+  .editor-wrong .mo-text-field__input {
     animation: editor-flash 0.8s ease-in-out 3;
   }
 
-  .editor-wrong:not(:has(.text-field-input)) {
+  .editor-wrong:not(:has(.mo-text-field__input)) {
     animation: editor-flash-around 0.8s ease-in-out 3;
   }
 }
@@ -482,14 +482,14 @@
 }
 
 /* A sheet that is dragged up by its top on a phone (SheetTitle in ui.tsx) is as tall as the screen allows
-   (--bottom-sheet-top-gap from the top, and below the clock), or as tall as what is in it, if that is less. A sheet
-   starts at --bottom-sheet-start-max-height at most (ui.css). */
+   (--mo-comp-bottom-sheet-top-gap from the top, and below the clock), or as tall as what is in it, if that is less. A sheet
+   starts at --mo-comp-bottom-sheet-start-max-height at most (ui.css). */
 @media (width < 37.5rem) {
   .editor-sheet[data-tall] {
-    --mo-comp-editor-sheet-tall: calc(100dvh - max(var(--bottom-sheet-top-gap, 4.5rem), env(safe-area-inset-top)));
+    --mo-comp-editor-sheet-tall: calc(100dvh - max(var(--mo-comp-bottom-sheet-top-gap, 4.5rem), env(safe-area-inset-top)));
     max-height: var(--mo-comp-editor-sheet-tall);
   }
-  .editor-sheet.bottom-sheet-full[data-tall] {
+  .editor-sheet.mo-bottom-sheet__full[data-tall] {
     height: var(--mo-comp-editor-sheet-tall);
   }
 }
@@ -498,7 +498,7 @@
    computer, where it is a dialog in the middle, it fades in and grows a little) and the page behind
    it darkens (a question, ask.tsx, comes up as the theme's dialog does); a new screen fades in; a message rises up; an item of a
    list that is opened shows its fields softly; an image in Files fades in when it has loaded and
-   grows a little under the mouse; a button's colours change softly (pressed, it ripples: the theme's .ripple). Only when
+   grows a little under the mouse; a button's colours change softly (pressed, it ripples: the theme's .mo-ripple). Only when
    the phone or computer does not ask for less motion. */
 @media (prefers-reduced-motion: no-preference) {
   .editor-sheet[open] {
@@ -593,30 +593,30 @@
    The pill is as high as a drawer item (56px); the row around it is the top bar's height. */
 .editor-main-drawer-header {
   --mo-comp-list-item-padding-block: 0.375rem;
-  --mo-comp-list-item-two-line-min-height: var(--navigation-drawer-item-height, 3.5rem);
-  --mo-comp-editor-drawer-header-text: var(--navigation-drawer-item-text, var(--mo-sys-block-muted));
+  --mo-comp-list-item-two-line-min-height: var(--mo-comp-navigation-drawer-item-height, 3.5rem);
+  --mo-comp-editor-drawer-header-text: var(--mo-comp-navigation-drawer-item-text, var(--mo-sys-block-muted));
   --mo-comp-editor-drawer-header-padding: calc(
-    var(--navigation-drawer-item-padding-inline, 1rem) - (var(--mo-comp-avatar-size, 2.5rem) - 1.5rem) / 2
+    var(--mo-comp-navigation-drawer-item-padding-inline, 1rem) - (var(--mo-comp-avatar-size, 2.5rem) - 1.5rem) / 2
   );
   --mo-comp-list-item-padding-inline: var(--mo-comp-editor-drawer-header-padding);
-  --mo-comp-list-list-item-container-shape: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
-  --mo-comp-list-item-hover-radius: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
+  --mo-comp-list-list-item-container-shape: var(--mo-comp-navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
+  --mo-comp-list-item-hover-radius: var(--mo-comp-navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
   --mo-comp-list-item-hover-surface: var(
-    --navigation-drawer-item-hover,
+    --mo-comp-navigation-drawer-item-hover,
     color-mix(in srgb, var(--mo-comp-editor-drawer-header-text) 8%, transparent)
   );
   --mo-comp-list-item-pressed-surface: var(
-    --navigation-drawer-item-pressed,
+    --mo-comp-navigation-drawer-item-pressed,
     color-mix(in srgb, var(--mo-comp-editor-drawer-header-text) 10%, transparent)
   );
   --mo-comp-list-item-hover-text: inherit;
 }
 
-.editor-main-drawer-header .list-item-container:focus-visible {
+.editor-main-drawer-header .mo-list__item-container:focus-visible {
   background: var(--mo-comp-list-item-pressed-surface, var(--mo-sys-state-mo-pressed-layer));
 }
 
-.editor-main-drawer-header .avatar {
+.editor-main-drawer-header .mo-avatar {
   box-sizing: border-box;
   border: 1px solid var(--mo-sys-block-line);
 }
@@ -640,14 +640,14 @@
   --mo-comp-navigation-rail-padding: 0.5rem 0.5rem 1.5rem;
 }
 
-.editor-main-rail .navigation-rail-header {
+.editor-main-rail .mo-navigation-rail__header {
   margin-bottom: 1rem;
 }
 
 /* The rail (and the room above it for a phone's notch) in the open drawer's colour, so it does not change when the drawer opens. */
 .editor-main-rail-frame {
   --mo-comp-navigation-rail-surface: var(
-    --navigation-drawer-surface,
+    --mo-comp-navigation-drawer-surface,
     var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface))
   );
 }
@@ -672,7 +672,7 @@
   }
 }
 
-:root:has(.editor-save-bar) .snackbar-stack {
+:root:has(.editor-save-bar) .mo-snackbar__stack {
   bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
 
@@ -686,12 +686,12 @@
 }
 
 /* A FAB whose action runs or cannot be used now (FabAction.busy, .disabled): dimmed, and nothing to press. */
-.editor-fab :is(.extended-fab, .fab):disabled {
+.editor-fab :is(.mo-extended-fab, .mo-fab):disabled {
   opacity: 0.38;
   pointer-events: none;
 }
 
-:root:has(.editor-fab) .snackbar-stack {
+:root:has(.editor-fab) .mo-snackbar__stack {
   bottom: max(calc(6rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 5rem));
 }
 
@@ -700,7 +700,7 @@
   bottom: max(calc(6.5rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 1rem));
 }
 
-:root:has(.editor-save-bar):has(.editor-fab) .snackbar-stack {
+:root:has(.editor-save-bar):has(.editor-fab) .mo-snackbar__stack {
   bottom: calc(11.5rem + env(safe-area-inset-bottom));
 }
 
@@ -709,7 +709,7 @@
    in the rail's place, they keep clear of the drawer instead. The widths are the theme's. The top bar and its tabs (Screen.tsx)
    stand beside the rail and the drawer, so they need no room. */
 @media (width >= 37.5rem) {
-  .snackbar-stack {
+  .mo-snackbar__stack {
     padding-left: var(--mo-comp-navigation-rail-container-width, 5.5rem);
   }
   .editor-save-bar {
@@ -718,7 +718,7 @@
   }
 }
 @media (width >= 52.5rem) {
-  :root[data-sidebar='open'] .snackbar-stack {
+  :root[data-sidebar='open'] .mo-snackbar__stack {
     padding-left: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
   :root[data-sidebar='open'] .editor-save-bar {
@@ -846,8 +846,8 @@
   /* The same for a standard side sheet in the page's own layout (the details in Files), while it reaches (nearly) the window's edge: the button
      stands beside it, not on it. The column stops growing at 73.5rem, and from there the button has room at its end. */
   @media (width < 73.5rem) {
-    :root:has(main .side-sheet-container:not([hidden])) .editor-fab {
-      right: calc(var(--side-sheet-width, 22.5rem) + 2.5rem + env(safe-area-inset-right));
+    :root:has(main .mo-side-sheet__container:not([hidden])) .editor-fab {
+      right: calc(var(--mo-comp-side-sheet-width, 22.5rem) + 2.5rem + env(safe-area-inset-right));
     }
   }
   .editor-side-sheet {
@@ -904,7 +904,7 @@ html {
   width: calc(100% + 2 * var(--mo-comp-editor-frame-outset));
   margin-inline: calc(-1 * var(--mo-comp-editor-frame-outset));
   position: relative;
-  /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .card), so the action row, the items and the
+  /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .mo-card), so the action row, the items and the
      add button line up inside it. */
   border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
   border: var(--mo-comp-editor-frame-line) dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
@@ -1152,7 +1152,7 @@ html {
 }
 
 /* Image grid typed in place (InlineImageGrid.tsx shows the filter's chips): they do nothing here; the Preview has the real filter. */
-.editor-text .site-block-inline .block-imagegrid-filter .chip {
+.editor-text .site-block-inline .block-imagegrid-filter .mo-chip {
   pointer-events: none;
 }
 .editor-text .site-block-inline:focus-within {
@@ -1289,7 +1289,7 @@ html {
 
 /* A typed row's icon slot is an element that draws nothing while the row is not active and has no icon (InlineIcon). The empty slot would still take the row's gap, so a
    row's title would start a gap further in than on the site, where a row without an icon has no slot: the rows share one inner padding, left and right. */
-.editor-text .list-item-leading:empty {
+.editor-text .mo-list__item-leading:empty {
   display: none;
 }
 
@@ -1378,13 +1378,13 @@ html {
   --mo-sys-tile-fill: var(--mo-sys-color-tertiary);
   --mo-sys-tile-on: var(--mo-sys-color-on-tertiary);
 }
-[data-icon-grid] .icon-button[aria-pressed='true'] {
+[data-icon-grid] .mo-icon-button[aria-pressed='true'] {
   background: var(--mo-sys-tile-fill);
   color: var(--mo-sys-tile-on);
 }
 
 /* The icon picker's grid draws its icons in the color picked in the Icon color field (IconPicker, iconColor); the chosen one keeps its own colors. */
-[data-icon-grid][data-icon-color] .icon-button:not([aria-pressed='true']) {
+[data-icon-grid][data-icon-color] .mo-icon-button:not([aria-pressed='true']) {
   color: var(--mo-comp-icon-color);
 }
 
@@ -1416,14 +1416,14 @@ html {
     min-width: anchor-size(width);
     max-width: max(anchor-size(width), var(--mo-comp-menu-width, 18rem));
     position-area: block-end span-inline-start;
-    inset: var(--dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
+    inset: var(--mo-comp-dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
   }
   .editor-menu[data-menu-popup] {
     position-try-fallbacks: none;
   }
   .editor-menu[data-menu-popup='end'] {
     position-area: block-end span-inline-start;
-    inset: var(--dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
+    inset: var(--mo-comp-dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
   }
 }
 
@@ -1465,7 +1465,7 @@ html {
 /* The bar is one row, 44 dp high: the tools of the place at the left, Undo, Redo, Insert block and the `⋮` at the right end, no divider between them. It never scrolls (textBar.mjs picks what is
    on it; the rest is in the `⋮` menu). The buttons are 44 by 44 dp with no gap between them (owner decision, 13 Nov), the idle tools stand at the
    leading edge, and the groups are boxes in a row (their buttons are the bar's). */
-.editor-tools.toolbar {
+.editor-tools.mo-toolbar {
   min-height: 2.75rem;
   justify-content: flex-start;
 }
@@ -1872,11 +1872,11 @@ dialog {
   padding-inline: 0.5rem 0.75rem;
   border-radius: var(--mo-sys-shape-corner-full);
 }
-.selection-bar-all .checkbox-box {
+.selection-bar-all .mo-checkbox__box {
   margin: 0;
 }
 @media (width < 37.5rem) {
-  .selection-bar-all .checkbox-text {
+  .selection-bar-all .mo-checkbox__text {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -2077,13 +2077,13 @@ dialog {
   }
 }
 /* A block's fields on a compact window (BlockDialog.tsx): the crop page's layer and column (the rules above), with the fields scrolling inside
-   the column and the page lifted above the on-screen keyboard (followKeyboard sets --keyboard-inset while it is up); its Save sheet follows the keyboard itself. */
+   the column and the page lifted above the on-screen keyboard (followKeyboard sets --mo-comp-bottom-sheet-keyboard-inset while it is up); its Save sheet follows the keyboard itself. */
 .block-page-main {
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 .block-page[data-keyboard] {
-  bottom: var(--keyboard-inset, 0);
+  bottom: var(--mo-comp-bottom-sheet-keyboard-inset, 0);
   height: auto;
 }
 .crop-view {
@@ -2168,10 +2168,10 @@ dialog {
 }
 
 /* The Keyboard shortcuts dialog (ShortcutsSheet.tsx) is a dialog in the middle of the screen on a computer, not a sheet from the bottom: no drag handle. */
-.shortcuts-dialog .bottom-sheet-drag-handle {
+.shortcuts-dialog .mo-bottom-sheet__drag-handle {
   display: none;
 }
-.shortcuts-dialog .bottom-sheet-header {
+.shortcuts-dialog .mo-bottom-sheet__header {
   padding-top: 1.25rem;
 }
 .shortcuts-dialog:focus {

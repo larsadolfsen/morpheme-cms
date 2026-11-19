@@ -27,12 +27,12 @@ function Shown({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-/** The plain image with its number, which fades as its item shrinks (--carousel-mask, carouselLayout.ts). */
+/** The plain image with its number, which fades as its item shrinks (--mo-comp-carousel-mask, carouselLayout.ts). */
 function Image({ n }: { n: number }) {
   return (
     <>
       <img src={exampleImage} alt="" />
-      <span className="mo-editor-contain-carousel-label" style={{ opacity: 'calc(1 - 3 * var(--carousel-mask, 0))' }}>
+      <span className="mo-editor-contain-carousel-label" style={{ opacity: 'calc(1 - 3 * var(--mo-comp-carousel-mask, 0))' }}>
         {say.image(n)}
       </span>
     </>

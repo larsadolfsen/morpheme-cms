@@ -10,8 +10,8 @@ export default function navigationRail() {
     const scrim = rail.previousElementSibling?.matches('[data-navigation-rail-scrim]')
       ? (rail.previousElementSibling as HTMLElement)
       : null;
-    const modal = rail.classList.contains('navigation-rail-modal');
-    const hides = rail.classList.contains('navigation-rail-hide');
+    const modal = rail.classList.contains('mo-navigation-rail__modal');
+    const hides = rail.classList.contains('mo-navigation-rail__hide');
     const inside = rail.querySelector<HTMLButtonElement>('[data-navigation-rail-menu]');
     const outside = rail.id
       ? [...document.querySelectorAll<HTMLButtonElement>(`[data-navigation-rail-menu][aria-controls="${CSS.escape(rail.id)}"]`)]
@@ -22,7 +22,7 @@ export default function navigationRail() {
     const set = (expanded: boolean) => {
       rail.toggleAttribute('data-expanded', expanded);
       for (const menu of menus) menu.setAttribute('aria-expanded', String(expanded));
-      rail.querySelectorAll('.navigation-rail-header > .extended-fab').forEach((fab) => fab.toggleAttribute('data-collapsed', !expanded));
+      rail.querySelectorAll('.mo-navigation-rail__header > .mo-extended-fab').forEach((fab) => fab.toggleAttribute('data-collapsed', !expanded));
       if (scrim) scrim.hidden = !expanded;
       if (!expanded && hides && rail.contains(document.activeElement)) (opener ?? outside[0])?.focus();
     };
@@ -41,7 +41,7 @@ export default function navigationRail() {
       if (e.key === 'Escape' && rail.hasAttribute('data-expanded')) set(false);
     });
     rail.addEventListener('click', (e) => {
-      if ((e.target as HTMLElement).closest('.navigation-rail-item')) set(false);
+      if ((e.target as HTMLElement).closest('.mo-navigation-rail__item')) set(false);
     });
   });
 }
