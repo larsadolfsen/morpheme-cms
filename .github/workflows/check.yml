@@ -146,6 +146,10 @@ jobs:
       - name: The version is the one the feature set
         if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main'
         run: node scripts/version-rule.mjs check "${{ github.base_ref }}" "${{ github.head_ref }}"
+      # Setting `version` without `node scripts/starter.mjs` fails every starter shard at the merge into main (starter/package.json pins the CMS version),
+      # and the feature level skips the starter jobs; so every pull request, at every level, checks the pin here.
+      - name: The starter pins the package's version
+        run: node scripts/starter.mjs --check
       # The language, tokens, colours and rules, the unit tests and the package's types (npm run check without Prettier and the build).
       - run: npm run check:source
       - name: The demo built (a docs-only pull request has no build to take)

@@ -6,9 +6,13 @@ feature being built, and its editor must show that feature's own version, never 
 
 ## The rule
 
-- **A feature starts by setting its version.** The first pull request of `feature/<name>` sets `version` in `package.json` (and
-  `package-lock.json`) to the version the feature will be released as: the next patch (`0.19.1`), or the next minor (`0.20.0`) when
-  the feature starts a line (roadmap). From then on the demo, the feature's Previews and `next` show that number. A single fix
+- **A feature starts by setting its version.** The first pull request of `feature/<name>` sets `version` in `package.json` and
+  `package-lock.json`, and runs `node scripts/starter.mjs` so `starter/package.json` pins the same number (CI's feature level skips the
+  starter jobs, so a missed starter only fails later, at the merge into `main`: #1038 on 19 November 2026), to the version the feature will be released as: the next patch (`0.19.1`), or the next minor (`0.20.0`) when
+  the feature starts a line (roadmap). Who chooses (owner, 19 November 2026): when a PM session starts, it asks the owner
+  whether its work is the next major release, the start of a new line (`0.20.0`); after that it sets the next patch (`0.19.1`) for
+  each feature and fix without asking.
+  From then on the demo, the feature's Previews and `next` show that number. A single fix
   straight into `main` sets its version in its own pull request the same way.
 - **The release takes that number as it is.** Changesets no longer decides the number: it collects the notes and keeps the Release PR.
   A changeset's level (`patch`, `minor`) no longer moves the version.
@@ -31,7 +35,8 @@ publish workflow; that is what changes.
    are pending.
 3. **A version check** (job `static`, with a test): on a pull request into `main`, and on a feature's first pull request, `version` is
    exactly one step above npm's `latest` (next patch, or next minor `.0`) and not published yet; on a merge into `main` with non-empty
-   changesets, a `version` equal to `latest` fails ("set the feature's version"). It replaces the series check of
+   changesets, a `version` equal to `latest` fails ("set the feature's version"); and on every pull request, at every level,
+   `starter/package.json` pins the package's `version` (`node scripts/starter.mjs --check`, so the feature level catches it too). It replaces the series check of
    `scripts/release-line.mjs` (`release-lines.json`).
 4. **Docs in the same pull request:** the `changesets` skill (the level no longer sets the number), the `release` skill (the Release PR's
    version is the one the feature set), the `pm` skill (a feature's first pull request sets the version; the move on conflict), and

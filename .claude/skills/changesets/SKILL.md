@@ -33,7 +33,7 @@ level its base branch does not allow is not merged; fix the changeset.
 | `0.20` and later | — | 0.20 and later lines follow the roadmap and are cut from the previous line's branch when their work starts | — |
 
 **The version is set when a feature starts** (owner, 19 Nov 2026; `docs/superpowers/plans/2026-11-19-version-at-feature-start.md`). A feature's first pull request
-sets `version` in `package.json` to the number the feature is released as: the next patch above npm's `latest`, or the next minor `.0` when it starts a line
+sets `version` in `package.json` to the number the feature is released as, and runs `node scripts/starter.mjs` so `starter/package.json` pins the same number (`static` runs `node scripts/starter.mjs --check` at every level): the next patch above npm's `latest`, or the next minor `.0` when it starts a line
 (roadmap). A single fix straight into `main` sets its version in its own pull request the same way. **A changeset's level (`patch`, `minor`) no longer moves
 the version**: Changesets collects the notes and keeps the Release PR, and the release takes the number `package.json` says. No pull request after the
 feature's first changes it (the PM's move on a conflict, skill `pm`, is the exception), and `CHANGELOG.md` is still written only by the release.
