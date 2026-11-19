@@ -37,8 +37,8 @@ export const expectedFor = (offered) =>
 /** What the built page shows: its template, the side of the column beside its text (with the test block in it), and whether the block is anywhere. */
 export const columnOf = (html, page) => ({
   template: html.match(/<article[^>]*\sdata-template="([\w-]+)"/)?.[1] ?? null,
-  side: html.match(/class="page-with-side" data-side="(left|right)"/)?.[1] ?? null,
-  column: new RegExp(String.raw`<aside class="page-side">[\s\S]*?data-side-test="/${page}/"[\s\S]*?</aside>`).test(html),
+  side: html.match(/class="mo-page__content mo-has-side" data-side="(left|right)"/)?.[1] ?? null,
+  column: new RegExp(String.raw`<aside class="mo-page__side">[\s\S]*?data-side-test="/${page}/"[\s\S]*?</aside>`).test(html),
   anywhere: html.includes('data-side-test'),
   text: textClasses(html),
 });

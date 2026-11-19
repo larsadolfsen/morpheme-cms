@@ -38,40 +38,40 @@
 
   /* A page with a block beside its text (PageLayout.astro): the text, then the column (on a phone below the text); from medium
    two columns, the one beside the text staying in view while the text is read; on the left for `sidebar-left`. */
-  .page-with-side > .page-side {
+  :where(.mo-page__content).mo-has-side > .mo-page__side {
     margin-top: 3rem;
   }
   @media (width >= 37.5rem) {
-    .page-with-side {
+    :where(.mo-page__content).mo-has-side {
       display: grid;
       grid-template-columns: minmax(0, 1fr) var(--mo-comp-theme-side-width);
       column-gap: var(--mo-comp-theme-side-gap);
       align-items: start;
     }
-    .page-with-side > .page-side {
+    :where(.mo-page__content).mo-has-side > .mo-page__side {
       margin-top: 0;
       position: sticky;
       top: 6rem;
     }
     /* Template sidebar-left: the column first, though it comes after the text in the page. */
-    .page-with-side[data-side='left'] {
+    :where(.mo-page__content).mo-has-side[data-side='left'] {
       grid-template-columns: var(--mo-comp-theme-side-width) minmax(0, 1fr);
     }
-    .page-with-side[data-side='left'] > .page-side {
+    :where(.mo-page__content).mo-has-side[data-side='left'] > .mo-page__side {
       order: -1;
     }
   }
 
   /* A page's and a post's title (PageHeader.astro, PageLayout.astro, PostLayout.astro, Home.astro): the display role, by
    the variables above. */
-  .theme-title {
+  .mo-page-title {
     font-size: var(--mo-comp-theme-title-size, var(--mo-sys-typescale-display-small-size));
     line-height: var(--mo-comp-theme-title-leading);
     font-weight: var(--mo-sys-typescale-display-small-weight);
     letter-spacing: var(--mo-sys-typescale-display-small-tracking);
   }
   @media (width >= 37.5rem) {
-    .theme-title {
+    .mo-page-title {
       font-size: var(--mo-comp-theme-title-size-large, var(--mo-sys-typescale-display-medium-size));
       font-weight: var(--mo-sys-typescale-display-medium-weight);
       letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
@@ -246,7 +246,7 @@
   .mo-page__text:where(.mo-is-single-column) > :not(.not-prose) {
     max-inline-size: var(--mo-sys-block-text-measure-max);
   }
-  .mo-page__text:where(.mo-is-single-column) > :not(.not-prose, .text-section-full) {
+  .mo-page__text:where(.mo-is-single-column) > :not(.not-prose, :where(.mo-text-section).mo-is-full) {
     min-inline-size: min(var(--mo-sys-block-text-measure-min), 100%);
   }
   .mo-page__text:where(.mo-is-single-column) > p:first-child {
@@ -270,7 +270,7 @@
   .mo-page__body {
     margin-block-start: 2rem;
   }
-  .mo-flush-top > .text-section {
+  .mo-flush-top > .mo-text-section {
     margin-block-start: 0;
   }
   /* The home page: the space above its title and its first block, the title's width and the space above each of its items. */
@@ -294,7 +294,7 @@
   .mo-post__text > :not(.not-prose) {
     max-inline-size: var(--mo-sys-block-text-measure-max);
   }
-  .mo-post__text > :not(.not-prose, .text-section-full) {
+  .mo-post__text > :not(.not-prose, :where(.mo-text-section).mo-is-full) {
     min-inline-size: min(var(--mo-sys-block-text-measure-min), 100%);
   }
   .mo-post__image {

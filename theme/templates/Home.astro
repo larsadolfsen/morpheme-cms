@@ -68,11 +68,11 @@ sections.forEach((s, i) => {
 >
   {!panel && (
     <Container class="mo-home__top">
-      <h1 class="theme-title mo-home__title">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
+      <h1 class="mo-page-title mo-home__title">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
     </Container>
   )}
   {shown.map(({ section: s, label }, i) => {
-    const first = i === 0 ? 'theme-home-first' : undefined;
+    const first = i === 0 ? 'mo-home__first' : undefined;
     if (s.type === 'top')
       return (
         <Container class={s.settings.color ? 'mo-flush-top' : 'mo-home__top'}>
@@ -80,11 +80,11 @@ sections.forEach((s, i) => {
             class={s.settings.color || s.settings.width ? sectionClass(s.settings.color, s.settings) : undefined}
             data-editor="h1-section"
           >
-            <h1 class="theme-title mo-home__title">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
+            <h1 class="mo-page-title mo-home__title">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
             {s.items.map((item, n) =>
               item.block ? (
                 !item.block.props.hidden && (
-                  <div class="block-place mo-home__item">
+                  <div class="mo-placed-block mo-home__item">
                     <Block type={item.block.type} props={item.block.props} texts={blockTexts[item.block.type]} />
                   </div>
                 )
