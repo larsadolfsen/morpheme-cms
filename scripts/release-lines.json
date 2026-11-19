@@ -1,6 +1,0 @@
-{
-  "_": "The version lines whose next release is fixed (owner/CTO ruling). One entry per line; a new line is one edit here. `allow` is the highest changeset level a pull request into the line's branch may add: a line whose next version is to stay a patch release allows only `patch`. `series` is the version the line's releases must stay in. Read by scripts/release-line.mjs (CI, job static) and named in .claude/skills/changesets.",
-  "lines": {
-    "0.18": { "allow": "patch", "series": "0.18" }
-  }
-}

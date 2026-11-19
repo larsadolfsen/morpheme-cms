@@ -1,7 +1,7 @@
 # On each push to main: Changesets keeps the "Release @morphemecms/cms" pull request open, and when that pull request
 # has been merged, the new version is staged on npm for latest; once the owner has approved it on npmjs.com (2FA), it
 # gets the tag v<version> and a GitHub release, and morpheme-staging is rebuilt. While changesets are pending, a
-# test version (X.Y.Z-next-<time>) is staged for next. A push to a version line's branch (0.18, 0.19 ...) stages nothing
+# test version (<the version the feature set>-next-<time>) is staged for next. A push to a version line's branch (0.18, 0.19 ...) stages nothing
 # and opens no Release PR (owner, 18 Nov 2026: nothing goes to npm unless the owner is meant to approve it): line work reaches
 # npm only as next, when it reaches main. npm's trusted publishing trusts this one file and lets it only
 # stage (npm stage publish): no key, and nothing reaches npm without the owner's approval.
@@ -106,10 +106,10 @@ jobs:
           registry-url: https://registry.npmjs.org
       - run: npm install -g npm@^11.15.0
       - run: npm ci --no-audit --no-fund
-      # Only in this checkout: nothing is committed.
-      - run: npx changeset version --snapshot next
-      # Only empty changesets pending: the version is unchanged, and there is nothing to stage.
+      # The test version is the version the feature set plus -next-<time> (scripts/version-rule.mjs next); nothing is committed. It prints
+      # nothing when only empty changesets are pending: then there is nothing to stage.
       - run: |
-          v=$(node -p "require('./package.json').version")
-          if [ "$v" = "$(git show HEAD:package.json | node -p "JSON.parse(require('fs').readFileSync(0, 'utf8')).version")" ]; then exit 0; fi
+          v=$(node scripts/version-rule.mjs next)
+          if [ -z "$v" ]; then exit 0; fi
+          npm version "$v" --no-git-tag-version
           npm stage publish --tag next

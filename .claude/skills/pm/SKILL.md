@@ -72,6 +72,10 @@ branch → feature → `next` → live):
    `.0` when the owner said at the PM's start that this is the next major release, otherwise the next patch, without asking. A single
    fix into `main` takes the next patch the same way. A single fix is one pull request straight into `main`. There are no version-line branches: `0.18` is finished (owner,
    19 Nov 2026) and nothing goes into it; a line is only an area of the roadmap and its version numbers.
+   `static` checks the starter pin with `node scripts/starter.mjs --check` at every level, so do not merge a first pull request without
+   the version set. After each merge into `main` the PM merges `main` into every open feature branch; when that brings in a release with
+   the same number as a feature's, the merge conflicts on `version` and the PM resolves it to the next free number (and tells the
+   feature's session). No other pull request changes `version`.
 3. **Sessions** do the work (section 5) and report their pull request's link and head sha.
 4. **Merging** a piece into its feature branch on the feature check (sections 3 and 6). After each merge into `main`, the PM merges
    `main` into every open feature branch (never the other way), so no feature drifts far from `main`.

@@ -141,11 +141,15 @@ jobs:
       - name: The pull request has a changeset
         if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main' # The Release PR turns the changesets into CHANGELOG.md; the daily run has no base.
         run: npx changeset status --since=origin/${{ github.base_ref }}
-      # A version line keeps its next release (owner, 18 Nov 2026): a changeset above the line's level fails a pull request into the line, and a carry into
-      # main must compute a version in the line's series. Levels in scripts/release-lines.json; scripts/release-line.mjs, tested by release-line.test.mjs.
-      - name: The changesets keep the version line's next release
+      # The version is set when a feature starts (owner, 19 Nov 2026): into main and on a feature's first pull request it is exactly one step above
+      # npm's latest and not published; scripts/version-rule.mjs, tested by version-rule.test.mjs (plan 2026-11-19-version-at-feature-start.md).
+      - name: The version is the one the feature set
         if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main'
-        run: node scripts/release-line.mjs "${{ github.base_ref }}" "${{ github.head_ref }}"
+        run: node scripts/version-rule.mjs check "${{ github.base_ref }}" "${{ github.head_ref }}"
+      # Setting `version` without `node scripts/starter.mjs` fails every starter shard at the merge into main (starter/package.json pins the CMS version),
+      # and the feature level skips the starter jobs; so every pull request, at every level, checks the pin here.
+      - name: The starter pins the package's version
+        run: node scripts/starter.mjs --check
       # The language, tokens, colours and rules, the unit tests and the package's types (npm run check without Prettier and the build).
       - run: npm run check:source
       - name: The demo built (a docs-only pull request has no build to take)
