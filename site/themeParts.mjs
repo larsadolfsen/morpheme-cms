@@ -10,7 +10,7 @@ export const THEME_PARTS = [
   { id: 'Checkbox', group: 'ui', prefixes: ['mo-checkbox'] },
   { id: 'Chip', group: 'ui', prefixes: ['mo-chip'] },
   { id: 'ChipSet', group: 'ui', prefixes: ['mo-chip__set'] },
-  { id: 'Card', group: 'ui', prefixes: ['mo-card', 'mo-grid'] },
+  { id: 'Card', group: 'ui', prefixes: ['mo-card', 'mo-staggered-grid'] },
   { id: 'List', group: 'ui', prefixes: ['mo-list'] },
   { id: 'Dialog', group: 'ui', prefixes: ['mo-dialog'] },
   { id: 'Lightbox', group: 'ui', prefixes: ['mo-lightbox'] },

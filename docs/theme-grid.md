@@ -1,4 +1,4 @@
-# The theme grid (`.image-grid`)
+# The theme grid (`.mo-staggered-grid`)
 
 One grid for every page of the editor and for the site's blocks. The Library's media grid and the Image grid block use it today; the start screen uses it too.
 
@@ -8,7 +8,7 @@ CSS columns (`theme/styles/ui.css`): the cards flow down the first column, then 
 
 ## Tokens
 
-- `--mo-comp-grid-columns`: how many cards stand side by side. Set per window size class on `.image-grid`: 2 on compact (under 600 dp), 3 from medium (600 dp), 4 from large (1200 dp). A part with other counts sets the token on its element (`[--mo-comp-grid-columns:1] medium:[--mo-comp-grid-columns:2]` on the start screen; the Image grid block's `data-columns` sets it from medium).
+- `--mo-comp-grid-columns`: how many cards stand side by side. Set per window size class on `.mo-staggered-grid`: 2 on compact (under 600 dp), 3 from medium (600 dp), 4 from large (1200 dp). A part with other counts sets the token on its element (`[--mo-comp-grid-columns:1] medium:[--mo-comp-grid-columns:2]` on the start screen; the Image grid block's `data-columns` sets it from medium).
 - `--mo-sys-grid-gutter`: the space between cards, both ways: 16 px on compact, 24 px from medium. `--mo-sys-grid-margin`: the page margin on the same steps (16 / 24 px). Owner values, 15 Nov 2026: M3's Grids pages print no margin or gutter value.
 - `--mo-sys-grid-layout-columns`: M3's layout grid: 4 on compact, 8 on medium and expanded, 12 on large and extra-large. One token per size class; the count a span is given in.
 

@@ -283,9 +283,9 @@ async function checkImageGrid(width, height) {
     return page.close();
   }
   await page.goto(`${site}/editor/#files`);
-  await page.waitForSelector('ul.mo-grid', { timeout: 30_000 });
+  await page.waitForSelector('ul.mo-staggered-grid', { timeout: 30_000 });
   const m = await page.evaluate(() => {
-    const grid = document.querySelector('ul.mo-grid');
+    const grid = document.querySelector('ul.mo-staggered-grid');
     const gs = getComputedStyle(grid);
     const tiles = [...grid.querySelectorAll('button.mo-card')];
     const media = tiles.map((t) => t.querySelector('.mo-card__media')).filter(Boolean);
@@ -733,7 +733,7 @@ async function checkCardGutter(width, height) {
   const pages = [
     ['Cards', 'cards', 'ul.block-cards', true],
     ['Price cards', 'price-cards', '.block-plans-list', true],
-    ['Image grid', 'image-grid', '.mo-grid', false],
+    ['Image grid', 'image-grid', '.mo-staggered-grid', false],
   ];
   for (const [name, slug, selector, hasRows] of pages) {
     if (!existsSync(join(ROOT, `src/content/pages/blocks-${slug}.md`))) {

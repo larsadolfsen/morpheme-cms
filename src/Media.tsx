@@ -272,7 +272,7 @@ function Grid({
   const [thumbs, setThumbs] = useState<Record<string, Small> | null>(null);
   useEffect(() => void thumbnails().then(setThumbs), []);
   return (
-    <ul className="mo-grid">
+    <ul className="mo-staggered-grid">
       {srcs.map((src) => (
         <Tile key={src} src={src} thumbs={thumbs} picked={picked} onPick={onPick} selection={selection} />
       ))}

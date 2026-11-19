@@ -43,7 +43,7 @@ right-to-left language.
 | Family | Write instead |
 | :-- | :-- |
 | `flex`, `flex-col`, `flex-wrap`, `items-*`, `justify-*`, `gap-*`, `inline-flex` | `mo-row` / `mo-stack` and their modifiers, else `display: flex` in the part's own rule |
-| `grid`, `grid-cols-*`, `col-*`, `medium:grid-cols-*` | `mo-grid` with `--mo-comp-grid-columns` (`mo-grid-2` …), or `.image-grid` for card grids; subgrid where cards align their insides |
+| `grid`, `grid-cols-*`, `col-*`, `medium:grid-cols-*` | `mo-grid` with `--mo-comp-grid-columns` (`mo-grid-2` …), or `.mo-staggered-grid` for card grids; subgrid where cards align their insides |
 | `space-y-*` | `mo-stack` (`gap`). Same space, different mechanism: no margin on the first or last child |
 | `m*`, `p*` | the part's own padding and margin in `--mo-ref-space-*`, with logical properties |
 | `w-*`, `h-*`, `size-*`, `min-*`, `max-*` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio`; a centred maximum width is `mo-center` with `--mo-comp-center-measure` set on the element, and the width of text is `--mo-sys-block-text-measure-min` and `-max` |
