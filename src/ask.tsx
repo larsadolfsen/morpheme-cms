@@ -77,7 +77,7 @@ export function Ask() {
     if (question && !question.input) dialog.current?.focus();
   }, [question]);
   return (
-    <Dialog ref={dialog} tabIndex={-1} onCancel={() => answer(null)} className="focus:outline-none">
+    <Dialog ref={dialog} tabIndex={-1} onCancel={() => answer(null)} className="mo-editor-ask-dialog">
       <form
         method="dialog"
         onSubmit={(e) => {
@@ -85,14 +85,14 @@ export function Ask() {
           if (choices[0]) answer(choices[0].value);
         }}
       >
-        {question?.title && <h2 className="mb-2 text-body-large font-medium">{question.title}</h2>}
+        {question?.title && <h2 className="mo-editor-ask-title">{question.title}</h2>}
         {!!question?.notes?.length && (
-          <div className="-mx-6 max-h-[50dvh] space-y-4 overflow-y-auto px-6">
+          <div className="mo-editor-ask-notes">
             {question.notes.map((n) => (
               <section key={n.title}>
-                <h3 className="font-medium">{n.title}</h3>
+                <h3 className="mo-editor-settings-strong">{n.title}</h3>
                 {n.text.split(/\n\s*\n/).map((p, i) => (
-                  <p key={i} className="mt-1 text-on-surface-variant">
+                  <p key={i} className="mo-editor-ask-note">
                     {p}
                   </p>
                 ))}
@@ -100,9 +100,9 @@ export function Ask() {
             ))}
           </div>
         )}
-        {question?.text && <p className={question.notes?.length ? 'mt-4' : ''}>{question.text}</p>}
+        {question?.text && <p className={question.notes?.length ? 'mo-editor-ask-follow' : ''}>{question.text}</p>}
         {question?.input && (
-          <div className="mt-4">
+          <div className="mo-editor-ask-follow">
             {question.input.type === 'datetime' ? (
               <DateTimeField id="ask-input" label={question.input.label} value={text} onChange={setText} />
             ) : (
@@ -110,7 +110,7 @@ export function Ask() {
             )}
           </div>
         )}
-        <div className={`mt-6 flex gap-2 ${many ? 'flex-col' : 'justify-end'}`}>
+        <div className={`mo-editor-ask-buttons ${many ? 'mo-editor-ask-buttons-stacked' : 'mo-row-end'}`}>
           {row &&
             [...choices].reverse().map((c, i, all) => (
               <Button key={c.value} kind={i === all.length - 1 ? 'filled' : 'outlined'} onClick={() => answer(c.value)}>
