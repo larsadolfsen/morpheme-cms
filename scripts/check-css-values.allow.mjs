@@ -2,6 +2,12 @@
 // the file, the line's text and the reason. Keep it small: a new entry is reviewed.
 export const allow = [
   {
+    file: /editor-forms\.css$/,
+    line: /^(font-size: 20px|line-height: (22|26)px|letter-spacing: -0\.025em)/,
+    reason:
+      "the search result preview draws Google's own result at Google's own pixel sizes, and the logo preview draws the name at the site logo's tracking; neither is a step of the scale",
+  },
+  {
     file: /^src\/editor-rest\.css$/,
     line: /^font-size: (0\.875|1)rem|^line-height: 1\.(25|5)rem|^border-radius: (0\.5|0\.75)rem/,
     reason:

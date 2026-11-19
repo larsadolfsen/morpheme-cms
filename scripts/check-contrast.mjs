@@ -78,7 +78,7 @@ const scan = `(root) => {
     if (card) return 'editor ' + (card.getAttribute('aria-label') ?? '').toLowerCase();
     for (let e = el; e && e !== document.body; e = e.parentElement) {
       const cls = typeof e.className === 'string' ? e.className : '';
-      const t = e.getAttribute('data-block') ?? (/\\bblock-in-text\\b/.test(cls) || e.classList.contains('site-block-inline') ? /\\bblock-(?!in-text)([a-z]+)/.exec(cls)?.[1] : null);
+      const t = e.getAttribute('data-block') ?? (/\\bmo-is-in-text\\b/.test(cls) || e.classList.contains('site-block-inline') ? /\\bmo-block-([a-z]+)/.exec(cls)?.[1] : null);
       if (t) return t;
     }
     for (let e = el; e && e !== document.body; e = e.parentElement) {

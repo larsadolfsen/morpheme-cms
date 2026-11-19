@@ -12,39 +12,20 @@
   "src/App.tsx": {
     "utilities": 28
   },
-  "src/AppList.tsx": {
-    "utilities": 48
-  },
   "src/ask.tsx": {
     "utilities": 19
   },
   "src/Assistants.tsx": {
     "utilities": 21
   },
-  "src/BlockDialog.tsx": {
-    "utilities": 31
-  },
-  "src/BlockParts.tsx": {
-    "utilities": 45,
-    "constants": 11
-  },
   "src/BlockSettings.tsx": {
     "utilities": 26
-  },
-  "src/BrandForm.tsx": {
-    "utilities": 48
   },
   "src/CmsPage.tsx": {
     "utilities": 23
   },
   "src/Colors.tsx": {
     "utilities": 19
-  },
-  "src/CommunicationParts.tsx": {
-    "utilities": 44
-  },
-  "src/ContainmentParts.tsx": {
-    "utilities": 39
   },
   "src/CropView.tsx": {
     "utilities": 18
@@ -58,9 +39,6 @@
   "src/EntryForm.tsx": {
     "utilities": 24
   },
-  "src/fields.tsx": {
-    "utilities": 50
-  },
   "src/Licenses.tsx": {
     "utilities": 19
   },
@@ -69,13 +47,6 @@
   },
   "src/MediaProviderPicker.tsx": {
     "utilities": 23
-  },
-  "src/NavigationParts.tsx": {
-    "utilities": 33,
-    "constants": 4
-  },
-  "src/NavigationRestParts.tsx": {
-    "utilities": 54
   },
   "src/Parts.tsx": {
     "utilities": 19,
@@ -94,15 +65,8 @@
   "src/ReleaseNotes.tsx": {
     "utilities": 22
   },
-  "src/SearchPreview.tsx": {
-    "utilities": 53
-  },
   "src/ThemeStore.tsx": {
     "utilities": 30
-  },
-  "src/ui.tsx": {
-    "utilities": 657,
-    "constants": 38
   },
   "theme/blocks/video/View.tsx": {
     "constants": 1

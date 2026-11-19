@@ -93,18 +93,18 @@ function BlockShown({ block, data }: { block: SiteBlock; data: BlockData }) {
 /** The theme's chips, as the site draws them: every kind, elevated on an image, in every state (chosen, with an icon or
  * an image, with the button that removes it, dragged, only shown) and disabled. */
 function ChipParts() {
-  const row = 'flex flex-wrap items-center gap-3';
+  const row = 'mo-editor-parts-row';
   const { input, filter, suggestion, assist } = screens.chipKinds;
   return (
     <Part name="Chip" use={screens.chip}>
       <Preview>
-        <div className="space-y-4 p-4">
+        <div className="mo-editor-parts-chips">
           <div className={row}>
             {chipKinds.map((k) => (
               <SiteChip key={k} kind={k} label={screens.chipKinds[k]} />
             ))}
           </div>
-          <div className={`${row} rounded-xl bg-cover bg-center p-4`} style={{ backgroundImage: `url("${exampleImage}")` }}>
+          <div className={`${row} mo-editor-parts-chip-image`} style={{ backgroundImage: `url("${exampleImage}")` }}>
             <SiteChip elevated icon="calendar-blank" label={`${assist} · ${screens.elevated}`} />
             <SiteChip elevated kind="filter" label={`${filter} · ${screens.elevated}`} />
             <SiteChip elevated kind="filter" selected label={screens.selected} />
@@ -140,7 +140,7 @@ function ChipSetParts() {
   return (
     <Part name="ChipSet" use={screens.chipSet}>
       <Preview>
-        <div className="max-w-sm space-y-4 p-4">
+        <div className="mo-editor-parts-chip-sets">
           {chipSetLayouts.map((layout) => (
             <SiteChipSet key={layout} layout={layout} label={screens.chipSetLayouts[layout]}>
               {[...chipKinds, ...chipKinds].map((k, i) => (
@@ -163,13 +163,13 @@ const toggleKinds = buttonKinds.filter((k) => k !== 'text');
 /** The theme's buttons and icon buttons, as the site draws them: every kind, the five sizes, both shapes, each kind
  * that can be a toggle off and on in both shapes, the icon buttons' widths, with an icon, and disabled. */
 function ButtonParts() {
-  const row = 'flex flex-wrap items-center gap-3';
+  const row = 'mo-editor-parts-row';
   const kinds = t.blocks.buttons.kinds;
   return (
     <>
       <Part name="Button" use={screens.button}>
         <Preview>
-          <div className="space-y-4 p-4">
+          <div className="mo-editor-parts-chips">
             <div className={row}>
               {buttonKinds.map((k) => (
                 <SiteButton key={k} kind={k}>
@@ -221,7 +221,7 @@ function ButtonParts() {
       </Part>
       <Part name="IconButton" use={screens.iconButton}>
         <Preview>
-          <div className="space-y-4 p-4">
+          <div className="mo-editor-parts-chips">
             <div className={row}>
               {iconButtonKinds.map((k) => (
                 <SiteIconButton key={k} kind={k} icon="x" label={screens.iconKinds[k]} title={screens.iconKinds[k]} />
@@ -295,12 +295,12 @@ function ButtonParts() {
  * prefix and a suffix, the error's icon, a password with its button, a counter, read-only, and several lines (growing,
  * and three rows); and a checkbox empty, ticked, with a line, disabled, indeterminate and wrong. */
 function FieldParts() {
-  const fields = 'grid gap-6 medium:grid-cols-2';
+  const fields = 'mo-editor-parts-field-grid';
   return (
     <>
       <Part name="TextField" use={screens.textField}>
         <Preview>
-          <div className="space-y-6 p-4">
+          <div className="mo-editor-parts-fields">
             {(['outlined', 'filled'] as const).map((kind) => (
               <div key={kind} className={fields} aria-label={screens.fieldKinds[kind]} role="group">
                 <SiteTextField kind={kind} label={screens.fieldLabel} type="email" />
@@ -373,7 +373,7 @@ function FieldParts() {
       </Part>
       <Part name="Checkbox" use={screens.checkbox}>
         <Preview>
-          <div className={`${fields} p-4`}>
+          <div className={`${fields} mo-editor-parts-checkboxes`}>
             <SiteCheckbox label={screens.checkboxLabel} />
             <SiteCheckbox label={screens.checkboxLabel} checked />
             <SiteCheckbox label={screens.checkboxLabel} supporting={screens.checkboxSupporting} />
@@ -401,16 +401,16 @@ function CardParts() {
     <>
       <Part name="Card" use={say.card}>
         <Preview>
-          <div className="grid gap-4 p-4 medium:grid-cols-2">
+          <div className="mo-editor-parts-cards">
             {cardKinds.map((k) => (
               <SiteCard key={k} kind={k}>
-                <p className="font-medium">{say.kinds[k]}</p>
-                <p className="mt-1 text-on-surface-variant">{say.text}</p>
+                <p className="mo-editor-parts-card-title">{say.kinds[k]}</p>
+                <p className="mo-editor-parts-card-text">{say.text}</p>
               </SiteCard>
             ))}
             <SiteCard href="">
-              <p className="font-medium">{say.link}</p>
-              <p className="mt-1 text-on-surface-variant">{say.text}</p>
+              <p className="mo-editor-parts-card-title">{say.link}</p>
+              <p className="mo-editor-parts-card-text">{say.text}</p>
             </SiteCard>
             {cardKinds.map((k) => (
               <SiteCard
@@ -438,8 +438,8 @@ function CardParts() {
             <SiteCard kind="outlined" selected headline={say.anatomy.headline} supporting={say.anatomy.supporting} />
             {cardKinds.map((k) => (
               <SiteCard key={k} kind={k} dragged>
-                <p className="font-medium">{`${say.kinds[k]} · ${screens.dragged}`}</p>
-                <p className="mt-1 text-on-surface-variant">{say.text}</p>
+                <p className="mo-editor-parts-card-title">{`${say.kinds[k]} · ${screens.dragged}`}</p>
+                <p className="mo-editor-parts-card-text">{say.text}</p>
               </SiteCard>
             ))}
           </div>
@@ -447,7 +447,7 @@ function CardParts() {
       </Part>
       <Part name="Avatar" use={say.avatar}>
         <Preview>
-          <div className="flex items-center gap-4 p-4">
+          <div className="mo-editor-parts-list-row">
             <SiteAvatar>{lists.letter}</SiteAvatar>
             <SiteAvatar image={{ src: exampleImage }} />
           </div>
@@ -457,7 +457,7 @@ function CardParts() {
         <Preview>
           {/* The page is Surface, so the segmented list's rows are on the surface container here (the theme's default, Surface, is for a list on a higher container). */}
           <div
-            className="grid items-start gap-4 p-4 expanded:grid-cols-2"
+            className="mo-editor-parts-lists"
             style={{ '--mo-comp-list-list-item-segmented-container-color': 'var(--mo-sys-color-surface-container)' } as CSSProperties}
           >
             <SiteCard>
@@ -600,9 +600,9 @@ export function ComponentParts() {
   ];
   return (
     <Screen title={screens.components} back={back}>
-      <div className="space-y-10">
-        <div className="space-y-3">
-          <p className="text-on-surface-variant">{screens.componentsIntro}</p>
+      <div className="mo-editor-parts-sections">
+        <div className="mo-editor-parts-intro">
+          <p className="mo-editor-parts-intro-text">{screens.componentsIntro}</p>
           <CoverageSummary />
         </div>
         <PartsShown groups={groups} keep="parts-components" search={screens.search} none={screens.none} styleFilter>
@@ -656,8 +656,8 @@ export function BlocksParts() {
   const blocks = [...standardBlocks, ...apps.flatMap((app) => siteBlocks.filter((b) => b.app === app.id))];
   return (
     <Screen title={screens.blocks} back={back}>
-      <div className="space-y-10">
-        <p className="text-on-surface-variant">{screens.blocksIntro}</p>
+      <div className="mo-editor-parts-sections">
+        <p className="mo-editor-parts-intro-text">{screens.blocksIntro}</p>
         <PartsShown
           groups={blocks.map((b) => ({ id: b.type, title: b.label }))}
           keep="parts-blocks"
@@ -700,8 +700,8 @@ export function KindParts({ id }: { id: string }) {
   const kinds = [...own, ...added];
   return (
     <Screen title={list.label} back={back}>
-      <div className="space-y-10">
-        <p className="text-on-surface-variant">{screens.kindsIntro(list.singular)}</p>
+      <div className="mo-editor-parts-sections">
+        <p className="mo-editor-parts-intro-text">{screens.kindsIntro(list.singular)}</p>
         <PartsShown
           groups={kinds.map((k) => ({ id: k.id, title: k.label }))}
           keep={`parts-list-${list.id}`}

@@ -92,8 +92,8 @@ export default function NavigationRestParts() {
     <>
       <Part name="NavigationBar" use={say.navigationBar}>
         <Preview>
-          <div className="space-y-4">
-            <div className="mx-auto max-w-sm">
+          <div className="mo-editor-nav-demo">
+            <div className="mo-editor-nav-demo-narrow">
               <SiteNavigationBar label={say.name}>
                 <Destinations />
               </SiteNavigationBar>
@@ -109,8 +109,8 @@ export default function NavigationRestParts() {
       </Part>
       <Part name="NavigationRail" use={say.navigationRail}>
         <Preview>
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-start gap-4">
+          <div className="mo-editor-nav-demo">
+            <div className="mo-editor-nav-demo-row">
               {[false, true].map((expanded) => (
                 <SiteNavigationRail
                   key={String(expanded)}
@@ -123,7 +123,7 @@ export default function NavigationRestParts() {
                 </SiteNavigationRail>
               ))}
             </div>
-            <div className="flex flex-wrap items-start gap-4">
+            <div className="mo-editor-nav-demo-row">
               {[false, true].map((expanded) => (
                 <SiteNavigationRail key={String(expanded)} label={say.name} menuLabel={say.menu} expanded={expanded}>
                   {say.sections.map((section, s) => (
@@ -144,7 +144,7 @@ export default function NavigationRestParts() {
               ))}
             </div>
             {/* Over the content: its scrim (fixed on the site) held in this box. */}
-            <div className="flex transform-gpu overflow-hidden">
+            <div className="mo-editor-nav-rail-frame">
               <SiteNavigationRail
                 label={say.name}
                 menuLabel={say.menu}
@@ -154,14 +154,14 @@ export default function NavigationRestParts() {
               >
                 <Destinations rail />
               </SiteNavigationRail>
-              <p className="p-4 text-sm text-on-surface-variant">{say.content}</p>
+              <p className="mo-editor-nav-note">{say.content}</p>
             </div>
-            <div className="space-y-4">
-              <div className="flex">
+            <div className="mo-editor-nav-demo">
+              <div className="mo-editor-nav-rail-row">
                 <SiteNavigationRail id="parts-navigation-rail-hidden" label={say.name} menuLabel={say.menu} expandedBehavior="hide">
                   <Destinations rail />
                 </SiteNavigationRail>
-                <div className="flex items-start gap-2 p-2">
+                <div className="mo-editor-nav-rail-actions">
                   <SiteIconButton
                     icon="list"
                     label={say.openRail}
@@ -169,14 +169,14 @@ export default function NavigationRestParts() {
                     aria-expanded="false"
                     data-navigation-rail-menu=""
                   />
-                  <p className="py-3 text-sm text-on-surface-variant">{say.content}</p>
+                  <p className="mo-editor-nav-hint">{say.content}</p>
                 </div>
               </div>
-              <div className="flex">
+              <div className="mo-editor-nav-rail-row">
                 <SiteNavigationRail label={say.name} menuLabel={say.menu} expanded expandedBehavior="hide">
                   <Destinations rail />
                 </SiteNavigationRail>
-                <p className="p-4 text-sm text-on-surface-variant">{say.content}</p>
+                <p className="mo-editor-nav-note">{say.content}</p>
               </div>
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function NavigationRestParts() {
       </Part>
       <Part name="Search" use={say.search}>
         <Preview>
-          <div className="mx-auto max-w-md space-y-4 p-2">
+          <div className="mo-editor-nav-search-demo">
             <SiteSearch
               label={say.searchLabel}
               backLabel={say.back}
@@ -209,7 +209,7 @@ export default function NavigationRestParts() {
             />
             <SearchViewExample />
             <SearchBarButton label={say.searchLabel} open={false} keys="Control+K" onOpen={() => {}} />
-            <div className="rounded-xl bg-surface-container-high py-2">
+            <div className="mo-editor-nav-search-results">
               <SiteSearchGroupLabel>{say.viewGroups[0]}</SiteSearchGroupLabel>
             </div>
           </div>
@@ -217,8 +217,8 @@ export default function NavigationRestParts() {
       </Part>
       <Part name="Toolbar" use={say.toolbar}>
         <Preview>
-          <div className="space-y-4">
-            <div className="mx-auto max-w-sm space-y-4">
+          <div className="mo-editor-nav-demo">
+            <div className="mo-editor-nav-colors">
               {colors.map((color) => (
                 <SiteToolbar key={color} label={say.colors[color]} color={color}>
                   {actions.map((icon, i) => (
@@ -235,7 +235,7 @@ export default function NavigationRestParts() {
                 </SiteButton>
               </SiteToolbar>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-4 p-2">
+            <div className="mo-editor-nav-color-row">
               {colors.map((color) => (
                 <SiteToolbar key={color} label={say.colors[color]} kind="floating" color={color}>
                   {actions.map((icon, i) => (
@@ -257,7 +257,7 @@ export default function NavigationRestParts() {
                 </SiteToolbar>
               ))}
             </div>
-            <div className="flex flex-wrap items-end justify-center gap-6 p-2">
+            <div className="mo-editor-nav-color-row-wide">
               {colors.map((color) => (
                 <SiteToolbar
                   key={color}
