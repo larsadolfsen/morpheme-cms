@@ -102,7 +102,7 @@ export function PartsShown({
 
   return (
     <>
-      <div className="space-y-3">
+      <div className="mo-editor-flow-3">
         <SearchRow
           value={search}
           onChange={setSearch}
@@ -145,7 +145,7 @@ export function PartsShown({
           }
         />
         {groupTitle && (
-          <div className="flex flex-wrap gap-2">
+          <div className="mo-editor-settings-chips">
             <InputChip removeLabel={t.library.removeFilter(groupTitle)} onRemove={() => setGroup('')}>
               {groupTitle}
             </InputChip>
@@ -153,7 +153,7 @@ export function PartsShown({
         )}
       </div>
       <Shown.Provider value={{ group, style, query: search, sort, groups, order }}>
-        <div ref={list} className={sort === 'group' ? 'space-y-10' : 'flex flex-col gap-10'}>
+        <div ref={list} className={sort === 'group' ? 'mo-editor-flow-10' : 'mo-editor-settings-parts-list'}>
           {headings.map((h) => (
             <div key={h.key} style={{ order: h.order }}>
               <FormHeading>{h.key}</FormHeading>
@@ -173,9 +173,9 @@ export function PartsShown({
 export function PartGroup({ group, children }: { group: string; children: ReactNode }) {
   const shown = useContext(Shown);
   if (shown.group && shown.group !== group) return null;
-  if (shown.sort !== 'group') return <div className="contents">{children}</div>;
+  if (shown.sort !== 'group') return <div className="mo-contents">{children}</div>;
   return (
-    <div className="space-y-10 [&:not(:has([data-part]))]:hidden">
+    <div className="mo-editor-parts-group">
       {!shown.group && <FormHeading>{shown.groups.find((g) => g.id === group)?.title}</FormHeading>}
       {children}
     </div>
@@ -192,9 +192,9 @@ export function Part({ name, use, coverage, children }: { name: string; use?: st
   const query = shown.query.trim().toLocaleLowerCase();
   if (query && !`${name} ${use ?? ''}`.toLocaleLowerCase().includes(query)) return null;
   return (
-    <section data-part={name} className="space-y-3" style={{ order: shown.order.get(name) }}>
+    <section data-part={name} className="mo-editor-flow-3" style={{ order: shown.order.get(name) }}>
       <div>
-        <h2 className="font-mono text-sm font-medium text-primary">{name}</h2>
+        <h2 className="mo-editor-part-name">{name}</h2>
         {use && <SupportingText>{use}</SupportingText>}
         {covered && <CoverageBadge coverage={covered} />}
       </div>

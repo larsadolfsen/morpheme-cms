@@ -3,35 +3,35 @@
 /* A segmented List - Expand whose rows lead with an avatar or an image starts the media 16 dp in, as the segmented List does (owner, 16 Nov 2026: "too much padding
      left of the media"); the 24 dp of the old segmented look stays for rows with no media. */
 @layer components {
-  .block-accordion-segmented:has(.list-item-leading-avatar, .list-item-leading-image, .list-item-leading-video) {
+  .mo-block-accordion__segmented:has(.mo-list__item-leading-avatar, .mo-list__item-leading-image, .mo-list__item-leading-video) {
     --mo-comp-list-expand-padding-inline: 1rem;
   }
 }
 /* A row's square and landscape image has Material 3's small corner, 8 dp (owner, 16 Nov 2026, from the M3 segmented list with images); only the avatar is round. */
 @layer components {
-  .block-list,
-  .block-accordion {
+  .mo-block-list,
+  .mo-block-accordion {
     --mo-comp-list-item-image-radius: var(--mo-sys-shape-corner-small);
   }
 }
 /* The plain design of a list (its rows on the page, no drawn container) starts its rows' own content, the leading icon or else the text, on the text's
-     left edge (the row's 16 dp, M3 Lists › Specs "leading space", belongs to a drawn container, which only the segmented design has: .list-segmented,
-     .block-accordion-segmented). On compact screens it is also full width (owner, 16 Nov 2026: "Full width on compact screens"; M3 Lists "edge-to-edge in compact
+     left edge (the row's 16 dp, M3 Lists › Specs "leading space", belongs to a drawn container, which only the segmented design has: .mo-list__segmented,
+     .mo-block-accordion__segmented). On compact screens it is also full width (owner, 16 Nov 2026: "Full width on compact screens"; M3 Lists "edge-to-edge in compact
      windows"): the layer of a row (hovered, pressed, focused, selected) reaches the row's 16 dp past the text column on both sides, the content stays on the text
      edges, and the layer has square corners. It is the row's own inner padding and an equal negative margin of the list; from medium the layer is on the text column. */
 @layer components {
-  .block-list:not(.list-segmented) {
+  .mo-block-list:not(.mo-list__segmented) {
     --mo-comp-list-item-padding-inline: 0;
   }
 }
 @layer components {
-  .block-accordion:not(.block-accordion-segmented) {
+  .mo-block-accordion:not(.mo-block-accordion__segmented) {
     --mo-comp-list-expand-padding-inline: 0;
   }
 }
 @layer components {
   @media (width < 37.5rem) {
-    .block-list:not(.list-segmented) {
+    .mo-block-list:not(.mo-list__segmented) {
       --mo-comp-list-item-padding-inline: var(--mo-sys-block-list-layer-room);
       /* Edge to edge, a row's layer has no rounded corners, at rest, pointed at, pressed or selected (owner, 16 Nov 2026: "No border radius when full width"). */
       --mo-comp-list-list-item-container-shape: 0;
@@ -43,7 +43,7 @@
 }
 @layer components {
   @media (width < 37.5rem) {
-    .block-accordion:not(.block-accordion-segmented) {
+    .mo-block-accordion:not(.mo-block-accordion__segmented) {
       --mo-comp-list-expand-padding-inline: var(--mo-sys-block-list-layer-room);
       /* Edge to edge, an open item's colour has square corners too. */
       --mo-comp-list-expand-open-radius: 0;

@@ -71,7 +71,7 @@ function usePageSheet({ value, groups, required, title, hint, onChange }: Sheet)
       onClick={(e) => e.target === dialog.current && dialog.current.close()}
     >
       <SheetTitle title={title ?? t.forms.pickPage} onClose={() => dialog.current?.close()} />
-      {hint && <SupportingText className="mx-5 mb-3 shrink-0">{hint}</SupportingText>}
+      {hint && <SupportingText className="mo-editor-picker-hint">{hint}</SupportingText>}
       <SearchRow
         inputRef={search}
         value={query}
@@ -79,19 +79,19 @@ function usePageSheet({ value, groups, required, title, hint, onChange }: Sheet)
         label={t.forms.searchPages}
         sort={tools.sort}
         filter={tools.filter}
-        className="mx-5 mb-2 shrink-0"
+        className="mo-editor-picker-search"
       />
       {tools.chips}
       <SheetList div>
         {!required && !q && !tools.filtered && (
           <ul>
             <Choice role="option" selected={!value} onClick={() => pick('')}>
-              <span className={value ? 'text-on-surface-variant' : ''}>{t.forms.noPage}</span>
+              <span className={value ? 'mo-editor-muted' : ''}>{t.forms.noPage}</span>
             </Choice>
           </ul>
         )}
         {found.map((g) => (
-          <section key={g.title} className="mt-2">
+          <section key={g.title} className="mo-editor-sheet-group">
             {groups.length > 1 && <SheetGroupTitle>{g.title}</SheetGroupTitle>}
             <ul>
               {g.options.map((o) => (
@@ -117,7 +117,7 @@ export default function PagePicker({ id, inField, ...props }: Sheet & { id: stri
   return (
     <>
       <ChoiceField id={id} arrow={CaretRight} onClick={show} {...inField}>
-        <span className={`min-w-0 flex-1 truncate ${page ? '' : 'opacity-60'}`}>{shown}</span>
+        <span className={`mo-fill mo-truncate ${page ? '' : 'mo-editor-placeholder'}`}>{shown}</span>
       </ChoiceField>
       {sheet}
     </>

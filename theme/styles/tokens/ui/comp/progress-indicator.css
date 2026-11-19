@@ -1,34 +1,34 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  .circular-progress-indicator-track {
+  .mo-circular-progress-indicator__track {
     --mo-comp-circular-progress-indicator-shown-gap: calc(
-      var(--mo-comp-circular-progress-indicator-gap, 0) * min(1, var(--progress, 0) * 1000)
+      var(--mo-comp-circular-progress-indicator-gap, 0) * min(1, var(--mo-comp-progress-indicator-progress, 0) * 1000)
     );
     --mo-comp-circular-progress-indicator-rest: calc(
-      100 - var(--progress, 0) * 100 - 2 * var(--mo-comp-circular-progress-indicator-shown-gap)
+      100 - var(--mo-comp-progress-indicator-progress, 0) * 100 - 2 * var(--mo-comp-circular-progress-indicator-shown-gap)
     );
   }
 }
 /* Thick (M3 Expressive): a thicker track, and a ring a little bigger. */
 @layer components {
-  .linear-progress-indicator-thick {
-    --mo-comp-progress-indicator-linear-active-indicator-thickness: var(--linear-progress-indicator-thick-height, 0.625rem);
+  .mo-linear-progress-indicator__thick {
+    --mo-comp-progress-indicator-linear-active-indicator-thickness: var(--mo-comp-linear-progress-indicator-thick-height, 0.625rem);
   }
 }
 @layer components {
-  .circular-progress-indicator-thick {
-    --mo-comp-progress-indicator-circular-active-indicator-thickness: var(--circular-progress-indicator-thick-thickness, 8);
-    --mo-comp-circular-progress-indicator-size: var(--circular-progress-indicator-thick-size, 2.75rem);
+  .mo-circular-progress-indicator__thick {
+    --mo-comp-progress-indicator-circular-active-indicator-thickness: var(--mo-comp-circular-progress-indicator-thick-thickness, 8);
+    --mo-comp-circular-progress-indicator-size: var(--mo-comp-circular-progress-indicator-thick-size, 2.75rem);
   }
 }
 @layer components {
-  .circular-progress-indicator-wavy {
-    --mo-comp-circular-progress-indicator-size: var(--circular-progress-indicator-wavy-size, 3rem);
+  .mo-circular-progress-indicator__wavy {
+    --mo-comp-circular-progress-indicator-size: var(--mo-comp-circular-progress-indicator-wavy-size, 3rem);
   }
 }
 @layer components {
-  .circular-progress-indicator-wavy.circular-progress-indicator-thick {
-    --mo-comp-circular-progress-indicator-size: var(--circular-progress-indicator-wavy-thick-size, 3.25rem);
+  .mo-circular-progress-indicator__wavy.mo-circular-progress-indicator__thick {
+    --mo-comp-circular-progress-indicator-size: var(--mo-comp-circular-progress-indicator-wavy-thick-size, 3.25rem);
   }
 }

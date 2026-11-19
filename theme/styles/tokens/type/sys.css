@@ -2,12 +2,13 @@
 
 @layer utilities {
   .mo-type-lead {
-    /* The space of a lead paragraph in a text (.prose, base.css): 24px, on the 4dp grid. */
+    /* The space of a lead paragraph in a text (.mo-prose, base.css): 24px, on the 4dp grid. */
     --mo-sys-prose-space: 1.5rem;
   }
 }
 @layer utilities {
-  .\[\&\>p\:first-child\]\:mo-type-lead > p:first-child {
+  .mo-text-lead > p:first-child,
+  .mo-page__text:where(.mo-is-single-column) > p:first-child {
     --mo-sys-prose-space: 1.5rem;
   }
 }

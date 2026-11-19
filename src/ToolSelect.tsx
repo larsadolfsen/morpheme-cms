@@ -48,7 +48,7 @@ export function ToolSelect({
         empty={loaded === null ? t.apps.mcpLoading : t.forms.choose}
         onChange={onChange}
       />
-      {loaded === 'failed' && <SupportingText className="mt-1">{t.apps.mcpNotLoaded(tool)}</SupportingText>}
+      {loaded === 'failed' && <SupportingText className="mo-editor-supporting-tight">{t.apps.mcpNotLoaded(tool)}</SupportingText>}
     </>
   );
 }

@@ -29,8 +29,8 @@ async function run(width, height) {
     await page.close();
     return;
   }
-  const visible = () => root.locator('.block-imagegrid-grid > li:not([hidden])').count();
-  const total = await root.locator('.block-imagegrid-grid > li').count();
+  const visible = () => root.locator('.mo-block-imagegrid__grid > li:not([hidden])').count();
+  const total = await root.locator('.mo-block-imagegrid__grid > li').count();
   await root.scrollIntoViewIfNeeded();
   if (!(await root.locator('[data-imagegrid-filter]').isVisible())) problems.push(`${label}: the filter is not shown`);
   if ((await visible()) !== total) problems.push(`${label}: not every image shows to begin with`);
@@ -45,13 +45,13 @@ async function run(width, height) {
     if ((await first.getAttribute('aria-pressed')) !== 'true') problems.push(`${label}: the chosen chip is not pressed`);
     if (!(await page.evaluate(() => location.hash)).includes(`tags=${tags[0]}`)) problems.push(`${label}: the tag is not in the address`);
     const wrong = await root
-      .locator('.block-imagegrid-grid > li:not([hidden])')
+      .locator('.mo-block-imagegrid__grid > li:not([hidden])')
       .evaluateAll((items, tag) => items.filter((li) => !(li.dataset.tags ?? '').split(',').includes(tag)).length, tags[0]);
     if (wrong) problems.push(`${label}: ${wrong} image(s) without the tag show`);
     // Every chip that would leave nothing is disabled, and no other.
     const state = await chips.evaluateAll((all) => all.map((c) => [c.dataset.tag, c.disabled]));
     const items = await root
-      .locator('.block-imagegrid-grid > li')
+      .locator('.mo-block-imagegrid__grid > li')
       .evaluateAll((all) => all.map((li) => (li.dataset.tags ?? '').split(',')));
     for (const [tag, disabled] of state) {
       if (tag === tags[0]) continue;
@@ -68,7 +68,7 @@ async function run(width, height) {
   }
 
   // The lightbox: the second image opens at the second place, Next and Previous move, Escape closes and the focus goes back to the card.
-  const card = root.locator('.block-imagegrid-grid > li:not([hidden]) a[data-image]').nth(1);
+  const card = root.locator('.mo-block-imagegrid__grid > li:not([hidden]) a[data-image]').nth(1);
   await card.scrollIntoViewIfNeeded();
   await card.click();
   const dialog = root.locator('dialog[data-lightbox]');
@@ -90,7 +90,7 @@ async function run(width, height) {
         problems.push(`${label}: ArrowLeft does not go back to image 2`);
       });
     const big = await dialog
-      .locator('.lightbox-item img')
+      .locator('.mo-lightbox__item img')
       .first()
       .evaluate((img) => img.getAttribute('srcset') !== null || img.src !== '');
     if (!big) problems.push(`${label}: the lightbox has no image`);

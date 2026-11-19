@@ -1,16 +1,16 @@
 /*
   Loading indicator (LoadingIndicator, loadingIndicatorClass; M3 Expressive, m3.material.io/components/loading-indicator):
-  .loading-indicator with its .loading-indicator-shape, which turns and morphs through Material's shapes (soft burst,
-  9-sided cookie, pentagon, pill, sunny, 4-sided cookie, oval); .loading-indicator-contained in its round container.
-    --mo-comp-loading-indicator-active-indicator-size, --mo-comp-loading-indicator-shape-size, --mo-comp-loading-indicator-active-indicator-color, --loading-indicator-duration
-    --loading-indicator-container, --loading-indicator-contained-colour
+  .mo-loading-indicator with its .mo-loading-indicator__shape, which turns and morphs through Material's shapes (soft burst,
+  9-sided cookie, pentagon, pill, sunny, 4-sided cookie, oval); .mo-loading-indicator__contained in its round container.
+    --mo-comp-loading-indicator-active-indicator-size, --mo-comp-loading-indicator-shape-size, --mo-comp-loading-indicator-active-indicator-color, --mo-comp-loading-indicator-duration
+    --mo-comp-loading-indicator-container, --mo-comp-loading-indicator-contained-colour
   Moved here from ui.css with its rules and keyframes unchanged and in their order; imported by base.css right after ui.css, in the same layer.
   The reduced-motion rules of the loading indicator and the progress indicators (one @layer fallback block, shared with the tooltip's) are in reduced-motion.css.
   (docs/superpowers/plans/2026-11-16-css-split.md).
 */
 @layer components {
   /* Loading indicator (M3 Expressive): a shape that turns and morphs, by itself or in its round container. */
-  .loading-indicator {
+  .mo-loading-indicator {
     display: inline-grid;
     flex-shrink: 0;
     place-items: center;
@@ -18,20 +18,20 @@
     height: var(--mo-comp-loading-indicator-active-indicator-size, 3rem);
     border-radius: var(--mo-sys-shape-corner-full);
   }
-  .loading-indicator-contained {
-    background: var(--loading-indicator-container, var(--mo-sys-block-tint));
+  .mo-loading-indicator__contained {
+    background: var(--mo-comp-loading-indicator-container, var(--mo-sys-block-tint));
   }
-  .loading-indicator-shape {
+  .mo-loading-indicator__shape {
     width: var(--mo-comp-loading-indicator-shape-size, 2.375rem);
     height: var(--mo-comp-loading-indicator-shape-size, 2.375rem);
     background: var(--mo-comp-loading-indicator-active-indicator-color, var(--mo-sys-block-accent));
     /* prettier-ignore */
     clip-path: polygon(50% 0%, 55% 2%, 59.3% 6.2%, 63.3% 9.1%, 68.2% 9.1%, 74.1% 8.2%, 79.4% 9.5%, 82.3% 14.1%, 83.3% 20.1%, 84.8% 24.7%, 88.8% 27.6%, 94.1% 30.4%, 97.6% 34.5%, 97.2% 40%, 94.5% 45.3%, 93% 50%, 94.5% 54.7%, 97.2% 60%, 97.6% 65.5%, 94.1% 69.6%, 88.8% 72.4%, 84.8% 75.3%, 83.3% 79.9%, 82.3% 85.9%, 79.4% 90.5%, 74.1% 91.8%, 68.2% 90.9%, 63.3% 90.9%, 59.3% 93.8%, 55% 98%, 50% 100%, 45% 98%, 40.7% 93.8%, 36.7% 90.9%, 31.8% 90.9%, 25.9% 91.8%, 20.6% 90.5%, 17.7% 85.9%, 16.7% 79.9%, 15.2% 75.3%, 11.2% 72.4%, 5.9% 69.6%, 2.4% 65.5%, 2.8% 60%, 5.5% 54.7%, 7% 50%, 5.5% 45.3%, 2.8% 40%, 2.4% 34.5%, 5.9% 30.4%, 11.2% 27.6%, 15.2% 24.7%, 16.7% 20.1%, 17.7% 14.1%, 20.6% 9.5%, 25.9% 8.2%, 31.8% 9.1%, 36.7% 9.1%, 40.7% 6.2%, 45% 2%);
-    animation: loading-indicator-morph var(--loading-indicator-duration, 4.55s) var(--mo-sys-block-ease) infinite;
+    animation: loading-indicator-morph var(--mo-comp-loading-indicator-duration, 4.55s) var(--mo-sys-block-ease) infinite;
   }
-  .loading-indicator-contained > .loading-indicator-shape {
+  .mo-loading-indicator__contained > .mo-loading-indicator__shape {
     background: var(
-      --loading-indicator-contained-colour,
+      --mo-comp-loading-indicator-contained-colour,
       var(--mo-comp-loading-indicator-active-indicator-color, var(--mo-sys-block-accent))
     );
   }

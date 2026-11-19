@@ -1,4 +1,4 @@
-// Owner rule, 17 Nov 2026: every token that is not Tailwind's follows Material 3's naming, `--mo-ref-*`, `--mo-sys-*` and `--mo-comp-<component>-*`,
+// Owner rule, 17 Nov 2026: every token follows Material 3's naming, `--mo-ref-*`, `--mo-sys-*` and `--mo-comp-<component>-*`,
 // and the old names are gone, with no alias (docs/superpowers/plans/2026-11-16-token-rename-table.md). This check fails on a name that was renamed
 // and comes back: scripts/renamed-tokens.json maps each old name to its new one (a rename PR adds its names), and a tracked file that still
 // writes an old name, whole, is a problem. Not read: docs/superpowers/ (plans and specs are history), release notes, changesets, CHANGELOG.md, and the list and test of this check.

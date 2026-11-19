@@ -50,12 +50,12 @@ async function checkDensityParts(width, height, touch) {
   page.on('pageerror', (e) => problems.push(`${width}px density parts: ${e.message}`));
   await openEditor(page, site);
   const parts = `
-    <button class="button" data-part="button">Label</button>
-    <button class="chip" data-part="chip">Label</button>
-    <div class="segmented-button"><button class="segmented-button-segment" data-part="segment">One</button><button class="segmented-button-segment">Two</button></div>
-    <div class="text-field text-field-outlined"><div class="text-field-container"><input class="text-field-input" data-part="field"></div></div>
-    <div class="list-item-container" data-part="row"><div class="list-item-content"><span class="list-item-headline">Row</span></div></div>
-    <div class="menu-item" data-part="menu-item">Item</div>`;
+    <button class="mo-button" data-part="button">Label</button>
+    <button class="mo-chip" data-part="chip">Label</button>
+    <div class="mo-segmented-button"><button class="mo-segmented-button__segment" data-part="segment">One</button><button class="mo-segmented-button__segment">Two</button></div>
+    <div class="mo-text-field mo-is-outlined"><div class="mo-text-field__container"><input class="mo-text-field__input" data-part="field"></div></div>
+    <div class="mo-list__item-container" data-part="row"><div class="mo-list__item-content"><span class="mo-list__item-headline">Row</span></div></div>
+    <div class="mo-menu__item" data-part="menu-item">Item</div>`;
   const measure = (attr) =>
     page.evaluate(
       ([attr, parts]) => {
@@ -64,7 +64,7 @@ async function checkDensityParts(width, height, touch) {
         else root.setAttribute('data-density', attr);
         const host = document.createElement('div');
         host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
-        host.innerHTML = `<div data-where="screen">${parts}</div><div class="editor-text"><div class="ProseMirror" data-where="content">${parts}</div></div><div data-density-fixed data-where="fixed">${parts}</div>`;
+        host.innerHTML = `<div data-where="screen">${parts}</div><div class="mo-editor-text"><div class="ProseMirror" data-where="content">${parts}</div></div><div data-density-fixed data-where="fixed">${parts}</div>`;
         document.body.append(host);
         const got = {};
         for (const where of host.querySelectorAll('[data-where]'))
@@ -128,13 +128,13 @@ async function checkDensityLayout(width, height) {
   page.on('pageerror', (e) => problems.push(`${width}px density layout: ${e.message}`));
   await openEditor(page, site);
   const layout = `
-    <div class="space-y-6"><p data-part="space-y">One</p><p>Two</p></div>
-    <p class="mb-8" data-part="mb">Margin</p>
-    <p class="pt-4" data-part="pt">Padding</p>
-    <p class="px-4" data-part="px">Side</p>
-    <div class="flex flex-col gap-4"><p data-part="gap">One</p><p>Two</p></div>
-    <p class="mb-2" data-part="small">Small gap</p>
-    <p class="mb-3 last:mb-0" data-part="last">Last</p>`;
+    <div class="mo-editor-stack-300"><p data-part="space-y">One</p><p>Two</p></div>
+    <p style="margin-block-end: var(--mo-comp-editor-rhythm-400)" data-part="mb">Margin</p>
+    <p style="padding-block-start: var(--mo-comp-editor-rhythm-200)" data-part="pt">Padding</p>
+    <p style="padding-inline-start: 1rem" data-part="px">Side</p>
+    <div style="display: flex; flex-direction: column; row-gap: var(--mo-comp-editor-rhythm-200)"><p data-part="gap">One</p><p>Two</p></div>
+    <p style="margin-block-end: 0.5rem" data-part="small">Small gap</p>
+    <p style="margin-block-end: 0" data-part="last">Last</p>`;
   const measure = (attr) =>
     page.evaluate(
       ([attr, layout]) => {
@@ -143,7 +143,7 @@ async function checkDensityLayout(width, height) {
         else root.setAttribute('data-density', attr);
         const host = document.createElement('div');
         host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
-        host.innerHTML = `<div data-where="screen">${layout}</div><div class="editor-text"><div class="ProseMirror" data-where="content">${layout}</div></div><div data-density-fixed data-where="fixed">${layout}</div>`;
+        host.innerHTML = `<div data-where="screen">${layout}</div><div class="mo-editor-text"><div class="ProseMirror" data-where="content">${layout}</div></div><div data-density-fixed data-where="fixed">${layout}</div>`;
         document.body.append(host);
         const px = (v) => Math.round(parseFloat(v) * 100) / 100;
         const got = {};
@@ -160,7 +160,7 @@ async function checkDensityLayout(width, height) {
             last: px(c('last').marginBlockEnd),
           };
         }
-        const screenEl = document.querySelector('.editor-screen');
+        const screenEl = document.querySelector('.mo-editor-screen');
         got.screen.top = screenEl ? px(getComputedStyle(screenEl).paddingTop) : null;
         host.remove();
         root.removeAttribute('data-density');
@@ -200,7 +200,7 @@ async function checkDensityTable(width, height) {
   page.on('pageerror', (e) => problems.push(`${width}px density table: ${e.message}`));
   await openEditor(page, site);
   const table =
-    '<div class="block-table block-table-grid"><table><thead><tr><th>Head</th></tr></thead><tbody><tr><td data-part="row">Cell</td></tr></tbody></table></div>';
+    '<div class="mo-block-table mo-block-table__grid"><table><thead><tr><th>Head</th></tr></thead><tbody><tr><td data-part="row">Cell</td></tr></tbody></table></div>';
   const measure = (attr) =>
     page.evaluate(
       ([attr, table]) => {
@@ -209,7 +209,7 @@ async function checkDensityTable(width, height) {
         else root.setAttribute('data-density', attr);
         const host = document.createElement('div');
         host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
-        host.innerHTML = `<div data-where="screen">${table}</div><div class="editor-text"><div class="ProseMirror" data-where="content">${table}</div></div><div data-density-fixed data-where="fixed">${table}</div>`;
+        host.innerHTML = `<div data-where="screen">${table}</div><div class="mo-editor-text"><div class="ProseMirror" data-where="content">${table}</div></div><div data-density-fixed data-where="fixed">${table}</div>`;
         document.body.append(host);
         const got = {};
         for (const where of host.querySelectorAll('[data-where]'))
@@ -269,7 +269,7 @@ async function checkDensityScreens(width, height) {
       const host = document.createElement('div');
       host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
       host.innerHTML =
-        '<button class="button" data-part="button">Label</button><button class="chip" data-part="chip">Label</button><div class="text-field text-field-outlined"><div class="text-field-container"><input class="text-field-input" data-part="field"></div></div><div class="list-item-container" data-part="row"><div class="list-item-content"><span class="list-item-headline" data-part="headline">Row</span></div></div>';
+        '<button class="mo-button" data-part="button">Label</button><button class="mo-chip" data-part="chip">Label</button><div class="mo-text-field mo-is-outlined"><div class="mo-text-field__container"><input class="mo-text-field__input" data-part="field"></div></div><div class="mo-list__item-container" data-part="row"><div class="mo-list__item-content"><span class="mo-list__item-headline" data-part="headline">Row</span></div></div>';
       document.body.append(host);
       const got = {};
       for (const el of host.querySelectorAll('[data-part]')) {

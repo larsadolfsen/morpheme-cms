@@ -1,7 +1,8 @@
-@import 'tailwindcss';
-@plugin '@tailwindcss/typography';
-/* Material's rules sit in the last layer, fallback: a theme's own unlayered rules beat them, whatever their specificity. */
-@layer theme, base, components, utilities, fallback;
+/* The layer order is ours, the first statement of the sheet: `mo-prose` (prose.css) sits right before `utilities`, so a utility rule still wins over `.mo-prose`.
+   Material's rules sit in the last layer, fallback: a theme's own unlayered rules beat them, whatever their specificity. */
+@layer base, components, prose, utilities, fallback;
+/* The reset, in the layer base, before every rule that builds on it. */
+@import './reset.css';
 /* The theme's UI components, as Material 3 names them (buttons, icon buttons, the menus, the lists …), one file for each part, imported in
    the order their rules had in the file ui.css was before the split (docs/theme-css-split.md); and the standard blocks of the editor, in this
    site's design (their variables below). */
@@ -9,6 +10,9 @@
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
+@import './prose.css';
+/* The layout classes (docs/theme-layout-classes.md): mo-row, mo-stack, mo-grid … */
+@import './layout.css';
 /* In a site's layer of components, so the site's utilities (a margin on the steps) win over them: the blocks' tokens come before every block rule. */
 @import './tokens/blocks/comp/card.css';
 @import './tokens/blocks/comp/grid.css';
@@ -38,19 +42,20 @@
 @import './site-logo-post.css';
 @import './site-action.css';
 @import './site-page.css';
+/* The header, the footer, the cookie banner and pop-up, and the blog's parts: the layout the utility classes of theme/components gave them. */
+@import './site-header.css';
+@import './site-footer.css';
+@import './site-popups.css';
+@import './site-blog.css';
 @import './tokens/base/comp/card.css';
 @import './tokens/base/comp/carousel.css';
 @import './tokens/base/comp/chip.css';
 @import './tokens/base/comp/list.css';
+@import './tokens/base/comp/prose.css';
 @import './tokens/base/comp/toolbar.css';
 @import './tokens/base/registry.css';
 @import './tokens/base/ref.css';
 @import './tokens/base/sys.css';
-/* The classes in the CMS's own code (this package, also from node_modules/, where Tailwind does not look by itself);
-   the names in the icon packs' maps (MATERIAL_SYMBOLS, LUCIDE, site/icons.mjs) and the tests' examples are not classes. */
-@source '../..';
-@source not '../../site/icons.mjs';
-@source not '../../**/*.test.mjs';
 /* Follow the system by default (Modern Web Guidance, dark-mode-toggle: the base stays `light dark`); a picked mode pins it. */
 @layer fallback {
   :root {
@@ -78,7 +83,7 @@
   body {
     background: var(--mo-sys-color-surface);
     color: var(--mo-sys-color-on-surface);
-    font-family: var(--font-sans);
+    font-family: var(--mo-ref-typeface-plain);
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
     font-weight: var(--mo-sys-typescale-body-large-weight);
@@ -108,44 +113,23 @@
   p {
     text-wrap: pretty;
   }
-  /* Grid children may contain horizontal scrollers; never let them widen the track. */
-  .grid > * {
-    min-width: 0;
-  }
 }
 
 @layer components {
-  .link {
+  .mo-link {
     color: var(--mo-sys-color-primary);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.25em;
   }
-  .link:hover {
+  .mo-link:hover {
     text-decoration-thickness: 2px;
   }
 }
 
-/* Long-form text (migrated pages and blog posts). */
-.prose {
-  --tw-prose-body: var(--mo-sys-color-on-surface);
-  --tw-prose-headings: var(--mo-sys-color-on-surface);
-  --tw-prose-lead: var(--mo-sys-color-on-surface-variant);
-  --tw-prose-links: var(--mo-sys-color-primary);
-  --tw-prose-bold: var(--mo-sys-color-on-surface);
-  --tw-prose-counters: var(--mo-sys-color-on-surface-variant);
-  --tw-prose-bullets: var(--mo-sys-color-primary);
-  --tw-prose-hr: var(--mo-sys-color-outline-variant);
-  --tw-prose-quotes: var(--mo-sys-color-on-surface);
-  --tw-prose-quote-borders: var(--mo-sys-color-primary);
-  --tw-prose-captions: var(--mo-sys-color-on-surface-variant);
-  --tw-prose-th-borders: var(--mo-sys-color-outline-variant);
-  --tw-prose-td-borders: var(--mo-sys-color-outline-variant);
-  --tw-prose-code: var(--mo-sys-color-on-surface);
-}
 @layer fallback {
-  .prose {
+  .mo-prose {
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
@@ -153,7 +137,7 @@
   }
   /* A blog post's lead: its first paragraph, one step larger than the text (the lead tokens, ui.css: the title large's
      unless a theme sets them). */
-  .prose.post-lead {
+  .mo-prose.mo-post__lead {
     font-size: var(--mo-sys-typescale-lead-size);
     line-height: var(--mo-sys-typescale-lead-line-height);
     font-weight: var(--mo-sys-typescale-lead-weight);
@@ -161,68 +145,68 @@
   }
   /* The text right after the lead (no image between): the space the prose puts between paragraphs (16px), not the
    larger space of a text under an image. In the fallback layer on purpose: it must beat the mt-10 / medium:mt-14 utilities. */
-  .prose.post-lead + .prose {
+  .mo-prose.mo-post__lead + .mo-prose {
     margin-top: 1rem;
   }
   /* The text's spaces are on the 4dp grid (Material 3's spacing units are multiples of 4dp and 8dp; it prints no paragraph
    or heading space, so these are the nearest rule): a paragraph 16px, a lead paragraph 24px (--mo-sys-prose-space, set by .mo-type-lead
-   and .post-lead), a title above 32px and below 12px (the h2's 56 and 28 are on the grid already). They replace the typography
+   and .mo-post__lead), a title above 32px and below 12px (the h2's 56 and 28 are on the grid already). They replace the typography
    plugin's em spaces (17.5, 27.5, 35.19, 13.2), which land off the grid. Not the paragraphs of a list item, which the
    plugin spaces itself, and the first and last child keep no space, as the plugin has it. */
-  .prose :where(p):not(:where(li > p)) {
+  .mo-prose :where(p):not(:where(li > p)) {
     margin-block: 0 var(--mo-sys-prose-space, 1rem);
   }
   /* Not the headline of a list item (a post's title in the Blog posts block): its space and size are the list item's. */
-  .prose :where(h3):not(:where(.list-item-headline h3)) {
+  .mo-prose :where(h3):not(:where(.mo-list__item-headline h3)) {
     margin-block: 2rem 0.75rem;
   }
-  .prose > :first-child {
+  .mo-prose > :first-child {
     margin-top: 0;
   }
-  .prose > :last-child {
+  .mo-prose > :last-child {
     margin-bottom: 0;
   }
   /* The text's headings, one role of the type scale for each level (tokens/ui/ref.css): H1 display small, H2 headline medium, H3 title
      large, H4 title medium, H5 title small, H6 label medium. */
-  .prose :where(h1) {
+  .mo-prose :where(h1) {
     font-size: var(--mo-sys-typescale-display-small-size);
     line-height: var(--mo-sys-typescale-display-small-line-height);
     font-weight: var(--mo-sys-typescale-display-small-weight);
     letter-spacing: var(--mo-sys-typescale-display-small-tracking);
   }
-  .prose :where(h2) {
+  .mo-prose :where(h2) {
     font-size: var(--mo-sys-typescale-headline-medium-size);
     line-height: var(--mo-sys-typescale-headline-medium-line-height);
     font-weight: var(--mo-sys-typescale-headline-medium-weight);
     letter-spacing: var(--mo-sys-typescale-headline-medium-tracking);
   }
-  .prose :where(h3):not(:where(.list-item-headline h3)) {
+  .mo-prose :where(h3):not(:where(.mo-list__item-headline h3)) {
     font-size: var(--mo-sys-typescale-title-large-size);
     line-height: var(--mo-sys-typescale-title-large-line-height);
     font-weight: var(--mo-sys-typescale-title-large-weight);
     letter-spacing: var(--mo-sys-typescale-title-large-tracking);
   }
-  .prose :where(h4) {
+  .mo-prose :where(h4) {
     font-size: var(--mo-sys-typescale-title-medium-size);
     line-height: var(--mo-sys-typescale-title-medium-line-height);
     font-weight: var(--mo-sys-typescale-title-medium-weight);
     letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
   }
-  .prose :where(h5) {
+  .mo-prose :where(h5) {
     font-size: var(--mo-sys-typescale-title-small-size);
     line-height: var(--mo-sys-typescale-title-small-line-height);
     font-weight: var(--mo-sys-typescale-title-small-weight);
     letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
-  .prose :where(h6) {
+  .mo-prose :where(h6) {
     font-size: var(--mo-sys-typescale-label-medium-size);
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     font-weight: var(--mo-sys-typescale-label-medium-weight);
     letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
   }
   /* A quote in the text: body large, in the regular weight and upright (the plugin sets 500 and italic); its line beside it and its
-     quote marks are the plugin's, in the theme's primary colour (--tw-prose-quote-borders). */
-  .prose :where(blockquote) {
+     quote marks are the plugin's, in the theme's primary colour (--mo-comp-prose-quote-borders). */
+  .mo-prose :where(blockquote) {
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
     font-weight: var(--mo-sys-typescale-body-large-weight);
@@ -230,38 +214,38 @@
     font-style: normal;
   }
   /* Code in a line (cookie names in the privacy policy): on a tint, without the plugin's backticks. */
-  .prose :where(:not(pre) > code):not(:where(.not-prose code)) {
+  .mo-prose :where(:not(pre) > code):not(:where(.mo-is-not-prose code)) {
     background: var(--mo-sys-color-surface-container-high);
     border-radius: 0.3em;
     padding: 0.1em 0.35em;
     font-weight: 500;
   }
-  .prose :where(:not(pre) > code):not(:where(.not-prose code))::before,
-  .prose :where(:not(pre) > code):not(:where(.not-prose code))::after {
+  .mo-prose :where(:not(pre) > code):not(:where(.mo-is-not-prose code))::before,
+  .mo-prose :where(:not(pre) > code):not(:where(.mo-is-not-prose code))::after {
     content: none;
   }
-  /* Not the links of a block in the text (not-prose): their look is the block's. */
-  .prose :where(a):not(:where(.not-prose a)) {
+  /* Not the links of a block in the text (mo-is-not-prose): their look is the block's. */
+  .mo-prose :where(a):not(:where(.mo-is-not-prose a)) {
     font-weight: 500;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.2em;
   }
-  /* Images in the text; not those in a block of the site in it (not-prose, RichText.astro). */
-  .prose :where(img):not(:where(.not-prose img)) {
+  /* Images in the text; not those in a block of the site in it (mo-is-not-prose, RichText.astro). */
+  .mo-prose :where(img):not(:where(.mo-is-not-prose img)) {
     border-radius: var(--mo-sys-radius);
     width: 100%;
     height: auto;
   }
   /* An image in the text cut to a format in the editor (packages/editor/lib/crop.mjs): the box is the format, the
    image in it as large and as far moved as the part chosen. */
-  .picture-crop {
+  .mo-site-picture__crop {
     display: block;
     position: relative;
     overflow: hidden;
     border-radius: var(--mo-sys-radius);
     margin-block: 2em;
   }
-  .picture-crop > img {
+  .mo-site-picture__crop > img {
     position: absolute;
     inset: 0 auto auto 0;
     max-width: none;
@@ -270,7 +254,7 @@
     border-radius: 0;
   }
   /* Video embeds (an embed that needs another size, an app's calendar, sets its own). */
-  .prose :where(iframe) {
+  .mo-prose :where(iframe) {
     width: 100%;
     aspect-ratio: 16 / 9;
     height: auto;
@@ -284,40 +268,41 @@
    The top of a page stands still from the first paint; from another page of the site it fades in (site-page.css).
    Off for visitors who prefer reduced motion, and with the calm motion scheme ("Motion", data-motion-scheme). */
   @media (prefers-reduced-motion: no-preference) {
-    .js:not([data-motion-scheme='calm']) [data-reveal] {
+    .mo-js:not([data-motion-scheme='calm']) [data-reveal] {
       opacity: 0;
     }
   }
 
   /* The site's logo (public/logo.svg), colored by background-color via a mask. */
-  .logo-mark {
+  .mo-logo-mark {
     display: inline-block;
+    flex-shrink: 0;
     -webkit-mask: url('/logo.svg') center / contain no-repeat;
     mask: url('/logo.svg') center / contain no-repeat;
   }
 
   /* A block the theme places outside the text (Block.astro in EndBlock.astro and on the prices page): its
-   place gives the space around it, not the text's (.block-in-text). */
-  .block-place > .block-in-text {
+   place gives the space around it, not the text's (.mo-is-in-text). */
+  .mo-placed-block > .mo-is-in-text {
     margin-block: 0;
   }
   /* The heading of a block placed outside the text (a front-page section): as the theme's other section headings
-   (SectionHeading.tsx), not the text's; with a label or a subheading (.block-head, blocks.css) the space under the
+   (SectionHeading.tsx), not the text's; with a label or a subheading (.mo-block-head, blocks.css) the space under the
    whole head. */
-  .block-place > h2,
-  .block-place > .block-head {
+  .mo-placed-block > h2,
+  .mo-placed-block > .mo-block-head {
     margin-block: 0 2rem;
   }
-  .block-place > h2,
-  .block-place > .block-head > h2 {
+  .mo-placed-block > h2,
+  .mo-placed-block > .mo-block-head > h2 {
     font-size: var(--mo-sys-typescale-headline-large-size);
     line-height: var(--mo-sys-typescale-headline-large-line-height);
     font-weight: var(--mo-sys-typescale-headline-large-weight);
     letter-spacing: var(--mo-sys-typescale-headline-large-tracking);
   }
-  @media (width >= theme(--breakpoint-medium)) {
-    .block-place > h2,
-    .block-place > .block-head > h2 {
+  @media (width >= 37.5rem) {
+    .mo-placed-block > h2,
+    .mo-placed-block > .mo-block-head > h2 {
       font-size: var(--mo-sys-typescale-display-medium-size);
       line-height: var(--mo-sys-typescale-display-medium-line-height);
       font-weight: var(--mo-sys-typescale-display-medium-weight);
@@ -326,8 +311,8 @@
   }
   /* Cards placed in the page's full width (a front-page section, PageBlock.astro): three in a row on a computer, as
    there is room for (in the text, two). */
-  @media (width >= theme(--breakpoint-expanded)) {
-    .block-place .block-cards {
+  @media (width >= 52.5rem) {
+    .mo-placed-block .mo-block-cards {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
   }
@@ -335,7 +320,7 @@
   /* The mark before the name on a testimonial (the standard block's card): a small dot in the accent, which the standard
    theme's own look (global.css) makes an avatar with the initial. Another mark (e.g. a logo) is that
    theme's own (its global.css), not the standard theme's. */
-  .block-testimonial-mark {
+  .mo-block-testimonials__testimonial-mark {
     display: inline-block;
     flex-shrink: 0;
     width: 0.5rem;
@@ -346,7 +331,7 @@
 
   /* Boxes side by side ("Links", an app's boxes): the site's panels (outlined cards, ui.css, without a shadow), with
    more room on a computer and the heading of a section in it. */
-  .block-panels :is(.block-panel-title, .block-panel .card-headline) {
+  .mo-block-panels :is(.mo-block-panel__title, .mo-block-panel .mo-card__headline) {
     font-size: var(--mo-sys-typescale-headline-small-size);
     line-height: var(--mo-sys-typescale-headline-small-line-height);
     font-weight: var(--mo-sys-typescale-headline-small-weight);

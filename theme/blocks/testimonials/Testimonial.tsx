@@ -1,4 +1,4 @@
-// One testimonial, word for word, on an outlined card (Card.tsx in ../../ui/, .block-testimonial in ../blocks.css): the
+// One testimonial, word for word, on an outlined card (Card.tsx in ../../ui/, .mo-block-testimonials__testimonial in ../blocks.css): the
 // standard block "Testimonials" (Slider.tsx, List.tsx), and a site's own testimonials (this site's front page). A long
 // text is cut after seven lines with a "Read more" button that unfolds it in place: on the site by script.ts (only with
 // JavaScript; without it the whole text is shown), in the editor here. `full` always shows everything, with the anchor the testimonials page has it by. Its
@@ -40,16 +40,16 @@ export default function Testimonial({
   return (
     <Card
       as="figure"
-      className={className ? `block-testimonial ${className}` : 'block-testimonial'}
+      className={className ? `mo-block-testimonials__testimonial ${className}` : 'mo-block-testimonials__testimonial'}
       data-testimonial=""
       id={full ? t.anchor : undefined}
     >
-      <div className="block-testimonial-head">
-        <span className="block-testimonial-quote-mark" aria-hidden="true">
+      <div className="mo-block-testimonials__testimonial-head">
+        <span className="mo-block-testimonials__testimonial-quote-mark" aria-hidden="true">
           “
         </span>
         {t.tags.length > 0 && (
-          <span className="block-testimonial-tags">
+          <span className="mo-block-testimonials__testimonial-tags">
             {t.tags.map((tag) =>
               tag.href ? <Chip key={tag.name} href={tag.href} label={tag.name} /> : <Chip key={tag.name} plain label={tag.name} />,
             )}
@@ -58,16 +58,18 @@ export default function Testimonial({
       </div>
       {short ? (
         <>
-          <blockquote className="block-testimonial-text block-testimonial-short">{t.quote.join(' ')}</blockquote>
-          <Link href={t.href} className="block-testimonial-more">
-            {texts.more} <span className="block-sr-only">{siteT.blocks.testimonials.from(t.name)}</span>
+          <blockquote className="mo-block-testimonials__testimonial-text mo-block-testimonials__testimonial-short">
+            {t.quote.join(' ')}
+          </blockquote>
+          <Link href={t.href} className="mo-block-testimonials__testimonial-more">
+            {texts.more} <span className="mo-block-testimonials__sr-only">{siteT.blocks.testimonials.from(t.name)}</span>
             <Svg name="arrow-right" size={16} />
           </Link>
         </>
       ) : (
         <blockquote
           ref={text}
-          className="block-testimonial-text"
+          className="mo-block-testimonials__testimonial-text"
           data-clamp={full ? undefined : ''}
           style={
             clamp
@@ -80,7 +82,7 @@ export default function Testimonial({
               : undefined
           }
         >
-          {t.context && <p className="block-testimonial-context">{t.context}</p>}
+          {t.context && <p className="mo-block-testimonials__testimonial-context">{t.context}</p>}
           {t.quote.map((p, i) => (
             <p key={i}>{p}</p>
           ))}
@@ -89,7 +91,7 @@ export default function Testimonial({
       {!full && !short && (
         <button
           type="button"
-          className="block-testimonial-more"
+          className="mo-block-testimonials__testimonial-more"
           aria-expanded={open}
           data-expand=""
           data-more={texts.more}
@@ -101,10 +103,10 @@ export default function Testimonial({
           <Svg name="caret-down" size={16} />
         </button>
       )}
-      <figcaption className="block-testimonial-name">
+      <figcaption className="mo-block-testimonials__testimonial-name">
         {t.image ? (
           <img
-            className="block-testimonial-picture"
+            className="mo-block-testimonials__testimonial-picture"
             src={t.image.src}
             srcSet={t.image.srcset}
             sizes={t.image.srcset ? '48px' : undefined}
@@ -115,7 +117,11 @@ export default function Testimonial({
             decoding="async"
           />
         ) : (
-          <span className="block-testimonial-mark" aria-hidden="true" data-initial={[...t.name.trim()][0]?.toLocaleUpperCase()}></span>
+          <span
+            className="mo-block-testimonials__testimonial-mark"
+            aria-hidden="true"
+            data-initial={[...t.name.trim()][0]?.toLocaleUpperCase()}
+          ></span>
         )}
         {t.name}
       </figcaption>

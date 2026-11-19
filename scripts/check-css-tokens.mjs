@@ -1,11 +1,11 @@
 // Owner rule (16 Nov 2026): every shared CSS custom property of the CMS is a `--mo-…` token. The CMS owns the name, the theme sets its value once
 // on :root, and a block, an app block or a section may override the same name on its own root element. Nobody makes a second name for a value
-// that has a `--mo-` name, and nothing unprefixed is declared on :root, html or body: Tailwind shares the page's namespace, and an app or theme
+// that has a `--mo-` name, and nothing unprefixed is declared on :root, html or body: an app or theme
 // that declares the same name as ours would silently override it (docs/css-tokens.md).
 //
 // This check fails on:
 //  1. a custom property declared on :root, html or body (any selector whose subject is one of them) in theme/, src/*.css and starter/ that does not
-//     start with `--mo-` (or `--tw-`, or a Tailwind theme namespace inside `@theme`, listed with reasons in scripts/css-tokens-allowlist.json);
+//     start with `--mo-` (no exemption: not `--tw-*`, and an `@theme` block is no longer read);
 //     until the rename has landed it counts mode: a file may have as many unprefixed names as in the list (never more), a new file none;
 //  2. a custom property declared by an app or a theme (folders `apps/*` and `themes/*` under `src/` of the demo and the starter, or of the site
 //     given with `--site <folder>`) with a name the CMS declares (a collision), or declared on :root, html or body without the prefix.
@@ -30,9 +30,9 @@ export function cssOf(file, text) {
   return [...text.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]).join('\n');
 }
 
-/** The custom properties a stylesheet declares: `root` (on :root, html or body), `theme` (in a Tailwind `@theme`), `all` (anywhere). @param {string} css */
+/** The custom properties a stylesheet declares: `root` (on :root, html or body), `all` (anywhere). @param {string} css */
 export function declared(css) {
-  const out = { root: new Set(), theme: new Set(), all: new Set() };
+  const out = { root: new Set(), all: new Set() };
   let tree;
   try {
     tree = postcss.parse(css);
@@ -43,20 +43,17 @@ export function declared(css) {
     const name = decl.prop;
     out.all.add(name);
     const parent = decl.parent;
-    if (parent?.type === 'atrule' && parent.name === 'theme') out.theme.add(name);
-    else if (parent?.type === 'rule' && isRootSelector(parent.selector)) out.root.add(name);
+    if (parent?.type === 'rule' && isRootSelector(parent.selector)) out.root.add(name);
   });
   return out;
 }
 
-/** @param {string} name @param {{ patterns: {pattern: string, why: string}[] }} allow */
-export const allowedName = (name, allow) =>
-  name.startsWith('--mo-') ||
-  allow.names.some(({ pattern }) => (pattern.endsWith('*') ? name.startsWith(pattern.slice(0, -1)) : name === pattern));
+/** Only a `--mo-` name is declared on the root: no exemption for another library's names. @param {string} name */
+export const allowedName = (name) => name.startsWith('--mo-');
 
 /**
  * @param {{ cms: Record<string, string>, extensions: Record<string, string>, allow: any }} input `cms` and `extensions` map a file's path to its CSS
- * (an extension is a file of an app or a theme). `allow`: { names: [{ pattern, why }] (only for names in `@theme`, and `--tw-*`), files: { path: { max } }, why }.
+ * (an extension is a file of an app or a theme). `allow`: { files: { path: { max } }, why }.
  * @returns {string[]} the problems
  */
 export function findProblems({ cms, extensions, allow }) {
@@ -66,8 +63,7 @@ export function findProblems({ cms, extensions, allow }) {
   for (const [file, css] of Object.entries(cms)) {
     const d = declared(css);
     const unprefixed = new Set();
-    for (const n of d.root) if (!allowedName(n, { names: allow.names.filter((a) => a.pattern.startsWith('--tw-')) })) unprefixed.add(n);
-    for (const n of d.theme) if (!allowedName(n, allow)) unprefixed.add(n);
+    for (const n of d.root) if (!allowedName(n)) unprefixed.add(n);
     const max = allow.files?.[file]?.max ?? 0;
     if (unprefixed.size > max)
       problems.push(
@@ -82,20 +78,18 @@ export function findProblems({ cms, extensions, allow }) {
           `${file}: declares ${n}, a name the CMS declares. Use the CMS's value (override ${n.startsWith('--mo-') ? n : 'its --mo-… name'} on your block's root element) or pick a name of your own.`,
         );
     for (const n of d.root)
-      if (!cmsNames.has(n) && !allowedName(n, { names: allow.names.filter((a) => a.pattern.startsWith('--tw-')) }))
+      if (!cmsNames.has(n) && !allowedName(n))
         problems.push(`${file}: declares ${n} on :root, html or body. Nothing unprefixed on :root (docs/css-tokens.md).`);
   }
   return problems;
 }
 
-/** The counts per file (distinct unprefixed names on the root or in @theme), for the allowlist. */
-export function counts(cms, allow) {
+/** The counts per file (distinct unprefixed names on the root), for the allowlist. */
+export function counts(cms) {
   const out = {};
   for (const [file, css] of Object.entries(cms)) {
     const d = declared(css);
-    const tw = { names: allow.names.filter((a) => a.pattern.startsWith('--tw-')) };
-    const n = new Set([...d.root].filter((x) => !allowedName(x, tw)));
-    for (const x of d.theme) if (!allowedName(x, allow)) n.add(x);
+    const n = new Set([...d.root].filter((x) => !allowedName(x)));
     if (n.size) out[file] = { max: n.size };
   }
   return out;
@@ -104,7 +98,7 @@ export function counts(cms, allow) {
 /**
  * Where each custom property is read, for the report: `reads` maps a name to the set of readers. A reader in a stylesheet is the first class of
  * the rule's selector (the part or the block that uses it; `*` for a rule with none), in any other file it is the file. A name counts as read
- * in `var(--x)`, in `theme(--x)`, in a Tailwind `(--x)` or `[--x]`, and in a script's string (`'--x'`).
+ * in a `var()` read and in a script's string.
  * @param {Record<string, string>} styles file → CSS  @param {Record<string, string>} others file → text of every other source file
  */
 export function readers(styles, others) {
@@ -175,7 +169,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const allow = JSON.parse(read(new URL('css-tokens-allowlist.json', import.meta.url)));
   const cms = cmsFiles();
   if (process.argv.includes('--list')) {
-    console.log(JSON.stringify(counts(cms, allow), null, 2));
+    console.log(JSON.stringify(counts(cms), null, 2));
     process.exit(0);
   }
   const at = process.argv.indexOf('--site');
@@ -185,7 +179,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     console.error(problems.join('\n'));
     process.exit(1);
   }
-  const files = counts(cms, allow);
+  const files = counts(cms);
   const everything = execFileSync('git', ['ls-files', 'theme', 'src', 'starter', 'demo', 'site', 'lib', 'pages', 'defaults', 'worker'], {
     cwd: root,
     encoding: 'utf8',

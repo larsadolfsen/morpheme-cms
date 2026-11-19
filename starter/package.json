@@ -33,11 +33,9 @@
     "@material-symbols/svg-400": "0.48.2",
     "@material/material-color-utilities": "^0.3.0",
     "@milkdown/kit": "^7.23.0",
-    "@morphemecms/cms": "0.18.1",
+    "@morphemecms/cms": "0.19.0",
     "@phosphor-icons/core": "^2.1.1",
     "@phosphor-icons/react": "^2.1.10",
-    "@tailwindcss/typography": "^0.5.20",
-    "@tailwindcss/vite": "^4.3.5",
     "astro": "^7.4.8",
     "esbuild": "^0.28.2",
     "github-slugger": "^2.0.0",
@@ -55,7 +53,6 @@
     "remark-rehype": "^11.1.2",
     "remark-smartypants": "^3.0.3",
     "sharp": "^0.35.5",
-    "tailwindcss": "^4.3.5",
     "unified": "^11.0.5",
     "vite": "^8.3.7",
     "wrangler": "^4.160.0",
@@ -66,12 +63,6 @@
     "@types/react-dom": "^19.3.0",
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
-    "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "^7.0.2"
-  },
-  "overrides": {
-    "@tailwindcss/typography": {
-      "postcss-selector-parser": "^6.1.5"
-    }
   }
 }

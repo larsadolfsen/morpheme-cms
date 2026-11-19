@@ -32,27 +32,24 @@ const necessary = category('necessary');
   role="region"
   aria-label={siteT.theme.cookies}
   hidden
-  class:list={[
-    dialogClass,
-    'fixed inset-x-3 bottom-3 z-[42] max-h-[calc(100dvh-1.5rem)] max-w-md overflow-y-auto p-5 medium:inset-x-auto medium:bottom-6 medium:left-6 medium:p-6',
-  ]}
+  class:list={[dialogClass, 'mo-cookie']}
   style="margin-bottom: env(safe-area-inset-bottom)"
 >
   <p class="mo-type-title-large">{cookies.heading}</p>
-  <p class="mt-2 mo-type-body-medium text-on-surface-variant">
+  <p class="mo-type-body-medium mo-cookie__text">
     {cookies.text}{' '}
-    <a href={more} class="text-primary underline underline-offset-4">
+    <a href={more} class="mo-cookie__link">
       {cookies.more}
     </a>
   </p>
-  <fieldset data-choices hidden class="mt-4 space-y-3">
-    <legend class="sr-only">{cookies.choose}</legend>
+  <fieldset data-choices hidden class="mo-cookie__choices">
+    <legend class="mo-visually-hidden">{cookies.choose}</legend>
     <Checkbox label={necessary.label} supporting={necessary.text} checked disabled />
     {choices.map((c) => (
       <Checkbox label={c.label} supporting={c.text} name="consent" value={c.id} />
     ))}
   </fieldset>
-  <div class="mt-4 grid grid-cols-2 gap-2.5">
+  <div class="mo-cookie__actions">
     <button type="button" data-consent="denied" class={buttonClass('outlined')}>
       {cookies.no}
     </button>
@@ -60,13 +57,13 @@ const necessary = category('necessary');
       {cookies.yes}
     </button>
   </div>
-  <button type="button" data-consent="choose" class="link mt-3 mo-type-body-medium">
+  <button type="button" data-consent="choose" class="mo-link mo-type-body-medium mo-cookie__choose">
     {cookies.choose}
   </button>
-  <button type="button" data-consent="save" hidden class={`${buttonClass('outlined')} mt-2.5 w-full`}>
+  <button type="button" data-consent="save" hidden class={`${buttonClass('outlined')} mo-cookie__save`}>
     {cookies.save}
   </button>
-  <p data-consent-id hidden class="mo-type-body-small mt-3 break-all text-on-surface-variant">
+  <p data-consent-id hidden class="mo-type-body-small mo-cookie__id">
     {cookies.consentId}: <span></span>
   </p>
 </div>

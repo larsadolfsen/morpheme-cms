@@ -1,7 +1,7 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
-@media (width >= theme(--breakpoint-medium)) {
-  .block-panels > .block-panel {
+@media (width >= 37.5rem) {
+  .mo-block-panels > .mo-block-panel {
     --mo-comp-card-padding: 2rem;
   }
 }

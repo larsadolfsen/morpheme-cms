@@ -5,7 +5,7 @@
 // made from: "dynamic": { "source": "#a3345a", "harmony": "analogous", "contrast": "standard" } (or a "variant" instead
 // of the "harmony", as one written before the harmonies has). (When each page takes
 // its colours from its image, content-based colour, that is an app's: packages/editor/site/pageColors.ts.)
-// The site writes them into the <head> of its pages (colorsCss), so its CSS, Tailwind and the blocks
+// The site writes them into the <head> of its pages (colorsCss), so its CSS and the blocks
 // take them from there; the editor shows and changes them under "Colors" (Colors.tsx) and checks that
 // text can be read on its background (contrast). No React or browser here: the build uses it too.
 

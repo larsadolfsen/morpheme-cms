@@ -34,10 +34,12 @@ export default function MoreRows({
       </>
     );
   return (
-    <div ref={root} className="block-more" data-max={cut}>
+    <div ref={root} className="mo-block-more" data-max={cut}>
       <div id={id}>{children}</div>
-      <div className={className ? `block-buttons-row ${className}` : 'block-buttons-row'}>
-        <div className={className ? `block-more-button block-list-button ${className}` : 'block-more-button block-list-button'}>
+      <div className={className ? `mo-block-buttons__row ${className}` : 'mo-block-buttons__row'}>
+        <div
+          className={className ? `mo-block-more__button mo-block-list__button ${className}` : 'mo-block-more__button mo-block-list__button'}
+        >
           <Button kind="text" aria-controls={id} aria-expanded="false" onClick={() => root.current && showMoreRows(root.current)}>
             {label}
           </Button>

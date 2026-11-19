@@ -70,8 +70,8 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
         max={maxCards}
         onChange={onChange}
         wrap={(list) => (
-          <div className="block-plans inline-plans">
-            <ul className={`block-plans-list block-plans-${Math.max(1, items.length)}`}>{list}</ul>
+          <div className="mo-block-pricecards__plans mo-editor-inline-plans">
+            <ul className={`mo-block-pricecards__plans-list mo-block-pricecards__plans-${Math.max(1, items.length)}`}>{list}</ul>
           </div>
         )}
         renderItem={({ item, index: i, here, next, field }) => {
@@ -87,23 +87,23 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
               aria-current={here ? 'true' : undefined}
               aria-label={next ? texts.newCard : texts.cardOf(i + 1, items.length)}
               className={[
-                card.featured === true ? 'block-plan block-plan-featured' : 'block-plan',
-                'inline-list-row',
-                here && 'inline-list-row-active',
-                next && 'inline-list-row-next',
+                card.featured === true ? 'mo-block-pricecards__plan mo-is-featured' : 'mo-block-pricecards__plan',
+                'mo-editor-inline-list-row',
+                here && 'mo-editor-inline-list-row-active',
+                next && 'mo-editor-inline-list-row-next',
               ]
                 .filter(Boolean)
                 .join(' ')}
             >
-              {card.featured === true && card.badge?.trim() && <span className="block-plan-badge">{card.badge}</span>}
-              <h3 className="block-plan-name">{field('name', texts.name, next ? texts.newCard : texts.name)}</h3>
-              <p className="block-plan-price">
-                <span className="block-plan-amount">{field('price', texts.price, texts.price)}</span>
-                <span className="block-plan-unit">{field('unit', texts.unit, texts.unit)}</span>
+              {card.featured === true && card.badge?.trim() && <span className="mo-block-pricecards__plan-badge">{card.badge}</span>}
+              <h3 className="mo-block-pricecards__plan-name">{field('name', texts.name, next ? texts.newCard : texts.name)}</h3>
+              <p className="mo-block-pricecards__plan-price">
+                <span className="mo-block-pricecards__plan-amount">{field('price', texts.price, texts.price)}</span>
+                <span className="mo-block-pricecards__plan-unit">{field('unit', texts.unit, texts.unit)}</span>
               </p>
-              <div className="block-plan-text">{field('text', texts.text, texts.text)}</div>
+              <div className="mo-block-pricecards__plan-text">{field('text', texts.text, texts.text)}</div>
               {(list.length > 0 || here) && (
-                <List dividers="none" className="block-checklist block-plan-features inline-plan-features">
+                <List dividers="none" className="mo-block-checklist mo-block-pricecards__plan-features mo-editor-inline-plan-features">
                   {list.map((text, j) => (
                     <ListItem
                       key={j}
@@ -132,15 +132,19 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
                 <SiteButton
                   kind="text"
                   data-add-feature=""
-                  className="inline-list-add"
+                  className="mo-editor-inline-list-add"
                   onClick={() => setFeatures(i, [...list, ''], `f${list.length}`)}
                 >
                   {texts.addFeature}
                 </SiteButton>
               )}
               {(button || (here && !next)) && (
-                <div className="block-buttons block-plan-buttons">
-                  <span className={[buttonClass(view?.kind), 'inline-button', !button && 'inline-button-faded'].filter(Boolean).join(' ')}>
+                <div className="mo-block-buttons mo-block-pricecards__plan-buttons">
+                  <span
+                    className={[buttonClass(view?.kind), 'mo-editor-inline-button', !button && 'mo-editor-inline-button-faded']
+                      .filter(Boolean)
+                      .join(' ')}
+                  >
                     {view?.icon && view.icon !== 'arrow-right' && <Glyph icon={view.icon} size={20} />}
                     <InlineField
                       name="button"
@@ -153,7 +157,7 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
                         if (e.key === 'Enter') e.preventDefault();
                       }}
                     />
-                    {view?.icon === 'arrow-right' && <Glyph icon={view.icon} size={18} className="button-trailing-icon" />}
+                    {view?.icon === 'arrow-right' && <Glyph icon={view.icon} size={18} className="mo-button__trailing-icon" />}
                   </span>
                 </div>
               )}

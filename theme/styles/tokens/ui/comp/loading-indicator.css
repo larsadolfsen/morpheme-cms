@@ -1,7 +1,7 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  :is(.button-busy, .icon-button-busy) > .button-busy-indicator {
+  :is(.mo-button__busy, .mo-icon-button__busy) > .mo-button__busy-indicator {
     --mo-comp-loading-indicator-active-indicator-size: var(--mo-comp-button-busy-size);
     --mo-comp-loading-indicator-shape-size: calc(var(--mo-comp-button-busy-size) * 2.375 / 3);
     --mo-comp-loading-indicator-active-indicator-color: currentColor;

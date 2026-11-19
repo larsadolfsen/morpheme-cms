@@ -152,9 +152,9 @@ export default function OwnList({ id, files, saved, env }: { id: string; files: 
   if (definition.fields.length === 0)
     return (
       <Screen title={definition.label} back={{ href: '#lists', label: t.common.parts.lists }} status={status} pageActions={menuButton}>
-        <div className="editor-text">
+        <div className="mo-editor-text">
           <SupportingText>{t.ownList.noFields}</SupportingText>
-          <span ref={addButton} className="mt-4 inline-block">
+          <span ref={addButton} className="mo-editor-add-button">
             <Button kind="filled" aria-haspopup="menu" aria-expanded={adding} onClick={() => setAdding(!adding)}>
               {t.ownList.addField}
             </Button>

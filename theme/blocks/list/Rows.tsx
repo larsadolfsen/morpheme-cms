@@ -27,7 +27,7 @@ export default function Rows({
   return (
     <List
       kind={segmented ? 'segmented' : 'standard'}
-      className={className ? `block-list ${className}` : 'block-list'}
+      className={className ? `mo-block-list ${className}` : 'mo-block-list'}
       data-columns={oneColumn ? 'one' : undefined}
     >
       {items.map((r, i) => (

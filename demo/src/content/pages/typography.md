@@ -10,7 +10,7 @@ keyword: "typography"
 
 Everything you can do with text in the editor, drawn as the site draws it in your theme. Change the theme under Appearance and this page changes with it.
 
-<p class="body-large">This is Body large, the intro of a text. Pick it from the T menu.</p>
+<p class="mo-type-body-large">This is Body large, the intro of a text. Pick it from the T menu.</p>
 
 ## Type styles
 
@@ -20,97 +20,97 @@ The theme has 16 type styles: Material 3's 15 type roles and the lead. Each is a
 
 <p class="mo-type-display-large" data-type-sample="mo-type-display-large">Harbor lights</p>
 
-<p class="body-small" data-type-spec="mo-type-display-large"><code>.mo-type-display-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-display-large"><code>.mo-type-display-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Display medium
 
 <p class="mo-type-display-medium" data-type-sample="mo-type-display-medium">Harbor lights at dusk</p>
 
-<p class="body-small" data-type-spec="mo-type-display-medium"><code>.mo-type-display-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-display-medium"><code>.mo-type-display-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Display small
 
 <p class="mo-type-display-small" data-type-sample="mo-type-display-small">Harbor lights at dusk</p>
 
-<p class="body-small" data-type-spec="mo-type-display-small"><code>.mo-type-display-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-display-small"><code>.mo-type-display-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Headline large
 
 <p class="mo-type-headline-large" data-type-sample="mo-type-headline-large">Harbor lights at dusk, in bloom</p>
 
-<p class="body-small" data-type-spec="mo-type-headline-large"><code>.mo-type-headline-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-headline-large"><code>.mo-type-headline-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Headline medium
 
 <p class="mo-type-headline-medium" data-type-sample="mo-type-headline-medium">Harbor lights at dusk, in bloom</p>
 
-<p class="body-small" data-type-spec="mo-type-headline-medium"><code>.mo-type-headline-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-headline-medium"><code>.mo-type-headline-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Headline small
 
 <p class="mo-type-headline-small" data-type-sample="mo-type-headline-small">Harbor lights at dusk, in bloom</p>
 
-<p class="body-small" data-type-spec="mo-type-headline-small"><code>.mo-type-headline-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-headline-small"><code>.mo-type-headline-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Title large
 
 <p class="mo-type-title-large" data-type-sample="mo-type-title-large">The Larkspur Market opens at nine</p>
 
-<p class="body-small" data-type-spec="mo-type-title-large"><code>.mo-type-title-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-title-large"><code>.mo-type-title-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Lead
 
 <p class="mo-type-lead" data-type-sample="mo-type-lead">The Larkspur Market opens at nine, and the bakery stall is first in line.</p>
 
-<p class="body-small" data-type-spec="mo-type-lead"><code>.mo-type-lead</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-lead"><code>.mo-type-lead</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Title medium
 
 <p class="mo-type-title-medium" data-type-sample="mo-type-title-medium">Seasonal produce and fresh bread</p>
 
-<p class="body-small" data-type-spec="mo-type-title-medium"><code>.mo-type-title-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-title-medium"><code>.mo-type-title-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Title small
 
 <p class="mo-type-title-small" data-type-sample="mo-type-title-small">Seasonal produce and fresh bread</p>
 
-<p class="body-small" data-type-spec="mo-type-title-small"><code>.mo-type-title-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-title-small"><code>.mo-type-title-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Body large
 
 <p class="mo-type-body-large" data-type-sample="mo-type-body-large">Everything on these stalls is grown, baked or made within thirty miles of the harbor.</p>
 
-<p class="body-small" data-type-spec="mo-type-body-large"><code>.mo-type-body-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-body-large"><code>.mo-type-body-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Body medium
 
 <p class="mo-type-body-medium" data-type-sample="mo-type-body-medium">Everything on these stalls is grown, baked or made within thirty miles of the harbor, and most of it is gone by noon.</p>
 
-<p class="body-small" data-type-spec="mo-type-body-medium"><code>.mo-type-body-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-body-medium"><code>.mo-type-body-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Body small
 
 <p class="mo-type-body-small" data-type-sample="mo-type-body-small">Open Tuesday to Saturday, nine to five. Closed on public holidays.</p>
 
-<p class="body-small" data-type-spec="mo-type-body-small"><code>.mo-type-body-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-body-small"><code>.mo-type-body-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Label large
 
 <p class="mo-type-label-large" data-type-sample="mo-type-label-large">Visit the market</p>
 
-<p class="body-small" data-type-spec="mo-type-label-large"><code>.mo-type-label-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-label-large"><code>.mo-type-label-large</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Label medium
 
 <p class="mo-type-label-medium" data-type-sample="mo-type-label-medium">Opening hours</p>
 
-<p class="body-small" data-type-spec="mo-type-label-medium"><code>.mo-type-label-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-label-medium"><code>.mo-type-label-medium</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ### Label small
 
 <p class="mo-type-label-small" data-type-sample="mo-type-label-small">New this week</p>
 
-<p class="body-small" data-type-spec="mo-type-label-small"><code>.mo-type-label-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
+<p class="mo-type-body-small" data-type-spec="mo-type-label-small"><code>.mo-type-label-small</code> <span data-type-values>Size, line height, tracking and weight appear here.</span></p>
 
 ## Headings
 
@@ -146,11 +146,11 @@ Each text style is shown with one paragraph and then with two paragraphs in a ro
 
 ### Body large
 
-<p class="body-large">One paragraph in Body large. It is the intro of a text, a little larger than the rest, and it wraps with the width of the screen.</p>
+<p class="mo-type-body-large">One paragraph in Body large. It is the intro of a text, a little larger than the rest, and it wraps with the width of the screen.</p>
 
-<p class="body-large">Two paragraphs in a row, the first in Body large. It says one thing and stops.</p>
+<p class="mo-type-body-large">Two paragraphs in a row, the first in Body large. It says one thing and stops.</p>
 
-<p class="body-large">The second paragraph follows with the space your theme sets between paragraphs.</p>
+<p class="mo-type-body-large">The second paragraph follows with the space your theme sets between paragraphs.</p>
 
 ### Body medium
 
@@ -162,11 +162,11 @@ The second paragraph follows with the space your theme sets between paragraphs.
 
 ### Body small
 
-<p class="body-small">One paragraph in Body small, for small print, notes and dates. It wraps like the others, a little smaller.</p>
+<p class="mo-type-body-small">One paragraph in Body small, for small print, notes and dates. It wraps like the others, a little smaller.</p>
 
-<p class="body-small">Two paragraphs in a row, the first in Body small. It says one thing and stops.</p>
+<p class="mo-type-body-small">Two paragraphs in a row, the first in Body small. It says one thing and stops.</p>
 
-<p class="body-small">The second paragraph follows with the space your theme sets between paragraphs.</p>
+<p class="mo-type-body-small">The second paragraph follows with the space your theme sets between paragraphs.</p>
 
 ### Quote
 
@@ -178,11 +178,11 @@ The second paragraph follows with the space your theme sets between paragraphs.
 
 ### Label
 
-<p class="label-medium">One label above a heading</p>
+<p class="mo-type-label-medium">One label above a heading</p>
 
 #### Heading under a label
 
-<p class="label-medium">A second label</p>
+<p class="mo-type-label-medium">A second label</p>
 
 #### Another heading under a label
 
@@ -190,17 +190,17 @@ The second paragraph follows with the space your theme sets between paragraphs.
 
 Every format the toolbar offers, on one word and on several words. One paragraph:
 
-A paragraph with **bold**, *italic*, ***bold and italic***, a [link](/about/), `code`, <span class="color-accent">accent color</span> and <span class="color-muted">muted color</span> on single words, and with **several bold words**, *several italic words*, ***several bold and italic words***, [several link words](/about/), `several code words`, <span class="color-accent">several accent words</span> and <span class="color-muted">several muted words</span>.
+A paragraph with **bold**, *italic*, ***bold and italic***, a [link](/about/), `code`, <span class="mo-has-accent-color">accent color</span> and <span class="mo-has-muted-color">muted color</span> on single words, and with **several bold words**, *several italic words*, ***several bold and italic words***, [several link words](/about/), `several code words`, <span class="mo-has-accent-color">several accent words</span> and <span class="mo-has-muted-color">several muted words</span>.
 
 Two paragraphs in a row, the first with **bold** and *italic* words.
 
-The second with a [link](/about/), `code` and <span class="color-accent">accent</span> words, and ***bold and italic*** together.
+The second with a [link](/about/), `code` and <span class="mo-has-accent-color">accent</span> words, and ***bold and italic*** together.
 
 In a list, the T menu sets the size of the words:
 
-- Small words: <span class="body-small">Opening hours may change</span>
+- Small words: <span class="mo-type-body-small">Opening hours may change</span>
 - Medium words: the plain text
-- Large words: <span class="body-large">Welcome to the shop</span>
+- Large words: <span class="mo-type-body-large">Welcome to the shop</span>
 
 The editor has no marker, highlight, underline, strikethrough or free text color. Text can have the accent color or the muted color, nothing else.
 
@@ -210,35 +210,35 @@ Each heading level three ways: plain, one word in each format, and several words
 
 # Heading 1: plain
 
-# One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+# One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
-# Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="color-accent">accent words here</span>, <span class="color-muted">muted words here</span>
+# Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
 
 ## Heading 2: plain
 
 ### Heading 3: plain
 
-### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
-### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="color-accent">accent words here</span>, <span class="color-muted">muted words here</span>
+### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
 
 #### Heading 4: plain
 
-#### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+#### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
-#### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="color-accent">accent words here</span>, <span class="color-muted">muted words here</span>
+#### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
 
 ##### Heading 5: plain
 
-##### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+##### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
-##### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="color-accent">accent words here</span>, <span class="color-muted">muted words here</span>
+##### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
 
 ###### Heading 6: plain
 
-###### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+###### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
-###### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="color-accent">accent words here</span>, <span class="color-muted">muted words here</span>
+###### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
 
 ## Alignment
 
@@ -270,7 +270,7 @@ Lists in a text are type too: how a bullet list, a numbered list and a check lis
   - Berries in summer
 - Honey, jam and preserves, in small jars, in flavors that change with the season and run out by midday on busy Saturdays
 
-<p class="body-small" data-type-list-spec="bullet"><code>ul</code> <span data-type-values>Size, line height, tracking, weight, indent, item space and marker color appear here.</span></p>
+<p class="mo-type-body-small" data-type-list-spec="bullet"><code>ul</code> <span data-type-values>Size, line height, tracking, weight, indent, item space and marker color appear here.</span></p>
 
 ### Numbered list
 
@@ -280,7 +280,7 @@ Lists in a text are type too: how a bullet list, a numbered list and a check lis
    2. Baskets can be borrowed
 3. Pay at each stall
 
-<p class="body-small" data-type-list-spec="numbered"><code>ol</code> <span data-type-values>Size, line height, tracking, weight, indent, item space and marker color appear here.</span></p>
+<p class="mo-type-body-small" data-type-list-spec="numbered"><code>ol</code> <span data-type-values>Size, line height, tracking, weight, indent, item space and marker color appear here.</span></p>
 
 ### Check list
 
@@ -289,7 +289,7 @@ Lists in a text are type too: how a bullet list, a numbered list and a check lis
 - [ ] Ask about the plum jam
 - [ ] Book a table for the autumn supper
 
-<p class="body-small" data-type-list-spec="checklist"><code>ul.contains-task-list</code> <span data-type-values>Size, line height, tracking, weight, indent, item space and check color appear here.</span></p>
+<p class="mo-type-body-small" data-type-list-spec="checklist"><code>ul.contains-task-list</code> <span data-type-values>Size, line height, tracking, weight, indent, item space and check color appear here.</span></p>
 
 ## Quote, code and rule
 
@@ -310,7 +310,7 @@ A horizontal rule:
 
 A label sits above a heading. It is Label medium.
 
-<p class="label-medium">Why Morpheme</p>
+<p class="mo-type-label-medium">Why Morpheme</p>
 
 ### A heading with a label
 
@@ -329,64 +329,64 @@ The display roles, Headline large and small, Title small, and Label small have n
 
 <div data-section="surface"></div>
 
-<p class="label-medium">Label on surface</p>
+<p class="mo-type-label-medium">Label on surface</p>
 
 ## Text on surface
 
-<p class="body-large">Body large is the intro of a text. Use it for the one paragraph that tells visitors what the page is about.</p>
+<p class="mo-type-body-large">Body large is the intro of a text. Use it for the one paragraph that tells visitors what the page is about.</p>
 
 A paragraph in Body medium is the plain text. It wraps with the width of the screen, so a longer paragraph shows how the lines break and how much space sits between them. Here is a [link](/about/), some **bold text**, some *italic text* and a bit of `inline code`.
 
 A second paragraph follows the first, with the space the theme puts between paragraphs.
 
-<p class="body-small">Body small is for small print, notes and dates.</p>
+<p class="mo-type-body-small">Body small is for small print, notes and dates.</p>
 
-#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
 <div data-section="primary"></div>
 
-<p class="label-medium">Label on primary</p>
+<p class="mo-type-label-medium">Label on primary</p>
 
 ## Text on primary
 
-<p class="body-large">Body large is the intro of a text. Use it for the one paragraph that tells visitors what the page is about.</p>
+<p class="mo-type-body-large">Body large is the intro of a text. Use it for the one paragraph that tells visitors what the page is about.</p>
 
 A paragraph in Body medium is the plain text. It wraps with the width of the screen, so a longer paragraph shows how the lines break and how much space sits between them. Here is a [link](/about/), some **bold text**, some *italic text* and a bit of `inline code`.
 
 A second paragraph follows the first, with the space the theme puts between paragraphs.
 
-<p class="body-small">Body small is for small print, notes and dates.</p>
+<p class="mo-type-body-small">Body small is for small print, notes and dates.</p>
 
-#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
 <div data-section="secondary"></div>
 
-<p class="label-medium">Label on secondary</p>
+<p class="mo-type-label-medium">Label on secondary</p>
 
 ## Text on secondary
 
-<p class="body-large">Body large is the intro of a text. Use it for the one paragraph that tells visitors what the page is about.</p>
+<p class="mo-type-body-large">Body large is the intro of a text. Use it for the one paragraph that tells visitors what the page is about.</p>
 
 A paragraph in Body medium is the plain text. It wraps with the width of the screen, so a longer paragraph shows how the lines break and how much space sits between them. Here is a [link](/about/), some **bold text**, some *italic text* and a bit of `inline code`.
 
 A second paragraph follows the first, with the space the theme puts between paragraphs.
 
-<p class="body-small">Body small is for small print, notes and dates.</p>
+<p class="mo-type-body-small">Body small is for small print, notes and dates.</p>
 
-#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
 <div data-section="tertiary"></div>
 
-<p class="label-medium">Label on tertiary</p>
+<p class="mo-type-label-medium">Label on tertiary</p>
 
 ## Text on tertiary
 
-<p class="body-large">Body large is the intro of a text. Use it for the one paragraph that tells visitors what the page is about.</p>
+<p class="mo-type-body-large">Body large is the intro of a text. Use it for the one paragraph that tells visitors what the page is about.</p>
 
 A paragraph in Body medium is the plain text. It wraps with the width of the screen, so a longer paragraph shows how the lines break and how much space sits between them. Here is a [link](/about/), some **bold text**, some *italic text* and a bit of `inline code`.
 
 A second paragraph follows the first, with the space the theme puts between paragraphs.
 
-<p class="body-small">Body small is for small print, notes and dates.</p>
+<p class="mo-type-body-small">Body small is for small print, notes and dates.</p>
 
-#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="color-accent">accent</span>, <span class="color-muted">muted</span>
+#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>

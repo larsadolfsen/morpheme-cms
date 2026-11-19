@@ -14,7 +14,7 @@ import type { BlockData } from './blocks';
 export type ChoiceSampleKind = 'button';
 
 /** A button sample: the theme's Button in its kind with `label`, or the editor's "Button" when the label is empty or does not
- * fit the room the sample has (its slot's maximum width, --choice-group-sample-max-width). The label's width is measured on an
+ * fit the room the sample has (its slot's maximum width, --mo-comp-choice-group-sample-max-width). The label's width is measured on an
  * unseen button with the full text, so a sample is never cut off, and again when its size changes (a font loads, the list is
  * shown after the buttons). */
 function ButtonSample({ kind, label }: { kind: ButtonKind; label?: string }) {
@@ -24,7 +24,7 @@ function ButtonSample({ kind, label }: { kind: ButtonKind; label?: string }) {
   const [fits, setFits] = useState(true);
   useLayoutEffect(() => {
     const unseen = probe.current;
-    const slot = unseen?.closest<HTMLElement>('.choice-group-sample');
+    const slot = unseen?.closest<HTMLElement>('.mo-choice-group__sample');
     if (!own || !unseen || !slot) return;
     const measure = () => {
       const width = unseen.getBoundingClientRect().width;

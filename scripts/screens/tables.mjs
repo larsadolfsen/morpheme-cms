@@ -17,24 +17,26 @@ async function checkInlineTable(width, height) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
-  await page.waitForSelector('.inline-table-cell-active textarea');
+  await page.waitForSelector('.mo-editor-inline-table-cell-active textarea');
   await page.keyboard.type('Plan');
   await page.waitForTimeout(300);
   const state = () =>
     page.evaluate(() => ({
-      rows: document.querySelectorAll('.inline-table-box tr[data-row]').length,
-      cells: document.querySelectorAll('.inline-table-box :is(th, td)').length,
-      header: document.querySelectorAll('.inline-table-box thead th[scope="col"]').length,
-      extra: [...document.querySelectorAll('.inline-table-host *')].filter(
+      rows: document.querySelectorAll('.mo-editor-inline-table-box tr[data-row]').length,
+      cells: document.querySelectorAll('.mo-editor-inline-table-box :is(th, td)').length,
+      header: document.querySelectorAll('.mo-editor-inline-table-box thead th[scope="col"]').length,
+      extra: [...document.querySelectorAll('.mo-editor-inline-table-host *')].filter(
         (e) =>
           e.hasAttribute('data-add-row') ||
           (e.children.length === 0 && /^(Next row|Next column|Add row)$/.test(e.textContent.trim())) ||
           ['placeholder', 'aria-label'].some((a) => /^(Next row|Next column|Add row)$/.test(e.getAttribute(a) ?? '')),
       ).length,
-      faded: document.querySelectorAll('.inline-table-cell-next').length,
-      outline: getComputedStyle(document.querySelector('.inline-table-cell-active')).outlineStyle,
-      scroll: document.querySelector('.inline-table-box').scrollWidth <= document.querySelector('.inline-table-box').clientWidth + 1,
-      bar: [...document.querySelectorAll('.editor-tools button')].map((b) => ({
+      faded: document.querySelectorAll('.mo-editor-inline-table-cell-next').length,
+      outline: getComputedStyle(document.querySelector('.mo-editor-inline-table-cell-active')).outlineStyle,
+      scroll:
+        document.querySelector('.mo-editor-inline-table-box').scrollWidth <=
+        document.querySelector('.mo-editor-inline-table-box').clientWidth + 1,
+      bar: [...document.querySelectorAll('.mo-editor-tools button')].map((b) => ({
         label: b.getAttribute('aria-label'),
         title: b.title,
         svg: !!b.querySelector('svg path'),
@@ -95,7 +97,7 @@ async function checkInlineTable(width, height) {
   // The header's square corners never poke out past the box's rounded border: the box is a block that clips (overflow not visible) with a radius,
   // and no table class collides with a Tailwind utility (display: inline-table made the box a table that did not clip).
   const box = await page.evaluate(() => {
-    const e = document.querySelector('.inline-table-box');
+    const e = document.querySelector('.mo-editor-inline-table-box');
     const c = getComputedStyle(e);
     return { display: c.display, overflowX: c.overflowX, overflowY: c.overflowY, radius: parseFloat(c.borderTopLeftRadius) };
   });
@@ -103,33 +105,36 @@ async function checkInlineTable(width, height) {
     problems.push(`${label}: the table's box does not clip its header to the rounded corner (${JSON.stringify(box)})`);
   // The gear has "Striped rows" (off), and turning it on gives every second body row a background that the others and the header do not have.
   const rowBg = () =>
-    page.evaluate(() => [...document.querySelectorAll('.inline-table-box tbody tr')].map((r) => getComputedStyle(r).backgroundColor));
+    page.evaluate(() =>
+      [...document.querySelectorAll('.mo-editor-inline-table-box tbody tr')].map((r) => getComputedStyle(r).backgroundColor),
+    );
   const plain = await rowBg();
   // The table's settings: the block's Edit, in the bar's ⋮ menu.
   await pressMore(page, 'Edit');
-  const stripes = page.locator('dialog[open], .editor-side-sheet').getByRole('switch', { name: 'Striped rows' });
+  const stripes = page.locator('dialog[open], .mo-editor-side-sheet').getByRole('switch', { name: 'Striped rows' });
   await stripes.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the table's settings have no "Striped rows" switch`));
   if ((await stripes.count()) && (await stripes.isChecked())) problems.push(`${label}: "Striped rows" is not off by default`);
   await stripes.click({ timeout: 3000 }).catch(() => {});
   await saveOrClose(page, 'last').catch(() => {});
   await page.waitForTimeout(400);
   const striped = await rowBg();
-  if (!(await page.locator('.inline-table-box[data-striped]').count()))
+  if (!(await page.locator('.mo-editor-inline-table-box[data-striped]').count()))
     problems.push(`${label}: "Striped rows" on does not mark the table`);
   if (new Set(plain).size !== 1) problems.push(`${label}: rows have different backgrounds before "Striped rows" is on (${plain})`);
   if (striped.length < 2 || striped[0] === striped[1])
     problems.push(`${label}: with "Striped rows" on, the second body row has no background of its own (${striped})`);
   // Back in the table: a click in its first cell makes the block active again.
-  await page.locator('.inline-table-box th textarea').first().click();
+  await page.locator('.mo-editor-inline-table-box th textarea').first().click();
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
   const after = await page.evaluate(() => ({
     // The ghost copy of the tools that left is sliding out for a moment: it is not the bar's tools.
-    menu: [...document.querySelectorAll('.editor-tools [aria-label="Add row above"]')].filter((b) => !b.closest('.editor-tools-ghost'))
-      .length,
-    extra: document.querySelectorAll('[data-add-row], .inline-table-cell-next').length,
-    rows: document.querySelectorAll('.inline-table-box tr[data-row]').length,
-    cols: document.querySelectorAll('.inline-table-box thead th').length,
+    menu: [...document.querySelectorAll('.mo-editor-tools [aria-label="Add row above"]')].filter(
+      (b) => !b.closest('.mo-editor-tools-ghost'),
+    ).length,
+    extra: document.querySelectorAll('[data-add-row], .mo-editor-inline-table-cell-next').length,
+    rows: document.querySelectorAll('.mo-editor-inline-table-box tr[data-row]').length,
+    cols: document.querySelectorAll('.mo-editor-inline-table-box thead th').length,
   }));
   if (after.menu || after.extra) problems.push(`${label}: the menu or an add element stays after the cursor left the table`);
   // The added rows and columns are empty, so the table keeps only what was typed; the kept cells are the same on every redraw.
@@ -149,11 +154,11 @@ async function checkTableAlign(width, height) {
     (await page.evaluate(() => {
       const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
       return {
-        textHead: at('.block-table-grid thead th:nth-child(1)'),
-        textCell: at('.block-table-grid tbody tr:first-child td:nth-child(1)'),
-        numberHead: at('.block-table-grid thead th:nth-child(3)'),
-        numberCell: at('.block-table-grid tbody tr:first-child td:nth-child(3)'),
-        mixedCell: at('.block-table-grid tbody tr:first-child td:nth-child(2)'),
+        textHead: at('.mo-block-table__grid thead th:nth-child(1)'),
+        textCell: at('.mo-block-table__grid tbody tr:first-child td:nth-child(1)'),
+        numberHead: at('.mo-block-table__grid thead th:nth-child(3)'),
+        numberCell: at('.mo-block-table__grid tbody tr:first-child td:nth-child(3)'),
+        mixedCell: at('.mo-block-table__grid tbody tr:first-child td:nth-child(2)'),
       };
     }));
   const start = (v) => v === 'start' || v === 'left';
@@ -178,8 +183,8 @@ async function checkTableAlign(width, height) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
-  await page.waitForSelector('.inline-table-cell-active textarea');
-  const cellField = (r, c) => page.locator(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
+  await page.waitForSelector('.mo-editor-inline-table-cell-active textarea');
+  const cellField = (r, c) => page.locator(`.mo-editor-inline-table-box [data-row="${r}"] [data-field="${c}"]`);
   const menu = async (name) => {
     await pressTool(page, name);
     await page.waitForTimeout(250);
@@ -198,10 +203,10 @@ async function checkTableAlign(width, height) {
     page.evaluate(() => {
       const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
       return {
-        textHead: at('.inline-table-box thead th:nth-child(1)'),
-        numberHead: at('.inline-table-box thead th:nth-child(2)'),
-        numberCell: at('.inline-table-box [data-row="1"] td:nth-child(2)'),
-        numberField: at('.inline-table-box [data-row="1"] td:nth-child(2) textarea'),
+        textHead: at('.mo-editor-inline-table-box thead th:nth-child(1)'),
+        numberHead: at('.mo-editor-inline-table-box thead th:nth-child(2)'),
+        numberCell: at('.mo-editor-inline-table-box [data-row="1"] td:nth-child(2)'),
+        numberField: at('.mo-editor-inline-table-box [data-row="1"] td:nth-child(2) textarea'),
       };
     });
   const auto = await aligns();
@@ -267,18 +272,18 @@ async function checkTableAlign(width, height) {
   await page.close();
 }
 
-/** The Table's outer box has the same corner radius as a card (the Cards block's `.card`: both read the theme's --mo-comp-card-radius), with its header clipped to it, on the built site at 375 and 1280 px. */
+/** The Table's outer box has the same corner radius as a card (the Cards block's `.mo-card`: both read the theme's --mo-comp-card-radius), with its header clipped to it, on the built site at 375 and 1280 px. */
 async function checkTableRadius(width, height) {
   const label = `${width}px table radius`;
   const page = await browser.newPage({ viewport: { width, height } });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
   const got = await page.evaluate(() => {
-    const card = document.querySelector('.card.block-card');
+    const card = document.querySelector('.mo-card.mo-block-cards__card');
     const host = card?.parentElement;
     if (!host) return null;
     const box = document.createElement('div');
-    box.className = 'block-table block-table-grid';
+    box.className = 'mo-block-table mo-block-table__grid';
     box.innerHTML = '<table><thead><tr><th>A</th><th>B</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>';
     host.append(box);
     const c = getComputedStyle(box);

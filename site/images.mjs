@@ -129,7 +129,7 @@ export function rehypeResponsiveImages({ sizes }) {
           parent.children[index] = {
             type: ELEMENT,
             tagName: 'span',
-            properties: { className: ['picture-crop'], style: cut.box },
+            properties: { className: ['mo-site-picture__crop'], style: cut.box },
             children: [node],
           };
       }

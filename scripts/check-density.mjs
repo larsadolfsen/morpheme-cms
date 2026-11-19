@@ -12,36 +12,46 @@ import { UI_PART_FILES, MATERIAL_FILES } from '../theme/styles/files.mjs';
 
 /** The parts that must read density: where their rule is, and which variable of the three groups they read. */
 export const PARTS = [
-  { name: 'button', file: 'theme/styles/ui/buttons.css', selector: '.button', reads: '--mo-sys-density-layout' },
-  { name: 'chip', file: 'theme/styles/ui/chips.css', selector: '.chip', reads: '--mo-sys-density-layout' },
+  { name: 'button', file: 'theme/styles/ui/buttons.css', selector: '.mo-button', reads: '--mo-sys-density-layout' },
+  { name: 'chip', file: 'theme/styles/ui/chips.css', selector: '.mo-chip', reads: '--mo-sys-density-layout' },
   {
     name: 'segmented button',
     file: 'theme/styles/ui/button-groups.css',
-    selector: '.segmented-button-segment',
+    selector: '.mo-segmented-button__segment',
     reads: '--mo-sys-density-layout',
   },
-  { name: 'text field', file: 'theme/styles/ui/text-field.css', selector: '.text-field', reads: '--mo-sys-density-layout' },
+  { name: 'text field', file: 'theme/styles/ui/text-field.css', selector: '.mo-text-field', reads: '--mo-sys-density-layout' },
   {
     name: 'choice group row',
     file: 'theme/styles/ui.css',
-    selector: '.choice-group-list .list-item-container',
+    selector: '.mo-choice-group__list .mo-list__item-container',
     reads: '--mo-sys-density',
   },
-  { name: 'list item', file: 'theme/styles/ui/list.css', selector: '.list-item-container', reads: '--mo-sys-density' },
-  { name: 'setting row', file: 'theme/styles/ui/switch.css', selector: '.setting-list > .setting-row', reads: '--mo-sys-density-layout' },
+  { name: 'list item', file: 'theme/styles/ui/list.css', selector: '.mo-list__item-container', reads: '--mo-sys-density' },
+  {
+    name: 'setting row',
+    file: 'theme/styles/ui/switch.css',
+    selector: '.mo-setting-list > .mo-setting-row',
+    reads: '--mo-sys-density-layout',
+  },
   {
     name: 'table cell',
     file: 'theme/styles/blocks/person-facts.css',
-    selector: '.block-table-grid :is(th, td)',
+    selector: '.mo-block-table__grid :is(th, td)',
     reads: '--mo-sys-density',
   },
-  { name: 'table header', file: 'theme/styles/blocks/person-facts.css', selector: '.block-table-grid thead th', reads: '--mo-sys-density' },
+  {
+    name: 'table header',
+    file: 'theme/styles/blocks/person-facts.css',
+    selector: '.mo-block-table__grid thead th',
+    reads: '--mo-sys-density',
+  },
 ];
 
 /** Focused single-task parts: never denser than Medium, so they read neither --mo-sys-density nor --mo-sys-density-layout. */
 export const FOCUSED = [
-  { name: 'menu item', file: 'theme/styles/ui/menus.css', selector: '.menu-item' },
-  { name: 'snackbar', file: 'theme/styles/ui/snackbar.css', selector: '.snackbar' },
+  { name: 'menu item', file: 'theme/styles/ui/menus.css', selector: '.mo-menu__item' },
+  { name: 'snackbar', file: 'theme/styles/ui/snackbar.css', selector: '.mo-snackbar' },
 ];
 
 /** Files that may set the steps themselves. */

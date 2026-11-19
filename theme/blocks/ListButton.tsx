@@ -5,7 +5,7 @@ import Button from '@theme/ui/Button';
 export default function ListButton({ button, className }: { button?: { label: string; href?: string }; className?: string }) {
   if (!button) return null;
   return (
-    <div className={className ? `block-list-button ${className}` : 'block-list-button'}>
+    <div className={className ? `mo-block-list__button ${className}` : 'mo-block-list__button'}>
       <Button kind="text" href={button.href || undefined}>
         {button.label}
       </Button>

@@ -42,7 +42,7 @@ export type StandardBottomSheetControls = { state: () => BottomSheetState; set: 
 
 /** Lifts a modal sheet (a <dialog>, fixed to the layout viewport) above the on-screen keyboard: a phone's keyboard
  * shrinks only the visual viewport, so the sheet would stay under it or leave a strip of the page between. It sets
- * --keyboard-inset (how far the visual viewport's bottom is above the layout viewport's) and --visual-height (what is
+ * --mo-comp-bottom-sheet-keyboard-inset (how far the visual viewport's bottom is above the layout viewport's) and --mo-comp-bottom-sheet-visual-height (what is
  * visible) on the sheet and data-keyboard while the keyboard is up; bottom-sheet.css lifts the sheet by the first, caps its height
  * by the second (the content scrolls inside) and the focused field is kept in view. A pinch-zoom is not a keyboard. It
  * returns what stops following. Used by bottomSheet() and by the editor's BottomSheet (src/ui.tsx). */
@@ -54,8 +54,8 @@ export function followKeyboard(sheet: HTMLElement): () => void {
     const inset =
       screen.scale > 1.01 ? 0 : Math.max(0, Math.round(document.documentElement.clientHeight - screen.height - screen.offsetTop));
     if (inset) {
-      style.setProperty('--keyboard-inset', `${inset}px`);
-      style.setProperty('--visual-height', `${Math.round(screen.height)}px`);
+      style.setProperty('--mo-comp-bottom-sheet-keyboard-inset', `${inset}px`);
+      style.setProperty('--mo-comp-bottom-sheet-visual-height', `${Math.round(screen.height)}px`);
       sheet.setAttribute('data-keyboard', '');
       // The field being typed in stays in view, in the sheet's scrolled content.
       requestAnimationFrame(() => {
@@ -64,8 +64,8 @@ export function followKeyboard(sheet: HTMLElement): () => void {
           field.scrollIntoView({ block: 'nearest' });
       });
     } else {
-      style.removeProperty('--keyboard-inset');
-      style.removeProperty('--visual-height');
+      style.removeProperty('--mo-comp-bottom-sheet-keyboard-inset');
+      style.removeProperty('--mo-comp-bottom-sheet-visual-height');
       sheet.removeAttribute('data-keyboard');
     }
   };
@@ -75,8 +75,8 @@ export function followKeyboard(sheet: HTMLElement): () => void {
   return () => {
     screen.removeEventListener('resize', update);
     screen.removeEventListener('scroll', update);
-    style.removeProperty('--keyboard-inset');
-    style.removeProperty('--visual-height');
+    style.removeProperty('--mo-comp-bottom-sheet-keyboard-inset');
+    style.removeProperty('--mo-comp-bottom-sheet-visual-height');
     sheet.removeAttribute('data-keyboard');
   };
 }

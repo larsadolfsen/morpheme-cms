@@ -73,7 +73,7 @@ test('an H2 with an image behind it and the whole width comes back byte for byte
 });
 
 test('the marker comes before a label above the H1', async () => {
-  const text = marked('primary', '<p class="label-medium">Welcome</p>\n\n# About\n\nText\n');
+  const text = marked('primary', '<p class="mo-type-label-medium">Welcome</p>\n\n# About\n\nText\n');
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
   assert.ok(nodes.includes('heading:primary'));
@@ -81,14 +81,15 @@ test('the marker comes before a label above the H1', async () => {
 
 test('a label before a block stays a label and comes back byte for byte', async () => {
   const text =
-    '<p class="label-medium">How it works</p>\n\n<div data-block="steps" data-props="{&quot;heading&quot;:&quot;Three steps&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;One&quot;}]}"></div>\n';
+    '<p class="mo-type-label-medium">How it works</p>\n\n<div data-block="steps" data-props="{&quot;heading&quot;:&quot;Three steps&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;One&quot;}]}"></div>\n';
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
   assert.ok(nodes.includes('eyebrow'));
 });
 
 test('a lone label, on any line, stays a label and comes back byte for byte', async () => {
-  const text = 'Intro\n\n<p class="label-medium">Opening hours</p>\n\nMonday to Friday\n\n<p class="label-medium">The end</p>\n';
+  const text =
+    'Intro\n\n<p class="mo-type-label-medium">Opening hours</p>\n\nMonday to Friday\n\n<p class="mo-type-label-medium">The end</p>\n';
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
   assert.equal(nodes.filter((n) => n === 'eyebrow').length, 2);
@@ -100,7 +101,7 @@ test('a block with a label of its own is read as a label line before the block, 
   const { saved, nodes } = await through(old);
   assert.equal(
     saved,
-    '<p class="label-medium">How it works</p>\n\n<div data-block="steps" data-props="{&quot;heading&quot;:&quot;Three steps&quot;}"></div>\n',
+    '<p class="mo-type-label-medium">How it works</p>\n\n<div data-block="steps" data-props="{&quot;heading&quot;:&quot;Three steps&quot;}"></div>\n',
   );
   assert.ok(nodes.includes('eyebrow'));
 });
@@ -111,7 +112,7 @@ test('a text without markers is written as before', async () => {
 });
 
 test('the marker comes before a label above the H2', async () => {
-  const text = marked('surface', '<p class="label-medium">Step by step</p>\n\n## Hours\n\nText\n');
+  const text = marked('surface', '<p class="mo-type-label-medium">Step by step</p>\n\n## Hours\n\nText\n');
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
   assert.ok(nodes.includes('heading:surface'));
@@ -133,14 +134,15 @@ test('an unknown colour stays the HTML it is', async () => {
 });
 
 test('an intro paragraph (Body large) comes back as it was', async () => {
-  const text = '# Title\n\n<p class="body-large">Welcome to us</p>\n\nText\n';
+  const text = '# Title\n\n<p class="mo-type-body-large">Welcome to us</p>\n\nText\n';
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
   assert.deepEqual(nodes, ['heading', 'bodyLarge', 'paragraph']);
 });
 
 test('Body medium and Body small paragraphs come back as they were', async () => {
-  const text = '# Title\n\n<p class="body-medium">Quiet text</p>\n\n<p class="body-small">Opening hours may change</p>\n\nText\n';
+  const text =
+    '# Title\n\n<p class="mo-type-body-medium">Quiet text</p>\n\n<p class="mo-type-body-small">Opening hours may change</p>\n\nText\n';
   const { saved, nodes } = await through(text);
   assert.equal(saved, text);
   assert.deepEqual(nodes, ['heading', 'bodyMedium', 'bodySmall', 'paragraph']);
@@ -171,7 +173,7 @@ test('an empty H1 is not written', async () => {
 
 test('an aligned paragraph, body style and small heading come back as they were, with their alignment', async () => {
   const text =
-    '# Title\n\n<div data-align="center"></div>\n\nCentred **bold** text\n\n<div data-align="right"></div>\n\n<p class="body-small">Right small</p>\n\n' +
+    '# Title\n\n<div data-align="center"></div>\n\nCentred **bold** text\n\n<div data-align="right"></div>\n\n<p class="mo-type-body-small">Right small</p>\n\n' +
     '<div data-align="center"></div>\n\n### Centred heading\n\nPlain\n';
   const { saved } = await through(text);
   assert.equal(saved, text);
@@ -278,10 +280,10 @@ test('Backspace at the start of a list item leaves the list one step', async () 
 // --- A size for the text of list items (lib/text-sizes.mjs): the list stays a list ---
 test('a list item with a size comes back as it was, and the list and the item stay', async () => {
   for (const text of [
-    '-   <span class="body-small">small</span>\n-   plain\n',
-    '1.  <span class="body-large">large <strong>bold</strong></span>\n2.  plain\n',
-    '-   [ ] <span class="body-small">box</span>\n-   [x] done\n',
-    '-   <span class="color-accent"><span class="body-small">both</span></span>\n',
+    '-   <span class="mo-type-body-small">small</span>\n-   plain\n',
+    '1.  <span class="mo-type-body-large">large <strong>bold</strong></span>\n2.  plain\n',
+    '-   [ ] <span class="mo-type-body-small">box</span>\n-   [x] done\n',
+    '-   <span class="mo-has-accent-color"><span class="mo-type-body-small">both</span></span>\n',
   ]) {
     const { saved, nodes } = await through(text);
     assert.equal(saved, text);
@@ -290,8 +292,8 @@ test('a list item with a size comes back as it was, and the list and the item st
 });
 
 test('a size around a colour is written with the colour around the size', async () => {
-  const { saved } = await through('-   <span class="body-small"><span class="color-accent">both</span></span>\n');
-  assert.equal(saved, '-   <span class="color-accent"><span class="body-small">both</span></span>\n');
+  const { saved } = await through('-   <span class="mo-type-body-small"><span class="mo-has-accent-color">both</span></span>\n');
+  assert.equal(saved, '-   <span class="mo-has-accent-color"><span class="mo-type-body-small">both</span></span>\n');
 });
 
 test('a size chosen in a list sizes the touched items and keeps the list; medium takes it away', async () => {
@@ -316,11 +318,11 @@ test('a size chosen in a list sizes the touched items and keeps the list; medium
     return { one, many, none: markdownOf(ctx), kinds: view.state.doc.child(0).type.name };
   });
   await editor.destroy();
-  assert.match(out.one, /^-\s+<span class="body-small">a<\/span>\n-\s+b\n/);
-  assert.match(out.many, /<span class="body-large">a<\/span>/);
-  assert.match(out.many, /<span class="body-large">b<\/span>/);
-  assert.match(out.many, /<span class="body-large">c<\/span>/);
-  assert.match(out.many, /<span class="body-large">d<\/span>/);
+  assert.match(out.one, /^-\s+<span class="mo-type-body-small">a<\/span>\n-\s+b\n/);
+  assert.match(out.many, /<span class="mo-type-body-large">a<\/span>/);
+  assert.match(out.many, /<span class="mo-type-body-large">b<\/span>/);
+  assert.match(out.many, /<span class="mo-type-body-large">c<\/span>/);
+  assert.match(out.many, /<span class="mo-type-body-large">d<\/span>/);
   assert.ok(!out.none.includes('<span'), out.none);
   assert.equal(out.kinds, 'bullet_list');
 });

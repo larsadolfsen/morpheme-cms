@@ -32,6 +32,8 @@ import { appSelf } from '@morphemecms/cms/site/appSelf.mjs';
 import { caseCollisionProblems } from '@morphemecms/cms/lib/caseCollisions.mjs';
 import { codePackageProblems, declarationProblems, ownerId } from '@morphemecms/cms/lib/licenses.mjs';
 import { breakpointProblems } from '@morphemecms/cms/site/breakpoints.mjs';
+import { tailwindProblems } from '@morphemecms/cms/site/tailwind.mjs';
+import { siteProblems as moNameProblems } from './check-mo-names.mjs';
 import { casingProblems } from '../site/casing.mjs';
 import { BUILD_SETTINGS_PATH } from '../lib/build-settings.mjs';
 import { buildSettingsProblems } from './build-settings-problems.mjs';
@@ -206,6 +208,10 @@ result.problems.push(...installedThemes().flatMap(themeProblems), ...iconPackPro
 // Every block is drawn from its view, on the site and in the editor alike.
 result.problems.push(...blockProblems());
 result.problems.push(...breakpointProblems(root));
+// Tailwind stays gone (contract 7): no utility class, no Tailwind at-rule or package in a site's themes, apps, content and config.
+result.problems.push(...tailwindProblems(root));
+// Every class and custom property of a theme or an app starts with mo- (docs/class-names.md).
+result.problems.push(...moNameProblems(root));
 // What each app loads from elsewhere is in its csp.json, so the pages' Content-Security-Policy lets it through.
 result.problems.push(...appCspProblems());
 // The addresses allowed in the editor after the policy stopped them are written as an app's csp.json.

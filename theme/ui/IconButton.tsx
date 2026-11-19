@@ -1,4 +1,4 @@
-// An icon button (m3.material.io/components/icon-buttons, .icon-button in ../styles/ui/buttons.css): only an icon (`icon`, its
+// An icon button (m3.material.io/components/icon-buttons, .mo-icon-button in ../styles/ui/buttons.css): only an icon (`icon`, its
 // name in the theme's icons, or in the editor an icon already made), its name (`label`) read by screen readers. Its kind (`kind`: standard, the default, filled,
 // tonal or outlined), its size (`size`: xsmall, small, the default, medium, large or xlarge), its width (`width`:
 // narrow, default or wide) and its shape (`shape`: round, the default, or square) are Material's names; how each looks
@@ -9,7 +9,7 @@
 // `href` it is a link (Link: on the site; in the editor only drawn; never a toggle), else a <button type="button">.
 // Other attributes (data-…, disabled) go on it, and `className` after its own classes (its place). An Astro component
 // without React gives an element the same classes with iconButtonClass, and a toggle aria-pressed itself. With `busy`
-// (a <button> only) it is disabled, aria-busy and .icon-button-busy: after --button-busy-delay (200 ms) the icon is
+// (a <button> only) it is disabled, aria-busy and .mo-icon-button__busy: after --mo-comp-button-busy-delay (200 ms) the icon is
 // replaced by a loading indicator of its size (BusyContent); the button keeps its size.
 import { Glyph, type IconRef } from '@morphemecms/cms/src/icon';
 import Badge from '@theme/ui/Badge';
@@ -29,11 +29,11 @@ export const iconButtonClass = (
   shape: ButtonShape = 'round',
 ) =>
   [
-    'icon-button',
-    `icon-button-${kind}`,
-    size !== 'small' && `icon-button-${size}`,
-    width !== 'default' && `icon-button-${width}`,
-    shape !== 'round' && `icon-button-${shape}`,
+    'mo-icon-button',
+    kind === 'standard' ? 'mo-icon-button__standard' : `mo-is-${kind}`,
+    size !== 'small' && `mo-icon-button__${size}`,
+    width !== 'default' && `mo-icon-button__${width}`,
+    shape !== 'round' && `mo-icon-button__${shape}`,
   ]
     .filter(Boolean)
     .join(' ');
@@ -65,7 +65,7 @@ export default function IconButton({
   className?: string;
 } & Record<string, unknown>) {
   const isBusy = busy === true && href === undefined;
-  const classes = [iconButtonClass(kind, size, width, shape), isBusy && 'icon-button-busy', className].filter(Boolean).join(' ');
+  const classes = [iconButtonClass(kind, size, width, shape), isBusy && 'mo-icon-button__busy', className].filter(Boolean).join(' ');
   const toggle = selected !== undefined && href === undefined;
   const glyph =
     toggle && typeof icon === 'string' ? <ToggleIcon part="icon-button" name={icon} size={22} /> : <Glyph icon={icon} size={22} />;

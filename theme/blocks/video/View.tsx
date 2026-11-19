@@ -1,5 +1,5 @@
 // "Video": the video before it is played, in the text's style, as a video written in the text
-// (@morphemecms/cms/lib/video.mjs, .video-facade in ../blocks.css): a link to the video with its still, a play button and
+// (@morphemecms/cms/lib/video.mjs, .mo-block-video__facade in ../blocks.css): a link to the video with its still, a play button and
 // its title; a click puts the video in its place (Base.astro). A new link is a new video, with its own still. In the
 // editor a still the site does not have yet is YouTube's or Vimeo's, else the plain box.
 import { useState } from 'react';
@@ -19,13 +19,13 @@ function Facade({ view }: { view: VideoView }) {
     if (still === view.still && view.stillElsewhere) view.stillElsewhere().then((src) => setStill(src ? { src } : null));
     else setStill(null);
   };
-  const classes = ['video-facade', !useOnSite() && 'my-0!', still && 'video-facade-still'];
+  const classes = ['mo-block-video__facade', !useOnSite() && 'mo-is-flush', still && 'mo-block-video__facade-still'];
   return (
     <InProse>
       <Link href={view.href} data-video={view.player} data-title={view.title} className={classes.filter(Boolean).join(' ')}>
         {still && (
           <img
-            className="video-facade-image"
+            className="mo-block-video__facade-image"
             src={still.src}
             srcSet={still.srcset}
             sizes={still.srcset && `(min-width: ${BREAKPOINTS.expanded}px) 720px, 100vw`}
@@ -36,7 +36,7 @@ function Facade({ view }: { view: VideoView }) {
           />
         )}
         <Svg name="play" weight="fill" size={48} />
-        <span className="video-facade-title">{view.title}</span>
+        <span className="mo-block-video__facade-title">{view.title}</span>
       </Link>
     </InProse>
   );

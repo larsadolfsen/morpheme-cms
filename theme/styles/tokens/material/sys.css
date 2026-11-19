@@ -19,9 +19,9 @@
   --mo-sys-density-base: 0;
 }
 :root,
-:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* State layers: on-surface (or primary) over the element, at M3's state opacities (hover 0.08, pressed 0.1; tokens/ui/ref.css). */
   --mo-sys-state-mo-hover-layer: color-mix(
     in srgb,
@@ -48,7 +48,7 @@
   --mo-sys-radius: var(--mo-sys-shape-corner-medium);
   --mo-sys-panel-shadow: var(--mo-sys-elevation-level1-rest-shadow);
   /* The site's motion scheme's curve ("Motion", @morphemecms/cms/lib/motion.ts). */
-  --mo-sys-ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
+  --mo-sys-ease: var(--mo-sys-motion-ease, cubic-bezier(0.2, 0, 0, 1));
   --mo-sys-block-surface: var(--mo-sys-color-surface-container-low);
   --mo-sys-block-radius: var(--mo-sys-shape-corner-medium);
   --mo-sys-block-control-radius: var(--mo-sys-shape-corner-full);
@@ -60,7 +60,7 @@
   /* The front page: its headline closer to the first section under it. */
   --mo-comp-theme-home-first-space: 2.5rem;
   --mo-comp-theme-home-first-space-large: 4rem;
-  /* The theme grid (.image-grid, docs/theme-grid.md): the page margin and the gutter between cards, 16px on compact and 24px from
+  /* The theme grid (.mo-staggered-grid, docs/theme-grid.md): the page margin and the gutter between cards, 16px on compact and 24px from
      medium. Owner values (15 Nov 2026); Material 3's Grids pages print no margin or gutter value. --mo-sys-grid-layout-columns: Material 3's
      layout grid, 4 columns on compact, 8 on medium and expanded, 12 on large and extra-large (its Grids page, the column mockup). */
   --mo-sys-grid-margin: 1rem;
@@ -71,9 +71,9 @@
    it, and the list above (the M3 aliases and the parts' variables, which are resolved where they are declared) is
    declared again on them (the selector of its rule), so every part takes the swapped colours. The section's own
    colours are in --section-… (blocks.css). */
-:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   --mo-sys-color-on-surface: var(--mo-sys-section-on-accent);
   --mo-sys-color-on-surface-variant: var(--mo-sys-section-on-accent);
   --mo-sys-color-outline-variant: color-mix(in srgb, var(--mo-sys-section-on-accent) 35%, transparent);
@@ -109,14 +109,14 @@
 :root[data-theme='dark'] {
   --mo-sys-panel-shadow: var(--mo-sys-elevation-level1-rest-shadow);
 }
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   :root {
     --mo-sys-grid-margin: 1.5rem;
     --mo-sys-grid-gutter: 1.5rem;
     --mo-sys-grid-layout-columns: 8;
   }
 }
-@media (width >= theme(--breakpoint-large)) {
+@media (width >= 75rem) {
   :root {
     --mo-sys-grid-layout-columns: 12;
   }

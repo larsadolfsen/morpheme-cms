@@ -1,9 +1,9 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 :root,
-:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* Cards (ui.css): 12px corners; outlined on the surface with the outline variant, elevated on a low container with
      the first elevation, filled on the highest container. */
   --mo-comp-card-radius: var(--mo-sys-shape-corner-medium);
@@ -25,19 +25,19 @@
   --mo-comp-outlined-card-outline-color: var(--mo-sys-color-outline-variant);
 }
 @layer components {
-  .block-notice {
+  .mo-block-notice {
     --mo-comp-filled-card-container-color: var(--mo-sys-color-surface-container-high);
   }
 }
 /* "Cards": Material 3's three (outlined, filled, elevated: the card's `design`, ui.css); the filled one on the surface container (or the
      primary, secondary or tertiary container: blocks.css), with the card's state layer (ui.css) when pointed at or focused. */
 @layer components {
-  .block-card {
+  .mo-block-cards__card {
     --mo-comp-filled-card-container-color: var(--mo-sys-color-surface-container);
   }
 }
 @layer components {
-  .block-testimonial {
+  .mo-block-testimonials__testimonial {
     --mo-comp-outlined-card-container-color: var(--mo-sys-color-surface-container);
     --mo-comp-outlined-card-outline-color: transparent;
   }
@@ -45,27 +45,27 @@
 /* An invitation: a filled card with extra-large corners, its image with large corners (where it stands is the
      block's, so it takes no optical roundness from the card). */
 @layer components {
-  .block-cta {
+  .mo-block-cta {
     --mo-comp-card-radius: var(--mo-sys-shape-corner-extra-large);
     --mo-comp-card-padding: 1.5rem;
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
-    .block-cta {
+  @media (width >= 37.5rem) {
+    .mo-block-cta {
       --mo-comp-card-padding: 2rem;
     }
   }
 }
 @layer components {
-  .block-link-row {
+  .mo-block-link-row {
     --mo-comp-card-radius: var(--mo-sys-shape-corner-medium);
     --mo-comp-outlined-card-container-color: var(--mo-sys-color-surface-container-low);
     --mo-comp-outlined-card-outline-color: transparent;
   }
 }
 @layer components {
-  a.block-link-row:hover {
+  a.mo-block-link-row:hover {
     --mo-comp-outlined-card-container-color: color-mix(
       in srgb,
       var(--mo-sys-color-on-surface) 8%,

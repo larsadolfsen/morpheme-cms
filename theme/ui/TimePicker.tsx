@@ -1,4 +1,4 @@
-// A time picker (m3.material.io/components/time-pickers, .time-picker in ../styles/ui/pickers.css): a text field to type a time
+// A time picker (m3.material.io/components/time-pickers, .mo-time-picker in ../styles/ui/pickers.css): a text field to type a time
 // of day in (as the site's language writes it, 14.30 in Danish; `timeFormat`: 24h, the default, or 12h, 2.30 PM, with
 // AM and PM in the picker), with a clock button that opens the picker (TimePickerContainer.tsx: the dial, and the
 // input mode) in a dialog in the middle of the screen, and what a form sends, the time as hh:mm (14:30), in a hidden
@@ -56,7 +56,7 @@ export default function TimePicker({
   return (
     <div
       ref={box}
-      className={['time-picker-field', className].filter(Boolean).join(' ')}
+      className={['mo-time-picker__field', className].filter(Boolean).join(' ')}
       data-time-picker={JSON.stringify({ texts, timeFormat, orientation })}
     >
       <TextField
@@ -73,13 +73,13 @@ export default function TimePicker({
       <IconButton
         icon="clock"
         label={texts.select}
-        className="time-picker-field-button"
+        className="mo-time-picker__field-button"
         aria-haspopup="dialog"
         aria-expanded="false"
         data-time-picker-open=""
       />
       <input type="hidden" name={name} defaultValue={known ? value : ''} data-time-picker-value="" />
-      <dialog className="dialog-modal time-picker-dialog" aria-label={texts.select} data-time-picker-dialog=""></dialog>
+      <dialog className="mo-dialog__modal mo-time-picker__dialog" aria-label={texts.select} data-time-picker-dialog=""></dialog>
     </div>
   );
 }

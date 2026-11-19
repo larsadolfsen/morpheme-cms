@@ -32,11 +32,11 @@
     --mo-sys-block-control-radius  the corners of a button and a tag (a pill when large)
     --mo-sys-block-shadow     the shadow of a raised panel
     --mo-sys-block-section-padding, --mo-sys-block-section-margin  the space inside, and above and below, a coloured section of a text
-                       (.text-section: a panel the width of the text column, on --mo-sys-block-surface, --mo-sys-block-primary, --mo-sys-block-secondary or --mo-sys-block-tertiary; on those colours
+                       (.mo-text-section: a panel the width of the text column, on --mo-sys-block-surface, --mo-sys-block-primary, --mo-sys-block-secondary or --mo-sys-block-tertiary; on those colours
                        the blocks in it get inverted variables: text, accent and line on-accent, surface and tint a veil of it)
-    --mo-sys-block-ease       the easing of motion (else the motion scheme's, --motion-ease)
+    --mo-sys-block-ease       the easing of motion (else the motion scheme's, --mo-sys-motion-ease)
     --mo-sys-block-ease-quick the easing of a quick change of state (a colour, an arrow that turns or moves; else the motion
-                       scheme's, --motion-ease-quick)
+                       scheme's, --mo-sys-motion-ease-quick)
     --mo-sys-block-hero-shade, --mo-sys-block-hero-on-shade  (optional) the colour an image behind a section's text is darkened with,
                        and the text's on it; without them the text's colour and the surface's
     --mo-sys-block-page-width, --mo-sys-block-gutter  the page's container (its width, gutters included, and its gutter at the
@@ -50,13 +50,13 @@
     --mo-sys-motion-spring-fast-effects, --mo-sys-motion-spring-default-effects, --mo-sys-motion-spring-slow-effects   a colour, a shadow, something that fades
     --mo-sys-motion-spring-fast-spatial-duration … --mo-sys-motion-spring-slow-effects-duration   each one's duration alone, for what must last as
                        long as it (a visibility that waits for it, a display … allow-discrete)
-    --motion-ease, --motion-ease-quick   the default spatial and effects curves alone, for a duration of one's own
+    --mo-sys-motion-ease, --mo-sys-motion-ease-quick   the default spatial and effects curves alone, for a duration of one's own
   Without them (a page without Base.astro's <head>), the values below: the standard scheme's lengths with Material's
   standard curve.
 
   A site sets the class `js` on <html> as early as it can (this site: Base.astro): then a long
   testimonial is cut with "Read more" from the start; without it, the whole text is shown.
-  The mark before the name on a testimonial (.block-testimonial-mark) is the site's own: it is not shown
+  The mark before the name on a testimonial (.mo-block-testimonials__testimonial-mark) is the site's own: it is not shown
   until the site gives it a look (the standard theme: an avatar with the name's first letter, its data-initial; another:
   its logo).
 */
@@ -98,9 +98,9 @@
   --mo-sys-motion-spring-slow-effects-duration: 330ms;
   /* Tailwind's transition-colors, transition-opacity … without a duration of their own: the default effects spring. */
   --mo-sys-default-transition-duration: var(--mo-sys-motion-spring-default-effects-duration);
-  --mo-sys-default-transition-timing-function: var(--motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
-  --mo-sys-block-ease: var(--motion-ease, cubic-bezier(0.2, 0, 0, 1));
-  --mo-sys-block-ease-quick: var(--motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
+  --mo-sys-default-transition-timing-function: var(--mo-sys-motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
+  --mo-sys-block-ease: var(--mo-sys-motion-ease, cubic-bezier(0.2, 0, 0, 1));
+  --mo-sys-block-ease-quick: var(--mo-sys-motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
   --mo-sys-block-page-width: 72rem;
   /* The measure of the page's text (owner, 16 Nov 2026): a paragraph is at least --mo-sys-block-text-measure-min and at most
      --mo-sys-block-text-measure-max wide. A min-width wins over a max-width, so use it as min(var(--mo-sys-block-text-measure-min), 100%):
@@ -115,25 +115,25 @@
   --mo-sys-block-section-padding: 1.5rem;
   --mo-sys-block-section-margin: 2rem;
 }
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   :where(:root) {
     --mo-sys-block-gutter: 1.5rem;
   }
 }
 @layer components {
-  .text-section-picture {
+  :where(.mo-text-section).mo-has-image {
     --mo-sys-section-fill: var(--mo-sys-block-hero-shade, var(--mo-sys-block-text));
     --mo-sys-section-on-fill: var(--mo-sys-block-hero-on-shade, var(--mo-sys-block-surface));
     --mo-sys-section-shade: var(--mo-sys-section-fill);
   }
 }
 @layer components {
-  .text-section-picture.text-section-surface {
+  :where(.mo-text-section).mo-has-image.mo-is-surface {
     --mo-sys-section-shade: var(--mo-sys-block-surface);
   }
 }
 @layer components {
-  .text-section-primary {
+  :where(.mo-text-section).mo-is-primary {
     --mo-sys-section-fill: var(--mo-sys-block-primary);
     --mo-sys-section-on-fill: var(--mo-sys-block-on-primary);
     --mo-sys-section-container: var(--mo-sys-color-primary-container, var(--mo-sys-block-tint));
@@ -141,7 +141,7 @@
   }
 }
 @layer components {
-  .text-section-secondary {
+  :where(.mo-text-section).mo-is-secondary {
     --mo-sys-section-fill: var(--mo-sys-block-secondary);
     --mo-sys-section-on-fill: var(--mo-sys-block-on-secondary);
     --mo-sys-section-container: var(--mo-sys-color-secondary-container, var(--mo-sys-block-tint));
@@ -149,7 +149,7 @@
   }
 }
 @layer components {
-  .text-section-tertiary {
+  :where(.mo-text-section).mo-is-tertiary {
     --mo-sys-section-fill: var(--mo-sys-block-tertiary);
     --mo-sys-section-on-fill: var(--mo-sys-block-on-tertiary);
     --mo-sys-section-container: var(--mo-sys-color-tertiary-container, var(--mo-sys-block-tint));
@@ -157,18 +157,23 @@
   }
 }
 @layer components {
-  .text-section-full {
+  :where(.mo-text-section).mo-is-full {
     --mo-sys-section-inset: calc(max(0px, (100vw - var(--mo-sys-block-page-width)) / 2) + var(--mo-sys-block-gutter));
   }
 }
 /* A post row has a thumbnail (128px) before its text: its columns are wider (30rem), so the date and reading time stay on one line. */
 @layer components {
-  .block-posts-rows {
+  .mo-block-posts__rows {
     --mo-sys-block-list-column-min: 30rem;
   }
 }
 @layer components {
-  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) {
+  :is(
+    :where(.mo-text-section).mo-is-primary,
+    :where(.mo-text-section).mo-is-secondary,
+    :where(.mo-text-section).mo-is-tertiary,
+    :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)
+  ) {
     --mo-sys-section-accent: var(--mo-sys-section-fill);
     --mo-sys-section-on-accent: var(--mo-sys-section-on-fill);
     --mo-sys-section-text: var(--mo-sys-block-text);
@@ -179,9 +184,9 @@
      colour, a surface is a veil of it, and what was text-on-primary (a filled button's label, a step number) is the
      accent. Dark mode follows, as the variables do. */
 @layer components {
-  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+  :is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
   /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-  .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  .mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
     --mo-sys-block-text: var(--mo-sys-section-on-accent);
     --mo-sys-block-muted: var(--mo-sys-section-on-accent);
     --mo-sys-block-accent: var(--mo-sys-section-on-accent);
@@ -198,12 +203,12 @@
   }
 }
 @layer components {
-  .block-steps {
+  .mo-block-steps {
     --mo-sys-block-step-gap: 2.5rem;
   }
 }
 @layer components {
-  .block-cards-primary .block-card {
+  .mo-block-cards__primary .mo-block-cards__card {
     /* What is read on the container (a text button, its icon, a video's title and play button, which read --mo-sys-block-text and --mo-sys-block-accent) follows it, also in a section on a colour, where these roles are swapped. */
     --mo-sys-color-on-surface: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-on-primary));
     --mo-sys-color-on-surface-variant: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-on-primary));
@@ -214,7 +219,7 @@
   }
 }
 @layer components {
-  .block-cards-secondary .block-card {
+  .mo-block-cards__secondary .mo-block-cards__card {
     /* What is read on the container (a text button, its icon, a video's title and play button, which read --mo-sys-block-text and --mo-sys-block-accent) follows it, also in a section on a colour, where these roles are swapped. */
     --mo-sys-color-on-surface: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-on-secondary));
     --mo-sys-color-on-surface-variant: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-on-secondary));
@@ -225,7 +230,7 @@
   }
 }
 @layer components {
-  .block-cards-tertiary .block-card {
+  .mo-block-cards__tertiary .mo-block-cards__card {
     /* What is read on the container (a text button, its icon, a video's title and play button, which read --mo-sys-block-text and --mo-sys-block-accent) follows it, also in a section on a colour, where these roles are swapped. */
     --mo-sys-color-on-surface: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-on-tertiary));
     --mo-sys-color-on-surface-variant: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-on-tertiary));

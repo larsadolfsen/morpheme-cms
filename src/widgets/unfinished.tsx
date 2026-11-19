@@ -37,8 +37,8 @@ export function UnfinishedWidget({ editing }: WidgetProps) {
   const rows = unfinishedOf(entriesOf(files, lists));
   if (!rows.length && !editing) return null;
   return (
-    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="[--mo-comp-card-padding:1rem_0_0.5rem]">
-      <h2 id={titleId} className="ps-4 pe-4 pb-2 font-medium">
+    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="mo-editor-widget-list">
+      <h2 id={titleId} className="mo-editor-widget-list-title">
         {t.library.unfinishedTitle}
       </h2>
       {rows.length ? (
@@ -55,10 +55,10 @@ export function UnfinishedWidget({ editing }: WidgetProps) {
           ))}
         </ul>
       ) : (
-        <p className="px-4 pb-2 text-sm text-on-surface-variant">{t.library.unfinishedEmpty}</p>
+        <p className="mo-editor-widget-empty">{t.library.unfinishedEmpty}</p>
       )}
       {rows.length > shown && (
-        <div className="flex justify-end px-2 pt-1">
+        <div className="mo-editor-widget-more">
           <LinkButton kind="text" href={`#list/${rows[0].collection}`} onClick={() => keep(`${rows[0].collection}-status`, 'unfinished')}>
             {t.library.unfinishedShowAll}
           </LinkButton>

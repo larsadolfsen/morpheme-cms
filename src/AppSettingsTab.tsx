@@ -54,7 +54,7 @@ export default function AppSettingsTab({
         <Button kind="outlined" disabled={busy || stuck} busy={uninstalling} onClick={onUninstall}>
           {t.apps.uninstall}
         </Button>
-        <SupportingText className="mt-2">{stuck ? t.apps.stuck : t.apps.uninstallHint}</SupportingText>
+        <SupportingText className="mo-editor-supporting">{stuck ? t.apps.stuck : t.apps.uninstallHint}</SupportingText>
       </div>
     </>
   );

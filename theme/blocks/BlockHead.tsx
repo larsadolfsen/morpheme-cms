@@ -1,7 +1,7 @@
 // A block's head (its contract: @morphemecms/cms/src/standard/head.ts), over the standard blocks that start a section
 // ("Cards", "Points with icon", "List", "Steps", "Testimonials", "Questions and answers", "Blog posts", "Accordion"), in the text's
 // style (InProse). Only a heading: the heading itself, as the text has its headings. With a subheading under it ("Subheading"):
-// the two together (.block-head in ../styles/blocks.css, an <hgroup>). Nothing without any of them.
+// the two together (.mo-block-head in ../styles/blocks.css, an <hgroup>). Nothing without any of them.
 import type { HeadView } from '@morphemecms/cms/src/standard/head';
 import { InProse } from '@morphemecms/cms/src/standard/view';
 
@@ -15,9 +15,9 @@ export default function BlockHead({ view }: { view: HeadView }) {
     ) : null;
   return (
     <InProse>
-      <hgroup className="block-head">
+      <hgroup className="mo-block-head">
         {heading && <h2>{heading}</h2>}
-        {subheading && <p className="block-subheading">{subheading}</p>}
+        {subheading && <p className="mo-block-head__subheading">{subheading}</p>}
       </hgroup>
     </InProse>
   );

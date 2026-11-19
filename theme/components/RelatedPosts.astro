@@ -14,11 +14,11 @@ const { posts } = Astro.props;
 ---
 
 {posts.length > 0 && (
-  <Container class="mt-12 medium:mt-16" aria-labelledby="related-posts">
+  <Container class="mo-related" aria-labelledby="related-posts">
     <h2 id="related-posts" class="mo-type-headline-small">
       {siteT.theme.relatedPosts}
     </h2>
-    <ul class="mt-6 grid gap-(--mo-sys-grid-gutter) medium:grid-cols-3">
+    <ul class="mo-related__list">
       {posts.map((post) => (
         <li>
           <PostCard post={post} />

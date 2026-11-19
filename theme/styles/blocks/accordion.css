@@ -1,50 +1,50 @@
 /*
-  The Accordion and its rows: .block-accordion-lead and .block-accordion-answer (the answer as it was written), the text button under the last row
-  (.block-list-button), "Max rows" (.block-more and its parts), the page rows' text and links (.block-row-text, .block-row-links). Moved here from
+  The Accordion and its rows: .mo-block-accordion__lead and .mo-block-accordion__answer (the answer as it was written), the text button under the last row
+  (.mo-block-list__button), "Max rows" (.mo-block-more and its parts), the page rows' text and links (.mo-block-accordion__row-text, .mo-block-accordion__row-links). Moved here from
   blocks.css with the rules unchanged and in the order they had (docs/superpowers/plans/2026-11-16-css-split.md); the @media (width >= medium) block
   that mixed the row text and the answer with other blocks' rules was split, and the one rule of the fallback layer (the last paragraph of an
   answer) moved with them into this file's own fallback layer. The list columns Accordion shares with other blocks and the icon colour shared with
-  the cards (.block-accordion-lead[data-icon-color], .block-card .block-card-icon[data-icon-color]) stay in blocks.css. Imported by base.css right
+  the cards (.mo-block-accordion__lead[data-icon-color], .mo-block-cards__card .mo-block-cards__card-icon[data-icon-color]) stay in blocks.css. Imported by base.css right
   after blocks.css, in the same layers, so every rule that stayed in blocks.css after these still comes before them in the cascade; none of those rules
   sets a property of these elements at the same specificity (the collision check in the pull request).
 */
 @layer components {
-  .block-accordion-lead {
+  .mo-block-accordion__lead {
     flex-shrink: 0;
     color: var(--mo-sys-block-muted);
   }
   /* A chosen icon colour (data-icon-color) on the Accordion's lead and on a card's icon, which both read --mo-comp-icon-color. */
-  .block-accordion-lead[data-icon-color],
-  .block-card .block-card-icon[data-icon-color] {
+  .mo-block-accordion__lead[data-icon-color],
+  .mo-block-cards__card .mo-block-cards__card-icon[data-icon-color] {
     color: var(--mo-comp-icon-color);
   }
   /* The text button under the last row of "Segmented list" and "FAQ list" (ListButton.tsx). */
-  .block-list-button {
+  .mo-block-list__button {
     margin-top: 0.5rem;
     /* A text button has no container at rest, so its label stands in from its edge by the button's side padding: the button moves out by that much and its label lines up with the list's edge. */
     margin-inline-start: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
   }
   /* `Max rows` of "Segmented list" (MoreRows.tsx, segmented/more.ts): without script all rows show and the button is hidden; with
      script (data-cut) the rows after the first ones are hidden until the button shows them. The last row left has no line under it. */
-  .block-more:not([data-cut]) .block-more-button {
+  .mo-block-more:not([data-cut]) .mo-block-more__button {
     display: none;
   }
-  /* `Show more` and the text button under the last row (`button`) stand on one row (.block-buttons-row: flex, wrapping): the row carries the spacing above and the
+  /* `Show more` and the text button under the last row (`button`) stand on one row (.mo-block-buttons__row: flex, wrapping): the row carries the spacing above and the
      pull out by a text button's side padding, so the buttons themselves have none. */
-  .block-more > .block-buttons-row {
+  .mo-block-more > .mo-block-buttons__row {
     margin-top: 0.5rem;
     margin-inline-start: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
     gap: 0;
   }
-  .block-more > .block-buttons-row > .block-list-button {
+  .mo-block-more > .mo-block-buttons__row > .mo-block-list__button {
     margin: 0;
   }
-  .block-more[data-cut] [data-extra],
-  .block-more[data-cut] li:has(> [data-extra]) {
+  .mo-block-more[data-cut] [data-extra],
+  .mo-block-more[data-cut] li:has(> [data-extra]) {
     display: none;
   }
   /* An answer as it was written: paragraphs and lists apart, links in the accent. */
-  .block-accordion-answer {
+  .mo-block-accordion__answer {
     max-width: var(--mo-sys-block-text-measure-max);
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
@@ -52,25 +52,25 @@
     letter-spacing: var(--mo-sys-typescale-body-large-tracking);
     color: var(--mo-sys-block-muted);
   }
-  .block-accordion-answer * + * {
+  .mo-block-accordion__answer * + * {
     margin-top: 0.75em;
   }
-  .block-accordion-answer ul {
+  .mo-block-accordion__answer ul {
     list-style: disc;
     padding-left: 1.25em;
   }
-  .block-accordion-answer ol {
+  .mo-block-accordion__answer ol {
     list-style: decimal;
     padding-left: 1.25em;
   }
-  .block-accordion-answer li + li {
+  .mo-block-accordion__answer li + li {
     margin-top: 0.25em;
   }
-  .block-accordion-answer strong {
+  .mo-block-accordion__answer strong {
     color: var(--mo-sys-block-text);
     font-weight: 600;
   }
-  .block-accordion-answer a {
+  .mo-block-accordion__answer a {
     color: var(--mo-sys-block-accent);
     font-weight: 500;
     text-decoration: underline;
@@ -79,7 +79,7 @@
   }
   /* "Accordion": a row's text, the link to its page and links to more specific pages under it
      (accordion/PageRow.tsx). */
-  .block-row-text {
+  .mo-block-accordion__row-text {
     max-width: var(--mo-sys-block-text-measure-max);
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
@@ -87,7 +87,7 @@
     letter-spacing: var(--mo-sys-typescale-body-large-tracking);
     color: var(--mo-sys-block-muted);
   }
-  .block-row-links {
+  .mo-block-accordion__row-links {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -95,19 +95,19 @@
     margin-top: 1rem;
   }
   /* Text buttons under a row's text (accordion/Accordion.tsx, accordion/PageRow.tsx): the same shift, so their labels line up with the text above. */
-  .block-row-links:has(> .button-text) {
+  .mo-block-accordion__row-links:has(> .mo-button__text) {
     margin-inline-start: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
     column-gap: 0.5rem;
     margin-block-end: calc((1.25rem - var(--mo-comp-button-medium-container-height, 3rem)) / 2);
   }
   @media (width >= 37.5rem) {
-    .block-row-text {
+    .mo-block-accordion__row-text {
       font-size: var(--mo-sys-typescale-body-large-size);
       line-height: var(--mo-sys-typescale-body-large-line-height);
       font-weight: var(--mo-sys-typescale-body-large-weight);
       letter-spacing: var(--mo-sys-typescale-body-large-tracking);
     }
-    .block-accordion-answer {
+    .mo-block-accordion__answer {
       font-size: var(--mo-sys-typescale-body-large-size);
       line-height: var(--mo-sys-typescale-body-large-line-height);
       font-weight: var(--mo-sys-typescale-body-large-weight);
@@ -117,9 +117,9 @@
 }
 
 @layer fallback {
-  /* The room under an open row is the body's padding alone: the last paragraph's margin (the text's, .prose in base.css, is in this layer
-     too) adds none. A text button's own height is taken off its row (.block-row-links above). */
-  .block-accordion-answer > :last-child {
+  /* The room under an open row is the body's padding alone: the last paragraph's margin (the text's, .mo-prose in base.css, is in this layer
+     too) adds none. A text button's own height is taken off its row (.mo-block-accordion__row-links above). */
+  .mo-block-accordion__answer > :last-child {
     margin-bottom: 0;
   }
 }

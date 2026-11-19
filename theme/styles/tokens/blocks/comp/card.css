@@ -1,26 +1,26 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  .block-table-grid {
+  .mo-block-table__grid {
     --mo-comp-card-padding: 0;
     --mo-comp-outlined-card-container-color: transparent;
     --mo-comp-outlined-card-outline-color: transparent;
   }
 }
 @layer components {
-  .block-link-row {
+  .mo-block-link-row {
     --mo-comp-card-radius: var(--mo-sys-block-radius-small);
     --mo-comp-card-padding: 0.85rem 1.1rem 0.85rem 0.85rem;
   }
 }
 @layer components {
-  a.block-link-row:hover {
+  a.mo-block-link-row:hover {
     --mo-comp-outlined-card-outline-color: var(--mo-sys-block-accent);
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
-    .block-cta {
+  @media (width >= 37.5rem) {
+    .mo-block-cta {
       --mo-comp-card-padding: 3rem;
     }
   }

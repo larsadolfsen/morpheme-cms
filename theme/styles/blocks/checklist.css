@@ -1,14 +1,14 @@
 /*
   The Checklist block in the text: its space above and below, and its two columns when it has six lines or more (the list parts of the Checklist are in panel.css or still in blocks.css until that file lands). Moved here from blocks.css with the rules unchanged and in the order they had
-  (docs/superpowers/plans/2026-11-16-css-split.md). The rules of the Checklist list parts (.block-checklist .list-item-container, .list-item-leading) sit in the Panel run of blocks.css. Imported by base.css after blocks.css, in the same layer (components), so every rule
+  (docs/superpowers/plans/2026-11-16-css-split.md). The rules of the Checklist list parts (.mo-block-checklist .mo-list__item-container, .mo-list__item-leading) sit in the Panel run of blocks.css. Imported by base.css after blocks.css, in the same layer (components), so every rule
   that stayed in blocks.css after these still comes before them in the cascade; none of those rules sets a property of these elements at the same
   specificity (the collision check in the pull request).
 */
 @layer components {
-  .block-checklist.block-in-text {
+  .mo-block-checklist.mo-is-in-text {
     margin-block: 1rem;
   }
-  .block-checklist:not(.block-plan-features):has(> :nth-child(6)) {
+  .mo-block-checklist:not(.mo-block-pricecards__plan-features):has(> :nth-child(6)) {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, max(16rem, calc(50% - 1rem))), 1fr));
     column-gap: 2rem;

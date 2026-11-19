@@ -167,12 +167,12 @@ async function checkTypographyHeadings(width, height) {
     };
     const out = Object.entries(levels).map(([tag, role]) => {
       const n = tag.slice(1);
-      const el = [...document.querySelectorAll(`main .prose ${tag}`)].find((e) =>
+      const el = [...document.querySelectorAll(`main .mo-prose ${tag}`)].find((e) =>
         new RegExp(`^Heading ${n}\\b`).test(e.textContent.trim()),
       );
       return el ? { name: `${tag} (${role})`, values: read(el, role) } : { name: `${tag} (${role})`, missing: true };
     });
-    const quote = document.querySelector('main .prose blockquote');
+    const quote = document.querySelector('main .mo-prose blockquote');
     out.push(
       quote
         ? {

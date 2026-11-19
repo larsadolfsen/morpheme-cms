@@ -8,17 +8,17 @@
 */
 @layer components {
   /* A dialog's container. */
-  .dialog {
+  .mo-dialog {
     border-radius: var(--mo-comp-dialog-container-shape, var(--mo-sys-block-radius));
-    background: var(--dialog-surface, var(--mo-sys-elevation-level3-color));
+    background: var(--mo-comp-dialog-surface, var(--mo-sys-elevation-level3-color));
     box-shadow:
       0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
-      var(--dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+      var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow));
   }
   /* A modal dialog: in the middle of the screen over the scrim, coming up a little as it opens. */
-  .dialog-modal {
+  .mo-dialog__modal {
     width: calc(100% - 2rem);
-    max-width: var(--dialog-max-width, 28rem);
+    max-width: var(--mo-comp-dialog-max-width, 28rem);
     margin: auto;
     padding: 0;
     border: 0;
@@ -26,20 +26,20 @@
     color: inherit;
   }
   /* The dialog itself has the focus when it opens (dialogFocus.ts), so no control looks chosen: no ring on the container. */
-  .dialog-modal:focus {
+  .mo-dialog__modal:focus {
     outline: none;
   }
-  .dialog-modal::backdrop {
+  .mo-dialog__modal::backdrop {
     background: var(
       --mo-comp-dialog-scrim,
       color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent)
     );
   }
   @media (prefers-reduced-motion: no-preference) {
-    .dialog-modal[open] {
+    .mo-dialog__modal[open] {
       animation: dialog-in var(--mo-sys-motion-spring-default-spatial);
     }
-    .dialog-modal[open]::backdrop {
+    .mo-dialog__modal[open]::backdrop {
       animation: dialog-scrim-in var(--mo-sys-motion-spring-slow-effects);
     }
   }
@@ -57,54 +57,54 @@
 
   /* A basic dialog with its parts: the icon and the headline, the supporting text, what else it shows (scrolling when
      it is long), and the actions at its end. */
-  .dialog-basic {
+  .mo-dialog__basic {
     display: flex;
     flex-direction: column;
-    padding: var(--dialog-padding, 1.5rem);
+    padding: var(--mo-comp-dialog-padding, 1.5rem);
   }
-  .dialog-modal > .dialog-basic {
+  .mo-dialog__modal > .mo-dialog__basic {
     max-height: calc(100dvh - 3rem);
   }
-  .dialog-icon {
+  .mo-dialog__icon {
     flex-shrink: 0;
     align-self: center;
     width: 1.5rem;
     height: 1.5rem;
     margin-bottom: 1rem;
-    color: var(--dialog-icon-color, var(--mo-sys-block-accent));
+    color: var(--mo-comp-dialog-icon-color, var(--mo-sys-block-accent));
   }
-  .dialog-headline {
+  .mo-dialog__headline {
     flex-shrink: 0;
     margin: 0 0 1rem;
-    font-size: var(--dialog-headline-size, var(--mo-sys-typescale-headline-small-size));
-    font-weight: var(--dialog-headline-weight, var(--mo-sys-typescale-headline-small-weight));
+    font-size: var(--mo-comp-dialog-headline-size, var(--mo-sys-typescale-headline-small-size));
+    font-weight: var(--mo-comp-dialog-headline-weight, var(--mo-sys-typescale-headline-small-weight));
     letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
     line-height: var(--mo-sys-typescale-headline-small-line-height);
   }
-  .dialog-with-icon .dialog-headline {
+  :where(.mo-dialog).mo-has-icon .mo-dialog__headline {
     text-align: center;
   }
-  .dialog-supporting-text {
+  .mo-dialog__supporting-text {
     flex-shrink: 0;
-    color: var(--dialog-supporting-text-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-dialog-supporting-text-color, var(--mo-sys-block-muted));
   }
-  .dialog-supporting-text > * + * {
+  .mo-dialog__supporting-text > * + * {
     margin-top: 0.75rem;
   }
-  .dialog-basic .dialog-content {
+  .mo-dialog__basic .mo-dialog__content {
     min-height: 0;
-    margin-inline: calc(-1 * var(--dialog-padding, 1.5rem));
-    padding-inline: var(--dialog-padding, 1.5rem);
+    margin-inline: calc(-1 * var(--mo-comp-dialog-padding, 1.5rem));
+    padding-inline: var(--mo-comp-dialog-padding, 1.5rem);
     overflow-y: auto;
   }
-  .dialog-supporting-text + .dialog-content {
+  .mo-dialog__supporting-text + .mo-dialog__content {
     margin-top: 1rem;
   }
-  .dialog .dialog-divider {
+  .mo-dialog .mo-dialog__divider {
     flex-shrink: 0;
-    margin: 1rem calc(-1 * var(--dialog-padding, 1.5rem)) 0;
+    margin: 1rem calc(-1 * var(--mo-comp-dialog-padding, 1.5rem)) 0;
   }
-  .dialog-actions {
+  .mo-dialog__actions {
     display: flex;
     flex-shrink: 0;
     flex-wrap: wrap;
@@ -112,7 +112,7 @@
     gap: 0.5rem;
     margin-top: 1.5rem;
   }
-  .dialog-divider + .dialog-actions {
+  .mo-dialog__divider + .mo-dialog__actions {
     margin-top: 1rem;
   }
 }

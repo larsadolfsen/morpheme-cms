@@ -201,10 +201,10 @@ export function EditableCards({
   const open = at === -1 ? null : shown[at];
   return (
     <>
-      <div aria-live="polite" className="sr-only">
+      <div aria-live="polite" className="mo-visually-hidden">
         {dash.announcement}
       </div>
-      <div ref={grid} className="image-grid [--mo-comp-grid-columns:2]">
+      <div ref={grid} className="mo-staggered-grid mo-editor-settings-dashboard-grid">
         {shown.map(({ placement, definition }) => {
           const dragging = drag?.id === placement.id;
           return (
@@ -214,16 +214,16 @@ export function EditableCards({
               aria-label={definition.label}
               data-card={placement.id}
               style={dragging ? { transform: `translate(${drag.dx}px, ${drag.dy}px)` } : undefined}
-              className={`${spanClass(definition.span)} relative rounded-(--mo-sys-block-radius) bg-surface-container-low pb-2 ${
-                dragging ? 'card-dragged z-10 shadow-(--mo-sys-elevation-level4-shadow)' : ''
-              } ${drag?.over === placement.id ? 'outline-2 outline-primary' : ''}`}
+              className={`${spanClass(definition.span)} mo-editor-widget-card ${
+                dragging ? 'mo-card__dragged mo-editor-widget-lifted' : ''
+              } ${drag?.over === placement.id ? 'mo-editor-widget-target' : ''}`}
             >
-              <div className="flex items-center justify-between gap-2 px-1">
+              <div className="mo-editor-widget-bar">
                 <IconButton
                   icon={DotsSixVertical}
                   label={t.dashboard.dragCard(definition.label)}
                   tabIndex={-1}
-                  className="cursor-grab touch-none"
+                  className="mo-editor-grab"
                   {...handle(placement.id)}
                 />
                 <IconButton
@@ -235,7 +235,7 @@ export function EditableCards({
                   onClick={(e) => setMenu(menu?.id === placement.id ? null : { id: placement.id, anchor: e.currentTarget })}
                 />
               </div>
-              <div className="px-2">{draw(placement, definition)}</div>
+              <div className="mo-editor-widget-body">{draw(placement, definition)}</div>
             </div>
           );
         })}

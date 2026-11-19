@@ -4,33 +4,33 @@
    keep their place in the layer (docs/superpowers/plans/2026-11-16-css-split.md). */
 @layer components {
   /* An M3 side sheet's headline in on-surface-variant. */
-  .side-sheet-headline,
-  .bottom-sheet-container[data-wide='side-sheet'] .bottom-sheet-headline {
+  .mo-side-sheet__headline,
+  .mo-bottom-sheet__container[data-wide='side-sheet'] .mo-bottom-sheet__headline {
     color: var(--mo-sys-color-on-surface-variant);
   }
 
   /* Icon buttons (their variables above): a state layer when pointed at (the ripple when pressed), no shrinking. The
      cross on a sheet is 40 by 40 with a 22px icon. */
-  .icon-button {
+  .mo-icon-button {
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .icon-button:active {
+  .mo-icon-button:active {
     transform: none;
   }
   @media (hover: hover) {
-    .icon-button-standard:hover,
-    .icon-button-outlined:hover {
+    .mo-icon-button__standard:hover,
+    :where(.mo-icon-button).mo-is-outlined:hover {
       background: var(--mo-sys-state-mo-hover-layer);
       color: var(--mo-sys-color-on-surface-variant);
     }
   }
   @media (hover: hover) {
-    .icon-button-outlined:hover {
+    :where(.mo-icon-button).mo-is-outlined:hover {
       box-shadow: inset 0 0 0 1px var(--mo-sys-color-outline);
     }
   }
   @media (hover: hover) {
-    .icon-button-tonal:hover {
+    :where(.mo-icon-button).mo-is-tonal:hover {
       background: color-mix(
         in srgb,
         var(--mo-sys-color-on-surface) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
@@ -39,7 +39,7 @@
     }
   }
   /* On a snackbar (the inverse surface): the state layers in its colours. */
-  .snackbar .button-text:focus-visible {
+  .mo-snackbar .mo-button__text:focus-visible {
     background: color-mix(
       in srgb,
       var(--mo-sys-color-inverse-primary) calc(var(--mo-sys-state-focus-state-layer-opacity) * 100%),
@@ -47,7 +47,7 @@
     );
   }
   @media (hover: hover) {
-    .snackbar .icon-button-standard:hover {
+    .mo-snackbar .mo-icon-button__standard:hover {
       background: color-mix(
         in srgb,
         var(--mo-sys-color-inverse-on-surface) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),

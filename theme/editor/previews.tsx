@@ -37,7 +37,7 @@ export const plainParagraphs = (markdown: string) =>
 
 // A text that is not edited here, in the page's text style: a hidden section of text.
 export const Text = ({ heading, body }: { heading?: string; body: string }) => (
-  <div className="prose max-w-none">
+  <div className="mo-prose mo-text-whole">
     {heading && <h2>{heading}</h2>}
     {plainParagraphs(body).map((p, i) => (
       <p key={i}>{p}</p>

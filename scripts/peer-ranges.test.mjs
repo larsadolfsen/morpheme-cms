@@ -10,11 +10,9 @@ const read = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url), '
 const pkg = read('../package.json');
 const old = read('./fixtures/starter-0.14.2.package.json');
 
-test('postcss-selector-parser: a peer range that the old starter pins, with its override, still fits', () => {
+test('postcss-selector-parser: a peer range that the old starter pins still fits', () => {
   const range = pkg.peerDependencies['postcss-selector-parser'];
   const pinned = old.dependencies['postcss-selector-parser'];
-  const override = old.overrides['@tailwindcss/typography']['postcss-selector-parser'];
-  assert.equal(pinned, override);
   assert.ok(satisfies(pinned.replace(/^\^/, ''), range), `${range} does not accept ${pinned}`);
 });
 

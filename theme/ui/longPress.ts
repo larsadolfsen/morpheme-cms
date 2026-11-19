@@ -2,7 +2,7 @@
 // gives the handlers for the element, or undefined without an action. A touch or a pen held still (no more than MOVE
 // pixels) for HOLD milliseconds runs `action`, with a short vibration where the phone has one; the click that follows
 // the press does nothing, and the browser's own menu for a long press (a link's) is not shown, nor is the item dragged
-// (ui.css .list-item-selectable keeps its text from being selected and iOS's menu away). The decisions are in
+// (ui.css .mo-list__item-selectable keeps its text from being selected and iOS's menu away). The decisions are in
 // longPressRules.mjs (tested). A mouse is never a long
 // press. With `tapToo` (the list is selecting) a tap runs `action` too, instead of following the link or pressing the button.
 // With `onDrag` the finger can stay down after the press fired and be dragged across other items (Material's Selection page: "To select

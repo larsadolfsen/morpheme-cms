@@ -1,7 +1,7 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  .text-field {
+  .mo-text-field {
     /* The field's height with the person's and the theme's density (--mo-sys-density-layout, in base.css): 4 px a step, never the text. */
     --mo-comp-text-field-box: calc(
       var(--mo-comp-filled-text-field-container-height, 3rem) + var(--mo-sys-density-layout) * var(--mo-sys-density-step)
@@ -9,35 +9,36 @@
   }
 }
 @layer components {
-  .text-field-small {
-    --mo-comp-filled-text-field-container-height: var(--text-field-small-height, 2.5rem);
-    --mo-comp-text-field-padding: var(--text-field-small-padding, 0.75rem);
-    --mo-comp-text-field-font-size: var(--text-field-small-font-size, var(--mo-sys-typescale-body-medium-size));
-    --mo-comp-text-field-icon-padding: var(--text-field-small-icon-padding, 0.5rem);
-    --mo-comp-text-field-icon-gap: var(--text-field-small-icon-gap, 0.5rem);
+  .mo-text-field__small {
+    --mo-comp-filled-text-field-container-height: var(--mo-comp-text-field-small-height, 2.5rem);
+    --mo-comp-text-field-padding: var(--mo-comp-text-field-small-padding, 0.75rem);
+    --mo-comp-text-field-font-size: var(--mo-comp-text-field-small-font-size, var(--mo-sys-typescale-body-medium-size));
+    --mo-comp-text-field-icon-padding: var(--mo-comp-text-field-small-icon-padding, 0.5rem);
+    --mo-comp-text-field-icon-gap: var(--mo-comp-text-field-small-icon-gap, 0.5rem);
   }
 }
 @layer components {
-  .text-field-label {
+  .mo-text-field__label {
     --mo-comp-text-field-label-start: var(--mo-comp-text-field-padding, 1.25rem);
   }
 }
 /* After the icon before it. */
 @layer components {
-  .text-field-with-leading-icon .text-field-label {
+  :where(.mo-text-field).mo-has-leading-icon .mo-text-field__label {
     --mo-comp-text-field-label-start: calc(
-      var(--mo-comp-text-field-icon-padding, 0.875rem) + var(--text-field-icon-size, 1.25rem) + var(--mo-comp-text-field-icon-gap, 0.75rem)
+      var(--mo-comp-text-field-icon-padding, 0.875rem) + var(--mo-comp-text-field-icon-size, 1.25rem) +
+        var(--mo-comp-text-field-icon-gap, 0.75rem)
     );
   }
 }
 @layer components {
-  .text-field-outlined .text-field-input:focus + .text-field-label,
-  .text-field-outlined .text-field-input:not(:placeholder-shown) + .text-field-label {
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__input:focus + .mo-text-field__label,
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
     --mo-comp-text-field-label-start: var(--mo-comp-text-field-padding, 1.25rem);
   }
 }
 @layer components {
-  .date-picker-input {
-    --mo-comp-text-field-label-surface: var(--dialog-surface, var(--mo-sys-elevation-level3-color));
+  .mo-date-picker__input {
+    --mo-comp-text-field-label-surface: var(--mo-comp-dialog-surface, var(--mo-sys-elevation-level3-color));
   }
 }

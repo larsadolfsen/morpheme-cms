@@ -5,16 +5,16 @@
 
 @layer fallback {
   /* Long text: images with large corners. */
-  .prose :where(img):not(:where(.not-prose img)),
-  .picture-crop,
-  .prose :where(iframe) {
+  .mo-prose :where(img):not(:where(.mo-is-not-prose img)),
+  .mo-site-picture__crop,
+  .mo-prose :where(iframe) {
     border-radius: var(--mo-sys-shape-corner-large);
   }
 
   /* The mark before the name on a testimonial without an image: an avatar, a circle in the highest surface container
    (it stands on a container) with the name's first letter (data-initial, Testimonial.tsx), as Material's avatars
    without an image, not the standard theme's dot. */
-  .block-testimonial-mark {
+  .mo-block-testimonials__testimonial-mark {
     display: grid;
     width: 2.5rem;
     height: 2.5rem;
@@ -27,7 +27,7 @@
     letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
     line-height: 1;
   }
-  .block-testimonial-mark::before {
+  .mo-block-testimonials__testimonial-mark::before {
     content: attr(data-initial);
   }
 }

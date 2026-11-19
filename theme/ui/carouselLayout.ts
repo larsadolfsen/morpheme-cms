@@ -2,13 +2,13 @@
 // they scroll (m3.material.io/components/carousel): 'multi-browse' (large items from the start, then a medium and a
 // small one) and 'hero' (a large one and a small one after it, or, aligned to the centre, between two small ones). As
 // Material's CarouselLayoutManager does it: every item is in the row as wide as a large one (so swiping and scroll-snap
-// work as in any row), and its mask (.carousel-item-mask) is moved and clipped to the size its place gives it. The
+// work as in any row), and its mask (.mo-carousel__item-mask) is moved and clipped to the size its place gives it. The
 // places are keylines: where each item stands and how wide it is seen, with an item that is just leaving or coming in
 // outside at each end. Scrolled to the start, the large ones are at the start (also in a hero aligned to the centre);
 // scrolled to the end, at the end; between, the layout's own; and from one to the other the keylines move by
 // themselves, so that every item grows and shrinks as it passes. Widths from the theme (--mo-comp-carousel-large-item-width,
 // --mo-comp-carousel-small-item-min-width and -max-width, the gap and the height, in ui.css); what is masked of an item is on it
-// as --carousel-mask (0 to 1), for what is on it to fade. The site's carousel.script.ts and, in the editor, Carousel.tsx
+// as --mo-comp-carousel-mask (0 to 1), for what is on it to fade. The site's carousel.script.ts and, in the editor, Carousel.tsx
 // run it; it gives back what stops it. The other layouts ('uncontained', 'full-screen') are only ui.css.
 export type CarouselLayout = 'multi-browse' | 'uncontained' | 'hero' | 'full-screen';
 export type CarouselAlignment = 'start' | 'center';
@@ -116,7 +116,7 @@ export function carouselLayout(root: HTMLElement): () => void {
       height: row!.clientHeight,
     });
     large = Math.max(...sizes);
-    row!.style.setProperty('--carousel-item-width', `${large}px`);
+    row!.style.setProperty('--mo-comp-carousel-item-width', `${large}px`);
     // Scrolled to the start, the large ones first; to the end, last; between, the layout's own.
     start = stateOf(
       [...sizes].sort((a, b) => b - a),
@@ -171,8 +171,8 @@ export function carouselLayout(root: HTMLElement): () => void {
         size = lerp(lines[j].size, lines[j + 1].size, t);
       }
       mask.style.transform = `translateX(${loc - c}px)`;
-      mask.style.setProperty('--carousel-mask-inset', `${Math.max(0, (large - size) / 2)}px`);
-      item.style.setProperty('--carousel-mask', String(Math.max(0, Math.min(1, 1 - size / large))));
+      mask.style.setProperty('--mo-comp-carousel-mask-inset', `${Math.max(0, (large - size) / 2)}px`);
+      item.style.setProperty('--mo-comp-carousel-mask', String(Math.max(0, Math.min(1, 1 - size / large))));
     });
   }
 
@@ -190,12 +190,12 @@ export function carouselLayout(root: HTMLElement): () => void {
     cancelAnimationFrame(frame);
     row.removeEventListener('scroll', onScroll);
     resized.disconnect();
-    row.style.removeProperty('--carousel-item-width');
+    row.style.removeProperty('--mo-comp-carousel-item-width');
     row.style.scrollPaddingInlineStart = '';
     items.forEach((item, i) => {
-      item.style.removeProperty('--carousel-mask');
+      item.style.removeProperty('--mo-comp-carousel-mask');
       masks[i]?.style.removeProperty('transform');
-      masks[i]?.style.removeProperty('--carousel-mask-inset');
+      masks[i]?.style.removeProperty('--mo-comp-carousel-mask-inset');
     });
   };
 }

@@ -24,14 +24,14 @@ test('The Material theme styles every card design and every filled color', () =>
 });
 
 test('A theme that leaves a card design or a filled color unstyled is told so', () => {
-  const sample = `.card-outlined{background:#fff}.card-filled{background:#eee}.block-cards-primary .block-card{--mo-comp-filled-card-container-color:red}`;
+  const sample = `.mo-card.mo-is-outlined{background:#fff}.mo-card.mo-is-filled{background:#eee}.mo-block-cards__primary .mo-block-cards__card{--mo-comp-filled-card-container-color:red}`;
   const problems = cardDesignProblems(sample);
   assert.equal(problems.length, 4);
   assert.match(problems.join('\n'), /carousel/);
   assert.match(problems.join('\n'), /"elevated"/);
   assert.match(problems.join('\n'), /"secondary"/);
   assert.match(problems.join('\n'), /"tertiary"/);
-  assert.deepEqual(cardDesignProblems(''), cardDesignProblems('.card-filled{color:red}'));
+  assert.deepEqual(cardDesignProblems(''), cardDesignProblems('.mo-card.mo-is-filled{color:red}'));
 });
 
 test('The CSS of a built site is read from its inlined <style> blocks as well as its .css files', () => {
@@ -40,13 +40,13 @@ test('The CSS of a built site is read from its inlined <style> blocks as well as
     mkdirSync(join(dir, 'a'));
     writeFileSync(
       join(dir, 'a/index.html'),
-      '<html><style data-x>.card-filled{background:red}</style><p>x</p><style>.card-outlined{background:blue}</style></html>',
+      '<html><style data-x>.mo-card.mo-is-filled{background:red}</style><p>x</p><style>.mo-card.mo-is-outlined{background:blue}</style></html>',
     );
-    writeFileSync(join(dir, 'b.css'), '.card-elevated{background:green}');
+    writeFileSync(join(dir, 'b.css'), '.mo-card.mo-is-elevated{background:green}');
     const found = cssIn(dir);
-    assert.match(found, /card-filled/);
-    assert.match(found, /card-outlined/);
-    assert.match(found, /card-elevated/);
+    assert.match(found, /mo-is-filled/);
+    assert.match(found, /mo-is-outlined/);
+    assert.match(found, /mo-is-elevated/);
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }

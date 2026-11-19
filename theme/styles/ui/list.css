@@ -1,20 +1,20 @@
 /*
-  Lists (List.tsx, listClass, listClasses, listItemClass; m3.material.io/components/lists): .list (a <ul>, a line
-  between its items; .list-dividers-inset from where the text starts, .list-dividers-middle-inset in from both sides,
-  .list-dividers-none without), .list-segmented (M3 Expressive: each item on its own surface); each item's container a
-  .list-item-container (an <a> when it links, a <button> when it is
+  Lists (List.tsx, listClass, listClasses, listItemClass; m3.material.io/components/lists): .mo-list (a <ul>, a line
+  between its items; .mo-list__dividers-inset from where the text starts, .mo-list__dividers-middle-inset in from both sides,
+  .mo-list__dividers-none without), .mo-list__segmented (M3 Expressive: each item on its own surface); each item's container a
+  .mo-list__item-container (an <a> when it links, a <button> when it is
   tapped, else a <div>; not .list-item, which is Tailwind's display: list-item)
-  with what leads it (.list-item-leading: anything, or .list-item-leading-icon, .list-item-leading-avatar with
-  .avatar (Avatar.tsx; avatar.css), .list-item-leading-image with .list-item-image, .list-item-leading-video with .list-item-video),
-  .list-item-content (a <label> for a choice) with .list-item-overline, .list-item-headline and .list-item-supporting,
-  and what trails it (.list-item-trailing-supporting, .list-item-trailing: an icon, an arrow); .list-item-two-line or
-  .list-item-three-line by its lines; .list-item-columns with its headline and supporting text side by side on a wide
-  screen; .list-item-with-control with the theme's checkbox, radio button or switch in
-  .list-item-control before or after the text; .list-item-selectable for one a long press selects (List.tsx
-  `selectable`); .list-item-selected and .list-item-disabled. An item's corners change
+  with what leads it (.mo-list__item-leading: anything, or .mo-list__item-leading-icon, .mo-list__item-leading-avatar with
+  .mo-avatar (Avatar.tsx; avatar.css), .mo-list__item-leading-image with .mo-list__item-image, .mo-list__item-leading-video with .mo-list__item-video),
+  .mo-list__item-content (a <label> for a choice) with .mo-list__item-overline, .mo-list__item-headline and .mo-list__item-supporting,
+  and what trails it (.mo-list__item-trailing-supporting, .mo-list__item-trailing: an icon, an arrow); .mo-list__item-two-line or
+  .mo-list__item-three-line by its lines; .mo-list__item-columns with its headline and supporting text side by side on a wide
+  screen; .mo-list__item-with-control with the theme's checkbox, radio button or switch in
+  .mo-list__item-control before or after the text; .mo-list__item-selectable for one a long press selects (List.tsx
+  `selectable`); .mo-list__item-selected and .mo-list__item-disabled. An item's corners change
   with its state (Material's shape morphing): pointed at (hover), pressed or focused, and selected. In a segmented list
   each <li> is the item's surface (also around what is beside its container in it: a button, fields folded out), the
-  first and the last with the list's corners. A multi-action item (.list-item-multi-action): an item's container and
+  first and the last with the list's corners. A multi-action item (.mo-list__item-multi-action): an item's container and
   secondary actions beside it on one row, which has the container's state.
     --mo-comp-list-divider-color   the line between the items (transparent for none)
     --mo-comp-list-list-item-container-height, --mo-comp-list-item-two-line-min-height, --mo-comp-list-item-three-line-min-height   by its lines
@@ -22,9 +22,9 @@
     --mo-comp-list-list-item-container-shape, --mo-comp-list-item-hover-radius, --mo-comp-list-item-pressed-radius (also focused), --mo-comp-list-item-selected-radius
     --mo-comp-list-item-headline-size, --mo-comp-list-item-headline-weight   the headline of every item
     --mo-comp-list-item-headline-line-height, --mo-comp-list-item-headline-letter-spacing   the headline of every item
-    --list-item-supporting-size, --list-item-supporting-line-height, --list-item-overline-size,
-    --list-item-overline-line-height, --list-item-trailing-supporting-size   the other texts' size
-    --list-item-supporting-text, --mo-comp-list-item-trailing-text, --list-item-overline-text   their colours
+    --mo-comp-list-item-supporting-size, --mo-comp-list-item-supporting-line-height, --mo-comp-list-item-overline-size,
+    --mo-comp-list-item-overline-line-height, --mo-comp-list-item-trailing-supporting-size   the other texts' size
+    --mo-comp-list-item-supporting-text, --mo-comp-list-item-trailing-text, --mo-comp-list-item-overline-text   their colours
     --mo-comp-list-item-hover-surface   an item that links or is a choice, pointed at (only the state layer: its text and icons do not change)
     --mo-comp-list-item-pressed-surface (else the hover surface), --mo-comp-list-item-focus-surface (else the pressed one),
     --mo-comp-list-item-focus-indicator-color (the 3dp ring inside a focused item; else the accent),
@@ -35,26 +35,26 @@
     --mo-comp-list-item-icon-size   the icons that lead and trail an item
     --mo-comp-list-item-leading-size (what leads an item of its own, for an inset divider)
     --mo-comp-avatar-size (the avatar's own tokens: avatar.css), --mo-comp-list-item-image-size,
-    --mo-comp-list-item-image-radius, --list-item-video-width, --list-item-video-height   the leading kinds
+    --mo-comp-list-item-image-radius, --mo-comp-list-item-video-width, --mo-comp-list-item-video-height   the leading kinds
     --mo-comp-list-segmented-gap, --mo-comp-list-segmented-radius (the list's corners), --mo-comp-list-segmented-inner-radius,
     --mo-comp-list-segmented-hover-radius, --mo-comp-list-segmented-pressed-radius, --mo-comp-list-segmented-selected-radius,
     --mo-comp-list-segmented-padding-inline, --mo-comp-list-list-item-segmented-container-color, --mo-comp-list-segmented-hover-surface (over the surface),
     --mo-comp-list-segmented-pressed-surface, --mo-comp-list-segmented-disabled-surface,
-    --list-segmented-selected-surface, --list-segmented-selected-text   a segmented list
+    --mo-comp-list-segmented-selected-surface, --mo-comp-list-segmented-selected-text   a segmented list
 
   Moved here from ui.css with its rules unchanged and in their order; imported by base.css where ui.css was (docs/superpowers/plans/2026-11-16-css-split.md).
 */
 @layer components {
-  .list {
+  .mo-list {
     margin: 0;
     padding: 0;
     list-style: none;
   }
-  .list > li + li {
+  .mo-list > li + li {
     border-top: 1px solid var(--mo-comp-list-divider-color, var(--mo-sys-block-line));
   }
   /* --mo-comp-list-item-shape: the item's corners now, by its state (below). */
-  .list-item-container {
+  .mo-list__item-container {
     display: flex;
     min-height: var(--mo-comp-list-item-box, auto);
     align-items: center;
@@ -69,151 +69,153 @@
   }
   /* Two lines: by its class, or by a supporting text under its headline (an item drawn without ListItem: the editor's
      rows). */
-  .list-item-two-line,
-  .list-item-container:not(.list-item-three-line):has(> .list-item-content > .list-item-supporting) {
+  .mo-list__item-two-line,
+  .mo-list__item-container:not(.mo-list__item-three-line):has(> .mo-list__item-content > .mo-list__item-supporting) {
     min-height: var(--mo-comp-list-item-two-line-box, var(--mo-comp-list-item-box, auto));
   }
   /* Room enough over and under its two lines for its height, so they and what stands beside them are in the middle
      of an item whose text has no more lines, and at the same place in one whose text runs over more (not with a
      image, higher than the lines). */
-  :is(.list-item-two-line, .list-item-container:not(.list-item-three-line):has(> .list-item-content > .list-item-supporting)):not(
-    :has(> :is(.list-item-leading-image, .list-item-leading-video))
-  ) {
+  :is(
+    .mo-list__item-two-line,
+    .mo-list__item-container:not(.mo-list__item-three-line):has(> .mo-list__item-content > .mo-list__item-supporting)
+  ):not(:has(> :is(.mo-list__item-leading-image, .mo-list__item-leading-video))) {
     padding-block: max(
       var(--mo-comp-list-item-padding-block, 0.85rem),
       (var(--mo-comp-list-item-two-line-box, 0px) - var(--mo-comp-list-item-first-lines)) / 2
     );
   }
-  .list-item-three-line {
+  .mo-list__item-three-line {
     min-height: var(--mo-comp-list-item-three-line-box, var(--mo-comp-list-item-box, auto));
   }
-  .list-item-leading,
-  .list-item-trailing {
+  .mo-list__item-leading,
+  .mo-list__item-trailing {
     display: flex;
     flex-shrink: 0;
   }
   /* What stands beside the text (what leads and trails it, a choice) stands in the middle of its first two lines (the
      headline and the supporting text's first line; of the one, when it has one), and stays there when the text runs
      over more lines; in an item of three lines at its top (below). */
-  :is(.list-item-leading, .list-item-trailing, .list-item-trailing-supporting, .list-item-control) {
+  :is(.mo-list__item-leading, .mo-list__item-trailing, .mo-list__item-trailing-supporting, .mo-list__item-control) {
     align-self: stretch;
     align-items: center;
     /* Also beside a text that is not an item's (the editor's rows): the lines' height. */
     max-height: var(
       --mo-comp-list-item-first-lines,
-      calc(var(--mo-comp-list-item-headline-line-height, 1lh) + var(--list-item-supporting-line-height, 1lh))
+      calc(var(--mo-comp-list-item-headline-line-height, 1lh) + var(--mo-comp-list-item-supporting-line-height, 1lh))
     );
   }
   /* An image higher than the lines stands in the middle of the item. */
-  :is(.list-item-leading-image, .list-item-leading-video) {
+  :is(.mo-list__item-leading-image, .mo-list__item-leading-video) {
     max-height: none;
   }
-  .list-item-content {
+  .mo-list__item-content {
     flex: 1;
     min-width: 0;
   }
-  .list-item-headline,
-  .list-item-supporting {
+  .mo-list__item-headline,
+  .mo-list__item-supporting {
     display: block;
   }
   /* Columns: when the item is wide the headline and the supporting text side by side, each in half the item's text. This follows the item's own
      width, not the window's: an item in a narrow column or a side sheet keeps them under each other on a wide window too (Modern Web Guidance,
      `responsive-design` and `size-aware-styling`). A container query measures the content box: 47.5rem is M3's expanded window (840 dp) less the page's
      2 x 24 dp margins and the item's own 2 x 16 dp padding, so an item as wide as the page changes where it did. */
-  .list-item-columns {
+  .mo-list__item-columns {
     container: list-item / inline-size;
   }
   @container list-item (width >= 47.5rem) {
-    .list-item-columns .list-item-content {
+    .mo-list__item-columns .mo-list__item-content {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       align-items: baseline;
       column-gap: var(--mo-comp-list-item-columns-gap, 1.5rem);
     }
   }
-  .list-item-headline {
+  .mo-list__item-headline {
     font-size: var(--mo-comp-list-item-headline-size, var(--mo-sys-typescale-body-large-size));
     font-weight: var(--mo-comp-list-item-headline-weight, var(--mo-sys-typescale-body-large-weight));
     line-height: var(--mo-comp-list-item-headline-line-height, var(--mo-sys-typescale-body-large-line-height));
     letter-spacing: var(--mo-comp-list-item-headline-letter-spacing, var(--mo-sys-typescale-body-large-tracking));
     overflow-wrap: anywhere;
   }
-  .list-item-supporting {
-    color: var(--list-item-supporting-text, var(--mo-sys-block-muted));
-    font-size: var(--list-item-supporting-size, var(--mo-sys-typescale-body-medium-size));
+  .mo-list__item-supporting {
+    color: var(--mo-comp-list-item-supporting-text, var(--mo-sys-block-muted));
+    font-size: var(--mo-comp-list-item-supporting-size, var(--mo-sys-typescale-body-medium-size));
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    line-height: var(--list-item-supporting-line-height, var(--mo-sys-typescale-body-medium-line-height));
+    line-height: var(--mo-comp-list-item-supporting-line-height, var(--mo-sys-typescale-body-medium-line-height));
     overflow-wrap: anywhere;
   }
-  .list-item-trailing {
+  .mo-list__item-trailing {
     color: var(--mo-comp-list-item-trailing-text, var(--mo-sys-block-muted));
   }
   /* An item that is tapped (a button: the editor's rows) is as one that links. */
-  button.list-item-container {
+  button.mo-list__item-container {
     width: 100%;
     text-align: start;
     cursor: pointer;
   }
   /* Pointed at: M3's hover state layer (the text's colour at 0.08) and nothing else: the text, the icons and what trails the item stay where and as
      they are (no colour change, no shift: not in the tokens; owner, 18 Nov 2026, plan step 5). */
-  :is(a, button:enabled).list-item-container:hover {
+  :is(a, button:enabled).mo-list__item-container:hover {
     background: var(--mo-comp-list-item-hover-surface, transparent);
   }
   /* Focused (by the keyboard): M3's focus layer (--mo-comp-list-item-focus-surface, else the pressed one) and its focus
      indicator: 3dp, inside the item. A choice's row has them while its control has the focus. */
-  :is(a, button:enabled).list-item-container:focus-visible {
+  :is(a, button:enabled).mo-list__item-container:focus-visible {
     background: var(
       --mo-comp-list-item-focus-surface,
       var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent))
     );
   }
-  :is(a, button:enabled).list-item-container:focus-visible,
-  .list-item-with-control:not(.list-item-disabled):has(:focus-visible),
-  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:focus-visible) {
+  :is(a, button:enabled).mo-list__item-container:focus-visible,
+  .mo-list__item-with-control:not(.mo-list__item-disabled):has(:focus-visible),
+  .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:focus-visible) {
     outline: 3px solid var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-color-primary));
     outline-offset: -3px;
   }
-  .list-item-with-control :focus-visible,
-  .list-item-multi-action > :is(a, button:enabled).list-item-container:focus-visible {
+  .mo-list__item-with-control :focus-visible,
+  .mo-list__item-multi-action > :is(a, button:enabled).mo-list__item-container:focus-visible {
     outline: none;
   }
   /* Pressed: a stronger state layer. */
-  :is(a, button:enabled).list-item-container:active,
-  .list-item-with-control:not(.list-item-disabled):active {
+  :is(a, button:enabled).mo-list__item-container:active,
+  .mo-list__item-with-control:not(.mo-list__item-disabled):active {
     background: var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent));
   }
 
   /* Three lines: an overline over the headline and one line under it, or two lines under it; what leads and trails
      the item at its top. */
-  .list-item-three-line {
+  .mo-list__item-three-line {
     align-items: flex-start;
   }
-  .list-item-three-line :is(.list-item-leading, .list-item-trailing, .list-item-trailing-supporting, .list-item-control) {
+  .mo-list__item-three-line
+    :is(.mo-list__item-leading, .mo-list__item-trailing, .mo-list__item-trailing-supporting, .mo-list__item-control) {
     align-self: flex-start;
     max-height: none;
   }
-  .list-item-three-line .list-item-supporting {
+  .mo-list__item-three-line .mo-list__item-supporting {
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
-  .list-item-three-line:has(.list-item-overline) .list-item-supporting {
+  .mo-list__item-three-line:has(.mo-list__item-overline) .mo-list__item-supporting {
     -webkit-line-clamp: 1;
   }
-  .list-item-overline {
+  .mo-list__item-overline {
     display: block;
-    color: var(--list-item-overline-text, var(--mo-sys-block-muted));
-    font-size: var(--list-item-overline-size, var(--mo-sys-typescale-label-small-size));
-    line-height: var(--list-item-overline-line-height, var(--mo-sys-typescale-label-small-line-height));
+    color: var(--mo-comp-list-item-overline-text, var(--mo-sys-block-muted));
+    font-size: var(--mo-comp-list-item-overline-size, var(--mo-sys-typescale-label-small-size));
+    line-height: var(--mo-comp-list-item-overline-line-height, var(--mo-sys-typescale-label-small-line-height));
     font-weight: var(--mo-sys-typescale-label-small-weight);
     letter-spacing: var(--mo-sys-typescale-label-small-tracking);
   }
-  .list-item-trailing-supporting {
+  .mo-list__item-trailing-supporting {
     display: flex;
     flex-shrink: 0;
     color: var(--mo-comp-list-item-trailing-text, var(--mo-sys-block-muted));
-    font-size: var(--list-item-trailing-supporting-size, var(--mo-sys-typescale-label-small-size));
+    font-size: var(--mo-comp-list-item-trailing-supporting-size, var(--mo-sys-typescale-label-small-size));
     font-weight: var(--mo-sys-typescale-label-small-weight);
     line-height: var(--mo-sys-typescale-label-small-line-height);
     letter-spacing: var(--mo-sys-typescale-label-small-tracking);
@@ -222,51 +224,51 @@
 
   /* What leads it, Material's kinds: an icon, an avatar (a letter, or an image), an image or a video's thumbnail. The
      icons that lead and trail an item as large as --mo-comp-list-item-icon-size. */
-  .list-item-leading-icon {
+  .mo-list__item-leading-icon {
     color: var(--mo-comp-list-list-item-leading-icon-color, var(--mo-sys-block-muted));
     transition: color var(--mo-sys-motion-spring-default-effects);
   }
-  :is(.list-item-leading-icon, .list-item-trailing) > svg {
+  :is(.mo-list__item-leading-icon, .mo-list__item-trailing) > svg {
     width: var(--mo-comp-list-item-icon-size, 1.5rem);
     height: var(--mo-comp-list-item-icon-size, 1.5rem);
   }
-  .list-item-image {
+  .mo-list__item-image {
     width: var(--mo-comp-list-item-image-size, 3.5rem);
     height: var(--mo-comp-list-item-image-size, 3.5rem);
     border-radius: var(--mo-comp-list-item-image-radius, var(--mo-sys-block-radius-small));
     object-fit: cover;
   }
-  .list-item-video {
-    width: var(--list-item-video-width, 7.125rem);
-    height: var(--list-item-video-height, 4rem);
+  .mo-list__item-video {
+    width: var(--mo-comp-list-item-video-width, 7.125rem);
+    height: var(--mo-comp-list-item-video-height, 4rem);
     border-radius: var(--mo-comp-list-item-image-radius, var(--mo-sys-block-radius-small));
     object-fit: cover;
   }
 
   /* A choice: the theme's checkbox, radio button or switch before or after the text, and the text its second name,
      stretched over the whole item, so a tap anywhere on it changes the choice. */
-  .list-item-with-control {
+  .mo-list__item-with-control {
     position: relative;
   }
-  .list-item-with-control .list-item-content {
+  .mo-list__item-with-control .mo-list__item-content {
     cursor: pointer;
   }
-  .list-item-with-control .list-item-content::after {
+  .mo-list__item-with-control .mo-list__item-content::after {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
   }
-  .list-item-control {
+  .mo-list__item-control {
     position: relative;
     z-index: 1;
     display: flex;
     flex-shrink: 0;
   }
-  .list-item-with-control:not(.list-item-disabled):hover {
+  .mo-list__item-with-control:not(.mo-list__item-disabled):hover {
     background: var(--mo-comp-list-item-hover-surface, transparent);
   }
-  .list-item-with-control:not(.list-item-disabled):has(:focus-visible) {
+  .mo-list__item-with-control:not(.mo-list__item-disabled):has(:focus-visible) {
     background: var(
       --mo-comp-list-item-focus-surface,
       var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent))
@@ -277,7 +279,7 @@
      link or a button), and its secondary actions (icon buttons, a switch) beside it, on one row that has the primary
      action's state layer and corners, so pointing at the item shows the whole item; the secondary actions have their
      own. */
-  .list-item-multi-action {
+  .mo-list__item-multi-action {
     display: flex;
     align-items: center;
     border-radius: var(--mo-comp-list-item-shape);
@@ -285,40 +287,40 @@
       background-color var(--mo-sys-motion-spring-default-effects),
       border-radius var(--mo-sys-motion-spring-fast-spatial);
   }
-  .list-item-multi-action > .list-item-container {
+  .mo-list__item-multi-action > .mo-list__item-container {
     flex: 1;
     min-width: 0;
     border-radius: inherit;
   }
-  .list-item-multi-action > :is(a, button:enabled).list-item-container:is(:hover, :active, :focus-visible) {
+  .mo-list__item-multi-action > :is(a, button:enabled).mo-list__item-container:is(:hover, :active, :focus-visible) {
     background: transparent;
   }
-  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:hover) {
+  .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:hover) {
     background: var(--mo-comp-list-item-hover-surface, transparent);
   }
-  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:focus-visible) {
+  .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:focus-visible) {
     background: var(
       --mo-comp-list-item-focus-surface,
       var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent))
     );
   }
-  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:active) {
+  .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:active) {
     background: var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent));
   }
 
   /* An item a long press selects (List.tsx `selectable`): the press selects it, not its text, and opens no menu. */
-  .list-item-selectable {
+  .mo-list__item-selectable {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
   }
 
-  /* The selection checkbox of such an item (List.tsx ListItemSelectBox, drawn like .checkbox but not an <input>): in the trailing
+  /* The selection checkbox of such an item (List.tsx ListItemSelectBox, drawn like .mo-checkbox but not an <input>): in the trailing
      slot of an item with something leading it, in the leading slot of a text-only one. It is 48 x 48 (a target), not shown with a
      touch before something is selected; with a mouse (hover: hover) on the item pointed at or in focus, one box, in its own slot so
-     nothing moves (a text-only item keeps the slot, hidden); on every item once some item is selected (.list-item-selecting). The
+     nothing moves (a text-only item keeps the slot, hidden); on every item once some item is selected (.mo-list__item-selecting). The
      item's trailing count, arrow and text give way to the box in its slot. */
-  .list-item-select-box {
+  .mo-list__item-select-box {
     display: none;
     flex-shrink: 0;
     align-items: center;
@@ -329,43 +331,43 @@
     margin-block: -0.5rem;
     cursor: pointer;
   }
-  .list-item-select-box-leading {
+  .mo-list__item-select-box-leading {
     margin-inline: -0.5rem 0;
   }
-  .list-item-select-box-trailing {
+  .mo-list__item-select-box-trailing {
     margin-inline: 0 -0.5rem;
   }
-  .list-item-select-box .checkbox-box {
+  .mo-list__item-select-box .mo-checkbox__box {
     margin: 0;
   }
-  .list-item-select-box .checkbox-input {
+  .mo-list__item-select-box .mo-checkbox__input {
     display: block;
   }
   @media (hover: hover) {
-    .list-item-select-box-leading {
+    .mo-list__item-select-box-leading {
       display: flex;
       visibility: hidden;
     }
-    .list-item-selectable:is(:hover, :focus-visible) > .list-item-select-box {
+    .mo-list__item-selectable:is(:hover, :focus-visible) > .mo-list__item-select-box {
       display: flex;
       visibility: visible;
     }
-    .list-item-selectable:is(:hover, :focus-visible) > :is(.list-item-trailing, .list-item-trailing-supporting) {
+    .mo-list__item-selectable:is(:hover, :focus-visible) > :is(.mo-list__item-trailing, .mo-list__item-trailing-supporting) {
       display: none;
     }
   }
-  .list-item-selecting > .list-item-select-box {
+  .mo-list__item-selecting > .mo-list__item-select-box {
     display: flex;
     visibility: visible;
   }
-  .list-item-selecting > :is(.list-item-trailing, .list-item-trailing-supporting) {
+  .mo-list__item-selecting > :is(.mo-list__item-trailing, .mo-list__item-trailing-supporting) {
     display: none;
   }
   /* What leads an item that a tap selects (a touch or a pen): a target of 48 x 48 round its own box. */
-  .list-item-selectable-leading > .list-item-leading {
+  .mo-list__item-selectable-leading > .mo-list__item-leading {
     position: relative;
   }
-  .list-item-selectable-leading > .list-item-leading::after {
+  .mo-list__item-selectable-leading > .mo-list__item-leading::after {
     content: '';
     position: absolute;
     top: 50%;
@@ -378,19 +380,19 @@
   /* Expand (ListItem `expand` in a List with `expand`: Material's "List - Expand", m3.material.io/components/lists/specs, token set
      "List - Expand"): the item is a <details>; its summary is the item's container, its trailing icon a caret in a container that is
      the surface while the item is closed and a surface container while it is open (the icon on-surface in both, as the tokens say),
-     its body (.list-item-expand-body) what folds out. M3 prints the container shape (16dp, here --mo-comp-list-expand-container-shape) and the trailing
+     its body (.mo-list__item-expand-body) what folds out. M3 prints the container shape (16dp, here --mo-comp-list-expand-container-shape) and the trailing
      icon's shape only as images, and says nothing about the item's padding, its text or how it opens: the nearest M3 pattern is
      used (the List's own item, state layers and 3dp focus ring; the theme's motion). The list: the card (the default: one container
      with a line between the items) or, with --mo-comp-list-expand-gap, an item on each surface (Material's segmented). Tokens:
        --mo-comp-list-expand-container-shape, --mo-comp-list-expand-surface, --mo-comp-list-expand-shadow   the list's container
        --mo-comp-list-expand-gap, --mo-comp-list-expand-item-surface, --mo-comp-list-expand-item-radius   items on surfaces of their own (segmented)
-       --list-expand-divider, --mo-comp-list-expand-divider-width   the line between the items
-       --mo-comp-list-expand-padding-inline, --mo-comp-list-expand-padding-block, --list-expand-gap-inline   the item's padding and gap
-       --list-expand-headline-size, -weight, -line-height, -letter-spacing   its headline
-       --list-expand-icon-size, --list-expand-icon-radius, --mo-comp-list-expand-icon-open-surface   the trailing icon
-       --list-expand-body-padding-bottom   the room under what folds out (the item's own padding-block unless set)
+       --mo-comp-list-expand-divider, --mo-comp-list-expand-divider-width   the line between the items
+       --mo-comp-list-expand-padding-inline, --mo-comp-list-expand-padding-block, --mo-comp-list-expand-gap-inline   the item's padding and gap
+       --mo-comp-list-expand-headline-size, -weight, -line-height, -letter-spacing   its headline
+       --mo-comp-list-expand-icon-size, --mo-comp-list-expand-icon-radius, --mo-comp-list-expand-icon-open-surface   the trailing icon
+       --mo-comp-list-expand-body-padding-bottom   the room under what folds out (the item's own padding-block unless set)
        --mo-comp-list-expand-open-radius   the corners of an item while it is open (M3 prints a selected item's corners: 16dp all around) */
-  .list-expand {
+  .mo-list__expand {
     display: grid;
     gap: var(--mo-comp-list-expand-gap, 0);
     border-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
@@ -398,128 +400,128 @@
     box-shadow: var(--mo-comp-list-expand-shadow, var(--mo-sys-block-shadow));
     overflow: clip;
   }
-  .list-expand > li {
+  .mo-list__expand > li {
     border-radius: var(--mo-comp-list-expand-item-radius, 0);
     background: var(--mo-comp-list-expand-item-surface, transparent);
     overflow: clip;
   }
-  .list-expand > li + li {
-    border-top: var(--mo-comp-list-expand-divider-width, 1px) solid var(--list-expand-divider, var(--mo-sys-block-line));
+  .mo-list__expand > li + li {
+    border-top: var(--mo-comp-list-expand-divider-width, 1px) solid var(--mo-comp-list-expand-divider, var(--mo-sys-block-line));
   }
-  .list-expand > li:first-child {
+  .mo-list__expand > li:first-child {
     border-start-start-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
     border-start-end-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
   }
-  .list-expand > li:last-child {
+  .mo-list__expand > li:last-child {
     border-end-start-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
     border-end-end-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
   }
   /* An open item takes the open radius on every corner (a segmented list's selected item: 16dp all around, 4dp inner and 16dp outer when
      not), also when it is the first or last of the list. */
-  .list-expand > li:has(> .list-item-expand[open]) {
+  .mo-list__expand > li:has(> .mo-list__item-expand[open]) {
     border-radius: var(--mo-comp-list-expand-open-radius, var(--mo-comp-list-expand-item-radius, 0));
   }
-  .list-item-expand {
+  .mo-list__item-expand {
     display: block;
   }
-  .list-item-expand-summary {
+  .mo-list__item-expand-summary {
     cursor: pointer;
     list-style: none;
     /* The focus ring sits inside the item, so the list's rounded edge never cuts it off. */
     outline-offset: -3px;
   }
-  .list-item-expand-summary::-webkit-details-marker {
+  .mo-list__item-expand-summary::-webkit-details-marker {
     display: none;
   }
-  .list-item-expand-icon {
+  .mo-list__item-expand-icon {
     display: flex;
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    width: var(--list-expand-icon-size, 2.5rem);
-    height: var(--list-expand-icon-size, 2.5rem);
+    width: var(--mo-comp-list-expand-icon-size, 2.5rem);
+    height: var(--mo-comp-list-expand-icon-size, 2.5rem);
     /* The container is wider than the caret: the caret stays where the padding puts it. */
-    margin-inline-end: calc((1.25rem - var(--list-expand-icon-size, 2.5rem)) / 2);
+    margin-inline-end: calc((1.25rem - var(--mo-comp-list-expand-icon-size, 2.5rem)) / 2);
     /* ... and never makes the item higher than its text. */
-    margin-block: calc((1.5rem - var(--list-expand-icon-size, 2.5rem)) / 2);
-    border-radius: var(--list-expand-icon-radius, var(--mo-sys-shape-corner-full));
+    margin-block: calc((1.5rem - var(--mo-comp-list-expand-icon-size, 2.5rem)) / 2);
+    border-radius: var(--mo-comp-list-expand-icon-radius, var(--mo-sys-shape-corner-full));
     background: transparent;
     transition:
       rotate var(--mo-sys-motion-spring-default-spatial),
       background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .list-item-expand-icon > svg {
+  .mo-list__item-expand-icon > svg {
     width: var(--mo-comp-list-item-icon-size, 1.25rem);
     height: var(--mo-comp-list-item-icon-size, 1.25rem);
   }
-  .list-item-expand[open] > .list-item-expand-summary .list-item-expand-icon {
+  .mo-list__item-expand[open] > .mo-list__item-expand-summary .mo-list__item-expand-icon {
     rotate: 180deg;
     background: var(--mo-comp-list-expand-icon-open-surface, var(--mo-sys-color-surface-container));
   }
   /* The state layer (hovered, focused, pressed) is on the whole item, its open body too (owner, 16 Nov 2026: "The whole body should have the touch colour"),
      so an open item is one colour; the summary keeps its text and the focus ring. */
   @media (hover: hover) {
-    .list-item-expand:has(> .list-item-expand-summary:hover) {
+    .mo-list__item-expand:has(> .mo-list__item-expand-summary:hover) {
       background: var(--mo-comp-list-item-hover-surface, transparent);
     }
   }
-  .list-item-expand:has(> .list-item-expand-summary:focus-visible) {
+  .mo-list__item-expand:has(> .mo-list__item-expand-summary:focus-visible) {
     background: var(
       --mo-comp-list-item-focus-surface,
       var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent))
     );
   }
-  .list-item-expand-summary:focus-visible {
+  .mo-list__item-expand-summary:focus-visible {
     outline: 3px solid var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-color-primary));
   }
-  .list-item-expand:has(> .list-item-expand-summary:active) {
+  .mo-list__item-expand:has(> .mo-list__item-expand-summary:active) {
     background: var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent));
   }
-  .list-item-expand-body {
+  .mo-list__item-expand-body {
     padding: 0 var(--mo-comp-list-expand-padding-inline, 1rem)
-      var(--list-expand-body-padding-bottom, var(--mo-comp-list-expand-padding-block, 0.875rem));
+      var(--mo-comp-list-expand-body-padding-bottom, var(--mo-comp-list-expand-padding-block, 0.875rem));
   }
   /* Opening and closing glide where the browser can animate ::details-content (else accordion/script.ts does it); none with reduced motion. */
   @media (prefers-reduced-motion: no-preference) {
-    .list-expand {
+    .mo-list__expand {
       interpolate-size: allow-keywords;
     }
-    .list-expand > li {
+    .mo-list__expand > li {
       transition: border-radius var(--mo-sys-motion-spring-default-spatial);
     }
-    .list-item-expand::details-content {
+    .mo-list__item-expand::details-content {
       block-size: 0;
       overflow-y: clip;
       transition:
         block-size var(--mo-sys-motion-spring-default-spatial),
         content-visibility var(--mo-sys-motion-spring-default-spatial-duration) allow-discrete;
     }
-    .list-item-expand[open]::details-content {
+    .mo-list__item-expand[open]::details-content {
       block-size: auto;
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .list-item-expand-icon {
+    .mo-list__item-expand-icon {
       transition: none;
     }
   }
 
   /* Selected, and disabled. */
-  .list-item-selected {
+  .mo-list__item-selected {
     background: var(--mo-comp-list-list-item-selected-container-color, transparent);
     color: var(--mo-comp-list-list-item-selected-label-text-color, var(--mo-sys-color-on-secondary-container));
   }
-  .list-item-selected :is(.list-item-leading-icon, .list-item-supporting, .list-item-overline, .list-item-trailing),
-  .list-item-selected .list-item-trailing-supporting {
+  .mo-list__item-selected :is(.mo-list__item-leading-icon, .mo-list__item-supporting, .mo-list__item-overline, .mo-list__item-trailing),
+  .mo-list__item-selected .mo-list__item-trailing-supporting {
     color: inherit;
   }
   /* A selected item pointed at or pressed: the state layer over its surface. */
-  :is(a, button:enabled).list-item-container.list-item-selected:hover {
+  :is(a, button:enabled).mo-list__item-container.mo-list__item-selected:hover {
     background:
       linear-gradient(var(--mo-comp-list-item-hover-surface, transparent) 0 0),
       var(--mo-comp-list-list-item-selected-container-color, transparent);
   }
-  :is(a, button:enabled).list-item-container.list-item-selected:focus-visible {
+  :is(a, button:enabled).mo-list__item-container.mo-list__item-selected:focus-visible {
     background:
       linear-gradient(
         var(
@@ -530,14 +532,14 @@
       ),
       var(--mo-comp-list-list-item-selected-container-color, transparent);
   }
-  :is(a, button:enabled).list-item-container.list-item-selected:active {
+  :is(a, button:enabled).mo-list__item-container.mo-list__item-selected:active {
     background:
       linear-gradient(var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent)) 0 0),
       var(--mo-comp-list-list-item-selected-container-color, transparent);
   }
   /* Dragged (M3's dragged state, List - Common): the item lifts to level 4 (8 dp) under the 0.16 state layer, with the selected item's 16 dp corners; a segmented
      item carries its own surface (the <li>), so the lift is on the <li> there. */
-  .list-item-dragged {
+  .mo-list__item-dragged {
     cursor: grabbing;
     background: var(--mo-comp-list-item-dragged-surface, var(--mo-sys-state-mo-dragged-layer));
     box-shadow: var(--mo-comp-list-item-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
@@ -546,12 +548,12 @@
       var(--mo-comp-list-item-selected-radius, var(--mo-comp-list-list-item-container-shape, 0))
     );
   }
-  .list-item-dragged.list-item-selected {
+  .mo-list__item-dragged.mo-list__item-selected {
     background:
       linear-gradient(var(--mo-comp-list-item-dragged-surface, var(--mo-sys-state-mo-dragged-layer)) 0 0),
       var(--mo-comp-list-list-item-selected-container-color, transparent);
   }
-  .list-segmented > li:has(> .list-item-dragged, > .list-item-multi-action > .list-item-dragged) {
+  .mo-list__segmented > li:has(> .mo-list__item-dragged, > .mo-list__item-multi-action > .mo-list__item-dragged) {
     background: var(--mo-comp-list-list-item-segmented-container-color, var(--mo-sys-block-tint));
     box-shadow: var(--mo-comp-list-item-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
     --mo-comp-list-item-shape: var(
@@ -559,50 +561,50 @@
       var(--mo-comp-list-segmented-selected-radius, var(--mo-sys-shape-corner-large))
     );
   }
-  .list-segmented > li > .list-item-dragged {
+  .mo-list__segmented > li > .mo-list__item-dragged {
     box-shadow: none;
   }
   /* The open one's icon, where the item is not drawn selected (ListItemLeadingIcon's `selected`: the editor's open part). */
-  .list-item-leading-icon-selected {
+  .mo-list__item-leading-icon-selected {
     color: var(
       --mo-comp-list-item-leading-icon-selected-color,
       var(--mo-comp-list-list-item-selected-label-text-color, var(--mo-sys-color-on-secondary-container))
     );
   }
   /* Disabled: what is in it faded (its choice fades by itself), an item that is tapped (a button) too. */
-  .list-item-disabled > :not(.list-item-control),
-  button.list-item-container:disabled > * {
+  .mo-list__item-disabled > :not(.mo-list__item-control),
+  button.mo-list__item-container:disabled > * {
     opacity: var(--mo-comp-list-item-disabled-opacity, var(--mo-sys-state-disabled-state-layer-opacity));
   }
-  button.list-item-container:disabled,
-  .list-item-disabled .list-item-content {
+  button.mo-list__item-container:disabled,
+  .mo-list__item-disabled .mo-list__item-content {
     cursor: default;
   }
-  :is(.list-dividers-none, .list-dividers-inset, .list-dividers-middle-inset, .list-segmented) > li + li {
+  :is(.mo-list__dividers-none, .mo-list__dividers-inset, .mo-list__dividers-middle-inset, .mo-list__segmented) > li + li {
     border-top: 0;
   }
-  :is(.list-dividers-inset, .list-dividers-middle-inset):not(.list-segmented) > li + li::before {
+  :is(.mo-list__dividers-inset, .mo-list__dividers-middle-inset):not(.mo-list__segmented) > li + li::before {
     content: '';
     display: block;
     border-top: 1px solid var(--mo-comp-list-divider-color, var(--mo-sys-block-line));
   }
-  .list-dividers-inset > li + li::before {
+  .mo-list__dividers-inset > li + li::before {
     margin-inline-start: calc(var(--mo-comp-list-item-padding-inline, 0px) + var(--mo-comp-list-item-leading-room));
   }
-  .list-dividers-middle-inset > li + li::before {
-    margin-inline: var(--divider-inset, 1rem);
+  .mo-list__dividers-middle-inset > li + li::before {
+    margin-inline: var(--mo-comp-divider-inset, 1rem);
   }
 
   /* Segmented (M3 Expressive): each item (its <li>) on its own surface, a small gap between them, the list's corners
      round and the corners between the items small, rounder while the item is pointed at, pressed or focused, and
      selected; a chosen one on the secondary container. The item's container has its corners, and is the state layer
      over the surface when pointed at. */
-  .list-segmented {
+  .mo-list__segmented {
     display: flex;
     flex-direction: column;
     gap: var(--mo-comp-list-segmented-gap, 0.1875rem);
   }
-  .list-segmented > li {
+  .mo-list__segmented > li {
     border-radius: var(--mo-comp-list-item-shape);
     background: var(--mo-comp-list-list-item-segmented-container-color, var(--mo-sys-block-tint));
     transition:
@@ -610,32 +612,32 @@
       border-radius var(--mo-sys-motion-spring-fast-spatial);
   }
   /* (A :has() cannot be in another one: the checked choice in it as a descendant.) */
-  .list-segmented > li:has(> .list-item-selected, > .list-item-with-control :checked) {
-    background: var(--list-segmented-selected-surface, var(--mo-sys-color-secondary-container));
-    color: var(--list-segmented-selected-text, var(--mo-sys-color-on-secondary-container));
+  .mo-list__segmented > li:has(> .mo-list__item-selected, > .mo-list__item-with-control :checked) {
+    background: var(--mo-comp-list-segmented-selected-surface, var(--mo-sys-color-secondary-container));
+    color: var(--mo-comp-list-segmented-selected-text, var(--mo-sys-color-on-secondary-container));
   }
   /* The first and the last item with the list's corners outside, whatever their state. */
-  .list-segmented > li:first-child {
+  .mo-list__segmented > li:first-child {
     border-start-start-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small)));
     border-start-end-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small)));
   }
-  .list-segmented > li:last-child {
+  .mo-list__segmented > li:last-child {
     border-end-start-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small)));
     border-end-end-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small)));
   }
-  .list-segmented > li > .list-item-container {
+  .mo-list__segmented > li > .mo-list__item-container {
     border-radius: inherit;
     padding-inline: var(--mo-comp-list-segmented-padding-inline, 1rem);
   }
-  .list-segmented > li > :is(a, button:enabled).list-item-container:hover,
-  .list-segmented > li > .list-item-with-control:not(.list-item-disabled):hover {
+  .mo-list__segmented > li > :is(a, button:enabled).mo-list__item-container:hover,
+  .mo-list__segmented > li > .mo-list__item-with-control:not(.mo-list__item-disabled):hover {
     background: var(
       --mo-comp-list-segmented-hover-surface,
       color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
   }
-  .list-segmented > li > :is(a, button:enabled).list-item-container:active,
-  .list-segmented > li > .list-item-with-control:not(.list-item-disabled):active {
+  .mo-list__segmented > li > :is(a, button:enabled).mo-list__item-container:active,
+  .mo-list__segmented > li > .mo-list__item-with-control:not(.mo-list__item-disabled):active {
     background: var(
       --mo-comp-list-segmented-pressed-surface,
       var(
@@ -644,9 +646,9 @@
       )
     );
   }
-  .list-segmented > li > :is(a, button:enabled).list-item-container:focus-visible,
-  .list-segmented > li > .list-item-with-control:not(.list-item-disabled):has(:focus-visible),
-  .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:focus-visible) {
+  .mo-list__segmented > li > :is(a, button:enabled).mo-list__item-container:focus-visible,
+  .mo-list__segmented > li > .mo-list__item-with-control:not(.mo-list__item-disabled):has(:focus-visible),
+  .mo-list__segmented > li > .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:focus-visible) {
     background: var(
       --mo-comp-list-item-focus-surface,
       var(
@@ -658,16 +660,16 @@
       )
     );
   }
-  .list-segmented > li > .list-item-multi-action {
+  .mo-list__segmented > li > .mo-list__item-multi-action {
     border-radius: inherit;
   }
-  .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:hover) {
+  .mo-list__segmented > li > .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:hover) {
     background: var(
       --mo-comp-list-segmented-hover-surface,
       color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
   }
-  .list-segmented > li > .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:active) {
+  .mo-list__segmented > li > .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:active) {
     background: var(
       --mo-comp-list-segmented-pressed-surface,
       var(
@@ -677,13 +679,13 @@
     );
   }
   /* A disabled item on its own surface (M3 Expressive: a faint layer of the text's colour). */
-  .list-segmented > li:has(> .list-item-disabled, > button.list-item-container:disabled) {
+  .mo-list__segmented > li:has(> .mo-list__item-disabled, > button.mo-list__item-container:disabled) {
     background: var(
       --mo-comp-list-segmented-disabled-surface,
       var(--mo-comp-list-list-item-segmented-container-color, var(--mo-sys-block-tint))
     );
   }
-  .list-segmented > li > :is(.list-item-selected, .list-item-with-control:has(:checked)) {
+  .mo-list__segmented > li > :is(.mo-list__item-selected, .mo-list__item-with-control:has(:checked)) {
     background: transparent;
     color: inherit;
   }

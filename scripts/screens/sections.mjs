@@ -21,7 +21,7 @@ async function checkPreviewSection() {
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
   const got = await frame.evaluate(() => {
-    const section = document.querySelector('section.text-section-tertiary');
+    const section = document.querySelector('section.mo-is-tertiary');
     return section ? getComputedStyle(section).backgroundColor : null;
   });
   if (!got || got === 'rgba(0, 0, 0, 0)') problems.push(`Preview section: a section with a background has none in the Preview (${got})`);
@@ -52,8 +52,8 @@ async function checkSectionCardContrast() {
           .flatMap((section) => ['', ...colors].map((color) => `${section}/${color}`))
           .map((id) => {
             const [section, color] = id.split('/');
-            const cardsColor = color ? ` block-cards-${color}` : '';
-            return `<div class="text-section text-section-${section}" data-case="${id}"><div class="block-cards${cardsColor}"><div class="card card-filled block-card"><div class="prose block-card-video"><a class="video-facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="video-facade-title">Title</span></a></div><span class="block-card-title">Headline</span><p class="block-card-text">Text</p></div></div></div>`;
+            const cardsColor = color ? ` mo-block-cards__${color}` : '';
+            return `<div class="mo-text-section mo-is-${section}" data-case="${id}"><div class="mo-block-cards${cardsColor}"><div class="mo-card mo-is-filled mo-block-cards__card"><div class="mo-prose mo-block-cards__card-video"><a class="mo-block-video__facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="mo-block-video__facade-title">Title</span></a></div><span class="mo-block-cards__card-title">Headline</span><p class="mo-block-cards__card-text">Text</p></div></div></div>`;
           })
           .join('');
         document.body.insertAdjacentHTML('afterbegin', html);
@@ -64,16 +64,16 @@ async function checkSectionCardContrast() {
           return [...c.getImageData(0, 0, 1, 1).data];
         };
         return [...document.querySelectorAll('[data-case]')].flatMap((box) => {
-          const card = box.querySelector('.card');
+          const card = box.querySelector('.mo-card');
           const bg = rgba(getComputedStyle(card).backgroundColor);
           // The card's surface is opaque here (a container), or a veil of the section's on-colour: the section's colour under it.
           const under = rgba(getComputedStyle(box).backgroundColor);
           const surface = bg[3] === 255 ? bg : bg.slice(0, 3).map((v, i) => Math.round((v * bg[3] + under[i] * (255 - bg[3])) / 255));
           return [
-            ['headline', '.block-card-title', 4.5],
-            ['text', '.block-card-text', 4.5],
-            ['video title', '.video-facade-title', 4.5],
-            ['play button', '.video-facade svg', 3],
+            ['headline', '.mo-block-cards__card-title', 4.5],
+            ['text', '.mo-block-cards__card-text', 4.5],
+            ['video title', '.mo-block-video__facade-title', 4.5],
+            ['play button', '.mo-block-video__facade svg', 3],
           ].map(([what, selector, need]) => ({
             id: box.dataset.case,
             what,
@@ -151,7 +151,7 @@ async function checkFullSection() {
   const text = PAGE_SOURCE.replace(/(\n)(## [^\n]+)/, '$1<div data-section="tertiary" data-width="full"></div>\n\n$2');
   const measure = () => {
     const box = (e) => (e ? e.getBoundingClientRect() : null);
-    const section = document.querySelector('section.text-section-full');
+    const section = document.querySelector('section.mo-is-full');
     const column = box(document.querySelector('[data-editor="text"]'));
     const [h2, p] = [section?.querySelector('h2'), section?.querySelector('p')].map(box);
     const intro = box(document.querySelector('[data-editor="text"] > p'));
@@ -189,7 +189,7 @@ async function checkFullSection() {
     while ((await width()) > w) await page.keyboard.press('ArrowLeft');
     await page.waitForTimeout(500);
     const frame = page.frames().find((f) => f !== page.mainFrame());
-    await frame.waitForSelector('section.text-section-full', { timeout: 30_000 });
+    await frame.waitForSelector('section.mo-is-full', { timeout: 30_000 });
     verify(`${w}px Preview full section`, await frame.evaluate(measure));
   }
   await page.close();
@@ -201,19 +201,19 @@ async function checkFullSection() {
   await clickPreview(phone);
   await phone.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const small = phone.frames().find((f) => f !== phone.mainFrame());
-  await small.waitForSelector('section.text-section-full', { timeout: 30_000 });
+  await small.waitForSelector('section.mo-is-full', { timeout: 30_000 });
   verify('375px Preview full section', await small.evaluate(measure));
   await phone.close();
 }
 
-/** A label above a heading (`<p class="label-medium">`, lib/eyebrow.mjs) on the demo's front page, About and App store pages, at 375, 768 and 1280 px, light and dark: the label sits 8 px above its heading
+/** A label above a heading (`<p class="mo-type-label-medium">`, lib/eyebrow.mjs) on the demo's front page, About and App store pages, at 375, 768 and 1280 px, light and dark: the label sits 8 px above its heading
  * (0.5rem, the same everywhere), so the space of the section the heading belongs to never comes between them (the front page puts the label in the section after it, Home.astro). */
 async function checkLabelGap() {
   const labelGap = 8;
   // Only the demo has these pages and labels: a site without them (the starter) has nothing to measure.
   const probe = await browser.newPage({ locale: 'en-US' });
   const response = await probe.goto(new URL('/about/', site).href).catch(() => null);
-  const hasLabels = !!response && response.status() < 400 && (await probe.locator('main .label-medium').count()) > 0;
+  const hasLabels = !!response && response.status() < 400 && (await probe.locator('main .mo-type-label-medium').count()) > 0;
   await probe.close();
   if (!hasLabels) return;
   for (const width of [375, 768, 1280])
@@ -228,7 +228,7 @@ async function checkLabelGap() {
         }
         const gaps = await page.evaluate(() => {
           const headings = [...document.querySelectorAll('h1, h2, h3')];
-          return [...document.querySelectorAll('main .label-medium')].map((el) => {
+          return [...document.querySelectorAll('main .mo-type-label-medium')].map((el) => {
             const heading = headings.find((h) => el.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING);
             return {
               text: el.textContent,
@@ -270,12 +270,12 @@ async function checkSectionOnImage() {
         // The list row is the active one: the row typed in place, with its icon and arrow.
         await page
           // (At the field's left end: a block pointed at shows its row over its top right.)
-          .click('.site-block-inline [data-field="title"]', { position: { x: 8, y: 8 } })
+          .click('.mo-site-block-inline [data-field="title"]', { position: { x: 8, y: 8 } })
           .catch(() => problems.push(`${label}: the list row cannot be typed in place`));
         await page.mouse.move(0, 0);
-        await page.waitForFunction((src) => document.querySelector('.editor-section-picture img')?.complete, image);
+        await page.waitForFunction((src) => document.querySelector('.mo-editor-section-picture img')?.complete, image);
         const got = await page.evaluate(`(() => { ${ratioOf}
-          const strip = document.querySelector('.editor-section-picture');
+          const strip = document.querySelector('.mo-editor-section-picture');
           const img = strip.querySelector('img');
           const c = document.createElement('canvas'); c.width = c.height = 1;
           const g = c.getContext('2d'); g.drawImage(img, 0, 0, 1, 1);
@@ -292,14 +292,14 @@ async function checkSectionOnImage() {
             const front = pixel(css, 'rgb(' + back + ')');
             return (Math.max(lumOf(front), lumOf(back)) + 0.05) / (Math.min(lumOf(front), lumOf(back)) + 0.05);
           };
-          const row = document.querySelector('.inline-list-row-active');
+          const row = document.querySelector('.mo-editor-inline-list-row-active');
           const parts = {
             heading: document.querySelector('.ProseMirror > h2'),
             body: document.querySelector('.ProseMirror > h2 + p'),
             rowTitle: row.querySelector('[data-field="title"]'),
             rowText: row.querySelector('[data-field="text"]'),
-            icon: row.querySelector('.inline-list-slot'),
-            chevron: row.querySelector('.list-item-trailing'),
+            icon: row.querySelector('.mo-editor-inline-list-slot'),
+            chevron: row.querySelector('.mo-list__item-trailing'),
           };
           const out = {};
           for (const [name, el] of Object.entries(parts)) if (el) out[name] = contrast(el, getComputedStyle(el).color);
@@ -330,9 +330,9 @@ async function checkFullWidthSection() {
     const measure = (full) =>
       page.evaluate((full) => {
         const pm = document.querySelector('.ProseMirror');
-        const field = pm.closest('.editor-text').getBoundingClientRect();
-        const border = (n) => parseFloat(getComputedStyle(pm.closest('.editor-text'))[n]);
-        const parts = [...pm.children].filter((n) => !n.classList.contains('editor-section-picture'));
+        const field = pm.closest('.mo-editor-text').getBoundingClientRect();
+        const border = (n) => parseFloat(getComputedStyle(pm.closest('.mo-editor-text'))[n]);
+        const parts = [...pm.children].filter((n) => !n.classList.contains('mo-editor-section-picture'));
         parts.forEach((el, i) => {
           el.setAttribute('data-section-color', 'primary');
           el.setAttribute('data-section-box', parts.length === 1 ? 'only' : i === 0 ? 'start' : i === parts.length - 1 ? 'end' : 'middle');
@@ -349,9 +349,9 @@ async function checkFullWidthSection() {
         };
       }, full);
     const inset = await measure(false);
-    if (process.env.SHOTS_FULL) await page.locator('.editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-inset-${width}.png` });
+    if (process.env.SHOTS_FULL) await page.locator('.mo-editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-inset-${width}.png` });
     const full = await measure(true);
-    if (process.env.SHOTS_FULL) await page.locator('.editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-${width}.png` });
+    if (process.env.SHOTS_FULL) await page.locator('.mo-editor-text').screenshot({ path: `${process.env.SHOTS_FULL}-${width}.png` });
     if (inset.left < 1 || inset.radius === '0px')
       problems.push(`${width}px full-width section: the section of the text's width should stay inset with corners`);
     if (Math.abs(full.left) > 0.5 || Math.abs(full.right) > 0.5 || full.top > 0.5 || full.radius !== '0px')
@@ -375,7 +375,7 @@ async function checkSectionBackground(width, touch) {
     await page.waitForSelector('.ProseMirror [data-section-color="primary"]', { timeout: 30_000 });
     const got = await page.evaluate(() => {
       const pm = document.querySelector('.ProseMirror');
-      const parts = [...pm.children].filter((c) => !c.classList.contains('editor-section-picture'));
+      const parts = [...pm.children].filter((c) => !c.classList.contains('mo-editor-section-picture'));
       const blue = parts.filter((c) => c.dataset.sectionColor === 'primary');
       const next = parts[parts.indexOf(blue.at(-1)) + 1];
       const bottom = blue.at(-1).getBoundingClientRect().bottom;
@@ -394,9 +394,9 @@ async function checkSectionBackground(width, touch) {
   await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
-  await frame.waitForSelector('section.text-section-primary', { timeout: 30_000 });
+  await frame.waitForSelector('section.mo-is-primary', { timeout: 30_000 });
   const panel = await frame.evaluate(() => {
-    const cs = getComputedStyle(document.querySelector('section.text-section-primary'));
+    const cs = getComputedStyle(document.querySelector('section.mo-is-primary'));
     return { margin: parseFloat(cs.marginBottom), top: parseFloat(cs.paddingTop), bottom: parseFloat(cs.paddingBottom) };
   });
   if (panel.margin !== 0 || panel.bottom <= panel.top)
@@ -423,7 +423,7 @@ async function checkTapBelowSection(width, touch) {
   const parts = () =>
     page.evaluate(() =>
       [...document.querySelector('.ProseMirror').children]
-        .filter((c) => !c.classList.contains('editor-section-picture'))
+        .filter((c) => !c.classList.contains('mo-editor-section-picture'))
         .map((c) => ({ tag: c.tagName, text: c.textContent, ...c.getBoundingClientRect().toJSON() })),
     );
   const tapAt = async (y) => {
@@ -461,15 +461,15 @@ async function checkFocusFrame() {
   // The frame of each top-level part: whether its ::after is drawn, and its colour's contrast on the part's own background.
   const read = (colors) => `(() => { ${ratioOf}
     const pm = document.querySelector('.ProseMirror');
-    const parts = [...pm.children].filter((e) => !e.classList.contains('editor-section-picture'));
+    const parts = [...pm.children].filter((e) => !e.classList.contains('mo-editor-section-picture'));
     const first = parts.findIndex((e) => e.textContent.includes('Alpha'));
     const last = parts.findIndex((e) => e.textContent.includes('Beta')) - 1;
     const rows = parts.map((e, i) => ({ inAlpha: i >= first && i <= last, text: e.textContent.trim().slice(0, 12), focus: e.dataset.sectionFocus ?? null, drawn: getComputedStyle(e, '::after').content !== 'none' && getComputedStyle(e, '::after').content !== 'normal', line: getComputedStyle(e, '::after').borderInlineStartStyle, width: getComputedStyle(e, '::after').borderInlineStartWidth }));
     const out = { editorOutline: getComputedStyle(pm).outlineStyle, focused: pm.matches(':focus-visible'), rows, contrast: {} };
     if (${colors}) {
       const alpha = parts[first];
-      const block = parts.find((e) => e.matches('.site-block-inline') || e.querySelector('.site-block-inline'));
-      const blockEl = block?.matches('.site-block-inline') ? block : block?.querySelector('.site-block-inline');
+      const block = parts.find((e) => e.matches('.mo-site-block-inline') || e.querySelector('.mo-site-block-inline'));
+      const blockEl = block?.matches('.mo-site-block-inline') ? block : block?.querySelector('.mo-site-block-inline');
       for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
         for (const e of parts.slice(first, last + 1)) { e.setAttribute('data-section-color', color); e.setAttribute('data-section-box', 'only'); }
         out.contrast[color] = {
@@ -528,11 +528,12 @@ async function checkFocusFrame() {
           problems.push(`${label}: with the cursor in the top text, "${r.text}" ${r.focus ? 'has' : 'lacks'} the frame`);
       }
       // A block in focus: its own outline shows it, no section frame, and the line stands 3:1 on every section colour.
-      await tap('.site-block-inline [data-field="title"]', { x: 8, y: 8 });
+      await tap('.mo-site-block-inline [data-field="title"]', { x: 8, y: 8 });
       await page
         .waitForFunction(
           () =>
-            !document.querySelector('.ProseMirror').matches(':focus-visible') && document.querySelector('.site-block-inline:focus-within'),
+            !document.querySelector('.ProseMirror').matches(':focus-visible') &&
+            document.querySelector('.mo-site-block-inline:focus-within'),
           null,
           { timeout: 10_000 },
         )

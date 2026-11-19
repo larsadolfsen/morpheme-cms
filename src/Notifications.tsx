@@ -86,7 +86,7 @@ export function NotificationsPage({ siteName }: { siteName: string }) {
       ) : (
         <EmptyNote>{t.library.noNotifications}</EmptyNote>
       )}
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mo-editor-notify-actions">
         <NotificationActions
           selected={0}
           hasItems={items.length > 0}

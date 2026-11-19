@@ -26,17 +26,13 @@ export function shortcutRows(): ShortcutRow[] {
 /** Shows the list: a page on a phone (below the medium width, 37.5rem), the dialog from medium. */
 export function showShortcuts() {
   setShortcutRows(shortcutRows());
-  if (matchMedia('(max-width: 37.4375rem)').matches) location.hash = '#shortcuts';
+  if (matchMedia('(width < 37.5rem)').matches) location.hash = '#shortcuts';
   else openShortcuts();
 }
 
 const Rows = ({ rows }: { rows: ShortcutRow[] }) =>
   rows.map((r) => (
-    <ListItem
-      key={r.id}
-      headline={r.label}
-      trailing={<kbd className="font-sans text-sm text-on-surface-variant">{shortcutText(r.key)}</kbd>}
-    />
+    <ListItem key={r.id} headline={r.label} trailing={<kbd className="mo-editor-shortcut-key">{shortcutText(r.key)}</kbd>} />
   ));
 
 /** The dialog of a computer. */
@@ -57,7 +53,7 @@ export function ShortcutsSheet() {
     <BottomSheet
       ref={dialog}
       aria-label={t.palette.shortcuts}
-      className="shortcuts-dialog"
+      className="mo-editor-shortcuts-dialog"
       tabIndex={-1}
       onClose={closeShortcuts}
       onClick={(e) => e.target === dialog.current && dialog.current?.close()}

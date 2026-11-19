@@ -36,7 +36,7 @@ export default function PostList({
     <>
       <List
         dividers="none"
-        className={['theme-post-list', columns === 2 && 'theme-post-list-columns', className].filter(Boolean).join(' ')}
+        className={['mo-post-list', columns === 2 && 'mo-has-columns', className].filter(Boolean).join(' ')}
         data-random-posts={random ? count : undefined}
       >
         {posts.map((post, i) => (
@@ -50,16 +50,16 @@ export default function PostList({
                 <Img
                   image={post.image}
                   alt=""
-                  className="list-item-image theme-post-picture"
+                  className="mo-list__item-image mo-post-list__image"
                   sizes={`(min-width: ${BREAKPOINTS.medium}px) 128px, 88px`}
                 />
               ) : (
-                <span className="list-item-image theme-post-picture theme-post-picture-empty" />
+                <span className="mo-list__item-image mo-post-list__image mo-is-empty" />
               )
             }
             subhead={<PostMeta post={post} as="span" />}
-            headline={<h3 className="theme-post-title">{post.title}</h3>}
-            supporting={post.description ? <span className="theme-post-excerpt">{post.description}</span> : undefined}
+            headline={<h3 className="mo-post-list__title">{post.title}</h3>}
+            supporting={post.description ? <span className="mo-post-list__excerpt">{post.description}</span> : undefined}
           />
         ))}
       </List>

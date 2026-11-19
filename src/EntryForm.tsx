@@ -1285,21 +1285,19 @@ function Form({
   const titleField = headField('title');
   const author = env.site.contact;
   const postHead = post && titleField && (
-    <header className="mb-6 space-y-5" data-post-head>
+    <header className="mo-editor-post-head" data-post-head>
       <HeadTitle field={titleField} value={values.title} onChange={(v) => onTitle(String(v ?? ''))} />
       {author.name && (
-        <p className="leading-snug">
-          <span className="block font-medium">{author.name}</span>
-          {author.role && <span className="block text-on-surface-variant">{author.role}</span>}
+        <p className="mo-editor-byline-lines">
+          <span className="mo-editor-author-name">{author.name}</span>
+          {author.role && <span className="mo-editor-author-role">{author.role}</span>}
         </p>
       )}
-      <div className="space-y-4">
+      <div className="mo-editor-flow-4">
         {headField('image') && <HeadImage field={headField('image')!} value={values.image} onChange={(v) => set('image', v)} />}
         {['imageDecorative', 'imageAlt'].map((n) => headField(n) && field(headField(n)!))}
       </div>
-      <div className="flex flex-wrap items-start gap-x-6 gap-y-4 border-t border-outline-variant pt-4 *:min-w-48 *:flex-1">
-        {['date', 'categories'].map((n) => headField(n) && field(headField(n)!))}
-      </div>
+      <div className="mo-editor-post-meta">{['date', 'categories'].map((n) => headField(n) && field(headField(n)!))}</div>
     </header>
   );
 
@@ -1363,8 +1361,8 @@ function Form({
                   )}
                   <FoldSection {...sectionProps('content')} fixed>
                     {post ? postHead : fieldsIn(collection, 'content').map(field)}
-                    <div ref={textBox} className="scroll-mt-[calc(1rem+env(safe-area-inset-top))]">
-                      <span className="mb-1 block font-medium">{t.forms.text}</span>
+                    <div ref={textBox} className="mo-editor-text-anchor">
+                      <span className="mo-editor-field-title">{t.forms.text}</span>
                       <MarkdownEditor
                         key={era}
                         ref={text}
@@ -1391,7 +1389,7 @@ function Form({
                   </FoldSection>
                   {shows('seo') && (
                     <FoldSection {...sectionProps('seo')}>
-                      <div ref={seoBox} className="space-y-6">
+                      <div ref={seoBox} className="mo-editor-flow-6">
                         {rating.length > 0 && <CheckList title={t.forms.seoRating.title} items={rating} />}
                         <SearchPreview
                           domain={config.domain}
@@ -1408,7 +1406,7 @@ function Form({
                   )}
                   {shows('share') && (
                     <FoldSection {...sectionProps('share')}>
-                      <div ref={shareBox} className="space-y-6">
+                      <div ref={shareBox} className="mo-editor-flow-6">
                         <SharePreview
                           image={shownAt(splitPicture(card.image).src)}
                           domain={config.domain}

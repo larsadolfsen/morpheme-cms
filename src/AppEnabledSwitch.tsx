@@ -14,7 +14,7 @@ export default function AppEnabledSwitch({
   onEnabled: (on: boolean) => void;
 }) {
   return (
-    <div className="mb-8 px-4">
+    <div className="mo-editor-group mo-editor-inset">
       <SwitchRow label={t.apps.enabled} selected={enabled} disabled={busy} onChange={onEnabled} />
     </div>
   );

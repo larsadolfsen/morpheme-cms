@@ -12,13 +12,13 @@ test('a part that drops its density term fails', () => {
     /min-height: calc\(var\(--mo-comp-button-box\)[^;]*;/,
     'min-height: var(--mo-comp-button-box);',
   );
-  assert.match(findProblems(f).join('\n'), /button \(\.button\) ignores density/);
+  assert.match(findProblems(f).join('\n'), /button \(\.mo-button\) ignores density/);
 });
 
 test('a focused part, a horizontal padding and a text size that read density fail', () => {
   const f = real();
   // The menu item's rules are in menus.css (moved out of ui.css), so the focused part's rule is added there.
-  f['theme/styles/ui/menus.css'] += '\n.menu-item { min-height: calc(3rem + var(--mo-sys-density) * var(--mo-sys-density-step)); }\n';
+  f['theme/styles/ui/menus.css'] += '\n.mo-menu__item { min-height: calc(3rem + var(--mo-sys-density) * var(--mo-sys-density-step)); }\n';
   f['theme/styles/ui.css'] +=
     '\n.x {\npadding-inline: calc(1rem + var(--mo-sys-density) * 1px);\nfont-size: calc(1rem + var(--mo-sys-density) * 1px);\n}\n';
   const out = findProblems(f).join('\n');

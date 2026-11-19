@@ -117,7 +117,7 @@
   title, body and label, each in a large, a medium and a small size, each with its size, line height, weight and
   tracking (letter spacing). All text on the site is set with one of them: every block (blocks.css), the text
   (base.css) and every part below has the role Material 3 gives it, and keeps its own variable where it has one
-  (--mo-comp-button-font-size, --chip-font-size …), so a theme can still give one part another size. A theme sets the scale to
+  (--mo-comp-button-font-size, --mo-comp-chip-font-size …), so a theme can still give one part another size. A theme sets the scale to
   its own look, in :root in its styles/global.css, and it is its text everywhere; the values here are Material 3's.
     --type-<role>-<size>-size, -line-height, -weight, -tracking   <role>: display, headline, title, body or label;
       <size>: large, medium or small
@@ -126,86 +126,86 @@
     title      the headings of a card, a panel, a row or a sheet; medium and small also names and emphasized labels
     body       the text: large the text of pages and blocks, medium and small what is smaller beside it
     label      what is on a control (a button, a chip, a tab, a tag), a badge and a small heading over others
-  The font of every style is --type-<role>-<size>-font (Roboto, --font-sans); a label also has a prominent weight, --type-label-<size>-prominent-weight (700), as Material 3 lists it. Bold or a link inside a text keeps the text's role, with its own weight. The typeface is --font-sans.
+  The font of every style is --type-<role>-<size>-font (Roboto, --mo-ref-typeface-plain); a label also has a prominent weight, --type-label-<size>-prominent-weight (700), as Material 3 lists it. Bold or a link inside a text keeps the text's role, with its own weight. The typeface is --mo-ref-typeface-plain.
 */
 :where(:root) {
   --mo-sys-typescale-display-large-size: 3.5625rem;
   --mo-sys-typescale-display-large-line-height: 4rem;
   --mo-sys-typescale-display-large-weight: 400;
   --mo-sys-typescale-display-large-tracking: -0.015625rem;
-  --mo-sys-typescale-display-large-font: var(--font-sans);
+  --mo-sys-typescale-display-large-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-display-medium-size: 2.8125rem;
   --mo-sys-typescale-display-medium-line-height: 3.25rem;
   --mo-sys-typescale-display-medium-weight: 400;
   --mo-sys-typescale-display-medium-tracking: 0;
-  --mo-sys-typescale-display-medium-font: var(--font-sans);
+  --mo-sys-typescale-display-medium-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-display-small-size: 2.25rem;
   --mo-sys-typescale-display-small-line-height: 2.75rem;
   --mo-sys-typescale-display-small-weight: 400;
   --mo-sys-typescale-display-small-tracking: 0;
-  --mo-sys-typescale-display-small-font: var(--font-sans);
+  --mo-sys-typescale-display-small-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-headline-large-size: 2rem;
   --mo-sys-typescale-headline-large-line-height: 2.5rem;
   --mo-sys-typescale-headline-large-weight: 400;
   --mo-sys-typescale-headline-large-tracking: 0;
-  --mo-sys-typescale-headline-large-font: var(--font-sans);
+  --mo-sys-typescale-headline-large-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-headline-medium-size: 1.75rem;
   --mo-sys-typescale-headline-medium-line-height: 2.25rem;
   --mo-sys-typescale-headline-medium-weight: 400;
   --mo-sys-typescale-headline-medium-tracking: 0;
-  --mo-sys-typescale-headline-medium-font: var(--font-sans);
+  --mo-sys-typescale-headline-medium-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-headline-small-size: 1.5rem;
   --mo-sys-typescale-headline-small-line-height: 2rem;
   --mo-sys-typescale-headline-small-weight: 400;
   --mo-sys-typescale-headline-small-tracking: 0;
-  --mo-sys-typescale-headline-small-font: var(--font-sans);
+  --mo-sys-typescale-headline-small-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-title-large-size: 1.375rem;
   --mo-sys-typescale-title-large-line-height: 1.75rem;
   --mo-sys-typescale-title-large-weight: 400;
   --mo-sys-typescale-title-large-tracking: 0;
-  --mo-sys-typescale-title-large-font: var(--font-sans);
+  --mo-sys-typescale-title-large-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-title-medium-size: 1rem;
   --mo-sys-typescale-title-medium-line-height: 1.5rem;
   --mo-sys-typescale-title-medium-weight: 500;
   --mo-sys-typescale-title-medium-tracking: 0.009375rem;
-  --mo-sys-typescale-title-medium-font: var(--font-sans);
+  --mo-sys-typescale-title-medium-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-title-small-size: 0.875rem;
   --mo-sys-typescale-title-small-line-height: 1.25rem;
   --mo-sys-typescale-title-small-weight: 500;
   --mo-sys-typescale-title-small-tracking: 0.00625rem;
-  --mo-sys-typescale-title-small-font: var(--font-sans);
+  --mo-sys-typescale-title-small-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-body-large-size: 1rem;
   --mo-sys-typescale-body-large-line-height: 1.5rem;
   --mo-sys-typescale-body-large-weight: 400;
   --mo-sys-typescale-body-large-tracking: 0.03125rem;
-  --mo-sys-typescale-body-large-font: var(--font-sans);
+  --mo-sys-typescale-body-large-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-body-medium-size: 0.875rem;
   --mo-sys-typescale-body-medium-line-height: 1.25rem;
   --mo-sys-typescale-body-medium-weight: 400;
   --mo-sys-typescale-body-medium-tracking: 0.015625rem;
-  --mo-sys-typescale-body-medium-font: var(--font-sans);
+  --mo-sys-typescale-body-medium-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-body-small-size: 0.75rem;
   --mo-sys-typescale-body-small-line-height: 1rem;
   --mo-sys-typescale-body-small-weight: 400;
   --mo-sys-typescale-body-small-tracking: 0.025rem;
-  --mo-sys-typescale-body-small-font: var(--font-sans);
+  --mo-sys-typescale-body-small-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-label-large-size: 0.875rem;
   --mo-sys-typescale-label-large-line-height: 1.25rem;
   --mo-sys-typescale-label-large-weight: 500;
   --mo-sys-typescale-label-large-tracking: 0.00625rem;
-  --mo-sys-typescale-label-large-font: var(--font-sans);
+  --mo-sys-typescale-label-large-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-label-large-prominent-weight: 700;
   --mo-sys-typescale-label-medium-size: 0.75rem;
   --mo-sys-typescale-label-medium-line-height: 1rem;
   --mo-sys-typescale-label-medium-weight: 500;
   --mo-sys-typescale-label-medium-tracking: 0.03125rem;
-  --mo-sys-typescale-label-medium-font: var(--font-sans);
+  --mo-sys-typescale-label-medium-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-label-medium-prominent-weight: 700;
   --mo-sys-typescale-label-small-size: 0.6875rem;
   --mo-sys-typescale-label-small-line-height: 1rem;
   --mo-sys-typescale-label-small-weight: 500;
   --mo-sys-typescale-label-small-tracking: 0.03125rem;
-  --mo-sys-typescale-label-small-font: var(--font-sans);
+  --mo-sys-typescale-label-small-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-label-small-prominent-weight: 700;
   /* The lead (an intro paragraph: mo-type-lead, a blog post's first paragraph, a single page's first paragraph). Each is the
      title large's; a theme sets these four to change every lead. */

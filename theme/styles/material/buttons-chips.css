@@ -6,55 +6,55 @@
   /* Common buttons (their variables above): a state layer when pointed at (the ripple when pressed; their elevation is
      ui.css's, at M3's levels), and the corners a little squarer while pressed (M3 Expressive).
      Side by side, wrapping, also on a phone. */
-  .block-buttons {
+  .mo-block-buttons {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
   }
-  .button {
+  .mo-button {
     transition:
       background-color var(--mo-sys-motion-spring-default-effects),
       color var(--mo-sys-motion-spring-default-effects),
       box-shadow var(--mo-sys-motion-spring-default-effects),
       border-radius var(--mo-sys-motion-spring-fast-spatial);
   }
-  .button:active {
+  .mo-button:active {
     transform: none;
     border-radius: var(--mo-sys-shape-corner-medium);
   }
   @media (hover: hover) {
-    .button-outlined:hover {
+    :where(.mo-button).mo-is-outlined:hover {
       background: var(--mo-sys-color-primary-hover);
     }
   }
-  .button-text:focus-visible {
+  .mo-button__text:focus-visible {
     background: color-mix(in srgb, var(--mo-sys-color-primary) calc(var(--mo-sys-state-focus-state-layer-opacity) * 100%), transparent);
   }
   /* A text button reaches 48px for a finger, above and below it. */
-  .button-text {
+  .mo-button__text {
     position: relative;
   }
-  .button-text::after {
+  .mo-button__text::after {
     content: '';
     position: absolute;
     inset: -0.25rem 0;
   }
   /* An M3 button's icon stands before its label: the arrow after a button's text is not shown. */
-  .button-trailing-icon {
+  .mo-button__trailing-icon {
     display: none;
   }
   /* Except on a button that opens a menu: the arrow down says so, and turns up while the menu is open. */
-  [aria-haspopup='menu'] > .button-trailing-icon {
+  [aria-haspopup='menu'] > .mo-button__trailing-icon {
     display: inline-block;
     transition: rotate var(--mo-sys-motion-spring-fast-spatial);
   }
-  [aria-haspopup='menu'][aria-expanded='true'] > .button-trailing-icon {
+  [aria-haspopup='menu'][aria-expanded='true'] > .mo-button__trailing-icon {
     rotate: 180deg;
   }
   /* A link with an arrow on its own ("Read more", "All posts"), and "Read more" on a testimonial: text buttons, a
      label in the primary colour with a state layer, the label in line with the text beside it. */
-  .block-arrow-link,
-  .block-testimonial-more {
+  .mo-block-arrow-link,
+  .mo-block-testimonials__testimonial-more {
     min-height: 2.5rem;
     margin-inline: -0.75rem;
     border-radius: var(--mo-sys-shape-corner-full);
@@ -65,45 +65,45 @@
     letter-spacing: var(--mo-sys-typescale-label-large-tracking);
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .block-arrow-link:hover,
-  .block-testimonial-more:hover {
+  .mo-block-arrow-link:hover,
+  .mo-block-testimonials__testimonial-more:hover {
     background: var(--mo-sys-color-primary-hover);
   }
-  .block-arrow-link:active,
-  .block-testimonial-more:active {
+  .mo-block-arrow-link:active,
+  .mo-block-testimonials__testimonial-more:active {
     background: color-mix(in srgb, var(--mo-sys-color-primary) calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%), transparent);
   }
-  .block-testimonial-more {
+  .mo-block-testimonials__testimonial-more {
     cursor: pointer;
   }
   /* Chips (their variables above): a label in medium weight, a state layer when pointed at; a chosen filter chip with
      its 18px check before the label, 8px from the edge. */
-  .chip {
+  .mo-chip {
     transition:
       background-color var(--mo-sys-motion-spring-default-effects),
       box-shadow var(--mo-sys-motion-spring-default-effects);
   }
-  .chip:hover {
+  .mo-chip:hover {
     background: var(--mo-sys-state-mo-hover-layer);
   }
-  .chip-elevated:hover {
+  :where(.mo-chip).mo-is-elevated:hover {
     background: color-mix(
       in srgb,
       var(--mo-sys-color-on-surface) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
-      var(--chip-elevated-surface, var(--mo-sys-block-surface))
+      var(--mo-comp-chip-elevated-surface, var(--mo-sys-block-surface))
     );
   }
-  .chip-filter:is([aria-pressed='true'], [aria-current='page']) {
+  .mo-chip__filter:is([aria-pressed='true'], [aria-current='page']) {
     padding-left: 0.5rem;
   }
   /* M3 Chips, specs: "Left/right padding with icon 8dp": the side an icon is on (a leading icon, a person's image is the avatar's own, a trailing icon). */
-  .chip:has(> svg:not(.chip-check, .chip-trailing-icon)) {
+  .mo-chip:has(> svg:not(.mo-chip__check, .mo-chip__trailing-icon)) {
     padding-inline-start: 0.5rem;
   }
-  .chip:has(> .chip-trailing-icon) {
+  .mo-chip:has(> .mo-chip__trailing-icon) {
     padding-inline-end: 0.5rem;
   }
-  .block-tag {
+  .mo-block-tag {
     border-radius: var(--mo-sys-shape-corner-small);
     background: var(--mo-sys-color-surface-container-high);
   }

@@ -211,7 +211,7 @@ export const opened = new Set();
 
 // The links of Settings (#settings): the rows of its list, not the drawer's or the footer's links.
 export const settingsRows = () =>
-  [...document.querySelectorAll('main a.list-item-container')].map((a) => ({
+  [...document.querySelectorAll('main a.mo-list__item-container')].map((a) => ({
     href: a.getAttribute('href'),
     text: a.innerText.trim().split('\n')[0],
   }));

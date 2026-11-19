@@ -18,13 +18,13 @@ export const allow = [
     reason: "inline code in a text: the text style's padding in em (0.07 and 0.245 of its size), the box around a few letters, not layout",
   },
   {
-    selector: '.prose ul.contains-task-list, .prose li.task-list-item',
+    selector: '.mo-prose ul.contains-task-list, .mo-prose li.task-list-item',
     props: ['margin', 'padding'],
     reason:
-      "a check list in a text: the text style's list spaces in em (Tailwind typography), a list in a text and not a block's own spaces",
+      "a check list in a text: the text style's list spaces in em (the typography the theme had), a list in a text and not a block's own spaces",
   },
   {
-    selector: '.chip',
+    selector: '.mo-chip',
     props: ['padding'],
     reason:
       'a chip: Material 3 sets its height (32 dp), the room above and below its label is what is left of it (Density takes 2 px off each side)',

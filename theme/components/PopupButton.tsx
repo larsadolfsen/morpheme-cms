@@ -11,13 +11,13 @@ export type PopupButtonView = { file: { href: string; label: string } } | { butt
 export default function PopupButton({ button }: { button?: PopupButtonView }) {
   if (!button) return null;
   return (
-    <div className="block-buttons mt-6">
+    <div className="mo-block-buttons mo-popup__buttons">
       {'file' in button ? (
-        <Button href={button.file.href} icon="download-simple" download="" className="w-full medium:w-auto">
+        <Button href={button.file.href} icon="download-simple" download="" className="mo-popup__button">
           {button.file.label}
         </Button>
       ) : (
-        <Buttons buttons={button.buttons} className="w-full medium:w-auto" />
+        <Buttons buttons={button.buttons} className="mo-popup__button" />
       )}
     </div>
   );

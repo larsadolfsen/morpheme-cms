@@ -1,7 +1,7 @@
 // Cards, as Material 3 has them (Card.tsx in ../../ui/: outlined, the default, filled or elevated): each with the block's one media at the top
 // (an icon, an image, a video with its play button, or none), a headline, a subhead, a text and either one link (a card with a page is one:
 // the whole card, with the link's text at the bottom, `more`, the block's shared text) or the action area (its buttons). Two side by side from
-// small screens (.block-cards in ../blocks.css). `color`: the container of a filled card (primary, secondary, tertiary), else the surface
+// small screens (.mo-block-cards in ../blocks.css). `color`: the container of a filled card (primary, secondary, tertiary), else the surface
 // container: the standard block "Cards".
 // `className`: the site's own classes on the list, e.g. its margin.
 import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
@@ -31,7 +31,7 @@ export function CardMedia({ card }: { card: LinkCard }) {
     <>
       {card.media === 'image' && card.image && (
         <span
-          className="block-card-picture"
+          className="mo-block-cards__card-picture"
           style={card.ratio && card.ratio !== '3:2' ? { aspectRatio: card.ratio.replace(':', ' / ') } : undefined}
         >
           <img
@@ -48,11 +48,13 @@ export function CardMedia({ card }: { card: LinkCard }) {
         </span>
       )}
       {card.media === 'video' && card.video && (
-        <span className="block-card-video">
+        <span className="mo-block-cards__card-video">
           <Video view={card.video} />
         </span>
       )}
-      {card.media === 'icon' && card.icon && <Svg name={card.icon} size={28} className="block-card-icon" iconColor={card.iconColor} />}
+      {card.media === 'icon' && card.icon && (
+        <Svg name={card.icon} size={28} className="mo-block-cards__card-icon" iconColor={card.iconColor} />
+      )}
     </>
   );
 }
@@ -102,16 +104,16 @@ export default function LinkCards({
   className?: string;
 }) {
   const type: CardKind = cardKinds.find((k) => k === design) ?? 'outlined';
-  const colored = type === 'filled' && color ? `block-cards-${color}` : undefined;
+  const colored = type === 'filled' && color ? `mo-block-cards__${color}` : undefined;
   const say = siteT.blocks.cards;
   const cardOf = (card: LinkCard) => {
     const parts = {
       kind: type,
-      className: 'block-card',
+      className: 'mo-block-cards__card',
       media: mediaOf(card),
       icon:
         card.media === 'icon' && card.icon ? (
-          <Svg name={card.icon} size={24} className="block-card-icon" iconColor={card.iconColor} />
+          <Svg name={card.icon} size={24} className="mo-block-cards__card-icon" iconColor={card.iconColor} />
         ) : undefined,
       headline: card.title,
       subhead: card.subhead || undefined,
@@ -120,9 +122,9 @@ export default function LinkCards({
     // A card with a page is one link, the whole card, with `more` at its end; one without is not a link and may have buttons.
     return card.href ? (
       <Card {...parts} href={card.href}>
-        <span className="block-card-more">
+        <span className="mo-block-cards__card-more">
           {more}
-          <Svg name="arrow-right" size={18} className="block-card-arrow" />
+          <Svg name="arrow-right" size={18} className="mo-block-cards__card-arrow" />
         </span>
       </Card>
     ) : (
@@ -131,7 +133,7 @@ export default function LinkCards({
   };
   if (phone === 'carousel' && items.length >= 2)
     return (
-      <div className={['block-cards-carousel', colored, className].filter(Boolean).join(' ')} data-cards-carousel="">
+      <div className={['mo-block-cards__carousel', colored, className].filter(Boolean).join(' ')} data-cards-carousel="">
         <Carousel
           label={label || say.cardsLabel}
           roleDescription={say.carousel}
@@ -145,7 +147,7 @@ export default function LinkCards({
           }))}
           indicatorLabels={items.map((card, i) => say.showCard(i + 1, card.title))}
         />
-        <div className="block-cards-show-all">
+        <div className="mo-block-cards__show-all">
           <Button kind="text" aria-expanded="false" data-cards-show-all="" data-all={say.showAll} data-fewer={say.showFewer}>
             {say.showAll}
           </Button>
@@ -153,7 +155,7 @@ export default function LinkCards({
       </div>
     );
   return (
-    <ul className={['block-cards', colored, className].filter(Boolean).join(' ')}>
+    <ul className={['mo-block-cards', colored, className].filter(Boolean).join(' ')}>
       {items.map((card, i) => (
         <li key={i}>{cardOf(card)}</li>
       ))}

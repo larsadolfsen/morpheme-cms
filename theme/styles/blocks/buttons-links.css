@@ -1,56 +1,56 @@
 /*
-  The Buttons, form, link and small blocks: .block-buttons (buttons in a row, with its medium-breakpoint row), .block-form and .block-message, .block-link,
-  .block-arrow-link, the Blog posts block's own rules (.block-posts-*), .block-sr-only, .block-empty and the filter chips' row (.block-filters). Moved
+  The Buttons, form, link and small blocks: .mo-block-buttons (buttons in a row, with its medium-breakpoint row), .mo-block-buttons__form and .mo-block-buttons__message, .mo-block-link,
+  .mo-block-arrow-link, the Blog posts block's own rules (.block-posts-*), .mo-block-testimonials__sr-only, .mo-block-testimonials__empty and the filter chips' row (.mo-block-testimonials__filters). Moved
   here from blocks.css with the rules unchanged and in the order they had (docs/superpowers/plans/2026-11-16-css-split.md). Imported by base.css after
-  accordion.css and before the other block files, in the same layer (components): the CTA's buttons (.block-cta-buttons) set display and gap at the
-  same specificity as .block-buttons and must keep coming after it. Every rule that stayed in blocks.css after these still comes before them in the
+  accordion.css and before the other block files, in the same layer (components): the CTA's buttons (.mo-block-cta__buttons) set display and gap at the
+  same specificity as .mo-block-buttons and must keep coming after it. Every rule that stayed in blocks.css after these still comes before them in the
   cascade; none of those rules sets a property of these elements at the same specificity (the collision check in the pull request).
 */
 @layer components {
   /* "Buttons": buttons in a row, on a phone under each other in the full width (buttons/). The buttons are the
-     theme's (.button in ui.css), each of the kind it was given. */
-  .block-buttons {
+     theme's (.mo-button in ui.css), each of the kind it was given. */
+  .mo-block-buttons {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
   }
 
-  /* A form in a block or a pop-up (an app's: Mailchimp's signup): its fields (the theme's text fields, .text-field in
+  /* A form in a block or a pop-up (an app's: Mailchimp's signup): its fields (the theme's text fields, .mo-text-field in
      ui.css) and its button side by side, wrapping on a phone, and the answer under it. */
-  .block-form {
+  .mo-block-buttons__form {
     display: flex;
     flex-wrap: wrap;
     gap: 0.75rem;
     margin-top: 1.5rem;
   }
-  .block-form > .button {
+  .mo-block-buttons__form > .mo-button {
     flex: 1 0 auto;
   }
-  .block-form > .text-field {
+  .mo-block-buttons__form > .mo-text-field {
     flex: 1 1 12rem;
   }
   /* The answer to a form, in the accent when it went wrong (data-failed). */
-  .block-message {
+  .mo-block-buttons__message {
     margin-top: 1rem;
   }
-  .block-message[data-failed] {
+  .mo-block-buttons__message[data-failed] {
     color: var(--mo-sys-block-accent);
   }
 
   /* A link in a block's text: in the accent, underlined, thicker when
      pointed at. */
-  .block-link {
+  .mo-block-link {
     color: var(--mo-sys-block-accent);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.25em;
   }
-  .block-link:hover {
+  .mo-block-link:hover {
     text-decoration-thickness: 2px;
   }
   /* A link on its own line with an arrow after it ("All posts →"). */
-  .block-arrow-link {
+  .mo-block-arrow-link {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
@@ -61,14 +61,14 @@
 
   /* "Blog posts": its posts as the blog shows them (the theme's PostList.tsx and BlogPosts.tsx), "All posts" under
      them. */
-  .block-posts-in-text.block-in-text {
+  .mo-block-posts__in-text.mo-is-in-text {
     margin-block: 2.5rem;
   }
-  .block-posts-all {
+  .mo-block-posts__all {
     margin-top: 1.5rem;
   }
   /* In the editor's drawing: random posts, of how many; under all of them, how many more there are. */
-  .block-posts-note {
+  .mo-block-posts__note {
     margin: 0 0 1rem;
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
@@ -76,12 +76,12 @@
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
     color: var(--mo-sys-block-muted);
   }
-  .block-posts-more {
+  .mo-block-posts__more {
     margin: 1rem 0 0;
   }
 
   /* Only for screen readers. */
-  .block-sr-only {
+  .mo-block-testimonials__sr-only {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -93,24 +93,24 @@
     border-width: 0;
   }
   /* In a drawing in the editor, when there is nothing to show. */
-  .block-empty {
+  .mo-block-testimonials__empty {
     border-radius: var(--mo-sys-block-radius);
     background: var(--mo-sys-block-tint);
     padding: 1.5rem;
     color: var(--mo-sys-block-muted);
   }
   /* Filter chips (the theme's Chip, ui.css) that filter what is under them ("Testimonials list"). */
-  .block-filters {
+  .mo-block-testimonials__filters {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
     margin-bottom: 1.5rem;
   }
-  .block-filters[hidden] {
+  .mo-block-testimonials__filters[hidden] {
     display: none;
   }
-  @media (width >= theme(--breakpoint-medium)) {
-    .block-buttons {
+  @media (width >= 37.5rem) {
+    .mo-block-buttons {
       flex-direction: row;
       flex-wrap: wrap;
     }

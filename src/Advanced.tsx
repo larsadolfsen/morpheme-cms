@@ -193,9 +193,9 @@ export default function Advanced({ env }: { env: Env }) {
 
   return (
     <Screen title={t.common.parts.caching} wide back={backFrom('caching')}>
-      <section className="mb-8">
+      <section className="mo-editor-group">
         <GroupTitle>{t.advanced.r2Caching}</GroupTitle>
-        <div className="setting-list px-4">
+        <div className="mo-setting-list mo-editor-inset">
           {problem ? (
             <ProblemNote>{problem}</ProblemNote>
           ) : !file ? (
@@ -217,16 +217,16 @@ export default function Advanced({ env }: { env: Env }) {
           )}
         </div>
       </section>
-      <section className="mb-8">
+      <section className="mo-editor-group">
         <GroupTitle>{t.advanced.builds}</GroupTitle>
         {hintOpen && hasWaiting && (
-          <div className="mb-4 px-4">
+          <div className="mo-editor-notice-inset">
             <Notice title={t.advanced.skipDraftBuildsTitle} onClose={closeHint}>
               {t.advanced.skipDraftBuilds}
             </Notice>
           </div>
         )}
-        <div className="setting-list px-4">
+        <div className="mo-setting-list mo-editor-inset">
           {buildProblem ? (
             <ProblemNote>{buildProblem}</ProblemNote>
           ) : (
@@ -241,7 +241,9 @@ export default function Advanced({ env }: { env: Env }) {
                   onChange={(next) => turnBuild(key, next, commit, change)}
                 />
               ))}
-              {paid && !settings.paidBuilds && paid !== 'yes' && <SupportingText className="mt-2">{t.advanced.plan[paid]}</SupportingText>}
+              {paid && !settings.paidBuilds && paid !== 'yes' && (
+                <SupportingText className="mo-editor-supporting">{t.advanced.plan[paid]}</SupportingText>
+              )}
               <LinkButton
                 href={BILLING_URL}
                 target="_blank"
@@ -249,7 +251,7 @@ export default function Advanced({ env }: { env: Env }) {
                 kind="text"
                 size="small"
                 icon={ArrowSquareOut}
-                className="setting-list-action"
+                className="mo-setting-list__action"
               >
                 {t.advanced.billing}
               </LinkButton>

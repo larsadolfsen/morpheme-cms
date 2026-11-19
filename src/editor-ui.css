@@ -1,0 +1,1166 @@
+/* The editor's parts of src/ui.tsx: the rules the markup used to get from utility classes, now named after what the element is (batch T05 of
+   plan 2026-11-16-move-away-from-tailwind.md). Layout is the vocabulary of theme/styles/layout.css (mo-row, mo-stack, mo-fill …); what is left is
+   here. Everything sits in @layer utilities, where the utilities were, so the cascade against the theme's parts and src/editor.css does not change.
+   Logical properties, gap and the theme's tokens; a physical property only where the old class was physical on purpose. */
+@layer utilities {
+  /* Space between the children, as the old space-y-* did it (the same margins at zero specificity, so a child's own margin rule still wins).
+     mo-editor-gapped keeps its gap; mo-editor-rhythm also takes the person's density step (src/editor-density.css, the rule after this layer). */
+  :where(.mo-editor-gapped-25 > :not(:last-child)) {
+    margin-block: 0 var(--mo-ref-space-25);
+  }
+  :where(.mo-editor-gapped-100 > :not(:last-child)) {
+    margin-block: 0 var(--mo-ref-space-100);
+  }
+  :where(.mo-editor-rhythm-150 > :not(:last-child)) {
+    margin-block: 0 var(--mo-ref-space-150);
+  }
+  :where(.mo-editor-rhythm-200 > :not(:last-child)) {
+    margin-block: 0 var(--mo-ref-space-200);
+  }
+  :where(.mo-editor-rhythm-250 > :not(:last-child)) {
+    margin-block: 0 var(--mo-ref-space-250);
+  }
+  :where(.mo-editor-rhythm-300 > :not(:last-child)) {
+    margin-block: 0 var(--mo-ref-space-300);
+  }
+
+  /* The focus ring of a control that has no outline: two dp of the primary colour, on a light gap where the old ring-offset was used. */
+  :is(.mo-editor-drag-field, .mo-editor-color-button):focus-visible {
+    box-shadow:
+      0 0 0 2px #fff,
+      0 0 0 4px var(--mo-sys-color-primary);
+    outline-style: none;
+  }
+  :is(.mo-editor-fold-toggle, .mo-editor-section-list-link):focus-visible {
+    box-shadow: 0 0 0 2px var(--mo-sys-color-primary);
+    outline-style: none;
+  }
+  .mo-editor-focus-quiet:focus,
+  .mo-editor-focus-quiet-visible:focus-visible {
+    outline-style: none;
+  }
+
+  /* A grid's children may shrink below their content (the theme's base rule for .grid, which the old markup used). */
+  :is(
+      .mo-editor-date-time-field,
+      .mo-editor-swatch-grid,
+      .mo-editor-icon-picker-grid,
+      .mo-editor-choice-cards,
+      .mo-editor-colors-preview-pair,
+      .mo-editor-color-tiles,
+      .mo-editor-score-ring-value,
+      .mo-editor-score-ring-value-large
+    )
+    > * {
+    min-inline-size: 0;
+  }
+
+  /* Text, field labels and hints. */
+  .mo-editor-muted-text {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-accent-text {
+    color: var(--mo-sys-color-primary);
+  }
+  .mo-editor-field-label {
+    margin-block-end: var(--mo-ref-space-50);
+    font-weight: 500;
+  }
+  .mo-editor-field-label-block {
+    display: block;
+  }
+  .mo-editor-field-hint {
+    display: block;
+    margin-block-end: var(--mo-ref-space-100);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-supporting-text {
+    display: block;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-field-problem {
+    margin-block-start: var(--mo-ref-space-50);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-primary);
+  }
+  .mo-editor-field-count {
+    margin-block-start: var(--mo-ref-space-50);
+    text-align: right;
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+  }
+  .mo-editor-field-group-title {
+    font-weight: 600;
+  }
+  .mo-editor-search-field {
+    min-inline-size: 0;
+  }
+  .mo-editor-search-fill {
+    flex: 1;
+  }
+  .mo-editor-search-row {
+    display: flex;
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-choice-row {
+    --mo-comp-row-gap: var(--mo-ref-space-150);
+  }
+  .mo-editor-push-end {
+    margin-inline-start: auto;
+  }
+  .mo-editor-invisible {
+    visibility: hidden;
+  }
+  .mo-editor-arrow-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mo-ref-space-50);
+    font-weight: 500;
+  }
+  @media (hover: hover) {
+    .mo-editor-arrow-link:hover {
+      text-decoration-line: underline;
+    }
+  }
+
+  /* Notice, empty note, problem note. */
+  .mo-editor-notice-closable {
+    position: relative;
+    padding-inline-end: var(--mo-ref-space-700);
+  }
+  .mo-editor-notice-title {
+    font-weight: 500;
+    color: var(--mo-sys-color-primary);
+  }
+  .mo-editor-notice-text {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+  }
+  .mo-editor-close-button {
+    position: absolute;
+    inset-inline-end: var(--mo-ref-space-50);
+    inset-block-start: var(--mo-ref-space-50);
+  }
+  .mo-editor-list-empty {
+    padding-block: var(--mo-comp-editor-rhythm-300);
+    padding-inline: var(--mo-ref-space-200);
+    text-align: center;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-problem-note {
+    overflow-wrap: break-word;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-primary);
+  }
+  .mo-editor-loading {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-icon-placeholder {
+    display: block;
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+  }
+
+  /* The date and time field, the colour field and the colour sheet. */
+  .mo-editor-date-time-field {
+    display: grid;
+    gap: var(--mo-ref-space-150);
+  }
+  @media (width >= 37.5rem) {
+    .mo-editor-date-time-field {
+      grid-template-columns: 1fr auto;
+    }
+  }
+  /* The edge of a swatch: grey, so a light and a dark colour both show on a light and a dark sheet. */
+  .mo-editor-swatch-edge {
+    border: 1px solid rgb(128 128 128 / 0.45);
+  }
+  .mo-editor-hex-input {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  }
+  .mo-editor-drag-field {
+    touch-action: none;
+  }
+  .mo-editor-drag-free {
+    touch-action: none;
+  }
+  .mo-editor-drag-thumb {
+    pointer-events: none;
+    position: absolute;
+    translate: -50% -50%;
+    border-radius: var(--mo-sys-shape-corner-full);
+    border: 3px solid #fff;
+    box-shadow:
+      0 0 0 1px rgb(0 0 0 / 0.3),
+      0 2px 6px rgb(0 0 0 / 0.3);
+  }
+  .mo-editor-shade-field {
+    position: relative;
+    block-size: 12rem;
+    border-radius: var(--mo-sys-block-radius);
+  }
+  .mo-editor-shade-thumb {
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+  }
+  .mo-editor-hue-field {
+    position: relative;
+    margin-inline: var(--mo-ref-space-200);
+    block-size: 2rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+  }
+  .mo-editor-hue-thumb {
+    inset-block-start: 50%;
+    inline-size: 2rem;
+    block-size: 2rem;
+  }
+  .mo-editor-color-row {
+    --mo-comp-row-gap: var(--mo-ref-space-150);
+  }
+  .mo-editor-color-compare {
+    display: flex;
+    block-size: 2.75rem;
+    inline-size: 6rem;
+    overflow: hidden;
+    border-radius: var(--mo-sys-block-radius-small);
+  }
+  .mo-editor-color-compare-half {
+    flex: 1;
+  }
+  .mo-editor-swatches-title {
+    margin-block-end: var(--mo-ref-space-100);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-swatch-grid {
+    --mo-comp-grid-columns: 6;
+    --mo-comp-grid-gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-swatch {
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+  }
+  .mo-editor-color-button {
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    flex-shrink: 0;
+    border-radius: var(--mo-sys-shape-corner-full);
+    transition-property: transform, translate, scale, rotate;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  @media (hover: hover) {
+    .mo-editor-color-button:hover {
+      scale: 105%;
+    }
+  }
+  .mo-editor-wheel {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    inline-size: 100%;
+    max-inline-size: 18rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+  }
+  .mo-editor-wheel-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mo-editor-wheel-dot-small {
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+  }
+  .mo-editor-wheel-dot-large {
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+  }
+  .mo-editor-wheel-dot-focus:focus-visible {
+    box-shadow:
+      0 0 0 2px #fff,
+      0 0 0 4px var(--mo-sys-color-primary),
+      0 0 0 1px rgb(0 0 0 / 0.3),
+      0 2px 6px rgb(0 0 0 / 0.3);
+    outline-style: none;
+  }
+  .mo-editor-color-dots {
+    display: flex;
+    gap: var(--mo-ref-space-75);
+  }
+  .mo-editor-color-dot {
+    inline-size: 1.5rem;
+    block-size: 1.5rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+    border: 1px solid var(--mo-sys-color-outline-variant);
+  }
+  .mo-editor-icon-dots {
+    display: flex;
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-color-tiles {
+    display: grid;
+    overflow: hidden;
+    border-radius: var(--mo-sys-block-radius);
+  }
+  .mo-editor-color-tile {
+    --mo-comp-stack-gap: var(--mo-ref-space-50);
+    min-inline-size: 0;
+    padding: var(--mo-ref-space-150);
+  }
+  .mo-editor-color-tile-name {
+    display: block;
+    overflow-wrap: break-word;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+  }
+  .mo-editor-color-tile-value {
+    display: block;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    text-transform: uppercase;
+  }
+  .mo-editor-color-tile-actions {
+    display: flex;
+    margin-block-start: auto;
+    margin-inline-start: calc(var(--mo-ref-space-100) * -1);
+  }
+
+  /* The preview of a colour scheme (ColorsPreview). */
+  .mo-editor-colors-preview {
+    border-radius: var(--mo-sys-shape-corner-large);
+    border: 1px solid var(--mo-sys-color-outline-variant);
+    background-color: var(--mo-sys-color-surface);
+    padding: var(--mo-ref-space-200);
+    color: var(--mo-sys-color-on-surface);
+  }
+  .mo-editor-colors-preview-heading {
+    font-weight: 500;
+  }
+  .mo-editor-colors-preview-hint {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-colors-preview-text {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+  }
+  .mo-editor-colors-preview-card {
+    border-radius: var(--mo-sys-shape-corner-medium);
+    border: 1px solid var(--mo-sys-color-outline-variant);
+    background-color: var(--mo-sys-color-surface-container-lowest);
+    padding: var(--mo-ref-space-150);
+  }
+  .mo-editor-colors-preview-box,
+  .mo-editor-colors-preview-secondary,
+  .mo-editor-colors-preview-tertiary {
+    border-radius: var(--mo-sys-shape-corner-small);
+    padding-inline: var(--mo-ref-space-150);
+    padding-block: var(--mo-ref-space-100);
+  }
+  .mo-editor-colors-preview-box {
+    background-color: var(--mo-sys-color-surface-container-high);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+    color: var(--mo-sys-color-primary);
+  }
+  .mo-editor-colors-preview-pair {
+    --mo-comp-grid-columns: 2;
+    --mo-comp-grid-gap: var(--mo-ref-space-100);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+  }
+  .mo-editor-colors-preview-secondary {
+    background-color: var(--mo-sys-color-secondary-container);
+    color: var(--mo-sys-color-on-secondary-container);
+  }
+  .mo-editor-colors-preview-tertiary {
+    background-color: var(--mo-sys-color-tertiary-container);
+    color: var(--mo-sys-color-on-tertiary-container);
+  }
+  .mo-editor-block-preview {
+    border: 1.5px dashed var(--mo-sys-color-outline-variant);
+    padding: var(--mo-ref-space-100);
+  }
+
+  /* The icon picker, the image pick, a fold of the form (FoldItem) and the chips. */
+  .mo-editor-icon-picker-panel,
+  .mo-editor-icon-picker-search,
+  .mo-editor-icon-picker-grid,
+  .mo-editor-icon-picker-more,
+  .mo-editor-icon-picker-status {
+    margin-block-start: var(--mo-comp-editor-rhythm-150);
+  }
+  .mo-editor-icon-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr));
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-icon-picker-more {
+    display: flex;
+    justify-content: center;
+  }
+  .mo-editor-icon-picker-status {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-image-pick {
+    --mo-comp-row-gap: var(--mo-ref-space-200);
+  }
+  .mo-editor-image-pick-thumb {
+    inline-size: 5rem;
+    block-size: 5rem;
+    border-radius: var(--mo-sys-block-radius);
+    object-fit: cover;
+  }
+  .mo-editor-fold-arrow,
+  .mo-editor-section-arrow {
+    color: var(--mo-sys-color-on-surface-variant);
+    transition-property: transform, translate, scale, rotate;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mo-editor-section-arrow {
+      transition-property: none;
+    }
+  }
+  .mo-editor-fold-arrow-open {
+    rotate: 90deg;
+  }
+  .mo-editor-arrow-flipped {
+    rotate: 180deg;
+  }
+  .mo-editor-fold-tools {
+    display: flex;
+    padding-inline-end: var(--mo-ref-space-75);
+  }
+  .mo-editor-fold-body {
+    padding-inline: var(--mo-ref-space-200);
+    padding-block-start: var(--mo-ref-space-50);
+    padding-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+  .mo-editor-sheet-chips,
+  .mo-editor-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-sheet-chips {
+    margin-inline: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-100);
+  }
+  .mo-editor-sheet-search {
+    margin-inline: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-100);
+  }
+  .mo-editor-choice-tile-image {
+    aspect-ratio: 1 / 1;
+    block-size: auto;
+    inline-size: 100%;
+  }
+  .mo-editor-choice-hint {
+    margin-block-end: var(--mo-ref-space-100);
+  }
+  .mo-editor-choice-cards {
+    --mo-comp-grid-columns: 4;
+    --mo-comp-grid-gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-choice-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--mo-ref-space-100);
+    padding-inline: var(--mo-ref-space-150);
+    padding-block: var(--mo-comp-editor-rhythm-200);
+    text-align: center;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  .mo-editor-choice-card:has(*:focus-visible) {
+    outline: 2px solid var(--mo-sys-color-primary);
+    outline-offset: 2px;
+  }
+  .mo-editor-choice-card-disabled {
+    cursor: default;
+    opacity: 50%;
+  }
+  .mo-editor-choice-card-chosen {
+    cursor: pointer;
+    color: var(--mo-sys-color-on-secondary-container);
+    --mo-comp-outlined-card-container-color: var(--mo-sys-color-secondary-container);
+  }
+  .mo-editor-choice-card-idle {
+    cursor: pointer;
+  }
+  @media (hover: hover) {
+    .mo-editor-choice-card-idle:hover {
+      --mo-comp-outlined-card-container-color: var(--mo-sys-color-surface-container-high);
+    }
+  }
+  .mo-editor-choice-card-check {
+    position: absolute;
+    inset-block-start: var(--mo-ref-space-100);
+    inset-inline-end: var(--mo-ref-space-100);
+    color: var(--mo-sys-color-primary);
+  }
+
+  /* Lists and rows. */
+  .mo-editor-sub-list {
+    margin-inline-start: var(--mo-ref-space-250);
+    border: 0 solid var(--mo-sys-color-outline-variant);
+    border-inline-start-width: 1px;
+  }
+  .mo-editor-row-delete {
+    justify-content: center;
+    text-align: center;
+    font-weight: 500;
+    color: var(--mo-sys-color-error);
+  }
+  .mo-editor-row-sub {
+    color: color-mix(in oklab, var(--mo-sys-color-on-surface) 80%, transparent);
+  }
+  .mo-editor-menu-full {
+    inline-size: 100%;
+    max-inline-size: none;
+  }
+  .mo-editor-choice-detail {
+    display: flex;
+    gap: var(--mo-ref-space-150);
+  }
+  .mo-editor-choice-detail-value {
+    font-variant-numeric: tabular-nums;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-choice-sublist {
+    padding-inline-start: var(--mo-ref-space-150);
+  }
+  .mo-editor-trailing-text {
+    min-inline-size: 0;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-placeholder-value {
+    opacity: 60%;
+  }
+  .mo-editor-phone-row {
+    display: flex;
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-phone-code {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Sheets: the body, a list in a sheet, a group's title, its links and its actions. */
+  .mo-editor-sheet-body {
+    min-block-size: 0;
+    flex: 1;
+    overflow-y: auto;
+    padding-inline: var(--mo-sys-grid-margin);
+    padding-block-start: var(--mo-ref-space-100);
+    padding-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+  .mo-editor-sheet-list {
+    min-block-size: 0;
+    flex: 1;
+    overflow-y: auto;
+    padding-inline: var(--mo-ref-space-100);
+    padding-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+  .mo-editor-sheet-group-title {
+    padding-inline: var(--mo-ref-space-150);
+    padding-block-start: var(--mo-comp-editor-rhythm-200);
+    padding-block-end: var(--mo-ref-space-50);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-sheet-link {
+    padding-block: var(--mo-ref-space-100);
+    padding-inline: var(--mo-ref-space-100);
+  }
+  .mo-editor-sheet-actions {
+    padding-inline: var(--mo-sys-grid-margin);
+    padding-block: var(--mo-comp-editor-rhythm-150);
+  }
+  .mo-editor-sheet-footer {
+    padding-inline: var(--mo-ref-space-250);
+    padding-block: var(--mo-comp-editor-rhythm-150);
+  }
+  .mo-editor-sheet-handle {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  @media (width >= 37.5rem) {
+    .mo-editor-sheet-handle {
+      touch-action: auto;
+      -webkit-user-select: auto;
+      user-select: auto;
+    }
+  }
+  @media (width < 37.5rem) {
+    .mo-editor-sheet-phone {
+      margin-block: 0;
+    }
+  }
+  .mo-editor-dialog-padding {
+    padding: var(--mo-ref-space-300);
+  }
+  .mo-editor-group-title {
+    margin-block-end: var(--mo-ref-space-100);
+    padding-inline: var(--mo-ref-space-200);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-form-heading {
+    padding-block-start: var(--mo-comp-editor-rhythm-200);
+    font-weight: 600;
+  }
+  .mo-editor-form-heading-first {
+    padding-block-start: var(--mo-ref-space-200);
+  }
+  @media (width >= 75rem) {
+    .mo-editor-form-heading-first {
+      padding-block-start: 0;
+    }
+  }
+
+  /* A section of a page (FoldSection) and the checks (CheckList, ScoreRing). */
+  .mo-editor-fold-section {
+    scroll-margin-block-start: calc(5rem + env(safe-area-inset-top));
+    border: 0 solid var(--mo-sys-color-outline-variant);
+    border-block-end-width: 1px;
+  }
+  .mo-editor-fold-section:has(+ [data-fold-section]) {
+    margin-block-end: 0;
+  }
+  [data-fold-section] + .mo-editor-fold-section {
+    margin-block-start: 0;
+  }
+  .mo-editor-fold-title {
+    display: flex;
+    min-block-size: 3.5rem;
+    align-items: center;
+    padding-block: 1.125rem;
+    font-weight: 600;
+  }
+  .mo-editor-fold-title-text {
+    text-box: trim-both cap alphabetic;
+  }
+  .mo-editor-fold-toggle {
+    margin-inline: calc(var(--mo-ref-space-150) * -1);
+    display: flex;
+    inline-size: calc(100% + 1.5rem);
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+    border-radius: var(--mo-sys-block-radius-small);
+    padding-inline: var(--mo-ref-space-150);
+    padding-block: 1.125rem;
+    text-align: left;
+    font-weight: 600;
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  @media (hover: hover) {
+    .mo-editor-fold-toggle:hover {
+      background-color: var(--mo-sys-color-surface-container-high);
+    }
+  }
+  .mo-editor-section-body {
+    padding-block-start: var(--mo-ref-space-100);
+    padding-block-end: var(--mo-comp-editor-rhythm-400);
+  }
+  .mo-editor-section {
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+  }
+  .mo-editor-check-good-fill {
+    fill: var(--mo-comp-editor-status-good-surface);
+  }
+  .mo-editor-check-good-stroke {
+    stroke: var(--mo-comp-editor-status-good);
+  }
+  .mo-editor-check-good-text {
+    color: var(--mo-comp-editor-status-good-text);
+  }
+  .mo-editor-check-average-fill {
+    fill: var(--mo-comp-editor-status-average-surface);
+  }
+  .mo-editor-check-average-stroke {
+    stroke: var(--mo-comp-editor-status-average);
+  }
+  .mo-editor-check-average-text {
+    color: var(--mo-comp-editor-status-average-text);
+  }
+  .mo-editor-check-bad-fill {
+    fill: var(--mo-comp-editor-status-bad-surface);
+  }
+  .mo-editor-check-bad-stroke {
+    stroke: var(--mo-comp-editor-status-bad);
+  }
+  .mo-editor-check-bad-text {
+    color: var(--mo-comp-editor-status-bad-text);
+  }
+  .mo-editor-check-good-dot {
+    margin-inline: var(--mo-ref-space-25);
+    inline-size: 0.75rem;
+    block-size: 0.75rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+    background-color: var(--mo-comp-editor-status-good);
+  }
+  .mo-editor-check-bad-mark {
+    inline-size: 1rem;
+    block-size: 1rem;
+    fill: var(--mo-comp-editor-status-bad);
+  }
+  .mo-editor-check-fix {
+    padding-inline: var(--mo-ref-space-200);
+    padding-inline-start: 2.75rem;
+    padding-block-end: var(--mo-comp-editor-rhythm-150);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-score {
+    --mo-comp-stack-gap: var(--mo-ref-space-150);
+    row-gap: var(--mo-comp-editor-rhythm-150);
+    align-items: center;
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+  }
+  .mo-editor-score-ring {
+    position: relative;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+  }
+  .mo-editor-score-ring-large {
+    position: relative;
+    inline-size: 7rem;
+    block-size: 7rem;
+  }
+  .mo-editor-score-ring-svg {
+    inline-size: 100%;
+    block-size: 100%;
+    rotate: -90deg;
+  }
+  .mo-editor-score-ring-value,
+  .mo-editor-score-ring-value-large {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .mo-editor-score-ring-value {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: 500;
+  }
+  .mo-editor-score-arc {
+    transition-property: stroke-dasharray;
+    transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    transition-duration: 1200ms;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mo-editor-score-arc {
+      transition-property: none;
+    }
+  }
+  .mo-editor-score-arc-hidden {
+    opacity: 0%;
+  }
+  .mo-editor-score-title {
+    font-weight: 500;
+  }
+
+  /* The share preview, the carousel and the lightbox. */
+  .mo-editor-share-preview {
+    max-inline-size: 500px;
+    overflow: hidden;
+    padding: 0;
+  }
+  .mo-editor-share-preview-image {
+    aspect-ratio: 1.91 / 1;
+    inline-size: 100%;
+    background-color: color-mix(in oklab, var(--mo-sys-color-outline-variant) 50%, transparent);
+    object-fit: cover;
+  }
+  .mo-editor-share-preview-image-tall {
+    object-position: 50% 20%;
+  }
+  .mo-editor-share-preview-text {
+    border: 0 solid var(--mo-sys-color-outline-variant);
+    border-block-start-width: 1px;
+    padding-inline: var(--mo-ref-space-200);
+    padding-block: var(--mo-comp-editor-rhythm-150);
+  }
+  .mo-editor-share-preview-domain {
+    display: block;
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+    letter-spacing: calc(var(--mo-sys-typescale-body-small-size) * 0.025);
+    text-transform: uppercase;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-share-preview-title {
+    font-weight: 600;
+  }
+  .mo-editor-share-preview-description {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-carousel-tile {
+    display: block;
+    aspect-ratio: 3 / 4;
+    inline-size: 100%;
+    overflow: hidden;
+    border: 1px solid var(--mo-sys-color-outline-variant);
+    background-color: var(--mo-sys-color-surface-container-lowest);
+  }
+  .mo-editor-carousel-image {
+    inline-size: 100%;
+    block-size: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+  .mo-editor-lightbox-image {
+    margin-inline: auto;
+    inline-size: 100%;
+    max-inline-size: 24rem;
+    border: 1px solid var(--mo-sys-color-outline-variant);
+  }
+  .mo-editor-block-preview-frame {
+    position: relative;
+    min-block-size: 0;
+    flex: 1;
+    overflow: hidden;
+    border: 0 solid var(--mo-sys-color-outline-variant);
+    border-block-start-width: 1px;
+    background-color: color-mix(in oklab, var(--mo-sys-color-outline-variant) 40%, transparent);
+  }
+  /* The block's page is drawn on white, as the site draws it. */
+  .mo-editor-block-preview-iframe {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform-origin: top;
+    border: 0 solid;
+    background-color: #fff;
+  }
+
+  /* The screen (Screen.tsx's columns), the side sheet beside it and the section list. */
+  .mo-editor-screen-layout {
+    --mo-comp-stack-gap: var(--mo-ref-space-300);
+    row-gap: var(--mo-comp-editor-rhythm-300);
+  }
+  .mo-editor-screen-primary {
+    min-inline-size: 0;
+  }
+  @media (width >= 75rem) {
+    .mo-editor-screen-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 22rem;
+      grid-template-rows: auto 1fr;
+      align-items: flex-start;
+      column-gap: 2rem;
+    }
+    .mo-editor-screen-column {
+      grid-column-start: 2;
+    }
+    .mo-editor-screen-column-sticky {
+      position: sticky;
+      top: 2rem;
+    }
+    .mo-editor-screen-primary {
+      grid-column-start: 1;
+      grid-row: span 2 / span 2;
+      grid-row-start: 1;
+    }
+    .mo-editor-screen-row-first {
+      grid-row-start: 1;
+    }
+    .mo-editor-screen-row-second {
+      grid-row-start: 2;
+    }
+    .mo-editor-screen-row-span {
+      grid-row: span 2 / span 2;
+      grid-row-start: 1;
+    }
+  }
+  .mo-editor-selection-pane {
+    position: sticky;
+    top: 2rem;
+    max-block-size: calc(100dvh - 3rem);
+    align-self: flex-start;
+  }
+  .mo-editor-section-list {
+    --mo-comp-stack-gap: var(--mo-ref-space-50);
+    margin: 0;
+    list-style-type: none;
+    padding: 0;
+  }
+  .mo-editor-section-list-link {
+    inline-size: 100%;
+    border-radius: var(--mo-sys-block-radius-small);
+    padding-inline: var(--mo-ref-space-100);
+    padding-block: var(--mo-ref-space-100);
+    text-align: start;
+    color: var(--mo-sys-color-on-surface-variant);
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+  }
+  @media (hover: hover) {
+    .mo-editor-section-list-link:hover {
+      color: var(--mo-sys-color-on-surface);
+    }
+  }
+  .mo-editor-section-list-link[aria-current='location'] {
+    color: var(--mo-sys-color-primary);
+  }
+  .mo-editor-section-list-label {
+    min-inline-size: 0;
+  }
+  .mo-editor-section-pane-card {
+    max-block-size: calc(100dvh - 2 * var(--mo-sys-section-pane-gap));
+    overflow-y: auto;
+  }
+  .mo-editor-section-pane-caption {
+    margin: 0;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-section-pane-title {
+    margin: 0;
+    margin-block-end: var(--mo-ref-space-150);
+    color: var(--mo-sys-color-on-surface);
+  }
+  .mo-editor-section-pane {
+    display: none;
+  }
+  @media (width >= 75rem) {
+    .mo-editor-section-pane {
+      position: absolute;
+      inset-block: 0;
+      inset-inline-end: 0;
+      z-index: 10;
+      display: block;
+      inline-size: var(--mo-sys-section-pane-width);
+      padding-inline-end: var(--mo-sys-section-pane-gap);
+    }
+    .mo-editor-section-pane-inner {
+      position: sticky;
+      top: var(--mo-sys-section-pane-gap);
+      margin-block-start: var(--mo-sys-section-pane-gap);
+    }
+  }
+
+  /* The main menu: the rail's frame, the drawer's frame and panel. */
+  .mo-editor-main-rail-frame {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    block-size: 100dvh;
+    flex-shrink: 0;
+    align-self: flex-start;
+    background-color: var(--mo-comp-navigation-rail-surface, var(--mo-sys-color-surface));
+    padding-block-start: env(safe-area-inset-top);
+  }
+  .mo-editor-main-rail {
+    block-size: 100%;
+  }
+  .mo-editor-main-rail [class~='mo-navigation-rail__items'] {
+    flex: 1;
+  }
+  .mo-editor-main-footer {
+    margin-block-start: auto;
+  }
+  .mo-editor-main-drawer-header {
+    display: flex;
+    min-block-size: var(--mo-comp-top-app-bar-height, 4rem);
+    align-items: center;
+    gap: var(--mo-ref-space-50);
+    padding: var(--mo-comp-navigation-drawer-item-padding, 0 1rem);
+    padding-block: 0;
+    padding-inline-start: 0;
+  }
+  .mo-editor-main-drawer-close {
+    margin-inline-end: calc((var(--mo-comp-icon-button-width) - 1.5rem) / 2 * -1);
+  }
+  .mo-editor-main-drawer-header-divider {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+  .mo-editor-main-drawer-divider {
+    margin-block: var(--mo-ref-space-200);
+  }
+  .mo-editor-main-drawer-nav {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+  .mo-editor-main-drawer-frame {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    block-size: 100dvh;
+    flex-shrink: 0;
+    align-self: flex-start;
+    overflow-y: auto;
+  }
+  .mo-editor-main-drawer-panel {
+    padding-block-start: env(safe-area-inset-top);
+  }
+  .mo-editor-main-drawer-panel-full {
+    min-block-size: 100%;
+  }
+  .mo-editor-app-bar-inset {
+    padding-block-start: env(safe-area-inset-top);
+  }
+
+  /* A design token's sample (Developer › Parts). */
+  .mo-editor-token-image {
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    border-radius: var(--mo-sys-block-radius-small);
+    background-color: var(--mo-sys-color-surface-container-high);
+    object-fit: cover;
+  }
+  .mo-editor-token-sample {
+    display: flex;
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    align-items: center;
+    justify-content: center;
+  }
+  .mo-editor-token-shape {
+    inline-size: 2.5rem;
+    block-size: 2.5rem;
+    border: 0 solid var(--mo-sys-color-primary);
+    border-block-start-width: 2px;
+    border-inline-start-width: 2px;
+    background-color: var(--mo-sys-color-surface-container-high);
+  }
+  .mo-editor-token-elevation {
+    inline-size: 2rem;
+    block-size: 2rem;
+    border-radius: var(--mo-sys-block-radius);
+    background-color: var(--mo-sys-color-surface-container-lowest);
+  }
+  .mo-editor-token-font {
+    font-size: 150%;
+    line-height: 1;
+  }
+  .mo-editor-token-color {
+    inline-size: 2rem;
+    block-size: 2rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+    border: 1px solid var(--mo-sys-color-outline-variant);
+  }
+}
+
+/* The vertical rhythm follows the person's density step (the tokens of src/editor-density.css): a gap of
+   12 px or more between stacked parts takes the step, and a child with a margin of its own keeps it. Not in the layer, as the old rules were.
+   The classes at the end of the list keep a margin of their own and are left out. */
+.mo-editor-rhythm-150
+  > :not(
+    :last-child,
+    :has(+ [data-fold-section]),
+    .mo-editor-field-label,
+    .mo-editor-field-hint,
+    .mo-editor-swatches-title,
+    .mo-editor-sheet-chips,
+    .mo-editor-sheet-search,
+    .mo-editor-choice-hint,
+    .mo-editor-section,
+    .mo-editor-score,
+    .mo-editor-main-drawer-header-divider,
+    .mo-editor-main-drawer-divider,
+    .mo-editor-sheet-phone,
+    .mo-editor-group-title,
+    .mo-editor-section-list,
+    .mo-editor-section-pane-caption,
+    .mo-editor-section-pane-title
+  ) {
+  margin-block-end: var(--mo-comp-editor-rhythm-150);
+}
+.mo-editor-rhythm-200
+  > :not(
+    :last-child,
+    :has(+ [data-fold-section]),
+    .mo-editor-field-label,
+    .mo-editor-field-hint,
+    .mo-editor-swatches-title,
+    .mo-editor-sheet-chips,
+    .mo-editor-sheet-search,
+    .mo-editor-choice-hint,
+    .mo-editor-section,
+    .mo-editor-score,
+    .mo-editor-main-drawer-header-divider,
+    .mo-editor-main-drawer-divider,
+    .mo-editor-sheet-phone,
+    .mo-editor-group-title,
+    .mo-editor-section-list,
+    .mo-editor-section-pane-caption,
+    .mo-editor-section-pane-title
+  ) {
+  margin-block-end: var(--mo-comp-editor-rhythm-200);
+}
+.mo-editor-rhythm-250
+  > :not(
+    :last-child,
+    :has(+ [data-fold-section]),
+    .mo-editor-field-label,
+    .mo-editor-field-hint,
+    .mo-editor-swatches-title,
+    .mo-editor-sheet-chips,
+    .mo-editor-sheet-search,
+    .mo-editor-choice-hint,
+    .mo-editor-section,
+    .mo-editor-score,
+    .mo-editor-main-drawer-header-divider,
+    .mo-editor-main-drawer-divider,
+    .mo-editor-sheet-phone,
+    .mo-editor-group-title,
+    .mo-editor-section-list,
+    .mo-editor-section-pane-caption,
+    .mo-editor-section-pane-title
+  ) {
+  margin-block-end: var(--mo-comp-editor-rhythm-250);
+}
+.mo-editor-rhythm-300
+  > :not(
+    :last-child,
+    :has(+ [data-fold-section]),
+    .mo-editor-field-label,
+    .mo-editor-field-hint,
+    .mo-editor-swatches-title,
+    .mo-editor-sheet-chips,
+    .mo-editor-sheet-search,
+    .mo-editor-choice-hint,
+    .mo-editor-section,
+    .mo-editor-score,
+    .mo-editor-main-drawer-header-divider,
+    .mo-editor-main-drawer-divider,
+    .mo-editor-sheet-phone,
+    .mo-editor-group-title,
+    .mo-editor-section-list,
+    .mo-editor-section-pane-caption,
+    .mo-editor-section-pane-title
+  ) {
+  margin-block-end: var(--mo-comp-editor-rhythm-300);
+}

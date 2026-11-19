@@ -1,6 +1,6 @@
 // The Worker takes the CMS's new versions by itself: once a day, at night in the site's own time zone (dailyCheck, run by the hourly
 // cron: NIGHT_HOUR and checkDue in lib/cms-version.mjs), it asks npm for the newest @morphemecms/cms, commits the new exact
-// version in package.json and package-lock.json, and each minute watches the commit's check run, undoing a version that did not build.
+// version in package.json and package-lock.json (and, for the version that reads only the new class names, 0.19.0, the `class` attributes of every content collection and data file, in the same commit), and each minute watches the commit's check run, undoing a version that did not build.
 // Exposes RUNNING, dailyCheck, checkForUpdate, startUpdate, watchUpdate, cmsStatus and handleCms (/api/cms, and GET /api/cms/note-image/<version>/<locale>/<id>,
 // behind the same login check). Needs GITHUB_PUBLISH_TOKEN and the KV binding PUSH. Keeps each new version's changelog text and release
 // notes (en-US, da-DK) as cms:notes:<version> and each paragraph's screenshot as cms:note-image:<version>:<locale>:<id>; cmsStatus returns
@@ -11,6 +11,7 @@ import { cms as cmsEn } from '../src/i18n/en-US/cms';
 import { cms as cmsDa } from '../src/i18n/da-DK/cms';
 import { withCiBuild } from '../lib/build-command.mjs';
 import { addToLock, NeedsNpm } from '../lib/lockfile.mjs';
+import { CLASS_NAMES_SINCE, holdsMarkdown, migrateClassNamesPath, revertClassNamesPath } from '../lib/content-class-names.mjs';
 import { contractHold, parseContracts } from '../lib/contractHold.mjs';
 import { checkDue, compareVersions, managedVersion, nextVersion, PACKAGE, siteZone, watchStep } from '../lib/cms-version.mjs';
 import { withInstallDefaults } from '../lib/npmrc.mjs';
@@ -18,7 +19,7 @@ import { fileFromTar, gunzip, sectionsBetween } from '../lib/changelog.mjs';
 import { imageKey, notesFromTar, parseImagePath, withImageUrls } from '../lib/releaseNotes.mjs';
 import pkg from '../package.json';
 import { GitHubError } from './files.js';
-import { commitFiles, readFiles, readStoreItems } from './github.js';
+import { commitFiles, readFiles, readFolder, readStoreItems } from './github.js';
 import { json } from './not-found.js';
 import { notifyAll } from './push.js';
 import { releaseFor } from './store.js';
@@ -35,8 +36,12 @@ const NPM = 'https://registry.npmjs.org';
 const NPM_NAME = '@morphemecms%2fcms';
 const BUILD_APP = 'cloudflare-workers-and-pages';
 
+// Every place the editor stores markdown: each content collection (entry bodies and front matter) and the data files (globals, block templates, rich-text props).
+const CONTENT = ['src/content', 'src/data'];
+
 const defaultDeps = {
   readFiles,
+  readFolder,
   readStoreItems,
   storeRelease: releaseFor,
   commitFiles,
@@ -99,6 +104,21 @@ async function filesFor(env, deps, site, version, withExtras = true) {
   return changes;
 }
 
+/** The site's content files (.md, .json) whose class names `change(path, text)` rewrites, as changes for the same
+ * commit as the version: only the files that change. `only`: the paths to look at (the undo), else every file. Nothing for a site without the folders. */
+async function contentChanges(env, deps, change, only) {
+  const changes = [];
+  for (const folder of CONTENT) {
+    const { files } = await deps.readFolder(env, folder, 5);
+    for (const { path, text } of files) {
+      if (!holdsMarkdown(path) || (only && !only.includes(path))) continue;
+      const next = change(path, text);
+      if (next !== text) changes.push({ path, text: next });
+    }
+  }
+  return changes;
+}
+
 /** Sends the notification in both languages; its text is the English sentence. */
 async function tell(env, deps, key, version, error) {
   const text = cmsEn[key](version);
@@ -143,8 +163,21 @@ export async function startUpdate(env, version, deps = defaultDeps, now = Date.n
   const managed = managedVersion(site.packageJson, site.lock);
   if (!('version' in managed)) throw new Error('not-managed');
   const changes = await filesFor(env, deps, site, version);
-  const commit = await deps.commitFiles(env, site.head, siteTexts().commitUpdate(version), changes);
-  const update = { commit, from: managed.version, to: version, at: iso(now), state: 'waiting' };
+  // The version that reads only the new class names takes the site's content with it, in the same commit (only the `class`
+  // attributes; never a word of text), so the site never has a version and content that do not match.
+  const migrated =
+    compareVersions(version, CLASS_NAMES_SINCE) >= 0 && compareVersions(managed.version, CLASS_NAMES_SINCE) < 0
+      ? await contentChanges(env, deps, migrateClassNamesPath)
+      : [];
+  const commit = await deps.commitFiles(env, site.head, siteTexts().commitUpdate(version), [...changes, ...migrated]);
+  const update = {
+    commit,
+    from: managed.version,
+    to: version,
+    at: iso(now),
+    state: 'waiting',
+    ...(migrated.length ? { migrated: migrated.map((c) => c.path) } : {}),
+  };
   await putJson(env.PUSH, 'cms:update', update);
   return update;
 }
@@ -257,7 +290,9 @@ async function checkOf(env, deps, sha, now) {
 async function undoCommit(env, deps, update) {
   const site = await readSite(env, deps);
   const changes = await filesFor(env, deps, site, update.from, false);
-  return deps.commitFiles(env, site.head, siteTexts().commitUndo(update.to), changes);
+  // The content the update rewrote goes back with the version, as the commit's one change.
+  const content = update.migrated?.length ? await contentChanges(env, deps, revertClassNamesPath, update.migrated) : [];
+  return deps.commitFiles(env, site.head, siteTexts().commitUndo(update.to), [...changes, ...content]);
 }
 
 /** Each minute: watches the update's (or its undo's) check run. One KV read when nothing is waiting. */

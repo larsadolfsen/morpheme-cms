@@ -1,5 +1,5 @@
-// A lightbox (.lightbox in ../styles/ui/lightbox.css): an image shown bigger over the page, which Material 3 has no part for (it prints no lightbox or image
-// viewer: see docs/material-deviations.md). It is a modal <dialog> with the theme's dialog container (.dialog, with dialogModalClass, so
+// A lightbox (.mo-lightbox in ../styles/ui/lightbox.css): an image shown bigger over the page, which Material 3 has no part for (it prints no lightbox or image
+// viewer: see docs/material-deviations.md). It is a modal <dialog> with the theme's dialog container (.mo-dialog, with dialogModalClass, so
 // the dialog's scrim, focus trap, Escape and focus return are the dialog's) and its own markup: on a compact window the whole window, from
 // medium a container as large as the window less 56 dp on each side. In its header only the close button (M3: "the close X icon button should be
 // the only navigation option in the app bar"); under it the images one after the other in a horizontal track that snaps (CSS scroll-snap: a swipe, a
@@ -13,7 +13,7 @@ import { dialogClass, dialogModalClass } from '@theme/ui/Dialog';
 import IconButton from '@theme/ui/IconButton';
 
 /** The <dialog>'s classes: the dialog's modal, as the lightbox. */
-export const lightboxModalClass = `${dialogModalClass} lightbox-modal`;
+export const lightboxModalClass = `${dialogModalClass} mo-lightbox__modal`;
 
 export default function Lightbox({
   label,
@@ -32,17 +32,17 @@ export default function Lightbox({
 } & Record<string, unknown>) {
   return (
     <dialog className={[lightboxModalClass, className].filter(Boolean).join(' ')} aria-label={label} data-lightbox="" {...rest}>
-      <div className={`${dialogClass} lightbox`}>
-        <div className="lightbox-header">
+      <div className={`${dialogClass} mo-lightbox`}>
+        <div className="mo-lightbox__header">
           <IconButton icon="x" label={closeLabel} data-dialog-close="" />
         </div>
-        <div className="lightbox-content">
-          <div className="lightbox-stage">
-            <IconButton icon="caret-left" label={previousLabel} className="lightbox-previous" data-lightbox-previous="" />
-            <ul className="lightbox-track" data-lightbox-track="" tabIndex={0} aria-label={label} />
-            <IconButton icon="caret-right" label={nextLabel} className="lightbox-next" data-lightbox-next="" />
+        <div className="mo-lightbox__content">
+          <div className="mo-lightbox__stage">
+            <IconButton icon="caret-left" label={previousLabel} className="mo-lightbox__previous" data-lightbox-previous="" />
+            <ul className="mo-lightbox__track" data-lightbox-track="" tabIndex={0} aria-label={label} />
+            <IconButton icon="caret-right" label={nextLabel} className="mo-lightbox__next" data-lightbox-next="" />
           </div>
-          <p className="lightbox-count" data-lightbox-count="" aria-live="polite" />
+          <p className="mo-lightbox__count" data-lightbox-count="" aria-live="polite" />
         </div>
       </div>
     </dialog>

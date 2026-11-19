@@ -1,9 +1,9 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 :root,
-:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* The List "expand" container (the questions and answers block): 16px (Material 3 lists page). */
   --mo-comp-list-expand-container-shape: var(--mo-sys-shape-corner-large);
   /* Lists (M3 Expressive's list tokens, m3.material.io/components/lists/specs): items 56, 72 and 88px high by their lines,
@@ -56,14 +56,14 @@
 /* The List "expand" kind (ui.css) of "List - Expand" and "FAQ list". Its plain design is the rows on the page with a line between them; its
      card design has each item on its own surface container, 2px apart, 16px outer and 4px inner corners, and a state layer on the item pointed at. */
 @layer components {
-  .block-accordion {
+  .mo-block-accordion {
     --mo-comp-list-expand-surface: transparent;
     --mo-comp-list-expand-shadow: none;
     --mo-comp-list-expand-padding-block: 1rem;
   }
 }
 @layer components {
-  .block-accordion-segmented {
+  .mo-block-accordion__segmented {
     --mo-comp-list-expand-gap: 0.125rem;
     --mo-comp-list-expand-item-surface: var(--mo-sys-color-surface-container);
     --mo-comp-list-expand-item-radius: var(--mo-sys-shape-corner-extra-small);

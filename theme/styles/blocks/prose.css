@@ -1,20 +1,20 @@
 /*
   The prose rules of the blocks and the text, all in the fallback layer (a theme's own unlayered rules win over them, whatever their specificity): the
-  Steps heading's margin in the text (.prose .block-step-title), "Video" before it is played (.video-facade and the still), the head of a block
-  (.block-head), the text's label and body sizes (.prose .label-medium, .body-large …), the task list, the accent and muted colours, the text
-  alignment, and the first and last parts of a coloured section (.text-section > :first-child, :last-child). Moved here from blocks.css with the
+  Steps heading's margin in the text (.mo-prose .mo-block-steps__step-title), "Video" before it is played (.mo-block-video__facade and the still), the head of a block
+  (.mo-block-head), the text's label and body sizes (.mo-prose .mo-type-label-medium, .mo-type-body-large …), the task list, the accent and muted colours, the text
+  alignment, and the first and last parts of a coloured section (.mo-text-section > :first-child, :last-child). Moved here from blocks.css with the
   rules unchanged and in the order they had (docs/superpowers/plans/2026-11-16-css-split.md); the Accordion's answer rule that sat between the
   first two groups lives in accordion.css. Imported by base.css after the block files and before lists.css, so it still comes after every other
   rule of blocks.css and before the lists' own, as the layer's rules did.
 */
 @layer fallback {
-  /* "Steps": the heading has no space above it, so the text's heading space (.prose h3, also in this layer) does not push it off the number. */
-  .prose .block-step-title {
+  /* "Steps": the heading has no space above it, so the text's heading space (.mo-prose h3, also in this layer) does not push it off the number. */
+  .mo-prose .mo-block-steps__step-title {
     margin-block: 0;
   }
   /* "Video": the video before it is played (video/, packages/editor/lib/video.mjs); the video takes its
-   place. Outside the layers, as it is a link in the text's style (.prose), whose link style it undoes. */
-  .prose .video-facade {
+   place. Outside the layers, as it is a link in the text's style (.mo-prose), whose link style it undoes. */
+  .mo-prose .mo-block-video__facade {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -30,33 +30,39 @@
     text-align: center;
     text-decoration: none;
   }
+  /* In the editor the video has no margin of the text's own (the section's spacing is the editor's: View.tsx adds mo-is-flush off the site); it was `my-0!`. */
+  .mo-prose .mo-block-video__facade.mo-is-flush {
+    margin-block: 0;
+  }
   /* A video without a still has no tint of its own in a card: the card's surface is already a tone (in a coloured section a veil), and two veils
      over each other left the title at 3.8:1. */
-  .prose :is(.block-card-video, .block-card .card-media-slot) .video-facade:not(.video-facade-still) {
+  .mo-prose
+    :is(.mo-block-cards__card-video, .mo-block-cards__card .mo-card__media-slot)
+    .mo-block-video__facade:not(.mo-block-video__facade-still) {
     background: transparent;
   }
   /* In a card the video is its media: flush against the card's top and sides (the card's wrapper clips the corners), none of the text's margin
      above or below it, which left a gap over the still. */
-  .prose :is(.block-card-video, .block-card .card-media-slot) .video-facade {
+  .mo-prose :is(.mo-block-cards__card-video, .mo-block-cards__card .mo-card__media-slot) .mo-block-video__facade {
     margin-block: 0;
     border-radius: 0;
   }
   /* The played video (the iframe that takes the link's place, Base.astro) keeps the still's box: the text's margin around an iframe and its corners
-     (.prose iframe, base.css and global.css) would make the card grow when the video starts. */
-  .prose :is(.block-card-video, .block-card .card-media-slot) iframe {
+     (.mo-prose iframe, base.css and global.css) would make the card grow when the video starts. */
+  .mo-prose :is(.mo-block-cards__card-video, .mo-block-cards__card .mo-card__media-slot) iframe {
     display: block;
     margin-block: 0;
     border-radius: 0;
   }
-  .prose .video-facade svg {
+  .mo-prose .mo-block-video__facade svg {
     color: var(--mo-sys-block-accent);
     transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
-  .prose .video-facade:hover svg {
+  .mo-prose .mo-block-video__facade:hover svg {
     transform: scale(1.08);
   }
   /* At most two lines; a longer title ends with "…" (the whole title is still the link's name). */
-  .video-facade-title {
+  .mo-block-video__facade-title {
     display: -webkit-box;
     max-width: 40ch;
     overflow: hidden;
@@ -71,7 +77,7 @@
   /* With a still from the video (packages/editor/scripts/video-thumbnails.mjs), as on YouTube: the still fills the
    box, the white play button in the middle of the box (not of the space above the title), the title
    at the bottom over a shade. */
-  .prose .video-facade-still {
+  .mo-prose .mo-block-video__facade-still {
     position: relative;
     isolation: isolate;
     overflow: hidden;
@@ -83,14 +89,14 @@
     color: #fff;
     text-align: left;
   }
-  .prose .video-facade-still::after {
+  .mo-prose .mo-block-video__facade-still::after {
     content: '';
     position: absolute;
     inset: 0;
     z-index: -1;
     background: linear-gradient(to bottom, rgb(0 0 0 / 0.15) 40%, rgb(0 0 0 / 0.75));
   }
-  .prose .video-facade-still .video-facade-image {
+  .mo-prose .mo-block-video__facade-still .mo-block-video__facade-image {
     position: absolute;
     inset: 0;
     z-index: -2;
@@ -99,14 +105,14 @@
     margin: 0;
     object-fit: cover;
   }
-  .prose .video-facade-still svg {
+  .mo-prose .mo-block-video__facade-still svg {
     position: absolute;
     inset: 0;
     margin: auto;
     color: #fff;
     filter: drop-shadow(0 2px 8px rgb(0 0 0 / 0.5));
   }
-  .video-facade-still .video-facade-title {
+  .mo-block-video__facade-still .mo-block-video__facade-title {
     font-size: var(--mo-sys-typescale-title-small-size);
     line-height: var(--mo-sys-typescale-title-small-line-height);
     font-weight: var(--mo-sys-typescale-title-small-weight);
@@ -114,12 +120,12 @@
     color: #fff;
     text-shadow: 0 1px 3px rgb(0 0 0 / 0.8);
   }
-  @media (width >= theme(--breakpoint-medium)) {
-    .prose .video-facade-still svg {
+  @media (width >= 37.5rem) {
+    .mo-prose .mo-block-video__facade-still svg {
       width: 4.5rem;
       height: 4.5rem;
     }
-    .video-facade-still .video-facade-title {
+    .mo-block-video__facade-still .mo-block-video__facade-title {
       font-size: var(--mo-sys-typescale-title-medium-size);
       line-height: var(--mo-sys-typescale-title-medium-line-height);
       font-weight: var(--mo-sys-typescale-title-medium-weight);
@@ -128,31 +134,31 @@
   }
 
   /* A block's head with a subheading under its heading (BlockHead.tsx in blocks/, an <hgroup>; only a
-   heading is the text's own <h2>, without this): the subheading larger and quiet. A label in a text is in small capitals, spaced out, in the accent. Mostly in the text's style (.prose), so outside the layers, like the video above, whose
-   margins it sets in place of the text's; a theme that places a block outside the text sets its own (.block-place in
+   heading is the text's own <h2>, without this): the subheading larger and quiet. A label in a text is in small capitals, spaced out, in the accent. Mostly in the text's style (.mo-prose), so outside the layers, like the video above, whose
+   margins it sets in place of the text's; a theme that places a block outside the text sets its own (.mo-placed-block in
    the standard theme). A label above a heading in a text has the same look. A theme gives it its own look outside the layers too (the standard theme: in the middle). */
-  .block-head {
+  .mo-block-head {
     margin-block: 2rem 1rem;
   }
-  .block-head:first-child {
+  .mo-block-head:first-child {
     margin-top: 0;
   }
-  .block-head > h2,
-  .block-head > .block-subheading {
+  .mo-block-head > h2,
+  .mo-block-head > .mo-block-head__subheading {
     margin-block: 0;
   }
-  .block-head > * + h2,
-  .block-head > * + .block-subheading {
+  .mo-block-head > * + h2,
+  .mo-block-head > * + .mo-block-head__subheading {
     margin-top: 0.75rem;
   }
-  .prose .label-medium {
+  .mo-prose .mo-type-label-medium {
     font-size: var(--mo-sys-typescale-label-medium-size);
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     font-weight: var(--mo-sys-typescale-label-medium-weight);
     letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
     color: var(--mo-sys-block-accent);
   }
-  .block-head > .block-subheading {
+  .mo-block-head > .mo-block-head__subheading {
     font-size: var(--mo-sys-typescale-title-large-size);
     line-height: var(--mo-sys-typescale-title-large-line-height);
     font-weight: var(--mo-sys-typescale-title-large-weight);
@@ -162,33 +168,33 @@
 
   /* A label above a heading in a text (packages/editor/lib/eyebrow.mjs): a block's label, with the heading's space above
    it and close to its heading. */
-  .prose .label-medium {
+  .mo-prose .mo-type-label-medium {
     margin-block: 2em 0.5rem;
   }
   /* A label that ends its text belongs to the heading after it (the front page, Home.astro): it keeps the same space under it. */
-  .prose > .label-medium:last-child {
+  .mo-prose > .mo-type-label-medium:last-child {
     margin-bottom: 0.5rem;
   }
-  .prose .label-medium + :is(h1, h2, h3),
-  .prose .label-medium + :not(h1, h2, h3, .label-medium) {
+  .mo-prose .mo-type-label-medium + :is(h1, h2, h3),
+  .mo-prose .mo-type-label-medium + :not(h1, h2, h3, .mo-type-label-medium) {
     margin-top: 0.5rem;
   }
 
   /* The text styles of a text: "Body medium" is the plain paragraph (and a paragraph stored as body-medium);
    "Body large" (lib/body-large.mjs) and "Body small" (lib/body-size.mjs) are Material 3's body-large and body-small roles. */
-  .prose .body-large {
+  .mo-prose .mo-type-body-large {
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
     font-weight: var(--mo-sys-typescale-body-large-weight);
     letter-spacing: var(--mo-sys-typescale-body-large-tracking);
   }
-  .prose .body-medium {
+  .mo-prose .mo-type-body-medium {
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
-  .prose .body-small {
+  .mo-prose .mo-type-body-small {
     font-size: var(--mo-sys-typescale-body-small-size);
     line-height: var(--mo-sys-typescale-body-small-line-height);
     font-weight: var(--mo-sys-typescale-body-small-weight);
@@ -197,16 +203,16 @@
 
   /* A check list in a text (`- [ ]`, "Check list" in the editor): Material Symbols' check icon (`check`, the owner's icon rule) in place of the bullet, in the theme's primary
      colour when the item is checked, dimmed when not (the editor draws the same, src/editor.css). The box is the <input>, drawn as the icon. */
-  .prose ul.contains-task-list {
+  .mo-prose ul.contains-task-list {
     list-style: none;
     padding-inline-start: 0;
   }
-  .prose li.task-list-item {
+  .mo-prose li.task-list-item {
     display: flex;
     gap: 0.75rem;
     align-items: baseline;
   }
-  .prose li.task-list-item > input[type='checkbox'] {
+  .mo-prose li.task-list-item > input[type='checkbox'] {
     appearance: none;
     flex: none;
     width: 1.25em;
@@ -219,48 +225,58 @@
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='M378-246 154-470l43-43 181 181 384-384 43 43-427 427Z'/%3E%3C/svg%3E")
       center / contain no-repeat;
   }
-  .prose li.task-list-item > input[type='checkbox']:not(:checked) {
+  .mo-prose li.task-list-item > input[type='checkbox']:not(:checked) {
     background-color: color-mix(in srgb, var(--mo-sys-block-accent) 35%, transparent);
   }
 
   /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
    editor): the accent, or the quiet text's, both readable on the background, the surfaces and the tint (the site's
    pairs of colours, checked under "Colors"). Bold, italic and a link in it have its colour. Outside the layers, as it
-   is in the text's style (.prose), whose colours of bold text and links it goes over. */
-  .color-accent,
-  .color-accent :is(strong, em, a) {
+   is in the text's style (.mo-prose), whose colours of bold text and links it goes over. */
+  .mo-has-accent-color,
+  .mo-has-accent-color :is(strong, em, a) {
     color: var(--mo-sys-block-accent);
   }
-  .color-muted,
-  .color-muted :is(strong, em, a) {
+  .mo-has-muted-color,
+  .mo-has-muted-color :is(strong, em, a) {
     color: var(--mo-sys-block-muted);
   }
 
   /* A word in the accent's or the quiet text's colour (above) on a section with the accent as its background would not
    be read: there it has the section's text colour. */
-  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface))
-    :is(.color-accent, .color-muted),
-  :is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface))
-    :is(.color-accent, .color-muted)
+  :is(
+      :where(.mo-text-section).mo-is-primary,
+      :where(.mo-text-section).mo-is-secondary,
+      :where(.mo-text-section).mo-is-tertiary,
+      :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)
+    )
+    :is(.mo-has-accent-color, .mo-has-muted-color),
+  :is(
+      :where(.mo-text-section).mo-is-primary,
+      :where(.mo-text-section).mo-is-secondary,
+      :where(.mo-text-section).mo-is-tertiary,
+      :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)
+    )
+    :is(.mo-has-accent-color, .mo-has-muted-color)
     :is(strong, em, a) {
     color: inherit;
   }
 
   /* A paragraph or a smaller heading in a text aligned to the centre or the right (packages/editor/lib/text-align.mjs, the Align
    button of the editor); left is the text's own. Outside the layers, as the prose style is. */
-  .text-align-center {
+  .mo-has-text-align-center {
     text-align: center;
   }
-  .text-align-right {
+  .mo-has-text-align-right {
     text-align: right;
   }
 
   /* The first and last parts of a coloured section lose the prose margins that would add to the panel's padding. Outside
    the layers, as the prose style (Tailwind's typography) is in the utilities layer, which wins over components. */
-  .text-section > :first-child {
+  .mo-text-section > :first-child {
     margin-top: 0;
   }
-  .text-section > :last-child {
+  .mo-text-section > :last-child {
     margin-bottom: 0;
   }
 }

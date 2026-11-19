@@ -94,6 +94,6 @@ export const text = {
   dragBlock: (name: string) => `Drag ${name} to move it`,
   /** Shown in an empty line of the text, under the pointer or the cursor. */
   typeHere: 'Write text here…',
-  /** On an empty page, under the text (editor.css, --editor-empty-text). */
+  /** On an empty page, under the text (editor.css, --mo-comp-editor-empty-text). */
   emptyHint: 'Type text, or tap Insert to add a block.',
 };

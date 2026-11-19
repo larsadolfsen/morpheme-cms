@@ -1,12 +1,17 @@
 /* The editor's parts are the theme's UI parts (ui.tsx), in the theme's design; its own parts take the theme's variables
    (--mo-sys-block-radius, --mo-sys-block-radius-small, --mo-sys-block-shadow). Only what is the editor's alone is here. Low specificity
    (:where), so a theme's :root wins. */
-@reference '../theme/styles/base.css';
+@import './editor-density.css';
+@import './editor-forms.css';
+@import './editor-rest.css';
+@import './editor-screens.css';
+@import './editor-settings.css';
+@import './editor-ui.css';
 
 /* Density (theme/styles/base.css) reaches the editor's own screens, not the page and post editing area: what is typed in place
    there keeps the theme's own step (--mo-sys-density-base) at every choice, as on the site, so a block is drawn as it will be. The
    derived variables are computed where they are declared, so they are declared again here. */
-.editor-text .ProseMirror {
+.mo-editor-text .ProseMirror {
   --mo-sys-density-user: 0;
   --mo-sys-density: clamp(-3, var(--mo-sys-density-base), 1);
   --mo-sys-density-layout: clamp(-1, var(--mo-sys-density-base), 1);
@@ -63,7 +68,7 @@
   --mo-comp-editor-section-gap: 2rem;
   --mo-comp-editor-section-rhythm: 0.625em;
 
-  /* The frame the editor draws round a block (the dotted line of .site-block-card): it hangs this far outside the text column on each side, a fixed outset
+  /* The frame the editor draws round a block (the dotted line of .mo-site-block-card): it hangs this far outside the text column on each side, a fixed outset
      (4 dp grid), and the block's own content stays on the column's edge, as on the site. The line's width is part of the outset: the padding inside the
      line is the outset less the line. The text field's padding (--mo-comp-editor-pad-x) is at least the outset, so the frame is never clipped by the text field. */
   --mo-comp-editor-frame-outset: 0.5rem;
@@ -80,8 +85,8 @@
   --mo-comp-side-panel-width: min(25rem, calc((100vw - var(--mo-sys-column-start)) / 2));
 }
 
-/* The text field (MarkdownEditor.tsx). The rest of the editor uses the site's Tailwind classes. */
-.editor-text .ProseMirror {
+/* The text field (MarkdownEditor.tsx). The rest of the editor uses the theme's parts and its own rules. */
+.mo-editor-text .ProseMirror {
   min-height: 50dvh;
   outline: none;
 }
@@ -90,10 +95,10 @@
    sectionFrame.ts) or the block in focus (its own outline). The frame draws only while the text itself has the focus (:focus-visible), so it is gone when the
    cursor leaves, and it is a 2 px dotted line in the focus colour, the theme's primary role (a section on a colour swaps it to its on-colour, so it stands 3:1 on every section colour; Modern Web Guidance,
    accessibility: a focus indicator stays visible). */
-.editor-text .ProseMirror:focus-visible > [data-section-focus] {
+.mo-editor-text .ProseMirror:focus-visible > [data-section-focus] {
   position: relative;
 }
-.editor-text .ProseMirror:focus-visible > [data-section-focus]::after {
+.mo-editor-text .ProseMirror:focus-visible > [data-section-focus]::after {
   content: '';
   position: absolute;
   inset: 0 -0.5rem;
@@ -101,44 +106,44 @@
   border: 0 dotted var(--mo-sys-color-primary);
   border-inline-width: 2px;
 }
-.editor-text .ProseMirror:focus-visible > [data-section-focus]:is([data-section-box], [data-section-width='full'])::after {
+.mo-editor-text .ProseMirror:focus-visible > [data-section-focus]:is([data-section-box], [data-section-width='full'])::after {
   inset-inline: 0;
 }
-.editor-text
+.mo-editor-text
   .ProseMirror:focus-visible
   > :is([data-section-focus='start'], [data-section-focus='only']):not([data-section-part='start'])::after {
   border-block-start-width: 2px;
 }
-.editor-text .ProseMirror:focus-visible > :is([data-section-focus='end'], [data-section-focus='only'])::after {
+.mo-editor-text .ProseMirror:focus-visible > :is([data-section-focus='end'], [data-section-focus='only'])::after {
   border-block-end-width: 2px;
 }
 /* The section's own dotted line, at the start of an H2 section, takes the same clear line while the section has the focus. */
-.editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus] {
+.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus] {
   border-block-start-color: var(--mo-sys-color-primary);
 }
-.editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus]::after {
+.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus]::after {
   inset-block-start: -2px;
 }
 
 /* A text in a field (a section of the front page) is short. */
-.editor-text-short .ProseMirror {
+.mo-editor-text-short .ProseMirror {
   min-height: 8rem;
 }
 
 /* ProseMirror puts invisible helpers around an image (empty images and a line break). Next to a
    full-width image each gets a line of its own, which shows as empty space; hide them there. */
-.editor-text p:has(> .site-picture) > :is(.ProseMirror-separator, .ProseMirror-trailingBreak) {
+.mo-editor-text p:has(> .mo-site-picture) > :is(.ProseMirror-separator, .ProseMirror-trailingBreak) {
   display: none !important;
 }
 
 /* A check list (`- [ ]`, "Check list" in the text style menu): Material Symbols' check icon (`check`, the owner's icon rule) in place of the bullet, in the theme's primary colour
    when the item is checked, dimmed when not, as the site draws it (theme/styles/blocks.css, .task-list-item). The icon is the item's own
    ::before, in the padding where the bullet was; a tap on it checks or unchecks the item (checkToggle, MarkdownEditor.tsx). */
-.editor-text .ProseMirror li[data-item-type='task'] {
+.mo-editor-text .ProseMirror li[data-item-type='task'] {
   list-style: none;
   position: relative;
 }
-.editor-text .ProseMirror li[data-item-type='task']::before {
+.mo-editor-text .ProseMirror li[data-item-type='task']::before {
   content: '';
   position: absolute;
   inset-inline-start: -1.75em;
@@ -152,25 +157,25 @@
     center / contain no-repeat;
   cursor: pointer;
 }
-.editor-text .ProseMirror li[data-item-type='task'][data-checked='true']::before {
+.mo-editor-text .ProseMirror li[data-item-type='task'][data-checked='true']::before {
   background-color: var(--mo-sys-color-primary);
 }
 
 /* Milkdown puts a paragraph in every list item; on the site, short lists have none. */
-.editor-text li > p {
+.mo-editor-text li > p {
   margin-block: 0;
 }
 
 /* The text field's own padding (MarkdownEditor.tsx: px-(--mo-sys-grid-margin) py-4); a section of the whole width reaches out of it. The sides are the theme's
    page margin, as on the site (16 dp compact, 24 dp from medium), so the text starts at the same distance from its edge as on the site. */
-.editor-text {
+.mo-editor-text {
   --mo-comp-editor-pad-x: var(--mo-sys-grid-margin, 1rem);
   --mo-comp-editor-pad-y: 1rem;
 }
 
 /* The dotted line at the start of an H2 section (data-section-part='start', sectionFrame.ts): a divider across the text. The line
    marks where a section starts; it is not the section's box. */
-.editor-text .ProseMirror > [data-section-part='start'] {
+.mo-editor-text .ProseMirror > [data-section-part='start'] {
   margin-block-start: var(--mo-comp-editor-section-gap);
   border-block-start: var(--mo-comp-editor-section-frame);
   padding-block-start: var(--mo-comp-editor-section-pad);
@@ -178,80 +183,80 @@
 
 /* The box of a section with a colour, as the site draws it (data-section-box, data-section-color, sectionFrame.ts): one box made of
    the parts' own backgrounds. The space between two parts is padding, not margin, so the box has no gaps. */
-.editor-text .ProseMirror > [data-section-box] {
+.mo-editor-text .ProseMirror > [data-section-box] {
   margin-block: 0;
   padding-inline: var(--mo-comp-editor-section-pad);
   padding-block: var(--mo-comp-editor-section-rhythm);
 }
 
-.editor-text .ProseMirror > :is(ul, ol)[data-section-box] {
+.mo-editor-text .ProseMirror > :is(ul, ol)[data-section-box] {
   padding-inline-start: calc(var(--mo-comp-editor-section-pad) + 1.625em);
 }
 
-.editor-text .ProseMirror > :is([data-section-box='start'], [data-section-box='only']) {
+.mo-editor-text .ProseMirror > :is([data-section-box='start'], [data-section-box='only']) {
   border-start-start-radius: var(--mo-sys-block-radius);
   border-start-end-radius: var(--mo-sys-block-radius);
   padding-block-start: var(--mo-comp-editor-section-pad);
 }
 
-.editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) {
+.mo-editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) {
   border-end-start-radius: var(--mo-sys-block-radius);
   border-end-end-radius: var(--mo-sys-block-radius);
   /* The space below a section's text belongs inside its colour: it runs down to the next section's divider (or the end of the text). */
   padding-block-end: calc(var(--mo-comp-editor-section-pad) + var(--mo-comp-editor-section-gap));
 }
 /* The gap above the next section's divider is that padding, not a second margin that would show white between them. */
-.editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) + [data-section-part='start'] {
+.mo-editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) + [data-section-part='start'] {
   margin-block-start: 0;
 }
 
 /* A section of the whole width (`width` full) reaches the text field's edges: no margin or corners at the sides, and none above the
    first section or below the last. Its text stays where the other text is. */
-.editor-text .ProseMirror > [data-section-box][data-section-width='full'] {
+.mo-editor-text .ProseMirror > [data-section-box][data-section-width='full'] {
   margin-inline: calc(-1 * var(--mo-comp-editor-pad-x));
   padding-inline: calc(var(--mo-comp-editor-pad-x) + var(--mo-comp-editor-section-pad));
   border-radius: 0;
 }
-.editor-text .ProseMirror > :is(ul, ol)[data-section-box][data-section-width='full'] {
+.mo-editor-text .ProseMirror > :is(ul, ol)[data-section-box][data-section-width='full'] {
   padding-inline-start: calc(var(--mo-comp-editor-pad-x) + var(--mo-comp-editor-section-pad) + 1.625em);
 }
 /* flow-root: the first section's negative margin stays on the section, it does not collapse into the text's own. */
-.editor-text .ProseMirror {
+.mo-editor-text .ProseMirror {
   display: flow-root;
 }
-.editor-text .ProseMirror > [data-section-box][data-section-width='full']:first-child,
-.editor-text .ProseMirror > [data-section-width='full'][data-section-part='start']:first-child {
+.mo-editor-text .ProseMirror > [data-section-box][data-section-width='full']:first-child,
+.mo-editor-text .ProseMirror > [data-section-width='full'][data-section-part='start']:first-child {
   margin-block-start: calc(-1 * var(--mo-comp-editor-pad-y));
 }
-.editor-text .ProseMirror > [data-section-box][data-section-width='full']:last-child {
+.mo-editor-text .ProseMirror > [data-section-box][data-section-width='full']:last-child {
   margin-block-end: calc(-1 * var(--mo-comp-editor-pad-y));
 }
 
 /* The colours are the theme's own (blocks.css). On a colour with its own text colour, the prose colours take it, so headings, bold
    and links stay readable. */
-.editor-text .ProseMirror > [data-section-color='surface'] {
+.mo-editor-text .ProseMirror > [data-section-color='surface'] {
   background: var(--mo-sys-block-surface);
 }
 
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary']) {
-  --tw-prose-body: var(--mo-sys-section-on);
-  --tw-prose-headings: var(--mo-sys-section-on);
-  --tw-prose-bold: var(--mo-sys-section-on);
-  --tw-prose-links: var(--mo-sys-section-on);
-  --tw-prose-bullets: var(--mo-sys-section-on);
-  --tw-prose-counters: var(--mo-sys-section-on);
-  --tw-prose-code: var(--mo-sys-section-on);
-  --tw-prose-quotes: var(--mo-sys-section-on);
-  --tw-prose-quote-borders: var(--mo-sys-section-on);
-  --tw-prose-captions: var(--mo-sys-section-on);
-  --tw-prose-hr: var(--mo-sys-section-on);
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary']) {
+  --mo-comp-prose-body: var(--mo-sys-section-on);
+  --mo-comp-prose-headings: var(--mo-sys-section-on);
+  --mo-comp-prose-bold: var(--mo-sys-section-on);
+  --mo-comp-prose-links: var(--mo-sys-section-on);
+  --mo-comp-prose-bullets: var(--mo-sys-section-on);
+  --mo-comp-prose-counters: var(--mo-sys-section-on);
+  --mo-comp-prose-code: var(--mo-sys-section-on);
+  --mo-comp-prose-quotes: var(--mo-sys-section-on);
+  --mo-comp-prose-quote-borders: var(--mo-sys-section-on);
+  --mo-comp-prose-captions: var(--mo-sys-section-on);
+  --mo-comp-prose-hr: var(--mo-sys-section-on);
   --mo-sys-section-accent: var(--mo-sys-section-fill);
   --mo-sys-section-on-accent: var(--mo-sys-section-on);
   background: var(--mo-sys-section-fill);
   color: var(--mo-sys-section-on);
 }
 
-.editor-text .ProseMirror {
+.mo-editor-text .ProseMirror {
   --mo-comp-page-primary-container: var(--mo-sys-color-primary-container, var(--mo-sys-block-tint));
   --mo-comp-page-on-primary-container: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-text));
   --mo-comp-page-secondary-container: var(--mo-sys-color-secondary-container, var(--mo-sys-block-tint));
@@ -260,21 +265,21 @@
   --mo-comp-page-on-tertiary-container: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-text));
 }
 
-.editor-text .ProseMirror > [data-section-color='primary'] {
+.mo-editor-text .ProseMirror > [data-section-color='primary'] {
   --mo-sys-section-fill: var(--mo-sys-block-primary);
   --mo-sys-section-on: var(--mo-sys-block-on-primary);
   --mo-sys-section-container: var(--mo-comp-page-primary-container);
   --mo-sys-section-on-container: var(--mo-comp-page-on-primary-container);
 }
 
-.editor-text .ProseMirror > [data-section-color='secondary'] {
+.mo-editor-text .ProseMirror > [data-section-color='secondary'] {
   --mo-sys-section-fill: var(--mo-sys-block-secondary);
   --mo-sys-section-on: var(--mo-sys-block-on-secondary);
   --mo-sys-section-container: var(--mo-comp-page-secondary-container);
   --mo-sys-section-on-container: var(--mo-comp-page-on-secondary-container);
 }
 
-.editor-text .ProseMirror > [data-section-color='tertiary'] {
+.mo-editor-text .ProseMirror > [data-section-color='tertiary'] {
   --mo-sys-section-fill: var(--mo-sys-block-tertiary);
   --mo-sys-section-on: var(--mo-sys-block-on-tertiary);
   --mo-sys-section-container: var(--mo-comp-page-tertiary-container);
@@ -282,13 +287,13 @@
 }
 
 /* The image behind a section (the widget before its first part, placed over the section's parts by sectionFrame.ts): it fills
-   the section's box behind the text, darkened from below as on the site (blocks.css, .text-section-picture), and the text on it is
+   the section's box behind the text, darkened from below as on the site (blocks.css, :where(.mo-text-section).mo-has-image), and the text on it is
    the theme's colour for text on an image. */
-.editor-text .ProseMirror {
+.mo-editor-text .ProseMirror {
   position: relative;
 }
 
-.editor-text .editor-section-picture {
+.mo-editor-text .mo-editor-section-picture {
   --mo-sys-section-shade: var(--mo-sys-block-hero-shade, var(--mo-sys-block-text));
   position: absolute;
   z-index: 0;
@@ -299,27 +304,27 @@
   border-radius: var(--mo-sys-block-radius);
 }
 
-.editor-text .editor-section-picture[data-color='surface'] {
+.mo-editor-text .mo-editor-section-picture[data-color='surface'] {
   --mo-sys-section-shade: var(--mo-sys-block-surface);
 }
 
-.editor-text .editor-section-picture[data-color='primary'] {
+.mo-editor-text .mo-editor-section-picture[data-color='primary'] {
   --mo-sys-section-shade: var(--mo-sys-block-primary);
 }
 
-.editor-text .editor-section-picture[data-color='secondary'] {
+.mo-editor-text .mo-editor-section-picture[data-color='secondary'] {
   --mo-sys-section-shade: var(--mo-sys-block-secondary);
 }
 
-.editor-text .editor-section-picture[data-color='tertiary'] {
+.mo-editor-text .mo-editor-section-picture[data-color='tertiary'] {
   --mo-sys-section-shade: var(--mo-sys-block-tertiary);
 }
 
-.editor-text .editor-section-picture[data-width='full'] {
+.mo-editor-text .mo-editor-section-picture[data-width='full'] {
   border-radius: 0;
 }
 
-.editor-text .editor-section-picture > img {
+.mo-editor-text .mo-editor-section-picture > img {
   margin: 0;
   position: absolute;
   inset: 0;
@@ -329,7 +334,7 @@
   object-fit: cover;
 }
 
-.editor-text .editor-section-picture::after {
+.mo-editor-text .mo-editor-section-picture::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -341,44 +346,44 @@
   );
 }
 
-.editor-text .ProseMirror > [data-section-picture] {
+.mo-editor-text .ProseMirror > [data-section-picture] {
   position: relative;
   z-index: 1;
 }
 
-.editor-text .ProseMirror > [data-section-picture] {
+.mo-editor-text .ProseMirror > [data-section-picture] {
   background: transparent;
 }
 
 /* The page's own colours, kept before a section's parts swap them (the site keeps them on the section itself, blocks.css; here the parts
    are the swapped nodes, so they are kept one level up). A part on an image reads them, never its own swapped --block-… (that would
    point at itself and every colour of the part would be lost: the text then falls back to the page's, dark on the dark scrim). */
-.editor-text .ProseMirror {
+.mo-editor-text .ProseMirror {
   --mo-sys-section-text: var(--mo-sys-block-text);
   --mo-sys-section-surface: var(--mo-sys-block-surface);
   --mo-sys-section-picture-fill: var(--mo-sys-block-hero-shade, var(--mo-sys-block-text));
   --mo-sys-section-picture-on-fill: var(--mo-sys-block-hero-on-shade, var(--mo-sys-block-surface));
 }
 
-.editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) {
-  --tw-prose-body: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-headings: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-bold: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-links: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-bullets: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-counters: var(--mo-sys-section-picture-on-fill);
+.mo-editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) {
+  --mo-comp-prose-body: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-headings: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-bold: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-links: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-bullets: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-counters: var(--mo-sys-section-picture-on-fill);
   --mo-sys-section-accent: var(--mo-sys-section-picture-fill);
   --mo-sys-section-on-accent: var(--mo-sys-section-picture-on-fill);
   color: var(--mo-sys-section-picture-on-fill);
 }
 
-.editor-text .ProseMirror > [data-section-picture][data-section-width='full'] {
+.mo-editor-text .ProseMirror > [data-section-picture][data-section-width='full'] {
   border-radius: 0;
 }
 
 /* HTML in a line of text is kept as it is but cannot be edited here (on a line of its own it is a
    block, HTML in markdown.mjs). */
-.editor-text [data-type='html'] {
+.mo-editor-text [data-type='html'] {
   display: inline-block;
   max-width: 100%;
   overflow-wrap: anywhere;
@@ -392,7 +397,7 @@
 
 /* The bar with "Save" (FormFrame.tsx) slides up when something has been changed; the messages
    (App.tsx) then go above it. */
-.editor-save-bar {
+.mo-editor-save-bar {
   animation: editor-rise var(--mo-sys-motion-spring-fast-spatial);
 }
 
@@ -404,19 +409,19 @@
 
 /* Every Save row is the theme's standard bottom sheet (ActionSheet in ui.tsx): the screen leaves room under its last field so
    nothing is hidden behind it. */
-:root:has(.editor-save-bar) .editor-screen {
+:root:has(.mo-editor-save-bar) .mo-editor-screen {
   padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .editor-save-bar {
+  .mo-editor-save-bar {
     animation: none;
   }
 }
 
 /* An element's name as the theme's plain tooltip (useTooltip in ui.tsx): a popover over everything, placed by the
-   script under or over the element; its look is the theme's .tooltip-plain. */
-.editor-tooltip {
+   script under or over the element; its look is the theme's .mo-tooltip__plain. */
+.mo-editor-tooltip {
   position: fixed;
   inset: auto;
   margin: 0;
@@ -429,35 +434,35 @@
    room under it (flip-block); a centred box stays 0.5rem inside the window by itself. The element has the anchor name while the
    tooltip is open (useTooltip in ui.tsx); without anchor positioning the script places it. */
 @supports (anchor-name: --a) and (position-area: top) {
-  .editor-tooltip {
+  .mo-editor-tooltip {
     position-anchor: --editor-tooltip;
     position-area: block-end;
-    inset: var(--tooltip-gap, 0.25rem) 0.5rem 0.5rem;
+    inset: var(--mo-comp-tooltip-gap, 0.25rem) 0.5rem 0.5rem;
     position-try-fallbacks: flip-block;
   }
 }
 
 /* The field that keeps a form from being saved (WrongField in fields.tsx): the edge of the theme's text field
-   (.text-field-input, its edge a box-shadow) in the accent colour, flashing gently three times; around the whole field
+   (.mo-text-field__input, its edge a box-shadow) in the accent colour, flashing gently three times; around the whole field
    when it has no box of its own (an image, icons, a switcher). It stays until the next try or a change. */
-.editor-wrong .text-field-input {
+.mo-editor-wrong .mo-text-field__input {
   box-shadow:
     inset 0 0 0 2px var(--mo-sys-color-primary),
     0 0 0 3px color-mix(in srgb, var(--mo-sys-color-primary) 25%, transparent);
 }
 
-.editor-wrong:not(:has(.text-field-input)) {
+.mo-editor-wrong:not(:has(.mo-text-field__input)) {
   border-radius: var(--mo-sys-shape-corner-large);
   outline: 2px solid var(--mo-sys-color-primary);
   outline-offset: 6px;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .editor-wrong .text-field-input {
+  .mo-editor-wrong .mo-text-field__input {
     animation: editor-flash 0.8s ease-in-out 3;
   }
 
-  .editor-wrong:not(:has(.text-field-input)) {
+  .mo-editor-wrong:not(:has(.mo-text-field__input)) {
     animation: editor-flash-around 0.8s ease-in-out 3;
   }
 }
@@ -477,14 +482,14 @@
 }
 
 /* A sheet that is dragged up by its top on a phone (SheetTitle in ui.tsx) is as tall as the screen allows
-   (--bottom-sheet-top-gap from the top, and below the clock), or as tall as what is in it, if that is less. A sheet
-   starts at --bottom-sheet-start-max-height at most (ui.css). */
-@media (width < theme(--breakpoint-medium)) {
-  .editor-sheet[data-tall] {
-    --mo-comp-editor-sheet-tall: calc(100dvh - max(var(--bottom-sheet-top-gap, 4.5rem), env(safe-area-inset-top)));
+   (--mo-comp-bottom-sheet-top-gap from the top, and below the clock), or as tall as what is in it, if that is less. A sheet
+   starts at --mo-comp-bottom-sheet-start-max-height at most (ui.css). */
+@media (width < 37.5rem) {
+  .mo-editor-sheet[data-tall] {
+    --mo-comp-editor-sheet-tall: calc(100dvh - max(var(--mo-comp-bottom-sheet-top-gap, 4.5rem), env(safe-area-inset-top)));
     max-height: var(--mo-comp-editor-sheet-tall);
   }
-  .editor-sheet.bottom-sheet-full[data-tall] {
+  .mo-editor-sheet.mo-bottom-sheet__full[data-tall] {
     height: var(--mo-comp-editor-sheet-tall);
   }
 }
@@ -493,59 +498,59 @@
    computer, where it is a dialog in the middle, it fades in and grows a little) and the page behind
    it darkens (a question, ask.tsx, comes up as the theme's dialog does); a new screen fades in; a message rises up; an item of a
    list that is opened shows its fields softly; an image in Files fades in when it has loaded and
-   grows a little under the mouse; a button's colours change softly (pressed, it ripples: the theme's .ripple). Only when
+   grows a little under the mouse; a button's colours change softly (pressed, it ripples: the theme's .mo-ripple). Only when
    the phone or computer does not ask for less motion. */
 @media (prefers-reduced-motion: no-preference) {
-  .editor-sheet[open] {
+  .mo-editor-sheet[open] {
     animation: editor-sheet-in var(--mo-sys-motion-spring-default-spatial);
   }
 
-  .editor-sheet[open]::backdrop {
+  .mo-editor-sheet[open]::backdrop {
     animation: editor-fade var(--mo-sys-motion-spring-default-effects);
   }
 
-  @media (width >= theme(--breakpoint-medium)) {
-    .editor-sheet[open] {
+  @media (width >= 37.5rem) {
+    .mo-editor-sheet[open] {
       animation: editor-pop var(--mo-sys-motion-spring-fast-spatial);
     }
   }
 
   /* The main drawer (MainDrawer in ui.tsx) slides in from the start edge: the left, the right when the text runs right to left. */
-  .editor-main-drawer[open] {
+  .mo-editor-main-drawer[open] {
     animation: editor-main-drawer-in var(--mo-sys-motion-spring-default-spatial);
   }
 
-  .editor-main-drawer[open]::backdrop {
+  .mo-editor-main-drawer[open]::backdrop {
     animation: editor-fade var(--mo-sys-motion-spring-default-effects);
   }
 
-  .editor-screen {
+  .mo-editor-screen {
     animation: editor-enter var(--mo-sys-motion-spring-default-spatial);
     /* A chip set that scrolls reaches out to the screen's edges: the screen's gutter (px-4, medium:px-6 in Screen.tsx). */
     --mo-comp-chip-set-bleed: 1rem;
   }
-  @media (width >= theme(--breakpoint-medium)) {
-    .editor-screen {
+  @media (width >= 37.5rem) {
+    .mo-editor-screen {
       --mo-comp-chip-set-bleed: 1.5rem;
     }
   }
 
-  .editor-reveal {
+  .mo-editor-reveal {
     animation: editor-enter var(--mo-sys-motion-spring-fast-spatial);
   }
 
-  .editor-fade-in {
+  .mo-editor-fade-in {
     opacity: 0;
     transition:
       opacity var(--mo-sys-motion-spring-default-effects),
       scale var(--mo-sys-motion-spring-default-spatial);
   }
 
-  .editor-fade-in[data-loaded] {
+  .mo-editor-fade-in[data-loaded] {
     opacity: 1;
   }
 
-  /* In the base layer, so a Tailwind class on the button itself still decides. */
+  /* In the base layer, so a rule on the button itself still decides. */
   @layer base {
     :is(button, a):not(:disabled, .ProseMirror *) {
       transition:
@@ -574,11 +579,11 @@
 }
 
 /* A drag along the drawer reaches MainDrawer's swipe to close; scrolling its list still works. */
-.editor-main-drawer {
+.mo-editor-main-drawer {
   touch-action: pan-y;
 }
 
-.editor-main-drawer:dir(rtl)[open] {
+.mo-editor-main-drawer:dir(rtl)[open] {
   animation-name: editor-main-drawer-in-rtl;
 }
 
@@ -586,32 +591,32 @@
    item is when pointed at. Its inline padding puts the avatar's centre over the items' icons (the avatar is wider than the
    24px icon: half the difference less than the items' padding). The avatar has a 1px border inside its size.
    The pill is as high as a drawer item (56px); the row around it is the top bar's height. */
-.editor-main-drawer-header {
+.mo-editor-main-drawer-header {
   --mo-comp-list-item-padding-block: 0.375rem;
-  --mo-comp-list-item-two-line-min-height: var(--navigation-drawer-item-height, 3.5rem);
-  --mo-comp-editor-drawer-header-text: var(--navigation-drawer-item-text, var(--mo-sys-block-muted));
+  --mo-comp-list-item-two-line-min-height: var(--mo-comp-navigation-drawer-item-height, 3.5rem);
+  --mo-comp-editor-drawer-header-text: var(--mo-comp-navigation-drawer-item-text, var(--mo-sys-block-muted));
   --mo-comp-editor-drawer-header-padding: calc(
-    var(--navigation-drawer-item-padding-inline, 1rem) - (var(--mo-comp-avatar-size, 2.5rem) - 1.5rem) / 2
+    var(--mo-comp-navigation-drawer-item-padding-inline, 1rem) - (var(--mo-comp-avatar-size, 2.5rem) - 1.5rem) / 2
   );
   --mo-comp-list-item-padding-inline: var(--mo-comp-editor-drawer-header-padding);
-  --mo-comp-list-list-item-container-shape: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
-  --mo-comp-list-item-hover-radius: var(--navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
+  --mo-comp-list-list-item-container-shape: var(--mo-comp-navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
+  --mo-comp-list-item-hover-radius: var(--mo-comp-navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
   --mo-comp-list-item-hover-surface: var(
-    --navigation-drawer-item-hover,
+    --mo-comp-navigation-drawer-item-hover,
     color-mix(in srgb, var(--mo-comp-editor-drawer-header-text) 8%, transparent)
   );
   --mo-comp-list-item-pressed-surface: var(
-    --navigation-drawer-item-pressed,
+    --mo-comp-navigation-drawer-item-pressed,
     color-mix(in srgb, var(--mo-comp-editor-drawer-header-text) 10%, transparent)
   );
   --mo-comp-list-item-hover-text: inherit;
 }
 
-.editor-main-drawer-header .list-item-container:focus-visible {
+.mo-editor-main-drawer-header .mo-list__item-container:focus-visible {
   background: var(--mo-comp-list-item-pressed-surface, var(--mo-sys-state-mo-pressed-layer));
 }
 
-.editor-main-drawer-header .avatar {
+.mo-editor-main-drawer-header .mo-avatar {
   box-sizing: border-box;
   border: 1px solid var(--mo-sys-block-line);
 }
@@ -619,30 +624,30 @@
 /* From medium the drawers (MainDrawer in ui.tsx) take the rail's place (MainRail): they share its icon column, the middle
    of the rail. On a phone the drawer keeps the theme's (Material 3's navigation drawer). The rail's menu button stands
    level with the top bar's logo, as the drawers' does; the rail's items keep their place. */
-@media (width >= theme(--breakpoint-medium)) {
-  .editor-main-drawer-panel {
+@media (width >= 37.5rem) {
+  .mo-editor-main-drawer-panel {
     --mo-comp-navigation-drawer-inset: 1.25rem;
   }
 }
 
 /* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: --mo-sys-section-pane-width and
    the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N2). */
-.editor-main-drawer-panel {
+.mo-editor-main-drawer-panel {
   --mo-comp-navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
 }
 
-.editor-main-rail {
+.mo-editor-main-rail {
   --mo-comp-navigation-rail-padding: 0.5rem 0.5rem 1.5rem;
 }
 
-.editor-main-rail .navigation-rail-header {
+.mo-editor-main-rail .mo-navigation-rail__header {
   margin-bottom: 1rem;
 }
 
 /* The rail (and the room above it for a phone's notch) in the open drawer's colour, so it does not change when the drawer opens. */
-.editor-main-rail-frame {
+.mo-editor-main-rail-frame {
   --mo-comp-navigation-rail-surface: var(
-    --navigation-drawer-surface,
+    --mo-comp-navigation-drawer-surface,
     var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface))
   );
 }
@@ -667,35 +672,35 @@
   }
 }
 
-:root:has(.editor-save-bar) .snackbar-stack {
+:root:has(.mo-editor-save-bar) .mo-snackbar__stack {
   bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
 
 /* The screen's main actions (FabMenu in ui.tsx) at the bottom right, above the content; the messages above them. */
-.editor-fab {
+.mo-editor-fab {
   position: fixed;
   right: calc(1rem + env(safe-area-inset-right));
-  /* Stands 16 dp above the footer while the footer is in the window (--editor-fab-lift, fabPresence.tsx useFabLift). */
-  bottom: max(calc(1rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 1rem));
+  /* Stands 16 dp above the footer while the footer is in the window (--mo-comp-editor-fab-lift, fabPresence.tsx useFabLift). */
+  bottom: max(calc(1rem + env(safe-area-inset-bottom)), calc(var(--mo-comp-editor-fab-lift, 0px) + 1rem));
   z-index: 30;
 }
 
 /* A FAB whose action runs or cannot be used now (FabAction.busy, .disabled): dimmed, and nothing to press. */
-.editor-fab :is(.extended-fab, .fab):disabled {
+.mo-editor-fab :is(.mo-extended-fab, .mo-fab):disabled {
   opacity: 0.38;
   pointer-events: none;
 }
 
-:root:has(.editor-fab) .snackbar-stack {
-  bottom: max(calc(6rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 5rem));
+:root:has(.mo-editor-fab) .mo-snackbar__stack {
+  bottom: max(calc(6rem + env(safe-area-inset-bottom)), calc(var(--mo-comp-editor-fab-lift, 0px) + 5rem));
 }
 
 /* While a form's save bar is up (FormFrame.tsx) the FAB stands above it, so it does not cover Save; the messages above both. */
-:root:has(.editor-save-bar) .editor-fab {
-  bottom: max(calc(6.5rem + env(safe-area-inset-bottom)), calc(var(--editor-fab-lift, 0px) + 1rem));
+:root:has(.mo-editor-save-bar) .mo-editor-fab {
+  bottom: max(calc(6.5rem + env(safe-area-inset-bottom)), calc(var(--mo-comp-editor-fab-lift, 0px) + 1rem));
 }
 
-:root:has(.editor-save-bar):has(.editor-fab) .snackbar-stack {
+:root:has(.mo-editor-save-bar):has(.mo-editor-fab) .mo-snackbar__stack {
   bottom: calc(11.5rem + env(safe-area-inset-bottom));
 }
 
@@ -703,53 +708,53 @@
    the content next to it and the save bar starts where it ends; at expanded and wider, while the standard drawer is open
    in the rail's place, they keep clear of the drawer instead. The widths are the theme's. The top bar and its tabs (Screen.tsx)
    stand beside the rail and the drawer, so they need no room. */
-@media (width >= theme(--breakpoint-medium)) {
-  .snackbar-stack {
+@media (width >= 37.5rem) {
+  .mo-snackbar__stack {
     padding-left: var(--mo-comp-navigation-rail-container-width, 5.5rem);
   }
-  .editor-save-bar {
+  .mo-editor-save-bar {
     left: var(--mo-comp-navigation-rail-container-width, 5.5rem);
     width: auto;
   }
 }
-@media (width >= theme(--breakpoint-expanded)) {
-  :root[data-sidebar='open'] .snackbar-stack {
+@media (width >= 52.5rem) {
+  :root[data-sidebar='open'] .mo-snackbar__stack {
     padding-left: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
-  :root[data-sidebar='open'] .editor-save-bar {
+  :root[data-sidebar='open'] .mo-editor-save-bar {
     left: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
 }
 
 /* The type of the "on this page" card (SectionPane and SectionList in ui.tsx), from the theme's type roles: the small
    caption, the form's name under it, and a section's name (the one in view in medium weight). */
-.section-pane-caption {
+.mo-editor-section-pane-caption {
   font-size: var(--mo-sys-typescale-label-small-size);
   line-height: var(--mo-sys-typescale-label-small-line-height);
   font-weight: var(--mo-sys-typescale-label-small-weight);
   letter-spacing: var(--mo-sys-typescale-label-small-tracking);
 }
-.section-pane-title {
+.mo-editor-section-pane-title {
   font-size: var(--mo-sys-typescale-headline-small-size);
   line-height: var(--mo-sys-typescale-headline-small-line-height);
   font-weight: var(--mo-sys-typescale-headline-small-weight);
   letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
 }
-.section-list-item {
+.mo-editor-section-list-item {
   font-size: var(--mo-sys-typescale-body-medium-size);
   line-height: var(--mo-sys-typescale-body-medium-line-height);
   font-weight: var(--mo-sys-typescale-body-medium-weight);
   letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
 }
-.section-list-item[aria-current='location'] {
+.mo-editor-section-list-item[aria-current='location'] {
   font-weight: var(--mo-sys-typescale-label-medium-weight);
 }
 
-/* The content column (.editor-column: Screen.tsx's tabs row and its main) stands centred on the window, not in the space
+/* The content column (.mo-editor-column: Screen.tsx's tabs row and its main) stands centred on the window, not in the space
    beside the panels. --mo-sys-column-start and --mo-sys-column-end are the widths of the panels beside the content: the navigation
    rail from medium, the standard drawer instead of it from expanded while it is open (:root[data-sidebar='open']; the
    modal drawer below expanded is over the content, so the rail counts), and the "on this page" area at the end from large
-   (.editor-section-pane). The column keeps its width (--mo-sys-column-width, set by Screen.tsx) and moves off the middle only as
+   (.mo-editor-section-pane). The column keeps its width (--mo-sys-column-width, set by Screen.tsx) and moves off the middle only as
    far as it must to stay clear of the panels: its start margin is the middle of the window less the start panel, but
    not less than nothing and not more than the space left between the panels less the column. Only when that space is
    smaller than the column does it get narrower. (Measured against the window's width, 100vw, scrollbar and all.) Below
@@ -760,17 +765,17 @@
   --mo-sys-column-start: 0px;
   --mo-sys-column-end: 0px;
 }
-.editor-column {
+.mo-editor-column {
   /* The site's text column (PostLayout.astro: max-w-3xl); a form with its fields beside the text is wider (Screen.tsx `panel`). */
-  --mo-sys-column-width: theme(--container-3xl);
+  --mo-sys-column-width: 48rem;
   max-width: var(--mo-sys-column-width);
   margin-inline: auto;
 }
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   :root {
     --mo-sys-column-start: var(--mo-comp-navigation-rail-container-width, 5.5rem);
   }
-  .editor-column {
+  .mo-editor-column {
     margin-inline-start: clamp(
       0px,
       (100vw - var(--mo-sys-column-width)) / 2 - var(--mo-sys-column-start),
@@ -779,7 +784,7 @@
     margin-inline-end: auto;
   }
 }
-@media (width >= theme(--breakpoint-expanded)) {
+@media (width >= 52.5rem) {
   :root[data-sidebar='open'] {
     --mo-sys-column-start: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
@@ -788,64 +793,64 @@
 /* The "on this page" area (FormColumns' `pane` in ui.tsx) stands against the window's end edge on large and wider: the
    content keeps clear of it (its end padding; --mo-sys-column-end tells the column, so it stays centred on the window while
    there is room), and the save bar ends where the area begins. */
-@media (width >= theme(--breakpoint-large)) {
-  :root:has(.editor-section-pane:not([hidden] *)) {
+@media (width >= 75rem) {
+  :root:has(.mo-editor-section-pane:not([hidden] *)) {
     --mo-sys-column-end: var(--mo-sys-section-pane-width);
   }
-  .editor-content:has(.editor-section-pane:not([hidden] *)) {
+  .mo-editor-content:has(.mo-editor-section-pane:not([hidden] *)) {
     padding-inline-end: var(--mo-sys-section-pane-width);
   }
-  :root:has(.editor-section-pane:not([hidden] *)) .editor-save-bar {
+  :root:has(.mo-editor-section-pane:not([hidden] *)) .mo-editor-save-bar {
     right: var(--mo-sys-section-pane-width);
   }
 
-  /* BottomSheet's `panel` (.editor-side-panel): the theme's modal side sheet at the window's end edge, the full window
+  /* BottomSheet's `panel` (.mo-editor-side-panel): the theme's modal side sheet at the window's end edge, the full window
      height like the standard one; its backdrop is clear. */
-  .editor-side-panel {
+  .mo-editor-side-panel {
     inset: 0 0 0 auto;
     width: var(--mo-comp-side-panel-width);
     height: 100dvh;
   }
-  .editor-side-panel:dir(rtl) {
+  .mo-editor-side-panel:dir(rtl) {
     inset: 0 auto 0 0;
   }
-  .editor-side-panel::backdrop {
+  .mo-editor-side-panel::backdrop {
     background: transparent;
   }
 }
 
-/* The block dialog's standard side sheet (.editor-side-sheet: BlockDialog.tsx, not modal, from expanded) stands at the window's
+/* The block dialog's standard side sheet (.mo-editor-side-sheet: BlockDialog.tsx, not modal, from expanded) stands at the window's
    end edge from the top of the window to its bottom (M3), with its divider the whole height. BlockDialog.tsx sets
-   [data-side-panel] on the root while it is open: the top bar (.editor-top-bar-slot, topBarSlot.tsx) ends at the sheet's
+   [data-side-panel] on the root while it is open: the top bar (.mo-editor-top-bar-slot, topBarSlot.tsx) ends at the sheet's
    start edge, it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   :root[data-side-panel] {
     --mo-sys-column-end: var(--mo-comp-side-panel-width);
   }
-  :root[data-side-panel] .editor-section-pane {
+  :root[data-side-panel] .mo-editor-section-pane {
     display: none;
   }
-  :root[data-side-panel] .editor-content {
+  :root[data-side-panel] .mo-editor-content {
     padding-inline-end: var(--mo-comp-side-panel-width);
   }
-  :root[data-side-panel] .editor-column {
+  :root[data-side-panel] .mo-editor-column {
     margin-inline: auto;
   }
-  :root[data-side-panel] .editor-save-bar {
+  :root[data-side-panel] .mo-editor-save-bar {
     right: var(--mo-comp-side-panel-width);
   }
   /* The screen's create button stands beside the pane, not on it (a redirect or a new list opens the pane from it). */
-  :root[data-side-panel] .editor-fab {
+  :root[data-side-panel] .mo-editor-fab {
     right: calc(var(--mo-comp-side-panel-width) + 1rem + env(safe-area-inset-right));
   }
   /* The same for a standard side sheet in the page's own layout (the details in Files), while it reaches (nearly) the window's edge: the button
      stands beside it, not on it. The column stops growing at 73.5rem, and from there the button has room at its end. */
   @media (width < 73.5rem) {
-    :root:has(main .side-sheet-container:not([hidden])) .editor-fab {
-      right: calc(var(--side-sheet-width, 22.5rem) + 2.5rem + env(safe-area-inset-right));
+    :root:has(main .mo-side-sheet__container:not([hidden])) .mo-editor-fab {
+      right: calc(var(--mo-comp-side-sheet-width, 22.5rem) + 2.5rem + env(safe-area-inset-right));
     }
   }
-  .editor-side-sheet {
+  .mo-editor-side-sheet {
     position: fixed;
     inset: 0 0 0 auto;
     z-index: 20;
@@ -853,10 +858,10 @@
     max-width: none;
     height: 100dvh;
   }
-  .editor-side-sheet:dir(rtl) {
+  .mo-editor-side-sheet:dir(rtl) {
     inset: 0 auto 0 0;
   }
-  :root[data-side-panel] .editor-top-bar-slot {
+  :root[data-side-panel] .mo-editor-top-bar-slot {
     padding-inline-end: var(--mo-comp-side-panel-width);
   }
 }
@@ -879,27 +884,27 @@ html {
    looks on the site (src/apps/<app>/blocks/, previews.tsx) in a thin, dashed square frame, not text. Tapping it opens a row
    of icons on it with what can be done with it. The frame stands out a little to the sides, so the block
    lines up with the text. A image in the text is a card like it (in its paragraph). */
-.editor-text .site-block {
+.mo-editor-text .mo-site-block {
   position: relative;
   margin-block: 1.5em;
   user-select: none;
 }
 
-.editor-text .site-picture {
+.mo-editor-text .mo-site-picture {
   display: block;
   margin-block: 0;
 }
 
-.editor-text .site-picture :is(img, .picture-crop) {
+.mo-editor-text .mo-site-picture :is(img, .mo-site-picture__crop) {
   margin-block: 0;
 }
 
-.editor-text .site-block-card {
+.mo-editor-text .mo-site-block-card {
   display: block;
   width: calc(100% + 2 * var(--mo-comp-editor-frame-outset));
   margin-inline: calc(-1 * var(--mo-comp-editor-frame-outset));
   position: relative;
-  /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .card), so the action row, the items and the
+  /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .mo-card), so the action row, the items and the
      add button line up inside it. */
   border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
   border: var(--mo-comp-editor-frame-line) dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
@@ -910,12 +915,12 @@ html {
   transition: border-color var(--mo-sys-motion-spring-default-effects);
 }
 
-.editor-text .site-block-card:hover,
-.editor-text .site-block-card[aria-pressed='true'] {
+.mo-editor-text .mo-site-block-card:hover,
+.mo-editor-text .mo-site-block-card[aria-pressed='true'] {
   border-color: var(--mo-sys-color-primary);
 }
 
-.editor-text .site-block-handle {
+.mo-editor-text .mo-site-block-handle {
   position: absolute;
   top: 0.25rem;
   /* The block's top left corner (owner, 16 Nov): the one place to drag a block. A 48 dp touch target, drawn inside the frame, its edge 24 dp in from the frame's left
@@ -940,7 +945,7 @@ html {
 /* The active block's action row (blockRow.ts): inside the block's dotted outline (the card), at the top of its padding, 48 dp high, with the drag handle at its start, in the card's flow so
    the block makes room for it (its height opens with the spatial spring). Its buttons are the theme's standard icon buttons (iconButtonClass), no style of their own here.
    The block's drag handle is at the row's start, in the block's top left corner, 48 dp like the row (the row is as high as the handle's touch target). */
-.editor-text .site-block-row {
+.mo-editor-text .mo-site-block-row {
   display: block;
   box-sizing: border-box;
   block-size: 3rem;
@@ -948,13 +953,13 @@ html {
 
 /* The row hugs the top of the outline: it is pulled up into the card's padding, so the space above it is the Card's gap (the theme's small step), not its full padding; the
    sides and the space below the content keep the Card's padding. Its margin opens with its height (blockRow.ts), so the block below moves by one smooth amount. */
-.editor-text .site-block-row:not(.site-block-row-hover) {
+.mo-editor-text .mo-site-block-row:not(.mo-site-block-row-hover) {
   margin-block-start: calc(var(--mo-comp-card-gap, 0.5rem) - var(--mo-comp-card-padding, 1rem));
 }
 
 /* The row of a block a mouse points at (not the active one): over the top of the block's content, inside its outline, in no flow, so pointing at a block never moves the page.
    It sits on the surface, as wide as its buttons and the handle, so the content under it stays readable; only the buttons take the pointer. */
-.editor-text .site-block-row-hover {
+.mo-editor-text .mo-site-block-row-hover {
   position: absolute;
   z-index: 1;
   inset-block-start: calc(1.5px + var(--mo-comp-card-gap, 0.5rem));
@@ -963,11 +968,11 @@ html {
 }
 
 /* While blocks are being selected no block shows a row (the rings show on all of them). */
-.editor-text .site-block-marks .site-block-row-hover {
+.mo-editor-text .mo-site-block-marks .mo-site-block-row-hover {
   display: none;
 }
 
-.editor-text .site-block-row-hover .site-block-row-inner {
+.mo-editor-text .mo-site-block-row-hover .mo-site-block-row-inner {
   inline-size: fit-content;
   margin-inline-start: auto;
   border-radius: var(--mo-sys-shape-corner-full);
@@ -977,11 +982,11 @@ html {
   padding-inline-start: 0;
 }
 
-.editor-text .site-block-row-moving {
+.mo-editor-text .mo-site-block-row-moving {
   overflow: clip;
 }
 
-.editor-text .site-block-row-inner {
+.mo-editor-text .mo-site-block-row-inner {
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -993,52 +998,52 @@ html {
 }
 
 /* A hidden block's badge (32 dp, 16 dp from the frame's top and right) lies at the row's end: the buttons stop short of it. */
-.editor-text .site-block-hidden .site-block-row-inner {
+.mo-editor-text .mo-site-block-hidden .mo-site-block-row-inner {
   padding-inline-end: calc(3rem - var(--mo-comp-editor-frame-outset));
 }
 
 /* A button that cannot be used (a block that cannot move further): shown, in its place, with the reason; the theme's disabled look, no state layer. */
-.editor-text .site-block-row [data-row][aria-disabled] {
+.mo-editor-text .mo-site-block-row [data-row][aria-disabled] {
   opacity: 0.35;
   cursor: default;
 }
 
-.editor-text .site-block-row [data-row][aria-disabled]:hover {
+.mo-editor-text .mo-site-block-row [data-row][aria-disabled]:hover {
   background: transparent;
 }
 
-.editor-text .site-block-has-row > .site-block-handle {
+.mo-editor-text .mo-site-block-has-row > .mo-site-block-handle {
   /* In the row's start: the row's own height, below the card's border and gap from its top edge. */
   top: calc(1.5px + var(--mo-comp-card-gap, 0.5rem));
   opacity: 1;
 }
 
-.editor-text .site-block-has-row > .site-block-handle {
+.mo-editor-text .mo-site-block-has-row > .mo-site-block-handle {
   background: transparent;
 }
 
 /* Disabled while several blocks are selected: the theme's disabled colours, no grab cursor. */
-.editor-text .site-block-handle[aria-disabled] {
+.mo-editor-text .mo-site-block-handle[aria-disabled] {
   color: color-mix(in srgb, var(--mo-sys-color-on-surface) 38%, transparent);
   cursor: default;
 }
 
 /* A block that is not active shows no handle (it is the start of the action row), with a mouse or a touch. A mouse pointing at a block shows the row's buttons over its top but not the handle:
    at the block's left it would cover the first item. The handle is there while the block is active, being dragged, in focus with the keyboard, or while blocks are being selected. Hidden, it takes no pointer. */
-.editor-text .site-block-handle {
+.mo-editor-text .mo-site-block-handle {
   opacity: 0;
   pointer-events: none;
 }
 
-.editor-text :is(.site-block-has-row, .site-block-marks, .site-block-dragging) > .site-block-handle,
-.editor-text .site-block-handle:focus-visible {
+.mo-editor-text :is(.mo-site-block-has-row, .mo-site-block-marks, .mo-site-block-dragging) > .mo-site-block-handle,
+.mo-editor-text .mo-site-block-handle:focus-visible {
   opacity: 1;
   pointer-events: auto;
 }
 
 /* The mark on a block that can be selected with others (Material's Selection page, the photo grid): a round circle centred on the block's top left corner (so it covers nothing in the block, as in M3's example), empty, filled with a check
    while the block is selected; a mouse sees it on the block pointed at, the active block shows it, and every block shows it once some block is selected; any other block shows none. Its target is 48 dp. */
-.editor-text .site-block-mark {
+.mo-editor-text .mo-site-block-mark {
   position: absolute;
   /* Centred on the outline's corner curve: the card is the frame outset wider than the block on each side, and the 45 degree point of a corner with the Card's radius r (its
      1.5px line centred) lies r * (1 - cos 45) + 0.53px in from the corner, along both edges. */
@@ -1056,7 +1061,7 @@ html {
   transition: opacity var(--mo-sys-motion-spring-default-effects);
 }
 
-.editor-text .site-block-mark-dot {
+.mo-editor-text .mo-site-block-mark-dot {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1072,11 +1077,11 @@ html {
   transition: border-color var(--mo-sys-motion-spring-default-effects);
 }
 
-.editor-text .site-block:hover .site-block-mark:not([data-mark='on']) .site-block-mark-dot {
+.mo-editor-text .mo-site-block:hover .mo-site-block-mark:not([data-mark='on']) .mo-site-block-mark-dot {
   border-color: var(--mo-sys-color-primary);
 }
 
-.editor-text .site-block-mark[data-mark='on'] .site-block-mark-dot {
+.mo-editor-text .mo-site-block-mark[data-mark='on'] .mo-site-block-mark-dot {
   border-style: solid;
   border-color: var(--mo-sys-color-primary);
   background: var(--mo-sys-color-primary);
@@ -1084,45 +1089,45 @@ html {
   box-shadow: none;
 }
 
-.editor-text :is(.site-block-marks, .site-block-has-row) > .site-block-mark {
+.mo-editor-text :is(.mo-site-block-marks, .mo-site-block-has-row) > .mo-site-block-mark {
   opacity: 1;
   pointer-events: auto;
 }
 
 @media (hover: hover) {
-  .editor-text .site-block:hover .site-block-mark {
+  .mo-editor-text .mo-site-block:hover .mo-site-block-mark {
     opacity: 1;
     pointer-events: auto;
   }
 }
 
 /* The block while it is dragged: raised, following the finger. A line shows the part it will go next to. */
-.editor-text .site-block-dragging {
+.mo-editor-text .mo-site-block-dragging {
   z-index: 3;
 }
 
 /* The lifted box is the dotted outline with its row inside it, with its corners. */
-.editor-text .site-block-dragging > .site-block-card {
+.mo-editor-text .mo-site-block-dragging > .mo-site-block-card {
   box-shadow: var(--mo-sys-elevation-level4-shadow);
   background: var(--mo-sys-color-surface);
 }
 
-.editor-text .site-part-drop-above {
+.mo-editor-text .mo-site-part-drop-above {
   box-shadow: 0 -3px 0 0 var(--mo-sys-color-primary);
 }
 
-.editor-text .site-part-drop-below {
+.mo-editor-text .mo-site-part-drop-below {
   box-shadow: 0 3px 0 0 var(--mo-sys-color-primary);
 }
 
 /* A block in focus shows it with its own outline: a 2 px line in the focus colour, the primary role (a section on a colour swaps it to its
    on-colour). */
-.editor-text .site-block-card:focus-visible {
+.mo-editor-text .mo-site-block-card:focus-visible {
   outline: 2px dotted var(--mo-sys-color-primary);
   outline-offset: 2px;
 }
 
-.editor-text .site-block-hidden-badge {
+.mo-editor-text .mo-site-block-hidden-badge {
   position: absolute;
   z-index: 1;
   top: 1rem;
@@ -1138,19 +1143,19 @@ html {
 
 /* A block typed in place (InlineList.tsx, MarkdownEditor.tsx): the block as the site draws it, its text as fields. The frame is the
    block itself, not a button; it shows the focus ring while a row is being typed in, and the menu sits on a handle at its corner. */
-.editor-text .site-block-inline {
+.mo-editor-text .mo-site-block-inline {
   cursor: text;
 }
 
-.editor-text .site-block-inline .site-block-preview {
+.mo-editor-text .mo-site-block-inline .mo-site-block-preview {
   pointer-events: auto;
 }
 
 /* Image grid typed in place (InlineImageGrid.tsx shows the filter's chips): they do nothing here; the Preview has the real filter. */
-.editor-text .site-block-inline .block-imagegrid-filter .chip {
+.mo-editor-text .mo-site-block-inline .mo-block-imagegrid__filter .mo-chip {
   pointer-events: none;
 }
-.editor-text .site-block-inline:focus-within {
+.mo-editor-text .mo-site-block-inline:focus-within {
   border-color: var(--mo-sys-color-primary);
   outline: 2px dotted var(--mo-sys-color-primary);
   outline-offset: 2px;
@@ -1158,7 +1163,7 @@ html {
 
 /* The contextual menu of a block typed in place (contextualMenu.ts): over the block on a computer, docked above the keyboard on a phone; every
    button a 48 dp target. */
-.contextual-menu {
+.mo-editor-contextual-menu {
   position: fixed;
   z-index: 40;
   display: flex;
@@ -1174,11 +1179,11 @@ html {
   box-shadow: var(--mo-comp-editor-menu-shadow);
 }
 
-.contextual-menu[hidden] {
+.mo-editor-contextual-menu[hidden] {
   display: none;
 }
 
-.contextual-menu button {
+.mo-editor-contextual-menu button {
   display: inline-flex;
   min-width: 3rem;
   height: 3rem;
@@ -1193,20 +1198,20 @@ html {
   white-space: nowrap;
 }
 
-.contextual-menu button:hover,
-.contextual-menu button:focus-visible,
-.contextual-menu button[aria-expanded='true'] {
+.mo-editor-contextual-menu button:hover,
+.mo-editor-contextual-menu button:focus-visible,
+.mo-editor-contextual-menu button[aria-expanded='true'] {
   background: var(--mo-sys-color-surface-container-high);
 }
 
 /* Keyboard focus: the editor's 2 px ring in the primary role (a state layer alone is under 3:1 against the bar). */
-.contextual-menu button:focus-visible {
+.mo-editor-contextual-menu button:focus-visible {
   outline: 2px solid var(--mo-sys-color-primary);
   outline-offset: 2px;
 }
 
 /* A field typed in a row: no frame of its own, the text of the row as the site draws it, and the height of its text. */
-.editor-text .inline-list-field {
+.mo-editor-text .mo-editor-inline-list-field {
   display: block;
   width: 100%;
   margin: 0;
@@ -1224,58 +1229,58 @@ html {
   user-select: text;
 }
 
-.editor-text .inline-list-field:focus {
+.mo-editor-text .mo-editor-inline-list-field:focus {
   outline: none;
 }
 
 /* A row typed in place shows its focus: the editor's 2 px primary ring (owner, 15 Nov 2026), on a click as well as the keyboard. */
-.editor-text .inline-list-field:focus-visible {
+.mo-editor-text .mo-editor-inline-list-field:focus-visible {
   outline: 2px solid var(--mo-sys-color-primary);
   outline-offset: 2px;
   border-radius: var(--mo-sys-shape-corner-extra-small);
 }
 
-.editor-text .inline-list-field::placeholder {
+.mo-editor-text .mo-editor-inline-list-field::placeholder {
   color: currentColor;
   opacity: 1;
 }
 
 /* The media and link slots over the headline of the active card. */
-.editor-text .inline-card-slots {
+.mo-editor-text .mo-editor-inline-card-slots {
   display: flex;
   gap: 0.25rem;
   margin-bottom: 0.25rem;
 }
 
 /* A row of a list the owner made: its fields stacked in the order they were added; a slot has its name above it. */
-.editor-text .inline-fields {
+.mo-editor-text .mo-editor-inline-fields {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   white-space: normal;
 }
 
-.editor-text .inline-field-slot {
+.mo-editor-text .mo-editor-inline-field-slot {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 0.125rem;
 }
 
-.editor-text .inline-field-name {
+.mo-editor-text .mo-editor-inline-field-name {
   color: var(--mo-sys-color-on-surface-variant);
   font-size: var(--mo-sys-typescale-body-small-size, 0.75rem);
 }
 
 /* A List that reads a list: the line that says which, over its rows. */
-.editor-text .inline-list-from {
+.mo-editor-text .mo-editor-inline-list-from {
   margin: 0 0 0.5rem;
   color: var(--mo-sys-color-on-surface-variant);
   font-size: var(--mo-sys-typescale-body-medium-size);
 }
 
 /* A dynamic block that can pick the fields of its list: a text button for each part of a row (top line, bottom line, icon, link). */
-.editor-text .inline-list-parts {
+.mo-editor-text .mo-editor-inline-list-parts {
   display: flex;
   flex-wrap: wrap;
   gap: 0 0.5rem;
@@ -1284,21 +1289,21 @@ html {
 
 /* A typed row's icon slot is an element that draws nothing while the row is not active and has no icon (InlineIcon). The empty slot would still take the row's gap, so a
    row's title would start a gap further in than on the site, where a row without an icon has no slot: the rows share one inner padding, left and right. */
-.editor-text .list-item-leading:empty {
+.mo-editor-text .mo-list__item-leading:empty {
   display: none;
 }
 
 /* The row being typed in has a dotted line round it in the text's own colour (3:1 on every section colour, unlike the section frame's quiet line); the empty row of an empty list is faded. */
-.editor-text .inline-list-row-active {
+.mo-editor-text .mo-editor-inline-list-row-active {
   outline: 2px dotted color-mix(in srgb, currentColor 70%, transparent);
   outline-offset: -2px;
 }
 
-.editor-text .inline-list-row-next:not(.inline-list-row-active) {
+.mo-editor-text .mo-editor-inline-list-row-next:not(.mo-editor-inline-list-row-active) {
   opacity: 0.55;
 }
 /* The chip over Cards that are a carousel on phones: in place they are typed stacked, so the choice is not forgotten. */
-.editor-text .inline-cards-chip {
+.mo-editor-text .mo-editor-inline-cards-chip {
   display: inline-block;
   margin-bottom: 0.5rem;
   border-radius: var(--mo-sys-shape-corner-full);
@@ -1308,7 +1313,7 @@ html {
   font-size: var(--mo-sys-typescale-body-small-size);
 }
 /* A card's media that is set: a button over it, a tap changes it (Cards, InlineCards.tsx). */
-.editor-text .inline-card-media {
+.mo-editor-text .mo-editor-inline-card-media {
   display: block;
   width: 100%;
   border: 0;
@@ -1318,12 +1323,12 @@ html {
   text-align: start;
   cursor: pointer;
 }
-.editor-text .inline-list-slot[aria-pressed='true'] {
+.mo-editor-text .mo-editor-inline-list-slot[aria-pressed='true'] {
   background: var(--mo-sys-color-secondary-container);
   color: var(--mo-sys-color-on-secondary-container);
 }
 /* A card's buttons while it is active: the text of each is typed on the button itself (InlineCards.tsx), drawn as a tonal pill. */
-.editor-text .inline-card-button {
+.mo-editor-text .mo-editor-inline-card-button {
   display: inline-flex;
   min-width: 6rem;
   min-height: 2.5rem;
@@ -1334,11 +1339,11 @@ html {
   color: var(--mo-sys-color-on-secondary-container);
 }
 /* A card's next button: empty and quiet (on-surface-variant, not an opacity, which kept it under 3:1) until it is made (Cards, InlineCards.tsx). */
-.editor-text .inline-card-next-button {
+.mo-editor-text .mo-editor-inline-card-next-button {
   color: var(--mo-sys-color-on-surface-variant);
 }
 
-.inline-list-slot {
+.mo-editor-inline-list-slot {
   display: grid;
   width: 2.5rem;
   height: 2.5rem;
@@ -1347,12 +1352,12 @@ html {
   color: var(--mo-sys-color-on-surface-variant);
 }
 
-.inline-list-slot[data-icon-color] {
+.mo-editor-inline-list-slot[data-icon-color] {
   color: var(--mo-comp-icon-color);
 }
 
-/* In a list the row's icon button is the heading's colour, as the icon is on the site (blocks.css, .block-list). */
-.block-list .inline-list-slot:not([data-icon-color]) {
+/* In a list the row's icon button is the heading's colour, as the icon is on the site (blocks.css, .mo-block-list). */
+.mo-block-list .mo-editor-inline-list-slot:not([data-icon-color]) {
   color: var(--mo-sys-block-text);
 }
 
@@ -1373,30 +1378,30 @@ html {
   --mo-sys-tile-fill: var(--mo-sys-color-tertiary);
   --mo-sys-tile-on: var(--mo-sys-color-on-tertiary);
 }
-[data-icon-grid] .icon-button[aria-pressed='true'] {
+[data-icon-grid] .mo-icon-button[aria-pressed='true'] {
   background: var(--mo-sys-tile-fill);
   color: var(--mo-sys-tile-on);
 }
 
 /* The icon picker's grid draws its icons in the color picked in the Icon color field (IconPicker, iconColor); the chosen one keeps its own colors. */
-[data-icon-grid][data-icon-color] .icon-button:not([aria-pressed='true']) {
+[data-icon-grid][data-icon-color] .mo-icon-button:not([aria-pressed='true']) {
   color: var(--mo-comp-icon-color);
 }
 
-.inline-list-slot:hover,
-.inline-list-slot:focus-visible {
+.mo-editor-inline-list-slot:hover,
+.mo-editor-inline-list-slot:focus-visible {
   background: var(--mo-sys-color-surface-container-high);
 }
 
 /* Keyboard focus: the editor's 2 px ring in the primary role (the state layer alone is about 1.2:1 against the row). */
-.inline-list-slot:focus-visible {
+.mo-editor-inline-list-slot:focus-visible {
   outline: 2px solid var(--mo-sys-color-primary);
   outline-offset: 2px;
 }
 
 /* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
    shadow, so it stands in front of the editor's page also in a theme whose menu has the page's colour and no shadow. */
-.editor-menu {
+.mo-editor-menu {
   --mo-comp-menu-container-elevation: var(--mo-comp-editor-menu-shadow);
 }
 
@@ -1406,61 +1411,61 @@ html {
    a bar menu (`popup`) always opens downwards (it scrolls when it is too high, the script sets its height from the visible
    screen) and has its leading (`start`) or trailing (`end`) edge on the button's. */
 @supports (position-area: block-end) and (width: anchor-size(width)) {
-  .editor-menu[data-menu-attached] {
+  .mo-editor-menu[data-menu-attached] {
     width: max-content;
     min-width: anchor-size(width);
     max-width: max(anchor-size(width), var(--mo-comp-menu-width, 18rem));
     position-area: block-end span-inline-start;
-    inset: var(--dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
+    inset: var(--mo-comp-dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
   }
-  .editor-menu[data-menu-popup] {
+  .mo-editor-menu[data-menu-popup] {
     position-try-fallbacks: none;
   }
-  .editor-menu[data-menu-popup='end'] {
+  .mo-editor-menu[data-menu-popup='end'] {
     position-area: block-end span-inline-start;
-    inset: var(--dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
+    inset: var(--mo-comp-dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
   }
 }
 
 /* On a phone the text's box (bar and body) is 354 dp wide at 375 px (352 inside its 1 dp edges), 10.5 dp from each edge instead of the screen's 16 dp (owner decision, 14 Nov:
    eight 44 dp icons fit). A deviation from M3's 16 dp margin (docs/material-deviations.md). */
-@media (width < theme(--breakpoint-medium)) {
-  .editor-text-box {
+@media (width < 37.5rem) {
+  .mo-editor-text-box {
     margin-inline: -0.34375rem;
   }
 }
 
 /* The text's toolbar (MarkdownEditor.tsx, Toolbar in ui.tsx): the box's top edge, in the box's own surface. */
-.editor-tools {
+.mo-editor-tools {
   --mo-comp-toolbar-docked-container-color: var(--mo-comp-editor-menu-surface);
 }
 
 /* The text box's own side lines run up behind the toolbar when it sticks, so the two cut-outs outside its rounded top corners are
    filled in the page's surface (the same one the body has): the curve is clean, with no line past it. */
-.editor-tools::before,
-.editor-tools::after {
+.mo-editor-tools::before,
+.mo-editor-tools::after {
   content: '';
   position: absolute;
   top: -1px;
-  width: var(--radius-panel);
-  height: var(--radius-panel);
+  width: var(--mo-sys-radius);
+  height: var(--mo-sys-radius);
   pointer-events: none;
 }
 
-.editor-tools::before {
+.mo-editor-tools::before {
   left: -1px;
-  background: radial-gradient(circle at 100% 100%, transparent var(--radius-panel), var(--mo-sys-color-surface) var(--radius-panel));
+  background: radial-gradient(circle at 100% 100%, transparent var(--mo-sys-radius), var(--mo-sys-color-surface) var(--mo-sys-radius));
 }
 
-.editor-tools::after {
+.mo-editor-tools::after {
   right: -1px;
-  background: radial-gradient(circle at 0 100%, transparent var(--radius-panel), var(--mo-sys-color-surface) var(--radius-panel));
+  background: radial-gradient(circle at 0 100%, transparent var(--mo-sys-radius), var(--mo-sys-color-surface) var(--mo-sys-radius));
 }
 
 /* The bar is one row, 44 dp high: the tools of the place at the left, Undo, Redo, Insert block and the `⋮` at the right end, no divider between them. It never scrolls (textBar.mjs picks what is
    on it; the rest is in the `⋮` menu). The buttons are 44 by 44 dp with no gap between them (owner decision, 13 Nov), the idle tools stand at the
    leading edge, and the groups are boxes in a row (their buttons are the bar's). */
-.editor-tools.toolbar {
+.mo-editor-tools.mo-toolbar {
   min-height: 2.75rem;
   justify-content: flex-start;
 }
@@ -1468,7 +1473,7 @@ html {
 /* The bar's moving parts (MarkdownEditor.tsx, barMotion.mjs): one clipped row with the contextual tools and their divider, the main tools and the `⋮`.
    The contextual tools slide in from the left and push the main tools right, and slide out again; the row is as high as the buttons whatever moves
    in it, and a copy of the tools that left (the ghost) slides out over the row without taking room in it. */
-.editor-tools-slide {
+.mo-editor-tools-slide {
   position: relative;
   display: flex;
   flex: 1 1 auto;
@@ -1477,26 +1482,26 @@ html {
   overflow: hidden;
 }
 
-.editor-tools-context,
-.editor-tools-main {
+.mo-editor-tools-context,
+.mo-editor-tools-main {
   display: flex;
   flex: none;
   align-items: center;
 }
 
 /* Undo, Redo, Insert block and the `⋮` stand at the right end in every place, with no divider (owner decision, 14 Nov). */
-.editor-tools-main {
+.mo-editor-tools-main {
   margin-inline-start: auto;
 }
 
-.editor-tools-ghost {
+.mo-editor-tools-ghost {
   position: absolute;
   inset-block-start: 0;
   inset-inline-start: 0;
   pointer-events: none;
 }
 
-.editor-tools-group {
+.mo-editor-tools-group {
   display: flex;
   flex: none;
   align-items: center;
@@ -1504,39 +1509,39 @@ html {
 
 /* A menu of the bar, the `⋮` or Text style, on a phone: when it is too long for the room it scrolls, with the scrollbar kept in view where the platform
    allows (M3: "In this state, menus show a persistent scrollbar"); a phone's overlay scrollbar cannot be forced. */
-.editor-menu {
+.mo-editor-menu {
   scrollbar-width: thin;
   scrollbar-gutter: stable;
 }
 
 /* A tool with a menu in the top toolbar (ToolbarButton in ui.tsx) is the theme's text button, which is in the accent; it
    rests as the other tools do, in the standard icon button's colour (never the accent: only a tool that is on has it). */
-.toolbar-menu-button,
-.toolbar-menu-button:hover {
+.mo-toolbar__menu-button,
+.mo-toolbar__menu-button:hover {
   color: var(--mo-comp-icon-button-standard-icon-color, var(--mo-sys-block-text));
 }
 
 /* Only drawn: the taps go to the card. */
-.editor-text .site-block-preview {
+.mo-editor-text .mo-site-block-preview {
   pointer-events: none;
 }
 
 /* The space a block keeps around it on the site (a price card, a panel) is the frame's here. */
-.editor-text .site-block-preview > :first-child {
+.mo-editor-text .mo-site-block-preview > :first-child {
   margin-top: 0;
 }
 
-.editor-text .site-block-preview > :last-child {
+.mo-editor-text .mo-site-block-preview > :last-child {
   margin-bottom: 0;
 }
 
 /* A section of a fixed page in the type of the site's pages, not that of the text. */
-.editor-text .site-block-section {
+.mo-editor-text .mo-site-block-section {
   font-size: 1.0625rem;
   line-height: 1.5;
 }
 
-.editor-text .site-block-lines {
+.mo-editor-text .mo-site-block-lines {
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
@@ -1550,12 +1555,12 @@ html {
    sections (SectionHeading, PageSection, the boxes on the front page and the prices page), the text
    a section takes as its own, the front page's subtitle and introduction (home/Hero.astro) and a
    page's introduction (PageHeader). Sizes, line heights and colours as the components' classes. */
-.editor-text .ProseMirror > [data-look] {
+.mo-editor-text .ProseMirror > [data-look] {
   margin-block: 1rem 0;
   max-width: none;
 }
 
-.editor-text .ProseMirror > h2[data-look] {
+.mo-editor-text .ProseMirror > h2[data-look] {
   margin-block: 2.5rem 0.75rem;
   color: var(--mo-sys-color-on-surface);
   font-weight: 500;
@@ -1563,119 +1568,119 @@ html {
   line-height: 1.25;
 }
 
-.editor-text .ProseMirror > [data-look='section'] {
+.mo-editor-text .ProseMirror > [data-look='section'] {
   font-size: 2.1rem;
 }
 
-.editor-text .ProseMirror > [data-look='page-section'] {
+.mo-editor-text .ProseMirror > [data-look='page-section'] {
   font-size: 2rem;
 }
 
-.editor-text .ProseMirror > h2[data-look='card-title'] {
+.mo-editor-text .ProseMirror > h2[data-look='card-title'] {
   font-size: 1.5rem;
   line-height: 2rem;
 }
 
-.editor-text .ProseMirror > h2[data-look='urgent'] {
+.mo-editor-text .ProseMirror > h2[data-look='urgent'] {
   font-size: 1.25rem;
   line-height: 1.75rem;
 }
 
-.editor-text .ProseMirror > [data-look~='section-intro'],
-.editor-text .ProseMirror > [data-look~='page-intro'] {
+.mo-editor-text .ProseMirror > [data-look~='section-intro'],
+.mo-editor-text .ProseMirror > [data-look~='page-intro'] {
   max-width: 52ch;
   color: var(--mo-sys-color-on-surface-variant);
   font-size: 1.125rem;
   line-height: 1.75rem;
 }
 
-.editor-text .ProseMirror > [data-look~='page-section-intro'] {
+.mo-editor-text .ProseMirror > [data-look~='page-section-intro'] {
   max-width: 52ch;
   color: var(--mo-sys-color-on-surface-variant);
   font-size: 1.0625rem;
   line-height: 1.5;
 }
 
-.editor-text .ProseMirror > [data-look~='about'],
-.editor-text .ProseMirror > [data-look~='large'] {
+.mo-editor-text .ProseMirror > [data-look~='about'],
+.mo-editor-text .ProseMirror > [data-look~='large'] {
   font-size: 1.125rem;
   line-height: 1.625;
 }
 
-.editor-text .ProseMirror > [data-look~='about'][data-look~='rest'],
-.editor-text .ProseMirror > [data-look~='note'] {
+.mo-editor-text .ProseMirror > [data-look~='about'][data-look~='rest'],
+.mo-editor-text .ProseMirror > [data-look~='note'] {
   color: var(--mo-sys-color-on-surface-variant);
 }
 
-.editor-text .ProseMirror > [data-look~='note'] {
+.mo-editor-text .ProseMirror > [data-look~='note'] {
   font-size: 1.0625rem;
   line-height: 1.5;
 }
 
-.editor-text .ProseMirror > [data-look~='small-note'] {
+.mo-editor-text .ProseMirror > [data-look~='small-note'] {
   color: var(--mo-sys-color-on-surface-variant);
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
-.editor-text .ProseMirror > [data-look='hero-subtitle'] {
+.mo-editor-text .ProseMirror > [data-look='hero-subtitle'] {
   max-width: 30ch;
   margin-top: 0;
   font-size: 1.5rem;
   line-height: 1.375;
 }
 
-.editor-text .ProseMirror > [data-look='hero-intro'] {
+.mo-editor-text .ProseMirror > [data-look='hero-intro'] {
   max-width: 40ch;
   color: var(--mo-sys-color-on-surface-variant);
   font-size: 1.125rem;
   line-height: 1.625;
 }
 
-@media (width >= theme(--breakpoint-medium)) {
-  .editor-text .ProseMirror > [data-look='section'] {
+@media (width >= 37.5rem) {
+  .mo-editor-text .ProseMirror > [data-look='section'] {
     font-size: 3rem;
   }
 
-  .editor-text .ProseMirror > [data-look='page-section'] {
+  .mo-editor-text .ProseMirror > [data-look='page-section'] {
     font-size: 2.25rem;
   }
 
-  .editor-text .ProseMirror > h2[data-look='card-title'] {
+  .mo-editor-text .ProseMirror > h2[data-look='card-title'] {
     font-size: 1.875rem;
     line-height: 2.25rem;
   }
 
-  .editor-text .ProseMirror > [data-look='hero-subtitle'] {
+  .mo-editor-text .ProseMirror > [data-look='hero-subtitle'] {
     font-size: 1.875rem;
     line-height: 1.375;
   }
 
-  .editor-text .ProseMirror > [data-look~='page-intro'] {
+  .mo-editor-text .ProseMirror > [data-look~='page-intro'] {
     font-size: 1.25rem;
     line-height: 1.75rem;
   }
 }
 
 /* A block hidden on the site: faded and grey. */
-.editor-text .site-block-hidden .site-block-preview {
+.mo-editor-text .mo-site-block-hidden .mo-site-block-preview {
   opacity: 0.4;
   filter: grayscale(1);
 }
 
 /* A text with blocks (a page, a fixed page's sections): the cards close together, with the free line
-   between two of them to write in: thin, until the cursor is in it (editor-gap-here, MarkdownEditor.tsx)
+   between two of them to write in: thin, until the cursor is in it (mo-editor-gap-here, MarkdownEditor.tsx)
    or the pointer over it, when it opens up and says so. */
-.editor-spaced {
+.mo-editor-spaced {
   /* The hints are the text's own colour (a section's on-colour, or the page's) at placeholder emphasis (85%, for 4.5:1 on every section colour), never a fixed grey. */
   --mo-comp-editor-hint-color: color-mix(in srgb, currentColor 85%, transparent);
 }
 
-.editor-spaced .site-block {
+.mo-editor-spaced .mo-site-block {
   margin-block: 0.25rem;
 }
 
-.editor-spaced .ProseMirror > p:has(> br:only-child) {
+.mo-editor-spaced .ProseMirror > p:has(> br:only-child) {
   margin-block: 0;
   border-radius: var(--mo-sys-shape-corner-small);
   padding-inline: 0;
@@ -1685,29 +1690,29 @@ html {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .editor-spaced .ProseMirror > p:has(> br:only-child) {
+  .mo-editor-spaced .ProseMirror > p:has(> br:only-child) {
     transition: line-height var(--mo-sys-motion-spring-fast-spatial);
   }
 }
 
-.editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child) {
+.mo-editor-spaced .ProseMirror:focus > p.mo-editor-gap-here:has(> br:only-child) {
   line-height: 1.5rem;
 }
 
-.editor-spaced .ProseMirror:focus > p.editor-gap-here:has(> br:only-child)::before {
-  content: var(--editor-gap-text);
+.mo-editor-spaced .ProseMirror:focus > p.mo-editor-gap-here:has(> br:only-child)::before {
+  content: var(--mo-comp-editor-gap-text);
   position: absolute;
   color: var(--mo-comp-editor-hint-color);
   pointer-events: none;
 }
 
 @media (hover: hover) {
-  .editor-spaced .ProseMirror > p:has(> br:only-child):hover {
+  .mo-editor-spaced .ProseMirror > p:has(> br:only-child):hover {
     line-height: 1.5rem;
   }
 
-  .editor-spaced .ProseMirror > p:has(> br:only-child):hover::before {
-    content: var(--editor-gap-text);
+  .mo-editor-spaced .ProseMirror > p:has(> br:only-child):hover::before {
+    content: var(--mo-comp-editor-gap-text);
     position: absolute;
     color: var(--mo-comp-editor-hint-color);
     pointer-events: none;
@@ -1716,16 +1721,16 @@ html {
 
 /* A page with no text and no block yet: one line says what to do (the Insert button is in the toolbar). */
 /* A page that opens on its H1 has the heading first, so the empty line after it counts too (the editor keeps one there, markdown.mjs spacing). */
-.editor-spaced .ProseMirror > p:only-child:has(> br:only-child)::before,
-.editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child:has(> br:only-child)::before {
-  content: var(--editor-empty-text);
+.mo-editor-spaced .ProseMirror > p:only-child:has(> br:only-child)::before,
+.mo-editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child:has(> br:only-child)::before {
+  content: var(--mo-comp-editor-empty-text);
   position: absolute;
   color: var(--mo-comp-editor-hint-color);
   pointer-events: none;
 }
 
 /* The line after the H1 is a tap target of 48dp, the same height with or without text, so typing moves nothing. */
-.editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child {
+.mo-editor-spaced .ProseMirror > h1:first-child:nth-last-child(2) + p:last-child {
   min-height: 3rem;
   margin-block: 0;
   line-height: 1.5rem;
@@ -1742,17 +1747,17 @@ dialog {
   overscroll-behavior: contain;
 }
 
-/* The first heading of a page's text is its title, drawn as the site draws it (.theme-title in the theme's site-page.css, and
+/* The first heading of a page's text is its title, drawn as the site draws it (.mo-page-title in the theme's site-page.css, and
    PageHeading.astro's width): the display role, by the theme's variables, not the weight of a heading in the middle of the text. */
-.editor-text .ProseMirror > h1:first-child {
+.mo-editor-text .ProseMirror > h1:first-child {
   max-width: 22ch;
   font-size: var(--mo-comp-theme-title-size, var(--mo-sys-typescale-display-small-size));
   line-height: var(--mo-comp-theme-title-leading);
   font-weight: var(--mo-sys-typescale-display-small-weight);
   letter-spacing: var(--mo-sys-typescale-display-small-tracking);
 }
-@media (width >= theme(--breakpoint-medium)) {
-  .editor-text .ProseMirror > h1:first-child {
+@media (width >= 37.5rem) {
+  .mo-editor-text .ProseMirror > h1:first-child {
     font-size: var(--mo-comp-theme-title-size-large, var(--mo-sys-typescale-display-medium-size));
     font-weight: var(--mo-sys-typescale-display-medium-weight);
     letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
@@ -1761,97 +1766,97 @@ dialog {
 
 /* Notice and Video typed in place: the notice's text and the video's title are typed where the site draws them; the video's title
    stands under its frame, as text of the page does. */
-.editor-text .inline-notice {
+.mo-editor-text .mo-editor-inline-notice {
   display: block;
   cursor: text;
 }
 
-.editor-text .inline-notice p {
+.mo-editor-text .mo-editor-inline-notice p {
   margin: 0;
 }
 
-.editor-text .inline-video {
+.mo-editor-text .mo-editor-inline-video {
   display: grid;
   gap: 0.5rem;
 }
 
-.editor-text .inline-video-title {
+.mo-editor-text .mo-editor-inline-video-title {
   margin: 0;
   color: var(--mo-sys-color-on-surface-variant);
 }
 
 /* Buttons typed in place: the label is typed on the button itself, which has the width of its text; the default buttons shown while the block has none of its own. */
-.editor-text .inline-buttons .inline-button .inline-list-field,
-.editor-text .inline-plans .block-plan-buttons .inline-list-field {
+.mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-field,
+.mo-editor-text .mo-editor-inline-plans .mo-block-pricecards__plan-buttons .mo-editor-inline-list-field {
   width: auto;
   min-width: 3ch;
   text-align: center;
 }
 
-.editor-text .inline-buttons .inline-button .inline-list-slot {
+.mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-slot {
   color: inherit;
 }
 
 /* The text of an empty button, and its hint, are the button kind's own on-colour (filled on-primary, tonal on-secondary-container, elevated
    and outlined primary), the hint at the placeholder emphasis; never the text colour of the page. */
-.editor-text .inline-buttons .inline-button .inline-list-field {
+.mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-field {
   color: inherit;
 }
 
-.editor-text .inline-buttons .inline-button .inline-list-field::placeholder {
+.mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-field::placeholder {
   color: inherit;
   opacity: 1;
 }
 
-.editor-text .inline-buttons-shared {
+.mo-editor-text .mo-editor-inline-buttons-shared {
   display: contents;
   cursor: text;
 }
 
 /* The Table typed in place: the cells as the site draws them, each a field; the active cell has the dotted line, and the next row and the next
    column (shown while the block is active) are faded until typed in. */
-.editor-text .inline-table-box :is(th, td) {
+.mo-editor-text .mo-editor-inline-table-box :is(th, td) {
   height: auto;
 }
 
-.editor-text .inline-table-box textarea {
+.mo-editor-text .mo-editor-inline-table-box textarea {
   text-align: inherit;
 }
 
-.editor-text .inline-table-box .inline-table-cell-active {
+.mo-editor-text .mo-editor-inline-table-box .mo-editor-inline-table-cell-active {
   outline: var(--mo-comp-editor-section-frame);
   outline-offset: -2px;
 }
 
 /* The table the full width of the text. */
-.editor-text .inline-table-host {
+.mo-editor-text .mo-editor-inline-table-host {
   display: grid;
   justify-items: start;
 }
 
-.editor-text .inline-table-host > .inline-table-box {
+.mo-editor-text .mo-editor-inline-table-host > .mo-editor-inline-table-box {
   width: 100%;
 }
 
 /* Price cards typed in place: the points are fields in the card's checklist, and the button's label is typed on the button. */
-.editor-text .inline-plans .inline-plan-features .inline-list-field {
+.mo-editor-text .mo-editor-inline-plans .mo-editor-inline-plan-features .mo-editor-inline-list-field {
   min-width: 6ch;
 }
 
-.editor-text .inline-plans .block-plan-buttons .inline-button {
+.mo-editor-text .mo-editor-inline-plans .mo-block-pricecards__plan-buttons .mo-editor-inline-button {
   justify-content: center;
 }
 
-.editor-text .inline-plans .inline-list-add {
+.mo-editor-text .mo-editor-inline-plans .mo-editor-inline-list-add {
   align-self: flex-start;
 }
 
-.editor-text .inline-plans .inline-button-faded:not(:focus-within) {
+.mo-editor-text .mo-editor-inline-plans .mo-editor-inline-button-faded:not(:focus-within) {
   opacity: 0.55;
 }
 
 /* The FAQ's text button typed in place under its questions (while the block is active): its text, then the slot for its page. */
-.editor-text .inline-faq-button {
+.mo-editor-text .mo-editor-inline-faq-button {
   display: flex;
   min-height: 2.5rem;
   align-items: center;
@@ -1860,18 +1865,18 @@ dialog {
 
 /* The select-all box of the swapped top bar (SelectionBar.tsx): a 48 px target with its name after it, only the box on a
    phone (the name stays for a screen reader). */
-.selection-bar-all {
+.mo-editor-selection-bar-all {
   align-items: center;
   min-height: 3rem;
   min-width: 3rem;
   padding-inline: 0.5rem 0.75rem;
   border-radius: var(--mo-sys-shape-corner-full);
 }
-.selection-bar-all .checkbox-box {
+.mo-editor-selection-bar-all .mo-checkbox__box {
   margin: 0;
 }
-@media (max-width: 599.98px) {
-  .selection-bar-all .checkbox-text {
+@media (width < 37.5rem) {
+  .mo-editor-selection-bar-all .mo-checkbox__text {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -1879,155 +1884,29 @@ dialog {
     clip-path: inset(50%);
     white-space: nowrap;
   }
-  .selection-bar-all {
+  .mo-editor-selection-bar-all {
     gap: 0;
     padding-inline: 0.5rem;
   }
 }
 
-/* Layout density (docs/superpowers/specs/2026-11-13-density-design.md, PR 3): the space between the editor's sections follows the
-   person's step, 4 px a step (M3: "Higher density is typically applied by decreasing the top and bottom padding or overall height by
-   4dp"), on the vertical rhythm only: the space between stacked sections (space-y, the margins and padding above and below, the gap of a
-   column), from 12 px up. Small gaps (4 and 8 px, between a part and its label) and everything at the sides stay (horizontal padding does
-   not change with density, owner rule). Where the 8 px gap between targets matters (M3: "targets separated by 8dp of space or more") it is
-   below the range. In the page and post editing area --mo-sys-density-layout is the theme's own step, so nothing changes there. */
-.space-y-3 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.space-y-4 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.space-y-5 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.space-y-6 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.space-y-8 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.space-y-10 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-ref-space-500) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.mb-3:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.mb-4:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.mb-5:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.mb-6:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.mb-8:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.mb-10:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-end: calc(var(--mo-ref-space-500) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.mt-3:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-start: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.mt-4:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-start: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.mt-5:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-start: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.mt-6:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-start: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.mt-8:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-start: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.mt-10:not([class*=':mb-'], [class*=':mt-'], [class*='my-'], [class*='m-0']) {
-  margin-block-start: calc(var(--mo-ref-space-500) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.pt-3:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-start: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.pt-4:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-start: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.pt-5:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-start: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.pt-6:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-start: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.pt-8:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-start: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.pt-10:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-start: calc(var(--mo-ref-space-500) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.pb-3:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.pb-4:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.pb-5:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-end: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.pb-6:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.pb-8:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.pb-10:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='py-'], [class*='p-0']) {
-  padding-block-end: calc(var(--mo-ref-space-500) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.py-3:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
-  padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.py-4:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
-  padding-block: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.py-5:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
-  padding-block: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.py-6:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
-  padding-block: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.py-8:not([class*=':pt-'], [class*=':pb-'], [class*=':py-'], [class*='pt-'], [class*='pb-'], [class*='p-0']) {
-  padding-block: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.flex-col.gap-3 {
-  row-gap: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.flex-col.gap-4 {
-  row-gap: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.flex-col.gap-5 {
-  row-gap: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.flex-col.gap-6 {
-  row-gap: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-.flex-col.gap-8 {
-  row-gap: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-}
-/* The screen's own top padding (24 px, 32 px from a medium window up) takes the step too, with its Tailwind classes' own breakpoint. */
-.editor-screen {
+/* The screen's own top padding (24 px, 32 px from a medium window up) takes the step too, from the medium width. */
+.mo-editor-screen {
   padding-top: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
-@media (width >= theme(--breakpoint-medium)) {
-  .editor-screen {
+@media (width >= 37.5rem) {
+  .mo-editor-screen {
     padding-top: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
 }
 
 /* The crop view (CropView.tsx, image tools spec section 3): a page of the editor on every width, as a layer the size of the window over it (a modal
    <dialog>, so the form under it keeps its changes and its scroll place): the top app bar, the content in a column as wide as a form, and the Save row
-   in the theme's standard bottom sheet. A block's subpage on a phone (.block-page, BlockDialog.tsx) has the same layer, column and sheet. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
+   in the theme's standard bottom sheet. A block's subpage on a phone (.mo-editor-block-page, BlockDialog.tsx) has the same layer, column and sheet. The image area shows the whole image in its real proportions; the frame is the aspect ratio's box, and the part of the image outside it is under the
    theme's scrim, the one its dialogs have behind their container (--mo-comp-dialog-scrim). The frame has a 2 dp border with a 1 dp halo outside it in the other
    inverse colour, so one of the two stands against any image, light or dark (M3 prints no frame: the focus ring's two-tone look). */
-.crop-page,
-.block-page {
+.mo-editor-crop-page,
+.mo-editor-block-page {
   position: fixed;
   inset: 0;
   width: 100%;
@@ -2040,17 +1919,17 @@ dialog {
   background: var(--mo-sys-color-surface);
   color: var(--mo-sys-color-on-surface);
 }
-.crop-page:focus,
-.block-page:focus {
+.mo-editor-crop-page:focus,
+.mo-editor-block-page:focus {
   outline: none;
 }
-.crop-page[open],
-.block-page[open] {
+.mo-editor-crop-page[open],
+.mo-editor-block-page[open] {
   display: flex;
   flex-direction: column;
 }
-.crop-page-main,
-.block-page-main {
+.mo-editor-crop-page-main,
+.mo-editor-block-page-main {
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -2060,35 +1939,35 @@ dialog {
   margin-inline: auto;
   padding: 1rem;
 }
-.crop-page-main,
-.block-page-main {
+.mo-editor-crop-page-main,
+.mo-editor-block-page-main {
   /* The Save row is the theme's standard bottom sheet (ActionSheet), fixed over the layer: the content ends above it. */
   padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
-@media (width >= theme(--breakpoint-medium)) {
-  .crop-page-main,
-  .block-page-main {
+@media (width >= 37.5rem) {
+  .mo-editor-crop-page-main,
+  .mo-editor-block-page-main {
     padding: 1.5rem 1.5rem calc(5.5rem + env(safe-area-inset-bottom));
   }
 }
 /* A block's fields on a compact window (BlockDialog.tsx): the crop page's layer and column (the rules above), with the fields scrolling inside
-   the column and the page lifted above the on-screen keyboard (followKeyboard sets --keyboard-inset while it is up); its Save sheet follows the keyboard itself. */
-.block-page-main {
+   the column and the page lifted above the on-screen keyboard (followKeyboard sets --mo-comp-bottom-sheet-keyboard-inset while it is up); its Save sheet follows the keyboard itself. */
+.mo-editor-block-page-main {
   overflow-y: auto;
   overscroll-behavior: contain;
 }
-.block-page[data-keyboard] {
-  bottom: var(--keyboard-inset, 0);
+.mo-editor-block-page[data-keyboard] {
+  bottom: var(--mo-comp-bottom-sheet-keyboard-inset, 0);
   height: auto;
 }
-.crop-view {
+.mo-editor-crop-view {
   display: flex;
   flex: 1;
   flex-direction: column;
   gap: 0.75rem;
   min-height: 0;
 }
-.crop-view-area {
+.mo-editor-crop-view-area {
   position: relative;
   flex: 1;
   min-height: 10rem;
@@ -2098,18 +1977,18 @@ dialog {
   touch-action: none;
   user-select: none;
 }
-.crop-view-area:active {
+.mo-editor-crop-view-area:active {
   cursor: grabbing;
 }
-.crop-view-area[data-original] {
+.mo-editor-crop-view-area[data-original] {
   cursor: default;
 }
-.crop-view-image {
+.mo-editor-crop-view-image {
   position: absolute;
   max-width: none;
   pointer-events: none;
 }
-.crop-view-frame {
+.mo-editor-crop-view-frame {
   position: absolute;
   box-sizing: border-box;
   border: 2px solid var(--mo-sys-color-inverse-on-surface);
@@ -2118,7 +1997,7 @@ dialog {
 }
 /* The part of the image outside the frame is under the theme's scrim, the one its dialogs have behind their container (--mo-comp-dialog-scrim); only the image is, so
    the blank part of the stage keeps the page's colour. */
-.crop-view-shade {
+.mo-editor-crop-view-shade {
   position: absolute;
   background: var(
     --mo-comp-dialog-scrim,
@@ -2126,49 +2005,49 @@ dialog {
   );
   pointer-events: none;
 }
-.crop-view-frame:focus-visible {
+.mo-editor-crop-view-frame:focus-visible {
   outline: 2px solid var(--mo-sys-color-primary);
   outline-offset: 4px;
 }
-.crop-view-hint {
+.mo-editor-crop-view-hint {
   margin: 0;
   color: var(--mo-sys-color-on-surface-variant);
   font-size: var(--mo-sys-typescale-body-small-size, 0.75rem);
   text-align: center;
 }
-.crop-view-label {
+.mo-editor-crop-view-label {
   margin: 0 0 0.5rem;
   font-weight: 500;
 }
 /* One row that scrolls sideways below medium; from medium the chips wrap. */
-.crop-view-ratios {
+.mo-editor-crop-view-ratios {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
   scrollbar-width: none;
 }
-.crop-view-ratios > * {
+.mo-editor-crop-view-ratios > * {
   flex-shrink: 0;
 }
-.crop-view-zoom {
+.mo-editor-crop-view-zoom {
   display: flex;
   align-items: center;
   gap: 0.25rem;
 }
-@media (width >= theme(--breakpoint-medium)) {
-  .crop-view-ratios {
+@media (width >= 37.5rem) {
+  .mo-editor-crop-view-ratios {
     flex-wrap: wrap;
     overflow-x: visible;
   }
 }
 
 /* The Keyboard shortcuts dialog (ShortcutsSheet.tsx) is a dialog in the middle of the screen on a computer, not a sheet from the bottom: no drag handle. */
-.shortcuts-dialog .bottom-sheet-drag-handle {
+.mo-editor-shortcuts-dialog .mo-bottom-sheet__drag-handle {
   display: none;
 }
-.shortcuts-dialog .bottom-sheet-header {
+.mo-editor-shortcuts-dialog .mo-bottom-sheet__header {
   padding-top: 1.25rem;
 }
-.shortcuts-dialog:focus {
+.mo-editor-shortcuts-dialog:focus {
   outline: none;
 }

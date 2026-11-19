@@ -1,9 +1,9 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 :root,
-:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   --mo-comp-fab-shadow: var(--mo-sys-elevation-level3-shadow);
   --mo-comp-fab-hover-shadow: var(--mo-sys-elevation-level4-shadow);
   /* FABs: 56px high with large corners, the medium (80px) large increased, the large (96px) extra-large; the third
@@ -27,7 +27,7 @@
   --mo-comp-fab-menu-close-radius: var(--mo-sys-shape-corner-full);
 }
 @layer components {
-  .fab-menu-list {
+  .mo-fab-menu__list {
     --mo-comp-fab-container-shape: var(--mo-sys-shape-corner-full);
     --mo-comp-fab-primary-container-container-color: var(--mo-sys-color-surface-container-high);
     --mo-comp-fab-primary-container-icon-color: var(--mo-sys-color-on-surface);
@@ -40,7 +40,7 @@
 }
 /* In the navigation drawer: at the top, in the secondary container, lowered (as in a Google app): M3's lowered FAB, at
    the first elevation and the second when pointed at. */
-.navigation-drawer > .extended-fab {
+.mo-navigation-drawer > .mo-extended-fab {
   --mo-comp-fab-shadow: var(--mo-sys-elevation-level1-shadow);
   --mo-comp-fab-hover-shadow: var(--mo-sys-elevation-level2-shadow);
 }

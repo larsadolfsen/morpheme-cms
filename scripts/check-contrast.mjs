@@ -69,20 +69,20 @@ const scan = `(root) => {
   const ratio = (a, b) => (Math.max(lum(a), lum(b)) + 0.05) / (Math.min(lum(a), lum(b)) + 0.05);
   const hex = (c) => '#' + c.slice(0, 3).map((v) => Math.round(v).toString(16).padStart(2, '0')).join('');
   const sectionOf = (el) => {
-    const s = el.closest('[class*="text-section-"], [data-section-color]');
+    const s = el.closest('.mo-text-section, [data-section-color]');
     if (!s) return 'surface';
-    return s.getAttribute('data-section-color') ?? (/text-section-(surface|primary|secondary|tertiary)/.exec(s.className)?.[1] ?? 'surface');
+    return s.getAttribute('data-section-color') ?? (/\bmo-is-(surface|primary|secondary|tertiary)\b/.exec(s.className)?.[1] ?? 'surface');
   };
   const blockOf = (el) => {
-    const card = el.closest('.site-block-card');
+    const card = el.closest('.mo-site-block-card');
     if (card) return 'editor ' + (card.getAttribute('aria-label') ?? '').toLowerCase();
     for (let e = el; e && e !== document.body; e = e.parentElement) {
       const cls = typeof e.className === 'string' ? e.className : '';
-      const t = e.getAttribute('data-block') ?? (/\\bblock-in-text\\b/.test(cls) || e.classList.contains('site-block-inline') ? /\\bblock-(?!in-text)([a-z]+)/.exec(cls)?.[1] : null);
+      const t = e.getAttribute('data-block') ?? (/\\bmo-is-in-text\\b/.test(cls) || e.classList.contains('mo-site-block-inline') ? /\\bmo-block-([a-z]+)/.exec(cls)?.[1] : null);
       if (t) return t;
     }
     for (let e = el; e && e !== document.body; e = e.parentElement) {
-      const t = /\\b(header|footer|mobile-menu|cookie-consent|page-header|action-bar|post-card|popup)\\b/.exec(typeof e.className === 'string' ? e.className : '') ?? (['HEADER','FOOTER','NAV'].includes(e.tagName) ? [e.tagName.toLowerCase()] : null);
+      const t = /\\b(header|footer|mobile-menu|cookie-consent|page-header|action-bar|mo-post-card|popup)\\b/.exec(typeof e.className === 'string' ? e.className : '') ?? (['HEADER','FOOTER','NAV'].includes(e.tagName) ? [e.tagName.toLowerCase()] : null);
       if (t) return t[1] ?? t[0];
     }
     return 'text';
@@ -91,7 +91,7 @@ const scan = `(root) => {
   const variantOf = (el, blockEl) => {
     const out = new Set();
     for (let e = el; e && e !== document.body; e = e.parentElement) {
-      for (const c of typeof e.className === 'string' ? e.className.split(/\\s+/) : []) if (VARIANT.test(c) && !/^(ProseMirror|prose)/.test(c) && !c.startsWith('text-section-')) out.add(c);
+      for (const c of typeof e.className === 'string' ? e.className.split(/\\s+/) : []) if (VARIANT.test(c) && !/^(ProseMirror|mo-prose)/.test(c) && !c.startsWith('mo-is-')) out.add(c);
       if (e === blockEl) break;
     }
     return [...out].sort().join(' ');
@@ -126,7 +126,7 @@ const scan = `(root) => {
   const opacityOf = (el) => { let o = 1; for (let e = el; e; e = e.parentElement) o *= parseFloat(getComputedStyle(e).opacity); return o; };
   const records = [];
   const push = (el, kind, front, back, min, extra) => {
-    const blockEl = el.closest('[data-block], .block-in-text, .site-block-inline');
+    const blockEl = el.closest('[data-block], .mo-is-in-text, .mo-site-block-inline');
     const r = ratio(over(front, back), back);
     records.push({ block: blockOf(el), variant: variantOf(el, blockEl), section: sectionOf(el), kind, fg: hex(over(front, back)), bg: hex(back), ratio: r, min, text: (extra.text ?? '').slice(0, 40), manual: extra.manual, tag: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.split(/\\s+/)[0] : '') });
   };
@@ -165,7 +165,7 @@ const scan = `(root) => {
   for (const el of root.querySelectorAll('a, button, input, textarea, select, summary')) {
     if (hidden(el) || el.closest(':disabled, [aria-disabled="true"]')) continue;
     const s = getComputedStyle(el);
-    if (el.matches('input, textarea, select') || el.matches('[class*="button-outline"]')) {
+    if (el.matches('input, textarea, select') || el.matches('.mo-is-outlined')) {
       const w = parseFloat(s.borderTopWidth);
       if (w > 0 && s.borderTopStyle !== 'none') {
         const { back, manual } = behind(el.parentElement ?? el);
@@ -274,15 +274,15 @@ try {
             await editor.mouse.move(0, 0);
             const view = `${theme} editor ${scheme} ${width}`;
             results.push(...unique(await editor.evaluate(`(${scan})(document.querySelector('.ProseMirror'))`), `${view} resting`));
-            const inline = await editor.locator('.ProseMirror .site-block-inline').count();
+            const inline = await editor.locator('.ProseMirror .mo-site-block-inline').count();
             for (let i = 0; i < inline; i++) {
-              const block = editor.locator('.ProseMirror .site-block-inline').nth(i);
+              const block = editor.locator('.ProseMirror .mo-site-block-inline').nth(i);
               await block.scrollIntoViewIfNeeded().catch(() => {});
-              const field = block.locator('input, textarea, [contenteditable="true"], .inline-list-field').first();
+              const field = block.locator('input, textarea, [contenteditable="true"], .mo-editor-inline-list-field').first();
               if (!(await field.count())) continue;
               await field.click({ timeout: 2000 }).catch(() => {});
               await editor.mouse.move(0, 0);
-              const records = await editor.evaluate(`(${scan})(document.querySelectorAll('.ProseMirror .site-block-inline')[${i}])`);
+              const records = await editor.evaluate(`(${scan})(document.querySelectorAll('.ProseMirror .mo-site-block-inline')[${i}])`);
               results.push(...unique(records, `${view} selected`));
             }
             await editor.close();

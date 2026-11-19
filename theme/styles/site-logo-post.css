@@ -3,7 +3,7 @@
    (docs/superpowers/plans/2026-11-16-css-split.md). */
 @layer components {
   /* The logo (Logo.astro, MobileMenu.tsx): the mark in its tile, the name and the role. */
-  .theme-logo-tile {
+  .mo-logo__tile {
     display: inline-grid;
     flex-shrink: 0;
     place-items: center;
@@ -11,59 +11,81 @@
     background: var(--mo-comp-theme-logo-tile);
     padding: var(--mo-comp-theme-logo-tile-padding);
   }
-  .theme-logo-mark {
+  .mo-logo__mark {
     width: calc(2.25rem * var(--mo-comp-theme-logo-mark-scale));
     height: calc(2.5rem * var(--mo-comp-theme-logo-mark-scale));
     background-color: var(--mo-comp-theme-logo-mark, var(--mo-sys-color-primary));
   }
-  .theme-logo-mark-small {
+  :where(.mo-logo__mark).mo-is-small {
     width: calc(1.75rem * var(--mo-comp-theme-logo-mark-scale));
     height: calc(2rem * var(--mo-comp-theme-logo-mark-scale));
   }
-  .theme-logo-name {
+  .mo-logo__name {
     font-size: var(--mo-comp-theme-logo-name-size);
     font-weight: var(--mo-comp-theme-logo-name-weight);
   }
-  .theme-logo-role {
+  .mo-logo__role {
     display: var(--mo-comp-theme-logo-role-display);
   }
   @media (width >= 37.5rem) {
-    .theme-logo-role {
+    .mo-logo__role {
       display: var(--mo-comp-theme-logo-role-display-large);
     }
   }
-  .theme-post-list.list > li {
+  .mo-post-list.mo-list > li {
     border-top: 1px solid var(--mo-sys-color-outline-variant);
   }
-  .theme-post-picture {
+  .mo-post-list__image {
     object-fit: cover;
   }
-  .theme-post-picture-empty {
+  :where(.mo-post-list__image).mo-is-empty {
     background: var(--mo-sys-color-surface-container-high);
   }
   /* The blog page's list (PostList columns 2): one column, two from expanded (840 dp); the block in the text column is placed by text-section.css. */
-  .theme-post-list {
+  .mo-post-list {
     display: grid;
     column-gap: var(--mo-sys-grid-gutter);
   }
   @media (width >= 52.5rem) {
-    .theme-post-list-columns {
+    :where(.mo-post-list).mo-has-columns {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
   /* The headline is the list's own (body large, the list token; owner, 18 Nov 2026), so the post's title, an <h3> for the page's outline, takes
      the headline's text and no margin of a heading. */
-  .theme-post-title {
+  .mo-post-list__title {
     margin: 0;
     font: inherit;
     letter-spacing: inherit;
   }
   /* The description: two lines, the list's three-line item has room for. */
-  .theme-post-excerpt {
+  .mo-post-list__excerpt {
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
+  }
+}
+
+/* The logo's layout (Logo.astro): the tile and the text in a row, the name and the role. In @layer utilities, where the utility classes they
+   replace sat. */
+@layer utilities {
+  .mo-logo {
+    --mo-comp-row-gap: 0.625rem;
+  }
+  /* The mark in the accent colour, when the caller gives no other. */
+  .mo-logo-mark-primary {
+    background-color: var(--mo-sys-color-primary);
+  }
+  .mo-logo__text {
+    line-height: 1.25;
+  }
+  .mo-logo__name {
+    display: block;
+    letter-spacing: -0.025em;
+  }
+  .mo-logo__role {
+    color: var(--mo-sys-color-on-surface-variant);
   }
 }

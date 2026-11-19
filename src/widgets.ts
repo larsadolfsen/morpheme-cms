@@ -35,7 +35,8 @@ export type WidgetDefinition = {
 export type WidgetSpan = 'full' | 'column';
 
 /** The theme grid's class for a card of this span (theme/styles/ui.css). */
-export const spanClass = (span?: WidgetSpan) => (span === 'full' ? 'grid-span-full' : span === 'column' ? '' : 'grid-span-compact');
+export const spanClass = (span?: WidgetSpan) =>
+  span === 'full' ? 'mo-staggered-grid__span-full' : span === 'column' ? '' : 'mo-staggered-grid__span-compact';
 
 /** All widgets there are to place, by their full id: the CMS's first (`cms`: cmsWidgets.ts, by key), then those of each app
  * installed (`installed`: the ids of the apps, as tabsOf takes them), in the order of the apps. */

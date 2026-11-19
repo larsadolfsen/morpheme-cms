@@ -1,4 +1,4 @@
-// Tabs (m3.material.io/components/tabs, .tabs and .tab in ../styles/ui/tabs.css): a row of tabs (Tabs), the open one
+// Tabs (m3.material.io/components/tabs, .mo-tabs and .mo-tabs__tab in ../styles/ui/tabs.css): a row of tabs (Tabs), the open one
 // `selected`. Their kind (`kind`) is Material's: `primary` (the main views under the top app bar: each tab's icon over
 // its label, or beside it with `inline`, and the indicator under the label) or `secondary` (views within a part of the
 // page: the label, evt. with its icon beside it, and the indicator under the whole tab), each with the divider under the
@@ -21,13 +21,13 @@ export type TabsKind = 'primary' | 'secondary';
 export const tabsKinds: TabsKind[] = ['primary', 'secondary'];
 
 /** The row's class, and a tab's. */
-export const tabsClass = 'tabs';
-export const tabClass = 'tab';
+export const tabsClass = 'mo-tabs';
+export const tabClass = 'mo-tabs__tab';
 
 /** The row's classes with its kind, fixed or scrollable, and with the primary tabs' icons beside their labels
  * (`inline`). */
 export const tabsClasses = (kind?: TabsKind, scrollable = true, inline = false) =>
-  [tabsClass, kind && `tabs-${kind}`, !scrollable && 'tabs-fixed', inline && 'tabs-inline'].filter(Boolean).join(' ');
+  [tabsClass, kind && `mo-tabs__${kind}`, !scrollable && 'mo-tabs__fixed', inline && 'mo-tabs__inline'].filter(Boolean).join(' ');
 
 export function Tabs({
   kind,
@@ -75,16 +75,16 @@ export function Tab({
   badge?: true | number;
   children: ReactNode;
 } & Record<string, unknown>) {
-  const mark = badge !== undefined && <Badge count={badge === true ? undefined : badge} className="tab-badge" />;
+  const mark = badge !== undefined && <Badge count={badge === true ? undefined : badge} className="mo-tabs__tab-badge" />;
   const content = (
-    <span className="tab-content">
+    <span className="mo-tabs__tab-content">
       {icon && (
-        <span className="tab-icon">
+        <span className="mo-tabs__tab-icon">
           <Glyph icon={icon} size={24} />
           {mark}
         </span>
       )}
-      <span className="tab-label">
+      <span className="mo-tabs__tab-label">
         {children}
         {!icon && mark}
       </span>

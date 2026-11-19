@@ -48,7 +48,7 @@ function ThemeStoreList({ env, again, header }: { env: Env; again: () => void; h
       />
       <StoreNotice connected={connected} read={catalog} mayChange={key?.mayChange ?? false} again={again} />
       {catalog === null ? null : !groups.length ? (
-        <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
+        <p className="mo-editor-empty-note">{t.common.noMatch}</p>
       ) : (
         groups.map((g) => (
           <Group key={g.key ?? 'all'} title={g.key ?? undefined}>

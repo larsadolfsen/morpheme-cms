@@ -3,9 +3,5 @@
 import { copyright } from '../lib/footerLinks.mjs';
 
 export default function FooterCopyright() {
-  return (
-    <span className="mo-type-body-medium inline-flex min-h-9 items-center px-3 text-on-surface-variant">
-      {copyright(new Date().getFullYear())}
-    </span>
-  );
+  return <span className="mo-type-body-medium mo-editor-footer-copyright">{copyright(new Date().getFullYear())}</span>;
 }

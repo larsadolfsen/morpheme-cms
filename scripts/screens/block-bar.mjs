@@ -23,20 +23,20 @@ async function checkCardBar(width, height = 800) {
   await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
   // The block's fields are in a sheet on a phone (Insert puts it in) and in the live side panel from expanded (it is in already; the close button closes the panel).
   const sheet = page
-    .locator('dialog[open], .editor-side-sheet')
+    .locator('dialog[open], .mo-editor-side-sheet')
     .filter({ has: page.locator('textarea') })
     .last();
   await sheet.locator('textarea').fill('<iframe src="https://www.youtube.com/embed/abc" title="Clip"></iframe>');
   if (phone) await sheet.locator('button', { hasText: /^Insert$/ }).click();
   else await sheet.locator('[data-side-sheet-close]').click();
-  await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 6000 });
-  await page.locator('.ProseMirror .site-block-card').first().click();
+  await page.waitForSelector('.ProseMirror .mo-site-block-card', { timeout: 6000 });
+  await page.locator('.ProseMirror .mo-site-block-card').first().click();
   await page.waitForTimeout(400);
   const selected = await page.evaluate(() => ({
-    pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
-    popup: document.querySelectorAll('.site-block-menu').length,
-    haspopup: document.querySelectorAll('.site-block-card[aria-haspopup]').length,
-    groups: [...document.querySelectorAll('.editor-tools [role=group]')].map((g) => g.getAttribute('aria-label')),
+    pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"]').length,
+    popup: document.querySelectorAll('.mo-site-block-menu').length,
+    haspopup: document.querySelectorAll('.mo-site-block-card[aria-haspopup]').length,
+    groups: [...document.querySelectorAll('.mo-editor-tools [role=group]')].map((g) => g.getAttribute('aria-label')),
   }));
   if (selected.pressed !== 1) problems.push(`${label}: a tap on the card did not select it (${selected.pressed} selected)`);
   if (selected.popup || selected.haspopup) problems.push(`${label}: the card still has a pop-up menu of its own`);
@@ -47,7 +47,7 @@ async function checkCardBar(width, height = 800) {
   // Remove is in the card's ⋮ at every width (from expanded the side sheet has none).
   if (!tools.names.includes('Remove')) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
   const rowNames = await page
-    .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
+    .locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')
     .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   if (!rowNames.includes('Move up')) problems.push(`${label}: the card's action row has no Move up (${rowNames})`);
   if (tools.names.includes('Move up') || tools.names.includes('Hide'))
@@ -73,12 +73,12 @@ async function checkCardBar(width, height = 800) {
   await pressMore(page, 'Move up', phone ? 'tap' : 'click');
   await page.waitForTimeout(500);
   const moved = await page.evaluate(() => {
-    const card = document.querySelector('.ProseMirror .site-block-card')?.getBoundingClientRect();
+    const card = document.querySelector('.ProseMirror .mo-site-block-card')?.getBoundingClientRect();
     const hello = [...document.querySelectorAll('.ProseMirror p')].find((p) => p.textContent.trim() === 'Hello')?.getBoundingClientRect();
     return {
       first: !!card && !!hello && card.top < hello.top,
-      pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
-      group: document.querySelector('.editor-tools [role=group]')?.getAttribute('aria-label'),
+      pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"]').length,
+      group: document.querySelector('.mo-editor-tools [role=group]')?.getAttribute('aria-label'),
     };
   });
   if (!moved.first) problems.push(`${label}: Move up in the ⋮ did not move the card above the text`);
@@ -88,9 +88,9 @@ async function checkCardBar(width, height = 800) {
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(500);
   const back = await page.evaluate(() => ({
-    pressed: document.querySelectorAll('.site-block-card[aria-pressed="true"]').length,
-    names: [...document.querySelectorAll('.editor-tools button')]
-      .filter((b) => !b.closest('.editor-tools-ghost'))
+    pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"]').length,
+    names: [...document.querySelectorAll('.mo-editor-tools button')]
+      .filter((b) => !b.closest('.mo-editor-tools-ghost'))
       .map((b) => b.getAttribute('aria-label')),
   }));
   if (back.pressed || !back.names.includes('Bold'))
@@ -113,12 +113,12 @@ async function checkBlockBar(width, height = 800) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('Typed row');
   await page.waitForTimeout(300);
   const { bar, more, names } = await barTools(page);
   const group = await page.evaluate(() =>
-    [...document.querySelectorAll('.editor-tools [role=group]')].map((g) => g.getAttribute('aria-label')),
+    [...document.querySelectorAll('.mo-editor-tools [role=group]')].map((g) => g.getAttribute('aria-label')),
   );
   if (group[0] === 'Text tools' || !group.length) problems.push(`${label}: the bar's first group is "${group}", not the block's name`);
   for (const name of ['Add above', 'Add below', 'Undo', 'Redo'])
@@ -134,7 +134,7 @@ async function checkBlockBar(width, height = 800) {
   if (names.indexOf('Add below') > names.indexOf('Add above')) problems.push(`${label}: Add below does not come before Add above`);
   // Move up, Move down and Hide are in the block's action row (blockRow.ts), never on the bar or in the ⋮ as well.
   const listRow = await page
-    .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
+    .locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')
     .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   for (const name of ['Move up', 'Move down', 'Hide'])
     if (!listRow.includes(name)) problems.push(`${label}: the action row has no "${name}" (${listRow})`);
@@ -145,9 +145,9 @@ async function checkBlockBar(width, height = 800) {
   if (bar.filter((b) => b.label === 'More').length !== 1)
     problems.push(`${label}: the bar has ${bar.filter((b) => b.label === 'More').length} ⋮ buttons, not 1`);
   const state = await page.evaluate(() => ({
-    floating: document.querySelectorAll('.contextual-menu').length,
-    handle: document.querySelectorAll('.site-block-inline [aria-haspopup="menu"]').length,
-    scrolls: document.querySelector('.editor-tools').scrollWidth > document.querySelector('.editor-tools').clientWidth + 2,
+    floating: document.querySelectorAll('.mo-editor-contextual-menu').length,
+    handle: document.querySelectorAll('.mo-site-block-inline [aria-haspopup="menu"]').length,
+    scrolls: document.querySelector('.mo-editor-tools').scrollWidth > document.querySelector('.mo-editor-tools').clientWidth + 2,
     pageScrolls: document.documentElement.scrollWidth > innerWidth,
   }));
   if (state.floating) problems.push(`${label}: a floating contextual menu is on the page`);
@@ -159,7 +159,9 @@ async function checkBlockBar(width, height = 800) {
   // The cursor back in the text: the text tools return.
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
-  const back = await page.evaluate(() => [...document.querySelectorAll('.editor-tools button')].map((b) => b.getAttribute('aria-label')));
+  const back = await page.evaluate(() =>
+    [...document.querySelectorAll('.mo-editor-tools button')].map((b) => b.getAttribute('aria-label')),
+  );
   if (!back.includes('Bold') || back.includes('Add above'))
     problems.push(`${label}: after leaving the block the bar has ${back} and not the text tools`);
   await page.close();
@@ -239,9 +241,9 @@ async function checkSelection() {
     await page.addInitScript(seed);
     await openEditor(page, site);
     await page.evaluate(() => (location.hash = '#list/pages'));
-    await page.waitForSelector('main a.list-item-container');
+    await page.waitForSelector('main a.mo-list__item-container');
     await page.waitForTimeout(500);
-    const rows = page.locator('main a.list-item-container');
+    const rows = page.locator('main a.mo-list__item-container');
     const centre = async (i) => {
       const row = rows.nth(i);
       await row.scrollIntoViewIfNeeded();
@@ -307,7 +309,7 @@ async function checkSelection() {
       if (await checked(page, 'main')) problems.push(`${label}: a mouse press and hold selected the row`);
       if ((await hash()) !== here) {
         await page.evaluate((h) => (location.hash = h), here);
-        await page.waitForSelector('main a.list-item-container');
+        await page.waitForSelector('main a.mo-list__item-container');
         await page.waitForTimeout(500);
       }
       // The list's header has no Select button: selecting starts from a row (Space on a focused row here).
@@ -352,7 +354,7 @@ async function checkSelection() {
     const scope = onPage ? 'main' : 'dialog';
     await sheet.waitFor();
     await page.waitForTimeout(600);
-    const items = sheet.locator('[role=checkbox], .list-item-container', { hasText: /Selection check/ });
+    const items = sheet.locator('[role=checkbox], .mo-list__item-container', { hasText: /Selection check/ });
     if ((await items.count()) !== 3) {
       problems.push(`${label}: the notifications sheet does not show the three seeded notifications`);
     } else if (touch) {
@@ -397,9 +399,9 @@ async function checkDragSelect() {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#list/pages'));
-  await page.waitForSelector('main a.list-item-container');
+  await page.waitForSelector('main a.mo-list__item-container');
   await page.waitForTimeout(600);
-  const rows = page.locator('main a.list-item-container.list-item-selectable');
+  const rows = page.locator('main a.mo-list__item-container.mo-list__item-selectable');
   if ((await rows.count()) < 4) {
     problems.push(`${label}: fewer than 4 selectable rows`);
     await page.close();
@@ -477,9 +479,9 @@ async function checkTwoFinger() {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#list/pages'));
-  await page.waitForSelector('main a.list-item-container');
+  await page.waitForSelector('main a.mo-list__item-container');
   await page.waitForTimeout(600);
-  const rows = page.locator('main a.list-item-container.list-item-selectable');
+  const rows = page.locator('main a.mo-list__item-container.mo-list__item-selectable');
   if ((await rows.count()) < 2) {
     problems.push(`${label}: fewer than 2 selectable rows`);
     await page.close();
@@ -525,7 +527,7 @@ async function checkTwoFinger() {
   if (await checked()) problems.push(`${label}: a second finger on another row selected a row`);
   if ((await page.evaluate(() => location.hash)) !== here) {
     await page.evaluate((h) => (location.hash = h), here);
-    await page.waitForSelector('main a.list-item-container');
+    await page.waitForSelector('main a.mo-list__item-container');
     await page.waitForTimeout(500);
   }
   await page.close();
@@ -537,7 +539,7 @@ async function handleOpacity(page, index, want) {
   await page
     .waitForFunction(
       ([i, o]) => {
-        const el = document.querySelectorAll('.ProseMirror .site-block-handle')[i];
+        const el = document.querySelectorAll('.ProseMirror .mo-site-block-handle')[i];
         return !!el && getComputedStyle(el).opacity === o && el.getAnimations().length === 0;
       },
       [index, want],
@@ -545,7 +547,7 @@ async function handleOpacity(page, index, want) {
     )
     .catch(() => {});
   return page
-    .locator('.ProseMirror .site-block-handle')
+    .locator('.ProseMirror .mo-site-block-handle')
     .nth(index)
     .evaluate((el) => getComputedStyle(el).opacity);
 }
@@ -570,9 +572,9 @@ async function checkBlockDrag(width) {
   // The new block lands above the first one (the cursor is in the line under 'Hello'), and its action row has opened (it moves the handle and the blocks below).
   await insert('Rows with icon, heading and text.', 2, 0);
   // Away from any block's row, so no bar or keyboard is in the way.
-  const names = () => page.locator('.ProseMirror .site-block-card').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  const names = () => page.locator('.ProseMirror .mo-site-block-card').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   const before = await names();
-  const handles = page.locator('.ProseMirror .site-block-handle');
+  const handles = page.locator('.ProseMirror .mo-site-block-handle');
   if ((await handles.count()) !== 2 || before.length !== 2) {
     problems.push(`${label}: expected 2 blocks with a handle each, found ${before.length} blocks and ${await handles.count()} handles`);
     await page.close();
@@ -585,7 +587,7 @@ async function checkBlockDrag(width) {
   if (phone) {
     // A touch sees a handle only on the active block (it is the end of the block's row); go into the second block first.
     if ((await opacity('0')) !== '0') problems.push(`${label}: a touch sees the handle of a block that is not active`);
-    const field = page.locator('.ProseMirror .site-block').nth(1).locator('.inline-list-row [data-field]').first();
+    const field = page.locator('.ProseMirror .mo-site-block').nth(1).locator('.mo-editor-inline-list-row [data-field]').first();
     // The tap may land while the page still moves (a row opening or closing): tap again until the block is active (the wait is for its handle to show).
     for (let tries = 0; tries < 3; tries++) {
       await field.tap({ position: { x: 8, y: 8 } });
@@ -597,7 +599,7 @@ async function checkBlockDrag(width) {
     await page.mouse.move(5, 5);
     await page.waitForTimeout(400);
     if ((await opacity('0')) !== '0') problems.push(`${label}: a mouse sees a handle before the block is active`);
-    const field = page.locator('.ProseMirror .site-block').nth(1).locator('.inline-list-row [data-field]').first();
+    const field = page.locator('.ProseMirror .mo-site-block').nth(1).locator('.mo-editor-inline-list-row [data-field]').first();
     const b = await field.boundingBox();
     await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
     await page.waitForTimeout(400);
@@ -623,7 +625,7 @@ async function checkBlockDrag(width) {
     [sx, sy] = [now.x + now.width / 2, now.y + now.height / 2];
   }
   // Drag the second block's handle up over the first block.
-  const target = await page.locator('.ProseMirror .site-block').first().boundingBox();
+  const target = await page.locator('.ProseMirror .mo-site-block').first().boundingBox();
   const ty = target.y + 8;
   if (phone) {
     const cdp = await page.context().newCDPSession(page);
@@ -633,7 +635,7 @@ async function checkBlockDrag(width) {
       await send('touchMove', sx, sy + ((ty - sy) * i) / 12);
       await page.waitForTimeout(30);
     }
-    const lifted = await page.locator('.ProseMirror .site-block-dragging').count();
+    const lifted = await page.locator('.ProseMirror .mo-site-block-dragging').count();
     if (lifted !== 1) problems.push(`${label}: the block is not raised while it is dragged`);
     await send('touchEnd');
   } else {
@@ -643,7 +645,7 @@ async function checkBlockDrag(width) {
       await page.mouse.move(sx, sy + ((ty - sy) * i) / 12);
       await page.waitForTimeout(30);
     }
-    if ((await page.locator('.ProseMirror .site-block-dragging').count()) !== 1)
+    if ((await page.locator('.ProseMirror .mo-site-block-dragging').count()) !== 1)
       problems.push(`${label}: the block is not raised while it is dragged`);
     await page.mouse.up();
   }
@@ -651,7 +653,7 @@ async function checkBlockDrag(width) {
   const after = await names();
   if (after.join() !== [...before].reverse().join())
     problems.push(`${label}: dragging the handle did not move the block (${before.join()} -> ${after.join()})`);
-  if (await page.locator('.ProseMirror .site-block-dragging, .ProseMirror [class*="site-part-drop"]').count())
+  if (await page.locator('.ProseMirror .mo-site-block-dragging, .ProseMirror [class*="mo-site-part-drop"]').count())
     problems.push(`${label}: the drag left its marks behind`);
   await page.close();
 }
@@ -677,19 +679,19 @@ async function checkBlockHandleCorner(width) {
     page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
     await openEditor(page, site);
     await page.evaluate((f) => (location.hash = `#src/content/pages/${f}`), file);
-    await page.waitForSelector('.ProseMirror > .site-block', { timeout: 30_000 });
-    const blocks = page.locator('.ProseMirror > .site-block');
+    await page.waitForSelector('.ProseMirror > .mo-site-block', { timeout: 30_000 });
+    const blocks = page.locator('.ProseMirror > .mo-site-block');
     const count = await blocks.count();
     for (let i = 0; i < count; i++) {
       const block = blocks.nth(i);
-      const card = block.locator(':scope > .site-block-card');
+      const card = block.locator(':scope > .mo-site-block-card');
       const name = await card.getAttribute('aria-label');
       if (seen.has(name)) continue;
       seen.add(name);
       // The cursor is out of every block first, as the other units do: the block before lets go of its row, and the page settles.
       await page.locator('.ProseMirror > p').first().click();
       await page
-        .waitForFunction(() => !document.querySelector('.ProseMirror .site-block-has-row'), null, { timeout: 8000 })
+        .waitForFunction(() => !document.querySelector('.ProseMirror .mo-site-block-has-row'), null, { timeout: 8000 })
         .catch(() => {});
       await block.scrollIntoViewIfNeeded();
       // Activate it with a tap or click inside it; the wait is for its row to be open (the state itself, no fixed time).
@@ -697,8 +699,8 @@ async function checkBlockHandleCorner(width) {
         page
           .waitForFunction(
             (n) => {
-              const b = document.querySelectorAll('.ProseMirror > .site-block')[n];
-              return !!b?.classList.contains('site-block-has-row') && !document.querySelector('.ProseMirror .site-block-row-moving');
+              const b = document.querySelectorAll('.ProseMirror > .mo-site-block')[n];
+              return !!b?.classList.contains('mo-site-block-has-row') && !document.querySelector('.ProseMirror .mo-site-block-row-moving');
             },
             i,
             { timeout: 3000 },
@@ -714,8 +716,8 @@ async function checkBlockHandleCorner(width) {
         '[data-field]:visible',
         'focus',
         '[contenteditable="true"]:visible',
-        '.site-block-preview h2',
-        '.site-block-preview',
+        '.mo-site-block-preview h2',
+        '.mo-site-block-preview',
         'corner',
       ]) {
         if (selector === 'corner') {
@@ -741,7 +743,7 @@ async function checkBlockHandleCorner(width) {
       }
       if (!active) {
         problems.push(
-          `${label}: the ${name} block did not become active (${await page.evaluate(() => [...document.querySelectorAll('.ProseMirror > .site-block')].map((b) => b.className.replace(/site-block-?/g, '').trim() || '-').join('|') + ` dialogs ${document.querySelectorAll('dialog[open]').length} ${location.hash}`)})`,
+          `${label}: the ${name} block did not become active (${await page.evaluate(() => [...document.querySelectorAll('.ProseMirror > .mo-site-block')].map((b) => b.className.replace(/site-block-?/g, '').trim() || '-').join('|') + ` dialogs ${document.querySelectorAll('dialog[open]').length} ${location.hash}`)})`,
         );
         continue;
       }
@@ -756,10 +758,10 @@ async function checkBlockHandleCorner(width) {
         }
       }
       // A tap on a block that is only a preview (a list of the site) also selects it: Escape lets the selection go, and the block stays active.
-      if (await page.locator('.ProseMirror .site-block-marks').count()) {
+      if (await page.locator('.ProseMirror .mo-site-block-marks').count()) {
         await page.keyboard.press('Escape');
         await page
-          .waitForFunction(() => !document.querySelector('.ProseMirror .site-block-marks'), null, { timeout: 3000 })
+          .waitForFunction(() => !document.querySelector('.ProseMirror .mo-site-block-marks'), null, { timeout: 3000 })
           .catch(() => {});
         await open();
       }
@@ -768,7 +770,7 @@ async function checkBlockHandleCorner(width) {
         .evaluate(
           (el) =>
             new Promise((done) => {
-              const handle = el.querySelector(':scope > .site-block-handle');
+              const handle = el.querySelector(':scope > .mo-site-block-handle');
               const settled = () => getComputedStyle(handle).opacity === '1' && el.getAnimations({ subtree: true }).length === 0;
               const look = () => (settled() ? done(true) : requestAnimationFrame(look));
               look();
@@ -778,11 +780,11 @@ async function checkBlockHandleCorner(width) {
         .catch(() => {});
       const m = await block.evaluate((el) => {
         const rect = (s) => el.querySelector(s)?.getBoundingClientRect();
-        const handle = rect(':scope > .site-block-handle');
-        const frame = rect(':scope > .site-block-card');
-        const mark = rect(':scope > .site-block-mark');
-        const content = rect(':scope > .site-block-card > .site-block-preview');
-        const buttons = [...el.querySelectorAll('.site-block-row-inner button')].map((b) => b.getBoundingClientRect());
+        const handle = rect(':scope > .mo-site-block-handle');
+        const frame = rect(':scope > .mo-site-block-card');
+        const mark = rect(':scope > .mo-site-block-mark');
+        const content = rect(':scope > .mo-site-block-card > .mo-site-block-preview');
+        const buttons = [...el.querySelectorAll('.mo-site-block-row-inner button')].map((b) => b.getBoundingClientRect());
         const editor = el.closest('.ProseMirror').getBoundingClientRect();
         const meets = (a, b) =>
           !!a && !!b && a.left < b.right - 0.6 && a.right > b.left + 0.6 && a.top < b.bottom - 0.6 && a.bottom > b.top + 0.6;
@@ -800,7 +802,7 @@ async function checkBlockHandleCorner(width) {
           buttons: buttons.some((b) => meets(handle, b)),
           mark: meets(handle, mark),
           content: meets(handle, content),
-          shown: getComputedStyle(el.querySelector(':scope > .site-block-handle')).opacity === '1',
+          shown: getComputedStyle(el.querySelector(':scope > .mo-site-block-handle')).opacity === '1',
         };
       });
       const at = `${label}: ${name}`;
@@ -842,16 +844,16 @@ async function checkBlockMove(width) {
     await insertBlock(page, hint, n + 1, 0);
     await newLineUnder(page, 'Hello');
   }
-  const blocks = page.locator('.ProseMirror .site-block');
+  const blocks = page.locator('.ProseMirror .mo-site-block');
   if ((await blocks.count()) < 3) {
     problems.push(`${label}: fewer than 3 blocks in the page`);
     await page.close();
     return;
   }
-  const names = () => page.locator('.ProseMirror .site-block-handle').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
-  const selected = () => page.locator('.ProseMirror .site-block-selected').count();
-  const up = page.locator('.editor-tools').getByRole('button', { name: 'Move up' });
-  const down = page.locator('.editor-tools').getByRole('button', { name: 'Move down' });
+  const names = () => page.locator('.ProseMirror .mo-site-block-handle').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  const selected = () => page.locator('.ProseMirror .mo-site-block-selected').count();
+  const up = page.locator('.mo-editor-tools').getByRole('button', { name: 'Move up' });
+  const down = page.locator('.mo-editor-tools').getByRole('button', { name: 'Move down' });
   const centre = async (loc) => {
     const b = await loc.boundingBox();
     return [b.x + b.width / 2, b.y + b.height / 2];
@@ -871,11 +873,11 @@ async function checkBlockMove(width) {
   // Select the first block (a long press on its handle on a phone, the mark with a mouse), then the third.
   if (phone) {
     // The handle is the end of the active block's row: go into the first block (a tap on another block first closes the active one's row), then press its handle.
-    const handle0 = blocks.nth(0).locator('.site-block-handle');
+    const handle0 = blocks.nth(0).locator('.mo-site-block-handle');
     for (let tries = 0; tries < 3; tries++) {
       await blocks
         .nth(0)
-        .locator('.inline-list-row [data-field]')
+        .locator('.mo-editor-inline-list-row [data-field]')
         .first()
         .tap({ position: { x: 8, y: 8 } });
       if ((await handleOpacity(page, 0, '1')) === '1') break;
@@ -887,7 +889,7 @@ async function checkBlockMove(width) {
     await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
   } else {
     await blocks.nth(0).hover();
-    await blocks.nth(0).locator('.site-block-mark').click();
+    await blocks.nth(0).locator('.mo-site-block-mark').click();
   }
   await page.waitForTimeout(400);
   await tap(blocks.nth(2));
@@ -906,7 +908,7 @@ async function checkBlockMove(width) {
     if (!/next to each other/.test((await button.first().getAttribute('title')) ?? '')) problems.push(`${label}: ${name} has no title`);
   }
   const handles = await page
-    .locator('.ProseMirror .site-block-handle')
+    .locator('.ProseMirror .mo-site-block-handle')
     .evaluateAll((els) =>
       els.map((e) => [
         e.hasAttribute('aria-disabled'),
@@ -918,7 +920,7 @@ async function checkBlockMove(width) {
   if (handles.some(([off, why, tab, display]) => !off || !/Drag is off/.test(why ?? '') || tab !== '-1' || display === 'none'))
     problems.push(`${label}: not every handle is shown disabled with its reason (${JSON.stringify(handles)})`);
   // A drag on a disabled handle moves nothing.
-  const [dx, dy] = await centre(blocks.nth(0).locator('.site-block-handle'));
+  const [dx, dy] = await centre(blocks.nth(0).locator('.mo-site-block-handle'));
   if (!phone) {
     await page.mouse.move(dx, dy);
     await page.mouse.down();
@@ -941,8 +943,8 @@ async function checkBlockMove(width) {
       problems.push(`${label}: Move down did not move both blocks (${JSON.stringify(before)} -> ${JSON.stringify(after)})`);
     if ((await selected()) !== 2) problems.push(`${label}: the moved blocks are not selected (${await selected()})`);
     const marked = await page
-      .locator('.ProseMirror .site-block')
-      .evaluateAll((els) => els.map((e) => e.classList.contains('site-block-selected')));
+      .locator('.ProseMirror .mo-site-block')
+      .evaluateAll((els) => els.map((e) => e.classList.contains('mo-site-block-selected')));
     if (JSON.stringify(marked) !== JSON.stringify([false, true, true]))
       problems.push(`${label}: the wrong blocks stay selected (${marked})`);
     if (!(await down.count()) || !(await up.count())) {
@@ -954,8 +956,8 @@ async function checkBlockMove(width) {
     if (await up.first().isDisabled()) {
       const shape = await page.evaluate(() =>
         [...document.querySelector('.ProseMirror').children].map((c) =>
-          c.classList.contains('site-block') || c.querySelector(':scope > .site-block')
-            ? `block${c.classList.contains('site-block-selected') || c.querySelector('.site-block-selected') ? '*' : ''}`
+          c.classList.contains('mo-site-block') || c.querySelector(':scope > .mo-site-block')
+            ? `block${c.classList.contains('mo-site-block-selected') || c.querySelector('.mo-site-block-selected') ? '*' : ''}`
             : c.textContent.trim()
               ? 'text'
               : 'gap',
@@ -976,7 +978,7 @@ async function checkBlockMove(width) {
     // A card typed in place takes no focus itself (its rows do), so the check gives it one; a card that is a button has it already.
     await blocks
       .nth(0)
-      .locator('.site-block-card')
+      .locator('.mo-site-block-card')
       .first()
       .evaluate((el) => {
         if (!el.matches('button')) el.tabIndex = 0;
@@ -1014,13 +1016,13 @@ async function checkBlockSelect(width) {
   }
   // The row of the block just left closes with the page scrolling to keep the blocks in place: measure after it has settled.
   await page.waitForTimeout(900);
-  const blocks = page.locator('.ProseMirror .site-block');
+  const blocks = page.locator('.ProseMirror .mo-site-block');
   if ((await blocks.count()) < 2) {
     problems.push(`${label}: fewer than 2 blocks in the page`);
     await page.close();
     return;
   }
-  const selected = () => page.locator('.ProseMirror .site-block-selected').count();
+  const selected = () => page.locator('.ProseMirror .mo-site-block-selected').count();
   const status = () =>
     page
       .locator('[role=status]')
@@ -1035,13 +1037,13 @@ async function checkBlockSelect(width) {
     const b = await loc.boundingBox();
     return [b.x + b.width / 2, b.y + b.height / 2];
   };
-  const handle0 = blocks.nth(0).locator('.site-block-handle');
+  const handle0 = blocks.nth(0).locator('.mo-site-block-handle');
   if (phone) {
     // The handle is the end of the active block's row: go into the first block (a tap on another block first closes the active one's row), then press its handle.
     for (let tries = 0; tries < 3 && (await handleOpacity(page, 0, '1')) !== '1'; tries++)
       await blocks
         .nth(0)
-        .locator('.inline-list-row [data-field]')
+        .locator('.mo-editor-inline-list-row [data-field]')
         .first()
         .tap({ position: { x: 8, y: 8 } });
     const cdp = await page.context().newCDPSession(page);
@@ -1052,7 +1054,7 @@ async function checkBlockSelect(width) {
   } else {
     await blocks.nth(0).hover();
     await page.waitForTimeout(400);
-    const mark = blocks.nth(0).locator('.site-block-mark');
+    const mark = blocks.nth(0).locator('.mo-site-block-mark');
     if ((await mark.evaluate((el) => getComputedStyle(el).opacity)) !== '1')
       problems.push(`${label}: the mark does not show on the block pointed at`);
     const m = await mark.boundingBox();
@@ -1065,7 +1067,7 @@ async function checkBlockSelect(width) {
   if (!(await countButton.count())) problems.push(`${label}: no count with a cross on the bar`);
   if (await page.locator('.ProseMirror[contenteditable=true]').count())
     problems.push(`${label}: the text is not read-only while a block is selected`);
-  const marks = await page.locator('.ProseMirror .site-block-mark').evaluateAll((els) => els.map((e) => getComputedStyle(e).opacity));
+  const marks = await page.locator('.ProseMirror .mo-site-block-mark').evaluateAll((els) => els.map((e) => getComputedStyle(e).opacity));
   if (marks.some((o) => o !== '1')) problems.push(`${label}: not every block shows its mark once one is selected`);
   // Another block, added by a tap or a click on it.
   const [sx, sy] = await centre(blocks.nth(1));
@@ -1076,7 +1078,7 @@ async function checkBlockSelect(width) {
   if ((await sheetOpen()) || (await hash()) !== here) problems.push(`${label}: a tap on a block opened it while blocks were selected`);
   if (!/^2 blocks selected$/.test((await status()) ?? '')) problems.push(`${label}: the count is not announced ("2 blocks selected")`);
   // The ⋮ menu: Hide, Remove and Select all, and no Duplicate with two.
-  await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+  await page.locator('.mo-editor-tools [aria-label="More"]:visible').first().click();
   await page.waitForTimeout(300);
   const rows = await page.locator('[role=menu] [role^=menuitem]').allTextContents();
   const clean = rows.map((r) => r.trim());
@@ -1096,14 +1098,14 @@ async function checkBlockSelect(width) {
   if ((await blocks.count()) !== 2) problems.push(`${label}: Escape on the question removed a block`);
   if ((await selected()) !== 2) problems.push(`${label}: cancelling the question changed the selection (${await selected()})`);
   // Hide hides every selected block.
-  await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+  await page.locator('.mo-editor-tools [aria-label="More"]:visible').first().click();
   await page.waitForTimeout(300);
   await page
     .locator('[role=menu] [role^=menuitem]', { hasText: /^Hide$/ })
     .first()
     .click();
   await page.waitForTimeout(500);
-  if ((await page.locator('.ProseMirror .site-block-hidden').count()) !== 2)
+  if ((await page.locator('.ProseMirror .mo-site-block-hidden').count()) !== 2)
     problems.push(`${label}: Hide did not hide both selected blocks`);
   if ((await selected()) !== 2) problems.push(`${label}: Hide ended the selection (${await selected()})`);
   // The cross ends it; the text can be written in again.
@@ -1130,7 +1132,7 @@ async function checkSelectionBox() {
   const visible = (page) =>
     page.evaluate(
       () =>
-        [...document.querySelectorAll('main .list-item-select-box')].filter((b) => {
+        [...document.querySelectorAll('main .mo-list__item-select-box')].filter((b) => {
           const r = b.getBoundingClientRect();
           return getComputedStyle(b).display !== 'none' && getComputedStyle(b).visibility !== 'hidden' && r.width > 0;
         }).length,
@@ -1143,9 +1145,9 @@ async function checkSelectionBox() {
     await page.addInitScript(seed);
     await openEditor(page, site);
     await page.evaluate(() => (location.hash = '#list/pages'));
-    await page.waitForSelector('main a.list-item-container');
+    await page.waitForSelector('main a.mo-list__item-container');
     await page.waitForTimeout(500);
-    const rows = page.locator('main a.list-item-container.list-item-selectable');
+    const rows = page.locator('main a.mo-list__item-container.mo-list__item-selectable');
     const n = await rows.count();
     if (n < 3) {
       problems.push(`${label}: fewer than 3 selectable rows (${n})`);
@@ -1161,21 +1163,23 @@ async function checkSelectionBox() {
     if (await visible(page)) problems.push(`${label}: a selection box shows before anything is pointed at or selected`);
     // Each row with something leading it has its box after the text; each text-only row, before it.
     const slots = await page.evaluate(() =>
-      [...document.querySelectorAll('main .list-item-selectable')].every((r) => {
-        const box = r.querySelector(':scope > .list-item-select-box');
-        const lead = r.querySelector(':scope > .list-item-leading');
+      [...document.querySelectorAll('main .mo-list__item-selectable')].every((r) => {
+        const box = r.querySelector(':scope > .mo-list__item-select-box');
+        const lead = r.querySelector(':scope > .mo-list__item-leading');
         if (!box) return false;
-        return lead ? box.classList.contains('list-item-select-box-trailing') : box.classList.contains('list-item-select-box-leading');
+        return lead
+          ? box.classList.contains('mo-list__item-select-box-trailing')
+          : box.classList.contains('mo-list__item-select-box-leading');
       }),
     );
     if (!slots)
       problems.push(`${label}: a row's selection box is not in the slot Material prints (trailing with a leading visual, else leading)`);
-    const hasLead = (await rows.nth(1).locator(':scope > .list-item-leading').count()) > 0;
+    const hasLead = (await rows.nth(1).locator(':scope > .mo-list__item-leading').count()) > 0;
     const leadHtml = () =>
       hasLead
         ? rows
             .nth(1)
-            .locator(':scope > .list-item-leading')
+            .locator(':scope > .mo-list__item-leading')
             .evaluate((e) => e.outerHTML)
         : '';
     const leadBefore = await leadHtml();
@@ -1184,12 +1188,12 @@ async function checkSelectionBox() {
       const rb = await rows.nth(1).boundingBox();
       if (hasLead) {
         // A tap on what leads a row starts selecting and opens nothing; its target is at least 48 x 48.
-        const lb = await rows.nth(1).locator(':scope > .list-item-leading').boundingBox();
+        const lb = await rows.nth(1).locator(':scope > .mo-list__item-leading').boundingBox();
         const cx = lb.x + lb.width / 2;
         const cy = lb.y + lb.height / 2;
         const reach = await page.evaluate(
           ([x, y]) => {
-            const hit = (dx, dy) => !!document.elementFromPoint(x + dx, y + dy)?.closest('.list-item-leading');
+            const hit = (dx, dy) => !!document.elementFromPoint(x + dx, y + dy)?.closest('.mo-list__item-leading');
             return hit(-23, -23) && hit(23, -23) && hit(-23, 23) && hit(23, 23);
           },
           [cx, cy],
@@ -1214,7 +1218,7 @@ async function checkSelectionBox() {
       await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
       await page.waitForTimeout(250);
       if ((await visible(page)) !== 1) problems.push(`${label}: pointing at a row shows ${await visible(page)} boxes, not one`);
-      const box = rows.nth(1).locator(':scope > .list-item-select-box');
+      const box = rows.nth(1).locator(':scope > .mo-list__item-select-box');
       const bb = await box.boundingBox();
       if (!bb || bb.width < 47.9 || bb.height < 47.9) problems.push(`${label}: the box is smaller than 48 px (${bb?.width}x${bb?.height})`);
       await box.click();
@@ -1229,7 +1233,7 @@ async function checkSelectionBox() {
     if ((await visible(page)) !== n) problems.push(`${label}: after one is selected ${await visible(page)} of ${n} rows show their box`);
     const small = await page.evaluate(
       () =>
-        [...document.querySelectorAll('main .list-item-select-box')].filter((b) => {
+        [...document.querySelectorAll('main .mo-list__item-select-box')].filter((b) => {
           const r = b.getBoundingClientRect();
           return r.width < 47.9 || r.height < 47.9;
         }).length,
@@ -1239,11 +1243,11 @@ async function checkSelectionBox() {
     await page.waitForTimeout(900);
     const look = await rows.nth(1).evaluate((r) => {
       // The surface and the corner are the row's own, or its <li>'s in a segmented list.
-      const own = r.closest('.list-segmented > li') ?? r;
+      const own = r.closest('.mo-list__segmented > li') ?? r;
       const segmented = own !== r;
       const probe = document.createElement('div');
       probe.style.background = segmented
-        ? 'var(--list-segmented-selected-surface, var(--mo-sys-color-secondary-container))'
+        ? 'var(--mo-comp-list-segmented-selected-surface, var(--mo-sys-color-secondary-container))'
         : 'var(--mo-comp-list-list-item-selected-container-color)';
       probe.style.borderRadius = segmented ? 'var(--mo-comp-list-segmented-selected-radius)' : 'var(--mo-comp-list-item-selected-radius)';
       own.appendChild(probe);
@@ -1253,7 +1257,7 @@ async function checkSelectionBox() {
         background: s.backgroundColor === want.backgroundColor,
         radius: parseFloat(s.borderTopLeftRadius),
         wantRadius: parseFloat(want.borderTopLeftRadius),
-        checked: !!r.querySelector('.list-item-select-box .checkbox-input[data-checked]'),
+        checked: !!r.querySelector('.mo-list__item-select-box .mo-checkbox__input[data-checked]'),
       };
       probe.remove();
       return out;
@@ -1282,19 +1286,19 @@ async function checkSelectionBox() {
     const sheet = (page.viewportSize()?.width ?? 0) < 600 ? page.locator('main') : page.getByRole('dialog', { name: 'Notifications' });
     await sheet.waitFor();
     await page.waitForTimeout(600);
-    const items = sheet.locator('.list-item-selectable', { hasText: /Box check/ });
+    const items = sheet.locator('.mo-list__item-selectable', { hasText: /Box check/ });
     if ((await items.count()) !== 3) {
       problems.push(`${label}: the notifications sheet does not show the three seeded notifications`);
     } else {
       const first = items.nth(0);
       if (
-        !(await first.locator(':scope > .list-item-leading').count()) ||
-        !(await first.locator(':scope > .list-item-select-box-trailing').count())
+        !(await first.locator(':scope > .mo-list__item-leading').count()) ||
+        !(await first.locator(':scope > .mo-list__item-select-box-trailing').count())
       )
         problems.push(`${label}: a notification has no trailing box after its icon`);
       const b = await first.boundingBox();
       if (touch) {
-        const lb = await first.locator(':scope > .list-item-leading').boundingBox();
+        const lb = await first.locator(':scope > .mo-list__item-leading').boundingBox();
         await page.touchscreen.tap(lb.x + lb.width / 2, lb.y + lb.height / 2);
         await page.waitForTimeout(300);
         if ((await first.getAttribute('aria-checked')) !== 'true')
@@ -1303,7 +1307,7 @@ async function checkSelectionBox() {
         await page.mouse.move(b.x + b.width / 2, b.y + b.height / 2);
         await page.waitForTimeout(250);
         const shown = await sheet
-          .locator('.list-item-select-box')
+          .locator('.mo-list__item-select-box')
           .evaluateAll(
             (all) => all.filter((e) => getComputedStyle(e).display !== 'none' && getComputedStyle(e).visibility !== 'hidden').length,
           );
@@ -1339,7 +1343,7 @@ async function checkInsertDialogClosesLate(width) {
   await insertBlock(page, 'Numbered steps.', 1, 0);
   if (await page.evaluate(() => !!document.querySelector('dialog[open]')))
     problems.push(`${label}: the new block took its row while the insert dialog was still open`);
-  const inRow = await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror .site-block'));
+  const inRow = await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror .mo-site-block'));
   if (!inRow) problems.push(`${label}: the cursor is not in the new block's first row once the dialog has closed`);
   await page.close();
 }

@@ -61,11 +61,11 @@ const STYLES = [
 ];
 const measure = (STYLES) => {
   // (A button or a tag chip is a link on the site, to the page of its list or tag, which the editor does not know: a button or plain text there, drawn the same.)
-  const tagOf = (el) => (/^(a|button|span)$/i.test(el.tagName) && el.matches('.button, .chip') ? 'link' : el.tagName.toLowerCase());
+  const tagOf = (el) => (/^(a|button|span)$/i.test(el.tagName) && el.matches('.mo-button, .mo-chip') ? 'link' : el.tagName.toLowerCase());
   // (An image has the sizes the build made of it on the site, and in the Preview only the image itself, pagePreview.tsx: its size on the page is compared.)
   const drop =
-    'source, script, style, template, noscript, link, meta, [data-snackbar], .snackbar-stack, dialog, [data-editor-preview], .video-facade, .carousel-indicator, .block-cards-show-all, .list-item-expand-body, .block-filters, .block-imagegrid-filter, [data-demo-names="toggle"]';
-  // (A video's still is fetched from its host when the site is built, and by the browser in the Preview: that is the network, not the drawing. The body of a row that reads another page or post (`.list-item-expand-body`) is that page's text or excerpt, which the editor does not have. The state of a carousel's dots and of "Show all" is set by the site's scripts, as is the image grid's filter (drawn hidden and shown by script.ts), which the Preview's frame does not run. The demo's "Names" toggle is put into the footer's button row by the demo's own script (demo/public/demo-names.js), which the Preview strips: it is the demo's tool, not the page.)
+    'source, script, style, template, noscript, link, meta, [data-snackbar], .mo-snackbar__stack, dialog, [data-editor-preview], .mo-block-video__facade, .mo-carousel__indicator, .mo-block-cards__show-all, .mo-list__item-expand-body, .mo-block-testimonials__filters, .mo-block-imagegrid__filter, [data-demo-names="toggle"]';
+  // (A video's still is fetched from its host when the site is built, and by the browser in the Preview: that is the network, not the drawing. The body of a row that reads another page or post (`.mo-list__item-expand-body`) is that page's text or excerpt, which the editor does not have. The state of a carousel's dots and of "Show all" is set by the site's scripts, as is the image grid's filter (drawn hidden and shown by script.ts), which the Preview's frame does not run. The demo's "Names" toggle is put into the footer's button row by the demo's own script (demo/public/demo-names.js), which the Preview strips: it is the demo's tool, not the page.)
   const root = document.body;
   const rows = [];
   const walk = (el, path) => {
@@ -207,7 +207,7 @@ for (const scheme of ['light', 'dark']) {
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
-  const shown = await frame.evaluate(() => document.querySelector('.block-list')?.textContent ?? '');
+  const shown = await frame.evaluate(() => document.querySelector('.mo-block-list')?.textContent ?? '');
   for (const want of ['Has a heading', 'First text', 'Only a text, no heading'])
     if (!shown.includes(want)) problems.push(`List block in the Preview: "${want}" is missing (the block shows: "${shown}")`);
 }

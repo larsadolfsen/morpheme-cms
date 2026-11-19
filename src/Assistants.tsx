@@ -56,28 +56,25 @@ export default function Assistants() {
 
   return (
     <Screen title={t.common.parts.assistants} back={backFrom(ASSISTANTS_ROUTE)}>
-      <SupportingText className="mb-6 px-4">{t.assistants.intro}</SupportingText>
+      <SupportingText className="mo-editor-group-inset">{t.assistants.intro}</SupportingText>
       {problem && !state && (
-        <div className="px-4">
+        <div className="mo-editor-settings-inset">
           <ProblemNote alert>{problem}</ProblemNote>
         </div>
       )}
       {!state && !problem && <EmptyNote busy>{t.assistants.loading}</EmptyNote>}
       {state && !state.ready && (
-        <div className="mb-6 px-4">
+        <div className="mo-editor-group-inset">
           <ProblemNote>{t.assistants.notReady}</ProblemNote>
         </div>
       )}
       {state?.ready && (
-        <section className="mb-8">
+        <section className="mo-editor-settings-section">
           <GroupTitle>{t.assistants.connectTitle}</GroupTitle>
-          <div className="px-4">
+          <div className="mo-editor-settings-inset">
             <SupportingText>{t.assistants.connectText}</SupportingText>
-            <p className="my-3 flex items-center gap-2">
-              <code
-                aria-label={t.assistants.address}
-                className="min-w-0 flex-1 rounded-lg bg-surface-container px-3 py-2 text-sm break-all select-all"
-              >
+            <p className="mo-editor-code-row">
+              <code aria-label={t.assistants.address} className="mo-editor-code-box">
                 {state.address}
               </code>
               <Button kind="text" size="small" icon={Copy} onClick={() => copy(state.address)}>
@@ -88,7 +85,7 @@ export default function Assistants() {
         </section>
       )}
       {state && (
-        <section className="mb-8">
+        <section className="mo-editor-settings-section">
           <GroupTitle>{t.assistants.connectedTitle}</GroupTitle>
           {state.connections.length === 0 ? (
             <EmptyNote>{t.assistants.none}</EmptyNote>

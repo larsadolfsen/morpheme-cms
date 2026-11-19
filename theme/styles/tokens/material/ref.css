@@ -1,9 +1,9 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 :root,
-:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* M3's elevation levels (m3.material.io/styles/elevation, as material-web draws them: a key and an ambient shadow),
      the same in light and dark mode. Every part takes its M3 level from them by default (ui.css). */
   --mo-sys-elevation-level0-shadow: 0 0 #0000;
@@ -50,9 +50,9 @@
   /* Images in a list, a row, a step on the time line: large corners. */
   --mo-sys-radius-small: var(--mo-sys-shape-corner-large);
 }
-:is(.text-section-primary, .text-section-secondary, .text-section-tertiary, .text-section-picture:not(.text-section-surface)) > *,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* The elevation levels' colours (ui.css, resolved at :root) are the surface containers: declared again here, so an elevated
      card, button, chip or sheet in the section takes the section's own containers, not the page's (white on near-white). */
   --mo-sys-elevation-level0-color: var(--mo-sys-color-surface);
@@ -62,6 +62,7 @@
   --mo-sys-elevation-level4-color: var(--mo-sys-color-surface-container-highest);
   --mo-sys-elevation-level5-color: var(--mo-sys-color-surface-container-highest);
 }
-@theme inline {
-  --font-sans: 'Roboto Variable', Roboto, ui-sans-serif, system-ui, sans-serif;
+/* Material's typeface (the plain typeface of tokens/base/ref.css). */
+:root {
+  --mo-ref-typeface-plain: 'Roboto Variable', Roboto, ui-sans-serif, system-ui, sans-serif;
 }

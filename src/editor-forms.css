@@ -1,0 +1,775 @@
+/* The editor's forms, navigation parts and block parts (batch T07 of the move away from Tailwind): the rules that were utility classes in
+   NavigationRestParts, fields, AppList, BrandForm, CommunicationParts, BlockParts, SearchPreview, ContainmentParts, NavigationParts and
+   BlockDialog. Each is named after the element it styles (mo-editor-<area>-<part>); the layout vocabulary (mo-row, mo-fill, mo-keep …) is
+   in theme/styles/layout.css. They sit in @layer utilities, where the utilities sat, so the cascade is the same. */
+@layer utilities {
+  /* NavigationRestParts.tsx */
+  :where(.mo-editor-nav-demo > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-nav-demo > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+  .mo-editor-nav-demo-narrow {
+    margin-inline: auto;
+    max-inline-size: 24rem;
+  }
+  .mo-editor-nav-demo-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-200);
+  }
+  .mo-editor-nav-rail-frame {
+    display: flex;
+    transform: translateZ(0);
+    overflow: hidden;
+  }
+  .mo-editor-nav-note {
+    padding: var(--mo-ref-space-200);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-nav-rail-row {
+    display: flex;
+  }
+  .mo-editor-nav-rail-actions {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-100);
+    padding: var(--mo-ref-space-100);
+  }
+  .mo-editor-nav-hint {
+    padding-block: var(--mo-comp-editor-rhythm-150);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-nav-search-demo {
+    margin-inline: auto;
+    max-inline-size: 28rem;
+    padding: var(--mo-ref-space-100);
+  }
+  :where(.mo-editor-nav-search-demo > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-nav-search-demo > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+  .mo-editor-nav-search-results {
+    border-radius: var(--mo-sys-shape-corner-medium);
+    background-color: var(--mo-sys-color-surface-container-high);
+    padding-block: var(--mo-ref-space-100);
+  }
+  .mo-editor-nav-colors {
+    margin-inline: auto;
+    max-inline-size: 24rem;
+  }
+  :where(.mo-editor-nav-colors > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-nav-colors > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+  .mo-editor-nav-color-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--mo-ref-space-200);
+    padding: var(--mo-ref-space-100);
+  }
+  .mo-editor-nav-color-row-wide {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: center;
+    gap: var(--mo-ref-space-300);
+    padding: var(--mo-ref-space-100);
+  }
+  /* fields.tsx */
+  .mo-editor-theme-title-input {
+    display: block;
+    inline-size: 100%;
+    resize: none;
+    overflow: hidden;
+    background-color: transparent;
+    color: var(--mo-sys-color-on-surface);
+    outline-style: none;
+  }
+  .mo-editor-theme-title-input::placeholder {
+    color: color-mix(in oklab, var(--mo-sys-color-on-surface-variant) 60%, transparent);
+  }
+  .mo-editor-theme-picture-box {
+    position: relative;
+  }
+  .mo-editor-theme-picture {
+    position: relative;
+    display: block;
+    aspect-ratio: 16/10;
+    inline-size: 100%;
+    overflow: hidden;
+    border-radius: var(--mo-comp-theme-picture-radius);
+    background-color: var(--mo-sys-color-surface-container);
+  }
+  @media (width >= 37.5rem) {
+    .mo-editor-theme-picture {
+      aspect-ratio: 16/9;
+    }
+  }
+  .mo-editor-theme-picture-empty {
+    display: flex;
+    inline-size: 100%;
+    block-size: 100%;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--mo-comp-theme-picture-radius);
+    color: var(--mo-sys-color-on-surface-variant);
+    outline-width: 2px;
+    outline-offset: -2px;
+    outline-color: var(--mo-sys-color-outline-variant);
+    outline-style: dashed;
+  }
+  .mo-editor-theme-picture-actions {
+    position: absolute;
+    inset-inline-end: var(--mo-ref-space-100);
+    inset-block-start: var(--mo-ref-space-100);
+    display: flex;
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-field-narrow {
+    inline-size: 100%;
+    max-inline-size: 16rem;
+  }
+  .mo-editor-field-group-body {
+    padding-block-start: var(--mo-ref-space-100);
+  }
+  .mo-editor-field-add {
+    margin-block-start: var(--mo-ref-space-100);
+  }
+  :where(.mo-editor-field-item-fields > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-250);
+  }
+  .mo-editor-field-item-fields > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-250);
+  }
+  .mo-editor-field-item-actions {
+    display: flex;
+    padding-inline-end: var(--mo-ref-space-75);
+  }
+  .mo-editor-field-item-toggle > svg {
+    transition-property: transform, translate, scale, rotate;
+    transition-duration: var(--mo-sys-motion-spring-default-spatial-duration);
+    transition-timing-function: var(--mo-sys-motion-ease);
+  }
+  .mo-editor-field-item-toggle-open > svg {
+    rotate: 180deg;
+  }
+  .mo-editor-field-item-menu {
+    padding-block-end: var(--mo-ref-space-100);
+  }
+  .mo-editor-field-add-nested {
+    margin-block-start: var(--mo-ref-space-50);
+    margin-inline-start: var(--mo-ref-space-250);
+  }
+  .mo-editor-field-add-text {
+    margin-block-start: var(--mo-ref-space-50);
+  }
+  /* AppList.tsx */
+  .mo-editor-app-list-search {
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+  }
+  .mo-editor-app-list-empty {
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    padding-inline: var(--mo-ref-space-50);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-app-list-owner {
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    display: flex;
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+    padding-inline: var(--mo-ref-space-200);
+  }
+  .mo-editor-app-list-owner-text {
+    min-inline-size: 0;
+    flex: 1;
+  }
+  .mo-editor-app-list-name {
+    display: block;
+    font-weight: 500;
+  }
+  .mo-editor-app-list-meta {
+    display: block;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-app-list-heading {
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    padding-inline: var(--mo-ref-space-200);
+  }
+  .mo-editor-app-list-title-row {
+    display: flex;
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+  }
+  .mo-editor-app-list-hint {
+    margin-block-start: var(--mo-comp-editor-rhythm-150);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-app-list-actions {
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+  }
+  .mo-editor-app-list-pending {
+    margin-block-start: var(--mo-ref-space-100);
+  }
+  /* BrandForm.tsx */
+  .mo-editor-brand-heading {
+    margin-block-end: var(--mo-ref-space-50);
+    font-weight: 500;
+  }
+  .mo-editor-brand-hint {
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-brand-column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-200);
+    row-gap: var(--mo-comp-editor-rhythm-200);
+  }
+  .mo-editor-brand-logo-preview {
+    display: flex;
+    align-items: center;
+    gap: var(--mo-ref-space-125);
+    border-radius: var(--mo-sys-shape-corner-large);
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--mo-sys-color-outline-variant);
+    background-color: var(--mo-sys-color-surface-container-lowest);
+    padding-inline: var(--mo-ref-space-200);
+    padding-block: var(--mo-comp-editor-rhythm-150);
+  }
+  .mo-editor-brand-logo-mark {
+    block-size: var(--mo-ref-space-500);
+    inline-size: var(--mo-ref-space-450);
+    background-color: var(--mo-sys-color-primary);
+    mask-size: contain;
+    mask-position: center;
+    mask-repeat: no-repeat;
+  }
+  .mo-editor-brand-logo-name {
+    font-weight: 500;
+    letter-spacing: -0.025em;
+  }
+  .mo-editor-brand-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mo-ref-space-150);
+  }
+  .mo-editor-brand-icon {
+    inline-size: var(--mo-ref-space-800);
+    block-size: var(--mo-ref-space-800);
+    border-radius: var(--mo-sys-shape-corner-large);
+    box-shadow: var(--mo-sys-panel-shadow);
+  }
+  .mo-editor-brand-icon-drawing {
+    animation: mo-editor-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    opacity: 50%;
+  }
+  /* CommunicationParts.tsx */
+  .mo-editor-comm-example {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-comm-example-name {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-comm-examples {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--mo-ref-space-400);
+    padding: var(--mo-ref-space-200);
+  }
+  .mo-editor-comm-badges {
+    display: flex;
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-comm-badges-wide {
+    display: flex;
+    gap: var(--mo-ref-space-200);
+  }
+  .mo-editor-comm-progress {
+    display: grid;
+    gap: var(--mo-ref-space-250);
+    padding: var(--mo-ref-space-200);
+  }
+  .mo-editor-comm-snackbars {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+    padding: var(--mo-ref-space-200);
+    row-gap: var(--mo-comp-editor-rhythm-150);
+  }
+  .mo-editor-comm-tooltips {
+    display: grid;
+    row-gap: var(--mo-ref-space-300);
+    padding: var(--mo-ref-space-200);
+  }
+  .mo-editor-comm-tooltip-plain {
+    padding-block-start: var(--mo-comp-editor-rhythm-400);
+  }
+  .mo-editor-comm-tooltip-rich {
+    padding-block-start: 6rem;
+  }
+  .mo-editor-comm-tooltip-action {
+    padding-block-start: 9rem;
+  }
+  /* BlockParts.tsx */
+  :where(.mo-editor-parts-chips > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-parts-chips {
+    padding: var(--mo-ref-space-200);
+  }
+  .mo-editor-parts-chips > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+  .mo-editor-parts-chip-image {
+    border-radius: var(--mo-sys-shape-corner-medium);
+    background-size: cover;
+    background-position: center;
+    padding: var(--mo-ref-space-200);
+  }
+  .mo-editor-parts-chip-sets {
+    max-inline-size: 24rem;
+    padding: var(--mo-ref-space-200);
+  }
+  :where(.mo-editor-parts-chip-sets > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-parts-chip-sets > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+  :where(.mo-editor-parts-fields > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-300);
+  }
+  .mo-editor-parts-fields {
+    padding: var(--mo-ref-space-200);
+  }
+  .mo-editor-parts-fields > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+  }
+  .mo-editor-parts-checkboxes {
+    padding: var(--mo-ref-space-200);
+  }
+  .mo-editor-parts-cards {
+    display: grid;
+    gap: var(--mo-ref-space-200);
+    padding: var(--mo-ref-space-200);
+  }
+  @media (width >= 37.5rem) {
+    .mo-editor-parts-cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .mo-editor-parts-card-title {
+    font-weight: 500;
+  }
+  .mo-editor-parts-card-text {
+    margin-block-start: var(--mo-ref-space-50);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-parts-list-row {
+    display: flex;
+    align-items: center;
+    gap: var(--mo-ref-space-200);
+    padding: var(--mo-ref-space-200);
+  }
+  .mo-editor-parts-lists {
+    display: grid;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-200);
+    padding: var(--mo-ref-space-200);
+  }
+  @media (width >= 52.5rem) {
+    .mo-editor-parts-lists {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  :where(.mo-editor-parts-sections > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-500);
+  }
+  .mo-editor-parts-sections > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-500);
+  }
+  :where(.mo-editor-parts-intro > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-150);
+  }
+  .mo-editor-parts-intro > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
+  }
+  .mo-editor-parts-intro-text {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  /* SearchPreview.tsx */
+  .mo-editor-search-menu {
+    color: var(--mo-comp-google-text);
+  }
+  :where(.mo-editor-search-preview > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-150);
+  }
+  .mo-editor-search-preview > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
+  }
+  .mo-editor-search-result {
+    background-color: var(--mo-comp-google-background);
+    padding: var(--mo-ref-space-200);
+    font-family: arial, sans-serif;
+  }
+  .mo-editor-search-result-phone {
+    max-inline-size: 360px;
+    border-block-style: solid;
+    border-block-width: 8px;
+    border-color: var(--mo-comp-google-separator);
+  }
+  .mo-editor-search-result-desktop {
+    max-inline-size: 600px;
+  }
+  .mo-editor-search-site {
+    display: flex;
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+  }
+  .mo-editor-search-icon {
+    display: flex;
+    inline-size: 28px;
+    block-size: 28px;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--mo-sys-shape-corner-full);
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--mo-comp-google-icon-ring);
+    background-color: var(--mo-comp-google-icon-fill);
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+    color: var(--mo-comp-google-icon-letter);
+  }
+  .mo-editor-search-site-text {
+    min-inline-size: 0;
+  }
+  .mo-editor-search-site-name {
+    display: block;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-comp-google-site);
+  }
+  .mo-editor-search-crumbs-row {
+    display: flex;
+    align-items: center;
+    gap: var(--mo-ref-space-50);
+  }
+  .mo-editor-search-crumbs {
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+    color: var(--mo-comp-google-text);
+  }
+  .mo-editor-search-menu-end {
+    margin-inline-start: auto;
+  }
+  .mo-editor-search-title {
+    display: block;
+    font-size: 20px;
+    line-height: 26px;
+  }
+  .mo-editor-search-title-phone {
+    margin-block-start: var(--mo-comp-editor-rhythm-150);
+    color: var(--mo-comp-google-title-phone);
+  }
+  .mo-editor-search-title-desktop {
+    margin-block-start: var(--mo-ref-space-75);
+    color: var(--mo-comp-google-title);
+  }
+  .mo-editor-search-description {
+    margin-block-start: var(--mo-ref-space-50);
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: 22px;
+    color: var(--mo-comp-google-text);
+  }
+  .mo-editor-search-clamp-phone {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+  }
+  .mo-editor-search-date {
+    color: var(--mo-comp-google-date);
+  }
+  .mo-editor-search-keyword {
+    font-weight: 700;
+  }
+  /* ContainmentParts.tsx */
+  :where(.mo-editor-contain-example > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-100);
+  }
+  .mo-editor-contain-example-label {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-contain-carousel-label {
+    position: absolute;
+    inset-block-end: var(--mo-ref-space-150);
+    inset-inline-start: var(--mo-ref-space-200);
+    font-weight: 500;
+  }
+  .mo-editor-contain-dialogs {
+    display: grid;
+    gap: var(--mo-ref-space-300);
+    padding: var(--mo-ref-space-200);
+  }
+  @media (width >= 52.5rem) {
+    .mo-editor-contain-dialogs {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  :where(.mo-editor-contain-choices > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-150);
+  }
+  .mo-editor-contain-choices > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
+  }
+  .mo-editor-contain-dialog {
+    padding: var(--mo-ref-space-300);
+  }
+  .mo-editor-contain-dialog-heading {
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+    font-weight: 500;
+  }
+  .mo-editor-contain-dialog-text {
+    margin-block-start: var(--mo-ref-space-100);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-contain-frame {
+    container-type: size;
+    position: relative;
+    block-size: 40rem;
+    overflow: hidden;
+    border-radius: var(--mo-sys-shape-corner-medium);
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--mo-sys-color-outline-variant);
+    contain: layout;
+  }
+  .mo-editor-contain-page {
+    padding: var(--mo-ref-space-200);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-contain-sheet-text {
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-contain-text {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  :where(.mo-editor-contain-layouts > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-400);
+  }
+  .mo-editor-contain-layouts {
+    padding: var(--mo-ref-space-200);
+  }
+  .mo-editor-contain-layouts > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+  }
+  .mo-editor-contain-panel {
+    inline-size: 100%;
+  }
+  .mo-editor-contain-carousel {
+    max-inline-size: 20rem;
+  }
+  /* NavigationParts.tsx */
+  :where(.mo-editor-nav-bars > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-nav-bars > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+  .mo-editor-nav-app-bar {
+    display: flex;
+    block-size: var(--mo-ref-space-800);
+    align-items: center;
+    gap: var(--mo-ref-space-200);
+    padding-inline: var(--mo-ref-space-200);
+  }
+  .mo-editor-nav-app-bar-title {
+    margin-inline-end: auto;
+    font-weight: 500;
+  }
+  .mo-editor-nav-menus {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-300);
+    padding: var(--mo-ref-space-200);
+  }
+  .mo-editor-nav-menu-share {
+    padding-block-end: 6rem;
+  }
+  @media (width >= 37.5rem) {
+    .mo-editor-nav-menu-share {
+      padding-inline-end: 18rem;
+    }
+  }
+  .mo-editor-nav-menus-tall {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-300);
+    padding: var(--mo-ref-space-200);
+    padding-block-end: 26rem;
+  }
+  :where(.mo-editor-nav-fields > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-300);
+  }
+  .mo-editor-nav-fields {
+    padding: var(--mo-ref-space-200);
+  }
+  .mo-editor-nav-fields > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+  }
+  .mo-editor-nav-field-pair {
+    display: grid;
+    gap: var(--mo-ref-space-300);
+  }
+  @media (width >= 37.5rem) {
+    .mo-editor-nav-field-pair {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  .mo-editor-nav-drawers {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-300);
+  }
+  :where(.mo-editor-nav-tabs > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-300);
+  }
+  .mo-editor-nav-tabs > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+  }
+  /* BlockDialog.tsx */
+  .mo-editor-block-dialog-note {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+  }
+  .mo-editor-block-dialog-list {
+    margin-inline: -0.75rem;
+  }
+  :where(.mo-editor-block-dialog-fields > :not(:last-child)) {
+    margin-block-end: var(--mo-ref-space-250);
+  }
+  .mo-editor-block-dialog-fields > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-250);
+  }
+  .mo-editor-block-dialog-search {
+    margin-inline: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-100);
+  }
+  .mo-editor-block-dialog-filters {
+    margin-inline: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-100);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-block-dialog-image {
+    margin-inline: auto;
+    max-block-size: 6rem;
+    max-inline-size: 100%;
+    border-radius: var(--mo-sys-shape-corner-medium);
+    object-fit: contain;
+  }
+  @media (width >= 37.5rem) {
+    .mo-editor-block-dialog-image {
+      max-block-size: 10rem;
+    }
+  }
+  .mo-editor-block-dialog-bar {
+    display: flex;
+    block-size: var(--mo-ref-space-800);
+    align-items: center;
+    gap: var(--mo-ref-space-50);
+    padding-inline: var(--mo-ref-space-100);
+  }
+  .mo-editor-block-dialog-title {
+    min-inline-size: 0;
+    flex: 1;
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+  }
+  .mo-editor-block-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--mo-ref-space-100);
+  }
+  /* BlockParts.tsx (a constant) */
+  .mo-editor-parts-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+  }
+  /* BlockParts.tsx (a constant) */
+  .mo-editor-parts-field-grid {
+    display: grid;
+    gap: var(--mo-ref-space-300);
+  }
+  @media (width >= 37.5rem) {
+    .mo-editor-parts-field-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  /* NavigationParts.tsx (a constant) */
+  .mo-editor-nav-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mo-ref-space-200);
+  }
+}
+
+/* The base layer gives every child of a .grid min-width: 0 (theme/styles/base.css); a part that draws a grid keeps it. */
+@layer base {
+  .mo-editor-comm-progress > *,
+  .mo-editor-comm-tooltips > *,
+  .mo-editor-parts-cards > *,
+  .mo-editor-parts-lists > *,
+  .mo-editor-contain-dialogs > *,
+  .mo-editor-nav-field-pair > *,
+  .mo-editor-parts-field-grid > * {
+    min-inline-size: 0;
+  }
+}
+
+@keyframes mo-editor-pulse {
+  50% {
+    opacity: 0.5;
+  }
+}

@@ -3,7 +3,7 @@
 // (--mo-sys-elevation-level2-color, --mo-sys-elevation-level2-shadow), and the rest of what a theme shares (corner steps, state layers) is
 // --mo-… too. This scans the theme, the editor and the package's libraries for the names from before: a role with no
 // prefix (var(--primary)), --md-… (Material's own prefix, which we do not use), --elevation-N, a name from before the
-// colour roles (var(--accent)) or a Tailwind colour from then (text-muted). The values stored in a site's content (the
+// colour roles (var(--accent)) or a colour class from then (text-muted). The values stored in a site's content (the
 // section `tint`, the text colour class `color-muted`) are not colours of the theme and are not scanned for.
 // Run: node --test scripts/color-names.test.mjs
 import assert from 'node:assert/strict';

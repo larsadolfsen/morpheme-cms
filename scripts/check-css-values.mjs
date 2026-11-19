@@ -1,7 +1,6 @@
 // Shape and type values come from the Material 3 tokens, not from a literal: a corner is a step of the corner scale (--mo-shape-*, or a
 // part's variable that maps to one), a text's size, line height and tracking are a step of the type scale (--mo-sys-typescale-*-size, -line-height,
-// -tracking). Fails on a literal radius, font size, line height or letter spacing in the theme's and the editor's CSS, on a Tailwind
-// text, corner or tracking class that is no step of the scale (text-lg, rounded-md, text-[20px] …), and on a custom property that is used
+// -tracking). Fails on a literal radius, font size, line height or letter spacing in the theme's and the editor's CSS, and on a custom property that is used
 // without a fallback and set nowhere. Run by npm run check. Colours are checked by check-editor-colors.mjs; motion is not checked.
 // A deliberate exception is an entry of scripts/check-css-values.allow.mjs with its reason (the same mechanism as check-colors.mjs).
 import { readFileSync } from 'node:fs';
@@ -43,18 +42,6 @@ for (const file of cssFiles) {
   });
 }
 
-// Tailwind classes that are no step of the M3 scales. text-xs/sm/base, rounded/-lg/-xl/-2xl/-full/-none are the scale's own values.
-const offScale =
-  /(?<![\w-])(?:text-(?:lg|xl|[3-9]xl)|rounded(?:-[tblr]{1,2})?-(?:md|3xl|[4-9]xl|\[(?!inherit\])[^\]]+\])|(?:text|leading|tracking)-\[(?!length:var\(--mo-sys-typescale|var\(--mo-sys-typescale)[^\]]+\]|border-\[[0-9.]+(?:px|rem)\])(?![\w-])/g;
-for (const file of classFiles) {
-  readFileSync(root + file, 'utf8')
-    .split('\n')
-    .forEach((line, i) => {
-      if (/^\s*(\/\/|\*)/.test(line)) return;
-      for (const [hit] of line.matchAll(offScale)) add(file, i + 1, 'a Tailwind class that is no step of the M3 scales', hit);
-    });
-}
-
 // A custom property used without a fallback that nothing sets (the colour roles are written into <head> from src/data/colors.json).
 const defined = new Set();
 const used = [];
@@ -68,7 +55,6 @@ for (const file of [...cssFiles, ...classFiles]) {
 }
 const optional = [
   [/^--mo-/, 'colour roles and state layers: written into <head> from the colours'],
-  [/^--(tw|color-|font-|breakpoint)/, 'Tailwind'],
   [/pressed-radius$/, 'optional: no pressed corner change when unset (buttons.css, header)'],
 ];
 for (const [file, n, name] of used)

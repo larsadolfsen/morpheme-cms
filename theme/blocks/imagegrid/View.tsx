@@ -1,5 +1,5 @@
 // "Image grid": its head (BlockHead.tsx), the tag filter (the theme's filter chips, drawn hidden and shown by script.ts: without JavaScript every image
-// shows), and the images as the theme's cards (Card, kind by `card`: Filled, Elevated or Outlined) in a staggered grid (.image-grid): the image to the
+// shows), and the images as the theme's cards (Card, kind by `card`: Filled, Elevated or Outlined) in a staggered grid (.mo-staggered-grid): the image to the
 // card's edge in its own proportions (`media`, a CardMedia), under it the lines the block asks for (the subhead: credit and tags, then the caption: Material 3's
 // card text under the media), never on the image. A card is a link to the image itself (so it opens without JavaScript; script.ts opens it in the lightbox, among the images shown),
 // or only a card when the block says the images do not open. What it shows: view.ts, filter.mjs. Cards in the editor are only drawn.
@@ -61,25 +61,25 @@ export default function ImageGrid({ view }: { view: ImageGridView }) {
     <>
       <BlockHead view={view} />
       <div
-        className={['block-imagegrid', useInText()].filter(Boolean).join(' ')}
+        className={['mo-block-imagegrid', useInText()].filter(Boolean).join(' ')}
         data-imagegrid=""
         data-start={view.start.join(',')}
         data-open={view.open ? '' : undefined}
       >
         {view.filter && (
-          <div className="block-imagegrid-filter" data-imagegrid-filter="" hidden>
+          <div className="mo-block-imagegrid__filter" data-imagegrid-filter="" hidden>
             <ChipSet label={view.texts.filter}>
               {view.tags.map((tag) => (
                 <Chip key={tag.slug} kind="filter" label={tag.name} data-tag={tag.slug} selected={view.start.includes(tag.slug)} />
               ))}
             </ChipSet>
-            <button type="button" className="block-imagegrid-clear" data-imagegrid-clear="" hidden>
+            <button type="button" className="mo-block-imagegrid__clear" data-imagegrid-clear="" hidden>
               {view.texts.clear}
             </button>
           </div>
         )}
-        <p className="block-imagegrid-count" data-imagegrid-count="" data-template={view.texts.count} aria-live="polite" />
-        <ul className="image-grid block-imagegrid-grid" data-columns={view.columns}>
+        <p className="mo-block-imagegrid__count" data-imagegrid-count="" data-template={view.texts.count} aria-live="polite" />
+        <ul className="mo-staggered-grid mo-block-imagegrid__grid" data-columns={view.columns}>
           {view.images.map((image, i) => (
             <li key={image.src} data-tags={image.tags.join(',')} data-index={i} data-caption={image.caption}>
               {/* The card is a link to the image when it opens, else only a card (as: its element). */}
@@ -97,7 +97,7 @@ export default function ImageGrid({ view }: { view: ImageGridView }) {
             </li>
           ))}
         </ul>
-        <p className="block-imagegrid-empty" data-imagegrid-empty="" hidden>
+        <p className="mo-block-imagegrid__empty" data-imagegrid-empty="" hidden>
           {view.texts.empty}
         </p>
         {view.open && (

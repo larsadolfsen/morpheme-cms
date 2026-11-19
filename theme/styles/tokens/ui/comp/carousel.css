@@ -3,79 +3,79 @@
 /* ---- Containment: Dialog, BottomSheet, Carousel ---- */
 /*
   Dialogs (Dialog.tsx, dialogClass, dialogClassOf, dialogModalClass, and dialog() in
-  dialogControl.ts for what a modal one does in a browser; m3.material.io/components/dialogs): .dialog is the container (a
-  pop-up's box, the cookie question), and .dialog-modal the <dialog> it is shown in over the page, in the middle with
-  the scrim behind it (a pop-up, Popup.astro). With its parts it is Material's basic dialog, .dialog-basic: optionally its
-  icon (.dialog-icon, centred over the headline with .dialog-with-icon), .dialog-headline, .dialog-supporting-text,
-  .dialog-content (what else it shows, scrolling), optionally .dialog-divider and .dialog-actions at its end. There is no
+  dialogControl.ts for what a modal one does in a browser; m3.material.io/components/dialogs): .mo-dialog is the container (a
+  pop-up's box, the cookie question), and .mo-dialog__modal the <dialog> it is shown in over the page, in the middle with
+  the scrim behind it (a pop-up, Popup.astro). With its parts it is Material's basic dialog, .mo-dialog__basic: optionally its
+  icon (.mo-dialog__icon, centred over the headline with .mo-has-icon), .mo-dialog__headline, .mo-dialog__supporting-text,
+  .mo-dialog__content (what else it shows, scrolling), optionally .mo-dialog__divider and .mo-dialog__actions at its end. There is no
   full-screen dialog: a full screen is a page with a back arrow.
-    --mo-comp-dialog-container-shape, --dialog-surface, --dialog-shadow, --mo-comp-dialog-line   the container's corners, surface, shadow
+    --mo-comp-dialog-container-shape, --mo-comp-dialog-surface, --mo-comp-dialog-shadow, --mo-comp-dialog-line   the container's corners, surface, shadow
                      (level 3), edge
     --mo-comp-dialog-scrim   the shade over the page behind a modal dialog (else --mo-comp-theme-scrim-colour, the text's colour, in
                      dark mode the page's, seen through)
-    --dialog-max-width   how wide a modal dialog is at most
-    --dialog-padding   the room inside a basic dialog
-    --dialog-icon-color, --dialog-headline-size, --dialog-headline-weight, --dialog-supporting-text-color   its parts
-  A lightbox (Lightbox.tsx, .lightbox in .lightbox-modal, lightboxControl.ts: an image shown bigger; M3 has none): a modal <dialog> with the dialog's container, a header with the close button (.lightbox-header), .lightbox-content,
-  .lightbox-track (images that snap), .lightbox-item, .lightbox-figure, .lightbox-image, .lightbox-caption, .lightbox-previous, .lightbox-next and
-  .lightbox-count; on a compact window over the whole screen, from medium the window less 56 dp on each side.
-    --lightbox-surface   its container, see-through over the scrim (else the scrim colour at 88%)
+    --mo-comp-dialog-max-width   how wide a modal dialog is at most
+    --mo-comp-dialog-padding   the room inside a basic dialog
+    --mo-comp-dialog-icon-color, --mo-comp-dialog-headline-size, --mo-comp-dialog-headline-weight, --mo-comp-dialog-supporting-text-color   its parts
+  A lightbox (Lightbox.tsx, .mo-lightbox in .mo-lightbox__modal, lightboxControl.ts: an image shown bigger; M3 has none): a modal <dialog> with the dialog's container, a header with the close button (.mo-lightbox__header), .mo-lightbox__content,
+  .mo-lightbox__track (images that snap), .mo-lightbox__item, .mo-lightbox__figure, .mo-lightbox__image, .mo-lightbox__caption, .mo-lightbox__previous, .mo-lightbox__next and
+  .mo-lightbox__count; on a compact window over the whole screen, from medium the window less 56 dp on each side.
+    --mo-comp-lightbox-surface   its container, see-through over the scrim (else the scrim colour at 88%)
     --mo-comp-theme-on-scrim-colour   the colour of its controls and text on the shade (components.css; the scrim colour's opposite)
   Bottom sheets (BottomSheet.tsx, bottomSheetClass, bottomSheetContainerClass, and bottomSheet() and
   standardBottomSheet() in bottomSheetControl.ts for what it does in a browser, bottomSheet.script.ts on the site;
-  m3.material.io/components/bottom-sheets): a modal one's <dialog> is .bottom-sheet (an app's: Calendly's calendar), at
+  m3.material.io/components/bottom-sheets): a modal one's <dialog> is .mo-bottom-sheet (an app's: Calendly's calendar), at
   most 44rem wide and nearly as high as the screen, from the bottom on a phone and in the middle of the screen from
-  the medium width (a dialog there, rounded all round, without the drag handle; with .bottom-sheet-fit as high as what
-  is in it: the editor's sheets; with .bottom-sheet-full as high as the screen, and wider on a computer: the editor's
-  preview of a page); in it .bottom-sheet-container with .bottom-sheet-drag-handle, .bottom-sheet-header
-  (.bottom-sheet-headline, .bottom-sheet-supporting-text and .bottom-sheet-actions: the resize, collapse and close
-  buttons), .bottom-sheet-peek (what a standard one shows even while collapsed), .bottom-sheet-content (what it shows,
-  filling the rest: a frame, and over it what stands in its place, .bottom-sheet-cover) and .bottom-sheet-footer. On a
+  the medium width (a dialog there, rounded all round, without the drag handle; with .mo-bottom-sheet__fit as high as what
+  is in it: the editor's sheets; with .mo-bottom-sheet__full as high as the screen, and wider on a computer: the editor's
+  preview of a page); in it .mo-bottom-sheet__container with .mo-bottom-sheet__drag-handle, .mo-bottom-sheet__header
+  (.mo-bottom-sheet__headline, .mo-bottom-sheet__supporting-text and .mo-bottom-sheet__actions: the resize, collapse and close
+  buttons), .mo-bottom-sheet__peek (what a standard one shows even while collapsed), .mo-bottom-sheet__content (what it shows,
+  filling the rest: a frame, and over it what stands in its place, .mo-bottom-sheet__cover) and .mo-bottom-sheet__footer. On a
   phone bottomSheet() gives a modal one's container data-sized (it opens at the height its data-start says, 'half' or
   'full', and is pulled by modalSheetSize.ts), data-full at full height (the content scrolls, and a frame takes
   touches, only then) and data-moving while it is pulled. A standard one is the container itself,
-  .bottom-sheet-standard, at the bottom of the screen (in the editor of its frame, with contain: layout and a size
+  .mo-bottom-sheet__standard, at the bottom of the screen (in the editor of its frame, with contain: layout and a size
   container) without a scrim, its drag handle a button, in the state it rests in (data-state: collapsed, only the
   handle and the header; half-expanded, at most half as high as the screen; expanded, as high as what it shows, but
   not to the top; hidden), data-moving while it is dragged or moves, data-full while it is expanded and as high as it
   can be (the collapse button shows only then).
-    --bottom-sheet-surface, --mo-comp-sheet-bottom-docked-container-shape, --mo-comp-bottom-sheet-line   its surface (also the cover's), corners, and
+    --mo-comp-bottom-sheet-surface, --mo-comp-sheet-bottom-docked-container-shape, --mo-comp-bottom-sheet-line   its surface (also the cover's), corners, and
                      the lines under the header and over the footer
-    --bottom-sheet-shadow, --bottom-sheet-shadow-large   its shadow on a phone (and a standard one's; level 1), and as
+    --mo-comp-bottom-sheet-shadow, --mo-comp-bottom-sheet-shadow-large   its shadow on a phone (and a standard one's; level 1), and as
                      a dialog from the medium width (level 3)
     --mo-comp-bottom-sheet-scrim   the shade over the page behind a modal one
-    --mo-comp-sheet-bottom-docked-drag-handle-color, --bottom-sheet-handle-focus   the drag handle's colour, and while it has the focus
-    --bottom-sheet-start-max-height   how high a sheet starts on a phone at most (50dvh, Material 3's half-expanded); the
+    --mo-comp-sheet-bottom-docked-drag-handle-color, --mo-comp-bottom-sheet-handle-focus   the drag handle's colour, and while it has the focus
+    --mo-comp-bottom-sheet-start-max-height   how high a sheet starts on a phone at most (50dvh, Material 3's half-expanded); the
                      rest is dragged up to
-    --bottom-sheet-max-width, --bottom-sheet-top-gap   how wide a standard one is at most, and how far from the top it
+    --mo-comp-bottom-sheet-max-width, --mo-comp-bottom-sheet-top-gap   how wide a standard one is at most, and how far from the top it
                      stays when it is expanded
-    --bottom-sheet-margin-wide   a standard one with wide="sheet" (from the medium width) stays this far from the
+    --mo-comp-bottom-sheet-margin-wide   a standard one with wide="sheet" (from the medium width) stays this far from the
                      sides and from the top (3.5rem); wide="side-sheet" (the default) draws it as a standard side
                      sheet at the end of the screen (--side-sheet-* tokens, full height, no handle or buttons, every
                      part shown); a modal one's wide="dialog" (the default; the dialog in the middle, also a container without
-                     the attribute), "side-sheet" (a modal side sheet at the end: --side-sheet-modal-surface, -radius, -shadow,
+                     the attribute), "side-sheet" (a modal side sheet at the end: --mo-comp-side-sheet-modal-surface, -radius, -shadow,
                      -scrim and -width, full height, no handle, slid in from the end) and "sheet" (stays a bottom sheet, as
-                     wide as --bottom-sheet-max-width at most, the margin from the sides and the top, slid up)
+                     wide as --mo-comp-bottom-sheet-max-width at most, the margin from the sides and the top, slid up)
   Carousels (Carousel.tsx, carouselClass, carousel.script.ts and carouselLayout.ts;
-  m3.material.io/components/carousel): .carousel with its items in a row to swipe (.carousel-items, each a
-  .carousel-item; native scroll-snap), and under them the theme's addition to M3's carousel, a page indicator
-  (.carousel-indicator with a .carousel-indicator-dot for each item, the one in view aria-current). Uncontained (no
+  m3.material.io/components/carousel): .mo-carousel with its items in a row to swipe (.mo-carousel__items, each a
+  .mo-carousel__item; native scroll-snap), and under them the theme's addition to M3's carousel, a page indicator
+  (.mo-carousel__indicator with a .mo-carousel__indicator-dot for each item, the one in view aria-current). Uncontained (no
   class of its own): each item as wide as the others, one with the next peeking in on a phone, two from the medium width, three
-  from the expanded width, reaching out to a phone's edges. The contained layouts, .carousel-contained with their own:
-  .carousel-multi-browse (large items, a medium and a small one) and .carousel-hero (large ones and a small one;
-  .carousel-center: between two small ones), whose items' masks (.carousel-item-mask, what is in an item, filling it)
-  carouselLayout.ts moves and clips as they scroll (--carousel-item-width on the row, --carousel-mask-inset on a mask,
-  --carousel-mask on an item: 0 to 1 of it masked), and .carousel-full-screen (one item at a time, as wide as the
+  from the expanded width, reaching out to a phone's edges. The contained layouts, .mo-carousel__contained with their own:
+  .mo-carousel__multi-browse (large items, a medium and a small one) and .mo-carousel__hero (large ones and a small one;
+  .carousel-center: between two small ones), whose items' masks (.mo-carousel__item-mask, what is in an item, filling it)
+  carouselLayout.ts moves and clips as they scroll (--mo-comp-carousel-item-width on the row, --mo-comp-carousel-mask-inset on a mask,
+  --mo-comp-carousel-mask on an item: 0 to 1 of it masked), and .mo-carousel__full-screen (one item at a time, as wide as the
   carousel, out to a phone's edges).
     --mo-comp-carousel-bleed   how far the row of an uncontained or full-screen one reaches out to the edges of a phone's screen
                      (the site's gutter)
-    --carousel-gap, --carousel-contained-gap   the room between the items, uncontained and contained
-    --carousel-height, --carousel-full-screen-height   how high a contained carousel is, and a full-screen one
+    --mo-comp-carousel-gap, --mo-comp-carousel-contained-gap   the room between the items, uncontained and contained
+    --mo-comp-carousel-height, --mo-comp-carousel-full-screen-height   how high a contained carousel is, and a full-screen one
     --mo-comp-carousel-large-item-width   how wide multi-browse's large items are, as near as they fit (in px or rem)
     --mo-comp-carousel-small-item-min-width, --mo-comp-carousel-small-item-max-width   a small item's narrowest and widest (px or rem)
-    --mo-comp-carousel-item-container-shape, --carousel-item-surface   a contained item's corners, and what is behind its image
+    --mo-comp-carousel-item-container-shape, --mo-comp-carousel-item-surface   a contained item's corners, and what is behind its image
     --mo-comp-carousel-full-screen-radius   a full-screen one's items' corners on a phone
-    --carousel-dot-size, --mo-comp-carousel-dot-colour, --mo-comp-carousel-dot-selected-width, --carousel-dot-selected-colour
+    --mo-comp-carousel-dot-size, --mo-comp-carousel-dot-colour, --mo-comp-carousel-dot-selected-width, --mo-comp-carousel-dot-selected-colour
 */
 :where(:root) {
   --mo-comp-carousel-large-item-width: 12.5rem;

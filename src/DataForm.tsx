@@ -401,7 +401,7 @@ function Form({
               }
             />
           ) : root ? (
-            <div className="space-y-6">
+            <div className="mo-editor-stack-300">
               <DataFileFields dataFile={dataFile!} value={values} onChange={setValues} />
             </div>
           ) : drawn ? (
@@ -411,11 +411,11 @@ function Form({
               first={<FieldList fields={fields} value={values} onChange={(v) => setValues(v as Record<string, unknown>)} />}
               main={
                 <div>
-                  <p className="mb-2 font-medium">{t.company.preview}</p>
-                  <div className="space-y-6">
+                  <p className="mo-editor-subtitle">{t.company.preview}</p>
+                  <div className="mo-editor-stack-300">
                     {drawn.map((d) => (
                       <section key={d.label}>
-                        {d.label && <h3 className="mb-2 text-sm font-medium text-on-surface-variant">{d.label}</h3>}
+                        {d.label && <h3 className="mo-editor-preview-label">{d.label}</h3>}
                         <Preview>{d.node}</Preview>
                       </section>
                     ))}
@@ -424,7 +424,7 @@ function Form({
               }
             />
           ) : seoFields.length ? (
-            <div className="space-y-6">
+            <div className="mo-editor-stack-300">
               <FieldList fields={rest} value={values} onChange={(v) => setValues(v as Record<string, unknown>)} />
               {seoSection}
               {shareSection}

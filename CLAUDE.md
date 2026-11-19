@@ -40,7 +40,7 @@ plain words. The plans go to the PM, who hands them to new sessions.
 
 ### The flow
 
-Every change goes Branch → line (`0.18`) → `main` → Release, and is seen at each step: a branch on its own demo Preview; the line on the demo (`morpheme-demo`, whose production branch in Cloudflare is the live line); `main` on `morpheme-staging` as the `next` test version from npm, with real sign-in and saving; a release on the sites (`latest`). Nothing is released that staging has not run (skill `release`). When a new line starts, or lines end, the owner sets the demo's production branch to it (Workers > `morpheme-demo` > Settings > Build > Branch control).
+Every change goes branch → feature → `next` → live (owner, 19 Nov 2026), one feature at a time (`docs/superpowers/plans/2026-11-18-release-per-feature.md`), and is seen at each step: a branch on its own demo Preview; a feature (`feature/<name>`, cut from `main`, its pull requests merged into it) on the demo, where the owner reviews it (`morpheme-demo`, whose production branch in Cloudflare the owner sets to the feature being built; the demo never shows the live site); `next`, the feature merged into `main`, on `morpheme-staging` as the test version from npm, with real sign-in and saving; live, a release on the sites (`latest`). A single fix skips the feature and goes as one pull request into `main`. Nothing is released that staging has not run (skill `release`).
 
 ### Only the owner releases a new version
 
@@ -51,8 +51,9 @@ release without the owner's explicit yes in the conversation. That means:
   your own.
 - Never approve, publish, re-tag or reject a version on npmjs.com (`npm publish`, `npm dist-tag`, the staged-packages
   page).
-- Never create a version tag or a GitHub release, never run `release:version`, and never edit the `version` in
-  `package.json` or `CHANGELOG.md` by hand.
+- Never create a version tag or a GitHub release, never run `release:version`, and never edit `CHANGELOG.md` by hand. The
+  `version` in `package.json` is set once, by the first pull request of a feature or fix, to the version it will be released as, so
+  the demo shows it (owner, 19 Nov 2026; `docs/superpowers/plans/2026-11-19-version-at-feature-start.md`); never otherwise.
 - Never release a product that hasn't been seen on staging (owner rule, 18 Nov 2026). The exact build that would be
   released must already have run on `morpheme-staging` before anyone asks the owner for a release; a Release PR whose
   version was never seen on staging is never merged, even with an earlier yes (skill `release`, Phases 1 and 2).
@@ -117,7 +118,7 @@ Worker, the starter or the demo is a pull request here.
 - **`bin/`**: the `morpheme` CLI (image processing, build hooks, validation).
 - **`demo/`**: a made-up site laid over the starter, which the CMS is developed and checked with and which the themes'
   images are taken of. `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in
-  `.morpheme/demo/site/`; `wrangler.jsonc` puts it on the Worker `morpheme-demo`, whose address shows the live line (the demo Worker's production branch in Cloudflare), not `main`. Each branch gets its own Preview
+  `.morpheme/demo/site/`; `wrangler.jsonc` puts it on the Worker `morpheme-demo`, whose address shows the feature being built (the demo Worker's production branch in Cloudflare, set by the owner), never the live site. Each branch gets its own Preview
   (`npx wrangler preview`), whose address Cloudflare writes on the pull request; login and save do not work there.
   The demo's Blocks are an index (`/blocks/`) and one page for each main component or special block (`/blocks/<name>/`, the file
   `demo/src/content/pages/blocks-<name>.md`; the list and its rules are in `scripts/demo-blocks.mjs`).
@@ -142,7 +143,7 @@ surfaces and fonts.
 
 Colours in the editor's block parts (`src/editor.css`, `src/Inline*.tsx`) come only from the theme's context tokens: the `--mo-*`
 roles, `currentColor` and `color-mix` of them, never a fixed value. A section on a colour swaps those roles to its on-colours once, in
-`theme/styles/global.css` (the site's `.text-section-*` and the editor's `[data-section-color]` nodes), so a part that uses the normal
+`theme/styles/global.css` (the site's `.mo-text-section` with its `mo-is-<color>` kinds, and the editor's `[data-section-color]` nodes), so a part that uses the normal
 tokens follows every section colour by itself. `npm run check:editor-colors` fails on a fixed colour (its allowlist gives the
 reasons), and `check:screens` checks text, placeholder, slot icons and outline of every entry of `inlineBlocks` on every section colour.
 

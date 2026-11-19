@@ -25,8 +25,8 @@ import {
 /** How far the selection mark's centre is from the point on the outline's corner curve (the 45 degree point of the card's corner, its 1.5px line centred): {dx, dy} in px. */
 const markOffset = (page) =>
   page.evaluate(() => {
-    const card = document.querySelector('.site-block-card.site-block-inline');
-    const mark = card.parentElement.querySelector(':scope > .site-block-mark');
+    const card = document.querySelector('.mo-site-block-card.mo-site-block-inline');
+    const mark = card.parentElement.querySelector(':scope > .mo-site-block-mark');
     const c = card.getBoundingClientRect();
     const m = mark.getBoundingClientRect();
     const r = parseFloat(getComputedStyle(card).borderTopLeftRadius);
@@ -57,13 +57,14 @@ async function checkBlockRow(width, options = {}) {
   await page.waitForTimeout(300);
   await insertBlock(page, 'Rows with icon, heading and text.', 1, 0);
   await page.keyboard.type('Design');
-  const row = page.locator('.site-block-row');
+  const row = page.locator('.mo-site-block-row');
   if (reduced) await page.waitForTimeout(100);
   else await page.waitForTimeout(800);
-  if (await page.locator('.site-block-row-hover').count()) problems.push(`${label}: the active block also shows the pointed block's row`);
+  if (await page.locator('.mo-site-block-row-hover').count())
+    problems.push(`${label}: the active block also shows the pointed block's row`);
   const names = () =>
     page
-      .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
+      .locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')
       .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   if (!(await row.count())) {
     problems.push(`${label}: no action row for the active block`);
@@ -71,7 +72,7 @@ async function checkBlockRow(width, options = {}) {
   }
   if (reduced && (await row.evaluate((el) => el.getAnimations().length)) > 0)
     problems.push(`${label}: the row is animated under reduced motion`);
-  const shape = await page.locator('.site-block-row:not(.site-block-row-hover) [data-row]').evaluateAll((els) =>
+  const shape = await page.locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]').evaluateAll((els) =>
     els.map((e) => {
       const r = e.getBoundingClientRect();
       return {
@@ -91,26 +92,26 @@ async function checkBlockRow(width, options = {}) {
   if (!last?.off || !last.why)
     problems.push(`${label}: Move down is not disabled with a reason on the last block (${JSON.stringify(last)})`);
   if (shape.find((b) => b.label === 'Move up')?.off) problems.push(`${label}: Move up is disabled with a block above`);
-  const handle = await page.locator('.site-block-has-row > .site-block-handle').boundingBox();
+  const handle = await page.locator('.mo-site-block-has-row > .mo-site-block-handle').boundingBox();
   const rowBox = await row.boundingBox();
   if (!handle || !rowBox || handle.y < rowBox.y - 1 || handle.y + handle.height > rowBox.y + rowBox.height + 1)
     problems.push(`${label}: the handle is not inside the row (${JSON.stringify({ handle, rowBox })})`);
-  const bar = await page.locator('.editor-tools').boundingBox();
+  const bar = await page.locator('.mo-editor-tools').boundingBox();
   if (rowBox && bar && rowBox.y + rowBox.height > bar.y && rowBox.y < bar.y + bar.height)
     problems.push(`${label}: the row lies under the text bar (${JSON.stringify({ rowBox, bar })})`);
   // The row is inside the outline, above the block's first item.
-  const firstItem = await page.locator('.site-block-card .inline-list-row').first().boundingBox();
+  const firstItem = await page.locator('.mo-site-block-card .mo-editor-inline-list-row').first().boundingBox();
   if (rowBox && firstItem && rowBox.y + rowBox.height > firstItem.y + 1) problems.push(`${label}: the row overlaps the block's content`);
-  const barNames = await page.locator('.editor-tools button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  const barNames = await page.locator('.mo-editor-tools button').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   for (const name of ['Move up', 'Move down', 'Hide', 'Show'])
     if (barNames.includes(name)) problems.push(`${label}: "${name}" is on the bar as well as in the row`);
   // The row is inside the block's dotted outline (its card), which has a Card's corner radius and padding (the theme's tokens, read from a probe Card).
   const frame = await page.evaluate(() => {
-    const card = document.querySelector('.site-block-card.site-block-inline');
+    const card = document.querySelector('.mo-site-block-card.mo-site-block-inline');
     const r = card.getBoundingClientRect();
-    const rowEl = card.querySelector(':scope > .site-block-row');
+    const rowEl = card.querySelector(':scope > .mo-site-block-row');
     const probe = document.createElement('div');
-    probe.className = 'card card-outlined';
+    probe.className = 'mo-card mo-is-outlined';
     card.parentElement.append(probe);
     const want = getComputedStyle(probe);
     const have = getComputedStyle(card);
@@ -149,12 +150,12 @@ async function checkBlockRow(width, options = {}) {
     problems.push(`${label}: the selection mark is off the corner curve while active (${JSON.stringify(markActive)})`);
   // The row's buttons are the theme's icon buttons: no class of their own, and the hover is a probe standard icon button's.
   const classes = await page
-    .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
+    .locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')
     .evaluateAll((els) => els.map((e) => [...e.classList]));
   for (const list of classes)
-    if (list.some((c) => !/^icon-button(-|$)/.test(c)))
+    if (list.some((c) => !/^mo-icon-button(__|$)/.test(c)))
       problems.push(`${label}: a row button has a class of its own (${list.join(' ')}); it must be the theme's icon button`);
-  if (classes.some((list) => !list.includes('icon-button') || !list.includes('icon-button-standard')))
+  if (classes.some((list) => !list.includes('mo-icon-button') || !list.includes('mo-icon-button__standard')))
     problems.push(`${label}: a row button is not the theme's standard icon button (${JSON.stringify(classes)})`);
   const hoverOf = async (locator) => {
     await locator.hover();
@@ -169,31 +170,31 @@ async function checkBlockRow(width, options = {}) {
     const probe = document.createElement('button');
     probe.type = 'button';
     probe.dataset.probe = 'icon';
-    probe.className = 'icon-button icon-button-standard';
-    probe.innerHTML = document.querySelector('.site-block-row:not(.site-block-row-hover) [data-row="up"]')?.innerHTML ?? '';
-    document.querySelector('.site-block-row:not(.site-block-row-hover) .site-block-row-inner').prepend(probe);
+    probe.className = 'mo-icon-button mo-icon-button__standard';
+    probe.innerHTML = document.querySelector('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row="up"]')?.innerHTML ?? '';
+    document.querySelector('.mo-site-block-row:not(.mo-site-block-row-hover) .mo-site-block-row-inner').prepend(probe);
   });
   const wantHover = await hoverOf(probeIcon);
   await page.evaluate(() => document.querySelector('[data-probe="icon"]').remove());
-  const upHover = await hoverOf(page.locator('.site-block-row:not(.site-block-row-hover) [data-row="up"]'));
+  const upHover = await hoverOf(page.locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row="up"]'));
   if (!phone && (upHover.background !== wantHover.background || upHover.radius !== wantHover.radius))
     problems.push(`${label}: a row button's hover is ${JSON.stringify(upHover)}, not the theme icon button's ${JSON.stringify(wantHover)}`);
   // A phone has no hover (the theme's state layer is for a pointer that hovers): the hover is compared on a computer.
   if (!phone && wantHover.background === 'rgba(0, 0, 0, 0)') problems.push(`${label}: the theme icon button shows no state layer on hover`);
   // `Add list row`: the theme's text button, and its hover container is whole inside the outline.
-  const add = page.locator('.inline-list-add').first();
+  const add = page.locator('.mo-editor-inline-list-add').first();
   if (await add.count()) {
     const addHover = await hoverOf(add);
     const classes2 = await add.evaluate((e) => [...e.classList]);
-    if (!classes2.includes('button') || !classes2.includes('button-text'))
+    if (!classes2.includes('mo-button') || !classes2.includes('mo-button__text'))
       problems.push(`${label}: Add list row is not the theme's text button (${classes2})`);
     const wantText = page.locator('[data-probe="text"]');
     await page.evaluate(() => {
       const probe = document.createElement('button');
       probe.dataset.probe = 'text';
-      probe.className = 'button button-text';
+      probe.className = 'mo-button mo-button__text';
       probe.textContent = 'x';
-      document.querySelector('.site-block-card.site-block-inline').append(probe);
+      document.querySelector('.mo-site-block-card.mo-site-block-inline').append(probe);
     });
     await wantText.hover();
     await page.waitForTimeout(400);
@@ -202,7 +203,7 @@ async function checkBlockRow(width, options = {}) {
     if (!phone && (addHover.background !== textWant || textWant === 'rgba(0, 0, 0, 0)'))
       problems.push(`${label}: Add list row's hover is ${addHover.background}, not the theme text button's ${textWant}`);
     const box = await add.boundingBox();
-    const outline = await page.locator('.site-block-card.site-block-inline').boundingBox();
+    const outline = await page.locator('.mo-site-block-card.mo-site-block-inline').boundingBox();
     const inner = frame.border;
     if (
       box.x < outline.x + inner - 0.5 ||
@@ -215,18 +216,18 @@ async function checkBlockRow(width, options = {}) {
   await page.mouse.move(0, 0);
   // Dragged, the block is lifted as one box: the outline with the row and the handle inside it.
   {
-    const handleBox = await page.locator('.site-block-has-row > .site-block-handle').boundingBox();
+    const handleBox = await page.locator('.mo-site-block-has-row > .mo-site-block-handle').boundingBox();
     await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2);
     await page.mouse.down();
     await page.mouse.move(handleBox.x + handleBox.width / 2, handleBox.y + handleBox.height / 2 + 30, { steps: 5 });
     await page.waitForTimeout(300);
     const lifted = await page.evaluate(() => {
-      const dom = document.querySelector('.site-block-dragging');
+      const dom = document.querySelector('.mo-site-block-dragging');
       if (!dom) return null;
-      const card = dom.querySelector(':scope > .site-block-card');
+      const card = dom.querySelector(':scope > .mo-site-block-card');
       const box = dom.getBoundingClientRect();
       const c = card.getBoundingClientRect();
-      const r = card.querySelector(':scope > .site-block-row')?.getBoundingClientRect();
+      const r = card.querySelector(':scope > .mo-site-block-row')?.getBoundingClientRect();
       return {
         shadowOn: getComputedStyle(card).boxShadow !== 'none',
         radius: getComputedStyle(card).borderTopLeftRadius,
@@ -252,32 +253,33 @@ async function checkBlockRow(width, options = {}) {
     }
   }
   // Hide turns into Show and the row stays.
-  await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][aria-label="Hide"]')[phone ? 'tap' : 'click']();
+  await page.locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row][aria-label="Hide"]')[phone ? 'tap' : 'click']();
   await page.waitForTimeout(500);
   if (!(await names()).includes('Show')) problems.push(`${label}: after Hide the row does not say Show (${await names()})`);
-  await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][aria-label="Show"]')[phone ? 'tap' : 'click']();
+  await page.locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row][aria-label="Show"]')[phone ? 'tap' : 'click']();
   await page.waitForTimeout(500);
   // The row's buttons are real buttons that Tab reaches.
-  if (await page.locator('.site-block-row:not(.site-block-row-hover) [data-row][tabindex="-1"]').count())
+  if (await page.locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row][tabindex="-1"]').count())
     problems.push(`${label}: a button of the row is not reachable with Tab`);
   // The cursor back in the text: the row closes.
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(reduced ? 200 : 900);
-  if (await page.locator('.site-block-row').count()) problems.push(`${label}: the row stays after the block is left`);
+  if (await page.locator('.mo-site-block-row').count()) problems.push(`${label}: the row stays after the block is left`);
   // A real touch tap on the block's rows brings it back (a computer: a click).
-  if (phone) await page.locator('.inline-list-row').first().tap();
-  else await page.locator('.inline-list-row').first().click();
+  if (phone) await page.locator('.mo-editor-inline-list-row').first().tap();
+  else await page.locator('.mo-editor-inline-list-row').first().click();
   await page.waitForTimeout(reduced ? 200 : 900);
-  if (!(await page.locator('.site-block-row').count()))
+  if (!(await page.locator('.mo-site-block-row').count()))
     problems.push(`${label}: a ${phone ? 'tap' : 'click'} on the block did not bring its row back`);
   // The row opens and closes without the block's own content moving: the page moves instead (the row grows upward). Sampled every frame.
-  const contentTop = () => page.evaluate(() => document.querySelector('.site-block-card .site-block-preview').getBoundingClientRect().top);
+  const contentTop = () =>
+    page.evaluate(() => document.querySelector('.mo-site-block-card .mo-site-block-preview').getBoundingClientRect().top);
   const sample = async (act) => {
     const start = await contentTop();
     await page.evaluate(() => {
       window.__tops = [];
       const one = () => {
-        window.__tops.push(document.querySelector('.site-block-card .site-block-preview')?.getBoundingClientRect().top ?? 0);
+        window.__tops.push(document.querySelector('.mo-site-block-card .mo-site-block-preview')?.getBoundingClientRect().top ?? 0);
         // After the frame's other callbacks (the row's own scroll hold runs in one), where the frame is painted.
         window.__raf = requestAnimationFrame(() => setTimeout(one, 0));
       };
@@ -293,22 +295,22 @@ async function checkBlockRow(width, options = {}) {
   const still = height >= 500;
   if (still && (closed.drift > 2 || closed.end > 1))
     problems.push(`${label}: closing the row moves the block's content (${JSON.stringify(closed)})`);
-  if (await page.locator('.site-block-row').count()) problems.push(`${label}: the row stays after the cursor went back to the text`);
+  if (await page.locator('.mo-site-block-row').count()) problems.push(`${label}: the row stays after the cursor went back to the text`);
   // Pointing at a block shows its row over its top, taking no space (a computer only).
   if (!phone) {
     // (A block narrower than 400 px shows no row on pointing: it would cover the block's first item.)
     const flow = () =>
       page.evaluate(() => ({
-        top: document.querySelector('.site-block-card .site-block-preview').getBoundingClientRect().top,
+        top: document.querySelector('.mo-site-block-card .mo-site-block-preview').getBoundingClientRect().top,
         height: document.documentElement.scrollHeight,
         y: scrollY,
       }));
     const calm = await flow();
-    await page.locator('.site-block-card').first().hover();
+    await page.locator('.mo-site-block-card').first().hover();
     await page.waitForTimeout(400);
     const hovered = await page.evaluate(() => {
-      const row = document.querySelector('.site-block-row-hover');
-      const card = document.querySelector('.site-block-card.site-block-inline');
+      const row = document.querySelector('.mo-site-block-row-hover');
+      const card = document.querySelector('.mo-site-block-card.mo-site-block-inline');
       if (!row) return null;
       const r = row.getBoundingClientRect();
       const c = card.getBoundingClientRect();
@@ -317,7 +319,7 @@ async function checkBlockRow(width, options = {}) {
         inside: r.top >= c.top && r.bottom <= c.bottom && r.left >= c.left && r.right <= c.right,
         names: [...row.querySelectorAll('[data-row]')].map((b) => b.getAttribute('aria-label')),
         classes: [...row.querySelectorAll('[data-row]')].map((b) => [...b.classList].join(' ')),
-        handle: !!document.querySelector('.site-block-has-hover > .site-block-handle'),
+        handle: !!document.querySelector('.mo-site-block-has-hover > .mo-site-block-handle'),
       };
     });
     if (!hovered) problems.push(`${label}: pointing at a block shows no action row`);
@@ -326,7 +328,7 @@ async function checkBlockRow(width, options = {}) {
       if (!hovered.inside) problems.push(`${label}: the pointed block's row is not inside the dotted outline`);
       for (const name of ['Move up', 'Move down', 'Hide'])
         if (!hovered.names.includes(name)) problems.push(`${label}: the pointed block's row has no "${name}" (${hovered.names})`);
-      if (hovered.classes.some((c) => c !== 'icon-button icon-button-standard'))
+      if (hovered.classes.some((c) => c !== 'mo-icon-button mo-icon-button__standard'))
         problems.push(`${label}: the pointed block's buttons are not the theme icon button (${hovered.classes})`);
       if (!hovered.handle) problems.push(`${label}: the pointed block shows no drag handle`);
     }
@@ -334,8 +336,8 @@ async function checkBlockRow(width, options = {}) {
     if (Math.abs(markHover.dx) > 0.75 || Math.abs(markHover.dy) > 0.75)
       problems.push(`${label}: the selection mark is off the corner curve while pointed at (${JSON.stringify(markHover)})`);
     const hoverRow = await page.evaluate(() => {
-      const row = document.querySelector('.site-block-row-hover').getBoundingClientRect();
-      const card = document.querySelector('.site-block-card.site-block-inline').getBoundingClientRect();
+      const row = document.querySelector('.mo-site-block-row-hover').getBoundingClientRect();
+      const card = document.querySelector('.mo-site-block-card.mo-site-block-inline').getBoundingClientRect();
       return row.top - card.top;
     });
     if (hoverRow > 14) problems.push(`${label}: the pointed block's row is ${hoverRow} px below the outline's top edge, too far`);
@@ -344,14 +346,15 @@ async function checkBlockRow(width, options = {}) {
       problems.push(`${label}: pointing at a block moves the page (${JSON.stringify({ calm, moved })})`);
     await page.mouse.move(2, 2);
     await page.waitForTimeout(300);
-    if (await page.locator('.site-block-row-hover').count()) problems.push(`${label}: the pointed block's row stays after the mouse left`);
+    if (await page.locator('.mo-site-block-row-hover').count())
+      problems.push(`${label}: the pointed block's row stays after the mouse left`);
   }
   const opened = await sample(() =>
-    phone ? page.locator('.inline-list-row').first().tap() : page.locator('.inline-list-row').first().click(),
+    phone ? page.locator('.mo-editor-inline-list-row').first().tap() : page.locator('.mo-editor-inline-list-row').first().click(),
   );
   if (still && (opened.drift > 2 || opened.end > 1))
     problems.push(`${label}: opening the row moves the block's content (${JSON.stringify(opened)})`);
-  if (!(await page.locator('.site-block-row:not(.site-block-row-hover)').count()))
+  if (!(await page.locator('.mo-site-block-row:not(.mo-site-block-row-hover)').count()))
     problems.push(`${label}: the row did not open on the block`);
   await page.close();
 }
@@ -375,19 +378,19 @@ async function checkBlockVisibility(width) {
     await insertBlock(page, 'Rows with icon, heading and text.', i + 1, 0);
     await newLineUnder(page, 'Hello');
   }
-  const blocks = page.locator('.ProseMirror .site-block');
+  const blocks = page.locator('.ProseMirror .mo-site-block');
   if ((await blocks.count()) < 3) {
     problems.push(`${label}: fewer than 3 blocks in the page`);
     return void (await page.close());
   }
   const read = () =>
     page.evaluate(() =>
-      [...document.querySelectorAll('.ProseMirror .site-block')].map((b) => {
-        const mark = b.querySelector(':scope > .site-block-mark');
-        const handle = b.querySelector(':scope > .site-block-handle');
+      [...document.querySelectorAll('.ProseMirror .mo-site-block')].map((b) => {
+        const mark = b.querySelector(':scope > .mo-site-block-mark');
+        const handle = b.querySelector(':scope > .mo-site-block-handle');
         return {
-          row: b.querySelectorAll('.site-block-row:not(.site-block-row-hover)').length,
-          hover: [...b.querySelectorAll('.site-block-row-hover')].filter((el) => el.getClientRects().length).length,
+          row: b.querySelectorAll('.mo-site-block-row:not(.mo-site-block-row-hover)').length,
+          hover: [...b.querySelectorAll('.mo-site-block-row-hover')].filter((el) => el.getClientRects().length).length,
           mark: mark ? Number(getComputedStyle(mark).opacity) : -1,
           handle: handle ? Number(getComputedStyle(handle).opacity) : -1,
           handleHits: handle ? getComputedStyle(handle).pointerEvents : '-',
@@ -416,7 +419,7 @@ async function checkBlockVisibility(width) {
   now.forEach((state, i) => plain(state, `block ${i + 1} (none active)`));
   // Block 1 active.
   const tapOrClick = async (loc, position) => (phone ? loc.tap({ position }) : loc.click({ position }));
-  await tapOrClick(blocks.nth(0).locator('.inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
+  await tapOrClick(blocks.nth(0).locator('.mo-editor-inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
   await page.waitForTimeout(1000);
   await page.mouse.move(2, 2);
   await page.waitForTimeout(400);
@@ -446,10 +449,10 @@ async function checkBlockVisibility(width) {
   }
   // Another block becomes active: block 1 shows nothing any more.
   // (A tap on another block first closes the active block's row; the next one goes into the block, as before this change.)
-  await tapOrClick(blocks.nth(2).locator('.inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
+  await tapOrClick(blocks.nth(2).locator('.mo-editor-inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
   await page.waitForTimeout(1100);
   if (!(await read())[2].row) {
-    await tapOrClick(blocks.nth(2).locator('.inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
+    await tapOrClick(blocks.nth(2).locator('.mo-editor-inline-list-row [data-field="title"]').first(), { x: 8, y: 8 });
     await page.waitForTimeout(1100);
   }
   await page.mouse.move(2, 2);
@@ -458,7 +461,7 @@ async function checkBlockVisibility(width) {
   plain(now[0], 'block 1 (block 3 became active)');
   shown(now[2], 'the active block 3', false);
   // A drag ends: the block stays active, the others show nothing, and nothing stays where the pointer was.
-  const handle = await blocks.nth(2).locator(':scope > .site-block-handle').boundingBox();
+  const handle = await blocks.nth(2).locator(':scope > .mo-site-block-handle').boundingBox();
   await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
   await page.mouse.down();
   await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2 - 20, { steps: 4 });
@@ -475,7 +478,7 @@ async function checkBlockVisibility(width) {
     await page.waitForTimeout(1000);
     await blocks.nth(0).hover({ position: { x: 20, y: 20 } });
     await page.waitForTimeout(400);
-    await blocks.nth(0).locator(':scope > .site-block-mark').click();
+    await blocks.nth(0).locator(':scope > .mo-site-block-mark').click();
     await page.waitForTimeout(500);
     now = await read();
     now.forEach((state, i) => {
@@ -506,18 +509,18 @@ async function checkBlockRowNarrow() {
   await insertBlock(page, 'Rows with icon, heading and text.', 1, 0);
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(900);
-  await page.locator('.site-block-card').first().hover();
+  await page.locator('.mo-site-block-card').first().hover();
   await page.waitForTimeout(400);
   const width = await page
-    .locator('.site-block-card')
+    .locator('.mo-site-block-card')
     .first()
     .evaluate((e) => e.clientWidth);
   if (width >= 400) problems.push(`${label}: the block is ${width} px wide, not narrow (under 400)`);
-  if (await page.locator('.site-block-row-hover').count())
+  if (await page.locator('.mo-site-block-row-hover').count())
     problems.push(`${label}: a narrow block pointed at shows a row over its first item`);
-  await page.locator('.inline-list-row [data-field="title"]').first().click();
+  await page.locator('.mo-editor-inline-list-row [data-field="title"]').first().click();
   await page.waitForTimeout(600);
-  if (!(await page.locator('.inline-list-row-active').count()))
+  if (!(await page.locator('.mo-editor-inline-list-row-active').count()))
     problems.push(`${label}: a click on the first item's field did not go into it`);
   await page.close();
 }
@@ -533,7 +536,7 @@ async function checkInsertBlock(width, height = 800) {
   await page.waitForSelector('.ProseMirror');
   const read = () =>
     page.evaluate(() => {
-      const bar = document.querySelector('.editor-tools');
+      const bar = document.querySelector('.mo-editor-tools');
       const rect = (el) => el && el.getBoundingClientRect().toJSON();
       const named = (name) => bar.querySelector(`button[aria-label="${name}"]`);
       return {
@@ -572,15 +575,15 @@ async function checkInsertBlock(width, height = 800) {
     problems.push(`${label}: Insert block pushed Undo off the bar`);
   // The ⋮ menu has no Insert row.
   if (text.more) {
-    await page.locator('.editor-tools [aria-label="More"]').click();
+    await page.locator('.mo-editor-tools [aria-label="More"]').click();
     const rows = await page.evaluate(() =>
       [...document.querySelectorAll('[role=menu][aria-label="More"] [role^=menuitem]')].map((x) => x.textContent.trim()),
     );
     if (rows.some((r) => /^Insert/.test(r))) problems.push(`${label}: the ⋮ menu has an Insert row (${rows})`);
-    await page.locator('.editor-tools [aria-label="More"]').click();
+    await page.locator('.mo-editor-tools [aria-label="More"]').click();
   }
   // It opens the block picker.
-  await page.locator('.editor-tools button[aria-label="Insert block"]').click();
+  await page.locator('.mo-editor-tools button[aria-label="Insert block"]').click();
   await page
     .waitForSelector('dialog[open]', { timeout: 4000 })
     .catch(() => problems.push(`${label}: Insert block did not open the block picker`));
@@ -615,7 +618,8 @@ async function checkAppTestPages() {
       await page.waitForTimeout(800);
       const drawn = await page.evaluate(
         () =>
-          document.querySelectorAll('.ProseMirror [data-block], .ProseMirror .site-block-inline, .ProseMirror .site-block-preview').length,
+          document.querySelectorAll('.ProseMirror [data-block], .ProseMirror .mo-site-block-inline, .ProseMirror .mo-site-block-preview')
+            .length,
       );
       if (drawn < test.types.length)
         problems.push(
@@ -637,9 +641,9 @@ async function checkLongPressDelete() {
   const cdp = await page.context().newCDPSession(page);
   for (const list of ['pages', 'blog']) {
     await page.evaluate((l) => (location.hash = `#list/${l}`), list);
-    await page.waitForSelector('main a.list-item-container');
+    await page.waitForSelector('main a.mo-list__item-container');
     await page.waitForTimeout(500);
-    const rows = page.locator('main a.list-item-container');
+    const rows = page.locator('main a.mo-list__item-container');
     // A row that is not a default page.
     const row = list === 'pages' ? rows.filter({ hasText: FIXTURE_PAGE }).first() : rows.filter({ hasText: 'Check post' }).first();
     await row.scrollIntoViewIfNeeded();
@@ -669,9 +673,9 @@ async function checkLongPressDelete() {
   // The front page: a press and hold selects it, but Delete says why it is kept.
   await page.reload();
   await page.evaluate(() => (location.hash = '#list/pages'));
-  await page.waitForSelector('main a.list-item-container');
+  await page.waitForSelector('main a.mo-list__item-container');
   await page.waitForTimeout(500);
-  const home = page.locator('main a.list-item-container', { hasText: 'Home' }).first();
+  const home = page.locator('main a.mo-list__item-container', { hasText: 'Home' }).first();
   if (await home.count()) {
     await home.scrollIntoViewIfNeeded();
     const box = await home.boundingBox();
@@ -715,7 +719,7 @@ async function checkEmptyHint() {
           // The bar shows the tool, or has it under More when it has no room for it (the width of the text decides, not the device), and only once it has caught up with the cursor being in the heading: try until one of them opens the sheet.
           const tool = page.getByRole('button', { name: 'Section settings', exact: true });
           const item = page.getByText('Section settings', { exact: true });
-          for (let tries = 0; tries < 20 && !(await page.locator('dialog[open], .editor-side-sheet').count()); tries++) {
+          for (let tries = 0; tries < 20 && !(await page.locator('dialog[open], .mo-editor-side-sheet').count()); tries++) {
             if (await tool.count()) await tool.first().click({ timeout: 5000 });
             else if (await page.getByRole('button', { name: 'More', exact: true }).count()) {
               await page.getByRole('button', { name: 'More', exact: true }).first().dispatchEvent('click');
@@ -726,7 +730,7 @@ async function checkEmptyHint() {
             await page.waitForTimeout(500);
           }
           // A page's H1 has no image (owner, 14 Nov 2026): its Section settings have a colour and a width only.
-          const sheet = page.locator('dialog[open], .editor-side-sheet').first();
+          const sheet = page.locator('dialog[open], .mo-editor-side-sheet').first();
           // On a phone the section settings are a page (owner, 15 Nov): no control has the focus at the start, the page has it, with no ring.
           if (touch) {
             const start = await sheet.evaluate((d) => ({
@@ -742,7 +746,7 @@ async function checkEmptyHint() {
           // the pane itself has the focus with no ring, and the text stays visible and clear of it.
           if (!touch) {
             const pane = await page.evaluate(() => {
-              const aside = document.querySelector('aside.editor-side-sheet:not([hidden])');
+              const aside = document.querySelector('aside.mo-editor-side-sheet:not([hidden])');
               const text = document.querySelector('.ProseMirror')?.getBoundingClientRect();
               const box = aside?.getBoundingClientRect();
               return {
@@ -830,8 +834,8 @@ async function checkFabAboveFooter(width) {
       await page.evaluate((f) => window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * f), at);
       await page.waitForTimeout(250);
       const m = await page.evaluate(() => {
-        const fab = document.querySelector('.editor-fab')?.getBoundingClientRect();
-        const footer = document.querySelector('footer.editor-footer')?.getBoundingClientRect();
+        const fab = document.querySelector('.mo-editor-fab')?.getBoundingClientRect();
+        const footer = document.querySelector('footer.mo-editor-footer')?.getBoundingClientRect();
         if (!fab || !footer) return null;
         return { fabTop: fab.top, fabBottom: fab.bottom, footerTop: footer.top, footerBottom: footer.bottom, h: innerHeight };
       });
@@ -863,7 +867,7 @@ async function checkLabelOnAnyLine(width) {
   const rowNames = () => page.locator('[role=menu] [role^=menuitem]:visible').evaluateAll((rows) => rows.map((x) => x.textContent.trim()));
   const labelNow = () =>
     page.evaluate(() => {
-      const el = document.querySelector('.ProseMirror p.label-medium');
+      const el = document.querySelector('.ProseMirror p.mo-type-label-medium');
       return el
         ? { text: el.textContent, size: getComputedStyle(el).fontSize, tops: [...el.parentElement.children].map((c) => c.tagName) }
         : null;
@@ -930,7 +934,7 @@ async function checkPreviewDraft(width) {
   if (failed) problems.push(`${label}: ${failed.slice(0, 120)}`);
   const bar = await page.evaluate(() => {
     const caption = document.querySelector('[data-preview-page] [data-preview-width]').getBoundingClientRect();
-    const area = document.querySelector('[data-preview-page] [role="group"]').closest('.overflow-x-auto');
+    const area = document.querySelector('[data-preview-page] [role="group"]').closest('.mo-editor-preview-sizes');
     const a = area.getBoundingClientRect();
     const apart =
       a.right <= caption.left + 0.5 || a.left >= caption.right - 0.5 || a.bottom <= caption.top + 0.5 || a.top >= caption.bottom - 0.5;
@@ -961,10 +965,10 @@ async function checkEmptyRow(width, height) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: 'Rows that open to show more.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   const dialog = page.locator('dialog[open]');
-  const rows = () => page.locator('.inline-list-row[data-row]:not(.inline-list-row-next)').count();
-  const blocks = () => page.locator('.site-block-inline').count();
+  const rows = () => page.locator('.mo-editor-inline-list-row[data-row]:not(.mo-editor-inline-list-row-next)').count();
+  const blocks = () => page.locator('.mo-site-block-inline').count();
   // A tap on the bar's button; `keys`: the button pressed with the cursor still in the block (a key, not a tap), so the empty row is still there.
   const press = async (name, keys) => {
     const button = page.getByRole('button', { name, exact: true }).first();
@@ -988,7 +992,7 @@ async function checkEmptyRow(width, height) {
     if (kinds.length !== 2 || kinds[0] === kinds[1]) problems.push(`${label}: the main choice is not the only filled button`);
     if (await dialog.locator('button:focus').count()) problems.push(`${label}: a button has the focus`);
     const marked = await page.evaluate(() => {
-      const el = document.querySelector('.editor-wrong');
+      const el = document.querySelector('.mo-editor-wrong');
       const r = el?.getBoundingClientRect();
       return !!el && r.bottom > 0 && r.top < innerHeight;
     });
@@ -1015,7 +1019,7 @@ async function checkEmptyRow(width, height) {
     await page.keyboard.press('Enter');
     await pressInsert(page, 'tap');
     await page.locator('dialog[open] button', { hasText: 'Rows that open to show more.' }).first().click();
-    await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+    await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
     await page.keyboard.type('First');
     for (const word of ['Second', 'Third']) {
       await page.locator('[data-add-row]').tap();
@@ -1023,7 +1027,7 @@ async function checkEmptyRow(width, height) {
       await page.keyboard.type(word);
     }
     // The middle row is emptied (Delete, not Backspace, which would drop an empty row).
-    await page.locator('.inline-list-row[data-row="1"] [data-field="title"]').click();
+    await page.locator('.mo-editor-inline-list-row[data-row="1"] [data-field="title"]').click();
     await page.keyboard.press('Control+A');
     await page.keyboard.press('Delete');
     await page.waitForTimeout(200);
@@ -1052,7 +1056,7 @@ async function checkEmptyRow(width, height) {
     .locator('[data-add-row]')
     .count()
     .catch(() => 0);
-  await page.locator('.inline-list-row[data-row="0"] [data-field="title"]').click();
+  await page.locator('.mo-editor-inline-list-row[data-row="0"] [data-field="title"]').click();
   await page.keyboard.type(' again');
   await page.locator('[data-add-row]').tap();
   await page.waitForTimeout(300);
@@ -1092,7 +1096,7 @@ async function checkInsertNeverOpensSheet(width, height) {
       await page.waitForTimeout(800);
       const state = await page.evaluate(() => ({
         sheet: document.querySelectorAll('dialog[open]').length,
-        inline: !!document.querySelector('.site-block-inline'),
+        inline: !!document.querySelector('.mo-site-block-inline'),
       }));
       if (state.sheet) problems.push(`${label}: Insert opened a sheet, it must put the block in the text`);
       else if (!state.inline) problems.push(`${label}: Insert put no block typed in place in the text`);
@@ -1119,7 +1123,7 @@ async function checkChangeTo(width, height) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
-  await page.waitForSelector('.inline-list-row-active [data-field="title"]');
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('Opening hours');
   await page.keyboard.press('Enter');
   await page.keyboard.type('Mon–Fri');
@@ -1128,7 +1132,7 @@ async function checkChangeTo(width, height) {
   await page.waitForTimeout(200);
   // The first row gets an icon.
   await page.locator('[data-row="0"] [data-field="title"]').click();
-  await page.locator('[data-row="0"] .inline-list-slot[aria-label="Icon"]').click();
+  await page.locator('[data-row="0"] .mo-editor-inline-list-slot[aria-label="Icon"]').click();
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
   await picker.getByRole('button').nth(1).click();
@@ -1140,23 +1144,23 @@ async function checkChangeTo(width, height) {
   const rows = (field) =>
     page.evaluate(
       (field) =>
-        [...document.querySelectorAll('.inline-list-host [data-row]')]
+        [...document.querySelectorAll('.mo-editor-inline-list-host [data-row]')]
           .filter((r) => !r.parentElement.closest('[data-row]'))
           .map((r) => [r.querySelector(`[data-field="${field}"]`)?.value ?? '', r.querySelector('[data-field="text"]')?.value ?? '']),
       field,
     );
   // A row that is not active shows its icon slot only when it has an icon: the second row is made active to look at the first.
   const hasIcon = async () => {
-    await page.locator('.inline-list [data-row="1"] [data-field="title"]').click();
+    await page.locator('.mo-editor-inline-list [data-row="1"] [data-field="title"]').click();
     await page.waitForTimeout(200);
-    return page.locator('.inline-list [data-row="0"] .inline-list-slot').count();
+    return page.locator('.mo-editor-inline-list [data-row="0"] .mo-editor-inline-list-slot').count();
   };
   if (!(await hasIcon())) problems.push(`${label}: the List's first row did not get an icon`);
   const menuRows = () =>
     page.locator('[role=menu] [role^=menuitem]:visible').evaluateAll((items) => items.map((i) => i.textContent.trim()));
   // Opens ⋮ › Change type and chooses the block `to`.
   const changeTo = async (to) => {
-    await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+    await page.locator('.mo-editor-tools [aria-label="More"]:visible').first().click();
     await page.waitForTimeout(200);
     await page
       .locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ })
@@ -1169,7 +1173,7 @@ async function checkChangeTo(width, height) {
       .click();
     await page.waitForTimeout(500);
   };
-  await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+  await page.locator('.mo-editor-tools [aria-label="More"]:visible').first().click();
   await page.waitForTimeout(200);
   const first = await menuRows();
   const at = first.indexOf('Change type');
@@ -1179,7 +1183,7 @@ async function checkChangeTo(width, height) {
     problems.push(`${label}: Change type is not the block's first row, before Select (${first.join(', ')})`);
   const opener = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
   if ((await opener.getAttribute('aria-haspopup')) !== 'menu') problems.push(`${label}: Change type does not say it opens a menu`);
-  const rowIcon = await opener.locator('.menu-item-leading svg').first().innerHTML();
+  const rowIcon = await opener.locator('.mo-menu__item-leading svg').first().innerHTML();
   await opener.click();
   await page.waitForTimeout(200);
   const level = await menuRows();
@@ -1187,7 +1191,7 @@ async function checkChangeTo(width, height) {
   if (level.join() !== want) problems.push(`${label}: Change type's level is ${level.join(', ')}, not ${want}`);
   // The header of the level has the swap icon of the row (not a back arrow) and says where it goes.
   const header = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
-  if ((await header.locator('.menu-item-leading svg').first().innerHTML()) !== rowIcon)
+  if ((await header.locator('.mo-menu__item-leading svg').first().innerHTML()) !== rowIcon)
     problems.push(`${label}: the header of the Change type level does not draw the icon of its row`);
   if ((await header.getAttribute('aria-label')) !== 'Change type, back to menu')
     problems.push(`${label}: the header's name is "${await header.getAttribute('aria-label')}", not "Change type, back to menu"`);
@@ -1216,19 +1220,19 @@ async function checkChangeTo(width, height) {
   await page.waitForTimeout(200);
   if (await page.locator('[role=menu]:visible').count()) problems.push(`${label}: Escape at the menu's own rows did not close it`);
   await changeTo('Steps');
-  if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: Change type › Steps did not make Steps`);
+  if (!(await page.locator('.mo-editor-inline-steps').count())) problems.push(`${label}: Change type › Steps did not make Steps`);
   const steps = JSON.stringify(await rows('title'));
   const was = JSON.stringify([
     ['Opening hours', 'Mon–Fri'],
     ['Parking', ''],
   ]);
   if (steps !== was) problems.push(`${label}: the Steps have ${steps}, not ${was}`);
-  const said = await page.locator('.snackbar-stack .snackbar', { hasText: 'Changed to Steps' }).count();
+  const said = await page.locator('.mo-snackbar__stack .mo-snackbar', { hasText: 'Changed to Steps' }).count();
   if (!said) problems.push(`${label}: no snackbar "Changed to Steps"`);
   // Ctrl+Z gives the List back, with its icon.
   await page.keyboard.press('Control+z');
   await page.waitForTimeout(500);
-  if (!(await page.locator('.inline-list').count()) || !(await hasIcon()))
+  if (!(await page.locator('.mo-editor-inline-list').count()) || !(await hasIcon()))
     problems.push(`${label}: Ctrl+Z after Change type did not give the List back with its icon`);
   // List → Steps → List: the icon is back, and the snackbar's Undo gives Steps again.
   await page.locator('[data-row="0"] [data-field="title"]').click();
@@ -1238,21 +1242,21 @@ async function checkChangeTo(width, height) {
   if (!(await hasIcon())) problems.push(`${label}: List → Steps → List lost the first row's icon`);
   if (JSON.stringify(await rows('title')) !== was)
     problems.push(`${label}: List → Steps → List has ${JSON.stringify(await rows('title'))}`);
-  await page.locator('.snackbar-stack .snackbar', { hasText: 'Changed to List' }).locator('.snackbar-action').first().click();
+  await page.locator('.mo-snackbar__stack .mo-snackbar', { hasText: 'Changed to List' }).locator('.mo-snackbar__action').first().click();
   await page.waitForTimeout(500);
-  if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: the snackbar's Undo did not give Steps back`);
+  if (!(await page.locator('.mo-editor-inline-steps').count())) problems.push(`${label}: the snackbar's Undo did not give Steps back`);
   // Steps → Table → List: the rows are the steps' titles and texts, with no header row; back in the List the first row has its icon again.
   await changeTo('Table');
   const table = await page.evaluate(() => ({
-    rows: [...document.querySelectorAll('.inline-table-box tr[data-row]')].map((tr) =>
+    rows: [...document.querySelectorAll('.mo-editor-inline-table-box tr[data-row]')].map((tr) =>
       [...tr.querySelectorAll('textarea')].map((f) => f.value),
     ),
-    header: document.querySelectorAll('.inline-table-box thead th').length,
+    header: document.querySelectorAll('.mo-editor-inline-table-box thead th').length,
   }));
   if (JSON.stringify(table.rows) !== was || table.header)
     problems.push(`${label}: Steps → Table made ${JSON.stringify(table)}, not the rows ${was} with no header row`);
   await changeTo('List');
-  if (!(await page.locator('.inline-list').count()) || !(await hasIcon()))
+  if (!(await page.locator('.mo-editor-inline-list').count()) || !(await hasIcon()))
     problems.push(`${label}: Table → List did not give the List with its icon`);
   if (JSON.stringify(await rows('title')) !== was) problems.push(`${label}: Table → List has ${JSON.stringify(await rows('title'))}`);
   // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and a List - Expand's Markdown on their
@@ -1269,21 +1273,22 @@ async function checkChangeTo(width, height) {
  * collection), by the heading above it: the title's distance from the row's left edge and the chevron's from its right edge. Runs in the page. */
 const rowPadding = () => {
   const out = {};
-  const root = document.querySelector('.ProseMirror') ?? document.querySelector('main .prose');
+  const root = document.querySelector('.ProseMirror') ?? document.querySelector('main .mo-prose');
   let head = '';
   for (const c of root.children) {
     if (/^H[1-6]$/.test(c.tagName)) {
       head = c.textContent.trim().toLowerCase();
       continue;
     }
-    const row = c.querySelector('.list-item-expand-summary, .list-item-container:has(> .list-item-trailing svg)');
-    if (!row || out[head] || row.querySelector(':scope > .list-item-leading:not(:empty), :scope > .list-item-leading-icon')) continue;
+    const row = c.querySelector('.mo-list__item-expand-summary, .mo-list__item-container:has(> .mo-list__item-trailing svg)');
+    if (!row || out[head] || row.querySelector(':scope > .mo-list__item-leading:not(:empty), :scope > .mo-list__item-leading-icon'))
+      continue;
     const box = row.getBoundingClientRect();
     const icons = [...row.querySelectorAll('svg')].filter((v) => v.getBoundingClientRect().width);
-    const title = row.querySelector('.list-item-content').getBoundingClientRect();
+    const title = row.querySelector('.mo-list__item-content').getBoundingClientRect();
     if (icons.length)
       out[head] = {
-        expand: row.matches('.list-item-expand-summary'),
+        expand: row.matches('.mo-list__item-expand-summary'),
         left: title.left - box.left,
         right: box.right - Math.max(...icons.map((v) => v.getBoundingClientRect().right)),
       };
@@ -1306,7 +1311,7 @@ async function checkPageLeftEdge(width) {
   let sitePads = {};
   if (await onTestPage(page, label)) {
     const built = await page.evaluate(() => {
-      const prose = document.querySelector('main .prose');
+      const prose = document.querySelector('main .mo-prose');
       const text = prose.querySelector('p').getBoundingClientRect().left;
       const margin = parseFloat(getComputedStyle(document.documentElement).fontSize) * (innerWidth < 600 ? 1 : 1.5);
       const out = [];
@@ -1327,7 +1332,10 @@ async function checkPageLeftEdge(width) {
           first = n.textContent.trim() ? ([...range.getClientRects()].find((q) => q.width) ?? null) : null;
         }
         // Below 600 dp a plain list (not the segmented design) goes edge to edge (owner, 16 Nov 2026): at the viewport's left edge and as wide as it.
-        if (innerWidth < 600 && c.matches('.block-list:not(.list-segmented), .block-accordion:not(.block-accordion-segmented)')) {
+        if (
+          innerWidth < 600 &&
+          c.matches('.mo-block-list:not(.mo-list__segmented), .mo-block-accordion:not(.mo-block-accordion__segmented)')
+        ) {
           const box = c.getBoundingClientRect();
           if (Math.abs(left) > 1 || Math.abs(box.width - innerWidth) > 1)
             out.push(`plain list ${c.className.toString().slice(0, 30)} at ${left}, ${box.width} wide, not edge to edge`);
@@ -1349,11 +1357,11 @@ async function checkPageLeftEdge(width) {
   virtualFile(CORE_PAGE_FILE, coreBlocksPage());
   await openEditor(page, site);
   await page.evaluate((file) => (location.hash = `#${file}`), CORE_PAGE_FILE);
-  await page.waitForSelector('.site-block-card');
+  await page.waitForSelector('.mo-site-block-card');
   await page.waitForFunction(
     () => {
-      const cards = document.querySelectorAll('.site-block-card');
-      return cards.length > 8 && document.querySelectorAll('.site-block-preview').length === cards.length;
+      const cards = document.querySelectorAll('.mo-site-block-card');
+      return cards.length > 8 && document.querySelectorAll('.mo-site-block-preview').length === cards.length;
     },
     null,
     { timeout: 30_000 },
@@ -1386,20 +1394,20 @@ async function checkPageLeftEdge(width) {
   for (const cursor of [false, true]) {
     if (cursor) await page.locator('.ProseMirror p').first().click();
     const got = await page.evaluate(() => {
-      const field = document.querySelector('.editor-text').getBoundingClientRect();
+      const field = document.querySelector('.mo-editor-text').getBoundingClientRect();
       const pm = document.querySelector('.ProseMirror');
       const text = pm.querySelector('p').getBoundingClientRect().left;
       const margin = parseFloat(getComputedStyle(document.documentElement).fontSize) * (innerWidth < 600 ? 1 : 1.5);
       const outset =
-        parseFloat(getComputedStyle(document.querySelector('.editor-text')).getPropertyValue('--mo-comp-editor-frame-outset')) || 0;
+        parseFloat(getComputedStyle(document.querySelector('.mo-editor-text')).getPropertyValue('--mo-comp-editor-frame-outset')) || 0;
       const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
-      const blocks = [...pm.querySelectorAll(':scope > .site-block')].map((b) => {
-        const card = b.querySelector(':scope > .site-block-card').getBoundingClientRect();
-        const body = (b.querySelector('.site-block-preview') ?? b).getBoundingClientRect();
+      const blocks = [...pm.querySelectorAll(':scope > .mo-site-block')].map((b) => {
+        const card = b.querySelector(':scope > .mo-site-block-card').getBoundingClientRect();
+        const body = (b.querySelector('.mo-site-block-preview') ?? b).getBoundingClientRect();
         const mark = b
-          .querySelector(':scope > .site-block-mark-dot, :scope > .site-block-mark .site-block-mark-dot')
+          .querySelector(':scope > .mo-site-block-mark-dot, :scope > .mo-site-block-mark .mo-site-block-mark-dot')
           ?.getBoundingClientRect();
-        const handle = b.querySelector(':scope > .site-block-handle')?.getBoundingClientRect();
+        const handle = b.querySelector(':scope > .mo-site-block-handle')?.getBoundingClientRect();
         return { card: card.left, cardRight: card.right, body: body.left, mark: mark?.left ?? null, handleRight: handle?.right ?? null };
       });
       const heads = [...pm.querySelectorAll(':scope > :is(h1, h2, h3, p)')].map((h) => h.getBoundingClientRect().left);

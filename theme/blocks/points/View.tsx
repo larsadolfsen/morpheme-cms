@@ -8,7 +8,7 @@ export default function Points({ view }: { view: PointsView }) {
   return (
     <>
       <BlockHead view={view} />
-      <PointList items={view.items} className={useInText() || 'block-in-text'} />
+      <PointList items={view.items} className={useInText() || 'mo-is-in-text'} />
     </>
   );
 }

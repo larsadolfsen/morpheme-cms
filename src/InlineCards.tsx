@@ -26,7 +26,7 @@ const hasMedia = (card: LinkCard) => !!(card.icon || card.image || card.video);
 export default function InlineCards({ items, props, data, active, focus, onChange, onSettings, onIcon, onProps }: InlineViewProps) {
   const cards = shownCards(items as LinkCardProps[], data, props.media, ratioProp(props));
   const type: CardKind = cardKinds.find((k) => k === props.design) ?? 'outlined';
-  const colored = type === 'filled' && props.color ? `block-cards-${props.color}` : undefined;
+  const colored = type === 'filled' && props.color ? `mo-block-cards__${props.color}` : undefined;
   const media = cards[0]?.media ?? 'icon';
   const kinds = [
     { kind: 'icon', label: t.blocks.cards.mediaIcon, Icon: Shapes },
@@ -46,9 +46,9 @@ export default function InlineCards({ items, props, data, active, focus, onChang
       });
     const made = () => ({ label: '', to: 'page', kind: 'filled' });
     return (
-      <span className="block-card-actions inline-card-buttons">
+      <span className="mo-block-cards__card-actions mo-editor-inline-card-buttons">
         {list.map((b, n) => (
-          <span key={n} className="inline-card-button">
+          <span key={n} className="mo-editor-inline-card-button">
             <InlineField
               name={`button-${n}`}
               value={b.label ?? ''}
@@ -72,7 +72,12 @@ export default function InlineCards({ items, props, data, active, focus, onChang
             />
           </span>
         ))}
-        <SiteButton kind="text" data-add-button="" className="inline-card-next-button" onClick={() => set([...list, made()], list.length)}>
+        <SiteButton
+          kind="text"
+          data-add-button=""
+          className="mo-editor-inline-card-next-button"
+          onClick={() => set([...list, made()], list.length)}
+        >
           {t.blocks.cards.addButton}
         </SiteButton>
       </span>
@@ -80,7 +85,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
   };
   return (
     <>
-      {props.phone === 'carousel' && <span className="inline-cards-chip">{t.blocks.cards.carouselChip}</span>}
+      {props.phone === 'carousel' && <span className="mo-editor-inline-cards-chip">{t.blocks.cards.carouselChip}</span>}
       <InlineItems
         items={items}
         active={active}
@@ -90,7 +95,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
         add={t.blocks.cards.addCard}
         onChange={onChange}
         paste="text"
-        wrap={(list) => <ul className={['block-cards', 'inline-cards', colored].filter(Boolean).join(' ')}>{list}</ul>}
+        wrap={(list) => <ul className={['mo-block-cards', 'mo-editor-inline-cards', colored].filter(Boolean).join(' ')}>{list}</ul>}
         renderItem={({ item, index: i, here, next, field }) => {
           const card = cards[i];
           return (
@@ -100,7 +105,12 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                 data-row={i}
                 aria-current={here ? 'true' : undefined}
                 aria-label={next ? t.blocks.cards.newCard : t.blocks.cards.cardOf(i + 1, items.length)}
-                className={['block-card', 'inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next']
+                className={[
+                  'mo-block-cards__card',
+                  'mo-editor-inline-list-row',
+                  here && 'mo-editor-inline-list-row-active',
+                  next && 'mo-editor-inline-list-row-next',
+                ]
                   .filter(Boolean)
                   .join(' ')}
               >
@@ -109,7 +119,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                   // An image is its own tap target: a tap selects the card, and the bar has the image's tools (Change image, Crop, Alt text, Remove).
                   <button
                     type="button"
-                    className="inline-card-media"
+                    className="mo-editor-inline-card-media"
                     aria-label={t.blocks.cards.media}
                     onClick={() => (card.image ? !here && onChange({ active: i }) : onIcon(i))}
                   >
@@ -119,7 +129,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                   <>
                     {card && <CardMedia card={card} />}
                     {here && (
-                      <span className="inline-card-slots">
+                      <span className="mo-editor-inline-card-slots">
                         {kinds.map(({ kind, label, Icon }) => (
                           <InlineSlot
                             key={kind}
@@ -137,20 +147,20 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                     )}
                   </>
                 )}
-                <span className="block-card-title">
+                <span className="mo-block-cards__card-title">
                   {field('title', t.blocks.cards.title, next ? t.blocks.cards.newCard : t.blocks.cards.title)}
                 </span>
                 {/* The subhead and the text are optional: a card without one has no empty row (and no room kept for it) unless it is the one being typed in, so a card is as high here as on the site. */}
                 {(here || next || String(item.subhead ?? '').trim() !== '') && (
-                  <span className="block-card-subhead">{field('subhead', t.blocks.cards.subhead, t.blocks.cards.subhead)}</span>
+                  <span className="mo-block-cards__card-subhead">{field('subhead', t.blocks.cards.subhead, t.blocks.cards.subhead)}</span>
                 )}
                 {(here || next || String(item.text ?? '').trim() !== '') && (
-                  <span className="block-card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
+                  <span className="mo-block-cards__card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
                 )}
-                {card?.href && <span className="block-card-more">{more}</span>}
+                {card?.href && <span className="mo-block-cards__card-more">{more}</span>}
                 {!card?.href && here && buttonsOf(i, item)}
                 {!card?.href && !here && (card?.buttons.length ?? 0) > 0 && (
-                  <span className="block-card-actions">
+                  <span className="mo-block-cards__card-actions">
                     <Buttons buttons={card!.buttons} />
                   </span>
                 )}

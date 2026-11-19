@@ -33,7 +33,7 @@ export default function SelectionBar({
 }) {
   return (
     <>
-      <span className="sr-only" role="status" aria-live="polite">
+      <span className="mo-visually-hidden" role="status" aria-live="polite">
         {t.library.selectedCount(count)}
       </span>
       {kind === 'actions' ? (
@@ -44,7 +44,7 @@ export default function SelectionBar({
           {onSelectAll && total ? (
             <Checkbox
               label={t.library.selectAll}
-              className="selection-bar-all"
+              className="mo-editor-selection-bar-all"
               checked={count >= total}
               indeterminate={count > 0 && count < total}
               onChange={onSelectAll}

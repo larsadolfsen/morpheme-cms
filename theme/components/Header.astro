@@ -54,29 +54,25 @@ const menuProps = {
 const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
 ---
 
-<header data-header data-editor="header" class:list={[topAppBarClass, 'group/header sticky top-0 z-[43]']}>
-  <Container as="div" data-header-row class="flex h-16 items-center gap-1">
+<header data-header data-editor="header" class:list={[topAppBarClass, 'mo-header']}>
+  <Container as="div" data-header-row class="mo-row mo-header__row">
     {navShown && !menuEnd && (
       <div data-editor="header-menu" class={headerMenuClass('start')}>
         <MobileMenu client:interact {...menuProps} />
       </div>
     )}
-    <a href="/" class="md-top-app-bar-title mr-auto large:shrink-0 large:whitespace-nowrap">
+    <a href="/" class="mo-header__title">
       <Logo />
     </a>
 
     {navShown && (
-      <nav
-        aria-label={siteT.theme.mainMenu}
-        data-editor="header-nav"
-        class="hidden shrink-0 large:block large:group-data-crowded/header:hidden"
-      >
-        <ul class="flex items-center gap-1">
+      <nav aria-label={siteT.theme.mainMenu} data-editor="header-nav" class="mo-header__nav">
+        <ul class="mo-row mo-header__list">
           {nav.map((item, i) => (
-            <li class="group relative flex items-center" data-nav-item>
+            <li class="mo-header__item" data-nav-item>
               <a
                 href={item.href}
-                class:list={['md-nav-item', item.children && 'md-nav-item-parent']}
+                class:list={['mo-header__nav-item', item.children && 'mo-has-children']}
                 aria-current={isActive(item.href) ? 'page' : undefined}
               >
                 {item.label}
@@ -84,7 +80,7 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
               {item.children && (
                 <button
                   type="button"
-                  class="md-nav-toggle"
+                  class="mo-header__nav-toggle"
                   aria-expanded="false"
                   aria-controls={`menu-${i}`}
                   aria-label={siteT.theme.subpagesOf(item.label)}
@@ -95,13 +91,7 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
               )}
               {item.children && (
                 // A menu (m3.material.io/components/menus) that opens on hover and with the button before it.
-                <div
-                  id={`menu-${i}`}
-                  class:list={[
-                    'md-menu-anchor invisible absolute top-full pt-1 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100 group-data-[open]:visible group-data-[open]:opacity-100',
-                    i >= nav.length - 2 ? 'right-0' : 'left-0',
-                  ]}
-                >
+                <div id={`menu-${i}`} class:list={['mo-header__submenu', i >= nav.length - 2 && 'mo-is-end']}>
                   <ul class={menuClass}>
                     {item.children.map((child) => (
                       <li>
@@ -179,7 +169,7 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
 {fab && (
   <a href={site.bookingPath} data-open="booking" data-fab class={extendedFabClass()}>
     <Icon name="calendar-blank" size={24} />
-    <span class="extended-fab-label">{site.labels.book}</span>
+    <span class="mo-extended-fab__label">{site.labels.book}</span>
   </a>
 )}
 

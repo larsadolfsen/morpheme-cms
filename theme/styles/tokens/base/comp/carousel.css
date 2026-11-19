@@ -5,7 +5,7 @@
   base.css), so a theme's own unlayered rules win over them, whatever the specificity. Custom properties stay unlayered.
 
   The standard theme's base: what every theme builds on, plain and neutral. The system's own font, a small radius on
-  panels, a light shadow, full pills on controls; the classes the standard theme's components use (.link, .prose,
+  panels, a light shadow, full pills on controls; the classes the standard theme's components use (.link, .mo-prose,
   the motion …) besides the UI components (ui.css: buttons, icon buttons, chips, snackbars). The standard theme's own look is over it, in global.css; a theme with a look of its
   own from a design system (Material) imports only this file, so that look does not mix into its own. Another theme sets
   its own (its styles/global.css); what it does not draw itself is drawn by the standard theme's components and blocks,
@@ -33,6 +33,6 @@
   (colorPairs in @site/colors). Everything here uses them by name.
 */
 :root {
-  /* How far a carousel reaches out to the edges of a phone's screen (ui.css): Container.astro's gutter there (px-4). */
-  --mo-comp-carousel-bleed: 1rem;
+  /* How far a carousel reaches out to the edges of a phone's screen (ui.css): the page's gutter there (--mo-comp-theme-page-gutter, Container.astro). */
+  --mo-comp-carousel-bleed: var(--mo-comp-theme-page-gutter);
 }

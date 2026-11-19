@@ -138,7 +138,7 @@ const joined = (base: string, name: string | number) => (base ? `${base}.${name}
 
 /** The field that keeps a form from being saved (problemAt in check.ts), when it was found (a new
  * number each time, so it is shown again on the next try), and how to stop showing it: the item of a
- * list it is in is opened, it is scrolled to and its border flashes (.editor-wrong in editor.css),
+ * list it is in is opened, it is scrolled to and its border flashes (.mo-editor-wrong in editor.css),
  * until it is changed. Every form has it (useWrongField). */
 export type Wrong = { path: string; at: number; clear: () => void };
 export const WrongField = createContext<Wrong | null>(null);
@@ -171,10 +171,10 @@ function useMarked<T extends HTMLElement>(props: Props) {
   useEffect(() => {
     const el = box.current;
     if (!el) return;
-    el.classList.remove('editor-wrong');
+    el.classList.remove('mo-editor-wrong');
     if (!here) return;
     void el.offsetWidth;
-    el.classList.add('editor-wrong');
+    el.classList.add('mo-editor-wrong');
     el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }, [here, wrong?.at]);
   // A change in the marked field ends the marking.
@@ -196,7 +196,7 @@ export function FieldInput(props: Props) {
   );
 }
 
-/** A post's title drawn in the text as the site draws it (.theme-title: the display role, as PostHeader.astro), written in place
+/** A post's title drawn in the text as the site draws it (.mo-page-title: the display role, as PostHeader.astro), written in place
  * and not in a field with its name on its edge. It grows with what is typed; Enter does not make a line. Marked as the other
  * fields are when it keeps the form from being saved (WrongField). */
 export function HeadTitle(props: Props) {
@@ -217,7 +217,7 @@ export function HeadTitle(props: Props) {
         value={text}
         aria-label={props.field.label}
         placeholder={props.field.label}
-        className="theme-title block w-full resize-none overflow-hidden bg-transparent text-on-surface outline-none placeholder:text-on-surface-variant/60"
+        className="mo-page-title mo-editor-theme-title-input"
         onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
         onChange={(e) => onChange(oneLine(e.target.value))}
       />
@@ -240,23 +240,16 @@ export function HeadImage(props: Props) {
     if (src) onChange(src);
   };
   return (
-    <div ref={box} className="relative">
-      <button
-        type="button"
-        onClick={pick}
-        aria-label={text ? t.forms.changeImage : t.forms.pickImage}
-        className="relative block aspect-[16/10] w-full overflow-hidden rounded-(--mo-comp-theme-picture-radius) bg-surface-container medium:aspect-[16/9]"
-      >
+    <div ref={box} className="mo-editor-theme-picture-box">
+      <button type="button" onClick={pick} aria-label={text ? t.forms.changeImage : t.forms.pickImage} className="mo-editor-theme-picture">
         {drawn ? (
-          <img src={drawn} alt="" className="size-full object-cover" />
+          <img src={drawn} alt="" className="mo-cover" />
         ) : (
-          <span className="flex size-full items-center justify-center rounded-(--mo-comp-theme-picture-radius) text-on-surface-variant outline-2 -outline-offset-2 outline-outline-variant outline-dashed">
-            {t.forms.pickImage}
-          </span>
+          <span className="mo-editor-theme-picture-empty">{t.forms.pickImage}</span>
         )}
       </button>
       {text && (
-        <div className="absolute end-2 top-2 flex gap-2">
+        <div className="mo-editor-theme-picture-actions">
           <Button kind="tonal" size="small" onClick={pick}>
             {t.forms.changeImage}
           </Button>
@@ -486,7 +479,7 @@ function FieldControl({ field, value, onChange }: Props) {
           />
         );
         // Narrow, at the start of its line (the status over a page's title).
-        if (field.narrow) control = <div className="w-full max-w-64">{control}</div>;
+        if (field.narrow) control = <div className="mo-editor-field-narrow">{control}</div>;
       }
       break;
     }
@@ -664,7 +657,7 @@ export function FieldList({
           <Fragment key={f.name}>
             {/* A heading over it and those after it (Field.heading), in the form only. */}
             {f.heading && (
-              <div className="pt-2">
+              <div className="mo-editor-field-group-body">
                 <Label hint={f.heading.hint}>{f.heading.label}</Label>
               </div>
             )}
@@ -913,7 +906,7 @@ export function ListInput({
       </FoldList>
       {/* No more than `maxItems` (the action bar's two buttons). */}
       {canAdd && !(field.maxItems !== undefined && value.length >= field.maxItems) && (
-        <Button kind="outlined" size="small" icon={Plus} className="mt-2" onClick={add}>
+        <Button kind="outlined" size="small" icon={Plus} className="mo-editor-field-add" onClick={add}>
           {t.forms.addOne(field.singular ?? t.forms.item)}
         </Button>
       )}
@@ -1064,7 +1057,7 @@ export function MenuList({
               )}
             </>
           ),
-          children: <div className="space-y-5">{itemFields}</div>,
+          children: <div className="mo-editor-field-item-fields">{itemFields}</div>,
         }
       : null,
   );
@@ -1081,7 +1074,7 @@ export function MenuList({
               headline={nameOf(item) || t.forms.empty}
               truncate
               actions={
-                <span className="flex shrink-0 pr-1.5">
+                <span className="mo-keep mo-editor-field-item-actions">
                   <IconButton icon={PencilSimple} label={t.forms.editOne(nameOf(item))} onClick={() => edit(i)} />
                   <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} />
                   {sub && (
@@ -1089,7 +1082,7 @@ export function MenuList({
                       icon={CaretDown}
                       label={open === i ? t.forms.hideChildrenOf(nameOf(item)) : t.forms.showChildrenOf(nameOf(item))}
                       aria-expanded={open === i}
-                      className={`[&>svg]:transition-transform [&>svg]:duration-(--mo-sys-motion-spring-default-spatial-duration) [&>svg]:ease-(--motion-ease) ${open === i ? '[&>svg]:rotate-180' : ''}`}
+                      className={`mo-editor-field-item-toggle ${open === i ? 'mo-editor-field-item-toggle-open' : ''}`}
                       onClick={() => setOpen(open === i ? null : i)}
                     />
                   )}
@@ -1097,7 +1090,7 @@ export function MenuList({
               }
             >
               {sub && open === i && (
-                <div className="pb-2">
+                <div className="mo-editor-field-item-menu">
                   <MenuList
                     field={sub}
                     value={children}
@@ -1155,7 +1148,13 @@ export function MenuList({
 // "Add …" (an item to a list of the menu): under a submenu (`sub`, indented as its items), or under the menu.
 function AddItem({ field, sub = false, onClick }: { field: Field; sub?: boolean; onClick: () => void }) {
   return (
-    <Button kind="text" size="small" icon={Plus} className={sub ? 'mt-1 ml-5' : 'mt-1'} onClick={onClick}>
+    <Button
+      kind="text"
+      size="small"
+      icon={Plus}
+      className={sub ? 'mo-editor-field-add-nested' : 'mo-editor-field-add-text'}
+      onClick={onClick}
+    >
       {t.forms.addOne(field.singular ?? t.forms.item)}
     </Button>
   );

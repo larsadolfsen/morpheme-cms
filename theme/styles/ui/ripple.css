@@ -7,71 +7,71 @@
   Material 3's pressed state (m3.material.io/foundations/interaction/states/applying-states): pressed, a part grows a
   wave of its content's colour from where it was pressed until it covers the part, over the part's own colour when
   pointed at, and the wave fades when it is let go. ../ui/ripple.script.ts draws it, on every page and in the editor, in
-  a .ripple (the layer, in the part's shape) at the end of the part with a .ripple-wave for each press
+  a .mo-ripple (the layer, in the part's shape) at the end of the part with a .mo-ripple__wave for each press
   (data-released when let go); the parts it is on are PARTS there, and they stand where they are (position: relative)
-  so the layer can be over them. A theme changes it with these variables (--ripple-opacity: 0 for none), and a part's
+  so the layer can be over them. A theme changes it with these variables (--mo-comp-ripple-opacity: 0 for none), and a part's
   own pressed colour (its -pressed variable, else as pointed at) is under the wave. With reduced motion the wave does
   not grow: it fades in and out over the whole part.
-    --ripple-colour (else the text's), --ripple-opacity, --ripple-duration (growing), --ripple-fade (fading)
+    --mo-comp-ripple-colour (else the text's), --mo-comp-ripple-opacity, --mo-comp-ripple-duration (growing), --mo-comp-ripple-fade (fading)
 */
 @layer components {
   :where(
-    .button,
-    .icon-button,
-    .fab,
-    .extended-fab,
-    .chip,
-    .chip-remove,
-    .menu-item,
-    .tab,
-    .segmented-button-segment,
-    .navigation-bar-indicator,
-    .navigation-bar-icon,
-    .navigation-rail-indicator,
-    .navigation-drawer-item,
-    .navigation-drawer-subitem,
-    .navigation-drawer-toggle,
-    a.list-item-container,
-    button.list-item-container,
-    label.list-item-container,
-    [role='button'].list-item-container,
-    a.card,
-    button.card,
-    .date-picker-day,
-    .date-picker-year,
-    .date-picker-menu-item,
-    .time-picker-period-button
+    .mo-button,
+    .mo-icon-button,
+    .mo-fab,
+    .mo-extended-fab,
+    .mo-chip,
+    .mo-chip__remove,
+    .mo-menu__item,
+    .mo-tabs__tab,
+    .mo-segmented-button__segment,
+    .mo-navigation-bar__indicator,
+    .mo-navigation-bar__icon,
+    .mo-navigation-rail__indicator,
+    .mo-navigation-drawer__item,
+    .mo-navigation-drawer__subitem,
+    .mo-navigation-drawer__toggle,
+    a.mo-list__item-container,
+    button.mo-list__item-container,
+    label.mo-list__item-container,
+    [role='button'].mo-list__item-container,
+    a.mo-card,
+    button.mo-card,
+    .mo-date-picker__day,
+    .mo-date-picker__year,
+    .mo-date-picker__menu-item,
+    .mo-time-picker__period-button
   ) {
     position: relative;
   }
-  .ripple {
+  .mo-ripple {
     position: absolute;
     inset: 0;
     overflow: hidden;
     border-radius: inherit;
     pointer-events: none;
   }
-  .ripple-wave {
+  .mo-ripple__wave {
     position: absolute;
     top: 0;
     left: 0;
-    width: var(--ripple-size);
-    height: var(--ripple-size);
-    background: radial-gradient(closest-side, var(--ripple-colour, currentColor) max(calc(100% - 70px), 65%), transparent 100%);
-    opacity: var(--ripple-opacity, var(--mo-sys-state-pressed-state-layer-opacity));
-    transform: translate(var(--ripple-to)) scale(var(--ripple-scale));
+    width: var(--mo-comp-ripple-size);
+    height: var(--mo-comp-ripple-size);
+    background: radial-gradient(closest-side, var(--mo-comp-ripple-colour, currentColor) max(calc(100% - 70px), 65%), transparent 100%);
+    opacity: var(--mo-comp-ripple-opacity, var(--mo-sys-state-pressed-state-layer-opacity));
+    transform: translate(var(--mo-comp-ripple-to)) scale(var(--mo-comp-ripple-scale));
     animation:
-      ripple-grow var(--ripple-duration, 450ms) cubic-bezier(0.2, 0, 0, 1),
+      ripple-grow var(--mo-comp-ripple-duration, 450ms) cubic-bezier(0.2, 0, 0, 1),
       ripple-in 105ms linear;
-    transition: opacity var(--ripple-fade, 375ms) linear;
+    transition: opacity var(--mo-comp-ripple-fade, 375ms) linear;
   }
-  .ripple-wave[data-released] {
+  .mo-ripple__wave[data-released] {
     opacity: 0;
   }
 }
 @keyframes ripple-grow {
   from {
-    transform: translate(var(--ripple-from)) scale(1);
+    transform: translate(var(--mo-comp-ripple-from)) scale(1);
   }
 }
 @keyframes ripple-in {

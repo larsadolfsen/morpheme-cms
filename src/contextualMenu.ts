@@ -98,7 +98,7 @@ export function contextualMenu(opts: {
   dynamic?: { label: string; on: () => boolean; action: () => void };
 }) {
   const el = document.body.appendChild(document.createElement('div'));
-  el.className = 'contextual-menu';
+  el.className = 'mo-editor-contextual-menu';
   el.setAttribute('role', 'toolbar');
   el.setAttribute('aria-label', opts.name);
   el.hidden = true;
@@ -140,14 +140,14 @@ export function contextualMenu(opts: {
     if (opts.dynamic) {
       const d = button(opts.dynamic.label, dynamicIcon, null, opts.dynamic.action);
       d.setAttribute('aria-pressed', String(opts.dynamic.on()));
-      d.classList.toggle('contextual-menu-on', opts.dynamic.on());
+      d.classList.toggle('mo-editor-contextual-menu-on', opts.dynamic.on());
     }
     // Plain icon buttons on a phone too (no dropdown); the menu wraps to a second line there when 375 px is not enough.
     for (const r of rows) {
       const b = button(r.label, barIcons[r.kind], null, r.action);
       if (r.pressed !== undefined) {
         b.setAttribute('aria-pressed', String(r.pressed));
-        b.classList.toggle('contextual-menu-on', r.pressed);
+        b.classList.toggle('mo-editor-contextual-menu-on', r.pressed);
       }
     }
     if (opts.compact() && opts.edit) button(opts.labels.edit, blockSettingsHereIcon, null, opts.edit);
@@ -160,14 +160,14 @@ export function contextualMenu(opts: {
     const { offsetWidth: width, offsetHeight: height } = el;
     const box = opts.dom.getBoundingClientRect();
     const screen = visualViewport ?? { offsetLeft: 0, offsetTop: 0, width: innerWidth, height: innerHeight };
-    el.classList.toggle('contextual-menu-docked', opts.compact());
+    el.classList.toggle('mo-editor-contextual-menu-docked', opts.compact());
     if (opts.compact()) {
       el.style.left = `${screen.offsetLeft + (screen.width - width) / 2}px`;
-      const save = document.querySelector('.editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
+      const save = document.querySelector('.mo-editor-save-bar')?.getBoundingClientRect().top ?? Infinity;
       el.style.top = `${Math.min(screen.offsetTop + screen.height, save) - height - 12}px`;
       return;
     }
-    const bar = document.querySelector('.editor-tools')?.getBoundingClientRect().bottom ?? 0;
+    const bar = document.querySelector('.mo-editor-tools')?.getBoundingClientRect().bottom ?? 0;
     el.style.left = `${Math.max(4, Math.min(box.left + box.width / 2 - width / 2, innerWidth - width - 4))}px`;
     el.style.top = `${Math.max(bar + 8, box.top - height - 10)}px`;
     // Out of sight with the block.

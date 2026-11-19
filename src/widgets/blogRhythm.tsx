@@ -34,13 +34,13 @@ export function BlogRhythmWidget({ settings, editing }: WidgetProps) {
             nextDue(last, every).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }),
           );
   return (
-    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="[--mo-comp-card-padding:1rem]">
-      <h2 id={titleId} className="pb-2 font-medium">
+    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="mo-editor-widget-text">
+      <h2 id={titleId} className="mo-editor-widget-title">
         {t.library.blogRhythmWidgetLabel}
       </h2>
-      <p className="text-sm text-on-surface-variant">{text}</p>
+      <p className="mo-editor-caption">{text}</p>
       {due && (
-        <div className="pt-3">
+        <div className="mo-editor-widget-action">
           <LinkButton href={NEW_POST} icon={PencilSimple} kind="tonal" size="small">
             {last === null ? t.library.blogRhythmWriteFirst : t.library.blogRhythmWriteNew}
           </LinkButton>

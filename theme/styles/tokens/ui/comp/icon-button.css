@@ -1,125 +1,125 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  .icon-button {
+  .mo-icon-button {
     --mo-comp-icon-button-box: var(--mo-comp-icon-button-small-container-height, 2.75rem);
     --mo-comp-icon-button-ratio: 1;
     --mo-comp-icon-button-width: calc(var(--mo-comp-icon-button-box) * var(--mo-comp-icon-button-ratio));
     --mo-comp-icon-button-glyph: var(--mo-comp-icon-button-small-icon-size, 1.375rem);
     --mo-comp-icon-button-square: var(
-      --icon-button-square-radius,
+      --mo-comp-icon-button-square-radius,
       var(--mo-comp-button-small-container-shape-square, calc(var(--mo-sys-block-radius-small) * 0.75))
     );
-    --mo-comp-icon-button-pressed: var(--button-small-pressed-radius, var(--button-pressed-radius));
-    /* Round: half its height (see .button's --mo-comp-button-round). */
+    --mo-comp-icon-button-pressed: var(--mo-comp-button-small-pressed-radius, var(--mo-comp-button-pressed-radius));
+    /* Round: half its height (see .mo-button's --mo-comp-button-round). */
     --mo-comp-icon-button-round: calc(var(--mo-comp-icon-button-box) / 2);
     --mo-comp-icon-button-corners: var(--mo-comp-icon-button-round);
   }
 }
 /* The sizes: Material's five, the small one the default; and the widths, narrower or wider than high. */
 @layer components {
-  .icon-button-xsmall {
-    --mo-comp-icon-button-box: var(--icon-button-xsmall-size, 2.25rem);
-    --mo-comp-icon-button-glyph: var(--icon-button-xsmall-icon-size, 1.25rem);
+  .mo-icon-button__xsmall {
+    --mo-comp-icon-button-box: var(--mo-comp-icon-button-xsmall-size, 2.25rem);
+    --mo-comp-icon-button-glyph: var(--mo-comp-icon-button-xsmall-icon-size, 1.25rem);
     --mo-comp-icon-button-square: var(
-      --icon-button-xsmall-square-radius,
+      --mo-comp-icon-button-xsmall-square-radius,
       var(--mo-comp-button-xsmall-container-shape-square, calc(var(--mo-sys-block-radius-small) * 0.75))
     );
-    --mo-comp-icon-button-pressed: var(--button-xsmall-pressed-radius, var(--button-pressed-radius));
+    --mo-comp-icon-button-pressed: var(--mo-comp-button-xsmall-pressed-radius, var(--mo-comp-button-pressed-radius));
   }
 }
 @layer components {
-  .icon-button-medium {
-    --mo-comp-icon-button-box: var(--icon-button-medium-size, 3.75rem);
-    --mo-comp-icon-button-glyph: var(--icon-button-medium-icon-size, 1.5rem);
+  .mo-icon-button__medium {
+    --mo-comp-icon-button-box: var(--mo-comp-icon-button-medium-size, 3.75rem);
+    --mo-comp-icon-button-glyph: var(--mo-comp-icon-button-medium-icon-size, 1.5rem);
     --mo-comp-icon-button-square: var(
       --mo-comp-icon-button-medium-container-shape-square,
       var(--mo-comp-button-medium-container-shape-square, var(--mo-sys-block-radius-small))
     );
-    --mo-comp-icon-button-pressed: var(--button-pressed-radius);
+    --mo-comp-icon-button-pressed: var(--mo-comp-button-pressed-radius);
   }
 }
 @layer components {
-  .icon-button-large {
-    --mo-comp-icon-button-box: var(--icon-button-large-size, 6rem);
-    --mo-comp-icon-button-glyph: var(--icon-button-large-icon-size, 2rem);
+  .mo-icon-button__large {
+    --mo-comp-icon-button-box: var(--mo-comp-icon-button-large-size, 6rem);
+    --mo-comp-icon-button-glyph: var(--mo-comp-icon-button-large-icon-size, 2rem);
     --mo-comp-icon-button-square: var(
-      --icon-button-large-square-radius,
+      --mo-comp-icon-button-large-square-radius,
       var(--mo-comp-button-large-container-shape-square, calc(var(--mo-sys-block-radius-small) * 1.75))
     );
-    --mo-comp-icon-button-pressed: var(--button-large-pressed-radius, var(--button-pressed-radius));
+    --mo-comp-icon-button-pressed: var(--mo-comp-button-large-pressed-radius, var(--mo-comp-button-pressed-radius));
   }
 }
 @layer components {
-  .icon-button-xlarge {
-    --mo-comp-icon-button-box: var(--icon-button-xlarge-size, 8.5rem);
-    --mo-comp-icon-button-glyph: var(--icon-button-xlarge-icon-size, 2.5rem);
+  .mo-icon-button__xlarge {
+    --mo-comp-icon-button-box: var(--mo-comp-icon-button-xlarge-size, 8.5rem);
+    --mo-comp-icon-button-glyph: var(--mo-comp-icon-button-xlarge-icon-size, 2.5rem);
     --mo-comp-icon-button-square: var(
-      --icon-button-xlarge-square-radius,
+      --mo-comp-icon-button-xlarge-square-radius,
       var(--mo-comp-button-xlarge-container-shape-square, calc(var(--mo-sys-block-radius-small) * 1.75))
     );
-    --mo-comp-icon-button-pressed: var(--button-xlarge-pressed-radius, var(--button-pressed-radius));
+    --mo-comp-icon-button-pressed: var(--mo-comp-button-xlarge-pressed-radius, var(--mo-comp-button-pressed-radius));
   }
 }
 @layer components {
-  .icon-button-narrow {
-    --mo-comp-icon-button-ratio: var(--icon-button-narrow-ratio, 0.8);
+  .mo-icon-button__narrow {
+    --mo-comp-icon-button-ratio: var(--mo-comp-icon-button-narrow-ratio, 0.8);
   }
 }
 @layer components {
-  .icon-button-wide {
-    --mo-comp-icon-button-ratio: var(--icon-button-wide-ratio, 1.3);
+  .mo-icon-button__wide {
+    --mo-comp-icon-button-ratio: var(--mo-comp-icon-button-wide-ratio, 1.3);
   }
 }
 /* The shapes: round (the default) or square; a toggle that is on takes the other one. */
 @layer components {
-  .icon-button-square,
-  .icon-button[aria-pressed='true'] {
+  .mo-icon-button__square,
+  .mo-icon-button[aria-pressed='true'] {
     --mo-comp-icon-button-corners: var(--mo-comp-icon-button-square);
   }
 }
 @layer components {
-  .icon-button-square[aria-pressed='true'] {
+  .mo-icon-button__square[aria-pressed='true'] {
     --mo-comp-icon-button-corners: var(--mo-comp-icon-button-round);
   }
 }
 @layer components {
-  .text-field-trailing-action {
+  .mo-text-field__trailing-action {
     --mo-comp-icon-button-standard-surface: transparent;
     --mo-comp-icon-button-standard-line: transparent;
-    --mo-comp-icon-button-standard-icon-color: var(--text-field-icon-color, var(--mo-sys-block-muted));
+    --mo-comp-icon-button-standard-icon-color: var(--mo-comp-text-field-icon-color, var(--mo-sys-block-muted));
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
-    .bottom-sheet-container[data-wide='side-sheet'] > .bottom-sheet-header {
+  @media (width >= 37.5rem) {
+    .mo-bottom-sheet__container[data-wide='side-sheet'] > .mo-bottom-sheet__header {
       --mo-comp-icon-button-small-container-height: 3rem;
       --mo-comp-icon-button-small-icon-size: 1.5rem;
     }
   }
 }
 @layer components {
-  .snackbar {
-    --mo-comp-icon-button-small-container-height: var(--snackbar-close-size, 2.5rem);
+  .mo-snackbar {
+    --mo-comp-icon-button-small-container-height: var(--mo-comp-snackbar-close-size, 2.5rem);
     --mo-comp-icon-button-standard-surface: transparent;
     --mo-comp-icon-button-standard-line: transparent;
     --mo-comp-icon-button-standard-icon-color: var(
-      --snackbar-close-text,
+      --mo-comp-snackbar-close-text,
       var(--mo-comp-snackbar-supporting-text-color, var(--mo-sys-color-inverse-on-surface))
     );
   }
 }
 @layer components {
-  .toolbar-vibrant {
+  .mo-toolbar__vibrant {
     --mo-comp-icon-button-standard-surface: transparent;
     --mo-comp-icon-button-standard-line: transparent;
-    --mo-comp-icon-button-standard-icon-color: var(--toolbar-vibrant-text, var(--mo-sys-block-on-accent));
-    --mo-comp-icon-button-filled-container-color: var(--toolbar-vibrant-text, var(--mo-sys-block-on-accent));
+    --mo-comp-icon-button-standard-icon-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent));
+    --mo-comp-icon-button-filled-container-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent));
     --mo-comp-icon-button-filled-hover: color-mix(
       in srgb,
-      var(--toolbar-vibrant-surface, var(--mo-sys-block-accent)) 12%,
-      var(--toolbar-vibrant-text, var(--mo-sys-block-on-accent))
+      var(--mo-comp-toolbar-vibrant-surface, var(--mo-sys-block-accent)) 12%,
+      var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent))
     );
-    --mo-comp-icon-button-filled-icon-color: var(--toolbar-vibrant-surface, var(--mo-sys-block-accent));
+    --mo-comp-icon-button-filled-icon-color: var(--mo-comp-toolbar-vibrant-surface, var(--mo-sys-block-accent));
   }
 }

@@ -4,34 +4,34 @@
      colour that is read on it. Without a colour it is the surface container (--mo-comp-filled-card-container-color, below). A theme that has no container
      role has the block's own colours. */
 @layer components {
-  :is(.block-cards-primary, .block-cards-secondary, .block-cards-tertiary) .block-card {
+  :is(.mo-block-cards__primary, .mo-block-cards__secondary, .mo-block-cards__tertiary) .mo-block-cards__card {
     --mo-comp-card-filled-line: transparent;
   }
 }
 @layer components {
-  .block-cards-primary .block-card {
+  .mo-block-cards__primary .mo-block-cards__card {
     --mo-comp-filled-card-container-color: var(--mo-sys-color-primary-container, var(--mo-sys-block-primary));
   }
 }
 @layer components {
-  .block-cards-secondary .block-card {
+  .mo-block-cards__secondary .mo-block-cards__card {
     --mo-comp-filled-card-container-color: var(--mo-sys-color-secondary-container, var(--mo-sys-block-secondary));
   }
 }
 @layer components {
-  .block-cards-tertiary .block-card {
+  .mo-block-cards__tertiary .mo-block-cards__card {
     --mo-comp-filled-card-container-color: var(--mo-sys-color-tertiary-container, var(--mo-sys-block-tertiary));
   }
 }
 @layer components {
-  .block-price-extra {
+  .mo-block-pricecards__extra {
     --mo-comp-card-radius: var(--mo-sys-block-radius-small);
     --mo-comp-card-padding: 1rem;
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
-    .block-price-card {
+  @media (width >= 37.5rem) {
+    .mo-block-pricecards__card {
       --mo-comp-card-padding: 2rem;
     }
   }

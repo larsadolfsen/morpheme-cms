@@ -31,14 +31,14 @@ export default function PickerParts() {
   // A day picked in this month (not today, so both show), and a range of a week in it.
   const picked = `${month}-${now.getDate() === 12 ? '14' : '12'}`;
   const [start, end] = [`${month}-08`, `${month}-15`];
-  const drawn = 'flex flex-wrap items-start gap-6 p-4';
-  const box = 'w-[22.5rem] max-w-full';
+  const drawn = 'mo-editor-picker-row';
+  const box = 'mo-editor-picker-box';
   return (
     <>
       <Part name="DatePicker" use={say.datePicker}>
         <Preview>
-          <div className="space-y-6 p-4">
-            <div className="grid gap-6 medium:grid-cols-2" role="group" aria-label={say.fields}>
+          <div className="mo-editor-sample-stack-6">
+            <div className="mo-editor-two-columns" role="group" aria-label={say.fields}>
               <SiteDatePicker label={say.date} name="date" />
               <SiteDatePicker label={say.date} name="date-modal" kind="modal" value={picked} />
               <SiteDatePicker label={say.period} name="from" endName="to" range value={start} endValue={end} />
@@ -126,22 +126,22 @@ export default function PickerParts() {
       </Part>
       <Part name="TimePicker" use={say.timePicker}>
         <Preview>
-          <div className="grid gap-6 p-4 medium:grid-cols-2" role="group" aria-label={say.fields}>
+          <div className="mo-editor-sample-columns" role="group" aria-label={say.fields}>
             <SiteTimePicker label={say.time} name="time" />
             <SiteTimePicker label={say.time} name="time-set" value="14:30" />
             <SiteTimePicker label={`${say.time} (${say.twelveHours})`} name="time-12" value="14:30" timeFormat="12h" />
           </div>
           <div className={drawn}>
-            <div className="w-[20.5rem] max-w-full" role="group" aria-label={say.hours}>
+            <div className="mo-editor-picker-sample" role="group" aria-label={say.hours}>
               <SiteTimePickerContainer view="dial" selecting="hour" hour={14} minute={30} texts={times} />
             </div>
-            <div className="w-[20.5rem] max-w-full" role="group" aria-label={say.minutes}>
+            <div className="mo-editor-picker-sample" role="group" aria-label={say.minutes}>
               <SiteTimePickerContainer view="dial" selecting="minute" hour={9} minute={7} texts={times} />
             </div>
-            <div className="w-[20.5rem] max-w-full" role="group" aria-label={say.input}>
+            <div className="mo-editor-picker-sample" role="group" aria-label={say.input}>
               <SiteTimePickerContainer view="input" selecting="hour" hour={14} minute={30} texts={times} />
             </div>
-            <div className="w-[20.5rem] max-w-full" role="group" aria-label={say.wrong}>
+            <div className="mo-editor-picker-sample" role="group" aria-label={say.wrong}>
               <SiteTimePickerContainer
                 view="input"
                 selecting="hour"
@@ -152,19 +152,19 @@ export default function PickerParts() {
                 texts={times}
               />
             </div>
-            <div className="w-[20.5rem] max-w-full" role="group" aria-label={say.twelveHours}>
+            <div className="mo-editor-picker-sample" role="group" aria-label={say.twelveHours}>
               <SiteTimePickerContainer view="dial" selecting="hour" hour={14} minute={30} texts={times} timeFormat="12h" />
             </div>
-            <div className="w-[20.5rem] max-w-full" role="group" aria-label={`${say.twelveHours}: ${say.input}`}>
+            <div className="mo-editor-picker-sample" role="group" aria-label={`${say.twelveHours}: ${say.input}`}>
               <SiteTimePickerContainer view="input" selecting="hour" hour={9} minute={15} texts={times} timeFormat="12h" />
             </div>
           </div>
           {/* As wide as a phone on its side: scrolled sideways on a narrower screen. */}
-          <div className={`${drawn} overflow-x-auto`}>
-            <div className="w-[36rem] shrink-0" role="group" aria-label={say.horizontal}>
+          <div className={`${drawn} mo-editor-picker-scroll`}>
+            <div className="mo-editor-picker-wide" role="group" aria-label={say.horizontal}>
               <SiteTimePickerContainer view="dial" selecting="minute" hour={14} minute={30} texts={times} orientation="horizontal" />
             </div>
-            <div className="w-[36rem] shrink-0" role="group" aria-label={`${say.horizontal}: ${say.twelveHours}`}>
+            <div className="mo-editor-picker-wide" role="group" aria-label={`${say.horizontal}: ${say.twelveHours}`}>
               <SiteTimePickerContainer
                 view="dial"
                 selecting="hour"

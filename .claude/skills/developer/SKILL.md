@@ -120,6 +120,8 @@ Short forms, for a developer to know before reading the specs. A rule changes on
   name for a value that has a `--mo-` name (no `--venus-gap`, no theme or app prefix); if the CMS has no name for a value, add one to the CMS's list
   and document it. A token only one block uses is declared on that block, nothing unprefixed on `:root`, `html` or `body`, and an app or theme never
   redeclares a name the CMS declares.
+- **Names and no Tailwind** (owner, 18 Nov 2026, contract 7; `docs/class-names.md`): every class and custom property starts with `mo-` and no utility class, `@apply`, `theme()` or `@theme` is written; `npm run check:mo-names` and `npm run check:tailwind` fail on any, with no allowlist, also on a site's themes and apps (`check:content`). A name that is not ours (a library's) is listed with its reason in `NOT_RENAMED` (`scripts/mo-names.mjs`), never let by otherwise.
+- **Removing a block or a stored form keeps its migration** (CTO, 19 Nov 2026): sites skip versions (the editor's update goes straight to npm `latest`), so the migrate of each version takes any older supported content to its own form in one run; delete the block, view and theme part, keep the migrate-only code and its tests (`lib/migrate-hero.mjs` is the example).
 - **Icons are Material Symbols**, drawn by name through the shared `Icon` (`CLAUDE.md`, *Icons are Material Symbols*).
 - **A deviation from Material 3** is allowed only in the editor's own workspace or when the owner says so in words, and is
   recorded in `docs/material-deviations.md` in the same pull request (`material-3`).
@@ -171,7 +173,7 @@ are `…/specs`, `…/guidelines` and `…/accessibility` under the same address
 | `Chip`, `ChipSet` (`ui.tsx` `InputChip`, `FilterChip`, `ChipField`, `ChipSet`) | a filter, input or suggestion, in a row | [chips](https://m3.material.io/components/chips/overview) |
 | `List`, `ListItem` (`ui.tsx` `ListItem`, `PickListItem`, `ChoiceListItem`) | rows of text, icons and actions | [lists](https://m3.material.io/components/lists/overview) |
 | `Card`, `CardMedia` | a content container for one subject | [cards](https://m3.material.io/components/cards/overview) |
-| Grid (`.image-grid`, `.grid-span-full`; tokens `--mo-comp-grid-columns`, `--mo-sys-grid-gutter`, `--mo-sys-grid-margin`, `--mo-sys-grid-layout-columns`) | cards of different heights in columns, no holes; on any page of the editor and the site; `docs/theme-grid.md` | [grids](https://m3.material.io/foundations/layout/grids-spacing/grids) |
+| Grid (`.mo-staggered-grid`, `.mo-staggered-grid__span-full`; tokens `--mo-comp-grid-columns`, `--mo-sys-grid-gutter`, `--mo-sys-grid-margin`, `--mo-sys-grid-layout-columns`) | cards of different heights in columns, no holes; on any page of the editor and the site; `docs/theme-grid.md` | [grids](https://m3.material.io/foundations/layout/grids-spacing/grids) |
 | `Carousel` (`ui.tsx` `ImageCarousel`) | a scrolling row of images or cards | [carousel](https://m3.material.io/components/carousel/overview) |
 | `Divider` | separates content | [divider](https://m3.material.io/components/divider/overview) |
 | `Avatar` (`SiteAvatar`) | a round mark with a letter or an image: a list item's leading avatar, a card's thumbnail; M3 has no page of its own (Lists, Specs, *Leading avatar*) | [lists](https://m3.material.io/components/lists/specs) |

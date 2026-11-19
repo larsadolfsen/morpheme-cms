@@ -19,9 +19,9 @@ export default function EditorFooter() {
   }, []);
 
   return (
-    <footer className="editor-footer mt-auto pt-6">
+    <footer className="mo-editor-footer mo-editor-footer-spacing">
       <SiteDivider />
-      <div className="pt-1">
+      <div className="mo-editor-footer-row">
         <FooterLinks state={state} />
       </div>
     </footer>

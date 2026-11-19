@@ -72,7 +72,9 @@ export default function InlineTable({ items, props, active, col, focus, onChange
       <Tag
         key={c}
         scope={Tag === 'th' ? 'col' : undefined}
-        className={[`block-table-${align[c] ?? 'left'}`, 'inline-table-cell', here && 'inline-table-cell-active'].filter(Boolean).join(' ')}
+        className={[`mo-block-table__${align[c] ?? 'left'}`, 'mo-editor-inline-table-cell', here && 'mo-editor-inline-table-cell-active']
+          .filter(Boolean)
+          .join(' ')}
       >
         <InlineField
           name={String(c)}
@@ -88,15 +90,15 @@ export default function InlineTable({ items, props, active, col, focus, onChange
     );
   };
   const line = (r: number) => (
-    <tr key={r} data-row={r} className={r === active ? 'inline-table-row-active' : undefined}>
+    <tr key={r} data-row={r} className={r === active ? 'mo-editor-inline-table-row-active' : undefined}>
       {Array.from({ length: width }, (_, c) => cell(r, c))}
     </tr>
   );
   const all = Array.from({ length: rows.length }, (_, r) => r);
   return (
-    <div ref={root} className="inline-list-host inline-table-host">
+    <div ref={root} className="mo-editor-inline-list-host mo-editor-inline-table-host">
       <div
-        className={[cardClass('outlined'), 'block-table', 'block-table-grid', 'inline-table-box'].join(' ')}
+        className={[cardClass('outlined'), 'mo-block-table', 'mo-block-table__grid', 'mo-editor-inline-table-box'].join(' ')}
         role="region"
         aria-label={t.blocks.table.label}
         data-striped={props.striped === true || undefined}

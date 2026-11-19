@@ -4,7 +4,7 @@
 // (`template`, lib/page-template.mjs: the theme's "templates"), and the booking prompt across the page when the text ends
 // with it. The wrapper carries data-template, so a theme can style a template; `full` is drawn like `single` here.
 // Width: with a column beside it the text is the text measure wide (--mo-sys-block-text-measure-min to -max, blocks.css), blocks and all; without one (single, full) the text column is the
-// container's width, its blocks (not-prose) span it, and its other parts (paragraphs, headings) keep it. Its first
+// container's width, its blocks (mo-is-not-prose) span it, and its other parts (paragraphs, headings) keep it. Its first
 // paragraph is the lead (mo-type-lead, ui.css: the --type-lead-* tokens), muted and 52ch wide.
 // data-editor marks what the editor's preview fills in with what is in its form ("Preview",
 // packages/editor/src/pagePreview.tsx): the heading, the text, and the booking prompt at the end.
@@ -90,9 +90,7 @@ const side =
 // In a coloured H1 section the text up to the first H2 (intro) is in the panel with the heading; with a column beside the text
 // the text stays whole in its grid and the panel holds the heading only.
 const { intro, rest } = h1Settings && !side ? introOf(sideText) : { intro: '', rest: sideText };
-const textClass = side
-  ? 'prose max-w-[var(--mo-sys-block-text-measure-max)] min-w-[min(var(--mo-sys-block-text-measure-min),100%)]'
-  : 'prose max-w-none [&>:not(.not-prose)]:max-w-[var(--mo-sys-block-text-measure-max)] [&>:not(.not-prose,.text-section-full)]:min-w-[min(var(--mo-sys-block-text-measure-min),100%)] [&>p:first-child]:mo-type-lead [&>p:first-child]:text-on-surface-variant [&>p:first-child]:max-w-[52ch]';
+const textClass = side ? 'mo-prose mo-page__text mo-has-side' : 'mo-prose mo-page__text mo-is-single-column';
 ---
 
 <Base
@@ -113,7 +111,7 @@ const textClass = side
   questions={questions}
 >
   <article data-template={template}>
-    <Container as="header" class={h1Background ? '[&>.text-section]:mt-0' : 'pt-8 medium:pt-14'}>
+    <Container as="header" class={h1Background ? 'mo-flush-top' : 'mo-page-header'}>
       {h1Settings ? (
         <section class={sectionClass(h1Color, h1Settings)} data-editor="h1-section">
           <PageHeading parent={parent} heading={heading} headingHtml={headingHtml} />
@@ -128,13 +126,13 @@ const textClass = side
       )}
     </Container>
 
-    <Container as="div" class="mt-8 medium:mt-12">
-      <div {...(side ? { class: 'page-with-side', 'data-side': template === 'sidebar-left' ? 'left' : 'right' } : {})}>
+    <Container as="div" class="mo-page__body">
+      <div {...(side ? { class: 'mo-page__content mo-has-side', 'data-side': template === 'sidebar-left' ? 'left' : 'right' } : {})}>
         <div data-editor="text" class={textClass}>
           <RichText html={rest} path={current} preview={preview} />
         </div>
         {side && (
-          <aside class="page-side">
+          <aside class="mo-page__side">
             <Block type={side} texts={blockTexts[side]} path={current} preview={preview} html={sideText} />
           </aside>
         )}

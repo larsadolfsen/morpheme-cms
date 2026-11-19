@@ -1,0 +1,1716 @@
+/* The editor's settings and tools (ThemeStore, App's sign-in, BlockSettings, PickerParts, EntryForm, ActionParts, MediaProviderPicker, CmsPage, ReleaseNotes,
+   Assistants, Colors, Licenses, MarkdownEditor, Parts, CropView, ask, PartsShown, Redirects, DashboardEdit): the rules their markup used to write as
+   utility classes, named after what the element is. Logical properties, gap and the theme's tokens; the layout classes (mo-row, mo-fill, mo-keep …) are in
+   theme/styles/layout.css. The vertical rhythm reads the shared tokens of src/editor-density.css (--mo-comp-editor-rhythm-*); the space-y rules keep the
+   exemptions src/editor.css gave their Tailwind class names. They sit in @layer utilities, where the utility classes were, so the cascade does not change. */
+@layer utilities {
+  .mo-editor-about-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-150);
+  }
+
+  .mo-editor-about-text {
+    padding-block-start: var(--mo-ref-space-75);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
+  .mo-editor-ask-buttons {
+    margin-block-start: var(--mo-comp-editor-rhythm-300);
+    display: flex;
+    gap: var(--mo-ref-space-100);
+  }
+
+  .mo-editor-ask-buttons-stacked {
+    flex-direction: column;
+  }
+
+  .mo-editor-ask-dialog {
+    &:focus {
+      outline-style: none;
+    }
+  }
+
+  .mo-editor-ask-follow {
+    margin-block-start: var(--mo-comp-editor-rhythm-200);
+  }
+
+  .mo-editor-ask-note {
+    margin-block-start: var(--mo-ref-space-50);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
+  .mo-editor-ask-notes {
+    margin-inline: calc(var(--mo-ref-space-300) * -1);
+    max-block-size: 50dvh;
+    overflow-y: auto;
+    padding-inline: var(--mo-ref-space-300);
+  }
+  :where(.mo-editor-ask-notes > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-ask-notes
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+
+  .mo-editor-ask-title {
+    margin-block-end: var(--mo-ref-space-100);
+    font-weight: 500;
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+  }
+
+  .mo-editor-author-name {
+    display: block;
+    font-weight: 500;
+  }
+
+  .mo-editor-author-role {
+    display: block;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
+  .mo-editor-below {
+    padding-block-end: var(--mo-ref-space-100);
+  }
+
+  .mo-editor-block-label {
+    margin-block-end: var(--mo-ref-space-100);
+    font-weight: 500;
+  }
+
+  .mo-editor-body-text {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+
+  .mo-editor-byline-lines {
+    line-height: 1.375;
+  }
+
+  .mo-editor-code-box {
+    min-inline-size: 0;
+    flex: 1 1 0%;
+    border-radius: 0.5rem;
+    background-color: var(--mo-sys-color-surface-container);
+    padding-inline: var(--mo-ref-space-150);
+    padding-block: var(--mo-ref-space-100);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    word-break: break-all;
+    -webkit-user-select: all;
+    user-select: all;
+  }
+
+  .mo-editor-code-row {
+    margin-block: var(--mo-ref-space-150);
+    display: flex;
+    align-items: center;
+    gap: var(--mo-ref-space-100);
+  }
+
+  .mo-editor-colors-columns {
+    display: grid;
+    gap: var(--mo-ref-space-250);
+    & > * {
+      min-inline-size: 0;
+    }
+  }
+  @media (width >= 37.5rem) {
+    .mo-editor-colors-columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .mo-editor-content-frame {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mo-editor-crop-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--mo-ref-space-100);
+  }
+
+  .mo-editor-crop-bar {
+    display: flex;
+    block-size: var(--mo-ref-space-800);
+    align-items: center;
+    gap: var(--mo-ref-space-50);
+    padding-inline: var(--mo-ref-space-100);
+  }
+  @media (width >= 37.5rem) {
+    .mo-editor-crop-bar {
+      gap: var(--mo-ref-space-150);
+      padding-inline: var(--mo-ref-space-300);
+    }
+  }
+
+  .mo-editor-crop-ratio-box {
+    border-radius: 3px;
+    border-style: solid;
+    border-width: 1.5px;
+    border-color: currentcolor;
+  }
+
+  .mo-editor-field-title {
+    margin-block-end: var(--mo-ref-space-50);
+    display: block;
+    font-weight: 500;
+  }
+
+  .mo-editor-filter-row {
+    margin-block-start: calc(var(--mo-ref-space-100) * -1);
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mo-ref-space-100);
+  }
+
+  :where(.mo-editor-flow-1 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-50);
+  }
+
+  :where(.mo-editor-flow-10 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-500);
+  }
+  .mo-editor-flow-10
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
+    margin-block-end: var(--mo-comp-editor-rhythm-500);
+  }
+
+  :where(.mo-editor-flow-2 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-100);
+  }
+
+  :where(.mo-editor-flow-3 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-150);
+  }
+  .mo-editor-flow-3
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
+  }
+
+  :where(.mo-editor-flow-4 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-flow-4
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+
+  :where(.mo-editor-flow-5 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-250);
+  }
+  .mo-editor-flow-5
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
+    margin-block-end: var(--mo-comp-editor-rhythm-250);
+  }
+
+  :where(.mo-editor-flow-6 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-300);
+  }
+  .mo-editor-flow-6
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+  }
+
+  .mo-editor-grab {
+    cursor: grab;
+    touch-action: none;
+  }
+
+  .mo-editor-group-inset {
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+    padding-inline: var(--mo-ref-space-200);
+  }
+
+  .mo-editor-grow {
+    flex: 1 1 0%;
+  }
+
+  .mo-editor-hint-space {
+    margin-block-start: var(--mo-ref-space-100);
+  }
+
+  .mo-editor-icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(3rem, 1fr));
+    gap: var(--mo-ref-space-100);
+    & > * {
+      min-inline-size: 0;
+    }
+  }
+
+  .mo-editor-image-result {
+    display: block;
+    aspect-ratio: 1 / 1;
+    inline-size: 100%;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    background-color: var(--mo-sys-color-surface-container-high);
+    &:disabled {
+      opacity: 60%;
+    }
+  }
+
+  .mo-editor-image-results {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--mo-ref-space-75);
+    & > * {
+      min-inline-size: 0;
+    }
+  }
+  @media (width >= 37.5rem) {
+    .mo-editor-image-results {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  @media (width >= 52.5rem) {
+    .mo-editor-image-results {
+      grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+      gap: var(--mo-ref-space-100);
+    }
+  }
+
+  .mo-editor-inline-icon {
+    display: inline-flex;
+  }
+
+  .mo-editor-intro {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
+  .mo-editor-key-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mo-ref-space-150);
+    row-gap: var(--mo-comp-editor-rhythm-150);
+  }
+
+  .mo-editor-license-none {
+    padding-inline: var(--mo-ref-space-200);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
+  .mo-editor-license-note {
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
+    padding-inline: var(--mo-ref-space-200);
+  }
+
+  .mo-editor-license-paragraph {
+    margin-block-end: var(--mo-ref-space-150);
+    padding-inline: var(--mo-ref-space-200);
+    overflow-wrap: break-word;
+    &:last-child {
+      margin-block-end: var(--mo-ref-space-0);
+    }
+  }
+
+  .mo-editor-license-photo {
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    display: block;
+    block-size: auto;
+    inline-size: 100%;
+    border-radius: 0.75rem;
+  }
+
+  .mo-editor-line {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-100);
+  }
+
+  .mo-editor-menu-sample {
+    display: flex;
+    justify-content: flex-end;
+    padding-block-end: 11rem;
+  }
+
+  .mo-editor-menu-sample-top {
+    display: flex;
+    justify-content: flex-end;
+    padding-block-start: 13rem;
+  }
+
+  .mo-editor-narrow-sample {
+    max-inline-size: 20rem;
+  }
+
+  .mo-editor-narrow-xs {
+    max-inline-size: 20rem;
+  }
+
+  .mo-editor-no-match {
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    padding-inline: var(--mo-ref-space-50);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
+  .mo-editor-note-article {
+    margin-block-end: var(--mo-ref-space-400);
+    max-inline-size: 65ch;
+    padding-inline: var(--mo-ref-space-200);
+    &:not(:first-child) {
+      margin-block-start: var(--mo-ref-space-400);
+    }
+  }
+  :where(.mo-editor-note-article > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-250);
+  }
+  .mo-editor-note-article
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
+    margin-block-end: var(--mo-comp-editor-rhythm-250);
+  }
+
+  .mo-editor-note-image {
+    display: block;
+    aspect-ratio: 3/2;
+    inline-size: 100%;
+    border-radius: 0.75rem;
+    object-fit: cover;
+  }
+
+  .mo-editor-note-section {
+    border-block-start-style: solid;
+    border-block-start-width: 1px;
+    border-color: var(--mo-sys-color-outline-variant);
+    padding-block-start: var(--mo-ref-space-250);
+    &:first-of-type {
+      border-block-start-width: 0;
+      padding-block-start: var(--mo-ref-space-0);
+    }
+  }
+  :where(.mo-editor-note-section > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-250);
+  }
+  .mo-editor-note-section
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
+    margin-block-end: var(--mo-comp-editor-rhythm-250);
+  }
+
+  .mo-editor-note-title {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .mo-editor-notes {
+    margin-block-end: var(--mo-ref-space-300);
+    max-inline-size: 65ch;
+    padding-inline: var(--mo-ref-space-200);
+    font-size: 1rem;
+    line-height: 1.5;
+    &:not(:first-child) {
+      margin-block-start: var(--mo-ref-space-400);
+    }
+  }
+  :where(.mo-editor-notes > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-150);
+  }
+  .mo-editor-notes
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
+  }
+
+  .mo-editor-on-surface {
+    color: var(--mo-sys-color-on-surface);
+  }
+
+  .mo-editor-pair-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--mo-ref-space-150);
+    & > * {
+      min-inline-size: 0;
+    }
+  }
+
+  .mo-editor-part-name {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    color: var(--mo-sys-color-primary);
+  }
+
+  .mo-editor-parts-group {
+    &:not(:has([data-part])) {
+      display: none;
+    }
+  }
+  :where(.mo-editor-parts-group > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-500);
+  }
+  .mo-editor-parts-group
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
+    margin-block-end: var(--mo-comp-editor-rhythm-500);
+  }
+
+  .mo-editor-picker-box {
+    inline-size: 22.5rem;
+    max-inline-size: 100%;
+  }
+
+  .mo-editor-picker-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-300);
+    padding: var(--mo-ref-space-200);
+  }
+
+  .mo-editor-picker-sample {
+    inline-size: 20.5rem;
+    max-inline-size: 100%;
+  }
+
+  .mo-editor-picker-scroll {
+    overflow-x: auto;
+  }
+
+  .mo-editor-picker-wide {
+    inline-size: 36rem;
+    flex-shrink: 0;
+  }
+
+  .mo-editor-post-head {
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+  }
+  :where(.mo-editor-post-head > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-250);
+  }
+  .mo-editor-post-head
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
+    margin-block-end: var(--mo-comp-editor-rhythm-250);
+  }
+
+  .mo-editor-post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    column-gap: var(--mo-ref-space-300);
+    row-gap: var(--mo-ref-space-200);
+    border-block-start-style: solid;
+    border-block-start-width: 1px;
+    border-color: var(--mo-sys-color-outline-variant);
+    padding-block-start: var(--mo-comp-editor-rhythm-200);
+    & > * {
+      min-inline-size: 12rem;
+      flex: 1 1 0%;
+    }
+  }
+
+  .mo-editor-primary-text {
+    color: var(--mo-sys-color-primary);
+  }
+
+  .mo-editor-read-only-bar {
+    background-color: var(--mo-sys-color-primary);
+    padding-inline: var(--mo-ref-space-200);
+    padding-block: var(--mo-ref-space-150);
+    padding-block-start: calc(0.75rem + env(safe-area-inset-top));
+    text-align: center;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--mo-sys-color-on-primary);
+  }
+
+  .mo-editor-sample-columns {
+    display: grid;
+    gap: var(--mo-ref-space-300);
+    padding: var(--mo-ref-space-200);
+    & > * {
+      min-inline-size: 0;
+    }
+  }
+  @media (width >= 37.5rem) {
+    .mo-editor-sample-columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .mo-editor-sample-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mo-ref-space-200);
+  }
+
+  .mo-editor-sample-stack-4 {
+    padding: var(--mo-ref-space-200);
+  }
+  :where(.mo-editor-sample-stack-4 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-sample-stack-4
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+
+  .mo-editor-sample-stack-6 {
+    padding: var(--mo-ref-space-200);
+  }
+  :where(.mo-editor-sample-stack-6 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-300);
+  }
+  .mo-editor-sample-stack-6
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-settings-group,
+      .mo-editor-settings-section,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+  }
+
+  .mo-editor-scroll-target {
+    scroll-margin-block-start: 6rem;
+  }
+
+  .mo-editor-settings-block {
+    display: block;
+  }
+
+  .mo-editor-settings-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mo-ref-space-100);
+  }
+
+  .mo-editor-settings-dashboard-grid {
+    --mo-comp-grid-columns: 2;
+  }
+
+  .mo-editor-settings-group {
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+  }
+
+  .mo-editor-settings-inline-row {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+  }
+
+  .mo-editor-settings-inset {
+    padding-inline: var(--mo-ref-space-200);
+  }
+
+  .mo-editor-settings-muted {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
+  .mo-editor-settings-parts-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mo-ref-space-500);
+  }
+
+  .mo-editor-settings-parts-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+  }
+
+  .mo-editor-settings-section {
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+  }
+
+  .mo-editor-settings-strong {
+    font-weight: 500;
+  }
+
+  .mo-editor-settings-trailing {
+    flex-shrink: 0;
+    padding-inline-end: var(--mo-ref-space-75);
+  }
+
+  .mo-editor-settings-wrap {
+    min-inline-size: 0;
+    overflow-wrap: break-word;
+  }
+
+  .mo-editor-signin {
+    margin-inline: auto;
+    display: flex;
+    min-block-size: 100dvh;
+    max-inline-size: 24rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--mo-ref-space-250);
+    padding-inline: var(--mo-ref-space-300);
+    padding-block-end: env(safe-area-inset-bottom);
+    text-align: center;
+    row-gap: var(--mo-comp-editor-rhythm-250);
+  }
+
+  .mo-editor-signin-icon {
+    inline-size: 5rem;
+    block-size: 5rem;
+    border-radius: 1.375rem;
+    box-shadow:
+      0 0 transparent,
+      0 0 transparent,
+      0 0 transparent,
+      0 0 transparent,
+      var(--mo-sys-panel-shadow);
+  }
+
+  .mo-editor-signin-title {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+  }
+
+  .mo-editor-small-note {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
+  @media (width >= 37.5rem) {
+    .mo-editor-split {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--mo-ref-space-300);
+    }
+  }
+
+  .mo-editor-store-byline {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
+  .mo-editor-store-head {
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    display: flex;
+    align-items: center;
+    gap: var(--mo-ref-space-200);
+    padding-inline: var(--mo-ref-space-200);
+  }
+
+  .mo-editor-store-icon {
+    inline-size: var(--mo-ref-space-450);
+    block-size: var(--mo-ref-space-450);
+    flex-shrink: 0;
+    border-radius: var(--mo-sys-block-radius-small);
+  }
+
+  .mo-editor-store-icon-large {
+    inline-size: var(--mo-ref-space-800);
+    block-size: var(--mo-ref-space-800);
+    flex-shrink: 0;
+    border-radius: 1rem;
+  }
+
+  .mo-editor-store-name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  .mo-editor-store-status {
+    display: block;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
+  .mo-editor-target-icon {
+    margin-block-start: var(--mo-ref-space-50);
+    flex-shrink: 0;
+  }
+
+  .mo-editor-target-row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-75);
+  }
+
+  .mo-editor-text-anchor {
+    scroll-margin-block-start: calc(1rem + env(safe-area-inset-top));
+  }
+
+  .mo-editor-text-area {
+    max-inline-size: none;
+    border-end-start-radius: var(--mo-sys-radius);
+    border-end-end-radius: var(--mo-sys-radius);
+    border-inline-style: solid;
+    border-inline-width: 1px;
+    border-block-end-style: solid;
+    border-block-end-width: 1px;
+    border-color: var(--mo-sys-color-outline-variant);
+    padding-inline: var(--mo-sys-grid-margin);
+    padding-block: var(--mo-comp-editor-rhythm-200);
+  }
+
+  .mo-editor-text-surface {
+    border-radius: var(--mo-sys-radius);
+    background-color: var(--mo-sys-color-surface-container-lowest);
+  }
+
+  .mo-editor-tight-row {
+    display: flex;
+    gap: var(--mo-ref-space-25);
+  }
+
+  .mo-editor-tools-bar {
+    position: sticky;
+    inset-block-start: env(safe-area-inset-top);
+    z-index: 10;
+    border-start-start-radius: var(--mo-sys-radius);
+    border-start-end-radius: var(--mo-sys-radius);
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--mo-sys-color-outline-variant);
+    padding-block-end: var(--mo-comp-toolbar-docked-padding-block);
+  }
+
+  .mo-editor-two-columns {
+    display: grid;
+    gap: var(--mo-ref-space-300);
+    & > * {
+      min-inline-size: 0;
+    }
+  }
+  @media (width >= 37.5rem) {
+    .mo-editor-two-columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  .mo-editor-used-title {
+    margin-block-end: var(--mo-ref-space-50);
+    font-weight: 500;
+  }
+
+  .mo-editor-widget-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--mo-ref-space-100);
+    padding-inline: var(--mo-ref-space-50);
+  }
+
+  .mo-editor-widget-body {
+    padding-inline: var(--mo-ref-space-100);
+  }
+
+  .mo-editor-widget-card {
+    position: relative;
+    border-radius: var(--mo-sys-block-radius);
+    background-color: var(--mo-sys-color-surface-container-low);
+    padding-block-end: var(--mo-ref-space-100);
+  }
+
+  .mo-editor-widget-lifted {
+    z-index: 10;
+    box-shadow:
+      0 0 transparent,
+      0 0 transparent,
+      0 0 transparent,
+      0 0 transparent,
+      var(--mo-sys-elevation-level4-shadow);
+  }
+
+  .mo-editor-widget-target {
+    outline-style: solid;
+    outline-width: 2px;
+    outline-color: var(--mo-sys-color-primary);
+  }
+}

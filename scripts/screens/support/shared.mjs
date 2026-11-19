@@ -7,14 +7,14 @@ import { BUILT_PAGE, ROOT, problems, site } from './context.mjs';
 
 /** A button of the active block's action row by its name (Move up, Move down, Hide, Show, Block settings; Edit on an image card). */
 export const rowButton = (page, name) =>
-  page.locator(`.site-block-row:not(.site-block-row-hover) [data-row][aria-label="${name}"]:visible`);
+  page.locator(`.mo-site-block-row:not(.mo-site-block-row-hover) [data-row][aria-label="${name}"]:visible`);
 
 /** A tool of the text's one bar by its name: a button of the active block's action row, its button on the bar, or its row in the ⋮ menu when it did not fit (a phone). `how`: 'click' or 'tap'.
  * The bar's buttons keep the cursor where it is. "Edit" is the bar's gear (the row's or item's settings); the block's own settings are Block settings, in the row. */
 export async function pressTool(page, name, how = 'click') {
   const inRow = rowButton(page, name);
   if (await inRow.count()) return void (await inRow.first()[how]());
-  const direct = page.locator(`.editor-tools button[aria-label="${name}"]:visible`);
+  const direct = page.locator(`.mo-editor-tools button[aria-label="${name}"]:visible`);
   if (await direct.count()) return void (await direct.first()[how]());
   const settings = name === 'Edit' ? rowButton(page, 'Block settings') : null;
   if (settings && (await settings.count())) return void (await settings.first()[how]());
@@ -28,7 +28,7 @@ export async function pressMore(page, name, how = 'click', which = 'last') {
   if (await inRow.count()) return void (await inRow.first()[how]());
   const settings = name === 'Edit' && which === 'last' ? rowButton(page, 'Block settings') : null;
   if (settings && (await settings.count())) return void (await settings.first()[how]());
-  await page.locator('.editor-tools [aria-label="More"]:visible').first()[how]();
+  await page.locator('.mo-editor-tools [aria-label="More"]:visible').first()[how]();
   const row = page.locator('[role=menu][aria-label="More"] [role^=menuitem]').filter({ hasText: new RegExp(`^${name}$`) });
   // `last`: the block's own menu, which is last in the ⋮ (a gear named Edit may stand before it); `first`: a tool of the bar that did not fit.
   await row[which]()[how]();
@@ -45,21 +45,21 @@ export async function saveOrClose(page, which = 'first') {
   const save = page
     .getByRole('button', { name: 'Save', exact: true })
     .locator('visible=true')
-    .and(page.locator(':not(.editor-save-bar *)'));
+    .and(page.locator(':not(.mo-editor-save-bar *)'));
   if (await save.count()) return void (await save[which]().click());
-  await page.locator('.editor-side-sheet [data-side-sheet-close]').last().click();
+  await page.locator('.mo-editor-side-sheet [data-side-sheet-close]').last().click();
 }
 
 /** The bar's Insert block (always on the bar, never in the ⋮ menu). */
 export async function pressInsert(page, how = 'click') {
-  await page.locator('.editor-tools button[aria-label="Insert block"]:visible').first()[how]();
+  await page.locator('.mo-editor-tools button[aria-label="Insert block"]:visible').first()[how]();
 }
 
 /** The Text style menu: the bar's button, or its row in the ⋮ menu (which opens the menu under the ⋮) when the button did not fit. */
 export async function openStyleMenu(page) {
-  const direct = page.locator('.editor-tools [aria-label^="Text style"]:visible');
+  const direct = page.locator('.mo-editor-tools [aria-label^="Text style"]:visible');
   if (await direct.count()) return void (await direct.first().click());
-  await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+  await page.locator('.mo-editor-tools [aria-label="More"]:visible').first().click();
   await page
     .locator('[role=menu][aria-label="More"] [role^=menuitem]')
     .filter({ hasText: /^Text style/ })
@@ -70,7 +70,7 @@ export async function openStyleMenu(page) {
 /** What the bar and its ⋮ menu hold now: `bar` its buttons (name, title, icon, size, pressed), `more` the rows of the ⋮ menu (opened and closed again by its button, so the cursor stays in its field). */
 export async function barTools(page) {
   const bar = await page.evaluate(() =>
-    [...document.querySelectorAll('.editor-tools button:not([hidden])')].map((b) => {
+    [...document.querySelectorAll('.mo-editor-tools button:not([hidden])')].map((b) => {
       const r = b.getBoundingClientRect();
       return {
         label: b.getAttribute('aria-label'),
@@ -86,7 +86,7 @@ export async function barTools(page) {
     }),
   );
   let more = [];
-  const button = page.locator('.editor-tools [aria-label="More"]:visible');
+  const button = page.locator('.mo-editor-tools [aria-label="More"]:visible');
   if (await button.count()) {
     await button.first().click();
     await menusSettled(page);
@@ -109,7 +109,7 @@ export function menusSettled(page) {
 
 /** The contrast (WCAG) of a hint line (a pseudo-element of the element, which must be in the page: it is waited for) on each section colour, with the section's own colours set on the element as sectionFrame.ts does. */
 export async function hintContrasts(page, selector, pseudo) {
-  // The line gets its class (`editor-gap-here`) in the editor's own turn after a key: wait for the element, then read it.
+  // The line gets its class (`mo-editor-gap-here`) in the editor's own turn after a key: wait for the element, then read it.
   await page.waitForSelector(selector, { state: 'attached', timeout: 5000 });
   return page.evaluate(
     ([selector, pseudo]) => {
@@ -187,7 +187,7 @@ export async function newLineUnder(page, text) {
 
 /** Puts a block in at the cursor and waits until it is the active block, as a person sees it. A new block takes its first row only once the insert dialog has let
  * go of the focus (MarkdownEditor.tsx, startAt: up to 1.5 s on a slow machine), and until then the block that was active still is, with its row and its handle; and
- * the row of that block matches `.inline-list-row-active` too, so that selector is no sign. The wait is for the state itself: `count` blocks, the new one (`at`) the
+ * the row of that block matches `.mo-editor-inline-list-row-active` too, so that selector is no sign. The wait is for the state itself: `count` blocks, the new one (`at`) the
  * only one with a row, that row open (no height animation running). A click or a key before that would go to the field the new block is about to take. */
 export async function insertBlock(page, hint, count, at) {
   await pressInsert(page, 'click');
@@ -195,14 +195,14 @@ export async function insertBlock(page, hint, count, at) {
   await page
     .waitForFunction(
       ([n, i]) => {
-        const blocks = [...document.querySelectorAll('.ProseMirror .site-block')];
-        const open = blocks.filter((b) => b.classList.contains('site-block-has-row'));
+        const blocks = [...document.querySelectorAll('.ProseMirror .mo-site-block')];
+        const open = blocks.filter((b) => b.classList.contains('mo-site-block-has-row'));
         return (
           blocks.length === n &&
           open.length === 1 &&
           open[0] === blocks[i] &&
-          !!open[0].querySelector('.inline-list-row-active') &&
-          !document.querySelector('.ProseMirror .site-block-row-moving')
+          !!open[0].querySelector('.mo-editor-inline-list-row-active') &&
+          !document.querySelector('.ProseMirror .mo-site-block-row-moving')
         );
       },
       [count, at],
@@ -213,11 +213,11 @@ export async function insertBlock(page, hint, count, at) {
       const found = await page
         .evaluate(() => ({
           dialogOpen: !!document.querySelector('dialog[open]'),
-          blocks: [...document.querySelectorAll('.ProseMirror .site-block')].map((b) => ({
-            row: b.classList.contains('site-block-has-row'),
-            active: !!b.querySelector('.inline-list-row-active'),
+          blocks: [...document.querySelectorAll('.ProseMirror .mo-site-block')].map((b) => ({
+            row: b.classList.contains('mo-site-block-has-row'),
+            active: !!b.querySelector('.mo-editor-inline-list-row-active'),
           })),
-          moving: !!document.querySelector('.ProseMirror .site-block-row-moving'),
+          moving: !!document.querySelector('.ProseMirror .mo-site-block-row-moving'),
           focus: document.activeElement ? `${document.activeElement.tagName}.${document.activeElement.className}` : null,
         }))
         .catch(() => null);
@@ -230,24 +230,24 @@ export async function checkSavedLabel(page, width) {
   const label = `${width}px label on any line (saved page)`;
   const labelNow = () =>
     page.evaluate(() => {
-      const el = document.querySelector('.ProseMirror p.label-medium');
+      const el = document.querySelector('.ProseMirror p.mo-type-label-medium');
       return el ? { text: el.textContent, size: getComputedStyle(el).fontSize } : null;
     });
   const path = BUILT_PAGE;
   const text =
-    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<p class="label-medium">Opening hours</p>\n\nMonday to Friday.\n';
+    '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n<p class="mo-type-label-medium">Opening hours</p>\n\nMonday to Friday.\n';
   await openEditor(page, site, { [path]: text });
   await page.goto(`${site}/editor/#${path}`);
-  await page.waitForSelector('.ProseMirror p.label-medium', { timeout: 30_000 });
+  await page.waitForSelector('.ProseMirror p.mo-type-label-medium', { timeout: 30_000 });
   const inEditor = await labelNow();
   if (!inEditor || inEditor.size !== '12px')
     problems.push(`${label}: a saved lone label is not a label in the editor (${JSON.stringify(inEditor)})`);
   await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
-  await frame.waitForSelector('[data-editor="text"] .label-medium', { timeout: 30_000 });
+  await frame.waitForSelector('[data-editor="text"] .mo-type-label-medium', { timeout: 30_000 });
   const drawn = await frame.evaluate(() => {
-    const el = document.querySelector('[data-editor="text"] .label-medium');
+    const el = document.querySelector('[data-editor="text"] .mo-type-label-medium');
     const next = el.nextElementSibling;
     return { size: getComputedStyle(el).fontSize, gap: next ? next.getBoundingClientRect().top - el.getBoundingClientRect().bottom : -1 };
   });
@@ -272,8 +272,8 @@ export const inlineBlocks = [
 /** The blocks that read a list of the site (Testimonials, Blog posts), typed in place: drawn as the site draws them with the demo's real items, the heading typed above. */
 export const liveLists = [
   { name: 'testimonials', hint: 'Testimonials as cards or in a list.', items: '[data-testimonial]' },
-  { name: 'posts', hint: 'Blog posts in a list.', items: '.block-posts-in-text li' },
-  { name: 'imagegrid', hint: 'Images from Files, filtered by tag.', items: '.block-imagegrid-grid li' },
+  { name: 'posts', hint: 'Blog posts in a list.', items: '.mo-block-posts__in-text li' },
+  { name: 'imagegrid', hint: 'Images from Files, filtered by tag.', items: '.mo-block-imagegrid__grid li' },
 ];
 
 /** The single blocks typed in place (Notice, Video): one item, no add button, no faded empty item. */

@@ -1,4 +1,4 @@
-// A navigation bar (m3.material.io/components/navigation-bar, .navigation-bar in ../styles/ui/navigation-bar.css): the few main
+// A navigation bar (m3.material.io/components/navigation-bar, .mo-navigation-bar in ../styles/ui/navigation-bar.css): the few main
 // destinations side by side at the bottom of a phone's screen (NavigationBar, a <nav> with its name, `label`), each
 // (NavigationBarItem) with its icon and its label, the open one (`selected`, aria-current) with the indicator behind its
 // icon, and evt. a badge on the icon (`badge`: true for a dot, else the number it shows; the theme's Badge). Where the
@@ -17,12 +17,12 @@ import Badge from '@theme/ui/Badge';
 export type NavigationBarIconPosition = 'top' | 'start' | 'auto';
 
 /** The bar's class, and a destination's. */
-export const navigationBarClass = 'navigation-bar';
-export const navigationBarItemClass = 'navigation-bar-item';
+export const navigationBarClass = 'mo-navigation-bar';
+export const navigationBarItemClass = 'mo-navigation-bar__item';
 
 /** The bar's classes with where its items' icons stand. */
 export const navigationBarClasses = (iconPosition: NavigationBarIconPosition = 'top') =>
-  iconPosition === 'top' ? navigationBarClass : `${navigationBarClass} navigation-bar-${iconPosition}`;
+  iconPosition === 'top' ? navigationBarClass : `${navigationBarClass} mo-navigation-bar__${iconPosition}`;
 
 export default function NavigationBar({
   label,
@@ -50,12 +50,12 @@ export function NavigationBarItem({
 }: { href: string; icon: string; label: ReactNode; selected?: boolean; badge?: true | number } & Record<string, unknown>) {
   return (
     <Link href={href} className={navigationBarItemClass} aria-current={selected ? 'page' : undefined} {...rest}>
-      <span className="navigation-bar-indicator">
-        <span className="navigation-bar-icon">
+      <span className="mo-navigation-bar__indicator">
+        <span className="mo-navigation-bar__icon">
           <Svg name={icon} size={24} />
-          {badge !== undefined && <Badge count={badge === true ? undefined : badge} className="navigation-bar-badge" />}
+          {badge !== undefined && <Badge count={badge === true ? undefined : badge} className="mo-navigation-bar__badge" />}
         </span>
-        <span className="navigation-bar-label">{label}</span>
+        <span className="mo-navigation-bar__label">{label}</span>
       </span>
     </Link>
   );

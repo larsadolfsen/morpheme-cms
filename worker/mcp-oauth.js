@@ -54,7 +54,7 @@ const escapeHtml = (s) =>
 /** A page of the sign-in (for a person, never for the assistant): no framing, no caching, no scripts. */
 function page(title, body, status = 200, cookies = [], formAction = "'self'") {
   const html = `<!doctype html><html lang="${langOf(config.locale)}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>${escapeHtml(title)}</title>
-<style>:root{color-scheme:light dark}body{font-family:system-ui,sans-serif;max-width:32rem;margin:0 auto;padding:2rem 1rem;line-height:1.5}h1{font-size:1.5rem}form{display:flex;gap:.75rem;margin-top:1.5rem}button{font:inherit;padding:.6rem 1.25rem;border-radius:2rem;border:1px solid GrayText;background:ButtonFace;color:ButtonText;cursor:pointer}button.allow{background:AccentColor;border-color:AccentColor;color:AccentColorText}</style></head>
+<style>:root{color-scheme:light dark}body{font-family:system-ui,sans-serif;max-width:32rem;margin:0 auto;padding:2rem 1rem;line-height:1.5}h1{font-size:1.5rem}form{display:flex;gap:.75rem;margin-top:1.5rem}button{font:inherit;padding:.6rem 1.25rem;border-radius:2rem;border:1px solid GrayText;background:ButtonFace;color:ButtonText;cursor:pointer}button.mo-consent__allow{background:AccentColor;border-color:AccentColor;color:AccentColorText}</style></head>
 <body><h1>${escapeHtml(title)}</h1>${body}</body></html>`;
   const headers = new Headers({
     'content-type': 'text/html; charset=utf-8',
@@ -260,7 +260,7 @@ export async function handleMcpCallback(request, url, env, ask = fetch) {
 <p>${escapeHtml(t('Signed in to GitHub as {login}.', { login: user.login }))}</p>
 <p>${escapeHtml(t('It can read your pages and posts and the settings of your apps. It can’t change anything.'))}</p>
 <form method="post" action="/oauth/mcp/consent"><input type="hidden" name="pending" value="${escapeHtml(id)}">
-<button class="allow" name="decision" value="allow">${escapeHtml(t('Allow'))}</button><button name="decision" value="deny">${escapeHtml(t('Cancel'))}</button></form>`;
+<button class="mo-consent__allow" name="decision" value="allow">${escapeHtml(t('Allow'))}</button><button name="decision" value="deny">${escapeHtml(t('Cancel'))}</button></form>`;
   trace('callback', 'consent page shown', { client: client?.name, login: user.login });
   // Browsers also check form-action on the redirect a POST answers with: without the assistant's own origin the redirect back to it is blocked.
   return page(

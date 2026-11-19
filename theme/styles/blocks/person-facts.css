@@ -1,18 +1,18 @@
 /*
-  The Person, Icon list, Facts, Table and Badge blocks (.block-person, .block-icon-list, .block-facts, .block-table and its grid,
-  .block-badge and .block-with-badge). Moved here from blocks.css with their rules unchanged and in the order they had
+  The Person, Icon list, Facts, Table and Badge blocks (.mo-block-person, .mo-block-icon-list, .mo-block-facts, .mo-block-table and its grid,
+  .mo-block-badge and .mo-has-badge). Moved here from blocks.css with their rules unchanged and in the order they had
   (docs/superpowers/plans/2026-11-16-css-split.md). Imported by base.css right after blocks.css, in the same layer (components), so every
   rule that stayed in blocks.css after these still comes before them in the cascade; none of those rules sets a property of the same
   elements at the same specificity (the collision check in the pull request).
 */
 @layer components {
   /* A person: a small image beside the name and a title under it. */
-  .block-person {
+  .mo-block-person {
     display: flex;
     align-items: center;
     gap: 1rem;
   }
-  .block-person-picture {
+  .mo-block-person__picture {
     width: 3.5rem;
     height: 3.5rem;
     flex-shrink: 0;
@@ -20,14 +20,14 @@
     object-fit: cover;
     object-position: 50% 20%;
   }
-  .block-person-name {
+  .mo-block-person__name {
     display: block;
     font-size: var(--mo-sys-typescale-title-medium-size);
     line-height: var(--mo-sys-typescale-title-medium-line-height);
     font-weight: var(--mo-sys-typescale-title-medium-weight);
     letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
   }
-  .block-person-role {
+  .mo-block-person__role {
     display: block;
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
@@ -37,7 +37,7 @@
   }
 
   /* A list with an icon in the accent before each line. */
-  .block-icon-list {
+  .mo-block-icon-list {
     display: grid;
     gap: 0.6rem;
     margin: 0;
@@ -48,12 +48,12 @@
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
-  .block-icon-list > li {
+  .mo-block-icon-list > li {
     display: flex;
     align-items: flex-start;
     gap: 0.75rem;
   }
-  .block-icon-list svg {
+  .mo-block-icon-list svg {
     flex-shrink: 0;
     margin-top: 0.05rem;
     color: var(--mo-sys-block-accent);
@@ -61,27 +61,27 @@
 
   /* Facts side by side, each a quiet name over its value, the last one to the right (a duration and a
      price). */
-  .block-facts {
+  .mo-block-facts {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 1rem;
     margin: 0;
   }
-  .block-facts dt {
+  .mo-block-facts dt {
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
     color: var(--mo-sys-block-muted);
   }
-  .block-facts dd {
+  .mo-block-facts dd {
     margin: 0.15rem 0 0;
     font-weight: 500;
   }
-  .block-facts > :last-child {
+  .mo-block-facts > :last-child {
     text-align: right;
   }
-  .block-facts-amount {
+  .mo-block-facts__amount {
     font-size: var(--mo-sys-typescale-title-large-size);
     line-height: var(--mo-sys-typescale-title-large-line-height);
     font-weight: var(--mo-sys-typescale-title-large-weight);
@@ -89,13 +89,13 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* A table (.block-table, the base of every table block): a box that scrolls sideways when the table is wider than the screen,
+  /* A table (.mo-block-table, the base of every table block): a box that scrolls sideways when the table is wider than the screen,
      with the cells' text in the body scale and a thin line (outline variant) under each row. "Table" and "Cookie list" are
-     drawn alike, as .block-table-grid. */
-  .block-table {
+     drawn alike, as .mo-block-table__grid. */
+  .mo-block-table {
     overflow-x: auto;
   }
-  .block-table table {
+  .mo-block-table table {
     width: 100%;
     border-collapse: collapse;
     font-size: var(--mo-sys-typescale-body-medium-size);
@@ -103,7 +103,7 @@
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
-  .block-table :is(th, td) {
+  .mo-block-table :is(th, td) {
     border-bottom: 1px solid var(--mo-sys-block-line);
     text-align: left;
     vertical-align: top;
@@ -114,16 +114,16 @@
      no elevation, a row's background on hover) and everything else is Material 3's: the body and label type scales, the surface container
      (header), the outline variant (container and dividers), the cards' own corner radius (--mo-comp-card-radius) and the theme's hover state layer. The box is a region the
      keyboard can scroll (a focus ring in the accent); a table with many columns scrolls instead of crushing them. */
-  .block-table-grid {
+  .mo-block-table__grid {
     border: 1px solid var(--mo-sys-block-line);
     border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
     color: var(--mo-sys-block-text);
   }
-  .block-table-grid:focus-visible {
+  .mo-block-table__grid:focus-visible {
     outline: 3px solid var(--mo-sys-color-primary);
     outline-offset: 2px;
   }
-  .block-table-grid :is(th, td) {
+  .mo-block-table__grid :is(th, td) {
     min-width: 6rem;
     /* A table is data-heavy: its rows read --mo-sys-density (base.css), 4 px a step from 52 dp (Large 56, Small 48, a theme's -2 and -3: 44 and 40). */
     height: calc(3.25rem + var(--mo-sys-density) * var(--mo-sys-density-step));
@@ -131,7 +131,7 @@
     vertical-align: middle;
     font-weight: inherit;
   }
-  .block-table-grid thead th {
+  .mo-block-table__grid thead th {
     height: calc(3.5rem + var(--mo-sys-density) * var(--mo-sys-density-step));
     background: var(--mo-sys-block-tint);
     font-size: var(--mo-sys-typescale-label-large-size);
@@ -140,31 +140,31 @@
     letter-spacing: var(--mo-sys-typescale-label-large-tracking);
   }
   /* A column's alignment (view.ts): numbers right, text left, or the owner's choice. */
-  .block-table-grid :is(th, td).block-table-left {
+  .mo-block-table__grid :is(th, td).mo-block-table__left {
     text-align: start;
   }
-  .block-table-grid :is(th, td).block-table-center {
+  .mo-block-table__grid :is(th, td).mo-block-table__center {
     text-align: center;
   }
-  .block-table-grid :is(th, td).block-table-right {
+  .mo-block-table__grid :is(th, td).mo-block-table__right {
     text-align: end;
   }
-  .block-table-grid tr:last-child :is(th, td) {
+  .mo-block-table__grid tr:last-child :is(th, td) {
     border-bottom: 0;
   }
   /* "Striped rows": every second body row in the quieter --mo-sys-block-stripe (the header keeps the tint). */
-  .block-table-grid[data-striped] tbody tr:nth-child(even) {
+  .mo-block-table__grid[data-striped] tbody tr:nth-child(even) {
     background: var(--mo-sys-block-stripe);
   }
   @media (hover: hover) {
-    .block-table-grid tbody tr:hover {
+    .mo-block-table__grid tbody tr:hover {
       background: var(
         --mo-sys-state-mo-hover-layer,
         color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
       );
     }
     /* The state layer over the stripe, so a striped row stays striped under the pointer. */
-    .block-table-grid[data-striped] tbody tr:nth-child(even):hover {
+    .mo-block-table__grid[data-striped] tbody tr:nth-child(even):hover {
       background:
         linear-gradient(
           var(
@@ -181,7 +181,7 @@
   }
 
   /* A badge: a small word over a number in a light square ("Spar / 10%"), and a text beside one. */
-  .block-badge {
+  .mo-block-badge {
     display: grid;
     width: 3.5rem;
     height: 3.5rem;
@@ -193,20 +193,20 @@
     text-align: center;
     line-height: 1.1;
   }
-  .block-badge > span {
+  .mo-block-badge > span {
     font-size: var(--mo-sys-typescale-label-small-size);
     line-height: var(--mo-sys-typescale-label-small-line-height);
     font-weight: var(--mo-sys-typescale-label-small-weight);
     letter-spacing: var(--mo-sys-typescale-label-small-tracking);
   }
-  .block-badge > strong {
+  .mo-block-badge > strong {
     font-size: var(--mo-sys-typescale-title-medium-size);
     line-height: var(--mo-sys-typescale-title-medium-line-height);
     font-weight: var(--mo-sys-typescale-title-medium-weight);
     letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
     font-variant-numeric: tabular-nums;
   }
-  .block-with-badge {
+  .mo-has-badge {
     display: flex;
     align-items: flex-start;
     gap: 1rem;
@@ -215,7 +215,7 @@
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
-  .block-with-badge > p {
+  .mo-has-badge > p {
     margin: 0;
   }
 }

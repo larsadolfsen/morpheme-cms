@@ -16,7 +16,7 @@ export default function StoreSections({ env, files, section: opened }: { env: En
   // A section in the address (#settings/appstore/plugins) is the one shown; the switch then goes to the address of the next.
   const section = opened ?? chosen;
   const header = (
-    <div className="mb-6">
+    <div className="mo-editor-list-lead">
       <SegmentedButton
         label={t.apps.sectionsLabel}
         value={section}

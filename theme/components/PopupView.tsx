@@ -19,8 +19,8 @@ export type PopupPart<V = any> = ComponentType<{ view: V; button: ReactNode }>;
 export default function PopupView({ popup, Part, part }: { popup: PopupBoxView; Part?: PopupPart; part?: unknown }) {
   const button = <PopupButton button={popup.button} />;
   return (
-    <Dialog className="relative overflow-hidden">
-      <IconButton icon="x" label={siteT.theme.close} kind="tonal" className="absolute top-3 right-3 z-10" data-popup-close="true" />
+    <Dialog className="mo-popup">
+      <IconButton icon="x" label={siteT.theme.close} kind="tonal" className="mo-popup__close" data-popup-close="true" />
       {popup.image && (
         <img
           src={popup.image.src}
@@ -29,15 +29,18 @@ export default function PopupView({ popup, Part, part }: { popup: PopupBoxView; 
           height={popup.image.height}
           sizes="min(28rem, calc(100vw - 2rem))"
           alt=""
-          className="block aspect-[3/2] w-full bg-surface-container-high object-cover"
+          className="mo-popup__image"
         />
       )}
-      <div className="p-6 medium:p-8">
-        <h2 id={`popup-${popup.slug}`} className={popup.image ? 'mo-type-headline-small' : 'mo-type-headline-small pr-12'}>
+      <div className="mo-popup__body">
+        <h2
+          id={`popup-${popup.slug}`}
+          className={popup.image ? 'mo-type-headline-small mo-popup__title' : 'mo-type-headline-small mo-popup__title mo-has-close-space'}
+        >
           {popup.heading}
         </h2>
         {popup.text.map((t, i) => (
-          <p key={i} className="mt-3 text-on-surface-variant">
+          <p key={i} className="mo-popup__text">
             {t}
           </p>
         ))}

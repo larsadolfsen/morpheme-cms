@@ -1,4 +1,4 @@
-// A checkbox (m3.material.io/components/checkbox, .checkbox in ../styles/ui/checkbox.css): the box, its name (`label`) beside
+// A checkbox (m3.material.io/components/checkbox, .mo-checkbox in ../styles/ui/checkbox.css): the box, its name (`label`) beside
 // it and a line under the name (`supporting`), all of it one <label>, so a click anywhere ticks it. `checked`: ticked
 // from the start; `indeterminate`: neither ticked nor not (a choice over others, some of which are ticked; the browser
 // has it as a property, not an attribute, so on the site checkbox.script.ts sets it from data-indeterminate, and in the
@@ -12,7 +12,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { Svg } from '@morphemecms/cms/src/icon';
 
 /** A checkbox's classes, and the error's when it is wrong. */
-export const checkboxClass = (error = false) => (error ? 'checkbox checkbox-error' : 'checkbox');
+export const checkboxClass = (error = false) => (error ? 'mo-checkbox mo-is-error' : 'mo-checkbox');
 
 export default function Checkbox({
   label,
@@ -37,22 +37,22 @@ export default function Checkbox({
   const line = typeof error === 'string' && error ? error : supporting;
   return (
     <label className={[checkboxClass(Boolean(error)), className].filter(Boolean).join(' ')}>
-      <span className="checkbox-box">
+      <span className="mo-checkbox__box">
         <input
           ref={input}
           type="checkbox"
-          className="checkbox-input"
+          className="mo-checkbox__input"
           {...(rest.onChange ? { checked: Boolean(checked) } : { defaultChecked: checked })}
           aria-invalid={error ? true : undefined}
           data-indeterminate={indeterminate ? '' : undefined}
           {...rest}
         />
-        <Svg name="check" size={14} className="checkbox-icon" />
-        {indeterminate && <Svg name="minus" size={14} className="checkbox-indeterminate-icon" />}
+        <Svg name="check" size={14} className="mo-checkbox__icon" />
+        {indeterminate && <Svg name="minus" size={14} className="mo-checkbox__indeterminate-icon" />}
       </span>
-      <span className="checkbox-text">
-        <span className="checkbox-label">{label}</span>
-        {line && <span className="checkbox-supporting">{line}</span>}
+      <span className="mo-checkbox__text">
+        <span className="mo-checkbox__label">{label}</span>
+        {line && <span className="mo-checkbox__supporting">{line}</span>}
       </span>
     </label>
   );

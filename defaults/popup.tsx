@@ -37,14 +37,14 @@ export function drawPopup(p: Record<string, any>, data: BlockData, part?: KindPa
     button: buttonOf(p, data),
   };
   return (
-    <div className="not-prose mx-auto max-w-md">
+    <div className="mo-is-not-prose mo-popup-preview">
       <PopupView popup={popup} Part={part?.View} part={part?.viewOf(p, data)} />
     </div>
   );
 }
 
 // An action bar ("Promotion", the kind "Action bar") as it looks on a phone (ActionBar.astro in the
-// theme): the same standard bottom sheet (BottomSheet, .theme-action-bar-drawn in styles/site-action.css: in its place,
+// theme): the same standard bottom sheet (BottomSheet, .mo-action-bar.mo-is-drawn in styles/site-action.css: in its place,
 // a phone wide) with the same toolbar row in it, its one or two items side by side, each a text (a list row of two lines: its heading over its text) or a button, the first button filled, the buttons with their own texts or those of their target
 // ("Book an appointment", "Call"), of what they open (a pop-up's heading, an app's booking sheet: "Book an appointment") or of their
 // page; the calendar for what books, the phone for "Call", the arrow after a page or a pop-up.
@@ -63,13 +63,13 @@ export function drawActionBar(p: Record<string, any>, data: BlockData) {
       dragHandle={false}
       states={['expanded']}
       label={siteT.theme.actions}
-      className="theme-action-bar-drawn not-prose"
+      className="mo-action-bar mo-is-drawn mo-is-not-prose"
     >
-      <Toolbar label={siteT.theme.actions} className="theme-action-bar-row">
+      <Toolbar label={siteT.theme.actions} className="mo-action-bar__row">
         {buttons.map((b, i) => {
           if (b.type === 'text')
             return (
-              <List key={i} dividers="none" className="theme-action-bar-text">
+              <List key={i} dividers="none" className="mo-action-bar__text">
                 <ListItem headline={String(b.heading ?? '').trim()} supporting={String(b.text ?? '').trim() || undefined} />
               </List>
             );

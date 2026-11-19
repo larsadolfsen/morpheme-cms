@@ -1,7 +1,7 @@
 // Writes theme/styles/tokens/<origin>/registry.css: an `@property` rule for each sys and ref token that has a plain default (docs/theme-token-files.md,
 // "Registered tokens"). A token registered with a syntax (`<color>`, `<length>`, `<number>`, `<time>`) drops a value that does not fit it, so a theme that sets
 // `--mo-sys-color-primary: banana` or `--mo-sys-shape-corner-large: 3 apples` gets today's default instead of a property that is invalid at computed time
-// (a plain `var(--x, fallback)` cannot do it: the faulty value is a valid custom property, so its fallback never applies).
+// (a plain `var()` with a fallback cannot do it: the faulty value is a valid custom property, so its fallback never applies).
 //
 // The initial value is the token's own default: the literal in its `:root` rule in the first token folder that declares it (base, then ui, blocks, lists,
 // cards, type, material, so a theme that imports only base.css never gets Material's value), and for the colour roles the standard colours (`defaultColors`,
@@ -21,6 +21,8 @@ import postcss from 'postcss';
 const root = fileURLToPath(new URL('..', import.meta.url));
 export const ORIGINS = ['base', 'ui', 'blocks', 'lists', 'cards', 'type', 'material'];
 const TOKENS = 'theme/styles/tokens';
+/** Plain tokens that stay unregistered on purpose: the breakpoint table (lib/breakpoints.mjs) is read in rem by the Preview, and a registered length computes to px. */
+const PLAIN = /^--mo-ref-breakpoint-/;
 
 /** The CSS type a literal default has, with the value to write as `initial-value`: `{ syntax, value }`, or null when the token is not registered. @param {string} v */
 export function typeOf(v) {
@@ -120,6 +122,7 @@ export async function registry() {
   const colors = await standardColors();
   const byOrigin = Object.fromEntries(ORIGINS.map((o) => [o, []]));
   for (const [name, byO] of Object.entries(found)) {
+    if (PLAIN.test(name)) continue;
     const origin = ORIGINS.find((o) => byO[o]);
     const roots = byO[origin].filter((d) => d.rootRule);
     if (roots.length !== 1 || relative(roots[0].value)) continue;

@@ -1,5 +1,5 @@
 // The logo and the icons, made in the browser from an image the owner picks (BrandForm.tsx).
-//   Logo: public/logo.svg, shown next to the name on the site as a CSS mask (base.css .logo-mark),
+//   Logo: public/logo.svg, shown next to the name on the site as a CSS mask (base.css .mo-logo-mark),
 //     so only its shape counts and it takes the site's colour. An SVG is kept with only what draws (cleanSvg); other
 //     images are put inside an SVG.
 //   Icon: public/favicon.svg (the browser tab, Google), public/favicon.ico (for what asks for that

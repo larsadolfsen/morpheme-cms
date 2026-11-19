@@ -173,7 +173,7 @@ export default function Keywords({ files }: { files: RepoFile[] }) {
   const sorts: Sort[] = counted ? ['az', 'za', 'most', 'fewest'] : ['az', 'za'];
 
   return (
-    <section className="space-y-6">
+    <section className="mo-editor-stack-300">
       <FormHeading>{t.keywords.title}</FormHeading>
       <SearchRow
         value={query}
@@ -191,7 +191,7 @@ export default function Keywords({ files }: { files: RepoFile[] }) {
         filter={<Filters title={t.library.filter} selected={chips.length > 0} groups={filters} />}
       />
       {chips.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="mo-editor-chips">
           {chips.map((c) => (
             <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
               {c.label}

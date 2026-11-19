@@ -57,9 +57,9 @@ const reasonOf = (view: View) =>
 /** A line of the status text, with its icon only where the icon means something (a warning, an update). */
 function StatusLine({ icon: Glyph, tone, children }: { icon?: Icon; tone?: 'accent'; children: ReactNode }) {
   return (
-    <p className={`flex items-start gap-2 ${tone ? 'text-primary' : ''}`}>
-      {Glyph && <Glyph aria-hidden size={20} className="shrink-0" />}
-      <span className="min-w-0 break-words">{children}</span>
+    <p className={`mo-editor-line ${tone ? 'mo-editor-primary-text' : ''}`}>
+      {Glyph && <Glyph aria-hidden size={20} className="mo-keep" />}
+      <span className="mo-editor-settings-wrap">{children}</span>
     </p>
   );
 }
@@ -72,7 +72,7 @@ function UpdateStatus({ update }: { update: NonNullable<View['update']> }) {
       <StatusLine icon={bad ? WarningCircle : undefined} tone={bad ? 'accent' : undefined}>
         {t.cms[update.state](update.to)}
       </StatusLine>
-      <p className="text-sm text-on-surface-variant">{when(new Date(update.at))}</p>
+      <p className="mo-editor-small-note">{when(new Date(update.at))}</p>
     </div>
   );
 }
@@ -129,13 +129,11 @@ export default function CmsPage() {
               <LineNav line={runningLine} />
             </>
           )}
-          <section className="mb-6 max-w-prose space-y-3 px-4 text-base not-first:mt-8">
+          <section className="mo-editor-notes">
             <div>
               <p>{t.cms.running(view.running)}</p>
-              {!view.latest && <p className="text-sm text-on-surface-variant">{t.cms.upToDate}</p>}
-              <p className="text-sm text-on-surface-variant">
-                {view.checkedAt ? t.cms.checked(when(new Date(view.checkedAt))) : t.cms.notChecked}
-              </p>
+              {!view.latest && <p className="mo-editor-small-note">{t.cms.upToDate}</p>}
+              <p className="mo-editor-small-note">{view.checkedAt ? t.cms.checked(when(new Date(view.checkedAt))) : t.cms.notChecked}</p>
             </div>
             {view.update && <UpdateStatus update={view.update} />}
             {view.latest && (
@@ -143,13 +141,13 @@ export default function CmsPage() {
                 <StatusLine icon={Sparkle} tone="accent">
                   {t.cms.available(view.latest)}
                 </StatusLine>
-                {reason && <p className="text-sm text-on-surface-variant">{reason}</p>}
+                {reason && <p className="mo-editor-small-note">{reason}</p>}
               </div>
             )}
             {view.npmCommand && (
               <div>
                 <p>{t.cms.needsNpm}</p>
-                <p className="text-sm text-on-surface-variant">
+                <p className="mo-editor-small-note">
                   <code>{view.npmCommand}</code>
                 </p>
               </div>

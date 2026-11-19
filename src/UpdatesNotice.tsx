@@ -64,7 +64,7 @@ function PhotoCredit({ by, line }: { by: string | null; line: string }) {
   useEffect(() => () => clearTimeout(leave.current), []);
   return (
     <div
-      className="-my-3 -ms-2.5 inline-flex align-middle"
+      className="mo-editor-photo-credit"
       onMouseEnter={show}
       onMouseLeave={hide}
       onFocus={show}
@@ -73,7 +73,7 @@ function PhotoCredit({ by, line }: { by: string | null; line: string }) {
       <SiteTooltip
         open={open}
         // Only `open` shows it: not the theme's fallback on hover and focus, which Escape could not close.
-        className="[&:not([data-tooltip-open])>.tooltip]:invisible [&:not([data-tooltip-open])>.tooltip]:opacity-0 [&>.tooltip]:start-auto [&>.tooltip]:end-0 [&>.tooltip]:top-[calc(100%-0.5rem)] [&>.tooltip]:bottom-auto [&>.tooltip]:max-w-60"
+        className="mo-editor-photo-credit-tooltip"
         supportingText={by ? t.library.photoBy(by) : t.library.photoFromUnsplash}
         action={{ label: t.library.photoLicense, href: `#${LICENSES_ROUTE}/${encodeURIComponent(`editions/${line}`)}` }}
       >
@@ -82,7 +82,7 @@ function PhotoCredit({ by, line }: { by: string | null; line: string }) {
           aria-label={t.library.photoInfo}
           aria-expanded={open}
           onClick={() => (open && Date.now() - openedAt.current < 400 ? undefined : open ? setOpen(false) : show())}
-          className="grid size-12 place-items-center rounded-full text-on-surface-variant focus-visible:outline-2 focus-visible:outline-offset-[-8px]"
+          className="mo-editor-photo-credit-button"
         >
           <Svg name="info" size={20} />
         </button>
@@ -119,34 +119,25 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       : t.library.cmsVersion(cms.version)
     : t.library.appsUpdated(updatedApps.length);
   return (
-    <SiteCard
-      kind="elevated"
-      as="section"
-      role="status"
-      aria-labelledby="updates-title"
-      className="mb-8 [--mo-comp-card-padding:0] [--mo-comp-elevated-card-container-elevation:var(--mo-sys-elevation-level1-shadow)]"
-    >
-      <div className="grid overflow-hidden rounded-[inherit] medium:grid-cols-[minmax(10rem,14rem)_1fr]">
+    <SiteCard kind="elevated" as="section" role="status" aria-labelledby="updates-title" className="mo-editor-updates-notice">
+      <div className="mo-editor-updates-notice-body">
         {edition && (
-          <div className="relative aspect-[3/2] w-full overflow-hidden medium:aspect-auto medium:min-h-36">
-            <img src={edition.image} alt="" className="absolute inset-0 size-full rounded-xl object-cover" />
+          <div className="mo-editor-updates-notice-photo">
+            <img src={edition.image} alt="" className="mo-editor-updates-notice-image" />
           </div>
         )}
-        <div className="flex min-w-0 flex-col p-4">
-          <h2
-            id="updates-title"
-            className="text-[length:var(--mo-sys-typescale-headline-small-size)] leading-[var(--mo-sys-typescale-headline-small-line-height)] [overflow-wrap:anywhere]"
-          >
+        <div className="mo-editor-updates-notice-text">
+          <h2 id="updates-title" className="mo-editor-updates-notice-title">
             {title}
           </h2>
           {place && (
-            <p className="mt-1 text-sm">
+            <p className="mo-editor-updates-notice-place">
               {place}
               <PhotoCredit by={edition.by} line={edition.line} />
             </p>
           )}
-          {news.length > 0 && <p className="mt-2 text-sm text-on-surface-variant">{t.library.noteCounts(features, improvements)}</p>}
-          <div className="mt-auto flex flex-wrap justify-end gap-2 pt-4">
+          {news.length > 0 && <p className="mo-editor-updates-notice-counts">{t.library.noteCounts(features, improvements)}</p>}
+          <div className="mo-editor-updates-notice-actions">
             <Button kind="text" size="small" onClick={close}>
               {t.common.close}
             </Button>
@@ -159,7 +150,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
         </div>
       </div>
       {updatedApps.length > 0 && (
-        <ul className={`${plainListClass} border-t border-outline-variant`}>
+        <ul className={`${plainListClass} mo-editor-updates-notice-apps`}>
           {updatedApps.map(({ app, version }) => (
             <ListItem
               key={app.id}

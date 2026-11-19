@@ -1,13 +1,13 @@
 /*
-  Snackbars (Snackbar, snackbarClass; m3.material.io/components/snackbar): .snackbar-stack holds them at the bottom of
+  Snackbars (Snackbar, snackbarClass; m3.material.io/components/snackbar): .mo-snackbar__stack holds them at the bottom of
   the screen, the newest lowest (@morphemecms/cms/lib/snackbar.ts, which draws the editor's messages and shows the site's);
-  .snackbar with .snackbar-supporting-text, its links (.snackbar-link, with an arrow) and optionally .snackbar-actions (the
-  action, a text button, .snackbar-action, and the close button, a standard icon button, .snackbar-close), under the
-  text with .snackbar-longer-action. The buttons on it get the snackbar's colours.
-    --mo-comp-snackbar-container-color, --mo-comp-snackbar-supporting-text-color, --mo-comp-snackbar-container-shape, --snackbar-shadow, --mo-comp-snackbar-backdrop (the blur behind it)
-    --mo-comp-snackbar-padding-block, --snackbar-padding-inline, --snackbar-max-width, --snackbar-font-size,
-    --snackbar-line-height, --snackbar-link-weight
-    --mo-comp-snackbar-action-label-text-color, --mo-comp-snackbar-action-hover, --snackbar-close-text, --snackbar-close-size
+  .mo-snackbar with .mo-snackbar__supporting-text, its links (.mo-snackbar__link, with an arrow) and optionally .mo-snackbar__actions (the
+  action, a text button, .mo-snackbar__action, and the close button, a standard icon button, .mo-snackbar__close), under the
+  text with .mo-snackbar__longer-action. The buttons on it get the snackbar's colours.
+    --mo-comp-snackbar-container-color, --mo-comp-snackbar-supporting-text-color, --mo-comp-snackbar-container-shape, --mo-comp-snackbar-shadow, --mo-comp-snackbar-backdrop (the blur behind it)
+    --mo-comp-snackbar-padding-block, --mo-comp-snackbar-padding-inline, --mo-comp-snackbar-max-width, --mo-comp-snackbar-font-size,
+    --mo-comp-snackbar-line-height, --mo-comp-snackbar-link-weight
+    --mo-comp-snackbar-action-label-text-color, --mo-comp-snackbar-action-hover, --mo-comp-snackbar-close-text, --mo-comp-snackbar-close-size
   Moved here from ui.css with its rules, its @layer fallback block and its keyframes unchanged and in their order; imported by base.css right after
   ui.css, in the same layers. No other rule sets the same property on a snackbar at the same specificity, so the position does not change what wins
   (docs/superpowers/plans/2026-11-16-css-split.md).
@@ -15,7 +15,7 @@
 @layer components {
   /* Snackbars: where they stand (lib/snackbar.ts puts them there), above an app's bar at the bottom of a phone's screen
      (data-action-bar) and the save bar in the editor (editor.css). */
-  .snackbar-stack {
+  .mo-snackbar__stack {
     pointer-events: none;
     position: fixed;
     inset-inline: 0;
@@ -33,74 +33,74 @@
     background-color: transparent;
     padding: 0 1rem;
   }
-  @media (width < theme(--breakpoint-medium)) {
-    body:has([data-action-bar]) .snackbar-stack {
+  @media (width < 37.5rem) {
+    body:has([data-action-bar]) .mo-snackbar__stack {
       bottom: calc(6.5rem + env(safe-area-inset-bottom));
     }
   }
   /* A snackbar (m3.material.io/components/snackbar): the standard look a dark surface seen through, the same in light
      and dark mode (as a shadow's colour, the one written here), in the middle of the screen. */
-  .snackbar {
+  .mo-snackbar {
     pointer-events: auto;
-    max-width: var(--snackbar-max-width, 28rem);
+    max-width: var(--mo-comp-snackbar-max-width, 28rem);
     cursor: default;
     border-radius: var(--mo-comp-snackbar-container-shape, 1rem);
     background: var(--mo-comp-snackbar-container-color, var(--mo-sys-color-inverse-surface));
-    padding: var(--mo-comp-snackbar-padding-block, 0.75rem) var(--snackbar-padding-inline, 1rem);
+    padding: var(--mo-comp-snackbar-padding-block, 0.75rem) var(--mo-comp-snackbar-padding-inline, 1rem);
     color: var(--mo-comp-snackbar-supporting-text-color, var(--mo-sys-color-inverse-on-surface));
-    font-size: var(--snackbar-font-size, var(--mo-sys-typescale-body-medium-size));
+    font-size: var(--mo-comp-snackbar-font-size, var(--mo-sys-typescale-body-medium-size));
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    line-height: var(--snackbar-line-height, var(--mo-sys-typescale-body-medium-line-height));
-    box-shadow: var(--snackbar-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+    line-height: var(--mo-comp-snackbar-line-height, var(--mo-sys-typescale-body-medium-line-height));
+    box-shadow: var(--mo-comp-snackbar-shadow, var(--mo-sys-elevation-level3-rest-shadow));
     -webkit-backdrop-filter: var(--mo-comp-snackbar-backdrop, blur(8px));
     backdrop-filter: var(--mo-comp-snackbar-backdrop, blur(8px));
     -webkit-user-select: none;
     user-select: none;
     touch-action: pan-y;
   }
-  .snackbar-link {
+  .mo-snackbar__link {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    font-weight: var(--snackbar-link-weight, 500);
+    font-weight: var(--mo-comp-snackbar-link-weight, 500);
     text-decoration-line: underline;
     text-underline-offset: 2px;
   }
   /* With an action or a close button: the text and then the buttons, in the middle of its height; under the text with
      a longer action. */
-  .snackbar:has(> .snackbar-actions) {
+  .mo-snackbar:has(> .mo-snackbar__actions) {
     display: flex;
     align-items: center;
     gap: 0 0.5rem;
     padding-block: 0.25rem;
     padding-inline-end: 0.25rem;
   }
-  .snackbar:has(> .snackbar-actions) > .snackbar-supporting-text {
+  .mo-snackbar:has(> .mo-snackbar__actions) > .mo-snackbar__supporting-text {
     flex: 1 1 auto;
     min-width: 0;
     padding-block: calc(var(--mo-comp-snackbar-padding-block, 0.75rem) - 0.25rem);
   }
-  .snackbar-actions {
+  .mo-snackbar__actions {
     display: flex;
     flex-shrink: 0;
     align-items: center;
     gap: 0.25rem;
   }
-  .snackbar.snackbar-longer-action {
+  .mo-snackbar.mo-snackbar__longer-action {
     flex-direction: column;
     align-items: stretch;
   }
-  .snackbar-longer-action > .snackbar-supporting-text {
-    padding-inline-end: calc(var(--snackbar-padding-inline, 1rem) - 0.25rem);
+  .mo-snackbar__longer-action > .mo-snackbar__supporting-text {
+    padding-inline-end: calc(var(--mo-comp-snackbar-padding-inline, 1rem) - 0.25rem);
     padding-bottom: 0;
   }
-  .snackbar-longer-action > .snackbar-actions {
+  .mo-snackbar__longer-action > .mo-snackbar__actions {
     justify-content: flex-end;
   }
 }
 @layer fallback {
   @media (prefers-reduced-motion: no-preference) {
-    .snackbar {
+    .mo-snackbar {
       animation: snackbar-in var(--mo-sys-motion-spring-default-spatial);
     }
   }

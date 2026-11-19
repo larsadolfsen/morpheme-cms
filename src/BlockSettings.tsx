@@ -125,11 +125,11 @@ function Looks({ children, note }: { children: ReactNode; note: (blank: boolean)
   }, [children]);
   return (
     <div>
-      <p className="mb-2 font-medium">{t.blockSettings.looks}</p>
+      <p className="mo-editor-block-label">{t.blockSettings.looks}</p>
       <div ref={box} hidden={blank}>
         <Preview>{children}</Preview>
       </div>
-      <SupportingText className={blank ? '' : 'mt-2'}>{note(blank)}</SupportingText>
+      <SupportingText className={blank ? '' : 'mo-editor-hint-space'}>{note(blank)}</SupportingText>
     </div>
   );
 }
@@ -190,7 +190,7 @@ function OnOffSwitch({ id, count, texts, env, files }: { id: string; count: numb
   return (
     <div>
       <SwitchRow label={texts.label} selected={on} disabled={stuck || saving} onChange={turn} />
-      <SupportingText className="mt-2">{stuck ? texts.stuck : on ? texts.onHint : texts.offHint}</SupportingText>
+      <SupportingText className="mo-editor-hint-space">{stuck ? texts.stuck : on ? texts.onHint : texts.offHint}</SupportingText>
     </div>
   );
 }
@@ -455,14 +455,14 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
   // What the sheet shows, in the side sheet from 600 dp and in the sheet from the bottom below it.
   const sheetBody = (shown: NonNullable<typeof sheet>) => (
     <>
-      <div className="flex items-start gap-3">
+      <div className="mo-editor-about-row">
         <LeadingIcon icon={shown.icon} />
-        <p className="pt-1.5 text-on-surface-variant">{shown.about}</p>
+        <p className="mo-editor-about-text">{shown.about}</p>
       </div>
       {shown.looks}
       {shown.toggle}
       <div>
-        <p className="mb-1 font-medium">{shown.usedTitle}</p>
+        <p className="mo-editor-used-title">{shown.usedTitle}</p>
         {shown.used.length ? (
           <ul className={listClass}>
             {shown.used.map((u) => (
@@ -470,7 +470,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
             ))}
           </ul>
         ) : (
-          <p className="text-on-surface-variant">{shown.none}</p>
+          <p className="mo-editor-settings-muted">{shown.none}</p>
         )}
       </div>
     </>
@@ -492,10 +492,10 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
           />
         }
         filter={filters.length > 0 && <Filters title={t.library.filter} selected={chips.length > 0} groups={filters} />}
-        className="mb-6"
+        className="mo-editor-settings-group"
       />
       {chips.length > 0 && (
-        <div className="-mt-2 mb-6 flex flex-wrap gap-2">
+        <div className="mo-editor-filter-row">
           {chips.map((c) => (
             <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
               {c.label}
@@ -503,10 +503,10 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
           ))}
         </div>
       )}
-      <div className="medium:flex medium:items-start medium:gap-6">
-        <div className="min-w-0 flex-1">
+      <div className="mo-editor-split">
+        <div className="mo-fill">
           {!found.length && !(sort === 'group' && inGroups.some((g) => g.empty)) ? (
-            <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
+            <p className="mo-editor-no-match">{t.common.noMatch}</p>
           ) : sort === 'group' ? (
             inGroups
               .filter((g) => g.rows.length || g.empty)

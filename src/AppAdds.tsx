@@ -70,7 +70,7 @@ function SwitchedRow({
       headline={add.label}
       supporting={add.hint}
       actions={
-        <span className="shrink-0 pr-4">
+        <span className="mo-editor-list-action">
           <Switch
             label={t.apps.activeOf(add.label)}
             selected={on}
@@ -146,9 +146,9 @@ export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: En
   // What the add-on shows: what it is, its switch and where it is used.
   const details = open && (
     <>
-      <div className="flex items-start gap-3">
+      <div className="mo-editor-app-intro">
         <LeadingIcon icon={open.icon} />
-        <p className="pt-1.5 text-on-surface-variant">{open.hint ?? open.label}</p>
+        <p className="mo-editor-app-intro-text">{open.hint ?? open.label}</p>
       </div>
       {open.block ? (
         <BlockSwitch block={open.block} env={env} files={files} />
@@ -161,7 +161,7 @@ export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: En
         </LinkButton>
       )}
       <div>
-        <p className="mb-1 font-medium">{t.apps.used}</p>
+        <p className="mo-editor-subtitle-tight">{t.apps.used}</p>
         {open.uses.length ? (
           <ul className={listClass}>
             {open.uses.map((u) => (
@@ -169,7 +169,7 @@ export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: En
             ))}
           </ul>
         ) : (
-          <p className="text-on-surface-variant">{t.apps.notUsed}</p>
+          <p className="mo-editor-muted">{t.apps.notUsed}</p>
         )}
       </div>
     </>
@@ -186,7 +186,7 @@ export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: En
           opener: opener.current,
           onBack: () => void closeIt(),
           backLabel: t.common.back,
-          children: <div className="space-y-5">{details}</div>,
+          children: <div className="mo-editor-stack-250">{details}</div>,
         }
       : null,
   );

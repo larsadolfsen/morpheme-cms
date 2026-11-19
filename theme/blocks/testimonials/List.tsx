@@ -1,6 +1,6 @@
 // The layout List of "Testimonials" (`layout` 'list'): the theme's list (List.tsx in ../../ui/, as "List"), each testimonial an item with its image (or the name's first
 // letter) leading it, its name as the headline, its whole text as the supporting text (its introduction over it as the overline) and its tags
-// after it. With `filters` (two tags or more), filter chips (Chip) over the list (.block-filters): one shows only the testimonials with that
+// after it. With `filters` (two tags or more), filter chips (Chip) over the list (.mo-block-testimonials__filters): one shows only the testimonials with that
 // tag, "All" all of them again (on the site by script.ts; without JavaScript all are shown and the buttons are hidden; in
 // the editor only drawn, "All" chosen). Each has its anchor, so a short one elsewhere can link to it.
 import { siteT } from '@morphemecms/cms/src/i18n';
@@ -24,18 +24,18 @@ export default function List({
   oneColumn?: boolean;
 }) {
   const onSite = useOnSite();
-  if (testimonials.length === 0 && !onSite) return <p className="block-empty">{say.none}</p>;
+  if (testimonials.length === 0 && !onSite) return <p className="mo-block-testimonials__empty">{say.none}</p>;
   return (
-    <div className={className ? `block-testimonials ${className}` : 'block-testimonials'} data-testimonial-filter="">
+    <div className={className ? `mo-block-testimonials ${className}` : 'mo-block-testimonials'} data-testimonial-filter="">
       {filters.length > 1 && (
-        <div className="block-filters" role="group" aria-label={say.filterLabel} hidden={onSite} data-filters="">
+        <div className="mo-block-testimonials__filters" role="group" aria-label={say.filterLabel} hidden={onSite} data-filters="">
           <Chip kind="filter" label={say.filterAll} selected data-tag="" />
           {filters.map((tag) => (
             <Chip key={tag.slug} kind="filter" label={tag.name} data-tag={tag.slug} />
           ))}
         </div>
       )}
-      <RowList className="block-testimonial-rows" data-columns={oneColumn ? 'one' : undefined}>
+      <RowList className="mo-block-testimonials__testimonial-rows" data-columns={oneColumn ? 'one' : undefined}>
         {testimonials.map((t) => (
           <ListItem
             key={t.slug}

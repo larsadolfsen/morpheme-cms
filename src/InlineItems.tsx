@@ -60,7 +60,7 @@ export function InlineField({
     <textarea
       rows={1}
       data-field={name}
-      className="inline-list-field"
+      className="mo-editor-inline-list-field"
       value={value}
       aria-label={label}
       placeholder={placeholder}
@@ -137,7 +137,7 @@ export function foldOf(i: number, here: boolean, folds?: Record<number, boolean>
         // The row is drawn open or closed by its state, never by the browser's own toggle.
         e.preventDefault();
         if (!onFold) return;
-        const icon = e.currentTarget.querySelector('.list-item-expand-icon')?.getBoundingClientRect();
+        const icon = e.currentTarget.querySelector('.mo-list__item-expand-icon')?.getBoundingClientRect();
         const chevron = !!icon && e.clientX >= icon.left - 4 && e.clientX <= icon.right + 4 && e.detail > 0;
         // Enter or Space on the head itself gives a click with no pointer (detail 0) whose target is the head.
         const key = e.detail === 0 && e.target === e.currentTarget;
@@ -154,7 +154,7 @@ export function foldOf(i: number, here: boolean, folds?: Record<number, boolean>
 /** The text button under the last item (`Add card`), shown while the block is active and has an item. */
 export function InlineAdd({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <SiteButton kind="text" data-add-row="" className="inline-list-add" onClick={onClick}>
+    <SiteButton kind="text" data-add-row="" className="mo-editor-inline-list-add" onClick={onClick}>
       {label}
     </SiteButton>
   );
@@ -295,7 +295,7 @@ export default function InlineItems({
   });
 
   return (
-    <div ref={root} className="inline-list-host">
+    <div ref={root} className="mo-editor-inline-list-host">
       {wrap ? wrap(body) : body}
       {editing && items.length > 0 && room && <InlineAdd label={add} onClick={() => addAfter(items.length - 1)} />}
     </div>

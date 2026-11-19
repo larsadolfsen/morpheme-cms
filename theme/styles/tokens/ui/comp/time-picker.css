@@ -1,7 +1,7 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  .time-picker-dial {
-    --mo-comp-time-picker-ring: calc(var(--time-picker-dial-size, 16rem) / 2 - var(--time-picker-dial-knob, 3rem) / 2);
+  .mo-time-picker__dial {
+    --mo-comp-time-picker-ring: calc(var(--mo-comp-time-picker-dial-size, 16rem) / 2 - var(--mo-comp-time-picker-dial-knob, 3rem) / 2);
   }
 }

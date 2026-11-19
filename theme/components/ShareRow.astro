@@ -26,7 +26,7 @@ const buttonClass = iconButtonClass('standard');
 ---
 
 {links.length > 0 && (
-  <div role="group" aria-label={siteT.theme.share} class="flex items-center gap-x-2">
+  <div role="group" aria-label={siteT.theme.share} class="mo-share">
     {links.map(({ id, href }) =>
       id === 'copy-link' ? (
         <button

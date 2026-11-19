@@ -15,37 +15,41 @@
 
   // A part of the theme by its class (theme/ui writes one for each, and one for its style): its name, then what is shown after `·`.
   // The first rule that matches an element wins.
-  const kind = (el, prefix) => [...el.classList].find((c) => c.startsWith(`${prefix}-`))?.slice(prefix.length + 1);
+  const kind = (el, prefix) => {
+    const part = `mo-${prefix}__`;
+    const c = [...el.classList].find((n) => n.startsWith(part) || n.startsWith('mo-is-'));
+    return c?.startsWith(part) ? c.slice(part.length) : c?.slice('mo-is-'.length);
+  };
   const named = (name, prefix) => (el) => {
     const style = kind(el, prefix);
     return style ? `${name} · ${style}` : name;
   };
   const PARTS = [
-    ['.button-group', named('ButtonGroup', 'button-group')],
-    ['.split-button', () => 'SplitButton'],
-    ['.button', named('Button', 'button')],
-    ['.icon-button', named('IconButton', 'icon-button')],
-    ['.fab', () => 'Fab'],
-    ['.card', named('Card', 'card')],
-    ['.chip-set', () => 'ChipSet'],
-    ['.chip', named('Chip', 'chip')],
-    ['.list-item-container', (el) => `ListItem · ${[...el.classList].find((c) => /^list-item-(one|two|three)-line$/.test(c))?.slice(10) ?? 'one-line'}`],
-    ['.list', (el) => (el.classList.contains('list-segmented') ? 'List · segmented' : 'List')],
-    ['.carousel', () => 'Carousel'],
-    ['.text-field', named('TextField', 'text-field')],
-    ['.switch', () => 'Switch'],
-    ['.checkbox', () => 'Checkbox'],
-    ['.radio-button', () => 'RadioButton'],
-    ['.slider', () => 'Slider'],
-    ['.segmented-button', () => 'SegmentedButton'],
-    ['.tabs', named('Tabs', 'tabs')],
-    ['.badge', named('Badge', 'badge')],
-    ['.divider', () => 'Divider'],
-    ['.snackbar', () => 'Snackbar'],
-    ['.tooltip-anchor', () => 'Tooltip'],
-    ['.video-facade', () => 'Video facade'],
+    ['.mo-button-group', named('ButtonGroup', 'button-group')],
+    ['.mo-split-button', () => 'SplitButton'],
+    ['.mo-button', named('Button', 'button')],
+    ['.mo-icon-button', named('IconButton', 'icon-button')],
+    ['.mo-fab', () => 'Fab'],
+    ['.mo-card', named('Card', 'card')],
+    ['.mo-chip__set', () => 'ChipSet'],
+    ['.mo-chip', named('Chip', 'chip')],
+    ['.mo-list__item-container', (el) => `ListItem · ${[...el.classList].find((c) => /^mo-list__item-(one|two|three)-line$/.test(c))?.slice(14) ?? 'one-line'}`],
+    ['.mo-list', (el) => (el.classList.contains('mo-list__segmented') ? 'List · segmented' : 'List')],
+    ['.mo-carousel', () => 'Carousel'],
+    ['.mo-text-field', named('TextField', 'text-field')],
+    ['.mo-switch', () => 'Switch'],
+    ['.mo-checkbox', () => 'Checkbox'],
+    ['.mo-radio-button', () => 'RadioButton'],
+    ['.mo-slider', () => 'Slider'],
+    ['.mo-segmented-button', () => 'SegmentedButton'],
+    ['.mo-tabs', named('Tabs', 'tabs')],
+    ['.mo-badge', named('Badge', 'badge')],
+    ['.mo-divider', () => 'Divider'],
+    ['.mo-snackbar', () => 'Snackbar'],
+    ['.mo-tooltip__anchor', () => 'Tooltip'],
+    ['.mo-block-video__facade', () => 'Video facade'],
   ];
-  // A theme's part has more than one class (`button`, `button-filled`): `.list-item-container` must not take `.list`, so each rule is
+  // A theme's part has more than one class (`mo-button`, `mo-is-filled`): `.mo-list__item-container` must not take `.mo-list`, so each rule is
   // matched on the element's own class list, never on a parent's.
   const partOf = (el) => {
     for (const [selector, label] of PARTS) if (el.matches(selector)) return label(el);
@@ -53,7 +57,7 @@
   };
 
   // What a block draws beside itself in the text (its "more" button): it has the block's space, but it is not a block of its own.
-  const EXTRA = '.block-list-button, .block-more-button, .block-buttons-row';
+  const EXTRA = '.mo-block-list__button, .mo-block-more__button, .mo-block-buttons__row';
 
   const read = () => {
     const q = new URLSearchParams(location.search);
@@ -78,10 +82,10 @@
   let layer;
   let queued = false;
 
-  /** The elements to label: the blocks in the text (`.block-in-text` that is not inside another one), then the theme's parts. */
+  /** The elements to label: the blocks in the text (`.mo-is-in-text` that is not inside another one), then the theme's parts. */
   const targets = () => {
     const main = document.querySelector('main') ?? document.body;
-    const roots = [...main.querySelectorAll('.block-in-text')].filter((el) => !el.parentElement?.closest('.block-in-text') && !el.matches(EXTRA));
+    const roots = [...main.querySelectorAll('.mo-is-in-text')].filter((el) => !el.parentElement?.closest('.mo-is-in-text') && !el.matches(EXTRA));
     const found = [];
     roots.forEach((el, i) => {
       const [type, name] = blocks[i] ?? [];
@@ -177,7 +181,7 @@
 
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'button button-outlined button-xsmall';
+  button.className = 'mo-button mo-is-outlined mo-button__xsmall';
   button.dataset.demoNames = 'toggle';
   button.textContent = 'Names';
   const show = () => {
@@ -198,7 +202,7 @@
     document.body.append(layer);
     // The button goes in the footer, next to the theme's own switch, where it covers no content; a page without that footer has it
     // at the bottom of the window.
-    const bar = document.querySelector('.md-footer-bottom > div');
+    const bar = document.querySelector('.mo-footer__bottom > div');
     if (bar) bar.prepend(button);
     else {
       Object.assign(button.style, { position: 'fixed', left: '1rem', bottom: '1rem', zIndex: '2147483001' });

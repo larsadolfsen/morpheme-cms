@@ -288,7 +288,13 @@ export function Apps({ env, files, role }: { env: Env; files: RepoFile[]; role?:
 
   return (
     <Screen title={title} wide back={backFrom('apps')}>
-      <SearchRow value={query} onChange={setQuery} label={t.common.searchIn(title)} sort={sortChoice(sort, pickSort)} className="mb-6" />
+      <SearchRow
+        value={query}
+        onChange={setQuery}
+        label={t.common.searchIn(title)}
+        sort={sortChoice(sort, pickSort)}
+        className="mo-editor-app-list-search"
+      />
       {groups.length ? (
         groups.map((g) => (
           <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
@@ -307,7 +313,7 @@ export function Apps({ env, files, role }: { env: Env; files: RepoFile[]; role?:
           </Group>
         ))
       ) : !role || rows.some((a) => a.role === role) ? (
-        <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
+        <p className="mo-editor-app-list-empty">{t.common.noMatch}</p>
       ) : (
         <EmptyNote>{t.apps.noneInstalled(title)}</EmptyNote>
       )}
@@ -385,11 +391,11 @@ export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; fi
   return (
     <Screen title={name ?? t.apps.developer} wide back={backToStore}>
       {name && (
-        <div className="mb-8 flex items-center gap-3 px-4">
+        <div className="mo-editor-app-list-owner">
           <LeadingIcon icon={UserCircle} />
-          <span className="min-w-0 flex-1">
-            <span className="block truncate font-medium">{name}</span>
-            <span className="block truncate text-sm text-on-surface-variant">
+          <span className="mo-editor-app-list-owner-text">
+            <span className="mo-truncate mo-editor-app-list-name">{name}</span>
+            <span className="mo-truncate mo-editor-app-list-meta">
               {[theirs.length && t.apps.appCount(theirs.length), theirThemes.length && t.library.themeCount(theirThemes.length)]
                 .filter(Boolean)
                 .join(' · ')}
@@ -502,7 +508,7 @@ function StoreScreen({
       {/* The site's own are shown also when the store cannot be read. */}
       <StoreNotice connected={connected} read={catalog} mayChange={key?.mayChange ?? false} again={again} />
       {catalog === null ? null : !appGroups.length ? (
-        <p className="mb-8 px-1 text-on-surface-variant">{t.common.noMatch}</p>
+        <p className="mo-editor-app-list-empty">{t.common.noMatch}</p>
       ) : (
         appGroups.map((g) => (
           <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
@@ -759,17 +765,17 @@ function AppHead({
   hint: string;
 }) {
   return (
-    <div className="mb-8 px-4">
-      <div className="flex items-center gap-3">
+    <div className="mo-editor-app-list-heading">
+      <div className="mo-editor-app-list-title-row">
         {icon}
-        <span className="min-w-0 flex-1">
-          <span className="block truncate font-medium">{label}</span>
-          <span className="block truncate text-sm text-on-surface-variant">{t.apps.publisher(publisher)}</span>
-          <span className="block truncate text-sm text-on-surface-variant">{status}</span>
-          {version && <span className="block truncate text-sm text-on-surface-variant">{t.apps.version(version)}</span>}
+        <span className="mo-editor-app-list-owner-text">
+          <span className="mo-truncate mo-editor-app-list-name">{label}</span>
+          <span className="mo-truncate mo-editor-app-list-meta">{t.apps.publisher(publisher)}</span>
+          <span className="mo-truncate mo-editor-app-list-meta">{status}</span>
+          {version && <span className="mo-truncate mo-editor-app-list-meta">{t.apps.version(version)}</span>}
         </span>
       </div>
-      <p className="mt-3 text-on-surface-variant">{hint}</p>
+      <p className="mo-editor-app-list-hint">{hint}</p>
     </div>
   );
 }
@@ -821,7 +827,7 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
             hint={app.hint}
           />
           {!pending && (
-            <div className="mb-8">
+            <div className="mo-editor-app-list-actions">
               <Button disabled={saving} busy={busy(app.id, 'install')} onClick={() => install(app)}>
                 {t.apps.install}
               </Button>
@@ -869,7 +875,7 @@ export function StoreAppPage({ id, env, files }: { id: string; env: Env; files: 
           >
             {t.apps.uninstall}
           </Button>
-          <SupportingText className="mt-2">{t.apps.pendingHint}</SupportingText>
+          <SupportingText className="mo-editor-app-list-pending">{t.apps.pendingHint}</SupportingText>
         </div>
       ) : null}
     </Screen>
@@ -1023,7 +1029,7 @@ function AppContent({ app, env, files, tab, fields }: AppProps & { tab: AppTab; 
         hint={app.hint}
       />
       {(!on || (update && app.store)) && (
-        <div className="mb-8">
+        <div className="mo-editor-app-list-actions">
           {on ? (
             <Button disabled={saving} busy={store.busy(app.id, 'update')} onClick={() => store.update(update!, app.store!)}>
               {t.apps.update(update!.version)}

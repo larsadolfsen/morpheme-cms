@@ -1,4 +1,4 @@
-// A navigation drawer (m3.material.io/components/navigation-drawer, .navigation-drawer in ../styles/ui/navigation-drawer.css), at the
+// A navigation drawer (m3.material.io/components/navigation-drawer, .mo-navigation-drawer in ../styles/ui/navigation-drawer.css), at the
 // start edge (at the end edge with navigationDrawerEndClass; navigationDrawerBleedClass for one that springs in): the site's pages in a panel over the page (components/MobileMenu.tsx, and a theme's own menu), over its
 // scrim (navigationDrawerScrimClass). Its pages are items (NavigationDrawerItem, `active`: the open page or the one
 // holding it), an item with sub-pages is a row (NavigationDrawerRow) with the button that unfolds them after it
@@ -29,19 +29,19 @@ export { focusNavigationDrawerItem, navigationDrawerKeys } from './navigationDra
 export type NavigationDrawerVariant = 'modal' | 'standard';
 
 /** The drawer's class, and its scrim's. */
-export const navigationDrawerClass = 'navigation-drawer';
-export const navigationDrawerScrimClass = 'navigation-drawer-scrim';
+export const navigationDrawerClass = 'mo-navigation-drawer';
+export const navigationDrawerScrimClass = 'mo-navigation-drawer__scrim';
 /** A modal drawer at the end edge of the screen (the right; the left in right-to-left languages): its corners mirrored. */
-export const navigationDrawerEndClass = 'navigation-drawer-end';
+export const navigationDrawerEndClass = 'mo-navigation-drawer__end';
 /** A modal drawer that springs in, on the drawer or on the <dialog> it is in: a strip of it off the screen at its edge, so
  * an overshooting spring shows no gap. */
-export const navigationDrawerBleedClass = 'navigation-drawer-bleed';
+export const navigationDrawerBleedClass = 'mo-navigation-drawer__bleed';
 /** The class of a <dialog> the drawer is in: at the start of the screen, as high as it, over its scrim. */
-export const navigationDrawerDialogClass = 'navigation-drawer-dialog';
+export const navigationDrawerDialogClass = 'mo-navigation-drawer__dialog';
 
 /** The drawer's classes with its variant: `modal` (the default) over a scrim, `standard` beside the content, full height. */
 export const navigationDrawerClasses = (variant: NavigationDrawerVariant = 'modal') =>
-  [navigationDrawerClass, variant === 'standard' && 'navigation-drawer-standard'].filter(Boolean).join(' ');
+  [navigationDrawerClass, variant === 'standard' && 'mo-navigation-drawer__standard'].filter(Boolean).join(' ');
 
 export function NavigationDrawer({
   variant = 'modal',
@@ -73,10 +73,10 @@ export function NavigationDrawer({
  * divider (drawn by the section that has one before it, shown by the theme), never between single items. */
 export function NavigationDrawerSection({ label, children }: { label?: string; children: ReactNode }) {
   return (
-    <div className="navigation-drawer-section" role={label ? 'group' : undefined} aria-label={label}>
-      <Divider className="navigation-drawer-section-divider" />
+    <div className="mo-navigation-drawer__section" role={label ? 'group' : undefined} aria-label={label}>
+      <Divider className="mo-navigation-drawer__section-divider" />
       {label && (
-        <span className="navigation-drawer-section-label" aria-hidden="true">
+        <span className="mo-navigation-drawer__section-label" aria-hidden="true">
           {label}
         </span>
       )}
@@ -89,7 +89,7 @@ export function NavigationDrawerSection({ label, children }: { label?: string; c
  * a filled one (ToggleIcon); an icon made is drawn as it is. */
 function ItemIcon({ icon }: { icon: IconRef }) {
   return (
-    <span className="navigation-drawer-icon">
+    <span className="mo-navigation-drawer__icon">
       {typeof icon === 'string' ? <ToggleIcon part="navigation-drawer" name={icon} size={24} /> : <Glyph icon={icon} size={24} />}
     </span>
   );
@@ -117,21 +117,21 @@ export function NavigationDrawerItem({
   const content = (
     <>
       {icon !== undefined && <ItemIcon icon={icon} />}
-      <span className="navigation-drawer-label">{children}</span>
-      {badge != null && badge !== '' && <span className="navigation-drawer-badge">{badge}</span>}
+      <span className="mo-navigation-drawer__label">{children}</span>
+      {badge != null && badge !== '' && <span className="mo-navigation-drawer__badge">{badge}</span>}
       {trailing !== undefined && (
-        <span className="navigation-drawer-trailing">
+        <span className="mo-navigation-drawer__trailing">
           {typeof trailing === 'string' ? <Svg name={trailing} size={24} /> : <Glyph icon={trailing} size={24} />}
         </span>
       )}
     </>
   );
   return href === undefined ? (
-    <button type="button" className="navigation-drawer-item" data-active={active || undefined} {...rest}>
+    <button type="button" className="mo-navigation-drawer__item" data-active={active || undefined} {...rest}>
       {content}
     </button>
   ) : (
-    <Link href={href} className="navigation-drawer-item" data-active={active || undefined} {...rest}>
+    <Link href={href} className="mo-navigation-drawer__item" data-active={active || undefined} {...rest}>
       {content}
     </Link>
   );
@@ -141,11 +141,11 @@ export function NavigationDrawerItem({
  * button; `onClick` shows the first level. */
 export function NavigationDrawerBack({ label, ...rest }: { label: string } & Record<string, unknown>) {
   return (
-    <button type="button" className="navigation-drawer-item navigation-drawer-back" {...rest}>
-      <span className="navigation-drawer-icon">
+    <button type="button" className="mo-navigation-drawer__item mo-navigation-drawer__back" {...rest}>
+      <span className="mo-navigation-drawer__icon">
         <Svg name="arrow-left" size={24} />
       </span>
-      <span className="navigation-drawer-label">{label}</span>
+      <span className="mo-navigation-drawer__label">{label}</span>
     </button>
   );
 }
@@ -157,7 +157,7 @@ export function NavigationDrawerRow({
   ...rest
 }: { className?: string; children: ReactNode } & Record<string, unknown>) {
   return (
-    <div className={['navigation-drawer-row', className].filter(Boolean).join(' ')} {...rest}>
+    <div className={['mo-navigation-drawer__row', className].filter(Boolean).join(' ')} {...rest}>
       {children}
     </div>
   );
@@ -166,7 +166,7 @@ export function NavigationDrawerRow({
 /** The button that unfolds an item's sub-pages: a caret, turned while they are open (`expanded`). */
 export function NavigationDrawerToggle({ label, expanded, ...rest }: { label: string; expanded: boolean } & Record<string, unknown>) {
   return (
-    <button type="button" className="navigation-drawer-toggle" aria-expanded={expanded} aria-label={label} {...rest}>
+    <button type="button" className="mo-navigation-drawer__toggle" aria-expanded={expanded} aria-label={label} {...rest}>
       <Svg name="caret-down" size={20} />
     </button>
   );
@@ -180,7 +180,7 @@ export function NavigationDrawerSubitem({
   ...rest
 }: { href: string; active?: boolean; children: ReactNode } & Record<string, unknown>) {
   return (
-    <Link href={href} className="navigation-drawer-subitem" data-active={active || undefined} {...rest}>
+    <Link href={href} className="mo-navigation-drawer__subitem" data-active={active || undefined} {...rest}>
       {children}
     </Link>
   );

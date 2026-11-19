@@ -13,19 +13,19 @@ const PAGE = `<!doctype html><html><body>
   <div data-editor="header-menu" class="start-class"><button>Menu</button></div>
   <a href="/" class="title">Logo</a>
   <nav data-editor="header-nav"><ul>
-    <li data-nav-item><a href="/" class="md-nav-item" aria-current="page">Forside</a></li>
-    <li data-nav-item><a href="/b/" class="md-nav-item md-nav-item-parent">Treatments</a>
+    <li data-nav-item><a href="/" class="mo-header__nav-item" aria-current="page">Forside</a></li>
+    <li data-nav-item><a href="/b/" class="mo-header__nav-item mo-has-children">Treatments</a>
       <button data-nav-toggle aria-controls="menu-1" aria-label="Pages under Treatments"></button>
       <div id="menu-1"><ul><li><a href="/b/a/">Arm</a></li></ul></div></li>
   </ul></nav>
   <a data-editor="header-cta" href="tel:12345678" aria-label="Ring 12 34 56 78">phone</a>
 </div>
-<nav data-editor="mobile-nav"><ul><li><a href="/" class="tab" aria-current="page">Forside</a></li></ul></nav>
+<nav data-editor="mobile-nav"><ul><li><a href="/" class="mo-tabs__tab" aria-current="page">Forside</a></li></ul></nav>
 </header><main></main></body></html>`;
 
 const THEME = {
   menuClass: { start: 'start-class', end: 'end-class' },
-  mobileNav: '<nav data-editor="mobile-nav" class="bar"><ul class="tabs"><li><a href="/" class="tab"></a></li></ul></nav>',
+  mobileNav: '<nav data-editor="mobile-nav" class="bar"><ul class="mo-tabs"><li><a href="/" class="mo-tabs__tab"></a></li></ul></nav>',
   subpagesOf: (label) => `Pages under ${label}`,
   current: '/',
 };

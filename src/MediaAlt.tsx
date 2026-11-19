@@ -70,7 +70,7 @@ export default function MediaAlt({ src, files, env }: { src: string; files: Repo
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="mo-editor-fields">
       <TextField
         label={t.media.alt}
         hint={t.media.altHint}

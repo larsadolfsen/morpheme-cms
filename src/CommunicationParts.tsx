@@ -28,9 +28,9 @@ const say = t.parts.screens.communication;
 
 // A made-up example under its name.
 const Example = ({ name, children }: { name: string; children: ReactNode }) => (
-  <div className="flex flex-col items-start gap-2">
+  <div className="mo-editor-comm-example">
     {children}
-    <span className="text-sm text-on-surface-variant">{name}</span>
+    <span className="mo-editor-comm-example-name">{name}</span>
   </div>
 );
 
@@ -39,7 +39,7 @@ export default function CommunicationParts() {
     <>
       <Part name="Badge" use={say.badge}>
         <Preview>
-          <div className="flex flex-wrap items-end gap-8 p-4">
+          <div className="mo-editor-comm-examples">
             <Example name={say.dot}>
               <SiteBadge label={say.new}>
                 <Svg name="envelope-simple" size={24} />
@@ -56,7 +56,7 @@ export default function CommunicationParts() {
               </SiteBadge>
             </Example>
             <Example name={say.onIconButton}>
-              <div className="flex gap-2">
+              <div className="mo-editor-comm-badges">
                 <SiteBadge>
                   <SiteIconButton icon="envelope-simple" label={`${say.messages}, ${say.new}`} />
                 </SiteBadge>
@@ -66,7 +66,7 @@ export default function CommunicationParts() {
               </div>
             </Example>
             <Example name={say.statusTones}>
-              <div className="flex gap-4">
+              <div className="mo-editor-comm-badges-wide">
                 <SiteBadge tone="ok" label={say.toneOk}>
                   <Svg name="envelope-simple" size={24} />
                 </SiteBadge>
@@ -97,7 +97,7 @@ export default function CommunicationParts() {
       </Part>
       <Part name="LoadingIndicator" use={say.loadingIndicator}>
         <Preview>
-          <div className="flex flex-wrap items-end gap-8 p-4">
+          <div className="mo-editor-comm-examples">
             <Example name={say.alone}>
               <SiteLoadingIndicator label={say.loading} />
             </Example>
@@ -109,7 +109,7 @@ export default function CommunicationParts() {
       </Part>
       <Part name="LinearProgressIndicator" use={say.linearProgressIndicator}>
         <Preview>
-          <div className="grid gap-5 p-4">
+          <div className="mo-editor-comm-progress">
             {[0, 0.4, 1].map((v) => (
               <Example key={v} name={say.percent(v)}>
                 <SiteLinearProgressIndicator value={v} label={say.uploading} />
@@ -140,7 +140,7 @@ export default function CommunicationParts() {
       </Part>
       <Part name="CircularProgressIndicator" use={say.circularProgressIndicator}>
         <Preview>
-          <div className="flex flex-wrap items-end gap-8 p-4">
+          <div className="mo-editor-comm-examples">
             {[0, 0.4, 0.85].map((v) => (
               <Example key={v} name={say.percent(v)}>
                 <SiteCircularProgressIndicator value={v} label={say.uploading} />
@@ -156,7 +156,7 @@ export default function CommunicationParts() {
               <SiteCircularProgressIndicator label={say.uploading} thick />
             </Example>
           </div>
-          <div className="flex flex-wrap items-end gap-8 p-4" role="group" aria-label={say.shapes.wavy}>
+          <div className="mo-editor-comm-examples" role="group" aria-label={say.shapes.wavy}>
             {[0, 0.4, 0.85].map((v) => (
               <Example key={v} name={`${say.shapes.wavy}: ${say.percent(v)}`}>
                 <SiteCircularProgressIndicator value={v} label={say.uploading} shape="wavy" />
@@ -176,7 +176,7 @@ export default function CommunicationParts() {
       </Part>
       <Part name="Snackbar" use={say.snackbar}>
         <Preview>
-          <div className="flex flex-col items-center gap-3 p-4">
+          <div className="mo-editor-comm-snackbars">
             <SiteSnackbar text={say.sent} />
             <SiteSnackbar text={say.booked} />
             <SiteSnackbar text={say.sent} action={{ label: say.undo }} />
@@ -189,18 +189,18 @@ export default function CommunicationParts() {
       </Part>
       <Part name="Tooltip" use={say.tooltip}>
         <Preview>
-          <div className="grid gap-y-6 p-4">
-            <div className="pt-8">
+          <div className="mo-editor-comm-tooltips">
+            <div className="mo-editor-comm-tooltip-plain">
               <SiteTooltip text={say.call} open>
                 <SiteIconButton icon="phone" label={say.call} />
               </SiteTooltip>
             </div>
-            <div className="pt-24">
+            <div className="mo-editor-comm-tooltip-rich">
               <SiteTooltip subhead={say.cancelHeading} supportingText={say.cancelText} open>
                 <SiteIconButton icon="info" label={say.cancelHeading} />
               </SiteTooltip>
             </div>
-            <div className="pt-36">
+            <div className="mo-editor-comm-tooltip-action">
               <SiteTooltip subhead={say.cancelHeading} supportingText={say.cancelText} action={{ label: say.readMore, href: '' }} open>
                 <SiteButton kind="outlined" size="small">
                   {say.cancelHeading}

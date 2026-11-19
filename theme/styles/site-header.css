@@ -1,0 +1,135 @@
+/* The header and its parts (theme/components/Header.astro, headerParts.ts, MobileNav.astro, MobileMenu.tsx): the bar, its row, the menu's items and
+   the sub-menus that open under them, the menu button, the call to action and the bar of "Mobile menu". They sit in @layer utilities, where the utility
+   classes they replace sat, so the cascade does not change: the top app bar's own rules (ui/top-app-bar.css) lose to them, as before.
+   Written with Modern Web Guidance's guides css-layout, css and responsive-design: logical properties, `gap`, the breakpoints as literal widths
+   (docs/theme-layout-classes.md). A row that crowds out the menu's items gets `data-crowded` from Header.astro's script. */
+@layer utilities {
+  .mo-header {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 43;
+  }
+  /* The row: mo-row with a 4 dp gap, 64 dp high. */
+  .mo-header__row {
+    --mo-comp-row-gap: 0.25rem;
+    block-size: 4rem;
+  }
+  .mo-header__title {
+    margin-inline-end: auto;
+  }
+  .mo-header__nav {
+    display: none;
+    flex-shrink: 0;
+  }
+  .mo-header__list {
+    --mo-comp-row-gap: 0.25rem;
+  }
+  .mo-header__item {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  /* The menu that opens under an item (m3.material.io/components/menus), on hover and with the button before it. The last two open towards the start. */
+  .mo-header__submenu {
+    position: absolute;
+    inset-block-start: 100%;
+    inset-inline-start: 0;
+    visibility: hidden;
+    padding-block-start: 0.25rem;
+    opacity: 0;
+    transition: opacity 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .mo-header__submenu.mo-is-end {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+  }
+  @media (hover: hover) {
+    .mo-header__item:hover .mo-header__submenu {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+  .mo-header__item[data-open] .mo-header__submenu {
+    visibility: visible;
+    opacity: 1;
+  }
+  /* The menu button's box at either side of the row: shown where the menu's items are not (below 1200 dp, or when they do not fit). */
+  .mo-header__menu.mo-is-start {
+    margin-inline: -0.5rem 0.25rem;
+  }
+  .mo-header__menu.mo-is-end {
+    margin-inline: 0.25rem -0.5rem;
+  }
+  /* The call to action: the phone and the button in a row, from 600 dp up (on a phone they are in the navigation drawer). */
+  .mo-header__cta {
+    display: none;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.5rem;
+    margin-inline-start: 0.25rem;
+  }
+  /* The bar of "Mobile menu" under the header, and its row of tabs. */
+  .mo-mobile-nav__list {
+    position: relative;
+    margin-inline: auto;
+    max-inline-size: 72rem;
+    padding-inline: 0.25rem;
+  }
+  @media (width >= 37.5rem) {
+    .mo-header__cta {
+      display: flex;
+    }
+    .mo-mobile-nav__list {
+      padding-inline: 1rem;
+    }
+  }
+  @media (width >= 75rem) {
+    .mo-header__title {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .mo-header__nav {
+      display: block;
+    }
+    .mo-header__menu,
+    .mo-mobile-nav {
+      display: none;
+    }
+    .mo-header[data-crowded] .mo-header__nav {
+      display: none;
+    }
+    .mo-header[data-crowded] .mo-header__menu,
+    .mo-header[data-crowded] .mo-mobile-nav {
+      display: block;
+    }
+  }
+  /* The navigation drawer's head (MobileMenu.tsx): the mark, the name and the role; the sub-items that unfold; the phone in the actions. */
+  .mo-drawer__mark {
+    inline-size: 2.25rem;
+    block-size: 2.5rem;
+    background-color: var(--mo-sys-color-primary);
+  }
+  .mo-drawer__title {
+    flex: 1;
+    min-inline-size: 0;
+    line-height: 1.25;
+  }
+  .mo-drawer__subitems {
+    overflow: hidden;
+  }
+  /* The phone calls on a phone; from 600 dp it leads to the contact page, when there is one. */
+  .mo-drawer__call {
+    display: contents;
+  }
+  .mo-drawer__page {
+    display: none;
+  }
+  @media (width >= 37.5rem) {
+    .mo-drawer__call {
+      display: none;
+    }
+    .mo-drawer__page {
+      display: contents;
+    }
+  }
+}

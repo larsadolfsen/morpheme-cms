@@ -1,6 +1,6 @@
 // What a slider (Slider.tsx) does as its handles are moved, on the site (slider.script.ts) and in the editor (the
 // part's own input event): its tracks, its stops and the labels with its values follow the handles (the variables
-// --slider-start and --slider-end, 0–1, on .slider, and on a centered one data-below-center while its handle is on
+// --mo-comp-slider-start and --mo-comp-slider-end, 0–1, on .mo-slider, and on a centered one data-below-center while its handle is on
 // the start's side of the middle), and a range's two handles cannot pass each other. The handles themselves are native
 // range inputs, so the arrow keys, Home, End, Page Up and Page Down move them.
 
@@ -23,7 +23,7 @@ export function stopState(value: number, values: number[], min: number, max: num
   return { active: value >= from && value <= to, under: values.includes(value) };
 }
 
-/** Puts a slider (its .slider element) where its handles are, after `moved` was moved. */
+/** Puts a slider (its .mo-slider element) where its handles are, after `moved` was moved. */
 export function updateSlider(root: HTMLElement, moved?: EventTarget | null) {
   const inputs = [...root.querySelectorAll<HTMLInputElement>('[data-slider-input]')];
   if (!inputs.length) return;
@@ -36,10 +36,10 @@ export function updateSlider(root: HTMLElement, moved?: EventTarget | null) {
   const values = inputs.map((i) => Number(i.value));
   const min = Number(first.min);
   const max = Number(first.max);
-  const centered = root.classList.contains('slider-centered');
+  const centered = root.classList.contains('mo-slider__centered');
   const { start, end } = sliderPlace(values, min, max, centered);
-  root.style.setProperty('--slider-start', String(start));
-  root.style.setProperty('--slider-end', String(end));
+  root.style.setProperty('--mo-comp-slider-start', String(start));
+  root.style.setProperty('--mo-comp-slider-end', String(end));
   // Two handles in the same place: the one that can still move is on top (the start's at the end of the track).
   root.toggleAttribute('data-start-on-top', first !== last && start > 0.5);
   root.toggleAttribute('data-below-center', centered && values[0] < (min + max) / 2);

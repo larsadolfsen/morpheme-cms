@@ -1,6 +1,6 @@
 # App contract
 
-The contract is the set of rules between the editor and an app. `APP_API` in `lib/contracts.mjs` holds its version. An app in the store says which version it is written to in its `api` field. `APP_API` is 6.
+The contract is the set of rules between the editor and an app. `APP_API` in `lib/contracts.mjs` holds its version. An app in the store says which version it is written to in its `api` field. `APP_API` is 7.
 
 ## App types with one active app
 
@@ -152,8 +152,8 @@ Apps written to contract 2 or 3 build and run as before, and the editor shows ea
 ## Contract 5: `role` and `mcp`
 
 Contract 5 is contract 4 with three more optional keys in `app.json`. Everything else is as in contract 4: the same files,
-places, hooks and sandbox. Contract 6 has the same keys; it changes only the names of the design tokens (see below). The editor
-reads contract 6 only (`APP_APIS` in `lib/contracts.mjs`); `APP_API` is 6.
+places, hooks and sandbox. Contracts 6 and 7 have the same keys: 6 changes only the names of the design tokens, 7 ends Tailwind (see below). The editor
+reads contract 7 only (`APP_APIS` in `lib/contracts.mjs`).
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
@@ -179,6 +179,23 @@ data only: a request template and a mapping. The Worker makes the requests, to t
 owner's key sealed in D1. The app has no code for it. The shape, the host rules, the credit saved with an image and the
 checks are in `docs/superpowers/specs/2026-11-11-media-providers.md`.
 
+## Contract 7: no Tailwind
+
+In force since the Tailwind removal (batch T16 of `docs/superpowers/plans/2026-11-18-tailwind-batches.md`, released as 0.19.0).
+
+Contract 7 is contract 6 without Tailwind. A theme or an app written to 7 uses no utility class (`flex`, `px-4`,
+`medium:grid-cols-2`, `hover:underline`), no `theme()`, no `@theme`, no `@apply` and no `@source`, and no `--tw-*` custom
+property. The CMS no longer builds them: such a class or rule does nothing, without a message. The text style is `mo-prose` and its opt-out is
+`mo-is-not-prose` (they were `prose` and `not-prose`). A theme or an app writes layout with the `mo-` classes (`mo-row`, `mo-stack`, `mo-grid` …), breakpoints as
+`@media (width >= 37.5rem)` literals and states as CSS selectors. No key or file of `app.json` changes.
+
+`THEME_API` and `APP_API` are 7 and `APP_APIS` in `lib/contracts.mjs` is `[7]`, replacing 6. The editor reads
+contract 7 only, the store offers a CMS at 7 only apps and themes written to 7, and an installed app or theme written to 6 is
+refused with `The key "api" must be 7.` until its author publishes a new version. A published version is for ever, so it is
+not rewritten. An app or a theme written to 6 that already uses no utility needs only its `api` number changed.
+
+The migration, class by class, is `docs/tailwind-migration.md` and `docs/tailwind-migration-classes.md`.
+
 ## Contract 6: the design tokens' names
 
 Contract 6 renames every design token that is not Tailwind's to Material 3's pattern: `--mo-ref-*`, `--mo-sys-*` and
@@ -186,9 +203,8 @@ Contract 6 renames every design token that is not Tailwind's to Material 3's pat
 a Tailwind class that holds a `var()` of one, must use the new one. `docs/theme-token-files.md` has the folders and the table of
 every old and new name. No key or file of `app.json` changes.
 
-`THEME_API` and `APP_API` are 6. The editor reads contract 6 only, and the store offers a CMS at 6 only apps and themes
-written to 6, so an app or a theme written to 4 or 5 is not offered, and an installed one is refused with
-`The key "api" must be 6.`, until its author publishes a new version that uses the new names. A published version is for
+From contract 6 the editor read contract 6 only (`APP_APIS` was `[6]`): an app or a theme written to 4 or 5 was not offered, and an installed one
+was refused with `The key "api" must be 6.`, until its author publishes a new version that uses the new names. A published version is for
 ever, so it is not rewritten.
 
 ## Contract 3: `@app/self`
@@ -273,7 +289,7 @@ An app with blocks can bring a test page: `check-page.md` in the app's folder, n
 - `check:screens` and `check:themes` (which runs the screens with each theme) load each installed app's test page as a temporary page that exists only in the run's memory (the texts the editor is given). It is never a file in the site's folder, never saved to the site's repository and never published. Every failure is reported under the app's name (`app <id> (check-page.md): …`). Core blocks keep the system's own test page; a theme has none.
 - The page may hold only the app's own blocks (the folders in `blocks/` with an `index.tsx`). A block of another type, a missing front matter or a page with no block fails the check under the app's name. A block of the app that the page leaves out only gets a warning.
 - An app with blocks and no `check-page.md` is not broken by that: its blocks are inserted with their default values, and the run prints a warning that names the app (`warning: app <id>: no check-page.md …`).
-- The file is optional and nothing that exists changes meaning, so it needs no step in `APP_API` (it stays 6; an addition is not a break). The code is `lib/appCheckPage.mjs`.
+- The file is optional and nothing that exists changes meaning, so it needs no step in `APP_API` (it stays as it is; an addition is not a break). The code is `lib/appCheckPage.mjs`.
 
 ## Blocks typed in place (`inline`)
 

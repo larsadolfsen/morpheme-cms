@@ -1,4 +1,4 @@
-// What a date picker shows when it is open (m3.material.io/components/date-pickers, .date-picker in ../styles/ui/pickers.css),
+// What a date picker shows when it is open (m3.material.io/components/date-pickers, .mo-date-picker in ../styles/ui/pickers.css),
 // drawn for what is picked and shown (`view`, `month`, `start`, `end`, `focus`): one drawing for the site, where
 // datePicker.script.ts draws it in the date picker's <dialog> (DatePicker.tsx) each time something changes and does
 // what it is told by the data-date-picker-… attributes, and for the editor, which only draws it. Built on the theme's
@@ -127,11 +127,11 @@ export default function DatePickerContainer({
 
   // The days of the month, under the weekdays.
   const days = (
-    <table className="date-picker-grid" role="grid" aria-label={monthName(month, locale)} data-date-picker-grid="">
+    <table className="mo-date-picker__grid" role="grid" aria-label={monthName(month, locale)} data-date-picker-grid="">
       <thead>
         <tr>
           {weekdaysOf(locale).map((d) => (
-            <th key={d.long} scope="col" abbr={d.long} className="date-picker-weekday">
+            <th key={d.long} scope="col" abbr={d.long} className="mo-date-picker__weekday">
               {d.short}
             </th>
           ))}
@@ -144,10 +144,10 @@ export default function DatePickerContainer({
               if (!day) return <td key={i} />;
               const picked = day === start || day === end;
               return (
-                <td key={day} aria-selected={picked} data-range={rangeOf(day, start, end)} className="date-picker-cell">
+                <td key={day} aria-selected={picked} data-range={rangeOf(day, start, end)} className="mo-date-picker__cell">
                   <button
                     type="button"
-                    className="date-picker-day"
+                    className="mo-date-picker__day"
                     data-day={day}
                     tabIndex={day === focus ? 0 : -1}
                     aria-label={dayName(day, locale)}
@@ -168,7 +168,7 @@ export default function DatePickerContainer({
   // The years, a grid in a modal picker and a list in a docked one; the shown one picked, this year marked.
   const yearList = (
     <div
-      className={modal ? 'date-picker-years' : 'date-picker-menu'}
+      className={modal ? 'mo-date-picker__years' : 'mo-date-picker__menu'}
       role="listbox"
       aria-label={texts.chooseYear}
       ref={list}
@@ -179,13 +179,13 @@ export default function DatePickerContainer({
           key={y}
           type="button"
           role="option"
-          className={modal ? 'date-picker-year' : 'date-picker-menu-item'}
+          className={modal ? 'mo-date-picker__year' : 'mo-date-picker__menu-item'}
           data-year={y}
           tabIndex={y === shownYear ? 0 : -1}
           aria-selected={y === shownYear}
           aria-current={y === thisYear ? 'date' : undefined}
         >
-          {!modal && <Svg name="check" size={20} className="date-picker-menu-check" />}
+          {!modal && <Svg name="check" size={20} className="mo-date-picker__menu-check" />}
           {y}
         </button>
       ))}
@@ -194,19 +194,19 @@ export default function DatePickerContainer({
 
   // A docked picker's months, a list.
   const monthList = (
-    <div ref={list} className="date-picker-menu" role="listbox" aria-label={texts.chooseMonth} data-date-picker-list="months">
+    <div ref={list} className="mo-date-picker__menu" role="listbox" aria-label={texts.chooseMonth} data-date-picker-list="months">
       {Array.from({ length: 12 }, (_, i) => `${year}-${String(i + 1).padStart(2, '0')}`).map((m) => (
         <button
           key={m}
           type="button"
           role="option"
-          className="date-picker-menu-item"
+          className="mo-date-picker__menu-item"
           data-month={m}
           tabIndex={m === month ? 0 : -1}
           aria-selected={m === month}
           aria-current={m === pickedMonth ? 'date' : undefined}
         >
-          <Svg name="check" size={20} className="date-picker-menu-check" />
+          <Svg name="check" size={20} className="mo-date-picker__menu-check" />
           {monthName(m, locale, 'long')}
         </button>
       ))}
@@ -217,14 +217,14 @@ export default function DatePickerContainer({
   const menuButton = (label: string, list: 'months' | 'years', name: string) => (
     <button
       type="button"
-      className="date-picker-menu-button"
+      className="mo-date-picker__menu-button"
       aria-label={`${name}: ${label}`}
       aria-expanded={view === list}
       data-date-picker-action={list}
       disabled={view !== 'days' && view !== list}
     >
       {label}
-      <Svg name="caret-down" size={18} className="date-picker-menu-button-icon" />
+      <Svg name="caret-down" size={18} className="mo-date-picker__menu-button-icon" />
     </button>
   );
 
@@ -234,17 +234,17 @@ export default function DatePickerContainer({
 
   return (
     <Dialog
-      className={['date-picker', `date-picker-${modal ? 'modal' : 'docked'}`, className].filter(Boolean).join(' ')}
+      className={['mo-date-picker', `mo-date-picker__${modal ? 'modal' : 'docked'}`, className].filter(Boolean).join(' ')}
       data-view={view}
       data-range={range || undefined}
     >
       {modal && (
-        <div className="date-picker-header">
-          <p className="date-picker-supporting-text">
+        <div className="mo-date-picker__header">
+          <p className="mo-date-picker__supporting-text">
             {view === 'input' ? (range ? texts.enterRange : texts.enter) : range ? texts.selectRange : texts.select}
           </p>
-          <div className="date-picker-headline-row">
-            <h2 id={headlineId} className="date-picker-headline" aria-live="polite">
+          <div className="mo-date-picker__headline-row">
+            <h2 id={headlineId} className="mo-date-picker__headline" aria-live="polite">
               {headline}
             </h2>
             <IconButton
@@ -258,21 +258,21 @@ export default function DatePickerContainer({
 
       {view !== 'input' &&
         (modal ? (
-          <div className="date-picker-controls">
+          <div className="mo-date-picker__controls">
             {menuButton(monthName(month, locale), 'years', texts.chooseYear)}
-            <span className="date-picker-steps">
+            <span className="mo-date-picker__steps">
               {step('previous-month', 'caret-left', texts.previousMonth)}
               {step('next-month', 'caret-right', texts.nextMonth)}
             </span>
           </div>
         ) : (
-          <div className="date-picker-controls">
-            <span className="date-picker-steps">
+          <div className="mo-date-picker__controls">
+            <span className="mo-date-picker__steps">
               {step('previous-month', 'caret-left', texts.previousMonth)}
               {menuButton(monthName(`${year}-${monthNumber}`, locale, 'short'), 'months', texts.chooseMonth)}
               {step('next-month', 'caret-right', texts.nextMonth)}
             </span>
-            <span className="date-picker-steps">
+            <span className="mo-date-picker__steps">
               {step('previous-year', 'caret-left', texts.previousYear)}
               {menuButton(year, 'years', texts.chooseYear)}
               {step('next-year', 'caret-right', texts.nextYear)}
@@ -280,12 +280,12 @@ export default function DatePickerContainer({
           </div>
         ))}
 
-      <div className="date-picker-content">
+      <div className="mo-date-picker__content">
         {view === 'days' && days}
         {view === 'years' && yearList}
         {view === 'months' && monthList}
         {view === 'input' && (
-          <div className="date-picker-input">
+          <div className="mo-date-picker__input">
             {(range ? [texts.start, texts.end] : [texts.date]).map((label, i) => (
               <TextField
                 key={label}
@@ -303,7 +303,7 @@ export default function DatePickerContainer({
         )}
       </div>
 
-      <div className="date-picker-actions">
+      <div className="mo-date-picker__actions">
         <Button kind="text" size="small" data-date-picker-action="cancel">
           {texts.cancel}
         </Button>

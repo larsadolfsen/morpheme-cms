@@ -24,16 +24,16 @@ export function useRegisterFab(active: boolean) {
   }, [active, report]);
 }
 
-/** For a Screen with a FAB: sets --editor-fab-lift on the page to how far the footer stands up into the window, so the FAB
- * (editor.css .editor-fab) stands above the footer while it is in view and at its place otherwise. Follows the scroll, the
+/** For a Screen with a FAB: sets --mo-comp-editor-fab-lift on the page to how far the footer stands up into the window, so the FAB
+ * (editor.css .mo-editor-fab) stands above the footer while it is in view and at its place otherwise. Follows the scroll, the
  * window's size and the footer's own height (its status dot loads late). */
 export function useFabLift(active: boolean) {
   useEffect(() => {
     if (!active) return;
     const root = document.documentElement;
-    const footer = () => document.querySelector('.editor-footer');
+    const footer = () => document.querySelector('.mo-editor-footer');
     const update = () =>
-      root.style.setProperty('--editor-fab-lift', `${fabLift(footer()?.getBoundingClientRect().top, window.innerHeight)}px`);
+      root.style.setProperty('--mo-comp-editor-fab-lift', `${fabLift(footer()?.getBoundingClientRect().top, window.innerHeight)}px`);
     update();
     const sizes = new ResizeObserver(update);
     const el = footer();
@@ -45,7 +45,7 @@ export function useFabLift(active: boolean) {
       sizes.disconnect();
       window.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
-      root.style.removeProperty('--editor-fab-lift');
+      root.style.removeProperty('--mo-comp-editor-fab-lift');
     };
   }, [active]);
 }

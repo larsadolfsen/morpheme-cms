@@ -84,7 +84,7 @@ export function partOf(className, parts) {
 
   for (const part of parts) {
     for (const prefix of part.prefixes) {
-      if (className === prefix || className.startsWith(prefix + '-')) {
+      if (className === prefix || className.startsWith(prefix + '-') || className.startsWith(prefix + '__')) {
         const len = prefix.length;
         if (len > bestLength) {
           bestLength = len;

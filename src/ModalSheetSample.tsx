@@ -36,7 +36,7 @@ export default function ModalSheetSample({
           footer={say.footer}
         >
           {say.paragraphs.map((text) => (
-            <p key={text} className="mb-3 px-(--mo-sys-grid-margin) pt-3 text-on-surface-variant">
+            <p key={text} className="mo-editor-sample-text">
               {text}
             </p>
           ))}

@@ -1,51 +1,51 @@
 /*
   Navigation rail (NavigationRail, NavigationRailItem, navigationRailClasses, navigationRail.script.ts;
-  m3.material.io/components/navigation-rail): .navigation-rail (a <nav>), collapsed or expanded ([data-expanded]), with
-  .navigation-rail-header (its menu button, .navigation-rail-menu, which expands and collapses it, and optionally its FAB, an
-  extended FAB with only its icon while the rail is collapsed) and .navigation-rail-items; each .navigation-rail-item
-  (the open one with aria-current) with .navigation-rail-indicator (the pill: behind the icon, .navigation-rail-icon with
-  optionally .navigation-rail-badge, while collapsed, and behind the icon and .navigation-rail-label when expanded). The
-  expanded rail's modality: standard (beside the content, which makes room for it) or .navigation-rail-modal (over the
-  content, which keeps its place, with its shadow and corners, over .navigation-rail-scrim just before it); its
-  behaviour: back into the collapsed rail, or .navigation-rail-hide, nothing while it is collapsed.
-    --mo-comp-navigation-rail-container-width, --mo-comp-navigation-rail-expanded-width, --mo-comp-navigation-rail-padding, --navigation-rail-radius,
+  m3.material.io/components/navigation-rail): .mo-navigation-rail (a <nav>), collapsed or expanded ([data-expanded]), with
+  .mo-navigation-rail__header (its menu button, .mo-navigation-rail__menu, which expands and collapses it, and optionally its FAB, an
+  extended FAB with only its icon while the rail is collapsed) and .mo-navigation-rail__items; each .mo-navigation-rail__item
+  (the open one with aria-current) with .mo-navigation-rail__indicator (the pill: behind the icon, .mo-navigation-rail__icon with
+  optionally .mo-navigation-rail__badge, while collapsed, and behind the icon and .mo-navigation-rail__label when expanded). The
+  expanded rail's modality: standard (beside the content, which makes room for it) or .mo-navigation-rail__modal (over the
+  content, which keeps its place, with its shadow and corners, over .mo-navigation-rail__scrim just before it); its
+  behaviour: back into the collapsed rail, or .mo-navigation-rail__hide, nothing while it is collapsed.
+    --mo-comp-navigation-rail-container-width, --mo-comp-navigation-rail-expanded-width, --mo-comp-navigation-rail-padding, --mo-comp-navigation-rail-radius,
     --mo-comp-navigation-rail-surface (level 0's colour), --mo-comp-navigation-rail-line
-    --navigation-rail-modal-surface (level 2's colour), --mo-comp-navigation-rail-modal-radius, --navigation-rail-modal-shadow,
-    --navigation-rail-scrim   a modal one, expanded
-    --navigation-rail-item-gap, --mo-comp-navigation-rail-inactive-label-text-color, --mo-comp-navigation-rail-active-label-text-color
-    --navigation-rail-indicator-width, --navigation-rail-indicator-height, --navigation-rail-expanded-indicator-height,
+    --mo-comp-navigation-rail-modal-surface (level 2's colour), --mo-comp-navigation-rail-modal-radius, --mo-comp-navigation-rail-modal-shadow,
+    --mo-comp-navigation-rail-scrim   a modal one, expanded
+    --mo-comp-navigation-rail-item-gap, --mo-comp-navigation-rail-inactive-label-text-color, --mo-comp-navigation-rail-active-label-text-color
+    --mo-comp-navigation-rail-indicator-width, --mo-comp-navigation-rail-indicator-height, --mo-comp-navigation-rail-expanded-indicator-height,
     --mo-comp-navigation-rail-active-indicator-shape, --mo-comp-navigation-rail-active-indicator-color, --mo-comp-navigation-rail-indicator-text,
     --mo-comp-navigation-rail-indicator-hover
-    --navigation-rail-label-font-size, --navigation-rail-expanded-label-font-size, --navigation-rail-label-weight,
-    --mo-comp-navigation-rail-label-selected-weight, --navigation-rail-section-label-text
-  The badges on their icons are the theme's Badge (.badge, its --badge-* variables), placed at the icon's corner.
+    --mo-comp-navigation-rail-label-font-size, --mo-comp-navigation-rail-expanded-label-font-size, --mo-comp-navigation-rail-label-weight,
+    --mo-comp-navigation-rail-label-selected-weight, --mo-comp-navigation-rail-section-label-text
+  The badges on their icons are the theme's Badge (.mo-badge, its --badge-* variables), placed at the icon's corner.
   Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
   the same property on these parts at the same specificity, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
 */
 @layer components {
   /* A badge (the theme's Badge) on a destination's icon, at its top right corner: a dot, or a number. */
-  .navigation-bar-badge,
-  .navigation-rail-badge {
+  .mo-navigation-bar__badge,
+  .mo-navigation-rail__badge {
     position: absolute;
     top: calc(50% - 0.875rem);
     left: calc(50% + 0.25rem);
   }
-  .navigation-bar-badge.badge-small,
-  .navigation-rail-badge.badge-small {
+  .mo-navigation-bar__badge.mo-badge__small,
+  .mo-navigation-rail__badge.mo-badge__small {
     top: calc(50% - 0.75rem);
     left: calc(50% + 0.5rem);
   }
 
   /* Navigation rail (m3.material.io/components/navigation-rail): the destinations down the side, its menu button and
      FAB over them; wide, each destination's icon and label side by side in the pill. */
-  .navigation-rail {
+  .mo-navigation-rail {
     display: flex;
     width: var(--mo-comp-navigation-rail-container-width, 5.5rem);
     flex-shrink: 0;
     flex-direction: column;
     gap: 1.5rem;
     overflow: hidden;
-    border-radius: var(--navigation-rail-radius, 0);
+    border-radius: var(--mo-comp-navigation-rail-radius, 0);
     padding: var(--mo-comp-navigation-rail-padding, 1rem 0.75rem);
     background: var(--mo-comp-navigation-rail-surface, var(--mo-sys-elevation-level0-color));
     box-shadow: inset -1px 0 0 var(--mo-comp-navigation-rail-line, var(--mo-sys-block-line));
@@ -57,31 +57,31 @@
       box-shadow var(--mo-sys-motion-spring-default-effects),
       visibility 0s linear var(--mo-sys-motion-spring-default-spatial-duration);
   }
-  .navigation-rail[data-expanded] {
+  .mo-navigation-rail[data-expanded] {
     width: var(--mo-comp-navigation-rail-expanded-width, 16rem);
     transition-delay: 0s;
   }
   /* Modal: expanded over the content, which keeps its place (the margin takes back what the rail grows by), over the
      scrim. The rail stands in a row beside the content, so its z-index holds without a position of its own. */
-  .navigation-rail-modal[data-expanded] {
+  .mo-navigation-rail__modal[data-expanded] {
     z-index: 50;
     margin-inline-end: calc(var(--mo-comp-navigation-rail-container-width, 5.5rem) - var(--mo-comp-navigation-rail-expanded-width, 16rem));
     border-start-end-radius: var(--mo-comp-navigation-rail-modal-radius, var(--mo-sys-block-radius));
     border-end-end-radius: var(--mo-comp-navigation-rail-modal-radius, var(--mo-sys-block-radius));
-    background: var(--navigation-rail-modal-surface, var(--mo-sys-elevation-level2-color));
-    box-shadow: var(--navigation-rail-modal-shadow, var(--mo-sys-elevation-level2-rest-shadow));
+    background: var(--mo-comp-navigation-rail-modal-surface, var(--mo-sys-elevation-level2-color));
+    box-shadow: var(--mo-comp-navigation-rail-modal-shadow, var(--mo-sys-elevation-level2-rest-shadow));
   }
-  .navigation-rail-scrim {
+  .mo-navigation-rail__scrim {
     position: fixed;
     inset: 0;
     z-index: 49;
     background: var(
-      --navigation-rail-scrim,
+      --mo-comp-navigation-rail-scrim,
       color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 40%, transparent)
     );
     animation: navigation-rail-scrim-in var(--mo-sys-motion-spring-default-effects);
   }
-  .navigation-rail-scrim[hidden] {
+  .mo-navigation-rail__scrim[hidden] {
     display: none;
   }
   @keyframes navigation-rail-scrim-in {
@@ -90,77 +90,77 @@
     }
   }
   /* Hidden while collapsed: no room, nothing to see or reach; expanded as a wide rail, beside the content or over it. */
-  .navigation-rail-hide:not([data-expanded]) {
+  .mo-navigation-rail__hide:not([data-expanded]) {
     width: 0;
     padding-inline: 0;
     visibility: hidden;
     box-shadow: none;
   }
-  .navigation-rail-hide.navigation-rail-modal[data-expanded] {
+  .mo-navigation-rail__hide.mo-navigation-rail__modal[data-expanded] {
     margin-inline-end: calc(-1 * var(--mo-comp-navigation-rail-expanded-width, 16rem));
   }
-  .navigation-rail-header {
+  .mo-navigation-rail__header {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
   }
-  .navigation-rail[data-expanded] .navigation-rail-header {
+  .mo-navigation-rail[data-expanded] .mo-navigation-rail__header {
     align-items: flex-start;
   }
-  .navigation-rail-menu > svg + svg,
-  .navigation-rail[data-expanded] .navigation-rail-menu > svg:first-child {
+  .mo-navigation-rail__menu > svg + svg,
+  .mo-navigation-rail[data-expanded] .mo-navigation-rail__menu > svg:first-child {
     display: none;
   }
-  .navigation-rail[data-expanded] .navigation-rail-menu > svg + svg {
+  .mo-navigation-rail[data-expanded] .mo-navigation-rail__menu > svg + svg {
     display: block;
   }
   /* What stands under the menu button while the rail is expanded (header: the editor's logo and the site's name). */
-  .navigation-rail-header-content {
+  .mo-navigation-rail__header-content {
     display: none;
     align-self: stretch;
     min-width: 0;
   }
-  .navigation-rail[data-expanded] .navigation-rail-header-content {
+  .mo-navigation-rail[data-expanded] .mo-navigation-rail__header-content {
     display: block;
   }
-  .navigation-rail-items {
+  .mo-navigation-rail__items {
     display: flex;
     min-height: 0;
     flex-direction: column;
-    gap: var(--navigation-rail-item-gap, 0.75rem);
+    gap: var(--mo-comp-navigation-rail-item-gap, 0.75rem);
     overflow-x: hidden;
     overflow-y: auto;
   }
   /* Sections (M3 Expressive): their names over them while expanded, a line between them while collapsed. */
-  .navigation-rail-section {
+  .mo-navigation-rail__section {
     display: flex;
     flex-direction: column;
-    gap: var(--navigation-rail-item-gap, 0.75rem);
+    gap: var(--mo-comp-navigation-rail-item-gap, 0.75rem);
   }
-  .navigation-rail-section + .navigation-rail-section {
+  .mo-navigation-rail__section + .mo-navigation-rail__section {
     border-top: 1px solid var(--mo-comp-navigation-rail-line, var(--mo-sys-block-line));
-    padding-top: var(--navigation-rail-item-gap, 0.75rem);
+    padding-top: var(--mo-comp-navigation-rail-item-gap, 0.75rem);
   }
-  .navigation-rail-section-label {
+  .mo-navigation-rail__section-label {
     display: none;
     padding-inline: 1rem;
-    color: var(--navigation-rail-section-label-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-navigation-rail-section-label-text, var(--mo-sys-block-muted));
     font-size: var(--mo-sys-typescale-label-medium-size);
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     font-weight: var(--mo-sys-typescale-label-medium-weight);
     letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
     white-space: nowrap;
   }
-  .navigation-rail[data-expanded] .navigation-rail-section-label {
+  .mo-navigation-rail[data-expanded] .mo-navigation-rail__section-label {
     display: block;
   }
-  .navigation-rail[data-expanded] .navigation-rail-section + .navigation-rail-section {
+  .mo-navigation-rail[data-expanded] .mo-navigation-rail__section + .mo-navigation-rail__section {
     border-top: 0;
     padding-top: 0.5rem;
   }
   /* A text at a destination's end while expanded (how many there are). */
-  .navigation-rail-trailing-supporting {
+  .mo-navigation-rail__trailing-supporting {
     display: none;
     margin-inline-start: auto;
     color: var(--mo-comp-navigation-rail-inactive-label-text-color, var(--mo-sys-block-muted));
@@ -170,10 +170,10 @@
     letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
     font-variant-numeric: tabular-nums;
   }
-  .navigation-rail[data-expanded] .navigation-rail-trailing-supporting {
+  .mo-navigation-rail[data-expanded] .mo-navigation-rail__trailing-supporting {
     display: block;
   }
-  .navigation-rail-item {
+  .mo-navigation-rail__item {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -182,75 +182,75 @@
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
   }
-  .navigation-rail-item[aria-current] {
+  .mo-navigation-rail__item[aria-current] {
     color: var(--mo-comp-navigation-rail-active-label-text-color, var(--mo-sys-block-text));
   }
-  button.navigation-rail-item {
+  button.mo-navigation-rail__item {
     width: 100%;
     cursor: pointer;
   }
-  .navigation-rail-indicator {
+  .mo-navigation-rail__indicator {
     display: contents;
   }
-  .navigation-rail-icon {
-    width: var(--navigation-rail-indicator-width, 3.5rem);
-    height: var(--navigation-rail-indicator-height, 2rem);
+  .mo-navigation-rail__icon {
+    width: var(--mo-comp-navigation-rail-indicator-width, 3.5rem);
+    height: var(--mo-comp-navigation-rail-indicator-height, 2rem);
     border-radius: var(--mo-comp-navigation-rail-active-indicator-shape, var(--mo-sys-shape-corner-full));
   }
-  .navigation-rail-item:hover .navigation-rail-icon {
+  .mo-navigation-rail__item:hover .mo-navigation-rail__icon {
     background: var(
       --mo-comp-navigation-rail-indicator-hover,
       color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
   }
-  .navigation-rail-item[aria-current] .navigation-rail-icon {
+  .mo-navigation-rail__item[aria-current] .mo-navigation-rail__icon {
     background: var(--mo-comp-navigation-rail-active-indicator-color, var(--mo-sys-block-tint));
     color: var(--mo-comp-navigation-rail-indicator-text, var(--mo-sys-block-accent));
   }
-  .navigation-rail-label {
-    font-size: var(--navigation-rail-label-font-size, var(--mo-sys-typescale-label-medium-size));
+  .mo-navigation-rail__label {
+    font-size: var(--mo-comp-navigation-rail-label-font-size, var(--mo-sys-typescale-label-medium-size));
     letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
-    font-weight: var(--navigation-rail-label-weight, var(--mo-sys-typescale-label-medium-weight));
+    font-weight: var(--mo-comp-navigation-rail-label-weight, var(--mo-sys-typescale-label-medium-weight));
   }
-  .navigation-rail-item[aria-current] .navigation-rail-label {
+  .mo-navigation-rail__item[aria-current] .mo-navigation-rail__label {
     font-weight: var(--mo-comp-navigation-rail-label-selected-weight, 700);
   }
-  .navigation-rail[data-expanded] .navigation-rail-item {
+  .mo-navigation-rail[data-expanded] .mo-navigation-rail__item {
     align-items: stretch;
   }
-  .navigation-rail[data-expanded] .navigation-rail-indicator {
+  .mo-navigation-rail[data-expanded] .mo-navigation-rail__indicator {
     display: flex;
-    height: var(--navigation-rail-expanded-indicator-height, 3.5rem);
+    height: var(--mo-comp-navigation-rail-expanded-indicator-height, 3.5rem);
     align-items: center;
     gap: 0.75rem;
     border-radius: var(--mo-comp-navigation-rail-active-indicator-shape, var(--mo-sys-shape-corner-full));
     padding: 0 1.5rem 0 1rem;
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .navigation-rail[data-expanded] .navigation-rail-icon {
+  .mo-navigation-rail[data-expanded] .mo-navigation-rail__icon {
     width: 1.5rem;
     height: 1.5rem;
     background: none;
   }
-  .navigation-rail[data-expanded] .navigation-rail-item:hover .navigation-rail-indicator {
+  .mo-navigation-rail[data-expanded] .mo-navigation-rail__item:hover .mo-navigation-rail__indicator {
     background: var(
       --mo-comp-navigation-rail-indicator-hover,
       color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
   }
-  .navigation-rail[data-expanded] .navigation-rail-item[aria-current] .navigation-rail-indicator {
+  .mo-navigation-rail[data-expanded] .mo-navigation-rail__item[aria-current] .mo-navigation-rail__indicator {
     background: var(--mo-comp-navigation-rail-active-indicator-color, var(--mo-sys-block-tint));
     color: var(--mo-comp-navigation-rail-indicator-text, var(--mo-sys-block-accent));
   }
-  .navigation-rail[data-expanded] .navigation-rail-label {
-    font-size: var(--navigation-rail-expanded-label-font-size, var(--mo-sys-typescale-label-large-size));
+  .mo-navigation-rail[data-expanded] .mo-navigation-rail__label {
+    font-size: var(--mo-comp-navigation-rail-expanded-label-font-size, var(--mo-sys-typescale-label-large-size));
     line-height: var(--mo-sys-typescale-label-large-line-height);
   }
   @media (prefers-reduced-motion: reduce) {
-    .navigation-rail {
+    .mo-navigation-rail {
       transition: none;
     }
-    .navigation-rail-scrim {
+    .mo-navigation-rail__scrim {
       animation: none;
     }
   }

@@ -18,10 +18,10 @@ export default function InlineVideo({ props, data, active, focus, onChange }: In
       fields={['title']}
       onChange={onChange}
       render={({ here, field }) => (
-        <div className={['inline-video', here && 'inline-list-row-active'].filter(Boolean).join(' ')}>
+        <div className={['mo-editor-inline-video', here && 'mo-editor-inline-list-row-active'].filter(Boolean).join(' ')}>
           {/* A tap on the frame selects the block: its Change link is on the bar (from expanded the sheet opens too). */}
           <div
-            className="inline-video-frame"
+            className="mo-editor-inline-video-frame"
             onClick={(e) => {
               // The frame's own link (the play button) goes nowhere in the editor.
               e.preventDefault();
@@ -30,7 +30,7 @@ export default function InlineVideo({ props, data, active, focus, onChange }: In
           >
             {view && <Video view={view} />}
           </div>
-          <p className="inline-video-title">{field('title', t.blocks.video.title, t.blocks.video.title)}</p>
+          <p className="mo-editor-inline-video-title">{field('title', t.blocks.video.title, t.blocks.video.title)}</p>
         </div>
       )}
     />

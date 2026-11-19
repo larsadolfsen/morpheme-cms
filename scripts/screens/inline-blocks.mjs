@@ -9,7 +9,7 @@ async function chooseOption(page, name) {
   const button = page.getByRole('button', { name, exact: true }).filter({ visible: true });
   if (await button.count()) return void (await button.last().click());
   await page
-    .locator('.choice-group-list .list-item-content')
+    .locator('.mo-choice-group__list .mo-list__item-content')
     .filter({ hasText: new RegExp(`^${name}$`) })
     .filter({ visible: true })
     .last()
@@ -29,17 +29,17 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
   await page.waitForTimeout(300);
   await pressInsert(page, 'tap');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
-  await page.waitForSelector(`.site-block-inline [data-field="${field}"]`);
+  await page.waitForSelector(`.mo-site-block-inline [data-field="${field}"]`);
   await page.keyboard.type(text);
   await page.waitForTimeout(300);
   const state = () =>
     page.evaluate(
       (f) => ({
-        value: document.querySelector(`.site-block-inline [data-field="${f}"]`)?.value ?? null,
+        value: document.querySelector(`.mo-site-block-inline [data-field="${f}"]`)?.value ?? null,
         add: document.querySelectorAll('[data-add-row]').length,
-        next: document.querySelectorAll('.inline-list-row-next').length,
-        outline: getComputedStyle(document.querySelector('.site-block-inline .inline-list-row-active')).outlineStyle,
-        slot: !!document.querySelector('.site-block-inline .inline-list-slot'),
+        next: document.querySelectorAll('.mo-editor-inline-list-row-next').length,
+        outline: getComputedStyle(document.querySelector('.mo-site-block-inline .mo-editor-inline-list-row-active')).outlineStyle,
+        slot: !!document.querySelector('.mo-site-block-inline .mo-editor-inline-list-slot'),
       }),
       field,
     );
@@ -56,7 +56,7 @@ async function checkInlineSingle(width, height, { name, hint, field, text, slot 
   if ((await state()).value !== text) problems.push(`${label}: Enter changed the text`);
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(300);
-  if ((await page.locator(`.site-block-inline [data-field="${field}"]`).count()) && name === 'notice')
+  if ((await page.locator(`.mo-site-block-inline [data-field="${field}"]`).count()) && name === 'notice')
     problems.push(`${label}: the notice still shows its field after the cursor left`);
   await page.close();
 }
@@ -77,16 +77,16 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
-  await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
+  await page.waitForSelector(`.mo-editor-inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
   await page.keyboard.type('One');
   await page.waitForTimeout(300);
   await page.locator('[data-add-row]').click();
   await page.waitForTimeout(300);
   await page.keyboard.type('Two');
   await page.waitForTimeout(300);
-  const slotOf = (row) => page.locator(`[data-row="${row}"] .inline-list-slot[aria-label="Icon"]`);
+  const slotOf = (row) => page.locator(`[data-row="${row}"] .mo-editor-inline-list-slot[aria-label="Icon"]`);
   // A card that has its media shows it as the button (a tap on it opens the picker); the other blocks show the round control.
-  const controlOf = (row) => (name === 'cards' ? page.locator(`[data-row="${row}"] .inline-card-media`) : slotOf(row));
+  const controlOf = (row) => (name === 'cards' ? page.locator(`[data-row="${row}"] .mo-editor-inline-card-media`) : slotOf(row));
   // The active row has the control, empty: a plus, as a round button.
   if ((await slotOf(1).count()) !== 1) problems.push(`${label}: the active row has no icon control`);
   else if (!(await slotOf(1).evaluate((b) => b.tagName === 'BUTTON' && b.querySelectorAll('svg').length === 1)))
@@ -104,7 +104,8 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   // Another row is active: the first row's icon is still the control, and one tap on it opens the picker and makes that row active.
   await page.locator(`[data-row="1"] [data-field="${field}"]`).click();
   await page.waitForTimeout(300);
-  if (!(await page.locator('[data-row="1"].inline-list-row-active').count())) problems.push(`${label}: the second row is not active`);
+  if (!(await page.locator('[data-row="1"].mo-editor-inline-list-row-active').count()))
+    problems.push(`${label}: the second row is not active`);
   if ((await controlOf(0).count()) !== 1) problems.push(`${label}: a row with an icon that is not active has no icon control`);
   else {
     await controlOf(0).click();
@@ -117,7 +118,7 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
         .catch(() => false))
     )
       problems.push(`${label}: a tap on the icon of a row that is not active does not open the icon picker`);
-    if (!(await page.locator('[data-row="0"].inline-list-row-active').count()))
+    if (!(await page.locator('[data-row="0"].mo-editor-inline-list-row-active').count()))
       problems.push(`${label}: a tap on the icon of a row that is not active does not make it the active row`);
   }
   await page.close();
@@ -148,7 +149,7 @@ async function checkListDesigns(width, height) {
     await page.waitForSelector('.ProseMirror p:nth-child(2)');
     await pressInsert(page, 'click');
     await page.locator('dialog[open] button', { hasText: hint }).first().click();
-    await page.waitForSelector('.inline-list-row-active [data-field="title"]', { timeout: 8000 });
+    await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]', { timeout: 8000 });
     await page.keyboard.type('First');
     if (card) {
       // The design is in the block's own settings (the bar's ⋮ menu).
@@ -156,18 +157,20 @@ async function checkListDesigns(width, height) {
       await chooseOption(page, 'Segmented');
       await saveOrClose(page, 'last');
       // The rows are on their own surfaces now (the theme's segmented list, or the card class of the rows that fold out).
-      await page.locator('.list-segmented, .block-accordion-segmented').first().waitFor({ timeout: 8000 });
+      await page.locator('.mo-list__segmented, .mo-block-accordion__segmented').first().waitFor({ timeout: 8000 });
     }
     await page.locator('[data-add-row]').waitFor({ timeout: 8000 });
     const got = await page.evaluate(() => ({
-      slots: [...document.querySelectorAll('.inline-list-row-active .inline-list-slot')].map((x) => x.getAttribute('aria-label')),
+      slots: [...document.querySelectorAll('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')].map((x) =>
+        x.getAttribute('aria-label'),
+      ),
       add: [...document.querySelectorAll('[data-add-row]')].map((x) => x.textContent.trim()),
-      own: document.querySelectorAll('[data-row-link], [data-add-button], [data-row-arrow], .inline-segmented-buttons').length,
+      own: document.querySelectorAll('[data-row-link], [data-add-button], [data-row-arrow], .mo-editor-inline-segmented-buttons').length,
       // The plain design is full width on a compact screen (owner, 16 Nov 2026): the row's layer is 16 dp wider than the text column on each side, its leading icon on the text's edge.
       edge: (() => {
-        const row = document.querySelector('.inline-list-row-active');
-        const box = row?.matches('.list-item-container') ? row : row?.querySelector('.list-item-container');
-        const lead = box?.querySelector('.list-item-leading');
+        const row = document.querySelector('.mo-editor-inline-list-row-active');
+        const box = row?.matches('.mo-list__item-container') ? row : row?.querySelector('.mo-list__item-container');
+        const lead = box?.querySelector('.mo-list__item-leading');
         const text = document.querySelector('.ProseMirror p')?.getBoundingClientRect().left;
         return box && lead && text !== undefined
           ? {
@@ -179,14 +182,14 @@ async function checkListDesigns(width, height) {
       })(),
       // The link slot is at the end of the row: to the right of the heading.
       end: (() => {
-        const row = document.querySelector('.inline-list-row-active');
-        const slot = row?.querySelector('.inline-list-slot[aria-label="Page"]');
+        const row = document.querySelector('.mo-editor-inline-list-row-active');
+        const slot = row?.querySelector('.mo-editor-inline-list-slot[aria-label="Page"]');
         const field = row?.querySelector('[data-field="title"]');
         return !!slot && !!field && slot.getBoundingClientRect().left >= field.getBoundingClientRect().left;
       })(),
     }));
-    await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Page"]').click();
-    const sheet = phone ? page.locator('dialog[open]') : page.locator('.editor-side-sheet');
+    await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
+    const sheet = phone ? page.locator('dialog[open]') : page.locator('.mo-editor-side-sheet');
     const opened = await sheet
       .getByText('Page', { exact: true })
       .first()
@@ -235,31 +238,34 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
   try {
-    await page.waitForSelector(`.inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
+    await page.waitForSelector(`.mo-editor-inline-list-row-active [data-field="${field}"]`, { timeout: 8000 });
   } catch {
     problems.push(`${label}: the block was not typed in place (no active row with a "${field}" field)`);
     return page.close();
   }
-  const faded = await page.locator('.inline-list-row-next').count();
+  const faded = await page.locator('.mo-editor-inline-list-row-next').count();
   if (faded !== start) problems.push(`${label}: a new block starts with ${faded} empty, faded items, not ${start}`);
-  if ((await page.locator('.inline-list-row-active').count()) !== 1) problems.push(`${label}: not exactly one active item at the start`);
+  if ((await page.locator('.mo-editor-inline-list-row-active').count()) !== 1)
+    problems.push(`${label}: not exactly one active item at the start`);
   if (name === 'cards') {
     // The media area is there while the card is active: one button for each kind (icon, image, video); the link is the bar's, not a slot in the card; the action area has the next button, empty and faded.
     const slots = await page
-      .locator('.inline-list-row-active .inline-list-slot')
+      .locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')
       .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')));
     if (slots.join() !== 'Icon,Image,Video')
       problems.push(`${label}: the active card's media buttons are "${slots}", not "Icon,Image,Video"`);
-    if (await page.locator('.inline-list-row-active [aria-label="Link"]').count())
+    if (await page.locator('.mo-editor-inline-list-row-active [aria-label="Link"]').count())
       problems.push(`${label}: the card has a link slot (the link is in the toolbar)`);
-    const next = await page.locator('.inline-list-row-active .block-card-actions .inline-card-next-button').allTextContents();
+    const next = await page
+      .locator('.mo-editor-inline-list-row-active .mo-block-cards__card-actions .mo-editor-inline-card-next-button')
+      .allTextContents();
     if (next.join() !== 'Add button')
       problems.push(`${label}: the active card's action area has "${next}", not the text button "Add button"`);
-    if (width >= 1000 && !(await page.locator('.editor-tools button[aria-label="Link"]').count()))
+    if (width >= 1000 && !(await page.locator('.mo-editor-tools button[aria-label="Link"]').count()))
       problems.push(`${label}: the toolbar has no Link while the card is still empty`);
     // The header line of a card is a headline and ONE optional subhead, both typed in place; no badge, date or tags.
     const fields = await page.evaluate(() =>
-      [...document.querySelectorAll('.inline-list-row-active [data-field]')].map((f) => f.dataset.field),
+      [...document.querySelectorAll('.mo-editor-inline-list-row-active [data-field]')].map((f) => f.dataset.field),
     );
     if (fields.join() !== 'title,subhead,text')
       problems.push(`${label}: the typed fields of a card are "${fields}", not "title,subhead,text"`);
@@ -267,13 +273,13 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   if (name === 'buttons') {
     // An empty button's hint is the button kind's own text colour (never the page's), for every kind, and its settings offer the four kinds (no Elevated) side by side.
     const hint = await page.evaluate(() => {
-      const row = document.querySelector('.inline-list-row-active');
-      const field = row.querySelector('.inline-list-field');
+      const row = document.querySelector('.mo-editor-inline-list-row-active');
+      const field = row.querySelector('.mo-editor-inline-list-field');
       const out = {};
       const was = row.className;
       for (const kind of ['filled', 'tonal', 'outlined', 'text']) {
-        row.classList.remove('button-filled', 'button-tonal', 'button-outlined', 'button-text');
-        row.classList.add(`button-${kind}`);
+        row.classList.remove('mo-is-filled', 'mo-is-tonal', 'mo-is-outlined', 'mo-button__text');
+        row.classList.add(kind === 'text' ? 'mo-button__text' : `mo-is-${kind}`);
         out[kind] = [getComputedStyle(field, '::placeholder').color, getComputedStyle(row).color, getComputedStyle(field).color];
       }
       row.className = was;
@@ -295,7 +301,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Variant choice`));
       const radios = await group.getByRole('radio').count();
       const names = radios
-        ? await group.locator('.list-item-headline').allTextContents()
+        ? await group.locator('.mo-list__item-headline').allTextContents()
         : await group
             .getByRole('button')
             .allTextContents()
@@ -303,22 +309,22 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       if (names.map((n) => n.trim()).join() !== kinds.join()) problems.push(`${label}: the button's styles are "${names}", not "${kinds}"`);
       await (
         radios
-          ? group.locator('.list-item-content', { hasText: /^Outlined$/ })
+          ? group.locator('.mo-list__item-content', { hasText: /^Outlined$/ })
           : group.getByRole('button', { name: 'Outlined', exact: true })
       )
         .click({ timeout: 3000 })
         .catch(() => {});
       await page.waitForTimeout(300);
-      if (!(await page.locator('.inline-list-row-active.button-outlined').count()))
+      if (!(await page.locator('.mo-editor-inline-list-row-active.mo-button.mo-is-outlined').count()))
         problems.push(`${label}: choosing Outlined does not change the active button's style`);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
-      await page.locator('.inline-list-row [data-field="label"]').first().click();
+      await page.locator('.mo-editor-inline-list-row [data-field="label"]').first().click();
       // The pointer is away from the button: a state layer for a button pointed at is a passing state.
       await page.mouse.move(0, 0);
     }
     // The active button has its icon area, empty while it has no icon; a tap on it opens the icon picker and a choice sets the icon.
-    const slot = page.locator('.inline-list-row-active .inline-list-slot[aria-label="Icon"]');
+    const slot = page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Icon"]');
     if ((await slot.count()) !== 1) problems.push(`${label}: the active button has no icon area`);
     else {
       if ((await slot.locator('svg').count()) !== 1) problems.push(`${label}: the empty icon area has no placeholder`);
@@ -330,8 +336,8 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       // The sheet that is left open (a phone's) is closed to get back to the button.
       await page.keyboard.press('Escape');
       await page.waitForTimeout(400);
-      await page.locator('.inline-list-row [data-field="label"]').first().click();
-      if ((await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Icon"] svg').count()) !== 1)
+      await page.locator('.mo-editor-inline-list-row [data-field="label"]').first().click();
+      if ((await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Icon"] svg').count()) !== 1)
         problems.push(`${label}: the chosen icon is not shown in the active button's icon area`);
       await page.mouse.move(0, 0);
     }
@@ -340,18 +346,18 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   await page.waitForTimeout(300);
   const state = () =>
     page.evaluate(() => ({
-      rows: document.querySelectorAll('.inline-list-row[data-row]:not(.inline-list-row-next)').length,
-      next: document.querySelectorAll('.inline-list-row-next').length,
+      rows: document.querySelectorAll('.mo-editor-inline-list-row[data-row]:not(.mo-editor-inline-list-row-next)').length,
+      next: document.querySelectorAll('.mo-editor-inline-list-row-next').length,
       add: [...document.querySelectorAll('[data-add-row]')].map((b) => b.textContent.trim()),
-      outline: getComputedStyle(document.querySelector('.inline-list-row-active')).outlineStyle,
-      background: getComputedStyle(document.querySelector('.inline-list-row-active')).backgroundColor,
-      activeRow: document.querySelector('.inline-list-row-active').dataset.row,
-      bar: [...document.querySelectorAll('.editor-tools button')].map((b) => ({
+      outline: getComputedStyle(document.querySelector('.mo-editor-inline-list-row-active')).outlineStyle,
+      background: getComputedStyle(document.querySelector('.mo-editor-inline-list-row-active')).backgroundColor,
+      activeRow: document.querySelector('.mo-editor-inline-list-row-active').dataset.row,
+      bar: [...document.querySelectorAll('.mo-editor-tools button')].map((b) => ({
         label: b.getAttribute('aria-label'),
         svg: !!b.querySelector('svg path'),
       })),
       // A dropdown is a button with a text label and a chevron; a block's tools on the bar have none, only icon buttons.
-      dropdowns: [...document.querySelectorAll('.editor-tools button')]
+      dropdowns: [...document.querySelectorAll('.mo-editor-tools button')]
         .filter((b) => b.textContent.trim() || b.querySelector('svg[width="12"]'))
         .map((b) => b.getAttribute('aria-label')),
     }));
@@ -372,14 +378,14 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     await page.emulateMedia({ colorScheme: scheme });
     const colors = await page.evaluate(`(() => { ${ratioOf}
       const out = {};
-      const row = document.querySelector('.inline-list-row-active');
+      const row = document.querySelector('.mo-editor-inline-list-row-active');
       const top = row.closest('.ProseMirror > *');
       for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
         top.setAttribute('data-section-color', color);
         top.setAttribute('data-section-box', 'only');
-        const field = row.querySelector('.inline-list-field');
+        const field = row.querySelector('.mo-editor-inline-list-field');
         const ph = getComputedStyle(field, '::placeholder');
-        const slot = row.querySelector('.inline-list-slot');
+        const slot = row.querySelector('.mo-editor-inline-list-slot');
         const line = getComputedStyle(row);
         out[color] = {
           text: ratio(getComputedStyle(field).color, top, 1, field),
@@ -431,7 +437,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   };
   if (name === 'cards' && width >= 1000) {
     // A card has a page or buttons, never both: with a button the page is gone from its settings, with a page there are no buttons.
-    const panel = page.locator('.editor-side-sheet');
+    const panel = page.locator('.mo-editor-side-sheet');
     // The card's own Page field, found by its hint (a button has a Page of its own once it is added).
     const page_ = panel.getByText('With a page, the whole card is the link and has no buttons.');
     await page_.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the card's settings have no Page`));
@@ -441,16 +447,16 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   }
   if (name === 'cards') {
     // A button is typed on the button itself, then the next one is there, empty and faded.
-    await page.click('.inline-list-row-active [data-add-button]');
+    await page.click('.mo-editor-inline-list-row-active [data-add-button]');
     await page.keyboard.type('Go');
     await page.waitForTimeout(300);
     const typed = await page
-      .locator('.inline-list-row-active .inline-card-button textarea')
+      .locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-button textarea')
       .last()
       .inputValue()
       .catch(() => null);
     if (typed !== 'Go') problems.push(`${label}: the text typed on a card's new button is "${typed}", not "Go"`);
-    if ((await page.locator('.inline-list-row-active .inline-card-next-button').count()) !== 1)
+    if ((await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-next-button').count()) !== 1)
       problems.push(`${label}: no next button after the first`);
   }
   if (name === 'cards') await cardSettings('a card with a button');
@@ -462,13 +468,13 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   // its own at the bottom of the row and no text button typed there; the slot opens the row's sheet, which has the page.
   if (rowLink) {
     const slots = await page
-      .locator('.inline-list-row-active .inline-list-slot')
+      .locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')
       .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')));
     if (slots.join() !== 'Icon,Page') problems.push(`${label}: the active row's slots are "${slots}", not "Icon,Page"`);
-    if (await page.locator('[data-row-link], [data-add-button], .inline-segmented-buttons').count())
+    if (await page.locator('[data-row-link], [data-add-button], .mo-editor-inline-segmented-buttons').count())
       problems.push(`${label}: the row has a text row or a button of its own for its link`);
     if (!(await state()).bar.some((b) => b.label === 'Link')) problems.push(`${label}: the toolbar has no Link button`);
-    await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Page"]').click();
+    await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
     await page.waitForTimeout(500);
     if (!(await page.getByText('Page', { exact: true }).locator('visible=true').count()))
       problems.push(`${label}: the link slot did not open the row's page field`);
@@ -496,9 +502,9 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   if (two.rows !== 2) problems.push(`${label}: "${add}" left ${two.rows} items, not 2`);
   if (open) {
     // A folding block: only the active item is open (its answer typed in the panel), the others closed, and a typed item has no Link.
-    const opened = await page.evaluate(() => [...document.querySelectorAll('.inline-list-row[data-row]')].map((d) => d.open));
+    const opened = await page.evaluate(() => [...document.querySelectorAll('.mo-editor-inline-list-row[data-row]')].map((d) => d.open));
     if (opened.join() !== 'false,true') problems.push(`${label}: expected only the active item open, got ${opened}`);
-    if (!(await page.locator('.inline-list-row-active [data-field="answer"]').count()))
+    if (!(await page.locator('.mo-editor-inline-list-row-active [data-field="answer"]').count()))
       problems.push(`${label}: no answer field in the open item`);
     if ((await state()).bar.some((b) => b.label === 'Link')) problems.push(`${label}: the toolbar has a Link button`);
   }
@@ -508,15 +514,15 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     problems.push(`${label}: the button "${add}" stays after the cursor left the block`);
   // The row keeps the colour it has on the site while it is typed in: its background is the same once the cursor has left it.
   const kept = await page.evaluate(
-    (i) => getComputedStyle(document.querySelector(`.inline-list-row[data-row="${i}"]`)).backgroundColor,
+    (i) => getComputedStyle(document.querySelector(`.mo-editor-inline-list-row[data-row="${i}"]`)).backgroundColor,
     one.activeRow,
   );
   if (kept !== one.background)
     problems.push(`${label}: the row has background ${one.background} while typed in, ${kept} when the cursor left it`);
   if (name === 'cards') {
     // A media that is set is changed by a tap on it: an icon is picked from the Icon button, then the icon itself opens the picker and no media button is left.
-    await page.locator('.inline-list-row [data-field="title"]').first().click();
-    await page.locator('.inline-list-row-active .inline-list-slot[aria-label="Icon"]').click();
+    await page.locator('.mo-editor-inline-list-row [data-field="title"]').first().click();
+    await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Icon"]').click();
     const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
     await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Icon button did not open the icon picker`));
     await picker.getByRole('button').nth(1).click();
@@ -527,22 +533,22 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       .click({ timeout: 2000 })
       .catch(() => {});
     await page.waitForTimeout(300);
-    await page.locator('.inline-list-row [data-field="title"]').first().click();
-    if ((await page.locator('.inline-list-row-active .inline-card-media').count()) !== 1)
+    await page.locator('.mo-editor-inline-list-row [data-field="title"]').first().click();
+    if ((await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-media').count()) !== 1)
       problems.push(`${label}: a card with an icon does not show the icon as a button`);
-    if (await page.locator('.inline-list-row-active .inline-card-slots').count())
+    if (await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-slots').count())
       problems.push(`${label}: the media buttons show although the card has its icon`);
-    if ((await page.locator('.inline-list-row-active .inline-card-media svg').count()) !== 1)
+    if ((await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-media svg').count()) !== 1)
       problems.push(`${label}: the card's icon is not shown exactly once`);
     await cardSettings('a card with an icon');
     // A video: the Media choice of the first card, then its link.
-    await page.locator('.inline-list-row-active .inline-card-media').click();
+    await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-media').click();
     // The Media choice is the choice group: buttons when they fit, else the list of radio buttons (the whole row is the target).
     const mediaVideo = page.getByRole('button', { name: 'Video', exact: true }).last();
     if (await mediaVideo.count()) await mediaVideo.click();
     else
       await page
-        .locator('.choice-group-list .list-item-content', { hasText: /^Video$/ })
+        .locator('.mo-choice-group__list .mo-list__item-content', { hasText: /^Video$/ })
         .last()
         .click();
     await page.getByRole('textbox', { name: 'Video link' }).fill('https://www.youtube.com/watch?v=aqz-KE-bpKQ');
@@ -552,7 +558,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       .click({ timeout: 2000 })
       .catch(() => {});
     await page.waitForTimeout(300);
-    await page.locator('.inline-list-row [data-field="title"]').first().click();
+    await page.locator('.mo-editor-inline-list-row [data-field="title"]').first().click();
     await cardSettings('a card with a video');
   }
   await page.close();
@@ -573,18 +579,20 @@ async function checkSteps(width, height) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
-  await page.waitForSelector('.inline-steps .inline-list-row-active [data-field="title"]');
+  await page.waitForSelector('.mo-editor-inline-steps .mo-editor-inline-list-row-active [data-field="title"]');
   const steps = () =>
     page.evaluate(() =>
-      [...document.querySelectorAll('.inline-steps .block-step[data-row]:not(.inline-list-row-next)')].map((li) => ({
-        number: li.querySelector('.block-step-number').textContent,
-        title: li.querySelector('[data-field="title"]').value,
-        text: li.querySelector('[data-field="text"]').value,
-      })),
+      [...document.querySelectorAll('.mo-editor-inline-steps .mo-block-steps__step[data-row]:not(.mo-editor-inline-list-row-next)')].map(
+        (li) => ({
+          number: li.querySelector('.mo-block-steps__step-number').textContent,
+          title: li.querySelector('[data-field="title"]').value,
+          text: li.querySelector('[data-field="text"]').value,
+        }),
+      ),
     );
-  const faded = () => page.locator('.inline-steps .inline-list-row-next').count();
+  const faded = () => page.locator('.mo-editor-inline-steps .mo-editor-inline-list-row-next').count();
   if ((await faded()) !== 1) problems.push(`${label}: a new Steps block does not start with one faded, empty step`);
-  const number = await page.locator('.inline-steps .block-step-number').first().textContent();
+  const number = await page.locator('.mo-editor-inline-steps .mo-block-steps__step-number').first().textContent();
   if (number !== '1') problems.push(`${label}: the first step is numbered ${number}`);
   await page.keyboard.type('Order');
   await page.keyboard.press('Enter');
@@ -609,14 +617,16 @@ async function checkSteps(width, height) {
   // The heading's first line is centred on the number (within 1 px), read from the real boxes: the field's top plus its border and padding
   // plus half its line height, against the number's middle.
   const off = await page.evaluate(() =>
-    [...document.querySelectorAll('.inline-steps .block-step[data-row]:not(.inline-list-row-next)')].map((li) => {
-      const n = li.querySelector('.block-step-number').getBoundingClientRect();
-      const f = li.querySelector('[data-field="title"]');
-      const c = getComputedStyle(f);
-      const lh = parseFloat(c.lineHeight) || parseFloat(c.fontSize) * 1.2;
-      const first = f.getBoundingClientRect().top + parseFloat(c.borderTopWidth) + parseFloat(c.paddingTop) + lh / 2;
-      return Math.abs(first - (n.top + n.height / 2));
-    }),
+    [...document.querySelectorAll('.mo-editor-inline-steps .mo-block-steps__step[data-row]:not(.mo-editor-inline-list-row-next)')].map(
+      (li) => {
+        const n = li.querySelector('.mo-block-steps__step-number').getBoundingClientRect();
+        const f = li.querySelector('[data-field="title"]');
+        const c = getComputedStyle(f);
+        const lh = parseFloat(c.lineHeight) || parseFloat(c.fontSize) * 1.2;
+        const first = f.getBoundingClientRect().top + parseFloat(c.borderTopWidth) + parseFloat(c.paddingTop) + lh / 2;
+        return Math.abs(first - (n.top + n.height / 2));
+      },
+    ),
   );
   if (!off.length || off.some((d) => !(d <= 1)))
     problems.push(`${label}: a step's heading is not centred on its number (off by ${off.map((d) => d.toFixed(1)).join(', ')} px)`);
@@ -624,7 +634,7 @@ async function checkSteps(width, height) {
   // and the last draws none. Read from the real boxes, as a step is added, so the last one changes.
   const lineProblems = () =>
     page.evaluate(() => {
-      const lis = [...document.querySelectorAll('.inline-steps .block-step')];
+      const lis = [...document.querySelectorAll('.mo-editor-inline-steps .mo-block-steps__step')];
       const out = [];
       lis.forEach((li, i) => {
         const c = getComputedStyle(li, '::before');
@@ -635,8 +645,8 @@ async function checkSteps(width, height) {
         }
         if (!drawn) return out.push(`step ${i + 1} draws no line`);
         const r = li.getBoundingClientRect();
-        const to = lis[i + 1].querySelector('.block-step-number').getBoundingClientRect();
-        const from = li.querySelector('.block-step-number').getBoundingClientRect();
+        const to = lis[i + 1].querySelector('.mo-block-steps__step-number').getBoundingClientRect();
+        const from = li.querySelector('.mo-block-steps__step-number').getBoundingClientRect();
         const top = r.top + parseFloat(c.top);
         const bottom = r.bottom - parseFloat(c.bottom);
         if (Math.abs(top - (from.top + from.height / 2)) > 1 || Math.abs(bottom - (to.top + to.height / 2)) > 1)
@@ -658,10 +668,10 @@ async function checkSteps(width, height) {
   if (now.length !== 3 || now[2].title !== 'Ship')
     problems.push(`${label}: Backspace in an empty heading did not remove the step: ${JSON.stringify(now)}`);
   // Moving a step renumbers.
-  await page.locator('.inline-steps [data-row="0"] [data-field="title"]').click();
+  await page.locator('.mo-editor-inline-steps [data-row="0"] [data-field="title"]').click();
   await page.waitForTimeout(200);
   // The step row's own Move down on the bar (not the block's, in its action row).
-  await page.locator('.editor-tools button[aria-label="Move down"]:visible').first().click();
+  await page.locator('.mo-editor-tools button[aria-label="Move down"]:visible').first().click();
   await page.waitForTimeout(200);
   now = await steps();
   if (now[1]?.title !== 'Order' || now.map((s) => s.number).join() !== '1,2,3')
@@ -684,7 +694,7 @@ async function checkSteps(width, height) {
     await p2.waitForTimeout(300);
     await pressInsert(p2, 'click');
     await p2.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
-    await p2.waitForSelector('.inline-steps .inline-list-row-active [data-field="title"]');
+    await p2.waitForSelector('.mo-editor-inline-steps .mo-editor-inline-list-row-active [data-field="title"]');
     const taken = await p2.evaluate(
       ([html, plain]) => {
         const data = new DataTransfer();
@@ -692,7 +702,7 @@ async function checkSteps(width, height) {
         data.setData('text/html', html);
         // true when a step took the paste over (preventDefault), false when it is left to the browser as it is.
         return !document
-          .querySelector('.inline-steps [data-field="title"]')
+          .querySelector('.mo-editor-inline-steps [data-field="title"]')
           .dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
       },
       [html, plain],
@@ -700,7 +710,7 @@ async function checkSteps(width, height) {
     if (taken !== expected > 0)
       problems.push(`${label}: the paste ${html} was ${taken ? 'taken over' : 'left as it is'}, not the other way`);
     await p2.waitForTimeout(300);
-    const made = await p2.locator('.inline-steps .block-step[data-row]:not(.inline-list-row-next)').count();
+    const made = await p2.locator('.mo-editor-inline-steps .mo-block-steps__step[data-row]:not(.mo-editor-inline-list-row-next)').count();
     if (made !== expected) problems.push(`${label}: pasting ${html} made ${made} steps, not ${expected}`);
     await p2.close();
   }
@@ -730,7 +740,7 @@ async function checkInlinePaste(width, height, block) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: block.hint }).first().click();
-  const first = `.inline-list-host [data-row] [data-field="${block.first}"]`;
+  const first = `.mo-editor-inline-list-host [data-row] [data-field="${block.first}"]`;
   await page.waitForSelector(first);
   // Pastes `plain` (and `html`) into the first field of row `row`; true when the block took the paste over (preventDefault).
   const paste = (row, plain, html = '') =>
@@ -749,7 +759,7 @@ async function checkInlinePaste(width, height, block) {
   const items = () =>
     page.evaluate(
       ([f, s]) =>
-        [...document.querySelectorAll('.inline-list-host [data-row]')]
+        [...document.querySelectorAll('.mo-editor-inline-list-host [data-row]')]
           .filter((r) => !r.parentElement.closest('[data-row]'))
           .map((r) => [r.querySelector(`[data-field="${f}"]`)?.value ?? '', r.querySelector(`[data-field="${s}"]`)?.value ?? ''])
           .filter(([a]) => a),
@@ -773,10 +783,10 @@ async function checkInlinePaste(width, height, block) {
   // The tab gave the first item its text (an item that folds shows it once it is the active one).
   await page.locator(first.replace('[data-row]', '[data-row="0"]')).click();
   await page.waitForTimeout(300);
-  const text = await page.locator(`.inline-list-host [data-row="0"] [data-field="${block.second}"]`).first().inputValue();
+  const text = await page.locator(`.mo-editor-inline-list-host [data-row="0"] [data-field="${block.second}"]`).first().inputValue();
   if (text !== 'Choose it') problems.push(`${label}: the text after the tab in the first line is "${text}", not "Choose it"`);
   // An empty item after Add below takes a paste too, in its place; the item before it stays.
-  await page.locator('.inline-list-host [data-add-row]').first().click();
+  await page.locator('.mo-editor-inline-list-host [data-add-row]').first().click();
   await page.waitForTimeout(300);
   if (!(await paste(3, 'Ship\nTrack'))) problems.push(`${label}: lines pasted into an added empty item were left to the browser`);
   await page.waitForTimeout(300);
@@ -807,7 +817,7 @@ async function checkTablePaste(width, height) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
-  await page.waitForSelector('.inline-table-cell-active textarea');
+  await page.waitForSelector('.mo-editor-inline-table-cell-active textarea');
   // Pastes into the cell at row `r`, column `c`; true when the Table took the paste over (preventDefault).
   const paste = (r, c, plain, html = '') =>
     page.evaluate(
@@ -815,7 +825,7 @@ async function checkTablePaste(width, height) {
         const data = new DataTransfer();
         data.setData('text/plain', plain);
         if (html) data.setData('text/html', html);
-        const field = document.querySelector(`.inline-table-box [data-row="${r}"] [data-field="${c}"]`);
+        const field = document.querySelector(`.mo-editor-inline-table-box [data-row="${r}"] [data-field="${c}"]`);
         field.focus();
         return !field.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }));
       },
@@ -823,10 +833,10 @@ async function checkTablePaste(width, height) {
     );
   const grid = () =>
     page.evaluate(() => ({
-      rows: [...document.querySelectorAll('.inline-table-box tr[data-row]')].map((tr) =>
+      rows: [...document.querySelectorAll('.mo-editor-inline-table-box tr[data-row]')].map((tr) =>
         [...tr.querySelectorAll('textarea')].map((f) => f.value),
       ),
-      header: document.querySelectorAll('.inline-table-box thead th').length,
+      header: document.querySelectorAll('.mo-editor-inline-table-box thead th').length,
       cursor: (() => {
         const el = document.activeElement;
         return `${el?.closest('[data-row]')?.getAttribute('data-row')} ${el?.getAttribute('data-field')}`;

@@ -6,11 +6,11 @@ import type { ReleaseNote } from '../lib/releaseNotes.mjs';
 
 export function ReleaseNoteLines({ lines }: { lines: ReleaseNote[] }) {
   return (
-    <div className="space-y-2">
-      <h4 className="text-base font-medium">{t.cms.alsoInThisVersion}</h4>
-      <ul className="list-disc space-y-1 ps-5 text-base marker:text-primary">
+    <div className="mo-editor-stack-100">
+      <h4 className="mo-editor-release-heading">{t.cms.alsoInThisVersion}</h4>
+      <ul className="mo-editor-release-list mo-editor-stack-50">
         {lines.map((note) => (
-          <li key={note.id} className="[overflow-wrap:anywhere]">
+          <li key={note.id} className="mo-editor-wrap-anywhere">
             {note.text}
           </li>
         ))}

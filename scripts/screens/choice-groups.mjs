@@ -2,30 +2,30 @@ import { openEditor } from '../built-site.mjs';
 import { block, browser, da, daBlocks, daText, has, problems, site } from './support/context.mjs';
 import { pressTool, rowButton } from './support/shared.mjs';
 
-/** Every visible choice group (.choice-group) in `root`, measured in the page: its form, its choices' boxes, whether two overlap
+/** Every visible choice group (.mo-choice-group) in `root`, measured in the page: its form, its choices' boxes, whether two overlap
  * or a label is cut off, what the buttons need against the room they get, the targets (buttons) and row heights (list), its
  * name, and its samples. Run with locator.evaluate. */
 function choiceGroupsIn(root) {
-  return [...root.querySelectorAll('.choice-group')]
+  return [...root.querySelectorAll('.mo-choice-group')]
     .filter((g) => g.getClientRects().length > 0)
     .map((g) => {
       const form = g.dataset.form;
       const visible =
-        form === 'buttons' ? g.querySelector(':scope > .choice-group-buttons') : g.querySelector(':scope > .choice-group-list');
-      const items = form === 'buttons' ? [...visible.children] : [...visible.querySelectorAll('.list-item-container')];
+        form === 'buttons' ? g.querySelector(':scope > .mo-choice-group__buttons') : g.querySelector(':scope > .mo-choice-group__list');
+      const items = form === 'buttons' ? [...visible.children] : [...visible.querySelectorAll('.mo-list__item-container')];
       const boxes = items.map((el) => el.getBoundingClientRect());
       const overlap = boxes.some((a, i) =>
         boxes.some((b, j) => j > i && a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5),
       );
       const labels =
         form === 'buttons'
-          ? items.map((b) => b.querySelector('.choice-group-label'))
-          : items.map((r) => r.querySelector('.list-item-headline'));
+          ? items.map((b) => b.querySelector('.mo-choice-group__label'))
+          : items.map((r) => r.querySelector('.mo-list__item-headline'));
       const clipped = labels
-        .filter((l) => l && !l.classList.contains('choice-group-label-hidden') && l.scrollWidth > l.clientWidth + 0.5)
+        .filter((l) => l && !l.classList.contains('mo-choice-group__label-hidden') && l.scrollWidth > l.clientWidth + 0.5)
         .map((l) => l.textContent);
-      const measured = [...g.querySelectorAll(':scope > .choice-group-measure > *')].map((b) => b.getBoundingClientRect().width);
-      const row = g.querySelector(':scope > .choice-group-measure');
+      const measured = [...g.querySelectorAll(':scope > .mo-choice-group__measure > *')].map((b) => b.getBoundingClientRect().width);
+      const row = g.querySelector(':scope > .mo-choice-group__measure');
       const room = row ? row.getBoundingClientRect().width : 0;
       const needed = measured.length
         ? Math.max(...measured) * measured.length + (measured.length - 1) * (parseFloat(getComputedStyle(row).columnGap) || 0)
@@ -46,18 +46,18 @@ function choiceGroupsIn(root) {
       const circleOff = lis.map((li) => li.querySelector('input[type="radio"]').getBoundingClientRect().left - gr.left);
       const centreOff = lis.map((li) => {
         const c = li.querySelector('input[type="radio"]').getBoundingClientRect();
-        const t = li.querySelector('.list-item-headline').getBoundingClientRect();
+        const t = li.querySelector('.mo-list__item-headline').getBoundingClientRect();
         return (c.top + c.bottom) / 2 - (t.top + t.bottom) / 2;
       });
       const sampleOff = lis.flatMap((li) => {
-        const slot = li.querySelector('.choice-group-sample');
+        const slot = li.querySelector('.mo-choice-group__sample');
         const b =
           slot &&
-          [...slot.querySelectorAll('.button')].find(
+          [...slot.querySelectorAll('.mo-button')].find(
             (x) => x.getClientRects().length && !x.closest('[aria-hidden="true"][style*="hidden"]'),
           );
         if (!b) return [];
-        const pad = b.classList.contains('button-text') ? parseFloat(getComputedStyle(b).paddingRight) : 0;
+        const pad = b.classList.contains('mo-button__text') ? parseFloat(getComputedStyle(b).paddingRight) : 0;
         return [b.getBoundingClientRect().right - pad - gr.right];
       });
       return {
@@ -68,7 +68,7 @@ function choiceGroupsIn(root) {
         forced: g.hasAttribute('data-forced'),
         narrow: !!g.closest('[data-choice-narrow]'),
         n: items.length,
-        samples: g.querySelectorAll(':scope > .choice-group-list .choice-group-sample').length,
+        samples: g.querySelectorAll(':scope > .mo-choice-group__list .mo-choice-group__sample').length,
         overlap,
         clipped,
         room,
@@ -129,20 +129,20 @@ async function checkChoiceGroupFields(width, locale) {
   const path = 'src/content/pages/zz-choices.md';
   await openEditor(page, site, { [path]: CHOICE_PAGE });
   await page.goto(`${site}/editor/#${path}`);
-  await page.waitForSelector('.ProseMirror .site-block-card', { timeout: 30_000 });
+  await page.waitForSelector('.ProseMirror .mo-site-block-card', { timeout: 30_000 });
   const sheet = () =>
     page
-      .locator('dialog[open], .editor-side-sheet')
-      .filter({ has: page.locator('.choice-group, .segmented-button') })
+      .locator('dialog[open], .mo-editor-side-sheet')
+      .filter({ has: page.locator('.mo-choice-group, .mo-segmented-button') })
       .last();
   // A sheet is closed by its Cancel (nothing was changed), else by Escape (the side panel on a computer).
   const close = async () => {
     const cancel = page.locator(
-      'dialog[open] .side-sheet-actions button, dialog[open] [aria-label="Close"], dialog[open] [aria-label="Luk"]',
+      'dialog[open] .mo-side-sheet__actions button, dialog[open] [aria-label="Close"], dialog[open] [aria-label="Luk"]',
     );
     const named = cancel.filter({ hasText: /^(Cancel|Annuller)$/ });
     // On a phone the block's fields are a subpage: its back arrow is the first button of its app bar.
-    const subpage = page.locator('dialog[open].block-page header button').first();
+    const subpage = page.locator('dialog[open].mo-editor-block-page header button').first();
     if (await subpage.count()) await subpage.click();
     else if (await named.count()) await named.last().click();
     else if (await cancel.count()) await cancel.last().click();
@@ -150,7 +150,7 @@ async function checkChoiceGroupFields(width, locale) {
     await page.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 3000 }).catch(() => {});
     await page.waitForTimeout(300);
   };
-  const cards = page.locator('.ProseMirror > .site-block > .site-block-card');
+  const cards = page.locator('.ProseMirror > .mo-site-block > .mo-site-block-card');
   const count = await cards.count();
   const seen = [];
   const skipped = [];
@@ -183,7 +183,7 @@ async function checkChoiceGroupFields(width, locale) {
     }
     if (!(await sheet().count())) {
       const active = rowButton(page, say.block);
-      let button = (await active.count()) ? active : page.locator(`.site-block-row [data-row][aria-label="${say.block}"]:visible`);
+      let button = (await active.count()) ? active : page.locator(`.mo-site-block-row [data-row][aria-label="${say.block}"]:visible`);
       if (!(await button.count()) && !touch && (await card.locator('[data-field]').count())) {
         // A block whose items the hover row would cover (Cards) shows no hover row: a click in its first field makes the block the active one, which has its row.
         await card.locator('[data-field]').first().click();
@@ -195,7 +195,7 @@ async function checkChoiceGroupFields(width, locale) {
         await card.focus();
         await page.keyboard.press('Enter');
         await page.waitForTimeout(800);
-        button = page.locator(`.site-block-row [data-row][aria-label="${say.block}"]:visible`);
+        button = page.locator(`.mo-site-block-row [data-row][aria-label="${say.block}"]:visible`);
       }
       // Buttons has no block-level choice: its Style is in each button's Settings (below).
       if (!(await button.count()) && !(await sheet().count())) {
@@ -275,7 +275,7 @@ async function checkChoiceGroupFields(width, locale) {
     await page.keyboard.press('ArrowDown');
     const chosen = await style.evaluate((l) => [...l.querySelectorAll('input[type="radio"]')].findIndex((r) => r.checked));
     if (chosen !== 1) problems.push(`${label}: ArrowDown in ${say.style} did not choose the second style (${chosen})`);
-    if (!(await page.locator('.inline-list-row-active.button-tonal, .ProseMirror .button-tonal').count()))
+    if (!(await page.locator('.mo-editor-inline-list-row-active.mo-button.mo-is-tonal, .ProseMirror .mo-button.mo-is-tonal').count()))
       problems.push(`${label}: choosing Tonal by the arrow key did not change the button`);
     if (process.env.SHOTS_FULL) await sheet().screenshot({ path: `${process.env.SHOTS_FULL}-button-style-${width}-${locale}.png` });
   }
@@ -305,22 +305,24 @@ async function checkButtonStyleSamples(width, locale) {
     await page.waitForTimeout(500);
     await pressTool(page, say.settings).catch(() => problems.push(`${label}: the button has no ${say.settings}`));
     const here = page
-      .locator('dialog[open], .editor-side-sheet')
-      .filter({ has: page.locator('.choice-group') })
+      .locator('dialog[open], .mo-editor-side-sheet')
+      .filter({ has: page.locator('.mo-choice-group') })
       .last();
     await here.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the settings did not open`));
     await page.waitForTimeout(600);
     const samples = await here
       .evaluate((root) =>
-        [...root.querySelectorAll('.choice-group-list .choice-group-sample')]
+        [...root.querySelectorAll('.mo-choice-group__list .mo-choice-group__sample')]
           .filter((slot) => slot.getClientRects().length)
           .map((slot) => {
-            const button = slot.querySelector('.button:not([aria-hidden] .button)') ?? slot.querySelector('.button');
-            const visible = [...slot.querySelectorAll('.button')].filter((b) => !b.closest('[aria-hidden="true"][style*="hidden"]')).at(0);
+            const button = slot.querySelector('.mo-button:not([aria-hidden] .mo-button)') ?? slot.querySelector('.mo-button');
+            const visible = [...slot.querySelectorAll('.mo-button')]
+              .filter((b) => !b.closest('[aria-hidden="true"][style*="hidden"]'))
+              .at(0);
             const b = (visible ?? button).getBoundingClientRect();
             const r = slot.getBoundingClientRect();
             // A text button's side padding (it has no surface) may stand over the slot's end: its text is what must be inside.
-            const pad = (visible ?? button).classList.contains('button-text')
+            const pad = (visible ?? button).classList.contains('mo-button__text')
               ? parseFloat(getComputedStyle(visible ?? button).paddingRight)
               : 0;
             return {
@@ -370,14 +372,14 @@ async function checkChoiceGroupParts(width, locale) {
   if (narrow && (!narrow.narrow || narrow.form !== 'list'))
     problems.push(`${label}: five styles in 320 px are not the list (${narrow.form})`);
   // The list: the arrow keys choose the next one.
-  const list = part.locator('.choice-group[data-forced] .choice-group-list');
+  const list = part.locator('.mo-choice-group[data-forced] .mo-choice-group__list');
   await list.locator('input[type="radio"]:checked').focus();
   await page.keyboard.press('ArrowDown');
   const chosen = await list.evaluate((l) => [...l.querySelectorAll('input[type="radio"]')].findIndex((r) => r.checked));
   if (chosen !== 1) problems.push(`${label}: ArrowDown in the list did not choose the second choice (${chosen})`);
   // The buttons (the first group, where it is the buttons): Tab lands on the chosen one, an arrow moves, Enter chooses.
   if (auto?.form === 'buttons') {
-    const buttons = part.locator('.choice-group').first().locator(':scope > .choice-group-buttons > button');
+    const buttons = part.locator('.mo-choice-group').first().locator(':scope > .mo-choice-group__buttons > button');
     if ((await buttons.evaluateAll((bs) => bs.filter((b) => b.tabIndex === 0).length)) !== 1)
       problems.push(`${label}: not exactly one button is in the Tab order`);
     await buttons.first().focus();
@@ -401,12 +403,12 @@ async function checkButtonStyleOptions(width) {
   const md = `---\ntitle: "Elevated"\ndescription: "d"\n---\n\n# Elevated\n\nIntro.\n\n${block('buttons', { items: [{ label: 'Old one', to: 'page', kind: 'elevated' }] })}\n`;
   await openEditor(page, site, { [path]: md });
   await page.goto(`${site}/editor/#${path}`);
-  await page.waitForSelector('.ProseMirror .site-block-card, .ProseMirror .inline-buttons', { timeout: 30_000 });
+  await page.waitForSelector('.ProseMirror .mo-site-block-card, .ProseMirror .mo-editor-inline-buttons', { timeout: 30_000 });
   await page.locator('.ProseMirror [data-field="label"]').last().click();
   await page.waitForTimeout(300);
-  if (!(await page.locator('.ProseMirror .button-tonal').count()))
+  if (!(await page.locator('.ProseMirror .mo-button.mo-is-tonal').count()))
     problems.push(`${label}: a saved elevated button is not drawn as tonal in the editor`);
-  if (await page.locator('.ProseMirror .button-elevated').count())
+  if (await page.locator('.ProseMirror .mo-button.mo-is-elevated').count())
     problems.push(`${label}: a saved elevated button is still drawn elevated`);
   await pressTool(page, 'Settings').catch(() => problems.push(`${label}: the button has no Settings`));
   const style = page.getByRole('group', { name: 'Variant', exact: true }).last();
@@ -418,7 +420,7 @@ async function checkButtonStyleOptions(width) {
   )
     problems.push(`${label}: the button's settings have no Variant`);
   else {
-    const names = (await style.locator('.list-item-headline').allTextContents()).map((n) => n.trim());
+    const names = (await style.locator('.mo-list__item-headline').allTextContents()).map((n) => n.trim());
     if (names.join() !== 'Filled,Tonal,Outlined,Text')
       problems.push(`${label}: the styles are "${names}", not "Filled,Tonal,Outlined,Text"`);
     const checked = await style.evaluate((l) => [...l.querySelectorAll('input[type="radio"]')].findIndex((r) => r.checked));

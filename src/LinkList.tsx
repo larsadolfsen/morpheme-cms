@@ -131,7 +131,7 @@ export function LinkList({
           backLabel: t.common.back,
           children: (
             <form
-              className="space-y-5"
+              className="mo-editor-stack-250"
               onSubmit={(e) => {
                 e.preventDefault();
                 done();
@@ -177,7 +177,7 @@ export function LinkList({
                 onClick={() => open(i)}
                 actions={
                   value.length > 1 && (
-                    <span className="flex shrink-0 pr-1.5">
+                    <span className="mo-editor-move-buttons">
                       <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} />
                     </span>
                   )

@@ -30,7 +30,7 @@ const pages = readdirSync(dist, { recursive: true })
   .filter((f) => f.endsWith('index.html') && !f.startsWith('editor') && !f.startsWith('_') && !f.includes('404'))
   .map((f) => `/${f.slice(0, -'index.html'.length)}`);
 
-const BLOCKS = '.block-list, .block-accordion, .block-steps, .block-posts-rows, .block-testimonial-rows';
+const BLOCKS = '.mo-block-list, .mo-block-accordion, .mo-block-steps, .mo-block-posts__rows, .mo-block-testimonials__testimonial-rows';
 const problems = [];
 const browser = await chromium.launch(process.env.CHROMIUM_PATH ? { executablePath: process.env.CHROMIUM_PATH } : {});
 for (const width of [375, 768, 1280, 1580]) {
@@ -42,7 +42,7 @@ for (const width of [375, 768, 1280, 1580]) {
         const out = [];
         const left = (e) => Math.round(e.getBoundingClientRect().left);
         if (document.documentElement.scrollWidth > width) out.push(`scrolls sideways (${document.documentElement.scrollWidth}px)`);
-        for (const root of document.querySelectorAll('.prose')) {
+        for (const root of document.querySelectorAll('.mo-prose')) {
           const paragraphs = [...root.querySelectorAll(':scope > p')];
           // The lead (first paragraph, its own 52ch) is not the measure.
           for (const p of paragraphs.slice(1)) {
@@ -67,30 +67,33 @@ for (const width of [375, 768, 1280, 1580]) {
           // one below 720px, two from 720px, three from 1080px .
           const w = Math.round(block.getBoundingClientRect().width);
           const name = block.className.toString().split(' ')[0];
-          if (block.matches('.block-steps')) {
+          if (block.matches('.mo-block-steps')) {
             if (w > 721) out.push(`${name} is ${w}px wide, more than 720px`);
           } else {
-            const grid = block.matches('.block-posts-rows') ? block.querySelector('.theme-post-list') : block;
+            const grid = block.matches('.mo-block-posts__rows') ? block.querySelector('.mo-post-list') : block;
             const columns = getComputedStyle(grid).gridTemplateColumns.split(' ').length;
             // A post row has a thumbnail: its columns are at least 480px (two from 984px).
             // The setting Columns is off (data-columns="one"): one column at most 720px wide, whatever the width.
             const one = block.matches("[data-columns='one']");
-            const wanted = one ? 1 : block.matches('.block-posts-rows') ? (w >= 984 ? 2 : 1) : w >= 1080 ? 3 : w >= 720 ? 2 : 1;
+            const wanted = one ? 1 : block.matches('.mo-block-posts__rows') ? (w >= 984 ? 2 : 1) : w >= 1080 ? 3 : w >= 720 ? 2 : 1;
             if (columns !== wanted) out.push(`${name} has ${columns} columns at ${w}px${one ? ' with Columns off' : ''}, not ${wanted}`);
             if (one && w > 721) out.push(`${name} with Columns off is ${w}px wide, more than 720px`);
           }
-          if (!before?.matches?.('p') || !before.closest('.prose')) continue;
+          if (!before?.matches?.('p') || !before.closest('.mo-prose')) continue;
           // Owner, 16 Nov 2026: "Full width on compact screens". Below 600px the layer of a plain List or List - Expand (no drawn container) reaches
           // 16px past the text column on each side, so its box starts 16px before the text above it and its content (leading icon or text) is on
           // the text's edge. From 600px, and in the segmented design, the box itself is on the text's edge.
-          const bleeds = width < 600 && block.matches('.block-list:not(.list-segmented), .block-accordion:not(.block-accordion-segmented)');
+          const bleeds =
+            width < 600 &&
+            block.matches('.mo-block-list:not(.mo-list__segmented), .mo-block-accordion:not(.mo-block-accordion__segmented)');
           const name2 = block.className.toString().split(' ')[0];
           if (left(block) !== left(before) - (bleeds ? 16 : 0))
             out.push(
               `${name2} starts at ${left(block)}px, the text above it at ${left(before)}px${bleeds ? ' (the layer is 16px wider on a compact screen)' : ''}`,
             );
-          if (bleeds && block.matches('.block-list')) {
-            const lead = block.querySelector('.list-item-leading-icon, .list-item-leading') ?? block.querySelector('.list-item-content');
+          if (bleeds && block.matches('.mo-block-list')) {
+            const lead =
+              block.querySelector('.mo-list__item-leading-icon, .mo-list__item-leading') ?? block.querySelector('.mo-list__item-content');
             if (lead && left(lead) !== left(before))
               out.push(`${name2}'s row content starts at ${left(lead)}px, the text above it at ${left(before)}px`);
           }
@@ -103,8 +106,8 @@ for (const width of [375, 768, 1280, 1580]) {
     // The demo's Lists page has a List with the setting Columns off and one with it on (the default), so both values are checked.
     if (path === '/blocks/lists/') {
       const both = await page.evaluate(() => [
-        !!document.querySelector(".block-list[data-columns='one']"),
-        !!document.querySelector('.block-list:not([data-columns])'),
+        !!document.querySelector(".mo-block-list[data-columns='one']"),
+        !!document.querySelector('.mo-block-list:not([data-columns])'),
       ]);
       if (!both[0] || !both[1]) problems.push(`/blocks/lists/ at ${width}px: it needs a List with Columns off and one with Columns on`);
     }

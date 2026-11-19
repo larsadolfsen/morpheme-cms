@@ -24,13 +24,13 @@ export type ModalSheetSize = {
 };
 
 export function modalSheetSize(dialog: HTMLDialogElement, panel: HTMLElement, close: () => void): ModalSheetSize {
-  const content = panel.querySelector<HTMLElement>('.bottom-sheet-content');
+  const content = panel.querySelector<HTMLElement>('.mo-bottom-sheet__content');
   const handle = panel.querySelector<HTMLElement>('[data-bottom-sheet-handle]');
-  const header = panel.querySelector<HTMLElement>('.bottom-sheet-header');
+  const header = panel.querySelector<HTMLElement>('.mo-bottom-sheet__header');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const wide = matchMedia(atLeast('medium'));
   // The editor's sheets keep the heights their classes give them.
-  const own = dialog.classList.contains('bottom-sheet-fit') || dialog.classList.contains('bottom-sheet-full');
+  const own = dialog.classList.contains('mo-bottom-sheet__fit') || dialog.classList.contains('mo-bottom-sheet__full');
   const managed = () => !own && !wide.matches;
 
   let sizes: { start: number; full: number } | undefined;
@@ -39,7 +39,7 @@ export function modalSheetSize(dialog: HTMLDialogElement, panel: HTMLElement, cl
   let run = 0;
 
   // The start and the full height: what is in it (a frame fills the sheet, so it counts as unlimited), the screen's
-  // height and --bottom-sheet-top-gap.
+  // height and --mo-comp-bottom-sheet-top-gap.
   function measure() {
     const was = { height: dialog.style.height, maxHeight: dialog.style.maxHeight };
     dialog.style.height = 'auto';
@@ -48,7 +48,7 @@ export function modalSheetSize(dialog: HTMLDialogElement, panel: HTMLElement, cl
     dialog.style.height = was.height;
     dialog.style.maxHeight = was.maxHeight;
     const probe = document.createElement('div');
-    probe.style.cssText = 'position:absolute;visibility:hidden;height:var(--bottom-sheet-top-gap, 4.5rem)';
+    probe.style.cssText = 'position:absolute;visibility:hidden;height:var(--mo-comp-bottom-sheet-top-gap, 4.5rem)';
     dialog.append(probe);
     const topGap = probe.offsetHeight;
     probe.remove();

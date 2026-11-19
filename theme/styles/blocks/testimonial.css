@@ -1,5 +1,5 @@
 /*
-  The Testimonials blocks' own rules (.block-testimonial and its parts, the clamp of a long text, the list's hidden row): Testimonial cards and
+  The Testimonials blocks' own rules (.mo-block-testimonials__testimonial and its parts, the clamp of a long text, the list's hidden row): Testimonial cards and
   Testimonials list. Moved here from blocks.css with the rules unchanged and in the order they had
   (docs/superpowers/plans/2026-11-16-css-split.md). Imported by base.css right after blocks.css, in the same layer (components), so every rule
   that stayed in blocks.css after these still comes before them in the cascade; none of those rules sets a property of a testimonial's elements
@@ -7,30 +7,30 @@
 */
 @layer components {
   /* "Testimonial cards": testimonials to leaf through (testimonials/Slider.tsx, a carousel: ui.css). */
-  .carousel.block-in-text,
-  .block-testimonials.block-in-text,
-  .block-testimonial.block-in-text {
+  .mo-carousel.mo-is-in-text,
+  .mo-block-testimonials.mo-is-in-text,
+  .mo-block-testimonials__testimonial.mo-is-in-text {
     margin-block: 2.5rem;
   }
   /* "Testimonials list" (testimoniallist/Rows.tsx): the theme's list; a row the filter hides takes its divider with it. */
-  .block-testimonial-rows > li:has(> [data-tags][hidden]) {
+  .mo-block-testimonials__testimonial-rows > li:has(> [data-tags][hidden]) {
     display: none;
   }
-  /* One testimonial (testimonials/Testimonial.tsx), an outlined card (.card in ui.css): a big quotation mark, its tags,
+  /* One testimonial (testimonials/Testimonial.tsx), an outlined card (.mo-card in ui.css): a big quotation mark, its tags,
      the text (cut after seven lines with "Read more", or two with a link to the whole text) and the name. */
-  .block-testimonial {
+  .mo-block-testimonials__testimonial {
     display: flex;
     width: 100%;
     flex-direction: column;
     margin: 0;
   }
-  .block-testimonial-head {
+  .mo-block-testimonials__testimonial-head {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 1rem;
   }
-  .block-testimonial-quote-mark {
+  .mo-block-testimonials__testimonial-quote-mark {
     display: block;
     height: 2.5rem;
     margin-bottom: -1rem;
@@ -40,41 +40,41 @@
     letter-spacing: var(--mo-sys-typescale-display-large-tracking);
     color: var(--mo-sys-block-accent);
   }
-  .block-testimonial-tags {
+  .mo-block-testimonials__testimonial-tags {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: 0.5rem;
   }
-  .block-testimonial-tags .chip {
+  .mo-block-testimonials__testimonial-tags .mo-chip {
     font-size: var(--mo-sys-typescale-label-large-size);
     line-height: var(--mo-sys-typescale-label-large-line-height);
     font-weight: var(--mo-sys-typescale-label-large-weight);
     letter-spacing: var(--mo-sys-typescale-label-large-tracking);
   }
-  .block-testimonial-text {
+  .mo-block-testimonials__testimonial-text {
     margin: var(--mo-comp-card-text-gap, 0.5rem) 0 0;
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
     font-weight: var(--mo-sys-typescale-body-large-weight);
     letter-spacing: var(--mo-sys-typescale-body-large-tracking);
   }
-  .block-testimonial-text > * {
+  .mo-block-testimonials__testimonial-text > * {
     margin: 0;
   }
-  .block-testimonial-text > :not(:last-child) {
+  .mo-block-testimonials__testimonial-text > :not(:last-child) {
     margin-bottom: 0.75rem;
   }
-  .block-testimonial-context {
+  .mo-block-testimonials__testimonial-context {
     color: var(--mo-sys-block-muted);
   }
-  .block-testimonial-short {
+  .mo-block-testimonials__testimonial-short {
     display: -webkit-box;
     overflow: hidden;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
   }
-  .block-testimonial-more {
+  .mo-block-testimonials__testimonial-more {
     position: relative;
     display: inline-flex;
     align-self: flex-start;
@@ -92,16 +92,16 @@
     color: var(--mo-sys-block-accent);
     text-decoration: none;
   }
-  .block-testimonial-more[hidden] {
+  .mo-block-testimonials__testimonial-more[hidden] {
     display: none;
   }
-  .block-testimonial-more svg {
+  .mo-block-testimonials__testimonial-more svg {
     transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
-  .block-testimonial-more[aria-expanded='true'] svg {
+  .mo-block-testimonials__testimonial-more[aria-expanded='true'] svg {
     transform: rotate(180deg);
   }
-  .block-testimonial-name {
+  .mo-block-testimonials__testimonial-name {
     display: flex;
     align-items: center;
     gap: 0.75rem;
@@ -109,25 +109,25 @@
     padding-top: var(--mo-comp-card-action-gap, 1rem);
     font-weight: 500;
   }
-  .block-testimonial-mark {
+  .mo-block-testimonials__testimonial-mark {
     display: none;
   }
   /* A testimonial's image before the name: small and round. */
-  .block-testimonial-picture {
+  .mo-block-testimonials__testimonial-picture {
     width: 2.5rem;
     height: 2.5rem;
     flex-shrink: 0;
     border-radius: var(--mo-sys-shape-corner-full);
     object-fit: cover;
   }
-  .js [data-clamp] {
+  .mo-js [data-clamp] {
     max-height: calc(1.625em * 7);
     overflow: hidden;
   }
-  .js [data-clamp][data-overflow] {
+  .mo-js [data-clamp][data-overflow] {
     mask-image: linear-gradient(to bottom, #000 55%, transparent);
   }
-  .js [data-clamp][data-open] {
+  .mo-js [data-clamp][data-open] {
     max-height: none;
     mask-image: none;
   }

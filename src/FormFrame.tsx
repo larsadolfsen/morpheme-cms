@@ -187,8 +187,8 @@ export function useUnsavedGuard(dirty: boolean, save: () => Promise<unknown>, di
 /** The bar at the bottom with `Save changes`, for a screen that is not a form (a list's, while its definition waits). */
 export function SaveBar({ saving, onSave }: { saving: boolean; onSave: () => Promise<unknown> }) {
   return (
-    <ActionSheet label={t.common.saveChanges} className="editor-save-bar">
-      <div className="flex justify-end gap-2">
+    <ActionSheet label={t.common.saveChanges} className="mo-editor-save-bar">
+      <div className="mo-editor-form-actions">
         <Button
           kind="filled"
           disabled={saving}
@@ -258,9 +258,9 @@ export default function FormFrame<T extends string>({
         ) : undefined
       }
     >
-      <div className="space-y-6">{children}</div>
+      <div className="mo-editor-stack-300">{children}</div>
       {(onDelete || publish?.actions?.length) && (
-        <div className="mt-12">
+        <div className="mo-editor-form-more">
           <Group>
             {publish?.actions?.map((a) => (
               <ListItem key={a.label} disabled={saving} onClick={a.onClick} headline={a.label} />
@@ -271,7 +271,7 @@ export default function FormFrame<T extends string>({
                 disabled={saving}
                 onClick={onDelete}
                 headline={
-                  <span className="inline-flex items-center gap-3">
+                  <span className="mo-editor-inline-row">
                     <Trash size={18} />
                     {deleting ? <LoadingIndicator>{t.app.busy.deleting}</LoadingIndicator> : (deleteLabel ?? t.common.delete)}
                   </span>
@@ -282,16 +282,16 @@ export default function FormFrame<T extends string>({
         </div>
       )}
       {!hidden && (dirty || saving || publish?.label || publishing) && (
-        <ActionSheet label={t.common.saveChanges} className="editor-save-bar">
+        <ActionSheet label={t.common.saveChanges} className="mo-editor-save-bar">
           {/* Preview beside Save, at the end of the bar, each as wide as its label. */}
-          <div className="flex justify-end gap-2">
+          <div className="mo-editor-form-actions">
             {onPreview && (
               <Button
                 kind="outlined"
                 icon={PreviewIcon}
                 onClick={onPreview}
                 // With two more buttons there is no room for it on a phone: the text's bar has it too.
-                className={publish?.label ? 'max-medium:hidden' : undefined}
+                className={publish?.label ? 'mo-editor-hide-on-phone' : undefined}
               >
                 {t.preview.button}
               </Button>

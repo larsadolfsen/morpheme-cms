@@ -1,5 +1,5 @@
 /*
-  The Steps and Notice blocks: .block-steps (its one column, the line between the numbers) with .block-step and its parts, and .block-notice. Moved here
+  The Steps and Notice blocks: .mo-block-steps (its one column, the line between the numbers) with .mo-block-steps__step and its parts, and .mo-block-notice. Moved here
   from blocks.css with the rules unchanged and in the order they had (docs/superpowers/plans/2026-11-16-css-split.md). The list columns that Steps shares
   with List, Segmented list, Blog posts and Testimonials list stay in blocks.css. Imported by base.css right after blocks.css, in the same layer
   (components), so every rule that stayed in blocks.css after these still comes before them in the cascade; none of those rules sets a property of these
@@ -7,12 +7,12 @@
 */
 @layer components {
   /* The one column of "Steps": at most --mo-sys-block-list-measure-max wide (the owner's rule for blocks of plain text rows, above the list columns in blocks.css). */
-  .block-steps {
+  .mo-block-steps {
     max-width: var(--mo-sys-block-list-measure-max);
   }
 
   /* "Notice": a short notice in a box with the accent along its left edge (notice/). */
-  .block-notice {
+  .mo-block-notice {
     border-left: 4px solid var(--mo-sys-block-accent);
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
@@ -27,18 +27,18 @@
   }
 
   /* "Steps": numbered steps along a line (steps/StepList.tsx). */
-  .block-steps {
+  .mo-block-steps {
     position: relative;
   }
-  .block-steps.block-in-text {
+  .mo-block-steps.mo-is-in-text {
     margin-block: 2.5rem;
   }
-  .block-steps > :not(:last-child) {
+  .mo-block-steps > :not(:last-child) {
     margin-bottom: var(--mo-sys-block-step-gap);
   }
   /* The line joins a number to the next number and goes no further: each step but the last draws it from its number's middle to the
      next number's middle (the step's own height, the gap, and half a number). */
-  .block-step:not(:last-child)::before {
+  .mo-block-steps__step:not(:last-child)::before {
     content: '';
     position: absolute;
     top: 1.5rem;
@@ -47,12 +47,12 @@
     width: 1px;
     background: var(--mo-sys-block-line);
   }
-  .block-step {
+  .mo-block-steps__step {
     position: relative;
     display: flex;
     gap: 1.25rem;
   }
-  .block-step-number {
+  .mo-block-steps__step-number {
     position: relative;
     display: grid;
     width: 3rem;
@@ -69,16 +69,16 @@
     font-variant-numeric: tabular-nums;
   }
   /* The heading's first line is centred on the number: the body starts (number height - line height) / 2 down. */
-  .block-step-body {
+  .mo-block-steps__step-body {
     padding-top: calc((3rem - var(--mo-sys-typescale-title-large-line-height)) / 2);
   }
-  .block-step-title {
+  .mo-block-steps__step-title {
     font-size: var(--mo-sys-typescale-title-large-size);
     line-height: var(--mo-sys-typescale-title-large-line-height);
     font-weight: var(--mo-sys-typescale-title-large-weight);
     letter-spacing: var(--mo-sys-typescale-title-large-tracking);
   }
-  .block-step-text {
+  .mo-block-steps__step-text {
     margin-top: 0.375rem;
     max-width: 50ch;
     color: var(--mo-sys-block-muted);

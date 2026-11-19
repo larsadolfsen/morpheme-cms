@@ -4,7 +4,6 @@
 //
 // Fails on:
 //   fixed-colour   a hex, rgb()/hsl()/oklch()/hwb()/lab() literal or a named colour (not transparent, currentColor)
-//   palette-class  a Tailwind palette class (bg-white, text-gray-600, ring-blue-500, bg-black/50) or bg-[#…]
 //   undefined-role a var(--mo-…) that nothing defines and that has no fallback
 //   role-pair      a text role on a background role that is not its M3 pair (on-surface on primary, outline as text …)
 //   state-layer    a state layer (color-mix … N%, transparent) that is not one of M3's: 8, 10, 12, 16, 38
@@ -23,25 +22,21 @@ const files = execSync('git ls-files', { cwd: root, encoding: 'utf8' })
   .filter((f) => !/(\.test\.|\.d\.ts$|\/fixtures?\/|package-lock)/.test(f));
 
 const named = '(?:white|black|red|green|blue|yellow|orange|purple|pink|gray|grey|brown|cyan|magenta|silver|navy|gold)';
-const palette =
-  '(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)';
-const utilities =
-  '(?:bg|text|border|border-[xytblrse]|ring|ring-offset|fill|stroke|from|to|via|outline|divide|shadow|decoration|accent|caret|placeholder)';
 const re = {
   hex: /#[0-9a-fA-F]{3,8}(?![\w-])/g,
   fn: /(?<![\w-])(?:rgba?|hsla?|oklch|oklab|hwb|lab|lch)\(/g,
   named: new RegExp(`(?<![\\w\\-.#@$/'"\`])${named}(?![\\w-])`, 'g'),
-  palette: new RegExp(
-    `(?<![\\w-])${utilities}-(?:white|black|${palette}-\\d{2,3})(?:/\\d+)?(?![\\w-])|(?<![\\w-])${utilities}-\\[(?:#|rgb|hsl|oklch)`,
-    'g',
-  ),
 };
 
 // Roles: M3's, from the package's own list, plus the ones the CSS defines itself.
 const roleFile = readFileSync(root + 'defaults/colors.ts', 'utf8');
 const textOf = new Map(files.map((f) => [f, readFileSync(root + f, 'utf8')]));
 const defined = new Set();
-for (const t of textOf.values()) for (const m of t.matchAll(/(--mo-[\w-]+)\s*:/g)) defined.add(m[1]);
+for (const t of textOf.values()) {
+  for (const m of t.matchAll(/(--mo-[\w-]+)['"]?\s*:/g)) defined.add(m[1]);
+  // A value that code sets on an element (a style object's key, or setProperty): a runtime value of a component, like --mo-comp-slider-start.
+  for (const m of t.matchAll(/setProperty\(\s*['"`](--mo-[\w-]+)['"`]/g)) defined.add(m[1]);
+}
 // The roles' own list (defaults/colors.ts colorRoles): the theme writes each one as --mo-sys-color-<name> from the site's colours.
 const generated = new Set(
   [...roleFile.slice(roleFile.indexOf('export const colorRoles')).matchAll(/^\s*'?([a-z-]+)'?:\s*'[a-zA-Z]+',?$/gm)].map(
@@ -123,8 +118,6 @@ for (const file of files) {
       if (css || /(?:style|color|background|fill|stroke)/.test(line))
         for (const m of line.matchAll(re.named)) add('fixed-colour', file, n, line, `${m[0]}: a role`);
     }
-    for (const m of line.matchAll(re.palette))
-      add('palette-class', file, n, line, `${m[0]}: the role's class (bg-surface, text-on-surface …)`);
     if (!/^src\/i18n\//.test(file))
       for (const m of line.matchAll(/var\((--mo-[\w-]+)\s*([,)])/g)) {
         if (m[2] === ')' && !roleNames.includes(m[1]) && !/^--mo-(elevation|space|shape)-$/.test(m[1]))

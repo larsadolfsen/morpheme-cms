@@ -36,9 +36,9 @@ export function SearchPreview({
   const id = useId();
   const [device, setDevice] = useState<Device>('mobile');
   const phone = device === 'mobile';
-  const menu = <DotsThreeVertical aria-hidden="true" className="shrink-0 text-(--mo-comp-google-text)" />;
+  const menu = <DotsThreeVertical aria-hidden="true" className="mo-keep mo-editor-search-menu" />;
   return (
-    <div className="space-y-3">
+    <div className="mo-editor-search-preview">
       <TabRow
         id={id}
         label={t.forms.searchPreview.on}
@@ -52,38 +52,33 @@ export function SearchPreview({
       <TabPanel id={id} value={device}>
         <figure
           aria-label={t.forms.searchPreview.result}
-          className={`bg-(--mo-comp-google-background) p-4 font-[arial,sans-serif] ${
-            phone ? 'max-w-[360px] border-y-8 border-(--mo-comp-google-separator)' : 'max-w-[600px]'
-          }`}
+          className={`mo-editor-search-result ${phone ? 'mo-editor-search-result-phone' : 'mo-editor-search-result-desktop'}`}
         >
-          <div className="flex items-center gap-3">
-            <span
-              aria-hidden="true"
-              className="flex size-[28px] shrink-0 items-center justify-center rounded-full border border-(--mo-comp-google-icon-ring) bg-(--mo-comp-google-icon-fill) text-xs text-(--mo-comp-google-icon-letter)"
-            >
+          <div className="mo-editor-search-site">
+            <span aria-hidden="true" className="mo-keep mo-editor-search-icon">
               {[...siteName][0]?.toLocaleUpperCase()}
             </span>
-            <span className="min-w-0">
-              <span className="block truncate text-sm text-(--mo-comp-google-site)">{siteName}</span>
-              <span className="flex items-center gap-1">
-                <span className="truncate text-xs text-(--mo-comp-google-text)">{searchCrumbs(domain, path)}</span>
+            <span className="mo-editor-search-site-text">
+              <span className="mo-truncate mo-editor-search-site-name">{siteName}</span>
+              <span className="mo-editor-search-crumbs-row">
+                <span className="mo-truncate mo-editor-search-crumbs">{searchCrumbs(domain, path)}</span>
                 {!phone && menu}
               </span>
             </span>
-            {phone && <span className="ml-auto">{menu}</span>}
+            {phone && <span className="mo-editor-search-menu-end">{menu}</span>}
           </div>
           <span
-            className={`block text-[20px] leading-[26px] ${
-              phone ? 'mt-3 line-clamp-2 text-(--mo-comp-google-title-phone)' : 'mt-1.5 truncate text-(--mo-comp-google-title)'
+            className={`mo-editor-search-title ${
+              phone ? 'mo-clamp-2 mo-editor-search-title-phone' : 'mo-truncate mo-editor-search-title-desktop'
             }`}
           >
             {title}
           </span>
-          <p className={`mt-1 text-sm leading-[22px] text-(--mo-comp-google-text) ${phone ? 'line-clamp-3' : 'line-clamp-2'}`}>
-            {date && <span className="text-(--mo-comp-google-date)">{shortDate(date)} — </span>}
+          <p className={`mo-editor-search-description ${phone ? 'mo-editor-search-clamp-phone' : 'mo-clamp-2'}`}>
+            {date && <span className="mo-editor-search-date">{shortDate(date)} — </span>}
             {boldParts(description, keyword).map((part, i) =>
               part.bold ? (
-                <b key={i} className="font-bold">
+                <b key={i} className="mo-editor-search-keyword">
                   {part.text}
                 </b>
               ) : (

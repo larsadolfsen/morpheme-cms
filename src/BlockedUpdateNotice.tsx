@@ -23,7 +23,7 @@ export function BlockedUpdateNotice() {
   }, []);
   if (!blocked) return null;
   return (
-    <div className="mb-8">
+    <div className="mo-editor-blocked-notice">
       <Notice
         title={t.cms.blockedTitle}
         action={

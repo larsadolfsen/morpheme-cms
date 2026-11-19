@@ -11,7 +11,7 @@ export default function Links({ view }: { view: LinksView }) {
           <h2>{view.heading}</h2>
         </InProse>
       )}
-      <LinkGroups groups={view.groups} className={useInText() || 'block-in-text'} />
+      <LinkGroups groups={view.groups} className={useInText() || 'mo-is-in-text'} />
     </>
   );
 }

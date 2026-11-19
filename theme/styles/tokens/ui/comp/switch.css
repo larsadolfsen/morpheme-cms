@@ -1,7 +1,7 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  .list-item-control {
+  .mo-list__item-control {
     --mo-comp-switch-gap: 0;
   }
 }

@@ -77,7 +77,7 @@ export default function MobileMenu({
   }));
   // The scrim is the dialog's ::backdrop, which inherits this variable from the dialog (navigation-drawer.css), so it fades with the
   // effects' springs while the drawer moves with the spatial ones.
-  const scrim = '--navigation-drawer-scrim-opacity';
+  const scrim = '--mo-comp-navigation-drawer-scrim-opacity';
 
   // The edge it comes from is its side's: the start edge slides it in from the left (from the right in right-to-left
   // languages), the end edge from the right (the left).
@@ -151,12 +151,12 @@ export default function MobileMenu({
           }}
         >
           <NavigationDrawer variant="modal" className={side === 'end' ? navigationDrawerEndClass : undefined}>
-            <div className="md-drawer-head">
+            <div className="mo-navigation-drawer__head">
               {side !== 'end' && menuButton}
-              <span aria-hidden="true" className="logo-mark h-10 w-9 shrink-0 bg-primary" />
-              <div className="min-w-0 flex-1 leading-tight">
-                <p className="md-drawer-name">{name}</p>
-                <p className="md-drawer-role">{role}</p>
+              <span aria-hidden="true" className="mo-logo-mark mo-drawer__mark" />
+              <div className="mo-drawer__title">
+                <p className="mo-navigation-drawer__name">{name}</p>
+                <p className="mo-navigation-drawer__role">{role}</p>
               </div>
               {side === 'end' && menuButton}
             </div>
@@ -187,7 +187,7 @@ export default function MobileMenu({
                         {item.children && expanded === item.href && (
                           <motion.ul
                             id={`sub-${item.href}`}
-                            className="overflow-hidden"
+                            className="mo-drawer__subitems"
                             initial={reduce ? false : { height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1, transition: spring.enter }}
                             exit={reduce ? undefined : { height: 0, opacity: 0, transition: spring.leave }}
@@ -214,15 +214,15 @@ export default function MobileMenu({
             </NavigationDrawerSection>
 
             {(button || phone) && (
-              <div className="md-drawer-actions">
+              <div className="mo-navigation-drawer__actions">
                 {phone && (
                   // On a phone it calls; from the medium window size up it leads to the contact page, when there is one.
                   <>
-                    <span className={phone.page ? 'contents medium:hidden' : 'contents'}>
+                    <span className={phone.page ? 'mo-drawer__call' : 'mo-contents'}>
                       <HeaderPhoneButton phone={phone} kind="outlined" />
                     </span>
                     {phone.page && (
-                      <span className="hidden medium:contents">
+                      <span className="mo-drawer__page">
                         <HeaderPhoneButton phone={phone} kind="outlined" page onClick={() => void close()} />
                       </span>
                     )}

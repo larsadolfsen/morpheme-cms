@@ -1,8 +1,8 @@
 // The active block's action row (docs/superpowers/specs/2026-11-13-contextual-toolbar-row-design.md; owner idea, 14 Nov): a small row at the top of the block's dotted outline (inside it, above the block's top
 // item), with the block's own actions at its right (Move up, Move down, Hide or Show, Settings, only when the block has settings) and, at its start, the block's drag handle in the block's top left corner (drawn there by
-// CSS: `.site-block-has-row`). It shows only while a block is active and opens by its height, with the editor's spatial spring (motionTiming) and not at all
+// CSS: `.mo-site-block-has-row`). It shows only while a block is active and opens by its height, with the editor's spatial spring (motionTiming) and not at all
 // under reduced motion. The buttons are real buttons with the labels the menu rows had; the bar's `⋮` keeps the rest (Remove, other settings).
-// A mouse pointing at a block that is not the active one shows the same row over the block's top, taking no space (`.site-block-row-hover`), so the page never moves on hover; when the block
+// A mouse pointing at a block that is not the active one shows the same row over the block's top, taking no space (`.mo-site-block-row-hover`), so the page never moves on hover; when the block
 // becomes active the row opens in the block's flow and the page is scrolled by the same amount, frame by frame, so the block's own content stays where it was (the row grows upward).
 // The block (a node view, not React) tells blockBar its row; this module draws it. No dependencies but blockBar and the motion helpers.
 import { motionReduced, motionTiming } from '../lib/motion';
@@ -22,8 +22,8 @@ const drawn = new WeakMap<HTMLElement, unknown>();
 
 /** The block's own content (below its row): what stays where it is while the row opens or closes. */
 const anchorOf = (host: HTMLElement) =>
-  host.querySelector<HTMLElement>(':scope > .site-block-card > .site-block-preview') ??
-  host.querySelector<HTMLElement>(':scope > .site-block-card');
+  host.querySelector<HTMLElement>(':scope > .mo-site-block-card > .mo-site-block-preview') ??
+  host.querySelector<HTMLElement>(':scope > .mo-site-block-card');
 
 const scrollerOf = (el: HTMLElement) => {
   for (let box = el.parentElement; box && box !== document.body; box = box.parentElement)
@@ -64,7 +64,7 @@ const grow = (el: HTMLElement, from: number, to: number, done?: () => void) => {
   el.style.marginBlockStart = opening ? '' : '0px';
   const pulled = opening ? parseFloat(getComputedStyle(el).marginBlockStart) || 0 : 0;
   if (motionReduced() || from === to) return done?.();
-  el.classList.add('site-block-row-moving');
+  el.classList.add('mo-site-block-row-moving');
   const run = el.animate(
     [
       { height: `${from}px`, marginBlockStart: `${opening && from === 0 ? 0 : current}px` },
@@ -73,7 +73,7 @@ const grow = (el: HTMLElement, from: number, to: number, done?: () => void) => {
     motionTiming('spatial', 'fast'),
   );
   const end = () => {
-    el.classList.remove('site-block-row-moving');
+    el.classList.remove('mo-site-block-row-moving');
     done?.();
   };
   run.finished.then(end, () => {});
@@ -85,7 +85,7 @@ const close = (it: { host: HTMLElement; el: HTMLElement }) => {
   // Measured before the class goes: it also sets the card's padding above the row.
   const anchor = anchorOf(it.host);
   const top = anchor?.getBoundingClientRect().top;
-  it.host.classList.remove('site-block-has-row');
+  it.host.classList.remove('mo-site-block-has-row');
   el.setAttribute('inert', '');
   grow(el, now, 0, () => el.remove());
   hold(anchor, top, el);
@@ -95,7 +95,7 @@ function draw(el: HTMLElement, row: BlockRow, name: string) {
   if (drawn.get(el) === row) return;
   drawn.set(el, row);
   el.setAttribute('aria-label', name);
-  const inner = el.querySelector<HTMLElement>('.site-block-row-inner')!;
+  const inner = el.querySelector<HTMLElement>('.mo-site-block-row-inner')!;
   inner.replaceChildren(
     ...row.items.map((item) => {
       const button = document.createElement('button');
@@ -126,7 +126,7 @@ if (typeof document !== 'undefined') {
   document.addEventListener(
     'pointerdown',
     (e) => {
-      if (e.target instanceof Element && e.target.closest('.site-block-handle')) held = true;
+      if (e.target instanceof Element && e.target.closest('.mo-site-block-handle')) held = true;
     },
     true,
   );
@@ -150,14 +150,14 @@ function syncActive() {
   if (!state || !row || row.items.length === 0) return;
   if (!shown) {
     const el = document.createElement('div');
-    el.className = 'site-block-row';
+    el.className = 'mo-site-block-row';
     el.setAttribute('role', 'group');
-    el.innerHTML = '<div class="site-block-row-inner"></div>';
+    el.innerHTML = '<div class="mo-site-block-row-inner"></div>';
     const anchor = anchorOf(row.host);
     const top = anchor?.getBoundingClientRect().top;
     // Inside the block's dotted outline (its card), so the row moves with the block and the drag shows both together.
-    (row.host.querySelector<HTMLElement>(':scope > .site-block-card') ?? row.host).prepend(el);
-    row.host.classList.add('site-block-has-row');
+    (row.host.querySelector<HTMLElement>(':scope > .mo-site-block-card') ?? row.host).prepend(el);
+    row.host.classList.add('mo-site-block-has-row');
     shown = { host: row.host, el };
     draw(el, row, state.name);
     grow(el, 0, SIZE);
@@ -171,27 +171,27 @@ function syncActive() {
 function syncPointed() {
   const row = blockBar.pointed();
   // On a narrow block (a narrow window) the row would cover its first item, which could then not be clicked: such a block shows its row only once it is active, in the flow.
-  const card = row?.host.querySelector<HTMLElement>(':scope > .site-block-card');
+  const card = row?.host.querySelector<HTMLElement>(':scope > .mo-site-block-card');
   const want = row && row.items.length && row.host !== shown?.host && (card?.clientWidth ?? 0) >= POINTED_MIN ? row : null;
   if (pointedAt && pointedAt.host !== want?.host) {
-    pointedAt.host.classList.remove('site-block-has-hover');
+    pointedAt.host.classList.remove('mo-site-block-has-hover');
     pointedAt.el.remove();
     pointedAt = null;
   }
   if (!want) return;
   if (!pointedAt) {
     const el = document.createElement('div');
-    el.className = 'site-block-row site-block-row-hover';
+    el.className = 'mo-site-block-row mo-site-block-row-hover';
     el.setAttribute('role', 'group');
-    el.innerHTML = '<div class="site-block-row-inner"></div>';
-    (want.host.querySelector<HTMLElement>(':scope > .site-block-card') ?? want.host).prepend(el);
-    want.host.classList.add('site-block-has-hover');
+    el.innerHTML = '<div class="mo-site-block-row-inner"></div>';
+    (want.host.querySelector<HTMLElement>(':scope > .mo-site-block-card') ?? want.host).prepend(el);
+    want.host.classList.add('mo-site-block-has-hover');
     pointedAt = { host: want.host, el };
   }
-  draw(pointedAt.el, want, want.host.querySelector(':scope > .site-block-card')?.getAttribute('aria-label') ?? '');
+  draw(pointedAt.el, want, want.host.querySelector(':scope > .mo-site-block-card')?.getAttribute('aria-label') ?? '');
   // The row also covers a whole column of a block that is wide enough (the second card of two): that item could then not be clicked, so the block shows its row only once it is active.
   if (covers(pointedAt.el, want.host)) {
-    pointedAt.host.classList.remove('site-block-has-hover');
+    pointedAt.host.classList.remove('mo-site-block-has-hover');
     pointedAt.el.remove();
     pointedAt = null;
   }
@@ -200,8 +200,8 @@ function syncPointed() {
 /** The row lies over something the pointer would then miss: an item of its block that is narrower than the block (a column, as a card in a row of cards), or another control of the
  * block (a button, a link, a row's chevron). An item the full width of the block (a list's line) is not one: its text starts at the left, away from the right-aligned row. */
 function covers(row: HTMLElement, host: HTMLElement) {
-  const card = host.querySelector<HTMLElement>(':scope > .site-block-card');
-  const inner = row.querySelector<HTMLElement>('.site-block-row-inner')?.getBoundingClientRect();
+  const card = host.querySelector<HTMLElement>(':scope > .mo-site-block-card');
+  const inner = row.querySelector<HTMLElement>('.mo-site-block-row-inner')?.getBoundingClientRect();
   if (!card || !inner) return false;
   const under = (el: HTMLElement) => {
     const box = el.getBoundingClientRect();
@@ -210,8 +210,8 @@ function covers(row: HTMLElement, host: HTMLElement) {
   const items = [...card.querySelectorAll<HTMLElement>('[data-row]')].filter(
     (item) => !row.contains(item) && item.getBoundingClientRect().width < card.clientWidth * 0.9,
   );
-  const controls = [...card.querySelectorAll<HTMLElement>('button, a[href], summary, .list-item-expand-icon')].filter(
-    (el) => !row.contains(el) && !el.closest('.site-block-handle'),
+  const controls = [...card.querySelectorAll<HTMLElement>('button, a[href], summary, .mo-list__item-expand-icon')].filter(
+    (el) => !row.contains(el) && !el.closest('.mo-site-block-handle'),
   );
   return [...items, ...controls].some(under);
 }

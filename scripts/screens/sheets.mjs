@@ -35,7 +35,7 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, cus
     const field = dialog.querySelector('input[aria-label="Color code"], input');
     return {
       visible: visualViewport.height,
-      sheet: box(dialog.querySelector('.bottom-sheet-container')),
+      sheet: box(dialog.querySelector('.mo-bottom-sheet__container')),
       buttons: buttons.map((b) => [b.textContent.trim(), box(b)]),
       field: box(field),
     };
@@ -192,14 +192,14 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
     await page.waitForTimeout(400);
   }
   const got = await page.evaluate(() => {
-    const bar = document.querySelector('.editor-save-bar');
+    const bar = document.querySelector('.mo-editor-save-bar');
     if (!bar) return null;
     const ref = document.body.appendChild(document.createElement('div'));
-    ref.className = 'bottom-sheet-container';
+    ref.className = 'mo-bottom-sheet__container';
     const refStyle = getComputedStyle(ref);
     const style = getComputedStyle(bar);
     const out = {
-      standard: bar.classList.contains('bottom-sheet-container') && bar.classList.contains('bottom-sheet-standard'),
+      standard: bar.classList.contains('mo-bottom-sheet__container') && bar.classList.contains('mo-bottom-sheet__standard'),
       background: style.backgroundColor,
       refBackground: refStyle.backgroundColor,
       radius: style.borderTopLeftRadius,
@@ -228,9 +228,11 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
       problems.push(`${label}: it ends at ${got.rect.bottom}, not at the visible screen's end (${got.visible})`);
     await page.waitForTimeout(300);
     const clear = await page.evaluate(() => {
-      const bar = document.querySelector('.editor-save-bar').getBoundingClientRect();
+      const bar = document.querySelector('.mo-editor-save-bar').getBoundingClientRect();
       const fields = [
-        ...document.querySelectorAll('.editor-screen input, .editor-screen textarea, .editor-screen select, .editor-screen .ProseMirror'),
+        ...document.querySelectorAll(
+          '.mo-editor-screen input, .mo-editor-screen textarea, .mo-editor-screen select, .mo-editor-screen .ProseMirror',
+        ),
       ];
       const last = fields.filter((f) => f.getBoundingClientRect().height > 0).pop();
       return last ? { bottom: last.getBoundingClientRect().bottom, top: bar.top } : null;
@@ -260,21 +262,21 @@ async function checkPhoneSheet(width = 375, height = 740) {
   page.on('dialog', (d) => void d.accept().catch(() => {}));
   await openEditor(page, site, { [path]: text });
   await page.goto(`${site}/editor/#${path}`);
-  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
+  await page.waitForSelector('.ProseMirror .mo-site-picture .mo-site-block-card', { timeout: 30_000 });
   const copies = () =>
     page.evaluate(() =>
       Object.keys(localStorage)
         .filter((k) => k.startsWith('editor-sheet-copy:'))
         .map((k) => JSON.parse(localStorage.getItem(k))),
     );
-  const card = page.locator('.ProseMirror .site-picture .site-block-card').first();
-  const sheet = page.locator('dialog[open].block-page');
+  const card = page.locator('.ProseMirror .mo-site-picture .mo-site-block-card').first();
+  const sheet = page.locator('dialog[open].mo-editor-block-page');
   const back = () => sheet.getByRole('button', { name: /^Back to /, exact: false });
   const asked = () => page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
   const place = () =>
     page.evaluate(() => ({
       scroll: Math.round(scrollY),
-      top: Math.round(document.querySelector('.ProseMirror .site-picture .site-block-card')?.getBoundingClientRect().top ?? -1),
+      top: Math.round(document.querySelector('.ProseMirror .mo-site-picture .mo-site-block-card')?.getBoundingClientRect().top ?? -1),
       step: history.state?.sheet,
       hash: location.hash,
       text: [...document.querySelectorAll('.ProseMirror p')].map((p) => p.textContent).join('|'),
@@ -301,7 +303,7 @@ async function checkPhoneSheet(width = 375, height = 740) {
   // Where the page is, as the sheet opens (the tap on the block may have scrolled it a little to show the block's row).
   before = await place();
   const look = await page.evaluate(() => {
-    const d = document.querySelector('dialog[open].block-page');
+    const d = document.querySelector('dialog[open].mo-editor-block-page');
     const r = d.getBoundingClientRect();
     const named = (re) =>
       [...document.querySelectorAll('button')].filter((b) => re.test((b.getAttribute('aria-label') || b.textContent || '').trim()));
@@ -313,29 +315,29 @@ async function checkPhoneSheet(width = 375, height = 740) {
       return !!hit && b.contains(hit) && !b.closest('[inert]');
     };
     const publish = named(/^Publish/).filter((b) => !d.contains(b));
-    const bar = d.querySelector('.bottom-sheet-standard');
+    const bar = d.querySelector('.mo-bottom-sheet__standard');
     // What makes the Save row the theme's standard bottom sheet (the same surface and top corners as a BottomSheet container), and where Save
     // and the fields stand: Save stands inside the sheet's own content padding, and the last field ends above the sheet.
     const sheetLook = (bar, d) => {
       const ref = document.body.appendChild(document.createElement('div'));
-      ref.className = 'bottom-sheet-container';
+      ref.className = 'mo-bottom-sheet__container';
       const refStyle = getComputedStyle(ref);
       const style = bar ? getComputedStyle(bar) : null;
       const save = [...(bar?.querySelectorAll('button') ?? [])].pop()?.getBoundingClientRect();
-      const fields = [...d.querySelectorAll('.block-page-main input, .block-page-main textarea')].filter(
+      const fields = [...d.querySelectorAll('.mo-editor-block-page-main input, .mo-editor-block-page-main textarea')].filter(
         (f) => f.getBoundingClientRect().height > 0,
       );
-      const main = d.querySelector('.block-page-main');
+      const main = d.querySelector('.mo-editor-block-page-main');
       main.scrollTo(0, main.scrollHeight);
       const last = fields.at(-1)?.getBoundingClientRect();
       const out = {
-        standardSheet: !!bar && bar.classList.contains('bottom-sheet-container') && bar.classList.contains('bottom-sheet-standard'),
+        standardSheet: !!bar && bar.classList.contains('mo-bottom-sheet__container') && bar.classList.contains('mo-bottom-sheet__standard'),
         sheetSurface: style && style.backgroundColor === refStyle.backgroundColor,
         sheetRadius: style && style.borderTopLeftRadius === refStyle.borderTopLeftRadius && style.borderTopLeftRadius !== '0px',
         sheetFixed: style?.position === 'fixed',
         saveEnd: save ? Math.round(window.innerWidth - save.right) : null,
         // The sheet's own content padding (the theme's): Save stands exactly inside it.
-        sheetPad: bar ? Math.round(parseFloat(getComputedStyle(bar.querySelector('.bottom-sheet-content')).paddingRight)) : null,
+        sheetPad: bar ? Math.round(parseFloat(getComputedStyle(bar.querySelector('.mo-bottom-sheet__content')).paddingRight)) : null,
         saveBelow: save && bar ? Math.round(bar.getBoundingClientRect().bottom - save.bottom) : null,
         saveAbove: save && bar ? Math.round(save.top - bar.getBoundingClientRect().top) : null,
         lastClear: last && bar ? last.bottom <= bar.getBoundingClientRect().top + 1 : null,
@@ -349,7 +351,10 @@ async function checkPhoneSheet(width = 375, height = 740) {
     return {
       rect: [r.left, r.top, r.width, r.height].map(Math.round),
       modal: d.matches(':modal'),
-      full: !!document.querySelector('dialog[open].dialog-modal-full-screen'),
+      full: [...document.querySelectorAll('dialog[open] .mo-dialog__basic')].some((b) => {
+        const r = b.getBoundingClientRect();
+        return r.width >= innerWidth - 1 && r.height >= innerHeight - 1;
+      }),
       title: d.querySelector('h1')?.textContent.trim(),
       topButtons: names(top),
       barButtons: names(bar),
@@ -393,14 +398,14 @@ async function checkPhoneSheet(width = 375, height = 740) {
   // Owner rule, 15 Nov: no control has the focus at the start; the page has it, without a ring or a tooltip.
   if (!look.focusOnPage) problems.push(`${label}: the focus does not start on the page itself`);
   if (look.focusVisible.length) problems.push(`${label}: ${look.focusVisible} has focus-visible styling when the subpage opens`);
-  if (look.step !== 'block-page') problems.push(`${label}: the subpage has no step of its own in the history (${look.step})`);
+  if (look.step !== 'mo-editor-block-page') problems.push(`${label}: the subpage has no step of its own in the history (${look.step})`);
   // Back with no change leaves at once, to the same place, text unchanged.
   await back().tap();
   await page.waitForTimeout(500);
   const left = await place();
   if (await sheet.count()) problems.push(`${label}: Back with no change did not leave the subpage`);
   if (await asked().count()) problems.push(`${label}: Back with no change asked "Keep your changes?"`);
-  if (left.step === 'block-page') problems.push(`${label}: the subpage's step is still in the history after Back`);
+  if (left.step === 'mo-editor-block-page') problems.push(`${label}: the subpage's step is still in the history after Back`);
   if (Math.abs(left.scroll - before.scroll) > 1 || Math.abs(left.top - before.top) > 1)
     problems.push(`${label}: the page is at ${left.scroll} (block at ${left.top}) after Back, it was at ${before.scroll} (${before.top})`);
   if (left.text !== before.text || left.hash !== before.hash)
@@ -423,7 +428,7 @@ async function checkPhoneSheet(width = 375, height = 740) {
     .catch(() => problems.push(`${label}: the browser's back with a change did not ask "Keep your changes?"`));
   await page.keyboard.press('Escape');
   await page.waitForTimeout(300);
-  if (!(await sheet.count()) || (await place()).step !== 'block-page')
+  if (!(await sheet.count()) || (await place()).step !== 'mo-editor-block-page')
     problems.push(`${label}: staying after the browser's back did not keep the subpage and give it its step back`);
   // Back with a change asks; Esc stays; Discard leaves with the image as it was and deletes the hidden copy.
   await back().tap();
@@ -455,7 +460,7 @@ async function checkPhoneSheet(width = 375, height = 740) {
       `${label}: the page is at ${afterSave.scroll} (block at ${afterSave.top}) after Save, it was at ${third.scroll} (${third.top})`,
     );
   if (afterSave.text !== third.text) problems.push(`${label}: Save changed the page's text`);
-  if (afterSave.step === 'block-page') problems.push(`${label}: the subpage's step is still in the history after Save`);
+  if (afterSave.step === 'mo-editor-block-page') problems.push(`${label}: the subpage's step is still in the history after Save`);
   // A change is kept in the hidden copy (300 ms after it).
   await openSheet();
   await sheet.getByLabel('Alt text').fill('The Moon, changed');
@@ -465,7 +470,7 @@ async function checkPhoneSheet(width = 375, height = 740) {
     problems.push(`${label}: the change is not in the hidden copy (${JSON.stringify(kept)})`);
   // A reload offers it back.
   await page.reload();
-  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
+  await page.waitForSelector('.ProseMirror .mo-site-picture .mo-site-block-card', { timeout: 30_000 });
   const question = page.locator('dialog[open]', { hasText: 'Restore your unsaved changes?' });
   await question.waitFor({ timeout: 8000 }).catch(() => problems.push(`${label}: a reload does not offer "Restore your unsaved changes?"`));
   if (await question.count()) {
@@ -489,7 +494,7 @@ async function checkPhoneSheet(width = 375, height = 740) {
       if ((await copies()).length) problems.push(`${label}: Save did not delete the hidden copy`);
       const described = await card.getAttribute('aria-description');
       if (described !== 'The Moon, changed') problems.push(`${label}: Save did not write the change to the image (${described})`);
-      if ((await place()).step === 'block-page') problems.push(`${label}: the subpage's step is still in the history after Save`);
+      if ((await place()).step === 'mo-editor-block-page') problems.push(`${label}: the subpage's step is still in the history after Save`);
     }
   }
   await page.close();
@@ -506,8 +511,8 @@ async function checkComputerRestore(width = 1280, height = 900) {
   page.on('dialog', (d) => void d.accept().catch(() => {}));
   await openEditor(page, site, { [path]: text });
   await page.goto(`${site}/editor/#${path}`);
-  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
-  const card = page.locator('.ProseMirror .site-picture .site-block-card').first();
+  await page.waitForSelector('.ProseMirror .mo-site-picture .mo-site-block-card', { timeout: 30_000 });
+  const card = page.locator('.ProseMirror .mo-site-picture .mo-site-block-card').first();
   // A copy left by the sheet of a narrower window (the same browser): the block, the values it had and the ones typed.
   await page.evaluate((file) => {
     localStorage.setItem(
@@ -525,12 +530,12 @@ async function checkComputerRestore(width = 1280, height = 900) {
     );
   }, path);
   await page.reload();
-  await page.waitForSelector('.ProseMirror .site-picture .site-block-card', { timeout: 30_000 });
+  await page.waitForSelector('.ProseMirror .mo-site-picture .mo-site-block-card', { timeout: 30_000 });
   const question = page.locator('dialog[open]', { hasText: 'Restore your unsaved changes?' });
   await question.waitFor({ timeout: 8000 }).catch(() => problems.push(`${label}: a reload does not offer "Restore your unsaved changes?"`));
   if (!(await question.count())) return void (await page.close());
   await question.getByRole('button', { name: 'Restore', exact: true }).click();
-  const sheet = page.locator('.editor-side-sheet');
+  const sheet = page.locator('.mo-editor-side-sheet');
   await sheet.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: Restore did not open the live side sheet`));
   await page.waitForTimeout(600);
   if (await sheet.count()) {
@@ -570,7 +575,7 @@ async function checkLiveSideSheet(width = 1280) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
-  const sheet = page.locator('.editor-side-sheet');
+  const sheet = page.locator('.mo-editor-side-sheet');
   const opened = await sheet
     .locator('textarea')
     .waitFor({ timeout: 6000 })
@@ -582,13 +587,13 @@ async function checkLiveSideSheet(width = 1280) {
     problems.push(`${label}: Insert did not open the block's side sheet`);
     return void (await page.close());
   }
-  const card = page.locator('.ProseMirror .site-block-card').first();
+  const card = page.locator('.ProseMirror .mo-site-block-card').first();
   if (!(await card.count())) problems.push(`${label}: the new block is not in the page while its sheet is open (no Insert step)`);
   const buttons = await sheet.locator('button').evaluateAll((els) => els.map((b) => b.textContent.trim()).filter(Boolean));
   const extra = buttons.filter((b) => ['Save', 'Insert', 'Cancel', 'Remove'].includes(b));
   if (extra.length) problems.push(`${label}: the side sheet has ${extra.join(', ')} (it is live: only its close button)`);
   if (!(await sheet.locator('[data-side-sheet-close]').count())) problems.push(`${label}: the side sheet has no close button`);
-  if (await sheet.locator('.side-sheet-actions').count()) problems.push(`${label}: the side sheet has a row of bottom actions`);
+  if (await sheet.locator('.mo-side-sheet__actions').count()) problems.push(`${label}: the side sheet has a row of bottom actions`);
   // A change shows in the page at once.
   await sheet.locator('textarea').fill('<p>Live text</p>');
   await page.waitForTimeout(400);
@@ -596,7 +601,7 @@ async function checkLiveSideSheet(width = 1280) {
   if (!(await description())?.includes('Live text'))
     problems.push(`${label}: a change in the sheet is not in the page at once (${await description()})`);
   // Undo takes it back, and the sheet shows the old value.
-  await page.locator('.editor-tools button[aria-label="Undo"]:visible').first().click();
+  await page.locator('.mo-editor-tools button[aria-label="Undo"]:visible').first().click();
   await page.waitForTimeout(400);
   if ((await description())?.includes('Live text')) problems.push(`${label}: Undo did not take the sheet's change back`);
   const shown = await sheet
@@ -612,8 +617,8 @@ async function checkLiveSideSheet(width = 1280) {
   // Remove is in the block's ⋮.
   await card.click();
   await page.waitForTimeout(400);
-  if (await page.locator('.editor-side-sheet [data-side-sheet-close]').count())
-    await page.locator('.editor-side-sheet [data-side-sheet-close]').click();
+  if (await page.locator('.mo-editor-side-sheet [data-side-sheet-close]').count())
+    await page.locator('.mo-editor-side-sheet [data-side-sheet-close]').click();
   await page.waitForTimeout(300);
   const tools = await barTools(page);
   if (!tools.names.includes('Remove')) problems.push(`${label}: the block's ⋮ has no Remove (${tools.names})`);
@@ -625,9 +630,9 @@ async function checkLiveSideSheet(width = 1280) {
     .locator('textarea')
     .waitFor({ timeout: 4000 })
     .catch(() => problems.push(`${label}: a tap on the card did not open its side sheet`));
-  await page.locator('.editor-tools button[aria-label="Undo"]:visible').first().click();
+  await page.locator('.mo-editor-tools button[aria-label="Undo"]:visible').first().click();
   await page.waitForTimeout(600);
-  if (await page.locator('.ProseMirror .site-block-card').count()) problems.push(`${label}: Undo did not take the new block out`);
+  if (await page.locator('.ProseMirror .mo-site-block-card').count()) problems.push(`${label}: Undo did not take the new block out`);
   else if (await sheet.count()) problems.push(`${label}: the side sheet stayed open after its block was gone`);
   await page.close();
 }
@@ -647,7 +652,7 @@ async function checkSheetFocusOnOpen(width) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Add a video or calendar.' }).first().click();
-  const sheet = page.locator('dialog[open] [data-side-sheet-container], .editor-side-sheet').last();
+  const sheet = page.locator('dialog[open] [data-side-sheet-container], .mo-editor-side-sheet').last();
   await sheet
     .locator('textarea')
     .waitFor({ timeout: 6000 })
@@ -689,7 +694,7 @@ async function checkCloseChangedSheet(width, height = 800) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   const sheet = page
-    .locator('dialog[open], .editor-side-sheet')
+    .locator('dialog[open], .mo-editor-side-sheet')
     .filter({ has: page.locator('textarea') })
     .last();
   const question = page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
@@ -733,13 +738,13 @@ async function checkCloseChangedSheet(width, height = 800) {
   await cancel();
   await question.getByRole('button', { name: 'Discard', exact: true }).click();
   await page.waitForTimeout(500);
-  if (await page.locator('.ProseMirror .site-block-card').count()) problems.push(`${label}: Discard inserted the block`);
+  if (await page.locator('.ProseMirror .mo-site-block-card').count()) problems.push(`${label}: Discard inserted the block`);
   // Keep does what Insert does.
   await insertVideo();
   await cancel();
   await question.getByRole('button', { name: 'Keep', exact: true }).click();
   await page
-    .waitForSelector('.ProseMirror .site-block-card', { timeout: 6000 })
+    .waitForSelector('.ProseMirror .mo-site-block-card', { timeout: 6000 })
     .catch(() => problems.push(`${label}: Keep did not insert the block`));
   await page.close();
 }
@@ -769,35 +774,37 @@ async function checkImageTools(width, height = 800) {
     .click();
   await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
   await page.locator('dialog[open] [data-media-tile]').first().click();
-  const sheet = () => page.locator('dialog[open], .editor-side-sheet').last();
+  const sheet = () => page.locator('dialog[open], .mo-editor-side-sheet').last();
   // From expanded the image goes in at once with its live sheet open (one Save spec 4.1: no Insert or Skip); below it the short alt text sheet follows,
   // and Skip keeps the image without a text of its own.
   if (!expanded)
     await sheet()
       .locator('button', { hasText: /^Skip$/ })
       .click({ timeout: 8000 });
-  const image = page.locator('.ProseMirror .site-picture .site-block-card').first();
+  const image = page.locator('.ProseMirror .mo-site-picture .mo-site-block-card').first();
   await image.waitFor({ timeout: 8000 });
   await page.waitForTimeout(500);
   await image[phone ? 'tap' : 'click']();
   await page.waitForTimeout(700);
   const state = await page.evaluate(() => ({
-    pressed: document.querySelector('.site-picture .site-block-card')?.getAttribute('aria-pressed'),
-    tools: [...document.querySelectorAll('.editor-tools-context button')].map((b) => ({
+    pressed: document.querySelector('.mo-site-picture .mo-site-block-card')?.getAttribute('aria-pressed'),
+    tools: [...document.querySelectorAll('.mo-editor-tools-context button')].map((b) => ({
       name: b.getAttribute('aria-label') || b.textContent.trim(),
       text: b.textContent.trim(),
       w: b.getBoundingClientRect().width,
       scroll: b.scrollWidth > b.clientWidth + 1,
     })),
-    row: [...document.querySelectorAll('.site-block-row:not(.site-block-row-hover) [data-row]')].map((b) => b.getAttribute('aria-label')),
-    panel: !!document.querySelector('.editor-side-sheet input, .editor-side-sheet textarea'),
+    row: [...document.querySelectorAll('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')].map((b) =>
+      b.getAttribute('aria-label'),
+    ),
+    panel: !!document.querySelector('.mo-editor-side-sheet input, .mo-editor-side-sheet textarea'),
     dialog: !!document.querySelector('dialog[open]'),
   }));
   const TOOLS = ['Change image', 'Crop', 'Alt text', 'Remove'];
   const names = state.tools.map((b) => b.name);
   let more = [];
   if (names.length < 4) {
-    await page.locator('.editor-tools [aria-label="More"]:visible').first().click();
+    await page.locator('.mo-editor-tools [aria-label="More"]:visible').first().click();
     await page.waitForTimeout(300);
     more = (await page.locator('[role=menu] [role^=menuitem]').allTextContents()).map((r) => r.trim());
     await page.keyboard.press('Escape');
@@ -832,7 +839,7 @@ async function checkImageTools(width, height = 800) {
     page.evaluate(() => {
       const el = document.activeElement;
       const label = el?.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent.trim() : '';
-      return { label, sheet: !!el?.closest('dialog[open], .editor-side-sheet') };
+      return { label, sheet: !!el?.closest('dialog[open], .mo-editor-side-sheet') };
     });
   // Cancel below expanded; from expanded the live side sheet has only its close button.
   const cancel = async () => {
@@ -840,8 +847,8 @@ async function checkImageTools(width, height = 800) {
     await page.waitForTimeout(500);
   };
   await tool('Crop');
-  if (!(await page.locator('.crop-page[open]').count())) problems.push(`${label}: Crop did not open the crop view`);
-  await page.locator('.crop-page[open]').getByRole('button', { name: 'Back to Image', exact: true }).click();
+  if (!(await page.locator('.mo-editor-crop-page[open]').count())) problems.push(`${label}: Crop did not open the crop view`);
+  await page.locator('.mo-editor-crop-page[open]').getByRole('button', { name: 'Back to Image', exact: true }).click();
   await page.waitForTimeout(500);
   await tool('Alt text');
   if (expanded) {
@@ -860,10 +867,10 @@ async function checkImageTools(width, height = 800) {
   }
   await cancel();
   await tool('Remove');
-  if (await page.locator('.ProseMirror .site-picture').count()) problems.push(`${label}: Remove did not take the image out`);
+  if (await page.locator('.ProseMirror .mo-site-picture').count()) problems.push(`${label}: Remove did not take the image out`);
   await pressTool(page, 'Undo', phone ? 'tap' : 'click');
   await page.waitForTimeout(500);
-  if (!(await page.locator('.ProseMirror .site-picture').count())) problems.push(`${label}: Undo did not bring the removed image back`);
+  if (!(await page.locator('.ProseMirror .mo-site-picture').count())) problems.push(`${label}: Undo did not bring the removed image back`);
   // Delete on the selected image (a keyboard) does what Remove does.
   if (!phone) {
     await image.focus();
@@ -872,7 +879,8 @@ async function checkImageTools(width, height = 800) {
     await image.focus();
     await page.keyboard.press('Delete');
     await page.waitForTimeout(400);
-    if (await page.locator('.ProseMirror .site-picture').count()) problems.push(`${label}: Delete on the selected image did not remove it`);
+    if (await page.locator('.ProseMirror .mo-site-picture').count())
+      problems.push(`${label}: Delete on the selected image did not remove it`);
   }
   await page.close();
 }
@@ -906,15 +914,16 @@ async function checkCropView(width, height = 800) {
   // and Skip keeps the image without a text of its own.
   if (width < 840)
     await page
-      .locator('dialog[open], .editor-side-sheet')
+      .locator('dialog[open], .mo-editor-side-sheet')
       .last()
       .locator('button', { hasText: /^Skip$/ })
       .click({ timeout: 8000 });
-  const image = page.locator('.ProseMirror .site-picture .site-block-card').first();
+  const image = page.locator('.ProseMirror .mo-site-picture .mo-site-block-card').first();
   await image.waitFor({ timeout: 8000 });
   await page.waitForTimeout(800);
-  if (await page.locator('.crop-page[open]').count()) problems.push(`${label}: the crop view opened by itself after the image was picked`);
-  const view = page.locator('.crop-page[open]');
+  if (await page.locator('.mo-editor-crop-page[open]').count())
+    problems.push(`${label}: the crop view opened by itself after the image was picked`);
+  const view = page.locator('.mo-editor-crop-page[open]');
   const how = phone ? 'tap' : 'click';
   const select = async () => {
     await image[how]();
@@ -928,8 +937,8 @@ async function checkCropView(width, height = 800) {
   };
   const back = () => view.getByRole('button', { name: 'Back to Image', exact: true });
   const zoom = () => view.locator('input[type=range]').inputValue().then(Number);
-  const pictureBox = () => view.locator('.crop-view-image').boundingBox();
-  const chip = (name) => view.locator('.crop-view-ratios').getByText(name, { exact: true });
+  const pictureBox = () => view.locator('.mo-editor-crop-view-image').boundingBox();
+  const chip = (name) => view.locator('.mo-editor-crop-view-ratios').getByText(name, { exact: true });
   const asked = () => page.locator('dialog[open]').filter({ hasText: 'Keep your changes?' });
 
   const scroll0 = await page.evaluate(() => scrollY);
@@ -950,10 +959,10 @@ async function checkCropView(width, height = 800) {
       return {
         fills: Math.abs(r.width - vp.w) < 1 && Math.abs(r.height - vp.h) < 1,
         title: d.querySelector('h1')?.textContent,
-        bar: !!d.querySelector('header, .top-app-bar, [class*="top-app-bar"]'),
-        dialogParts: !!d.querySelector('.dialog-basic, .dialog-full-screen, .dialog-headline'),
-        buttons: [...d.querySelectorAll('.bottom-sheet-standard button')].map((b) => b.textContent.trim()),
-        area: d.querySelector('.crop-view-area').getBoundingClientRect().width,
+        bar: !!d.querySelector('header, .mo-top-app-bar'),
+        dialogParts: !!d.querySelector('.mo-dialog__basic, .mo-dialog__headline'),
+        buttons: [...d.querySelectorAll('.mo-bottom-sheet__standard button')].map((b) => b.textContent.trim()),
+        area: d.querySelector('.mo-editor-crop-view-area').getBoundingClientRect().width,
       };
     },
     { w: width, h: height },
@@ -969,21 +978,21 @@ async function checkCropView(width, height = 800) {
   const missing = await view.locator('[data-icon-missing]').evaluateAll((els) => els.map((e) => e.getAttribute('data-icon-missing')));
   if (missing.length) problems.push(`${label}: the crop view draws a missing icon (${missing})`);
   // Original: the whole image, no frame, no scrim, the slider and its buttons off.
-  if (await view.locator('.crop-view-frame').count()) problems.push(`${label}: Original has a frame`);
+  if (await view.locator('.mo-editor-crop-view-frame').count()) problems.push(`${label}: Original has a frame`);
   if (!(await view.locator('input[type=range]').isDisabled())) problems.push(`${label}: the slider is on for Original`);
   for (const name of ['Zoom in', 'Zoom out'])
     if (!(await view.getByRole('button', { name }).isDisabled())) problems.push(`${label}: ${name} is on for Original`);
   const whole = await view.evaluate((d) => {
-    const a = d.querySelector('.crop-view-area').getBoundingClientRect();
-    const i = d.querySelector('.crop-view-image').getBoundingClientRect();
+    const a = d.querySelector('.mo-editor-crop-view-area').getBoundingClientRect();
+    const i = d.querySelector('.mo-editor-crop-view-image').getBoundingClientRect();
     return { inside: i.left >= a.left - 0.5 && i.right <= a.right + 0.5 && i.top >= a.top - 0.5 && i.bottom <= a.bottom + 0.5 };
   });
   if (!whole.inside) problems.push(`${label}: Original does not show the whole image in the area`);
   // The ratios: Original first, then the seven, in one row that scrolls sideways below medium and wraps from medium.
-  const names = await view.locator('.crop-view-ratios > *').allTextContents();
+  const names = await view.locator('.mo-editor-crop-view-ratios > *').allTextContents();
   if (names.map((n) => n.trim()).join() !== 'Original,1:1,4:5,3:4,2:3,3:2,4:3,16:9')
     problems.push(`${label}: the aspect ratios are ${names.join(', ')}`);
-  const row = await view.locator('.crop-view-ratios').evaluate((el) => ({
+  const row = await view.locator('.mo-editor-crop-view-ratios').evaluate((el) => ({
     scrolls: el.scrollWidth > el.clientWidth + 1,
     rows: new Set([...el.children].map((c) => Math.round(c.getBoundingClientRect().top))).size,
   }));
@@ -994,7 +1003,7 @@ async function checkCropView(width, height = 800) {
   // 3:2: a frame of that ratio, the scrim outside it, a two-tone border.
   await chip('3:2').click();
   await page.waitForTimeout(500);
-  const frame = await view.locator('.crop-view-frame').evaluate((f) => {
+  const frame = await view.locator('.mo-editor-crop-view-frame').evaluate((f) => {
     const s = getComputedStyle(f);
     const b = f.getBoundingClientRect();
     return { ratio: b.width / b.height, border: s.borderTopWidth, borderColor: s.borderTopColor, shadow: s.boxShadow };
@@ -1006,8 +1015,8 @@ async function checkCropView(width, height = 800) {
     problems.push(`${label}: the frame's border and halo are one colour`);
   // The scrim is a layer on the image alone, the frame cut out of it (not a shadow of the frame, which would grey the blank part of the stage too).
   const shade = await view.evaluate((d) => {
-    const el = d.querySelector('.crop-view-shade');
-    const i = d.querySelector('.crop-view-image').getBoundingClientRect();
+    const el = d.querySelector('.mo-editor-crop-view-shade');
+    const i = d.querySelector('.mo-editor-crop-view-image').getBoundingClientRect();
     if (!el) return null;
     const r = el.getBoundingClientRect();
     return {
@@ -1023,7 +1032,7 @@ async function checkCropView(width, height = 800) {
     if (/rgba?\(0, 0, 0, 0\)|transparent/.test(shade.bg))
       problems.push(`${label}: the scrim outside the frame is see-through (${shade.bg})`);
   }
-  if ((await view.locator('.crop-view-area').evaluate((a) => getComputedStyle(a).backgroundColor)) !== 'rgba(0, 0, 0, 0)')
+  if ((await view.locator('.mo-editor-crop-view-area').evaluate((a) => getComputedStyle(a).backgroundColor)) !== 'rgba(0, 0, 0, 0)')
     problems.push(`${label}: the image area has a background of its own, not the page's`);
   const z1 = await zoom();
   if (Math.abs(z1 - 1) > 0.01) problems.push(`${label}: a new ratio does not start at zoom 1 (${z1})`);
@@ -1044,8 +1053,8 @@ async function checkCropView(width, height = 800) {
   await view.getByRole('button', { name: 'Zoom in' }).click();
   if ((await zoom()) > 4.001) problems.push(`${label}: Zoom in goes past 4`);
   // Drag: the image moves under the fixed frame, and keeps covering it.
-  const area = await view.locator('.crop-view-area').boundingBox();
-  const fbox = () => view.locator('.crop-view-frame').boundingBox();
+  const area = await view.locator('.mo-editor-crop-view-area').boundingBox();
+  const fbox = () => view.locator('.mo-editor-crop-view-frame').boundingBox();
   const f0 = await fbox();
   const p0 = await pictureBox();
   await page.mouse.move(area.x + area.width / 2, area.y + area.height / 2);
@@ -1069,7 +1078,7 @@ async function checkCropView(width, height = 800) {
   if (!(p2.x <= f1.x + 0.5 && p2.y <= f1.y + 0.5)) problems.push(`${label}: the image leaves a gap in the frame when dragged far`);
   // The pixels, with a white test image: white inside the frame, darkened by the scrim on the image outside it, and the page's own colour where the image
   // does not reach (the blank part of the stage: no grey strip).
-  await view.locator('.crop-view-image').evaluate((img) => {
+  await view.locator('.mo-editor-crop-view-image').evaluate((img) => {
     img.src =
       'data:image/svg+xml;utf8,' +
       encodeURIComponent(
@@ -1078,7 +1087,7 @@ async function checkCropView(width, height = 800) {
   });
   await page.waitForTimeout(400);
   const f3 = await fbox();
-  const area3 = await view.locator('.crop-view-area').boundingBox();
+  const area3 = await view.locator('.mo-editor-crop-view-area').boundingBox();
   const cy = f3.y + f3.height / 2;
   const points = [
     [f3.x + f3.width / 2, cy],
@@ -1142,13 +1151,13 @@ async function checkCropView(width, height = 800) {
     scroll: scrollY,
     text: document.querySelector('.ProseMirror')?.textContent,
   }));
-  if (stepAfter.sheet === 'crop-view') problems.push(`${label}: the page's step is still in the history after Save`);
+  if (stepAfter.sheet === 'mo-editor-crop-view') problems.push(`${label}: the page's step is still in the history after Save`);
   if (Math.abs(stepAfter.scroll - scroll0) > 1)
     problems.push(`${label}: the editor is at ${stepAfter.scroll} after the crop view, it was at ${scroll0}`);
   if (stepAfter.hash !== '#new/pages' || !/Hello/.test(stepAfter.text ?? ''))
     problems.push(`${label}: the editor under the crop view was changed (${stepAfter.hash})`);
   const saved = await page.evaluate(() => {
-    const box = document.querySelector('.ProseMirror .site-picture .picture-crop');
+    const box = document.querySelector('.ProseMirror .mo-site-picture .mo-site-picture__crop');
     return box && { box: box.getAttribute('style'), img: box.querySelector('img')?.getAttribute('style') };
   });
   if (!saved || !/aspect-ratio: 3 \/ 2/.test(saved.box ?? '') || !/translate\(-?\d/.test(saved.img ?? ''))
@@ -1156,7 +1165,9 @@ async function checkCropView(width, height = 800) {
   // Reopened: 3:2 is chosen. Leaving with a change asks; Discard leaves the image as it was.
   await open();
   const chosen = await view
-    .locator('.crop-view-ratios [aria-pressed="true"], .crop-view-ratios [aria-checked="true"], .crop-view-ratios [data-selected]')
+    .locator(
+      '.mo-editor-crop-view-ratios [aria-pressed="true"], .mo-editor-crop-view-ratios [aria-checked="true"], .mo-editor-crop-view-ratios [data-selected]',
+    )
     .allTextContents();
   if (!chosen.some((c) => c.includes('3:2'))) problems.push(`${label}: reopened, 3:2 is not the chosen ratio (${chosen})`);
   await chip('1:1').click();
@@ -1172,7 +1183,9 @@ async function checkCropView(width, height = 800) {
   await asked().getByRole('button', { name: 'Discard', exact: true }).click();
   await page.waitForTimeout(500);
   if (await view.count()) problems.push(`${label}: Discard did not close the crop view`);
-  const still = await page.evaluate(() => document.querySelector('.ProseMirror .site-picture .picture-crop')?.getAttribute('style'));
+  const still = await page.evaluate(() =>
+    document.querySelector('.ProseMirror .mo-site-picture .mo-site-picture__crop')?.getAttribute('style'),
+  );
   if (!/aspect-ratio: 3 \/ 2/.test(still ?? '')) problems.push(`${label}: Discard changed the image (${still})`);
   // Closing with nothing changed asks nothing.
   await open();
@@ -1181,7 +1194,7 @@ async function checkCropView(width, height = 800) {
   if ((await asked().count()) || (await view.count())) problems.push(`${label}: closing the crop view with no change asked or stayed open`);
   // The phone's back gesture (the browser's back) leaves the page: at once when nothing changed, with the question when something did.
   await open();
-  if ((await page.evaluate(() => history.state?.sheet)) !== 'crop-view')
+  if ((await page.evaluate(() => history.state?.sheet)) !== 'mo-editor-crop-view')
     problems.push(`${label}: the page has no step of its own in the history`);
   await page.evaluate(() => history.back());
   await view
@@ -1198,26 +1211,26 @@ async function checkCropView(width, height = 800) {
   await page.keyboard.press('Escape');
   await page.waitForTimeout(300);
   if (!(await view.count())) problems.push(`${label}: staying after the browser's back did not keep the crop view`);
-  if ((await page.evaluate(() => history.state?.sheet)) !== 'crop-view')
+  if ((await page.evaluate(() => history.state?.sheet)) !== 'mo-editor-crop-view')
     problems.push(`${label}: staying after the browser's back did not give the page its step back`);
   await back().click();
   await asked().getByRole('button', { name: 'Discard', exact: true }).click();
   await page.waitForTimeout(500);
-  if ((await view.count()) || (await page.evaluate(() => history.state?.sheet)) === 'crop-view')
+  if ((await view.count()) || (await page.evaluate(() => history.state?.sheet)) === 'mo-editor-crop-view')
     problems.push(`${label}: Discard after the browser's back left the page open or its step in the history`);
   // The image sheet: an Aspect ratio row with the ratio, no Format chips; it opens the same view and brings the ratio back.
   await select();
-  const sheetOpen = () => page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Alt text' }).count();
+  const sheetOpen = () => page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Alt text' }).count();
   if (!(await sheetOpen())) await pressTool(page, 'Edit', how);
   await page.waitForTimeout(700);
-  const sheet = page.locator('dialog[open], .editor-side-sheet').filter({ hasText: 'Alt text' }).last();
+  const sheet = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Alt text' }).last();
   const rowItem = sheet.getByRole('button', { name: /Aspect ratio/ }).or(sheet.locator('li', { hasText: 'Aspect ratio' }));
   if (!(await rowItem.count())) problems.push(`${label}: the image sheet has no Aspect ratio row`);
   else {
     const text = (await sheet.locator('li', { hasText: 'Aspect ratio' }).first().textContent()) ?? '';
     if (!text.includes('3:2')) problems.push(`${label}: the Aspect ratio row does not say 3:2 (${text})`);
     if (/\bFormat\b/.test((await sheet.textContent()) ?? '')) problems.push(`${label}: the image sheet still says Format`);
-    if (await sheet.locator('.crop-view-ratios, [role=radiogroup]').count())
+    if (await sheet.locator('.mo-editor-crop-view-ratios, [role=radiogroup]').count())
       problems.push(`${label}: the image sheet still has the format chips`);
     await rowItem.first().click();
     await view.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the Aspect ratio row did not open the crop view`));
@@ -1258,9 +1271,9 @@ async function checkAltLive(width, height = 800) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  const pics = () => page.locator('.ProseMirror .site-picture .site-block-card');
+  const pics = () => page.locator('.ProseMirror .mo-site-picture .mo-site-block-card');
   const described = (n) => pics().nth(n).getAttribute('aria-description');
-  const field = () => page.locator('.editor-side-sheet').getByLabel('Alt text');
+  const field = () => page.locator('.mo-editor-side-sheet').getByLabel('Alt text');
   const shortSheet = () => page.locator('dialog[open]').filter({ hasText: 'Decorative image' });
   const focusedLabel = () =>
     page.evaluate(() => {
@@ -1335,7 +1348,7 @@ async function checkAltSheet(width, height = 800) {
   await page.waitForTimeout(300);
   const how = phone ? 'tap' : 'click';
   const sheet = () => page.locator('dialog[open]').filter({ hasText: 'Decorative image' }).last();
-  const pics = () => page.locator('.ProseMirror .site-picture .site-block-card');
+  const pics = () => page.locator('.ProseMirror .mo-site-picture .mo-site-block-card');
   const buttons = async () => (await sheet().locator('button').allTextContents()).map((b) => b.trim()).filter(Boolean);
   const pick = async () => {
     await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
@@ -1371,14 +1384,15 @@ async function checkAltSheet(width, height = 800) {
   const names = await buttons();
   if (!names.includes('Skip') || !names.includes('Save') || names.includes('Cancel') || names.includes('Insert'))
     problems.push(`${label}: the sheet after a pick has the buttons ${names.join(', ')}, not Skip and Save`);
-  if (await page.locator('.crop-page[open]').count()) problems.push(`${label}: the crop view opened after the image was picked`);
+  if (await page.locator('.mo-editor-crop-page[open]').count()) problems.push(`${label}: the crop view opened after the image was picked`);
   await sheet().getByLabel('Alt text').fill('A ringed planet');
   await sheet().getByRole('button', { name: 'Save', exact: true }).click();
   await pics().first().waitFor({ timeout: 6000 });
   await page.waitForTimeout(500);
   if ((await texts()).join('|') !== 'A ringed planet')
     problems.push(`${label}: Save did not put the text on the image (${(await texts()).join('|')})`);
-  if (await page.locator('.ProseMirror .site-picture .picture-crop').count()) problems.push(`${label}: a new image is not Original`);
+  if (await page.locator('.ProseMirror .mo-site-picture .mo-site-picture__crop').count())
+    problems.push(`${label}: a new image is not Original`);
 
   // Skip keeps the image without a text of its own.
   await page.click('.ProseMirror > p');
@@ -1452,7 +1466,7 @@ async function checkAltSheet(width, height = 800) {
   await page.waitForTimeout(700);
   if ((await at('Another view')) < 0)
     problems.push(`${label}: Change image did not put the new text on the image (${(await texts()).join('|')})`);
-  if (!(await page.locator('.editor-tools button[aria-label="Alt text"]').count()))
+  if (!(await page.locator('.mo-editor-tools button[aria-label="Alt text"]').count()))
     problems.push(`${label}: the changed image is not selected, the bar has no Alt text`);
   await page.close();
 }
@@ -1470,7 +1484,7 @@ async function checkBlockSettingsPane(width) {
   await row.click();
   await page.waitForTimeout(500);
   const got = await page.evaluate(() => {
-    const aside = document.querySelector('aside.side-sheet-container:not([hidden])');
+    const aside = document.querySelector('aside.mo-side-sheet__container:not([hidden])');
     const box = aside?.getBoundingClientRect();
     const first = [...document.querySelectorAll('main button, main [role=button]')]
       .find((b) => /^Accordion/.test(b.textContent.trim()))
@@ -1499,7 +1513,7 @@ async function checkLinkAndItemPanes(width) {
   const label = `${width}px link and item panes`;
   const shown = (page) =>
     page.evaluate(() => ({
-      pane: !!document.querySelector('aside.editor-side-sheet:not([hidden])'),
+      pane: !!document.querySelector('aside.mo-editor-side-sheet:not([hidden])'),
       dialogs: document.querySelectorAll('dialog[open]').length,
     }));
   const expect = async (page, what) => {
@@ -1526,9 +1540,10 @@ async function checkLinkAndItemPanes(width) {
   };
   const closeIt = async (page, what, opener) => {
     if (phone) return void (await page.keyboard.press('Escape'));
-    await page.locator('aside.editor-side-sheet [data-side-sheet-close]').last().click();
+    await page.locator('aside.mo-editor-side-sheet [data-side-sheet-close]').last().click();
     await page.waitForTimeout(500);
-    if (await page.locator('aside.editor-side-sheet:not([hidden])').count()) problems.push(`${label}: the pane of ${what} did not close`);
+    if (await page.locator('aside.mo-editor-side-sheet:not([hidden])').count())
+      problems.push(`${label}: the pane of ${what} did not close`);
     if (opener && !(await page.evaluate((sel) => document.activeElement?.matches(sel), opener)))
       problems.push(`${label}: after the pane of ${what} closed, the focus did not go back to what opened it`);
   };
@@ -1592,20 +1607,20 @@ async function checkLinkAndItemPanes(width) {
     }
     await page.waitForTimeout(700);
     const nested = await page.evaluate(() => {
-      const shown = [...document.querySelectorAll('aside.editor-side-sheet')].filter((a) => !a.closest('.hidden'));
+      const shown = [...document.querySelectorAll('aside.mo-editor-side-sheet')].filter((a) => !a.closest('.hidden, .mo-hidden'));
       return {
         shown: shown.length,
-        title: shown[0]?.querySelector('.side-sheet-headline')?.textContent,
+        title: shown[0]?.querySelector('.mo-side-sheet__headline')?.textContent,
         back: !!shown[0]?.querySelector('[data-side-sheet-back]'),
       };
     });
     if (nested.shown !== 1 || nested.title !== 'Link' || !nested.back)
       problems.push(`${label}: the link over a block's pane is not the one pane shown with a back arrow (${JSON.stringify(nested)})`);
-    await page.locator('aside.editor-side-sheet [data-side-sheet-back]').first().click();
+    await page.locator('aside.mo-editor-side-sheet [data-side-sheet-back]').first().click();
     await page.waitForTimeout(600);
     const back = await page.evaluate(() => {
-      const shown = [...document.querySelectorAll('aside.editor-side-sheet')].filter((a) => !a.closest('.hidden'));
-      return { shown: shown.length, title: shown[0]?.querySelector('.side-sheet-headline')?.textContent };
+      const shown = [...document.querySelectorAll('aside.mo-editor-side-sheet')].filter((a) => !a.closest('.hidden, .mo-hidden'));
+      return { shown: shown.length, title: shown[0]?.querySelector('.mo-side-sheet__headline')?.textContent };
     });
     if (back.shown !== 1 || back.title === 'Link')
       problems.push(`${label}: Back does not show the block's pane again (${JSON.stringify(back)})`);
@@ -1631,7 +1646,7 @@ async function checkListAndRedirectPanes(width) {
     });
     if (twice.length) problems.push(`${label}: ${what} has the same id twice in the page (${twice.slice(0, 3).join(', ')})`);
     const got = await page.evaluate(() => ({
-      pane: !!document.querySelector('aside.editor-side-sheet:not([hidden])'),
+      pane: !!document.querySelector('aside.mo-editor-side-sheet:not([hidden])'),
       dialogs: document.querySelectorAll('dialog[open]').length,
     }));
     if (phone) {
@@ -1658,7 +1673,7 @@ async function checkListAndRedirectPanes(width) {
   await page.getByRole('button', { name: 'Create', exact: true }).first().click();
   await page.waitForFunction(() => location.hash.startsWith('#list/'), null, { timeout: 10_000 });
   await page.waitForTimeout(700);
-  if (await page.locator('aside.editor-side-sheet:not([hidden])').count())
+  if (await page.locator('aside.mo-editor-side-sheet:not([hidden])').count())
     problems.push(`${label}: the pane of a new list is still open after Create`);
   await page.getByRole('button', { name: 'List menu' }).first().click({ timeout: 10_000 });
   await page.getByRole('menuitem', { name: 'Edit list' }).first().click();
@@ -1682,31 +1697,35 @@ async function checkVideoChangeLink(width, height = 800) {
   await page.waitForTimeout(300);
   await pressInsert(page, phone ? 'tap' : 'click');
   await page.locator('dialog[open] button', { hasText: 'A YouTube or Vimeo video.' }).first().click();
-  await page.waitForSelector('.site-block-inline [data-field="title"]');
+  await page.waitForSelector('.mo-site-block-inline [data-field="title"]');
   await page.keyboard.type('My film');
   await page.waitForTimeout(300);
   const tap = (loc) => (phone ? loc.tap() : loc.click());
   // Away from the block, then a tap on its frame selects it.
   await tap(page.locator('.ProseMirror > p').first());
   await page.waitForTimeout(400);
-  if (await page.locator('.editor-tools-context button[aria-label="Change link"]').count())
+  if (await page.locator('.mo-editor-tools-context button[aria-label="Change link"]').count())
     problems.push(`${label}: Change link is on the bar while the video is not selected`);
-  await tap(page.locator('.inline-video-frame'));
+  await tap(page.locator('.mo-editor-inline-video-frame'));
   await page.waitForTimeout(700);
-  if (await page.locator('.site-block-inline .inline-list-slot').count())
+  if (await page.locator('.mo-site-block-inline .mo-editor-inline-list-slot').count())
     problems.push(`${label}: a slot is still drawn over the video frame`);
   const bar = await page.evaluate(() => ({
-    tools: [...document.querySelectorAll('.editor-tools-context button')].map((b) => b.getAttribute('aria-label') || b.textContent.trim()),
-    row: [...document.querySelectorAll('.site-block-row:not(.site-block-row-hover) [data-row]')].map((b) => b.getAttribute('aria-label')),
+    tools: [...document.querySelectorAll('.mo-editor-tools-context button')].map(
+      (b) => b.getAttribute('aria-label') || b.textContent.trim(),
+    ),
+    row: [...document.querySelectorAll('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')].map((b) =>
+      b.getAttribute('aria-label'),
+    ),
   }));
   if (bar.tools[0] !== 'Change link') problems.push(`${label}: the bar's first tool is "${bar.tools[0]}", not Change link (${bar.tools})`);
   if (!bar.row.some((n) => /settings|edit/i.test(n ?? ''))) await page.screenshot({ path: join(shots, `video-change-link-${width}.png`) });
-  const sheetOpen = () => page.locator('dialog[open], .editor-side-sheet').last();
+  const sheetOpen = () => page.locator('dialog[open], .mo-editor-side-sheet').last();
   if (expanded) {
     // From expanded the tap opened the sheet beside the video already; Change link focuses its field.
-    if (!(await page.locator('.editor-side-sheet').count())) problems.push(`${label}: the tap did not open the video's sheet`);
+    if (!(await page.locator('.mo-editor-side-sheet').count())) problems.push(`${label}: the tap did not open the video's sheet`);
   }
-  await page.locator('.editor-tools-context button[aria-label="Change link"]').first().click();
+  await page.locator('.mo-editor-tools-context button[aria-label="Change link"]').first().click();
   await page.waitForTimeout(900);
   const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
   const focused = await page.evaluate(() => {
@@ -1729,16 +1748,16 @@ async function checkVideoChangeLink(width, height = 800) {
     () =>
       document
         .querySelector(
-          '.site-block-inline iframe, .site-block-inline [data-video], .site-block-inline a[href*="youtu"], .site-block-inline img',
+          '.mo-site-block-inline iframe, .mo-site-block-inline [data-video], .mo-site-block-inline a[href*="youtu"], .mo-site-block-inline img',
         )
         ?.outerHTML.slice(0, 300) ?? '',
   );
   if (!kept.includes('dQw4w9WgXcQ')) problems.push(`${label}: the video does not show the new link (${kept})`);
   // The Thumbnail field: the sheet has it, an image chosen there is the frame's still (the same View.tsx draws it, selected or not), and it is a local image.
-  const stillSrc = () => page.locator('.site-block-inline .video-facade-image').first().getAttribute('src');
+  const stillSrc = () => page.locator('.mo-site-block-inline .mo-block-video__facade-image').first().getAttribute('src');
   // The sheet is still open (a phone's bottom sheet, a computer's side sheet); if not, Change link opens it.
   if (!(await sheetOpen().getByText('Thumbnail', { exact: true }).count())) {
-    await page.locator('.editor-tools-context button[aria-label="Change link"]').first().click();
+    await page.locator('.mo-editor-tools-context button[aria-label="Change link"]').first().click();
     await page.waitForTimeout(900);
   }
   const thumb = sheetOpen().getByText('Thumbnail', { exact: true });

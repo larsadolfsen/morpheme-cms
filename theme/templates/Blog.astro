@@ -33,7 +33,7 @@ const { page, heading, intro, sections } = Astro.props;
       case 'text':
         return <TextSection heading={s.heading} body={s.body ?? ''} class={space(i)} />;
       default:
-        return <PageBlock section={s} class={i === 0 ? 'theme-blog-first' : undefined} />;
+        return <PageBlock section={s} class={i === 0 ? 'mo-blog__first' : undefined} />;
     }
   })}
 </BlogIndex>

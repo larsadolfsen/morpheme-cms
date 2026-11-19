@@ -1,5 +1,5 @@
 // Text from the pages, shared by the site (content.ts) and the editor's previews of the blocks
-// (a theme's editor/previews.tsx), which has no content collections. A word in colour (<span class="color-accent">,
+// (a theme's editor/previews.tsx), which has no content collections. A word in colour (<span class="mo-has-accent-color">,
 // @morphemecms/cms/lib/text-colors.mjs) is its text.
 import { withoutColors } from '@morphemecms/cms/lib/text-colors.mjs';
 import { config } from '@site/config';

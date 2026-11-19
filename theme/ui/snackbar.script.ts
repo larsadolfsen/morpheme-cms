@@ -9,7 +9,7 @@ export default function snackbars() {
   document.querySelectorAll<HTMLTemplateElement>('template[data-snackbar]').forEach((template) => {
     const element = template.content.firstElementChild?.cloneNode(true);
     if (!(element instanceof HTMLElement)) return;
-    const text = element.querySelector('.snackbar-supporting-text')?.textContent?.trim() ?? '';
+    const text = element.querySelector('.mo-snackbar__supporting-text')?.textContent?.trim() ?? '';
     const ms = Number(template.dataset.ms) || undefined;
     snackbar({ text, element, ms, error: element.getAttribute('role') === 'alert' });
   });

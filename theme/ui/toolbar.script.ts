@@ -5,7 +5,7 @@
 const actions = 'a[href], button:not(:disabled), input:not(:disabled)';
 
 export default function toolbar() {
-  document.querySelectorAll<HTMLElement>('.toolbar[role="toolbar"]').forEach((bar) => {
+  document.querySelectorAll<HTMLElement>('.mo-toolbar[role="toolbar"]').forEach((bar) => {
     const items = () => [...bar.querySelectorAll<HTMLElement>(actions)].filter((el) => el.closest('[role="toolbar"]') === bar);
     const vertical = bar.getAttribute('aria-orientation') === 'vertical';
     // The one Tab stops at: the one last moved to (at first the first).

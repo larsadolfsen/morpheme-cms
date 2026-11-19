@@ -1,4 +1,4 @@
-// A date picker (m3.material.io/components/date-pickers, .date-picker in ../styles/ui/pickers.css): a text field to type a
+// A date picker (m3.material.io/components/date-pickers, .mo-date-picker in ../styles/ui/pickers.css): a text field to type a
 // date in (in the site's language's order, 02.11.2026), with a calendar button that opens the picker
 // (DatePickerContainer.tsx), and what a form sends, the day as ISO (2026-11-02), in a hidden input named `name` (and,
 // with `range`, the last day in one named `endName`). `kind`: docked (the picker opens under the field) or modal (in a
@@ -67,7 +67,7 @@ export default function DatePicker({
   const title = range ? texts.selectRange : texts.select;
   const box = useWorking(onChange, [value, endValue], typed);
   return (
-    <div ref={box} className={['date-picker-field', className].filter(Boolean).join(' ')} data-date-picker={JSON.stringify(settings)}>
+    <div ref={box} className={['mo-date-picker__field', className].filter(Boolean).join(' ')} data-date-picker={JSON.stringify(settings)}>
       <TextField
         label={label}
         supporting={supporting ?? format}
@@ -82,7 +82,7 @@ export default function DatePicker({
       <IconButton
         icon="calendar-blank"
         label={title}
-        className="date-picker-field-button"
+        className="mo-date-picker__field-button"
         aria-haspopup="dialog"
         aria-expanded="false"
         data-date-picker-open=""
@@ -90,7 +90,7 @@ export default function DatePicker({
       <input type="hidden" name={name} defaultValue={dateOf(value) ? value : ''} data-date-picker-value="0" />
       {range && <input type="hidden" name={endName} defaultValue={dateOf(endValue) ? endValue : ''} data-date-picker-value="1" />}
       <dialog
-        className={modal ? 'dialog-modal date-picker-dialog' : 'date-picker-popover'}
+        className={modal ? 'mo-dialog__modal mo-date-picker__dialog' : 'mo-date-picker__popover'}
         aria-label={title}
         data-date-picker-dialog=""
       ></dialog>

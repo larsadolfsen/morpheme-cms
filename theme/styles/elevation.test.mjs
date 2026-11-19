@@ -45,31 +45,39 @@ for (const [name, value] of Object.entries(tokens)) {
 
 // Neutral parts: the resting surface reads the part's own variable, then its level's colour.
 const surfaces = [
-  ['elevated button', 'background: var(--button-elevated-surface, var(--mo-sys-elevation-level1-color));', 1],
-  ['elevated chip', 'background: var(--chip-elevated-surface, var(--mo-sys-elevation-level1-color));', 1],
-  ['elevated card', 'background: var(--card-elevated-surface, var(--mo-sys-elevation-level1-color));', 1],
+  ['elevated button', 'background: var(--mo-comp-button-elevated-surface, var(--mo-sys-elevation-level1-color));', 1],
+  ['elevated chip', 'background: var(--mo-comp-chip-elevated-surface, var(--mo-sys-elevation-level1-color));', 1],
+  ['elevated card', 'background: var(--mo-comp-card-elevated-surface, var(--mo-sys-elevation-level1-color));', 1],
   ['outlined card', 'background: var(--mo-comp-outlined-card-container-color, var(--mo-sys-elevation-level0-color));', 1],
-  ['dialog (also date and time picker)', 'background: var(--dialog-surface, var(--mo-sys-elevation-level3-color));', 1],
-  ['date picker input label notch', '--mo-comp-text-field-label-surface: var(--dialog-surface, var(--mo-sys-elevation-level3-color));', 1],
-  ['bottom sheet (container and cover)', 'background: var(--bottom-sheet-surface, var(--mo-sys-elevation-level1-color));', 2],
-  ['standard side sheet', 'background: var(--side-sheet-surface, var(--mo-sys-elevation-level0-color));', 2],
-  ['modal side sheet', 'background: var(--side-sheet-modal-surface, var(--side-sheet-surface, var(--mo-sys-elevation-level1-color)));', 2],
-  ['scrolled top app bar', 'background: var(--top-app-bar-stuck-surface, var(--mo-sys-elevation-level2-color));', 1],
+  ['dialog (also date and time picker)', 'background: var(--mo-comp-dialog-surface, var(--mo-sys-elevation-level3-color));', 1],
+  [
+    'date picker input label notch',
+    '--mo-comp-text-field-label-surface: var(--mo-comp-dialog-surface, var(--mo-sys-elevation-level3-color));',
+    1,
+  ],
+  ['bottom sheet (container and cover)', 'background: var(--mo-comp-bottom-sheet-surface, var(--mo-sys-elevation-level1-color));', 2],
+  ['standard side sheet', 'background: var(--mo-comp-side-sheet-surface, var(--mo-sys-elevation-level0-color));', 2],
+  [
+    'modal side sheet',
+    'background: var(--mo-comp-side-sheet-modal-surface, var(--mo-comp-side-sheet-surface, var(--mo-sys-elevation-level1-color)));',
+    2,
+  ],
+  ['scrolled top app bar', 'background: var(--mo-comp-top-app-bar-stuck-surface, var(--mo-sys-elevation-level2-color));', 1],
   ['menu, menu group and select list', 'background: var(--mo-comp-menu-container-color, var(--mo-sys-elevation-level2-color));', 3],
   [
     'modal navigation drawer (the expanded rail, modal)',
-    'background: var(--navigation-drawer-surface, var(--mo-sys-elevation-level2-color));',
+    'background: var(--mo-comp-navigation-drawer-surface, var(--mo-sys-elevation-level2-color));',
     1,
   ],
   [
     'standard navigation drawer (the expanded rail, standard)',
-    'background: var(--navigation-drawer-surface, var(--mo-sys-elevation-level0-color));',
+    'background: var(--mo-comp-navigation-drawer-surface, var(--mo-sys-elevation-level0-color));',
     1,
   ],
-  ['rich tooltip', 'background: var(--tooltip-rich-surface, var(--mo-sys-elevation-level2-color));', 1],
+  ['rich tooltip', 'background: var(--mo-comp-tooltip-rich-surface, var(--mo-sys-elevation-level2-color));', 1],
   ['standard navigation rail', 'background: var(--mo-comp-navigation-rail-surface, var(--mo-sys-elevation-level0-color));', 1],
-  ['modal navigation rail', 'background: var(--navigation-rail-modal-surface, var(--mo-sys-elevation-level2-color));', 1],
-  ['search view', 'background: var(--search-view-surface, var(--mo-sys-elevation-level3-color));', 1],
+  ['modal navigation rail', 'background: var(--mo-comp-navigation-rail-modal-surface, var(--mo-sys-elevation-level2-color));', 1],
+  ['search view', 'background: var(--mo-comp-search-view-surface, var(--mo-sys-elevation-level3-color));', 1],
 ];
 
 for (const [part, line, times] of surfaces) {
@@ -95,36 +103,47 @@ for (const line of unchanged) {
 
 test('no part reads the old surface fallbacks', () => {
   assert.equal(count(uiCss, 'var(--mo-comp-menu-container-color, var(--mo-sys-block-surface))'), 0);
-  assert.equal(count(uiCss, 'var(--dialog-surface, var(--mo-sys-block-surface))'), 0);
-  assert.equal(count(uiCss, 'var(--navigation-drawer-surface, var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface)))'), 0);
+  assert.equal(count(uiCss, 'var(--mo-comp-dialog-surface, var(--mo-sys-block-surface))'), 0);
+  assert.equal(
+    count(uiCss, 'var(--mo-comp-navigation-drawer-surface, var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface)))'),
+    0,
+  );
   assert.equal(count(uiCss, 'var(--mo-comp-navigation-rail-surface, var(--mo-sys-block-surface))'), 0);
 });
 
 // Resting shadows: the part's own variable first, then its level's rest-shadow token.
 const restShadows = [
-  ['elevated button', 'box-shadow: var(--button-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
-  ['elevated chip', 'box-shadow: var(--chip-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
+  ['elevated button', 'box-shadow: var(--mo-comp-button-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
+  ['elevated chip', 'box-shadow: var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
   [
     'elevated card',
     '--mo-comp-card-shadow: var(--mo-comp-elevated-card-container-elevation, var(--mo-sys-elevation-level1-rest-shadow));',
     1,
   ],
-  ['modal side sheet (container and wide layout)', 'box-shadow: var(--side-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
-  ['bottom sheet', 'box-shadow: var(--bottom-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
-  ['bottom sheet as a dialog', 'box-shadow: var(--bottom-sheet-shadow-large, var(--mo-sys-elevation-level3-rest-shadow));', 1],
-  ['dialog (also date and time picker)', 'var(--dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
-  ['docked date picker', 'var(--date-picker-docked-shadow, var(--dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow)));', 1],
-  ['scrolled top app bar', 'box-shadow: var(--top-app-bar-stuck-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
-  ['modal navigation rail', 'box-shadow: var(--navigation-rail-modal-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
-  ['navigation drawer', 'box-shadow: var(--navigation-drawer-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
+  [
+    'modal side sheet (container and wide layout)',
+    'box-shadow: var(--mo-comp-side-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));',
+    2,
+  ],
+  ['bottom sheet', 'box-shadow: var(--mo-comp-bottom-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
+  ['bottom sheet as a dialog', 'box-shadow: var(--mo-comp-bottom-sheet-shadow-large, var(--mo-sys-elevation-level3-rest-shadow));', 1],
+  ['dialog (also date and time picker)', 'var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
+  [
+    'docked date picker',
+    'var(--mo-comp-date-picker-docked-shadow, var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow)));',
+    1,
+  ],
+  ['scrolled top app bar', 'box-shadow: var(--mo-comp-top-app-bar-stuck-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
+  ['modal navigation rail', 'box-shadow: var(--mo-comp-navigation-rail-modal-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
+  ['navigation drawer', 'box-shadow: var(--mo-comp-navigation-drawer-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
   ['menu, menu group and select list', 'var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-rest-shadow));', 3],
-  ['rich tooltip', 'var(--tooltip-rich-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
-  ['search view', 'var(--search-view-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
-  ['floating toolbar', 'var(--toolbar-floating-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
+  ['rich tooltip', 'var(--mo-comp-tooltip-rich-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
+  ['search view', 'var(--mo-comp-search-view-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
+  ['floating toolbar', 'var(--mo-comp-toolbar-floating-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
   ['FAB and FAB menu', 'box-shadow: var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 2],
-  ['snackbar', 'box-shadow: var(--snackbar-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
-  ['switch handle', 'box-shadow: var(--switch-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
-  ['slider handle (both directions)', 'box-shadow: var(--slider-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
+  ['snackbar', 'box-shadow: var(--mo-comp-snackbar-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
+  ['switch handle', 'box-shadow: var(--mo-comp-switch-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
+  ['slider handle (both directions)', 'box-shadow: var(--mo-comp-slider-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
 ];
 
 for (const [part, line, times] of restShadows) {
@@ -147,7 +166,7 @@ test('elevated card hover still reads --mo-sys-elevation-level2-shadow', () => {
 });
 
 test('outlined card keeps --mo-sys-elevation-level0-shadow', () => {
-  assert.equal(count(uiCss, '--mo-comp-card-shadow: var(--card-outlined-shadow, var(--mo-sys-elevation-level0-shadow));'), 1);
+  assert.equal(count(uiCss, '--mo-comp-card-shadow: var(--mo-comp-card-outlined-shadow, var(--mo-sys-elevation-level0-shadow));'), 1);
 });
 
 // The Material theme (global.css): resting shadows on, each level's rest shadow is that level's shadow.
@@ -174,20 +193,20 @@ for (const [line, times] of addedLines) {
 }
 
 const removedDeclarations = [
-  '--button-elevated-surface',
-  '--card-elevated-surface',
-  '--side-sheet-surface',
-  '--side-sheet-modal-surface',
-  '--bottom-sheet-surface',
-  '--dialog-surface',
-  '--top-app-bar-stuck-surface',
-  '--top-app-bar-stuck-shadow',
+  '--mo-comp-button-elevated-surface',
+  '--mo-comp-card-elevated-surface',
+  '--mo-comp-side-sheet-surface',
+  '--mo-comp-side-sheet-modal-surface',
+  '--mo-comp-bottom-sheet-surface',
+  '--mo-comp-dialog-surface',
+  '--mo-comp-top-app-bar-stuck-surface',
+  '--mo-comp-top-app-bar-stuck-shadow',
   '--mo-comp-navigation-rail-surface',
-  '--navigation-drawer-surface',
-  '--tooltip-rich-surface',
-  '--search-view-surface',
-  '--switch-handle-shadow',
-  '--slider-handle-shadow',
+  '--mo-comp-navigation-drawer-surface',
+  '--mo-comp-tooltip-rich-surface',
+  '--mo-comp-search-view-surface',
+  '--mo-comp-switch-handle-shadow',
+  '--mo-comp-slider-handle-shadow',
 ];
 
 for (const name of removedDeclarations) {

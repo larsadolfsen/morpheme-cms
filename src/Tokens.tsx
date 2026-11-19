@@ -61,34 +61,42 @@ const shadows: Token[] = [
     label: say.partShadows.buttonFilled,
     fallback: '--mo-sys-elevation-level0-shadow',
   },
-  { token: '--button-tonal-shadow', label: say.partShadows.buttonTonal, fallback: '--mo-sys-elevation-level0-shadow' },
-  { token: '--button-elevated-shadow', label: say.partShadows.buttonElevated, fallback: '--mo-sys-elevation-level1-shadow' },
-  { token: '--chip-elevated-shadow', label: say.partShadows.chipElevated, fallback: '--mo-sys-elevation-level1-shadow' },
-  { token: '--card-filled-shadow', label: say.partShadows.cardFilled, fallback: '--mo-sys-elevation-level0-shadow' },
-  { token: '--card-outlined-shadow', label: say.partShadows.cardOutlined, fallback: '--mo-sys-elevation-level0-shadow' },
+  { token: '--mo-comp-button-tonal-shadow', label: say.partShadows.buttonTonal, fallback: '--mo-sys-elevation-level0-shadow' },
+  { token: '--mo-comp-button-elevated-shadow', label: say.partShadows.buttonElevated, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--mo-comp-chip-elevated-shadow', label: say.partShadows.chipElevated, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--mo-comp-card-filled-shadow', label: say.partShadows.cardFilled, fallback: '--mo-sys-elevation-level0-shadow' },
+  { token: '--mo-comp-card-outlined-shadow', label: say.partShadows.cardOutlined, fallback: '--mo-sys-elevation-level0-shadow' },
   {
     token: '--mo-comp-elevated-card-container-elevation',
     label: say.partShadows.cardElevated,
     fallback: '--mo-sys-elevation-level1-shadow',
   },
-  { token: '--switch-handle-shadow', label: say.partShadows.switchHandle, fallback: '--mo-sys-elevation-level1-shadow' },
-  { token: '--slider-handle-shadow', label: say.partShadows.sliderHandle, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--mo-comp-switch-handle-shadow', label: say.partShadows.switchHandle, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--mo-comp-slider-handle-shadow', label: say.partShadows.sliderHandle, fallback: '--mo-sys-elevation-level1-shadow' },
   { token: '--mo-comp-menu-container-elevation', label: say.partShadows.menu, fallback: '--mo-sys-elevation-level2-shadow' },
-  { token: '--tooltip-rich-shadow', label: say.partShadows.tooltipRich, fallback: '--mo-sys-elevation-level2-shadow' },
-  { token: '--dialog-shadow', label: say.partShadows.dialog, fallback: '--mo-sys-elevation-level3-shadow' },
-  { token: '--bottom-sheet-shadow', label: say.partShadows.bottomSheet, fallback: '--mo-sys-elevation-level1-shadow' },
-  { token: '--bottom-sheet-shadow-large', label: say.partShadows.bottomSheetLarge, fallback: '--mo-sys-elevation-level3-shadow' },
-  { token: '--side-sheet-shadow', label: say.partShadows.sideSheet, fallback: '--mo-sys-elevation-level1-shadow' },
-  { token: '--navigation-drawer-shadow', label: say.partShadows.navigationDrawer, fallback: '--mo-sys-elevation-level1-shadow' },
-  { token: '--navigation-bar-shadow', label: say.partShadows.navigationBar, fallback: '--mo-sys-elevation-level2-shadow' },
-  { token: '--navigation-rail-modal-shadow', label: say.partShadows.navigationRailModal, fallback: '--mo-sys-elevation-level2-shadow' },
-  { token: '--top-app-bar-stuck-shadow', label: say.partShadows.topAppBarStuck, fallback: '--mo-sys-elevation-level2-shadow' },
+  { token: '--mo-comp-tooltip-rich-shadow', label: say.partShadows.tooltipRich, fallback: '--mo-sys-elevation-level2-shadow' },
+  { token: '--mo-comp-dialog-shadow', label: say.partShadows.dialog, fallback: '--mo-sys-elevation-level3-shadow' },
+  { token: '--mo-comp-bottom-sheet-shadow', label: say.partShadows.bottomSheet, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--mo-comp-bottom-sheet-shadow-large', label: say.partShadows.bottomSheetLarge, fallback: '--mo-sys-elevation-level3-shadow' },
+  { token: '--mo-comp-side-sheet-shadow', label: say.partShadows.sideSheet, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--mo-comp-navigation-drawer-shadow', label: say.partShadows.navigationDrawer, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--mo-comp-navigation-bar-shadow', label: say.partShadows.navigationBar, fallback: '--mo-sys-elevation-level2-shadow' },
+  {
+    token: '--mo-comp-navigation-rail-modal-shadow',
+    label: say.partShadows.navigationRailModal,
+    fallback: '--mo-sys-elevation-level2-shadow',
+  },
+  { token: '--mo-comp-top-app-bar-stuck-shadow', label: say.partShadows.topAppBarStuck, fallback: '--mo-sys-elevation-level2-shadow' },
   { token: '--mo-comp-fab-shadow', label: say.partShadows.fab, fallback: '--mo-sys-elevation-level3-shadow' },
-  { token: '--toolbar-floating-shadow', label: say.partShadows.toolbarFloating, fallback: '--mo-sys-elevation-level3-shadow' },
-  { token: '--search-bar-shadow', label: say.partShadows.searchBar, fallback: '--mo-sys-elevation-level3-shadow' },
-  { token: '--search-view-shadow', label: say.partShadows.searchView, fallback: '--mo-sys-elevation-level3-shadow' },
-  { token: '--snackbar-shadow', label: say.partShadows.snackbar, fallback: '--mo-sys-elevation-level3-shadow' },
-  { token: '--button-toggle-selected-shadow', label: say.partShadows.buttonToggleSelected, fallback: '--mo-sys-elevation-level0-shadow' },
+  { token: '--mo-comp-toolbar-floating-shadow', label: say.partShadows.toolbarFloating, fallback: '--mo-sys-elevation-level3-shadow' },
+  { token: '--mo-comp-search-bar-shadow', label: say.partShadows.searchBar, fallback: '--mo-sys-elevation-level3-shadow' },
+  { token: '--mo-comp-search-view-shadow', label: say.partShadows.searchView, fallback: '--mo-sys-elevation-level3-shadow' },
+  { token: '--mo-comp-snackbar-shadow', label: say.partShadows.snackbar, fallback: '--mo-sys-elevation-level3-shadow' },
+  {
+    token: '--mo-comp-button-toggle-selected-shadow',
+    label: say.partShadows.buttonToggleSelected,
+    fallback: '--mo-sys-elevation-level0-shadow',
+  },
   // Pointed at (hover) and dragged, as ui.css draws them: their own variable, else the part's at rest, else the level.
   ...[
     ['--button-filled', say.partShadows.buttonFilled, 1],
@@ -106,29 +114,33 @@ const shadows: Token[] = [
     fallback: `var(${part}-shadow, var(--mo-sys-elevation-level${level}-shadow))`,
   })),
   {
-    token: '--chip-selected-hover-shadow',
+    token: '--mo-comp-chip-selected-hover-shadow',
     label: say.partShadows.hovered(say.partShadows.chipSelected),
     fallback: '--mo-sys-elevation-level1-shadow',
   },
-  { token: '--chip-dragged-shadow', label: say.partShadows.dragged(say.partShadows.chip), fallback: '--mo-sys-elevation-level4-shadow' },
   {
-    token: '--card-filled-dragged-shadow',
+    token: '--mo-comp-chip-dragged-shadow',
+    label: say.partShadows.dragged(say.partShadows.chip),
+    fallback: '--mo-sys-elevation-level4-shadow',
+  },
+  {
+    token: '--mo-comp-card-filled-dragged-shadow',
     label: say.partShadows.dragged(say.partShadows.cardFilled),
     fallback: '--mo-sys-elevation-level3-shadow',
   },
   {
-    token: '--card-outlined-dragged-shadow',
+    token: '--mo-comp-card-outlined-dragged-shadow',
     label: say.partShadows.dragged(say.partShadows.cardOutlined),
     fallback: '--mo-sys-elevation-level3-shadow',
   },
   {
-    token: '--card-elevated-dragged-shadow',
+    token: '--mo-comp-card-elevated-dragged-shadow',
     label: say.partShadows.dragged(say.partShadows.cardElevated),
     fallback: '--mo-sys-elevation-level4-shadow',
   },
 ];
 
-const typeface: Token = { token: '--font-sans', label: say.type.typeface };
+const typeface: Token = { token: '--mo-ref-typeface-plain', label: say.type.typeface };
 
 /** Material 3's type scale (m3.material.io/styles/typography/type-scale-tokens, ui.css): its five roles, each in three
  * sizes, largest first, each a set of variables (--mo-sys-typescale-display-large-size, -line-height, -weight, -tracking). */
@@ -299,7 +311,7 @@ export default function Tokens() {
   const list = new Intl.ListFormat(locale, { type: 'conjunction' });
   return (
     <Screen title={t.parts.screens.values} back={back}>
-      <p className="mb-8 text-on-surface-variant">{say.intro}</p>
+      <p className="mo-editor-group mo-editor-muted">{say.intro}</p>
       <Group title={say.groups.shape}>
         {corners(style, rootSize).map((c) => (
           <ListItem

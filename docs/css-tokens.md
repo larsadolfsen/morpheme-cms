@@ -9,17 +9,12 @@ Owner rule, 16 Nov 2026. `npm run check:css-tokens` enforces it.
   a block needs a value the CMS has no `--mo-…` name for, the name is added to the CMS's list and documented here; the block does not invent its own.
 - **A token only one block uses is declared on that block**, not on `:root`.
 - **Nothing unprefixed on `:root`, `html` or `body`.** Generic names such as `--mo-comp-card-gap` are global: an app or theme that declares the same name
-  overrides ours without a sound, and Tailwind shares the page's namespace.
+  overrides ours without a sound.
 - **An app or a theme declares no name the CMS declares** (a collision), and no unprefixed name on `:root`.
 
 ## What the check allows
 
-- `--tw-*`, Tailwind's own properties.
-- Tailwind's theme namespaces, only inside `@theme` (`--color-*`, `--font-*`, `--text-*`, `--font-weight-*`, `--tracking-*`, `--leading-*`,
-  `--breakpoint-*`, `--container-*`, `--spacing`, `--spacing-*`, `--radius-*`, `--shadow-*`, `--inset-shadow-*`, `--drop-shadow-*`, `--blur-*`,
-  `--perspective-*`, `--aspect-*`, `--ease-*`, `--animate-*`), each with its reason in `scripts/css-tokens-allowlist.json`. `@theme` builds the utilities
-  (`bg-primary`, `medium:`) from these exact names and cannot map a utility to another name, and Tailwind's `prefix()` renames the utilities too, so
-  they stay. They are temporary: `docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md` moves the CMS away from Tailwind.
+- Nothing else: no `--tw-*`, and no Tailwind theme namespace (`--color-*`, `--breakpoint-*` …); Tailwind and its `@theme` are gone (contract 7, `docs/app-contract.md`). The old names it gave are in `scripts/renamed-tokens.json`.
 - **Count mode until the rename lands.** The unprefixed names that exist today are counted per file in the same list (`files`): a file may have as many as
   listed, never more, and a new file none. A count can only fall: lower it when it does.
 

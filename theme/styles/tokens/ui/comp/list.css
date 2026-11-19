@@ -1,12 +1,12 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  .list-item-container {
+  .mo-list__item-container {
     --mo-comp-list-item-shape: var(--mo-comp-list-list-item-container-shape, 0);
     /* The height of its first two lines (the headline and the supporting text's first line), where what stands
        beside the text stands (below). */
     --mo-comp-list-item-first-lines: calc(
-      var(--mo-comp-list-item-headline-line-height, 1lh) + var(--list-item-supporting-line-height, 1lh)
+      var(--mo-comp-list-item-headline-line-height, 1lh) + var(--mo-comp-list-item-supporting-line-height, 1lh)
     );
     /* The heights with the density of lists (--mo-sys-density, which goes to -3: a list is read in bulk), 4 px a step, and never
        below the target (--mo-sys-target-size): the row is the target, so a row that is denser than the target stays at it. */
@@ -29,14 +29,14 @@
 }
 /* The corners by the state: pointed at, pressed or focused (by the keyboard), and selected (below). */
 @layer components {
-  :is(a, button:enabled).list-item-container:hover,
-  .list-item-with-control:not(.list-item-disabled):hover {
+  :is(a, button:enabled).mo-list__item-container:hover,
+  .mo-list__item-with-control:not(.mo-list__item-disabled):hover {
     --mo-comp-list-item-shape: var(--mo-comp-list-item-hover-radius, var(--mo-comp-list-list-item-container-shape, 0));
   }
 }
 @layer components {
-  :is(a, button:enabled).list-item-container:is(:active, :focus-visible),
-  .list-item-with-control:not(.list-item-disabled):is(:active, :has(:focus-visible)) {
+  :is(a, button:enabled).mo-list__item-container:is(:active, :focus-visible),
+  .mo-list__item-with-control:not(.mo-list__item-disabled):is(:active, :has(:focus-visible)) {
     --mo-comp-list-item-shape: var(
       --mo-comp-list-item-pressed-radius,
       var(--mo-comp-list-item-hover-radius, var(--mo-comp-list-list-item-container-shape, 0))
@@ -44,17 +44,17 @@
   }
 }
 @layer components {
-  .list-item-multi-action {
+  .mo-list__item-multi-action {
     --mo-comp-list-item-shape: var(--mo-comp-list-list-item-container-shape, 0);
   }
 }
 @layer components {
-  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:hover) {
+  .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:hover) {
     --mo-comp-list-item-shape: var(--mo-comp-list-item-hover-radius, var(--mo-comp-list-list-item-container-shape, 0));
   }
 }
 @layer components {
-  .list-item-multi-action:has(> :is(a, button:enabled).list-item-container:is(:active, :focus-visible)) {
+  .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:is(:active, :focus-visible)) {
     --mo-comp-list-item-shape: var(
       --mo-comp-list-item-pressed-radius,
       var(--mo-comp-list-item-hover-radius, var(--mo-comp-list-list-item-container-shape, 0))
@@ -62,88 +62,94 @@
   }
 }
 @layer components {
-  .list-item-expand-summary {
+  .mo-list__item-expand-summary {
     --mo-comp-list-item-shape: 0;
     --mo-comp-list-item-padding-block: var(--mo-comp-list-expand-padding-block, 0.875rem);
     --mo-comp-list-item-padding-inline: var(--mo-comp-list-expand-padding-inline, 1rem);
-    --mo-comp-list-item-gap: var(--list-expand-gap-inline, 1rem);
-    --mo-comp-list-item-headline-size: var(--list-expand-headline-size, var(--mo-sys-typescale-title-medium-size));
-    --mo-comp-list-item-headline-weight: var(--list-expand-headline-weight, var(--mo-sys-typescale-title-medium-weight));
-    --mo-comp-list-item-headline-line-height: var(--list-expand-headline-line-height, var(--mo-sys-typescale-title-medium-line-height));
-    --mo-comp-list-item-headline-letter-spacing: var(--list-expand-headline-letter-spacing, var(--mo-sys-typescale-title-medium-tracking));
+    --mo-comp-list-item-gap: var(--mo-comp-list-expand-gap-inline, 1rem);
+    --mo-comp-list-item-headline-size: var(--mo-comp-list-expand-headline-size, var(--mo-sys-typescale-title-medium-size));
+    --mo-comp-list-item-headline-weight: var(--mo-comp-list-expand-headline-weight, var(--mo-sys-typescale-title-medium-weight));
+    --mo-comp-list-item-headline-line-height: var(
+      --mo-comp-list-expand-headline-line-height,
+      var(--mo-sys-typescale-title-medium-line-height)
+    );
+    --mo-comp-list-item-headline-letter-spacing: var(
+      --mo-comp-list-expand-headline-letter-spacing,
+      var(--mo-sys-typescale-title-medium-tracking)
+    );
   }
 }
 @layer components {
-  .list-item-selected {
+  .mo-list__item-selected {
     --mo-comp-list-item-shape: var(--mo-comp-list-item-selected-radius, var(--mo-comp-list-list-item-container-shape, 0));
   }
 }
 @layer components {
-  :is(a, button:enabled).list-item-container.list-item-selected:hover {
+  :is(a, button:enabled).mo-list__item-container.mo-list__item-selected:hover {
     --mo-comp-list-item-shape: var(--mo-comp-list-item-selected-radius, var(--mo-comp-list-list-item-container-shape, 0));
   }
 }
 @layer components {
-  :is(a, button:enabled).list-item-container.list-item-selected:focus-visible {
+  :is(a, button:enabled).mo-list__item-container.mo-list__item-selected:focus-visible {
     --mo-comp-list-item-shape: var(--mo-comp-list-item-selected-radius, var(--mo-comp-list-list-item-container-shape, 0));
   }
 }
 @layer components {
-  :is(a, button:enabled).list-item-container.list-item-selected:active {
+  :is(a, button:enabled).mo-list__item-container.mo-list__item-selected:active {
     --mo-comp-list-item-shape: var(--mo-comp-list-item-selected-radius, var(--mo-comp-list-list-item-container-shape, 0));
   }
 }
 /* Dividers: none, or in from where the items' text starts (inset: after what leads the item below the line), or in
      from both sides (middle-inset, the theme's divider's inset). */
 @layer components {
-  .list > li {
+  .mo-list > li {
     --mo-comp-list-item-leading-room: 0px;
   }
 }
 @layer components {
-  .list > li:has(> * > :is(.list-item-leading, .list-item-control:first-child)) {
+  .mo-list > li:has(> * > :is(.mo-list__item-leading, .mo-list__item-control:first-child)) {
     --mo-comp-list-item-leading-room: calc(
       var(--mo-comp-list-item-leading-size, var(--mo-comp-list-item-icon-size, 1.5rem)) + var(--mo-comp-list-item-gap, 1.5rem)
     );
   }
 }
 @layer components {
-  .list > li:has(> * > .list-item-leading-avatar) {
+  .mo-list > li:has(> * > .mo-list__item-leading-avatar) {
     --mo-comp-list-item-leading-size: var(--mo-comp-avatar-size, 2.5rem);
   }
 }
 @layer components {
-  .list > li:has(> * > .list-item-leading-image) {
+  .mo-list > li:has(> * > .mo-list__item-leading-image) {
     --mo-comp-list-item-leading-size: var(--mo-comp-list-item-image-size, 3.5rem);
   }
 }
 @layer components {
-  .list > li:has(> * > .list-item-leading-video) {
-    --mo-comp-list-item-leading-size: var(--list-item-video-width, 7.125rem);
+  .mo-list > li:has(> * > .mo-list__item-leading-video) {
+    --mo-comp-list-item-leading-size: var(--mo-comp-list-item-video-width, 7.125rem);
   }
 }
 @layer components {
-  .list-segmented > li {
+  .mo-list__segmented > li {
     --mo-comp-list-item-shape: var(--mo-comp-list-segmented-inner-radius, 0.25rem);
   }
 }
 @layer components {
-  .list-segmented
+  .mo-list__segmented
     > li:has(
-      > :is(a, button:enabled).list-item-container:hover,
-      > .list-item-with-control:not(.list-item-disabled):hover,
-      > .list-item-multi-action > :is(a, button:enabled).list-item-container:hover
+      > :is(a, button:enabled).mo-list__item-container:hover,
+      > .mo-list__item-with-control:not(.mo-list__item-disabled):hover,
+      > .mo-list__item-multi-action > :is(a, button:enabled).mo-list__item-container:hover
     ) {
     --mo-comp-list-item-shape: var(--mo-comp-list-segmented-hover-radius, var(--mo-comp-list-segmented-inner-radius, 0.25rem));
   }
 }
 @layer components {
-  .list-segmented
+  .mo-list__segmented
     > li:has(
-      > :is(a, button:enabled).list-item-container:is(:active, :focus-visible),
-      > .list-item-with-control:not(.list-item-disabled):active,
-      > .list-item-with-control:not(.list-item-disabled) :focus-visible,
-      > .list-item-multi-action > :is(a, button:enabled).list-item-container:is(:active, :focus-visible)
+      > :is(a, button:enabled).mo-list__item-container:is(:active, :focus-visible),
+      > .mo-list__item-with-control:not(.mo-list__item-disabled):active,
+      > .mo-list__item-with-control:not(.mo-list__item-disabled) :focus-visible,
+      > .mo-list__item-multi-action > :is(a, button:enabled).mo-list__item-container:is(:active, :focus-visible)
     ) {
     --mo-comp-list-item-shape: var(
       --mo-comp-list-segmented-pressed-radius,
@@ -152,7 +158,7 @@
   }
 }
 @layer components {
-  .list-segmented > li:has(> .list-item-selected, > .list-item-with-control :checked) {
+  .mo-list__segmented > li:has(> .mo-list__item-selected, > .mo-list__item-with-control :checked) {
     --mo-comp-list-item-shape: var(
       --mo-comp-list-segmented-selected-radius,
       var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small))
@@ -161,7 +167,8 @@
 }
 /* Selected stays at its corners (Material: 16dp) also while pointed at, pressed or focused. */
 @layer components {
-  .list-segmented > li:has(> .list-item-selected):has(> :is(a, button:enabled).list-item-container:is(:hover, :active, :focus-visible)) {
+  .mo-list__segmented
+    > li:has(> .mo-list__item-selected):has(> :is(a, button:enabled).mo-list__item-container:is(:hover, :active, :focus-visible)) {
     --mo-comp-list-item-shape: var(
       --mo-comp-list-segmented-selected-radius,
       var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small))
@@ -169,7 +176,7 @@
   }
 }
 @layer components {
-  .choice-group-list {
+  .mo-choice-group__list {
     /* The rows run as wide as the field's above them: the radio's circle starts where the name and the fields start, and a
        sample ends where they end (the circle's 40dp state layer overhangs the edge, as Material's radio specs allow). */
     --mo-comp-list-item-padding-inline: 0px;
@@ -177,7 +184,7 @@
 }
 /* A row is at least 48 dp at every density (Material, radio buttons: "Don't apply density to radio buttons by default"). */
 @layer components {
-  .choice-group-list .list-item-container {
+  .mo-choice-group__list .mo-list__item-container {
     --mo-comp-list-item-box: max(
       3rem,
       calc(var(--mo-comp-list-list-item-container-height, 3rem) + var(--mo-sys-density) * var(--mo-sys-density-step))

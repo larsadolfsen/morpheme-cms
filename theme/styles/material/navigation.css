@@ -9,21 +9,21 @@
   /* The top app bar (its variables above, Header.astro): 64px high, above the cookie banner, so its menus are too. */
   /* The menu's items: a label in medium weight, a state layer, the open page in an active indicator (the secondary
    container). 40px high, and 48px to touch. */
-  .md-nav-item,
-  .md-nav-toggle {
+  .mo-header__nav-item,
+  .mo-header__nav-toggle {
     position: relative;
   }
-  .md-nav-item::after {
+  .mo-header__nav-item::after {
     content: '';
     position: absolute;
     inset: -0.25rem 0;
   }
-  .md-nav-toggle::after {
+  .mo-header__nav-toggle::after {
     content: '';
     position: absolute;
     inset: -0.25rem -0.125rem -0.25rem -0.5rem;
   }
-  .md-nav-item {
+  .mo-header__nav-item {
     display: inline-flex;
     min-height: 2.5rem;
     align-items: center;
@@ -40,20 +40,20 @@
       background-color var(--mo-sys-motion-spring-default-effects),
       color var(--mo-sys-motion-spring-default-effects);
   }
-  .md-nav-item:hover {
+  .mo-header__nav-item:hover {
     background: var(--mo-sys-state-mo-hover-layer);
     color: var(--mo-sys-color-on-surface);
   }
-  .md-nav-item:focus-visible,
-  .md-nav-item:active {
+  .mo-header__nav-item:focus-visible,
+  .mo-header__nav-item:active {
     background: var(--mo-sys-state-mo-pressed-layer);
     color: var(--mo-sys-color-on-surface);
   }
   /* An item with sub-pages: its label, then the button that opens them. */
-  .md-nav-item-parent {
+  :where(.mo-header__nav-item).mo-has-children {
     padding-right: 0.25rem;
   }
-  .md-nav-toggle {
+  .mo-header__nav-toggle {
     display: grid;
     width: 2rem;
     height: 2.5rem;
@@ -64,32 +64,32 @@
       background-color var(--mo-sys-motion-spring-default-effects),
       color var(--mo-sys-motion-spring-default-effects);
   }
-  .md-nav-toggle:hover {
+  .mo-header__nav-toggle:hover {
     background: var(--mo-sys-state-mo-hover-layer);
     color: var(--mo-sys-color-on-surface);
   }
-  .md-nav-toggle:focus-visible,
-  .md-nav-toggle:active {
+  .mo-header__nav-toggle:focus-visible,
+  .mo-header__nav-toggle:active {
     background: var(--mo-sys-state-mo-pressed-layer);
     color: var(--mo-sys-color-on-surface);
   }
-  .md-nav-toggle > svg {
+  .mo-header__nav-toggle > svg {
     transition: transform var(--mo-sys-motion-spring-fast-spatial);
   }
-  .md-nav-toggle[aria-expanded='true'] > svg {
+  .mo-header__nav-toggle[aria-expanded='true'] > svg {
     transform: rotate(180deg);
   }
-  .md-nav-item[aria-current='page'],
-  li:has(.menu-item[aria-current='page']) > .md-nav-item {
+  .mo-header__nav-item[aria-current='page'],
+  li:has(.mo-menu__item[aria-current='page']) > .mo-header__nav-item {
     background: var(--mo-sys-color-surface-container-high);
     color: var(--mo-sys-color-on-surface);
   }
   /* A menu (its variables above): a state layer with focus from the keyboard (the ripple when pressed), and the open page
    in the secondary container also when pointed at. */
-  .menu-item:focus-visible {
+  .mo-menu__item:focus-visible {
     background: var(--mo-sys-state-mo-pressed-layer);
   }
-  .menu-item[aria-current='page']:hover {
+  .mo-menu__item[aria-current='page']:hover {
     background: var(--mo-sys-color-surface-container-high);
   }
 
@@ -101,7 +101,7 @@
     bottom: max(1rem, env(safe-area-inset-bottom));
     z-index: 30;
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     [data-fab] {
       right: 1.5rem;
       bottom: 1.5rem;
@@ -109,30 +109,30 @@
   }
 }
 @layer fallback {
-  .navigation-drawer > .extended-fab {
+  .mo-navigation-drawer > .mo-extended-fab {
     margin: 0.25rem 0 0.75rem 0.5rem;
     align-self: flex-start;
   }
   /* On a phone with a bar at the bottom of the screen (a docked toolbar, site-action.css), the page's FAB is not shown; the
    bar's buttons are the common buttons, round and as everywhere else (only pressed a little squarer), the filled one to
    the right, after the outlined one or the text. */
-  @media (width < theme(--breakpoint-medium)) {
-    body:has(.theme-action-bar) [data-fab] {
+  @media (width < 37.5rem) {
+    body:has(.mo-action-bar) [data-fab] {
       display: none;
     }
   }
-  .theme-action-bar-row > .button-filled {
+  .mo-action-bar__row > :where(.mo-button).mo-is-filled {
     order: 2;
   }
 
   /* The site's menu in the navigation drawer (its values are ui.css's, MobileMenu.tsx): its head. */
-  .md-drawer-head {
+  .mo-navigation-drawer__head {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     padding: 0.25rem 0.25rem 1rem;
   }
-  .md-drawer-name {
+  .mo-navigation-drawer__name {
     font-size: var(--mo-sys-typescale-title-medium-size);
     line-height: var(--mo-sys-typescale-title-medium-line-height);
     font-weight: var(--mo-sys-typescale-title-medium-weight);
@@ -141,18 +141,18 @@
   /* Its bottom: the header's call to action (header.json), the phone number and the button in one row sharing the
      drawer's width, as in the header; when they do not fit side by side, the button over the number (wrap-reverse), each
      as wide as the drawer. At the bottom of the drawer when its items leave room, else after them. */
-  .md-drawer-actions {
+  .mo-navigation-drawer__actions {
     display: flex;
     flex-wrap: wrap-reverse;
     gap: 0.75rem;
     margin-top: auto;
     padding: 1.5rem 0.25rem 0;
   }
-  .md-drawer-actions .button {
+  .mo-navigation-drawer__actions .mo-button {
     flex: 1 1 auto;
     white-space: nowrap;
   }
-  .md-drawer-role {
+  .mo-navigation-drawer__role {
     color: var(--mo-sys-color-on-surface-variant);
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
@@ -160,55 +160,55 @@
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   /* An item with sub-pages: its link and the caret in one row, the active indicator around both. */
-  .navigation-drawer-row {
+  .mo-navigation-drawer__row {
     border-radius: var(--mo-sys-shape-corner-full);
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .navigation-drawer-row > .navigation-drawer-item,
-  .navigation-drawer-row > .navigation-drawer-item:hover,
-  .navigation-drawer-row > .navigation-drawer-item:focus-visible,
-  .navigation-drawer-row > .navigation-drawer-item:active {
+  .mo-navigation-drawer__row > .mo-navigation-drawer__item,
+  .mo-navigation-drawer__row > .mo-navigation-drawer__item:hover,
+  .mo-navigation-drawer__row > .mo-navigation-drawer__item:focus-visible,
+  .mo-navigation-drawer__row > .mo-navigation-drawer__item:active {
     background: none;
   }
-  .navigation-drawer-row:has(> .navigation-drawer-item:hover) {
+  .mo-navigation-drawer__row:has(> .mo-navigation-drawer__item:hover) {
     background: var(--mo-sys-state-mo-hover-layer);
   }
-  .navigation-drawer-row:has(> .navigation-drawer-item:focus-visible) {
+  .mo-navigation-drawer__row:has(> .mo-navigation-drawer__item:focus-visible) {
     background: var(--mo-sys-state-mo-pressed-layer);
   }
-  .navigation-drawer-row[data-active] {
+  .mo-navigation-drawer__row[data-active] {
     background: var(--mo-sys-color-secondary-container);
   }
-  .navigation-drawer-row[data-active] > .navigation-drawer-item {
+  .mo-navigation-drawer__row[data-active] > .mo-navigation-drawer__item {
     color: var(--mo-sys-color-on-secondary-container);
   }
-  .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:hover) {
+  .mo-navigation-drawer__row[data-active]:has(> .mo-navigation-drawer__item:hover) {
     background: color-mix(
       in srgb,
       var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
       var(--mo-sys-color-secondary-container)
     );
   }
-  .navigation-drawer-row[data-active]:has(> .navigation-drawer-item:focus-visible) {
+  .mo-navigation-drawer__row[data-active]:has(> .mo-navigation-drawer__item:focus-visible) {
     background: color-mix(
       in srgb,
       var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%),
       var(--mo-sys-color-secondary-container)
     );
   }
-  .navigation-drawer-toggle {
+  .mo-navigation-drawer__toggle {
     margin-right: 0.25rem;
     color: var(--mo-sys-color-on-surface-variant);
   }
-  .navigation-drawer-toggle:focus-visible {
+  .mo-navigation-drawer__toggle:focus-visible {
     background: var(--mo-sys-state-mo-pressed-layer);
   }
   /* Directly in the drawer ("Call"), not in a row with a caret: as high as its content. */
-  .navigation-drawer > .navigation-drawer-item {
+  .mo-navigation-drawer > .mo-navigation-drawer__item {
     flex: none;
   }
   /* A sub-page: an item further in, its label in regular weight. */
-  .navigation-drawer-subitem {
+  .mo-navigation-drawer__subitem {
     min-height: 3.5rem;
     gap: 0.75rem;
     margin-left: 0;
@@ -218,14 +218,14 @@
     color: var(--mo-sys-color-on-surface-variant);
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .navigation-drawer-subitem:hover {
+  .mo-navigation-drawer__subitem:hover {
     background: var(--mo-sys-state-mo-hover-layer);
     color: var(--mo-sys-color-on-surface-variant);
   }
-  .navigation-drawer-subitem:focus-visible {
+  .mo-navigation-drawer__subitem:focus-visible {
     background: var(--mo-sys-state-mo-pressed-layer);
   }
-  .navigation-drawer-subitem[data-active] {
+  .mo-navigation-drawer__subitem[data-active] {
     background: var(--mo-sys-color-secondary-container);
     color: var(--mo-sys-color-on-secondary-container);
     font-weight: 400;

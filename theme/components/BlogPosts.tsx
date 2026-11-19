@@ -13,36 +13,34 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
   const [featured, ...rest] = posts;
   if (!featured)
     return (
-      <div className="rounded-panel bg-surface-container-high p-8">
+      <div className="mo-blog-empty">
         <p className="mo-type-title-medium">{siteT.theme.noPosts}</p>
-        <Link href="/blog/" className="link mt-3 inline-block">
+        <Link href="/blog/" className="mo-link mo-blog-empty__link">
           {siteT.theme.seeAllPosts}
         </Link>
       </div>
     );
   return (
     <>
-      <Link href={featured.href} className="group grid items-center gap-6 medium:gap-12 expanded:grid-cols-12">
+      <Link href={featured.href} className="mo-blog-featured">
         {featured.image && (
-          <div className="overflow-hidden rounded-(--mo-comp-theme-picture-radius) expanded:col-span-7">
+          <div className="mo-blog-featured__picture">
             <Img
               image={featured.image}
               alt={featured.imageAlt ?? ''}
               fetchPriority="high"
-              className="aspect-[16/10] w-full object-cover [transition:scale_var(--mo-sys-motion-spring-slow-spatial)] group-hover:scale-[1.03]"
+              className="mo-blog-featured__image"
               sizes={`(min-width: ${BREAKPOINTS.expanded}px) 55vw, calc(100vw - 40px)`}
             />
           </div>
         )}
-        <div className="expanded:col-span-5">
+        <div className="mo-blog-featured__text">
           <PostMeta post={featured} />
-          <h2 className="mo-type-headline-medium medium:mo-type-headline-large mt-2 transition-colors group-hover:text-primary">
-            {featured.title}
-          </h2>
-          <p className="mt-3 text-on-surface-variant">{featured.description}</p>
+          <h2 className="mo-type-headline-medium mo-blog-featured__title">{featured.title}</h2>
+          <p className="mo-blog-featured__description">{featured.description}</p>
         </div>
       </Link>
-      {rest.length > 0 && <PostList posts={rest} className="mt-12 medium:mt-16" />}
+      {rest.length > 0 && <PostList posts={rest} className="mo-blog-featured__rest" />}
     </>
   );
 }

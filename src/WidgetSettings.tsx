@@ -98,7 +98,7 @@ export function WidgetSettings({
               </Button>
             </>
           ),
-          children: <div className="space-y-5">{fieldsOf}</div>,
+          children: <div className="mo-editor-stack-250">{fieldsOf}</div>,
         }
       : null,
   );

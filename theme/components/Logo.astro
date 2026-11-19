@@ -12,12 +12,12 @@ interface Props {
 const { size = 'md' } = Astro.props;
 ---
 
-<span class="flex items-center gap-2.5">
-  <span class="theme-logo-tile">
-    <LogoMark class:list={['theme-logo-mark', size === 'sm' && 'theme-logo-mark-small']} />
+<span class="mo-row mo-logo">
+  <span class="mo-logo__tile">
+    <LogoMark class:list={['mo-logo__mark', size === 'sm' && 'mo-is-small']} />
   </span>
-  <span class="leading-tight">
-    <span class="theme-logo-name block tracking-tight">{site.name}</span>
-    <span class="theme-logo-role mo-type-body-small text-on-surface-variant">{site.role}</span>
+  <span class="mo-logo__text">
+    <span class="mo-logo__name">{site.name}</span>
+    <span class="mo-type-body-small mo-logo__role">{site.role}</span>
   </span>
 </span>

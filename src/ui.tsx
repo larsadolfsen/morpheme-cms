@@ -286,7 +286,7 @@ export function ToolbarButton({
           kind="text"
           size="xsmall"
           aria-label={label}
-          className="toolbar-text-button"
+          className="mo-toolbar__text-button"
           style={{ ...toolbarTextSize, width: `${text.width / 16}rem` }}
           {...own}
         >
@@ -303,7 +303,7 @@ export function ToolbarButton({
           size="xsmall"
           icon={Glyph && <Glyph />}
           aria-label={label}
-          className="toolbar-count-button"
+          className="mo-toolbar__count-button"
           style={toolbarMenuSize}
           {...own}
         >
@@ -323,7 +323,7 @@ export function ToolbarButton({
           icon={Glyph && <Glyph />}
           trailingIcon={<CaretDown size={12} />}
           aria-label={label}
-          className="toolbar-menu-button"
+          className="mo-toolbar__menu-button"
           style={toolbarMenuSize}
           {...own}
         >
@@ -359,11 +359,11 @@ export function Toolbar({
 // top edge from these two variables, so the edge is the same line as the sides (MarkdownEditor.tsx) whichever of the two
 // rules wins, and never the theme's "no line" (0), which left the top edge and the rounded top corners open.
 const closeToolbar = {
-  '--toolbar-gap': '0',
-  '--toolbar-docked-padding-block': '0',
-  '--toolbar-docked-padding-inline': '0',
+  '--mo-comp-toolbar-gap': '0',
+  '--mo-comp-toolbar-docked-padding-block': '0',
+  '--mo-comp-toolbar-docked-padding-inline': '0',
   '--mo-comp-toolbar-docked-line-width': '1px',
-  '--mo-comp-toolbar-docked-line': 'var(--color-outline-variant)',
+  '--mo-comp-toolbar-docked-line': 'var(--mo-sys-color-outline-variant)',
 } as CSSProperties;
 
 // A tool's size in the text's bar: 44 by 44 dp with a 20 dp icon, outside the user's density choice (owner decision, 13 Nov; docs/material-deviations.md).
@@ -407,10 +407,10 @@ function placeTip(tip: HTMLElement, anchor: Element) {
   tip.style.left = `${Math.max(8, Math.min(at.left + at.width / 2 - tip.offsetWidth / 2, innerWidth - tip.offsetWidth - 8))}px`;
 }
 
-/** An element's name as a tooltip (`on`: its handlers, `tip`: beside it): the theme's plain tooltip (.tooltip-plain in
+/** An element's name as a tooltip (`on`: its handlers, `tip`: beside it): the theme's plain tooltip (.mo-tooltip__plain in
  * its ui.css), shown after a moment under the mouse, and at once when the element gets the focus from the keyboard;
  * gone when the mouse leaves, on a tap, on Escape and when it loses the focus. Not on a phone, where the element's name
- * is read out instead. It is a popover (.editor-tooltip in editor.css), so it stands over everything, also a sheet, and
+ * is read out instead. It is a popover (.mo-editor-tooltip in editor.css), so it stands over everything, also a sheet, and
  * is not cut off by a list's frame. `own`: the element's own handlers, called too. It is not read out, as it says the
  * element's name. */
 function useTooltip(text: string, own: TooltipHandlers = {}) {
@@ -423,7 +423,7 @@ function useTooltip(text: string, own: TooltipHandlers = {}) {
     if (!el?.showPopover || !anchor.isConnected) return;
     try {
       if (!el.matches(':popover-open')) el.showPopover();
-      // Only one tooltip is open at a time, so one anchor name does: the CSS (editor.css, .editor-tooltip) places it at the element.
+      // Only one tooltip is open at a time, so one anchor name does: the CSS (editor.css, .mo-editor-tooltip) places it at the element.
       if (anchoredByCss) (anchor as HTMLElement).style.setProperty('anchor-name', '--editor-tooltip');
       else placeTip(el, anchor);
       shownAt.current = anchor as HTMLElement;
@@ -470,7 +470,7 @@ function useTooltip(text: string, own: TooltipHandlers = {}) {
   return {
     on,
     tip: (
-      <span ref={tip} popover="manual" aria-hidden className="tooltip-plain editor-tooltip">
+      <span ref={tip} popover="manual" aria-hidden className="mo-tooltip__plain mo-editor-tooltip">
         {text}
       </span>
     ),
@@ -607,7 +607,7 @@ export function DateTimeField({
   const [day = '', time = ''] = value.split('T');
   const join = (d: string, h: string) => (d ? `${d}T${h || '00:00'}` : '');
   return (
-    <div className="grid gap-3 medium:grid-cols-[1fr_auto]">
+    <div className="mo-editor-date-time-field">
       <DatePicker id={id} {...field} value={day} onChange={(d) => onChange(join(d, time))} />
       <TimePicker id={`${id}-time`} value={time.slice(0, 5)} onChange={(h) => onChange(join(day, h))} />
     </div>
@@ -667,7 +667,7 @@ function hexOf({ h, s, v }: Hsv): string {
 
 const clamp = (n: number) => Math.min(1, Math.max(0, n));
 // The edge of a swatch: grey, so a light and a dark colour both show on a light and a dark sheet.
-const swatchEdge = 'border border-[rgb(128_128_128/0.45)]';
+const swatchEdge = 'mo-editor-swatch-edge';
 const percent = (n: number) => `${Math.round(n * 100)} %`;
 
 /** The colour as text, to type or paste (with or without #, also three digits). What is typed is taken
@@ -684,7 +684,7 @@ function ColorText({ id, value, label, onChange }: { id: string; value: string; 
     <SiteTextField
       id={id}
       aria-label={label}
-      className="min-w-0 flex-1 font-mono"
+      className="mo-fill mo-editor-hex-input"
       error={wrong ? t.common.notAColor : undefined}
       value={typed}
       spellCheck={false}
@@ -723,9 +723,8 @@ function drag(onMove: (x: number, y: number) => void) {
 }
 
 // A field to drag in (the colour sheet's shades and hues, the colour wheel), and the round thumb on it.
-const ring = 'touch-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none';
-const thumb =
-  'pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white shadow-[0_0_0_1px_rgb(0_0_0/0.3),0_2px_6px_rgb(0_0_0/0.3)]';
+const ring = 'mo-editor-drag-field';
+const thumb = 'mo-editor-drag-thumb';
 
 /** What is in the sheet a colour is picked in (ColorField): a field with its shades (saturation across,
  * brightness up) and a bar with the hues, both to drag in or move with the arrow keys; what it was and
@@ -776,7 +775,7 @@ function ColorSheet({
           aria-valuemax={100}
           aria-valuenow={Math.round(hsv.s * 100)}
           aria-valuetext={s.shadeValue(percent(hsv.s), percent(hsv.v))}
-          className={`relative h-48 rounded-(--mo-sys-block-radius) ${ring}`}
+          className={`mo-editor-shade-field ${ring}`}
           style={{ background: `linear-gradient(to top, #000, transparent), linear-gradient(to right, #fff, hsl(${hsv.h} 100% 50%))` }}
           {...drag((x, y) => setHsv((c) => ({ ...c, s: x, v: 1 - y })))}
           onKeyDown={(e) =>
@@ -788,7 +787,10 @@ function ColorSheet({
             })
           }
         >
-          <span className={`${thumb} size-7`} style={{ left: `${hsv.s * 100}%`, top: `${(1 - hsv.v) * 100}%`, background: color }} />
+          <span
+            className={`${thumb} mo-editor-shade-thumb`}
+            style={{ left: `${hsv.s * 100}%`, top: `${(1 - hsv.v) * 100}%`, background: color }}
+          />
         </div>
         <div
           role="slider"
@@ -797,7 +799,7 @@ function ColorSheet({
           aria-valuemin={0}
           aria-valuemax={360}
           aria-valuenow={Math.round(hsv.h)}
-          className={`relative mx-4 h-8 rounded-full ${ring}`}
+          className={`mo-editor-hue-field ${ring}`}
           style={{ background: 'linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)' }}
           {...drag((x) => setHsv((c) => ({ ...c, h: x * 360 })))}
           onKeyDown={(e) =>
@@ -809,22 +811,31 @@ function ColorSheet({
             })
           }
         >
-          <span className={`${thumb} top-1/2 size-8`} style={{ left: `${(hsv.h / 360) * 100}%`, background: `hsl(${hsv.h} 100% 50%)` }} />
+          <span
+            className={`${thumb} mo-editor-hue-thumb`}
+            style={{ left: `${(hsv.h / 360) * 100}%`, background: `hsl(${hsv.h} 100% 50%)` }}
+          />
         </div>
-        <div className="flex items-start gap-3">
-          <div className={`flex h-11 w-24 shrink-0 overflow-hidden rounded-(--mo-sys-block-radius-small) ${swatchEdge}`}>
-            <span role="img" aria-label={s.before} title={s.before} className="flex-1" style={{ background: value }} />
-            <span role="img" aria-label={s.after} title={s.after} className="flex-1" style={{ background: color }} />
+        <div className="mo-row mo-row-start mo-editor-color-row">
+          <div className={`mo-keep mo-editor-color-compare ${swatchEdge}`}>
+            <span
+              role="img"
+              aria-label={s.before}
+              title={s.before}
+              className="mo-editor-color-compare-half"
+              style={{ background: value }}
+            />
+            <span role="img" aria-label={s.after} title={s.after} className="mo-editor-color-compare-half" style={{ background: color }} />
           </div>
           <ColorText id={`${id}-sheet`} label={s.code} value={color} onChange={take} />
         </div>
         {!!swatches?.length && (
           <div>
-            <h3 className="mb-2 text-sm font-medium text-on-surface-variant">{s.swatches}</h3>
-            <div role="group" aria-label={s.swatches} className="grid grid-cols-6 gap-2">
+            <h3 className="mo-editor-swatches-title">{s.swatches}</h3>
+            <div role="group" aria-label={s.swatches} className="mo-grid mo-editor-swatch-grid">
               {swatches.map((c) => (
                 <ChoiceTile key={c} selected={c === color} label={c} onClick={() => take(c)}>
-                  <span className={`size-7 rounded-full ${swatchEdge}`} style={{ background: c }} />
+                  <span className={`mo-editor-swatch ${swatchEdge}`} style={{ background: c }} />
                 </ChoiceTile>
               ))}
             </div>
@@ -878,13 +889,13 @@ export function ColorField({
   const [opened, setOpened] = useState(0);
   const close = () => dialog.current?.close();
   return (
-    <div className="flex items-start gap-3">
+    <div className="mo-row mo-row-start mo-editor-color-row">
       <button
         type="button"
         aria-haspopup="dialog"
         aria-label={t.common.pickColor(label)}
         title={t.common.pickColor(label)}
-        className={`size-11 shrink-0 rounded-full ${swatchEdge} transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none`}
+        className={`mo-editor-color-button ${swatchEdge}`}
         style={{ background: value }}
         onClick={() => {
           setOpened((n) => n + 1);
@@ -899,7 +910,7 @@ export function ColorField({
         tabIndex={-1}
         aria-label={label}
         onClick={(e) => e.target === dialog.current && close()}
-        className="focus:outline-none"
+        className="mo-editor-focus-quiet"
       >
         {opened > 0 && (
           <ColorSheet key={opened} id={id} title={label} value={value} swatches={swatches} onChange={onChange} onClose={close} />
@@ -915,13 +926,13 @@ export function Label({ htmlFor, children, hint }: { htmlFor?: string; children:
   return (
     <>
       {htmlFor ? (
-        <label htmlFor={htmlFor} className="mb-1 block font-medium">
+        <label htmlFor={htmlFor} className="mo-editor-field-label mo-editor-field-label-block">
           {children}
         </label>
       ) : (
-        <p className="mb-1 font-medium">{children}</p>
+        <p className="mo-editor-field-label">{children}</p>
       )}
-      {hint && <span className="mb-2 block text-sm text-on-surface-variant">{hint}</span>}
+      {hint && <span className="mo-editor-field-hint">{hint}</span>}
     </>
   );
 }
@@ -929,7 +940,7 @@ export function Label({ htmlFor, children, hint }: { htmlFor?: string; children:
 /** Small muted text under a field or a part: what it does, what happens. */
 export function SupportingText({ id, children, className = '' }: { id?: string; children: ReactNode; className?: string }) {
   return (
-    <span id={id} className={`block text-sm text-on-surface-variant ${className}`}>
+    <span id={id} className={`mo-editor-supporting-text ${className}`}>
       {children}
     </span>
   );
@@ -938,7 +949,7 @@ export function SupportingText({ id, children, className = '' }: { id?: string; 
 /** The close button in the top end corner of a card that can be closed (a Notice, the first-run card): the
  * card must be `relative`. */
 export function CloseButton({ onClick }: { onClick: () => void }) {
-  return <IconButton icon={X} label={t.common.close} onClick={onClick} className="absolute end-1 top-1" />;
+  return <IconButton icon={X} label={t.common.close} onClick={onClick} className="mo-editor-close-button" />;
 }
 
 /** A message at the top of a screen about what it shows (an earlier version of a page): the theme's filled card with a
@@ -959,9 +970,13 @@ export function Notice({
   onClose?: () => void;
 }) {
   return (
-    <SiteCard kind="filled" role={role} className={onClose ? 'relative space-y-2 pe-14' : 'space-y-2'}>
-      <p className="font-medium text-primary">{title}</p>
-      <div className="text-sm">{children}</div>
+    <SiteCard
+      kind="filled"
+      role={role}
+      className={onClose ? 'mo-editor-gapped-100 mo-editor-notice mo-editor-notice-closable' : 'mo-editor-gapped-100 mo-editor-notice'}
+    >
+      <p className="mo-editor-notice-title">{title}</p>
+      <div className="mo-editor-notice-text">{children}</div>
       {action}
       {onClose && <CloseButton onClick={onClose} />}
     </SiteCard>
@@ -987,7 +1002,7 @@ export function SearchBar({
     <SiteSearchBar
       label={label}
       placeholder={t.common.search}
-      className={`min-w-0 ${className}`}
+      className={`mo-editor-search-field ${className}`}
       ref={inputRef}
       value={value}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.value)}
@@ -1045,12 +1060,12 @@ export function SearchRow({
   className?: string;
 }) {
   return (
-    <div className={`flex gap-2 ${className}`}>
-      <SearchBar {...search} className="flex-1" />
+    <div className={`mo-editor-search-row ${className}`}>
+      <SearchBar {...search} className="mo-editor-search-fill" />
       {[sort, filter, date, seo, view].map(
         (tool, i) =>
           tool && (
-            <span key={i} className="shrink-0">
+            <span key={i} className="mo-keep">
               {tool}
             </span>
           ),
@@ -1107,12 +1122,12 @@ export function FormField({
       </Label>
       {children}
       {problem && (
-        <p id={problem.id} className="mt-1 text-sm text-primary">
+        <p id={problem.id} className="mo-editor-field-problem">
           {problem.text}.
         </p>
       )}
       {count && (
-        <p className={`mt-1 text-right text-xs ${count.length > count.max ? 'text-primary' : 'text-on-surface-variant'}`}>
+        <p className={`mo-editor-field-count ${count.length > count.max ? 'mo-editor-accent-text' : 'mo-editor-muted-text'}`}>
           {count.length} / {count.max}
         </p>
       )}
@@ -1154,8 +1169,8 @@ export function Checkbox({
 export function FieldGroup({ label, hint, children }: { label: string; hint?: ReactNode; children: ReactNode }) {
   const id = useId();
   return (
-    <div role="group" aria-labelledby={id} className={`${siteCardClass('outlined')} space-y-5`}>
-      <h3 id={id} className="font-semibold">
+    <div role="group" aria-labelledby={id} className={`${siteCardClass('outlined')} mo-editor-rhythm-250 mo-editor-field-group`}>
+      <h3 id={id} className="mo-editor-field-group-title">
         {label}
       </h3>
       {hint && <SupportingText>{hint}</SupportingText>}
@@ -1168,9 +1183,9 @@ export function FieldGroup({ label, hint, children }: { label: string; hint?: Re
  * was made), or `muted` (what is made elsewhere, as a page's address from its title). */
 export function ShownValue({ id, icon, muted, children }: { id?: string; icon?: Icon; muted?: boolean; children: ReactNode }) {
   return (
-    <p id={id} className={`flex items-center gap-3 ${muted ? 'text-on-surface-variant' : ''}`}>
+    <p id={id} className={`mo-row mo-editor-choice-row ${muted ? 'mo-editor-muted-text' : ''}`}>
       {icon && <LeadingIcon icon={icon} />}
-      <span className="min-w-0 flex-1">{children}</span>
+      <span className="mo-fill">{children}</span>
     </p>
   );
 }
@@ -1201,7 +1216,7 @@ export function SlotButton({
   return (
     <button
       type="button"
-      className="inline-list-slot"
+      className="mo-editor-inline-list-slot"
       aria-label={label}
       aria-pressed={pressed}
       aria-expanded={expanded}
@@ -1285,7 +1300,7 @@ export function IconPicker({
   const loading = searching && !all;
   return (
     <div id={id}>
-      <div className="flex items-center gap-3">
+      <div className="mo-row mo-editor-choice-row">
         {/* The icon, or a plus while there is none: the round control of the rows (SlotButton); a tap opens the icons. */}
         <SlotButton
           label={value ? t.forms.changeIcon : t.forms.pickIcon}
@@ -1296,10 +1311,10 @@ export function IconPicker({
         >
           {value ? icon(value, 24) : <Plus size={24} />}
         </SlotButton>
-        <span className="min-w-0 flex-1 truncate">{chosen ? chosen.label : value ? iconLabel(value) : t.forms.noIconYet}</span>
+        <span className="mo-fill mo-truncate">{chosen ? chosen.label : value ? iconLabel(value) : t.forms.noIconYet}</span>
       </div>
       {open && (
-        <div id={grid} className="editor-reveal mt-3">
+        <div id={grid} className="mo-editor-reveal mo-editor-icon-picker-panel">
           {onSearch && (
             <TextField
               type="search"
@@ -1314,7 +1329,7 @@ export function IconPicker({
             />
           )}
           {onSearch && (
-            <div className="mt-3">
+            <div className="mo-editor-icon-picker-search">
               <ChipSet label={t.forms.iconCategory} scroll>
                 {[
                   ['', t.forms.iconCategories.suggested] as const,
@@ -1334,13 +1349,7 @@ export function IconPicker({
               </ChipSet>
             </div>
           )}
-          <div
-            role="group"
-            aria-label={label}
-            data-icon-grid
-            data-icon-color={iconColor}
-            className="mt-3 grid grid-cols-[repeat(auto-fill,minmax(3rem,1fr))] gap-2"
-          >
+          <div role="group" aria-label={label} data-icon-grid data-icon-color={iconColor} className="mo-editor-icon-picker-grid">
             {hits.slice(0, shown).map((o) => (
               <ChoiceTile
                 key={o.value || 'none'}
@@ -1351,19 +1360,19 @@ export function IconPicker({
                   if (!startOpen) setOpen(false);
                 }}
               >
-                {o.value ? icon(o.value, 24) : <X size={20} className="text-on-surface-variant" />}
+                {o.value ? icon(o.value, 24) : <X size={20} className="mo-editor-muted-text" />}
               </ChoiceTile>
             ))}
           </div>
           {hits.length > shown && (
-            <div ref={more} className="mt-3 flex justify-center">
+            <div ref={more} className="mo-editor-icon-picker-more">
               <Button kind="text" size="small" onClick={() => setShown((n) => n + PAGE)}>
                 {t.forms.showMoreIcons}
               </Button>
             </div>
           )}
           {searching && !loading && hits.every((o) => !o.value) && (
-            <p role="status" className="mt-3 text-on-surface-variant">
+            <p role="status" className="mo-editor-icon-picker-status">
               {t.forms.noIconsFound}
             </p>
           )}
@@ -1378,10 +1387,8 @@ const PAGE = 100;
  * and with `onRemove` (when it may be left out) the button that takes it away. */
 export function ImagePick({ id, src, onPick, onRemove }: { id?: string; src?: string; onPick: () => void; onRemove?: () => void }) {
   return (
-    <div className="flex items-center gap-4">
-      {safeImageSrc(src) && (
-        <img src={safeImageSrc(src)} alt="" className="size-20 shrink-0 rounded-(--mo-sys-block-radius) object-cover" />
-      )}
+    <div className="mo-row mo-editor-image-pick">
+      {safeImageSrc(src) && <img src={safeImageSrc(src)} alt="" className="mo-keep mo-editor-image-pick-thumb" />}
       <Button id={id} kind="outlined" size="small" onClick={onPick}>
         {src ? t.forms.changeImage : t.forms.pickImage}
       </Button>
@@ -1423,12 +1430,12 @@ export function FoldItem({
     <ListItem
       onClick={onToggle}
       aria-expanded={open}
-      leading={<CaretRight size={14} className={`shrink-0 text-on-surface-variant transition-transform ${open ? 'rotate-90' : ''}`} />}
+      leading={<CaretRight size={14} className={`mo-keep mo-editor-fold-arrow ${open ? 'mo-editor-fold-arrow-open' : ''}`} />}
       headline={title}
       truncate
-      actions={tools && <span className="flex shrink-0 pr-1.5">{tools}</span>}
+      actions={tools && <span className="mo-keep mo-editor-fold-tools">{tools}</span>}
     >
-      {open && <div className="editor-reveal space-y-4 px-4 pt-1 pb-4">{children}</div>}
+      {open && <div className="mo-editor-rhythm-200 mo-editor-reveal mo-editor-fold-body">{children}</div>}
     </ListItem>
   );
 }
@@ -1516,7 +1523,7 @@ export function usePickTools(all: Pickable[], keep: string) {
     ),
     filter: filters.length > 0 && <Filters title={t.library.filter} selected={chosen.length > 0} groups={filters} />,
     chips: chosen.length > 0 && (
-      <div className="mx-5 mb-2 flex shrink-0 flex-wrap gap-2">
+      <div className="mo-keep mo-editor-sheet-chips">
         {chosen.map((c) => (
           <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
             {c.label}
@@ -1567,7 +1574,7 @@ export function MultiChoice({
   const shown = many ? tools.arrange(found) : found;
   return (
     <>
-      <div className="flex flex-wrap gap-2">
+      <div className="mo-editor-chip-row">
         {value.map((v) => (
           <InputChip key={v} removeLabel={t.forms.removeOne(labelOf(v))} onRemove={() => toggle(v)}>
             {labelOf(v)}
@@ -1599,7 +1606,7 @@ export function MultiChoice({
               label={t.common.searchIn(label)}
               sort={tools.sort}
               filter={tools.filter}
-              className="mx-5 mb-2 shrink-0"
+              className="mo-keep mo-editor-sheet-search"
             />
             {tools.chips}
           </>
@@ -1625,7 +1632,7 @@ export function MultiChoice({
 export function ArrowLink({
   href,
   onClick,
-  className = 'text-primary',
+  className = 'mo-editor-accent-text',
   children,
 }: {
   href: string;
@@ -1634,7 +1641,7 @@ export function ArrowLink({
   children: ReactNode;
 }) {
   return (
-    <a href={href} className={`inline-flex items-center gap-1 font-medium hover:underline ${className}`} onClick={onClick}>
+    <a href={href} className={`mo-editor-arrow-link ${className}`} onClick={onClick}>
       {children}
       <ArrowRight size={14} />
     </a>
@@ -1752,9 +1759,9 @@ export function ChipField({
     />
   );
   return (
-    <div className="space-y-2">
+    <div className="mo-editor-gapped-100">
       {chips.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="mo-editor-chip-row">
           {chips.map((w) => (
             <InputChip key={w} removeLabel={t.forms.removeOne(w)} onRemove={() => remove(w)}>
               {w}
@@ -1804,7 +1811,7 @@ export function ChoiceTile({
       kind="outlined"
       shape="square"
       selected={selected}
-      className="aspect-square h-auto w-full"
+      className="mo-editor-choice-tile-image"
       onClick={onClick}
     />
   );
@@ -1910,20 +1917,16 @@ export function ChoiceCards<T extends string>({
   const name = useId();
   return (
     <fieldset>
-      <legend className="mb-1 font-medium">{label}</legend>
-      {hint && <SupportingText className="mb-2">{hint}</SupportingText>}
-      <div className="grid grid-cols-4 gap-2">
+      <legend className="mo-editor-field-label">{label}</legend>
+      {hint && <SupportingText className="mo-editor-choice-hint">{hint}</SupportingText>}
+      <div className="mo-grid mo-editor-choice-cards">
         {options.map(({ value: v, label: text, icon: Glyph, disabled }) => {
           const chosen = v === value;
           return (
             <label
               key={v}
-              className={`${siteCardClass('outlined')} relative flex flex-col items-center gap-2 px-3 py-4 text-center text-sm font-medium transition-colors has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary ${
-                disabled
-                  ? 'cursor-default opacity-50'
-                  : chosen
-                    ? 'cursor-pointer text-on-secondary-container [--mo-comp-outlined-card-container-color:var(--color-secondary-container)] [--mo-comp-outlined-card-outline-color:var(--color-accent)]'
-                    : 'cursor-pointer hover:[--mo-comp-outlined-card-container-color:var(--color-surface-container-high)]'
+              className={`${siteCardClass('outlined')} mo-editor-choice-card ${
+                disabled ? 'mo-editor-choice-card-disabled' : chosen ? 'mo-editor-choice-card-chosen' : 'mo-editor-choice-card-idle'
               }`}
             >
               <input
@@ -1933,11 +1936,11 @@ export function ChoiceCards<T extends string>({
                 checked={chosen}
                 disabled={disabled}
                 onChange={() => onChange(v)}
-                className="sr-only"
+                className="mo-visually-hidden"
               />
               {Glyph && <Glyph size={32} aria-hidden="true" />}
               <span>{text}</span>
-              {chosen && <Check size={16} weight="bold" aria-hidden="true" className="absolute top-2 right-2 text-primary" />}
+              {chosen && <Check size={16} weight="bold" aria-hidden="true" className="mo-editor-choice-card-check" />}
             </label>
           );
         })}
@@ -1951,7 +1954,7 @@ export function ChoiceCards<T extends string>({
 
 /** The classes of the rows under a row in a list (a submenu): the theme's list, indented along a line, the text a little
  * lighter. */
-export const subListClass = `${siteListClass} ml-5 border-l border-outline-variant`;
+export const subListClass = `${siteListClass} mo-editor-sub-list`;
 
 /** What a row looks like besides the theme's list item: `accent`, a row that does something (Log out), in the accent
  * colour; `delete`, the row that deletes what a screen shows, alone in a Group at the bottom, in the middle in the error
@@ -1959,10 +1962,10 @@ export const subListClass = `${siteListClass} ml-5 border-l border-outline-varia
  * little lighter. */
 export type RowTone = 'accent' | 'delete' | 'muted' | 'sub';
 const toneClass: Record<RowTone, string> = {
-  accent: 'text-primary',
-  delete: 'justify-center text-center font-medium text-(--mo-sys-color-error)',
-  muted: 'text-on-surface-variant',
-  sub: 'text-on-surface/80',
+  accent: 'mo-editor-accent-text',
+  delete: 'mo-editor-row-delete',
+  muted: 'mo-editor-muted-text',
+  sub: 'mo-editor-row-sub',
 };
 
 /** A row in a list (Group, listClass): the theme's list item (Material 3's ListItem), with the editor's icons. A link
@@ -2012,7 +2015,7 @@ export function ListItem({
       ? (item.leading.props as { icon?: Icon; selected?: boolean; children?: ReactNode })
       : null;
   if (made) {
-    icon = made.icon ?? ((made.children || <span className="block size-6" />) as ReactElement<{ size?: number }>);
+    icon = made.icon ?? ((made.children || <span className="mo-editor-icon-placeholder" />) as ReactElement<{ size?: number }>);
     iconSelected = made.selected;
     item.leading = undefined;
   }
@@ -2060,7 +2063,7 @@ export function UnfoldButton({
       aria-expanded={open}
       aria-label={label}
       title={title}
-      className={`shrink-0 ${className}`}
+      className={`mo-keep ${className}`}
       onClick={onClick}
     >
       {count}
@@ -2167,7 +2170,7 @@ export function Menu({
   useLayoutEffect(() => {
     if (!anchor || !wide) return;
     const el = menu.current;
-    // A popover (always over everything, also a dialog), placed by CSS anchor positioning at the button (editor.css, .editor-menu);
+    // A popover (always over everything, also a dialog), placed by CSS anchor positioning at the button (editor.css, .mo-editor-menu);
     // where the browser lacks it, by the theme's script (sitePlaceMenu) as before.
     try {
       if (el && !el.matches(':popover-open')) el.showPopover();
@@ -2250,11 +2253,11 @@ export function Menu({
           sheet.current?.close()
         }
         onClose={(e) => e.target === e.currentTarget && onClose()}
-        className="focus:outline-none"
+        className="mo-editor-focus-quiet"
       >
         <SheetTitle title={label} onClose={() => sheet.current?.close()} />
         <SheetList div>
-          <SiteMenu role="menu" aria-label={label} className="w-full max-w-none">
+          <SiteMenu role="menu" aria-label={label} className="mo-editor-menu-full">
             {children}
           </SiteMenu>
         </SheetList>
@@ -2266,7 +2269,7 @@ export function Menu({
       ref={menu}
       role="menu"
       aria-label={label}
-      className="editor-menu dropdown-menu-menu focus:outline-none"
+      className="mo-editor-menu mo-dropdown-menu__menu mo-editor-focus-quiet"
       popover="manual"
       data-menu-attached={attached ? '' : undefined}
       data-menu-popup={popup}
@@ -2308,7 +2311,7 @@ function moveInMenu(e: KeyboardEvent<HTMLElement>) {
   // A letter: the next item whose label starts with it (M3 menus: "Letters: Focus moves to the next menu item starting with letter").
   if (to === undefined && isTypeAheadKey(e)) {
     to = nextByLetter(
-      items.map((i) => i.querySelector('.menu-item-label')?.textContent ?? i.textContent ?? ''),
+      items.map((i) => i.querySelector('.mo-menu__item-label')?.textContent ?? i.textContent ?? ''),
       at,
       e.key,
     );
@@ -2403,7 +2406,7 @@ export function MenuRow<T extends string>({
 
 /** The fields of a sheet, between SheetTitle and SheetActions, scrolled when there are many. */
 export function SheetBody({ onSubmit, children }: { onSubmit?: (e: FormEvent<HTMLFormElement>) => void; children: ReactNode }) {
-  const className = 'min-h-0 flex-1 space-y-5 overflow-y-auto px-(--mo-sys-grid-margin) pt-2 pb-4';
+  const className = 'mo-editor-rhythm-250 mo-editor-sheet-body';
   return onSubmit ? (
     <form className={className} onSubmit={onSubmit}>
       {children}
@@ -2416,13 +2419,13 @@ export function SheetBody({ onSubmit, children }: { onSubmit?: (e: FormEvent<HTM
 /** The choices of a sheet (Option), scrolled when there are many: a list, or with `div` groups of them
  * (SheetGroupTitle). */
 export function SheetList({ div, children }: { div?: boolean; children: ReactNode }) {
-  const className = 'min-h-0 flex-1 overflow-y-auto px-2 pb-4';
+  const className = 'mo-editor-sheet-list';
   return div ? <div className={className}>{children}</div> : <ul className={className}>{children}</ul>;
 }
 
 /** The small heading over some of the choices in a sheet (Fixed pages, Pages). */
 export function SheetGroupTitle({ children }: { children: ReactNode }) {
-  return <h3 className="px-3 pt-4 pb-1 text-sm font-medium text-on-surface-variant">{children}</h3>;
+  return <h3 className="mo-editor-sheet-group-title">{children}</h3>;
 }
 
 /** A link at the bottom of a sheet, under its choices and the theme's divider, to make something new elsewhere (Create
@@ -2437,9 +2440,9 @@ export function SheetLink({
   children: ReactNode;
 }) {
   return (
-    <div className="shrink-0">
+    <div className="mo-keep">
       <SiteDivider />
-      <div className="px-2 py-2">
+      <div className="mo-editor-sheet-link">
         <SiteButton kind="text" href={href} icon={<Plus />} onClick={onClick}>
           {children}
         </SiteButton>
@@ -2468,11 +2471,11 @@ export function SheetActions({
   start?: ReactNode;
 }) {
   return (
-    <div className="shrink-0">
+    <div className="mo-keep">
       <SiteDivider />
-      <div className="flex items-center gap-2 px-(--mo-sys-grid-margin) py-3">
+      <div className="mo-row mo-editor-sheet-actions">
         {start}
-        <Button kind="outlined" className="ml-auto" onClick={onCancel}>
+        <Button kind="outlined" className="mo-editor-push-end" onClick={onCancel}>
           {cancel ?? t.common.cancel}
         </Button>
         <Button disabled={disabled} onClick={onDone}>
@@ -2494,7 +2497,7 @@ export function Preview({ children }: { children: ReactNode }) {
     <div
       role="region"
       aria-label={t.common.preview}
-      className="site-block-preview not-prose border-[1.5px] border-dashed border-outline-variant p-2"
+      className="mo-site-block-preview mo-is-not-prose mo-editor-block-preview"
       onClickCapture={(e) => {
         if ((e.target as HTMLElement).closest('a[href]')) e.preventDefault();
       }}
@@ -2518,27 +2521,22 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
     '--mo-comp-button-filled-label-text-color': 'var(--mo-sys-color-on-primary)',
   } as CSSProperties;
   return (
-    <div
-      style={vars}
-      aria-label={title}
-      role="img"
-      className="space-y-3 rounded-2xl border border-outline-variant bg-surface p-4 text-on-surface"
-    >
-      <p className="text-body-large font-medium">{p.heading}</p>
-      <p className="text-sm text-on-surface-variant">{p.text}</p>
+    <div style={vars} aria-label={title} role="img" className="mo-editor-rhythm-150 mo-editor-colors-preview">
+      <p className="mo-type-body-large mo-editor-colors-preview-heading">{p.heading}</p>
+      <p className="mo-editor-colors-preview-hint">{p.text}</p>
       <p>
-        <span className="link">{p.link}</span>
+        <span className="mo-link">{p.link}</span>
       </p>
-      <div className="space-y-2 rounded-xl border border-outline-variant bg-surface-container-lowest p-3">
-        <p className="text-sm">{p.card}</p>
-        <p className="rounded-lg bg-surface-container-high px-3 py-2 text-sm font-medium text-primary">{p.box}</p>
+      <div className="mo-editor-gapped-100 mo-editor-colors-preview-card">
+        <p className="mo-editor-colors-preview-text">{p.card}</p>
+        <p className="mo-editor-colors-preview-box">{p.box}</p>
       </div>
       {/* The secondary and tertiary colours, which a harmony on the colour wheel places. */}
-      <div className="grid grid-cols-2 gap-2 text-sm font-medium">
-        <p className="rounded-lg bg-secondary-container px-3 py-2 text-on-secondary-container">{p.secondary}</p>
-        <p className="rounded-lg bg-tertiary-container px-3 py-2 text-on-tertiary-container">{p.tertiary}</p>
+      <div className="mo-grid mo-editor-colors-preview-pair">
+        <p className="mo-editor-colors-preview-secondary">{p.secondary}</p>
+        <p className="mo-editor-colors-preview-tertiary">{p.tertiary}</p>
       </div>
-      <span className="button button-filled button-small">{p.button}</span>
+      <span className="mo-button mo-is-filled mo-button__small">{p.button}</span>
     </div>
   );
 }
@@ -2546,9 +2544,9 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
 /** A few colours side by side in small circles, read out together as `label` (a variant's colours, ChoiceRow). */
 export function ColorSwatches({ colors, label }: { colors: string[]; label: string }) {
   return (
-    <span role="img" aria-label={label} className="flex shrink-0 gap-1.5">
+    <span role="img" aria-label={label} className="mo-keep mo-editor-color-dots">
       {colors.map((color, i) => (
-        <span key={i} className="size-6 rounded-full border border-outline-variant" style={{ background: color }} />
+        <span key={i} className="mo-editor-color-dot" style={{ background: color }} />
       ))}
     </span>
   );
@@ -2580,7 +2578,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
     <>
       <ul
         aria-label={label}
-        className={`grid overflow-hidden rounded-(--mo-sys-block-radius) ${swatchEdge}`}
+        className={`mo-editor-color-tiles ${swatchEdge}`}
         style={{ gridTemplateColumns: `repeat(${colors.length}, minmax(0, 1fr))` }}
       >
         {colors.map(({ color, name, disabled, locked, onChange, onLock }, i) => {
@@ -2590,13 +2588,13 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
             background: color,
             color: text,
             '--mo-comp-icon-button-standard-icon-color': text,
-            '--icon-button-standard-selected-text': text,
+            '--mo-comp-icon-button-standard-selected-text': text,
           } as CSSProperties;
           return (
-            <li key={name} className="flex min-w-0 flex-col gap-1 p-3" style={vars}>
-              <span className="block text-sm font-medium break-words">{name}</span>
-              <span className="block truncate font-mono text-sm uppercase">{color}</span>
-              <span className="mt-auto -ml-2 flex">
+            <li key={name} className="mo-stack mo-editor-color-tile" style={vars}>
+              <span className="mo-editor-color-tile-name">{name}</span>
+              <span className="mo-truncate mo-editor-color-tile-value">{color}</span>
+              <span className="mo-editor-color-tile-actions">
                 {onChange && (
                   <IconButton
                     icon={PencilSimple}
@@ -2629,7 +2627,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
         tabIndex={-1}
         aria-label={tile?.name}
         onClick={(e) => e.target === dialog.current && close()}
-        className="focus:outline-none"
+        className="mo-editor-focus-quiet"
       >
         {editing.opened > 0 && tile?.onChange && (
           <ColorSheet
@@ -2740,7 +2738,7 @@ export function ColorWheel({
           })}
       aria-label={label}
       aria-disabled={disabled || undefined}
-      className={`relative aspect-square w-full max-w-72 rounded-full ${swatchEdge} ${free ? 'touch-none' : ring}`}
+      className={`mo-editor-wheel ${swatchEdge} ${free ? 'mo-editor-drag-free' : ring}`}
       style={{ background: `radial-gradient(closest-side, ${middle}, transparent), conic-gradient(${[...edge, edge[0]].join(', ')})` }}
       {...handlers}
       onKeyDown={free ? undefined : keys}
@@ -2759,7 +2757,7 @@ export function ColorWheel({
             'aria-valuetext': dot.color,
             onKeyDown: dotKeys(i),
           })}
-          className={`${thumb} flex items-center justify-center ${i ? 'size-6' : 'size-9'} ${free ? 'focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none' : ''}`}
+          className={`${thumb} mo-editor-wheel-dot ${i ? 'mo-editor-wheel-dot-small' : 'mo-editor-wheel-dot-large'} ${free ? 'mo-editor-wheel-dot-focus' : ''}`}
           style={{
             left: `${(dot.x + 1) * 50}%`,
             top: `${(dot.y + 1) * 50}%`,
@@ -2779,7 +2777,7 @@ export function ColorWheel({
  * "Icon packs"): in the row's colour, as its own icons. */
 export function IconSwatches({ icons, label }: { icons: string[]; label: string }) {
   return (
-    <span role="img" aria-label={label} className="flex shrink-0 gap-2">
+    <span role="img" aria-label={label} className="mo-keep mo-editor-icon-dots">
       {icons.map((file, i) => (
         <SvgFile key={i} file={file} />
       ))}
@@ -2812,9 +2810,9 @@ export function ChoiceRow({
       headline={headline}
       supporting={supporting}
       trailing={
-        <span className="flex items-center gap-3">
+        <span className="mo-row mo-editor-choice-row">
           {trailing}
-          <Check size={20} className={`shrink-0 ${selected ? 'text-primary' : 'invisible'}`} />
+          <Check size={20} className={`mo-keep ${selected ? 'mo-editor-accent-text' : 'mo-editor-invisible'}`} />
         </span>
       }
     />
@@ -2834,7 +2832,7 @@ export const plainListClass = siteListClasses('standard');
 /** The small heading over a Group, and over what stands as one (the themes on Account): in Material 3's title small, as
  * written (not in capitals, Material 2's subheader), muted as a group's heading in a sheet (SheetGroupTitle). */
 export function GroupTitle({ children }: { children: ReactNode }) {
-  return <h2 className="mb-2 px-4 text-title-small text-on-surface-variant">{children}</h2>;
+  return <h2 className="mo-type-title-small mo-editor-group-title">{children}</h2>;
 }
 
 /** The theme's ripple on every part the editor draws that is pressed (its buttons, rows, chips …), as on the site:
@@ -2845,7 +2843,7 @@ export const startRipples = siteRipples;
  * as big as the text, before what it is. */
 export function LoadingIndicator({ children }: { children: ReactNode }) {
   return (
-    <span className="inline-flex items-center gap-2">
+    <span className="mo-editor-loading">
       <SiteLoadingIndicator label="" aria-hidden style={inText} />
       {children}
     </span>
@@ -2862,7 +2860,7 @@ const inText = {
 /** What a list or a screen says when it has nothing to show (No …), or while it is fetched (`busy`,
  * with the LoadingIndicator: Loading…): grey, in the middle. `item`: as an item of a list. */
 export function EmptyNote({ item, busy, children }: { item?: boolean; busy?: boolean; children: ReactNode }) {
-  const className = 'px-4 py-6 text-center text-on-surface-variant';
+  const className = 'mo-editor-list-empty';
   const text = busy ? <LoadingIndicator>{children}</LoadingIndicator> : children;
   return item ? <li className={className}>{text}</li> : <p className={className}>{text}</p>;
 }
@@ -2871,7 +2869,7 @@ export function EmptyNote({ item, busy, children }: { item?: boolean; busy?: boo
  * not be read. `alert`: read by screen readers as soon as it is shown. */
 export function ProblemNote({ alert, children }: { alert?: boolean; children: ReactNode }) {
   return (
-    <div role={alert ? 'alert' : undefined} className="text-sm break-words text-primary">
+    <div role={alert ? 'alert' : undefined} className="mo-editor-problem-note">
       {children}
     </div>
   );
@@ -2880,13 +2878,13 @@ export function ProblemNote({ alert, children }: { alert?: boolean; children: Re
 /** A heading over fields in a form (Other fields, SEO); `first` at the top of a column, without the space
  * above it on a wide screen. */
 export function FormHeading({ first, children }: { first?: boolean; children: ReactNode }) {
-  return <h2 className={`pt-4 text-title-large font-semibold ${first ? 'large:pt-0' : ''}`}>{children}</h2>;
+  return <h2 className={`mo-type-title-large mo-editor-form-heading ${first ? 'mo-editor-form-heading-first' : ''}`}>{children}</h2>;
 }
 
 /** A section of a long form that folds in and out (the sections of a page; Material 3 has no accordion, so it has its
  * own name): its heading, as large as a FormHeading, is a button with the arrow at its right, which turns while the
  * section is open, and a line under each section. The title's box is trimmed to the capitals and the baseline, so the space above and below the letters is equal; sections that follow each other touch (no gap from a parent's `space-y`), so the line above a title is as far from it as the line below. Folded, only the heading is shown; what is in it stays (hidden), so
- * the text and the fields keep what was written, and it shows softly when opened (.editor-reveal). It stops under the
+ * the text and the fields keep what was written, and it shows softly when opened (.mo-editor-reveal). It stops under the
  * top bar when the page scrolls to it. `ref`: the section, for what scrolls to it and marks it. `fixed`: always open,
  * its heading plain text in the same row, with no arrow and nothing to press (a page's and a post's Content). */
 export function FoldSection({
@@ -2907,16 +2905,11 @@ export function FoldSection({
   const id = useId();
   if (fixed) open = true;
   return (
-    <section
-      ref={ref}
-      aria-labelledby={`${id}-title`}
-      data-fold-section=""
-      className="scroll-mt-[calc(5rem+env(safe-area-inset-top))] border-b border-outline-variant [&:has(+[data-fold-section])]:mb-0 [[data-fold-section]+&]:mt-0"
-    >
+    <section ref={ref} aria-labelledby={`${id}-title`} data-fold-section="" className="mo-editor-fold-section">
       <h2>
         {fixed ? (
-          <span id={`${id}-title`} className="flex min-h-14 items-center py-[1.125rem] text-title-large font-semibold">
-            <span className="min-w-0 flex-1 [text-box:trim-both_cap_alphabetic]">{title}</span>
+          <span id={`${id}-title`} className="mo-type-title-large mo-editor-fold-title">
+            <span className="mo-fill mo-editor-fold-title-text">{title}</span>
           </span>
         ) : (
           <button
@@ -2924,19 +2917,19 @@ export function FoldSection({
             id={`${id}-title`}
             aria-expanded={open}
             aria-controls={`${id}-body`}
-            className="-mx-3 flex w-[calc(100%+1.5rem)] items-center gap-3 rounded-(--mo-sys-block-radius-small) px-3 py-[1.125rem] text-left text-title-large font-semibold transition-colors hover:bg-surface-container-high focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none"
+            className="mo-type-title-large mo-editor-fold-toggle"
             onClick={onToggle}
           >
-            <span className="min-w-0 flex-1 [text-box:trim-both_cap_alphabetic]">{title}</span>
+            <span className="mo-fill mo-editor-fold-title-text">{title}</span>
             <CaretDown
               size={20}
               aria-hidden="true"
-              className={`shrink-0 text-on-surface-variant transition-transform motion-reduce:transition-none ${open ? 'rotate-180' : ''}`}
+              className={`mo-keep mo-editor-section-arrow ${open ? 'mo-editor-arrow-flipped' : ''}`}
             />
           </button>
         )}
       </h2>
-      <div id={`${id}-body`} hidden={!open} className="editor-reveal space-y-6 pt-2 pb-8">
+      <div id={`${id}-body`} hidden={!open} className="mo-editor-rhythm-300 mo-editor-reveal mo-editor-section-body">
         {children}
       </div>
     </section>
@@ -2946,7 +2939,7 @@ export function FoldSection({
 /** Rows in the theme's segmented list, under a small heading: the start screen, the lists. Never with a note under it. */
 export function Group({ title, children }: { title?: string; children: ReactNode }) {
   return (
-    <section className="mb-8">
+    <section className="mo-editor-section">
       {title && <GroupTitle>{title}</GroupTitle>}
       <ul className={listClass}>{children}</ul>
     </section>
@@ -2961,22 +2954,22 @@ export function Group({ title, children }: { title?: string; children: ReactNode
  * counts up with it. */
 export type Check = { ok: boolean; text: string; fix?: string };
 
-// The ring's colours for each status, as whole class names (so Tailwind finds them).
+// The ring's colours for each status, as whole class names.
 const statusTones = {
   good: {
-    fill: 'fill-(--mo-comp-editor-status-good-surface)',
-    stroke: 'stroke-(--mo-comp-editor-status-good)',
-    text: 'text-(--mo-comp-editor-status-good-text)',
+    fill: 'mo-editor-check-good-fill',
+    stroke: 'mo-editor-check-good-stroke',
+    text: 'mo-editor-check-good-text',
   },
   average: {
-    fill: 'fill-(--mo-comp-editor-status-average-surface)',
-    stroke: 'stroke-(--mo-comp-editor-status-average)',
-    text: 'text-(--mo-comp-editor-status-average-text)',
+    fill: 'mo-editor-check-average-fill',
+    stroke: 'mo-editor-check-average-stroke',
+    text: 'mo-editor-check-average-text',
   },
   bad: {
-    fill: 'fill-(--mo-comp-editor-status-bad-surface)',
-    stroke: 'stroke-(--mo-comp-editor-status-bad)',
-    text: 'text-(--mo-comp-editor-status-bad-text)',
+    fill: 'mo-editor-check-bad-fill',
+    stroke: 'mo-editor-check-bad-stroke',
+    text: 'mo-editor-check-bad-text',
   },
 };
 
@@ -2990,8 +2983,8 @@ const toneOf = (score: number) => statusTones[score >= 90 ? 'good' : score >= 50
 export function ScoreRing({ score, label, onClick }: { score: number; label: string; onClick?: () => void }) {
   const tone = toneOf(score);
   return (
-    <span role="img" aria-label={label} onClick={onClick} className="relative size-10 shrink-0">
-      <svg viewBox="0 0 36 36" aria-hidden="true" className="size-full -rotate-90">
+    <span role="img" aria-label={label} onClick={onClick} className="mo-keep mo-editor-score-ring">
+      <svg viewBox="0 0 36 36" aria-hidden="true" className="mo-editor-score-ring-svg">
         <circle cx="18" cy="18" r="15.9155" className={tone.fill} />
         <circle
           cx="18"
@@ -3005,7 +2998,7 @@ export function ScoreRing({ score, label, onClick }: { score: number; label: str
           className={tone.stroke}
         />
       </svg>
-      <span aria-hidden="true" className={`absolute inset-0 grid place-items-center text-sm font-medium tabular-nums ${tone.text}`}>
+      <span aria-hidden="true" className={`mo-editor-score-ring-value ${tone.text}`}>
         {score}
       </span>
     </span>
@@ -3054,17 +3047,17 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
   }, [seen, score]);
   const mark = (ok: boolean) =>
     ok ? (
-      <span aria-hidden="true" className="mx-0.5 size-3 shrink-0 rounded-full bg-(--mo-comp-editor-status-good)" />
+      <span aria-hidden="true" className="mo-keep mo-editor-check-good-dot" />
     ) : (
-      <svg aria-hidden="true" viewBox="0 0 12 12" className="size-4 shrink-0 fill-(--mo-comp-editor-status-bad)">
+      <svg aria-hidden="true" viewBox="0 0 12 12" className="mo-keep mo-editor-check-bad-mark">
         <path d="M6 1 11.5 11H.5Z" />
       </svg>
     );
   const row = (item: Check) => {
     const shown = open === item.text;
     const text = (
-      <span className="min-w-0 flex-1">
-        <span className="sr-only">{`${item.ok ? t.common.check.ok : t.common.check.notOk}: `}</span>
+      <span className="mo-fill">
+        <span className="mo-visually-hidden">{`${item.ok ? t.common.check.ok : t.common.check.notOk}: `}</span>
         {item.text}
       </span>
     );
@@ -3075,9 +3068,9 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
         aria-expanded={shown}
         leading={mark(item.ok)}
         headline={text}
-        trailing={<CaretDown size={18} className={`shrink-0 text-on-surface-variant transition-transform ${shown ? 'rotate-180' : ''}`} />}
+        trailing={<CaretDown size={18} className={`mo-keep mo-editor-fold-arrow ${shown ? 'mo-editor-arrow-flipped' : ''}`} />}
       >
-        {shown && <p className="editor-reveal px-4 pb-3 pl-11 text-on-surface-variant">{item.fix}</p>}
+        {shown && <p className="mo-editor-reveal mo-editor-check-fix">{item.fix}</p>}
       </ListItem>
     ) : (
       <ListItem key={item.text} leading={mark(item.ok)} headline={text} />
@@ -3086,9 +3079,9 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
   // The ring: its circle is 2πr = 100 long (r = 15.9155), so the score is how much of it is drawn.
   return (
     <div>
-      <div className="mb-8 flex flex-col items-center gap-3">
-        <div ref={ring} className="relative size-28">
-          <svg viewBox="0 0 36 36" aria-hidden="true" className="size-full -rotate-90">
+      <div className="mo-stack mo-editor-score">
+        <div ref={ring} className="mo-editor-score-ring-large">
+          <svg viewBox="0 0 36 36" aria-hidden="true" className="mo-editor-score-ring-svg">
             <circle cx="18" cy="18" r="15.9155" className={tone.fill} />
             <circle
               cx="18"
@@ -3099,15 +3092,15 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
               strokeLinecap="round"
               pathLength={100}
               strokeDasharray={`${seen ? score : 0} 100`}
-              className={`transition-[stroke-dasharray] duration-[1200ms] ease-out motion-reduce:transition-none ${seen && score > 0 ? '' : 'opacity-0'} ${tone.stroke}`}
+              className={`mo-editor-score-arc ${seen && score > 0 ? '' : 'mo-editor-score-arc-hidden'} ${tone.stroke}`}
             />
           </svg>
-          <span aria-hidden="true" className={`absolute inset-0 grid place-items-center text-display-small tabular-nums ${tone.text}`}>
+          <span aria-hidden="true" className={`mo-type-display-small mo-editor-score-ring-value-large ${tone.text}`}>
             {shown}
           </span>
         </div>
-        {title && <h3 className="text-title-large font-medium">{title}</h3>}
-        <span className="sr-only">{t.common.check.score(good.length, items.length)}</span>
+        {title && <h3 className="mo-type-title-large mo-editor-score-title">{title}</h3>}
+        <span className="mo-visually-hidden">{t.common.check.score(good.length, items.length)}</span>
       </div>
       {bad.length > 0 && <Group title={`${t.common.check.notOk} (${bad.length})`}>{bad.map(row)}</Group>}
       {good.length > 0 && <Group title={`${t.common.check.ok} (${good.length})`}>{good.map(row)}</Group>}
@@ -3122,17 +3115,17 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
 export function SharePreview({ image, domain, title, description }: { image: string; domain: string; title: string; description: string }) {
   const [tall, setTall] = useState(false);
   return (
-    <figure aria-label={t.forms.sharePreview} className={`${siteCardClass('outlined')} max-w-[500px] overflow-hidden p-0`}>
+    <figure aria-label={t.forms.sharePreview} className={`${siteCardClass('outlined')} mo-editor-share-preview`}>
       <img
         src={safeImageSrc(image)}
         alt=""
-        className={`aspect-[1.91/1] w-full bg-outline-variant/50 object-cover ${tall ? 'object-[50%_20%]' : ''}`}
+        className={`mo-editor-share-preview-image ${tall ? 'mo-editor-share-preview-image-tall' : ''}`}
         onLoad={(e) => setTall(e.currentTarget.naturalHeight >= e.currentTarget.naturalWidth)}
       />
-      <figcaption className="space-y-0.5 border-t border-outline-variant px-4 py-3">
-        <span className="block truncate text-xs tracking-wide text-on-surface-variant uppercase">{domain}</span>
-        <span className="line-clamp-2 font-semibold">{title}</span>
-        <span className="line-clamp-2 text-sm text-on-surface-variant">{description}</span>
+      <figcaption className="mo-editor-gapped-25 mo-editor-share-preview-text">
+        <span className="mo-truncate mo-editor-share-preview-domain">{domain}</span>
+        <span className="mo-clamp-2 mo-editor-share-preview-title">{title}</span>
+        <span className="mo-clamp-2 mo-editor-share-preview-description">{description}</span>
       </figcaption>
     </figure>
   );
@@ -3157,13 +3150,13 @@ export function ImageCarousel({ label, images }: { label: string; images: { src:
             <button
               type="button"
               aria-haspopup="dialog"
-              className="block aspect-[3/4] w-full overflow-hidden border border-outline-variant bg-surface-container-lowest"
+              className="mo-editor-carousel-tile"
               onClick={() => {
                 setShown(x);
                 sheet.current?.showModal();
               }}
             >
-              <img src={x.src} alt={x.label} loading="lazy" className="size-full object-cover object-top" />
+              <img src={x.src} alt={x.label} loading="lazy" className="mo-editor-carousel-image" />
             </button>
           ),
         }))}
@@ -3177,7 +3170,7 @@ export function ImageCarousel({ label, images }: { label: string; images: { src:
         <SheetTitle title={shown?.label ?? ''} onClose={() => sheet.current?.close()} />
         {shown && (
           <SheetBody>
-            <img src={shown.src} alt={shown.label} className="mx-auto w-full max-w-sm border border-outline-variant" />
+            <img src={shown.src} alt={shown.label} className="mo-editor-lightbox-image" />
           </SheetBody>
         )}
       </BottomSheet>
@@ -3276,9 +3269,9 @@ export function SideSheet({
       onClose={onClose}
       onBack={onBack}
       backLabel={backLabel}
-      className="editor-reveal sticky top-8 max-h-[calc(100dvh-3rem)] self-start"
+      className="mo-editor-reveal mo-editor-selection-pane"
     >
-      <div className="space-y-5">{children}</div>
+      <div className="mo-editor-rhythm-250">{children}</div>
     </SiteSideSheet>
   );
 }
@@ -3303,16 +3296,16 @@ export function SectionList({
 }) {
   return (
     <nav aria-label={title}>
-      <ul className="m-0 flex list-none flex-col gap-1 p-0">
+      <ul className="mo-stack mo-editor-section-list">
         {items.map(({ id, label, badge }) => (
           <li key={id}>
             <button
               type="button"
               aria-current={id === value ? 'location' : undefined}
               onClick={() => onChange(id)}
-              className="section-list-item flex w-full items-center gap-2 rounded-(--mo-sys-block-radius-small) px-2 py-2 text-start text-on-surface-variant transition-colors hover:text-on-surface focus-visible:ring-2 focus-visible:ring-primary focus-visible:outline-none aria-[current=location]:text-primary"
+              className="mo-editor-section-list-item mo-row mo-editor-section-list-link"
             >
-              <span className="min-w-0">{label}</span>
+              <span className="mo-editor-section-list-label">{label}</span>
               {badge ? <SiteBadge count={badge === true ? undefined : badge} /> : null}
             </button>
           </li>
@@ -3328,9 +3321,9 @@ export function SectionList({
  * scrolls. Its place is FormColumns' `pane`, against the window's end edge; below large it is not drawn. */
 export function SectionPane({ caption, title, children }: { caption: string; title: string; children: ReactNode }) {
   return (
-    <div className={`${siteCardClass('outlined')} max-h-[calc(100dvh-2*var(--mo-sys-section-pane-gap))] overflow-y-auto`}>
-      <p className="section-pane-caption m-0 text-on-surface-variant">{caption}</p>
-      <h2 className="section-pane-title m-0 mb-3 text-on-surface">{title}</h2>
+    <div className={`${siteCardClass('outlined')} mo-editor-section-pane-card`}>
+      <p className="mo-editor-section-pane-caption mo-editor-section-pane-caption">{caption}</p>
+      <h2 className="mo-editor-section-pane-title mo-editor-section-pane-title">{title}</h2>
       {children}
     </div>
   );
@@ -3401,16 +3394,16 @@ export function MainDrawer({
 // `footer` is the bottom slot: the destinations' box grows to fill the rail, and the slot (the last child in it) is pushed to its end.
 function MainRail({ label, onOpen, footer, children }: { label: string; onOpen: () => void; footer?: ReactNode; children: ReactNode }) {
   return (
-    <aside className="editor-main-rail-frame sticky top-0 z-10 h-dvh shrink-0 self-start bg-(--mo-comp-navigation-rail-surface,var(--mo-sys-color-surface)) pt-[env(safe-area-inset-top)]">
+    <aside className="mo-editor-main-rail-frame mo-editor-main-rail-frame">
       <SiteNavigationRail
         label={label}
         menuLabel={t.library.openMenu}
         expanded={false}
         onExpandedChange={onOpen}
-        className="editor-main-rail h-full [&_.navigation-rail-items]:flex-1"
+        className="mo-editor-main-rail mo-editor-main-rail"
       >
         {children}
-        {footer && <div className="mt-auto">{footer}</div>}
+        {footer && <div className="mo-editor-main-footer">{footer}</div>}
       </SiteNavigationRail>
     </aside>
   );
@@ -3419,22 +3412,17 @@ function MainRail({ label, onOpen, footer, children }: { label: string; onOpen: 
 // The header row at the top of either drawer: `header` (the signed-in user on the first level, the back row on a section's
 // list; MainMenu.tsx) at the start and the menu button at the end, which closes the drawer and stays level with the top bar's
 // menu button. The header cell starts at the drawer items' outer edge: the row has no start padding, and the header (the
-// account row, the back row) brings the items' inline padding itself, so its pill (editor.css, .editor-main-drawer-header)
+// account row, the back row) brings the items' inline padding itself, so its pill (editor.css, .mo-editor-main-drawer-header)
 // has the shape of an item's and the avatar or arrow stands over the items' icons. The button is centred on the 1.5rem box
-// of the items' trailing arrows (a negative end margin from the button's own width). The row is the top bar's height (`--top-app-bar-height`), so the divider (middle inset) under it stands level with the top bar's line.
+// of the items' trailing arrows (a negative end margin from the button's own width). The row is the top bar's height (`--mo-comp-top-app-bar-height`), so the divider (middle inset) under it stands level with the top bar's line.
 function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header?: ReactNode }) {
   return (
     <>
-      <div className="editor-main-drawer-header flex min-h-(--top-app-bar-height,4rem) items-center gap-1 p-(--navigation-drawer-item-padding,0_1rem) py-0 ps-0">
-        <div className="min-w-0 flex-1">{header}</div>
-        <MenuButton
-          label={t.library.closeMenu}
-          open
-          onClick={onClick}
-          className="-me-[calc((var(--mo-comp-icon-button-width)-1.5rem)/2)]"
-        />
+      <div className="mo-editor-main-drawer-header mo-editor-main-drawer-header">
+        <div className="mo-fill">{header}</div>
+        <MenuButton label={t.library.closeMenu} open onClick={onClick} className="mo-editor-main-drawer-close" />
       </div>
-      <SiteDivider kind="middle-inset" className="mb-4" />
+      <SiteDivider kind="middle-inset" className="mo-editor-main-drawer-header-divider" />
     </>
   );
 }
@@ -3443,11 +3431,11 @@ function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header
 // the theme's divider) is pushed to the bottom.
 function MainDrawerBody({ label, footer, children }: { label: string; footer?: ReactNode; children: ReactNode }) {
   return (
-    <nav aria-label={label} className="flex flex-1 flex-col">
+    <nav aria-label={label} className="mo-editor-main-drawer-nav">
       <div>{children}</div>
       {footer && (
-        <div className="mt-auto">
-          <SiteDivider kind="middle-inset" className="my-4" />
+        <div className="mo-editor-main-footer">
+          <SiteDivider kind="middle-inset" className="mo-editor-main-drawer-divider" />
           {footer}
         </div>
       )}
@@ -3476,10 +3464,10 @@ function StandardMainDrawer({
 }) {
   if (!open) return null;
   return (
-    <aside className="sticky top-0 z-10 h-dvh shrink-0 self-start overflow-y-auto">
+    <aside className="mo-editor-main-drawer-frame">
       <SiteNavigationDrawer
         variant="standard"
-        className="editor-main-drawer-panel min-h-full pt-[env(safe-area-inset-top)]"
+        className="mo-editor-main-drawer-panel mo-editor-main-drawer-panel mo-editor-main-drawer-panel-full"
         onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
           if (e.key === 'Escape' && onEscape?.()) e.preventDefault();
         }}
@@ -3528,7 +3516,7 @@ function ModalMainDrawer({
     <dialog
       ref={dialog}
       aria-label={label}
-      className={`${siteNavigationDrawerDialogClass} ${siteNavigationDrawerBleedClass} editor-main-drawer`}
+      className={`${siteNavigationDrawerDialogClass} ${siteNavigationDrawerBleedClass} mo-editor-main-drawer`}
       onClose={() => onOpenChange(false)}
       onCancel={(e) => {
         if (escaped.current) e.preventDefault();
@@ -3547,7 +3535,7 @@ function ModalMainDrawer({
     >
       <SiteNavigationDrawer
         variant="modal"
-        className="editor-main-drawer-panel pt-[env(safe-area-inset-top)]"
+        className="mo-editor-main-drawer-panel mo-editor-main-drawer-panel"
         onKeyDown={(e: KeyboardEvent<HTMLDivElement>) => {
           escaped.current = false;
           if (e.key === 'Escape' && onEscape?.()) {
@@ -3650,7 +3638,12 @@ export function MainDrawerSectionItem({
  * padding), so its arrow stands over the items' icons; it is as high as the account row (56px, a drawer item's height). */
 export function MainDrawerBack({ label, name, onClick }: { label: string; name?: string; onClick: () => void }) {
   return (
-    <SiteNavigationDrawerBack label={label} aria-label={name} onClick={onClick} className="navigation-drawer-item navigation-drawer-back" />
+    <SiteNavigationDrawerBack
+      label={label}
+      aria-label={name}
+      onClick={onClick}
+      className="mo-navigation-drawer__item mo-navigation-drawer__back"
+    />
   );
 }
 
@@ -3720,12 +3713,12 @@ export function MainDrawerLevel({ shown = true, focus, children }: { shown?: boo
     if (!shown || !focus || !root) return;
     const target =
       focus === 'list'
-        ? root.querySelector<HTMLElement>('.navigation-drawer-item:not(.navigation-drawer-back), .navigation-drawer-subitem')
-        : (root.querySelector<HTMLElement>('[data-active]') ?? root.querySelector<HTMLElement>('.navigation-drawer-item'));
+        ? root.querySelector<HTMLElement>('.mo-navigation-drawer__item:not(.mo-navigation-drawer__back), .mo-navigation-drawer__subitem')
+        : (root.querySelector<HTMLElement>('[data-active]') ?? root.querySelector<HTMLElement>('.mo-navigation-drawer__item'));
     target?.focus();
   }, [shown, focus]);
   return (
-    <div ref={el} hidden={!shown} className={shown ? 'contents' : undefined}>
+    <div ref={el} hidden={!shown} className={shown ? 'mo-contents' : undefined}>
       {children}
     </div>
   );
@@ -3782,7 +3775,7 @@ export function TabRow<T extends string>({ id, label, value, options, onChange }
           icon={<Glyph />}
           onClick={() => onChange(v)}
         >
-          <span className="truncate">{name}</span>
+          <span className="mo-truncate">{name}</span>
         </SiteTab>
       ))}
     </SiteTabs>
@@ -3797,7 +3790,7 @@ export function TabPanel({ id, value, className = '', children }: { id: string; 
       id={`${id}-panel`}
       aria-labelledby={`${id}-tab-${value}`}
       tabIndex={0}
-      className={`focus-visible:outline-none ${className}`}
+      className={`mo-editor-focus-quiet-visible ${className}`}
     >
       {children}
     </div>
@@ -3828,19 +3821,15 @@ export function FormColumns({
 }) {
   // On a wide computer screen (large) each of the right column's parts on the theme's outlined card.
   const carded = useAtLeast('large') && cards;
-  const right = `space-y-6 large:col-start-2 ${carded ? siteCardClass('outlined') : ''} ${sticky ? 'large:sticky large:top-8' : ''}`;
+  const right = `mo-editor-rhythm-300 mo-editor-screen-column ${carded ? siteCardClass('outlined') : ''} ${sticky ? 'mo-editor-screen-column-sticky' : ''}`;
   return (
-    <div
-      className={`flex flex-col gap-6 ${
-        pane ? '' : 'large:grid large:grid-cols-[minmax(0,1fr)_22rem] large:grid-rows-[auto_1fr] large:items-start large:gap-x-8'
-      }`}
-    >
-      {first && <div className={`${right} ${side ? 'large:row-start-1' : 'large:row-span-2 large:row-start-1'}`}>{first}</div>}
-      <div className="min-w-0 space-y-6 large:col-start-1 large:row-span-2 large:row-start-1">{main}</div>
-      {side && <div className={`${right} ${first ? 'large:row-start-2' : 'large:row-span-2 large:row-start-1'}`}>{side}</div>}
+    <div className={`mo-stack mo-editor-screen-layout ${pane ? '' : 'mo-editor-screen-grid'}`}>
+      {first && <div className={`${right} ${side ? 'mo-editor-screen-row-first' : 'mo-editor-screen-row-span'}`}>{first}</div>}
+      <div className="mo-editor-rhythm-300 mo-editor-screen-primary">{main}</div>
+      {side && <div className={`${right} ${first ? 'mo-editor-screen-row-second' : 'mo-editor-screen-row-span'}`}>{side}</div>}
       {pane && (
-        <div className="editor-section-pane hidden large:absolute large:inset-y-0 large:end-0 large:z-10 large:block large:w-(--mo-sys-section-pane-width) large:pe-(--mo-sys-section-pane-gap)">
-          <div className="large:sticky large:top-(--mo-sys-section-pane-gap) large:mt-(--mo-sys-section-pane-gap)">{pane}</div>
+        <div className="mo-editor-section-pane mo-editor-section-pane">
+          <div className="mo-editor-section-pane-inner">{pane}</div>
         </div>
       )}
     </div>
@@ -3862,14 +3851,7 @@ export function LeadingIcon({ icon: Glyph, selected = false, children }: { icon?
  * corners of a field, beside its row's first two lines, as an icon; the image a page's colours came from ("Colors" ›
  * "Pages"). `alt` empty when the row's text says what it is. */
 export function LeadingImage({ src, alt = '' }: { src: string; alt?: string }) {
-  return (
-    <img
-      src={safeImageSrc(src)}
-      alt={alt}
-      loading="lazy"
-      className="size-10 rounded-(--mo-sys-block-radius-small) bg-surface-container-high object-cover"
-    />
-  );
+  return <img src={safeImageSrc(src)} alt={alt} loading="lazy" className="mo-editor-token-image" />;
 }
 
 /** What a design token is, for the sample of it before its row ("Parts" › "Values", Tokens.tsx). */
@@ -3882,19 +3864,15 @@ export type TokenKind = 'shape' | 'elevation' | 'font' | 'color';
  * colour (color). Material 3 has none; the editor's own. */
 export function LeadingToken({ kind, value, weight }: { kind: TokenKind; value: string; weight?: string }) {
   return (
-    <span className="flex size-10 items-center justify-center" aria-hidden="true">
-      {kind === 'shape' && (
-        <span className="size-10 border-t-2 border-l-2 border-primary bg-surface-container-high" style={{ borderTopLeftRadius: value }} />
-      )}
-      {kind === 'elevation' && (
-        <span className="size-8 rounded-(--mo-sys-block-radius) bg-surface-container-lowest" style={{ boxShadow: value }} />
-      )}
+    <span className="mo-editor-token-sample" aria-hidden="true">
+      {kind === 'shape' && <span className="mo-editor-token-shape" style={{ borderTopLeftRadius: value }} />}
+      {kind === 'elevation' && <span className="mo-editor-token-elevation" style={{ boxShadow: value }} />}
       {kind === 'font' && (
-        <span className="text-2xl leading-none" style={{ fontFamily: value, fontWeight: weight }}>
+        <span className="mo-editor-token-font" style={{ fontFamily: value, fontWeight: weight }}>
           Aa
         </span>
       )}
-      {kind === 'color' && <span className="size-8 rounded-full border border-outline-variant" style={{ background: value }} />}
+      {kind === 'color' && <span className="mo-editor-token-color" style={{ background: value }} />}
     </span>
   );
 }
@@ -3913,7 +3891,7 @@ export function TopAppBar({ children }: { children: ReactNode }) {
     return () => removeEventListener('scroll', check);
   }, []);
   return (
-    <SiteAppBar className="pt-[env(safe-area-inset-top)]" data-stuck={stuck || undefined}>
+    <SiteAppBar className="mo-editor-app-bar-inset" data-stuck={stuck || undefined}>
       {children}
     </SiteAppBar>
   );
@@ -3924,7 +3902,7 @@ export function TopAppBar({ children }: { children: ReactNode }) {
 export function Dialog({ ref, className, children, ...rest }: DialogHTMLAttributes<HTMLDialogElement> & { ref?: Ref<HTMLDialogElement> }) {
   return (
     <dialog ref={ref} className={[siteDialogModalClass, className].filter(Boolean).join(' ')} {...rest}>
-      <SiteDialog className="p-6">{children}</SiteDialog>
+      <SiteDialog className="mo-editor-dialog-padding">{children}</SiteDialog>
     </dialog>
   );
 }
@@ -3933,7 +3911,7 @@ export function Dialog({ ref, className, children, ...rest }: DialogHTMLAttribut
  * it, on a <dialog> (`ref`; opened with showModal), with a SheetTitle and SheetBody, SheetList or SheetActions in it.
  * `full`: as high as the screen, and wider on a computer, with a whole page in it (the preview, PageFrame).
  * `panel`: the theme's modal side sheet (data-wide="side-sheet") at the window's end edge under the top bar, half the space
- * beside the start panel (.editor-side-panel in editor.css); the rest of the page stays in view, inert as under a dialog. */
+ * beside the start panel (.mo-editor-side-panel in editor.css); the rest of the page stays in view, inert as under a dialog. */
 export function BottomSheet({
   ref,
   full,
@@ -3962,7 +3940,7 @@ export function BottomSheet({
   return (
     <dialog
       ref={own}
-      className={[sheet, 'editor-sheet', '[@media(width<37.5rem)]:my-0', panel && 'editor-side-panel', className].filter(Boolean).join(' ')}
+      className={[sheet, 'mo-editor-sheet', 'mo-editor-sheet-phone', panel && 'mo-editor-side-panel', className].filter(Boolean).join(' ')}
       {...rest}
     >
       <div className={siteBottomSheetContainerClass()} data-wide={panel ? 'side-sheet' : undefined}>
@@ -4020,17 +3998,13 @@ export function PageFrame({ html, width, title, part }: { html: string; width: n
   };
   const height = part ? (cut ? cut.top + cut.height : width) : size.height / scale;
   return (
-    <div
-      ref={box}
-      className="relative min-h-0 flex-1 overflow-hidden border-t border-outline-variant bg-outline-variant/40"
-      style={part ? { height: (cut?.height ?? 0) * scale } : undefined}
-    >
+    <div ref={box} className="mo-editor-block-preview-frame" style={part ? { height: (cut?.height ?? 0) * scale } : undefined}>
       {size.width > 0 && (
         <iframe
           title={title}
           srcDoc={html}
           sandbox="allow-same-origin"
-          className="absolute top-0 left-1/2 origin-top border-0 bg-white"
+          className="mo-editor-block-preview-iframe"
           style={{ width, height, top: -(cut?.top ?? 0) * scale, transform: `translateX(-50%) scale(${scale})` }}
           onLoad={part ? (e) => measure(e.currentTarget) : undefined}
         />
@@ -4164,7 +4138,7 @@ export function SheetTitle({ title, onClose }: { title: string; onClose: () => v
       onPointerMove={move}
       onPointerUp={up}
       onPointerCancel={up}
-      className="shrink-0 touch-none select-none medium:touch-auto medium:select-auto"
+      className="mo-keep mo-editor-sheet-handle"
     >
       <SiteBottomSheetHeader
         headline={title}
@@ -4207,7 +4181,7 @@ function ChoiceSheet<T extends string>({
   return (
     <BottomSheet ref={dialog} aria-label={title} onClick={(e) => e.target === dialog.current && close()} onClose={() => setQuery('')}>
       <SheetTitle title={title} onClose={close} />
-      {search && <SearchBar value={query} onChange={setQuery} label={search} className="mx-5 mb-2 shrink-0" />}
+      {search && <SearchBar value={query} onChange={setQuery} label={search} className="mo-keep mo-editor-sheet-search" />}
       <SheetList>
         {!shown.length && <EmptyNote item>{t.common.noMatch}</EmptyNote>}
         {shown.map((o, i) => (
@@ -4226,9 +4200,9 @@ function ChoiceSheet<T extends string>({
               }}
             >
               {o.detail ? (
-                <span className="flex gap-3">
-                  <span className="min-w-0 flex-1">{o.label}</span>
-                  <span className="shrink-0 text-on-surface-variant tabular-nums">{o.detail}</span>
+                <span className="mo-editor-choice-detail">
+                  <span className="mo-fill">{o.label}</span>
+                  <span className="mo-keep mo-editor-choice-detail-value">{o.detail}</span>
                 </span>
               ) : (
                 o.label
@@ -4328,7 +4302,7 @@ export function Filters({
       <BottomSheet
         ref={dialog}
         tabIndex={-1}
-        className="focus:outline-none"
+        className="mo-editor-focus-quiet"
         aria-label={title}
         onClick={(e) => e.target === dialog.current && close()}
         onClose={(e) => {
@@ -4357,7 +4331,7 @@ export function Filters({
                   </ul>
                 )}
                 {unfolded && (
-                  <ul className={lone ? '' : 'pl-3'}>
+                  <ul className={lone ? '' : 'mo-editor-choice-sublist'}>
                     {g.options.map((o, i) => (
                       <Fragment key={o.value}>
                         {o.group && o.group !== g.options[i - 1]?.group && (
@@ -4377,9 +4351,9 @@ export function Filters({
           })}
         </SheetList>
         {clearAll && onClearAll && (
-          <div className="shrink-0">
+          <div className="mo-keep">
             <SiteDivider />
-            <div className="flex items-center justify-end gap-2 px-5 py-3">
+            <div className="mo-row mo-row-end mo-editor-sheet-footer">
               <Button kind="text" disabled={!selected} onClick={onClearAll}>
                 {clearAll}
               </Button>
@@ -4405,8 +4379,8 @@ export function PhoneField({ code, onCode, children }: { code: string; onCode: (
   );
   const name = region ? countryName(region) : code;
   return (
-    <div className="flex gap-2">
-      <div className="shrink-0">
+    <div className="mo-editor-phone-row">
+      <div className="mo-keep">
         <ChoiceField
           aria-haspopup="dialog"
           aria-label={t.common.phoneCode.label(name, code)}
@@ -4417,10 +4391,10 @@ export function PhoneField({ code, onCode, children }: { code: string; onCode: (
           }}
         >
           {region && <span aria-hidden="true">{flagOf(region)}</span>}
-          <span className="tabular-nums">{code}</span>
+          <span className="mo-editor-phone-code">{code}</span>
         </ChoiceField>
       </div>
-      <div className="min-w-0 flex-1">{children}</div>
+      <div className="mo-fill">{children}</div>
       <ChoiceSheet
         dialog={dialog}
         title={t.common.phoneCode.title}
@@ -4478,7 +4452,7 @@ function ChoiceMenu<T extends string>({
           toggle(e.currentTarget, true);
         }}
       >
-        <span lang={chosen?.lang} className={`min-w-0 flex-1 truncate ${chosen ? '' : 'opacity-60'}`}>
+        <span lang={chosen?.lang} className={`mo-fill mo-truncate ${chosen ? '' : 'mo-editor-placeholder-value'}`}>
           {chosen ? chosen.label : empty}
         </span>
       </ChoiceField>
@@ -4526,7 +4500,7 @@ export function Select<T extends string>({
   if (href)
     return (
       <ChoiceField id={id} href={href} arrow={CaretRight} {...field}>
-        <span lang={chosen?.lang} className={`min-w-0 flex-1 truncate ${chosen ? '' : 'opacity-60'}`}>
+        <span lang={chosen?.lang} className={`mo-fill mo-truncate ${chosen ? '' : 'mo-editor-placeholder-value'}`}>
           {chosen ? chosen.label : empty}
         </span>
       </ChoiceField>
@@ -4542,7 +4516,7 @@ export function Select<T extends string>({
           dialog.current?.querySelector('[aria-pressed="true"]')?.scrollIntoView({ block: 'center' });
         }}
       >
-        <span lang={chosen?.lang} className={`min-w-0 flex-1 truncate ${chosen ? '' : 'opacity-60'}`}>
+        <span lang={chosen?.lang} className={`mo-fill mo-truncate ${chosen ? '' : 'mo-editor-placeholder-value'}`}>
           {chosen ? chosen.label : empty}
         </span>
       </ChoiceField>
@@ -4576,7 +4550,7 @@ export function PickListItem({
       aria-haspopup="dialog"
       headline={title}
       trailing={
-        <span lang={lang} className="min-w-0 truncate text-on-surface-variant">
+        <span lang={lang} className="mo-truncate mo-editor-trailing-text">
           {chosen}
         </span>
       }
@@ -4663,7 +4637,7 @@ const fabProps = ({ href, onClick, busy, disabled }: FabAction) => ({
   ...(href === undefined ? { disabled: disabled || busy, 'aria-busy': busy || undefined } : {}),
 });
 
-/** The screen's main actions at the bottom right (.editor-fab, editor.css): the theme's FAB menu, opened and closed as
+/** The screen's main actions at the bottom right (.mo-editor-fab, editor.css): the theme's FAB menu, opened and closed as
  * on the site (setUpFabMenu), or with one action that action as a FAB (its icon, its name as its tooltip and read by screen readers; a link, or a button); nothing without any. Drawn in a portal
  * on <body>, since the screen's entrance animation (a transform) would make its <main> the containing block of a fixed FAB. */
 export function FabMenu({ icon: Glyph, label, items }: { icon: Icon; label: string; items: FabAction[] }) {
@@ -4676,7 +4650,7 @@ export function FabMenu({ icon: Glyph, label, items }: { icon: Icon; label: stri
   }, [menu]);
   if (items.length === 0) return null;
   return createPortal(
-    <div ref={ref} className="editor-fab">
+    <div ref={ref} className="mo-editor-fab">
       {menu ? (
         <SiteFabMenu
           icon={<Glyph />}

@@ -1,6 +1,6 @@
 {
   "name": "@morphemecms/cms",
-  "version": "0.18.1",
+  "version": "0.19.0",
   "description": "Morpheme CMS: the editor for a site built with Astro, its screens, its blocks and the rules a site gives it. See README.md.",
   "license": "MIT",
   "author": "Lars Adolfsen",
@@ -50,7 +50,7 @@
   "scripts": {
     "build": "node scripts/demo-build.mjs",
     "check": "npm run format:check && npm run check:source && npm run build && npm run check:built",
-    "check:source": "npm run check:language && npm run check:phosphor && npm run check:css-tokens && npm run check:token-names && npm run check:token-registry && npm run check:web && npm run check:editor-colors && npm run check:colors && npm run check:css-values && npm run check:density && npm run check:release-notes && npm test && npm run check:types",
+    "check:source": "npm run check:language && npm run check:phosphor && npm run check:css-tokens && npm run check:mo-names && npm run check:token-names && npm run check:token-registry && npm run check:web && npm run check:editor-colors && npm run check:tailwind && npm run check:colors && npm run check:css-values && npm run check:density && npm run check:release-notes && npm test && npm run check:types",
     "check:built": "npm run check:site-types && npm run check:editor",
     "check:site-types": "node scripts/check-site-types.mjs",
     "check:types": "tsc -p tsconfig.types.json --noEmit --incremental --tsBuildInfoFile .morpheme/tsc/types.tsbuildinfo",
@@ -72,8 +72,11 @@
     "check:token-names": "node scripts/check-token-names.mjs",
     "check:token-registry": "node scripts/gen-token-registry.mjs --check",
     "check:css-tokens": "node scripts/check-css-tokens.mjs",
+    "check:mo-names": "node scripts/check-mo-names.mjs",
     "check:web": "node scripts/check-web.mjs",
     "check:editor-colors": "node scripts/check-editor-colors.mjs",
+    "check:tailwind": "node scripts/check-tailwind.mjs",
+    "compare:styles": "node scripts/compare-styles.mjs",
     "check:css-values": "node scripts/check-css-values.mjs",
     "check:density": "node scripts/check-density.mjs",
     "check:colors": "node scripts/check-colors.mjs",
@@ -94,8 +97,6 @@
     "@milkdown/kit": "^7.23.0",
     "@phosphor-icons/core": "^2.1.1",
     "@phosphor-icons/react": "^2.1.10",
-    "@tailwindcss/typography": "^0.5.20",
-    "@tailwindcss/vite": "^4.3.5",
     "astro": "^7.4.8",
     "esbuild": "^0.28.2",
     "github-slugger": "^2.0.0",
@@ -114,7 +115,6 @@
     "remark-rehype": "^11.1.2",
     "remark-smartypants": "^3.0.3",
     "sharp": "^0.35.5",
-    "tailwindcss": "^4.3.5",
     "unified": "^11.0.5",
     "vite": "^8.3.7",
     "wrangler": "^4.160.0",
@@ -153,8 +153,6 @@
     "@milkdown/kit": "^7.23.0",
     "@phosphor-icons/core": "^2.1.1",
     "@phosphor-icons/react": "^2.1.10",
-    "@tailwindcss/typography": "^0.5.20",
-    "@tailwindcss/vite": "^4.3.5",
     "astro": "^7.4.8",
     "esbuild": "^0.28.2",
     "github-slugger": "^2.0.0",
@@ -166,7 +164,6 @@
     "postcss-selector-parser": "^6.1.5 || ^7.1.0",
     "prettier": "^3.9.10",
     "prettier-plugin-astro": "^1.1.2",
-    "prettier-plugin-tailwindcss": "^0.8.1",
     "quickjs-emscripten": "^0.32.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
@@ -177,16 +174,10 @@
     "remark-rehype": "^11.1.2",
     "remark-smartypants": "^3.0.3",
     "sharp": "^0.35.5",
-    "tailwindcss": "^4.3.5",
     "typescript": "^7.0.2",
     "unified": "^11.0.5",
     "vite": "^8.3.7",
     "wrangler": "^4.160.0",
     "yaml": "^2.9.1"
-  },
-  "overrides": {
-    "@tailwindcss/typography": {
-      "postcss-selector-parser": "^7.2.0"
-    }
   }
 }

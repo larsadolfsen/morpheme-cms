@@ -3,10 +3,10 @@
 import { cutMoreRows, showMoreRows } from './more';
 
 export default function lists() {
-  document.querySelectorAll<HTMLElement>('.block-more[data-max]').forEach(cutMoreRows);
+  document.querySelectorAll<HTMLElement>('.mo-block-more[data-max]').forEach(cutMoreRows);
   document.addEventListener('click', (e) => {
-    const button = (e.target as Element | null)?.closest<HTMLElement>('.block-more-button [aria-controls]');
-    const root = button?.closest<HTMLElement>('.block-more');
+    const button = (e.target as Element | null)?.closest<HTMLElement>('.mo-block-more__button [aria-controls]');
+    const root = button?.closest<HTMLElement>('.mo-block-more');
     if (root) showMoreRows(root);
   });
 }

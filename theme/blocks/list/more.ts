@@ -8,7 +8,7 @@ const calm = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /** Cuts the list after its first rows again (the button shows, aria-expanded false). */
 export function cutMoreRows(root: HTMLElement) {
-  const button = root.querySelector<HTMLElement>('.block-more-button button, .block-more-button [aria-controls]');
+  const button = root.querySelector<HTMLElement>('.mo-block-more__button button, .mo-block-more__button [aria-controls]');
   root.setAttribute('data-cut', '');
   button?.setAttribute('aria-expanded', 'false');
 }
@@ -18,7 +18,7 @@ export function showMoreRows(root: HTMLElement) {
   if (!root.hasAttribute('data-cut')) return;
   root.removeAttribute('data-cut');
   const extra = [...root.querySelectorAll<HTMLElement>('[data-extra]')];
-  root.querySelector<HTMLElement>('.block-more-button [aria-controls]')?.setAttribute('aria-expanded', 'true');
+  root.querySelector<HTMLElement>('.mo-block-more__button [aria-controls]')?.setAttribute('aria-expanded', 'true');
   const first = extra[0];
   first?.querySelector<HTMLElement>('summary, a, button')?.focus({ preventScroll: false });
   if (!calm())

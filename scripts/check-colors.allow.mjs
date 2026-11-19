@@ -2,6 +2,22 @@
 // a new entry is reviewed. `todo` entries are a cause group that has its own fix pull request; the fix removes them.
 const any = /./;
 export const allow = [
+  // A hook a theme sets: the pressed shape of a button (Material 3's "Pressed shape"). Nothing sets it, and a read without a fallback is then
+  // invalid at computed-value time, which is how the pressed shape stays off (a hook was read as --mo-comp-button-pressed-radius, unseen by this check).
+  {
+    kind: 'undefined-role',
+    file: /^theme\/styles\/tokens\/ui\/comp\/(button|icon-button)\.css$/,
+    line: /--mo-comp-button-pressed-radius/,
+    reason: 'a hook for a theme to set; unset on purpose, so the pressed shape is not drawn (M3 pressed shape)',
+  },
+  // The text style's keys and code blocks: the typography plugin's own greys, kept as they were (batch T13); a later, visible change moves them to roles.
+  {
+    kind: 'fixed-colour',
+    file: /^theme\/styles\/tokens\/base\/comp\/prose\.css$/,
+    line: /--mo-comp-prose-(kbd|kbd-shadows|pre-code|pre-bg):/,
+    reason:
+      "the plugin's fixed greys for keys and code blocks, the same in light and dark; the move to roles is a later, visible change (plan T13)",
+  },
   // The editor's own look of other products.
   {
     kind: 'fixed-colour',
@@ -22,16 +38,29 @@ export const allow = [
     line: /linear-gradient|hsl\(\$\{|useState\('#|swatches=|contrast\(|swatchEdge|border-\[rgb\(128/,
     reason: "the colour picker's own gradients, swatches and the text colour on a swatch the owner picked",
   },
+  // src/ui.tsx's parts, written as rules in src/editor-ui.css (batch T05); the same colours the classes had.
   {
-    kind: 'palette-class',
-    file: /^src\/ui\.tsx$/,
-    line: /border-white|swatchEdge/,
-    reason: "the colour picker's thumb is white over any colour",
+    kind: 'fixed-colour',
+    file: /^src\/editor-ui\.css$/,
+    line: /border: 1px solid rgb\(128 128 128/,
+    reason: "a swatch's edge is grey, so a light and a dark colour both show on a light and a dark sheet",
   },
   {
-    kind: 'palette-class',
-    file: /^src\/(ui|PreviewScreen)\.tsx$/,
-    line: /bg-white/,
+    kind: 'fixed-colour',
+    file: /^src\/editor-ui\.css$/,
+    line: /border: 3px solid #fff|0 0 0 2px #fff|rgb\(0 0 0 \/ 0\.3\)/,
+    reason: "the colour picker's thumb is white with a dark shadow over any colour; a focus ring keeps its light gap (the old ring offset)",
+  },
+  {
+    kind: 'fixed-colour',
+    file: /^src\/editor-ui\.css$/,
+    line: /background-color: #fff/,
+    reason: "the Preview's frame: a page is shown on paper, whatever the editor's colours",
+  },
+  {
+    kind: 'fixed-colour',
+    file: /^src\/editor-screens\.css$/,
+    line: /background-color: #fff/,
     reason: "the Preview's frame: a page is shown on paper, whatever the editor's colours",
   },
   {
@@ -56,7 +85,7 @@ export const allow = [
   {
     kind: 'fixed-colour',
     file: /^theme\/styles\/blocks(\/[a-z-]+)?\.css$/,
-    line: /video-facade|^\s*(background: #000|color: #fff|background: linear-gradient\(to bottom, rgb|filter: drop-shadow|text-shadow)/,
+    line: /mo-block-video__facade|^\s*(background: #000|color: #fff|background: linear-gradient\(to bottom, rgb|filter: drop-shadow|text-shadow)/,
     reason: 'the video still: white title and play button over a black shade on an image, whatever the theme',
   },
   // Words, not colours.

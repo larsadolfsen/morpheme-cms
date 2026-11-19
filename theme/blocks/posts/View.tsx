@@ -17,19 +17,19 @@ export default function Posts({ view }: { view: PostsView }) {
     <>
       <BlockHead view={view} />
       <div
-        className={[useInText() || 'block-in-text', 'block-posts-in-text', view.design !== 'featured' && 'block-posts-rows']
+        className={[useInText() || 'mo-is-in-text', 'mo-block-posts__in-text', view.design !== 'featured' && 'mo-block-posts__rows']
           .filter(Boolean)
           .join(' ')}
         data-columns={view.oneColumn ? 'one' : undefined}
       >
-        {view.note && <p className="block-posts-note">{view.note}</p>}
+        {view.note && <p className="mo-block-posts__note">{view.note}</p>}
         {view.design === 'featured' ? (
           <BlogPosts posts={posts} />
         ) : (
           <PostList posts={posts} count={view.count} random={view.random} columns={1} />
         )}
-        {view.more && <p className="block-posts-note block-posts-more">{view.more}</p>}
-        {view.all && <ArrowLink href={view.all.href} label={view.all.text} className="block-posts-all" />}
+        {view.more && <p className="mo-block-posts__note mo-block-posts__more">{view.more}</p>}
+        {view.all && <ArrowLink href={view.all.href} label={view.all.text} className="mo-block-posts__all" />}
       </div>
     </>
   );

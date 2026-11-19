@@ -1,4 +1,4 @@
-// A top app bar (m3.material.io/components/app-bars, which Material now calls the app bar; .top-app-bar in
+// A top app bar (m3.material.io/components/app-bars, which Material now calls the app bar; .mo-top-app-bar in
 // ../styles/ui/top-app-bar.css): the bar at the top of a page. Without a `kind` it is only the container, and what is in it is the
 // header's own (components/Header.astro, and a theme's own header: the logo, the menu and its button). With a kind it
 // has Material's elements, each in its place: the leading button (`leading`, an icon button: the menu, back), the
@@ -20,11 +20,11 @@ export type TopAppBarAlign = 'start' | 'center';
 export const topAppBarKinds: TopAppBarKind[] = ['search', 'small', 'medium-flexible', 'large-flexible'];
 
 /** A top app bar's class: the container's. */
-export const topAppBarClass = 'top-app-bar';
+export const topAppBarClass = 'mo-top-app-bar';
 
 /** A top app bar's classes with its kind and its alignment (without a kind only the container's). */
 export const topAppBarClasses = (kind?: TopAppBarKind, align: TopAppBarAlign = 'start') =>
-  [topAppBarClass, kind && `top-app-bar-${kind}`, kind && align === 'center' && 'top-app-bar-center'].filter(Boolean).join(' ');
+  [topAppBarClass, kind && `mo-top-app-bar__${kind}`, kind && align === 'center' && 'mo-top-app-bar__center'].filter(Boolean).join(' ');
 
 export default function TopAppBar({
   kind,
@@ -60,17 +60,17 @@ export default function TopAppBar({
       data-collapsed={(flexible && collapsed) || undefined}
       {...rest}
     >
-      {kind && leading && <div className="top-app-bar-leading">{leading}</div>}
+      {kind && leading && <div className="mo-top-app-bar__leading">{leading}</div>}
       {kind === 'search'
-        ? search && <div className="top-app-bar-search-bar">{search}</div>
+        ? search && <div className="mo-top-app-bar__search-bar">{search}</div>
         : kind &&
           headline !== undefined && (
-            <div className="top-app-bar-headline-group">
-              <Heading className="top-app-bar-headline">{headline}</Heading>
-              {subtitle && <p className="top-app-bar-subtitle">{subtitle}</p>}
+            <div className="mo-top-app-bar__headline-group">
+              <Heading className="mo-top-app-bar__headline">{headline}</Heading>
+              {subtitle && <p className="mo-top-app-bar__subtitle">{subtitle}</p>}
             </div>
           )}
-      {kind && trailing && <div className="top-app-bar-trailing">{trailing}</div>}
+      {kind && trailing && <div className="mo-top-app-bar__trailing">{trailing}</div>}
       {children}
     </header>
   );

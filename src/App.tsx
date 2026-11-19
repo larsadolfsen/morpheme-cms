@@ -765,9 +765,9 @@ function Editor() {
   // icon and the name alone).
   if (signedIn === false || (signedIn === null && !files)) {
     return (
-      <main className="mx-auto flex min-h-dvh max-w-sm flex-col items-center justify-center gap-5 px-6 pb-[env(safe-area-inset-bottom)] text-center">
-        <img src="/editor/icon-192.png" alt="" className="size-20 rounded-[1.375rem] shadow-soft" />
-        <h1 className="text-2xl font-semibold">{siteName}</h1>
+      <main className="mo-editor-signin">
+        <img src="/editor/icon-192.png" alt="" className="mo-editor-signin-icon" />
+        <h1 className="mo-editor-signin-title">{siteName}</h1>
         {signedIn === null && !error ? <EmptyNote busy>{t.app.loading}</EmptyNote> : <Button onClick={login}>{t.app.logIn}</Button>}
         {error && <ProblemNote>{error}</ProblemNote>}
       </main>
@@ -778,18 +778,10 @@ function Editor() {
     <>
       <TopBarLayout
         aside={<MainMenu route={route} files={files} user={user} />}
-        above={
-          files &&
-          user &&
-          !user.canSave && (
-            <p className="bg-primary px-4 py-3 pt-[calc(0.75rem+env(safe-area-inset-top))] text-center text-sm text-on-primary">
-              {t.app.cannotSave(user.login)}
-            </p>
-          )
-        }
+        above={files && user && !user.canSave && <p className="mo-editor-read-only-bar">{t.app.cannotSave(user.login)}</p>}
       >
         <>
-          <div className="editor-content relative flex min-w-0 flex-1 flex-col">
+          <div className="mo-editor-content mo-fill mo-editor-content-frame">
             {files ? (
               <Page key={visit} route={route} files={files} env={env} user={user} builtAt={builtAt} onLogout={signOut} />
             ) : (

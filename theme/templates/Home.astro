@@ -67,29 +67,29 @@ sections.forEach((s, i) => {
   shareDescription={page.data.shareDescription}
 >
   {!panel && (
-    <Container class="pt-8 medium:pt-16">
-      <h1 class="theme-title max-w-[22ch]">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
+    <Container class="mo-home__top">
+      <h1 class="mo-page-title mo-home__title">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
     </Container>
   )}
   {shown.map(({ section: s, label }, i) => {
-    const first = i === 0 ? 'theme-home-first' : undefined;
+    const first = i === 0 ? 'mo-home__first' : undefined;
     if (s.type === 'top')
       return (
-        <Container class={s.settings.color ? '[&>.text-section]:mt-0' : 'pt-8 medium:pt-16'}>
+        <Container class={s.settings.color ? 'mo-flush-top' : 'mo-home__top'}>
           <section
             class={s.settings.color || s.settings.width ? sectionClass(s.settings.color, s.settings) : undefined}
             data-editor="h1-section"
           >
-            <h1 class="theme-title max-w-[22ch]">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
+            <h1 class="mo-page-title mo-home__title">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
             {s.items.map((item, n) =>
               item.block ? (
                 !item.block.props.hidden && (
-                  <div class="block-place mt-6">
+                  <div class="mo-placed-block mo-home__item">
                     <Block type={item.block.type} props={item.block.props} texts={blockTexts[item.block.type]} />
                   </div>
                 )
               ) : (
-                <Markdown body={item.markdown} class={n === 0 ? 'mt-6 [&>p:first-child]:mo-type-lead' : 'mt-6'} />
+                <Markdown body={item.markdown} class={n === 0 ? 'mo-home__item mo-text-lead' : 'mo-home__item'} />
               ),
             )}
           </section>

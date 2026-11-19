@@ -78,18 +78,18 @@ export function PreviewScreen({ html, message, title }: { html: string | null; m
         onPointerMove={(e) => move(e, edge)}
         onPointerUp={() => (drag.current = null)}
         onPointerCancel={() => (drag.current = null)}
-        className="group flex shrink-0 cursor-ew-resize touch-none items-center justify-center outline-none"
+        className="mo-editor-preview-handle"
         style={{ width: grip, height: height * scale }}
       >
-        <span className="h-12 w-1 rounded-full bg-outline group-hover:bg-primary group-focus-visible:bg-primary" />
+        <span className="mo-editor-preview-handle-grip" />
       </div>
     );
 
   return (
     <>
-      <div className="flex shrink-0 flex-wrap items-center gap-x-2 border-b border-outline-variant py-2 ps-4 pe-4 min-[600px]:flex-nowrap">
-        <div className="order-last min-w-0 basis-full overflow-x-auto pe-2 pb-1 min-[600px]:order-none min-[600px]:flex-1 min-[600px]:basis-0 min-[600px]:pb-0">
-          <div className="w-max">
+      <div className="mo-editor-preview-bar">
+        <div className="mo-editor-preview-sizes">
+          <div className="mo-editor-preview-sizes-inner">
             <SegmentedButton
               label={t.preview.size}
               value={size}
@@ -98,14 +98,14 @@ export function PreviewScreen({ html, message, title }: { html: string | null; m
             />
           </div>
         </div>
-        <p className="ms-auto shrink-0 text-on-surface-variant min-[600px]:ms-0" aria-live="polite" data-preview-width>
-          <span className="text-title-medium text-on-surface tabular-nums">{width}</span> · {t.preview.sizes[size]}
+        <p className="mo-editor-preview-width" aria-live="polite" data-preview-width>
+          <span className="mo-type-title-medium mo-editor-preview-width-value">{width}</span> · {t.preview.sizes[size]}
         </p>
       </div>
       {/* The frame is drawn over the place (absolute), so its height never makes the page taller than the window. */}
-      <div className="relative min-h-0 flex-1 bg-outline-variant/40">
-        <div ref={stage} className="absolute inset-0 flex items-start justify-center overflow-hidden">
-          {!html && <p className="p-5 text-on-surface-variant">{message}</p>}
+      <div className="mo-editor-preview-place">
+        <div ref={stage} className="mo-editor-preview-stage">
+          {!html && <p className="mo-editor-preview-message">{message}</p>}
           {html && room.width > 0 && (
             <>
               {handle(-1)}
@@ -113,7 +113,7 @@ export function PreviewScreen({ html, message, title }: { html: string | null; m
                 title={title}
                 srcDoc={html}
                 sandbox="allow-same-origin"
-                className="shrink-0 origin-top-left border-0 bg-white"
+                className="mo-editor-preview-frame"
                 style={{
                   width,
                   height,

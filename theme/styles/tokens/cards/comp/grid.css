@@ -1,20 +1,20 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  .image-grid {
+  .mo-staggered-grid {
     --mo-comp-grid-columns: 2;
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
-    .image-grid {
+  @media (width >= 37.5rem) {
+    .mo-staggered-grid {
       --mo-comp-grid-columns: 3;
     }
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-large)) {
-    .image-grid {
+  @media (width >= 75rem) {
+    .mo-staggered-grid {
       --mo-comp-grid-columns: 4;
     }
   }

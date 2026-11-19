@@ -111,7 +111,7 @@ export default function NewListDialog({ files, open, onClose }: { files: RepoFil
 
   return (
     <>
-      <Dialog ref={dialog} tabIndex={-1} aria-label={t.ownList.new} onClose={onClose} className="focus:outline-none">
+      <Dialog ref={dialog} tabIndex={-1} aria-label={t.ownList.new} onClose={onClose} className="mo-editor-quiet-focus">
         {!inPane && (
           <form
             method="dialog"
@@ -120,9 +120,9 @@ export default function NewListDialog({ files, open, onClose }: { files: RepoFil
               create();
             }}
           >
-            <h2 className="mb-4 text-body-large font-medium">{t.ownList.new}</h2>
+            <h2 className="mo-type-body-large mo-editor-dialog-title">{t.ownList.new}</h2>
             {nameField}
-            <div className="mt-6 flex justify-end gap-2">
+            <div className="mo-editor-dialog-actions">
               <Button kind="outlined" type="button" onClick={() => void closeIt()}>
                 {t.common.cancel}
               </Button>

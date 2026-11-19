@@ -1,11 +1,11 @@
 ---
 // A page's text, with the site's blocks put in it in the editor (packages/editor/lib/blocks.mjs) shown
 // as the real components: each block drawn from its view, the standard blocks' and the apps' (blockSites in
-// packages/editor/src/standard/sites.ts; the folder's name is its type). The text keeps the page's "prose" style; the blocks are outside it (not-prose; the video
+// packages/editor/src/standard/sites.ts; the folder's name is its type). The text keeps the page's "mo-prose" style; the blocks are outside it (mo-is-not-prose; the video
 // is in it, as a video written in the text, packages/editor/lib/video.mjs); a block hidden in the editor is left
 // out (splitBlocks). The HTML comes as `html`, or as the default slot (rendered Markdown). `path`: the
 // page's address, for the testimonials' label. `preview`: a new version of a page (/new/), whose topics
-// show the opening of the new versions too. A section with a colour, an image or the whole width is drawn as <section class="text-section text-section-<color>"> around its parts (lib/text-sections.mjs). Each block gets its type, and its shared texts as `texts` (blockTexts).
+// show the opening of the new versions too. A section with a colour, an image or the whole width is drawn as <section class="mo-text-section mo-is-<color>"> around its parts (lib/text-sections.mjs). Each block gets its type, and its shared texts as `texts` (blockTexts).
 import { splitBlocks } from '@morphemecms/cms/lib/blocks.mjs';
 import { sectionClass, sectionsOf } from '@morphemecms/cms/lib/text-sections.mjs';
 import Img from '@theme/components/Img.astro';
@@ -40,7 +40,12 @@ const runs = sectionsOf(html).map((run) => ({
   return (
     <Run {...(boxed ? { class: sectionClass(run.color, run) } : {})}>
       {run.image && (
-        <Img src={run.image} alt={run.alt ?? ''} sizes={run.width === 'full' ? '100vw' : 'min(72rem, 100vw)'} class="text-section-image" />
+        <Img
+          src={run.image}
+          alt={run.alt ?? ''}
+          sizes={run.width === 'full' ? '100vw' : 'min(72rem, 100vw)'}
+          class="mo-text-section__image"
+        />
       )}
       {run.parts.map((p) => {
         if (p.html !== undefined) return <Fragment set:html={p.html} />;

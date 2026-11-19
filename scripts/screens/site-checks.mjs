@@ -71,7 +71,7 @@ async function checkHints() {
       await page.keyboard.press('Enter');
       await page.keyboard.type('Some more text.');
       await page.keyboard.press('Enter');
-      const colors = await hintContrasts(page, '.ProseMirror > p.editor-gap-here', '::before');
+      const colors = await hintContrasts(page, '.ProseMirror > p.mo-editor-gap-here', '::before');
       const got = await page.evaluate(() => {
         const [h1, text, gap] = [...document.querySelector('.ProseMirror').children];
         const left = (n) => n.getBoundingClientRect().left + parseFloat(getComputedStyle(n).paddingLeft);

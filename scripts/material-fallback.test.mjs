@@ -51,6 +51,9 @@ test('base.css orders the layers with fallback last', () => {
 test('the CSS chain has no !important', () => {
   for (const name of names) {
     roots[name].walkDecls((decl) => {
+      // The one exception, with its reason: the reset's [hidden] rule keeps an element with the hidden attribute hidden whatever display a rule in a later
+      // layer gives it (Tailwind's preflight had it, and a site's own rules would otherwise show what the author hid).
+      if (name === 'reset' && decl.parent.selector?.startsWith('[hidden]')) return;
       assert.ok(!decl.important, `${name}.css line ${decl.source.start.line}: "${decl.prop}" is !important`);
     });
   }

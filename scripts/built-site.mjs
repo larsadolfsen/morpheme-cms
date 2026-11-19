@@ -175,10 +175,10 @@ export const ASSISTANTS = {
 /** Opens the page form's Preview (pagePreview.tsx) from the text's one bar (MarkdownEditor.tsx): its button, or its row in the bar's `⋮`
  * when the contextual tools fill the bar (docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md, 3.3). Waits for the bar. */
 export async function clickPreview(page) {
-  await page.waitForSelector('.editor-tools button[aria-label="Undo"]', { timeout: 30_000 });
-  const button = page.locator('.editor-tools button[aria-label="Preview"]:visible');
+  await page.waitForSelector('.mo-editor-tools button[aria-label="Undo"]', { timeout: 30_000 });
+  const button = page.locator('.mo-editor-tools button[aria-label="Preview"]:visible');
   if (await button.count()) return button.first().click();
-  await page.locator('.editor-tools button[aria-label="More"]').first().click();
+  await page.locator('.mo-editor-tools button[aria-label="More"]').first().click();
   await page
     .locator('[role=menu][aria-label="More"] [role^=menuitem]', { hasText: /^Preview$/ })
     .first()

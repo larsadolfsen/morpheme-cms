@@ -2,8 +2,8 @@
 
 @layer components {
   @media (width < 37.5rem) {
-    .block-list:not(.list-segmented),
-    .block-accordion:not(.block-accordion-segmented) {
+    .mo-block-list:not(.mo-list__segmented),
+    .mo-block-accordion:not(.mo-block-accordion__segmented) {
       --mo-sys-block-list-layer-room: 1rem;
     }
   }

@@ -11,14 +11,19 @@ export default function Inline({ items, active, focus, onChange }: InlineViewPro
       fields={['title', 'text']}
       add="Add ticket"
       onChange={onChange}
-      wrap={(rows) => <ul className="block-list inline-list">{rows}</ul>}
+      wrap={(rows) => <ul className="mo-block-list mo-editor-inline-list">{rows}</ul>}
       renderItem={({ index: i, here, next, field }) => (
         <li
           key={i}
           data-row={i}
           aria-current={here ? 'true' : undefined}
           aria-label={next ? 'New ticket' : `Ticket ${i + 1} of ${items.length}`}
-          className={['block-tickets-row', 'inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next']
+          className={[
+            'mo-block-tickets__row',
+            'mo-editor-inline-list-row',
+            here && 'mo-editor-inline-list-row-active',
+            next && 'mo-editor-inline-list-row-next',
+          ]
             .filter(Boolean)
             .join(' ')}
         >

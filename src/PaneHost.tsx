@@ -1,6 +1,6 @@
 // The editor's one pane: the theme's standard side sheet (SiteSideSheet, kind 'standard') beside the page from medium (600 dp), where what
 // is shown is fed in (owner, 15 Nov 2026: settings are a pane, not a dialog; docs/superpowers/specs/2026-11-15-section-settings-pane.md).
-// This is editor state only: the markup and the look are the theme's side sheet and `.editor-side-sheet` (editor.css), as BlockDialog's own
+// This is editor state only: the markup and the look are the theme's side sheet and `.mo-editor-side-sheet` (editor.css), as BlockDialog's own
 // slot had them. <PaneHost /> in App.tsx is the place (an empty slot). A screen feeds its content with usePane(entry) on each render (entry
 // null: nothing) and puts the returned `portal` in what it renders: the content is drawn into the slot with a portal, so it stays in the screen's own React
 // context (the form's fields, for one). The pane fed last is shown (one opened from inside another is on top of it; when it goes, the first
@@ -116,14 +116,14 @@ function Pane({ id, entry, top, nested }: { id: string; entry: PaneEntry; top: b
   return (
     <div
       ref={box}
-      className={top ? 'contents' : 'hidden'}
+      className={top ? 'mo-contents' : 'mo-hidden'}
       onBlur={(e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && latest.current.onBlur?.()}
     >
       <SiteSideSheet
         headline={entry.headline}
         headlineId={entry.headlineId}
         closeLabel={t.common.close}
-        className="editor-side-sheet"
+        className="mo-editor-side-sheet"
         onBack={nested ? entry.onBack : undefined}
         backLabel={entry.backLabel}
         actions={entry.actions}
@@ -154,5 +154,5 @@ export default function PaneHost() {
       setPanelOpen(false);
     };
   }, [shown]);
-  return <div ref={place} className="contents" />;
+  return <div ref={place} className="mo-contents" />;
 }

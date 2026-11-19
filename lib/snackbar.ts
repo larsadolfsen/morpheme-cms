@@ -1,6 +1,6 @@
 // The messages at the bottom of the screen (snackbars), the same in the editor (notify in App.tsx) and on
 // the site (a new version of a page, PageLayout.astro): in the middle, the newest lowest and the ones before
-// it moved up. Their look and place are the theme's Snackbar (.snackbar-stack and .snackbar in
+// it moved up. Their look and place are the theme's Snackbar (.mo-snackbar__stack and .mo-snackbar in
 // theme/styles/ui/snackbar.css). The editor's are drawn here, a text and links; the site's are drawn by
 // the theme's part (packages/editor/theme/ui/Snackbar.tsx, with its action and close button) and shown with
 // the element the message carries (ui/snackbar.script.ts).
@@ -35,11 +35,11 @@ const working = (text: string) => text.endsWith('…');
 
 /** Shows a message at the bottom (or with null takes away the one about something going on). */
 export function snackbar(next: SnackbarMessage | null) {
-  stack ??= Object.assign(document.createElement('div'), { className: 'snackbar-stack' });
+  stack ??= Object.assign(document.createElement('div'), { className: 'mo-snackbar__stack' });
   // A popover, so it is in front of an open sheet or dialog too (they are in the top layer).
   stack.popover = 'manual';
   if (!stack.isConnected) document.body.append(stack);
-  for (const el of stack.querySelectorAll<HTMLElement>('.snackbar')) {
+  for (const el of stack.querySelectorAll<HTMLElement>('.mo-snackbar')) {
     if (working(el.dataset.text!) || el.dataset.text === next?.text) el.remove();
   }
   if (next) show(stack, next);
@@ -55,13 +55,13 @@ function show(stack: HTMLDivElement, { text, error, links = [], ms, element }: S
   const el = element ?? document.createElement('p');
   el.dataset.text = text;
   if (!element) {
-    el.className = 'snackbar';
+    el.className = 'mo-snackbar';
     el.setAttribute('role', error ? 'alert' : 'status');
     el.append(text);
   }
   for (const link of element ? [] : links) {
     const a = document.createElement('a');
-    a.className = 'snackbar-link';
+    a.className = 'mo-snackbar__link';
     a.href = link.href;
     a.innerHTML = arrow.replace('<svg', '<svg width="14" height="14" fill="currentColor" aria-hidden="true"');
     a.prepend(link.text);
