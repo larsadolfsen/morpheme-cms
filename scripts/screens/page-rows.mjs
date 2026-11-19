@@ -152,9 +152,9 @@ async function checkBlockRow(width, options = {}) {
     .locator('.site-block-row:not(.site-block-row-hover) [data-row]')
     .evaluateAll((els) => els.map((e) => [...e.classList]));
   for (const list of classes)
-    if (list.some((c) => !/^icon-button(-|$)/.test(c)))
+    if (list.some((c) => !/^mo-icon-button(__|$)/.test(c)))
       problems.push(`${label}: a row button has a class of its own (${list.join(' ')}); it must be the theme's icon button`);
-  if (classes.some((list) => !list.includes('icon-button') || !list.includes('icon-button-standard')))
+  if (classes.some((list) => !list.includes('mo-icon-button') || !list.includes('mo-icon-button__standard')))
     problems.push(`${label}: a row button is not the theme's standard icon button (${JSON.stringify(classes)})`);
   const hoverOf = async (locator) => {
     await locator.hover();
@@ -185,7 +185,7 @@ async function checkBlockRow(width, options = {}) {
   if (await add.count()) {
     const addHover = await hoverOf(add);
     const classes2 = await add.evaluate((e) => [...e.classList]);
-    if (!classes2.includes('button') || !classes2.includes('button-text'))
+    if (!classes2.includes('mo-button') || !classes2.includes('mo-button__text'))
       problems.push(`${label}: Add list row is not the theme's text button (${classes2})`);
     const wantText = page.locator('[data-probe="text"]');
     await page.evaluate(() => {
@@ -326,7 +326,7 @@ async function checkBlockRow(width, options = {}) {
       if (!hovered.inside) problems.push(`${label}: the pointed block's row is not inside the dotted outline`);
       for (const name of ['Move up', 'Move down', 'Hide'])
         if (!hovered.names.includes(name)) problems.push(`${label}: the pointed block's row has no "${name}" (${hovered.names})`);
-      if (hovered.classes.some((c) => c !== 'icon-button icon-button-standard'))
+      if (hovered.classes.some((c) => c !== 'mo-icon-button mo-icon-button__standard'))
         problems.push(`${label}: the pointed block's buttons are not the theme icon button (${hovered.classes})`);
       if (!hovered.handle) problems.push(`${label}: the pointed block shows no drag handle`);
     }

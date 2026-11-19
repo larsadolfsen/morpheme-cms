@@ -16,7 +16,7 @@ export type ExposedDropdownMenuOption = { value: string; label: string; disabled
 
 /** An exposed dropdown menu's classes: the text field's of its kind (and its error's), and its own. */
 export const exposedDropdownMenuClass = (kind: TextFieldKind = 'outlined', error = false) =>
-  `${textFieldClass(kind, error)} exposed-dropdown-menu`;
+  `${textFieldClass(kind, error)} mo-exposed-dropdown-menu`;
 
 export default function ExposedDropdownMenu({
   label,

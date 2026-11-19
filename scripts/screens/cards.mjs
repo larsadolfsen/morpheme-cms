@@ -366,7 +366,7 @@ async function checkCardIconText(width, height, scheme) {
     for (const card of document.querySelectorAll('.block-card')) {
       const icon = card.querySelector('.block-card-icon');
       if (!icon || icon.hasAttribute('data-icon-color')) continue;
-      const design = ['card-outlined', 'card-filled', 'card-elevated'].find((c) => card.classList.contains(c)) ?? 'other';
+      const design = ['outlined', 'filled', 'elevated'].find((c) => card.classList.contains(`mo-is-${c}`)) ?? 'other';
       designs.add(design);
       const [a, b] = [lum(pixel(getComputedStyle(icon).color)), lum(pixel(behind(icon)))].sort((x, y) => y - x);
       out.push({
@@ -379,7 +379,7 @@ async function checkCardIconText(width, height, scheme) {
     return out;
   });
   const designs = new Set(found.map((f) => f.design));
-  for (const d of ['card-outlined', 'card-filled', 'card-elevated'])
+  for (const d of ['outlined', 'filled', 'elevated'])
     if (!designs.has(d)) problems.push(`${label}: no ${d} card with an icon and no color on the Blocks page`);
   for (const f of found) {
     console.log(`card icon contrast ${width}px ${scheme} ${f.design}: ${f.contrast.toFixed(2)}`);

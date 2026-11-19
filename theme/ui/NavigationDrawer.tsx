@@ -29,7 +29,7 @@ export { focusNavigationDrawerItem, navigationDrawerKeys } from './navigationDra
 export type NavigationDrawerVariant = 'modal' | 'standard';
 
 /** The drawer's class, and its scrim's. */
-export const navigationDrawerClass = 'navigation-drawer';
+export const navigationDrawerClass = 'mo-navigation-drawer';
 export const navigationDrawerScrimClass = 'mo-navigation-drawer__scrim';
 /** A modal drawer at the end edge of the screen (the right; the left in right-to-left languages): its corners mirrored. */
 export const navigationDrawerEndClass = 'mo-navigation-drawer__end';
