@@ -93,7 +93,7 @@
   }
   .mo-editor-shortcut-key {
     color: var(--mo-sys-color-on-surface-variant);
-    font-family: var(--font-sans);
+    font-family: var(--mo-ref-typeface-plain);
     font-size: 0.875rem;
     line-height: 1.25rem;
   }

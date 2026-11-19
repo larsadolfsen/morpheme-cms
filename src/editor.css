@@ -1446,19 +1446,19 @@ html {
   content: '';
   position: absolute;
   top: -1px;
-  width: var(--radius-panel);
-  height: var(--radius-panel);
+  width: var(--mo-sys-radius);
+  height: var(--mo-sys-radius);
   pointer-events: none;
 }
 
 .editor-tools::before {
   left: -1px;
-  background: radial-gradient(circle at 100% 100%, transparent var(--radius-panel), var(--mo-sys-color-surface) var(--radius-panel));
+  background: radial-gradient(circle at 100% 100%, transparent var(--mo-sys-radius), var(--mo-sys-color-surface) var(--mo-sys-radius));
 }
 
 .editor-tools::after {
   right: -1px;
-  background: radial-gradient(circle at 0 100%, transparent var(--radius-panel), var(--mo-sys-color-surface) var(--radius-panel));
+  background: radial-gradient(circle at 0 100%, transparent var(--mo-sys-radius), var(--mo-sys-color-surface) var(--mo-sys-radius));
 }
 
 /* The bar is one row, 44 dp high: the tools of the place at the left, Undo, Redo, Insert block and the `⋮` at the right end, no divider between them. It never scrolls (textBar.mjs picks what is

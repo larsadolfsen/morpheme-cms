@@ -33,9 +33,11 @@
   --mo-ref-breakpoint-expanded: 52.5rem;
   --mo-ref-breakpoint-large: 75rem;
   --mo-ref-breakpoint-extra-large: 100rem;
+  /* The plain typeface the type scale's fonts read (`--mo-sys-typescale-*-font`); a theme sets its own (tokens/material/ref.css). */
+  --mo-ref-typeface-plain: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 @theme inline {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-sans: var(--mo-ref-typeface-plain);
   --color-primary: var(--mo-sys-color-primary);
   --color-on-primary: var(--mo-sys-color-on-primary);
   --color-primary-container: var(--mo-sys-color-primary-container);

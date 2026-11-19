@@ -62,6 +62,10 @@
   --mo-sys-elevation-level4-color: var(--mo-sys-color-surface-container-highest);
   --mo-sys-elevation-level5-color: var(--mo-sys-color-surface-container-highest);
 }
+/* Material's typeface (the plain typeface of tokens/base/ref.css). */
+:root {
+  --mo-ref-typeface-plain: 'Roboto Variable', Roboto, ui-sans-serif, system-ui, sans-serif;
+}
 @theme inline {
-  --font-sans: 'Roboto Variable', Roboto, ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--mo-ref-typeface-plain);
 }

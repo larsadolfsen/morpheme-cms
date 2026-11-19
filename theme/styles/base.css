@@ -89,7 +89,7 @@
   body {
     background: var(--mo-sys-color-surface);
     color: var(--mo-sys-color-on-surface);
-    font-family: var(--font-sans);
+    font-family: var(--mo-ref-typeface-plain);
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
     font-weight: var(--mo-sys-typescale-body-large-weight);
