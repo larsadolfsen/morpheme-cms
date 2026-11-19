@@ -178,7 +178,10 @@ async function checkBlockedNotice(width, height) {
       const card = [...document.querySelectorAll('main [role=status]')].find((e) => e.textContent.includes(title));
       if (!card) return null;
       const r = card.getBoundingClientRect();
-      const next = [...document.querySelectorAll('main .mo-editor-dashboard-grid > *')].map((e) => e.getBoundingClientRect().top);
+      const next = [...document.querySelectorAll('main .mo-editor-dashboard-grid > *')]
+        .map((e) => e.getBoundingClientRect())
+        .filter((b) => b.height > 0)
+        .map((b) => b.top);
       const link = card.querySelector('a');
       return {
         text: card.textContent,
