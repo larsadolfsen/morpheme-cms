@@ -30,7 +30,7 @@ npm view @morphemecms/cms dist-tags --json
 
 - No open Release PR: stop - "Nothing to release: no changes are waiting (no changesets merged since the last
   release)."
-- The Release PR's version: `version` in its `package.json` diff. Its notes: the lines it adds to `CHANGELOG.md`.
+- The Release PR's version: `version` in its `package.json` diff. It is the number the feature set when it started: `npm run release:version` runs `changeset version` for the notes and `CHANGELOG.md`, then puts `version` back to that number and renames the new `CHANGELOG.md` section to it (`scripts/release-version.mjs`). If it is not one step above `latest`, or not the version `next` was staged as (`<version>-next-<time>`), stop and tell the owner. Its notes: the lines it adds to `CHANGELOG.md`.
 - Owner-visible changes: the Release PR must contain `release-notes/i18n/*/<version>.json` for them (notes have no screenshots); if it does not, say so in the question below.
 - A version line has no test version on npm (a merge into a line's branch stages nothing). Only a merge into `main` stages `next`, which is what staging follows (below).
 - Staging: the newest `Workers Builds: morpheme-staging` check on staging's `main` (or the newest build of the Worker

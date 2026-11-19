@@ -56,6 +56,7 @@ Every pull request, whatever the change:
 - A change to one component is checked on that component's demo page (`/blocks/<component>/`), not on all of them (`checks`).
 - When `origin/<base>` moves, merge it into your branch (never a rebase, amend or force-push on a branch that is
   shared).
+- **The version.** A feature's first pull request sets `version` in `package.json` to the number the feature is released as and runs `node scripts/starter.mjs` so `starter/package.json` pins it (CI's `static` fails without it); a single fix into `main` does it in its own pull request. A changeset's level does not move it, and no later pull request changes it (skill `changesets`, *The version is set when a feature starts*; CI's `static` checks it).
 - You never release (`CLAUDE.md`, *Only the owner releases a new version*).
 - You push your own branch only: never `main`, `0.18` or `0.19`, and never with force. A session whose push is denied tells the PM and does not work around it.
 - A change that needs a new screens check adds its unit to its area's file, `scripts/screens/<area>.mjs` (skill `checks`), never to `scripts/editor-screens.mjs` (the runner) and never to `scripts/screens/order.txt`.
