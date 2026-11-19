@@ -1759,7 +1759,7 @@ export function ChipField({
     />
   );
   return (
-    <div className="mo-editor-gapped-100 mo-editor-chip-field">
+    <div className="mo-editor-gapped-100">
       {chips.length > 0 && (
         <div className="mo-editor-chip-row">
           {chips.map((w) => (
@@ -3271,7 +3271,7 @@ export function SideSheet({
       backLabel={backLabel}
       className="editor-reveal mo-editor-selection-pane"
     >
-      <div className="mo-editor-rhythm-250 mo-editor-selection-sheet-body">{children}</div>
+      <div className="mo-editor-rhythm-250">{children}</div>
     </SiteSideSheet>
   );
 }
