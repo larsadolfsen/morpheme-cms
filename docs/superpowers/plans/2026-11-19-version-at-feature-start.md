@@ -18,6 +18,10 @@ feature being built, and its editor must show that feature's own version, never 
   A changeset's level (`patch`, `minor`) no longer moves the version.
 - **Nothing else changes the version.** No pull request after a feature's first changes it, except the PM's move below; and
   `CHANGELOG.md` is still written only by the release.
+- **No code or test names the next version.** A test that needs a version newer than the running one derives it from the
+  package's own `version` (one patch above it), never writes the coming release number: when a feature sets that number, a hard-coded
+  "newer" target equals the running version and the test stops testing (`scripts/check-cms-update.mjs` on 19 November 2026, where
+  `worker/cms-update.js` took an update to the running version as done).
 - **Two features at once.** The PM merges `main` into every open feature branch after each merge into `main` (skill `pm`). When that
   brings in a feature released with the same number, the merge conflicts on `version`, and the PM resolves it to the next number. With
   one feature at a time this is rare.
