@@ -1,9 +1,9 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
-/* Long-form text (migrated pages and blog posts): the colours of `.prose` (prose.css). The first fourteen are the theme's roles; a coloured section and the
+/* Long-form text (migrated pages and blog posts): the colours of `.mo-prose` (prose.css). The first fourteen are the theme's roles; a coloured section and the
    editor's sections set them again on their own element. The last four are the typography plugin's own greys for keys (`kbd`) and code blocks (`pre`), the
-   same in light and dark; a later change moves them to roles. Declared on `.prose`, not on `:root`, so a role set on a section below it is read there. */
-.prose {
+   same in light and dark; a later change moves them to roles. Declared on `.mo-prose`, not on `:root`, so a role set on a section below it is read there. */
+.mo-prose {
   --mo-comp-prose-body: var(--mo-sys-color-on-surface);
   --mo-comp-prose-headings: var(--mo-sys-color-on-surface);
   --mo-comp-prose-lead: var(--mo-sys-color-on-surface-variant);

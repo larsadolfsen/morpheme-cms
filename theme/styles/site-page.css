@@ -14,7 +14,7 @@
   /* An image that opens the text (a paragraph of its own) starts where a paragraph would: its space above would come on
    top of the space under the page's heading. For every theme, also one with its own text style; outside the
    layers, like the images' own space in the text. */
-  .prose > p:first-child > :where(img, .mo-site-picture__crop):only-child {
+  .mo-prose > p:first-child > :where(img, .mo-site-picture__crop):only-child {
     margin-top: 0;
   }
 }
@@ -234,7 +234,7 @@
     color: var(--mo-sys-color-on-primary);
   }
 
-  /* The text of a page (PageLayout.astro): without a block beside it the text spans the container, its blocks (not-prose) too, and its other
+  /* The text of a page (PageLayout.astro): without a block beside it the text spans the container, its blocks (mo-is-not-prose) too, and its other
      parts keep the text's measure, the first paragraph being the lead; with one it keeps the measure itself. */
   .mo-page__text.mo-has-side {
     max-inline-size: var(--mo-sys-block-text-measure-max);
@@ -243,10 +243,10 @@
   .mo-page__text.mo-is-single-column {
     max-inline-size: none;
   }
-  .mo-page__text:where(.mo-is-single-column) > :not(.not-prose) {
+  .mo-page__text:where(.mo-is-single-column) > :not(.mo-is-not-prose) {
     max-inline-size: var(--mo-sys-block-text-measure-max);
   }
-  .mo-page__text:where(.mo-is-single-column) > :not(.not-prose, :where(.mo-text-section).mo-is-full) {
+  .mo-page__text:where(.mo-is-single-column) > :not(.mo-is-not-prose, :where(.mo-text-section).mo-is-full) {
     min-inline-size: min(var(--mo-sys-block-text-measure-min), 100%);
   }
   .mo-page__text:where(.mo-is-single-column) > p:first-child {
@@ -257,7 +257,7 @@
     color: var(--mo-sys-color-on-surface-variant);
     max-inline-size: 52ch;
   }
-  /* A text that spans its container, not the 65ch of `.prose` (a text the editor's preview draws). */
+  /* A text that spans its container, not the 65ch of `.mo-prose` (a text the editor's preview draws). */
   .mo-text-whole {
     max-inline-size: none;
   }
@@ -291,10 +291,10 @@
     max-inline-size: 48rem;
     padding-inline: 1rem;
   }
-  .mo-post__text > :not(.not-prose) {
+  .mo-post__text > :not(.mo-is-not-prose) {
     max-inline-size: var(--mo-sys-block-text-measure-max);
   }
-  .mo-post__text > :not(.not-prose, :where(.mo-text-section).mo-is-full) {
+  .mo-post__text > :not(.mo-is-not-prose, :where(.mo-text-section).mo-is-full) {
     min-inline-size: min(var(--mo-sys-block-text-measure-min), 100%);
   }
   .mo-post__image {

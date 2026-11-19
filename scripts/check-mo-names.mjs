@@ -1,6 +1,6 @@
 // The permanent check for the `mo-` names (plan docs/superpowers/plans/2026-11-18-mo-names-contract-7.md, PR M7; the pattern: docs/class-names.md).
 // Every class and custom property of ours starts with `mo-` (owner, 18 Nov 2026) and nothing is let by: there is no allowlist and no count that may stay.
-// What stays unprefixed is only what is not ours, each with its reason in NOT_RENAMED of scripts/mo-names.mjs (other libraries' classes, `prose`, `dark`).
+// What stays unprefixed is only what is not ours, each with its reason in NOT_RENAMED of scripts/mo-names.mjs (other libraries' classes, `mo-prose`, `dark`).
 // It fails on:
 //   classDefs     an unprefixed class defined in a stylesheet,
 //   markup        an unprefixed class written in markup or code (a class attribute, classList, querySelector, matches, closest, a `.name` selector in a string)

@@ -1,6 +1,6 @@
 // The text of a page or blog post: Milkdown (packages/editor/src/markdown.mjs) with a small toolbar. When the tools do
 // not fit on one line, an arrow at its end shows the rest on a second row (useToolbarLines.ts).
-// The text is shown in the site's own style (the "prose" classes of the pages). On pages the site's
+// The text is shown in the site's own style (the "mo-prose" classes of the pages). On pages the site's
 // blocks (src/apps/<app>/blocks/) can be put in the text with a button; each is a card with the block as it looks
 // on the site, which opens a menu (hide on the site, move; below medium also Ret, Fjern; from medium a tap opens the
 // side panel instead), with a free line kept between
@@ -1574,7 +1574,9 @@ function blockCard(
   };
   paintHidden();
   const shown = card.appendChild(document.createElement('div'));
-  shown.className = ask?.data.page ? 'mo-site-block-preview mo-site-block-section not-prose' : 'mo-site-block-preview not-prose';
+  shown.className = ask?.data.page
+    ? 'mo-site-block-preview mo-site-block-section mo-is-not-prose'
+    : 'mo-site-block-preview mo-is-not-prose';
   // What is typed in place is for screen readers too; the image of any other block is not.
   if (!inline) shown.setAttribute('aria-hidden', 'true');
   const root = createRoot(shown);
@@ -3387,7 +3389,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       </Menu>
       <div
         ref={root}
-        className={`mo-editor-text prose mo-editor-text-area ${short ? 'mo-editor-text-short' : ''} ${spaced ? 'mo-editor-spaced' : ''}`}
+        className={`mo-editor-text mo-prose mo-editor-text-area ${short ? 'mo-editor-text-short' : ''} ${spaced ? 'mo-editor-spaced' : ''}`}
         style={
           {
             '--mo-comp-editor-gap-text': JSON.stringify(t.text.typeHere),

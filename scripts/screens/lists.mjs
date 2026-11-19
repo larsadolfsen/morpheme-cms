@@ -112,12 +112,12 @@ async function checkListLeftEdge(width) {
     }
   };
   if (await onTestPage(page, label)) {
-    await page.waitForSelector('main .prose ul.mo-block-list');
+    await page.waitForSelector('main .mo-prose ul.mo-block-list');
     await animationsSettled(page);
-    verify('on the site', await page.evaluate(measure, 'main .prose'));
+    verify('on the site', await page.evaluate(measure, 'main .mo-prose'));
     // Edge to edge, the layer of a Default list's row has square corners, also pointed at (owner, 16 Nov 2026: "No border radius when full width").
     if (width < 600) {
-      const row = page.locator('main .prose ul.mo-block-list:not(.mo-list__segmented) a.mo-list__item-container').first();
+      const row = page.locator('main .mo-prose ul.mo-block-list:not(.mo-list__segmented) a.mo-list__item-container').first();
       await row.hover();
       await page.waitForTimeout(400);
       const radius = await row.evaluate(
@@ -1142,7 +1142,7 @@ async function checkListRowColors() {
           const section = document.createElement('section');
           section.className = 'mo-text-section mo-is-' + color;
           section.innerHTML =
-            '<div class="prose"><h1>H1</h1><p>Text</p></div><div class="mo-list mo-block-list"><a class="mo-list__item-container" href="#"><span class="mo-list__item-leading mo-list__item-leading-icon"><svg viewBox="0 0 10 10"></svg></span><span class="mo-list__item-content"><span class="mo-list__item-headline">Heading</span><span class="mo-list__item-supporting">Text</span></span><span class="mo-list__item-trailing"><svg viewBox="0 0 10 10"></svg></span></a></div>';
+            '<div class="mo-prose"><h1>H1</h1><p>Text</p></div><div class="mo-list mo-block-list"><a class="mo-list__item-container" href="#"><span class="mo-list__item-leading mo-list__item-leading-icon"><svg viewBox="0 0 10 10"></svg></span><span class="mo-list__item-content"><span class="mo-list__item-headline">Heading</span><span class="mo-list__item-supporting">Text</span></span><span class="mo-list__item-trailing"><svg viewBox="0 0 10 10"></svg></span></a></div>';
           document.querySelector('main').append(section);
           const c = (sel) => getComputedStyle(section.querySelector(sel)).color;
           out[color] = {
@@ -1213,7 +1213,7 @@ async function checkChecklistMarks() {
         for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
           const section = document.createElement('section');
           section.className = 'mo-text-section mo-is-' + color;
-          section.innerHTML = '<div class="prose"><ul class="contains-task-list"><li class="task-list-item"><input type="checkbox" checked disabled> Photos are resized</li></ul></div>';
+          section.innerHTML = '<div class="mo-prose"><ul class="contains-task-list"><li class="task-list-item"><input type="checkbox" checked disabled> Photos are resized</li></ul></div>';
           document.querySelector('main').append(section);
           const mark = section.querySelector('input');
           out[color] = ratio(getComputedStyle(mark).backgroundColor, section);

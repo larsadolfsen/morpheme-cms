@@ -185,8 +185,8 @@ In force since the Tailwind removal (batch T16 of `docs/superpowers/plans/2026-1
 
 Contract 7 is contract 6 without Tailwind. A theme or an app written to 7 uses no utility class (`flex`, `px-4`,
 `medium:grid-cols-2`, `hover:underline`), no `theme()`, no `@theme`, no `@apply` and no `@source`, and no `--tw-*` custom
-property. The CMS no longer builds them: such a class or rule does nothing, without a message. `prose` and `not-prose` still
-work. A theme or an app writes layout with the `mo-` classes (`mo-row`, `mo-stack`, `mo-grid` …), breakpoints as
+property. The CMS no longer builds them: such a class or rule does nothing, without a message. The text style is `mo-prose` and its opt-out is
+`mo-is-not-prose` (they were `prose` and `not-prose`). A theme or an app writes layout with the `mo-` classes (`mo-row`, `mo-stack`, `mo-grid` …), breakpoints as
 `@media (width >= 37.5rem)` literals and states as CSS selectors. No key or file of `app.json` changes.
 
 `THEME_API` and `APP_API` are 7 and `APP_APIS` in `lib/contracts.mjs` is `[7]`, replacing 6. The editor reads

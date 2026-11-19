@@ -28,9 +28,9 @@ After contract 7 nothing builds these for you. A class or rule that uses them do
 | `theme()` in CSS | `@media (width >= theme(--breakpoint-medium))` |
 | `@theme`, `@apply`, `@utility`, `@source`, `@plugin` | `@apply flex gap-2;` |
 | `--tw-*` custom properties | `var(--tw-translate-x)` (the text's colours are `--mo-comp-prose-*` since 0.19.0) |
-| The typography plugin's classes other than `prose` and `not-prose` | `prose-lg`, `prose-invert`, `prose-a:underline` |
+| The typography plugin's classes other than the text style (`prose-lg`, `prose-invert` and the like) | `prose-lg`, `prose-invert`, `prose-a:underline` |
 
-Still works: `prose` and `not-prose`, `post-lead`, `lead` and the type classes `mo-type-display-large` … `mo-type-lead`
+Renamed: `prose` is `mo-prose` and `not-prose` is `mo-is-not-prose` (the rename is also made in saved content, below). Still works: `post-lead`, `lead` and the type classes `mo-type-display-large` … `mo-type-lead`
 ([`type-classes.md`](type-classes.md)).
 
 ## What to write instead, by family
@@ -141,7 +141,7 @@ Colours of a state come from the state layers (`--mo-sys-state-mo-hover-layer`, 
 
 Contract 7 also gives every class and custom property of ours the `mo-` prefix, so a theme or app migrates once. The pattern is
 [`class-names.md`](class-names.md): `.card` becomes `.mo-card`, `.card-body` becomes `.mo-card__body`, a state becomes `mo-is-<word>`, a block part
-becomes `mo-block-<type>__<part>`, and a hook or runtime value becomes `--mo-comp-<component>-<name>`. No old name stays.
+becomes `mo-block-<type>__<part>`, the text style `prose` becomes `mo-prose` and its opt-out `not-prose` becomes `mo-is-not-prose`, and a hook or runtime value becomes `--mo-comp-<component>-<name>`. No old name stays.
 
 The map of every name is `docs/superpowers/plans/mo-names/map.json` in this repository (made once, before the renames, and kept as the record): `classes` and
 `properties` map each old name to its `new` name, with the rule that made it and how many places define and use it. A name with

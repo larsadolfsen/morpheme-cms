@@ -14,4 +14,4 @@ const processor = await createMarkdownProcessor();
 const html = (await processor.render(body ?? '')).code;
 ---
 
-<div class:list={['prose mo-markdown', className]} set:html={html} />
+<div class:list={['mo-prose mo-markdown', className]} set:html={html} />

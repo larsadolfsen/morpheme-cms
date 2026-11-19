@@ -11,7 +11,7 @@ test('scanCss finds unprefixed class definitions, declared and read properties; 
     .medium\\:flex { color: red; }
     @keyframes spin { from { opacity: 0 } }
     .ProseMirror p { margin: 0 }
-    .prose { color: red }
+    .task-list-item { color: red }
   `);
   assert.deepEqual([...s.classDefs.keys()].sort(), ['card-body', 'card-check']);
   assert.deepEqual([...s.declared.keys()], ['--card-sample']);
@@ -169,7 +169,9 @@ test('a mo- class has the shape of docs/class-names.md; a plain class attribute 
     /the class "hook-only" is written in a class attribute and does not start with mo-/,
   );
   fails({ 'page.md': '<p class="lead">x</p>' }, /page\.md:1: the class "lead"/);
-  assert.deepEqual(problems({ 'a.tsx': '<div class="mo-card prose not-prose ProseMirror task-list-item" />' }), []);
+  assert.deepEqual(problems({ 'a.tsx': '<div class="mo-card mo-prose mo-is-not-prose ProseMirror task-list-item" />' }), []);
+  fails({ 'a.tsx': '<div class="mo-card prose" />' }, /the class "prose"/);
+  fails({ 'a.tsx': '<div class="not-prose" />' }, /the class "not-prose"/);
 });
 
 test('what is not ours stays, with its reason', () => {
@@ -178,8 +180,6 @@ test('what is not ours stays, with its reason', () => {
     'ProseMirror-focused',
     'cm-editor',
     'calendly-inline-widget',
-    'prose',
-    'not-prose',
     'dark',
     'contains-task-list',
     'task-list-item',

@@ -37,7 +37,7 @@ export function drawPopup(p: Record<string, any>, data: BlockData, part?: KindPa
     button: buttonOf(p, data),
   };
   return (
-    <div className="not-prose mo-popup-preview">
+    <div className="mo-is-not-prose mo-popup-preview">
       <PopupView popup={popup} Part={part?.View} part={part?.viewOf(p, data)} />
     </div>
   );
@@ -63,7 +63,7 @@ export function drawActionBar(p: Record<string, any>, data: BlockData) {
       dragHandle={false}
       states={['expanded']}
       label={siteT.theme.actions}
-      className="mo-action-bar mo-is-drawn not-prose"
+      className="mo-action-bar mo-is-drawn mo-is-not-prose"
     >
       <Toolbar label={siteT.theme.actions} className="mo-action-bar__row">
         {buttons.map((b, i) => {

@@ -83,6 +83,6 @@ A block of code
 
 <video controls width="320"></video>
 
-<div class="not-prose"><p>A block that is not text.</p><ul><li>Its list</li></ul><a href="/about/">Its link</a><img src="/images/uploads/2026/10/moon.webp" alt="Its image"></div>
+<div class="mo-is-not-prose"><p>A block that is not text.</p><ul><li>Its list</li></ul><a href="/about/">Its link</a><img src="/images/uploads/2026/10/moon.webp" alt="Its image"></div>
 
 A last paragraph.
