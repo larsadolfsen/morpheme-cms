@@ -78,7 +78,7 @@ const scan = `(root) => {
     if (card) return 'editor ' + (card.getAttribute('aria-label') ?? '').toLowerCase();
     for (let e = el; e && e !== document.body; e = e.parentElement) {
       const cls = typeof e.className === 'string' ? e.className : '';
-      const t = e.getAttribute('data-block') ?? (/\\bblock-in-text\\b/.test(cls) || e.classList.contains('site-block-inline') ? /\\bblock-(?!in-text)([a-z]+)/.exec(cls)?.[1] : null);
+      const t = e.getAttribute('data-block') ?? (/\\bmo-is-in-text\\b/.test(cls) || e.classList.contains('site-block-inline') ? /\\bmo-block-([a-z]+)/.exec(cls)?.[1] : null);
       if (t) return t;
     }
     for (let e = el; e && e !== document.body; e = e.parentElement) {
@@ -126,7 +126,7 @@ const scan = `(root) => {
   const opacityOf = (el) => { let o = 1; for (let e = el; e; e = e.parentElement) o *= parseFloat(getComputedStyle(e).opacity); return o; };
   const records = [];
   const push = (el, kind, front, back, min, extra) => {
-    const blockEl = el.closest('[data-block], .block-in-text, .site-block-inline');
+    const blockEl = el.closest('[data-block], .mo-is-in-text, .site-block-inline');
     const r = ratio(over(front, back), back);
     records.push({ block: blockOf(el), variant: variantOf(el, blockEl), section: sectionOf(el), kind, fg: hex(over(front, back)), bg: hex(back), ratio: r, min, text: (extra.text ?? '').slice(0, 40), manual: extra.manual, tag: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.split(/\\s+/)[0] : '') });
   };

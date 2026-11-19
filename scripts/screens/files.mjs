@@ -321,7 +321,7 @@ async function checkLibraryAlt() {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
   const card = await page
-    .locator('.block-card-picture img[src$="andromeda.webp"], .block-card .mo-card__media img[src$="andromeda.webp"]')
+    .locator('.mo-block-cards__card-picture img[src$="andromeda.webp"], .mo-block-cards__card .mo-card__media img[src$="andromeda.webp"]')
     .first()
     .getAttribute('alt');
   if (card !== 'The Andromeda galaxy among thousands of stars')

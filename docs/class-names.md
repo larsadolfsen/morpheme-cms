@@ -55,6 +55,33 @@ The site shell's names, settled by the pattern (M5 reads Material 3 only where a
 - `--motion-ease`, `--motion-ease-quick` → `--mo-sys-motion-ease`, `--mo-sys-motion-ease-quick`; `--carousel-*` → `--mo-comp-carousel-*`; `carousel-<layout>` → `mo-carousel__<layout>`; `grid-span-*` → `mo-grid__span-*`; `block-cards-<primary|secondary|tertiary>` → `mo-block-cards__<…>`; the unused `block-price-*` → `mo-block-pricecards__*`.
 - Left to M4 (they are generated or shared with block files): `block-plans-2|3|4`.
 
+## Settled in M4
+
+The blocks' names (`theme/blocks/`, `theme/styles/blocks/`, `src/standard/` and the block parts' CSS). M1's map names stay for the `block-*` names it settled (`block-accordion-answer` → `mo-block-accordion__answer`, `block-table-grid` → `mo-block-table__grid` …). The rest the pattern left open is settled here, by one rule: a part drawn by one block folder belongs to it (`mo-block-<folder>__<old name without block->`); a shared part that no folder owns (the vocabulary apps' blocks use) is its own type (`mo-block-<root>`, `mo-block-<root>__<part>`); a state or a hold is `mo-is-*` or `mo-has-*`. A state keeps one class of specificity: its rule is the same one class as before.
+
+| Old | New | Why |
+| :-- | :-- | :-- |
+| `block-card`, `block-card-<part>` | `mo-block-cards__card`, `mo-block-cards__card-<part>` | drawn by the Link cards block (the Accordion and the editor's inline cards reuse them) |
+| `block-plan`, `block-plan-<part>` (`amount`, `badge`, `buttons`, `features`, `name`, `price`, `text`, `unit`), `block-plans`, `block-plans-list`, `block-plans-2\|3\|4` (and `block-plans-<n>`) | `mo-block-pricecards__plan`, `__plan-<part>`, `__plans`, `__plans-list`, `__plans-<n>` | Price cards block |
+| `block-plan-featured` | `mo-is-featured` | state of a plan |
+| `block-price-list`, `block-price-row`, `block-price-row-<part>`, `block-prices` | `mo-block-pricecards__list`, `__row`, `__row-<part>`, `__prices` | the rest of the dead `block-price-*` family, as M5 did `block-price-card*` |
+| `block-testimonial`, `block-testimonial-<part>` | `mo-block-testimonials__testimonial`, `__testimonial-<part>` | Testimonials block |
+| `block-filters`, `block-empty`, `block-sr-only` | `mo-block-testimonials__filters`, `__empty`, `__sr-only` | only the Testimonials block draws them |
+| `block-step`, `block-step-<part>` (`body`, `number`, `text`, `title`) | `mo-block-steps__step`, `__step-<part>` | Steps block |
+| `video-facade`, `video-facade-<part>` (`image`, `still`, `title`) | `mo-block-video__facade`, `__facade-<part>` | Video block (the build writes them, not saved content) |
+| `block-head`, `block-subheading` | `mo-block-head`, `mo-block-head__subheading` | shared head of every block (`BlockHead.tsx`) |
+| `block-more`, `block-more-button` | `mo-block-more`, `mo-block-more__button` | shared (`MoreRows.tsx`: Accordion and List) |
+| `block-in-text` | `mo-is-in-text` | state: the block sits in the page's text |
+| `block-with-badge` | `mo-has-badge` | what the part holds |
+| `block-panel`, `block-panel-<part>` (`icon`, `part`, `text`, `title`), `block-panels`, `block-cta`, `block-cta-<part>`, `block-facts`, `block-facts-amount`, `block-media`, `block-media-<part>`, `block-person`, `block-person-<part>`, `block-timeline`, `block-timeline-<part>`, `block-link`, `block-link-row`, `block-link-row-<part>`, `block-arrow-link`, `block-icon-list`, `block-copy-rows`, `block-copy-value`, `block-badge`, `block-tag`, `block-terms`, `block-small-screens` | the same word with `mo-`, parts `mo-block-<root>__<part>` | shared parts no block folder owns: each is its own type |
+| `--step` (the timeline's runtime value) | `--mo-comp-block-timeline-step` | a value set on an element |
+
+Left alone, with the reason: `block-page`, `block-page-main` (the editor's own, M2); `.carousel`, `.image-grid` (the theme's components, M3); `js` (the root's state, M5); `contains-task-list`, `task-list-item` (the Markdown renderer's own classes); `body-*`, `label-medium`, `color-*` (saved in content, M6).
+
+## Settled in M6c
+
+The alignment of a paragraph or a smaller heading: `text-align-center`, `text-align-right` → `mo-has-text-align-center`, `mo-has-text-align-right` (what the block holds, `mo-has-<word>`). They are **not saved in content**: the editor writes only the line `<div data-align="center"></div>` (`lib/text-align.mjs`) and the site's pipeline (`rehypeAlign`) puts the class on the block after it, so no content is rewritten and `lib/content-class-names.mjs` is unchanged. A theme that styled the old classes uses the new ones. The other classes the editor writes into content (`lib/body-size.mjs`, `body-large.mjs`, `eyebrow.mjs`, `text-sizes.mjs`, `text-colors.mjs`) already have their `mo-` names (M6); nothing else the editor saves is an unprefixed class.
+
 ## Settled in M3
 
 M3 renamed the theme's UI components (`theme/ui/`, `theme/styles/ui/`, `cards.css`, their hooks and runtime values) and settled the names the map left open. Material 3 pages read on 19 November 2026: Progress indicators (overview and specs), Navigation bar (overview); the others are named by their component pages as listed in the `developer` skill. Where M3's name or the tokens' word differs from the map, the decision is here; the map stays the record of the old names.

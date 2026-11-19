@@ -149,11 +149,11 @@ async function checkTableAlign(width, height) {
     (await page.evaluate(() => {
       const at = (sel) => getComputedStyle(document.querySelector(sel)).textAlign;
       return {
-        textHead: at('.block-table-grid thead th:nth-child(1)'),
-        textCell: at('.block-table-grid tbody tr:first-child td:nth-child(1)'),
-        numberHead: at('.block-table-grid thead th:nth-child(3)'),
-        numberCell: at('.block-table-grid tbody tr:first-child td:nth-child(3)'),
-        mixedCell: at('.block-table-grid tbody tr:first-child td:nth-child(2)'),
+        textHead: at('.mo-block-table__grid thead th:nth-child(1)'),
+        textCell: at('.mo-block-table__grid tbody tr:first-child td:nth-child(1)'),
+        numberHead: at('.mo-block-table__grid thead th:nth-child(3)'),
+        numberCell: at('.mo-block-table__grid tbody tr:first-child td:nth-child(3)'),
+        mixedCell: at('.mo-block-table__grid tbody tr:first-child td:nth-child(2)'),
       };
     }));
   const start = (v) => v === 'start' || v === 'left';
@@ -274,11 +274,11 @@ async function checkTableRadius(width, height) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
   const got = await page.evaluate(() => {
-    const card = document.querySelector('.mo-card.block-card');
+    const card = document.querySelector('.mo-card.mo-block-cards__card');
     const host = card?.parentElement;
     if (!host) return null;
     const box = document.createElement('div');
-    box.className = 'block-table block-table-grid';
+    box.className = 'mo-block-table mo-block-table__grid';
     box.innerHTML = '<table><thead><tr><th>A</th><th>B</th></tr></thead><tbody><tr><td>1</td><td>2</td></tr></tbody></table>';
     host.append(box);
     const c = getComputedStyle(box);

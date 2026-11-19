@@ -205,9 +205,9 @@ const frontSections = async (body, parts) => [
   const html = (await aligned.render(saved)).code;
   const ok =
     saved.trim() === alignSample &&
-    html.includes('<p class="text-align-center">A centred') &&
-    html.includes('<p class="mo-type-body-small text-align-right">') &&
-    html.includes('<h3 class="text-align-center"') &&
+    html.includes('<p class="mo-has-text-align-center">A centred') &&
+    html.includes('<p class="mo-type-body-small mo-has-text-align-right">') &&
+    html.includes('<h3 class="mo-has-text-align-center"') &&
     !html.includes('data-align');
   if (!ok) {
     console.log(

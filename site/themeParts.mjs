@@ -10,7 +10,7 @@ export const THEME_PARTS = [
   { id: 'Checkbox', group: 'ui', prefixes: ['mo-checkbox'] },
   { id: 'Chip', group: 'ui', prefixes: ['mo-chip'] },
   { id: 'ChipSet', group: 'ui', prefixes: ['mo-chip__set'] },
-  { id: 'Card', group: 'ui', prefixes: ['mo-card', 'mo-staggered-grid'] },
+  { id: 'Card', group: 'ui', prefixes: ['mo-card', 'mo-staggered-grid', 'mo-grid__span'] },
   { id: 'List', group: 'ui', prefixes: ['mo-list'] },
   { id: 'Dialog', group: 'ui', prefixes: ['mo-dialog'] },
   { id: 'Lightbox', group: 'ui', prefixes: ['mo-lightbox'] },
@@ -58,7 +58,7 @@ export const THEME_PARTS = [
   { id: 'Logo', group: 'frame', prefixes: ['mo-logo'] },
 ];
 
-/** Classes of theme/styles/ui.css that belong to no part. A kind or a state (`mo-is-*`) and what a part holds (`mo-has-*`) are styled with the root of the part they sit on, so the root's part covers them. */
+/** Classes of theme/styles/ui.css that belong to no part. A kind or a state (`mo-is-*`) and what a part holds (`mo-has-*`) are styled with the root of the part they sit on, so the root's part covers them. @type {string[]} */
 export const NOT_PARTS = [
   'astro',
   'material',
@@ -66,7 +66,7 @@ export const NOT_PARTS = [
   'elevation',
   'mo-ripple',
   'mo-ripple__wave',
-  'block-card',
+  'mo-block-cards__card',
   'js',
   'mo-is-filled',
   'mo-is-tonal',

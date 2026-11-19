@@ -1328,7 +1328,10 @@ async function checkPageLeftEdge(width) {
           first = n.textContent.trim() ? ([...range.getClientRects()].find((q) => q.width) ?? null) : null;
         }
         // Below 600 dp a plain list (not the segmented design) goes edge to edge (owner, 16 Nov 2026): at the viewport's left edge and as wide as it.
-        if (innerWidth < 600 && c.matches('.block-list:not(.mo-list__segmented), .block-accordion:not(.block-accordion-segmented)')) {
+        if (
+          innerWidth < 600 &&
+          c.matches('.mo-block-list:not(.mo-list__segmented), .mo-block-accordion:not(.mo-block-accordion__segmented)')
+        ) {
           const box = c.getBoundingClientRect();
           if (Math.abs(left) > 1 || Math.abs(box.width - innerWidth) > 1)
             out.push(`plain list ${c.className.toString().slice(0, 30)} at ${left}, ${box.width} wide, not edge to edge`);

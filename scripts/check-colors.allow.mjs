@@ -3,7 +3,7 @@
 const any = /./;
 export const allow = [
   // A hook a theme sets: the pressed shape of a button (Material 3's "Pressed shape"). Nothing sets it, and a read without a fallback is then
-  // invalid at computed-value time, which is how the pressed shape stays off (a hook was read as --button-pressed-radius, unseen by this check).
+  // invalid at computed-value time, which is how the pressed shape stays off (a hook was read as --mo-comp-button-pressed-radius, unseen by this check).
   {
     kind: 'undefined-role',
     file: /^theme\/styles\/tokens\/ui\/comp\/(button|icon-button)\.css$/,
@@ -91,7 +91,7 @@ export const allow = [
   {
     kind: 'fixed-colour',
     file: /^theme\/styles\/blocks(\/[a-z-]+)?\.css$/,
-    line: /video-facade|^\s*(background: #000|color: #fff|background: linear-gradient\(to bottom, rgb|filter: drop-shadow|text-shadow)/,
+    line: /mo-block-video__facade|^\s*(background: #000|color: #fff|background: linear-gradient\(to bottom, rgb|filter: drop-shadow|text-shadow)/,
     reason: 'the video still: white title and play button over a black shade on an image, whatever the theme',
   },
   // Words, not colours.

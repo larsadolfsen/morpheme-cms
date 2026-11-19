@@ -24,7 +24,7 @@ test('The Material theme styles every card design and every filled color', () =>
 });
 
 test('A theme that leaves a card design or a filled color unstyled is told so', () => {
-  const sample = `.mo-card.mo-is-outlined{background:#fff}.mo-card.mo-is-filled{background:#eee}.mo-block-cards__primary .block-card{--mo-comp-filled-card-container-color:red}`;
+  const sample = `.mo-card.mo-is-outlined{background:#fff}.mo-card.mo-is-filled{background:#eee}.mo-block-cards__primary .mo-block-cards__card{--mo-comp-filled-card-container-color:red}`;
   const problems = cardDesignProblems(sample);
   assert.equal(problems.length, 4);
   assert.match(problems.join('\n'), /carousel/);

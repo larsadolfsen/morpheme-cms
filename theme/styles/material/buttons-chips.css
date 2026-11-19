@@ -6,7 +6,7 @@
   /* Common buttons (their variables above): a state layer when pointed at (the ripple when pressed; their elevation is
      ui.css's, at M3's levels), and the corners a little squarer while pressed (M3 Expressive).
      Side by side, wrapping, also on a phone. */
-  .block-buttons {
+  .mo-block-buttons {
     flex-direction: row;
     flex-wrap: wrap;
     align-items: center;
@@ -53,8 +53,8 @@
   }
   /* A link with an arrow on its own ("Read more", "All posts"), and "Read more" on a testimonial: text buttons, a
      label in the primary colour with a state layer, the label in line with the text beside it. */
-  .block-arrow-link,
-  .block-testimonial-more {
+  .mo-block-arrow-link,
+  .mo-block-testimonials__testimonial-more {
     min-height: 2.5rem;
     margin-inline: -0.75rem;
     border-radius: var(--mo-sys-shape-corner-full);
@@ -65,15 +65,15 @@
     letter-spacing: var(--mo-sys-typescale-label-large-tracking);
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .block-arrow-link:hover,
-  .block-testimonial-more:hover {
+  .mo-block-arrow-link:hover,
+  .mo-block-testimonials__testimonial-more:hover {
     background: var(--mo-sys-color-primary-hover);
   }
-  .block-arrow-link:active,
-  .block-testimonial-more:active {
+  .mo-block-arrow-link:active,
+  .mo-block-testimonials__testimonial-more:active {
     background: color-mix(in srgb, var(--mo-sys-color-primary) calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%), transparent);
   }
-  .block-testimonial-more {
+  .mo-block-testimonials__testimonial-more {
     cursor: pointer;
   }
   /* Chips (their variables above): a label in medium weight, a state layer when pointed at; a chosen filter chip with
@@ -103,7 +103,7 @@
   .mo-chip:has(> .mo-chip__trailing-icon) {
     padding-inline-end: 0.5rem;
   }
-  .block-tag {
+  .mo-block-tag {
     border-radius: var(--mo-sys-shape-corner-small);
     background: var(--mo-sys-color-surface-container-high);
   }

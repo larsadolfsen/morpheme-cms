@@ -39,9 +39,9 @@ export default function InlineLiveList({
         >
           {here ? (
             <InProse>
-              <hgroup className="block-head inline-live-head inline-list-row-active">
+              <hgroup className="mo-block-head inline-live-head inline-list-row-active">
                 <h2>{field('heading', t.blocks.heading, t.blocks.heading)}</h2>
-                <p className="block-subheading">{field('intro', t.blocks.subheading, t.blocks.subheading)}</p>
+                <p className="mo-block-head__subheading">{field('intro', t.blocks.subheading, t.blocks.subheading)}</p>
               </hgroup>
             </InProse>
           ) : null}

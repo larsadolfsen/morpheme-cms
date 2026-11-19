@@ -3,7 +3,7 @@ import type { TicketsView } from './tickets';
 
 export default function View({ view }: { view: TicketsView }) {
   return (
-    <ul className="block-list">
+    <ul className="mo-block-list">
       {view.items.map((r, i) => (
         <li key={i} className="block-tickets-row">
           <strong>{r.title}</strong>

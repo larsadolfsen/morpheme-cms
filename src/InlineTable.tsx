@@ -72,7 +72,9 @@ export default function InlineTable({ items, props, active, col, focus, onChange
       <Tag
         key={c}
         scope={Tag === 'th' ? 'col' : undefined}
-        className={[`block-table-${align[c] ?? 'left'}`, 'inline-table-cell', here && 'inline-table-cell-active'].filter(Boolean).join(' ')}
+        className={[`mo-block-table__${align[c] ?? 'left'}`, 'inline-table-cell', here && 'inline-table-cell-active']
+          .filter(Boolean)
+          .join(' ')}
       >
         <InlineField
           name={String(c)}
@@ -96,7 +98,7 @@ export default function InlineTable({ items, props, active, col, focus, onChange
   return (
     <div ref={root} className="inline-list-host inline-table-host">
       <div
-        className={[cardClass('outlined'), 'block-table', 'block-table-grid', 'inline-table-box'].join(' ')}
+        className={[cardClass('outlined'), 'mo-block-table', 'mo-block-table__grid', 'inline-table-box'].join(' ')}
         role="region"
         aria-label={t.blocks.table.label}
         data-striped={props.striped === true || undefined}

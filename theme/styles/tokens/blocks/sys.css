@@ -56,7 +56,7 @@
 
   A site sets the class `js` on <html> as early as it can (this site: Base.astro): then a long
   testimonial is cut with "Read more" from the start; without it, the whole text is shown.
-  The mark before the name on a testimonial (.block-testimonial-mark) is the site's own: it is not shown
+  The mark before the name on a testimonial (.mo-block-testimonials__testimonial-mark) is the site's own: it is not shown
   until the site gives it a look (the standard theme: an avatar with the name's first letter, its data-initial; another:
   its logo).
 */
@@ -163,7 +163,7 @@
 }
 /* A post row has a thumbnail (128px) before its text: its columns are wider (30rem), so the date and reading time stay on one line. */
 @layer components {
-  .block-posts-rows {
+  .mo-block-posts__rows {
     --mo-sys-block-list-column-min: 30rem;
   }
 }
@@ -203,12 +203,12 @@
   }
 }
 @layer components {
-  .block-steps {
+  .mo-block-steps {
     --mo-sys-block-step-gap: 2.5rem;
   }
 }
 @layer components {
-  .mo-block-cards__primary .block-card {
+  .mo-block-cards__primary .mo-block-cards__card {
     /* What is read on the container (a text button, its icon, a video's title and play button, which read --mo-sys-block-text and --mo-sys-block-accent) follows it, also in a section on a colour, where these roles are swapped. */
     --mo-sys-color-on-surface: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-on-primary));
     --mo-sys-color-on-surface-variant: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-on-primary));
@@ -219,7 +219,7 @@
   }
 }
 @layer components {
-  .mo-block-cards__secondary .block-card {
+  .mo-block-cards__secondary .mo-block-cards__card {
     /* What is read on the container (a text button, its icon, a video's title and play button, which read --mo-sys-block-text and --mo-sys-block-accent) follows it, also in a section on a colour, where these roles are swapped. */
     --mo-sys-color-on-surface: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-on-secondary));
     --mo-sys-color-on-surface-variant: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-on-secondary));
@@ -230,7 +230,7 @@
   }
 }
 @layer components {
-  .mo-block-cards__tertiary .block-card {
+  .mo-block-cards__tertiary .mo-block-cards__card {
     /* What is read on the container (a text button, its icon, a video's title and play button, which read --mo-sys-block-text and --mo-sys-block-accent) follows it, also in a section on a colour, where these roles are swapped. */
     --mo-sys-color-on-surface: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-on-tertiary));
     --mo-sys-color-on-surface-variant: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-on-tertiary));

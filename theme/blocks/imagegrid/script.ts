@@ -11,7 +11,7 @@ import { lightbox, type LightboxImage } from '@theme/ui/lightboxControl';
 const MAX_LINES = 2;
 
 function grid(root: HTMLElement) {
-  const list = root.querySelector<HTMLElement>('.block-imagegrid-grid');
+  const list = root.querySelector<HTMLElement>('.mo-block-imagegrid__grid');
   if (!list) return;
   const items = [...list.querySelectorAll<HTMLElement>(':scope > li')];
   const images = items.map((li) => ({

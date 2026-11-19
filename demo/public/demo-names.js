@@ -47,7 +47,7 @@
     ['.mo-divider', () => 'Divider'],
     ['.mo-snackbar', () => 'Snackbar'],
     ['.mo-tooltip__anchor', () => 'Tooltip'],
-    ['.video-facade', () => 'Video facade'],
+    ['.mo-block-video__facade', () => 'Video facade'],
   ];
   // A theme's part has more than one class (`mo-button`, `mo-is-filled`): `.mo-list__item-container` must not take `.mo-list`, so each rule is
   // matched on the element's own class list, never on a parent's.
@@ -57,7 +57,7 @@
   };
 
   // What a block draws beside itself in the text (its "more" button): it has the block's space, but it is not a block of its own.
-  const EXTRA = '.block-list-button, .block-more-button, .block-buttons-row';
+  const EXTRA = '.mo-block-list__button, .mo-block-more__button, .mo-block-buttons__row';
 
   const read = () => {
     const q = new URLSearchParams(location.search);
@@ -82,10 +82,10 @@
   let layer;
   let queued = false;
 
-  /** The elements to label: the blocks in the text (`.block-in-text` that is not inside another one), then the theme's parts. */
+  /** The elements to label: the blocks in the text (`.mo-is-in-text` that is not inside another one), then the theme's parts. */
   const targets = () => {
     const main = document.querySelector('main') ?? document.body;
-    const roots = [...main.querySelectorAll('.block-in-text')].filter((el) => !el.parentElement?.closest('.block-in-text') && !el.matches(EXTRA));
+    const roots = [...main.querySelectorAll('.mo-is-in-text')].filter((el) => !el.parentElement?.closest('.mo-is-in-text') && !el.matches(EXTRA));
     const found = [];
     roots.forEach((el, i) => {
       const [type, name] = blocks[i] ?? [];

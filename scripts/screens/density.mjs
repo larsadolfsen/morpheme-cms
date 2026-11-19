@@ -200,7 +200,7 @@ async function checkDensityTable(width, height) {
   page.on('pageerror', (e) => problems.push(`${width}px density table: ${e.message}`));
   await openEditor(page, site);
   const table =
-    '<div class="block-table block-table-grid"><table><thead><tr><th>Head</th></tr></thead><tbody><tr><td data-part="row">Cell</td></tr></tbody></table></div>';
+    '<div class="mo-block-table mo-block-table__grid"><table><thead><tr><th>Head</th></tr></thead><tbody><tr><td data-part="row">Cell</td></tr></tbody></table></div>';
   const measure = (attr) =>
     page.evaluate(
       ([attr, table]) => {

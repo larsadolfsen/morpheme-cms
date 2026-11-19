@@ -53,7 +53,7 @@ async function checkSectionCardContrast() {
           .map((id) => {
             const [section, color] = id.split('/');
             const cardsColor = color ? ` mo-block-cards__${color}` : '';
-            return `<div class="mo-text-section mo-is-${section}" data-case="${id}"><div class="block-cards${cardsColor}"><div class="mo-card mo-is-filled block-card"><div class="prose block-card-video"><a class="video-facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="video-facade-title">Title</span></a></div><span class="block-card-title">Headline</span><p class="block-card-text">Text</p></div></div></div>`;
+            return `<div class="mo-text-section mo-is-${section}" data-case="${id}"><div class="mo-block-cards${cardsColor}"><div class="mo-card mo-is-filled mo-block-cards__card"><div class="prose mo-block-cards__card-video"><a class="mo-block-video__facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="mo-block-video__facade-title">Title</span></a></div><span class="mo-block-cards__card-title">Headline</span><p class="mo-block-cards__card-text">Text</p></div></div></div>`;
           })
           .join('');
         document.body.insertAdjacentHTML('afterbegin', html);
@@ -70,10 +70,10 @@ async function checkSectionCardContrast() {
           const under = rgba(getComputedStyle(box).backgroundColor);
           const surface = bg[3] === 255 ? bg : bg.slice(0, 3).map((v, i) => Math.round((v * bg[3] + under[i] * (255 - bg[3])) / 255));
           return [
-            ['headline', '.block-card-title', 4.5],
-            ['text', '.block-card-text', 4.5],
-            ['video title', '.video-facade-title', 4.5],
-            ['play button', '.video-facade svg', 3],
+            ['headline', '.mo-block-cards__card-title', 4.5],
+            ['text', '.mo-block-cards__card-text', 4.5],
+            ['video title', '.mo-block-video__facade-title', 4.5],
+            ['play button', '.mo-block-video__facade svg', 3],
           ].map(([what, selector, need]) => ({
             id: box.dataset.case,
             what,
