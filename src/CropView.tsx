@@ -65,7 +65,7 @@ export default function CropViewHost() {
       // The dialog is drawn with the request, then opened (its element is there already).
       setTimeout(() => {
         dialog.current?.showModal();
-        // No control has the focus at the start: the page itself does, without a ring (editor.css .crop-page:focus).
+        // No control has the focus at the start: the page itself does, without a ring (editor.css .mo-editor-crop-page:focus).
         dialog.current?.focus({ preventScroll: true });
       });
     };
@@ -234,19 +234,19 @@ function CropDialog({
     const choice = await closeChanged();
     if (choice === 'keep') answer(cut);
     else if (choice === 'discard') answer(null);
-    else if (fromGesture) history.pushState({ ...history.state, sheet: 'crop-view' }, '');
+    else if (fromGesture) history.pushState({ ...history.state, sheet: 'mo-editor-crop-view' }, '');
   }
   const leaveNow = useRef(leave);
   leaveNow.current = leave;
   const onBack = useCallback(() => void leaveNow.current(true), []);
-  useSheetBack(!!shown, onBack, 'crop-view');
+  useSheetBack(!!shown, onBack, 'mo-editor-crop-view');
 
   const picked = (f: string) => setCut({ format: f, crop: f && aspect ? middleCrop(aspect, f) : null });
   const body = (
-    <div className="crop-view">
+    <div className="mo-editor-crop-view">
       <div
         ref={area}
-        className="crop-view-area"
+        className="mo-editor-crop-view-area"
         data-original={!crop || undefined}
         onPointerDown={down}
         onPointerMove={move}
@@ -258,7 +258,7 @@ function CropDialog({
             src={safeImageSrc(shownAt(src))}
             alt=""
             draggable={false}
-            className="crop-view-image"
+            className="mo-editor-crop-view-image"
             style={{ left: picture.x, top: picture.y, width: picture.w, height: picture.h }}
           />
         )}
@@ -267,7 +267,7 @@ function CropDialog({
           // keeps the page's colour instead of a grey strip.
           <div
             aria-hidden="true"
-            className="crop-view-shade"
+            className="mo-editor-crop-view-shade"
             style={{
               left: picture.x,
               top: picture.y,
@@ -282,19 +282,19 @@ function CropDialog({
             tabIndex={0}
             role="group"
             aria-label={t.media.crop.frame}
-            className="crop-view-frame"
+            className="mo-editor-crop-view-frame"
             style={{ left: frame.x, top: frame.y, width: frame.w, height: frame.h }}
             onKeyDown={key}
           />
         )}
       </div>
-      {crop && <p className="crop-view-hint">{t.media.crop.drag}</p>}
+      {crop && <p className="mo-editor-crop-view-hint">{t.media.crop.drag}</p>}
       {ratios.length > 1 && (
         <div>
-          <p className="crop-view-label" id={`${headline}-ratio`}>
+          <p className="mo-editor-crop-view-label" id={`${headline}-ratio`}>
             {t.media.crop.ratio}
           </p>
-          <div role="radiogroup" aria-labelledby={`${headline}-ratio`} className="crop-view-ratios">
+          <div role="radiogroup" aria-labelledby={`${headline}-ratio`} className="mo-editor-crop-view-ratios">
             {ratios.map((f) => {
               const r = ratioOf(f);
               return (
@@ -313,7 +313,7 @@ function CropDialog({
           </div>
         </div>
       )}
-      <div className="crop-view-zoom">
+      <div className="mo-editor-crop-view-zoom">
         <IconButton icon="minus" label={t.media.crop.zoomOut} disabled={!crop} onClick={() => zoomBy(zoom - 0.25)} />
         <Slider
           label={t.media.crop.zoom}
@@ -335,7 +335,7 @@ function CropDialog({
     <dialog
       ref={ref}
       aria-labelledby={headline}
-      className="crop-page"
+      className="mo-editor-crop-page"
       tabIndex={-1}
       onCancel={(e) => {
         e.preventDefault();
@@ -352,7 +352,7 @@ function CropDialog({
               </h1>
             </div>
           </TopAppBar>
-          <main className="crop-page-main">{body}</main>
+          <main className="mo-editor-crop-page-main">{body}</main>
           <ActionSheet label={t.common.saveChanges}>
             <div className="mo-editor-crop-actions">
               {medium && (

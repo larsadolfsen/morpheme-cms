@@ -781,7 +781,7 @@ function Editor() {
         above={files && user && !user.canSave && <p className="mo-editor-read-only-bar">{t.app.cannotSave(user.login)}</p>}
       >
         <>
-          <div className="editor-content mo-fill mo-editor-content-frame">
+          <div className="mo-editor-content mo-fill mo-editor-content-frame">
             {files ? (
               <Page key={visit} route={route} files={files} env={env} user={user} builtAt={builtAt} onLogout={signOut} />
             ) : (
