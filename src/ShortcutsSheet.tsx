@@ -32,11 +32,7 @@ export function showShortcuts() {
 
 const Rows = ({ rows }: { rows: ShortcutRow[] }) =>
   rows.map((r) => (
-    <ListItem
-      key={r.id}
-      headline={r.label}
-      trailing={<kbd className="mo-editor-shortcut-key">{shortcutText(r.key)}</kbd>}
-    />
+    <ListItem key={r.id} headline={r.label} trailing={<kbd className="mo-editor-shortcut-key">{shortcutText(r.key)}</kbd>} />
   ));
 
 /** The dialog of a computer. */

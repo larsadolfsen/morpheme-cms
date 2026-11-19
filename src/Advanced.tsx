@@ -241,7 +241,9 @@ export default function Advanced({ env }: { env: Env }) {
                   onChange={(next) => turnBuild(key, next, commit, change)}
                 />
               ))}
-              {paid && !settings.paidBuilds && paid !== 'yes' && <SupportingText className="mo-editor-supporting">{t.advanced.plan[paid]}</SupportingText>}
+              {paid && !settings.paidBuilds && paid !== 'yes' && (
+                <SupportingText className="mo-editor-supporting">{t.advanced.plan[paid]}</SupportingText>
+              )}
               <LinkButton
                 href={BILLING_URL}
                 target="_blank"
