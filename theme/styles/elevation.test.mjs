@@ -50,10 +50,18 @@ const surfaces = [
   ['elevated card', 'background: var(--mo-comp-card-elevated-surface, var(--mo-sys-elevation-level1-color));', 1],
   ['outlined card', 'background: var(--mo-comp-outlined-card-container-color, var(--mo-sys-elevation-level0-color));', 1],
   ['dialog (also date and time picker)', 'background: var(--mo-comp-dialog-surface, var(--mo-sys-elevation-level3-color));', 1],
-  ['date picker input label notch', '--mo-comp-text-field-label-surface: var(--mo-comp-dialog-surface, var(--mo-sys-elevation-level3-color));', 1],
+  [
+    'date picker input label notch',
+    '--mo-comp-text-field-label-surface: var(--mo-comp-dialog-surface, var(--mo-sys-elevation-level3-color));',
+    1,
+  ],
   ['bottom sheet (container and cover)', 'background: var(--mo-comp-bottom-sheet-surface, var(--mo-sys-elevation-level1-color));', 2],
   ['standard side sheet', 'background: var(--mo-comp-side-sheet-surface, var(--mo-sys-elevation-level0-color));', 2],
-  ['modal side sheet', 'background: var(--mo-comp-side-sheet-modal-surface, var(--mo-comp-side-sheet-surface, var(--mo-sys-elevation-level1-color)));', 2],
+  [
+    'modal side sheet',
+    'background: var(--mo-comp-side-sheet-modal-surface, var(--mo-comp-side-sheet-surface, var(--mo-sys-elevation-level1-color)));',
+    2,
+  ],
   ['scrolled top app bar', 'background: var(--mo-comp-top-app-bar-stuck-surface, var(--mo-sys-elevation-level2-color));', 1],
   ['menu, menu group and select list', 'background: var(--mo-comp-menu-container-color, var(--mo-sys-elevation-level2-color));', 3],
   [
@@ -96,7 +104,10 @@ for (const line of unchanged) {
 test('no part reads the old surface fallbacks', () => {
   assert.equal(count(uiCss, 'var(--mo-comp-menu-container-color, var(--mo-sys-block-surface))'), 0);
   assert.equal(count(uiCss, 'var(--mo-comp-dialog-surface, var(--mo-sys-block-surface))'), 0);
-  assert.equal(count(uiCss, 'var(--mo-comp-navigation-drawer-surface, var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface)))'), 0);
+  assert.equal(
+    count(uiCss, 'var(--mo-comp-navigation-drawer-surface, var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface)))'),
+    0,
+  );
   assert.equal(count(uiCss, 'var(--mo-comp-navigation-rail-surface, var(--mo-sys-block-surface))'), 0);
 });
 
@@ -109,11 +120,19 @@ const restShadows = [
     '--mo-comp-card-shadow: var(--mo-comp-elevated-card-container-elevation, var(--mo-sys-elevation-level1-rest-shadow));',
     1,
   ],
-  ['modal side sheet (container and wide layout)', 'box-shadow: var(--mo-comp-side-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
+  [
+    'modal side sheet (container and wide layout)',
+    'box-shadow: var(--mo-comp-side-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));',
+    2,
+  ],
   ['bottom sheet', 'box-shadow: var(--mo-comp-bottom-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
   ['bottom sheet as a dialog', 'box-shadow: var(--mo-comp-bottom-sheet-shadow-large, var(--mo-sys-elevation-level3-rest-shadow));', 1],
   ['dialog (also date and time picker)', 'var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
-  ['docked date picker', 'var(--mo-comp-date-picker-docked-shadow, var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow)));', 1],
+  [
+    'docked date picker',
+    'var(--mo-comp-date-picker-docked-shadow, var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow)));',
+    1,
+  ],
   ['scrolled top app bar', 'box-shadow: var(--mo-comp-top-app-bar-stuck-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
   ['modal navigation rail', 'box-shadow: var(--mo-comp-navigation-rail-modal-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
   ['navigation drawer', 'box-shadow: var(--mo-comp-navigation-drawer-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],

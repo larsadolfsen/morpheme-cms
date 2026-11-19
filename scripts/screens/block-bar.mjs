@@ -1165,7 +1165,9 @@ async function checkSelectionBox() {
         const box = r.querySelector(':scope > .mo-list__item-select-box');
         const lead = r.querySelector(':scope > .mo-list__item-leading');
         if (!box) return false;
-        return lead ? box.classList.contains('mo-list__item-select-box-trailing') : box.classList.contains('mo-list__item-select-box-leading');
+        return lead
+          ? box.classList.contains('mo-list__item-select-box-trailing')
+          : box.classList.contains('mo-list__item-select-box-leading');
       }),
     );
     if (!slots)

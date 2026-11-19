@@ -269,7 +269,9 @@ async function checkTextBar(width = 360) {
     if (rowIcons[name]?.startsWith('body_a') || rowIcons[name] === 'match_case' || rowIcons[name] === 'none')
       problems.push(`${label}: ${name} lost its own icon (${rowIcons[name]})`);
   const order = await page.evaluate(() =>
-    [...document.querySelectorAll('[role=menu] > li')].map((li) => (li.classList.contains('mo-menu__divider') ? '-' : li.textContent.trim())),
+    [...document.querySelectorAll('[role=menu] > li')].map((li) =>
+      li.classList.contains('mo-menu__divider') ? '-' : li.textContent.trim(),
+    ),
   );
   if (order.join('|') !== 'Main heading|-|Body large|Body medium|Body small|Label|-|Quote')
     problems.push(

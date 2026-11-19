@@ -35,14 +35,20 @@
 @layer components {
   @media (hover: hover) {
     :is(a, button:enabled):where(.mo-card).mo-is-filled:hover:not(:active, .mo-card__dragged) {
-      --mo-comp-card-shadow: var(--mo-comp-card-filled-hover-shadow, var(--mo-comp-card-filled-shadow, var(--mo-sys-elevation-level1-shadow)));
+      --mo-comp-card-shadow: var(
+        --mo-comp-card-filled-hover-shadow,
+        var(--mo-comp-card-filled-shadow, var(--mo-sys-elevation-level1-shadow))
+      );
     }
   }
 }
 @layer components {
   @media (hover: hover) {
     :is(a, button:enabled):where(.mo-card).mo-is-outlined:hover:not(:active, .mo-card__dragged) {
-      --mo-comp-card-shadow: var(--mo-comp-card-outlined-hover-shadow, var(--mo-comp-card-outlined-shadow, var(--mo-sys-elevation-level1-shadow)));
+      --mo-comp-card-shadow: var(
+        --mo-comp-card-outlined-hover-shadow,
+        var(--mo-comp-card-outlined-shadow, var(--mo-sys-elevation-level1-shadow))
+      );
     }
   }
 }

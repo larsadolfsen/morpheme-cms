@@ -316,7 +316,9 @@ async function checkButtonStyleSamples(width, locale) {
           .filter((slot) => slot.getClientRects().length)
           .map((slot) => {
             const button = slot.querySelector('.mo-button:not([aria-hidden] .mo-button)') ?? slot.querySelector('.mo-button');
-            const visible = [...slot.querySelectorAll('.mo-button')].filter((b) => !b.closest('[aria-hidden="true"][style*="hidden"]')).at(0);
+            const visible = [...slot.querySelectorAll('.mo-button')]
+              .filter((b) => !b.closest('[aria-hidden="true"][style*="hidden"]'))
+              .at(0);
             const b = (visible ?? button).getBoundingClientRect();
             const r = slot.getBoundingClientRect();
             // A text button's side padding (it has no surface) may stand over the slot's end: its text is what must be inside.

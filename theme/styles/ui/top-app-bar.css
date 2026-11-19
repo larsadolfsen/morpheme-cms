@@ -49,7 +49,8 @@
     padding-inline: var(--mo-comp-top-app-bar-padding, 0.5rem);
     color: var(--mo-comp-top-app-bar-headline-color, var(--mo-sys-block-text));
   }
-  .mo-top-app-bar > :not(.mo-top-app-bar__leading, .mo-top-app-bar__headline-group, .mo-top-app-bar__search-bar, .mo-top-app-bar__trailing) {
+  .mo-top-app-bar
+    > :not(.mo-top-app-bar__leading, .mo-top-app-bar__headline-group, .mo-top-app-bar__search-bar, .mo-top-app-bar__trailing) {
     grid-column: 1 / -1;
   }
   .mo-top-app-bar__leading,
@@ -104,7 +105,11 @@
     text-overflow: ellipsis;
   }
   /* In the middle: the headline between two equal sides; a search app bar keeps its width and centres its text. */
-  .mo-top-app-bar__center:is(.mo-top-app-bar__small, .mo-top-app-bar__medium-flexible[data-collapsed], .mo-top-app-bar__large-flexible[data-collapsed]) {
+  .mo-top-app-bar__center:is(
+    .mo-top-app-bar__small,
+    .mo-top-app-bar__medium-flexible[data-collapsed],
+    .mo-top-app-bar__large-flexible[data-collapsed]
+  ) {
     grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);
   }
   .mo-top-app-bar__center .mo-top-app-bar__headline-group {

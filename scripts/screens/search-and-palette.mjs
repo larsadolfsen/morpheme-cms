@@ -449,7 +449,8 @@ async function checkCommandPalette(width) {
     );
   if (again[1] !== 'Recent' || !/^Files/.test(againNames[1] ?? ''))
     problems.push(`${label}: Recent does not have Files after Recent searches: ${JSON.stringify(again)} ${JSON.stringify(againNames)}`);
-  if (!(await options.first().locator('.mo-list__item-leading svg').count())) problems.push(`${label}: a recent search has no history icon`);
+  if (!(await options.first().locator('.mo-list__item-leading svg').count()))
+    problems.push(`${label}: a recent search has no history icon`);
   if (!(await view.locator('button[aria-label^="Remove"]').count()))
     problems.push(`${label}: a recent search has no button that removes it`);
 
@@ -485,7 +486,8 @@ async function checkCommandPalette(width) {
   if (look.docked && Math.abs(look.gap - 2) > 0.5)
     problems.push(`${label}: the gap between the bar and the results is ${look.gap} px, not 2 (M3 tokens)`);
   if (look.hint !== 'search') problems.push(`${label}: the keyboard's key is "${look.hint}", not "search"`);
-  const leadingOf = () => options.evaluateAll((els) => els.map((e) => !!e.querySelector('.mo-list__item-leading svg, .mo-list__item-leading img')));
+  const leadingOf = () =>
+    options.evaluateAll((els) => els.map((e) => !!e.querySelector('.mo-list__item-leading svg, .mo-list__item-leading img')));
   if ((await leadingOf()).some((x) => !x))
     problems.push(`${label}: before typing a row has no leading icon ${JSON.stringify(await leadingOf())}`);
   if (await view.locator('.mo-search-view__filters').count()) problems.push(`${label}: the filter chips show before typing`);
@@ -723,7 +725,9 @@ async function checkPaletteLast(width) {
       const on = await page.evaluate(() => document.activeElement?.tagName);
       if (on === 'BUTTON') problems.push(`${label}: the shortcuts dialog opens with a button focused`);
       // A dialog in the middle of the screen has no drag handle (the handle belongs to a sheet from the bottom).
-      if (await sheet.locator('.mo-bottom-sheet__drag-handle').evaluateAll((els) => els.some((e) => getComputedStyle(e).display !== 'none')))
+      if (
+        await sheet.locator('.mo-bottom-sheet__drag-handle').evaluateAll((els) => els.some((e) => getComputedStyle(e).display !== 'none'))
+      )
         problems.push(`${label}: the shortcuts dialog shows a drag handle`);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);

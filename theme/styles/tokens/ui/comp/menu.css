@@ -7,7 +7,11 @@
     --mo-comp-menu-line: transparent;
     --mo-comp-menu-list-item-label-text-color: var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent));
     --mo-comp-menu-item-icon-color: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent)) 80%, transparent);
-    --mo-comp-menu-item-supporting-text: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent)) 80%, transparent);
+    --mo-comp-menu-item-supporting-text: color-mix(
+      in srgb,
+      var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent)) 80%,
+      transparent
+    );
     --mo-comp-menu-item-hover-surface: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent)) 14%, transparent);
     --mo-comp-menu-item-hover-text: var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent));
     --mo-comp-menu-list-item-selected-container-color: var(--mo-comp-menu-vibrant-selected-surface, var(--mo-sys-block-on-accent));

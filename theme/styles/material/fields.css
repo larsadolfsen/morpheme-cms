@@ -23,13 +23,15 @@
       .mo-is-error,
       .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
     )
-    .mo-text-field__container,:where(.mo-text-field)
-  .mo-is-filled:is(
+    .mo-text-field__container,
+  :where(.mo-text-field)
+    .mo-is-filled:is(
       .mo-is-error,
       .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
     )
-    .mo-text-field__container:hover,:where(.mo-text-field)
-  .mo-is-filled:is(
+    .mo-text-field__container:hover,
+  :where(.mo-text-field)
+    .mo-is-filled:is(
       .mo-is-error,
       .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
     )

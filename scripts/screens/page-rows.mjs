@@ -1277,7 +1277,8 @@ const rowPadding = () => {
       continue;
     }
     const row = c.querySelector('.mo-list__item-expand-summary, .mo-list__item-container:has(> .mo-list__item-trailing svg)');
-    if (!row || out[head] || row.querySelector(':scope > .mo-list__item-leading:not(:empty), :scope > .mo-list__item-leading-icon')) continue;
+    if (!row || out[head] || row.querySelector(':scope > .mo-list__item-leading:not(:empty), :scope > .mo-list__item-leading-icon'))
+      continue;
     const box = row.getBoundingClientRect();
     const icons = [...row.querySelectorAll('svg')].filter((v) => v.getBoundingClientRect().width);
     const title = row.querySelector('.mo-list__item-content').getBoundingClientRect();

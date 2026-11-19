@@ -107,11 +107,20 @@
   :where(.mo-text-field).mo-is-filled .mo-text-field__container:has(> .mo-text-field__input:focus) {
     box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
   }
-  :is(.mo-is-error, .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text)))
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
     .mo-text-field__container,
-  :is(.mo-is-error, .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text)))
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
     .mo-text-field__container:hover,
-  :is(.mo-is-error, .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text)))
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
     .mo-text-field__container:has(> .mo-text-field__input:is(:focus, [aria-expanded='true'])) {
     box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
   }
@@ -171,27 +180,34 @@
   :where(.mo-text-field).mo-is-filled .mo-text-field__input[aria-expanded='true'] + .mo-text-field__label {
     color: var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
   }
-  :is(.mo-is-error, .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text)))
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
     .mo-text-field__label,
-  :is(.mo-is-error, .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text)))
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
     .mo-text-field__input:is(:focus, [aria-expanded='true'])
     + .mo-text-field__label {
     color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
   }
   /* Outlined: the name on the edge, on the field's surface, at its start (also past the icon before it). */
-  :where(.mo-text-field).mo-is-outlined .mo-text-field__input:focus + .mo-text-field__label,:where(.mo-text-field)
-  .mo-is-outlined .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__input:focus + .mo-text-field__label,
+  :where(.mo-text-field) .mo-is-outlined .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
     top: 0;
     margin-left: -0.25rem;
     padding: 0 0.25rem;
     background: var(--mo-comp-text-field-label-surface, var(--mo-comp-text-field-outlined-surface, var(--mo-sys-block-surface)));
   }
   /* Filled: the name at the top of the field, what is written under it. */
-  :where(.mo-text-field).mo-is-filled:has(.mo-text-field__label) :is(.mo-text-field__input, .mo-text-field__prefix, .mo-text-field__suffix) {
+  :where(.mo-text-field).mo-is-filled:has(.mo-text-field__label)
+    :is(.mo-text-field__input, .mo-text-field__prefix, .mo-text-field__suffix) {
     padding-top: 1.1rem;
   }
-  :where(.mo-text-field).mo-is-filled .mo-text-field__input:focus + .mo-text-field__label,:where(.mo-text-field)
-  .mo-is-filled .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
+  :where(.mo-text-field).mo-is-filled .mo-text-field__input:focus + .mo-text-field__label,
+  :where(.mo-text-field) .mo-is-filled .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
     top: 0.5rem;
     transform: none;
   }
@@ -229,7 +245,10 @@
   /* What is written, or the suffix, nearer to the icons and buttons after it. */
   .mo-text-field__container:has(> .mo-text-field__trailing-action, > .mo-text-field__trailing-icon:not(.mo-text-field__error-icon))
     > :is(.mo-text-field__input, .mo-text-field__suffix):not(:has(~ .mo-text-field__suffix)),
-  :is(.mo-is-error, .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text)))
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
     .mo-text-field__container:has(> .mo-text-field__error-icon)
     > :is(.mo-text-field__input, .mo-text-field__suffix):not(:has(~ .mo-text-field__suffix)) {
     padding-inline-end: var(--mo-comp-text-field-icon-gap, 0.75rem);
@@ -255,7 +274,8 @@
     padding-inline-end: 0.25rem;
   }
   /* Shown once the name has moved up (or with no name in the field). */
-  .mo-text-field__container:has(> .mo-text-field__input:is(:focus, :not(:placeholder-shown))) > :is(.mo-text-field__prefix, .mo-text-field__suffix),
+  .mo-text-field__container:has(> .mo-text-field__input:is(:focus, :not(:placeholder-shown)))
+    > :is(.mo-text-field__prefix, .mo-text-field__suffix),
   .mo-text-field__without-label :is(.mo-text-field__prefix, .mo-text-field__suffix) {
     opacity: 1;
   }
@@ -265,12 +285,18 @@
   .mo-text-field__error-icon {
     display: none;
   }
-  :is(.mo-is-error, .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text)))
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
     .mo-text-field__error-icon {
     display: block;
     color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
   }
-  :is(.mo-is-error, .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text)))
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
     .mo-text-field__container:has(> .mo-text-field__error-icon)
     > :is(.mo-text-field__trailing-icon:not(.mo-text-field__error-icon), .mo-text-field__trailing-action) {
     display: none;
@@ -302,7 +328,11 @@
   }
   .mo-text-field__multiline :is(.mo-text-field__leading-icon, .mo-text-field__trailing-icon) {
     margin-top: calc(
-      (var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) - var(--mo-comp-text-field-icon-size, 1.25rem)) / 2
+      (
+          var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) -
+            var(--mo-comp-text-field-icon-size, 1.25rem)
+        ) /
+        2
     );
   }
   .mo-text-field__multiline :is(.mo-text-field__prefix, .mo-text-field__suffix) {
@@ -333,7 +363,10 @@
     flex: 1;
     margin: 0;
   }
-  :is(.mo-is-error, .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text)))
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
     .mo-text-field__supporting {
     color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
   }
@@ -343,7 +376,8 @@
   .mo-text-field__invalid-text {
     display: none;
   }
-  .mo-text-field:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text) .mo-text-field__invalid-text {
+  .mo-text-field:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text)
+    .mo-text-field__invalid-text {
     display: block;
   }
   .mo-text-field:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text)

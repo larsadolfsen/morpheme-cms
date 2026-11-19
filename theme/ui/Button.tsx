@@ -25,7 +25,12 @@ export type ButtonShape = (typeof buttonShapes)[number];
 
 /** A button's classes: its kind's and, unless it is medium, its size's and, unless it is round, its shape's. */
 export const buttonClass = (kind: ButtonKind = 'filled', size: ButtonSize = 'medium', shape: ButtonShape = 'round') =>
-  ['mo-button', kind === 'text' ? 'mo-button__text' : `mo-is-${kind}`, size !== 'medium' && `mo-button__${size}`, shape !== 'round' && `mo-button__${shape}`]
+  [
+    'mo-button',
+    kind === 'text' ? 'mo-button__text' : `mo-is-${kind}`,
+    size !== 'medium' && `mo-button__${size}`,
+    shape !== 'round' && `mo-button__${shape}`,
+  ]
     .filter(Boolean)
     .join(' ');
 

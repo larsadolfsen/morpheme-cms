@@ -22,7 +22,9 @@ export default function navigationRail() {
     const set = (expanded: boolean) => {
       rail.toggleAttribute('data-expanded', expanded);
       for (const menu of menus) menu.setAttribute('aria-expanded', String(expanded));
-      rail.querySelectorAll('.mo-navigation-rail__header > .mo-extended-fab').forEach((fab) => fab.toggleAttribute('data-collapsed', !expanded));
+      rail
+        .querySelectorAll('.mo-navigation-rail__header > .mo-extended-fab')
+        .forEach((fab) => fab.toggleAttribute('data-collapsed', !expanded));
       if (scrim) scrim.hidden = !expanded;
       if (!expanded && hides && rail.contains(document.activeElement)) (opener ?? outside[0])?.focus();
     };

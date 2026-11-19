@@ -245,7 +245,8 @@ async function checkRedirectsSelection() {
       await page.close();
       continue;
     }
-    const checked = () => page.locator('main [role=checkbox][aria-checked=true], main [aria-pressed=true].mo-list__item-selectable').count();
+    const checked = () =>
+      page.locator('main [role=checkbox][aria-checked=true], main [aria-pressed=true].mo-list__item-selectable').count();
     await rows.nth(0).focus();
     await page.keyboard.press('Space');
     await page.waitForTimeout(300);

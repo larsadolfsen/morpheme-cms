@@ -256,7 +256,10 @@
   @media (hover: hover) {
     :where(.mo-button).mo-is-filled[aria-pressed='true']:hover {
       background: var(--mo-comp-button-toggle-selected-hover, var(--mo-sys-block-accent-hover));
-      box-shadow: var(--mo-comp-button-toggle-selected-hover-shadow, var(--mo-comp-button-toggle-selected-shadow, var(--mo-sys-elevation-level1-shadow)));
+      box-shadow: var(
+        --mo-comp-button-toggle-selected-hover-shadow,
+        var(--mo-comp-button-toggle-selected-shadow, var(--mo-sys-elevation-level1-shadow))
+      );
     }
   }
   :where(.mo-button).mo-is-filled[aria-pressed='true']:active {
@@ -295,7 +298,10 @@
   }
   @media (hover: hover) {
     :where(.mo-button).mo-is-outlined[aria-pressed='true']:hover {
-      background: var(--mo-comp-button-outlined-selected-hover, color-mix(in srgb, var(--mo-sys-block-surface) 14%, var(--mo-sys-block-text)));
+      background: var(
+        --mo-comp-button-outlined-selected-hover,
+        color-mix(in srgb, var(--mo-sys-block-surface) 14%, var(--mo-sys-block-text))
+      );
       color: var(--mo-comp-button-outlined-selected-text, var(--mo-sys-block-surface));
       box-shadow: none;
     }
@@ -424,7 +430,10 @@
     }
   }
   :where(.mo-icon-button).mo-is-tonal[aria-pressed='false'] {
-    background: var(--mo-comp-icon-button-tonal-unselected-surface, color-mix(in srgb, var(--mo-sys-block-line) 55%, var(--mo-sys-block-surface)));
+    background: var(
+      --mo-comp-icon-button-tonal-unselected-surface,
+      color-mix(in srgb, var(--mo-sys-block-line) 55%, var(--mo-sys-block-surface))
+    );
     color: var(--mo-comp-icon-button-tonal-unselected-text, var(--mo-sys-block-muted));
   }
   @media (hover: hover) {

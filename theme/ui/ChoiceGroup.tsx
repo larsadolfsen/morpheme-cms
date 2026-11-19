@@ -158,7 +158,9 @@ export default function ChoiceGroup({
   const buttonContent = (c: Choice) => (
     <>
       {swatchOf(c)}
-      <span className={dots && c.swatch ? 'mo-choice-group__label mo-choice-group__label-hidden' : 'mo-choice-group__label'}>{c.label}</span>
+      <span className={dots && c.swatch ? 'mo-choice-group__label mo-choice-group__label-hidden' : 'mo-choice-group__label'}>
+        {c.label}
+      </span>
     </>
   );
 

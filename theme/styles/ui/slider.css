@@ -74,7 +74,8 @@
   }
   .mo-slider__range .mo-slider__active-track {
     left: calc(
-      var(--mo-comp-slider-reach) + var(--mo-comp-slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-track-gap, 0px)
+      var(--mo-comp-slider-reach) + var(--mo-comp-slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) +
+        var(--mo-comp-slider-track-gap, 0px)
     );
     border-radius: var(--mo-comp-slider-active-track-inner-corner-corner-size, 0);
   }
@@ -89,7 +90,8 @@
   }
   .mo-slider__inactive-track-end {
     left: calc(
-      var(--mo-comp-slider-reach) + var(--mo-comp-slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-track-gap, 0px)
+      var(--mo-comp-slider-reach) + var(--mo-comp-slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) +
+        var(--mo-comp-slider-track-gap, 0px)
     );
     right: 0;
     border-radius: var(--mo-comp-slider-active-track-inner-corner-corner-size, 0) var(--mo-comp-slider-track-corner)
@@ -100,17 +102,21 @@
       var(--mo-comp-slider-reach) + var(--mo-comp-slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-gap-start)
     );
     right: calc(
-      100% - var(--mo-comp-slider-reach) - var(--mo-comp-slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-gap-end)
+      100% - var(--mo-comp-slider-reach) - var(--mo-comp-slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) +
+        var(--mo-comp-slider-gap-end)
     );
     border-radius: var(--mo-comp-slider-active-track-inner-corner-corner-size, 0);
   }
   .mo-slider__centered .mo-slider__inactive-track-start {
     right: calc(
-      100% - var(--mo-comp-slider-reach) - var(--mo-comp-slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-gap-start)
+      100% - var(--mo-comp-slider-reach) - var(--mo-comp-slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) +
+        var(--mo-comp-slider-gap-start)
     );
   }
   .mo-slider__centered .mo-slider__inactive-track-end {
-    left: calc(var(--mo-comp-slider-reach) + var(--mo-comp-slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-gap-end));
+    left: calc(
+      var(--mo-comp-slider-reach) + var(--mo-comp-slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-gap-end)
+    );
   }
   .mo-slider__stop {
     position: absolute;

@@ -76,9 +76,10 @@
   /* Room enough over and under its two lines for its height, so they and what stands beside them are in the middle
      of an item whose text has no more lines, and at the same place in one whose text runs over more (not with a
      image, higher than the lines). */
-  :is(.mo-list__item-two-line, .mo-list__item-container:not(.mo-list__item-three-line):has(> .mo-list__item-content > .mo-list__item-supporting)):not(
-    :has(> :is(.mo-list__item-leading-image, .mo-list__item-leading-video))
-  ) {
+  :is(
+    .mo-list__item-two-line,
+    .mo-list__item-container:not(.mo-list__item-three-line):has(> .mo-list__item-content > .mo-list__item-supporting)
+  ):not(:has(> :is(.mo-list__item-leading-image, .mo-list__item-leading-video))) {
     padding-block: max(
       var(--mo-comp-list-item-padding-block, 0.85rem),
       (var(--mo-comp-list-item-two-line-box, 0px) - var(--mo-comp-list-item-first-lines)) / 2
@@ -188,7 +189,8 @@
   .mo-list__item-three-line {
     align-items: flex-start;
   }
-  .mo-list__item-three-line :is(.mo-list__item-leading, .mo-list__item-trailing, .mo-list__item-trailing-supporting, .mo-list__item-control) {
+  .mo-list__item-three-line
+    :is(.mo-list__item-leading, .mo-list__item-trailing, .mo-list__item-trailing-supporting, .mo-list__item-control) {
     align-self: flex-start;
     max-height: none;
   }

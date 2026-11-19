@@ -17,7 +17,13 @@ const script = read('../blocks/accordion/script.ts');
 
 test('every class of a folding item has a rule in list.css', () => {
   const classes = new Set(list.match(/\bmo-list__(?:item-)?expand[a-z-]*/g));
-  for (const c of ['mo-list__expand', 'mo-list__item-expand', 'mo-list__item-expand-summary', 'mo-list__item-expand-icon', 'mo-list__item-expand-body']) {
+  for (const c of [
+    'mo-list__expand',
+    'mo-list__item-expand',
+    'mo-list__item-expand-summary',
+    'mo-list__item-expand-icon',
+    'mo-list__item-expand-body',
+  ]) {
     assert.ok(classes.has(c), `List.tsx gives no ${c}`);
   }
   for (const c of classes) assert.match(ui, new RegExp(`\\.${c}\\b`), `list.css has no rule for .${c}`);

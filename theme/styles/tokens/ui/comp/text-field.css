@@ -26,13 +26,14 @@
 @layer components {
   :where(.mo-text-field).mo-has-leading-icon .mo-text-field__label {
     --mo-comp-text-field-label-start: calc(
-      var(--mo-comp-text-field-icon-padding, 0.875rem) + var(--mo-comp-text-field-icon-size, 1.25rem) + var(--mo-comp-text-field-icon-gap, 0.75rem)
+      var(--mo-comp-text-field-icon-padding, 0.875rem) + var(--mo-comp-text-field-icon-size, 1.25rem) +
+        var(--mo-comp-text-field-icon-gap, 0.75rem)
     );
   }
 }
 @layer components {
-  :where(.mo-text-field).mo-is-outlined .mo-text-field__input:focus + .mo-text-field__label,:where(.mo-text-field)
-  .mo-is-outlined .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__input:focus + .mo-text-field__label,
+  :where(.mo-text-field) .mo-is-outlined .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
     --mo-comp-text-field-label-start: var(--mo-comp-text-field-padding, 1.25rem);
   }
 }

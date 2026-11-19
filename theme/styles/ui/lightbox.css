@@ -12,7 +12,10 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: var(--mo-comp-lightbox-surface, color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 88%, transparent));
+    background: var(
+      --mo-comp-lightbox-surface,
+      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 88%, transparent)
+    );
     color: var(--mo-comp-lightbox-ink);
     box-shadow: none;
   }

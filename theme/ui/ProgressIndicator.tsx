@@ -32,7 +32,9 @@ function progressbar(value: number | undefined, label: string, wave?: Record<str
 }
 
 const classes = (part: string, indeterminate?: boolean, shape: ProgressIndicatorShape = 'flat', thick = false) =>
-  [part, indeterminate && `${part}__indeterminate`, shape === 'wavy' && `${part}__wavy`, thick && `${part}__thick`].filter(Boolean).join(' ');
+  [part, indeterminate && `${part}__indeterminate`, shape === 'wavy' && `${part}__wavy`, thick && `${part}__thick`]
+    .filter(Boolean)
+    .join(' ');
 
 /** A linear progress indicator's classes: determinate or not, its shape and a thick track. */
 export const linearProgressIndicatorClass = (indeterminate?: boolean, shape?: ProgressIndicatorShape, thick?: boolean) =>

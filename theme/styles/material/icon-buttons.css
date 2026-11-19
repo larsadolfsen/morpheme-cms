@@ -18,8 +18,8 @@
     transform: none;
   }
   @media (hover: hover) {
-    .mo-icon-button__standard:hover,:where(.mo-icon-button)
-    .mo-is-outlined:hover {
+    .mo-icon-button__standard:hover,
+    :where(.mo-icon-button) .mo-is-outlined:hover {
       background: var(--mo-sys-state-mo-hover-layer);
       color: var(--mo-sys-color-on-surface-variant);
     }

@@ -46,7 +46,11 @@ export const THEME_PARTS = [
   { id: 'TopAppBar', group: 'frame', prefixes: ['mo-top-app-bar'] },
   { id: 'HeaderMenu', group: 'frame', prefixes: ['mo-header__nav-item', 'mo-header__nav-toggle'] },
   { id: 'NavigationDrawer', group: 'frame', prefixes: ['mo-navigation-drawer'] },
-  { id: 'DrawerHead', group: 'frame', prefixes: ['mo-navigation-drawer__head', 'mo-navigation-drawer__name', 'mo-navigation-drawer__role', 'mo-navigation-drawer__actions'] },
+  {
+    id: 'DrawerHead',
+    group: 'frame',
+    prefixes: ['mo-navigation-drawer__head', 'mo-navigation-drawer__name', 'mo-navigation-drawer__role', 'mo-navigation-drawer__actions'],
+  },
   { id: 'Fab', group: 'frame', prefixes: ['mo-fab', 'mo-extended-fab'] },
   { id: 'FabMenu', group: 'frame', prefixes: ['mo-fab-menu'] },
   { id: 'Footer', group: 'frame', prefixes: ['mo-footer'] },

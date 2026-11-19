@@ -22,7 +22,13 @@ export const chipKinds: ChipKind[] = ['assist', 'filter', 'input', 'suggestion']
 
 /** A chip's classes: its kind's, and evt. elevated (not an input chip), dragged, and with a button that removes it. */
 export const chipClass = (kind: ChipKind = 'assist', { elevated = false, dragged = false, removable = false } = {}) =>
-  ['mo-chip', `mo-chip__${kind}`, elevated && kind !== 'input' && 'mo-is-elevated', dragged && 'mo-chip__dragged', removable && 'mo-chip__removable']
+  [
+    'mo-chip',
+    `mo-chip__${kind}`,
+    elevated && kind !== 'input' && 'mo-is-elevated',
+    dragged && 'mo-chip__dragged',
+    removable && 'mo-chip__removable',
+  ]
     .filter(Boolean)
     .join(' ');
 

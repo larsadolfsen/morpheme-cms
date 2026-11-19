@@ -338,7 +338,9 @@
     rotate: 180deg;
   }
   /* Nothing chosen yet: the name stands in the field, as on an empty text field. */
-  .mo-exposed-dropdown-menu:has(.mo-exposed-dropdown-menu__empty:checked) .mo-exposed-dropdown-menu__select:not(:focus) + .mo-text-field__label {
+  .mo-exposed-dropdown-menu:has(.mo-exposed-dropdown-menu__empty:checked)
+    .mo-exposed-dropdown-menu__select:not(:focus)
+    + .mo-text-field__label {
     top: calc(var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) / 2);
     margin-left: 0;
     padding: 0;

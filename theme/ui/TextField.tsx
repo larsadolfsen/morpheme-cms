@@ -195,7 +195,9 @@ export default function TextField({
           </button>
         )}
         {trailing && <span className="mo-text-field__trailing-action">{trailing}</span>}
-        {(errorIcon || saying) && <Svg name="warning-circle" size={20} className="mo-text-field__trailing-icon mo-text-field__error-icon" />}
+        {(errorIcon || saying) && (
+          <Svg name="warning-circle" size={20} className="mo-text-field__trailing-icon mo-text-field__error-icon" />
+        )}
       </div>
       {(line || counter || saying) && (
         <div className="mo-text-field__supporting-row">
@@ -213,7 +215,9 @@ export default function TextField({
             <span
               id={`${field}-counter`}
               className={
-                limit !== undefined && written.length > limit ? 'mo-text-field__counter mo-text-field__counter-over' : 'mo-text-field__counter'
+                limit !== undefined && written.length > limit
+                  ? 'mo-text-field__counter mo-text-field__counter-over'
+                  : 'mo-text-field__counter'
               }
               data-text-field-counter=""
               data-limit={limit}

@@ -81,14 +81,22 @@ const shadows: Token[] = [
   { token: '--mo-comp-side-sheet-shadow', label: say.partShadows.sideSheet, fallback: '--mo-sys-elevation-level1-shadow' },
   { token: '--mo-comp-navigation-drawer-shadow', label: say.partShadows.navigationDrawer, fallback: '--mo-sys-elevation-level1-shadow' },
   { token: '--mo-comp-navigation-bar-shadow', label: say.partShadows.navigationBar, fallback: '--mo-sys-elevation-level2-shadow' },
-  { token: '--mo-comp-navigation-rail-modal-shadow', label: say.partShadows.navigationRailModal, fallback: '--mo-sys-elevation-level2-shadow' },
+  {
+    token: '--mo-comp-navigation-rail-modal-shadow',
+    label: say.partShadows.navigationRailModal,
+    fallback: '--mo-sys-elevation-level2-shadow',
+  },
   { token: '--mo-comp-top-app-bar-stuck-shadow', label: say.partShadows.topAppBarStuck, fallback: '--mo-sys-elevation-level2-shadow' },
   { token: '--mo-comp-fab-shadow', label: say.partShadows.fab, fallback: '--mo-sys-elevation-level3-shadow' },
   { token: '--mo-comp-toolbar-floating-shadow', label: say.partShadows.toolbarFloating, fallback: '--mo-sys-elevation-level3-shadow' },
   { token: '--mo-comp-search-bar-shadow', label: say.partShadows.searchBar, fallback: '--mo-sys-elevation-level3-shadow' },
   { token: '--mo-comp-search-view-shadow', label: say.partShadows.searchView, fallback: '--mo-sys-elevation-level3-shadow' },
   { token: '--mo-comp-snackbar-shadow', label: say.partShadows.snackbar, fallback: '--mo-sys-elevation-level3-shadow' },
-  { token: '--mo-comp-button-toggle-selected-shadow', label: say.partShadows.buttonToggleSelected, fallback: '--mo-sys-elevation-level0-shadow' },
+  {
+    token: '--mo-comp-button-toggle-selected-shadow',
+    label: say.partShadows.buttonToggleSelected,
+    fallback: '--mo-sys-elevation-level0-shadow',
+  },
   // Pointed at (hover) and dragged, as ui.css draws them: their own variable, else the part's at rest, else the level.
   ...[
     ['--button-filled', say.partShadows.buttonFilled, 1],
@@ -110,7 +118,11 @@ const shadows: Token[] = [
     label: say.partShadows.hovered(say.partShadows.chipSelected),
     fallback: '--mo-sys-elevation-level1-shadow',
   },
-  { token: '--mo-comp-chip-dragged-shadow', label: say.partShadows.dragged(say.partShadows.chip), fallback: '--mo-sys-elevation-level4-shadow' },
+  {
+    token: '--mo-comp-chip-dragged-shadow',
+    label: say.partShadows.dragged(say.partShadows.chip),
+    fallback: '--mo-sys-elevation-level4-shadow',
+  },
   {
     token: '--mo-comp-card-filled-dragged-shadow',
     label: say.partShadows.dragged(say.partShadows.cardFilled),

@@ -202,7 +202,10 @@
     border-bottom: 1px solid var(--mo-comp-search-view-divider, transparent);
     border-radius: var(--mo-comp-search-view-header-radius, var(--mo-comp-search-bar-container-shape, var(--mo-sys-shape-corner-full)));
     padding: 0 0.25rem;
-    background: var(--mo-comp-search-view-header-surface, var(--mo-comp-search-bar-container-color, var(--mo-sys-color-surface-container-high)));
+    background: var(
+      --mo-comp-search-view-header-surface,
+      var(--mo-comp-search-bar-container-color, var(--mo-sys-color-surface-container-high))
+    );
     color: var(--mo-comp-search-bar-text, var(--mo-sys-color-on-surface));
   }
   .mo-search-view__input {

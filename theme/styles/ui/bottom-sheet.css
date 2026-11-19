@@ -206,7 +206,8 @@
       box-shadow: var(--mo-comp-bottom-sheet-shadow-large, var(--mo-sys-elevation-level3-rest-shadow));
       padding-bottom: 0;
     }
-    :where(.mo-bottom-sheet__container:not(.mo-bottom-sheet__standard, [data-wide='side-sheet'], [data-wide='sheet'])) > .mo-bottom-sheet__drag-handle {
+    :where(.mo-bottom-sheet__container:not(.mo-bottom-sheet__standard, [data-wide='side-sheet'], [data-wide='sheet']))
+      > .mo-bottom-sheet__drag-handle {
       display: none;
     }
     .mo-bottom-sheet__fit {
@@ -216,7 +217,8 @@
       width: min(92vw, 80rem);
       height: 90dvh;
     }
-    :where(.mo-bottom-sheet__container:not(.mo-bottom-sheet__standard, [data-wide='side-sheet'], [data-wide='sheet'])) > .mo-bottom-sheet__header {
+    :where(.mo-bottom-sheet__container:not(.mo-bottom-sheet__standard, [data-wide='side-sheet'], [data-wide='sheet']))
+      > .mo-bottom-sheet__header {
       padding-top: 1rem;
     }
   }
@@ -318,7 +320,8 @@
       touch-action: auto;
     }
     .mo-bottom-sheet__standard[data-wide='side-sheet'] > .mo-bottom-sheet__content {
-      padding: var(--mo-comp-side-sheet-content-top, 1rem) var(--mo-comp-side-sheet-padding, 1.5rem) var(--mo-comp-side-sheet-padding, 1.5rem);
+      padding: var(--mo-comp-side-sheet-content-top, 1rem) var(--mo-comp-side-sheet-padding, 1.5rem)
+        var(--mo-comp-side-sheet-padding, 1.5rem);
     }
     .mo-bottom-sheet__standard[data-wide='side-sheet'] > :is(.mo-bottom-sheet__content, .mo-bottom-sheet__footer) {
       display: revert;
@@ -371,7 +374,8 @@
     .mo-bottom-sheet__container[data-wide='side-sheet'] > .mo-bottom-sheet__header {
       gap: 0;
       padding-block: calc(var(--mo-comp-side-sheet-padding, 1.5rem) - var(--mo-comp-side-sheet-icon-inset)) 0;
-      padding-inline: var(--mo-comp-side-sheet-padding, 1.5rem) calc(var(--mo-comp-side-sheet-padding, 1.5rem) - var(--mo-comp-side-sheet-icon-inset));
+      padding-inline: var(--mo-comp-side-sheet-padding, 1.5rem)
+        calc(var(--mo-comp-side-sheet-padding, 1.5rem) - var(--mo-comp-side-sheet-icon-inset));
     }
     .mo-bottom-sheet__container[data-wide='side-sheet'] .mo-bottom-sheet__headline {
       font-size: var(--mo-comp-side-sheet-headline-size, var(--mo-sys-typescale-title-large-size));

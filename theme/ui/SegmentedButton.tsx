@@ -56,7 +56,9 @@ export default function SegmentedButton({
             <Svg name="check" size={18} className="mo-segmented-button__check" />
           )}
           {icon && <Glyph icon={icon} size={18} className="mo-segmented-button__icon" />}
-          <span className={dots ? 'mo-segmented-button__label mo-segmented-button__label-hidden' : 'mo-segmented-button__label'}>{name}</span>
+          <span className={dots ? 'mo-segmented-button__label mo-segmented-button__label-hidden' : 'mo-segmented-button__label'}>
+            {name}
+          </span>
         </button>
       ))}
     </div>

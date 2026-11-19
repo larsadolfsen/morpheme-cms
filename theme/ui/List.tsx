@@ -134,7 +134,11 @@ export function ListItemLeading({ children }: { children: ReactNode }) {
  * colour in a selected item, or with `selected` (the open one, where the item itself is not drawn selected). */
 export function ListItemLeadingIcon({ icon, selected, children }: { icon?: IconRef; selected?: boolean; children?: ReactNode }) {
   return (
-    <span className={['mo-list__item-leading mo-list__item-leading-icon', selected && 'mo-list__item-leading-icon-selected'].filter(Boolean).join(' ')}>
+    <span
+      className={['mo-list__item-leading mo-list__item-leading-icon', selected && 'mo-list__item-leading-icon-selected']
+        .filter(Boolean)
+        .join(' ')}
+    >
       {icon ? <Glyph icon={icon} size={24} /> : children}
     </span>
   );
@@ -295,7 +299,9 @@ export function ListItem({
     </span>
   );
 
-  const image = (p: ListItemImage, kind: string) => <img src={p.src} alt={p.alt ?? ''} className={`mo-list__item-${kind}`} loading="lazy" />;
+  const image = (p: ListItemImage, kind: string) => (
+    <img src={p.src} alt={p.alt ?? ''} className={`mo-list__item-${kind}`} loading="lazy" />
+  );
   const lead =
     control && at === 'leading' ? (
       choice

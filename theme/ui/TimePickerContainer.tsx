@@ -104,7 +104,13 @@ export default function TimePickerContainer({
   const period = twelve && (
     <span className="mo-time-picker__period" role="group" aria-label={texts.period}>
       {(['am', 'pm'] as const).map((p) => (
-        <button key={p} type="button" className="mo-time-picker__period-button" aria-pressed={(p === 'pm') === pm} data-time-picker-action={p}>
+        <button
+          key={p}
+          type="button"
+          className="mo-time-picker__period-button"
+          aria-pressed={(p === 'pm') === pm}
+          data-time-picker-action={p}
+        >
           {texts[p]}
         </button>
       ))}
@@ -112,7 +118,12 @@ export default function TimePickerContainer({
   );
   return (
     <Dialog
-      className={['mo-time-picker', orientation === 'horizontal' && 'mo-time-picker__horizontal', twelve && 'mo-time-picker__12h', className]
+      className={[
+        'mo-time-picker',
+        orientation === 'horizontal' && 'mo-time-picker__horizontal',
+        twelve && 'mo-time-picker__12h',
+        className,
+      ]
         .filter(Boolean)
         .join(' ')}
       data-view={view}

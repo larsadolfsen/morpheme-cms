@@ -28,7 +28,12 @@ export const PARTS = [
     reads: '--mo-sys-density',
   },
   { name: 'list item', file: 'theme/styles/ui/list.css', selector: '.mo-list__item-container', reads: '--mo-sys-density' },
-  { name: 'setting row', file: 'theme/styles/ui/switch.css', selector: '.mo-setting-list > .mo-setting-row', reads: '--mo-sys-density-layout' },
+  {
+    name: 'setting row',
+    file: 'theme/styles/ui/switch.css',
+    selector: '.mo-setting-list > .mo-setting-row',
+    reads: '--mo-sys-density-layout',
+  },
   {
     name: 'table cell',
     file: 'theme/styles/blocks/person-facts.css',

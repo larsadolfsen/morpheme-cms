@@ -21,7 +21,8 @@ export const extendedFabSizes = ['small', 'medium', 'large'] as const;
 export type ExtendedFabSize = (typeof extendedFabSizes)[number];
 
 /** A FAB's classes, and an extended FAB's: its kind, and its size when it is not the default. */
-export const fabClass = (kind: FabKind = 'primary', size: FabSize = 'fab') => `mo-fab mo-fab__${kind}${size === 'fab' ? '' : ` mo-fab__${size}`}`;
+export const fabClass = (kind: FabKind = 'primary', size: FabSize = 'fab') =>
+  `mo-fab mo-fab__${kind}${size === 'fab' ? '' : ` mo-fab__${size}`}`;
 export const extendedFabClass = (kind: FabKind = 'primary', size: ExtendedFabSize = 'small') =>
   `mo-extended-fab mo-fab__${kind}${size === 'small' ? '' : ` mo-extended-fab__${size}`}`;
 

@@ -69,8 +69,14 @@
     --mo-comp-list-item-gap: var(--mo-comp-list-expand-gap-inline, 1rem);
     --mo-comp-list-item-headline-size: var(--mo-comp-list-expand-headline-size, var(--mo-sys-typescale-title-medium-size));
     --mo-comp-list-item-headline-weight: var(--mo-comp-list-expand-headline-weight, var(--mo-sys-typescale-title-medium-weight));
-    --mo-comp-list-item-headline-line-height: var(--mo-comp-list-expand-headline-line-height, var(--mo-sys-typescale-title-medium-line-height));
-    --mo-comp-list-item-headline-letter-spacing: var(--mo-comp-list-expand-headline-letter-spacing, var(--mo-sys-typescale-title-medium-tracking));
+    --mo-comp-list-item-headline-line-height: var(
+      --mo-comp-list-expand-headline-line-height,
+      var(--mo-sys-typescale-title-medium-line-height)
+    );
+    --mo-comp-list-item-headline-letter-spacing: var(
+      --mo-comp-list-expand-headline-letter-spacing,
+      var(--mo-sys-typescale-title-medium-tracking)
+    );
   }
 }
 @layer components {
@@ -161,7 +167,8 @@
 }
 /* Selected stays at its corners (Material: 16dp) also while pointed at, pressed or focused. */
 @layer components {
-  .mo-list__segmented > li:has(> .mo-list__item-selected):has(> :is(a, button:enabled).mo-list__item-container:is(:hover, :active, :focus-visible)) {
+  .mo-list__segmented
+    > li:has(> .mo-list__item-selected):has(> :is(a, button:enabled).mo-list__item-container:is(:hover, :active, :focus-visible)) {
     --mo-comp-list-item-shape: var(
       --mo-comp-list-segmented-selected-radius,
       var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small))

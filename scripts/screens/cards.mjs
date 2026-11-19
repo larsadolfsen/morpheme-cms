@@ -839,9 +839,12 @@ async function checkCardsEditorSpacing(width, height) {
   // Focus in the headline is what makes a card active (InlineItems.tsx onFocus), on any width.
   await page.locator('ul.block-cards .block-card').first().locator('[data-field="title"]').focus();
   await page
-    .waitForSelector('ul.block-cards .block-card:first-child .block-card-subhead, ul.block-cards .block-card:first-child .mo-card__subhead', {
-      timeout: 10_000,
-    })
+    .waitForSelector(
+      'ul.block-cards .block-card:first-child .block-card-subhead, ul.block-cards .block-card:first-child .mo-card__subhead',
+      {
+        timeout: 10_000,
+      },
+    )
     .catch(() => {});
   const active = await measure(0);
   want('the subhead row of the active card (present)', active.sub, true);
