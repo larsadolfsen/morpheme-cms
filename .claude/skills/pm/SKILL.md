@@ -67,7 +67,8 @@ branch → feature → `next` → live):
 
 1. **A plan.** The work comes from a plan or a spec in `docs/superpowers/`, or from the owner.
 2. **A feature branch.** A feature is `feature/<name>`, cut from `main`, and every session of that feature opens its pull request
-   into it. Its first pull request sets its version (`docs/superpowers/plans/2026-11-19-version-at-feature-start.md`): the new line's
+   into it. Its first pull request sets its version in `package.json` and `package-lock.json` and runs `node scripts/starter.mjs`
+   (`docs/superpowers/plans/2026-11-19-version-at-feature-start.md`): the new line's
    `.0` when the owner said at the PM's start that this is the next major release, otherwise the next patch, without asking. A single
    fix into `main` takes the next patch the same way. A single fix is one pull request straight into `main`. There are no version-line branches: `0.18` is finished (owner,
    19 Nov 2026) and nothing goes into it; a line is only an area of the roadmap and its version numbers.
