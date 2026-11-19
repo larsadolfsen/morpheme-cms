@@ -83,10 +83,7 @@ export const popups: Popup[] = Object.entries(files)
     trigger: p.trigger === 'scroll' || p.trigger === 'exit' ? p.trigger : 'time',
     delay: Number(p.delay) || 0,
     scroll: Number(p.scroll) || 25,
-    button:
-      !p.mo - button || p.mo - button === 'none'
-        ? undefined
-        : { to: p.mo - button, label: p.label, href: p.mo - button === 'file' ? p.file : p.href },
+    button: !p.button || p.button === 'none' ? undefined : { to: p.button, label: p.label, href: p.button === 'file' ? p.file : p.href },
     data: p as Record<string, unknown>,
   }));
 

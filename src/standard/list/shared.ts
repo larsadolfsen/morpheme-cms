@@ -13,7 +13,7 @@ export default defineShared({
       maxRows: 3,
       design: 'segmented',
       items: Array.from({ length: 5 }, (_, i) => ({
-        title: `${siteT.blocks.mo - list.exampleTitle} ${i + 1}`,
+        title: `${siteT.blocks.list.exampleTitle} ${i + 1}`,
         text: siteT.blocks.list.exampleText,
       })),
     },
