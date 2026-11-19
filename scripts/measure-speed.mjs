@@ -134,7 +134,7 @@ const EDITOR_SCENARIOS = [
 async function siteMenu(page) {
   const phone = page.locator('button[aria-label="Open menu"]');
   if (await phone.isVisible()) await phone.click();
-  else await page.locator('md-nav-toggle, nav button').first().click();
+  else await page.locator('.mo-header__nav-toggle, nav button').first().click();
 }
 async function editorMenu(page) {
   const button = page.locator('button[aria-label="Open the menu"]:visible, button[aria-label="More"]:visible').first();

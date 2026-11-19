@@ -14,7 +14,7 @@ const { type, hidden, sectionColor, ...props } = Astro.props.section;
 ---
 
 <Section class={Astro.props.class} color={sectionColor} label={Astro.props.label}>
-  <div class="block-place">
+  <div class="mo-placed-block">
     <Block type={type} props={props} texts={blockTexts[type]} />
   </div>
 </Section>

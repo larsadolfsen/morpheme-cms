@@ -10,12 +10,12 @@ const { coverage } = t.parts.screens;
 /** A part's status as text; for a part the theme styles only in part, also the pieces it leaves to Material. */
 export function CoverageBadge({ coverage: part }: { coverage: PartCoverage }) {
   return (
-    <span className="block text-sm text-on-surface-variant">
+    <span className="mo-editor-block mo-editor-caption">
       {coverage.status[part.status]}
       {part.status === 'partly' && part.missing.length > 0 && (
         <>
           {' · '}
-          {coverage.missing} <span className="font-mono">{part.missing.join(', ')}</span>
+          {coverage.missing} <span className="mo-editor-mono">{part.missing.join(', ')}</span>
         </>
       )}
     </span>

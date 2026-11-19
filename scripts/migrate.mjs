@@ -1,21 +1,24 @@
 // `morpheme migrate`: rewrites the site's pages and posts (src/content/pages, src/content/blog) that still use a block that
-// has become another (see lib/migrate-content.mjs) to the form the editor writes, and prints each file it changed. Safe to
+// has become another (see lib/migrate-content.mjs) to the form the editor writes, and prints each file it changed. The class names the editor
+// saved in text (lib/content-class-names.mjs) are rewritten in every content collection (src/content/**) and every data file (src/data/**/*.json). Safe to
 // run twice: a migrated site is left alone. Only the blocks change, never the front matter, so a draft stays a draft. With
 // --check it changes nothing and stops with 1 when a file would change (the list is printed). Commit the result.
 // Run from the site's root: npx morpheme migrate [--check]
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { migrateClassNamesPath } from '../lib/content-class-names.mjs';
 import { migrateFile } from '../lib/migrate-content.mjs';
 
 const walk = (dir) =>
   (existsSync(dir) ? readdirSync(dir, { withFileTypes: true }) : []).flatMap((e) =>
-    e.isDirectory() ? walk(join(dir, e.name)) : e.name.endsWith('.md') ? [join(dir, e.name)] : [],
+    e.isDirectory() ? walk(join(dir, e.name)) : /\.(md|mdx|markdown|json)$/i.test(e.name) ? [join(dir, e.name)] : [],
   );
 const check = process.argv.includes('--check');
 const changed = [];
-for (const file of [...walk('src/content/blog'), ...walk('src/content/pages')]) {
+const pages = (file) => /^src[\\/]content[\\/](pages|blog)[\\/]/.test(file) && /\.md$/.test(file);
+for (const file of [...walk('src/content'), ...walk('src/data')]) {
   const before = readFileSync(file, 'utf8');
-  const after = migrateFile(before);
+  const after = pages(file) ? migrateFile(before) : migrateClassNamesPath(file, before);
   if (after === before) continue;
   changed.push(file);
   if (!check) writeFileSync(file, after);

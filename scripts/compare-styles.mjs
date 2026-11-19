@@ -294,13 +294,16 @@ async function compareSites(beforeDir, afterDir, { only, limit, all }) {
         const ending = new RegExp(`section-(${all.join('|')})$`);
         for (const e of document.querySelectorAll('[class*="section-"]'))
           for (const name of [...e.classList]) if (ending.test(name)) e.classList.replace(name, name.replace(ending, `section-${c}`));
+        // The `mo-text-section` names (M5): the colour is the kind `mo-is-<colour>` on the section.
+        for (const e of document.querySelectorAll('.mo-text-section'))
+          for (const name of [...e.classList]) if (all.some((k) => name === `mo-is-${k}`)) e.classList.replace(name, `mo-is-${c}`);
       },
       [color, SECTION_COLORS],
     );
   for (const address of pages) {
     for (const width of WIDTHS) {
       const [x, y] = [await open(a.site, width, address), await open(b.site, width, address)];
-      const sections = await x.page.evaluate(() => document.querySelectorAll('[class*="section-"]').length);
+      const sections = await x.page.evaluate(() => document.querySelectorAll('[class*="section-"], .mo-text-section').length);
       for (const scheme of SCHEMES) {
         await Promise.all([x.page, y.page].map((p) => p.emulateMedia({ colorScheme: scheme, reducedMotion: 'reduce' })));
         for (const color of sections ? SECTION_COLORS : [null]) {

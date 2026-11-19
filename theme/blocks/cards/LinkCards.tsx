@@ -102,7 +102,7 @@ export default function LinkCards({
   className?: string;
 }) {
   const type: CardKind = cardKinds.find((k) => k === design) ?? 'outlined';
-  const colored = type === 'filled' && color ? `block-cards-${color}` : undefined;
+  const colored = type === 'filled' && color ? `mo-block-cards__${color}` : undefined;
   const say = siteT.blocks.cards;
   const cardOf = (card: LinkCard) => {
     const parts = {

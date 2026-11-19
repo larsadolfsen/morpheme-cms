@@ -21,7 +21,7 @@ async function checkPreviewSection() {
   const frame = page.frames().find((f) => f !== page.mainFrame());
   await frame.waitForSelector('[data-editor="text"]', { timeout: 30_000 });
   const got = await frame.evaluate(() => {
-    const section = document.querySelector('section.text-section-tertiary');
+    const section = document.querySelector('section.mo-is-tertiary');
     return section ? getComputedStyle(section).backgroundColor : null;
   });
   if (!got || got === 'rgba(0, 0, 0, 0)') problems.push(`Preview section: a section with a background has none in the Preview (${got})`);
@@ -52,8 +52,8 @@ async function checkSectionCardContrast() {
           .flatMap((section) => ['', ...colors].map((color) => `${section}/${color}`))
           .map((id) => {
             const [section, color] = id.split('/');
-            const cardsColor = color ? ` block-cards-${color}` : '';
-            return `<div class="text-section text-section-${section}" data-case="${id}"><div class="block-cards${cardsColor}"><div class="card card-filled block-card"><div class="prose block-card-video"><a class="video-facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="video-facade-title">Title</span></a></div><span class="block-card-title">Headline</span><p class="block-card-text">Text</p></div></div></div>`;
+            const cardsColor = color ? ` mo-block-cards__${color}` : '';
+            return `<div class="mo-text-section mo-is-${section}" data-case="${id}"><div class="block-cards${cardsColor}"><div class="card card-filled block-card"><div class="prose block-card-video"><a class="video-facade" href="#"><svg viewBox="0 0 24 24" width="48" height="48" data-play><circle cx="12" cy="12" r="10" fill="currentColor"/></svg><span class="video-facade-title">Title</span></a></div><span class="block-card-title">Headline</span><p class="block-card-text">Text</p></div></div></div>`;
           })
           .join('');
         document.body.insertAdjacentHTML('afterbegin', html);
@@ -151,7 +151,7 @@ async function checkFullSection() {
   const text = PAGE_SOURCE.replace(/(\n)(## [^\n]+)/, '$1<div data-section="tertiary" data-width="full"></div>\n\n$2');
   const measure = () => {
     const box = (e) => (e ? e.getBoundingClientRect() : null);
-    const section = document.querySelector('section.text-section-full');
+    const section = document.querySelector('section.mo-is-full');
     const column = box(document.querySelector('[data-editor="text"]'));
     const [h2, p] = [section?.querySelector('h2'), section?.querySelector('p')].map(box);
     const intro = box(document.querySelector('[data-editor="text"] > p'));
@@ -189,7 +189,7 @@ async function checkFullSection() {
     while ((await width()) > w) await page.keyboard.press('ArrowLeft');
     await page.waitForTimeout(500);
     const frame = page.frames().find((f) => f !== page.mainFrame());
-    await frame.waitForSelector('section.text-section-full', { timeout: 30_000 });
+    await frame.waitForSelector('section.mo-is-full', { timeout: 30_000 });
     verify(`${w}px Preview full section`, await frame.evaluate(measure));
   }
   await page.close();
@@ -201,19 +201,19 @@ async function checkFullSection() {
   await clickPreview(phone);
   await phone.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const small = phone.frames().find((f) => f !== phone.mainFrame());
-  await small.waitForSelector('section.text-section-full', { timeout: 30_000 });
+  await small.waitForSelector('section.mo-is-full', { timeout: 30_000 });
   verify('375px Preview full section', await small.evaluate(measure));
   await phone.close();
 }
 
-/** A label above a heading (`<p class="label-medium">`, lib/eyebrow.mjs) on the demo's front page, About and App store pages, at 375, 768 and 1280 px, light and dark: the label sits 8 px above its heading
+/** A label above a heading (`<p class="mo-type-label-medium">`, lib/eyebrow.mjs) on the demo's front page, About and App store pages, at 375, 768 and 1280 px, light and dark: the label sits 8 px above its heading
  * (0.5rem, the same everywhere), so the space of the section the heading belongs to never comes between them (the front page puts the label in the section after it, Home.astro). */
 async function checkLabelGap() {
   const labelGap = 8;
   // Only the demo has these pages and labels: a site without them (the starter) has nothing to measure.
   const probe = await browser.newPage({ locale: 'en-US' });
   const response = await probe.goto(new URL('/about/', site).href).catch(() => null);
-  const hasLabels = !!response && response.status() < 400 && (await probe.locator('main .label-medium').count()) > 0;
+  const hasLabels = !!response && response.status() < 400 && (await probe.locator('main .mo-type-label-medium').count()) > 0;
   await probe.close();
   if (!hasLabels) return;
   for (const width of [375, 768, 1280])
@@ -228,7 +228,7 @@ async function checkLabelGap() {
         }
         const gaps = await page.evaluate(() => {
           const headings = [...document.querySelectorAll('h1, h2, h3')];
-          return [...document.querySelectorAll('main .label-medium')].map((el) => {
+          return [...document.querySelectorAll('main .mo-type-label-medium')].map((el) => {
             const heading = headings.find((h) => el.compareDocumentPosition(h) & Node.DOCUMENT_POSITION_FOLLOWING);
             return {
               text: el.textContent,
@@ -394,9 +394,9 @@ async function checkSectionBackground(width, touch) {
   await clickPreview(page);
   await page.waitForFunction(() => document.querySelector('[data-preview-page] iframe'), null, { timeout: 30_000 });
   const frame = page.frames().find((f) => f !== page.mainFrame());
-  await frame.waitForSelector('section.text-section-primary', { timeout: 30_000 });
+  await frame.waitForSelector('section.mo-is-primary', { timeout: 30_000 });
   const panel = await frame.evaluate(() => {
-    const cs = getComputedStyle(document.querySelector('section.text-section-primary'));
+    const cs = getComputedStyle(document.querySelector('section.mo-is-primary'));
     return { margin: parseFloat(cs.marginBottom), top: parseFloat(cs.paddingTop), bottom: parseFloat(cs.paddingBottom) };
   });
   if (panel.margin !== 0 || panel.bottom <= panel.top)

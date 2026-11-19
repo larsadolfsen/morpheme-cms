@@ -27,7 +27,7 @@ After contract 7 nothing builds these for you. A class or rule that uses them do
 | An arbitrary value or property | `w-[22.5rem]`, `[--mo-comp-card-padding:1rem]`, `[&>svg]:size-5` |
 | `theme()` in CSS | `@media (width >= theme(--breakpoint-medium))` |
 | `@theme`, `@apply`, `@utility`, `@source`, `@plugin` | `@apply flex gap-2;` |
-| `--tw-*` custom properties | `var(--tw-prose-body)` |
+| `--tw-*` custom properties | `var(--tw-translate-x)` (the text's colours are `--mo-comp-prose-*` since 0.18.2) |
 | The typography plugin's classes other than `prose` and `not-prose` | `prose-lg`, `prose-invert`, `prose-a:underline` |
 
 Still works: `prose` and `not-prose`, `post-lead`, `lead` and the type classes `mo-type-display-large` … `mo-type-lead`

@@ -88,7 +88,7 @@ export function parentPage(page: Page, all: Page[]) {
 // The H1 of a page: the heading at the top of its text ("# …", pageH1), else its title.
 export const pageHeading = (page: Page) => pageH1(page.body ?? '').heading ?? displayTitle(page.data.title);
 
-/** The H1 of a page as HTML, when a word in it has a colour (<span class="color-accent">, packages/editor/lib/text-colors.mjs),
+/** The H1 of a page as HTML, when a word in it has a colour (<span class="mo-has-accent-color">, packages/editor/lib/text-colors.mjs),
  * for the layout to draw in its place; else undefined, and the layout draws pageHeading. */
 export const pageHeadingHtml = (page: Page): string | undefined => pageH1(page.body ?? '').html;
 

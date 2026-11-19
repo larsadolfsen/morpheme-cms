@@ -99,42 +99,4 @@
     font-weight: var(--mo-sys-typescale-title-small-weight);
     letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
-  /* A text's first paragraph as a lead (theme/components/home/Text.astro, templates/Home.astro, layouts/PageLayout.astro), written as
-     Tailwind wrote the class `[&>p:first-child]:mo-type-lead`: the markup keeps that class name. Goes when those files stop using it
-     (docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md, step 3). */
-  .\[\&\>p\:first-child\]\:mo-type-lead > p:first-child {
-    font-size: var(--mo-sys-typescale-lead-size);
-    line-height: var(--mo-sys-typescale-lead-line-height);
-    font-weight: var(--mo-sys-typescale-lead-weight);
-    letter-spacing: var(--mo-sys-typescale-lead-tracking);
-  }
-
-  /* From 600 dp (--breakpoint-medium, base.css), written as Tailwind wrote the classes `medium:mo-type-…`: the markup keeps those class
-     names (theme/components/BlogPosts.tsx, PageHeader.astro, PageSection.astro, SectionHeading.tsx). Goes with them (step 3 of the plan). */
-  @media (width >= 37.5rem) {
-    .medium\:mo-type-display-medium {
-      font-size: var(--mo-sys-typescale-display-medium-size);
-      line-height: var(--mo-sys-typescale-display-medium-line-height);
-      font-weight: var(--mo-sys-typescale-display-medium-weight);
-      letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
-    }
-    .medium\:mo-type-display-small {
-      font-size: var(--mo-sys-typescale-display-small-size);
-      line-height: var(--mo-sys-typescale-display-small-line-height);
-      font-weight: var(--mo-sys-typescale-display-small-weight);
-      letter-spacing: var(--mo-sys-typescale-display-small-tracking);
-    }
-    .medium\:mo-type-headline-large {
-      font-size: var(--mo-sys-typescale-headline-large-size);
-      line-height: var(--mo-sys-typescale-headline-large-line-height);
-      font-weight: var(--mo-sys-typescale-headline-large-weight);
-      letter-spacing: var(--mo-sys-typescale-headline-large-tracking);
-    }
-    .medium\:mo-type-title-large {
-      font-size: var(--mo-sys-typescale-title-large-size);
-      line-height: var(--mo-sys-typescale-title-large-line-height);
-      font-weight: var(--mo-sys-typescale-title-large-weight);
-      letter-spacing: var(--mo-sys-typescale-title-large-tracking);
-    }
-  }
 }

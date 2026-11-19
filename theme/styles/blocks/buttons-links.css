@@ -109,7 +109,7 @@
   .block-filters[hidden] {
     display: none;
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-buttons {
       flex-direction: row;
       flex-wrap: wrap;

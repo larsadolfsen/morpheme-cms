@@ -27,7 +27,7 @@ export function MainDrawerSample() {
   const [open, setOpen] = useState(false);
   const [section, setSection] = useState<string | null>(null);
   return (
-    <div className="flex flex-wrap items-center gap-3">
+    <div className="mo-editor-actions-row">
       <Button kind="outlined" onClick={() => setOpen(true)}>
         {t.library.openMenu}
       </Button>

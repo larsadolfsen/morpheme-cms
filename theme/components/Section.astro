@@ -1,6 +1,6 @@
 ---
 // A front-page section: container, spacing above, reveal on scroll and an optional heading + intro; with a `color`
-// the content sits in a panel (.text-section-<color>, blocks.css) inside the container, none without one.
+// the content sits in a panel (.mo-is-<color>, blocks.css) inside the container, none without one.
 import Container from '@theme/components/Container.astro';
 import SectionHeading from '@theme/components/SectionHeading';
 import Inline from '@theme/components/Inline.astro';
@@ -13,26 +13,22 @@ interface Props {
   class?: string;
   /** Id for the heading; the section is then labelled by it (aria-labelledby). */
   id?: string;
-  /** The colour of the panel behind the section (`sectionColor` from the front page's heading, as in a page's text-section). */
+  /** The colour of the panel behind the section (`sectionColor` from the front page's heading, as in a page's mo-text-section). */
   color?: string;
   /** A label above the heading (lib/eyebrow.mjs): the text's label that came just before the section, kept with it. */
   label?: string;
 }
 const { title, intro, class: className, id, color, label } = Astro.props;
 const Panel = color ? 'div' : Fragment;
-const panel = color ? { class: `text-section text-section-${color} my-0 pb-(--mo-sys-block-section-padding)` } : {};
+const panel = color ? { class: `mo-text-section mo-is-${color} mo-section__panel` } : {};
 ---
 
-<Container
-  class:list={['pt-(--mo-comp-theme-section-space) medium:pt-(--mo-comp-theme-section-space-large)', className]}
-  aria-labelledby={title && id ? id : undefined}
-  data-reveal
->
+<Container class:list={['mo-section', className]} aria-labelledby={title && id ? id : undefined} data-reveal>
   <Panel {...panel}>
     {label && <Markdown body={eyebrowHtml(label)} />}
     {title && <SectionHeading id={id} text={title} />}
     {intro && (
-      <p class="mo-type-body-large mt-3 max-w-[52ch] text-on-surface-variant">
+      <p class="mo-type-body-large mo-section__intro">
         <Inline text={intro} />
       </p>
     )}

@@ -14,11 +14,11 @@ Find it in the editor under Apps. An app adds something new to your site, like a
 
 ![The Andromeda galaxy among thousands of stars](/images/uploads/2026/10/andromeda.webp)
 
-<p class="label-medium">How it works</p>
+<p class="mo-type-label-medium">How it works</p>
 
 <div data-block="steps" data-props="{&quot;heading&quot;:&quot;Install, update, remove&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Browse&quot;,&quot;text&quot;:&quot;Each app has its own page with screenshots, a description, the cookies it sets and the addresses it loads from.&quot;},{&quot;title&quot;:&quot;Install&quot;,&quot;text&quot;:&quot;The app is added to your site in a single change. Its blocks and settings appear in the editor right away.&quot;},{&quot;title&quot;:&quot;Update or remove&quot;,&quot;text&quot;:&quot;See what’s new before every update; bigger changes wait for you. Removing an app is one change too.&quot;}]}"></div>
 
-<p class="label-medium">Available now</p>
+<p class="mo-type-label-medium">Available now</p>
 
 <div data-block="list" data-props="{&quot;heading&quot;:&quot;Apps in the store&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Calendly&quot;,&quot;text&quot;:&quot;Your Calendly calendar in a sheet that every booking button opens.&quot;},{&quot;icon&quot;:&quot;envelope-simple&quot;,&quot;title&quot;:&quot;Mailchimp&quot;,&quot;text&quot;:&quot;A pop-up that signs visitors up for your Mailchimp newsletter.&quot;},{&quot;icon&quot;:&quot;flower-lotus&quot;,&quot;title&quot;:&quot;Content-based colors&quot;,&quot;text&quot;:&quot;Each page takes its colors from its own photos.&quot;}]}"></div>
 
@@ -38,6 +38,6 @@ Built in
 - [x] No tracking or ad cookies before a visitor says yes
 - [x] Release notes for every version
 
-<p class="label-medium">FAQ</p>
+<p class="mo-type-label-medium">FAQ</p>
 
 <div data-block="expand" data-props="{&quot;heading&quot;:&quot;Questions, answered&quot;,&quot;design&quot;:&quot;segmented&quot;,&quot;faq&quot;:true,&quot;items&quot;:[{&quot;title&quot;:&quot;What happens to my pages if I remove an app?&quot;,&quot;text&quot;:&quot;If a page uses one of the app’s blocks, the editor shows you where, so you can take it out first. Everything else stays as it is.&quot;},{&quot;title&quot;:&quot;Do apps update on their own?&quot;,&quot;text&quot;:&quot;Fixes and new features do. A bigger change that could affect your site waits until you tap Update.&quot;},{&quot;title&quot;:&quot;Can I have an app made just for my site?&quot;,&quot;text&quot;:&quot;Yes. An app is a folder of blocks, settings and lists. [Get in touch](/contact/).&quot;}]}"></div>

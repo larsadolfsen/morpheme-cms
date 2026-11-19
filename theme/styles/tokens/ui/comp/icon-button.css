@@ -91,7 +91,7 @@
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .bottom-sheet-container[data-wide='side-sheet'] > .bottom-sheet-header {
       --mo-comp-icon-button-small-container-height: 3rem;
       --mo-comp-icon-button-small-icon-size: 1.5rem;

@@ -4,20 +4,20 @@
      larger screens), a rule above each row (a divider of its own: the grid has two columns), the image's corners
      --mo-comp-theme-post-picture-radius (Material 3: 8dp). */
 @layer components {
-  .theme-post-list {
+  .mo-post-list {
     --mo-comp-list-item-image-size: 5.5rem;
     --mo-comp-list-item-image-radius: var(--mo-comp-theme-post-picture-radius, var(--mo-sys-shape-corner-small));
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
-    .theme-post-list {
+  @media (width >= 37.5rem) {
+    .mo-post-list {
       --mo-comp-list-item-image-size: 8rem;
     }
   }
 }
 @layer components {
-  .theme-action-bar-text {
+  .mo-action-bar__text {
     --mo-comp-list-item-padding-block: 0;
     --mo-comp-list-item-padding-inline: 0;
     --mo-comp-list-list-item-container-height: auto;

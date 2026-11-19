@@ -9,9 +9,9 @@ import { setOn, useNotificationChoices } from './notificationData';
 export default function AppNotificationSwitches({ notifies }: { notifies: { label: string; type?: string }[] }) {
   const { off } = useNotificationChoices();
   return (
-    <section className="mb-8">
+    <section className="mo-editor-group">
       <GroupTitle>{t.apps.notifications}</GroupTitle>
-      <div className="space-y-5 px-4">
+      <div className="mo-editor-stack-250 mo-editor-inset">
         {notifies.map((n) => (
           <SwitchRow key={n.type} label={n.label} selected={!off.includes(n.type!)} onChange={(yes) => setOn(n.type!, yes)} />
         ))}

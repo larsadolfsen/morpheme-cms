@@ -11,10 +11,10 @@ interface Props {
 const { title, intro } = Astro.props;
 ---
 
-<Container as="header" class="pt-8 medium:pt-14">
-  <h1 class="theme-title max-w-[18ch]">{title}</h1>
+<Container as="header" class="mo-page-header">
+  <h1 class="mo-page-title mo-page-header__title">{title}</h1>
   {intro && (
-    <p class="mo-type-body-large medium:mo-type-title-large mt-4 max-w-[52ch] text-on-surface-variant">
+    <p class="mo-type-body-large mo-page-header__intro">
       <Inline text={intro} />
     </p>
   )}

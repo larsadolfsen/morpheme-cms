@@ -161,7 +161,7 @@
   .mo-editor-field-item-toggle > svg {
     transition-property: transform, translate, scale, rotate;
     transition-duration: var(--mo-sys-motion-spring-default-spatial-duration);
-    transition-timing-function: var(--mo-sys-ease);
+    transition-timing-function: var(--mo-sys-motion-ease);
   }
   .mo-editor-field-item-toggle-open > svg {
     rotate: 180deg;

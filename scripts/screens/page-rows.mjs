@@ -863,7 +863,7 @@ async function checkLabelOnAnyLine(width) {
   const rowNames = () => page.locator('[role=menu] [role^=menuitem]:visible').evaluateAll((rows) => rows.map((x) => x.textContent.trim()));
   const labelNow = () =>
     page.evaluate(() => {
-      const el = document.querySelector('.ProseMirror p.label-medium');
+      const el = document.querySelector('.ProseMirror p.mo-type-label-medium');
       return el
         ? { text: el.textContent, size: getComputedStyle(el).fontSize, tops: [...el.parentElement.children].map((c) => c.tagName) }
         : null;
@@ -930,7 +930,7 @@ async function checkPreviewDraft(width) {
   if (failed) problems.push(`${label}: ${failed.slice(0, 120)}`);
   const bar = await page.evaluate(() => {
     const caption = document.querySelector('[data-preview-page] [data-preview-width]').getBoundingClientRect();
-    const area = document.querySelector('[data-preview-page] [role="group"]').closest('.overflow-x-auto');
+    const area = document.querySelector('[data-preview-page] [role="group"]').closest('.mo-editor-preview-sizes');
     const a = area.getBoundingClientRect();
     const apart =
       a.right <= caption.left + 0.5 || a.left >= caption.right - 0.5 || a.bottom <= caption.top + 0.5 || a.top >= caption.bottom - 0.5;

@@ -86,7 +86,7 @@ export const motionVariable = (kind: MotionKind, speed: MotionSpeed) => `--mo-sy
 /** A scheme as CSS for a <style> in the <head>: each spring as its duration and curve
  * (`--mo-sys-motion-spring-fast-spatial: 290ms linear(…)`), to use as `transition: transform var(--mo-sys-motion-spring-fast-spatial)`, and its
  * duration alone (`--mo-sys-motion-spring-fast-spatial-duration`), for what must last as long as it (a `visibility` that waits for it,
- * a `display … allow-discrete`); and the default spatial and effects curves alone (--motion-ease, --motion-ease-quick),
+ * a `display … allow-discrete`); and the default spatial and effects curves alone (--mo-sys-motion-ease, --mo-sys-motion-ease-quick),
  * for what has its own duration (--mo-sys-block-ease and --mo-sys-block-ease-quick in blocks.css, --mo-sys-ease in base.css). */
 export function motionCss(scheme: MotionScheme): string {
   const springs = SPRINGS[scheme];
@@ -99,7 +99,7 @@ export function motionCss(scheme: MotionScheme): string {
   );
   const ease = springCss(springs.spatial.default).easing;
   const quick = springCss(springs.effects.default).easing;
-  return `:root{${declarations.join('')}--motion-ease:${ease};--motion-ease-quick:${quick};}`;
+  return `:root{${declarations.join('')}--mo-sys-motion-ease:${ease};--mo-sys-motion-ease-quick:${quick};}`;
 }
 
 /** A spring as Motion takes it (motion.dev: `animate(el, …, motionSpring('spatial'))`), in the scheme on the page

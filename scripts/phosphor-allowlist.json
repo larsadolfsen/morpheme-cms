@@ -80,7 +80,7 @@
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/DashboardEdit.tsx": {
-    "max": 7,
+    "max": 6,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/DashboardGrid.tsx": {
@@ -100,15 +100,11 @@
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/FormFrame.tsx": {
-    "max": 3,
+    "max": 2,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/InlineCards.tsx": {
     "max": 3,
-    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
-  },
-  "src/InlineFaq.tsx": {
-    "max": 1,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/InlineItems.tsx": {
@@ -117,10 +113,6 @@
   },
   "src/InlineList.tsx": {
     "max": 3,
-    "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
-  },
-  "src/InlineVideo.tsx": {
-    "max": 1,
     "why": "Redrawn in the pack in use by themePlugin (site/theme.mjs), so not drawn as Phosphor; to move to Icon (Phosphor audit, follow-up 1)."
   },
   "src/Keywords.tsx": {

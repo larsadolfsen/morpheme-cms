@@ -75,7 +75,7 @@ const manifestOf = (version, extra = {}) => ({
  * notifications. `checks`: a commit's check run by its id ('success' | 'failure'; none: no run yet), `forbidden`: GitHub answers
  * the check runs with 403, `commitFails`: from which commit on `commitFiles` throws.
  */
-function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = true } = {}) {
+function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = true, content = {} } = {}) {
   const files = {
     'wrangler.jsonc': '{\n  "build": {\n    "command": "npm run check && npm run build",\n  },\n}\n',
     'package.json': JSON.stringify({ name: 'site', dependencies: { [PACKAGE]: range } }, null, 2) + '\n',
@@ -86,13 +86,14 @@ function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = t
           lockfileVersion: 3,
           packages: {
             '': { name: 'site', dependencies: { [PACKAGE]: range } },
-            [`node_modules/${PACKAGE}`]: { version: '0.1.0', resolved: manifestOf('0.1.0').dist.tarball, integrity: 'sha512-0.1.0' },
+            [`node_modules/${PACKAGE}`]: { version: range, resolved: manifestOf(range).dist.tarball, integrity: `sha512-${range}` },
           },
         },
         null,
         2,
       ) + '\n',
   };
+  Object.assign(files, content);
   if (!lock) delete files['package-lock.json'];
   const w = {
     kv: kvStore(),
@@ -113,6 +114,12 @@ function world({ range = '0.1.0', latest = '0.1.1', manifestExtra = {}, lock = t
       w.readCount++;
       return { head: `head${w.commits.length}`, texts: paths.map((p) => files[p]) };
     },
+    readFolder: async (env, folder) => ({
+      head: `head${w.commits.length}`,
+      files: Object.entries(files)
+        .filter(([path]) => path.startsWith(`${folder}/`))
+        .map(([path, text]) => ({ path, text })),
+    }),
     commitFiles: async (env, head, headline, changes) => {
       if (w.failure && w.commits.length >= (w.commitFails ?? 0)) throw w.failure;
       for (const { path, text } of changes) files[path] = text;
@@ -475,6 +482,129 @@ for (const [what, patch] of [
   const status = await cmsStatus(w.env, '0.2.0-next-1').catch((e) => e);
   expect(status?.running === '0.2.0-next-1', `en forudgivelse gav ${status?.message ?? status?.running}, ikke status`);
   expect(Array.isArray(status?.notes) && status.notes.length === 0, 'en forudgivelse gav noter');
+}
+
+// The update that takes 0.18.2 rewrites the class names of the pages and posts in the same commit as the version, and the undo
+// writes both back in one commit (class names saved in content, M6).
+{
+  const page = (cls) => `---\ntitle: "body-small"\n---\n\n<p class="${cls[0]}">body-small</p>\n\n<span class="${cls[1]}">x</span>\n`;
+  const before = {
+    'src/content/pages/a.md': page(['label-medium', 'color-accent']),
+    'src/content/blog/b.md': page(['body-large', 'color-muted']),
+    'src/content/pages/c.md': page(['mo-type-label-medium', 'mo-has-accent-color']),
+  };
+  const w = world({ range: '0.18.1', latest: '0.18.2', content: before });
+  await checkForUpdate(w.env, w.deps, T0);
+  expect(w.commits.length === 1, `the update made ${w.commits.length} commits, not 1`);
+  const paths = w.commits[0]?.changes.map((c) => c.path) ?? [];
+  expect(
+    paths.includes('package.json') && paths.includes('src/content/pages/a.md') && paths.includes('src/content/blog/b.md'),
+    `the commit had ${paths.join()}`,
+  );
+  expect(!paths.includes('src/content/pages/c.md'), 'a page with the new names was rewritten');
+  expect(
+    w.files['src/content/pages/a.md'] === page(['mo-type-label-medium', 'mo-has-accent-color']),
+    'the class names of the page were not rewritten, or a word of text changed',
+  );
+  expect(
+    w.files['src/content/blog/b.md'] === page(['mo-type-body-large', 'mo-has-muted-color']),
+    'the class names of the post were not rewritten',
+  );
+  expect(stored(w.kv, 'cms:update')?.migrated?.length === 2, `cms:update was ${JSON.stringify(stored(w.kv, 'cms:update'))}`);
+  w.checks.c1 = 'failure';
+  await watchUpdate(w.env, w.deps, T0 + 2 * MINUTE);
+  expect(w.commits.length === 2, 'the failed update was not undone with one commit');
+  expect(JSON.parse(w.files['package.json']).dependencies[PACKAGE] === '0.18.1', 'the undo did not write the version back');
+  expect(
+    w.files['src/content/pages/a.md'] === before['src/content/pages/a.md'] &&
+      w.files['src/content/blog/b.md'] === before['src/content/blog/b.md'],
+    'the undo did not write the class names back with the version',
+  );
+  expect(w.files['src/content/pages/c.md'] === before['src/content/pages/c.md'], 'the undo touched a page the update had not');
+  // An update to a version before 0.18.2, or from 0.18.2 on, leaves the content alone.
+  const old = world({ range: '0.18.0', latest: '0.18.1', content: before });
+  await checkForUpdate(old.env, old.deps, T0);
+  expect(
+    old.commits[0]?.changes.every((c) => !c.path.startsWith('src/content/')) && !('migrated' in (stored(old.kv, 'cms:update') ?? {})),
+    'an update to 0.18.1 rewrote content',
+  );
+  const later = world({ range: '0.18.2', latest: '0.18.3', content: before });
+  await checkForUpdate(later.env, later.deps, T0);
+  expect(
+    later.commits[0]?.changes.every((c) => !c.path.startsWith('src/content/')),
+    'an update from 0.18.2 rewrote content',
+  );
+}
+
+// The same update rewrites every place the editor stores markdown: a list entry (body and front matter), a data file's markdown string,
+// a global and a block's props in a page; JSON is written again as the editor writes it, and the undo writes exactly those files back.
+{
+  const NAMES = [
+    ['body-small', 'mo-type-body-small'],
+    ['body-medium', 'mo-type-body-medium'],
+    ['body-large', 'mo-type-body-large'],
+    ['label-medium', 'mo-type-label-medium'],
+    ['color-accent', 'mo-has-accent-color'],
+    ['color-muted', 'mo-has-muted-color'],
+  ];
+  const markdown = (pick) => NAMES.map(([old, now]) => `<p class="${pick(old, now)}">${old}</p>`).join('\n\n') + '\n';
+  const json = (value) => JSON.stringify(value, null, 2) + '\n';
+  const props = (pick) =>
+    `<div data-block="text" data-props="${JSON.stringify({ text: markdown(pick) })
+      .replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')}"></div>\n`;
+  const site = (pick) => ({
+    'src/content/team/anna.md': `---\ntitle: Anna\nbio: "<span class=\\"${pick('color-accent', 'mo-has-accent-color')}\\">Hi</span>"\n---\n\n${markdown(pick)}`,
+    'src/data/notes.json': json({ title: 'body-small', note: markdown(pick), n: 3 }),
+    'src/data/footer.json': json({ columns: [{ heading: 'label-medium', text: markdown(pick) }] }),
+    'src/content/pages/p.md': `---\ntitle: P\n---\n\n${props(pick)}`,
+    'src/data/other.json': json({ a: 'body-small', b: ['x'] }),
+  });
+  const before = site((old) => old);
+  const after = site((old, now) => now);
+  const changed = Object.keys(before).filter((p) => before[p] !== after[p]);
+  const w = world({ range: '0.18.1', latest: '0.18.2', content: before });
+  await checkForUpdate(w.env, w.deps, T0);
+  const paths = w.commits[0]?.changes.map((c) => c.path) ?? [];
+  const notContent = (p) => !/^src\/(content|data)\//.test(p);
+  expect(w.commits.length === 1 && paths.includes('package.json'), 'the update did not commit the version once');
+  for (const p of changed) expect(w.files[p] === after[p], `${p} was not rewritten as the editor writes it`);
+  expect(
+    !paths.includes('src/data/other.json') && w.files['src/data/other.json'] === before['src/data/other.json'],
+    'a data file without class names changed',
+  );
+  expect(
+    changed.every((p) => paths.includes(p)) && paths.filter((p) => !notContent(p)).length === changed.length,
+    `the commit had ${paths.join()}, not the version and ${changed.join()}`,
+  );
+  expect(
+    JSON.stringify(stored(w.kv, 'cms:update')?.migrated?.slice().sort()) === JSON.stringify(changed.slice().sort()),
+    'cms:update did not list the rewritten files',
+  );
+  w.checks.c1 = 'failure';
+  await watchUpdate(w.env, w.deps, T0 + 2 * MINUTE);
+  expect(w.commits.length === 2, 'the failed update was not undone with one commit');
+  expect(
+    Object.keys(before).every((p) => w.files[p] === before[p]),
+    'the undo did not write exactly the rewritten files back',
+  );
+  expect(
+    w.commits[1]?.changes
+      .map((c) => c.path)
+      .filter((p) => p !== 'package.json' && p !== 'package-lock.json')
+      .sort()
+      .join() === changed.slice().sort().join(),
+    'the undo touched other files than the update rewrote',
+  );
+  // A second run changes nothing: the content the update wrote has nothing left to rewrite.
+  const again = world({ range: '0.18.1', latest: '0.18.2', content: after });
+  await checkForUpdate(again.env, again.deps, T0);
+  expect(
+    again.commits[0]?.changes.every((c) => notContent(c.path)) && !('migrated' in (stored(again.kv, 'cms:update') ?? {})),
+    'a second run rewrote content again',
+  );
 }
 
 if (problems.length) {

@@ -114,7 +114,7 @@ export const siteBlockSchema = $nodeSchema('siteBlock', () => ({
 }));
 
 // A word or more in one of the site's colours (packages/editor/lib/text-colors.mjs): in the Markdown the HTML around
-// it, <span class="color-accent">…</span>, which Milkdown would read as two pieces of HTML with the text between them;
+// it, <span class="mo-has-accent-color">…</span>, which Milkdown would read as two pieces of HTML with the text between them;
 // read as the text with the colour (a mark), and written back as the same HTML. A piece of HTML without its end, or
 // another span, stays HTML.
 function colorRuns(children) {
@@ -137,7 +137,7 @@ function colorRuns(children) {
   return out;
 }
 
-// The same for a size (lib/text-sizes.mjs): `<span class="body-small">…</span>` is the text with the mark textSize.
+// The same for a size (lib/text-sizes.mjs): `<span class="mo-type-body-small">…</span>` is the text with the mark textSize.
 function sizeRuns(children) {
   const out = [];
   for (let i = 0; i < children.length; i++) {

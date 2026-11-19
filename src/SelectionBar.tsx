@@ -33,7 +33,7 @@ export default function SelectionBar({
 }) {
   return (
     <>
-      <span className="sr-only" role="status" aria-live="polite">
+      <span className="mo-visually-hidden" role="status" aria-live="polite">
         {t.library.selectedCount(count)}
       </span>
       {kind === 'actions' ? (

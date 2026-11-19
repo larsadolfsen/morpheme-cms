@@ -2,5 +2,5 @@
 
 :root {
   /* The same for a chip set that scrolls (ui.css). */
-  --mo-comp-chip-set-bleed: 1rem;
+  --mo-comp-chip-set-bleed: var(--mo-comp-theme-page-gutter);
 }

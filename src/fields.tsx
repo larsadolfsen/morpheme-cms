@@ -196,7 +196,7 @@ export function FieldInput(props: Props) {
   );
 }
 
-/** A post's title drawn in the text as the site draws it (.theme-title: the display role, as PostHeader.astro), written in place
+/** A post's title drawn in the text as the site draws it (.mo-page-title: the display role, as PostHeader.astro), written in place
  * and not in a field with its name on its edge. It grows with what is typed; Enter does not make a line. Marked as the other
  * fields are when it keeps the form from being saved (WrongField). */
 export function HeadTitle(props: Props) {
@@ -217,7 +217,7 @@ export function HeadTitle(props: Props) {
         value={text}
         aria-label={props.field.label}
         placeholder={props.field.label}
-        className="theme-title mo-editor-theme-title-input"
+        className="mo-page-title mo-editor-theme-title-input"
         onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
         onChange={(e) => onChange(oneLine(e.target.value))}
       />

@@ -133,6 +133,7 @@ const PICTURE_ALLOWED = [
     why: 'stored names: CSS classes, data attributes and theme tokens that sites rely on, and the id of a pending note',
   },
   { token: /\bblocks\.picture\b|^\s*picture: \{/g, why: 'the i18n key of the image block texts: a code name, not a text' },
+  { token: /<\/?picture>/g, why: 'the HTML element of a responsive image (the prose fixture page draws one)' },
 ];
 for (const path of names) {
   if (

@@ -1,7 +1,7 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .bottom-sheet-container[data-wide='side-sheet'] > .bottom-sheet-header {
       --mo-comp-side-sheet-icon-inset: calc(
         (var(--mo-comp-icon-button-small-container-height) - var(--mo-comp-icon-button-small-icon-size)) / 2

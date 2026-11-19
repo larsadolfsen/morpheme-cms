@@ -17,12 +17,12 @@ export function StartStatus({ builtAt }: { builtAt: Date | null }) {
   const updated = time ? t.library.siteUpdated(time) : null;
   return (
     <>
-      <span className="hidden expanded:inline">
+      <span className="mo-editor-status-wide">
         <CmsVersion />
         {updated && `${t.library.statusSeparator}${updated}`}
       </span>
-      <span className="hidden medium:inline expanded:hidden">{updated ? <SwapText text={updated} swapped={cms} /> : cms}</span>
-      <span className="medium:hidden">{time ? <SwapText text={time} swapped={cms} title={updated ?? undefined} /> : cms}</span>
+      <span className="mo-editor-status-medium">{updated ? <SwapText text={updated} swapped={cms} /> : cms}</span>
+      <span className="mo-editor-status-phone">{time ? <SwapText text={time} swapped={cms} title={updated ?? undefined} /> : cms}</span>
     </>
   );
 }

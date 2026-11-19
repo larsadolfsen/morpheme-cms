@@ -6,20 +6,20 @@
 @layer fallback {
   /* The footer: a surface container with extra-large corners at the top, a headline, lists with leading icons and a
    state layer, and text buttons at the bottom. */
-  .md-footer {
+  .mo-footer {
     margin-top: 6rem;
     border-radius: var(--mo-sys-shape-corner-extra-large) var(--mo-sys-shape-corner-extra-large) var(--mo-sys-shape-corner-none)
       var(--mo-sys-shape-corner-none);
     background: var(--mo-sys-color-surface-container);
   }
-  .md-footer-name {
+  .mo-footer__name {
     margin-top: 0.75rem;
     font-size: var(--mo-sys-typescale-headline-small-size);
     line-height: var(--mo-sys-typescale-headline-small-line-height);
     font-weight: var(--mo-sys-typescale-headline-small-weight);
     letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
   }
-  .md-footer-text {
+  .mo-footer__text {
     margin-top: 0.5rem;
     max-width: 38ch;
     color: var(--mo-sys-color-on-surface-variant);
@@ -28,20 +28,20 @@
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
-  .md-footer-heading,
-  .md-footer-column > p {
+  .mo-footer__heading,
+  .mo-footer__column > p {
     color: var(--mo-sys-color-on-surface);
     font-size: var(--mo-sys-typescale-label-large-size);
     line-height: var(--mo-sys-typescale-label-large-line-height);
     font-weight: var(--mo-sys-typescale-label-large-weight);
     letter-spacing: var(--mo-sys-typescale-label-large-tracking);
   }
-  .md-footer-list,
-  .md-footer-column > ul {
+  .mo-footer__list,
+  .mo-footer__column > ul {
     margin: 0.5rem -1rem 0;
   }
-  .md-footer-item,
-  .md-footer-column > ul a {
+  .mo-footer__item,
+  .mo-footer__column > ul a {
     display: flex;
     min-height: 3rem;
     align-items: center;
@@ -55,33 +55,33 @@
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .md-footer-item:hover,
-  .md-footer-column > ul a:hover {
+  .mo-footer__item:hover,
+  .mo-footer__column > ul a:hover {
     background: var(--mo-sys-state-mo-hover-layer);
     color: var(--mo-sys-color-on-surface);
   }
-  .md-footer-item:focus-visible,
-  .md-footer-item:active,
-  .md-footer-column > ul a:focus-visible,
-  .md-footer-column > ul a:active {
+  .mo-footer__item:focus-visible,
+  .mo-footer__item:active,
+  .mo-footer__column > ul a:focus-visible,
+  .mo-footer__column > ul a:active {
     background: var(--mo-sys-state-mo-pressed-layer);
     color: var(--mo-sys-color-on-surface);
   }
-  .md-footer-column > ul > li {
+  .mo-footer__column > ul > li {
     margin-block: 0;
   }
-  .md-footer-item > svg {
+  .mo-footer__item > svg {
     flex-shrink: 0;
   }
-  .md-footer-column > a {
+  .mo-footer__column > a {
     margin-top: 0.5rem;
     font-weight: 500;
   }
   /* On a phone the practical links are two equal columns of the grid (compact: 4 columns, 2 each) with the grid's gutter between,
      in reading order across, then down (the document order, so the tab order and a screen reader follow what is seen). The
      rows keep their height and target (the item's 3rem). From the medium width the list is one column as before. */
-  @media (width < theme(--breakpoint-medium)) {
-    .md-footer-column > .md-footer-list {
+  @media (width < 37.5rem) {
+    .mo-footer__column > .mo-footer__list {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       column-gap: var(--mo-sys-grid-gutter);
@@ -89,7 +89,7 @@
   }
 }
 @layer fallback {
-  .md-footer-bottom {
+  .mo-footer__bottom {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -105,16 +105,16 @@
   }
   /* Only the text button's own padding is pulled out, so its text starts on the margin; the button group sits on the content
      edges. */
-  .md-footer-bottom > div > [data-cookie-settings] {
+  .mo-footer__bottom > div > [data-cookie-settings] {
     margin-inline-start: -0.75rem;
   }
   /* Room under the footer's last line for the FAB, or for the bar at the bottom of the screen: in the footer instead of
    under the page (site-action.css), so the footer reaches the bar. */
-  @media (width < theme(--breakpoint-medium)) {
-    body:has(.theme-action-bar):has(.md-footer) {
+  @media (width < 37.5rem) {
+    body:has(.mo-action-bar):has(.mo-footer) {
       padding-bottom: 0;
     }
-    body:has(.theme-action-bar, [data-fab]) .md-footer {
+    body:has(.mo-action-bar, [data-fab]) .mo-footer {
       padding-bottom: 5rem;
     }
   }

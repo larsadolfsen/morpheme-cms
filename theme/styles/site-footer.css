@@ -1,0 +1,42 @@
+/* The footer's layout (theme/components/Footer.astro): the grid of its columns and the mark. The look of its parts is in material/footer.css.
+   In @layer utilities, where the utility classes they replace sat. Written with Modern Web Guidance's guides css-layout and responsive-design. */
+@layer utilities {
+  .mo-footer__grid {
+    display: grid;
+    gap: 2.5rem;
+    padding-block: 3rem;
+  }
+  /* A column never widens the track (a horizontal scroller in it). */
+  .mo-footer__grid > * {
+    min-inline-size: 0;
+  }
+  .mo-footer__mark {
+    display: block;
+    inline-size: 2.75rem;
+    block-size: 3rem;
+    background-color: var(--mo-sys-color-primary);
+  }
+  @media (width >= 37.5rem) {
+    .mo-footer__grid {
+      gap: 1.5rem;
+      padding-block: 4rem;
+    }
+  }
+  @media (width >= 52.5rem) {
+    .mo-footer__grid {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+    .mo-footer__about {
+      grid-column: span 5 / span 5;
+    }
+    .mo-footer__contact {
+      grid-column: span 4 / span 4;
+    }
+    .mo-footer__links {
+      grid-column: span 3 / span 3;
+    }
+    .mo-footer__bottom {
+      grid-column: span 12 / span 12;
+    }
+  }
+}

@@ -28,7 +28,7 @@ export function LineNav({ line }: { line: string }) {
   const older = all[at + 1];
   if (!newer && !older) return null;
   return (
-    <nav aria-label={t.cms.otherVersions} className="mb-8 flex flex-wrap justify-between gap-2 px-4">
+    <nav aria-label={t.cms.otherVersions} className="mo-editor-version-nav">
       {newer ? (
         <LinkButton kind="outlined" size="small" href={lineHref(newer.line)} icon={ArrowLeft} aria-label={t.library.cmsVersion(newer.line)}>
           {newer.line}

@@ -1,49 +1,16 @@
 {
-  "defaults/popup.tsx": {
-    "utilities": 2
-  },
   "lib/snackbar.ts": {
     "constants": 2
   },
   "site/icons.mjs": {
     "constants": 1
   },
-  "site/sections.ts": {
-    "constants": 4
-  },
   "src/ActionParts.tsx": {
     "utilities": 23,
     "constants": 4
   },
-  "src/AddWidget.tsx": {
-    "utilities": 1
-  },
-  "src/Advanced.tsx": {
-    "utilities": 7
-  },
   "src/App.tsx": {
     "utilities": 28
-  },
-  "src/AppAdds.tsx": {
-    "utilities": 11
-  },
-  "src/AppConnection.tsx": {
-    "utilities": 2
-  },
-  "src/AppEnabledSwitch.tsx": {
-    "utilities": 2
-  },
-  "src/AppInfoTab.tsx": {
-    "utilities": 11
-  },
-  "src/AppNotificationSwitches.tsx": {
-    "utilities": 3
-  },
-  "src/AppProblems.tsx": {
-    "utilities": 2
-  },
-  "src/AppSettingsTab.tsx": {
-    "utilities": 1
   },
   "src/ask.tsx": {
     "utilities": 19
@@ -60,130 +27,26 @@
   "src/Colors.tsx": {
     "utilities": 19
   },
-  "src/Consents.tsx": {
-    "utilities": 4
-  },
-  "src/CoverageBadge.tsx": {
-    "utilities": 4
-  },
-  "src/CoverageSummary.tsx": {
-    "utilities": 2
-  },
   "src/CropView.tsx": {
     "utilities": 18
   },
   "src/DashboardEdit.tsx": {
     "utilities": 18
   },
-  "src/DashboardGrid.tsx": {
-    "utilities": 4
-  },
-  "src/DataForm.tsx": {
-    "utilities": 9
-  },
-  "src/Deleted.tsx": {
-    "utilities": 12
-  },
   "src/editor.css": {
-    "theme": 17,
-    "reference": 1,
-    "tw": 17
-  },
-  "src/EditorFooter.tsx": {
-    "utilities": 3
+    "reference": 1
   },
   "src/EntryForm.tsx": {
     "utilities": 24
   },
-  "src/FileView.tsx": {
-    "utilities": 9
-  },
-  "src/FirstRun.tsx": {
-    "utilities": 7
-  },
-  "src/FooterCopyright.tsx": {
-    "utilities": 5
-  },
-  "src/FooterDivider.tsx": {
-    "utilities": 4
-  },
-  "src/FooterLink.tsx": {
-    "utilities": 9
-  },
-  "src/FooterLinks.tsx": {
-    "utilities": 5
-  },
-  "src/FormFrame.tsx": {
-    "utilities": 12
-  },
-  "src/Keywords.tsx": {
-    "utilities": 4
-  },
-  "src/Library.tsx": {
-    "utilities": 74
-  },
   "src/Licenses.tsx": {
     "utilities": 19
-  },
-  "src/LinkList.tsx": {
-    "utilities": 4
-  },
-  "src/LinkSheet.tsx": {
-    "utilities": 1
-  },
-  "src/MainDrawerParts.tsx": {
-    "utilities": 4
   },
   "src/MarkdownEditor.tsx": {
     "utilities": 19
   },
-  "src/Media.tsx": {
-    "utilities": 96
-  },
-  "src/MediaAlt.tsx": {
-    "utilities": 3
-  },
   "src/MediaProviderPicker.tsx": {
     "utilities": 23
-  },
-  "src/MediaTags.tsx": {
-    "utilities": 2
-  },
-  "src/ModalSheetSample.tsx": {
-    "utilities": 4
-  },
-  "src/MorphemeConnection.tsx": {
-    "utilities": 2
-  },
-  "src/NewListDialog.tsx": {
-    "utilities": 8
-  },
-  "src/Notifications.tsx": {
-    "utilities": 4
-  },
-  "src/OwnList.tsx": {
-    "utilities": 2
-  },
-  "src/OwnListSheet.tsx": {
-    "utilities": 6
-  },
-  "src/pageH1Panel.mjs": {
-    "constants": 3
-  },
-  "src/PagePicker.tsx": {
-    "utilities": 12
-  },
-  "src/pagePreview.tsx": {
-    "utilities": 4
-  },
-  "src/PaneHost.tsx": {
-    "utilities": 3
-  },
-  "src/PartFieldPage.tsx": {
-    "utilities": 1
-  },
-  "src/PartFields.tsx": {
-    "utilities": 7
   },
   "src/Parts.tsx": {
     "utilities": 19,
@@ -196,307 +59,28 @@
     "utilities": 26,
     "constants": 7
   },
-  "src/PreviewScreen.tsx": {
-    "utilities": 58
-  },
   "src/Redirects.tsx": {
     "utilities": 16
-  },
-  "src/ReleaseNoteLines.tsx": {
-    "utilities": 9
   },
   "src/ReleaseNotes.tsx": {
     "utilities": 22
   },
-  "src/ReleaseNoteSection.tsx": {
-    "utilities": 4
-  },
-  "src/Screen.tsx": {
-    "utilities": 123
-  },
-  "src/SectionSettings.tsx": {
-    "utilities": 1
-  },
-  "src/SectionsField.tsx": {
-    "utilities": 3
-  },
-  "src/SelectionBar.tsx": {
-    "utilities": 1
-  },
-  "src/SelectionParts.tsx": {
-    "utilities": 64,
-    "constants": 4
-  },
-  "src/SeoScores.tsx": {
-    "utilities": 8
-  },
-  "src/ShortcutsSheet.tsx": {
-    "utilities": 3
-  },
-  "src/SiteLogoLink.tsx": {
-    "utilities": 12
-  },
-  "src/standard/view.tsx": {
-    "utilities": 1
-  },
-  "src/StartStatus.tsx": {
-    "utilities": 6
-  },
-  "src/StoreSearchRow.tsx": {
-    "utilities": 6
-  },
-  "src/StoreSections.tsx": {
-    "utilities": 1
-  },
   "src/ThemeStore.tsx": {
     "utilities": 30
-  },
-  "src/ThemeStoreScreen.tsx": {
-    "utilities": 3
-  },
-  "src/Tokens.tsx": {
-    "utilities": 2
-  },
-  "src/ToolSelect.tsx": {
-    "utilities": 1
-  },
-  "src/topBarSlot.tsx": {
-    "utilities": 6
-  },
-  "src/ui.tsx": {
-    "utilities": 657,
-    "constants": 38
-  },
-  "src/UpdatesNotice.tsx": {
-    "utilities": 56
-  },
-  "src/VersionLinePage.tsx": {
-    "utilities": 6
-  },
-  "src/Versions.tsx": {
-    "utilities": 2
-  },
-  "src/widgets/blogRhythm.tsx": {
-    "utilities": 6
-  },
-  "src/widgets/continue.tsx": {
-    "utilities": 8
-  },
-  "src/widgets/status.tsx": {
-    "utilities": 7
-  },
-  "src/widgets/unfinished.tsx": {
-    "utilities": 13
-  },
-  "src/WidgetSettings.tsx": {
-    "utilities": 1
   },
   "theme/blocks/video/View.tsx": {
     "constants": 1
   },
-  "theme/components/ArrowLink.tsx": {
-    "constants": 5
-  },
-  "theme/components/BlogIndex.astro": {
-    "utilities": 16
-  },
-  "theme/components/BlogPosts.astro": {
-    "utilities": 3
-  },
-  "theme/components/BlogPosts.tsx": {
-    "utilities": 26
-  },
-  "theme/components/Container.astro": {
-    "utilities": 4
-  },
-  "theme/components/CookieConsent.astro": {
-    "utilities": 30
-  },
-  "theme/components/EndBlock.astro": {
-    "utilities": 2
-  },
-  "theme/components/Footer.astro": {
-    "utilities": 18
-  },
-  "theme/components/Header.astro": {
-    "utilities": 32
-  },
-  "theme/components/headerParts.ts": {
-    "constants": 19
-  },
-  "theme/components/home/Text.astro": {
-    "utilities": 1
-  },
-  "theme/components/Logo.astro": {
-    "utilities": 7
-  },
-  "theme/components/LogoMark.astro": {
-    "utilities": 5
-  },
-  "theme/components/Markdown.astro": {
-    "utilities": 2
-  },
-  "theme/components/MobileMenu.tsx": {
-    "utilities": 13
-  },
-  "theme/components/PageHeader.astro": {
-    "utilities": 6
-  },
-  "theme/components/PageHeading.astro": {
-    "utilities": 7
-  },
-  "theme/components/PageSection.astro": {
-    "utilities": 3
-  },
   "theme/components/Popup.astro": {
     "constants": 1
   },
-  "theme/components/PopupButton.tsx": {
-    "utilities": 5
-  },
-  "theme/components/PopupView.tsx": {
-    "utilities": 16
-  },
-  "theme/components/PostAuthor.astro": {
-    "utilities": 12
-  },
-  "theme/components/PostHeader.astro": {
-    "utilities": 15
-  },
-  "theme/components/PostMeta.tsx": {
-    "utilities": 23
-  },
-  "theme/components/RelatedPosts.astro": {
-    "utilities": 6
-  },
-  "theme/components/Section.astro": {
-    "utilities": 5,
-    "constants": 2
-  },
-  "theme/components/ShareRow.astro": {
-    "utilities": 3
-  },
-  "theme/components/TextSection.astro": {
-    "utilities": 1
-  },
-  "theme/editor/previews.tsx": {
-    "utilities": 1
-  },
-  "theme/layouts/Base.astro": {
-    "utilities": 15
-  },
-  "theme/layouts/PageLayout.astro": {
-    "utilities": 5,
-    "constants": 3
-  },
-  "theme/layouts/PostLayout.astro": {
-    "utilities": 11,
-    "constants": 9
-  },
   "theme/styles/base.css": {
-    "theme": 2,
-    "plugin": 1,
-    "source": 3,
-    "tw": 14
-  },
-  "theme/styles/blocks/buttons-links.css": {
-    "theme": 1
-  },
-  "theme/styles/blocks/cta-prices.css": {
-    "theme": 2
-  },
-  "theme/styles/blocks/panel.css": {
-    "theme": 2
-  },
-  "theme/styles/blocks/prose.css": {
-    "theme": 1
-  },
-  "theme/styles/blocks/text-section.css": {
-    "tw": 12
-  },
-  "theme/styles/cards.css": {
-    "theme": 6
-  },
-  "theme/styles/material/block-looks.css": {
-    "theme": 1
-  },
-  "theme/styles/material/footer.css": {
-    "theme": 2
-  },
-  "theme/styles/material/navigation.css": {
-    "theme": 2
-  },
-  "theme/styles/site-action.css": {
-    "theme": 2
-  },
-  "theme/styles/site-page.css": {
-    "theme": 3
-  },
-  "theme/styles/tokens/base/comp/card.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/base/comp/list.css": {
-    "theme": 1
+    "source": 3
   },
   "theme/styles/tokens/base/ref.css": {
     "themeAt": 2
   },
-  "theme/styles/tokens/base/sys.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/blocks/comp/card.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/blocks/comp/grid.css": {
-    "theme": 3
-  },
-  "theme/styles/tokens/blocks/sys.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/cards/comp/card.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/cards/comp/grid.css": {
-    "theme": 2
-  },
-  "theme/styles/tokens/material/comp/card.css": {
-    "theme": 1
-  },
   "theme/styles/tokens/material/ref.css": {
     "themeAt": 1
-  },
-  "theme/styles/tokens/material/sys.css": {
-    "theme": 2
-  },
-  "theme/styles/tokens/ui/comp/icon-button.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/ui/comp/side-sheet.css": {
-    "theme": 1
-  },
-  "theme/styles/ui/bottom-sheet.css": {
-    "theme": 3
-  },
-  "theme/styles/ui/button-groups.css": {
-    "theme": 2
-  },
-  "theme/styles/ui/lightbox.css": {
-    "theme": 2
-  },
-  "theme/styles/ui/menus.css": {
-    "theme": 1
-  },
-  "theme/styles/ui/snackbar.css": {
-    "theme": 1
-  },
-  "theme/templates/Home.astro": {
-    "utilities": 10
-  },
-  "theme/templates/New.astro": {
-    "utilities": 31
-  },
-  "theme/templates/NotFound.astro": {
-    "utilities": 2,
-    "constants": 2
   }
 }

@@ -1,10 +1,10 @@
 ---
-// The site's logo (public/logo.svg) as a decorative mark. Size and colour come from the classes,
-// e.g. <LogoMark class="h-9 w-8 bg-primary" />.
+// The site's logo (public/logo.svg) as a decorative mark. Size and colour come from the classes, the accent colour
+// by default, e.g. <LogoMark class="mo-logo-mark-primary" />.
 interface Props {
   class?: string;
 }
-const { class: className = 'bg-primary' } = Astro.props;
+const { class: className = 'mo-logo-mark-primary' } = Astro.props;
 ---
 
-<span class:list={['logo-mark shrink-0', className]} aria-hidden="true"></span>
+<span class:list={['mo-logo-mark', className]} aria-hidden="true"></span>
