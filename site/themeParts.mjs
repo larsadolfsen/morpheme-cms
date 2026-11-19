@@ -10,7 +10,7 @@ export const THEME_PARTS = [
   { id: 'Checkbox', group: 'ui', prefixes: ['checkbox'] },
   { id: 'Chip', group: 'ui', prefixes: ['chip'] },
   { id: 'ChipSet', group: 'ui', prefixes: ['chip-set'] },
-  { id: 'Card', group: 'ui', prefixes: ['card', 'image-grid', 'grid-span'] },
+  { id: 'Card', group: 'ui', prefixes: ['card', 'image-grid', 'mo-grid__span'] },
   { id: 'List', group: 'ui', prefixes: ['list'] },
   { id: 'Dialog', group: 'ui', prefixes: ['dialog'] },
   { id: 'Lightbox', group: 'ui', prefixes: ['lightbox'] },
@@ -44,14 +44,14 @@ export const THEME_PARTS = [
   { id: 'DatePicker', group: 'ui', prefixes: ['date-picker'] },
   { id: 'TimePicker', group: 'ui', prefixes: ['time-picker'] },
   { id: 'TopAppBar', group: 'frame', prefixes: ['top-app-bar'] },
-  { id: 'HeaderMenu', group: 'frame', prefixes: ['md-nav-item', 'md-nav-toggle'] },
+  { id: 'HeaderMenu', group: 'frame', prefixes: ['mo-header__nav-item', 'mo-header__nav-toggle'] },
   { id: 'NavigationDrawer', group: 'frame', prefixes: ['navigation-drawer'] },
-  { id: 'DrawerHead', group: 'frame', prefixes: ['md-drawer'] },
+  { id: 'DrawerHead', group: 'frame', prefixes: ['mo-navigation-drawer'] },
   { id: 'Fab', group: 'frame', prefixes: ['fab', 'extended-fab'] },
   { id: 'FabMenu', group: 'frame', prefixes: ['fab-menu'] },
-  { id: 'Footer', group: 'frame', prefixes: ['md-footer'] },
-  { id: 'ActionBar', group: 'frame', prefixes: ['theme-action-bar'] },
-  { id: 'Logo', group: 'frame', prefixes: ['theme-logo'] },
+  { id: 'Footer', group: 'frame', prefixes: ['mo-footer'] },
+  { id: 'ActionBar', group: 'frame', prefixes: ['mo-action-bar'] },
+  { id: 'Logo', group: 'frame', prefixes: ['mo-logo'] },
 ];
 
 /** Classes of theme/styles/ui.css that belong to no part. @type {string[]} */

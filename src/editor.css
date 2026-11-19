@@ -285,7 +285,7 @@
 }
 
 /* The image behind a section (the widget before its first part, placed over the section's parts by sectionFrame.ts): it fills
-   the section's box behind the text, darkened from below as on the site (blocks.css, .text-section-picture), and the text on it is
+   the section's box behind the text, darkened from below as on the site (blocks.css, :where(.mo-text-section).mo-has-image), and the text on it is
    the theme's colour for text on an image. */
 .editor-text .ProseMirror {
   position: relative;
@@ -1745,7 +1745,7 @@ dialog {
   overscroll-behavior: contain;
 }
 
-/* The first heading of a page's text is its title, drawn as the site draws it (.theme-title in the theme's site-page.css, and
+/* The first heading of a page's text is its title, drawn as the site draws it (.mo-page-title in the theme's site-page.css, and
    PageHeading.astro's width): the display role, by the theme's variables, not the weight of a heading in the middle of the text. */
 .editor-text .ProseMirror > h1:first-child {
   max-width: 22ch;

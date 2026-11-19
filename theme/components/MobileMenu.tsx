@@ -151,12 +151,12 @@ export default function MobileMenu({
           }}
         >
           <NavigationDrawer variant="modal" className={side === 'end' ? navigationDrawerEndClass : undefined}>
-            <div className="md-drawer-head">
+            <div className="mo-navigation-drawer__head">
               {side !== 'end' && menuButton}
-              <span aria-hidden="true" className="logo-mark mo-drawer__mark" />
+              <span aria-hidden="true" className="mo-logo-mark mo-drawer__mark" />
               <div className="mo-drawer__title">
-                <p className="md-drawer-name">{name}</p>
-                <p className="md-drawer-role">{role}</p>
+                <p className="mo-navigation-drawer__name">{name}</p>
+                <p className="mo-navigation-drawer__role">{role}</p>
               </div>
               {side === 'end' && menuButton}
             </div>
@@ -214,7 +214,7 @@ export default function MobileMenu({
             </NavigationDrawerSection>
 
             {(button || phone) && (
-              <div className="md-drawer-actions">
+              <div className="mo-navigation-drawer__actions">
                 {phone && (
                   // On a phone it calls; from the medium window size up it leads to the contact page, when there is one.
                   <>

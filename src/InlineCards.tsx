@@ -26,7 +26,7 @@ const hasMedia = (card: LinkCard) => !!(card.icon || card.image || card.video);
 export default function InlineCards({ items, props, data, active, focus, onChange, onSettings, onIcon, onProps }: InlineViewProps) {
   const cards = shownCards(items as LinkCardProps[], data, props.media, ratioProp(props));
   const type: CardKind = cardKinds.find((k) => k === props.design) ?? 'outlined';
-  const colored = type === 'filled' && props.color ? `block-cards-${props.color}` : undefined;
+  const colored = type === 'filled' && props.color ? `mo-block-cards__${props.color}` : undefined;
   const media = cards[0]?.media ?? 'icon';
   const kinds = [
     { kind: 'icon', label: t.blocks.cards.mediaIcon, Icon: Shapes },

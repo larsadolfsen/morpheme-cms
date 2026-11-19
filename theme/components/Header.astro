@@ -72,7 +72,7 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
             <li class="mo-header__item" data-nav-item>
               <a
                 href={item.href}
-                class:list={['md-nav-item', item.children && 'md-nav-item-parent']}
+                class:list={['mo-header__nav-item', item.children && 'mo-has-children']}
                 aria-current={isActive(item.href) ? 'page' : undefined}
               >
                 {item.label}
@@ -80,7 +80,7 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
               {item.children && (
                 <button
                   type="button"
-                  class="md-nav-toggle"
+                  class="mo-header__nav-toggle"
                   aria-expanded="false"
                   aria-controls={`menu-${i}`}
                   aria-label={siteT.theme.subpagesOf(item.label)}

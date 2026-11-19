@@ -82,7 +82,7 @@ const scan = `(root) => {
       if (t) return t;
     }
     for (let e = el; e && e !== document.body; e = e.parentElement) {
-      const t = /\\b(header|footer|mobile-menu|cookie-consent|page-header|action-bar|post-card|popup)\\b/.exec(typeof e.className === 'string' ? e.className : '') ?? (['HEADER','FOOTER','NAV'].includes(e.tagName) ? [e.tagName.toLowerCase()] : null);
+      const t = /\\b(header|footer|mobile-menu|cookie-consent|page-header|action-bar|mo-post-card|popup)\\b/.exec(typeof e.className === 'string' ? e.className : '') ?? (['HEADER','FOOTER','NAV'].includes(e.tagName) ? [e.tagName.toLowerCase()] : null);
       if (t) return t[1] ?? t[0];
     }
     return 'text';
@@ -91,7 +91,7 @@ const scan = `(root) => {
   const variantOf = (el, blockEl) => {
     const out = new Set();
     for (let e = el; e && e !== document.body; e = e.parentElement) {
-      for (const c of typeof e.className === 'string' ? e.className.split(/\\s+/) : []) if (VARIANT.test(c) && !/^(ProseMirror|prose)/.test(c) && !c.startsWith('text-section-')) out.add(c);
+      for (const c of typeof e.className === 'string' ? e.className.split(/\\s+/) : []) if (VARIANT.test(c) && !/^(ProseMirror|prose)/.test(c) && !c.startsWith('mo-is-')) out.add(c);
       if (e === blockEl) break;
     }
     return [...out].sort().join(' ');

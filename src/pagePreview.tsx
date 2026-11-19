@@ -211,10 +211,10 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
     if (!lead) leadBox?.remove();
     else {
       if (!leadBox) {
-        // The text's own tag and class plus post-lead, as the layout does (a theme may replace the layout).
+        // The text's own tag and class plus mo-post__lead, as the layout does (a theme may replace the layout).
         leadBox = doc.createElement(text.tagName);
         leadBox.setAttribute('data-editor', 'lead');
-        leadBox.className = `${text.className} post-lead`;
+        leadBox.className = `${text.className} mo-post__lead`;
         (doc.querySelector('[data-editor="image"]') ?? text).before(leadBox);
       }
       leadBox.innerHTML = lead;
@@ -229,7 +229,7 @@ export async function pageDocument(draft: PageDraft): Promise<string> {
             .join('');
           if (run.color === null) return inner;
           const image = run.image
-            ? `<img class="text-section-image" src="${attr(shownAt(run.image))}" alt="${attr(resolveAlt({ alt: run.alt ?? '' }, draft.data.libraryAlt?.(run.image)).alt)}">`
+            ? `<img class="mo-text-section__image" src="${attr(shownAt(run.image))}" alt="${attr(resolveAlt({ alt: run.alt ?? '' }, draft.data.libraryAlt?.(run.image)).alt)}">`
             : '';
           return `<section class="${sectionClass(run.color, run)}">${image}${inner}</section>`;
         })

@@ -1133,7 +1133,7 @@ async function checkListRowColors() {
         const out = {};
         for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
           const section = document.createElement('section');
-          section.className = 'text-section text-section-' + color;
+          section.className = 'mo-text-section mo-is-' + color;
           section.innerHTML =
             '<div class="prose"><h1>H1</h1><p>Text</p></div><div class="list block-list"><a class="list-item-container" href="#"><span class="list-item-leading list-item-leading-icon"><svg viewBox="0 0 10 10"></svg></span><span class="list-item-content"><span class="list-item-headline">Heading</span><span class="list-item-supporting">Text</span></span><span class="list-item-trailing"><svg viewBox="0 0 10 10"></svg></span></a></div>';
           document.querySelector('main').append(section);
@@ -1205,7 +1205,7 @@ async function checkChecklistMarks() {
         const out = {};
         for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
           const section = document.createElement('section');
-          section.className = 'text-section-' + color;
+          section.className = 'mo-text-section mo-is-' + color;
           section.innerHTML = '<div class="prose"><ul class="contains-task-list"><li class="task-list-item"><input type="checkbox" checked disabled> Photos are resized</li></ul></div>';
           document.querySelector('main').append(section);
           const mark = section.querySelector('input');

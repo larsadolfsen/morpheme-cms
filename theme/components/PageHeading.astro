@@ -17,6 +17,6 @@ const { parent, heading, headingHtml } = Astro.props;
     {parent.title}
   </a>
 )}
-<h1 data-editor="heading" class="theme-title mo-page-heading__title">
+<h1 data-editor="heading" class="mo-page-title mo-page-heading__title">
   {headingHtml ? <Fragment set:html={headingHtml} /> : heading}
 </h1>
