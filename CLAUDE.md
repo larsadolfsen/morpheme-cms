@@ -51,8 +51,9 @@ release without the owner's explicit yes in the conversation. That means:
   your own.
 - Never approve, publish, re-tag or reject a version on npmjs.com (`npm publish`, `npm dist-tag`, the staged-packages
   page).
-- Never create a version tag or a GitHub release, never run `release:version`, and never edit the `version` in
-  `package.json` or `CHANGELOG.md` by hand.
+- Never create a version tag or a GitHub release, never run `release:version`, and never edit `CHANGELOG.md` by hand. The
+  `version` in `package.json` is set once, by the first pull request of a feature or fix, to the version it will be released as, so
+  the demo shows it (owner, 19 Nov 2026; `docs/superpowers/plans/2026-11-19-version-at-feature-start.md`); never otherwise.
 - Never release a product that hasn't been seen on staging (owner rule, 18 Nov 2026). The exact build that would be
   released must already have run on `morpheme-staging` before anyone asks the owner for a release; a Release PR whose
   version was never seen on staging is never merged, even with an earlier yes (skill `release`, Phases 1 and 2).

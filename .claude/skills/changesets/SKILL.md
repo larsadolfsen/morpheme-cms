@@ -46,5 +46,6 @@ A feature branch is never merged into another feature branch; it goes into `main
 Each merge to `main` stages a test version under npm's `next` tag for `morpheme-staging`; a merge into a line stages nothing. The *Release* pull request,
 merged only when the owner says go (skill `release`), turns the changesets into `CHANGELOG.md` and stages `latest`. A
 staged version is on npm only once the owner approves it with 2FA
-(`docs/superpowers/specs/2026-11-03-development-flow-and-releases-design.md`). Never edit `CHANGELOG.md` or the
-`version` in `package.json` by hand.
+(`docs/superpowers/specs/2026-11-03-development-flow-and-releases-design.md`). Never edit `CHANGELOG.md` by hand. The
+`version` in `package.json` is set once, by the first pull request of a feature or fix, to the version it will be released as; a
+changeset's level no longer moves it once the build of `docs/superpowers/plans/2026-11-19-version-at-feature-start.md` is merged.
