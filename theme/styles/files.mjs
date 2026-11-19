@@ -67,6 +67,7 @@ export const MATERIAL_FILES = [
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */
 export const OTHER_BASE_FILES = [
+  'reset.css',
   'ui.css',
   'cards.css',
   'type.css',
