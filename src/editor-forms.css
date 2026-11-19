@@ -8,7 +8,7 @@
     margin-block-end: var(--mo-ref-space-200);
   }
   .mo-editor-nav-demo > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-nav-demo-narrow {
     margin-inline: auto;
@@ -41,7 +41,7 @@
     padding: var(--mo-ref-space-100);
   }
   .mo-editor-nav-hint {
-    padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block: var(--mo-comp-editor-rhythm-150);
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-sys-color-on-surface-variant);
@@ -55,7 +55,7 @@
     margin-block-end: var(--mo-ref-space-200);
   }
   .mo-editor-nav-search-demo > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-nav-search-results {
     border-radius: var(--mo-sys-shape-corner-medium);
@@ -70,7 +70,7 @@
     margin-block-end: var(--mo-ref-space-200);
   }
   .mo-editor-nav-colors > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-nav-color-row {
     display: flex;
@@ -152,7 +152,7 @@
     margin-block-end: var(--mo-ref-space-250);
   }
   .mo-editor-field-item-fields > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-250);
   }
   .mo-editor-field-item-actions {
     display: flex;
@@ -178,15 +178,15 @@
   }
   /* AppList.tsx */
   .mo-editor-app-list-search {
-    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
   .mo-editor-app-list-empty {
-    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
     padding-inline: var(--mo-ref-space-50);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-app-list-owner {
-    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
     display: flex;
     align-items: center;
     gap: var(--mo-ref-space-150);
@@ -207,7 +207,7 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-app-list-heading {
-    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
     padding-inline: var(--mo-ref-space-200);
   }
   .mo-editor-app-list-title-row {
@@ -216,11 +216,11 @@
     gap: var(--mo-ref-space-150);
   }
   .mo-editor-app-list-hint {
-    margin-block-start: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-start: var(--mo-comp-editor-rhythm-150);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-app-list-actions {
-    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
   .mo-editor-app-list-pending {
     margin-block-start: var(--mo-ref-space-100);
@@ -231,7 +231,7 @@
     font-weight: 500;
   }
   .mo-editor-brand-hint {
-    margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-sys-color-on-surface-variant);
@@ -241,7 +241,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: var(--mo-ref-space-200);
-    row-gap: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    row-gap: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-brand-logo-preview {
     display: flex;
@@ -253,7 +253,7 @@
     border-color: var(--mo-sys-color-outline-variant);
     background-color: var(--mo-sys-color-surface-container-lowest);
     padding-inline: var(--mo-ref-space-200);
-    padding-block: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-brand-logo-mark {
     block-size: var(--mo-ref-space-500);
@@ -320,7 +320,7 @@
     align-items: center;
     gap: var(--mo-ref-space-150);
     padding: var(--mo-ref-space-200);
-    row-gap: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    row-gap: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-comm-tooltips {
     display: grid;
@@ -328,7 +328,7 @@
     padding: var(--mo-ref-space-200);
   }
   .mo-editor-comm-tooltip-plain {
-    padding-block-start: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-block-start: var(--mo-comp-editor-rhythm-400);
   }
   .mo-editor-comm-tooltip-rich {
     padding-block-start: 6rem;
@@ -344,7 +344,7 @@
     padding: var(--mo-ref-space-200);
   }
   .mo-editor-parts-chips > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-parts-chip-image {
     border-radius: var(--mo-sys-shape-corner-medium);
@@ -360,7 +360,7 @@
     margin-block-end: var(--mo-ref-space-200);
   }
   .mo-editor-parts-chip-sets > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   :where(.mo-editor-parts-fields > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-300);
@@ -369,7 +369,7 @@
     padding: var(--mo-ref-space-200);
   }
   .mo-editor-parts-fields > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
   .mo-editor-parts-checkboxes {
     padding: var(--mo-ref-space-200);
@@ -412,13 +412,13 @@
     margin-block-end: var(--mo-ref-space-500);
   }
   .mo-editor-parts-sections > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-500) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-500);
   }
   :where(.mo-editor-parts-intro > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-150);
   }
   .mo-editor-parts-intro > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-parts-intro-text {
     color: var(--mo-sys-color-on-surface-variant);
@@ -431,7 +431,7 @@
     margin-block-end: var(--mo-ref-space-150);
   }
   .mo-editor-search-preview > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-search-result {
     background-color: var(--mo-comp-google-background);
@@ -495,7 +495,7 @@
     line-height: 26px;
   }
   .mo-editor-search-title-phone {
-    margin-block-start: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-start: var(--mo-comp-editor-rhythm-150);
     color: var(--mo-comp-google-title-phone);
   }
   .mo-editor-search-title-desktop {
@@ -549,7 +549,7 @@
     margin-block-end: var(--mo-ref-space-150);
   }
   .mo-editor-contain-choices > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-contain-dialog {
     padding: var(--mo-ref-space-300);
@@ -580,7 +580,7 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-contain-sheet-text {
-    margin-block-end: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-contain-text {
@@ -593,7 +593,7 @@
     padding: var(--mo-ref-space-200);
   }
   .mo-editor-contain-layouts > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
   .mo-editor-contain-panel {
     inline-size: 100%;
@@ -606,7 +606,7 @@
     margin-block-end: var(--mo-ref-space-200);
   }
   .mo-editor-nav-bars > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-nav-app-bar {
     display: flex;
@@ -649,7 +649,7 @@
     padding: var(--mo-ref-space-200);
   }
   .mo-editor-nav-fields > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
   .mo-editor-nav-field-pair {
     display: grid;
@@ -670,7 +670,7 @@
     margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-nav-tabs > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
   /* BlockDialog.tsx */
   .mo-editor-block-dialog-note {
@@ -684,7 +684,7 @@
     margin-block-end: var(--mo-ref-space-250);
   }
   .mo-editor-block-dialog-fields > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
-    margin-block-end: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    margin-block-end: var(--mo-comp-editor-rhythm-250);
   }
   .mo-editor-block-dialog-search {
     margin-inline: var(--mo-ref-space-250);
