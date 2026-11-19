@@ -2,8 +2,8 @@
 
 Status: **approved by the owner, 18 November 2026** ("yes"), revised with the owner the same day. It replaces the version of this plan the owner approved earlier the
 same day ("Approve"), which had no version lines and a test version on npm per feature. **Takes effect with 0.19**: 0.18.0 (released) and
-0.18.1 (fixes, from `main`) finish as planned; Tailwind (contract 7) is the first feature of the 0.19 line, 0.19.0, followed by 0.19.1 small UI
-fixes (owner, 19 November 2026; Tailwind was 0.18.2); the pre-built editor is a feature of 0.21 Build speed (it was 0.18.3). The demo editor (below) can start at once.
+0.18.1 (fixes, from `main`) finish as planned; Tailwind (contract 7) is the first feature of the 0.19 line, 0.19.0, followed by 0.19.1 accessibility and
+0.19.2 small UI fixes (owner, 19 November 2026; Tailwind was 0.18.2); the pre-built editor is a feature of 0.21 Build speed (it was 0.18.3). The demo editor (below) can start at once.
 
 The owner's words, 18 November:
 
