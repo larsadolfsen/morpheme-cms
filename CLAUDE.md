@@ -151,7 +151,7 @@ reasons), and `check:screens` checks text, placeholder, slot icons and outline o
 
 Owner, 19 Nov 2026: the sites the CMS builds and the editor meet **WCAG 2.2 level AA**. A change never lowers it: contrast
 (`check:contrast`), keyboard use, a visible focus ring for keyboard focus (`:focus-visible`), names for screen readers, and
-target sizes. Where Material 3 and WCAG differ, WCAG wins. The checks that enforce it: roadmap 0.19.1 to 0.19.3.
+target sizes. Where Material 3 and WCAG differ, WCAG wins. The checks that enforce it: roadmap 0.19.2 to 0.19.4.
 
 ### Icons are Material Symbols
 
