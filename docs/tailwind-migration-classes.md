@@ -257,7 +257,7 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `[-webkit-touch-callout:none]` | 1 | `-webkit-touch-callout: none;` | the part's rule; a custom property is set on the part's class |
 | `[[data-fold-section]+&]:mt-0` | 1 | `[data-fold-section] + .[[data-fold-section]+&]:mt-0 { margin-top: 0px;` | the part's rule; a custom property is set on the part's class |
 | `[@media(width<37.5rem)]:my-0` | 1 | `@media (width<37.5rem) { .[@media(width<37.5rem)]:my-0 { margin-block: 0px; }` | the part's rule; a custom property is set on the part's class |
-| `[&_.navigation-rail-items]:flex-1` | 1 | `.[&_.navigation-rail-items]:flex-1 .navigation-rail-items { flex: 1;` | the part's rule; a custom property is set on the part's class |
+| `[&_.navigation-rail-items]:flex-1` | 1 | `.[&_.navigation-rail-items]:flex-1 .mo-navigation-rail__items { flex: 1;` | the part's rule; a custom property is set on the part's class |
 | `[&:has(+[data-fold-section])]:mb-0` | 1 | `.[&:has(+[data-fold-section])]:mb-0:has( + [data-fold-section]) { margin-bottom: 0px;` | the part's rule; a custom property is set on the part's class |
 | `[&:not(:has([data-part]))]:hidden` | 1 | `display: none;` | the part's rule; a custom property is set on the part's class |
 | `[&:not([data-tooltip-open])>.tooltip]:invisible` | 1 | `.[&:not([data-tooltip-open])>.tooltip]:invisible:not([data-tooltip-open]) > .tooltip { visibility: hidden;` | the part's rule; a custom property is set on the part's class |
@@ -462,7 +462,7 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `min-[600px]:ms-0` | 1 | `@media (width >= 600px) { .min-[600px]:ms-0 { margin-inline-start: 0px; }` | `@media (width >= 37.5rem)` in the part's rule |
 | `min-[600px]:order-none` | 1 | `@media (width >= 600px) { .min-[600px]:order-none { order: 0; }` | `@media (width >= 37.5rem)` in the part's rule |
 | `min-[600px]:pb-0` | 1 | `@media (width >= 600px) { .min-[600px]:pb-0 { padding-bottom: 0px; }` | `@media (width >= 37.5rem)` in the part's rule |
-| `min-h-(--top-app-bar-height,4rem)` | 1 | `min-height: var(--top-app-bar-height,4rem);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `min-h-(--mo-comp-top-app-bar-height,4rem)` | 1 | `min-height: var(--mo-comp-top-app-bar-height,4rem);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `min-h-11` | 1 | `min-height: calc(var(--spacing) * 11);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `min-h-14` | 1 | `min-height: calc(var(--spacing) * 14);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `min-h-full` | 1 | `min-height: 100%;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
@@ -488,9 +488,9 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `outline-2` | 1 | `outline-style: var(--tw-outline-style); outline-width: 2px; } @property --tw-outline-style { syntax: "*"; inherits: false; initial-value: solid;` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
 | `outline-dashed` | 1 | `--tw-outline-style: dashed; outline-style: dashed;` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
 | `outline-outline-variant` | 1 | `outline-color: var(--mo-sys-color-outline-variant);` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
-| `p-(--navigation-drawer-item-padding,0_1rem)` | 1 | `padding: var(--navigation-drawer-item-padding,0 1rem);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
+| `p-(--mo-comp-navigation-drawer-item-padding,0_1rem)` | 1 | `padding: var(--mo-comp-navigation-drawer-item-padding,0 1rem);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `p-8` | 1 | `padding: calc(var(--spacing) * 8);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
-| `pb-(--toolbar-docked-padding-block)` | 1 | `padding-bottom: var(--toolbar-docked-padding-block);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
+| `pb-(--mo-comp-toolbar-docked-padding-block)` | 1 | `padding-bottom: var(--mo-comp-toolbar-docked-padding-block);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `pb-[26rem]` | 1 | `padding-bottom: 26rem;` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `pb-24` | 1 | `padding-bottom: calc(var(--spacing) * 24);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `pb-3` | 1 | `padding-bottom: calc(var(--spacing) * 3);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |

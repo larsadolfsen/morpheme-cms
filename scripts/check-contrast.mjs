@@ -165,7 +165,7 @@ const scan = `(root) => {
   for (const el of root.querySelectorAll('a, button, input, textarea, select, summary')) {
     if (hidden(el) || el.closest(':disabled, [aria-disabled="true"]')) continue;
     const s = getComputedStyle(el);
-    if (el.matches('input, textarea, select') || el.matches('[class*="button-outline"]')) {
+    if (el.matches('input, textarea, select') || el.matches('.mo-is-outlined')) {
       const w = parseFloat(s.borderTopWidth);
       if (w > 0 && s.borderTopStyle !== 'none') {
         const { back, manual } = behind(el.parentElement ?? el);

@@ -293,7 +293,7 @@
     font-weight: var(--mo-sys-typescale-label-medium-weight);
     letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
   }
-  .mo-search-view__docked:not([style*='--search-view-top']) {
+  .mo-search-view__docked:not([style*='--mo-comp-search-view-top']) {
     inset: var(--mo-comp-search-view-top-default, 4rem) 0 auto 0;
     margin: 0 auto;
     width: min(var(--mo-comp-search-view-width-default, 36rem), calc(100dvw - 2rem));
