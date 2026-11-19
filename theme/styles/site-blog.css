@@ -1,0 +1,222 @@
+/* The blog parts of the site (theme/components/BlogIndex.astro, BlogPosts.astro, BlogPosts.tsx, RelatedPosts.astro, PostHeader.astro, PostAuthor.astro,
+   PostMeta.tsx, ShareRow.astro): the row of tags, the newest post large, the related posts, a post's head. The post list and the cards are
+   lists.css and cards.css. In @layer utilities, where the utility classes they replace sat. Written with Modern Web Guidance's guides css-layout,
+   css and responsive-design. */
+@layer utilities {
+  /* The tags under the blog's title: one scrolling row on a phone, reaching out to the screen's edges (the page gutter), wrapping from 600 dp. */
+  .mo-blog-tags {
+    margin-block-start: 2rem;
+    margin-inline: calc(var(--mo-comp-theme-page-gutter) * -1);
+  }
+  .mo-blog-tags__list {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-inline: var(--mo-comp-theme-page-gutter);
+    padding-block-end: 0.5rem;
+    scrollbar-width: none;
+  }
+  .mo-blog-tags__item {
+    flex-shrink: 0;
+  }
+
+  /* The posts of a tag's page, in the page's width. */
+  .mo-blog-posts {
+    margin-block-start: 2.5rem;
+  }
+
+  /* The block "Blog posts" with the newest large: a note when there is no post, then the newest post (picture and text side by side from
+     840 dp), then the rest as a list. */
+  .mo-blog-empty {
+    border-radius: var(--mo-sys-radius);
+    background-color: var(--mo-sys-color-surface-container-high);
+    padding: 2rem;
+  }
+  .mo-blog-empty__link {
+    display: inline-block;
+    margin-block-start: 0.75rem;
+  }
+  .mo-blog-featured {
+    display: grid;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .mo-blog-featured > * {
+    min-inline-size: 0;
+  }
+  .mo-blog-featured__picture {
+    overflow: hidden;
+    border-radius: var(--mo-comp-theme-picture-radius);
+  }
+  .mo-blog-featured__image {
+    inline-size: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    transition: scale var(--mo-sys-motion-spring-slow-spatial);
+  }
+  .mo-blog-featured__title {
+    margin-block-start: 0.5rem;
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 0.15s;
+  }
+  .mo-blog-featured__description {
+    margin-block-start: 0.75rem;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-blog-featured__rest {
+    margin-block-start: 3rem;
+  }
+  @media (hover: hover) {
+    .mo-blog-featured:hover .mo-blog-featured__image {
+      scale: 1.03;
+    }
+    .mo-blog-featured:hover .mo-blog-featured__title {
+      color: var(--mo-sys-color-primary);
+    }
+  }
+
+  /* The related posts under a post: one column, three from 600 dp. */
+  .mo-related {
+    margin-block-start: 3rem;
+  }
+  .mo-related__list {
+    display: grid;
+    gap: var(--mo-sys-grid-gutter);
+    margin-block-start: 1.5rem;
+  }
+  .mo-related__list > * {
+    min-inline-size: 0;
+  }
+
+  /* A post's head: the link back, the title, the author, the date and tags and the share buttons, in a column 768 dp wide. */
+  .mo-post-header {
+    margin-inline: auto;
+    max-inline-size: 48rem;
+    padding-inline: var(--mo-comp-theme-page-gutter);
+    padding-block-start: 2rem;
+  }
+  .mo-post-header__title {
+    margin-block-start: 0.75rem;
+  }
+  .mo-post-header__author {
+    margin-block-start: 1.5rem;
+  }
+  .mo-post-header__meta {
+    margin-block-start: 0.75rem;
+  }
+  .mo-post-header__share {
+    margin-block-start: 1rem;
+  }
+  .mo-post-author {
+    --mo-comp-row-gap: 0.75rem;
+  }
+  .mo-post-author__portrait {
+    inline-size: 2.75rem;
+    block-size: 2.75rem;
+    border-radius: calc(infinity * 1px);
+    object-fit: cover;
+    object-position: 50% 20%;
+  }
+  .mo-post-author__text {
+    line-height: 1.375;
+  }
+  .mo-post-author__name {
+    display: block;
+    font-weight: 500;
+  }
+  .mo-post-author__role {
+    display: block;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
+  /* The date, reading time and tags. In a list item's overline (mo-is-overline) it is one line: it never wraps and tightens the gaps; elsewhere it is
+     body medium text that wraps. */
+  .mo-post-meta {
+    display: flex;
+    align-items: center;
+  }
+  .mo-post-meta.mo-is-overline {
+    min-inline-size: 0;
+    flex-wrap: nowrap;
+    column-gap: 0.25rem;
+  }
+  .mo-post-meta.mo-is-body {
+    flex-wrap: wrap;
+    column-gap: 0.5rem;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-post-meta__duration {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .mo-is-overline .mo-post-meta__duration {
+    min-inline-size: 0;
+    gap: 0.125rem;
+  }
+  .mo-post-meta__tag {
+    text-decoration-line: underline;
+  }
+  @media (hover: hover) {
+    .mo-post-meta__tag:hover {
+      color: var(--mo-sys-color-primary);
+    }
+  }
+
+  /* The share buttons under a post. */
+  .mo-share {
+    display: flex;
+    align-items: center;
+    column-gap: 0.5rem;
+  }
+
+  @media (width >= 37.5rem) {
+    .mo-blog-tags {
+      margin-inline: 0;
+    }
+    .mo-blog-tags__list {
+      flex-wrap: wrap;
+      overflow: visible;
+      padding-inline: 0;
+    }
+    .mo-blog-posts {
+      margin-block-start: 3.5rem;
+    }
+    .mo-blog-featured {
+      gap: 3rem;
+    }
+    .mo-blog-featured__title {
+      font-size: var(--mo-sys-typescale-headline-large-size);
+      line-height: var(--mo-sys-typescale-headline-large-line-height);
+      font-weight: var(--mo-sys-typescale-headline-large-weight);
+      letter-spacing: var(--mo-sys-typescale-headline-large-tracking);
+    }
+    .mo-blog-featured__rest,
+    .mo-related {
+      margin-block-start: 4rem;
+    }
+    .mo-related__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .mo-post-header {
+      padding-inline: var(--mo-comp-theme-page-gutter-large);
+      padding-block-start: 3.5rem;
+    }
+  }
+  @media (width >= 52.5rem) {
+    .mo-blog-featured {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+    .mo-blog-featured__picture {
+      grid-column: span 7 / span 7;
+    }
+    .mo-blog-featured__text {
+      grid-column: span 5 / span 5;
+    }
+  }
+  /* A tag's page with no post keeps the 40 dp, whatever the width. */
+  .mo-blog-posts.mo-is-empty {
+    margin-block-start: 2.5rem;
+  }
+}

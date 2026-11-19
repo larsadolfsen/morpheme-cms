@@ -36,7 +36,6 @@
     "@morphemecms/cms": "0.18.0",
     "@phosphor-icons/core": "^2.1.1",
     "@phosphor-icons/react": "^2.1.10",
-    "@tailwindcss/typography": "^0.5.20",
     "@tailwindcss/vite": "^4.3.5",
     "astro": "^7.4.8",
     "esbuild": "^0.28.2",
@@ -68,10 +67,5 @@
     "prettier-plugin-astro": "^1.1.2",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "typescript": "^7.0.2"
-  },
-  "overrides": {
-    "@tailwindcss/typography": {
-      "postcss-selector-parser": "^6.1.5"
-    }
   }
 }

@@ -31,48 +31,6 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "demo/src/content/pages/about.md": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "demo/src/content/pages/app-store.md": {
-      "classDefs": 0,
-      "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "demo/src/content/pages/home.md": {
-      "classDefs": 0,
-      "markup": 5,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "demo/src/content/pages/typography.md": {
-      "classDefs": 0,
-      "markup": 76,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "lib/body-large.mjs": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "lib/body-size.mjs": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "lib/eyebrow.mjs": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "lib/motion.ts": {
       "classDefs": 0,
       "markup": 0,
@@ -82,24 +40,6 @@
     "lib/snackbar.ts": {
       "classDefs": 0,
       "markup": 3,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "lib/text-colors.mjs": {
-      "classDefs": 0,
-      "markup": 4,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "lib/text-sections.mjs": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "lib/text-sizes.mjs": {
-      "classDefs": 0,
-      "markup": 4,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -165,7 +105,7 @@
     },
     "scripts/editor-roundtrip.mjs": {
       "classDefs": 0,
-      "markup": 5,
+      "markup": 3,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -243,7 +183,7 @@
     },
     "scripts/screens/page-rows.mjs": {
       "classDefs": 0,
-      "markup": 114,
+      "markup": 113,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -255,7 +195,7 @@
     },
     "scripts/screens/sections.mjs": {
       "classDefs": 0,
-      "markup": 41,
+      "markup": 38,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -279,7 +219,7 @@
     },
     "scripts/screens/support/shared.mjs": {
       "classDefs": 0,
-      "markup": 25,
+      "markup": 22,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -313,12 +253,6 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "site/content.ts": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "site/directives/interact.mjs": {
       "classDefs": 0,
       "markup": 2,
@@ -326,12 +260,6 @@
       "propsRead": 0
     },
     "site/images.mjs": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "site/text.ts": {
       "classDefs": 0,
       "markup": 1,
       "propsDeclared": 0,
@@ -591,7 +519,7 @@
     },
     "src/Library.tsx": {
       "classDefs": 0,
-      "markup": 19,
+      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -621,13 +549,13 @@
     },
     "src/MarkdownEditor.tsx": {
       "classDefs": 0,
-      "markup": 44,
+      "markup": 43,
       "propsDeclared": 2,
       "propsRead": 0
     },
     "src/Media.tsx": {
       "classDefs": 0,
-      "markup": 10,
+      "markup": 2,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -741,7 +669,7 @@
     },
     "src/Screen.tsx": {
       "classDefs": 0,
-      "markup": 12,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -765,7 +693,7 @@
     },
     "src/SelectionParts.tsx": {
       "classDefs": 0,
-      "markup": 11,
+      "markup": 3,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -819,7 +747,7 @@
     },
     "src/UpdatesNotice.tsx": {
       "classDefs": 0,
-      "markup": 12,
+      "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -865,6 +793,18 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
+    "src/editor-density.css": {
+      "classDefs": 1,
+      "markup": 0,
+      "propsDeclared": 0,
+      "propsRead": 0
+    },
+    "src/editor-screens.css": {
+      "classDefs": 2,
+      "markup": 0,
+      "propsDeclared": 0,
+      "propsRead": 0
+    },
     "src/editor-ui.css": {
       "classDefs": 0,
       "markup": 0,
@@ -886,12 +826,6 @@
     "src/fields.tsx": {
       "classDefs": 0,
       "markup": 4,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "src/markdown.mjs": {
-      "classDefs": 0,
-      "markup": 2,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -1141,27 +1075,15 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "theme/components/BlogIndex.astro": {
+    "theme/components/BlogPosts.tsx": {
       "classDefs": 0,
       "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "theme/components/BlogPosts.astro": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/components/BlogPosts.tsx": {
-      "classDefs": 0,
-      "markup": 5,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "theme/components/CookieConsent.astro": {
       "classDefs": 0,
-      "markup": 7,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -1173,7 +1095,7 @@
     },
     "theme/components/Footer.astro": {
       "classDefs": 0,
-      "markup": 15,
+      "markup": 13,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -1197,17 +1119,11 @@
     },
     "theme/components/PageHeader.astro": {
       "classDefs": 0,
-      "markup": 3,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
     "theme/components/PageHeading.astro": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/components/PageSection.astro": {
       "classDefs": 0,
       "markup": 1,
       "propsDeclared": 0,
@@ -1221,18 +1137,6 @@
     },
     "theme/components/PopupButton.tsx": {
       "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/components/PopupView.tsx": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/components/PostAuthor.astro": {
-      "classDefs": 0,
       "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
@@ -1245,7 +1149,7 @@
     },
     "theme/components/PostHeader.astro": {
       "classDefs": 0,
-      "markup": 6,
+      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -1255,27 +1159,9 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
-    "theme/components/RelatedPosts.astro": {
-      "classDefs": 0,
-      "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
     "theme/components/RichText.astro": {
       "classDefs": 0,
       "markup": 2,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/components/Section.astro": {
-      "classDefs": 0,
-      "markup": 1,
-      "propsDeclared": 0,
-      "propsRead": 0
-    },
-    "theme/components/TextSection.astro": {
-      "classDefs": 0,
-      "markup": 1,
       "propsDeclared": 0,
       "propsRead": 0
     },
@@ -1352,7 +1238,7 @@
       "propsRead": 0
     },
     "theme/styles/blocks/prose.css": {
-      "classDefs": 72,
+      "classDefs": 55,
       "markup": 0,
       "propsDeclared": 0,
       "propsRead": 0

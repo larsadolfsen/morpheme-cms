@@ -31,7 +31,7 @@ const EXPECTED = {
   'mo-grid-2': ['--mo-comp-grid-columns: 1', '--mo-comp-grid-columns: 2'],
   'mo-grid-3': ['--mo-comp-grid-columns: 1', '--mo-comp-grid-columns: 2', '--mo-comp-grid-columns: 3'],
   'mo-grid-4': ['--mo-comp-grid-columns: 1', '--mo-comp-grid-columns: 2', '--mo-comp-grid-columns: 3', '--mo-comp-grid-columns: 4'],
-  'mo-fill': ['flex: 1 1 0', 'min-inline-size: 0'],
+  'mo-fill': ['flex: 1 1 0%', 'min-inline-size: 0'],
   'mo-keep': ['flex-shrink: 0'],
   'mo-truncate': ['overflow: hidden', 'text-overflow: ellipsis', 'white-space: nowrap'],
   'mo-clamp-2': ['overflow: hidden', 'display: -webkit-box', '-webkit-box-orient: vertical', '-webkit-line-clamp: 2'],

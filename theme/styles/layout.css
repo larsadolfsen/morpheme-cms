@@ -61,7 +61,7 @@
     }
   }
   .mo-fill {
-    flex: 1 1 0;
+    flex: 1 1 0%;
     min-inline-size: 0;
   }
   .mo-keep {

@@ -19,6 +19,9 @@
   --mo-comp-theme-picture-radius: var(--mo-sys-radius);
   /* How long one page fades into the next when a link is followed (below). */
   --mo-comp-theme-page-fade: 0.35s;
+  /* The page's side gutters (Container.astro and a post's head): 16 dp on a phone, 24 dp from 600 dp; a carousel and a chip set reach out by the first. */
+  --mo-comp-theme-page-gutter: 1rem;
+  --mo-comp-theme-page-gutter-large: 1.5rem;
   /* The space above a section of the front page (Section.astro), on a phone and from md, and above its first. */
   --mo-comp-theme-section-space: 5rem;
   --mo-comp-theme-section-space-large: 8rem;
@@ -50,7 +53,7 @@
   --mo-comp-theme-title-leading: var(--mo-sys-typescale-display-small-line-height);
   --mo-comp-theme-title-size-large: var(--mo-sys-typescale-display-medium-size);
 }
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   :root {
     --mo-comp-theme-title-leading: var(--mo-sys-typescale-display-medium-line-height);
   }

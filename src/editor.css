@@ -2,8 +2,8 @@
    (--mo-sys-block-radius, --mo-sys-block-radius-small, --mo-sys-block-shadow). Only what is the editor's alone is here. Low specificity
    (:where), so a theme's :root wins. */
 @reference '../theme/styles/base.css';
-/* The layout classes, until base.css imports them (batch T11 removes this line). */
-@import '../theme/styles/layout.css';
+@import './editor-density.css';
+@import './editor-screens.css';
 @import './editor-ui.css';
 
 /* Density (theme/styles/base.css) reaches the editor's own screens, not the page and post editing area: what is typed in place
@@ -237,17 +237,17 @@
 }
 
 .editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary']) {
-  --tw-prose-body: var(--mo-sys-section-on);
-  --tw-prose-headings: var(--mo-sys-section-on);
-  --tw-prose-bold: var(--mo-sys-section-on);
-  --tw-prose-links: var(--mo-sys-section-on);
-  --tw-prose-bullets: var(--mo-sys-section-on);
-  --tw-prose-counters: var(--mo-sys-section-on);
-  --tw-prose-code: var(--mo-sys-section-on);
-  --tw-prose-quotes: var(--mo-sys-section-on);
-  --tw-prose-quote-borders: var(--mo-sys-section-on);
-  --tw-prose-captions: var(--mo-sys-section-on);
-  --tw-prose-hr: var(--mo-sys-section-on);
+  --mo-comp-prose-body: var(--mo-sys-section-on);
+  --mo-comp-prose-headings: var(--mo-sys-section-on);
+  --mo-comp-prose-bold: var(--mo-sys-section-on);
+  --mo-comp-prose-links: var(--mo-sys-section-on);
+  --mo-comp-prose-bullets: var(--mo-sys-section-on);
+  --mo-comp-prose-counters: var(--mo-sys-section-on);
+  --mo-comp-prose-code: var(--mo-sys-section-on);
+  --mo-comp-prose-quotes: var(--mo-sys-section-on);
+  --mo-comp-prose-quote-borders: var(--mo-sys-section-on);
+  --mo-comp-prose-captions: var(--mo-sys-section-on);
+  --mo-comp-prose-hr: var(--mo-sys-section-on);
   --mo-sys-section-accent: var(--mo-sys-section-fill);
   --mo-sys-section-on-accent: var(--mo-sys-section-on);
   background: var(--mo-sys-section-fill);
@@ -364,12 +364,12 @@
 }
 
 .editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) {
-  --tw-prose-body: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-headings: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-bold: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-links: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-bullets: var(--mo-sys-section-picture-on-fill);
-  --tw-prose-counters: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-body: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-headings: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-bold: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-links: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-bullets: var(--mo-sys-section-picture-on-fill);
+  --mo-comp-prose-counters: var(--mo-sys-section-picture-on-fill);
   --mo-sys-section-accent: var(--mo-sys-section-picture-fill);
   --mo-sys-section-on-accent: var(--mo-sys-section-picture-on-fill);
   color: var(--mo-sys-section-picture-on-fill);
@@ -482,7 +482,7 @@
 /* A sheet that is dragged up by its top on a phone (SheetTitle in ui.tsx) is as tall as the screen allows
    (--bottom-sheet-top-gap from the top, and below the clock), or as tall as what is in it, if that is less. A sheet
    starts at --bottom-sheet-start-max-height at most (ui.css). */
-@media (width < theme(--breakpoint-medium)) {
+@media (width < 37.5rem) {
   .editor-sheet[data-tall] {
     --mo-comp-editor-sheet-tall: calc(100dvh - max(var(--bottom-sheet-top-gap, 4.5rem), env(safe-area-inset-top)));
     max-height: var(--mo-comp-editor-sheet-tall);
@@ -507,7 +507,7 @@
     animation: editor-fade var(--mo-sys-motion-spring-default-effects);
   }
 
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .editor-sheet[open] {
       animation: editor-pop var(--mo-sys-motion-spring-fast-spatial);
     }
@@ -527,7 +527,7 @@
     /* A chip set that scrolls reaches out to the screen's edges: the screen's gutter (px-4, medium:px-6 in Screen.tsx). */
     --mo-comp-chip-set-bleed: 1rem;
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .editor-screen {
       --mo-comp-chip-set-bleed: 1.5rem;
     }
@@ -622,7 +622,7 @@
 /* From medium the drawers (MainDrawer in ui.tsx) take the rail's place (MainRail): they share its icon column, the middle
    of the rail. On a phone the drawer keeps the theme's (Material 3's navigation drawer). The rail's menu button stands
    level with the top bar's logo, as the drawers' does; the rail's items keep their place. */
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   .editor-main-drawer-panel {
     --mo-comp-navigation-drawer-inset: 1.25rem;
   }
@@ -706,7 +706,7 @@
    the content next to it and the save bar starts where it ends; at expanded and wider, while the standard drawer is open
    in the rail's place, they keep clear of the drawer instead. The widths are the theme's. The top bar and its tabs (Screen.tsx)
    stand beside the rail and the drawer, so they need no room. */
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   .snackbar-stack {
     padding-left: var(--mo-comp-navigation-rail-container-width, 5.5rem);
   }
@@ -715,7 +715,7 @@
     width: auto;
   }
 }
-@media (width >= theme(--breakpoint-expanded)) {
+@media (width >= 52.5rem) {
   :root[data-sidebar='open'] .snackbar-stack {
     padding-left: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
@@ -765,11 +765,11 @@
 }
 .editor-column {
   /* The site's text column (PostLayout.astro: max-w-3xl); a form with its fields beside the text is wider (Screen.tsx `panel`). */
-  --mo-sys-column-width: theme(--container-3xl);
+  --mo-sys-column-width: 48rem;
   max-width: var(--mo-sys-column-width);
   margin-inline: auto;
 }
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   :root {
     --mo-sys-column-start: var(--mo-comp-navigation-rail-container-width, 5.5rem);
   }
@@ -782,7 +782,7 @@
     margin-inline-end: auto;
   }
 }
-@media (width >= theme(--breakpoint-expanded)) {
+@media (width >= 52.5rem) {
   :root[data-sidebar='open'] {
     --mo-sys-column-start: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
@@ -791,7 +791,7 @@
 /* The "on this page" area (FormColumns' `pane` in ui.tsx) stands against the window's end edge on large and wider: the
    content keeps clear of it (its end padding; --mo-sys-column-end tells the column, so it stays centred on the window while
    there is room), and the save bar ends where the area begins. */
-@media (width >= theme(--breakpoint-large)) {
+@media (width >= 75rem) {
   :root:has(.editor-section-pane:not([hidden] *)) {
     --mo-sys-column-end: var(--mo-sys-section-pane-width);
   }
@@ -821,7 +821,7 @@
    end edge from the top of the window to its bottom (M3), with its divider the whole height. BlockDialog.tsx sets
    [data-side-panel] on the root while it is open: the top bar (.editor-top-bar-slot, topBarSlot.tsx) ends at the sheet's
    start edge, it takes the "on this page" area's place (that is hidden), and the content, which stays in use, keeps clear of it. */
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   :root[data-side-panel] {
     --mo-sys-column-end: var(--mo-comp-side-panel-width);
   }
@@ -1427,7 +1427,7 @@ html {
 
 /* On a phone the text's box (bar and body) is 354 dp wide at 375 px (352 inside its 1 dp edges), 10.5 dp from each edge instead of the screen's 16 dp (owner decision, 14 Nov:
    eight 44 dp icons fit). A deviation from M3's 16 dp margin (docs/material-deviations.md). */
-@media (width < theme(--breakpoint-medium)) {
+@media (width < 37.5rem) {
   .editor-text-box {
     margin-inline: -0.34375rem;
   }
@@ -1635,7 +1635,7 @@ html {
   line-height: 1.625;
 }
 
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   .editor-text .ProseMirror > [data-look='section'] {
     font-size: 3rem;
   }
@@ -1754,7 +1754,7 @@ dialog {
   font-weight: var(--mo-sys-typescale-display-small-weight);
   letter-spacing: var(--mo-sys-typescale-display-small-tracking);
 }
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   .editor-text .ProseMirror > h1:first-child {
     font-size: var(--mo-comp-theme-title-size-large, var(--mo-sys-typescale-display-medium-size));
     font-weight: var(--mo-sys-typescale-display-medium-weight);
@@ -1873,7 +1873,7 @@ dialog {
 .selection-bar-all .checkbox-box {
   margin: 0;
 }
-@media (max-width: 599.98px) {
+@media (width < 37.5rem) {
   .selection-bar-all .checkbox-text {
     position: absolute;
     width: 1px;
@@ -2018,7 +2018,7 @@ dialog {
 .editor-screen {
   padding-top: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
 }
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   .editor-screen {
     padding-top: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
   }
@@ -2068,7 +2068,7 @@ dialog {
   /* The Save row is the theme's standard bottom sheet (ActionSheet), fixed over the layer: the content ends above it. */
   padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   .crop-page-main,
   .block-page-main {
     padding: 1.5rem 1.5rem calc(5.5rem + env(safe-area-inset-bottom));
@@ -2158,7 +2158,7 @@ dialog {
   align-items: center;
   gap: 0.25rem;
 }
-@media (width >= theme(--breakpoint-medium)) {
+@media (width >= 37.5rem) {
   .crop-view-ratios {
     flex-wrap: wrap;
     overflow-x: visible;

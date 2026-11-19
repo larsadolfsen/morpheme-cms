@@ -153,8 +153,8 @@ export default function MobileMenu({
           <NavigationDrawer variant="modal" className={side === 'end' ? navigationDrawerEndClass : undefined}>
             <div className="md-drawer-head">
               {side !== 'end' && menuButton}
-              <span aria-hidden="true" className="logo-mark h-10 w-9 shrink-0 bg-primary" />
-              <div className="min-w-0 flex-1 leading-tight">
+              <span aria-hidden="true" className="logo-mark mo-drawer__mark" />
+              <div className="mo-drawer__title">
                 <p className="md-drawer-name">{name}</p>
                 <p className="md-drawer-role">{role}</p>
               </div>
@@ -187,7 +187,7 @@ export default function MobileMenu({
                         {item.children && expanded === item.href && (
                           <motion.ul
                             id={`sub-${item.href}`}
-                            className="overflow-hidden"
+                            className="mo-drawer__subitems"
                             initial={reduce ? false : { height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1, transition: spring.enter }}
                             exit={reduce ? undefined : { height: 0, opacity: 0, transition: spring.leave }}
@@ -218,11 +218,11 @@ export default function MobileMenu({
                 {phone && (
                   // On a phone it calls; from the medium window size up it leads to the contact page, when there is one.
                   <>
-                    <span className={phone.page ? 'contents medium:hidden' : 'contents'}>
+                    <span className={phone.page ? 'mo-drawer__call' : 'mo-contents'}>
                       <HeaderPhoneButton phone={phone} kind="outlined" />
                     </span>
                     {phone.page && (
-                      <span className="hidden medium:contents">
+                      <span className="mo-drawer__page">
                         <HeaderPhoneButton phone={phone} kind="outlined" page onClick={() => void close()} />
                       </span>
                     )}

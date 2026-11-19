@@ -457,11 +457,11 @@ async function checkListsAndBlocks(width) {
     }
   };
   await pick('Body small');
-  const sized = await page.locator('.ProseMirror ul li span.body-small').count();
+  const sized = await page.locator('.ProseMirror ul li span.mo-type-body-small').count();
   if (sized !== 1 || (await tops()).join() !== 'ul')
     problems.push(`${label}: Body small in a list item gives ${sized} sized items and ${await tops()}, not 1 and ul`);
   await pick('Body medium');
-  if (await page.locator('.ProseMirror ul li span.body-small').count())
+  if (await page.locator('.ProseMirror ul li span.mo-type-body-small').count())
     problems.push(`${label}: Body medium in a list item leaves its size`);
   // A block inserted in the first item ends the list there, at the top level, and the rest follows it.
   await page.locator('.ProseMirror li > p').nth(0).click();

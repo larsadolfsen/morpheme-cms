@@ -19,7 +19,7 @@
   }
 }
 @layer components {
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-cta {
       --mo-comp-card-padding: 3rem;
     }

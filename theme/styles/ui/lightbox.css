@@ -105,7 +105,7 @@
     inset-inline-end: 0.5rem;
   }
   /* On a compact window the whole window, without corners, edge or shadow. */
-  @media (width < theme(--breakpoint-medium)) {
+  @media (width < 37.5rem) {
     .lightbox-modal {
       width: 100%;
       max-width: none;
@@ -123,7 +123,7 @@
       pointer-events: none;
     }
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .lightbox-modal {
       width: calc(100% - 7rem);
       max-width: none;

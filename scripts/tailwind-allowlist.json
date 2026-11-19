@@ -104,9 +104,7 @@
     "utilities": 12
   },
   "src/editor.css": {
-    "theme": 17,
-    "reference": 1,
-    "tw": 17
+    "reference": 1
   },
   "src/EditorFooter.tsx": {
     "utilities": 3
@@ -141,9 +139,6 @@
   "src/Keywords.tsx": {
     "utilities": 4
   },
-  "src/Library.tsx": {
-    "utilities": 74
-  },
   "src/Licenses.tsx": {
     "utilities": 19
   },
@@ -158,9 +153,6 @@
   },
   "src/MarkdownEditor.tsx": {
     "utilities": 19
-  },
-  "src/Media.tsx": {
-    "utilities": 96
   },
   "src/MediaAlt.tsx": {
     "utilities": 3
@@ -225,9 +217,6 @@
     "utilities": 26,
     "constants": 7
   },
-  "src/PreviewScreen.tsx": {
-    "utilities": 58
-  },
   "src/Redirects.tsx": {
     "utilities": 16
   },
@@ -240,9 +229,6 @@
   "src/ReleaseNoteSection.tsx": {
     "utilities": 4
   },
-  "src/Screen.tsx": {
-    "utilities": 123
-  },
   "src/SearchPreview.tsx": {
     "utilities": 53
   },
@@ -254,10 +240,6 @@
   },
   "src/SelectionBar.tsx": {
     "utilities": 1
-  },
-  "src/SelectionParts.tsx": {
-    "utilities": 64,
-    "constants": 4
   },
   "src/SeoScores.tsx": {
     "utilities": 8
@@ -295,9 +277,6 @@
   "src/topBarSlot.tsx": {
     "utilities": 6
   },
-  "src/UpdatesNotice.tsx": {
-    "utilities": 56
-  },
   "src/VersionLinePage.tsx": {
     "utilities": 6
   },
@@ -322,90 +301,8 @@
   "theme/blocks/video/View.tsx": {
     "constants": 1
   },
-  "theme/components/ArrowLink.tsx": {
-    "constants": 5
-  },
-  "theme/components/BlogIndex.astro": {
-    "utilities": 16
-  },
-  "theme/components/BlogPosts.astro": {
-    "utilities": 3
-  },
-  "theme/components/BlogPosts.tsx": {
-    "utilities": 26
-  },
-  "theme/components/Container.astro": {
-    "utilities": 4
-  },
-  "theme/components/CookieConsent.astro": {
-    "utilities": 30
-  },
-  "theme/components/EndBlock.astro": {
-    "utilities": 2
-  },
-  "theme/components/Footer.astro": {
-    "utilities": 18
-  },
-  "theme/components/Header.astro": {
-    "utilities": 32
-  },
-  "theme/components/headerParts.ts": {
-    "constants": 19
-  },
-  "theme/components/home/Text.astro": {
-    "utilities": 1
-  },
-  "theme/components/Logo.astro": {
-    "utilities": 7
-  },
-  "theme/components/LogoMark.astro": {
-    "utilities": 5
-  },
-  "theme/components/Markdown.astro": {
-    "utilities": 2
-  },
-  "theme/components/MobileMenu.tsx": {
-    "utilities": 13
-  },
-  "theme/components/PageHeader.astro": {
-    "utilities": 6
-  },
-  "theme/components/PageHeading.astro": {
-    "utilities": 7
-  },
-  "theme/components/PageSection.astro": {
-    "utilities": 3
-  },
   "theme/components/Popup.astro": {
     "constants": 1
-  },
-  "theme/components/PopupButton.tsx": {
-    "utilities": 5
-  },
-  "theme/components/PopupView.tsx": {
-    "utilities": 16
-  },
-  "theme/components/PostAuthor.astro": {
-    "utilities": 12
-  },
-  "theme/components/PostHeader.astro": {
-    "utilities": 15
-  },
-  "theme/components/PostMeta.tsx": {
-    "utilities": 23
-  },
-  "theme/components/RelatedPosts.astro": {
-    "utilities": 6
-  },
-  "theme/components/Section.astro": {
-    "utilities": 5,
-    "constants": 2
-  },
-  "theme/components/ShareRow.astro": {
-    "utilities": 3
-  },
-  "theme/components/TextSection.astro": {
-    "utilities": 1
   },
   "theme/editor/previews.tsx": {
     "utilities": 1
@@ -415,107 +312,20 @@
   },
   "theme/layouts/PageLayout.astro": {
     "utilities": 5,
-    "constants": 3
+    "constants": 2
   },
   "theme/layouts/PostLayout.astro": {
     "utilities": 11,
-    "constants": 9
+    "constants": 8
   },
   "theme/styles/base.css": {
-    "theme": 2,
-    "plugin": 1,
-    "source": 3,
-    "tw": 14
-  },
-  "theme/styles/blocks/buttons-links.css": {
-    "theme": 1
-  },
-  "theme/styles/blocks/cta-prices.css": {
-    "theme": 2
-  },
-  "theme/styles/blocks/panel.css": {
-    "theme": 2
-  },
-  "theme/styles/blocks/prose.css": {
-    "theme": 1
-  },
-  "theme/styles/blocks/text-section.css": {
-    "tw": 12
-  },
-  "theme/styles/cards.css": {
-    "theme": 6
-  },
-  "theme/styles/material/block-looks.css": {
-    "theme": 1
-  },
-  "theme/styles/material/footer.css": {
-    "theme": 2
-  },
-  "theme/styles/material/navigation.css": {
-    "theme": 2
-  },
-  "theme/styles/site-action.css": {
-    "theme": 2
-  },
-  "theme/styles/site-page.css": {
-    "theme": 3
-  },
-  "theme/styles/tokens/base/comp/card.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/base/comp/list.css": {
-    "theme": 1
+    "source": 3
   },
   "theme/styles/tokens/base/ref.css": {
     "themeAt": 2
   },
-  "theme/styles/tokens/base/sys.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/blocks/comp/card.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/blocks/comp/grid.css": {
-    "theme": 3
-  },
-  "theme/styles/tokens/blocks/sys.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/cards/comp/card.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/cards/comp/grid.css": {
-    "theme": 2
-  },
-  "theme/styles/tokens/material/comp/card.css": {
-    "theme": 1
-  },
   "theme/styles/tokens/material/ref.css": {
     "themeAt": 1
-  },
-  "theme/styles/tokens/material/sys.css": {
-    "theme": 2
-  },
-  "theme/styles/tokens/ui/comp/icon-button.css": {
-    "theme": 1
-  },
-  "theme/styles/tokens/ui/comp/side-sheet.css": {
-    "theme": 1
-  },
-  "theme/styles/ui/bottom-sheet.css": {
-    "theme": 3
-  },
-  "theme/styles/ui/button-groups.css": {
-    "theme": 2
-  },
-  "theme/styles/ui/lightbox.css": {
-    "theme": 2
-  },
-  "theme/styles/ui/menus.css": {
-    "theme": 1
-  },
-  "theme/styles/ui/snackbar.css": {
-    "theme": 1
   },
   "theme/templates/Home.astro": {
     "utilities": 10

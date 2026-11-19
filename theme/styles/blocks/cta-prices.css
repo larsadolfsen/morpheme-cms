@@ -140,7 +140,7 @@
     flex-shrink: 0;
     margin-top: 0.125rem;
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-price-row {
       grid-template-columns: 1fr auto;
     }
@@ -148,7 +148,7 @@
       text-align: right;
     }
   }
-  @media (width >= theme(--breakpoint-medium)) {
+  @media (width >= 37.5rem) {
     .block-cta {
       grid-template-columns: repeat(12, minmax(0, 1fr));
       align-items: center;
