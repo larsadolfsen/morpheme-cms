@@ -3269,7 +3269,7 @@ export function SideSheet({
       onClose={onClose}
       onBack={onBack}
       backLabel={backLabel}
-      className="editor-reveal mo-editor-selection-sheet"
+      className="editor-reveal mo-editor-selection-pane"
     >
       <div className="mo-editor-rhythm-250 mo-editor-selection-sheet-body">{children}</div>
     </SiteSideSheet>
@@ -3820,7 +3820,7 @@ export function FormColumns({
   return (
     <div className={`mo-stack mo-editor-screen-layout ${pane ? '' : 'mo-editor-screen-grid'}`}>
       {first && <div className={`${right} ${side ? 'mo-editor-screen-row-first' : 'mo-editor-screen-row-span'}`}>{first}</div>}
-      <div className="mo-editor-rhythm-300 mo-editor-screen-main">{main}</div>
+      <div className="mo-editor-rhythm-300 mo-editor-screen-primary">{main}</div>
       {side && <div className={`${right} ${first ? 'mo-editor-screen-row-second' : 'mo-editor-screen-row-span'}`}>{side}</div>}
       {pane && (
         <div className="editor-section-pane mo-editor-section-pane">

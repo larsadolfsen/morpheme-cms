@@ -869,7 +869,7 @@
     --mo-comp-stack-gap: var(--mo-ref-space-300);
     row-gap: var(--mo-comp-editor-rhythm-300);
   }
-  .mo-editor-screen-main {
+  .mo-editor-screen-primary {
     min-inline-size: 0;
   }
   @media (width >= 75rem) {
@@ -887,7 +887,7 @@
       position: sticky;
       top: 2rem;
     }
-    .mo-editor-screen-main {
+    .mo-editor-screen-primary {
       grid-column-start: 1;
       grid-row: span 2 / span 2;
       grid-row-start: 1;
@@ -903,7 +903,7 @@
       grid-row-start: 1;
     }
   }
-  .mo-editor-selection-sheet {
+  .mo-editor-selection-pane {
     position: sticky;
     top: 2rem;
     max-block-size: calc(100dvh - 3rem);
