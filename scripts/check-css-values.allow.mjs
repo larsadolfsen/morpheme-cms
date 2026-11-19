@@ -2,6 +2,12 @@
 // the file, the line's text and the reason. Keep it small: a new entry is reviewed.
 export const allow = [
   {
+    file: /^src\/editor-settings\.css$/,
+    line: /^font-size: (0\.875|1|1\.5)rem|^line-height: (1\.25rem|1\.5|1\.375|2rem)$|^border-radius: (0\.5|0\.75|1|1\.375)rem|^border-radius: 3px/,
+    reason:
+      "the old text-sm, text-base, text-2xl, leading-snug, rounded-lg, rounded-xl, rounded-2xl and the sign-in icon's and ratio box's own corners of the editor's settings and tools, moved as they were (Tailwind batch T08: the same look first, the type roles and corner steps in the M3 pass, T13)",
+  },
+  {
     file: /^src\/editor-rest\.css$/,
     line: /^font-size: (0\.875|1)rem|^line-height: 1\.(25|5)rem|^border-radius: (0\.5|0\.75)rem/,
     reason:
