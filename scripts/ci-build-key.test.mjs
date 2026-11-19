@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { buildKey, isBuildInput, NOT_INPUTS } from './ci-build-key.mjs';
 
 test('docs, agent files, changesets and the staging watcher are not inputs; everything else is', () => {
-  for (const path of ['docs/a.md', '.claude/skills/x/SKILL.md', '.agents/a', '.changeset/a.md', 'staging-watcher/index.js']) {
+  for (const path of ['docs/a.md', '.claude/skills/x/SKILL.md', '.agents/a', '.changeset/a.md']) {
     assert.equal(isBuildInput(path), false, path);
   }
   for (const path of [

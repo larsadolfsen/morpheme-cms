@@ -10,7 +10,7 @@ import { outputKey } from '../lib/outputKey.mjs';
 /** Folders the build never reads: notes for people and agents, changesets, the staging watcher. Every other tracked file is an input (when
  * in doubt, it counts, so a change to it builds again). The build reads package.json's `files` list, demo/, starter/ and the lock file;
  * nothing under these folders is in them. */
-export const NOT_INPUTS = ['docs/', '.claude/', '.agents/', '.changeset/', 'staging-watcher/'];
+export const NOT_INPUTS = ['docs/', '.claude/', '.agents/', '.changeset/'];
 
 /** @param {string} path a tracked file, relative to the repository root */
 export const isBuildInput = (path) => !NOT_INPUTS.some((prefix) => path.startsWith(prefix));

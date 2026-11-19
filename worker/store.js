@@ -1,5 +1,5 @@
 // What the editor asks of the store, through the Worker (the store's key never leaves it): the catalog and the files in it.
-// Exposes handleStore(request, env, ctx, ask) and STORE_URL; used by packages/editor/worker/index.js (/api/store/*).
+// Exposes handleStore(request, env, ctx, ask), releaseFor (the Worker's own call for one release, worker/cms-update.js) and STORE_URL; used by packages/editor/worker/index.js (/api/store/*).
 // Depends on packages/editor/worker/session.js (sign-in and access), packages/editor/worker/store-connection.js (the key) and packages/editor/lib/contracts.mjs (APP_API, THEME_API).
 //   GET /api/store/catalog       the store's catalog for this site's contracts; { connected: false } without a key
 //   GET /api/store/files/<oid>   a file of the store by its git id, streamed through with its content-type and cache-control
@@ -51,4 +51,27 @@ export async function handleStore(request, env, _ctx, ask = fetch) {
   const cache = res.headers.get('cache-control');
   if (cache) headers['cache-control'] = cache;
   return new Response(res.body, { status: 200, headers });
+}
+
+/**
+ * What the store says of one release, for the Worker's own update (nobody is signed in): `GET <store>/store/releases/<id>/<version>`,
+ * with the site's key as the editor's catalog call has it. `{ api }` for a 200, `{ missing: true }` for a 404 (the store does not know the
+ * release), `null` when the site has no key, the store answers anything else or does not answer.
+ * @param {Record<string, any>} env @param {string} id @param {string} version @param {typeof fetch} [ask]
+ */
+export async function releaseFor(env, id, version, ask = fetch) {
+  const found = await storeKey(env).catch(() => null);
+  if (!found) return null;
+  const base = env.MORPHEME_STORE_URL ?? STORE_URL;
+  try {
+    const res = await ask(`${base}/store/releases/${encodeURIComponent(id)}/${encodeURIComponent(version)}`, {
+      headers: { authorization: `Bearer ${found.key}` },
+    });
+    if (res.status === 404) return { missing: true };
+    if (res.status !== 200) return null;
+    const { api } = await res.json();
+    return Number.isInteger(api) ? { api } : null;
+  } catch {
+    return null;
+  }
 }

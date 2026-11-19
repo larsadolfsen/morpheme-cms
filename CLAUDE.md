@@ -35,6 +35,10 @@ Material 3 the actual pages, never memory) and writes plans and specs in `docs/s
 "work on" inside a brainstorm are not a go-ahead: the session asks once whether to build, and builds only when the owner says so in
 plain words. The plans go to the PM, who hands them to new sessions.
 
+### The flow
+
+Every change goes Branch → line (`0.18`) → `main` → Release, and is seen at each step: a branch on its own demo Preview; the line on the demo (`morpheme-demo`, whose production branch in Cloudflare is the live line); `main` on `morpheme-staging` as the `next` test version from npm, with real sign-in and saving; a release on the sites (`latest`). Nothing is released that staging has not run (skill `release`). When a new line starts, or lines end, the owner sets the demo's production branch to it (Workers > `morpheme-demo` > Settings > Build > Branch control).
+
 ### Only the owner releases a new version
 
 **Only the owner releases a new version of `@morphemecms/cms`.** No agent releases, and no agent takes a step towards a
@@ -46,9 +50,12 @@ release without the owner's explicit yes in the conversation. That means:
   page).
 - Never create a version tag or a GitHub release, never run `release:version`, and never edit the `version` in
   `package.json` or `CHANGELOG.md` by hand.
+- Never release a product that hasn't been seen on staging (owner rule, 18 Nov 2026). The exact build that would be
+  released must already have run on `morpheme-staging` before anyone asks the owner for a release; a Release PR whose
+  version was never seen on staging is never merged, even with an earlier yes (skill `release`, Phases 1 and 2).
 
-Merging an ordinary pull request only stages a test version under the npm tag `next`, and the owner decides about that
-version too. An agent that thinks a release is due says so to the owner and waits. When the owner says `/release`, the
+Merging an ordinary pull request into `main` only stages a test version under the npm tag `next`, and the owner decides about that
+version too; a merge into a version line's branch stages nothing on npm. An agent that thinks a release is due says so to the owner and waits. When the owner says `/release`, the
 session loads the `release` skill and follows its phases in order; it never releases any other way.
 
 ### Pull requests go to the PM
@@ -107,7 +114,7 @@ Worker, the starter or the demo is a pull request here.
 - **`bin/`**: the `morpheme` CLI (image processing, build hooks, validation).
 - **`demo/`**: a made-up site laid over the starter, which the CMS is developed and checked with and which the themes'
   images are taken of. `npm run build` (`scripts/demo-build.mjs`, not in the package) builds it in
-  `.morpheme/demo/site/`; `wrangler.jsonc` puts it on the Worker `morpheme-demo`. Each branch gets its own Preview
+  `.morpheme/demo/site/`; `wrangler.jsonc` puts it on the Worker `morpheme-demo`, whose address shows the live line (the demo Worker's production branch in Cloudflare), not `main`. Each branch gets its own Preview
   (`npx wrangler preview`), whose address Cloudflare writes on the pull request; login and save do not work there.
   The demo's Blocks are an index (`/blocks/`) and one page for each main component or special block (`/blocks/<name>/`, the file
   `demo/src/content/pages/blocks-<name>.md`; the list and its rules are in `scripts/demo-blocks.mjs`).

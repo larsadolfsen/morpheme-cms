@@ -135,6 +135,9 @@
       min-inline-size: 0;
     }
   }
+  .mo-editor-blocked-notice {
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+  }
   .mo-editor-updates-notice {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
     --mo-comp-card-padding: 0;

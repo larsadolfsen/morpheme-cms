@@ -44,6 +44,7 @@ import { Dashboard } from './DashboardGrid';
 import { DashboardAction, useDashboard } from './DashboardEdit';
 import { StartDataContext } from './startData';
 import { UpdatesNotice } from './UpdatesNotice';
+import { BlockedUpdateNotice } from './BlockedUpdateNotice';
 import { loadSavedTimes, saved } from './savedTimes';
 import {
   appearance,
@@ -229,6 +230,7 @@ export function Start({ builtAt, files, env }: { builtAt: Date | null; files: Re
       // The link to the website in the top bar (Screen.tsx).
       home
     >
+      <BlockedUpdateNotice />
       <UpdatesNotice files={files} />
       <FirstRunCard files={files} />
       <StartDataContext.Provider value={{ files, savedAt: env.savedAt, builtAt }}>

@@ -140,13 +140,14 @@ tested in `scripts/daily-full.test.mjs`.
 
 ### A6 as built (test versions from a version line)
 
+**Removed on 18 Nov 2026** (the job `next-line` and `scripts/publish-next.mjs`): owner rule, "A version is pushed to npm and I'm told not to touch it. Then it shouldn't be there." Nothing goes to npm unless the owner is meant to approve it; line work reaches npm only as `next`, when it reaches `main`.
+
 `publish.yml` runs on pushes to `main` and to a line's branch (`0.[0-9]+`: `0.17`, `0.18`, `0.19`, later lines). npm trusts only this one file, so the
 new job `next-line` is in it. On a line the job `release` (Release PR, `latest`, tag, GitHub release) does not run (`if: github.ref == 'refs/heads/main'`),
 so a line opens no Release PR and nothing of it can reach `latest`. `next-line` runs `changeset version --snapshot next` in its own checkout
 (nothing committed), then `scripts/publish-next.mjs`, then `npm stage publish --tag next-<line>`. It stages only, as `next` does: the owner approves on npmjs.com.
 
-- **Tag scheme: `next` stays for `main` alone; a line uses `next-<line>`** (`next-0.18`, `next-0.19`). Why: `staging-follows-next.yml`, the staging-watcher
-  and `morpheme-staging` read `next` and must see only what `main` stages; with one shared tag the line that merged last would win, and three lines run at
+- **Tag scheme: `next` stays for `main` alone; a line uses `next-<line>`** (`next-0.18`, `next-0.19`). Why: `morpheme-staging` (its own Worker checks npm's `next` every hour and calls its deploy hook) read `next` and must see only what `main` stages; with one shared tag the line that merged last would win, and three lines run at
   once. A site pins the exact version (`0.18.0-next-<timestamp>`), so it needs no tag; the tag is for finding the newest one
   (`npm view @morphemecms/cms@next-0.18 version`). `latest` is never used.
 - **The version** is the changeset snapshot as today, `X.Y.Z-next-<14 digits>`; unique (the jobs share the group `publish-next`, one at a time) and
@@ -182,7 +183,7 @@ Built in two pull requests: #924 (build once, cache Chromium) and a second one (
   the package itself), so it only gets the Chromium cache. The shared steps are `.github/actions/prepare`.
 - **Block 1, outputs kept by their inputs.** `lib/outputKey.mjs` (test: `lib/outputKey.test.mjs`) makes the key from the paths and bytes of
   the inputs and a few values; no file times. `scripts/ci-build-key.mjs` applies it to every tracked file except `docs/`, `.claude/`,
-  `.agents/`, `.changeset/` and `staging-watcher/`, plus the Node major version. The job `build` keeps its tarball in Actions' cache under
+  `.agents/`, and `.changeset/`, plus the Node major version. The job `build` keeps its tarball in Actions' cache under
   that key and builds only on a miss. A cache is read only by the same pull request (and the default branch), so it hits on a push that
   changes no input (docs, a changeset) and on a re-run; the first run of a pull request that changes an input always builds. Track B's
   batches 2 and 6 use the same function with their own inputs.
