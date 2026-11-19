@@ -1,5 +1,5 @@
 // The site keeps to Material 3's breakpoints (lib/breakpoints.mjs, --mo-ref-breakpoint-* in theme/styles/tokens/base/ref.css): a width in a
-// media or container query (@media, @container, matchMedia, useMedia, sizes) that is not one of the table's four, a variant with a width of its own or Tailwind's old breakpoint names is a problem
+// media or container query (@media, @container, matchMedia, useMedia, sizes) that is not one of the table's four, a variant with a width of its own or the old Tailwind breakpoint names (sm:, md: …, no longer built) is a problem
 // (lineProblems for one line, breakpointProblems for the tree, in check:content), in the CMS's code (also its defaults)
 // and in the site's themes, apps and own files.
 import { readFileSync, readdirSync, existsSync } from 'node:fs';

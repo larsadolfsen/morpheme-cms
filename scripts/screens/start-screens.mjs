@@ -124,11 +124,11 @@ async function checkUpdatesCard(width, height) {
   const box = await page.evaluate(() => {
     const card = document.querySelector('#updates-title').closest('section');
     const r = (e) => e && e.getBoundingClientRect().toJSON();
-    const cells = [...document.querySelectorAll('main .grid.items-start > *')].map(r);
+    const cells = [...document.querySelectorAll('.mo-editor-dashboard-grid > *')].map(r);
     return {
       card: r(card),
       img: r(card.querySelector('img')),
-      buttons: [...card.querySelectorAll('.mt-auto a, .mt-auto button')].map(r),
+      buttons: [...card.querySelectorAll('.mo-editor-updates-notice-actions a, .mo-editor-updates-notice-actions button')].map(r),
       cells,
     };
   });

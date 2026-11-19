@@ -6,7 +6,6 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import react from '@astrojs/react';
-import tailwindcss from '@tailwindcss/vite';
 import { unified } from '@astrojs/markdown-remark';
 import rehypeRaw from 'rehype-raw';
 import fs from 'node:fs';
@@ -170,7 +169,7 @@ export async function siteConfig() {
       // The editor (packages/editor/) takes this site from src/site/ as @site (packages/editor/defaults/editor.ts), and the
       // site and the editor take the theme in use (src/data/theme.json) as @theme: its file, else the standard
       // theme's (themePlugin, packages/editor/site/theme.mjs); and what is in each app's folder (appFoldersPlugin).
-      plugins: [themePlugin(), appFoldersPlugin(ROOT), appSelf(), tailwindcss()],
+      plugins: [themePlugin(), appFoldersPlugin(ROOT), appSelf()],
       resolve: { alias: aliases() },
     },
   });

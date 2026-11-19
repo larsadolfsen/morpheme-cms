@@ -12,8 +12,7 @@
 //                 `closest`, `matches`, `cn(`/`clsx(` arguments, and a `.name` selector inside any string; only names the stylesheets define,
 //                 so another library's class and a Tailwind utility are never counted here;
 //  - propsDeclared / propsRead: unprefixed custom properties declared (`--x:`, `setProperty('--x')`, `'--x':`) and read (`var(--x`, `getPropertyValue`).
-// Not counted: names in `NOT_RENAMED` (other libraries' classes, `prose` until T13), Tailwind's own properties (`--tw-*` and its @theme namespaces,
-// listed in scripts/css-tokens-allowlist.json; T16 removes them) and `data-*` attributes.
+// Not counted: names in `NOT_RENAMED` (other libraries' classes, `prose` until T13), and `data-*` attributes.
 // Depends on: git (lists the files), postcss.
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
@@ -42,9 +41,7 @@ export const NOT_RENAMED = [
 const matchPattern = (name, pattern) => (pattern.endsWith('*') ? name.startsWith(pattern.slice(0, -1)) : name === pattern);
 export const isKept = (name) => NOT_RENAMED.some(({ pattern }) => matchPattern(name, pattern));
 
-const TAILWIND_PROPS = JSON.parse(readFileSync(new URL('css-tokens-allowlist.json', import.meta.url), 'utf8')).names.map((n) => n.pattern);
-export const isTailwindProp = (name) => TAILWIND_PROPS.some((p) => matchPattern(name, p));
-export const isOwnProp = (name) => /^--[a-z]/i.test(name) && !name.startsWith('--mo-') && !isTailwindProp(name);
+export const isOwnProp = (name) => /^--[a-z]/i.test(name) && !name.startsWith('--mo-');
 export const isOwnClass = (name) => /^-?[_a-zA-Z][\w-]*$/.test(name) && !name.startsWith('mo-') && !isKept(name);
 
 /** The CSS of a file: the whole text of a stylesheet, the <style> elements of an .astro or .html file. */

@@ -140,7 +140,7 @@ const shadows: Token[] = [
   },
 ];
 
-const typeface: Token = { token: '--font-sans', label: say.type.typeface };
+const typeface: Token = { token: '--mo-ref-typeface-plain', label: say.type.typeface };
 
 /** Material 3's type scale (m3.material.io/styles/typography/type-scale-tokens, ui.css): its five roles, each in three
  * sizes, largest first, each a set of variables (--mo-sys-typescale-display-large-size, -line-height, -weight, -tracking). */

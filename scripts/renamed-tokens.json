@@ -748,5 +748,8 @@
   "--theme-title-size-large": "--mo-comp-theme-title-size-large",
   "--list-item-avatar-size": "--mo-comp-avatar-size",
   "--list-item-avatar-surface": "--mo-comp-avatar-container-color",
-  "--list-item-avatar-text": "--mo-comp-avatar-label-text-color"
+  "--list-item-avatar-text": "--mo-comp-avatar-label-text-color",
+  "--font-sans": "--mo-ref-typeface-plain",
+  "--radius-panel": "--mo-sys-radius",
+  "--radius-panel-small": "--mo-sys-radius-small"
 }

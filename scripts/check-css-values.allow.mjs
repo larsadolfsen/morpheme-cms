@@ -1,4 +1,4 @@
-// Where a literal corner or type value, or an off-scale Tailwind class, is right, and why. Same shape as check-colors.allow.mjs:
+// Where a literal corner or type value is right, and why. Same shape as check-colors.allow.mjs:
 // the file, the line's text and the reason. Keep it small: a new entry is reviewed.
 export const allow = [
   {

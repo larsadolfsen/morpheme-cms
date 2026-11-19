@@ -19,7 +19,7 @@ function Facade({ view }: { view: VideoView }) {
     if (still === view.still && view.stillElsewhere) view.stillElsewhere().then((src) => setStill(src ? { src } : null));
     else setStill(null);
   };
-  const classes = ['mo-block-video__facade', !useOnSite() && 'my-0!', still && 'mo-block-video__facade-still'];
+  const classes = ['mo-block-video__facade', !useOnSite() && 'mo-is-flush', still && 'mo-block-video__facade-still'];
   return (
     <InProse>
       <Link href={view.href} data-video={view.player} data-title={view.title} className={classes.filter(Boolean).join(' ')}>

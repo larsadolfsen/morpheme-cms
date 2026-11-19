@@ -14,8 +14,8 @@
     --mo-comp-tabs-pressed-surface, --mo-comp-tabs-disabled-opacity
     --mo-comp-tabs-divider, --mo-comp-tabs-indicator, --mo-comp-tabs-primary-indicator-height, --mo-comp-tabs-primary-indicator-radius,
     --mo-comp-tabs-secondary-indicator-height, --mo-comp-tabs-secondary-selected-text
-  Moved here from ui.css with its rules unchanged and in their order, in the same layer, imported by base.css right after ui.css. A tab row also carries Tailwind
-  utilities (the mobile menu's `tabs relative mx-auto …`), which win by layer, so the position changes nothing that wins (docs/superpowers/plans/2026-11-16-css-split.md).
+  Moved here from ui.css with its rules unchanged and in their order, in the same layer, imported by base.css right after ui.css. A tab row also carries the layout
+  classes of the mobile menu, which win by layer, so the position changes nothing that wins (docs/superpowers/plans/2026-11-16-css-split.md).
 */
 @layer components {
   /* Tabs (m3.material.io/components/tabs), scrollable: a row to swipe sideways when it does not fit. */

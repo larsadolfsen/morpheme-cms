@@ -11,7 +11,6 @@ test('scanCss finds unprefixed class definitions, declared and read properties; 
     @keyframes spin { from { opacity: 0 } }
     .ProseMirror p { margin: 0 }
     .prose { color: red }
-    :root { --tw-ring: 1; --color-x: red; }
   `);
   assert.deepEqual([...s.classDefs.keys()].sort(), ['card-body', 'card-check']);
   assert.deepEqual([...s.declared.keys()], ['--card-sample']);

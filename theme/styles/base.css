@@ -1,8 +1,7 @@
-/* The layer order is ours, set before Tailwind's import (the first statement fixes it): `prose` (prose.css, the rules the typography plugin gave `.prose`) sits right before
-   `utilities`, so a utility class still wins over `.prose`. Material's rules sit in the last layer, fallback: a theme's own unlayered rules beat them, whatever their specificity. */
-@layer theme, base, components, prose, utilities, fallback;
-@import 'tailwindcss';
-/* The reset (the rules of Tailwind's preflight, in our own file), in the layer base, before every rule that builds on it. */
+/* The layer order is ours, the first statement of the sheet: `prose` (prose.css) sits right before `utilities`, so a utility rule still wins over `.prose`.
+   Material's rules sit in the last layer, fallback: a theme's own unlayered rules beat them, whatever their specificity. */
+@layer base, components, prose, utilities, fallback;
+/* The reset, in the layer base, before every rule that builds on it. */
 @import './reset.css';
 /* The theme's UI components, as Material 3 names them (buttons, icon buttons, the menus, the lists …), one file for each part, imported in
    the order their rules had in the file ui.css was before the split (docs/theme-css-split.md); and the standard blocks of the editor, in this
@@ -57,11 +56,6 @@
 @import './tokens/base/registry.css';
 @import './tokens/base/ref.css';
 @import './tokens/base/sys.css';
-/* The classes in the CMS's own code (this package, also from node_modules/, where Tailwind does not look by itself);
-   the names in the icon packs' maps (MATERIAL_SYMBOLS, LUCIDE, site/icons.mjs) and the tests' examples are not classes. */
-@source '../..';
-@source not '../../site/icons.mjs';
-@source not '../../**/*.test.mjs';
 /* Follow the system by default (Modern Web Guidance, dark-mode-toggle: the base stays `light dark`); a picked mode pins it. */
 @layer fallback {
   :root {

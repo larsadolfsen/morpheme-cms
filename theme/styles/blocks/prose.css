@@ -30,6 +30,10 @@
     text-align: center;
     text-decoration: none;
   }
+  /* In the editor the video has no margin of the text's own (the section's spacing is the editor's: View.tsx adds mo-is-flush off the site); it was `my-0!`. */
+  .prose .mo-block-video__facade.mo-is-flush {
+    margin-block: 0;
+  }
   /* A video without a still has no tint of its own in a card: the card's surface is already a tone (in a coloured section a veil), and two veils
      over each other left the title at 3.8:1. */
   .prose

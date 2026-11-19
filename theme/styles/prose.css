@@ -9,7 +9,7 @@
   `:not(:where(.not-prose, .not-prose *))` on the element (an element in a `.not-prose` block is left alone).
 
   The layer: the plugin's rules sat in the middle of Tailwind's utilities layer (after its `margin-block` and `margin-inline-start/end`, before `margin-top`,
-  `display`, `max-width` and the rest). `prose` is declared right before `utilities` (base.css, before the Tailwind import, so the order is ours): a
+  `display`, `max-width` and the rest). `prose` is declared right before `utilities` (base.css, the first statement, so the order is ours): a
   utility class still wins over `.prose` (max-w-none over the 65ch, mt-10 on a text), and these win over the `components` layer (.link) as the plugin did.
   Found by comparing computed styles of the demo, the starter and the prose fixture page (demo/src/content/pages/prose-fixture.md), not by reasoning.
 */

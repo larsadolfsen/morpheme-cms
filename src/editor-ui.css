@@ -1073,16 +1073,13 @@
   }
 }
 
-/* The vertical rhythm follows the person's density step (the tokens of src/editor-density.css; the rules at the end of editor.css key on the old space-y-* classes): a gap of
+/* The vertical rhythm follows the person's density step (the tokens of src/editor-density.css): a gap of
    12 px or more between stacked parts takes the step, and a child with a margin of its own keeps it. Not in the layer, as the old rules were.
-   The classes at the end of the list are the parts of this file that had a margin class (my-, mb-, m-0) before and so were left out. */
+   The classes at the end of the list keep a margin of their own and are left out. */
 .mo-editor-rhythm-150
   > :not(
     :last-child,
     :has(+ [data-fold-section]),
-    [class*='my-'],
-    [class*='mb-'],
-    [class*='m-0'],
     .mo-editor-field-label,
     .mo-editor-field-hint,
     .mo-editor-swatches-title,
@@ -1105,9 +1102,6 @@
   > :not(
     :last-child,
     :has(+ [data-fold-section]),
-    [class*='my-'],
-    [class*='mb-'],
-    [class*='m-0'],
     .mo-editor-field-label,
     .mo-editor-field-hint,
     .mo-editor-swatches-title,
@@ -1130,9 +1124,6 @@
   > :not(
     :last-child,
     :has(+ [data-fold-section]),
-    [class*='my-'],
-    [class*='mb-'],
-    [class*='m-0'],
     .mo-editor-field-label,
     .mo-editor-field-hint,
     .mo-editor-swatches-title,
@@ -1155,9 +1146,6 @@
   > :not(
     :last-child,
     :has(+ [data-fold-section]),
-    [class*='my-'],
-    [class*='mb-'],
-    [class*='m-0'],
     .mo-editor-field-label,
     .mo-editor-field-hint,
     .mo-editor-swatches-title,
@@ -1175,28 +1163,4 @@
     .mo-editor-section-pane-title
   ) {
   margin-block-end: var(--mo-comp-editor-rhythm-300);
-}
-
-/* The same parts inside a stack that is still written with space-y-* (the parts of src/ not yet moved off Tailwind): the rules at the end of
-   editor.css leave out a child whose class has my-, mb- or m-0, and these classes no longer have one. revert-layer gives such a child the
-   margin the layer gave it (its own, or the stack's plain gap), as before. Goes with the last of those stacks. */
-:is([class*='space-y-'])
-  > :is(
-    .mo-editor-field-label,
-    .mo-editor-field-hint,
-    .mo-editor-swatches-title,
-    .mo-editor-sheet-chips,
-    .mo-editor-sheet-search,
-    .mo-editor-choice-hint,
-    .mo-editor-section,
-    .mo-editor-score,
-    .mo-editor-main-drawer-header-divider,
-    .mo-editor-main-drawer-divider,
-    .mo-editor-sheet-phone,
-    .mo-editor-group-title,
-    .mo-editor-section-list,
-    .mo-editor-section-pane-caption,
-    .mo-editor-section-pane-title
-  ):not(:last-child) {
-  margin-block-end: revert-layer;
 }
