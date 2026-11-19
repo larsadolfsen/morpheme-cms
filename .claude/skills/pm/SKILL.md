@@ -66,6 +66,7 @@ line once, and the line goes into `main` once, when it is released):
 2. **A feature branch, when it takes several pull requests.** For a feature of more than one pull request (the CSS split, cards and
    lists, the move away from Tailwind) the PM cuts `feature/<name>` from the line, and every session of that feature opens its pull
    request into it. A single fix or a feature of one pull request goes straight into the line.
+   **The version is set when a feature starts** (owner, 19 Nov 2026): the feature's first pull request sets `version` in `package.json` to the number it is released as (next patch above npm's `latest`, or next minor `.0` for a line), so the demo and `next` show it. Do not merge a first pull request without it (the check in `static` fails it). A single fix into `main` sets its version in its own pull request. After each merge into `main` the PM merges `main` into every open feature branch; when that brings in a release with the same number as a feature's, the merge conflicts on `version` and the PM resolves it to the next free number (and tells the feature's session). No other pull request changes `version`.
 3. **Sessions** do the work (section 5) and report their pull request's link and head sha.
 4. **Merging** at the check level of the target (section 3 and 6): a piece into its feature branch on the feature check; after each
    merge into the line, the PM merges the line into every open feature branch (never the other way), so no feature drifts far from

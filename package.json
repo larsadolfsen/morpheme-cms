@@ -79,7 +79,7 @@
     "check:colors": "node scripts/check-colors.mjs",
     "check:release-notes": "node scripts/check-release-notes.mjs",
     "audit:web": "modern-web-guidance",
-    "release:version": "changeset version && node scripts/release-notes.mjs && node scripts/starter.mjs",
+    "release:version": "node scripts/release-version.mjs",
     "prepack": "node scripts/types.mjs write",
     "postpack": "node scripts/types.mjs clean"
   },
