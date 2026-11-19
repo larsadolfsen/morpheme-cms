@@ -36,6 +36,8 @@ function isBinary(file) {
 /** Whether a path is left out of the check. @param {string} path */
 function isSkipped(path) {
   if (isLanguagePath(path)) return true;
+  // An edition's place is also written in Danish (`place.da-DK`), so a Danish letter belongs in it.
+  if (/^release-notes\/editions\/[^/]+\.json$/.test(path)) return true;
   if (path === 'CHANGELOG.md' || path === 'package-lock.json') return true;
   if (path.startsWith('docs/superpowers/')) return true;
   if (!existsSync(`${root}${path}`)) return true;
