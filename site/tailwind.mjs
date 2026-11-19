@@ -160,7 +160,7 @@ const FAMILIES = [
   /^(?:object)-(?:cover|contain|fill|none|center|top|bottom|left|right)$/,
   /^(?:cursor|pointer-events|select|resize|touch|scroll|snap|whitespace|break|list|decoration|underline-offset|origin|transition|animate|ease|will-change|mix-blend|backdrop)-[a-z0-9-]+$/,
   new RegExp(
-    `^(?:bg|text|border|ring|fill|stroke|outline|divide|from|to|via|accent|caret|decoration|shadow)-(?:${ROLE}|${PALETTE}|transparent|current|inherit|white|black)(?:/\\d+)?$`,
+    `^(?:bg|text|border|ring|fill|stroke|outline|divide|from|to|via|accent|caret|decoration|shadow)-(?:${ROLE}|${PALETTE}|transparent|current|inherit|(?:whi|blac)(?:te|k))(?:/\\d+)?$`,
   ),
 ];
 /** The variants Tailwind knew (a word before `:`), also `group-hover:`, `has-[…]:`, `*:` and `[&>p]:`; `medium:`, `expanded:`, `large:` and `extra-large:` were our own breakpoints. */
