@@ -1276,8 +1276,8 @@ const rowPadding = () => {
       head = c.textContent.trim().toLowerCase();
       continue;
     }
-    const row = c.querySelector('.list-item-expand-summary, .list-item-container:has(> .list-item-trailing svg)');
-    if (!row || out[head] || row.querySelector(':scope > .list-item-leading:not(:empty), :scope > .list-item-leading-icon')) continue;
+    const row = c.querySelector('.mo-list__item-expand-summary, .mo-list__item-container:has(> .mo-list__item-trailing svg)');
+    if (!row || out[head] || row.querySelector(':scope > .mo-list__item-leading:not(:empty), :scope > .mo-list__item-leading-icon')) continue;
     const box = row.getBoundingClientRect();
     const icons = [...row.querySelectorAll('svg')].filter((v) => v.getBoundingClientRect().width);
     const title = row.querySelector('.mo-list__item-content').getBoundingClientRect();
@@ -1327,7 +1327,7 @@ async function checkPageLeftEdge(width) {
           first = n.textContent.trim() ? ([...range.getClientRects()].find((q) => q.width) ?? null) : null;
         }
         // Below 600 dp a plain list (not the segmented design) goes edge to edge (owner, 16 Nov 2026): at the viewport's left edge and as wide as it.
-        if (innerWidth < 600 && c.matches('.block-list:not(.list-segmented), .block-accordion:not(.block-accordion-segmented)')) {
+        if (innerWidth < 600 && c.matches('.block-list:not(.mo-list__segmented), .block-accordion:not(.block-accordion-segmented)')) {
           const box = c.getBoundingClientRect();
           if (Math.abs(left) > 1 || Math.abs(box.width - innerWidth) > 1)
             out.push(`plain list ${c.className.toString().slice(0, 30)} at ${left}, ${box.width} wide, not edge to edge`);

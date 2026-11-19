@@ -1253,7 +1253,7 @@ async function checkSelectionBox() {
         background: s.backgroundColor === want.backgroundColor,
         radius: parseFloat(s.borderTopLeftRadius),
         wantRadius: parseFloat(want.borderTopLeftRadius),
-        checked: !!r.querySelector('.list-item-select-box .checkbox-input[data-checked]'),
+        checked: !!r.querySelector('.mo-list__item-select-box .mo-checkbox__input[data-checked]'),
       };
       probe.remove();
       return out;

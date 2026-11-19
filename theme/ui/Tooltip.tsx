@@ -1,4 +1,4 @@
-// A tooltip (m3.material.io/components/tooltips, .tooltip in ../styles/ui/tooltip.css) on what it is about (`children`: one
+// A tooltip (m3.material.io/components/tooltips, .mo-tooltip in ../styles/ui/tooltip.css) on what it is about (`children`: one
 // element, a button or a link, which gets aria-describedby, so screen readers read the tooltip after its name). Plain
 // (`text`: a short label, e.g. on an icon button) or rich (`subhead`, `supportingText` and evt. an action, `action`, a
 // text button with its `label` and `href` or other attributes on it). Over its anchor, under it when there is no room

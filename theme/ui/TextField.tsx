@@ -1,4 +1,4 @@
-// A text field (m3.material.io/components/text-fields, .text-field in ../styles/ui/text-field.css): a field to write in, with
+// A text field (m3.material.io/components/text-fields, .mo-text-field in ../styles/ui/text-field.css): a field to write in, with
 // its name (`label`), drawn in the field and moving above what is written, or only read by screen readers
 // (`hideLabel`, a field whose placeholder says what it is), or without one (no `label`: a form that names its fields
 // itself, the editor's, with a <label> for its `id`), and a line under it (`supporting`), or what is wrong with
@@ -9,7 +9,7 @@
 // that shows the password, with type="password"), one of the caller's (`trailing`, an IconButton) and the error's icon
 // (`errorIcon`, in place of the others while the field is wrong). `counter`: how much is written under it at the end
 // (12/50 with `maxLength`); `limit`: how much it should have at most, without stopping more (12/60, the counter marked
-// past it, .text-field-counter-over). `rows`: several lines (a <textarea>) of that many rows; `multiline`: several lines that grow
+// past it, .mo-text-field__counter-over). `rows`: several lines (a <textarea>) of that many rows; `multiline`: several lines that grow
 // with the text. `disabled`: it cannot be used; `readOnly`: it can be read and copied, not changed. Other attributes
 // (`type`, `name`, `required`, `placeholder`, `id`, `autoComplete` …) go on the <input>, and `className` on the field
 // around it (its width, its place). The counter, the growing and the buttons work on the site with

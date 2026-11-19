@@ -1,4 +1,4 @@
-// A chip (m3.material.io/components/chips, .chip in ../styles/ui/chips.css): a short label (`label`), evt. an icon before it
+// A chip (m3.material.io/components/chips, .mo-chip in ../styles/ui/chips.css): a short label (`label`), evt. an icon before it
 // (`icon`), or a person's image (`avatar`: its address, on an input chip) and one after it (`trailingIcon`). Its kind
 // (`kind`) is Material's name; how each looks is the theme's: assist (the default: a link to something related, a post's
 // tag), filter (one of a few that choose what is shown: `selected` is the chosen one, aria-pressed on a button,

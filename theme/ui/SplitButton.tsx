@@ -1,4 +1,4 @@
-// A split button (m3.material.io/components/split-button, .split-button in ../styles/ui/fab-menu.css): the main action (the
+// A split button (m3.material.io/components/split-button, .mo-split-button in ../styles/ui/fab-menu.css): the main action (the
 // theme's Button: `label`, evt. `icon`, with `href` a link) and joined to it a button with an arrow (its name
 // `menuLabel`, read by screen readers) that opens a menu with the other ways to do it, the theme's Menu with its
 // MenuItems (`children`). Its kind (`kind`: filled, the default, tonal, elevated or outlined) and its size (`size`:

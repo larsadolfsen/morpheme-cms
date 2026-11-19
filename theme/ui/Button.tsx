@@ -1,4 +1,4 @@
-// A button (m3.material.io/components/buttons, .button in ../styles/ui/buttons.css): a label, an icon before it (`icon`) and
+// A button (m3.material.io/components/buttons, .mo-button in ../styles/ui/buttons.css): a label, an icon before it (`icon`) and
 // evt. one after it (`trailingIcon`, the arrow; each its name, or in the editor an icon already made; its class button-trailing-icon, so a theme can hide or move it). Its
 // kind (`kind`: filled, the default, tonal, elevated, outlined or text), its size (`size`: xsmall, small, medium, the
 // default, large or xlarge) and its shape (`shape`: round, the default, or square) are Material's names; how each looks
@@ -9,7 +9,7 @@
 // never a toggle), else a <button> (`type`, button by default). Other attributes (data-…, aria-…, disabled) go on it, and `className`
 // after its own classes (its width). An Astro component without React gives an element the same classes with
 // buttonClass, and a toggle aria-pressed itself. With `busy` (a <button> only; a link ignores it) the button is
-// disabled, aria-busy and .button-busy while its action runs. Nothing else changes for the first --mo-comp-button-busy-delay
+// disabled, aria-busy and .mo-button__busy while its action runs. Nothing else changes for the first --mo-comp-button-busy-delay
 // (200 ms; M3 loading indicator); then the label and icons go, the button shrinks to a circle (its width becomes its
 // height) and a loading indicator in the label's colour, without a container, stands in the middle (aria-hidden: the
 // button keeps its name). When busy ends, it is the button again.

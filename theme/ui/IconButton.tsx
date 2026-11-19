@@ -1,4 +1,4 @@
-// An icon button (m3.material.io/components/icon-buttons, .icon-button in ../styles/ui/buttons.css): only an icon (`icon`, its
+// An icon button (m3.material.io/components/icon-buttons, .mo-icon-button in ../styles/ui/buttons.css): only an icon (`icon`, its
 // name in the theme's icons, or in the editor an icon already made), its name (`label`) read by screen readers. Its kind (`kind`: standard, the default, filled,
 // tonal or outlined), its size (`size`: xsmall, small, the default, medium, large or xlarge), its width (`width`:
 // narrow, default or wide) and its shape (`shape`: round, the default, or square) are Material's names; how each looks
@@ -9,7 +9,7 @@
 // `href` it is a link (Link: on the site; in the editor only drawn; never a toggle), else a <button type="button">.
 // Other attributes (data-…, disabled) go on it, and `className` after its own classes (its place). An Astro component
 // without React gives an element the same classes with iconButtonClass, and a toggle aria-pressed itself. With `busy`
-// (a <button> only) it is disabled, aria-busy and .icon-button-busy: after --mo-comp-button-busy-delay (200 ms) the icon is
+// (a <button> only) it is disabled, aria-busy and .mo-icon-button__busy: after --mo-comp-button-busy-delay (200 ms) the icon is
 // replaced by a loading indicator of its size (BusyContent); the button keeps its size.
 import { Glyph, type IconRef } from '@morphemecms/cms/src/icon';
 import Badge from '@theme/ui/Badge';

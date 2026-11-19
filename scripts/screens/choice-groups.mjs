@@ -2,7 +2,7 @@ import { openEditor } from '../built-site.mjs';
 import { block, browser, da, daBlocks, daText, has, problems, site } from './support/context.mjs';
 import { pressTool, rowButton } from './support/shared.mjs';
 
-/** Every visible choice group (.choice-group) in `root`, measured in the page: its form, its choices' boxes, whether two overlap
+/** Every visible choice group (.mo-choice-group) in `root`, measured in the page: its form, its choices' boxes, whether two overlap
  * or a label is cut off, what the buttons need against the room they get, the targets (buttons) and row heights (list), its
  * name, and its samples. Run with locator.evaluate. */
 function choiceGroupsIn(root) {
@@ -315,7 +315,7 @@ async function checkButtonStyleSamples(width, locale) {
         [...root.querySelectorAll('.mo-choice-group__list .mo-choice-group__sample')]
           .filter((slot) => slot.getClientRects().length)
           .map((slot) => {
-            const button = slot.querySelector('.button:not([aria-hidden] .button)') ?? slot.querySelector('.mo-button');
+            const button = slot.querySelector('.mo-button:not([aria-hidden] .mo-button)') ?? slot.querySelector('.mo-button');
             const visible = [...slot.querySelectorAll('.mo-button')].filter((b) => !b.closest('[aria-hidden="true"][style*="hidden"]')).at(0);
             const b = (visible ?? button).getBoundingClientRect();
             const r = slot.getBoundingClientRect();

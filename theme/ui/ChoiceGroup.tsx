@@ -1,11 +1,11 @@
-// A choice group (.choice-group in ../styles/ui/button-groups.css): one choice of a few, which takes its form by measuring, so it never
+// A choice group (.mo-choice-group in ../styles/ui/button-groups.css): one choice of a few, which takes its form by measuring, so it never
 // squeezes. When every choice fits its label on one line at an equal share of the width, it is Material's connected button
 // group (m3.material.io/components/button-groups: ButtonGroup kind="connected" with a filled, small toggle Button
 // for each choice, aria-pressed; no check mark, the chosen one shows by its shape and colour); otherwise a list of radio
 // buttons (m3.material.io/components/radio-button and /lists: the theme's List in a RadioGroup, a <fieldset> named by
 // `label`, each choice a ListItem with its radio button leading and the whole row the tap target). The rule is
 // fitsAsButtons (choiceGroupFit.mjs): the widest button × the count + the gaps against the width; more than five is always
-// the list; the switch back from the list needs 8 px more. Both forms are in the DOM; .choice-group-measure, hidden and
+// the list; the switch back from the list needs 8 px more. Both forms are in the DOM; .mo-choice-group__measure, hidden and
 // inert, holds the buttons at their natural width, and data-form="buttons" | "list" on the group shows one form. The form
 // is chosen in a layout effect, before the first paint, and again when the width, the fonts or the density change
 // (ResizeObserver, document.fonts); without it (the server, before hydration) it is the list, which can never overlap.
@@ -121,7 +121,7 @@ export default function ChoiceGroup({
       showing.current = shown;
       const active = document.activeElement as HTMLElement | null;
       const from = was === 'buttons' ? '.mo-choice-group__buttons' : '.mo-choice-group__list';
-      if (active && active.closest(`.choice-group > ${from}`)?.parentElement === el) {
+      if (active && active.closest(`.mo-choice-group > ${from}`)?.parentElement === el) {
         const v = active.dataset.value ?? (active as HTMLInputElement).value;
         const to =
           shown === 'buttons'

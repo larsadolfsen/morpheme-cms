@@ -1,4 +1,4 @@
-// A segmented button (m3.material.io/components/segmented-buttons, .segmented-button in ../styles/ui/button-groups.css): a few
+// A segmented button (m3.material.io/components/segmented-buttons, .mo-segmented-button in ../styles/ui/button-groups.css): a few
 // choices side by side in one frame (`segments`), each a button with its label and evt. an icon, the chosen ones with
 // aria-pressed="true" and a check before the label (in the icon's place when it has one; the theme shows it or not). A segment with a
 // `swatch` (a CSS colour) shows a filled circle of it in every segment instead, in the check's place and with no check: the chosen one

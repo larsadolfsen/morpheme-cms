@@ -407,7 +407,7 @@ function placeTip(tip: HTMLElement, anchor: Element) {
   tip.style.left = `${Math.max(8, Math.min(at.left + at.width / 2 - tip.offsetWidth / 2, innerWidth - tip.offsetWidth - 8))}px`;
 }
 
-/** An element's name as a tooltip (`on`: its handlers, `tip`: beside it): the theme's plain tooltip (.tooltip-plain in
+/** An element's name as a tooltip (`on`: its handlers, `tip`: beside it): the theme's plain tooltip (.mo-tooltip__plain in
  * its ui.css), shown after a moment under the mouse, and at once when the element gets the focus from the keyboard;
  * gone when the mouse leaves, on a tap, on Escape and when it loses the focus. Not on a phone, where the element's name
  * is read out instead. It is a popover (.editor-tooltip in editor.css), so it stands over everything, also a sheet, and

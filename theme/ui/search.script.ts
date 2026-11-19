@@ -1,7 +1,7 @@
 // What a search (Search.tsx) does on the site: its bar opens the search view (a modal <dialog>: over the whole screen
-// on a phone, docked where the bar is from the medium breakpoint, .search-view-docked with --mo-comp-search-view-top, -left and -width), with the
+// on a phone, docked where the bar is from the medium breakpoint, .mo-search-view__docked with --mo-comp-search-view-top, -left and -width), with the
 // focus in its field; the back button, Escape and a tap outside close it, and the focus goes back to the bar. What is
-// written narrows the results to those whose text has it (the message .search-view-empty when none has), the arrow keys
+// written narrows the results to those whose text has it (the message .mo-search-view__empty when none has), the arrow keys
 // move through them (aria-activedescendant on the field, aria-selected on the option), and Enter follows the one they
 // are on. The page under it does not scroll while it is open. Run on every page by the theme's Base.astro
 // (blockScripts, packages/editor/site/blockScripts.ts); without a search it does nothing.

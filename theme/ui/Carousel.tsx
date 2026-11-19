@@ -8,7 +8,7 @@
 // - 'hero': one large item (more on a wide screen) and a small one after it (`alignment` 'start', the default) or
 //   between two small ones (`alignment` 'center'), for images to look at one by one, with the next one in sight.
 // - 'full-screen': one item at a time, as wide as the carousel, out to a phone's edges.
-// In the contained layouts (all but 'uncontained') an item's `content` fills its mask (.carousel-item-mask), as a
+// In the contained layouts (all but 'uncontained') an item's `content` fills its mask (.mo-carousel__item-mask), as a
 // image should; a text on it can fade as it shrinks with --mo-comp-carousel-mask (0 to 1). Under them the theme's addition to
 // M3's carousel, a page indicator: a dot for each item (`indicatorLabels`, what each says to a screen reader), which
 // follows the scroll position and jumps to an item. On the site carousel.script.ts makes it work and shows it and lays

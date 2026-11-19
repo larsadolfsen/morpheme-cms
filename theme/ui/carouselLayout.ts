@@ -2,7 +2,7 @@
 // they scroll (m3.material.io/components/carousel): 'multi-browse' (large items from the start, then a medium and a
 // small one) and 'hero' (a large one and a small one after it, or, aligned to the centre, between two small ones). As
 // Material's CarouselLayoutManager does it: every item is in the row as wide as a large one (so swiping and scroll-snap
-// work as in any row), and its mask (.carousel-item-mask) is moved and clipped to the size its place gives it. The
+// work as in any row), and its mask (.mo-carousel__item-mask) is moved and clipped to the size its place gives it. The
 // places are keylines: where each item stands and how wide it is seen, with an item that is just leaving or coming in
 // outside at each end. Scrolled to the start, the large ones are at the start (also in a hero aligned to the centre);
 // scrolled to the end, at the end; between, the layout's own; and from one to the other the keylines move by

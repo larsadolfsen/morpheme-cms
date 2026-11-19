@@ -699,8 +699,8 @@ async function checkCardVideoPlay(width, height) {
   await facade.scrollIntoViewIfNeeded();
   const box = () =>
     page.evaluate(() => {
-      const card = document.querySelector('.block-card .card-media-slot:has(.video-facade, iframe)').closest('.block-card');
-      const media = document.querySelector('.block-card .card-media-slot:has(.video-facade, iframe)').firstElementChild;
+      const card = document.querySelector('.block-card .mo-card__media-slot:has(.video-facade, iframe)').closest('.block-card');
+      const media = document.querySelector('.block-card .mo-card__media-slot:has(.video-facade, iframe)').firstElementChild;
       const r = (e) => e.getBoundingClientRect();
       const cs = getComputedStyle(media);
       return {

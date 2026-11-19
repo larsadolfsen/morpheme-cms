@@ -83,7 +83,7 @@ for (const width of [375, 768, 1280, 1580]) {
           // Owner, 16 Nov 2026: "Full width on compact screens". Below 600px the layer of a plain List or List - Expand (no drawn container) reaches
           // 16px past the text column on each side, so its box starts 16px before the text above it and its content (leading icon or text) is on
           // the text's edge. From 600px, and in the segmented design, the box itself is on the text's edge.
-          const bleeds = width < 600 && block.matches('.block-list:not(.list-segmented), .block-accordion:not(.block-accordion-segmented)');
+          const bleeds = width < 600 && block.matches('.block-list:not(.mo-list__segmented), .block-accordion:not(.block-accordion-segmented)');
           const name2 = block.className.toString().split(' ')[0];
           if (left(block) !== left(before) - (bleeds ? 16 : 0))
             out.push(

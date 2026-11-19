@@ -1448,7 +1448,7 @@ async function checkListColumnsLook(width) {
     return page.close();
   }
   const columns = await page.evaluate(() => {
-    const list = document.querySelector('.list-segmented.block-list:not([data-columns="one"]):has(> li:nth-child(3))');
+    const list = document.querySelector('.mo-list__segmented.block-list:not([data-columns="one"]):has(> li:nth-child(3))');
     if (!list) return null;
     const tops = [...list.children].map((li) => Math.round(li.getBoundingClientRect().top));
     return {

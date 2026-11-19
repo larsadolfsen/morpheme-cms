@@ -1,9 +1,9 @@
 // What a navigation rail (NavigationRail.tsx) does on the site: its menu button, and any other button that opens it
 // (data-navigation-rail-menu with aria-controls, the rail's id: for a rail that hides while it is collapsed), expands
 // and collapses it (data-expanded on the rail, aria-expanded on the buttons), and its FAB shows its label only while it
-// is expanded (data-collapsed). A modal one (.navigation-rail-modal) shows its scrim while it is expanded, and the scrim,
+// is expanded (data-collapsed). A modal one (.mo-navigation-rail__modal) shows its scrim while it is expanded, and the scrim,
 // Escape and following one of its links collapse it again. When it collapses with the focus in it and it hides
-// (.navigation-rail-hide), the focus goes back to the button that opened it. Run on every page by the theme's Base.astro
+// (.mo-navigation-rail__hide), the focus goes back to the button that opened it. Run on every page by the theme's Base.astro
 // (blockScripts, packages/editor/site/blockScripts.ts); without a rail it does nothing.
 export default function navigationRail() {
   document.querySelectorAll<HTMLElement>('[data-navigation-rail]').forEach((rail) => {

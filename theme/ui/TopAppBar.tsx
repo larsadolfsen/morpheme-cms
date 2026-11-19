@@ -1,4 +1,4 @@
-// A top app bar (m3.material.io/components/app-bars, which Material now calls the app bar; .top-app-bar in
+// A top app bar (m3.material.io/components/app-bars, which Material now calls the app bar; .mo-top-app-bar in
 // ../styles/ui/top-app-bar.css): the bar at the top of a page. Without a `kind` it is only the container, and what is in it is the
 // header's own (components/Header.astro, and a theme's own header: the logo, the menu and its button). With a kind it
 // has Material's elements, each in its place: the leading button (`leading`, an icon button: the menu, back), the

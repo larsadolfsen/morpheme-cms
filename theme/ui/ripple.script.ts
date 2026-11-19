@@ -1,4 +1,4 @@
-// The ripple, Material 3's pressed state (m3.material.io/foundations/interaction/states/applying-states, .ripple in
+// The ripple, Material 3's pressed state (m3.material.io/foundations/interaction/states/applying-states, .mo-ripple in
 // ../styles/ui/ripple.css): pressed, a part grows a wave of its content's colour from where it was pressed (from its middle with
 // the keyboard) until the wave covers it, and the wave fades when it is let go. On the parts that are pressed (PARTS),
 // in the part's shape or, on a navigation item, its active indicator's; not on one that cannot be used. A touch waits a
@@ -61,8 +61,8 @@ export default function ripples() {
 function partAt(target: EventTarget | null) {
   const part = target instanceof Element ? target.closest<HTMLElement>(PARTS) : null;
   if (!part) return null;
-  if (part.matches(':disabled, .list-item-with-control:has(:disabled)')) return null;
-  if (part.closest('[aria-disabled="true"], .list-item-disabled, fieldset:disabled')) return null;
+  if (part.matches(':disabled, .mo-list__item-with-control:has(:disabled)')) return null;
+  if (part.closest('[aria-disabled="true"], .mo-list__item-disabled, fieldset:disabled')) return null;
   return part;
 }
 

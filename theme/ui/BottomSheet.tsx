@@ -1,4 +1,4 @@
-// A bottom sheet (m3.material.io/components/bottom-sheets, .bottom-sheet in ../styles/ui/bottom-sheet.css): its container, with the
+// A bottom sheet (m3.material.io/components/bottom-sheets, .mo-bottom-sheet in ../styles/ui/bottom-sheet.css): its container, with the
 // drag handle, the header (the headline, `headline` with its id `headlineId`, the supporting text under it and evt. the
 // close button, `closeLabel`), what it shows (`children`, filling the rest; what stands in place of a frame while it
 // loads has bottomSheetCoverClass) and evt. a footer (`footer`). Its kind (`kind`) is Material's:
@@ -27,7 +27,7 @@
 // less, or 'full', as high as the screen allows below --mo-comp-bottom-sheet-top-gap. It is pulled up to full height and down to
 // close (modalSheetSize.ts); the content scrolls only at full height. The editor's sheets are not touched.
 // `peek` (a standard sheet only) is what it shows even while collapsed (Material 3's preview), between the header and
-// what it shows (.bottom-sheet-peek). A standard sheet is named by its headline or, without one, by `label` (the props are a
+// what it shows (.mo-bottom-sheet__peek). A standard sheet is named by its headline or, without one, by `label` (the props are a
 // union: TypeScript rejects a sheet with neither `headline` nor `label`; a modal one's <dialog> is named by the
 // developer who writes it). The drag handle can be left out (`dragHandle={false}`: no handle, so no tap to step
 // through the states; the header, if there is one, still drags it). The header is drawn only when there is a

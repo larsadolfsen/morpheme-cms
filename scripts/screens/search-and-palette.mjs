@@ -436,7 +436,7 @@ async function checkCommandPalette(width) {
   await view.waitFor({ timeout: 5000 });
   await page
     .waitForFunction(
-      () => document.querySelector('[data-search-controlled] .search-view-group-label')?.textContent === 'Recent searches',
+      () => document.querySelector('[data-search-controlled] .mo-search-view__group-label')?.textContent === 'Recent searches',
       null,
       { timeout: 3000 },
     )

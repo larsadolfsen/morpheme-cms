@@ -1,10 +1,10 @@
-// A loading indicator (M3 Expressive, m3.material.io/components/loading-indicator, .loading-indicator in
+// A loading indicator (M3 Expressive, m3.material.io/components/loading-indicator, .mo-loading-indicator in
 // ../styles/ui/loading-indicator.css): a shape that turns and changes from one of Material's shapes into the next, while something that
 // takes only a moment is on its way (where how far it has come is known, a progress indicator says it instead). By
 // itself, or in its round container (`contained`, where it stands on something else). Screen readers read it as a
 // progress bar without a value, named by `label` (e.g. "Loading…"). With reduced motion it only turns, slowly. How it
 // looks is the theme's (--loading-indicator-*). An Astro component gives an element the same classes with
-// loadingIndicatorClass, with a .loading-indicator-shape in it.
+// loadingIndicatorClass, with a .mo-loading-indicator__shape in it.
 
 /** A loading indicator's classes, with its container or without. */
 export const loadingIndicatorClass = (contained?: boolean) =>

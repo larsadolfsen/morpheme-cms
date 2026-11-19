@@ -1,5 +1,5 @@
-// A menu (m3.material.io/components/menus, .menu in ../styles/ui/menus.css): choices on a surface (Menu, a <ul>), each a menu
-// item (MenuItem, .menu-item). The header's pages under an item (components/Header.astro, and a theme's own header)
+// A menu (m3.material.io/components/menus, .mo-menu in ../styles/ui/menus.css): choices on a surface (Menu, a <ul>), each a menu
+// item (MenuItem, .mo-menu__item). The header's pages under an item (components/Header.astro, and a theme's own header)
 // and a split button's other ways (SplitButton.tsx) are menus of links; an Astro header gives its elements the classes
 // with menuClass and menuItemClass. A menu's colour (`color`: standard, the default, on the surface; vibrant, in the
 // accent) and its groups (MenuGroup, evt. with a name over them; `groups`: each group on its own surface with a gap

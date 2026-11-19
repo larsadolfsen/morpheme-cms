@@ -1,4 +1,4 @@
-// A button group (m3.material.io/components/button-groups, .button-group in ../styles/ui/button-groups.css): buttons or icon buttons
+// A button group (m3.material.io/components/button-groups, .mo-button-group in ../styles/ui/button-groups.css): buttons or icon buttons
 // that belong together side by side (`children`: the theme's Button and IconButton), in a group with its name (`label`,
 // read by screen readers). Its kind (`kind`) is Material's name; how it looks is the theme's: standard (the default,
 // with a gap between them; the one pressed a little wider and its neighbours a little narrower) or connected (joined,

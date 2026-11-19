@@ -1,4 +1,4 @@
-// What a date picker shows when it is open (m3.material.io/components/date-pickers, .date-picker in ../styles/ui/pickers.css),
+// What a date picker shows when it is open (m3.material.io/components/date-pickers, .mo-date-picker in ../styles/ui/pickers.css),
 // drawn for what is picked and shown (`view`, `month`, `start`, `end`, `focus`): one drawing for the site, where
 // datePicker.script.ts draws it in the date picker's <dialog> (DatePicker.tsx) each time something changes and does
 // what it is told by the data-date-picker-… attributes, and for the editor, which only draws it. Built on the theme's

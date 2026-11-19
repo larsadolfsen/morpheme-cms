@@ -1,5 +1,5 @@
-// A lightbox (.lightbox in ../styles/ui/lightbox.css): an image shown bigger over the page, which Material 3 has no part for (it prints no lightbox or image
-// viewer: see docs/material-deviations.md). It is a modal <dialog> with the theme's dialog container (.dialog, with dialogModalClass, so
+// A lightbox (.mo-lightbox in ../styles/ui/lightbox.css): an image shown bigger over the page, which Material 3 has no part for (it prints no lightbox or image
+// viewer: see docs/material-deviations.md). It is a modal <dialog> with the theme's dialog container (.mo-dialog, with dialogModalClass, so
 // the dialog's scrim, focus trap, Escape and focus return are the dialog's) and its own markup: on a compact window the whole window, from
 // medium a container as large as the window less 56 dp on each side. In its header only the close button (M3: "the close X icon button should be
 // the only navigation option in the app bar"); under it the images one after the other in a horizontal track that snaps (CSS scroll-snap: a swipe, a

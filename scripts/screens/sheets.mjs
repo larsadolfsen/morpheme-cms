@@ -950,7 +950,7 @@ async function checkCropView(width, height = 800) {
       return {
         fills: Math.abs(r.width - vp.w) < 1 && Math.abs(r.height - vp.h) < 1,
         title: d.querySelector('h1')?.textContent,
-        bar: !!d.querySelector('header, .top-app-bar, [class*="top-app-bar"]'),
+        bar: !!d.querySelector('header, .mo-top-app-bar, [class*="top-app-bar"]'),
         dialogParts: !!d.querySelector('.mo-dialog__basic, .dialog-full-screen, .mo-dialog__headline'),
         buttons: [...d.querySelectorAll('.mo-bottom-sheet__standard button')].map((b) => b.textContent.trim()),
         area: d.querySelector('.crop-view-area').getBoundingClientRect().width,

@@ -33,7 +33,7 @@ async function checkUserInvalid(width, height, theme) {
         invalid: el.matches(':user-invalid'),
         edge: getComputedStyle(el.closest('.mo-text-field__container')).boxShadow,
         said: shown(root.querySelector('.mo-text-field__invalid-text')),
-        supporting: shown(root.querySelector('.text-field-supporting:not(.text-field-invalid-text)')),
+        supporting: shown(root.querySelector('.mo-text-field__supporting:not(.mo-text-field__invalid-text)')),
         icon: shown(root.querySelector('.mo-text-field__error-icon')),
         aria: el.getAttribute('aria-invalid'),
         described: (el.getAttribute('aria-describedby') ?? '').includes(root.querySelector('.mo-text-field__invalid-text')?.id ?? '\0'),

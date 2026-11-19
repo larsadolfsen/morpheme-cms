@@ -1,4 +1,4 @@
-// A list (m3.material.io/components/lists, .list in ../styles/ui/list.css): items under each other (List, a <ul>), each
+// A list (m3.material.io/components/lists, .mo-list in ../styles/ui/list.css): items under each other (List, a <ul>), each
 // (ListItem, an <li>) with what leads it, its headline, evt. its subhead over it (`subhead`, M3's overline, label small) and a supporting text
 // under it (`supporting`), and what trails it. Its kind (`kind`: standard, the default, the items on what the list
 // stands on, or segmented, M3 Expressive's, each item on its own surface with a small gap between them) and its dividers

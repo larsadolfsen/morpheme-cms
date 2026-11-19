@@ -9,7 +9,7 @@ const inputOf = (root: HTMLElement) => root.querySelector<HTMLInputElement | HTM
 /** A field's counter: what is written, and how much may be (12/50). */
 export const counterText = (length: number, max?: number) => (max ? `${length}/${max}` : String(length));
 
-/** Puts a text field (its .text-field element) right for what is written in it: its counter and its height. */
+/** Puts a text field (its .mo-text-field element) right for what is written in it: its counter and its height. */
 export function updateTextField(root: HTMLElement) {
   const input = inputOf(root);
   if (!input) return;
