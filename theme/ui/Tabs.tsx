@@ -21,13 +21,13 @@ export type TabsKind = 'primary' | 'secondary';
 export const tabsKinds: TabsKind[] = ['primary', 'secondary'];
 
 /** The row's class, and a tab's. */
-export const tabsClass = 'tabs';
-export const tabClass = 'tab';
+export const tabsClass = 'mo-tabs';
+export const tabClass = 'mo-tabs__tab';
 
 /** The row's classes with its kind, fixed or scrollable, and with the primary tabs' icons beside their labels
  * (`inline`). */
 export const tabsClasses = (kind?: TabsKind, scrollable = true, inline = false) =>
-  [tabsClass, kind && `tabs-${kind}`, !scrollable && 'tabs-fixed', inline && 'tabs-inline'].filter(Boolean).join(' ');
+  [tabsClass, kind && `mo-tabs__${kind}`, !scrollable && 'mo-tabs__fixed', inline && 'mo-tabs__inline'].filter(Boolean).join(' ');
 
 export function Tabs({
   kind,

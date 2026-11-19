@@ -7,7 +7,7 @@
 */
 @layer components {
   /* "Testimonial cards": testimonials to leaf through (testimonials/Slider.tsx, a carousel: ui.css). */
-  .carousel.block-in-text,
+  .mo-carousel.block-in-text,
   .block-testimonials.block-in-text,
   .block-testimonial.block-in-text {
     margin-block: 2.5rem;

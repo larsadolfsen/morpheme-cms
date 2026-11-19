@@ -29,11 +29,11 @@ export const iconButtonClass = (
   shape: ButtonShape = 'round',
 ) =>
   [
-    'icon-button',
-    `icon-button-${kind}`,
-    size !== 'small' && `icon-button-${size}`,
-    width !== 'default' && `icon-button-${width}`,
-    shape !== 'round' && `icon-button-${shape}`,
+    'mo-icon-button',
+    kind === 'standard' ? 'mo-icon-button__standard' : `mo-is-${kind}`,
+    size !== 'small' && `mo-icon-button__${size}`,
+    width !== 'default' && `mo-icon-button__${width}`,
+    shape !== 'round' && `mo-icon-button__${shape}`,
   ]
     .filter(Boolean)
     .join(' ');
@@ -65,7 +65,7 @@ export default function IconButton({
   className?: string;
 } & Record<string, unknown>) {
   const isBusy = busy === true && href === undefined;
-  const classes = [iconButtonClass(kind, size, width, shape), isBusy && 'icon-button-busy', className].filter(Boolean).join(' ');
+  const classes = [iconButtonClass(kind, size, width, shape), isBusy && 'mo-icon-button__busy', className].filter(Boolean).join(' ');
   const toggle = selected !== undefined && href === undefined;
   const glyph =
     toggle && typeof icon === 'string' ? <ToggleIcon part="icon-button" name={icon} size={22} /> : <Glyph icon={icon} size={22} />;

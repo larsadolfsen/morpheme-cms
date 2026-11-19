@@ -32,11 +32,11 @@ export type TextFieldKind = 'outlined' | 'filled';
 
 /** A text field's classes: its kind's, the error's when it has one, and a multi-line field's. */
 export const textFieldClass = (kind: TextFieldKind = 'outlined', error = false, multiline = false) =>
-  ['text-field', `text-field-${kind}`, error && 'text-field-error', multiline && 'text-field-multiline'].filter(Boolean).join(' ');
+  ['mo-text-field', `mo-is-${kind}`, error && 'mo-is-error', multiline && 'mo-text-field__multiline'].filter(Boolean).join(' ');
 
 /** The class of the box in the field, and of what is written in it (or tapped: a choice from a list). */
-export const textFieldContainerClass = 'text-field-container';
-export const textFieldInputClass = 'text-field-input';
+export const textFieldContainerClass = 'mo-text-field__container';
+export const textFieldInputClass = 'mo-text-field__input';
 
 export default function TextField({
   label,

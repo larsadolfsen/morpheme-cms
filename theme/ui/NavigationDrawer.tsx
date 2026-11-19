@@ -30,18 +30,18 @@ export type NavigationDrawerVariant = 'modal' | 'standard';
 
 /** The drawer's class, and its scrim's. */
 export const navigationDrawerClass = 'navigation-drawer';
-export const navigationDrawerScrimClass = 'navigation-drawer-scrim';
+export const navigationDrawerScrimClass = 'mo-navigation-drawer__scrim';
 /** A modal drawer at the end edge of the screen (the right; the left in right-to-left languages): its corners mirrored. */
-export const navigationDrawerEndClass = 'navigation-drawer-end';
+export const navigationDrawerEndClass = 'mo-navigation-drawer__end';
 /** A modal drawer that springs in, on the drawer or on the <dialog> it is in: a strip of it off the screen at its edge, so
  * an overshooting spring shows no gap. */
-export const navigationDrawerBleedClass = 'navigation-drawer-bleed';
+export const navigationDrawerBleedClass = 'mo-navigation-drawer__bleed';
 /** The class of a <dialog> the drawer is in: at the start of the screen, as high as it, over its scrim. */
-export const navigationDrawerDialogClass = 'navigation-drawer-dialog';
+export const navigationDrawerDialogClass = 'mo-navigation-drawer__dialog';
 
 /** The drawer's classes with its variant: `modal` (the default) over a scrim, `standard` beside the content, full height. */
 export const navigationDrawerClasses = (variant: NavigationDrawerVariant = 'modal') =>
-  [navigationDrawerClass, variant === 'standard' && 'navigation-drawer-standard'].filter(Boolean).join(' ');
+  [navigationDrawerClass, variant === 'standard' && 'mo-navigation-drawer__standard'].filter(Boolean).join(' ');
 
 export function NavigationDrawer({
   variant = 'modal',

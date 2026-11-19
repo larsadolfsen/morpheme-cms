@@ -13,7 +13,7 @@ import { dialogClass, dialogModalClass } from '@theme/ui/Dialog';
 import IconButton from '@theme/ui/IconButton';
 
 /** The <dialog>'s classes: the dialog's modal, as the lightbox. */
-export const lightboxModalClass = `${dialogModalClass} lightbox-modal`;
+export const lightboxModalClass = `${dialogModalClass} mo-lightbox__modal`;
 
 export default function Lightbox({
   label,

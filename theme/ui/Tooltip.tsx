@@ -11,7 +11,7 @@ import Button from '@theme/ui/Button';
 export type TooltipAction = { label: string; href?: string } & Record<string, unknown>;
 
 /** A tooltip's classes, plain or rich. */
-export const tooltipClass = (rich?: boolean) => `tooltip ${rich ? 'tooltip-rich' : 'tooltip-plain'}`;
+export const tooltipClass = (rich?: boolean) => `mo-tooltip ${rich ? 'mo-tooltip__rich' : 'mo-tooltip__plain'}`;
 
 export default function Tooltip({
   text,

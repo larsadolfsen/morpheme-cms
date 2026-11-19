@@ -25,7 +25,7 @@ import { atLeast } from '@morphemecms/cms/lib/breakpoints.mjs';
 export type SearchResult = { href: string; headline: ReactNode; supporting?: ReactNode; icon?: string };
 
 /** The class of a search (the bar and its view). */
-export const searchClass = 'search';
+export const searchClass = 'mo-search';
 
 export default function Search({
   label,

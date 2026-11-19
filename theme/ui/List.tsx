@@ -51,7 +51,7 @@ export type ListDividers = 'full-width' | 'inset' | 'middle-inset' | 'none';
 export type ListItemLines = 1 | 2 | 3;
 
 /** A list's class. */
-export const listClass = 'list';
+export const listClass = 'mo-list';
 
 /** A list is never in the text's style (prose, which gives a <ul> its bullets, its indent and its space): its rows are
  * Material's, wherever it is drawn (the site, the editor, the Preview). */
@@ -67,9 +67,9 @@ export const listClasses = (
   [
     listClass,
     listOutOfProse,
-    kind === 'segmented' && 'list-segmented',
-    expand && 'list-expand',
-    dividers !== 'full-width' && `list-dividers-${dividers}`,
+    kind === 'segmented' && 'mo-list__segmented',
+    expand && 'mo-list__expand',
+    dividers !== 'full-width' && `mo-list__dividers-${dividers}`,
   ]
     .filter(Boolean)
     .join(' ');
@@ -77,7 +77,7 @@ export const listClasses = (
 /** A multi-action item's class (Material's): on what holds an item's container, its primary action (a link or a button
  * with listItemClass), and its secondary actions (icon buttons, a switch) beside it, on one row, which has the primary
  * action's state (pointed at, pressed). Never an <li> of its own: the <li> holds it. */
-export const listItemMultiActionClass = 'list-item-multi-action';
+export const listItemMultiActionClass = 'mo-list__item-multi-action';
 
 /** A list item's classes: its lines' (true is two lines), and selected, disabled or dragged. */
 export const listItemClass = (
@@ -86,12 +86,12 @@ export const listItemClass = (
 ) => {
   const n = lines === true ? 2 : lines === false ? 1 : lines;
   return [
-    'list-item-container',
-    n === 2 && 'list-item-two-line',
-    n === 3 && 'list-item-three-line',
-    state.selected && 'list-item-selected',
-    state.disabled && 'list-item-disabled',
-    state.dragged && 'list-item-dragged',
+    'mo-list__item-container',
+    n === 2 && 'mo-list__item-two-line',
+    n === 3 && 'mo-list__item-three-line',
+    state.selected && 'mo-list__item-selected',
+    state.disabled && 'mo-list__item-disabled',
+    state.dragged && 'mo-list__item-dragged',
   ]
     .filter(Boolean)
     .join(' ');
@@ -156,7 +156,7 @@ export function ListItemTrailingIcon({ icon, children }: { icon?: IconRef; child
 export function ListItemSelectBox({ selected, at, onChange }: { selected: boolean; at: 'leading' | 'trailing'; onChange: () => void }) {
   return (
     <span
-      className={`mo-checkbox mo-list__item-select-box list-item-select-box-${at}`}
+      className={`mo-checkbox mo-list__item-select-box mo-list__item-select-box-${at}`}
       aria-hidden="true"
       onClick={(e) => {
         e.preventDefault();
@@ -295,7 +295,7 @@ export function ListItem({
     </span>
   );
 
-  const image = (p: ListItemImage, kind: string) => <img src={p.src} alt={p.alt ?? ''} className={`list-item-${kind}`} loading="lazy" />;
+  const image = (p: ListItemImage, kind: string) => <img src={p.src} alt={p.alt ?? ''} className={`mo-list__item-${kind}`} loading="lazy" />;
   const lead =
     control && at === 'leading' ? (
       choice
@@ -366,11 +366,11 @@ export function ListItem({
   );
   const classes = [
     listItemClass(n, { selected, disabled, dragged }),
-    control && 'list-item-with-control',
-    columns && 'list-item-columns',
-    press && 'list-item-selectable',
-    press && selecting && 'list-item-selecting',
-    shortcut && 'list-item-selectable-leading',
+    control && 'mo-list__item-with-control',
+    columns && 'mo-list__item-columns',
+    press && 'mo-list__item-selectable',
+    press && selecting && 'mo-list__item-selecting',
+    shortcut && 'mo-list__item-selectable-leading',
     className,
   ]
     .filter(Boolean)

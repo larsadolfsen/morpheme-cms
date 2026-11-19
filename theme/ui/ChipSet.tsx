@@ -10,7 +10,7 @@ export const chipSetLayouts = ['wrap', 'scroll'] as const;
 export type ChipSetLayout = (typeof chipSetLayouts)[number];
 
 /** A chip set's classes: its layout's. */
-export const chipSetClass = (layout: ChipSetLayout = 'wrap') => `chip-set chip-set-${layout}`;
+export const chipSetClass = (layout: ChipSetLayout = 'wrap') => `mo-chip__set mo-chip__set-${layout}`;
 
 export default function ChipSet({
   layout,

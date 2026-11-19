@@ -9,7 +9,7 @@
 */
 @layer components {
   /* The subhead: the small line under the headline (a byline, a date, a place). */
-  /* "Image grid" (blocks/imagegrid/View.tsx): the tag filter over the staggered grid (.image-grid in ui.css), the text under an image on its card. The filter
+  /* "Image grid" (blocks/imagegrid/View.tsx): the tag filter over the staggered grid (.mo-grid in ui.css), the text under an image on its card. The filter
      and its count are drawn hidden and shown by script.ts; the columns can be set to 2, 3 or 4 on a computer (data-columns). */
   .block-imagegrid-filter {
     display: flex;

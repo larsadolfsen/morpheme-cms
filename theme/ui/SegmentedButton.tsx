@@ -21,8 +21,8 @@ export type Segment = {
 } & Record<string, unknown>;
 
 /** A segmented button's class, and its segments'. */
-export const segmentedButtonClass = 'segmented-button';
-export const segmentedButtonSegmentClass = 'segmented-button-segment';
+export const segmentedButtonClass = 'mo-segmented-button';
+export const segmentedButtonSegmentClass = 'mo-segmented-button__segment';
 
 export default function SegmentedButton({
   label,

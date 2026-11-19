@@ -65,14 +65,14 @@ export type BottomSheetKindWide =
 
 /** The class of the <dialog> a modal bottom sheet is in, of what stands in place of what it shows (over a frame while
  * it loads, or instead of it), and a bottom sheet's container's classes. */
-export const bottomSheetClass = 'bottom-sheet';
-export const bottomSheetCoverClass = 'bottom-sheet-cover';
+export const bottomSheetClass = 'mo-bottom-sheet';
+export const bottomSheetCoverClass = 'mo-bottom-sheet__cover';
 export const bottomSheetContainerClass = (kind: BottomSheetKind = 'modal') =>
-  kind === 'standard' ? 'bottom-sheet-container bottom-sheet-standard' : 'bottom-sheet-container';
+  kind === 'standard' ? 'mo-bottom-sheet__container mo-bottom-sheet__standard' : 'mo-bottom-sheet__container';
 /** The classes of the <dialog> of a modal sheet as high as what is in it (at most most of the screen), and of one as high
  * as the screen and on a computer wider than a sheet (a whole page in it: the editor's preview). */
-export const bottomSheetFitClass = 'bottom-sheet bottom-sheet-fit';
-export const bottomSheetFullClass = 'bottom-sheet bottom-sheet-full';
+export const bottomSheetFitClass = 'mo-bottom-sheet mo-bottom-sheet__fit';
+export const bottomSheetFullClass = 'mo-bottom-sheet mo-bottom-sheet__full';
 
 /** Whether a sheet's header is drawn: it has a headline or a button. */
 const hasHeader = (headline: ReactNode, ...labels: (string | undefined)[]) => headline !== undefined || labels.some(Boolean);

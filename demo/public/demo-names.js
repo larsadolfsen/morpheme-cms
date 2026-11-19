@@ -31,7 +31,7 @@
     ['.mo-chip', named('Chip', 'chip')],
     ['.mo-list__item-container', (el) => `ListItem · ${[...el.classList].find((c) => /^list-item-(one|two|three)-line$/.test(c))?.slice(10) ?? 'one-line'}`],
     ['.mo-list', (el) => (el.classList.contains('mo-list__segmented') ? 'List · segmented' : 'List')],
-    ['.carousel', () => 'Carousel'],
+    ['.mo-carousel', () => 'Carousel'],
     ['.mo-text-field', named('TextField', 'text-field')],
     ['.mo-switch', () => 'Switch'],
     ['.mo-checkbox', () => 'Checkbox'],

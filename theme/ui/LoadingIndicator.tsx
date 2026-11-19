@@ -8,7 +8,7 @@
 
 /** A loading indicator's classes, with its container or without. */
 export const loadingIndicatorClass = (contained?: boolean) =>
-  ['loading-indicator', contained && 'loading-indicator-contained'].filter(Boolean).join(' ');
+  ['mo-loading-indicator', contained && 'mo-loading-indicator__contained'].filter(Boolean).join(' ');
 
 export default function LoadingIndicator({
   label,

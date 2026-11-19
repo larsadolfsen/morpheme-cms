@@ -35,7 +35,7 @@ const working = (text: string) => text.endsWith('…');
 
 /** Shows a message at the bottom (or with null takes away the one about something going on). */
 export function snackbar(next: SnackbarMessage | null) {
-  stack ??= Object.assign(document.createElement('div'), { className: 'snackbar-stack' });
+  stack ??= Object.assign(document.createElement('div'), { className: 'mo-snackbar__stack' });
   // A popover, so it is in front of an open sheet or dialog too (they are in the top layer).
   stack.popover = 'manual';
   if (!stack.isConnected) document.body.append(stack);

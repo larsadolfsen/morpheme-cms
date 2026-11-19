@@ -40,7 +40,7 @@ export type Choice = {
 export type ChoiceGroupForm = 'auto' | 'buttons' | 'list';
 
 /** A choice group's class. */
-export const choiceGroupClass = 'choice-group';
+export const choiceGroupClass = 'mo-choice-group';
 
 // A layout effect where there is a DOM (it runs before the browser paints), nothing on the server.
 const useBeforePaint = typeof window === 'undefined' ? useEffect : useLayoutEffect;

@@ -16,9 +16,9 @@ import Divider from '@theme/ui/Divider';
 
 /** A dialog's container's class (`parts` when it has its headline, supporting text and actions), and the class of the
  * <dialog> a modal one is shown in. */
-export const dialogClass = 'dialog';
-export const dialogClassOf = (parts = false) => (parts ? 'dialog dialog-basic' : dialogClass);
-export const dialogModalClass = 'dialog-modal';
+export const dialogClass = 'mo-dialog';
+export const dialogClassOf = (parts = false) => (parts ? 'mo-dialog mo-dialog__basic' : dialogClass);
+export const dialogModalClass = 'mo-dialog__modal';
 
 export default function Dialog({
   icon,
@@ -41,7 +41,7 @@ export default function Dialog({
   children?: ReactNode;
 } & Record<string, unknown>) {
   const parts = Boolean(icon || headline || supportingText || actions);
-  const classes = [dialogClassOf(parts), icon && 'dialog-with-icon', className].filter(Boolean).join(' ');
+  const classes = [dialogClassOf(parts), icon && 'mo-has-icon', className].filter(Boolean).join(' ');
   const title = headline && (
     <h2 id={headlineId} className="mo-dialog__headline">
       {headline}

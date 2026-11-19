@@ -1,20 +1,20 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  .image-grid {
+  .mo-grid {
     --mo-comp-grid-columns: 2;
   }
 }
 @layer components {
   @media (width >= 37.5rem) {
-    .image-grid {
+    .mo-grid {
       --mo-comp-grid-columns: 3;
     }
   }
 }
 @layer components {
   @media (width >= 75rem) {
-    .image-grid {
+    .mo-grid {
       --mo-comp-grid-columns: 4;
     }
   }

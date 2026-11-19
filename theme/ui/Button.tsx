@@ -25,17 +25,19 @@ export type ButtonShape = (typeof buttonShapes)[number];
 
 /** A button's classes: its kind's and, unless it is medium, its size's and, unless it is round, its shape's. */
 export const buttonClass = (kind: ButtonKind = 'filled', size: ButtonSize = 'medium', shape: ButtonShape = 'round') =>
-  ['button', `button-${kind}`, size !== 'medium' && `button-${size}`, shape !== 'round' && `button-${shape}`].filter(Boolean).join(' ');
+  ['mo-button', kind === 'text' ? 'mo-button__text' : `mo-is-${kind}`, size !== 'medium' && `mo-button__${size}`, shape !== 'round' && `mo-button__${shape}`]
+    .filter(Boolean)
+    .join(' ');
 
 /** A toggle's icon (a Button's, an IconButton's, a navigation drawer item's): the icon, and the same icon filled while
- * it is on, where the site draws it filled (the theme shows the one of the state it is in: .<part>-unselected-icon,
- * .<part>-selected-icon). */
+ * it is on, where the site draws it filled (the theme shows the one of the state it is in: .mo-<part>__unselected-icon,
+ * .mo-<part>__selected-icon). */
 export function ToggleIcon({ part, name, size }: { part: 'button' | 'icon-button' | 'navigation-drawer'; name: string; size: number }) {
   if (!iconFile(name, 'fill')) return <Svg name={name} size={size} />;
   return (
     <>
-      <Svg name={name} size={size} className={`${part}-unselected-icon`} />
-      <Svg name={name} weight="fill" size={size} className={`${part}-selected-icon`} />
+      <Svg name={name} size={size} className={`mo-${part}__unselected-icon`} />
+      <Svg name={name} weight="fill" size={size} className={`mo-${part}__selected-icon`} />
     </>
   );
 }
@@ -72,7 +74,7 @@ export default function Button({
   useEffect(() => {
     if (isBusy && ref.current) ref.current.style.setProperty('--mo-comp-button-busy-from', `${ref.current.offsetWidth}px`);
   }, [isBusy]);
-  const classes = [buttonClass(kind, size, shape), isBusy && 'button-busy', className].filter(Boolean).join(' ');
+  const classes = [buttonClass(kind, size, shape), isBusy && 'mo-button__busy', className].filter(Boolean).join(' ');
   const toggle = selected !== undefined && href === undefined;
   const content = (
     <>

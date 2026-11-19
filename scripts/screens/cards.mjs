@@ -733,7 +733,7 @@ async function checkCardGutter(width, height) {
   const pages = [
     ['Cards', 'cards', 'ul.block-cards', true],
     ['Price cards', 'price-cards', '.block-plans-list', true],
-    ['Image grid', 'image-grid', '.image-grid', false],
+    ['Image grid', 'image-grid', '.mo-grid', false],
   ];
   for (const [name, slug, selector, hasRows] of pages) {
     if (!existsSync(join(ROOT, `src/content/pages/blocks-${slug}.md`))) {

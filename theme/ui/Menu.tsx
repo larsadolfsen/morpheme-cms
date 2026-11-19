@@ -32,12 +32,12 @@ export type MenuColor = 'standard' | 'vibrant';
 export type MenuGroups = 'gap' | 'divider';
 
 /** A menu's class, and its items'. */
-export const menuClass = 'menu';
-export const menuItemClass = 'menu-item';
+export const menuClass = 'mo-menu';
+export const menuItemClass = 'mo-menu__item';
 
 /** A menu's classes: its colour's (none for standard) and, with groups divided by a line, `menu-groups-divider`. */
 export const menuClasses = (color: MenuColor = 'standard', groups: MenuGroups = 'gap') =>
-  [menuClass, color === 'vibrant' && 'menu-vibrant', groups === 'divider' && 'menu-groups-divider'].filter(Boolean).join(' ');
+  [menuClass, color === 'vibrant' && 'mo-menu__vibrant', groups === 'divider' && 'mo-menu__groups-divider'].filter(Boolean).join(' ');
 
 // Inside a WAI-ARIA menu (a dropdown menu and its submenus) the items are menu items; elsewhere (the header's pages, a
 // split button's ways) links and buttons in a list.

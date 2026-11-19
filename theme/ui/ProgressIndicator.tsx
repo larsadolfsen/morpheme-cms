@@ -32,14 +32,14 @@ function progressbar(value: number | undefined, label: string, wave?: Record<str
 }
 
 const classes = (part: string, indeterminate?: boolean, shape: ProgressIndicatorShape = 'flat', thick = false) =>
-  [part, indeterminate && `${part}-indeterminate`, shape === 'wavy' && `${part}-wavy`, thick && `${part}-thick`].filter(Boolean).join(' ');
+  [part, indeterminate && `${part}__indeterminate`, shape === 'wavy' && `${part}__wavy`, thick && `${part}__thick`].filter(Boolean).join(' ');
 
 /** A linear progress indicator's classes: determinate or not, its shape and a thick track. */
 export const linearProgressIndicatorClass = (indeterminate?: boolean, shape?: ProgressIndicatorShape, thick?: boolean) =>
-  classes('linear-progress-indicator', indeterminate, shape, thick);
+  classes('mo-linear-progress-indicator', indeterminate, shape, thick);
 /** A circular progress indicator's classes: determinate or not, its shape and a thick track. */
 export const circularProgressIndicatorClass = (indeterminate?: boolean, shape?: ProgressIndicatorShape, thick?: boolean) =>
-  classes('circular-progress-indicator', indeterminate, shape, thick);
+  classes('mo-circular-progress-indicator', indeterminate, shape, thick);
 
 // The line's wave, in px: its height (amplitude) and length (wavelength), and a path of it long enough for any line,
 // from one wavelength before its start (where it flows in from), in quadratic curves, a peak and a trough each.

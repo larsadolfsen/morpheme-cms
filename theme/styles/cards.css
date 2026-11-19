@@ -1,6 +1,6 @@
 /*
   Cards: the Card component (.mo-card, its three kinds and the media), the Cards block, the Price cards (Plans) block, the card grid
-  (.image-grid, one gutter apart) and the Carousel. Moved here from ui.css and blocks.css with their rules unchanged and in the
+  (.mo-grid, one gutter apart) and the Carousel. Moved here from ui.css and blocks.css with their rules unchanged and in the
   order they had; imported by base.css between ui.css and blocks.css, in the same layer, so the Card's rules still come before the blocks' (a block's rule wins over the Card's, as it did).
 */
 @import './tokens/cards/comp/card.css';
@@ -13,7 +13,7 @@
      responsive layouts"). The widths are M3's window classes less the page margins (16 dp below medium, 24 dp from it), so a carousel as wide as the
      page changes where it did: 2 items from 35.5rem (medium, 600 dp, less 2 x 16 dp; a page at 600 to 615 dp shows one), 3 from 49.5rem (expanded, 840 dp,
      less 2 x 24 dp). The page's own columns stay on the window (breakpoints in lib/breakpoints.mjs). */
-  .carousel {
+  .mo-carousel {
     container: carousel / inline-size;
   }
   .mo-carousel__items {
@@ -152,24 +152,24 @@
      gutter). --mo-comp-grid-columns is how many cards stand side by side, per breakpoint; M3's layout grid itself has 4 columns on
      compact, 8 on medium and expanded and 12 on large and extra-large (--mo-sys-grid-layout-columns, in global.css, what a span counts
      in). A part with other counts sets --mo-comp-grid-columns on its element. */
-  .image-grid {
+  .mo-grid {
     margin: 0;
     padding: 0;
     list-style: none;
     column-count: var(--mo-comp-grid-columns);
     column-gap: var(--mo-sys-grid-gutter, 16px);
   }
-  .image-grid > * {
+  .mo-grid > * {
     break-inside: avoid;
     margin-block-end: var(--mo-sys-grid-gutter, 16px);
   }
   /* A card across all the columns (a span of the whole grid; the cards before and after it pack in their own columns).
      Spans of other widths are not possible in columns: see docs/theme-grid.md. */
-  .image-grid > .mo-grid__span-full {
+  .mo-grid > .mo-grid__span-full {
     column-span: all;
   }
   @media (width < 37.5rem) {
-    .image-grid > .mo-grid__span-compact {
+    .mo-grid > .mo-grid__span-compact {
       column-span: all;
     }
   }

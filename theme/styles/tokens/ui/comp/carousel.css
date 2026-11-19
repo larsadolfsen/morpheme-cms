@@ -57,7 +57,7 @@
                      -scrim and -width, full height, no handle, slid in from the end) and "sheet" (stays a bottom sheet, as
                      wide as --mo-comp-bottom-sheet-max-width at most, the margin from the sides and the top, slid up)
   Carousels (Carousel.tsx, carouselClass, carousel.script.ts and carouselLayout.ts;
-  m3.material.io/components/carousel): .carousel with its items in a row to swipe (.mo-carousel__items, each a
+  m3.material.io/components/carousel): .mo-carousel with its items in a row to swipe (.mo-carousel__items, each a
   .mo-carousel__item; native scroll-snap), and under them the theme's addition to M3's carousel, a page indicator
   (.mo-carousel__indicator with a .mo-carousel__indicator-dot for each item, the one in view aria-current). Uncontained (no
   class of its own): each item as wide as the others, one with the next peeking in on a phone, two from the medium width, three

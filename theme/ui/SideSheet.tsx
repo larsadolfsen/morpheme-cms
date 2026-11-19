@@ -14,8 +14,8 @@ import IconButton from '@theme/ui/IconButton';
 export type SideSheetKind = 'standard' | 'modal';
 
 /** The class of the <dialog> a modal side sheet is in, and a side sheet's container's classes. */
-export const sideSheetClass = 'side-sheet';
-export const sideSheetContainerClass = (kind: SideSheetKind = 'standard') => `side-sheet-container side-sheet-${kind}`;
+export const sideSheetClass = 'mo-side-sheet';
+export const sideSheetContainerClass = (kind: SideSheetKind = 'standard') => `mo-side-sheet__container mo-side-sheet__${kind}`;
 
 export default function SideSheet({
   kind = 'standard',

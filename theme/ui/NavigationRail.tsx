@@ -30,20 +30,20 @@ export type NavigationRailModality = 'standard' | 'modal';
 export type NavigationRailExpandedBehavior = 'collapse' | 'hide';
 
 /** The rail's class, and a destination's. */
-export const navigationRailClass = 'navigation-rail';
-export const navigationRailItemClass = 'navigation-rail-item';
+export const navigationRailClass = 'mo-navigation-rail';
+export const navigationRailItemClass = 'mo-navigation-rail__item';
 
 /** The rail's classes with its expanded modality and behaviour. */
 export const navigationRailClasses = (
   modality: NavigationRailModality = 'standard',
   expandedBehavior: NavigationRailExpandedBehavior = 'collapse',
 ) =>
-  [navigationRailClass, modality === 'modal' && 'navigation-rail-modal', expandedBehavior === 'hide' && 'navigation-rail-hide']
+  [navigationRailClass, modality === 'modal' && 'mo-navigation-rail__modal', expandedBehavior === 'hide' && 'mo-navigation-rail__hide']
     .filter(Boolean)
     .join(' ');
 
 /** The scrim's class, behind a modal rail while it is expanded. */
-export const navigationRailScrimClass = 'navigation-rail-scrim';
+export const navigationRailScrimClass = 'mo-navigation-rail__scrim';
 
 export default function NavigationRail({
   label,

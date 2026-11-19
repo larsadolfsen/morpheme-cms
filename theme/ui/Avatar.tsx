@@ -14,7 +14,7 @@ export type AvatarProps = {
   className?: string;
 };
 
-export const avatarClass = 'avatar';
+export const avatarClass = 'mo-avatar';
 
 export default function Avatar({ children, image, className }: AvatarProps) {
   const classes = className ? `${avatarClass} ${className}` : avatarClass;

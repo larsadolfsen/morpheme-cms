@@ -20,11 +20,11 @@ export type TopAppBarAlign = 'start' | 'center';
 export const topAppBarKinds: TopAppBarKind[] = ['search', 'small', 'medium-flexible', 'large-flexible'];
 
 /** A top app bar's class: the container's. */
-export const topAppBarClass = 'top-app-bar';
+export const topAppBarClass = 'mo-top-app-bar';
 
 /** A top app bar's classes with its kind and its alignment (without a kind only the container's). */
 export const topAppBarClasses = (kind?: TopAppBarKind, align: TopAppBarAlign = 'start') =>
-  [topAppBarClass, kind && `top-app-bar-${kind}`, kind && align === 'center' && 'top-app-bar-center'].filter(Boolean).join(' ');
+  [topAppBarClass, kind && `mo-top-app-bar__${kind}`, kind && align === 'center' && 'mo-top-app-bar__center'].filter(Boolean).join(' ');
 
 export default function TopAppBar({
   kind,

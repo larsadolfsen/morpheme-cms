@@ -13,7 +13,7 @@ import SettingRow from './SettingRow';
 export type SwitchIcons = 'both' | 'selected';
 
 /** A switch's classes: with icons in its handle, `switch-icons`. */
-export const switchClass = (icons?: SwitchIcons) => (icons ? 'switch switch-icons' : 'switch');
+export const switchClass = (icons?: SwitchIcons) => (icons ? 'mo-switch mo-switch__icons' : 'mo-switch');
 
 export default function Switch({
   label,

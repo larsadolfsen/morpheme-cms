@@ -12,7 +12,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { Svg } from '@morphemecms/cms/src/icon';
 
 /** A checkbox's classes, and the error's when it is wrong. */
-export const checkboxClass = (error = false) => (error ? 'checkbox checkbox-error' : 'checkbox');
+export const checkboxClass = (error = false) => (error ? 'mo-checkbox mo-is-error' : 'mo-checkbox');
 
 export default function Checkbox({
   label,

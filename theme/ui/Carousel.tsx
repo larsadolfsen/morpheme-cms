@@ -1,4 +1,4 @@
-// A carousel (m3.material.io/components/carousel, .carousel in ../styles/ui.css): its items in a row to swipe
+// A carousel (m3.material.io/components/carousel, .mo-carousel in ../styles/ui.css): its items in a row to swipe
 // (`items`, each with its key, its name for screen readers, `label`, and what it shows, `content`), with native
 // scroll-snap, so swiping works on a phone without JavaScript. Its layout (`layout`) is Material's:
 // - 'uncontained' (the default): every item as wide as the others, as many as fit and the next one cut off at the edge,
@@ -37,9 +37,9 @@ export const carouselLayouts: CarouselLayout[] = ['multi-browse', 'uncontained',
 /** A carousel's classes: a contained layout's (none for the default, uncontained), and a hero's aligned to the centre. */
 export const carouselClass = (layout: CarouselLayout = 'uncontained', alignment: CarouselAlignment = 'start') =>
   [
-    'carousel',
+    'mo-carousel',
     layout !== 'uncontained' && `mo-carousel__contained mo-carousel__${layout}`,
-    layout === 'hero' && alignment === 'center' && 'carousel-center',
+    layout === 'hero' && alignment === 'center' && 'mo-carousel__center',
   ]
     .filter(Boolean)
     .join(' ');

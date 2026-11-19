@@ -11,7 +11,7 @@ import type { ReactNode } from 'react';
 
 /** A radio button's classes, and a group's. */
 export const radioButtonClass = () => 'radio-button';
-export const radioGroupClass = () => 'radio-group';
+export const radioGroupClass = () => 'mo-radio-group';
 
 export default function RadioButton({
   label,

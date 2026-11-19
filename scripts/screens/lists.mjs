@@ -63,7 +63,7 @@ async function checkListLeftEdge(width) {
     for (const el of root.querySelectorAll('.block-card, .block-plan, .block-testimonial')) {
       const box = el.getBoundingClientRect();
       // The cards of a carousel run off the window on purpose.
-      if (box.left >= window.innerWidth - 1 || el.closest('.carousel')) continue;
+      if (box.left >= window.innerWidth - 1 || el.closest('.mo-carousel')) continue;
       out.cards.push({ name: el.className.split(' ')[0], left: box.left, right: box.right });
     }
     for (const ul of root.querySelectorAll('ul.block-list')) {

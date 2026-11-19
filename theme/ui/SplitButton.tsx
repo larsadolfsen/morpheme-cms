@@ -16,7 +16,7 @@ export type SplitButtonKind = Exclude<ButtonKind, 'text'>;
 export const splitButtonKinds: SplitButtonKind[] = ['filled', 'tonal', 'elevated', 'outlined'];
 
 /** A split button's class (the whole: its main action and its arrow have the Button's classes). */
-export const splitButtonClass = 'split-button';
+export const splitButtonClass = 'mo-split-button';
 
 export default function SplitButton({
   kind = 'filled',

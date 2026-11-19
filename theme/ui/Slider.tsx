@@ -25,11 +25,11 @@ export type SliderOrientation = 'horizontal' | 'vertical';
 /** A slider's classes: a range, `slider-range`; centered, `slider-centered`; its size but the default; vertical. */
 export const sliderClass = (range = false, size: SliderSize = 'xsmall', centered = false, orientation: SliderOrientation = 'horizontal') =>
   [
-    'slider',
-    range && 'slider-range',
-    centered && !range && 'slider-centered',
-    size !== 'xsmall' && `slider-${size}`,
-    orientation === 'vertical' && 'slider-vertical',
+    'mo-slider',
+    range && 'mo-slider__range',
+    centered && !range && 'mo-slider__centered',
+    size !== 'xsmall' && `mo-slider__${size}`,
+    orientation === 'vertical' && 'mo-slider__vertical',
   ]
     .filter(Boolean)
     .join(' ');

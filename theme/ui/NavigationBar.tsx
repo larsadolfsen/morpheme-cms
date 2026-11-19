@@ -17,8 +17,8 @@ import Badge from '@theme/ui/Badge';
 export type NavigationBarIconPosition = 'top' | 'start' | 'auto';
 
 /** The bar's class, and a destination's. */
-export const navigationBarClass = 'navigation-bar';
-export const navigationBarItemClass = 'navigation-bar-item';
+export const navigationBarClass = 'mo-navigation-bar';
+export const navigationBarItemClass = 'mo-navigation-bar__item';
 
 /** The bar's classes with where its items' icons stand. */
 export const navigationBarClasses = (iconPosition: NavigationBarIconPosition = 'top') =>
