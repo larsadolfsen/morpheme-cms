@@ -28,7 +28,7 @@ export default function InlineLiveList({
       onChange={onChange}
       render={({ here, field }) => (
         <div
-          className="inline-live-list"
+          className="mo-editor-inline-live-list"
           onClick={(e) => {
             // A tap on the items (their links lead nowhere here) puts the cursor in the head.
             if (!here && !(e.target as Element).closest('textarea')) {
@@ -39,7 +39,7 @@ export default function InlineLiveList({
         >
           {here ? (
             <InProse>
-              <hgroup className="mo-block-head inline-live-head mo-editor-inline-list-row-active">
+              <hgroup className="mo-block-head mo-editor-inline-live-head mo-editor-inline-list-row-active">
                 <h2>{field('heading', t.blocks.heading, t.blocks.heading)}</h2>
                 <p className="mo-block-head__subheading">{field('intro', t.blocks.subheading, t.blocks.subheading)}</p>
               </hgroup>

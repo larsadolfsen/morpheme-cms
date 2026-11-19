@@ -14,8 +14,8 @@ CSS columns (`theme/styles/ui.css`): the cards flow down the first column, then 
 
 ## Spans
 
-- `.mo-grid__span-full` on a direct child: the card goes across all columns. The cards before and after it pack on their own, with no holes.
-- `.mo-grid__span-compact`: across all the columns under 600 dp, one column from there (the start screen's default for a widget without a `span`).
+- `.mo-staggered-grid__span-full` on a direct child: the card goes across all columns. The cards before and after it pack on their own, with no holes.
+- `.mo-staggered-grid__span-compact`: across all the columns under 600 dp, one column from there (the start screen's default for a widget without a `span`).
 - A card is otherwise one column. Spans of other widths (a third, a quarter, two of three) are not possible in columns without leaving holes; they need masonry (`grid-template-rows: masonry`, not available in every browser) or a script that measures the cards. Neither is used.
 
 ## Material 3

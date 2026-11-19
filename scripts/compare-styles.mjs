@@ -287,14 +287,10 @@ async function compareSites(beforeDir, afterDir, { only, limit, all }) {
     return { page, context };
   };
   const grab = (page) => page.evaluate(capture, { properties: PROPERTIES, skip: [...SKIP] });
-  // The class of a section's colour ends in `section-<colour>` (the rename to mo- names does not change that), so it is found by its ending.
   const withColor = (page, color) =>
     page.evaluate(
       ([c, all]) => {
-        const ending = new RegExp(`section-(${all.join('|')})$`);
-        for (const e of document.querySelectorAll('[class*="section-"]'))
-          for (const name of [...e.classList]) if (ending.test(name)) e.classList.replace(name, name.replace(ending, `section-${c}`));
-        // The `mo-text-section` names (M5): the colour is the kind `mo-is-<colour>` on the section.
+        // The colour of a section is the kind `mo-is-<colour>` on the `mo-text-section`.
         for (const e of document.querySelectorAll('.mo-text-section'))
           for (const name of [...e.classList]) if (all.some((k) => name === `mo-is-${k}`)) e.classList.replace(name, `mo-is-${c}`);
       },
@@ -303,7 +299,7 @@ async function compareSites(beforeDir, afterDir, { only, limit, all }) {
   for (const address of pages) {
     for (const width of WIDTHS) {
       const [x, y] = [await open(a.site, width, address), await open(b.site, width, address)];
-      const sections = await x.page.evaluate(() => document.querySelectorAll('[class*="section-"], .mo-text-section').length);
+      const sections = await x.page.evaluate(() => document.querySelectorAll('.mo-text-section').length);
       for (const scheme of SCHEMES) {
         await Promise.all([x.page, y.page].map((p) => p.emulateMedia({ colorScheme: scheme, reducedMotion: 'reduce' })));
         for (const color of sections ? SECTION_COLORS : [null]) {

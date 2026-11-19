@@ -148,7 +148,7 @@ const jsonLd = {
     <style is:inline data-motion-springs set:html={motionCss(motionScheme)}></style>
     {!noindex && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
     <script is:inline>
-      document.documentElement.classList.add('js');
+      document.documentElement.classList.add('mo-js');
       // The colour scheme (Modern Web Guidance, dark-mode-toggle): none stored = follow the system. A pinned choice sets
       // data-theme (the tokens), <meta name="color-scheme"> and both theme-color metas in step; this runs before the first paint.
       window.setColorScheme = (t) => {

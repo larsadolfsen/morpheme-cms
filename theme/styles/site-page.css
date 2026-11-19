@@ -14,7 +14,7 @@
   /* An image that opens the text (a paragraph of its own) starts where a paragraph would: its space above would come on
    top of the space under the page's heading. For every theme, also one with its own text style; outside the
    layers, like the images' own space in the text. */
-  .prose > p:first-child > :where(img, .picture-crop):only-child {
+  .prose > p:first-child > :where(img, .mo-site-picture__crop):only-child {
     margin-top: 0;
   }
 }

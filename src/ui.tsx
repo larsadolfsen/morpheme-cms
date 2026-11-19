@@ -286,7 +286,7 @@ export function ToolbarButton({
           kind="text"
           size="xsmall"
           aria-label={label}
-          className="toolbar-text-button"
+          className="mo-toolbar__text-button"
           style={{ ...toolbarTextSize, width: `${text.width / 16}rem` }}
           {...own}
         >
@@ -303,7 +303,7 @@ export function ToolbarButton({
           size="xsmall"
           icon={Glyph && <Glyph />}
           aria-label={label}
-          className="toolbar-count-button"
+          className="mo-toolbar__count-button"
           style={toolbarMenuSize}
           {...own}
         >
@@ -2525,7 +2525,7 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
       <p className="mo-type-body-large mo-editor-colors-preview-heading">{p.heading}</p>
       <p className="mo-editor-colors-preview-hint">{p.text}</p>
       <p>
-        <span className="link">{p.link}</span>
+        <span className="mo-link">{p.link}</span>
       </p>
       <div className="mo-editor-gapped-100 mo-editor-colors-preview-card">
         <p className="mo-editor-colors-preview-text">{p.card}</p>

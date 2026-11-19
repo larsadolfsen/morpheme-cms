@@ -31,7 +31,7 @@ export function useFabLift(active: boolean) {
   useEffect(() => {
     if (!active) return;
     const root = document.documentElement;
-    const footer = () => document.querySelector('.editor-footer');
+    const footer = () => document.querySelector('.mo-editor-footer');
     const update = () =>
       root.style.setProperty('--mo-comp-editor-fab-lift', `${fabLift(footer()?.getBoundingClientRect().top, window.innerHeight)}px`);
     update();

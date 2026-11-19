@@ -308,7 +308,8 @@ async function checkImageGrid(width, height) {
       tiles: tiles.length,
       cards: tiles.filter((t) => t.classList.contains('mo-is-filled') && t.classList.contains('mo-has-media')).length,
       ratios: media.filter((el) => el.style.aspectRatio).length,
-      square: grid.querySelectorAll('.aspect-square').length,
+      // A tile's image box takes its ratio from its image (the inline aspect-ratio); one with a ratio from a rule and none of its own is forced.
+      forced: media.filter((el) => !el.style.aspectRatio && getComputedStyle(el).aspectRatio !== 'auto').length,
       heights: [...new Set(tiles.map((t) => Math.round(t.getBoundingClientRect().height)))].length,
       sideways: document.documentElement.scrollWidth > document.documentElement.clientWidth,
       surfaces,
@@ -323,7 +324,7 @@ async function checkImageGrid(width, height) {
   if (m.gap !== gutter)
     problems.push(`${label}: the gap between columns is ${m.gap}, expected ${gutter} (the theme grid's gutter, deviation G1)`);
   if (m.cards !== m.tiles) problems.push(`${label}: ${m.tiles - m.cards} tiles are not a filled card with media`);
-  if (m.square) problems.push(`${label}: ${m.square} tiles are still squares`);
+  if (m.forced) problems.push(`${label}: ${m.forced} tiles have an image box with a fixed ratio of its own, not the image's`);
   if (m.sideways) problems.push(`${label}: the page scrolls sideways`);
   if (m.names) problems.push(`${label}: ${m.names} tiles have no name for a screen reader`);
   if (m.surfaces[0] === m.surfaces[1])
@@ -1021,7 +1022,7 @@ async function checkIconColor(width, height, scheme = 'light') {
           circle: !!dot && Math.abs(box.width - box.height) < 0.5 && getComputedStyle(dot).borderRadius !== '0px',
           color: dot ? getComputedStyle(dot).backgroundColor : null,
           want: colorOf(role),
-          check: !!chip.querySelector('.mo-segmented-button__check, .choice-group-check'),
+          check: !!chip.querySelector('.mo-segmented-button__check'),
           width: Math.round(chip.getBoundingClientRect().width),
         };
       });

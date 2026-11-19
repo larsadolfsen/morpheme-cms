@@ -19,7 +19,7 @@ export default function EditorFooter() {
   }, []);
 
   return (
-    <footer className="editor-footer mo-editor-footer-spacing">
+    <footer className="mo-editor-footer mo-editor-footer-spacing">
       <SiteDivider />
       <div className="mo-editor-footer-row">
         <FooterLinks state={state} />

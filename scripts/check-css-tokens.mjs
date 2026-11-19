@@ -98,7 +98,7 @@ export function counts(cms) {
 /**
  * Where each custom property is read, for the report: `reads` maps a name to the set of readers. A reader in a stylesheet is the first class of
  * the rule's selector (the part or the block that uses it; `*` for a rule with none), in any other file it is the file. A name counts as read
- * in `var(--x)` and in a script's string (`'--x'`).
+ * in a `var()` read and in a script's string.
  * @param {Record<string, string>} styles file → CSS  @param {Record<string, string>} others file → text of every other source file
  */
 export function readers(styles, others) {

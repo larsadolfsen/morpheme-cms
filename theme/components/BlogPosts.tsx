@@ -15,7 +15,7 @@ export default function BlogPosts({ posts }: { posts: PostView[] }) {
     return (
       <div className="mo-blog-empty">
         <p className="mo-type-title-medium">{siteT.theme.noPosts}</p>
-        <Link href="/blog/" className="link mo-blog-empty__link">
+        <Link href="/blog/" className="mo-link mo-blog-empty__link">
           {siteT.theme.seeAllPosts}
         </Link>
       </div>

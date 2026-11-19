@@ -120,14 +120,14 @@
     border-radius: var(--mo-sys-shape-corner-full);
     object-fit: cover;
   }
-  .js [data-clamp] {
+  .mo-js [data-clamp] {
     max-height: calc(1.625em * 7);
     overflow: hidden;
   }
-  .js [data-clamp][data-overflow] {
+  .mo-js [data-clamp][data-overflow] {
     mask-image: linear-gradient(to bottom, #000 55%, transparent);
   }
-  .js [data-clamp][data-open] {
+  .mo-js [data-clamp][data-open] {
     max-height: none;
     mask-image: none;
   }

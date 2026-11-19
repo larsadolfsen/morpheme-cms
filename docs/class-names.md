@@ -3,7 +3,7 @@
 Owner decision, 18 November 2026. Every class and every custom property of the CMS, the theme Material, the editor, and so of every theme and app
 built on them, starts with `mo-`, inside contract 7. No old name is kept for compatibility. The plan is
 `docs/superpowers/plans/2026-11-18-mo-names-contract-7.md`; this page is the pattern. The map of every old name to its new one is
-`docs/superpowers/plans/mo-names/map.json` (made by `npm run mo-names:map`); a theme or app author reads it in
+`docs/superpowers/plans/mo-names/map.json` (made once, before the renames, and kept as the record of the old names); a theme or app author reads it in
 [`tailwind-migration.md`](tailwind-migration.md), *The `mo-` names*.
 
 ## The pattern
@@ -52,7 +52,7 @@ The site shell's names, settled by the pattern (M5 reads Material 3 only where a
 - Post list `theme-post-*` → `mo-post-list`, `mo-post-list__image|title|excerpt`, `mo-has-columns`, `mo-is-empty`; `post-card` → `mo-post-card`; `post-lead` → `mo-post__lead`; `theme-title` → `mo-page-title`.
 - Page `page-with-side` → `mo-page__content mo-has-side`, `page-side` → `mo-page__side`; `not-found-suggestion` → `mo-not-found__suggestion`; `block-place` → `mo-placed-block`; `theme-home-first`/`theme-blog-first` → `mo-home__first`/`mo-blog__first`.
 - Sections: `text-section` → `mo-text-section`; its colour is the kind `mo-is-surface|primary|secondary|tertiary`, `text-section-picture` → `mo-has-image`, `text-section-full` → `mo-is-full`, `text-section-image` → `mo-text-section__image`. A kind that replaces a class in a selector is written `:where(.mo-text-section).mo-is-primary`, so the specificity stays one class.
-- `--motion-ease`, `--motion-ease-quick` → `--mo-sys-motion-ease`, `--mo-sys-motion-ease-quick`; `--carousel-*` → `--mo-comp-carousel-*`; `carousel-<layout>` → `mo-carousel__<layout>`; `grid-span-*` → `mo-grid__span-*`; `block-cards-<primary|secondary|tertiary>` → `mo-block-cards__<…>`; the unused `block-price-*` → `mo-block-pricecards__*`.
+- `--motion-ease`, `--motion-ease-quick` → `--mo-sys-motion-ease`, `--mo-sys-motion-ease-quick`; `--carousel-*` → `--mo-comp-carousel-*`; `carousel-<layout>` → `mo-carousel__<layout>`; `grid-span-*` → `mo-staggered-grid__span-*` (first `mo-grid__span-*`, moved by M7); `block-cards-<primary|secondary|tertiary>` → `mo-block-cards__<…>`; the unused `block-price-*` → `mo-block-pricecards__*`.
 - Left to M4 (they are generated or shared with block files): `block-plans-2|3|4`.
 
 ## Settled in M4
@@ -112,7 +112,7 @@ M3 renamed the theme's UI components (`theme/ui/`, `theme/styles/ui/`, `cards.cs
 - **Navigation, search, radio, setting.** The root is Material 3's component name, not the tokens' folder word: `mo-navigation-bar`, `mo-navigation-rail`, `mo-navigation-drawer` (one name with M5's `md-drawer-*`), `mo-search-bar`, `mo-search-view`, `mo-radio-button`, `mo-radio-group`, `mo-setting-row`, `mo-setting-list`, each with `__<part>`. Hooks keep the map's `--mo-comp-navigation-*`, `--mo-comp-search-*`, `--mo-comp-radio-*`, `--mo-comp-setting-*`.
 - **A state with a part.** No composite: `button-selected-icon` is `mo-button__selected-icon` (like `unselected-icon`), `icon-button-selected-icon` is `mo-icon-button__selected-icon`, `text-field-error-icon` is `mo-text-field__error-icon`, `text-field-invalid-text` is `mo-text-field__invalid-text`, `slider-active-track` is `mo-slider__active-track`. A kind or state class that sits on an element that is not the root is a part too: `time-picker-error` (the error line) is `mo-time-picker__error`, `toolbar-with-fab` and `toolbar-with-fab-vertical` (the box round a toolbar and its FAB) are `mo-toolbar__with-fab` and `mo-toolbar__with-fab-vertical`.
 - **Questions of the map.** `choice-group` is `mo-choice-group` (parts `__list`, `__buttons`, `__sample` …; hooks `--mo-comp-choice-group-*`): no Material 3 page names it (the closest are Button groups and Segmented buttons). `exposed-dropdown-menu` is `mo-exposed-dropdown-menu` and `dropdown-menu` is `mo-dropdown-menu` (Menus has no page for either). `--keyboard-inset` and `--visual-height` are `--mo-comp-bottom-sheet-keyboard-inset` and `--mo-comp-bottom-sheet-visual-height` (the bottom sheet sets them). `--progress` is above.
-- **`carousel` and `image-grid`** (left to M3 by M4). `carousel` is `mo-carousel`. `image-grid` is `mo-staggered-grid`, not `mo-grid`: `mo-grid` is T04's plain-columns layout class (`docs/theme-layout-classes.md`), a different thing. Its spans keep M5's `mo-grid__span-full` and `mo-grid__span-compact` (a later PR can move them under `mo-staggered-grid__`).
+- **`carousel` and `image-grid`** (left to M3 by M4). `carousel` is `mo-carousel`. `image-grid` is `mo-staggered-grid`, not `mo-grid`: `mo-grid` is T04's plain-columns layout class (`docs/theme-layout-classes.md`), a different thing. Its spans keep M5's `mo-staggered-grid__span-full` and `mo-staggered-grid__span-compact` (moved under `mo-staggered-grid__` by M7).
 - **`--text-field-*`** (eleven names such as `--text-field-icon-size`) were hidden from the map by Tailwind's `--text-*` namespace. They are `--mo-comp-text-field-*` now.
 - **Hooks without a style rule.** Nine classes of `theme/ui/` have no rule in any stylesheet, so the map does not list them: `fab-menu-item`, `menu-item-label`, `radio-button-text`, `segmented-button-label`, `snackbar-action`, `snackbar-close`, `time-picker-12h`, `tooltip-action`, `tooltip-supporting-text`. They follow the pattern (`mo-fab-menu__item`, `mo-menu__item-label` …).
 - **Not renamed.** `js` (the flag on `<html>`, set in `theme/layouts/Base.astro`, read by `base.css` and two block files: M4 and M5's files). Container names (`container: navigation-bar / inline-size`, `@container slider-active-track …`): they are neither classes nor custom properties. `data-*` values such as `data-wide="side-sheet"`.
@@ -125,8 +125,11 @@ M3 renamed the theme's UI components (`theme/ui/`, `theme/styles/ui/`, `cards.cs
 
 ## The check
 
-`npm run check:mo-names` (`scripts/check-mo-names.mjs`, in `npm run check`) is a ratchet like `check:tailwind`. Per file it counts the unprefixed
-class definitions in stylesheets, the unprefixed class names in markup and code strings (only names a stylesheet defines, so Tailwind utilities and
-other libraries are never counted), and the unprefixed custom properties declared and read. It fails when a count is higher than
-`scripts/mo-names-allowlist.json` lists or a file not listed has any. A PR that renames names lowers the numbers (`npm run check:mo-names -- --list`
-prints the current ones). The last PR of the plan (M7) takes the list to zero.
+`npm run check:mo-names` (`scripts/check-mo-names.mjs`, in `npm run check`, and `check:content` on a site's themes and apps) is permanent since M7: no allowlist, no count that may stay. It fails on
+
+- an unprefixed class defined in a stylesheet, and an unprefixed custom property declared or read, in a stylesheet or in code;
+- an unprefixed class written in markup or code (a `class` or `className` value, `classList`, `querySelector`, `matches`, `closest`, a `.name` selector in a string) that a stylesheet defines or that is an old name of the rename (`scripts/renamed-classes.json`, M1's map), so a rename that missed a string fails even when no stylesheet defines the name any more;
+- an attribute selector on `class` or `style` that spells another name: `[class*="card-"]`, `[class^=block-]`, `[class$=…]`, `[class~=…]`, `[style*="--card"]` (a rename missed these twice);
+- a `mo-` class that does not have the pattern's shape (`mo-cardBody`, `mo-card_body`, `mo-a__b__c`), and a plain `class="…"` attribute with a name that does not start with `mo-`.
+
+What stays unprefixed is not ours and is listed with its reason in `NOT_RENAMED` of `scripts/mo-names.mjs`. `lib/content-class-names.mjs` (the table of the old names the update rewrites) is the one file not read.

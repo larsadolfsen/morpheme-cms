@@ -252,7 +252,7 @@ export default function Screen<T extends string>({
         {!selection && drawer}
       </div>
       {tabs && (
-        <div className="editor-bar-tabs">
+        <div className="mo-editor-bar-tabs">
           <div className={`mo-editor-screen-tabs ${width}`}>
             <TabRow id={id} {...tabs} />
           </div>
