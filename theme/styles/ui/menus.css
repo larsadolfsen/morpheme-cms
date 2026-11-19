@@ -1,7 +1,7 @@
 /*
   Menu (Menu, MenuItem, MenuGroup, MenuDivider, DropdownMenu, menuClass, menuClasses, menuItemClass): .mo-menu, a surface
   with its items, .mo-menu__vibrant in the accent; .mo-menu__item, a link or a <button>, with .mo-menu__item-leading (.mo-menu__item-icon,
-  and .mo-menu__item-check, the tick of an item that is on), .mo-menu__item-text (.menu-item-label, .mo-menu__item-supporting),
+  and .mo-menu__item-check, the tick of an item that is on), .mo-menu__item-text (.mo-menu__item-label, .mo-menu__item-supporting),
   .mo-menu__item-trailing-supporting and .mo-menu__item-trailing-icon; the chosen one with aria-current, or aria-checked (in a
   WAI-ARIA menu) or aria-pressed (elsewhere); :disabled or aria-disabled. Groups: .mo-menu__group (optionally .mo-menu__group-label
   over its .mo-menu__group-items), each on its own surface with a gap between them, or with .mo-menu__groups-divider on the

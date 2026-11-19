@@ -1519,7 +1519,7 @@ function undoSnackbar(text: string, undo: () => void) {
   flushSync(() => root.render(<SiteSnackbar text={text} action={{ label: t.text.undo }} />));
   const el = host.firstElementChild!.cloneNode(true) as HTMLElement;
   root.unmount();
-  el.querySelector('.snackbar-action')?.addEventListener('click', () => {
+  el.querySelector('.mo-snackbar__action')?.addEventListener('click', () => {
     undo();
     el.remove();
   });

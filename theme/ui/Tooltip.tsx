@@ -40,10 +40,10 @@ export default function Tooltip({
         {rich ? (
           <>
             {subhead && <span className="mo-tooltip__subhead">{subhead}</span>}
-            {supportingText && <span className="tooltip-supporting-text">{supportingText}</span>}
+            {supportingText && <span className="mo-tooltip__supporting-text">{supportingText}</span>}
             {action && (
               <span className="mo-tooltip__actions">
-                <Button kind="text" size="small" className="tooltip-action" {...actionRest}>
+                <Button kind="text" size="small" className="mo-tooltip__action" {...actionRest}>
                   {label}
                 </Button>
               </span>

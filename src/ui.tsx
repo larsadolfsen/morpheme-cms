@@ -2311,7 +2311,7 @@ function moveInMenu(e: KeyboardEvent<HTMLElement>) {
   // A letter: the next item whose label starts with it (M3 menus: "Letters: Focus moves to the next menu item starting with letter").
   if (to === undefined && isTypeAheadKey(e)) {
     to = nextByLetter(
-      items.map((i) => i.querySelector('.menu-item-label')?.textContent ?? i.textContent ?? ''),
+      items.map((i) => i.querySelector('.mo-menu__item-label')?.textContent ?? i.textContent ?? ''),
       at,
       e.key,
     );

@@ -1,7 +1,7 @@
 /*
   Radio buttons (RadioButton.tsx, radioButtonClass, radioGroupClass; m3.material.io/components/radio-button): as the
   checkbox, .mo-radio-button, a <label> with the button (.mo-radio-button__box: the <input>, .mo-radio-button__input, the
-  browser's own in the accent, or the theme's with appearance: none) and its text (.radio-button-text:
+  browser's own in the accent, or the theme's with appearance: none) and its text (.mo-radio-button__text:
   .mo-radio-button__label and .mo-radio-button__supporting); the buttons of one choice in .mo-radio-group, a <fieldset> with its
   name in .mo-radio-group__label.
     --mo-comp-radio-button-icon-size, --mo-comp-radio-button-offset, --mo-comp-radio-button-gap, --mo-comp-radio-button-color   the button, how far down

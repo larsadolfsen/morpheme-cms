@@ -147,7 +147,7 @@ export function MenuItem({
         </span>
       )}
       <span className="mo-menu__item-text">
-        <span className="menu-item-label">{children}</span>
+        <span className="mo-menu__item-label">{children}</span>
         {supporting != null && supporting !== '' && <span className="mo-menu__item-supporting">{supporting}</span>}
       </span>
       {trailingSupporting != null && trailingSupporting !== '' && (

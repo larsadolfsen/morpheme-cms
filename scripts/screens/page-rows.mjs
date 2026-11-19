@@ -1238,7 +1238,7 @@ async function checkChangeTo(width, height) {
   if (!(await hasIcon())) problems.push(`${label}: List → Steps → List lost the first row's icon`);
   if (JSON.stringify(await rows('title')) !== was)
     problems.push(`${label}: List → Steps → List has ${JSON.stringify(await rows('title'))}`);
-  await page.locator('.mo-snackbar__stack .mo-snackbar', { hasText: 'Changed to List' }).locator('.snackbar-action').first().click();
+  await page.locator('.mo-snackbar__stack .mo-snackbar', { hasText: 'Changed to List' }).locator('.mo-snackbar__action').first().click();
   await page.waitForTimeout(500);
   if (!(await page.locator('.inline-steps').count())) problems.push(`${label}: the snackbar's Undo did not give Steps back`);
   // Steps → Table → List: the rows are the steps' titles and texts, with no header row; back in the List the first row has its icon again.

@@ -55,11 +55,11 @@ export default function Snackbar({
       {(action || closeLabel) && (
         <div className="mo-snackbar__actions">
           {action && (
-            <Button kind="text" size="small" className="snackbar-action" {...actionRest}>
+            <Button kind="text" size="small" className="mo-snackbar__action" {...actionRest}>
               {label}
             </Button>
           )}
-          {closeLabel && <IconButton icon="x" label={closeLabel} className="snackbar-close" data-snackbar-close="" />}
+          {closeLabel && <IconButton icon="x" label={closeLabel} className="mo-snackbar__close" data-snackbar-close="" />}
         </div>
       )}
     </div>

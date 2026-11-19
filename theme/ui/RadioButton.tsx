@@ -25,7 +25,7 @@ export default function RadioButton({
       <span className="mo-radio-button__box">
         <input type="radio" className="mo-radio-button__input" defaultChecked={checked} {...rest} />
       </span>
-      <span className="radio-button-text">
+      <span className="mo-radio-button__text">
         <span className="mo-radio-button__label">{label}</span>
         {supporting && <span className="mo-radio-button__supporting">{supporting}</span>}
       </span>

@@ -113,7 +113,7 @@ export default function dropdownMenu() {
       // A letter: the next item whose label starts with it.
       if (to === undefined && isTypeAheadKey(e)) {
         const next = nextByLetter(
-          items.map((i) => i.querySelector('.menu-item-label')?.textContent ?? ''),
+          items.map((i) => i.querySelector('.mo-menu__item-label')?.textContent ?? ''),
           at,
           e.key,
         );

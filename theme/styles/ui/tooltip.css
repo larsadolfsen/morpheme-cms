@@ -2,7 +2,7 @@
   Tooltips (Tooltip, tooltipClass; m3.material.io/components/tooltips): .mo-tooltip__anchor ([data-tooltip], shown with
   [data-tooltip-open] by ../ui/tooltip.script.ts, placed by CSS anchor positioning, and where the browser lacks it by the script, which puts [data-tooltip-below] under its anchor) with what it is about and
   its .mo-tooltip, .mo-tooltip__plain (a short label, in the middle over it) or .mo-tooltip__rich (.mo-tooltip__subhead,
-  .tooltip-supporting-text and optionally .mo-tooltip__actions with a text button, .tooltip-action; from its anchor's start).
+  .mo-tooltip__supporting-text and optionally .mo-tooltip__actions with a text button, .mo-tooltip__action; from its anchor's start).
     --mo-comp-tooltip-gap (between it and its anchor)
     --mo-comp-plain-tooltip-container-color, -text, -radius, -padding, -font-size, -weight, -max-width
     --mo-comp-tooltip-rich-surface, -text, -subhead, -subhead-weight, -radius, -padding, -line, -shadow, -max-width

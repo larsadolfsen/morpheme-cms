@@ -15,7 +15,7 @@
   Segmented button (SegmentedButton, segmentedButtonClass, segmentedButtonSegmentClass): .mo-segmented-button, the frame
   (the whole width on a phone, as wide as its choices from the medium width), with a .mo-segmented-button__segment for each (the chosen with aria-pressed="true"), in it .mo-segmented-button__check (shown
   on the chosen), optionally .mo-segmented-button__icon (hidden on the chosen, the check in its place) and
-  .segmented-button-label. A segment with a colour (Segment.swatch) has .mo-segmented-button__swatch, a filled circle of it in every
+  .mo-segmented-button__label. A segment with a colour (Segment.swatch) has .mo-segmented-button__swatch, a filled circle of it in every
   segment, in place of the check.
     --mo-comp-segmented-button-height, -padding, -gap, -radius, -font-size, -icon-size   (the button's where it has none)
     --mo-comp-segmented-button-surface, -text, -line, -hover

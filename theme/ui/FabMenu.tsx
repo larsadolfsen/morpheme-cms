@@ -59,7 +59,7 @@ export default function FabMenu({
       <ul id={list} className="mo-fab-menu__list" aria-label={label} hidden={!open}>
         {items.map(({ icon: glyph, label: name, ...item }) => (
           <li key={name}>
-            <ExtendedFab icon={glyph} label={name} kind={`${kind}-container`} className="fab-menu-item" {...item} />
+            <ExtendedFab icon={glyph} label={name} kind={`${kind}-container`} className="mo-fab-menu__item" {...item} />
           </li>
         ))}
       </ul>

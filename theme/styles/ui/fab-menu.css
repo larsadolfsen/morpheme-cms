@@ -8,7 +8,7 @@
   FAB menu (FabMenu, fabMenuClass): .mo-fab-menu with its colour set, .mo-fab-menu__primary, .mo-fab-menu__secondary or
   .mo-fab-menu__tertiary; its .mo-fab in any size and colour (.mo-fab-menu__button, aria-expanded: .mo-fab-menu__icon, or while open
   the close button: .mo-fab-menu__close-icon, the close size and corners and the set's filled colour, the FAB's
-  --fab-<colour>-… variables) and .mo-fab-menu__list above it at its end, each action an .mo-extended-fab (.fab-menu-item) in
+  --fab-<colour>-… variables) and .mo-fab-menu__list above it at its end, each action an .mo-extended-fab (.mo-fab-menu__item) in
   the set's container colour (.mo-fab__primary-container …). It keeps the place of a medium or large FAB while that is the
   smaller close button.
     --mo-comp-fab-menu-gap, --mo-comp-fab-menu-item-gap, --mo-comp-fab-menu-close-size, --mo-comp-fab-menu-close-radius, --mo-comp-fab-menu-close-icon-size

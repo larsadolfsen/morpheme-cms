@@ -112,7 +112,7 @@ export default function TimePickerContainer({
   );
   return (
     <Dialog
-      className={['mo-time-picker', orientation === 'horizontal' && 'mo-time-picker__horizontal', twelve && 'time-picker-12h', className]
+      className={['mo-time-picker', orientation === 'horizontal' && 'mo-time-picker__horizontal', twelve && 'mo-time-picker__12h', className]
         .filter(Boolean)
         .join(' ')}
       data-view={view}
