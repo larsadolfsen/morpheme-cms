@@ -9,7 +9,7 @@ the rendered result is identical, its changeset, its checks and what must merge 
 
 **Owner, 19 Nov 2026: Tailwind is released as 0.19.0 (it was 0.18.2), after 0.18.1; read every "0.18.2" in the batch plans as 0.19.0.** Its merge into `main` adds one `minor` changeset (it starts the 0.19 line: contract 7); the batches' own changesets stay `patch` or empty. 
 
-- **Release order (owner, 18 Nov): 0.18.0 (released), 0.18.1 (fixes, from `main`), 0.19.0 (Tailwind, contract 7; it was 0.18.2), 0.19.1 accessibility, 0.19.2 small UI fixes; the pre-built editor moved to 0.21 Build speed (owner, 19 Nov).** Contract 7 / Tailwind (0.19.0) is not released until `morpheme-apps` runs on it.
+- **Release order (owner, 18 Nov): 0.18.0 (released), 0.18.1 (fixes, from `main`), 0.19.0 (Tailwind, contract 7; it was 0.18.2), then accessibility and small UI fixes (roadmap); the pre-built editor moved to 0.21 Build speed (owner, 19 Nov).** Contract 7 / Tailwind (0.19.0) is not released until `morpheme-apps` runs on it.
 - **Tailwind ships as 0.19.0 (it was 0.18.2), with contract 7**: `THEME_API` and `APP_API` go from 6 to 7 and `APP_APIS` becomes `[7]` (as the token rename did with `[6]`), in batch T16.
 - **Patch changesets in the batches** (`patch` or empty, never `major`); the merge of `feature/tailwind` into `main` adds the one `minor` that makes it 0.19.0 (owner, 19 Nov).
 - **The work goes into `main` after the owner releases 0.18.0**, and after the CSS split is done (for the batches that touch its files). **No build session starts before 0.18.0 is released**, and none without the PM's word.

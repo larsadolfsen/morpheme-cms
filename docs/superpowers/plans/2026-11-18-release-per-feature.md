@@ -2,8 +2,8 @@
 
 Status: **approved by the owner, 18 November 2026** ("yes"), revised with the owner the same day. It replaces the version of this plan the owner approved earlier the
 same day ("Approve"), which had no version lines and a test version on npm per feature. **Takes effect with 0.19**: 0.18.0 (released) and
-0.18.1 (fixes, from `main`) finish as planned; Tailwind (contract 7) is the first feature of the 0.19 line, 0.19.0, followed by 0.19.1 accessibility and
-0.19.2 small UI fixes (owner, 19 November 2026; Tailwind was 0.18.2); the pre-built editor is a feature of 0.21 Build speed (it was 0.18.3). The demo editor (below) can start at once.
+0.18.1 (fixes, from `main`) finish as planned; Tailwind (contract 7) is the first feature of the 0.19 line, 0.19.0, followed by accessibility and the
+small UI fixes (owner, 19 November 2026; Tailwind was 0.18.2); the pre-built editor is a feature of 0.21 Build speed (it was 0.18.3). The demo editor (below) can start at once.
 
 The owner's words, 18 November:
 
@@ -31,6 +31,13 @@ The owner's words, 18 November:
    approves the staged version on npmjs.com with 2FA, as today. The sites' update check then takes it, at night (`worker/cms-update.js`).
 6. **One at a time.** The PM merges the next feature into `main` only after the owner has approved (or rejected) the staged version,
    and says so in its report. So there is never more than one version waiting.
+
+**A release is one bite** (owner, 19 November 2026: "split releases up in bites that make sense"). A release is one thing a site's
+owner, a theme or app author, or the owner can notice and check on one Preview, and it works and is worth having without the next
+one. A feature with parts that can each be released alone is split into them; parts that only make sense together (a check and the
+fixes that make it pass, a test and the migrations it shows are missing) stay one release; a part with nothing a site gets (a
+refactor, CI, docs, deleted branches) has no version of its own and goes with the release that uses it, or beside the line. Every
+design ends with its releases, cut this way, and the roadmap lists them.
 
 When the lines end, the owner sets the demo's production branch (Workers > `morpheme-demo` > Settings > Build > Branch control) to `main`.
 
