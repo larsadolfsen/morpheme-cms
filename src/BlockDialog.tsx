@@ -67,7 +67,7 @@ import { siteFollowKeyboard } from './themeUi';
 import { typedInPlace } from './typedInPlace.mjs';
 import { useSheetBack } from './useSheetBack';
 import { drop as dropCopy, keep as keepCopy, matches as copyMatches, take as takeCopy } from './sheetCopy.mjs';
-import { SAFE_IMAGE_SRC } from '../lib/safe-url.mjs';
+import { isSafeImageSrc } from '../lib/safe-url.mjs';
 
 /** Where an image's live sheet opens (from medium, the bar's Alt text and a new image): its Alt text field. Below medium the alt text sheet (`BlockAsk.alt`) is used. */
 export type EditFocus = 'alt';
@@ -232,6 +232,12 @@ const image: SiteBlock = {
   ],
 };
 // The fields of the alt text sheet: the image's own, without the image (its address stays in the values, for the Library's text).
+/** The image of the alt step: drawn only from an address the editor may draw from. */
+function AltImage({ src }: { src: string }) {
+  if (!isSafeImageSrc(src)) return null;
+  return <img src={src} alt="" className="mo-editor-block-dialog-image" />;
+}
+
 const altFields = image.fields.filter((f) => f.name !== 'src');
 type Answer = { type: string; props: BlockProps; open?: boolean } | null;
 
@@ -420,7 +426,6 @@ export function useBlockDialog(
   // The alt text sheet is for the text: its field has the focus when the sheet is open (a phone's keyboard comes up and the field is in view), unless the
   // image is decorative and has none.
   const altStep = open?.step === 'alt';
-  const altSrc = shownAt(String(values.src ?? ''));
   useEffect(() => {
     if (!altStep) return;
     const id = setTimeout(() => dialog.current?.querySelector<HTMLElement>('textarea, input[type=text]')?.focus(), 150);
@@ -853,7 +858,7 @@ export function useBlockDialog(
         {open?.step === 'alt' && (
           <>
             <SheetBody>
-              {SAFE_IMAGE_SRC.test(altSrc) && <img src={altSrc} alt="" className="mo-editor-block-dialog-image" />}
+              <AltImage src={shownAt(String(values.src ?? ''))} />
               <FieldList fields={altFields} value={values} onChange={(v) => setValues(v as BlockProps)} />
             </SheetBody>
             <SheetActions
