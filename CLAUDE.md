@@ -146,6 +146,12 @@ roles, `currentColor` and `color-mix` of them, never a fixed value. A section on
 tokens follows every section colour by itself. `npm run check:editor-colors` fails on a fixed colour (its allowlist gives the
 reasons), and `check:screens` checks text, placeholder, slot icons and outline of every entry of `inlineBlocks` on every section colour.
 
+### Accessibility: WCAG 2.2 AA
+
+Owner, 19 Nov 2026: the sites the CMS builds and the editor meet **WCAG 2.2 level AA**. A change never lowers it: contrast
+(`check:contrast`), keyboard use, a visible focus ring for keyboard focus (`:focus-visible`), names for screen readers, and
+target sizes. Where Material 3 and WCAG differ, WCAG wins. The checks that enforce it: roadmap 0.20.4.
+
 ### Icons are Material Symbols
 
 Owner rule, 14 Nov: the editor and the site draw Material Symbols until a site chooses another icon pack; Phosphor and
