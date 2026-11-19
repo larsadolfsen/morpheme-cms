@@ -79,8 +79,8 @@ rules in the `pm` skill.
 
 ### Roles
 
-The **CTO** (skill `cto`) finds out and decides with the owner what happens in the future, writes the specs and plans, and decides
-itself whether and when it writes code; the **PM** (skill `pm`) runs the work. Every developer session (build, fix or docs) loads the `developer` skill first. An orchestrator breaks a task down, delegates it to Claude subagents (the first choice when the task needs the repo's
+The **CTO** (skill `cto`) guides the owner and helps them plan: it finds out and decides with the owner what happens in the future and
+writes the specs and plans; it is not a PM and does not step into the development work unless the owner tells it to; the **PM** (skill `pm`) runs the work. Every developer session (build, fix or docs) loads the `developer` skill first. An orchestrator breaks a task down, delegates it to Claude subagents (the first choice when the task needs the repo's
 rules) or, for mechanical code with a precise specification, to the Developer (Ollama, `qwen3.8:27b` at
 `http://127.0.0.1:11434`, local only), then reviews, tests and integrates. Claude in the cloud (claude.ai/code) runs when
 the PC is off and uses subagents for code.
