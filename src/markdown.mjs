@@ -274,7 +274,7 @@ const remarkAlignMarkers = $remark('remarkAlignMarkers', () => () => (tree) => {
   });
 });
 
-// A node's DOM with the class of its alignment (the site's: text-align-center), as the editor draws it.
+// A node's DOM with the class of its alignment (the site's: mo-has-text-align-center), as the editor draws it.
 export function withAlignClass(dom, node) {
   const name = alignClass(node.attrs.align);
   if (!name) return dom;

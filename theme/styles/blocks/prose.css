@@ -260,10 +260,10 @@
 
   /* A paragraph or a smaller heading in a text aligned to the centre or the right (packages/editor/lib/text-align.mjs, the Align
    button of the editor); left is the text's own. Outside the layers, as the prose style is. */
-  .text-align-center {
+  .mo-has-text-align-center {
     text-align: center;
   }
-  .text-align-right {
+  .mo-has-text-align-right {
     text-align: right;
   }
 
