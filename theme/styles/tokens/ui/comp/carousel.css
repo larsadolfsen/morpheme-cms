@@ -61,21 +61,21 @@
   .carousel-item; native scroll-snap), and under them the theme's addition to M3's carousel, a page indicator
   (.carousel-indicator with a .carousel-indicator-dot for each item, the one in view aria-current). Uncontained (no
   class of its own): each item as wide as the others, one with the next peeking in on a phone, two from the medium width, three
-  from the expanded width, reaching out to a phone's edges. The contained layouts, .carousel-contained with their own:
-  .carousel-multi-browse (large items, a medium and a small one) and .carousel-hero (large ones and a small one;
+  from the expanded width, reaching out to a phone's edges. The contained layouts, .mo-carousel__contained with their own:
+  .mo-carousel__multi-browse (large items, a medium and a small one) and .mo-carousel__hero (large ones and a small one;
   .carousel-center: between two small ones), whose items' masks (.carousel-item-mask, what is in an item, filling it)
-  carouselLayout.ts moves and clips as they scroll (--carousel-item-width on the row, --carousel-mask-inset on a mask,
-  --carousel-mask on an item: 0 to 1 of it masked), and .carousel-full-screen (one item at a time, as wide as the
+  carouselLayout.ts moves and clips as they scroll (--mo-comp-carousel-item-width on the row, --mo-comp-carousel-mask-inset on a mask,
+  --carousel-mask on an item: 0 to 1 of it masked), and .mo-carousel__full-screen (one item at a time, as wide as the
   carousel, out to a phone's edges).
     --mo-comp-carousel-bleed   how far the row of an uncontained or full-screen one reaches out to the edges of a phone's screen
                      (the site's gutter)
-    --carousel-gap, --carousel-contained-gap   the room between the items, uncontained and contained
-    --carousel-height, --carousel-full-screen-height   how high a contained carousel is, and a full-screen one
+    --mo-comp-carousel-gap, --mo-comp-carousel-contained-gap   the room between the items, uncontained and contained
+    --mo-comp-carousel-height, --mo-comp-carousel-full-screen-height   how high a contained carousel is, and a full-screen one
     --mo-comp-carousel-large-item-width   how wide multi-browse's large items are, as near as they fit (in px or rem)
     --mo-comp-carousel-small-item-min-width, --mo-comp-carousel-small-item-max-width   a small item's narrowest and widest (px or rem)
-    --mo-comp-carousel-item-container-shape, --carousel-item-surface   a contained item's corners, and what is behind its image
+    --mo-comp-carousel-item-container-shape, --mo-comp-carousel-item-surface   a contained item's corners, and what is behind its image
     --mo-comp-carousel-full-screen-radius   a full-screen one's items' corners on a phone
-    --carousel-dot-size, --mo-comp-carousel-dot-colour, --mo-comp-carousel-dot-selected-width, --carousel-dot-selected-colour
+    --mo-comp-carousel-dot-size, --mo-comp-carousel-dot-colour, --mo-comp-carousel-dot-selected-width, --mo-comp-carousel-dot-selected-colour
 */
 :where(:root) {
   --mo-comp-carousel-large-item-width: 12.5rem;

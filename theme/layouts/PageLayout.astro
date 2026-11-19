@@ -127,12 +127,12 @@ const textClass = side ? 'prose mo-page__text mo-has-side' : 'prose mo-page__tex
     </Container>
 
     <Container as="div" class="mo-page__body">
-      <div {...(side ? { class: 'page-with-side', 'data-side': template === 'sidebar-left' ? 'left' : 'right' } : {})}>
+      <div {...(side ? { class: 'mo-page__content mo-has-side', 'data-side': template === 'sidebar-left' ? 'left' : 'right' } : {})}>
         <div data-editor="text" class={textClass}>
           <RichText html={rest} path={current} preview={preview} />
         </div>
         {side && (
-          <aside class="page-side">
+          <aside class="mo-page__side">
             <Block type={side} texts={blockTexts[side]} path={current} preview={preview} html={sideText} />
           </aside>
         )}

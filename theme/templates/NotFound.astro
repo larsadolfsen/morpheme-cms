@@ -35,7 +35,7 @@ const spaceOf = (i: number) => (i === 0 ? 'mo-space-near' : space(i));
   <PageHeader title={heading} intro={intro} />
 
   <Container as="div" class="mo-page__body">
-    <Card href="" id="suggestion" hidden className="not-found-suggestion" headline="…" subhead={siteT.theme.didYouMean} />
+    <Card href="" id="suggestion" hidden className="mo-not-found__suggestion" headline="…" subhead={siteT.theme.didYouMean} />
   </Container>
 
   {sections.map((s, i) => {

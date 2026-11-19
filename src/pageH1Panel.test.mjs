@@ -13,7 +13,7 @@ const PLAIN = '<h1 data-editor="heading">Title</h1>';
 test('the header and the intro go in a panel of the colour', () => {
   const doc = PAGE(PLAIN);
   setH1Panel(doc, { color: 'surface' }, '<p>Intro</p>');
-  const panel = doc.querySelector('header > section.text-section.text-section-surface[data-editor="h1-section"]');
+  const panel = doc.querySelector('header > section.mo-text-section.mo-is-surface[data-editor="h1-section"]');
   assert.ok(panel);
   assert.equal(panel.querySelector('h1').textContent, 'Title');
   const intro = panel.querySelector('[data-editor="intro"]');
@@ -39,7 +39,7 @@ test('without an intro the panel holds the header only', () => {
 
 test('no colour takes a panel away and keeps the header', () => {
   const doc = PAGE(
-    `<section data-editor="h1-section" class="text-section text-section-surface">${PLAIN}<div data-editor="intro">a</div></section>`,
+    `<section data-editor="h1-section" class="mo-text-section mo-is-surface">${PLAIN}<div data-editor="intro">a</div></section>`,
   );
   setH1Panel(doc, null, '');
   assert.equal(doc.querySelector('[data-editor="h1-section"]'), null);
@@ -49,12 +49,12 @@ test('no colour takes a panel away and keeps the header', () => {
 
 test('another colour replaces the panel of the site', () => {
   const doc = PAGE(
-    `<section data-editor="h1-section" class="text-section text-section-surface">${PLAIN}<div data-editor="intro">a</div></section>`,
+    `<section data-editor="h1-section" class="mo-text-section mo-is-surface">${PLAIN}<div data-editor="intro">a</div></section>`,
   );
   setH1Panel(doc, { color: 'primary' }, '<p>b</p>');
   assert.equal(doc.querySelectorAll('[data-editor="h1-section"]').length, 1);
-  assert.ok(doc.querySelector('.text-section-primary'));
-  assert.equal(doc.querySelector('.text-section-surface'), null);
+  assert.ok(doc.querySelector('.mo-text-section.mo-is-primary'));
+  assert.equal(doc.querySelector('.mo-text-section.mo-is-surface'), null);
   assert.equal(doc.querySelector('[data-editor="intro"]').innerHTML, '<p>b</p>');
 });
 
@@ -68,8 +68,8 @@ test('the whole width is in the panel and goes again with it; a page’s H1 has 
   const doc = PAGE(PLAIN);
   setH1Panel(doc, { color: 'surface', width: 'full' }, '<p>Intro</p>');
   const panel = doc.querySelector('[data-editor="h1-section"]');
-  assert.match(panel.className, /text-section-full/);
-  assert.doesNotMatch(panel.className, /text-section-picture/);
+  assert.match(panel.className, /mo-is-full/);
+  assert.doesNotMatch(panel.className, /mo-has-image/);
   assert.equal(panel.querySelector('img'), null);
   setH1Panel(doc, null, '');
   assert.equal(doc.querySelector('[data-editor="h1-section"]'), null);

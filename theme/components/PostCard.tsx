@@ -11,7 +11,7 @@ export default function PostCard({ post }: { post: PostView }) {
     <Card
       as="article"
       href={post.href}
-      className="post-card"
+      className="mo-post-card"
       media={
         post.image ? (
           <CardMedia ratio={4 / 3}>

@@ -196,7 +196,7 @@ export function FieldInput(props: Props) {
   );
 }
 
-/** A post's title drawn in the text as the site draws it (.theme-title: the display role, as PostHeader.astro), written in place
+/** A post's title drawn in the text as the site draws it (.mo-page-title: the display role, as PostHeader.astro), written in place
  * and not in a field with its name on its edge. It grows with what is typed; Enter does not make a line. Marked as the other
  * fields are when it keeps the form from being saved (WrongField). */
 export function HeadTitle(props: Props) {
@@ -217,7 +217,7 @@ export function HeadTitle(props: Props) {
         value={text}
         aria-label={props.field.label}
         placeholder={props.field.label}
-        className="theme-title block w-full resize-none overflow-hidden bg-transparent text-on-surface outline-none placeholder:text-on-surface-variant/60"
+        className="mo-page-title block w-full resize-none overflow-hidden bg-transparent text-on-surface outline-none placeholder:text-on-surface-variant/60"
         onKeyDown={(e) => e.key === 'Enter' && e.preventDefault()}
         onChange={(e) => onChange(oneLine(e.target.value))}
       />
@@ -1089,7 +1089,7 @@ export function MenuList({
                       icon={CaretDown}
                       label={open === i ? t.forms.hideChildrenOf(nameOf(item)) : t.forms.showChildrenOf(nameOf(item))}
                       aria-expanded={open === i}
-                      className={`[&>svg]:transition-transform [&>svg]:duration-(--mo-sys-motion-spring-default-spatial-duration) [&>svg]:ease-(--motion-ease) ${open === i ? '[&>svg]:rotate-180' : ''}`}
+                      className={`[&>svg]:transition-transform [&>svg]:duration-(--mo-sys-motion-spring-default-spatial-duration) [&>svg]:ease-(--mo-sys-motion-ease) ${open === i ? '[&>svg]:rotate-180' : ''}`}
                       onClick={() => setOpen(open === i ? null : i)}
                     />
                   )}

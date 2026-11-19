@@ -198,7 +198,7 @@
     document.body.append(layer);
     // The button goes in the footer, next to the theme's own switch, where it covers no content; a page without that footer has it
     // at the bottom of the window.
-    const bar = document.querySelector('.md-footer-bottom > div');
+    const bar = document.querySelector('.mo-footer__bottom > div');
     if (bar) bar.prepend(button);
     else {
       Object.assign(button.style, { position: 'fixed', left: '1rem', bottom: '1rem', zIndex: '2147483001' });

@@ -69,6 +69,6 @@ test('spot checks', () => {
   assert.equal(partOf('chip-set-wrap', THEME_PARTS), 'ChipSet', "partOf('chip-set-wrap') should be 'ChipSet'");
   assert.equal(partOf('fab-menu-item', THEME_PARTS), 'FabMenu', "partOf('fab-menu-item') should be 'FabMenu'");
   assert.equal(partOf('top-app-bar-search', THEME_PARTS), 'TopAppBar', "partOf('top-app-bar-search') should be 'TopAppBar'");
-  assert.equal(partOf('md-footer-list', THEME_PARTS), 'Footer', "partOf('md-footer-list') should be 'Footer'");
+  assert.equal(partOf('mo-footer__list', THEME_PARTS), 'Footer', "partOf('mo-footer__list') should be 'Footer'");
   assert.equal(partOf('icon-button-wide', THEME_PARTS), 'IconButton', "partOf('icon-button-wide') should be 'IconButton'");
 });

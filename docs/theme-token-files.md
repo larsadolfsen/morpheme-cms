@@ -36,7 +36,7 @@ In each folder:
 
 - `--tw-*` declarations (Tailwind's own) and everything inside `@utility`: Tailwind owns them. (The text's colours are not: `--mo-comp-prose-*`, `tokens/base/comp/prose.css`.)
 - The section-colour swaps in `global.css` are pure token declarations, so they moved with the same selectors
-  (`:root, :is(.text-section-…) > *, .editor-text .ProseMirror > …`). Their rules that draw things stayed.
+  (`:root, :is(.mo-text-section.mo-is-…) > *, .editor-text .ProseMirror > …`). Their rules that draw things stayed.
 - Rules that set a token and also draw something are split by property: the tokens go to the token file under the same
   selector, the rest stays. A comment goes with the next token it sits above, and the heading comment of a rule that was only
   tokens goes with it.

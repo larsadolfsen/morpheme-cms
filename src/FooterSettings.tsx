@@ -28,7 +28,7 @@ const places = [
 const placeOf = (path: string) => places.find((p) => p.names.includes(path.split('.')[0])) ?? places[0];
 
 // The class of a link in the footer (Footer.astro), for a footer whose page has no link to copy.
-const THEME = { linkClass: 'md-footer-item' };
+const THEME = { linkClass: 'mo-footer__item' };
 
 const back = backFrom('footer');
 
