@@ -222,7 +222,11 @@ export function scanStrict(files) {
 
 /** The files to scan, from git. */
 export function listFiles() {
-  return execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', ...FOLDERS], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+  return execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', ...FOLDERS], {
+    cwd: root,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+  })
     .split('\n')
     .filter((f) => f && SCANNED.test(f) && !SKIPPED.test(f) && existsSync(root + f));
 }
