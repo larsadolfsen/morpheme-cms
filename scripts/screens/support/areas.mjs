@@ -77,18 +77,19 @@ export const RULES = [
   [/^(lib\/fixtures|lib\/sandbox\/fixtures|worker\/fixtures|scripts\/fixtures)\//, 'none'],
   // Docs, agent files, changesets, the other workflows and the notes at the root: nothing in a screens unit reads them.
   [/^(docs|\.claude|\.agents|\.changeset)\//, 'none'],
-  [/^\.github\/workflows\/(publish|staging-follows-next|cache-fill|daily-full)\.yml$/, 'none'],
+  [/^\.github\/workflows\/(publish|cache-fill|daily-full)\.yml$/, 'none'],
   [/^(README|CLAUDE|AGENTS|SECURITY)\.md$|^LICENSE$|^\.(prettierrc\.json|prettierignore|gitignore|gitattributes)$/, 'none'],
   // The site's Worker: the screens answer the editor's requests themselves (scripts/built-site.mjs workerAnswer), they never import it.
   // `static` runs its test; the demo and starter jobs run it on a site.
   [/^worker\//, 'none'],
-  [/^staging-watcher\//, 'none'],
   // The static-only check scripts and allowlists: `npm run check` runs them, no screens unit imports them.
   [
     /^scripts\/(check-language|check-phosphor|check-web|check-editor-colors|check-colors|check-colors\.allow|check-css-values|check-css-values\.allow|check-density)\.mjs$/,
     'none',
   ],
   [/^scripts\/(phosphor|web)-allowlist\.json$/, 'none'],
+  // The version-line check (job `static`, step on the changesets): reads changesets and package.json only.
+  [/^scripts\/(release-line\.mjs|release-lines\.json)$/, 'none'],
   // The token checks of `npm run check` and their lists (only check-css-tokens.mjs and check-token-names.mjs read them), and the checks
   // that `check:screens:extra` runs over the whole site: none is imported by a unit of scripts/screens/. The light levels skip
   // screens-extra; the full level runs it and every unit.

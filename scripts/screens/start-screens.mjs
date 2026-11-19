@@ -140,6 +140,77 @@ async function checkUpdatesCard(width, height) {
   await page.close();
 }
 
+/** Why the site can't update itself shows on the start screen (BlockedUpdateNotice.tsx, reasons in src/cmsBlocked.mjs), in each state the Worker's
+ * status can have: the notice has its title, its sentence and a "Read more" link to the Morpheme page, stays inside the screen and does not
+ * overlap what is under it; a site with nothing wrong, or a problem with no newer version waiting, shows none. */
+async function checkBlockedNotice(width, height) {
+  const running = '0.16.0';
+  const waiting = { latest: '0.18.0' };
+  const base = { running, token: true, kv: true };
+  const states = [
+    ['needs npm', { ...base, checked: { ...waiting, problem: { kind: 'needs-npm' } } }, daCms.blockedNeedsNpm('0.18.0')],
+    ['cannot write', { ...base, checked: { ...waiting, problem: { kind: 'cannot-write' } } }, daCms.cannotWrite],
+    [
+      'theme',
+      { ...base, checked: { ...waiting, problem: { kind: 'contract', item: 'theme', id: 'venus', why: 'incompatible' } } },
+      daCms.blockedTheme('0.18.0', 'venus'),
+    ],
+    [
+      'app, not sure',
+      { ...base, checked: { ...waiting, problem: { kind: 'contract', item: 'app', id: 'mailchimp', why: 'could-not-confirm' } } },
+      daCms.blockedAppUnsure('0.18.0', 'mailchimp'),
+    ],
+    ['no token', { ...base, token: false, checked: null }, daCms.blockedNoToken],
+    ['no KV', { ...base, kv: false, checked: null }, daCms.blockedNoKv],
+    ['nothing wrong', { ...base, checked: waiting }, null],
+    ['a problem and no newer version', { ...base, checked: { latest: running, problem: { kind: 'needs-npm' } } }, null],
+  ];
+  for (const [name, status, text] of states) {
+    const label = `${width}px start, blocked update (${name})`;
+    const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site);
+    await page.route(`${site}/api/cms`, (r) => r.fulfill({ contentType: 'application/json', body: JSON.stringify(status) }));
+    await page.reload();
+    await page.waitForSelector('main');
+    await page.waitForTimeout(1500);
+    const found = await page.evaluate((title) => {
+      const card = [...document.querySelectorAll('main [role=status]')].find((e) => e.textContent.includes(title));
+      if (!card) return null;
+      const r = card.getBoundingClientRect();
+      const next = [...document.querySelectorAll('main .mo-editor-dashboard-grid > *')]
+        .map((e) => e.getBoundingClientRect())
+        .filter((b) => b.height > 0)
+        .map((b) => b.top);
+      const link = card.querySelector('a');
+      return {
+        text: card.textContent,
+        box: { left: r.left, right: r.right, bottom: r.bottom },
+        overlaps: next.some((top) => top < r.bottom - 1),
+        href: link?.getAttribute('href'),
+        link: link?.textContent.trim(),
+        scrollsSideways: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+      };
+    }, daCms.blockedTitle);
+    if (text === null) {
+      if (found) problems.push(`${label}: the notice shows, and should not`);
+    } else if (!found) problems.push(`${label}: the notice "${daCms.blockedTitle}" is missing`);
+    else {
+      if (!found.text.includes(text)) problems.push(`${label}: the notice says "${found.text}", expected "${text}"`);
+      if (found.href !== '#morpheme' || found.link !== daLibrary.readMore)
+        problems.push(`${label}: the link is "${found.link}" to ${found.href}`);
+      if (found.box.left < 0 || found.box.right > width + 1) problems.push(`${label}: the notice is outside the screen`);
+      if (found.overlaps) problems.push(`${label}: the notice overlaps the widgets under it`);
+      if (found.scrollsSideways) problems.push(`${label}: the page scrolls sideways`);
+      if (name === 'theme')
+        await page
+          .locator('main [role=status]', { hasText: daCms.blockedTitle })
+          .screenshot({ path: join(shots, `blocked-update-${width}.png`) });
+    }
+    await page.close();
+  }
+}
+
 /** The start screen's subtitle in the top bar ("Updated 1:42 PM", or "Updated Nov 12" on an earlier day) never truncates on a phone: no ellipsis (scrollWidth <= clientWidth) and no "yesterday at" or "today at", in English and Danish, 375 and 390 px, with the widest time (11:42 PM) today. (At 360 px the bar leaves the subtitle about 100 px, which "Updated 11:42 PM" does not fit.) */
 async function checkStartSubtitle() {
   const today = new Date();
@@ -771,6 +842,12 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkUpdatesCard ${width}`, () => checkUpdatesCard(width, height));
+
+  for (const [width, height] of [
+    [375, 800],
+    [1280, 900],
+  ])
+    unit(`checkBlockedNotice ${width}`, () => checkBlockedNotice(width, height));
 
   unit('checkStartSubtitle', () => checkStartSubtitle());
   for (const width of [375, 1280])

@@ -119,6 +119,7 @@ Short forms, for a developer to know before reading the specs. A rule changes on
   name for a value that has a `--mo-` name (no `--venus-gap`, no theme or app prefix); if the CMS has no name for a value, add one to the CMS's list
   and document it. A token only one block uses is declared on that block, nothing unprefixed on `:root`, `html` or `body`, and an app or theme never
   redeclares a name the CMS declares.
+- **Removing a block or a stored form keeps its migration** (CTO, 19 Nov 2026): sites skip versions (the editor's update goes straight to npm `latest`), so the migrate of each version takes any older supported content to its own form in one run; delete the block, view and theme part, keep the migrate-only code and its tests (`lib/migrate-hero.mjs` is the example).
 - **Icons are Material Symbols**, drawn by name through the shared `Icon` (`CLAUDE.md`, *Icons are Material Symbols*).
 - **A deviation from Material 3** is allowed only in the editor's own workspace or when the owner says so in words, and is
   recorded in `docs/material-deviations.md` in the same pull request (`material-3`).
