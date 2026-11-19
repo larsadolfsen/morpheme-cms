@@ -8,7 +8,9 @@ feature being built, and its editor must show that feature's own version, never 
 
 - **A feature starts by setting its version.** The first pull request of `feature/<name>` sets `version` in `package.json` (and
   `package-lock.json`) to the version the feature will be released as: the next patch (`0.19.1`), or the next minor (`0.20.0`) when
-  the feature starts a line (roadmap). From then on the demo, the feature's Previews and `next` show that number. A single fix
+  the feature starts a line (roadmap). Who chooses (owner, 19 November 2026): when the PM starts a feature, it asks the owner
+  whether it is the next major release, the start of a new line (`0.20.0`); the next patch (`0.19.1`) the PM sets without asking.
+  From then on the demo, the feature's Previews and `next` show that number. A single fix
   straight into `main` sets its version in its own pull request the same way.
 - **The release takes that number as it is.** Changesets no longer decides the number: it collects the notes and keeps the Release PR.
   A changeset's level (`patch`, `minor`) no longer moves the version.

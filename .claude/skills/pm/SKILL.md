@@ -64,7 +64,9 @@ branch → feature → `next` → live):
 
 1. **A plan.** The work comes from a plan or a spec in `docs/superpowers/`, or from the owner.
 2. **A feature branch.** A feature is `feature/<name>`, cut from `main`, and every session of that feature opens its pull request
-   into it. A single fix is one pull request straight into `main`. There are no version-line branches: `0.18` is finished (owner,
+   into it. Its first pull request sets its version (`docs/superpowers/plans/2026-11-19-version-at-feature-start.md`): before
+   cutting the branch the PM asks the owner whether it is the next major release, the start of a new line (`0.20.0`); the next
+   patch (`0.19.1`) the PM sets without asking (owner, 19 Nov 2026). A single fix into `main` takes the next patch the same way. A single fix is one pull request straight into `main`. There are no version-line branches: `0.18` is finished (owner,
    19 Nov 2026) and nothing goes into it; a line is only an area of the roadmap and its version numbers.
 3. **Sessions** do the work (section 5) and report their pull request's link and head sha.
 4. **Merging** a piece into its feature branch on the feature check (sections 3 and 6). After each merge into `main`, the PM merges
