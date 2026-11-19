@@ -650,7 +650,7 @@ async function checkCardMediaCorners(width, height) {
       const border = px(c.borderTopWidth);
       return {
         kind: m.className.includes('video') ? 'video' : 'picture',
-        card: card.className.match(/card-(outlined|filled|elevated)/)?.[1],
+        card: card.className.match(/mo-is-(outlined|filled|elevated)/)?.[1],
         cardRadius: px(c.borderTopLeftRadius),
         border,
         tl: px(s.borderTopLeftRadius),

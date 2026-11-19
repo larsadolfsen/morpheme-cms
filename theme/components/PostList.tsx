@@ -11,7 +11,7 @@ import List, { ListItem } from '@theme/ui/List';
 // Shows the number in data-random-posts of the posts in the list just before it, picked at random.
 const PICK = `(() => {
   const list = document.currentScript.previousElementSibling;
-  const items = [...mo-list.children];
+  const items = [...list.children];
   const shown = new Set();
   while (shown.size < Number(list.dataset.randomPosts)) shown.add(Math.floor(Math.random() * items.length));
   items.forEach((li, i) => (li.hidden = !shown.has(i)));

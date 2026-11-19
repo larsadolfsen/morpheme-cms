@@ -15,7 +15,11 @@
 
   // A part of the theme by its class (theme/ui writes one for each, and one for its style): its name, then what is shown after `·`.
   // The first rule that matches an element wins.
-  const kind = (el, prefix) => [...el.classList].find((c) => c.startsWith(`${prefix}-`))?.slice(prefix.length + 1);
+  const kind = (el, prefix) => {
+    const part = `mo-${prefix}__`;
+    const c = [...el.classList].find((n) => n.startsWith(part) || n.startsWith('mo-is-'));
+    return c?.startsWith(part) ? c.slice(part.length) : c?.slice('mo-is-'.length);
+  };
   const named = (name, prefix) => (el) => {
     const style = kind(el, prefix);
     return style ? `${name} · ${style}` : name;
@@ -29,7 +33,7 @@
     ['.mo-card', named('Card', 'card')],
     ['.mo-chip__set', () => 'ChipSet'],
     ['.mo-chip', named('Chip', 'chip')],
-    ['.mo-list__item-container', (el) => `ListItem · ${[...el.classList].find((c) => /^list-item-(one|two|three)-line$/.test(c))?.slice(10) ?? 'one-line'}`],
+    ['.mo-list__item-container', (el) => `ListItem · ${[...el.classList].find((c) => /^mo-list__item-(one|two|three)-line$/.test(c))?.slice(14) ?? 'one-line'}`],
     ['.mo-list', (el) => (el.classList.contains('mo-list__segmented') ? 'List · segmented' : 'List')],
     ['.mo-carousel', () => 'Carousel'],
     ['.mo-text-field', named('TextField', 'text-field')],

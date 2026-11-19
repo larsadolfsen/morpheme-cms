@@ -11,7 +11,7 @@ const PENDING_TEXTS = [
   '.raw(',
   '.exec(',
   '.put(',
-  '.mo-list(',
+  '.list(',
   '.then(',
   '.catch(',
   'Promise.',
