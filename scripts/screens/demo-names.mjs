@@ -50,8 +50,10 @@ async function checkNamesView(width, height, page) {
     blocks: [...document.querySelectorAll('[data-demo-names="block"]')].map((e) => e.textContent),
     parts: [...document.querySelectorAll('[data-demo-names="part"]')].map((e) => e.textContent),
     expected: document.querySelector('script[data-blocks]')?.dataset.blocks.split('|').length ?? 0,
-    roots: [...document.querySelectorAll('main .block-in-text')].filter(
-      (el) => !el.parentElement.closest('.block-in-text') && !el.matches('.block-list-button, .block-more-button, .block-buttons-row'),
+    roots: [...document.querySelectorAll('main .mo-is-in-text')].filter(
+      (el) =>
+        !el.parentElement.closest('.mo-is-in-text') &&
+        !el.matches('.mo-block-list__button, .mo-block-more__button, .mo-block-buttons__row'),
     ).length,
     events: [...document.querySelectorAll('[data-demo-names="block"], [data-demo-names="part"]')].filter(
       (e) => getComputedStyle(e).pointerEvents !== 'none',

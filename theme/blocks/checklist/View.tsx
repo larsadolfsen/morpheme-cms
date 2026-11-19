@@ -8,7 +8,7 @@ export default function Checklist({ view }: { view: ChecklistView }) {
   return (
     <>
       <BlockHead view={view} />
-      <Checks items={view.items} className={useInText() || 'block-in-text'} />
+      <Checks items={view.items} className={useInText() || 'mo-is-in-text'} />
     </>
   );
 }

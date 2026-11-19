@@ -46,7 +46,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
       });
     const made = () => ({ label: '', to: 'page', kind: 'filled' });
     return (
-      <span className="block-card-actions inline-card-buttons">
+      <span className="mo-block-cards__card-actions inline-card-buttons">
         {list.map((b, n) => (
           <span key={n} className="inline-card-button">
             <InlineField
@@ -90,7 +90,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
         add={t.blocks.cards.addCard}
         onChange={onChange}
         paste="text"
-        wrap={(list) => <ul className={['block-cards', 'inline-cards', colored].filter(Boolean).join(' ')}>{list}</ul>}
+        wrap={(list) => <ul className={['mo-block-cards', 'inline-cards', colored].filter(Boolean).join(' ')}>{list}</ul>}
         renderItem={({ item, index: i, here, next, field }) => {
           const card = cards[i];
           return (
@@ -100,7 +100,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                 data-row={i}
                 aria-current={here ? 'true' : undefined}
                 aria-label={next ? t.blocks.cards.newCard : t.blocks.cards.cardOf(i + 1, items.length)}
-                className={['block-card', 'inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next']
+                className={['mo-block-cards__card', 'inline-list-row', here && 'inline-list-row-active', next && 'inline-list-row-next']
                   .filter(Boolean)
                   .join(' ')}
               >
@@ -137,20 +137,20 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                     )}
                   </>
                 )}
-                <span className="block-card-title">
+                <span className="mo-block-cards__card-title">
                   {field('title', t.blocks.cards.title, next ? t.blocks.cards.newCard : t.blocks.cards.title)}
                 </span>
                 {/* The subhead and the text are optional: a card without one has no empty row (and no room kept for it) unless it is the one being typed in, so a card is as high here as on the site. */}
                 {(here || next || String(item.subhead ?? '').trim() !== '') && (
-                  <span className="block-card-subhead">{field('subhead', t.blocks.cards.subhead, t.blocks.cards.subhead)}</span>
+                  <span className="mo-block-cards__card-subhead">{field('subhead', t.blocks.cards.subhead, t.blocks.cards.subhead)}</span>
                 )}
                 {(here || next || String(item.text ?? '').trim() !== '') && (
-                  <span className="block-card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
+                  <span className="mo-block-cards__card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
                 )}
-                {card?.href && <span className="block-card-more">{more}</span>}
+                {card?.href && <span className="mo-block-cards__card-more">{more}</span>}
                 {!card?.href && here && buttonsOf(i, item)}
                 {!card?.href && !here && (card?.buttons.length ?? 0) > 0 && (
-                  <span className="block-card-actions">
+                  <span className="mo-block-cards__card-actions">
                     <Buttons buttons={card!.buttons} />
                   </span>
                 )}

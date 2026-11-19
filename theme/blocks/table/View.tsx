@@ -1,4 +1,4 @@
-// "Table": the rows of cells in an outlined card (Card) that scrolls sideways on a narrow screen (.block-table, .block-table-grid), the
+// "Table": the rows of cells in an outlined card (Card) that scrolls sideways on a narrow screen (.mo-block-table, .mo-block-table__grid), the
 // first row the header (`th` in the column) unless turned off. Built of the standard blocks' parts.
 import type { TableView } from '@morphemecms/cms/src/standard/table/view';
 import { useInText } from '@morphemecms/cms/src/standard/view';
@@ -11,7 +11,7 @@ export default function Table({ view }: { view: TableView }) {
     // A scroll box the keyboard can reach, named for a screen reader.
     <Card
       kind="outlined"
-      className={useInText('block-table', 'block-table-grid')}
+      className={useInText('mo-block-table', 'mo-block-table__grid')}
       role="region"
       aria-label={view.label}
       tabIndex={0}
@@ -22,7 +22,7 @@ export default function Table({ view }: { view: TableView }) {
           <thead>
             <tr>
               {first.map((c, i) => (
-                <th key={i} scope="col" className={`block-table-${view.align[i]}`}>
+                <th key={i} scope="col" className={`mo-block-table__${view.align[i]}`}>
                   {c}
                 </th>
               ))}
@@ -33,7 +33,7 @@ export default function Table({ view }: { view: TableView }) {
           {body.map((r, i) => (
             <tr key={i}>
               {r.map((c, j) => (
-                <td key={j} className={`block-table-${view.align[j]}`}>
+                <td key={j} className={`mo-block-table__${view.align[j]}`}>
                   {c}
                 </td>
               ))}

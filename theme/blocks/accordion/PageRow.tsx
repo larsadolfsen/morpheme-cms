@@ -9,8 +9,8 @@ import Chip from '@theme/ui/Chip';
 export default function PageRow(row: PageRowView) {
   return (
     <>
-      <p className="block-row-text">{row.text}</p>
-      <div className="block-row-links">
+      <p className="mo-block-accordion__row-text">{row.text}</p>
+      <div className="mo-block-accordion__row-links">
         <Button kind="text" href={row.href}>
           {row.link}
         </Button>

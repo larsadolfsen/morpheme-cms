@@ -272,8 +272,8 @@ export const inlineBlocks = [
 /** The blocks that read a list of the site (Testimonials, Blog posts), typed in place: drawn as the site draws them with the demo's real items, the heading typed above. */
 export const liveLists = [
   { name: 'testimonials', hint: 'Testimonials as cards or in a list.', items: '[data-testimonial]' },
-  { name: 'posts', hint: 'Blog posts in a list.', items: '.block-posts-in-text li' },
-  { name: 'imagegrid', hint: 'Images from Files, filtered by tag.', items: '.block-imagegrid-grid li' },
+  { name: 'posts', hint: 'Blog posts in a list.', items: '.mo-block-posts__in-text li' },
+  { name: 'imagegrid', hint: 'Images from Files, filtered by tag.', items: '.mo-block-imagegrid__grid li' },
 ];
 
 /** The single blocks typed in place (Notice, Video): one item, no add button, no faded empty item. */

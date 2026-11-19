@@ -1152,7 +1152,7 @@ html {
 }
 
 /* Image grid typed in place (InlineImageGrid.tsx shows the filter's chips): they do nothing here; the Preview has the real filter. */
-.editor-text .site-block-inline .block-imagegrid-filter .chip {
+.editor-text .site-block-inline .mo-block-imagegrid__filter .chip {
   pointer-events: none;
 }
 .editor-text .site-block-inline:focus-within {
@@ -1356,8 +1356,8 @@ html {
   color: var(--mo-comp-icon-color);
 }
 
-/* In a list the row's icon button is the heading's colour, as the icon is on the site (blocks.css, .block-list). */
-.block-list .inline-list-slot:not([data-icon-color]) {
+/* In a list the row's icon button is the heading's colour, as the icon is on the site (blocks.css, .mo-block-list). */
+.mo-block-list .inline-list-slot:not([data-icon-color]) {
   color: var(--mo-sys-block-text);
 }
 
@@ -1787,7 +1787,7 @@ dialog {
 
 /* Buttons typed in place: the label is typed on the button itself, which has the width of its text; the default buttons shown while the block has none of its own. */
 .editor-text .inline-buttons .inline-button .inline-list-field,
-.editor-text .inline-plans .block-plan-buttons .inline-list-field {
+.editor-text .inline-plans .mo-block-pricecards__plan-buttons .inline-list-field {
   width: auto;
   min-width: 3ch;
   text-align: center;
@@ -1843,7 +1843,7 @@ dialog {
   min-width: 6ch;
 }
 
-.editor-text .inline-plans .block-plan-buttons .inline-button {
+.editor-text .inline-plans .mo-block-pricecards__plan-buttons .inline-button {
   justify-content: center;
 }
 

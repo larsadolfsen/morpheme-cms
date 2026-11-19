@@ -38,10 +38,10 @@ export const EditorOwn = ({ children }: { children: ReactNode }) => <Own.Provide
 export const useOnSite = () => !useContext(Editor);
 
 /** The classes of a block's outermost element on the site: out of the text's style (not-prose), with the space a
- * block has in the text (.block-in-text); in the editor, where it is drawn on its own, none. With the block's own
+ * block has in the text (.mo-is-in-text); in the editor, where it is drawn on its own, none. With the block's own
  * classes after them. */
 export function useInText(...classes: (string | false | undefined)[]): string {
-  return [useOnSite() && 'not-prose block-in-text', ...classes].filter(Boolean).join(' ');
+  return [useOnSite() && 'not-prose mo-is-in-text', ...classes].filter(Boolean).join(' ');
 }
 
 /** Something in the text's style (prose): on the site it is in the text already; in the editor it is drawn in a box of
