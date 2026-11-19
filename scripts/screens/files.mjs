@@ -8,8 +8,8 @@ async function checkUnlistedPost() {
   page.on('pageerror', (e) => problems.push(`hidden post: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#list/blog'));
-  await page.waitForSelector('main a.list-item-container');
-  const row = page.locator('main a.list-item-container').filter({ hasText: UNLISTED_POST });
+  await page.waitForSelector('main a.mo-list__item-container');
+  const row = page.locator('main a.mo-list__item-container').filter({ hasText: UNLISTED_POST });
   if (!(await row.count())) return problems.push('hidden post: the posts list has no row for the post that is not on the blog');
   if (!(await row.first().innerText()).includes('Hidden')) problems.push('hidden post: the posts list does not say "Hidden" on its row');
   await page.close();
@@ -240,12 +240,13 @@ async function checkRedirectsSelection() {
     await openEditor(page, site);
     await page.evaluate(() => (location.hash = '#seo/redirects/all'));
     await page.waitForTimeout(1500);
-    const rows = page.locator('main .list-item-selectable');
+    const rows = page.locator('main .mo-list__item-selectable');
     if ((await rows.count()) < 2) {
       await page.close();
       continue;
     }
-    const checked = () => page.locator('main [role=checkbox][aria-checked=true], main [aria-pressed=true].list-item-selectable').count();
+    const checked = () =>
+      page.locator('main [role=checkbox][aria-checked=true], main [aria-pressed=true].mo-list__item-selectable').count();
     await rows.nth(0).focus();
     await page.keyboard.press('Space');
     await page.waitForTimeout(300);
@@ -284,7 +285,7 @@ async function checkFilesPane(width) {
   await page.waitForTimeout(900);
   const got = await page.evaluate(() => ({
     hash: location.hash,
-    pane: !!document.querySelector('aside.side-sheet-container:not([hidden])'),
+    pane: !!document.querySelector('aside.mo-side-sheet__container:not([hidden])'),
     dialogs: document.querySelectorAll('dialog[open]').length,
     tiles: [...document.querySelectorAll('main [data-media-tile]')].filter((t) => t.getBoundingClientRect().width > 0).length,
   }));
@@ -299,7 +300,7 @@ async function checkFilesPane(width) {
     // The create button stands beside the open details, not on them.
     const overlap = await page.evaluate(() => {
       const fab = document.querySelector('.mo-editor-fab');
-      const sheet = document.querySelector('aside.side-sheet-container:not([hidden])');
+      const sheet = document.querySelector('aside.mo-side-sheet__container:not([hidden])');
       if (!fab || !sheet) return 'missing';
       const f = fab.getBoundingClientRect();
       const r = sheet.getBoundingClientRect();
@@ -320,7 +321,7 @@ async function checkLibraryAlt() {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
   const card = await page
-    .locator('.mo-block-cards__card-picture img[src$="andromeda.webp"], .mo-block-cards__card .card-media img[src$="andromeda.webp"]')
+    .locator('.mo-block-cards__card-picture img[src$="andromeda.webp"], .mo-block-cards__card .mo-card__media img[src$="andromeda.webp"]')
     .first()
     .getAttribute('alt');
   if (card !== 'The Andromeda galaxy among thousands of stars')

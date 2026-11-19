@@ -1,4 +1,4 @@
-// A side sheet (m3.material.io/components/side-sheets, .side-sheet in ../styles/ui/side-sheet.css): more about what is on the
+// A side sheet (m3.material.io/components/side-sheets, .mo-side-sheet in ../styles/ui/side-sheet.css): more about what is on the
 // screen, at its side. Its container, with the header (the headline, `headline` with its id `headlineId`, and the
 // close button, `closeLabel`, and what it does in the editor, `onClose`; none without it), what it shows (`children`, scrolling when it is long) and evt. its
 // actions at the bottom (`actions`: buttons). Its kind (`kind`): 'standard', beside what it is about on the page, an
@@ -14,8 +14,8 @@ import IconButton from '@theme/ui/IconButton';
 export type SideSheetKind = 'standard' | 'modal';
 
 /** The class of the <dialog> a modal side sheet is in, and a side sheet's container's classes. */
-export const sideSheetClass = 'side-sheet';
-export const sideSheetContainerClass = (kind: SideSheetKind = 'standard') => `side-sheet-container side-sheet-${kind}`;
+export const sideSheetClass = 'mo-side-sheet';
+export const sideSheetContainerClass = (kind: SideSheetKind = 'standard') => `mo-side-sheet__container mo-side-sheet__${kind}`;
 
 export default function SideSheet({
   kind = 'standard',
@@ -55,15 +55,15 @@ export default function SideSheet({
       aria-labelledby={kind === 'standard' ? headlineId : undefined}
       data-side-sheet-container=""
     >
-      <div className="side-sheet-header" data-has-back={onBack ? '' : undefined}>
+      <div className="mo-side-sheet__header" data-has-back={onBack ? '' : undefined}>
         {onBack && <IconButton icon="arrow-left" label={backLabel ?? ''} data-side-sheet-back="" onClick={onBack} />}
-        <h2 id={headlineId} className="side-sheet-headline">
+        <h2 id={headlineId} className="mo-side-sheet__headline">
           {headline}
         </h2>
         {closeLabel && <IconButton icon="x" label={closeLabel} data-side-sheet-close="" onClick={onClose} />}
       </div>
-      <div className="side-sheet-content">{children}</div>
-      {actions && <div className="side-sheet-actions">{actions}</div>}
+      <div className="mo-side-sheet__content">{children}</div>
+      {actions && <div className="mo-side-sheet__actions">{actions}</div>}
     </Container>
   );
 }

@@ -23,7 +23,7 @@ and tokens: never colour, shape, type or state (those belong to the part). `them
 ## Another value
 
 The tokens sit on `:root`. An element that needs another gap, column count or measure sets the token on itself
-(`[--mo-comp-row-gap:var(--mo-ref-space-150)]`), never on `:root`. `mo-grid` is for plain columns; cards of different heights use `.image-grid`
+(`[--mo-comp-row-gap:var(--mo-ref-space-150)]`), never on `:root`. `mo-grid` is for plain columns; cards of different heights use `.mo-staggered-grid`
 (`docs/theme-grid.md`).
 
 ## When to use a part rule instead

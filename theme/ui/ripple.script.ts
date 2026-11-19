@@ -1,4 +1,4 @@
-// The ripple, Material 3's pressed state (m3.material.io/foundations/interaction/states/applying-states, .ripple in
+// The ripple, Material 3's pressed state (m3.material.io/foundations/interaction/states/applying-states, .mo-ripple in
 // ../styles/ui/ripple.css): pressed, a part grows a wave of its content's colour from where it was pressed (from its middle with
 // the keyboard) until the wave covers it, and the wave fades when it is let go. On the parts that are pressed (PARTS),
 // in the part's shape or, on a navigation item, its active indicator's; not on one that cannot be used. A touch waits a
@@ -10,30 +10,30 @@
 /** The parts that ripple when pressed: the buttons, icon buttons and FABs, chips, menu items, tabs and segments, the
  * navigation's items, list items and cards that link or are tapped, and the pickers' days, years and buttons. */
 const PARTS = [
-  '.button',
-  '.icon-button',
-  '.fab',
-  '.extended-fab',
-  'a.chip',
-  'button.chip',
-  '.chip-action',
-  '.chip-remove',
-  '.menu-item',
-  '.tab',
-  '.segmented-button-segment',
-  '.navigation-bar-item',
-  '.navigation-rail-item',
-  '.navigation-drawer-item',
-  '.navigation-drawer-subitem',
-  '.navigation-drawer-toggle',
-  ':is(a, button, label, [role="button"]).list-item-container',
-  '.list-item-with-control',
-  'a.card',
-  'button.card',
-  '.date-picker-day',
-  '.date-picker-year',
-  '.date-picker-menu-item',
-  '.time-picker-period-button',
+  '.mo-button',
+  '.mo-icon-button',
+  '.mo-fab',
+  '.mo-extended-fab',
+  'a.mo-chip',
+  'button.mo-chip',
+  '.mo-chip__action',
+  '.mo-chip__remove',
+  '.mo-menu__item',
+  '.mo-tabs__tab',
+  '.mo-segmented-button__segment',
+  '.mo-navigation-bar__item',
+  '.mo-navigation-rail__item',
+  '.mo-navigation-drawer__item',
+  '.mo-navigation-drawer__subitem',
+  '.mo-navigation-drawer__toggle',
+  ':is(a, button, label, [role="button"]).mo-list__item-container',
+  '.mo-list__item-with-control',
+  'a.mo-card',
+  'button.mo-card',
+  '.mo-date-picker__day',
+  '.mo-date-picker__year',
+  '.mo-date-picker__menu-item',
+  '.mo-time-picker__period-button',
 ].join(', ');
 
 // Material's: the wave starts at a fifth of the part's longer side and grows past its corners with a soft edge, and
@@ -61,19 +61,19 @@ export default function ripples() {
 function partAt(target: EventTarget | null) {
   const part = target instanceof Element ? target.closest<HTMLElement>(PARTS) : null;
   if (!part) return null;
-  if (part.matches(':disabled, .list-item-with-control:has(:disabled)')) return null;
-  if (part.closest('[aria-disabled="true"], .list-item-disabled, fieldset:disabled')) return null;
+  if (part.matches(':disabled, .mo-list__item-with-control:has(:disabled)')) return null;
+  if (part.closest('[aria-disabled="true"], .mo-list__item-disabled, fieldset:disabled')) return null;
   return part;
 }
 
 /** Where a part's ripple is drawn: an input chip's on the whole chip, a navigation item's on its active indicator (the
  * icon's, where the indicator is only the box of the icon and the label), else on the part. */
 function surfaceOf(part: HTMLElement) {
-  if (part.matches('.chip-action')) return part.parentElement ?? part;
-  const indicator = part.querySelector<HTMLElement>(':scope > :is(.navigation-bar-indicator, .navigation-rail-indicator)');
+  if (part.matches('.mo-chip__action')) return part.parentElement ?? part;
+  const indicator = part.querySelector<HTMLElement>(':scope > :is(.mo-navigation-bar__indicator, .mo-navigation-rail__indicator)');
   if (!indicator) return part;
   if (getComputedStyle(indicator).display !== 'contents') return indicator;
-  return indicator.querySelector<HTMLElement>(':scope > :is(.navigation-bar-icon, .navigation-rail-icon)') ?? part;
+  return indicator.querySelector<HTMLElement>(':scope > :is(.mo-navigation-bar__icon, .mo-navigation-rail__icon)') ?? part;
 }
 
 /** Starts a wave on `surface`, from the point pressed (else its middle), and gives what lets it go. */
@@ -86,19 +86,19 @@ function press(surface: HTMLElement, x?: number, y?: number) {
   const fromX = x === undefined ? box.width / 2 : x - box.left;
   const fromY = y === undefined ? box.height / 2 : y - box.top;
 
-  let layer = surface.querySelector<HTMLElement>(':scope > .ripple');
+  let layer = surface.querySelector<HTMLElement>(':scope > .mo-ripple');
   if (!layer) {
     layer = document.createElement('span');
-    layer.className = 'ripple';
+    layer.className = 'mo-ripple';
     layer.setAttribute('aria-hidden', 'true');
     surface.append(layer);
   }
   const wave = document.createElement('span');
-  wave.className = 'ripple-wave';
-  wave.style.setProperty('--ripple-size', `${size}px`);
-  wave.style.setProperty('--ripple-from', `${fromX - size / 2}px, ${fromY - size / 2}px`);
-  wave.style.setProperty('--ripple-to', `${box.width / 2 - size / 2}px, ${box.height / 2 - size / 2}px`);
-  wave.style.setProperty('--ripple-scale', `${scale}`);
+  wave.className = 'mo-ripple__wave';
+  wave.style.setProperty('--mo-comp-ripple-size', `${size}px`);
+  wave.style.setProperty('--mo-comp-ripple-from', `${fromX - size / 2}px, ${fromY - size / 2}px`);
+  wave.style.setProperty('--mo-comp-ripple-to', `${box.width / 2 - size / 2}px, ${box.height / 2 - size / 2}px`);
+  wave.style.setProperty('--mo-comp-ripple-scale', `${scale}`);
   layer.append(wave);
 
   const pressed = performance.now();

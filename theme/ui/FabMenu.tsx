@@ -1,4 +1,4 @@
-// A FAB menu (m3.material.io/components/fab-menu, .fab-menu in ../styles/ui/fab-menu.css): the theme's FAB (its classes,
+// A FAB menu (m3.material.io/components/fab-menu, .mo-fab-menu in ../styles/ui/fab-menu.css): the theme's FAB (its classes,
 // fabClass: `icon`, a name or an icon, its name `label`, its size `size`, any of the FAB sizes, and its colour
 // `fabKind`, any of the FAB colours, the menu's `kind` filled if it has none) that opens two to six related actions
 // above it (`items`, each the theme's ExtendedFab: its icon and label, with `href` a link), the last nearest the FAB.
@@ -17,7 +17,7 @@ export const fabMenuKinds = ['primary', 'secondary', 'tertiary'] as const;
 export type FabMenuKind = (typeof fabMenuKinds)[number];
 
 /** A FAB menu's classes (the whole, with its colour set: its FAB and its actions have the FABs' classes). */
-export const fabMenuClass = (kind: FabMenuKind = 'primary') => `fab-menu fab-menu-${kind}`;
+export const fabMenuClass = (kind: FabMenuKind = 'primary') => `mo-fab-menu mo-fab-menu__${kind}`;
 
 export default function FabMenu({
   icon,
@@ -46,20 +46,20 @@ export default function FabMenu({
     <div className={[fabMenuClass(kind), className].filter(Boolean).join(' ')} data-fab-menu="" {...rest}>
       <button
         type="button"
-        className={`${fabClass(fabKind ?? kind, size)} fab-menu-button`}
+        className={`${fabClass(fabKind ?? kind, size)} mo-fab-menu__button`}
         aria-label={open ? closeLabel : label}
         aria-expanded={Boolean(open)}
         aria-controls={list}
         data-label={label}
         data-close-label={closeLabel}
       >
-        <Glyph icon={icon} size={24} className="fab-menu-icon" />
-        <Svg name="x" size={24} className="fab-menu-close-icon" />
+        <Glyph icon={icon} size={24} className="mo-fab-menu__icon" />
+        <Svg name="x" size={24} className="mo-fab-menu__close-icon" />
       </button>
-      <ul id={list} className="fab-menu-list" aria-label={label} hidden={!open}>
+      <ul id={list} className="mo-fab-menu__list" aria-label={label} hidden={!open}>
         {items.map(({ icon: glyph, label: name, ...item }) => (
           <li key={name}>
-            <ExtendedFab icon={glyph} label={name} kind={`${kind}-container`} className="fab-menu-item" {...item} />
+            <ExtendedFab icon={glyph} label={name} kind={`${kind}-container`} className="mo-fab-menu__item" {...item} />
           </li>
         ))}
       </ul>

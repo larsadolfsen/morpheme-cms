@@ -46,7 +46,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
       });
     const made = () => ({ label: '', to: 'page', kind: 'filled' });
     return (
-      <span className="mo-block-cards__card-actions inline-card-buttons">
+      <span className="mo-block-cards__card-actions mo-editor-inline-card-buttons">
         {list.map((b, n) => (
           <span key={n} className="mo-editor-inline-card-button">
             <InlineField

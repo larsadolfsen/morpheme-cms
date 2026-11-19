@@ -7,12 +7,12 @@
      retain a minimum of 48x48dp, even if the visual element, such as an icon, is smaller"; --mo-sys-target-size is 48 on touch and 44 for a
      mouse): an invisible area over a part that is lower or narrower than that, out from its middle. A part with a field, a button or a link in it
      (a removable chip, a button the editor types in) has none: the area would cover them. Low specificity (:where), so a part's own position wins. */
-  :where(.button, .icon-button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
+  :where(.mo-button, .mo-icon-button, .mo-segmented-button__segment, a.mo-chip, button.mo-chip:not(.mo-chip__removable)):where(
     :not(:has(input, textarea, select, button, a))
   ) {
     position: relative;
   }
-  :where(.button, .icon-button, .segmented-button-segment, a.chip, button.chip:not(.chip-removable)):where(
+  :where(.mo-button, .mo-icon-button, .mo-segmented-button__segment, a.mo-chip, button.mo-chip:not(.mo-chip__removable)):where(
       :not(:has(input, textarea, select, button, a))
     )::after {
     content: '';

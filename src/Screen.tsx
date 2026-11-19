@@ -265,7 +265,7 @@ export default function Screen<T extends string>({
     return (
       <div data-full-page className="mo-editor-screen-full-page">
         {slot ? createPortal(bar, slot) : bar}
-        <main className="editor-screen-full mo-editor-screen-full-main">{children}</main>
+        <main className="mo-editor-screen-full mo-editor-screen-full-main">{children}</main>
       </div>
     );
   return (

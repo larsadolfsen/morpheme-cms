@@ -25,7 +25,7 @@ function grid(root: HTMLElement) {
   const clear = root.querySelector<HTMLButtonElement>('[data-imagegrid-clear]');
   const count = root.querySelector<HTMLElement>('[data-imagegrid-count]');
   const empty = root.querySelector<HTMLElement>('[data-imagegrid-empty]');
-  const set = box?.querySelector<HTMLElement>('.chip-set');
+  const set = box?.querySelector<HTMLElement>('.mo-chip__set');
   const start = (root.dataset.start ?? '').split(',').filter(Boolean);
   let chosen: string[] = [];
 
@@ -64,7 +64,7 @@ function grid(root: HTMLElement) {
     chosen = location.hash ? chosenFrom(location.hash, known) : start;
     // Two lines of chips at most: more scroll on one line.
     if (set && set.getBoundingClientRect().height > MAX_LINES * (chips[0]?.getBoundingClientRect().height ?? 32) + 16) {
-      set.classList.replace('chip-set-wrap', 'chip-set-scroll');
+      set.classList.replace('mo-chip__set-wrap', 'mo-chip__set-scroll');
     }
     chips.forEach((chip) => chip.addEventListener('click', () => choose(toggled(chosen, chip.dataset.tag ?? ''))));
     clear?.addEventListener('click', () => {

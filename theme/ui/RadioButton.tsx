@@ -1,4 +1,4 @@
-// A radio button (m3.material.io/components/radio-button, .radio-button in ../styles/ui/radio-button.css): one of a few choices,
+// A radio button (m3.material.io/components/radio-button, .mo-radio-button in ../styles/ui/radio-button.css): one of a few choices,
 // of which only one can be chosen. As the checkbox (Checkbox.tsx): the round button, its name (`label`) beside it and
 // a line under the name (`supporting`), all of it one <label>, so a click anywhere chooses it. The buttons of one
 // choice have the same `name` (on the <input>, with its `value`) and stand in a RadioGroup, the choice's name
@@ -10,8 +10,8 @@
 import type { ReactNode } from 'react';
 
 /** A radio button's classes, and a group's. */
-export const radioButtonClass = () => 'radio-button';
-export const radioGroupClass = () => 'radio-group';
+export const radioButtonClass = () => 'mo-radio-button';
+export const radioGroupClass = () => 'mo-radio-group';
 
 export default function RadioButton({
   label,
@@ -22,12 +22,12 @@ export default function RadioButton({
 }: { label: string; supporting?: string; checked?: boolean; className?: string } & Record<string, unknown>) {
   return (
     <label className={[radioButtonClass(), className].filter(Boolean).join(' ')}>
-      <span className="radio-button-box">
-        <input type="radio" className="radio-button-input" defaultChecked={checked} {...rest} />
+      <span className="mo-radio-button__box">
+        <input type="radio" className="mo-radio-button__input" defaultChecked={checked} {...rest} />
       </span>
-      <span className="radio-button-text">
-        <span className="radio-button-label">{label}</span>
-        {supporting && <span className="radio-button-supporting">{supporting}</span>}
+      <span className="mo-radio-button__text">
+        <span className="mo-radio-button__label">{label}</span>
+        {supporting && <span className="mo-radio-button__supporting">{supporting}</span>}
       </span>
     </label>
   );
@@ -43,7 +43,7 @@ export function RadioGroup({
 }: { label: string; className?: string; children: ReactNode } & Record<string, unknown>) {
   return (
     <fieldset className={[radioGroupClass(), className].filter(Boolean).join(' ')} {...rest}>
-      <legend className="radio-group-label">{label}</legend>
+      <legend className="mo-radio-group__label">{label}</legend>
       {children}
     </fieldset>
   );

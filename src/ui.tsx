@@ -359,9 +359,9 @@ export function Toolbar({
 // top edge from these two variables, so the edge is the same line as the sides (MarkdownEditor.tsx) whichever of the two
 // rules wins, and never the theme's "no line" (0), which left the top edge and the rounded top corners open.
 const closeToolbar = {
-  '--toolbar-gap': '0',
-  '--toolbar-docked-padding-block': '0',
-  '--toolbar-docked-padding-inline': '0',
+  '--mo-comp-toolbar-gap': '0',
+  '--mo-comp-toolbar-docked-padding-block': '0',
+  '--mo-comp-toolbar-docked-padding-inline': '0',
   '--mo-comp-toolbar-docked-line-width': '1px',
   '--mo-comp-toolbar-docked-line': 'var(--mo-sys-color-outline-variant)',
 } as CSSProperties;
@@ -407,7 +407,7 @@ function placeTip(tip: HTMLElement, anchor: Element) {
   tip.style.left = `${Math.max(8, Math.min(at.left + at.width / 2 - tip.offsetWidth / 2, innerWidth - tip.offsetWidth - 8))}px`;
 }
 
-/** An element's name as a tooltip (`on`: its handlers, `tip`: beside it): the theme's plain tooltip (.tooltip-plain in
+/** An element's name as a tooltip (`on`: its handlers, `tip`: beside it): the theme's plain tooltip (.mo-tooltip__plain in
  * its ui.css), shown after a moment under the mouse, and at once when the element gets the focus from the keyboard;
  * gone when the mouse leaves, on a tap, on Escape and when it loses the focus. Not on a phone, where the element's name
  * is read out instead. It is a popover (.mo-editor-tooltip in editor.css), so it stands over everything, also a sheet, and
@@ -470,7 +470,7 @@ function useTooltip(text: string, own: TooltipHandlers = {}) {
   return {
     on,
     tip: (
-      <span ref={tip} popover="manual" aria-hidden className="tooltip-plain mo-editor-tooltip">
+      <span ref={tip} popover="manual" aria-hidden className="mo-tooltip__plain mo-editor-tooltip">
         {text}
       </span>
     ),
@@ -2269,7 +2269,7 @@ export function Menu({
       ref={menu}
       role="menu"
       aria-label={label}
-      className="mo-editor-menu dropdown-menu-menu mo-editor-focus-quiet"
+      className="mo-editor-menu mo-dropdown-menu__menu mo-editor-focus-quiet"
       popover="manual"
       data-menu-attached={attached ? '' : undefined}
       data-menu-popup={popup}
@@ -2311,7 +2311,7 @@ function moveInMenu(e: KeyboardEvent<HTMLElement>) {
   // A letter: the next item whose label starts with it (M3 menus: "Letters: Focus moves to the next menu item starting with letter").
   if (to === undefined && isTypeAheadKey(e)) {
     to = nextByLetter(
-      items.map((i) => i.querySelector('.menu-item-label')?.textContent ?? i.textContent ?? ''),
+      items.map((i) => i.querySelector('.mo-menu__item-label')?.textContent ?? i.textContent ?? ''),
       at,
       e.key,
     );
@@ -2536,7 +2536,7 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
         <p className="mo-editor-colors-preview-secondary">{p.secondary}</p>
         <p className="mo-editor-colors-preview-tertiary">{p.tertiary}</p>
       </div>
-      <span className="button button-filled button-small">{p.button}</span>
+      <span className="mo-button mo-is-filled mo-button__small">{p.button}</span>
     </div>
   );
 }
@@ -2588,7 +2588,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
             background: color,
             color: text,
             '--mo-comp-icon-button-standard-icon-color': text,
-            '--icon-button-standard-selected-text': text,
+            '--mo-comp-icon-button-standard-selected-text': text,
           } as CSSProperties;
           return (
             <li key={name} className="mo-stack mo-editor-color-tile" style={vars}>
@@ -3414,7 +3414,7 @@ function MainRail({ label, onOpen, footer, children }: { label: string; onOpen: 
 // menu button. The header cell starts at the drawer items' outer edge: the row has no start padding, and the header (the
 // account row, the back row) brings the items' inline padding itself, so its pill (editor.css, .mo-editor-main-drawer-header)
 // has the shape of an item's and the avatar or arrow stands over the items' icons. The button is centred on the 1.5rem box
-// of the items' trailing arrows (a negative end margin from the button's own width). The row is the top bar's height (`--top-app-bar-height`), so the divider (middle inset) under it stands level with the top bar's line.
+// of the items' trailing arrows (a negative end margin from the button's own width). The row is the top bar's height (`--mo-comp-top-app-bar-height`), so the divider (middle inset) under it stands level with the top bar's line.
 function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header?: ReactNode }) {
   return (
     <>
@@ -3638,7 +3638,12 @@ export function MainDrawerSectionItem({
  * padding), so its arrow stands over the items' icons; it is as high as the account row (56px, a drawer item's height). */
 export function MainDrawerBack({ label, name, onClick }: { label: string; name?: string; onClick: () => void }) {
   return (
-    <SiteNavigationDrawerBack label={label} aria-label={name} onClick={onClick} className="navigation-drawer-item navigation-drawer-back" />
+    <SiteNavigationDrawerBack
+      label={label}
+      aria-label={name}
+      onClick={onClick}
+      className="mo-navigation-drawer__item mo-navigation-drawer__back"
+    />
   );
 }
 
@@ -3708,8 +3713,8 @@ export function MainDrawerLevel({ shown = true, focus, children }: { shown?: boo
     if (!shown || !focus || !root) return;
     const target =
       focus === 'list'
-        ? root.querySelector<HTMLElement>('.navigation-drawer-item:not(.navigation-drawer-back), .navigation-drawer-subitem')
-        : (root.querySelector<HTMLElement>('[data-active]') ?? root.querySelector<HTMLElement>('.navigation-drawer-item'));
+        ? root.querySelector<HTMLElement>('.mo-navigation-drawer__item:not(.mo-navigation-drawer__back), .mo-navigation-drawer__subitem')
+        : (root.querySelector<HTMLElement>('[data-active]') ?? root.querySelector<HTMLElement>('.mo-navigation-drawer__item'));
     target?.focus();
   }, [shown, focus]);
   return (

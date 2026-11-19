@@ -1,4 +1,4 @@
-// A divider (m3.material.io/components/divider, .divider in ../styles/ui/divider.css): a thin line between groups of
+// A divider (m3.material.io/components/divider, .mo-divider in ../styles/ui/divider.css): a thin line between groups of
 // content, an <hr> (a separator to screen readers). Its kind (`kind`): 'full-width' (from edge to edge, the
 // default), 'inset' (in from the start, as far as the text of a list's items with something before them) or
 // 'middle-inset' (in from both sides); `vertical`: a line from top to bottom between things side by side
@@ -9,7 +9,7 @@ export type DividerKind = 'full-width' | 'inset' | 'middle-inset';
 
 /** A divider's classes. */
 export const dividerClass = (kind: DividerKind = 'full-width', vertical?: boolean) =>
-  ['divider', kind !== 'full-width' && `divider-${kind}`, vertical && 'divider-vertical'].filter(Boolean).join(' ');
+  ['mo-divider', kind !== 'full-width' && `mo-divider__${kind}`, vertical && 'mo-divider__vertical'].filter(Boolean).join(' ');
 
 export default function Divider({
   kind,

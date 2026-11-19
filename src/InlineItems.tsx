@@ -137,7 +137,7 @@ export function foldOf(i: number, here: boolean, folds?: Record<number, boolean>
         // The row is drawn open or closed by its state, never by the browser's own toggle.
         e.preventDefault();
         if (!onFold) return;
-        const icon = e.currentTarget.querySelector('.list-item-expand-icon')?.getBoundingClientRect();
+        const icon = e.currentTarget.querySelector('.mo-list__item-expand-icon')?.getBoundingClientRect();
         const chevron = !!icon && e.clientX >= icon.left - 4 && e.clientX <= icon.right + 4 && e.detail > 0;
         // Enter or Space on the head itself gives a click with no pointer (detail 0) whose target is the head.
         const key = e.detail === 0 && e.target === e.currentTarget;

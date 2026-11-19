@@ -1,4 +1,4 @@
-// A text field (m3.material.io/components/text-fields, .text-field in ../styles/ui/text-field.css): a field to write in, with
+// A text field (m3.material.io/components/text-fields, .mo-text-field in ../styles/ui/text-field.css): a field to write in, with
 // its name (`label`), drawn in the field and moving above what is written, or only read by screen readers
 // (`hideLabel`, a field whose placeholder says what it is), or without one (no `label`: a form that names its fields
 // itself, the editor's, with a <label> for its `id`), and a line under it (`supporting`), or what is wrong with
@@ -9,7 +9,7 @@
 // that shows the password, with type="password"), one of the caller's (`trailing`, an IconButton) and the error's icon
 // (`errorIcon`, in place of the others while the field is wrong). `counter`: how much is written under it at the end
 // (12/50 with `maxLength`); `limit`: how much it should have at most, without stopping more (12/60, the counter marked
-// past it, .text-field-counter-over). `rows`: several lines (a <textarea>) of that many rows; `multiline`: several lines that grow
+// past it, .mo-text-field__counter-over). `rows`: several lines (a <textarea>) of that many rows; `multiline`: several lines that grow
 // with the text. `disabled`: it cannot be used; `readOnly`: it can be read and copied, not changed. Other attributes
 // (`type`, `name`, `required`, `placeholder`, `id`, `autoComplete` …) go on the <input>, and `className` on the field
 // around it (its width, its place). The counter, the growing and the buttons work on the site with
@@ -32,11 +32,11 @@ export type TextFieldKind = 'outlined' | 'filled';
 
 /** A text field's classes: its kind's, the error's when it has one, and a multi-line field's. */
 export const textFieldClass = (kind: TextFieldKind = 'outlined', error = false, multiline = false) =>
-  ['text-field', `text-field-${kind}`, error && 'text-field-error', multiline && 'text-field-multiline'].filter(Boolean).join(' ');
+  ['mo-text-field', `mo-is-${kind}`, error && 'mo-is-error', multiline && 'mo-text-field__multiline'].filter(Boolean).join(' ');
 
 /** The class of the box in the field, and of what is written in it (or tapped: a choice from a list). */
-export const textFieldContainerClass = 'text-field-container';
-export const textFieldInputClass = 'text-field-input';
+export const textFieldContainerClass = 'mo-text-field__container';
+export const textFieldInputClass = 'mo-text-field__input';
 
 export default function TextField({
   label,
@@ -119,7 +119,7 @@ export default function TextField({
   };
   // The caller's own check is the browser's (setCustomValidity), and aria-invalid and the description follow `:user-invalid`.
   useEffect(() => {
-    const input = root.current?.querySelector<HTMLInputElement | HTMLTextAreaElement>('.text-field-input');
+    const input = root.current?.querySelector<HTMLInputElement | HTMLTextAreaElement>('.mo-text-field__input');
     if (!input) return;
     input.setCustomValidity(invalid && invalidText ? invalidText : '');
     syncInvalid(root.current!);
@@ -129,8 +129,8 @@ export default function TextField({
       ref={root}
       className={[
         textFieldClass(kind, !!error, lines),
-        leadingIcon && 'text-field-with-leading-icon',
-        !drawn && 'text-field-without-label',
+        leadingIcon && 'mo-has-leading-icon',
+        !drawn && 'mo-text-field__without-label',
         className,
       ]
         .filter(Boolean)
@@ -150,9 +150,9 @@ export default function TextField({
       }
     >
       <div className={textFieldContainerClass}>
-        {leadingIcon && <Svg name={leadingIcon} size={20} className="text-field-leading-icon" />}
+        {leadingIcon && <Svg name={leadingIcon} size={20} className="mo-text-field__leading-icon" />}
         {prefix && (
-          <span className="text-field-prefix" aria-hidden="true">
+          <span className="mo-text-field__prefix" aria-hidden="true">
             {prefix}
           </span>
         )}
@@ -162,21 +162,21 @@ export default function TextField({
           <input {...input} />
         )}
         {drawn && (
-          <label htmlFor={field} className="text-field-label">
+          <label htmlFor={field} className="mo-text-field__label">
             {label}
           </label>
         )}
         {suffix && (
-          <span className="text-field-suffix" aria-hidden="true">
+          <span className="mo-text-field__suffix" aria-hidden="true">
             {suffix}
           </span>
         )}
-        {trailingIcon && <Svg name={trailingIcon} size={20} className="text-field-trailing-icon" />}
+        {trailingIcon && <Svg name={trailingIcon} size={20} className="mo-text-field__trailing-icon" />}
         {clearLabel && (
           <IconButton
             icon="x"
             label={clearLabel}
-            className="text-field-trailing-action text-field-clear"
+            className="mo-text-field__trailing-action mo-text-field__clear"
             disabled={off}
             data-text-field-clear=""
           />
@@ -184,28 +184,30 @@ export default function TextField({
         {passwordLabel && (
           <button
             type="button"
-            className={`${iconButtonClass()} text-field-trailing-action text-field-visibility`}
+            className={`${iconButtonClass()} mo-text-field__trailing-action mo-text-field__visibility`}
             aria-label={passwordLabel}
             aria-pressed="false"
             disabled={off}
             data-text-field-visibility=""
           >
-            <Svg name="eye" size={22} className="text-field-visibility-show" />
-            <Svg name="eye-slash" size={22} className="text-field-visibility-hide" />
+            <Svg name="eye" size={22} className="mo-text-field__visibility-show" />
+            <Svg name="eye-slash" size={22} className="mo-text-field__visibility-hide" />
           </button>
         )}
-        {trailing && <span className="text-field-trailing-action">{trailing}</span>}
-        {(errorIcon || saying) && <Svg name="warning-circle" size={20} className="text-field-trailing-icon text-field-error-icon" />}
+        {trailing && <span className="mo-text-field__trailing-action">{trailing}</span>}
+        {(errorIcon || saying) && (
+          <Svg name="warning-circle" size={20} className="mo-text-field__trailing-icon mo-text-field__error-icon" />
+        )}
       </div>
       {(line || counter || saying) && (
-        <div className="text-field-supporting-row">
+        <div className="mo-text-field__supporting-row">
           {saying && (
-            <p id={`${field}-invalid`} className="text-field-supporting text-field-invalid-text">
+            <p id={`${field}-invalid`} className="mo-text-field__supporting mo-text-field__invalid-text">
               {saying}
             </p>
           )}
           {line && (
-            <p id={`${field}-supporting`} className="text-field-supporting">
+            <p id={`${field}-supporting`} className="mo-text-field__supporting">
               {line}
             </p>
           )}
@@ -213,7 +215,9 @@ export default function TextField({
             <span
               id={`${field}-counter`}
               className={
-                limit !== undefined && written.length > limit ? 'text-field-counter text-field-counter-over' : 'text-field-counter'
+                limit !== undefined && written.length > limit
+                  ? 'mo-text-field__counter mo-text-field__counter-over'
+                  : 'mo-text-field__counter'
               }
               data-text-field-counter=""
               data-limit={limit}
@@ -266,8 +270,8 @@ export function TextFieldButton({
     <div
       className={[
         textFieldClass(kind, !!error),
-        label === undefined && 'text-field-without-label',
-        size === 'small' && 'text-field-small',
+        label === undefined && 'mo-text-field__without-label',
+        size === 'small' && 'mo-text-field__small',
         className,
       ]
         .filter(Boolean)
@@ -298,19 +302,19 @@ export function TextFieldButton({
         )}
         {label !== undefined &&
           (href === undefined ? (
-            <label htmlFor={field} className="text-field-label">
+            <label htmlFor={field} className="mo-text-field__label">
               {label}
             </label>
           ) : (
-            <span id={`${field}-label`} className="text-field-label">
+            <span id={`${field}-label`} className="mo-text-field__label">
               {label}
             </span>
           ))}
-        <Glyph icon={trailingIcon} size={20} className="text-field-trailing-icon" />
+        <Glyph icon={trailingIcon} size={20} className="mo-text-field__trailing-icon" />
       </div>
       {line && (
-        <div className="text-field-supporting-row">
-          <p id={described} className="text-field-supporting">
+        <div className="mo-text-field__supporting-row">
+          <p id={described} className="mo-text-field__supporting">
             {line}
           </p>
         </div>

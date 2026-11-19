@@ -18,7 +18,7 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `block` | 44 | `display: block;` | `display: block` in the part's rule |
 | `p-4` | 41 | `padding: calc(var(--spacing) * 4);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `flex-wrap` | 39 | `flex-wrap: wrap;` | `mo-row-wrap` |
-| `grid` | 31 | `display: grid;` | `mo-grid`, or `.image-grid` for card grids |
+| `grid` | 31 | `display: grid;` | `mo-grid`, or `.mo-staggered-grid` for card grids |
 | `truncate` | 31 | `overflow: hidden; text-overflow: ellipsis; white-space: nowrap;` | `mo-truncate` |
 | `w-full` | 27 | `width: 100%;` | `inline-size: 100%` |
 | `flex-col` | 26 | `flex-direction: column;` | `mo-stack` |
@@ -140,7 +140,7 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `gap-2.5` | 3 | `gap: calc(var(--spacing) * 2.5);` | `gap` through `--mo-comp-row-gap`, `--mo-comp-stack-gap` or `--mo-comp-grid-gap`, else the part's rule |
 | `gap-5` | 3 | `gap: calc(var(--spacing) * 5);` | `gap` through `--mo-comp-row-gap`, `--mo-comp-stack-gap` or `--mo-comp-grid-gap`, else the part's rule |
 | `gap-x-6` | 3 | `column-gap: calc(var(--spacing) * 6);` | `gap` through `--mo-comp-row-gap`, `--mo-comp-stack-gap` or `--mo-comp-grid-gap`, else the part's rule |
-| `grid-cols-2` | 3 | `grid-template-columns: repeat(2, minmax(0, 1fr));` | `mo-grid` with `--mo-comp-grid-columns`, or `.image-grid`; else the part's rule |
+| `grid-cols-2` | 3 | `grid-template-columns: repeat(2, minmax(0, 1fr));` | `mo-grid` with `--mo-comp-grid-columns`, or `.mo-staggered-grid`; else the part's rule |
 | `h-80` | 3 | `height: calc(var(--spacing) * 80);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `inline-block` | 3 | `display: inline-block;` | the part's own rule |
 | `justify-between` | 3 | `justify-content: space-between;` | `mo-row-between` |
@@ -193,7 +193,7 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `expanded:block` | 2 | `@media (width >= 52.5rem) { .expanded:block { display: block; }` | `@media (width >= 52.5rem)` in the part's rule, with the replacement of `block` |
 | `expanded:col-span-5` | 2 | `@media (width >= 52.5rem) { .expanded:col-span-5 { grid-column: span 5 / span 5; }` | `@media (width >= 52.5rem)` in the part's rule, with the replacement of `col-span-5` |
 | `expanded:grid-cols-12` | 2 | `@media (width >= 52.5rem) { .expanded:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }` | `@media (width >= 52.5rem)` in the part's rule, with the replacement of `grid-cols-12` |
-| `grid-cols-[repeat(auto-fill,minmax(3rem,1fr))]` | 2 | `grid-template-columns: repeat(auto-fill,minmax(3rem,1fr));` | `mo-grid` with `--mo-comp-grid-columns`, or `.image-grid`; else the part's rule |
+| `grid-cols-[repeat(auto-fill,minmax(3rem,1fr))]` | 2 | `grid-template-columns: repeat(auto-fill,minmax(3rem,1fr));` | `mo-grid` with `--mo-comp-grid-columns`, or `.mo-staggered-grid`; else the part's rule |
 | `group-hover:text-primary` | 2 | `@media (hover: hover) { :is(:where(.group):hover .group-hover:text-primary) { color: var(--mo-sys-color-primary); }` | `:has()`, `[aria-*]` or `[data-*]` state selector in the part's rule |
 | `h-10` | 2 | `height: calc(var(--spacing) * 10);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `h-12` | 2 | `height: calc(var(--spacing) * 12);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
@@ -257,7 +257,7 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `[-webkit-touch-callout:none]` | 1 | `-webkit-touch-callout: none;` | the part's rule; a custom property is set on the part's class |
 | `[[data-fold-section]+&]:mt-0` | 1 | `[data-fold-section] + .[[data-fold-section]+&]:mt-0 { margin-top: 0px;` | the part's rule; a custom property is set on the part's class |
 | `[@media(width<37.5rem)]:my-0` | 1 | `@media (width<37.5rem) { .[@media(width<37.5rem)]:my-0 { margin-block: 0px; }` | the part's rule; a custom property is set on the part's class |
-| `[&_.navigation-rail-items]:flex-1` | 1 | `.[&_.navigation-rail-items]:flex-1 .navigation-rail-items { flex: 1;` | the part's rule; a custom property is set on the part's class |
+| `[&_.navigation-rail-items]:flex-1` | 1 | `.[&_.navigation-rail-items]:flex-1 .mo-navigation-rail__items { flex: 1;` | the part's rule; a custom property is set on the part's class |
 | `[&:has(+[data-fold-section])]:mb-0` | 1 | `.[&:has(+[data-fold-section])]:mb-0:has( + [data-fold-section]) { margin-bottom: 0px;` | the part's rule; a custom property is set on the part's class |
 | `[&:not(:has([data-part]))]:hidden` | 1 | `display: none;` | the part's rule; a custom property is set on the part's class |
 | `[&:not([data-tooltip-open])>.tooltip]:invisible` | 1 | `.[&:not([data-tooltip-open])>.tooltip]:invisible:not([data-tooltip-open]) > .tooltip { visibility: hidden;` | the part's rule; a custom property is set on the part's class |
@@ -354,9 +354,9 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `gap-y-2` | 1 | `row-gap: calc(var(--spacing) * 2);` | `gap` through `--mo-comp-row-gap`, `--mo-comp-stack-gap` or `--mo-comp-grid-gap`, else the part's rule |
 | `gap-y-4` | 1 | `row-gap: calc(var(--spacing) * 4);` | `gap` through `--mo-comp-row-gap`, `--mo-comp-stack-gap` or `--mo-comp-grid-gap`, else the part's rule |
 | `gap-y-6` | 1 | `row-gap: calc(var(--spacing) * 6);` | `gap` through `--mo-comp-row-gap`, `--mo-comp-stack-gap` or `--mo-comp-grid-gap`, else the part's rule |
-| `grid-cols-3` | 1 | `grid-template-columns: repeat(3, minmax(0, 1fr));` | `mo-grid` with `--mo-comp-grid-columns`, or `.image-grid`; else the part's rule |
-| `grid-cols-4` | 1 | `grid-template-columns: repeat(4, minmax(0, 1fr));` | `mo-grid` with `--mo-comp-grid-columns`, or `.image-grid`; else the part's rule |
-| `grid-cols-6` | 1 | `grid-template-columns: repeat(6, minmax(0, 1fr));` | `mo-grid` with `--mo-comp-grid-columns`, or `.image-grid`; else the part's rule |
+| `grid-cols-3` | 1 | `grid-template-columns: repeat(3, minmax(0, 1fr));` | `mo-grid` with `--mo-comp-grid-columns`, or `.mo-staggered-grid`; else the part's rule |
+| `grid-cols-4` | 1 | `grid-template-columns: repeat(4, minmax(0, 1fr));` | `mo-grid` with `--mo-comp-grid-columns`, or `.mo-staggered-grid`; else the part's rule |
+| `grid-cols-6` | 1 | `grid-template-columns: repeat(6, minmax(0, 1fr));` | `mo-grid` with `--mo-comp-grid-columns`, or `.mo-staggered-grid`; else the part's rule |
 | `group-data-[open]:opacity-100` | 1 | `:is(:where(.group)[data-open] .group-data-[open]:opacity-100) { opacity: 100%;` | `:has()`, `[aria-*]` or `[data-*]` state selector in the part's rule |
 | `group-data-[open]:visible` | 1 | `:is(:where(.group)[data-open] .group-data-[open]:visible) { visibility: visible;` | `:has()`, `[aria-*]` or `[data-*]` state selector in the part's rule |
 | `group-focus-visible:bg-primary` | 1 | `:is(:where(.group):focus-visible .group-focus-visible:bg-primary) { background-color: var(--mo-sys-color-primary);` | `:has()`, `[aria-*]` or `[data-*]` state selector in the part's rule |
@@ -462,7 +462,7 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `min-[600px]:ms-0` | 1 | `@media (width >= 600px) { .min-[600px]:ms-0 { margin-inline-start: 0px; }` | `@media (width >= 37.5rem)` in the part's rule |
 | `min-[600px]:order-none` | 1 | `@media (width >= 600px) { .min-[600px]:order-none { order: 0; }` | `@media (width >= 37.5rem)` in the part's rule |
 | `min-[600px]:pb-0` | 1 | `@media (width >= 600px) { .min-[600px]:pb-0 { padding-bottom: 0px; }` | `@media (width >= 37.5rem)` in the part's rule |
-| `min-h-(--top-app-bar-height,4rem)` | 1 | `min-height: var(--top-app-bar-height,4rem);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
+| `min-h-(--mo-comp-top-app-bar-height,4rem)` | 1 | `min-height: var(--mo-comp-top-app-bar-height,4rem);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `min-h-11` | 1 | `min-height: calc(var(--spacing) * 11);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `min-h-14` | 1 | `min-height: calc(var(--spacing) * 14);` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
 | `min-h-full` | 1 | `min-height: 100%;` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio` in the part's rule |
@@ -482,15 +482,15 @@ Every utility class the CMS used in markup on 18 Nov 2026 (`f7d4a9ee`, Tailwind 
 | `object-[50%_20%]` | 1 | `object-position: 50% 20%;` | the part's rule (`position`, `inset-*`, `z-index`, `overflow`) |
 | `object-top` | 1 | `object-position: top;` | the part's rule (`position`, `inset-*`, `z-index`, `overflow`) |
 | `opacity-0` | 1 | `opacity: 0%;` | the part's shape, elevation or state tokens (`--mo-sys-shape-*`, `--mo-sys-elevation-*`) |
-| `order-last` | 1 | `order: 9999;` | `mo-grid` with `--mo-comp-grid-columns`, or `.image-grid`; else the part's rule |
+| `order-last` | 1 | `order: 9999;` | `mo-grid` with `--mo-comp-grid-columns`, or `.mo-staggered-grid`; else the part's rule |
 | `origin-top` | 1 | `transform-origin: top;` | the part's own rule |
 | `origin-top-left` | 1 | `transform-origin: 0 0;` | the part's own rule |
 | `outline-2` | 1 | `outline-style: var(--tw-outline-style); outline-width: 2px; } @property --tw-outline-style { syntax: "*"; inherits: false; initial-value: solid;` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
 | `outline-dashed` | 1 | `--tw-outline-style: dashed; outline-style: dashed;` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
 | `outline-outline-variant` | 1 | `outline-color: var(--mo-sys-color-outline-variant);` | the part's rule reads the colour role, `var(--mo-sys-color-*)` |
-| `p-(--navigation-drawer-item-padding,0_1rem)` | 1 | `padding: var(--navigation-drawer-item-padding,0 1rem);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
+| `p-(--mo-comp-navigation-drawer-item-padding,0_1rem)` | 1 | `padding: var(--mo-comp-navigation-drawer-item-padding,0 1rem);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `p-8` | 1 | `padding: calc(var(--spacing) * 8);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
-| `pb-(--toolbar-docked-padding-block)` | 1 | `padding-bottom: var(--toolbar-docked-padding-block);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
+| `pb-(--mo-comp-toolbar-docked-padding-block)` | 1 | `padding-bottom: var(--mo-comp-toolbar-docked-padding-block);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `pb-[26rem]` | 1 | `padding-bottom: 26rem;` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `pb-24` | 1 | `padding-bottom: calc(var(--spacing) * 24);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |
 | `pb-3` | 1 | `padding-bottom: calc(var(--spacing) * 3);` | the part's padding or margin in `--mo-ref-space-*`, logical properties |

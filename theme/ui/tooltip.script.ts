@@ -13,19 +13,19 @@ const placedByCss =
 
 export default function tooltips() {
   document.querySelectorAll<HTMLElement>('[data-tooltip]').forEach((anchor) => {
-    const tip = anchor.querySelector<HTMLElement>('.tooltip');
+    const tip = anchor.querySelector<HTMLElement>('.mo-tooltip');
     if (!tip) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
 
     const place = () => {
       if (placedByCss) return;
       anchor.removeAttribute('data-tooltip-below');
-      tip.style.removeProperty('--tooltip-shift');
+      tip.style.removeProperty('--mo-comp-tooltip-shift');
       const at = anchor.getBoundingClientRect();
       if (at.top - tip.offsetHeight - EDGE < 0) anchor.setAttribute('data-tooltip-below', '');
       const box = tip.getBoundingClientRect();
       const shift = Math.max(EDGE - box.left, Math.min(0, innerWidth - EDGE - box.right));
-      if (shift) tip.style.setProperty('--tooltip-shift', `${shift}px`);
+      if (shift) tip.style.setProperty('--mo-comp-tooltip-shift', `${shift}px`);
     };
     const show = () => {
       clearTimeout(timer);

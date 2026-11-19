@@ -25,7 +25,7 @@ import { atLeast } from '@morphemecms/cms/lib/breakpoints.mjs';
 export type SearchResult = { href: string; headline: ReactNode; supporting?: ReactNode; icon?: string };
 
 /** The class of a search (the bar and its view). */
-export const searchClass = 'search';
+export const searchClass = 'mo-search';
 
 export default function Search({
   label,
@@ -57,29 +57,29 @@ export default function Search({
   return (
     <div className={[searchClass, className].filter(Boolean).join(' ')} data-search="" {...rest}>
       {!open && (
-        <div className="search-bar">
+        <div className="mo-search-bar">
           <button
             type="button"
-            className="search-bar-field"
+            className="mo-search-bar__field"
             aria-haspopup="dialog"
             aria-expanded="false"
             aria-controls={view}
             data-search-open=""
           >
-            <span className="search-bar-leading">
+            <span className="mo-search-bar__leading">
               <Svg name={leadingIcon} size={24} />
             </span>
-            <span className="search-bar-placeholder">{label}</span>
+            <span className="mo-search-bar__placeholder">{label}</span>
           </button>
-          {trailing && <span className="search-bar-trailing">{trailing}</span>}
+          {trailing && <span className="mo-search-bar__trailing">{trailing}</span>}
         </div>
       )}
-      <dialog id={view} className="search-view" aria-label={label} open={open} data-search-view="">
-        <div className="search-view-header">
+      <dialog id={view} className="mo-search-view" aria-label={label} open={open} data-search-view="">
+        <div className="mo-search-view__header">
           <IconButton icon="arrow-left" label={backLabel} data-search-close="" />
           <input
             type="search"
-            className="search-view-input"
+            className="mo-search-view__input"
             role="combobox"
             aria-label={label}
             aria-expanded="true"
@@ -91,9 +91,9 @@ export default function Search({
             defaultValue={query}
             data-search-input=""
           />
-          <IconButton icon="x" label={clearLabel} className="search-view-clear" data-search-clear="" />
+          <IconButton icon="x" label={clearLabel} className="mo-search-view__clear" data-search-clear="" />
         </div>
-        <List id={list} role="listbox" aria-label={label} className="search-view-results">
+        <List id={list} role="listbox" aria-label={label} className="mo-search-view__results">
           {results.map((r, i) => (
             <ListItem
               key={i}
@@ -109,7 +109,7 @@ export default function Search({
             />
           ))}
         </List>
-        <p className="search-view-empty" hidden data-search-empty="">
+        <p className="mo-search-view__empty" hidden data-search-empty="">
           {emptyText}
         </p>
       </dialog>
@@ -122,12 +122,12 @@ export default function Search({
  * on the button. Exposes SearchBarButton. */
 export function SearchBarButton({ label, className, ...rest }: { label: string; className?: string } & Record<string, unknown>) {
   return (
-    <div className={['search-bar', className].filter(Boolean).join(' ')}>
-      <button type="button" className="search-bar-field" aria-haspopup="dialog" {...rest}>
-        <span className="search-bar-leading">
+    <div className={['mo-search-bar', className].filter(Boolean).join(' ')}>
+      <button type="button" className="mo-search-bar__field" aria-haspopup="dialog" {...rest}>
+        <span className="mo-search-bar__leading">
           <Svg name="search" size={24} />
         </span>
-        <span className="search-bar-placeholder">{label}</span>
+        <span className="mo-search-bar__placeholder">{label}</span>
       </button>
     </div>
   );
@@ -137,7 +137,7 @@ export function SearchBarButton({ label, className, ...rest }: { label: string; 
  * like the list items' icons, `id` for the group it names (aria-labelledby). Exposes SearchGroupLabel. */
 export function SearchGroupLabel({ id, children, className }: { id?: string; children: ReactNode; className?: string }) {
   return (
-    <div id={id} className={['search-view-group-label', className].filter(Boolean).join(' ')}>
+    <div id={id} className={['mo-search-view__group-label', className].filter(Boolean).join(' ')}>
       {children}
     </div>
   );
@@ -153,12 +153,12 @@ export function SearchBar({
   ...rest
 }: { label: string; leadingIcon?: string; className?: string } & Record<string, unknown>) {
   return (
-    <label className={['search-bar', className].filter(Boolean).join(' ')}>
-      <span className="search-bar-field">
-        <span className="search-bar-leading">
+    <label className={['mo-search-bar', className].filter(Boolean).join(' ')}>
+      <span className="mo-search-bar__field">
+        <span className="mo-search-bar__leading">
           <Svg name={leadingIcon} size={24} />
         </span>
-        <input type="search" className="search-bar-input" aria-label={label} placeholder={label} {...rest} />
+        <input type="search" className="mo-search-bar__input" aria-label={label} placeholder={label} {...rest} />
       </span>
     </label>
   );
@@ -324,9 +324,9 @@ export function SearchView({
   const style =
     wide && dock
       ? ({
-          '--search-view-top': `${dock.top}px`,
-          '--search-view-left': `${dock.left}px`,
-          '--search-view-width': `${dock.width}px`,
+          '--mo-comp-search-view-top': `${dock.top}px`,
+          '--mo-comp-search-view-left': `${dock.left}px`,
+          '--mo-comp-search-view-width': `${dock.width}px`,
         } as CSSProperties)
       : undefined;
   let index = -1;
@@ -335,7 +335,7 @@ export function SearchView({
     <div className={[searchClass, className].filter(Boolean).join(' ')} data-search-controlled="" {...rest}>
       <Panel
         ref={dialog}
-        className={['search-view', wide && 'search-view-docked'].filter(Boolean).join(' ')}
+        className={['mo-search-view', wide && 'mo-search-view__docked'].filter(Boolean).join(' ')}
         style={style}
         aria-label={label}
         // Open: the full-screen <dialog> is `open` once shown; the dropdown is drawn only while it is open.
@@ -347,12 +347,12 @@ export function SearchView({
               onClick: (e: { target: unknown; currentTarget: unknown }) => e.target === e.currentTarget && onClose(),
             })}
       >
-        <div className="search-view-header">
+        <div className="mo-search-view__header">
           <IconButton icon="arrow-left" label={backLabel} onClick={onClose} />
           <input
             ref={input}
             type="search"
-            className="search-view-input"
+            className="mo-search-view__input"
             role="combobox"
             aria-label={label}
             aria-expanded="true"
@@ -388,7 +388,7 @@ export function SearchView({
           <IconButton
             icon="x"
             label={clearLabel}
-            className="search-view-clear"
+            className="mo-search-view__clear"
             onClick={() => {
               onQueryChange('');
               input.current?.focus();
@@ -396,9 +396,9 @@ export function SearchView({
           />
         </div>
         {/* The container of the filters, the lists and what is shown when nothing fits: in the docked view a container of its own under the bar (M3 specs: "Search view contained docked bar results gap 2dp"). */}
-        <div className="search-view-body">
+        <div className="mo-search-view__body">
           {filters && filters.length > 0 && (
-            <ChipSet layout="scroll" label={filtersLabel ?? ''} className="search-view-filters">
+            <ChipSet layout="scroll" label={filtersLabel ?? ''} className="mo-search-view__filters">
               {filters.map((f) => (
                 <Chip
                   key={f.id}
@@ -418,7 +418,7 @@ export function SearchView({
             id={list}
             role="listbox"
             aria-label={label}
-            className="search-view-results"
+            className="mo-search-view__results"
             hidden={!flat.length}
             // A tap on an option keeps the focus in the field.
             onMouseDown={(e) => e.preventDefault()}
@@ -427,7 +427,7 @@ export function SearchView({
               <div
                 key={group.id}
                 role="group"
-                className="search-view-group"
+                className="mo-search-view__group"
                 aria-labelledby={group.label ? `${list}-group-${group.id}` : undefined}
               >
                 {group.label && <SearchGroupLabel id={`${list}-group-${group.id}`}>{group.label}</SearchGroupLabel>}
@@ -474,11 +474,11 @@ export function SearchView({
               </div>
             ))}
           </div>
-          <p className="search-view-empty" hidden={flat.length > 0}>
+          <p className="mo-search-view__empty" hidden={flat.length > 0}>
             {emptyText}
           </p>
         </div>
-        <p className="search-view-live" role="status" aria-live="polite">
+        <p className="mo-search-view__live" role="status" aria-live="polite">
           {liveText}
         </p>
       </Panel>

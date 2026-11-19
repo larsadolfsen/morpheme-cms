@@ -1,4 +1,4 @@
-// A button group (m3.material.io/components/button-groups, .button-group in ../styles/ui/button-groups.css): buttons or icon buttons
+// A button group (m3.material.io/components/button-groups, .mo-button-group in ../styles/ui/button-groups.css): buttons or icon buttons
 // that belong together side by side (`children`: the theme's Button and IconButton), in a group with its name (`label`,
 // read by screen readers). Its kind (`kind`) is Material's name; how it looks is the theme's: standard (the default,
 // with a gap between them; the one pressed a little wider and its neighbours a little narrower) or connected (joined,
@@ -14,7 +14,7 @@ export const buttonGroupKinds = ['standard', 'connected'] as const;
 export type ButtonGroupKind = (typeof buttonGroupKinds)[number];
 
 /** A button group's classes: its kind's. */
-export const buttonGroupClass = (kind: ButtonGroupKind = 'standard') => `button-group button-group-${kind}`;
+export const buttonGroupClass = (kind: ButtonGroupKind = 'standard') => `mo-button-group mo-button-group__${kind}`;
 
 export default function ButtonGroup({
   kind,

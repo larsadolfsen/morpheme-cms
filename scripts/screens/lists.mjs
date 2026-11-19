@@ -18,7 +18,7 @@ import {
 async function checkListMarkers(width) {
   const path = BUILT_PAGE;
   const markers = () =>
-    [...document.querySelectorAll('ul.list')].flatMap((ul) =>
+    [...document.querySelectorAll('ul.mo-list')].flatMap((ul) =>
       [ul, ...ul.children].flatMap((el) => {
         const s = getComputedStyle(el);
         const m = getComputedStyle(el, '::marker');
@@ -34,7 +34,7 @@ async function checkListMarkers(width) {
   page.on('pageerror', (e) => problems.push(`List markers: ${e.message}`));
   await openEditor(page, site, { [path]: LIST_PAGE });
   await page.goto(`${site}/editor/#${path}`);
-  await page.waitForSelector('ul.list', { timeout: 30_000 });
+  await page.waitForSelector('ul.mo-list', { timeout: 30_000 });
   const inEditor = await page.evaluate(markers);
   if (inEditor.length) problems.push(`${width}px editor: a List row has a list marker (${[...new Set(inEditor)].join('; ')})`);
   await clickPreview(page);
@@ -63,14 +63,14 @@ async function checkListLeftEdge(width) {
     for (const el of root.querySelectorAll('.mo-block-cards__card, .mo-block-pricecards__plan, .mo-block-testimonials__testimonial')) {
       const box = el.getBoundingClientRect();
       // The cards of a carousel run off the window on purpose.
-      if (box.left >= window.innerWidth - 1 || el.closest('.carousel')) continue;
+      if (box.left >= window.innerWidth - 1 || el.closest('.mo-carousel')) continue;
       out.cards.push({ name: el.className.split(' ')[0], left: box.left, right: box.right });
     }
     for (const ul of root.querySelectorAll('ul.mo-block-list')) {
-      const row = ul.querySelector('.list-item-container');
+      const row = ul.querySelector('.mo-list__item-container');
       if (!row) continue;
-      const lead = row.querySelector('.list-item-leading-icon, .list-item-leading') ?? row.querySelector('.list-item-content');
-      const filled = ul.classList.contains('list-segmented');
+      const lead = row.querySelector('.mo-list__item-leading-icon, .mo-list__item-leading') ?? row.querySelector('.mo-list__item-content');
+      const filled = ul.classList.contains('mo-list__segmented');
       out.rows.push({
         kind: filled ? 'segmented' : 'plain',
         container: (filled ? ul.querySelector('li') : row).getBoundingClientRect().left,
@@ -117,7 +117,7 @@ async function checkListLeftEdge(width) {
     verify('on the site', await page.evaluate(measure, 'main .prose'));
     // Edge to edge, the layer of a Default list's row has square corners, also pointed at (owner, 16 Nov 2026: "No border radius when full width").
     if (width < 600) {
-      const row = page.locator('main .prose ul.mo-block-list:not(.list-segmented) a.list-item-container').first();
+      const row = page.locator('main .prose ul.mo-block-list:not(.mo-list__segmented) a.mo-list__item-container').first();
       await row.hover();
       await page.waitForTimeout(400);
       const radius = await row.evaluate(
@@ -212,11 +212,11 @@ async function checkChevronUnderHoverRow(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, { [BUILT_PAGE]: src });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await page.waitForSelector('.mo-editor-inline-list-host details.list-item-expand', { timeout: 30_000 });
+  await page.waitForSelector('.mo-editor-inline-list-host details.mo-list__item-expand', { timeout: 30_000 });
   await page.locator('.ProseMirror > p').first().click();
   await page.waitForFunction(() => !document.querySelector('.mo-editor-inline-list-row-active'), null, { timeout: 8000 });
-  const first = page.locator('.mo-editor-inline-list-host details.list-item-expand').first();
-  const icon = await first.locator('.list-item-expand-icon').boundingBox();
+  const first = page.locator('.mo-editor-inline-list-host details.mo-list__item-expand').first();
+  const icon = await first.locator('.mo-list__item-expand-icon').boundingBox();
   await page.mouse.move(icon.x + icon.width / 2, icon.y + icon.height / 2);
   await page.waitForTimeout(500);
   const over = await page.evaluate((i) => {
@@ -234,9 +234,11 @@ async function checkChevronUnderHoverRow(width) {
     problems.push(`${label}: the drag handle takes the pointer while the block is only pointed at (${handle.hits})`);
   if (handle.covers) problems.push(`${label}: the drag handle lies over the first row's chevron`);
   // And a click on the chevron opens the row.
-  await first.locator('.list-item-expand-icon').click();
+  await first.locator('.mo-list__item-expand-icon').click();
   await page
-    .waitForFunction(() => document.querySelector('.mo-editor-inline-list-host details.list-item-expand')?.open, null, { timeout: 4000 })
+    .waitForFunction(() => document.querySelector('.mo-editor-inline-list-host details.mo-list__item-expand')?.open, null, {
+      timeout: 4000,
+    })
     .catch(() => {});
   if (!(await first.evaluate((d) => d.open))) problems.push(`${label}: a click on the first row's chevron does not open it`);
   await page.close();
@@ -272,7 +274,7 @@ async function checkChevronRows(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, { [BUILT_PAGE]: src });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await page.waitForSelector('.mo-editor-inline-list-host details.list-item-expand', { timeout: 30_000 });
+  await page.waitForSelector('.mo-editor-inline-list-host details.mo-list__item-expand', { timeout: 30_000 });
   const undoOff = () => page.locator('.mo-editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (const [at, name] of [
     [0, 'List - Expand'],
@@ -286,13 +288,13 @@ async function checkChevronRows(width) {
       { timeout: 8000 },
     );
     const host = page.locator('.mo-editor-inline-list-host').nth(at);
-    const row = host.locator('details.list-item-expand').nth(1);
+    const row = host.locator('details.mo-list__item-expand').nth(1);
     const head = row.locator('summary');
     const state = () => head.getAttribute('aria-expanded');
     const shown = () =>
       page.waitForFunction(
         ([h, r]) => {
-          const d = document.querySelectorAll('.mo-editor-inline-list-host')[h].querySelectorAll('details.list-item-expand')[r];
+          const d = document.querySelectorAll('.mo-editor-inline-list-host')[h].querySelectorAll('details.mo-list__item-expand')[r];
           const a = d.querySelector('.mo-block-accordion__answer');
           return d.open && !!a && a.getBoundingClientRect().height > 0;
         },
@@ -301,7 +303,7 @@ async function checkChevronRows(width) {
       );
     const shut = () =>
       page.waitForFunction(
-        ([h, r]) => !document.querySelectorAll('.mo-editor-inline-list-host')[h].querySelectorAll('details.list-item-expand')[r].open,
+        ([h, r]) => !document.querySelectorAll('.mo-editor-inline-list-host')[h].querySelectorAll('details.mo-list__item-expand')[r].open,
         [at, 1],
         { timeout: 8000 },
       );
@@ -310,7 +312,7 @@ async function checkChevronRows(width) {
     const box = await head.boundingBox();
     if (box && box.height < 48) problems.push(`${label} ${name}: the row's head is ${box.height} px high, under 48`);
     // The chevron opens the row, a second tap closes it.
-    await row.locator('.list-item-expand-icon').click();
+    await row.locator('.mo-list__item-expand-icon').click();
     await shown().catch(() => problems.push(`${label} ${name}: a tap on the chevron does not open the row and show its text`));
     if ((await state()) !== 'true') problems.push(`${label} ${name}: the open row has aria-expanded ${await state()}`);
     // The open row is round on all four corners, as large as the list's ends; its closed neighbours keep the small inner corners; the body text
@@ -318,7 +320,7 @@ async function checkChevronRows(width) {
     const corners = await page
       .waitForFunction(
         ([h]) => {
-          const lis = [...document.querySelectorAll('.mo-editor-inline-list-host')[h].querySelectorAll('.list-expand > li')];
+          const lis = [...document.querySelectorAll('.mo-editor-inline-list-host')[h].querySelectorAll('.mo-list__expand > li')];
           const r = (li) => {
             const c = getComputedStyle(li);
             return [c.borderTopLeftRadius, c.borderTopRightRadius, c.borderBottomRightRadius, c.borderBottomLeftRadius].map(parseFloat);
@@ -353,7 +355,7 @@ async function checkChevronRows(width) {
         problems.push(`${label} ${name}: the open row's text starts at ${corners.body}, its title at ${corners.title}`);
     }
     // The whole height of the head at the chevron is its target (not only the 24 px glyph).
-    const icon = await row.locator('.list-item-expand-icon').boundingBox();
+    const icon = await row.locator('.mo-list__item-expand-icon').boundingBox();
     const top = await head.boundingBox();
     await page.mouse.click(icon.x + icon.width / 2, top.y + 3);
     await shut().catch(() => problems.push(`${label} ${name}: a second tap on the chevron does not close the row`));
@@ -370,18 +372,18 @@ async function checkChevronRows(width) {
     await page.waitForTimeout(300);
     if ((await state()) !== 'false') problems.push(`${label} ${name}: a tap on the row's surface folds it`);
     // Typing in the page's text does not collapse an open row.
-    await row.locator('.list-item-expand-icon').click();
+    await row.locator('.mo-list__item-expand-icon').click();
     await shown();
     await page.locator('.ProseMirror > p').first().click();
     await page.keyboard.type('abc');
     await page.waitForTimeout(400);
     if ((await state()) !== 'true') problems.push(`${label} ${name}: typing in the page's text collapsed the open row`);
     // A tap on the title opens a row the chevron closed, and types there.
-    await row.locator('.list-item-expand-icon').click();
+    await row.locator('.mo-list__item-expand-icon').click();
     await shut();
     await row.locator('textarea').first().click();
     await shown().catch(() => problems.push(`${label} ${name}: a tap on the title of a closed row does not open it`));
-    await row.locator('.list-item-expand-icon').click();
+    await row.locator('.mo-list__item-expand-icon').click();
     await shut();
   }
   // The page is the same: no step of the fold is an edit, so Undo is still off (the typing above is the only change; check on a fresh page below).
@@ -389,10 +391,10 @@ async function checkChevronRows(width) {
   fresh.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(fresh, site, { [BUILT_PAGE]: src });
   await fresh.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await fresh.waitForSelector('.mo-editor-inline-list-host details.list-item-expand', { timeout: 30_000 });
+  await fresh.waitForSelector('.mo-editor-inline-list-host details.mo-list__item-expand', { timeout: 30_000 });
   const undoBefore = await fresh.locator('.mo-editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (let h = 0; h < 2; h++) {
-    const icon = fresh.locator('.mo-editor-inline-list-host').nth(h).locator('.list-item-expand-icon').nth(1);
+    const icon = fresh.locator('.mo-editor-inline-list-host').nth(h).locator('.mo-list__item-expand-icon').nth(1);
     await icon.click();
     await fresh.waitForFunction((n) => document.querySelectorAll('.mo-editor-inline-list-host')[n].querySelectorAll('details')[1].open, h);
     await icon.click();
@@ -589,7 +591,7 @@ async function checkDynamicList(width, height) {
   await pressTool(page, 'Fill from a list');
   const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Rows from' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
-  await panel.locator('button.text-field-input').first().click();
+  await panel.locator('button.mo-text-field__input').first().click();
   await page.getByText('Testimonials', { exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(500);
   // A phone's bottom sheet covers the block: closed, the block shows its state (the side panel on a computer stays open).
@@ -630,15 +632,15 @@ async function checkDynamicPicker(width, height) {
   await pressTool(page, 'Fill from a list');
   const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Rows from' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
-  await panel.locator('button.text-field-input').first().click();
+  await panel.locator('button.mo-text-field__input').first().click();
   await page.getByText('Highlights', { exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(500);
   if (phone) await page.locator('dialog[open] [aria-label="Close"]').first().click();
   await page.waitForTimeout(400);
   const block = page.locator('.mo-site-block-preview').first();
-  const lines = () => block.locator('.list-item-supporting').allTextContents();
+  const lines = () => block.locator('.mo-list__item-supporting').allTextContents();
   const buttons = () => block.locator('.mo-editor-inline-list-parts button').allTextContents();
-  if ((await block.locator('.list-item-headline').count()) !== 3)
+  if ((await block.locator('.mo-list__item-headline').count()) !== 3)
     problems.push(`${label}: the block does not show the 3 items of the list`);
   const before = await buttons();
   if (before.join('|') !== 'Label text: Title|Supporting text: Body text|Icon: Icon|Link: Link')
@@ -646,7 +648,7 @@ async function checkDynamicPicker(width, height) {
   await block.locator('.mo-editor-inline-list-parts button', { hasText: 'Supporting text' }).click();
   const choice = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Field shown' }).first();
   await choice.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the choice of fields did not open`));
-  await choice.locator('button.text-field-input').first().click();
+  await choice.locator('button.mo-text-field__input').first().click();
   await page.getByText('Title', { exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(500);
   if (phone && (await page.locator('dialog[open]').count())) await page.locator('dialog[open] [aria-label="Close"]').first().click();
@@ -657,7 +659,7 @@ async function checkDynamicPicker(width, height) {
   if ((await lines())[0] !== 'Edit on your phone')
     problems.push(`${label}: the bottom line of the first row is "${(await lines())[0]}", not its title`);
   // A tap on the row's own bottom line opens the same choice.
-  await block.locator('.list-item-supporting').first().click();
+  await block.locator('.mo-list__item-supporting').first().click();
   await page
     .locator('dialog[open], .mo-editor-side-sheet')
     .filter({ hasText: 'Field shown' })
@@ -1056,7 +1058,7 @@ async function checkNewList(width, height, label) {
     await pressTool(page, 'Fill from a list');
     const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Rows from' }).first();
     await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
-    await panel.locator('button.text-field-input').first().click();
+    await panel.locator('button.mo-text-field__input').first().click();
     await page
       .getByText('ZZ Fresh list', { exact: true })
       .locator('visible=true')
@@ -1086,7 +1088,7 @@ async function checkNewList(width, height, label) {
     await part('Supporting text').click();
     const field = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Field shown' }).first();
     await field.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Supporting text choice did not open`));
-    await field.locator('button.text-field-input').first().click();
+    await field.locator('button.mo-text-field__input').first().click();
     const offered = await page.evaluate(() => {
       // The open choice is labelled with the field's name (Field shown), as a menu or a sheet of options.
       const choices = [...document.querySelectorAll('[aria-label="Field shown"]')].flatMap((m) =>
@@ -1140,16 +1142,16 @@ async function checkListRowColors() {
           const section = document.createElement('section');
           section.className = 'mo-text-section mo-is-' + color;
           section.innerHTML =
-            '<div class="prose"><h1>H1</h1><p>Text</p></div><div class="list mo-block-list"><a class="list-item-container" href="#"><span class="list-item-leading list-item-leading-icon"><svg viewBox="0 0 10 10"></svg></span><span class="list-item-content"><span class="list-item-headline">Heading</span><span class="list-item-supporting">Text</span></span><span class="list-item-trailing"><svg viewBox="0 0 10 10"></svg></span></a></div>';
+            '<div class="prose"><h1>H1</h1><p>Text</p></div><div class="mo-list mo-block-list"><a class="mo-list__item-container" href="#"><span class="mo-list__item-leading mo-list__item-leading-icon"><svg viewBox="0 0 10 10"></svg></span><span class="mo-list__item-content"><span class="mo-list__item-headline">Heading</span><span class="mo-list__item-supporting">Text</span></span><span class="mo-list__item-trailing"><svg viewBox="0 0 10 10"></svg></span></a></div>';
           document.querySelector('main').append(section);
           const c = (sel) => getComputedStyle(section.querySelector(sel)).color;
           out[color] = {
             h1: c('h1'),
             text: c('p'),
-            heading: c('.list-item-headline'),
-            supporting: c('.list-item-supporting'),
-            icon: c('.list-item-leading'),
-            chevron: c('.list-item-trailing'),
+            heading: c('.mo-list__item-headline'),
+            supporting: c('.mo-list__item-supporting'),
+            icon: c('.mo-list__item-leading'),
+            chevron: c('.mo-list__item-trailing'),
           };
           section.remove();
         }
@@ -1229,7 +1231,7 @@ async function checkChecklistMarks() {
   }
 }
 
-/** The List "expand" kind on the built site (the List - Expand marked as a FAQ on /blocks/), 375 and 1280 px: a <ul class="list list-expand"> of <li><details name><summary> items (a row of 48 px or more, a corner of 16 px on the list), the closed caret has no container and the open one turns over and gets one while the headline keeps its colour (Material's "List - Expand" tokens), one row open at a time, Space on the focused summary opens it and the focus ring is 3 px, nothing scrolls sideways. */
+/** The List "expand" kind on the built site (the List - Expand marked as a FAQ on /blocks/), 375 and 1280 px: a <ul class="mo-list mo-list__expand"> of <li><details name><summary> items (a row of 48 px or more, a corner of 16 px on the list), the closed caret has no container and the open one turns over and gets one while the headline keeps its colour (Material's "List - Expand" tokens), one row open at a time, Space on the focused summary opens it and the focus ring is 3 px, nothing scrolls sideways. */
 async function checkExpandList(width, height) {
   const label = `${width}px List expand`;
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
@@ -1237,20 +1239,20 @@ async function checkExpandList(width, height) {
   if (!(await onTestPage(page, label))) return page.close();
   // The segmented design (the segmented List - Expand) has the 16 px corner on its list; the plain design is the rows on the page, and
   // edge to edge on a phone with no corner (checkListLeftEdge), so it is not the one measured here.
-  const list = page.locator('ul.list.list-expand.mo-block-accordion__segmented:has(> li:nth-child(2))').first();
+  const list = page.locator('ul.mo-list.mo-list__expand.mo-block-accordion__segmented:has(> li:nth-child(2))').first();
   if (!(await list.count())) {
     problems.push(`${label}: no segmented List with expand and two items on the Blocks pages`);
     return page.close();
   }
   await list.evaluate((el) => el.scrollIntoView({ block: 'center' }));
-  const items = list.locator(':scope > li > details.list-item-expand');
+  const items = list.locator(':scope > li > details.mo-list__item-expand');
   const first = items.nth(0);
   const second = items.nth(1);
   const look = (item) =>
     item.evaluate((d) => {
-      const sum = d.querySelector(':scope > summary.list-item-container');
-      const icon = sum?.querySelector('.list-item-expand-icon');
-      const head = sum?.querySelector('.list-item-headline');
+      const sum = d.querySelector(':scope > summary.mo-list__item-container');
+      const icon = sum?.querySelector('.mo-list__item-expand-icon');
+      const head = sum?.querySelector('.mo-list__item-headline');
       const box = sum?.getBoundingClientRect();
       return {
         summary: !!sum,
@@ -1258,7 +1260,7 @@ async function checkExpandList(width, height) {
         iconBg: icon ? getComputedStyle(icon).backgroundColor : '',
         iconRotate: icon ? getComputedStyle(icon).rotate : '',
         headColor: head ? getComputedStyle(head).color : '',
-        hasBody: !!d.querySelector(':scope > .list-item-expand-body'),
+        hasBody: !!d.querySelector(':scope > .mo-list__item-expand-body'),
         open: d.open,
       };
     });
@@ -1412,7 +1414,7 @@ async function checkOpenPlainExpand(width) {
     const li = document.querySelector('.mo-block-accordion__segmented > li');
     return li ? getComputedStyle(li).backgroundColor : null;
   });
-  const items = plain.locator(':scope > li > details.list-item-expand');
+  const items = plain.locator(':scope > li > details.mo-list__item-expand');
   await items.nth(1).scrollIntoViewIfNeeded();
   await items.nth(1).locator('summary').click();
   await page.mouse.move(0, 0);
@@ -1455,7 +1457,7 @@ async function checkListColumnsLook(width) {
     return page.close();
   }
   const columns = await page.evaluate(() => {
-    const list = document.querySelector('.list-segmented.mo-block-list:not([data-columns="one"]):has(> li:nth-child(3))');
+    const list = document.querySelector('.mo-list__segmented.mo-block-list:not([data-columns="one"]):has(> li:nth-child(3))');
     if (!list) return null;
     const tops = [...list.children].map((li) => Math.round(li.getBoundingClientRect().top));
     return {

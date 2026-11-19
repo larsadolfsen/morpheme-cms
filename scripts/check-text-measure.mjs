@@ -84,14 +84,16 @@ for (const width of [375, 768, 1280, 1580]) {
           // 16px past the text column on each side, so its box starts 16px before the text above it and its content (leading icon or text) is on
           // the text's edge. From 600px, and in the segmented design, the box itself is on the text's edge.
           const bleeds =
-            width < 600 && block.matches('.mo-block-list:not(.list-segmented), .mo-block-accordion:not(.mo-block-accordion__segmented)');
+            width < 600 &&
+            block.matches('.mo-block-list:not(.mo-list__segmented), .mo-block-accordion:not(.mo-block-accordion__segmented)');
           const name2 = block.className.toString().split(' ')[0];
           if (left(block) !== left(before) - (bleeds ? 16 : 0))
             out.push(
               `${name2} starts at ${left(block)}px, the text above it at ${left(before)}px${bleeds ? ' (the layer is 16px wider on a compact screen)' : ''}`,
             );
           if (bleeds && block.matches('.mo-block-list')) {
-            const lead = block.querySelector('.list-item-leading-icon, .list-item-leading') ?? block.querySelector('.list-item-content');
+            const lead =
+              block.querySelector('.mo-list__item-leading-icon, .mo-list__item-leading') ?? block.querySelector('.mo-list__item-content');
             if (lead && left(lead) !== left(before))
               out.push(`${name2}'s row content starts at ${left(lead)}px, the text above it at ${left(before)}px`);
           }

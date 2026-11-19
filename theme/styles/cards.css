@@ -1,6 +1,6 @@
 /*
-  Cards: the Card component (.card, its three kinds and the media), the Cards block, the Price cards (Plans) block, the card grid
-  (.image-grid, one gutter apart) and the Carousel. Moved here from ui.css and blocks.css with their rules unchanged and in the
+  Cards: the Card component (.mo-card, its three kinds and the media), the Cards block, the Price cards (Plans) block, the card grid
+  (.mo-staggered-grid, one gutter apart) and the Carousel. Moved here from ui.css and blocks.css with their rules unchanged and in the
   order they had; imported by base.css between ui.css and blocks.css, in the same layer, so the Card's rules still come before the blocks' (a block's rule wins over the Card's, as it did).
 */
 @import './tokens/cards/comp/card.css';
@@ -13,10 +13,10 @@
      responsive layouts"). The widths are M3's window classes less the page margins (16 dp below medium, 24 dp from it), so a carousel as wide as the
      page changes where it did: 2 items from 35.5rem (medium, 600 dp, less 2 x 16 dp; a page at 600 to 615 dp shows one), 3 from 49.5rem (expanded, 840 dp,
      less 2 x 24 dp). The page's own columns stay on the window (breakpoints in lib/breakpoints.mjs). */
-  .carousel {
+  .mo-carousel {
     container: carousel / inline-size;
   }
-  .carousel-items {
+  .mo-carousel__items {
     display: flex;
     gap: var(--mo-comp-carousel-gap, 0.5rem);
     overflow-x: auto;
@@ -27,25 +27,25 @@
     scroll-padding-inline: var(--mo-comp-carousel-bleed, 0rem);
     list-style: none;
   }
-  .carousel-items::-webkit-scrollbar {
+  .mo-carousel__items::-webkit-scrollbar {
     display: none;
   }
-  .carousel-item {
+  .mo-carousel__item {
     display: flex;
     width: 86%;
     flex-shrink: 0;
     scroll-snap-align: start;
   }
-  .carousel-indicator {
+  .mo-carousel__indicator {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     margin-top: 1.25rem;
   }
-  .carousel-indicator[hidden] {
+  .mo-carousel__indicator[hidden] {
     display: none;
   }
-  .carousel-indicator-dot {
+  .mo-carousel__indicator-dot {
     display: grid;
     width: 1.5rem;
     height: 1.5rem;
@@ -54,7 +54,7 @@
     padding: 0;
     background: none;
   }
-  .carousel-indicator-dot > span {
+  .mo-carousel__indicator-dot > span {
     display: block;
     width: var(--mo-comp-carousel-dot-size, 0.5rem);
     height: var(--mo-comp-carousel-dot-size, 0.5rem);
@@ -65,22 +65,22 @@
       height var(--mo-sys-motion-spring-default-spatial),
       background-color var(--mo-sys-motion-spring-default-effects);
   }
-  .carousel-indicator-dot[aria-current='true'] > span {
+  .mo-carousel__indicator-dot[aria-current='true'] > span {
     width: var(--mo-comp-carousel-dot-selected-width, 1.25rem);
     background: var(--mo-comp-carousel-dot-selected-colour, var(--mo-sys-block-accent));
   }
   @container carousel (width >= 35.5rem) {
-    .carousel-item {
+    .mo-carousel__item {
       width: calc((100% - 1rem) / 2);
     }
-    .carousel-items {
+    .mo-carousel__items {
       margin: 0;
       padding: 0;
       scroll-padding-inline: 0;
     }
   }
   @container carousel (width >= 49.5rem) {
-    .carousel-item {
+    .mo-carousel__item {
       width: calc((100% - 2rem) / 3);
     }
   }
@@ -88,26 +88,26 @@
   /* The contained layouts: within the text's width and as high as the theme says, what is in each item filling its
      mask with the item's corners; multi-browse's and a hero's masks moved and clipped by carouselLayout.ts (before it
      runs, every item as wide as a large one). */
-  .mo-carousel__contained .carousel-items {
+  .mo-carousel__contained .mo-carousel__items {
     height: var(--mo-comp-carousel-height, 14rem);
     gap: var(--mo-comp-carousel-contained-gap, 0.5rem);
     margin: 0;
     padding: 0;
     scroll-padding-inline: 0;
   }
-  .mo-carousel__contained .carousel-item {
+  .mo-carousel__contained .mo-carousel__item {
     width: var(--mo-comp-carousel-item-width, 75%);
   }
-  .mo-carousel__multi-browse .carousel-item {
+  .mo-carousel__multi-browse .mo-carousel__item {
     width: var(--mo-comp-carousel-item-width, var(--mo-comp-carousel-large-item-width));
   }
-  .mo-carousel__hero .carousel-item {
+  .mo-carousel__hero .mo-carousel__item {
     width: var(
       --mo-comp-carousel-item-width,
       calc(100% - var(--mo-comp-carousel-small-item-max-width) - var(--mo-comp-carousel-contained-gap, 0.5rem))
     );
   }
-  .carousel-item-mask {
+  .mo-carousel__item-mask {
     position: relative;
     flex: 1;
     min-width: 0;
@@ -118,30 +118,30 @@
       0 var(--mo-comp-carousel-mask-inset, 0px) round var(--mo-comp-carousel-item-container-shape, var(--mo-sys-block-radius))
     );
   }
-  .carousel-item-mask > :is(img, image, video) {
+  .mo-carousel__item-mask > :is(img, image, video) {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
   /* Full-screen: one item at a time, as wide as the carousel, out to a phone's edges without corners there. */
-  .mo-carousel__full-screen .carousel-items {
+  .mo-carousel__full-screen .mo-carousel__items {
     height: var(--mo-comp-carousel-full-screen-height, min(75svh, 36rem));
     gap: 0;
     margin: 0 calc(-1 * var(--mo-comp-carousel-bleed, 0rem));
   }
-  .mo-carousel__full-screen .carousel-item {
+  .mo-carousel__full-screen .mo-carousel__item {
     width: 100%;
     scroll-snap-stop: always;
   }
   @media (width < 37.5rem) {
-    .mo-carousel__full-screen .carousel-item-mask {
+    .mo-carousel__full-screen .mo-carousel__item-mask {
       border-radius: var(--mo-comp-carousel-full-screen-radius, 0);
       clip-path: none;
     }
   }
   @media (width >= 37.5rem) {
-    .mo-carousel__full-screen .carousel-items {
+    .mo-carousel__full-screen .mo-carousel__items {
       margin: 0;
     }
   }
@@ -152,29 +152,29 @@
      gutter). --mo-comp-grid-columns is how many cards stand side by side, per breakpoint; M3's layout grid itself has 4 columns on
      compact, 8 on medium and expanded and 12 on large and extra-large (--mo-sys-grid-layout-columns, in global.css, what a span counts
      in). A part with other counts sets --mo-comp-grid-columns on its element. */
-  .image-grid {
+  .mo-staggered-grid {
     margin: 0;
     padding: 0;
     list-style: none;
     column-count: var(--mo-comp-grid-columns);
     column-gap: var(--mo-sys-grid-gutter, 16px);
   }
-  .image-grid > * {
+  .mo-staggered-grid > * {
     break-inside: avoid;
     margin-block-end: var(--mo-sys-grid-gutter, 16px);
   }
   /* A card across all the columns (a span of the whole grid; the cards before and after it pack in their own columns).
      Spans of other widths are not possible in columns: see docs/theme-grid.md. */
-  .image-grid > .mo-grid__span-full {
+  .mo-staggered-grid > .mo-grid__span-full {
     column-span: all;
   }
   @media (width < 37.5rem) {
-    .image-grid > .mo-grid__span-compact {
+    .mo-staggered-grid > .mo-grid__span-compact {
       column-span: all;
     }
   }
 
-  /* "Cards": Material 3's cards (.card in ui.css: outlined, filled or elevated), each with an icon, an image, a video or nothing at
+  /* "Cards": Material 3's cards (.mo-card in ui.css: outlined, filled or elevated), each with an icon, an image, a video or nothing at
      the top and either a link (the whole card) or buttons, two side by side from small screens (cards/LinkCards.tsx). */
   .mo-block-cards {
     display: grid;
@@ -198,19 +198,19 @@
       border-color var(--mo-sys-motion-spring-default-effects),
       box-shadow var(--mo-sys-motion-spring-default-effects);
   }
-  .mo-block-cards__card.card-outlined {
+  .mo-block-cards__card:where(.mo-card).mo-is-outlined {
     border-color: var(--mo-comp-outlined-card-outline-color, var(--mo-sys-block-line));
   }
   /* A card of the Cards block on the Card's parts (LinkCards.tsx): its text fills the card, so the link at the end and the buttons are at the bottom
      and the cards of a row are as high as the tallest. */
-  .mo-block-cards__card > .card-body {
+  .mo-block-cards__card > .mo-card__body {
     flex: 1;
   }
-  .mo-block-cards__card > .card-body > .card-content {
+  .mo-block-cards__card > .mo-card__body > .mo-card__content {
     margin-top: auto;
     padding-top: var(--mo-comp-card-action-gap, 1rem);
   }
-  .mo-block-cards__card .card-content > .mo-block-cards__card-more {
+  .mo-block-cards__card .mo-card__content > .mo-block-cards__card-more {
     margin-top: 0;
     padding-top: 0;
   }
@@ -248,7 +248,7 @@
     background: var(--mo-sys-block-tint);
     aspect-ratio: 3 / 2;
   }
-  .mo-block-cards__card .card-media img,
+  .mo-block-cards__card .mo-card__media img,
   .mo-block-cards__card-picture img {
     display: block;
     width: 100%;
@@ -294,14 +294,14 @@
     display: none;
   }
   @media (width < 37.5rem) {
-    .mo-block-cards__carousel .carousel-items {
+    .mo-block-cards__carousel .mo-carousel__items {
       overflow-x: auto;
       gap: var(--mo-comp-card-gap, 0.5rem);
       padding-block: 0.5rem;
       padding-inline: 1rem;
       scroll-padding-inline: 1rem;
     }
-    .mo-block-cards__carousel .carousel-item {
+    .mo-block-cards__carousel .mo-carousel__item {
       width: 85%;
     }
     .js .mo-block-cards__show-all {
@@ -309,31 +309,31 @@
       justify-content: center;
       padding: 0.25rem;
     }
-    .mo-block-cards__carousel[data-expanded] .carousel-items {
+    .mo-block-cards__carousel[data-expanded] .mo-carousel__items {
       display: grid;
       overflow-x: visible;
       margin: 0;
       padding-inline: 0;
       scroll-padding-inline: 0;
     }
-    .mo-block-cards__carousel[data-expanded] .carousel-item {
+    .mo-block-cards__carousel[data-expanded] .mo-carousel__item {
       width: auto;
     }
-    .mo-block-cards__carousel[data-expanded] .carousel-indicator {
+    .mo-block-cards__carousel[data-expanded] .mo-carousel__indicator {
       display: none;
     }
   }
   @media (width >= 37.5rem) {
-    .mo-block-cards__carousel .carousel-items {
+    .mo-block-cards__carousel .mo-carousel__items {
       display: grid;
       overflow-x: visible;
       gap: var(--mo-sys-grid-gutter);
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    .mo-block-cards__carousel .carousel-item {
+    .mo-block-cards__carousel .mo-carousel__item {
       width: auto;
     }
-    .mo-block-cards__carousel .carousel-indicator {
+    .mo-block-cards__carousel .mo-carousel__indicator {
       display: none;
     }
   }
@@ -361,7 +361,7 @@
     display: grid;
     gap: var(--mo-sys-grid-gutter);
   }
-  /* A big price, an elevated card (.card in ui.css). */
+  /* A big price, an elevated card (.mo-card in ui.css). */
   .mo-block-pricecards__card {
     display: flex;
     flex-direction: column;
@@ -421,7 +421,7 @@
     a.mo-block-cards__card:hover .mo-block-cards__card-arrow {
       translate: 0.25rem 0;
     }
-    a.mo-block-cards__card:hover :is(.mo-block-cards__card-picture, .card-media) img {
+    a.mo-block-cards__card:hover :is(.mo-block-cards__card-picture, .mo-card__media) img {
       scale: 1.03;
     }
   }
@@ -448,7 +448,7 @@
 
   /* "Price cards" (pricecards/View.tsx): the cards side by side, as many columns as there are cards where the block has
      room for them (it is a container: two from 34rem, three from 40rem, four from 56rem; four two by two before that),
-     else under each other. Each card an outlined card (.card in ui.css): its name, its price large with what it is for
+     else under each other. Each card an outlined card (.mo-card in ui.css): its name, its price large with what it is for
      beside it, its text, what is included under a line (.mo-block-checklist) and its button at the bottom in the card's
      width, so the buttons of cards side by side are in line; the highlighted one with an edge in the accent and its
      label in a pill in the accent over its name. */
@@ -491,13 +491,13 @@
   }
   /* On the Card's parts (pricecards/View.tsx): the text fills the card so the buttons are at the bottom, in the card's width; the label is the card's
      icon part, the price its subhead (in the price's own type). */
-  .mo-block-pricecards__plan > .card-body {
+  .mo-block-pricecards__plan > .mo-card__body {
     flex: 1;
   }
-  .mo-block-pricecards__plan .card-icon > .mo-block-pricecards__plan-badge {
+  .mo-block-pricecards__plan .mo-card__icon > .mo-block-pricecards__plan-badge {
     margin-bottom: 0;
   }
-  .mo-block-pricecards__plan .card-subhead > .mo-block-pricecards__plan-price {
+  .mo-block-pricecards__plan .mo-card__subhead > .mo-block-pricecards__plan-price {
     margin: 0;
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
@@ -507,7 +507,7 @@
   .mo-block-pricecards__plan .mo-block-pricecards__plan-amount {
     color: var(--mo-sys-block-text);
   }
-  .mo-block-pricecards__plan .card-actions > .mo-block-pricecards__plan-buttons {
+  .mo-block-pricecards__plan .mo-card__actions > .mo-block-pricecards__plan-buttons {
     flex: 1 1 100%;
   }
   .mo-is-featured {
@@ -560,7 +560,7 @@
     padding-top: 0.5rem;
   }
   /* A narrow card: a long text on its button goes onto two lines rather than out of the card. */
-  .mo-block-pricecards__plan-buttons .button {
+  .mo-block-pricecards__plan-buttons .mo-button {
     padding-block: 0.75rem;
     padding-inline: 1rem;
     white-space: normal;
@@ -577,7 +577,7 @@
   @media (prefers-reduced-motion: reduce) {
     .mo-block-cards__card,
     .mo-block-cards__card-arrow,
-    .mo-block-cards__card .card-media img,
+    .mo-block-cards__card .mo-card__media img,
     .mo-block-cards__card-picture img {
       transition: none;
     }

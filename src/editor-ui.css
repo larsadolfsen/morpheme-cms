@@ -984,7 +984,7 @@
   .mo-editor-main-rail {
     block-size: 100%;
   }
-  .mo-editor-main-rail [class~='navigation-rail-items'] {
+  .mo-editor-main-rail [class~='mo-navigation-rail__items'] {
     flex: 1;
   }
   .mo-editor-main-footer {
@@ -992,10 +992,10 @@
   }
   .mo-editor-main-drawer-header {
     display: flex;
-    min-block-size: var(--top-app-bar-height, 4rem);
+    min-block-size: var(--mo-comp-top-app-bar-height, 4rem);
     align-items: center;
     gap: var(--mo-ref-space-50);
-    padding: var(--navigation-drawer-item-padding, 0 1rem);
+    padding: var(--mo-comp-navigation-drawer-item-padding, 0 1rem);
     padding-block: 0;
     padding-inline-start: 0;
   }

@@ -1,7 +1,7 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
 @layer components {
-  .slider {
+  .mo-slider {
     --mo-comp-slider-track-thickness: var(--mo-comp-slider-active-track-height, 0.375rem);
     --mo-comp-slider-handle-length: var(--mo-comp-slider-handle-height, 1.25rem);
     --mo-comp-slider-room: var(--mo-comp-slider-height, 2.75rem);
@@ -11,74 +11,74 @@
 }
 /* The sizes (M3 Expressive): a thicker track, and a handle and room that grow with it. */
 @layer components {
-  .slider-small {
-    --mo-comp-slider-track-thickness: var(--slider-small-track-height, 0.75rem);
+  .mo-slider__small {
+    --mo-comp-slider-track-thickness: var(--mo-comp-slider-small-track-height, 0.75rem);
     --mo-comp-slider-track-corner: var(
-      --slider-small-track-radius,
+      --mo-comp-slider-small-track-radius,
       var(--mo-comp-slider-active-track-shape, var(--mo-sys-shape-corner-full))
     );
   }
 }
 @layer components {
-  .slider-medium {
-    --mo-comp-slider-track-thickness: var(--slider-medium-track-height, 1.5rem);
+  .mo-slider__medium {
+    --mo-comp-slider-track-thickness: var(--mo-comp-slider-medium-track-height, 1.5rem);
     --mo-comp-slider-track-corner: var(
       --mo-comp-slider-medium-track-radius,
       var(--mo-comp-slider-active-track-shape, var(--mo-sys-shape-corner-full))
     );
-    --mo-comp-slider-icon-length: var(--slider-medium-icon-size, 1rem);
+    --mo-comp-slider-icon-length: var(--mo-comp-slider-medium-icon-size, 1rem);
   }
 }
 @layer components {
-  .slider-large {
-    --mo-comp-slider-track-thickness: var(--slider-large-track-height, 2.25rem);
+  .mo-slider__large {
+    --mo-comp-slider-track-thickness: var(--mo-comp-slider-large-track-height, 2.25rem);
     --mo-comp-slider-track-corner: var(
       --mo-comp-slider-large-track-radius,
       var(--mo-comp-slider-active-track-shape, var(--mo-sys-shape-corner-full))
     );
-    --mo-comp-slider-icon-length: var(--slider-large-icon-size, 1.25rem);
+    --mo-comp-slider-icon-length: var(--mo-comp-slider-large-icon-size, 1.25rem);
   }
 }
 @layer components {
-  .slider-xlarge {
-    --mo-comp-slider-track-thickness: var(--slider-xlarge-track-height, 3.5rem);
+  .mo-slider__xlarge {
+    --mo-comp-slider-track-thickness: var(--mo-comp-slider-xlarge-track-height, 3.5rem);
     --mo-comp-slider-track-corner: var(
       --mo-comp-slider-xlarge-track-radius,
       var(--mo-comp-slider-active-track-shape, var(--mo-sys-shape-corner-full))
     );
-    --mo-comp-slider-icon-length: var(--slider-xlarge-icon-size, 1.75rem);
+    --mo-comp-slider-icon-length: var(--mo-comp-slider-xlarge-icon-size, 1.75rem);
   }
 }
 @layer components {
-  .slider-small,
-  .slider-medium,
-  .slider-large,
-  .slider-xlarge {
+  .mo-slider__small,
+  .mo-slider__medium,
+  .mo-slider__large,
+  .mo-slider__xlarge {
     --mo-comp-slider-handle-length: max(var(--mo-comp-slider-handle-height, 1.25rem), var(--mo-comp-slider-track-thickness) + 0.75rem);
     --mo-comp-slider-room: max(var(--mo-comp-slider-height, 2.75rem), var(--mo-comp-slider-handle-length) + 0.5rem);
   }
 }
 @layer components {
-  .slider-control {
+  .mo-slider__control {
     /* How far from the track's ends a handle's centre goes at most. */
     --mo-comp-slider-reach: calc(var(--mo-comp-slider-handle-width, 1.25rem) / 2 + var(--mo-comp-slider-handle-inset, 0px));
   }
 }
 /* Centered: the active track from the middle to the handle, the room round the handle only on its side. */
 @layer components {
-  .slider-centered {
+  .mo-slider__centered {
     --mo-comp-slider-gap-start: 0px;
     --mo-comp-slider-gap-end: var(--mo-comp-slider-track-gap, 0px);
   }
 }
 @layer components {
-  .slider-centered[data-below-center] {
+  .mo-slider__centered[data-below-center] {
     --mo-comp-slider-gap-start: var(--mo-comp-slider-track-gap, 0px);
     --mo-comp-slider-gap-end: 0px;
   }
 }
 @layer components {
-  .slider-vertical {
-    --mo-comp-slider-along: var(--slider-length, 12rem);
+  .mo-slider__vertical {
+    --mo-comp-slider-along: var(--mo-comp-slider-length, 12rem);
   }
 }

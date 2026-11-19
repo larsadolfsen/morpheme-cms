@@ -1,4 +1,4 @@
-// A snackbar (m3.material.io/components/snackbar, .snackbar in ../styles/ui/snackbar.css): a short message at the bottom of the
+// A snackbar (m3.material.io/components/snackbar, .mo-snackbar in ../styles/ui/snackbar.css): a short message at the bottom of the
 // screen, what the site says with one (a new version of a page: layouts/PageLayout.astro). Its supporting text (`text`,
 // on one line or two), evt. links in it, each with an arrow (`links`), evt. an action, a text button (`action`, with
 // its `label` and `href` or other attributes on it), under the text when it is long (`longerAction`), and evt. a
@@ -17,7 +17,8 @@ export type SnackbarLink = { text: string; href: string };
 export type SnackbarAction = { label: string; href?: string } & Record<string, unknown>;
 
 /** A snackbar's classes: with its action under the text, or beside it. */
-export const snackbarClass = (longerAction?: boolean) => ['snackbar', longerAction && 'snackbar-longer-action'].filter(Boolean).join(' ');
+export const snackbarClass = (longerAction?: boolean) =>
+  ['mo-snackbar', longerAction && 'mo-snackbar__longer-action'].filter(Boolean).join(' ');
 
 export default function Snackbar({
   text,
@@ -40,12 +41,12 @@ export default function Snackbar({
   const { label, ...actionRest } = action ?? { label: '' };
   return (
     <div role={error ? 'alert' : 'status'} className={[snackbarClass(longerAction), className].filter(Boolean).join(' ')} {...rest}>
-      <p className="snackbar-supporting-text">
+      <p className="mo-snackbar__supporting-text">
         {text}
         {links.map((link) => (
           <Fragment key={link.href + link.text}>
             {' '}
-            <Link href={link.href} className="snackbar-link">
+            <Link href={link.href} className="mo-snackbar__link">
               {link.text}
               <Svg name="arrow-right" size={14} />
             </Link>
@@ -53,13 +54,13 @@ export default function Snackbar({
         ))}
       </p>
       {(action || closeLabel) && (
-        <div className="snackbar-actions">
+        <div className="mo-snackbar__actions">
           {action && (
-            <Button kind="text" size="small" className="snackbar-action" {...actionRest}>
+            <Button kind="text" size="small" className="mo-snackbar__action" {...actionRest}>
               {label}
             </Button>
           )}
-          {closeLabel && <IconButton icon="x" label={closeLabel} className="snackbar-close" data-snackbar-close="" />}
+          {closeLabel && <IconButton icon="x" label={closeLabel} className="mo-snackbar__close" data-snackbar-close="" />}
         </div>
       )}
     </div>

@@ -93,7 +93,7 @@ async function checkCardImage(width, height = 800) {
   await page.waitForTimeout(400);
   const picture = () =>
     page.evaluate(() => {
-      const box = document.querySelector('.mo-block-cards__card-picture, .mo-block-cards__card .card-media');
+      const box = document.querySelector('.mo-block-cards__card-picture, .mo-block-cards__card .mo-card__media');
       const r = box?.getBoundingClientRect();
       return box ? { ratio: Math.round((r.width / r.height) * 100) / 100, img: !!box.querySelector('img') } : null;
     });
@@ -141,7 +141,8 @@ async function checkCardImage(width, height = 800) {
     .catch(() => {});
   await page.waitForTimeout(800);
   const cut = await page.evaluate(
-    () => document.querySelector('.mo-block-cards__card-picture img, .mo-block-cards__card .card-media img')?.getAttribute('style') ?? '',
+    () =>
+      document.querySelector('.mo-block-cards__card-picture img, .mo-block-cards__card .mo-card__media img')?.getAttribute('style') ?? '',
   );
   if (!/transform/.test(cut)) problems.push(`${label}: the saved crop is not drawn on the card (style "${cut}")`);
   await page.screenshot({ path: join(shots, `card-image-${width}.png`) });
@@ -253,13 +254,13 @@ async function checkCardHeadline(width, height) {
   // The system's test page (the demo's Blocks page, on a copy of any site: the starter has no Blocks page of its own).
   if (!(await onTestPage(sitePage, label))) return sitePage.close();
   const card = await sitePage.evaluate(() => {
-    const title = [...document.querySelectorAll('.mo-block-cards__card-title, .mo-block-cards__card .card-headline')].find(
+    const title = [...document.querySelectorAll('.mo-block-cards__card-title, .mo-block-cards__card .mo-card__headline')].find(
       (t) => t.textContent.trim() === 'Only a headline',
     );
     const card = title?.closest('.mo-block-cards__card');
     return card
       ? {
-          text: !!card.querySelector('.mo-block-cards__card-text, .mo-block-cards__card .card-supporting'),
+          text: !!card.querySelector('.mo-block-cards__card-text, .mo-block-cards__card .mo-card__supporting'),
           height: card.getBoundingClientRect().height,
         }
       : null;
@@ -287,16 +288,16 @@ async function checkImageGrid(width, height) {
     return page.close();
   }
   await page.goto(`${site}/editor/#files`);
-  await page.waitForSelector('ul.image-grid', { timeout: 30_000 });
+  await page.waitForSelector('ul.mo-staggered-grid', { timeout: 30_000 });
   const m = await page.evaluate(() => {
-    const grid = document.querySelector('ul.image-grid');
+    const grid = document.querySelector('ul.mo-staggered-grid');
     const gs = getComputedStyle(grid);
-    const tiles = [...grid.querySelectorAll('button.card')];
-    const media = tiles.map((t) => t.querySelector('.card-media')).filter(Boolean);
+    const tiles = [...grid.querySelectorAll('button.mo-card')];
+    const media = tiles.map((t) => t.querySelector('.mo-card__media')).filter(Boolean);
     const plain = document.createElement('div');
-    plain.className = 'card card-filled';
+    plain.className = 'mo-card mo-is-filled';
     const chosen = document.createElement('div');
-    chosen.className = 'card card-filled card-selected';
+    chosen.className = 'mo-card mo-is-filled mo-is-selected';
     document.body.append(plain, chosen);
     const surfaces = [getComputedStyle(plain).backgroundColor, getComputedStyle(chosen).backgroundColor];
     plain.remove();
@@ -305,7 +306,7 @@ async function checkImageGrid(width, height) {
       columns: gs.columnCount,
       gap: gs.columnGap,
       tiles: tiles.length,
-      cards: tiles.filter((t) => t.classList.contains('card-filled') && t.classList.contains('card-with-media')).length,
+      cards: tiles.filter((t) => t.classList.contains('mo-is-filled') && t.classList.contains('mo-has-media')).length,
       ratios: media.filter((el) => el.style.aspectRatio).length,
       square: grid.querySelectorAll('.aspect-square').length,
       heights: [...new Set(tiles.map((t) => Math.round(t.getBoundingClientRect().height)))].length,
@@ -370,20 +371,20 @@ async function checkCardIconText(width, height, scheme) {
     for (const card of document.querySelectorAll('.mo-block-cards__card')) {
       const icon = card.querySelector('.mo-block-cards__card-icon');
       if (!icon || icon.hasAttribute('data-icon-color')) continue;
-      const design = ['card-outlined', 'card-filled', 'card-elevated'].find((c) => card.classList.contains(c)) ?? 'other';
+      const design = ['outlined', 'filled', 'elevated'].find((c) => card.classList.contains(`mo-is-${c}`)) ?? 'other';
       designs.add(design);
       const [a, b] = [lum(pixel(getComputedStyle(icon).color)), lum(pixel(behind(icon)))].sort((x, y) => y - x);
       out.push({
         design,
         icon: getComputedStyle(icon).color,
-        title: getComputedStyle(card.querySelector('.mo-block-cards__card-title, .mo-block-cards__card .card-headline')).color,
+        title: getComputedStyle(card.querySelector('.mo-block-cards__card-title, .mo-block-cards__card .mo-card__headline')).color,
         contrast: (a + 0.05) / (b + 0.05),
       });
     }
     return out;
   });
   const designs = new Set(found.map((f) => f.design));
-  for (const d of ['card-outlined', 'card-filled', 'card-elevated'])
+  for (const d of ['outlined', 'filled', 'elevated'])
     if (!designs.has(d)) problems.push(`${label}: no ${d} card with an icon and no color on the Blocks page`);
   for (const f of found) {
     console.log(`card icon contrast ${width}px ${scheme} ${f.design}: ${f.contrast.toFixed(2)}`);
@@ -491,7 +492,7 @@ async function checkCardsCarousel(width, height) {
   const flush = await page.evaluate(() =>
     [...document.querySelectorAll('.mo-block-cards__card')].flatMap((card) => {
       const media = card.querySelector(
-        '.mo-block-cards__card-picture, .mo-block-cards__card-video, .mo-block-cards__card .card-media-slot',
+        '.mo-block-cards__card-picture, .mo-block-cards__card-video, .mo-block-cards__card .mo-card__media-slot',
       );
       if (!media) return [];
       const c = card.getBoundingClientRect();
@@ -500,7 +501,7 @@ async function checkCardsCarousel(width, height) {
       const gaps = [m.top - c.top - border, m.left - c.left - border, c.right - border - m.right].map((n) => Math.round(n * 10) / 10);
       return gaps.some((g) => Math.abs(g) > 0.5)
         ? [
-            `${card.querySelector('.mo-block-cards__card-title, .mo-block-cards__card .card-headline')?.textContent}: top, left, right gaps ${gaps}`,
+            `${card.querySelector('.mo-block-cards__card-title, .mo-block-cards__card .mo-card__headline')?.textContent}: top, left, right gaps ${gaps}`,
           ]
         : [];
     }),
@@ -530,9 +531,9 @@ async function checkPostMeta(width, height, scheme) {
   if (!(await onTestPage(page, label))) return page.close();
   const rows = await page.evaluate(() => {
     const r = (e) => e.getBoundingClientRect();
-    return [...document.querySelectorAll('.mo-block-posts__in-text .list-item-container')].map((row) => {
-      const o = row.querySelector('.list-item-overline');
-      const h = row.querySelector('.list-item-headline');
+    return [...document.querySelectorAll('.mo-block-posts__in-text .mo-list__item-container')].map((row) => {
+      const o = row.querySelector('.mo-list__item-overline');
+      const h = row.querySelector('.mo-list__item-headline');
       const lines = Math.round(r(h).height / parseFloat(getComputedStyle(h).lineHeight));
       return {
         title: h.textContent,
@@ -541,7 +542,7 @@ async function checkPostMeta(width, height, scheme) {
         metaFont: getComputedStyle(o.firstElementChild).fontSize,
         overlineFont: getComputedStyle(o).fontSize,
         lineHeight: parseFloat(getComputedStyle(o).lineHeight),
-        thumb: !!row.querySelector('.list-item-leading-image, .list-item-leading-video, .list-item-leading'),
+        thumb: !!row.querySelector('.mo-list__item-leading-image, .mo-list__item-leading-video, .mo-list__item-leading'),
         lines,
       };
     });
@@ -576,9 +577,9 @@ async function checkCardsSpacing(width, height) {
       const c = r(card);
       const q = (sel) => card.querySelector(sel);
       const icon = q('.mo-block-cards__card-icon');
-      const title = q('.mo-block-cards__card-title, .mo-block-cards__card .card-headline');
-      const subhead = q('.mo-block-cards__card-subhead, .mo-block-cards__card .card-subhead');
-      const text = q('.mo-block-cards__card-text, .mo-block-cards__card .card-supporting');
+      const title = q('.mo-block-cards__card-title, .mo-block-cards__card .mo-card__headline');
+      const subhead = q('.mo-block-cards__card-subhead, .mo-block-cards__card .mo-card__subhead');
+      const text = q('.mo-block-cards__card-text, .mo-block-cards__card .mo-card__supporting');
       const more = q('.mo-block-cards__card-more');
       const border = parseFloat(getComputedStyle(card).borderTopWidth);
       return {
@@ -592,7 +593,7 @@ async function checkCardsSpacing(width, height) {
         top: px(r(title).top - c.top - border),
       };
     };
-    const subheadCard = cards.find((c) => c.querySelector('.mo-block-cards__card-subhead, .mo-block-cards__card .card-subhead'));
+    const subheadCard = cards.find((c) => c.querySelector('.mo-block-cards__card-subhead, .mo-block-cards__card .mo-card__subhead'));
     const linkCard = cards.find((c) => c.querySelector('.mo-block-cards__card-more'));
     const iconCard = cards.find((c) => c.querySelector('.mo-block-cards__card-icon'));
     const colGap = cards.length > 1 ? px(r(cards[1]).left - r(cards[0]).right) : null;
@@ -651,7 +652,9 @@ async function checkCardMediaCorners(width, height) {
   }
   const media = await page.evaluate(() =>
     [
-      ...document.querySelectorAll('.mo-block-cards__card-picture, .mo-block-cards__card-video, .mo-block-cards__card .card-media-slot'),
+      ...document.querySelectorAll(
+        '.mo-block-cards__card-picture, .mo-block-cards__card-video, .mo-block-cards__card .mo-card__media-slot',
+      ),
     ].map((m) => {
       const card = m.closest('.mo-block-cards__card');
       const c = getComputedStyle(card);
@@ -660,7 +663,7 @@ async function checkCardMediaCorners(width, height) {
       const border = px(c.borderTopWidth);
       return {
         kind: m.className.includes('video') ? 'video' : 'picture',
-        card: card.className.match(/card-(outlined|filled|elevated)/)?.[1],
+        card: card.className.match(/mo-is-(outlined|filled|elevated)/)?.[1],
         cardRadius: px(c.borderTopLeftRadius),
         border,
         tl: px(s.borderTopLeftRadius),
@@ -701,7 +704,7 @@ async function checkCardVideoPlay(width, height) {
     problems.push(`${label}: /blocks/cards/ did not open`);
     return page.close();
   }
-  const facade = page.locator('.mo-block-cards__card .card-media-slot a.mo-block-video__facade').first();
+  const facade = page.locator('.mo-block-cards__card .mo-card__media-slot a.mo-block-video__facade').first();
   if (!(await facade.count())) {
     problems.push(`${label}: the Cards page has no video card`);
     return page.close();
@@ -710,9 +713,11 @@ async function checkCardVideoPlay(width, height) {
   const box = () =>
     page.evaluate(() => {
       const card = document
-        .querySelector('.mo-block-cards__card .card-media-slot:has(.mo-block-video__facade, iframe)')
+        .querySelector('.mo-block-cards__card .mo-card__media-slot:has(.mo-block-video__facade, iframe)')
         .closest('.mo-block-cards__card');
-      const media = document.querySelector('.mo-block-cards__card .card-media-slot:has(.mo-block-video__facade, iframe)').firstElementChild;
+      const media = document.querySelector(
+        '.mo-block-cards__card .mo-card__media-slot:has(.mo-block-video__facade, iframe)',
+      ).firstElementChild;
       const r = (e) => e.getBoundingClientRect();
       const cs = getComputedStyle(media);
       return {
@@ -726,7 +731,7 @@ async function checkCardVideoPlay(width, height) {
     });
   const before = await box();
   await facade.click();
-  await page.waitForSelector('.mo-block-cards__card .card-media-slot iframe', { timeout: 8000 });
+  await page.waitForSelector('.mo-block-cards__card .mo-card__media-slot iframe', { timeout: 8000 });
   const after = await box();
   if (after.tag !== 'IFRAME') problems.push(`${label}: the video did not replace the still (${after.tag})`);
   if (after.card !== before.card) problems.push(`${label}: the card is ${after.card}px tall after the video starts, was ${before.card}px`);
@@ -745,7 +750,7 @@ async function checkCardGutter(width, height) {
   const pages = [
     ['Cards', 'cards', 'ul.mo-block-cards', true],
     ['Price cards', 'price-cards', '.mo-block-pricecards__plans-list', true],
-    ['Image grid', 'image-grid', '.image-grid', false],
+    ['Image grid', 'image-grid', '.mo-staggered-grid', false],
   ];
   for (const [name, slug, selector, hasRows] of pages) {
     if (!existsSync(join(ROOT, `src/content/pages/blocks-${slug}.md`))) {
@@ -798,7 +803,7 @@ async function checkCardsEditorSpacing(width, height) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#src/content/pages/blocks-cards.md'));
-  await page.waitForSelector('ul.mo-block-cards .mo-block-cards__card-title, ul.mo-block-cards .mo-block-cards__card .card-headline', {
+  await page.waitForSelector('ul.mo-block-cards .mo-block-cards__card-title, ul.mo-block-cards .mo-block-cards__card .mo-card__headline', {
     timeout: 30_000,
   });
   const measure = (index) =>
@@ -811,9 +816,9 @@ async function checkCardsEditorSpacing(width, height) {
       const c = r(card);
       const border = parseFloat(getComputedStyle(card).borderTopWidth);
       const media = card.querySelector('.mo-block-cards__card-icon');
-      const title = card.querySelector('.mo-block-cards__card-title, .mo-block-cards__card .card-headline');
-      const sub = card.querySelector('.mo-block-cards__card-subhead, .mo-block-cards__card .card-subhead');
-      const text = card.querySelector('.mo-block-cards__card-text, .mo-block-cards__card .card-supporting');
+      const title = card.querySelector('.mo-block-cards__card-title, .mo-block-cards__card .mo-card__headline');
+      const sub = card.querySelector('.mo-block-cards__card-subhead, .mo-block-cards__card .mo-card__subhead');
+      const text = card.querySelector('.mo-block-cards__card-text, .mo-block-cards__card .mo-card__supporting');
       const cols = getComputedStyle(list).gridTemplateColumns.split(' ').length;
       return {
         sub: !!sub,
@@ -823,8 +828,10 @@ async function checkCardsEditorSpacing(width, height) {
         bottom: px(
           c.bottom -
             border -
-            r(card.querySelector('.mo-block-cards__card-more, .mo-block-cards__card-actions, .mo-block-cards__card .card-actions') ?? text)
-              .bottom,
+            r(
+              card.querySelector('.mo-block-cards__card-more, .mo-block-cards__card-actions, .mo-block-cards__card .mo-card__actions') ??
+                text,
+            ).bottom,
         ),
         cols,
         // Cards side by side are as high as the tallest of their row.
@@ -857,7 +864,7 @@ async function checkCardsEditorSpacing(width, height) {
   await page.locator('ul.mo-block-cards .mo-block-cards__card').first().locator('[data-field="title"]').focus();
   await page
     .waitForSelector(
-      'ul.mo-block-cards .mo-block-cards__card:first-child .mo-block-cards__card-subhead, ul.mo-block-cards .mo-block-cards__card:first-child .card-subhead',
+      'ul.mo-block-cards .mo-block-cards__card:first-child .mo-block-cards__card-subhead, ul.mo-block-cards .mo-block-cards__card:first-child .mo-card__subhead',
       {
         timeout: 10_000,
       },
@@ -879,11 +886,11 @@ async function checkCardsElevation(width, height) {
   const read = () =>
     Object.fromEntries(
       [
-        ['elevated', 'ul.mo-block-cards .mo-block-cards__card.card-elevated'],
-        ['filled', 'ul.mo-block-cards .mo-block-cards__card.card-filled'],
-        ['outlined', 'ul.mo-block-cards .mo-block-cards__card.card-outlined'],
+        ['elevated', 'ul.mo-block-cards .mo-block-cards__card.mo-card.mo-is-elevated'],
+        ['filled', 'ul.mo-block-cards .mo-block-cards__card.mo-card.mo-is-filled'],
+        ['outlined', 'ul.mo-block-cards .mo-block-cards__card.mo-card.mo-is-outlined'],
         // The Image grid's elevated cards (the demo's "Image grid: elevated cards with caption, tags and credit"): elevated at rest too.
-        ['gridElevated', '.mo-block-imagegrid__grid .card-elevated'],
+        ['gridElevated', '.mo-block-imagegrid__grid .mo-card.mo-is-elevated'],
       ].map(([kind, selector]) => {
         const card = document.querySelector(selector);
         return [kind, card ? getComputedStyle(card).boxShadow : null];
@@ -913,9 +920,12 @@ async function checkCardsElevation(width, height) {
   inEditor.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(inEditor, site);
   await inEditor.evaluate(() => (location.hash = '#src/content/pages/blocks-cards.md'));
-  await inEditor.waitForSelector('ul.mo-block-cards .mo-block-cards__card-title, ul.mo-block-cards .mo-block-cards__card .card-headline', {
-    timeout: 30_000,
-  });
+  await inEditor.waitForSelector(
+    'ul.mo-block-cards .mo-block-cards__card-title, ul.mo-block-cards .mo-block-cards__card .mo-card__headline',
+    {
+      timeout: 30_000,
+    },
+  );
   judge('editor', await inEditor.evaluate(read));
   await inEditor.close();
 }
@@ -955,7 +965,7 @@ async function checkIconColor(width, height, scheme = 'light') {
         rows: document.querySelectorAll('[role="group"][aria-label="Icon color"]').length,
         names: [...(group?.querySelectorAll('button') ?? [])].map((b) => b.getAttribute('aria-label')),
         visible: [...(group?.querySelectorAll('button') ?? [])]
-          .map((b) => (b.querySelector('.choice-group-label').getBoundingClientRect().width > 2 ? b.textContent.trim() : ''))
+          .map((b) => (b.querySelector('.mo-choice-group__label').getBoundingClientRect().width > 2 ? b.textContent.trim() : ''))
           .join(''),
         pressed: [...(group?.querySelectorAll('button') ?? [])]
           .filter((b) => b.getAttribute('aria-pressed') === 'true')
@@ -1002,7 +1012,7 @@ async function checkIconColor(width, height, scheme = 'light') {
       };
       const chips = [...document.querySelectorAll('[role="group"][aria-label="Icon color"] button')];
       const out = chips.map((chip, i) => {
-        const dot = chip.querySelector('.choice-group-swatch');
+        const dot = chip.querySelector('.mo-choice-group__swatch');
         const box = dot?.getBoundingClientRect();
         const role = ['on-surface', 'primary', 'secondary', 'tertiary'][i];
         return {
@@ -1011,7 +1021,7 @@ async function checkIconColor(width, height, scheme = 'light') {
           circle: !!dot && Math.abs(box.width - box.height) < 0.5 && getComputedStyle(dot).borderRadius !== '0px',
           color: dot ? getComputedStyle(dot).backgroundColor : null,
           want: colorOf(role),
-          check: !!chip.querySelector('.segmented-button-check, .choice-group-check'),
+          check: !!chip.querySelector('.mo-segmented-button__check, .choice-group-check'),
           width: Math.round(chip.getBoundingClientRect().width),
         };
       });

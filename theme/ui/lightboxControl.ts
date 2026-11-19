@@ -61,11 +61,11 @@ export function lightbox(el: HTMLDialogElement, texts: { count: string }): Light
 
   function item(image: LightboxImage, i: number) {
     const li = document.createElement('li');
-    li.className = 'lightbox-item';
+    li.className = 'mo-lightbox__item';
     const figure = document.createElement('figure');
-    figure.className = 'lightbox-figure';
+    figure.className = 'mo-lightbox__figure';
     const img = document.createElement('img');
-    img.className = 'lightbox-image';
+    img.className = 'mo-lightbox__image';
     img.src = image.src;
     if (image.srcset) img.srcset = image.srcset;
     if (image.sizes) img.sizes = image.sizes;
@@ -77,7 +77,7 @@ export function lightbox(el: HTMLDialogElement, texts: { count: string }): Light
     figure.append(img);
     if (image.caption) {
       const caption = document.createElement('figcaption');
-      caption.className = 'lightbox-caption';
+      caption.className = 'mo-lightbox__caption';
       caption.textContent = image.caption;
       figure.append(caption);
     }

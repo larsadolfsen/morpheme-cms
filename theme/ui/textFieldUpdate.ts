@@ -4,12 +4,12 @@
 // button empties it, and the password button shows or hides the password.
 
 /** The field's input or textarea. */
-const inputOf = (root: HTMLElement) => root.querySelector<HTMLInputElement | HTMLTextAreaElement>('.text-field-input');
+const inputOf = (root: HTMLElement) => root.querySelector<HTMLInputElement | HTMLTextAreaElement>('.mo-text-field__input');
 
 /** A field's counter: what is written, and how much may be (12/50). */
 export const counterText = (length: number, max?: number) => (max ? `${length}/${max}` : String(length));
 
-/** Puts a text field (its .text-field element) right for what is written in it: its counter and its height. */
+/** Puts a text field (its .mo-text-field element) right for what is written in it: its counter and its height. */
 export function updateTextField(root: HTMLElement) {
   const input = inputOf(root);
   if (!input) return;
@@ -17,7 +17,7 @@ export function updateTextField(root: HTMLElement) {
   if (counter) {
     const limit = Number(counter.dataset.limit) || undefined;
     counter.textContent = counterText(input.value.length, input.maxLength > 0 ? input.maxLength : limit);
-    counter.classList.toggle('text-field-counter-over', !!limit && input.value.length > limit);
+    counter.classList.toggle('mo-text-field__counter-over', !!limit && input.value.length > limit);
   }
   if (input instanceof HTMLTextAreaElement && input.hasAttribute('data-text-field-grow') && !CSS.supports('field-sizing', 'content')) {
     input.style.height = 'auto';
@@ -43,7 +43,7 @@ export function pressTextField(root: HTMLElement, button: HTMLElement) {
   input.focus();
 }
 
-/** Keeps what a screen reader gets in step with what is seen (the CSS `:user-invalid`, as `.text-field-error` is drawn): while
+/** Keeps what a screen reader gets in step with what is seen (the CSS `:user-invalid`, as `.mo-text-field.mo-is-error` is drawn): while
  * the browser finds the field invalid after the person has worked in it, its aria-invalid is true and the line saying what is
  * wrong (the id in the input's data-error) is in its aria-describedby; otherwise neither. A field marked by its caller
  * (data-marked: `error`) keeps the caller's aria-invalid. */

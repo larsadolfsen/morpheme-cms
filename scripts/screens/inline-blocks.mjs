@@ -9,7 +9,7 @@ async function chooseOption(page, name) {
   const button = page.getByRole('button', { name, exact: true }).filter({ visible: true });
   if (await button.count()) return void (await button.last().click());
   await page
-    .locator('.choice-group-list .list-item-content')
+    .locator('.mo-choice-group__list .mo-list__item-content')
     .filter({ hasText: new RegExp(`^${name}$`) })
     .filter({ visible: true })
     .last()
@@ -157,7 +157,7 @@ async function checkListDesigns(width, height) {
       await chooseOption(page, 'Segmented');
       await saveOrClose(page, 'last');
       // The rows are on their own surfaces now (the theme's segmented list, or the card class of the rows that fold out).
-      await page.locator('.list-segmented, .mo-block-accordion__segmented').first().waitFor({ timeout: 8000 });
+      await page.locator('.mo-list__segmented, .mo-block-accordion__segmented').first().waitFor({ timeout: 8000 });
     }
     await page.locator('[data-add-row]').waitFor({ timeout: 8000 });
     const got = await page.evaluate(() => ({
@@ -169,8 +169,8 @@ async function checkListDesigns(width, height) {
       // The plain design is full width on a compact screen (owner, 16 Nov 2026): the row's layer is 16 dp wider than the text column on each side, its leading icon on the text's edge.
       edge: (() => {
         const row = document.querySelector('.mo-editor-inline-list-row-active');
-        const box = row?.matches('.list-item-container') ? row : row?.querySelector('.list-item-container');
-        const lead = box?.querySelector('.list-item-leading');
+        const box = row?.matches('.mo-list__item-container') ? row : row?.querySelector('.mo-list__item-container');
+        const lead = box?.querySelector('.mo-list__item-leading');
         const text = document.querySelector('.ProseMirror p')?.getBoundingClientRect().left;
         return box && lead && text !== undefined
           ? {
@@ -278,8 +278,8 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       const out = {};
       const was = row.className;
       for (const kind of ['filled', 'tonal', 'outlined', 'text']) {
-        row.classList.remove('button-filled', 'button-tonal', 'button-outlined', 'button-text');
-        row.classList.add(`button-${kind}`);
+        row.classList.remove('mo-is-filled', 'mo-is-tonal', 'mo-is-outlined', 'mo-button__text');
+        row.classList.add(kind === 'text' ? 'mo-button__text' : `mo-is-${kind}`);
         out[kind] = [getComputedStyle(field, '::placeholder').color, getComputedStyle(row).color, getComputedStyle(field).color];
       }
       row.className = was;
@@ -301,7 +301,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Variant choice`));
       const radios = await group.getByRole('radio').count();
       const names = radios
-        ? await group.locator('.list-item-headline').allTextContents()
+        ? await group.locator('.mo-list__item-headline').allTextContents()
         : await group
             .getByRole('button')
             .allTextContents()
@@ -309,13 +309,13 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       if (names.map((n) => n.trim()).join() !== kinds.join()) problems.push(`${label}: the button's styles are "${names}", not "${kinds}"`);
       await (
         radios
-          ? group.locator('.list-item-content', { hasText: /^Outlined$/ })
+          ? group.locator('.mo-list__item-content', { hasText: /^Outlined$/ })
           : group.getByRole('button', { name: 'Outlined', exact: true })
       )
         .click({ timeout: 3000 })
         .catch(() => {});
       await page.waitForTimeout(300);
-      if (!(await page.locator('.mo-editor-inline-list-row-active.button-outlined').count()))
+      if (!(await page.locator('.mo-editor-inline-list-row-active.mo-button.mo-is-outlined').count()))
         problems.push(`${label}: choosing Outlined does not change the active button's style`);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
@@ -548,7 +548,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     if (await mediaVideo.count()) await mediaVideo.click();
     else
       await page
-        .locator('.choice-group-list .list-item-content', { hasText: /^Video$/ })
+        .locator('.mo-choice-group__list .mo-list__item-content', { hasText: /^Video$/ })
         .last()
         .click();
     await page.getByRole('textbox', { name: 'Video link' }).fill('https://www.youtube.com/watch?v=aqz-KE-bpKQ');

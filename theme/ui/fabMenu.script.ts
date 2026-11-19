@@ -7,8 +7,8 @@
 
 /** Makes one FAB menu (its [data-fab-menu] element) open and close; returns what undoes it (every listener removed). */
 export function setUpFabMenu(root: HTMLElement): () => void {
-  const button = root.querySelector<HTMLButtonElement>('.fab-menu-button');
-  const list = root.querySelector<HTMLElement>('.fab-menu-list');
+  const button = root.querySelector<HTMLButtonElement>('.mo-fab-menu__button');
+  const list = root.querySelector<HTMLElement>('.mo-fab-menu__list');
   if (!button || !list) return () => {};
   const items = () => [...list.querySelectorAll<HTMLElement>('a[href], button:not(:disabled)')];
   const isOpen = () => button.getAttribute('aria-expanded') === 'true';

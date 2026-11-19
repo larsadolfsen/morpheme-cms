@@ -204,7 +204,7 @@ export function EditableCards({
       <div aria-live="polite" className="mo-visually-hidden">
         {dash.announcement}
       </div>
-      <div ref={grid} className="image-grid mo-editor-settings-dashboard-grid">
+      <div ref={grid} className="mo-staggered-grid mo-editor-settings-dashboard-grid">
         {shown.map(({ placement, definition }) => {
           const dragging = drag?.id === placement.id;
           return (
@@ -215,7 +215,7 @@ export function EditableCards({
               data-card={placement.id}
               style={dragging ? { transform: `translate(${drag.dx}px, ${drag.dy}px)` } : undefined}
               className={`${spanClass(definition.span)} mo-editor-widget-card ${
-                dragging ? 'card-dragged mo-editor-widget-lifted' : ''
+                dragging ? 'mo-card__dragged mo-editor-widget-lifted' : ''
               } ${drag?.over === placement.id ? 'mo-editor-widget-target' : ''}`}
             >
               <div className="mo-editor-widget-bar">

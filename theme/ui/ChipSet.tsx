@@ -1,4 +1,4 @@
-// A chip set (Material's chips side by side, as Material's own web components group them, md-chip-set; .chip-set in
+// A chip set (Material's chips side by side, as Material's own web components group them, md-chip-set; .mo-chip__set in
 // ../styles/ui/chips.css): the theme's chips (`children`: Chip) in a group with its name (`label`, read by screen readers).
 // Its layout (`layout`): wrap (the default: on as many lines as they need) or scroll (on one line that scrolls sideways
 // when they are wider than it, as Material's chips do on a phone, without a scrollbar). Other attributes (data-…) go on
@@ -10,7 +10,7 @@ export const chipSetLayouts = ['wrap', 'scroll'] as const;
 export type ChipSetLayout = (typeof chipSetLayouts)[number];
 
 /** A chip set's classes: its layout's. */
-export const chipSetClass = (layout: ChipSetLayout = 'wrap') => `chip-set chip-set-${layout}`;
+export const chipSetClass = (layout: ChipSetLayout = 'wrap') => `mo-chip__set mo-chip__set-${layout}`;
 
 export default function ChipSet({
   layout,

@@ -1,37 +1,37 @@
 /*
-  Dividers (Divider.tsx, dividerClass; m3.material.io/components/divider): .divider, an <hr>, from edge to edge, with
-  .divider-inset (in from the start) or .divider-middle-inset (in from both sides), and .divider-vertical (top to
+  Dividers (Divider.tsx, dividerClass; m3.material.io/components/divider): .mo-divider, an <hr>, from edge to edge, with
+  .mo-divider__inset (in from the start) or .mo-divider__middle-inset (in from both sides), and .mo-divider__vertical (top to
   bottom, between things side by side).
-    --mo-comp-divider-color, --divider-thickness, --divider-inset   the line, and how far in an inset one starts
-  Moved here from ui.css with its rules unchanged; imported by base.css right after ui.css, in the same layer. No other rule matches a .divider,
+    --mo-comp-divider-color, --mo-comp-divider-thickness, --mo-comp-divider-inset   the line, and how far in an inset one starts
+  Moved here from ui.css with its rules unchanged; imported by base.css right after ui.css, in the same layer. No other rule matches a .mo-divider,
   so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
 */
 @layer components {
   /* Dividers. */
-  .divider {
+  .mo-divider {
     flex-shrink: 0;
     height: 0;
     margin: 0;
     border: 0;
-    border-top: var(--divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-sys-block-line));
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-sys-block-line));
   }
-  .divider-inset {
-    margin-inline-start: var(--divider-inset, 1rem);
+  .mo-divider__inset {
+    margin-inline-start: var(--mo-comp-divider-inset, 1rem);
   }
-  .divider-middle-inset {
-    margin-inline: var(--divider-inset, 1rem);
+  .mo-divider__middle-inset {
+    margin-inline: var(--mo-comp-divider-inset, 1rem);
   }
-  .divider-vertical {
+  .mo-divider__vertical {
     align-self: stretch;
     width: 0;
     height: auto;
     border-top: 0;
-    border-inline-start: var(--divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-sys-block-line));
+    border-inline-start: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-sys-block-line));
   }
-  .divider-vertical.divider-inset {
-    margin: var(--divider-inset, 1rem) 0 0;
+  .mo-divider__vertical.mo-divider__inset {
+    margin: var(--mo-comp-divider-inset, 1rem) 0 0;
   }
-  .divider-vertical.divider-middle-inset {
-    margin: var(--divider-inset, 1rem) 0;
+  .mo-divider__vertical.mo-divider__middle-inset {
+    margin: var(--mo-comp-divider-inset, 1rem) 0;
   }
 }

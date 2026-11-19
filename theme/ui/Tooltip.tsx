@@ -1,4 +1,4 @@
-// A tooltip (m3.material.io/components/tooltips, .tooltip in ../styles/ui/tooltip.css) on what it is about (`children`: one
+// A tooltip (m3.material.io/components/tooltips, .mo-tooltip in ../styles/ui/tooltip.css) on what it is about (`children`: one
 // element, a button or a link, which gets aria-describedby, so screen readers read the tooltip after its name). Plain
 // (`text`: a short label, e.g. on an icon button) or rich (`subhead`, `supportingText` and evt. an action, `action`, a
 // text button with its `label` and `href` or other attributes on it). Over its anchor, under it when there is no room
@@ -11,7 +11,7 @@ import Button from '@theme/ui/Button';
 export type TooltipAction = { label: string; href?: string } & Record<string, unknown>;
 
 /** A tooltip's classes, plain or rich. */
-export const tooltipClass = (rich?: boolean) => `tooltip ${rich ? 'tooltip-rich' : 'tooltip-plain'}`;
+export const tooltipClass = (rich?: boolean) => `mo-tooltip ${rich ? 'mo-tooltip__rich' : 'mo-tooltip__plain'}`;
 
 export default function Tooltip({
   text,
@@ -34,16 +34,16 @@ export default function Tooltip({
   const rich = text === undefined;
   const { label, ...actionRest } = action ?? { label: '' };
   return (
-    <span className={['tooltip-anchor', className].filter(Boolean).join(' ')} data-tooltip="" data-tooltip-open={open || undefined}>
+    <span className={['mo-tooltip__anchor', className].filter(Boolean).join(' ')} data-tooltip="" data-tooltip-open={open || undefined}>
       {isValidElement(children) ? cloneElement(children, { 'aria-describedby': id }) : children}
       <span id={id} role={action ? undefined : 'tooltip'} className={tooltipClass(rich)}>
         {rich ? (
           <>
-            {subhead && <span className="tooltip-subhead">{subhead}</span>}
-            {supportingText && <span className="tooltip-supporting-text">{supportingText}</span>}
+            {subhead && <span className="mo-tooltip__subhead">{subhead}</span>}
+            {supportingText && <span className="mo-tooltip__supporting-text">{supportingText}</span>}
             {action && (
-              <span className="tooltip-actions">
-                <Button kind="text" size="small" className="tooltip-action" {...actionRest}>
+              <span className="mo-tooltip__actions">
+                <Button kind="text" size="small" className="mo-tooltip__action" {...actionRest}>
                   {label}
                 </Button>
               </span>

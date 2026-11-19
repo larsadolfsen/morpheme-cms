@@ -1,105 +1,32 @@
 {
   "why": "Ratchet counts until the renames M2 to M6 of docs/superpowers/plans/2026-11-18-mo-names-contract-7.md have landed: a file may keep these counts, never go over, and a new file gets none. Lower a count when it falls (npm run check:mo-names -- --list). M7 takes it to zero. What is not counted: NOT_RENAMED in scripts/mo-names.mjs.",
   "files": {
-    "demo/public/demo-names.js": {
-      "markup": 30
-    },
-    "demo/public/demo-type.js": {
-      "markup": 1
-    },
-    "lib/snackbar.ts": {
-      "markup": 3
-    },
     "scripts/built-site.mjs": {
-      "markup": 1
-    },
-    "scripts/card-designs.mjs": {
-      "markup": 3
-    },
-    "scripts/check-contrast.mjs": {
       "markup": 1
     },
     "scripts/check-css-tokens.mjs": {
       "propsRead": 1
     },
-    "scripts/check-density.mjs": {
-      "markup": 11
-    },
-    "scripts/check-imagegrid.mjs": {
-      "markup": 1
-    },
-    "scripts/check-preview.mjs": {
-      "markup": 5
-    },
     "scripts/check-text-measure.mjs": {
-      "markup": 4
+      "markup": 1
     },
     "scripts/gen-token-registry.mjs": {
       "propsRead": 1
     },
-    "scripts/pending-shared.mjs": {
-      "markup": 1
-    },
-    "scripts/screens/block-bar.mjs": {
-      "markup": 24,
-      "propsRead": 1
-    },
-    "scripts/screens/cards.mjs": {
-      "markup": 47
-    },
-    "scripts/screens/choice-groups.mjs": {
-      "markup": 32
-    },
     "scripts/screens/density.mjs": {
-      "markup": 31
-    },
-    "scripts/screens/files.mjs": {
-      "markup": 2
-    },
-    "scripts/screens/forms.mjs": {
-      "markup": 8
-    },
-    "scripts/screens/inline-blocks.mjs": {
-      "markup": 16
+      "markup": 6
     },
     "scripts/screens/lists.mjs": {
-      "markup": 49
-    },
-    "scripts/screens/page-rows.mjs": {
-      "markup": 17
-    },
-    "scripts/screens/search-and-palette.mjs": {
-      "markup": 35
-    },
-    "scripts/screens/sections.mjs": {
-      "markup": 8
-    },
-    "scripts/screens/sheets.mjs": {
-      "markup": 30
-    },
-    "scripts/screens/start-screens.mjs": {
-      "markup": 7
-    },
-    "scripts/screens/support/context.mjs": {
-      "markup": 1
-    },
-    "scripts/screens/tables.mjs": {
-      "markup": 3
-    },
-    "scripts/screens/text-bar.mjs": {
-      "markup": 10
-    },
-    "scripts/screens/type.mjs": {
       "markup": 2
     },
-    "scripts/spacing-grid.allow.mjs": {
+    "scripts/screens/sheets.mjs": {
+      "markup": 3
+    },
+    "scripts/screens/start-screens.mjs": {
       "markup": 1
     },
     "scripts/theme-screenshots.mjs": {
       "markup": 1
-    },
-    "site/directives/interact.mjs": {
-      "markup": 2
     },
     "site/images.mjs": {
       "markup": 1
@@ -107,82 +34,17 @@
     "site/theme.mjs": {
       "markup": 2
     },
-    "src/Advanced.tsx": {
-      "markup": 3
-    },
-    "src/CommandPalette.tsx": {
-      "markup": 1
-    },
-    "src/ContainmentParts.tsx": {
-      "propsRead": 1
-    },
-    "src/DashboardEdit.tsx": {
-      "markup": 1
-    },
-    "src/DashboardGrid.tsx": {
-      "markup": 1
-    },
-    "src/EntryForm.tsx": {
-      "markup": 1
-    },
-    "src/InlineItems.tsx": {
-      "markup": 1
-    },
-    "src/InlineList.tsx": {
-      "markup": 7
-    },
-    "src/InlinePriceCards.tsx": {
-      "markup": 1
-    },
     "src/MarkdownEditor.tsx": {
-      "markup": 3
-    },
-    "src/Media.tsx": {
-      "markup": 1
-    },
-    "src/OwnList.tsx": {
       "markup": 1
     },
     "src/SelectionParts.tsx": {
       "markup": 3
     },
-    "src/blockRow.ts": {
-      "markup": 1
-    },
-    "src/choiceSamples.tsx": {
-      "markup": 1
-    },
-    "src/editor-density.css": {
-      "classDefs": 1
-    },
-    "src/editor-screens.css": {
-      "classDefs": 2
-    },
-    "src/editor-settings.css": {
-      "propsRead": 1
-    },
-    "src/editor-ui.css": {
-      "propsRead": 2
-    },
     "src/editor.css": {
-      "classDefs": 226,
-      "propsRead": 14
+      "classDefs": 46
     },
     "src/ui.tsx": {
-      "markup": 13,
-      "propsDeclared": 4
-    },
-    "src/useSelection.ts": {
       "markup": 1
-    },
-    "theme/blocks/accordion/script.ts": {
-      "markup": 1
-    },
-    "theme/blocks/imagegrid/View.tsx": {
-      "markup": 1
-    },
-    "theme/blocks/imagegrid/script.ts": {
-      "markup": 3
     },
     "theme/components/BlogPosts.tsx": {
       "markup": 1
@@ -190,583 +52,35 @@
     "theme/components/CookieConsent.astro": {
       "markup": 1
     },
-    "theme/components/Footer.astro": {
-      "markup": 2
-    },
-    "theme/components/Header.astro": {
-      "markup": 1
-    },
     "theme/components/Logo.astro": {
-      "markup": 2
-    },
-    "theme/components/Popup.astro": {
-      "markup": 1
-    },
-    "theme/components/PostList.tsx": {
       "markup": 2
     },
     "theme/layouts/Base.astro": {
       "markup": 1
     },
     "theme/styles/base.css": {
-      "classDefs": 9
-    },
-    "theme/styles/blocks/accordion.css": {
-      "classDefs": 1
-    },
-    "theme/styles/blocks/buttons-links.css": {
-      "classDefs": 2
-    },
-    "theme/styles/blocks/panel.css": {
-      "classDefs": 18
+      "classDefs": 6
     },
     "theme/styles/blocks/prose.css": {
-      "classDefs": 7
+      "classDefs": 4
     },
     "theme/styles/blocks/testimonial.css": {
-      "classDefs": 5
-    },
-    "theme/styles/blocks/text-section.css": {
       "classDefs": 3
     },
     "theme/styles/cards.css": {
-      "classDefs": 48
-    },
-    "theme/styles/lists.css": {
-      "classDefs": 13,
-      "propsRead": 1
-    },
-    "theme/styles/material/block-looks.css": {
-      "classDefs": 17
-    },
-    "theme/styles/material/buttons-chips.css": {
-      "classDefs": 18,
-      "propsRead": 1
-    },
-    "theme/styles/material/fields.css": {
-      "classDefs": 82
-    },
-    "theme/styles/material/icon-buttons.css": {
-      "classDefs": 13
-    },
-    "theme/styles/material/navigation.css": {
-      "classDefs": 35
+      "classDefs": 1
     },
     "theme/styles/material/prose-testimonial.css": {
       "classDefs": 1
     },
-    "theme/styles/site-action.css": {
-      "classDefs": 10
-    },
     "theme/styles/site-logo-post.css": {
-      "classDefs": 4
+      "classDefs": 3
     },
     "theme/styles/site-page.css": {
       "classDefs": 1
     },
-    "theme/styles/tokens/base/comp/toolbar.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/blocks/sys.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/cards/comp/grid.css": {
-      "classDefs": 3
-    },
-    "theme/styles/tokens/lists/comp/list.css": {
-      "classDefs": 5
-    },
-    "theme/styles/tokens/lists/sys.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/badge.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/bottom-sheet.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/button.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/card.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/carousel.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/checkbox.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/chip.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/date-picker.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/dialog.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/fab.css": {
-      "classDefs": 4
-    },
-    "theme/styles/tokens/material/comp/icon-button.css": {
-      "classDefs": 2
-    },
-    "theme/styles/tokens/material/comp/list.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/menu.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/navigation.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/progress-indicator.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/radio.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/search.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/segmented-button.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/setting.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/side-sheet.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/slider.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/snackbar.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/split-button.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/switch.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/text-field.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/time-picker.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/toolbar.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/tooltip.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/comp/top-app-bar.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/material/ref.css": {
-      "classDefs": 2
-    },
-    "theme/styles/tokens/material/sys.css": {
-      "classDefs": 2
-    },
-    "theme/styles/tokens/ui/comp/badge.css": {
-      "classDefs": 2
-    },
-    "theme/styles/tokens/ui/comp/button.css": {
-      "classDefs": 26,
-      "propsRead": 27
-    },
-    "theme/styles/tokens/ui/comp/card.css": {
-      "classDefs": 16,
-      "propsRead": 9
-    },
-    "theme/styles/tokens/ui/comp/checkbox.css": {
-      "classDefs": 2
-    },
-    "theme/styles/tokens/ui/comp/divider.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/ui/comp/icon-button.css": {
-      "classDefs": 15,
-      "propsRead": 30
-    },
-    "theme/styles/tokens/ui/comp/lightbox.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/ui/comp/list.css": {
-      "classDefs": 54,
-      "propsRead": 7
-    },
-    "theme/styles/tokens/ui/comp/loading-indicator.css": {
-      "classDefs": 3
-    },
-    "theme/styles/tokens/ui/comp/menu.css": {
-      "classDefs": 1,
-      "propsRead": 10
-    },
-    "theme/styles/tokens/ui/comp/progress-indicator.css": {
-      "classDefs": 6,
-      "propsRead": 7
-    },
-    "theme/styles/tokens/ui/comp/radio.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/ui/comp/side-sheet.css": {
-      "classDefs": 3
-    },
-    "theme/styles/tokens/ui/comp/slider.css": {
-      "classDefs": 13,
-      "propsRead": 9
-    },
-    "theme/styles/tokens/ui/comp/split-button.css": {
-      "classDefs": 6
-    },
-    "theme/styles/tokens/ui/comp/switch.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/ui/comp/text-field.css": {
-      "classDefs": 12,
-      "propsRead": 1
-    },
-    "theme/styles/tokens/ui/comp/time-picker.css": {
-      "classDefs": 1,
-      "propsRead": 2
-    },
-    "theme/styles/tokens/ui/comp/toolbar.css": {
-      "classDefs": 1
-    },
-    "theme/styles/tokens/ui/sys.css": {
-      "classDefs": 1
-    },
-    "theme/styles/ui/avatar.css": {
-      "classDefs": 1
-    },
-    "theme/styles/ui/badge.css": {
-      "classDefs": 15,
-      "propsRead": 10
-    },
-    "theme/styles/ui/bottom-sheet.css": {
-      "classDefs": 103,
-      "propsRead": 36
-    },
-    "theme/styles/ui/button-groups.css": {
-      "classDefs": 69,
-      "propsRead": 16
-    },
-    "theme/styles/ui/buttons.css": {
-      "classDefs": 88,
-      "propsRead": 44
-    },
-    "theme/styles/ui/card.css": {
-      "classDefs": 44,
-      "propsRead": 6
-    },
-    "theme/styles/ui/checkbox.css": {
-      "classDefs": 13,
-      "propsRead": 6
-    },
-    "theme/styles/ui/chips.css": {
-      "classDefs": 56,
-      "propsRead": 21
-    },
-    "theme/styles/ui/dialog.css": {
-      "classDefs": 24,
-      "propsRead": 11
-    },
-    "theme/styles/ui/divider.css": {
-      "classDefs": 8,
-      "propsRead": 6
-    },
-    "theme/styles/ui/fab-menu.css": {
-      "classDefs": 60,
-      "propsRead": 33
-    },
-    "theme/styles/ui/fab.css": {
-      "classDefs": 47,
-      "propsRead": 49
-    },
-    "theme/styles/ui/lightbox.css": {
-      "classDefs": 33,
-      "propsRead": 1
-    },
-    "theme/styles/ui/list.css": {
-      "classDefs": 217,
-      "propsRead": 20
-    },
-    "theme/styles/ui/loading-indicator.css": {
-      "classDefs": 5,
-      "propsRead": 3
-    },
-    "theme/styles/ui/menus.css": {
-      "classDefs": 112,
-      "propsRead": 18
-    },
-    "theme/styles/ui/navigation-bar.css": {
-      "classDefs": 73,
-      "propsRead": 18
-    },
-    "theme/styles/ui/navigation-drawer.css": {
-      "classDefs": 75,
-      "propsRead": 50
-    },
-    "theme/styles/ui/navigation-rail.css": {
-      "classDefs": 66,
-      "propsRead": 14
-    },
-    "theme/styles/ui/pickers.css": {
-      "classDefs": 120,
-      "propsRead": 60
-    },
-    "theme/styles/ui/progress-indicators.css": {
-      "classDefs": 47,
-      "propsRead": 37
-    },
-    "theme/styles/ui/radio-button.css": {
-      "classDefs": 9,
-      "propsRead": 4
-    },
-    "theme/styles/ui/reduced-motion.css": {
-      "classDefs": 29
-    },
-    "theme/styles/ui/ripple.css": {
-      "classDefs": 28,
-      "propsRead": 9
-    },
-    "theme/styles/ui/search.css": {
-      "classDefs": 61,
-      "propsRead": 31
-    },
-    "theme/styles/ui/side-sheet.css": {
-      "classDefs": 14,
-      "propsRead": 18
-    },
-    "theme/styles/ui/slider.css": {
-      "classDefs": 80,
-      "propsRead": 20
-    },
-    "theme/styles/ui/snackbar.css": {
-      "classDefs": 17,
-      "propsRead": 7
-    },
-    "theme/styles/ui/switch.css": {
-      "classDefs": 39,
-      "propsRead": 9
-    },
-    "theme/styles/ui/tabs.css": {
-      "classDefs": 70,
-      "propsRead": 22
-    },
-    "theme/styles/ui/target-size.css": {
-      "classDefs": 12
-    },
-    "theme/styles/ui/text-field.css": {
-      "classDefs": 214
-    },
-    "theme/styles/ui/toolbar.css": {
-      "classDefs": 18,
-      "propsRead": 10
-    },
     "theme/styles/ui/tooltip.css": {
-      "classDefs": 14,
-      "propsRead": 17
-    },
-    "theme/styles/ui/top-app-bar.css": {
-      "classDefs": 56,
-      "propsRead": 23
-    },
-    "theme/templates/NotFound.astro": {
-      "markup": 1
-    },
-    "theme/ui/Badge.tsx": {
-      "markup": 2
-    },
-    "theme/ui/BottomSheet.tsx": {
-      "markup": 10
-    },
-    "theme/ui/BottomSheetResizeIcon.tsx": {
-      "markup": 2
-    },
-    "theme/ui/BusyContent.tsx": {
-      "markup": 3
-    },
-    "theme/ui/Button.tsx": {
-      "markup": 1,
-      "propsDeclared": 1
-    },
-    "theme/ui/Card.tsx": {
-      "markup": 10
-    },
-    "theme/ui/Carousel.tsx": {
-      "markup": 5
-    },
-    "theme/ui/Checkbox.tsx": {
-      "markup": 7
-    },
-    "theme/ui/Chip.tsx": {
-      "markup": 5
-    },
-    "theme/ui/ChoiceGroup.tsx": {
-      "markup": 16
-    },
-    "theme/ui/DatePicker.tsx": {
-      "markup": 5
-    },
-    "theme/ui/DatePickerContainer.tsx": {
-      "markup": 27
-    },
-    "theme/ui/Dialog.tsx": {
-      "markup": 6
-    },
-    "theme/ui/ExposedDropdownMenu.tsx": {
-      "markup": 9
-    },
-    "theme/ui/Fab.tsx": {
-      "markup": 1
-    },
-    "theme/ui/FabMenu.tsx": {
-      "markup": 4
-    },
-    "theme/ui/Lightbox.tsx": {
-      "markup": 8
-    },
-    "theme/ui/List.tsx": {
-      "markup": 33
-    },
-    "theme/ui/LoadingIndicator.tsx": {
-      "markup": 1
-    },
-    "theme/ui/Menu.tsx": {
-      "markup": 17
-    },
-    "theme/ui/NavigationBar.tsx": {
-      "markup": 4
-    },
-    "theme/ui/NavigationDrawer.tsx": {
-      "markup": 16
-    },
-    "theme/ui/NavigationRail.tsx": {
-      "markup": 11
-    },
-    "theme/ui/ProgressIndicator.tsx": {
-      "markup": 13,
-      "propsDeclared": 4
-    },
-    "theme/ui/RadioButton.tsx": {
-      "markup": 5
-    },
-    "theme/ui/Search.tsx": {
-      "markup": 32,
-      "propsDeclared": 3
-    },
-    "theme/ui/SegmentedButton.tsx": {
-      "markup": 4
-    },
-    "theme/ui/SettingRow.tsx": {
-      "markup": 4
-    },
-    "theme/ui/SideSheet.tsx": {
-      "markup": 4
-    },
-    "theme/ui/Slider.tsx": {
-      "markup": 16,
-      "propsDeclared": 3
-    },
-    "theme/ui/Snackbar.tsx": {
-      "markup": 3
-    },
-    "theme/ui/SplitButton.tsx": {
-      "markup": 4
-    },
-    "theme/ui/Switch.tsx": {
-      "markup": 7
-    },
-    "theme/ui/Tabs.tsx": {
-      "markup": 4
-    },
-    "theme/ui/TextField.tsx": {
-      "markup": 31
-    },
-    "theme/ui/TimePicker.tsx": {
-      "markup": 4
-    },
-    "theme/ui/TimePickerContainer.tsx": {
-      "markup": 20,
-      "propsDeclared": 1
-    },
-    "theme/ui/Tooltip.tsx": {
-      "markup": 3
-    },
-    "theme/ui/TopAppBar.tsx": {
-      "markup": 6
-    },
-    "theme/ui/bottomSheetControl.ts": {
-      "markup": 1,
-      "propsDeclared": 2
-    },
-    "theme/ui/carouselLayout.ts": {
-      "propsDeclared": 1
-    },
-    "theme/ui/datePicker.script.ts": {
-      "markup": 3
-    },
-    "theme/ui/dropdownMenu.script.ts": {
-      "markup": 10
-    },
-    "theme/ui/fabMenu.script.ts": {
-      "markup": 2
-    },
-    "theme/ui/lightboxControl.ts": {
-      "markup": 4
-    },
-    "theme/ui/modalSheetSize.ts": {
-      "markup": 5,
-      "propsRead": 1
-    },
-    "theme/ui/navigationDrawerControl.ts": {
-      "markup": 2
-    },
-    "theme/ui/navigationRail.script.ts": {
-      "markup": 5
-    },
-    "theme/ui/ripple.script.ts": {
-      "markup": 27,
-      "propsDeclared": 4
-    },
-    "theme/ui/search.script.ts": {
-      "markup": 2,
-      "propsDeclared": 3
-    },
-    "theme/ui/sideSheetControl.ts": {
-      "markup": 1
-    },
-    "theme/ui/sliderUpdate.ts": {
-      "markup": 1,
-      "propsDeclared": 2
-    },
-    "theme/ui/snackbar.script.ts": {
-      "markup": 1
-    },
-    "theme/ui/tabs.script.ts": {
-      "markup": 1
-    },
-    "theme/ui/textField.script.ts": {
-      "markup": 1
-    },
-    "theme/ui/textFieldUpdate.ts": {
-      "markup": 3
-    },
-    "theme/ui/timePicker.script.ts": {
-      "markup": 3
-    },
-    "theme/ui/toolbar.script.ts": {
-      "markup": 2
-    },
-    "theme/ui/tooltip.script.ts": {
-      "markup": 1,
-      "propsDeclared": 1
+      "classDefs": 1
     },
     "worker/mcp-oauth.js": {
       "classDefs": 1,

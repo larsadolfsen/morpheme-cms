@@ -35,7 +35,7 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, cus
     const field = dialog.querySelector('input[aria-label="Color code"], input');
     return {
       visible: visualViewport.height,
-      sheet: box(dialog.querySelector('.bottom-sheet-container')),
+      sheet: box(dialog.querySelector('.mo-bottom-sheet__container')),
       buttons: buttons.map((b) => [b.textContent.trim(), box(b)]),
       field: box(field),
     };
@@ -195,11 +195,11 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
     const bar = document.querySelector('.mo-editor-save-bar');
     if (!bar) return null;
     const ref = document.body.appendChild(document.createElement('div'));
-    ref.className = 'bottom-sheet-container';
+    ref.className = 'mo-bottom-sheet__container';
     const refStyle = getComputedStyle(ref);
     const style = getComputedStyle(bar);
     const out = {
-      standard: bar.classList.contains('bottom-sheet-container') && bar.classList.contains('bottom-sheet-standard'),
+      standard: bar.classList.contains('mo-bottom-sheet__container') && bar.classList.contains('mo-bottom-sheet__standard'),
       background: style.backgroundColor,
       refBackground: refStyle.backgroundColor,
       radius: style.borderTopLeftRadius,
@@ -315,12 +315,12 @@ async function checkPhoneSheet(width = 375, height = 740) {
       return !!hit && b.contains(hit) && !b.closest('[inert]');
     };
     const publish = named(/^Publish/).filter((b) => !d.contains(b));
-    const bar = d.querySelector('.bottom-sheet-standard');
+    const bar = d.querySelector('.mo-bottom-sheet__standard');
     // What makes the Save row the theme's standard bottom sheet (the same surface and top corners as a BottomSheet container), and where Save
     // and the fields stand: Save stands inside the sheet's own content padding, and the last field ends above the sheet.
     const sheetLook = (bar, d) => {
       const ref = document.body.appendChild(document.createElement('div'));
-      ref.className = 'bottom-sheet-container';
+      ref.className = 'mo-bottom-sheet__container';
       const refStyle = getComputedStyle(ref);
       const style = bar ? getComputedStyle(bar) : null;
       const save = [...(bar?.querySelectorAll('button') ?? [])].pop()?.getBoundingClientRect();
@@ -331,13 +331,13 @@ async function checkPhoneSheet(width = 375, height = 740) {
       main.scrollTo(0, main.scrollHeight);
       const last = fields.at(-1)?.getBoundingClientRect();
       const out = {
-        standardSheet: !!bar && bar.classList.contains('bottom-sheet-container') && bar.classList.contains('bottom-sheet-standard'),
+        standardSheet: !!bar && bar.classList.contains('mo-bottom-sheet__container') && bar.classList.contains('mo-bottom-sheet__standard'),
         sheetSurface: style && style.backgroundColor === refStyle.backgroundColor,
         sheetRadius: style && style.borderTopLeftRadius === refStyle.borderTopLeftRadius && style.borderTopLeftRadius !== '0px',
         sheetFixed: style?.position === 'fixed',
         saveEnd: save ? Math.round(window.innerWidth - save.right) : null,
         // The sheet's own content padding (the theme's): Save stands exactly inside it.
-        sheetPad: bar ? Math.round(parseFloat(getComputedStyle(bar.querySelector('.bottom-sheet-content')).paddingRight)) : null,
+        sheetPad: bar ? Math.round(parseFloat(getComputedStyle(bar.querySelector('.mo-bottom-sheet__content')).paddingRight)) : null,
         saveBelow: save && bar ? Math.round(bar.getBoundingClientRect().bottom - save.bottom) : null,
         saveAbove: save && bar ? Math.round(save.top - bar.getBoundingClientRect().top) : null,
         lastClear: last && bar ? last.bottom <= bar.getBoundingClientRect().top + 1 : null,
@@ -590,7 +590,7 @@ async function checkLiveSideSheet(width = 1280) {
   const extra = buttons.filter((b) => ['Save', 'Insert', 'Cancel', 'Remove'].includes(b));
   if (extra.length) problems.push(`${label}: the side sheet has ${extra.join(', ')} (it is live: only its close button)`);
   if (!(await sheet.locator('[data-side-sheet-close]').count())) problems.push(`${label}: the side sheet has no close button`);
-  if (await sheet.locator('.side-sheet-actions').count()) problems.push(`${label}: the side sheet has a row of bottom actions`);
+  if (await sheet.locator('.mo-side-sheet__actions').count()) problems.push(`${label}: the side sheet has a row of bottom actions`);
   // A change shows in the page at once.
   await sheet.locator('textarea').fill('<p>Live text</p>');
   await page.waitForTimeout(400);
@@ -956,9 +956,9 @@ async function checkCropView(width, height = 800) {
       return {
         fills: Math.abs(r.width - vp.w) < 1 && Math.abs(r.height - vp.h) < 1,
         title: d.querySelector('h1')?.textContent,
-        bar: !!d.querySelector('header, .top-app-bar, [class*="top-app-bar"]'),
-        dialogParts: !!d.querySelector('.dialog-basic, .dialog-full-screen, .dialog-headline'),
-        buttons: [...d.querySelectorAll('.bottom-sheet-standard button')].map((b) => b.textContent.trim()),
+        bar: !!d.querySelector('header, .mo-top-app-bar, [class*="top-app-bar"]'),
+        dialogParts: !!d.querySelector('.mo-dialog__basic, .dialog-full-screen, .mo-dialog__headline'),
+        buttons: [...d.querySelectorAll('.mo-bottom-sheet__standard button')].map((b) => b.textContent.trim()),
         area: d.querySelector('.mo-editor-crop-view-area').getBoundingClientRect().width,
       };
     },
@@ -1478,7 +1478,7 @@ async function checkBlockSettingsPane(width) {
   await row.click();
   await page.waitForTimeout(500);
   const got = await page.evaluate(() => {
-    const aside = document.querySelector('aside.side-sheet-container:not([hidden])');
+    const aside = document.querySelector('aside.mo-side-sheet__container:not([hidden])');
     const box = aside?.getBoundingClientRect();
     const first = [...document.querySelectorAll('main button, main [role=button]')]
       .find((b) => /^Accordion/.test(b.textContent.trim()))
@@ -1604,7 +1604,7 @@ async function checkLinkAndItemPanes(width) {
       const shown = [...document.querySelectorAll('aside.mo-editor-side-sheet')].filter((a) => !a.closest('.hidden, .mo-hidden'));
       return {
         shown: shown.length,
-        title: shown[0]?.querySelector('.side-sheet-headline')?.textContent,
+        title: shown[0]?.querySelector('.mo-side-sheet__headline')?.textContent,
         back: !!shown[0]?.querySelector('[data-side-sheet-back]'),
       };
     });
@@ -1614,7 +1614,7 @@ async function checkLinkAndItemPanes(width) {
     await page.waitForTimeout(600);
     const back = await page.evaluate(() => {
       const shown = [...document.querySelectorAll('aside.mo-editor-side-sheet')].filter((a) => !a.closest('.hidden, .mo-hidden'));
-      return { shown: shown.length, title: shown[0]?.querySelector('.side-sheet-headline')?.textContent };
+      return { shown: shown.length, title: shown[0]?.querySelector('.mo-side-sheet__headline')?.textContent };
     });
     if (back.shown !== 1 || back.title === 'Link')
       problems.push(`${label}: Back does not show the block's pane again (${JSON.stringify(back)})`);

@@ -1,4 +1,4 @@
-// A chip (m3.material.io/components/chips, .chip in ../styles/ui/chips.css): a short label (`label`), evt. an icon before it
+// A chip (m3.material.io/components/chips, .mo-chip in ../styles/ui/chips.css): a short label (`label`), evt. an icon before it
 // (`icon`), or a person's image (`avatar`: its address, on an input chip) and one after it (`trailingIcon`). Its kind
 // (`kind`) is Material's name; how each looks is the theme's: assist (the default: a link to something related, a post's
 // tag), filter (one of a few that choose what is shown: `selected` is the chosen one, aria-pressed on a button,
@@ -22,7 +22,13 @@ export const chipKinds: ChipKind[] = ['assist', 'filter', 'input', 'suggestion']
 
 /** A chip's classes: its kind's, and evt. elevated (not an input chip), dragged, and with a button that removes it. */
 export const chipClass = (kind: ChipKind = 'assist', { elevated = false, dragged = false, removable = false } = {}) =>
-  ['chip', `chip-${kind}`, elevated && kind !== 'input' && 'chip-elevated', dragged && 'chip-dragged', removable && 'chip-removable']
+  [
+    'mo-chip',
+    `mo-chip__${kind}`,
+    elevated && kind !== 'input' && 'mo-is-elevated',
+    dragged && 'mo-chip__dragged',
+    removable && 'mo-chip__removable',
+  ]
     .filter(Boolean)
     .join(' ');
 
@@ -64,19 +70,19 @@ export default function Chip({
   const pressed = kind === 'assist' ? undefined : kind === 'filter' ? Boolean(selected) : selected;
   const content = (
     <>
-      {kind === 'filter' && <Svg name="check" size={18} className="chip-check" />}
-      {avatar ? <img src={avatar} alt="" className="chip-avatar" /> : icon && <Glyph icon={icon} size={18} />}
+      {kind === 'filter' && <Svg name="check" size={18} className="mo-chip__check" />}
+      {avatar ? <img src={avatar} alt="" className="mo-chip__avatar" /> : icon && <Glyph icon={icon} size={18} />}
       {label}
-      {trailingIcon && !removable && <Glyph icon={trailingIcon} size={18} className="chip-trailing-icon" />}
+      {trailingIcon && !removable && <Glyph icon={trailingIcon} size={18} className="mo-chip__trailing-icon" />}
     </>
   );
   if (removable)
     return (
       <span className={classes} data-selected={selected ? '' : undefined} aria-disabled={disabled || undefined}>
-        <button type="button" className="chip-action" aria-pressed={pressed} disabled={disabled} {...rest}>
+        <button type="button" className="mo-chip__action" aria-pressed={pressed} disabled={disabled} {...rest}>
           {content}
         </button>
-        <button type="button" className="chip-remove" aria-label={removeLabel} disabled={disabled} onClick={onRemove}>
+        <button type="button" className="mo-chip__remove" aria-label={removeLabel} disabled={disabled} onClick={onRemove}>
           <Glyph icon={trailingIcon ?? 'x'} size={18} />
         </button>
       </span>

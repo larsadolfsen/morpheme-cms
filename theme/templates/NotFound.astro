@@ -103,7 +103,7 @@ const spaceOf = (i: number) => (i === 0 ? 'mo-space-near' : space(i));
     if (best && bestScore >= 0.4) {
       const link = document.getElementById('suggestion') as HTMLAnchorElement;
       link.href = best[0];
-      link.querySelector('.card-headline')!.textContent = best[1];
+      link.querySelector('.mo-card__headline')!.textContent = best[1];
       link.hidden = false;
     }
   </script>
