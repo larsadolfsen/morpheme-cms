@@ -44,7 +44,7 @@ release"). The last release of such a line, `X.Y.N` *UI fixes*, holds only fixes
 found in the line's screens, sheets, blocks and pages on the demo and on staging, and the owner's list of small fixes. Nothing new goes
 into it. The next line starts only after it. A line that changes nothing a person sees (for example Build speed) has none.
 
-When the lines end, the owner sets the demo's production branch (Workers > `morpheme-demo` > Settings > Build > Branch control) to `main`.
+The demo's production branch (Workers > `morpheme-demo` > Settings > Build > Branch control) is the feature being built, which the owner sets; the demo never shows the live site (owner, 19 November 2026: "It is used to show the current dev. Main is pushed to NPM as next and is shown on staging"). In short: branch → feature → `next` → live.
 
 Why (owner and CTO, 18 November): the big releases stay as the roadmap's areas, a finished feature reaches the sites in days, the owner
 reviews every feature where it can be seen (site and editor) before its merge, every version is seen on staging before a release is asked,
