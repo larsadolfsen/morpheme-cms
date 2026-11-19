@@ -1,5 +1,11 @@
 # @morphemecms/cms
 
+## 0.18.2
+
+### Patch Changes
+
+- ca51431: Fix the text bar's Align row being off after a click below the last paragraph of a page with no sections.
+
 ## 0.18.1
 
 ### Patch Changes
