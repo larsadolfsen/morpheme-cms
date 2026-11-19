@@ -493,6 +493,12 @@
       "propsDeclared": 0,
       "propsRead": 0
     },
+    "src/editor-settings.css": {
+      "classDefs": 0,
+      "markup": 0,
+      "propsDeclared": 0,
+      "propsRead": 1
+    },
     "src/editor-ui.css": {
       "classDefs": 0,
       "markup": 0,
