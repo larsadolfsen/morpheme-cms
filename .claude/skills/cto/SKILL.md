@@ -66,5 +66,6 @@ unless the CTO decides to do it itself (section 3).
 ## 5. The CTO's own pull requests
 
 Docs, skills and process changes go in a pull request from the CTO's branch into the line they belong to (the newest line where they
-apply), with an empty changeset, to the PM. One pull request may carry several documents of one decision. The CTO never merges, and never
+apply), with an empty changeset, to the PM. One pull request may carry several documents of one decision. The CTO never merges unless the owner says so in plain words, and then
+checks the Cloudflare builds the merge starts before it reports (`CLAUDE.md`, *Nothing is ready while a build is red or unchecked*). It never
 rewrites history on a published branch; when the base moves, it merges the base into its branch.
