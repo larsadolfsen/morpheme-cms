@@ -165,11 +165,11 @@
   }
   /* A card across all the columns (a span of the whole grid; the cards before and after it pack in their own columns).
      Spans of other widths are not possible in columns: see docs/theme-grid.md. */
-  .mo-staggered-grid > .mo-grid__span-full {
+  .mo-staggered-grid > .mo-staggered-grid__span-full {
     column-span: all;
   }
   @media (width < 37.5rem) {
-    .mo-staggered-grid > .mo-grid__span-compact {
+    .mo-staggered-grid > .mo-staggered-grid__span-compact {
       column-span: all;
     }
   }
@@ -304,7 +304,7 @@
     .mo-block-cards__carousel .mo-carousel__item {
       width: 85%;
     }
-    .js .mo-block-cards__show-all {
+    .mo-js .mo-block-cards__show-all {
       display: flex;
       justify-content: center;
       padding: 0.25rem;

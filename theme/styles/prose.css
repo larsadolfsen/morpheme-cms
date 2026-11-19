@@ -24,7 +24,7 @@
     margin-block-start: 1.25em;
     margin-block-end: 1.25em;
   }
-  :where(.prose) :where([class~='lead']):not(:where(.not-prose, .not-prose *)) {
+  :where(.prose) :where([class~='mo-type-lead']):not(:where(.not-prose, .not-prose *)) {
     color: var(--mo-comp-prose-lead);
     margin-block-start: 1.2em;
     margin-block-end: 1.2em;

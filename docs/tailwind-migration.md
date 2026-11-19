@@ -128,11 +128,10 @@ Colours of a state come from the state layers (`--mo-sys-state-mo-hover-layer`, 
 
 ## How to check
 
-- In this repository, `npm run check:themes` runs the theme checks and `npm run check:tailwind` counts what is left
-  (utilities, `theme()`, `@theme`, `@apply`, `@source` and `--tw-*`). Both come with the batch that adds the proof tools
-  (T01) and are not in the package yet.
-- In an app or theme repository, `tailwind:inventory` prints the same counts for your folder. The migration is done when
-  every count is zero.
+- `npm run check:tailwind` (this repository) and `check:content` (a site, so `check:themes` too: it reads the site's `src/themes`, `src/apps`, `src/site`
+  and `src/content`, its `package.json` and Prettier's settings) fail on any Tailwind: a utility class or variant in markup, Markdown or a string, `@theme`,
+  `@utility`, `@plugin`, `@apply`, `@source`, `@reference`, `theme(--`, `--tw-` in a stylesheet, or a tailwind package or Prettier plugin. The rules and the frozen
+  list of utility names are `site/tailwind.mjs` and `site/tailwind-utilities.json`; the check has no allowlist, and each message names the file, the line and the rule.
 - Before the break, check by hand: search your CSS, `.tsx` and `.astro` files for `theme(`, `@theme`, `@apply`, `@source`
   and a class in [`tailwind-migration-classes.md`](tailwind-migration-classes.md).
 - Prove that nothing moved: build before and after and compare the pages. A change of margins is the one thing to watch:
@@ -144,14 +143,14 @@ Contract 7 also gives every class and custom property of ours the `mo-` prefix, 
 [`class-names.md`](class-names.md): `.card` becomes `.mo-card`, `.card-body` becomes `.mo-card__body`, a state becomes `mo-is-<word>`, a block part
 becomes `mo-block-<type>__<part>`, and a hook or runtime value becomes `--mo-comp-<component>-<name>`. No old name stays.
 
-The map of every name is `docs/superpowers/plans/mo-names/map.json` in this repository (`npm run mo-names:map` makes it again): `classes` and
+The map of every name is `docs/superpowers/plans/mo-names/map.json` in this repository (made once, before the renames, and kept as the record): `classes` and
 `properties` map each old name to its `new` name, with the rule that made it and how many places define and use it. A name with
 `"status": "question"` has no new name yet; the owner decides it, and the map changes when the owner does. To migrate:
 
 1. Search your CSS, `.tsx` and `.astro` files for each class and `--` name your code defines or reads that has no `mo-`.
 2. Look it up in the map and write the new name everywhere: stylesheets, `class` and `className`, `classList`, `querySelector` and `closest`.
 3. Keep the classes of other libraries (`ProseMirror*`, an embed's own) as they are.
-4. `npm run check:mo-names` counts what is left in this repository; the migration is done when every count in your own folder is zero.
+4. `npm run check:mo-names` (this repository) and `check:content` (a site's `src/themes` and `src/apps`) fail on any class or custom property that does not start with `mo-`, on a `[class*=…]`, `[class^=…]` or `[style*=…]` selector that spells another name, and on a `mo-` class that does not have the pattern's shape. There is no allowlist; what is not ours (`ProseMirror*`, `cm-*`, `prose`, `dark`, the Markdown renderer's task-list classes) is listed with its reason in `NOT_RENAMED` of `scripts/mo-names.mjs`.
 
 ## Contract 7
 

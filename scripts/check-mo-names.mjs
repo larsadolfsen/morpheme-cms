@@ -1,15 +1,18 @@
-// The ratchet for the `mo-` names (plan docs/superpowers/plans/2026-11-18-mo-names-contract-7.md, PR M1; the pattern: docs/class-names.md).
-// Every class and custom property of ours starts with `mo-` (owner, 18 Nov 2026). Until the renames (M2 to M6) have landed, this check counts per
-// file what is still unprefixed and fails when a count is higher than scripts/mo-names-allowlist.json lists or a file not listed has any:
-//   classDefs     unprefixed class names defined in a stylesheet,
-//   markup        unprefixed class names written in markup or code strings (only names a stylesheet defines),
-//   propsDeclared / propsRead   unprefixed custom properties declared or read.
-// A count can only fall: when a PR renames names, it lowers the numbers in the allowlist (`--list` prints the current ones). M7 takes the
-// allowlist to zero. What is not counted, with reasons: NOT_RENAMED in scripts/mo-names.mjs. Built like scripts/check-tailwind.mjs (T01).
-// Run: npm run check:mo-names; `--list` prints the current counts as the allowlist's `files`.
-import { readFileSync } from 'node:fs';
+// The permanent check for the `mo-` names (plan docs/superpowers/plans/2026-11-18-mo-names-contract-7.md, PR M7; the pattern: docs/class-names.md).
+// Every class and custom property of ours starts with `mo-` (owner, 18 Nov 2026) and nothing is let by: there is no allowlist and no count that may stay.
+// What stays unprefixed is only what is not ours, each with its reason in NOT_RENAMED of scripts/mo-names.mjs (other libraries' classes, `prose`, `dark`).
+// It fails on:
+//   classDefs     an unprefixed class defined in a stylesheet,
+//   markup        an unprefixed class written in markup or code (a class attribute, classList, querySelector, matches, closest, a `.name` selector in a string)
+//                 that a stylesheet defines or that is an old name of the rename (scripts/renamed-classes.json, M1's map), so a rename that missed a string fails,
+//   propsDeclared / propsRead   an unprefixed custom property declared or read, in a stylesheet or in code,
+//   and the rules the counts cannot see (scanStrict): an attribute selector on `class` or `style` that spells a non-mo name (`[class*="card-"]`, `[class^=block-]`,
+//   `[style*="--card"]`), a `mo-` class that does not have the shape of docs/class-names.md, and an unprefixed class in a plain `class="…"` attribute.
+// Run: npm run check:mo-names; `--list` prints the counts per file (all of them are zero when the check passes).
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readTree, scan } from './mo-names.mjs';
+import { readTree, scan, scanStrict } from './mo-names.mjs';
 
 export const METRICS = ['classDefs', 'markup', 'propsDeclared', 'propsRead'];
 const LABEL = {
@@ -20,51 +23,50 @@ const LABEL = {
 };
 
 /**
- * @param {Record<string, Record<string, number>>} counts the current counts per file  @param {{ files: Record<string, Record<string, number>> }} allow
- * @returns {{ problems: string[], lowered: string[] }} problems fail the check; lowered are counts that fell below the list
+ * @param {Record<string, Record<string, number>>} counts the current counts per file
+ * @returns {string[]} the problems: every count above zero, one line each
  */
-export function compare(counts, allow) {
-  const problems = [];
-  const lowered = [];
-  for (const [file, row] of Object.entries(counts)) {
-    const listed = allow.files?.[file];
-    for (const metric of METRICS) {
-      const now = row[metric] ?? 0;
-      const max = listed?.[metric] ?? 0;
-      if (now > max)
-        problems.push(
-          listed
-            ? `${file}: ${now} ${LABEL[metric]}, ${max} allowed. A name of ours starts with mo- (docs/class-names.md); write the new one, or find it in docs/superpowers/plans/mo-names/map.json.`
-            : `${file}: ${now} ${LABEL[metric]} in a file the list does not know. Nothing new gets an unprefixed name: use mo-… (docs/class-names.md).`,
+export function problemsOf(counts) {
+  const out = [];
+  for (const [file, row] of Object.entries(counts))
+    for (const metric of METRICS)
+      if (row[metric])
+        out.push(
+          `${file}: ${row[metric]} ${LABEL[metric]}. A name of ours starts with mo- (docs/class-names.md); write the new one, or find the old one in docs/superpowers/plans/mo-names/map.json. Nothing is allowed to stay: not ours means a reason in NOT_RENAMED (scripts/mo-names.mjs).`,
         );
-    }
-  }
-  for (const [file, row] of Object.entries(allow.files ?? {}))
-    for (const metric of METRICS) {
-      const now = counts[file]?.[metric] ?? 0;
-      if (now < (row[metric] ?? 0))
-        lowered.push(
-          `${file}: ${metric} is ${now} of ${row[metric]} allowed: lower it in scripts/mo-names-allowlist.json (npm run check:mo-names -- --list).`,
-        );
-    }
-  return { problems, lowered };
+  return out;
+}
+
+/** Every problem of a set of files (path → text): the counts above zero and the strict rules. */
+export function problems(files) {
+  return [...problemsOf(scan(files).perFile), ...scanStrict(files)];
+}
+
+/** A site's themes and apps (`src/themes`, `src/apps`): the same rules, so a theme or an app built on the CMS starts its names with mo- too (`check:content`, so `check:themes`). */
+export function siteProblems(root = process.cwd()) {
+  const files = {};
+  for (const dir of ['src/themes', 'src/apps'])
+    if (existsSync(join(root, dir)))
+      for (const e of readdirSync(join(root, dir), { recursive: true, withFileTypes: true }))
+        if (
+          e.isFile() &&
+          /\.(css|astro|tsx|ts|jsx|js|mjs|html|md)$/.test(e.name) &&
+          !/(^|[\\/])node_modules[\\/]|\.test\.mjs$/.test(join(e.parentPath, e.name))
+        )
+          files[relative(root, join(e.parentPath, e.name))] = readFileSync(join(e.parentPath, e.name), 'utf8');
+  return problems(files);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const allow = JSON.parse(readFileSync(new URL('mo-names-allowlist.json', import.meta.url), 'utf8'));
-  const { perFile } = scan(readTree());
+  const files = readTree();
   if (process.argv.includes('--list')) {
-    console.log(JSON.stringify(perFile, null, 2));
+    console.log(JSON.stringify(scan(files).perFile, null, 2));
     process.exit(0);
   }
-  const { problems, lowered } = compare(perFile, allow);
-  if (problems.length) {
-    console.error(problems.join('\n'));
+  const found = problems(files);
+  if (found.length) {
+    console.error(`check:mo-names (${found.length}):\n${found.join('\n')}`);
     process.exit(1);
   }
-  for (const l of lowered) console.log(`check:mo-names: ${l}`);
-  const total = Object.fromEntries(METRICS.map((m) => [m, Object.values(perFile).reduce((n, r) => n + (r[m] ?? 0), 0)]));
-  console.log(
-    `check:mo-names: ${total.classDefs} class definitions, ${total.markup} class names in markup, ${total.propsDeclared} properties declared and ${total.propsRead} read are still unprefixed, in ${Object.keys(perFile).length} files; none new.`,
-  );
+  console.log(`check:mo-names: every class and custom property in ${Object.keys(files).length} files starts with mo-.`);
 }

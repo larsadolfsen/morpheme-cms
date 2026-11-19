@@ -38,7 +38,7 @@
     bottom: auto;
   }
   [data-tooltip-open] > .mo-tooltip,
-  :root:not(.js) .mo-tooltip__anchor:is(:hover, :focus-within) > .mo-tooltip {
+  :root:not(.mo-js) .mo-tooltip__anchor:is(:hover, :focus-within) > .mo-tooltip {
     visibility: visible;
     opacity: 1;
     pointer-events: auto;

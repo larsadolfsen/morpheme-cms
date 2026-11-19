@@ -1160,7 +1160,7 @@ function imageCard(
   const cut = format ? cropStyle(format, crop) : null;
   const box = cut?.box ? card.appendChild(document.createElement('span')) : card;
   if (cut?.box) {
-    box.className = 'picture-crop';
+    box.className = 'mo-site-picture__crop';
     box.style.cssText = cut.box;
   }
   const img = box.appendChild(document.createElement('img'));
@@ -1315,7 +1315,7 @@ async function editLink(view: EditorView) {
 
 /** What applies where the cursor is, or to all of the selection: 'strong', 'emphasis', 'link',
  * 'h2', 'h3', 'large', 'medium' (a paragraph, not in a list or quote), 'small', 'bullet', 'ordered' and 'quote'; with a colour
- * (text-colors.mjs) 'textColor' and the colour's class ('color-accent'). For the toolbar and the selection's menu,
+ * (text-colors.mjs) 'textColor' and the colour's class ('mo-has-accent-color'). For the toolbar and the selection's menu,
  * 'section' and 'section-<colour>' in a top-level H1 or H2 (sectionState.mjs), which mark them. */
 export function activeOf(state: EditorView['state']): Set<string> {
   const { selection, storedMarks, schema } = state;

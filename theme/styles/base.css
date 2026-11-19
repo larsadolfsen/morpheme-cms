@@ -113,21 +113,17 @@
   p {
     text-wrap: pretty;
   }
-  /* Grid children may contain horizontal scrollers; never let them widen the track. */
-  .grid > * {
-    min-width: 0;
-  }
 }
 
 @layer components {
-  .link {
+  .mo-link {
     color: var(--mo-sys-color-primary);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 0.25em;
   }
-  .link:hover {
+  .mo-link:hover {
     text-decoration-thickness: 2px;
   }
 }
@@ -242,14 +238,14 @@
   }
   /* An image in the text cut to a format in the editor (packages/editor/lib/crop.mjs): the box is the format, the
    image in it as large and as far moved as the part chosen. */
-  .picture-crop {
+  .mo-site-picture__crop {
     display: block;
     position: relative;
     overflow: hidden;
     border-radius: var(--mo-sys-radius);
     margin-block: 2em;
   }
-  .picture-crop > img {
+  .mo-site-picture__crop > img {
     position: absolute;
     inset: 0 auto auto 0;
     max-width: none;
@@ -272,7 +268,7 @@
    The top of a page stands still from the first paint; from another page of the site it fades in (site-page.css).
    Off for visitors who prefer reduced motion, and with the calm motion scheme ("Motion", data-motion-scheme). */
   @media (prefers-reduced-motion: no-preference) {
-    .js:not([data-motion-scheme='calm']) [data-reveal] {
+    .mo-js:not([data-motion-scheme='calm']) [data-reveal] {
       opacity: 0;
     }
   }

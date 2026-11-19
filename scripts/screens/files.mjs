@@ -51,7 +51,8 @@ async function checkFilesDialog() {
     return {
       title: document.querySelector('h1')?.textContent ?? '',
       back: !!document.querySelector('a[aria-label^="Back to"]'),
-      close: !!document.querySelector('.dialog-full-screen'),
+      // The viewer is a page: no dialog is open over it (the theme has no full-screen dialog any more).
+      close: !!document.querySelector('dialog[open]'),
       download: !!document.querySelector('a[download]'),
       imageInView: !!ir && ir.top >= 0 && ir.top < innerHeight / 2 && ir.height > 50,
       count: toolbar?.textContent ?? '',

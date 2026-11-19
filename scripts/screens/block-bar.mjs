@@ -653,7 +653,7 @@ async function checkBlockDrag(width) {
   const after = await names();
   if (after.join() !== [...before].reverse().join())
     problems.push(`${label}: dragging the handle did not move the block (${before.join()} -> ${after.join()})`);
-  if (await page.locator('.ProseMirror .mo-site-block-dragging, .ProseMirror [class*="site-part-drop"]').count())
+  if (await page.locator('.ProseMirror .mo-site-block-dragging, .ProseMirror [class*="mo-site-part-drop"]').count())
     problems.push(`${label}: the drag left its marks behind`);
   await page.close();
 }

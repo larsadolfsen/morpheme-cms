@@ -20,15 +20,15 @@
     width: calc(1.75rem * var(--mo-comp-theme-logo-mark-scale));
     height: calc(2rem * var(--mo-comp-theme-logo-mark-scale));
   }
-  .theme-logo-name {
+  .mo-logo__name {
     font-size: var(--mo-comp-theme-logo-name-size);
     font-weight: var(--mo-comp-theme-logo-name-weight);
   }
-  .theme-logo-role {
+  .mo-logo__role {
     display: var(--mo-comp-theme-logo-role-display);
   }
   @media (width >= 37.5rem) {
-    .theme-logo-role {
+    .mo-logo__role {
       display: var(--mo-comp-theme-logo-role-display-large);
     }
   }

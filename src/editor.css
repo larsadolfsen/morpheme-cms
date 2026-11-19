@@ -895,7 +895,7 @@ html {
   margin-block: 0;
 }
 
-.mo-editor-text .mo-site-picture :is(img, .picture-crop) {
+.mo-editor-text .mo-site-picture :is(img, .mo-site-picture__crop) {
   margin-block: 0;
 }
 

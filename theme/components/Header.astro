@@ -61,7 +61,7 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
         <MobileMenu client:interact {...menuProps} />
       </div>
     )}
-    <a href="/" class="md-top-app-bar-title mo-header__title">
+    <a href="/" class="mo-header__title">
       <Logo />
     </a>
 
@@ -91,7 +91,7 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
               )}
               {item.children && (
                 // A menu (m3.material.io/components/menus) that opens on hover and with the button before it.
-                <div id={`menu-${i}`} class:list={['md-menu-anchor mo-header__submenu', i >= nav.length - 2 && 'mo-is-end']}>
+                <div id={`menu-${i}`} class:list={['mo-header__submenu', i >= nav.length - 2 && 'mo-is-end']}>
                   <ul class={menuClass}>
                     {item.children.map((child) => (
                       <li>

@@ -3,8 +3,7 @@
 // unprefixed and maps each name to its new name by that pattern. A name the pattern does not settle is `status: "question"`: it goes to the PM,
 // and nobody guesses its new name.
 //
-//   node scripts/mo-names.mjs          writes docs/superpowers/plans/mo-names/map.json
-//   node scripts/mo-names.mjs --counts prints the per-file counts the ratchet (scripts/check-mo-names.mjs) uses
+//   node scripts/mo-names.mjs          prints the per-file counts scripts/check-mo-names.mjs uses (the map itself was made once, in M1)
 //
 // What counts, per file:
 //  - classDefs:   unprefixed class names defined in a stylesheet (a `.name` in a selector; in .css and the <style> of .astro);
@@ -15,8 +14,7 @@
 // Not counted: names in `NOT_RENAMED` (other libraries' classes, `prose` until T13), and `data-*` attributes.
 // Depends on: git (lists the files), postcss.
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { dirname } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import postcss from 'postcss';
 
@@ -26,16 +24,22 @@ export const MAP_PATH = 'docs/superpowers/plans/mo-names/map.json';
 /** Folders and files scanned. The plan's five folders hold the stylesheets; the rest read the names (scripts, lib, the demo, the starter). */
 export const FOLDERS = ['theme', 'src', 'pages', 'defaults', 'site', 'lib', 'starter', 'demo', 'worker', 'bin', 'scripts'];
 const SCANNED = /\.(css|astro|tsx|ts|jsx|js|mjs|html|md)$/;
-/** Not scanned: this tool and its check (they quote names as fixtures), every test file, and generated or copied content. */
-const SKIPPED = /(^|\/)(mo-names|check-mo-names)[^/]*$|\.test\.mjs$|^demo\/src\/data\/|(^|\/)node_modules\//;
+/** Not scanned: this tool and its check (they quote names as fixtures), the table of the old names the content rewrite replaces (lib/content-class-names.mjs, the old names are its input), every test file, and generated or copied content. */
+const SKIPPED =
+  /(^|\/)(mo-names|check-mo-names)[^/]*$|^lib\/content-class-names\.mjs$|\.test\.mjs$|^demo\/src\/data\/|(^|\/)node_modules\//;
 
 /** Classes of other libraries and the ones kept on purpose, with the reason (also in docs/class-names.md). */
 export const NOT_RENAMED = [
   { pattern: 'ProseMirror*', why: "ProseMirror's own classes" },
   { pattern: 'cm-*', why: "CodeMirror's own classes" },
   { pattern: 'calendly-*', why: "A store app's embed (Calendly's widget)" },
-  { pattern: 'prose', why: 'Tailwind Typography until T13 has its own prose rules (then `mo-prose`)' },
-  { pattern: 'not-prose', why: 'Tailwind Typography until T13 has its own prose rules (then `mo-prose`)' },
+  {
+    pattern: 'prose',
+    why: "the wrapper of rendered Markdown: the rules are ours since T13 (theme/styles/prose.css) but the name is stored in 423 places; a rename to `mo-prose` is the owner's later decision",
+  },
+  { pattern: 'not-prose', why: 'the opt-out of `prose` (see `prose`)' },
+  { pattern: 'contains-task-list', why: "the Markdown renderer's own class on a task list (remark-gfm)" },
+  { pattern: 'task-list-item', why: "the Markdown renderer's own class on a task list item (remark-gfm)" },
   { pattern: 'dark', why: 'The theme-mode class on <html>, a stored switch (docs/css-tokens.md), not a name of ours to prefix here' },
 ];
 const matchPattern = (name, pattern) => (pattern.endsWith('*') ? name.startsWith(pattern.slice(0, -1)) : name === pattern);
@@ -49,6 +53,9 @@ export const cssOf = (file, text) =>
   /\.css$/.test(file) ? text : [...text.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]).join('\n');
 /** The code of a file without its <style> elements, so a selector in a stylesheet is never counted as one in a string. */
 const codeOf = (file, text) => (/\.css$/.test(file) ? '' : text.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ''));
+
+/** The old class names of the rename (M1's map, 18 Nov 2026): none of them may be written again, as a class, a selector or a classList name. */
+export const RENAMED = JSON.parse(readFileSync(new URL('renamed-classes.json', import.meta.url), 'utf8'));
 
 /** The classes a stylesheet defines and the custom properties it declares and reads. @param {string} css */
 export function scanCss(css) {
@@ -124,14 +131,18 @@ export function scanMarkup(file, text, known) {
     covered.push([m.index, m.index + m[0].length + body.length + 2]);
     const strings =
       m[1] === '=' && /^[^{(\[`]/.test(body) && !/^\s*[{`]/.test(code.slice(m.index + m[0].length - 1)) ? [body] : stringsOf(body);
-    for (const s of m[1] === '=' && strings.length === 0 ? [body] : strings)
-      for (const token of s.split(/[\s.#>+~,:[\]()=!&|?;{}'"`$]+/)) if (token) bump(token);
+    // A selector (querySelector, closest, matches) names a class after a dot; a tag (`button`) or an attribute is not one. Class lists name it bare.
+    const selector = /^(?:querySelector|closest|matches)/.test(m[0].trim());
+    for (const s of m[1] === '=' && strings.length === 0 && !body.startsWith('{') ? [body] : strings)
+      if (selector) for (const [, name] of s.matchAll(/\.(-?[_a-zA-Z][\w-]*)/g)) bump(name);
+      else for (const token of s.split(/[\s.#>+~,:[\]()=!&|?;{}'"`$]+/)) if (token) bump(token);
   }
   // A `.name` selector in any other string (one inside an opener's region is counted above).
   for (const m of code.matchAll(/"([^"\n]*)"|'([^'\n]*)'|`([^`]*)`/g)) {
     if (covered.some(([a, b]) => m.index >= a && m.index < b)) continue;
     const str = (m[1] ?? m[2] ?? m[3]).replace(/\$\{[^}]*\}/g, ' ');
-    for (const [, name] of str.matchAll(/(?:^|[\s,>+~(\[])\.(-?[_a-zA-Z][\w-]*)/g)) bump(name);
+    if (/^\.(?:m?js|tsx?|css|json|md)$/.test(str)) continue; // a file extension, not a selector
+    for (const [, name] of str.matchAll(/(?:^|[\s,>+~(\[])\.(-?[_a-zA-Z][\w-]*)(?!\()/g)) bump(name);
   }
   return found;
 }
@@ -150,9 +161,72 @@ export function scanCodeProps(file, text) {
   return out;
 }
 
+// ---------------------------------------------------------------------------------------------------------------------------------------------
+// The permanent rules (M7): what the counts cannot see.
+
+/** The shape of a class of ours (docs/class-names.md): `mo-<component>`, `mo-<component>__<part>`, `mo-is-<word>`, `mo-has-<word>`. */
+export const MO_SHAPE = /^mo-[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:__[a-z0-9]+(?:-[a-z0-9]+)*)?$/;
+/** The files where a class attribute written as a plain string is read (markup and Markdown content). */
+const LITERAL_FILES = /\.(tsx|jsx|astro|html|md)$/;
+const SUBSTRING = /\[\s*(class|style)\s*([*^$~|]?)=\s*(?:"([^"\n]*)"|'([^'\n]*)'|([^\s\]"']+))\s*i?\s*\]/g;
+const lineOf = (text, at) => text.slice(0, at).split('\n').length;
+
+/**
+ * The problems the counts miss, as messages with file and line:
+ *  - an attribute selector on `class` or `style` that spells a non-mo name (`[class*="card-"]`, `[class^=block-]`, `[style*="--card"]`), in a stylesheet or a string;
+ *  - a class of ours defined in a stylesheet that has `mo-` but not the shape of docs/class-names.md (`mo-cardBody`, `mo-card_body`, `mo-a__b__c`);
+ *  - a class written as a plain string in a `class` or `className` attribute that is not `mo-…` and not in NOT_RENAMED (a hook class no stylesheet defines).
+ * @param {Record<string, string>} files path → text @returns {string[]}
+ */
+export function scanStrict(files) {
+  const out = [];
+  for (const [file, text] of Object.entries(files)) {
+    SUBSTRING.lastIndex = 0;
+    for (const m of text.matchAll(SUBSTRING)) {
+      const [, attr, op, a, b, c] = m;
+      const value = (a ?? b ?? c ?? '').trim();
+      if (!op && !value) continue;
+      const bad = attr === 'class' ? value !== '' && !value.startsWith('mo-') && !isKept(value) : /--(?!mo-)[a-zA-Z]/.test(value);
+      if (bad)
+        out.push(
+          `${file}:${lineOf(text, m.index)}: ${m[0]} spells a name that does not start with mo- (${attr === 'class' ? 'docs/class-names.md' : 'docs/css-tokens.md'}). A rename that misses a selector like this changes nothing and fails silently: write the mo- name.`,
+        );
+    }
+    const css = cssOf(file, text);
+    if (css) {
+      let tree;
+      try {
+        tree = postcss.parse(css);
+      } catch {}
+      tree?.walkRules((rule) => {
+        for (let p = rule.parent; p; p = p.parent) if (p.type === 'atrule' && /keyframes$/.test(p.name)) return;
+        const selector = rule.selector.replace(/\[[^\]]*\]/g, '').replace(/"[^"]*"|'[^']*'/g, '');
+        for (const [, name, next] of selector.matchAll(/\.(-?[_a-zA-Z][\w-]*)(\\)?/g))
+          if (!next && name.startsWith('mo-') && !MO_SHAPE.test(name))
+            out.push(
+              `${file}: the class .${name} starts with mo- but is not of the shape mo-<component>, mo-<component>__<part>, mo-is-<word> or mo-has-<word> (docs/class-names.md).`,
+            );
+      });
+    }
+    if (LITERAL_FILES.test(file) && !/^(scripts|docs)\//.test(file)) {
+      for (const m of text.matchAll(/(?<![\w-])(?:class|className)\s*=\s*(?:"([^"{}$\n]*)"|'([^'{}$\n]*)')/g))
+        for (const word of (m[1] ?? m[2]).split(/\s+/))
+          if (word && !word.startsWith('mo-') && !isKept(word))
+            out.push(
+              `${file}:${lineOf(text, m.index)}: the class "${word}" is written in a class attribute and does not start with mo- (docs/class-names.md).`,
+            );
+    }
+  }
+  return [...new Set(out)];
+}
+
 /** The files to scan, from git. */
 export function listFiles() {
-  return execFileSync('git', ['ls-files', ...FOLDERS], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+  return execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', ...FOLDERS], {
+    cwd: root,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+  })
     .split('\n')
     .filter((f) => f && SCANNED.test(f) && !SKIPPED.test(f) && existsSync(root + f));
 }
@@ -163,9 +237,10 @@ const sum = (map) => [...map.values()].reduce((a, b) => a + b, 0);
  * Scan files. @param {Record<string, string>} files path → text
  * @returns {{ perFile: Record<string, {classDefs:number, markup:number, propsDeclared:number, propsRead:number}>, names: {classes: Map<string, any>, props: Map<string, any>} }}
  */
-export function scan(files) {
+export function scan(files, renamed = RENAMED) {
   const css = {};
-  const known = new Set();
+  // A name a stylesheet defines, and the old names of the rename (scripts/renamed-classes.json): a rename that missed a string leaves a name no stylesheet defines any more.
+  const known = new Set(renamed.filter(isOwnClass));
   const classes = new Map();
   const props = new Map();
   const entry = (map, name) => map.get(name) ?? map.set(name, { files: new Set(), defs: 0, markup: 0, declared: 0, read: 0 }).get(name);
@@ -405,18 +480,6 @@ export function buildMap(names) {
 
 export const readTree = (files = listFiles()) => Object.fromEntries(files.map((f) => [f, readFileSync(root + f, 'utf8')]));
 
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const { perFile, names } = scan(readTree());
-  if (process.argv.includes('--counts')) {
-    console.log(JSON.stringify(perFile, null, 2));
-    process.exit(0);
-  }
-  const map = buildMap(names);
-  mkdirSync(dirname(root + MAP_PATH), { recursive: true });
-  writeFileSync(root + MAP_PATH, `${JSON.stringify(map, null, 2)}\n`);
-  console.log(
-    `mo-names: wrote ${MAP_PATH}`,
-    map.summary,
-    `questions: ${map.questions.classes.length} classes, ${map.questions.properties.length} properties`,
-  );
-}
+// `node scripts/mo-names.mjs` prints the per-file counts. The map (docs/superpowers/plans/mo-names/map.json) was made once, before the renames (M1), and is
+// the record of the old names; it is not made again (the tree has no old names left, so a new one would be empty). scripts/renamed-classes.json lists them.
+if (process.argv[1] === fileURLToPath(import.meta.url)) console.log(JSON.stringify(scan(readTree()).perFile, null, 2));

@@ -351,7 +351,10 @@ async function checkPhoneSheet(width = 375, height = 740) {
     return {
       rect: [r.left, r.top, r.width, r.height].map(Math.round),
       modal: d.matches(':modal'),
-      full: !!document.querySelector('dialog[open].dialog-modal-full-screen'),
+      full: [...document.querySelectorAll('dialog[open] .mo-dialog__basic')].some((b) => {
+        const r = b.getBoundingClientRect();
+        return r.width >= innerWidth - 1 && r.height >= innerHeight - 1;
+      }),
       title: d.querySelector('h1')?.textContent.trim(),
       topButtons: names(top),
       barButtons: names(bar),
@@ -956,8 +959,8 @@ async function checkCropView(width, height = 800) {
       return {
         fills: Math.abs(r.width - vp.w) < 1 && Math.abs(r.height - vp.h) < 1,
         title: d.querySelector('h1')?.textContent,
-        bar: !!d.querySelector('header, .mo-top-app-bar, [class*="top-app-bar"]'),
-        dialogParts: !!d.querySelector('.mo-dialog__basic, .dialog-full-screen, .mo-dialog__headline'),
+        bar: !!d.querySelector('header, .mo-top-app-bar'),
+        dialogParts: !!d.querySelector('.mo-dialog__basic, .mo-dialog__headline'),
         buttons: [...d.querySelectorAll('.mo-bottom-sheet__standard button')].map((b) => b.textContent.trim()),
         area: d.querySelector('.mo-editor-crop-view-area').getBoundingClientRect().width,
       };
@@ -1154,7 +1157,7 @@ async function checkCropView(width, height = 800) {
   if (stepAfter.hash !== '#new/pages' || !/Hello/.test(stepAfter.text ?? ''))
     problems.push(`${label}: the editor under the crop view was changed (${stepAfter.hash})`);
   const saved = await page.evaluate(() => {
-    const box = document.querySelector('.ProseMirror .mo-site-picture .picture-crop');
+    const box = document.querySelector('.ProseMirror .mo-site-picture .mo-site-picture__crop');
     return box && { box: box.getAttribute('style'), img: box.querySelector('img')?.getAttribute('style') };
   });
   if (!saved || !/aspect-ratio: 3 \/ 2/.test(saved.box ?? '') || !/translate\(-?\d/.test(saved.img ?? ''))
@@ -1180,7 +1183,9 @@ async function checkCropView(width, height = 800) {
   await asked().getByRole('button', { name: 'Discard', exact: true }).click();
   await page.waitForTimeout(500);
   if (await view.count()) problems.push(`${label}: Discard did not close the crop view`);
-  const still = await page.evaluate(() => document.querySelector('.ProseMirror .mo-site-picture .picture-crop')?.getAttribute('style'));
+  const still = await page.evaluate(() =>
+    document.querySelector('.ProseMirror .mo-site-picture .mo-site-picture__crop')?.getAttribute('style'),
+  );
   if (!/aspect-ratio: 3 \/ 2/.test(still ?? '')) problems.push(`${label}: Discard changed the image (${still})`);
   // Closing with nothing changed asks nothing.
   await open();
@@ -1386,7 +1391,8 @@ async function checkAltSheet(width, height = 800) {
   await page.waitForTimeout(500);
   if ((await texts()).join('|') !== 'A ringed planet')
     problems.push(`${label}: Save did not put the text on the image (${(await texts()).join('|')})`);
-  if (await page.locator('.ProseMirror .mo-site-picture .picture-crop').count()) problems.push(`${label}: a new image is not Original`);
+  if (await page.locator('.ProseMirror .mo-site-picture .mo-site-picture__crop').count())
+    problems.push(`${label}: a new image is not Original`);
 
   // Skip keeps the image without a text of its own.
   await page.click('.ProseMirror > p');

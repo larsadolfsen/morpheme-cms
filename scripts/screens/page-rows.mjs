@@ -835,7 +835,7 @@ async function checkFabAboveFooter(width) {
       await page.waitForTimeout(250);
       const m = await page.evaluate(() => {
         const fab = document.querySelector('.mo-editor-fab')?.getBoundingClientRect();
-        const footer = document.querySelector('footer.editor-footer')?.getBoundingClientRect();
+        const footer = document.querySelector('footer.mo-editor-footer')?.getBoundingClientRect();
         if (!fab || !footer) return null;
         return { fabTop: fab.top, fabBottom: fab.bottom, footerTop: footer.top, footerBottom: footer.bottom, h: innerHeight };
       });
