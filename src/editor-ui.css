@@ -146,7 +146,7 @@
     inset-inline-end: var(--mo-ref-space-50);
     inset-block-start: var(--mo-ref-space-50);
   }
-  .mo-editor-empty-note {
+  .mo-editor-list-empty {
     padding-block: var(--mo-comp-editor-rhythm-300);
     padding-inline: var(--mo-ref-space-200);
     text-align: center;
@@ -454,7 +454,7 @@
     padding-block-end: var(--mo-comp-editor-rhythm-200);
   }
   .mo-editor-sheet-chips,
-  .mo-editor-chips {
+  .mo-editor-chip-row {
     display: flex;
     flex-wrap: wrap;
     gap: var(--mo-ref-space-100);

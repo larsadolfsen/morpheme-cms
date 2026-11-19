@@ -1574,7 +1574,7 @@ export function MultiChoice({
   const shown = many ? tools.arrange(found) : found;
   return (
     <>
-      <div className="mo-editor-chips">
+      <div className="mo-editor-chip-row">
         {value.map((v) => (
           <InputChip key={v} removeLabel={t.forms.removeOne(labelOf(v))} onRemove={() => toggle(v)}>
             {labelOf(v)}
@@ -1761,7 +1761,7 @@ export function ChipField({
   return (
     <div className="mo-editor-gapped-100 mo-editor-chip-field">
       {chips.length > 0 && (
-        <div className="mo-editor-chips">
+        <div className="mo-editor-chip-row">
           {chips.map((w) => (
             <InputChip key={w} removeLabel={t.forms.removeOne(w)} onRemove={() => remove(w)}>
               {w}
@@ -2860,7 +2860,7 @@ const inText = {
 /** What a list or a screen says when it has nothing to show (No …), or while it is fetched (`busy`,
  * with the LoadingIndicator: Loading…): grey, in the middle. `item`: as an item of a list. */
 export function EmptyNote({ item, busy, children }: { item?: boolean; busy?: boolean; children: ReactNode }) {
-  const className = 'mo-editor-empty-note';
+  const className = 'mo-editor-list-empty';
   const text = busy ? <LoadingIndicator>{children}</LoadingIndicator> : children;
   return item ? <li className={className}>{text}</li> : <p className={className}>{text}</p>;
 }
