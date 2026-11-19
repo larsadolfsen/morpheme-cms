@@ -50,7 +50,76 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-200);
   }
-  .mo-editor-ask-notes > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-ask-notes
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      [class*='my-'],
+      [class*='mb-'],
+      [class*='m-0'],
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
 
@@ -76,7 +145,7 @@
     padding-block-end: var(--mo-ref-space-100);
   }
 
-  .mo-editor-settings-block {
+  .mo-editor-block {
     display: block;
   }
 
@@ -94,7 +163,7 @@
     line-height: 1.375;
   }
 
-  .mo-editor-settings-chips {
+  .mo-editor-chips {
     display: flex;
     flex-wrap: wrap;
     gap: var(--mo-ref-space-100);
@@ -167,7 +236,7 @@
     border-color: currentcolor;
   }
 
-  .mo-editor-settings-dashboard-grid {
+  .mo-editor-dashboard-grid {
     --mo-comp-grid-columns: 2;
   }
 
@@ -194,7 +263,76 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-500);
   }
-  .mo-editor-flow-10 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-flow-10
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      [class*='my-'],
+      [class*='mb-'],
+      [class*='m-0'],
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
     margin-block-end: var(--mo-comp-editor-rhythm-500);
   }
 
@@ -207,7 +345,76 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-150);
   }
-  .mo-editor-flow-3 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-flow-3
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      [class*='my-'],
+      [class*='mb-'],
+      [class*='m-0'],
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
     margin-block-end: var(--mo-comp-editor-rhythm-150);
   }
 
@@ -215,7 +422,76 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-200);
   }
-  .mo-editor-flow-4 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-flow-4
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      [class*='my-'],
+      [class*='mb-'],
+      [class*='m-0'],
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
 
@@ -223,7 +499,76 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-250);
   }
-  .mo-editor-flow-5 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-flow-5
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      [class*='my-'],
+      [class*='mb-'],
+      [class*='m-0'],
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
     margin-block-end: var(--mo-comp-editor-rhythm-250);
   }
 
@@ -231,7 +576,76 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-300);
   }
-  .mo-editor-flow-6 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-flow-6
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      [class*='my-'],
+      [class*='mb-'],
+      [class*='m-0'],
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
     margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
 
@@ -240,7 +654,7 @@
     touch-action: none;
   }
 
-  .mo-editor-settings-group {
+  .mo-editor-group {
     margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
 
@@ -302,13 +716,13 @@
     display: inline-flex;
   }
 
-  .mo-editor-settings-inline-row {
+  .mo-editor-inline-row {
     display: inline-flex;
     align-items: center;
     gap: var(--mo-ref-space-150);
   }
 
-  .mo-editor-settings-inset {
+  .mo-editor-inset {
     padding-inline: var(--mo-ref-space-200);
   }
 
@@ -369,7 +783,7 @@
     padding-block-start: 13rem;
   }
 
-  .mo-editor-settings-muted {
+  .mo-editor-muted {
     color: var(--mo-sys-color-on-surface-variant);
   }
 
@@ -399,7 +813,76 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-250);
   }
-  .mo-editor-note-article > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-note-article
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      [class*='my-'],
+      [class*='mb-'],
+      [class*='m-0'],
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
     margin-block-end: var(--mo-comp-editor-rhythm-250);
   }
 
@@ -425,7 +908,76 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-250);
   }
-  .mo-editor-note-section > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-note-section
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      [class*='my-'],
+      [class*='mb-'],
+      [class*='m-0'],
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
     margin-block-end: var(--mo-comp-editor-rhythm-250);
   }
 
@@ -448,7 +1000,76 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-150);
   }
-  .mo-editor-notes > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-notes
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      [class*='my-'],
+      [class*='mb-'],
+      [class*='m-0'],
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
     margin-block-end: var(--mo-comp-editor-rhythm-150);
   }
 
@@ -482,7 +1103,76 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-500);
   }
-  .mo-editor-parts-group > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-parts-group
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      [class*='my-'],
+      [class*='mb-'],
+      [class*='m-0'],
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
     margin-block-end: var(--mo-comp-editor-rhythm-500);
   }
 
@@ -533,7 +1223,76 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-250);
   }
-  .mo-editor-post-head > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-post-head
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      [class*='my-'],
+      [class*='mb-'],
+      [class*='m-0'],
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
     margin-block-end: var(--mo-comp-editor-rhythm-250);
   }
 
@@ -596,7 +1355,76 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-200);
   }
-  .mo-editor-sample-stack-4 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-sample-stack-4
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      [class*='my-'],
+      [class*='mb-'],
+      [class*='m-0'],
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
 
@@ -607,7 +1435,76 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-300);
   }
-  .mo-editor-sample-stack-6 > :not(:last-child, :has(+ [data-fold-section]), [class*='my-'], [class*='mb-'], [class*='m-0']) {
+  .mo-editor-sample-stack-6
+    > :not(
+      :last-child,
+      :has(+ [data-fold-section]),
+      [class*='my-'],
+      [class*='mb-'],
+      [class*='m-0'],
+      .mo-editor-app-text,
+      .mo-editor-ask-title,
+      .mo-editor-block-label,
+      .mo-editor-choice-hint,
+      .mo-editor-code-row,
+      .mo-editor-dialog-title,
+      .mo-editor-empty-note,
+      .mo-editor-field-hint,
+      .mo-editor-field-label,
+      .mo-editor-field-title,
+      .mo-editor-filter-chips,
+      .mo-editor-filter-row,
+      .mo-editor-first-run,
+      .mo-editor-group,
+      .mo-editor-group-inset,
+      .mo-editor-group-title,
+      .mo-editor-intro,
+      .mo-editor-library-apps,
+      .mo-editor-library-empty,
+      .mo-editor-library-filters,
+      .mo-editor-library-section,
+      .mo-editor-library-theme-head,
+      .mo-editor-library-toolbar,
+      .mo-editor-license-note,
+      .mo-editor-license-paragraph,
+      .mo-editor-license-photo,
+      .mo-editor-list-lead,
+      .mo-editor-main-drawer-divider,
+      .mo-editor-main-drawer-header-divider,
+      .mo-editor-media-group-title,
+      .mo-editor-media-used-title,
+      .mo-editor-no-match,
+      .mo-editor-note,
+      .mo-editor-note-article,
+      .mo-editor-notes,
+      .mo-editor-notice-inset,
+      .mo-editor-own-field,
+      .mo-editor-own-field-held,
+      .mo-editor-photo-credit,
+      .mo-editor-picker-hint,
+      .mo-editor-picker-search,
+      .mo-editor-post-head,
+      .mo-editor-preview-label,
+      .mo-editor-sample-text,
+      .mo-editor-score,
+      .mo-editor-screen-content,
+      .mo-editor-screen-heading,
+      .mo-editor-screen-search-bar,
+      .mo-editor-screen-title-actions,
+      .mo-editor-section,
+      .mo-editor-section-pane-title,
+      .mo-editor-selection-dividers,
+      .mo-editor-sheet-chips,
+      .mo-editor-sheet-phone,
+      .mo-editor-sheet-search,
+      .mo-editor-store-head,
+      .mo-editor-subtitle,
+      .mo-editor-subtitle-tight,
+      .mo-editor-swatches-title,
+      .mo-editor-updates-notice,
+      .mo-editor-used-title,
+      .mo-editor-version-nav
+    ) {
     margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
 
@@ -615,7 +1512,7 @@
     scroll-margin-block-start: 6rem;
   }
 
-  .mo-editor-settings-section {
+  .mo-editor-section {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
 
@@ -713,7 +1610,7 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
 
-  .mo-editor-settings-strong {
+  .mo-editor-strong {
     font-weight: 500;
   }
 
@@ -767,7 +1664,7 @@
     padding-block-end: var(--toolbar-docked-padding-block);
   }
 
-  .mo-editor-settings-trailing {
+  .mo-editor-trailing {
     flex-shrink: 0;
     padding-inline-end: var(--mo-ref-space-75);
   }
@@ -825,7 +1722,7 @@
     outline-color: var(--mo-sys-color-primary);
   }
 
-  .mo-editor-settings-wrap {
+  .mo-editor-wrap {
     min-inline-size: 0;
     overflow-wrap: break-word;
   }
