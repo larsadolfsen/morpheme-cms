@@ -1,0 +1,34 @@
+{
+  "alone": {
+    "input": "# Page\n\n## Before\n\n<div data-block=\"hero\" data-props=\"{&quot;text&quot;:&quot;## Hello\\n\\nWorld&quot;}\"></div>\n\n## After\n",
+    "expected": "# Page\n\n## Before\n\n## Hello\n\nWorld\n\n## After\n"
+  },
+  "top015": {
+    "input": "# Home\n\nLead.\n\n<div data-block=\"hero\" data-props=\"{&quot;width&quot;:&quot;full&quot;,&quot;text&quot;:&quot;Welcome\\n\\n&lt;div data-block=\\&quot;buttons\\&quot; data-props=\\&quot;{&amp;quot;items&amp;quot;:[{&amp;quot;label&amp;quot;:&amp;quot;Book&amp;quot;,&amp;quot;to&amp;quot;:&amp;quot;booking&amp;quot;,&amp;quot;kind&amp;quot;:&amp;quot;filled&amp;quot;},{&amp;quot;label&amp;quot;:&amp;quot;More&amp;quot;,&amp;quot;to&amp;quot;:&amp;quot;about&amp;quot;,&amp;quot;kind&amp;quot;:&amp;quot;elevated&amp;quot;}]}\\&quot;&gt;&lt;/div&gt;\\n\\nFree for everyone.&quot;}\"></div>\n\n## Next\n",
+    "expected": "<div data-section=\"surface\" data-width=\"full\"></div>\n\n# Home\n\nLead.\n\nWelcome\n\n<div data-block=\"buttons\" data-props=\"{&quot;items&quot;:[{&quot;label&quot;:&quot;Book&quot;,&quot;to&quot;:&quot;booking&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;More&quot;,&quot;to&quot;:&quot;about&quot;,&quot;kind&quot;:&quot;tonal&quot;}]}\"></div>\n\nFree for everyone.\n\n## Next\n"
+  },
+  "topBehind016": {
+    "input": "# Home\n\n<div data-block=\"hero\" data-props=\"{&quot;placement&quot;:&quot;behind&quot;,&quot;width&quot;:&quot;full&quot;,&quot;text&quot;:&quot;![A field](/images/a.jpg)\\n\\nWelcome\\n\\n&lt;div data-block=\\&quot;buttons\\&quot; data-props=\\&quot;{&amp;quot;items&amp;quot;:[{&amp;quot;label&amp;quot;:&amp;quot;Book&amp;quot;,&amp;quot;to&amp;quot;:&amp;quot;booking&amp;quot;,&amp;quot;kind&amp;quot;:&amp;quot;filled&amp;quot;},{&amp;quot;label&amp;quot;:&amp;quot;More&amp;quot;,&amp;quot;to&amp;quot;:&amp;quot;about&amp;quot;,&amp;quot;kind&amp;quot;:&amp;quot;elevated&amp;quot;}]}\\&quot;&gt;&lt;/div&gt;&quot;}\"></div>\n\n## Next\n",
+    "expected": "# Home\n\nWelcome\n\n<div data-block=\"buttons\" data-props=\"{&quot;items&quot;:[{&quot;label&quot;:&quot;Book&quot;,&quot;to&quot;:&quot;booking&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;More&quot;,&quot;to&quot;:&quot;about&quot;,&quot;kind&quot;:&quot;tonal&quot;}]}\"></div>\n\n## Next\n"
+  },
+  "ownHeadingPicture": {
+    "input": "# Home\n\n## Before\n\n<div data-block=\"hero\" data-props=\"{&quot;placement&quot;:&quot;behind&quot;,&quot;width&quot;:&quot;full&quot;,&quot;text&quot;:&quot;## Welcome\\n\\n![A field](/images/a.jpg#decorative)\\n\\n&lt;div data-block=\\&quot;buttons\\&quot; data-props=\\&quot;{&amp;quot;items&amp;quot;:[{&amp;quot;label&amp;quot;:&amp;quot;Book&amp;quot;,&amp;quot;to&amp;quot;:&amp;quot;booking&amp;quot;,&amp;quot;kind&amp;quot;:&amp;quot;filled&amp;quot;},{&amp;quot;label&amp;quot;:&amp;quot;More&amp;quot;,&amp;quot;to&amp;quot;:&amp;quot;about&amp;quot;,&amp;quot;kind&amp;quot;:&amp;quot;elevated&amp;quot;}]}\\&quot;&gt;&lt;/div&gt;\\n\\nSmall print&quot;}\"></div>\n\n## After\n",
+    "expected": "# Home\n\n## Before\n\n<div data-section=\"\" data-picture=\"/images/a.jpg\" data-width=\"full\"></div>\n\n## Welcome\n\n<div data-block=\"buttons\" data-props=\"{&quot;items&quot;:[{&quot;label&quot;:&quot;Book&quot;,&quot;to&quot;:&quot;booking&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;More&quot;,&quot;to&quot;:&quot;about&quot;,&quot;kind&quot;:&quot;tonal&quot;}]}\"></div>\n\nSmall print\n\n## After\n"
+  },
+  "altPicture": {
+    "input": "# Home\n\n## Before\n\n<div data-block=\"hero\" data-props=\"{&quot;placement&quot;:&quot;behind&quot;,&quot;text&quot;:&quot;## Welcome\\n\\n![A \\\\[field\\\\]](/images/a.jpg)&quot;}\"></div>\n",
+    "expected": "# Home\n\n## Before\n\n<div data-section=\"\" data-picture=\"/images/a.jpg\" data-alt=\"A [field]\"></div>\n\n## Welcome\n"
+  },
+  "notAlone": {
+    "input": "## One\n\n<div data-block=\"hero\" data-props=\"{&quot;text&quot;:&quot;## Hi\\n\\nText&quot;}\"></div>\n\n<div data-block=\"steps\"></div>\n",
+    "expected": "## One\n\n<div data-block=\"hero\" data-props=\"{&quot;text&quot;:&quot;## Hi\\n\\nText&quot;}\"></div>\n\n<div data-block=\"steps\"></div>\n"
+  },
+  "noHeading": {
+    "input": "## One\n\ntext\n\n<div data-block=\"hero\" data-props=\"{&quot;text&quot;:&quot;No heading&quot;}\"></div>\n\n## Two\n",
+    "expected": "## One\n\ntext\n\n<div data-block=\"hero\" data-props=\"{&quot;text&quot;:&quot;No heading&quot;}\"></div>\n\n## Two\n"
+  },
+  "hidden": {
+    "input": "# T\n\n<div data-block=\"hero\" data-props=\"{&quot;hidden&quot;:true,&quot;text&quot;:&quot;## Hi&quot;}\"></div>\n\n## Two\n",
+    "expected": "# T\n\n<div data-block=\"hero\" data-props=\"{&quot;hidden&quot;:true,&quot;text&quot;:&quot;## Hi&quot;}\"></div>\n\n## Two\n"
+  }
+}

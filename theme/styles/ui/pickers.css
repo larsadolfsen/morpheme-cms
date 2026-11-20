@@ -1,0 +1,614 @@
+/*
+  Date pickers (DatePicker.tsx, the picker drawn by DatePickerContainer.tsx, datePicker.script.ts for what it does in a
+  browser; m3.material.io/components/date-pickers): .mo-date-picker__field, the theme's text field with the calendar button
+  in it (.mo-date-picker__field-button) and the <dialog> the picker opens in: .mo-date-picker__popover under the field (docked)
+  or .mo-date-picker__dialog, a modal dialog (.mo-dialog__modal) in the middle of the screen. The picker is a dialog's container
+  (.mo-dialog, so its surface, corners and shadow are --dialog-*) with .mo-date-picker and its kind, .mo-date-picker__docked or
+  .date-picker-modal ([data-range] for two days): a modal one's .mo-date-picker__header (.mo-date-picker__supporting-text, the .mo-date-picker__headline in its
+  .mo-date-picker__headline-row with the button to the input mode); .mo-date-picker__controls with the .mo-date-picker__menu-button
+  (the month and the year, a list under it) and the arrows in .mo-date-picker__steps; in .mo-date-picker__content the month
+  (.mo-date-picker__grid: .mo-date-picker__weekday over each .mo-date-picker__cell with its .mo-date-picker__day; today aria-current,
+  the picked day aria-selected on its cell, a range's start, end and days between [data-range]), the years
+  (.mo-date-picker__years, each a .mo-date-picker__year) or a docked picker's list of months or years (.mo-date-picker__menu, each a
+  .mo-date-picker__menu-item with .mo-date-picker__menu-check), or the input mode (.mo-date-picker__input, the theme's text fields);
+  and .mo-date-picker__actions.
+    --mo-comp-date-picker-width   how wide it is
+    --mo-comp-date-picker-docked-radius, --mo-comp-date-picker-docked-shadow   a docked picker's corners and shadow (else the dialog's)
+    --mo-comp-date-picker-supporting-color, --mo-comp-date-picker-headline-size, --mo-comp-date-picker-headline-weight, --mo-comp-date-picker-line
+                     a modal picker's header: the line over the headline, the headline, and the line under the header
+    --mo-comp-date-picker-menu-button-text, --mo-comp-date-picker-weekday-text   the month and year over the days, and the weekdays
+    --mo-comp-date-picker-day-size, --mo-comp-date-picker-day-radius, --mo-comp-date-picker-day-text, --mo-comp-date-picker-day-hover   a day (also a
+                     year, a month in a list) and the shade when it is pointed at
+    --mo-comp-date-picker-today-text, --mo-comp-date-picker-today-line   today (also this year)
+    --mo-comp-date-picker-selected-surface, --mo-comp-date-picker-selected-text   the day picked (also the year shown)
+    --mo-comp-date-picker-range-surface, --mo-comp-date-picker-range-text   the band of a range's days
+  Time pickers (TimePicker.tsx, the picker drawn by TimePickerContainer.tsx, timePicker.script.ts;
+  m3.material.io/components/time-pickers): .mo-time-picker__field, the text field with the clock button
+  (.mo-time-picker__field-button) and the modal dialog the picker opens in (.mo-time-picker__dialog). The picker is a dialog's
+  container with .mo-time-picker: .mo-time-picker__headline; .mo-time-picker__selector with the hours' and the minutes' boxes
+  (.mo-time-picker__box, the one on the dial aria-pressed) and .mo-time-picker__separator between them; the dial
+  (.mo-time-picker__dial, a slider: .mo-time-picker__dial-hand with its .mo-time-picker__dial-knob, [data-inner] on the inner ring
+  and [data-between] at a minute between the fives, and each .mo-time-picker__dial-number, the one pointed at
+  [data-selected]); or the input mode (.mo-time-picker__input, a text field for each, .mo-time-picker__text-field), with what is
+  wrong under it (.mo-time-picker__error); and .mo-time-picker__actions. A 12-hour clock (.mo-time-picker__12h) has the period
+  selector beside the boxes (.mo-time-picker__period with a .mo-time-picker__period-button for AM and PM, the half of the day
+  shown aria-pressed) and its hours on one ring; .mo-time-picker__horizontal has the dial beside the boxes (in the dial's
+  view, [data-view='dial']), AM and PM under them.
+    --mo-comp-time-picker-width, --mo-comp-time-picker-horizontal-width, --mo-comp-time-picker-horizontal-gap   how wide it is, and a
+                     horizontal one, with the room between the boxes and the dial
+    --mo-comp-time-picker-headline-color   the headline
+    --mo-comp-time-picker-box-width, --mo-comp-time-picker-box-height, --mo-comp-time-picker-box-radius, --mo-comp-time-picker-box-font-size,
+    --mo-comp-time-picker-box-weight   the boxes (also the input mode's fields)
+    --mo-comp-time-picker-box-surface, --mo-comp-time-picker-box-text, --mo-comp-time-picker-box-selected-surface, --mo-comp-time-picker-box-selected-text
+    --mo-comp-time-picker-dial-size, --mo-comp-time-picker-dial-surface, --mo-comp-time-picker-dial-text, --mo-comp-time-picker-dial-knob   the dial and
+                     the circle round a number on it
+    --mo-comp-time-picker-hand, --mo-comp-time-picker-hand-text   the hand and the number it points at
+    --mo-comp-time-picker-period-width, --mo-comp-time-picker-period-height, --mo-comp-time-picker-period-line, --mo-comp-time-picker-period-text,
+    --mo-comp-time-picker-period-selected-surface, --mo-comp-time-picker-period-selected-text   the period selector (its height side
+                     by side, horizontal), its edge, and AM or PM shown
+  Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
+  the same property on these parts at the same specificity, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* The field: the theme's text field, its button in it at the end. */
+  .mo-date-picker__field,
+  .mo-time-picker__field {
+    position: relative;
+    display: grid;
+    min-width: 0;
+  }
+  .mo-date-picker__field .mo-text-field__input,
+  .mo-time-picker__field .mo-text-field__input {
+    padding-right: calc(var(--mo-comp-icon-button-small-container-height, 2.75rem) + 0.5rem);
+  }
+  .mo-date-picker__field-button,
+  .mo-time-picker__field-button {
+    position: absolute;
+    top: calc(
+      (
+          var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) -
+            var(--mo-comp-icon-button-small-container-height, 2.75rem)
+        ) /
+        2
+    );
+    right: 0.25rem;
+  }
+
+  /* Where it opens: under the field (docked), or in the middle of the screen (modal: .mo-dialog__modal, its scrim). */
+  .mo-date-picker__popover {
+    position: absolute;
+    inset: calc(var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) + 0.25rem) auto auto 0;
+    z-index: 35;
+    width: min(var(--mo-comp-date-picker-width, 22.5rem), calc(100vw - 2rem));
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+  }
+  .mo-date-picker__dialog {
+    max-width: var(--mo-comp-date-picker-width, 22.5rem);
+  }
+  .mo-time-picker__dialog {
+    max-width: var(--mo-comp-time-picker-width, 20.5rem);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .mo-date-picker__popover[open] {
+      animation: date-picker-in var(--mo-sys-motion-spring-default-spatial);
+    }
+  }
+  @keyframes date-picker-in {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem);
+    }
+  }
+
+  /* Date pickers (m3.material.io/components/date-pickers). */
+  .mo-date-picker {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 2rem);
+    overflow: hidden;
+    color: var(--mo-sys-block-text);
+  }
+  .mo-date-picker__docked {
+    border-radius: var(--mo-comp-date-picker-docked-radius, var(--mo-comp-dialog-container-shape, var(--mo-sys-block-radius)));
+    box-shadow:
+      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
+      var(--mo-comp-date-picker-docked-shadow, var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow)));
+  }
+  .mo-date-picker__header {
+    padding: 1rem 0.75rem 0.75rem 1.5rem;
+    border-bottom: 1px solid var(--mo-comp-date-picker-line, var(--mo-sys-block-line));
+  }
+  .mo-date-picker__supporting-text {
+    margin: 0;
+    color: var(--mo-comp-date-picker-supporting-color, var(--mo-sys-block-muted));
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
+  }
+  .mo-date-picker__headline-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+  .mo-date-picker__headline {
+    margin: 0;
+    font-size: var(--mo-comp-date-picker-headline-size, var(--mo-sys-typescale-headline-large-size));
+    font-weight: var(--mo-comp-date-picker-headline-weight, var(--mo-sys-typescale-headline-large-weight));
+    line-height: var(--mo-sys-typescale-headline-large-line-height);
+    letter-spacing: var(--mo-sys-typescale-headline-large-tracking);
+  }
+  /* A range's two days, smaller, so they fit on one line. */
+  .mo-date-picker[data-range] .mo-date-picker__headline {
+    font-size: calc(var(--mo-comp-date-picker-headline-size, var(--mo-sys-typescale-headline-large-size)) * 0.75);
+  }
+  .mo-date-picker__controls {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem 0 1rem;
+  }
+  .mo-date-picker__docked .mo-date-picker__controls {
+    padding-inline: 0.25rem;
+  }
+  .mo-date-picker__steps {
+    display: flex;
+    align-items: center;
+  }
+  .mo-date-picker__menu-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    min-height: 2.5rem;
+    padding: 0 0.5rem;
+    border: 0;
+    border-radius: var(--mo-sys-shape-corner-full);
+    background: transparent;
+    color: var(--mo-comp-date-picker-menu-button-text, var(--mo-sys-block-text));
+    font: inherit;
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color var(--mo-sys-motion-spring-default-effects);
+  }
+  .mo-date-picker__menu-button:hover:not(:disabled) {
+    background: var(--mo-comp-date-picker-day-hover, var(--mo-sys-block-tint));
+  }
+  .mo-date-picker__menu-button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .mo-date-picker__menu-button-icon {
+    transition: transform var(--mo-sys-motion-spring-fast-spatial);
+  }
+  .mo-date-picker__menu-button[aria-expanded='true'] .mo-date-picker__menu-button-icon {
+    transform: rotate(180deg);
+  }
+  .mo-date-picker__content {
+    min-height: 0;
+    overflow: auto;
+    padding: 0 0.75rem;
+  }
+
+  /* The month: seven columns, a day in a circle in each. */
+  .mo-date-picker__grid {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  .mo-date-picker__weekday {
+    height: 3rem;
+    padding: 0;
+    color: var(--mo-comp-date-picker-weekday-text, var(--mo-sys-block-text));
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+  }
+  .mo-date-picker__cell {
+    height: 3rem;
+    padding: 0;
+    text-align: center;
+  }
+  .mo-date-picker__day,
+  .mo-date-picker__year {
+    display: inline-grid;
+    place-items: center;
+    width: var(--mo-comp-date-picker-day-size, 2.5rem);
+    height: var(--mo-comp-date-picker-day-size, 2.5rem);
+    border: 0;
+    border-radius: var(--mo-comp-date-picker-day-radius, var(--mo-sys-shape-corner-full));
+    background: transparent;
+    color: var(--mo-comp-date-picker-day-text, var(--mo-sys-block-text));
+    font: inherit;
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition:
+      background-color var(--mo-sys-motion-spring-default-effects),
+      color var(--mo-sys-motion-spring-default-effects);
+  }
+  .mo-date-picker__day:hover:not(:disabled),
+  .mo-date-picker__year:hover {
+    background: var(--mo-comp-date-picker-day-hover, var(--mo-sys-block-tint));
+  }
+  .mo-date-picker__day:disabled {
+    opacity: var(--mo-sys-state-disabled-state-layer-opacity);
+    cursor: default;
+  }
+  .mo-date-picker__day[aria-current='date'],
+  .mo-date-picker__year[aria-current='date'] {
+    color: var(--mo-comp-date-picker-today-text, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-date-picker-today-line, var(--mo-sys-block-accent));
+  }
+  .mo-date-picker__cell[aria-selected='true'] .mo-date-picker__day,
+  .mo-date-picker__year[aria-selected='true'] {
+    background: var(--mo-comp-date-picker-selected-surface, var(--mo-sys-block-accent));
+    color: var(--mo-comp-date-picker-selected-text, var(--mo-sys-block-on-accent));
+    box-shadow: none;
+  }
+  /* A range: a band from the start to the end, behind their circles. */
+  .mo-date-picker__cell[data-range='middle'] {
+    background: var(--mo-comp-date-picker-range-surface, var(--mo-sys-block-tint));
+  }
+  .mo-date-picker__cell[data-range='start'] {
+    background: linear-gradient(to right, transparent 50%, var(--mo-comp-date-picker-range-surface, var(--mo-sys-block-tint)) 50%);
+  }
+  .mo-date-picker__cell[data-range='end'] {
+    background: linear-gradient(to left, transparent 50%, var(--mo-comp-date-picker-range-surface, var(--mo-sys-block-tint)) 50%);
+  }
+  .mo-date-picker__cell[data-range='middle'] .mo-date-picker__day {
+    color: var(--mo-comp-date-picker-range-text, var(--mo-sys-block-text));
+  }
+  .mo-date-picker__cell[data-range='middle'] .mo-date-picker__day:hover {
+    background: color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent);
+  }
+
+  /* The years in a grid (modal), and a docked picker's months and years in a list. */
+  .mo-date-picker__years,
+  .mo-date-picker__menu {
+    position: relative;
+    max-height: 18rem;
+    overflow-y: auto;
+  }
+  .mo-date-picker__years {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem 0;
+    justify-items: center;
+    padding: 0.5rem 0;
+  }
+  .mo-date-picker__year {
+    width: 4.5rem;
+  }
+  .mo-date-picker__menu {
+    display: grid;
+    padding: 0.5rem 0;
+  }
+  .mo-date-picker__menu-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 3rem;
+    padding: 0 1rem;
+    border: 0;
+    border-radius: var(--mo-comp-date-picker-day-radius, var(--mo-sys-shape-corner-full));
+    background: transparent;
+    color: var(--mo-comp-date-picker-day-text, var(--mo-sys-block-text));
+    font: inherit;
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+    text-align: left;
+    cursor: pointer;
+  }
+  .mo-date-picker__menu-item:hover {
+    background: var(--mo-comp-date-picker-day-hover, var(--mo-sys-block-tint));
+  }
+  .mo-date-picker__menu-check {
+    flex-shrink: 0;
+    visibility: hidden;
+  }
+  .mo-date-picker__menu-item[aria-selected='true'] .mo-date-picker__menu-check {
+    visibility: visible;
+  }
+  .mo-date-picker__menu-item[aria-selected='true'] {
+    font-weight: 600;
+  }
+
+  /* The input mode: the theme's text fields, on the dialog's surface (behind an outlined field's name too). */
+  .mo-date-picker__input {
+    display: grid;
+    gap: 1rem;
+    padding: 1.25rem 0.75rem 0.5rem;
+  }
+  .mo-date-picker__actions,
+  .mo-time-picker__actions {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem 0.75rem;
+  }
+
+  /* Time pickers (m3.material.io/components/time-pickers). */
+  .mo-time-picker {
+    display: grid;
+    justify-items: center;
+    padding: 1.5rem 1.5rem 0;
+    color: var(--mo-sys-block-text);
+  }
+  .mo-time-picker__headline {
+    justify-self: start;
+    margin: 0 0 1.25rem;
+    color: var(--mo-comp-time-picker-headline-color, var(--mo-sys-block-muted));
+    font-size: var(--mo-sys-typescale-label-medium-size);
+    line-height: var(--mo-sys-typescale-label-medium-line-height);
+    font-weight: var(--mo-sys-typescale-label-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
+  }
+  .mo-time-picker__selector,
+  .mo-time-picker__input {
+    display: flex;
+    align-items: flex-start;
+  }
+  .mo-time-picker__selector-part {
+    display: flex;
+    align-items: flex-start;
+  }
+  .mo-time-picker__separator {
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: var(--mo-comp-time-picker-box-height, 5rem);
+    font-size: var(--mo-comp-time-picker-box-font-size, var(--mo-sys-typescale-display-large-size));
+    line-height: 1;
+  }
+  .mo-time-picker__box,
+  .mo-time-picker__text-field .mo-text-field__container {
+    width: var(--mo-comp-time-picker-box-width, 6rem);
+    height: var(--mo-comp-time-picker-box-height, 5rem);
+    border: 0;
+    border-radius: var(--mo-comp-time-picker-box-radius, var(--mo-sys-block-radius-small));
+    background: var(--mo-comp-time-picker-box-surface, var(--mo-sys-block-tint));
+    color: var(--mo-comp-time-picker-box-text, var(--mo-sys-block-text));
+    font: inherit;
+    font-size: var(--mo-comp-time-picker-box-font-size, var(--mo-sys-typescale-display-large-size));
+    font-weight: var(--mo-comp-time-picker-box-weight, var(--mo-sys-typescale-display-large-weight));
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    text-align: center;
+  }
+  .mo-time-picker__box {
+    cursor: pointer;
+    transition:
+      background-color var(--mo-sys-motion-spring-default-effects),
+      color var(--mo-sys-motion-spring-default-effects);
+  }
+  .mo-time-picker__box:hover {
+    background: color-mix(
+      in srgb,
+      var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+      var(--mo-comp-time-picker-box-surface, var(--mo-sys-block-tint))
+    );
+  }
+  .mo-time-picker__box[aria-pressed='true'] {
+    background: var(--mo-comp-time-picker-box-selected-surface, var(--mo-sys-block-accent));
+    color: var(--mo-comp-time-picker-box-selected-text, var(--mo-sys-block-on-accent));
+  }
+  .mo-time-picker__text-field .mo-text-field__input {
+    min-height: 0;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    text-align: center;
+  }
+  .mo-time-picker__text-field .mo-text-field__supporting-row {
+    margin-inline: 0;
+  }
+
+  /* The dial: the numbers in a ring (the hours 12–23 in one inside it), each in its place by its angle. */
+  .mo-time-picker__dial {
+    position: relative;
+    width: var(--mo-comp-time-picker-dial-size, 16rem);
+    height: var(--mo-comp-time-picker-dial-size, 16rem);
+    margin-top: 1.5rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+    background: var(--mo-comp-time-picker-dial-surface, var(--mo-sys-block-tint));
+    color: var(--mo-comp-time-picker-dial-text, var(--mo-sys-block-text));
+    touch-action: none;
+    user-select: none;
+    cursor: pointer;
+  }
+  .mo-time-picker__dial-number {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: var(--mo-comp-time-picker-dial-knob, 3rem);
+    height: var(--mo-comp-time-picker-dial-knob, 3rem);
+    margin: calc(var(--mo-comp-time-picker-dial-knob, 3rem) / -2);
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+    transform: rotate(var(--mo-comp-time-picker-angle)) translateY(calc(-1 * var(--mo-comp-time-picker-ring)))
+      rotate(calc(-1 * var(--mo-comp-time-picker-angle)));
+  }
+  .mo-time-picker__dial-number[data-inner] {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    transform: rotate(var(--mo-comp-time-picker-angle))
+      translateY(calc(var(--mo-comp-time-picker-dial-knob, 3rem) * 0.75 - var(--mo-comp-time-picker-ring)))
+      rotate(calc(-1 * var(--mo-comp-time-picker-angle)));
+  }
+  .mo-time-picker__dial-number[data-selected] {
+    color: var(--mo-comp-time-picker-hand-text, var(--mo-sys-block-on-accent));
+  }
+  /* The hand: from the middle to the number, the circle round it, a dot in the middle. */
+  .mo-time-picker__dial-hand {
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    width: 2px;
+    height: var(--mo-comp-time-picker-ring);
+    margin-left: -1px;
+    background: var(--mo-comp-time-picker-hand, var(--mo-sys-block-accent));
+    pointer-events: none;
+    transform: rotate(var(--mo-comp-time-picker-angle));
+    transform-origin: bottom center;
+  }
+  .mo-time-picker__dial-hand[data-inner] {
+    height: calc(var(--mo-comp-time-picker-ring) - var(--mo-comp-time-picker-dial-knob, 3rem) * 0.75);
+  }
+  .mo-time-picker__dial-hand::after {
+    content: '';
+    position: absolute;
+    bottom: -0.25rem;
+    left: -0.1875rem;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+    background: var(--mo-comp-time-picker-hand, var(--mo-sys-block-accent));
+  }
+  .mo-time-picker__dial-knob {
+    position: absolute;
+    top: calc(var(--mo-comp-time-picker-dial-knob, 3rem) / -2);
+    left: calc(1px - var(--mo-comp-time-picker-dial-knob, 3rem) / 2);
+    width: var(--mo-comp-time-picker-dial-knob, 3rem);
+    height: var(--mo-comp-time-picker-dial-knob, 3rem);
+    border-radius: var(--mo-sys-shape-corner-full);
+    background: var(--mo-comp-time-picker-hand, var(--mo-sys-block-accent));
+  }
+  /* A minute between the fives: a dot in the circle, where its number would be. */
+  .mo-time-picker__dial-hand[data-between] .mo-time-picker__dial-knob::after {
+    content: '';
+    position: absolute;
+    inset: calc(50% - 0.125rem);
+    border-radius: var(--mo-sys-shape-corner-full);
+    background: var(--mo-comp-time-picker-hand-text, var(--mo-sys-block-on-accent));
+  }
+  .mo-time-picker__dial:focus-visible {
+    outline-offset: 4px;
+  }
+  .mo-time-picker__error {
+    justify-self: stretch;
+    margin: 0.75rem 0 0;
+    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+    font-weight: var(--mo-sys-typescale-body-small-weight);
+    letter-spacing: var(--mo-sys-typescale-body-small-tracking);
+    text-align: center;
+  }
+  .mo-time-picker__actions {
+    justify-self: stretch;
+    justify-content: space-between;
+    margin: 1.5rem -0.75rem 0;
+    padding-inline: 0;
+  }
+  .mo-time-picker__actions-end {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  /* The period selector (a 12-hour clock): AM over PM beside the boxes, in a thin edge, the half of the day shown
+     filled. */
+  .mo-time-picker__period {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: var(--mo-comp-time-picker-period-width, 3.25rem);
+    height: var(--mo-comp-time-picker-box-height, 5rem);
+    margin-inline-start: 0.75rem;
+    overflow: hidden;
+    border-radius: var(--mo-comp-time-picker-box-radius, var(--mo-sys-block-radius-small));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-time-picker-period-line, var(--mo-sys-block-line));
+  }
+  .mo-time-picker__period-button {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    color: var(--mo-comp-time-picker-period-text, var(--mo-sys-block-muted));
+    font: inherit;
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
+    cursor: pointer;
+    transition:
+      background-color var(--mo-sys-motion-spring-default-effects),
+      color var(--mo-sys-motion-spring-default-effects);
+  }
+  .mo-time-picker__period-button + .mo-time-picker__period-button {
+    border-top: 1px solid var(--mo-comp-time-picker-period-line, var(--mo-sys-block-line));
+  }
+  .mo-time-picker__period-button:hover {
+    background: color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent);
+  }
+  .mo-time-picker__period-button[aria-pressed='true'] {
+    background: var(--mo-comp-time-picker-period-selected-surface, var(--mo-sys-color-primary-container));
+    color: var(--mo-comp-time-picker-period-selected-text, var(--mo-sys-color-on-primary-container));
+  }
+  .mo-time-picker__period-button:focus-visible {
+    outline: 2px solid var(--mo-sys-block-accent);
+    outline-offset: -2px;
+  }
+
+  /* Horizontal (the dial's view): the boxes, and AM and PM side by side under them, to the left of the dial, the
+     headline and the actions across; the dialog wider for it. */
+  .mo-time-picker__dialog:has(.mo-time-picker__horizontal[data-view='dial']) {
+    max-width: var(--mo-comp-time-picker-horizontal-width, 36rem);
+  }
+  .mo-time-picker__horizontal[data-view='dial'] {
+    grid-template-columns: auto auto;
+    column-gap: var(--mo-comp-time-picker-horizontal-gap, 2.5rem);
+    align-items: start;
+    justify-content: safe center;
+  }
+  .mo-time-picker__horizontal[data-view='dial'] > :is(.mo-time-picker__headline, .mo-time-picker__error, .mo-time-picker__actions) {
+    grid-column: 1 / -1;
+  }
+  .mo-time-picker__horizontal .mo-time-picker__selector {
+    flex-wrap: wrap;
+    row-gap: 0.75rem;
+    width: calc(2 * var(--mo-comp-time-picker-box-width, 6rem) + 1.5rem);
+  }
+  .mo-time-picker__horizontal .mo-time-picker__selector .mo-time-picker__period {
+    flex-direction: row;
+    width: 100%;
+    height: var(--mo-comp-time-picker-period-height, 2.5rem);
+    margin-inline-start: 0;
+  }
+  .mo-time-picker__horizontal .mo-time-picker__selector .mo-time-picker__period-button + .mo-time-picker__period-button {
+    border-top: 0;
+    border-inline-start: 1px solid var(--mo-comp-time-picker-period-line, var(--mo-sys-block-line));
+  }
+  .mo-time-picker__horizontal[data-view='dial'] .mo-time-picker__dial {
+    margin-top: 0;
+  }
+}

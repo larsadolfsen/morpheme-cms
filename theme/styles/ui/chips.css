@@ -1,0 +1,235 @@
+/* ---- Chips: Chip ----
+  Chips (Chip.tsx, chipClass; m3.material.io/components/chips): .mo-chip with its kind, .chip-assist (a link to something
+  related: a post's tag), .mo-chip__filter (one of a few that choose what is shown, the chosen one with aria-pressed="true" on
+  a button or aria-current on a link, and a check before its label, .mo-chip__check), .mo-chip__input or .mo-chip__suggestion (each
+  optionally chosen with aria-pressed="true"); an icon before the label, or a person's image (.mo-chip__avatar), and
+  .mo-chip__trailing-icon after it. .mo-is-elevated: with a shadow instead of the edge (assist, filter and suggestion chips);
+  .mo-chip__dragged: while it is dragged; disabled (:disabled, or aria-disabled="true" on what is not a button): seen
+  through and not to be used. .mo-chip__removable: an input chip as a <span> with its own button (.mo-chip__action) and the one
+  that removes it (.mo-chip__remove), chosen with data-selected.
+    --mo-comp-filter-chip-container-height, --mo-comp-chip-padding, --mo-comp-chip-gap, --mo-comp-filter-chip-container-shape, --mo-comp-chip-font-size, --mo-comp-chip-icon-size   its size and label
+    --mo-comp-chip-surface, --mo-comp-filter-chip-flat-unselected-outline-color, --mo-comp-chip-hover-text, --mo-comp-chip-hover-line   its colours and edge, and pointed at
+    --mo-comp-filter-chip-flat-selected-container-color, --mo-comp-chip-selected-hover, --mo-comp-filter-chip-selected-label-text-color   a chosen chip, and pointed at
+    --mo-comp-chip-selected-hover-shadow   a chosen filter chip pointed at (level 1)
+    --mo-comp-chip-selected-check   whether a chosen filter chip shows its check (none, or a display value: block)
+    --mo-comp-chip-elevated-surface, --mo-comp-chip-elevated-shadow, --mo-comp-chip-elevated-hover-shadow   an elevated chip (level 1), and
+                     pointed at (level 2; a theme that sets only the one at rest keeps it); pressed, as at rest
+    --mo-comp-chip-dragged-shadow   the shadow that lifts a dragged chip (level 4)
+    --mo-comp-filter-chip-unselected-label-text-color   the label and icon of a chip that is not chosen
+    --mo-comp-chip-disabled-text, --mo-comp-chip-disabled-line, --mo-comp-chip-disabled-selected-surface   a disabled chip (38%, 12% and 12% of on surface)
+    --mo-comp-chip-avatar-size, --mo-comp-chip-avatar-padding   a person's image, and the room before it
+  The label's weight and line height are the text's; a theme sets them with a rule on .mo-chip.
+  Moved here from ui.css with its rules unchanged and in their order, in the same layer. Imported by base.css BEFORE ui.css, like the Checkbox: a chip set
+  carries the search view's class (.mo-search-view__filters, Search.tsx), whose rules, still in ui.css, set margin-inline, padding-inline and scroll-padding-inline
+  at the same specificity as .mo-chip__set-scroll and came after it; they must still win (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  .mo-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mo-comp-chip-gap, 0.5rem);
+    min-height: calc(var(--mo-comp-filter-chip-container-height, 0px) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    border: 0;
+    border-radius: var(--mo-comp-filter-chip-container-shape, var(--mo-sys-block-control-radius));
+    padding: var(--mo-comp-chip-padding, 0.55rem 1rem);
+    /* Density takes 2 px off each side, never the text; --mo-comp-chip-padding-block (else 0.55rem) is the room today. */
+    padding-block: calc(var(--mo-comp-chip-padding-block, 0.55rem) + var(--mo-sys-density-layout) * var(--mo-sys-density-step) / 2);
+    background: var(--mo-comp-chip-surface, var(--mo-sys-block-surface));
+    color: var(--mo-comp-filter-chip-unselected-label-text-color, inherit);
+    box-shadow: inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-sys-block-line));
+    font-family: inherit;
+    font-size: var(--mo-comp-chip-font-size, var(--mo-sys-typescale-label-large-size));
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+      background-color var(--mo-sys-motion-spring-default-effects),
+      color var(--mo-sys-motion-spring-default-effects),
+      box-shadow var(--mo-sys-motion-spring-default-effects);
+  }
+  span.mo-chip {
+    cursor: auto;
+  }
+  /* M3 Chips, guidelines: "Chips must also have a minimum 48dp target size, regardless of placement or density. If required, the target can extend beyond the
+     visible container of the chip." The target is behind the chip's own content, so what is in the chip (an input chip's remove button) is hit first. */
+  .mo-chip {
+    position: relative;
+    isolation: isolate;
+  }
+  .mo-chip::after {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: max(100%, 3rem);
+    transform: translateY(-50%);
+  }
+  .mo-chip > svg,
+  .mo-chip__action > svg,
+  .mo-chip__remove > svg {
+    flex-shrink: 0;
+    width: var(--mo-comp-chip-icon-size, 1.125rem);
+    height: var(--mo-comp-chip-icon-size, 1.125rem);
+  }
+  .mo-chip:hover {
+    box-shadow: inset 0 0 0 1px var(--mo-comp-chip-hover-line, var(--mo-sys-block-accent));
+    color: var(--mo-comp-chip-hover-text, var(--mo-sys-block-accent));
+  }
+  /* A filter chip's check: only on the chosen one, and only where the theme shows it. */
+  .mo-chip > .mo-chip__check {
+    display: none;
+  }
+  /* Chosen: a filter chip (also as the open page), and an input or a suggestion chip. */
+  .mo-chip__filter:is([aria-pressed='true'], [aria-current='page']),
+  .mo-chip:is(.mo-chip__input, .mo-chip__suggestion)[aria-pressed='true'],
+  .mo-chip__removable[data-selected] {
+    background: var(--mo-comp-filter-chip-flat-selected-container-color, var(--mo-sys-block-accent));
+    box-shadow: none;
+    color: var(--mo-comp-filter-chip-selected-label-text-color, var(--mo-sys-block-on-accent));
+  }
+  .mo-chip__filter:is([aria-pressed='true'], [aria-current='page']):hover,
+  .mo-chip:is(.mo-chip__input, .mo-chip__suggestion)[aria-pressed='true']:hover,
+  .mo-chip__removable[data-selected]:hover {
+    background: var(--mo-comp-chip-selected-hover, var(--mo-comp-filter-chip-flat-selected-container-color, var(--mo-sys-block-accent)));
+    box-shadow: none;
+    color: var(--mo-comp-filter-chip-selected-label-text-color, var(--mo-sys-block-on-accent));
+  }
+  .mo-chip__filter:is([aria-pressed='true'], [aria-current='page']) > .mo-chip__check {
+    display: var(--mo-comp-chip-selected-check, none);
+  }
+  /* A chosen filter chip is lifted to level 1 when pointed at, and is on the page again while pressed (M3). */
+  .mo-chip__filter:is([aria-pressed='true'], [aria-current='page']):hover {
+    box-shadow: var(--mo-comp-chip-selected-hover-shadow, var(--mo-sys-elevation-level1-shadow));
+  }
+  .mo-chip__filter:is([aria-pressed='true'], [aria-current='page']):active {
+    box-shadow: var(--mo-sys-elevation-level0-shadow);
+  }
+
+  /* Elevated: on a surface with a shadow instead of the edge, where it stands on an image or a colour; also chosen.
+     Level 1, level 2 when pointed at, and as at rest while pressed (M3). */
+  :where(.mo-chip).mo-is-elevated {
+    background: var(--mo-comp-chip-elevated-surface, var(--mo-sys-elevation-level1-color));
+  }
+  :where(.mo-chip).mo-is-elevated,
+  .mo-chip.mo-is-elevated:is([aria-pressed='true'], [aria-current='page']) {
+    box-shadow: var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+  }
+  :where(.mo-chip).mo-is-elevated:hover,
+  .mo-chip.mo-is-elevated:is([aria-pressed='true'], [aria-current='page']):hover {
+    box-shadow: var(--mo-comp-chip-elevated-hover-shadow, var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level2-shadow)));
+  }
+  :where(.mo-chip).mo-is-elevated:active,
+  .mo-chip.mo-is-elevated:is([aria-pressed='true'], [aria-current='page']):active {
+    box-shadow: var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+  }
+
+  /* A person's image before the label (an input chip): round, nearer the start. */
+  .mo-chip__avatar {
+    flex-shrink: 0;
+    width: var(--mo-comp-chip-avatar-size, 1.5rem);
+    height: var(--mo-comp-chip-avatar-size, 1.5rem);
+    border-radius: var(--mo-sys-shape-corner-full);
+    object-fit: cover;
+  }
+  .mo-chip:has(.mo-chip__avatar) {
+    padding-inline-start: var(--mo-comp-chip-avatar-padding, 0.3rem);
+  }
+
+  /* An input chip with the button that removes it: the chip's own button and the cross, side by side in it. */
+  .mo-chip__removable {
+    gap: 0.25rem;
+    padding-inline-end: 0.35rem;
+  }
+  .mo-chip__action,
+  .mo-chip__remove {
+    display: inline-flex;
+    align-items: center;
+    border: 0;
+    padding: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+  .mo-chip__action {
+    gap: var(--mo-comp-chip-gap, 0.5rem);
+  }
+  .mo-chip__remove {
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    margin-block: -0.5rem;
+    border-radius: var(--mo-sys-shape-corner-full);
+    transition: background-color var(--mo-sys-motion-spring-default-effects);
+  }
+  .mo-chip__remove:hover {
+    background: color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent);
+  }
+
+  /* Dragged: lifted by its shadow over what it is moved across. */
+  .mo-chip__dragged,
+  .mo-chip__dragged:hover {
+    box-shadow:
+      inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-sys-block-line)),
+      var(--mo-comp-chip-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
+    cursor: grabbing;
+  }
+  .mo-chip.mo-is-elevated.mo-chip__dragged {
+    box-shadow: var(--mo-comp-chip-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
+  }
+
+  /* Disabled (M3 Chips: the label and icon at 38% of on surface, the edge at 12%, a chosen chip's container at 12%), and not to be used. */
+  .mo-chip:is(:disabled, [aria-disabled='true']) {
+    color: var(
+      --mo-comp-chip-disabled-text,
+      color-mix(in srgb, var(--mo-sys-color-on-surface) calc(var(--mo-sys-state-disabled-state-layer-opacity) * 100%), transparent)
+    );
+    box-shadow: inset 0 0 0 1px var(--mo-comp-chip-disabled-line, color-mix(in srgb, var(--mo-sys-color-on-surface) 12%, transparent));
+    pointer-events: none;
+  }
+  .mo-chip:is(:disabled, [aria-disabled='true']):is([aria-pressed='true'], [aria-current='page'], [data-selected]) {
+    background: var(--mo-comp-chip-disabled-selected-surface, color-mix(in srgb, var(--mo-sys-color-on-surface) 12%, transparent));
+    box-shadow: none;
+  }
+  :where(.mo-chip).mo-is-elevated:is(:disabled, [aria-disabled='true']) {
+    background: var(--mo-comp-chip-disabled-selected-surface, color-mix(in srgb, var(--mo-sys-color-on-surface) 12%, transparent));
+    box-shadow: none;
+  }
+}
+
+/*
+  Chip sets (ChipSet.tsx, chipSetClass; Material's chips side by side, md-chip-set): .mo-chip__set, a group of chips,
+  .mo-chip__set-wrap on as many lines as they need, or .mo-chip__set-scroll on one line that scrolls sideways without a
+  scrollbar, out to the edges of the screen (the chips keep their width; room above and below for their focus ring).
+    --mo-comp-chip-set-gap   the room between the chips
+    --mo-comp-chip-set-bleed   how far a scrolling one reaches out to the edges of the screen (the page's gutter), where its
+                     first chip still starts in line with the text
+*/
+@layer components {
+  .mo-chip__set {
+    display: flex;
+    gap: var(--mo-comp-chip-set-gap, 0.5rem);
+  }
+  .mo-chip__set-wrap {
+    flex-wrap: wrap;
+  }
+  .mo-chip__set-scroll {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding: 0.5rem var(--mo-comp-chip-set-bleed, 0rem);
+    margin: -0.5rem calc(-1 * var(--mo-comp-chip-set-bleed, 0rem));
+    scroll-padding-inline: var(--mo-comp-chip-set-bleed, 0rem);
+  }
+  .mo-chip__set-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .mo-chip__set-scroll > * {
+    flex: none;
+  }
+}

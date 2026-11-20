@@ -1,0 +1,216 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+/* ---- Elevation ----
+  The elevation levels (m3.material.io/styles/elevation): how high a part stands over the page, level 0 (on it) to
+  level 5. A level is a colour and a shadow. Every part's shadow below is one of them by default, at the level Material
+  3 gives that part and its state (its tokens: md.comp.<part>.…container.elevation), and keeps its own variable
+  (--mo-comp-elevated-card-container-elevation, --mo-comp-menu-container-elevation …), so a theme can still give one part another shadow. A theme sets the levels
+  to its own look, in light and dark mode, and they are its shadows everywhere; the ones here are a plain, neutral look
+  of their own.
+    --mo-sys-elevation-level0-shadow … --mo-sys-elevation-level5-shadow                   the level's shadow; level 0 is no shadow (0 0 #0000, so it can
+                                                     stand in a list of shadows)
+    --mo-sys-elevation-level0-color … --mo-sys-elevation-level5-color   the level's colour (the site's surface-container colours)
+    --mo-sys-elevation-level1-rest-shadow … -5-rest-shadow      the shadow a part shows at rest on that level: level N's own shadow (owner, 18 Nov
+                                                     2026); a theme turns resting shadows off here and keeps the lift, which reads
+                                                     --mo-sys-elevation-levelN-shadow
+  At rest (the shadow reads --mo-elevation-N-rest-shadow), pointed at (hover), pressed and dragged (the lift reads
+  --mo-elevation-N-shadow), by Material 3; with focus a part is as at rest:
+    level 0  filled, tonal and outlined buttons, icon buttons, filled and outlined cards, chips (not elevated), a
+             standard side sheet, the top app bar, the navigation rail, a plain tooltip, a disabled switch and slider handle
+    level 1  elevated buttons and chips, elevated cards, bottom sheets, a modal side sheet and navigation drawer, the
+             handles of switches and sliders; pointed at: filled and tonal buttons (a toggle too), filled and outlined
+             cards that are links, a chosen filter chip
+    level 2  menus, a rich tooltip, a modal navigation rail, the navigation bar, a docked toolbar, the top app bar once
+             the page scrolls under it; pointed at: elevated buttons, chips and cards
+    level 3  FABs (and the FAB menu's close button), dialogs (a bottom sheet as one), date and time pickers, the search bar
+             and view, a snackbar, a floating toolbar; dragged: filled and outlined cards
+    level 4  pointed at: FABs; dragged: elevated cards, chips
+    level 5  none of the parts by default (M3's highest level, for a theme's own use)
+  Pressed, a part is as at rest: only pointing at it lifts it. Disabled, a button, a switch handle and a slider handle have no shadow.
+  Every level above is M3's, read on its elevation token page and each part's Specs page (18 Nov 2026, step 1 of the cards and lists plan).
+*/
+/* ---- State layers ----
+  M3's state opacities (m3.material.io/foundations/interaction/states/state-layers, token set "State opacities"): the fixed
+  opacity of the layer a state draws over a part, in the colour of the part's content. Every part reads these and writes no number
+  of its own (--mo-sys-state-mo-hover-layer and --mo-sys-state-mo-pressed-layer, tokens/material/sys.css, are made from them).
+    --mo-sys-state-hover-state-layer-opacity      pointed at, 0.08
+    --mo-sys-state-focus-state-layer-opacity      focused, 0.1
+    --mo-sys-state-pressed-state-layer-opacity    pressed, 0.1
+    --mo-sys-state-dragged-state-layer-opacity    dragged, 0.16
+    --mo-sys-state-disabled-state-layer-opacity   disabled content, 0.38
+  A part's own value that is not in the set (a disabled chip's edge, 0.12) is the part's, in its token file.
+*/
+:where(:root) {
+  --mo-sys-state-hover-state-layer-opacity: 0.08;
+  --mo-sys-state-focus-state-layer-opacity: 0.1;
+  --mo-sys-state-pressed-state-layer-opacity: 0.1;
+  --mo-sys-state-dragged-state-layer-opacity: 0.16;
+  --mo-sys-state-disabled-state-layer-opacity: 0.38;
+}
+:where(:root) {
+  --mo-sys-elevation-level0-shadow: 0 0 #0000;
+  --mo-sys-elevation-level1-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 6%, transparent),
+    0 4px 12px -6px color-mix(in srgb, var(--mo-sys-color-shadow) 14%, transparent);
+  --mo-sys-elevation-level2-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 6%, transparent),
+    0 8px 20px -8px color-mix(in srgb, var(--mo-sys-color-shadow) 18%, transparent);
+  --mo-sys-elevation-level3-shadow:
+    0 2px 4px color-mix(in srgb, var(--mo-sys-color-shadow) 7%, transparent),
+    0 12px 28px -10px color-mix(in srgb, var(--mo-sys-color-shadow) 22%, transparent);
+  --mo-sys-elevation-level4-shadow:
+    0 2px 6px color-mix(in srgb, var(--mo-sys-color-shadow) 8%, transparent),
+    0 16px 36px -12px color-mix(in srgb, var(--mo-sys-color-shadow) 26%, transparent);
+  --mo-sys-elevation-level5-shadow:
+    0 4px 8px color-mix(in srgb, var(--mo-sys-color-shadow) 9%, transparent),
+    0 20px 44px -12px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent);
+  --mo-sys-elevation-level0-color: var(--mo-sys-color-surface);
+  --mo-sys-elevation-level1-color: var(--mo-sys-color-surface-container-low, var(--mo-sys-block-surface));
+  --mo-sys-elevation-level2-color: var(--mo-sys-color-surface-container, var(--mo-sys-block-surface));
+  --mo-sys-elevation-level3-color: var(--mo-sys-color-surface-container-high, var(--mo-sys-block-surface));
+  --mo-sys-elevation-level4-color: var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-surface));
+  --mo-sys-elevation-level5-color: var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-surface));
+  --mo-sys-elevation-level1-rest-shadow: var(--mo-sys-elevation-level1-shadow);
+  --mo-sys-elevation-level2-rest-shadow: var(--mo-sys-elevation-level2-shadow);
+  --mo-sys-elevation-level3-rest-shadow: var(--mo-sys-elevation-level3-shadow);
+  --mo-sys-elevation-level4-rest-shadow: var(--mo-sys-elevation-level4-shadow);
+  --mo-sys-elevation-level5-rest-shadow: var(--mo-sys-elevation-level5-shadow);
+}
+@media (prefers-color-scheme: dark) {
+  :where(:root:not([data-theme='light'])) {
+    --mo-sys-elevation-level1-shadow:
+      0 1px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent),
+      0 4px 12px -6px color-mix(in srgb, var(--mo-sys-color-shadow) 50%, transparent);
+    --mo-sys-elevation-level2-shadow:
+      0 1px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent),
+      0 8px 20px -8px color-mix(in srgb, var(--mo-sys-color-shadow) 55%, transparent);
+    --mo-sys-elevation-level3-shadow:
+      0 2px 4px color-mix(in srgb, var(--mo-sys-color-shadow) 32%, transparent),
+      0 12px 28px -10px color-mix(in srgb, var(--mo-sys-color-shadow) 60%, transparent);
+    --mo-sys-elevation-level4-shadow:
+      0 2px 6px color-mix(in srgb, var(--mo-sys-color-shadow) 34%, transparent),
+      0 16px 36px -12px color-mix(in srgb, var(--mo-sys-color-shadow) 65%, transparent);
+    --mo-sys-elevation-level5-shadow:
+      0 4px 8px color-mix(in srgb, var(--mo-sys-color-shadow) 36%, transparent),
+      0 20px 44px -12px color-mix(in srgb, var(--mo-sys-color-shadow) 70%, transparent);
+  }
+}
+:where(:root[data-theme='dark']) {
+  --mo-sys-elevation-level1-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent),
+    0 4px 12px -6px color-mix(in srgb, var(--mo-sys-color-shadow) 50%, transparent);
+  --mo-sys-elevation-level2-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent),
+    0 8px 20px -8px color-mix(in srgb, var(--mo-sys-color-shadow) 55%, transparent);
+  --mo-sys-elevation-level3-shadow:
+    0 2px 4px color-mix(in srgb, var(--mo-sys-color-shadow) 32%, transparent),
+    0 12px 28px -10px color-mix(in srgb, var(--mo-sys-color-shadow) 60%, transparent);
+  --mo-sys-elevation-level4-shadow:
+    0 2px 6px color-mix(in srgb, var(--mo-sys-color-shadow) 34%, transparent),
+    0 16px 36px -12px color-mix(in srgb, var(--mo-sys-color-shadow) 65%, transparent);
+  --mo-sys-elevation-level5-shadow:
+    0 4px 8px color-mix(in srgb, var(--mo-sys-color-shadow) 36%, transparent),
+    0 20px 44px -12px color-mix(in srgb, var(--mo-sys-color-shadow) 70%, transparent);
+}
+/* ---- Typography ----
+  The type scale (m3.material.io/styles/typography/type-scale-tokens): Material 3's five roles, display, headline,
+  title, body and label, each in a large, a medium and a small size, each with its size, line height, weight and
+  tracking (letter spacing). All text on the site is set with one of them: every block (blocks.css), the text
+  (base.css) and every part below has the role Material 3 gives it, and keeps its own variable where it has one
+  (--mo-comp-button-font-size, --mo-comp-chip-font-size …), so a theme can still give one part another size. A theme sets the scale to
+  its own look, in :root in its styles/global.css, and it is its text everywhere; the values here are Material 3's.
+    --type-<role>-<size>-size, -line-height, -weight, -tracking   <role>: display, headline, title, body or label;
+      <size>: large, medium or small
+    display    the largest text: the Hero's heading, a price
+    headline   the headings of the text and of a section
+    title      the headings of a card, a panel, a row or a sheet; medium and small also names and emphasized labels
+    body       the text: large the text of pages and blocks, medium and small what is smaller beside it
+    label      what is on a control (a button, a chip, a tab, a tag), a badge and a small heading over others
+  The font of every style is --type-<role>-<size>-font (Roboto, --mo-ref-typeface-plain); a label also has a prominent weight, --type-label-<size>-prominent-weight (700), as Material 3 lists it. Bold or a link inside a text keeps the text's role, with its own weight. The typeface is --mo-ref-typeface-plain.
+*/
+:where(:root) {
+  --mo-sys-typescale-display-large-size: 3.5625rem;
+  --mo-sys-typescale-display-large-line-height: 4rem;
+  --mo-sys-typescale-display-large-weight: 400;
+  --mo-sys-typescale-display-large-tracking: -0.015625rem;
+  --mo-sys-typescale-display-large-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-display-medium-size: 2.8125rem;
+  --mo-sys-typescale-display-medium-line-height: 3.25rem;
+  --mo-sys-typescale-display-medium-weight: 400;
+  --mo-sys-typescale-display-medium-tracking: 0;
+  --mo-sys-typescale-display-medium-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-display-small-size: 2.25rem;
+  --mo-sys-typescale-display-small-line-height: 2.75rem;
+  --mo-sys-typescale-display-small-weight: 400;
+  --mo-sys-typescale-display-small-tracking: 0;
+  --mo-sys-typescale-display-small-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-headline-large-size: 2rem;
+  --mo-sys-typescale-headline-large-line-height: 2.5rem;
+  --mo-sys-typescale-headline-large-weight: 400;
+  --mo-sys-typescale-headline-large-tracking: 0;
+  --mo-sys-typescale-headline-large-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-headline-medium-size: 1.75rem;
+  --mo-sys-typescale-headline-medium-line-height: 2.25rem;
+  --mo-sys-typescale-headline-medium-weight: 400;
+  --mo-sys-typescale-headline-medium-tracking: 0;
+  --mo-sys-typescale-headline-medium-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-headline-small-size: 1.5rem;
+  --mo-sys-typescale-headline-small-line-height: 2rem;
+  --mo-sys-typescale-headline-small-weight: 400;
+  --mo-sys-typescale-headline-small-tracking: 0;
+  --mo-sys-typescale-headline-small-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-title-large-size: 1.375rem;
+  --mo-sys-typescale-title-large-line-height: 1.75rem;
+  --mo-sys-typescale-title-large-weight: 400;
+  --mo-sys-typescale-title-large-tracking: 0;
+  --mo-sys-typescale-title-large-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-title-medium-size: 1rem;
+  --mo-sys-typescale-title-medium-line-height: 1.5rem;
+  --mo-sys-typescale-title-medium-weight: 500;
+  --mo-sys-typescale-title-medium-tracking: 0.009375rem;
+  --mo-sys-typescale-title-medium-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-title-small-size: 0.875rem;
+  --mo-sys-typescale-title-small-line-height: 1.25rem;
+  --mo-sys-typescale-title-small-weight: 500;
+  --mo-sys-typescale-title-small-tracking: 0.00625rem;
+  --mo-sys-typescale-title-small-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-body-large-size: 1rem;
+  --mo-sys-typescale-body-large-line-height: 1.5rem;
+  --mo-sys-typescale-body-large-weight: 400;
+  --mo-sys-typescale-body-large-tracking: 0.03125rem;
+  --mo-sys-typescale-body-large-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-body-medium-size: 0.875rem;
+  --mo-sys-typescale-body-medium-line-height: 1.25rem;
+  --mo-sys-typescale-body-medium-weight: 400;
+  --mo-sys-typescale-body-medium-tracking: 0.015625rem;
+  --mo-sys-typescale-body-medium-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-body-small-size: 0.75rem;
+  --mo-sys-typescale-body-small-line-height: 1rem;
+  --mo-sys-typescale-body-small-weight: 400;
+  --mo-sys-typescale-body-small-tracking: 0.025rem;
+  --mo-sys-typescale-body-small-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-label-large-size: 0.875rem;
+  --mo-sys-typescale-label-large-line-height: 1.25rem;
+  --mo-sys-typescale-label-large-weight: 500;
+  --mo-sys-typescale-label-large-tracking: 0.00625rem;
+  --mo-sys-typescale-label-large-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-label-large-prominent-weight: 700;
+  --mo-sys-typescale-label-medium-size: 0.75rem;
+  --mo-sys-typescale-label-medium-line-height: 1rem;
+  --mo-sys-typescale-label-medium-weight: 500;
+  --mo-sys-typescale-label-medium-tracking: 0.03125rem;
+  --mo-sys-typescale-label-medium-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-label-medium-prominent-weight: 700;
+  --mo-sys-typescale-label-small-size: 0.6875rem;
+  --mo-sys-typescale-label-small-line-height: 1rem;
+  --mo-sys-typescale-label-small-weight: 500;
+  --mo-sys-typescale-label-small-tracking: 0.03125rem;
+  --mo-sys-typescale-label-small-font: var(--mo-ref-typeface-plain);
+  --mo-sys-typescale-label-small-prominent-weight: 700;
+  /* The lead (an intro paragraph: mo-type-lead, a blog post's first paragraph, a single page's first paragraph). Each is the
+     title large's; a theme sets these four to change every lead. */
+  --mo-sys-typescale-lead-size: var(--mo-sys-typescale-title-large-size);
+  --mo-sys-typescale-lead-line-height: var(--mo-sys-typescale-title-large-line-height);
+  --mo-sys-typescale-lead-weight: var(--mo-sys-typescale-title-large-weight);
+  --mo-sys-typescale-lead-tracking: var(--mo-sys-typescale-title-large-tracking);
+}

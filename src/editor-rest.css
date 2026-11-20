@@ -1,0 +1,478 @@
+/* The editor's small files (the start screen's widgets, the footer, the app pages, the lists and the sheets): the rules their markup used to
+   write as utility classes, named after what the element is. Layout with logical properties, gap and the theme's tokens; the layout classes
+   (mo-row, mo-fill, mo-keep, mo-hidden, mo-contents, mo-visually-hidden …) are in theme/styles/layout.css.
+   Where the old class was a space of 12 px or more on the vertical rhythm (mb-3 …, mt-4 …, pt-6, space-y-5 …), the rule takes the shared
+   rhythm token of src/editor-density.css, so it still follows the person's density step; horizontal space and spaces under 12 px stay fixed.
+   They sit in @layer utilities, where the utility classes were, so the cascade against the theme's parts and editor.css does not change. */
+@layer utilities {
+  /* ---- Vertical stacks: the space between the children, as space-y-N was (the last child has none) ---- */
+
+  /* 4 px, 8 px (no density step). */
+  :where(.mo-editor-stack-50 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-50);
+  }
+  :where(.mo-editor-stack-100 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-100);
+  }
+  /* 16 px, 20 px, 24 px on the vertical rhythm; a child with a margin of its own, or before a fold section, keeps its own space. */
+  :where(.mo-editor-stack-200 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-stack-200 > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+  }
+  :where(.mo-editor-stack-250 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-250);
+  }
+  .mo-editor-stack-250 > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-250);
+  }
+  :where(.mo-editor-stack-300 > :not(:last-child)) {
+    margin-block-start: 0;
+    margin-block-end: var(--mo-ref-space-300);
+  }
+  .mo-editor-stack-300 > :not(:last-child, :has(+ [data-fold-section])) {
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+  }
+
+  /* ---- Text ---- */
+
+  .mo-editor-muted {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-strong {
+    font-weight: 500;
+  }
+  .mo-editor-block {
+    display: block;
+  }
+  .mo-editor-mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  }
+  .mo-editor-wrap-anywhere {
+    overflow-wrap: anywhere;
+  }
+  .mo-editor-break-all {
+    min-inline-size: 0;
+    word-break: break-all;
+  }
+  .mo-editor-placeholder {
+    opacity: 60%;
+  }
+  /* A short text under or beside something: 14/20, in the muted colour. */
+  .mo-editor-caption {
+    color: var(--mo-sys-color-on-surface-variant);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  /* The intro of a screen: a muted line above the list. */
+  .mo-editor-note {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  /* The small title of a part (Fields, Tags, Preview): medium weight, the space before what it names. */
+  .mo-editor-subtitle {
+    margin-block-end: var(--mo-ref-space-100);
+    font-weight: 500;
+  }
+  .mo-editor-subtitle-tight {
+    margin-block-end: var(--mo-ref-space-50);
+    font-weight: 500;
+  }
+  /* The label of one preview (a block's name above its drawing). */
+  .mo-editor-preview-label {
+    margin-block-end: var(--mo-ref-space-100);
+    color: var(--mo-sys-color-on-surface-variant);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+  }
+  .mo-editor-shortcut-key {
+    color: var(--mo-sys-color-on-surface-variant);
+    font-family: var(--mo-ref-typeface-plain);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  /* ---- Spaces round a block of a page ---- */
+
+  /* A group of a settings page (a section with its title, or a row of switches): the space before the next one. */
+  .mo-editor-group {
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+  }
+  /* The inset that lines text and rows up with a list's items. */
+  .mo-editor-inset {
+    padding-inline: var(--mo-ref-space-200);
+  }
+  /* A notice inside a group, above its list. */
+  .mo-editor-notice-inset {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+    padding-inline: var(--mo-ref-space-200);
+  }
+  /* The search row or the tabs above a list: the space before the list. */
+  .mo-editor-list-lead {
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+  }
+  /* The chips of the chosen filters, under the search row. */
+  .mo-editor-filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mo-ref-space-100);
+    margin-block-start: calc(var(--mo-ref-space-100) * -1);
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
+  }
+  .mo-editor-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mo-ref-space-100);
+  }
+  /* The supporting text of a control and the space before it. */
+  .mo-editor-supporting {
+    margin-block-start: var(--mo-ref-space-100);
+  }
+  .mo-editor-supporting-tight {
+    margin-block-start: var(--mo-ref-space-50);
+  }
+  .mo-editor-inline-block {
+    display: inline-block;
+  }
+  /* The button that adds a field under a list. */
+  .mo-editor-add-button {
+    display: inline-block;
+    margin-block-start: var(--mo-comp-editor-rhythm-200);
+  }
+  /* The place before a group of choices in a sheet. */
+  .mo-editor-sheet-group {
+    margin-block-start: var(--mo-ref-space-100);
+  }
+  /* The row of buttons that closes a form or a dialog, at the end. */
+  .mo-editor-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--mo-ref-space-100);
+    margin-block-start: var(--mo-comp-editor-rhythm-300);
+  }
+  .mo-editor-dialog-title {
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+    font-weight: 500;
+  }
+  .mo-editor-quiet-focus:focus {
+    outline-style: none;
+  }
+  .mo-editor-form-more {
+    margin-block-start: 3rem;
+  }
+  .mo-editor-inline-row {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+  }
+  .mo-editor-hide-on-phone {
+    @media (width < 37.5rem) {
+      display: none;
+    }
+  }
+  /* A form's fields stacked, with the space between them on the rhythm (one column, the sheet's width). */
+  .mo-editor-fields {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mo-comp-editor-rhythm-200) var(--mo-ref-space-200);
+  }
+  .mo-editor-prose-wide {
+    max-inline-size: none;
+  }
+  .mo-editor-actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+  }
+  .mo-editor-notify-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mo-ref-space-100);
+    margin-block-start: var(--mo-comp-editor-rhythm-200);
+  }
+
+  /* ---- The start screen's widgets (widgets/*.tsx, FirstRun.tsx) ---- */
+
+  /* A card whose list runs to its edges: the title and the empty line carry the inset. */
+  .mo-editor-widget-list {
+    --mo-comp-card-padding: 1rem 0 0.5rem;
+  }
+  .mo-editor-widget-text {
+    --mo-comp-card-padding: 1rem;
+  }
+  .mo-editor-widget-list-title {
+    padding-inline: var(--mo-ref-space-200);
+    padding-block-end: var(--mo-ref-space-100);
+    font-weight: 500;
+  }
+  .mo-editor-widget-title {
+    padding-block-end: var(--mo-ref-space-100);
+    font-weight: 500;
+  }
+  .mo-editor-widget-empty {
+    padding-inline: var(--mo-ref-space-200);
+    padding-block-end: var(--mo-ref-space-100);
+    color: var(--mo-sys-color-on-surface-variant);
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+  .mo-editor-widget-more {
+    display: flex;
+    justify-content: flex-end;
+    padding-inline: var(--mo-ref-space-100);
+    padding-block-start: var(--mo-ref-space-50);
+  }
+  .mo-editor-widget-action {
+    padding-block-start: var(--mo-comp-editor-rhythm-150);
+  }
+  /* The widget's own box in the dashboard: empty, it leaves no gutter. */
+  .mo-editor-widget-slot:empty {
+    display: none;
+  }
+  .mo-editor-dashboard-grid {
+    --mo-comp-grid-columns: 2;
+  }
+  .mo-editor-first-run {
+    position: relative;
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
+    --mo-comp-card-padding: 1rem 0 0.5rem;
+  }
+  .mo-editor-first-run-title {
+    padding-inline-start: var(--mo-ref-space-200);
+    padding-inline-end: 3.5rem;
+    padding-block-end: var(--mo-ref-space-100);
+    font-weight: 500;
+  }
+
+  /* ---- The editor's frame and footer (topBarSlot.tsx, pagePreview.tsx, EditorFooter.tsx, Footer*.tsx, SiteLogoLink.tsx, StartStatus.tsx) ---- */
+
+  .mo-editor-frame {
+    display: flex;
+  }
+  .mo-editor-frame-main {
+    display: flex;
+    min-block-size: 100dvh;
+    min-inline-size: 0;
+    flex: 1;
+    flex-direction: column;
+  }
+  .mo-editor-preview-page {
+    display: flex;
+    min-block-size: 0;
+    flex: 1;
+    flex-direction: column;
+  }
+  .mo-editor-footer-spacing {
+    margin-block-start: auto;
+    padding-block-start: var(--mo-comp-editor-rhythm-300);
+  }
+  .mo-editor-footer-row {
+    padding-block-start: var(--mo-ref-space-50);
+  }
+  .mo-editor-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    row-gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-footer-link {
+    display: inline-flex;
+    min-block-size: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    gap: var(--mo-ref-space-50);
+    padding-inline: var(--mo-ref-space-150);
+    color: var(--mo-sys-color-on-surface);
+    @media (hover: hover) {
+      &:hover {
+        text-decoration-line: underline;
+      }
+    }
+    &:focus-visible {
+      text-decoration-line: underline;
+    }
+  }
+  .mo-editor-footer-copyright {
+    display: inline-flex;
+    min-block-size: 2.25rem;
+    align-items: center;
+    padding-inline: var(--mo-ref-space-150);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-footer-divider {
+    block-size: 1rem;
+    inline-size: 1px;
+    flex-shrink: 0;
+    background-color: var(--mo-sys-color-outline-variant);
+  }
+  .mo-editor-logo-link {
+    display: flex;
+    min-inline-size: 0;
+    flex-shrink: 0;
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+    font-weight: 600;
+  }
+  .mo-editor-logo-image {
+    inline-size: 1.75rem;
+    block-size: 1.75rem;
+    flex-shrink: 0;
+    border-radius: 0.5rem;
+  }
+  /* The site's name beside the logo: cut short, and only for a screen reader below the expanded width. */
+  .mo-editor-logo-name {
+    max-inline-size: 12rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    @media (width < 52.5rem) {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+      border-width: 0;
+    }
+  }
+  /* The start screen's status line in three lengths: from expanded, from medium, and on a phone. */
+  .mo-editor-status-wide {
+    display: none;
+    @media (width >= 52.5rem) {
+      display: inline;
+    }
+  }
+  .mo-editor-status-medium {
+    display: none;
+    @media (width >= 37.5rem) {
+      display: inline;
+    }
+    @media (width >= 52.5rem) {
+      display: none;
+    }
+  }
+  .mo-editor-status-phone {
+    @media (width >= 37.5rem) {
+      display: none;
+    }
+  }
+
+  /* ---- Pickers, sheets and lists ---- */
+
+  .mo-editor-picker-hint {
+    margin-inline: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
+    flex-shrink: 0;
+  }
+  .mo-editor-picker-search {
+    margin-inline: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-100);
+    flex-shrink: 0;
+  }
+  .mo-editor-list-action {
+    flex-shrink: 0;
+    padding-inline-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-move-buttons {
+    display: flex;
+    flex-shrink: 0;
+    padding-inline-end: 0.375rem;
+  }
+  .mo-editor-app-intro {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-150);
+  }
+  .mo-editor-app-intro-text {
+    padding-block-start: 0.375rem;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  /* A paragraph of an app's description or news: the space after it, but not after the last. */
+  .mo-editor-app-text {
+    margin-block-end: 0.75rem;
+    padding-inline: var(--mo-ref-space-200);
+    &:last-child {
+      margin-block-end: 0;
+    }
+  }
+  .mo-editor-version-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--mo-ref-space-100);
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    padding-inline: var(--mo-ref-space-200);
+  }
+  .mo-editor-own-field {
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
+  }
+  .mo-editor-own-field-held {
+    margin-block-end: var(--mo-ref-space-100);
+  }
+  .mo-editor-empty-note {
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    padding-inline: var(--mo-ref-space-50);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-editor-sample-text {
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
+    padding-inline: var(--mo-sys-grid-margin);
+    padding-block-start: var(--mo-comp-editor-rhythm-150);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
+  /* ---- A deleted file's view and the release notes ---- */
+
+  .mo-editor-file-name {
+    display: flex;
+    align-items: center;
+    gap: var(--mo-ref-space-150);
+    font-weight: 500;
+  }
+  .mo-editor-file-preview {
+    inline-size: 100%;
+    max-block-size: 45dvh;
+    border-radius: 0.75rem;
+    background-color: var(--mo-sys-color-surface-container-high);
+  }
+  .mo-editor-file-preview-image {
+    object-fit: contain;
+  }
+  .mo-editor-release-heading {
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.5rem;
+  }
+  .mo-editor-release-title {
+    font-weight: 500;
+  }
+  .mo-editor-release-text {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+  .mo-editor-release-list {
+    padding-inline-start: var(--mo-ref-space-250);
+    list-style-type: disc;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    &::marker,
+    & ::marker {
+      color: var(--mo-sys-color-primary);
+    }
+  }
+}

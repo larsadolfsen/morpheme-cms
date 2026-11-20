@@ -1,0 +1,407 @@
+/*
+  Menu (Menu, MenuItem, MenuGroup, MenuDivider, DropdownMenu, menuClass, menuClasses, menuItemClass): .mo-menu, a surface
+  with its items, .mo-menu__vibrant in the accent; .mo-menu__item, a link or a <button>, with .mo-menu__item-leading (.mo-menu__item-icon,
+  and .mo-menu__item-check, the tick of an item that is on), .mo-menu__item-text (.mo-menu__item-label, .mo-menu__item-supporting),
+  .mo-menu__item-trailing-supporting and .mo-menu__item-trailing-icon; the chosen one with aria-current, or aria-checked (in a
+  WAI-ARIA menu) or aria-pressed (elsewhere); :disabled or aria-disabled. Groups: .mo-menu__group (optionally .mo-menu__group-label
+  over its .mo-menu__group-items), each on its own surface with a gap between them, or with .mo-menu__groups-divider on the
+  menu one surface with a line between them; .mo-menu__divider, a line between items (the theme's .mo-divider). A submenu:
+  .mo-menu__item-submenu, its item (aria-expanded) and the .mo-menu__submenu it opens beside it. A dropdown menu:
+  .mo-dropdown-menu, its button and its .mo-menu (.mo-dropdown-menu__menu) under it; the menus a button or an item opens are
+  popovers, placed with CSS anchor positioning (else by ui/dropdownMenu.script.ts).
+    --mo-comp-menu-width, --mo-comp-menu-min-width, --mo-comp-menu-max-width, --mo-comp-menu-max-height, --mo-comp-menu-container-shape, --mo-comp-menu-container-color, --mo-comp-menu-line,
+    --mo-comp-menu-container-elevation (level 2), --mo-comp-menu-padding
+    --mo-comp-menu-list-item-container-height, --mo-comp-menu-item-padding, --mo-comp-menu-item-radius, --mo-comp-menu-item-edge-radius, --mo-comp-menu-item-selected-radius,
+    --mo-comp-menu-item-gap, --mo-comp-menu-item-font-size,
+    --mo-comp-menu-item-weight, --mo-comp-menu-item-letter-spacing, --mo-comp-menu-list-item-label-text-color, --mo-comp-menu-item-icon-color, --mo-comp-menu-item-supporting-text,
+    --mo-comp-menu-item-hover-surface, --mo-comp-menu-item-hover-text, --mo-comp-menu-item-pressed-surface, --mo-comp-menu-list-item-selected-container-color,
+    --mo-comp-menu-list-item-selected-label-text-color, --mo-comp-menu-item-selected-weight, --mo-comp-menu-item-disabled-opacity
+    --mo-comp-menu-group-gap, --mo-comp-menu-group-inner-radius, --mo-comp-menu-group-label-text, --mo-comp-menu-divider-color, --mo-comp-menu-divider-margin
+    --mo-comp-menu-vibrant-surface, --mo-comp-menu-vibrant-text, --mo-comp-menu-vibrant-selected-surface, --mo-comp-menu-vibrant-selected-text
+    --mo-comp-menu-submenu-gap, --mo-comp-dropdown-menu-gap   between a submenu and its item, and a dropdown menu and its button
+  Exposed dropdown menu (ExposedDropdownMenu, exposedDropdownMenuClass): the theme's text field (.mo-text-field with its
+  kind) with .mo-exposed-dropdown-menu, in its .mo-text-field__container its <select> (.mo-text-field__input,
+  .mo-exposed-dropdown-menu__select), its name and the arrow at its end (.mo-exposed-dropdown-menu__icon, turned while it is open); where the browser can style the select's menu
+  (appearance: base-select), the menu (::picker(select)) and its options (.mo-exposed-dropdown-menu__option, the chosen one
+  :checked) are drawn with the menu's variables.
+    --mo-comp-exposed-dropdown-menu-icon-size, --mo-comp-exposed-dropdown-menu-icon-color
+  Moved here from ui.css with its rules unchanged and in their order, in the same layer, imported by base.css after top-app-bar.css (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* Menu (m3.material.io/components/menus): pages under an item, or actions, on a surface. */
+  .mo-menu {
+    width: var(--mo-comp-menu-width, 18rem);
+    min-width: var(--mo-comp-menu-min-width, 0);
+    max-width: var(--mo-comp-menu-max-width, none);
+    max-height: var(--mo-comp-menu-max-height, none);
+    overflow-y: auto;
+    border-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
+    background: var(--mo-comp-menu-container-color, var(--mo-sys-elevation-level2-color));
+    padding: var(--mo-comp-menu-padding, 0.5rem);
+    box-shadow:
+      0 0 0 1px var(--mo-comp-menu-line, var(--mo-sys-block-line)),
+      var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-rest-shadow));
+  }
+  .mo-menu__item {
+    display: flex;
+    min-height: var(--mo-comp-menu-list-item-container-height, 0);
+    align-items: center;
+    gap: var(--mo-comp-menu-item-gap, 0.75rem);
+    border-radius: var(--mo-comp-menu-item-radius, calc(var(--mo-sys-block-radius-small) - 0.25rem));
+    padding: var(--mo-comp-menu-item-padding, 0.5rem 0.75rem);
+    color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
+    font-size: var(--mo-comp-menu-item-font-size, var(--mo-sys-typescale-body-medium-size));
+    font-weight: var(--mo-comp-menu-item-weight, inherit);
+    letter-spacing: var(--mo-comp-menu-item-letter-spacing, var(--mo-sys-typescale-body-medium-tracking));
+    transition:
+      background-color var(--mo-sys-motion-spring-fast-effects),
+      color var(--mo-sys-motion-spring-fast-effects);
+  }
+  /* An item that is tapped (a button: the editor's menus and the choices in its sheets): across the menu, its icon before
+     its text; the chosen one with aria-checked, aria-pressed or aria-selected. */
+  button.mo-menu__item {
+    width: 100%;
+    gap: 0.75rem;
+    text-align: start;
+    cursor: pointer;
+  }
+  .mo-menu__item:is([aria-current='page'], [aria-current='true'], [aria-checked='true'], [aria-pressed='true'], [aria-selected='true']) {
+    background: var(--mo-comp-menu-list-item-selected-container-color, transparent);
+    color: var(--mo-comp-menu-list-item-selected-label-text-color, var(--mo-sys-block-accent));
+    font-weight: var(--mo-comp-menu-item-selected-weight, 500);
+  }
+  /* Material 3 menus page, Specs: an item has a 4dp corner, the first and last item of a menu or group 12dp on the outer
+     corners, and the selected item 12dp. */
+  :is(.mo-menu, .mo-menu__group-items) > li:first-child > .mo-menu__item,
+  :is(.mo-menu, .mo-menu__group-items) > li:first-child > .mo-menu__item-submenu > .mo-menu__item {
+    border-start-start-radius: var(--mo-comp-menu-item-edge-radius, var(--mo-sys-block-radius-small));
+    border-start-end-radius: var(--mo-comp-menu-item-edge-radius, var(--mo-sys-block-radius-small));
+  }
+  :is(.mo-menu, .mo-menu__group-items) > li:last-child > .mo-menu__item,
+  :is(.mo-menu, .mo-menu__group-items) > li:last-child > .mo-menu__item-submenu > .mo-menu__item {
+    border-end-start-radius: var(--mo-comp-menu-item-edge-radius, var(--mo-sys-block-radius-small));
+    border-end-end-radius: var(--mo-comp-menu-item-edge-radius, var(--mo-sys-block-radius-small));
+  }
+  .mo-menu__item:is([aria-current='page'], [aria-current='true'], [aria-checked='true'], [aria-pressed='true'], [aria-selected='true']) {
+    border-radius: var(--mo-comp-menu-item-selected-radius, var(--mo-sys-block-radius-small));
+  }
+  .mo-menu__item:is(:hover, [aria-expanded='true']) {
+    background: var(--mo-comp-menu-item-hover-surface, var(--mo-sys-block-tint));
+    color: var(--mo-comp-menu-item-hover-text, var(--mo-sys-block-accent));
+  }
+  .mo-menu__item:active {
+    background: var(--mo-comp-menu-item-pressed-surface, var(--mo-comp-menu-item-hover-surface, var(--mo-sys-block-tint)));
+  }
+  .mo-menu__item:is(:disabled, [aria-disabled='true']) {
+    opacity: var(--mo-comp-menu-item-disabled-opacity, 0.5);
+    cursor: default;
+  }
+  .mo-menu__item:is(:disabled, [aria-disabled='true']):is(:hover, :active) {
+    background: transparent;
+    color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
+  }
+  /* An action: a <button> as wide as the menu, drawn as a link item. */
+  button.mo-menu__item {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-size: var(--mo-comp-menu-item-font-size, var(--mo-sys-typescale-body-medium-size));
+    font-weight: var(--mo-comp-menu-item-weight, inherit);
+    letter-spacing: var(--mo-comp-menu-item-letter-spacing, var(--mo-sys-typescale-body-medium-tracking));
+    text-align: start;
+    cursor: pointer;
+  }
+  .mo-menu__item:focus-visible {
+    outline-offset: -2px;
+  }
+  /* Its icon (or, when it is on, the tick in its place), its text, and what trails it. */
+  .mo-menu__item-leading {
+    display: grid;
+    flex-shrink: 0;
+  }
+  .mo-menu__item-leading > svg {
+    grid-area: 1 / 1;
+  }
+  .mo-menu__item-icon,
+  .mo-menu__item-trailing-icon {
+    flex-shrink: 0;
+    color: var(--mo-comp-menu-item-icon-color, var(--mo-sys-block-muted));
+    transition: color var(--mo-sys-motion-spring-fast-effects);
+  }
+  .mo-menu__item:is(:hover, [aria-expanded='true']) :is(.mo-menu__item-icon, .mo-menu__item-trailing-icon),
+  .mo-menu__item:is([aria-current='page'], [aria-current='true'], [aria-checked='true'], [aria-selected='true']) .mo-menu__item-icon {
+    color: inherit;
+  }
+  .mo-menu__item-check {
+    visibility: hidden;
+  }
+  .mo-menu__item:is([aria-checked='true'], [aria-pressed='true']) .mo-menu__item-check {
+    visibility: visible;
+  }
+  .mo-menu__item:is([aria-checked='true'], [aria-pressed='true']) .mo-menu__item-icon:has(~ .mo-menu__item-check) {
+    visibility: hidden;
+  }
+  .mo-menu__item-text {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    flex-direction: column;
+  }
+  .mo-menu__item-supporting {
+    color: var(--mo-comp-menu-item-supporting-text, var(--mo-sys-block-muted));
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+    font-weight: var(--mo-sys-typescale-body-small-weight);
+    letter-spacing: var(--mo-sys-typescale-body-small-tracking);
+  }
+  .mo-menu__item-trailing-supporting {
+    flex-shrink: 0;
+    color: var(--mo-comp-menu-item-supporting-text, var(--mo-sys-block-muted));
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+    font-weight: var(--mo-sys-typescale-body-small-weight);
+    letter-spacing: var(--mo-sys-typescale-body-small-tracking);
+    font-variant-numeric: tabular-nums;
+  }
+  .mo-menu__item-submenu-icon {
+    transition: translate var(--mo-sys-motion-spring-fast-spatial);
+  }
+  .mo-menu__item[aria-expanded='true'] .mo-menu__item-submenu-icon {
+    translate: 2px 0;
+  }
+
+  /* Groups: each on its own surface with a gap between them (M3 Expressive), or with .mo-menu__groups-divider one surface
+     with a line between them; a group's name over it. */
+  .mo-menu__group-label {
+    display: block;
+    padding: 0.5rem 0.75rem 0.25rem;
+    color: var(--mo-comp-menu-group-label-text, var(--mo-sys-block-muted));
+    font-size: var(--mo-sys-typescale-label-medium-size);
+    line-height: var(--mo-sys-typescale-label-medium-line-height);
+    font-weight: var(--mo-sys-typescale-label-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
+  }
+  .mo-menu:has(> .mo-menu__group):not(.mo-menu__groups-divider) {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mo-comp-menu-group-gap, 0.25rem);
+    overflow: visible;
+    padding: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .mo-menu:has(> .mo-menu__group):not(.mo-menu__groups-divider) > .mo-menu__group {
+    border-radius: var(--mo-comp-menu-group-inner-radius, var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small)));
+    background: var(--mo-comp-menu-container-color, var(--mo-sys-elevation-level2-color));
+    padding: var(--mo-comp-menu-padding, 0.5rem);
+    box-shadow:
+      0 0 0 1px var(--mo-comp-menu-line, var(--mo-sys-block-line)),
+      var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-rest-shadow));
+  }
+  .mo-menu:has(> .mo-menu__group):not(.mo-menu__groups-divider) > .mo-menu__group:first-child {
+    border-start-start-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
+    border-start-end-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
+  }
+  .mo-menu:has(> .mo-menu__group):not(.mo-menu__groups-divider) > .mo-menu__group:last-child {
+    border-end-start-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
+    border-end-end-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
+  }
+  .mo-menu__groups-divider > .mo-menu__group + .mo-menu__group {
+    margin-top: var(--mo-comp-menu-divider-margin, 0.375rem);
+    border-top: 1px solid var(--mo-comp-menu-divider-color, var(--mo-sys-block-line));
+    padding-top: var(--mo-comp-menu-divider-margin, 0.375rem);
+  }
+  .mo-menu__divider {
+    margin: var(--mo-comp-menu-divider-margin, 0.375rem) 0;
+  }
+  .mo-menu__vibrant
+    .mo-menu__item:is([aria-current='page'], [aria-current='true'], [aria-checked='true'], [aria-pressed='true'])
+    :is(.mo-menu__item-icon, .mo-menu__item-trailing-icon, .mo-menu__item-supporting, .mo-menu__item-trailing-supporting) {
+    color: inherit;
+  }
+
+  /* The menus a button or an item opens: popovers over everything, at what opened them (CSS anchor positioning; else
+     ui/dropdownMenu.script.ts places them), or drawn open beside it (the editor). */
+  .mo-menu[popover] {
+    position: fixed;
+    inset: auto;
+    max-height: var(--mo-comp-menu-max-height, calc(100dvh - 2rem));
+    margin: 0;
+    border: 0;
+    color: var(--mo-sys-block-text);
+    transition:
+      opacity var(--mo-sys-motion-spring-fast-effects),
+      scale var(--mo-sys-motion-spring-fast-spatial),
+      overlay var(--mo-sys-motion-spring-fast-spatial-duration) allow-discrete,
+      display var(--mo-sys-motion-spring-fast-spatial-duration) allow-discrete;
+  }
+  /* Closed, also when its groups lay it out (display: flex). */
+  .mo-menu[popover]:not(:popover-open) {
+    display: none;
+  }
+  @starting-style {
+    .mo-menu[popover]:popover-open {
+      opacity: 0;
+      scale: 0.97;
+    }
+  }
+  /* Under the button from its start (beside the item for a submenu); the other side when there is no room (flip-block,
+     flip-inline, both), always 0.5rem inside the window. The insets: on the opener's side the gap, on the far side
+     the window's margin (they flip with the menu). Where the browser lacks it the script places the menu. */
+  @supports (position-area: block-end) {
+    .mo-dropdown-menu__menu[popover] {
+      position-area: block-end span-inline-end;
+      position-try-fallbacks:
+        flip-block,
+        flip-inline,
+        flip-block flip-inline;
+      inset: var(--mo-comp-dropdown-menu-gap, 0.25rem) 0.5rem 0.5rem 0;
+    }
+    .mo-menu__submenu[popover] {
+      position-area: inline-end span-block-end;
+      position-try-fallbacks:
+        flip-inline,
+        flip-block,
+        flip-block flip-inline;
+      inset: 0 0.5rem 0.5rem var(--mo-comp-menu-submenu-gap, 0.25rem);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mo-menu[popover] {
+      transition: none;
+    }
+  }
+  .mo-menu__item-submenu,
+  .mo-dropdown-menu {
+    position: relative;
+  }
+  .mo-dropdown-menu {
+    display: inline-block;
+  }
+  .mo-dropdown-menu .mo-button__trailing-icon {
+    transition: rotate var(--mo-sys-motion-spring-fast-spatial);
+  }
+  .mo-dropdown-menu > [aria-expanded='true'] .mo-button__trailing-icon {
+    rotate: 180deg;
+  }
+  .mo-dropdown-menu__menu:not([popover]) {
+    position: absolute;
+    top: calc(100% + var(--mo-comp-dropdown-menu-gap, 0.25rem));
+    inset-inline-start: 0;
+    z-index: 30;
+  }
+  .mo-menu__submenu:not([popover]) {
+    position: absolute;
+    top: 0;
+    inset-inline-start: calc(100% + var(--mo-comp-menu-submenu-gap, 0.25rem) + 0.5rem);
+    z-index: 1;
+  }
+  .mo-menu:has(.mo-menu__submenu:not([popover])) {
+    overflow: visible;
+  }
+  @media (width < 37.5rem) {
+    /* No room beside it on a phone: under its item, a little in, as a popover flips when it has no room. */
+    .mo-menu__submenu:not([popover]) {
+      top: calc(100% + var(--mo-comp-menu-submenu-gap, 0.25rem));
+      inset-inline-start: 2rem;
+    }
+  }
+
+  /* Exposed dropdown menu (m3.material.io/components/menus): the theme's text field with the browser's <select> and
+     an arrow at its end; its menu the theme's where the browser can style it. */
+  .mo-exposed-dropdown-menu__select {
+    width: 100%;
+    appearance: none;
+    padding-inline-end: calc(var(--mo-comp-text-field-padding, 1.25rem) + var(--mo-comp-exposed-dropdown-menu-icon-size, 1.25rem) + 0.5rem);
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+  .mo-exposed-dropdown-menu__select:disabled {
+    cursor: default;
+  }
+  .mo-exposed-dropdown-menu__icon {
+    position: absolute;
+    top: 50%;
+    inset-inline-end: var(--mo-comp-text-field-padding, 1.25rem);
+    width: var(--mo-comp-exposed-dropdown-menu-icon-size, 1.25rem);
+    height: var(--mo-comp-exposed-dropdown-menu-icon-size, 1.25rem);
+    color: var(--mo-comp-exposed-dropdown-menu-icon-color, var(--mo-comp-text-field-label-color, var(--mo-sys-block-muted)));
+    pointer-events: none;
+    translate: 0 -50%;
+    transition: rotate var(--mo-sys-motion-spring-fast-spatial);
+  }
+  .mo-exposed-dropdown-menu__select:disabled ~ .mo-exposed-dropdown-menu__icon {
+    opacity: 0.6;
+  }
+  .mo-exposed-dropdown-menu:has(.mo-exposed-dropdown-menu__select:open) .mo-exposed-dropdown-menu__icon {
+    rotate: 180deg;
+  }
+  /* Nothing chosen yet: the name stands in the field, as on an empty text field. */
+  .mo-exposed-dropdown-menu:has(.mo-exposed-dropdown-menu__empty:checked)
+    .mo-exposed-dropdown-menu__select:not(:focus)
+    + .mo-text-field__label {
+    top: calc(var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) / 2);
+    margin-left: 0;
+    padding: 0;
+    background: none;
+    font-size: inherit;
+    transform: translateY(-50%);
+  }
+  @supports (appearance: base-select) {
+    .mo-exposed-dropdown-menu__select,
+    .mo-exposed-dropdown-menu__select::picker(select) {
+      appearance: base-select;
+    }
+    .mo-exposed-dropdown-menu__select {
+      display: flex;
+      align-items: center;
+    }
+    .mo-exposed-dropdown-menu__select::picker-icon {
+      display: none;
+    }
+    .mo-exposed-dropdown-menu__select::picker(select) {
+      max-height: var(--mo-comp-menu-max-height, min(20rem, calc(100dvh - 2rem)));
+      margin-block: var(--mo-comp-dropdown-menu-gap, 0.25rem);
+      border: 0;
+      border-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
+      background: var(--mo-comp-menu-container-color, var(--mo-sys-elevation-level2-color));
+      padding: var(--mo-comp-menu-padding, 0.5rem);
+      box-shadow:
+        0 0 0 1px var(--mo-comp-menu-line, var(--mo-sys-block-line)),
+        var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-rest-shadow));
+      color: var(--mo-sys-block-text);
+    }
+    .mo-exposed-dropdown-menu__option {
+      min-height: var(--mo-comp-menu-list-item-container-height, 0);
+      border-radius: var(--mo-comp-menu-item-radius, calc(var(--mo-sys-block-radius-small) - 0.25rem));
+      padding: var(--mo-comp-menu-item-padding, 0.5rem 0.75rem);
+      color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
+      font-size: var(--mo-comp-menu-item-font-size, var(--mo-sys-typescale-body-medium-size));
+      font-weight: var(--mo-comp-menu-item-weight, inherit);
+      letter-spacing: var(--mo-comp-menu-item-letter-spacing, var(--mo-sys-typescale-body-medium-tracking));
+      cursor: pointer;
+      transition:
+        background-color var(--mo-sys-motion-spring-fast-effects),
+        color var(--mo-sys-motion-spring-fast-effects);
+    }
+    .mo-exposed-dropdown-menu__option::checkmark {
+      display: none;
+    }
+    .mo-exposed-dropdown-menu__option:checked {
+      background: var(--mo-comp-menu-list-item-selected-container-color, transparent);
+      color: var(--mo-comp-menu-list-item-selected-label-text-color, var(--mo-sys-block-accent));
+      font-weight: var(--mo-comp-menu-item-selected-weight, 500);
+    }
+    .mo-exposed-dropdown-menu__option:is(:hover, :focus-visible) {
+      outline: none;
+      background: var(--mo-comp-menu-item-hover-surface, var(--mo-sys-block-tint));
+      color: var(--mo-comp-menu-item-hover-text, var(--mo-sys-block-accent));
+    }
+    .mo-exposed-dropdown-menu__option:disabled {
+      opacity: var(--mo-comp-menu-item-disabled-opacity, 0.5);
+      background: transparent;
+      cursor: default;
+    }
+  }
+}

@@ -1,0 +1,99 @@
+---
+// The footer in Material: a surface container with extra-large corners at the top, the business as a headline, how to
+// reach it as a list with leading icons, the practical links (footer.json, Globals › Footer in the editor) or
+// what a page puts in the slot `footer-column` instead (a blog post's related posts), and at the bottom the cookie
+// settings and the colour scheme (Light, Auto, Dark) as a connected button group. data-editor marks the footer and the parts its form changes (the editor's
+// preview of Globals › Footer, src/footerPreview.mjs).
+import Icon from '@theme/components/Icon.astro';
+import Container from '@theme/components/Container.astro';
+import LogoMark from '@theme/components/LogoMark.astro';
+import Button from '@theme/ui/Button';
+import ButtonGroup from '@theme/ui/ButtonGroup';
+import footer from '@data/footer.json';
+import { site } from '@morphemecms/cms/site/site';
+import { cookieBanner } from '@morphemecms/cms/site/consent';
+import { siteT } from '@morphemecms/cms/src/i18n';
+
+// "Cookie settings": when the cookie banner is on and there is something to ask about (as in Base.astro).
+const banner = cookieBanner;
+const contactLinks = [
+  { href: site.phoneHref, icon: 'phone', lines: [site.phone] },
+  { href: `mailto:${site.email}`, icon: 'envelope-simple', lines: [site.email] },
+  { href: `${site.contactPath}#${site.contactAnchor}`, icon: 'map-pin', lines: [site.address.street, site.address.city] },
+];
+---
+
+<footer class="mo-footer" data-editor="footer">
+  <Container as="div" class="mo-footer__grid">
+    <div class="mo-footer__about">
+      <LogoMark class="mo-footer__mark" />
+      <p class="mo-footer__name">{site.name}</p>
+      <p class="mo-footer__text" data-editor="footer-text">
+        {footer.text}
+      </p>
+    </div>
+    <div class="mo-footer__contact">
+      <p class="mo-footer__heading" data-editor="footer-contact-heading">
+        {footer.contactHeading}
+      </p>
+      <ul class="mo-footer__list">
+        {contactLinks.map((c) => (
+          <li>
+            <a href={c.href} class="mo-footer__item">
+              <Icon name={c.icon} size={24} />
+              <span>
+                {c.lines.map((line, i) => (
+                  <>
+                    {i > 0 && <br />}
+                    {line}
+                  </>
+                ))}
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <div class="mo-footer__column mo-footer__links">
+      <slot name="footer-column">
+        <p class="mo-footer__heading" data-editor="footer-links-heading">
+          {footer.linksHeading}
+        </p>
+        <ul class="mo-footer__list" data-editor="footer-links">
+          {footer.links.map((l) => (
+            <li>
+              <a href={l.href} class="mo-footer__item">
+                {l.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </slot>
+    </div>
+    <div class="mo-footer__bottom">
+      <span>
+        © {new Date().getFullYear()} {site.name}
+        {site.cvr && <> · CVR {site.cvr}</>}
+      </span>
+      <div class="mo-row mo-row-wrap">
+        {banner && (
+          <button type="button" data-cookie-settings class="mo-button mo-button__text">
+            <Icon name="cookie" size={18} />
+            {siteT.theme.cookieSettings}
+          </button>
+        )}
+        <ButtonGroup kind="connected" label={siteT.theme.colorScheme} data-scheme-choice>
+          <Button kind="outlined" size="xsmall" selected={false} data-scheme="light" tabIndex={-1}>
+            {siteT.theme.schemeLight}
+          </Button>
+          <Button kind="outlined" size="xsmall" selected data-scheme="auto" tabIndex={0}>
+            {siteT.theme.schemeAuto}
+          </Button>
+          <Button kind="outlined" size="xsmall" selected={false} data-scheme="dark" tabIndex={-1}>
+            {siteT.theme.schemeDark}
+          </Button>
+        </ButtonGroup>
+      </div>
+    </div>
+  </Container>
+</footer>

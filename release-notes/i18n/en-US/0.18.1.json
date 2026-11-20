@@ -1,0 +1,24 @@
+{
+  "version": "0.18.1",
+  "date": "2026-11-18",
+  "notes": [
+    {
+      "id": "site-html-lang",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A page on your site keeps the site’s language in its lang setting, whatever language the visitor’s browser uses, so screen readers read it in the right language"
+    },
+    {
+      "id": "blocked-update-notice",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The start screen says why your website can’t update itself, such as a theme that doesn’t work with the new version yet"
+    },
+    {
+      "id": "lower-parser-peer-floor",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Websites with older packages can update Morpheme by themselves again"
+    }
+  ]
+}

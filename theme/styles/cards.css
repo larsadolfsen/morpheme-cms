@@ -1,0 +1,585 @@
+/*
+  Cards: the Card component (.mo-card, its three kinds and the media), the Cards block, the Price cards (Plans) block, the card grid
+  (.mo-staggered-grid, one gutter apart) and the Carousel. Moved here from ui.css and blocks.css with their rules unchanged and in the
+  order they had; imported by base.css between ui.css and blocks.css, in the same layer, so the Card's rules still come before the blocks' (a block's rule wins over the Card's, as it did).
+*/
+@import './tokens/cards/comp/card.css';
+@import './tokens/cards/comp/grid.css';
+@import './tokens/cards/comp/list.css';
+@layer components {
+  /* A carousel: its items in a row to swipe, and the page indicator under them.
+     The number of items in view follows the carousel's own width, not the window's: a carousel in a narrow column or a side sheet shows one item at a
+     time on a wide window too (Modern Web Guidance, `responsive-design` and `size-aware-styling`: "Use @container queries to create component-driven
+     responsive layouts"). The widths are M3's window classes less the page margins (16 dp below medium, 24 dp from it), so a carousel as wide as the
+     page changes where it did: 2 items from 35.5rem (medium, 600 dp, less 2 x 16 dp; a page at 600 to 615 dp shows one), 3 from 49.5rem (expanded, 840 dp,
+     less 2 x 24 dp). The page's own columns stay on the window (breakpoints in lib/breakpoints.mjs). */
+  .mo-carousel {
+    container: carousel / inline-size;
+  }
+  .mo-carousel__items {
+    display: flex;
+    gap: var(--mo-comp-carousel-gap, 0.5rem);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    margin: 0 calc(-1 * var(--mo-comp-carousel-bleed, 0rem));
+    padding: 0 var(--mo-comp-carousel-bleed, 0rem);
+    scroll-padding-inline: var(--mo-comp-carousel-bleed, 0rem);
+    list-style: none;
+  }
+  .mo-carousel__items::-webkit-scrollbar {
+    display: none;
+  }
+  .mo-carousel__item {
+    display: flex;
+    width: 86%;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+  .mo-carousel__indicator {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 1.25rem;
+  }
+  .mo-carousel__indicator[hidden] {
+    display: none;
+  }
+  .mo-carousel__indicator-dot {
+    display: grid;
+    width: 1.5rem;
+    height: 1.5rem;
+    place-items: center;
+    border: 0;
+    padding: 0;
+    background: none;
+  }
+  .mo-carousel__indicator-dot > span {
+    display: block;
+    width: var(--mo-comp-carousel-dot-size, 0.5rem);
+    height: var(--mo-comp-carousel-dot-size, 0.5rem);
+    border-radius: var(--mo-sys-shape-corner-full);
+    background: var(--mo-comp-carousel-dot-colour, var(--mo-sys-block-line));
+    transition:
+      width var(--mo-sys-motion-spring-default-spatial),
+      height var(--mo-sys-motion-spring-default-spatial),
+      background-color var(--mo-sys-motion-spring-default-effects);
+  }
+  .mo-carousel__indicator-dot[aria-current='true'] > span {
+    width: var(--mo-comp-carousel-dot-selected-width, 1.25rem);
+    background: var(--mo-comp-carousel-dot-selected-colour, var(--mo-sys-block-accent));
+  }
+  @container carousel (width >= 35.5rem) {
+    .mo-carousel__item {
+      width: calc((100% - 1rem) / 2);
+    }
+    .mo-carousel__items {
+      margin: 0;
+      padding: 0;
+      scroll-padding-inline: 0;
+    }
+  }
+  @container carousel (width >= 49.5rem) {
+    .mo-carousel__item {
+      width: calc((100% - 2rem) / 3);
+    }
+  }
+
+  /* The contained layouts: within the text's width and as high as the theme says, what is in each item filling its
+     mask with the item's corners; multi-browse's and a hero's masks moved and clipped by carouselLayout.ts (before it
+     runs, every item as wide as a large one). */
+  .mo-carousel__contained .mo-carousel__items {
+    height: var(--mo-comp-carousel-height, 14rem);
+    gap: var(--mo-comp-carousel-contained-gap, 0.5rem);
+    margin: 0;
+    padding: 0;
+    scroll-padding-inline: 0;
+  }
+  .mo-carousel__contained .mo-carousel__item {
+    width: var(--mo-comp-carousel-item-width, 75%);
+  }
+  .mo-carousel__multi-browse .mo-carousel__item {
+    width: var(--mo-comp-carousel-item-width, var(--mo-comp-carousel-large-item-width));
+  }
+  .mo-carousel__hero .mo-carousel__item {
+    width: var(
+      --mo-comp-carousel-item-width,
+      calc(100% - var(--mo-comp-carousel-small-item-max-width) - var(--mo-comp-carousel-contained-gap, 0.5rem))
+    );
+  }
+  .mo-carousel__item-mask {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    border-radius: var(--mo-comp-carousel-item-container-shape, var(--mo-sys-block-radius));
+    background: var(--mo-comp-carousel-item-surface, var(--mo-sys-block-tint));
+    clip-path: inset(
+      0 var(--mo-comp-carousel-mask-inset, 0px) round var(--mo-comp-carousel-item-container-shape, var(--mo-sys-block-radius))
+    );
+  }
+  .mo-carousel__item-mask > :is(img, image, video) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  /* Full-screen: one item at a time, as wide as the carousel, out to a phone's edges without corners there. */
+  .mo-carousel__full-screen .mo-carousel__items {
+    height: var(--mo-comp-carousel-full-screen-height, min(75svh, 36rem));
+    gap: 0;
+    margin: 0 calc(-1 * var(--mo-comp-carousel-bleed, 0rem));
+  }
+  .mo-carousel__full-screen .mo-carousel__item {
+    width: 100%;
+    scroll-snap-stop: always;
+  }
+  @media (width < 37.5rem) {
+    .mo-carousel__full-screen .mo-carousel__item-mask {
+      border-radius: var(--mo-comp-carousel-full-screen-radius, 0);
+      clip-path: none;
+    }
+  }
+  @media (width >= 37.5rem) {
+    .mo-carousel__full-screen .mo-carousel__items {
+      margin: 0;
+    }
+  }
+
+  /* The theme grid (docs/theme-grid.md; M3 Cards: "customized in code to show cards in staggered or mosaic grids"): columns of
+     cards in their own heights, --mo-sys-grid-gutter apart both ways (16px on compact, 24px from medium: owner values; M3 Spacing says
+     "Cards should maintain consistent horizontal spacing to establish a strong rhythm when their height varies" and prints no
+     gutter). --mo-comp-grid-columns is how many cards stand side by side, per breakpoint; M3's layout grid itself has 4 columns on
+     compact, 8 on medium and expanded and 12 on large and extra-large (--mo-sys-grid-layout-columns, in global.css, what a span counts
+     in). A part with other counts sets --mo-comp-grid-columns on its element. */
+  .mo-staggered-grid {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    column-count: var(--mo-comp-grid-columns);
+    column-gap: var(--mo-sys-grid-gutter, 16px);
+  }
+  .mo-staggered-grid > * {
+    break-inside: avoid;
+    margin-block-end: var(--mo-sys-grid-gutter, 16px);
+  }
+  /* A card across all the columns (a span of the whole grid; the cards before and after it pack in their own columns).
+     Spans of other widths are not possible in columns: see docs/theme-grid.md. */
+  .mo-staggered-grid > .mo-staggered-grid__span-full {
+    column-span: all;
+  }
+  @media (width < 37.5rem) {
+    .mo-staggered-grid > .mo-staggered-grid__span-compact {
+      column-span: all;
+    }
+  }
+
+  /* "Cards": Material 3's cards (.mo-card in ui.css: outlined, filled or elevated), each with an icon, an image, a video or nothing at
+     the top and either a link (the whole card) or buttons, two side by side from small screens (cards/LinkCards.tsx). */
+  .mo-block-cards {
+    display: grid;
+    gap: var(--mo-sys-grid-gutter);
+    padding: 0;
+    list-style: none;
+  }
+  .mo-block-cards__card {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    /* Its edge a border (the outlined card's line, none on the others), so an image at the top stays inside it. */
+    border: 1px solid transparent;
+    /* The card's shadow as it is now (ui.css: at rest, pointed at, dragged), without its line. */
+    box-shadow: var(--mo-comp-card-shadow, 0 0 #0000);
+    color: inherit;
+    /* The same with a page (a link, as the site has links) and without one (not a link). */
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      border-color var(--mo-sys-motion-spring-default-effects),
+      box-shadow var(--mo-sys-motion-spring-default-effects);
+  }
+  .mo-block-cards__card:where(.mo-card).mo-is-outlined {
+    border-color: var(--mo-comp-outlined-card-outline-color, var(--mo-sys-block-line));
+  }
+  /* A card of the Cards block on the Card's parts (LinkCards.tsx): its text fills the card, so the link at the end and the buttons are at the bottom
+     and the cards of a row are as high as the tallest. */
+  .mo-block-cards__card > .mo-card__body {
+    flex: 1;
+  }
+  .mo-block-cards__card > .mo-card__body > .mo-card__content {
+    margin-top: auto;
+    padding-top: var(--mo-comp-card-action-gap, 1rem);
+  }
+  .mo-block-cards__card .mo-card__content > .mo-block-cards__card-more {
+    margin-top: 0;
+    padding-top: 0;
+  }
+  /* An icon without a colour of its own (`iconColor`) is the text colour, as a row's icon is (Text in the editor's Icon color); v0.16.0 drew it in the accent. */
+  .mo-block-cards__card-icon {
+    color: var(--mo-sys-block-text);
+  }
+  /* A video at the top fills it as an image does, with its play button. The media is its own rounded rectangle, flush with the card's top and sides:
+     its top corners are the card's (clipped by it) and its bottom corners are the card's radius too, so the card's surface shows behind them (the
+     media in M3's Cards page, Container example; no radius is printed for it, so the card's 12dp, --mo-comp-card-radius). */
+  .mo-block-cards__card-video {
+    display: block;
+    margin: calc(-1 * var(--mo-comp-card-padding, 1rem)) calc(-1 * var(--mo-comp-card-padding, 1rem)) 0;
+    overflow: hidden;
+    border-radius: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) - 1px)
+      calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) - 1px) var(--mo-comp-card-radius, var(--mo-sys-block-radius))
+      var(--mo-comp-card-radius, var(--mo-sys-block-radius));
+  }
+  /* The action area: its buttons in a row at the bottom of the card. */
+  .mo-block-cards__card-actions {
+    display: flex;
+    margin-top: auto;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: var(--mo-comp-card-action-gap, 1rem);
+  }
+  /* The image fills the top of the card, out to its edges. */
+  .mo-block-cards__card-picture {
+    display: block;
+    margin: calc(-1 * var(--mo-comp-card-padding, 1rem)) calc(-1 * var(--mo-comp-card-padding, 1rem)) 0;
+    overflow: hidden;
+    border-radius: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) - 1px)
+      calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) - 1px) var(--mo-comp-card-radius, var(--mo-sys-block-radius))
+      var(--mo-comp-card-radius, var(--mo-sys-block-radius));
+    background: var(--mo-sys-block-tint);
+    aspect-ratio: 3 / 2;
+  }
+  .mo-block-cards__card .mo-card__media img,
+  .mo-block-cards__card-picture img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: scale var(--mo-sys-motion-spring-slow-spatial);
+  }
+  .mo-block-cards__card-title {
+    margin-top: var(--mo-comp-card-media-gap, 1rem);
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
+  }
+  /* Only text: the heading at the top. */
+  .mo-block-cards__card-title:first-child {
+    margin-top: 0;
+  }
+  .mo-block-cards__card-text {
+    margin-top: var(--mo-comp-card-text-gap, 0.5rem);
+    color: var(--mo-sys-block-muted);
+  }
+  .mo-block-cards__card-more {
+    display: inline-flex;
+    margin-top: auto;
+    align-items: center;
+    gap: 0.5rem;
+    padding-top: var(--mo-comp-card-action-gap, 1rem);
+    font-weight: 500;
+    color: var(--mo-sys-block-accent);
+  }
+  .mo-block-cards__card-arrow {
+    transition: translate var(--mo-sys-motion-spring-default-spatial);
+  }
+  /* "Cards" on a phone as a carousel (`phone`, LinkCards.tsx): Material 3's uncontained layout (m3.material.io/components/carousel), which M3 gives to
+     text-heavy items. Below 600 px the cards are swiped sideways: items 8 dp apart, 8 dp above and below (room for an elevated card's shadow),
+     corners of 28 dp, the first 16 dp from the screen's edge, the next one peeking in; `Show all` under the dots turns it into the stacked cards
+     in place (data-expanded, set by script.ts). From 600 px the cards are the grid, with no dots and no button. */
+  .mo-block-cards__carousel .mo-block-cards__card {
+    border-radius: var(--mo-comp-carousel-item-container-shape, var(--mo-sys-shape-corner-extra-large, 1.75rem));
+  }
+  .mo-block-cards__show-all {
+    display: none;
+  }
+  @media (width < 37.5rem) {
+    .mo-block-cards__carousel .mo-carousel__items {
+      overflow-x: auto;
+      gap: var(--mo-comp-card-gap, 0.5rem);
+      padding-block: 0.5rem;
+      padding-inline: 1rem;
+      scroll-padding-inline: 1rem;
+    }
+    .mo-block-cards__carousel .mo-carousel__item {
+      width: 85%;
+    }
+    .mo-js .mo-block-cards__show-all {
+      display: flex;
+      justify-content: center;
+      padding: 0.25rem;
+    }
+    .mo-block-cards__carousel[data-expanded] .mo-carousel__items {
+      display: grid;
+      overflow-x: visible;
+      margin: 0;
+      padding-inline: 0;
+      scroll-padding-inline: 0;
+    }
+    .mo-block-cards__carousel[data-expanded] .mo-carousel__item {
+      width: auto;
+    }
+    .mo-block-cards__carousel[data-expanded] .mo-carousel__indicator {
+      display: none;
+    }
+  }
+  @media (width >= 37.5rem) {
+    .mo-block-cards__carousel .mo-carousel__items {
+      display: grid;
+      overflow-x: visible;
+      gap: var(--mo-sys-grid-gutter);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .mo-block-cards__carousel .mo-carousel__item {
+      width: auto;
+    }
+    .mo-block-cards__carousel .mo-carousel__indicator {
+      display: none;
+    }
+  }
+
+  .mo-block-cards__card-subhead {
+    margin-top: var(--mo-comp-card-subhead-gap, 0.25rem);
+    font-size: var(--mo-sys-typescale-body-medium-size, 0.875rem);
+    line-height: var(--mo-sys-typescale-body-medium-line-height, 1.25rem);
+    color: var(--mo-sys-block-muted);
+  }
+  .mo-block-cards__primary .mo-block-cards__card {
+    color: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-on-primary));
+  }
+  .mo-block-cards__secondary .mo-block-cards__card {
+    color: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-on-secondary));
+  }
+  .mo-block-cards__tertiary .mo-block-cards__card {
+    color: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-on-tertiary));
+  }
+  :is(.mo-block-cards__primary, .mo-block-cards__secondary, .mo-block-cards__tertiary)
+    :is(.mo-block-cards__card-icon, .mo-block-cards__card-text, .mo-block-cards__card-subhead, .mo-block-cards__card-more) {
+    color: inherit;
+  }
+  .mo-block-pricecards__cards {
+    display: grid;
+    gap: var(--mo-sys-grid-gutter);
+  }
+  /* A big price, an elevated card (.mo-card in ui.css). */
+  .mo-block-pricecards__card {
+    display: flex;
+    flex-direction: column;
+  }
+  .mo-block-pricecards__card-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .mo-block-pricecards__card-title {
+    margin: 0;
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
+  }
+  .mo-block-pricecards__amount {
+    margin-top: 1.5rem;
+    font-size: var(--mo-sys-typescale-display-medium-size);
+    line-height: var(--mo-sys-typescale-display-medium-line-height);
+    font-weight: var(--mo-sys-typescale-display-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
+    font-variant-numeric: tabular-nums;
+  }
+  .mo-block-pricecards__unit {
+    margin-top: var(--mo-comp-card-subhead-gap, 0.25rem);
+    color: var(--mo-sys-block-muted);
+  }
+  /* A punch card's offer in a price card, a filled card with smaller corners. */
+  .mo-block-pricecards__extra {
+    margin-top: 1.5rem;
+  }
+  .mo-block-pricecards__extra-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+  }
+  .mo-block-pricecards__extra-title svg {
+    color: var(--mo-sys-block-accent);
+  }
+  .mo-block-pricecards__extra-text {
+    margin-top: var(--mo-comp-card-subhead-gap, 0.25rem);
+    color: var(--mo-sys-block-muted);
+  }
+  .mo-block-pricecards__extra-text strong {
+    color: var(--mo-sys-block-text);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+  .mo-block-pricecards__card > .mo-block-arrow-link {
+    align-self: flex-start;
+    margin-top: var(--mo-comp-card-action-gap, 1rem);
+  }
+  @media (hover: hover) {
+    a.mo-block-cards__card:hover .mo-block-cards__card-arrow {
+      translate: 0.25rem 0;
+    }
+    a.mo-block-cards__card:hover :is(.mo-block-cards__card-picture, .mo-card__media) img {
+      scale: 1.03;
+    }
+  }
+  @media (width >= 37.5rem) {
+    .mo-block-cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .mo-block-pricecards__cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .mo-block-pricecards__card-title {
+      font-size: var(--mo-sys-typescale-headline-medium-size);
+      line-height: var(--mo-sys-typescale-headline-medium-line-height);
+      font-weight: var(--mo-sys-typescale-headline-medium-weight);
+      letter-spacing: var(--mo-sys-typescale-headline-medium-tracking);
+    }
+    .mo-block-pricecards__amount {
+      font-size: var(--mo-sys-typescale-display-large-size);
+      line-height: var(--mo-sys-typescale-display-large-line-height);
+      font-weight: var(--mo-sys-typescale-display-large-weight);
+      letter-spacing: var(--mo-sys-typescale-display-large-tracking);
+    }
+  }
+
+  /* "Price cards" (pricecards/View.tsx): the cards side by side, as many columns as there are cards where the block has
+     room for them (it is a container: two from 34rem, three from 40rem, four from 56rem; four two by two before that),
+     else under each other. Each card an outlined card (.mo-card in ui.css): its name, its price large with what it is for
+     beside it, its text, what is included under a line (.mo-block-checklist) and its button at the bottom in the card's
+     width, so the buttons of cards side by side are in line; the highlighted one with an edge in the accent and its
+     label in a pill in the accent over its name. */
+  .mo-block-pricecards__plans {
+    container-type: inline-size;
+  }
+  .mo-block-pricecards__plans.mo-is-in-text {
+    margin-block: 2.5rem;
+  }
+  .mo-block-pricecards__plans-list {
+    display: grid;
+    gap: var(--mo-sys-grid-gutter);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  @container (width >= 34rem) {
+    .mo-block-pricecards__plans-2,
+    .mo-block-pricecards__plans-4 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @container (width >= 40rem) {
+    .mo-block-pricecards__plans-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @container (width >= 56rem) {
+    .mo-block-pricecards__plans-4 {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .mo-block-pricecards__plan {
+    display: flex;
+    flex-direction: column;
+    color: var(--mo-sys-block-text);
+    /* The price is as large as the card has room for (cqi). */
+    container-type: inline-size;
+  }
+  /* On the Card's parts (pricecards/View.tsx): the text fills the card so the buttons are at the bottom, in the card's width; the label is the card's
+     icon part, the price its subhead (in the price's own type). */
+  .mo-block-pricecards__plan > .mo-card__body {
+    flex: 1;
+  }
+  .mo-block-pricecards__plan .mo-card__icon > .mo-block-pricecards__plan-badge {
+    margin-bottom: 0;
+  }
+  .mo-block-pricecards__plan .mo-card__subhead > .mo-block-pricecards__plan-price {
+    margin: 0;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+  }
+  .mo-block-pricecards__plan .mo-block-pricecards__plan-amount {
+    color: var(--mo-sys-block-text);
+  }
+  .mo-block-pricecards__plan .mo-card__actions > .mo-block-pricecards__plan-buttons {
+    flex: 1 1 100%;
+  }
+  .mo-is-featured {
+    box-shadow: inset 0 0 0 2px var(--mo-sys-block-accent);
+  }
+  .mo-block-pricecards__plan-badge {
+    align-self: flex-start;
+    margin-bottom: 0.75rem;
+    border-radius: var(--mo-sys-block-control-radius);
+    background: var(--mo-sys-block-accent);
+    color: var(--mo-sys-block-on-accent);
+    padding: 0.25rem 0.75rem;
+    font-size: var(--mo-sys-typescale-label-medium-size);
+    line-height: var(--mo-sys-typescale-label-medium-line-height);
+    font-weight: var(--mo-sys-typescale-label-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
+  }
+  .mo-block-pricecards__plan-name {
+    margin: 0;
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
+  }
+  .mo-block-pricecards__plan-price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.25rem 0.5rem;
+    margin: 1rem 0 0;
+  }
+  .mo-block-pricecards__plan-amount {
+    font-size: clamp(var(--mo-sys-typescale-headline-small-size), 16cqi, var(--mo-sys-typescale-display-small-size));
+    line-height: var(--mo-sys-typescale-headline-large-line-height);
+    font-weight: var(--mo-sys-typescale-headline-large-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-large-tracking);
+    font-variant-numeric: tabular-nums;
+  }
+  .mo-block-pricecards__plan-unit {
+    color: var(--mo-sys-block-muted);
+  }
+  .mo-block-pricecards__plan-text {
+    margin: 0.75rem 0 0;
+    color: var(--mo-sys-block-muted);
+  }
+  /* .mo-block-checklist.: the Checklist's own `.mo-block-checklist` rule (blocks.css) comes after this file, so this needs the second class to keep winning. */
+  .mo-block-checklist.mo-block-pricecards__plan-features {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--mo-sys-block-line);
+    padding-top: 0.5rem;
+  }
+  /* A narrow card: a long text on its button goes onto two lines rather than out of the card. */
+  .mo-block-pricecards__plan-buttons .mo-button {
+    padding-block: 0.75rem;
+    padding-inline: 1rem;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
+  }
+  /* A related post's card (components/PostCard.tsx) is as high as its row; the 404 page's suggestion is at most 42rem wide. */
+  .mo-post-card {
+    height: 100%;
+  }
+  .mo-not-found__suggestion {
+    max-width: 42rem;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mo-block-cards__card,
+    .mo-block-cards__card-arrow,
+    .mo-block-cards__card .mo-card__media img,
+    .mo-block-cards__card-picture img {
+      transition: none;
+    }
+  }
+}

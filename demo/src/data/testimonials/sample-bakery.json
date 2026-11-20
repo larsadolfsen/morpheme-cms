@@ -1,0 +1,12 @@
+{
+  "order": 1,
+  "name": "Maya, bakery owner",
+  "context": "Sample testimonial",
+  "image": "/images/uploads/2026/10/maya-bakery.webp",
+  "alt": "Smiling woman with dark hair in a bun, in a white shirt",
+  "quote": "I update the menu from my phone before we open. It takes two minutes, and I haven’t had to call anyone since.",
+  "categories": [
+    "editing"
+  ],
+  "frontPage": false
+}

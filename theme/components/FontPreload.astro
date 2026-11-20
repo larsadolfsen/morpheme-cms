@@ -1,0 +1,6 @@
+---
+// Preload the Latin font file so text renders without waiting for the CSS to be parsed (Base.astro).
+import robotoLatin from '@fontsource-variable/roboto/files/roboto-latin-wght-normal.woff2?url';
+---
+
+<link rel="preload" href={robotoLatin} as="font" type="font/woff2" crossorigin />

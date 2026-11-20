@@ -1,0 +1,76 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Cards (ui.css): 12px corners; outlined on the surface with the outline variant, elevated on a low container with
+     the first elevation, filled on the highest container. */
+  --mo-comp-card-radius: var(--mo-sys-shape-corner-medium);
+  /* An elevated card is elevated all the time (owner, 16 Nov 2026; m3.material.io/components/cards/guidelines: "Elevated cards have a drop shadow"): level 1 at
+     rest and level 2 pointed at, though the theme's other parts have no shadow at rest (--mo-elevation-N-rest-shadow above). */
+  --mo-comp-elevated-card-container-elevation: var(--mo-sys-elevation-level1-shadow);
+  --mo-comp-elevated-card-hover-container-elevation: var(--mo-sys-elevation-level2-shadow);
+  /* The small step the editor uses for a block's row and handle (8px). The room between cards is --mo-sys-grid-gutter below (owner, 15 Nov 2026, G1). */
+  --mo-comp-card-gap: 0.5rem;
+  /* Inside a "Cards" card, on the 4dp half-step and the 8dp grid (Material 3 prints only the 16px left and right padding and 8px
+     between cards): the headline to the subhead 4px, the headline or subhead to the text 8px, the media (and a card's icon) to the
+     headline 16px, the text to the link or the buttons 16px. */
+  --mo-comp-card-subhead-gap: 0.25rem;
+  --mo-comp-card-text-gap: 0.5rem;
+  --mo-comp-card-media-gap: 1rem;
+  --mo-comp-card-action-gap: 1rem;
+  --mo-comp-filled-card-container-color: var(--mo-sys-color-surface-container-highest);
+  --mo-comp-outlined-card-container-color: var(--mo-sys-color-surface);
+  --mo-comp-outlined-card-outline-color: var(--mo-sys-color-outline-variant);
+}
+@layer components {
+  .mo-block-notice {
+    --mo-comp-filled-card-container-color: var(--mo-sys-color-surface-container-high);
+  }
+}
+/* "Cards": Material 3's three (outlined, filled, elevated: the card's `design`, ui.css); the filled one on the surface container (or the
+     primary, secondary or tertiary container: blocks.css), with the card's state layer (ui.css) when pointed at or focused. */
+@layer components {
+  .mo-block-cards__card {
+    --mo-comp-filled-card-container-color: var(--mo-sys-color-surface-container);
+  }
+}
+@layer components {
+  .mo-block-testimonials__testimonial {
+    --mo-comp-outlined-card-container-color: var(--mo-sys-color-surface-container);
+    --mo-comp-outlined-card-outline-color: transparent;
+  }
+}
+/* An invitation: a filled card with extra-large corners, its image with large corners (where it stands is the
+     block's, so it takes no optical roundness from the card). */
+@layer components {
+  .mo-block-cta {
+    --mo-comp-card-radius: var(--mo-sys-shape-corner-extra-large);
+    --mo-comp-card-padding: 1.5rem;
+  }
+}
+@layer components {
+  @media (width >= 37.5rem) {
+    .mo-block-cta {
+      --mo-comp-card-padding: 2rem;
+    }
+  }
+}
+@layer components {
+  .mo-block-link-row {
+    --mo-comp-card-radius: var(--mo-sys-shape-corner-medium);
+    --mo-comp-outlined-card-container-color: var(--mo-sys-color-surface-container-low);
+    --mo-comp-outlined-card-outline-color: transparent;
+  }
+}
+@layer components {
+  a.mo-block-link-row:hover {
+    --mo-comp-outlined-card-container-color: color-mix(
+      in srgb,
+      var(--mo-sys-color-on-surface) 8%,
+      var(--mo-sys-color-surface-container-low)
+    );
+    --mo-comp-outlined-card-outline-color: transparent;
+  }
+}

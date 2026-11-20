@@ -1,0 +1,21 @@
+{
+  "enabled": true,
+  "heading": "Cookies, only with your OK",
+  "text": "We’d like to measure how the site is used. Nothing is set unless you say yes, and you can change your mind at the bottom of any page.",
+  "more": "Learn more",
+  "no": "No thanks",
+  "yes": "Accept",
+  "choose": "Choose",
+  "save": "Save choices",
+  "consentId": "Your consent ID",
+  "necessary": "Necessary",
+  "necessaryText": "Keep the site working and remember your choice. These can’t be turned off.",
+  "preferences": "Preferences",
+  "preferencesText": "Remember your settings on the site.",
+  "statistics": "Statistics",
+  "statisticsText": "Show us how many people visit and what they read.",
+  "marketing": "Marketing",
+  "marketingText": "Show us whether our ads bring people to the site.",
+  "targeting": "Targeted ads",
+  "targetingText": "Let advertisers use your visit to show you our ads elsewhere."
+}

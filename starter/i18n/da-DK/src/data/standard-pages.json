@@ -1,0 +1,8 @@
+{
+  "front": "/forside/",
+  "blog": "/blogside/",
+  "notFound": "/siden-findes-ikke/",
+  "contact": "/kontakt/",
+  "privacy": "/privatlivspolitik/",
+  "cookies": "/privatlivspolitik/"
+}

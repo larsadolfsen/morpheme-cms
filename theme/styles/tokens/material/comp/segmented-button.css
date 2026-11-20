@@ -1,0 +1,18 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  --mo-comp-segmented-button-surface: transparent;
+  --mo-comp-outlined-segmented-button-outline-color: var(--mo-sys-color-outline);
+  --mo-comp-segmented-button-padding: 0.75rem;
+  --mo-comp-outlined-segmented-button-selected-container-color: var(--mo-sys-color-surface-container-high);
+  --mo-comp-outlined-segmented-button-selected-label-text-color: var(--mo-sys-color-on-surface);
+  --mo-comp-segmented-button-selected-hover: color-mix(
+    in srgb,
+    var(--mo-sys-color-on-surface) 8%,
+    var(--mo-sys-color-surface-container-high)
+  );
+  --mo-comp-segmented-button-radius: var(--mo-sys-shape-corner-full);
+}

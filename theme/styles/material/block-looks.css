@@ -1,0 +1,89 @@
+/* The Material theme's look of the blocks (notice, steps, cards, panels, cta, link row), the bottom sheet's handle, the carousel's page indicator and the split button.
+   Moved here from global.css with its rules unchanged and in their order; imported by global.css (never by base.css: a theme that imports only base.css
+   must not get Material's values) after material/icon-buttons.css, in the old order of the rules. Imported one after the other in the old order, the rules
+   keep their place in the layer (docs/superpowers/plans/2026-11-16-css-split.md). */
+@layer components {
+  /* "Notice": a filled card (the Card part, .mo-is-filled) in the high surface container. */
+  .mo-block-notice {
+    border-left: 0;
+  }
+
+  /* "Steps": the numbers in the primary container. */
+  .mo-block-steps__step-number {
+    background: var(--mo-sys-color-surface-container-high);
+    color: var(--mo-sys-color-primary);
+  }
+  .mo-block-cards__card-picture {
+    border-radius: var(--mo-comp-card-radius);
+  }
+  .mo-block-cards__card-text {
+    font-weight: 400;
+  }
+
+  /* Panels and the cards of testimonials and prices: outlined, filled and elevated cards (their variables above). A
+     list in a panel reaches out to its sides, so its items' text is in line with the panel's. */
+  :is(.mo-block-panel, .mo-block-panel > .mo-card__body > .mo-card__content) > .mo-list {
+    margin-inline: -1rem;
+  }
+  /* No quotation mark: a glyph of the font, not one of the theme's icons. */
+  .mo-block-testimonials__testimonial-quote-mark {
+    display: none;
+  }
+  .mo-block-cta__title {
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
+  }
+  .mo-block-cta__picture {
+    border-radius: var(--mo-sys-shape-corner-large);
+  }
+
+  /* A link that is one row: a list item in a card, a state layer when pointed at. */
+  .mo-block-link-row {
+    transition: background-color var(--mo-sys-motion-spring-default-effects);
+  }
+
+  /* A bottom sheet (its variables above): a 32 by 4 drag handle, the headline in M3's headline small. */
+  .mo-bottom-sheet__drag-handle {
+    padding: 1.375rem 0 0.75rem;
+  }
+  .mo-bottom-sheet__drag-handle::before {
+    width: 2rem;
+    height: 0.25rem;
+  }
+  @media (width >= 37.5rem) {
+    .mo-bottom-sheet__header {
+      padding: 1.5rem 1.5rem 0.75rem;
+    }
+  }
+
+  /* The carousel's page indicator (its variables above): the dots half seen through, the chosen one wholly. */
+  .mo-carousel__indicator-dot > span {
+    opacity: 0.5;
+  }
+  .mo-carousel__indicator-dot[aria-current='true'] > span {
+    opacity: 1;
+  }
+
+  /* The buttons that do more than one thing (their variables above): the ripple when pressed; a split button's
+     corners between its two halves a little rounder while pressed, the outer ones as they are; 38% when a segment
+     cannot be used (M3). A FAB menu's actions in the secondary container, as pills. */
+  .mo-segmented-button__segment:disabled {
+    opacity: var(--mo-sys-state-disabled-state-layer-opacity);
+  }
+  .mo-split-button > .mo-button:active {
+    border-radius: var(--mo-sys-block-control-radius);
+  }
+  .mo-split-button > .mo-split-button__leading:active {
+    border-start-end-radius: var(--mo-sys-shape-corner-small);
+    border-end-end-radius: var(--mo-sys-shape-corner-small);
+  }
+  .mo-split-button > .mo-split-button__trailing:active {
+    border-start-start-radius: var(--mo-sys-shape-corner-small);
+    border-end-start-radius: var(--mo-sys-shape-corner-small);
+  }
+  .mo-split-button > .mo-split-button__trailing[aria-expanded='true']:active {
+    border-radius: var(--mo-sys-block-control-radius);
+  }
+}

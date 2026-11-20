@@ -1,0 +1,13 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* The carousel's page indicator: the dots in the outline, the chosen one a longer pill (in the primary colour). */
+  --mo-comp-carousel-dot-colour: var(--mo-sys-color-outline);
+  /* The carousel's items: extra-large corners, none on a full-screen one. */
+  --mo-comp-carousel-item-container-shape: var(--mo-sys-shape-corner-extra-large);
+  --mo-comp-carousel-full-screen-radius: var(--mo-sys-shape-corner-none);
+  --mo-comp-carousel-dot-selected-width: 1.5rem;
+}

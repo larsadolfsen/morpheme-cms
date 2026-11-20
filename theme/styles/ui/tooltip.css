@@ -1,0 +1,146 @@
+/*
+  Tooltips (Tooltip, tooltipClass; m3.material.io/components/tooltips): .mo-tooltip__anchor ([data-tooltip], shown with
+  [data-tooltip-open] by ../ui/tooltip.script.ts, placed by CSS anchor positioning, and where the browser lacks it by the script, which puts [data-tooltip-below] under its anchor) with what it is about and
+  its .mo-tooltip, .mo-tooltip__plain (a short label, in the middle over it) or .mo-tooltip__rich (.mo-tooltip__subhead,
+  .mo-tooltip__supporting-text and optionally .mo-tooltip__actions with a text button, .mo-tooltip__action; from its anchor's start).
+    --mo-comp-tooltip-gap (between it and its anchor)
+    --mo-comp-plain-tooltip-container-color, -text, -radius, -padding, -font-size, -weight, -max-width
+    --mo-comp-tooltip-rich-surface, -text, -subhead, -subhead-weight, -radius, -padding, -line, -shadow, -max-width
+  Moved here from ui.css with its rules unchanged; imported by base.css right after ui.css, in the same layer. Only the reduced-motion
+  `.mo-tooltip { transition: none }` is in reduced-motion.css (it shares a list with the progress indicators, in @layer fallback). No other rule sets
+  the same property on a tooltip at the same specificity, so the position does not change what wins
+  (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* Tooltips (m3.material.io/components/tooltips): over their anchor, shown while it is pointed at or has focus. */
+  .mo-tooltip__anchor {
+    position: relative;
+    display: inline-flex;
+    vertical-align: middle;
+  }
+  .mo-tooltip {
+    position: absolute;
+    bottom: calc(100% + var(--mo-comp-tooltip-gap, 0.25rem));
+    left: 50%;
+    z-index: 48;
+    width: max-content;
+    translate: calc(-50% + var(--mo-comp-tooltip-shift, 0px)) 0;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    text-align: start;
+    transition:
+      opacity var(--mo-sys-motion-spring-fast-effects),
+      visibility var(--mo-sys-motion-spring-fast-effects);
+  }
+  [data-tooltip-below] > .mo-tooltip {
+    top: calc(100% + var(--mo-comp-tooltip-gap, 0.25rem));
+    bottom: auto;
+  }
+  [data-tooltip-open] > .mo-tooltip,
+  :root:not(.mo-js) .mo-tooltip__anchor:is(:hover, :focus-within) > .mo-tooltip {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
+  /* Plain: a short label on the text's colour. */
+  .mo-tooltip__plain {
+    max-width: var(--mo-comp-tooltip-plain-max-width, 12.5rem);
+    border-radius: var(--mo-comp-plain-tooltip-container-shape, 0.5rem);
+    background: var(--mo-comp-plain-tooltip-container-color, var(--mo-sys-block-text));
+    padding: var(--mo-comp-tooltip-plain-padding, 0.25rem 0.5rem);
+    color: var(--mo-comp-plain-tooltip-supporting-text-color, var(--mo-sys-color-surface));
+    font-size: var(--mo-comp-tooltip-plain-font-size, var(--mo-sys-typescale-body-small-size));
+    letter-spacing: var(--mo-sys-typescale-body-small-tracking);
+    font-weight: var(--mo-comp-tooltip-plain-weight, var(--mo-sys-typescale-body-small-weight));
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+  }
+  /* Rich: a subhead, a text and optionally an action on a surface, from the anchor's start. */
+  .mo-tooltip__rich {
+    left: 0;
+    display: flex;
+    max-width: var(--mo-comp-tooltip-rich-max-width, 20rem);
+    flex-direction: column;
+    gap: 0.25rem;
+    translate: var(--mo-comp-tooltip-shift, 0px) 0;
+    border-radius: var(--mo-comp-rich-tooltip-container-shape, var(--mo-sys-block-radius-small));
+    background: var(--mo-comp-tooltip-rich-surface, var(--mo-sys-elevation-level2-color));
+    padding: var(--mo-comp-tooltip-rich-padding, 0.75rem 1rem);
+    color: var(--mo-comp-rich-tooltip-supporting-text-color, var(--mo-sys-block-muted));
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    box-shadow:
+      0 0 0 1px var(--mo-comp-tooltip-rich-line, var(--mo-sys-block-line)),
+      var(--mo-comp-tooltip-rich-shadow, var(--mo-sys-elevation-level2-rest-shadow));
+  }
+  .mo-tooltip__subhead {
+    color: var(--mo-comp-rich-tooltip-subhead-color, var(--mo-sys-block-text));
+    font-size: var(--mo-sys-typescale-title-small-size);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    font-weight: var(--mo-comp-tooltip-rich-subhead-weight, var(--mo-sys-typescale-title-small-weight));
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
+  }
+  .mo-tooltip__actions {
+    display: flex;
+    margin: 0.25rem 0 -0.25rem calc(-1 * var(--mo-comp-button-text-padding, 1rem));
+  }
+  /* Anchor positioning (css-layout §5, position-aware-tooltips): where the browser has it, the browser places the tooltip
+     and ui/tooltip.script.ts does not. Plain: over its anchor, in the middle; rich: over it from its start. Both go under
+     the anchor when there is no room above (flip-block), then hang from the anchor's other side, then sit in the middle of
+     the window, always 0.5rem inside it (the tooltip's insets; the one on the anchor's side is the gap). Without it the rules above and the script do the same.
+     Same look, sizes and motion. */
+  @supports (anchor-name: --a) and (anchor-scope: --a) and (position-area: top) {
+    .mo-tooltip__anchor {
+      anchor-scope: --tooltip;
+      anchor-name: --tooltip;
+    }
+    .mo-tooltip {
+      position: fixed;
+      position-anchor: --tooltip;
+      position-area: block-start;
+      inset: 0.5rem;
+      inset-block-end: var(--mo-comp-tooltip-gap, 0.25rem);
+      margin: 0;
+      translate: none;
+      position-try-fallbacks:
+        flip-block, --tooltip-top-end, --tooltip-top-start, --tooltip-bottom-end, --tooltip-bottom-start, --tooltip-top-window,
+        --tooltip-bottom-window;
+    }
+    .mo-tooltip__rich {
+      position-area: block-start span-inline-end;
+      inset-inline: 0 0.5rem;
+      position-try-fallbacks: flip-block, --tooltip-top-start, --tooltip-bottom-start, --tooltip-top-window, --tooltip-bottom-window;
+    }
+    @position-try --tooltip-top-end {
+      position-area: block-start span-inline-end;
+      inset-inline: 0 0.5rem;
+    }
+    @position-try --tooltip-top-start {
+      position-area: block-start span-inline-start;
+      inset-inline: 0.5rem 0;
+    }
+    @position-try --tooltip-bottom-end {
+      position-area: block-end span-inline-end;
+      inset-inline: 0 0.5rem;
+      inset-block: var(--mo-comp-tooltip-gap, 0.25rem) 0.5rem;
+    }
+    @position-try --tooltip-bottom-start {
+      position-area: block-end span-inline-start;
+      inset-inline: 0.5rem 0;
+      inset-block: var(--mo-comp-tooltip-gap, 0.25rem) 0.5rem;
+    }
+    @position-try --tooltip-top-window {
+      position-area: block-start;
+      inset-inline: 0.5rem;
+      justify-self: center;
+    }
+    @position-try --tooltip-bottom-window {
+      position-area: block-end;
+      inset-inline: 0.5rem;
+      justify-self: center;
+      inset-block: var(--mo-comp-tooltip-gap, 0.25rem) 0.5rem;
+    }
+  }
+}

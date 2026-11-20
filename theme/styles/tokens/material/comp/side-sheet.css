@@ -1,0 +1,12 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Side sheets: a standard one on the page's surface with the outline variant between them, a modal one in a low
+     surface container with large corners towards the page, the first elevation and M3's scrim; the headline in title
+     large, a line in the outline variant over the actions. */
+  --mo-comp-sheet-side-docked-container-shape: var(--mo-sys-shape-corner-large);
+  --mo-comp-side-sheet-scrim: var(--mo-sys-color-scrim-overlay);
+}

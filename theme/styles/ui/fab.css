@@ -1,0 +1,276 @@
+/*
+  FABs (Fab, ExtendedFab, fabClass, extendedFabClass): .mo-fab, an icon; .mo-extended-fab, an icon and .mo-extended-fab__label,
+  only the icon while [data-collapsed]. Each in its size, M3 Expressive's: a FAB none (the FAB, 56px), .mo-fab__medium (80)
+  or .mo-fab__large (96); an extended FAB none (small, 56), .mo-extended-fab__medium (80) or .mo-extended-fab__large (96), each
+  with its type style. And in its colour: filled .mo-fab__primary (the accent), .mo-fab__secondary or .mo-fab__tertiary, or tonal
+  .mo-fab__primary-container (the accent's container), .mo-fab__secondary-container or .mo-fab__tertiary-container, from the
+  site's colours of those names.
+    --mo-comp-fab-size, --mo-comp-fab-container-shape, --mo-comp-fab-padding, --mo-comp-fab-gap, --mo-comp-fab-icon-size, --mo-comp-fab-shadow, --mo-comp-fab-hover-shadow,
+    --mo-comp-fab-label-font-size, --mo-comp-fab-label-weight, --mo-comp-fab-label-letter-spacing   the FAB and the small extended FAB (the
+                     shadows of every size: level 3, level 4 when pointed at, as at rest while pressed; a theme that
+                     sets only the one at rest keeps it)
+    --mo-comp-fab-medium-size, -radius, -icon-size, -padding, -gap, -label-font-size, -label-line-height, -label-weight,
+    -label-letter-spacing   the medium FAB and extended FAB (padding, gap and label: the extended one's)
+    --fab-large-…   the same for the large ones
+    --fab-<colour>-surface, -text, -hover, -pressed   each colour (primary, secondary, tertiary, primary-container,
+                                                      secondary-container, tertiary-container)
+  Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
+  the same property on these parts at the same specificity, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* FABs (m3.material.io/components/floating-action-button, …/extended-fab): the screen's main action. */
+  .mo-fab,
+  .mo-extended-fab {
+    display: inline-flex;
+    height: var(--mo-comp-fab-size, 3.5rem);
+    min-width: var(--mo-comp-fab-size, 3.5rem);
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--mo-comp-fab-container-shape, var(--mo-sys-block-radius-small));
+    padding: 0 var(--mo-comp-fab-padding, 1rem);
+    box-shadow: var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+    transition:
+      box-shadow var(--mo-sys-motion-spring-default-effects),
+      background-color var(--mo-sys-motion-spring-default-effects),
+      padding var(--mo-sys-motion-spring-default-spatial);
+  }
+  .mo-fab {
+    padding: 0;
+  }
+  .mo-fab > svg,
+  .mo-extended-fab > svg {
+    flex-shrink: 0;
+    width: var(--mo-comp-fab-icon-size, 1.5rem);
+    height: var(--mo-comp-fab-icon-size, 1.5rem);
+  }
+  .mo-fab:hover,
+  .mo-extended-fab:hover {
+    box-shadow: var(--mo-comp-fab-hover-shadow, var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level4-shadow)));
+  }
+  .mo-fab:active,
+  .mo-extended-fab:active {
+    box-shadow: var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+  }
+  /* The medium and the large size (M3 Expressive): taller, with rounder corners and a larger icon, the theme's corners
+     scaled as Material's are (16, 20 and 28px). */
+  .mo-fab__medium,
+  .mo-extended-fab__medium {
+    height: var(--mo-comp-fab-medium-size, 5rem);
+    min-width: var(--mo-comp-fab-medium-size, 5rem);
+    border-radius: var(--mo-comp-fab-medium-container-shape, calc(var(--mo-sys-block-radius-small) * 1.25));
+  }
+  .mo-fab__medium > svg,
+  .mo-extended-fab__medium > svg {
+    width: var(--mo-comp-fab-medium-icon-size, 1.75rem);
+    height: var(--mo-comp-fab-medium-icon-size, 1.75rem);
+  }
+  .mo-fab__large,
+  .mo-extended-fab__large {
+    height: var(--mo-comp-fab-large-size, 6rem);
+    min-width: var(--mo-comp-fab-large-size, 6rem);
+    border-radius: var(--mo-comp-fab-large-container-shape, calc(var(--mo-sys-block-radius-small) * 1.75));
+  }
+  .mo-fab__large > svg,
+  .mo-extended-fab__large > svg {
+    width: var(--mo-comp-fab-large-icon-size, 2.25rem);
+    height: var(--mo-comp-fab-large-icon-size, 2.25rem);
+  }
+  .mo-extended-fab__medium {
+    padding: 0 var(--mo-comp-fab-medium-padding, 1.625rem);
+  }
+  .mo-extended-fab__large {
+    padding: 0 var(--mo-comp-fab-large-padding, 1.75rem);
+  }
+
+  /* The colours (M3 Expressive): filled in primary, secondary or tertiary, or tonal in their containers; a state layer
+     of the text's colour when pointed at, and pressed under the ripple. */
+  .mo-fab__primary {
+    background: var(--mo-comp-fab-primary-surface, var(--mo-sys-block-accent));
+    color: var(--mo-comp-fab-primary-text, var(--mo-sys-block-on-accent));
+  }
+  .mo-fab__primary:hover {
+    background: var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover));
+  }
+  .mo-fab__primary:active {
+    background: var(--mo-comp-fab-primary-pressed, var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover)));
+  }
+  .mo-fab__secondary {
+    background: var(--mo-comp-fab-secondary-surface, var(--mo-sys-color-secondary));
+    color: var(--mo-comp-fab-secondary-text, var(--mo-sys-color-on-secondary));
+  }
+  .mo-fab__secondary:hover {
+    background: var(
+      --mo-comp-fab-secondary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-secondary)
+      )
+    );
+  }
+  .mo-fab__secondary:active {
+    background: var(
+      --mo-comp-fab-secondary-pressed,
+      var(
+        --mo-comp-fab-secondary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-secondary)
+        )
+      )
+    );
+  }
+  .mo-fab__tertiary {
+    background: var(--mo-comp-fab-tertiary-surface, var(--mo-sys-color-tertiary));
+    color: var(--mo-comp-fab-tertiary-text, var(--mo-sys-color-on-tertiary));
+  }
+  .mo-fab__tertiary:hover {
+    background: var(
+      --mo-comp-fab-tertiary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-tertiary)
+      )
+    );
+  }
+  .mo-fab__tertiary:active {
+    background: var(
+      --mo-comp-fab-tertiary-pressed,
+      var(
+        --mo-comp-fab-tertiary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-tertiary)
+        )
+      )
+    );
+  }
+  .mo-fab__primary-container {
+    background: var(--mo-comp-fab-primary-container-container-color, var(--mo-sys-color-primary-container));
+    color: var(--mo-comp-fab-primary-container-icon-color, var(--mo-sys-color-on-primary-container));
+  }
+  .mo-fab__primary-container:hover {
+    background: var(
+      --mo-comp-fab-primary-container-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-primary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-primary-container)
+      )
+    );
+  }
+  .mo-fab__primary-container:active {
+    background: var(
+      --mo-comp-fab-primary-container-pressed,
+      var(
+        --mo-comp-fab-primary-container-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-primary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-primary-container)
+        )
+      )
+    );
+  }
+  .mo-fab__secondary-container {
+    background: var(--mo-comp-fab-secondary-container-surface, var(--mo-sys-color-secondary-container));
+    color: var(--mo-comp-fab-secondary-container-text, var(--mo-sys-color-on-secondary-container));
+  }
+  .mo-fab__secondary-container:hover {
+    background: var(
+      --mo-comp-fab-secondary-container-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-secondary-container)
+      )
+    );
+  }
+  .mo-fab__secondary-container:active {
+    background: var(
+      --mo-comp-fab-secondary-container-pressed,
+      var(
+        --mo-comp-fab-secondary-container-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-secondary-container)
+        )
+      )
+    );
+  }
+  .mo-fab__tertiary-container {
+    background: var(--mo-comp-fab-tertiary-container-surface, var(--mo-sys-color-tertiary-container));
+    color: var(--mo-comp-fab-tertiary-container-text, var(--mo-sys-color-on-tertiary-container));
+  }
+  .mo-fab__tertiary-container:hover {
+    background: var(
+      --mo-comp-fab-tertiary-container-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-tertiary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-tertiary-container)
+      )
+    );
+  }
+  .mo-fab__tertiary-container:active {
+    background: var(
+      --mo-comp-fab-tertiary-container-pressed,
+      var(
+        --mo-comp-fab-tertiary-container-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-tertiary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-tertiary-container)
+        )
+      )
+    );
+  }
+
+  /* An extended FAB's label, in its size's type style (the small: title medium; medium: title large; large: headline
+     small). */
+  .mo-extended-fab__label {
+    max-width: 14rem;
+    overflow: hidden;
+    padding-left: var(--mo-comp-fab-gap, 0.75rem);
+    white-space: nowrap;
+    font-size: var(--mo-comp-fab-label-font-size, var(--mo-sys-typescale-title-medium-size));
+    font-weight: var(--mo-comp-fab-label-weight, var(--mo-sys-typescale-title-medium-weight));
+    letter-spacing: var(--mo-comp-fab-label-letter-spacing, var(--mo-sys-typescale-title-medium-tracking));
+    transition:
+      max-width var(--mo-sys-motion-spring-default-spatial),
+      padding var(--mo-sys-motion-spring-default-spatial),
+      opacity var(--mo-sys-motion-spring-default-effects);
+  }
+  .mo-extended-fab__medium > .mo-extended-fab__label {
+    max-width: 20rem;
+    padding-left: var(--mo-comp-fab-medium-gap, 0.75rem);
+    font-size: var(--mo-comp-fab-medium-label-font-size, var(--mo-sys-typescale-title-large-size));
+    line-height: var(--mo-comp-fab-medium-label-line-height, var(--mo-sys-typescale-title-large-line-height));
+    font-weight: var(--mo-comp-fab-medium-label-weight, var(--mo-sys-typescale-title-large-weight));
+    letter-spacing: var(--mo-comp-fab-medium-label-letter-spacing, var(--mo-sys-typescale-title-large-tracking));
+  }
+  .mo-extended-fab__large > .mo-extended-fab__label {
+    max-width: 20rem;
+    padding-left: var(--mo-comp-fab-large-gap, 1rem);
+    font-size: var(--mo-comp-fab-large-label-font-size, var(--mo-sys-typescale-headline-small-size));
+    line-height: var(--mo-comp-fab-large-label-line-height, var(--mo-sys-typescale-headline-small-line-height));
+    font-weight: var(--mo-comp-fab-large-label-weight, var(--mo-sys-typescale-headline-small-weight));
+    letter-spacing: var(--mo-comp-fab-large-label-letter-spacing, var(--mo-sys-typescale-headline-small-tracking));
+  }
+  .mo-extended-fab[data-collapsed] > .mo-extended-fab__label {
+    max-width: 0;
+    padding-left: 0;
+    opacity: 0;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mo-fab,
+    .mo-extended-fab,
+    .mo-extended-fab__label {
+      transition: none;
+    }
+  }
+}

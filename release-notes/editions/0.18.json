@@ -1,0 +1,12 @@
+{
+  "name": "Iceland",
+  "place": {
+    "en-US": "Seljalandsfoss Waterfall, Iceland",
+    "da-DK": "Seljalandsfoss-vandfaldet, Island"
+  },
+  "photo": {
+    "by": "Robert Lukeman",
+    "source": "https://unsplash.com/photos/waterfalls-at-daytime-zNN6ubHmruI",
+    "license": "https://unsplash.com/license"
+  }
+}

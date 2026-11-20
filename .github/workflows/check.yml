@@ -1,0 +1,336 @@
+# The CMS's checks on each pull request into main, into the 0.17, 0.18 or 0.19 integration branch or into a feature branch (feature/**) (package.json's check,
+# check:screens, check:demo and check:starter), and that it has a changeset (.claude/skills/changesets), so each branch can always be
+# released.
+#
+# LEVELS (scripts/ci-changes.mjs checkLevel: feature/** -> feature, 0.* -> line, main -> full; unknown base -> full; and a pull request whose HEAD
+# branch is feature/* into a version line (the feature into its line, once) is FULL: light=false, all areas, Prettier on all files). The feature and
+# line levels run the core screens units and the units of the areas the diff touches (`areas` below; scripts/screens/support/areas.mjs);
+# the full level runs every unit.
+# TWO SIZES (owner, 16 Nov 2026: a merge into a version line shows on the demo within minutes). A pull request whose base is a version
+# line (0.17, 0.18, 0.19; not the Release PR, and not a feature/* head, which gets the full check) gets the LINE check: changes, static, the 8 screens shards, demo and the starter SMOKE TEST
+# (job starter-smoke, plan A4). It skips screens-extra and the 4 starter shards (14 to 20 minutes). A pull request into a feature branch gets the
+# FEATURE check, which also skips demo and the smoke test. A pull request into main (the merge of a version line,
+# merge-0.18-into-main-N) and the Release PR run EVERYTHING; nothing reaches npm `next` or the owner without a full run. The job
+# `changes` prints light=true|false (scripts/ci-changes.mjs isLight); any error gives light=false, so everything runs. The changeset
+# check stays on every pull request. The rule lives in .claude/skills/checks, "What CI runs". The changeset is compared with the pull request's own base branch. Free here: the repository is public.
+# STATIC READS THE BUILD (plan A7): the job `static` takes the build of the job `build` instead of building again (a docs-only pull request, which has no
+# `build`, builds in `static`), Prettier checks only the changed files at the light levels, and tsc keeps its build info in the cache.
+# BUILD ONCE (plan PR 2): the job `build` runs npm run build once (and not at all when the hash of its inputs matches a kept build); screens,
+# screens-extra and demo unpack its artifact instead of building, and Chromium comes from a cache (.github/actions/prepare). starter packs the package itself and builds nothing from it.
+# The slow parts run side by side as jobs of their own (the run takes about as long as the slowest), and the job named check
+# only waits for them all: it is the status check that main's branch protection and the PM look at, and it is green only
+# when every other job is green. The editor's screens are split into as many parts as the matrix of the screens job lists
+# (scripts/editor-screens.mjs --shard K/N, N is the matrix's size, so a part is never left out: list 1..N there).
+#
+# A pull request that changes only files that neither `starter` nor `demo` read also skips those two (the 4 starter shards and the
+# demo): the job `changes` prints starter_demo=false, and scripts/ci-changes.mjs (needsStarterDemo) lists what is safe to skip
+# (docs, tests, .claude/, .agents/, changesets, the other workflows and the static-only check scripts); the
+# workflow, ci-changes.mjs, the Release PR, an empty diff and any other path run them (when in doubt, run). `screens`,
+# `screens-extra` and `static` are not affected.
+#
+# A docs-only pull request skips the heavy jobs (screens, screens-extra, demo, starter). The job `changes` decides from the
+# pull request's diff against its base branch (plain git, then scripts/ci-changes.mjs): docs-only means every changed file is
+# under .claude/skills/ or docs/, a changeset, or CLAUDE.md, AGENTS.md, README.md or SECURITY.md; the Release PR, an empty diff
+# and any other path run everything (when in doubt, run). release-notes/ and CHANGELOG.md are never skipped: check:release-notes,
+# the notes tests and the editor's build read them. `static` runs on every pull request. There is no workflow-level paths-ignore:
+# the job `check` is the required status check and must always report. It is green when `static` and `changes` are green and each
+# heavy job is green, or skipped on a docs-only pull request (demo and starter also when starter_demo is false; screens-extra, demo and
+# starter and starter-smoke by the level: scripts/ci-changes.mjs SKIPPED_AT); a failed, cancelled or wrongly skipped job makes it red
+# (scripts/ci-changes.mjs, tested in scripts/ci-changes.test.mjs; the rule is in .claude/skills/checks, "What CI runs").
+name: Check
+
+on:
+  pull_request:
+    branches: [main, '0.17', '0.18', '0.19', 'feature/**']
+  # THE DAILY FULL RUN (plan A5): .github/workflows/daily-full.yml dispatches this workflow on a feature branch's head with level=full. It is the same
+  # jobs, so there is one definition of the checks: the job `changes` prints the full level (no base branch, no diff), `static` skips the changeset
+  # check (the branch has no pull request into a line), and the job `check` writes the commit status `daily-full` on the head (scripts/daily-full.mjs).
+  workflow_dispatch:
+    inputs:
+      level:
+        description: 'Only full: every job runs, and the head gets the commit status daily-full.'
+        type: choice
+        options: [full]
+        default: full
+
+permissions:
+  contents: read
+  pull-requests: read
+
+# A new push to a pull request cancels that pull request's older queued and running Check runs, so only its newest head is
+# checked. The group is per pull request (its number), so runs on different pull requests never cancel each other; the
+# Release PR is a pull request like the others. The workflow has no push trigger, so a push to main or a version line is
+# never cancelled here (github.ref is only the fallback for an event without a pull request). In a cancelled run the job
+# check still runs (if: always()) and reports the cancel as cancelled, not red, only when the pull request's head is no longer this run's head (scripts/ci-changes.mjs, outcome); any other cancel stays red; the PM looks at the newest head's run.
+concurrency:
+  group: check-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Whether the pull request is docs-only (see the header). Any error here gives docs_only=false, so everything runs.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      docs_only: ${{ steps.diff.outputs.docs_only }}
+      starter_demo: ${{ steps.diff.outputs.starter_demo }}
+      level: ${{ steps.diff.outputs.level }}
+      light: ${{ steps.diff.outputs.light }}
+      areas: ${{ steps.diff.outputs.areas }}
+      format: ${{ steps.diff.outputs.format }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          BASE: ${{ github.base_ref }}
+          HEAD_REF: ${{ github.head_ref }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" = workflow_dispatch ] || ! git diff --name-only "origin/$BASE...HEAD" > changed.txt; then
+            echo "$EVENT without a diff to read: running everything"
+            echo 'docs_only=false' >> "$GITHUB_OUTPUT"
+            echo 'starter_demo=true' >> "$GITHUB_OUTPUT"
+            echo 'level=full' >> "$GITHUB_OUTPUT"
+            echo 'light=false' >> "$GITHUB_OUTPUT"
+            echo 'areas=all' >> "$GITHUB_OUTPUT"
+            echo 'format=all' >> "$GITHUB_OUTPUT"
+          else
+            cat changed.txt
+            node scripts/ci-changes.mjs classify "$HEAD_REF" "$BASE" < changed.txt | tee -a "$GITHUB_OUTPUT"
+          fi
+
+  # Prettier, the language and unit tests, types, the demo (built once by the job `build`, not again here) and each of its pages the same after a
+  # save, and the changeset. The build is the one the job `build` made from this same head (artifact `build`), so `npm run build` is not run
+  # twice; a docs-only pull request has no `build` job, so static builds there itself, as `npm run check` does. A failed `build` skips this
+  # job, which `check` turns red. Prettier checks only the changed files at the light levels (`format` from the job `changes`) and
+  # everything at the full level; tsc keeps its build info in the cache under a key made of what tsc cannot see change (scripts/ci-tsc-key.mjs).
+  static:
+    needs: [changes, build]
+    if: ${{ !cancelled() && needs.changes.result == 'success' && (needs.build.result == 'success' || needs.changes.outputs.docs_only == 'true') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # changeset status compares with origin/<the pull request's base branch>.
+          fetch-depth: 0
+      - uses: ./.github/actions/prepare
+        with:
+          build: ${{ needs.changes.outputs.docs_only != 'true' && 'true' || 'false' }}
+      - id: tsc
+        run: node scripts/ci-tsc-key.mjs >> "$GITHUB_OUTPUT"
+      # The info is restored from the newest cache with the same key prefix (same TypeScript, options and lock file); tsc compares the hash of
+      # every source file with the info itself, so a stale info cannot hide an error, and a cold run gives the same result.
+      - uses: actions/cache@v4
+        with:
+          path: .morpheme/tsc
+          key: tsc-${{ steps.tsc.outputs.key }}-${{ github.sha }}
+          restore-keys: tsc-${{ steps.tsc.outputs.key }}-
+      - name: Prettier on every file
+        if: needs.changes.outputs.format != 'changed'
+        run: npm run format:check
+      - name: Prettier on the files the pull request changed
+        if: needs.changes.outputs.format == 'changed'
+        env:
+          BASE: ${{ github.base_ref }}
+        run: git diff --name-only -z --diff-filter=d "origin/$BASE...HEAD" | xargs -0 -r npx prettier --check --ignore-unknown --no-error-on-unmatched-pattern
+      # Danish text only in the language files; scripts/check-language.mjs.
+      - run: npm run check:language
+      # The language check's and the text lookup's own tests.
+      - run: node --test lib/danish.test.mjs lib/translate.test.mjs
+      - name: The pull request has a changeset
+        if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main' # The Release PR turns the changesets into CHANGELOG.md; the daily run has no base.
+        run: npx changeset status --since=origin/${{ github.base_ref }}
+      # The version is set when a feature starts (owner, 19 Nov 2026): into main and on a feature's first pull request it is exactly one step above
+      # npm's latest and not published; scripts/version-rule.mjs, tested by version-rule.test.mjs (plan 2026-11-19-version-at-feature-start.md).
+      - name: The version is the one the feature set
+        if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main'
+        run: node scripts/version-rule.mjs check "${{ github.base_ref }}" "${{ github.head_ref }}"
+      # Setting `version` without `node scripts/starter.mjs` fails every starter shard at the merge into main (starter/package.json pins the CMS version),
+      # and the feature level skips the starter jobs; so every pull request, at every level, checks the pin here.
+      - name: The starter pins the package's version
+        run: node scripts/starter.mjs --check
+      # The language, tokens, colours and rules, the unit tests and the package's types (npm run check without Prettier and the build).
+      - run: npm run check:source
+      - name: The demo built (a docs-only pull request has no build to take)
+        if: needs.changes.outputs.docs_only == 'true'
+        run: npm run build
+      # The demo's types and each of its pages the same after a save in the editor.
+      - run: npm run check:built
+
+  # The editor and the demo built once (npm run build) for the jobs that read them: screens, screens-extra and demo unpack this one
+  # tarball instead of each running npm run build. It runs when any of them can (not on a docs-only pull request). Nothing is
+  # skipped: each of those jobs still runs all of its checks, and a failed build makes them skipped, which `check` turns red.
+  # The tarball is kept in Actions' cache under the hash of everything the build reads (scripts/ci-build-key.mjs, lib/outputKey.mjs; never
+  # file times), so a push that changes none of it (docs, a changeset) and a re-run build nothing. A cache is only read by the same pull
+  # request (and the default branch), so that is where it hits.
+  build:
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - id: key
+        run: node scripts/ci-build-key.mjs >> "$GITHUB_OUTPUT"
+      - id: kept
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/build.tgz
+          key: build-${{ steps.key.outputs.key }}
+      - if: steps.kept.outputs.cache-hit != 'true'
+        uses: ./.github/actions/prepare
+      - if: steps.kept.outputs.cache-hit != 'true'
+        run: npm run build
+      # A tarball, not a list of files: it keeps the link .morpheme/demo/site/node_modules and the file modes.
+      - if: steps.kept.outputs.cache-hit != 'true'
+        run: tar -czf "$RUNNER_TEMP/build.tgz" .morpheme/demo/site node_modules/@morphemecms/cms
+      - uses: actions/upload-artifact@v5
+        with:
+          name: build
+          path: ${{ runner.temp }}/build.tgz
+          compression-level: 0
+          retention-days: 1
+          overwrite: true
+          if-no-files-found: error
+
+  # Every screen of the editor on the built demo, on a phone and on a computer, in parts that run side by side.
+  screens:
+    needs: [changes, build]
+    if: needs.changes.outputs.docs_only != 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/prepare
+        with:
+          build: 'true'
+          browser: 'true'
+      # --areas: `all` (the full level, or in doubt), `none` (the core units only) or the touched areas besides the core units.
+      - run: npm run check:screens:shard -- ${{ matrix.shard }}/${{ strategy.job-total }} --areas "${{ needs.changes.outputs.areas || 'all' }}"
+
+  # The checks that run once over the whole built demo (saving twice, unlisted pages, the preview).
+  screens-extra:
+    needs: [changes, build]
+    if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.light != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/prepare
+        with:
+          build: 'true'
+          browser: 'true'
+      - run: npm run check:screens:extra
+
+  # The demo built with the standard theme.
+  demo:
+    needs: [changes, build]
+    # The line level runs it (plan A4); the feature level skips it.
+    if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.starter_demo != 'false' && (needs.changes.outputs.light != 'true' || needs.changes.outputs.level == 'line')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      # The package copy that check:demo imports comes from the job build (npm run build makes it).
+      - uses: ./.github/actions/prepare
+        with:
+          build: 'true'
+      - run: npm run check:demo
+
+  # The starter as a new site with the package from npm pack: its own checks (with check:worker) and its build.
+  # With its screens: every screen of the editor on the starter too, so the checks sites run never lean on the demo's content.
+  # The screens part is split like the demo's (--shard K/N, N is the matrix's size); the rest of the starter's checks run in each part.
+  starter:
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.starter_demo != 'false' && needs.changes.outputs.light != 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    steps:
+      - uses: actions/checkout@v5
+      # The starter packs the package and builds the starter itself, so it has no build to take from the job build.
+      - uses: ./.github/actions/prepare
+        with:
+          browser: 'true'
+      - run: npm run check:starter -- --screens --shard ${{ matrix.shard }}/${{ strategy.job-total }}
+
+  # The starter smoke test (the line level, plan A4): the same pack, install, checks and build as the shards, then only the editor's core screens
+  # on the starter's content and a page edited, saved twice and published (scripts/check-starter.mjs --smoke). The full level runs the 4 shards instead.
+  starter-smoke:
+    needs: changes
+    if: needs.changes.outputs.docs_only != 'true' && needs.changes.outputs.starter_demo != 'false' && needs.changes.outputs.level == 'line'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/prepare
+        with:
+          browser: 'true'
+      - run: npm run check:starter -- --smoke
+
+  # THE RELEASE GATE (owner, 18 Nov 2026): on the Release PR only (branch changeset-release/main), red until npm's `next` was built from the code
+  # being released and staging runs it (scripts/release-gate.mjs --check; publish.yml runs the same before latest is staged). On every other
+  # pull request it is skipped. It needs no build and no `changes`; `check` waits for it. STAGING_URL is a repository variable.
+  release-gate:
+    if: github.event_name == 'pull_request' && github.head_ref == 'changeset-release/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # The pull request's merge commit; its first parent is the main commit being released.
+          fetch-depth: 2
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: node scripts/release-gate.mjs --check
+        env:
+          STAGING_URL: ${{ vars.STAGING_URL }}
+
+  # The one status check that is required: green when static and changes are green and every heavy job is green, or skipped on a
+  # docs-only pull request (a failed or wrongly skipped one fails it, a run cancelled because a newer push replaced its head does not, any other cancel does; scripts/ci-changes.mjs).
+  check:
+    if: always()
+    needs: [changes, static, build, screens, screens-extra, demo, starter, starter-smoke, release-gate]
+    runs-on: ubuntu-latest
+    # statuses: write only for the daily run's mark on the branch's head (scripts/daily-full.mjs); nothing else is written.
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@v5
+      # The daily full run (plan A5): mark the head tested with the commit status daily-full, then stop. success or failure only; a cancelled run
+      # writes nothing (the next day's run tries again), so a cancel is never a red mark.
+      - name: Mark the branch head (daily run)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          NEEDS: ${{ toJson(needs) }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "$NEEDS"
+          STATE=$(echo "$NEEDS" | node scripts/daily-full.mjs mark)
+          echo "daily-full on ${{ github.sha }}: ${STATE:-no mark (cancelled)}"
+          if [ -n "$STATE" ]; then
+            gh api "repos/${{ github.repository }}/statuses/${{ github.sha }}" -f state="$STATE" -f context=daily-full \
+              -f description="Full check of $GITHUB_REF_NAME, $(date -u +%F)" -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          fi
+          [ "$STATE" != failure ]
+      - if: github.event_name == 'pull_request'
+        env:
+          NEEDS: ${{ toJson(needs) }}
+          DOCS_ONLY: ${{ needs.changes.outputs.docs_only }}
+          STARTER_DEMO: ${{ needs.changes.outputs.starter_demo }}
+          LEVEL: ${{ needs.changes.outputs.level }}
+          GH_TOKEN: ${{ github.token }}
+          RUN_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          echo "$NEEDS"
+          # The pull request's head now. A failed lookup leaves it empty, and an empty head is never "superseded": the run stays red.
+          CURRENT_HEAD=$(gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}" --jq .head.sha || true)
+          echo "run head $RUN_HEAD, current head ${CURRENT_HEAD:-unknown}"
+          echo "$NEEDS" | node scripts/ci-changes.mjs verdict "$DOCS_ONLY" "$STARTER_DEMO" "$LEVEL" "$RUN_HEAD" "$CURRENT_HEAD"

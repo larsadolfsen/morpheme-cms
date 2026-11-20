@@ -1,0 +1,6 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root {
+  /* The same for a chip set that scrolls (ui.css). */
+  --mo-comp-chip-set-bleed: var(--mo-comp-theme-page-gutter);
+}

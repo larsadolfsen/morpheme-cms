@@ -1,0 +1,4 @@
+#!/bin/sh
+# Before a push, the checks Cloudflare runs before it builds (npm run check, the build command in wrangler.jsonc), so a
+# push that would fail there stops here. npm install turns this on (`prepare` in package.json). git push --no-verify skips it.
+exec npm run check

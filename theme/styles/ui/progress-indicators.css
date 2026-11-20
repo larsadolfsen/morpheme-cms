@@ -1,0 +1,301 @@
+/*
+  Progress indicators (LinearProgressIndicator, CircularProgressIndicator, linearProgressIndicatorClass,
+  circularProgressIndicatorClass; m3.material.io/components/progress-indicators): the value is --mo-comp-progress-indicator-progress (0 to 1) on
+  the element. .mo-linear-progress-indicator with .mo-linear-progress-indicator__active, -track (after a gap) and -stop (the
+  stop indicator at the end); .mo-circular-progress-indicator, an <svg> with .mo-circular-progress-indicator__track and
+  -active; each with -indeterminate when the value is not known (the line's two stretches run along it, the arc grows
+  and turns, without the track), -thick with a thick track, and -wavy with the active indicator a wave (M3
+  Expressive): the line's an SVG path (.mo-linear-progress-indicator__active in .mo-linear-progress-indicator__wave over the
+  flat track) flowing along, the ring's nine waves round it, turning slowly.
+    --mo-comp-progress-indicator-linear-active-indicator-thickness, -radius, -active, -track, -gap, -stop-size, -thick-height
+    --mo-comp-circular-progress-indicator-size, -thickness (in 48ths of the size), -active, -track, -gap (in hundredths of the
+    ring, with the round ends: 0 for none), -thick-thickness, -thick-size, -wavy-size, -wavy-thick-size
+  Moved here from ui.css with its rules and keyframes unchanged and in their order; imported by base.css right after ui.css, in the same layer.
+  The reduced-motion rules of the loading indicator and the progress indicators (one @layer fallback block, shared with the tooltip's) are in reduced-motion.css.
+  (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* Linear progress indicator: the active indicator, a gap and the track, with the stop indicator at its end. */
+  .mo-linear-progress-indicator {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem);
+    overflow: hidden;
+    border-radius: var(--mo-comp-linear-progress-indicator-radius, var(--mo-sys-shape-corner-full));
+  }
+  .mo-linear-progress-indicator__active,
+  .mo-linear-progress-indicator__track {
+    position: absolute;
+    inset-block: 0;
+    border-radius: inherit;
+  }
+  .mo-linear-progress-indicator__active {
+    left: 0;
+    width: calc(var(--mo-comp-progress-indicator-progress, 0) * 100%);
+    background: var(--mo-comp-linear-progress-indicator-active, var(--mo-sys-block-accent));
+    transition: width var(--mo-sys-motion-spring-default-spatial);
+  }
+  /* The gap only once there is something before it. */
+  .mo-linear-progress-indicator__track {
+    right: 0;
+    left: calc(
+      var(--mo-comp-progress-indicator-progress, 0) * 100% + var(--mo-comp-linear-progress-indicator-gap, 0.25rem) *
+        min(1, var(--mo-comp-progress-indicator-progress, 0) * 1000)
+    );
+    background: var(--mo-comp-linear-progress-indicator-track, var(--mo-sys-block-tint));
+    transition: left var(--mo-sys-motion-spring-default-spatial);
+  }
+  .mo-linear-progress-indicator__stop {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: var(--mo-comp-linear-progress-indicator-stop-size, 0px);
+    height: var(--mo-comp-linear-progress-indicator-stop-size, 0px);
+    translate: 0 -50%;
+    border-radius: var(--mo-sys-shape-corner-full);
+    background: var(--mo-comp-linear-progress-indicator-active, var(--mo-sys-block-accent));
+  }
+  .mo-linear-progress-indicator__indeterminate {
+    background: var(--mo-comp-linear-progress-indicator-track, var(--mo-sys-block-tint));
+  }
+  .mo-linear-progress-indicator__indeterminate > .mo-linear-progress-indicator__active {
+    width: auto;
+    animation: linear-progress-indicator-first 2.1s var(--mo-sys-block-ease) infinite;
+    transition: none;
+  }
+  .mo-linear-progress-indicator__indeterminate > .mo-linear-progress-indicator__active + .mo-linear-progress-indicator__active {
+    animation-name: linear-progress-indicator-second;
+    animation-delay: 1.15s;
+  }
+
+  /* Circular progress indicator: the arc from the top, clockwise, a gap and the track. */
+  .mo-circular-progress-indicator {
+    display: inline-block;
+    flex-shrink: 0;
+    width: var(--mo-comp-circular-progress-indicator-size, 2.5rem);
+    height: var(--mo-comp-circular-progress-indicator-size, 2.5rem);
+  }
+  .mo-circular-progress-indicator > svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    rotate: -90deg;
+  }
+  .mo-circular-progress-indicator circle {
+    stroke-width: var(--mo-comp-progress-indicator-circular-active-indicator-thickness, 4);
+    stroke-linecap: round;
+  }
+  .mo-circular-progress-indicator__active {
+    stroke: var(--mo-comp-circular-progress-indicator-active, var(--mo-sys-block-accent));
+    stroke-dasharray: calc(var(--mo-comp-progress-indicator-progress, 0) * 100) 100;
+    transition: stroke-dasharray var(--mo-sys-motion-spring-default-spatial);
+  }
+  /* Nothing of the arc at 0, not even its round end. */
+  .mo-circular-progress-indicator:not(.mo-circular-progress-indicator__indeterminate) .mo-circular-progress-indicator__active {
+    opacity: min(1, calc(var(--mo-comp-progress-indicator-progress, 0) * 1000));
+  }
+  /* The track after the arc and its gaps (only once there is an arc), and nothing of it once the arc reaches round. */
+  .mo-circular-progress-indicator__track {
+    stroke: var(--mo-comp-circular-progress-indicator-track, var(--mo-sys-block-tint));
+    stroke-dasharray: 0 calc(var(--mo-comp-progress-indicator-progress, 0) * 100 + var(--mo-comp-circular-progress-indicator-shown-gap))
+      max(0, var(--mo-comp-circular-progress-indicator-rest)) 100;
+    opacity: min(1, max(0, var(--mo-comp-circular-progress-indicator-rest) * 10));
+    transition: stroke-dasharray var(--mo-sys-motion-spring-default-spatial);
+  }
+  .mo-circular-progress-indicator__indeterminate > svg {
+    animation: circular-progress-indicator-turn 1.4s linear infinite;
+  }
+  .mo-circular-progress-indicator__indeterminate .mo-circular-progress-indicator__active {
+    animation: circular-progress-indicator-arc 1.4s var(--mo-sys-block-ease) infinite;
+    transition: none;
+  }
+
+  /* Wavy (M3 Expressive): the active indicator a wave (the part's SVG path, its height and length the part's
+     --mo-comp-linear-progress-indicator-amplitude and -wavelength) flowing along the flat track; the line as high as the wave.
+     Its dashes are measured along the path, so the part gives how much longer the wave is than the line
+     (--mo-comp-linear-progress-indicator-stretch), and a percentage of the line's SVG (141.4214% is its width) where it is. */
+  .mo-linear-progress-indicator__wavy {
+    height: calc(
+      var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem) + 2 * var(--mo-comp-linear-progress-indicator-amplitude)
+    );
+    overflow: visible;
+    border-radius: 0;
+    background: none;
+  }
+  .mo-linear-progress-indicator__wavy > .mo-linear-progress-indicator__track {
+    inset-block: auto;
+    top: 50%;
+    height: var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem);
+    border-radius: var(--mo-comp-linear-progress-indicator-radius, var(--mo-sys-shape-corner-full));
+    translate: 0 -50%;
+  }
+  .mo-linear-progress-indicator__wave {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+  .mo-linear-progress-indicator__wave > .mo-linear-progress-indicator__active {
+    fill: none;
+    stroke: var(--mo-comp-linear-progress-indicator-active, var(--mo-sys-block-accent));
+    stroke-width: var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem);
+    stroke-linecap: round;
+    translate: 0 50%;
+  }
+  /* Determinate: from the start of the line (its round end at the start) to the value, the wave flowing in from the
+     start, and nothing at 0. */
+  .mo-linear-progress-indicator__wavy:not(.mo-linear-progress-indicator__indeterminate) .mo-linear-progress-indicator__active {
+    stroke-dasharray: max(
+        0px,
+        calc(
+          var(--mo-comp-linear-progress-indicator-stretch) *
+            (
+              var(--mo-comp-progress-indicator-progress, 0) * 141.4214% -
+                var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem)
+            )
+        )
+      )
+      100000px;
+    stroke-dashoffset: calc(
+      -1 * var(--mo-comp-linear-progress-indicator-stretch) *
+        (
+          var(--mo-comp-linear-progress-indicator-wavelength) +
+            var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem) / 2
+        )
+    );
+    opacity: min(1, calc(var(--mo-comp-progress-indicator-progress, 0) * 1000));
+    transition: stroke-dasharray var(--mo-sys-motion-spring-default-spatial);
+    animation: linear-progress-indicator-flow 1.5s linear infinite;
+  }
+  /* Indeterminate: the two stretches of the wave running along the line, as the flat one's. */
+  .mo-linear-progress-indicator__wavy.mo-linear-progress-indicator__indeterminate .mo-linear-progress-indicator__active {
+    animation: linear-progress-indicator-wave-first 2.1s var(--mo-sys-block-ease) infinite;
+  }
+  .mo-linear-progress-indicator__wavy.mo-linear-progress-indicator__indeterminate
+    .mo-linear-progress-indicator__active
+    + .mo-linear-progress-indicator__active {
+    animation-name: linear-progress-indicator-wave-second;
+    animation-delay: 1.15s;
+  }
+  /* The ring's wave: nine waves round it, a little further in, in a ring a little bigger (a thick one bigger still),
+     turning slowly while its arc stands still (a thick one's six waves). */
+  .mo-circular-progress-indicator path {
+    stroke-width: var(--mo-comp-progress-indicator-circular-active-indicator-thickness, 4);
+    stroke-linecap: round;
+  }
+  .mo-circular-progress-indicator__wavy:not(.mo-circular-progress-indicator__indeterminate) .mo-circular-progress-indicator__active {
+    stroke-dasharray: calc(var(--mo-comp-progress-indicator-progress, 0) * 100)
+      calc(100 - var(--mo-comp-progress-indicator-progress, 0) * 100);
+    transform-box: view-box;
+    transform-origin: 50% 50%;
+    animation: circular-progress-indicator-flow 3s linear infinite;
+  }
+  .mo-circular-progress-indicator__wavy.mo-circular-progress-indicator__thick:not(.mo-circular-progress-indicator__indeterminate)
+    .mo-circular-progress-indicator__active {
+    animation-name: circular-progress-indicator-flow-thick;
+  }
+}
+@keyframes linear-progress-indicator-first {
+  0% {
+    left: -35%;
+    right: 100%;
+  }
+  60%,
+  100% {
+    left: 100%;
+    right: -90%;
+  }
+}
+@keyframes linear-progress-indicator-second {
+  0% {
+    left: -200%;
+    right: 100%;
+  }
+  60%,
+  100% {
+    left: 107%;
+    right: -8%;
+  }
+}
+@keyframes circular-progress-indicator-turn {
+  from {
+    rotate: -90deg;
+  }
+  to {
+    rotate: 270deg;
+  }
+}
+/* A wavy one's wave flowing on by one wavelength (its arc, or its line's dash, staying where it is). */
+@keyframes linear-progress-indicator-flow {
+  to {
+    translate: calc(-1 * var(--mo-comp-linear-progress-indicator-wavelength)) 50%;
+    stroke-dashoffset: calc(
+      -1 * var(--mo-comp-linear-progress-indicator-stretch) *
+        (
+          2 * var(--mo-comp-linear-progress-indicator-wavelength) +
+            var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem) / 2
+        )
+    );
+  }
+}
+@keyframes circular-progress-indicator-flow {
+  to {
+    rotate: 40deg;
+    stroke-dashoffset: 11.1111;
+  }
+}
+@keyframes circular-progress-indicator-flow-thick {
+  to {
+    rotate: 60deg;
+    stroke-dashoffset: 16.6667;
+  }
+}
+/* A wavy line's stretches, from and to where the flat line's run (a fraction of the line's width at the start and
+   the end, as a dash along the wave from one wavelength before the line). */
+@keyframes linear-progress-indicator-wave-first {
+  0% {
+    stroke-dasharray: calc(var(--mo-comp-linear-progress-indicator-stretch) * 0.35 * 141.4214%) 100000px;
+    stroke-dashoffset: calc(
+      -1 * var(--mo-comp-linear-progress-indicator-stretch) * (var(--mo-comp-linear-progress-indicator-wavelength) - 0.35 * 141.4214%)
+    );
+  }
+  60%,
+  100% {
+    stroke-dasharray: calc(var(--mo-comp-linear-progress-indicator-stretch) * 0.9 * 141.4214%) 100000px;
+    stroke-dashoffset: calc(
+      -1 * var(--mo-comp-linear-progress-indicator-stretch) * (var(--mo-comp-linear-progress-indicator-wavelength) + 141.4214%)
+    );
+  }
+}
+@keyframes linear-progress-indicator-wave-second {
+  0% {
+    stroke-dasharray: calc(var(--mo-comp-linear-progress-indicator-stretch) * 2 * 141.4214%) 100000px;
+    stroke-dashoffset: calc(
+      -1 * var(--mo-comp-linear-progress-indicator-stretch) * (var(--mo-comp-linear-progress-indicator-wavelength) - 2 * 141.4214%)
+    );
+  }
+  60%,
+  100% {
+    stroke-dasharray: calc(var(--mo-comp-linear-progress-indicator-stretch) * 0.01 * 141.4214%) 100000px;
+    stroke-dashoffset: calc(
+      -1 * var(--mo-comp-linear-progress-indicator-stretch) * (var(--mo-comp-linear-progress-indicator-wavelength) + 1.07 * 141.4214%)
+    );
+  }
+}
+@keyframes circular-progress-indicator-arc {
+  0% {
+    stroke-dasharray: 1 100;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 70 100;
+    stroke-dashoffset: -15;
+  }
+  100% {
+    stroke-dasharray: 70 100;
+    stroke-dashoffset: -99;
+  }
+}

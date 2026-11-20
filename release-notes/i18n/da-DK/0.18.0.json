@@ -1,0 +1,708 @@
+{
+  "version": "0.18.0",
+  "date": "2026-11-18",
+  "notes": [
+    {
+      "id": "crop-view",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Beskæring",
+      "text": "En lille ramme gjorde det svært at placere et billede. Tryk på et billede, vælg Beskær, og træk eller knib i billedet i en visning for sig selv; det, der ligger uden for rammen, er mørkere. Billedformat bestemmer rammen, og Original viser hele billedet."
+    },
+    {
+      "id": "image-tools-bar",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Billedværktøjer",
+      "text": "Alt til et billede er samlet ét sted. Tryk på et billede i teksten, så viser værktøjslinjen Skift billede, Beskær, Alternativ tekst og Fjern. Flyt op og Flyt ned bliver i rækken over billedet."
+    },
+    {
+      "id": "block-icons-widgets",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Blokikoner",
+      "text": "Blokknapper er lettere at kende fra andre plus- og tandhjulsknapper. Indsæt blok i tekstværktøjslinjen viser widgets-ikonet med et plus, og Blokindstillinger viser det med et lille tandhjul. Tilføj tag og indstillinger for hjemmesiden beholder deres egne ikoner."
+    },
+    {
+      "id": "shared-globals-focus-ring",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Fokusring",
+      "text": "Du kan se, hvor tastaturet er. Alle dele viser den samme ring i din primærfarve, 3 dp tyk, når du når dem med Tab. Hover, tryk og deaktiveret ser ud som før."
+    },
+    {
+      "id": "rail-look",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Hjemmesidens menu",
+      "text": "Menuen på en telefon er ikke bredere, end punkterne kræver. Knappen øverst lukker den med et menuikon, og panelet har en ny baggrundsfarve. Punkter og undersider er som før."
+    },
+    {
+      "id": "block-settings-pane",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Indstillingsrude",
+      "text": "Siden bliver stående, mens du ændrer noget. Indstillinger for blokke, sektioner, links, lister, widgets og omdirigeringer åbner i en rude til højre, og det gør en fils detaljer også. Ændringer af en blok gælder med det samme, og Fortryd tager én tilbage. På en telefon er det stadig en side."
+    },
+    {
+      "id": "paste-lines-as-items",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Indsæt en liste",
+      "text": "En liste kopieret fra et dokument lander ikke længere som én lang linje. Indsæt den i en tom Liste, Trin, Segmenteret liste, FAQ-liste, Kort eller Tabel, så bliver hver linje et punkt, og tabulatorer deler en tabels celler. Tekst med overskrifter indsættes, som den er."
+    },
+    {
+      "id": "page-discard-button",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Kassér",
+      "text": "En forkert ændring koster ikke længere siden. Tryk på Kassér i starten af bundlinjen for at smide dine ændringer og en gemt kladde væk. Siden går tilbage til sin udgivne version, når du bekræfter."
+    },
+    {
+      "id": "buttons-no-elevated",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Knapstile",
+      "text": "Knapper ser ikke længere flade og grå ud på siden. Vælg Fyldt, Tonet, Med ramme eller Tekst under Indstillinger › Variant. Hævet er væk; knapper, der brugte den, vises som Tonet, og morpheme migrate gemmer dem sådan."
+    },
+    {
+      "id": "command-palette",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Kommandopalette",
+      "text": "Du skal ikke klikke dig gennem menuerne for at finde en skærm eller en side. Tryk Ctrl+K eller på søgeikonet øverst, skriv et navn, og tryk Enter for at gå derhen. Det, du valgte sidst, står først og bliver i denne browser."
+    },
+    {
+      "id": "cards-same-parts",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Kort",
+      "text": "Kort ser ens ud overalt. Kort, Priskort, Besked, Billedgitter, relaterede indlæg og forslaget på 404-siden har samme kortdesign: billede, titel, en lille underoverskrift, så tekst og knapper. Kort, du allerede har lavet, beholder deres indhold."
+    },
+    {
+      "id": "card-images",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Kortbilleder",
+      "text": "Kort beskærer ikke længere alle billeder til 3:2. Vælg Billedformat for billeder i kortblokkens indstillinger, så følger alle kort det; beskær hvert korts billede for at vælge, hvilken del der vises."
+    },
+    {
+      "id": "list-expand-design",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Listedesign",
+      "text": "En liste kan stå på siden eller på hver sin flade. Åbn Rediger på en Liste eller en Liste - Udvid, og vælg Design: Almindelig eller Segmenteret. En segmenteret liste fra før er nu en Liste med designet Segmenteret eller en Liste - Udvid og ser ud som før."
+    },
+    {
+      "id": "list-columns-setting",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Listekolonner",
+      "text": "Lange lister er nogle gange nemmere at læse i én kolonne. I indstillingerne for en liste, Segmenteret liste, FAQ-liste, Accordion, liste med blogindlæg eller liste med udtalelser kan du slå Kolonner fra, så rækkerne står i én kolonne. Slået til står rækkerne i så mange kolonner, som der er plads til, som før."
+    },
+    {
+      "id": "footer-theme-toggle",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Lys og mørk",
+      "text": "Besøgende kan vælge det udseende, de bedst kan lide. Sidefoden har en indstilling for farvetema med Lys, Auto og Mørk. Auto følger systemet, og valget huskes."
+    },
+    {
+      "id": "text-heading-styles",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Overskrifter i tekst",
+      "text": "Hvert overskriftsniveau i en tekst har sin egen størrelse. Overskrifter, citater og de mindste overskrifter bruger nu temaets tekststile, i editoren og på hjemmesiden. Overskrift 2 til 4 er, som de var."
+    },
+    {
+      "id": "saves-go-live-sooner",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Rettelser går hurtigere live",
+      "text": "En rettelse når din hjemmeside cirka et minut hurtigere, fordi en opbygning, der kun ændrer indhold, springer kodetjekkene over. Næste Morpheme-opdatering flytter din hjemmeside til den hurtigere opbygning af sig selv. En ny Morpheme-version kører stadig alle tjek."
+    },
+    {
+      "id": "no-page-top-image",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Sidens overskrift",
+      "text": "Sidens hovedoverskrift har ikke længere et baggrundsbillede, så alle sidens billeder står i teksten. Farve og bredde ligger stadig i Sektionsindstillinger, og blogindlæg beholder deres billede øverst."
+    },
+    {
+      "id": "change-to-list-blocks",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Skift type",
+      "text": "En blok skal ikke længere bygges forfra for at få et andet udseende. Åbn blokkens ⋮-menu, vælg Skift type, og vælg en anden listeblok eller en tabel. Titler og tekster flytter med, og ikoner, billeder og links gemmes, til du skifter tilbage."
+    },
+    {
+      "id": "shared-globals-shadows-states-focus",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Skygger i hvile",
+      "text": "Hævede dele står tydeligere frem fra siden. Menuer, ark, dialoger, navigationslinjen og hævede kort viser deres skygge, også før du peger på dem. Alt andet ser ud som før."
+    },
+    {
+      "id": "search-view-m3",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Søgevisning",
+      "text": "Det går hurtigere at finde noget. Tryk på Søg, så ligger dine seneste søgninger under feltet. Filtre indsnævrer resultaterne til Handlinger, Sider, Indlæg, Billeder eller Filer, og hvert resultat har et ikon eller et billede."
+    },
+    {
+      "id": "text-measure",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Tekstbredde",
+      "text": "Lange linjer er svære at læse. Afsnit og overskrifter er 40 til 60 tegn brede. Rækkerne i lister, accordions og lister med blogindlæg står i så mange kolonner, som der er plads til, op til tre, og Trin er højst 720 pixels bredt. Kort, billeder og tabeller har sidens fulde bredde."
+    },
+    {
+      "id": "token-contract-6",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Tema- og appkontrakt",
+      "text": "Temaer og apps lavet til niveau 5 virker ikke, før deres udviklere opdaterer dem, fordi designtokens har fået nye navne fra Material 3. Butik viser kun temaer og apps på niveau 6, så opdater, når de kommer. Udviklere: THEME_API og APP_API er 6, se docs/theme-token-files.md."
+    },
+    {
+      "id": "choice-group-fields",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Valg af stil",
+      "text": "Valg som en knaps stil bliver ikke længere klemt sammen i et smalt ark. Når de ikke kan være på én linje, vises de som en liste med ét valg pr. række, og knapstilen viser et lille eksempel på hver. Korte valg står stadig side om side."
+    },
+    {
+      "id": "card-media-bottom-corners",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Billedet eller videoen øverst på et kort har afrundede nederste hjørner"
+    },
+    {
+      "id": "remove-banner-block",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Blokken Banner er fjernet; brug i stedet en sektion med overskrift, tekst og Knapper"
+    },
+    {
+      "id": "accordion-name",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Blokken Foldeliste hedder Accordion"
+    },
+    {
+      "id": "block-row-in-outline",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Blokkens knapper sidder inde i dens stiplede kant, vises når du peger på en blok og skubber ikke længere blokken ned"
+    },
+    {
+      "id": "block-handle-top-left",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Blokkens trækhåndtag sidder i dens øverste venstre hjørne og vises kun på den aktive blok"
+    },
+    {
+      "id": "platform-real-names",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Cloudflare og GitHub bruger deres rigtige navne, fx R2-bucket, Cloudflare API-token, Workers Paid og R2-caching og builds"
+    },
+    {
+      "id": "anchor-positioned-menus",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Dropdown-menuer bliver inden for vinduet og dækker aldrig deres knap"
+    },
+    {
+      "id": "url-everywhere",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Editoren siger URL i stedet for adresse om en webadresse, fx Anden URL og Kopiér URL"
+    },
+    {
+      "id": "select-one-verb",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Editoren siger Vælg overalt, hvor du vælger noget"
+    },
+    {
+      "id": "button-xsmall-32",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Ekstra små knapper er lavere, som Material 3 Expressive foreskriver"
+    },
+    {
+      "id": "no-focus-on-page-open",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En bloks side og Beskær åbner uden fokusramme om tilbage-pilen"
+    },
+    {
+      "id": "label-heading-gap",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En etiket sidder tæt over sin overskrift på forsiden"
+    },
+    {
+      "id": "carousel-container-query",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En karrusel i en smal kolonne eller et ark i siden viser lige så mange elementer, som der er plads til i dens egen bredde"
+    },
+    {
+      "id": "list-full-width",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En liste i designet Almindelig har fuld bredde på en telefon: en trykket række når skærmens kant"
+    },
+    {
+      "id": "list-leading",
+      "kind": "line",
+      "mark": "feature",
+      "text": "En liste og en liste, der foldes ud, kan indlede rækkerne med en avatar, et kvadratisk billede eller et liggende billede"
+    },
+    {
+      "id": "list-row-edge",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En liste starter ikoner og tekst på samme venstre kant som teksten over den"
+    },
+    {
+      "id": "list-columns-container-query",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En listerække har overskrift og tekst under hinanden i en smal kolonne og kun side om side, når rækken er bred"
+    },
+    {
+      "id": "one-list-editor",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En segmenteret liste redigerer rækkerne som en liste, med linkikonet i slutningen af rækken"
+    },
+    {
+      "id": "content-always-open",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En side eller et indlæg åbner kun med Indhold foldet ud, og Indhold kan ikke længere foldes sammen"
+    },
+    {
+      "id": "video-change-link",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En valgt video har Skift link i værktøjslinjen"
+    },
+    {
+      "id": "card-video-keeps-box",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En video i et kort beholder sin størrelse, når du afspiller den, så kortet ikke længere vokser"
+    },
+    {
+      "id": "open-row-room",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En åben række i en accordion har mindre luft under teksten og er rund i alle fire hjørner"
+    },
+    {
+      "id": "sheet-no-focus-on-open",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Et ark i siden åbner uden fokusramme om et felt"
+    },
+    {
+      "id": "cards-click-hover-row",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Et klik på et korts overskrift redigerer kortet i stedet for knapperne over det"
+    },
+    {
+      "id": "card-text-optional",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Et korts tekst er valgfri"
+    },
+    {
+      "id": "dialog-initial-focus",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Et pop op-vindue på hjemmesiden åbner uden ramme om den første knap"
+    },
+    {
+      "id": "number-field-words",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Et talfelt siger Skriv et tal, når det du skriver ikke er et tal"
+    },
+    {
+      "id": "user-invalid-text-field",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Et tekstfelt viser først, hvad der er forkert, når du forlader det, med rettelsen under feltet"
+    },
+    {
+      "id": "token-faulty-values",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Et tema med en forkert farve, størrelse eller tid ødelægger ikke længere siden"
+    },
+    {
+      "id": "faq-is-list-expand",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "FAQ-listen er nu en Liste - Udvid med indstillingen Markér som FAQ, og en rækkes tekst kan have fed, kursiv, links og lister"
+    },
+    {
+      "id": "sheet-grid-margin",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Felter og knapper i et bundark flugter med siden bag det"
+    },
+    {
+      "id": "standard-field-names",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Felterne bruger deres standardnavne, fx alternativ tekst, primært søgeord, maksimalt antal rækker og lightboxens etiketter"
+    },
+    {
+      "id": "checklist-material-mark",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Fluebenet i en tjekliste er et Material Symbols-flueben, på sitet og i editoren"
+    },
+    {
+      "id": "devices-preview-icon",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Forhåndsvisning har en skærm med en telefon overalt i editoren"
+    },
+    {
+      "id": "preview-in-the-bar",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Forhåndsvisning ligger i tekstværktøjslinjen, Se på hjemmesiden ligger i Mere, og Ctrl+S gemmer siden"
+    },
+    {
+      "id": "preview-as-page",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Forhåndsvisning åbner som en side med en tilbage-pil, og tilbage fører til formularen med dine ændringer"
+    },
+    {
+      "id": "web-guidance-small-findings",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Formularfelter og rullebjælker følger systemets lyse eller mørke udseende, og ark passer til skærmen på en telefon"
+    },
+    {
+      "id": "continue-no-close",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Fortsæt, hvor du slap har ingen lukkeknap og bliver på startskærmen"
+    },
+    {
+      "id": "google-preview-light-dark",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Google-forhåndsvisningen og SEO-score følger editorens lyse eller mørke valg"
+    },
+    {
+      "id": "cms-update-at-night",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Hjemmesiden ser efter en ny version af Morpheme én gang i døgnet, om natten, i stedet for hver time"
+    },
+    {
+      "id": "cards-no-empty-subhead",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Hævede kort har altid deres skygge, og kort i editoren viser ingen tom underoverskrift, før du trykker i dem"
+    },
+    {
+      "id": "post-meta-gap",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "I Blogindlæg står datoen tæt over hvert indlægs titel"
+    },
+    {
+      "id": "menu-type-ahead",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "I editorens menuer går et bogstav til det næste punkt, der begynder med det"
+    },
+    {
+      "id": "post-meta-one-line",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "I en indlægsliste på en telefon står dato og læsetid på én linje i længere sprog som dansk"
+    },
+    {
+      "id": "list-buttons-row",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "I en liste med en rækkegrænse står Vis mere og knappen under listen på én række, og en åben række i en almindelig liste, der foldes ud, har en baggrund"
+    },
+    {
+      "id": "focus-on-section",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "I sidens tekst sidder fokusrammen om den sektion eller blok, du er i, ikke om hele editoren"
+    },
+    {
+      "id": "favicon-name",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Ikonet i browserfanen hedder Favicon, under Virksomheden › Logo og favicon"
+    },
+    {
+      "id": "focus-indicators",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Ikonknappen i en række i editoren har en tydelig ring, når du når den med tastaturet"
+    },
+    {
+      "id": "blog-list-headline",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Indlægstitler i bloglisten har samme tekststørrelse som andre lister"
+    },
+    {
+      "id": "one-settings-icon",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Indstillinger for blokke, sektioner og billeder har samme ikon, og blyanten åbner kun en liste, så du kan redigere den"
+    },
+    {
+      "id": "list-menu-768",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Knappen Listemenu på en listes side åbner sin menu i et vindue af middel bredde"
+    },
+    {
+      "id": "button-label-variant",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Knaptekst hedder Knapetiket, og knappers og korts stil hedder Variant"
+    },
+    {
+      "id": "sidebar-name",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Kolonnen ved siden af teksten hedder Sidebar, med Sidebar til venstre og Sidebar til højre som sidelayout"
+    },
+    {
+      "id": "switches-on-off",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Kontakter og deres status siger Til og Fra, og en kontakts navn er indstillingens navn"
+    },
+    {
+      "id": "cards-gutter-gap",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Kort, priskort og felter har mere luft mellem sig, ligesom billedgitteret"
+    },
+    {
+      "id": "dashboard-cards-gap",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Kortene på startskærmen sidder i kolonner uden tomt rum under et kort"
+    },
+    {
+      "id": "dashboard-widget-span",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Kortene på startskærmen står i to kolonner på en telefon, og en widget kan være i fuld bredde eller én kolonne"
+    },
+    {
+      "id": "list-columns-look",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Lister i kolonner har kun streger mellem rækkerne og de rigtige hjørner på en bred skærm"
+    },
+    {
+      "id": "standard-feature-names",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Lister og skærmen Komponenter bruger standardnavnene, og arket med links gemmes med Gem"
+    },
+    {
+      "id": "lists-expressive-states",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Listerækker viser et blødt lag, når du peger på dem, og får rundere hjørner, når du trykker, i stedet for at skifte farve og flytte sig"
+    },
+    {
+      "id": "flat-select-circle",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Markeringscirklen på en blok har ingen skygge og ligner en del af blokkens stiplede kant"
+    },
+    {
+      "id": "alt-sheet-caret",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Når du har sat et billede ind, og arket Alternativ tekst lukker, bliver markøren stående efter billedet"
+    },
+    {
+      "id": "sheet-close-hide-wording",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Når du lukker et ark med ændringer, bliver du spurgt, om de skal blive på siden"
+    },
+    {
+      "id": "alt-text-sheet",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Når du vælger et billede, bliver du med det samme bedt om dets alternative tekst"
+    },
+    {
+      "id": "chevron-opens-row",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Pilen på en række i en Segmenteret liste eller Spørgsmål og svar åbner og lukker rækken i editoren"
+    },
+    {
+      "id": "price-cards-subhead",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Priskort viser prisen og dens enhed i kortets underoverskrift under navnet"
+    },
+    {
+      "id": "editor-text-width",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "På en computer er editorens skærme lige så brede som teksten på din hjemmeside"
+    },
+    {
+      "id": "notifications-page",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "På en telefon er Notifikationer en side med en tilbage-pil"
+    },
+    {
+      "id": "section-settings-page",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "På en telefon er Sektionsindstillinger en side med en tilbage-pil"
+    },
+    {
+      "id": "save-bar-bottom-sheet",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "På en telefon ser Gem på en bloks side og i Beskær ud som Gem på siden"
+    },
+    {
+      "id": "footer-two-columns",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "På en telefon står sidefodens links i to kolonner"
+    },
+    {
+      "id": "files-image-full-screen",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "På en telefon åbner en fil i Filer som en side for sig med en tilbagepil, billedet øverst, og Forrige og Næste skifter til den næste fil"
+    },
+    {
+      "id": "brand-buttons-change",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "På Logo og favicon hedder knapperne Skift logo, Skift favicon og Opret ud fra logo"
+    },
+    {
+      "id": "brand-buttons-below",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "På Logo og favicon sidder knapperne under logoet og faviconet med kortere tekster"
+    },
+    {
+      "id": "files-date-in-filter",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "På siden Filer er datoen en gruppe i filteret"
+    },
+    {
+      "id": "dashboard-edit-below",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "På startskærmen er Rediger dashboard en knap under widgetterne, ikke en blyant i topbjælken"
+    },
+    {
+      "id": "files-filter-clear-all",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Ryd alle i filterarket på Filer fjerner alle filtre på én gang"
+    },
+    {
+      "id": "seo-standard-names",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "SEO-felterne bruger deres standardnavne: Metatitel, Metabeskrivelse, Canonical URL, Open Graph-billede, -titel og -beskrivelse og Uddrag"
+    },
+    {
+      "id": "even-edges-line",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Sideeditorens tekst og blokke starter ved samme venstrekant"
+    },
+    {
+      "id": "sheet-close-hide-wording-hide",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Skjul og Vis er ordene for en blok, du holder væk fra siden"
+    },
+    {
+      "id": "search-segmented-list",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Søgeforslag og resultater er rækker på hver sin flade med små mellemrum"
+    },
+    {
+      "id": "search-docked-radius",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Søgeresultater under søgelinjen har mindre hjørner"
+    },
+    {
+      "id": "palette-editor-actions",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Søgningen finder handlingerne for den tekst og den blok, du er i, som Fed eller Tilføj række under, og kører dem"
+    },
+    {
+      "id": "palette-polish",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Søgningen viser tastaturgenvejene, kan rydde dine seneste handlinger og glemmer dem, når du logger ud"
+    },
+    {
+      "id": "text-button-padding",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Tekstknapper har samme sideafstand som de andre knapper"
+    },
+    {
+      "id": "fab-above-footer",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Tilføj-knappen rykker op, når sidefoden er under den, så links i sidefoden aldrig er dækket"
+    },
+    {
+      "id": "steps-heading-aligned",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Trin: overskrifter flugter med numrene, og linjen stopper ved det sidste"
+    },
+    {
+      "id": "list-labels",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Tydeligere navne i listeindstillingerne: Medie, Rækkeindstillinger og Etiket for Vis mere"
+    },
+    {
+      "id": "video-thumbnail",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Video har et felt til Miniature med dit eget billede"
+    }
+  ]
+}

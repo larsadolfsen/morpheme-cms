@@ -1,0 +1,282 @@
+// The forms and their fields (fields.tsx, EntryForm.tsx, DataForm.tsx, SectionsField.tsx, PagePicker.tsx, schema.ts).
+export const forms = {
+  nothingToSave: 'There are no changes to save',
+  deleteOne: (what: string) => `Delete ${what}`,
+  addOne: (what: string) => `Add ${what}`,
+  text: 'Text',
+  /** The sections of a page's or a post's form, in its navigation drawer (EntryForm.tsx): its name, the text, and the
+   * first, with a page's title, status and template (a post's status). */
+  sections: { title: 'Sections', content: 'Content', pageSettings: 'Page settings', postSettings: 'Post settings' },
+  otherFields: 'Other fields',
+  seo: 'Search engines',
+  /** The section after it: the image, title and description when the page is shared, under a preview of how a link
+   * to it looks (SharePreview in ui.tsx). */
+  share: 'Social media',
+  sharePreview: 'How a link to the page looks when it is shared',
+  /** A list of links (LinkList.tsx: social media's profiles): the FAB and the sheet's title for a new one, what the list
+   * says without one, the field's name and what is under it (`found`: the network known by the address), its buttons,
+   * and what is wrong. */
+  links: {
+    add: 'Add link',
+    none: 'No links yet. Add one with the + button.',
+    address: 'URL',
+    hint: 'Paste the URL of a profile, like https://www.facebook.com/…',
+    found: (network: string) => `${network} profile`,
+    addButton: 'Add',
+    done: 'Save',
+    remove: 'Remove link',
+    noAddress: 'Write a URL',
+    twice: 'The link is already in the list',
+  },
+  /** The preview of the Google result at the top of "Search engines" (SearchPreview.tsx): the name of its tabs, the tabs and
+   * what a screen reader says of the result. */
+  searchPreview: {
+    on: 'Google result on',
+    mobile: 'Mobile',
+    desktop: 'Desktop',
+    result: 'Preview of the Google result',
+  },
+  /** What a tag's page says about itself when it is shared without a meta description (the site's text, Category.astro). */
+  tagShared: (n: number, name: string) => `${n} ${n === 1 ? 'post' : 'posts'} about ${name.toLowerCase()}.`,
+  /** The SEO rating at the top of "Search engines" (seo.ts): its heading and what each check says; `post`: a
+   * blog post (its title is its H1), else a page; `n`: how many (headings, characters). */
+  seoRating: {
+    title: 'SEO rating',
+    noH1: 'The text has no main heading',
+    oneH1: 'The text has one main heading',
+    manyH1: (n: number) => `The text has ${n} main headings, but should have only one`,
+    h1First: 'The main heading is at the top of the text',
+    h1NotFirst: 'The main heading isn’t at the top of the text',
+    noTitle: (post: boolean) => `There’s no meta title, so the ${post ? "post's" : "page's"} title is used`,
+    longTitle: (n: number) => `The meta title has ${n} characters, so Google may cut it off after about 60`,
+    goodTitle: (n: number) => `The meta title has a good length (${n} characters)`,
+    /** `short`: there is a "Excerpt", used instead. */
+    noDescription: (short: boolean) =>
+      `There’s no meta description, so ${short ? 'the excerpt' : "the website's general description"} is used`,
+    noDescriptionFrom: (what: string) => `There’s no meta description, so ${what} is used`,
+    fromIntro: 'the introduction',
+    fromCount: 'a text with the number of posts',
+    shortDescription: (n: number) => `The meta description is short (${n} characters), so there is room for more`,
+    longDescription: (n: number) => `The meta description is long (${n} characters), so Google may cut it off`,
+    goodDescription: (n: number) => `The meta description has a good length (${n} characters)`,
+    keywordInH1: (word: string, post: boolean, found: boolean) =>
+      `The keyword "${word}" is ${found ? '' : 'not '}in the ${post ? 'title' : 'main heading'}`,
+    keywordInText: (word: string, found: boolean) => `The keyword "${word}" is ${found ? '' : 'not '}in the first paragraph`,
+    /** "No index" (noindex) is ticked. */
+    noindex: (post: boolean) => `The ${post ? 'post' : 'page'} is hidden from Google`,
+    /** "Canonical URL" is a page the editor does not know. */
+    noCanonical: 'The canonical URL points to a page that doesn’t exist',
+    allAlt: 'All images have an alt text',
+    noAlt: (n: number) => `${n} ${n === 1 ? 'image has' : 'images have'} no alt text`,
+    goodLinks: (n: number): string => (n === 1 ? 'The link has a descriptive text' : 'The links have descriptive text'),
+    /** The first link whose text is only "click here", "read more" and the like. */
+    vagueLink: (text: string) => `The link "${text}" doesn’t say where it leads`,
+    /** How to do better, under a check that is not fine when it is folded out. */
+    fixNoH1: 'Write the page’s heading at the top of the text, as a Heading.',
+    fixManyH1: 'Make the others Heading or Subheading.',
+    fixH1First: 'Move the main heading up, so it comes first in the text.',
+    fixTitle: 'Write a meta title of at most about 60 characters.',
+    fixDescription: 'Write a meta description of about 140–155 characters.',
+    fixKeywordInH1: (post: boolean) => `Use the keyword in the ${post ? 'title' : 'main heading'}.`,
+    fixKeywordInText: 'Use the keyword in the first paragraph.',
+    fixNoindex: (post: boolean) => `Turn off No index if the ${post ? 'post' : 'page'} should be found.`,
+    fixCanonical: 'Select a page that exists, or select No page.',
+    fixAlt: 'Tap each image, select Edit, and describe it in the Alt text field.',
+    fixLink: 'Write what the link leads to, for example, "See the prices."',
+  },
+  /** Over the places that use an entry (a tag), DataForm.tsx. */
+  usedOn: 'Used on',
+  address: 'URL',
+  writeAddress: 'Write the URL with letters or digits.',
+  /** A page or post that is published in steps (EntryForm.tsx): a draft, the live version and changes waiting. `post`: a blog post, else a page. */
+  versions: {
+    publish: 'Publish',
+    /** The switch at the top of a page with changes waiting (VersionSwitch.tsx). */
+    switchLabel: 'Version to edit',
+    /** The notice under the switch (VersionSwitch.tsx WaitingNotice). */
+    noticeLiveTitle: 'You are editing the published version',
+    noticeLive: 'What you save here goes on the website at once. A draft is waiting and stays as it is.',
+    noticeWaitingTitle: 'This is a draft',
+    noticeWaiting: 'These changes are not on the website yet. Select Publish to put them there.',
+    noticeScheduled: (when: string) => `These changes go on the website ${when}. Until then the website shows the published version.`,
+    /** Before Publish, when the published version was changed after the waiting changes were saved. */
+    overwriteTitle: 'Replace the published version?',
+    overwriteText: (post: boolean) =>
+      `The ${post ? 'post' : 'page'} on the website was changed after these changes were saved. Publishing replaces it with these changes.`,
+    live: 'Published',
+    scheduled: 'Scheduled',
+    draft: 'Draft',
+    switchTitle: 'Switch version?',
+    switchText: 'What you haven’t saved is lost.',
+    switchAction: 'Switch',
+    editingLive: 'Editing the published version',
+    schedule: 'Schedule',
+    cancelSchedule: 'Cancel schedule',
+    scheduleTitle: 'Select when it goes live',
+    scheduleText: (post: boolean) =>
+      `The ${post ? 'post' : 'page'} goes on the website at this time, and until then the website shows the version it has. The website updates within an hour of the time.`,
+    scheduleTime: 'Date',
+    scheduleNeedsFuture: 'Select a date and time that has not passed.',
+    scheduleWithAddress: 'Save the new URL first, then schedule.',
+    /** The line under the title, and the message after scheduling; `when`: "Nov 20 at 8:00 AM". */
+    scheduledLine: (when: string) => `Scheduled · ${when}`,
+    savedScheduled: (when: string) => `Scheduled. It goes on the website ${when}.`,
+    scheduledCancelled: (what: string) => `Schedule for ${what} cancelled`,
+    unpublish: 'Unpublish',
+    discardDraft: 'Discard draft',
+    /** The Save button while the changes are kept as a draft. */
+    saveDraft: 'Save',
+    /** The top bar's line under the title. */
+    draftLine: 'Draft',
+    waitingLine: 'Unpublished changes',
+    publishedLine: (when: string) => `Published · Changed ${when}`,
+    /** The line under the title while changes to a published page are not saved yet (autosave, with R2 caching on). */
+    autosave: {
+      saving: 'Saving…',
+      saved: 'Saved',
+      notSaved: 'Not saved',
+      /** After opening a page that had changes the editor kept for you. */
+      restored: 'Your unsaved changes are back',
+    },
+    /** After saving changes to a published page: the website keeps the version it has. */
+    savedWaiting: 'Draft saved. The website shows the published version until you publish.',
+    unpublishTitle: (post: boolean) => `Unpublish this ${post ? 'post' : 'page'}?`,
+    unpublishText: (post: boolean) =>
+      `The ${post ? 'post' : 'page'} leaves the website and becomes a draft. Changes that wait to be published stay.`,
+    discardTitle: 'Discard your changes?',
+    /** `published`: the page or post has a published version to go back to; else it goes back to its last saved version. */
+    discardText: (post: boolean, published: boolean) =>
+      `The ${post ? 'post' : 'page'} goes back to its ${published ? 'published' : 'last saved'} version.`,
+    addressWaiting: 'Publish or discard the changes before you change the URL.',
+    standardPage: 'This page is selected as a default page, so it must stay published.',
+    /** Names of what changed, for the message after a save (`what`: the page or post). */
+    published: (what: string) => `${what} published`,
+    unpublished: (what: string) => `${what} unpublished`,
+    discarded: (what: string) => `Changes to ${what} discarded`,
+    /** The commits. */
+    commit: {
+      saveChanges: (singular: string, what: string) => `Editor: save changes to ${singular} ${what}`,
+      schedule: (singular: string, what: string, at: string) => `Editor: schedule ${singular} ${what} for ${at}`,
+      cancelSchedule: (singular: string, what: string) => `Editor: cancel the schedule of ${singular} ${what}`,
+      publish: (singular: string, what: string) => `Editor: publish ${singular} ${what}`,
+      unpublish: (singular: string, what: string) => `Editor: unpublish ${singular} ${what}`,
+      discard: (singular: string, what: string) => `Editor: discard changes to ${singular} ${what}`,
+    },
+  },
+  /** The commits; `what` is a name or a file name in quotation marks. */
+  commit: {
+    create: (create: string, what: string) => `Editor: ${create.toLowerCase()} ${what}`,
+    edit: (what: string) => `Editor: edit ${what}`,
+    editOne: (singular: string, what: string) => `Editor: edit ${singular} ${what}`,
+    move: (singular: string, from: string, to: string) => `Editor: move ${singular} from ${from} to ${to}`,
+  },
+  /** A blog post or page (EntryForm.tsx); `post`: a blog post, else a page. */
+  entry: {
+    titleTakenTitle: 'Title already used',
+    titleTakenText: (post: boolean) =>
+      `Another ${post ? 'post' : 'page'} has this title. Save with the suggested title, or write your own.`,
+    titleStillTaken: 'Another file has that title too. Try this one, or write your own.',
+    titleLabel: 'Title',
+    /** An empty row in a block typed in place when the page is saved; `name`: the block ("List - Expand"), `word`: its row ("row"). */
+    emptyRow: (name: string, word: string) => `You have an empty ${name.toLowerCase()} ${word}.`,
+    removeItem: 'Remove item',
+    /** A block typed in place with no row at all when the page is saved; `items`: its rows ("rows"). */
+    emptyBlock: (name: string, items: string) => `${name} has no ${items}. The block will be deleted.`,
+    deleteAndPublish: 'Delete and publish',
+    deleteAndSave: 'Delete and save draft',
+    deleteAndSchedule: 'Delete and schedule',
+    titleNeedsLetters: 'The title must have letters or digits.',
+    /** Planlagt (scheduled), with a time that has passed. */
+    scheduledPast: 'The time has already passed. Select a later time, or select Published.',
+    /** The page is a standard page ("Front page", "Blog page" …, chosen `where`: "Udseende › Standardsider")
+     * and was made Kladde or Planlagt. */
+    standardPage: (label: string, where: string) =>
+      `The page is selected as ${label} under ${where} and must be published. Select another page there first.`,
+    redirectsNotLoaded: (error: string) => `Couldn’t load the redirects: ${error}`,
+    takenTitle: (address: string) => `The URL ${address} is taken`,
+    /** The address sends visitors on to `name`, and `via` other addresses send on through it. */
+    takenText: (address: string, name: string, via: number, post: boolean) =>
+      `It currently sends visitors on to ${name}. If you remove the redirect, they come to ${post ? 'this post' : 'this page'} instead.`,
+    freeAndSave: 'Remove the redirect and save',
+    pickOther: 'Choose another URL',
+    otherTitle: 'Another URL',
+    otherText: (post: boolean) => `Write the URL the ${post ? 'post' : 'page'} should have.`,
+    /** An address that is taken (`reason`), and what to do: another address, or (a new one) another title. */
+    taken: (reason: string, typed: boolean, post: boolean) =>
+      `${reason} ${typed ? 'Choose another URL' : `Give the ${post ? 'post' : 'page'} another title`}.`,
+    fileExists: (name: string) => `There’s already a file named ${name}.md. Choose another URL.`,
+    empty: (post: boolean) => `${post ? 'An empty blog post' : 'An empty page'} can’t be saved.`,
+    movedTitle: 'Redirect created',
+    movedText: (address: string, old: string, post: boolean, where: string) =>
+      `The ${post ? 'post' : 'page'} now has the URL ${address}. The old URL, ${old}, now redirects here.`,
+    ok: 'OK',
+    seeRedirects: 'See redirects',
+  },
+  /** An entry of a folder or a single file (DataForm.tsx). */
+  nameNeedsLetters: 'The name must have letters or digits.',
+  /** The fields (fields.tsx). */
+  fromTitle: 'Created from the title the first time you save the page.',
+  noIcon: 'No icon',
+  /** Under a page's templates while the side-panel ones are greyed: the link to Globals › Side column. */
+  chooseSideColumn: 'Select a block for the sidebar',
+  iconCategory: 'Icon categories',
+  showMoreIcons: 'Show more',
+  iconCategories: {
+    suggested: 'Suggested',
+    arrows: 'Arrows',
+    communication: 'Communication',
+    people: 'People',
+    business: 'Business',
+    shopping: 'Shopping',
+    travel: 'Travel',
+    food: 'Food',
+    nature: 'Nature',
+    home: 'Home',
+    education: 'Education',
+    health: 'Health',
+    media: 'Media',
+    devices: 'Devices',
+    time: 'Time',
+    files: 'Files',
+    social: 'Social',
+    actions: 'Actions',
+  },
+  searchIcons: 'Search icons',
+  noIconsFound: 'No icons found',
+  pickIcon: 'Select an icon',
+  noIconYet: 'No icon yet',
+  changeIcon: 'Change icon',
+  fixedPages: 'Default pages',
+  pages: 'Pages',
+  choose: 'Select…',
+  /** Nothing chosen, as a choice in the list. */
+  noChoice: 'None',
+  /** A value that is not among the choices (a removed page). */
+  missing: (value: string) => `${value} (doesn’t exist)`,
+  changeImage: 'Change image',
+  pickImage: 'Select image',
+  add: 'Add',
+  noneFound: 'No results',
+  removeOne: (what: string) => `Remove ${what}`,
+  /** An item of a list or the menu, when the field has no `singular`. */
+  item: 'item',
+  theItem: 'the item',
+  numbered: (what: string, n: number) => `${what} ${n}`,
+  itemTitle: 'Item',
+  empty: '(empty)',
+  removeQuestion: (what: string) => `Remove ${what}?`,
+  removeWithChildren: (what: string, n: number) =>
+    `Remove ${what}? ${n === 1 ? 'The item' : `The ${n} items`} under it will be removed too.`,
+  showChildrenOf: (name: string) => `Show the items under ${name}`,
+  hideChildrenOf: (name: string) => `Hide the items under ${name}`,
+  editOne: (name: string) => `Edit ${name}`,
+  /** Picking a page (PagePicker.tsx). */
+  pickPage: 'Select page',
+  pickPageEllipsis: 'Select page…',
+  noPage: 'No page',
+  searchPages: 'Search the pages',
+  noPages: 'No results',
+  /** The filter of the pages by whether the menu links to them, and its choices. */
+  menuFilter: 'Menu',
+  menuShown: { all: 'All', in: 'In the menu', out: 'Not in the menu' },
+};

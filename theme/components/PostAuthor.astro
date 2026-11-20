@@ -1,0 +1,20 @@
+---
+// The author of a blog post: a round image (when the site has one), the name and the role under it.
+// Props: name, role, portrait. A theme may replace this file to redesign the author.
+import Img from '@theme/components/Img.astro';
+
+interface Props {
+  name: string;
+  role?: string;
+  portrait?: string;
+}
+const { name, role, portrait } = Astro.props;
+---
+
+<div class="mo-row mo-post-author">
+  {portrait && <Img src={portrait} alt="" loading="eager" class="mo-post-author__portrait" sizes="44px" />}
+  <div class="mo-post-author__text">
+    <span class="mo-post-author__name">{name}</span>
+    {role && <span class="mo-type-body-medium mo-post-author__role">{role}</span>}
+  </div>
+</div>

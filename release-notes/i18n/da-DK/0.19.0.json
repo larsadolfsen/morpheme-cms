@@ -1,0 +1,12 @@
+{
+  "version": "0.19.0",
+  "date": "2026-11-19",
+  "notes": [
+    {
+      "id": "mo-names-content",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Tekststile og ordfarver på dine sider får nye interne navne; opdateringen ændrer dem på dine sider sammen med versionen, og efter en manuel installation kører du npx morpheme migrate"
+    }
+  ]
+}

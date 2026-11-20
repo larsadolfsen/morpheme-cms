@@ -1,0 +1,7 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  .mo-choice-group {
+    --mo-sys-target-size: 3rem;
+  }
+}

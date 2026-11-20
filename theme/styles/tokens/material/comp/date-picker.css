@@ -1,0 +1,17 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Date pickers: the dialog's high surface container and third elevation, a docked one with large corners; the
+     headline regular in the headline-large size, the month and year and the supporting text in on-surface-variant, the
+     line under the header in outline variant; days in 40px circles with a state layer, the range's band in the
+     secondary container. */
+  --mo-comp-date-picker-docked-radius: var(--mo-sys-shape-corner-large);
+  --mo-comp-date-picker-day-radius: var(--mo-sys-shape-corner-full);
+  --mo-comp-date-picker-supporting-color: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-date-picker-menu-button-text: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-date-picker-day-hover: var(--mo-sys-state-mo-hover-layer);
+  --mo-comp-date-picker-range-surface: var(--mo-sys-color-surface-container-high);
+}

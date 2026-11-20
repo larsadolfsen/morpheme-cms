@@ -1,0 +1,82 @@
+/*
+  Material is every theme's fallback: its rules that set more than custom properties sit in @layer fallback (declared last in
+  base.css), so a theme's own unlayered rules win over them, whatever the specificity. Custom properties stay unlayered.
+
+  The theme's UI components, named as Material 3 names them (m3.material.io/components): what the blocks, the apps and
+  the theme's own components (components/, layouts/) draw their controls with, through the parts in ../ui/ (Button.tsx,
+  IconButton.tsx) or, in an Astro component, their classes (buttonClass, iconButtonClass). Only the names, the kinds,
+  the parts and the states are Material's; how they look is the theme's. What is here is the standard look, made from
+  the blocks' variables (--block-*, blocks.css), so it follows every theme's colours, corners and motion. Every
+  transition and animation takes one of the site's motion scheme's springs (--motion-spatial-…, --motion-effects-…:
+  blocks.css, lib/motion.ts), which the owner chooses under "Motion": what moves, grows or changes shape the spatial
+  ones (fast for what answers a press), a colour, a shadow or a fade the effects ones.
+
+  A theme changes it with the variables below, in :root in its styles/global.css, and with rules on the classes in
+  @layer components where a variable is not enough (a state: pointed at, pressed). Each variable is read where the
+  component is, with the blocks' variable as its fallback, so a surface can set them for what is on it (the buttons on
+  a panel in the accent). Every theme imports this file: base.css does, and a theme that writes all its CSS itself
+  imports it with blocks.css.
+
+
+  The rules themselves are in the files imported below, one for each part, in the order they had in this file (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@import './tokens/ui/comp/avatar.css';
+@import './tokens/ui/comp/badge.css';
+@import './tokens/ui/comp/button.css';
+@import './tokens/ui/comp/card.css';
+@import './tokens/ui/comp/carousel.css';
+@import './tokens/ui/comp/checkbox.css';
+@import './tokens/ui/comp/divider.css';
+@import './tokens/ui/comp/icon-button.css';
+@import './tokens/ui/comp/lightbox.css';
+@import './tokens/ui/comp/list.css';
+@import './tokens/ui/comp/loading-indicator.css';
+@import './tokens/ui/comp/menu.css';
+@import './tokens/ui/comp/navigation.css';
+@import './tokens/ui/comp/progress-indicator.css';
+@import './tokens/ui/comp/radio.css';
+@import './tokens/ui/comp/side-sheet.css';
+@import './tokens/ui/comp/slider.css';
+@import './tokens/ui/comp/split-button.css';
+@import './tokens/ui/comp/switch.css';
+@import './tokens/ui/comp/text-field.css';
+@import './tokens/ui/comp/time-picker.css';
+@import './tokens/ui/comp/toolbar.css';
+@import './tokens/ui/registry.css';
+@import './tokens/ui/ref.css';
+@import './tokens/ui/sys.css';
+@import './ui/target-size.css';
+@import './ui/buttons.css';
+@import './ui/text-field.css';
+@import './ui/checkbox.css';
+@import './ui/chips.css';
+@import './ui/dialog.css';
+@import './ui/lightbox.css';
+@import './ui/bottom-sheet.css';
+@import './ui/card.css';
+@import './ui/list.css';
+@import './ui/top-app-bar.css';
+@import './ui/menus.css';
+@import './ui/navigation-drawer.css';
+@import './ui/tabs.css';
+@import './ui/fab.css';
+@import './ui/button-groups.css';
+@import './ui/fab-menu.css';
+@import './ui/switch.css';
+@import './ui/radio-button.css';
+@import './ui/slider.css';
+@import './ui/divider.css';
+@import './ui/side-sheet.css';
+@import './ui/avatar.css';
+@import './ui/badge.css';
+@import './ui/loading-indicator.css';
+@import './ui/progress-indicators.css';
+@import './ui/snackbar.css';
+@import './ui/tooltip.css';
+@import './ui/navigation-bar.css';
+@import './ui/navigation-rail.css';
+@import './ui/search.css';
+@import './ui/toolbar.css';
+@import './ui/pickers.css';
+@import './ui/ripple.css';
+@import './ui/reduced-motion.css';

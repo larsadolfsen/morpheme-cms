@@ -1,0 +1,33 @@
+/* The Material theme's look of the text's images and iframes (large corners) and of the testimonial's mark without an image (an avatar with the name's first letter).
+   Moved here from global.css with its rules unchanged and in their order; imported by global.css (never by base.css: a theme that imports only base.css
+   must not get Material's values) before material/navigation.css, as the rules were before the navigation's. No rule left in global.css is in the same layer, and the
+   components layer's rules never beat the fallback layer's, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md). */
+
+@layer fallback {
+  /* Long text: images with large corners. */
+  .mo-prose :where(img):not(:where(.mo-is-not-prose img)),
+  .mo-site-picture__crop,
+  .mo-prose :where(iframe) {
+    border-radius: var(--mo-sys-shape-corner-large);
+  }
+
+  /* The mark before the name on a testimonial without an image: an avatar, a circle in the highest surface container
+   (it stands on a container) with the name's first letter (data-initial, Testimonial.tsx), as Material's avatars
+   without an image, not the standard theme's dot. */
+  .mo-block-testimonials__testimonial-mark {
+    display: grid;
+    width: 2.5rem;
+    height: 2.5rem;
+    place-items: center;
+    border-radius: var(--mo-sys-shape-corner-full);
+    background: var(--mo-sys-color-surface-container-highest);
+    color: var(--mo-sys-color-on-surface);
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
+    line-height: 1;
+  }
+  .mo-block-testimonials__testimonial-mark::before {
+    content: attr(data-initial);
+  }
+}

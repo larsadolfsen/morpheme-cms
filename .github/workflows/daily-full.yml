@@ -1,0 +1,36 @@
+# The daily full run on feature branches. Plan: docs/superpowers/plans/2026-11-18-build-and-check-speed.md, "A5 as built"; skill checks, "What CI runs".
+#
+# Once a day it lists the feature/** branches and, for each one whose head has no `daily-full` commit status yet and has no full run going, dispatches
+# check.yml (workflow_dispatch, level=full) on it: the same jobs as the pull request check, so there is ONE definition of the checks. The job `check`
+# of that run writes the commit status `daily-full` (success or failure) on the head it tested; a cancelled run writes nothing. scripts/daily-full.mjs
+# decides (tested in scripts/daily-full.test.mjs): at most 6 runs a day, none for a head that already has a daily-full (green or red: it has not changed since).
+#
+# It merges, publishes, tags and releases nothing. `actions: write` is needed only to dispatch check.yml (the script names no other workflow); `contents: read`
+# and `statuses: read` to list branches and read the marks. A scheduled workflow runs only from the default branch, so this file takes effect when it is in `main`.
+name: Daily full run
+
+on:
+  schedule:
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  statuses: read
+  actions: write
+
+concurrency:
+  group: daily-full
+  cancel-in-progress: false
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+      - run: node scripts/daily-full.mjs dispatch
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

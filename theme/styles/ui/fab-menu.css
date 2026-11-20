@@ -1,0 +1,232 @@
+/*
+  Split button (SplitButton, splitButtonClass): .mo-split-button, the main action (.mo-button, .mo-split-button__leading) and
+  joined to it the arrow (.mo-button, .mo-split-button__trailing, aria-expanded, its .mo-split-button__arrow turned while the menu
+  is open), and the theme's .mo-menu (.mo-split-button__menu) under it, at its end; in the Button's five sizes, the arrow's
+  button as wide as the button is high.
+    --mo-comp-split-button-gap, --mo-comp-split-button-menu-gap
+    --mo-comp-split-button-medium-inner-corner-corner-size (up to medium), --mo-comp-split-button-large-inner-corner-corner-size, --mo-comp-split-button-xlarge-inner-corner-corner-size
+  FAB menu (FabMenu, fabMenuClass): .mo-fab-menu with its colour set, .mo-fab-menu__primary, .mo-fab-menu__secondary or
+  .mo-fab-menu__tertiary; its .mo-fab in any size and colour (.mo-fab-menu__button, aria-expanded: .mo-fab-menu__icon, or while open
+  the close button: .mo-fab-menu__close-icon, the close size and corners and the set's filled colour, the FAB's
+  --fab-<colour>-… variables) and .mo-fab-menu__list above it at its end, each action an .mo-extended-fab (.mo-fab-menu__item) in
+  the set's container colour (.mo-fab__primary-container …). It keeps the place of a medium or large FAB while that is the
+  smaller close button.
+    --mo-comp-fab-menu-gap, --mo-comp-fab-menu-item-gap, --mo-comp-fab-menu-close-size, --mo-comp-fab-menu-close-radius, --mo-comp-fab-menu-close-icon-size
+  Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
+  the same property on these parts at the same specificity, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* Split buttons (m3.material.io/components/split-button): the main action and its arrow, joined. */
+  .mo-split-button {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+    gap: var(--mo-comp-split-button-gap, 0.125rem);
+  }
+  .mo-split-button > .mo-split-button__leading {
+    border-start-end-radius: var(--mo-comp-split-button-inner);
+    border-end-end-radius: var(--mo-comp-split-button-inner);
+  }
+  /* The arrow's button as wide as the button is high, in each size. */
+  .mo-split-button > .mo-split-button__trailing {
+    width: var(--mo-comp-button-box);
+    padding: 0;
+    border-start-start-radius: var(--mo-comp-split-button-inner);
+    border-end-start-radius: var(--mo-comp-split-button-inner);
+  }
+  .mo-split-button > .mo-split-button__trailing[aria-expanded='true'] {
+    border-radius: var(--mo-sys-shape-corner-full);
+  }
+  .mo-split-button__arrow {
+    transition: rotate var(--mo-sys-motion-spring-default-spatial);
+  }
+  [aria-expanded='true'] > .mo-split-button__arrow {
+    rotate: 180deg;
+  }
+  .mo-split-button__menu {
+    position: absolute;
+    top: calc(100% + var(--mo-comp-split-button-menu-gap, 0.25rem));
+    inset-inline-end: 0;
+    z-index: 20;
+    transition:
+      opacity var(--mo-sys-motion-spring-default-effects),
+      translate var(--mo-sys-motion-spring-fast-spatial);
+  }
+  .mo-split-button__menu[hidden] {
+    display: none;
+  }
+  @starting-style {
+    .mo-split-button__menu {
+      opacity: 0;
+      translate: 0 -0.25rem;
+    }
+  }
+
+  /* FAB menu (m3.material.io/components/fab-menu): the FAB, and its actions above it. */
+  .mo-fab-menu {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
+  /* The place of the FAB that opened it, while that is the smaller close button (its bottom end stays where it was). */
+  .mo-fab-menu:has(> .mo-fab__medium) {
+    min-width: var(--mo-comp-fab-medium-size, 5rem);
+    min-height: var(--mo-comp-fab-medium-size, 5rem);
+  }
+  .mo-fab-menu:has(> .mo-fab__large) {
+    min-width: var(--mo-comp-fab-large-size, 6rem);
+    min-height: var(--mo-comp-fab-large-size, 6rem);
+  }
+  /* Above the close button, which stands at the bottom end. */
+  .mo-fab-menu__list {
+    position: absolute;
+    bottom: calc(var(--mo-comp-fab-menu-close-size, var(--mo-comp-fab-size, 3.5rem)) + var(--mo-comp-fab-menu-gap, 0.5rem));
+    inset-inline-end: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--mo-comp-fab-menu-item-gap, 0.25rem);
+  }
+  .mo-fab-menu__list[hidden] {
+    display: none;
+  }
+  .mo-fab-menu__list > li {
+    transition:
+      opacity var(--mo-sys-motion-spring-default-effects),
+      translate var(--mo-sys-motion-spring-default-spatial);
+  }
+  @starting-style {
+    .mo-fab-menu__list > li {
+      opacity: 0;
+      translate: 0 0.75rem;
+    }
+  }
+  /* The one nearest the FAB first. */
+  .mo-fab-menu__list > li:nth-last-child(2) {
+    transition-delay: 30ms;
+  }
+  .mo-fab-menu__list > li:nth-last-child(3) {
+    transition-delay: 60ms;
+  }
+  .mo-fab-menu__list > li:nth-last-child(4) {
+    transition-delay: 90ms;
+  }
+  .mo-fab-menu__list > li:nth-last-child(n + 5) {
+    transition-delay: 120ms;
+  }
+  .mo-fab-menu__button {
+    transition:
+      box-shadow var(--mo-sys-motion-spring-default-effects),
+      background-color var(--mo-sys-motion-spring-default-effects),
+      color var(--mo-sys-motion-spring-default-effects),
+      height var(--mo-sys-motion-spring-default-spatial),
+      min-width var(--mo-sys-motion-spring-default-spatial),
+      border-radius var(--mo-sys-motion-spring-default-spatial);
+  }
+  /* Open, the FAB of any size is the close button: round, in the FAB's size, in the set's filled colour. */
+  .mo-fab-menu__button[aria-expanded='true'] {
+    height: var(--mo-comp-fab-menu-close-size, var(--mo-comp-fab-size, 3.5rem));
+    min-width: var(--mo-comp-fab-menu-close-size, var(--mo-comp-fab-size, 3.5rem));
+    border-radius: var(--mo-comp-fab-menu-close-radius, calc(var(--mo-comp-fab-menu-close-size, var(--mo-comp-fab-size, 3.5rem)) / 2));
+  }
+  .mo-fab-menu__button[aria-expanded='true'] > svg {
+    width: var(--mo-comp-fab-menu-close-icon-size, var(--mo-comp-fab-icon-size, 1.5rem));
+    height: var(--mo-comp-fab-menu-close-icon-size, var(--mo-comp-fab-icon-size, 1.5rem));
+  }
+  .mo-fab-menu__primary > .mo-fab-menu__button[aria-expanded='true'] {
+    background: var(--mo-comp-fab-primary-surface, var(--mo-sys-block-accent));
+    color: var(--mo-comp-fab-primary-text, var(--mo-sys-block-on-accent));
+  }
+  .mo-fab-menu__primary > .mo-fab-menu__button[aria-expanded='true']:hover {
+    background: var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover));
+  }
+  .mo-fab-menu__primary > .mo-fab-menu__button[aria-expanded='true']:active {
+    background: var(--mo-comp-fab-primary-pressed, var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover)));
+  }
+  .mo-fab-menu__secondary > .mo-fab-menu__button[aria-expanded='true'] {
+    background: var(--mo-comp-fab-secondary-surface, var(--mo-sys-color-secondary));
+    color: var(--mo-comp-fab-secondary-text, var(--mo-sys-color-on-secondary));
+  }
+  .mo-fab-menu__secondary > .mo-fab-menu__button[aria-expanded='true']:hover {
+    background: var(
+      --mo-comp-fab-secondary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-secondary)
+      )
+    );
+  }
+  .mo-fab-menu__secondary > .mo-fab-menu__button[aria-expanded='true']:active {
+    background: var(
+      --mo-comp-fab-secondary-pressed,
+      var(
+        --mo-comp-fab-secondary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-secondary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-secondary)
+        )
+      )
+    );
+  }
+  .mo-fab-menu__tertiary > .mo-fab-menu__button[aria-expanded='true'] {
+    background: var(--mo-comp-fab-tertiary-surface, var(--mo-sys-color-tertiary));
+    color: var(--mo-comp-fab-tertiary-text, var(--mo-sys-color-on-tertiary));
+  }
+  .mo-fab-menu__tertiary > .mo-fab-menu__button[aria-expanded='true']:hover {
+    background: var(
+      --mo-comp-fab-tertiary-hover,
+      color-mix(
+        in srgb,
+        var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+        var(--mo-sys-color-tertiary)
+      )
+    );
+  }
+  .mo-fab-menu__tertiary > .mo-fab-menu__button[aria-expanded='true']:active {
+    background: var(
+      --mo-comp-fab-tertiary-pressed,
+      var(
+        --mo-comp-fab-tertiary-hover,
+        color-mix(
+          in srgb,
+          var(--mo-sys-color-on-tertiary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+          var(--mo-sys-color-tertiary)
+        )
+      )
+    );
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mo-fab-menu__button {
+      transition: none;
+    }
+  }
+  .mo-fab-menu__button > .mo-fab-menu__close-icon {
+    display: none;
+    transition: rotate var(--mo-sys-motion-spring-default-spatial);
+  }
+  .mo-fab-menu__button[aria-expanded='true'] > .mo-fab-menu__icon {
+    display: none;
+  }
+  .mo-fab-menu__button[aria-expanded='true'] > .mo-fab-menu__close-icon {
+    display: block;
+  }
+  @starting-style {
+    .mo-fab-menu__button[aria-expanded='true'] > .mo-fab-menu__close-icon {
+      rotate: -90deg;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mo-split-button__menu,
+    .mo-split-button__arrow,
+    .mo-fab-menu__list > li,
+    .mo-fab-menu__button > .mo-fab-menu__close-icon {
+      transition: none;
+    }
+  }
+}

@@ -1,0 +1,26 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Text fields: 56px, 4px corners, the content 16px from the edges; outlined with M3's outline, on-surface when
+     pointed at and 2px in the primary colour while written in; filled in the highest container with an active
+     indicator under it (on-surface-variant, 2px in the primary colour while written in); what is wrong in the error
+     colour. The checkbox 18px, its name
+     after 16px (M3's 48px target around it). */
+  --mo-comp-filled-text-field-container-height: 3.5rem;
+  --mo-comp-text-field-padding: 1rem;
+  --mo-comp-text-field-radius: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-text-field-outlined-surface: transparent;
+  --mo-comp-outlined-text-field-outline-color: var(--mo-sys-color-outline);
+  --mo-comp-outlined-text-field-hover-outline-color: var(--mo-sys-color-on-surface);
+  --mo-comp-outlined-text-field-focus-outline-color: var(--mo-sys-color-primary);
+  --mo-comp-filled-text-field-container-color: var(--mo-sys-color-surface-container-highest);
+  --mo-comp-text-field-filled-line: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-text-field-filled-hover-line: var(--mo-sys-color-on-surface);
+  --mo-comp-text-field-filled-focus-line: var(--mo-sys-color-primary);
+  --mo-comp-text-field-label-surface: var(--mo-sys-color-surface);
+  --mo-comp-text-field-error: var(--mo-sys-color-error);
+  --mo-comp-text-field-disabled-opacity: var(--mo-sys-state-disabled-state-layer-opacity);
+}

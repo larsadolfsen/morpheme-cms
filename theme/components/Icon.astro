@@ -1,0 +1,16 @@
+---
+// An icon by its name, drawn by the same Svg as the blocks and the editor (@morphemecms/cms/src/icon): the theme's own
+// (icons/<name>.svg), else the icon pack in use's, else Phosphor's, else Material Symbols' by its Material name (listed by
+// check:screens); one none has as the question mark (MISSING), which check:screens finds on the built pages.
+import { Svg } from '@morphemecms/cms/src/icon';
+
+interface Props {
+  name: string;
+  size?: number;
+  class?: string;
+  label?: string;
+}
+const { name, size = 20, class: className = '', label } = Astro.props;
+---
+
+<Svg name={name} size={size} className={className} label={label} />

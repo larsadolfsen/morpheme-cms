@@ -1,0 +1,11 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  --mo-comp-progress-indicator-linear-active-indicator-thickness: 0.25rem;
+  --mo-comp-linear-progress-indicator-radius: var(--mo-sys-shape-corner-full);
+  --mo-comp-linear-progress-indicator-stop-size: 0.25rem;
+  --mo-comp-circular-progress-indicator-gap: 7;
+}

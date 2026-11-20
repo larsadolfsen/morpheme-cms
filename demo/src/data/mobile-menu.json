@@ -1,0 +1,29 @@
+{
+  "enabled": false,
+  "items": [
+    {
+      "label": "Blocks",
+      "href": "/blocks/"
+    },
+    {
+      "label": "Typography",
+      "href": "/typography/"
+    },
+    {
+      "label": "App store",
+      "href": "/app-store/"
+    },
+    {
+      "label": "Blog",
+      "href": "/blog/"
+    },
+    {
+      "label": "About",
+      "href": "/about/"
+    },
+    {
+      "label": "Contact",
+      "href": "/contact/"
+    }
+  ]
+}

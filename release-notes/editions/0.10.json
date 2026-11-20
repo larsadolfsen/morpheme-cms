@@ -1,0 +1,12 @@
+{
+  "name": "Quiraing",
+  "place": {
+    "en-US": "Quiraing, Isle of Skye, Scotland",
+    "da-DK": "Quiraing, Isle of Skye, Skotland"
+  },
+  "photo": {
+    "by": "Johnny Briggs",
+    "source": "https://unsplash.com/photos/a-scenic-view-of-a-mountain-range-with-a-winding-road-in-the-foreground-_tw49ov0oyc",
+    "license": "https://unsplash.com/license"
+  }
+}

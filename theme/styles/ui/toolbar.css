@@ -1,0 +1,89 @@
+/*
+  Toolbars (Toolbar, toolbarClass, toolbar.script.ts; m3.material.io/components/toolbars, M3 Expressive): .mo-toolbar with
+  its kind, .mo-toolbar__docked (the whole width with a line over it: the site's bar at the bottom of a phone) or .mo-toolbar__floating (a pill with its shadow, .mo-toolbar__vertical down instead of across), and
+  its colour, .mo-toolbar__standard (the surface) or .mo-toolbar__vibrant (the accent, what stands on it turned around). A
+  floating one paired with a FAB stands with it in .mo-toolbar__with-fab (.mo-toolbar__with-fab-vertical: the FAB under it),
+  and .mo-toolbar__collapsed while only the FAB is shown.
+    --mo-comp-toolbar-gap, --mo-comp-toolbar-fab-gap   the room between its actions, and between it and its FAB
+    --mo-comp-toolbar-docked-padding-block, --mo-comp-toolbar-docked-padding-inline, --mo-comp-toolbar-docked-line, --mo-comp-toolbar-docked-line-width,
+    --mo-comp-toolbar-docked-backdrop   a docked one's room, edge (its width 0 for none) and the blur behind it
+    --mo-comp-toolbar-floating-padding, --mo-comp-toolbar-floating-container-shape, --mo-comp-toolbar-floating-line, --mo-comp-toolbar-floating-shadow
+    --mo-comp-toolbar-docked-container-color, --mo-comp-toolbar-standard-text, --mo-comp-toolbar-vibrant-surface, --mo-comp-toolbar-vibrant-text
+  Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
+  the same property on these parts at the same specificity, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* Toolbars (m3.material.io/components/toolbars, M3 Expressive): a row of actions, docked or floating. */
+  .mo-toolbar {
+    display: flex;
+    align-items: center;
+    gap: var(--mo-comp-toolbar-gap, 0.5rem);
+  }
+  /* Docked: the whole width, with a line over it; how wide its actions are is the component's own (the site's bar at
+     the bottom of a phone, site-action.css). */
+  .mo-toolbar__docked {
+    justify-content: space-between;
+    padding: var(--mo-comp-toolbar-docked-padding-block, 0.75rem) var(--mo-comp-toolbar-docked-padding-inline, 1rem)
+      max(var(--mo-comp-toolbar-docked-padding-block, 0.75rem), env(safe-area-inset-bottom));
+    border-top: var(--mo-comp-toolbar-docked-line-width, 1px) solid var(--mo-comp-toolbar-docked-line, var(--mo-sys-block-line));
+    backdrop-filter: var(--mo-comp-toolbar-docked-backdrop, blur(16px));
+    /* Level 2 at rest (M3 elevation tokens: "Toolbar" 2; Toolbars, Specs: docked bottom-app-bar container elevation 2). */
+    box-shadow: var(--mo-sys-elevation-level2-rest-shadow);
+  }
+  /* Floating: a pill over the page with its shadow, across or down. */
+  .mo-toolbar__floating {
+    display: inline-flex;
+    border-radius: var(--mo-comp-toolbar-floating-container-shape, var(--mo-sys-shape-corner-full));
+    padding: var(--mo-comp-toolbar-floating-padding, 0.5rem);
+    box-shadow:
+      0 0 0 1px var(--mo-comp-toolbar-floating-line, var(--mo-sys-block-line)),
+      var(--mo-comp-toolbar-floating-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+  }
+  .mo-toolbar__vertical {
+    flex-direction: column;
+  }
+  .mo-toolbar__standard {
+    background: var(--mo-comp-toolbar-docked-container-color, color-mix(in srgb, var(--mo-sys-block-surface) 95%, transparent));
+    color: var(--mo-comp-toolbar-standard-text, var(--mo-sys-block-text));
+  }
+  /* Vibrant: in the accent, without a line; what stands on it turned around, as on a banner in the accent. */
+  .mo-toolbar__vibrant {
+    background: var(--mo-comp-toolbar-vibrant-surface, var(--mo-sys-block-accent));
+    color: var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent));
+  }
+  /* Paired with a FAB: the FAB beside a floating toolbar (under a vertical one); collapsed into it, only the FAB,
+     the toolbar shrinking towards it. */
+  .mo-toolbar__with-fab {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mo-comp-toolbar-fab-gap, 0.5rem);
+  }
+  .mo-toolbar__with-fab-vertical {
+    flex-direction: column;
+  }
+  .mo-toolbar__with-fab > .mo-toolbar {
+    transform-origin: right center;
+  }
+  .mo-toolbar__with-fab-vertical > .mo-toolbar {
+    transform-origin: center bottom;
+  }
+  .mo-toolbar__collapsed {
+    display: none;
+    opacity: 0;
+    scale: 0.6;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .mo-toolbar__with-fab > .mo-toolbar {
+      transition:
+        opacity var(--mo-sys-motion-spring-default-effects),
+        scale var(--mo-sys-motion-spring-fast-spatial),
+        display var(--mo-sys-motion-spring-fast-spatial-duration) allow-discrete;
+    }
+    @starting-style {
+      .mo-toolbar__with-fab > .mo-toolbar:not(.mo-toolbar__collapsed) {
+        opacity: 0;
+        scale: 0.6;
+      }
+    }
+  }
+}

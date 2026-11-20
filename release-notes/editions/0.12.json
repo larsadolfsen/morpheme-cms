@@ -1,0 +1,12 @@
+{
+  "name": "Matterhorn",
+  "place": {
+    "en-US": "Matterhorn, Switzerland",
+    "da-DK": "Matterhorn, Schweiz"
+  },
+  "photo": {
+    "by": "Gabriel Garcia Marengo",
+    "source": "https://unsplash.com/photos/snow-capped-mountain-with-sea-of-clouds-qJvpykJ5SKs",
+    "license": "https://unsplash.com/license"
+  }
+}

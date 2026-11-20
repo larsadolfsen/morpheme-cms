@@ -1,0 +1,107 @@
+/* The layout classes (docs/theme-layout-classes.md): a small set of named helpers for rows, stacks and columns. Each sets layout only, with logical
+   properties and tokens, never colour, shape, type or state; the part that draws something keeps its look in its own rule. They sit in @layer utilities. */
+@import './tokens/layout/comp/row.css';
+@import './tokens/layout/comp/stack.css';
+@import './tokens/layout/comp/grid.css';
+@import './tokens/layout/comp/center.css';
+@layer utilities {
+  .mo-row {
+    display: flex;
+    align-items: center;
+    gap: var(--mo-comp-row-gap);
+  }
+  .mo-row-wrap {
+    flex-wrap: wrap;
+  }
+  .mo-row-start {
+    align-items: flex-start;
+  }
+  .mo-row-end {
+    justify-content: flex-end;
+  }
+  .mo-row-between {
+    justify-content: space-between;
+  }
+  .mo-stack {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mo-comp-stack-gap);
+  }
+  .mo-grid {
+    display: grid;
+    gap: var(--mo-comp-grid-gap);
+    grid-template-columns: repeat(var(--mo-comp-grid-columns, 1), minmax(0, 1fr));
+  }
+  /* Columns per breakpoint (medium 37.5rem, expanded 52.5rem, large 75rem): one column on a phone. */
+  .mo-grid-2 {
+    --mo-comp-grid-columns: 1;
+  }
+  .mo-grid-3 {
+    --mo-comp-grid-columns: 1;
+  }
+  .mo-grid-4 {
+    --mo-comp-grid-columns: 1;
+  }
+  @media (width >= 37.5rem) {
+    .mo-grid-2,
+    .mo-grid-3,
+    .mo-grid-4 {
+      --mo-comp-grid-columns: 2;
+    }
+  }
+  @media (width >= 52.5rem) {
+    .mo-grid-3,
+    .mo-grid-4 {
+      --mo-comp-grid-columns: 3;
+    }
+  }
+  @media (width >= 75rem) {
+    .mo-grid-4 {
+      --mo-comp-grid-columns: 4;
+    }
+  }
+  .mo-fill {
+    flex: 1 1 0%;
+    min-inline-size: 0;
+  }
+  .mo-keep {
+    flex-shrink: 0;
+  }
+  .mo-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .mo-clamp-2 {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+  .mo-center {
+    margin-inline: auto;
+    max-inline-size: var(--mo-comp-center-measure);
+  }
+  .mo-cover {
+    object-fit: cover;
+    inline-size: 100%;
+    block-size: 100%;
+  }
+  .mo-visually-hidden {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  .mo-hidden {
+    display: none;
+  }
+  .mo-contents {
+    display: contents;
+  }
+}

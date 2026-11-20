@@ -1,0 +1,36 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Menus: M3 Expressive's vertical menu in its standard colours (m3.material.io/components/menus/specs): on the low surface
+     container with large corners (its groups' inner corners extra-small) and the second elevation's shadow, so it stands
+     in front of the page; items 44px high with 16px at each side and the label in Label large, on corners of their
+     own inside the container (2px from its edge); the chosen one in the tertiary container. 112–280px wide, scrolling
+     when higher than the screen. */
+  --mo-comp-menu-container-color: var(--mo-sys-elevation-level1-color);
+  --mo-comp-menu-container-elevation: var(--mo-sys-elevation-level2-shadow);
+  --mo-comp-menu-width: max-content;
+  --mo-comp-menu-min-width: 7rem;
+  --mo-comp-menu-max-width: 17.5rem;
+  --mo-comp-menu-max-height: calc(100dvh - 5rem);
+  --mo-comp-menu-container-shape: var(--mo-sys-shape-corner-large);
+  --mo-comp-menu-group-inner-radius: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-menu-line: transparent;
+  --mo-comp-menu-padding: 0.125rem;
+  --mo-comp-menu-list-item-container-height: 2.75rem;
+  --mo-comp-menu-item-padding: 0 1rem;
+  --mo-comp-menu-item-radius: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-menu-item-edge-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-menu-item-selected-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-menu-item-font-size: var(--mo-sys-typescale-label-large-size);
+  --mo-comp-menu-item-letter-spacing: var(--mo-sys-typescale-label-large-tracking);
+  --mo-comp-menu-item-weight: var(--mo-sys-typescale-label-large-weight);
+  --mo-comp-menu-list-item-label-text-color: var(--mo-sys-color-on-surface);
+  --mo-comp-menu-item-hover-surface: var(--mo-sys-state-mo-hover-layer);
+  --mo-comp-menu-item-hover-text: var(--mo-sys-color-on-surface);
+  --mo-comp-menu-list-item-selected-container-color: var(--mo-sys-color-tertiary-container);
+  --mo-comp-menu-list-item-selected-label-text-color: var(--mo-sys-color-on-tertiary-container);
+  --mo-comp-menu-item-selected-weight: var(--mo-sys-typescale-label-large-weight);
+}

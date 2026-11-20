@@ -1,0 +1,36 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Sliders (M3 Expressive): a 16px track with small corners at its ends (medium, large and extra-large on the medium,
+     large and extra-large sliders) and 2px beside the handle, the active part in
+     the primary colour, the inactive in the secondary container, a 4 by 44 handle in the primary colour with 6px of room
+     on each side (2px wide while pressed) and its centre at least 8px from the track's ends, 4px stops, and the value over the handle in a 48 by 44 pill on the inverse
+     surface; 38% when it cannot be moved. */
+  --mo-comp-slider-height: 2.75rem;
+  --mo-comp-slider-active-track-height: 1rem;
+  --mo-comp-slider-active-track-shape: var(--mo-sys-shape-corner-small);
+  --mo-comp-slider-medium-track-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-slider-large-track-radius: var(--mo-sys-shape-corner-large);
+  --mo-comp-slider-xlarge-track-radius: var(--mo-sys-shape-corner-extra-large);
+  --mo-comp-slider-active-track-inner-corner-corner-size: 0.125rem;
+  --mo-comp-slider-track-gap: 0.5rem;
+  --mo-comp-slider-active-track: var(--mo-sys-color-primary);
+  --mo-comp-slider-inactive-track: var(--mo-sys-color-surface-container-high);
+  --mo-comp-slider-handle-width: 0.25rem;
+  --mo-comp-slider-handle-height: 2.75rem;
+  --mo-comp-slider-handle-shape: var(--mo-sys-shape-corner-full);
+  --mo-comp-slider-handle-color: var(--mo-sys-color-primary);
+  --mo-comp-slider-handle-line-width: 0;
+  --mo-comp-slider-pressed-handle-width: 0.125rem;
+  --mo-comp-slider-handle-inset: 0.375rem;
+  --mo-comp-slider-inactive-stop-indicator-container-color: var(--mo-sys-color-primary);
+  --mo-comp-slider-active-stop-indicator-container-color: var(--mo-sys-color-surface-container-high);
+  --mo-comp-slider-label-container-color: var(--mo-sys-color-inverse-surface);
+  --mo-comp-slider-label-label-text-color: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-slider-value-radius: var(--mo-sys-shape-corner-full);
+  --mo-comp-slider-value-room: 3rem;
+  --mo-comp-slider-disabled-active-track-opacity: var(--mo-sys-state-disabled-state-layer-opacity);
+}

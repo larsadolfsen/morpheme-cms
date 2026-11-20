@@ -1,0 +1,10 @@
+---
+// The front page: the page chosen under "Settings" › "Appearance" › "Default pages" (packages/editor/site/home.ts), drawn by the theme
+// (src/themes/<theme>/templates/Home.astro).
+import Home from '@theme/templates/Home.astro';
+import { frontPage } from '@morphemecms/cms/site/home';
+
+const front = await frontPage();
+---
+
+<Home {...front} />

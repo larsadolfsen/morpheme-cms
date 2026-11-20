@@ -1,0 +1,37 @@
+---
+// A front-page section: container, spacing above, reveal on scroll and an optional heading + intro; with a `color`
+// the content sits in a panel (.mo-is-<color>, blocks.css) inside the container, none without one.
+import Container from '@theme/components/Container.astro';
+import SectionHeading from '@theme/components/SectionHeading';
+import Inline from '@theme/components/Inline.astro';
+import Markdown from '@theme/components/Markdown.astro';
+import { eyebrowHtml } from '@morphemecms/cms/lib/eyebrow.mjs';
+
+interface Props {
+  title?: string;
+  intro?: string;
+  class?: string;
+  /** Id for the heading; the section is then labelled by it (aria-labelledby). */
+  id?: string;
+  /** The colour of the panel behind the section (`sectionColor` from the front page's heading, as in a page's mo-text-section). */
+  color?: string;
+  /** A label above the heading (lib/eyebrow.mjs): the text's label that came just before the section, kept with it. */
+  label?: string;
+}
+const { title, intro, class: className, id, color, label } = Astro.props;
+const Panel = color ? 'div' : Fragment;
+const panel = color ? { class: `mo-text-section mo-is-${color} mo-section__panel` } : {};
+---
+
+<Container class:list={['mo-section', className]} aria-labelledby={title && id ? id : undefined} data-reveal>
+  <Panel {...panel}>
+    {label && <Markdown body={eyebrowHtml(label)} />}
+    {title && <SectionHeading id={id} text={title} />}
+    {intro && (
+      <p class="mo-type-body-large mo-section__intro">
+        <Inline text={intro} />
+      </p>
+    )}
+    <slot />
+  </Panel>
+</Container>

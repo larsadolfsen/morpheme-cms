@@ -1,0 +1,17 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer components {
+  [data-icon-color='primary'] {
+    --mo-comp-icon-color: var(--mo-sys-color-primary, var(--mo-sys-block-accent));
+  }
+}
+@layer components {
+  [data-icon-color='secondary'] {
+    --mo-comp-icon-color: var(--mo-sys-color-secondary, var(--mo-sys-block-secondary));
+  }
+}
+@layer components {
+  [data-icon-color='tertiary'] {
+    --mo-comp-icon-color: var(--mo-sys-color-tertiary, var(--mo-sys-block-tertiary));
+  }
+}

@@ -1,0 +1,186 @@
+/*
+  The Call to action and Prices blocks: .mo-block-cta and its parts, .mo-block-pricecards__prices, .mo-block-tag, .mo-block-pricecards__list and its rows, .mo-block-terms, and the
+  Price cards' buttons (.mo-block-buttons.mo-block-pricecards__plan-buttons). Moved here from blocks.css with the rules unchanged and in the order they had
+  (docs/superpowers/plans/2026-11-16-css-split.md); the two @media (width >= medium) blocks that mixed these rules with other blocks' were split, each
+  rule keeping its place among these. Imported by base.css right after blocks.css, in the same layer (components), so every rule that stayed in
+  blocks.css after these still comes before them in the cascade; none of those rules sets a property of these elements at the same specificity
+  (the collision check in the pull request).
+*/
+@layer components {
+  /* An invitation, a filled card (.mo-card in ui.css): an image, a heading and a text, and buttons under each other
+     (e.g. an app's booking block); on a computer the three side by side. */
+  .mo-block-cta {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .mo-block-cta.mo-is-in-text {
+    margin-block: 2.5rem;
+  }
+  .mo-block-cta__picture {
+    width: 5rem;
+    height: 5rem;
+    border-radius: var(--mo-sys-block-radius-small);
+    object-fit: cover;
+    object-position: 50% 20%;
+  }
+  .mo-block-cta__title {
+    margin: 0;
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
+  }
+  .mo-block-cta__text {
+    margin-top: 0.5rem;
+    max-width: 48ch;
+    color: var(--mo-sys-block-muted);
+  }
+  .mo-block-cta__buttons {
+    display: grid;
+    gap: 0.625rem;
+  }
+
+  /* Prices: the big ones as cards side by side, and the others as a list, a row each with the name and
+     its details to the left and the price to the right, with a text under it. */
+  .mo-block-pricecards__prices {
+    display: grid;
+    gap: 1rem;
+  }
+  .mo-block-pricecards__prices.mo-is-in-text {
+    margin-block: 2.5rem;
+  }
+  /* A small fact in a light pill (the duration), its icon in the accent. */
+  .mo-block-tag {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.25rem;
+    border-radius: var(--mo-sys-block-control-radius);
+    background: var(--mo-sys-block-tint);
+    padding: 0.25rem 0.75rem;
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
+  }
+  .mo-block-tag svg {
+    color: var(--mo-sys-block-accent);
+  }
+  .mo-block-pricecards__list {
+    margin: 0;
+    border: 1px solid var(--mo-sys-block-line);
+    border-radius: var(--mo-sys-block-radius);
+    padding: 0 1.5rem;
+    list-style: none;
+  }
+  .mo-block-pricecards__row {
+    display: grid;
+    gap: 0.25rem 1.5rem;
+    padding-block: 1.25rem;
+  }
+  .mo-block-pricecards__row + .mo-block-pricecards__row {
+    border-top: 1px solid var(--mo-sys-block-line);
+  }
+  .mo-block-pricecards__row-name {
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
+    color: inherit;
+    text-decoration: none;
+  }
+  a.mo-block-pricecards__row-name:hover {
+    color: var(--mo-sys-block-accent);
+  }
+  .mo-block-pricecards__row-text {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
+  }
+  .mo-block-pricecards__row-note {
+    margin-top: 0.25rem;
+    max-width: 60ch;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
+  }
+  .mo-block-pricecards__row-price {
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
+    font-variant-numeric: tabular-nums;
+  }
+  .mo-block-pricecards__row-price > span {
+    display: block;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
+  }
+  /* A quiet text with an icon before it (the terms under the prices). */
+  .mo-block-terms {
+    display: flex;
+    gap: 0.625rem;
+    margin-top: 1rem;
+    max-width: 70ch;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-block-muted);
+  }
+  .mo-block-terms svg {
+    flex-shrink: 0;
+    margin-top: 0.125rem;
+  }
+  @media (width >= 37.5rem) {
+    .mo-block-pricecards__row {
+      grid-template-columns: 1fr auto;
+    }
+    .mo-block-pricecards__row-price {
+      text-align: right;
+    }
+  }
+  @media (width >= 37.5rem) {
+    .mo-block-cta {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      align-items: center;
+      gap: 2.5rem;
+    }
+    .mo-block-cta__picture {
+      grid-column: span 2;
+      width: 7rem;
+      height: 7rem;
+    }
+    .mo-block-cta__body {
+      grid-column: span 6;
+    }
+    .mo-block-cta__buttons {
+      grid-column: span 4;
+    }
+    .mo-block-cta__title {
+      font-size: var(--mo-sys-typescale-headline-medium-size);
+      line-height: var(--mo-sys-typescale-headline-medium-line-height);
+      font-weight: var(--mo-sys-typescale-headline-medium-weight);
+      letter-spacing: var(--mo-sys-typescale-headline-medium-tracking);
+    }
+    .mo-block-pricecards__prices {
+      gap: 1.25rem;
+    }
+    .mo-block-pricecards__list {
+      padding-inline: 2rem;
+    }
+  }
+  .mo-block-buttons.mo-block-pricecards__plan-buttons {
+    flex-direction: column;
+    margin-top: auto;
+    padding-top: 1.5rem;
+  }
+}

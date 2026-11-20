@@ -1,0 +1,8 @@
+/* The layout classes' tokens (docs/theme-layout-classes.md), declared once on :root; an element that needs another value sets the token on itself. See docs/theme-token-files.md. */
+
+@layer utilities {
+  :root {
+    /* The gap of mo-stack: 16px. */
+    --mo-comp-stack-gap: var(--mo-ref-space-200);
+  }
+}

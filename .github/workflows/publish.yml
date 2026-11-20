@@ -1,0 +1,115 @@
+# On each push to main: Changesets keeps the "Release @morphemecms/cms" pull request open, and when that pull request
+# has been merged, the new version is staged on npm for latest; once the owner has approved it on npmjs.com (2FA), it
+# gets the tag v<version> and a GitHub release, and morpheme-staging is rebuilt. While changesets are pending, a
+# test version (<the version the feature set>-next-<time>) is staged for next. A push to a version line's branch (0.18, 0.19 ...) stages nothing
+# and opens no Release PR (owner, 18 Nov 2026: nothing goes to npm unless the owner is meant to approve it): line work reaches
+# npm only as next, when it reaches main. npm's trusted publishing trusts this one file and lets it only
+# stage (npm stage publish): no key, and nothing reaches npm without the owner's approval.
+# The "next" job only stages and ends: it never waits for the approval, so it holds no runner slot and a newer push
+# cannot cancel a wait. Rebuilding morpheme-staging for an approved next version is the job of
+# staging's own Worker, which checks npm's next tag every hour. "latest" waits (up to four hours) and is
+# never cancelled by a newer run.
+name: Publish
+
+on:
+  push:
+    branches: [main, '0.[0-9]+']
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write
+
+jobs:
+  release:
+    # Only main has a Release PR and a latest; a version line stages nothing.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    # One at a time; the jobs that wait for an approval do not hold it.
+    concurrency: release
+    outputs:
+      pending: ${{ steps.changesets.outputs.hasChangesets }}
+      staged: ${{ steps.stage.outputs.version }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # The release gate reads the first parent of the Release PR's merge commit.
+          fetch-depth: 2
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      # npm stage publish needs npm 11.15.0 or newer.
+      - run: npm install -g npm@^11.15.0
+      # The types of the .mjs modules are written from their JSDoc when it is packed (prepack).
+      - run: npm ci --no-audit --no-fund
+      # The Release PR runs changeset version, then scripts/starter.mjs, so the starter pins the version it releases.
+      - id: changesets
+        uses: changesets/action@v1
+        with:
+          title: Release @morphemecms/cms
+          commit: Release @morphemecms/cms
+          version: npm run release:version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # No changesets pending: the Release PR was merged (or nothing changed). Stage its version unless npm has it.
+      # THE RELEASE GATE (owner, 18 Nov 2026): latest is staged only when npm's `next` was built from exactly this code and staging runs that
+      # `next` version (scripts/release-gate.mjs). It only checks; if it fails, nothing is staged. Only this step stages latest, so the
+      # `next` jobs never run it. STAGING_URL is a repository variable.
+      - id: stage
+        if: steps.changesets.outputs.hasChangesets == 'false'
+        env:
+          STAGING_URL: ${{ vars.STAGING_URL }}
+        run: |
+          v=$(node -p "require('./package.json').version")
+          if npm view "@morphemecms/cms@$v" version >/dev/null 2>&1; then exit 0; fi
+          node scripts/release-gate.mjs
+          npm stage publish --tag latest
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+  latest:
+    needs: release
+    if: needs.release.outputs.staged != ''
+    runs-on: ubuntu-latest
+    # Waits for the owner's approval: up to four hours, then re-run this job.
+    timeout-minutes: 360
+    env:
+      V: ${{ needs.release.outputs.staged }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Wait until the owner has approved it on npmjs.com
+        timeout-minutes: 240
+        run: until npm view "@morphemecms/cms@$V" version >/dev/null 2>&1; do sleep 60; done
+      - name: Tag it and make the GitHub release with its section of CHANGELOG.md
+        run: |
+          git tag "v$V"
+          git push origin "v$V"
+          notes=$(node -e "const s=require('fs').readFileSync('CHANGELOG.md','utf8').split(/^## /m).find(x=>x.split(/\r?\n/)[0].trim()===process.env.V)||'';console.log(s.split(/\r?\n/).slice(1).join('\n').trim())")
+          gh release create "v$V" --title "v$V" --notes "$notes"
+
+  # Stages only. The approval is the owner's, and staging's own Worker rebuilds staging.
+  next:
+    needs: release
+    if: needs.release.outputs.pending == 'true'
+    runs-on: ubuntu-latest
+    # One at a time, in order; a push never cancels a job halfway through staging.
+    concurrency:
+      group: publish-next
+      cancel-in-progress: false
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      - run: npm install -g npm@^11.15.0
+      - run: npm ci --no-audit --no-fund
+      # The test version is the version the feature set plus -next-<time> (scripts/version-rule.mjs next); nothing is committed. It prints
+      # nothing when only empty changesets are pending: then there is nothing to stage.
+      - run: |
+          v=$(node scripts/version-rule.mjs next)
+          if [ -z "$v" ]; then exit 0; fi
+          npm version "$v" --no-git-tag-version
+          npm stage publish --tag next

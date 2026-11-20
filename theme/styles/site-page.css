@@ -1,0 +1,409 @@
+/* The site's page: the mobile-menu scroll padding, the text's first image, the view transition, the page with a block beside it and the page title.
+   Moved here from components.css with its rules unchanged and in their order; imported by base.css where components.css was, in the same layers
+   (docs/superpowers/plans/2026-11-16-css-split.md). */
+@layer components {
+  /* With the bar of "Mobile menu" under the header (MobileNav.astro), a link to a part of a page stops below both. */
+  @media (width < 75rem) {
+    html:has([data-mobile-nav]) {
+      scroll-padding-top: 9.25rem;
+    }
+  }
+}
+
+@layer fallback {
+  /* An image that opens the text (a paragraph of its own) starts where a paragraph would: its space above would come on
+   top of the space under the page's heading. For every theme, also one with its own text style; outside the
+   layers, like the images' own space in the text. */
+  .mo-prose > p:first-child > :where(img, .mo-site-picture__crop):only-child {
+    margin-top: 0;
+  }
+}
+
+/* Going from one page of the site to another, the old page fades into the new (a cross-document view transition,
+   CSS only), so the colours change softly when every page has its own (content-based colour, packages/editor/site/pageColors.ts).
+   It does not touch the first paint or the first visit (Lighthouse), and a browser without it shows the page at once. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+@layer fallback {
+  @media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+      animation-duration: var(--mo-comp-theme-page-fade);
+      animation-timing-function: var(--mo-sys-ease);
+    }
+  }
+
+  /* A page with a block beside its text (PageLayout.astro): the text, then the column (on a phone below the text); from medium
+   two columns, the one beside the text staying in view while the text is read; on the left for `sidebar-left`. */
+  :where(.mo-page__content).mo-has-side > .mo-page__side {
+    margin-top: 3rem;
+  }
+  @media (width >= 37.5rem) {
+    :where(.mo-page__content).mo-has-side {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) var(--mo-comp-theme-side-width);
+      column-gap: var(--mo-comp-theme-side-gap);
+      align-items: start;
+    }
+    :where(.mo-page__content).mo-has-side > .mo-page__side {
+      margin-top: 0;
+      position: sticky;
+      top: 6rem;
+    }
+    /* Template sidebar-left: the column first, though it comes after the text in the page. */
+    :where(.mo-page__content).mo-has-side[data-side='left'] {
+      grid-template-columns: var(--mo-comp-theme-side-width) minmax(0, 1fr);
+    }
+    :where(.mo-page__content).mo-has-side[data-side='left'] > .mo-page__side {
+      order: -1;
+    }
+  }
+
+  /* A page's and a post's title (PageHeader.astro, PageLayout.astro, PostLayout.astro, Home.astro): the display role, by
+   the variables above. */
+  .mo-page-title {
+    font-size: var(--mo-comp-theme-title-size, var(--mo-sys-typescale-display-small-size));
+    line-height: var(--mo-comp-theme-title-leading);
+    font-weight: var(--mo-sys-typescale-display-small-weight);
+    letter-spacing: var(--mo-sys-typescale-display-small-tracking);
+  }
+  @media (width >= 37.5rem) {
+    .mo-page-title {
+      font-size: var(--mo-comp-theme-title-size-large, var(--mo-sys-typescale-display-medium-size));
+      font-weight: var(--mo-sys-typescale-display-medium-weight);
+      letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
+    }
+  }
+}
+
+/* The page's parts (theme/components/Container.astro, Section.astro, PageHeader.astro, PageHeading.astro, PageSection.astro, SectionHeading.tsx,
+   TextSection.astro, home/Text.astro, Markdown.astro, EndBlock.astro, ArrowLink.tsx): the container with the page's gutters, the space above a
+   section, the headings and intros, a text after its heading. In @layer utilities, where the utility classes they replace sat. Written with Modern
+   Web Guidance's guides css-layout, css and responsive-design. */
+@layer utilities {
+  /* The page's width, 1152 dp, with the side gutters (--mo-comp-theme-page-gutter: 16 dp, 24 dp from 600 dp). Every full-width block uses it. */
+  .mo-container {
+    margin-inline: auto;
+    max-inline-size: 72rem;
+    padding-inline: var(--mo-comp-theme-page-gutter);
+  }
+  .mo-section {
+    padding-block-start: var(--mo-comp-theme-section-space);
+  }
+  .mo-section__panel {
+    margin-block: 0;
+    padding-block-end: var(--mo-sys-block-section-padding);
+  }
+  .mo-section__intro,
+  .mo-page-section__intro,
+  .mo-page-header__intro {
+    max-inline-size: 52ch;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-section__intro,
+  .mo-page-section__intro {
+    margin-block-start: 0.75rem;
+  }
+  .mo-page-header {
+    padding-block-start: 2rem;
+  }
+  .mo-page-header__title {
+    max-inline-size: 18ch;
+  }
+  .mo-page-header__intro {
+    margin-block-start: 1rem;
+  }
+  .mo-page-heading__title {
+    margin-block-start: 0.75rem;
+    max-inline-size: 22ch;
+  }
+  /* The link back to the parent page or the blog, above a title. */
+  .mo-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  @media (hover: hover) {
+    .mo-back-link:hover {
+      color: var(--mo-sys-color-primary);
+    }
+  }
+  /* A Markdown text (Markdown.astro) keeps to the text's measure; after a heading it has space above. */
+  .mo-markdown {
+    max-inline-size: var(--mo-sys-block-text-measure-max);
+    min-inline-size: min(var(--mo-sys-block-text-measure-min), 100%);
+  }
+  .mo-text-after-heading {
+    margin-block-start: 1.5rem;
+  }
+  /* The text's first paragraph as the lead (the same as mo-type-lead). */
+  .mo-text-lead > p:first-child {
+    font-size: var(--mo-sys-typescale-lead-size);
+    line-height: var(--mo-sys-typescale-lead-line-height);
+    font-weight: var(--mo-sys-typescale-lead-weight);
+    letter-spacing: var(--mo-sys-typescale-lead-tracking);
+  }
+  .mo-end-block {
+    margin-block-start: 5rem;
+  }
+  .mo-arrow-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    color: var(--mo-sys-color-primary);
+  }
+  @media (width >= 37.5rem) {
+    .mo-container {
+      padding-inline: var(--mo-comp-theme-page-gutter-large);
+    }
+    .mo-section {
+      padding-block-start: var(--mo-comp-theme-section-space-large);
+    }
+    .mo-page-header {
+      padding-block-start: 3.5rem;
+    }
+    .mo-page-header__intro {
+      font-size: var(--mo-sys-typescale-title-large-size);
+      line-height: var(--mo-sys-typescale-title-large-line-height);
+      font-weight: var(--mo-sys-typescale-title-large-weight);
+      letter-spacing: var(--mo-sys-typescale-title-large-tracking);
+    }
+    .mo-page-section__title {
+      font-size: var(--mo-sys-typescale-display-small-size);
+      line-height: var(--mo-sys-typescale-display-small-line-height);
+      font-weight: var(--mo-sys-typescale-display-small-weight);
+      letter-spacing: var(--mo-sys-typescale-display-small-tracking);
+    }
+    .mo-section-heading {
+      font-size: var(--mo-sys-typescale-display-medium-size);
+      line-height: var(--mo-sys-typescale-display-medium-line-height);
+      font-weight: var(--mo-sys-typescale-display-medium-weight);
+      letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
+    }
+    .mo-end-block {
+      margin-block-start: 7rem;
+    }
+  }
+}
+
+/* The page's shell and the page, post, home and "New pages" templates (theme/layouts/Base.astro, PageLayout.astro, PostLayout.astro, theme/templates/Home.astro,
+   NotFound.astro, New.astro, site/sections.ts): the body, the skip link, the text's measure and the space above its parts. In @layer utilities, where
+   the utility classes they replace sat. Written with Modern Web Guidance's guides css-layout, css and responsive-design. */
+@layer utilities {
+  /* The body: the page fills the window, and `main` takes what the header and the footer leave. */
+  .mo-body {
+    display: flex;
+    flex-direction: column;
+    min-block-size: 100dvh;
+  }
+  .mo-main {
+    flex: 1 1 0%;
+  }
+  /* The skip link: hidden until it has the focus, then a pill in the top left corner. */
+  .mo-skip-link {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+  .mo-skip-link:focus {
+    position: fixed;
+    inset-block-start: 1rem;
+    inset-inline-start: 1rem;
+    z-index: 50;
+    inline-size: auto;
+    block-size: auto;
+    margin: 0;
+    padding-block: 0.5rem;
+    padding-inline: 1rem;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    border-radius: var(--mo-sys-shape-corner-full);
+    background-color: var(--mo-sys-color-primary);
+    color: var(--mo-sys-color-on-primary);
+  }
+
+  /* The text of a page (PageLayout.astro): without a block beside it the text spans the container, its blocks (mo-is-not-prose) too, and its other
+     parts keep the text's measure, the first paragraph being the lead; with one it keeps the measure itself. */
+  .mo-page__text.mo-has-side {
+    max-inline-size: var(--mo-sys-block-text-measure-max);
+    min-inline-size: min(var(--mo-sys-block-text-measure-min), 100%);
+  }
+  .mo-page__text.mo-is-single-column {
+    max-inline-size: none;
+  }
+  .mo-page__text:where(.mo-is-single-column) > :not(.mo-is-not-prose) {
+    max-inline-size: var(--mo-sys-block-text-measure-max);
+  }
+  .mo-page__text:where(.mo-is-single-column) > :not(.mo-is-not-prose, :where(.mo-text-section).mo-is-full) {
+    min-inline-size: min(var(--mo-sys-block-text-measure-min), 100%);
+  }
+  .mo-page__text:where(.mo-is-single-column) > p:first-child {
+    font-size: var(--mo-sys-typescale-lead-size);
+    line-height: var(--mo-sys-typescale-lead-line-height);
+    font-weight: var(--mo-sys-typescale-lead-weight);
+    letter-spacing: var(--mo-sys-typescale-lead-tracking);
+    color: var(--mo-sys-color-on-surface-variant);
+    max-inline-size: 52ch;
+  }
+  /* A text that spans its container, not the 65ch of `.mo-prose` (a text the editor's preview draws). */
+  .mo-text-whole {
+    max-inline-size: none;
+  }
+  /* The pop-up as the editor's preview draws it: a phone's width, centred. */
+  .mo-popup-preview {
+    margin-inline: auto;
+    max-inline-size: 28rem;
+  }
+  /* The space between the page's header and its text, and above a page's first section when its heading is on a colour. */
+  .mo-page__body {
+    margin-block-start: 2rem;
+  }
+  .mo-flush-top > .mo-text-section {
+    margin-block-start: 0;
+  }
+  /* The home page: the space above its title and its first block, the title's width and the space above each of its items. */
+  .mo-home__top {
+    padding-block-start: 2rem;
+  }
+  .mo-home__title {
+    max-inline-size: 22ch;
+  }
+  .mo-home__item {
+    margin-block-start: 1.5rem;
+  }
+
+  /* The text of a post (PostLayout.astro), centred at 48rem with the page's gutters; its image is wider (64rem). */
+  .mo-post__text {
+    margin-inline: auto;
+    margin-block-start: 2.5rem;
+    max-inline-size: 48rem;
+    padding-inline: 1rem;
+  }
+  .mo-post__text > :not(.mo-is-not-prose) {
+    max-inline-size: var(--mo-sys-block-text-measure-max);
+  }
+  .mo-post__text > :not(.mo-is-not-prose, :where(.mo-text-section).mo-is-full) {
+    min-inline-size: min(var(--mo-sys-block-text-measure-min), 100%);
+  }
+  .mo-post__image {
+    margin-inline: auto;
+    margin-block-start: 2rem;
+    max-inline-size: 64rem;
+    padding-inline: 1rem;
+  }
+  .mo-post__picture {
+    aspect-ratio: 16 / 10;
+    inline-size: 100%;
+    border-radius: var(--mo-comp-theme-picture-radius);
+    object-fit: cover;
+  }
+
+  /* The space above a section of the blog page and the 404 page (site/sections.ts): the first, right under the header, and the others. */
+  .mo-space-first {
+    margin-block-start: 2.5rem;
+  }
+  .mo-space-near {
+    margin-block-start: 1.5rem;
+  }
+  .mo-space-next {
+    margin-block-start: 4rem;
+  }
+
+  /* /new/ (New.astro): the new versions of pages, one row each in a bordered list. */
+  .mo-new {
+    margin-block-start: 3rem;
+  }
+  .mo-new__list {
+    border: 1px solid var(--mo-sys-color-outline-variant);
+    border-radius: var(--mo-sys-radius);
+    padding-inline: 1.25rem;
+  }
+  .mo-new__item {
+    scroll-margin-block-start: 6rem;
+    padding-block: 1.25rem;
+  }
+  .mo-new__item:not(:first-child) {
+    border-block-start: 1px solid var(--mo-sys-color-outline-variant);
+  }
+  .mo-new__links {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.5rem;
+    row-gap: 0.25rem;
+    margin-block-start: 0.375rem;
+  }
+  .mo-new__link,
+  .mo-new__current {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+  .mo-new__link {
+    color: var(--mo-sys-color-primary);
+  }
+  .mo-new__current,
+  .mo-new__note {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  .mo-new__review {
+    margin-block-start: 0.5rem;
+    max-inline-size: 75ch;
+    white-space: pre-line;
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+  @media (hover: hover) {
+    .mo-new__link:hover {
+      text-decoration-line: underline;
+    }
+    .mo-new__current:hover {
+      color: var(--mo-sys-color-primary);
+    }
+  }
+
+  @media (width >= 37.5rem) {
+    .mo-page__body {
+      margin-block-start: 3rem;
+    }
+    .mo-home__top {
+      padding-block-start: 4rem;
+    }
+    .mo-post__text {
+      margin-block-start: 3.5rem;
+      padding-inline: 1.5rem;
+    }
+    .mo-post__image {
+      margin-block-start: 3rem;
+      padding-inline: 1.5rem;
+    }
+    .mo-post__picture {
+      aspect-ratio: 16 / 9;
+    }
+    .mo-space-first {
+      margin-block-start: 3.5rem;
+    }
+    .mo-space-near {
+      margin-block-start: 2rem;
+    }
+    .mo-space-next {
+      margin-block-start: 6rem;
+    }
+    .mo-new {
+      margin-block-start: 4rem;
+    }
+    .mo-new__list {
+      padding-inline: 1.75rem;
+    }
+  }
+}

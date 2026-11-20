@@ -1,0 +1,118 @@
+{
+  "name": "site",
+  "lockfileVersion": 3,
+  "requires": true,
+  "packages": {
+    "": {
+      "name": "site",
+      "dependencies": {
+        "@morphemecms/cms": "0.17.0"
+      }
+    },
+    "node_modules/@astrojs/markdown-remark": {
+      "version": "7.3.10"
+    },
+    "node_modules/@astrojs/react": {
+      "version": "7.1.9"
+    },
+    "node_modules/@astrojs/rss": {
+      "version": "4.0.19"
+    },
+    "node_modules/@astrojs/sitemap": {
+      "version": "3.7.6"
+    },
+    "node_modules/@fontsource-variable/roboto": {
+      "version": "5.3.0"
+    },
+    "node_modules/@material-symbols/svg-400": {
+      "version": "0.48.2"
+    },
+    "node_modules/@material/material-color-utilities": {
+      "version": "0.3.0"
+    },
+    "node_modules/@milkdown/kit": {
+      "version": "7.23.0"
+    },
+    "node_modules/@morphemecms/cms": {
+      "version": "0.17.0"
+    },
+    "node_modules/@phosphor-icons/core": {
+      "version": "2.1.1"
+    },
+    "node_modules/@phosphor-icons/react": {
+      "version": "2.1.10"
+    },
+    "node_modules/@tailwindcss/typography": {
+      "version": "0.5.20"
+    },
+    "node_modules/@tailwindcss/vite": {
+      "version": "4.3.5"
+    },
+    "node_modules/astro": {
+      "version": "7.4.13"
+    },
+    "node_modules/esbuild": {
+      "version": "0.28.2"
+    },
+    "node_modules/github-slugger": {
+      "version": "2.0.0"
+    },
+    "node_modules/jsdom": {
+      "version": "31.0.1"
+    },
+    "node_modules/motion": {
+      "version": "14.14.0"
+    },
+    "node_modules/postcss": {
+      "version": "8.5.33"
+    },
+    "node_modules/postcss-selector-parser": {
+      "version": "7.2.1"
+    },
+    "node_modules/quickjs-emscripten": {
+      "version": "0.32.0"
+    },
+    "node_modules/react": {
+      "version": "19.3.1"
+    },
+    "node_modules/react-dom": {
+      "version": "19.3.1"
+    },
+    "node_modules/rehype-raw": {
+      "version": "7.0.0"
+    },
+    "node_modules/rehype-stringify": {
+      "version": "10.0.1"
+    },
+    "node_modules/remark-gfm": {
+      "version": "4.0.1"
+    },
+    "node_modules/remark-parse": {
+      "version": "11.0.0"
+    },
+    "node_modules/remark-rehype": {
+      "version": "11.1.2"
+    },
+    "node_modules/remark-smartypants": {
+      "version": "3.0.3"
+    },
+    "node_modules/sharp": {
+      "version": "0.35.5"
+    },
+    "node_modules/tailwindcss": {
+      "version": "4.3.5"
+    },
+    "node_modules/unified": {
+      "version": "11.0.5"
+    },
+    "node_modules/vite": {
+      "version": "8.3.8"
+    },
+    "node_modules/wrangler": {
+      "version": "4.164.0"
+    },
+    "node_modules/yaml": {
+      "version": "2.9.1"
+    }
+  }
+}

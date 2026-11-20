@@ -1,0 +1,81 @@
+/*
+  The ripple, moved here from ui.css with its rules and keyframes unchanged and in their order; imported by base.css after the other
+  parts, last, as it was last in ui.css (docs/superpowers/plans/2026-11-16-css-split.md). Its reduced-motion rule is in reduced-motion.css.
+*/
+/* ---- States: the ripple ---- */
+/*
+  Material 3's pressed state (m3.material.io/foundations/interaction/states/applying-states): pressed, a part grows a
+  wave of its content's colour from where it was pressed until it covers the part, over the part's own colour when
+  pointed at, and the wave fades when it is let go. ../ui/ripple.script.ts draws it, on every page and in the editor, in
+  a .mo-ripple (the layer, in the part's shape) at the end of the part with a .mo-ripple__wave for each press
+  (data-released when let go); the parts it is on are PARTS there, and they stand where they are (position: relative)
+  so the layer can be over them. A theme changes it with these variables (--mo-comp-ripple-opacity: 0 for none), and a part's
+  own pressed colour (its -pressed variable, else as pointed at) is under the wave. With reduced motion the wave does
+  not grow: it fades in and out over the whole part.
+    --mo-comp-ripple-colour (else the text's), --mo-comp-ripple-opacity, --mo-comp-ripple-duration (growing), --mo-comp-ripple-fade (fading)
+*/
+@layer components {
+  :where(
+    .mo-button,
+    .mo-icon-button,
+    .mo-fab,
+    .mo-extended-fab,
+    .mo-chip,
+    .mo-chip__remove,
+    .mo-menu__item,
+    .mo-tabs__tab,
+    .mo-segmented-button__segment,
+    .mo-navigation-bar__indicator,
+    .mo-navigation-bar__icon,
+    .mo-navigation-rail__indicator,
+    .mo-navigation-drawer__item,
+    .mo-navigation-drawer__subitem,
+    .mo-navigation-drawer__toggle,
+    a.mo-list__item-container,
+    button.mo-list__item-container,
+    label.mo-list__item-container,
+    [role='button'].mo-list__item-container,
+    a.mo-card,
+    button.mo-card,
+    .mo-date-picker__day,
+    .mo-date-picker__year,
+    .mo-date-picker__menu-item,
+    .mo-time-picker__period-button
+  ) {
+    position: relative;
+  }
+  .mo-ripple {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+  .mo-ripple__wave {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--mo-comp-ripple-size);
+    height: var(--mo-comp-ripple-size);
+    background: radial-gradient(closest-side, var(--mo-comp-ripple-colour, currentColor) max(calc(100% - 70px), 65%), transparent 100%);
+    opacity: var(--mo-comp-ripple-opacity, var(--mo-sys-state-pressed-state-layer-opacity));
+    transform: translate(var(--mo-comp-ripple-to)) scale(var(--mo-comp-ripple-scale));
+    animation:
+      ripple-grow var(--mo-comp-ripple-duration, 450ms) cubic-bezier(0.2, 0, 0, 1),
+      ripple-in 105ms linear;
+    transition: opacity var(--mo-comp-ripple-fade, 375ms) linear;
+  }
+  .mo-ripple__wave[data-released] {
+    opacity: 0;
+  }
+}
+@keyframes ripple-grow {
+  from {
+    transform: translate(var(--mo-comp-ripple-from)) scale(1);
+  }
+}
+@keyframes ripple-in {
+  from {
+    opacity: 0;
+  }
+}

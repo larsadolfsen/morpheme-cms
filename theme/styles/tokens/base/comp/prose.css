@@ -1,0 +1,25 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+/* Long-form text (migrated pages and blog posts): the colours of `.mo-prose` (prose.css). The first fourteen are the theme's roles; a coloured section and the
+   editor's sections set them again on their own element. The last four are the typography plugin's own greys for keys (`kbd`) and code blocks (`pre`), the
+   same in light and dark; a later change moves them to roles. Declared on `.mo-prose`, not on `:root`, so a role set on a section below it is read there. */
+.mo-prose {
+  --mo-comp-prose-body: var(--mo-sys-color-on-surface);
+  --mo-comp-prose-headings: var(--mo-sys-color-on-surface);
+  --mo-comp-prose-lead: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-prose-links: var(--mo-sys-color-primary);
+  --mo-comp-prose-bold: var(--mo-sys-color-on-surface);
+  --mo-comp-prose-counters: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-prose-bullets: var(--mo-sys-color-primary);
+  --mo-comp-prose-hr: var(--mo-sys-color-outline-variant);
+  --mo-comp-prose-quotes: var(--mo-sys-color-on-surface);
+  --mo-comp-prose-quote-borders: var(--mo-sys-color-primary);
+  --mo-comp-prose-captions: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-prose-th-borders: var(--mo-sys-color-outline-variant);
+  --mo-comp-prose-td-borders: var(--mo-sys-color-outline-variant);
+  --mo-comp-prose-code: var(--mo-sys-color-on-surface);
+  --mo-comp-prose-kbd: oklch(21% 0.034 264.665);
+  --mo-comp-prose-kbd-shadows: oklab(21% -0.00316127 -0.0338527 / 0.1);
+  --mo-comp-prose-pre-code: oklch(92.8% 0.006 264.531);
+  --mo-comp-prose-pre-bg: oklch(27.8% 0.033 256.848);
+}

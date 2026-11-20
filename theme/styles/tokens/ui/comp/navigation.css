@@ -1,0 +1,11 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+/* The drawer's defaults, each once: the others read them as the fallback of their --navigation-drawer-* variable. */
+@layer components {
+  :root {
+    --mo-comp-navigation-drawer-container-width: min(22.5rem, calc(100vw - 3.5rem));
+    --mo-comp-navigation-drawer-width-min-default: min(13.75rem, calc(100vw - 3.5rem));
+    --mo-comp-navigation-drawer-bleed-default: 2rem;
+    --mo-comp-navigation-drawer-inset-default: 0.75rem;
+  }
+}

@@ -1,0 +1,12 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* The header's parts (ui.css): the top app bar on the background, in a surface container once the page scrolls under
+     it (M3 shows its second elevation there by that surface alone), without a line, a shadow or a blur. */
+  --mo-comp-top-app-bar-surface: var(--mo-sys-color-surface);
+  --mo-comp-top-app-bar-line-width: 0;
+  --mo-comp-top-app-bar-backdrop: none;
+}

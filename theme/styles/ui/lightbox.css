@@ -1,0 +1,161 @@
+/*
+  The Lightbox (Lightbox.tsx, lightboxControl.ts): a modal dialog with images in a snapping track (not a Material 3 component: docs/material-deviations.md).
+  It is made of the dialog's classes (`dialogClass` in Lightbox.tsx), so it is imported right after dialog.css, before ui.css.
+  Moved here from ui.css with its rules and keyframes unchanged and in their order, in the same layer (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* A lightbox (Lightbox.tsx, lightboxControl.ts): a modal <dialog> and the dialog's container with images in a snapping track under its header
+     (only the close button). The container is see-through over the scrim, so the image floats on a dark layer (the scrim colour, which is
+     the page's in dark mode, so the layer is dark in both): docs/material-deviations.md. On a compact window it fills the screen; from medium it is as
+     large as the window less 56 dp on each side (M3: a dialog placed by hand keeps a 56 dp margin) with the dialog's 28 dp corner. */
+  .mo-lightbox {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(
+      --mo-comp-lightbox-surface,
+      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 88%, transparent)
+    );
+    color: var(--mo-comp-lightbox-ink);
+    box-shadow: none;
+  }
+  .mo-lightbox .mo-icon-button {
+    color: var(--mo-comp-lightbox-ink);
+  }
+  .mo-lightbox__header {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    min-height: 3.5rem;
+    padding: 0.25rem;
+  }
+  .mo-lightbox__content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .mo-lightbox__stage {
+    position: relative;
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+  .mo-lightbox__track {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .mo-lightbox__track::-webkit-scrollbar {
+    display: none;
+  }
+  .mo-lightbox__item {
+    display: flex;
+    flex: 0 0 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 0 1rem;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+  .mo-lightbox__figure {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0;
+    gap: 0.75rem;
+  }
+  .mo-lightbox__image {
+    min-height: 0;
+    max-width: 100%;
+    object-fit: contain;
+  }
+  .mo-lightbox__caption {
+    max-width: 40rem;
+    font-size: var(--mo-sys-typescale-body-medium-size, 0.875rem);
+    line-height: var(--mo-sys-typescale-body-medium-line-height, 1.25rem);
+    text-align: center;
+  }
+  .mo-lightbox__count {
+    margin: 0;
+    padding: 0.5rem 1rem max(1rem, env(safe-area-inset-bottom));
+    font-size: var(--mo-sys-typescale-label-medium-size, 0.75rem);
+    line-height: var(--mo-sys-typescale-label-medium-line-height, 1rem);
+    text-align: center;
+  }
+  /* Previous and Next: at the sides from medium; on a phone, where swiping is the way, they are out of sight and come back with the keyboard's focus. */
+  .mo-lightbox__previous,
+  .mo-lightbox__next {
+    position: absolute;
+    top: 50%;
+    translate: 0 -50%;
+    z-index: 1;
+  }
+  .mo-lightbox__previous {
+    inset-inline-start: 0.5rem;
+  }
+  .mo-lightbox__next {
+    inset-inline-end: 0.5rem;
+  }
+  /* On a compact window the whole window, without corners, edge or shadow. */
+  @media (width < 37.5rem) {
+    .mo-lightbox__modal {
+      width: 100%;
+      max-width: none;
+      height: 100%;
+      max-height: none;
+      margin: 0;
+    }
+    .mo-lightbox__modal > .mo-lightbox {
+      height: 100%;
+      border-radius: 0;
+    }
+    .mo-lightbox__previous:not(:focus-visible),
+    .mo-lightbox__next:not(:focus-visible) {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
+  @media (width >= 37.5rem) {
+    .mo-lightbox__modal {
+      width: calc(100% - 7rem);
+      max-width: none;
+      height: calc(100% - 7rem);
+      max-height: none;
+    }
+    .mo-lightbox__modal > .mo-lightbox {
+      height: 100%;
+      max-height: none;
+      border-radius: var(--mo-comp-dialog-container-shape, var(--mo-sys-block-radius));
+    }
+  }
+  /* The scrim and the controls fade in (M3 web: default effects, 200 ms), the image scales in (default spatial, 500 ms); with reduced motion they are
+     there at once. */
+  @media (prefers-reduced-motion: no-preference) {
+    .mo-lightbox__modal[open]::backdrop {
+      animation: dialog-scrim-in var(--mo-sys-motion-spring-default-effects);
+    }
+    .mo-lightbox__modal[open] :is(.mo-lightbox__header, .mo-lightbox__previous, .mo-lightbox__next, .mo-lightbox__count) {
+      animation: dialog-scrim-in var(--mo-sys-motion-spring-default-effects);
+    }
+    .mo-lightbox__modal[open] .mo-lightbox__image {
+      animation: lightbox-image-in var(--mo-sys-motion-spring-default-spatial);
+    }
+  }
+  @keyframes lightbox-image-in {
+    from {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+  }
+}

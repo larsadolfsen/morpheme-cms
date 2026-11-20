@@ -1,0 +1,15 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Toolbars (M3 Expressive): in a surface container, docked without a line or blur, floating with full corners and
+     the third elevation;
+     vibrant in the primary colour. */
+  --mo-comp-toolbar-docked-container-color: var(--mo-sys-color-surface-container);
+  --mo-comp-toolbar-docked-line-width: 0;
+  --mo-comp-toolbar-docked-backdrop: none;
+  --mo-comp-toolbar-floating-line: transparent;
+  --mo-comp-toolbar-floating-container-shape: var(--mo-sys-shape-corner-full);
+}

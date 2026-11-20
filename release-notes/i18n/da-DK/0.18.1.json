@@ -1,0 +1,24 @@
+{
+  "version": "0.18.1",
+  "date": "2026-11-18",
+  "notes": [
+    {
+      "id": "site-html-lang",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En side på din hjemmeside beholder hjemmesidens sprog i sin lang-indstilling, uanset hvilket sprog den besøgendes browser bruger, så skærmlæsere læser den på det rigtige sprog"
+    },
+    {
+      "id": "lower-parser-peer-floor",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Hjemmesider med ældre pakker kan igen opdatere Morpheme af sig selv"
+    },
+    {
+      "id": "blocked-update-notice",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Startsiden fortæller, hvorfor hjemmesiden ikke kan opdatere sig selv, for eksempel et tema, der endnu ikke virker med den nye version"
+    }
+  ]
+}

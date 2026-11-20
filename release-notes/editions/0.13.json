@@ -1,0 +1,12 @@
+{
+  "name": "Lake Louise",
+  "place": {
+    "en-US": "Lake Louise, Alberta, Canada",
+    "da-DK": "Lake Louise, Alberta, Canada"
+  },
+  "photo": {
+    "by": "Roberto Nickson",
+    "source": "https://unsplash.com/photos/calm-mountain-lake-reflecting-snowy-peaks-vZ1JAXUO3-0",
+    "license": "https://unsplash.com/license"
+  }
+}

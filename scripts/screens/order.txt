@@ -1,0 +1,320 @@
+screens 390
+checkSettingsAndMenu 390
+checkDashboardEdit 390
+screens 1280
+checkSettingsAndMenu 1280
+checkDashboardEdit 1280
+key states
+checkUpdatesCard 375
+checkUpdatesCard 690
+checkUpdatesCard 1280
+checkStartSubtitle
+checkFocusIndicators 375 start
+checkFocusIndicators 375 developer/parts/ui
+checkFocusIndicators 375 developer/parts/editor
+checkFocusIndicators 375 settings
+checkFocusIndicators 1280 start
+checkFocusIndicators 1280 developer/parts/ui
+checkFocusIndicators 1280 developer/parts/editor
+checkFocusIndicators 1280 settings
+choice-group parts 375 en-US
+choice-group parts 375 da-DK
+choice-group parts 1280 en-US
+choice-group parts 1280 da-DK
+choice-group fields 375 en-US
+choice-group fields 375 da-DK
+choice-group fields 1280 en-US
+choice-group fields 1280 da-DK
+choice-group button samples 375 en-US
+choice-group button samples 375 da-DK
+choice-group button samples 1280 en-US
+choice-group button samples 1280 da-DK
+search view parts 375 en-US
+search view parts 375 da-DK
+search view parts 1280 en-US
+search view parts 1280 da-DK
+search button 375
+search button 1280
+command palette 375
+command palette 1280
+editor actions 375
+editor actions 1280
+Preview icon 375
+Preview icon 1280
+palette shortcuts and recent 375
+palette shortcuts and recent 1280
+no context menu 375
+no context menu 1280
+checkTextBar 360
+checkTextBar 375
+checkTextBar 390
+checkTextBar 414
+checkTextBarWide
+checkAnchoredParts 375 touch
+checkAnchoredParts 768
+checkAnchoredParts 1280
+checkPreviewInBar 375
+checkPreviewInBar 1280
+checkSaveKeyNoAutosave
+checkTextBarFit 320
+checkTextBarFit 360
+checkTextBarFit 375
+checkTextBarFit 390
+checkTextBarFit 414
+checkTextBarFit 600
+checkTextBarFit 840
+checkTextBarFit 1280
+checkBarSlide 375
+checkBarSlide 1280
+checkBarSlide 375 reduced
+checkBlockBar 375
+checkBlockBar 1280
+checkCardBar 375
+checkCardBar 1280
+checkLiveSideSheet 1280
+checkPhoneSheet 375
+checkComputerRestore 1280
+checkCloseChangedSheet 375
+checkLiveSideSheet 700
+checkSheetFocusOnOpen 700
+checkSheetFocusOnOpen 1280
+checkImageTools 375
+checkImageTools 1280
+checkCropView 375
+checkCropView 1280
+checkVideoChangeLink 375
+checkVideoChangeLink 1280
+checkCardImage 375
+checkCardImage 1280
+checkAltSheet 375
+checkAltSheet 1280
+checkInsertBlock 320
+checkInsertBlock 375
+checkInsertBlock 1280
+checkBlockRow 375
+checkBlockRow 1280
+checkBlockRow 375 reduced
+checkBlockRow 375 keyboard
+checkBlockRowNarrow
+checkBlockVisibility 375
+checkBlockVisibility 1280
+checkSheetKeyboard 375
+checkSheetKeyboard 375 Custom
+checkCustomColors 375
+checkCustomColors 1280
+checkBottomSheetBar 375
+checkBottomSheetBar 375 keyboard
+checkBottomSheetBar 1280
+checkDraftsCard 360
+checkDraftsCard 375
+checkDraftsCard 1280
+checkFilesPane 375
+checkFilesPane 768
+checkFilesPane 1000
+checkFilesPane 1280
+checkListAndRedirectPanes 375
+checkListAndRedirectPanes 768
+checkListAndRedirectPanes 1280
+checkLinkAndItemPanes 375
+checkLinkAndItemPanes 768
+checkLinkAndItemPanes 1280
+checkBlockSettingsPane 375
+checkBlockSettingsPane 768
+checkBlockSettingsPane 1280
+checkEmptyHint
+checkLongPressDelete
+checkAppTestPages
+checkSelection
+checkSelectionBox
+checkFilesSelection
+checkFilesDialog
+checkRedirectsSelection
+checkDragSelect
+checkTwoFinger
+checkBlockDrag 375
+checkBlockDrag 1280
+checkBlockSelect 375
+checkBlockSelect 1280
+checkBlockMove 375
+checkBlockMove 1280
+checkUnlistedPost
+checkLibraryAlt
+checkImageGrid 375
+checkImageGrid 1280
+checkCardsSpacing 768
+checkCardsEditorSpacing 768
+checkCardsElevation 768
+checkCardsCarousel 375
+checkCardsSpacing 375
+checkCardsEditorSpacing 375
+checkCardsElevation 375
+checkPostMeta 375 light
+checkPostMeta 375 dark
+checkCardIconText 375 light
+checkCardIconText 375 dark
+checkIconColor 375 light
+checkIconColor 375 dark
+checkCardsCarousel 1280
+checkCardsSpacing 1280
+checkCardsEditorSpacing 1280
+checkCardsElevation 1280
+checkPostMeta 1280 light
+checkPostMeta 1280 dark
+checkCardIconText 1280 light
+checkCardIconText 1280 dark
+checkIconColor 1280 light
+checkIconColor 1280 dark
+checkIconSlots 375 list
+checkIconSlots 375 segmented
+checkIconSlots 375 buttons
+checkIconSlots 375 cards
+checkIconSlots 1280 list
+checkIconSlots 1280 segmented
+checkIconSlots 1280 buttons
+checkIconSlots 1280 cards
+checkInlineBlock 375 list
+checkInlineBlock 375 steps
+checkInlineBlock 375 segmented
+checkInlineBlock 375 cards
+checkInlineBlock 375 pricecards
+checkInlineBlock 375 buttons
+checkInlineBlock 375 faq
+checkInlineBlock 375 tickets
+checkInlineSingle 375 notice
+checkInlineSingle 1280 notice
+checkInlineSingle 375 video
+checkInlineSingle 1280 video
+checkInlineBlock 1280 list
+checkInlineBlock 1280 steps
+checkInlineBlock 1280 segmented
+checkInlineBlock 1280 cards
+checkInlineBlock 1280 pricecards
+checkInlineBlock 1280 buttons
+checkInlineBlock 1280 faq
+checkInlineBlock 1280 tickets
+checkSegmentedArrow 375
+checkSegmentedArrow 1280
+checkLiveList 375 testimonials
+checkLiveList 1280 testimonials
+checkLiveList 375 posts
+checkLiveList 1280 posts
+checkLiveList 375 imagegrid
+checkLiveList 1280 imagegrid
+checkImageGridAdd 375
+checkImageGridAdd 1280
+checkChevronRows 375
+checkChevronRows 768
+checkChevronRows 1280
+checkListRowColors
+checkSectionOnImage
+checkInsertNeverOpensSheet 375
+checkEmptyRow 375
+checkInsertNeverOpensSheet 1280
+checkSteps 375
+checkSteps 768
+checkSteps 1280
+checkInlinePaste 375 list
+checkInlinePaste 1280 list
+checkInlinePaste 375 segmented
+checkInlinePaste 1280 segmented
+checkInlinePaste 375 faq
+checkInlinePaste 1280 faq
+checkInlinePaste 375 cards
+checkInlinePaste 1280 cards
+checkInlinePaste 375 steps
+checkInlinePaste 1280 steps
+checkInlinePaste 375 table
+checkInlinePaste 1280 table
+checkChangeTo 375
+checkChangeTo 1280
+checkCardHeadline 375
+checkCardHeadline 1280
+checkDynamicList 375
+checkDynamicList 1280
+checkDynamicPicker 375
+checkDynamicPicker 1280
+checkOwnList 375
+checkListMenuOpens 375 touch
+checkListMenuOpens 768
+checkListMenuOpens 1280
+checkOwnList 1280
+checkInlineTable 375
+checkInlineTable 1280
+checkTableAlign 375
+checkTableAlign 1280
+checkTableRadius 375
+checkTableRadius 1280
+checkLabelGap
+checkPostMeta 768 light
+checkPostMeta 768 dark
+checkSpacingGrid 375
+checkSpacingGrid 1280
+checkPageLeftEdge 375
+checkPageLeftEdge 768
+checkPageLeftEdge 1280
+checkIconSearch 360
+checkIconSearch 375
+checkIconSearch 390
+checkIconSearch 414
+checkHints
+checkChecklistMarks
+checkFullWidthSection
+checkSectionBackground 375
+checkSectionBackground 1280
+checkTapBelowSection 375
+checkTapBelowSection 1280
+checkFoldRows 360
+checkEntrySettings 360
+checkNofollowSwitch 360
+checkFoldRows 375
+checkEntrySettings 375
+checkNofollowSwitch 375
+checkFoldRows 390
+checkEntrySettings 390
+checkNofollowSwitch 390
+checkFoldRows 414
+checkEntrySettings 414
+checkNofollowSwitch 414
+checkFoldRows 1280
+checkEntrySettings 1280
+checkNofollowSwitch 1280
+checkExpandList 375
+checkSectionsOnLoad 375
+checkExpandList 1280
+checkSectionsOnLoad 1280
+checkFooterTargets 320
+checkFooterTargets 375
+checkFooterTargets 1280
+checkToolbarBox
+checkDensity 375
+checkDensity 1280
+checkUserInvalid 375 light
+checkUserInvalid 375 dark
+checkUserInvalid 1280 light
+checkUserInvalid 1280 dark
+checkDensityParts 375
+checkDensityParts 1280
+checkDensityLayout 375
+checkDensityLayout 1280
+checkDensityTable 375
+checkDensityTable 1280
+checkDensityScreens 375
+checkDensityScreens 1280
+checkDensitySetting 375
+checkDensitySetting 1280
+checkPreviewSection
+checkFullSection
+checkH1SectionGap
+checkSectionCardContrast
+checkListMarkers 375
+checkListMarkers 1280
+checkListsAndBlocks 375
+checkListsAndBlocks 1280
+checkLabelOnAnyLine 375
+checkLabelOnAnyLine 1280
+checkFabAboveFooter 375
+checkFabAboveFooter 1280
+checkPreviewDraft 360
+checkPreviewDraft 375
+checkPreviewDraft 390
+checkPreviewDraft 414

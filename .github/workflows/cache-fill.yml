@@ -1,0 +1,45 @@
+# Fills the caches that check.yml's jobs restore, on the branch a pull request goes into. Plan: docs/superpowers/plans/2026-11-18-build-and-check-speed.md,
+# A2 (building blocks 1 and 3).
+#
+# WHY: an Actions cache can be read by the branch that saved it, by the default branch, and by a pull request into that branch (its base). check.yml runs
+# only on pull requests, so no branch ever saved a cache and the first run of every pull request started cold: `npm ci` without npm's cache and Chromium
+# downloaded again. This workflow runs on every push to a feature branch and to a version line (that is, on each merge into it), does the same
+# set-up as the jobs of check.yml (the local action .github/actions/prepare, so the keys are the same) and saves the caches, so the next pull request
+# into the branch restores them.
+#
+# It does nothing else (besides tsc's build info, A7): no build (a pull request's inputs rarely equal the branch's, so a kept build would almost never hit), no check, no write
+# permission. A push to a branch runs it once, an extra run beside check.yml's (free in this public repository; a merge into a feature branch is a push).
+name: Fill caches
+
+on:
+  push:
+    branches: ['feature/**', '0.*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# A newer push to the same branch makes the older run pointless: it would save the same caches.
+concurrency:
+  group: cache-fill-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/prepare
+        with:
+          browser: 'true'
+      # tsc's build info (A7): the same key as the job `static` of check.yml (scripts/ci-tsc-key.mjs), so a pull request into this branch restores it and tsc
+      # re-reads only what changed. This run only writes the info; a type error here is the pull request's check to report, not this workflow's.
+      - id: tsc
+        run: node scripts/ci-tsc-key.mjs >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: .morpheme/tsc
+          key: tsc-${{ steps.tsc.outputs.key }}-${{ github.sha }}
+          restore-keys: tsc-${{ steps.tsc.outputs.key }}-
+      - run: npm run check:types
+        continue-on-error: true

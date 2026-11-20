@@ -1,0 +1,302 @@
+---
+import '@theme/styles/global.css';
+import Header from '@theme/components/Header.astro';
+import Footer from '@theme/components/Footer.astro';
+import CookieConsent from '@theme/components/CookieConsent.astro';
+import Popup from '@theme/components/Popup.astro';
+import ActionBar from '@theme/components/ActionBar.astro';
+import AppSlot from '@theme/components/AppSlot.astro';
+// The theme's own font files, loaded before the CSS asks for them (FontPreload.astro).
+import FontPreload from '@theme/components/FontPreload.astro';
+// The site's colours, which the owner changes under "Colors" in the editor (the theme's styles/global.css uses them),
+// as the apps installed change them for the page (packages/editor/site/pageColors.ts: an app's hooks/page-colors.ts).
+import { pageColors } from '@morphemecms/cms/site/pageColors';
+import { colorsCss } from '@morphemecms/cms/lib/colors';
+// How the site moves (Material 3's motion schemes), which the owner chooses under "Motion" in the editor: its springs
+// as the CSS variables every transition takes, and its name on <html> for the scripts (packages/editor/lib/motion.ts).
+import { motionCss } from '@morphemecms/cms/lib/motion';
+import { motionScheme } from '@morphemecms/cms/site/motion';
+import { site } from '@morphemecms/cms/site/site';
+import { business, businessRef, person, website, webPage, type Crumb, type Question } from '@morphemecms/cms/site/schema';
+import { seo } from '@morphemecms/cms/site/seo';
+import { cookieBanner } from '../../site/consent';
+import { shareImage } from '@morphemecms/cms/site/images.mjs';
+import { isNoindex } from '@morphemecms/cms/site/noindex.mjs';
+import { robotsContent } from '@morphemecms/cms/lib/status.mjs';
+import { siteT } from '@morphemecms/cms/src/i18n';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** meta title and description from the page's front matter (pages and blog posts). */
+  seoTitle?: string;
+  seoDescription?: string;
+  /** The address of the page Google should count as the original (rel=canonical), from the front matter;
+   * else this page itself. */
+  canonical?: string;
+  /** The page's image: shown when the page is shared, and in the structured data. */
+  image?: string;
+  /** The images on the page, in the order they are on it (a blog post's own first, then the real images in
+   * its text and blocks, picturesOf), for an app that changes the page's colours (pageColors), with the one it is
+   * shared with after them. */
+  pictures?: (string | undefined)[];
+  /** What `image` shows (og:image:alt). */
+  imageAlt?: string;
+  /** The image to show when the page is shared, when it is another than `image`. */
+  shareImage?: string;
+  /** The title and description when the page is shared (og:), when they are others than the Google ones. */
+  shareTitle?: string;
+  shareDescription?: string;
+  type?: 'website' | 'article';
+  /** A blog post's date and last edit (article:published_time and article:modified_time). */
+  published?: Date;
+  modified?: Date;
+  noindex?: boolean;
+  /** Search engines do not follow the page's links. */
+  nofollow?: boolean;
+  /** Breadcrumbs between the front page and this page, for the structured data. */
+  crumbs?: Crumb[];
+  /** The questions and answers on the page, which make it an FAQPage in the structured data. */
+  questions?: Question[];
+  /** More structured data for this page (a blog post, prices). */
+  schema?: Record<string, unknown>[];
+}
+const { title, image, type = 'website', crumbs, questions, schema = [] } = Astro.props;
+// <title> and meta description: the page's own SEO fields (front matter of pages and blog posts),
+// else packages/editor/site/seo.ts (the pages built in code), else the title and description props.
+const entry = seo[Astro.url.pathname];
+const noindex = Astro.props.noindex || entry?.noindex || isNoindex(Astro.url.pathname);
+const robots = robotsContent({ noindex, nofollow: Astro.props.nofollow || entry?.nofollow });
+// `||`, not `??`: an empty field (the content schemas default to '') falls through to the next.
+// A page without a title shows only the site's name, without " | " (pageTitle in src/googleResult.mjs).
+const fullTitle =
+  Astro.props.seoTitle || entry?.title || (!title ? site.name : Astro.url.pathname === '/' ? title : `${title} | ${site.name}`);
+const description = Astro.props.seoDescription || entry?.description || Astro.props.description || site.description;
+// When the page is shared: its own title and description for that ("Open Graph title", "Open Graph description"), else
+// the Google ones.
+const ogTitle = Astro.props.shareTitle || fullTitle;
+const ogDescription = Astro.props.shareDescription || description;
+const canonical = new URL(Astro.props.canonical || entry?.canonical || Astro.url.pathname, Astro.site);
+// The image when the page is shared: the one chosen for that ("Open Graph image" on the page or in
+// packages/editor/site/seo.ts), else the page's own, else the site's portrait; none when the site has none either.
+const chosen = Astro.props.shareImage || entry?.image;
+const shared = chosen || image || site.portrait;
+const og = shared ? shareImage(shared) : null;
+const ogImage = og && new URL(og.src, Astro.site);
+// What it shows, when that is known (not for an image chosen only for sharing).
+const ogAlt = chosen ? undefined : image ? Astro.props.imageAlt : site.portraitAlt;
+const current = Astro.url.pathname;
+// The page's colours: the site's, as the apps installed change them for it, given its images, in order, then the one
+// it is shared with ("Open Graph image"); with the app that changed them and the image they came from, kept on their
+// <style> for "Colors" › "Pages" in the editor (packages/editor/scripts/page-colors.mjs).
+const {
+  colors,
+  app: colorsApp,
+  picture: colorsPicture,
+} = await pageColors({ path: Astro.url.pathname, pictures: [...(Astro.props.pictures ?? []), chosen] });
+// The cookie banner (and "Cookie settings"): when it is on and there is something to ask about (packages/editor/site/consent.ts).
+const banner = cookieBanner;
+
+// Structured data (packages/editor/site/schema.ts): the business, the person behind it, the website, this page and what the page adds.
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    // The business in full on the front page and the contact page, a reference elsewhere.
+    current === '/' || current === site.contactPath ? business : businessRef,
+    ...(person ? [person] : []),
+    website,
+    ...webPage({ path: current, title: fullTitle, name: title, description, image, crumbs, questions }),
+    ...schema,
+  ],
+};
+---
+
+<!doctype html>
+<html lang={site.locale.split('-')[0]} data-motion-scheme={motionScheme}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {!noindex && <link rel="canonical" href={canonical} />}
+    {robots && <meta name="robots" content={robots} />}
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={ogTitle} />
+    <meta property="og:description" content={ogDescription} />
+    {!noindex && <meta property="og:url" content={canonical} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {og?.type && <meta property="og:image:type" content={og.type} />}
+    {og?.width && <meta property="og:image:width" content={String(og.width)} />}
+    {og?.height && <meta property="og:image:height" content={String(og.height)} />}
+    {ogAlt && <meta property="og:image:alt" content={ogAlt} />}
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content={site.locale.replace('-', '_')} />
+    {Astro.props.published && <meta property="article:published_time" content={Astro.props.published.toISOString()} />}
+    {Astro.props.modified && <meta property="article:modified_time" content={Astro.props.modified.toISOString()} />}
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+    {ogAlt && <meta name="twitter:image:alt" content={ogAlt} />}
+    <FontPreload />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="alternate" type="application/rss+xml" title={`${site.name} blog`} href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content={colors.light.surface} media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content={colors.dark.surface} media="(prefers-color-scheme: dark)" />
+    <style is:inline data-page-colors data-app={colorsApp} data-picture={colorsPicture} set:html={colorsCss(colors)}></style>
+    <style is:inline data-motion-springs set:html={motionCss(motionScheme)}></style>
+    {!noindex && <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />}
+    <script is:inline>
+      document.documentElement.classList.add('mo-js');
+      // The colour scheme (Modern Web Guidance, dark-mode-toggle): none stored = follow the system. A pinned choice sets
+      // data-theme (the tokens), <meta name="color-scheme"> and both theme-color metas in step; this runs before the first paint.
+      window.setColorScheme = (t) => {
+        const root = document.documentElement;
+        const pinned = t === 'light' || t === 'dark';
+        if (pinned) root.dataset.theme = t;
+        else delete root.dataset.theme;
+        document.querySelector('meta[name="color-scheme"]').content = pinned ? t : 'light dark';
+        const bars = [...document.querySelectorAll('meta[name="theme-color"]')];
+        bars.forEach((m) => (m.dataset.own ??= m.content));
+        const pick = bars.find((m) => m.media.includes(t));
+        bars.forEach((m) => (m.content = pinned && pick ? pick.dataset.own : m.dataset.own));
+      };
+      try {
+        const t = localStorage.getItem('theme');
+        if (t === 'light' || t === 'dark') setColorScheme(t);
+      } catch {}
+      // Safety net: never leave content hidden if the motion script fails to load. When it has loaded
+      // (the theme's scripts/motion.ts sets data-motion), the sections not yet scrolled to wait for it.
+      setTimeout(
+        () =>
+          !document.documentElement.dataset.motion &&
+          document.querySelectorAll('[data-reveal]').forEach((el) => {
+            if (getComputedStyle(el).opacity === '0' && !el.getAnimations().length) el.style.opacity = '1';
+          }),
+        4000,
+      );
+    </script>
+    <slot name="head" />
+    <AppSlot name="head" />
+  </head>
+  <body class="mo-body">
+    <a href="#main-content" class="mo-skip-link">
+      {siteT.theme.skipToContent}
+    </a>
+
+    <Header />
+
+    <main id="main-content" class="mo-main">
+      <slot />
+    </main>
+
+    {banner && <CookieConsent />}
+    {/* The pop-ups for this page ("Promotion" in the editor). */}
+    <Popup />
+
+    {
+      /* A blog post's related posts, in the footer instead of the practical links. */
+      Astro.slots.has('footer-column') ? (
+        <Footer>
+          <slot name="footer-column" slot="footer-column" />
+        </Footer>
+      ) : (
+        <Footer />
+      )
+    }
+
+    <script>
+      // What the blocks do in a browser (script.ts in the theme's blocks/<type>/).
+      import { blockScripts } from '../../site/blockScripts';
+      Object.values(blockScripts).forEach((run) => run());
+    </script>
+
+    <script>
+      import '@theme/scripts/motion';
+
+      // Colour scheme setting in the footer (Modern Web Guidance, dark-mode-toggle): Light and Dark pin the scheme and are
+      // stored; Auto removes the stored value, so the page follows the system. A stored value is never removed because the
+      // system later changes to match it.
+      const scheme = window as unknown as { setColorScheme: (t: string | null) => void };
+      // One tab stop on the chosen button; the arrow keys move between the buttons and choose (the theme's ChoiceGroup, and the
+      // button group's keyboard in M3: Tab, arrow keys, Space or Enter).
+      const choices = () => [...document.querySelectorAll<HTMLElement>('[data-scheme-choice] [data-scheme]')];
+      const showChoice = () => {
+        const chosen = document.documentElement.dataset.theme ?? 'auto';
+        choices().forEach((b) => {
+          b.setAttribute('aria-pressed', String(b.dataset.scheme === chosen));
+          b.tabIndex = b.dataset.scheme === chosen ? 0 : -1;
+        });
+      };
+      showChoice();
+      document.querySelectorAll('[data-scheme-choice] [data-scheme]').forEach((btn) =>
+        btn.addEventListener('click', () => {
+          const next = (btn as HTMLElement).dataset.scheme!;
+          scheme.setColorScheme(next === 'auto' ? null : next);
+          try {
+            if (next === 'auto') localStorage.removeItem('theme');
+            else localStorage.setItem('theme', next);
+          } catch {}
+          showChoice();
+        }),
+      );
+      document.querySelectorAll('[data-scheme-choice]').forEach((group) =>
+        group.addEventListener('keydown', (e) => {
+          const key = (e as KeyboardEvent).key;
+          if (key !== 'ArrowLeft' && key !== 'ArrowRight' && key !== 'ArrowUp' && key !== 'ArrowDown') return;
+          const list = choices();
+          const step = (key === 'ArrowRight' || key === 'ArrowDown') === (getComputedStyle(group).direction !== 'rtl') ? 1 : -1;
+          const next = list[(list.indexOf(document.activeElement as HTMLElement) + step + list.length) % list.length];
+          e.preventDefault();
+          next.focus();
+          next.click();
+        }),
+      );
+      // The choice changed in another tab.
+      addEventListener('storage', (e) => {
+        if (e.key !== 'theme' && e.key !== null) return;
+        scheme.setColorScheme(localStorage.getItem('theme'));
+        showChoice();
+      });
+
+      // Videos from YouTube and Vimeo in the text (packages/editor/lib/video.mjs): the video loads only when it is played.
+      document.querySelectorAll<HTMLAnchorElement>('a[data-video]').forEach((link) =>
+        link.addEventListener('click', (e) => {
+          if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+          e.preventDefault();
+          const frame = document.createElement('iframe');
+          frame.src = link.dataset.video!;
+          frame.title = link.dataset.title ?? '';
+          frame.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+          frame.allowFullscreen = true;
+          frame.referrerPolicy = 'strict-origin-when-cross-origin';
+          link.replaceWith(frame);
+          frame.focus();
+        }),
+      );
+
+      // Header: a shadow once the page scrolls under it.
+      const header = document.querySelector<HTMLElement>('[data-header]');
+      if (header) {
+        const update = () => header.toggleAttribute('data-stuck', scrollY > 4);
+        addEventListener('scroll', update, { passive: true });
+        update();
+      }
+
+      // The bar at the bottom of a phone's screen (a promotion, ActionBar.astro, or an app's): on pages with
+      // buttons at the top, hide it only while those are (almost) fully on screen. A sliver of them
+      // peeking in at the bottom still shows the bar.
+      const bar = document.querySelector<HTMLElement>('[data-action-bar]');
+      const heroCta = document.querySelector('[data-hero-cta]');
+      if (bar && heroCta && 'IntersectionObserver' in window) {
+        new IntersectionObserver(([e]) => bar.toggleAttribute('data-hidden', e.intersectionRatio >= 0.95), {
+          threshold: [0, 0.95],
+        }).observe(heroCta);
+      }
+    </script>
+    {/* The bars at the bottom of a phone's screen, before the apps' (only the first one is shown). */}
+    <ActionBar />
+    <AppSlot name="body-end" />
+  </body>
+</html>

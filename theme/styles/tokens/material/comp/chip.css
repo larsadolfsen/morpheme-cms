@@ -1,0 +1,27 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Chips (ui.css; M3 Chips, specs): 32dp, 8dp corners, an outline variant edge and no container, the label and icon in on surface variant; a chosen filter
+     chip in the secondary container, its label and check in on secondary container (owner, 15 Nov 2026). */
+  --mo-comp-filter-chip-container-height: 2rem;
+  --mo-comp-chip-padding: 0.375rem 1rem;
+  /* 6dp over and under a 20dp label line is the 32dp container (M3 Chips, specs: "Container height 32dp"). */
+  --mo-comp-chip-padding-block: 0.375rem;
+  --mo-comp-filter-chip-container-shape: var(--mo-sys-shape-corner-small);
+  --mo-comp-chip-surface: transparent;
+  --mo-comp-filter-chip-unselected-label-text-color: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-filter-chip-flat-unselected-outline-color: var(--mo-sys-color-outline-variant);
+  --mo-comp-chip-hover-line: var(--mo-sys-color-outline-variant);
+  --mo-comp-chip-hover-text: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-filter-chip-flat-selected-container-color: var(--mo-sys-color-secondary-container);
+  --mo-comp-chip-selected-hover: color-mix(
+    in srgb,
+    var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+    var(--mo-sys-color-secondary-container)
+  );
+  --mo-comp-filter-chip-selected-label-text-color: var(--mo-sys-color-on-secondary-container);
+  --mo-comp-chip-selected-check: block;
+}

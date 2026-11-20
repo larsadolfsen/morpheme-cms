@@ -1,0 +1,14 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+@layer utilities {
+  .mo-type-lead {
+    /* The space of a lead paragraph in a text (.mo-prose, base.css): 24px, on the 4dp grid. */
+    --mo-sys-prose-space: 1.5rem;
+  }
+}
+@layer utilities {
+  .mo-text-lead > p:first-child,
+  .mo-page__text:where(.mo-is-single-column) > p:first-child {
+    --mo-sys-prose-space: 1.5rem;
+  }
+}

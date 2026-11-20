@@ -1,0 +1,12 @@
+{
+  "name": "Bangalore",
+  "place": {
+    "en-US": "Bangalore, Karnataka, India",
+    "da-DK": "Bangalore, Karnataka, Indien"
+  },
+  "photo": {
+    "by": "Satender Singh",
+    "source": "https://unsplash.com/photos/green-palm-tree-under-blue-sky-during-daytime-o9f7d1cxbsU",
+    "license": "https://unsplash.com/license"
+  }
+}

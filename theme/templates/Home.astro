@@ -1,0 +1,104 @@
+---
+// The front page (the standard theme's): the page chosen under "Settings" › "Appearance" › "Default pages" (packages/editor/site/home.ts), its
+// heading, then its sections in order: a text, and a block by its type in a section of its own (PageBlock.astro): the
+// standard ones' and the apps'. A page whose H1 has section settings (a marker before it: a colour, an
+// image behind the text, the whole width) draws the heading, its text and
+// its Buttons block in one panel, as PageLayout.astro does, in place of the heading above.
+import Base from '@theme/layouts/Base.astro';
+import Container from '@theme/components/Container.astro';
+import Text from '@theme/components/home/Text.astro';
+import PageBlock from '@theme/components/home/PageBlock.astro';
+import Markdown from '@theme/components/Markdown.astro';
+import Block from '@morphemecms/cms/src/standard/Block.astro';
+import { splitTrailingEyebrow } from '@morphemecms/cms/lib/eyebrow.mjs';
+import { sectionClass } from '@morphemecms/cms/lib/text-sections.mjs';
+import { blockTexts } from '@morphemecms/cms/site/site';
+import { site } from '@morphemecms/cms/site/site';
+import { picturesOf } from '@morphemecms/cms/site/images.mjs';
+import type { FrontPage } from '@morphemecms/cms/site/home';
+
+type Props = FrontPage;
+const { page, heading, headingHtml, sections } = Astro.props;
+// The sections before the H1's panel stay above it; the panel takes the place of the heading.
+const panel = sections.find((s) => s.type === 'top');
+// A label that ends a text belongs to the section after it (a block or a text with a heading), not to a section of its own:
+// its space above would come between the label and the heading. Only a text without a heading hands its label on.
+const takesLabel = (next?: (typeof sections)[number]) =>
+  !!next && next.type !== 'top' && !next.hidden && (next.type !== 'text' || !!next.heading);
+const shown: { section: (typeof sections)[number]; label?: string }[] = [];
+let carried: string | undefined;
+sections.forEach((s, i) => {
+  const next = sections[i + 1];
+  if (s.type === 'top') {
+    // The H1's panel: a label at the end of its text goes on to the section after.
+    const last = s.items[s.items.length - 1];
+    const { body, label } =
+      last && 'markdown' in last && takesLabel(next) ? splitTrailingEyebrow(last.markdown) : { body: '', label: null };
+    if (label !== null) {
+      const items = s.items.slice(0, -1);
+      shown.push({ section: { ...s, items: body ? [...items, { markdown: body }] : items } });
+      carried = label;
+      return;
+    }
+  } else if (s.type === 'text' && !s.heading && takesLabel(next)) {
+    const { body, label } = splitTrailingEyebrow(s.body);
+    if (label !== null) {
+      if (body) shown.push({ section: { ...s, body }, label: carried });
+      carried = label;
+      return;
+    }
+  }
+  shown.push({ section: s, label: s.type === 'top' ? undefined : carried });
+  carried = undefined;
+});
+---
+
+<Base
+  title={heading}
+  description={page.data.description || site.description}
+  seoTitle={page.data.seoTitle}
+  seoDescription={page.data.seoDescription}
+  canonical={page.data.canonical}
+  noindex={page.data.noindex}
+  nofollow={page.data.nofollow}
+  shareImage={page.data.shareImage}
+  images={picturesOf(page.body)}
+  shareTitle={page.data.shareTitle}
+  shareDescription={page.data.shareDescription}
+>
+  {!panel && (
+    <Container class="mo-home__top">
+      <h1 class="mo-page-title mo-home__title">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
+    </Container>
+  )}
+  {shown.map(({ section: s, label }, i) => {
+    const first = i === 0 ? 'mo-home__first' : undefined;
+    if (s.type === 'top')
+      return (
+        <Container class={s.settings.color ? 'mo-flush-top' : 'mo-home__top'}>
+          <section
+            class={s.settings.color || s.settings.width ? sectionClass(s.settings.color, s.settings) : undefined}
+            data-editor="h1-section"
+          >
+            <h1 class="mo-page-title mo-home__title">{headingHtml ? <Fragment set:html={headingHtml} /> : heading}</h1>
+            {s.items.map((item, n) =>
+              item.block ? (
+                !item.block.props.hidden && (
+                  <div class="mo-placed-block mo-home__item">
+                    <Block type={item.block.type} props={item.block.props} texts={blockTexts[item.block.type]} />
+                  </div>
+                )
+              ) : (
+                <Markdown body={item.markdown} class={n === 0 ? 'mo-home__item mo-text-lead' : 'mo-home__item'} />
+              ),
+            )}
+          </section>
+        </Container>
+      );
+    return s.type === 'text' ? (
+      <Text {...s} class={first} lead={i === 0 && !s.heading} label={label} />
+    ) : (
+      <PageBlock section={s} class={first} label={label} />
+    );
+  })}
+</Base>

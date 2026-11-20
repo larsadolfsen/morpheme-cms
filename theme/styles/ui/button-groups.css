@@ -1,0 +1,293 @@
+/*
+  The buttons that do more than one thing (../ui/ButtonGroup.tsx, SegmentedButton.tsx, ChoiceGroup.tsx, SplitButton.tsx, FabMenu.tsx),
+  named as Material 3 names them. They are made of the buttons and the FABs above (their classes), so they take their
+  variables (--button-*, --fab-*) where it is the same thing; what is here is what they add. A theme changes it with
+  these variables, and with rules on the classes where a variable is not enough.
+
+  Button group (ButtonGroup, buttonGroupClass): .mo-button-group with its kind, .mo-button-group__standard (apart) or
+  .mo-button-group__connected (joined, the corners between them small, larger with the buttons' size); in it .mo-button and
+  .mo-icon-button in any size and shape, a toggle with aria-pressed in its look off and on (the buttons' above); in a
+  standard group one that is on has the selected corners, in a connected one it is fully round. In a standard group the
+  one pressed is a little wider and its neighbours a little narrower (Material's 15 %), unless motion is reduced.
+    --mo-comp-button-group-standard-medium-between-space, --mo-comp-button-group-connected-gap, --mo-comp-button-group-selected-radius
+    --mo-comp-button-group-inner-radius (the small and medium buttons'), --mo-comp-button-group-xsmall-inner-radius, -large-, -xlarge-
+  Toggles' colours are the buttons' (--button-toggle-*, --button-<kind>-selected-*, --icon-button-…-selected-*).
+  Segmented button (SegmentedButton, segmentedButtonClass, segmentedButtonSegmentClass): .mo-segmented-button, the frame
+  (the whole width on a phone, as wide as its choices from the medium width), with a .mo-segmented-button__segment for each (the chosen with aria-pressed="true"), in it .mo-segmented-button__check (shown
+  on the chosen), optionally .mo-segmented-button__icon (hidden on the chosen, the check in its place) and
+  .mo-segmented-button__label. A segment with a colour (Segment.swatch) has .mo-segmented-button__swatch, a filled circle of it in every
+  segment, in place of the check.
+    --mo-comp-segmented-button-height, -padding, -gap, -radius, -font-size, -icon-size   (the button's where it has none)
+    --mo-comp-segmented-button-surface, -text, -line, -hover
+    --mo-comp-outlined-segmented-button-selected-container-color, -selected-text, -selected-hover
+    --mo-comp-segmented-button-selected-check, --mo-comp-segmented-button-selected-icon   whether the chosen shows its check and its
+                                                                         icon (none, or a display value: block)
+  Choice group (ChoiceGroup, choiceGroupClass): .mo-choice-group, one choice of a few that takes its form by measuring
+  (data-form="buttons" or "list" on it; "list" until it is measured, data-forced when a form is forced): the buttons, a
+  .mo-button-group__connected .mo-choice-group__buttons with a filled, small toggle .mo-button for each choice (aria-pressed, no
+  check mark: the chosen one shows by its shape and colour), the whole width and each as wide as the others, at most
+  --mo-comp-choice-group-max-width from the medium width; or the list, a .mo-radio-group .mo-choice-group__list (its .mo-radio-group__label
+  the choice's name) with a .mo-list, each choice a .mo-list__item-with-control with its .mo-radio-button leading, at least 48 dp
+  high at every density, and on its right its .mo-choice-group__sample (a small, inert drawing of the look) or its
+  .mo-choice-group__swatch (a filled circle of a colour, also before the label in the buttons; with dots only the circles
+  show, the names in .mo-choice-group__label-hidden; with data-label-hidden the list's name is for screen readers only, where
+  a label is already over it). .mo-choice-group__measure is the buttons at their natural width, hidden,
+  which the form is measured with. The forms' looks are the button group's, the button's, the list's and the radio
+  button's variables; the part adds:
+    --mo-comp-choice-group-max-width (30rem), --mo-comp-choice-group-gap (between the name and the list),
+    --mo-comp-choice-group-sample-max-width (7rem), --mo-comp-choice-group-sample-gap,
+    --mo-comp-choice-group-sample-button-height (2rem: a sample's button, the extra small size's height)
+  In the list the rows run the whole width of the fields above (no padding at their sides): the radio's circle starts where
+  the name starts, a sample ends where the fields end, and a text button's text is the edge.
+  Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
+  the same property on these parts at the same specificity, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* Button groups (m3.material.io/components/button-groups). */
+  .mo-button-group {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mo-comp-button-group-standard-medium-between-space, 0.5rem);
+  }
+  .mo-button-group__connected {
+    flex-wrap: nowrap;
+    gap: var(--mo-comp-button-group-connected-gap, 0.125rem);
+  }
+  .mo-button-group > :is(.mo-button, .mo-icon-button) {
+    transition:
+      background-color var(--mo-sys-motion-spring-default-effects),
+      color var(--mo-sys-motion-spring-default-effects),
+      transform var(--mo-sys-motion-spring-fast-spatial),
+      box-shadow var(--mo-sys-motion-spring-default-effects),
+      border-radius var(--mo-sys-motion-spring-fast-spatial),
+      padding var(--mo-sys-motion-spring-fast-spatial),
+      width var(--mo-sys-motion-spring-fast-spatial);
+  }
+  /* Pressed, a button in a standard group is 15 % wider and its neighbours narrower, so the group keeps its width. */
+  @media (prefers-reduced-motion: no-preference) {
+    .mo-button-group__standard > .mo-button:active {
+      padding-inline: calc(var(--mo-comp-button-inline) * 1.3);
+    }
+    .mo-button-group__standard > .mo-button:has(+ :active),
+    .mo-button-group__standard > :active + .mo-button {
+      padding-inline: calc(var(--mo-comp-button-inline) * 0.85);
+    }
+    .mo-button-group__standard > .mo-icon-button:active {
+      width: calc(var(--mo-comp-icon-button-width) * 1.15);
+    }
+    .mo-button-group__standard > .mo-icon-button:has(+ :active),
+    .mo-button-group__standard > :active + .mo-icon-button {
+      width: calc(var(--mo-comp-icon-button-width) * 0.925);
+    }
+  }
+  .mo-button-group__connected > * {
+    flex: 1 1 auto;
+  }
+  .mo-button-group__connected > :not(:first-child) {
+    border-start-start-radius: var(--mo-comp-button-group-inner);
+    border-end-start-radius: var(--mo-comp-button-group-inner);
+  }
+  .mo-button-group__connected > :not(:last-child) {
+    border-start-end-radius: var(--mo-comp-button-group-inner);
+    border-end-end-radius: var(--mo-comp-button-group-inner);
+  }
+  /* A toggle that is on (its colours are the button's): with the selected corners, fully round in a connected group. */
+  .mo-button-group > [aria-pressed='true'] {
+    border-radius: var(--mo-comp-button-group-selected-radius, var(--mo-comp-button-round, var(--mo-comp-icon-button-round)));
+  }
+  .mo-button-group__connected > .mo-button[aria-pressed='true'] {
+    border-radius: var(--mo-comp-button-round);
+  }
+  .mo-button-group__connected > .mo-icon-button[aria-pressed='true'] {
+    border-radius: var(--mo-comp-icon-button-round);
+  }
+
+  /* Segmented buttons (m3.material.io/components/segmented-buttons): the choices side by side in one frame, each as
+     wide as the widest. */
+  /* The whole width on a phone, the choices sharing it; as wide as its choices from the medium width. */
+  .mo-segmented-button {
+    display: grid;
+    grid-auto-columns: 1fr;
+    grid-auto-flow: column;
+    border: 1px solid
+      var(--mo-comp-outlined-segmented-button-outline-color, var(--mo-comp-button-outlined-outline-color, var(--mo-sys-block-line)));
+    border-radius: var(
+      --mo-comp-segmented-button-radius,
+      var(--mo-comp-button-medium-container-shape-round, var(--mo-sys-block-control-radius))
+    );
+    background: var(--mo-comp-segmented-button-surface, var(--mo-sys-block-surface));
+  }
+  @media (width >= 37.5rem) {
+    .mo-segmented-button {
+      display: inline-grid;
+    }
+  }
+  .mo-segmented-button__segment {
+    display: inline-flex;
+    min-width: 3rem;
+    min-height: calc(
+      var(--mo-comp-segmented-button-height, var(--mo-comp-button-medium-container-height, 3rem)) - 2px + var(--mo-sys-density-layout) *
+        var(--mo-sys-density-step)
+    );
+    align-items: center;
+    justify-content: center;
+    gap: var(--mo-comp-segmented-button-gap, var(--mo-comp-button-xsmall-icon-label-space, 0.5rem));
+    border: 0;
+    padding: 0 var(--mo-comp-segmented-button-padding, 1rem);
+    background: transparent;
+    color: var(--mo-comp-segmented-button-text, var(--mo-sys-block-text));
+    font-family: inherit;
+    font-size: var(--mo-comp-segmented-button-font-size, var(--mo-comp-button-small-font-size, var(--mo-sys-typescale-label-large-size)));
+    font-weight: var(--mo-comp-button-weight, var(--mo-sys-typescale-label-large-weight));
+    letter-spacing: var(--mo-comp-button-letter-spacing, var(--mo-sys-typescale-label-large-tracking));
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color var(--mo-sys-motion-spring-default-effects),
+      color var(--mo-sys-motion-spring-default-effects);
+  }
+  .mo-segmented-button__segment + .mo-segmented-button__segment {
+    border-inline-start: 1px solid
+      var(--mo-comp-outlined-segmented-button-outline-color, var(--mo-comp-button-outlined-outline-color, var(--mo-sys-block-line)));
+  }
+  .mo-segmented-button__segment:first-child {
+    border-start-start-radius: inherit;
+    border-end-start-radius: inherit;
+  }
+  .mo-segmented-button__segment:last-child {
+    border-start-end-radius: inherit;
+    border-end-end-radius: inherit;
+  }
+  .mo-segmented-button__segment > svg {
+    flex-shrink: 0;
+    width: var(--mo-comp-segmented-button-icon-size, 1.125rem);
+    height: var(--mo-comp-segmented-button-icon-size, 1.125rem);
+  }
+  .mo-segmented-button__segment:not(:disabled):hover {
+    background: var(
+      --mo-comp-segmented-button-hover,
+      color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
+  }
+  .mo-segmented-button__segment[aria-pressed='true'] {
+    background: var(--mo-comp-outlined-segmented-button-selected-container-color, var(--mo-sys-block-tint));
+    color: var(--mo-comp-outlined-segmented-button-selected-label-text-color, var(--mo-sys-block-text));
+  }
+  .mo-segmented-button__segment[aria-pressed='true']:not(:disabled):hover {
+    background: var(
+      --mo-comp-segmented-button-selected-hover,
+      color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-block-tint))
+    );
+  }
+  .mo-segmented-button__segment:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+  /* The chosen one's check, in its icon's place. */
+  .mo-segmented-button__segment > .mo-segmented-button__check {
+    display: none;
+  }
+  .mo-segmented-button__segment[aria-pressed='true'] > .mo-segmented-button__check {
+    display: var(--mo-comp-segmented-button-selected-check, block);
+  }
+  .mo-segmented-button__segment[aria-pressed='true'] > .mo-segmented-button__icon {
+    display: var(--mo-comp-segmented-button-selected-icon, none);
+  }
+  /* A colour's circle (Segment.swatch): in every segment, in the check's place, with a thin edge so it reads on any surface. */
+  .mo-segmented-button__swatch {
+    flex-shrink: 0;
+    width: var(--mo-comp-segmented-button-icon-size, 1.125rem);
+    height: var(--mo-comp-segmented-button-icon-size, 1.125rem);
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 30%, transparent);
+  }
+
+  /* A segment shown as its dot only (Segment.dots): the name stays for screen readers. */
+  .mo-segmented-button__label-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Choice groups: the connected buttons when every label fits at an equal share of the width, else a list of radio
+     buttons (ChoiceGroup.tsx). Targets of 48 dp in both forms (Material: buttons in a group and radio buttons). */
+  .mo-choice-group {
+    position: relative;
+    display: block;
+    min-width: 0;
+  }
+  .mo-choice-group[data-form='buttons'] > .mo-choice-group__list,
+  .mo-choice-group[data-form='list'] > .mo-choice-group__buttons {
+    display: none;
+  }
+  /* The buttons at their natural width, where the group's buttons would be, unseen: what the form is measured with. */
+  .mo-choice-group__measure {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .mo-choice-group__measure > * {
+    flex: none;
+  }
+  .mo-choice-group__buttons {
+    display: flex;
+    width: 100%;
+  }
+  @media (width >= 37.5rem) {
+    .mo-choice-group__measure,
+    .mo-choice-group__buttons {
+      max-width: var(--mo-comp-choice-group-max-width, 30rem);
+    }
+  }
+  /* Each button as wide as the others (Material: "increasing the button widths inside"). */
+  .mo-choice-group__buttons > .mo-button {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .mo-choice-group__list {
+    gap: var(--mo-comp-choice-group-gap, 0.25rem);
+  }
+  /* The circle on the row's middle line, as the label is (the box's margins are equal above and below it). */
+  .mo-choice-group__list .mo-radio-button__box {
+    margin-block: -0.625rem;
+  }
+  .mo-choice-group__sample {
+    display: flex;
+    max-width: var(--mo-comp-choice-group-sample-max-width, 7rem);
+    align-items: center;
+    justify-content: flex-end;
+    margin-inline-start: var(--mo-comp-choice-group-sample-gap, 0);
+    pointer-events: none;
+  }
+  /* A sample with no surface (a text button) ends with its text at the row's end, as the others end with their edge. */
+  .mo-choice-group__sample .mo-button__text {
+    margin-inline-end: calc(-1 * var(--mo-comp-button-inline));
+  }
+  .mo-choice-group__swatch {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 30%, transparent);
+  }
+  .mo-choice-group__label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mo-choice-group[data-label-hidden] > .mo-choice-group__list > .mo-radio-group__label,
+  .mo-choice-group__label-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}

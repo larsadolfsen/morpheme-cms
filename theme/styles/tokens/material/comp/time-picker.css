@@ -1,0 +1,15 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* Time pickers: the boxes 96 × 80 with small corners and display-large numbers in the highest surface container, the
+     one on the dial in the secondary container, and the 256px dial in the highest surface container. */
+  --mo-comp-time-picker-headline-color: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-time-picker-box-radius: var(--mo-sys-shape-corner-small);
+  --mo-comp-time-picker-box-surface: var(--mo-sys-color-surface-container-highest);
+  --mo-comp-time-picker-box-selected-surface: var(--mo-sys-color-surface-container-high);
+  --mo-comp-time-picker-box-selected-text: var(--mo-sys-color-on-surface);
+  --mo-comp-time-picker-dial-surface: var(--mo-sys-color-surface-container-highest);
+}

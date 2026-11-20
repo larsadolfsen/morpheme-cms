@@ -1,0 +1,4 @@
+{
+  "why": "Count mode: a file may declare as many unprefixed names (distinct, on :root/html/body) as listed, never more, and a new file none. A count can only fall; lower it when it does. Empty since the --mo- rename: nothing unprefixed on the root, and no exemption for --tw-* or @theme.",
+  "files": {}
+}

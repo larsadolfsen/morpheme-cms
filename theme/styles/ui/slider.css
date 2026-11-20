@@ -1,0 +1,329 @@
+/*
+  Sliders (Slider.tsx, sliderClass, and slider.script.ts with sliderUpdate.ts for what it does on the site; m3.material.io/components/
+  sliders): .mo-slider (.mo-slider__range with two handles, .mo-slider__centered from the middle, [data-below-center] while its
+  handle is before the middle; its size, none for xsmall, .mo-slider__small, .mo-slider__medium, .mo-slider__large or
+  .mo-slider__xlarge; .mo-slider__vertical from the bottom up) with its name (.mo-slider__label) over .mo-slider__control: the track
+  (.mo-slider__track, with .mo-slider__active-track from the start, the middle or the first handle to the handle,
+  .mo-slider__inactive-track beside it, and a .mo-slider__stop at each step of a discrete slider, [data-active] on the active
+  track, [data-under] under a handle; in a standard slider's active track, medium and larger, its .mo-slider__icon, and
+  .mo-slider__icon-inactive after the handle while the active track is too short for it), the native range inputs
+  (.mo-slider__input, whose thumb is the handle) and the label with each one's value (.mo-slider__value, over its handle while
+  it is moved or has the focus; .mo-slider__value-always all the time). Where the handles are is --mo-comp-slider-start and
+  --mo-comp-slider-end (0–1) on .mo-slider, which the part and its script set.
+    --mo-comp-slider-height   the room the slider takes (a finger's), with the track in the middle
+    --mo-comp-slider-active-track-height, --mo-comp-slider-active-track-shape, --mo-comp-slider-active-track-inner-corner-corner-size, --mo-comp-slider-track-gap   the track, its
+      corners at its ends and beside a handle, and the room between it and a handle's centre (0: they meet under it)
+    --slider-<size>-track-height, --slider-<size>-track-radius   the other sizes' track (small, medium, large, xlarge);
+      their handle is the track's thickness and 0.75rem, and their room the handle's and 0.5rem, at least the xsmall's
+    --slider-<size>-icon-size, --mo-comp-slider-icon-active-color, --mo-comp-slider-icon-inactive-color   the icon in the track
+      (medium, large, xlarge), on the active track and after the handle
+    --mo-comp-slider-length   how tall a vertical slider is
+    --mo-comp-slider-active-track, --mo-comp-slider-inactive-track   their colours
+    --mo-comp-slider-handle-width, --mo-comp-slider-handle-height, --mo-comp-slider-handle-shape, --mo-comp-slider-handle-color,
+    --mo-comp-slider-handle-line, --mo-comp-slider-handle-line-width, --mo-comp-slider-handle-shadow, --mo-comp-slider-pressed-handle-width   the handle
+    --mo-comp-slider-handle-inset   how far in from the track's ends a handle stops (0: its edge at the end)
+    --mo-comp-slider-stop-size, --mo-comp-slider-inactive-stop-indicator-container-color, --mo-comp-slider-active-stop-indicator-container-color   the stops, on the inactive and the active track
+    --mo-comp-slider-label-container-color, --mo-comp-slider-label-label-text-color, --mo-comp-slider-value-radius   the value's label
+    --mo-comp-slider-value-room   the room over a slider whose values are always shown, for their labels
+    --mo-comp-slider-label-weight, --mo-comp-slider-disabled-active-track-opacity   the name, and a slider that cannot be moved
+  Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
+  the same property on these parts at the same specificity, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* Sliders: the track in the middle of the room it takes, the native inputs over it with only their thumbs seen (the
+     handles), and a handle's centre where its input's thumb is: half the handle's width and --mo-comp-slider-handle-inset in
+     from the track's ends, and between them by its value. The size's track, handle and room as the slider's own
+     variables (--mo-comp-slider-track-thickness …), from the theme's for each size. */
+  .mo-slider {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+  .mo-slider__label {
+    font-weight: var(--mo-comp-slider-label-weight, 500);
+  }
+  .mo-slider__control {
+    position: relative;
+    height: var(--mo-comp-slider-room);
+  }
+  .mo-slider__control:has(.mo-slider__input:disabled) {
+    opacity: var(--mo-comp-slider-disabled-active-track-opacity, 0.6);
+  }
+  .mo-slider__track {
+    position: absolute;
+    inset: 50% 0 auto;
+    isolation: isolate;
+    height: var(--mo-comp-slider-track-thickness);
+    translate: 0 -50%;
+  }
+  .mo-slider__active-track,
+  .mo-slider__inactive-track {
+    position: absolute;
+    inset-block: 0;
+    background: var(--mo-comp-slider-inactive-track, var(--mo-sys-block-line));
+  }
+  .mo-slider__active-track {
+    left: 0;
+    right: calc(
+      100% - var(--mo-comp-slider-reach) - var(--mo-comp-slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) +
+        var(--mo-comp-slider-track-gap, 0px)
+    );
+    border-radius: var(--mo-comp-slider-track-corner) var(--mo-comp-slider-active-track-inner-corner-corner-size, 0)
+      var(--mo-comp-slider-active-track-inner-corner-corner-size, 0) var(--mo-comp-slider-track-corner);
+    background: var(--mo-comp-slider-active-track, var(--mo-sys-block-accent));
+  }
+  .mo-slider__range .mo-slider__active-track {
+    left: calc(
+      var(--mo-comp-slider-reach) + var(--mo-comp-slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) +
+        var(--mo-comp-slider-track-gap, 0px)
+    );
+    border-radius: var(--mo-comp-slider-active-track-inner-corner-corner-size, 0);
+  }
+  .mo-slider__inactive-track-start {
+    left: 0;
+    right: calc(
+      100% - var(--mo-comp-slider-reach) - var(--mo-comp-slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) +
+        var(--mo-comp-slider-track-gap, 0px)
+    );
+    border-radius: var(--mo-comp-slider-track-corner) var(--mo-comp-slider-active-track-inner-corner-corner-size, 0)
+      var(--mo-comp-slider-active-track-inner-corner-corner-size, 0) var(--mo-comp-slider-track-corner);
+  }
+  .mo-slider__inactive-track-end {
+    left: calc(
+      var(--mo-comp-slider-reach) + var(--mo-comp-slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) +
+        var(--mo-comp-slider-track-gap, 0px)
+    );
+    right: 0;
+    border-radius: var(--mo-comp-slider-active-track-inner-corner-corner-size, 0) var(--mo-comp-slider-track-corner)
+      var(--mo-comp-slider-track-corner) var(--mo-comp-slider-active-track-inner-corner-corner-size, 0);
+  }
+  .mo-slider__centered .mo-slider__active-track {
+    left: calc(
+      var(--mo-comp-slider-reach) + var(--mo-comp-slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-gap-start)
+    );
+    right: calc(
+      100% - var(--mo-comp-slider-reach) - var(--mo-comp-slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) +
+        var(--mo-comp-slider-gap-end)
+    );
+    border-radius: var(--mo-comp-slider-active-track-inner-corner-corner-size, 0);
+  }
+  .mo-slider__centered .mo-slider__inactive-track-start {
+    right: calc(
+      100% - var(--mo-comp-slider-reach) - var(--mo-comp-slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) +
+        var(--mo-comp-slider-gap-start)
+    );
+  }
+  .mo-slider__centered .mo-slider__inactive-track-end {
+    left: calc(
+      var(--mo-comp-slider-reach) + var(--mo-comp-slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-gap-end)
+    );
+  }
+  .mo-slider__stop {
+    position: absolute;
+    top: 50%;
+    left: calc(var(--mo-comp-slider-reach) + var(--mo-comp-slider-stop) * (100% - 2 * var(--mo-comp-slider-reach)));
+    width: var(--mo-comp-slider-stop-size, 0.25rem);
+    height: var(--mo-comp-slider-stop-size, 0.25rem);
+    border-radius: var(--mo-sys-shape-corner-full);
+    background: var(--mo-comp-slider-inactive-stop-indicator-container-color, var(--mo-sys-block-muted));
+    translate: -50% -50%;
+  }
+  .mo-slider__stop[data-active] {
+    background: var(--mo-comp-slider-active-stop-indicator-container-color, var(--mo-sys-block-on-accent));
+  }
+  .mo-slider__stop[data-under] {
+    visibility: hidden;
+  }
+  /* The icon in a standard slider's track (medium and larger): in the active track at its start, and on the inactive
+     track after the handle while the active one is too short to hold it. */
+  .mo-slider__active-track:has(.mo-slider__icon) {
+    z-index: 1;
+    container: slider-active-track / inline-size;
+  }
+  .mo-slider__active-track:has(.mo-slider__icon) ~ .mo-slider__stop {
+    z-index: 2;
+  }
+  .mo-slider__icon {
+    position: absolute;
+    top: 50%;
+    left: calc((var(--mo-comp-slider-track-thickness) - var(--mo-comp-slider-icon-length)) / 2);
+    width: var(--mo-comp-slider-icon-length);
+    height: var(--mo-comp-slider-icon-length);
+    color: var(--mo-comp-slider-icon-active-color, var(--mo-sys-block-on-accent));
+    translate: 0 -50%;
+  }
+  .mo-slider__icon-inactive {
+    display: none;
+    left: calc(
+      100% + var(--mo-comp-slider-track-gap, 0px) +
+        max(var(--mo-comp-slider-track-gap, 0px), var(--mo-comp-slider-handle-width, 1.25rem) / 2) +
+        (var(--mo-comp-slider-track-thickness) - var(--mo-comp-slider-icon-length)) / 2
+    );
+    color: var(--mo-comp-slider-icon-inactive-color, var(--mo-sys-block-text));
+  }
+  @container slider-active-track (width < 2.75rem) {
+    .mo-slider__medium .mo-slider__icon {
+      display: none;
+    }
+    .mo-slider__medium .mo-slider__icon-inactive {
+      display: block;
+    }
+  }
+  @container slider-active-track (width < 3.5rem) {
+    .mo-slider__large .mo-slider__icon {
+      display: none;
+    }
+    .mo-slider__large .mo-slider__icon-inactive {
+      display: block;
+    }
+  }
+  @container slider-active-track (width < 5rem) {
+    .mo-slider__xlarge .mo-slider__icon {
+      display: none;
+    }
+    .mo-slider__xlarge .mo-slider__icon-inactive {
+      display: block;
+    }
+  }
+  .mo-slider__input {
+    position: absolute;
+    inset: 0 var(--mo-comp-slider-handle-inset, 0px);
+    margin: 0;
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+  }
+  .mo-slider__input:disabled {
+    cursor: default;
+  }
+  .mo-slider__input:focus-visible {
+    outline: none;
+  }
+  /* A range's two inputs lie over each other: only their handles take a finger or the mouse. */
+  .mo-slider__range .mo-slider__input {
+    pointer-events: none;
+  }
+  .mo-slider[data-start-on-top] .mo-slider__input:first-of-type {
+    z-index: 1;
+  }
+  .mo-slider__input::-webkit-slider-runnable-track {
+    height: 100%;
+    background: transparent;
+  }
+  .mo-slider__input::-moz-range-track {
+    height: 100%;
+    background: transparent;
+  }
+  .mo-slider__input::-webkit-slider-thumb {
+    box-sizing: border-box;
+    width: var(--mo-comp-slider-handle-width, 1.25rem);
+    height: var(--mo-comp-slider-handle-length);
+    margin-top: calc((var(--mo-comp-slider-room) - var(--mo-comp-slider-handle-length)) / 2);
+    appearance: none;
+    border: var(--mo-comp-slider-handle-line-width, 0.1875rem) solid var(--mo-comp-slider-handle-line, var(--mo-sys-block-surface));
+    border-radius: var(--mo-comp-slider-handle-shape, var(--mo-sys-shape-corner-full));
+    background: var(--mo-comp-slider-handle-color, var(--mo-sys-block-accent));
+    box-shadow: var(--mo-comp-slider-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+    pointer-events: auto;
+    cursor: grab;
+  }
+  .mo-slider__input::-moz-range-thumb {
+    box-sizing: border-box;
+    width: var(--mo-comp-slider-handle-width, 1.25rem);
+    height: var(--mo-comp-slider-handle-length);
+    border: var(--mo-comp-slider-handle-line-width, 0.1875rem) solid var(--mo-comp-slider-handle-line, var(--mo-sys-block-surface));
+    border-radius: var(--mo-comp-slider-handle-shape, var(--mo-sys-shape-corner-full));
+    background: var(--mo-comp-slider-handle-color, var(--mo-sys-block-accent));
+    box-shadow: var(--mo-comp-slider-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+    pointer-events: auto;
+    cursor: grab;
+  }
+  /* A slider that cannot be moved: its handle has no shadow (M3 Sliders, Specs: disabled handle elevation level 0). */
+  .mo-slider__input:disabled::-webkit-slider-thumb {
+    box-shadow: var(--mo-sys-elevation-level0-shadow);
+    cursor: default;
+  }
+  .mo-slider__input:disabled::-moz-range-thumb {
+    box-shadow: var(--mo-sys-elevation-level0-shadow);
+    cursor: default;
+  }
+  .mo-slider__input:enabled:active::-webkit-slider-thumb {
+    width: var(--mo-comp-slider-pressed-handle-width, var(--mo-comp-slider-handle-width, 1.25rem));
+    cursor: grabbing;
+  }
+  .mo-slider__input:enabled:active::-moz-range-thumb {
+    width: var(--mo-comp-slider-pressed-handle-width, var(--mo-comp-slider-handle-width, 1.25rem));
+    cursor: grabbing;
+  }
+  .mo-slider__input:focus-visible::-webkit-slider-thumb {
+    outline: 3px solid var(--mo-sys-color-primary);
+    outline-offset: 2px;
+  }
+  .mo-slider__input:focus-visible::-moz-range-thumb {
+    outline: 3px solid var(--mo-sys-color-primary);
+    outline-offset: 2px;
+  }
+  /* The value over its handle (the end's; a range's first, the start's; a centered one's below the middle, at the
+     start of its active track). */
+  .mo-slider__value {
+    position: absolute;
+    bottom: calc(50% + var(--mo-comp-slider-handle-length) / 2 + 0.25rem);
+    left: calc(var(--mo-comp-slider-reach) + var(--mo-comp-slider-end) * (100% - 2 * var(--mo-comp-slider-reach)));
+    z-index: 2;
+    min-width: 2rem;
+    border-radius: var(--mo-comp-slider-value-radius, var(--mo-sys-block-radius-small));
+    padding: 0.25rem 0.5rem;
+    background: var(--mo-comp-slider-label-container-color, var(--mo-sys-block-text));
+    color: var(--mo-comp-slider-label-label-text-color, var(--mo-sys-block-surface));
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
+    text-align: center;
+    white-space: nowrap;
+    pointer-events: none;
+    opacity: 0;
+    translate: -50% 0;
+  }
+  .mo-slider__range .mo-slider__value:first-of-type,
+  .mo-slider__centered[data-below-center] .mo-slider__value {
+    left: calc(var(--mo-comp-slider-reach) + var(--mo-comp-slider-start) * (100% - 2 * var(--mo-comp-slider-reach)));
+  }
+  .mo-slider__input:is(:active, :focus-visible) + .mo-slider__value,
+  .mo-slider__value-always {
+    opacity: 1;
+  }
+  /* Room over a slider whose values are always shown, for their labels. */
+  .mo-slider:has(.mo-slider__value-always) .mo-slider__control {
+    margin-top: var(--mo-comp-slider-value-room, 1.25rem);
+  }
+  /* Vertical: the same slider turned a quarter round, from the bottom up, in a box as tall as --mo-comp-slider-length and as
+     wide as its room; its value labels and its icon upright again, the labels beside the handle. */
+  .mo-slider__vertical {
+    justify-items: center;
+    width: max-content;
+  }
+  .mo-slider__vertical .mo-slider__control {
+    width: var(--mo-comp-slider-along);
+    margin: calc((var(--mo-comp-slider-along) - var(--mo-comp-slider-room)) / 2)
+      calc((var(--mo-comp-slider-room) - var(--mo-comp-slider-along)) / 2);
+    rotate: -90deg;
+  }
+  .mo-slider__vertical:has(.mo-slider__value-always) .mo-slider__control {
+    margin-top: calc((var(--mo-comp-slider-along) - var(--mo-comp-slider-room)) / 2);
+    margin-left: calc((var(--mo-comp-slider-room) - var(--mo-comp-slider-along)) / 2 + var(--mo-comp-slider-value-room, 1.25rem) + 1rem);
+  }
+  .mo-slider__vertical .mo-slider__value {
+    /* Turned upright round its middle, and moved so its side, not its middle, is beside the handle (0.875rem: half its
+       height, its line and its padding). */
+    transform: rotate(90deg) translateX(calc(-50% + 0.875rem));
+  }
+  .mo-slider__vertical .mo-slider__icon {
+    rotate: 90deg;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .mo-slider__value {
+      transition: opacity var(--mo-sys-motion-spring-fast-effects);
+    }
+  }
+}

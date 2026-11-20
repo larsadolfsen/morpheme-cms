@@ -1,0 +1,38 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+/*
+  Material is every theme's fallback: its rules that set more than custom properties sit in @layer fallback (declared last in
+  base.css), so a theme's own unlayered rules win over them, whatever the specificity. Custom properties stay unlayered.
+
+  The standard theme's base: what every theme builds on, plain and neutral. The system's own font, a small radius on
+  panels, a light shadow, full pills on controls; the classes the standard theme's components use (.link, .mo-prose,
+  the motion …) besides the UI components (ui.css: buttons, icon buttons, chips, snackbars). The standard theme's own look is over it, in global.css; a theme with a look of its
+  own from a design system (Material) imports only this file, so that look does not mix into its own. Another theme sets
+  its own (its styles/global.css); what it does not draw itself is drawn by the standard theme's components and blocks,
+  in its CSS.
+  Dark mode follows the system unless the visitor picks one (data-theme on <html>).
+
+  The theme's variables have two owners, told apart by their prefix. --mo-… is the contract every theme shares: the base
+  reads it and a theme sets it, and none else invents its own (a theme sets --mo-sys-shape-corner-large, it does not add --mo-wide).
+  --<theme>-… (--venus-glass) is a theme's own and nothing outside the theme reads it. A name with no prefix is a part's
+  variable (--mo-comp-card-radius, --mo-sys-block-gutter) or the site's data, not the contract. What is in the contract:
+  - The colours are Material 3's colour roles by their own names after the prefix (m3.material.io/styles/color/roles):
+    --mo-sys-color-primary, --mo-sys-color-secondary, --mo-sys-color-tertiary and --mo-sys-color-error, each with --mo-on-…, --mo-…-container and
+    --mo-on-…-container, and --mo-sys-color-primary-fixed, --mo-sys-color-primary-fixed-dim, --mo-sys-color-on-primary-fixed and
+    --mo-sys-color-on-primary-fixed-variant (and the same for secondary and tertiary); --mo-sys-color-surface-dim, --mo-sys-color-surface,
+    --mo-sys-color-surface-bright and the five --mo-sys-color-surface-container… ones; --mo-sys-color-on-surface, --mo-sys-color-on-surface-variant,
+    --mo-sys-color-outline and --mo-sys-color-outline-variant; --mo-sys-color-inverse-surface, --mo-sys-color-inverse-on-surface and --mo-sys-color-inverse-primary;
+    --mo-sys-color-scrim and --mo-sys-color-shadow. They are colours: a shadow is never --mo-sys-color-shadow (that is --mo-elevation-N-shadow). In the
+    site's data (src/data/colors.json) the keys are the same names without the prefix.
+  - An elevation level, 0 to 5, is two things a theme sets one at a time: --mo-elevation-N-color (the surface colour at the
+    level, M3's way) and --mo-elevation-N-shadow (its shadow); --mo-elevation-N-rest-shadow is the shadow a part has at rest.
+  - The corner steps (--mo-shape-…), the state layers (--mo-sys-state-mo-hover-layer, --mo-sys-state-mo-pressed-layer, --mo-sys-color-primary-hover) and --mo-sys-color-scrim-overlay.
+  The colours are not here: they are data, src/data/colors.json, which the owner changes under "Colors" in the editor.
+  Base.astro and the editor's page write them into <head> (colorsCss, packages/editor/lib/colors.ts), for
+  light mode and dark mode as below; the editor checks them to WCAG AA before they are saved
+  (colorPairs in @site/colors). Everything here uses them by name.
+*/
+:root {
+  /* How far a carousel reaches out to the edges of a phone's screen (ui.css): the page's gutter there (--mo-comp-theme-page-gutter, Container.astro). */
+  --mo-comp-carousel-bleed: var(--mo-comp-theme-page-gutter);
+}

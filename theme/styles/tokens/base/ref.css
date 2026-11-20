@@ -1,0 +1,38 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root {
+  /* M3's spacing scale (m3.material.io/m3/pages/spacing: "The spacing system is measured on an 8dp scale, where space100 = 8dp"):
+     Space 0, 25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 400, 450, 500, 600, 700, 800 and 900 are 0, 2, 4, 6, 8, 10, 12, 14, 16, 20,
+     24, 32, 36, 40, 48, 56, 64 and 72 dp. A theme sets their values; a part reads them by name. */
+  --mo-ref-space-0: 0px;
+  --mo-ref-space-25: 2px;
+  --mo-ref-space-50: 4px;
+  --mo-ref-space-75: 6px;
+  --mo-ref-space-100: 8px;
+  --mo-ref-space-125: 10px;
+  --mo-ref-space-150: 12px;
+  --mo-ref-space-175: 14px;
+  --mo-ref-space-200: 16px;
+  --mo-ref-space-250: 20px;
+  --mo-ref-space-300: 24px;
+  --mo-ref-space-400: 32px;
+  --mo-ref-space-450: 36px;
+  --mo-ref-space-500: 40px;
+  --mo-ref-space-600: 48px;
+  --mo-ref-space-700: 56px;
+  --mo-ref-space-800: 64px;
+  --mo-ref-space-900: 72px;
+  /* M3's full corner (a pill or a circle): the fallback for a theme that does not set the corner steps (global.css sets all ten). */
+  --mo-sys-shape-corner-full: 9999px;
+  /* The corners of something smaller in or beside a panel: an image in a list, a row in a menu, an icon's square. */
+  --mo-sys-radius-small: 1rem;
+  /* M3's breakpoints (m3.material.io/foundations/layout/breakpoints) as plain lengths: the same four as `--breakpoint-*` below and as
+     lib/breakpoints.mjs (lib/breakpoints.test.mjs checks that they agree). Not registered with @property: a registered length computes
+     to px, and the Preview (previewBreakpoints.ts) reads the rem. A @media cannot read a custom property, so this is the table's home. */
+  --mo-ref-breakpoint-medium: 37.5rem;
+  --mo-ref-breakpoint-expanded: 52.5rem;
+  --mo-ref-breakpoint-large: 75rem;
+  --mo-ref-breakpoint-extra-large: 100rem;
+  /* The plain typeface the type scale's fonts read (`--mo-sys-typescale-*-font`); a theme sets its own (tokens/material/ref.css). */
+  --mo-ref-typeface-plain: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}

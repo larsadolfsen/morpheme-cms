@@ -1,0 +1,102 @@
+/* The type scale as classes: one for each of Material 3's 15 type roles, and the lead (an intro paragraph). A role is a class for a
+   theme's own components and layouts: mo-type-title-large, mo-type-headline-small … Each reads the role's four tokens (--type-*, tokens/ui/ref.css).
+   They sit in @layer utilities, where Tailwind's @utility rules were, in the alphabetical order Tailwind wrote them in, so the cascade does not change. */
+@import './tokens/type/sys.css';
+@layer utilities {
+  .mo-type-body-large {
+    font-size: var(--mo-sys-typescale-body-large-size);
+    line-height: var(--mo-sys-typescale-body-large-line-height);
+    font-weight: var(--mo-sys-typescale-body-large-weight);
+    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+  }
+  .mo-type-body-medium {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+  }
+  .mo-type-body-small {
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+    font-weight: var(--mo-sys-typescale-body-small-weight);
+    letter-spacing: var(--mo-sys-typescale-body-small-tracking);
+  }
+  .mo-type-display-large {
+    font-size: var(--mo-sys-typescale-display-large-size);
+    line-height: var(--mo-sys-typescale-display-large-line-height);
+    font-weight: var(--mo-sys-typescale-display-large-weight);
+    letter-spacing: var(--mo-sys-typescale-display-large-tracking);
+  }
+  .mo-type-display-medium {
+    font-size: var(--mo-sys-typescale-display-medium-size);
+    line-height: var(--mo-sys-typescale-display-medium-line-height);
+    font-weight: var(--mo-sys-typescale-display-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
+  }
+  .mo-type-display-small {
+    font-size: var(--mo-sys-typescale-display-small-size);
+    line-height: var(--mo-sys-typescale-display-small-line-height);
+    font-weight: var(--mo-sys-typescale-display-small-weight);
+    letter-spacing: var(--mo-sys-typescale-display-small-tracking);
+  }
+  .mo-type-headline-large {
+    font-size: var(--mo-sys-typescale-headline-large-size);
+    line-height: var(--mo-sys-typescale-headline-large-line-height);
+    font-weight: var(--mo-sys-typescale-headline-large-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-large-tracking);
+  }
+  .mo-type-headline-medium {
+    font-size: var(--mo-sys-typescale-headline-medium-size);
+    line-height: var(--mo-sys-typescale-headline-medium-line-height);
+    font-weight: var(--mo-sys-typescale-headline-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-medium-tracking);
+  }
+  .mo-type-headline-small {
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
+  }
+  .mo-type-label-large {
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
+  }
+  .mo-type-label-medium {
+    font-size: var(--mo-sys-typescale-label-medium-size);
+    line-height: var(--mo-sys-typescale-label-medium-line-height);
+    font-weight: var(--mo-sys-typescale-label-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
+  }
+  .mo-type-label-small {
+    font-size: var(--mo-sys-typescale-label-small-size);
+    line-height: var(--mo-sys-typescale-label-small-line-height);
+    font-weight: var(--mo-sys-typescale-label-small-weight);
+    letter-spacing: var(--mo-sys-typescale-label-small-tracking);
+  }
+  .mo-type-lead {
+    font-size: var(--mo-sys-typescale-lead-size);
+    line-height: var(--mo-sys-typescale-lead-line-height);
+    font-weight: var(--mo-sys-typescale-lead-weight);
+    letter-spacing: var(--mo-sys-typescale-lead-tracking);
+  }
+  .mo-type-title-large {
+    font-size: var(--mo-sys-typescale-title-large-size);
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+    font-weight: var(--mo-sys-typescale-title-large-weight);
+    letter-spacing: var(--mo-sys-typescale-title-large-tracking);
+  }
+  .mo-type-title-medium {
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
+  }
+  .mo-type-title-small {
+    font-size: var(--mo-sys-typescale-title-small-size);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
+  }
+}

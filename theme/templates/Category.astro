@@ -1,0 +1,19 @@
+---
+// A tag's page on the blog (/blog/tags/<slug>/, packages/editor/pages/blog/tags/[category].astro): its posts.
+import BlogIndex from '@theme/components/BlogIndex.astro';
+import BlogPosts from '@theme/components/BlogPosts.astro';
+import type { Post } from '@morphemecms/cms/site/content';
+import { siteT } from '@morphemecms/cms/src/i18n';
+
+interface Props {
+  /** The tag's slug, its name, and its posts. */
+  category: string;
+  name: string;
+  posts: Post[];
+}
+const { category, name, posts } = Astro.props;
+---
+
+<BlogIndex title={name} intro={siteT.theme.postsAbout(posts.length, name.toLowerCase())} activeCategory={category}>
+  <BlogPosts posts={posts} />
+</BlogIndex>

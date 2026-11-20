@@ -1,0 +1,44 @@
+// The Danish of the Worker's messages to the owner and of its commit messages: the English text as written in the code, as the key.
+// Exposes daDK (read by worker/say.js). No dependencies, so the Worker can use it.
+export const daDK = {
+  // The sign-in (worker/oauth.js).
+  'GitHub login is not set up yet (GITHUB_CLIENT_ID/SECRET are missing).':
+    'GitHub-login er ikke sat op endnu (mangler GITHUB_CLIENT_ID/SECRET).',
+  'Unknown login.': 'Ukendt login.',
+  'Login failed (invalid or expired request).': 'Login mislykkedes (ugyldig eller udløbet forespørgsel).',
+  'Try again.': 'Prøv igen.',
+  'Login failed: {reason}': 'Login mislykkedes: {reason}',
+  'Back to the editor': 'Tilbage til editoren',
+  'Signing in…': 'Logger ind…',
+  // The assistants' sign-in (worker/mcp-oauth.js).
+  'This sign-in can’t be finished': 'Loginet kan ikke gennemføres',
+  'Assistants are not set up on this site yet.': 'Assistenter er ikke sat op på denne hjemmeside endnu.',
+  'This assistant isn’t known here, or its return address doesn’t match. Connect it again from the assistant.':
+    'Assistenten er ikke kendt her, eller dens returadresse passer ikke. Forbind den igen fra assistenten.',
+  'Connect it again from the assistant.': 'Forbind den igen fra assistenten.',
+  '{login} can’t save this site, so an assistant can’t connect for them.':
+    '{login} kan ikke gemme ændringer på denne hjemmeside, så en assistent kan ikke forbindes for vedkommende.',
+  '{assistant} wants to connect to {site}.': '{assistant} vil forbindes til {site}.',
+  'Signed in to GitHub as {login}.': 'Logget ind på GitHub som {login}.',
+  'It can read your pages and posts and the settings of your apps. It can’t change anything.':
+    'Den kan læse dine sider og indlæg og indstillingerne i dine apps. Den kan ikke ændre noget.',
+  Allow: 'Tillad',
+  Cancel: 'Annuller',
+  'Connect {assistant}?': 'Forbind {assistant}?',
+  'This must be done from the consent page of this site.': 'Det skal gøres fra dette sites godkendelsesside.',
+  'Already answered': 'Allerede besvaret',
+  'You can close this page and go back to the assistant.': 'Du kan lukke siden og gå tilbage til assistenten.',
+  'The consent page sent no request to answer.': 'Godkendelsessiden sendte ingen forespørgsel at svare på.',
+  'This browser did not keep the sign-in. Connect it again from the assistant.':
+    'Denne browser beholdt ikke login. Forbind igen fra assistenten.',
+  // The page on the editor's old address (worker/editor-host.js). {address} is the link to the new address.
+  'The editor has moved': 'Editoren er flyttet',
+  'The editor has moved to {address} …': 'Editoren er flyttet til {address} …',
+  // The commit of the scheduled pages and posts (worker/publish.js, lib/scheduled.mjs).
+  'Publish scheduled: {names}': 'Udgiv planlagt: {names}',
+  // The commit of an autosaved draft that was saved to git (worker/autosave.js). {name} is the page file's path.
+  'Draft: {name}': 'Kladde: {name}',
+  'Move {count} scheduled to waiting versions': 'Flyt {count} planlagte til ventende versioner',
+  'blog post': 'blogindlæg',
+  page: 'side',
+};

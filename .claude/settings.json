@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": ["Bash(git push origin:*)", "Bash(git push -u origin:*)"],
+    "deny": [
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)",
+      "Bash(git push --force-with-lease:*)",
+      "Bash(git push origin main:*)",
+      "Bash(git push origin 0.18:*)",
+      "Bash(git push origin 0.19:*)",
+      "Bash(git push origin HEAD:main:*)",
+      "Bash(git push origin HEAD:0.18:*)",
+      "Bash(git push origin HEAD:0.19:*)"
+    ]
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/statusline.mjs\"",
+    "padding": 2,
+    "refreshInterval": 5
+  }
+}

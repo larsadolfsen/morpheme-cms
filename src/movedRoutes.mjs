@@ -1,0 +1,138 @@
+// The editor's screens that have moved or been renamed, by their old address after the "#": a link or a bookmark to one
+// opens it where it is now. Exposes MOVED, RENAMED and movedRoute (pure). Used by App.tsx (routeOf).
+
+/** Where each moved screen is now, by its old address. */
+export const MOVED = /** @type {Record<string, string>} */ ({
+  farver: 'company/colors',
+  'virksomheden/logo': 'company/logo',
+  'tema/blokvalg': 'block-settings',
+  dele: 'developer/parts',
+  tema: 'appearance',
+  'tema/farver': 'company/colors',
+  'tema/logo': 'company/logo',
+  'tema/dele': 'developer/parts',
+  'tema/dele/editor': 'developer/parts/editor',
+  // "Advanced" is "Caching and builds" now (its address keeps `developer/`).
+  advanced: 'developer/caching',
+  // The Developer screen is gone (0.19): its two rows, Caching and builds and Components, are rows of Settings.
+  developer: 'settings',
+  'virksomheden/bank': 'company/payment/bank',
+  videresendelser: 'seo/redirects',
+  'videresendelser/alle': 'seo/redirects/all',
+  'videresendelser/ikke-fundet': 'seo/redirects/not-found',
+  // The settings of the booking and newsletter apps were on a screen "Promotion"; they are on the apps' own pages now.
+  promovering: 'apps',
+  'promovering/calendly': 'apps/app_a030dfba69793996',
+  'promovering/mailchimp': 'apps/app_5c4b6ba067ef127f',
+  // The header's menus and settings were on a screen of their own, then under "Appearance"; they are under "Globals" now.
+  header: 'global/header',
+  // The footer's form was the file's own screen, then under "Appearance"; it is under "Globals" now.
+  'src/data/footer.json': 'global/footer',
+  // "Logo and icon" was under "Appearance"; it is under the business now.
+  'appearance/logo': 'company/logo',
+  'udseende/logo': 'company/logo',
+  // The store's themes were a tab of the app store; they are on a screen of their own under Appearance now.
+  'settings/appstore/themes': 'appearance/theme-store',
+});
+
+/**
+ * Old route prefix (Danish, one or more segments, as the routes were before the ids got English names) -> its new
+ * English prefix. Only a route that starts with the old prefix is renamed, and the rest of it is data (a file path, a
+ * slug, an id) that keeps its name. A key segment `*` matches any one segment and keeps it (in the value too).
+ * Old links keep working through it. The longest matching key wins.
+ */
+export const RENAMED = /** @type {Record<string, string>} */ ({
+  indstillinger: 'settings',
+  'indstillinger/appstore/temaer': 'appearance/theme-store',
+  'apps/*/indstillinger': 'apps/*/settings',
+  'apps/*/om': 'apps/*/about',
+  'apps/udvikler': 'apps/developer',
+  // The app store was at apps/butik (and its themes at apps/butik/temaer); the longest key wins, so the themes keep their own.
+  'apps/butik': 'settings/appstore',
+  'apps/butik/temaer': 'appearance/theme-store',
+  udseende: 'appearance',
+  'udseende/temaer': 'appearance/themes',
+  'udseende/ikonpakker': 'appearance/icon-packs',
+  'udseende/bevaegelse': 'appearance/motion',
+  'udseende/sidekolonne': 'global/side-column',
+  'udseende/farver': 'company/colors',
+  'udseende/farver/reservefarver': 'company/colors/fallback-colors',
+  // The colours, the header, the footer and the side column left "Appearance" (0.19): the colours are under Business, the
+  // others under Globals. The rest of the address (the fallback colours page) is kept.
+  'appearance/colors': 'company/colors',
+  'appearance/header': 'global/header',
+  'appearance/footer': 'global/footer',
+  'appearance/side-column': 'global/side-column',
+  // "Parts" moved from Appearance to Developer, with all its screens.
+  'appearance/parts': 'developer/parts',
+  'udseende/dele': 'developer/parts',
+  'udseende/dele/blokke': 'developer/parts/blocks',
+  'udseende/dele/liste': 'developer/parts/list',
+  'udseende/dele/vaerdier': 'developer/parts/values',
+  'udseende/standardsider': 'appearance/default-pages',
+  maaling: 'analytics',
+  privatliv: 'privacy',
+  'privatliv/cookiebanner': 'privacy/cookie-banner',
+  'privatliv/samtykker': 'privacy/consents',
+  'privatliv/privatlivssider': 'privacy/privacy-pages',
+  lister: 'lists',
+  liste: 'list',
+  'liste/kategorier': 'list/tags',
+  'liste/udtalelser': 'list/testimonials',
+  'liste/mobilmenu': 'list/mobile-menu',
+  ny: 'new',
+  'ny/kategorier': 'new/tags',
+  'ny/udtalelser': 'new/testimonials',
+  slettet: 'deleted',
+  'slettet/kategorier': 'deleted/tags',
+  'slettet/udtalelser': 'deleted/testimonials',
+  'slettet/mobilmenu': 'deleted/mobile-menu',
+  'slettet/filer': 'deleted/files',
+  virksomheden: 'company',
+  'virksomheden/kontakt': 'company/contact',
+  'virksomheden/sociale-medier': 'company/social-media',
+  'virksomheden/betaling': 'company/payment',
+  blokke: 'blocks',
+  filer: 'files',
+  'seo/videresendelser': 'seo/redirects',
+  'seo/videresendelser/alle': 'seo/redirects/all',
+  'seo/videresendelser/ikke-fundet': 'seo/redirects/not-found',
+  'seo/interne-links': 'seo/internal-links',
+  'seo/vurdering': 'seo/rating',
+  blokvalg: 'block-settings',
+  avanceret: 'developer/caching',
+  licenser: 'licenses',
+  // A licence page of an icon pack or set was `licenses/ikoner/<id>`.
+  'licenses/ikoner': 'licenses/icons',
+  konto: 'account',
+  notifikationer: 'notifications',
+});
+
+/**
+ * The address a screen is at now: where it moved to (`more` first, then MOVED), else the address with its longest old
+ * prefix in `renamed` replaced and the rest as it is, else the same address.
+ * @param {string} route
+ * @param {Record<string, string>} [more]
+ * @param {Record<string, string>} [renamed]
+ * @returns {string}
+ */
+export const movedRoute = (route, more = {}, renamed = RENAMED) => {
+  const moved = more[route] ?? MOVED[route];
+  if (moved !== undefined) return moved;
+  const parts = route.split('/');
+  let best = null;
+  for (const key of Object.keys(renamed)) {
+    const old = key.split('/');
+    if (old.length > parts.length || (best && old.length <= best.old.length)) continue;
+    if (old.every((segment, n) => segment === '*' || segment === parts[n])) best = { key, old };
+  }
+  if (!best) return route;
+  const kept = parts.slice(0, best.old.length);
+  let n = 0;
+  const now = renamed[best.key].split('/').map((segment) => {
+    if (segment !== '*') return segment;
+    while (best.old[n] !== '*') n += 1;
+    return kept[n++];
+  });
+  return [...now, ...parts.slice(best.old.length)].join('/');
+};

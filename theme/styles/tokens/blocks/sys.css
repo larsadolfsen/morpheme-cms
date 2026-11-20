@@ -1,0 +1,242 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+/*
+  Material is every theme's fallback: its rules that set more than custom properties sit in @layer fallback (declared last in
+  base.css), so a theme's own unlayered rules win over them, whatever the specificity. Custom properties stay unlayered.
+
+  The look of the standard blocks (their fields: packages/editor/src/standard/; their markup: blocks/ in this theme), on
+  the site and in the editor, in the standard theme. Every colour, shape and motion comes from a CSS variable, which a
+  theme sets to its own design in its own CSS:
+
+    :root { --mo-sys-block-accent: var(--mo-sys-color-primary); --mo-sys-block-radius: 1.5rem; }
+
+  Without them, the blocks take the site's colour roles (the values below) and have a plain look of their own. Sizes and spacing are
+  the blocks' own, in rem; their text has the site's font. Every theme imports this file into its CSS
+  (styles/global.css: the standard theme's, another theme's …), which the editor uses too.
+
+    --mo-sys-block-text       text
+    --mo-sys-block-muted      quieter text (an answer, a step's text)
+    --mo-sys-block-accent     the one colour: a notice's edge, the step numbers, an open row, the play button,
+                       a card's icon and link
+    --mo-sys-block-accent-hover  the accent of a filled button pointed at (ui.css)
+    --mo-sys-block-on-accent  text on the accent (the step numbers, a filled button)
+    --mo-sys-block-primary, --mo-sys-block-secondary, --mo-sys-block-tertiary  the colours of a section (with --block-on-… for the text on them;
+                       the theme's own primary, secondary and tertiary colours)
+    --mo-sys-block-surface    a raised surface (the rows that fold out, the cards)
+    --mo-sys-block-tint       a light background (a notice, a video before it is played)
+    --mo-sys-block-stripe     a quieter background than the tint, for every second row of a striped table
+    --mo-sys-block-line       lines between rows and along the steps, the edge of a card
+    --mo-sys-block-radius     the corners of a panel
+    --mo-sys-block-radius-small  the corners of something smaller in or beside a panel (an image in a list, a row, a badge's
+                       square, a step on a time line)
+    --mo-sys-block-control-radius  the corners of a button and a tag (a pill when large)
+    --mo-sys-block-shadow     the shadow of a raised panel
+    --mo-sys-block-section-padding, --mo-sys-block-section-margin  the space inside, and above and below, a coloured section of a text
+                       (.mo-text-section: a panel the width of the text column, on --mo-sys-block-surface, --mo-sys-block-primary, --mo-sys-block-secondary or --mo-sys-block-tertiary; on those colours
+                       the blocks in it get inverted variables: text, accent and line on-accent, surface and tint a veil of it)
+    --mo-sys-block-ease       the easing of motion (else the motion scheme's, --mo-sys-motion-ease)
+    --mo-sys-block-ease-quick the easing of a quick change of state (a colour, an arrow that turns or moves; else the motion
+                       scheme's, --mo-sys-motion-ease-quick)
+    --mo-sys-block-hero-shade, --mo-sys-block-hero-on-shade  (optional) the colour an image behind a section's text is darkened with,
+                       and the text's on it; without them the text's colour and the surface's
+    --mo-sys-block-page-width, --mo-sys-block-gutter  the page's container (its width, gutters included, and its gutter at the
+                       side), whose left edge the text starts at: how far a section across the whole width reaches out
+                       of the text to the window's edges, and where its content starts again (the standard theme's
+                       Container.astro: 72rem, 1rem and 1.5rem from the medium width)
+
+  How things move is the site's motion scheme (Material 3's, chosen under "Appearance" › "Motion"; lib/motion.ts), which
+  Base.astro writes into the <head> as springs, each its duration and curve, for `transition` and `animation`:
+    --mo-sys-motion-spring-fast-spatial, --mo-sys-motion-spring-default-spatial, --mo-sys-motion-spring-slow-spatial   something that moves, grows or changes shape
+    --mo-sys-motion-spring-fast-effects, --mo-sys-motion-spring-default-effects, --mo-sys-motion-spring-slow-effects   a colour, a shadow, something that fades
+    --mo-sys-motion-spring-fast-spatial-duration … --mo-sys-motion-spring-slow-effects-duration   each one's duration alone, for what must last as
+                       long as it (a visibility that waits for it, a display … allow-discrete)
+    --mo-sys-motion-ease, --mo-sys-motion-ease-quick   the default spatial and effects curves alone, for a duration of one's own
+  Without them (a page without Base.astro's <head>), the values below: the standard scheme's lengths with Material's
+  standard curve.
+
+  A site sets the class `js` on <html> as early as it can (this site: Base.astro): then a long
+  testimonial is cut with "Read more" from the start; without it, the whole text is shown.
+  The mark before the name on a testimonial (.mo-block-testimonials__testimonial-mark) is the site's own: it is not shown
+  until the site gives it a look (the standard theme: an avatar with the name's first letter, its data-initial; another:
+  its logo).
+*/
+:where(:root) {
+  --mo-sys-block-text: var(--mo-sys-color-on-surface);
+  --mo-sys-block-muted: var(--mo-sys-color-on-surface-variant);
+  --mo-sys-block-accent: var(--mo-sys-color-primary);
+  --mo-sys-block-accent-hover: color-mix(
+    in srgb,
+    var(--mo-sys-color-on-primary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+    var(--mo-sys-color-primary)
+  );
+  --mo-sys-block-on-accent: var(--mo-sys-color-on-primary);
+  --mo-sys-block-primary: var(--mo-sys-color-primary);
+  --mo-sys-block-on-primary: var(--mo-sys-color-on-primary);
+  --mo-sys-block-secondary: var(--mo-sys-color-secondary);
+  --mo-sys-block-on-secondary: var(--mo-sys-color-on-secondary);
+  --mo-sys-block-tertiary: var(--mo-sys-color-tertiary);
+  --mo-sys-block-on-tertiary: var(--mo-sys-color-on-tertiary);
+  --mo-sys-block-surface: var(--mo-sys-color-surface-container-lowest);
+  --mo-sys-block-tint: var(--mo-sys-color-surface-container-high);
+  --mo-sys-block-stripe: var(--mo-sys-color-surface-container);
+  --mo-sys-block-line: var(--mo-sys-color-outline-variant);
+  --mo-sys-block-radius: 0.75rem;
+  --mo-sys-block-radius-small: 1rem;
+  --mo-sys-block-control-radius: 0.5rem;
+  --mo-sys-block-shadow: 0 1px 3px color-mix(in srgb, var(--mo-sys-color-shadow) 12%, transparent);
+  --mo-sys-motion-spring-fast-spatial: 230ms cubic-bezier(0.2, 0, 0, 1);
+  --mo-sys-motion-spring-default-spatial: 320ms cubic-bezier(0.2, 0, 0, 1);
+  --mo-sys-motion-spring-slow-spatial: 490ms cubic-bezier(0.2, 0, 0, 1);
+  --mo-sys-motion-spring-fast-effects: 150ms cubic-bezier(0.2, 0, 0, 1);
+  --mo-sys-motion-spring-default-effects: 240ms cubic-bezier(0.2, 0, 0, 1);
+  --mo-sys-motion-spring-slow-effects: 330ms cubic-bezier(0.2, 0, 0, 1);
+  --mo-sys-motion-spring-fast-spatial-duration: 230ms;
+  --mo-sys-motion-spring-default-spatial-duration: 320ms;
+  --mo-sys-motion-spring-slow-spatial-duration: 490ms;
+  --mo-sys-motion-spring-fast-effects-duration: 150ms;
+  --mo-sys-motion-spring-default-effects-duration: 240ms;
+  --mo-sys-motion-spring-slow-effects-duration: 330ms;
+  /* Tailwind's transition-colors, transition-opacity … without a duration of their own: the default effects spring. */
+  --mo-sys-default-transition-duration: var(--mo-sys-motion-spring-default-effects-duration);
+  --mo-sys-default-transition-timing-function: var(--mo-sys-motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
+  --mo-sys-block-ease: var(--mo-sys-motion-ease, cubic-bezier(0.2, 0, 0, 1));
+  --mo-sys-block-ease-quick: var(--mo-sys-motion-ease-quick, cubic-bezier(0.2, 0, 0, 1));
+  --mo-sys-block-page-width: 72rem;
+  /* The measure of the page's text (owner, 16 Nov 2026): a paragraph is at least --mo-sys-block-text-measure-min and at most
+     --mo-sys-block-text-measure-max wide. A min-width wins over a max-width, so use it as min(var(--mo-sys-block-text-measure-min), 100%):
+     on a container narrower than the minimum the text takes the container and never scrolls sideways. */
+  --mo-sys-block-text-measure-min: 40ch;
+  --mo-sys-block-text-measure-max: 60ch;
+  /* The most the text column of Steps is wide (owner, 16 Nov 2026): 720px. */
+  --mo-sys-block-list-measure-max: 45rem;
+  /* The least a column of list rows is wide: 21.5rem (344px), so that two columns and their gutter fit in 720px, and three in the page container's 1104px. */
+  --mo-sys-block-list-column-min: 21.5rem;
+  --mo-sys-block-gutter: 1rem;
+  --mo-sys-block-section-padding: 1.5rem;
+  --mo-sys-block-section-margin: 2rem;
+}
+@media (width >= 37.5rem) {
+  :where(:root) {
+    --mo-sys-block-gutter: 1.5rem;
+  }
+}
+@layer components {
+  :where(.mo-text-section).mo-has-image {
+    --mo-sys-section-fill: var(--mo-sys-block-hero-shade, var(--mo-sys-block-text));
+    --mo-sys-section-on-fill: var(--mo-sys-block-hero-on-shade, var(--mo-sys-block-surface));
+    --mo-sys-section-shade: var(--mo-sys-section-fill);
+  }
+}
+@layer components {
+  :where(.mo-text-section).mo-has-image.mo-is-surface {
+    --mo-sys-section-shade: var(--mo-sys-block-surface);
+  }
+}
+@layer components {
+  :where(.mo-text-section).mo-is-primary {
+    --mo-sys-section-fill: var(--mo-sys-block-primary);
+    --mo-sys-section-on-fill: var(--mo-sys-block-on-primary);
+    --mo-sys-section-container: var(--mo-sys-color-primary-container, var(--mo-sys-block-tint));
+    --mo-sys-section-on-container: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-text));
+  }
+}
+@layer components {
+  :where(.mo-text-section).mo-is-secondary {
+    --mo-sys-section-fill: var(--mo-sys-block-secondary);
+    --mo-sys-section-on-fill: var(--mo-sys-block-on-secondary);
+    --mo-sys-section-container: var(--mo-sys-color-secondary-container, var(--mo-sys-block-tint));
+    --mo-sys-section-on-container: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-text));
+  }
+}
+@layer components {
+  :where(.mo-text-section).mo-is-tertiary {
+    --mo-sys-section-fill: var(--mo-sys-block-tertiary);
+    --mo-sys-section-on-fill: var(--mo-sys-block-on-tertiary);
+    --mo-sys-section-container: var(--mo-sys-color-tertiary-container, var(--mo-sys-block-tint));
+    --mo-sys-section-on-container: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-text));
+  }
+}
+@layer components {
+  :where(.mo-text-section).mo-is-full {
+    --mo-sys-section-inset: calc(max(0px, (100vw - var(--mo-sys-block-page-width)) / 2) + var(--mo-sys-block-gutter));
+  }
+}
+/* A post row has a thumbnail (128px) before its text: its columns are wider (30rem), so the date and reading time stay on one line. */
+@layer components {
+  .mo-block-posts__rows {
+    --mo-sys-block-list-column-min: 30rem;
+  }
+}
+@layer components {
+  :is(
+    :where(.mo-text-section).mo-is-primary,
+    :where(.mo-text-section).mo-is-secondary,
+    :where(.mo-text-section).mo-is-tertiary,
+    :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)
+  ) {
+    --mo-sys-section-accent: var(--mo-sys-section-fill);
+    --mo-sys-section-on-accent: var(--mo-sys-section-on-fill);
+    --mo-sys-section-text: var(--mo-sys-block-text);
+    --mo-sys-section-surface: var(--mo-sys-block-surface);
+  }
+}
+/* The blocks in it read as an inverted theme on the accent: text, lines and the accent itself are the text-on-primary
+     colour, a surface is a veil of it, and what was text-on-primary (a filled button's label, a step number) is the
+     accent. Dark mode follows, as the variables do. */
+@layer components {
+  :is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+  /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+  .mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+    --mo-sys-block-text: var(--mo-sys-section-on-accent);
+    --mo-sys-block-muted: var(--mo-sys-section-on-accent);
+    --mo-sys-block-accent: var(--mo-sys-section-on-accent);
+    --mo-sys-block-accent-hover: color-mix(in srgb, var(--mo-sys-section-on-accent) 88%, var(--mo-sys-section-accent));
+    --mo-sys-block-on-accent: var(--mo-sys-section-accent);
+    --mo-sys-block-surface: color-mix(in srgb, var(--mo-sys-section-on-accent) 14%, transparent);
+    --mo-sys-block-tint: color-mix(in srgb, var(--mo-sys-section-on-accent) 14%, transparent);
+    --mo-sys-block-stripe: color-mix(in srgb, var(--mo-sys-section-on-accent) 7%, transparent);
+    --mo-sys-block-line: color-mix(in srgb, var(--mo-sys-section-on-accent) 35%, transparent);
+    --mo-sys-block-shadow: none;
+    /* A section with its image behind the text is darkened with the section's own text colour, in its own surface. */
+    --mo-sys-block-hero-shade: var(--mo-sys-section-text);
+    --mo-sys-block-hero-on-shade: var(--mo-sys-section-surface);
+  }
+}
+@layer components {
+  .mo-block-steps {
+    --mo-sys-block-step-gap: 2.5rem;
+  }
+}
+@layer components {
+  .mo-block-cards__primary .mo-block-cards__card {
+    /* What is read on the container (a text button, its icon, a video's title and play button, which read --mo-sys-block-text and --mo-sys-block-accent) follows it, also in a section on a colour, where these roles are swapped. */
+    --mo-sys-color-on-surface: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-on-primary));
+    --mo-sys-color-on-surface-variant: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-on-primary));
+    --mo-sys-color-primary: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-on-primary));
+    --mo-sys-block-text: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-on-primary));
+    --mo-sys-block-muted: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-on-primary));
+    --mo-sys-block-accent: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-on-primary));
+  }
+}
+@layer components {
+  .mo-block-cards__secondary .mo-block-cards__card {
+    /* What is read on the container (a text button, its icon, a video's title and play button, which read --mo-sys-block-text and --mo-sys-block-accent) follows it, also in a section on a colour, where these roles are swapped. */
+    --mo-sys-color-on-surface: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-on-secondary));
+    --mo-sys-color-on-surface-variant: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-on-secondary));
+    --mo-sys-color-primary: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-on-secondary));
+    --mo-sys-block-text: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-on-secondary));
+    --mo-sys-block-muted: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-on-secondary));
+    --mo-sys-block-accent: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-on-secondary));
+  }
+}
+@layer components {
+  .mo-block-cards__tertiary .mo-block-cards__card {
+    /* What is read on the container (a text button, its icon, a video's title and play button, which read --mo-sys-block-text and --mo-sys-block-accent) follows it, also in a section on a colour, where these roles are swapped. */
+    --mo-sys-color-on-surface: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-on-tertiary));
+    --mo-sys-color-on-surface-variant: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-on-tertiary));
+    --mo-sys-color-primary: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-on-tertiary));
+    --mo-sys-block-text: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-on-tertiary));
+    --mo-sys-block-muted: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-on-tertiary));
+    --mo-sys-block-accent: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-on-tertiary));
+  }
+}

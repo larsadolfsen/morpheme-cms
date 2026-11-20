@@ -1,0 +1,68 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* M3's elevation levels (m3.material.io/styles/elevation, as material-web draws them: a key and an ambient shadow),
+     the same in light and dark mode. Every part takes its M3 level from them by default (ui.css). */
+  --mo-sys-elevation-level0-shadow: 0 0 #0000;
+  --mo-sys-elevation-level1-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent),
+    0 1px 3px 1px color-mix(in srgb, var(--mo-sys-color-shadow) 15%, transparent);
+  --mo-sys-elevation-level2-shadow:
+    0 1px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent),
+    0 2px 6px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 15%, transparent);
+  --mo-sys-elevation-level3-shadow:
+    0 1px 3px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent),
+    0 4px 8px 3px color-mix(in srgb, var(--mo-sys-color-shadow) 15%, transparent);
+  --mo-sys-elevation-level4-shadow:
+    0 2px 3px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent),
+    0 6px 10px 4px color-mix(in srgb, var(--mo-sys-color-shadow) 15%, transparent);
+  --mo-sys-elevation-level5-shadow:
+    0 4px 4px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent),
+    0 8px 12px 6px color-mix(in srgb, var(--mo-sys-color-shadow) 15%, transparent);
+  /* Resting shadows are on (owner, 18 Nov 2026: "Follow the token: 1dp shadow at rest"): a part on level N shows level N's shadow at
+     rest, as M3's token page prints (m3.material.io/styles/elevation/tokens), and the same one when it is lifted a level higher. A theme
+     turns resting shadows off by pointing these at --mo-sys-elevation-level0-shadow. */
+  --mo-sys-elevation-level1-rest-shadow: var(--mo-sys-elevation-level1-shadow);
+  --mo-sys-elevation-level2-rest-shadow: var(--mo-sys-elevation-level2-shadow);
+  --mo-sys-elevation-level3-rest-shadow: var(--mo-sys-elevation-level3-shadow);
+  --mo-sys-elevation-level4-rest-shadow: var(--mo-sys-elevation-level4-shadow);
+  --mo-sys-elevation-level5-rest-shadow: var(--mo-sys-elevation-level5-shadow);
+  /* M3's corner radius scale (m3.material.io/styles/shape/corner-radius-scale), its ten steps named for how round a
+     corner is. Every corner in the theme is one of them: a part's variable below maps it to its step, as M3's component
+     tokens do, also one corner at a time (a sheet's top, the inner corners of a split button or a menu's groups).
+     Changing a step (--mo-sys-shape-corner-medium) changes every part mapped to it; changing a part's variable (--mo-comp-card-radius)
+     maps that part to another step. Optical roundness (outer radius - padding = inner radius) only where the theme's
+     own layout always puts something in its container's corner (a card's image at its top: the card's corners);
+     never on something whose place is the block's or the content's, which keeps its own step. */
+  --mo-sys-shape-corner-none: 0rem;
+  --mo-sys-shape-corner-extra-small: 0.25rem;
+  --mo-sys-shape-corner-small: 0.5rem;
+  --mo-sys-shape-corner-medium: 0.75rem;
+  --mo-sys-shape-corner-large: 1rem;
+  --mo-sys-shape-corner-large-increased: 1.25rem;
+  --mo-sys-shape-corner-extra-large: 1.75rem;
+  --mo-sys-shape-corner-extra-large-increased: 2rem;
+  --mo-sys-shape-corner-extra-extra-large: 3rem;
+  --mo-sys-shape-corner-full: 9999px;
+  /* Images in a list, a row, a step on the time line: large corners. */
+  --mo-sys-radius-small: var(--mo-sys-shape-corner-large);
+}
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* The elevation levels' colours (ui.css, resolved at :root) are the surface containers: declared again here, so an elevated
+     card, button, chip or sheet in the section takes the section's own containers, not the page's (white on near-white). */
+  --mo-sys-elevation-level0-color: var(--mo-sys-color-surface);
+  --mo-sys-elevation-level1-color: var(--mo-sys-color-surface-container-low);
+  --mo-sys-elevation-level2-color: var(--mo-sys-color-surface-container);
+  --mo-sys-elevation-level3-color: var(--mo-sys-color-surface-container-high);
+  --mo-sys-elevation-level4-color: var(--mo-sys-color-surface-container-highest);
+  --mo-sys-elevation-level5-color: var(--mo-sys-color-surface-container-highest);
+}
+/* Material's typeface (the plain typeface of tokens/base/ref.css). */
+:root {
+  --mo-ref-typeface-plain: 'Roboto Variable', Roboto, ui-sans-serif, system-ui, sans-serif;
+}

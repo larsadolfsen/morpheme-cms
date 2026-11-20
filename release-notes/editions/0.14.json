@@ -1,0 +1,12 @@
+{
+  "name": "Braies",
+  "place": {
+    "en-US": "Lago di Braies, South Tyrol, Italy",
+    "da-DK": "Lago di Braies, Sydtyrol, Italien"
+  },
+  "photo": {
+    "by": "Pietro De Grandi",
+    "source": "https://images.unsplash.com/photo-1501785888041-af3ef285b470",
+    "license": "https://unsplash.com/license"
+  }
+}

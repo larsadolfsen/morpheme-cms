@@ -1,0 +1,58 @@
+/*
+  The reduced-motion rules that several parts share, moved here from ui.css with their doc paragraph, the rules unchanged and in their order, each
+  in its own @layer fallback (it beats components whatever the order, so no rule changed layer): the loading indicator's and the progress
+  indicators' with the tooltip's (the first block), and the card's and the ripple's (the second block). Imported by base.css after the ripple, last
+  of the parts that came from ui.css (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+/* ---- Communication: Badge, LoadingIndicator, LinearProgressIndicator, CircularProgressIndicator, Snackbar, Tooltip ---- */
+/*
+  What tells the visitor something without a page of its own, named as Material 3 names it (../ui/Badge.tsx,
+  LoadingIndicator.tsx, ProgressIndicator.tsx, Snackbar.tsx, Tooltip.tsx). The standard look, from the theme's colours
+  and the blocks' variables; a theme changes it with these variables, and with rules on the classes where a variable is
+  not enough (a state). With reduced motion nothing moves fast: the indeterminate indicators move slowly, a value
+  changes at once and the loading indicator only turns.
+
+*/
+
+@layer fallback {
+  /* Reduced motion: slowly, and a value at once. */
+  @media (prefers-reduced-motion: reduce) {
+    .mo-loading-indicator__shape {
+      animation: loading-indicator-turn 6s linear infinite;
+    }
+    .mo-linear-progress-indicator__active,
+    .mo-linear-progress-indicator__track,
+    .mo-circular-progress-indicator__active,
+    .mo-circular-progress-indicator__track,
+    .mo-tooltip {
+      transition: none;
+    }
+    .mo-linear-progress-indicator__indeterminate > .mo-linear-progress-indicator__active,
+    .mo-linear-progress-indicator__wavy.mo-linear-progress-indicator__indeterminate .mo-linear-progress-indicator__active,
+    .mo-circular-progress-indicator__indeterminate > svg,
+    .mo-circular-progress-indicator__indeterminate .mo-circular-progress-indicator__active {
+      animation-duration: 6s;
+    }
+    .mo-linear-progress-indicator__indeterminate > .mo-linear-progress-indicator__active + .mo-linear-progress-indicator__active,
+    .mo-linear-progress-indicator__wavy.mo-linear-progress-indicator__indeterminate
+      .mo-linear-progress-indicator__active
+      + .mo-linear-progress-indicator__active {
+      animation-delay: 3.3s;
+    }
+    /* A wavy one's wave stands still. */
+    .mo-linear-progress-indicator__wavy:not(.mo-linear-progress-indicator__indeterminate) .mo-linear-progress-indicator__active,
+    .mo-circular-progress-indicator__wavy:not(.mo-circular-progress-indicator__indeterminate) .mo-circular-progress-indicator__active {
+      animation: none;
+    }
+  }
+}
+@layer fallback {
+  @media (prefers-reduced-motion: reduce) {
+    :is(a, button).mo-card::before {
+      transition: none;
+    }
+    .mo-ripple__wave {
+      animation: ripple-in 105ms linear;
+    }
+  }
+}

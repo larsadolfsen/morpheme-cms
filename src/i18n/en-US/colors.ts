@@ -1,0 +1,106 @@
+// "Colors" (Colors.tsx): the site's colors in light and dark mode.
+export const colors = {
+  intro: "The website's colors in light and dark mode.",
+  light: 'Light mode',
+  dark: 'Dark mode',
+  /** The switch between the modes, for screen readers. */
+  modes: 'Mode',
+  /** The little page drawn in a mode's colors. */
+  preview: {
+    title: (mode: string) => `Example: ${mode.toLowerCase()}`,
+    heading: 'A heading',
+    text: 'Secondary text, for example, a date.',
+    link: 'A link',
+    card: 'Text on a surface.',
+    box: 'A light box',
+    /** The boxes in the secondary and tertiary colors, which a harmony places; also the names of the
+     * generator's base colors after the source color. */
+    secondary: 'Secondary',
+    tertiary: 'Tertiary',
+    button: 'Book a time',
+  },
+  /** A pair that is too hard to read: what it is (the site's words), its contrast and the least it needs. */
+  tooLow: (what: string, ratio: string, min: string) => `Contrast too low: ${what} (${ratio}, at least ${min}).`,
+  /** checkSite.ts: a color in the file that is not one ('dark.accent: "red"'). */
+  notAColorAt: (where: string) => `Not a color: ${where}`,
+  cannotSave: 'Some colors have too little contrast. Fix the ones marked in red.',
+  unreadable: 'The colors couldn’t be read. The default colors are shown.',
+  /** Dynamic color (Material 3): all the colors made from one source color. */
+  dynamic: {
+    /** The tab with dynamic color, beside the modes'. */
+    tab: 'Generator',
+    source: 'Source color',
+    fromImage: 'From an image',
+    fromImageDone: 'The source color was taken from the image',
+    /** An image without color enough to make the colors from (a grey one). */
+    noColorInImage: 'The image has no color that can be used as a source color',
+    /** The generator's three base colors at the top (ColorTiles), under this heading and named by it for screen readers. */
+    base: 'Colors',
+    /** The color wheel with the color harmonies (lib/dynamic-colors.ts HARMONIES). */
+    harmony: 'Harmony',
+    harmonyHint: 'Drag the big dot, and the other colors follow the harmony.',
+    wheel: 'Color wheel',
+    harmonies: {
+      analogous: 'Analogous',
+      monochromatic: 'Monochromatic',
+      complementary: 'Complementary',
+      splitComplementary: 'Split complementary',
+      triadic: 'Triadic',
+    },
+    contrast: 'Contrast',
+    contrastHint: 'Higher contrast makes the text easier to read.',
+    contrasts: { standard: 'Standard', medium: 'Medium', high: 'High' },
+    /** Custom, the generator's sixth choice (lib/dynamic-colors.ts CUSTOM): Primary, Secondary and Tertiary chosen freely. */
+    custom: 'Custom',
+    customHint: 'Select Primary, Secondary and Tertiary yourself. The other colors are made from them.',
+    /** The first base color's name in Custom (else it is the source color). */
+    primary: 'Primary',
+    /** A dot on the color wheel in Custom, named by its color. */
+    wheelDot: (name: string) => `${name}: drag to change this color`,
+    wheelHintCustom: 'Drag a dot to change only that color.',
+    /** The question about Primary (it is used as text): a notice with Fix and Keep. */
+    fixTitle: 'Fix this to improve accessibility?',
+    hardText: (name: string, ratio: string, min: string) => `${name} is hard to read as text on Surface: ${ratio}, at least ${min} needed.`,
+    fix: 'Fix',
+    keep: 'Keep',
+    /** Under Primary's tile after Keep. */
+    kept: (name: string) => `${name} is kept as you chose it. It may be hard to read.`,
+    /** A save while the question about Primary is open. */
+    answerFirst: 'Answer the question about Primary first.',
+    /** The colors Fix changed, a row each: chosen, used, hex, mode. */
+    adjustedTitle: 'Adjusted for contrast',
+    adjusted: (name: string, mode: string, direction: string, used: string) =>
+      `${name} is ${direction} in ${mode} so it can be seen: ${used}.`,
+    directions: { darker: 'darker', lighter: 'lighter' },
+    /** A note by the Secondary or Tertiary tile whose color is below 3:1 on the page. */
+    lowOnPage: (name: string) => `${name} has low contrast on the page, so it is not offered as an icon color. It is still used for fills.`,
+    /** A color changed by hand while they are made from the source color. */
+    turnedOff: 'The generator no longer makes the colors, so you can change them yourself',
+    /** checkSite.ts: a wrong value in the choice in the file ('dynamic.variant: "red"'). */
+    wrongAt: (where: string) => `Wrong value: ${where}`,
+  },
+  /** Each page's colors as it was built, shown in the modes while an app changes the pages' colors (hooks/page-colors.ts). */
+  pages: {
+    intro: "Each page's colors, as they were when the website was last updated.",
+    /** At the top of the modes: the apps that give the pages their colors, by their names, and the way to the site's
+     * own, the fallback. */
+    title: "Colors from the pages' images",
+    byApps: (apps: string) => `${apps} gives the pages colors from their images. Where it doesn’t, the fallback colors are used.`,
+    showFallback: 'Show fallback colors',
+    /** The page with the site's own colors (FALLBACK_ROUTE), and what they are. */
+    fallback: 'Fallback colors',
+    fallbackIntro: (apps: string) => `The website’s own colors are used on pages where ${apps} doesn’t give colors.`,
+    apps: 'Apps',
+    fromApp: 'Colors from an image',
+    own: "The website's colors",
+    loading: "Loading the pages' colors…",
+    missing: "The pages' colors can be seen in a few minutes",
+    /** The colors of a page in a row, read out (Primary, Tint, Background and On surface). */
+    swatches: (mode: string) => `The colors in ${mode.toLowerCase()}`,
+  },
+  standard: 'Reset to default colors',
+  standardHint: 'Takes effect when you save.',
+  icons: 'Edit the logo and favicon under Business › Logo and favicon.',
+  /** The commit, in the site's language (siteT). */
+  commit: 'Editor: new colors',
+};

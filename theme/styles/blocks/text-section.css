@@ -1,0 +1,127 @@
+/*
+  The text sections and what the text of a page shares: .mo-is-in-text (the space above and below a block in the text), the section with a colour, an image or
+  the whole width (.mo-text-section and its kinds), the one column of the plain text rows' blocks (Steps, List, Segmented list, Blog posts, Testimonials list:
+  .mo-block-steps's width, the list columns and data-columns="one"), and the section's colour swap. This is the head of blocks.css moved here as it was, with
+  the rules unchanged and in their order (docs/superpowers/plans/2026-11-16-css-split.md), so base.css imports it BEFORE blocks.css, in the same layer
+  (components): it was the first run of blocks.css, and every other block rule still comes after it. The two rules of the fallback layer that
+  belong to the section (.mo-text-section > :first-child and :last-child) stay at the end of blocks.css, with the layer's other rules, until those move.
+*/
+@layer components {
+  /* A block in the text of a page: the space above and below it. */
+  .mo-is-in-text {
+    margin-block: 2rem;
+  }
+
+  /* A section of a page's or post's text with a colour, an image or the whole width of the window (lib/text-sections.mjs,
+     RichText.astro): a panel the width of the text column, from its heading to the next (its first and last parts' margins: at
+     the end of the file). The colours are Surface and the theme's Primary, Secondary and Tertiary (--mo-sys-block-primary and the
+     like, with their text colours --mo-sys-block-on-primary …). A section from before Tint is Surface, and Accent is Primary. */
+  .mo-text-section {
+    margin-block: var(--mo-sys-block-section-margin) 0;
+    border-radius: var(--mo-sys-block-radius);
+    padding: var(--mo-sys-block-section-padding);
+    /* The space below belongs inside the colour: it runs down to the next section, or to the end of the text. */
+    padding-block-end: calc(var(--mo-sys-block-section-padding) + var(--mo-sys-block-section-margin));
+  }
+  :where(.mo-text-section).mo-is-surface {
+    background: var(--mo-sys-block-surface);
+    box-shadow: var(--mo-sys-block-shadow);
+  }
+  /* An image behind the section (<img class="mo-text-section__image"> first in it, RichText.astro): it fills the panel, darkened
+     from below with the section's colour (Surface: --mo-sys-block-surface; none: --mo-sys-block-hero-shade, the text's colour unless the theme
+     sets it) so the text on it can be read. Without a colour the text is --mo-sys-block-hero-on-shade, the surface's. */
+  :where(.mo-text-section).mo-has-image {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--mo-sys-section-fill);
+    box-shadow: none;
+  }
+  :where(.mo-text-section).mo-has-image::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      to top,
+      color-mix(in srgb, var(--mo-sys-section-shade) 85%, transparent),
+      color-mix(in srgb, var(--mo-sys-section-shade) 55%, transparent) 70%,
+      color-mix(in srgb, var(--mo-sys-section-shade) 40%, transparent)
+    );
+  }
+  .mo-text-section__image {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    object-fit: cover;
+    border-radius: 0;
+  }
+  /* Across the whole width of the window (`width` full): without corners; it reaches out of the text to the window's edges, from
+     where the text starts at the left of the page's container (--mo-sys-block-page-width, --mo-sys-block-gutter), and its content stays in the text
+     column from there (the rule below). The page is clipped at the window's edges while it has one (100vw is a
+     scrollbar wider). */
+  :where(.mo-text-section).mo-is-full {
+    width: 100vw;
+    /* min-width wins over a max-width: a page's text column limits what is in it to a readable width with a utility. */
+    min-width: 100vw;
+    margin-left: calc(-1 * var(--mo-sys-section-inset));
+    border-radius: 0;
+    padding-inline: var(--mo-sys-section-inset);
+  }
+  /* Only the background is the whole width: the content stays in the page's text column, as the text outside a section does (the
+     page's text keeps its paragraphs and headings at the text measure, PageLayout.astro; blocks, mo-is-not-prose, span the container). */
+  :where(.mo-text-section).mo-is-full > :not(.mo-is-not-prose, .mo-text-section__image) {
+    max-width: var(--mo-sys-block-text-measure-max);
+    min-width: min(var(--mo-sys-block-text-measure-min), 100%);
+  }
+  /* Blocks of plain text rows (owner, 16 Nov 2026). Steps is one column at most --mo-sys-block-list-measure-max (720px) wide, left aligned
+     with the paragraph above it. The rows of a List, Segmented list (and its accordion rows), Blog posts as a list and Testimonials
+     list are columns at least --mo-sys-block-list-column-min wide, as many as fit in the list's own width: one column below two of them
+     (it is narrower than 720px, so it is never wider), two columns from 720px (a tablet's page), three from 1080px, never more in the page container
+     (1104px). It follows the list's width, not the window's (Modern Web Guidance, `responsive-design`). Wide visual blocks
+     (Cards, Image grid, Video, Carousel, Price cards, Table, Hero) keep the container's width. */
+  .mo-list.mo-block-list:not([data-columns='one']),
+  .mo-list.mo-block-accordion:not([data-columns='one']),
+  .mo-list.mo-block-testimonials__testimonial-rows:not([data-columns='one']),
+  .mo-block-posts__rows:not([data-columns='one']) .mo-post-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--mo-sys-block-list-column-min), 100%), 1fr));
+    align-items: start;
+    column-gap: var(--mo-sys-grid-gutter);
+  }
+  /* The setting Columns is off (data-columns="one", standard/columns.ts): one column, at most as wide as Steps. */
+  :is(.mo-block-list, .mo-block-accordion, .mo-block-testimonials__testimonial-rows, .mo-block-posts__rows)[data-columns='one'] {
+    max-width: var(--mo-sys-block-list-measure-max);
+  }
+  body:has(:where(.mo-text-section).mo-is-full) {
+    overflow-x: clip;
+  }
+  /* On a colour with its own text colour (and on an image without Surface) everything in the text is that colour, links
+     too: they are underlined by the prose style. The section's real colours are kept in private variables first
+     (--section-…): the blocks in it get the variables swapped (below), and a variable cannot swap with another on the
+     same element. */
+  :is(
+    :where(.mo-text-section).mo-is-primary,
+    :where(.mo-text-section).mo-is-secondary,
+    :where(.mo-text-section).mo-is-tertiary,
+    :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)
+  ) {
+    background: var(--mo-sys-section-accent);
+    color: var(--mo-sys-section-on-accent);
+    --mo-comp-prose-body: var(--mo-sys-section-on-accent);
+    --mo-comp-prose-headings: var(--mo-sys-section-on-accent);
+    --mo-comp-prose-lead: var(--mo-sys-section-on-accent);
+    --mo-comp-prose-links: var(--mo-sys-section-on-accent);
+    --mo-comp-prose-bold: var(--mo-sys-section-on-accent);
+    --mo-comp-prose-counters: var(--mo-sys-section-on-accent);
+    --mo-comp-prose-bullets: var(--mo-sys-section-on-accent);
+    --mo-comp-prose-hr: var(--mo-sys-section-on-accent);
+    --mo-comp-prose-quotes: var(--mo-sys-section-on-accent);
+    --mo-comp-prose-quote-borders: var(--mo-sys-section-on-accent);
+    --mo-comp-prose-captions: var(--mo-sys-section-on-accent);
+    --mo-comp-prose-code: var(--mo-sys-section-on-accent);
+  }
+}

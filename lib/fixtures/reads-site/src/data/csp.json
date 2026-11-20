@@ -1,0 +1,5 @@
+{
+  "script": ["https://cdn.example.com", "https://*.example.org"],
+  "img": ["https://cdn.example.com"],
+  "connect": ["https://api.example.net"]
+}

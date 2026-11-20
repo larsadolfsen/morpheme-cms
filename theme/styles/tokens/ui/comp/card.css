@@ -1,0 +1,75 @@
+/* The card's states by kind (m3.material.io/components/cards, Specs: Elevated, Filled and Outlined card tokens). The kind's resting and dragged
+   shadow, and the one a card that is a link or a button has when pointed at, are set here by the kind and the state, never by a rule that draws:
+   --mo-comp-card-shadow is the shadow a card has now. M3's names where Specs prints one (--mo-comp-elevated-card-container-elevation …); the rest
+   read their --mo-sys-* token as the fallback and are not declared (docs/theme-token-files.md, "Adding a token"):
+     --mo-comp-card-headline-*, --mo-comp-card-subhead-*, --mo-comp-card-supporting-*   size, line-height, weight, tracking and colour of the text
+     --mo-comp-card-icon-color, --mo-comp-card-icon-size                               the icon (primary, 24dp)
+     --mo-comp-outlined-card-focus-outline-color                                         the outlined card's edge with focus (on-surface)
+     --mo-comp-card-dragged-state-layer-opacity                                          the layer of a dragged card (0.16)
+   The spacing tokens (--mo-comp-card-padding, -media-gap, -subhead-gap, -text-gap, -action-gap) are in tokens/material/comp/card.css. */
+@layer components {
+  :where(.mo-card).mo-is-elevated {
+    --mo-comp-card-shadow: var(--mo-comp-elevated-card-container-elevation, var(--mo-sys-elevation-level1-rest-shadow));
+  }
+}
+@layer components {
+  :where(.mo-card).mo-is-filled {
+    --mo-comp-card-shadow: var(--mo-comp-card-filled-shadow, var(--mo-sys-elevation-level0-shadow));
+  }
+}
+@layer components {
+  :where(.mo-card).mo-is-outlined {
+    --mo-comp-card-shadow: var(--mo-comp-card-outlined-shadow, var(--mo-sys-elevation-level0-shadow));
+  }
+}
+@layer components {
+  @media (hover: hover) {
+    :is(a, button:enabled):where(.mo-card).mo-is-elevated:hover:not(:active, .mo-card__dragged) {
+      --mo-comp-card-shadow: var(
+        --mo-comp-elevated-card-hover-container-elevation,
+        var(--mo-comp-elevated-card-container-elevation, var(--mo-sys-elevation-level2-shadow))
+      );
+    }
+  }
+}
+@layer components {
+  @media (hover: hover) {
+    :is(a, button:enabled):where(.mo-card).mo-is-filled:hover:not(:active, .mo-card__dragged) {
+      --mo-comp-card-shadow: var(
+        --mo-comp-card-filled-hover-shadow,
+        var(--mo-comp-card-filled-shadow, var(--mo-sys-elevation-level1-shadow))
+      );
+    }
+  }
+}
+@layer components {
+  @media (hover: hover) {
+    :is(a, button:enabled):where(.mo-card).mo-is-outlined:hover:not(:active, .mo-card__dragged) {
+      --mo-comp-card-shadow: var(
+        --mo-comp-card-outlined-hover-shadow,
+        var(--mo-comp-card-outlined-shadow, var(--mo-sys-elevation-level1-shadow))
+      );
+    }
+  }
+}
+@layer components {
+  :where(.mo-card).mo-is-elevated.mo-card__dragged {
+    --mo-comp-card-shadow: var(--mo-comp-card-elevated-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
+  }
+}
+@layer components {
+  :where(.mo-card).mo-is-filled.mo-card__dragged {
+    --mo-comp-card-shadow: var(--mo-comp-card-filled-dragged-shadow, var(--mo-sys-elevation-level3-shadow));
+  }
+}
+@layer components {
+  :where(.mo-card).mo-is-outlined.mo-card__dragged {
+    --mo-comp-card-shadow: var(--mo-comp-card-outlined-dragged-shadow, var(--mo-sys-elevation-level3-shadow));
+  }
+}
+/* Focus (Specs, Outlined card, Focused): the outlined card's edge turns on-surface (hovered, pressed and dragged keep outline-variant). */
+@layer components {
+  :is(a, button:enabled):where(.mo-card).mo-is-outlined:focus-visible {
+    --mo-comp-outlined-card-outline-color: var(--mo-comp-outlined-card-focus-outline-color, var(--mo-sys-color-on-surface));
+  }
+}

@@ -1,0 +1,347 @@
+/*
+  Navigation drawer (NavigationDrawer, NavigationDrawerItem, NavigationDrawerToggle, NavigationDrawerSubitem,
+  navigationDrawerClass, navigationDrawerScrimClass): .mo-navigation-drawer, the drawer, over .mo-navigation-drawer__scrim;
+  .mo-navigation-drawer__standard, the standard one, beside the content (--mo-comp-navigation-drawer-standard-shadow, level 0);
+  .mo-navigation-drawer__dialog, a <dialog> it is in, at the start edge (at the end edge with .mo-navigation-drawer__end on it too; its ::backdrop the scrim, faded through --mo-comp-navigation-drawer-scrim-opacity); .mo-navigation-drawer__end,
+  one at the end edge (its corners towards the page, mirrored); .mo-navigation-drawer__bleed, one that springs in (on the
+  drawer, or on the <dialog> it is in): wider by --mo-comp-navigation-drawer-bleed (32dp) at the edge it comes from, that strip
+  off the screen, so a spring that overshoots shows no gap at the edge; .mo-navigation-drawer__item,
+  a page (a link, or a button: the editor's) ([data-active]: the open one, or the one holding it), its
+  .mo-navigation-drawer__icon (24dp, outlined; the filled .mo-navigation-drawer__selected-icon in its place while
+  [data-active]) and .mo-navigation-drawer__label, and optionally .mo-navigation-drawer__badge, the text at its end
+  (--mo-comp-navigation-drawer-badge-text, on surface variant; on secondary container on the active item);
+  .mo-navigation-drawer__trailing, an icon at the end of an item (an arrow to a list); .mo-navigation-drawer__back, the back row
+  (an item with an arrow before its label);
+  .mo-navigation-drawer__row, an item with .mo-navigation-drawer__toggle after it (it unfolds its sub-pages, aria-expanded);
+  .mo-navigation-drawer__subitem, a sub-page ([data-active]); .mo-navigation-drawer__section, items under a label
+  (.mo-navigation-drawer__section-label, title small) with, in one that follows another, the divider
+  (.mo-navigation-drawer__section-divider, edge to edge).
+    --mo-comp-navigation-drawer-width (set: that width; else it hugs its content from 220dp to 360dp, at most the screen less 56dp),
+    --mo-comp-navigation-drawer-radius (0 16dp 16dp 0; under right-to-left --mo-comp-navigation-drawer-radius-rtl), --mo-comp-navigation-drawer-surface
+    (the modal one: the surface container, level 2's colour; the standard one: the surface),
+    --mo-comp-navigation-drawer-shadow (level 1), --mo-comp-navigation-drawer-scrim-color, --mo-comp-navigation-drawer-inset (12dp each side, from
+    the edges to the items), --mo-comp-navigation-drawer-padding (all of it, with room for the home indicator),
+    --mo-comp-navigation-drawer-section-gap (8dp around the divider), --mo-comp-navigation-drawer-section-label-text
+    --mo-comp-navigation-drawer-item-height (56dp), -padding (16dp start and end), -gap (12dp), -radius (full), -font-size,
+    -line-height, -letter-spacing, -weight (label large), -text (on surface variant), -hover and -pressed (state
+    layers), -active-surface (secondary container), -active-text (on secondary container), -active-weight (700)
+    --mo-comp-navigation-drawer-row-gap, --mo-comp-navigation-drawer-toggle-size, --mo-comp-navigation-drawer-toggle-hover
+    --mo-comp-navigation-drawer-subitem-indent, -line, -padding, -font-size, -text, -active-text
+  Moved here from ui.css with its rules unchanged and in their order, in the same layer, imported by base.css right after ui.css (docs/superpowers/plans/2026-11-16-css-split.md).
+*/
+@layer components {
+  /* Navigation drawer, modal (m3.material.io/components/navigation-drawer): the pages in a panel over the page. */
+  .mo-navigation-drawer__scrim {
+    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--mo-comp-theme-scrim-colour) 45%, transparent));
+  }
+  .mo-navigation-drawer {
+    display: flex;
+    /* Expanded navigation rail (M3 Expressive, "Expanded layout: Modal"): it hugs its content, "container width minimum 220dp",
+       "maximum 360dp"; a theme that sets --mo-comp-navigation-drawer-width gets that width, as it did. */
+    min-width: var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-width-min-default));
+    max-width: var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-container-width));
+    flex-direction: column;
+    overflow-y: auto;
+    border-radius: var(--mo-comp-navigation-drawer-radius, 0 1rem 1rem 0);
+    padding: var(
+      --mo-comp-navigation-drawer-padding,
+      0.75rem var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default)) max(1rem, env(safe-area-inset-bottom))
+    );
+    /* Expanded rail, modal: "Nav rail expanded modal container color", the surface container (level 2's colour). */
+    background: var(--mo-comp-navigation-drawer-surface, var(--mo-sys-elevation-level2-color));
+    box-shadow: var(--mo-comp-navigation-drawer-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+  }
+  .mo-navigation-drawer:dir(rtl) {
+    border-radius: var(--mo-comp-navigation-drawer-radius-rtl, 1rem 0 0 1rem);
+  }
+  /* At the end edge: its corners towards the page, as the start edge's in the other direction. */
+  .mo-navigation-drawer__end {
+    border-radius: var(--mo-comp-navigation-drawer-radius-rtl, 1rem 0 0 1rem);
+  }
+  .mo-navigation-drawer__end:dir(rtl) {
+    border-radius: var(--mo-comp-navigation-drawer-radius, 0 1rem 1rem 0);
+  }
+  /* One that springs in: a strip as wide as --mo-comp-navigation-drawer-bleed beyond the screen's edge (a negative margin), the
+     items as far in from the edge as before (the strip added to the padding), so the drawer still covers the edge
+     while an overshooting spring carries it a little past its place. */
+  .mo-navigation-drawer.mo-navigation-drawer__bleed {
+    min-width: calc(
+      var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-width-min-default)) +
+        var(--mo-comp-navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
+    );
+    max-width: calc(
+      var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-container-width)) +
+        var(--mo-comp-navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
+    );
+    margin-inline-start: calc(-1 * var(--mo-comp-navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default)));
+    padding-inline-start: calc(
+      var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default)) +
+        var(--mo-comp-navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
+    );
+  }
+  .mo-navigation-drawer.mo-navigation-drawer__bleed.mo-navigation-drawer__end {
+    margin-inline: 0 calc(-1 * var(--mo-comp-navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default)));
+    padding-inline: var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default))
+      calc(
+        var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default)) +
+          var(--mo-comp-navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
+      );
+  }
+  /* Nothing in it is squeezed when its content is higher than the screen: the drawer scrolls instead. */
+  .mo-navigation-drawer > * {
+    flex-shrink: 0;
+  }
+  /* Standard: beside the content, as high as its row, no scrim, at level 0 (the content makes room for it). */
+  .mo-navigation-drawer__standard {
+    height: 100%;
+    flex-shrink: 0;
+    box-shadow: var(--mo-comp-navigation-drawer-standard-shadow, var(--mo-sys-elevation-level0-shadow, none));
+    /* Expanded rail, standard: "Nav rail expanded container color", the surface. */
+    background: var(--mo-comp-navigation-drawer-surface, var(--mo-sys-elevation-level0-color));
+  }
+  .mo-navigation-drawer__item {
+    display: flex;
+    min-height: var(--mo-comp-navigation-drawer-item-height, 3.5rem);
+    flex: 1;
+    align-items: center;
+    gap: var(--mo-comp-navigation-drawer-item-gap, 0.5rem);
+    border-radius: var(--mo-comp-navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
+    padding: var(--mo-comp-navigation-drawer-item-padding, 0 1rem);
+    color: var(--mo-comp-navigation-drawer-item-text, var(--mo-sys-block-muted));
+    text-decoration: none;
+    font-size: var(--mo-comp-navigation-drawer-item-font-size, var(--mo-sys-typescale-label-large-size));
+    line-height: var(--mo-comp-navigation-drawer-item-line-height, var(--mo-sys-typescale-label-large-line-height));
+    letter-spacing: var(--mo-comp-navigation-drawer-item-letter-spacing, var(--mo-sys-typescale-label-large-tracking));
+    font-weight: var(--mo-comp-navigation-drawer-item-weight, var(--mo-sys-typescale-label-large-weight));
+    transition:
+      background-color var(--mo-sys-motion-spring-fast-effects),
+      color var(--mo-sys-motion-spring-fast-effects);
+  }
+  button.mo-navigation-drawer__item {
+    width: 100%;
+    text-align: start;
+    cursor: pointer;
+  }
+  /* In a <dialog> (navigationDrawerDialogClass: the editor's): at the start of the screen (left, right in right-to-left
+     languages), as high as it, over the scrim. */
+  .mo-navigation-drawer__dialog {
+    position: fixed;
+    inset-block: 0;
+    inset-inline: 0 auto;
+    width: auto;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  .mo-navigation-drawer__dialog > .mo-navigation-drawer {
+    height: 100%;
+  }
+  /* A <dialog> that springs in (navigationDrawerBleedClass on the dialog, the editor's): the dialog starts the strip
+     beyond the screen's edge and the drawer in it is that much wider, its items as far in as before (a modal dialog
+     clips what sticks out of it, so the strip is the dialog's own). */
+  .mo-navigation-drawer__dialog.mo-navigation-drawer__bleed {
+    inset-inline-start: calc(-1 * var(--mo-comp-navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default)));
+  }
+  .mo-navigation-drawer__dialog.mo-navigation-drawer__bleed > .mo-navigation-drawer {
+    min-width: calc(
+      var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-width-min-default)) +
+        var(--mo-comp-navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
+    );
+    max-width: calc(
+      var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-container-width)) +
+        var(--mo-comp-navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
+    );
+    padding-inline-start: calc(
+      var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default)) +
+        var(--mo-comp-navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
+    );
+  }
+  /* At the end edge (navigationDrawerEndClass on the <dialog> and on the drawer in it): the strip beyond the screen is the end's. */
+  .mo-navigation-drawer__dialog.mo-navigation-drawer__end {
+    inset-inline: auto 0;
+  }
+  .mo-navigation-drawer__dialog.mo-navigation-drawer__bleed.mo-navigation-drawer__end {
+    inset-inline: auto calc(-1 * var(--mo-comp-navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default)));
+  }
+  .mo-navigation-drawer__dialog.mo-navigation-drawer__bleed.mo-navigation-drawer__end > .mo-navigation-drawer {
+    padding-inline: var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default))
+      calc(
+        var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default)) +
+          var(--mo-comp-navigation-drawer-bleed, var(--mo-comp-navigation-drawer-bleed-default))
+      );
+  }
+  .mo-navigation-drawer__dialog::backdrop {
+    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--mo-comp-theme-scrim-colour) 45%, transparent));
+    /* The menu fades it with the motion scheme's springs through this variable, which the backdrop inherits from the dialog. */
+    opacity: var(--mo-comp-navigation-drawer-scrim-opacity, 1);
+  }
+  /* Scrolling in or over it does not move the page behind it (no overflow: hidden on the page). */
+  .mo-navigation-drawer__dialog:modal {
+    overscroll-behavior: contain;
+  }
+  .mo-navigation-drawer__dialog::backdrop {
+    overflow: hidden;
+    overscroll-behavior: contain;
+  }
+  /* State layers (as the theme's other items): the item's own colour over it, 8% pointed at, 10% focused or pressed. */
+  .mo-navigation-drawer__item:hover {
+    background: var(
+      --mo-comp-navigation-drawer-item-hover,
+      color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+    );
+  }
+  .mo-navigation-drawer__item:focus-visible,
+  .mo-navigation-drawer__item:active {
+    background: var(
+      --mo-comp-navigation-drawer-item-pressed,
+      color-mix(in srgb, currentColor calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%), transparent)
+    );
+  }
+  .mo-navigation-drawer__item:focus-visible {
+    outline-offset: -2px;
+  }
+  .mo-navigation-drawer__item[data-active] {
+    background: var(--mo-comp-navigation-drawer-item-active-surface, var(--mo-sys-color-secondary-container));
+    color: var(--mo-comp-navigation-drawer-item-active-text, var(--mo-sys-color-on-secondary-container));
+    font-weight: var(--mo-comp-navigation-drawer-item-active-weight, 700);
+  }
+  .mo-navigation-drawer__item[data-active]:hover {
+    background: color-mix(
+      in srgb,
+      currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+      var(--mo-comp-navigation-drawer-item-active-surface, var(--mo-sys-color-secondary-container))
+    );
+  }
+  .mo-navigation-drawer__item[data-active]:focus-visible,
+  .mo-navigation-drawer__item[data-active]:active {
+    background: color-mix(
+      in srgb,
+      currentColor calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%),
+      var(--mo-comp-navigation-drawer-item-active-surface, var(--mo-sys-color-secondary-container))
+    );
+  }
+  /* Sections: a label (title small, 56dp high) over the items; the divider is in every section and shown only in one that
+     follows another, edge to edge (it takes the drawer's inset back). */
+  .mo-navigation-drawer__section {
+    display: flex;
+    flex-direction: column;
+  }
+  .mo-navigation-drawer__section-divider {
+    display: none;
+  }
+  .mo-navigation-drawer__section + .mo-navigation-drawer__section > .mo-navigation-drawer__section-divider {
+    display: block;
+    margin-block: var(--mo-comp-navigation-drawer-section-gap, 0.5rem);
+    margin-inline: calc(-1 * var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default)));
+  }
+  .mo-navigation-drawer__section-label {
+    display: flex;
+    min-height: var(--mo-comp-navigation-drawer-item-height, 3.5rem);
+    align-items: center;
+    padding-inline: var(--mo-comp-navigation-drawer-item-padding-inline, 1rem);
+    color: var(--mo-comp-navigation-drawer-section-label-text, var(--mo-sys-block-muted));
+    font-size: var(--mo-sys-typescale-title-small-size);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
+  }
+  .mo-navigation-drawer__icon {
+    display: grid;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    place-items: center;
+  }
+  .mo-navigation-drawer__icon > svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  /* The outlined icon, and the filled one in its place on the active item. */
+  .mo-navigation-drawer__item:not([data-active]) > .mo-navigation-drawer__icon > .mo-navigation-drawer__selected-icon,
+  .mo-navigation-drawer__item[data-active] > .mo-navigation-drawer__icon > .mo-navigation-drawer__unselected-icon {
+    display: none;
+  }
+  .mo-navigation-drawer__label {
+    min-width: 0;
+    flex: 1;
+  }
+  /* The badge label text at the end of an item: how many there are (label large, on surface variant; on secondary container
+     on the active item). */
+  .mo-navigation-drawer__badge {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    color: var(--mo-comp-navigation-drawer-badge-text, var(--mo-sys-block-muted));
+    font-size: var(--mo-sys-typescale-label-large-size);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
+    font-variant-numeric: tabular-nums;
+  }
+  .mo-navigation-drawer__item[data-active] > .mo-navigation-drawer__badge {
+    color: var(--mo-comp-navigation-drawer-item-active-text, var(--mo-sys-color-on-secondary-container));
+  }
+  /* The trailing icon at the end of an item (an arrow to the list it opens); the back row has the item's look. */
+  .mo-navigation-drawer__trailing {
+    display: grid;
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+    place-items: center;
+    margin-inline-start: auto;
+  }
+  .mo-navigation-drawer__trailing:dir(rtl) {
+    scale: -1 1;
+  }
+  .mo-navigation-drawer__badge + .mo-navigation-drawer__trailing {
+    margin-inline-start: 0;
+  }
+  .mo-navigation-drawer__back:dir(rtl) > .mo-navigation-drawer__icon {
+    scale: -1 1;
+  }
+  .mo-navigation-drawer__row {
+    display: flex;
+    align-items: center;
+    gap: var(--mo-comp-navigation-drawer-row-gap, 0.25rem);
+  }
+  .mo-navigation-drawer__toggle {
+    display: grid;
+    width: var(--mo-comp-navigation-drawer-toggle-size, 2.75rem);
+    height: var(--mo-comp-navigation-drawer-toggle-size, 2.75rem);
+    flex-shrink: 0;
+    place-items: center;
+    border-radius: var(--mo-sys-shape-corner-full);
+    cursor: pointer;
+    transition: background-color var(--mo-sys-motion-spring-fast-effects);
+  }
+  .mo-navigation-drawer__toggle:hover {
+    background: var(--mo-comp-navigation-drawer-toggle-hover, var(--mo-sys-block-tint));
+  }
+  .mo-navigation-drawer__toggle > svg {
+    transition: rotate var(--mo-sys-motion-spring-default-spatial);
+  }
+  .mo-navigation-drawer__toggle[aria-expanded='true'] > svg {
+    rotate: 180deg;
+  }
+  .mo-navigation-drawer__subitem {
+    display: flex;
+    align-items: center;
+    margin-left: var(--mo-comp-navigation-drawer-subitem-indent, 0.75rem);
+    border-left: 1px solid var(--mo-comp-navigation-drawer-subitem-line, var(--mo-sys-block-line));
+    padding: var(--mo-comp-navigation-drawer-subitem-padding, 0.625rem 0.75rem 0.625rem 1rem);
+    color: var(--mo-comp-navigation-drawer-subitem-text, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
+    font-size: var(--mo-comp-navigation-drawer-subitem-font-size, var(--mo-sys-typescale-body-medium-size));
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    transition: color var(--mo-sys-motion-spring-fast-effects);
+  }
+  .mo-navigation-drawer__subitem:hover,
+  .mo-navigation-drawer__subitem[data-active] {
+    color: var(--mo-comp-navigation-drawer-subitem-active-text, var(--mo-sys-block-accent));
+  }
+  .mo-navigation-drawer__subitem[data-active] {
+    font-weight: 500;
+  }
+}

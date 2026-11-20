@@ -1,0 +1,396 @@
+/* The Text field rules, moved unchanged and in their old order out of ui.css (docs/superpowers/plans/2026-11-16-css-split.md). */
+/*
+  Text fields (TextField.tsx, textFieldClass, and textField.script.ts with textFieldUpdate.ts for what it does on the
+  site): .mo-text-field with its kind, .mo-is-outlined or .mo-is-filled, .mo-is-error when what is written
+  is wrong and .mo-text-field__multiline with several lines (.mo-has-leading-icon with an icon before what is
+  written, .mo-text-field__without-label with no name in the field); in it the field, .mo-text-field__container (its surface
+  and edge), with in a row the icon before (.mo-text-field__leading-icon), the prefix (.mo-text-field__prefix, shown once the
+  name has moved up), the <input> or <textarea> (.mo-text-field__input; [data-text-field-grow] growing with the text), its
+  name drawn in the field (.mo-text-field__label, moving above what is written; none when the field only has a
+  placeholder), the suffix (.mo-text-field__suffix), an icon after (.mo-text-field__trailing-icon; .mo-text-field__error-icon only
+  while it is wrong, in place of the others) and the buttons (.mo-text-field__trailing-action: .mo-text-field__clear once
+  something is written, .mo-text-field__visibility, aria-pressed while the password is shown); under it
+  .mo-text-field__supporting-row with the line (.mo-text-field__supporting, what is wrong with it in .mo-is-error) and the
+  counter (.mo-text-field__counter; .mo-text-field__counter-over past the field's limit). A button or a link that is tapped to choose (the editor's choice from a list) can be
+  the .mo-text-field__input (textFieldInputClass) in the container; with aria-expanded while its menu is open (its edge and name in the accent,
+  its arrow up), and in .mo-text-field__small a small box as wide as what is chosen. A read-only field ([readonly]) looks as an enabled one; with the focus its edge is the
+  line's colour.
+    --mo-comp-filled-text-field-container-height, --mo-comp-text-field-padding, --mo-comp-text-field-radius, --mo-comp-text-field-font-size   the field
+    --text-field-<kind>-surface, -line, -hover-line, -focus-line   each kind's colours and edge (resting, pointed at,
+      written in)
+    --mo-comp-text-field-label-color, --mo-comp-text-field-supporting-color, --mo-comp-text-field-error   the name, the line, and what is wrong
+    --mo-comp-text-field-label-surface   behind the name on an outlined field's edge (what the field stands on)
+    --mo-comp-text-field-icon-size, --mo-comp-text-field-icon-color, --mo-comp-text-field-icon-padding, --mo-comp-text-field-icon-gap   the icons, the
+      room between the field's edge and an icon, and between an icon and what is written
+    --mo-comp-text-field-affix-color, --mo-comp-text-field-disabled-opacity   the prefix and the suffix, and a field that cannot be used
+    --mo-comp-text-field-multiline-radius   the corners of a field with several lines at most (else a pill's are too round)
+*/
+@layer components {
+  /* Text fields (m3.material.io/components/text-fields): the container draws the field (its surface and edge), with
+     what is in it in a row: the icon, the prefix, the <input>, the suffix and the icons and buttons at the end. */
+  .mo-text-field {
+    position: relative;
+    display: grid;
+    min-width: 0;
+  }
+  .mo-text-field__container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    min-height: var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem));
+    border-radius: var(--mo-comp-text-field-radius, var(--mo-sys-block-control-radius));
+    transition:
+      box-shadow var(--mo-sys-motion-spring-default-effects),
+      background-color var(--mo-sys-motion-spring-default-effects);
+  }
+  .mo-text-field__input {
+    flex: 1;
+    align-self: stretch;
+    min-width: 0;
+    min-height: var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem));
+    border: 0;
+    border-radius: inherit;
+    padding: 0 var(--mo-comp-text-field-padding, 1.25rem);
+    background: transparent;
+    color: var(--mo-sys-block-text);
+    font: inherit;
+    font-size: var(--mo-comp-text-field-font-size, var(--mo-sys-typescale-body-large-size));
+  }
+  .mo-text-field__input:focus {
+    outline: none;
+  }
+  .mo-text-field__container:has(> .mo-text-field__input:disabled) {
+    opacity: var(--mo-comp-text-field-disabled-opacity, 0.6);
+  }
+  /* A field that is tapped to choose (a button or a link with the field's classes): what is chosen in it, from the start. */
+  :is(button, a).mo-text-field__input {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    text-align: start;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .mo-text-field__input:disabled {
+    cursor: default;
+  }
+  /* A small box (TextFieldButton's size="small"): as wide as what is chosen, for a row's choice (SettingRow). */
+  .mo-text-field__small {
+    width: max-content;
+    max-width: 100%;
+  }
+  .mo-text-field:has(.mo-text-field__input:disabled) .mo-text-field__supporting-row {
+    opacity: var(--mo-comp-text-field-disabled-opacity, 0.6);
+  }
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__container {
+    background: var(--mo-comp-text-field-outlined-surface, var(--mo-sys-block-surface));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-outlined-text-field-outline-color, var(--mo-sys-block-line));
+  }
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__container:hover {
+    box-shadow: inset 0 0 0 1px
+      var(--mo-comp-outlined-text-field-hover-outline-color, var(--mo-comp-outlined-text-field-outline-color, var(--mo-sys-block-line)));
+  }
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__container:has(> .mo-text-field__input:focus) {
+    box-shadow: inset 0 0 0 2px var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
+  }
+  :where(.mo-text-field).mo-is-filled .mo-text-field__container {
+    background: var(--mo-comp-filled-text-field-container-color, var(--mo-sys-block-tint));
+    box-shadow: inset 0 -1px 0 var(--mo-comp-text-field-filled-line, transparent);
+  }
+  :where(.mo-text-field).mo-is-filled .mo-text-field__container:hover {
+    box-shadow: inset 0 -1px 0 var(--mo-comp-text-field-filled-hover-line, var(--mo-comp-text-field-filled-line, transparent));
+  }
+  /* Written in, or wrong: an edge all round in the accent, whatever the field's shape (a theme with a line under its
+     filled fields, square at the bottom, draws the line thicker instead). */
+  :where(.mo-text-field).mo-is-filled .mo-text-field__container:has(> .mo-text-field__input:focus) {
+    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
+  }
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
+    .mo-text-field__container,
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
+    .mo-text-field__container:hover,
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
+    .mo-text-field__container:has(> .mo-text-field__input:is(:focus, [aria-expanded='true'])) {
+    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+  }
+  /* A choice whose menu is open under it (the button's aria-expanded): the edge as with the focus, which has moved into
+     the menu; and the arrow turned up. */
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__container:has(> .mo-text-field__input[aria-expanded='true']) {
+    box-shadow: inset 0 0 0 2px var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
+  }
+  :where(.mo-text-field).mo-is-filled .mo-text-field__container:has(> .mo-text-field__input[aria-expanded='true']) {
+    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
+  }
+  /* Read-only: as an enabled field, and with the focus its edge in the line's colour, as it cannot be written in. */
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__container:has(> .mo-text-field__input[readonly]:focus) {
+    box-shadow: inset 0 0 0 2px
+      var(--mo-comp-outlined-text-field-hover-outline-color, var(--mo-comp-outlined-text-field-outline-color, var(--mo-sys-block-line)));
+  }
+  :where(.mo-text-field).mo-is-filled .mo-text-field__container:has(> .mo-text-field__input[readonly]:focus) {
+    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-filled-hover-line, var(--mo-comp-text-field-filled-line, var(--mo-sys-block-line)));
+  }
+  /* The name in the field, above what is written once there is something (or while it is written in); a placeholder
+     shows only then. */
+  .mo-text-field__label {
+    position: absolute;
+    top: calc(var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) / 2);
+    left: var(--mo-comp-text-field-label-start);
+    max-width: calc(100% - var(--mo-comp-text-field-label-start) - var(--mo-comp-text-field-padding, 1.25rem));
+    overflow: hidden;
+    color: var(--mo-comp-text-field-label-color, var(--mo-sys-block-muted));
+    line-height: 1.25;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    pointer-events: none;
+    transform: translateY(-50%);
+    transform-origin: left center;
+    transition:
+      top var(--mo-sys-motion-spring-fast-spatial),
+      left var(--mo-sys-motion-spring-fast-spatial),
+      font-size var(--mo-sys-motion-spring-fast-spatial),
+      color var(--mo-sys-motion-spring-default-effects);
+  }
+  .mo-text-field:has(.mo-text-field__label) .mo-text-field__input:not(:focus)::placeholder {
+    color: transparent;
+  }
+  .mo-text-field__input:focus + .mo-text-field__label,
+  .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
+    font-size: var(--mo-sys-typescale-body-small-size);
+  }
+  .mo-text-field__input:focus + .mo-text-field__label {
+    color: var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
+  }
+  .mo-text-field__input[readonly]:focus + .mo-text-field__label {
+    color: var(--mo-comp-text-field-label-color, var(--mo-sys-block-muted));
+  }
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__input[aria-expanded='true'] + .mo-text-field__label {
+    color: var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
+  }
+  :where(.mo-text-field).mo-is-filled .mo-text-field__input[aria-expanded='true'] + .mo-text-field__label {
+    color: var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
+  }
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
+    .mo-text-field__label,
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
+    .mo-text-field__input:is(:focus, [aria-expanded='true'])
+    + .mo-text-field__label {
+    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+  }
+  /* Outlined: the name on the edge, on the field's surface, at its start (also past the icon before it). */
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__input:focus + .mo-text-field__label,
+  :where(.mo-text-field).mo-is-outlined .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
+    top: 0;
+    margin-left: -0.25rem;
+    padding: 0 0.25rem;
+    background: var(--mo-comp-text-field-label-surface, var(--mo-comp-text-field-outlined-surface, var(--mo-sys-block-surface)));
+  }
+  /* Filled: the name at the top of the field, what is written under it. */
+  :where(.mo-text-field).mo-is-filled:has(.mo-text-field__label)
+    :is(.mo-text-field__input, .mo-text-field__prefix, .mo-text-field__suffix) {
+    padding-top: 1.1rem;
+  }
+  :where(.mo-text-field).mo-is-filled .mo-text-field__input:focus + .mo-text-field__label,
+  :where(.mo-text-field).mo-is-filled .mo-text-field__input:not(:placeholder-shown) + .mo-text-field__label {
+    top: 0.5rem;
+    transform: none;
+  }
+  :where(.mo-text-field).mo-is-filled .mo-text-field__input:focus + .mo-text-field__label {
+    color: var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
+  }
+
+  /* The icons and the text before and after what is written. */
+  .mo-text-field__leading-icon,
+  .mo-text-field__trailing-icon {
+    flex-shrink: 0;
+    width: var(--mo-comp-text-field-icon-size, 1.25rem);
+    height: var(--mo-comp-text-field-icon-size, 1.25rem);
+    color: var(--mo-comp-text-field-icon-color, var(--mo-sys-block-muted));
+  }
+  .mo-text-field__leading-icon {
+    margin-inline-start: var(--mo-comp-text-field-icon-padding, 0.875rem);
+  }
+  .mo-text-field__leading-icon + :is(.mo-text-field__prefix, .mo-text-field__input) {
+    padding-inline-start: var(--mo-comp-text-field-icon-gap, 0.75rem);
+  }
+  .mo-text-field__trailing-icon {
+    margin-inline-end: var(--mo-comp-text-field-icon-padding, 0.875rem);
+    transition: rotate var(--mo-sys-motion-spring-fast-spatial);
+  }
+  .mo-text-field__container:has(> button.mo-text-field__input[aria-expanded='true']) > .mo-text-field__trailing-icon {
+    rotate: 180deg;
+  }
+  /* The buttons bare (standard icon buttons without their surface), as the icons beside them. */
+  .mo-text-field__trailing-action {
+    display: flex;
+    flex-shrink: 0;
+    margin-inline-end: 0.125rem;
+  }
+  /* What is written, or the suffix, nearer to the icons and buttons after it. */
+  .mo-text-field__container:has(> .mo-text-field__trailing-action, > .mo-text-field__trailing-icon:not(.mo-text-field__error-icon))
+    > :is(.mo-text-field__input, .mo-text-field__suffix):not(:has(~ .mo-text-field__suffix)),
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
+    .mo-text-field__container:has(> .mo-text-field__error-icon)
+    > :is(.mo-text-field__input, .mo-text-field__suffix):not(:has(~ .mo-text-field__suffix)) {
+    padding-inline-end: var(--mo-comp-text-field-icon-gap, 0.75rem);
+  }
+  .mo-text-field__prefix,
+  .mo-text-field__suffix {
+    flex-shrink: 0;
+    color: var(--mo-comp-text-field-affix-color, var(--mo-sys-block-muted));
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity var(--mo-sys-motion-spring-default-effects);
+  }
+  .mo-text-field__prefix {
+    padding-inline-start: var(--mo-comp-text-field-padding, 1.25rem);
+  }
+  .mo-text-field__suffix {
+    padding-inline-end: var(--mo-comp-text-field-padding, 1.25rem);
+  }
+  .mo-text-field__container:has(> .mo-text-field__prefix) > .mo-text-field__input {
+    padding-inline-start: 0.25rem;
+  }
+  .mo-text-field__container:has(> .mo-text-field__suffix) > .mo-text-field__input {
+    padding-inline-end: 0.25rem;
+  }
+  /* Shown once the name has moved up (or with no name in the field). */
+  .mo-text-field__container:has(> .mo-text-field__input:is(:focus, :not(:placeholder-shown)))
+    > :is(.mo-text-field__prefix, .mo-text-field__suffix),
+  .mo-text-field__without-label :is(.mo-text-field__prefix, .mo-text-field__suffix) {
+    opacity: 1;
+  }
+  /* The clear button only once something is written; the error's icon only while the field is wrong, in place of the
+     others at the end. */
+  .mo-text-field__container:has(> .mo-text-field__input:placeholder-shown) > .mo-text-field__clear,
+  .mo-text-field__error-icon {
+    display: none;
+  }
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
+    .mo-text-field__error-icon {
+    display: block;
+    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+  }
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
+    .mo-text-field__container:has(> .mo-text-field__error-icon)
+    > :is(.mo-text-field__trailing-icon:not(.mo-text-field__error-icon), .mo-text-field__trailing-action) {
+    display: none;
+  }
+  .mo-text-field__visibility-hide,
+  .mo-text-field__visibility[aria-pressed='true'] .mo-text-field__visibility-show {
+    display: none;
+  }
+  .mo-text-field__visibility[aria-pressed='true'] .mo-text-field__visibility-hide {
+    display: block;
+  }
+
+  /* Several lines: what is written from the top, the icons by its first line; growing with the text, or a fixed number
+     of rows that scroll. */
+  .mo-text-field__multiline .mo-text-field__container {
+    align-items: flex-start;
+    border-radius: min(
+      var(--mo-comp-text-field-radius, var(--mo-sys-block-control-radius)),
+      var(--mo-comp-text-field-multiline-radius, var(--mo-sys-block-radius))
+    );
+  }
+  .mo-text-field__multiline .mo-text-field__input {
+    padding-block: calc((var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) - 1lh) / 2);
+    resize: none;
+  }
+  .mo-text-field__multiline .mo-text-field__input[data-text-field-grow] {
+    field-sizing: content;
+    overflow: hidden;
+  }
+  .mo-text-field__multiline :is(.mo-text-field__leading-icon, .mo-text-field__trailing-icon) {
+    margin-top: calc(
+      (
+          var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) -
+            var(--mo-comp-text-field-icon-size, 1.25rem)
+        ) /
+        2
+    );
+  }
+  .mo-text-field__multiline :is(.mo-text-field__prefix, .mo-text-field__suffix) {
+    margin-top: calc((var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) - 1lh) / 2);
+  }
+  .mo-text-field__multiline .mo-text-field__trailing-action {
+    margin-top: calc(
+      (
+          var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) -
+            var(--mo-comp-icon-button-small-container-height, 2.75rem)
+        ) /
+        2
+    );
+  }
+
+  /* The line under it, and the counter at its end. */
+  .mo-text-field__supporting-row {
+    display: flex;
+    gap: 1rem;
+    margin: 0.25rem var(--mo-comp-text-field-padding, 1.25rem) 0;
+    color: var(--mo-comp-text-field-supporting-color, var(--mo-sys-block-muted));
+    font-size: var(--mo-sys-typescale-body-small-size);
+    line-height: var(--mo-sys-typescale-body-small-line-height);
+    font-weight: var(--mo-sys-typescale-body-small-weight);
+    letter-spacing: var(--mo-sys-typescale-body-small-tracking);
+  }
+  .mo-text-field__supporting {
+    flex: 1;
+    margin: 0;
+  }
+  :is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
+    .mo-text-field__supporting {
+    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+  }
+  /* What is said when the browser finds the field invalid after the person has worked in it (invalidText, `:user-invalid`):
+     it takes the place of the line under the field and does not add one (m3.material.io/components/text-fields/guidelines,
+     Error text: "Swap supporting text with error text"), so the layout does not move. */
+  .mo-text-field__invalid-text {
+    display: none;
+  }
+  .mo-text-field:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text)
+    .mo-text-field__invalid-text {
+    display: block;
+  }
+  .mo-text-field:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text)
+    .mo-text-field__supporting:not(.mo-text-field__invalid-text) {
+    display: none;
+  }
+  .mo-text-field__counter {
+    flex-shrink: 0;
+    margin-inline-start: auto;
+    font-variant-numeric: tabular-nums;
+  }
+  /* Past what it should have at most (limit): in the error's colour. */
+  .mo-text-field__counter-over {
+    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+  }
+}
