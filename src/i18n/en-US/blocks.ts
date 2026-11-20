@@ -151,6 +151,8 @@ export const blocks = {
     newRow: 'New row',
     /** A row of the list typed in place: its place, for screen readers (row 2 of 4). */
     rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
+    /** The caret of a row that folds out (List - Expand typed in place); its state is `aria-expanded`. */
+    foldRow: 'Expand row',
     /** The design of a list: rows on the page (plain), or each row on its own surface (segmented). */
     design: 'Design',
     designPlain: 'Plain',
