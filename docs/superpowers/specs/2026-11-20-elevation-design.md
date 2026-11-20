@@ -121,7 +121,7 @@ for a contract raise and is noted for the steps table.
 
 ## Decisions
 
-1. **Component levels in the customizer (0.22.2).** Decided by the owner on 20 November 2026: "No, save the shadow changer in a none planned customizer feature". A component keeps
+1. **Component levels in a customizer** (then 0.22.2, now an idea without a version). Decided by the owner on 20 November 2026: "No, save the shadow changer in a none planned customizer feature". A component keeps
    M3's level (M3: "Avoid changing the default elevation of Material components"); a theme can still change one part's level
    through its token. A site-wide *Shadows at rest* (`On`/`Off`) setting, which sets the `-rest-shadow` tokens, is saved in the
    roadmap's *Ideas without a version* for a customizer that has no version yet.
