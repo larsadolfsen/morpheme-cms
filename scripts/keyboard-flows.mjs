@@ -258,8 +258,10 @@ async function menu(ctx, prefix, name, opener) {
     ctx.add('unreachable', `${prefix}: ${name} takes focus when it opens`);
   } else {
     const before = await describe(page);
+    // A menu with one choice has nowhere to move to.
+    const choices = await page.evaluate(() => document.querySelectorAll('[role=menu] [role^=menuitem]:not(:disabled)').length);
     await press(ctx, 'ArrowDown');
-    if ((await describe(page)) === before) ctx.add('unreachable', `${prefix}: ${name} moves with the arrow keys`);
+    if (choices > 1 && (await describe(page)) === before) ctx.add('unreachable', `${prefix}: ${name} moves with the arrow keys`);
   }
   await press(ctx, 'Escape');
   await expectFocus(ctx, `${prefix}: after ${name} closes`, opener);
