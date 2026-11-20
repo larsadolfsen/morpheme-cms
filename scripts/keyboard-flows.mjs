@@ -108,6 +108,12 @@ async function open(ctx, hash, ready) {
   await settle(ctx.page, 800);
 }
 
+/** A tool of the text bar: the bar is one Tab stop (the ARIA toolbar pattern), so Tab gets into it and the arrow keys walk its tools. */
+async function reachTool(ctx, step, match) {
+  await reach(ctx, `${step} (the bar)`, { css: 'button', inside: '[role=toolbar]' });
+  return reach(ctx, step, match, { keys: ['ArrowRight'], max: 30 });
+}
+
 const TEXT = { css: '[role=textbox]', label: 'Text' };
 const PAGE = 'src/content/pages/about.md';
 /** The bar is before the text in the page, so the keyboard goes back to it (Shift+Tab). */
@@ -149,7 +155,7 @@ async function flowA(ctx) {
 async function flowB(ctx) {
   const { page } = ctx;
   await open(ctx, PAGE, '[role=textbox][aria-label="Text"]');
-  await reach(ctx, 'B: Insert block', { css: 'button', label: 'Insert block' });
+  await reachTool(ctx, 'B: Insert block', { css: 'button', label: 'Insert block' });
   await press(ctx, 'Enter');
   await expectFocus(ctx, 'B: after the insert sheet opens');
   await page.keyboard.type('notice');
@@ -171,7 +177,16 @@ async function flowB(ctx) {
   await press(ctx, 'Escape');
   await expectFocus(ctx, "B: after closing a block's settings", card);
   await press(ctx, 'Enter');
-  await reach(ctx, 'B: Remove', { css: 'button', label: 'Remove' }, BAR);
+  // The card is selected with its settings open beside the text: Alt+F10 moves the focus to the bar, whose block tools have Remove; Escape goes back to the card.
+  await press(ctx, 'Alt+F10');
+  // On a phone the bar is short, and Remove is in its More menu.
+  if (await page.evaluate(() => !!document.querySelector('[role=toolbar] button[aria-label="Remove"]')))
+    await reach(ctx, 'B: Remove', { css: 'button', label: 'Remove' }, { keys: ['ArrowRight'], max: 30 });
+  else {
+    await reach(ctx, 'B: More', { css: 'button', label: 'More' }, { keys: ['ArrowRight'], max: 30 });
+    await press(ctx, 'Enter');
+    await reach(ctx, 'B: Remove', { css: 'button', text: 'Remove' }, { keys: ['ArrowDown'], max: 20 });
+  }
   await press(ctx, 'Enter');
   await expectFocus(ctx, 'B: after Remove');
 }
@@ -200,6 +215,7 @@ async function flowC(ctx) {
   await expectFocus(ctx, 'C: after Text style opens');
   await press(ctx, 'Enter');
   await expectFocus(ctx, 'C: after a style is chosen');
+  await press(ctx, 'Alt+F10');
   await reach(ctx, 'C: Link', { css: 'button', label: 'Link' }, { keys: ['ArrowRight'], max: 12 });
   await press(ctx, 'Enter');
   await expectFocus(ctx, 'C: after Link opens');
@@ -247,7 +263,9 @@ async function flowE(ctx) {
 /** One menu: opened with Enter, focus goes into it, an arrow key moves it, Escape closes it and gives focus back to its button. */
 async function menu(ctx, prefix, name, opener) {
   const { page } = ctx;
-  await reach(ctx, `${prefix}: ${name} button`, opener, { max: 80 });
+  // The text bar is one Tab stop: its tools are reached with the arrow keys.
+  if (opener.bar) await reachTool(ctx, `${prefix}: ${name} button`, opener);
+  else await reach(ctx, `${prefix}: ${name} button`, opener, { max: 80 });
   await press(ctx, 'Enter');
   const inMenu = () =>
     page.evaluate(() => {
@@ -280,7 +298,7 @@ async function sheet(ctx, prefix, name, opener) {
 
 async function flowF(ctx) {
   await open(ctx, PAGE, '[role=textbox][aria-label="Text"]');
-  await menu(ctx, 'F', 'the page More menu', { css: 'button', label: 'More' });
+  await menu(ctx, 'F', 'the page More menu', { css: 'button', label: 'More', bar: true });
   await open(ctx, '');
   await reach(ctx, 'F: Edit dashboard', { css: 'button', text: 'Edit dashboard' }, { max: 80 });
   await press(ctx, 'Enter');
