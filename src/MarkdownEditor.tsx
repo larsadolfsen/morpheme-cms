@@ -953,7 +953,7 @@ function cardBar(
       own.remove ??
       (() =>
         items()
-          .find((it) => it && it.label === t.common.remove && !it.disabled)
+          .find((it): it is CardItem => !!it && it.label === t.common.remove)
           ?.action(true));
     if ((e.key === 'Delete' || e.key === 'Backspace') && document.activeElement === card) {
       e.preventDefault();
