@@ -233,7 +233,8 @@ repository, each keeps to this, and a PM asks the other PMs to hold new pull req
 and about 10 minutes (it was about 19 jobs and 135 runner-minutes at the full level), and the runner starts about 20 jobs at once. Of 27 recent
 light runs, 3 or 4 overlapped in 13 and all but 3 waited at most a minute for a runner (the 3 waited 4-6 minutes). Four light runs fit; a full
 run needs about twice the room. If the queue shows more than 2 runs waiting for over 2 minutes, go back to 3 until it shortens, and measure again.
-A session pushes, re-runs or merges its base into its pull request only when the PM says "your slot"; it may merge
+A session pushes, re-runs or merges its base into its pull request only when the PM says "your slot", and that message carries the
+owner's permission to push (owner, 20 Nov 2026: "The pm has my permission to tell Dev sessions to push"): the PM tells a session to push and never asks the owner to. It may merge
 the base locally and run `npm run check`, but it does not push. The PM counts the active runs with the `queued` call above and
 `status=in_progress`, and gives the next slot when a pull request merges or goes red and is sent back. A push that supersedes a run is
 cancelled by `concurrency` (only the newest head counts). The PM may cancel a run it queued itself when a slot is needed (owner, 15

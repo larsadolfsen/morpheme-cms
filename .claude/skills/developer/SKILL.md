@@ -91,7 +91,8 @@ leaves nothing in the shipped package. It then tells the PM exactly what worked,
 
 Owner rule, 15 Nov 2026. When the change is finished and `npm run check` is green locally (which checks to run before a push: skill `checks`, *What to run before a push*), do not push, open a pull request
 or re-run CI on your own. Send the PM one message, `ready: <branch>, <what changed>, local check green`, and wait. Only on
-the PM's "your slot" do you push (or merge `origin/<base>` and push, or open the pull request), then report the link and
+the PM's "your slot" do you push (or merge `origin/<base>` and push, or open the pull request); that message carries the owner's permission
+(owner, 20 Nov 2026: "The pm has my permission to tell Dev sessions to push"), so you push without asking the owner again. Then report the link and
 the head sha once `check` is green. While you wait you may merge the base locally and run `npm run check`; never the full `check:screens` (skill `checks`). The first push
 of a new session follows the same rule: check in first. The PM keeps the order (`pm` skill, section 5, *Ready queue*, and section 6, *CI slots*).
 
