@@ -142,8 +142,7 @@ async function flowA(ctx) {
   await settle(ctx.page);
   await reach(ctx, 'A: Save', { css: 'button', text: 'Save' }, { max: 120 });
   await press(ctx, 'Enter');
-  // The save takes longer on a slow machine: wait (at most 10 s) for the dialog that takes the focus when it is done, so the check does not judge a moment too early.
-  await page.waitForSelector('dialog[open]', { timeout: 10_000 }).catch(() => {});
+  await settle(page, 800);
   await expectFocus(ctx, 'A: after Save');
 }
 
@@ -354,6 +353,13 @@ export async function runFlow(browser, site, flow, width) {
   const ctx = context(page, flow, width);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
+  // The editor asks once, after a Save, whether it may show notifications; whether that question comes depends on when its choices load, so it
+  // is not asked here (permission denied) and every run sees the same: what has the focus when a Save is done.
+  await page.addInitScript(() => {
+    try {
+      Object.defineProperty(Notification, 'permission', { get: () => 'denied' });
+    } catch {}
+  });
   try {
     await openEditor(page, site);
     // What a save sends and what the autosave answers, as the unit for Ctrl+S does (scripts/screens/text-bar.mjs).

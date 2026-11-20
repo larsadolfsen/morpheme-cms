@@ -50,6 +50,13 @@
   },
   {
     "problem": "flow-lost-focus",
+    "selector": "A: after Save",
+    "places": ["flow A"],
+    "viewports": ["phone", "computer"],
+    "reason": "After Save the bar closes and focus drops to body (the flow asks no notification question, so no dialog takes it). Batch 3 of 0.19.3 keeps focus on the text."
+  },
+  {
+    "problem": "flow-lost-focus",
     "selector": "B: after Move down",
     "places": ["flow B"],
     "viewports": ["phone", "computer"],
