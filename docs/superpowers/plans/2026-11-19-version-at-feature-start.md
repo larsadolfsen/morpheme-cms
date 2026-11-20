@@ -37,8 +37,11 @@ publish workflow; that is what changes.
 2. **The `next` job in `publish.yml`:** the test version is `<the set version>-next-<time>` (today `changeset version --snapshot`
    computes it from the changesets, which would give a number one step too high). It still stages nothing when only empty changesets
    are pending.
-3. **A version check** (job `static`, with a test): on a pull request into `main`, and on a feature's first pull request, `version` is
-   exactly one step above npm's `latest` (next patch, or next minor `.0`) and not published yet; on a merge into `main` with non-empty
+3. **A version check** (job `static`, with a test): on a pull request into `main` (the merge gate), `version` is
+   exactly one step above npm's `latest` (next patch, or next minor `.0`) and not published yet; on a feature's first pull request it is above
+   `latest`, not published, and at most in the next minor's line (`latest` 0.18.1: any 0.18.x above it or any 0.19.y, never 0.20.0). *Changed 20 Nov 2026
+   (owner: "Yes to both", for 0.19.2): features are built side by side, so a feature sets the version it will be released as even while an earlier
+   one (0.19.0, 0.19.1) is not released; the owner's rule of 19 Nov, "the demo shows it", is unchanged.* On a merge into `main` with non-empty
    changesets, a `version` equal to `latest` fails ("set the feature's version"); and on every pull request, at every level,
    `starter/package.json` pins the package's `version` (`node scripts/starter.mjs --check`, so the feature level catches it too). It replaces the series check of
    `scripts/release-line.mjs` (`release-lines.json`).
