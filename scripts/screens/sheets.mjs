@@ -1479,7 +1479,7 @@ async function checkBlockSettingsPane(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#block-settings'));
-  const row = page.getByRole('button', { name: /^Accordion/ }).first();
+  const row = page.getByRole('button', { name: /^Buttons/ }).first();
   await row.waitFor({ timeout: 10_000 });
   await row.click();
   await page.waitForTimeout(500);
@@ -1487,7 +1487,7 @@ async function checkBlockSettingsPane(width) {
     const aside = document.querySelector('aside.mo-side-sheet__container:not([hidden])');
     const box = aside?.getBoundingClientRect();
     const first = [...document.querySelectorAll('main button, main [role=button]')]
-      .find((b) => /^Accordion/.test(b.textContent.trim()))
+      .find((b) => /^Buttons/.test(b.textContent.trim()))
       ?.getBoundingClientRect();
     return {
       aside: !!aside,

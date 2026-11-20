@@ -85,7 +85,15 @@ export default function Carousel({
       data-carousel-layout={layout === 'uncontained' ? undefined : layout}
       data-carousel-alignment={layout === 'hero' && alignment === 'center' ? alignment : undefined}
     >
-      <ul ref={row} className="mo-carousel__items" data-carousel-items="" onScroll={(e) => setShown(shownItem(e.currentTarget))}>
+      <ul
+        ref={row}
+        className="mo-carousel__items"
+        data-carousel-items=""
+        // A scroller the keyboard can reach (WCAG 2.1.1; axe: scrollable-region-focusable), named like the carousel.
+        tabIndex={0}
+        aria-label={label || undefined}
+        onScroll={(e) => setShown(shownItem(e.currentTarget))}
+      >
         {items.map((item) => (
           <li
             key={item.key}

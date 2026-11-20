@@ -315,7 +315,7 @@ export default function NavigationParts() {
       <Part name="Tabs" use={say.tabs}>
         <Preview>
           <div className="mo-editor-nav-tabs">
-            <SiteTabs>
+            <SiteTabs aria-label={say.viewList}>
               <SiteTab href="">{home}</SiteTab>
               <SiteTab href="" selected>
                 {open}
@@ -329,14 +329,14 @@ export default function NavigationParts() {
                 </SiteTab>
               ))}
             </SiteTabs>
-            <SiteTabs kind="primary" inline>
+            <SiteTabs aria-label={say.viewList} kind="primary" inline>
               {say.views.map((view, i) => (
                 <SiteTab key={view} href="" icon={viewIcons[i]} selected={i === 1} badge={i === 2 ? true : undefined}>
                   {view}
                 </SiteTab>
               ))}
             </SiteTabs>
-            <SiteTabs kind="primary">
+            <SiteTabs aria-label={say.viewList} kind="primary">
               {say.views.map((view, i) => (
                 <SiteTab key={view} href="" selected={i === 2}>
                   {view}

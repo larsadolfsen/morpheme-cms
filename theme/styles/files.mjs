@@ -75,7 +75,7 @@ export const OTHER_BASE_FILES = [
   'layout.css',
   'blocks/text-section.css',
   'blocks/steps.css',
-  'blocks/accordion.css',
+  'blocks/expand.css',
   'blocks/buttons-links.css',
   'blocks/testimonial.css',
   'blocks/row.css',

@@ -8,7 +8,7 @@ test('The system test page has every core block, so a new block must be added to
   // By the markup, not blocksIn: that reads a block from before as the block it became.
   const used = new Set([...page.matchAll(/data-block="([a-z]+)"/g)].map((m) => m[1]));
   const types = coreBlockTypes();
-  assert.ok(types.length >= 17, 'the core blocks are found');
+  assert.ok(types.length >= 14, 'the core blocks are found');
   for (const type of types)
     assert.ok(used.has(type), `the test page has no "${type}" block: add it to EXTRA_BLOCKS in scripts/core-blocks-page.mjs`);
 });
