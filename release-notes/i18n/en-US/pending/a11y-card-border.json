@@ -1,0 +1,7 @@
+{
+  "id": "a11y-card-border",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Card edges",
+  "text": "Outlined cards were hard to see where their edge was pale. Their edge is now a clearer grey, and in a section on Primary, Secondary or Tertiary the outlines of cards and fields are stronger. Filled and elevated cards are unchanged."
+}
