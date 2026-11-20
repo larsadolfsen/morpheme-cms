@@ -363,7 +363,7 @@ export function themeProblems(theme) {
     for (const f of CONTRACT_FILES)
       if (has(`${dir}/${f}`)) problems.push(`${dir}/${f}: a block's contract belongs to the editor or an app, not to the theme.`);
     // Without a View.tsx of its own, the standard theme's draws the block, and each file replaces one of its parts
-    // (accordion/Accordion.tsx), which it imports as @theme/…; else nothing would use it. The standard theme draws them all.
+    // (expand/Accordion.tsx), which it imports as @theme/…; else nothing would use it. The standard theme draws them all.
     if (theme === STANDARD_THEME || has(`${dir}/View.tsx`)) {
       if (!has(`${dir}/View.tsx`)) problems.push(`${dir}/View.tsx is missing: it draws the block on the site and in the editor.`);
     } else
