@@ -180,7 +180,31 @@ export async function newLineUnder(page, text) {
     try {
       return await underNow();
     } catch (e) {
-      if (tries >= 2) throw e;
+      if (tries < 2) continue;
+      // The third try failed too: say what the page looked like (the wait and the tries are as they were), and go on, so the run fails with it and the
+      // rest of the shard still runs; the line goes to the log at once as well, in case a later step of the caller stops the run before the errors are listed.
+      const state = await page
+        .evaluate(() => {
+          const root = document.querySelector('.ProseMirror');
+          const top = (node) => (node && (node.nodeType === 1 ? node : node.parentElement))?.closest('.ProseMirror > *') ?? null;
+          const children = [...(root?.children ?? [])];
+          const at = getSelection()?.anchorNode;
+          const inside = top(at);
+          const active = document.activeElement;
+          const view = window.visualViewport;
+          return {
+            children: children.map((el) => `${el.tagName.toLowerCase()}:${(el.textContent ?? '').slice(0, 20)}`),
+            selection: !at ? 'none' : inside ? `child ${children.indexOf(inside)} (${inside.tagName.toLowerCase()})` : 'outside the text',
+            activeElement: active ? `${active.tagName.toLowerCase()}.${String(active.className).split(' ')[0]}` : 'none',
+            visualViewport: view ? { scale: view.scale, offsetTop: view.offsetTop, height: Math.round(view.height) } : null,
+            zoomed: document.documentElement.getAttribute('data-zoomed'),
+          };
+        })
+        .catch((error) => ({ unreadable: String(error.message).split('\n')[0] }));
+      const message = `new line under "${text}": no empty line with the cursor under it after 3 tries (${JSON.stringify(state)})`;
+      console.error(message);
+      problems.push(message);
+      return;
     }
   }
 }
