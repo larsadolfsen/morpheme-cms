@@ -7,20 +7,6 @@
     "reason": "Plan 0.19.2, batch 5: the Cookie list card is a button whose visible text is its table (axe joins table cells without spaces, so no name can contain it); open question to the owner."
   },
   {
-    "rule": "scrollable-region-focusable",
-    "selector": ".mo-tabs__inline",
-    "places": ["#developer/parts/ui"],
-    "viewports": ["phone"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
-    "rule": "scrollable-region-focusable",
-    "selector": ".mo-tabs__primary.mo-tabs:nth-child(4)",
-    "places": ["#developer/parts/ui"],
-    "viewports": ["phone"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
     "rule": "label-content-name-mismatch",
     "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(13) > .mo-site-block-card[aria-description=\"\"]",
     "places": ["#src/content/pages/blocks-tables.md"],
