@@ -47,6 +47,7 @@ import {
   SheetBody,
   ListItem,
   type Pickable,
+  useScrollClearance,
 } from './ui';
 import type { Env } from './App';
 import type { RepoFile } from './github';
@@ -679,6 +680,8 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
   // Where the file shown is among those the grid shows (its search, filters and order), for Previous and Next in the subpage.
   const at = src ? order.indexOf(src) : -1;
   const total = at < 0 ? 0 : order.length;
+  // The docked file bar stays at the bottom: a focused field scrolls clear of it.
+  useScrollClearance('bottom', '.mo-editor-media-file-tools', !!detail && !!src && total > 1);
   const step = (delta: number) => {
     const next = order[at + delta];
     if (!next) return;
