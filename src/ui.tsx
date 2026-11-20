@@ -124,7 +124,7 @@ import { motionTiming } from '../lib/motion';
 import { atLeast, type Breakpoint } from '../lib/breakpoints.mjs';
 import { swipeCloses } from '../lib/drawer-swipe.mjs';
 import { menuLayout } from '../lib/menu-layout.mjs';
-import { isTypeAheadKey, nextByLetter } from '../lib/menuTypeAhead.mjs';
+import { nextInMenu } from '../lib/menuTypeAhead.mjs';
 import { ariaShortcut, shortcutText } from './shortcuts';
 import { safeImageSrc } from '../lib/safe-url.mjs';
 
@@ -2120,10 +2120,12 @@ const anchoredByCss = typeof CSS !== 'undefined' && CSS.supports('position-area'
  * room under it), and again when the page scrolls or the window changes; on a phone in a sheet from the bottom with
  * `label` as its title (useAtLeast('medium')), so a long one is not too long for the screen. A choice closes it, and so do a tap
  * outside it, Esc, and the button going out of sight (the sheet: its cross and a swipe down). The button says it opens
- * one (aria-haspopup="menu", aria-expanded). `attached`: the dropdown of a field (ChoiceMenu: Material 3's exposed
- * dropdown menu), the `anchor` being the field's box: the menu is at least as wide as it, the focus goes into it (on the
- * chosen one), the arrow keys, Home and End move between the choices, and a choice, Esc and Tab close it, the first two
- * giving the focus back to the field. */
+ * one (aria-haspopup="menu", aria-expanded). It has the keyboard of the theme's menu (WAI-ARIA's menu button, lib/menuTypeAhead.mjs, in
+ * every mode): the focus goes into it when it opens (on the first choice when it was opened with a key, else on the menu itself, so no
+ * choice looks picked; a bar's menu opened by mouse leaves the focus in the text), the choices are one stop for Tab (the arrow keys, Home, End
+ * and a letter move between them), Enter and Space choose, and a choice, Esc and Tab close it with the focus back on the button (on a phone the
+ * sheet gives it back too). `attached`: the dropdown of a field (ChoiceMenu: Material 3's exposed dropdown menu), the `anchor` being the
+ * field's box: the menu is at least as wide as it and the focus goes in on the chosen one. */
 export function Menu({
   anchor,
   label,
@@ -2141,7 +2143,7 @@ export function Menu({
    * visible screen allows (it scrolls when it does not fit) and inside it: `start` has its leading edge on the button's, `end` its trailing edge. */
   popup?: 'start' | 'end';
   attached?: boolean;
-  /** With `attached`: it was opened with the keyboard, so a choice has the focus (and its ring); else the menu has it. */
+  /** It was opened with the keyboard, so a choice has the focus (and its ring); else the menu has it. Left out, it is read from the last input. */
   keyboard?: boolean;
   /** The menu is at a next level (a submenu): Escape goes back one level with this, and only the level above closes the menu. */
   onBack?: () => void;
@@ -2154,6 +2156,11 @@ export function Menu({
   back.current = onBack;
   const sheet = useRef<HTMLDialogElement>(null);
   const wide = useAtLeast('medium') || !!popup;
+  // Whether it was opened with a key, read when it opens.
+  const byKey = useRef(false);
+  useLayoutEffect(() => {
+    if (anchor) byKey.current = keyboard ?? lastByKey;
+  }, [anchor]); // eslint-disable-line react-hooks/exhaustive-deps
   // The name the menu's CSS anchor has (only letters, digits, - and _), put on the button while the menu is open.
   const anchorName = `--editor-menu-${useId().replace(/[^\w-]/g, '')}`;
   useEffect(() => {
@@ -2162,7 +2169,9 @@ export function Menu({
     // No choice has the focus to begin with (the sheet has it, as in ask.tsx), so none looks picked.
     if (anchor && !el?.open) {
       el?.showModal();
-      el?.focus();
+      // The sheet has the focus; with a key, the first choice.
+      if (byKey.current) el?.querySelector<HTMLElement>('[role^="menuitem"]:not(:disabled)')?.focus();
+      else el?.focus();
     }
     if (!anchor && el?.open) el.close();
   }, [anchor, wide]);
@@ -2186,11 +2195,11 @@ export function Menu({
         e.stopPropagation();
         return back.current();
       }
-      if (e.type === 'keydown' && attached) {
-        // Esc closes only the menu (not the sheet or dialog the field is in), and the field has the focus again.
+      if (e.type === 'keydown' && (attached || menu.current?.contains(document.activeElement))) {
+        // Esc closes only the menu (not the sheet or dialog it is in), and its button has the focus again.
         e.preventDefault();
         e.stopPropagation();
-        anchor.querySelector<HTMLElement>('button')?.focus();
+        openerOf(anchor)?.focus();
       }
       onClose();
     };
@@ -2223,12 +2232,12 @@ export function Menu({
       }
     };
     place();
-    if (attached) {
-      const items = [...(menu.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? [])];
-      const first = items.find((i) => i.getAttribute('aria-checked') === 'true') ?? items[0];
-      // With the mouse the menu itself has the focus (arrow keys work, no ring on a choice).
-      (keyboard ? first : menu.current)?.focus({ preventScroll: true });
-    }
+    const items = [...(menu.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? [])];
+    const first = items.find((i) => i.getAttribute('aria-checked') === 'true') ?? items[0];
+    // With a key the first choice has the focus; with the mouse the menu itself (arrow keys work, no ring on a choice), except a bar's menu,
+    // whose text keeps the cursor.
+    if (byKey.current) first?.focus({ preventScroll: true });
+    else if (!popup) menu.current?.focus({ preventScroll: true });
     for (const type of ['pointerdown', 'keydown']) document.addEventListener(type, close, true);
     addEventListener('scroll', place, { capture: true, passive: true });
     addEventListener('resize', place, { passive: true });
@@ -2241,6 +2250,15 @@ export function Menu({
       if (anchoredByCss) anchor.style.removeProperty('anchor-name');
     };
   }, [anchor, wide, attached, keyboard, popup, anchorName]);
+  // A next level (Change type) or the way back replaces the rows the focus was on: it goes to the first row of the new ones.
+  const level = useRef(label);
+  useEffect(() => {
+    if (level.current === label) return;
+    level.current = label;
+    const el = menu.current;
+    if (el && byKey.current && !el.contains(document.activeElement))
+      el.querySelector<HTMLElement>('[role^="menuitem"]:not(:disabled)')?.focus();
+  }, [label]);
   if (!wide)
     return (
       <BottomSheet
@@ -2252,7 +2270,13 @@ export function Menu({
             ((e.target as Element).closest('[role^="menuitem"]') && !(e.target as Element).closest('[data-menu-stays]'))) &&
           sheet.current?.close()
         }
-        onClose={(e) => e.target === e.currentTarget && onClose()}
+        onKeyDown={moveInMenu}
+        onClose={(e) => {
+          if (e.target !== e.currentTarget) return;
+          onClose();
+          // The button has the focus again (the dialog does it too where the browser does, but not for a touch).
+          if (anchor?.isConnected) openerOf(anchor)?.focus();
+        }}
         className="mo-editor-focus-quiet"
       >
         <SheetTitle title={label} onClose={() => sheet.current?.close()} />
@@ -2274,14 +2298,21 @@ export function Menu({
       data-menu-attached={attached ? '' : undefined}
       data-menu-popup={popup}
       style={anchoredByCss ? ({ positionAnchor: anchorName } as CSSProperties) : undefined}
-      tabIndex={attached ? -1 : undefined}
+      tabIndex={-1}
       onClick={(e: MouseEvent) => {
         // A row that opens the next level, or goes back from it, keeps the menu open.
         if (!(e.target as Element).closest('[role^="menuitem"]') || (e.target as Element).closest('[data-menu-stays]')) return;
-        if (attached) anchor.querySelector<HTMLElement>('button')?.focus();
+        if (attached || e.currentTarget.contains(document.activeElement)) openerOf(anchor)?.focus();
         onClose();
       }}
-      onKeyDown={attached ? (e: KeyboardEvent<HTMLElement>) => (e.key === 'Tab' ? onClose() : moveInMenu(e)) : undefined}
+      onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
+        // Tab leaves the menu: its button has the focus, so Tab goes on from there.
+        if (e.key === 'Tab') {
+          openerOf(anchor)?.focus();
+          return onClose();
+        }
+        moveInMenu(e);
+      }}
     >
       {children}
     </SiteMenu>
@@ -2303,23 +2334,35 @@ function placePopup(menu: HTMLElement, anchor: HTMLElement, side: 'start' | 'end
   menu.style.left = `${Math.max(screen.offsetLeft + 8, Math.min(at, screen.offsetLeft + screen.width - offsetWidth - 8))}px`;
 }
 
-// The keys of an attached menu: the arrow keys (round), Home and End go between its choices, and a letter goes to the next choice that starts with it.
+// The keys of a menu: the arrow keys (round), Home, End and a letter go between its choices (the theme's keys, lib/menuTypeAhead.mjs).
 function moveInMenu(e: KeyboardEvent<HTMLElement>) {
   const items = [...e.currentTarget.querySelectorAll<HTMLElement>('[role^="menuitem"]:not(:disabled)')];
   const at = items.indexOf(document.activeElement as HTMLElement);
-  let to = { ArrowDown: at + 1, ArrowUp: at < 0 ? items.length - 1 : at - 1, Home: 0, End: items.length - 1 }[e.key];
-  // A letter: the next item whose label starts with it (M3 menus: "Letters: Focus moves to the next menu item starting with letter").
-  if (to === undefined && isTypeAheadKey(e)) {
-    to = nextByLetter(
-      items.map((i) => i.querySelector('.mo-menu__item-label')?.textContent ?? i.textContent ?? ''),
-      at,
-      e.key,
-    );
-  }
+  const to = nextInMenu(
+    e,
+    items.map((i) => i.querySelector('.mo-menu__item-label')?.textContent ?? i.textContent ?? ''),
+    at,
+  );
   if (to === undefined) return;
   e.preventDefault();
   items[(to + items.length) % items.length]?.focus();
 }
+
+// Whether the last thing the person did was press a key, so a menu opens on its first choice (with a ring) for the keyboard and on itself for the mouse
+// and a touch. One listener for the page, put on when the first menu is made.
+let lastByKey = false;
+let tracking = false;
+function trackInput() {
+  if (tracking || typeof document === 'undefined') return;
+  tracking = true;
+  document.addEventListener('keydown', () => (lastByKey = true), true);
+  document.addEventListener('pointerdown', () => (lastByKey = false), true);
+}
+
+trackInput();
+
+// The button a menu opens from: the anchor itself, or the button in the field's box (`attached`).
+const openerOf = (anchor: HTMLElement) => anchor.closest<HTMLElement>('button') ?? anchor.querySelector<HTMLElement>('button');
 
 /** A line between the groups of a Menu (the theme's Divider). */
 export const MenuDivider = SiteMenuDivider;
@@ -2361,6 +2404,7 @@ export function MenuItem({
       aria-haspopup={opens ? 'menu' : undefined}
       aria-expanded={opens ? false : undefined}
       aria-label={label}
+      tabIndex={-1}
       data-menu-stays={opens || back || undefined}
       onMouseDown={(e: MouseEvent) => e.preventDefault()}
       onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
