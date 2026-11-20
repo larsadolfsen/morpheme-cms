@@ -63,7 +63,7 @@ zoomed, and the owner's rule is that WCAG wins.
 
 **Decided:** zoom is turned back on. The batch keeps the top bar and the text toolbar in view while zoomed by placing them against the
 visual viewport (`window.visualViewport`) instead of the layout viewport. The PWA keeps `interactive-widget=resizes-content` and
-`viewport-fit=cover`. The batch that does it tests on a phone-sized Chromium with zoom, and the owner checks it on the Preview on a
+`viewport-fit=cover`. The batch that does it tests on a phone-sized Chromium with zoom, and the owner checks it on the demo on a
 real Android phone before the feature merges. If that can't keep the bar in view, the session stops and reports; zoom is not turned
 off again without the owner.
 
@@ -106,4 +106,4 @@ note line where a site owner notices it (skill `release-notes`).
 ## Done when
 
 `check:a11y` runs in CI on every pull request, its allowlist is empty (or holds only entries the owner approved), the owner has
-reviewed the feature on its demo Preview (with zoom on a phone), and 0.19.2 has run on staging before the owner releases it.
+reviewed the feature on the demo (with zoom on a phone), and 0.19.2 has run on staging before the owner releases it.
