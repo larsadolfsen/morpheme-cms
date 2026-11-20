@@ -54,11 +54,11 @@ Source: `theme/styles/tokens/material/comp/card.css`, `theme/styles/tokens/mater
 - **Why:** WCAG 2.2 1.4.11 (Non-text Contrast) asks 3:1 for the parts of a component that show where it is; the card's edge is the only mark that a card is a card. Where Material 3 and WCAG differ, WCAG wins (`CLAUDE.md`, *Accessibility*).
 - **Date:** 2026-11-20, owner decision ("yes", after the before and after images in the branch `pr-screenshots/card-border-proposal`). **PR:** `a11y-card-border` (0.19.2).
 
-### O2. In a coloured section `outline` is 65% of the text colour, not 35%
+### O2. In a coloured section `outline` is the section's on-colour, not 35% of it
 
 - **Material:** `outline` is a role kept in every scheme; M3 prints no value for a section on a colour (section 1 above: the roles are swapped there).
-- **We do:** in a section on Primary, Secondary or Tertiary `--mo-sys-color-outline` is the section's text colour at 65% over the section colour (was 35%, the same as `outline-variant`, which stays 35%). Measured on the demo's three section colours: 3.41:1 to 3.80:1 (was 1.83:1 to 2.20:1). Text field edges and outlined buttons use the same role, so they follow.
-- **Why:** WCAG 1.4.11, 3:1 for the edge of a card or a field. 60% reaches 3.05:1 at the least in dark mode; 65% leaves room for another section colour.
+- **We do:** in a section on Primary, Secondary or Tertiary `--mo-sys-color-outline` is `--mo-sys-section-on-accent`: the section's on-colour (On primary, On secondary or On tertiary), a predefined Material 3 role, with no colour mix (was the on-colour at 35% over the section colour, the same as `outline-variant`, which stays 35%). Measured on the demo's three section colours: 6.46:1 to 6.49:1 in light and 7.63:1 to 7.76:1 in dark (was 1.83:1 to 2.20:1). Text field edges and outlined buttons use the same role, so they follow.
+- **Why:** WCAG 1.4.11, 3:1 for the edge of a card or a field. Owner rule, 20 Nov 2026: only Material 3's predefined colour roles are used, so no mix of a role is made; the owner chose the on-colour ("use the on-color") over a mix of it.
 - **Date:** 2026-11-20, owner decision (as O1). **PR:** `a11y-card-border` (0.19.2).
 
 ## Colour sweep

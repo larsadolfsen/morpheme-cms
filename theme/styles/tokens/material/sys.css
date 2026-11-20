@@ -77,7 +77,7 @@
   --mo-sys-color-on-surface: var(--mo-sys-section-on-accent);
   --mo-sys-color-on-surface-variant: var(--mo-sys-section-on-accent);
   --mo-sys-color-outline-variant: color-mix(in srgb, var(--mo-sys-section-on-accent) 35%, transparent);
-  --mo-sys-color-outline: color-mix(in srgb, var(--mo-sys-section-on-accent) 65%, transparent);
+  --mo-sys-color-outline: var(--mo-sys-section-on-accent);
   --mo-sys-color-surface: var(--mo-sys-section-accent);
   --mo-sys-color-primary: var(--mo-sys-section-on-accent);
   --mo-sys-color-on-primary: var(--mo-sys-section-accent);
