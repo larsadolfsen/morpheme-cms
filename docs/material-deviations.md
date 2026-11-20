@@ -43,6 +43,24 @@ Source: `theme/styles/global.css` (the section swap block), `theme/styles/blocks
 - **Why:** 60% fails 4.5:1 on most backgrounds. A part that is not disabled is never drawn at 38%; the faded "Add button" under a card takes `on-surface-variant` instead of an opacity.
 - **Date:** 2026-11-13. **PR:** #476.
 
+## Outlines (contrast, owner decision, 20 Nov 2026)
+
+Source: `theme/styles/tokens/material/comp/card.css`, `theme/styles/tokens/material/sys.css` (the section swap). Read 20 Nov 2026 on m3.material.io (Playwright): `/components/cards/overview`, `/specs`, `/guidelines` and `/accessibility`. Found by `npm run check:contrast` (10 card edges below 3:1, the same on `main`).
+
+### O1. The Outlined card's edge is the `outline` role, not `outline-variant`
+
+- **Material:** Cards, Specs: "Outlined card color roles used for light and dark themes: Surface, Outline variant."
+- **We do:** the Outlined card's edge (`--mo-comp-outlined-card-outline-color`) is `--mo-sys-color-outline`. M3's own `outline-variant` is a pale tone: 1.5:1 to 1.6:1 on the light surface and 1.85:1 to 2.0:1 on the dark one. `outline` measures 4.1:1 to 4.3:1 in light and 5.4:1 to 5.8:1 in dark.
+- **Why:** WCAG 2.2 1.4.11 (Non-text Contrast) asks 3:1 for the parts of a component that show where it is; the card's edge is the only mark that a card is a card. Where Material 3 and WCAG differ, WCAG wins (`CLAUDE.md`, *Accessibility*).
+- **Date:** 2026-11-20, owner decision ("yes", after the before and after images in the branch `pr-screenshots/card-border-proposal`). **PR:** `a11y-card-border` (0.19.2).
+
+### O2. In a coloured section `outline` is 65% of the text colour, not 35%
+
+- **Material:** `outline` is a role kept in every scheme; M3 prints no value for a section on a colour (section 1 above: the roles are swapped there).
+- **We do:** in a section on Primary, Secondary or Tertiary `--mo-sys-color-outline` is the section's text colour at 65% over the section colour (was 35%, the same as `outline-variant`, which stays 35%). Measured on the demo's three section colours: 3.41:1 to 3.80:1 (was 1.83:1 to 2.20:1). Text field edges and outlined buttons use the same role, so they follow.
+- **Why:** WCAG 1.4.11, 3:1 for the edge of a card or a field. 60% reaches 3.05:1 at the least in dark mode; 65% leaves room for another section colour.
+- **Date:** 2026-11-20, owner decision (as O1). **PR:** `a11y-card-border` (0.19.2).
+
 ## Colour sweep
 
 Allow-list: `scripts/check-colors.allow.mjs` (came in with #469). Audit: `docs/superpowers/2026-11-13-colour-sweep-audit.md`.
