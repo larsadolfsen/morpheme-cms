@@ -256,7 +256,9 @@ async function flowE(ctx) {
 /** One menu: opened with Enter, focus goes into it, an arrow key moves it, Escape closes it and gives focus back to its button. */
 async function menu(ctx, prefix, name, opener) {
   const { page } = ctx;
-  await reach(ctx, `${prefix}: ${name} button`, opener, { max: 80 });
+  // The text bar is one Tab stop: its tools are reached with the arrow keys.
+  if (opener.bar) await reachTool(ctx, `${prefix}: ${name} button`, opener);
+  else await reach(ctx, `${prefix}: ${name} button`, opener, { max: 80 });
   await press(ctx, 'Enter');
   const inMenu = () =>
     page.evaluate(() => {
@@ -289,7 +291,7 @@ async function sheet(ctx, prefix, name, opener) {
 
 async function flowF(ctx) {
   await open(ctx, PAGE, '[role=textbox][aria-label="Text"]');
-  await menu(ctx, 'F', 'the page More menu', { css: 'button', label: 'More' });
+  await menu(ctx, 'F', 'the page More menu', { css: 'button', label: 'More', bar: true });
   await open(ctx, '');
   await reach(ctx, 'F: Edit dashboard', { css: 'button', text: 'Edit dashboard' }, { max: 80 });
   await press(ctx, 'Enter');

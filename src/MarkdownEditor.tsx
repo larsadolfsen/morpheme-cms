@@ -2986,7 +2986,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     // The text took the focus from a tool used by keyboard: the tool has it again.
     const back = (e: FocusEvent) => {
       const text = box.querySelector('.ProseMirror');
-      if (kept && last?.isConnected && e.target instanceof Node && text?.contains(e.target)) {
+      if (kept && last?.isConnected && e.target instanceof globalThis.Node && text?.contains(e.target)) {
         const again = () => kept && last?.isConnected && last.focus();
         queueMicrotask(again);
         setTimeout(again);
@@ -3027,7 +3027,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         }, ms);
     };
     const focusout = (e: FocusEvent) => {
-      if (!(e.relatedTarget instanceof Node && bar.contains(e.relatedTarget))) setInBar(false);
+      if (!(e.relatedTarget instanceof globalThis.Node && bar.contains(e.relatedTarget))) setInBar(false);
       // A tool that takes itself away (Remove) leaves the focus nowhere: it goes to the text.
       if (kept && !e.relatedTarget) rescue();
     };
