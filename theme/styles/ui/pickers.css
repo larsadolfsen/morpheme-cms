@@ -29,7 +29,7 @@
   (.mo-time-picker__box, the one on the dial aria-pressed) and .mo-time-picker__separator between them; the dial
   (.mo-time-picker__dial, a slider: .mo-time-picker__dial-hand with its .mo-time-picker__dial-knob, [data-inner] on the inner ring
   and [data-between] at a minute between the fives, and each .mo-time-picker__dial-number, the one pointed at
-  [data-selected]); or the input mode (.mo-time-picker__input, a text field for each, .mo-time-picker__text-field), with what is
+  [data-selected], or [data-covered] where the hand's circle covers it); or the input mode (.mo-time-picker__input, a text field for each, .mo-time-picker__text-field), with what is
   wrong under it (.mo-time-picker__error); and .mo-time-picker__actions. A 12-hour clock (.mo-time-picker__12h) has the period
   selector beside the boxes (.mo-time-picker__period with a .mo-time-picker__period-button for AM and PM, the half of the day
   shown aria-pressed) and its hours on one ring; .mo-time-picker__horizontal has the dial beside the boxes (in the dial's
@@ -466,7 +466,7 @@
       translateY(calc(var(--mo-comp-time-picker-dial-knob, 3rem) * 0.75 - var(--mo-comp-time-picker-ring)))
       rotate(calc(-1 * var(--mo-comp-time-picker-angle)));
   }
-  .mo-time-picker__dial-number[data-selected] {
+  .mo-time-picker__dial-number:is([data-selected], [data-covered]) {
     color: var(--mo-comp-time-picker-hand-text, var(--mo-sys-block-on-accent));
   }
   /* The hand: from the middle to the number, the circle round it, a dot in the middle. */

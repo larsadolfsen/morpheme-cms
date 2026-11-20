@@ -84,8 +84,10 @@ export function MenuGroup({ label, children }: { label?: string; children: React
 
 /** A line between a menu's items (the theme's Divider). */
 export function MenuDivider() {
+  // role="none" only inside a menu (a plain list would otherwise hold an li without the listitem role).
+  const inMenu = useContext(InMenu);
   return (
-    <li className="mo-menu__divider" role="none">
+    <li className="mo-menu__divider" role={inMenu ? 'none' : undefined}>
       <Divider />
     </li>
   );

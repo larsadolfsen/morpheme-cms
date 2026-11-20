@@ -72,25 +72,11 @@
     "reason": "Plan 0.19.2, batch 3: the page's text area (Milkdown .ProseMirror[role=textbox]) has no name (src/MarkdownEditor.tsx)."
   },
   {
-    "rule": "aria-required-children",
-    "selector": "#r*-results",
-    "places": ["#developer/parts/ui"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 6: an empty search result list keeps role=listbox (theme/ui/Search.tsx)."
-  },
-  {
-    "rule": "color-contrast",
-    "selector": "div[aria-valuetext=\"07\"] > .mo-time-picker__dial-number[aria-hidden=\"true\"]:nth-child(3)",
-    "places": ["#developer/parts/ui"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 2 (kbd in dark: --mo-comp-prose-kbd has no dark value) and batch 6 (the time picker number under the selected hand, 2.65:1)."
-  },
-  {
     "rule": "color-contrast",
     "selector": "kbd:nth-child(5)",
     "places": ["/prose-fixture/"],
     "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 2 (kbd in dark: --mo-comp-prose-kbd has no dark value) and batch 6 (the time picker number under the selected hand, 2.65:1)."
+    "reason": "Plan 0.19.2, batch 2 (kbd in dark: --mo-comp-prose-kbd has no dark value)."
   },
   {
     "rule": "label",
@@ -581,20 +567,6 @@
     "places": ["#src/content/pages/blocks-image-grid.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 2: an Image grid card whose image has no alt text holds only an empty img (theme/blocks/imagegrid/View.tsx)."
-  },
-  {
-    "rule": "list",
-    "selector": ".mo-menu__vibrant.mo-menu[aria-label=\"Accentfarve\"]",
-    "places": ["#developer/parts/ui"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 6: the menu divider is always role=none, even outside a menu (theme/ui/Menu.tsx)."
-  },
-  {
-    "rule": "list",
-    "selector": "ul[aria-label=\"Fladen\"]",
-    "places": ["#developer/parts/ui"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 6: the menu divider is always role=none, even outside a menu (theme/ui/Menu.tsx)."
   },
   {
     "rule": "meta-viewport",
@@ -1275,62 +1247,6 @@
   },
   {
     "rule": "scrollable-region-focusable",
-    "selector": ".mo-carousel__center > .mo-carousel__items[data-carousel-items=\"\"]",
-    "places": ["#developer/parts/ui"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
-    "rule": "scrollable-region-focusable",
-    "selector": ".mo-carousel__full-screen > .mo-carousel__items[data-carousel-items=\"\"]",
-    "places": ["#developer/parts/ui"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
-    "rule": "scrollable-region-focusable",
-    "selector": ".mo-carousel__items",
-    "places": ["#blocks/testimonials", "#src/content/pages/blocks-testimonials.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
-    "rule": "scrollable-region-focusable",
-    "selector": ".mo-carousel__items",
-    "places": ["#blocks/cards"],
-    "viewports": ["phone"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
-    "rule": "scrollable-region-focusable",
-    "selector": ".mo-carousel__multi-browse > .mo-carousel__items[data-carousel-items=\"\"]",
-    "places": ["#developer/parts/ui"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
-    "rule": "scrollable-region-focusable",
-    "selector": ".mo-editor-contain-carousel > .mo-carousel[aria-roledescription=\"karrusel\"][aria-label=\"karrusel\"] > .mo-carousel__items[data-carousel-items=\"\"]",
-    "places": ["#developer/parts/ui"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
-    "rule": "scrollable-region-focusable",
-    "selector": ".mo-editor-contain-example:nth-child(1) > .mo-carousel[aria-roledescription=\"karrusel\"][aria-label=\"karrusel\"] > .mo-carousel__items[data-carousel-items=\"\"]",
-    "places": ["#developer/parts/ui"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
-    "rule": "scrollable-region-focusable",
-    "selector": ".mo-editor-contain-example:nth-child(4) > .mo-carousel__hero.mo-carousel__contained[data-carousel-layout=\"hero\"] > .mo-carousel__items[data-carousel-items=\"\"]",
-    "places": ["#developer/parts/ui"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
-    "rule": "scrollable-region-focusable",
     "selector": ".mo-tabs__inline",
     "places": ["#developer/parts/ui"],
     "viewports": ["phone"],
@@ -1341,27 +1257,6 @@
     "selector": ".mo-tabs__primary.mo-tabs:nth-child(4)",
     "places": ["#developer/parts/ui"],
     "viewports": ["phone"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
-    "rule": "scrollable-region-focusable",
-    "selector": "div[aria-label=\"Cards\"] > .mo-carousel__items[data-carousel-items=\"\"]",
-    "places": ["#developer/parts/blocks"],
-    "viewports": ["phone"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
-    "rule": "scrollable-region-focusable",
-    "selector": "div[aria-label=\"Overskrift\"] > .mo-carousel__items[data-carousel-items=\"\"]",
-    "places": ["#developer/parts/blocks"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
-    "rule": "scrollable-region-focusable",
-    "selector": "section[aria-labelledby=\"r*\"] > .mo-bottom-sheet__content",
-    "places": ["#developer/parts/ui"],
-    "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
   },
   {

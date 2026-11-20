@@ -178,12 +178,17 @@ export default function TimePickerContainer({
             {(selecting === 'minute' ? minutes : twelve ? twelveHours : hours).map((n) => {
               const spot = handOf(selecting, n, twelve);
               const picked = selecting === 'hour' && twelve ? n === hour % 12 : n === value;
+              // A number the hand's circle mostly covers (a minute between the fives, next to its two neighbours) takes the
+              // text colour of the circle, so it keeps 4.5:1 (WCAG 1.4.3). The circle is 3rem, the numbers 54 px apart: 15°.
+              const turn = Math.abs(spot.angle - hand.angle) % 360;
+              const covered = !picked && spot.inner === hand.inner && Math.min(turn, 360 - turn) < 15;
               return (
                 <span
                   key={n}
                   className="mo-time-picker__dial-number"
                   data-inner={spot.inner || undefined}
                   data-selected={picked || undefined}
+                  data-covered={covered || undefined}
                   style={at(spot.angle)}
                   aria-hidden="true"
                 >
