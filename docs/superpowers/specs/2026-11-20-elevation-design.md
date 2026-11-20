@@ -33,8 +33,8 @@ The CTO read the three elevation pages with Playwright on 20 November 2026 (skil
 
 ## What Morpheme has today (0.18, cards and lists)
 
-- **Tokens.** Each level is a token pair, `--mo-sys-elevation-levelN-color` and `-shadow`, from 0 to 5, with dark-mode shadows. There
-  is also `-rest-shadow`, the shadow a part shows at rest on that level. Material points it at the level's full shadow (owner, 18 Nov 2026:
+- **Tokens.** Each level is a token pair, `--mo-sys-elevation-levelN-color` and `--mo-sys-elevation-levelN-shadow`, from 0 to 5, with dark-mode shadows. There
+  is also `--mo-sys-elevation-levelN-rest-shadow`, the shadow a part shows at rest on that level. Material points it at the level's full shadow (owner, 18 Nov 2026:
   "Follow the token: 1dp shadow at rest"), which this spec changes (*Elevation and elevated*). They live in
   `theme/styles/tokens/ui/ref.css` and `tokens/material/ref.css`.
 - **Parts.** Every M3 part has the level M3 prints, for every state, as its own `--mo-comp-*` token, so a theme can change one part.
@@ -67,14 +67,14 @@ elevated only get the elevation shadow", and "md3 sets elevation-shadow to none 
 - **An elevated object** keeps its own background (its own colour role) and gets only the shadow, `--mo-sys-elevation-levelN-shadow`. This is
   M3's exception: "use shadows only when required to create additional protection against a background or to encourage interaction" (the
   elevated card, a FAB, a menu, a dialog, a snackbar).
-- **Material sets the elevation shadow to `none`** for every level (`--mo-sys-elevation-level1-rest-shadow` to `-level5-rest-shadow`), in
+- **Material sets the elevation shadow to `none`** for every level (`--mo-sys-elevation-level1-rest-shadow` to `--mo-sys-elevation-level5-rest-shadow`), in
   `tokens/material/ref.css` and `tokens/ui/ref.css`, and keeps the `--mo-sys-elevation-levelN-shadow` tokens as they are. So a surface on a
   level shows its tone only, and an elevated object still casts its shadow. This replaces the owner's rule of 18 November 2026, and the
   comment in `ref.css` quotes the new words.
-- **The token keeps its name.** `-rest-shadow` is already a `--mo-` name themes use (Venus); renaming it would break them and need a
+- **The token keeps its name.** `--mo-sys-elevation-levelN-rest-shadow` is already a `--mo-` name themes use (Venus); renaming it would break them and need a
   `THEME_API` raise. The spec, the comments and the tokens screen call it the elevation shadow.
 - **A simpler theme later.** Owner, 20 November 2026: Material is the base theme, and "when it is perfect we will make another more simpler
-  theme". Such a theme turns the elevation shadow on by pointing `-rest-shadow` at `-shadow`, with no change to a part or a class.
+  theme". Such a theme turns the elevation shadow on by pointing `--mo-sys-elevation-levelN-rest-shadow` at `--mo-sys-elevation-levelN-shadow`, with no change to a part or a class.
 
 ### The classes `mo-elevation-0` to `mo-elevation-3` and `mo-elevated-1` to `mo-elevated-3`
 
@@ -89,10 +89,10 @@ Plain classes for a plain element, like `mo-type-*`. They go in `@layer utilitie
   `mo-elevated-0`, because level 0 has no shadow.
 - **Only 0 to 3.** M3 says "An element's resting state can be on levels 0 to +3", so there are no classes for 4 and 5.
 - **Pointed at.** Only an element that can be clicked moves up, and only when the device can hover: `a`, `button`, `summary`,
-  `[role=button]` or `[tabindex]`. M3: "increase elevation by 1 level when hovered". An elevated object takes level N+1's `-shadow`; a
-  surface takes level N+1's elevation shadow (`-rest-shadow`, so nothing in Material, where the state layer shows the hover, as on the search
+  `[role=button]` or `[tabindex]`. M3: "increase elevation by 1 level when hovered". An elevated object takes `--mo-sys-elevation-level(N+1)-shadow`; a
+  surface takes the elevation shadow of level N+1 (`--mo-sys-elevation-level(N+1)-rest-shadow`, so nothing in Material, where the state layer shows the hover, as on the search
   bar). The colour stays the same.
-- **Dragged.** `[data-dragged]` gives level N+3's `-shadow` on both, because a dragged thing passes over other content and needs M3's
+- **Dragged.** `[data-dragged]` gives `--mo-sys-elevation-level(N+3)-shadow` on both, because a dragged thing passes over other content and needs M3's
   "protection against a background". That is M3's step for cards: filled 0 → 3, elevated 1 → 4. It is never above 5.
 - **Focus.** With focus, the element stays as at rest, like the parts (`tokens/ui/ref.css`). The focus ring shows the focus.
 - **Motion.** The change of shadow uses the theme's effects spring (`var(--mo-sys-motion-spring-default-effects)`) and no duration of its own.
@@ -120,7 +120,7 @@ The classes are listed where `mo-type-*` is described, and later in the develope
 
 - **What fails.** It runs on every `box-shadow` and `filter: drop-shadow()` in the CSS, and on every `boxShadow` in TSX. An entry
   fails if it is not `inset` and has a blur or an offset, unless it is:
-  - a level token, `var(--mo-sys-elevation-levelN-shadow)` or `-rest-shadow`;
+  - a level token, `var(--mo-sys-elevation-levelN-shadow)` or `--mo-sys-elevation-levelN-rest-shadow`;
   - a part's `--mo-comp-*` variable whose fallback is a level token.
 
   The message names the fix: "Use the class `mo-elevated-2` or `var(--mo-sys-elevation-level2-shadow)`", with the nearest level.
@@ -150,8 +150,8 @@ and measured the parts in the built demo and the editor at `main` 511105c3.
 
 **The cause.** M3 often gives a part a level and then shows that level by its tone only. The search overview: "Elevation: Lower
 elevation and no shadow by default". The navigation bar: "Elevation: No shadow". The scrolled top app bar: "No drop shadow, instead a
-color fill". The Material theme sets every `-rest-shadow` to the level's full shadow (`tokens/material/ref.css:28-32`), and every part reads
-`-rest-shadow` at rest, so every part at level 1 or more draws a shadow at rest, also where M3 shows none. `theme/styles/elevation.test.mjs`
+color fill". The Material theme sets every `--mo-sys-elevation-levelN-rest-shadow` to the level's full shadow (`tokens/material/ref.css:28-32`), and every part reads
+`--mo-sys-elevation-levelN-rest-shadow` at rest, so every part at level 1 or more draws a shadow at rest, also where M3 shows none. `theme/styles/elevation.test.mjs`
 checks only that a rule names the level we chose, from our own reading, and treats a level and its shadow as one thing, so it locked these in.
 
 **What changes.** Every part is either a surface on its level or an elevated object (*Elevation and elevated*):
@@ -160,7 +160,7 @@ checks only that a rule names the level we chose, from our own reading, and trea
   shadow to `none`, with no change to the part's own CSS. Its level's colour stays.
 - **An elevated object** reads `--mo-sys-elevation-levelN-shadow` at rest (through its `--mo-comp-*` token), so it keeps the shadow M3
   shows.
-- **A lift** (hover, pressed, dragged) reads `-shadow` where M3 prints one, and is removed where M3 prints none.
+- **A lift** (hover, pressed, dragged) reads `--mo-sys-elevation-levelN-shadow` where M3 prints one, and is removed where M3 prints none.
 
 The parts that are surfaces (they lose their shadow by the token change alone, or need the fix in the table):
 
@@ -175,16 +175,16 @@ The parts that are surfaces (they lose their shadow by the token change alone, o
 | FAB menu items | level 0 at rest, hover 4, focus and pressed 3 | level 3 at rest (they take `ui/fab.css:31`) | level 0 at rest |
 | List - Expand | list item on surface, level 0 | level 1 shadow on surface-container-low (`ui/list.css:400` falls back to `--mo-sys-block-shadow`) | level 0, no fallback to the block shadow |
 | Bottom sheet from 600 dp | level 1 (standard and modal) | level 3 (`ui/bottom-sheet.css:206`) | level 1 |
-| Carousel item | surface, level 0, hover level 1 | no lift on hover | hover level 1 (`-shadow`) |
+| Carousel item | surface, level 0, hover level 1 | no lift on hover | hover level 1 (`--mo-sys-elevation-levelN-shadow`) |
 | Switch and slider handles (Expressive) | the handle elevation tokens are deprecated; Expressive prints none | level 1 shadow (`ui/switch.css:117`, `ui/slider.css:226`, `:237`) | no shadow |
 
 Also surfaces, already right once the token is `none`: the navigation rail, the standard side sheet, lists (their dragged level 4 is a lift,
-`-shadow`), filled and outlined cards at rest, icon buttons, segmented buttons, button groups, tabs, text fields, badges and progress
+`--mo-sys-elevation-levelN-shadow`), filled and outlined cards at rest, icon buttons, segmented buttons, button groups, tabs, text fields, badges and progress
 indicators.
 
-The elevated objects (they keep their shadow, so each one moves to `-shadow` at rest in the same pull request):
+The elevated objects (they keep their shadow, so each one moves to `--mo-sys-elevation-levelN-shadow` at rest in the same pull request):
 
-| Part | M3 | Fix besides `-shadow` |
+| Part | M3 | Fix besides `--mo-sys-elevation-levelN-shadow` |
 | --- | --- | --- |
 | Elevated card | surface-container-low, level 1, hover 2, dragged 4 | none |
 | Elevated chip, elevated button | level 1 | Expressive buttons: no hover lift (the hover lift tokens are deprecated in the Expressive sets; today elevated hover 2, filled and tonal hover 1, `ui/buttons.css:159-204`) |
@@ -221,7 +221,7 @@ the other contexts, so the copy stays small.
 
 1. **Component levels in a customizer** (then 0.22.2, now an idea without a version). Decided by the owner on 20 November 2026: "No, save the shadow changer in a none planned customizer feature". A component keeps
    M3's level (M3: "Avoid changing the default elevation of Material components"); a theme can still change one part's level
-   through its token. A site-wide *Shadows at rest* (`On`/`Off`) setting, which sets the `-rest-shadow` tokens, is saved in the
+   through its token. A site-wide *Shadows at rest* (`On`/`Off`) setting, which sets the `--mo-sys-elevation-levelN-rest-shadow` tokens, is saved in the
    roadmap's *Ideas without a version* for a customizer that has no version yet.
 2. **When.** Decided by the owner on 20 November 2026: "add it to the 0.19 ui fixes". It ships in **0.19.5**, the 0.19 line's fix
    release, as two pull requests into that release's feature branch. It needs no contract change for the CMS's own code.
@@ -230,14 +230,14 @@ the other contexts, so the copy stays small.
 
 1. **The classes.** If it is 0.19.5's first pull request, it sets the version (`plans/2026-11-19-version-at-feature-start.md`).
    It adds `theme/styles/elevation.css` with its tests in `elevation.test.mjs`: `mo-elevation-0` to `-3` and `mo-elevated-1` to `-3`,
-   the hover and dragged steps, and no colour on `mo-elevated-*`. The tokens screen shows a sample of each class and calls `-rest-shadow` the
+   the hover and dragged steps, and no colour on `mo-elevated-*`. The tokens screen shows a sample of each class and calls `--mo-sys-elevation-levelN-rest-shadow` the
    elevation shadow. `person-facts.css` uses the class. `check:contrast` passes on every section colour.
 2. **The check and the fixes.** Adds shadows and the part rule to `check:css-values`, fixes the colour picker's handle, removes
    Tailwind's empty shadow lists and closes deviation 12. Adds a release note line, because a theme or app developer can now use the
    class (skill `release-notes`).
 
 3. **The current parts.** Material's elevation shadow set to `none` (`tokens/material/ref.css`, `tokens/ui/ref.css`, with the owner's
-   words), the elevated objects moved to `-shadow`, the fixes in both tables, and `elevation.test.mjs` against M3's tokens. It goes after
+   words), the elevated objects moved to `--mo-sys-elevation-levelN-shadow`, the fixes in both tables, and `elevation.test.mjs` against M3's tokens. It goes after
    batch 1, which it needs for nothing, but before any other pull request that touches a part's shadow. Measured again in the built demo and the editor, at rest, hovered, focused, pressed and dragged. A release note line: search
    bars and bars lose their shadow, as Material 3 draws them (skill `release-notes`).
 
