@@ -1,6 +1,7 @@
 # Elevation (spec)
 
-Status: **draft for the owner, 20 November 2026.** Two decisions are the owner's (*Decisions for the owner*, below).
+Status: **20 November 2026.** Ships in **0.19.5 UI fixes** (owner: "add it to the 0.19 ui fixes"). One decision is still the
+owner's (*Decisions for the owner*, below).
 
 Owner, 20 November 2026: "write the spec now, but only elevation". This spec is the elevation part of *Component steps*
 (roadmap `plans/2026-11-14-roadmap-0-18-to-0-24.md`, 0.22). It covers elevation only: the colour roles, the type scale, shape, motion,
@@ -126,19 +127,17 @@ for a contract raise and is noted for the steps table.
 
    **Recommendation:** leave elevation out of 0.22.2's component levels. Give the customizer one M3 setting instead, *Shadows at
    rest* (`On`/`Off`), which sets the `-rest-shadow` tokens. M3 supports that choice ("use shadows only when required").
-2. **When.** The work is small: one class file and the check with its three fixes, with no contract change for the CMS's own code.
+2. **When.** Decided by the owner on 20 November 2026: "add it to the 0.19 ui fixes". It ships in **0.19.5**, the 0.19 line's fix
+   release, as two pull requests into that release's feature branch. It needs no contract change for the CMS's own code.
 
-   **Recommendation:** release it as its own feature, `feature/elevation`, as **0.22.0**, ahead of the steps table, which then
-   becomes 0.22.1 and generates these classes. The alternative is to ship it earlier, after 0.19.5, as 0.19.6.
+## Batches (pull requests into the 0.19.5 feature branch)
 
-## Batches (pull requests into `feature/elevation`)
-
-1. **The classes.** Sets the version (`plans/2026-11-19-version-at-feature-start.md`) and adds `theme/styles/elevation.css` with its
-   tests in `elevation.test.mjs`: levels 0 to 3 only, the hover and dragged steps, and no colour of their own. The tokens screen
+1. **The classes.** If it is 0.19.5's first pull request, it sets the version (`plans/2026-11-19-version-at-feature-start.md`).
+   It adds `theme/styles/elevation.css` with its tests in `elevation.test.mjs`: levels 0 to 3 only, the hover and dragged steps, and no colour of their own. The tokens screen
    shows a sample of each class. `person-facts.css` uses the class. `check:contrast` passes on every section colour.
 2. **The check and the fixes.** Adds shadows and the part rule to `check:css-values`, fixes the colour picker's handle, removes
    Tailwind's empty shadow lists and closes deviation 12. Adds a release note line, because a theme or app developer can now use the
    class (skill `release-notes`).
 
-The feature is done when `check:css-values` fails on a hand-written shadow, the classes are on the demo and on the tokens screen,
-the owner has seen them on the demo, and the version has run on staging.
+Elevation is done when `check:css-values` fails on a hand-written shadow, the classes are on the demo and on the tokens screen,
+the owner has seen them on the demo, and 0.19.5 has run on staging.
