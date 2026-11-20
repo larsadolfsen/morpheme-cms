@@ -67,6 +67,7 @@ import { siteFollowKeyboard } from './themeUi';
 import { typedInPlace } from './typedInPlace.mjs';
 import { useSheetBack } from './useSheetBack';
 import { drop as dropCopy, keep as keepCopy, matches as copyMatches, take as takeCopy } from './sheetCopy.mjs';
+import { safeImageSrc } from '../lib/safe-url.mjs';
 
 /** Where an image's live sheet opens (from medium, the bar's Alt text and a new image): its Alt text field. Below medium the alt text sheet (`BlockAsk.alt`) is used. */
 export type EditFocus = 'alt';
@@ -851,7 +852,7 @@ export function useBlockDialog(
         {open?.step === 'alt' && (
           <>
             <SheetBody>
-              <img src={shownAt(String(values.src ?? ''))} alt="" className="mo-editor-block-dialog-image" />
+              <img src={safeImageSrc(shownAt(String(values.src ?? '')))} alt="" className="mo-editor-block-dialog-image" />
               <FieldList fields={altFields} value={values} onChange={(v) => setValues(v as BlockProps)} />
             </SheetBody>
             <SheetActions
