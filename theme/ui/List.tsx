@@ -211,6 +211,7 @@ export function ListItem({
   expandName,
   expandOpen,
   expandProps,
+  expandToggle,
   className,
   children,
   ...rest
@@ -262,6 +263,9 @@ export function ListItem({
   expandOpen?: boolean;
   /** Attributes of the <details> (a class, data-…, aria-…); the <li> and the summary have the rest. */
   expandProps?: { className?: string } & Record<string, unknown>;
+  /** For an item whose headline holds fields (the editor's rows typed in place): a <summary> may not hold a control, so the item is a plain
+   * container and its caret is a button of its own beside the headline (`aria-expanded`, `label` its name); `expandOpen` says if it is open. */
+  expandToggle?: { label: string; onToggle: () => void };
   className?: string;
   children?: ReactNode;
 } & Record<string, unknown>) {
@@ -403,6 +407,35 @@ export function ListItem({
           },
         }
       : press;
+  if (expand && expandToggle) {
+    const { className: detailsClass, ...detailsRest } = expandProps ?? {};
+    const open = !!expandOpen;
+    return (
+      <li role={presentation ? 'presentation' : undefined}>
+        <div
+          {...(open ? { open: true } : {})}
+          className={['mo-list__item-expand', detailsClass].filter(Boolean).join(' ')}
+          {...detailsRest}
+        >
+          <div className={`${classes} mo-list__item-expand-summary`} {...rest}>
+            {content}
+            <button
+              type="button"
+              className="mo-list__item-expand-icon mo-list__item-expand-button"
+              aria-expanded={open}
+              aria-label={expandToggle.label}
+              onClick={expandToggle.onToggle}
+            >
+              <Glyph icon="caret-down" size={24} />
+            </button>
+          </div>
+          <div className="mo-list__item-expand-body" hidden={!open}>
+            {children}
+          </div>
+        </div>
+      </li>
+    );
+  }
   if (expand) {
     const { className: detailsClass, ...detailsRest } = expandProps ?? {};
     return (
