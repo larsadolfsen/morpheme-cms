@@ -163,7 +163,50 @@ export async function newLineUnder(page, text) {
       text,
       { timeout: 3000 },
     );
+  // A short log of what happens from the click on, kept in the page for the diagnostic below (events with the target and where the selection is, and the changes of the
+  // text's DOM: a transaction of the editor makes some, which is how a dispatch between the click and the keys shows).
+  await page.evaluate(() => {
+    if (window.__newLineLog) return;
+    const log = (window.__newLineLog = { start: performance.now(), entries: [] });
+    const name = (node) => {
+      const el = node && (node.nodeType === 1 ? node : node.parentElement);
+      return el
+        ? `${el.tagName.toLowerCase()}${el.className && typeof el.className === 'string' ? `.${el.className.split(' ')[0]}` : ''}`
+        : 'none';
+    };
+    const where = () => {
+      const at = getSelection()?.anchorNode;
+      if (!at) return 'none';
+      const top = (at.nodeType === 1 ? at : at.parentElement)?.closest('.ProseMirror > *');
+      return top ? `child ${[...document.querySelector('.ProseMirror').children].indexOf(top)}` : name(at);
+    };
+    const add = (what) =>
+      log.entries.length < 80 && log.entries.push(`${Math.round(performance.now() - log.start)}ms ${what} sel=${where()}`);
+    for (const type of ['pointerdown', 'mousedown', 'mouseup', 'click', 'focusin', 'selectionchange', 'keydown', 'beforeinput'])
+      document.addEventListener(
+        type,
+        (e) => add(`${type}${e.key ? ` ${e.key}` : ''}${e.inputType ? ` ${e.inputType}` : ''} on ${name(e.target)}`),
+        true,
+      );
+    const text = document.querySelector('.ProseMirror');
+    if (text)
+      new MutationObserver((records) =>
+        add(`text changed x${records.length} first ${records[0].type} on ${name(records[0].target)}`),
+      ).observe(text, {
+        childList: true,
+        subtree: true,
+        characterData: true,
+        attributes: true,
+        attributeFilter: ['class', 'data-row', 'data-section-focus'],
+      });
+  });
   for (let tries = 0; ; tries++) {
+    await page.evaluate(() => {
+      if (window.__newLineLog) {
+        window.__newLineLog.start = performance.now();
+        window.__newLineLog.entries = [];
+      }
+    });
     await line.click();
     // The cursor is in the line, in the editor, and the block's row has let go of the focus.
     await page.waitForFunction(
@@ -201,7 +244,8 @@ export async function newLineUnder(page, text) {
           };
         })
         .catch((error) => ({ unreadable: String(error.message).split('\n')[0] }));
-      const message = `new line under "${text}": no empty line with the cursor under it after 3 tries (${JSON.stringify(state)})`;
+      const timeline = await page.evaluate(() => window.__newLineLog?.entries ?? []).catch(() => []);
+      const message = `new line under "${text}": no empty line with the cursor under it after 3 tries (${JSON.stringify(state)}); the last try, from its click: ${JSON.stringify(timeline)}`;
       console.error(message);
       problems.push(message);
       return;
