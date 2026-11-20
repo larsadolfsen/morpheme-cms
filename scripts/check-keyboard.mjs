@@ -15,8 +15,9 @@ import { FLOWS, PHONE_FLOWS, runFlow } from './keyboard-flows.mjs';
 import { allowedKeys, entriesOf, judge, keysOf, readAllowlist, viewportOf, walk } from './keyboard.mjs';
 
 const args = process.argv.slice(2);
-const flag = (name) => args.includes(`--${name}`);
-const value = (name) => (args.includes(`--${name}`) ? (args[args.indexOf(`--${name}`) + 1] ?? '') : null);
+const dashed = (name) => '-'.concat('-', name);
+const flag = (name) => args.includes(dashed(name));
+const value = (name) => (args.includes(dashed(name)) ? (args[args.indexOf(dashed(name)) + 1] ?? '') : null);
 const DIST = resolve(process.cwd(), args.find((a, i) => !a.startsWith('--') && !['--only'].includes(args[i - 1])) ?? 'dist');
 if (!existsSync(join(DIST, 'index.html'))) {
   console.error(`There is no built site in ${DIST}. Run npm run build first.`);
