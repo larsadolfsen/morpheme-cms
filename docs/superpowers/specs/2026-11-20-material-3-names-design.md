@@ -4,7 +4,7 @@ Status: **20 November 2026, for the owner.** Owner, 20 November 2026: "I want us
 "Yes, put it in the roadmap" and "Write the 0.20.0 Material 3 names spec". 0.19.5 makes the appearance match
 (`plans/2026-11-20-0-19-5-material-3-tokens.md`); this spec covers the names. It is contract 8, the first release of the 0.20 line
 (`plans/2026-11-14-roadmap-0-18-to-0-24.md`, item 0.20.0), and an app's CSS scoped at build time ships with it
-(`specs/2026-11-20-scoped-app-css-design.md`), so apps get one contract raise. Two decisions are open (*Open decisions*).
+(`specs/2026-11-20-scoped-app-css-design.md`), so apps get one contract raise. One decision is open (*Open decisions*).
 
 ## The goal
 
@@ -69,13 +69,13 @@ and holds the update where it cannot.
 1. **The site's content.** The class names the editor saved in content (`lib/content-class-names.mjs`) get the classes of the map
    from `0.20.0` (a second entry beside `CLASS_NAMES_SINCE = '0.19.0'`). As in 0.19.0, the Worker's update (`worker/cms-update.js`)
    rewrites them in the same commit when it crosses 0.20.0, and `npx morpheme migrate` does it by hand.
-2. **A site's own themes and apps** (in `src/themes/` and `src/apps/` with no `store.json`, such as Sara's app *Sara*). A new
+2. **A site's own themes and apps** (in `src/themes/` and `src/apps/` with no `store.json`). A new
    `lib/migrate-code.mjs` rewrites their CSS, TS and TSX, used by the Worker's update and by `morpheme migrate`:
    - token and class names as text: every name starts with `--mo-` or `mo-`, so a whole-name match cannot hit a word of text; all
      renames happen in one pass, so `medium` → `small` and `small` → `xsmall` do not chain;
    - prop values only as a literal attribute (`size="medium"`) on a component the same file imports from `@theme/ui/<Name>`;
    - every name map the site crossed, in order: contract 6's `scripts/renamed-tokens.json` and contract 7's class map before this
-     one, so a site on 0.16 (Sara's) gets all of them;
+     one, so a site on 0.16 gets all of them;
    - what it cannot rewrite safely (a computed value, `size={big ? 'large' : 'medium'}`, an old name built from parts, a Tailwind
      class) it lists by file and line, and the update does not go: it says which file to fix.
    It runs once, because reused names make a second run wrong: the Worker runs it only when an update crosses 0.20.0, and
@@ -83,8 +83,9 @@ and holds the update where it cannot.
 3. **Store themes and apps** are never rewritten on a site (a published version is forever, and the site's copy must equal it). Their
    publishers release a version written to 8: Venus and the owner's apps from `morpheme-apps` (the owner releases them, as always),
    with Venus's private names moved to `--mo-theme-*` (scoped CSS spec, *Themes*). The store must accept contract 8 before 0.20.0 is
-   released. The Worker's update to 0.20.0 checks every installed store theme and app first: if a version written to 8 exists, the
-   update installs it in the same commit; if not, the update does not go and names the item (*Open decisions*, 1).
+   released. The Worker's update to 0.20.0 checks every installed store theme and app first: if one is written to an older contract,
+   the update does not go and names it. It never installs store items itself: that stays in 0.20.2 *Store auto-updates* (owner, 20
+   November 2026: the only site with Venus, Sara's, is not live, so a break there does not matter and needs no special handling).
 
 ## Checks
 
@@ -105,29 +106,27 @@ and holds the update where it cannot.
 2. **Tokens.** Every token renamed in the theme, the editor, the blocks, the demo and the starter; `renamed-tokens.json` extended.
 3. **Components, parts, kinds and sizes.** Classes, `theme/ui/` names and props; the content class map from 0.20.0.
 4. **The rewrite.** `lib/migrate-code.mjs` with its tests, in `morpheme migrate` and in the Worker's update.
-5. **The update across contract 8.** The store items' check and install in the update's commit (*Migration*, 3).
+5. **The update across contract 8.** The store items' check: the update does not go and names the item (*Migration*, 3).
 6. **Scoped app CSS** (its spec, batches 1 and 2).
 7. **Contract 8.** `THEME_API`, `APP_API` and `APP_APIS` raised, `check:m3-names` failing, `docs/app-contract.md`,
    `docs/theme-token-files.md`, `docs/class-names.md`, and release notes for site owners (nothing to do; the update does it) and
    for theme and app developers (the map) (skill `release-notes`).
 
 Batch 1 goes first; 2 and 3 can run side by side; 4 follows both; 5 and 6 can run beside 4; 7 goes last. Outside this repository:
-Venus and the owner's apps get their contract 8 versions in `morpheme-apps` before 0.20.0 is offered to sites, and Sara's site is
-updated on staging first (a copy, never her live site).
+Venus and the owner's apps get their contract 8 versions in `morpheme-apps` before 0.20.0 is offered to sites. Sara's site is updated
+when it suits, and her app is fixed then (it is not live).
 
 ## Open decisions
 
-1. **The update and the store items.** The update must install the store items' contract 8 versions in its own commit, or a site with
-   Venus breaks as on 19 November; an editor at 0.19 cannot install a contract 8 Venus before. That is the core of 0.20.2 *Store
-   auto-updates* ("with the CMS's own update"). **Recommended: take that part into 0.20.0 (batch 5)**, so the owner's order holds. The
-   other way is to put safe updates and store auto-updates first and the names after; since a contract raise starts a line, the
-   names would then move to 0.21.0.
-2. **The update test.** 0.20.1's update test (from every supported version) would catch a failed rewrite. **Recommended: batch 4
+1. **The update test.** 0.20.1's update test (from every supported version) would catch a failed rewrite. **Recommended: batch 4
    runs the update from the last 0.19 to 0.20.0 on a test site** with a theme and app of its own and Venus; 0.20.1 makes it cover
    every version.
+
+Decided: the update does not install store items (*Migration*, 3; owner, 20 November 2026).
 
 ## Done when
 
 `check:m3-names` fails on any name that is not M3's, the editor's or on the ours list; the screens are the same as before; a site on
-0.19 with its own theme and app and Venus updates to 0.20.0 in one step from the editor and builds, on staging; Sara's site does the
-same on staging; Venus and the owner's apps are released at contract 8; and 0.20.0 has run on staging before the owner releases it.
+0.19 with its own theme and app and Venus updates to 0.20.0 in one step from the editor and builds, on staging; an update with a store
+item still at contract 7 does not go and names it; Venus and the owner's apps are released at contract 8; and 0.20.0 has run on staging
+before the owner releases it.
