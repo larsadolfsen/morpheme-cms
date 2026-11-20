@@ -202,6 +202,7 @@ export const library: Messages['library'] = {
   showSubpages: 'Vis undersider',
   hideSubpages: 'Skjul undersider',
   showSubpagesOf: (title) => `Vis undersider til ${title}`,
+  unfoldName: (count, label) => `${count}: ${label}`,
   hideSubpagesOf: (title) => `Skjul undersider til ${title}`,
   navigation: 'Navigation',
   openMenu: 'Åbn menuen',
