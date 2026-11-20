@@ -1,5 +1,28 @@
 # @morphemecms/cms
 
+## 0.19.0
+
+### Minor Changes
+
+- Contract 7 starts the 0.19 line: themes and apps are written in plain CSS, with `mo-` classes and `--mo-` tokens. Utility classes, `theme()` and `@theme` no longer work. See docs/tailwind-migration.md.
+
+### Patch Changes
+
+- 40c7d7b: An app block that draws its own inline rows in the editor writes `mo-editor-inline-list`, `mo-editor-inline-list-row`, `mo-editor-inline-list-row-active` and `mo-editor-inline-list-row-next` instead of the same names without `mo-editor-`; the editor's own classes now start with `mo-editor-` or `mo-site-` (map: docs/superpowers/plans/mo-names/map.json).
+- f26020d: An update from 0.15 or 0.16 no longer fails on a page with a Banner: the Banner is now migrated to a section, as 0.17 did, even when the site skips 0.17.
+- 4031827: The same new text style and word colour names are now also written into your lists, settings, header, footer and block texts when the update or `npx morpheme migrate` runs
+- 9dabc23: Text styles and word colours in your pages are saved under new class names; the nightly update rewrites your pages with the version, and a manual install runs `npx morpheme migrate`
+- 1d63f4f: Rename the theme's UI component classes, hooks and runtime values to `mo-` names (`.card-body` to `.mo-card__body`, `.button-filled` to `.mo-button.mo-is-filled`, `--card-selected-surface` to `--mo-comp-card-selected-surface`, `--slider-start` to `--mo-comp-slider-start`, `.image-grid` to `.mo-staggered-grid`): a theme or app that styled the old names must use the new ones (`docs/superpowers/plans/mo-names/map.json`, `docs/class-names.md`, *Settled in M3*).
+- cea2a38: Rename the blocks' classes and the timeline's `--step` to `mo-` names (`block-card` to `mo-block-cards__card`, `block-plan` to `mo-block-pricecards__plan`, `block-in-text` to `mo-is-in-text`, `video-facade` to `mo-block-video__facade` …): a theme or app that styled `block-*` must use the new names (`docs/class-names.md`, *Settled in M4*, and `docs/superpowers/plans/mo-names/map.json`).
+- ec0e721: Rename the site shell's classes and properties to `mo-` names (the footer, header menu, drawer head, action bar, logo, post list, page layout, section colours `.mo-text-section` with `mo-is-<color>`, `--motion-ease` to `--mo-sys-motion-ease`): a theme or app that styled the old names must use the new ones (`docs/superpowers/plans/mo-names/map.json`).
+- eca6b02: Rename the alignment classes of the text toolbar to `mo-has-text-align-center` and `mo-has-text-align-right` (`text-align-center`, `text-align-right`): a theme that styled the old classes must use the new ones. Saved pages are not affected: they hold only the `data-align` line, and the site adds the class when it builds.
+- e4fc35c: The text style `prose` is now `mo-prose` and its opt-out `not-prose` is `mo-is-not-prose`, in the theme, the editor and the demo. The update to 0.19.0 and `npx morpheme migrate` rewrite both names in a site's pages. A theme or an app that styles or writes `prose` or `not-prose` uses the new names (`docs/tailwind-migration.md`).
+- 47de2ca: Tailwind and unprefixed names can no longer come back: `check:tailwind` and `check:mo-names` have no allowlist, and `check:content` (so `check:themes`) runs both on a site's themes and apps. The last unprefixed names are now `mo-js`, `mo-link`, `mo-site-picture__crop` and `mo-staggered-grid__span-*`.
+- e4cd23f: The text style `prose` is the theme's own CSS: `@tailwindcss/typography` is no longer a dependency, and the text's colours are `--mo-comp-prose-*` (they were `--tw-prose-*`). Nothing looks different.
+- d9019fb: Contract 7: themes and apps use plain CSS (`mo-` layout classes, literal breakpoints); utility classes, `theme()` and `@theme` no longer work, and the store offers only themes and apps written to 7. Tailwind is no longer a dependency. See docs/tailwind-migration.md.
+- ca51431: Fix the text bar's Align row being off after a click below the last paragraph of a page with no sections.
+- d2985f5: Tapping the empty space below the text of a page now puts the cursor in the last line, so the text tools such as Align stay on.
+
 ## 0.18.1
 
 ### Patch Changes
