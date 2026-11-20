@@ -35,8 +35,7 @@
     box-shadow: 0 0 0 2px var(--mo-sys-color-primary);
     outline-style: none;
   }
-  .mo-editor-focus-quiet:focus,
-  .mo-editor-focus-quiet-visible:focus-visible {
+  .mo-editor-focus-quiet:focus {
     outline-style: none;
   }
 
