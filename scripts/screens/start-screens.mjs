@@ -21,7 +21,7 @@ import {
   shownItems,
   site,
 } from './support/context.mjs';
-import { allowedKeys, collect, compare, keysOf, problemsOf, readAllowlist, scan } from '../a11y.mjs';
+import { allowedKeys, collect, compare, keysOf, problemsOf, readAllowlist, scan, scanRuns } from '../a11y.mjs';
 
 /** Keyboard focus is visible (Modern Web Guidance, `accessibility`: "Don't disable browser native focus indicators without providing a
  * replacement ... at least 3:1", WCAG 2.4.7 and 1.4.11; the 13 `outline: none` of the theme and the editor, A1 of the audit of 15 Nov 2026).
@@ -734,6 +734,8 @@ async function checkMorpheme(page, state) {
  * list for this screen at this width must still match, so the list only shrinks (scripts/a11y.mjs). The unit's width is the phone (390 px)
  * or the computer (1280 px); a screen of the list is checked on its own, so a shard that runs the unit checks every screen. */
 async function checkA11y(page, width, hash) {
+  // Only in the CMS repository: a site that installed the package has no axe-core, and the allowlist is the demo's (scripts/a11y.mjs, scanRuns).
+  if (!scanRuns()) return;
   const viewport = width < 600 ? 'phone' : 'computer';
   const place = `#${hash}`;
   // The screen settles first: a list or a sheet that is still drawing would be a finding that is gone a moment later.
