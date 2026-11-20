@@ -188,7 +188,9 @@ function syncPointed() {
     want.host.classList.add('mo-site-block-has-hover');
     pointedAt = { host: want.host, el };
   }
-  draw(pointedAt.el, want, want.host.querySelector(':scope > .mo-site-block-card')?.getAttribute('aria-label') ?? '');
+  const owner = want.host.querySelector(':scope > .mo-site-block-card');
+  // A button's card keeps the block's name in a hidden part its accessible name is made of; a block typed in place has it as `aria-label`.
+  draw(pointedAt.el, want, owner?.querySelector(':scope > .mo-site-block-name')?.textContent ?? owner?.getAttribute('aria-label') ?? '');
   // The row also covers a whole column of a block that is wide enough (the second card of two): that item could then not be clicked, so the block shows its row only once it is active.
   if (covers(pointedAt.el, want.host)) {
     pointedAt.host.classList.remove('mo-site-block-has-hover');

@@ -266,6 +266,10 @@ export function TextFieldButton({
   const field = id ?? own;
   const line = (typeof error === 'string' && error) || supporting;
   const described = line ? `${field}-supporting` : undefined;
+  // A field without its name on the edge is named by `aria-label`. The button shows what is chosen, so its name starts with that and then
+  // says what the field is (WCAG 2.5.3): `aria-labelledby` takes the button's own text and then the hidden name.
+  const { 'aria-label': named, ...others } = rest as { 'aria-label'?: string };
+  const aside = label === undefined && href === undefined && typeof named === 'string' ? `${field}-name` : undefined;
   return (
     <div
       className={[
@@ -285,7 +289,9 @@ export function TextFieldButton({
             className={textFieldInputClass}
             aria-invalid={error ? true : undefined}
             aria-describedby={described}
-            {...rest}
+            aria-labelledby={aside ? `${field} ${aside}` : undefined}
+            aria-label={aside ? undefined : named}
+            {...others}
           >
             {children}
           </button>
@@ -299,6 +305,11 @@ export function TextFieldButton({
           >
             {children}
           </a>
+        )}
+        {aside && (
+          <span id={aside} hidden>
+            {named}
+          </span>
         )}
         {label !== undefined &&
           (href === undefined ? (
