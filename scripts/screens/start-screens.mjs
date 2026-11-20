@@ -21,6 +21,7 @@ import {
   shownItems,
   site,
 } from './support/context.mjs';
+import { allowedKeys, collect, compare, keysOf, problemsOf, readAllowlist, scan } from '../a11y.mjs';
 
 /** Keyboard focus is visible (Modern Web Guidance, `accessibility`: "Don't disable browser native focus indicators without providing a
  * replacement ... at least 3:1", WCAG 2.4.7 and 1.4.11; the 13 `outline: none` of the theme and the editor, A1 of the audit of 15 Nov 2026).
@@ -729,6 +730,23 @@ async function checkMorpheme(page, state) {
   }
 }
 
+/** The accessibility scan of one screen (WCAG 2.2 AA, axe-core): what it finds must be on scripts/a11y-allowlist.json and every entry of the
+ * list for this screen at this width must still match, so the list only shrinks (scripts/a11y.mjs). The unit's width is the phone (390 px)
+ * or the computer (1280 px); a screen of the list is checked on its own, so a shard that runs the unit checks every screen. */
+async function checkA11y(page, width, hash) {
+  const viewport = width < 600 ? 'phone' : 'computer';
+  const place = `#${hash}`;
+  // The screen settles first: a list or a sheet that is still drawing would be a finding that is gone a moment later.
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(500);
+  await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
+  const found = keysOf(await scan(page), place, viewport);
+  if (process.env.A11Y_COLLECT) return collect(process.env.A11Y_COLLECT, found);
+  const allowed = allowedKeys(readAllowlist(), (p) => p === place);
+  for (const key of [...allowed.keys()]) if (!key.endsWith(`\t${viewport}`)) allowed.delete(key);
+  problems.push(...problemsOf(compare(found, allowed)).map((line) => `${width}px ${line}`));
+}
+
 export function register(unit) {
   for (const [width, height] of [
     [390, 844],
@@ -800,6 +818,7 @@ export function register(unit) {
           for (const name of new Set(state.fallback)) fallbackAt(name, `${width}px #${hash}`);
           for (const name of new Set(state.missing)) problems.push(`${width}px #${hash}: ${missingIcon(name)}`);
           if (state.empty) problems.push(`${width}px #${hash}: the screen is empty`);
+          await checkA11y(page, width, hash);
           if (state.text.includes(`${daApp.nothingAt(hash)}.`)) problems.push(`${width}px #${hash}: there is nothing at the address`);
           for (const link of state.links) {
             if (seen.has(link)) continue;
