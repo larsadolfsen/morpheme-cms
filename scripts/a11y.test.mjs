@@ -48,6 +48,11 @@ test('A selector loses the ids React makes, and keeps nested targets apart', () 
   );
 });
 
+test('A selector tells the attributes of an element in one order', () => {
+  assert.equal(selectorOf(['textarea[data-row="2"][data-field="text"]']), selectorOf(['textarea[data-field="text"][data-row="2"]']));
+  assert.equal(selectorOf(['a[href="#a]b"][role="x"] > b[z="1"]']), 'a[href="#a]b"][role="x"] > b[z="1"]');
+});
+
 test('Findings become entries that read back as the same findings', () => {
   const keys = new Set([
     ...keysOf([violation('label', 'input.a')], '/a/', 'phone'),
