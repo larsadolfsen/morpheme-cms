@@ -189,8 +189,12 @@ function syncPointed() {
     pointedAt = { host: want.host, el };
   }
   const owner = want.host.querySelector(':scope > .mo-site-block-card');
-  // A button's card keeps the block's name in a hidden part its accessible name is made of; a block typed in place has it as `aria-label`.
-  draw(pointedAt.el, want, owner?.querySelector(':scope > .mo-site-block-name')?.textContent ?? owner?.getAttribute('aria-label') ?? '');
+  // The name of the block is on its card's button, or on the card itself for a block typed in place.
+  draw(
+    pointedAt.el,
+    want,
+    owner?.querySelector(':scope > .mo-site-block-card-button')?.getAttribute('aria-label') ?? owner?.getAttribute('aria-label') ?? '',
+  );
   // The row also covers a whole column of a block that is wide enough (the second card of two): that item could then not be clicked, so the block shows its row only once it is active.
   if (covers(pointedAt.el, want.host)) {
     pointedAt.host.classList.remove('mo-site-block-has-hover');
@@ -213,7 +217,7 @@ function covers(row: HTMLElement, host: HTMLElement) {
     (item) => !row.contains(item) && item.getBoundingClientRect().width < card.clientWidth * 0.9,
   );
   const controls = [...card.querySelectorAll<HTMLElement>('button, a[href], summary, .mo-list__item-expand-icon')].filter(
-    (el) => !row.contains(el) && !el.closest('.mo-site-block-handle'),
+    (el) => !row.contains(el) && !el.closest('.mo-site-block-handle') && !el.matches('.mo-site-block-card-button'),
   );
   return [...items, ...controls].some(under);
 }
