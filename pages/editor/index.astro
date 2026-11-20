@@ -5,9 +5,9 @@
 // packages/editor/scripts/editor-icons.mjs) and then opens
 // without the browser's bars. viewport-fit=cover: the app keeps clear of a phone's notch and home bar
 // itself (safe-area padding). interactive-widget=resizes-content: on Android the page gets shorter when
-// the keyboard opens, so the top bar and the text toolbar stay in view while typing. maximum-scale=1
-// (and touch-action in editor.css): no zooming in by a pinch or a double tap, which in Chrome on
-// Android pushes the bar with "Save changes" out of sight below the screen.
+// the keyboard opens, so the top bar and the text toolbar stay in view while typing. Zooming in by a
+// pinch or a double tap is on (WCAG 2.2 1.4.4; plan 0.19.2): the Save bar and the text toolbar are placed against the
+// visual viewport while zoomed (visualViewportBars.ts, editor.css), so they stay in view.
 // The manifest has no colours on purpose: Chrome on Android paints the installed app's navigation bar
 // (the strip at the bottom of the screen) in them, and one colour cannot fit both light and dark mode.
 // Without them the bar follows the phone's own light or dark mode; the top bar follows the
@@ -39,10 +39,7 @@ const shown = completeColors(withMaterialNames(colors), colorRoles);
 <html lang={config.locale} data-motion-scheme={motionScheme}>
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
     <meta name="robots" content="noindex, nofollow" />
     <meta name="editor-version" content={editorVersion()} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

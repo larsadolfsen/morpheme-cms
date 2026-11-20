@@ -39,6 +39,8 @@ export const text = {
   alignRight: 'Align right',
   /** The two groups of the bar, for screen readers: the tools for the text under the cursor, and the main tools; `more` is the name of the ⋮ button. */
   more: 'More',
+  /** The name of the text area of a page, a post or a section, for screen readers. */
+  textField: 'Text',
   textTools: 'Text tools',
   pageTools: 'Page tools',
   /** The colours a selection can have there (packages/editor/lib/text-colors.mjs), by the names under "Colors". */
