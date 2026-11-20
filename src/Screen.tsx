@@ -235,7 +235,9 @@ export default function Screen<T extends string>({
         <div
           className={`mo-editor-screen-title ${searchBar ? 'mo-editor-screen-title-search' : `${home ? 'mo-editor-screen-title-home' : 'mo-editor-screen-title-sub'} ${full ? '' : 'mo-editor-screen-narrow-only'}`}`}
         >
-          <h1 tabIndex={-1} data-screen-title="" className="mo-truncate mo-type-title-large">{title}</h1>
+          <h1 tabIndex={-1} data-screen-title="" className="mo-truncate mo-type-title-large">
+            {title}
+          </h1>
           {status && (
             <p data-subtitle className="mo-truncate mo-editor-screen-status">
               {status}

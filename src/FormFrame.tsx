@@ -247,7 +247,9 @@ export default function FormFrame<T extends string>({
     requestAnimationFrame(() => {
       const at = document.activeElement;
       if (at && at !== document.body) return;
-      const back = document.querySelector<HTMLElement>('[role=textbox][aria-label="Text"]') ?? document.querySelector<HTMLElement>('h1[tabindex="-1"]');
+      const back =
+        document.querySelector<HTMLElement>('[role=textbox][aria-label="Text"]') ??
+        document.querySelector<HTMLElement>('h1[tabindex="-1"]');
       back?.focus({ preventScroll: true });
     });
   }, [saving]);
