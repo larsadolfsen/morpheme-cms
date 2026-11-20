@@ -50,6 +50,10 @@ Every pull request, whatever the change:
 - It has its changeset (`changesets`) and its `check` job is green on the current head.
 - You report the link and the head sha to the PM and leave the merge to it. Never merge your own pull request, and never
   ask the owner to merge it (`CLAUDE.md`, *Pull requests go to the PM*).
+- Your PM is the PM of your own version: your pull request goes into that version's feature branch (or into `main` for its single
+  fix), and you report to that PM only. A PM merges only within its own feature (owner, 20 Nov 2026: "Pms tend to merge future
+  feature branches. They are only allowed to merge branches within their feature."), so never send your pull request to another
+  version's PM; if no PM runs for your version, tell the owner.
 - A change the owner can see (the editor or the site) gets before and after screenshots of every changed screen in a
   comment on your own pull request: *Screenshots in the pull request* below says how. A change nobody sees
   needs none.
