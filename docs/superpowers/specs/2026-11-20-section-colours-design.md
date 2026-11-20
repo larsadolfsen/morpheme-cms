@@ -1,7 +1,7 @@
 # Colours on a coloured section (spec)
 
-Status: **20 November 2026, for the owner.** Ships in **0.19.5 Material 3 tokens** (`plans/2026-11-20-0-19-5-material-3-tokens.md`), next to the elevation spec
-(`specs/2026-11-20-elevation-design.md`). One decision for the owner is open under *Decisions*.
+Status: **20 November 2026, decided.** Ships in **0.19.5 Material 3 tokens** (`plans/2026-11-20-0-19-5-material-3-tokens.md`), next to the elevation spec
+(`specs/2026-11-20-elevation-design.md`). The owner made all its decisions (*Decisions*).
 
 Owner, 20 November 2026: only Material 3's predefined colour roles may be used (ruled in 0.19.2, where the card edge became `outline`
 on a surface and the section's on-colour on a coloured section: "use the on-color"). PM 0.19.2 found that the coloured sections break the
@@ -84,7 +84,8 @@ So the swap is role for role, with no mix:
 What is lost: the five surface levels inside a coloured section. Every card there has the same fill, which is the on-colour.
 
 **A section with an image** uses the inverse roles, M3's set for an area that contrasts with the page: text and icons
-`inverse-on-surface`, actions `inverse-primary` (the open decision says what is behind the text).
+`inverse-on-surface`, actions `inverse-primary`, on an `inverse-surface` panel at full strength behind the text (*Decisions*). The image
+is no longer darkened: the gradient of `text-section.css:45-50` goes.
 
 **Dark mode** follows by itself: every role is the theme's (on Primary in dark mode the section is light and its cards are dark).
 
@@ -111,20 +112,19 @@ allowance in `check:editor-colors`, and `CLAUDE.md`'s colour rule drops "`color-
 
 ## Decisions
 
-Decided by the owner on 20 November 2026: the two colours inside a coloured section (design, above), and the editor under the same rule.
-One is open:
+Decided by the owner on 20 November 2026:
 
-- **A section with an image.** Recommended: text on an image sits on an `inverse-surface` panel at full strength (a pair M3 prints, so
-  contrast is guaranteed whatever the image). The alternative keeps today's darkening gradient over the whole image but made of the
-  `scrim` role, which needs an owner-approved deviation (`docs/material-deviations.md`), because 32 % scrim does not guarantee text
-  contrast on a light image and a stronger gradient is not an M3 value.
+- **Two colours** inside a coloured section (design, above), and the editor under the same rule.
+- **A section with an image** (owner: "Use the inverse-surface panel"): its text sits on an `inverse-surface` panel at full strength, with
+  `inverse-on-surface` text and `inverse-primary` actions, a pair M3 prints, so contrast is guaranteed whatever the image. The darkening
+  gradient goes, and no deviation is needed.
 
 ## Batches (pull requests into the 0.19.5 feature branch)
 
 1. **The check.** `check:color-roles` with the baseline in its allowlist, in `check:source`; `CLAUDE.md`'s colour rule and
    `check:editor-colors` updated. If it is 0.19.5's first pull request, it sets the version.
 2. **The section swap.** The swap of `tokens/material/sys.css` and `tokens/blocks/sys.css` reduced to role for role as designed, the
-   reverse on filled parts' containers, the image section on the inverse roles (the open decision). `check:contrast` on every section colour,
+   reverse on filled parts' containers, the image section on an `inverse-surface` panel with the inverse roles, the gradient removed. `check:contrast` on every section colour,
    light and dark; `check:screens` and `check:themes` green; Venus checked on the demo. A release note line: coloured sections look a
    little different (skill `release-notes`).
 3. **The rest of the allowlist.** Every remaining non-M3 mix in parts and the editor is replaced by a role or an M3 opacity token, until
