@@ -40,6 +40,8 @@ export type ImageGridTexts = {
   previous: string;
   next: string;
   position: string;
+  /** The name of a card's link when its image has no text and the card no caption ("Image"). */
+  linkName: string;
 };
 
 export type ImageGridView = HeadView & {
