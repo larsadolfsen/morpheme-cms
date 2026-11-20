@@ -877,7 +877,6 @@ body {
 
 html {
   -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
 }
 
 /* A block of the site in the text (Book an appointment, Testimonials …; MarkdownEditor.tsx): the block as it
@@ -2050,4 +2049,21 @@ dialog {
 }
 .mo-editor-shortcuts-dialog:focus {
   outline: none;
+}
+
+/* Zoomed in by a pinch (:root[data-zoomed], visualViewportBars.ts): the bars follow the visual viewport instead of the layout viewport, so
+   they do not leave the screen. The Save bar sits at the visual viewport's bottom and, on a phone, is drawn at the size it has when not zoomed, over the whole
+   visible width (counter-scaled from its bottom left corner; `translate` and `scale` are applied outside `transform`, so its rise animation is untouched).
+   The text toolbar sticks below the visual viewport's top edge. Not zoomed, none of this applies. */
+:root[data-zoomed] .mo-editor-save-bar {
+  translate: var(--mo-comp-editor-visual-left, 0px) calc(-1 * var(--mo-comp-editor-visual-bottom, 0px));
+}
+@media (width < 37.5rem) {
+  :root[data-zoomed] .mo-editor-save-bar {
+    scale: var(--mo-comp-editor-visual-scale, 1);
+    transform-origin: left bottom;
+  }
+}
+:root[data-zoomed] .mo-editor-tools-bar {
+  inset-block-start: calc(env(safe-area-inset-top) + var(--mo-comp-editor-visual-top, 0px));
 }
