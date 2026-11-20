@@ -64,8 +64,9 @@ session loads the `release` skill and follows its phases in order; it never rele
 
 ### Pull requests go to the PM
 
-**There is always a PM.** Each version being built has a session as its project manager (skill `pm`). It merges the pull
-requests of its own feature only, never another version's (owner, 20 Nov 2026), except releases, in this repository and in
+**There is always a PM.** Each version being built has a session as its project manager (skill `pm`). The owner names the version (`/pm 0.19.2`, `/pm 0.20`). It merges the pull
+requests of its own feature only, and never creates, changes, pushes or merges anything of another version, earlier or later (owner,
+20 Nov 2026), except releases, in this repository and in
 `morpheme-staging`, `morpheme-appstore` and `morpheme-apps`, and it keeps nothing behind. The owner does not merge and is not
 asked to.
 
