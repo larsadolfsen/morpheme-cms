@@ -3827,15 +3827,30 @@ export function TabRow<T extends string>({ id, label, value, options, onChange }
   );
 }
 
-/** What the open tab of a TabRow (the same `id`) shows. */
+/** What the open tab of a TabRow (the same `id`) shows. It is a Tab stop only when it holds nothing to focus (the tabs pattern of the
+ * ARIA Authoring Practices), and then it shows the focus ring (WCAG 2.4.7). */
 export function TabPanel({ id, value, className = '', children }: { id: string; value: string; className?: string; children: ReactNode }) {
+  const panel = useRef<HTMLDivElement>(null);
+  const [stop, setStop] = useState(false);
+  useEffect(() => {
+    const el = panel.current;
+    if (!el) return;
+    const FOCUSABLE = 'a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
+    const check = () =>
+      setStop(![...el.querySelectorAll<HTMLElement>(FOCUSABLE)].some((c) => !c.hasAttribute('disabled') && !c.closest('[inert]')));
+    check();
+    const watch = new MutationObserver(check);
+    watch.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'tabindex', 'href', 'inert'] });
+    return () => watch.disconnect();
+  }, [value]);
   return (
     <div
+      ref={panel}
       role="tabpanel"
       id={`${id}-panel`}
       aria-labelledby={`${id}-tab-${value}`}
-      tabIndex={0}
-      className={`mo-editor-focus-quiet-visible ${className}`}
+      tabIndex={stop ? 0 : undefined}
+      className={className || undefined}
     >
       {children}
     </div>
@@ -3929,6 +3944,7 @@ export function LeadingToken({ kind, value, weight }: { kind: TokenKind; value: 
  * below a phone's clock, and marked as the theme marks it once the screen has scrolled under it (data-stuck). */
 export function TopAppBar({ children }: { children: ReactNode }) {
   const [stuck, setStuck] = useState(false);
+  useScrollClearance('top', '.mo-editor-app-bar-inset');
   useEffect(() => {
     const check = () => setStuck(scrollY > 0);
     check();
@@ -3940,6 +3956,31 @@ export function TopAppBar({ children }: { children: ReactNode }) {
       {children}
     </SiteAppBar>
   );
+}
+
+/** Keeps what has focus out from behind a bar that stays on the screen while the page scrolls (WCAG 2.4.11 Focus Not Obscured):
+ * the height of the tallest bar found by `selector` goes to `--mo-editor-clearance-<edge>` on the root, which
+ * `scroll-padding-block-start` and `-end` there (editor.css) read, so the browser scrolls a focused field clear of the bar.
+ * Measured from the bars themselves, so no screen has a number of its own. */
+export function useScrollClearance(edge: 'top' | 'bottom', selector: string, active = true) {
+  useEffect(() => {
+    if (!active) return;
+    const root = document.documentElement;
+    const name = `--mo-editor-clearance-${edge}`;
+    const bars = () => [...document.querySelectorAll<HTMLElement>(selector)];
+    const update = () => {
+      const tallest = Math.max(0, ...bars().map((bar) => bar.offsetHeight));
+      if (tallest) root.style.setProperty(name, `${tallest + 8}px`);
+      else root.style.removeProperty(name);
+    };
+    const watch = new ResizeObserver(update);
+    bars().forEach((bar) => watch.observe(bar));
+    update();
+    return () => {
+      watch.disconnect();
+      root.style.removeProperty(name);
+    };
+  }, [edge, selector, active]);
 }
 
 /** The theme's dialog (Material 3's), in the middle of the screen over its scrim, on a <dialog> (`ref`; opened with
@@ -4000,6 +4041,7 @@ export function BottomSheet({
  * `label`, with the buttons in it. It stays above the on-screen keyboard; from the medium width it stays a bottom sheet
  * (wide="sheet"), as wide as the theme allows, between the navigation rail and the panels (editor.css). */
 export function ActionSheet({ label, className, children }: { label: string; className?: string; children: ReactNode }) {
+  useScrollClearance('bottom', '.mo-editor-action-sheet');
   return (
     <SiteBottomSheet
       kind="standard"
@@ -4008,7 +4050,7 @@ export function ActionSheet({ label, className, children }: { label: string; cla
       dragHandle={false}
       label={label}
       liftAboveKeyboard
-      className={className}
+      className={['mo-editor-action-sheet', className].filter(Boolean).join(' ')}
     >
       {children}
     </SiteBottomSheet>
@@ -4034,6 +4076,8 @@ export function PageFrame({ html, width, title, part }: { html: string; width: n
   const scale = size.width ? Math.min(1, size.width / width) : 1;
   const measure = (frame: HTMLIFrameElement) => {
     const doc = frame.contentDocument;
+    // An image of the site, not a place to work: nothing in it takes focus (WCAG 2.4.3, 2.4.7).
+    if (doc) doc.documentElement.inert = true;
     const el = part && doc?.querySelector(part);
     if (!doc || !el) return;
     // Only the part is shown: the page does not scroll in its frame.
@@ -4049,9 +4093,10 @@ export function PageFrame({ html, width, title, part }: { html: string; width: n
           title={title}
           srcDoc={html}
           sandbox="allow-same-origin"
+          tabIndex={-1}
           className="mo-editor-block-preview-iframe"
           style={{ width, height, top: -(cut?.top ?? 0) * scale, transform: `translateX(-50%) scale(${scale})` }}
-          onLoad={part ? (e) => measure(e.currentTarget) : undefined}
+          onLoad={(e) => measure(e.currentTarget)}
         />
       )}
     </div>
