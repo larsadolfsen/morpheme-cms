@@ -1,0 +1,6 @@
+{
+  "id": "a11y-text-area",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Skærmlæsere navngiver sidens tekstfelt og læser ikke længere ind i blokkenes forhåndsvisninger"
+}
