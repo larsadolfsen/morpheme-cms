@@ -151,7 +151,10 @@ export default function InlineList({
               key={i}
               expand
               expandOpen={open.open}
+              expandToggle={open.toggle}
               expandProps={{
+                role: 'group',
+                onFocus: open.onFocus,
                 'data-row': i,
                 'aria-current': here ? 'true' : undefined,
                 'aria-label': next ? t.blocks.list.newRow : t.blocks.list.rowOf(i + 1, items.length),
@@ -163,7 +166,6 @@ export default function InlineList({
                   .filter(Boolean)
                   .join(' '),
               }}
-              {...open.summary}
               {...leadFor(r, here, i)}
               headline={field('title', t.blocks.list.title, next ? t.blocks.list.newRow : t.blocks.list.title)}
               trailing={linkSlot}
@@ -176,6 +178,7 @@ export default function InlineList({
           <SiteListItem
             key={i}
             data-row={i}
+            role="group"
             aria-current={here ? 'true' : undefined}
             aria-label={next ? t.blocks.list.newRow : t.blocks.list.rowOf(i + 1, items.length)}
             className={['mo-editor-inline-list-row', here && 'mo-editor-inline-list-row-active', next && 'mo-editor-inline-list-row-next']

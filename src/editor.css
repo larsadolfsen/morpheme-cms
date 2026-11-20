@@ -1226,6 +1226,8 @@ html {
   resize: none;
   overflow: hidden;
   field-sizing: content;
+  /* WCAG 2.5.8 (target size, minimum): a field is at least 24 px high, also for one line of small text. */
+  min-block-size: 1.5rem;
   user-select: text;
 }
 
@@ -1312,10 +1314,16 @@ html {
   color: var(--mo-sys-color-on-secondary-container);
   font-size: var(--mo-sys-typescale-body-small-size);
 }
-/* A card's media that is set: a button over it, a tap changes it (Cards, InlineCards.tsx). */
+/* A card's media that is set: the media, and a button laid over it (its sibling, as a control may not hold another); a tap changes it (Cards, InlineCards.tsx). */
+.mo-editor-text .mo-editor-inline-card-media-box {
+  position: relative;
+}
 .mo-editor-text .mo-editor-inline-card-media {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
+  height: 100%;
   border: 0;
   padding: 0;
   background: none;

@@ -103,6 +103,7 @@ export default function InlineCards({ items, props, data, active, focus, onChang
               <SiteCard
                 kind={type}
                 data-row={i}
+                role="group"
                 aria-current={here ? 'true' : undefined}
                 aria-label={next ? t.blocks.cards.newCard : t.blocks.cards.cardOf(i + 1, items.length)}
                 className={[
@@ -117,14 +118,19 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                 {card && hasMedia(card) ? (
                   // A media that is set is changed by a tap on it, on any card: its picker, to replace or remove it, and the card is the active one.
                   // An image is its own tap target: a tap selects the card, and the bar has the image's tools (Change image, Crop, Alt text, Remove).
-                  <button
-                    type="button"
-                    className="mo-editor-inline-card-media"
-                    aria-label={t.blocks.cards.media}
-                    onClick={() => (card.image ? !here && onChange({ active: i }) : onIcon(i))}
-                  >
-                    <CardMedia card={card} />
-                  </button>
+                  <div className="mo-editor-inline-card-media-box">
+                    {/* The media is drawn as it is (a video keeps its own play button, so it is `inert` here) and the button that changes it is its sibling, laid over it:
+                        a control may not hold another. */}
+                    <div className="mo-editor-inline-card-media-view" inert>
+                      <CardMedia card={card} />
+                    </div>
+                    <button
+                      type="button"
+                      className="mo-editor-inline-card-media"
+                      aria-label={t.blocks.cards.media}
+                      onClick={() => (card.image ? !here && onChange({ active: i }) : onIcon(i))}
+                    />
+                  </div>
                 ) : (
                   <>
                     {card && <CardMedia card={card} />}
