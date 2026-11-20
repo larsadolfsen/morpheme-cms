@@ -1,7 +1,7 @@
 # Elevation (spec)
 
-Status: **20 November 2026.** Ships in **0.19.5 UI fixes** (owner: "add it to the 0.19 ui fixes"). Both decisions are the
-owner's (*Decisions*, below).
+Status: **20 November 2026.** Ships in **0.19.5 UI fixes** (owner: "add it to the 0.19 ui fixes"). The owner made both
+decisions (*Decisions*, below).
 
 Owner, 20 November 2026: "write the spec now, but only elevation". This spec is the elevation part of *Component steps*
 (roadmap `plans/2026-11-14-roadmap-0-18-to-0-24.md`, 0.22). It covers elevation only: the colour roles, the type scale, shape, motion,
