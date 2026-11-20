@@ -20,6 +20,13 @@ the work; every rule of the earlier skill is kept.
 and every question the order of priority below answers. It never asks the owner to merge or for permission to merge, and the owner
 merges nothing but releases.
 
+**Only its own feature** (owner, 20 Nov 2026: "Pms tend to merge future feature branches. They are only allowed to merge branches within their feature."). A PM merges only the pull requests of the version it is PM of: the
+pieces into its own feature branch, `main` into its own feature branch, its feature (or its single fix) into `main` when its turn
+comes, and what its version's plan puts in the other repositories. It never merges another version's feature branch or a pull
+request into one, and never a pull request that belongs to a later version (its feature, its fix, or the plan or spec for it), even
+when it is green and waiting: it names the PM it belongs to, or tells the owner that no PM runs for it yet, and leaves it. A pull
+request that belongs to no version (a docs change into `main`) it merges only when the owner or the CTO hands it to that PM by name.
+
 **The owner decides:**
 
 - **Releases.** Only the owner releases (`CLAUDE.md`, *Only the owner releases a new version*): the Release PR, npm approvals and
@@ -73,12 +80,12 @@ branch → feature → `next` → live):
    fix into `main` takes the next patch the same way. A single fix is one pull request straight into `main`. There are no version-line branches: `0.18` is finished (owner,
    19 Nov 2026) and nothing goes into it; a line is only an area of the roadmap and its version numbers.
    `static` checks the starter pin with `node scripts/starter.mjs --check` at every level, so do not merge a first pull request without
-   the version set. After each merge into `main` the PM merges `main` into every open feature branch; when that brings in a release with
+   the version set. After each merge into `main` the PM merges `main` into its own feature branch; when that brings in a release with
    the same number as a feature's, the merge conflicts on `version` and the PM resolves it to the next free number (and tells the
    feature's session). No other pull request changes `version`.
 3. **Sessions** do the work (section 5) and report their pull request's link and head sha.
 4. **Merging** a piece into its feature branch on the feature check (sections 3 and 6). After each merge into `main`, the PM merges
-   `main` into every open feature branch (never the other way), so no feature drifts far from `main`.
+   `main` into its own feature branch (never the other way), so no feature drifts far from `main`; each PM does its own.
 5. **The owner reviews the feature on the demo** (section 4), then **the feature goes into `main`, once**: one pull request from the
    feature branch into `main`, the full check green, the proofs the feature's plan asks for (for a pure move, `npx morpheme
    compare-html` showing nothing changed) and, for a change the owner can see, the owner's approval of the whole feature with its
@@ -90,7 +97,7 @@ branch → feature → `next` → live):
 
 **The demo, and after every release.** The demo (`morpheme-demo`) shows the feature being built, never the live site (owner, 19 Nov
 2026). When a feature starts, or the work moves to another feature, the PM tells the owner to set the demo's production branch
-(Workers > `morpheme-demo` > Settings > Build > Branch control) to it. After every release the PM merges `main` into each open feature
+(Workers > `morpheme-demo` > Settings > Build > Branch control) to it. After every release the PM merges `main` into its own feature
 branch the same day: a pull request that is a plain merge commit, with an empty changeset, never a squash.
 
 **Nothing left behind.** The PM keeps one list of everything in flight and works it until it is empty: pull requests waiting to
