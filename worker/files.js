@@ -45,6 +45,8 @@ export function filesOf(env, token, ctx) {
   const pending = [];
   // The trees already read in this request.
   const trees = new Map();
+  // The objects this request has started to write: each key once, however slow R2 is (per request, never shared).
+  const started = new Set();
 
   /** fetch for GitHub, counted. */
   function ask(url, init = {}) {
@@ -77,12 +79,15 @@ export function filesOf(env, token, ctx) {
     }
   }
 
-  // Writes once: `check` first (an R2 read is cheaper than a write), when the object may be there already.
+  // Writes once: `check` first (an R2 read is cheaper than a write), when the object may be there already. A key this
+  // request has asked to write is not written again: its first write may still be on its way, so a check would not see it.
   function keep(kind, oid, value, check = false) {
     if (!bucket) return;
+    const key = `${KEY}/${kind}/${oid}`;
+    if (started.has(key)) return;
+    started.add(key);
     later(
       (async () => {
-        const key = `${KEY}/${kind}/${oid}`;
         if (check) {
           count.read++;
           if (await bucket.head(key)) return;
