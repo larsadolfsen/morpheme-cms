@@ -1,0 +1,12 @@
+{
+  "version": "0.19.0",
+  "date": "2026-11-19",
+  "notes": [
+    {
+      "id": "mo-names-content",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Text styles and word colors in your pages get new internal names; the update changes them in your pages together with the version, and after a manual install you run npx morpheme migrate"
+    }
+  ]
+}
