@@ -18,6 +18,7 @@ import { linksDigest, rehypeAutoLinks } from './site/autolinks.mjs';
 import { rehypeVideo } from './lib/video.mjs';
 import { rehypeEmphasize } from './lib/rehype-emphasize.mjs';
 import { rehypeAlign } from './lib/text-align.mjs';
+import { rehypeChecklistNames } from './lib/rehype-checklist-names.mjs';
 import { remarkChecklists } from './lib/remark-checklist.mjs';
 import { remarkListHeads } from './lib/remark-list-head.mjs';
 import { remarkBlockLabels } from './lib/remark-block-label.mjs';
@@ -123,6 +124,8 @@ export async function siteConfig() {
           rehypeRaw,
           // Bold as <strong class="emphasize">, for a theme to style (lib/rehype-emphasize.mjs).
           rehypeEmphasize,
+          // A check list's checkbox is named by its item's text (lib/rehype-checklist-names.mjs).
+          rehypeChecklistNames,
           // An alignment line before a block becomes its class (lib/text-align.mjs).
           rehypeAlign,
           [rehypeResponsiveImages, { sizes: '(min-width: 800px) 720px, calc(100vw - 40px)' }],
