@@ -1,0 +1,12 @@
+{
+  "version": "0.19.1",
+  "date": "2026-11-20",
+  "notes": [
+    {
+      "id": "calm-owls-guard",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The editor checks every image and link address before it shows it"
+    }
+  ]
+}
