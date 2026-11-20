@@ -32,6 +32,7 @@ export const text: Messages['text'] = {
   alignCenter: 'Centreret',
   alignRight: 'Højrejusteret',
   more: 'Mere',
+  textField: 'Tekst',
   textTools: 'Tekstværktøjer',
   pageTools: 'Sideværktøjer',
   color: 'Farve',

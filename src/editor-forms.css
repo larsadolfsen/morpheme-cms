@@ -642,6 +642,12 @@
     padding: var(--mo-ref-space-200);
     padding-block-end: 26rem;
   }
+  /* On a phone the buttons wrap into rows: each button that shows its menu open keeps the room of its menu below it, so the menu never lies over the buttons of the next row (WCAG 2.5.8). */
+  @media (width < 37.5rem) {
+    .mo-editor-nav-menus-tall > .mo-dropdown-menu:has(> .mo-dropdown-menu__menu:not([popover])) {
+      margin-block-end: 22rem;
+    }
+  }
   :where(.mo-editor-nav-fields > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-300);
   }

@@ -134,6 +134,7 @@ export const blocks: Messages['blocks'] = {
     addRow: 'Tilføj listerække',
     newRow: 'Ny række',
     rowOf: (n: number, total: number) => `Række ${n} af ${total}`,
+    foldRow: 'Udvid række',
     /** The design of a list: rows on the page, or each row on its own surface (a card). */
     design: 'Design',
     designPlain: 'Almindelig',

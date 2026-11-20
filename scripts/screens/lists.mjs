@@ -212,10 +212,10 @@ async function checkChevronUnderHoverRow(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, { [BUILT_PAGE]: src });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await page.waitForSelector('.mo-editor-inline-list-host details.mo-list__item-expand', { timeout: 30_000 });
+  await page.waitForSelector('.mo-editor-inline-list-host div.mo-list__item-expand', { timeout: 30_000 });
   await page.locator('.ProseMirror > p').first().click();
   await page.waitForFunction(() => !document.querySelector('.mo-editor-inline-list-row-active'), null, { timeout: 8000 });
-  const first = page.locator('.mo-editor-inline-list-host details.mo-list__item-expand').first();
+  const first = page.locator('.mo-editor-inline-list-host div.mo-list__item-expand').first();
   const icon = await first.locator('.mo-list__item-expand-icon').boundingBox();
   await page.mouse.move(icon.x + icon.width / 2, icon.y + icon.height / 2);
   await page.waitForTimeout(500);
@@ -236,11 +236,12 @@ async function checkChevronUnderHoverRow(width) {
   // And a click on the chevron opens the row.
   await first.locator('.mo-list__item-expand-icon').click();
   await page
-    .waitForFunction(() => document.querySelector('.mo-editor-inline-list-host details.mo-list__item-expand')?.open, null, {
+    .waitForFunction(() => document.querySelector('.mo-editor-inline-list-host div.mo-list__item-expand')?.hasAttribute('open'), null, {
       timeout: 4000,
     })
     .catch(() => {});
-  if (!(await first.evaluate((d) => d.open))) problems.push(`${label}: a click on the first row's chevron does not open it`);
+  if (!(await first.evaluate((d) => d.hasAttribute('open'))))
+    problems.push(`${label}: a click on the first row's chevron does not open it`);
   await page.close();
 }
 
@@ -274,7 +275,7 @@ async function checkChevronRows(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site, { [BUILT_PAGE]: src });
   await page.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await page.waitForSelector('.mo-editor-inline-list-host details.mo-list__item-expand', { timeout: 30_000 });
+  await page.waitForSelector('.mo-editor-inline-list-host div.mo-list__item-expand', { timeout: 30_000 });
   const undoOff = () => page.locator('.mo-editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (const [at, name] of [
     [0, 'List - Expand'],
@@ -288,22 +289,24 @@ async function checkChevronRows(width) {
       { timeout: 8000 },
     );
     const host = page.locator('.mo-editor-inline-list-host').nth(at);
-    const row = host.locator('details.mo-list__item-expand').nth(1);
-    const head = row.locator('summary');
-    const state = () => head.getAttribute('aria-expanded');
+    const row = host.locator('div.mo-list__item-expand').nth(1);
+    const head = row.locator('.mo-list__item-expand-summary');
+    const toggle = row.locator('.mo-list__item-expand-button');
+    const state = () => toggle.getAttribute('aria-expanded');
     const shown = () =>
       page.waitForFunction(
         ([h, r]) => {
-          const d = document.querySelectorAll('.mo-editor-inline-list-host')[h].querySelectorAll('details.mo-list__item-expand')[r];
+          const d = document.querySelectorAll('.mo-editor-inline-list-host')[h].querySelectorAll('div.mo-list__item-expand')[r];
           const a = d.querySelector('.mo-block-accordion__answer');
-          return d.open && !!a && a.getBoundingClientRect().height > 0;
+          return d.hasAttribute('open') && !!a && a.getBoundingClientRect().height > 0;
         },
         [at, 1],
         { timeout: 8000 },
       );
     const shut = () =>
       page.waitForFunction(
-        ([h, r]) => !document.querySelectorAll('.mo-editor-inline-list-host')[h].querySelectorAll('details.mo-list__item-expand')[r].open,
+        ([h, r]) =>
+          !document.querySelectorAll('.mo-editor-inline-list-host')[h].querySelectorAll('div.mo-list__item-expand')[r].hasAttribute('open'),
         [at, 1],
         { timeout: 8000 },
       );
@@ -327,12 +330,12 @@ async function checkChevronRows(width) {
           };
           const open = r(lis[1]);
           if (!open.every((x) => x >= 15.5)) return null;
-          const d = lis[1].querySelector('details');
+          const d = lis[1].querySelector('.mo-list__item-expand');
           return {
             open,
             first: r(lis[0]),
             last: r(lis[2]),
-            title: d.querySelector('summary [data-field]').getBoundingClientRect().left,
+            title: d.querySelector('.mo-list__item-expand-summary [data-field]').getBoundingClientRect().left,
             body: d.querySelector('.mo-block-accordion__answer').getBoundingClientRect().left,
           };
         },
@@ -360,7 +363,7 @@ async function checkChevronRows(width) {
     await page.mouse.click(icon.x + icon.width / 2, top.y + 3);
     await shut().catch(() => problems.push(`${label} ${name}: a second tap on the chevron does not close the row`));
     // Enter and Space on the focused head.
-    await head.focus();
+    await toggle.focus();
     await page.keyboard.press('Enter');
     await shown().catch(() => problems.push(`${label} ${name}: Enter on the focused row does not open it`));
     await page.keyboard.press('Space');
@@ -391,12 +394,15 @@ async function checkChevronRows(width) {
   fresh.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(fresh, site, { [BUILT_PAGE]: src });
   await fresh.goto(`${site}/editor/#${BUILT_PAGE}`);
-  await fresh.waitForSelector('.mo-editor-inline-list-host details.mo-list__item-expand', { timeout: 30_000 });
+  await fresh.waitForSelector('.mo-editor-inline-list-host div.mo-list__item-expand', { timeout: 30_000 });
   const undoBefore = await fresh.locator('.mo-editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (let h = 0; h < 2; h++) {
     const icon = fresh.locator('.mo-editor-inline-list-host').nth(h).locator('.mo-list__item-expand-icon').nth(1);
     await icon.click();
-    await fresh.waitForFunction((n) => document.querySelectorAll('.mo-editor-inline-list-host')[n].querySelectorAll('details')[1].open, h);
+    await fresh.waitForFunction(
+      (n) => document.querySelectorAll('.mo-editor-inline-list-host')[n].querySelectorAll('.mo-list__item-expand')[1].hasAttribute('open'),
+      h,
+    );
     await icon.click();
   }
   await fresh.waitForTimeout(300);
