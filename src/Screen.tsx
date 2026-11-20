@@ -15,7 +15,7 @@
 // is short (the screen fills the column under the bar, TopBarLayout). While the screen has a floating action button
 // (fabPresence.tsx), the content leaves room for it above the footer (data-clearance, --mo-comp-fab-room) and the FAB stands above the
 // footer whenever the footer is in the window (useFabLift: --mo-comp-editor-fab-lift, editor.css), so it never covers the footer.
-import { useContext, useId, type MouseEvent, type ReactNode } from 'react';
+import { useContext, useEffect, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
@@ -185,6 +185,17 @@ export default function Screen<T extends string>({
     else way();
   };
   const slot = useTopBarSlot();
+  // A screen opened from a link on another screen takes the focus to its title, so the keyboard goes on from the top of the new screen: the link's screen is hidden or removed
+  // a moment later, which would drop the focus on the body. A focus already in a field or a button (not a link) is left alone, and the start screen keeps its search bar.
+  useEffect(() => {
+    if (home) return;
+    const at = document.activeElement;
+    if (!at || at === document.body || at.matches('a[href]')) {
+      // The bar draws the title twice (expanded and collapsed, one hidden by CSS): the one that is drawn takes the focus.
+      const titles = [...document.querySelectorAll<HTMLElement>('[data-screen-title]')];
+      titles.find((el) => el.getClientRects().length > 0 && !el.closest('[inert]'))?.focus({ preventScroll: true });
+    }
+  }, [home, slot]);
   // The form under its Preview (screenHidden.ts): kept, but not drawn.
   const hidden = useContext(ScreenHidden);
   const fabs = useCountFabs();
@@ -224,7 +235,9 @@ export default function Screen<T extends string>({
         <div
           className={`mo-editor-screen-title ${searchBar ? 'mo-editor-screen-title-search' : `${home ? 'mo-editor-screen-title-home' : 'mo-editor-screen-title-sub'} ${full ? '' : 'mo-editor-screen-narrow-only'}`}`}
         >
-          <h1 className="mo-truncate mo-type-title-large">{title}</h1>
+          <h1 tabIndex={-1} data-screen-title="" className="mo-truncate mo-type-title-large">
+            {title}
+          </h1>
           {status && (
             <p data-subtitle className="mo-truncate mo-editor-screen-status">
               {status}
@@ -296,7 +309,13 @@ export default function Screen<T extends string>({
                 ))}
               </nav>
             )}
-            <h1 className={searchBar ? 'mo-truncate mo-type-title-large' : 'mo-truncate mo-editor-screen-title-plain'}>{title}</h1>
+            <h1
+              tabIndex={-1}
+              data-screen-title=""
+              className={searchBar ? 'mo-truncate mo-type-title-large' : 'mo-truncate mo-editor-screen-title-plain'}
+            >
+              {title}
+            </h1>
             {status && (
               <p data-subtitle={searchBar ? '' : undefined} className="mo-keep mo-editor-screen-status-line">
                 {status}

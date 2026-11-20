@@ -1,40 +1,5 @@
 [
   {
-    "problem": "flow-lost-focus",
-    "selector": "A: after opening a page from the list",
-    "places": ["flow A"],
-    "viewports": ["phone", "computer"],
-    "reason": "Opening a page from a list drops focus to body (the list unmounts). Batch 3 of 0.19.3 puts focus on the title."
-  },
-  {
-    "problem": "flow-lost-focus",
-    "selector": "A: after Save",
-    "places": ["flow A"],
-    "viewports": ["phone", "computer"],
-    "reason": "After Save the bar closes and focus drops to body (the flow asks no notification question, so no dialog takes it). Batch 3 of 0.19.3 keeps focus on the text."
-  },
-  {
-    "problem": "flow-lost-focus",
-    "selector": "B: after Move down",
-    "places": ["flow B"],
-    "viewports": ["phone", "computer"],
-    "reason": "After Move down the block is re-rendered and focus drops to body. Batch 3 of 0.19.3 (focus after open and close) and batch 4 keep it on the moved block."
-  },
-  {
-    "problem": "flow-lost-focus",
-    "selector": "I: after Done",
-    "places": ["flow I"],
-    "viewports": ["computer"],
-    "reason": "Edit dashboard and Done unmount the button that was pressed (src/DashboardGrid.tsx), so focus drops to body. Batch 3 of 0.19.3 keeps it on the control that replaces them."
-  },
-  {
-    "problem": "flow-lost-focus",
-    "selector": "I: after Edit dashboard",
-    "places": ["flow I"],
-    "viewports": ["computer"],
-    "reason": "Edit dashboard and Done unmount the button that was pressed (src/DashboardGrid.tsx), so focus drops to body. Batch 3 of 0.19.3 keeps it on the control that replaces them."
-  },
-  {
     "problem": "unreachable",
     "selector": "B: Remove",
     "places": ["flow B"],
