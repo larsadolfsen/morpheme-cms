@@ -1,0 +1,121 @@
+[
+  {
+    "problem": "covered",
+    "selector": "div > div > div.mo-editor-chip-row > button.mo-button.mo-is-outlined.mo-button__small",
+    "places": ["#new/blog"],
+    "viewports": ["computer"],
+    "reason": "The sticky save bar covers the last fields and the footer of a new page or post: no scroll-padding-bottom for the sticky bars (src/editor.css, src/editor-screens.css). Batch 5 of 0.19.3 fixes it."
+  },
+  {
+    "problem": "covered",
+    "selector": "div.mo-date-picker__field > div.mo-text-field.mo-is-outlined > div.mo-text-field__container > input.mo-text-field__input[type=text]",
+    "places": ["#new/blog"],
+    "viewports": ["computer"],
+    "reason": "The sticky save bar covers the last fields and the footer of a new page or post: no scroll-padding-bottom for the sticky bars (src/editor.css, src/editor-screens.css). Batch 5 of 0.19.3 fixes it."
+  },
+  {
+    "problem": "covered",
+    "selector": "div.mo-editor-post-meta > div > div.mo-date-picker__field > button.mo-icon-button.mo-icon-button__standard.mo-date-picker__field-button",
+    "places": ["#new/blog"],
+    "viewports": ["computer"],
+    "reason": "The sticky save bar covers the last fields and the footer of a new page or post: no scroll-padding-bottom for the sticky bars (src/editor.css, src/editor-screens.css). Batch 5 of 0.19.3 fixes it."
+  },
+  {
+    "problem": "covered",
+    "selector": "div.mo-editor-rhythm-300.mo-editor-screen-primary > section.mo-editor-fold-section > h2 > button.mo-type-title-large.mo-editor-fold-toggle",
+    "places": ["#new/pages"],
+    "viewports": ["phone", "computer"],
+    "reason": "The sticky save bar covers the last fields and the footer of a new page or post: no scroll-padding-bottom for the sticky bars (src/editor.css, src/editor-screens.css). Batch 5 of 0.19.3 fixes it."
+  },
+  {
+    "problem": "covered",
+    "selector": "div.mo-editor-updates-notice-body > div.mo-editor-updates-notice-text > div.mo-editor-updates-notice-actions > button.mo-button.mo-button__text.mo-button__small",
+    "places": ["#"],
+    "viewports": ["phone"],
+    "reason": "The photo credit tooltip covers its own Close button on the start screen (src/UpdatesNotice.tsx, src/editor-screens.css). Batch 5 of 0.19.3 (plan 2026-11-20-0-19-3-keyboard.md) fixes it."
+  },
+  {
+    "problem": "covered",
+    "selector": "footer.mo-editor-footer.mo-editor-footer-spacing > div.mo-editor-footer-row > nav.mo-editor-footer-links > a.mo-type-body-medium.mo-editor-footer-link",
+    "places": ["#new/blog"],
+    "viewports": ["phone"],
+    "reason": "The sticky save bar covers the last fields and the footer of a new page or post: no scroll-padding-bottom for the sticky bars (src/editor.css, src/editor-screens.css). Batch 5 of 0.19.3 fixes it."
+  },
+  {
+    "problem": "flow-lost-focus",
+    "selector": "A: after opening a page from the list",
+    "places": ["flow A"],
+    "viewports": ["phone", "computer"],
+    "reason": "Opening a page from a list drops focus to body (the list unmounts). Batch 3 of 0.19.3 puts focus on the title."
+  },
+  {
+    "problem": "flow-lost-focus",
+    "selector": "B: after Move down",
+    "places": ["flow B"],
+    "viewports": ["phone", "computer"],
+    "reason": "After Move down the block is re-rendered and focus drops to body. Batch 3 of 0.19.3 (focus after open and close) and batch 4 keep it on the moved block."
+  },
+  {
+    "problem": "flow-lost-focus",
+    "selector": "I: after Done",
+    "places": ["flow I"],
+    "viewports": ["computer"],
+    "reason": "Edit dashboard and Done unmount the button that was pressed (src/DashboardGrid.tsx), so focus drops to body. Batch 3 of 0.19.3 keeps it on the control that replaces them."
+  },
+  {
+    "problem": "flow-lost-focus",
+    "selector": "I: after Edit dashboard",
+    "places": ["flow I"],
+    "viewports": ["computer"],
+    "reason": "Edit dashboard and Done unmount the button that was pressed (src/DashboardGrid.tsx), so focus drops to body. Batch 3 of 0.19.3 keeps it on the control that replaces them."
+  },
+  {
+    "problem": "invisible",
+    "selector": "div.mo-card.mo-is-outlined.mo-editor-rhythm-250[role=group] > div > div.mo-editor-block-preview-frame > iframe.mo-editor-block-preview-iframe >> (inside)",
+    "places": ["#global/header"],
+    "viewports": ["phone", "computer"],
+    "reason": "The header and footer preview iframe (src/ui.tsx) puts the whole demo page in the Tab order, half of it outside the cut, and the frame itself is not shown focused. Batch 5 of 0.19.3 takes it out of the Tab order."
+  },
+  {
+    "problem": "invisible",
+    "selector": "div.mo-card.mo-is-outlined.mo-editor-rhythm-250[role=group] > div > div.mo-editor-block-preview-frame > iframe.mo-editor-block-preview-iframe >> (inside)",
+    "places": ["#global/footer"],
+    "viewports": ["phone", "computer"],
+    "reason": "The header and footer preview iframe (src/ui.tsx) puts the whole demo page in the Tab order, half of it outside the cut, and the frame itself is not shown focused. Batch 5 of 0.19.3 takes it out of the Tab order."
+  },
+  {
+    "problem": "unreachable",
+    "selector": "B: Remove",
+    "places": ["flow B"],
+    "viewports": ["phone", "computer"],
+    "reason": "Remove is only in the bar's block group, which shows while a card is selected, and the bar is before the text: Shift+Tab to it passes through the text, which clears the selection. Batch 4 of 0.19.3 (card selected by keyboard, Delete removes it)."
+  },
+  {
+    "problem": "unreachable",
+    "selector": "C: the text bar (Alt+F10)",
+    "places": ["flow C"],
+    "viewports": ["computer"],
+    "reason": "The text bar's tools unmount when the text loses focus (src/MarkdownEditor.tsx setInText), so Tab can never reach them and Alt+F10 does nothing. Batch 4 of 0.19.3 adds Alt+F10 and the toolbar pattern."
+  },
+  {
+    "problem": "unreachable",
+    "selector": "F: a widget's Actions menu takes focus when it opens",
+    "places": ["flow F"],
+    "viewports": ["phone", "computer"],
+    "reason": "The editor's Menu (src/ui.tsx) keeps focus on its button when it opens, makes every item a Tab stop and ignores the arrow keys, unless it is attached. Batch 2 of 0.19.3 gives it the theme menu's keyboard behaviour."
+  },
+  {
+    "problem": "unreachable",
+    "selector": "F: the page More menu takes focus when it opens",
+    "places": ["flow F"],
+    "viewports": ["phone", "computer"],
+    "reason": "The editor's Menu (src/ui.tsx) keeps focus on its button when it opens, makes every item a Tab stop and ignores the arrow keys, unless it is attached. Batch 2 of 0.19.3 gives it the theme menu's keyboard behaviour."
+  },
+  {
+    "problem": "unreachable",
+    "selector": "I: Move down",
+    "places": ["flow I"],
+    "viewports": ["computer"],
+    "reason": "The widget's Actions menu is the editor's Menu: it takes no focus and has no arrow keys. Batch 2 of 0.19.3."
+  }
+]
