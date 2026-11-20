@@ -20,16 +20,27 @@ export const useTexts = () => useContext(Texts)!;
 // The phone, e-mail and address, as saved under "Business".
 export const contactOf = (data: BlockData): Contact => data.site.contact;
 
+// A text without its HTML tags. It strips until nothing changes, so "<scr<b>ipt>" never leaves a tag behind.
+const withoutTags = (text: string) => {
+  let out = text;
+  for (let before = ''; before !== out;) {
+    before = out;
+    out = out.replace(/<[^>]+>/g, '');
+  }
+  return out;
+};
+
 // Markdown as plain paragraphs, for a text that is not edited here (a hidden section, About me).
 export const plainParagraphs = (markdown: string) =>
   markdown
     .split(/\n\s*\n/)
     .map((p) =>
-      p
-        .replace(/^#+\s*/, '')
-        .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
-        .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
-        .replace(/<[^>]+>/g, '')
+      withoutTags(
+        p
+          .replace(/^#+\s*/, '')
+          .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+          .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1'),
+      )
         .replace(/[*_`>]/g, '')
         .trim(),
     )
