@@ -1,6 +1,8 @@
 // The editor's frame (App.tsx, FormFrame.tsx, ask.tsx), logging in and saving to GitHub (github.ts, cache.ts), images (images.ts) and addresses (addresses.ts, checkSite.ts).
 export const app = {
   logIn: 'Log in with GitHub',
+  /** The link first in the Tab order, shown with the focus: it jumps over the navigation to the screen's content. */
+  skipToContent: 'Skip to content',
   loading: 'Loading the website’s content…',
   cannotSave: (login: string) => `The account ${login} doesn’t have access to save. Log in with another GitHub account under Account.`,
   notFound: 'Not found',
