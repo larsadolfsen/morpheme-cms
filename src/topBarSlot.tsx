@@ -22,11 +22,16 @@ export function TopBarLayout({ above, aside, children }: { above?: ReactNode; as
         href="#main-content"
         className="mo-skip-link"
         onClick={(e) => {
-          // The address after # is the editor's route, so the link must not change it: focus the visible main instead.
+          // The address after # is the editor's route, so the link must not change it: focus the visible screen instead. <main> is focusable
+          // only until the focus leaves it (Modern Web Guidance, accessibility, Skip links): a <main> that stayed focusable would send the
+          // next Tab to its start after a click inside it.
           e.preventDefault();
           const main = [...document.querySelectorAll<HTMLElement>('main#main-content')].find((m) => m.offsetParent !== null);
-          main?.focus();
-          main?.scrollIntoView({ block: 'start' });
+          if (!main) return;
+          main.setAttribute('tabindex', '-1');
+          main.addEventListener('blur', () => main.removeAttribute('tabindex'), { once: true });
+          main.focus();
+          main.scrollIntoView({ block: 'start' });
         }}
       >
         {t.app.skipToContent}

@@ -265,7 +265,7 @@ export default function Screen<T extends string>({
     return (
       <div data-full-page className="mo-editor-screen-full-page">
         {slot ? createPortal(bar, slot) : bar}
-        <main id="main-content" tabIndex={-1} className="mo-editor-screen-full mo-editor-screen-full-main">
+        <main id="main-content" className="mo-editor-screen-full mo-editor-screen-full-main">
           {children}
         </main>
       </div>
@@ -275,7 +275,7 @@ export default function Screen<T extends string>({
       {slot ? createPortal(bar, slot) : bar}
       {/* A row, so the column keeps its margins (editor.css .mo-editor-column) and is as high as the rest of the window. */}
       <div className="mo-editor-screen-row">
-        <main id="main-content" tabIndex={-1} data-clearance={fabs.count > 0} className={`mo-editor-screen mo-editor-screen-main ${width}`}>
+        <main id="main-content" data-clearance={fabs.count > 0} className={`mo-editor-screen mo-editor-screen-main ${width}`}>
           {/* At expanded and wider: the way here, the title and the status, under the bar. */}
           {searchBar && (
             // M3 specs, Measurements: the unfocused search bar is 24dp from the screen's edges (the page has 16dp).
