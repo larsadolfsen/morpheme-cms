@@ -13,7 +13,14 @@ export default defineShared({
     { name: 'close', label: t.blocks.imageGrid.close, type: 'string', required: true, max: 30 },
     { name: 'previous', label: t.blocks.imageGrid.previous, type: 'string', required: true, max: 40 },
     { name: 'next', label: t.blocks.imageGrid.next, type: 'string', required: true, max: 40 },
-    { name: 'image', label: t.blocks.imageGrid.image, type: 'string', required: true, max: 40, hint: t.blocks.imageGrid.imageHint },
+    {
+      name: 'linkName',
+      label: t.blocks.imageGrid.linkName,
+      type: 'string',
+      required: true,
+      max: 40,
+      hint: t.blocks.imageGrid.linkNameHint,
+    },
     {
       name: 'position',
       label: t.blocks.imageGrid.position,
@@ -33,6 +40,6 @@ export default defineShared({
     previous: siteT.blocks.imageGrid.previousText,
     next: siteT.blocks.imageGrid.nextText,
     position: siteT.blocks.imageGrid.positionText,
-    image: siteT.blocks.imageGrid.imageText,
+    linkName: siteT.blocks.imageGrid.linkNameText,
   },
 });
