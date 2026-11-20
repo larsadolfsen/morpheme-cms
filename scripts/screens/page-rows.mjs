@@ -1269,7 +1269,7 @@ async function checkChangeTo(width, height) {
   await page.close();
 }
 
-/** In the page: the inner padding of the first row of each block that shows rows with a title and a trailing chevron (the List, Accordion, Questions and answers and Link
+/** In the page: the inner padding of the first row of each block that shows rows with a title and a trailing chevron (the List, List - Expand, Questions and answers and Link
  * collection), by the heading above it: the title's distance from the row's left edge and the chevron's from its right edge. Runs in the page. */
 const rowPadding = () => {
   const out = {};
@@ -1353,7 +1353,7 @@ async function checkPageLeftEdge(width) {
     for (const o of built.out) problems.push(`${label}: on the site ${o} is not on the text's left edge ${built.text}`);
   }
   // The editor.
-  // The system's test page (every block, the Accordion and the Link collection too) is in memory before the editor loads the site's files, not in the site's folder.
+  // The system's test page (every block) is in memory before the editor loads the site's files, not in the site's folder.
   virtualFile(CORE_PAGE_FILE, coreBlocksPage());
   await openEditor(page, site);
   await page.evaluate((file) => (location.hash = `#${file}`), CORE_PAGE_FILE);
@@ -1386,11 +1386,9 @@ async function checkPageLeftEdge(width) {
       problems.push(
         `${label}: on the site the rows of "${head}" have ${pad.left} px of padding on the left and ${pad.right} px on the right`,
       );
-  if (!['accordion', 'links'].every((h) => h in editorPads))
-    problems.push(`${label}: the Accordion and the Link collection have no row to measure (${Object.keys(editorPads)})`);
-  const lefts = ['accordion', 'list - expand as a faq'].map((h) => editorPads[h]?.left);
-  if (!near(lefts[0], lefts[1], 1))
-    problems.push(`${label}: the Accordion's titles are ${lefts[0]} px in, Questions and answers' ${lefts[1]} px`);
+  // The rows of a List and of a List - Expand (the FAQ) are both measured above; without one of them the check would pass on nothing.
+  if (!['plain design', 'list - expand as a faq'].every((h) => h in editorPads))
+    problems.push(`${label}: a List and a List - Expand have no row to measure (${Object.keys(editorPads)})`);
   for (const cursor of [false, true]) {
     if (cursor) await page.locator('.ProseMirror p').first().click();
     const got = await page.evaluate(() => {
