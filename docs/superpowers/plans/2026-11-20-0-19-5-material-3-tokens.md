@@ -1,6 +1,8 @@
 # 0.19.5 Material 3 tokens (plan)
 
-Status: **20 November 2026.** The owner put this release before the UI fixes, which became 0.19.6 (owner: "Agree"). Roadmap:
+Status: **20 November 2026.** The owner put this release before the UI fixes, which became 0.19.6 (owner: "Agree"), and then set the
+goal: "I want us to match md both in appearance and in naming". 0.19.5 makes the appearance match; the names follow in a contract raise
+(*Names*, below). Roadmap:
 `plans/2026-11-14-roadmap-0-18-to-0-24.md`, item 0.19.5.
 
 ## What 0.19.5 is
@@ -12,8 +14,21 @@ One feature, `feature/0.19.5-m3-tokens`, cut from `main` by PM 0.19.5 once 0.19.
 - `specs/2026-11-20-elevation-design.md`: the surface and elevated kinds, the classes, the check on hand-written shadows, the current parts;
 - `specs/2026-11-20-section-colours-design.md`: the two colours of a coloured section and `check:color-roles`.
 
+**Match, not deviate.** Every value the site and the theme's parts show is M3's (the Expressive one where a set has both). No new
+deviation is added to keep one of ours. Two owner rules still stand: the editor's own workspace (its bar, overflow menu, text and block
+menus) is outside Material 3 (13 Nov 2026), and where M3 and WCAG 2.2 AA differ, WCAG wins (19 Nov 2026).
+
 Not in 0.19.5: behaviour, layout, motion and word choice (the open PRs of the M3 audit stay in 0.26.0; M3's motion tokens are empty in its
-data), and renaming the CMS's tokens to M3's names (a contract change, for 0.22's steps table).
+data), and the names (below).
+
+## Names
+
+The CMS's names become M3's: every token is `--mo-` plus M3's own token name (`md.comp.search-bar.container.color` →
+`--mo-comp-search-bar-container-color`), every part and size has M3's name (our *medium* button is M3 Expressive's *small*), and a value
+M3 has no token for gets a name in M3's pattern, listed as ours. Renaming breaks themes and apps that use the old names, so it raises
+`THEME_API` and `APP_API` with a rename map and `morpheme migrate` rewriting a site's themes and apps (as contract 6 did with
+`scripts/renamed-tokens.json`). A contract raise starts a new line (`plans/2026-11-18-release-per-feature.md`), so the names are a release of
+their own after 0.19 (roadmap). `check:m3-tokens --report` (below) lists every name that will change.
 
 ## The token copy
 
@@ -35,9 +50,8 @@ its reference (`md.sys.color.secondary-container`) and its value in light and da
   role or step (`var(--mo-sys-color-secondary-container)`), and a measure must be the same size (dp ÷ 16 = rem). The section swap and other
   scoped rules are not compared (`check:color-roles` covers them).
 - **What fails:** a difference not on the allowlist, and an allowlist entry that no longer differs, so the list only shrinks.
-- **The allowlist** (`scripts/m3-tokens.allow.mjs`): each entry names the token and a reason, which is a numbered entry of
-  `docs/material-deviations.md` (for example 9, the 44 dp rows of the bar and its menus) or "to fix in batch N". At release only the
-  deviations are left.
+- **The allowlist** (`scripts/m3-tokens.allow.mjs`): each entry names the token and a reason: "to fix in batch N", the editor's workspace,
+  or a WCAG criterion. At release only the last two are left.
 - **A report** (`--report`, never failing) lists M3 tokens a part has no `--mo-` name for, as input for 0.22's steps table.
 
 ### The first pass
@@ -51,9 +65,10 @@ rough pass did not resolve references or pick the Expressive group, and it read 
   on-colour; outlined buttons and icon buttons on `outline` where M3 has `outline-variant`, with `primary` text where M3 has
   `on-surface-variant`; the menu on `elevation-level1-color` where M3 has `surface-container`; the selected menu item on tertiary where M3
   has secondary; slider stop indicators and label, the switch's selected icon, the rich tooltip's subhead.
-- **Sizes:** the switch's unselected icon 24 dp (M3 16) and the circular progress indicator's thickness. Others need sorting against
-  M3's Expressive sets before they count: the navigation bar 64 dp and the rail 96 dp match the Expressive flexible bar and the collapsed
-  rail, where the baseline sets say 80 dp; button sizes and icon-label gaps (our *medium* button is 40 dp, M3 Expressive's *small*).
+- **Sizes:** the switch's unselected icon 24 dp (M3 16) and the circular progress indicator's thickness. Others are measured against
+  M3's Expressive sets in batch 1: the navigation bar 64 dp and the rail 96 dp match the Expressive flexible bar and the collapsed rail,
+  where the baseline sets say 80 dp; button sizes and icon-label gaps (our *medium* button is 40 dp, M3 Expressive's *small*: the size
+  matches, the name follows in *Names*).
 - **Shapes:** the menu (large, M3 extra-small or the Expressive menu's value), the docked search view (medium, M3 extra-large), the docked
   side sheet (large, M3 none), the slider's active track (small, M3 full), list items.
 - **Type:** tracking values, and display and headline sizes on the plain typeface where M3 names the brand one.
@@ -70,16 +85,18 @@ Batch 1 makes the comparison exact and turns this into the real baseline.
 4. **The current parts' elevation** (elevation spec, batch 3), with its test against the copy.
 5. **Colour roles of parts.** Every "to fix" colour entry fixed to M3's role. `check:contrast` and `check:screens` on every section colour,
    light and dark.
-6. **Sizes, shapes and type.** Every "to fix" size, shape and type entry fixed. Where the owner wants to keep our value, the entry becomes a
-   deviation with the owner's words, never a silent allowlist entry.
+6. **Sizes, shapes and type.** Every "to fix" size, shape and type entry fixed to M3's value.
 7. **The rest of the colour allowlist** (section colours spec, batch 3).
+8. **The recorded deviations.** Every entry of `docs/material-deviations.md` outside the editor's workspace is sorted: it matches M3
+   Expressive after all (the entry goes, as with the 16 dp menu corner and the 56 dp hero buttons), WCAG requires it (it stays, naming the
+   criterion), or it is made to match M3 and the entry goes (for example G1, the 16 and 24 px gap between cards where M3 prints 8 dp max).
 
-Batch 1 goes first; 2 and 3 can run side by side; 4 follows 2; 5 follows 3 (both change colours of parts); 6 can run beside 4 and 5; 7 goes
-last. Every batch removes the allowlist entries it fixes, keeps `check:screens`, `check:themes`, `check:contrast` and `check:a11y` green, and
+Batch 1 goes first; 2 and 3 can run side by side; 4 follows 2; 5 follows 3 (both change colours of parts); 6 and 8 can run beside 4 and
+5; 7 goes last. Every batch removes the allowlist entries it fixes, keeps `check:screens`, `check:themes`, `check:contrast` and `check:a11y` green, and
 Venus is checked on the demo. Parts change their look (tonal buttons, the navigation indicators, the bars losing their shadow), so batches 4
-to 6 each add a release note line (skill `release-notes`).
+to 6 and 8 each add a release note line (skill `release-notes`).
 
 ## Done when
 
-`check:m3-tokens` runs in CI, its allowlist holds only recorded deviations, the elevation and section colours specs are done, the owner has
+`check:m3-tokens` runs in CI, its allowlist holds only the editor's workspace and WCAG entries, no deviation outside them is left, the elevation and section colours specs are done, the owner has
 reviewed the feature on the demo in light and dark, and 0.19.5 has run on staging before the owner releases it.
