@@ -238,6 +238,19 @@ export default function FormFrame<T extends string>({
   const hidden = useContext(ScreenHidden);
   const publishing = useBuildState() === 'updating' && !!lastPublishLabel.current && !dirty;
   useUnsavedGuard(dirty, () => save.current());
+  // The Save button goes with the save bar once the form is saved, and takes the focus with it: the focus goes back to the page's text (or, without one, the screen's title).
+  const wasSaving = useRef(false);
+  useEffect(() => {
+    const done = wasSaving.current && !saving;
+    wasSaving.current = !!saving;
+    if (!done) return;
+    requestAnimationFrame(() => {
+      const at = document.activeElement;
+      if (at && at !== document.body) return;
+      const back = document.querySelector<HTMLElement>('[role=textbox][aria-label="Text"]') ?? document.querySelector<HTMLElement>('h1[tabindex="-1"]');
+      back?.focus({ preventScroll: true });
+    });
+  }, [saving]);
 
   return (
     <Screen

@@ -439,7 +439,24 @@ const moves = (view: EditorView, i: number | null, locked: string[] = []): CardI
   if (i === null) return [];
   const step = (by: -1 | 1) => (keyboard: boolean) => {
     const at = move(view, i, by);
-    if (at !== null) reopen(view, at);
+    if (at === null) return;
+    reopen(view, at);
+    // The row's button is drawn again and gone, so the focus goes to the block that moved (its card), where Move up and Move down can be pressed again.
+    if (keyboard) {
+      // The text draws the moved block again a moment later, so the focus is put on its card as soon as the card is there.
+      let tries = 0;
+      const put = () => {
+        const part = partDOM(view, at);
+        // A block with a button for a card takes it; a block typed in place (its card is a div) its first field.
+        const card =
+          part?.querySelector<HTMLElement>('.mo-site-block-card-button') ??
+          part?.querySelector<HTMLElement>('button.mo-site-block-card') ??
+          part?.querySelector<HTMLElement>('.mo-site-block-inline :is(textarea, input, [contenteditable=true], [role=textbox])');
+        if (card) card.focus();
+        if ((!card || document.activeElement !== card) && ++tries < 20) requestAnimationFrame(put);
+      };
+      put();
+    }
   };
   // Why it cannot move that way, or undefined: shown disabled in the block's action row, not left out (the buttons keep their places).
   const why = (by: -1 | 1) => {
