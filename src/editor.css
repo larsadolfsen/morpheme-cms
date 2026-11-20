@@ -2101,3 +2101,17 @@ dialog {
 :root[data-zoomed] .mo-editor-tools-bar {
   inset-block-start: calc(env(safe-area-inset-top) + var(--mo-comp-editor-visual-top, 0px));
 }
+
+/* The screen's <main> takes the focus from the skip link (topBarSlot.tsx) so the next Tab starts in the content; it is no control, so it
+   draws no ring of its own (WCAG 2.4.7 asks for one on what the keyboard operates). */
+main[tabindex='-1']:focus {
+  outline: none;
+}
+
+/* The skip link (topBarSlot.tsx, the theme's .mo-skip-link): the editor's unlayered link styles would drop its pill, so it is set again here,
+   above the navigation and the bars (z-index of the drawer and the top bar are below 50). */
+.mo-skip-link:focus {
+  background-color: var(--mo-sys-color-primary);
+  color: var(--mo-sys-color-on-primary);
+  z-index: 50;
+}
