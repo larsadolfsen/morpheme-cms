@@ -86,6 +86,8 @@ export default function ImageGrid({ view }: { view: ImageGridView }) {
               {view.open ? (
                 <Card
                   href={image.src}
+                  // An image without a text leaves its link without a name: the caption, else the text for "image" (WCAG 2.4.4, 4.1.2).
+                  aria-label={image.alt ? undefined : image.caption || view.texts.linkName}
                   kind={view.card}
                   media={<Picture image={image} index={i} sizes={sizes} />}
                   {...linesOf(image, view)}

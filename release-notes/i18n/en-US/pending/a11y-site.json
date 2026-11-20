@@ -1,0 +1,6 @@
+{
+  "id": "a11y-site",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Check list boxes and Image grid links get names for screen readers, and keys in text are readable in dark mode"
+}

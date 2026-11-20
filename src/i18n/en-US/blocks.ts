@@ -431,6 +431,8 @@ export const blocks = {
     next: 'Next button label',
     position: 'Position text',
     positionHint: 'Say {index} and {total} where the numbers go.',
+    linkName: 'Name of an image link without a description',
+    linkNameHint: 'Screen readers read it as the name of an image link that has no caption and no description.',
     clearText: 'Clear tags',
     emptyText: 'No images have all these tags.',
     filterText: 'Filter by tag',
@@ -440,6 +442,7 @@ export const blocks = {
     previousText: 'Previous image',
     nextText: 'Next image',
     positionText: '{index} of {total}',
+    linkNameText: 'Image',
   },
   cards: {
     label: 'Cards',

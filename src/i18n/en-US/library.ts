@@ -285,6 +285,8 @@ export const library = {
   showSubpages: 'Show subpages',
   hideSubpages: 'Hide subpages',
   showSubpagesOf: (title: string) => `Show subpages of ${title}`,
+  /** The name of the button that folds a row's subpages in or out: the number it shows, then what it does (`label`). */
+  unfoldName: (count: number, label: string) => `${count}: ${label}`,
   hideSubpagesOf: (title: string) => `Hide subpages of ${title}`,
   /** The name of the main navigation drawer (the site's parts in four sections). */
   navigation: 'Navigation',

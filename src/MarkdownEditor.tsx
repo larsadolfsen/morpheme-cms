@@ -1540,6 +1540,9 @@ function undoSnackbar(text: string, undo: () => void) {
 // from Insert, the row that was active for a block made by Change type (and for the block it was, should Undo bring it back).
 const fresh = new WeakMap<object, number>();
 
+// Numbers the cards' own ids (a card's preview and name are what its accessible name is made of).
+let cardIds = 0;
+
 // A block in the text as a card: the block as it looks on the site (its draw, src/apps/<app>/blocks/), in a thin frame;
 // for screen readers its name and what is in it (describe in blocks.ts). Tapping it opens a row of
 // icons on it to edit, hide or show, move and remove it. cards: how to draw the previews of the
@@ -1571,7 +1574,10 @@ function blockCard(
   else card.setAttribute('role', 'group');
   card.className = inline ? 'mo-site-block-card mo-site-block-inline' : 'mo-site-block-card';
   const name = block?.nameOf?.(node.attrs.props) ?? block?.label ?? node.attrs.type;
-  card.setAttribute('aria-label', name);
+  // A block typed in place is a group named by the block. The card of any other block is a button that shows the block's text, so its name
+  // starts with that text and then says which block it is (WCAG 2.5.3, axe `label-content-name-mismatch`): `aria-labelledby` follows the
+  // preview as it is drawn again, without a copy of its text.
+  if (inline) card.setAttribute('aria-label', name);
   // An eye struck through in the corner of a hidden block (for screen readers it says so in the description). A block typed in place stays the same
   // node view when it is hidden or shown, so its action row (blockRow.ts) stays open and says Show or Hide.
   const paintHidden = () => {
@@ -1592,6 +1598,14 @@ function blockCard(
   if (!inline) {
     shown.setAttribute('aria-hidden', 'true');
     shown.inert = true;
+    const id = `mo-block-card-${++cardIds}`;
+    shown.id = `${id}-preview`;
+    const named = card.appendChild(document.createElement('span'));
+    named.id = `${id}-name`;
+    named.className = 'mo-site-block-name';
+    named.hidden = true;
+    named.textContent = name;
+    card.setAttribute('aria-labelledby', `${shown.id} ${named.id}`);
   }
   const root = createRoot(shown);
   // Typed in place: which row is active (null: none, the block shows its live look), and the field to put the cursor in.

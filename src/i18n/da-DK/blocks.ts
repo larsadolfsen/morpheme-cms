@@ -393,6 +393,8 @@ export const blocks: Messages['blocks'] = {
     next: 'Etiket på knappen Næste',
     position: 'Tekst til placering',
     positionHint: 'Skriv {index} og {total} der, hvor tallene skal stå.',
+    linkName: 'Navn på et billedlink uden beskrivelse',
+    linkNameHint: 'Skærmlæsere læser det som navnet på et billedlink, der hverken har billedtekst eller beskrivelse.',
     clearText: 'Ryd tags',
     emptyText: 'Ingen billeder har alle disse tags.',
     filterText: 'Filtrer efter tag',
@@ -402,6 +404,7 @@ export const blocks: Messages['blocks'] = {
     previousText: 'Forrige billede',
     nextText: 'Næste billede',
     positionText: '{index} af {total}',
+    linkNameText: 'Billede',
   },
   cards: {
     label: 'Kort',
