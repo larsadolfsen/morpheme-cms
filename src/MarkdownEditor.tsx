@@ -1588,7 +1588,11 @@ function blockCard(
     ? 'mo-site-block-preview mo-site-block-section mo-is-not-prose'
     : 'mo-site-block-preview mo-is-not-prose';
   // What is typed in place is for screen readers too; the image of any other block is not.
-  if (!inline) shown.setAttribute('aria-hidden', 'true');
+  // `inert` as well, so nothing inside it takes focus (WCAG 4.1.2, axe `aria-hidden-focus`).
+  if (!inline) {
+    shown.setAttribute('aria-hidden', 'true');
+    shown.inert = true;
+  }
   const root = createRoot(shown);
   // Typed in place: which row is active (null: none, the block shows its live look), and the field to put the cursor in.
   let active: number | null = null;
@@ -2507,7 +2511,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           },
         }),
     );
+    // The text area has a name for screen readers (WCAG 4.1.2, axe `aria-input-field-name`).
+    const naming = $prose(() => new Plugin({ props: { attributes: { 'aria-label': t.text.textField } } }));
     let made = makeEditor(root.current, value)
+      .use(naming)
       .use(cardView)
       .use(imageView)
       .use(cardDeletes)

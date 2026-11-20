@@ -4,18 +4,10 @@
 // `InlineField` where a text stands and `InlineSlot` where an icon, image or link is picked. `InlineAdd` is the text button under the last
 // item. What is changed is told to `onChange`; the node view in MarkdownEditor.tsx (blockCard) keeps it as the block's props. Which item is
 // empty, and the items added, moved or dropped: src/inlineRows.mjs.
-import {
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  type ClipboardEvent,
-  type FocusEvent,
-  type KeyboardEvent,
-  type MouseEvent,
-  type ReactNode,
-} from 'react';
+import { useEffect, useLayoutEffect, useRef, type ClipboardEvent, type FocusEvent, type KeyboardEvent, type ReactNode } from 'react';
 import { Plus } from '@phosphor-icons/react';
 import { Glyph } from './icon';
+import { t } from './i18n';
 import { SlotButton } from './ui';
 import { SiteButton } from './themeUi';
 import { addAt, isEmptyRow, itemsFromPaste, removeAt, setField } from './inlineRows.mjs';
@@ -124,29 +116,17 @@ export function InlineIcon({
 }
 
 /** The folding of a row of a block that folds (Questions and answers, List - Expand), for the props of its theme row: the row is open while it is
- * the active one unless the owner folded it with the chevron (`folds`, a view state). A tap on the chevron, 48 dp wide and as high as the row's
- * head, or Enter or Space on the focused head, opens or closes it; a tap on the typed title types (and opens a row the chevron closed); a tap on
- * the head elsewhere keeps its meaning (nothing is folded). */
+ * the active one unless the owner folded it with the chevron (`folds`, a view state). The chevron is a button of its own beside the typed title (a
+ * field may not sit inside the row's summary): a tap or Enter or Space on it opens or closes the row; a tap on the typed title types (and opens a
+ * row the chevron closed). */
 export function foldOf(i: number, here: boolean, folds?: Record<number, boolean>, onFold?: (row: number, open: boolean | null) => void) {
   const open = folds?.[i] ?? here;
   return {
     open,
-    summary: {
-      'aria-expanded': open,
-      onClick: (e: MouseEvent<HTMLElement>) => {
-        // The row is drawn open or closed by its state, never by the browser's own toggle.
-        e.preventDefault();
-        if (!onFold) return;
-        const icon = e.currentTarget.querySelector('.mo-list__item-expand-icon')?.getBoundingClientRect();
-        const chevron = !!icon && e.clientX >= icon.left - 4 && e.clientX <= icon.right + 4 && e.detail > 0;
-        // Enter or Space on the head itself gives a click with no pointer (detail 0) whose target is the head.
-        const key = e.detail === 0 && e.target === e.currentTarget;
-        if (chevron || key) onFold(i, !open);
-      },
-      // A field of the row is focused (a tap on its title): a row the chevron closed opens again.
-      onFocus: (e: FocusEvent<HTMLElement>) => {
-        if (e.target !== e.currentTarget && folds?.[i] === false) onFold?.(i, null);
-      },
+    toggle: { label: t.blocks.list.foldRow, onToggle: () => onFold?.(i, !open) },
+    // A field of the row is focused (a tap on its title): a row the chevron closed opens again.
+    onFocus: (e: FocusEvent<HTMLElement>) => {
+      if ((e.target as HTMLElement).tagName === 'TEXTAREA' && folds?.[i] === false) onFold?.(i, null);
     },
   };
 }
