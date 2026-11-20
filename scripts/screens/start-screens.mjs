@@ -22,6 +22,8 @@ import {
   site,
 } from './support/context.mjs';
 import { allowedKeys, collect, compare, keysOf, problemsOf, readAllowlist, scan, scanRuns } from '../a11y.mjs';
+import { judge, keyboardRuns, viewportOf, walk } from '../keyboard.mjs';
+import { PHONE_FLOWS, FLOWS, runFlow } from '../keyboard-flows.mjs';
 
 /** Keyboard focus is visible (Modern Web Guidance, `accessibility`: "Don't disable browser native focus indicators without providing a
  * replacement ... at least 3:1", WCAG 2.4.7 and 1.4.11; the 13 `outline: none` of the theme and the editor, A1 of the audit of 15 Nov 2026).
@@ -749,6 +751,29 @@ async function checkA11y(page, width, hash) {
   problems.push(...problemsOf(compare(found, allowed)).map((line) => `${width}px ${line}`));
 }
 
+/** The keyboard walk of one screen (WCAG 2.2 AA: trap, covered, invisible and lost focus, no indicator; scripts/keyboard.mjs): what it finds must be on
+ * scripts/keyboard-allowlist.json and every entry of the list for this screen at this width must still match, so the list only shrinks. Tab only, so
+ * it runs after the screen's other checks; the screen is left without focus. */
+async function checkKeyboard(page, width, hash) {
+  // Only in the CMS repository: the allowlist is the demo's (scripts/keyboard.mjs, keyboardRuns).
+  if (!keyboardRuns()) return;
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(300);
+  const { findings } = await walk(page);
+  problems.push(...judge(findings, `#${hash}`, viewportOf(width)).map((line) => `${width}px ${line}`));
+}
+
+/** The main flows by keyboard (scripts/keyboard-flows.mjs): A to I at the computer, A, B and F also at the phone (375 px). */
+async function checkKeyboardFlows(width) {
+  if (!keyboardRuns()) return;
+  for (const flow of FLOWS) {
+    if (width < 600 && !PHONE_FLOWS.includes(flow)) continue;
+    const { findings, errors } = await runFlow(browser, site, flow, width);
+    problems.push(...errors.map((e) => `${width}px ${e}`));
+    problems.push(...judge(findings, `flow ${flow}`, viewportOf(width)).map((line) => `${width}px ${line}`));
+  }
+}
+
 export function register(unit) {
   for (const [width, height] of [
     [390, 844],
@@ -821,6 +846,7 @@ export function register(unit) {
           for (const name of new Set(state.missing)) problems.push(`${width}px #${hash}: ${missingIcon(name)}`);
           if (state.empty) problems.push(`${width}px #${hash}: the screen is empty`);
           await checkA11y(page, width, hash);
+          await checkKeyboard(page, width, hash);
           if (state.text.includes(`${daApp.nothingAt(hash)}.`)) problems.push(`${width}px #${hash}: there is nothing at the address`);
           for (const link of state.links) {
             if (seen.has(link)) continue;
@@ -870,6 +896,7 @@ export function register(unit) {
   ])
     unit(`checkBlockedNotice ${width}`, () => checkBlockedNotice(width, height));
 
+  for (const width of [1280, 375]) unit(`checkKeyboardFlows ${width}`, () => checkKeyboardFlows(width));
   unit('checkStartSubtitle', () => checkStartSubtitle());
   for (const width of [375, 1280])
     for (const hash of ['', 'developer/parts/ui', 'developer/parts/editor', 'settings'])
