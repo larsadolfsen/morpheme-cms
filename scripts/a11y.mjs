@@ -6,13 +6,33 @@
 // node's selector and `phone` or `computer`. An allowlist entry is `{ rule, selector, places, viewports, reason }` and stands for one key
 // per place and viewport. The scan fails on a finding no entry holds and on an entry that no longer matches a finding, so the list only
 // shrinks. Depends on: axe-core (a pinned dev dependency).
+//
+// The scan is the CMS repository's own check: the allowlist is keyed to the demo's screens, and axe-core is a dev dependency, so a site that installed the
+// package (it ships `scripts/`, so a site's `morpheme check:screens` runs these units) has neither. `scanRuns` says whether the scan runs here.
 import { appendFileSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 
 /** The axe tags of WCAG 2.2 level AA (the levels A and AA of 2.0, 2.1 and 2.2). */
 export const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 /** The two widths the scan runs at, by the name an entry uses. */
 export const VIEWPORTS = { phone: 375, computer: 1280 };
+
+/** Whether the scan runs where `file` (this module's own path) is: not in a package a site installed (its path has a `node_modules` folder, and the allowlist is the
+ * demo's), and only when `axeFound` (axe-core resolves). @param {string} file @param {boolean} axeFound */
+export const runsHere = (file, axeFound) => axeFound && !file.split(/[\\/]/).includes('node_modules');
+
+const axeFound = () => {
+  try {
+    createRequire(import.meta.url).resolve('axe-core/axe.min.js');
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+/** Whether the scan runs here: in the CMS repository, with axe-core installed; on a site that installed the package it is skipped cleanly. */
+export const scanRuns = () => runsHere(fileURLToPath(import.meta.url), axeFound());
 
 /** The key's parts are told apart by a tab, which no selector holds. */
 const SEP = '\t';

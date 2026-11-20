@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { allowedKeys, compare, entriesOf, keysOf, problemsOf, readAllowlist, selectorOf } from './a11y.mjs';
+import { allowedKeys, compare, entriesOf, keysOf, problemsOf, readAllowlist, runsHere, scanRuns, selectorOf } from './a11y.mjs';
 
 const violation = (id, ...targets) => ({ id, nodes: targets.map((target) => ({ target: [target] })) });
 const entry = (rule, selector, places, viewports = ['phone', 'computer']) => ({ rule, selector, places, viewports, reason: 'because' });
@@ -83,4 +83,18 @@ test('Every entry of the allowlist has a rule, a selector, places, viewports and
         seen.add(key);
       }
   }
+});
+
+test('The scan runs in the CMS repository and is skipped on a site that installed the package', () => {
+  // In the repository (axe-core installed): it runs.
+  assert.equal(runsHere('/home/dev/morpheme-cms/scripts/a11y.mjs', true), true);
+  // In a package a site installed, even where axe-core could be resolved (the allowlist is the demo's): skipped, on every system's paths.
+  assert.equal(runsHere('/work/site/node_modules/@morphemecms/cms/scripts/a11y.mjs', true), false);
+  assert.equal(runsHere('C:\\work\\site\\node_modules\\@morphemecms\\cms\\scripts\\a11y.mjs', true), false);
+  // Without axe-core nothing can be scanned: skipped, not an error.
+  assert.equal(runsHere('/home/dev/morpheme-cms/scripts/a11y.mjs', false), false);
+  // A folder that only has the word in its name is not a node_modules folder.
+  assert.equal(runsHere('/home/dev/my_node_modules_notes/scripts/a11y.mjs', true), true);
+  // Here, in this repository, it runs (the allowlist file sits next to it, axe-core is a dev dependency).
+  assert.equal(scanRuns(), true);
 });
