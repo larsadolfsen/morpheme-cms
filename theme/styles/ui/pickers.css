@@ -466,8 +466,20 @@
       translateY(calc(var(--mo-comp-time-picker-dial-knob, 3rem) * 0.75 - var(--mo-comp-time-picker-ring)))
       rotate(calc(-1 * var(--mo-comp-time-picker-angle)));
   }
-  .mo-time-picker__dial-number:is([data-selected], [data-covered]) {
+  .mo-time-picker__dial-number[data-selected] {
     color: var(--mo-comp-time-picker-hand-text, var(--mo-sys-block-on-accent));
+  }
+  /* A number the hand's circle overlaps is two-tone: the hand's text colour inside the circle (centred where the hand ends, found from the two angles and the ring), the normal text colour outside. */
+  .mo-time-picker__dial-number[data-covered] {
+    color: transparent;
+    background: radial-gradient(
+      circle at
+        calc(50% + var(--mo-comp-time-picker-ring) * (sin(var(--mo-comp-time-picker-hand-angle)) - sin(var(--mo-comp-time-picker-angle))))
+        calc(50% - var(--mo-comp-time-picker-ring) * (cos(var(--mo-comp-time-picker-hand-angle)) - cos(var(--mo-comp-time-picker-angle)))),
+      var(--mo-comp-time-picker-hand-text, var(--mo-sys-block-on-accent)) calc(var(--mo-comp-time-picker-dial-knob, 3rem) / 2),
+      var(--mo-comp-time-picker-dial-text, var(--mo-sys-block-text)) 0
+    );
+    background-clip: text;
   }
   /* The hand: from the middle to the number, the circle round it, a dot in the middle. */
   .mo-time-picker__dial-hand {
