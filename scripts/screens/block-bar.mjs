@@ -33,9 +33,9 @@ async function checkCardBar(width, height = 800) {
   await page.locator('.ProseMirror .mo-site-block-card').first().click();
   await page.waitForTimeout(400);
   const selected = await page.evaluate(() => ({
-    pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"]').length,
+    pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"], .mo-site-block-card-button[aria-pressed="true"]').length,
     popup: document.querySelectorAll('.mo-site-block-menu').length,
-    haspopup: document.querySelectorAll('.mo-site-block-card[aria-haspopup]').length,
+    haspopup: document.querySelectorAll('.mo-site-block-card[aria-haspopup], .mo-site-block-card-button[aria-haspopup]').length,
     groups: [...document.querySelectorAll('.mo-editor-tools [role=group]')].map((g) => g.getAttribute('aria-label')),
   }));
   if (selected.pressed !== 1) problems.push(`${label}: a tap on the card did not select it (${selected.pressed} selected)`);
@@ -77,7 +77,8 @@ async function checkCardBar(width, height = 800) {
     const hello = [...document.querySelectorAll('.ProseMirror p')].find((p) => p.textContent.trim() === 'Hello')?.getBoundingClientRect();
     return {
       first: !!card && !!hello && card.top < hello.top,
-      pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"]').length,
+      pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"], .mo-site-block-card-button[aria-pressed="true"]')
+        .length,
       group: document.querySelector('.mo-editor-tools [role=group]')?.getAttribute('aria-label'),
     };
   });
@@ -88,7 +89,7 @@ async function checkCardBar(width, height = 800) {
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(500);
   const back = await page.evaluate(() => ({
-    pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"]').length,
+    pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"], .mo-site-block-card-button[aria-pressed="true"]').length,
     names: [...document.querySelectorAll('.mo-editor-tools button')]
       .filter((b) => !b.closest('.mo-editor-tools-ghost'))
       .map((b) => b.getAttribute('aria-label')),

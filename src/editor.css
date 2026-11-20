@@ -915,8 +915,33 @@ html {
 }
 
 .mo-editor-text .mo-site-block-card:hover,
-.mo-editor-text .mo-site-block-card[aria-pressed='true'] {
+.mo-editor-text .mo-site-block-card[aria-pressed='true'],
+.mo-editor-text .mo-site-block-card:has(> .mo-site-block-card-button[aria-pressed='true']) {
   border-color: var(--mo-sys-color-primary);
+}
+
+/* The button of a block that is not typed in place lies over its frame and its preview, which only draws the block (MarkdownEditor.tsx blockCard): it holds no
+   text, takes the taps, and shows nothing of its own; the frame draws the hover, the selection and the focus. The action row lies over it. */
+.mo-editor-text .mo-site-block-card-button {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.mo-editor-text .mo-site-block-card-button:focus-visible {
+  outline: none;
+}
+
+.mo-editor-text .mo-site-block-row:not(.mo-site-block-row-hover) {
+  position: relative;
+  z-index: 1;
 }
 
 .mo-editor-text .mo-site-block-handle {
@@ -1121,7 +1146,8 @@ html {
 
 /* A block in focus shows it with its own outline: a 2 px line in the focus colour, the primary role (a section on a colour swaps it to its
    on-colour). */
-.mo-editor-text .mo-site-block-card:focus-visible {
+.mo-editor-text .mo-site-block-card:focus-visible,
+.mo-editor-text .mo-site-block-card:has(> .mo-site-block-card-button:focus-visible) {
   outline: 2px dotted var(--mo-sys-color-primary);
   outline-offset: 2px;
 }
