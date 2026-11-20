@@ -1,6 +1,7 @@
 # Elevation (spec)
 
-Status: **20 November 2026.** Ships in **0.19.5 UI fixes** (owner: "add it to the 0.19 ui fixes"). The owner made both
+Status: **20 November 2026.** Ships in **0.19.5 Material 3 tokens** (owner: "add it to the 0.19 ui fixes"; the owner then put
+0.19.5 Material 3 tokens before the UI fixes, "Agree", and elevation rides in it: `plans/2026-11-20-0-19-5-material-3-tokens.md`). The owner made both
 decisions (*Decisions*, below).
 
 Owner, 20 November 2026: "write the spec now, but only elevation". This spec is the elevation part of *Component steps*
@@ -223,8 +224,8 @@ the other contexts, so the copy stays small.
    M3's level (M3: "Avoid changing the default elevation of Material components"); a theme can still change one part's level
    through its token. A site-wide *Shadows at rest* (`On`/`Off`) setting, which sets the `--mo-sys-elevation-levelN-rest-shadow` tokens, is saved in the
    roadmap's *Ideas without a version* for a customizer that has no version yet.
-2. **When.** Decided by the owner on 20 November 2026: "add it to the 0.19 ui fixes". It ships in **0.19.5**, the 0.19 line's fix
-   release, as two pull requests into that release's feature branch. It needs no contract change for the CMS's own code.
+2. **When.** Decided by the owner on 20 November 2026: "add it to the 0.19 ui fixes". It ships in **0.19.5 Material 3 tokens** (the
+   UI fixes moved to 0.19.6), as two pull requests into that release's feature branch. It needs no contract change for the CMS's own code.
 
 ## Batches (pull requests into the 0.19.5 feature branch)
 

@@ -1,6 +1,6 @@
 # Colours on a coloured section (spec)
 
-Status: **20 November 2026, for the owner.** Ships in **0.19.5 UI fixes**, next to the elevation spec
+Status: **20 November 2026, for the owner.** Ships in **0.19.5 Material 3 tokens** (`plans/2026-11-20-0-19-5-material-3-tokens.md`), next to the elevation spec
 (`specs/2026-11-20-elevation-design.md`). One decision for the owner is open under *Decisions*.
 
 Owner, 20 November 2026: only Material 3's predefined colour roles may be used (ruled in 0.19.2, where the card edge became `outline`
