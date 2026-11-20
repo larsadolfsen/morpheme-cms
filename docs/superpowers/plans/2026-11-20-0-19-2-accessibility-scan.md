@@ -1,6 +1,6 @@
 # 0.19.2 The accessibility scan and its fixes (plan)
 
-Status: **draft for the owner, 20 November 2026.** One decision is the owner's (*Zoom in the editor*, below); the rest follows the
+Status: **approved, 20 November 2026.** The owner decided on zoom in the editor (below); the rest follows the
 owner's rule of 19 November 2026 that the sites and the editor meet **WCAG 2.2 level AA** and that WCAG wins where Material 3 differs
 (`CLAUDE.md`, *Accessibility: WCAG 2.2 AA*). Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md`, item 0.19.2.
 
@@ -55,13 +55,13 @@ heading order) are not WCAG failures and are not in 0.19.2.
 
 Almost all of it comes from a few shared parts, so most fixes are made once.
 
-## Decision for the owner: zoom in the editor
+## Zoom in the editor (owner, 20 November 2026: "yes, turn zoom back on")
 
 The editor turns pinch and double-tap zoom off on purpose (`maximum-scale=1` and `touch-action` in `src/editor.css`), because zooming
 in Chrome on Android pushed the bar with *Save changes* below the screen. WCAG 2.2 AA (1.4.4 Resize Text) requires that a page can be
 zoomed, and the owner's rule is that WCAG wins.
 
-**Recommendation:** turn zoom back on, and keep the top bar and the text toolbar in view while zoomed by placing them against the
+**Decided:** zoom is turned back on. The batch keeps the top bar and the text toolbar in view while zoomed by placing them against the
 visual viewport (`window.visualViewport`) instead of the layout viewport. The PWA keeps `interactive-widget=resizes-content` and
 `viewport-fit=cover`. The batch that does it tests on a phone-sized Chromium with zoom, and the owner checks it on the Preview on a
 real Android phone before the feature merges. If that can't keep the bar in view, the session stops and reports; zoom is not turned
@@ -97,7 +97,7 @@ off again without the owner.
 6. **Theme UI parts.** Carousel scroller and bottom sheet content are focusable regions with a name; the menu divider gets its role
    only inside a menu; an empty search result list drops `listbox`; the time picker's selected number meets 4.5:1 (from the theme's
    on-colour role). Load the skill `material-3` and record any deviation.
-7. **Zoom**, after the owner's decision above.
+7. **Zoom**, as decided above: `maximum-scale=1` and the `touch-action` rules that block zoom go; the bars follow the visual viewport.
 
 Batches 2 to 6 touch different files and can run side by side; 1 goes first and 7 last. Every batch: the allowlist entries it fixes
 are removed, `check:screens` and `check:contrast` stay green, no new text without its Danish version (`check:language`), and a release
