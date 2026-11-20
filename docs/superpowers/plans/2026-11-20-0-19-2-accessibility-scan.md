@@ -8,8 +8,8 @@ owner's rule of 19 November 2026 that the sites and the editor meet **WCAG 2.2 l
 
 An automated WCAG 2.2 AA scan (axe-core) of every editor screen and every page of the demo, run in CI and failing on a violation
 that is not on its allowlist, released together with the fixes that make it pass. A check and the fixes that make it pass are one
-bite (`plans/2026-11-18-release-per-feature.md`, *A release is one bite*), so 0.19.2 is one feature, `feature/a11y-scan`, cut from
-`main` after 0.19.1 is released.
+bite (`plans/2026-11-18-release-per-feature.md`, *A release is one bite*), so 0.19.2 is one feature, `feature/0.19.2-a11y-scan` (cut from
+`main` by PM 0.19.2); it takes in `main` again once 0.19.1 is released.
 
 Not in 0.19.2: keyboard use and focus (0.19.3), what a screen reader says on the main flows (0.19.4), the small UI fixes (0.19.5).
 
@@ -80,7 +80,7 @@ off again without the owner.
   shrinks). At release it is empty, unless the owner has approved an entry.
 - `.claude/skills/checks/SKILL.md` says when to run it.
 
-## Batches (pull requests into `feature/a11y-scan`)
+## Batches (pull requests into `feature/0.19.2-a11y-scan`)
 
 1. **The version and the check.** Sets the version to 0.19.2 (`plans/2026-11-19-version-at-feature-start.md`), adds `check:a11y`, its
    CI steps and the allowlist holding exactly the baseline above. CI green. Each later batch removes its entries.
