@@ -1,7 +1,7 @@
 # Elevation (spec)
 
-Status: **20 November 2026.** Ships in **0.19.5 UI fixes** (owner: "add it to the 0.19 ui fixes"). One decision is still the
-owner's (*Decisions for the owner*, below).
+Status: **20 November 2026.** Ships in **0.19.5 UI fixes** (owner: "add it to the 0.19 ui fixes"). Both decisions are the
+owner's (*Decisions*, below).
 
 Owner, 20 November 2026: "write the spec now, but only elevation". This spec is the elevation part of *Component steps*
 (roadmap `plans/2026-11-14-roadmap-0-18-to-0-24.md`, 0.22). It covers elevation only: the colour roles, the type scale, shape, motion,
@@ -119,14 +119,12 @@ for a contract raise and is noted for the steps table.
 - **Tailwind's empty shadow lists** go, leaving just the token.
 - **Deviation 12** in `docs/material-deviations.md` is closed with the tokens page's sentence and the date.
 
-## Decisions for the owner
+## Decisions
 
-1. **Component levels in the customizer (0.22.2).** The roadmap lets a site owner set each component's level ("Top app bar: level
-   2"). M3 says "Avoid changing the default elevation of Material components". A theme can already change one part's level through
-   its token.
-
-   **Recommendation:** leave elevation out of 0.22.2's component levels. Give the customizer one M3 setting instead, *Shadows at
-   rest* (`On`/`Off`), which sets the `-rest-shadow` tokens. M3 supports that choice ("use shadows only when required").
+1. **Component levels in the customizer (0.22.2).** Decided by the owner on 20 November 2026: "No, save the shadow changer in a none planned customizer feature". A component keeps
+   M3's level (M3: "Avoid changing the default elevation of Material components"); a theme can still change one part's level
+   through its token. A site-wide *Shadows at rest* (`On`/`Off`) setting, which sets the `-rest-shadow` tokens, is saved in the
+   roadmap's *Ideas without a version* for a customizer that has no version yet.
 2. **When.** Decided by the owner on 20 November 2026: "add it to the 0.19 ui fixes". It ships in **0.19.5**, the 0.19 line's fix
    release, as two pull requests into that release's feature branch. It needs no contract change for the CMS's own code.
 
