@@ -142,7 +142,8 @@ async function flowA(ctx) {
   await settle(ctx.page);
   await reach(ctx, 'A: Save', { css: 'button', text: 'Save' }, { max: 120 });
   await press(ctx, 'Enter');
-  await settle(page, 800);
+  // The save takes longer on a slow machine: wait (at most 10 s) for the dialog that takes the focus when it is done, so the check does not judge a moment too early.
+  await page.waitForSelector('dialog[open]', { timeout: 10_000 }).catch(() => {});
   await expectFocus(ctx, 'A: after Save');
 }
 
