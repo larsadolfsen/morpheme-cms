@@ -47,26 +47,5 @@
     "places": ["flow C"],
     "viewports": ["computer"],
     "reason": "The text bar's tools unmount when the text loses focus (src/MarkdownEditor.tsx setInText), so Tab can never reach them and Alt+F10 does nothing. Batch 4 of 0.19.3 adds Alt+F10 and the toolbar pattern."
-  },
-  {
-    "problem": "unreachable",
-    "selector": "F: a widget's Actions menu takes focus when it opens",
-    "places": ["flow F"],
-    "viewports": ["phone", "computer"],
-    "reason": "The editor's Menu (src/ui.tsx) keeps focus on its button when it opens, makes every item a Tab stop and ignores the arrow keys, unless it is attached. Batch 2 of 0.19.3 gives it the theme menu's keyboard behaviour."
-  },
-  {
-    "problem": "unreachable",
-    "selector": "F: the page More menu takes focus when it opens",
-    "places": ["flow F"],
-    "viewports": ["phone", "computer"],
-    "reason": "The editor's Menu (src/ui.tsx) keeps focus on its button when it opens, makes every item a Tab stop and ignores the arrow keys, unless it is attached. Batch 2 of 0.19.3 gives it the theme menu's keyboard behaviour."
-  },
-  {
-    "problem": "unreachable",
-    "selector": "I: Move down",
-    "places": ["flow I"],
-    "viewports": ["computer"],
-    "reason": "The widget's Actions menu is the editor's Menu: it takes no focus and has no arrow keys. Batch 2 of 0.19.3."
   }
 ]
