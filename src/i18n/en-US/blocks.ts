@@ -62,6 +62,8 @@ export const blocks = {
     readMore: 'Read more',
     /** The link in an open row (in the site’s language). */
     more: 'Read more about {topic}',
+    /** In the drawing, for a row without a text of its own (in the site's language). */
+    opening: 'The beginning of the text on the page.',
     exampleTitle: 'Heading',
     exampleText: 'A short text about the row.',
   },
@@ -74,19 +76,6 @@ export const blocks = {
     untilHint: 'If empty, the notice is always shown.',
     shownUntil: (day: string, time: string) => `Shown until ${day} at ${time}`,
     over: (day: string, time: string) => `No longer shown (until ${day} at ${time})`,
-  },
-  links: {
-    label: 'Links',
-    hint: 'Links to pages in groups.',
-    groups: 'Groups',
-    group: 'group',
-    title: 'Heading',
-    href: 'Page',
-    hrefHint: 'If empty, the heading isn’t a link.',
-    pages: 'Pages',
-    page: 'Page',
-    /** The groups it is shown with where no page has it (in the site's language). */
-    example: ['First group', 'Second group'],
   },
   rows: {
     from: 'Rows from',
@@ -172,21 +161,6 @@ export const blocks = {
     buttonHint: 'A text button under the last row. If empty, there is no button.',
     buttonHref: 'Button page',
   },
-  points: {
-    label: 'Points with icon',
-    hint: 'Points with icon and text.',
-    items: 'Points',
-    item: 'point',
-    icon: 'Icon',
-    title: 'Heading',
-    text: 'Text',
-    href: 'Page',
-    hrefHint: 'If empty, there is no link.',
-    more: 'Link text',
-    moreHint: 'Only shown with a page.',
-    exampleTitle: 'Heading',
-    exampleText: 'A short text about the point.',
-  },
   table: {
     label: 'Table',
     hint: 'Rows and columns of text.',
@@ -225,28 +199,6 @@ export const blocks = {
     addBelow: 'Add below',
     /** A step typed in place: its place, for screen readers (step 2 of 4). */
     stepOf: (n: number, total: number) => `Step ${n} of ${total}`,
-  },
-  accordion: {
-    label: 'Accordion',
-    hint: 'Rows that expand to show text.',
-    edit: 'Edit default texts',
-    items: 'Rows',
-    item: 'row',
-    title: 'Heading',
-    href: 'Page',
-    text: 'Text',
-    textHint: 'If empty, the beginning of the text on the page is shown.',
-    moreItems: 'More pages',
-    moreItem: 'page',
-    moreLabel: 'Button label',
-    /** The shared text ("Blocks" › "Accordion"), and what it starts as on a site in this language. */
-    more: 'Link text',
-    moreHint: '{topic} is the heading of the row.',
-    moreText: 'Read more about {topic}',
-    /** In the drawing, for a row without a text of its own (in the site's language). */
-    opening: 'The beginning of the text on the page.',
-    /** The rows it is shown with where no page has it (in the site's language). */
-    example: ['First topic', 'Second topic', 'Third topic'],
   },
   buttons: {
     /** The sample of a button style in its settings, while the button has no text of its own (choiceSamples.tsx). */

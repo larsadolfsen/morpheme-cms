@@ -1,9 +1,9 @@
 /*
-  The Accordion and its rows: .mo-block-accordion__lead and .mo-block-accordion__answer (the answer as it was written), the text button under the last row
+  List - Expand and its rows (its classes keep the name `block-accordion` from when it was the Accordion; a theme such as Venus styles them): .mo-block-accordion__lead and .mo-block-accordion__answer (the answer as it was written), the text button under the last row
   (.mo-block-list__button), "Max rows" (.mo-block-more and its parts), the page rows' text and links (.mo-block-accordion__row-text, .mo-block-accordion__row-links). Moved here from
   blocks.css with the rules unchanged and in the order they had (docs/superpowers/plans/2026-11-16-css-split.md); the @media (width >= medium) block
   that mixed the row text and the answer with other blocks' rules was split, and the one rule of the fallback layer (the last paragraph of an
-  answer) moved with them into this file's own fallback layer. The list columns Accordion shares with other blocks and the icon colour shared with
+  answer) moved with them into this file's own fallback layer. The list columns List - Expand shares with other blocks and the icon colour shared with
   the cards (.mo-block-accordion__lead[data-icon-color], .mo-block-cards__card .mo-block-cards__card-icon[data-icon-color]) stay in blocks.css. Imported by base.css right
   after blocks.css, in the same layers, so every rule that stayed in blocks.css after these still comes before them in the cascade; none of those rules
   sets a property of these elements at the same specificity (the collision check in the pull request).
@@ -13,7 +13,7 @@
     flex-shrink: 0;
     color: var(--mo-sys-block-muted);
   }
-  /* A chosen icon colour (data-icon-color) on the Accordion's lead and on a card's icon, which both read --mo-comp-icon-color. */
+  /* A chosen icon colour (data-icon-color) on the lead of a List - Expand row and on a card's icon, which both read --mo-comp-icon-color. */
   .mo-block-accordion__lead[data-icon-color],
   .mo-block-cards__card .mo-block-cards__card-icon[data-icon-color] {
     color: var(--mo-comp-icon-color);

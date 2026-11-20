@@ -4,7 +4,7 @@
   (.mo-block-head), the text's label and body sizes (.mo-prose .mo-type-label-medium, .mo-type-body-large …), the task list, the accent and muted colours, the text
   alignment, and the first and last parts of a coloured section (.mo-text-section > :first-child, :last-child). Moved here from blocks.css with the
   rules unchanged and in the order they had (docs/superpowers/plans/2026-11-16-css-split.md); the Accordion's answer rule that sat between the
-  first two groups lives in accordion.css. Imported by base.css after the block files and before lists.css, so it still comes after every other
+  first two groups lives in expand.css. Imported by base.css after the block files and before lists.css, so it still comes after every other
   rule of blocks.css and before the lists' own, as the layer's rules did.
 */
 @layer fallback {

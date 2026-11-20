@@ -5,9 +5,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
-const blocks = ['list', 'expand', 'accordion', 'posts', 'testimonials'];
+const blocks = ['list', 'expand', 'posts', 'testimonials'];
 
-test('List, List - Expand, Accordion, Blog posts and Testimonials have the setting Columns, and their views carry it', () => {
+test('List, List - Expand, Blog posts and Testimonials have the setting Columns, and their views carry it', () => {
   for (const name of blocks) {
     assert.match(read(`./${name}/index.tsx`), /columnsField\(/, `${name} has no Columns field`);
     const views = [`./${name}/view.ts`, `./${name}/load.ts`].map((f) => {
@@ -37,7 +37,7 @@ test('the setting is on when a block has none, and its texts are in both languag
 
 test('the theme draws the setting as data-columns="one" on the list, and the CSS keys on it', () => {
   const theme = '../../theme';
-  for (const f of ['blocks/list/Rows.tsx', 'blocks/accordion/Accordion.tsx', 'blocks/testimonials/List.tsx', 'blocks/posts/View.tsx'])
+  for (const f of ['blocks/list/Rows.tsx', 'blocks/expand/Accordion.tsx', 'blocks/testimonials/List.tsx', 'blocks/posts/View.tsx'])
     assert.match(read(`${theme}/${f}`), /data-columns=\{/, `${f} does not draw data-columns`);
   const css = read(`${theme}/styles/blocks/text-section.css`);
   assert.match(css, /\[data-columns='one'\]/);

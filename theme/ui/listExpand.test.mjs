@@ -12,8 +12,8 @@ const ui = read('../styles/ui/list.css');
 const blocks = readdirSync(new URL('../styles/blocks/', import.meta.url))
   .map((f) => read(`../styles/blocks/${f}`))
   .join('\n');
-const accordion = read('../blocks/accordion/Accordion.tsx');
-const script = read('../blocks/accordion/script.ts');
+const accordion = read('../blocks/expand/Accordion.tsx');
+const script = read('../blocks/expand/script.ts');
 
 test('every class of a folding item has a rule in list.css', () => {
   const classes = new Set(list.match(/\bmo-list__(?:item-)?expand[a-z-]*/g));
