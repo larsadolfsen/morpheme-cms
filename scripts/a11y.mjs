@@ -20,12 +20,14 @@ const ALLOWLIST = new URL('a11y-allowlist.json', import.meta.url);
 /** The allowlist's entries. @returns {Array<{ rule: string, selector: string, places: string[], viewports: string[], reason: string }>} */
 export const readAllowlist = () => JSON.parse(readFileSync(ALLOWLIST, 'utf8'));
 
-/** A node's selector as one string, without what changes from run to run (the ids React makes: `:r1a:`, `_r_3_`). @param {Array<string | string[]>} target */
+/** A node's selector as one string, without what changes from run to run (the ids React makes: `:r1a:`, `_r_3_`) and without a name's text. @param {Array<string | string[]>} target */
 export const selectorOf = (target) =>
   target
     .map((part) => (Array.isArray(part) ? part.join(' ') : part))
     .join(' >> ')
-    .replace(/:r[0-9a-z]*:|_r_[0-9a-z]+_/g, 'r*');
+    .replace(/:r[0-9a-z]*:|_r_[0-9a-z]+_/g, 'r*')
+    // The editor runs in Danish (check:screens), so a text in a selector would tie the list to one language: the names are left out.
+    .replace(/\[(?:aria-label|placeholder|title|alt|aria-valuetext)(?:[~|^$*]?="(?:[^"\\]|\\.)*")?\]/g, '');
 
 /** The keys of the violations axe found on one page. @param {Array<{ id: string, nodes: Array<{ target: any[] }> }>} violations */
 export const keysOf = (violations, place, viewport) =>
