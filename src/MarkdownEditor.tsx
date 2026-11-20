@@ -949,10 +949,16 @@ function cardBar(
   };
   const escape = (e: KeyboardEvent) => {
     // Delete or Backspace on the selected card itself does what its Remove does.
-    if ((e.key === 'Delete' || e.key === 'Backspace') && own.remove && document.activeElement === card) {
+    const removal =
+      own.remove ??
+      (() =>
+        items()
+          .find((it) => it && it.label === t.common.remove && !it.disabled)
+          ?.action(true));
+    if ((e.key === 'Delete' || e.key === 'Backspace') && document.activeElement === card) {
       e.preventDefault();
       leave();
-      own.remove();
+      removal();
       return;
     }
     if (e.key !== 'Escape') return;
@@ -2415,6 +2421,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const [noColor, setNoColor] = useState(false);
   // A sheet that the bar opened (Settings, a link, Insert) is open: it blurs the text, but the bar keeps its text tools until it closes.
   const [holding, setHolding] = useState(false);
+  // The focus is in the bar (Alt+F10, or Tab to it): the bar keeps its text tools while it is there, as it does while a sheet from it is open.
+  const [inBar, setInBar] = useState(false);
   // The button that opened a menu with the kinds of text (Text style, List), while it is open.
   const [kindsAt, setKindsAt] = useState<{ at: HTMLElement; group: KindGroup } | null>(null);
   // The `⋮` button, and the menu under it while it is open; the Alignment and Color menus of its rows open under it too.
@@ -2918,7 +2926,126 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     blockSelection.clear();
     return () => blockSelection.clear();
   }, []);
-  const textContext = !block_ && (inText || holding);
+  // The text bar by keyboard (the ARIA toolbar pattern; owner decision 20 Nov 2026): Alt+F10 in the text, or on a selected block, moves the focus to the bar's
+  // first tool; the arrow keys, Home and End move between its tools, which are one Tab stop; Escape goes back to where the focus was, with the cursor where it was.
+  useEffect(() => {
+    const bar = toolbar.current;
+    const box = bar?.closest<HTMLElement>('.mo-editor-text-box');
+    if (!bar || !box) return;
+    let origin: HTMLElement | null = null;
+    // While the bar is used by keyboard (from Alt+F10 until Escape, Tab, or a pointer), a tool that gives the focus to the text (a style chosen, a sheet closed) gets it back.
+    let kept: HTMLElement | null = null;
+    const tools = () =>
+      [...bar.querySelectorAll<HTMLButtonElement>('button:not([disabled]):not([aria-disabled=true])')].filter(
+        (b) => b.getClientRects().length > 0,
+      );
+    const go = (to: HTMLElement | undefined) => {
+      if (!to) return;
+      for (const b of bar.querySelectorAll<HTMLElement>('button')) b.tabIndex = b === to ? 0 : -1;
+      to.focus();
+    };
+    const keys = (e: KeyboardEvent) => {
+      if (e.altKey && e.key === 'F10' && !e.ctrlKey && !e.metaKey) {
+        const at = document.activeElement;
+        if (!(at instanceof HTMLElement) || !(box.contains(at) || at.closest('.mo-editor-side-sheet')) || bar.contains(at)) return;
+        // Not from a menu or a dialog: from the text, a block's card and the settings sheet beside them.
+        if (at.closest('dialog, [role=menu]')) return;
+        e.preventDefault();
+        origin = at;
+        kept = bar;
+        setInBar(true);
+        // The bar draws its text tools in the frame after the focus is in the bar, so the first tool is looked for then.
+        requestAnimationFrame(() => go(tools()[0]));
+        return;
+      }
+      if (!(e.target instanceof HTMLElement) || !bar.contains(e.target) || e.defaultPrevented) return;
+      if (e.key === 'Tab') kept = null;
+      if (e.key === 'Escape') {
+        kept = null;
+        if (!origin?.isConnected) return;
+        e.preventDefault();
+        origin.focus();
+        return;
+      }
+      const all = tools();
+      const at = all.indexOf(e.target as HTMLButtonElement);
+      if (at < 0) return;
+      const to = { ArrowRight: at + 1, ArrowLeft: at - 1, Home: 0, End: all.length - 1 }[e.key];
+      if (to === undefined) return;
+      e.preventDefault();
+      go(all[(to + all.length) % all.length]);
+    };
+    let last: HTMLElement | null = null;
+    const focusin = (e: FocusEvent) => {
+      if (e.target instanceof HTMLElement && e.target.matches('button')) {
+        last = e.target;
+        for (const b of bar.querySelectorAll<HTMLElement>('button')) b.tabIndex = b === e.target ? 0 : -1;
+      }
+      // Not `setInBar(true)` here: a Tab into the bar from outside the text must not start the text's tools (the bar would lay itself out again under the focus).
+    };
+    // The text took the focus from a tool used by keyboard: the tool has it again.
+    const back = (e: FocusEvent) => {
+      const text = box.querySelector('.ProseMirror');
+      if (kept && last?.isConnected && e.target instanceof Node && text?.contains(e.target)) {
+        const again = () => kept && last?.isConnected && last.focus();
+        queueMicrotask(again);
+        setTimeout(again);
+      }
+    };
+    const pointer = () => (kept = null);
+    // A sheet opened from the bar by keyboard: when it closes and the focus has nowhere to go, it goes back to that tool, or to the text.
+    let sheetFrom: HTMLElement | null = null;
+    const into = (e: FocusEvent) => {
+      if (kept && e.target instanceof Element && e.target.closest('dialog, .mo-editor-side-sheet')) sheetFrom = last;
+    };
+    const gone = new MutationObserver(() => {
+      if (kept && !sheetFrom) return rescue();
+      if (!sheetFrom || document.querySelector('dialog[open]')) return;
+      const active = document.activeElement;
+      if (active && active !== document.body) return;
+      const to = sheetFrom.isConnected ? sheetFrom : box.querySelector<HTMLElement>('.ProseMirror');
+      sheetFrom = null;
+      to?.focus();
+    });
+    gone.observe(document.body, { subtree: true, childList: true });
+    document.addEventListener('focusin', into, true);
+    // The tools come and go with the context: one of them is always the Tab stop.
+    const watch = new MutationObserver(() => {
+      const all = tools();
+      if (all.length && !all.some((b) => b.tabIndex === 0)) all[0].tabIndex = 0;
+    });
+    watch.observe(bar, { childList: true, subtree: true });
+    document.addEventListener('focusin', back, true);
+    document.addEventListener('pointerdown', pointer, true);
+    const rescue = () => {
+      for (const ms of [0, 30, 100, 250])
+        setTimeout(() => {
+          if (!kept || (document.activeElement && document.activeElement !== document.body)) return;
+          if (document.querySelector('dialog[open]')) return;
+          kept = null;
+          box.querySelector<HTMLElement>('.ProseMirror')?.focus();
+        }, ms);
+    };
+    const focusout = (e: FocusEvent) => {
+      if (!(e.relatedTarget instanceof Node && bar.contains(e.relatedTarget))) setInBar(false);
+      // A tool that takes itself away (Remove) leaves the focus nowhere: it goes to the text.
+      if (kept && !e.relatedTarget) rescue();
+    };
+    document.addEventListener('keydown', keys, true);
+    bar.addEventListener('focusin', focusin);
+    bar.addEventListener('focusout', focusout);
+    return () => {
+      watch.disconnect();
+      gone.disconnect();
+      document.removeEventListener('focusin', into, true);
+      document.removeEventListener('focusin', back, true);
+      document.removeEventListener('pointerdown', pointer, true);
+      document.removeEventListener('keydown', keys, true);
+      bar.removeEventListener('focusin', focusin);
+      bar.removeEventListener('focusout', focusout);
+    };
+  }, []);
+  const textContext = !block_ && (inText || holding || inBar);
   const inContext = textContext || !!block_;
   const headingLevels = h1 ? choices : [2, 3];
   const alignOn = active.includes('alignable');
