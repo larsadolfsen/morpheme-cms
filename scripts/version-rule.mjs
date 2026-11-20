@@ -6,7 +6,10 @@
 //   node scripts/version-rule.mjs next                                 publish.yml, job `next`: prints the test version to stage, or nothing
 //
 // The check, on a pull request into `main` and on a feature's first pull request (into `feature/*`, package.json's version differs from the base's):
-//  - `version` above npm's `latest` is exactly one step above it (next patch, or next minor `.0`) and not published yet;
+//  - on a pull request into `main` (the merge gate), `version` above npm's `latest` is exactly one step above it (next patch, or next minor `.0`)
+//    and not published yet;
+//  - on a feature's first pull request, `version` above `latest` is not published and at most in the next minor's line (latest 0.18.1: 0.18.x or
+//    0.19.y, never 0.20.0): features are built side by side, so the version may be above the next one (owner, 20 Nov 2026);
 //  - `version` below `latest` fails;
 //  - `version` equal to `latest` with a non-empty changeset fails ("set the feature's version"), but only once the new flow is running
 //    (latest at STRICT_FROM or later). Until then (latest 0.18.x) Changesets still computes the number from the changesets, so a fix with a patch
@@ -76,7 +79,16 @@ export function checkVersion({ base, version, baseVersion, latest, published, no
       ];
     return [];
   }
-  if (version !== patch && version !== minor)
+  if (firstOfFeature) {
+    // Features are built side by side (owner, 20 Nov 2026), so a feature's version may be above the next one: any version above latest, not
+    // published, in the line of latest or the next minor's line (0.18.1: 0.18.x or 0.19.y, never 0.20.0).
+    const [major, line] = parts(minor);
+    const [vMajor, vLine] = parts(version);
+    if (vMajor > major || (vMajor === major && vLine > line))
+      return [
+        `package.json says ${version}, but a feature's version is above npm's latest ${latest}, not published, and at most ${major}.${line}.x.`,
+      ];
+  } else if (version !== patch && version !== minor)
     return [
       `package.json says ${version}, but a feature's version is exactly one step above npm's latest ${latest}: ${patch} (next patch) or ${minor} (next minor).`,
     ];
