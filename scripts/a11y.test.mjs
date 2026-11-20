@@ -41,6 +41,16 @@ test('A selector loses the ids React makes, and keeps nested targets apart', () 
   assert.equal(selectorOf(['#:r1a: > button']), '#r* > button');
   assert.equal(selectorOf(['#_r_3_']), '#r*');
   assert.equal(selectorOf(['iframe', ['a', 'b']]), 'iframe >> a b');
+  // A text in a name is left out, so the same list holds in every language.
+  assert.equal(
+    selectorOf(['li > div[aria-label="Row \\"3\\" of 3"][data-row="2"] > textarea[placeholder="Text"]']),
+    'li > div[data-row="2"] > textarea',
+  );
+});
+
+test('A selector tells the attributes of an element in one order', () => {
+  assert.equal(selectorOf(['textarea[data-row="2"][data-field="text"]']), selectorOf(['textarea[data-field="text"][data-row="2"]']));
+  assert.equal(selectorOf(['a[href="#a]b"][role="x"] > b[z="1"]']), 'a[href="#a]b"][role="x"] > b[z="1"]');
 });
 
 test('Findings become entries that read back as the same findings', () => {

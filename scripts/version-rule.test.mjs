@@ -30,6 +30,32 @@ test('two steps above fails', () => {
   assert.equal(checkVersion(s({ version: '0.18.3' })).length, 1);
   assert.equal(checkVersion(s({ version: '0.20.0' })).length, 1);
 });
+// A feature's first pull request (owner, 20 Nov 2026: features are built side by side); a pull request into main stays one step.
+const first = (o) => s({ base: 'feature/x', baseVersion: '0.18.1', ...o });
+test("a feature's first pull request: any 0.19.y above latest 0.18.1 passes", () => {
+  for (const version of ['0.18.2', '0.18.9', '0.19.0', '0.19.1', '0.19.2']) assert.deepEqual(checkVersion(first({ version })), [], version);
+});
+test("a feature's first pull request: the minor after the next fails", () => {
+  const p = checkVersion(first({ version: '0.20.0' }));
+  assert.equal(p.length, 1);
+  assert.match(p[0], /above npm's latest 0\.18\.1, not published, and at most 0\.19\.x/);
+  assert.equal(checkVersion(first({ version: '1.0.0' })).length, 1);
+});
+test("a feature's first pull request: published, equal or below latest fail as before", () => {
+  assert.match(checkVersion(first({ version: '0.19.2', published: true }))[0], /already published/);
+  assert.equal(checkVersion(first({ version: '0.18.0' })).length, 1);
+  assert.deepEqual(checkVersion(first({ version: '0.18.1' })), []);
+});
+test("a feature's first pull request after 0.19.0 is released: 0.19.y or 0.20.y", () => {
+  assert.deepEqual(checkVersion(first({ version: '0.19.2', latest: '0.19.0' })), []);
+  assert.deepEqual(checkVersion(first({ version: '0.20.1', latest: '0.19.0' })), []);
+  assert.equal(checkVersion(first({ version: '0.21.0', latest: '0.19.0' })).length, 1);
+});
+test('into main the version is still exactly one step above latest', () => {
+  assert.deepEqual(checkVersion(s({ version: '0.19.0' })), []);
+  assert.equal(checkVersion(s({ version: '0.19.2' })).length, 1);
+  assert.equal(checkVersion(s({ version: '0.18.3' })).length, 1);
+});
 test('a published version above latest fails', () =>
   assert.match(checkVersion(s({ version: '0.19.0', published: true }))[0], /already published/));
 test('below latest fails', () => assert.equal(checkVersion(s({ version: '0.18.0' })).length, 1));

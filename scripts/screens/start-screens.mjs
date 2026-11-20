@@ -737,7 +737,9 @@ async function checkA11y(page, width, hash) {
   const viewport = width < 600 ? 'phone' : 'computer';
   const place = `#${hash}`;
   // The screen settles first: a list or a sheet that is still drawing would be a finding that is gone a moment later.
-  await page.waitForTimeout(300);
+  await page.evaluate(() => document.fonts.ready);
+  await page.waitForTimeout(500);
+  await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
   const found = keysOf(await scan(page), place, viewport);
   if (process.env.A11Y_COLLECT) return collect(process.env.A11Y_COLLECT, found);
   const allowed = allowedKeys(readAllowlist(), (p) => p === place);

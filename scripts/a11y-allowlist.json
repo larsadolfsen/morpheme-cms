@@ -80,14 +80,94 @@
   },
   {
     "rule": "color-contrast",
-    "selector": "div[aria-valuetext=\"07\"] > .mo-time-picker__dial-number[aria-hidden=\"true\"]:nth-child(3)",
+    "selector": "div > .mo-time-picker__dial-number[aria-hidden=\"true\"]:nth-child(3)",
     "places": ["#developer/parts/ui"],
     "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 6: the time picker number under the selected hand, 2.65:1."
+    "reason": "Plan 0.19.2, batch 2 (kbd in dark: --mo-comp-prose-kbd has no dark value) and batch 6 (the time picker number under the selected hand, 2.65:1)."
+  },
+  {
+    "rule": "color-contrast",
+    "selector": "kbd:nth-child(5)",
+    "places": ["/prose-fixture/"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2 (kbd in dark: --mo-comp-prose-kbd has no dark value) and batch 6 (the time picker number under the selected hand, 2.65:1)."
+  },
+  {
+    "rule": "label",
+    "selector": ".task-list-item:nth-child(1) > input",
+    "places": [
+      "/about/",
+      "/app-store/",
+      "/colors-everyone-can-read/",
+      "/edit-your-website-from-your-phone/",
+      "/get-started/",
+      "/secure-from-day-one/",
+      "/typography/"
+    ],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: the disabled checkbox of a check list item has no name (lib/markdown.ts, lib/remark-checklist.mjs)."
+  },
+  {
+    "rule": "label",
+    "selector": ".task-list-item:nth-child(2) > input",
+    "places": [
+      "/about/",
+      "/app-store/",
+      "/colors-everyone-can-read/",
+      "/edit-your-website-from-your-phone/",
+      "/get-started/",
+      "/secure-from-day-one/",
+      "/typography/"
+    ],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: the disabled checkbox of a check list item has no name (lib/markdown.ts, lib/remark-checklist.mjs)."
+  },
+  {
+    "rule": "label",
+    "selector": ".task-list-item:nth-child(3) > input",
+    "places": [
+      "/about/",
+      "/app-store/",
+      "/colors-everyone-can-read/",
+      "/edit-your-website-from-your-phone/",
+      "/get-started/",
+      "/secure-from-day-one/",
+      "/typography/"
+    ],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: the disabled checkbox of a check list item has no name (lib/markdown.ts, lib/remark-checklist.mjs)."
+  },
+  {
+    "rule": "label",
+    "selector": ".task-list-item:nth-child(4) > input",
+    "places": ["/about/", "/app-store/", "/edit-your-website-from-your-phone/", "/secure-from-day-one/", "/typography/"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: the disabled checkbox of a check list item has no name (lib/markdown.ts, lib/remark-checklist.mjs)."
+  },
+  {
+    "rule": "label",
+    "selector": ".task-list-item:nth-child(4) > p > input",
+    "places": ["/prose-fixture/"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: the disabled checkbox of a check list item has no name (lib/markdown.ts, lib/remark-checklist.mjs)."
+  },
+  {
+    "rule": "label",
+    "selector": ".task-list-item:nth-child(5) > input",
+    "places": ["/app-store/", "/secure-from-day-one/"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: the disabled checkbox of a check list item has no name (lib/markdown.ts, lib/remark-checklist.mjs)."
+  },
+  {
+    "rule": "label",
+    "selector": ".task-list-item:nth-child(5) > p > input",
+    "places": ["/prose-fixture/"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: the disabled checkbox of a check list item has no name (lib/markdown.ts, lib/remark-checklist.mjs)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-block-cards__tertiary > li:nth-child(1) > .mo-block-cards__card[aria-label=\"Kort 1 af 2\"][data-row=\"0\"] > .mo-editor-inline-card-media[aria-label=\"Medie\"]",
+    "selector": ".mo-block-cards__tertiary > li:nth-child(1) > .mo-block-cards__card[data-row=\"0\"] > .mo-editor-inline-card-media",
     "places": ["#src/content/pages/blocks-cards.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
@@ -112,287 +192,287 @@
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(11) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(11) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(13) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(13) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(143) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(143) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(146) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(146) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(149) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(149) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(15) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(15) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(17) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(17) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(18) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(18) > .mo-site-block-card",
     "places": ["#src/content/pages/prose-fixture.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(19) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(19) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(20) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(20) > .mo-site-block-card",
     "places": ["#src/content/pages/prose-fixture.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(21) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(21) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(23) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(23) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(24) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(24) > .mo-site-block-card",
     "places": ["#src/content/pages/prose-fixture.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(25) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(25) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(26) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(26) > .mo-site-block-card",
     "places": ["#src/content/pages/prose-fixture.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(27) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(27) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(29) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(29) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(30) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(30) > .mo-site-block-card",
     "places": ["#src/content/pages/prose-fixture.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(31) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(31) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(33) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(33) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(35) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(35) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(37) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(37) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(39) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(39) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(41) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(41) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(43) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(43) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(45) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(45) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(47) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(47) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(49) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(49) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(51) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(51) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(53) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(53) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(55) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(55) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(57) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(57) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(59) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(59) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(61) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(61) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(63) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(63) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(65) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(65) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(67) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(67) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(69) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(69) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(7) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(7) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(9) > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(9) > .mo-site-block-card",
     "places": ["#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": ".mo-site-block[data-section-focus=\"middle\"][contenteditable=\"false\"] > .mo-site-block-card[aria-label=\"HTML-kode\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"][data-section-focus=\"middle\"] > .mo-site-block-card",
     "places": ["#src/content/pages/prose-fixture.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
@@ -406,28 +486,105 @@
   },
   {
     "rule": "label-content-name-mismatch",
-    "selector": "button[aria-label=\"Cookieliste\"]",
-    "places": ["#src/content/pages/blocks-tables.md"],
+    "selector": "button",
+    "places": ["#developer/parts/editor", "#src/content/pages/blocks-tables.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
   },
   {
-    "rule": "label-content-name-mismatch",
-    "selector": "button[aria-label=\"Vis undersider til Sider\"]",
-    "places": ["#developer/parts/editor"],
+    "rule": "link-name",
+    "selector": "li[data-index=\"1\"][data-tags=\"\"] > .mo-is-filled.mo-card.mo-has-media",
+    "places": ["/blocks/image-grid/"],
     "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 5: the accessible name does not contain the visible text (block cards, inline notice, select field, Show subpages)."
+    "reason": "Plan 0.19.2, batch 2: an Image grid card whose image has no alt text holds only an empty img (theme/blocks/imagegrid/View.tsx)."
+  },
+  {
+    "rule": "link-name",
+    "selector": "li[data-index=\"1\"][data-tags=\"\"] > .mo-is-filled.mo-has-media[data-image=\"\"]",
+    "places": ["#src/content/pages/blocks-image-grid.md"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: an Image grid card whose image has no alt text holds only an empty img (theme/blocks/imagegrid/View.tsx)."
+  },
+  {
+    "rule": "link-name",
+    "selector": "li[data-index=\"10\"] > .mo-is-filled.mo-card.mo-has-media",
+    "places": ["/blocks/image-grid/"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: an Image grid card whose image has no alt text holds only an empty img (theme/blocks/imagegrid/View.tsx)."
+  },
+  {
+    "rule": "link-name",
+    "selector": "li[data-index=\"10\"] > .mo-is-filled.mo-has-media[data-image=\"\"]",
+    "places": ["#src/content/pages/blocks-image-grid.md"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: an Image grid card whose image has no alt text holds only an empty img (theme/blocks/imagegrid/View.tsx)."
+  },
+  {
+    "rule": "link-name",
+    "selector": "li[data-index=\"11\"] > .mo-is-filled.mo-card.mo-has-media",
+    "places": ["/blocks/image-grid/"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: an Image grid card whose image has no alt text holds only an empty img (theme/blocks/imagegrid/View.tsx)."
+  },
+  {
+    "rule": "link-name",
+    "selector": "li[data-index=\"11\"] > .mo-is-filled.mo-has-media[data-image=\"\"]",
+    "places": ["#src/content/pages/blocks-image-grid.md"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: an Image grid card whose image has no alt text holds only an empty img (theme/blocks/imagegrid/View.tsx)."
+  },
+  {
+    "rule": "link-name",
+    "selector": "li[data-index=\"12\"] > .mo-is-filled.mo-card.mo-has-media",
+    "places": ["/blocks/image-grid/"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: an Image grid card whose image has no alt text holds only an empty img (theme/blocks/imagegrid/View.tsx)."
+  },
+  {
+    "rule": "link-name",
+    "selector": "li[data-index=\"12\"] > .mo-is-filled.mo-has-media[data-image=\"\"]",
+    "places": ["#src/content/pages/blocks-image-grid.md"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: an Image grid card whose image has no alt text holds only an empty img (theme/blocks/imagegrid/View.tsx)."
+  },
+  {
+    "rule": "link-name",
+    "selector": "li[data-index=\"2\"][data-tags=\"\"] > .mo-is-filled.mo-card.mo-has-media",
+    "places": ["/blocks/image-grid/"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: an Image grid card whose image has no alt text holds only an empty img (theme/blocks/imagegrid/View.tsx)."
+  },
+  {
+    "rule": "link-name",
+    "selector": "li[data-index=\"2\"][data-tags=\"\"] > .mo-is-filled.mo-has-media[data-image=\"\"]",
+    "places": ["#src/content/pages/blocks-image-grid.md"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: an Image grid card whose image has no alt text holds only an empty img (theme/blocks/imagegrid/View.tsx)."
+  },
+  {
+    "rule": "link-name",
+    "selector": "li[data-index=\"8\"] > .mo-is-filled.mo-card.mo-has-media",
+    "places": ["/blocks/image-grid/"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: an Image grid card whose image has no alt text holds only an empty img (theme/blocks/imagegrid/View.tsx)."
+  },
+  {
+    "rule": "link-name",
+    "selector": "li[data-index=\"8\"] > .mo-is-filled.mo-has-media[data-image=\"\"]",
+    "places": ["#src/content/pages/blocks-image-grid.md"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 2: an Image grid card whose image has no alt text holds only an empty img (theme/blocks/imagegrid/View.tsx)."
   },
   {
     "rule": "list",
-    "selector": ".mo-menu__vibrant.mo-menu[aria-label=\"Accentfarve\"]",
+    "selector": ".mo-menu__vibrant.mo-menu",
     "places": ["#developer/parts/ui"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 6: the menu divider is always role=none, even outside a menu (theme/ui/Menu.tsx)."
   },
   {
     "rule": "list",
-    "selector": "ul[aria-label=\"Fladen\"]",
+    "selector": "ul",
     "places": ["#developer/parts/ui"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 6: the menu divider is always role=none, even outside a menu (theme/ui/Menu.tsx)."
@@ -733,371 +890,308 @@
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(1) > details[aria-label=\"Række 1 af 4\"][data-row=\"0\"] > summary",
+    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(1) > details[data-row=\"0\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(1) > details[aria-label=\"Række 1 af 8\"][data-row=\"0\"] > summary",
+    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(2) > details[data-row=\"1\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(2) > details[aria-label=\"Række 2 af 4\"][data-row=\"1\"] > summary",
+    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(3) > details[data-row=\"2\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(2) > details[aria-label=\"Række 2 af 8\"][data-row=\"1\"] > summary",
+    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(4) > details[data-row=\"3\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(3) > details[aria-label=\"Række 3 af 4\"][data-row=\"2\"] > summary",
+    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(5) > details[data-row=\"4\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(3) > details[aria-label=\"Række 3 af 8\"][data-row=\"2\"] > summary",
+    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(6) > details[data-row=\"5\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(4) > details[aria-label=\"Række 4 af 4\"][data-row=\"3\"] > summary",
+    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(7) > details[data-row=\"6\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(4) > details[aria-label=\"Række 4 af 8\"][data-row=\"3\"] > summary",
+    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(8) > details[data-row=\"7\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(5) > details[aria-label=\"Række 5 af 8\"][data-row=\"4\"] > summary",
-    "places": ["#src/content/pages/blocks-lists.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
-  },
-  {
-    "rule": "nested-interactive",
-    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(6) > details[aria-label=\"Række 6 af 8\"][data-row=\"5\"] > summary",
-    "places": ["#src/content/pages/blocks-lists.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
-  },
-  {
-    "rule": "nested-interactive",
-    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(7) > details[data-row=\"6\"][aria-label=\"Række 7 af 8\"] > summary",
-    "places": ["#src/content/pages/blocks-lists.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
-  },
-  {
-    "rule": "nested-interactive",
-    "selector": ".mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(8) > details[data-row=\"7\"][aria-label=\"Række 8 af 8\"] > summary",
-    "places": ["#src/content/pages/blocks-lists.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
-  },
-  {
-    "rule": "nested-interactive",
-    "selector": ".mo-block-cards__tertiary > li:nth-child(1) > .mo-block-cards__card[aria-label=\"Kort 1 af 2\"][data-row=\"0\"] > .mo-editor-inline-card-media[aria-label=\"Medie\"]",
+    "selector": ".mo-block-cards__tertiary > li:nth-child(1) > .mo-block-cards__card[data-row=\"0\"] > .mo-editor-inline-card-media",
     "places": ["#src/content/pages/blocks-cards.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(46) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(1) > details[aria-label=\"Række 1 af 4\"][data-row=\"0\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(46) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(1) > details[data-row=\"0\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(46) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(2) > details[aria-label=\"Række 2 af 4\"][data-row=\"1\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(46) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(2) > details[data-row=\"1\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(46) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(3) > details[aria-label=\"Række 3 af 4\"][data-row=\"2\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(46) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(3) > details[data-row=\"2\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(46) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(4) > details[aria-label=\"Række 4 af 4\"][data-row=\"3\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(46) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(4) > details[data-row=\"3\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(53) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(1) > details[aria-label=\"Række 1 af 2\"][data-row=\"0\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(53) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(1) > details[data-row=\"0\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(53) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(2) > details[aria-label=\"Række 2 af 2\"][data-row=\"1\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(53) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(2) > details[data-row=\"1\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(55) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(1) > details[aria-label=\"Række 1 af 2\"][data-row=\"0\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(55) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(1) > details[data-row=\"0\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(55) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(2) > details[aria-label=\"Række 2 af 2\"][data-row=\"1\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(55) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(2) > details[data-row=\"1\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(57) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(1) > details[aria-label=\"Række 1 af 2\"][data-row=\"0\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(57) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(1) > details[data-row=\"0\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(57) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(2) > details[aria-label=\"Række 2 af 2\"][data-row=\"1\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(57) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(2) > details[data-row=\"1\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(59) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(1) > details[aria-label=\"Række 1 af 2\"][data-row=\"0\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(59) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(1) > details[data-row=\"0\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(59) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(2) > details[aria-label=\"Række 2 af 2\"][data-row=\"1\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(59) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(2) > details[data-row=\"1\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(67) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(1) > details[aria-label=\"Række 1 af 3\"][data-row=\"0\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(67) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(1) > details[data-row=\"0\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(67) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(2) > details[aria-label=\"Række 2 af 3\"][data-row=\"1\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(67) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(2) > details[data-row=\"1\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(67) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(3) > details[aria-label=\"Række 3 af 3\"][data-row=\"2\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(67) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(3) > details[data-row=\"2\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(69) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(1) > details[aria-label=\"Række 1 af 3\"][data-row=\"0\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(69) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(1) > details[data-row=\"0\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(69) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(2) > details[aria-label=\"Række 2 af 3\"][data-row=\"1\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(69) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(2) > details[data-row=\"1\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(69) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(3) > details[aria-label=\"Række 3 af 3\"][data-row=\"2\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(69) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(3) > details[data-row=\"2\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(73) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(1) > details[aria-label=\"Række 1 af 2\"][data-row=\"0\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(73) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(1) > details[data-row=\"0\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(73) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(2) > details[aria-label=\"Række 2 af 2\"][data-row=\"1\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(73) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(2) > details[data-row=\"1\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(75) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(1) > details[aria-label=\"Række 1 af 3\"][data-row=\"0\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(75) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(1) > details[data-row=\"0\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(75) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(2) > details[aria-label=\"Række 2 af 3\"][data-row=\"1\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(75) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(2) > details[data-row=\"1\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(75) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(3) > details[aria-label=\"Række 3 af 3\"][data-row=\"2\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(75) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(3) > details[data-row=\"2\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(1) > details[aria-label=\"Række 1 af 8\"][data-row=\"0\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(1) > details[data-row=\"0\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(2) > details[aria-label=\"Række 2 af 8\"][data-row=\"1\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(2) > details[data-row=\"1\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(3) > details[aria-label=\"Række 3 af 8\"][data-row=\"2\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(3) > details[data-row=\"2\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(4) > details[aria-label=\"Række 4 af 8\"][data-row=\"3\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(4) > details[data-row=\"3\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(5) > details[aria-label=\"Række 5 af 8\"][data-row=\"4\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(5) > details[data-row=\"4\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(6) > details[aria-label=\"Række 6 af 8\"][data-row=\"5\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(6) > details[data-row=\"5\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(7) > details[data-row=\"6\"][aria-label=\"Række 7 af 8\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(7) > details[data-row=\"6\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(8) > details[data-row=\"7\"][aria-label=\"Række 8 af 8\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(80) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__expand.mo-block-accordion.mo-editor-inline-segmented > li:nth-child(8) > details[data-row=\"7\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(92) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(1) > details[aria-label=\"Række 1 af 2\"][data-row=\"0\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(92) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(1) > details[data-row=\"0\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(92) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste - Udvid\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(2) > details[aria-label=\"Række 2 af 2\"][data-row=\"1\"] > summary",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(92) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-accordion__segmented.mo-list__expand.mo-block-accordion > li:nth-child(2) > details[data-row=\"1\"] > summary",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": "details[aria-label=\"Række 1 af 3\"] > summary",
-    "places": ["#developer/parts/editor", "#src/content/pages/app-store.md"],
+    "selector": "details > summary",
+    "places": ["#developer/parts/editor", "#src/content/pages/app-store.md", "#src/content/pages/home.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
   },
   {
     "rule": "nested-interactive",
-    "selector": "details[aria-label=\"Række 1 af 4\"] > summary",
-    "places": ["#src/content/pages/home.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
-  },
-  {
-    "rule": "nested-interactive",
-    "selector": "details[aria-label=\"Række 2 af 3\"] > summary",
-    "places": ["#developer/parts/editor", "#src/content/pages/app-store.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
-  },
-  {
-    "rule": "nested-interactive",
-    "selector": "details[aria-label=\"Række 2 af 4\"] > summary",
-    "places": ["#src/content/pages/home.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
-  },
-  {
-    "rule": "nested-interactive",
-    "selector": "details[aria-label=\"Række 3 af 3\"] > summary",
-    "places": ["#developer/parts/editor", "#src/content/pages/app-store.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
-  },
-  {
-    "rule": "nested-interactive",
-    "selector": "details[aria-label=\"Række 3 af 4\"] > summary",
-    "places": ["#src/content/pages/home.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
-  },
-  {
-    "rule": "nested-interactive",
-    "selector": "details[data-row=\"3\"][aria-label=\"Række 4 af 4\"] > summary",
+    "selector": "details[data-row=\"3\"] > summary",
     "places": ["#src/content/pages/home.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: fields inside the expanding summary of inline lists, and the media button inside an inline card (theme/ui/List.tsx, src/InlineItems.tsx, src/InlineCards.tsx)."
@@ -1146,14 +1240,14 @@
   },
   {
     "rule": "scrollable-region-focusable",
-    "selector": ".mo-editor-contain-carousel > .mo-carousel[aria-roledescription=\"karrusel\"][aria-label=\"karrusel\"] > .mo-carousel__items[data-carousel-items=\"\"]",
+    "selector": ".mo-editor-contain-carousel > .mo-carousel[aria-roledescription=\"karrusel\"] > .mo-carousel__items[data-carousel-items=\"\"]",
     "places": ["#developer/parts/ui"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
   },
   {
     "rule": "scrollable-region-focusable",
-    "selector": ".mo-editor-contain-example:nth-child(1) > .mo-carousel[aria-roledescription=\"karrusel\"][aria-label=\"karrusel\"] > .mo-carousel__items[data-carousel-items=\"\"]",
+    "selector": ".mo-editor-contain-example:nth-child(1) > .mo-carousel[aria-roledescription=\"karrusel\"] > .mo-carousel__items[data-carousel-items=\"\"]",
     "places": ["#developer/parts/ui"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
@@ -1181,14 +1275,7 @@
   },
   {
     "rule": "scrollable-region-focusable",
-    "selector": "div[aria-label=\"Cards\"] > .mo-carousel__items[data-carousel-items=\"\"]",
-    "places": ["#developer/parts/blocks"],
-    "viewports": ["phone"],
-    "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
-  },
-  {
-    "rule": "scrollable-region-focusable",
-    "selector": "div[aria-label=\"Overskrift\"] > .mo-carousel__items[data-carousel-items=\"\"]",
+    "selector": "div > .mo-carousel__items[data-carousel-items=\"\"]",
     "places": ["#developer/parts/blocks"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 6: the carousel's scroller and the bottom sheet's content can't be reached by keyboard (theme/ui/Carousel.tsx, theme/ui/BottomSheet.tsx)."
@@ -1202,203 +1289,210 @@
   },
   {
     "rule": "target-size",
-    "selector": ".mo-list__item-two-line[aria-label=\"Række 3 af 3\"][data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][placeholder=\"Tekst\"][aria-label=\"Tekst\"]",
+    "selector": ".mo-list__item-two-line[data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/app-store.md"],
     "viewports": ["computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(1) > .mo-list__item-two-line[aria-label=\"Række 1 af 4\"][data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(1) > .mo-list__item-two-line[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(2) > .mo-list__item-two-line[aria-label=\"Række 2 af 4\"][data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(2) > .mo-list__item-two-line[data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(3) > .mo-list__item-two-line[aria-label=\"Række 3 af 4\"][data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(3) > .mo-list__item-two-line[data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(4) > .mo-list__item-two-line[aria-label=\"Række 4 af 4\"][data-row=\"3\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(4) > .mo-list__item-two-line[data-row=\"3\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(10) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(1) > .mo-list__item-two-line[aria-label=\"Række 1 af 3\"][data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(10) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(1) > .mo-list__item-two-line[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(10) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(2) > .mo-list__item-two-line[aria-label=\"Række 2 af 3\"][data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(10) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(2) > .mo-list__item-two-line[data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(10) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(3) > .mo-list__item-two-line[aria-label=\"Række 3 af 3\"][data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(10) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(3) > .mo-list__item-two-line[data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(16) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(1) > .mo-list__item-two-line[aria-label=\"Række 1 af 3\"][data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(16) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(1) > .mo-list__item-two-line[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(16) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(2) > .mo-list__item-two-line[aria-label=\"Række 2 af 3\"][data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(16) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(2) > .mo-list__item-two-line[data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(16) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(3) > .mo-list__item-two-line[aria-label=\"Række 3 af 3\"][data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(16) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(3) > .mo-list__item-two-line[data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(28) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(1) > .mo-list__item-two-line[aria-label=\"Række 1 af 4\"][data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(28) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(1) > .mo-list__item-two-line[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(28) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(2) > .mo-list__item-two-line[aria-label=\"Række 2 af 4\"][data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(28) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(2) > .mo-list__item-two-line[data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(28) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(3) > .mo-list__item-two-line[aria-label=\"Række 3 af 4\"][data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(28) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(3) > .mo-list__item-two-line[data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(28) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(4) > .mo-list__item-two-line[aria-label=\"Række 4 af 4\"][data-row=\"3\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(28) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(4) > .mo-list__item-two-line[data-row=\"3\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(35) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(1) > .mo-list__item-two-line[aria-label=\"Række 1 af 2\"][data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(35) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(1) > .mo-list__item-two-line[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(35) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(2) > .mo-list__item-two-line[aria-label=\"Række 2 af 2\"][data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(35) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(2) > .mo-list__item-two-line[data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(37) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(1) > .mo-list__item-two-line[aria-label=\"Række 1 af 2\"][data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
-    "places": ["#src/content/pages/blocks-lists.md"],
-    "viewports": ["phone"],
-    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
-  },
-  {
-    "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(37) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(2) > .mo-list__item-two-line[aria-label=\"Række 2 af 2\"][data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
-    "places": ["#src/content/pages/blocks-lists.md"],
-    "viewports": ["phone"],
-    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
-  },
-  {
-    "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(39) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(1) > .mo-list__item-two-line[aria-label=\"Række 1 af 2\"][data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(37) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(1) > .mo-list__item-two-line[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(39) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(2) > .mo-list__item-two-line[aria-label=\"Række 2 af 2\"][data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(37) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(2) > .mo-list__item-two-line[data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(41) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(1) > .mo-list__item-two-line[aria-label=\"Række 1 af 2\"][data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(39) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(1) > .mo-list__item-two-line[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
-    "viewports": ["phone"],
+    "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(5) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(1) > .mo-list__item-two-line[data-row=\"0\"][aria-label=\"Række 1 af 5\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(39) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(2) > .mo-list__item-two-line[data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
+    "places": ["#src/content/pages/blocks-lists.md"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
+  },
+  {
+    "rule": "target-size",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(41) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(1) > .mo-list__item-two-line[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
+    "places": ["#src/content/pages/blocks-lists.md"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
+  },
+  {
+    "rule": "target-size",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(41) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(2) > .mo-list__item-two-line[data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
+    "places": ["#src/content/pages/blocks-lists.md"],
+    "viewports": ["computer"],
+    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
+  },
+  {
+    "rule": "target-size",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(5) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(1) > .mo-list__item-two-line[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks.md"],
     "viewports": ["computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(62) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(1) > .mo-list__item-two-line[aria-label=\"Række 1 af 3\"][data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(62) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(1) > .mo-list__item-two-line[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(62) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(2) > .mo-list__item-two-line[aria-label=\"Række 2 af 3\"][data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(62) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(2) > .mo-list__item-two-line[data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(62) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(3) > .mo-list__item-two-line[aria-label=\"Række 3 af 3\"][data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(62) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-list__segmented.mo-list__dividers-none.mo-block-list > li:nth-child(3) > .mo-list__item-two-line[data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(7) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(1) > .mo-list__item-two-line[aria-label=\"Række 1 af 3\"][data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(7) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(1) > .mo-list__item-two-line[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(7) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(2) > .mo-list__item-two-line[aria-label=\"Række 2 af 3\"][data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(7) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(2) > .mo-list__item-two-line[data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(7) > .mo-site-block-card.mo-site-block-inline[aria-label=\"Liste\"] > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(3) > .mo-list__item-two-line[aria-label=\"Række 3 af 3\"][data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": ".mo-site-block[contenteditable=\"false\"]:nth-child(7) > .mo-site-block-card.mo-site-block-inline > .mo-site-block-preview.mo-is-not-prose > .mo-editor-inline-list-host > .mo-block-list.mo-editor-inline-list.mo-list > li:nth-child(3) > .mo-list__item-two-line[data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
@@ -1419,154 +1513,98 @@
   },
   {
     "rule": "target-size",
-    "selector": "div[aria-label=\"Række 1 af 3\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][placeholder=\"Tekst\"][aria-label=\"Tekst\"]",
-    "places": ["#src/content/pages/contact.md"],
+    "selector": "div > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
+    "places": ["#src/content/pages/blocks-lists.md", "#src/content/pages/contact.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": "div[aria-label=\"Række 1 af 6\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
-    "places": ["#src/content/pages/blocks-lists.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
-  },
-  {
-    "rule": "target-size",
-    "selector": "div[aria-label=\"Række 2 af 6\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
-    "places": ["#src/content/pages/blocks-lists.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
-  },
-  {
-    "rule": "target-size",
-    "selector": "div[aria-label=\"Række 3 af 6\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
-    "places": ["#src/content/pages/blocks-lists.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
-  },
-  {
-    "rule": "target-size",
-    "selector": "div[aria-label=\"Række 4 af 6\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
-    "places": ["#src/content/pages/blocks-lists.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
-  },
-  {
-    "rule": "target-size",
-    "selector": "div[aria-label=\"Række 5 af 6\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
-    "places": ["#src/content/pages/blocks-lists.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
-  },
-  {
-    "rule": "target-size",
-    "selector": "div[aria-label=\"Række 6 af 6\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
-    "places": ["#src/content/pages/blocks-lists.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
-  },
-  {
-    "rule": "target-size",
-    "selector": "div[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": "div[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/blog/schedule-a-post.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": "div[data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": "div[data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/blog/schedule-a-post.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": "div[data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": "div[data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
+    "places": ["#src/content/blog/schedule-a-post.md", "#src/content/pages/contact.md"],
+    "viewports": ["phone", "computer"],
+    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
+  },
+  {
+    "rule": "target-size",
+    "selector": "div[data-row=\"3\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/blog/schedule-a-post.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": "div[data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][placeholder=\"Tekst\"][aria-label=\"Tekst\"]",
-    "places": ["#src/content/pages/contact.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
-  },
-  {
-    "rule": "target-size",
-    "selector": "div[data-row=\"3\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
-    "places": ["#src/content/blog/schedule-a-post.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
-  },
-  {
-    "rule": "target-size",
-    "selector": "li[data-row=\"0\"] > .mo-block-steps__step-body > .mo-block-steps__step-text > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": "li[data-row=\"0\"] > .mo-block-steps__step-body > .mo-block-steps__step-text > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-steps.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": "li[data-row=\"0\"] > .mo-block-steps__step-body > .mo-block-steps__step-text > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": "li[data-row=\"0\"] > .mo-block-steps__step-body > .mo-block-steps__step-text > textarea[data-field=\"text\"]",
     "places": ["#src/content/blog/build-a-page-from-blocks.md"],
     "viewports": ["computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": "li[data-row=\"1\"] > .mo-block-steps__step-body > .mo-block-steps__step-text > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": "li[data-row=\"1\"] > .mo-block-steps__step-body > .mo-block-steps__step-text > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-steps.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": "li[data-row=\"1\"] > .mo-block-steps__step-body > .mo-block-steps__step-text > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": "li[data-row=\"1\"] > .mo-block-steps__step-body > .mo-block-steps__step-text > textarea[data-field=\"text\"]",
     "places": ["#src/content/blog/build-a-page-from-blocks.md"],
     "viewports": ["computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": "li[data-row=\"2\"] > .mo-block-pricecards__plan-price > .mo-block-pricecards__plan-unit > textarea[data-field=\"unit\"][aria-label=\"Enhed\"][placeholder=\"Enhed\"]",
-    "places": ["#src/content/pages/blocks-price-cards.md"],
-    "viewports": ["computer"],
-    "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
-  },
-  {
-    "rule": "target-size",
-    "selector": "li[data-row=\"2\"] > .mo-block-steps__step-body > .mo-block-steps__step-text > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": "li[data-row=\"2\"] > .mo-block-steps__step-body > .mo-block-steps__step-text > textarea[data-field=\"text\"]",
     "places": ["#src/content/blog/build-a-page-from-blocks.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": "li[data-row=\"2\"] > .mo-block-steps__step-body > .mo-block-steps__step-text > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": "li[data-row=\"2\"] > .mo-block-steps__step-body > .mo-block-steps__step-text > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-steps.md"],
     "viewports": ["computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": "ul[data-columns=\"one\"] > li:nth-child(1) > .mo-list__item-two-line[aria-label=\"Række 1 af 3\"][data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": "ul[data-columns=\"one\"] > li:nth-child(1) > .mo-list__item-two-line[data-row=\"0\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": "ul[data-columns=\"one\"] > li:nth-child(2) > .mo-list__item-two-line[aria-label=\"Række 2 af 3\"][data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": "ul[data-columns=\"one\"] > li:nth-child(2) > .mo-list__item-two-line[data-row=\"1\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
   },
   {
     "rule": "target-size",
-    "selector": "ul[data-columns=\"one\"] > li:nth-child(3) > .mo-list__item-two-line[aria-label=\"Række 3 af 3\"][data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"][aria-label=\"Tekst\"][placeholder=\"Tekst\"]",
+    "selector": "ul[data-columns=\"one\"] > li:nth-child(3) > .mo-list__item-two-line[data-row=\"2\"] > .mo-list__item-content > .mo-list__item-supporting > textarea[data-field=\"text\"]",
     "places": ["#src/content/pages/blocks-lists.md"],
     "viewports": ["phone", "computer"],
     "reason": "Plan 0.19.2, batch 4: the inline list textarea is 20 px high (.mo-editor-inline-list-field, src/editor.css); the parts gallery has 2 overlaps."
