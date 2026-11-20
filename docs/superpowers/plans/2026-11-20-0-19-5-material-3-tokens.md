@@ -27,8 +27,8 @@ The CMS's names become M3's: every token is `--mo-` plus M3's own token name (`m
 `--mo-comp-search-bar-container-color`), every part and size has M3's name (our *medium* button is M3 Expressive's *small*), and a value
 M3 has no token for gets a name in M3's pattern, listed as ours. Renaming breaks themes and apps that use the old names, so it raises
 `THEME_API` and `APP_API` with a rename map and `morpheme migrate` rewriting a site's themes and apps (as contract 6 did with
-`scripts/renamed-tokens.json`). A contract raise starts a new line (`plans/2026-11-18-release-per-feature.md`), so the names are a release of
-their own after 0.19 (roadmap). `check:m3-tokens --report` (below) lists every name that will change.
+`scripts/renamed-tokens.json`). A contract raise starts a new line (`plans/2026-11-18-release-per-feature.md`), so the names are **0.20.0 Material 3
+names** (owner, 20 November 2026: "Yes, put it in the roadmap"), with scoped app CSS in the same contract. `check:m3-tokens --report` (below) lists every name that will change.
 
 ## The token copy
 

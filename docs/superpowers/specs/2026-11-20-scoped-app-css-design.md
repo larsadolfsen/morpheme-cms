@@ -49,12 +49,12 @@ that token (`docs/css-tokens.md`).
 
 **Contract.** An app that styles anything outside its own blocks today stops doing so, which is a breaking change for apps: `APP_API`
 rises and the contract is documented in `docs/app-contract.md`. A store app built for the old contract keeps working until its
-publisher updates it, as the contract rules say. `THEME_API` does not change: `--mo-theme-*` is new and takes nothing away.
+publisher updates it, as the contract rules say. Scoping alone would not change `THEME_API` (`--mo-theme-*` is new and takes nothing away); contract 8 raises it for the M3 names.
 
 ## Decision
 
-**When.** Decided by the owner on 20 November 2026 ("Agree"): with *0.20.2 An app's Worker code in a sandbox*, so apps get one contract
-raise for both kinds of isolation.
+**When.** Decided by the owner on 20 November 2026: in **0.20.0 Material 3 names**, contract 8, together with the M3 token names ("Yes,
+put it in the roadmap"), because a contract raise starts a line and apps should get one raise (`plans/2026-11-18-release-per-feature.md`).
 
 ## Batches
 
