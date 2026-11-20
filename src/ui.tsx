@@ -2355,7 +2355,8 @@ let tracking = false;
 function trackInput() {
   if (tracking || typeof document === 'undefined') return;
   tracking = true;
-  document.addEventListener('keydown', () => (lastByKey = true), true);
+  // Only the keys that open a button count: typing in a text must not make a menu opened later by a script or a tap take the focus from the text.
+  document.addEventListener('keydown', (e) => (lastByKey = ['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(e.key)), true);
   document.addEventListener('pointerdown', () => (lastByKey = false), true);
 }
 
