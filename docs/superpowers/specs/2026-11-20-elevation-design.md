@@ -119,6 +119,53 @@ for a contract raise and is noted for the steps table.
 - **Tailwind's empty shadow lists** go, leaving just the token.
 - **Deviation 12** in `docs/material-deviations.md` is closed with the tokens page's sentence and the date.
 
+## The current parts (audit, 20 November 2026)
+
+Owner, 20 November 2026: "we need to fix elevation/shadow on current elements. Search bar is for example wrong." The CTO compared every
+part with M3's specs and overview pages (33 specs pages and 31 overview pages read with Playwright; the swatches' shadows read as levels)
+and measured the parts in the built demo and the editor at `main` 511105c3.
+
+**The cause.** M3 often gives a part a level and then shows that level by its tone only. The search overview: "Elevation: Lower
+elevation and no shadow by default". The navigation bar: "Elevation: No shadow". The scrolled top app bar: "No drop shadow, instead a
+color fill". The Material theme sets every `-rest-shadow` to the level's full shadow (`tokens/material/ref.css:28-32`), so every part at
+level 1 or more draws a shadow at rest, also where M3 shows none. `theme/styles/elevation.test.mjs` checks only that a rule names the
+level we chose, from our own reading, and treats a level and its shadow as one thing, so it locked these in.
+
+**What changes.** A part's level and its shadow become two tokens: the level's colour stays, and the shadow is `none` where M3 shows
+none (`--mo-comp-<part>-shadow: none`).
+
+| Part | M3 | Today | Fix |
+| --- | --- | --- | --- |
+| Search bar | surface-container-high, level 3, no shadow; hover and press only a state layer (`components/search/overview`, `md.comp.search-bar.*`) | level 3 shadow at rest, hovered and focused (`ui/search.css:29-33`, `:98-102`), in the editor's start screen and every search bar | no shadow |
+| Search view | docked and full-screen: no shadow | level 3 shadow (`ui/search.css:165-170`) | no shadow |
+| Top app bar, scrolled | surface-container, level 2, "No drop shadow" | level 2 shadow (`ui/top-app-bar.css:35-39`) | no shadow |
+| Navigation bar | surface-container, level 2, "No shadow" | level 2 shadow (`ui/navigation-bar.css:29-30`, `tokens/material/comp/navigation.css:18`) | no shadow |
+| Docked toolbar | level 2, "No shadow" | level 2 shadow (`ui/toolbar.css:31`) | no shadow |
+| Date pickers | surface-container-high, level 3, "no shadow" | level 3 shadow (`ui/dialog.css:16`, `ui/pickers.css:119`) | no shadow |
+| FAB menu items | level 0 at rest, hover 4, focus and pressed 3 | level 3 at rest (they take `ui/fab.css:31`) | level 0 at rest |
+| List - Expand | list item on surface, level 0 | level 1 shadow on surface-container-low (`ui/list.css:400` falls back to `--mo-sys-block-shadow`) | level 0, no fallback to the block shadow |
+| Bottom sheet from 600 dp | level 1 (standard and modal) | level 3 (`ui/bottom-sheet.css:206`) | level 1 |
+| Navigation drawer, modal | surface-container-low, level 1 | surface-container with a level 1 shadow (`ui/navigation-drawer.css:51-52`) | surface-container-low |
+| Carousel item | surface, level 0, hover level 1 | no lift on hover | hover level 1 |
+| Buttons (Expressive) | the hover lift tokens are deprecated in the Expressive sets | elevated hover 2, filled and tonal hover 1 (`ui/buttons.css:159-204`) | no hover lift (Expressive wins, skill `material-3`) |
+| Switch and slider handles (Expressive) | the handle elevation tokens are deprecated; Expressive prints none | level 1 shadow (`ui/switch.css:117`, `ui/slider.css:226`, `:237`) | no shadow |
+| Floating toolbar and menu, vibrant | primary-container (toolbar) and tertiary-container (menu) | primary | the M3 roles |
+
+They match M3 today and stay as they are: cards (all three kinds, every state), chips, FAB and extended FAB, the basic dialog, time
+pickers, snackbar, rich tooltip, side sheet, navigation rail, the floating toolbar's level, lists (dragged level 4), icon buttons,
+segmented buttons, button groups, tabs, text fields, badges and progress indicators.
+
+**Other current shadows.** The video facade's icon (`theme/styles/blocks/prose.css:113`, `drop-shadow(0 2px 8px rgb(0 0 0 / .5))`)
+is hand-written: it sits on a video, M3's case for a shadow ("Protect elements"), and takes a level shadow in batch 2. The colour picker's dots
+(`src/editor-ui.css:195-203`, `:288`) and Tailwind's empty lists (`src/editor-screens.css:657`, `src/editor-settings.css:1539`,
+`:1703`) are the fixes already listed. The editor's dragged block (level 4) and contextual menu (level 2) match M3's dragged and menu
+levels.
+
+**The test.** `elevation.test.mjs` is rewritten to compare each part with M3's own tokens, the level and whether a shadow is shown per
+state, read from the M3 token copy (`docs/m3-tokens/`, owner, 20 November 2026: "only the tokens … go ahead") with a short list of the
+overview pages' "no shadow" sentences, which the tokens don't carry. A part that differs fails, so a value from our own reading can't lock
+in a mistake again.
+
 ## Decisions
 
 1. **Component levels in a customizer** (then 0.22.2, now an idea without a version). Decided by the owner on 20 November 2026: "No, save the shadow changer in a none planned customizer feature". A component keeps
@@ -137,5 +184,9 @@ for a contract raise and is noted for the steps table.
    Tailwind's empty shadow lists and closes deviation 12. Adds a release note line, because a theme or app developer can now use the
    class (skill `release-notes`).
 
-Elevation is done when `check:css-values` fails on a hand-written shadow, the classes are on the demo and on the tokens screen,
+3. **The current parts.** The table above: the shadow tokens split from the levels, the fixes, and `elevation.test.mjs` against M3's
+   tokens. Measured again in the built demo and the editor, at rest, hovered, focused, pressed and dragged. A release note line: search
+   bars and bars lose their shadow, as Material 3 draws them (skill `release-notes`).
+
+Elevation is done when `check:css-values` fails on a hand-written shadow, every part matches M3's levels and shadows, the classes are on the demo and on the tokens screen,
 the owner has seen them on the demo, and 0.19.5 has run on staging.

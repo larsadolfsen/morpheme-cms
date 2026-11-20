@@ -1,7 +1,7 @@
 # Colours on a coloured section (spec)
 
 Status: **20 November 2026, for the owner.** Ships in **0.19.5 UI fixes**, next to the elevation spec
-(`specs/2026-11-20-elevation-design.md`). Four decisions for the owner are under *Decisions*.
+(`specs/2026-11-20-elevation-design.md`). One decision for the owner is open under *Decisions*.
 
 Owner, 20 November 2026: only Material 3's predefined colour roles may be used (ruled in 0.19.2, where the card edge became `outline`
 on a surface and the section's on-colour on a coloured section: "use the on-color"). PM 0.19.2 found that the coloured sections break the
@@ -57,27 +57,39 @@ the platform: "Tokens have no shadows or color") are allowed. The check below li
 
 ## The design
 
-A coloured section uses only pairs M3 prints. Inside it there are three kinds of thing.
+**Inside a coloured section there are only two colours: the section's colour and its on-colour** (owner, 20 November 2026: "we have an
+on primary color and the same with the others", then "yes"). On Primary that is `primary` and `on-primary`; on Secondary `secondary`
+and `on-secondary`; on Tertiary `tertiary` and `on-tertiary`. M3 guarantees the pair both ways round ("Any color roles starting with
+"on-" are guaranteed to have sufficient contrast with the corresponding color role").
 
 1. **What is drawn straight on the section** (text, icons, dividers, outlines, a text or outlined button, an outlined chip, the
-   section's own head): the section's on-colour, `on-primary` on Primary (`on-secondary`, `on-tertiary`). Pair: "On primary: Text and
-   icons against primary". Dividers and edges use the on-colour too (the owner's "use the on-color"), because no outline role is defined
-   against an accent.
-2. **A filled control on the section** (a filled button, a selected chip, a switch's track, a FAB): the same pair reversed, an
-   `on-primary` fill with `primary` content. It has the contrast of the pair.
-3. **A surface placed on the section** (a card, a text field, a search bar, a menu, a list on its own surface, a price card): back in the
-   page's own scheme, its normal surface roles and `on-surface` content, exactly as on a plain section. Its edge against the section is
-   the pair M3 names, "Primary: … fills … against surface". Inside it nothing is swapped.
+   section's own head): the on-colour. Pair: "On primary: Text and icons against primary". Dividers and edges use it too (the owner's
+   "use the on-color"), because no outline role is defined against an accent.
+2. **Everything filled on the section** (a card, a text field, a search bar, a menu, a list on its own surface, a price card, a filled
+   or tonal button, a selected chip, a switch's track, a FAB): the pair reversed, an on-colour fill with the section's colour for its text,
+   icons and edges. Tonal controls look like filled ones here, because M3's container roles are defined only "against surface".
+3. **Inside a filled thing** nothing else changes colour: a card's text, its icons, its own button and its divider all take the section's
+   colour. A filled control inside such a card (its button) takes the pair once more (the section's colour as the fill, the on-colour as
+   its label), so it still stands out.
 
-So the swap becomes small: on a coloured section `on-surface`, `on-surface-variant`, `outline`, `outline-variant` and `primary` take the
-section's on-colour, and `on-primary` takes the section's colour; every `surface*` role is **not** re-declared, so a surface on the
-section is the page's surface. Parts that draw their own surface (cards, fields, menus, sheets) reset the five swapped roles to the page
-scheme on their container, once, beside the swap in `theme/styles/tokens/material/sys.css`.
+So the swap is role for role, with no mix:
 
-**A section with an image** uses the inverse roles, M3's pair set for an area that contrasts with the page: text and icons
-`inverse-on-surface`, actions `inverse-primary`, and the image darkened toward `inverse-surface` (see decision 2).
+- on the section: `on-surface`, `on-surface-variant`, `outline`, `outline-variant`, `primary`, `secondary`, `tertiary` → the on-colour;
+  `on-primary`, `on-secondary`, `on-tertiary`, `surface`, `surface-bright` → the section's colour; every `surface-container*`,
+  `surface-dim`, `primary-container`, `secondary-container`, `tertiary-container` → the on-colour, with `on-*-container` → the section's
+  colour;
+- on a filled thing in it (cards, fields, menus, sheets: their container), the same list once more the other way round, once, beside the
+  swap in `theme/styles/tokens/material/sys.css`.
 
-**Dark mode** follows by itself: every role is the theme's.
+What is lost: the five surface levels inside a coloured section. Every card there has the same fill, which is the on-colour.
+
+**A section with an image** uses the inverse roles, M3's set for an area that contrasts with the page: text and icons
+`inverse-on-surface`, actions `inverse-primary` (the open decision says what is behind the text).
+
+**Dark mode** follows by itself: every role is the theme's (on Primary in dark mode the section is light and its cards are dark).
+
+**The editor follows the same rule** (owner, 20 November 2026: "yes"). Its workspace is outside Material 3's components and layout (owner,
+13 Nov), but its colours are the theme's roles like the site's, so `check:color-roles` has one scope.
 
 **Themes and apps** keep working: a theme sets roles, not the swap. Venus and the CMS's blocks are checked on every section colour in light
 and dark (`check:contrast`, `check:screens`, `check:themes`).
@@ -99,27 +111,20 @@ allowance in `check:editor-colors`, and `CLAUDE.md`'s colour rule drops "`color-
 
 ## Decisions
 
-1. **A surface on a coloured section** (cards, fields, menus). Recommended: the page's own surface roles (design point 3), so a card on
-   a Primary section looks like the same card on a plain section, standing out by the accent/surface pair. The alternative is an outlined
-   look only (no fill, edges and text in the on-colour), which keeps the section's colour through the card but has no filled cards,
-   fields or menus on a coloured section.
-2. **A section with an image.** Recommended: text on an image sits on an `inverse-surface` panel at full strength (a pair M3 prints, so
-   contrast is guaranteed whatever the image). The alternative keeps today's darkening gradient over the whole image but made of the
-   `scrim` role, which needs an owner-approved deviation (`docs/material-deviations.md`), because 32 % scrim does not guarantee text
-   contrast on a light image and a stronger gradient is not an M3 value.
-3. **Filled and tonal controls on a section.** M3's tonal controls use container roles, which are defined against surface. Recommended:
-   on a coloured section a tonal button, a tonal icon button and a selected filter chip are drawn like the filled ones (design point 2),
-   so the section shows two kinds, filled and outlined. The alternative draws them as surfaces (design point 3).
-4. **The editor.** Recommended: the rule applies to the editor too, its workspace included, with the same allowed opacities, so
-   `check:color-roles` has one scope. The owner's exception for the editor ("MD3 everywhere except the editor", 13 Nov) covers its
-   components and layout; this is about colour roles, which the editor already takes from the theme.
+Decided by the owner on 20 November 2026: the two colours inside a coloured section (design, above), and the editor under the same rule.
+One is open:
+
+- **A section with an image.** Recommended: text on an image sits on an `inverse-surface` panel at full strength (a pair M3 prints, so
+  contrast is guaranteed whatever the image). The alternative keeps today's darkening gradient over the whole image but made of the
+  `scrim` role, which needs an owner-approved deviation (`docs/material-deviations.md`), because 32 % scrim does not guarantee text
+  contrast on a light image and a stronger gradient is not an M3 value.
 
 ## Batches (pull requests into the 0.19.5 feature branch)
 
 1. **The check.** `check:color-roles` with the baseline in its allowlist, in `check:source`; `CLAUDE.md`'s colour rule and
    `check:editor-colors` updated. If it is 0.19.5's first pull request, it sets the version.
-2. **The section swap.** The swap of `tokens/material/sys.css` and `tokens/blocks/sys.css` reduced to role-for-role as designed, the
-   surfaces reset on parts' containers, the image section on the inverse roles (decision 2). `check:contrast` on every section colour,
+2. **The section swap.** The swap of `tokens/material/sys.css` and `tokens/blocks/sys.css` reduced to role for role as designed, the
+   reverse on filled parts' containers, the image section on the inverse roles (the open decision). `check:contrast` on every section colour,
    light and dark; `check:screens` and `check:themes` green; Venus checked on the demo. A release note line: coloured sections look a
    little different (skill `release-notes`).
 3. **The rest of the allowlist.** Every remaining non-M3 mix in parts and the editor is replaced by a role or an M3 opacity token, until
