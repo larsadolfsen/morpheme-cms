@@ -48,7 +48,7 @@ async function checkCardBar(width, height = 800) {
   if (!tools.names.includes('Remove')) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
   const rowNames = await page
     .locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')
-    .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+    .evaluateAll((els) => els.map((e) => (e.querySelector(':scope > .mo-site-block-card-button') ?? e).getAttribute('aria-label')));
   if (!rowNames.includes('Move up')) problems.push(`${label}: the card's action row has no Move up (${rowNames})`);
   if (tools.names.includes('Move up') || tools.names.includes('Hide'))
     problems.push(`${label}: Move up or Hide is in the bar as well as in the action row (${tools.names})`);
@@ -686,7 +686,7 @@ async function checkBlockHandleCorner(width) {
     for (let i = 0; i < count; i++) {
       const block = blocks.nth(i);
       const card = block.locator(':scope > .mo-site-block-card');
-      const name = await card.getAttribute('aria-label');
+      const name = await card.evaluate((el) => (el.querySelector(':scope > .mo-site-block-card-button') ?? el).getAttribute('aria-label'));
       if (seen.has(name)) continue;
       seen.add(name);
       // The cursor is out of every block first, as the other units do: the block before lets go of its row, and the page settles.

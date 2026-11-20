@@ -75,7 +75,7 @@ const scan = `(root) => {
   };
   const blockOf = (el) => {
     const card = el.closest('.mo-site-block-card');
-    if (card) return 'editor ' + (card.getAttribute('aria-label') ?? '').toLowerCase();
+    if (card) return 'editor ' + ((card.querySelector(':scope > .mo-site-block-card-button') ?? card).getAttribute('aria-label') ?? '').toLowerCase();
     for (let e = el; e && e !== document.body; e = e.parentElement) {
       const cls = typeof e.className === 'string' ? e.className : '';
       const t = e.getAttribute('data-block') ?? (/\\bmo-is-in-text\\b/.test(cls) || e.classList.contains('mo-site-block-inline') ? /\\bmo-block-([a-z]+)/.exec(cls)?.[1] : null);
