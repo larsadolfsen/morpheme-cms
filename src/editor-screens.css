@@ -115,9 +115,7 @@
   .mo-editor-photo-credit-tooltip > .mo-tooltip {
     inset-inline-start: auto;
     inset-inline-end: 0;
-    /* Above the button: below it the tooltip covers the card's Close and Read more (WCAG 2.4.11). */
-    inset-block-start: auto;
-    inset-block-end: calc(100% - 0.5rem);
+    /* The theme puts it above the button (and under it only where there is no room above), not on the card's Close and Read more (WCAG 2.4.11). */
     max-inline-size: 15rem;
   }
   .mo-editor-photo-credit-button {
