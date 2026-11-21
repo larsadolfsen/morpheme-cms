@@ -38,22 +38,29 @@ export const PHONE_FLOWS = ['A', 'B', 'F', 'J'];
 /** The steps that must be announced, and how: `{ urgent }` (the plan's *Live regions*: saves, errors, snackbars and block moves are said). */
 export const EXPECT = {
   'A: after Save': { urgent: false },
-  'B: after inserting a block': { urgent: false },
-  'B: after Move down': { urgent: false },
-  'B: after Move up': { urgent: false },
-  'B: after Remove': { urgent: false },
+  'B: after inserting a block': { urgent: false, text: /added, block \d+ of \d+/ },
+  'B: after Move down': { urgent: false, text: /moved to block \d+ of \d+/ },
+  'B: after Move up': { urgent: false, text: /moved to block \d+ of \d+/ },
+  'B: after Remove': { urgent: false, text: /removed/ },
   'I: after Move down': { urgent: false },
   'J: after typing': { urgent: false },
   'J: after Save': { urgent: false },
   'J: after Save with a field left wrong': { urgent: true },
   'K: after Change type': { urgent: false },
-  'K: after Remove': { urgent: false },
+  'K: after Remove': { urgent: false, text: /removed/ },
   'L: a message while the Schedule dialog is open': { urgent: false },
   'L: a message while the insert sheet is open': { urgent: false },
   'K: after a copied link': { urgent: false },
   'K: after a notice': { urgent: true },
   'K: after a failed load': { urgent: true },
-  'L: after a block is selected': { urgent: false },
+  'L: after a block is selected': { urgent: false, text: /block \d+ of \d+, selected/ },
+};
+
+/** The text area's description at the steps that say it (batch 6): the Alt+F10 hint the first time the text has focus on a page, and not after. */
+export const DESCRIBED = {
+  'C: on the text': 'Alt+F10 moves to the formatting tools',
+  'C: after Bold': '',
+  'C: back in the text': '',
 };
 
 /** Where the speech log is written: `ANNOUNCE_LOG`, or `announce-log.txt` in the folder the check runs in. */
@@ -72,6 +79,12 @@ function hooks(flow, width, findings, lines) {
       const inWindow = events.filter((e) => e.t >= from);
       from = events.length ? events[events.length - 1].t + 0.001 : from;
       for (const problem of judgeWindow(inWindow, { expect: EXPECT[step] })) add(problem, step);
+      if (step in DESCRIBED) {
+        const described = await page.evaluate(
+          () => document.querySelector('[role=textbox][aria-label="Text"]')?.getAttribute('aria-description') ?? '',
+        );
+        if (described !== DESCRIBED[step]) add('wrong-description', step);
+      }
       const focus = await speakFocus(page);
       if (!focusOk || (await isBody(page))) add('flow-lost-focus', step);
       else if (!focus.name) add('flow-focus-unnamed', step);
