@@ -17,11 +17,15 @@ things and make sure accessibility is spot on".
 3. **Material follows M3 100%**, even where M3 falls short of WCAG. Its accessibility deviations go to the base theme instead
    (`docs/material-deviations.md`, the contrast and target entries).
 
-## Until the base theme exists
+## Material follows M3 now (0.19.5)
 
-Material is still the base and every site's default, so the WCAG 2.2 AA rule (`CLAUDE.md`, *Accessibility*) and its deviations stay as
-they are. 0.19.5 does not change: its `check:m3-tokens` allowlist keeps the WCAG entries. Material drops them only when the base theme
-ships with them.
+Owner, 21 November 2026: "It does change, because we will no longer follow our FRONTEND deviations, instead we will follow md3".
+
+- 0.19.5 removes every deviation in `docs/material-deviations.md` outside the editor's own workspace, so Material takes M3's value.
+- The two kept for accessibility go too: the Outlined card's edge and the 60% placeholder (owner: "Follow M3 too"). Sites on Material
+  lose them until the base theme ships and takes them over. `CLAUDE.md`, *Accessibility*, names this exception.
+- Coloured sections stay, on M3's nearest roles (the container roles and their on-colours) instead of our swaps and veils, where
+  contrast allows (owner: "Keep, nearest M3 roles").
 
 ## Open for the design
 
@@ -31,5 +35,4 @@ ships with them.
 - **Themes and accessibility:** the CTO advised that every theme keeps the base's accessibility, because the European Accessibility Act
   has applied to most businesses selling online in the EU since June 2025. The owner has not decided whether Material and other themes
   may fall short of it. If they may, the store and the editor say so before a site owner picks one.
-- **The rule's wording:** `CLAUDE.md` says "the sites the CMS builds" meet AA, which would need to name the base theme instead.
 - **Fit with the customizer:** where the layers go (`specs/2026-11-21-customizer-notes.md`, `@layer base, theme, custom`).
