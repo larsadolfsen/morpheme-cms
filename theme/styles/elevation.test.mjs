@@ -231,3 +231,73 @@ test('global.css keeps the extended FAB lines in the navigation drawer', () => {
     1,
   );
 });
+
+// The classes (theme/styles/elevation.css, spec 2026-11-20-elevation-design.md): mo-elevation-0 to -3 are surfaces, mo-elevated-1 to -3 only a shadow.
+const classCss = read('./elevation.css');
+const rule = (selector) => {
+  const at = classCss.indexOf(`  ${selector} {`);
+  assert.notEqual(at, -1, `${selector} has a rule`);
+  return classCss.slice(at, classCss.indexOf('}', at));
+};
+
+for (const n of [0, 1, 2, 3]) {
+  test(`.mo-elevation-${n} is a surface: the level's colour and on-colour${n ? ', and the elevation shadow' : ''}`, () => {
+    const body = rule(`.mo-elevation-${n}`);
+    assert.match(body, new RegExp(`background-color: var\\(--mo-sys-elevation-level${n}-color\\);`));
+    assert.match(body, /color: var\(--mo-sys-color-on-surface\);/);
+    if (n) assert.match(body, new RegExp(`box-shadow: var\\(--mo-sys-elevation-level${n}-rest-shadow\\);`));
+    else assert.doesNotMatch(body, /box-shadow/);
+  });
+}
+
+for (const n of [1, 2, 3]) {
+  test(`.mo-elevated-${n} sets only the level's shadow, no colour`, () => {
+    const body = rule(`.mo-elevated-${n}`);
+    assert.match(body, new RegExp(`box-shadow: var\\(--mo-sys-elevation-level${n}-shadow\\);`));
+    assert.doesNotMatch(body, /background|color:/);
+  });
+}
+
+test('there is no mo-elevated-0 and no class above level 3', () => {
+  assert.doesNotMatch(classCss, /mo-elevated-0|mo-elevation-[45]|mo-elevated-[45]/);
+});
+
+test('hover steps up one level, for what can be clicked and where the device can hover', () => {
+  assert.match(classCss, /@media \(hover: hover\)/);
+  const hover = classCss.slice(classCss.indexOf('@media (hover: hover)'));
+  for (const n of [1, 2, 3]) {
+    assert.match(
+      hover,
+      new RegExp(
+        `\\.mo-elevated-${n}:hover:not\\(\\[data-dragged\\]\\) \\{\\s*box-shadow: var\\(--mo-sys-elevation-level${n + 1}-shadow\\);`,
+      ),
+    );
+  }
+  for (const n of [0, 1, 2, 3]) {
+    assert.match(
+      hover,
+      new RegExp(
+        `\\.mo-elevation-${n}\\)\\:hover:not\\(\\[data-dragged\\]\\) \\{\\s*box-shadow: var\\(--mo-sys-elevation-level${n + 1}-rest-shadow\\);`,
+      ),
+    );
+  }
+  assert.match(hover, /:is\(a, button, summary, \[role='button'\], \[tabindex\]\)/);
+});
+
+test('dragged steps up three levels, never above 5', () => {
+  const dragged = { 0: 3, 1: 4, 2: 5, 3: 5 };
+  for (const [n, to] of Object.entries(dragged)) {
+    const at = classCss.indexOf(`.mo-elevation-${n}[data-dragged]`);
+    assert.notEqual(at, -1);
+    assert.match(classCss.slice(at, classCss.indexOf('}', at)), new RegExp(`var\\(--mo-sys-elevation-level${to}-shadow\\)`));
+    if (n !== '0') {
+      const e = classCss.indexOf(`.mo-elevated-${n}[data-dragged]`);
+      assert.match(classCss.slice(e, classCss.indexOf('}', e)), new RegExp(`var\\(--mo-sys-elevation-level${to}-shadow\\)`));
+    }
+  }
+});
+
+test('the classes use the theme’s effects spring and sit in the utilities layer', () => {
+  assert.match(classCss, /transition: box-shadow var\(--mo-sys-motion-spring-default-effects\);/);
+  assert.match(classCss, /^@layer utilities \{/m);
+});
