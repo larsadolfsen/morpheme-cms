@@ -67,7 +67,7 @@ check*: the editor's screens and one page per block, never the content): `check:
 1, whose first run also walked the demo's pages, posts and categories), each a problem, a selector and the screens or flows it is on. A count of **entries** is
 distinct selectors; **places** is the screens or flows they are found on (one entry on many screens counts once per screen).
 
-| Problem | What it is | Entries at the baseline | Now (after batch 6) | Fixed by batch (pull request) |
+| Problem | What it is | Entries at the baseline | Now | Fixed by batch (pull request) |
 | --- | --- | ---: | ---: | :---: |
 | `no-announcement` | a step that should be announced (an inserted, moved or removed block, a selected block) says nothing from a region that was there before | 4 | 0 | 4 (#1086), 4b (#1097), 5 (#1102), 6 (#1105) |
 | `repeated-name` | two controls of one role with one name in one list (the footer links of the licences, the screen crumbs, the block handles on the Blocks pages; the component gallery's examples) | 35 | 0 | 2 (#1090) |
@@ -78,7 +78,7 @@ distinct selectors; **places** is the screens or flows they are found on (one en
 | `no-name` | the inline notice's `role=button` has no name (the Cards page) | 1 | 0 | 2 (#1090) |
 | `icon-name`, `disabled-no-reason`, `live-region`, `double-announcement`, `wrong-urgency`, `flow-focus-unnamed`, `flow-lost-focus`, `wrong-description` | found nowhere | 0 | 0 | none |
 
-**The allowlist is at 0** (`scripts/announce-allowlist.json` is `[]`) when batch 6 (#1105) is merged; on the feature branch before it, its 4 `no-announcement` entries are still there.
+**The allowlist is at 0** (`scripts/announce-allowlist.json` is `[]`) since batch 6 (#1105) merged.
 
 **The batches and their pull requests** (all into `feature/0.19.4-screen-readers`): 1 the version and the check, #1085; 2 names, #1090; 3 roles and states, #1088; 4 the announcer and the live
 regions, #1086, with 4b loading, progress and flow K, #1097; 5 open, close and change, #1102; 6 blocks, the text and the preview, #1105; 7 the reader pass and the notes (this one:
@@ -253,7 +253,7 @@ Batch 1 reads these before it writes the check, and corrects this plan in its ow
 Status, 21 Nov 2026, after batch 7 is written:
 
 - [x] `check:announce` runs in CI on every pull request with its flows (A, B, C, F, I, J, K, L).
-- [x] Its allowlist is empty (once #1105 is merged).
+- [x] Its allowlist is empty (since #1105).
 - [x] The owner's steps for the reader pass are in `docs/screen-reader-test.md`; the release note *Screen readers* is pending in English and Danish.
 - [ ] The owner has done a reader pass on staging with NVDA or Narrator and on a phone with TalkBack (or has decided in words that the check alone is enough).
 - [ ] 0.19.4 has run on staging before the owner releases it.
