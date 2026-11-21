@@ -25,7 +25,15 @@ page and check it. I don't want to tell you more times to follow MD3."
    `docs/material-deviations.md` in the same pull request as the change: what Material says (quoted), what we do instead,
    why, the date and the pull request. A deviation that is not listed there is a bug.
 
-5. Dialogs are only for short messages (owner, 15 Nov 2026: "Dialogs are only for short messages, not for settings."): a short message, a confirmation or a single short choice. Settings or a form with several controls are a standard side sheet from 600 dp and a page below it (`docs/material-deviations.md`, B3).
+6. **Old decisions do not carry over** (owner, 21 Nov 2026: "I am worried about old wrong decisions about md3 carries over"). A
+   decision, deviation, spec, plan, skill rule, allowlist reason or code comment from before 21 Nov 2026 that differs from what M3
+   prints is not a reason to differ. Read the M3 page; if the old source disagrees with it, M3 wins, and you tell your PM which
+   source is wrong (the PM tells the CTO, who corrects it). A difference stands only where `docs/material-deviations.md` gives it a
+   status the owner set on or after 21 Nov 2026 that keeps it, or it is in the page and post editor's bar and menus.
+7. Dialogs are only for short messages (owner, 15 Nov 2026: "Dialogs are only for short messages, not for settings."): a short
+   message, a confirmation or a single short choice. Settings or a form with several controls are a standard side sheet from 600 dp
+   (B3, being checked against M3 in 0.19.6). Below 600 dp the existing pages stay until 0.20.0, which makes them M3's full-screen
+   dialog (B2, owner 21 Nov 2026); a new view does not copy the page pattern, it asks the PM.
 
 Wording follows M3's word choice (`CLAUDE.md`, *Word choice*). A theme's own look is the skill `site-editor-theme`.
 

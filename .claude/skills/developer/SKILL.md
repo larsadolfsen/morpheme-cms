@@ -115,6 +115,7 @@ Run `npm run check:fast` while you build (after each step): it runs only the che
 
 ## 4. The owner's standing design rules
 
+Rules from before 21 Nov 2026 hold only where they match what M3 prints; where they differ, M3 wins (skill `material-3`, rule 6).
 Short forms, for a developer to know before reading the specs. A rule changes only where it lives.
 
 - **Dialog.** In a basic dialog no control has the focus when it opens; the main choice is a filled button and the other
@@ -125,7 +126,8 @@ Short forms, for a developer to know before reading the specs. A rule changes on
 - **Dialogs are only for short messages** (owner, 15 Nov): a dialog is a short message, a confirmation or a single short choice. Settings or a form with several controls are the theme's standard side sheet beside the page from 600 dp and a page below 600 dp (`docs/material-deviations.md`, B3).
 - **Pages on a phone.** Below 600 dp no view is a full-screen dialog or a side sheet: each is a page with a back arrow in
   the top app bar, and Back with unsaved changes asks "Keep your changes?" (`docs/material-deviations.md`, B2). The
-  computer keeps the side sheet.
+  computer keeps the side sheet. **Ends in 0.20.0** (owner, 21 Nov 2026): below 600 dp these become M3's full-screen dialog, with
+  Save in its header as M3 prints. Until then the existing pages stay; a new view asks the PM instead of copying them.
 - **Standard names.** Use the standard name of a field or a feature (Material 3's, the web's, the real product's),
   never a new one (`docs/superpowers/specs/2026-11-14-standard-names-audit.md`).
 - **CSS custom properties** (owner, 16 Nov 2026; `docs/css-tokens.md`, `npm run check:css-tokens`). A shared value is a `--mo-…` token: the CMS owns

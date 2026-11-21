@@ -224,4 +224,6 @@ All wording in UI components, buttons and fields follows Material 3's *Global wr
 ### Material 3 everywhere except the page and post editor
 
 Owner, 13 Nov 2026: "We follow MD3 everywhere except the editor." Owner, 21 Nov 2026: that means only the page and post editor (its bar, overflow menu, text and block menus); the editor's other screens (theme page, settings, lists, dialogs) follow Material 3 like the site. Outside the page and post editor every design choice follows what m3.material.io prints, read from the real pages,
-never from memory. Load the skill `material-3` before a spec or a change that touches such a part.
+never from memory. Load the skill `material-3` before a spec or a change that touches such a part. An older decision, spec or rule
+that differs from what M3 prints does not carry over (owner, 21 Nov 2026): M3 wins, and the session reports the old source
+(`material-3`, rule 6).
