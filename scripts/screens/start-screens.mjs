@@ -770,6 +770,9 @@ async function checkKeyboard(page, width, hash) {
 async function checkAnnounce(page, width, hash) {
   // Only in the CMS repository: the allowlist is the demo's (scripts/announce.mjs, announceRuns).
   if (!announce.announceRuns()) return;
+  // The pages other units make for themselves (`zz-check-page.md`, `zz-check-post.md`, `zz-check-unlisted.md`) are test fixtures that exist only in the shard that
+  // runs those units, so the list can not hold them; the editor parts they show are the same as on the demo's own pages, which are walked.
+  if (/\/zz-check-/.test(hash)) return;
   await page.waitForTimeout(300);
   const { findings } = await announce.walk(page);
   problems.push(...announce.judge(findings, `#${hash}`, announce.viewportOf(width)).map((line) => `${width}px ${line}`));
