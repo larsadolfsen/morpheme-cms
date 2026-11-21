@@ -5,6 +5,8 @@ export const common: Messages['common'] = {
   saveChanges: 'Gem ændringer',
   saving: 'Gemmer…',
   deleting: 'Sletter…',
+  loaded: 'Indlæst',
+  progressAt: (label, percent) => `${label} ${percent} %`,
   cancel: 'Annuller',
   close: 'Luk',
   /** The handle at the top of a sheet on a phone (SheetTitle), for screen readers. */
