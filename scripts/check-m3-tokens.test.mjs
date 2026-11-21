@@ -1,6 +1,19 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { compare, declaredOnRoot, evaluate, judge, loadM3, resolveVars, themeName, tokenFiles } from './check-m3-tokens.mjs';
+import {
+  compare,
+  declaredOnRoot,
+  evaluate,
+  judge,
+  judgeOurs,
+  loadM3,
+  resolveVars,
+  themeName,
+  tokenFiles,
+  unmapped,
+} from './check-m3-tokens.mjs';
+import { RENAMES } from './m3-tokens.renames.mjs';
+import { ours } from './m3-tokens.ours.mjs';
 import { readFileSync } from 'node:fs';
 import { allow } from './m3-tokens.allow.mjs';
 
@@ -74,6 +87,53 @@ test('a difference not on the list, and an entry that no longer differs, both fa
 test('the theme today differs from Material 3 exactly as the allowlist says', () => {
   const map = declaredOnRoot(tokenFiles().map((f) => readFileSync(f, 'utf8')));
   assert.deepEqual(judge(compare(map, loadM3()), allow), []);
+});
+
+test('a token the rename map maps is compared with its M3 token, and a wrong value fails', () => {
+  const data = m3([length('md.comp.button.small.leading-space', 16), length('md.comp.button.small.trailing-space', 16)]);
+  const renames = { '--mo-comp-button-padding': ['md.comp.button.small.leading-space', 'md.comp.button.small.trailing-space'] };
+  const stats = { compared: new Set() };
+  assert.deepEqual(compare(declaredOnRoot([':root { --mo-comp-button-padding: 1rem; }']), data, stats, renames), []);
+  assert.deepEqual([...stats.compared], ['--mo-comp-button-padding']);
+  // 24 dp against M3's 16: one difference, not two (leading and trailing are the same value).
+  const wrong = compare(declaredOnRoot([':root { --mo-comp-button-padding: 1.5rem; }']), data, {}, renames);
+  assert.deepEqual(
+    wrong.map((f) => [f.token, f.theme, f.m3]),
+    [['--mo-comp-button-padding', '24', '16']],
+  );
+  // Without the map the same token is never compared (what batch A closes).
+  assert.deepEqual(compare(declaredOnRoot([':root { --mo-comp-button-padding: 1.5rem; }']), data, {}, {}), []);
+});
+
+test('a --mo-comp token that maps to no M3 token and is not named as ours fails; so does a stale entry', () => {
+  const data = m3([length('md.comp.x.container.height', 56)]);
+  const map = declaredOnRoot([':root { --mo-comp-x-container-height: 3.5rem; --mo-comp-x-gap: 1rem; --mo-comp-y-size: 2rem; }']);
+  assert.deepEqual(unmapped(map, data, {}), ['--mo-comp-x-gap', '--mo-comp-y-size']);
+  assert.equal(judgeOurs(map, data, [{ token: '--mo-comp-x-gap', reason: 'r' }], {}).length, 1); // --mo-comp-y-size is not named
+  assert.deepEqual(
+    judgeOurs(
+      map,
+      data,
+      [
+        { token: '--mo-comp-x-gap', reason: 'r' },
+        { token: '--mo-comp-y-size', reason: 'r' },
+      ],
+      {},
+    ),
+    [],
+  );
+  // Named as ours but it maps now (by name), and one no longer declared, and one without a reason.
+  assert.equal(judgeOurs(map, data, [{ token: '--mo-comp-x-container-height', reason: 'r' }], {}).length, 3);
+  assert.equal(judgeOurs(map, data, [{ token: '--mo-comp-gone', reason: 'r' }], {}).length, 3);
+  assert.equal(judgeOurs(map, data, [{ token: '--mo-comp-x-gap' }], {}).length, 2);
+  // A rename to a token M3 does not have.
+  assert.equal(judgeOurs(map, data, [], { '--mo-comp-x-gap': ['md.comp.nope'] }).length, 3);
+});
+
+test('the theme today: every --mo-comp token is compared or ours, and every rename target is an M3 token', () => {
+  const map = declaredOnRoot(tokenFiles().map((f) => readFileSync(f, 'utf8')));
+  assert.deepEqual(judgeOurs(map, loadM3(), ours), []);
+  for (const [theme, targets] of Object.entries(RENAMES)) assert.ok(map.has(theme), `${theme} is in the rename map but not declared`);
 });
 
 test('every allowlist entry is a class the plan names', () => {
