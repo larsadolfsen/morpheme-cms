@@ -686,7 +686,11 @@ async function checkBlockHandleCorner(width) {
     for (let i = 0; i < count; i++) {
       const block = blocks.nth(i);
       const card = block.locator(':scope > .mo-site-block-card');
-      const name = await card.evaluate((el) => (el.querySelector(':scope > .mo-site-block-card-button') ?? el).getAttribute('aria-label'));
+      // The kind of block, not its place: blocks of one kind are numbered (`Image grid 2 of 3`), the base name is the kind.
+      const name = await card.evaluate((el) => {
+        const named = el.querySelector(':scope > .mo-site-block-card-button') ?? el;
+        return named.dataset.base ?? named.getAttribute('aria-label');
+      });
       if (seen.has(name)) continue;
       seen.add(name);
       // The cursor is out of every block first, as the other units do: the block before lets go of its row, and the page settles.
