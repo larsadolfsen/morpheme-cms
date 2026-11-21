@@ -197,6 +197,7 @@ async function flowC(ctx) {
   const { page } = ctx;
   await open(ctx, PAGE, '[role=textbox][aria-label="Text"]');
   await reach(ctx, 'C: the text', TEXT);
+  await expectFocus(ctx, 'C: on the text', TEXT);
   await page.keyboard.press('Alt+F10');
   await settle(page);
   const inBar = { css: 'button', inside: '[role=toolbar]' };
