@@ -26,6 +26,8 @@ export const common = {
   removeItem: (name: string) => `Remove ${name}`,
   notInUse: 'Not in use',
   noMatch: 'No results',
+  /** Said when Save finds several problems, before the first one: "3 problems. …". */
+  problems: (count: number) => `${count} problems`,
   notSaved: (error: string) => `Couldn’t save: ${error}`,
   backTo: (to: string) => `Back to ${to}`,
   back: 'Back',

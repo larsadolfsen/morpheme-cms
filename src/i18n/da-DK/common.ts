@@ -24,6 +24,7 @@ export const common: Messages['common'] = {
   removeItem: (name) => `Fjern ${name}`,
   notInUse: 'Ikke i brug',
   noMatch: 'Ingen resultater',
+  problems: (count) => `${count} problemer`,
   notSaved: (error) => `Kunne ikke gemme: ${error}`,
   backTo: (to) => `Tilbage til ${to}`,
   back: 'Tilbage',

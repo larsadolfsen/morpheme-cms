@@ -36,10 +36,11 @@ import { autoTagChanges, newlyUsed } from './autoTags.mjs';
 import { creditChanges, recordsIn } from './fileRecords.mjs';
 import { libraryAltOf } from './imageAlt.mjs';
 import { libraryItems } from './standard/imagegrid/library';
-import { inUse, problemAt } from './check';
+import { inUse, problemAt, problemsAt } from './check';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
 import { asStandardTemplate, blockProblems, notOffered, siteBlocks } from './registry';
+import { useAnnounce } from './useAnnounce';
 import { FieldInput, Fields, HeadImage, HeadTitle, useWrongField, WrongField, type FieldContext } from './fields';
 import { SearchPreview } from './SearchPreview';
 import { searchedAs } from './googleResult.mjs';
@@ -523,6 +524,9 @@ function Form({
           : {},
     skip: () => isNew && isUntouched(),
   });
+  // The autosave's state is said once it settles (a moment after the last change), not on each keystroke: "Saving…", "Saved", "Not saved".
+  // Polite for all three: a failed autosave is not a failed Save (that one is an error message, said at once), and it must not cut in while the person types.
+  useAnnounce(autosaves && dirty ? t.forms.versions.autosave[autosave.state] : undefined, { delay: 800 });
   // A page opened with changes the Worker kept (the tab was closed, or the editor reloaded): put back, unless git's version is newer.
   useEffect(() => {
     if (!autosaves || isNew) {
@@ -693,7 +697,7 @@ function Form({
   // `intent` 'publish': also puts it on the website (a draft is published, waiting changes replace the live version);
   // 'schedule': keeps it as a waiting version that goes live at `at` (Danish time, "2026-11-20T08:00").
   async function save(other?: string, values = named(), intent: 'save' | 'publish' | 'schedule' = 'save', at = ''): Promise<unknown> {
-    if (wrongField.stop(problemAt(collection.fields, values))) return;
+    if (wrongField.stop(problemsAt(collection.fields, values))) return;
     // A standard page is on the site: it cannot be a draft or wait for its time.
     if (
       standard &&

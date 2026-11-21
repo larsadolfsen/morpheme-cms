@@ -424,7 +424,7 @@ function FieldParts() {
               <SiteCheckbox label={screens.checkboxLabel} error={screens.checkboxError} />
             </Example>
             <Example label={screens.example(8)} flat>
-              <SiteCheckbox label={screens.checkboxLabel} error checked />
+              <SiteCheckbox label={screens.checkboxLabel} error={screens.checkboxError} checked />
             </Example>
           </div>
         </Preview>
