@@ -1,0 +1,13 @@
+{
+ "set": "md.comp.button-group.standard.medium",
+ "displayName": "Button group standard - Size - Medium",
+ "description": "For medium standard button groups.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.button-group.standard.medium.container.height","type":"LENGTH","group":null,"value":{"value":56,"unit":"dp"},"resolved":{"light":{"value":56,"unit":"dp"},"dark":{"value":56,"unit":"dp"}},"chain":["md.comp.button-group.standard.medium.container.height"]},
+  {"token":"md.comp.button-group.standard.medium.pressed.item.width.motion.spring.dampening","type":"DURATION","group":"Pressed","value":{"ref":"md.sys.motion.spring.fast.spatial.damping"},"resolved":{"light":{"value":0.9,"unit":null},"dark":{"value":0.9,"unit":null}},"chain":["md.comp.button-group.standard.medium.pressed.item.width.motion.spring.dampening","md.sys.motion.spring.fast.spatial.damping"],"expressive":{"light":{"value":0.6,"unit":null},"dark":{"value":0.6,"unit":null}}},
+  {"token":"md.comp.button-group.standard.medium.pressed.item.width.motion.spring.stiffness","type":"DURATION","group":"Pressed","value":{"ref":"md.sys.motion.spring.fast.spatial.stiffness"},"resolved":{"light":{"value":1400,"unit":null},"dark":{"value":1400,"unit":null}},"chain":["md.comp.button-group.standard.medium.pressed.item.width.motion.spring.stiffness","md.sys.motion.spring.fast.spatial.stiffness"],"expressive":{"light":{"value":800,"unit":null},"dark":{"value":800,"unit":null}}},
+  {"token":"md.comp.button-group.standard.medium.pressed.item.width.multiplier","type":"LENGTH","group":"Pressed","value":{"value":15,"unit":"percent"},"resolved":{"light":{"value":15,"unit":"percent"},"dark":{"value":15,"unit":"percent"}},"chain":["md.comp.button-group.standard.medium.pressed.item.width.multiplier"]},
+  {"token":"md.comp.button-group.standard.medium.between-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space100"},"resolved":{"light":{"value":8,"unit":"dp"},"dark":{"value":8,"unit":"dp"}},"chain":["md.comp.button-group.standard.medium.between-space","md.sys.measurement.space100"]}
+ ]
+}

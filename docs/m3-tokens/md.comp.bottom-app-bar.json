@@ -1,0 +1,14 @@
+{
+ "set": "md.comp.bottom-app-bar",
+ "displayName": "Bottom app bar (baseline)",
+ "description": "Baseline bottom app bar container tokens. For expressive, use `md.comp.toolbar.docked` and `md.comp.toolbar.standard` instead.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.bottom-app-bar.container.color","type":"COLOR","group":"Enabled › Container","value":{"ref":"md.sys.color.surface-container"},"resolved":{"light":{"value":"#F3EDF7","unit":"color"},"dark":{"value":"#211F26","unit":"color"}},"chain":["md.comp.bottom-app-bar.container.color","md.sys.color.surface-container","md.ref.palette.neutral94"]},
+  {"token":"md.comp.bottom-app-bar.container.shape","type":"SHAPE","group":"Enabled › Container","value":{"ref":"md.sys.shape.corner.none"},"resolved":{"light":{"value":0,"unit":"dp","shape":"rounded_corners"},"dark":{"value":0,"unit":"dp","shape":"rounded_corners"}},"chain":["md.comp.bottom-app-bar.container.shape","md.sys.shape.corner.none"]},
+  {"token":"md.comp.bottom-app-bar.container.elevation","type":"ELEVATION","group":"Enabled › Container","value":{"ref":"md.sys.elevation.level2"},"resolved":{"light":{"value":3,"unit":"dp"},"dark":{"value":3,"unit":"dp"}},"chain":["md.comp.bottom-app-bar.container.elevation","md.sys.elevation.level2"]},
+  {"token":"md.comp.bottom-app-bar.container.surface-tint-layer.color","type":"COLOR","group":"Enabled › Container","value":{"ref":"md.sys.color.surface-tint"},"resolved":{"light":{"value":"#6750A4","unit":"color"},"dark":{"value":"#D0BCFF","unit":"color"}},"chain":["md.comp.bottom-app-bar.container.surface-tint-layer.color","md.sys.color.surface-tint","md.sys.color.primary","md.ref.palette.primary40"]},
+  {"token":"md.comp.bottom-app-bar.container.height","type":"LENGTH","group":"Enabled › Container","value":{"value":80,"unit":"dp"},"resolved":{"light":{"value":80,"unit":"dp"},"dark":{"value":80,"unit":"dp"}},"chain":["md.comp.bottom-app-bar.container.height"]},
+  {"token":"md.comp.bottom-app-bar.with-fab.container.height","type":"LENGTH","group":"Enabled › Container","value":{"value":72,"unit":"dp"},"resolved":{"light":{"value":72,"unit":"dp"},"dark":{"value":72,"unit":"dp"}},"chain":["md.comp.bottom-app-bar.with-fab.container.height"]}
+ ]
+}

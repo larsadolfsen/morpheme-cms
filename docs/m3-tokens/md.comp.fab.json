@@ -1,0 +1,12 @@
+{
+ "set": "md.comp.fab",
+ "displayName": "FAB - Size - Regular",
+ "description": "For the default, regular FAB size.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.fab.container.height","type":"LENGTH","group":null,"value":{"value":56,"unit":"dp"},"resolved":{"light":{"value":56,"unit":"dp"},"dark":{"value":56,"unit":"dp"}},"chain":["md.comp.fab.container.height"]},
+  {"token":"md.comp.fab.container.width","type":"LENGTH","group":null,"value":{"value":56,"unit":"dp"},"resolved":{"light":{"value":56,"unit":"dp"},"dark":{"value":56,"unit":"dp"}},"chain":["md.comp.fab.container.width"]},
+  {"token":"md.comp.fab.icon.size","type":"LENGTH","group":null,"value":{"value":24,"unit":"dp"},"resolved":{"light":{"value":24,"unit":"dp"},"dark":{"value":24,"unit":"dp"}},"chain":["md.comp.fab.icon.size"]},
+  {"token":"md.comp.fab.container.shape","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner.large"},"resolved":{"light":{"value":16,"unit":"dp","shape":"rounded_corners"},"dark":{"value":16,"unit":"dp","shape":"rounded_corners"}},"chain":["md.comp.fab.container.shape","md.sys.shape.corner.large"]}
+ ]
+}

@@ -1,0 +1,14 @@
+{
+ "set": "md.comp.button-group.connected.xlarge",
+ "displayName": "Button group connected - Size - Xlarge",
+ "description": "For XL connected button groups.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.button-group.connected.xlarge.container.height","type":"LENGTH","group":null,"value":{"value":136,"unit":"dp"},"resolved":{"light":{"value":136,"unit":"dp"},"dark":{"value":136,"unit":"dp"}},"chain":["md.comp.button-group.connected.xlarge.container.height"]},
+  {"token":"md.comp.button-group.connected.xlarge.between-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space25"},"resolved":{"light":{"value":2,"unit":"dp"},"dark":{"value":2,"unit":"dp"}},"chain":["md.comp.button-group.connected.xlarge.between-space","md.sys.measurement.space25"]},
+  {"token":"md.comp.button-group.connected.xlarge.container.shape","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner.full"},"resolved":{"light":{"value":"circular","unit":null,"shape":"circular"},"dark":{"value":"circular","unit":null,"shape":"circular"}},"chain":["md.comp.button-group.connected.xlarge.container.shape","md.sys.shape.corner.full"]},
+  {"token":"md.comp.button-group.connected.xlarge.inner-corner.corner-size","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner-value.large-increased"},"resolved":{"light":{"value":20,"unit":"dp"},"dark":{"value":20,"unit":"dp"}},"chain":["md.comp.button-group.connected.xlarge.inner-corner.corner-size","md.sys.shape.corner-value.large-increased"]},
+  {"token":"md.comp.button-group.connected.xlarge.pressed.inner-corner.corner-size","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner-value.large"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.button-group.connected.xlarge.pressed.inner-corner.corner-size","md.sys.shape.corner-value.large"]},
+  {"token":"md.comp.button-group.connected.xlarge.selected.inner-corner.corner-size","type":"LENGTH","group":null,"value":{"value":50,"unit":"percent"},"resolved":{"light":{"value":50,"unit":"percent"},"dark":{"value":50,"unit":"percent"}},"chain":["md.comp.button-group.connected.xlarge.selected.inner-corner.corner-size"]}
+ ]
+}

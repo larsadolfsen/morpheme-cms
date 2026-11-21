@@ -1,0 +1,13 @@
+{
+ "set": "md.sys.state",
+ "displayName": null,
+ "description": null,
+ "tokenClass": null,
+ "tokens": [
+  {"token":"md.sys.state.dragged.state-layer-opacity","type":"OPACITY","group":null,"value":{"value":0.16,"unit":"opacity"},"resolved":{"light":{"value":0.16,"unit":"opacity"},"dark":{"value":0.16,"unit":"opacity"}},"chain":["md.sys.state.dragged.state-layer-opacity"]},
+  {"token":"md.sys.state.pressed.state-layer-opacity","type":"OPACITY","group":null,"value":{"value":0.1,"unit":"opacity"},"resolved":{"light":{"value":0.1,"unit":"opacity"},"dark":{"value":0.1,"unit":"opacity"}},"chain":["md.sys.state.pressed.state-layer-opacity"]},
+  {"token":"md.sys.state.focus.state-layer-opacity","type":"OPACITY","group":null,"value":{"value":0.1,"unit":"opacity"},"resolved":{"light":{"value":0.1,"unit":"opacity"},"dark":{"value":0.1,"unit":"opacity"}},"chain":["md.sys.state.focus.state-layer-opacity"]},
+  {"token":"md.sys.state.hover.state-layer-opacity","type":"OPACITY","group":null,"value":{"value":0.08,"unit":"opacity"},"resolved":{"light":{"value":0.08,"unit":"opacity"},"dark":{"value":0.08,"unit":"opacity"}},"chain":["md.sys.state.hover.state-layer-opacity"]},
+  {"token":"md.sys.state.disabled.state-layer-opacity","type":"OPACITY","group":null,"value":{"value":0.38,"unit":"opacity"},"resolved":{"light":{"value":0.38,"unit":"opacity"},"dark":{"value":0.38,"unit":"opacity"}},"chain":["md.sys.state.disabled.state-layer-opacity"]}
+ ]
+}

@@ -1,0 +1,12 @@
+{
+ "set": "md.comp.fab.small",
+ "displayName": "FAB - Size - Small",
+ "description": "For small FABs. Not used in expressive FABs.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.fab.small.container.height","type":"LENGTH","group":null,"value":{"value":40,"unit":"dp"},"resolved":{"light":{"value":40,"unit":"dp"},"dark":{"value":40,"unit":"dp"}},"chain":["md.comp.fab.small.container.height"]},
+  {"token":"md.comp.fab.small.container.width","type":"LENGTH","group":null,"value":{"value":40,"unit":"dp"},"resolved":{"light":{"value":40,"unit":"dp"},"dark":{"value":40,"unit":"dp"}},"chain":["md.comp.fab.small.container.width"]},
+  {"token":"md.comp.fab.small.icon.size","type":"LENGTH","group":null,"value":{"value":24,"unit":"dp"},"resolved":{"light":{"value":24,"unit":"dp"},"dark":{"value":24,"unit":"dp"}},"chain":["md.comp.fab.small.icon.size"]},
+  {"token":"md.comp.fab.small.container.shape","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner.medium"},"resolved":{"light":{"value":12,"unit":"dp","shape":"rounded_corners"},"dark":{"value":12,"unit":"dp","shape":"rounded_corners"}},"chain":["md.comp.fab.small.container.shape","md.sys.shape.corner.medium"]}
+ ]
+}
