@@ -232,6 +232,8 @@
     inset-inline: 0;
     visibility: hidden;
     pointer-events: none;
+    /* Its buttons are wider than the group when the list is shown; unseen, they must not make the page scroll sideways (a box's size is read whether it is clipped or not). */
+    overflow: clip;
   }
   .mo-choice-group__measure > * {
     flex: none;

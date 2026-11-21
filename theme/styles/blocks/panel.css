@@ -47,15 +47,15 @@
   .mo-block-panels {
     display: grid;
     /* Two side by side where there is room for 17rem each, never more. */
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(17rem, calc(50% - var(--mo-sys-grid-gutter) / 2))), 1fr));
-    gap: var(--mo-sys-grid-gutter);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(17rem, calc(50% - var(--mo-comp-card-gap) / 2))), 1fr));
+    gap: var(--mo-comp-card-gap);
   }
   .mo-block-panels.mo-is-in-text {
     margin-block: 2.5rem;
   }
   /* Boxes with values to copy: side by side only where each has room for its values with their buttons. */
   .mo-block-panels:has(.mo-block-copy-rows) {
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(23rem, calc(50% - var(--mo-sys-grid-gutter) / 2))), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, max(23rem, calc(50% - var(--mo-comp-card-gap) / 2))), 1fr));
   }
   /* A box's heading linking to its page, and a list under it (.mo-list in ui.css). */
   :is(.mo-block-panel__title, .mo-block-panel .mo-card__headline) a {

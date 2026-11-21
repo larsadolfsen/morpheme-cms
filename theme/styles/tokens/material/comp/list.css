@@ -30,9 +30,8 @@
   --mo-comp-list-item-hover-surface: var(--mo-sys-state-mo-hover-layer);
   --mo-comp-list-item-pressed-surface: var(--mo-sys-state-mo-pressed-layer);
   --mo-comp-list-item-focus-surface: var(--mo-sys-state-mo-pressed-layer);
-  /* The one focus ring, in primary (deviation FR1, docs/material-deviations.md; M3's list token is md.comp.list.focus.indicator.color = secondary); its
-     offset is the list's own, -3 dp (inside the item). */
-  --mo-comp-list-item-focus-indicator-color: var(--mo-sys-color-primary);
+  /* M3's focus indicator (md.comp.list.focus.indicator.color = secondary); its offset is the list's own, -3 dp (inside the item). */
+  --mo-comp-list-item-focus-indicator-color: var(--mo-sys-state-focus-indicator-color);
   /* Dragged (M3 List - Common: level 4, the 0.16 dragged state layer, the selected corners 16 dp). */
   --mo-comp-list-item-dragged-radius: var(--mo-sys-shape-corner-large);
   /* The two columns of an item with `columns` (M3's content slot, Lists › Specs, Flexibility & slots). */

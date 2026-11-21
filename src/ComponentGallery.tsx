@@ -1,7 +1,6 @@
 // The theme's UI components in every kind, size and state, as the site draws them: the gallery of "Parts" › "UI components"
 // (#developer/parts/ui, BlockParts.tsx) and of the site's UI components page (`componentsPath`, pages/components.astro), one list of
 // groups and parts for both, so the two never differ. The theme gives the components their look; here are only the rows and the names.
-import type { CSSProperties } from 'react';
 import { Example, Part, PartGroup, PartSub } from './PartsShown';
 import FrameParts from './FrameParts';
 import { Preview } from './ui';
@@ -491,11 +490,7 @@ function CardParts() {
       </Part>
       <Part name="List" use={say.list}>
         <Preview>
-          {/* The page is Surface, so the segmented list's rows are on the surface container here (the theme's default, Surface, is for a list on a higher container). */}
-          <div
-            className="mo-editor-parts-lists"
-            style={{ '--mo-comp-list-list-item-segmented-container-color': 'var(--mo-sys-color-surface-container)' } as CSSProperties}
-          >
+          <div className="mo-editor-parts-lists">
             <SiteCard>
               <SiteList>
                 <SiteListItem headline={one} />

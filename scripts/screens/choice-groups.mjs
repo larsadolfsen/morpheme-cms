@@ -39,8 +39,8 @@ function choiceGroupsIn(root) {
         form === 'buttons'
           ? (visible.getAttribute('role') === 'group' && visible.getAttribute('aria-label')) || ''
           : (visible.querySelector(':scope > legend')?.textContent ?? '');
-      // The list's alignment: the radio's circle at the group's left edge, the label on the circle's middle line, a sample's right edge (a
-      // text button's text) at the group's right edge.
+      // The list's alignment: the radio's circle 16 px from the group's left edge (M3 Lists, Specs: "List item leading space 16dp"), the label on the circle's
+      // middle line, a sample's right edge (a text button's text) 16 px from the group's right edge ("trailing space 16dp").
       const gr = g.getBoundingClientRect();
       const lis = form === 'list' ? [...visible.querySelectorAll('li')] : [];
       const circleOff = lis.map((li) => li.querySelector('input[type="radio"]').getBoundingClientRect().left - gr.left);
@@ -92,12 +92,12 @@ function checkChoiceGroups(label, groups) {
       problems.push(`${at}: buttons though they need ${g.needed} px of ${g.room}`);
     if (g.targets.some((t) => t < 47.5)) problems.push(`${at}: a button's target is below 48 px (${g.targets.join(', ')})`);
     if (g.heights.some((h) => h < 47.5)) problems.push(`${at}: a row is below 48 px (${g.heights.join(', ')})`);
-    if (g.circleOff.some((x) => Math.abs(x) > 1))
-      problems.push(`${at}: a radio's circle is not at the group's left edge (${g.circleOff.map((x) => x.toFixed(1))} px)`);
+    if (g.circleOff.some((x) => Math.abs(x - 16) > 1))
+      problems.push(`${at}: a radio's circle is not 16 px from the group's left edge (${g.circleOff.map((x) => x.toFixed(1))} px)`);
     if (g.centreOff.some((x) => Math.abs(x) > 1))
       problems.push(`${at}: a label is not on its radio's middle line (${g.centreOff.map((x) => x.toFixed(1))} px)`);
-    if (g.sampleOff.some((x) => Math.abs(x) > 1))
-      problems.push(`${at}: a sample does not end at the group's right edge (${g.sampleOff.map((x) => x.toFixed(1))} px)`);
+    if (g.sampleOff.some((x) => Math.abs(x + 16) > 1))
+      problems.push(`${at}: a sample does not end 16 px from the group's right edge (${g.sampleOff.map((x) => x.toFixed(1))} px)`);
   });
 }
 

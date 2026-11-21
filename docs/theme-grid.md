@@ -4,12 +4,13 @@ One grid for every page of the editor and for the site's blocks. The Library's m
 
 ## How it packs
 
-CSS columns (`theme/styles/ui.css`): the cards flow down the first column, then the next, each in its own height, `--mo-sys-grid-gutter` apart both ways. A short card leaves no hole. The DOM order is the reading and keyboard order; the visual order is column by column.
+CSS columns (`theme/styles/ui.css`): the cards flow down the first column, then the next, each in its own height, `--mo-comp-card-gap` apart both ways. A short card leaves no hole. The DOM order is the reading and keyboard order; the visual order is column by column.
 
 ## Tokens
 
 - `--mo-comp-grid-columns`: how many cards stand side by side. Set per window size class on `.mo-staggered-grid`: 2 on compact (under 600 dp), 3 from medium (600 dp), 4 from large (1200 dp). A part with other counts sets the token on its element (`[--mo-comp-grid-columns:1] medium:[--mo-comp-grid-columns:2]` on the start screen; the Image grid block's `data-columns` sets it from medium).
-- `--mo-sys-grid-gutter`: the space between cards, both ways: 16 px on compact, 24 px from medium. `--mo-sys-grid-margin`: the page margin on the same steps (16 / 24 px). Owner values, 15 Nov 2026: M3's Grids pages print no margin or gutter value.
+- `--mo-comp-card-gap`: the space between cards, both ways: 8 px (M3 Cards, Specs: "Padding between cards 8dp max").
+- `--mo-sys-grid-gutter`: the layout grid's gutter, for everything that is not a card: 16 px on compact, 24 px from medium. `--mo-sys-grid-margin`: the page margin on the same steps (16 / 24 px). Owner values, 15 Nov 2026: M3's Grids pages print no margin or gutter value.
 - `--mo-sys-grid-layout-columns`: M3's layout grid: 4 on compact, 8 on medium and expanded, 12 on large and extra-large. One token per size class; the count a span is given in.
 
 ## Spans

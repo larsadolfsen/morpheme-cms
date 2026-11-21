@@ -379,6 +379,8 @@
 /* A focused control scrolls clear of the bars that stay on the screen: their heights are measured by useScrollClearance (ui.tsx;
    the top app bar, the Save bar, the media file bar) and set on the root. */
 :root {
+  /* The editor keeps its focus ring in `primary`; the site's parts take M3's `secondary` (theme/styles/base.css). */
+  --mo-sys-state-focus-indicator-color: var(--mo-sys-color-primary);
   scroll-padding-block-start: var(--mo-editor-clearance-top, 0px);
   scroll-padding-block-end: var(--mo-editor-clearance-bottom, 0px);
 }
@@ -601,7 +603,7 @@
 }
 
 /* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: --mo-sys-section-pane-width and
-   the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N2). */
+   the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N6). */
 .mo-editor-main-drawer-panel {
   --mo-comp-navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
 }
@@ -843,6 +845,12 @@
 html,
 body {
   overflow-x: clip;
+}
+/* The UI components page (pages/components.astro, "/ui/") draws the gallery with this sheet but is a page of the site, not the editor: it does not clip what
+   sticks out at the side, so a part wider than the screen shows as a sideways scroll (and a check can see it) instead of being hidden. */
+html:has(.mo-ui-components),
+html:has(.mo-ui-components) > body {
+  overflow-x: visible;
 }
 
 html {

@@ -66,6 +66,12 @@
   --mo-sys-grid-margin: 1rem;
   --mo-sys-grid-gutter: 1rem;
   --mo-sys-grid-layout-columns: 4;
+  /* M3's focus indicator: the component tokens print its colour as `secondary`; `md.sys.state.focus-indicator` prints 3dp thick, 2dp outside
+     the part and 3dp inside it (a list item). The editor draws it in `primary` (src/editor.css). */
+  --mo-sys-state-focus-indicator-color: var(--mo-sys-color-secondary);
+  --mo-sys-state-focus-indicator-thickness: 3px;
+  --mo-sys-state-focus-indicator-outer-offset: 2px;
+  --mo-sys-state-focus-indicator-inner-offset: -3px;
 }
 /* A section on Primary, Secondary or Tertiary is painted with M3's container of that colour, and what is in it takes the pair M3 prints for it
    (docs/superpowers/specs/2026-11-21-section-colours-m3-roles-design.md): the section's own surface is the container, and text, secondary text and icons
