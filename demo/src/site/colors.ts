@@ -8,4 +8,4 @@ export { colorFields, colorPairs, colorRoles } from '@morphemecms/cms/defaults/c
 
 /** The colours the demo was designed with: Material 3's scheme of a calm slate blue (tonal spot), the same as
  * src/data/colors.json. */
-export const defaultColors: Colors = dynamicColors({ source: '#425E92', variant: 'tonalSpot', contrast: 'standard' }, colorRoles);
+export const defaultColors: Colors = dynamicColors({ source: '#006397', variant: 'tonalSpot', contrast: 'standard' }, colorRoles);
