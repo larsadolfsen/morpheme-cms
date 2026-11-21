@@ -10,7 +10,7 @@ is not listed here is a bug. Add the entry in the same pull request as the chang
 
 Entries from the colour sweep and the CSS sweep were sent by those workers on 2026-11-13.
 
-**Section colours are not a deviation any more** (0.19.5 batch 4, #1115; owner, 21 Nov 2026: "we will no longer follow our FRONTEND deviations, instead we will follow md3"). A section on Primary, Secondary or Tertiary is painted with M3's container of its colour and its text and icons are the container's on-colour (`theme/styles/tokens/material/sys.css`); a section with an image uses M3's inverse set (`inverse-surface`, `inverse-on-surface`, `inverse-primary`); the blocks read these roles through `theme/styles/tokens/blocks/sys.css`. The old entries (the inverted theme, the veils of 14, 7 and 35 %, quieter text at full strength) are removed. The dark-mode edge shortfall (`section-edges`, 2.9:1) is a WCAG item in `theme/accessibility.json`, not a deviation (`docs/superpowers/specs/2026-11-21-section-colours-m3-roles-design.md`).
+**Section colours are not a deviation any more** (0.19.5 batch 4, #1115; owner, 21 Nov 2026: "we will no longer follow our FRONTEND deviations, instead we will follow md3"). A section on Primary, Secondary or Tertiary is painted with M3's container of its colour and its text and icons are the container's on-colour (`theme/styles/tokens/material/sys.css`); a section with an image uses M3's inverse set (`inverse-surface`, `inverse-on-surface`, `inverse-primary`); the blocks read these roles through `theme/styles/tokens/blocks/sys.css`. The old entries (the inverted theme, the veils of 14, 7 and 35 %, quieter text at full strength) are removed. The design is in `docs/superpowers/specs/2026-11-21-section-colours-m3-roles-design.md`.
 
 ## Colour sweep
 
