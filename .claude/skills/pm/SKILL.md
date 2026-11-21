@@ -148,10 +148,12 @@ show the editor (no sign-in), so the owner sees screenshots in the pull request.
 - **A feature branch** is approved once, as a whole, on its pull request into `main` (section 2); its pieces need no approval.
 - **A change nobody sees** (docs, tests, CI, Worker internals, tooling) needs no screenshots and no approval.
 - There is no separate "screenshots" session and no Artifact page: the images live in the pull request.
-- **The PM tests a site change itself** (owner, 21 Nov 2026: "PMs have access to preview sites, so they do not have to send me a
-  prompt, instead they test themselves"; it replaces the owner's earlier rule of a Claude in Chrome prompt). When a change to the site
-  (not the editor) can be tried at an address, a pull request's Preview, the demo or `morpheme-staging`, the PM opens it with Playwright
-  once the build is green and tests it: each changed page; numbered steps written from the pull request and the spec, never from
+- **The PM tests a change itself** (owner, 21 Nov 2026: "PMs have access to preview sites, so they do not have to send me a
+  prompt, instead they test themselves", and "this is just for frontend testing"; it replaces the owner's earlier rule of a Claude in
+  Chrome prompt). When a change to the site or the editor can be tried at an address, a pull request's Preview, the demo or
+  `morpheme-staging`, the PM opens it with Playwright once the build is green and tests its frontend. The editor opens on a Preview
+  without a sign-in through `openEditor(page, <Preview URL>)` from `scripts/built-site.mjs`, which answers the editor's `/api/` calls in
+  the browser, so a save is faked and nothing is kept (checked 21 Nov 2026 on PR #1071's Preview). It tests: each changed page or screen; numbered steps written from the pull request and the spec, never from
   memory, each with what to look for and what counts as a fail; a phone width (390 px) and a desktop width (1280 px), light and dark;
   the keyboard (Tab, Shift+Tab, Enter, Space, Escape) and a visible focus ring wherever the change has a control. It never signs in,
   saves or changes anything there. Its report to the owner says in a line that it tested and what failed, with a screenshot of every
