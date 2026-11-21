@@ -9,7 +9,9 @@ goal: "I want us to match md both in appearance and in naming". 0.19.5 makes the
 
 A check that compares the theme's tokens with Material 3's own tokens, run in CI and failing on a difference that is not on its
 allowlist, released together with the fixes that make it pass (a check and its fixes are one bite, `plans/2026-11-18-release-per-feature.md`).
-One feature, `feature/0.19.5-m3-tokens`, cut from `main` by PM 0.19.5 once 0.19.4 is released. Two specs ride in it:
+One feature, `feature/0.19.5-m3-tokens`, cut from `feature/0.19.4-screen-readers`, not from `main` (owner, 21 November 2026: 0.19.5 is built
+alongside 0.19.4). After every merge into `feature/0.19.4-screen-readers`, 0.19.4 is merged forward into this branch (never a rebase). It goes into `main`,
+and so onto `next`, only after the owner has approved or rejected the staged 0.19.4. Two specs ride in it:
 
 - `specs/2026-11-20-elevation-design.md`: the surface and elevated kinds, the classes, the check on hand-written shadows, the current parts;
 - `specs/2026-11-20-section-colours-design.md`: the two colours of a coloured section and `check:color-roles`.
