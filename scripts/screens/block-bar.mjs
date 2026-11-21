@@ -851,7 +851,14 @@ async function checkBlockMove(width) {
     await page.close();
     return;
   }
-  const names = () => page.locator('.ProseMirror .mo-site-block-handle').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  // A block is told by its name without its place: blocks of one kind are numbered (`Steps 1 of 2`) by where they are, so a move renumbers them.
+  const names = () =>
+    page.locator('.ProseMirror .mo-site-block-handle').evaluateAll((els) =>
+      els.map((e) => {
+        const card = e.closest('.mo-site-block')?.querySelector('.mo-site-block-card-button, .mo-site-block-inline');
+        return card?.dataset.base ? `Drag ${card.dataset.base} to move it` : e.getAttribute('aria-label');
+      }),
+    );
   const selected = () => page.locator('.ProseMirror .mo-site-block-selected').count();
   const up = page.locator('.mo-editor-tools').getByRole('button', { name: 'Move up' });
   const down = page.locator('.mo-editor-tools').getByRole('button', { name: 'Move down' });
