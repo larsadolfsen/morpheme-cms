@@ -90,9 +90,6 @@ Body text on primary keeps its contrast, with a [link](/about/) and `inline code
 
 <div data-block="table" data-props="{&quot;header&quot;:true,&quot;striped&quot;:false,&quot;rows&quot;:[[&quot;Plan&quot;,&quot;Pages&quot;,&quot;On Primary&quot;],[&quot;Free&quot;,&quot;10&quot;,&quot;Yes&quot;],[&quot;Plus&quot;,&quot;100&quot;,&quot;Yes&quot;]]}"></div>
 
-### Image on primary
-
-![The Earth seen from space, with clouds over the ocean](/images/uploads/2026/10/earth-from-space.webp)
 
 <div data-section="secondary"></div>
 
@@ -131,9 +128,6 @@ Body text on secondary keeps its contrast, with a [link](/about/) and `inline co
 
 <div data-block="table" data-props="{&quot;header&quot;:true,&quot;striped&quot;:false,&quot;rows&quot;:[[&quot;Plan&quot;,&quot;Pages&quot;,&quot;On Secondary&quot;],[&quot;Free&quot;,&quot;10&quot;,&quot;Yes&quot;],[&quot;Plus&quot;,&quot;100&quot;,&quot;Yes&quot;]]}"></div>
 
-### Image on secondary
-
-![The Earth seen from space, with clouds over the ocean](/images/uploads/2026/10/earth-from-space.webp)
 
 <div data-section="tertiary"></div>
 
@@ -172,9 +166,6 @@ Body text on tertiary keeps its contrast, with a [link](/about/) and `inline cod
 
 <div data-block="table" data-props="{&quot;header&quot;:true,&quot;striped&quot;:true,&quot;rows&quot;:[[&quot;Plan&quot;,&quot;Pages&quot;,&quot;On Tertiary&quot;],[&quot;Free&quot;,&quot;10&quot;,&quot;Yes&quot;],[&quot;Plus&quot;,&quot;100&quot;,&quot;Yes&quot;]]}"></div>
 
-### Image on tertiary
-
-![The Earth seen from space, with clouds over the ocean](/images/uploads/2026/10/earth-from-space.webp)
 
 <div data-section="" data-picture="/images/uploads/2026/10/andromeda.webp" data-alt="A galaxy of stars"></div>
 
@@ -213,9 +204,6 @@ Body text on image keeps its contrast, with a [link](/about/) and `inline code`.
 
 <div data-block="table" data-props="{&quot;header&quot;:true,&quot;striped&quot;:false,&quot;rows&quot;:[[&quot;Plan&quot;,&quot;Pages&quot;,&quot;On Image&quot;],[&quot;Free&quot;,&quot;10&quot;,&quot;Yes&quot;],[&quot;Plus&quot;,&quot;100&quot;,&quot;Yes&quot;]]}"></div>
 
-### Image on image
-
-![The Earth seen from space, with clouds over the ocean](/images/uploads/2026/10/earth-from-space.webp)
 
 <div data-section="surface" data-picture="/images/uploads/2026/10/andromeda.webp" data-alt="A galaxy of stars"></div>
 
@@ -254,6 +242,3 @@ Body text on surface with image keeps its contrast, with a [link](/about/) and `
 
 <div data-block="table" data-props="{&quot;header&quot;:true,&quot;striped&quot;:false,&quot;rows&quot;:[[&quot;Plan&quot;,&quot;Pages&quot;,&quot;On Surface with image&quot;],[&quot;Free&quot;,&quot;10&quot;,&quot;Yes&quot;],[&quot;Plus&quot;,&quot;100&quot;,&quot;Yes&quot;]]}"></div>
 
-### Image on surface with image
-
-![The Earth seen from space, with clouds over the ocean](/images/uploads/2026/10/earth-from-space.webp)
