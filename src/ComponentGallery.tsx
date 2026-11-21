@@ -2,7 +2,7 @@
 // (#developer/parts/ui, BlockParts.tsx) and of the site's UI components page (`componentsPath`, pages/components.astro), one list of
 // groups and parts for both, so the two never differ. The theme gives the components their look; here are only the rows and the names.
 import type { CSSProperties } from 'react';
-import { Part, PartGroup, PartSub } from './PartsShown';
+import { Example, Part, PartGroup, PartSub } from './PartsShown';
 import FrameParts from './FrameParts';
 import { Preview } from './ui';
 import {
@@ -46,7 +46,7 @@ function ChipParts() {
     <Part name="Chip" use={screens.chip}>
       <Preview>
         <div className="mo-editor-parts-chips">
-          <PartSub name={screens.subs.kinds}>
+          <PartSub name={screens.rows.kinds}>
             <div className={row}>
               {chipKinds.map((k) => (
                 <SiteChip key={k} kind={k} label={screens.chipKinds[k]} />
@@ -61,15 +61,19 @@ function ChipParts() {
               <SiteChip elevated kind="suggestion" label={`${suggestion} · ${screens.elevated}`} />
             </div>
           </PartSub>
-          <PartSub name={screens.subs.states}>
+          <PartSub name={screens.selected}>
             <div className={row}>
-              <SiteChip kind="filter" selected label={screens.selected} />
+              <Example label={`${filter} · ${screens.selected}`} flat>
+                <SiteChip kind="filter" selected label={screens.selected} />
+              </Example>
               <SiteChip kind="filter" label={filter} />
               <SiteChip kind="suggestion" selected label={`${suggestion} · ${screens.selected}`} />
               <SiteChip icon="calendar-blank" label={screens.withIcon} />
               <SiteChip kind="input" trailingIcon="x" label={input} />
               <SiteChip kind="input" avatar={exampleImage} removeLabel={screens.remove(screens.withAvatar)} label={screens.withAvatar} />
-              <SiteChip kind="input" selected removeLabel={screens.remove(screens.selected)} label={screens.selected} />
+              <Example label={`${input} · ${screens.selected}`} flat>
+                <SiteChip kind="input" selected removeLabel={screens.remove(screens.selected)} label={screens.selected} />
+              </Example>
               <SiteChip kind="input" dragged avatar={exampleImage} label={screens.dragged} />
               <SiteChip plain label={screens.plain} />
             </div>
@@ -77,11 +81,17 @@ function ChipParts() {
           <PartSub name={screens.disabled}>
             <div className={row}>
               {chipKinds.map((k) => (
-                <SiteChip key={k} kind={k} disabled label={screens.disabled} />
+                <Example key={k} label={screens.chipKinds[k]} flat>
+                  <SiteChip kind={k} disabled label={screens.disabled} />
+                </Example>
               ))}
-              <SiteChip kind="input" disabled removeLabel={screens.remove(screens.disabled)} label={screens.disabled} />
+              <Example label={screens.example(1)} flat>
+                <SiteChip kind="input" disabled removeLabel={screens.remove(screens.disabled)} label={screens.disabled} />
+              </Example>
               <SiteChip elevated disabled label={`${screens.elevated} · ${screens.disabled}`} />
-              <SiteChip href="" disabled label={screens.disabled} />
+              <Example label={screens.example(2)} flat>
+                <SiteChip href="" disabled label={screens.disabled} />
+              </Example>
             </div>
           </PartSub>
         </div>
@@ -122,7 +132,7 @@ function ButtonParts() {
       <Part name="Button" use={screens.button}>
         <Preview>
           <div className="mo-editor-parts-chips">
-            <PartSub name={screens.subs.kinds}>
+            <PartSub name={screens.rows.kinds}>
               <div className={row}>
                 {buttonKinds.map((k) => (
                   <SiteButton key={k} kind={k}>
@@ -131,7 +141,7 @@ function ButtonParts() {
                 ))}
               </div>
             </PartSub>
-            <PartSub name={screens.subs.sizes}>
+            <PartSub name={screens.rows.sizes}>
               <div className={row}>
                 {buttonSizes.map((size) => (
                   <SiteButton key={size} size={size}>
@@ -140,7 +150,7 @@ function ButtonParts() {
                 ))}
               </div>
             </PartSub>
-            <PartSub name={screens.subs.squareSizes}>
+            <PartSub name={`${screens.rows.sizes}, ${screens.shapes.square}`}>
               <div className={row}>
                 {buttonSizes.map((size) => (
                   <SiteButton key={size} size={size} shape="square" kind="tonal">
@@ -151,35 +161,41 @@ function ButtonParts() {
             </PartSub>
             {buttonShapes.map((shape) => (
               <PartSub key={shape} name={screens.subs.toggle(screens.shapes[shape])}>
-                <div className={row} role="group" aria-label={screens.shapes[shape]}>
-                  {toggleKinds.map((k) =>
-                    ([false, true] as const).map((on) => (
-                      <SiteButton key={`${k}-${on}`} kind={k} shape={shape} selected={on} icon="heart">
-                        {on ? screens.toggle.on : screens.toggle.off}
-                      </SiteButton>
-                    )),
-                  )}
+                <div className={row}>
+                  {toggleKinds.map((k) => (
+                    <Example key={k} label={kinds[k]} flat>
+                      {([false, true] as const).map((on) => (
+                        <SiteButton key={`${k}-${on}`} kind={k} shape={shape} selected={on} icon="heart">
+                          {on ? screens.toggle.on : screens.toggle.off}
+                        </SiteButton>
+                      ))}
+                    </Example>
+                  ))}
                 </div>
               </PartSub>
             ))}
-            <PartSub name={screens.withIcon}>
+            <PartSub name={screens.rows.states}>
               <div className={row}>
-                <SiteButton icon="phone">{screens.withIcon}</SiteButton>
-                <SiteButton kind="outlined" trailingIcon="arrow-right">
-                  {screens.withIcon}
-                </SiteButton>
-              </div>
-            </PartSub>
-            <PartSub name={screens.disabled}>
-              <div className={row}>
+                <Example label={screens.example(1)} flat>
+                  <SiteButton icon="phone">{screens.withIcon}</SiteButton>
+                </Example>
+                <Example label={screens.example(2)} flat>
+                  <SiteButton kind="outlined" trailingIcon="arrow-right">
+                    {screens.withIcon}
+                  </SiteButton>
+                </Example>
                 {buttonKinds.map((k) => (
-                  <SiteButton key={k} kind={k} disabled>
+                  <Example key={k} label={`${kinds[k]}, ${screens.disabled}`} flat>
+                    <SiteButton kind={k} disabled>
+                      {screens.disabled}
+                    </SiteButton>
+                  </Example>
+                ))}
+                <Example label={`${screens.selected}, ${screens.disabled}`} flat>
+                  <SiteButton selected disabled>
                     {screens.disabled}
                   </SiteButton>
-                ))}
-                <SiteButton selected disabled>
-                  {screens.disabled}
-                </SiteButton>
+                </Example>
               </div>
             </PartSub>
           </div>
@@ -188,14 +204,14 @@ function ButtonParts() {
       <Part name="IconButton" use={screens.iconButton}>
         <Preview>
           <div className="mo-editor-parts-chips">
-            <PartSub name={screens.subs.kinds}>
+            <PartSub name={screens.rows.kinds}>
               <div className={row}>
                 {iconButtonKinds.map((k) => (
                   <SiteIconButton key={k} kind={k} icon="x" label={screens.iconKinds[k]} title={screens.iconKinds[k]} />
                 ))}
               </div>
             </PartSub>
-            <PartSub name={screens.subs.sizes}>
+            <PartSub name={screens.rows.sizes}>
               <div className={row}>
                 {buttonSizes.map((size) => (
                   <SiteIconButton
@@ -209,7 +225,7 @@ function ButtonParts() {
                 ))}
               </div>
             </PartSub>
-            <PartSub name={screens.subs.squareSizes}>
+            <PartSub name={`${screens.rows.sizes}, ${screens.shapes.square}`}>
               <div className={row}>
                 {buttonSizes.map((size) => (
                   <SiteIconButton
@@ -243,7 +259,7 @@ function ButtonParts() {
             </PartSub>
             {buttonShapes.map((shape) => (
               <PartSub key={shape} name={screens.subs.toggle(screens.shapes[shape])}>
-                <div className={row} role="group" aria-label={screens.shapes[shape]}>
+                <div className={row}>
                   {iconButtonKinds.map((k) =>
                     ([false, true] as const).map((on) => (
                       <SiteIconButton
@@ -260,12 +276,16 @@ function ButtonParts() {
                 </div>
               </PartSub>
             ))}
-            <PartSub name={screens.disabled}>
+            <PartSub name={screens.rows.states}>
               <div className={row}>
                 {iconButtonKinds.map((k) => (
-                  <SiteIconButton key={k} kind={k} icon="phone" label={screens.disabled} disabled />
+                  <Example key={k} label={screens.iconKinds[k]} flat>
+                    <SiteIconButton kind={k} icon="phone" label={screens.disabled} disabled />
+                  </Example>
                 ))}
-                <SiteIconButton kind="filled" icon="phone" label={screens.disabled} selected disabled />
+                <Example label={screens.selected} flat>
+                  <SiteIconButton kind="filled" icon="phone" label={screens.disabled} selected disabled />
+                </Example>
               </div>
             </PartSub>
           </div>
@@ -287,71 +307,85 @@ function FieldParts() {
         <Preview>
           <div className="mo-editor-parts-fields">
             {(['outlined', 'filled'] as const).map((kind) => (
-              <div key={kind} className={fields} aria-label={screens.fieldKinds[kind]} role="group">
-                <SiteTextField kind={kind} label={screens.fieldLabel} type="email" />
-                <SiteTextField kind={kind} label={screens.fieldLabel} type="email" defaultValue={screens.fieldValue} />
-                <SiteTextField kind={kind} label={screens.fieldLabel} type="email" supporting={screens.fieldSupporting} />
-                <SiteTextField kind={kind} label={screens.fieldLabel} type="email" defaultValue="name@" error={screens.fieldError} />
-                <SiteTextField
-                  kind={kind}
-                  label={screens.fieldLabel}
-                  type="email"
-                  required
-                  data-part="invalid-field"
-                  supporting={screens.fieldSupporting}
-                  invalidText={screens.fieldError}
-                />
-                <SiteTextField kind={kind} label={screens.fieldLabel} hideLabel type="email" placeholder={screens.fieldPlaceholder} />
-                <SiteTextField kind={kind} label={screens.fieldLabel} type="email" disabled />
-                <SiteTextField kind={kind} label={screens.fieldLabel} type="email" leadingIcon="envelope-simple" />
-                <SiteTextField
-                  kind={kind}
-                  label={screens.fieldSearch}
-                  hideLabel
-                  type="search"
-                  placeholder={screens.fieldSearch}
-                  leadingIcon="magnifying-glass"
-                  clearLabel={screens.fieldClear}
-                  defaultValue={screens.fieldNote}
-                />
-                <SiteTextField kind={kind} label={screens.fieldPhone} type="tel" prefix={screens.fieldPrefix} defaultValue="12 34 56 78" />
-                <SiteTextField kind={kind} label={screens.fieldPrice} inputMode="numeric" suffix={screens.fieldSuffix} defaultValue="450" />
-                <SiteTextField
-                  kind={kind}
-                  label={screens.fieldPrice}
-                  type="number"
-                  data-part="invalid-number"
-                  supporting={screens.fieldNameSupporting}
-                  invalidText={t.check.notANumber}
-                />
-                <SiteTextField
-                  kind={kind}
-                  label={screens.fieldLabel}
-                  type="email"
-                  defaultValue="name@"
-                  error={screens.fieldError}
-                  leadingIcon="envelope-simple"
-                  errorIcon
-                />
-                <SiteTextField
-                  kind={kind}
-                  label={screens.fieldPassword}
-                  type="password"
-                  defaultValue={screens.fieldPasswordValue}
-                  passwordLabel={screens.fieldShowPassword}
-                />
-                <SiteTextField
-                  kind={kind}
-                  label={screens.fieldName}
-                  supporting={screens.fieldNameSupporting}
-                  counter
-                  maxLength={30}
-                  defaultValue={screens.fieldValue}
-                />
-                <SiteTextField kind={kind} label={screens.fieldReadOnly} readOnly defaultValue={screens.fieldReadOnlyValue} />
-                <SiteTextField kind={kind} label={screens.fieldMessage} multiline defaultValue={screens.fieldMessageValue} />
-                <SiteTextField kind={kind} label={screens.fieldNote} rows={3} counter maxLength={200} />
-              </div>
+              <PartSub key={kind} name={screens.fieldKinds[kind]}>
+                <div className={fields}>
+                  <SiteTextField kind={kind} label={screens.fieldLabel} type="email" />
+                  <SiteTextField kind={kind} label={screens.fieldLabel} type="email" defaultValue={screens.fieldValue} />
+                  <SiteTextField kind={kind} label={screens.fieldLabel} type="email" supporting={screens.fieldSupporting} />
+                  <SiteTextField kind={kind} label={screens.fieldLabel} type="email" defaultValue="name@" error={screens.fieldError} />
+                  <SiteTextField
+                    kind={kind}
+                    label={screens.fieldLabel}
+                    type="email"
+                    required
+                    data-part="invalid-field"
+                    supporting={screens.fieldSupporting}
+                    invalidText={screens.fieldError}
+                  />
+                  <SiteTextField kind={kind} label={screens.fieldLabel} hideLabel type="email" placeholder={screens.fieldPlaceholder} />
+                  <SiteTextField kind={kind} label={screens.fieldLabel} type="email" disabled />
+                  <SiteTextField kind={kind} label={screens.fieldLabel} type="email" leadingIcon="envelope-simple" />
+                  <SiteTextField
+                    kind={kind}
+                    label={screens.fieldSearch}
+                    hideLabel
+                    type="search"
+                    placeholder={screens.fieldSearch}
+                    leadingIcon="magnifying-glass"
+                    clearLabel={screens.fieldClear}
+                    defaultValue={screens.fieldNote}
+                  />
+                  <SiteTextField
+                    kind={kind}
+                    label={screens.fieldPhone}
+                    type="tel"
+                    prefix={screens.fieldPrefix}
+                    defaultValue="12 34 56 78"
+                  />
+                  <SiteTextField
+                    kind={kind}
+                    label={screens.fieldPrice}
+                    inputMode="numeric"
+                    suffix={screens.fieldSuffix}
+                    defaultValue="450"
+                  />
+                  <SiteTextField
+                    kind={kind}
+                    label={screens.fieldPrice}
+                    type="number"
+                    data-part="invalid-number"
+                    supporting={screens.fieldNameSupporting}
+                    invalidText={t.check.notANumber}
+                  />
+                  <SiteTextField
+                    kind={kind}
+                    label={screens.fieldLabel}
+                    type="email"
+                    defaultValue="name@"
+                    error={screens.fieldError}
+                    leadingIcon="envelope-simple"
+                    errorIcon
+                  />
+                  <SiteTextField
+                    kind={kind}
+                    label={screens.fieldPassword}
+                    type="password"
+                    defaultValue={screens.fieldPasswordValue}
+                    passwordLabel={screens.fieldShowPassword}
+                  />
+                  <SiteTextField
+                    kind={kind}
+                    label={screens.fieldName}
+                    supporting={screens.fieldNameSupporting}
+                    counter
+                    maxLength={30}
+                    defaultValue={screens.fieldValue}
+                  />
+                  <SiteTextField kind={kind} label={screens.fieldReadOnly} readOnly defaultValue={screens.fieldReadOnlyValue} />
+                  <SiteTextField kind={kind} label={screens.fieldMessage} multiline defaultValue={screens.fieldMessageValue} />
+                  <SiteTextField kind={kind} label={screens.fieldNote} rows={3} counter maxLength={200} />
+                </div>
+              </PartSub>
             ))}
           </div>
         </Preview>
@@ -359,14 +393,30 @@ function FieldParts() {
       <Part name="Checkbox" use={screens.checkbox}>
         <Preview>
           <div className={`${fields} mo-editor-parts-checkboxes`}>
-            <SiteCheckbox label={screens.checkboxLabel} />
-            <SiteCheckbox label={screens.checkboxLabel} checked />
-            <SiteCheckbox label={screens.checkboxLabel} supporting={screens.checkboxSupporting} />
-            <SiteCheckbox label={screens.checkboxLabel} supporting={screens.checkboxSupporting} checked disabled />
-            <SiteCheckbox label={screens.checkboxParent} supporting={screens.checkboxSupporting} indeterminate />
-            <SiteCheckbox label={screens.checkboxParent} indeterminate disabled />
-            <SiteCheckbox label={screens.checkboxLabel} error={screens.checkboxError} />
-            <SiteCheckbox label={screens.checkboxLabel} error={screens.checkboxError} checked />
+            <Example label={screens.example(1)} flat>
+              <SiteCheckbox label={screens.checkboxLabel} />
+            </Example>
+            <Example label={screens.example(2)} flat>
+              <SiteCheckbox label={screens.checkboxLabel} checked />
+            </Example>
+            <Example label={screens.example(3)} flat>
+              <SiteCheckbox label={screens.checkboxLabel} supporting={screens.checkboxSupporting} />
+            </Example>
+            <Example label={screens.example(4)} flat>
+              <SiteCheckbox label={screens.checkboxLabel} supporting={screens.checkboxSupporting} checked disabled />
+            </Example>
+            <Example label={screens.example(5)} flat>
+              <SiteCheckbox label={screens.checkboxParent} supporting={screens.checkboxSupporting} indeterminate />
+            </Example>
+            <Example label={screens.example(6)} flat>
+              <SiteCheckbox label={screens.checkboxParent} indeterminate disabled />
+            </Example>
+            <Example label={screens.example(7)} flat>
+              <SiteCheckbox label={screens.checkboxLabel} error={screens.checkboxError} />
+            </Example>
+            <Example label={screens.example(8)} flat>
+              <SiteCheckbox label={screens.checkboxLabel} error={screens.checkboxError} checked />
+            </Example>
           </div>
         </Preview>
       </Part>
@@ -398,20 +448,21 @@ function CardParts() {
               <p className="mo-editor-parts-card-text">{say.text}</p>
             </SiteCard>
             {cardKinds.map((k) => (
-              <SiteCard
-                key={`${k}-parts`}
-                kind={k}
-                media={<img src={exampleImage} alt="" />}
-                headline={say.anatomy.headline}
-                subhead={say.kinds[k]}
-                supporting={say.anatomy.supporting}
-                actions={
-                  <>
-                    <SiteButton kind="text">{say.anatomy.save}</SiteButton>
-                    <SiteButton kind="text">{say.anatomy.learnMore}</SiteButton>
-                  </>
-                }
-              />
+              <Example key={`${k}-parts`} label={say.kinds[k]} flat>
+                <SiteCard
+                  kind={k}
+                  media={<img src={exampleImage} alt="" />}
+                  headline={say.anatomy.headline}
+                  subhead={say.kinds[k]}
+                  supporting={say.anatomy.supporting}
+                  actions={
+                    <>
+                      <SiteButton kind="text">{say.anatomy.save}</SiteButton>
+                      <SiteButton kind="text">{say.anatomy.learnMore}</SiteButton>
+                    </>
+                  }
+                />
+              </Example>
             ))}
             <SiteCard
               kind="outlined"
@@ -491,8 +542,11 @@ function CardParts() {
             <SiteCard>
               <SiteList aria-label={lists.controls}>
                 <SiteListItem control={{ type: 'checkbox', checked: true }} headline={checkbox} supporting={say.supporting} />
-                <SiteListItem control={{ type: 'radio-button', name: 'parts-list-radio', checked: true }} headline={radio} />
-                <SiteListItem control={{ type: 'radio-button', name: 'parts-list-radio' }} headline={radio} />
+                <SiteListItem
+                  control={{ type: 'radio-button', name: 'parts-list-radio', checked: true }}
+                  headline={`${radio}, ${screens.toggle.on}`}
+                />
+                <SiteListItem control={{ type: 'radio-button', name: 'parts-list-radio' }} headline={`${radio}, ${screens.toggle.off}`} />
                 <SiteListItem control={{ type: 'switch', checked: true, icons: 'selected' }} leadingIcon="moon" headline={switchItem} />
                 <SiteListItem control={{ type: 'checkbox', at: 'trailing' }} leadingAvatar={lists.letter} headline={after} />
               </SiteList>

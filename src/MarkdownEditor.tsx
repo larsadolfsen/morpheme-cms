@@ -767,6 +767,33 @@ function dimHandle(handle: Element | null) {
   }
 }
 
+/** Gives the blocks of one kind on the page the names `Image 2 of 3`: the name a block is made with (its card's `aria-label`) stays the base, and a kind that
+ * is on the page once keeps it. A card that is drawn again with its base name is numbered again; `data-numbered` holds the name this gave it. Keeps the
+ * handle's name (`Drag Image 2 of 3 to move it`) in step. A page of thirty HTML blocks is not thirty buttons that read `HTML code`. */
+function numberBlocks(root: HTMLElement) {
+  const found: { card: HTMLElement; handle: Element | null; base: string }[] = [];
+  for (const dom of root.querySelectorAll<HTMLElement>('.mo-site-block:not(.mo-site-picture)')) {
+    const card = dom.querySelector<HTMLElement>('.mo-site-block-card-button, .mo-site-block-inline');
+    if (!card) continue;
+    const label = card.getAttribute('aria-label') ?? '';
+    const base = label && label === card.dataset.numbered ? (card.dataset.base ?? label) : label;
+    found.push({ card, handle: dom.querySelector(':scope > .mo-site-block-handle'), base });
+  }
+  const total = new Map<string, number>();
+  for (const { base } of found) total.set(base, (total.get(base) ?? 0) + 1);
+  const place = new Map<string, number>();
+  for (const { card, handle, base } of found) {
+    const at = (place.get(base) ?? 0) + 1;
+    place.set(base, at);
+    const of = total.get(base)!;
+    const name = of > 1 ? t.text.blockOf(base, at, of) : base;
+    card.dataset.base = base;
+    card.dataset.numbered = name;
+    if (card.getAttribute('aria-label') !== name) card.setAttribute('aria-label', name);
+    if (handle && handle.getAttribute('aria-label') !== t.text.dragBlock(name)) handle.setAttribute('aria-label', t.text.dragBlock(name));
+  }
+}
+
 // The handle of a block: a button at the block's top right that moves it by dragging, as the start screen's cards are moved (DashboardEdit.tsx): the
 // block is raised with the theme's elevation and follows the finger, a line shows where it will land, and it goes there when the finger is lifted (the parts
 // glide, `move`). At once, not after a hold: the handle is a drag control. Not past a block the template locks (`locked`: their types); near the top or
@@ -2545,6 +2572,18 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           },
         }),
     );
+    // The blocks of one kind are told apart by their names (`HTML code 2 of 30`), after every change and every time a card draws its name again.
+    const numbering = $prose(
+      () =>
+        new Plugin({
+          view: (view) => {
+            const watch = new MutationObserver(() => numberBlocks(view.dom));
+            watch.observe(view.dom, { subtree: true, childList: true, attributes: true, attributeFilter: ['aria-label'] });
+            numberBlocks(view.dom);
+            return { update: () => numberBlocks(view.dom), destroy: () => watch.disconnect() };
+          },
+        }),
+    );
     // The text area has a name for screen readers (WCAG 4.1.2, axe `aria-input-field-name`).
     const naming = $prose(() => new Plugin({ props: { attributes: { 'aria-label': t.text.textField } } }));
     let made = makeEditor(root.current, value)
@@ -2556,6 +2595,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(blockSelecting)
       .use(onEdit)
       .use(looking)
+      .use(numbering)
       .use(sectionFrame(framed))
       .use(gapHere)
       .use(tapBelow)

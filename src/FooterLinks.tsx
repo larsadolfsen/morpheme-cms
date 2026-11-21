@@ -17,7 +17,7 @@ export default function FooterLinks({ state }: { state: ServiceState }) {
   const row = useRef<HTMLElement>(null);
   useStrayDividers(row);
   return (
-    <nav ref={row} className="mo-editor-footer-links">
+    <nav ref={row} aria-label={t.footer.label} className="mo-editor-footer-links">
       {visibleLinks(FOOTER_LINKS).map(({ id, href }, i) => (
         <Fragment key={id}>
           {i > 0 && <FooterDivider />}

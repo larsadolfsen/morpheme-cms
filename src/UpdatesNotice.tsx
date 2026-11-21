@@ -142,7 +142,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
               {t.common.close}
             </Button>
             {cms && (
-              <LinkButton kind="filled" size="small" href={`#${CMS_ROUTE}`}>
+              <LinkButton kind="filled" size="small" href={`#${CMS_ROUTE}`} aria-label={t.library.readMoreOn(title)}>
                 {t.library.readMore}
               </LinkButton>
             )}
