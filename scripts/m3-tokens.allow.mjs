@@ -189,7 +189,7 @@ export const allow = [
     m3: '@role:outline-variant',
     class: 'wcag',
     reason:
-      "WCAG 2.2 1.4.11 (non-text contrast, 3:1): the card's edge is the only mark that it is a card; recorded as O1 in docs/material-deviations.md (owner, 20 Nov 2026); M3 exact, owner 21 Nov 2026: the base theme takes it over (the change lands in batch 6)",
+      "WCAG 2.2 1.4.11 (non-text contrast, 3:1): the card's edge is the only mark that it is a card; recorded as O1 in docs/material-deviations.md (owner, 20 Nov 2026); owner, 21 Nov 2026: complies with the EU Accessibility Act, stays",
   },
   {
     token: '--mo-comp-outlined-segmented-button-selected-container-color',

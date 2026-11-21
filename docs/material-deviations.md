@@ -42,7 +42,7 @@ Source: `theme/styles/global.css` (the section swap block), `theme/styles/blocks
 - **We do:** placeholders keep 4.5:1, slot icons and control borders 3:1 on every section colour (`check:screens`, `check:contrast`). Disabled parts are exempt, as in WCAG 1.4.3.
 - **Why:** 60% fails 4.5:1 on most backgrounds. A part that is not disabled is never drawn at 38%; the faded "Add button" under a card takes `on-surface-variant` instead of an opacity.
 - **Date:** 2026-11-13. **PR:** #476.
-- **Status:** M3 exact, owner 21 Nov 2026; the base theme takes it over. The change itself lands in batches 6 and 8; until then the part keeps this value (WCAG 2.2 1.4.3 and 1.4.11).
+- **Status:** stays (WCAG 2.2 1.4.3 and 1.4.11; owner, 21 Nov 2026: "We should comply with EU Accessibility Act"). `check:contrast` and `check:screens` keep enforcing it.
 
 ## Outlines (contrast, owner decision, 20 Nov 2026)
 
@@ -54,7 +54,7 @@ Source: `theme/styles/tokens/material/comp/card.css`, `theme/styles/tokens/mater
 - **We do:** the Outlined card's edge (`--mo-comp-outlined-card-outline-color`) is `--mo-sys-color-outline`. M3's own `outline-variant` is a pale tone: 1.5:1 to 1.6:1 on the light surface and 1.85:1 to 2.0:1 on the dark one. `outline` measures 4.1:1 to 4.3:1 in light and 5.4:1 to 5.8:1 in dark.
 - **Why:** WCAG 2.2 1.4.11 (Non-text Contrast) asks 3:1 for the parts of a component that show where it is; the card's edge is the only mark that a card is a card. Where Material 3 and WCAG differ, WCAG wins (`CLAUDE.md`, *Accessibility*).
 - **Date:** 2026-11-20, owner decision ("yes", after the before and after images in the branch `pr-screenshots/card-border-proposal`). **PR:** `a11y-card-border` (0.19.2).
-- **Status:** M3 exact, owner 21 Nov 2026; the base theme takes it over. The change itself lands in batches 6 and 8; until then the part keeps this value (WCAG 2.2 1.4.11).
+- **Status:** stays (WCAG 2.2 1.4.11; owner, 21 Nov 2026: "We should comply with EU Accessibility Act"). `check:contrast` keeps enforcing it and the `wcag` entry stays in `scripts/m3-tokens.allow.mjs`.
 
 ### O2. In a coloured section `outline` is the section's on-colour, not 35% of it
 
@@ -62,6 +62,7 @@ Source: `theme/styles/tokens/material/comp/card.css`, `theme/styles/tokens/mater
 - **We do:** in a section on Primary, Secondary or Tertiary `--mo-sys-color-outline` is `--mo-sys-section-on-accent`: the section's on-colour (On primary, On secondary or On tertiary), a predefined Material 3 role, with no colour mix (was the on-colour at 35% over the section colour, the same as `outline-variant`, which stays 35%). Measured on the demo's three section colours: 6.46:1 to 6.49:1 in light and 7.63:1 to 7.76:1 in dark (was 1.83:1 to 2.20:1). Text field edges and outlined buttons use the same role, so they follow.
 - **Why:** WCAG 1.4.11, 3:1 for the edge of a card or a field. Owner rule, 20 Nov 2026: only Material 3's predefined colour roles are used, so no mix of a role is made; the owner chose the on-colour ("use the on-color") over a mix of it.
 - **Date:** 2026-11-20, owner decision (as O1). **PR:** `a11y-card-border` (0.19.2).
+- **Status:** stays (WCAG 2.2 1.4.11; owner, 21 Nov 2026: "We should comply with EU Accessibility Act"): the batch 4 swap keeps the section's on-colour for edges.
 
 ## Colour sweep
 
