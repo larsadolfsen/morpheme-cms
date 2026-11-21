@@ -11,6 +11,8 @@ const root = new URL('../', import.meta.url).pathname;
 const tracked = execSync('git ls-files', { cwd: root, encoding: 'utf8' }).trim().split('\n');
 const inScope = (f) => /^(theme|src|pages|defaults|starter|demo|site)\//.test(f);
 const cssFiles = tracked.filter((f) => f.endsWith('.css') && inScope(f));
+// The shadow rules read the theme and the editor only, never a site's content (owner, 21 Nov 2026: "You are not testing the site, you are testing the theme").
+const themeScope = (f) => /^(theme|src|pages|defaults)\//.test(f);
 const classFiles = tracked.filter((f) => /\.(tsx|astro|ts)$/.test(f) && inScope(f) && !/\.test\./.test(f));
 
 const problems = [];
@@ -86,7 +88,7 @@ function shadowProblem(value) {
   }
   return null;
 }
-for (const file of [...cssFiles, ...classFiles]) {
+for (const file of [...cssFiles, ...classFiles].filter(themeScope)) {
   if (levelDefinitions.test(file)) continue;
   const raw = readFileSync(root + file, 'utf8');
   const src = raw.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '));
@@ -117,7 +119,7 @@ for (const file of [...cssFiles, ...classFiles]) {
 const elevationClass = /\bmo-elevat(?:ion|ed)-[0-3]\b/;
 const partClass =
   /\bmo-(?:button|icon-button|fab|extended-fab|fab-menu|chip|card|list|list-item|menu|menu-item|dialog|bottom-sheet|side-sheet|top-app-bar|toolbar|navigation-bar|navigation-rail|navigation-drawer|tabs?|search|search-bar|search-view|snackbar|tooltip|switch|slider|checkbox|radio|text-field|badge|date-picker|time-picker|segmented-button|button-group|split-button|carousel)(?:__[a-z0-9-]+|--[a-z0-9-]+)?\b/;
-for (const file of [...cssFiles, ...classFiles, ...tracked.filter((f) => /\.(md|mdx|html)$/.test(f) && inScope(f))]) {
+for (const file of [...cssFiles, ...classFiles].filter(themeScope)) {
   const lines = readFileSync(root + file, 'utf8').split('\n');
   lines.forEach((l, i) => {
     for (const m of l.matchAll(/(?:class(?:Name)?\s*=\s*|clsx\(|cx\()\s*(?:\{\s*)?(['"`])([^'"`]*)\1/g)) {
