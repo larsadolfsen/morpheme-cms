@@ -455,11 +455,7 @@ function CardParts() {
       </Part>
       <Part name="List" use={say.list}>
         <Preview>
-          {/* The page is Surface, so the segmented list's rows are on the surface container here (the theme's default, Surface, is for a list on a higher container). */}
-          <div
-            className="mo-editor-parts-lists"
-            style={{ '--mo-comp-list-list-item-segmented-container-color': 'var(--mo-sys-color-surface-container)' } as CSSProperties}
-          >
+          <div className="mo-editor-parts-lists">
             <SiteCard>
               <SiteList>
                 <SiteListItem headline={one} />

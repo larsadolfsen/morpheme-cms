@@ -97,3 +97,14 @@ one-line facts. Left untouched on purpose, because another batch or the owner's 
 CSS sweep 4, 5 and 9, *Editor-only parts*, the editor's bars, the text bar, selection and the block row, density 12, footer links, lightbox, choice
 group D1 and D3, palette P2 and P3, the crop view C1, B1 to B3 (pages and panes), the Dialog's D1, SV6, SV7, SV12, FR1, A1, E1, N3 to N6, and *Buttons* B1.
 Rows 8 and 24 (colour sweep 2 to 5 and 9, editor-only parts) therefore read OTHER BATCH / out of scope, not GO.
+
+## The owner's answer and the re-sort (21 Nov 2026)
+
+Owner: "We are focusing on the theme, not choices I have taken in the backend." The OWNER rows were re-sorted by where they live (PM agreed):
+
+- **Editor or admin (stay as editor exceptions, no change):** footer links 36 px (the editor's own footer), palette P2 and P3, the crop view and B1 to B3, SV6, the AI sign-in page.
+- **Theme, Modern Web Guidance first (stay):** E1, N5.
+- **Theme, made to match M3 (entry removed):** D3 (choice rows get the list's 16 px padding), SV12 (the List block's segmented rows on Surface), SV7 (the docked search view gets M3's scrim: a `::before` of the panel; a press on it closes the view).
+- **Lightbox (row 32):** unchanged in this batch; its scrim mix is the colour batch's (8).
+- **Density Large (row 25):** kept; removing a theme API option is a contract change, so it goes with 0.20.0.
+- **Pending the owner's decision, nothing changed:** the choice group's radio-list fallback (D1), N3 (icons on rail items), N4 (`menuSide`), the Dialog's missing full-screen kind.

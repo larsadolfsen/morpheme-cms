@@ -131,8 +131,8 @@
   dialog.mo-search-view {
     background: var(--mo-comp-search-view-container-surface, var(--mo-sys-color-surface-container-low));
   }
-  /* From medium the view is a dropdown (M3 docked), not a layer over the page: a panel on the bar (--mo-comp-search-view-top, -left, -width: where the bar is), no
-     scrim and not modal (owner, 15 Nov 2026). */
+  /* From medium the view is a dropdown (M3 docked, "with a scrim covering main content"), not a layer over the page: a panel on the bar (--mo-comp-search-view-top, -left,
+     -width: where the bar is), not modal. The scrim is a ::before of the panel behind its parts (the page stays reachable by pointer: a press on it closes the view). */
   div.mo-search-view.mo-search-view__docked {
     position: fixed;
     z-index: 70;
@@ -142,6 +142,13 @@
     border-radius: 0;
     background: transparent;
     box-shadow: none;
+  }
+  div.mo-search-view.mo-search-view__docked::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: var(--mo-comp-search-view-scrim, transparent);
   }
   /* M3 specs, tokens (contained, read 15 Nov 2026): "Search view contained docked bar results gap 2dp": the bar, where the bar was, and the results container
      under it. The bar has no margin of its own then (Compose and Material Web keep the bar where it was). Shapes, from Material Web's tokens (`search-view`): bar `contained-docked-bar-shape` corner-full, results `contained-docked-results-shape` corner-medium (12dp, as Compose's `dockedDropdownShape`); 28dp (`docked-container-shape`, extra large) is the divided style's one container. */
