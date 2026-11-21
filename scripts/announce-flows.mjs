@@ -179,7 +179,10 @@ async function flowKMessages(ctx) {
   // A notice: the start screen's widgets do not load (a page-level Notice with Try again).
   await page.route('**/api/dashboard', (r) => (r.request().method() === 'GET' ? r.fulfill({ status: 500, body: '' }) : r.fallback()));
   await open(ctx, '');
-  await page.locator('button', { hasText: 'Try again' }).focus({ timeout: 5000 }).catch(() => ctx.note('no Try again'));
+  await page
+    .locator('button', { hasText: 'Try again' })
+    .focus({ timeout: 5000 })
+    .catch(() => ctx.note('no Try again'));
   await step(ctx, 'K: after a notice');
   // A failed load: Assistants cannot read its connections (a problem note).
   await page.route('**/api/mcp/connections**', (r) => r.fulfill({ status: 500, contentType: 'application/json', body: '{"error":"no"}' }));
