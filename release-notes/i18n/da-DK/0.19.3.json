@@ -1,0 +1,25 @@
+{
+  "version": "0.19.3",
+  "date": "2026-11-21",
+  "notes": [
+    {
+      "id": "toolbar-shortcut",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Genvej til tekstlinjen",
+      "text": "Du skal ikke længere trykke Tab mange gange for at nå tekstlinjen. Tryk Alt+F10 i teksten eller på en valgt blok for at gå til linjen, brug piletasterne mellem værktøjerne, og tryk Escape for at gå tilbage. Slet fjerner en valgt blok."
+    },
+    {
+      "id": "keyboard-menus",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Menuer i editoren fungerer med tastaturet: brug piletasterne, Home, End og et bogstav til at flytte, og Esc til at lukke og gå tilbage til knappen"
+    },
+    {
+      "id": "editor-skip-link",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Tryk Tab én gang i editoren for at vise Spring til indhold, og Enter for at springe navigationen over og hen til skærmens indhold"
+    }
+  ]
+}
