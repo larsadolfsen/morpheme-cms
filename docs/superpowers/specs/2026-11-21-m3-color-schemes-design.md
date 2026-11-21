@@ -45,7 +45,7 @@ medium contrast). Measured on 21 November 2026:
    `dynamic` has a `harmony` keeps its colours until the owner changes them. The editor opens it on Tonal Spot with the same source colour
    and tells the owner the current colours come from the older generator; nothing changes until Save. `dynamicProblems` keeps accepting a
    stored `harmony` (sites skip versions, so old forms stay readable).
-6. **Staging and the demo.** The demo already uses Tonal Spot (`#425E92`) and is unchanged. `morpheme-staging` (complementary harmony,
+6. **Staging and the demo.** Both move to Tonal Spot from `#006397` now, before the generator is fixed (owner, 21 November 2026: "then update both sites colors"): their `colors.json` takes the roles of `SchemeTonalSpot(#006397)`, which equal the Figma files above, so `/ui/` is reviewed on M3's colours in 0.19.5. Nobody changes colours in either site's editor until the generator is fixed, or the old generator overwrites them. `morpheme-staging` (complementary harmony,
    source `#56A4E0`) gets new colours through a pull request there: Tonal Spot from `#006397`, the owner's Figma file, so staging and
    Figma can be compared directly (owner: "yes").
 7. **Checks.** A unit test compares the generator's roles for `#006397` with the Figma files above (every role, light and dark,
