@@ -587,8 +587,8 @@
     color: var(--mo-comp-time-picker-period-selected-text, var(--mo-sys-color-on-primary-container));
   }
   .mo-time-picker__period-button:focus-visible {
-    outline: 2px solid var(--mo-sys-block-accent);
-    outline-offset: -2px;
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+    outline-offset: var(--mo-sys-state-focus-indicator-inner-offset);
   }
 
   /* Horizontal (the dial's view): the boxes, and AM and PM side by side under them, to the left of the dial, the

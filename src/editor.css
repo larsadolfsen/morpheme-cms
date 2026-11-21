@@ -416,6 +416,8 @@
 /* A focused control scrolls clear of the bars that stay on the screen: their heights are measured by useScrollClearance (ui.tsx;
    the top app bar, the Save bar, the media file bar) and set on the root. */
 :root {
+  /* The editor keeps its focus ring in `primary`; the site's parts take M3's `secondary` (theme/styles/base.css). */
+  --mo-sys-state-focus-indicator-color: var(--mo-sys-color-primary);
   scroll-padding-block-start: var(--mo-editor-clearance-top, 0px);
   scroll-padding-block-end: var(--mo-editor-clearance-bottom, 0px);
 }

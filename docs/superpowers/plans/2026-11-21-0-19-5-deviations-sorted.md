@@ -115,3 +115,7 @@ Owner: "We are focusing on the theme, not choices I have taken in the backend." 
 and the 60 % placeholder (deviation 4), which stay as allowlist entries ("M3 exact, owner 21 Nov 2026; the base theme takes it over") until batches 6 and 8
 change them. FR1 and A1 wait for the CTO's answer. The plan (`2026-11-20-0-19-5-material-3-tokens.md`, *Scope change*) lists every frontend deviation with
 the batch that removes it. This batch removes the Lightbox entry as well; the pending-owner rows and E1 and N5 stay untouched until answered.
+
+## Focus ring (owner, 21 Nov 2026)
+
+FR1 and A1 are removed: the site's focus ring is M3's (`secondary`, 3 dp, 2 dp outside), the editor keeps `primary`. The five pending rows are marked → 0.20.0 (CTO).
