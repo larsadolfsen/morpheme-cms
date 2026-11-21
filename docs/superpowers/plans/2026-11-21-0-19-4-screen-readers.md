@@ -63,22 +63,22 @@ flows) and the allowlist holds what it finds. The source today:
 
 Measured by batch 1 (21 Nov 2026) on the built demo, on the base that has 0.19.2 and 0.19.3, and measured again after the scope fix of 21 Nov 2026 (*The
 check*: the editor's screens and one page per block, never the content): `check:announce`, 250 editor screens and the 10 demo Blocks pages at 1280 and
-390 px, and the flows A, B, C, F, I, J, K, L. It is what `scripts/announce-allowlist.json` holds: 57 entries (66 before the scope fix, 73 at batch 1, whose
-first run also walked the demo's pages, posts and categories), each a problem, a selector and the screens or flows it is on. A count of **entries** is
+390 px, and the flows A, B, C, F, I, J, K, L. It is what `scripts/announce-allowlist.json` holds: 43 entries after batches 1, 3 and 4 and the scope fix (52 on the feature just before it, 73 at batch
+1, whose first run also walked the demo's pages, posts and categories), each a problem, a selector and the screens or flows it is on. A count of **entries** is
 distinct selectors; **places** is the screens or flows they are found on (one entry on many screens counts once per screen).
 
 | Problem | What it is | Entries | Places | Fixed by batch |
 | --- | --- | ---: | ---: | :---: |
 | `no-announcement` | a step that should be announced (an inserted, moved or removed block, a selected block) says nothing from a region that was there before: the status text is in a region that comes into the page with its text, or there is none | 4 | 4 | 4, 5, 6 |
 | `repeated-name` | two controls of one role with one name in one list (the footer links of the licences, the screen crumbs, the block handles on the Blocks pages; the component gallery's examples) | 35 | 234 | 2 |
-| `tab-state` | a menu button with `aria-haspopup` and no `aria-expanded` (the top bar's icon buttons, list rows that open a menu or sheet, text-field buttons, the page editor's outlined menu button) | 9 | 290 | 3 |
-| `broken-reference` | an `aria-describedby`, `aria-labelledby` or `aria-controls` that points at an element that is not in the page (the crop page's dialog on every screen; the gallery's examples) | 5 | 264 | 3 |
+| `tab-state` | a menu button with `aria-haspopup` and no `aria-expanded` (the top bar's icon buttons, list rows that open a menu or sheet, text-field buttons, the page editor's outlined menu button) | 0 | 0 | 3 (done) |
+| `broken-reference` | an `aria-describedby`, `aria-labelledby` or `aria-controls` that points at an element that is not in the page (the crop page's dialog on every screen; the gallery's examples) | 0 | 0 | 3 (done) |
 | `unnamed-container` | the footer links' `nav` has no name, and there are two navigations | 2 | 260 | 2 |
 | `bad-name` | a card whose name is a file name (the Files screen) | 1 | 1 | 2 |
 | `no-name` | the inline notice's `role=button` has no name (the Cards page) | 1 | 1 | 2 |
 | `icon-name`, `disabled-no-reason`, `live-region`, `double-announcement`, `wrong-urgency`, `flow-focus-unnamed`, `flow-lost-focus` | found nowhere | 0 | 0 | — |
 
-The scope fix removed 9 entries: the category rows' links (`src/data/categories/`), the links and headings a site owner wrote in the text area
+The scope fix removed 9 entries (by the count before batch 3 merged): the category rows' links (`src/data/categories/`), the links and headings a site owner wrote in the text area
 (`typography.md`, `prose-fixture.md` and the text sample of *Developer › Parts › Editor*), and the repeated name of the block cards on those two prose pages
 (their blocks are walked on the Blocks pages, where the name is not repeated). Every finding on the Blocks pages was in the list already, so it added none.
 
