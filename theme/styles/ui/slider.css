@@ -256,12 +256,12 @@
     cursor: grabbing;
   }
   .mo-slider__input:focus-visible::-webkit-slider-thumb {
-    outline: 3px solid var(--mo-sys-color-primary);
-    outline-offset: 2px;
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+    outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
   }
   .mo-slider__input:focus-visible::-moz-range-thumb {
-    outline: 3px solid var(--mo-sys-color-primary);
-    outline-offset: 2px;
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+    outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
   }
   /* The value over its handle (the end's; a range's first, the start's; a centered one's below the middle, at the
      start of its active track). */

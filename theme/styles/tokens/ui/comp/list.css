@@ -175,13 +175,6 @@
     );
   }
 }
-@layer components {
-  .mo-choice-group__list {
-    /* The rows run as wide as the field's above them: the radio's circle starts where the name and the fields start, and a
-       sample ends where they end (the circle's 40dp state layer overhangs the edge, as Material's radio specs allow). */
-    --mo-comp-list-item-padding-inline: 0px;
-  }
-}
 /* A row is at least 48 dp at every density (Material, radio buttons: "Don't apply density to radio buttons by default"). */
 @layer components {
   .mo-choice-group__list .mo-list__item-container {

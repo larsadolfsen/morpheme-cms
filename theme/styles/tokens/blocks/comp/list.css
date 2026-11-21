@@ -13,9 +13,6 @@
   .mo-block-list {
     --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-block-text);
     --mo-comp-list-item-trailing-text: var(--mo-sys-block-text);
-    /* A segmented list stands on the page, which is Surface: its rows on Surface would vanish, so the block's are on the surface container (the
-       theme's default is M3's Surface, for a list on a higher container; owner, 15 Nov 2026, docs/material-deviations.md SV12). */
-    --mo-comp-list-list-item-segmented-container-color: var(--mo-sys-color-surface-container);
   }
 }
 /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles; without one, the text colour (Text in the editor). */

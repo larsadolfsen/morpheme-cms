@@ -11,7 +11,7 @@
      rest and level 2 pointed at, though the theme's other parts have no shadow at rest (--mo-elevation-N-rest-shadow above). */
   --mo-comp-elevated-card-container-elevation: var(--mo-sys-elevation-level1-shadow);
   --mo-comp-elevated-card-hover-container-elevation: var(--mo-sys-elevation-level2-shadow);
-  /* The small step the editor uses for a block's row and handle (8px). The room between cards is --mo-sys-grid-gutter below (owner, 15 Nov 2026, G1). */
+  /* The room between cards: M3 Cards, Specs, "Padding between cards 8dp max". The editor also uses it as the small step for a block's row and handle. */
   --mo-comp-card-gap: 0.5rem;
   /* Inside a "Cards" card, on the 4dp half-step and the 8dp grid (Material 3 prints only the 16px left and right padding and 8px
      between cards): the headline to the subhead 4px, the headline or subhead to the text 8px, the media (and a card's icon) to the

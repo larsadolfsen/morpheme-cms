@@ -76,8 +76,8 @@
     color: var(--mo-sys-color-on-primary);
   }
   .mo-checkbox__input:focus-visible {
-    outline: 3px solid var(--mo-sys-color-primary);
-    outline-offset: 2px;
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+    outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
   }
   .mo-checkbox__box:has(.mo-checkbox__input:disabled) {
     opacity: var(--mo-sys-state-disabled-state-layer-opacity);
@@ -116,8 +116,8 @@
     background: var(--mo-sys-color-on-surface-variant);
   }
   .mo-switch__input:focus-visible {
-    outline: 3px solid var(--mo-sys-color-primary);
-    outline-offset: 2px;
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+    outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
   }
 
   /* An M3 radio button: a 20px ring in on-surface-variant, chosen in the primary colour with a 10px dot in it, in a
@@ -146,8 +146,8 @@
     background: radial-gradient(circle closest-side, var(--mo-sys-color-primary) 62.5%, transparent calc(62.5% + 0.5px));
   }
   .mo-radio-button__input:focus-visible {
-    outline: 3px solid var(--mo-sys-color-primary);
-    outline-offset: 2px;
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+    outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
     border-radius: var(--mo-sys-shape-corner-full);
   }
   .mo-radio-button__box:has(.mo-radio-button__input:disabled) {
