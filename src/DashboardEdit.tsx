@@ -8,6 +8,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import { ArrowDown, ArrowUp, DotsSixVertical, DotsThreeVertical, GearSix, Trash } from '@phosphor-icons/react';
 import { t } from './i18n';
+import { useAnnounce } from './useAnnounce';
 import { apps } from './site';
 import { activeApps } from './apps';
 import { allWidgets, spanClass, type WidgetDefinition } from './widgets';
@@ -170,6 +171,8 @@ export function EditableCards({
   const [drag, setDrag] = useState<Drag | null>(null);
   const [menu, setMenu] = useState<{ id: string; anchor: HTMLElement } | null>(null);
   const { shown, focus } = dash;
+  // What a move or a removal did, said by the editor's one announcer.
+  useAnnounce(dash.announcement);
 
   // After a move (or a removal) the menu button of the card keeps the focus.
   useEffect(() => {
@@ -212,9 +215,6 @@ export function EditableCards({
   const open = at === -1 ? null : shown[at];
   return (
     <>
-      <div aria-live="polite" className="mo-visually-hidden">
-        {dash.announcement}
-      </div>
       <div ref={grid} className="mo-staggered-grid mo-editor-settings-dashboard-grid">
         {shown.map(({ placement, definition }) => {
           const dragging = drag?.id === placement.id;

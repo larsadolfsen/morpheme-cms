@@ -834,7 +834,9 @@ async function checkIconSearch(width, height) {
   const box = await search.boundingBox();
   if (!box || box.x < 0 || box.x + box.width > width) problems.push(`${label}: the search field is outside the screen`);
   await search.fill('zzzqqq');
+  // In the picker only: the announcer's hidden region says it too.
   await page
+    .locator('.mo-editor-icon-picker-status')
     .getByText('No icons found', { exact: true })
     .waitFor({ timeout: 8000 })
     .catch(() => problems.push(`${label}: no "No icons found" for a search without a hit`));

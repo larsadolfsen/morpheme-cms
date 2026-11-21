@@ -57,21 +57,7 @@
   },
   {
     "problem": "no-announcement",
-    "selector": "A: after Save",
-    "places": ["flow A"],
-    "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 4 fixes it and removes this entry."
-  },
-  {
-    "problem": "no-announcement",
     "selector": "B: after inserting a block",
-    "places": ["flow B"],
-    "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 4 fixes it and removes this entry."
-  },
-  {
-    "problem": "no-announcement",
-    "selector": "B: after Move down",
     "places": ["flow B"],
     "viewports": ["phone", "computer"],
     "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 4 fixes it and removes this entry."
@@ -88,41 +74,6 @@
     "selector": "B: after Remove",
     "places": ["flow B"],
     "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 4 fixes it and removes this entry."
-  },
-  {
-    "problem": "no-announcement",
-    "selector": "J: after Save",
-    "places": ["flow J"],
-    "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 4 fixes it and removes this entry."
-  },
-  {
-    "problem": "no-announcement",
-    "selector": "J: after Save with a field left wrong",
-    "places": ["flow J"],
-    "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 4 fixes it and removes this entry."
-  },
-  {
-    "problem": "no-announcement",
-    "selector": "J: after typing",
-    "places": ["flow J"],
-    "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 4 fixes it and removes this entry."
-  },
-  {
-    "problem": "no-announcement",
-    "selector": "K: after Change type",
-    "places": ["flow K"],
-    "viewports": ["computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 4 fixes it and removes this entry."
-  },
-  {
-    "problem": "no-announcement",
-    "selector": "K: after Remove",
-    "places": ["flow K"],
-    "viewports": ["computer"],
     "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 4 fixes it and removes this entry."
   },
   {

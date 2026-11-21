@@ -112,6 +112,7 @@ import {
   siteRipples,
 } from './themeUi';
 import { locale, t } from './i18n';
+import { Announce } from './useAnnounce';
 import { useRegisterFab } from './fabPresence';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
 import { SvgFile } from './icon';
@@ -1372,7 +1373,8 @@ export function IconPicker({
             </div>
           )}
           {searching && !loading && hits.every((o) => !o.value) && (
-            <p role="status" className="mo-editor-icon-picker-status">
+            <p className="mo-editor-icon-picker-status">
+              <Announce text={t.forms.noIconsFound} />
               {t.forms.noIconsFound}
             </p>
           )}
