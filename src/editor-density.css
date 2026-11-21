@@ -1,17 +1,17 @@
 /* The editor's vertical rhythm, one place for every editor part (docs/superpowers/specs/2026-11-13-density-design.md, PR 3): the space between the
    editor's sections follows the person's density step, 4 px a step (Material 3: "Higher density is typically applied by decreasing the top and bottom
-   padding or overall height by 4dp"), from 12 px up. A part rule writes a margin, padding or gap of 12 px or more on the vertical rhythm as
+   padding or overall height by 4dp"), from 12 px up, and never below -1: M3 gives no density number for the space between sections, so the editor's own rhythm stops at Small even when a theme's step is lower. A part rule writes a margin, padding or gap of 12 px or more on the vertical rhythm as
    var(--mo-comp-editor-rhythm-<default in px>) instead of a fixed space; horizontal spacing never follows density (owner rule), and a space
    under 12 px stays fixed.
-   The tokens hold the sum, so they are declared where --mo-sys-density-layout is: on :root and again in the two places that set their own step
+   The tokens hold the sum, so they are declared where --mo-sys-density is: on :root and again in the two places that set their own step
    (the rows that pick the density, and the text typed in place; src/editor.css), because a custom property is resolved where it is declared. */
 :where(:root),
 [data-density-fixed],
 .mo-editor-text .ProseMirror {
-  --mo-comp-editor-rhythm-150: calc(var(--mo-ref-space-150) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-  --mo-comp-editor-rhythm-200: calc(var(--mo-ref-space-200) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-  --mo-comp-editor-rhythm-250: calc(var(--mo-ref-space-250) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-  --mo-comp-editor-rhythm-300: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-  --mo-comp-editor-rhythm-400: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
-  --mo-comp-editor-rhythm-500: calc(var(--mo-ref-space-500) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  --mo-comp-editor-rhythm-150: calc(var(--mo-ref-space-150) + max(var(--mo-sys-density), -1) * var(--mo-sys-density-step));
+  --mo-comp-editor-rhythm-200: calc(var(--mo-ref-space-200) + max(var(--mo-sys-density), -1) * var(--mo-sys-density-step));
+  --mo-comp-editor-rhythm-250: calc(var(--mo-ref-space-250) + max(var(--mo-sys-density), -1) * var(--mo-sys-density-step));
+  --mo-comp-editor-rhythm-300: calc(var(--mo-ref-space-300) + max(var(--mo-sys-density), -1) * var(--mo-sys-density-step));
+  --mo-comp-editor-rhythm-400: calc(var(--mo-ref-space-400) + max(var(--mo-sys-density), -1) * var(--mo-sys-density-step));
+  --mo-comp-editor-rhythm-500: calc(var(--mo-ref-space-500) + max(var(--mo-sys-density), -1) * var(--mo-sys-density-step));
 }

@@ -137,3 +137,7 @@ theme is the roadmap's 0.22.3 and no part of this batch. The focus ring is M3's 
 Replaces the EU Accessibility Act section above: deviation 4, O1 and O2 are removed from `docs/material-deviations.md`, covered by the accessibility statement (batch 11);
 their values change in batches 4, 6 and 8. Batches 11 and 12 build the statement. This batch lands after batch 11. The focus ring is M3's, measured at 3:1 by
 `check:contrast`, and named in the statement only if it falls under.
+
+## DP1 (#1100)
+
+DP1, the docked date picker's steppers wrapping onto two lines on a narrow screen, stays in `docs/material-deviations.md` as a WCAG item: reflow, 2.2 1.4.10 (owner, 21 Nov 2026).

@@ -1,8 +1,7 @@
 // Density (docs/superpowers/specs/2026-11-13-density-design.md, PR 5): a part that ignores the density step fails. The theme's parts are
-// listed here with the variable of their group (--mo-sys-density for data-heavy parts, --mo-sys-density-layout for layout and controls); each
-// must write its height or its vertical padding with it, as calc(<default> + var(--mo-sys-density…) * var(--mo-sys-density-step)). Three more
-// rules: a focused single-task part (menu, dialog, snackbar) never reads --mo-sys-density or --mo-sys-density-layout (never denser than
-// Medium); a horizontal padding never reads density (owner rule: only height and vertical padding move); and a text size never does
+// listed here; each must write its height or its vertical padding with --mo-sys-density, as calc(<default> + var(--mo-sys-density) *
+// var(--mo-sys-density-step)); the one variable goes 0 to -3 (Large went in 0.19.5). Three more
+// rules: a part that alerts a person (snackbar, dialog) never reads it (never denser than Medium); a horizontal padding never reads density (owner rule: only height and vertical padding move); and a text size never does
 // (M3: "Text size shouldn't change as the container size scales"). Only base.css, global.css and editor.css set the person's or the
 // theme's step. The browser side (the sizes at each step, a target kept, the page editing area unchanged) is in check:screens.
 // Run by npm run check. A deliberate exception is an entry of EXEMPT with its reason.
@@ -12,19 +11,26 @@ import { UI_PART_FILES, MATERIAL_FILES } from '../theme/styles/files.mjs';
 
 /** The parts that must read density: where their rule is, and which variable of the three groups they read. */
 export const PARTS = [
-  { name: 'button', file: 'theme/styles/ui/buttons.css', selector: '.mo-button', reads: '--mo-sys-density-layout' },
-  { name: 'chip', file: 'theme/styles/ui/chips.css', selector: '.mo-chip', reads: '--mo-sys-density-layout' },
+  { name: 'button', file: 'theme/styles/ui/buttons.css', selector: '.mo-button', reads: '--mo-sys-density' },
+  { name: 'chip', file: 'theme/styles/ui/chips.css', selector: '.mo-chip', reads: '--mo-sys-density' },
   {
     name: 'segmented button',
     file: 'theme/styles/ui/button-groups.css',
     selector: '.mo-segmented-button__segment',
-    reads: '--mo-sys-density-layout',
+    reads: '--mo-sys-density',
   },
-  { name: 'text field', file: 'theme/styles/ui/text-field.css', selector: '.mo-text-field', reads: '--mo-sys-density-layout' },
+  { name: 'text field', file: 'theme/styles/ui/text-field.css', selector: '.mo-text-field', reads: '--mo-sys-density' },
   {
     name: 'choice group row',
     file: 'theme/styles/ui.css',
     selector: '.mo-choice-group__list .mo-list__item-container',
+    reads: '--mo-sys-density',
+  },
+  { name: 'menu item', file: 'theme/styles/ui/menus.css', selector: '.mo-menu__item', reads: '--mo-sys-density' },
+  {
+    name: 'dropdown option',
+    file: 'theme/styles/ui/menus.css',
+    selector: '.mo-exposed-dropdown-menu__option',
     reads: '--mo-sys-density',
   },
   { name: 'list item', file: 'theme/styles/ui/list.css', selector: '.mo-list__item-container', reads: '--mo-sys-density' },
@@ -32,7 +38,7 @@ export const PARTS = [
     name: 'setting row',
     file: 'theme/styles/ui/switch.css',
     selector: '.mo-setting-list > .mo-setting-row',
-    reads: '--mo-sys-density-layout',
+    reads: '--mo-sys-density',
   },
   {
     name: 'table cell',
@@ -48,11 +54,8 @@ export const PARTS = [
   },
 ];
 
-/** Focused single-task parts: never denser than Medium, so they read neither --mo-sys-density nor --mo-sys-density-layout. */
-export const FOCUSED = [
-  { name: 'menu item', file: 'theme/styles/ui/menus.css', selector: '.mo-menu__item' },
-  { name: 'snackbar', file: 'theme/styles/ui/snackbar.css', selector: '.mo-snackbar' },
-];
+/** Parts that alert a person: never denser than Medium, so they do not read --mo-sys-density (M3: not "in components that alert a person of changes, such as snackbars or dialogs"). */
+export const FOCUSED = [{ name: 'snackbar', file: 'theme/styles/ui/snackbar.css', selector: '.mo-snackbar' }];
 
 /** Files that may set the steps themselves. */
 const SETS_STEP = /^(theme\/styles\/(base|global)\.css|src\/editor\.css)$/;
@@ -90,10 +93,8 @@ export function findProblems(files) {
   }
   for (const p of FOCUSED) {
     for (const b of blocksOf(files[p.file] ?? '', p.selector))
-      if (/var\(--mo-sys-density(-layout)?\)/.test(b))
-        problems.push(
-          `${p.file}: ${p.name} (${p.selector}) is a focused part: it may read --mo-sys-density-focus, never --mo-sys-density or --mo-sys-density-layout`,
-        );
+      if (/var\(--mo-sys-density\)/.test(b))
+        problems.push(`${p.file}: ${p.name} (${p.selector}) alerts a person: it never reads --mo-sys-density`);
   }
   for (const [file, css] of Object.entries(files)) {
     const src = css.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '));
@@ -159,5 +160,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     );
     process.exit(1);
   }
-  console.log('Every listed part follows the density step; focused parts, horizontal padding and text size ignore it.');
+  console.log('Every listed part follows the density step; alert parts, horizontal padding and text size ignore it.');
 }

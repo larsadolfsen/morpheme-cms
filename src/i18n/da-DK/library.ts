@@ -152,7 +152,7 @@ export const library: Messages['library'] = {
   themes: { light: 'Lys', auto: 'Auto', dark: 'Mørk' },
   density: 'Tæthed',
   densityNotSaved: 'Tætheden er ændret her, men ikke gemt på din konto.',
-  densities: { large: 'Stor', medium: 'Mellem', small: 'Lille' },
+  densities: { medium: 'Mellem', small: 'Lille' },
   language: 'Sprog',
   languageAuto: (name) => `Automatisk: ${name}`,
   languageSearch: 'Søg i sprogene',

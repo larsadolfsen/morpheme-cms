@@ -1,8 +1,10 @@
 {
+  "--mo-sys-density-layout": "--mo-sys-density",
+  "--mo-sys-density-focus": "--mo-sys-density",
   "--mo-density-user": "--mo-sys-density-user",
   "--mo-density": "--mo-sys-density",
-  "--mo-density-layout": "--mo-sys-density-layout",
-  "--mo-density-focus": "--mo-sys-density-focus",
+  "--mo-density-layout": "--mo-sys-density",
+  "--mo-density-focus": "--mo-sys-density",
   "--section-pane-width": "--mo-sys-section-pane-width",
   "--section-pane-gap": "--mo-sys-section-pane-gap",
   "--section-accent": "--mo-sys-section-accent",

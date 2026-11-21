@@ -101,10 +101,9 @@ Batch 1 makes the comparison exact and turns this into the real baseline.
 9. **The recorded deviations.** Every entry of `docs/material-deviations.md` outside the editor's workspace is sorted: it matches M3
    Expressive after all (the entry goes, as with the 16 dp menu corner and the 56 dp hero buttons), WCAG requires it (it stays, naming the
    criterion), or it is made to match M3 and the entry goes (for example G1, the 16 and 24 px gap between cards where M3 prints 8 dp max).
-10. **Density follows M3** (owner, 21 November 2026; a new session builds it). Large goes and Medium becomes 0; every part that M3 gives a density supports 0 to
-    -3 in the theme's styling; the editor keeps Medium and Small; accounts on Large move to Medium. Removes density deviations 12 to 15 and adds a release note line.
-    Batches 9 and earlier do not touch the density CSS.
-
+10. **Density follows M3** (owner, 21 November 2026: "follow m3"). Large (+1) goes and Medium is 0 (a stored Large reads as Medium); every part
+    M3 gives a density supports 0 to -3 in the theme's styling; the editor's setting keeps Medium and Small. `check:screens` and
+    `check:contrast` force -2 and -3. Spec note: `specs/2026-11-13-density-design.md`; entries 12 to 15 of `docs/material-deviations.md`.
 11. **The theme's accessibility statement: file and checks.** `theme/accessibility.json` (Material's own file), and `check:contrast`, `check:screens`, `check:a11y`
     and `check:announce` let a failure through only if it is named there (spec on #1071). Batch 9 lands after it.
 12. **The accessibility statement in the editor.** The editor's theme page row and its texts.
@@ -147,7 +146,8 @@ Every frontend deviation, by name, and the batch that removes it (the sorting is
 | N3 (site menu: icons on rail items) | → 0.20.0: M3's navigation drawer built on the rail code with the rail off; the editor keeps the rail |
 | N4 (`menuSide`, menu on the end edge) | not a deviation: customization (owner, 21 Nov 2026); removed from `docs/material-deviations.md`, not on the 0.20.0 list |
 | The Dialog's full-screen kind | → 0.20.0: the theme's Dialog gets the kind back for compact windows; the editor keeps its pages for now |
-| Density Large (+1) (12) and density 13 to 15 (horizontal padding, list row never below the target, invisible target area) | batch 10 |
+| Density Large (+1) (12) and density 13 to 15 (horizontal padding, list row never below the target, invisible target area) | batch 10 (merged, #1101) |
+| DP1 (a docked date picker's steppers wrap on a narrow screen) | stays: WCAG 2.2 reflow, 1.4.10 (owner, 21 Nov 2026; #1100) |
 
 ## Done when
 

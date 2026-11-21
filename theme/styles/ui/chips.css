@@ -28,12 +28,12 @@
     display: inline-flex;
     align-items: center;
     gap: var(--mo-comp-chip-gap, 0.5rem);
-    min-height: calc(var(--mo-comp-filter-chip-container-height, 0px) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    min-height: calc(var(--mo-comp-filter-chip-container-height, 0px) + var(--mo-sys-density) * var(--mo-sys-density-step));
     border: 0;
     border-radius: var(--mo-comp-filter-chip-container-shape, var(--mo-sys-block-control-radius));
     padding: var(--mo-comp-chip-padding, 0.55rem 1rem);
     /* Density takes 2 px off each side, never the text; --mo-comp-chip-padding-block (else 0.55rem) is the room today. */
-    padding-block: calc(var(--mo-comp-chip-padding-block, 0.55rem) + var(--mo-sys-density-layout) * var(--mo-sys-density-step) / 2);
+    padding-block: calc(var(--mo-comp-chip-padding-block, 0.55rem) + var(--mo-sys-density) * var(--mo-sys-density-step) / 2);
     background: var(--mo-comp-chip-surface, var(--mo-sys-block-surface));
     color: var(--mo-comp-filter-chip-unselected-label-text-color, inherit);
     box-shadow: inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-sys-block-line));
