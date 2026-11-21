@@ -422,10 +422,6 @@ export const ours = [
     reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
   },
   {
-    token: '--mo-comp-navigation-drawer-scrim-color',
-    reason: 'The scrim of this part; M3 holds one scrim role (md.sys.color.scrim) and prints no token per part.',
-  },
-  {
     token: '--mo-comp-navigation-drawer-toggle-hover',
     reason:
       'A state of the part drawn as one mixed colour; M3 holds states as a state layer colour and opacity token (md.sys.state) per state.',
@@ -573,10 +569,6 @@ export const ours = [
   },
   {
     token: '--mo-comp-slider-inactive-track',
-    reason: 'No M3 token of this name or role found in docs/m3-tokens/; to review in the component batch.',
-  },
-  {
-    token: '--mo-comp-slider-label-label-text-color',
     reason: 'No M3 token of this name or role found in docs/m3-tokens/; to review in the component batch.',
   },
   {

@@ -130,6 +130,38 @@ test('a --mo-comp token that maps to no M3 token and is not named as ours fails;
   assert.equal(judgeOurs(map, data, [], { '--mo-comp-x-gap': ['md.comp.nope'] }).length, 3);
 });
 
+test('a [Deprecated] token and a palette tone are compared where the theme declares them', () => {
+  const tone = {
+    token: 'md.comp.d.scrim.color',
+    type: 'COLOR',
+    chain: ['md.comp.d.scrim.color', 'md.ref.palette.neutral-variant20'],
+    ref: 'md.ref.palette.neutral-variant20',
+    deprecated: true,
+  };
+  const opacity = {
+    token: 'md.comp.d.scrim.opacity',
+    type: 'OPACITY',
+    chain: ['md.comp.d.scrim.opacity'],
+    ref: null,
+    value: 0.4,
+    deprecated: true,
+  };
+  const data = m3([tone, opacity]);
+  const same = declaredOnRoot([
+    ':root { --mo-comp-d-scrim-color: var(--mo-ref-palette-neutral-variant20); --mo-comp-d-scrim-opacity: 0.4; }',
+  ]);
+  assert.deepEqual(compare(same, data), []); // the tone has no stylesheet declaration: its name is its value
+  const other = declaredOnRoot([':root { --mo-comp-d-scrim-color: var(--mo-ref-palette-neutral20); --mo-comp-d-scrim-opacity: 0.5; }']);
+  assert.deepEqual(
+    compare(other, data).map((f) => [f.token, f.theme, f.m3]),
+    [
+      ['--mo-comp-d-scrim-color', '@ref:neutral20', '@ref:neutral-variant20'],
+      ['--mo-comp-d-scrim-opacity', '0.5', '0.4'],
+    ],
+  );
+  assert.deepEqual(compare(declaredOnRoot([':root { --other: 1; }']), data), []); // not declared: not compared, not missing
+});
+
 test('the theme today: every --mo-comp token is compared or ours, and every rename target is an M3 token', () => {
   const map = declaredOnRoot(tokenFiles().map((f) => readFileSync(f, 'utf8')));
   assert.deepEqual(judgeOurs(map, loadM3(), ours), []);

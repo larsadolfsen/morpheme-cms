@@ -41,4 +41,21 @@ export const allow = [
     batch: 'app bars and navigation',
     reason: "The active item's label is on-surface; M3 (md.comp.nav-bar.item.active.label-text.color) says secondary.",
   },
+  {
+    token: '--mo-comp-navigation-drawer-scrim-color',
+    theme: '@role:scrim',
+    m3: '@ref:neutral-variant20',
+    class: 'fix',
+    batch: 'app bars and navigation',
+    reason:
+      "The drawer's scrim is the scrim role; M3's data (md.comp.navigation-drawer.scrim.color, a [Deprecated] group M3 still prints) says palette neutral-variant20 at 0.4 opacity.",
+  },
+  {
+    token: '--mo-comp-slider-label-label-text-color',
+    theme: '@role:on-primary',
+    m3: '@role:inverse-on-surface',
+    class: 'fix',
+    batch: 'the rest',
+    reason: "The slider's value label text is on-primary; M3 (md.comp.slider.label.label-text.color) says inverse-on-surface.",
+  },
 ];

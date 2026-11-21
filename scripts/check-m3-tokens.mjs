@@ -10,7 +10,7 @@
 //  - a shape is the corner step it names (`--mo-sys-shape-corner-large` <-> `md.sys.shape.corner.large`), or the same size in px;
 //  - a measure, an elevation, a font size, a line height, a tracking and an opacity is the same number (dp and points are px, rem is 16 px, `var()` and
 //    `calc()` are resolved, density's base is the value `:root` declares); a weight is the same number.
-// Where M3's data holds an Expressive value for a token (`expressive`), that one counts (skill `material-3`). The tokens M3 marks `[Deprecated]` are left out.
+// Where M3's data holds an Expressive value for a token (`expressive`), that one counts (skill `material-3`). The tokens M3 marks `[Deprecated]` are compared only where the theme declares them (they are not in `--report`'s missing list); a palette tone (`md.ref.palette.*`) is compared by name, as `@ref:<tone>`.
 // Roles and numbers are the same in light and dark in M3's data, so one resolved value is compared.
 //
 // What fails: a difference that is not in scripts/m3-tokens.allow.mjs, and an entry of it that no longer differs exactly as written, so the list only
@@ -80,6 +80,8 @@ export function declaredOnRoot(texts) {
 
 const ROLE = /^--mo-sys-color-([a-z0-9-]+)$/;
 const STEP = /^--mo-sys-shape-corner-([a-z0-9-]+)$/;
+/** A palette tone (`--mo-ref-palette-neutral-variant20`, M3's `md.ref.palette.neutral-variant20`): the site's colours make it at build, so a stylesheet may not declare it; the name is the value. */
+const PALETTE = /^--mo-ref-palette-([a-z0-9-]+)$/;
 /** An elevation level's shadow token (`--mo-sys-elevation-level2-shadow`, or its `-rest-shadow`) is that level (M3's `md.sys.elevation.levelN`, in dp). */
 const LEVEL = /^--mo-sys-elevation-level([0-5])-(?:rest-)?shadow$/;
 const ELEVATION_DP = [0, 1, 3, 6, 8, 12];
@@ -114,6 +116,7 @@ export function resolveVars(value, map, roles, steps, seen = []) {
     else if (level) piece = `${ELEVATION_DP[Number(level)]}px`;
     else if (step && steps.has(step)) piece = `@shape:${step}`;
     else if (map.has(name) && !seen.includes(name)) piece = resolveVars(map.get(name), map, roles, steps, [...seen, name]);
+    if (piece === null && PALETTE.test(name)) piece = `@ref:${PALETTE.exec(name)[1]}`;
     if (piece === null && fallback !== null) piece = resolveVars(fallback, map, roles, steps, seen);
     if (piece === null) return null;
     out += piece;
@@ -201,13 +204,13 @@ export function evaluate(text) {
 
 // ---------- M3's side ----------
 
-/** M3's tokens from the copy: name -> {type, ref, value (Expressive where it differs), shape}. Only `md.sys` and `md.comp`, no `[Deprecated]` group. */
+/** M3's tokens from the copy: name -> {type, ref, value (Expressive where it differs), shape}. Only `md.sys` and `md.comp`; a `[Deprecated]` group is kept and flagged (`deprecated`). */
 export function loadM3(dir = COPY) {
   const tokens = new Map();
   for (const f of readdirSync(dir).filter((f) => /^md\.(sys|comp)\..*\.json$/.test(f))) {
     const set = JSON.parse(readFileSync(join(dir, f), 'utf8'));
     for (const t of set.tokens) {
-      if (!/^md\.(sys|comp)\./.test(t.token) || /\[Deprecated\]/.test(t.group ?? '')) continue;
+      if (!/^md\.(sys|comp)\./.test(t.token)) continue;
       const r = t.expressive?.light ?? t.resolved?.light;
       if (!r) continue;
       tokens.set(t.token, {
@@ -219,6 +222,7 @@ export function loadM3(dir = COPY) {
         unit: r.unit,
         shape: r.shape,
         expressive: Boolean(t.expressive),
+        deprecated: /\[Deprecated\]/.test(t.group ?? ''),
       });
     }
   }
@@ -276,7 +280,8 @@ function m3Text(t) {
   if (t.type === 'COLOR') {
     const role = (t.chain ?? []).slice(1).find((c) => /^md\.sys\.color\./.test(c));
     if (role) return `@role:${role.slice('md.sys.color.'.length)}`;
-    return null;
+    const tone = (t.chain ?? []).slice(1).find((c) => /^md\.ref\.palette\./.test(c));
+    return tone ? `@ref:${tone.slice('md.ref.palette.'.length)}` : null;
   }
   if (t.type === 'SHAPE') {
     // `extra-large.top` is the extra-large step on the top corners only: the same step.
@@ -297,7 +302,7 @@ function themeText(t, value, map, roles, steps, cornerPx) {
   // A role at an opacity over nothing is the role; M3 holds the opacity in its own token (the drag handle's 0.4).
   if (t.type === 'COLOR') resolved = resolved.replace(/^color-mix\(in srgb, (@role:[a-z0-9-]+) [\d.]+%, transparent\)$/, '$1');
   if (t.type === 'COLOR')
-    return /^@role:[a-z0-9-]+$/.test(resolved) ? resolved : resolved === 'transparent' ? 'transparent' : '?' + resolved;
+    return /^@(role|ref):[a-z0-9-]+$/.test(resolved) ? resolved : resolved === 'transparent' ? 'transparent' : '?' + resolved;
   if (t.type === 'SHAPE') {
     if (/^@shape:[a-z0-9-]+$/.test(resolved)) return resolved;
     const e = evaluate(resolved);
@@ -339,6 +344,7 @@ export function compare(map, m3, stats = {}, renames = RENAMES) {
   for (const t of m3.values()) {
     const want = m3Text(t);
     if (want === null) continue;
+    // A token of M3's `[Deprecated]` groups is compared only where the theme declares it (by name or by the rename map): M3 still prints a value for it.
     for (const name of namesOf(t.token)) {
       if (!map.has(name)) continue;
       stats.compared?.add(name);
@@ -358,7 +364,7 @@ export function compare(map, m3, stats = {}, renames = RENAMES) {
 export function missing(map, m3, renames = RENAMES) {
   const namesOf = themeNames(renames);
   return [...m3.values()]
-    .filter((t) => m3Text(t) !== null && namesOf(t.token).length && !namesOf(t.token).some((n) => map.has(n)))
+    .filter((t) => !t.deprecated && m3Text(t) !== null && namesOf(t.token).length && !namesOf(t.token).some((n) => map.has(n)))
     .map((t) => t.token);
 }
 
