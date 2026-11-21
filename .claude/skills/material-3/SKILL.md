@@ -21,7 +21,8 @@ page and check it. I don't want to tell you more times to follow MD3."
    pattern.
 4. Which M3: Expressive wherever a component has an Expressive variant, otherwise baseline (owner, 15 Nov 2026). The specs' variant table says which one a component has.
    Priority order (owner, 15 Nov 2026): 1. Modern web, 2. M3 Expressive, 3. M3, 4. M2 with M3 styling. Where they conflict, the lower number wins.
-5. A deviation is allowed only in the page and post editor's bar and menus or when the owner says so in words. Record it in
+5. A deviation is allowed only in the page and post editor's bar and menus, or where the owner keeps one in words on or after
+   21 Nov 2026 (rule 6; today CS2 and CS3). Record it in
    `docs/material-deviations.md` in the same pull request as the change: what Material says (quoted), what we do instead,
    why, the date and the pull request. A deviation that is not listed there is a bug.
 
