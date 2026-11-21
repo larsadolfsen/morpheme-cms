@@ -11,7 +11,7 @@ Status: **20 November 2026, for the owner.** Owner, 20 November 2026: "I want us
 A theme or app author who knows Material 3 finds every name where M3 puts it. A token, a component, a part, a kind and a size have
 M3's name, so that m3.material.io's specs pages read as the CMS's own documentation. Names that are not M3's are only:
 
-- the editor's own workspace (`mo-editor-*`, its bar, overflow menu, text and block menus): outside Material 3 (owner, 13 November
+- the page and post editor (`mo-editor-*`, its bar, overflow menu, text and block menus): outside Material 3 (owner, 13 November
   2026);
 - a value M3 has no token for: it gets a name in M3's pattern and is listed as ours (*Ours*, below).
 

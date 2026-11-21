@@ -21,7 +21,7 @@ things and make sure accessibility is spot on".
 
 Owner, 21 November 2026: "It does change, because we will no longer follow our FRONTEND deviations, instead we will follow md3".
 
-- 0.19.5 removes every deviation in `docs/material-deviations.md` outside the editor's own workspace, so Material takes M3's value.
+- 0.19.5 removes every deviation in `docs/material-deviations.md` outside the page and post editor (its bar, overflow menu, text and block menus), so Material takes M3's value, in the editor's other screens too (owner, 21 Nov 2026).
 - The ones kept for accessibility go too (owner: "Follow M3 too"): the 60% placeholder (4), the Outlined card's edge (O1) and the edges
   in a coloured section (O2). Material's theme page names them as shortfalls from WCAG 2.2 AA (owner: "state on the theme page what it
   complies with"). `CLAUDE.md`, *Accessibility*.

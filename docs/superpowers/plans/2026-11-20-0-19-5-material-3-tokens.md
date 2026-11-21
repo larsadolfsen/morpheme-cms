@@ -15,8 +15,8 @@ One feature, `feature/0.19.5-m3-tokens`, cut from `main` by PM 0.19.5 once 0.19.
 - `specs/2026-11-20-section-colours-design.md`: the two colours of a coloured section and `check:color-roles`.
 
 **Match, not deviate.** Every value the site and the theme's parts show is M3's (the Expressive one where a set has both). No new
-deviation is added to keep one of ours. Two owner rules still stand: the editor's own workspace (its bar, overflow menu, text and block
-menus) is outside Material 3 (13 Nov 2026), and where M3 and WCAG 2.2 AA differ, WCAG wins (19 Nov 2026).
+deviation is added to keep one of ours. Two owner rules stand: only the page and post editor (its bar, overflow menu, text and block menus) is outside Material 3 (13 and 21 Nov 2026), and where M3 and WCAG 2.2 AA
+differ, M3 wins and `theme/accessibility.json` names the shortfall (21 Nov 2026).
 
 Not in 0.19.5: behaviour, layout, motion and word choice (the open PRs of the M3 audit stay in 0.26.0; M3's motion tokens are empty in its
 data), and the names (below).

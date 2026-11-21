@@ -1,6 +1,6 @@
 ---
 name: material-3
-description: Use before writing a spec or making a change that touches the site, the theme Material or any screen outside the editor's own workspace, or that may deviate from Material Design 3 - "M3", "MD3", "Material", "m3.material.io", "component", "token", "deviation". Says how to read and quote the real M3 pages and how to record a deviation.
+description: Use before writing a spec or making a change that touches the site, the theme Material or any screen outside the page and post editor's bar and menus, or that may deviate from Material Design 3 - "M3", "MD3", "Material", "m3.material.io", "component", "token", "deviation". Says how to read and quote the real M3 pages and how to record a deviation.
 ---
 
 # Following Material 3
@@ -8,8 +8,9 @@ description: Use before writing a spec or making a change that touches the site,
 Announce "Using material-3". Owner, 13 Nov 2026: "We follow MD3 everywhere except the editor. You need to look up every
 page and check it. I don't want to tell you more times to follow MD3."
 
-1. Outside the editor's own workspace (its toolbar/bar, overflow menu, text and block menus) every design choice follows
-   what m3.material.io prints.
+1. Outside the page and post editor (its bar, overflow menu, text and block menus) every design choice follows what m3.material.io prints. The editor's other screens (theme page, settings,
+   lists, dialogs) follow it too (owner, 21 Nov 2026). Where M3 falls short of WCAG, M3 wins and the theme names the shortfall
+   (`CLAUDE.md`, *Accessibility*).
 2. When you build a new component or edit an existing component's design (look, measurements, behaviour, states), read
    the real pages of every component involved, with a real browser (Playwright). Owner rule, 15 Nov: m3.material.io
    pages are JavaScript-rendered, so a plain fetch (WebFetch, curl) returns only the page title, an empty shell. A
@@ -20,7 +21,7 @@ page and check it. I don't want to tell you more times to follow MD3."
    pattern.
 4. Which M3: Expressive wherever a component has an Expressive variant, otherwise baseline (owner, 15 Nov 2026). The specs' variant table says which one a component has.
    Priority order (owner, 15 Nov 2026): 1. Modern web, 2. M3 Expressive, 3. M3, 4. M2 with M3 styling. Where they conflict, the lower number wins.
-5. A deviation is allowed only in the editor workspace or when the owner says so in words. Record it in
+5. A deviation is allowed only in the page and post editor's bar and menus or when the owner says so in words. Record it in
    `docs/material-deviations.md` in the same pull request as the change: what Material says (quoted), what we do instead,
    why, the date and the pull request. A deviation that is not listed there is a bug.
 

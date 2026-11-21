@@ -15,7 +15,7 @@ in one place only, so never work from memory of a skill.
 | `changesets` | you open a pull request: its changeset, which level the base branch allows, and the version lines (`0.17`, `0.18`, `0.19`) |
 | `release-notes` | a change is something a site owner sees, or a note, an edition or a version's notes are written or fixed |
 | `checks` | you choose which checks to run before a push, or a CI job fails |
-| `material-3` | a spec or a change touches anything outside the editor's own workspace, or deviates from Material 3 |
+| `material-3` | a spec or a change touches anything outside the page and post editor's bar and menus, or deviates from Material 3 |
 | `pm` | the owner makes the session the project manager (`/pm <version>`), or the orchestrator merges while no PM runs |
 | `cto` | the owner makes the session the CTO, or asks where the product, the code, the process or the roadmap should go next |
 | `release` | the owner says `/release`, or asks to release, publish to `latest` or ship a version |
@@ -175,8 +175,8 @@ The checks that enforce it: roadmap 0.19.2 to 0.19.4.
 A theme may fall short of it on the site if its page says so (owner, 21 Nov 2026): the theme's `accessibility.json` names each
 shortfall by WCAG criterion, the checks let through only what it names, and the editor shows it on the theme's page
 (`docs/superpowers/specs/2026-11-21-theme-accessibility-statement-design.md`). *Material* follows Material 3 exactly and names the
-shortfalls that gives; the editor's screens use the same parts, so the same named shortfalls hold there. Only the editor's own
-workspace (its bar, overflow menu, text and block menus), which is outside Material 3, always meets WCAG 2.2 AA.
+shortfalls that gives; the editor's screens (theme page, settings, lists, dialogs) use the same parts, so the same named shortfalls hold
+there. Only the page and post editor (its bar, overflow menu, text and block menus), which is outside Material 3, always meets WCAG 2.2 AA (owner, 21 Nov 2026).
 
 ### Icons are Material Symbols
 
@@ -221,8 +221,7 @@ All wording in UI components, buttons and fields follows Material 3's *Global wr
   setting `Hide from search engines`.
 - Action buttons: active verbs without filler words (`Add tag`, `Edit page`, `Save`).
 
-### Material 3 everywhere except the editor
+### Material 3 everywhere except the page and post editor
 
-Owner, 13 Nov 2026: "We follow MD3 everywhere except the editor." Outside the editor's own workspace (its toolbar/bar,
-overflow menu, text and block menus) every design choice follows what m3.material.io prints, read from the real pages,
+Owner, 13 Nov 2026: "We follow MD3 everywhere except the editor." Owner, 21 Nov 2026: that means only the page and post editor (its bar, overflow menu, text and block menus); the editor's other screens (theme page, settings, lists, dialogs) follow Material 3 like the site. Outside the page and post editor every design choice follows what m3.material.io prints, read from the real pages,
 never from memory. Load the skill `material-3` before a spec or a change that touches such a part.

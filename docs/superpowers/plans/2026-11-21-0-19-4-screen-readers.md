@@ -1,7 +1,7 @@
 # 0.19.4 Screen readers (plan)
 
 Status: **draft, 21 November 2026, for the owner's approval.** It follows the owner's rule of 19 November 2026 that the sites and the editor meet
-**WCAG 2.2 level AA** and that WCAG wins where Material 3 differs (`CLAUDE.md`, *Accessibility: WCAG 2.2 AA*). Roadmap:
+**WCAG 2.2 level AA** and that WCAG wins where Material 3 differs (`CLAUDE.md`, *Accessibility: WCAG 2.2 AA*) (since 21 Nov 2026: where Material 3 itself falls short, M3 wins and the theme names the shortfall; only the page and post editor's bar and menus must meet WCAG). Roadmap:
 `plans/2026-11-14-roadmap-0-18-to-0-24.md`, item 0.19.4: "What a screen reader says on the editor's main flows: names of icon buttons and
 fields, and saves, errors and messages announced." Structure copied from `plans/2026-11-20-0-19-3-keyboard.md` and
 `plans/2026-11-20-0-19-2-accessibility-scan.md` (on `feature/0.19.2-a11y-scan`, PR #1080).

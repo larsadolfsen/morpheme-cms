@@ -2,7 +2,7 @@
 
 Status: **approved, 20 November 2026.** The owner decided on zoom in the editor (below); the rest follows the
 owner's rule of 19 November 2026 that the sites and the editor meet **WCAG 2.2 level AA** and that WCAG wins where Material 3 differs
-(`CLAUDE.md`, *Accessibility: WCAG 2.2 AA*). Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md`, item 0.19.2.
+(`CLAUDE.md`, *Accessibility: WCAG 2.2 AA*) (since 21 Nov 2026: where Material 3 itself falls short, M3 wins and the theme names the shortfall; only the page and post editor's bar and menus must meet WCAG). Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md`, item 0.19.2.
 
 ## What 0.19.2 is
 
