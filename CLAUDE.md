@@ -42,6 +42,10 @@ plain words. The plans go to the PM, who hands them to new sessions.
 
 Every change goes branch → feature → `next` → live (owner, 19 Nov 2026), one feature at a time (`docs/superpowers/plans/2026-11-18-release-per-feature.md`), and is seen at each step: a branch on its own demo Preview; a feature (`feature/<name>`, cut from `main`, its pull requests merged into it) on the demo, where the owner reviews it (`morpheme-demo`, whose production branch in Cloudflare the owner sets to the feature being built; the demo never shows the live site); `next`, the feature merged into `main`, on `morpheme-staging` as the test version from npm, with real sign-in and saving; live, a release on the sites (`latest`). A single fix skips the feature and goes as one pull request into `main`. Nothing is released that staging has not run (skill `release`).
 
+The repository has only `main`, the Release PR's branch, the feature branches being built, the branches of open pull requests and
+`screenshots` (owner, 21 Nov 2026). GitHub deletes a branch when its pull request merges; a session never makes a branch for anything
+else (screenshots go into `screenshots`, skill `developer`).
+
 ### Only the owner releases a new version
 
 **Only the owner releases a new version of `@morphemecms/cms`.** No agent releases, and no agent takes a step towards a

@@ -79,12 +79,15 @@ package or into the pull request's own diff.
 travel in git:
 
 1. Take the PNGs into a folder outside the repository checkout, for example the scratchpad.
-2. Make an orphan branch named `pr-screenshots/<pull request number>` (`git checkout --orphan`, `git rm -rf .`, add the PNGs
-   under `shots/`, commit, `git push -u origin`). An orphan branch shares no history with `main`, so nothing reaches the
-   package or the pull request's diff.
+2. Add them to the one shared orphan branch `screenshots`, in the folder `<pull request number>/`: `git fetch origin screenshots`,
+   `git worktree add <scratchpad>/shots origin/screenshots` (the first session makes the branch with `git checkout --orphan`), copy
+   the PNGs into `<number>/`, commit and `git push origin HEAD:screenshots`. If the push is refused because another session pushed
+   first, `git pull --rebase origin screenshots` and push again; never force-push it and never touch another pull request's folder.
+   The branch shares no history with `main`, so nothing reaches the package or the pull request's diff. Never make a branch for
+   screenshots (owner, 21 Nov 2026: the repository has only `main`, feature branches and branches with an open pull request).
 3. In the comment, link each image as
-   `![caption](https://github.com/<owner>/<repo>/blob/pr-screenshots/<number>/shots/<file>.png?raw=true)`.
-4. After the pull request is merged or closed, delete the branch.
+   `![caption](https://github.com/<owner>/<repo>/blob/screenshots/<number>/<file>.png?raw=true)`.
+4. The branch and its folders stay, so the images in old pull requests keep showing.
 
 *Checked 14 Nov 2026 (pull request #632):* a pushed orphan branch and a comment with this link work, and GitHub renders the
 comment as an `<img>` of the link. Not yet checked: that the owner's browser shows the image in this private repository.

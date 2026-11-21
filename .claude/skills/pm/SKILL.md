@@ -132,8 +132,8 @@ show the editor (no sign-in), so the owner sees screenshots in the pull request.
 
 - **The session** adds before and after screenshots to a comment on its own pull request when the change is done and `check` is green
   (skill `developer`, *Screenshots in the pull request*), and tells the PM the link and head sha.
-- **The PM** opens the screenshot files itself and looks at them: it fetches the orphan branch `pr-screenshots/<number>` (`git fetch
-  origin pr-screenshots/<number>`, then `git archive` its `shots/` folder into the session's scratchpad directory) and opens each PNG
+- **The PM** opens the screenshot files itself and looks at them: it fetches the shared orphan branch `screenshots` (`git fetch
+  origin screenshots`, then `git archive FETCH_HEAD <number>/` into the session's scratchpad directory) and opens each PNG
   with the Read tool. It never reports on screenshots it has not opened and never relies on a worker's description of them. It reads
   the diff, assigns the pull request to `larsadolfsen`, and sends the owner one report (section 8) that says in one or two lines what
   the images show (does the change match the pull request, anything odd); for a screen the owner has to judge it also sends the images
