@@ -237,6 +237,20 @@ jobs:
           browser: 'true'
       - run: npm run check:screens:extra
 
+  # Every marked sample of the UI components page measured against Material 3's tokens, in light and dark (scripts/check-m3-render.mjs; differences
+  # are listed in scripts/m3-render.allow.mjs). Not part of `npm run check`; it needs the build and a browser, and runs at every level.
+  m3-render:
+    needs: [changes, build]
+    if: needs.changes.outputs.docs_only != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: ./.github/actions/prepare
+        with:
+          build: 'true'
+          browser: 'true'
+      - run: npm run check:m3-render
+
   # The demo built with the standard theme.
   demo:
     needs: [changes, build]
@@ -308,7 +322,7 @@ jobs:
   # docs-only pull request (a failed or wrongly skipped one fails it, a run cancelled because a newer push replaced its head does not, any other cancel does; scripts/ci-changes.mjs).
   check:
     if: always()
-    needs: [changes, static, build, screens, screens-extra, demo, starter, starter-smoke, release-gate]
+    needs: [changes, static, build, screens, screens-extra, m3-render, demo, starter, starter-smoke, release-gate]
     runs-on: ubuntu-latest
     # statuses: write only for the daily run's mark on the branch's head (scripts/daily-full.mjs); nothing else is written.
     permissions:

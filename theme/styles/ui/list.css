@@ -408,7 +408,8 @@
     overflow: clip;
   }
   .mo-list__expand > li + li {
-    border-top: var(--mo-comp-list-expand-divider-width, 1px) solid var(--mo-comp-list-expand-divider, var(--mo-sys-block-line));
+    border-top: var(--mo-comp-list-expand-divider-width, 1px) solid
+      var(--mo-comp-list-expand-divider-default-color, var(--mo-comp-list-expand-divider, var(--mo-sys-block-line)));
   }
   .mo-list__expand > li:first-child {
     border-start-start-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));

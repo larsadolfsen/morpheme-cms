@@ -19,7 +19,7 @@
     --mo-comp-navigation-drawer-width (set: that width; else it hugs its content from 220dp to 360dp, at most the screen less 56dp),
     --mo-comp-navigation-drawer-radius (0 16dp 16dp 0; under right-to-left --mo-comp-navigation-drawer-radius-rtl), --mo-comp-navigation-drawer-surface
     (the modal one: the surface container, level 2's colour; the standard one: the surface),
-    --mo-comp-navigation-drawer-shadow (level 1), --mo-comp-navigation-drawer-scrim-color, --mo-comp-navigation-drawer-inset (12dp each side, from
+    --mo-comp-navigation-drawer-shadow (the modal one: level 2, the lift shadow), --mo-comp-navigation-drawer-scrim-color, --mo-comp-navigation-drawer-inset (12dp each side, from
     the edges to the items), --mo-comp-navigation-drawer-padding (all of it, with room for the home indicator),
     --mo-comp-navigation-drawer-section-gap (8dp around the divider), --mo-comp-navigation-drawer-section-label-text
     --mo-comp-navigation-drawer-item-height (56dp), -padding (16dp start and end), -gap (12dp), -radius (full), -font-size,
@@ -49,7 +49,7 @@
     );
     /* Expanded rail, modal: "Nav rail expanded modal container color", the surface container (level 2's colour). */
     background: var(--mo-comp-navigation-drawer-surface, var(--mo-sys-elevation-level2-color));
-    box-shadow: var(--mo-comp-navigation-drawer-shadow, var(--mo-sys-elevation-level2-rest-shadow));
+    box-shadow: var(--mo-comp-navigation-drawer-shadow, var(--mo-sys-elevation-level2-shadow));
   }
   .mo-navigation-drawer:dir(rtl) {
     border-radius: var(--mo-comp-navigation-drawer-radius-rtl, 1rem 0 0 1rem);

@@ -38,7 +38,7 @@ const Example = ({ name, children }: { name: string; children: ReactNode }) => (
 export default function CommunicationParts() {
   return (
     <>
-      <Part name="Badge" use={say.badge}>
+      <Part name="Badge" m3="md.comp.badge" use={say.badge}>
         <Preview>
           <div className="mo-editor-comm-examples">
             <Example name={say.dot}>
@@ -96,7 +96,7 @@ export default function CommunicationParts() {
           </SiteNavigationDrawer>
         </Preview>
       </Part>
-      <Part name="LoadingIndicator" use={say.loadingIndicator}>
+      <Part name="LoadingIndicator" m3="md.comp.loading-indicator" use={say.loadingIndicator}>
         <Preview>
           <div className="mo-editor-comm-examples">
             <Example name={say.alone}>
@@ -108,7 +108,7 @@ export default function CommunicationParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="LinearProgressIndicator" use={say.linearProgressIndicator}>
+      <Part name="LinearProgressIndicator" m3="md.comp.progress-indicator.linear" use={say.linearProgressIndicator}>
         <Preview>
           <div className="mo-editor-comm-progress">
             {[0, 0.4, 1].map((v) => (
@@ -139,7 +139,7 @@ export default function CommunicationParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="CircularProgressIndicator" use={say.circularProgressIndicator}>
+      <Part name="CircularProgressIndicator" m3="md.comp.progress-indicator.circular" use={say.circularProgressIndicator}>
         <Preview>
           <div className="mo-editor-comm-examples">
             {[0, 0.4, 0.85].map((v) => (
@@ -175,7 +175,7 @@ export default function CommunicationParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="Snackbar" use={say.snackbar}>
+      <Part name="Snackbar" m3="md.comp.snackbar" use={say.snackbar}>
         <Preview>
           <div className="mo-editor-comm-snackbars">
             <Group label={eg(1)} flat>
@@ -202,7 +202,7 @@ export default function CommunicationParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="Tooltip" use={say.tooltip}>
+      <Part name="Tooltip" m3="md.comp.plain-tooltip" use={say.tooltip}>
         <Preview>
           <div className="mo-editor-comm-tooltips">
             <div className="mo-editor-comm-tooltip-plain">

@@ -215,7 +215,7 @@
       box-shadow: inset 0 0 0 1px var(--mo-comp-button-outlined-hovered-outline-color, var(--mo-sys-block-accent));
     }
   }
-  /* Text: no container, only its label in the accent; its side padding is the other buttons' (owner, 16 Nov 2026), whatever its size. */
+  /* Text: no container, only its label in the accent; its side padding is the other buttons' of its size (M3 prints no spacing token of its own for a text button: md.comp.button.small.leading-space and trailing-space, 16 dp). */
   .mo-button__text {
     background: transparent;
     color: var(--mo-comp-button-text-label-text-color, var(--mo-sys-block-accent));

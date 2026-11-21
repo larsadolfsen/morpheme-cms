@@ -171,7 +171,7 @@ export function formatScope(paths, base = '', headRef = '') {
 }
 
 /** The jobs that are skipped on a docs-only pull request. `static` and `changes` always run. */
-export const HEAVY = ['screens', 'screens-extra', 'demo', 'starter', 'starter-smoke'];
+export const HEAVY = ['screens', 'screens-extra', 'm3-render', 'demo', 'starter', 'starter-smoke'];
 /** The heavy jobs that are also skipped when no changed file can affect them (needsStarterDemo is false). */
 export const FILTERED = ['demo', 'starter', 'starter-smoke'];
 

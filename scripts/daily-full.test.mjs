@@ -10,6 +10,7 @@ const green = {
   build: ok,
   screens: ok,
   'screens-extra': ok,
+  'm3-render': ok,
   demo: ok,
   starter: ok,
   'starter-smoke': { result: 'skipped' },

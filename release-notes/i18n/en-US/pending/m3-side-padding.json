@@ -1,0 +1,6 @@
+{
+  "id": "m3-side-padding",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Buttons, expanding lists, Questions and answers and Checklist have 16 dp side padding, as in Material 3"
+}

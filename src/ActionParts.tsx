@@ -66,7 +66,7 @@ function StyleChoice({ styles, form }: { styles: readonly (typeof buttonStyles)[
 export default function ActionParts() {
   return (
     <>
-      <Part name="ButtonGroup" use={say.buttonGroup}>
+      <Part name="ButtonGroup" m3="md.comp.button-group" use={say.buttonGroup}>
         <Preview>
           <div className="mo-editor-sample-stack-4">
             {buttonGroupKinds.map((kind) => (
@@ -137,7 +137,7 @@ export default function ActionParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="ChoiceGroup" use={say.choiceGroup}>
+      <Part name="ChoiceGroup" m3="md.comp.segmented-button" use={say.choiceGroup}>
         <Preview>
           <div className="mo-editor-sample-stack-6">
             <StyleChoice styles={['filled', 'tonal', 'outlined']} />
@@ -151,7 +151,7 @@ export default function ActionParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="SplitButton" use={say.splitButton}>
+      <Part name="SplitButton" m3="md.comp.split-button" use={say.splitButton}>
         <Preview>
           <div className="mo-editor-sample-stack-4">
             <div className={row}>
@@ -189,7 +189,7 @@ export default function ActionParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="FabMenu" use={say.fabMenu}>
+      <Part name="FabMenu" m3="md.comp.fab-menu" use={say.fabMenu}>
         <Preview>
           <div className="mo-editor-sample-stack-6">
             <div className={`${row} mo-row-end`}>

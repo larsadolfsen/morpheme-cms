@@ -1,12 +1,6 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
-/* "Questions and answers": rows that fold out, one open at a time (expand/Accordion.tsx). */
-@layer components {
-  .mo-block-accordion {
-    /* The rows' padding follows the block: 20px, 32px from medium (the List "expand" kind, ui/List.tsx, is drawn by ui.css). */
-    --mo-comp-list-expand-padding-inline: 1.25rem;
-  }
-}
+/* "Questions and answers": rows that fold out, one open at a time (expand/Accordion.tsx). Its rows take the List - Expand kind's own padding, M3's 16 dp (Lists › Specs). */
 /* A list's row icon and arrow are the row heading's colour (the block's text, which a coloured section swaps to its on-colour), as the
      section's other text is; only the supporting line stays the quieter --mo-sys-block-muted. A row icon with its own colour (below) keeps it. */
 @layer components {
@@ -31,23 +25,14 @@
     --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-color-tertiary, var(--mo-sys-block-tertiary));
   }
 }
-@layer components {
-  @media (width >= 37.5rem) {
-    .mo-block-accordion {
-      --mo-comp-list-expand-padding-inline: 2rem;
-    }
-  }
-}
 /* ---- "Checklist" and "Price cards" ---- */
 /* "Checklist" (checklist/Checks.tsx), and what is included on a price card: a list without dividers (.mo-list in
      ui.css), a check before each line; with six or more (not on a card), two columns where there is room for 16rem
      each, never more. Nothing in it is tapped, so it is spaced as a bulleted or numbered list in the text (half a
-     line between its lines, not the height of a list item one taps), and its checks start where the text around it
-     does. */
+     line between its lines, not the height of a list item one taps); its rows have the list's own 16 dp of side room (M3 Lists › Specs). */
 @layer components {
   .mo-block-checklist {
     --mo-comp-list-list-item-container-height: auto;
     --mo-comp-list-item-padding-block: 0.25em;
-    --mo-comp-list-item-padding-inline: 0;
   }
 }
