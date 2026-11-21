@@ -89,7 +89,7 @@ const shadows: Token[] = [
   { token: '--mo-comp-bottom-sheet-shadow', label: say.partShadows.bottomSheet, fallback: '--mo-sys-elevation-level1-shadow' },
   { token: '--mo-comp-bottom-sheet-shadow-large', label: say.partShadows.bottomSheetLarge, fallback: '--mo-sys-elevation-level3-shadow' },
   { token: '--mo-comp-side-sheet-shadow', label: say.partShadows.sideSheet, fallback: '--mo-sys-elevation-level1-shadow' },
-  { token: '--mo-comp-navigation-drawer-shadow', label: say.partShadows.navigationDrawer, fallback: '--mo-sys-elevation-level1-shadow' },
+  { token: '--mo-comp-navigation-drawer-shadow', label: say.partShadows.navigationDrawer, fallback: '--mo-sys-elevation-level2-shadow' },
   { token: '--mo-comp-navigation-bar-shadow', label: say.partShadows.navigationBar, fallback: '--mo-sys-elevation-level2-shadow' },
   {
     token: '--mo-comp-navigation-rail-modal-shadow',
