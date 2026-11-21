@@ -2,7 +2,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { makeAllowlist } from './allowlist.mjs';
-import { badName, judgeWindow, nameProblem, speech } from './announce.mjs';
+import { BLOCK_PAGES, announceWalks, badName, blockPagesLeft, isAuthored, judgeWindow, nameProblem, speech } from './announce.mjs';
+import { blockPages, demoBlockPages } from './demo-blocks.mjs';
 
 test('a name that is an icon, punctuation, a role, a file or an id is bad', () => {
   assert.equal(nameProblem('', 'button'), 'no-name');
@@ -63,4 +64,77 @@ test('the allowlist matching: a finding it does not hold and an entry that found
   assert.deepEqual(entries, [
     { problem: 'no-name', selector: 'button.a', places: ['#home'], viewports: ['phone', 'computer'], reason: 'TODO' },
   ]);
+});
+
+test('the name walk reads the editor screens and one Blocks page per block, never the other content (owner, 21 Nov 2026)', () => {
+  for (const hash of [
+    '',
+    'settings',
+    '#developer/parts/ui',
+    'licenses/editions%2F0.19',
+    'list/pages',
+    'new/pages',
+    'blocks/buttons',
+    'appearance/themes/saturn',
+  ])
+    assert.equal(announceWalks(hash), true, hash);
+  for (const hash of [
+    'src/content/pages/home.md',
+    '#src/content/pages/typography.md',
+    'src/content/blog/every-save-is-a-version.md',
+    'src/content/pages/zz-check-page.md',
+    'src/content/pages/blocks.md',
+    'src/data/categories/seo.json',
+    'src/data/popups/booking-bar.json',
+    'src%2Fcontent%2Fpages%2Fabout.md',
+  ])
+    assert.equal(announceWalks(hash), false, hash);
+  assert.equal(announceWalks('src/content/pages/blocks-cards.md'), true);
+  assert.equal(announceWalks('#src/content/pages/blocks-cards.md?block=2'), true);
+});
+
+test('every block has its Blocks page in the walk, and the pages left are walked after the links', () => {
+  const { pages } = demoBlockPages();
+  assert.deepEqual(
+    BLOCK_PAGES.toSorted(),
+    Object.keys(pages)
+      .map((slug) => `src/content/pages/blocks-${slug}.md`)
+      .toSorted(),
+  );
+  assert.equal(BLOCK_PAGES.length, Object.keys(blockPages).length);
+  for (const hash of BLOCK_PAGES) assert.equal(announceWalks(hash), true, hash);
+  assert.deepEqual(blockPagesLeft([]), BLOCK_PAGES);
+  assert.deepEqual(blockPagesLeft(['settings', ...BLOCK_PAGES.slice(1)]), [BLOCK_PAGES[0]]);
+  assert.deepEqual(blockPagesLeft(BLOCK_PAGES.map((h) => `#${h}`)), []);
+});
+
+test("a link or text in a text area is the site owner's; the text area and the editor's islands in it are not", () => {
+  // A small stand-in for the DOM: an element with its attributes and parent, and `closest` as the browser has it.
+  const el = (attrs = {}, parent = null) => ({
+    attrs,
+    parentElement: parent,
+    getAttribute: (name) => attrs[name] ?? null,
+    closest(selector) {
+      const wanted = selector.split(',').map((s) => s.trim());
+      for (let node = this; node; node = node.parentElement)
+        if (wanted.some((w) => (w === '[contenteditable]' ? 'contenteditable' in node.attrs : node.attrs.role === 'textbox'))) return node;
+      return null;
+    },
+  });
+  const screen = el();
+  const prose = el({ role: 'textbox', contenteditable: 'true' }, screen);
+  const link = el({}, el({}, prose));
+  const card = el({ contenteditable: 'false' }, prose);
+  const handle = el({}, card);
+  const inlineText = el({ role: 'textbox', contenteditable: 'true' }, card);
+  const typed = el({}, inlineText);
+  const field = el({ role: 'textbox' }, screen);
+  assert.equal(isAuthored(link), true);
+  assert.equal(isAuthored(typed), true);
+  assert.equal(isAuthored(el({}, field)), true);
+  assert.equal(isAuthored(prose), false);
+  assert.equal(isAuthored(card), false);
+  assert.equal(isAuthored(handle), false);
+  assert.equal(isAuthored(inlineText), false);
+  assert.equal(isAuthored(el({}, screen)), false);
 });

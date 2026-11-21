@@ -24,7 +24,7 @@ export function nameOf(collection: Collection | undefined, file: { path: string;
 
 /** A kind or a label inside a sentence: "Page" as "page", but "SEO" as it is. */
 export const lower = (s: string) => (/^\p{Lu}\p{Lu}/u.test(s) ? s : s.charAt(0).toLocaleLowerCase(locale) + s.slice(1));
-const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
+export const capital = (s: string) => s.charAt(0).toLocaleUpperCase(locale) + s.slice(1);
 
 /** A thing by its kind and name, as a change says it: side “Om”. */
 export const kindAndName = (kind: string, name: string) => t.app.changes.named(lower(kind), name);

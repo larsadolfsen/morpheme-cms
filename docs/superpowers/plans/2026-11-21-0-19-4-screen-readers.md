@@ -61,20 +61,26 @@ flows) and the allowlist holds what it finds. The source today:
 
 ## Inventory
 
-Measured by batch 1 (21 Nov 2026) on the built demo, on the base that has 0.19.2 and 0.19.3 (`check:announce`, 306 editor screens at 1280 and 390 px, and the
-flows A, B, C, F, I, J, K, L). It is what `scripts/announce-allowlist.json` holds: 73 entries, each a problem, a selector and the screens or flows it is on.
-A count of **entries** is distinct selectors; **places** is the screens or flows they are found on (one entry on many screens counts once per screen).
+Measured by batch 1 (21 Nov 2026) on the built demo, on the base that has 0.19.2 and 0.19.3, and measured again after the scope fix of 21 Nov 2026 (*The
+check*: the editor's screens and one page per block, never the content): `check:announce`, 250 editor screens and the 10 demo Blocks pages at 1280 and
+390 px, and the flows A, B, C, F, I, J, K, L. It is what `scripts/announce-allowlist.json` holds: 43 entries after batches 1, 3 and 4 and the scope fix (52 on the feature just before it, 73 at batch
+1, whose first run also walked the demo's pages, posts and categories), each a problem, a selector and the screens or flows it is on. A count of **entries** is
+distinct selectors; **places** is the screens or flows they are found on (one entry on many screens counts once per screen).
 
 | Problem | What it is | Entries | Places | Fixed by batch |
 | --- | --- | ---: | ---: | :---: |
-| `no-announcement` | a step that should be announced (a save, an inserted, moved or removed block, a snackbar, a selected block) says nothing from a region that was there before: the status text is in a region that comes into the page with its text, or there is none | 11 | 11 | 4, 5, 6 |
-| `repeated-name` | two controls of one role with one name in one list (the `Remove` and the footer links of the licences; the component gallery's examples) | 37 | 250 | 2 |
-| `tab-state` | a menu button with `aria-haspopup` and no `aria-expanded` (the top bar's icon buttons, list rows that open a menu or sheet, text-field buttons) | 9 | 342 | 3 |
-| `broken-reference` | an `aria-describedby`, `aria-labelledby` or `aria-controls` that points at an element that is not in the page (the crop page's dialog on every screen; the gallery's examples) | 5 | 292 | 3 |
-| `unnamed-container` | the footer links' `nav` has no name, and there are two navigations | 2 | 288 | 2 |
-| `bad-name` | a link whose name is a file name or an id (the category rows, links in the text area) | 8 | 12 | 2 |
-| `no-name` | the inline notice's `role=button` has no name | 1 | 3 | 2 |
+| `no-announcement` | a step that should be announced (an inserted, moved or removed block, a selected block) says nothing from a region that was there before: the status text is in a region that comes into the page with its text, or there is none | 4 | 4 | 4, 5, 6 |
+| `repeated-name` | two controls of one role with one name in one list (the footer links of the licences, the screen crumbs, the block handles on the Blocks pages; the component gallery's examples) | 35 | 234 | 2 |
+| `tab-state` | a menu button with `aria-haspopup` and no `aria-expanded` (the top bar's icon buttons, list rows that open a menu or sheet, text-field buttons, the page editor's outlined menu button) | 0 | 0 | 3 (done) |
+| `broken-reference` | an `aria-describedby`, `aria-labelledby` or `aria-controls` that points at an element that is not in the page (the crop page's dialog on every screen; the gallery's examples) | 0 | 0 | 3 (done) |
+| `unnamed-container` | the footer links' `nav` has no name, and there are two navigations | 2 | 260 | 2 |
+| `bad-name` | a card whose name is a file name (the Files screen) | 1 | 1 | 2 |
+| `no-name` | the inline notice's `role=button` has no name (the Cards page) | 1 | 1 | 2 |
 | `icon-name`, `disabled-no-reason`, `live-region`, `double-announcement`, `wrong-urgency`, `flow-focus-unnamed`, `flow-lost-focus` | found nowhere | 0 | 0 | — |
+
+The scope fix removed 9 entries (by the count before batch 3 merged): the category rows' links (`src/data/categories/`), the links and headings a site owner wrote in the text area
+(`typography.md`, `prose-fixture.md` and the text sample of *Developer › Parts › Editor*), and the repeated name of the block cards on those two prose pages
+(their blocks are walked on the Blocks pages, where the name is not repeated). Every finding on the Blocks pages was in the list already, so it added none.
 
 What the first run shows about the source reading above: **icon ligature names are not a problem today** (icons are SVG and `aria-hidden`); the
 **inserted live region** is (every status that the editor draws, `Saving…`, `Draft saved`, the dashboard's loading text and the updates card, comes into the
@@ -134,7 +140,14 @@ One rule so nothing is said twice: **there is one announcer, and a message goes 
 - `npm run check:announce` (`scripts/check-announce.mjs`), Playwright on the built demo with `openEditor` and `serveBuilt`
   (`scripts/built-site.mjs`), no new dependency. It builds on `scripts/a11y.mjs` (0.19.2: the scan, the allowlist code) and the flows of
   `scripts/keyboard-flows.mjs` (0.19.3), so a flow is written once.
-- **The name walk:** on every screen `check:screens` opens, at 1280 and 375 px, inside the existing `screens` shards like `check:a11y` and
+- **What the name walk covers** (owner, 21 Nov 2026: "It is checking content, not blocks"): the editor's own screens (settings, appearance,
+  developer and parts, licences, apps and the rest that `check:screens` opens) plus **one page per block**, the demo's Blocks pages
+  (`demo/src/content/pages/blocks-<name>.md`, the list in `scripts/demo-blocks.mjs`), walked deliberately after the links, so every block's editing
+  UI is covered whichever links there are. It **never walks the content**: no other page, post or data entry under `src/content/` or `src/data/`,
+  and a link or text a site owner wrote in a text area (`[role=textbox]` or `contenteditable`, the prose or a block's text) is never a finding, also
+  on the Blocks pages; the editor's chrome around the text (bars, block cards, handles, slots, notices) is. One rule decides both runs:
+  `announceWalks`, `blockPagesLeft` and `isAuthored` in `scripts/announce.mjs`, tested in `scripts/announce.test.mjs`.
+- **The name walk:** on each of those screens, at 1280 and 390 px, inside the existing `screens` shards like `check:a11y` and
   `check:keyboard` (not a new job), it reads Chromium's accessibility tree and fails on what axe cannot tell:
   - an interactive node (button, link, tab, menu item, switch, checkbox, field) whose **name is an icon's ligature text** (the names of
     `src/data/icons.json` and Material Symbols), is only punctuation, equals its role, or is a file name or an id;

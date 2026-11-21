@@ -128,6 +128,12 @@ export function announce(text: string, { urgent = false }: { urgent?: boolean } 
   });
 }
 
+/** The last 25 % step a progress value (0 to 1) has passed: 0, 25, 50, 75 or 100. The announcer says a progress at these, not at every percent. */
+export function progressStep(value: number): number {
+  const v = Math.min(1, Math.max(0, value));
+  return Math.floor(Math.round(v * 100) / 25) * 25;
+}
+
 /** Takes the regions out of the page (for tests, and for a page that is left). */
 export function resetAnnouncer() {
   watch?.disconnect();

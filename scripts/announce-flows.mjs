@@ -31,7 +31,9 @@ export const PHONE_FLOWS = ['A', 'B', 'F', 'J'];
  *   Preview width                              announcer, only when the person picks a size (PreviewScreen); the width line itself is silent
  *   Selected rows (SelectionBar), updates notice, blocks selected in the text, position of a file, search result count, date picker headline, lightbox count
  *                                              their own persistent region (kept: the text changes in a region that was there before)
- *   A page-level `Notice` (Media, dashboard)   its own `role="alert"` (kept: an alert is read when it comes in)
+ *   A page-level `Notice` (Media, dashboard), a `ProblemNote alert`, a failed load   announcer, urgent, from `Announce` inside `Notice role="alert"` / `ProblemNote alert` (an alert that comes into the page with its text is often not read)
+ *   A long load (`EmptyNote busy`, the dashboard)   announcer: the loading text once after 400 ms, `Loaded` when it ends (`useLoadAnnounce`); `aria-busy` is only a state
+ *   A determinate progress                     announcer at every 25 % (`useProgressAnnounce`); the theme's progress indicator has `role=progressbar` and `aria-valuenow`
  */
 /** The steps that must be announced, and how: `{ urgent }` (the plan's *Live regions*: saves, errors, snackbars and block moves are said). */
 export const EXPECT = {
@@ -48,6 +50,9 @@ export const EXPECT = {
   'K: after Remove': { urgent: false },
   'L: a message while the Schedule dialog is open': { urgent: false },
   'L: a message while the insert sheet is open': { urgent: false },
+  'K: after a copied link': { urgent: false },
+  'K: after a notice': { urgent: true },
+  'K: after a failed load': { urgent: true },
   'L: after a block is selected': { urgent: false },
 };
 
@@ -125,6 +130,8 @@ async function flowJ(ctx) {
 
 async function flowK(ctx) {
   const { page } = ctx;
+  // First, while nothing is written yet (no "Keep your changes?" on a route change).
+  await flowKMessages(ctx);
   await open(ctx, PAGE, '[role=textbox][aria-label="Text"]');
   await reach(ctx, 'K: the text', TEXT);
   await page.keyboard.press('Alt+F10');
@@ -162,6 +169,36 @@ async function flowK(ctx) {
   await press(ctx, 'Enter');
   await settle(page, WAIT);
   await step(ctx, 'K: after Remove');
+}
+
+// Flow K, second part: a copied link, a notice and a failed load. Each is walked on a screen of its own and must be said once.
+async function flowKMessages(ctx) {
+  const { page } = ctx;
+  await page
+    .context()
+    .grantPermissions(['clipboard-read', 'clipboard-write'])
+    .catch(() => {});
+  // A copied link: Assistants, Copy URL.
+  await open(ctx, 'assistants');
+  await page.locator('button', { hasText: 'Copy URL' }).focus();
+  if (await page.evaluate(() => document.activeElement?.textContent?.includes('Copy URL'))) {
+    await press(ctx, 'Enter');
+    await settle(page, WAIT);
+    await step(ctx, 'K: after a copied link');
+  } else ctx.note('Copy URL was not reached');
+  // A notice: the start screen's widgets do not load (a page-level Notice with Try again).
+  await page.route('**/api/dashboard', (r) => (r.request().method() === 'GET' ? r.fulfill({ status: 500, body: '' }) : r.fallback()));
+  await open(ctx, '');
+  await page
+    .locator('button', { hasText: 'Try again' })
+    .focus({ timeout: 5000 })
+    .catch(() => ctx.note('no Try again'));
+  await step(ctx, 'K: after a notice');
+  // A failed load: Assistants cannot read its connections (a problem note).
+  await page.route('**/api/mcp/connections**', (r) => r.fulfill({ status: 500, contentType: 'application/json', body: '{"error":"no"}' }));
+  await open(ctx, 'assistants');
+  await settle(page, WAIT);
+  await step(ctx, 'K: after a failed load');
 }
 
 async function flowL(ctx) {

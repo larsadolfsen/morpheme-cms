@@ -5,6 +5,8 @@ export const common: Messages['common'] = {
   saveChanges: 'Gem ændringer',
   saving: 'Gemmer…',
   deleting: 'Sletter…',
+  loaded: 'Indlæst',
+  progressAt: (label, percent) => `${label} ${percent} %`,
   cancel: 'Annuller',
   close: 'Luk',
   /** The handle at the top of a sheet on a phone (SheetTitle), for screen readers. */
@@ -19,6 +21,9 @@ export const common: Messages['common'] = {
   searchIn: (what) => `Søg i ${what.toLowerCase()}`,
   moveUp: 'Flyt op',
   moveDown: 'Flyt ned',
+  moveUpItem: (name) => `Flyt ${name} op`,
+  moveDownItem: (name) => `Flyt ${name} ned`,
+  removeItem: (name) => `Fjern ${name}`,
   notInUse: 'Ikke i brug',
   noMatch: 'Ingen resultater',
   problems: (count) => `${count} problemer`,

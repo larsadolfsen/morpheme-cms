@@ -24,6 +24,7 @@
 // site's `morpheme check:screens` runs these units) skips it cleanly (`announceRuns`).
 import { fileURLToPath } from 'node:url';
 import { makeAllowlist, viewportOf } from './allowlist.mjs';
+import { blockPageFile, blockPages } from './demo-blocks.mjs';
 
 export { viewportOf };
 export const PROBLEMS = [
@@ -54,6 +55,40 @@ export const allowlist = makeAllowlist({
   collectEnv: 'ANNOUNCE_COLLECT',
 });
 export const { readAllowlist, keysOf, allowedKeys, compare, problemsOf, entriesOf, collect, judge } = allowlist;
+
+// ---------------------------------------------------------------------------------------------------- what the walk reads (pure, tested in announce.test.mjs)
+
+// The scope (owner, 21 Nov 2026: "It is checking content, not blocks"). The name walk checks the CMS, not the demo's text, which differs on every site:
+// the editor's own screens, and every block once, in the editor, on its demo Blocks page (scripts/demo-blocks.mjs, `blockPages`). Every other content item
+// (a page, a post or a data entry under `src/content/` or `src/data/`) is not walked, and a link or text a site owner wrote in a text area is never a finding
+// (`isAuthored`, in the walk below), also on the Blocks pages; the editor's chrome around the text (bars, block cards, handles, slots, notices) is.
+
+/** The editor's addresses of the demo's Blocks pages, one for each main component or special block (`demo/src/content/pages/blocks-<name>.md`). */
+export const BLOCK_PAGES = Object.keys(blockPages).map((slug) => `src/content/pages/${blockPageFile(slug)}`);
+
+/** An editor address (`settings`, `#src/content/pages/home.md`) as the walk compares it: no `#`, no query, decoded. @param {string} hash */
+const addressOf = (hash) => {
+  const path = hash.replace(/^#/, '').split('?')[0];
+  try {
+    return decodeURIComponent(path);
+  } catch {
+    return path;
+  }
+};
+
+/** Whether the name walk reads the editor screen at `hash`: every screen of the editor's own, and of the content items only the demo's Blocks pages.
+ * Used by `check:announce` (scripts/check-announce.mjs) and the screens units (scripts/screens/start-screens.mjs), so one rule decides both. @param {string} hash */
+export function announceWalks(hash) {
+  const address = addressOf(hash);
+  if (!/^src\/(?:content|data)\//.test(address)) return true;
+  return BLOCK_PAGES.includes(address);
+}
+
+/** The Blocks pages a walk has not read yet, to walk after its links (so every block is walked whichever links the screens have). @param {Iterable<string>} walked */
+export const blockPagesLeft = (walked) => {
+  const done = new Set([...walked].map(addressOf));
+  return BLOCK_PAGES.filter((hash) => !done.has(hash));
+};
 
 // ---------------------------------------------------------------------------------------------------- names (pure, tested in announce.test.mjs)
 
@@ -119,9 +154,21 @@ export function nameProblem(name, role) {
 
 // ---------------------------------------------------------------------------------------------------- the walk (in the browser)
 
-/** Run in the page: a selector for an element that holds no name (names are in the language of the run) and nothing that changes from run to run. */
-const SELECTOR_FUNCTION = `function () {
+/** Whether an element is in the text a site owner wrote: inside a text area (`[role=textbox]`, `contenteditable`) and not inside an island of the editor's own in
+ * it (a block's card, handle or slot is `contenteditable=false`). The text area itself is the editor's and is walked. Runs in the page (as its source text), so it
+ * uses nothing from outside. @param {Element} el */
+export function isAuthored(el) {
+  if (el.getAttribute('contenteditable') === 'false') return false;
+  const host = el.parentElement && el.parentElement.closest('[contenteditable], [role=textbox]');
+  return Boolean(host) && host.getAttribute('contenteditable') !== 'false';
+}
+const AUTHORED = isAuthored.toString();
+
+/** Run in the page: `{ selector, authored }` of an element. The selector holds no name (names are in the language of the run) and nothing that changes
+ * from run to run; `authored` is `isAuthored`. */
+const DESCRIBE_FUNCTION = `function () {
   const el = this;
+  const authored = (${AUTHORED})(el);
   const parts = [];
   for (let node = el; node && node.nodeType === 1 && parts.length < 4; node = node.parentElement) {
     if (node === document.body) break;
@@ -133,12 +180,13 @@ const SELECTOR_FUNCTION = `function () {
     // Stop at the first element that has a class of ours or a role: that names the part well enough.
     if (classes || role) break;
   }
-  return parts.join(' > ');
+  return { selector: parts.join(' > '), authored };
 }`;
 
-/** The markup problems the tree can not tell (run in the page). Gives `[{ problem, selector }]`. */
+/** The markup problems the tree can not tell (run in the page), none in the text a site owner wrote (`isAuthored`). Gives `[{ problem, selector }]`. */
 const MARKUP_PROBLEMS = `() => {
   const out = [];
+  const authored = ${AUTHORED};
   const path = (el) => {
     const parts = [];
     for (let node = el; node && node.nodeType === 1 && parts.length < 4; node = node.parentElement) {
@@ -152,7 +200,9 @@ const MARKUP_PROBLEMS = `() => {
     }
     return parts.join(' > ');
   };
-  const add = (problem, el) => out.push({ problem, selector: path(el) });
+  const add = (problem, el) => {
+    if (!authored(el)) out.push({ problem, selector: path(el) });
+  };
   const missing = (el, attr) => (el.getAttribute(attr) || '').split(/\\s+/).filter(Boolean).some((id) => !document.getElementById(id));
   for (const el of document.querySelectorAll('[aria-describedby], [aria-labelledby], [aria-controls]'))
     if (missing(el, 'aria-describedby') || missing(el, 'aria-labelledby') || missing(el, 'aria-controls')) add('broken-reference', el);
@@ -213,38 +263,46 @@ export async function walk(page) {
       }
       if (NAMED_CONTAINERS.has(role) && !nameOf(n).trim()) found.push({ problem: 'unnamed-container', node: n });
     }
-    for (const group of seen.values())
-      if (group.length > 1 && group.every((n) => roleOf(n) !== 'textbox' && roleOf(n) !== 'searchbox'))
-        found.push({ problem: 'repeated-name', node: group[1] });
+    // The selector of a node and whether a site owner wrote it, read from the page only for the nodes that may be a finding (a screen with no problem
+    // makes no call).
+    const described = new Map();
+    const describe = async (node) => {
+      if (described.has(node.nodeId)) return described.get(node.nodeId);
+      let about = { selector: roleOf(node), authored: false };
+      if (node.backendDOMNodeId) {
+        try {
+          const { object } = await cdp.send('DOM.resolveNode', { backendNodeId: node.backendDOMNodeId });
+          const { result } = await cdp.send('Runtime.callFunctionOn', {
+            objectId: object.objectId,
+            functionDeclaration: DESCRIBE_FUNCTION,
+            returnByValue: true,
+          });
+          about = { selector: result.value?.selector || about.selector, authored: Boolean(result.value?.authored) };
+          await cdp.send('Runtime.releaseObject', { objectId: object.objectId });
+        } catch {
+          /* a node that is gone: the role stands for it */
+        }
+      }
+      described.set(node.nodeId, about);
+      return about;
+    };
+    // A repeated name counts only among the editor's controls: two links a site owner wrote with one text are the owner's, not the CMS's.
+    for (const group of seen.values()) {
+      if (group.length < 2 || group.some((n) => roleOf(n) === 'textbox' || roleOf(n) === 'searchbox')) continue;
+      const ours = [];
+      for (const n of group) if (!(await describe(n)).authored && ours.push(n) === 2) break;
+      if (ours.length === 2) found.push({ problem: 'repeated-name', node: ours[1] });
+    }
     // A landmark that is one of two or more of its role needs a name to be told apart.
     for (const role of LANDMARKS) {
       const same = live.filter((n) => roleOf(n) === role);
       if (same.length > 1) for (const n of same) if (!nameOf(n).trim()) found.push({ problem: 'unnamed-container', node: n });
     }
-    // The selector of each node found (and no more: a screen with no problem makes no call).
     const findings = [];
     const bySelector = new Set();
-    const pointed = new Map();
     for (const { problem, node } of found) {
-      let selector = pointed.get(node.nodeId);
-      if (selector === undefined) {
-        selector = roleOf(node);
-        if (node.backendDOMNodeId) {
-          try {
-            const { object } = await cdp.send('DOM.resolveNode', { backendNodeId: node.backendDOMNodeId });
-            const { result } = await cdp.send('Runtime.callFunctionOn', {
-              objectId: object.objectId,
-              functionDeclaration: SELECTOR_FUNCTION,
-              returnByValue: true,
-            });
-            selector = result.value || selector;
-            await cdp.send('Runtime.releaseObject', { objectId: object.objectId });
-          } catch {
-            /* a node that is gone: the role stands for it */
-          }
-        }
-        pointed.set(node.nodeId, selector);
-      }
+      const { selector, authored } = await describe(node);
+      if (authored) continue;
       const id = `${problem}|${selector}`;
       if (!bySelector.has(id)) (bySelector.add(id), findings.push({ problem, selector }));
     }

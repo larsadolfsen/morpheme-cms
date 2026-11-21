@@ -71,6 +71,8 @@ export const library = {
       .join(', '),
   /** The button to the Morpheme page, with all the release notes. */
   readMore: 'Read more',
+  /** The same button named by the notice it belongs to, for screen readers (the start screen can have two): "Read more: Morpheme 0.19.4". */
+  readMoreOn: (what: string) => `Read more: ${what}`,
   /** The info button on the edition's photo in that card, and its tooltip: who took the photo, and a link to its
    * licence under "Licenses". */
   photoInfo: 'About the photo',
