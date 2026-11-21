@@ -723,7 +723,8 @@ const keyScreens = { appstore: 'settings/appstore', morpheme: 'morpheme' };
 // "Morpheme" in every state: the version, the problems and the notes are text (CMS_STATUS in built-site.mjs), every list row
 // has an action (a link or a button), and Update and the connection work. The one row without an action of its own is the
 // store connection's "Connected to Morpheme" (it shows the state; its button "Disconnect" is beside it, and the
-// key states above check that it is there), so that row is left out.
+// key states above check that it is there), so that row is left out. The status lines (a problem or a note, `.mo-editor-status-line`,
+// a list row with an icon and text) are text only and are left out too.
 async function checkMorpheme(page, state) {
   const text = await page.evaluate(() => document.querySelector('main').innerText);
   for (const x of [
@@ -736,6 +737,7 @@ async function checkMorpheme(page, state) {
   const bare = await page.evaluate(
     (connected) =>
       [...document.querySelectorAll('main .mo-list__item-container')]
+        .filter((row) => !row.closest('.mo-editor-status-line'))
         .filter((row) => !row.matches('a[href], button') && !row.closest('li')?.querySelector('a[href], button'))
         .filter((row) => !row.innerText.startsWith(connected))
         .map((row) => row.innerText.trim().split('\n')[0]),

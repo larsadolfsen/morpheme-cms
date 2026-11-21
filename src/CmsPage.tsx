@@ -57,7 +57,7 @@ const reasonOf = (view: View) =>
 /** A line of the status text, with its icon only where the icon means something (a warning, an update). */
 function StatusLine({ icon: Glyph, tone, children }: { icon?: Icon; tone?: 'accent'; children: ReactNode }) {
   return (
-    <ul className={plainListClass}>
+    <ul className={`${plainListClass} mo-editor-status-line`}>
       <ListItem tone={tone} icon={Glyph} headline={children} lines={3} />
     </ul>
   );
