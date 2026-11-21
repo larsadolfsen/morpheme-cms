@@ -249,7 +249,14 @@ export function HeadImage(props: Props) {
   };
   return (
     <div ref={box} className="mo-editor-theme-picture-box">
-      <button type="button" onClick={pick} aria-label={text ? t.forms.changeImage : t.forms.pickImage} className="mo-editor-theme-picture">
+      {/* With an image the Change image button beside it does the same: this one is only a bigger target for a pointer, so a screen reader
+          gets one button, not two with one name (and the tab order is not longer). */}
+      <button
+        type="button"
+        onClick={pick}
+        {...(text ? { 'aria-hidden': true, tabIndex: -1 } : { 'aria-label': t.forms.pickImage })}
+        className="mo-editor-theme-picture"
+      >
         {drawn ? (
           <img src={drawn} alt="" className="mo-cover" />
         ) : (
@@ -893,8 +900,8 @@ export function ListInput({
             onToggle={() => setOpen(open === i ? null : i)}
             tools={
               <>
-                <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} />
-                <IconButton icon={Trash} label={t.common.remove} onClick={() => remove(i)} />
+                <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} name={title(item, i) || t.forms.empty} />
+                <IconButton icon={Trash} label={t.common.removeItem(title(item, i) || t.forms.empty)} onClick={() => remove(i)} />
               </>
             }
           >
@@ -1084,7 +1091,7 @@ export function MenuList({
               actions={
                 <span className="mo-keep mo-editor-field-item-actions">
                   <IconButton icon={PencilSimple} label={t.forms.editOne(nameOf(item))} onClick={() => edit(i)} />
-                  <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} />
+                  <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} name={nameOf(item) || t.forms.empty} />
                   {sub && (
                     <IconButton
                       icon={CaretDown}

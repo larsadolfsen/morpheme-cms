@@ -18,7 +18,7 @@ import {
   fabMenuKinds,
   splitButtonKinds,
 } from './themeUi';
-import { Part } from './PartsShown';
+import { Example, named, Part } from './PartsShown';
 import { Preview } from './ui';
 import { useState } from 'react';
 import { t } from './i18n';
@@ -26,6 +26,7 @@ import { t } from './i18n';
 const { sizes, shapes } = t.parts.screens;
 const say = t.parts.screens.actions;
 const row = 'mo-editor-sample-row';
+const eg = t.parts.screens.example;
 // Icons the site draws (icon.tsx).
 const channelIcons = ['phone', 'envelope-simple', 'chats'];
 const modeIcons = ['sun', 'moon'];
@@ -155,27 +156,35 @@ export default function ActionParts() {
           <div className="mo-editor-sample-stack-4">
             <div className={row}>
               {splitButtonKinds.map((kind) => (
-                <SiteSplitButton key={kind} kind={kind} label={say.kinds[kind]} menuLabel={say.more}>
-                  {ways()}
-                </SiteSplitButton>
+                <Example key={kind} label={say.kinds[kind]} flat>
+                  <SiteSplitButton kind={kind} label={say.kinds[kind]} menuLabel={say.more}>
+                    {ways()}
+                  </SiteSplitButton>
+                </Example>
               ))}
             </div>
             <div className={row}>
               {buttonSizes.map((size) => (
-                <SiteSplitButton key={size} kind="tonal" size={size} label={sizes[size]} menuLabel={say.more}>
-                  {ways()}
-                </SiteSplitButton>
+                <Example key={size} label={sizes[size]} flat>
+                  <SiteSplitButton kind="tonal" size={size} label={sizes[size]} menuLabel={say.more}>
+                    {ways()}
+                  </SiteSplitButton>
+                </Example>
               ))}
             </div>
             <div className={row}>
-              <SiteSplitButton disabled label={say.disabled} menuLabel={say.more}>
-                {ways()}
-              </SiteSplitButton>
+              <Example label={say.disabled} flat>
+                <SiteSplitButton disabled label={say.disabled} menuLabel={say.more}>
+                  {ways()}
+                </SiteSplitButton>
+              </Example>
             </div>
             <div className="mo-editor-menu-sample">
-              <SiteSplitButton icon="calendar-blank" label={say.book} menuLabel={say.more} open>
-                {ways()}
-              </SiteSplitButton>
+              <Example label={say.book} flat>
+                <SiteSplitButton icon="calendar-blank" label={say.book} menuLabel={say.more} open>
+                  {ways()}
+                </SiteSplitButton>
+              </Example>
             </div>
           </div>
         </Preview>
@@ -185,28 +194,33 @@ export default function ActionParts() {
           <div className="mo-editor-sample-stack-6">
             <div className={`${row} mo-row-end`}>
               {fabMenuKinds.map((kind) => (
-                <SiteFabMenu
-                  key={kind}
-                  kind={kind}
-                  icon="chats"
-                  label={say.contact}
-                  closeLabel={say.close}
-                  items={fabItems}
-                  title={say.fabKinds[kind]}
-                />
+                <Example key={kind} label={say.fabKinds[kind]} flat>
+                  <SiteFabMenu
+                    kind={kind}
+                    icon="chats"
+                    label={say.contact}
+                    closeLabel={say.close}
+                    items={fabItems}
+                    title={say.fabKinds[kind]}
+                  />
+                </Example>
               ))}
-              <SiteFabMenu fabKind="primary-container" icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} />
+              <Example label={eg(1)} flat>
+                <SiteFabMenu fabKind="primary-container" icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} />
+              </Example>
               {(['medium', 'large'] as const).map((size) => (
-                <SiteFabMenu key={size} size={size} icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} />
+                <Example key={size} label={`${eg(2)}, ${size}`} flat>
+                  <SiteFabMenu size={size} icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} />
+                </Example>
               ))}
             </div>
             <div className="mo-editor-two-columns">
               {fabMenuKinds.map((kind) => (
-                <div key={kind} className="mo-editor-menu-sample-top">
+                <div key={kind} className="mo-editor-menu-sample-top" {...named(say.fabKinds[kind])}>
                   <SiteFabMenu kind={kind} icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} open />
                 </div>
               ))}
-              <div className="mo-editor-menu-sample-top">
+              <div className="mo-editor-menu-sample-top" {...named(eg(3))}>
                 <SiteFabMenu size="large" icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} open />
               </div>
             </div>

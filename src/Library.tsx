@@ -1498,14 +1498,14 @@ export function List({
             <span className="mo-editor-library-row-actions">
               <IconButton
                 icon={ArrowUp}
-                label={t.common.moveUp}
+                label={t.common.moveUpItem(item.title)}
                 busy={moving?.from === i && moving.to === i - 1}
                 disabled={i === 0 || busy}
                 onClick={() => move(i, i - 1)}
               />
               <IconButton
                 icon={ArrowDown}
-                label={t.common.moveDown}
+                label={t.common.moveDownItem(item.title)}
                 busy={moving?.from === i && moving.to === i + 1}
                 disabled={i === shown.length - 1 || busy}
                 onClick={() => move(i, i + 1)}
