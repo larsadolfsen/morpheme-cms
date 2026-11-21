@@ -239,6 +239,10 @@ export const EXPRESSIVE = [
   // one container, extra-large), and the side sheet's token is drawn by the modal sheet (16 dp towards the page; the docked token says none).
   ['md.comp.menus.container.shape', '--mo-comp-menu-container-shape'],
   ['md.comp.menus.menu-item.height', '--mo-comp-menu-list-item-container-height'],
+  // The standard colours of the same set: `surface-container-low` (the baseline says `surface-container`) and the chosen item on the tertiary container (the baseline: secondary).
+  ['md.comp.menus.standard.container.color', '--mo-comp-menu-container-color'],
+  ['md.comp.menus.standard.menu-item.selected.container.color', '--mo-comp-menu-list-item-selected-container-color'],
+  ['md.comp.menus.standard.menu-item.selected.label-text.color', '--mo-comp-menu-list-item-selected-label-text-color'],
   ['md.comp.search-view.contained.docked.results.shape', '--mo-comp-search-view-docked-container-shape'],
   ['md.comp.sheet.side.docked.modal.container.shape', '--mo-comp-sheet-side-docked-container-shape'],
 ];
