@@ -36,6 +36,7 @@ import { byText, entryData, type Collection, type Part, type PartScreen } from '
 import { config, countsOf, header, relationsOf, siteName } from '@site/editor';
 import { iconPack, iconPacks } from './iconPacks';
 import { theme, themes, type ThemeInfo } from './themes';
+import { partWords, statementOf } from './themeAccessibility.mjs';
 import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
 import { StartStatus } from './StartStatus';
@@ -506,6 +507,7 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
   const inLocale = <T,>(x?: Record<string, T>) => x && (x[locale] ?? Object.values(x)[0]);
   const description = inLocale(of.description);
   const highlights = inLocale(of.highlights) ?? [];
+  const statement = statementOf(of.accessibility);
   const shotName = (key: string) => t.library.themeShots[key] ?? of.name;
   const kept: [Icon, string][] = [
     [FileText, t.library.themeKeptContent],
@@ -571,6 +573,25 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
           ))}
         </Group>
       )}
+      <Group>
+        <ListItem
+          icon={statement.state === 'meets' ? Check : ListChecks}
+          headline={
+            statement.state === 'meets'
+              ? t.library.themeA11yMeets
+              : statement.state === 'short'
+                ? t.library.themeA11yShort
+                : t.library.themeA11yUnchecked
+          }
+        />
+        {statement.shortfalls.map((x) => (
+          <ListItem
+            key={`${x.part}-${x.criterion}`}
+            headline={t.library.themeA11yItem(t.library.themeA11yParts[x.part] ?? partWords(x.part), x.criterion)}
+          />
+        ))}
+        <ListItem headline={t.library.themeA11yNotYours} />
+      </Group>
       <Group title={t.library.themeKept}>
         {kept.map(([glyph, text]) => (
           <ListItem key={text} icon={glyph} headline={text} />
