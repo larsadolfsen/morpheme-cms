@@ -4,7 +4,7 @@
 // group, the one picked as a chip that removes it. A screen can add the filter by style (how much of a part
 // the active theme styles itself, coverage.ts), and each part then carries its mark (CoverageBadge.tsx). The
 // search, the group and the style are kept while the editor is open.
-import { createContext, useContext, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowsDownUp } from '@phosphor-icons/react';
 import { Choice, EmptyNote, Filters, FormHeading, InputChip, SearchRow, SupportingText, useKept } from './ui';
 import { byText } from './schema';
@@ -187,14 +187,18 @@ export function PartGroup({ group, children }: { group: string; children: ReactN
  * what is searched for, or when the style filter picks another status. */
 export function Part({ name, use, coverage, children }: { name: string; use?: string; coverage?: string; children?: ReactNode }) {
   const shown = useContext(Shown);
+  const heading = useId();
   const covered = themeCoverage?.parts[coverage ?? name.split(',')[0].trim()];
   if (shown.style && covered?.status !== shown.style) return null;
   const query = shown.query.trim().toLocaleLowerCase();
   if (query && !`${name} ${use ?? ''}`.toLocaleLowerCase().includes(query)) return null;
   return (
-    <section data-part={name} className="mo-editor-flow-3" style={{ order: shown.order.get(name) }}>
+    // A group named by its heading: the examples of one part repeat each other's labels (every part has a `Cancel`), and a reader tells the parts apart by it.
+    <section data-part={name} role="group" aria-labelledby={heading} className="mo-editor-flow-3" style={{ order: shown.order.get(name) }}>
       <div>
-        <h2 className="mo-editor-part-name">{name}</h2>
+        <h2 id={heading} className="mo-editor-part-name">
+          {name}
+        </h2>
         {use && <SupportingText>{use}</SupportingText>}
         {covered && <CoverageBadge coverage={covered} />}
       </div>

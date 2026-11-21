@@ -190,11 +190,11 @@ The second paragraph follows with the space your theme sets between paragraphs.
 
 Every format the toolbar offers, on one word and on several words. One paragraph:
 
-A paragraph with **bold**, *italic*, ***bold and italic***, a [link](/about/), `code`, <span class="mo-has-accent-color">accent color</span> and <span class="mo-has-muted-color">muted color</span> on single words, and with **several bold words**, *several italic words*, ***several bold and italic words***, [several link words](/about/), `several code words`, <span class="mo-has-accent-color">several accent words</span> and <span class="mo-has-muted-color">several muted words</span>.
+A paragraph with **bold**, *italic*, ***bold and italic***, a [team](/about/), `code`, <span class="mo-has-accent-color">accent color</span> and <span class="mo-has-muted-color">muted color</span> on single words, and with **several bold words**, *several italic words*, ***several bold and italic words***, [several link words](/about/), `several code words`, <span class="mo-has-accent-color">several accent words</span> and <span class="mo-has-muted-color">several muted words</span>.
 
 Two paragraphs in a row, the first with **bold** and *italic* words.
 
-The second with a [link](/about/), `code` and <span class="mo-has-accent-color">accent</span> words, and ***bold and italic*** together.
+The second with a [story](/about/), `code` and <span class="mo-has-accent-color">accent</span> words, and ***bold and italic*** together.
 
 In a list, the T menu sets the size of the words:
 
@@ -210,35 +210,35 @@ Each heading level three ways: plain, one word in each format, and several words
 
 # Heading 1: plain
 
-# One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
+# One word each: **Bold**, *italic*, ***both***, [prices](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
-# Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
+# Several words: **bold words here**, *italic words here*, ***both words here***, [read our story](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
 
 ## Heading 2: plain
 
 ### Heading 3: plain
 
-### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
+### One word each: **Bold**, *italic*, ***both***, [contact](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
-### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
+### Several words: **bold words here**, *italic words here*, ***both words here***, [meet the team](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
 
 #### Heading 4: plain
 
-#### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
+#### One word each: **Bold**, *italic*, ***both***, [jobs](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
-#### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
+#### Several words: **bold words here**, *italic words here*, ***both words here***, [see our prices](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
 
 ##### Heading 5: plain
 
-##### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
+##### One word each: **Bold**, *italic*, ***both***, [press](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
-##### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
+##### Several words: **bold words here**, *italic words here*, ***both words here***, [visit our studio](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
 
 ###### Heading 6: plain
 
-###### One word each: **Bold**, *italic*, ***both***, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
+###### One word each: **Bold**, *italic*, ***both***, [help](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
-###### Several words: **bold words here**, *italic words here*, ***both words here***, [link words here](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
+###### Several words: **bold words here**, *italic words here*, ***both words here***, [join our team](/about/), `code words`, <span class="mo-has-accent-color">accent words here</span>, <span class="mo-has-muted-color">muted words here</span>
 
 ## Alignment
 
@@ -335,13 +335,13 @@ The display roles, Headline large and small, Title small, and Label small have n
 
 <p class="mo-type-body-large">Body large is the intro of a text. Use it for the one paragraph that tells visitors what the page is about.</p>
 
-A paragraph in Body medium is the plain text. It wraps with the width of the screen, so a longer paragraph shows how the lines break and how much space sits between them. Here is a [link](/about/), some **bold text**, some *italic text* and a bit of `inline code`.
+A paragraph in Body medium is the plain text. It wraps with the width of the screen, so a longer paragraph shows how the lines break and how much space sits between them. Here is a [news](/about/), some **bold text**, some *italic text* and a bit of `inline code`.
 
 A second paragraph follows the first, with the space the theme puts between paragraphs.
 
 <p class="mo-type-body-small">Body small is for small print, notes and dates.</p>
 
-#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
+#### Heading 4: **bold**, *italic*, [values](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
 <div data-section="primary"></div>
 
@@ -351,13 +351,13 @@ A second paragraph follows the first, with the space the theme puts between para
 
 <p class="mo-type-body-large">Body large is the intro of a text. Use it for the one paragraph that tells visitors what the page is about.</p>
 
-A paragraph in Body medium is the plain text. It wraps with the width of the screen, so a longer paragraph shows how the lines break and how much space sits between them. Here is a [link](/about/), some **bold text**, some *italic text* and a bit of `inline code`.
+A paragraph in Body medium is the plain text. It wraps with the width of the screen, so a longer paragraph shows how the lines break and how much space sits between them. Here is a [mission](/about/), some **bold text**, some *italic text* and a bit of `inline code`.
 
 A second paragraph follows the first, with the space the theme puts between paragraphs.
 
 <p class="mo-type-body-small">Body small is for small print, notes and dates.</p>
 
-#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
+#### Heading 4: **bold**, *italic*, [privacy](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
 <div data-section="secondary"></div>
 
@@ -367,13 +367,13 @@ A second paragraph follows the first, with the space the theme puts between para
 
 <p class="mo-type-body-large">Body large is the intro of a text. Use it for the one paragraph that tells visitors what the page is about.</p>
 
-A paragraph in Body medium is the plain text. It wraps with the width of the screen, so a longer paragraph shows how the lines break and how much space sits between them. Here is a [link](/about/), some **bold text**, some *italic text* and a bit of `inline code`.
+A paragraph in Body medium is the plain text. It wraps with the width of the screen, so a longer paragraph shows how the lines break and how much space sits between them. Here is a [terms](/about/), some **bold text**, some *italic text* and a bit of `inline code`.
 
 A second paragraph follows the first, with the space the theme puts between paragraphs.
 
 <p class="mo-type-body-small">Body small is for small print, notes and dates.</p>
 
-#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
+#### Heading 4: **bold**, *italic*, [maps](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
 
 <div data-section="tertiary"></div>
 
@@ -383,10 +383,10 @@ A second paragraph follows the first, with the space the theme puts between para
 
 <p class="mo-type-body-large">Body large is the intro of a text. Use it for the one paragraph that tells visitors what the page is about.</p>
 
-A paragraph in Body medium is the plain text. It wraps with the width of the screen, so a longer paragraph shows how the lines break and how much space sits between them. Here is a [link](/about/), some **bold text**, some *italic text* and a bit of `inline code`.
+A paragraph in Body medium is the plain text. It wraps with the width of the screen, so a longer paragraph shows how the lines break and how much space sits between them. Here is a [awards](/about/), some **bold text**, some *italic text* and a bit of `inline code`.
 
 A second paragraph follows the first, with the space the theme puts between paragraphs.
 
 <p class="mo-type-body-small">Body small is for small print, notes and dates.</p>
 
-#### Heading 4: **bold**, *italic*, [link](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
+#### Heading 4: **bold**, *italic*, [pilot](/about/), `code`, <span class="mo-has-accent-color">accent</span>, <span class="mo-has-muted-color">muted</span>
