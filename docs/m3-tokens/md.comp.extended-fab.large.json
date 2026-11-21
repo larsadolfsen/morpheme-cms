@@ -1,0 +1,15 @@
+{
+ "set": "md.comp.extended-fab.large",
+ "displayName": "Extended FAB - Size - Large",
+ "description": "For large extended FABs.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.extended-fab.large.container.height","type":"LENGTH","group":null,"value":{"value":96,"unit":"dp"},"resolved":{"light":{"value":96,"unit":"dp"},"dark":{"value":96,"unit":"dp"}},"chain":["md.comp.extended-fab.large.container.height"]},
+  {"token":"md.comp.extended-fab.large.label-text","type":"TYPOGRAPHY","group":null,"value":{"ref":"md.sys.typescale.headline-small"},"resolved":{"light":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":400,"fontSize":{"value":24,"unit":"POINTS"},"fontTracking":{"unit":"POINTS"},"lineHeight":{"value":32,"unit":"POINTS"}},"unit":"typography"},"dark":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":400,"fontSize":{"value":24,"unit":"POINTS"},"fontTracking":{"unit":"POINTS"},"lineHeight":{"value":32,"unit":"POINTS"}},"unit":"typography"}},"chain":["md.comp.extended-fab.large.label-text","md.sys.typescale.headline-small","md.sys.typescale.headline-small.font","md.ref.typeface.brand"]},
+  {"token":"md.comp.extended-fab.large.icon.size","type":"LENGTH","group":null,"value":{"value":36,"unit":"dp"},"resolved":{"light":{"value":36,"unit":"dp"},"dark":{"value":36,"unit":"dp"}},"chain":["md.comp.extended-fab.large.icon.size"]},
+  {"token":"md.comp.extended-fab.large.container.shape","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner.extra-large"},"resolved":{"light":{"value":28,"unit":"dp","shape":"rounded_corners"},"dark":{"value":28,"unit":"dp","shape":"rounded_corners"}},"chain":["md.comp.extended-fab.large.container.shape","md.sys.shape.corner.extra-large"]},
+  {"token":"md.comp.extended-fab.large.leading-space","type":"LENGTH","group":null,"value":{"value":28,"unit":"dp"},"resolved":{"light":{"value":28,"unit":"dp"},"dark":{"value":28,"unit":"dp"}},"chain":["md.comp.extended-fab.large.leading-space"]},
+  {"token":"md.comp.extended-fab.large.icon-label-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space200"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.extended-fab.large.icon-label-space","md.sys.measurement.space200"]},
+  {"token":"md.comp.extended-fab.large.trailing-space","type":"LENGTH","group":null,"value":{"value":28,"unit":"dp"},"resolved":{"light":{"value":28,"unit":"dp"},"dark":{"value":28,"unit":"dp"}},"chain":["md.comp.extended-fab.large.trailing-space"]}
+ ]
+}

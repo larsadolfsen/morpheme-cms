@@ -1,0 +1,13 @@
+{
+ "set": "md.comp.nav-rail.item.horizontal",
+ "displayName": "Nav rail item - Horizontal",
+ "description": "For horizontal nav rail items, where elements are side-by-side.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.nav-rail.item.horizontal.label-text.font","type":"TYPOGRAPHY","group":null,"value":{"ref":"md.sys.typescale.label-large"},"resolved":{"light":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":14,"unit":"POINTS"},"fontTracking":{"value":0.1,"unit":"POINTS"},"lineHeight":{"value":20,"unit":"POINTS"}},"unit":"typography"},"dark":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":14,"unit":"POINTS"},"fontTracking":{"value":0.1,"unit":"POINTS"},"lineHeight":{"value":20,"unit":"POINTS"}},"unit":"typography"}},"chain":["md.comp.nav-rail.item.horizontal.label-text.font","md.sys.typescale.label-large","md.sys.typescale.label-large.font","md.ref.typeface.plain"]},
+  {"token":"md.comp.nav-rail.item.horizontal.active-indicator.height","type":"LENGTH","group":null,"value":{"value":56,"unit":"dp"},"resolved":{"light":{"value":56,"unit":"dp"},"dark":{"value":56,"unit":"dp"}},"chain":["md.comp.nav-rail.item.horizontal.active-indicator.height"]},
+  {"token":"md.comp.nav-rail.item.horizontal.full-width.leading-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space200"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.nav-rail.item.horizontal.full-width.leading-space","md.sys.measurement.space200"]},
+  {"token":"md.comp.nav-rail.item.horizontal.full-width.trailing-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space200"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.nav-rail.item.horizontal.full-width.trailing-space","md.sys.measurement.space200"]},
+  {"token":"md.comp.nav-rail.item.horizontal.icon-label-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space100"},"resolved":{"light":{"value":8,"unit":"dp"},"dark":{"value":8,"unit":"dp"}},"chain":["md.comp.nav-rail.item.horizontal.icon-label-space","md.sys.measurement.space100"]}
+ ]
+}

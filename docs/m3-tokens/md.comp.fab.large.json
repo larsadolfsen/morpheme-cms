@@ -1,0 +1,12 @@
+{
+ "set": "md.comp.fab.large",
+ "displayName": "FAB - Size - Large",
+ "description": "For large FABs.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.fab.large.container.height","type":"LENGTH","group":null,"value":{"value":96,"unit":"dp"},"resolved":{"light":{"value":96,"unit":"dp"},"dark":{"value":96,"unit":"dp"}},"chain":["md.comp.fab.large.container.height"]},
+  {"token":"md.comp.fab.large.container.width","type":"LENGTH","group":null,"value":{"value":96,"unit":"dp"},"resolved":{"light":{"value":96,"unit":"dp"},"dark":{"value":96,"unit":"dp"}},"chain":["md.comp.fab.large.container.width"]},
+  {"token":"md.comp.fab.large.icon.size","type":"LENGTH","group":null,"value":{"value":36,"unit":"dp"},"resolved":{"light":{"value":36,"unit":"dp"},"dark":{"value":36,"unit":"dp"}},"chain":["md.comp.fab.large.icon.size"]},
+  {"token":"md.comp.fab.large.container.shape","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner.extra-large"},"resolved":{"light":{"value":28,"unit":"dp","shape":"rounded_corners"},"dark":{"value":28,"unit":"dp","shape":"rounded_corners"}},"chain":["md.comp.fab.large.container.shape","md.sys.shape.corner.extra-large"]}
+ ]
+}

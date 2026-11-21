@@ -1,0 +1,18 @@
+{
+ "set": "md.comp.progress-indicator",
+ "displayName": "Progress Indicator - Common",
+ "description": "Common tokens for circular and linear progress indicators.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.progress-indicator.active-indicator.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.primary"},"resolved":{"light":{"value":"#6750A4","unit":"color"},"dark":{"value":"#D0BCFF","unit":"color"}},"chain":["md.comp.progress-indicator.active-indicator.color","md.sys.color.primary","md.ref.palette.primary40"]},
+  {"token":"md.comp.progress-indicator.track.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.secondary-container"},"resolved":{"light":{"value":"#E8DEF8","unit":"color"},"dark":{"value":"#4A4458","unit":"color"}},"chain":["md.comp.progress-indicator.track.color","md.sys.color.secondary-container","md.ref.palette.secondary90"]},
+  {"token":"md.comp.progress-indicator.stop-indicator.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.primary"},"resolved":{"light":{"value":"#6750A4","unit":"color"},"dark":{"value":"#D0BCFF","unit":"color"}},"chain":["md.comp.progress-indicator.stop-indicator.color","md.sys.color.primary","md.ref.palette.primary40"]},
+  {"token":"md.comp.progress-indicator.active-indicator.shape","type":"SHAPE","group":"Shape","value":{"ref":"md.sys.shape.corner.full"},"resolved":{"light":{"value":"circular","unit":null,"shape":"circular"},"dark":{"value":"circular","unit":null,"shape":"circular"}},"chain":["md.comp.progress-indicator.active-indicator.shape","md.sys.shape.corner.full"]},
+  {"token":"md.comp.progress-indicator.track.shape","type":"SHAPE","group":"Shape","value":{"ref":"md.sys.shape.corner.full"},"resolved":{"light":{"value":"circular","unit":null,"shape":"circular"},"dark":{"value":"circular","unit":null,"shape":"circular"}},"chain":["md.comp.progress-indicator.track.shape","md.sys.shape.corner.full"]},
+  {"token":"md.comp.progress-indicator.stop-indicator.shape","type":"SHAPE","group":"Shape","value":{"ref":"md.sys.shape.corner.full"},"resolved":{"light":{"value":"circular","unit":null,"shape":"circular"},"dark":{"value":"circular","unit":null,"shape":"circular"}},"chain":["md.comp.progress-indicator.stop-indicator.shape","md.sys.shape.corner.full"]},
+  {"token":"md.comp.progress-indicator.active-indicator.thickness","type":"LENGTH","group":"[Deprecated] Enabled › [Deprecated] Active Indicator","value":{"value":4,"unit":"dp"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.progress-indicator.active-indicator.thickness"]},
+  {"token":"md.comp.progress-indicator.track.thickness","type":"LENGTH","group":"[Deprecated] Enabled › [Deprecated] Track","value":{"value":4,"unit":"dp"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.progress-indicator.track.thickness"]},
+  {"token":"md.comp.progress-indicator.stop-indicator.size","type":"LENGTH","group":"[Deprecated] Enabled › [Deprecated] Stop indicator","value":{"value":4,"unit":"dp"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.progress-indicator.stop-indicator.size"]},
+  {"token":"md.comp.progress-indicator.active-indicator-track-space","type":"LENGTH","group":"[Deprecated] Enabled › [Deprecated] Spacing","value":{"value":4,"unit":"dp"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.progress-indicator.active-indicator-track-space"]}
+ ]
+}

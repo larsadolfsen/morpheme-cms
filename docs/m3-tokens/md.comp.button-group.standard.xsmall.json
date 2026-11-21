@@ -1,0 +1,13 @@
+{
+ "set": "md.comp.button-group.standard.xsmall",
+ "displayName": "Button group standard - Size - Xsmall",
+ "description": "For XS standard button groups.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.button-group.standard.xsmall.container.height","type":"LENGTH","group":null,"value":{"value":32,"unit":"dp"},"resolved":{"light":{"value":32,"unit":"dp"},"dark":{"value":32,"unit":"dp"}},"chain":["md.comp.button-group.standard.xsmall.container.height"]},
+  {"token":"md.comp.button-group.standard.xsmall.pressed.item.width.motion.spring.dampening","type":"DURATION","group":"Pressed","value":{"ref":"md.sys.motion.spring.fast.spatial.damping"},"resolved":{"light":{"value":0.9,"unit":null},"dark":{"value":0.9,"unit":null}},"chain":["md.comp.button-group.standard.xsmall.pressed.item.width.motion.spring.dampening","md.sys.motion.spring.fast.spatial.damping"],"expressive":{"light":{"value":0.6,"unit":null},"dark":{"value":0.6,"unit":null}}},
+  {"token":"md.comp.button-group.standard.xsmall.pressed.item.width.motion.spring.stiffness","type":"DURATION","group":"Pressed","value":{"ref":"md.sys.motion.spring.fast.spatial.stiffness"},"resolved":{"light":{"value":1400,"unit":null},"dark":{"value":1400,"unit":null}},"chain":["md.comp.button-group.standard.xsmall.pressed.item.width.motion.spring.stiffness","md.sys.motion.spring.fast.spatial.stiffness"],"expressive":{"light":{"value":800,"unit":null},"dark":{"value":800,"unit":null}}},
+  {"token":"md.comp.button-group.standard.xsmall.pressed.item.width.multiplier","type":"LENGTH","group":"Pressed","value":{"value":15,"unit":"percent"},"resolved":{"light":{"value":15,"unit":"percent"},"dark":{"value":15,"unit":"percent"}},"chain":["md.comp.button-group.standard.xsmall.pressed.item.width.multiplier"]},
+  {"token":"md.comp.button-group.standard.xsmall.between-space","type":"LENGTH","group":null,"value":{"value":18,"unit":"dp"},"resolved":{"light":{"value":18,"unit":"dp"},"dark":{"value":18,"unit":"dp"}},"chain":["md.comp.button-group.standard.xsmall.between-space"]}
+ ]
+}

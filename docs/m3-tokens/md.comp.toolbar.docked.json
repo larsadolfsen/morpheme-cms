@@ -1,0 +1,15 @@
+{
+ "set": "md.comp.toolbar.docked",
+ "displayName": "Toolbar - Docked",
+ "description": "For docked toolbars.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.toolbar.docked.container.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.surface-container"},"resolved":{"light":{"value":"#F3EDF7","unit":"color"},"dark":{"value":"#211F26","unit":"color"}},"chain":["md.comp.toolbar.docked.container.color","md.sys.color.surface-container","md.ref.palette.neutral94"]},
+  {"token":"md.comp.toolbar.docked.container.height","type":"LENGTH","group":"Size","value":{"value":64,"unit":"dp"},"resolved":{"light":{"value":64,"unit":"dp"},"dark":{"value":64,"unit":"dp"}},"chain":["md.comp.toolbar.docked.container.height"]},
+  {"token":"md.comp.toolbar.docked.container.leading-space","type":"LENGTH","group":"Size","value":{"ref":"md.sys.measurement.space200"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.toolbar.docked.container.leading-space","md.sys.measurement.space200"]},
+  {"token":"md.comp.toolbar.docked.container.trailing-space","type":"LENGTH","group":"Size","value":{"ref":"md.sys.measurement.space200"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.toolbar.docked.container.trailing-space","md.sys.measurement.space200"]},
+  {"token":"md.comp.toolbar.docked.container.max-spacing","type":"LENGTH","group":"Size","value":{"value":32,"unit":"dp"},"resolved":{"light":{"value":32,"unit":"dp"},"dark":{"value":32,"unit":"dp"}},"chain":["md.comp.toolbar.docked.container.max-spacing"]},
+  {"token":"md.comp.toolbar.docked.container.min-spacing","type":"LENGTH","group":"Size","value":{"value":4,"unit":"dp"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.toolbar.docked.container.min-spacing"]},
+  {"token":"md.comp.toolbar.docked.container.shape","type":"SHAPE","group":"Shape","value":{"ref":"md.sys.shape.corner.none"},"resolved":{"light":{"value":0,"unit":"dp","shape":"rounded_corners"},"dark":{"value":0,"unit":"dp","shape":"rounded_corners"}},"chain":["md.comp.toolbar.docked.container.shape","md.sys.shape.corner.none"]}
+ ]
+}

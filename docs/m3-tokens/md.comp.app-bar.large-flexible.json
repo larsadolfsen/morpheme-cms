@@ -1,0 +1,12 @@
+{
+ "set": "md.comp.app-bar.large-flexible",
+ "displayName": "App bar - Size - Large Flexible",
+ "description": "For the large flexible app bar.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.app-bar.large-flexible.container.height","type":"LENGTH","group":null,"value":{"value":120,"unit":"dp"},"resolved":{"light":{"value":120,"unit":"dp"},"dark":{"value":120,"unit":"dp"}},"chain":["md.comp.app-bar.large-flexible.container.height"]},
+  {"token":"md.comp.app-bar.large-flexible.with-subtitle.container.height","type":"LENGTH","group":null,"value":{"value":152,"unit":"dp"},"resolved":{"light":{"value":152,"unit":"dp"},"dark":{"value":152,"unit":"dp"}},"chain":["md.comp.app-bar.large-flexible.with-subtitle.container.height"]},
+  {"token":"md.comp.app-bar.large-flexible.title.font","type":"TYPOGRAPHY","group":null,"value":{"ref":"md.sys.typescale.display-small"},"resolved":{"light":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":400,"fontSize":{"value":36,"unit":"POINTS"},"fontTracking":{"unit":"POINTS"},"lineHeight":{"value":44,"unit":"POINTS"}},"unit":"typography"},"dark":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":400,"fontSize":{"value":36,"unit":"POINTS"},"fontTracking":{"unit":"POINTS"},"lineHeight":{"value":44,"unit":"POINTS"}},"unit":"typography"}},"chain":["md.comp.app-bar.large-flexible.title.font","md.sys.typescale.display-small","md.sys.typescale.display-small.font","md.ref.typeface.brand"]},
+  {"token":"md.comp.app-bar.large-flexible.subtitle.font","type":"TYPOGRAPHY","group":null,"value":{"ref":"md.sys.typescale.title-medium"},"resolved":{"light":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":16,"unit":"POINTS"},"fontTracking":{"value":0.15,"unit":"POINTS"},"lineHeight":{"value":24,"unit":"POINTS"}},"unit":"typography"},"dark":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":16,"unit":"POINTS"},"fontTracking":{"value":0.15,"unit":"POINTS"},"lineHeight":{"value":24,"unit":"POINTS"}},"unit":"typography"}},"chain":["md.comp.app-bar.large-flexible.subtitle.font","md.sys.typescale.title-medium","md.sys.typescale.title-medium.font","md.ref.typeface.plain"]}
+ ]
+}

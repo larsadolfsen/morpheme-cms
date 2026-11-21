@@ -1,0 +1,790 @@
+{
+ "source": "https://m3.material.io",
+ "carbonVersion": "2026-11-19_06-20-01",
+ "bundle": "static/angular/main.2bcb6530e93abb29.js",
+ "fetched": "2026-11-21T09:33:11.967Z",
+ "baseline": "resolved.light / resolved.dark = Audience 3P, every other context group at its default (contrast Default, motion Standard, platform Android); expressive = the same with Motion scheme Expressive, where it differs",
+ "modules": [
+  {
+   "module": "COLOR.20543ce18892f7d9",
+   "pages": [
+    "styles/color/static"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.ref.palette",
+    "md.sys.color"
+   ]
+  },
+  {
+   "module": "MEASUREMENT.20543ce18892f7d9",
+   "pages": [
+    "styles/spacing"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.sys.measurement",
+    "md.sys.state.focus-indicator"
+   ]
+  },
+  {
+   "module": "TYPOGRAPHY.20543ce18892f7d9",
+   "pages": [
+    "styles/typography",
+    "styles/typography",
+    "styles/typography",
+    "styles/typography"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.sys.typescale.variable",
+    "md.sys.typescale.variable.emphasized",
+    "md.ref.typeface",
+    "md.sys.typescale.emphasized",
+    "md.sys.typescale"
+   ]
+  },
+  {
+   "module": "ELEVATION.20543ce18892f7d9",
+   "pages": [
+    "styles/elevation"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.sys.elevation"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.1c4257f8804f9478",
+   "pages": [
+    "components/buttons",
+    "components/buttons"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.button",
+    "md.comp.button.filled",
+    "md.comp.button.xsmall",
+    "md.comp.button.small",
+    "md.comp.button.medium",
+    "md.comp.button.large",
+    "md.comp.button.xlarge",
+    "md.comp.button.elevated",
+    "md.comp.button.text",
+    "md.comp.button.outlined",
+    "md.comp.button.tonal",
+    "md.comp.text-button",
+    "md.comp.filled-button",
+    "md.comp.outlined-button",
+    "md.comp.elevated-button",
+    "md.comp.filled-tonal-button"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.082d7fd6e058b011",
+   "pages": [
+    "components/button-groups"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.button-group.standard.xlarge",
+    "md.comp.button-group.standard.large",
+    "md.comp.button-group.standard.medium",
+    "md.comp.button-group.standard.small",
+    "md.comp.button-group.standard.xsmall",
+    "md.comp.button-group.connected.xlarge",
+    "md.comp.button-group.connected.large",
+    "md.comp.button-group.connected.medium",
+    "md.comp.button-group.connected.small",
+    "md.comp.button-group.connected.xsmall"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.41587918e51cca98",
+   "pages": [
+    "components/floating-action-button",
+    "components/floating-action-button"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.fab.small",
+    "md.comp.fab.secondary.small",
+    "md.comp.fab",
+    "md.comp.fab.surface",
+    "md.comp.fab.secondary",
+    "md.comp.fab.branded",
+    "md.comp.fab.primary",
+    "md.comp.fab.tertiary-container",
+    "md.comp.fab.secondary-container",
+    "md.comp.fab.primary-container",
+    "md.comp.fab.primary.small",
+    "md.fab.surface.small",
+    "md.comp.fab.tertiary.small",
+    "md.comp.fab.medium",
+    "md.comp.fab.large",
+    "md.comp.fab.tertiary.large",
+    "md.comp.fab.tertiary",
+    "md.comp.fab.surface.large",
+    "md.comp.fab.primary.large",
+    "md.comp.fab.secondary.large",
+    "md.comp.fab.branded.large"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.36500f77b86d20a5",
+   "pages": [
+    "components/extended-fab",
+    "components/extended-fab"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.extended-fab.branded",
+    "md.comp.extended-fab.primary",
+    "md.comp.extended-fab.secondary",
+    "md.comp.extended-fab.surface",
+    "md.comp.extended-fab.tertiary",
+    "md.comp.extended-fab.tertiary-container",
+    "md.comp.extended-fab.secondary-container",
+    "md.comp.extended-fab.primary-container",
+    "md.comp.extended-fab.medium",
+    "md.comp.extended-fab.large",
+    "md.comp.extended-fab",
+    "md.comp.extended-fab.small"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.1a076cec8bc202c2",
+   "pages": [
+    "components/fab-menu"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.fab-menu.tertiary-container",
+    "md.comp.fab-menu.secondary-container",
+    "md.comp.fab-menu.primary-container",
+    "md.comp.fab-menu",
+    "md.comp.fab-menu.tertiary.close-button",
+    "md.comp.fab-menu.secondary.close-button",
+    "md.comp.fab-menu.primary.close-button"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.0fe2282006ae098b",
+   "pages": [
+    "components/icon-buttons",
+    "components/icon-buttons"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.icon-button",
+    "md.comp.icon-button.filled",
+    "md.comp.icon-button.xsmall",
+    "md.comp.icon-button.small",
+    "md.comp.icon-button.medium",
+    "md.comp.icon-button.large",
+    "md.comp.icon-button.xlarge",
+    "md.comp.icon-button.outlined",
+    "md.comp.icon-button.standard",
+    "md.comp.icon-button.tonal",
+    "md.comp.filled-icon-button",
+    "md.outlined-icon-button",
+    "md.comp.filled-tonal-icon-button"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.67e2613d87ca6f98",
+   "pages": [
+    "components/segmented-buttons"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.outlined-segmented-button"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.624e8f2da4007fc8",
+   "pages": [
+    "components/split-button",
+    "components/split-button"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.button.filled",
+    "md.comp.split-button.xsmall",
+    "md.comp.split-button.small",
+    "md.comp.split-button.medium",
+    "md.comp.split-button.large",
+    "md.comp.split-button.xlarge",
+    "md.comp.button.elevated",
+    "md.comp.button.outlined",
+    "md.comp.button.tonal"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.2956a7939bf0879c",
+   "pages": [
+    "components/toolbars",
+    "components/toolbars"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.toolbar.floating",
+    "md.comp.toolbar.docked",
+    "md.comp.toolbar.vibrant",
+    "md.comp.toolbar.standard",
+    "md.comp.toolbar.floating.fab",
+    "md.comp.bottom-app-bar"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.75e530a1014802b3",
+   "pages": [
+    "components/bottom-sheets"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.sheet.bottom"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.100ebfb4332adab1",
+   "pages": [
+    "components/cards"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.elevated-card",
+    "md.comp.filled-card",
+    "md.comp.outlined-card"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.43a124d2adc8a2ef",
+   "pages": [
+    "components/carousel"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.carousel-item"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.484a63be03b01a17",
+   "pages": [
+    "components/chips"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.assist-chip",
+    "md.comp.filter-chip",
+    "md.comp.input-chip",
+    "md.comp.suggestion-chip"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.0b1e39a67d5bafdc",
+   "pages": [
+    "components/dialogs"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.dialog",
+    "md.comp.full-screen-dialog"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.77f7657eb270e53d",
+   "pages": [
+    "components/divider"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.divider"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.385a28e5d3bb3dd0",
+   "pages": [
+    "components/menus",
+    "components/menus"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.menu",
+    "md.comp.menus",
+    "md.comp.menus.vibrant",
+    "md.comp.menus.standard"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.52865380210a9b69",
+   "pages": [
+    "components/navigation-bar",
+    "components/navigation-bar"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.nav-bar.item.horizontal",
+    "md.comp.nav-bar.item.vertical",
+    "md.comp.nav-bar",
+    "md.comp.navigation-bar"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.376969f91547be8e",
+   "pages": [
+    "components/navigation-drawer"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.navigation-drawer"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.5b55bd7cc1ea6e29",
+   "pages": [
+    "components/navigation-rail",
+    "components/navigation-rail"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.nav-rail.item.horizontal",
+    "md.comp.nav-rail.item.vertical",
+    "md.comp.nav-rail.expanded",
+    "md.comp.nav-rail.collapsed",
+    "md.comp.nav-rail",
+    "md.comp.nav-rail.item",
+    "md.comp.navigation-rail"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.68895be451a51c31",
+   "pages": [
+    "components/loading-indicator"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.loading-indicator"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.6f51f7ab7775a392",
+   "pages": [
+    "components/progress-indicators",
+    "components/progress-indicators"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.progress-indicator",
+    "md.comp.progress-indicator.circular",
+    "md.comp.progress-indicator.linear",
+    "md.comp.linear-progress-indicator",
+    "md.comp.circular-progress-indicator"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.6acb269a58d5f93f",
+   "pages": [
+    "components/radio-button"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.radio-button"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.42f95ef205743188",
+   "pages": [
+    "components/scroll-fields"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.scroll-field"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.07341534518f78d0",
+   "pages": [
+    "components/search",
+    "components/app-bars"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.search-view",
+    "md.comp.search-bar"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.06c2c925cf96adca",
+   "pages": [
+    "components/side-sheets"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.sheet.side"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.0045edb815f2325e",
+   "pages": [
+    "components/sliders"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.slider",
+    "md.comp.slider.xsmall",
+    "md.comp.slider.small",
+    "md.comp.slider.medium",
+    "md.comp.slider.large",
+    "md.comp.slider.xlarge"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.33b1b2925d9ff561",
+   "pages": [
+    "components/switch"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.switch"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.60990dd98dea0998",
+   "pages": [
+    "components/text-fields"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.outlined-text-field",
+    "md.comp.filled-text-field",
+    "md.comp.outlined-select",
+    "md.comp.filled-select",
+    "md.comp.filled-autocomplete",
+    "md.comp.outlined-autocomplete"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.37697297db0555a6",
+   "pages": [
+    "components/tooltips"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.plain-tooltip",
+    "md.comp.rich-tooltip"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.3ec622835c7987b5",
+   "pages": [
+    "components/app-bars",
+    "components/app-bars"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.app-bar",
+    "md.comp.app-bar.medium",
+    "md.comp.app-bar.large",
+    "md.comp.app-bar.small",
+    "md.comp.app-bar.large-flexible",
+    "md.comp.app-bar.medium-flexible",
+    "md.comp.top-app-bar.small.centered",
+    "md.comp.top-app-bar.small",
+    "md.comp.top-app-bar.medium",
+    "md.comp.top-app-bar.large"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.6c818a16475113bd",
+   "pages": [
+    "components/lists",
+    "components/lists"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.list",
+    "md.comp.list.reveal",
+    "md.comp.list.reorder",
+    "md.comp.list.expand"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.59a1b3a9a90ca8b3",
+   "pages": [
+    "components/badges"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.badge"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.6039f0080a95df1e",
+   "pages": [
+    "components/tabs"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.secondary-navigation-tab",
+    "md.comp.primary-navigation-tab"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.31f16b44fe03b0c0",
+   "pages": [
+    "components/checkbox"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.checkbox"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.01c5310367774eb8",
+   "pages": [
+    "components/date-pickers"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.date-picker.docked",
+    "md.comp.date-picker.modal",
+    "md.comp.date-input.modal"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.39f4b152dd9bd292",
+   "pages": [
+    "components/time-pickers",
+    "components/time-pickers"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.time-pickers",
+    "md.comp.time-input",
+    "md.comp.time-picker"
+   ]
+  },
+  {
+   "module": "TOKEN_TABLE.346ae12a744b45dd",
+   "pages": [
+    "components/snackbar"
+   ],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.comp.snackbar"
+   ]
+  },
+  {
+   "module": "MOTION.20543ce18892f7d9",
+   "pages": [],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": []
+  },
+  {
+   "module": "SHAPE.20543ce18892f7d9",
+   "pages": [],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": []
+  },
+  {
+   "module": "OPACITY.20543ce18892f7d9",
+   "pages": [],
+   "revision": "2026-05-27T22:44:15.009106Z",
+   "tokenSets": [
+    "md.sys.glass"
+   ]
+  }
+ ],
+ "failedModules": [],
+ "failedPages": [],
+ "sets": {
+  "md.comp.app-bar": 19,
+  "md.comp.app-bar.large": 4,
+  "md.comp.app-bar.large-flexible": 4,
+  "md.comp.app-bar.medium": 4,
+  "md.comp.app-bar.medium-flexible": 4,
+  "md.comp.app-bar.small": 7,
+  "md.comp.assist-chip": 51,
+  "md.comp.badge": 13,
+  "md.comp.bottom-app-bar": 6,
+  "md.comp.button": 67,
+  "md.comp.button-group.connected.large": 6,
+  "md.comp.button-group.connected.medium": 6,
+  "md.comp.button-group.connected.small": 6,
+  "md.comp.button-group.connected.xlarge": 6,
+  "md.comp.button-group.connected.xsmall": 6,
+  "md.comp.button-group.standard.large": 5,
+  "md.comp.button-group.standard.medium": 5,
+  "md.comp.button-group.standard.small": 5,
+  "md.comp.button-group.standard.xlarge": 5,
+  "md.comp.button-group.standard.xsmall": 5,
+  "md.comp.button.elevated": 51,
+  "md.comp.button.filled": 51,
+  "md.comp.button.large": 14,
+  "md.comp.button.medium": 14,
+  "md.comp.button.outlined": 52,
+  "md.comp.button.small": 14,
+  "md.comp.button.text": 20,
+  "md.comp.button.tonal": 51,
+  "md.comp.button.xlarge": 14,
+  "md.comp.button.xsmall": 14,
+  "md.comp.carousel-item": 27,
+  "md.comp.checkbox": 81,
+  "md.comp.circular-progress-indicator": 8,
+  "md.comp.date-input.modal": 22,
+  "md.comp.date-picker.docked": 96,
+  "md.comp.date-picker.modal": 111,
+  "md.comp.dialog": 45,
+  "md.comp.divider": 2,
+  "md.comp.elevated-button": 40,
+  "md.comp.elevated-card": 25,
+  "md.comp.extended-fab": 7,
+  "md.comp.extended-fab.branded": 34,
+  "md.comp.extended-fab.large": 7,
+  "md.comp.extended-fab.medium": 7,
+  "md.comp.extended-fab.primary": 46,
+  "md.comp.extended-fab.primary-container": 20,
+  "md.comp.extended-fab.secondary": 46,
+  "md.comp.extended-fab.secondary-container": 20,
+  "md.comp.extended-fab.small": 7,
+  "md.comp.extended-fab.surface": 38,
+  "md.comp.extended-fab.tertiary": 46,
+  "md.comp.extended-fab.tertiary-container": 20,
+  "md.comp.fab": 4,
+  "md.comp.fab-menu": 15,
+  "md.comp.fab-menu.primary-container": 19,
+  "md.comp.fab-menu.primary.close-button": 15,
+  "md.comp.fab-menu.secondary-container": 19,
+  "md.comp.fab-menu.secondary.close-button": 15,
+  "md.comp.fab-menu.tertiary-container": 19,
+  "md.comp.fab-menu.tertiary.close-button": 15,
+  "md.comp.fab.branded": 25,
+  "md.comp.fab.branded.large": 26,
+  "md.comp.fab.large": 4,
+  "md.comp.fab.medium": 4,
+  "md.comp.fab.primary": 35,
+  "md.comp.fab.primary-container": 16,
+  "md.comp.fab.primary.large": 27,
+  "md.comp.fab.primary.small": 27,
+  "md.comp.fab.secondary": 35,
+  "md.comp.fab.secondary-container": 16,
+  "md.comp.fab.secondary.large": 27,
+  "md.comp.fab.secondary.small": 27,
+  "md.comp.fab.small": 4,
+  "md.comp.fab.surface": 29,
+  "md.comp.fab.surface.large": 29,
+  "md.comp.fab.tertiary": 35,
+  "md.comp.fab.tertiary-container": 16,
+  "md.comp.fab.tertiary.large": 27,
+  "md.comp.fab.tertiary.small": 27,
+  "md.comp.filled-autocomplete": 103,
+  "md.comp.filled-button": 44,
+  "md.comp.filled-card": 25,
+  "md.comp.filled-icon-button": 39,
+  "md.comp.filled-select": 107,
+  "md.comp.filled-text-field": 89,
+  "md.comp.filled-tonal-button": 39,
+  "md.comp.filled-tonal-icon-button": 39,
+  "md.comp.filter-chip": 107,
+  "md.comp.full-screen-dialog": 56,
+  "md.comp.icon-button": 67,
+  "md.comp.icon-button.filled": 31,
+  "md.comp.icon-button.large": 16,
+  "md.comp.icon-button.medium": 16,
+  "md.comp.icon-button.outlined": 33,
+  "md.comp.icon-button.small": 16,
+  "md.comp.icon-button.standard": 26,
+  "md.comp.icon-button.tonal": 31,
+  "md.comp.icon-button.xlarge": 16,
+  "md.comp.icon-button.xsmall": 16,
+  "md.comp.input-chip": 107,
+  "md.comp.linear-progress-indicator": 10,
+  "md.comp.list": 171,
+  "md.comp.list.expand": 8,
+  "md.comp.list.reorder": 12,
+  "md.comp.list.reveal": 15,
+  "md.comp.loading-indicator": 8,
+  "md.comp.menu": 49,
+  "md.comp.menus": 59,
+  "md.comp.menus.standard": 84,
+  "md.comp.menus.vibrant": 70,
+  "md.comp.nav-bar": 23,
+  "md.comp.nav-bar.item.horizontal": 5,
+  "md.comp.nav-bar.item.vertical": 5,
+  "md.comp.nav-rail": 14,
+  "md.comp.nav-rail.collapsed": 7,
+  "md.comp.nav-rail.expanded": 11,
+  "md.comp.nav-rail.item": 10,
+  "md.comp.nav-rail.item.horizontal": 5,
+  "md.comp.nav-rail.item.vertical": 6,
+  "md.comp.navigation-bar": 52,
+  "md.comp.navigation-drawer": 67,
+  "md.comp.navigation-rail": 71,
+  "md.comp.outlined-autocomplete": 101,
+  "md.comp.outlined-button": 38,
+  "md.comp.outlined-card": 31,
+  "md.comp.outlined-segmented-button": 46,
+  "md.comp.outlined-select": 105,
+  "md.comp.outlined-text-field": 84,
+  "md.comp.plain-tooltip": 16,
+  "md.comp.primary-navigation-tab": 48,
+  "md.comp.progress-indicator": 10,
+  "md.comp.progress-indicator.circular": 11,
+  "md.comp.progress-indicator.linear": 17,
+  "md.comp.radio-button": 26,
+  "md.comp.rich-tooltip": 35,
+  "md.comp.scroll-field": 28,
+  "md.comp.search-bar": 49,
+  "md.comp.search-view": 36,
+  "md.comp.secondary-navigation-tab": 35,
+  "md.comp.sheet.bottom": 13,
+  "md.comp.sheet.side": 31,
+  "md.comp.slider": 96,
+  "md.comp.slider.large": 7,
+  "md.comp.slider.medium": 7,
+  "md.comp.slider.small": 5,
+  "md.comp.slider.xlarge": 7,
+  "md.comp.slider.xsmall": 5,
+  "md.comp.snackbar": 40,
+  "md.comp.split-button.large": 12,
+  "md.comp.split-button.medium": 12,
+  "md.comp.split-button.small": 12,
+  "md.comp.split-button.xlarge": 12,
+  "md.comp.split-button.xsmall": 13,
+  "md.comp.suggestion-chip": 51,
+  "md.comp.switch": 78,
+  "md.comp.text-button": 31,
+  "md.comp.time-input": 75,
+  "md.comp.time-picker": 99,
+  "md.comp.time-pickers": 56,
+  "md.comp.toolbar.docked": 7,
+  "md.comp.toolbar.floating": 18,
+  "md.comp.toolbar.floating.fab": 15,
+  "md.comp.toolbar.standard": 33,
+  "md.comp.toolbar.vibrant": 33,
+  "md.comp.top-app-bar.large": 16,
+  "md.comp.top-app-bar.medium": 16,
+  "md.comp.top-app-bar.small": 19,
+  "md.comp.top-app-bar.small.centered": 21,
+  "md.fab.surface.small": 29,
+  "md.outlined-icon-button": 36,
+  "md.ref.palette": 239,
+  "md.ref.typeface": 28,
+  "md.sys.color": 50,
+  "md.sys.elevation": 7,
+  "md.sys.glass": 2,
+  "md.sys.measurement": 18,
+  "md.sys.motion": 3,
+  "md.sys.shape": 18,
+  "md.sys.state": 5,
+  "md.sys.state.focus-indicator": 3,
+  "md.sys.typescale": 228,
+  "md.sys.typescale.emphasized": 225,
+  "md.sys.typescale.variable": 195,
+  "md.sys.typescale.variable.emphasized": 195
+ },
+ "totalTokens": 6463,
+ "requests": 136,
+ "seconds": 165
+}

@@ -1,0 +1,12 @@
+{
+ "set": "md.comp.app-bar.large",
+ "displayName": "App bar - Size - Large (baseline)",
+ "description": "For the baseline large app bar. In expressive, consider using large flexible instead `md.comp.app-bar.large-flexible`.\n",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.app-bar.large.container.height","type":"LENGTH","group":null,"value":{"value":152,"unit":"dp"},"resolved":{"light":{"value":152,"unit":"dp"},"dark":{"value":152,"unit":"dp"}},"chain":["md.comp.app-bar.large.container.height"]},
+  {"token":"md.comp.app-bar.large.title.font","type":"TYPOGRAPHY","group":null,"value":{"ref":"md.sys.typescale.headline-medium"},"resolved":{"light":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":400,"fontSize":{"value":28,"unit":"POINTS"},"fontTracking":{"unit":"POINTS"},"lineHeight":{"value":36,"unit":"POINTS"}},"unit":"typography"},"dark":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":400,"fontSize":{"value":28,"unit":"POINTS"},"fontTracking":{"unit":"POINTS"},"lineHeight":{"value":36,"unit":"POINTS"}},"unit":"typography"}},"chain":["md.comp.app-bar.large.title.font","md.sys.typescale.headline-medium","md.sys.typescale.headline-medium.font","md.ref.typeface.brand"]},
+  {"token":"md.comp.app-bar.large.icon.size","type":"LENGTH","group":null,"value":{"value":24,"unit":"dp"},"resolved":{"light":{"value":24,"unit":"dp"},"dark":{"value":24,"unit":"dp"}},"chain":["md.comp.app-bar.large.icon.size"]},
+  {"token":"md.comp.app-bar.large.subtitle.font","type":"TYPOGRAPHY","group":null,"value":{"ref":"md.sys.typescale.title-medium"},"resolved":{"light":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":16,"unit":"POINTS"},"fontTracking":{"value":0.15,"unit":"POINTS"},"lineHeight":{"value":24,"unit":"POINTS"}},"unit":"typography"},"dark":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":16,"unit":"POINTS"},"fontTracking":{"value":0.15,"unit":"POINTS"},"lineHeight":{"value":24,"unit":"POINTS"}},"unit":"typography"}},"chain":["md.comp.app-bar.large.subtitle.font","md.sys.typescale.title-medium","md.sys.typescale.title-medium.font","md.ref.typeface.plain"]}
+ ]
+}

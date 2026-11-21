@@ -1,0 +1,16 @@
+{
+ "set": "md.comp.loading-indicator",
+ "displayName": "Loading indicator",
+ "description": "For loading indicators.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.loading-indicator.active-indicator.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.primary"},"resolved":{"light":{"value":"#6750A4","unit":"color"},"dark":{"value":"#D0BCFF","unit":"color"}},"chain":["md.comp.loading-indicator.active-indicator.color","md.sys.color.primary","md.ref.palette.primary40"]},
+  {"token":"md.comp.loading-indicator.container.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.secondary-container"},"resolved":{"light":{"value":"#E8DEF8","unit":"color"},"dark":{"value":"#4A4458","unit":"color"}},"chain":["md.comp.loading-indicator.container.color","md.sys.color.secondary-container","md.ref.palette.secondary90"]},
+  {"token":"md.comp.loading-indicator.contained.container.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.primary-container"},"resolved":{"light":{"value":"#EADDFF","unit":"color"},"dark":{"value":"#4F378B","unit":"color"}},"chain":["md.comp.loading-indicator.contained.container.color","md.sys.color.primary-container","md.ref.palette.primary90"]},
+  {"token":"md.comp.loading-indicator.contained.active-indicator.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.on-primary-container"},"resolved":{"light":{"value":"#4F378B","unit":"color"},"dark":{"value":"#EADDFF","unit":"color"}},"chain":["md.comp.loading-indicator.contained.active-indicator.color","md.sys.color.on-primary-container","md.ref.palette.primary30"]},
+  {"token":"md.comp.loading-indicator.active-indicator.size","type":"LENGTH","group":"Size","value":{"value":38,"unit":"dp"},"resolved":{"light":{"value":38,"unit":"dp"},"dark":{"value":38,"unit":"dp"}},"chain":["md.comp.loading-indicator.active-indicator.size"]},
+  {"token":"md.comp.loading-indicator.container.height","type":"LENGTH","group":"Size","value":{"value":48,"unit":"dp"},"resolved":{"light":{"value":48,"unit":"dp"},"dark":{"value":48,"unit":"dp"}},"chain":["md.comp.loading-indicator.container.height"]},
+  {"token":"md.comp.loading-indicator.container.width","type":"LENGTH","group":"Size","value":{"value":48,"unit":"dp"},"resolved":{"light":{"value":48,"unit":"dp"},"dark":{"value":48,"unit":"dp"}},"chain":["md.comp.loading-indicator.container.width"]},
+  {"token":"md.comp.loading-indicator.container.shape","type":"SHAPE","group":"Shape","value":{"ref":"md.sys.shape.corner.full"},"resolved":{"light":{"value":"circular","unit":null,"shape":"circular"},"dark":{"value":"circular","unit":null,"shape":"circular"}},"chain":["md.comp.loading-indicator.container.shape","md.sys.shape.corner.full"]}
+ ]
+}

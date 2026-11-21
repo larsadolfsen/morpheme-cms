@@ -1,0 +1,26 @@
+{
+ "set": "md.sys.measurement",
+ "displayName": "Spacing",
+ "description": "For common spacing units that can be applied to components and layouts.",
+ "tokenClass": "SYSTEM",
+ "tokens": [
+  {"token":"md.sys.measurement.space0","type":"LENGTH","group":null,"value":{"value":0,"unit":"dp"},"resolved":{"light":{"value":0,"unit":"dp"},"dark":{"value":0,"unit":"dp"}},"chain":["md.sys.measurement.space0"]},
+  {"token":"md.sys.measurement.space25","type":"LENGTH","group":null,"value":{"value":2,"unit":"dp"},"resolved":{"light":{"value":2,"unit":"dp"},"dark":{"value":2,"unit":"dp"}},"chain":["md.sys.measurement.space25"]},
+  {"token":"md.sys.measurement.space50","type":"LENGTH","group":null,"value":{"value":4,"unit":"dp"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.sys.measurement.space50"]},
+  {"token":"md.sys.measurement.space75","type":"LENGTH","group":null,"value":{"value":6,"unit":"dp"},"resolved":{"light":{"value":6,"unit":"dp"},"dark":{"value":6,"unit":"dp"}},"chain":["md.sys.measurement.space75"]},
+  {"token":"md.sys.measurement.space100","type":"LENGTH","group":null,"value":{"value":8,"unit":"dp"},"resolved":{"light":{"value":8,"unit":"dp"},"dark":{"value":8,"unit":"dp"}},"chain":["md.sys.measurement.space100"]},
+  {"token":"md.sys.measurement.space125","type":"LENGTH","group":null,"value":{"value":10,"unit":"dp"},"resolved":{"light":{"value":10,"unit":"dp"},"dark":{"value":10,"unit":"dp"}},"chain":["md.sys.measurement.space125"]},
+  {"token":"md.sys.measurement.space150","type":"LENGTH","group":null,"value":{"value":12,"unit":"dp"},"resolved":{"light":{"value":12,"unit":"dp"},"dark":{"value":12,"unit":"dp"}},"chain":["md.sys.measurement.space150"]},
+  {"token":"md.sys.measurement.space175","type":"LENGTH","group":null,"value":{"value":14,"unit":"dp"},"resolved":{"light":{"value":14,"unit":"dp"},"dark":{"value":14,"unit":"dp"}},"chain":["md.sys.measurement.space175"]},
+  {"token":"md.sys.measurement.space200","type":"LENGTH","group":null,"value":{"value":16,"unit":"dp"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.sys.measurement.space200"]},
+  {"token":"md.sys.measurement.space250","type":"LENGTH","group":null,"value":{"value":20,"unit":"dp"},"resolved":{"light":{"value":20,"unit":"dp"},"dark":{"value":20,"unit":"dp"}},"chain":["md.sys.measurement.space250"]},
+  {"token":"md.sys.measurement.space300","type":"LENGTH","group":null,"value":{"value":24,"unit":"dp"},"resolved":{"light":{"value":24,"unit":"dp"},"dark":{"value":24,"unit":"dp"}},"chain":["md.sys.measurement.space300"]},
+  {"token":"md.sys.measurement.space400","type":"LENGTH","group":null,"value":{"value":32,"unit":"dp"},"resolved":{"light":{"value":32,"unit":"dp"},"dark":{"value":32,"unit":"dp"}},"chain":["md.sys.measurement.space400"]},
+  {"token":"md.sys.measurement.space450","type":"LENGTH","group":null,"value":{"value":36,"unit":"dp"},"resolved":{"light":{"value":36,"unit":"dp"},"dark":{"value":36,"unit":"dp"}},"chain":["md.sys.measurement.space450"]},
+  {"token":"md.sys.measurement.space500","type":"LENGTH","group":null,"value":{"value":40,"unit":"dp"},"resolved":{"light":{"value":40,"unit":"dp"},"dark":{"value":40,"unit":"dp"}},"chain":["md.sys.measurement.space500"]},
+  {"token":"md.sys.measurement.space600","type":"LENGTH","group":null,"value":{"value":48,"unit":"dp"},"resolved":{"light":{"value":48,"unit":"dp"},"dark":{"value":48,"unit":"dp"}},"chain":["md.sys.measurement.space600"]},
+  {"token":"md.sys.measurement.space700","type":"LENGTH","group":null,"value":{"value":56,"unit":"dp"},"resolved":{"light":{"value":56,"unit":"dp"},"dark":{"value":56,"unit":"dp"}},"chain":["md.sys.measurement.space700"]},
+  {"token":"md.sys.measurement.space800","type":"LENGTH","group":null,"value":{"value":64,"unit":"dp"},"resolved":{"light":{"value":64,"unit":"dp"},"dark":{"value":64,"unit":"dp"}},"chain":["md.sys.measurement.space800"]},
+  {"token":"md.sys.measurement.space900","type":"LENGTH","group":null,"value":{"value":72,"unit":"dp"},"resolved":{"light":{"value":72,"unit":"dp"},"dark":{"value":72,"unit":"dp"}},"chain":["md.sys.measurement.space900"]}
+ ]
+}

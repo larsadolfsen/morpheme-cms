@@ -1,0 +1,19 @@
+{
+ "set": "md.comp.progress-indicator.circular",
+ "displayName": "Progress indicator - Circular",
+ "description": "For circular progress indicators.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.progress-indicator.circular.size","type":"LENGTH","group":"Circular - baseline","value":{"value":40,"unit":"dp"},"resolved":{"light":{"value":40,"unit":"dp"},"dark":{"value":40,"unit":"dp"}},"chain":["md.comp.progress-indicator.circular.size"]},
+  {"token":"md.comp.progress-indicator.circular.with-wave.size","type":"LENGTH","group":"Circular - baseline","value":{"value":48,"unit":"dp"},"resolved":{"light":{"value":48,"unit":"dp"},"dark":{"value":48,"unit":"dp"}},"chain":["md.comp.progress-indicator.circular.with-wave.size"]},
+  {"token":"md.comp.progress-indicator.circular.active-indicator.thickness","type":"LENGTH","group":"Circular - baseline","value":{"value":4,"unit":"dp"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.progress-indicator.circular.active-indicator.thickness"]},
+  {"token":"md.comp.progress-indicator.circular.track.thickness","type":"LENGTH","group":"Circular - baseline","value":{"value":4,"unit":"dp"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.progress-indicator.circular.track.thickness"]},
+  {"token":"md.comp.progress-indicator.circular.track-active-indicator-space","type":"LENGTH","group":"Circular - baseline","value":{"ref":"md.sys.measurement.space50"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.progress-indicator.circular.track-active-indicator-space","md.sys.measurement.space50"]},
+  {"token":"md.comp.progress-indicator.circular.active-indicator.wave.amplitude","type":"LENGTH","group":"Circular - baseline","value":{"value":1.6,"unit":"dp"},"resolved":{"light":{"value":1.6,"unit":"dp"},"dark":{"value":1.6,"unit":"dp"}},"chain":["md.comp.progress-indicator.circular.active-indicator.wave.amplitude"]},
+  {"token":"md.comp.progress-indicator.circular.active-indicator.wave.wavelength","type":"LENGTH","group":"Circular - baseline","value":{"value":15,"unit":"dp"},"resolved":{"light":{"value":15,"unit":"dp"},"dark":{"value":15,"unit":"dp"}},"chain":["md.comp.progress-indicator.circular.active-indicator.wave.wavelength"]},
+  {"token":"md.comp.progress-indicator.circular.thick.size","type":"LENGTH","group":"[Deprecated] Circular - thick","value":{"value":52,"unit":"dp"},"resolved":{"light":{"value":52,"unit":"dp"},"dark":{"value":52,"unit":"dp"}},"chain":["md.comp.progress-indicator.circular.thick.size"]},
+  {"token":"md.comp.progress-indicator.circular.thick.active-indicator.thickness","type":"LENGTH","group":"[Deprecated] Circular - thick","value":{"value":8,"unit":"dp"},"resolved":{"light":{"value":8,"unit":"dp"},"dark":{"value":8,"unit":"dp"}},"chain":["md.comp.progress-indicator.circular.thick.active-indicator.thickness"]},
+  {"token":"md.comp.progress-indicator.circular.thick.track.thickness","type":"LENGTH","group":"[Deprecated] Circular - thick","value":{"value":8,"unit":"dp"},"resolved":{"light":{"value":8,"unit":"dp"},"dark":{"value":8,"unit":"dp"}},"chain":["md.comp.progress-indicator.circular.thick.track.thickness"]},
+  {"token":"md.comp.progress-indicator.circular.thick.track-active-indicator-space","type":"LENGTH","group":"[Deprecated] Circular - thick","value":{"value":4,"unit":"dp"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.progress-indicator.circular.thick.track-active-indicator-space"]}
+ ]
+}
