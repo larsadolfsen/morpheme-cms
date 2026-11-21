@@ -16,6 +16,7 @@
 // field). Exposes Search, SearchBar, SearchBarButton, SearchGroupLabel, SearchView, searchClass.
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Svg, type IconRef } from '@morphemecms/cms/src/icon';
+import { useOnSite } from '@morphemecms/cms/src/standard/view';
 import IconButton from '@theme/ui/IconButton';
 import List, { ListItem } from '@theme/ui/List';
 import Chip from '@theme/ui/Chip';
@@ -54,6 +55,9 @@ export default function Search({
   const id = useId();
   const view = `${id}-view`;
   const list = `${id}-results`;
+  // A listbox holds options: in the editor a result is drawn without its role (Link), and an empty list has none.
+  const onSite = useOnSite();
+  const listbox = results.length > 0 && onSite;
   return (
     <div className={[searchClass, className].filter(Boolean).join(' ')} data-search="" {...rest}>
       {!open && (
@@ -93,7 +97,7 @@ export default function Search({
           />
           <IconButton icon="x" label={clearLabel} className="mo-search-view__clear" data-search-clear="" />
         </div>
-        <List id={list} role="listbox" aria-label={label} className="mo-search-view__results">
+        <List id={list} role={listbox ? 'listbox' : undefined} aria-label={label} className="mo-search-view__results">
           {results.map((r, i) => (
             <ListItem
               key={i}
@@ -101,10 +105,10 @@ export default function Search({
               leading={r.icon ? <Svg name={r.icon} size={24} /> : undefined}
               headline={r.headline}
               supporting={r.supporting}
-              presentation
-              role="option"
+              presentation={listbox}
+              role={listbox ? 'option' : undefined}
               id={`${list}-${i}`}
-              aria-selected="false"
+              aria-selected={listbox ? 'false' : undefined}
               data-search-option=""
             />
           ))}
@@ -416,8 +420,9 @@ export function SearchView({
           )}
           <div
             id={list}
-            role="listbox"
-            aria-label={label}
+            // An empty list is no listbox (a listbox needs options; axe: aria-required-children).
+            role={flat.length ? 'listbox' : undefined}
+            aria-label={flat.length ? label : undefined}
             className="mo-search-view__results"
             hidden={!flat.length}
             // A tap on an option keeps the focus in the field.

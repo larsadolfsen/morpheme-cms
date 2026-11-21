@@ -450,6 +450,26 @@
       rotate var(--mo-sys-motion-spring-default-spatial),
       background-color var(--mo-sys-motion-spring-default-effects);
   }
+  /* The caret as a button of its own (ListItem `expandToggle`: an item whose headline holds fields): the same container, with the button's own look taken off. */
+  .mo-list__item-expand-button {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    position: relative;
+  }
+  /* The target is as high as the item's head and 48 dp wide, as the summary's was, not only the caret's container. */
+  .mo-list__item-expand-button::before {
+    content: '';
+    position: absolute;
+    inset-block: -1rem;
+    inset-inline: -0.25rem;
+  }
+  .mo-list__item-expand-button:focus-visible {
+    outline: 3px solid var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-color-primary));
+  }
   .mo-list__item-expand-icon > svg {
     width: var(--mo-comp-list-item-icon-size, 1.25rem);
     height: var(--mo-comp-list-item-icon-size, 1.25rem);
@@ -481,7 +501,7 @@
     padding: 0 var(--mo-comp-list-expand-padding-inline, 1rem)
       var(--mo-comp-list-expand-body-padding-bottom, var(--mo-comp-list-expand-padding-block, 0.875rem));
   }
-  /* Opening and closing glide where the browser can animate ::details-content (else accordion/script.ts does it); none with reduced motion. */
+  /* Opening and closing glide where the browser can animate ::details-content (else expand/script.ts does it); none with reduced motion. */
   @media (prefers-reduced-motion: no-preference) {
     .mo-list__expand {
       interpolate-size: allow-keywords;

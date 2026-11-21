@@ -2,7 +2,7 @@
 // rows on the page, or each on its own surface: `segmented`); with `Max rows` the rows after the first ones behind a button `Show more` (MoreRows.tsx);
 // and its text button under the last row.
 import BlockHead from '@theme/blocks/BlockHead';
-import Accordion from '@theme/blocks/accordion/Accordion';
+import Accordion from '@theme/blocks/expand/Accordion';
 import ListButton from '@theme/blocks/ListButton';
 import MoreRows from '@theme/blocks/MoreRows';
 import type { ExpandView } from '@morphemecms/cms/src/standard/expand/view';

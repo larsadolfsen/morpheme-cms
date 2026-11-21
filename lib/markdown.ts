@@ -11,6 +11,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeStringify from 'rehype-stringify';
 import { rehypeEmphasize } from './rehype-emphasize.mjs';
 import { rehypeAlign } from './text-align.mjs';
+import { rehypeChecklistNames } from './rehype-checklist-names.mjs';
 import { remarkChecklists } from './remark-checklist.mjs';
 import { remarkListHeads } from './remark-list-head.mjs';
 import { remarkBlockLabels } from './remark-block-label.mjs';
@@ -26,6 +27,7 @@ export const processor = unified()
   .use(remarkRehype, { allowDangerousHtml: true })
   .use(rehypeRaw)
   .use(rehypeEmphasize)
+  .use(rehypeChecklistNames)
   .use(rehypeAlign)
   .use(rehypeStringify, { allowDangerousHtml: true });
 

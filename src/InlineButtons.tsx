@@ -41,6 +41,7 @@ export default function InlineButtons({ items, data, active, focus, onChange, on
           <span
             key={i}
             data-row={i}
+            role="group"
             aria-current={here ? 'true' : undefined}
             aria-label={next ? t.blocks.buttons.newButton : t.blocks.buttons.buttonOf(i + 1, items.length)}
             className={[

@@ -21,11 +21,11 @@
 @import './tokens/blocks/registry.css';
 @import './tokens/blocks/sys.css';
 /* The blocks, one file for each block or family of blocks (blocks.css, the one file they were, is gone: docs/theme-css-split.md), in the order their
-   rules had in it: the text sections and what the text of a page shares first, then Steps, Accordion, Buttons and links, Testimonial, the Image grid,
+   rules had in it: the text sections and what the text of a page shares first, then Steps, List - Expand, Buttons and links, Testimonial, the Image grid,
    Panel, Person (with Icon list, Facts, Table and Badge), Link row, Call to action and Prices, Checklist, and the fallback layer (prose …). */
 @import './blocks/text-section.css';
 @import './blocks/steps.css';
-@import './blocks/accordion.css';
+@import './blocks/expand.css';
 @import './blocks/buttons-links.css';
 @import './blocks/testimonial.css';
 @import './blocks/row.css';

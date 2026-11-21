@@ -14,7 +14,6 @@ import { withRows } from '../rows/rows.mjs';
 import { headOf, type HeadView } from '../head';
 import { columnsOf, type ColumnsView } from '../columns';
 import { leadingOf, listSettings, type ListRow, type ListRowProps, type ListView } from '../list/view';
-import type { PageRowView } from '../accordion/view';
 import { shownAt } from '../../images';
 import { libraryAltPart } from '../../imageAlt.mjs';
 import { iconColorOf } from '../../iconColor';
@@ -34,7 +33,10 @@ export type FoldRow = {
   buttons?: { label: string; href: string }[];
 };
 
-/** A row of the folding list the theme draws (theme/blocks/accordion/Accordion.tsx): a row with its text as HTML, or a page's row ("Accordion", PageRow). */
+/** A row of a page: its name, its text, its page, the link's text and links to more pages (theme/blocks/expand/PageRow.tsx). */
+export type PageRowView = { label: string; text: string; href: string; link: string; more?: { label: string; href: string }[] };
+
+/** A row of the folding list the theme draws (theme/blocks/expand/Accordion.tsx): a row with its text as HTML, or a page's row (PageRow, a site's own). */
 export type AccordionRow = FoldRow | { label: string; page: PageRowView };
 
 export type ExpandView = HeadView &
@@ -109,5 +111,5 @@ export const viewOf: ViewOf<ExpandView> = (props, data) => {
     }),
     markdownNow,
   );
-  return { ...view, rows: view.rows.map((r) => (!r.html && r.href ? { ...r, html: `<p>${siteT.blocks.accordion.opening}</p>` } : r)) };
+  return { ...view, rows: view.rows.map((r) => (!r.html && r.href ? { ...r, html: `<p>${siteT.blocks.expand.opening}</p>` } : r)) };
 };

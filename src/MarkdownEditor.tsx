@@ -558,7 +558,7 @@ function blockSelectable(view: EditorView, dom: HTMLElement, card: HTMLElement, 
     const now = blockSelection.places();
     blockSelection.set(range(now.length ? now : [here], blocks, here, next));
     lastPicked = next;
-    partDOM(view, next)?.querySelector<HTMLElement>('.mo-site-block-card')?.focus();
+    partDOM(view, next)?.querySelector<HTMLElement>('.mo-site-block-card-button, .mo-site-block-card')?.focus();
   });
   card.addEventListener('keyup', (e) => e.key === ' ' && e.target === card && e.preventDefault());
   // A touch or a pen held still on the card, not on text typed in it.
@@ -614,7 +614,7 @@ const blockSelecting = $prose(
           view.setProps({});
           // The text lets go of the keyboard (a phone's stays shut), but a focused card keeps it: Space, Shift+Arrow and Escape work from it.
           const active = document.activeElement as HTMLElement | null;
-          if (blockSelection.places().length && !active?.matches('.mo-site-block-card')) active?.blur?.();
+          if (blockSelection.places().length && !active?.matches('.mo-site-block-card, .mo-site-block-card-button')) active?.blur?.();
         });
         return {
           update: (next) => {
@@ -1064,7 +1064,9 @@ function liveLink(
     target: () => {
       const now = here();
       const dom = now && view.nodeDOM(now.pos);
-      return dom instanceof HTMLElement ? (dom.querySelector<HTMLElement>('.mo-site-block-card') ?? null) : null;
+      return dom instanceof HTMLElement
+        ? (dom.querySelector<HTMLElement>('.mo-site-block-card-button, .mo-site-block-card') ?? null)
+        : null;
     },
   };
 }
@@ -1566,29 +1568,40 @@ function blockCard(
   const dom = document.createElement('div');
   dom.className = hidden || over ? 'mo-site-block mo-site-block-hidden' : 'mo-site-block';
   dom.contentEditable = 'false';
-  const card = dom.appendChild(document.createElement(inline ? 'div' : 'button'));
-  if (card instanceof HTMLButtonElement) card.type = 'button';
-  else card.setAttribute('role', 'group');
-  card.className = inline ? 'mo-site-block-card mo-site-block-inline' : 'mo-site-block-card';
+  // The frame is the dotted outline with the block's preview in it. A block typed in place is its own group, named by the block. Any other block's
+  // preview is only drawn (`aria-hidden`, `inert`) and its card, the button to tap, lies over it and holds no text, so nothing the button shows
+  // can differ from its name (WCAG 2.5.3, axe `label-content-name-mismatch`: a table's text in the button could never be in its name).
+  const frame = dom.appendChild(document.createElement('div'));
+  frame.className = inline ? 'mo-site-block-card mo-site-block-inline' : 'mo-site-block-card';
+  const card = inline ? frame : document.createElement('button');
+  if (card instanceof HTMLButtonElement) {
+    card.type = 'button';
+    card.className = 'mo-site-block-card-button';
+  } else card.setAttribute('role', 'group');
   const name = block?.nameOf?.(node.attrs.props) ?? block?.label ?? node.attrs.type;
   card.setAttribute('aria-label', name);
   // An eye struck through in the corner of a hidden block (for screen readers it says so in the description). A block typed in place stays the same
   // node view when it is hidden or shown, so its action row (blockRow.ts) stays open and says Show or Hide.
   const paintHidden = () => {
     dom.classList.toggle('mo-site-block-hidden', hidden || over);
-    card.querySelector(':scope > .mo-site-block-hidden-badge')?.remove();
+    frame.querySelector(':scope > .mo-site-block-hidden-badge')?.remove();
     if (!hidden) return;
-    const badge = card.insertBefore(document.createElement('span'), card.firstChild);
+    const badge = frame.insertBefore(document.createElement('span'), frame.firstChild);
     badge.className = 'mo-site-block-hidden-badge';
     badge.innerHTML = eyeSlashIcon.replace('<svg', '<svg width="18" height="18" fill="currentColor" aria-hidden="true"');
   };
   paintHidden();
-  const shown = card.appendChild(document.createElement('div'));
+  const shown = frame.appendChild(document.createElement('div'));
   shown.className = ask?.data.page
     ? 'mo-site-block-preview mo-site-block-section mo-is-not-prose'
     : 'mo-site-block-preview mo-is-not-prose';
   // What is typed in place is for screen readers too; the image of any other block is not.
-  if (!inline) shown.setAttribute('aria-hidden', 'true');
+  // `inert` as well, so nothing inside it takes focus (WCAG 4.1.2, axe `aria-hidden-focus`).
+  if (!inline) {
+    shown.setAttribute('aria-hidden', 'true');
+    shown.inert = true;
+    frame.appendChild(card);
+  }
   const root = createRoot(shown);
   // Typed in place: which row is active (null: none, the block shows its live look), and the field to put the cursor in.
   let active: number | null = null;
@@ -2507,7 +2520,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           },
         }),
     );
+    // The text area has a name for screen readers (WCAG 4.1.2, axe `aria-input-field-name`).
+    const naming = $prose(() => new Plugin({ props: { attributes: { 'aria-label': t.text.textField } } }));
     let made = makeEditor(root.current, value)
+      .use(naming)
       .use(cardView)
       .use(imageView)
       .use(cardDeletes)

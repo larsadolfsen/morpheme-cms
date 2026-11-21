@@ -4,7 +4,7 @@
 :is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-  /* Cards (ui.css): 12px corners; outlined on the surface with the outline variant, elevated on a low container with
+  /* Cards (ui.css): 12px corners; outlined on the surface with the outline (docs/material-deviations.md, Outlines), elevated on a low container with
      the first elevation, filled on the highest container. */
   --mo-comp-card-radius: var(--mo-sys-shape-corner-medium);
   /* An elevated card is elevated all the time (owner, 16 Nov 2026; m3.material.io/components/cards/guidelines: "Elevated cards have a drop shadow"): level 1 at
@@ -22,7 +22,7 @@
   --mo-comp-card-action-gap: 1rem;
   --mo-comp-filled-card-container-color: var(--mo-sys-color-surface-container-highest);
   --mo-comp-outlined-card-container-color: var(--mo-sys-color-surface);
-  --mo-comp-outlined-card-outline-color: var(--mo-sys-color-outline-variant);
+  --mo-comp-outlined-card-outline-color: var(--mo-sys-color-outline);
 }
 @layer components {
   .mo-block-notice {

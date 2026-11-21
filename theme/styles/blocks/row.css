@@ -1,6 +1,6 @@
 /*
   The Image grid block's own rules: its filter, count, clear button and empty text (.mo-block-imagegrid__*). The row's text and links
-  (.mo-block-accordion__row-text, .mo-block-accordion__row-links) are in accordion.css. Moved here from blocks.css with their rules
+  (.mo-block-accordion__row-text, .mo-block-accordion__row-links) are in expand.css. Moved here from blocks.css with their rules
   unchanged and in the order they had (docs/superpowers/plans/2026-11-16-css-split.md). Imported by base.css right after blocks.css,
   in the same layer (components). Collision check: the only equal-specificity rule left behind in blocks.css after these is
   `.mo-block-accordion__row-text` in the medium-width @media (the CTA and prices run), which sets the same four type values the plain rule here sets,

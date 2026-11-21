@@ -88,6 +88,10 @@ export const RULES = [
     'none',
   ],
   [/^scripts\/(phosphor|web)-allowlist\.json$/, 'none'],
+  // The accessibility scan: the editor's part runs in the units `screens 390` and `screens 1280` (start-screens.mjs), which read the shared
+  // module and the list; the site's part (check-a11y.mjs) is its own command, in the job `demo`.
+  [/^scripts\/(a11y\.mjs|a11y-allowlist\.json)$/, ['start-screens']],
+  [/^scripts\/check-a11y\.mjs$/, 'none'],
   // The version rule (job `static`) and the release version step: read changesets, package.json and CHANGELOG.md only.
   [/^scripts\/(version-rule\.mjs|release-version\.mjs)$/, 'none'],
   // The token checks of `npm run check` and their lists (only check-css-tokens.mjs and check-token-names.mjs read them), and the checks

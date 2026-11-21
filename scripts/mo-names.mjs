@@ -47,7 +47,15 @@ export const isOwnClass = (name) => /^-?[_a-zA-Z][\w-]*$/.test(name) && !name.st
 export const cssOf = (file, text) =>
   /\.css$/.test(file) ? text : [...text.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/gi)].map((m) => m[1]).join('\n');
 /** The code of a file without its <style> elements, so a selector in a stylesheet is never counted as one in a string. */
-const codeOf = (file, text) => (/\.css$/.test(file) ? '' : text.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ''));
+const codeOf = (file, text) => {
+  if (/\.css$/.test(file)) return '';
+  let out = text;
+  for (let before = ''; before !== out;) {
+    before = out;
+    out = out.replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '');
+  }
+  return out;
+};
 
 /** The old class names of the rename (M1's map, 18 Nov 2026): none of them may be written again, as a class, a selector or a classList name. */
 export const RENAMED = JSON.parse(readFileSync(new URL('renamed-classes.json', import.meta.url), 'utf8'));

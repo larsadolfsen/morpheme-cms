@@ -12,7 +12,7 @@
 // component gives its elements the classes with tabsClass, tabsClasses and tabClass.
 import type { ReactNode } from 'react';
 import { Glyph, type IconRef } from '@morphemecms/cms/src/icon';
-import { Link } from '@morphemecms/cms/src/standard/view';
+import { Link, useOnSite } from '@morphemecms/cms/src/standard/view';
 import Badge from '@theme/ui/Badge';
 
 export type TabsKind = 'primary' | 'secondary';
@@ -45,11 +45,15 @@ export function Tabs({
   className?: string;
   children: ReactNode;
 } & Record<string, unknown>) {
+  // In the editor a link tab is only drawn (Link: a span), so a row that scrolls has nothing in it to focus: the row itself is the
+  // tab stop that lets the keyboard scroll it (WCAG 2.1.1), named with `aria-label`. Tab buttons and the site's links are focusable.
+  const onSite = useOnSite();
   return (
     <ul
       className={[tabsClasses(kind, scrollable, inline), className].filter(Boolean).join(' ')}
       role={label ? 'tablist' : undefined}
       aria-label={label}
+      tabIndex={!onSite && scrollable && !label ? 0 : undefined}
       {...rest}
     >
       {children}

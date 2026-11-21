@@ -587,7 +587,8 @@ async function checkLiveSideSheet(width = 1280) {
     problems.push(`${label}: Insert did not open the block's side sheet`);
     return void (await page.close());
   }
-  const card = page.locator('.ProseMirror .mo-site-block-card').first();
+  // The block's button (it holds the name and the description; the frame around it and its preview holds none).
+  const card = page.locator('.ProseMirror .mo-site-block-card-button').first();
   if (!(await card.count())) problems.push(`${label}: the new block is not in the page while its sheet is open (no Insert step)`);
   const buttons = await sheet.locator('button').evaluateAll((els) => els.map((b) => b.textContent.trim()).filter(Boolean));
   const extra = buttons.filter((b) => ['Save', 'Insert', 'Cancel', 'Remove'].includes(b));
@@ -1479,7 +1480,7 @@ async function checkBlockSettingsPane(width) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#block-settings'));
-  const row = page.getByRole('button', { name: /^Accordion/ }).first();
+  const row = page.getByRole('button', { name: /^Buttons/ }).first();
   await row.waitFor({ timeout: 10_000 });
   await row.click();
   await page.waitForTimeout(500);
@@ -1487,7 +1488,7 @@ async function checkBlockSettingsPane(width) {
     const aside = document.querySelector('aside.mo-side-sheet__container:not([hidden])');
     const box = aside?.getBoundingClientRect();
     const first = [...document.querySelectorAll('main button, main [role=button]')]
-      .find((b) => /^Accordion/.test(b.textContent.trim()))
+      .find((b) => /^Buttons/.test(b.textContent.trim()))
       ?.getBoundingClientRect();
     return {
       aside: !!aside,

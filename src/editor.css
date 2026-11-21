@@ -877,7 +877,6 @@ body {
 
 html {
   -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
 }
 
 /* A block of the site in the text (Book an appointment, Testimonials …; MarkdownEditor.tsx): the block as it
@@ -916,8 +915,33 @@ html {
 }
 
 .mo-editor-text .mo-site-block-card:hover,
-.mo-editor-text .mo-site-block-card[aria-pressed='true'] {
+.mo-editor-text .mo-site-block-card[aria-pressed='true'],
+.mo-editor-text .mo-site-block-card:has(> .mo-site-block-card-button[aria-pressed='true']) {
   border-color: var(--mo-sys-color-primary);
+}
+
+/* The button of a block that is not typed in place lies over its frame and its preview, which only draws the block (MarkdownEditor.tsx blockCard): it holds no
+   text, takes the taps, and shows nothing of its own; the frame draws the hover, the selection and the focus. The action row lies over it. */
+.mo-editor-text .mo-site-block-card-button {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: inherit;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.mo-editor-text .mo-site-block-card-button:focus-visible {
+  outline: none;
+}
+
+.mo-editor-text .mo-site-block-row:not(.mo-site-block-row-hover) {
+  position: relative;
+  z-index: 1;
 }
 
 .mo-editor-text .mo-site-block-handle {
@@ -1122,7 +1146,8 @@ html {
 
 /* A block in focus shows it with its own outline: a 2 px line in the focus colour, the primary role (a section on a colour swaps it to its
    on-colour). */
-.mo-editor-text .mo-site-block-card:focus-visible {
+.mo-editor-text .mo-site-block-card:focus-visible,
+.mo-editor-text .mo-site-block-card:has(> .mo-site-block-card-button:focus-visible) {
   outline: 2px dotted var(--mo-sys-color-primary);
   outline-offset: 2px;
 }
@@ -1226,6 +1251,8 @@ html {
   resize: none;
   overflow: hidden;
   field-sizing: content;
+  /* WCAG 2.5.8 (target size, minimum): a field is at least 24 px high, also for one line of small text. */
+  min-block-size: 1.5rem;
   user-select: text;
 }
 
@@ -1312,10 +1339,16 @@ html {
   color: var(--mo-sys-color-on-secondary-container);
   font-size: var(--mo-sys-typescale-body-small-size);
 }
-/* A card's media that is set: a button over it, a tap changes it (Cards, InlineCards.tsx). */
+/* A card's media that is set: the media, and a button laid over it (its sibling, as a control may not hold another); a tap changes it (Cards, InlineCards.tsx). */
+.mo-editor-text .mo-editor-inline-card-media-box {
+  position: relative;
+}
 .mo-editor-text .mo-editor-inline-card-media {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
+  height: 100%;
   border: 0;
   padding: 0;
   background: none;
@@ -2050,4 +2083,21 @@ dialog {
 }
 .mo-editor-shortcuts-dialog:focus {
   outline: none;
+}
+
+/* Zoomed in by a pinch (:root[data-zoomed], visualViewportBars.ts): the bars follow the visual viewport instead of the layout viewport, so
+   they do not leave the screen. The Save bar sits at the visual viewport's bottom and, on a phone, is drawn at the size it has when not zoomed, over the whole
+   visible width (counter-scaled from its bottom left corner; `translate` and `scale` are applied outside `transform`, so its rise animation is untouched).
+   The text toolbar sticks below the visual viewport's top edge. Not zoomed, none of this applies. */
+:root[data-zoomed] .mo-editor-save-bar {
+  translate: var(--mo-comp-editor-visual-left, 0px) calc(-1 * var(--mo-comp-editor-visual-bottom, 0px));
+}
+@media (width < 37.5rem) {
+  :root[data-zoomed] .mo-editor-save-bar {
+    scale: var(--mo-comp-editor-visual-scale, 1);
+    transform-origin: left bottom;
+  }
+}
+:root[data-zoomed] .mo-editor-tools-bar {
+  inset-block-start: calc(env(safe-area-inset-top) + var(--mo-comp-editor-visual-top, 0px));
 }

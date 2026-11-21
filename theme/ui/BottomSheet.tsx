@@ -220,6 +220,8 @@ export default function BottomSheet({
   const generatedId = useId();
   const titleId = headlineId ?? generatedId;
   const Container = standard ? 'section' : 'div';
+  // A region needs a name; a modal sheet without a headline or label is named by its <dialog>.
+  const named = headline !== undefined || !!label;
   return (
     <Container
       ref={sheet}
@@ -249,7 +251,16 @@ export default function BottomSheet({
         standard={standard}
       />
       {standard && peek && <div className="mo-bottom-sheet__peek">{peek}</div>}
-      <div className="mo-bottom-sheet__content">{children}</div>
+      <div
+        className="mo-bottom-sheet__content"
+        // Content that scrolls is a region the keyboard can reach (WCAG 2.1.1), named like the sheet.
+        role={named ? 'region' : undefined}
+        tabIndex={0}
+        aria-labelledby={named && headline !== undefined ? titleId : undefined}
+        aria-label={named && headline === undefined ? label : undefined}
+      >
+        {children}
+      </div>
       {footer && <p className="mo-bottom-sheet__footer">{footer}</p>}
     </Container>
   );
