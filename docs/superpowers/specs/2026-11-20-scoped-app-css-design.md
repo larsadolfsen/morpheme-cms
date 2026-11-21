@@ -2,7 +2,7 @@
 
 Status: **20 November 2026, for the owner.** Owner, 20 November 2026: "instead of the dev setting the css, can we do it in build time",
 then "do that". It changes what an app's CSS can reach, so it raises `APP_API` and ships with the next app contract, in **0.20**
-(*Decision*). A small part is preparation in 0.19.6 (*Batches*, batch 0).
+(*Decision*). A small part is preparation in 0.19.7 (*Batches*, batch 0).
 
 ## The problem
 
@@ -58,7 +58,7 @@ put it in the roadmap"), because a contract raise starts a line and apps should 
 
 ## Batches
 
-0. **Preparation in 0.19.6 UI fixes (no contract change).** The CMS puts `data-mo-app="<id>"` on every app block's outer element (it changes no
+0. **Preparation in 0.19.7 UI fixes (no contract change).** The CMS puts `data-mo-app="<id>"` on every app block's outer element (it changes no
    look), and `npm run check:app-css -- --report` lists, without failing, what batch 2 would rename or refuse in each app. It is run on
    the owner's apps (`morpheme-apps`, which have no CSS today), so their fixes are known before the contract changes. Sara's site and
    the Venus theme are left out until Sara continues (owner, 20 November 2026).

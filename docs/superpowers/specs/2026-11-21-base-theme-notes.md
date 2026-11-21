@@ -21,10 +21,21 @@ things and make sure accessibility is spot on".
 
 Owner, 21 November 2026: "It does change, because we will no longer follow our FRONTEND deviations, instead we will follow md3".
 
-- 0.19.5 removes every deviation in `docs/material-deviations.md` outside the editor's own workspace, so Material takes M3's value.
+- 0.19.5 removes every deviation in `docs/material-deviations.md` outside the page and post editor (its bar, overflow menu, text and block menus), so Material takes M3's value, in the editor's other screens too (owner, 21 Nov 2026).
 - The ones kept for accessibility go too (owner: "Follow M3 too"): the 60% placeholder (4), the Outlined card's edge (O1) and the edges
   in a coloured section (O2). Material's theme page names them as shortfalls from WCAG 2.2 AA (owner: "state on the theme page what it
   complies with"). `CLAUDE.md`, *Accessibility*.
+- **One contrast scan at the end** (owner, 21 November 2026: "a waste of time and would be better invested in doing a final scan after
+  all this work is done"). No `check:contrast` run per batch or per feature while Material moves to M3, and no CI job for it. One full
+  scan (`--all`) runs when Material's M3 work is done, before the base theme (0.22.3) starts; what fails is either named in
+  `theme/accessibility.json` or fixed. Known before it runs (0.19.5 batch 13, 21 November 2026):
+  - The scan's focus-ring step (#1104) adds a probe element for every control; in the editor that pins the renderer's CPU and the scan
+    hangs. Before the final scan, read the ring colour from `--mo-sys-state-focus-indicator-color` on the host instead (same colour, a
+    one-section scan then took 447 s). The editor itself was not slow; only the harness.
+  - A real fail the ring check never reached: in the page and post editor, the `mo-editor-inline-list-slot` buttons inside a filled
+    button (`mo-editor-inline-list-row`; buttons 1 to 3 of 3, price cards) draw their focus ring in `secondary` on a `secondary`-coloured
+    ground, 1.00:1 (#435e91 on #435e91, dark #acc7ff). The page and post editor must meet WCAG 2.2 AA, so this is a bug to fix, not a
+    shortfall.
 - Coloured sections stay, on M3's nearest roles (the container roles and their on-colours) instead of our swaps and veils, where
   contrast allows (owner: "Keep, nearest M3 roles").
 

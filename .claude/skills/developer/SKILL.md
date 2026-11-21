@@ -115,17 +115,20 @@ Run `npm run check:fast` while you build (after each step): it runs only the che
 
 ## 4. The owner's standing design rules
 
+Rules from before 21 Nov 2026 hold only where they match what M3 prints; where they differ, M3 wins (skill `material-3`, rule 6).
 Short forms, for a developer to know before reading the specs. A rule changes only where it lives.
 
-- **Dialog.** In a basic dialog no control has the focus when it opens; the main choice is a filled button and the other
-  choices are outlined; the confirming button is the one closest to the edge (`src/ask.tsx` is the editor's one pattern;
-  the owner's dialog rule is quoted in `docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md`, 3.4).
+- **Dialog.** As M3 prints (owner, 21 Nov 2026, replacing the 15 Nov rule): the actions are text buttons, the confirming one
+  closest to the edge, and focus goes to the first control when the dialog opens (`src/ask.tsx` is the editor's one pattern; it
+  and `src/BlockDialog.tsx` change in 0.19.6; audit #1126).
 - **Save on a phone.** Every `Save` goes in the bottom bar, and that bar is the standard bottom sheet, with no custom
-  design (`docs/material-deviations.md`, *Editor-only bars*, item 3, and *A block's sheet on a phone*, B1).
+  design (`docs/material-deviations.md`, *Editor-only bars*, item 3, and *A block's sheet on a phone*, B1). **Ends in 0.20.0**
+  (owner, 21 Nov 2026): below 600 dp a form is M3's full-screen dialog, with Save in its header.
 - **Dialogs are only for short messages** (owner, 15 Nov): a dialog is a short message, a confirmation or a single short choice. Settings or a form with several controls are the theme's standard side sheet beside the page from 600 dp and a page below 600 dp (`docs/material-deviations.md`, B3).
 - **Pages on a phone.** Below 600 dp no view is a full-screen dialog or a side sheet: each is a page with a back arrow in
   the top app bar, and Back with unsaved changes asks "Keep your changes?" (`docs/material-deviations.md`, B2). The
-  computer keeps the side sheet.
+  computer keeps the side sheet. **Ends in 0.20.0** (owner, 21 Nov 2026): below 600 dp these become M3's full-screen dialog, with
+  Save in its header as M3 prints. Until then the existing pages stay; a new view asks the PM instead of copying them.
 - **Standard names.** Use the standard name of a field or a feature (Material 3's, the web's, the real product's),
   never a new one (`docs/superpowers/specs/2026-11-14-standard-names-audit.md`).
 - **CSS custom properties** (owner, 16 Nov 2026; `docs/css-tokens.md`, `npm run check:css-tokens`). A shared value is a `--mo-…` token: the CMS owns
@@ -136,7 +139,8 @@ Short forms, for a developer to know before reading the specs. A rule changes on
 - **Names and no Tailwind** (owner, 18 Nov 2026, contract 7; `docs/class-names.md`): every class and custom property starts with `mo-` and no utility class, `@apply`, `theme()` or `@theme` is written; `npm run check:mo-names` and `npm run check:tailwind` fail on any, with no allowlist, also on a site's themes and apps (`check:content`). A name that is not ours (a library's) is listed with its reason in `NOT_RENAMED` (`scripts/mo-names.mjs`), never let by otherwise.
 - **Removing a block or a stored form keeps its migration** (CTO, 19 Nov 2026): sites skip versions (the editor's update goes straight to npm `latest`), so the migrate of each version takes any older supported content to its own form in one run; delete the block, view and theme part, keep the migrate-only code and its tests (`lib/migrate-hero.mjs` is the example).
 - **Icons are Material Symbols**, drawn by name through the shared `Icon` (`CLAUDE.md`, *Icons are Material Symbols*).
-- **A deviation from Material 3** is allowed only in the editor's own workspace or when the owner says so in words, and is
+- **A deviation from Material 3** is allowed only in the page and post editor's bar and menus, or where the owner keeps one in words on
+  or after 21 Nov 2026 (`material-3`, rules 5 and 6), and is
   recorded in `docs/material-deviations.md` in the same pull request (`material-3`).
 
 ## 4a. Modern Web Guidance

@@ -1,7 +1,7 @@
 # 0.19.4 Screen readers (plan)
 
 Status: **draft, 21 November 2026, for the owner's approval.** It follows the owner's rule of 19 November 2026 that the sites and the editor meet
-**WCAG 2.2 level AA** and that WCAG wins where Material 3 differs (`CLAUDE.md`, *Accessibility: WCAG 2.2 AA*). Roadmap:
+**WCAG 2.2 level AA** and that WCAG wins where Material 3 differs (`CLAUDE.md`, *Accessibility: WCAG 2.2 AA*) (since 21 Nov 2026: where Material 3 itself falls short, M3 wins and the theme names the shortfall; only the page and post editor's bar and menus must meet WCAG). Roadmap:
 `plans/2026-11-14-roadmap-0-18-to-0-24.md`, item 0.19.4: "What a screen reader says on the editor's main flows: names of icon buttons and
 fields, and saves, errors and messages announced." Structure copied from `plans/2026-11-20-0-19-3-keyboard.md` and
 `plans/2026-11-20-0-19-2-accessibility-scan.md` (on `feature/0.19.2-a11y-scan`, PR #1080).
@@ -27,7 +27,7 @@ Labels, 3.3.1 Error Identification, 3.3.2 Labels or Instructions, 4.1.2 Name, Ro
 0.19.2's.
 
 Not in 0.19.4: the axe scan itself and the names it already checks (0.19.2), keyboard use and focus order (0.19.3), Material 3's tokens
-(0.19.5), the small UI fixes (0.19.6), the site's own pages (0.19.2 scans them; what a screen reader says on a site's page is the theme's). No
+(0.19.5), the editor in Material 3 (0.19.6), the small UI fixes (0.19.7), the site's own pages (0.19.2 scans them; what a screen reader says on a site's page is the theme's). No
 new component, no look change: every fix is an attribute, a name or a text, so the owner sees nothing new on screen.
 
 ## The main flows
@@ -204,7 +204,7 @@ One rule so nothing is said twice: **there is one announcer, and a message goes 
 Order: **1 goes first** (the check and the baseline). **2, 3 and 4 touch different files and can run side by side** (names, states, the
 announcer). **5 follows 4** (it uses the announcer) **and 0.19.3** (its focus helper). **6 follows 5** (it touches the text area and the block cards, which 5 also touches).
 **7 goes last** (it needs the walk's final output and an empty allowlist). Every batch removes the allowlist entries it fixes, keeps
-`check:screens`, `check:a11y`, `check:keyboard` and `check:contrast` green, adds no text without its Danish version (`check:language`: a new
+`check:screens`, `check:a11y` and `check:keyboard` green, adds no text without its Danish version (`check:language`: a new
 announcement is a new text, in `en-US` and `da-DK`, skill `site-editor-writing`), follows Modern Web Guidance for accessibility (the PR names the guides read:
 `npm run audit:web -- search "aria live"`, `"accessible name"`, `"focus dialog"`) and the order of priority (Modern web, Material 3 Expressive, Material 3,
 Material 2 with Material 3 styling; a self-made solution goes to the PM). Each pull request has its **Components** line (existing components only) and an empty or `patch` changeset.

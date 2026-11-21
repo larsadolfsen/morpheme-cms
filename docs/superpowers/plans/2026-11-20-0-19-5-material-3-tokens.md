@@ -15,8 +15,8 @@ One feature, `feature/0.19.5-m3-tokens`, cut from `main` by PM 0.19.5 once 0.19.
 - `specs/2026-11-20-section-colours-design.md`: the two colours of a coloured section and `check:color-roles`.
 
 **Match, not deviate.** Every value the site and the theme's parts show is M3's (the Expressive one where a set has both). No new
-deviation is added to keep one of ours. Two owner rules still stand: the editor's own workspace (its bar, overflow menu, text and block
-menus) is outside Material 3 (13 Nov 2026), and where M3 and WCAG 2.2 AA differ, WCAG wins (19 Nov 2026).
+deviation is added to keep one of ours. Two owner rules stand: only the page and post editor (its bar, overflow menu, text and block menus) is outside Material 3 (13 and 21 Nov 2026), and where M3 and WCAG 2.2 AA
+differ, M3 wins and `theme/accessibility.json` names the shortfall (21 Nov 2026).
 
 Not in 0.19.5: behaviour, layout, motion and word choice (the open PRs of the M3 audit stay in 0.26.0; M3's motion tokens are empty in its
 data), and the names (below).
@@ -83,7 +83,7 @@ Batch 1 makes the comparison exact and turns this into the real baseline.
 2. **Elevation, the classes and the shadow check** (elevation spec, batches 1 and 2).
 3. **The section colours check and swap** (section colours spec, batches 1 and 2).
 4. **The current parts' elevation** (elevation spec, batch 3), with its test against the copy.
-5. **Colour roles of parts.** Every "to fix" colour entry fixed to M3's role. `check:contrast` and `check:screens` on every section colour,
+5. **Colour roles of parts.** Every "to fix" colour entry fixed to M3's role. `check:screens` on every section colour,
    light and dark.
 6. **Sizes, shapes and type.** Every "to fix" size, shape and type entry fixed to M3's value.
 7. **The rest of the colour allowlist** (section colours spec, batch 3).
@@ -92,7 +92,7 @@ Batch 1 makes the comparison exact and turns this into the real baseline.
    criterion), or it is made to match M3 and the entry goes (for example G1, the 16 and 24 px gap between cards where M3 prints 8 dp max).
 
 Batch 1 goes first; 2 and 3 can run side by side; 4 follows 2; 5 follows 3 (both change colours of parts); 6 and 8 can run beside 4 and
-5; 7 goes last. Every batch removes the allowlist entries it fixes, keeps `check:screens`, `check:themes`, `check:contrast` and `check:a11y` green. Parts change their look (tonal buttons, the navigation indicators, the bars losing their shadow), so batches 4
+5; 7 goes last. Every batch removes the allowlist entries it fixes, keeps `check:screens`, `check:themes` and `check:a11y` green (no `check:contrast` per batch: one final scan when Material's M3 work is done, owner 21 Nov 2026, `specs/2026-11-21-base-theme-notes.md`). Parts change their look (tonal buttons, the navigation indicators, the bars losing their shadow), so batches 4
 to 6 and 8 each add a release note line (skill `release-notes`).
 
 ## Done when

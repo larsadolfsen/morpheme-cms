@@ -9,7 +9,7 @@ Version 0.19.5 (roadmap, *0.19.5 Material 3 tokens*). The store's part waits for
   before choosing the theme.
 - Material follows Material 3 exactly on the site, including where M3 falls short of WCAG: the 60% placeholder, the Outlined card's
   `outline-variant` edge and the edges in a coloured section (`docs/material-deviations.md` 4, O1, O2 go). Its statement names them.
-- The editor's own workspace still meets WCAG 2.2 AA. The checks still run on every theme; a shortfall a theme's statement names is the
+- Only the page and post editor (its bar, overflow menu, text and block menus) must meet WCAG 2.2 AA; the editor's other screens use the theme's parts and its named shortfalls (owner, 21 Nov 2026). The checks still run on every theme; a shortfall a theme's statement names is the
   only thing they let through.
 
 ## Measured, not declared

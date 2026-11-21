@@ -11,7 +11,7 @@ Status: **20 November 2026, for the owner.** Owner, 20 November 2026: "I want us
 A theme or app author who knows Material 3 finds every name where M3 puts it. A token, a component, a part, a kind and a size have
 M3's name, so that m3.material.io's specs pages read as the CMS's own documentation. Names that are not M3's are only:
 
-- the editor's own workspace (`mo-editor-*`, its bar, overflow menu, text and block menus): outside Material 3 (owner, 13 November
+- the page and post editor (`mo-editor-*`, its bar, overflow menu, text and block menus): outside Material 3 (owner, 13 November
   2026);
 - a value M3 has no token for: it gets a name in M3's pattern and is listed as ours (*Ours*, below).
 
@@ -36,7 +36,26 @@ M3's name, so that m3.material.io's specs pages read as the CMS's own documentat
    the elevation shadows (`--mo-sys-elevation-levelN-shadow` and `-rest-shadow`, `specs/2026-11-20-elevation-design.md`: M3's data
    has only `shadow-color`), density, the section colours, the blocks' tokens (`--mo-comp-block-*`: blocks are not M3 components).
 
-The names change; the values do not. Every value is M3's after 0.19.5, so 0.20.0 changes no look, and `check:screens` must show the
+5. **Icons** (owner, 21 Nov 2026: "phosphor should not be a part of the cms. it should be installable. so remove it and lucide for
+   now. we will add it later to the store"; "In 0.20.0"). The icon vocabulary becomes Material Symbols' names. Today the names
+   are Phosphor's: content (a card's `icon: certificate`), an app's `icon` in `app.json`, the store catalog and the editor's code
+   (about 80 files import `@phosphor-icons/react` components, and a few, such as `lib/snackbar.ts` and `src/contextualMenu.ts`,
+   import Phosphor's SVG files with `?raw`). After 0.20.0:
+   - every stored icon name is its Material Symbols name (`map-pin` → `location_on`), rewritten by the update from the map in
+     `lib/materialIcon.mjs` (`materialName`). A name with no Material Symbols icon is listed in batch 1's map with the closest one, and
+     the CTO reviews it with the rest of the map;
+   - the editor's code draws every icon through the shared `Icon` by its Material name (roadmap 0.27.0 moves here);
+   - `icons/phosphor/`, `icons/lucide/`, `@phosphor-icons/core`, `@phosphor-icons/react` and the Lucide source leave the package.
+     `SYSTEM_PACKS` is `material-symbols` alone, and `themePlugin` stops redrawing Phosphor imports. `check:phosphor` fails on any
+     import of `@phosphor-icons/*` or Lucide, with no allowlist;
+   - a theme may still bring its own pack (`icon-packs/`), keyed by Material names;
+   - a site whose chosen pack is `phosphor` or `lucide` draws Material Symbols, with a warning in the editor, never a failed build
+     (decision 3 of `specs/2026-11-14-icon-packs-in-the-store-design.md`). Venus is such a theme (`"icons": "phosphor"`). Phosphor,
+     Lucide and Font Awesome come back as store packs in 0.27.2 (owner, 21 Nov 2026: "We will add Phosphor, lucide and font awesome
+     to the store").
+
+The names change; the values do not. Every value is M3's after 0.19.5, so 0.20.0 changes no look (except the icons of a site that
+picked Phosphor or Lucide, above), and `check:screens` must show the
 same screens before and after each rename.
 
 ## The map
@@ -79,7 +98,7 @@ and holds the update where it cannot.
    - what it cannot rewrite safely (a computed value, `size={big ? 'large' : 'medium'}`, an old name built from parts, a Tailwind
      class) it lists by file and line, and the update does not go: it says which file to fix.
    It runs once, because reused names make a second run wrong: the Worker runs it only when an update crosses 0.20.0, and
-   `morpheme migrate` asks for the version the site came from (`--from 0.19.6`).
+   `morpheme migrate` asks for the version the site came from (`--from 0.19.7`).
 3. **Store themes and apps** are never rewritten on a site (a published version is forever, and the site's copy must equal it). Their
    publishers release a version written to 8: the owner's apps from `morpheme-apps` (the owner releases them, as always). The store must accept contract 8 before 0.20.0 is
    released. The Worker's update to 0.20.0 checks every installed store theme and app first: if one is written to an older contract,
@@ -97,7 +116,7 @@ and holds the update where it cannot.
   and on an ours entry M3 has since got a token for. It takes over the naming part of 0.19.5's `--report`.
 - `check:token-names` fails on the old names (the map's non-reused names).
 - `migrate-code` has tests: a made-up theme and app with old names of contracts 6, 7 and 7-to-8 (no customer content), rewritten and then built; the reused-name case; a second run refused; every unsafe form listed.
-- `check:screens`, `check:themes`, `check:demo` and `check:contrast` green, with the same screens as before the rename.
+- `check:screens`, `check:themes` and `check:demo` green, with the same screens as before the rename.
 
 ## Batches (pull requests into `feature/0.20.0-m3-names`)
 
@@ -109,11 +128,14 @@ and holds the update where it cannot.
 4. **The rewrite.** `lib/migrate-code.mjs` with its tests, in `morpheme migrate` and in the Worker's update.
 5. **The update across contract 8.** The store items' check: the update does not go and names the item (*Migration*, 3).
 6. **Scoped app CSS** (its spec, batches 1 and 2).
-7. **Contract 8.** `THEME_API`, `APP_API` and `APP_APIS` raised, `check:m3-names` failing, `docs/app-contract.md`,
+7. **Icons** (*What is renamed*, 5). The editor's code moves onto `Icon` first, then the stored names are rewritten (with batch 4's
+   rewrite), then Phosphor and Lucide leave the package.
+8. **Contract 8.** `THEME_API`, `APP_API` and `APP_APIS` raised, `check:m3-names` failing, `docs/app-contract.md`,
    `docs/theme-token-files.md`, `docs/class-names.md`, and release notes for site owners (nothing to do; the update does it) and
    for theme and app developers (the map) (skill `release-notes`).
 
-Batch 1 goes first; 2 and 3 can run side by side; 4 follows both; 5 and 6 can run beside 4; 7 goes last. Outside this repository:
+Batch 1 goes first; 2, 3 and 7 can run side by side; 4 follows 2 and 3, and takes 7's name rewrite; 5 and 6 can run beside 4; 8
+goes last. Outside this repository:
 the owner's apps get their contract 8 versions in `morpheme-apps` before 0.20.0 is offered to sites.
 
 ## Open decisions
