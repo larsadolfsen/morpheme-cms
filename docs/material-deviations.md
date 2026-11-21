@@ -54,11 +54,6 @@ Allow-list: `scripts/check-colors.allow.mjs` (came in with #469). Audit: `docs/s
 
 Not deviations, fixed to M3: hover 5% and 6% became M3's 8% (#474), and the snackbar fallbacks use the inverse roles (#471).
 
-## CSS sweep
-
-Allow-list: #477.
-
-
 ## Editor-only parts
 
 A part is a theme part only if the front end could reuse it (owner, 2026-11-13). The parts below stay in the editor on purpose.
