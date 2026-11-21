@@ -5,14 +5,6 @@
 // are left. A new entry is reviewed; it is never added to hide a difference without a reason.
 export const allow = [
   {
-    token: '--mo-comp-button-group-standard-medium-between-space',
-    theme: '12',
-    m3: '8',
-    class: 'fix',
-    batch: 7,
-    reason: "the part's size or shape differs from M3's (batch 7, sizes, shapes and type)",
-  },
-  {
     token: '--mo-comp-button-outlined-hovered-label-text-color',
     theme: '@role:primary',
     m3: '@role:on-surface-variant',
@@ -61,14 +53,6 @@ export const allow = [
     reason: "the part's colour role differs from M3's (batch 6, colour roles of parts)",
   },
   {
-    token: '--mo-comp-button-xsmall-icon-label-space',
-    theme: '8',
-    m3: '4',
-    class: 'fix',
-    batch: 7,
-    reason: "the part's size or shape differs from M3's (batch 7, sizes, shapes and type)",
-  },
-  {
     token: '--mo-comp-elevated-card-container-elevation',
     theme: '?0 1px 2px color-mix(in srgb, @role:shadow 30%, transparent), 0 1px 3px 1px color-mix(in srgb, @role:shadow 15%, transparent)',
     m3: '1',
@@ -95,14 +79,6 @@ export const allow = [
     reason: "the part's colour role differs from M3's (batch 6, colour roles of parts)",
   },
   {
-    token: '--mo-comp-icon-button-small-container-height',
-    theme: '48',
-    m3: '40',
-    class: 'fix',
-    batch: 7,
-    reason: "the part's size or shape differs from M3's (batch 7, sizes, shapes and type)",
-  },
-  {
     token: '--mo-comp-icon-button-tonal-container-color',
     theme: '@role:surface-container-high',
     m3: '@role:secondary-container',
@@ -127,14 +103,6 @@ export const allow = [
     reason: "the part's colour role differs from M3's (batch 6, colour roles of parts)",
   },
   {
-    token: '--mo-comp-list-list-item-container-shape',
-    theme: '@shape:extra-small',
-    m3: '@shape:none',
-    class: 'fix',
-    batch: 7,
-    reason: "the part's size or shape differs from M3's (batch 7, sizes, shapes and type)",
-  },
-  {
     token: '--mo-comp-menu-container-color',
     theme: '@role:surface-container-low',
     m3: '@role:surface-container',
@@ -150,22 +118,6 @@ export const allow = [
     batch: 5,
     reason:
       "the part draws a hand-written shadow where M3 names an elevation level; batch 5 (the current parts' elevation, elevation spec, batch 3) moves it to the level class",
-  },
-  {
-    token: '--mo-comp-menu-container-shape',
-    theme: '@shape:large',
-    m3: '@shape:extra-small',
-    class: 'fix',
-    batch: 7,
-    reason: "the part's size or shape differs from M3's (batch 7, sizes, shapes and type)",
-  },
-  {
-    token: '--mo-comp-menu-list-item-container-height',
-    theme: '44',
-    m3: '48',
-    class: 'fix',
-    batch: 7,
-    reason: "the part's size or shape differs from M3's (batch 7, sizes, shapes and type)",
   },
   {
     token: '--mo-comp-menu-list-item-selected-container-color',
@@ -216,36 +168,12 @@ export const allow = [
     reason: "the part's colour role differs from M3's (batch 6, colour roles of parts)",
   },
   {
-    token: '--mo-comp-search-view-docked-container-shape',
-    theme: '@shape:medium',
-    m3: '@shape:extra-large',
-    class: 'fix',
-    batch: 7,
-    reason: "the part's size or shape differs from M3's (batch 7, sizes, shapes and type)",
-  },
-  {
-    token: '--mo-comp-sheet-side-docked-container-shape',
-    theme: '@shape:large',
-    m3: '@shape:none',
-    class: 'fix',
-    batch: 7,
-    reason: "the part's size or shape differs from M3's (batch 7, sizes, shapes and type)",
-  },
-  {
     token: '--mo-comp-slider-active-stop-indicator-container-color',
     theme: '@role:surface-container-high',
     m3: '@role:on-primary',
     class: 'fix',
     batch: 6,
     reason: "the part's colour role differs from M3's (batch 6, colour roles of parts)",
-  },
-  {
-    token: '--mo-comp-slider-active-track-shape',
-    theme: '@shape:small',
-    m3: '@shape:full',
-    class: 'fix',
-    batch: 7,
-    reason: "the part's size or shape differs from M3's (batch 7, sizes, shapes and type)",
   },
   {
     token: '--mo-comp-slider-inactive-stop-indicator-container-color',
@@ -270,13 +198,5 @@ export const allow = [
     class: 'fix',
     batch: 6,
     reason: "the part's colour role differs from M3's (batch 6, colour roles of parts)",
-  },
-  {
-    token: '--mo-comp-switch-unselected-icon-size',
-    theme: '24',
-    m3: '16',
-    class: 'fix',
-    batch: 7,
-    reason: "the part's size or shape differs from M3's (batch 7, sizes, shapes and type)",
   },
 ];

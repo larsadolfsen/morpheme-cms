@@ -132,7 +132,7 @@
     );
     align-items: center;
     justify-content: center;
-    gap: var(--mo-comp-segmented-button-gap, var(--mo-comp-button-xsmall-icon-label-space, 0.5rem));
+    gap: var(--mo-comp-segmented-button-gap, 0.5rem);
     border: 0;
     padding: 0 var(--mo-comp-segmented-button-padding, 1rem);
     background: transparent;
