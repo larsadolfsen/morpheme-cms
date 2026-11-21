@@ -35,7 +35,7 @@ export default function PickerParts() {
   const box = 'mo-editor-picker-box';
   return (
     <>
-      <Part name="DatePicker" use={say.datePicker}>
+      <Part name="DatePicker" m3="md.comp.date-picker" use={say.datePicker}>
         <Preview>
           <div className="mo-editor-sample-stack-6">
             <div className="mo-editor-two-columns" role="group" aria-label={say.fields}>
@@ -132,7 +132,7 @@ export default function PickerParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="TimePicker" use={say.timePicker}>
+      <Part name="TimePicker" m3="md.comp.time-picker" use={say.timePicker}>
         <Preview>
           <div className="mo-editor-sample-columns" role="group" aria-label={say.fields}>
             <Example label={t.parts.screens.example(1)} flat>

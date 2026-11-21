@@ -199,10 +199,33 @@ export function Example({ label, className, flat, children }: { label: string; c
   );
 }
 
+/** The mark of a sample that is not of its part's component (a button inside a card, a chip in a menu): `data-m3` names the Material 3 token family the
+ * sample is (`check:m3-render` measures it against that family; `none` with the reason's id in scripts/check-m3-render.mjs, NONE, when Material 3 has no
+ * component for it). Draws a box-less div (`display: contents`), so nothing moves. */
+export function M3({ set, children }: { set: string; children: ReactNode }) {
+  return (
+    <div data-m3={set} style={{ display: 'contents' }}>
+      {children}
+    </div>
+  );
+}
+
 /** A part's name and what it is for, above it, with its coverage mark when the theme in use has one for it
  * (`coverage`: the id in the catalogue, the first word of the name when not given); nothing when it is not
  * what is searched for, or when the style filter picks another status. */
-export function Part({ name, use, coverage, children }: { name: string; use?: string; coverage?: string; children?: ReactNode }) {
+export function Part({
+  name,
+  use,
+  coverage,
+  m3,
+  children,
+}: {
+  name: string;
+  use?: string;
+  coverage?: string;
+  m3?: string;
+  children?: ReactNode;
+}) {
   const shown = useContext(Shown);
   const heading = useId();
   const covered = themeCoverage?.parts[coverage ?? name.split(',')[0].trim()];
@@ -213,7 +236,14 @@ export function Part({ name, use, coverage, children }: { name: string; use?: st
   const Name = shown.sort === 'group' && !shown.group ? 'h3' : 'h2';
   return (
     // A group named by its heading: the examples of one part repeat each other's labels (every part has a `Cancel`), and a reader tells the parts apart by it.
-    <section data-part={name} role="group" aria-labelledby={heading} className="mo-editor-flow-3" style={{ order: shown.order.get(name) }}>
+    <section
+      data-part={name}
+      data-m3={m3}
+      role="group"
+      aria-labelledby={heading}
+      className="mo-editor-flow-3"
+      style={{ order: shown.order.get(name) }}
+    >
       <div>
         <Name id={heading} className="mo-editor-part-name">
           {name}
