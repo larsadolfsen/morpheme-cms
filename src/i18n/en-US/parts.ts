@@ -260,7 +260,7 @@ export const parts = {
   /** "Parts" › "Values" (#developer/parts/values, Tokens.tsx): the theme's design tokens, each with what it is used for. */
   tokens: {
     intro: 'The theme’s design tokens for corners, shadows, typography, and colors, as the theme sets them.',
-    groups: { shape: 'Corners', elevation: 'Shadows', type: 'Typography', color: 'Colors' },
+    groups: { shape: 'Corners', elevation: 'Shadows', elevationClasses: 'Elevation classes', type: 'Typography', color: 'Colors' },
     shape: {
       radius: 'Panels',
       radiusSmall: 'What is smaller in a panel',
@@ -306,6 +306,8 @@ export const parts = {
       unused: 'Not used',
       /** A shadow that is none of the levels: the theme's own. */
       own: 'Own shadow',
+      classSurface: "A surface: the level's color and elevation shadow",
+      classElevated: "Elevated: only the level's shadow",
       shadow: 'Panels',
       blockShadow: 'Blocks',
     },
