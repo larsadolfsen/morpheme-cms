@@ -28,7 +28,7 @@
     justify-content: center;
     border-radius: var(--mo-comp-fab-container-shape, var(--mo-sys-block-radius-small));
     padding: 0 var(--mo-comp-fab-padding, 1rem);
-    box-shadow: var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+    box-shadow: var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level3-shadow));
     transition:
       box-shadow var(--mo-sys-motion-spring-default-effects),
       background-color var(--mo-sys-motion-spring-default-effects),
@@ -49,7 +49,7 @@
   }
   .mo-fab:active,
   .mo-extended-fab:active {
-    box-shadow: var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+    box-shadow: var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level3-shadow));
   }
   /* The medium and the large size (M3 Expressive): taller, with rounder corners and a larger icon, the theme's corners
      scaled as Material's are (16, 20 and 28px). */

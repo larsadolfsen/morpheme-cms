@@ -118,6 +118,12 @@
       0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
       var(--mo-comp-date-picker-docked-shadow, var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow)));
   }
+  /* The modal date picker is a surface on level 3 with no shadow (M3 Date pickers, Specs: md.comp.date-picker.modal container elevation 3, drawn flat); the dialog around the time picker is elevated. */
+  .mo-dialog.mo-date-picker {
+    box-shadow:
+      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
+      var(--mo-comp-date-picker-modal-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+  }
   .mo-date-picker__header {
     padding: 1rem 0.75rem 0.75rem 1.5rem;
     border-bottom: 1px solid var(--mo-comp-date-picker-line, var(--mo-sys-block-line));

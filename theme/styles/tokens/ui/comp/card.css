@@ -9,7 +9,7 @@
    The spacing tokens (--mo-comp-card-padding, -media-gap, -subhead-gap, -text-gap, -action-gap) are in tokens/material/comp/card.css. */
 @layer components {
   :where(.mo-card).mo-is-elevated {
-    --mo-comp-card-shadow: var(--mo-comp-elevated-card-container-elevation, var(--mo-sys-elevation-level1-rest-shadow));
+    --mo-comp-card-shadow: var(--mo-comp-elevated-card-container-elevation, var(--mo-sys-elevation-level1-shadow));
   }
 }
 @layer components {

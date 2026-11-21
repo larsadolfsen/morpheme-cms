@@ -186,7 +186,7 @@
   :where(.mo-button).mo-is-elevated {
     background: var(--mo-comp-button-elevated-surface, var(--mo-sys-elevation-level1-color));
     color: var(--mo-comp-button-elevated-label-text-color, var(--mo-sys-block-accent));
-    box-shadow: var(--mo-comp-button-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+    box-shadow: var(--mo-comp-button-elevated-shadow, var(--mo-sys-elevation-level1-shadow));
   }
   @media (hover: hover) {
     :where(.mo-button).mo-is-elevated:hover {
@@ -201,7 +201,7 @@
     box-shadow: var(--mo-comp-button-tonal-shadow, var(--mo-sys-elevation-level0-shadow));
   }
   :where(.mo-button).mo-is-elevated:active {
-    box-shadow: var(--mo-comp-button-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+    box-shadow: var(--mo-comp-button-elevated-shadow, var(--mo-sys-elevation-level1-shadow));
   }
   /* Outlined: another choice beside the main one, with a thin edge. */
   :where(.mo-button).mo-is-outlined {

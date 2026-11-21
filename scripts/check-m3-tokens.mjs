@@ -79,6 +79,9 @@ export function declaredOnRoot(texts) {
 
 const ROLE = /^--mo-sys-color-([a-z0-9-]+)$/;
 const STEP = /^--mo-sys-shape-corner-([a-z0-9-]+)$/;
+/** An elevation level's shadow token (`--mo-sys-elevation-level2-shadow`, or its `-rest-shadow`) is that level (M3's `md.sys.elevation.levelN`, in dp). */
+const LEVEL = /^--mo-sys-elevation-level([0-5])-(?:rest-)?shadow$/;
+const ELEVATION_DP = [0, 1, 3, 6, 8, 12];
 
 /**
  * Replaces each var() of a value by the value it holds. A colour role and a shape step stay as a marker (`@role:x`, `@shape:x`), because the site chooses
@@ -105,7 +108,9 @@ export function resolveVars(value, map, roles, steps, seen = []) {
     let piece = null;
     const role = ROLE.exec(name)?.[1];
     const step = STEP.exec(name)?.[1];
+    const level = LEVEL.exec(name)?.[1];
     if (role && roles.has(role)) piece = `@role:${role}`;
+    else if (level) piece = `${ELEVATION_DP[Number(level)]}px`;
     else if (step && steps.has(step)) piece = `@shape:${step}`;
     else if (map.has(name) && !seen.includes(name)) piece = resolveVars(map.get(name), map, roles, steps, [...seen, name]);
     if (piece === null && fallback !== null) piece = resolveVars(fallback, map, roles, steps, seen);
