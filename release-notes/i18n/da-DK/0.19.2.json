@@ -1,0 +1,49 @@
+{
+  "version": "0.19.2",
+  "date": "2026-11-21",
+  "notes": [
+    {
+      "id": "a11y-card-border",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Kortkanter",
+      "text": "Kort med kant var svære at se, når kanten var bleg. Kanten er nu en tydeligere grå, og i en sektion med Primær, Sekundær eller Tertiær er konturerne på kort og felter stærkere. Udfyldte og hævede kort er uændrede."
+    },
+    {
+      "id": "a11y-zoom",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Du kan zoome i editoren på en telefon med et knib eller to tryk, og knappen Gem og tekstværktøjslinjen bliver i billedet"
+    },
+    {
+      "id": "a11y-site",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Felter i tjeklister og links i Billedgitter får navne til skærmlæsere, og taster i tekst kan læses i mørk tilstand"
+    },
+    {
+      "id": "a11y-theme-ui",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Karruseller og bundark kan rulles med tastaturet, og tallene i tidsvælgeren er lettere at læse"
+    },
+    {
+      "id": "a11y-inline-lists",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Lister og kort, du skriver direkte i, fungerer bedre med skærmlæser og tastatur: en række, der folder ud, har sin egen knap, et korts medie har sin egen knap, og felterne er høje nok til at trykke på"
+    },
+    {
+      "id": "a11y-text-area",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Skærmlæsere navngiver sidens tekstfelt og læser ikke længere ind i blokkenes forhåndsvisninger"
+    },
+    {
+      "id": "a11y-names",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Skærmlæsere og stemmestyring navngiver blokkort, beskeder, valgfelter og knapper til undersider efter den tekst, du ser på dem"
+    }
+  ]
+}
