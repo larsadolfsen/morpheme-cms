@@ -1,16 +1,16 @@
 ---
 name: pm
-description: Use when the owner makes a session the project manager of a version line - "/pm 0.16", "project manager", "projektleder", "be the PM of 0.16". The PM delegates, merges and plans the release, but never codes.
+description: Use when the owner makes a session the project manager of one version - "/pm 0.19.2", "/pm 0.20", "project manager", "projektleder", "be the PM of 0.19.2". The PM delegates, merges and plans the release of that version only, but never codes.
 ---
 
-# Project manager of a version line
+# Project manager of one version
 
-Announce "Using pm <version>" (for example `0.18`). The session is now the project manager (PM, not product manager) of that
-version line: it delegates the work, merges it, and makes sure nothing is left behind. The owner has handed it these decisions,
-so it does not ask the owner for permission to do work that is already assigned. **When a PM session starts,** its first question
-to the owner is whether its work is the next major release, the start of a new line (`0.20.0`); after that it gives each feature and
-fix of its run the next patch (`0.19.1`, `0.19.2` …) without asking (owner, 19 Nov 2026;
-`docs/superpowers/plans/2026-11-19-version-at-feature-start.md`). Rewritten 18 Nov 2026 (owner) around the flow of
+Announce "Using pm <version>" (for example `0.19.2`). **The owner names the version** in the command (owner, 20 Nov 2026: "I name the
+version in the skill eg /pm 0.20"): `/pm 0.19.2` is version 0.19.2, `/pm 0.20` is 0.20.0, the start of the 0.20 line. The session is
+now the project manager (PM, not product manager) of that one version: it delegates the work, merges it, and makes sure nothing is
+left behind. The owner has handed it these decisions, so it does not ask the owner for permission to do work that is already
+assigned. It never picks, starts or numbers another version: the next one gets its own PM when the owner names it
+(`docs/superpowers/plans/2026-11-19-version-at-feature-start.md`). Rewritten 18 Nov 2026 (owner) around the flow of
 the work; every rule of the earlier skill is kept.
 
 ## 1. Who decides what
@@ -20,7 +20,7 @@ the work; every rule of the earlier skill is kept.
 and every question the order of priority below answers. It never asks the owner to merge or for permission to merge, and the owner
 merges nothing but releases.
 
-**Only its own feature** (owner, 20 Nov 2026: "Pms tend to merge future feature branches. They are only allowed to merge branches within their feature."). A PM merges only the pull requests of the version it is PM of: the
+**Only its own version** (owner, 20 Nov 2026: "Pms tend to merge future feature branches. They are only allowed to merge branches within their feature."; then, after PM 0.19.2 started making 0.19.1, the rule covers everything, not only merges). A PM never creates, changes, pushes or merges anything that belongs to another version, earlier or later: no branch, pull request, version number, changeset, plan or session for it. If another version is stuck or late, it tells that version's PM, or the owner when no PM runs for it, and leaves the work alone. A PM merges only the pull requests of the version it is PM of: the
 pieces into its own feature branch, `main` into its own feature branch, its feature (or its single fix) into `main` when its turn
 comes, and what its version's plan puts in the other repositories. It never merges another version's feature branch or a pull
 request into one, and never a pull request that belongs to a later version (its feature, its fix, or the plan or spec for it), even
@@ -75,9 +75,8 @@ branch → feature → `next` → live):
 1. **A plan.** The work comes from a plan or a spec in `docs/superpowers/`, or from the owner.
 2. **A feature branch.** A feature is `feature/<name>`, cut from `main`, and every session of that feature opens its pull request
    into it. Its first pull request sets its version in `package.json` and `package-lock.json` and runs `node scripts/starter.mjs`
-   (`docs/superpowers/plans/2026-11-19-version-at-feature-start.md`): the new line's
-   `.0` when the owner said at the PM's start that this is the next major release, otherwise the next patch, without asking. A single
-   fix into `main` takes the next patch the same way. A single fix is one pull request straight into `main`. There are no version-line branches: `0.18` is finished (owner,
+   (`docs/superpowers/plans/2026-11-19-version-at-feature-start.md`): the version the owner named in `/pm <version>`, never
+   another. A single fix into `main` the owner hands this PM takes this PM's version too. A single fix is one pull request straight into `main`. There are no version-line branches: `0.18` is finished (owner,
    19 Nov 2026) and nothing goes into it; a line is only an area of the roadmap and its version numbers.
    `static` checks the starter pin with `node scripts/starter.mjs --check` at every level, so do not merge a first pull request without
    the version set. After each merge into `main` the PM merges `main` into its own feature branch; when that brings in a release with
@@ -116,6 +115,10 @@ The PM squash-merges a pull request when all of this holds, one pull request at 
   `morpheme-appstore` (no `check` job) the green Cloudflare `Workers Builds` check and the test result the session reports are the
   condition;
 - its changeset has the level its base branch allows (skill `changesets`; read it each time, never work from memory);
+- CodeQL has scanned it and found no new alert (owner, 21 Nov 2026: "we need to fix these as they occur"). The session fixes one
+  in the same pull request; the PM never dismisses an alert, only the owner does, in words. The GitHub ruleset *Code* blocks the
+  merge into `main` or `feature/*` while a High or higher alert is open; if it blocks a merge into a feature for lack of results
+  (CodeQL did not scan a pull request into that branch), the PM tells the owner instead of working around it;
 - its description has the **Components** line, and the M3 pages and Modern Web guides it had to read are named (section 5);
 - for a change the owner can see, the owner has approved it (section 4).
 
@@ -128,13 +131,14 @@ once it has no open question for the owner and no unmerged branch.
 ## 4. What the owner sees
 
 Owner decision, 14 Nov 2026. A change the owner can see (the editor or the site) is merged only after the owner has seen it and said
-yes. The approval happens before the merge, so it is not a release gate: a release never waits on a list of reviews. A Preview cannot
-show the editor (no sign-in), so the owner sees screenshots in the pull request.
+yes. The approval happens before the merge, so it is not a release gate: a release never waits on a list of reviews. The owner cannot
+sign in to the editor on a Preview, so an editor change is seen in screenshots in the pull request; a site change is seen on its
+Preview, whose link the report gives (owner, 21 Nov 2026: no before and after screenshots, since the PM tests on the Preview).
 
-- **The session** adds before and after screenshots to a comment on its own pull request when the change is done and `check` is green
-  (skill `developer`, *Screenshots in the pull request*), and tells the PM the link and head sha.
-- **The PM** opens the screenshot files itself and looks at them: it fetches the orphan branch `pr-screenshots/<number>` (`git fetch
-  origin pr-screenshots/<number>`, then `git archive` its `shots/` folder into the session's scratchpad directory) and opens each PNG
+- **The session** adds *after* screenshots of an editor change to a comment on its own pull request when the change is done and `check`
+  is green (skill `developer`, *Screenshots in the pull request*), and tells the PM the link and head sha. A site change gets none.
+- **The PM** opens the screenshot files itself and looks at them: it fetches the shared orphan branch `screenshots` (`git fetch
+  origin screenshots`, then `git archive FETCH_HEAD <number>/` into the session's scratchpad directory) and opens each PNG
   with the Read tool. It never reports on screenshots it has not opened and never relies on a worker's description of them. It reads
   the diff, assigns the pull request to `larsadolfsen`, and sends the owner one report (section 8) that says in one or two lines what
   the images show (does the change match the pull request, anything odd); for a screen the owner has to judge it also sends the images
@@ -143,8 +147,20 @@ show the editor (no sign-in), so the owner sees screenshots in the pull request.
   session of the pull request, or starts a new session with the whole task and the pull request's link when that session is gone; the
   new head gets new screenshots and a new report.
 - **A feature branch** is approved once, as a whole, on its pull request into `main` (section 2); its pieces need no approval.
+- **A site change** has no screenshots: the PM tests it on the Preview (below) and the report gives the Preview's link, with a
+  screenshot only of a fail.
 - **A change nobody sees** (docs, tests, CI, Worker internals, tooling) needs no screenshots and no approval.
 - There is no separate "screenshots" session and no Artifact page: the images live in the pull request.
+- **The PM tests a change itself** (owner, 21 Nov 2026: "PMs have access to preview sites, so they do not have to send me a
+  prompt, instead they test themselves", and "this is just for frontend testing"; it replaces the owner's earlier rule of a Claude in
+  Chrome prompt). When a change to the site or the editor can be tried at an address, a pull request's Preview, the demo or
+  `morpheme-staging`, the PM opens it with Playwright once the build is green and tests its frontend. The editor opens on a Preview
+  without a sign-in through `openEditor(page, <Preview URL>)` from `scripts/built-site.mjs`, which answers the editor's `/api/` calls in
+  the browser, so a save is faked and nothing is kept (checked 21 Nov 2026 on PR #1071's Preview). It tests: each changed page or screen; numbered steps written from the pull request and the spec, never from
+  memory, each with what to look for and what counts as a fail; a phone width (390 px) and a desktop width (1280 px), light and dark;
+  the keyboard (Tab, Shift+Tab, Enter, Space, Escape) and a visible focus ring wherever the change has a control. It never signs in,
+  saves or changes anything there. Its report to the owner says in a line that it tested and what failed, with a screenshot of every
+  fail it opened itself; the owner gets no test prompt.
 
 The owner only sees pull requests that are assigned to them on GitHub. When a pull request needs the owner to see, approve or decide
 something, the PM assigns it to `larsadolfsen` (`update_pull_request`, `issue_write` assignees or the GitHub API) and keeps it assigned
@@ -172,9 +188,9 @@ never did. The first prompt also carries:
 
 - "Do not run the full `check:screens` locally; see the `checks` skill." It also says that the pull request's CI is kept to one push,
   so everything is fixed before it.
-- In these words: "When a change the owner can see (the editor or the site) is done and `check` is green, add before and after
-  screenshots of every changed screen to a comment on your own pull request, as the `developer` skill's *Screenshots in the pull
-  request* says, and tell the PM with the link and head sha. A change nobody sees needs none."
+- In these words: "When a change to the editor is done and `check` is green, add after screenshots of every changed screen to a
+  comment on your own pull request, as the `developer` skill's *Screenshots in the pull request* says, and tell the PM with the link
+  and head sha. A change to the site only, or one nobody sees, needs none."
 - The branch to open the pull request into: the feature branch, or the line.
 - When the change builds a new component or edits an existing component's design (look, measurements, behaviour, states): read the M3
   pages with Playwright (skill `material-3`, *Reading the real pages*) and say in the pull request which pages were read. A session that
@@ -303,6 +319,6 @@ Example:
 > **Approve the new text bar** ([pull request #123](https://github.com/larsadolfsen/morpheme-cms/pull/123))
 >
 > - **Why:** the text bar now cross-fades between its two sets of tools.
-> - **How:** open the pull request and look at the screenshots, before and after, on a phone and a computer; answer approve, or what to
+> - **How:** open the pull request and look at the screenshots on a phone and a computer; answer approve, or what to
 >   change.
 > - **What:** nothing you have not seen is merged.

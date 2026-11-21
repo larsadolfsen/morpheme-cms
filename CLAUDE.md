@@ -42,6 +42,10 @@ plain words. The plans go to the PM, who hands them to new sessions.
 
 Every change goes branch → feature → `next` → live (owner, 19 Nov 2026), one feature at a time (`docs/superpowers/plans/2026-11-18-release-per-feature.md`), and is seen at each step: a branch on its own demo Preview; a feature (`feature/<name>`, cut from `main`, its pull requests merged into it) on the demo, where the owner reviews it (`morpheme-demo`, whose production branch in Cloudflare the owner sets to the feature being built; the demo never shows the live site); `next`, the feature merged into `main`, on `morpheme-staging` as the test version from npm, with real sign-in and saving; live, a release on the sites (`latest`). A single fix skips the feature and goes as one pull request into `main`. Nothing is released that staging has not run (skill `release`).
 
+The repository has only `main`, the Release PR's branch, the feature branches being built, the branches of open pull requests and
+`screenshots` (owner, 21 Nov 2026). GitHub deletes a branch when its pull request merges; a session never makes a branch for anything
+else (screenshots go into `screenshots`, skill `developer`).
+
 ### Only the owner releases a new version
 
 **Only the owner releases a new version of `@morphemecms/cms`.** No agent releases, and no agent takes a step towards a
@@ -64,8 +68,9 @@ session loads the `release` skill and follows its phases in order; it never rele
 
 ### Pull requests go to the PM
 
-**There is always a PM.** Each version being built has a session as its project manager (skill `pm`). It merges the pull
-requests of its own feature only, never another version's (owner, 20 Nov 2026), except releases, in this repository and in
+**There is always a PM.** Each version being built has a session as its project manager (skill `pm`). The owner names the version (`/pm 0.19.2`, `/pm 0.20`). It merges the pull
+requests of its own feature only, and never creates, changes, pushes or merges anything of another version, earlier or later (owner,
+20 Nov 2026), except releases, in this repository and in
 `morpheme-staging`, `morpheme-appstore` and `morpheme-apps`, and it keeps nothing behind. The owner does not merge and is not
 asked to.
 
@@ -162,7 +167,12 @@ reasons), and `check:screens` checks text, placeholder, slot icons and outline o
 
 Owner, 19 Nov 2026: the sites the CMS builds and the editor meet **WCAG 2.2 level AA**. A change never lowers it: contrast
 (`check:contrast`), keyboard use, a visible focus ring for keyboard focus (`:focus-visible`), names for screen readers, and
-target sizes. Where Material 3 and WCAG differ, WCAG wins. The checks that enforce it: roadmap 0.19.2 to 0.19.4.
+target sizes. Where Material 3 and WCAG differ, WCAG wins, except a shortfall a theme names (below). The checks that enforce it: roadmap 0.19.2 to 0.19.4.
+
+A theme may fall short of it on the site if its page says so (owner, 21 Nov 2026): the theme's `accessibility.json` names each
+shortfall by WCAG criterion, the checks let through only what it names, and the editor shows it on the theme's page
+(`docs/superpowers/specs/2026-11-21-theme-accessibility-statement-design.md`). *Material* follows Material 3 exactly and names the
+shortfalls that gives. The editor's own workspace always meets WCAG 2.2 AA.
 
 ### Icons are Material Symbols
 

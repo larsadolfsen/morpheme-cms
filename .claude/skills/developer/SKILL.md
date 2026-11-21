@@ -48,15 +48,19 @@ Every pull request, whatever the change:
 
 - Its description has the **Components** line (the hard rule above).
 - It has its changeset (`changesets`) and its `check` job is green on the current head.
+- **It adds no code-scanning alert** (owner, 21 Nov 2026: "we need to fix these as they occur"). CodeQL scans the pull request; an
+  alert it finds in your change is fixed in the same pull request, by fixing the code, never by a dismissal or a comment that
+  silences it. Only the owner dismisses an alert, in words. A GitHub ruleset on `main` and `feature/*` blocks the merge while a
+  High or higher alert is open.
 - You report the link and the head sha to the PM and leave the merge to it. Never merge your own pull request, and never
   ask the owner to merge it (`CLAUDE.md`, *Pull requests go to the PM*).
 - Your PM is the PM of your own version: your pull request goes into that version's feature branch (or into `main` for its single
   fix), and you report to that PM only. A PM merges only within its own feature (owner, 20 Nov 2026: "Pms tend to merge future
   feature branches. They are only allowed to merge branches within their feature."), so never send your pull request to another
   version's PM; if no PM runs for your version, tell the owner.
-- A change the owner can see (the editor or the site) gets before and after screenshots of every changed screen in a
-  comment on your own pull request: *Screenshots in the pull request* below says how. A change nobody sees
-  needs none.
+- A change to the editor gets after screenshots of every changed screen in a comment on your own pull request: *Screenshots in
+  the pull request* below says how. A change to the site only needs none: the owner opens its Preview, and the PM tests it there
+  (owner, 21 Nov 2026). A change nobody sees needs none.
 - A change to one component is checked on that component's demo page (`/blocks/<component>/`), not on all of them (`checks`).
 - When `origin/<base>` moves, merge it into your branch (never a rebase, amend or force-push on a branch that is
   shared).
@@ -68,23 +72,27 @@ Every pull request, whatever the change:
 ## 3b. Screenshots in the pull request
 
 Moved here from the `pm` skill on 18 Nov 2026 (the sessions take them; the PM opens and reports them, `pm` skill section 4).
-One comment on the pull request, headed with what changed, for every screen the
-change touched: a before and an after, each on a phone and a computer, in English, light theme, at
-`deviceScaleFactor: 2`, in every state the change touched (open menu, error, empty, selected). Take them from the built
-branch (`npm run build`; `openEditor` and `serveBuilt` in `scripts/built-site.mjs` open the editor without a login) and,
-for *before*, from `main` the same way. Put a short caption under each image. The images never go into the shipped
+For a change to the editor only (owner, 21 Nov 2026: the owner cannot sign in to the editor on a Preview, so the images are how the
+owner sees it; a site change is seen on its Preview instead, and the PM's own test on the Preview replaces the *before*). One comment
+on the pull request, headed with what changed, for every screen the change touched: an *after* on a phone and a computer, in English,
+light theme, at `deviceScaleFactor: 2`, in every state the change touched (open menu, error, empty, selected). Take them from the
+built branch (`npm run build`; `openEditor` and `serveBuilt` in `scripts/built-site.mjs` open the editor without a login); no *before*
+and no build of `main` for it. Put a short caption under each image. The images never go into the shipped
 package or into the pull request's own diff.
 
 **How the images get into the comment.** The GitHub tools cannot upload an image, so the images
 travel in git:
 
 1. Take the PNGs into a folder outside the repository checkout, for example the scratchpad.
-2. Make an orphan branch named `pr-screenshots/<pull request number>` (`git checkout --orphan`, `git rm -rf .`, add the PNGs
-   under `shots/`, commit, `git push -u origin`). An orphan branch shares no history with `main`, so nothing reaches the
-   package or the pull request's diff.
+2. Add them to the one shared orphan branch `screenshots`, in the folder `<pull request number>/`: `git fetch origin screenshots`,
+   `git worktree add <scratchpad>/shots origin/screenshots` (the first session makes the branch with `git checkout --orphan`), copy
+   the PNGs into `<number>/`, commit and `git push origin HEAD:screenshots`. If the push is refused because another session pushed
+   first, `git pull --rebase origin screenshots` and push again; never force-push it and never touch another pull request's folder.
+   The branch shares no history with `main`, so nothing reaches the package or the pull request's diff. Never make a branch for
+   screenshots (owner, 21 Nov 2026: the repository has only `main`, feature branches and branches with an open pull request).
 3. In the comment, link each image as
-   `![caption](https://github.com/<owner>/<repo>/blob/pr-screenshots/<number>/shots/<file>.png?raw=true)`.
-4. After the pull request is merged or closed, delete the branch.
+   `![caption](https://github.com/<owner>/<repo>/blob/screenshots/<number>/<file>.png?raw=true)`.
+4. The branch and its folders stay, so the images in old pull requests keep showing.
 
 *Checked 14 Nov 2026 (pull request #632):* a pushed orphan branch and a comment with this link work, and GitHub renders the
 comment as an `<img>` of the link. Not yet checked: that the owner's browser shows the image in this private repository.

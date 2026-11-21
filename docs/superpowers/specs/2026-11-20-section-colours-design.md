@@ -92,7 +92,7 @@ is no longer darkened: the gradient of `text-section.css:45-50` goes.
 **The editor follows the same rule** (owner, 20 November 2026: "yes"). Its workspace is outside Material 3's components and layout (owner,
 13 Nov), but its colours are the theme's roles like the site's, so `check:color-roles` has one scope.
 
-**Themes and apps** keep working: a theme sets roles, not the swap. Venus and the CMS's blocks are checked on every section colour in light
+**Themes and apps** keep working: a theme sets roles, not the swap. The CMS's blocks are checked on every section colour in light
 and dark (`check:contrast`, `check:screens`, `check:themes`).
 
 ### The check
@@ -125,7 +125,7 @@ Decided by the owner on 20 November 2026:
    `check:editor-colors` updated. If it is 0.19.5's first pull request, it sets the version.
 2. **The section swap.** The swap of `tokens/material/sys.css` and `tokens/blocks/sys.css` reduced to role for role as designed, the
    reverse on filled parts' containers, the image section on an `inverse-surface` panel with the inverse roles, the gradient removed. `check:contrast` on every section colour,
-   light and dark; `check:screens` and `check:themes` green; Venus checked on the demo. A release note line: coloured sections look a
+   light and dark; `check:screens` and `check:themes` green. A release note line: coloured sections look a
    little different (skill `release-notes`).
 3. **The rest of the allowlist.** Every remaining non-M3 mix in parts and the editor is replaced by a role or an M3 opacity token, until
    the allowlist is empty.
