@@ -40,11 +40,12 @@
   .mo-button-group > :is(.mo-button, .mo-icon-button) {
     --mo-sys-target-gap: var(--mo-comp-button-group-standard-medium-between-space, 0.5rem);
   }
+  /* On one line (connected, a split button, a segmented button): the neighbours are at the sides, so only the width is limited. */
   .mo-button-group__connected > :is(.mo-button, .mo-icon-button) {
-    --mo-sys-target-gap: var(--mo-comp-button-group-connected-gap, 0.125rem);
+    --mo-sys-target-gap-inline: var(--mo-comp-button-group-connected-gap, 0.125rem);
   }
   .mo-split-button > :is(.mo-button, .mo-icon-button) {
-    --mo-sys-target-gap: var(--mo-comp-split-button-gap, 0.125rem);
+    --mo-sys-target-gap-inline: var(--mo-comp-split-button-gap, 0.125rem);
   }
   /* A button that opens a menu under it: the area ends where the menu starts (the gap to the menu, 0.25rem, on each side). */
   .mo-dropdown-menu > :is(.mo-button, .mo-icon-button) {

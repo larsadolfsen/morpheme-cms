@@ -55,7 +55,10 @@ export const PARTS = [
 ];
 
 /** Parts that alert a person: never denser than Medium, so they do not read --mo-sys-density (M3: not "in components that alert a person of changes, such as snackbars or dialogs"). */
-export const FOCUSED = [{ name: 'snackbar', file: 'theme/styles/ui/snackbar.css', selector: '.mo-snackbar' }];
+export const FOCUSED = [
+  { name: 'snackbar', file: 'theme/styles/ui/snackbar.css', selector: '.mo-snackbar' },
+  { name: 'dialog', file: 'theme/styles/ui/dialog.css', selector: '.mo-dialog' },
+];
 
 /** Files that may set the steps themselves. */
 const SETS_STEP = /^(theme\/styles\/(base|global)\.css|src\/editor\.css)$/;

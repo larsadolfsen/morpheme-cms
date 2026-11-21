@@ -41,6 +41,8 @@
   /* A snackbar (m3.material.io/components/snackbar): the standard look a dark surface seen through, the same in light
      and dark mode (as a shadow's colour, the one written here), in the middle of the screen. */
   .mo-snackbar {
+    /* M3, Density: "Don't increase the density in components that alert a person of changes, such as snackbars or dialogs": Medium at every step, with its button. */
+    --mo-sys-density: 0;
     pointer-events: auto;
     max-width: var(--mo-comp-snackbar-max-width, 28rem);
     cursor: default;

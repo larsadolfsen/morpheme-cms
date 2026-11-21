@@ -877,6 +877,12 @@ html,
 body {
   overflow-x: clip;
 }
+/* The UI components page (pages/components.astro, "/ui/") draws the gallery with this sheet but is a page of the site, not the editor: it does not clip what
+   sticks out at the side, so a part wider than the screen shows as a sideways scroll (and a check can see it) instead of being hidden. */
+html:has(.mo-ui-components),
+html:has(.mo-ui-components) > body {
+  overflow-x: visible;
+}
 
 html {
   -webkit-tap-highlight-color: transparent;

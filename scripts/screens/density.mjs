@@ -74,7 +74,7 @@ async function checkDensityParts(width, height, touch) {
         else root.style.setProperty('--mo-sys-density-base', base);
         const host = document.createElement('div');
         host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
-        host.innerHTML = `<div data-where="screen">${parts}</div><div class="mo-editor-text"><div class="ProseMirror" data-where="content">${parts}</div></div><div data-density-fixed data-where="fixed">${parts}</div>`;
+        host.innerHTML = `<div data-where="screen">${parts}</div><div class="mo-editor-text"><div class="ProseMirror" data-where="content">${parts}</div></div><div data-density-fixed data-where="fixed">${parts}</div><div class="mo-dialog" data-where="dialog">${parts}</div><div class="mo-snackbar" data-where="snackbar">${parts}</div>`;
         document.body.append(host);
         const got = {};
         for (const where of host.querySelectorAll('[data-where]'))
@@ -127,6 +127,13 @@ async function checkDensityParts(width, height, touch) {
     const fixed = steps.map((m) => m[`fixed/${part}`][0]);
     expect(`${part} in a row that picks the density is ${fixed.join(' / ')} px, not the same at every step`, new Set(fixed).size === 1);
   }
+  // A dialog and a snackbar alert a person, and everything in them stays at Medium (M3, Density: "Don't increase the density in components that
+  // alert a person of changes, such as snackbars or dialogs"): a part in them is as high at -3 as at Medium.
+  for (const where of ['dialog', 'snackbar'])
+    for (const part of ['button', 'chip', 'segment', 'field', 'row', 'menu-item']) {
+      const h = steps.map((m) => m[`${where}/${part}`][0]);
+      expect(`${part} in a ${where} is ${h.join(' / ')} px at ${names.join(' / ')}, not the same at every step`, new Set(h).size === 1);
+    }
   await page.close();
 }
 
@@ -390,6 +397,10 @@ async function checkDensityTargets(width, height, touch) {
     }
     return { count, wrong };
   });
+  // The page does not clip what sticks out (src/editor.css, html:has(.mo-ui-components)): a part wider than the screen is a sideways scroll, and fails here.
+  const scrolls = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  if (scrolls > 0)
+    problems.push(`${width}px density targets: /ui/ scrolls sideways by ${scrolls} px (a part or the gallery is wider than the screen)`);
   if (found.count < 300) problems.push(`${width}px density targets: only ${found.count} controls found on /ui/ (expected 300 or more)`);
   const seen = new Set();
   for (const w of found.wrong) {
@@ -400,6 +411,64 @@ async function checkDensityTargets(width, height, touch) {
   }
   if (found.wrong.length > seen.size)
     problems.push(`${width}px density targets (-3): ${found.wrong.length} wrong hits in all, ${seen.size} parts listed`);
+  await page.close();
+}
+
+/** A chip row that scrolls sideways shows the focus ring of the chip Tab reaches whole (owner, 21 Nov 2026: the row stayed put and the right side of the ring was cut off): on /ui/, on a phone and a computer, light and dark, Tab goes through every row that scrolls (.mo-chip__set-scroll), and after each press the ring of the focused chip (its outline's width and offset round its box) lies inside the visible box of the row. */
+async function checkChipRowFocus(width, height, scheme) {
+  const touch = width < 600;
+  const label = `${width}px ${scheme} chip row focus`;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: touch,
+    isMobile: touch,
+    locale: 'en-US',
+    colorScheme: scheme,
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await page.goto(`${site}/ui/`, { waitUntil: 'networkidle' });
+  const total = await page.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y < total + height; y += height - 100) {
+    await page.evaluate((y) => scrollTo(0, y), y);
+    await page.waitForTimeout(20);
+  }
+  const rows = await page.locator('.mo-chip__set-scroll').count();
+  if (!rows) problems.push(`${label}: no row that scrolls sideways on /ui/`);
+  let checked = 0;
+  for (let i = 0; i < rows; i++) {
+    const chips = page.locator('.mo-chip__set-scroll').nth(i).locator('button.mo-chip, a.mo-chip, .mo-chip__action');
+    const count = await chips.count();
+    if (count < 2) continue;
+    await chips.first().scrollIntoViewIfNeeded();
+    await chips.first().focus();
+    for (let k = 0; k < count; k++) {
+      await page.waitForTimeout(60);
+      const seen = await page.evaluate(() => {
+        const el = document.activeElement;
+        const row = el?.closest('.mo-chip__set-scroll');
+        if (!row) return null;
+        const style = getComputedStyle(el);
+        const room = (parseFloat(style.outlineWidth) || 0) + (parseFloat(style.outlineOffset) || 0);
+        const chip = el.getBoundingClientRect();
+        const box = row.getBoundingClientRect();
+        return {
+          text: (el.textContent || '').trim().slice(0, 20),
+          room,
+          left: chip.left - room - box.left,
+          right: box.right - (chip.right + room),
+        };
+      });
+      if (!seen) break;
+      checked++;
+      if (seen.room < 5) problems.push(`${label}: "${seen.text}" has no focus ring (${seen.room} px)`);
+      if (seen.left < -0.5 || seen.right < -0.5)
+        problems.push(
+          `${label}: row ${i + 1}, chip "${seen.text}": its focus ring is cut off (${Math.round(seen.left)} px room at the start, ${Math.round(seen.right)} px at the end)`,
+        );
+      await page.keyboard.press('Tab');
+    }
+  }
+  if (rows && checked < 4) problems.push(`${label}: only ${checked} chips were focused in ${rows} rows`);
   await page.close();
 }
 
@@ -477,6 +546,11 @@ export function register(unit) {
   unit('checkDensityScreens 1280', () => checkDensityScreens(1280, 900));
   unit('checkDensityTargets 390', () => checkDensityTargets(390, 844, true));
   unit('checkDensityTargets 1280', () => checkDensityTargets(1280, 900, false));
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    for (const scheme of ['light', 'dark']) unit(`checkChipRowFocus ${width} ${scheme}`, () => checkChipRowFocus(width, height, scheme));
   unit('checkDensitySetting 375', () => checkDensitySetting(375, 740));
   unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
 }
