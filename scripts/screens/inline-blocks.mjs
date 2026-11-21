@@ -211,7 +211,7 @@ async function checkListDesigns(width, height) {
     if (!one.edge) problems.push(`${label}: ${one.look}: no row layer or leading icon to measure`);
     else {
       // Default: the layer starts 16 dp before the text's edge at every width, and the icon is on the text's edge; Card: the container on the text's edge (its icon one 16 dp padding in).
-      // The rows that fold out have Material 3's 16 dp list padding inside their card, as the other cards.
+      // The rows that fold out have Material 3's 16 dp list padding inside their card, as the other cards (M3 Lists spec: "Leading element left padding 16dp", "Label left padding 16dp"). Old source: the 24 dp of the theme's accordion (global.css), set before 21 Nov 2026 and not M3's.
       const [layer, icon] = one.card ? [0, 16] : [-16, 0];
       if (Math.abs(one.edge.layer - layer) > 0.5)
         problems.push(`${label}: ${one.look}: the row starts ${one.edge.layer} px from the text's edge, not ${layer}`);
