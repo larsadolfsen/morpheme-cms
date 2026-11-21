@@ -2,6 +2,7 @@
 import '@theme/styles/global.css';
 import Header from '@theme/components/Header.astro';
 import Footer from '@theme/components/Footer.astro';
+import BookingFab from '@theme/components/BookingFab.astro';
 import CookieConsent from '@theme/components/CookieConsent.astro';
 import Popup from '@theme/components/Popup.astro';
 import ActionBar from '@theme/components/ActionBar.astro';
@@ -187,9 +188,11 @@ const jsonLd = {
 
     <Header />
 
-    <main id="main-content" class="mo-main">
+    <main id="main-content" tabindex="-1" class="mo-main">
       <slot />
     </main>
+
+    <BookingFab />
 
     {banner && <CookieConsent />}
     {/* The pop-ups for this page ("Promotion" in the editor). */}
@@ -219,7 +222,7 @@ const jsonLd = {
       // stored; Auto removes the stored value, so the page follows the system. A stored value is never removed because the
       // system later changes to match it.
       const scheme = window as unknown as { setColorScheme: (t: string | null) => void };
-      // One tab stop on the chosen button; the arrow keys move between the buttons and choose (the theme's ChoiceGroup, and the
+      // One tab stop on the chosen button; the arrow keys, Home and End move between the buttons and choose (the theme's ChoiceGroup, and the
       // button group's keyboard in M3: Tab, arrow keys, Space or Enter).
       const choices = () => [...document.querySelectorAll<HTMLElement>('[data-scheme-choice] [data-scheme]')];
       const showChoice = () => {
@@ -244,10 +247,17 @@ const jsonLd = {
       document.querySelectorAll('[data-scheme-choice]').forEach((group) =>
         group.addEventListener('keydown', (e) => {
           const key = (e as KeyboardEvent).key;
-          if (key !== 'ArrowLeft' && key !== 'ArrowRight' && key !== 'ArrowUp' && key !== 'ArrowDown') return;
+          if (key !== 'ArrowLeft' && key !== 'ArrowRight' && key !== 'ArrowUp' && key !== 'ArrowDown' && key !== 'Home' && key !== 'End')
+            return;
           const list = choices();
           const step = (key === 'ArrowRight' || key === 'ArrowDown') === (getComputedStyle(group).direction !== 'rtl') ? 1 : -1;
-          const next = list[(list.indexOf(document.activeElement as HTMLElement) + step + list.length) % list.length];
+          // Home chooses the first (Light) and End the last (Dark), and the page does not scroll.
+          const next =
+            key === 'Home'
+              ? list[0]
+              : key === 'End'
+                ? list[list.length - 1]
+                : list[(list.indexOf(document.activeElement as HTMLElement) + step + list.length) % list.length];
           e.preventDefault();
           next.focus();
           next.click();

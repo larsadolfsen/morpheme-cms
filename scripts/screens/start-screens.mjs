@@ -23,9 +23,9 @@ import {
 } from './support/context.mjs';
 import { allowedKeys, collect, compare, keysOf, problemsOf, readAllowlist, scan, scanRuns } from '../a11y.mjs';
 import { judge, keyboardRuns, viewportOf, walk } from '../keyboard.mjs';
-import { PHONE_FLOWS, FLOWS, runFlow } from '../keyboard-flows.mjs';
 import * as announce from '../announce.mjs';
 import * as announceFlows from '../announce-flows.mjs';
+import { PHONE_FLOWS, FLOWS, SITE_FLOW, runFlow, runSiteFlow } from '../keyboard-flows.mjs';
 
 /** Keyboard focus is visible (Modern Web Guidance, `accessibility`: "Don't disable browser native focus indicators without providing a
  * replacement ... at least 3:1", WCAG 2.4.7 and 1.4.11; the 13 `outline: none` of the theme and the editor, A1 of the audit of 15 Nov 2026).
@@ -801,6 +801,10 @@ async function checkKeyboardFlows(width) {
     problems.push(...errors.map((e) => `${width}px ${e}`));
     problems.push(...judge(findings, `flow ${flow}`, viewportOf(width)).map((line) => `${width}px ${line}`));
   }
+  // The site, not the editor: the drawer at the phone width, the header's menus at the computer's.
+  const { findings, errors } = await runSiteFlow(browser, site, width);
+  problems.push(...errors.map((e) => `${width}px ${e}`));
+  problems.push(...judge(findings, `flow ${SITE_FLOW}`, viewportOf(width)).map((line) => `${width}px ${line}`));
 }
 
 export function register(unit) {
