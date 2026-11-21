@@ -45,36 +45,44 @@ function ChipParts() {
     <Part name="Chip" use={screens.chip}>
       <Preview>
         <div className="mo-editor-parts-chips">
-          <div className={row}>
-            {chipKinds.map((k) => (
-              <SiteChip key={k} kind={k} label={screens.chipKinds[k]} />
-            ))}
-          </div>
-          <div className={`${row} mo-editor-parts-chip-image`} style={{ backgroundImage: `url("${exampleImage}")` }}>
-            <SiteChip elevated icon="calendar-blank" label={`${assist} · ${screens.elevated}`} />
-            <SiteChip elevated kind="filter" label={`${filter} · ${screens.elevated}`} />
-            <SiteChip elevated kind="filter" selected label={screens.selected} />
-            <SiteChip elevated kind="suggestion" label={`${suggestion} · ${screens.elevated}`} />
-          </div>
-          <div className={row}>
-            <SiteChip kind="filter" selected label={screens.selected} />
-            <SiteChip kind="filter" label={filter} />
-            <SiteChip kind="suggestion" selected label={`${suggestion} · ${screens.selected}`} />
-            <SiteChip icon="calendar-blank" label={screens.withIcon} />
-            <SiteChip kind="input" trailingIcon="x" label={input} />
-            <SiteChip kind="input" avatar={exampleImage} removeLabel={screens.remove(screens.withAvatar)} label={screens.withAvatar} />
-            <SiteChip kind="input" selected removeLabel={screens.remove(screens.selected)} label={screens.selected} />
-            <SiteChip kind="input" dragged avatar={exampleImage} label={screens.dragged} />
-            <SiteChip plain label={screens.plain} />
-          </div>
-          <div className={row}>
-            {chipKinds.map((k) => (
-              <SiteChip key={k} kind={k} disabled label={screens.disabled} />
-            ))}
-            <SiteChip kind="input" disabled removeLabel={screens.remove(screens.disabled)} label={screens.disabled} />
-            <SiteChip elevated disabled label={`${screens.elevated} · ${screens.disabled}`} />
-            <SiteChip href="" disabled label={screens.disabled} />
-          </div>
+          <PartSub name={screens.subs.kinds}>
+            <div className={row}>
+              {chipKinds.map((k) => (
+                <SiteChip key={k} kind={k} label={screens.chipKinds[k]} />
+              ))}
+            </div>
+          </PartSub>
+          <PartSub name={screens.elevated}>
+            <div className={`${row} mo-editor-parts-chip-image`} style={{ backgroundImage: `url("${exampleImage}")` }}>
+              <SiteChip elevated icon="calendar-blank" label={`${assist} · ${screens.elevated}`} />
+              <SiteChip elevated kind="filter" label={`${filter} · ${screens.elevated}`} />
+              <SiteChip elevated kind="filter" selected label={screens.selected} />
+              <SiteChip elevated kind="suggestion" label={`${suggestion} · ${screens.elevated}`} />
+            </div>
+          </PartSub>
+          <PartSub name={screens.subs.states}>
+            <div className={row}>
+              <SiteChip kind="filter" selected label={screens.selected} />
+              <SiteChip kind="filter" label={filter} />
+              <SiteChip kind="suggestion" selected label={`${suggestion} · ${screens.selected}`} />
+              <SiteChip icon="calendar-blank" label={screens.withIcon} />
+              <SiteChip kind="input" trailingIcon="x" label={input} />
+              <SiteChip kind="input" avatar={exampleImage} removeLabel={screens.remove(screens.withAvatar)} label={screens.withAvatar} />
+              <SiteChip kind="input" selected removeLabel={screens.remove(screens.selected)} label={screens.selected} />
+              <SiteChip kind="input" dragged avatar={exampleImage} label={screens.dragged} />
+              <SiteChip plain label={screens.plain} />
+            </div>
+          </PartSub>
+          <PartSub name={screens.disabled}>
+            <div className={row}>
+              {chipKinds.map((k) => (
+                <SiteChip key={k} kind={k} disabled label={screens.disabled} />
+              ))}
+              <SiteChip kind="input" disabled removeLabel={screens.remove(screens.disabled)} label={screens.disabled} />
+              <SiteChip elevated disabled label={`${screens.elevated} · ${screens.disabled}`} />
+              <SiteChip href="" disabled label={screens.disabled} />
+            </div>
+          </PartSub>
         </div>
       </Preview>
     </Part>

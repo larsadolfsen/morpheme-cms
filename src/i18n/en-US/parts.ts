@@ -406,6 +406,7 @@ export const parts = {
     /** The subheadings of a part: one for each size or kind it shows. */
     subs: {
       kinds: 'Kinds',
+      states: 'States',
       sizes: 'Sizes',
       squareSizes: 'Sizes, square',
       widths: 'Widths',

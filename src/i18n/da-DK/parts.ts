@@ -383,6 +383,7 @@ export const parts: Messages['parts'] = {
     toggle: { off: 'Slået fra', on: 'Slået til' },
     subs: {
       kinds: 'Slags',
+      states: 'Tilstande',
       sizes: 'Størrelser',
       squareSizes: 'Størrelser, firkantede',
       widths: 'Bredder',
