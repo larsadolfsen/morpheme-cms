@@ -167,12 +167,15 @@ reasons), and `check:screens` checks text, placeholder, slot icons and outline o
 
 Owner, 19 Nov 2026: the sites the CMS builds and the editor meet **WCAG 2.2 level AA**. A change never lowers it: contrast
 (`check:contrast`), keyboard use, a visible focus ring for keyboard focus (`:focus-visible`), names for screen readers, and
-target sizes. Where Material 3 and WCAG differ, WCAG wins, except a shortfall a theme names (below). The checks that enforce it: roadmap 0.19.2 to 0.19.4.
+target sizes. Where Material 3 and WCAG differ, **Material 3 wins** (owner, 21 Nov 2026: "we follow MD3 even if it does not comply
+with accessibility"): the part takes M3's value as printed, and the theme names the shortfall (below). The checks that enforce it:
+roadmap 0.19.2 to 0.19.4.
 
 A theme may fall short of it on the site if its page says so (owner, 21 Nov 2026): the theme's `accessibility.json` names each
 shortfall by WCAG criterion, the checks let through only what it names, and the editor shows it on the theme's page
 (`docs/superpowers/specs/2026-11-21-theme-accessibility-statement-design.md`). *Material* follows Material 3 exactly and names the
-shortfalls that gives. The editor's own workspace always meets WCAG 2.2 AA.
+shortfalls that gives; the editor's screens use the same parts, so the same named shortfalls hold there. Only the editor's own
+workspace (its bar, overflow menu, text and block menus), which is outside Material 3, always meets WCAG 2.2 AA.
 
 ### Icons are Material Symbols
 
