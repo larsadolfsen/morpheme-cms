@@ -1,5 +1,19 @@
 # @morphemecms/cms
 
+## 0.19.3
+
+### Patch Changes
+
+- 21e0b53: The editor has a Skip to content link: the first Tab shows it, and Enter jumps over the navigation to the screen's content.
+- 21e0b53: A group in the site's menu drawer opens and closes with Space and Enter
+- 21e0b53: In the editor, a field you reach with the Tab key now scrolls clear of the top bar, the Save bar and the file bar. The header and footer previews no longer take Tab stops, the photo credit no longer hides its own Close, and a tab's content shows a focus ring when it takes focus.
+- 21e0b53: The focus stays where you are working with the keyboard: it goes to the page's title when a page opens from the list, stays in the text after Save, stays in a block after Move down or Move up, and moves between Edit dashboard and Done.
+- 21e0b53: The focus ring on a plain list's row has room around its text
+- 21e0b53: Menus in the editor work with the keyboard: focus goes into a menu when it opens, the arrow keys, Home, End and a letter move between the choices, and Escape, Tab or a choice close it with focus back on its button.
+- 21e0b53: The floating button comes after the content in the Tab order, the skip link focuses the main content, and focus rings on small links have room
+- 21e0b53: The site's pop-up no longer opens while you Tab, and the header menu and the colour choice answer the arrow keys, Home and End
+- 21e0b53: Alt+F10 moves the focus from the text, or from a selected block, to the text bar. The arrow keys move between its tools, and Escape goes back to where you were. Delete removes a selected block.
+
 ## 0.19.2
 
 ### Patch Changes
