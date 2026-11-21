@@ -5,6 +5,10 @@ export const common = {
   saveChanges: 'Save changes',
   saving: 'Saving…',
   deleting: 'Deleting…',
+  /** Said to a screen reader when a long load ends (useLoadAnnounce); what is loading is said when it starts. */
+  loaded: 'Loaded',
+  /** Said to a screen reader at every 25 % of a determinate progress: "Uploading… 50%". */
+  progressAt: (label: string, percent: number) => `${label} ${percent}%`,
   cancel: 'Cancel',
   close: 'Close',
   /** The handle at the top of a sheet on a phone (SheetTitle), for screen readers. */

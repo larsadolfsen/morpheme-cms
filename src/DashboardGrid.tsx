@@ -9,7 +9,7 @@
 import { useState } from 'react';
 import { Plus, type Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { siteText, t } from './i18n';
-import { Announce } from './useAnnounce';
+import { LoadAnnounce } from './useAnnounce';
 import { apps } from './site';
 import { MAX_WIDGETS } from './dashboard.mjs';
 import { valuesOf } from './widgetValues.mjs';
@@ -57,7 +57,7 @@ export function Dashboard({ dash, env, files }: { dash: DashboardEditing; env: E
   if (dash.load.status === 'loading') {
     return (
       <div aria-busy="true" className="mo-editor-muted">
-        <Announce text={t.dashboard.loading} />
+        <LoadAnnounce text={t.dashboard.loading} />
         <LoadingIndicator>{t.dashboard.loading}</LoadingIndicator>
       </div>
     );
@@ -65,6 +65,7 @@ export function Dashboard({ dash, env, files }: { dash: DashboardEditing; env: E
   if (dash.load.status === 'error') {
     return (
       <Notice
+        role="alert"
         title={t.dashboard.notLoaded}
         action={
           <Button kind="tonal" size="small" onClick={dash.reload}>
