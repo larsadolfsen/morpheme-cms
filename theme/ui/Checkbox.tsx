@@ -8,7 +8,7 @@
 // the box in the accent. With `onChange` (the editor) `checked` is whether it is ticked now, else ticked from the start.
 // Other attributes (`name`, `value`, `required`, data-…) go on the <input>, and `className` on
 // the label.
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { Svg } from '@morphemecms/cms/src/icon';
 
 /** A checkbox's classes, and the error's when it is wrong. */
@@ -34,6 +34,8 @@ export default function Checkbox({
   useEffect(() => {
     if (input.current) input.current.indeterminate = Boolean(indeterminate);
   }, [indeterminate]);
+  // The line under the name says what is wrong (or helps): the box points to it, so a reader says it with the box.
+  const lineId = useId();
   const line = typeof error === 'string' && error ? error : supporting;
   return (
     <label className={[checkboxClass(Boolean(error)), className].filter(Boolean).join(' ')}>
@@ -44,6 +46,7 @@ export default function Checkbox({
           className="mo-checkbox__input"
           {...(rest.onChange ? { checked: Boolean(checked) } : { defaultChecked: checked })}
           aria-invalid={error ? true : undefined}
+          aria-describedby={line ? lineId : undefined}
           data-indeterminate={indeterminate ? '' : undefined}
           {...rest}
         />
@@ -52,7 +55,11 @@ export default function Checkbox({
       </span>
       <span className="mo-checkbox__text">
         <span className="mo-checkbox__label">{label}</span>
-        {line && <span className="mo-checkbox__supporting">{line}</span>}
+        {line && (
+          <span id={lineId} className="mo-checkbox__supporting">
+            {line}
+          </span>
+        )}
       </span>
     </label>
   );

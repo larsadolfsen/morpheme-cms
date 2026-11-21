@@ -334,7 +334,9 @@ function CropDialog({
   return (
     <dialog
       ref={ref}
-      aria-labelledby={headline}
+      // The headline is drawn while the page is shown: until then a label names the dialog.
+      aria-labelledby={shown ? headline : undefined}
+      aria-label={shown ? undefined : t.media.crop.title}
       className="mo-editor-crop-page"
       tabIndex={-1}
       onCancel={(e) => {
