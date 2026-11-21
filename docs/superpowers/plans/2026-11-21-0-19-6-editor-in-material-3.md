@@ -37,9 +37,9 @@ The owner's rules for it:
 | N6, the drawers' fixed width | Goes: the drawer hugs its content between M3's 220 and 360 dp. | |
 | P3, more than two top bar actions | Actions after the second move into the top app bar's overflow menu. | The search app bar (0.25.0) ends the entry. |
 | B3, settings in a pane from 600 dp | The batch reads the side-sheets and dialogs pages again. If the standard side sheet is M3's pattern for this, the entry moves to *Where Material 3 is silent*; otherwise the batch reports what M3 prints and stops. | |
-| SV6, the search bar on the start screen | The same check as B3: "Add a search bar below a title to search specific content" may make it M3 already. | |
+| SV6, the search bar on the start screen | The same check as B3: "Add a search bar below a title to search specific content" may make it M3 already. Where M3's 360 dp minimum width and the 16 dp side margins clash on a narrow phone, the margins win and the bar narrows (owner, 21 Nov 2026). | |
 | C1, B1, B2, the full-screen pages | Not now. They need the theme Dialog's full-screen kind, which comes back in 0.20.0 (DG1). | 0.20.0: below 600 dp a full-screen dialog, from 600 dp a basic dialog or the side sheet (B3), as M3 prints. |
-| P2, the browser's right-click menu | Not now. M3 wins here means the editor draws its own context menu, which is a feature with its own spec. | 0.25 (Screens), owner to confirm. |
+| P2, the browser's right-click menu | Not now. M3 wins here means the editor draws its own context menu, which is a feature with its own spec. | 0.25 (Screens), owner, 21 Nov 2026. |
 
 ## The audit's open questions, answered by the rules
 
@@ -70,6 +70,8 @@ The owner's rules for it:
   outline in `outline`, named in the pull request.
 - **Phosphor imports:** not an M3 finding. On `main`, all 81 files that import Phosphor components are on the allowlist, and
   `check:phosphor` is green. They move to `Icon` in 0.20.0, where Phosphor leaves the CMS.
+- **Dialogs** (owner, 21 Nov 2026, audit #1126): the actions are text buttons and focus goes to the first control when a dialog
+  opens, as M3 prints. `src/ask.tsx` and `src/BlockDialog.tsx` change in batch 3.
 - **The save bar** is a standard bottom sheet in the screens (EB1), so it is in scope. The text bar and the block's action row are the
   page and post editor's, so they are not.
 

@@ -118,11 +118,9 @@ Run `npm run check:fast` while you build (after each step): it runs only the che
 Rules from before 21 Nov 2026 hold only where they match what M3 prints; where they differ, M3 wins (skill `material-3`, rule 6).
 Short forms, for a developer to know before reading the specs. A rule changes only where it lives.
 
-- **Dialog.** In a basic dialog no control has the focus when it opens; the main choice is a filled button and the other
-  choices are outlined; the confirming button is the one closest to the edge (`src/ask.tsx` is the editor's one pattern;
-  the owner's dialog rule is quoted in `docs/superpowers/specs/2026-11-14-one-save-while-writing-design.md`, 3.4). **Under review:**
-  M3 prints text buttons for a dialog's actions and initial focus on its first control (#1126); the owner decides, and a new dialog
-  asks the PM until then.
+- **Dialog.** As M3 prints (owner, 21 Nov 2026, replacing the 15 Nov rule): the actions are text buttons, the confirming one
+  closest to the edge, and focus goes to the first control when the dialog opens (`src/ask.tsx` is the editor's one pattern; it
+  and `src/BlockDialog.tsx` change in 0.19.6; audit #1126).
 - **Save on a phone.** Every `Save` goes in the bottom bar, and that bar is the standard bottom sheet, with no custom
   design (`docs/material-deviations.md`, *Editor-only bars*, item 3, and *A block's sheet on a phone*, B1). **Ends in 0.20.0**
   (owner, 21 Nov 2026): below 600 dp a form is M3's full-screen dialog, with Save in its header.
