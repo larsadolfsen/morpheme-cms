@@ -30,10 +30,10 @@ const escape = (s) =>
     .replace(/^(\s*)([-+]|\d+(?=\.))/gm, '$1\\$2');
 const unescape = (s) => s.replace(/\\([!-/:-@[-`{-~])/g, '$1');
 
-const IMAGE = /!\[((?:\\.|[^\]])*)\]\(([^)\s]+)\)/;
+const IMAGE = /!\[((?:\\.|[^\\\]])*)\]\(([^)\s]+)\)/;
 // A section's image (`image`, `imageAlt`, and `imageDecorative`: "Decorative image", marked in its address as a
 // image in the text is, crop.mjs) as an image in the text, and back.
-const image = (image, alt, decorative) => `![${String(alt ?? '').replace(/[[\]]/g, '\\$&')}](${decorated(image, decorative === true)})`;
+const image = (image, alt, decorative) => `![${String(alt ?? '').replace(/[\\[\]]/g, '\\$&')}](${decorated(image, decorative === true)})`;
 const imageOf = (m) => {
   const { address, decorative } = decorativeOf(m[2]);
   return { image: address, imageAlt: unescape(m[1]), ...(decorative ? { imageDecorative: true } : {}) };

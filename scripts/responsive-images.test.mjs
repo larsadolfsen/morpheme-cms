@@ -43,8 +43,9 @@ async function live(dir) {
   const hits = [];
   const server = createServer((req, res) => {
     hits.push(req.url);
-    const file = path.join(dir, 'public', decodeURIComponent(req.url));
-    if (!fs.existsSync(file)) return res.writeHead(404).end('not found');
+    const root = path.resolve(dir, 'public');
+    const file = path.resolve(root, '.' + decodeURIComponent(new URL(req.url, 'http://x').pathname));
+    if (!file.startsWith(root + path.sep) || !fs.existsSync(file)) return res.writeHead(404).end('not found');
     res.writeHead(200).end(fs.readFileSync(file));
   });
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
