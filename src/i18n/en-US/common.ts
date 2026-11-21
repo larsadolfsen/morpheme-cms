@@ -5,6 +5,10 @@ export const common = {
   saveChanges: 'Save changes',
   saving: 'Saving…',
   deleting: 'Deleting…',
+  /** Said to a screen reader when a long load ends (useLoadAnnounce); what is loading is said when it starts. */
+  loaded: 'Loaded',
+  /** Said to a screen reader at every 25 % of a determinate progress: "Uploading… 50%". */
+  progressAt: (label: string, percent: number) => `${label} ${percent}%`,
   cancel: 'Cancel',
   close: 'Close',
   /** The handle at the top of a sheet on a phone (SheetTitle), for screen readers. */
@@ -20,8 +24,14 @@ export const common = {
   searchIn: (what: string) => `Search ${what.toLowerCase()}`,
   moveUp: 'Move up',
   moveDown: 'Move down',
+  /** The same actions on a row of a list, named by the row, for screen readers: "Move Contact up". */
+  moveUpItem: (name: string) => `Move ${name} up`,
+  moveDownItem: (name: string) => `Move ${name} down`,
+  removeItem: (name: string) => `Remove ${name}`,
   notInUse: 'Not in use',
   noMatch: 'No results',
+  /** Said when Save finds several problems, before the first one: "3 problems. …". */
+  problems: (count: number) => `${count} problems`,
   notSaved: (error: string) => `Couldn’t save: ${error}`,
   backTo: (to: string) => `Back to ${to}`,
   back: 'Back',

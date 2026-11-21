@@ -686,7 +686,11 @@ async function checkBlockHandleCorner(width) {
     for (let i = 0; i < count; i++) {
       const block = blocks.nth(i);
       const card = block.locator(':scope > .mo-site-block-card');
-      const name = await card.evaluate((el) => (el.querySelector(':scope > .mo-site-block-card-button') ?? el).getAttribute('aria-label'));
+      // The kind of block, not its place: blocks of one kind are numbered (`Image grid 2 of 3`), the base name is the kind.
+      const name = await card.evaluate((el) => {
+        const named = el.querySelector(':scope > .mo-site-block-card-button') ?? el;
+        return named.dataset.base ?? named.getAttribute('aria-label');
+      });
       if (seen.has(name)) continue;
       seen.add(name);
       // The cursor is out of every block first, as the other units do: the block before lets go of its row, and the page settles.
@@ -851,7 +855,14 @@ async function checkBlockMove(width) {
     await page.close();
     return;
   }
-  const names = () => page.locator('.ProseMirror .mo-site-block-handle').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+  // A block is told by its name without its place: blocks of one kind are numbered (`Steps 1 of 2`) by where they are, so a move renumbers them.
+  const names = () =>
+    page.locator('.ProseMirror .mo-site-block-handle').evaluateAll((els) =>
+      els.map((e) => {
+        const card = e.closest('.mo-site-block')?.querySelector('.mo-site-block-card-button, .mo-site-block-inline');
+        return card?.dataset.base ? `Drag ${card.dataset.base} to move it` : e.getAttribute('aria-label');
+      }),
+    );
   const selected = () => page.locator('.ProseMirror .mo-site-block-selected').count();
   const up = page.locator('.mo-editor-tools').getByRole('button', { name: 'Move up' });
   const down = page.locator('.mo-editor-tools').getByRole('button', { name: 'Move down' });

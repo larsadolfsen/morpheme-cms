@@ -82,6 +82,9 @@ const measure = (STYLES) => {
             'class',
             'style',
             'id',
+            // The editor makes the Preview's links and controls inert on purpose (PreviewScreen.tsx, 0.19.4 batch 6): the Preview is a picture
+            // of the page, not a place to work, so nothing in it takes focus (WCAG 2.4.3). The site's own page is live, so it never has it.
+            'inert',
             'sizes',
             'srcset',
             'src',

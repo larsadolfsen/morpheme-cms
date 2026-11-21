@@ -34,7 +34,7 @@ import {
 import Screen from './Screen';
 import EditorFooter from './EditorFooter';
 import { MainDrawerSample } from './MainDrawerParts';
-import { Part, PartGroup, PartsShown, useGrouped, useSearched } from './PartsShown';
+import { Example, Part, PartGroup, PartsShown, useGrouped, useSearched } from './PartsShown';
 import {
   EmptyNote,
   FoldSection,
@@ -291,9 +291,9 @@ export default function Parts({ env }: { env: Env }) {
                     onToggle={() => setFolded(folded === i ? null : i)}
                     tools={
                       <>
-                        <IconButton icon={ArrowUp} label={t.common.moveUp} disabled={i === 0} />
-                        <IconButton icon={ArrowDown} label={t.common.moveDown} disabled={i === 1} />
-                        <IconButton icon={Trash} label={t.common.remove} />
+                        <IconButton icon={ArrowUp} label={t.common.moveUpItem(sample.question(n))} disabled={i === 0} />
+                        <IconButton icon={ArrowDown} label={t.common.moveDownItem(sample.question(n))} disabled={i === 1} />
+                        <IconButton icon={Trash} label={t.common.removeItem(sample.question(n))} />
                       </>
                     }
                   >
@@ -489,23 +489,27 @@ export default function Parts({ env }: { env: Env }) {
             </Part>
 
             <Part name="MenuRow" use={use.menuRow}>
-              <MenuRow
-                label={t.advanced.place}
-                hint={t.advanced.placeHint}
-                value={menuPick}
-                options={[
-                  { value: 'auto', label: t.advanced.placeAuto },
-                  { value: 'eu', label: jurisdictionName('eu') },
-                ]}
-                onChange={setMenuPick}
-              />
-              <MenuRow
-                label={t.advanced.place}
-                value="auto"
-                options={[{ value: 'auto', label: t.advanced.placeAuto }]}
-                disabled
-                onChange={() => {}}
-              />
+              <Example label={t.parts.screens.example(1)} flat>
+                <MenuRow
+                  label={t.advanced.place}
+                  hint={t.advanced.placeHint}
+                  value={menuPick}
+                  options={[
+                    { value: 'auto', label: t.advanced.placeAuto },
+                    { value: 'eu', label: jurisdictionName('eu') },
+                  ]}
+                  onChange={setMenuPick}
+                />
+              </Example>
+              <Example label={t.parts.screens.example(2)} flat>
+                <MenuRow
+                  label={t.advanced.place}
+                  value="auto"
+                  options={[{ value: 'auto', label: t.advanced.placeAuto }]}
+                  disabled
+                  onChange={() => {}}
+                />
+              </Example>
             </Part>
 
             <Part name="UnfoldButton, subListClass" use={use.unfold}>

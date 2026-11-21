@@ -38,6 +38,7 @@ import { shownAt } from './images';
 import { pageH1 } from './sections.mjs';
 import { setH1Panel } from './pageH1Panel.mjs';
 import type { BlockData } from './blocks';
+import { announce } from '../lib/announce';
 import { PreviewScreen } from './PreviewScreen';
 import Screen from './Screen';
 import { useFormPages } from './FormFrame';
@@ -279,7 +280,12 @@ export function usePagePreview(route: string, shown: boolean, name: string): [(d
     setProblem('');
     location.hash = previewRoute(route);
     pageDocument(draft).then(
-      (page) => n === run.current && setHtml(page.replace('</head>', `${HOVER_LINES}</head>`)),
+      (page) => {
+        if (n !== run.current) return;
+        setHtml(page.replace('</head>', `${HOVER_LINES}</head>`));
+        // The person asked for the preview (the button): said once when it is ready, never as the form changes.
+        announce(t.preview.updated);
+      },
       (e) => n === run.current && setProblem(t.preview.failed((e as Error).message)),
     );
   }

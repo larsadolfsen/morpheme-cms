@@ -45,6 +45,7 @@ export const library: Messages['library'] = {
       .filter(Boolean)
       .join(', '),
   readMore: 'Læs mere',
+  readMoreOn: (what) => `Læs mere: ${what}`,
   photoInfo: 'Om billedet',
   photoBy: (name) => `Foto af ${name} på Unsplash`,
   photoFromUnsplash: 'Foto fra Unsplash',

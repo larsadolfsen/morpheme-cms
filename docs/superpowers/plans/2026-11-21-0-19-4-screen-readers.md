@@ -59,6 +59,42 @@ flows) and the allowlist holds what it finds. The source today:
 | Page and route | one `<title>` for the whole editor (`pages/editor/index.astro`: the site's name) | a screen change in the one-page editor announces nothing and the title does not change (2.4.2) |
 | Block cards and the text | the text area's name is 0.19.2's; the block cards' names are 0.19.2's (2.5.3) | what is said when a block is selected, moved, removed; the text bar's Alt+F10 is not announced |
 
+## Inventory
+
+Measured by batch 1 (21 Nov 2026) on the built demo, on the base that has 0.19.2 and 0.19.3, and measured again after the scope fix of 21 Nov 2026 (*The
+check*: the editor's screens and one page per block, never the content): `check:announce`, 250 editor screens and the 10 demo Blocks pages at 1280 and
+390 px, and the flows A, B, C, F, I, J, K, L. It is what `scripts/announce-allowlist.json` holds: 43 entries after batches 1, 3 and 4 and the scope fix (52 on the feature just before it, 73 at batch
+1, whose first run also walked the demo's pages, posts and categories), each a problem, a selector and the screens or flows it is on. A count of **entries** is
+distinct selectors; **places** is the screens or flows they are found on (one entry on many screens counts once per screen).
+
+| Problem | What it is | Entries at the baseline | Now | Fixed by batch (pull request) |
+| --- | --- | ---: | ---: | :---: |
+| `no-announcement` | a step that should be announced (an inserted, moved or removed block, a selected block) says nothing from a region that was there before | 4 | 0 | 4 (#1086), 4b (#1097), 5 (#1102), 6 (#1105) |
+| `repeated-name` | two controls of one role with one name in one list (the footer links of the licences, the screen crumbs, the block handles on the Blocks pages; the component gallery's examples) | 35 | 0 | 2 (#1090) |
+| `tab-state` | a menu button with `aria-haspopup` and no `aria-expanded` | 0 | 0 | 3 (#1088) |
+| `broken-reference` | an `aria-describedby`, `aria-labelledby` or `aria-controls` that points at an element that is not in the page | 0 | 0 | 3 (#1088) |
+| `unnamed-container` | the footer links' `nav` has no name, and there are two navigations | 2 | 0 | 2 (#1090) |
+| `bad-name` | a card whose name is a file name (the Files screen) | 1 | 0 | 2 (#1090) |
+| `no-name` | the inline notice's `role=button` has no name (the Cards page) | 1 | 0 | 2 (#1090) |
+| `icon-name`, `disabled-no-reason`, `live-region`, `double-announcement`, `wrong-urgency`, `flow-focus-unnamed`, `flow-lost-focus`, `wrong-description` | found nowhere | 0 | 0 | none |
+
+**The allowlist is at 0** (`scripts/announce-allowlist.json` is `[]`) since batch 6 (#1105) merged.
+
+**The batches and their pull requests** (all into `feature/0.19.4-screen-readers`): 1 the version and the check, #1085; 2 names, #1090; 3 roles and states, #1088; 4 the announcer and the live
+regions, #1086, with 4b loading, progress and flow K, #1097; 5 open, close and change, #1102; 6 blocks, the text and the preview, #1105; 7 the reader pass and the notes (this one:
+`docs/screen-reader-test.md`, the release note `screen-readers-reader-pass` in both languages, the `checks` entry). Also in the feature: the scope fix, #1089, and the CodeQL alerts, #1087.
+
+The scope fix removed 9 entries (by the count before batch 3 merged): the category rows' links (`src/data/categories/`), the links and headings a site owner wrote in the text area
+(`typography.md`, `prose-fixture.md` and the text sample of *Developer › Parts › Editor*), and the repeated name of the block cards on those two prose pages
+(their blocks are walked on the Blocks pages, where the name is not repeated). Every finding on the Blocks pages was in the list already, so it added none.
+
+What the first run shows about the source reading above: **icon ligature names are not a problem today** (icons are SVG and `aria-hidden`); the
+**inserted live region** is (every status that the editor draws, `Saving…`, `Draft saved`, the dashboard's loading text and the updates card, comes into the
+page with its text, so a reader may not read it); there is **no live region at all** for a moved or removed block or for the autosave state while typing
+(`J: after typing`); the speech log (`announce-log.txt`) has what is said at each step. Flow K covers *Change type* and *a removed block*; a copied link, a
+notice and a failed load are not walked yet (batch 4 adds them with their messages). Flow J's error step runs only when emptying the page settings' fields
+marks one invalid, which it does today; the required fields and the error count come with batch 4.
+
 ## Live regions
 
 One rule so nothing is said twice: **there is one announcer, and a message goes through it or through an element's own `role`, never both.**
@@ -110,7 +146,14 @@ One rule so nothing is said twice: **there is one announcer, and a message goes 
 - `npm run check:announce` (`scripts/check-announce.mjs`), Playwright on the built demo with `openEditor` and `serveBuilt`
   (`scripts/built-site.mjs`), no new dependency. It builds on `scripts/a11y.mjs` (0.19.2: the scan, the allowlist code) and the flows of
   `scripts/keyboard-flows.mjs` (0.19.3), so a flow is written once.
-- **The name walk:** on every screen `check:screens` opens, at 1280 and 375 px, inside the existing `screens` shards like `check:a11y` and
+- **What the name walk covers** (owner, 21 Nov 2026: "It is checking content, not blocks"): the editor's own screens (settings, appearance,
+  developer and parts, licences, apps and the rest that `check:screens` opens) plus **one page per block**, the demo's Blocks pages
+  (`demo/src/content/pages/blocks-<name>.md`, the list in `scripts/demo-blocks.mjs`), walked deliberately after the links, so every block's editing
+  UI is covered whichever links there are. It **never walks the content**: no other page, post or data entry under `src/content/` or `src/data/`,
+  and a link or text a site owner wrote in a text area (`[role=textbox]` or `contenteditable`, the prose or a block's text) is never a finding, also
+  on the Blocks pages; the editor's chrome around the text (bars, block cards, handles, slots, notices) is. One rule decides both runs:
+  `announceWalks`, `blockPagesLeft` and `isAuthored` in `scripts/announce.mjs`, tested in `scripts/announce.test.mjs`.
+- **The name walk:** on each of those screens, at 1280 and 390 px, inside the existing `screens` shards like `check:a11y` and
   `check:keyboard` (not a new job), it reads Chromium's accessibility tree and fails on what axe cannot tell:
   - an interactive node (button, link, tab, menu item, switch, checkbox, field) whose **name is an icon's ligature text** (the names of
     `src/data/icons.json` and Material Symbols), is only punctuation, equals its role, or is a file name or an id;
@@ -191,6 +234,8 @@ docs-only pull request (the plan) goes into `main` with an **empty changeset** a
 
 ## Check again when 0.19.2 and 0.19.3 are in `main`
 
+*Batch 1 did this on 21 Nov 2026:* `feature/0.19.4-screen-readers` has 0.19.2 (`scripts/a11y.mjs`, the allowlist code) and 0.19.3 (`check:keyboard`, `scripts/keyboard-flows.mjs`). The check reuses the flows through new hooks in `scripts/keyboard-flows.mjs` (`afterStep`, `init`, `run`; the flows themselves are unchanged) and has its own `scripts/allowlist.mjs` (the same entry shape as the two others, so they can import it later) instead of importing `a11y.mjs`'s, whose list file is fixed.
+
 Batch 1 reads these before it writes the check, and corrects this plan in its own pull request where the real code differs:
 
 - **From 0.19.2** (`feature/0.19.2-a11y-scan`): `scripts/a11y.mjs` (the scan, `readAllowlist`, `compare`, `keysOf`) and `scripts/a11y-allowlist.json` (the entry
@@ -205,6 +250,10 @@ Batch 1 reads these before it writes the check, and corrects this plan in its ow
 
 ## Done when
 
-`check:announce` runs in CI on every pull request with its flows, its allowlist is empty (or holds only entries the owner approved), the owner has
-done a reader pass on staging with NVDA or Narrator and on a phone with TalkBack (or has decided in words that the check alone is enough), and 0.19.4 has run on
-staging before the owner releases it.
+Status, 21 Nov 2026, after batch 7 is written:
+
+- [x] `check:announce` runs in CI on every pull request with its flows (A, B, C, F, I, J, K, L).
+- [x] Its allowlist is empty (since #1105).
+- [x] The owner's steps for the reader pass are in `docs/screen-reader-test.md`; the release note *Screen readers* is pending in English and Danish.
+- [ ] The owner has done a reader pass on staging with NVDA or Narrator and on a phone with TalkBack (or has decided in words that the check alone is enough).
+- [ ] 0.19.4 has run on staging before the owner releases it.

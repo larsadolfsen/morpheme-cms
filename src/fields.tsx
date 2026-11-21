@@ -151,10 +151,14 @@ export const WrongField = createContext<Wrong | null>(null);
 export function useWrongField(say: (text: string) => void, open?: (path: string) => void) {
   const [wrong, setWrong] = useState<{ path: string; at: number } | null>(null);
   const field = useMemo<Wrong | null>(() => wrong && { ...wrong, clear: () => setWrong(null) }, [wrong]);
-  const stop = (problem: Problem | null) => {
+  // `problem` is the first problem, or all of them (problemsAt): with several, the message starts with how many ("3 problems. …"), and the
+  // first one's field is marked and gets the focus (3.3.1).
+  const stop = (found: Problem | Problem[] | null) => {
+    const all = Array.isArray(found) ? found : found ? [found] : [];
+    const problem = all[0] ?? null;
     if (problem) open?.(problem.path);
     setWrong(problem && { path: problem.path, at: Date.now() });
-    if (problem) say(problem.text);
+    if (problem) say(all.length > 1 ? `${t.common.problems(all.length)}. ${problem.text}` : problem.text);
     return !!problem;
   };
   return { field, stop };
@@ -176,6 +180,10 @@ function useMarked<T extends HTMLElement>(props: Props) {
     void el.offsetWidth;
     el.classList.add('mo-editor-wrong');
     el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    // Focus goes to the first field that is wrong, so a screen reader says its name and its problem (3.3.1); the scroll above is the one that moves.
+    el.querySelector<HTMLElement>('input:not([type=hidden]), textarea, select, [contenteditable=true], [role=textbox], button')?.focus({
+      preventScroll: true,
+    });
   }, [here, wrong?.at]);
   // A change in the marked field ends the marking.
   const onChange = (v: unknown) => {
@@ -241,7 +249,14 @@ export function HeadImage(props: Props) {
   };
   return (
     <div ref={box} className="mo-editor-theme-picture-box">
-      <button type="button" onClick={pick} aria-label={text ? t.forms.changeImage : t.forms.pickImage} className="mo-editor-theme-picture">
+      {/* With an image the Change image button beside it does the same: this one is only a bigger target for a pointer, so a screen reader
+          gets one button, not two with one name (and the tab order is not longer). */}
+      <button
+        type="button"
+        onClick={pick}
+        {...(text ? { 'aria-hidden': true, tabIndex: -1 } : { 'aria-label': t.forms.pickImage })}
+        className="mo-editor-theme-picture"
+      >
         {drawn ? (
           <img src={drawn} alt="" className="mo-cover" />
         ) : (
@@ -885,8 +900,8 @@ export function ListInput({
             onToggle={() => setOpen(open === i ? null : i)}
             tools={
               <>
-                <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} />
-                <IconButton icon={Trash} label={t.common.remove} onClick={() => remove(i)} />
+                <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} name={title(item, i) || t.forms.empty} />
+                <IconButton icon={Trash} label={t.common.removeItem(title(item, i) || t.forms.empty)} onClick={() => remove(i)} />
               </>
             }
           >
@@ -1076,7 +1091,7 @@ export function MenuList({
               actions={
                 <span className="mo-keep mo-editor-field-item-actions">
                   <IconButton icon={PencilSimple} label={t.forms.editOne(nameOf(item))} onClick={() => edit(i)} />
-                  <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} />
+                  <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} name={nameOf(item) || t.forms.empty} />
                   {sub && (
                     <IconButton
                       icon={CaretDown}

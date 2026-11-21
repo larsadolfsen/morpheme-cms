@@ -41,8 +41,11 @@ import { openPalette, usePaletteOpen } from './paletteOpen';
 import { ariaShortcut, shortcutText } from './shortcuts';
 import { SiteLogoLink } from './SiteLogoLink';
 import { ScreenHidden } from './screenHidden';
+import { announce } from '../lib/announce';
 import { useTopBarSlot } from './topBarSlot';
 import { safeHref } from '../lib/safe-url.mjs';
+import { pageTitle } from '../lib/pageTitle.mjs';
+import { siteName } from '@site/editor';
 
 // `label` is the screen back goes to, named by the back arrow and the breadcrumbs. `guard` takes every
 // way out of the screen (back, the breadcrumbs and the logo) and goes it, after warning about changes
@@ -154,6 +157,9 @@ export function PaletteBar({ className = '' }: { className?: string }) {
   );
 }
 
+/** Whether a screen has been drawn in this visit: the first one is the page's load, which a reader says by itself. */
+let arrived = false;
+
 export default function Screen<T extends string>({
   title,
   back,
@@ -198,6 +204,23 @@ export default function Screen<T extends string>({
   }, [home, slot]);
   // The form under its Preview (screenHidden.ts): kept, but not drawn.
   const hidden = useContext(ScreenHidden);
+  // A screen reached from a screen of the editor says its heading once (WCAG 2.4.2, 4.1.3): the heading that takes the focus above is read by the focus itself, and
+  // a screen where the focus stays in a field or a button (the focus effect leaves it alone) is told by the announcer. The first screen of a visit is read by the page's own load.
+  useEffect(() => {
+    if (hidden) return;
+    if (!arrived) {
+      arrived = true;
+      return;
+    }
+    const timer = setTimeout(() => {
+      if (!document.activeElement?.matches('[data-screen-title]')) announce(title);
+    }, 200);
+    return () => clearTimeout(timer);
+  }, []);
+  // The page's title is the screen's (`Pages – My site`): the one place the editor sets it. A screen that is kept but hidden leaves it to the one shown.
+  useEffect(() => {
+    if (!hidden) document.title = pageTitle(title, siteName);
+  }, [title, hidden]);
   const fabs = useCountFabs();
   useFabLift(fabs.count > 0);
   // The way here, without the start screen: the logo in the bar is the way there.
@@ -301,7 +324,12 @@ export default function Screen<T extends string>({
               <nav aria-label={t.library.breadcrumbs} className="mo-row mo-keep mo-editor-screen-breadcrumbs">
                 {crumbs.map((c) => (
                   <span key={c.href} className="mo-row">
-                    <a href={safeHref(c.href)} onClick={leave()} className="mo-truncate mo-editor-screen-crumb">
+                    <a
+                      href={safeHref(c.href)}
+                      onClick={leave()}
+                      aria-label={t.common.backTo(c.label)}
+                      className="mo-truncate mo-editor-screen-crumb"
+                    >
                       {c.label}
                     </a>
                     <CaretRight size={14} className="mo-keep" />

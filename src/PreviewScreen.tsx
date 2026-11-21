@@ -9,6 +9,7 @@ import { HEIGHT, MAX_WIDTH, MIN_WIDTH, SIZES, siteBreakpoints, sizeAt, widthOf }
 import { BREAKPOINTS } from '../lib/breakpoints.mjs';
 import { SegmentedButton } from './ui';
 import { t } from './i18n';
+import { announce } from '../lib/announce';
 
 // The handle's width, px, on each edge of the page.
 const HANDLE = 20;
@@ -94,11 +95,15 @@ export function PreviewScreen({ html, message, title }: { html: string | null; m
               label={t.preview.size}
               value={size}
               options={SIZES.map((s) => ({ value: s, label: `${t.preview.sizes[s]} ${Math.round(widthOf(s, at))}` }))}
-              onChange={(s: Breakpoint) => setWidth(widthOf(s, at))}
+              onChange={(s: Breakpoint) => {
+                setWidth(widthOf(s, at));
+                // Said when the person picks a size, not while the preview resizes.
+                announce(`${t.preview.sizes[s]} ${Math.round(widthOf(s, at))}`);
+              }}
             />
           </div>
         </div>
-        <p className="mo-editor-preview-width" aria-live="polite" data-preview-width>
+        <p className="mo-editor-preview-width" data-preview-width>
           <span className="mo-type-title-medium mo-editor-preview-width-value">{width}</span> · {t.preview.sizes[size]}
         </p>
       </div>
@@ -121,7 +126,17 @@ export function PreviewScreen({ html, message, title }: { html: string | null; m
                   marginBottom: height * (scale - 1),
                   transform: `scale(${scale})`,
                 }}
-                onLoad={(e) => setAt(siteBreakpoints(e.currentTarget.contentDocument))}
+                // A picture of the site, not a place to work: hidden from screen readers and out of the tab order, and nothing in it takes focus
+                // (its links and controls are inert, as in the header and footer preview). The page itself is not inert, so it still scrolls.
+                aria-hidden="true"
+                tabIndex={-1}
+                onLoad={(e) => {
+                  const doc = e.currentTarget.contentDocument;
+                  doc
+                    ?.querySelectorAll<HTMLElement>('a, button, input, select, textarea, summary, [tabindex]')
+                    .forEach((el) => (el.inert = true));
+                  setAt(siteBreakpoints(doc));
+                }}
               />
               {handle(1)}
             </>

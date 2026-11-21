@@ -104,6 +104,7 @@ import { leaveTo } from './FormFrame';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { snackbar } from '../lib/snackbar';
+import { announce } from '../lib/announce';
 import { actions, changeToActions } from './actions';
 import { editorCtx } from './editorCtx';
 import { textActions, type TextApi, type TextLabels } from './textActions';
@@ -416,6 +417,7 @@ function moveGroup(view: EditorView, plan: Extract<ReturnType<typeof groupMove>,
   );
   const after = blockPlaces(view.state.doc);
   blockSelection.set(ranks.every((r) => after[r] !== undefined) ? ranks.map((r) => after[r]) : plan.places);
+  announce(t.text.blocksMoved(plan.places.length, by < 0));
   view.state.doc.forEach((child, _, k) => {
     const was = tops.get(child);
     const el = partDOM(view, k);
@@ -438,9 +440,12 @@ const blocksOf = (doc: Node) => {
 const moves = (view: EditorView, i: number | null, locked: string[] = []): CardItem[] => {
   if (i === null) return [];
   const step = (by: -1 | 1) => (keyboard: boolean) => {
+    const name = cardName(view, i);
     const at = move(view, i, by);
     if (at === null) return;
     reopen(view, at);
+    const spot = spotOf(view.state.doc, at);
+    announce(spot && name ? t.text.blockMoved(name, spot.place, spot.of) : name || t.common[by < 0 ? 'moveUp' : 'moveDown']);
     // The row's button is drawn again and gone, so the focus goes to the block that moved (its card), where Move up and Move down can be pressed again.
     if (keyboard) {
       // The text draws the moved block again a moment later, so the focus is put on its card as soon as the card is there.
@@ -484,6 +489,39 @@ const blockPlaces = (doc: Node) => {
   doc.forEach((child, _, index) => void (child.type.name === 'siteBlock' && places.push(index)));
   return places;
 };
+
+// Where the card at part k stands among the cards of the text (blocks and images), for what a screen reader is told: its number and how many there are (null for
+// a part that is no card).
+const spotOf = (doc: Node, k: number | null) => {
+  if (k === null) return null;
+  // The cards of the text: its blocks and its images (an image can stand in a line of its own).
+  const places: number[] = [];
+  doc.forEach(
+    (child, _, index) =>
+      void ((isCard(child) || (child.isTextblock && child.content.content.some((n) => n.type.name === 'image'))) && places.push(index)),
+  );
+  const i = places.indexOf(k);
+  return i < 0 ? null : { place: i + 1, of: places.length };
+};
+// The part (its index at the top level) whose element holds `dom`.
+const partOf = (view: EditorView, dom: HTMLElement) => {
+  let found: number | null = null;
+  view.state.doc.forEach((_, __, k) => void (found === null && partDOM(view, k)?.contains(dom) && (found = k)));
+  return found;
+};
+// The name of a card as a person is told it: the kind of block, not its number among its kind ("Image 2 of 3" is "Image").
+const cardName = (view: EditorView, k: number) => {
+  const card = partDOM(view, k)?.querySelector<HTMLElement>('.mo-site-block-card-button, .mo-site-block-inline');
+  return card?.dataset.base || card?.getAttribute('aria-label') || '';
+};
+// What is said after a removal: the removal, and where the focus went (said when the page has drawn again).
+function announceRemoved(text: string) {
+  setTimeout(() => {
+    const at = document.activeElement;
+    const where = at?.closest('[role=toolbar]') ? t.text.focusInTools : at?.closest('.mo-editor-text-box') ? t.text.focusInText : '';
+    announce(where ? `${text}. ${where}` : text);
+  }, 150);
+}
 
 // The place the selection last changed at, where a range (Shift+click) starts.
 let lastPicked: number | null = null;
@@ -715,6 +753,7 @@ function selectionBar(view: EditorView, sheet: BlockAsk | undefined, places: num
         const tr = view.state.tr;
         for (const place of [...remove.targets].reverse()) tr.delete(at(place), at(place) + doc.child(place).nodeSize);
         blockSelection.own(() => view.dispatch(tr));
+        announceRemoved(t.text.blocksRemoved(remove.targets.length));
         // The blocks that stay are still selected, at their new places.
         blockSelection.set(remove.skipped.map((p) => p - remove.targets.filter((d) => d < p).length));
       },
@@ -764,6 +803,33 @@ function dimHandle(handle: Element | null) {
   } else {
     handle.removeAttribute('aria-description');
     handle.removeAttribute('title');
+  }
+}
+
+/** Gives the blocks of one kind on the page the names `Image 2 of 3`: the name a block is made with (its card's `aria-label`) stays the base, and a kind that
+ * is on the page once keeps it. A card that is drawn again with its base name is numbered again; `data-numbered` holds the name this gave it. Keeps the
+ * handle's name (`Drag Image 2 of 3 to move it`) in step. A page of thirty HTML blocks is not thirty buttons that read `HTML code`. */
+function numberBlocks(root: HTMLElement) {
+  const found: { card: HTMLElement; handle: Element | null; base: string }[] = [];
+  for (const dom of root.querySelectorAll<HTMLElement>('.mo-site-block:not(.mo-site-picture)')) {
+    const card = dom.querySelector<HTMLElement>('.mo-site-block-card-button, .mo-site-block-inline');
+    if (!card) continue;
+    const label = card.getAttribute('aria-label') ?? '';
+    const base = label && label === card.dataset.numbered ? (card.dataset.base ?? label) : label;
+    found.push({ card, handle: dom.querySelector(':scope > .mo-site-block-handle'), base });
+  }
+  const total = new Map<string, number>();
+  for (const { base } of found) total.set(base, (total.get(base) ?? 0) + 1);
+  const place = new Map<string, number>();
+  for (const { card, handle, base } of found) {
+    const at = (place.get(base) ?? 0) + 1;
+    place.set(base, at);
+    const of = total.get(base)!;
+    const name = of > 1 ? t.text.blockOf(base, at, of) : base;
+    card.dataset.base = base;
+    card.dataset.numbered = name;
+    if (card.getAttribute('aria-label') !== name) card.setAttribute('aria-label', name);
+    if (handle && handle.getAttribute('aria-label') !== t.text.dragBlock(name)) handle.setAttribute('aria-label', t.text.dragBlock(name));
   }
 }
 
@@ -977,6 +1043,9 @@ function cardBar(
     if (!selected) {
       selected = true;
       card.setAttribute('aria-pressed', 'true');
+      // Said once, when the card becomes selected (a block's number among the blocks; an image has none).
+      const spot = spotOf(view.state.doc, partOf(view, dom));
+      announce(spot ? t.text.blockSelected(name, spot.place, spot.of) : t.text.selected(name));
       document.addEventListener('pointerdown', away, true);
       document.addEventListener('keydown', escape, true);
     }
@@ -1220,7 +1289,9 @@ function imageCard(
   };
   const remove = () => {
     const pos = getPos();
-    if (pos !== undefined) view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
+    if (pos === undefined) return;
+    view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
+    announceRemoved(t.text.blockRemoved(t.text.image));
   };
   // Crop: the crop view over the page; Save puts the new aspect ratio and crop after the image's address (crop.mjs).
   const cropIt = async () => {
@@ -1846,7 +1917,9 @@ function blockCard(
   };
   const remove = () => {
     const here = at();
-    if (here) view.dispatch(view.state.tr.delete(here.pos, here.pos + node.nodeSize));
+    if (!here) return;
+    view.dispatch(view.state.tr.delete(here.pos, here.pos + node.nodeSize));
+    announceRemoved(t.text.blockRemoved(name));
   };
   // Change type (lib/changeTo.mjs, docs/superpowers/specs/2026-11-14-paste-and-change-to-design.md): the block made into another list block, where
   // it is, in one step of its own; its items' titles and texts move over and what the new block cannot show stays in its props (a Table keeps the
@@ -2545,8 +2618,38 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           },
         }),
     );
+    // The blocks of one kind are told apart by their names (`HTML code 2 of 30`), after every change and every time a card draws its name again.
+    const numbering = $prose(
+      () =>
+        new Plugin({
+          view: (view) => {
+            const watch = new MutationObserver(() => numberBlocks(view.dom));
+            watch.observe(view.dom, { subtree: true, childList: true, attributes: true, attributeFilter: ['aria-label'] });
+            numberBlocks(view.dom);
+            return { update: () => numberBlocks(view.dom), destroy: () => watch.disconnect() };
+          },
+        }),
+    );
     // The text area has a name for screen readers (WCAG 4.1.2, axe `aria-input-field-name`).
-    const naming = $prose(() => new Plugin({ props: { attributes: { 'aria-label': t.text.textField } } }));
+    // The first time the text gets focus on a page it is told where the formatting tools are (Alt+F10), as its description; not on each focus after.
+    let hinted = false;
+    const naming = $prose(
+      () =>
+        new Plugin({
+          props: {
+            attributes: () => ({ 'aria-label': t.text.textField, ...(hinted ? {} : { 'aria-description': t.text.toolsHint }) }),
+            handleDOMEvents: {
+              blur: (view) => {
+                if (!hinted) {
+                  hinted = true;
+                  view.dom.removeAttribute('aria-description');
+                }
+                return false;
+              },
+            },
+          },
+        }),
+    );
     let made = makeEditor(root.current, value)
       .use(naming)
       .use(cardView)
@@ -2556,6 +2659,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(blockSelecting)
       .use(onEdit)
       .use(looking)
+      .use(numbering)
       .use(sectionFrame(framed))
       .use(gapHere)
       .use(tapBelow)
@@ -2880,6 +2984,15 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       }
       view.dispatch(tr.scrollIntoView());
       view.focus();
+      const added = spotOf(
+        view.state.doc,
+        (() => {
+          let k: number | null = null;
+          view.state.doc.forEach((n: Node, _: number, i: number) => void (n === node && (k = i)));
+          return k;
+        })(),
+      );
+      if (added && chosenBlock) announce(t.text.blockAdded(chosenBlock.label, added.place, added.of));
       if (!chosen.open) return;
       let at = -1;
       view.state.doc.forEach((n: Node, offset: number) => void (n === node && (at = offset)));

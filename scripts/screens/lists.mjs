@@ -771,7 +771,7 @@ async function checkOwnList(width, height) {
     if (await page.locator('.mo-editor-inline-list-row').count()) problems.push(`${label}: the list page still has typed-in-place rows`);
     for (const row of ['Web design', 'Hosting'])
       if (!(await page.getByText(row, { exact: true }).count())) problems.push(`${label}: no row "${row}"`);
-    if ((await page.getByRole('button', { name: 'Move down' }).count()) < 2) problems.push(`${label}: the rows have no Move down`);
+    if ((await page.getByRole('button', { name: /^Move .+ down$/ }).count()) < 2) problems.push(`${label}: the rows have no Move down`);
     if (!(await page.getByLabel('Add item').count())) problems.push(`${label}: no Add item button`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the list page scrolls sideways`);

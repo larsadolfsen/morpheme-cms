@@ -29,6 +29,7 @@ import {
   phosphorNames,
   usedIcons,
 } from '@morphemecms/cms/site/icons.mjs';
+import { stripAll } from '../lib/stripAll.mjs';
 
 const MDI = 'material-design-icons';
 const version = (spec) => spec.replace(/^.*@/, '');
@@ -75,7 +76,7 @@ const sourceFile = {
 
 // One <svg> with the file's viewBox and what is in it, without comments, a size or a class of its own.
 function bare(file, wrap = (inner) => inner) {
-  const svg = readFileSync(file, 'utf8').replace(/<!--[\s\S]*?-->/g, '');
+  const svg = stripAll(readFileSync(file, 'utf8'), /<!--[\s\S]*?-->/g);
   const viewBox = svg.match(/\bviewBox="([^"]*)"/)?.[1];
   const inner = svg.match(/^\s*<svg\b[^>]*>([\s\S]*)<\/svg>\s*$/)?.[1];
   if (!viewBox || !inner) throw new Error(`${file} is not one <svg> with a viewBox.`);
