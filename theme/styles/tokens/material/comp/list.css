@@ -16,6 +16,7 @@
      container (a step up from the page; the editor puts the items on the surface over a container page, as Material's
      spec does, editor.css). */
   --mo-comp-list-divider-color: var(--mo-sys-color-outline);
+  --mo-comp-list-divider-default-color: transparent;
   --mo-comp-list-list-item-container-height: 3.5rem;
   --mo-comp-list-item-two-line-min-height: 4.5rem;
   --mo-comp-list-item-three-line-min-height: 5.5rem;
