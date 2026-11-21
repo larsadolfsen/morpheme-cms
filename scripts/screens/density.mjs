@@ -74,7 +74,7 @@ async function checkDensityParts(width, height, touch) {
         else root.style.setProperty('--mo-sys-density-base', base);
         const host = document.createElement('div');
         host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
-        host.innerHTML = `<div data-where="screen">${parts}</div><div class="mo-editor-text"><div class="ProseMirror" data-where="content">${parts}</div></div><div data-density-fixed data-where="fixed">${parts}</div>`;
+        host.innerHTML = `<div data-where="screen">${parts}</div><div class="mo-editor-text"><div class="ProseMirror" data-where="content">${parts}</div></div><div data-density-fixed data-where="fixed">${parts}</div><div class="mo-dialog" data-where="dialog">${parts}</div><div class="mo-snackbar" data-where="snackbar">${parts}</div>`;
         document.body.append(host);
         const got = {};
         for (const where of host.querySelectorAll('[data-where]'))
@@ -127,6 +127,13 @@ async function checkDensityParts(width, height, touch) {
     const fixed = steps.map((m) => m[`fixed/${part}`][0]);
     expect(`${part} in a row that picks the density is ${fixed.join(' / ')} px, not the same at every step`, new Set(fixed).size === 1);
   }
+  // A dialog and a snackbar alert a person, and everything in them stays at Medium (M3, Density: "Don't increase the density in components that
+  // alert a person of changes, such as snackbars or dialogs"): a part in them is as high at -3 as at Medium.
+  for (const where of ['dialog', 'snackbar'])
+    for (const part of ['button', 'chip', 'segment', 'field', 'row', 'menu-item']) {
+      const h = steps.map((m) => m[`${where}/${part}`][0]);
+      expect(`${part} in a ${where} is ${h.join(' / ')} px at ${names.join(' / ')}, not the same at every step`, new Set(h).size === 1);
+    }
   await page.close();
 }
 
@@ -339,6 +346,132 @@ async function checkDensityScreens(width, height) {
   await page.close();
 }
 
+/** A tap never lands on the wrong control (owner, 21 Nov 2026: at -3 on a phone the invisible target of "Several lines 1" covered the chip above it). On the theme's UI components page (/ui/) at a theme's -3, on a phone (touch, target 48) and a computer (mouse, target 44), every visible control is hit at 9 points (the four corners, the four edge middles and the centre, 1 px inside its box): what answers there is the control, or something in it, or no other control. An area of a control that reaches into its neighbour (target-size.css, --mo-sys-target-gap) fails this. A control that is fixed or sticky on the page (the page's own jump button) lies over what is under it by design and is not counted. */
+async function checkDensityTargets(width, height, touch) {
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density targets: ${e.message}`));
+  await page.goto(`${site}/ui/`, { waitUntil: 'networkidle' });
+  await page.addStyleTag({
+    content:
+      ':root { --mo-sys-density-base: -3 !important } *, ::before, ::after { animation: none !important; transition: none !important }',
+  });
+  // The page draws its parts as they come into view: go down it once, so every one is there.
+  const total = await page.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y < total + height; y += height - 100) {
+    await page.evaluate((y) => scrollTo(0, y), y);
+    await page.waitForTimeout(20);
+  }
+  const found = await page.evaluate(() => {
+    const controls =
+      'button, a[href], input:not([type=hidden]), select, textarea, summary, [role=button], [role=tab], [role=menuitem], [role=option], [role=switch], [role=checkbox], [role=radio], [tabindex]:not([tabindex="-1"])';
+    const label = (e) =>
+      `${e.tagName.toLowerCase()}.${String(e.className).split(' ').slice(0, 2).join('.')} "${(e.getAttribute('aria-label') || e.textContent || '').trim().slice(0, 28)}"`;
+    const overlay = (e) => {
+      for (let p = e; p; p = p.parentElement) {
+        const position = getComputedStyle(p).position;
+        if (position === 'fixed' || position === 'sticky') return true;
+      }
+      return false;
+    };
+    let count = 0;
+    const wrong = [];
+    for (const el of document.querySelectorAll(controls)) {
+      const style = getComputedStyle(el);
+      if (style.visibility === 'hidden' || style.display === 'none' || overlay(el)) continue;
+      el.scrollIntoView({ block: 'center', inline: 'center' });
+      const box = el.getBoundingClientRect();
+      if (box.width < 2 || box.height < 2 || box.left < 0 || box.right > innerWidth || box.top < 0 || box.bottom > innerHeight) continue;
+      count++;
+      for (const y of [box.top + 1, box.top + box.height / 2, box.bottom - 1])
+        for (const x of [box.left + 1, box.left + box.width / 2, box.right - 1]) {
+          const hit = document.elementFromPoint(x, y);
+          if (!hit || el.contains(hit)) continue;
+          const other = hit.closest(controls);
+          if (other && other !== el && !other.contains(el) && !overlay(other)) {
+            const o = other.getBoundingClientRect();
+            wrong.push(
+              `${label(el)} (${Math.round(box.width)}x${Math.round(box.height)}) at ${Math.round(x - box.left)},${Math.round(y - box.top)} answers as ${label(other)} (${Math.round(o.width)}x${Math.round(o.height)}, ${Math.round(o.left - box.left)},${Math.round(o.top - box.top)} from it)`,
+            );
+          }
+        }
+    }
+    return { count, wrong };
+  });
+  // The page does not clip what sticks out (src/editor.css, html:has(.mo-ui-components)): a part wider than the screen is a sideways scroll, and fails here.
+  const scrolls = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  if (scrolls > 0)
+    problems.push(`${width}px density targets: /ui/ scrolls sideways by ${scrolls} px (a part or the gallery is wider than the screen)`);
+  if (found.count < 300) problems.push(`${width}px density targets: only ${found.count} controls found on /ui/ (expected 300 or more)`);
+  const seen = new Set();
+  for (const w of found.wrong) {
+    const key = w.replace(/ at \d+,\d+ /, ' ');
+    if (seen.has(key) || seen.size >= 12) continue;
+    seen.add(key);
+    problems.push(`${width}px density targets (-3): ${w}`);
+  }
+  if (found.wrong.length > seen.size)
+    problems.push(`${width}px density targets (-3): ${found.wrong.length} wrong hits in all, ${seen.size} parts listed`);
+  await page.close();
+}
+
+/** A chip row that scrolls sideways shows the focus ring of the chip Tab reaches whole (owner, 21 Nov 2026: the row stayed put and the right side of the ring was cut off): on /ui/, on a phone and a computer, light and dark, Tab goes through every row that scrolls (.mo-chip__set-scroll), and after each press the ring of the focused chip (its outline's width and offset round its box) lies inside the visible box of the row. */
+async function checkChipRowFocus(width, height, scheme) {
+  const touch = width < 600;
+  const label = `${width}px ${scheme} chip row focus`;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: touch,
+    isMobile: touch,
+    locale: 'en-US',
+    colorScheme: scheme,
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await page.goto(`${site}/ui/`, { waitUntil: 'networkidle' });
+  const total = await page.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y < total + height; y += height - 100) {
+    await page.evaluate((y) => scrollTo(0, y), y);
+    await page.waitForTimeout(20);
+  }
+  const rows = await page.locator('.mo-chip__set-scroll').count();
+  if (!rows) problems.push(`${label}: no row that scrolls sideways on /ui/`);
+  let checked = 0;
+  for (let i = 0; i < rows; i++) {
+    const chips = page.locator('.mo-chip__set-scroll').nth(i).locator('button.mo-chip, a.mo-chip, .mo-chip__action');
+    const count = await chips.count();
+    if (count < 2) continue;
+    await chips.first().scrollIntoViewIfNeeded();
+    await chips.first().focus();
+    for (let k = 0; k < count; k++) {
+      await page.waitForTimeout(60);
+      const seen = await page.evaluate(() => {
+        const el = document.activeElement;
+        const row = el?.closest('.mo-chip__set-scroll');
+        if (!row) return null;
+        const style = getComputedStyle(el);
+        const room = (parseFloat(style.outlineWidth) || 0) + (parseFloat(style.outlineOffset) || 0);
+        const chip = el.getBoundingClientRect();
+        const box = row.getBoundingClientRect();
+        return {
+          text: (el.textContent || '').trim().slice(0, 20),
+          room,
+          left: chip.left - room - box.left,
+          right: box.right - (chip.right + room),
+        };
+      });
+      if (!seen) break;
+      checked++;
+      if (seen.room < 5) problems.push(`${label}: "${seen.text}" has no focus ring (${seen.room} px)`);
+      if (seen.left < -0.5 || seen.right < -0.5)
+        problems.push(
+          `${label}: row ${i + 1}, chip "${seen.text}": its focus ring is cut off (${Math.round(seen.left)} px room at the start, ${Math.round(seen.right)} px at the end)`,
+        );
+      await page.keyboard.press('Tab');
+    }
+  }
+  if (rows && checked < 4) problems.push(`${label}: only ${checked} chips were focused in ${rows} rows`);
+  await page.close();
+}
+
 /** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up and are clamped to 0 down to -3, and a part's calc() gives its default at 0 and 4px per step. */
 async function checkDensity(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
@@ -411,6 +544,13 @@ export function register(unit) {
   unit('checkDensityTable 1280', () => checkDensityTable(1280, 900));
   unit('checkDensityScreens 375', () => checkDensityScreens(375, 740));
   unit('checkDensityScreens 1280', () => checkDensityScreens(1280, 900));
+  unit('checkDensityTargets 390', () => checkDensityTargets(390, 844, true));
+  unit('checkDensityTargets 1280', () => checkDensityTargets(1280, 900, false));
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    for (const scheme of ['light', 'dark']) unit(`checkChipRowFocus ${width} ${scheme}`, () => checkChipRowFocus(width, height, scheme));
   unit('checkDensitySetting 375', () => checkDensitySetting(375, 740));
   unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
 }

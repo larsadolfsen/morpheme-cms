@@ -17,7 +17,51 @@
     )::after {
     content: '';
     position: absolute;
-    inset-block: min(0px, calc((100% - var(--mo-sys-target-size)) / 2));
-    inset-inline: min(0px, calc((100% - var(--mo-sys-target-size)) / 2));
+    inset-block: max(
+      min(0px, calc((100% - var(--mo-sys-target-size)) / 2)),
+      calc(-0.5 * var(--mo-sys-target-gap-block, var(--mo-sys-target-gap, 100vmax)))
+    );
+    inset-inline: max(
+      min(0px, calc((100% - var(--mo-sys-target-size)) / 2)),
+      calc(-0.5 * var(--mo-sys-target-gap-inline, var(--mo-sys-target-gap, 100vmax)))
+    );
+  }
+
+  /* A tap never lands on the wrong control. The area above reaches out of a part that is lower or narrower than the target, so in a group
+     (a chip set, a button group, a split button, the buttons in a field) it would reach into the neighbours, and the one later in the page
+     would win the tap. A part in a group is given the room round it (--mo-sys-target-gap, or -block and -inline: the gap to the next part, 0 where
+     they touch), and its area reaches out half of it at most, so two neighbours' areas meet in the middle of the gap and never cross. A part
+     alone keeps the whole target (M3, Density: "Accessible targets should retain a minimum of 48x48dp"); in a group at a dense step the part's
+     own size plus the gap is the target, never below 24 (WCAG 2.5.8: a target of 24 px, or 24 px spacing round a smaller one). The names are set
+     on the part, not on the group, so what is inside a part (a menu) does not read them. */
+  .mo-chip__set > :is(.mo-chip, .mo-button, .mo-icon-button) {
+    --mo-sys-target-gap: var(--mo-comp-chip-set-gap, 0.5rem);
+  }
+  .mo-button-group > :is(.mo-button, .mo-icon-button) {
+    --mo-sys-target-gap: var(--mo-comp-button-group-standard-medium-between-space, 0.5rem);
+  }
+  /* On one line (connected, a split button, a segmented button): the neighbours are at the sides, so only the width is limited. */
+  .mo-button-group__connected > :is(.mo-button, .mo-icon-button) {
+    --mo-sys-target-gap-inline: var(--mo-comp-button-group-connected-gap, 0.125rem);
+  }
+  .mo-split-button > :is(.mo-button, .mo-icon-button) {
+    --mo-sys-target-gap-inline: var(--mo-comp-split-button-gap, 0.125rem);
+  }
+  /* A button that opens a menu under it: the area ends where the menu starts (the gap to the menu, 0.25rem, on each side). */
+  .mo-dropdown-menu > :is(.mo-button, .mo-icon-button) {
+    --mo-sys-target-gap-block: calc(2 * var(--mo-comp-dropdown-menu-gap, 0.25rem));
+  }
+  .mo-segmented-button > .mo-segmented-button__segment {
+    --mo-sys-target-gap-inline: 0px;
+  }
+  .mo-text-field__container > :is(.mo-icon-button, .mo-button),
+  .mo-search-view__header > :is(.mo-icon-button, .mo-button),
+  .mo-date-picker__field-button,
+  .mo-time-picker__field-button {
+    --mo-sys-target-gap: 0px;
+  }
+  .mo-date-picker__controls > :is(.mo-date-picker__menu-button, .mo-icon-button, .mo-date-picker__steps),
+  .mo-date-picker__steps > .mo-icon-button {
+    --mo-sys-target-gap: 0px;
   }
 }

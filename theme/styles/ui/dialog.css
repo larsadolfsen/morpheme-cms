@@ -9,6 +9,9 @@
 @layer components {
   /* A dialog's container. */
   .mo-dialog {
+    /* M3, Density: "Don't increase the density in components that alert a person of changes, such as snackbars or dialogs". The dialog and every part in
+       it (its buttons, a field, a list row) are at Medium at every step, so a dialog is the same height at -3 as at 0 (PM, 21 Nov 2026). */
+    --mo-sys-density: 0;
     border-radius: var(--mo-comp-dialog-container-shape, var(--mo-sys-block-radius));
     background: var(--mo-comp-dialog-surface, var(--mo-sys-elevation-level3-color));
     box-shadow:

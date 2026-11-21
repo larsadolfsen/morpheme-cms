@@ -1300,6 +1300,18 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--mo-ref-space-200);
+    /* A part wider than the row (the extra-large split button, 340 px, on a phone) scrolls inside the row instead of sticking out of the gallery and being clipped by the page; the space round the row keeps the focus ring whole. */
+    overflow-x: auto;
+    padding: var(--mo-ref-space-100);
+    margin: calc(-1 * var(--mo-ref-space-100));
+  }
+  /* A part in a sample row has the room of the row's gap round it, so its tap area (theme/styles/ui/target-size.css) stops half way to the next part. */
+  .mo-editor-sample-row > * {
+    --mo-sys-target-gap: var(--mo-ref-space-200);
+  }
+  /* Below another part the stack's own space (--mo-ref-space-200) still holds between the two rows' content. */
+  .mo-editor-sample-stack-4 > .mo-editor-sample-row:not(:last-child) {
+    margin-block-end: calc(var(--mo-ref-space-200) - var(--mo-ref-space-100));
   }
 
   .mo-editor-sample-stack-4 {

@@ -1,0 +1,6 @@
+{
+  "id": "density-followups",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A text field with an error shows keyboard focus with a thicker edge, and in a denser theme a tap lands on the control you touch"
+}
