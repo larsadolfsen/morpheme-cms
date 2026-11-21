@@ -365,7 +365,10 @@ export const RECORDER = `(() => {
     if (!text) return void last.set(region, '');
     if (last.get(region) === text && !inserted) return;
     last.set(region, text);
-    events.push({ t: performance.now(), kind: 'live', text, urgency: urgencyOf(region), region: idOf(region), inserted: Boolean(inserted) });
+    // A region a reader can not reach: inert, or outside the topmost open modal dialog (which makes the rest of the page inert).
+    const modal = [...document.querySelectorAll('dialog[open]')].filter((d) => d.matches(':modal')).pop();
+    const unreachable = Boolean(region.closest('[inert]')) || Boolean(modal && !modal.contains(region));
+    events.push({ t: performance.now(), kind: 'live', text, urgency: urgencyOf(region), region: idOf(region), inserted: Boolean(inserted), unreachable });
   };
   const regionsIn = (node) => {
     if (node.nodeType !== 1) return [];
@@ -395,7 +398,8 @@ export const RECORDER = `(() => {
 export function judgeWindow(events, { expect, within = 1000 } = {}) {
   const live = events.filter((e) => e.kind === 'live');
   const problems = [];
-  const said = live.filter((e) => !e.inserted);
+  // A message from a region that came in with its text, or that a reader can not reach (inert, or behind a modal dialog), is not said.
+  const said = live.filter((e) => !e.inserted && !e.unreachable);
   if (expect && !said.length) problems.push('no-announcement');
   for (let i = 0; i < live.length; i++)
     for (let j = i + 1; j < live.length; j++)

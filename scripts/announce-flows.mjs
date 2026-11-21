@@ -48,6 +48,8 @@ export const EXPECT = {
   'J: after Save with a field left wrong': { urgent: true },
   'K: after Change type': { urgent: false },
   'K: after Remove': { urgent: false },
+  'L: a message while the Schedule dialog is open': { urgent: false },
+  'L: a message while the insert sheet is open': { urgent: false },
   'K: after a copied link': { urgent: false },
   'K: after a notice': { urgent: true },
   'K: after a failed load': { urgent: true },
@@ -90,6 +92,14 @@ function hooks(flow, width, findings, lines) {
 const step = (ctx, name) => ctx.afterStep(name, true);
 
 const WAIT = 1100;
+
+/** Sends a message through the editor's announcer while something modal is open (the editor's own code does it through `announce()`; the announcer listens for this event
+ * too, lib/announce.ts), and judges the step: a modal makes the rest of the page inert, so the message must come from a region inside the modal. */
+async function say(ctx, text, name) {
+  await ctx.page.evaluate((text) => dispatchEvent(new CustomEvent('morpheme:announce', { detail: { text } })), text);
+  await settle(ctx.page, 600);
+  await step(ctx, name);
+}
 
 async function flowJ(ctx) {
   const { page } = ctx;
@@ -212,12 +222,14 @@ async function flowL(ctx) {
   if (!(await isBody(page)) && (await page.evaluate(() => document.activeElement?.textContent?.includes('Schedule')))) {
     await press(ctx, 'Enter');
     await step(ctx, 'L: after the Schedule dialog opens');
+    await say(ctx, 'Saved', 'L: a message while the Schedule dialog is open');
     await press(ctx, 'Escape');
     await step(ctx, 'L: after the Schedule dialog closes');
   }
   await reachTool(ctx, 'L: Insert block', { css: 'button', label: 'Insert block' });
   await press(ctx, 'Enter');
   await step(ctx, 'L: after the insert sheet opens');
+  await say(ctx, 'Saved', 'L: a message while the insert sheet is open');
   await press(ctx, 'Escape');
   await step(ctx, 'L: after the insert sheet closes');
   // A menu: the page's More menu.
