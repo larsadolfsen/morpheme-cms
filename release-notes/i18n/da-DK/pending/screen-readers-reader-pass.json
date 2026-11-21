@@ -1,7 +1,0 @@
-{
-  "id": "screen-readers-reader-pass",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Skærmlæsere",
-  "text": "En skærmlæser fortæller, hvad der sker i editoren. Tænd NVDA, Oplæser eller TalkBack, og arbejd som før: knapper har navne, og Gemt, Ikke gemt, problemer og fjernede blokke bliver sagt. Hver skærm har sin egen titel."
-}
