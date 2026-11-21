@@ -39,7 +39,8 @@ M3's name, so that m3.material.io's specs pages read as the CMS's own documentat
 5. **Icons** (owner, 21 Nov 2026: "phosphor should not be a part of the cms. it should be installable. so remove it and lucide for
    now. we will add it later to the store"; "In 0.20.0"). The icon vocabulary becomes Material Symbols' names. Today the names
    are Phosphor's: content (a card's `icon: certificate`), an app's `icon` in `app.json`, the store catalog and the editor's code
-   (81 files import `@phosphor-icons/react` components). After 0.20.0:
+   (about 80 files import `@phosphor-icons/react` components, and a few, such as `lib/snackbar.ts` and `src/contextualMenu.ts`,
+   import Phosphor's SVG files with `?raw`). After 0.20.0:
    - every stored icon name is its Material Symbols name (`map-pin` → `location_on`), rewritten by the update from the map in
      `lib/materialIcon.mjs` (`materialName`). A name with no Material Symbols icon is listed in batch 1's map with the closest one, and
      the CTO reviews it with the rest of the map;
