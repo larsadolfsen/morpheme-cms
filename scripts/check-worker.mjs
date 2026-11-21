@@ -292,7 +292,7 @@ console.log = (...args) => String(args[0]).startsWith('Files (') || log(...args)
 globalThis.localStorage = { removeItem() {}, getItem: () => null, setItem() {} };
 globalThis.fetch = async (input, init = {}) => {
   const url = typeof input === 'string' ? input : input.url;
-  if (new URL(url).host === 'api.github.com') return github(url, init);
+  if (new URL(url, 'http://localhost').host === 'api.github.com') return github(url, init);
   if (url.startsWith('https://api.cloudflare.com/client/v4/accounts/account/r2/buckets/'))
     return new Headers(init.headers).get('cf-r2-jurisdiction') === cloudflareJurisdiction
       ? Response.json(cloudflare[1], { status: cloudflare[0] })
