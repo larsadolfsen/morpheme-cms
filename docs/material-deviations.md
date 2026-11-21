@@ -84,16 +84,9 @@ Not deviations, fixed to M3: hover 5% and 6% became M3's 8% (#474), and the snac
 
 Allow-list: #477.
 
-1. **Dialog corner:** 28dp (extra-large) or 32dp (extra-large-increased), the Expressive set. Owner decision. 2026-11-13. No PR.
-2. **Menu corner:** 4dp in the old tokens; we use 16dp (large), the Expressive vertical menu. 2026-11-13. No PR.
-3. **Hero buttons 56px and list rows 56, 72 and 88px:** the Expressive sizes, kept on purpose. 2026-11-13. No PR.
 4. **Icon button:** M3 has a 40dp container with a 48dp target; we draw 48dp, so the target is always met. 2026-11-13. No PR.
 5. **Focus ring:** matches the part's shape, with one 6px round-off for any element. `base.css`. 2026-11-13. #477. (changed 18 Nov 2026: cards and lists plan): one ring for every part, `--mo-sys-color-primary`, 3dp, offset 2dp, `border-radius: inherit` (deviation FR1, One focus ring, in primary); a part with its own inset ring keeps its component's offset as a component variable.
-6. **Checkbox error ring:** corner 3px over the 2px box (M3 2dp). `ui.css`. 2026-11-13. #477.
-7. **Slider inner track corner** 2px (= M3), **inline code corner** 0.3em (follows the text size), and the fallback corners in `base.css` and `blocks.css` for themes with no steps. 2026-11-13. #477.
-8. **Spacing:** there are no `--mo-space-*` tokens yet; Tailwind's 4dp scale is not M3's. M3 prints an 8dp scale ("The spacing system is measured on an 8dp scale, where space100 = 8dp", Space 0 to 900 = 0 to 72dp, m3.material.io/m3/pages/spacing), which the plan moves to (`docs/superpowers/specs/2026-11-13-editor-uses-theme-parts-audit.md`, row 11). The undefined `var(--mo-space-4, 4px)` fallbacks became plain values. 2026-11-13. #488.
 9. **Type:** the editor's page preview draws the site's headings and texts at the sizes of the components' classes (`[data-look]` sizes, `editor.css`), not M3 steps, so the preview matches the site; they move together with the site's blocks. Site `text-lg`, `text-xl` and `text-4xl`, `rounded-md` and the tracking value moved to M3 steps in #490. Some `font-size`, `line-height` and `letter-spacing` in `blocks.css`, `ui.css`, `global.css`, `base.css` and the site shell's files (`site-*.css`) are not yet moved to the type scale (tracked for the next pull request of the shape and type sweep). 2026-11-13. #477, #490.
-10. **Search-result preview and crop handles** (`scripts/check-css-values.allow.mjs`): `text-[20px]` with `leading-[22px]` and `leading-[26px]` are Google's own look (20px and 26px title, 22px lines), not M3 steps; `rounded-[3px]` (a crop handle's corner), `rounded-[1.375rem]` (the app icon's own 22px corner, as on a phone's home screen), `border-[1.5px]` (the crop handle's line) and `border-[3px]` are not steps of a scale. 2026-11-13. #477, #490.
 
 ## Editor-only parts
 
@@ -128,32 +121,12 @@ Read 13 Nov 2026 on m3.material.io: `/components/toolbars/` (guidelines, specs, 
 Read 13 Nov 2026 on m3.material.io: `/foundations/layout/grids-spacing/density`, `/components/segmented-buttons/specs`, `/components/chips/specs`, `/components/text-fields/specs`, `/components/buttons/specs`, `/components/lists/specs`.
 
 12. **Large (+1) is a step above M3's default:** M3: "The density scale is numbered, starting at 0 for a component's default density. The scale moves to negative numbers (-1, -2, -3) as space decreases, creating higher density." M3 has no step above 0. We: Large adds 4 dp to the height (or 2 dp a side of padding), by the same rule M3 gives for a step down. Why: the owner's screenshot of the density page offers Large, Medium and Small.
-13. **Horizontal padding does not change with density:** M3's text: "Text size shouldn't change as the container size scales." and "Center the grouped element within the component container." It prints no rule for the left and right padding. We: only height and vertical padding follow density (owner rule), so text and grids stay aligned.
-14. **A list row is never lower than the target:** M3: "Accessible targets should retain a minimum of 48x48dp, even if the visual element, such as an icon, is smaller." and "Target size must be at least 48x48dp" (lists/specs). The row is its own target, so at -2 and -3 (a theme's choice) it stays at 48 dp on touch and 44 dp for a mouse (`--mo-sys-target-size`), instead of shrinking the image and keeping a hit area.
-15. **Buttons, chips and segmented buttons get an invisible target area:** M3: "Touch targets are the parts of the screen that respond to user input, extending beyond the visual bounds of an element." (structure, Target sizes), and "Pointer targets … minimums 44 x 44dp". We: a part lower than `--mo-sys-target-size` gets an invisible area down from its middle (a `::after`), at every step, so Small never shrinks a target. A removable chip, which has buttons in it, has none.
 
 ## Footer links (owner decision, 14 Nov)
 
 Read 14 Nov 2026 on m3.material.io: `/foundations/designing/structure` (the target-size section; `/foundations/accessible-design/accessibility-basics` has no text on targets).
 
 16. **Footer links are 36 px high, not 48:** M3 (structure): "For most platforms, consider making touch targets at least 48 x 48dp.", "Consider making pointer targets minimums 44 x 44dp.", "targets separated by 8dp of space or more promote balanced information density and usability." (M3 words these as "consider", not "must".) We: the editor footer's links (Support, System status, Report security issues, Privacy policy, Licenses) are exactly 36 px high on every width, the padding on the link itself, 12 px each side, no overlap. M3 is silent on text links in a footer and on a smaller target for a dense workspace. Why: owner decision, "Make the footer links 36px high clickable" (phone screenshot of the footer's two lines), in the editor's own workspace. `check:screens` (`checkFooterTargets`) names this exception and asserts 36 px at 320, 375 and 1280 px. 2026-11-14.
-
-## Image tiles in the Library (image grid, PR 1)
-
-Read 14 Nov 2026 on m3.material.io (Playwright): `/components/cards/specs` (measurements), `/foundations/layout/applying-layout/compact`, `/foundations/layout/understanding-layout/overview` and `/foundations/interaction/selection`. The cards token tables stay collapsed in a script-less read, so the token values are not quoted here.
-
-17. **Columns of an image grid:** M3 (layout): "Margins are 16dp from the leading and trailing edge of the window" on compact, and "Padding between cards: 8dp max" (cards/specs). M3 (grids, image) draws the layout grid with 4 columns on compact, 8 on medium and expanded and 12 on large and extra-large, and prints no count of cards per row. We: 2 columns on compact, 3 on medium and expanded, 4 from large (`.mo-staggered-grid`, CSS columns, `--mo-sys-grid-gutter` apart: 16 px on compact, 24 px from medium, the owner's values since M3 prints none), our choice on M3's breakpoints, set by the token `--mo-comp-grid-columns` (the start screen sets 2 on every size; a widget is full width or one column, `span`). Cards flow down each column, so the sort order reads down, then across. **Card gap:** M3 says "Padding between cards: 8dp max"; we use the gutter, 16 px on compact and 24 px from medium, for the cards of a grid too (owner, 15 Nov 2026, pull request #741); the cards block, price cards and panels moved onto it on 16 Nov 2026 (G1).
-
-## Layout grid gutter (M3 grid audit)
-
-Source: `docs/superpowers/specs/2026-11-15-m3-grid-everywhere-audit.md`. Read 15 Nov 2026 on m3.material.io (Playwright): `/foundations/layout/grids-spacing/grids` (the diagram shows 4, 8 and 12 columns; no margin or gutter value is printed), `/foundations/layout/canonical-examples/feed`, `/components/cards/specs`.
-
-### G1. Cards are 16 px apart on compact and 24 px from medium, not 8 px
-
-- **Material:** Cards specs: "Padding between cards 8dp max". M3 prints no gutter for the layout grid.
-- **We do:** the theme's layout grid has one gutter, 16 px on compact and 24 px from medium (`--mo-sys-grid-gutter`, owner's numbers; margin is 16 px and 24 px the same way), and cards on the grid use it. It replaces `--mo-comp-card-gap` (0.5rem). Affected when they move onto the grid: the cards block, the cards carousel's grid from 600, the image grid block and the media grid (so entry 17's 8 px gap), price cards, the prices cards, panels, related posts and the editor's uses of `--mo-comp-card-gap`. **Moved 16 Nov 2026:** the cards block, the cards carousel's grid from 600, panels, price cards, the prices list (`.mo-block-pricecards__plans-list`) and related posts use `--mo-sys-grid-gutter` (`theme/styles/blocks.css`, `RelatedPosts.astro`; checked by `checkCardGutter` on `/blocks/cards/`, `/blocks/price-cards/` and `/blocks/image-grid/`). **Not moved:** the phone carousel scrolls its cards 8 px apart (M3 carousel), and the editor keeps `--mo-comp-card-gap` (8 px) as the small step for a block's row and handle, which is no gap between cards.
-- **Why:** owner decision, 15 Nov 2026: "Cards use the 16/24 gutter too", relayed by the 0.18 project manager; one gutter for the whole grid, on the site and in the editor.
-- **Date:** 2026-11-15. **PR:** #743 (the decision); the cards move in later pull requests, each of which keeps this entry current. (changed 18 Nov 2026: cards and lists plan): step 4 of the plan moves the site's cards (*Cards*, *Price cards*, *Notice*, *Table*, *Cookie list*, *Links* and the panels, *Image grid*, *Testimonials*, related posts, the 404 page) onto `Card` and the theme grid, without Tailwind; this entry stays current in that pull request.
 
 ## The block handle in the page editor (touch selection, step 8)
 
@@ -219,13 +192,6 @@ Source: `theme/ui/ChoiceGroup.tsx`, `theme/ui/choiceGroupFit.mjs`, `theme/styles
 - **Why:** owner, 14 Nov 2026: "One theme part that chooses its own form by measuring, so it can never squeeze … it never wraps a group and never overlaps." Smaller buttons still clip long or Danish labels, and an overflow menu hides choices the owner compares.
 - **Date:** 2026-11-14. **PR:** the pull request that adds this entry (choice group, the part).
 
-### D2. A radio row shows a small live sample of the look in its trailing slot
-
-- **Material:** a list item's trailing slot holds "Action elements or text: Icon, icon button, or trailing text" or a selection control (lists/specs); M3 prints no sample or preview slot.
-- **We do:** a choice that is a look (a button style, a card's design or colour) shows a small, inert drawing of that look, made of the theme's own part, on the right of its row (`.mo-choice-group__sample`, at most 7rem wide, `aria-hidden`), only in the list form.
-- **Why:** owner, 14 Nov 2026: "Where a choice is a look … each radio row shows a small live sample on its right."
-- **Date:** 2026-11-14. **PR:** the same.
-
 ### D3. The choice group's list rows run the whole width of the fields above them
 
 - **Material:** lists/specs: "Label left padding 16dp", "Leading element left padding 16dp"; radio-button/specs (read 14 Nov 2026 with Playwright): "Icon size 20dp", "State layer size 40dp", "Target size 48dp". M3 prints no rule for aligning a radio list with the fields above it.
@@ -236,13 +202,6 @@ Source: `theme/ui/ChoiceGroup.tsx`, `theme/ui/choiceGroupFit.mjs`, `theme/styles
 ## Command palette (command palette, step 5)
 
 Source: `docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-design.md` (sections 1b and 9), `src/CommandPalette.tsx`, `theme/ui/Search.tsx` (`SearchView`), `src/Screen.tsx` (`SearchButton`).
-
-### P1. A command palette is built from the Search view
-
-- **Material:** "Use search for products with many items to manage, such as files or messages." and "Search helps people find information quickly." M3 has no page for running actions from a search, and none for a command palette.
-- **We do:** the Search view lists and runs the editor's actions as well as finding content (the places of the menu, the Settings screens, pages and posts by title); every other part is M3's (a List, an icon button with a tooltip, menus). It opens from `Ctrl+K` (`⌘K`), which M3 is silent on.
-- **Why:** owner, 13 Nov 2026: "a command palette: if the editor has dozens of functions, a floating search bar (Cmd/Ctrl+K, like VS Code, Figma, Notion) where the user types the action". Search is the nearest M3 part, and a dialog is the wrong one ("Dialogs are purposefully interruptive … used sparingly"). Where M3 is silent (the docked view with no bar to dock under, the ranking, the keys) the spec's section 1b lists what is ours.
-- **Date:** 2026-11-13 (owner). **PR:** the pull request that adds this entry (command palette, step 5).
 
 ### P2. No custom context menu: the browser's or the operating system's menu stays
 
@@ -268,24 +227,6 @@ Source: `src/CropView.tsx`, `src/editor.css` (`.mo-editor-crop-page`). Spec: `do
 - **We do:** the crop view is a page on every width: a layer the size of the window over the editor (a modal `<dialog>` with no dialog parts, so the form under it keeps its changes and its scroll place), with the theme's top app bar (back arrow and the title `Crop`), the image area, the aspect ratios and the zoom, and the Save row in the theme's standard bottom sheet (`ActionSheet`, see B1): `Save` filled, and `Cancel` from medium. The phone's back gesture leaves it (a step of its own in the history, as the sheets have). Leaving with changes asks the basic dialog `Keep your changes?`, as M3 says for a full-screen dialog; the dialog's other parts are not used.
 - **Why:** owner decision, 14 Nov 2026: "Convert all full screen views to pages." (relayed by the project manager). Save is in the standard bottom sheet, as the owner's rule for Save rows says (entry 3 of *Editor-only bars*).
 - **Date:** 2026-11-14. **PR:** #686; the Save row as a standard bottom sheet: 15 Nov, the same pull request as B1's change.
-
-## The FAB above the footer
-
-Source: `src/fabPresence.tsx` (`useFabLift`), `src/Screen.tsx`, `src/editor.css` (`.mo-editor-fab`). Read 15 Nov 2026 on m3.material.io (Playwright, `document.body.innerText`, collapsed sections opened): `/components/floating-action-button/overview`, `/specs`, `/guidelines` and `/accessibility`. The specs print the container (56dp by 56dp) and no margin to the window's edge or to other parts, so the 16 dp margin is the one the editor already used, not M3's.
-
-### F1. The FAB moves up while the footer is in the window
-
-- **Material:** "FABs remain in place on scroll." "The container shouldn't be covered by other elements, such as badges." "In compact and medium breakpoints, the best place for the FAB is typically the lower right corner of a screen, since it's easy to reach and is less likely to cover important content." "FABs persist on the screen when content is scrolling" (Overview). "Don’t completely obscure an actionable element and its focus indicator" (Accessibility). M3 prints nothing about a footer under a FAB.
-- **We do:** the FAB stays at the bottom right, 16 dp from the edges. While the editor's footer is in the window (a short screen, or the end of a long one), the FAB stands 16 dp above the footer's top edge, so it never covers a footer link or the copyright line, and it goes back to its place when the footer leaves the window. The content leaves room for the FAB above the footer. It follows the scroll directly, with no motion of our own. `check:screens` (`checkFabAboveFooter`, 375 and 1280) fails when the FAB overlaps the footer.
-- **Why:** owner, 15 Nov 2026: the FAB "must move up when the footer ... is beneath it, so the footer links are never covered"; on a phone it sat on top of "Report security issues" and the copyright line. M3's own rule that the FAB is not covered, and that it should not cover content, points the same way.
-- **Date:** 2026-11-15 (owner). **PR:** this pull request.
-
-### C2. The zoom slider's inactive track is the secondary container
-
-- **Material:** the sliders' token table (the colours of the active and inactive track) stayed collapsed in a text read, so M3's colour for the inactive track could not be quoted and the theme's choice (`--mo-comp-slider-inactive-track: --mo-sys-color-surface-container-high`) could not be compared with it.
-- **We do:** in the crop view the inactive track is `--mo-sys-color-secondary-container`.
-- **Why:** the theme's inactive track is the colour of the crop view's image area, so the track did not show.
-- **Date:** 2026-11-14. **PR:** #686.
 
 ## A block's sheet on a phone
 
@@ -344,44 +285,6 @@ Followed: "When actions don’t fit in a toolbar, add a menu." and "If more acti
 
 Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.mo-search-view*`), `src/CommandPalette.tsx`. Read 15 Nov 2026 on m3.material.io with Playwright: `/components/search/overview`, `/specs`, `/guidelines`, `/accessibility`. The token tables of the specs page stay collapsed in a text read (they did not open), and the colour and measurement diagrams are images that did not load: no token value is quoted, and the colour roles below are read from the numbered lists under the diagrams.
 
-### SV1. The contained style, without a divider
-
-- **Material:** "Contained: Has an expressive look and feel. It uses a filled container to separate a search bar from a list of suggestions or results"; "Divided (baseline) … Not recommended. Use contained." "In the divided (baseline) style, a divider separates the search bar and results."
-- **We do:** the contained style. The bar is a filled pill (56dp, full corners, surface container high, margins 12dp focused) in the view's own container; there is no divider under it. A theme can still ask for the divided style (`--mo-comp-search-view-header-surface: transparent`, `--mo-comp-search-view-header-radius: 0`, `--mo-comp-search-view-divider`).
-- **Why:** the owner's examples (Gmail, Drive) show a divider; M3 says the divided style is not recommended, and the owner asked for M3. Open for the owner to decide.
-- **Date:** 2026-11-15. **PR:** this pull request.
-
-### SV2. Colour roles and the docked gap (read as printed, no deviation)
-
-- **Material:** specs, Color: full screen "Surface container low … Surface container high …"; docked "Surface container high … Surface container high …" (numbered lists whose diagrams did not load, read in the order of the anatomy: container, icons and text, bar). Guidelines: "Avoid using a surface container high color on a surface container background … use surface container roles that are more than one step apart." Tokens (specs, token table, contained, read 15 Nov 2026): "Search view contained docked bar results gap 2dp".
-- **We do:** full screen the view is surface container low and the bar surface container high. Docked the bar and the results container are two containers, both surface container high, 2dp apart, so the bar never blends into its container.
-- **Date:** 2026-11-15. **PR:** this pull request.
-
-### SV3. Where M3 is silent, or the pages could not be read
-
-- **Highlighting the match** in a result: M3 prints nothing, so none is drawn.
-- **"Quick results"**: guidelines print "Show search results in a compact, organized list, with an indicator like Quick results". The groups' names (Go to, Pages and posts, Images and files …) are the indicator; a query shows the first 8 results, and the last row, "All search results for “query”", shows the rest (up to 30).
-- **Remove button on a recent search:** M3 prints historical suggestions ("Show historical suggestions before typing") and no remove button. We add one (the owner's Gmail example); the keyboard's Delete key does the same.
-- **Search key:** guidelines print "Type a query and press Enter"; the field's `enterKeyHint` is `search`.
-- **Opening:** the editor's other screens keep the top bar's search icon button (palette spec, deviations P1 and P3); the search app bar for every screen is 0.20.
-- **Docked size:** specs print "Width Min: 360dp, max: 720dp" and "Height Min: 240dp, max: 2/3 of screen height"; the view follows both. M3 is silent on where a docked view stands without a bar: near the top, in the middle (palette spec).
-- **The view's corners:** the shape tokens show a drawing, not a value (SV7), so the theme's extra-large corners are used; no shadow (the overview says "no shadow by default").
-- **Date:** 2026-11-15. **PR:** this pull request.
-
-### SV4. On a phone the search view is a page with a back arrow
-
-- **Material:** "Full-screen layout: Default for compact breakpoints"; "Full-screen expands to fill the screen"; "The back icon releases focus, dismisses any suggestions or results, and returns the search bar to its original state."
-- **We do:** on a phone the view is a layer the size of the window (a modal `<dialog>`, as the crop view, C1) with the back arrow leading its bar. It is full-size like M3's full-screen layout; it has no scrim and no corners. It is not a routed page (the phone's back gesture closes it, as for the crop view). From the medium width it is a dropdown (SV7).
-- **Why:** owner rule, 15 Nov 2026 (relayed by the PM): "We have agreed on moving away from full screen and sidebar on mobile and instead using pages."
-- **Date:** 2026-11-15. **PR:** this pull request.
-
-### SV5. The focus starts in the search field, not on the back arrow
-
-- **Material:** accessibility: "Initial focus lands on the first interactive element. This is often a leading icon button or text field."
-- **We do:** the back arrow is the leading icon button and the text field has the focus when the view opens; no other control has it.
-- **Why:** owner rule for dialogs and views (no control has the focus at the start except the field), so a person can type at once; M3 says "often", not always.
-- **Date:** 2026-11-15. **PR:** this pull request.
-
 ### SV6. The start screen shows the search bar all the time
 
 - **Material:** "Search bar: Use to search contents in a specific view"; "Add a search bar below a title to search specific content"; specs: "Container Width Min: 360dp, max: 720dp", "Height 56dp", "Leading padding Unfocused: 24dp, focused: 12dp".
@@ -396,33 +299,6 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.mo-search
 - **Why:** owner, 15 Nov 2026 (relayed by the PM): "On desktop don't make a popup, I read make a drop down."
 - **Date:** 2026-11-15. **PR:** this pull request.
 
-### SV8. Phone paddings, checked against the specs (15 Nov 2026)
-
-- **Material:** specs: bar "Height 56dp", full-screen focused bar "Leading padding 16dp", "Trailing padding 16dp", icon and label "4dp" from the tap target, margins "Focused: 12dp"; lists, specs: "Leading element left padding 16dp"; unfocused margin "24dp".
-- **We do:** the focused bar is 12dp from the edges and 56dp high, its icons 16dp from the pill's edge (a 48dp button inside 4dp padding) and the text 4dp from the button; the bar clears the notch (`env(safe-area-inset-top)`). The group names ("Recent searches", "Suggested") now start 16dp in, in line with the rows' icons (they were 12dp). A recent search and its remove button have one highlight. The filter chips start at 12dp, in line with the bar's edge (M3 prints nothing for the chip row). The unfocused bar on the start screen is 24dp from the edges.
-- **Date:** 2026-11-15. **PR:** this pull request.
-
-
-### SV9. Chips follow the M3 specs (fixed in the theme with the owner's approval, 15 Nov 2026)
-
-- **Material:** chips, specs (read 15 Nov 2026 with Playwright): filter chip "Container height 32dp", "Container shape 8dp corner radius", "Icon size 18dp", "Left/right padding 16dp", "Left/right padding with icon 8dp", "Padding between elements 8dp"; colour roles "On surface variant, On secondary container, Secondary container, Outline variant". Guidelines: "Tapping on a filter chip activates it and appends a leading checkmark icon to the starting edge of the chip label", "Keep an 8dp minimum space between chips. Chips must also have a minimum 48dp target size, regardless of placement or density. If required, the target can extend beyond the visible container of the chip."
-- **We do:** the theme's chip (`theme/styles/global.css` tokens, `theme/styles/ui.css`): the edge is outline variant, the label and icon on surface variant, a chosen chip is the secondary container with on secondary container and its check; 8dp padding on the side of an icon; a 48dp target (behind the chip's own content); a state layer when pointed at; a disabled chip has its label at 38% and its edge at 12% of on surface, a chosen disabled chip a 12% container. It was: outline edge, surface container high for a chosen chip, on surface text, 16dp with an icon, no 48dp target, an accent colour when pointed at, the whole chip at 38%. Every chip of the editor and of the site gets this (the Colours screen, the crop view, the image picker, the icon picker, tags, the parts gallery). The disabled colours are the M3 ones from the chips' state pages; the token table values for the chip were not opened.
-- **Why:** owner, 15 Nov 2026: "Your chips do not follow MD3 standard."
-- **Date:** 2026-11-15. **PR:** this pull request.
-
-### SV10. The start screen's search bar and the search view's category label are theme parts (new, with the owner's approval, 15 Nov 2026)
-
-- **Material:** search, guidelines: "Category labels, like Recent, Contacts, or Suggestions"; search bar as in SV6.
-- **We do:** `SearchBarButton` and `SearchGroupLabel` in `theme/ui/Search.tsx`, used through `src/ui.tsx` (`SearchBarButton`) and the search view, and shown in "Parts" › "UI components" under *Search*. The start screen's bar had its own markup in `src/Screen.tsx`, and the label its own class.
-- **Date:** 2026-11-15 (owner's approval, relayed by the PM). **PR:** this pull request.
-
-### SV11. Spacing of the search view, audited against the specs (15 Nov 2026)
-
-- **Material (read with Playwright, 15 Nov 2026):** Search specs and token table: "Search bar container Height 56dp", "Search view contained leading margin 12dp", "trailing margin 12dp", "docked bar results gap 2dp", "icon label gap 4dp", "Docked container Width Min: 360dp, max: 720dp", "Height Min: 240dp, max: 2/3 of screen height", "Leading padding 16dp", "Trailing padding 16dp". Chips specs: "Container height 32dp", "Container shape 8dp corner radius", "Icon size 18dp", "Left/right padding 16dp", "Left/right padding with icon 8dp", "Padding between elements 8dp". Lists token table (Spacing, Size): "list item leading space 16dp", "trailing space 16dp", "top space 10dp", "bottom space 10dp", "between space 12dp", "List segment gap 2dp", "One line list item container height 56dp", "Two lines … 72dp", "Three lines … 88dp", "leading icon size 24dp", "leading icon expressive size 20dp". Dividers specs: "Divider inset left margin 16dp".
-- **We do:** every value above, measured in the browser at 375, 768 and 1280 (the table is in the pull request). Fixed in this round: the chip was 37.6dp high (the theme's block padding was 8.8dp; now `--mo-comp-chip-padding-block` 6dp, so 32dp), the 8dp padding with an icon did not reach a filter chip (its hidden check came first), the chip row stood 6dp under the docked bar (now 12dp from the container's top edge), and the remove button's icon stood 12dp from the edge (now 16dp).
-- **M3 prints no number for:** the space around the chip row in a search view (we use 12dp left and top, 8dp under it); the category label (12/16 label medium, 8dp above, 4dp under, 16dp in) and the gap between groups (8dp); the docked bar's margin (it stands where the closed bar was, so 0, M3 prints the focused 12dp); the docked container's corner radius (the shape tokens show a drawing: we use the theme's 28dp extra-large); a margin between a docked container and the page. These are open points for the owner; SV13 researches them.
-- **Date:** 2026-11-15. **PR:** this pull request.
-
 ### SV12. The search view's rows are the theme's segmented list (owner's approval, 15 Nov 2026)
 
 - **Material (Lists, read 15 Nov 2026 with Playwright: overview, specs incl. the token table's Spacing, Shape, Size and Color folders, guidelines, accessibility):** "Use segmented gaps and filled list items to define a list group", "Use gaps for contained lists", "List segment gap 2dp", "Unselected corner radius: 4dp inner, 16dp outer", "Selected corner radius: 16dp", "List list item segmented container color #FEF7FF" (the baseline scheme's Surface), "List list item selected container color #E8DEF8", "One line list item container height 56dp", "Two lines … 72dp", "List list item leading space 16dp", "List list item between space 12dp".
@@ -432,22 +308,6 @@ Source: `theme/ui/Search.tsx` (`SearchView`), `theme/styles/ui.css` (`.mo-search
 - **Superseded by the cards and lists plan (18 Nov 2026) for the list's measures and states:** step 5 moves `List` and `ListItem` onto M3 Expressive's tokens (heights 56 / 72 / 88dp, the hover state layer, the selected colours, disabled 0.38, the Expressive shapes, the segmented surface and 2dp gap). Where point (2) above says M3 prints no number for the hovered, focused and pressed corners, the token pages now read (4dp; hovered 12dp; focused, pressed, dragged and selected 16dp) are followed. The focus ring is the one ring of deviation FR1, with the list's own offset of -3dp as a component variable. The List block's rows on the surface container (point (1)) stay as the owner approved them.
 - **Step 5, the component (18 Nov 2026, Lists › Specs and the *List - Common* and *List - Expand* token sets read with Playwright):** the hover shift and the selected weight are gone (not in M3's tokens); a hovered item shows only the 0.08 state layer, text unchanged; pressed, focused and dragged corners are 16dp, hovered 12dp, resting 4dp; dragged is level 4 under the 0.16 layer; disabled 0.38; the subhead (prop `subhead`, replacing `overline`) is drawn as M3's overline. Where we differ: the divider is `outline-variant` as the Specs page's colour roles list prints it (the spec's table says `outline`); the focus ring is primary (FR1); `columns` is kept as the content slot with `--mo-comp-list-item-columns-gap`; the List block's segmented rows stay on the surface container (point (1)). The expanded item's colours and the trailing icon container are printed only as images on the page: the existing values stay.
 - **Date:** 2026-11-15 (owner's approval, relayed by the PM). **PR:** this pull request.
-
-### B3. The bottom sheet's side padding is the grid margin
-
-- **Material (read with Playwright, 15 Nov 2026, m3.material.io/components/bottom-sheets/overview, /specs, /guidelines, /accessibility):** specs, Measurements: "Bottom sheets span the full window width up to 640dp. When the window width exceeds 640dp, bottom sheets adjust to have a top margin of 56dp and side margins of 56dp", "Drag handle padding top/bottom 22dp", "Top margin 72dp", "Width Full width, up to max-width 640dp". M3 prints no padding for what is inside a sheet, so there is no value to conflict with.
-- **We do:** the sheet's header, peek, footer and a standard sheet's content have `var(--mo-sys-grid-margin)` at the start and end (16 dp on compact, 24 dp from the medium breakpoint, `theme/styles/tokens/material/sys.css`), instead of 20 dp; the editor's `SheetBody`, `SheetActions` and the gallery sample use the same token. M3's grid page prints these margins for the window.
-- **Why:** owner approval, 15 Nov 2026 (relayed by the PM): the fields and lists inside a sheet end at the grid margin, and the sheet's 20 dp made their edges miss. No `THEME_API` name, kind or class changed.
-- **Date:** 2026-11-15. **PR:** this pull request (`bottom-sheet-grid-margin`).
-
-### SV13. The open points of SV11, researched in the official sources (15 Nov 2026)
-
-- **Sources checked, in order:** (1) m3.material.io Search specs, the token table with the folders opened (Color; Layout and Text: Contained (expressive), Divided (baseline), Common tokens; both the *Search - View* and *Search - Bar* sets), and the Chips and Lists specs; (2) Compose Material 3 `SearchBar.kt` (`ExpandedDockedSearchBarWithGap`, `DockedSearchBarLayout`, `SearchBarDefaults`), `SearchViewTokens.kt`, `SearchBarTokens.kt`, and Android `material-components-android` `dimens.xml`, `styles.xml`, `attrs.xml` of `search`; (3) Material Web `@material/web` 2.5.0, `tokens/versions/latest/sass/_md-comp-search-view.scss` and `_md-comp-search-bar.scss`.
-- **Docked container corner radius (point 4).** The specs page names *Search view contained docked bar shape* and *docked results shape* but prints the shapes as a drawing. Material Web prints them: `contained-docked-bar-shape: corner-full`, `contained-docked-results-shape: corner-medium` (12dp), and `docked-container-shape: corner-extra-large` (28dp, the divided style's one container). Compose agrees: `dockedDropdownShape = RoundedCornerShape(12.dp)` for the with-gap docked bar, 28dp (`DockedContainerShape`, extra large) for the single container. We follow the contained style, so the results container is **12dp** (was 28dp): `--mo-comp-search-view-docked-container-shape`, no deviation.
-- **Focused docked bar margin (point 4) and margin to the page (point 5).** Compose's docked layout keeps the bar at its collapsed bounds and puts the results under it at the bar's own width (`maxWidth = collapsedCoords.size.width`) with a 2dp gap; it adds no margin to the bar or to the page. Material Web has no docked margin token; its contained 12dp margin (and the specs' "focused 12dp") belongs to the full-screen view. Android's 16dp `m3_searchbar_margin_horizontal` is the closed bar's own margin in its layout. **M3 does not define a margin between a docked container and the page.** We keep: the docked bar has no margin; the panel's bottom stays 16dp above the window's edge (`max-height`). **Approved deviation (owner, 15 Nov 2026, relayed by the PM).**
-- **Chip row (point 1) and category label and group gap (point 2).** The specs, Compose (`SearchBar.kt` takes arbitrary content), Android and Material Web have no filter chips or category labels in a search view, and no token for the space around them. **M3 does not define them.** We keep: chip row 12dp from the container's top edge and 12dp in, 8dp under it; label label-medium, 8dp above, 4dp under, 16dp in; 8dp between groups. **Approved deviation (owner, 15 Nov 2026, relayed by the PM).**
-- **Which M3.** The segmented list (SV12) is M3 Expressive: the Lists specs print it as "M3 --" and "M3 Expressive Available"; none of the sources above show it in the baseline.
-- **Date:** 2026-11-15 (owner approved the deviations above, 15 Nov 2026). **PR:** #749.
 
 ## The focus ring (step 1 of the cards and lists plan)
 
@@ -483,31 +343,9 @@ Source: `theme/ui/TextField.tsx` (`.mo-text-field__invalid-text`), `theme/ui/tex
 - **Why:** Chrome's Modern Web Guidance (`validate-input-after-interaction`, `accessible-error-announcement`) says to list the error in `aria-describedby` only while the field is invalid and not to make each message a live region, as a message that is shown rather than changed is not announced reliably and would be read twice. The owner's order puts the modern web guidance before Material 3 here: the PM, 15 Nov 2026 (owner: "We follow modern web").
 - **Date:** 2026-11-15 (owner, through the PM). **PR:** the pull request that adds this entry.
 
-## The footer's colour scheme (connected button group, #767)
-
-Source: `theme/components/Footer.astro`, `theme/layouts/Base.astro`. Read 15 Nov 2026 on m3.material.io (Playwright): `/components/button-groups/overview`, `/specs`, `/guidelines` and `/accessibility`, and `/components/segmented-buttons/overview`, `/specs`, `/guidelines` and `/accessibility`.
-
-### F1. A single-choice group of toggle buttons says `aria-pressed`, not `radio`
-
-- **Material:** the button groups' Accessibility page prints "Tab: Initial focus lands on the first button", "Arrow keys: Navigate between items", "Space or Enter: Selects a focused item" and "Identify when buttons are selected"; it names no ARIA roles.
-- **We do:** the three buttons (Light, Auto, Dark) are toggle `Button`s with `aria-pressed` in a `role="group"` (the theme's `ButtonGroup`, as its `ChoiceGroup` does), with one tab stop on the chosen button and the arrow keys moving and choosing. Initial focus lands on the chosen button, as `ChoiceGroup` does, where M3 prints the first.
-- **Why it stays:** no Modern Web Guidance guide prints a rule for one-of-many toggle buttons (searched and read 15 Nov 2026: `accessibility`, `forms`, `toolbar`, `tabs`, `switch`, `dark-mode-toggle`; none mentions radio roles, `aria-checked` or arrow-key groups), and M3's page prints none. The theme's `ChoiceGroup` and this group use `aria-pressed`. Accepted by the PM, 15 Nov 2026; revisit if the guides add it.
-- **Date:** 2026-11-15. **PR:** #767.
-
 ## The site's menu is the modal expanded navigation rail (follow-up of D2 of the Modern Web Guidance audit)
 
 Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `theme/styles/ui.css`. Read 15 Nov 2026 on m3.material.io (Playwright, every tab): `/components/navigation-drawer/overview`, `/specs`, `/guidelines`, `/accessibility` and `/components/navigation-rail/overview`, `/specs` (the token sets Common, Collapsed, Expanded, Item - Common, Item - Vertical and Item - Horizontal, opened), `/guidelines`, `/accessibility`. The measurement and anatomy images of the Specs pages did not load in headless Chromium (blurred placeholders), so numbers that only those images carry are not read here.
-
-### N1. The menu on a phone is the modal expanded navigation rail; the part keeps its name `navigation-drawer`
-
-- **Material:** Navigation drawer, Overview: "The navigation drawer is no longer recommended in the Material 3 Expressive update. For those who have updated, use an expanded navigation rail, which has mostly the same functionality of the navigation drawer and adapts better across breakpoints." Navigation rail, Overview: "The expanded nav rail is meant to replace the navigation drawer"; Specs, Configurations, *Expanded layout*, "Modal": M3 "Available as navigation drawer", M3 Expressive "Available"; Guidelines: "Expanded navigation rails can open from menu buttons on mobile".
-- **We do (owner's priority order, 15 Nov 2026: Expressive over plain M3; decided by the PM):** the theme's `navigation-drawer` takes the expanded rail's look where its pages print a value: the modal container is the surface container ("Nav rail expanded modal container color", `--mo-sys-elevation-level2-color`) and the standard one the surface ("Nav rail expanded container color"); the container hugs its content, "container width minimum 220dp", "maximum 360dp" (a theme that sets `--mo-comp-navigation-drawer-width` still gets that width); the icon-label space is 8dp ("Nav rail item horizontal icon-label-space 8dp"); and the site's menu has the rail's menu button at its top, on the edge the header's menu button is on, which closes it with a changed icon (`menu-open`; Guidelines: "When the navigation rail is expanded, the menu icon should change to represent that it can be collapsed"), instead of the Close (x) in the head row. The site's logo and name stay beside it, because the menu is the site's own and has no other place for them.
-- **Why the name stays:** a rename changes the exported names and the class names a theme uses, so it needs a `THEME_API` bump; the look change does not. Nothing is removed or renamed here: a new `--mo-comp-navigation-drawer-width-min-default` default, min and max widths instead of a fixed one.
-
-### N2. The active indicator fills the container
-
-- **Material:** Navigation rail, Guidelines: "The active indicator hugs the label text in the expanded nav rail. To achieve a similar style to the baseline navigation drawer, consider modifying the active indicator to fill the container."
-- **We do:** the drawer's active indicator fills the container, as before ("Navigation drawers active indicator width 336dp"). M3 allows it. **Date:** 2026-11-15 (the PM's decision).
 
 ### N3. Labels only, and sub-pages, in the site's menu
 
@@ -529,18 +367,6 @@ Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `the
 - **Material:** "Nav rail expanded container width minimum 220dp", "maximum 360dp" (it hugs its content).
 - **We do:** the editor's drawers (`.mo-editor-main-drawer-panel`, `src/editor.css`) keep 360dp (at most the screen less 56dp) through their levels and sections, because the layout beside them counts on that width (`--mo-sys-section-pane-width`, the columns). Editor workspace only. **Date:** 2026-11-15.
 
-### N7. Values only the Specs images carry are left as they were
-
-- **Not read:** "Nav rail expanded top space 44dp" is a token, but how the 56dp active indicator sits in the 64dp item container ("container height 64dp", "short container height 56dp", "container vertical space 6dp") and the container's shape and elevation print no value in the page's text. The PM's decision: leave those as they are. We keep the 56dp item, the 12dp top padding and the drawer's corners and level 1 shadow. **Date:** 2026-11-15. **PR:** this pull request.
-
-## Text measure
-
-### T1. The page's text is 40ch to 60ch wide (owner decision)
-
-- **Material:** Material 3 prints no maximum or minimum text width for body text.
-- **We do:** a paragraph or heading of a page's text is at least `--mo-sys-block-text-measure-min` (40ch) and at most `--mo-sys-block-text-measure-max` (60ch) wide (`theme/styles/blocks.css`), as `min-width: min(40ch, 100%)` so a narrow container never scrolls sideways. Blocks of plain text rows (List, Segmented list and its accordion rows, Steps, Blog posts as a list, Testimonials list) are columns at least `--mo-sys-block-list-column-min` (21.5rem, 344px) wide, as many as fit the list's own width (one `repeat(auto-fill, minmax(min(…, 100%), 1fr))` rule, no breakpoint): one column below 720px, two from 720px, three from 1080px, never more in the page container (the owner's addition, 16 Nov: "set max width to 720px. If large split into two columns", then "At 3x360px it splits into three"; 344px instead of 360px so that three columns and their 24px gutters fit the 1104px container). Blog posts rows have a thumbnail before the text, so their columns are at least 30rem (480px) wide (two from 984px) and the date and reading time stay on one line. Steps is one column at most `--mo-sys-block-list-measure-max` (720px) wide. Wide visual blocks keep the container's width. The page container is unchanged. It was 66ch for text, and 48rem for the accordion and Steps. (changed 18 Nov 2026: cards and lists plan): the list rows move onto M3 Expressive's `List` in 0.18 (step 5) and keep these columns (`columns` is the item's own two-column content slot, a different setting); from 0.19 (step 6) a collection that shows cards puts 2 cards side by side from 600 dp and 3 from 840 dp.
-- **Why:** the owner's own rule ("p { min-width: 40ch; max-width: 60ch; }", "yes, do that"). **Date:** 2026-11-16. **PR:** this pull request.
-
 ## Buttons
 
 ### B1. A text button has the other buttons' side padding (owner decision)
@@ -549,24 +375,22 @@ Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `the
 - **We do:** a text button has the same side padding as the other buttons of its size (24dp for medium, `--mo-comp-button-padding`; the sizes' own padding for the others). `--mo-comp-button-text-padding` (now 1.5rem) is only the shift that lines a text button's label up with the text above it (Segmented list and FAQ buttons, tooltip actions).
 - **Why:** the owner's own rule ("The text button should have the same paddings as the other buttons"), seen on the demo Buttons page where the text button stood closer to its neighbours than the others. **Date:** 2026-11-16. **PR:** #852.
 
-## Cards
+## Where Material 3 is silent (not deviations)
 
-### CM1. The media of a Cards card has rounded bottom corners (owner decision, 16 Nov 2026)
+Sorted on 21 Nov 2026 (0.19.5, batch 9; `docs/superpowers/plans/2026-11-21-0-19-5-deviations-sorted.md`): M3 prints no value for these, so
+there is nothing to deviate from. The theme uses the nearest M3 pattern or the owner's number. The entries that said so are gone.
 
-- **Material:** m3.material.io/components/cards (overview, specs, guidelines, accessibility, read with Playwright, 16 Nov 2026) prints "Shape: 12dp corner radius" for the card container and no shape, size or token for the media (Guidelines › Media: thumbnail, image, video). The Container example on the Cards page draws the media flush with the card's top and both sides, with rounded bottom corners (about the card's radius) so the card's surface shows behind them; its anatomy and measurement diagrams did not render in the headless browser.
-- **We do:** the media of a Cards card (`.mo-block-cards__card-picture` and `.mo-block-cards__card-video`, which also clips the playing video; every card kind and the carousel's cards) is its own rounded rectangle, flush with the card's top and sides: its top corners are the card's (less its border), its bottom corners are the card's radius, `--mo-comp-card-radius` (12dp). The card's media with no text under it (`.mo-card__media`, Image grid) already had the card's corners all round.
-- **Why:** the owner's decision, 16 Nov 2026, from the real M3 Cards page (Container example); no radius is printed for the media, so it is the card's own, "from the M3 Cards page, Container example, no printed token". **Date:** 2026-11-16. **PR:** this pull request. Checked by `checkCardMediaCorners` (375, 768 and 1280 px). (changed 18 Nov 2026: cards and lists plan): step 3 gives `Card` the M3 `media` prop (an image or a video, edge to edge; `media` as `true` keeps the old meaning); the Cards block's media moves onto it in step 4 and this entry stays current in that pull request. **Step 4 (18 Nov 2026):** the Cards block's media is `Card`'s `media` (a `CardMedia` or a video), and a media slot with text under it has bottom corners of the card's radius (`.mo-card__media-slot:has(+ .mo-card__body)`); a media-only card draws no empty body.
-
-### CM2. The card's type styles and gaps are ours where M3 is silent (cards and lists, step 3)
-
-- **Material:** m3.material.io/components/cards (overview, specs, guidelines, accessibility, read with Playwright, 18 Nov 2026) names the anatomy (container, image, thumbnail, video, headline, subhead, supporting text, buttons, icon buttons, selection controls, linked text, overflow menu) and prints for the container "Shape: 12dp corner radius", "Left/right padding: 16dp", "Padding between cards: 8dp max", the colours, elevations and state opacities of each variant, and the elevated card's icon (24dp, `primary`). It prints no type style for the headline, subhead or supporting text and no gap between the parts.
-- **We do:** `Card` draws its parts in M3's order with the list item's type roles (owner, 17 Nov): headline title-large, subhead label-small, supporting text body-medium; gaps from the `--mo-ref-space-*` steps through `--mo-comp-card-*` (media to headline 16dp, headline to subhead 4dp, to the supporting text and the content 8dp, text to the buttons 16dp, the same values the Cards block had). Each is a `--mo-comp-card-*` token that falls back to a `--mo-sys-*` one. Not built yet, and so not a deviation: the thumbnail, icon buttons, the overflow menu, selection controls, linked text, disabled, and the dividers between the parts (M3: inset dividers between related content, full-width above content that expands).
-- **Why:** M3 is silent; the nearest M3 pattern is the list item's anatomy and type roles (Lists, Specs). The outlined card's edge turns `on-surface` with focus (Specs, Outlined card, Focused) and the focus ring is the theme's one ring (`--mo-sys-color-primary`, step 1), not the card's `secondary`.
-- **Date:** 2026-11-18. **PR:** this pull request.
-
-### CM3. Where a block's part has no card part of its own (cards and lists, step 4)
-
-- **Material:** Cards, Guidelines, Anatomy (read 18 Nov 2026 in step 3, entry CM2): container, media, icon, headline, subhead, supporting text, buttons, linked text. M3 prints no part for a price, a badge, a link line ("Read more") or a trailing arrow, and "An action shouldn't be placed on an actionable surface".
-- **We do:** the site's cards use `Card`'s props (media, icon, headline, subhead, supporting, actions). Where a block has something M3 has no part for, it stays the card's content or takes the nearest part: the Price cards' price is the `subhead` (in the price's own type) and its "Popular" label is the `icon` part, so both stay in their old order; the Cards block's "Read more" line (a card that is a link) is the card's `children`, at the bottom, because `actions` never go with `href` (linked text is not built yet); the 404 page's suggestion is a headline (the page) over a subhead ("Did you mean") and has no trailing arrow; Notice's text is the `supporting` text in the notice's own type; Panel's icon and title are `icon` and `headline`. Table, Cookie list and Testimonial are one card with their content as `children` (a table, a quote with its name in a `figcaption`, which must be a direct child of its `figure`); the Testimonial's tags and read-more button have no card part either.
-- **Why:** M3 is silent; the nearest M3 pattern keeps the look the owner has ("nothing loses a function"). The editor's inline cards (`src/Inline*.tsx`) keep their own block-card-* classes until the special type moves them to the props, so those rules stay in `cards.css`.
-- **Date:** 2026-11-18. **PR:** this pull request.
+- **The layout grid's margin and gutter:** 16 px on compact, 24 px from medium (`--mo-sys-grid-margin`, `--mo-sys-grid-gutter`, owner, 15 Nov 2026); the Grids page draws columns and prints no value. Cards are not on the gutter: they are `--mo-comp-card-gap` (8 px) apart, as Cards, Specs prints ("Padding between cards 8dp max"; G1, made to match 21 Nov 2026).
+- **How many cards stand side by side:** 2, 3 and 4 from the window classes (`--mo-comp-grid-columns`); M3 prints no count.
+- **Cards:** the media's bottom corners are the card's radius (the Container example draws it); the headline, subhead and supporting text take the list item's type roles; the gaps inside a card are the `--mo-comp-card-*` steps; a price, a badge, a "Read more" line and a trailing arrow have no card part and stay the card's content.
+- **Search view:** where the match is highlighted, "Quick results", the remove button on a recent search, the chip row and category label spacing, the docked bar's margin and its distance to the page, the docked results container's 12 dp corner (the token copy prints it); the search view's colours, paddings and chips equal the specs; on a phone it is the full-screen layout.
+- **The search view on a phone** takes the whole window and its focus starts in the field ("often a leading icon button or text field").
+- **Palette:** a command palette made of the Search view (`Ctrl+K`); M3 has no page for one.
+- **Density:** horizontal padding does not follow the density step (M3 prints no rule); a row never shrinks below the 48 dp target and a smaller part keeps an invisible 48 dp target, as the Lists and Structure pages print.
+- **Choice group:** a small sample of a look in a row's trailing slot.
+- **The FAB above the footer:** M3 says nothing about a footer under a FAB; the FAB lifts 16 dp above it.
+- **A bottom sheet's content padding:** the grid margin; M3 prints no padding for what is in a sheet.
+- **The site's text measure:** 40ch to 60ch (owner's rule); M3 prints no text width.
+- **Button group toggles:** `aria-pressed` in a `role="group"`; M3 prints no ARIA roles for them.
+- **Editor-only parts** (score ring, colour and icon pickers, the Google preview, crop handle sizes) and the editor's fixed colours (PageSpeed, Google, the picker, the preview frame) are no M3 parts.
+- **Closed because they match M3:** the dialog corner (extra large, 28 dp), the menu corner (large, 16 dp), the 56 dp buttons and 56, 72 and 88 dp list rows (Expressive), the contained search view, chips (32 dp, 8 dp corner, 18 dp icon), the expanded modal navigation rail (surface container, 220 dp to 360 dp), the zoom slider's inactive track (secondary container).

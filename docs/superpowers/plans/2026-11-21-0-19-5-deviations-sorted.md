@@ -84,24 +84,16 @@ tables the pages keep collapsed. Pages read (Specs and Guidelines tabs): `/compo
 
 Counts: GO 30 rows, WCAG 4, OWNER 14, OTHER BATCH 9, out of scope 1 (rows can hold several entries).
 
-## What changes, if the PM agrees
+## The PM's answers (21 Nov 2026) and what this batch does
 
-1. Entries marked GO are removed from `docs/material-deviations.md` (row 31 only after the change).
-2. Entries marked WCAG and OWNER stay, shortened to: what M3 prints (quoted), what we do, the criterion or the owner's words, the date.
-3. The file gets a short ending section, *Where M3 is silent*, with the one-line list of GO-silent items (rows 8, 23, 24, 26, 30, 34, 40, 41, 44, 52, 58, 60, 61), so no choice is lost.
-4. `scripts/m3-tokens.allow.mjs` loses no entry here (batch 9 owns none of its tokens).
+1. **G1 (row 31):** yes. Card gaps are M3's 8 dp (`--mo-comp-card-gap`) in the cards block, its carousel grid from 600 dp, price cards and the prices list,
+   panels, related posts and the staggered image grid. The layout grid's own gutter (`--mo-sys-grid-gutter`, 16 / 24 px) stays for everything that
+   is not a card. The editor's own uses of `--mo-comp-card-gap` were 8 px already. `check:screens` (`scripts/screens/cards.mjs`) now expects 8.
+2. **The OWNER rows:** not changed and not removed. The PM asks the owner whether "match M3 in appearance" overrides them. D3 and SV12 stay as they are.
+3. **Rows 17 and 59 (batch 7):** the entries stay until batch 7 has merged.
 
-## Needs the PM's answer before any CSS changes
-
-1. **Row 31 (G1), visible.** M3 prints "Padding between cards 8dp max". Making it match means card gaps of 8 dp (cards block, price cards, panels,
-   related posts, image grid, the editor's grids) instead of 16 / 24 dp. The owner decided 16 / 24 on 15 Nov 2026 (#743); the plan of 20 Nov names G1
-   as "made to match". The page's grid gutter (`--mo-sys-grid-gutter`, M3 prints none) stays 16 / 24 for everything that is not a card. Do I change the
-   cards' gap to 8 dp (`--mo-comp-card-gap`, the token that already exists)?
-2. **The OWNER rows** (25, 29, 32, 33, 35, 36 P2, 37, 38, 47, 48, 49, 51, 54, 55, 56): each is a place where the owner decided against a printed M3 value, in
-   words. Does the owner want to keep them? I keep all of them and shorten the entries unless the PM says otherwise. Rows 35 (radio rows at 0 padding)
-   and 49 (List block rows on surface container) would change something visible if reverted.
-3. **Row 17 and 59** depend on batch 7 (icon button 40 dp, button padding 16 dp). Both entries go in that PR or after it. Tell me whether you prefer
-   that I remove them in my PR once batch 7 has merged.
-4. **Rows 1–4, 6, 7, 9, 12, 13, 22** belong to other batches; I leave their text untouched. Batch 4 and the elevation batches must rewrite them.
-
-If everything above is accepted, the pull request is almost only text (`docs/material-deviations.md`) plus the 8 dp card gap (row 31) and its release note.
+Done in the pull request: the GO entries are gone from `docs/material-deviations.md` and a closing section, *Where Material 3 is silent*, keeps their
+one-line facts. Left untouched on purpose, because another batch or the owner's question owns them: *Section colours*, *Outlines*, *Colour sweep*,
+CSS sweep 4, 5 and 9, *Editor-only parts*, the editor's bars, the text bar, selection and the block row, density 12, footer links, lightbox, choice
+group D1 and D3, palette P2 and P3, the crop view C1, B1 to B3 (pages and panes), the Dialog's D1, SV6, SV7, SV12, FR1, A1, E1, N3 to N6, and *Buttons* B1.
+Rows 8 and 24 (colour sweep 2 to 5 and 9, editor-only parts) therefore read OTHER BATCH / out of scope, not GO.

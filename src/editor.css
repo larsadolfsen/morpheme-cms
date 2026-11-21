@@ -638,7 +638,7 @@
 }
 
 /* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: --mo-sys-section-pane-width and
-   the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N2). */
+   the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N6). */
 .mo-editor-main-drawer-panel {
   --mo-comp-navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
 }

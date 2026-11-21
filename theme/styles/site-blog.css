@@ -82,7 +82,7 @@
   }
   .mo-related__list {
     display: grid;
-    gap: var(--mo-sys-grid-gutter);
+    gap: var(--mo-comp-card-gap);
     margin-block-start: 1.5rem;
   }
   .mo-related__list > * {
