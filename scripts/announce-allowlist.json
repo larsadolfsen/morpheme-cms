@@ -1,57 +1,8 @@
 [
   {
     "problem": "bad-name",
-    "selector": "a.mo-list__item-container",
-    "places": ["#src/data/categories/design.json", "#src/data/categories/editing.json", "#src/data/categories/seo.json"],
-    "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
-  },
-  {
-    "problem": "bad-name",
     "selector": "button.mo-card.mo-is-filled",
     "places": ["#files"],
-    "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
-  },
-  {
-    "problem": "bad-name",
-    "selector": "div[role=textbox] > h1 > a",
-    "places": ["#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
-  },
-  {
-    "problem": "bad-name",
-    "selector": "div[role=textbox] > h3 > a",
-    "places": ["#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
-  },
-  {
-    "problem": "bad-name",
-    "selector": "div[role=textbox] > h4 > a",
-    "places": ["#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
-  },
-  {
-    "problem": "bad-name",
-    "selector": "div[role=textbox] > h5 > a",
-    "places": ["#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
-  },
-  {
-    "problem": "bad-name",
-    "selector": "div[role=textbox] > h6 > a",
-    "places": ["#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
-  },
-  {
-    "problem": "bad-name",
-    "selector": "div[role=textbox] > p > a",
-    "places": ["#developer/parts/editor", "#src/content/pages/prose-fixture.md", "#src/content/pages/typography.md"],
     "viewports": ["phone", "computer"],
     "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
   },
@@ -322,18 +273,6 @@
       "#seo/redirects/not-found",
       "#settings",
       "#settings/appstore",
-      "#src/content/blog/build-a-page-from-blocks.md",
-      "#src/content/blog/colors-everyone-can-read.md",
-      "#src/content/blog/edit-your-website-from-your-phone.md",
-      "#src/content/blog/every-save-is-a-version.md",
-      "#src/content/blog/not-on-the-blog.md",
-      "#src/content/blog/schedule-a-post.md",
-      "#src/content/blog/secure-from-day-one.md",
-      "#src/content/blog/seo-without-the-guesswork.md",
-      "#src/content/blog/switch-themes-without-losing-anything.md",
-      "#src/content/blog/the-app-store.md",
-      "#src/content/pages/about.md",
-      "#src/content/pages/app-store.md",
       "#src/content/pages/blocks-blog-posts.md",
       "#src/content/pages/blocks-buttons.md",
       "#src/content/pages/blocks-cards.md",
@@ -344,22 +283,6 @@
       "#src/content/pages/blocks-tables.md",
       "#src/content/pages/blocks-testimonials.md",
       "#src/content/pages/blocks-video.md",
-      "#src/content/pages/blocks.md",
-      "#src/content/pages/blog-page.md",
-      "#src/content/pages/contact.md",
-      "#src/content/pages/get-started.md",
-      "#src/content/pages/home.md",
-      "#src/content/pages/page-not-found.md",
-      "#src/content/pages/privacy-policy.md",
-      "#src/content/pages/prose-fixture.md",
-      "#src/content/pages/typography.md",
-      "#src/data/categories/apps.json",
-      "#src/data/categories/design.json",
-      "#src/data/categories/editing.json",
-      "#src/data/categories/security.json",
-      "#src/data/categories/seo.json",
-      "#src/data/popups/booking-bar.json",
-      "#src/data/popups/try-the-editor.json",
       "#status"
     ],
     "viewports": ["phone", "computer"],
@@ -410,11 +333,7 @@
   {
     "problem": "no-name",
     "selector": "div.mo-editor-inline-notice[role=button]",
-    "places": [
-      "#src/content/blog/every-save-is-a-version.md",
-      "#src/content/blog/switch-themes-without-losing-anything.md",
-      "#src/content/pages/blocks-cards.md"
-    ],
+    "places": ["#src/content/pages/blocks-cards.md"],
     "viewports": ["phone", "computer"],
     "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
   },
@@ -682,18 +601,7 @@
   {
     "problem": "repeated-name",
     "selector": "button.mo-button.mo-is-tonal",
-    "places": [
-      "#developer/parts/ui",
-      "#src/content/blog/build-a-page-from-blocks.md",
-      "#src/content/blog/colors-everyone-can-read.md",
-      "#src/content/blog/edit-your-website-from-your-phone.md",
-      "#src/content/blog/every-save-is-a-version.md",
-      "#src/content/blog/schedule-a-post.md",
-      "#src/content/blog/secure-from-day-one.md",
-      "#src/content/blog/seo-without-the-guesswork.md",
-      "#src/content/blog/switch-themes-without-losing-anything.md",
-      "#src/content/blog/the-app-store.md"
-    ],
+    "places": ["#developer/parts/ui"],
     "viewports": ["phone", "computer"],
     "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
   },
@@ -783,8 +691,7 @@
       "#developer/parts/ui",
       "#global/header",
       "#list/highlights",
-      "#list/testimonials",
-      "#src/data/popups/booking-bar.json"
+      "#list/testimonials"
     ],
     "viewports": ["phone", "computer"],
     "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
@@ -819,13 +726,6 @@
   },
   {
     "problem": "repeated-name",
-    "selector": "button.mo-site-block-card-button",
-    "places": ["#src/content/pages/prose-fixture.md", "#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
-  },
-  {
-    "problem": "repeated-name",
     "selector": "button.mo-site-block-handle",
     "places": [
       "#src/content/pages/blocks-blog-posts.md",
@@ -834,10 +734,7 @@
       "#src/content/pages/blocks-image-grid.md",
       "#src/content/pages/blocks-lists.md",
       "#src/content/pages/blocks-tables.md",
-      "#src/content/pages/blocks-testimonials.md",
-      "#src/content/pages/blocks.md",
-      "#src/content/pages/prose-fixture.md",
-      "#src/content/pages/typography.md"
+      "#src/content/pages/blocks-testimonials.md"
     ],
     "viewports": ["phone", "computer"],
     "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
@@ -854,13 +751,6 @@
     "selector": "button.mo-type-title-large.mo-editor-fold-toggle",
     "places": ["#developer/parts/editor"],
     "viewports": ["computer"],
-    "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
-  },
-  {
-    "problem": "repeated-name",
-    "selector": "div[role=textbox] > h3 > a",
-    "places": ["#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
     "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 2 fixes it and removes this entry."
   },
   {
@@ -908,18 +798,6 @@
       "#new/pages",
       "#new/popups/bookingbar",
       "#new/popups/standard",
-      "#src/content/blog/build-a-page-from-blocks.md",
-      "#src/content/blog/colors-everyone-can-read.md",
-      "#src/content/blog/edit-your-website-from-your-phone.md",
-      "#src/content/blog/every-save-is-a-version.md",
-      "#src/content/blog/not-on-the-blog.md",
-      "#src/content/blog/schedule-a-post.md",
-      "#src/content/blog/secure-from-day-one.md",
-      "#src/content/blog/seo-without-the-guesswork.md",
-      "#src/content/blog/switch-themes-without-losing-anything.md",
-      "#src/content/blog/the-app-store.md",
-      "#src/content/pages/about.md",
-      "#src/content/pages/app-store.md",
       "#src/content/pages/blocks-blog-posts.md",
       "#src/content/pages/blocks-buttons.md",
       "#src/content/pages/blocks-cards.md",
@@ -929,17 +807,7 @@
       "#src/content/pages/blocks-steps.md",
       "#src/content/pages/blocks-tables.md",
       "#src/content/pages/blocks-testimonials.md",
-      "#src/content/pages/blocks-video.md",
-      "#src/content/pages/blocks.md",
-      "#src/content/pages/blog-page.md",
-      "#src/content/pages/contact.md",
-      "#src/content/pages/get-started.md",
-      "#src/content/pages/home.md",
-      "#src/content/pages/page-not-found.md",
-      "#src/content/pages/privacy-policy.md",
-      "#src/content/pages/prose-fixture.md",
-      "#src/content/pages/typography.md",
-      "#src/data/popups/try-the-editor.json"
+      "#src/content/pages/blocks-video.md"
     ],
     "viewports": ["phone", "computer"],
     "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 3 fixes it and removes this entry."
@@ -1211,18 +1079,6 @@
       "#seo/redirects/not-found",
       "#settings",
       "#settings/appstore",
-      "#src/content/blog/build-a-page-from-blocks.md",
-      "#src/content/blog/colors-everyone-can-read.md",
-      "#src/content/blog/edit-your-website-from-your-phone.md",
-      "#src/content/blog/every-save-is-a-version.md",
-      "#src/content/blog/not-on-the-blog.md",
-      "#src/content/blog/schedule-a-post.md",
-      "#src/content/blog/secure-from-day-one.md",
-      "#src/content/blog/seo-without-the-guesswork.md",
-      "#src/content/blog/switch-themes-without-losing-anything.md",
-      "#src/content/blog/the-app-store.md",
-      "#src/content/pages/about.md",
-      "#src/content/pages/app-store.md",
       "#src/content/pages/blocks-blog-posts.md",
       "#src/content/pages/blocks-buttons.md",
       "#src/content/pages/blocks-cards.md",
@@ -1233,22 +1089,6 @@
       "#src/content/pages/blocks-tables.md",
       "#src/content/pages/blocks-testimonials.md",
       "#src/content/pages/blocks-video.md",
-      "#src/content/pages/blocks.md",
-      "#src/content/pages/blog-page.md",
-      "#src/content/pages/contact.md",
-      "#src/content/pages/get-started.md",
-      "#src/content/pages/home.md",
-      "#src/content/pages/page-not-found.md",
-      "#src/content/pages/privacy-policy.md",
-      "#src/content/pages/prose-fixture.md",
-      "#src/content/pages/typography.md",
-      "#src/data/categories/apps.json",
-      "#src/data/categories/design.json",
-      "#src/data/categories/editing.json",
-      "#src/data/categories/security.json",
-      "#src/data/categories/seo.json",
-      "#src/data/popups/booking-bar.json",
-      "#src/data/popups/try-the-editor.json",
       "#status"
     ],
     "viewports": ["phone", "computer"],
@@ -1285,13 +1125,7 @@
   {
     "problem": "tab-state",
     "selector": "button.mo-text-field__input",
-    "places": [
-      "#global/header",
-      "#new/popups/bookingbar",
-      "#new/popups/standard",
-      "#src/data/popups/booking-bar.json",
-      "#src/data/popups/try-the-editor.json"
-    ],
+    "places": ["#global/header", "#new/popups/bookingbar", "#new/popups/standard"],
     "viewports": ["phone"],
     "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 3 fixes it and removes this entry."
   },
@@ -1528,18 +1362,6 @@
       "#seo/redirects/not-found",
       "#settings",
       "#settings/appstore",
-      "#src/content/blog/build-a-page-from-blocks.md",
-      "#src/content/blog/colors-everyone-can-read.md",
-      "#src/content/blog/edit-your-website-from-your-phone.md",
-      "#src/content/blog/every-save-is-a-version.md",
-      "#src/content/blog/not-on-the-blog.md",
-      "#src/content/blog/schedule-a-post.md",
-      "#src/content/blog/secure-from-day-one.md",
-      "#src/content/blog/seo-without-the-guesswork.md",
-      "#src/content/blog/switch-themes-without-losing-anything.md",
-      "#src/content/blog/the-app-store.md",
-      "#src/content/pages/about.md",
-      "#src/content/pages/app-store.md",
       "#src/content/pages/blocks-blog-posts.md",
       "#src/content/pages/blocks-buttons.md",
       "#src/content/pages/blocks-cards.md",
@@ -1550,22 +1372,6 @@
       "#src/content/pages/blocks-tables.md",
       "#src/content/pages/blocks-testimonials.md",
       "#src/content/pages/blocks-video.md",
-      "#src/content/pages/blocks.md",
-      "#src/content/pages/blog-page.md",
-      "#src/content/pages/contact.md",
-      "#src/content/pages/get-started.md",
-      "#src/content/pages/home.md",
-      "#src/content/pages/page-not-found.md",
-      "#src/content/pages/privacy-policy.md",
-      "#src/content/pages/prose-fixture.md",
-      "#src/content/pages/typography.md",
-      "#src/data/categories/apps.json",
-      "#src/data/categories/design.json",
-      "#src/data/categories/editing.json",
-      "#src/data/categories/security.json",
-      "#src/data/categories/seo.json",
-      "#src/data/popups/booking-bar.json",
-      "#src/data/popups/try-the-editor.json",
       "#status"
     ],
     "viewports": ["computer"],
