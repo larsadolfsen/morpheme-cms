@@ -15,20 +15,20 @@ out, as in the check.
   (phone). Names are read in `en-US` here (the check runs `da-DK`; the selectors and counts are the same).
 - A *place* is a screen (hash); a count is how many controls share the name in one container. `group` is the nearest list-like container: `none` is the page
   itself, `list` is a list that holds all of them with nothing between them.
-- `check:announce` on this branch has no `repeated-name`, `bad-name`, `no-name` or `unnamed-container` entry left on its allowlist except the 7 for
-  the typography and prose fixtures (demo content, which batch 2 does not change). It had 48 such entries, 37 of them `repeated-name`.
+- `check:announce` on this branch has **no** `repeated-name`, `bad-name`, `no-name` or `unnamed-container` entry left on its allowlist (merged with #1089,
+  which stops the walk from walking demo content). It had 48 such entries on the base, 37 of them `repeated-name`.
 
 Totals (rows are one name in one container on one screen at one width):
 
 | | Rows before | Rows after |
 | --- | ---: | ---: |
-| Real screens | 262 | 2 (the typography fixture's `link words here` ×5, at both widths; demo content, no longer walked once the CTO's change is in) |
+| Real screens | 262 | 0 (the typography fixture's `link words here` ×5 is demo content, no longer walked since #1089) |
 | The component gallery (Developer › Parts) | 170 | 0 |
-| **All** | **432** | **2** |
+| **All** | **432** | **0** |
 
 ## Real screens (in full)
 
-All 29 findings (distinct name and control on one or more screens) are **fixed**, except the one marked *no longer walked*. *What tells them apart today* is "nothing" for each: no row text, no group.
+28 of the 29 findings (distinct name and control on one or more screens) are **fixed**; the one marked *no longer walked* is demo content that #1089 stops walking. *What tells them apart today* is "nothing" for each: no row text, no group.
 
 | Screen (hash) | Container (selector) | Role | Repeated name | Times | Told apart today by | Source | Status |
 | --- | --- | --- | --- | ---: | --- | --- | --- |
@@ -49,11 +49,11 @@ All 29 findings (distinct name and control on one or more screens) are **fixed**
 | `#src/content/pages/blocks-blog-posts.md` | same | button | Drag Blog posts to move it | 4 | nothing | `src/MarkdownEditor.tsx` | fixed |
 | `#src/content/pages/blocks-image-grid.md` | same | button | Drag Image grid to move it | 3 | nothing | `src/MarkdownEditor.tsx` | fixed |
 | `#src/content/pages/blocks.md`, `blocks-buttons.md`, `blocks-tables.md`, `blocks-testimonials.md` | same | button | Drag List / Buttons / Table / Testimonials to move it | 2 each | nothing | `src/MarkdownEditor.tsx` | fixed |
-| `#src/content/pages/typography.md` | `div[role=textbox] > h3 > a` | link | link words here | 5 | nothing (identical link text in the fixture) | `demo/src/content/pages/typography.md` | **no longer walked** (demo content: the CTO's change stops the name walk from walking pages and posts; batch 2 changes no demo content, the entry stays until that change removes it) |
+| `#src/content/pages/typography.md` | `div[role=textbox] > h3 > a` | link | link words here | 5 | nothing (identical link text in the fixture) | `demo/src/content/pages/typography.md` | **no longer walked** (demo content: #1089 stops the name walk from walking pages and posts; batch 2 changes no demo content) |
 
 Also on real screens (not `repeated-name`, so not in the table above, but on the same allowlist): `bad-name` for 8 selectors (image tiles named by a file name,
 rows under *Used on* named by a file name or path, the typography links named `link`) and `no-name` for the inline notice, and `unnamed-container` for the footer
-`nav`. All are fixed, except the 7 entries of the typography and prose fixtures (links named `link` in demo content), which are *no longer walked* once the CTO's change is in and stay on the allowlist until then: files read `Image “saturn.webp”`; an entry with no name reads `Item “<path>”`; the notice is named by its text; the footer is `Footer`.
+`nav`. All are fixed (the 7 entries of the typography and prose fixtures, links named `link` in demo content, are *no longer walked* since #1089): files read `Image “saturn.webp”`; an entry with no name reads `Item “<path>”`; the notice is named by its text; the footer is `Footer`.
 
 ## The component gallery (grouped by part; counts, not rows)
 
