@@ -79,3 +79,12 @@ test('the theme today differs from Material 3 exactly as the allowlist says', ()
 test('every allowlist entry is a class the plan names', () => {
   for (const e of allow) assert.ok(['deviation', 'editor', 'wcag', 'fix'].includes(e.class), e.token);
 });
+
+test('an elevation level shadow token is the level in dp (md.sys.elevation.levelN)', () => {
+  const map = new Map();
+  const roles = new Set();
+  const steps = new Set();
+  assert.equal(resolveVars('var(--mo-sys-elevation-level2-shadow)', map, roles, steps), '3px');
+  assert.equal(resolveVars('var(--mo-sys-elevation-level1-rest-shadow)', map, roles, steps), '1px');
+  assert.equal(resolveVars('var(--mo-sys-elevation-level5-shadow)', map, roles, steps), '12px');
+});

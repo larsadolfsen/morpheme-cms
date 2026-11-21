@@ -117,7 +117,7 @@
   }
   :where(.mo-chip).mo-is-elevated,
   .mo-chip.mo-is-elevated:is([aria-pressed='true'], [aria-current='page']) {
-    box-shadow: var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+    box-shadow: var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level1-shadow));
   }
   :where(.mo-chip).mo-is-elevated:hover,
   .mo-chip.mo-is-elevated:is([aria-pressed='true'], [aria-current='page']):hover {
@@ -125,7 +125,7 @@
   }
   :where(.mo-chip).mo-is-elevated:active,
   .mo-chip.mo-is-elevated:is([aria-pressed='true'], [aria-current='page']):active {
-    box-shadow: var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+    box-shadow: var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level1-shadow));
   }
 
   /* A person's image before the label (an input chip): round, nearer the start. */

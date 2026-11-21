@@ -73,7 +73,7 @@
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
     box-shadow:
       0 0 0 1px var(--mo-comp-tooltip-rich-line, var(--mo-sys-block-line)),
-      var(--mo-comp-tooltip-rich-shadow, var(--mo-sys-elevation-level2-rest-shadow));
+      var(--mo-comp-tooltip-rich-shadow, var(--mo-sys-elevation-level2-shadow));
   }
   .mo-tooltip__subhead {
     color: var(--mo-comp-rich-tooltip-subhead-color, var(--mo-sys-block-text));

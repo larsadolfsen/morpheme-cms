@@ -53,24 +53,6 @@ export const allow = [
     reason: "the part's colour role differs from M3's (batch 6, colour roles of parts)",
   },
   {
-    token: '--mo-comp-elevated-card-container-elevation',
-    theme: '?0 1px 2px color-mix(in srgb, @role:shadow 30%, transparent), 0 1px 3px 1px color-mix(in srgb, @role:shadow 15%, transparent)',
-    m3: '1',
-    class: 'fix',
-    batch: 5,
-    reason:
-      "the part draws a hand-written shadow where M3 names an elevation level; batch 5 (the current parts' elevation, elevation spec, batch 3) moves it to the level class",
-  },
-  {
-    token: '--mo-comp-elevated-card-hover-container-elevation',
-    theme: '?0 1px 2px color-mix(in srgb, @role:shadow 30%, transparent), 0 2px 6px 2px color-mix(in srgb, @role:shadow 15%, transparent)',
-    m3: '3',
-    class: 'fix',
-    batch: 5,
-    reason:
-      "the part draws a hand-written shadow where M3 names an elevation level; batch 5 (the current parts' elevation, elevation spec, batch 3) moves it to the level class",
-  },
-  {
     token: '--mo-comp-icon-button-outlined-outline-color',
     theme: '@role:outline',
     m3: '@role:outline-variant',
@@ -109,15 +91,6 @@ export const allow = [
     class: 'fix',
     batch: 6,
     reason: "the part's colour role differs from M3's (batch 6, colour roles of parts)",
-  },
-  {
-    token: '--mo-comp-menu-container-elevation',
-    theme: '?0 1px 2px color-mix(in srgb, @role:shadow 30%, transparent), 0 2px 6px 2px color-mix(in srgb, @role:shadow 15%, transparent)',
-    m3: '3',
-    class: 'fix',
-    batch: 5,
-    reason:
-      "the part draws a hand-written shadow where M3 names an elevation level; batch 5 (the current parts' elevation, elevation spec, batch 3) moves it to the level class",
   },
   {
     token: '--mo-comp-menu-list-item-selected-container-color',

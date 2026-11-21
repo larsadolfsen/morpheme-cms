@@ -37,7 +37,7 @@
     padding: var(--mo-comp-toolbar-floating-padding, 0.5rem);
     box-shadow:
       0 0 0 1px var(--mo-comp-toolbar-floating-line, var(--mo-sys-block-line)),
-      var(--mo-comp-toolbar-floating-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+      var(--mo-comp-toolbar-floating-shadow, var(--mo-sys-elevation-level3-shadow));
   }
   .mo-toolbar__vertical {
     flex-direction: column;

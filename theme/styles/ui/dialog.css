@@ -16,7 +16,7 @@
     background: var(--mo-comp-dialog-surface, var(--mo-sys-elevation-level3-color));
     box-shadow:
       0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
-      var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+      var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-shadow));
   }
   /* A modal dialog: in the middle of the screen over the scrim, coming up a little as it opens. */
   .mo-dialog__modal {

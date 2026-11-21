@@ -321,3 +321,12 @@ there is nothing to deviate from. The theme uses the nearest M3 pattern or the o
 - **We do:** where a docked picker is narrower than its header (about 345 px of buttons, below about 320 px of picker), the month and the year steppers sit on two lines, and a day shrinks with its column (`min(day size, 100%)`, square), so nothing is cut off at 320 px.
 - **Why:** WCAG 2.2 (reflow, 1.4.10) wins over M3's silence, and the owner asked for the whole header to fit at 390 and 320 px (21 Nov 2026).
 - **Date:** 2026-11-21. **PR:** this pull request.
+
+## Carousel
+
+### CAR1. A carousel item has no shadow when pointed at
+
+- **Material:** the token copy `docs/m3-tokens/md.comp.carousel-item.json` (made 20 Nov 2026) prints the item's elevation as level 0 at rest and level 1 hovered (`md.comp.carousel-item.hover.container.elevation`).
+- **We do:** the item keeps no shadow on hover.
+- **Why:** an item is clipped to its mask (`overflow: hidden`, `clip-path`) and the row scrolls (`overflow-x: auto`), so a level 1 shadow would be cut off and show nothing. The PM decided on 21 Nov 2026 to leave it and record it here.
+- **Date:** 2026-11-21. **PR:** this pull request.

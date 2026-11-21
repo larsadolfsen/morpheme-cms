@@ -398,7 +398,7 @@
     gap: var(--mo-comp-list-expand-gap, 0);
     border-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
     background: var(--mo-comp-list-expand-surface, var(--mo-sys-block-surface));
-    box-shadow: var(--mo-comp-list-expand-shadow, var(--mo-sys-block-shadow));
+    box-shadow: var(--mo-comp-list-expand-shadow, var(--mo-sys-elevation-level0-shadow));
     overflow: clip;
   }
   .mo-list__expand > li {

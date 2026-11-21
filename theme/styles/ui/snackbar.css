@@ -53,7 +53,7 @@
     font-size: var(--mo-comp-snackbar-font-size, var(--mo-sys-typescale-body-medium-size));
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
     line-height: var(--mo-comp-snackbar-line-height, var(--mo-sys-typescale-body-medium-line-height));
-    box-shadow: var(--mo-comp-snackbar-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+    box-shadow: var(--mo-comp-snackbar-shadow, var(--mo-sys-elevation-level3-shadow));
     -webkit-backdrop-filter: var(--mo-comp-snackbar-backdrop, blur(8px));
     backdrop-filter: var(--mo-comp-snackbar-backdrop, blur(8px));
     -webkit-user-select: none;
