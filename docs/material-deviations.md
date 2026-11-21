@@ -270,13 +270,7 @@ Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `the
 
 Source: `theme/components/Header.astro`, `theme/styles/site-header.css`, `theme/styles/material/navigation.css`, `theme/styles/tokens/material/comp/menu.css`. The sub-menu that opens under "Product" is the theme's `Menu` (the same tokens as every menu), in M3 Expressive's standard vertical menu. Read 21 Nov 2026 on m3.material.io (Playwright): `/components/menus/specs`, `/guidelines`, `/accessibility`, and M3's own token data (`docs/m3-tokens/md.comp.menus*.json`): container `surface-container-low`, shape 16 dp, elevation level 2, item height 44, 16 dp at each side, 12 dp between an item's parts, selected `tertiary-container`, focus indicator 3 dp on the item's inside (-3 dp). The measurement images of the Specs page did not load in headless Chromium (blurred placeholders), so the token data is the source for the numbers.
 
-### HM1. Items are 44 dp high, not 48
-
-- **Material:** menus/specs (baseline menu): "List item height 48dp", "Left/right padding 12dp"; menus/accessibility: "Targets should be 48x48dp or larger". The Expressive vertical menu's token is `md.comp.menus.menu-item.height` = 44 dp, with 16 dp at each side.
-- **We do:** the Expressive variant's 44 dp and 16 dp (priority order: Expressive before baseline), the same as the `Menu` component (`--mo-comp-menu-list-item-container-height`, checked by `check:m3-tokens`). An item is as wide as the menu, so its target is 44 dp high by at least 112 dp wide; WCAG 2.2 level AA asks 24 CSS px (2.5.8). **Date:** 2026-11-21.
-- **Status:** stays until the owner asks for 48 (one token, which then changes every menu).
-
-### HM2. The sub-menu is a disclosure with links, not `role="menu"`
+### HM1. The sub-menu is a disclosure with links, not `role="menu"`
 
 - **Material:** menus/accessibility: role on web "Menu item"; keys "Up and Down arrows: for closed menus opens menu, for open menus moves focus to the next item", "Escape closes menu".
 - **We do:** the button has `aria-expanded` and opens on Down and Up arrows, with focus on the first or last item; in the menu the arrows, Home, End and letters move focus, Escape closes it and returns focus to the button. The items stay links in a list that Tab also reaches: a site's navigation is a disclosure, and `role="menu"` is for application menus (Modern Web Guidance, priority 1). **Date:** 2026-11-21.
