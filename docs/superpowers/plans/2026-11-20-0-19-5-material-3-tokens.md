@@ -105,6 +105,10 @@ Batch 1 makes the comparison exact and turns this into the real baseline.
     -3 in the theme's styling; the editor keeps Medium and Small; accounts on Large move to Medium. Removes density deviations 12 to 15 and adds a release note line.
     Batches 9 and earlier do not touch the density CSS.
 
+11. **The theme's accessibility statement: file and checks.** `theme/accessibility.json` (Material's own file), and `check:contrast`, `check:screens`, `check:a11y`
+    and `check:announce` let a failure through only if it is named there (spec on #1071). Batch 9 lands after it.
+12. **The accessibility statement in the editor.** The editor's theme page row and its texts.
+
 Batch 1 goes first; 2 (the page) follows it, because every token batch after it is reviewed on that page; 3 and 4 can run side by side; 5 follows 3; 6 follows 4 (both change colours of parts); 7 and 9 can run beside 5 and
 6; 8 goes last. Every batch removes the allowlist entries it fixes, keeps `check:screens`, `check:themes`, `check:contrast` and `check:a11y` green, and
 Venus is checked on the demo. Parts change their look (tonal buttons, the navigation indicators, the bars losing their shadow), so batches 5
@@ -112,21 +116,22 @@ to 7 and 9 each add a release note line (skill `release-notes`).
 
 ## Scope change (owner, 21 November 2026)
 
-Owner: "we will no longer follow our FRONTEND deviations, instead we will follow md3", then, the same day, "We should comply with EU Accessibility Act".
-Material, the default theme, follows M3 exactly on the site; every deviation outside the editor's own workspace is removed and the part takes M3's
-value, **except three accessibility ones that stay in `docs/material-deviations.md` as WCAG 2.2 deviations naming their criterion**: the placeholder at 4.5:1,
-slot icons and control edges at 3:1 on every section colour, not M3's 60 % (deviation 4: 1.4.3, 1.4.11); the outlined card's edge is `outline`, not `outline-variant`
-(O1: 1.4.11); and edges in a coloured section are the section's on-colour (O2: 1.4.11). `check:contrast` and `check:screens` keep enforcing them and the `wcag`
-entry of the outlined card stays in `scripts/m3-tokens.allow.mjs`. The site's focus ring is M3's focus indicator, provided `check:contrast` measures it at 3:1.
-The editor's workspace keeps its exceptions. Coloured sections stay, on M3's nearest container roles (batch 4). `scripts/m3-tokens.allow.mjs` ends with the
-editor's workspace entries and the WCAG ones. Material later becomes a theme like Venus (the base theme is in the roadmap, 0.22.3); no base theme work is in 0.19.5.
+Owner: "we will no longer follow our FRONTEND deviations, instead we will follow md3". Material, the default theme, follows M3 exactly on the site; every
+deviation outside the editor's own workspace is removed and the part takes M3's value, **including the three accessibility ones**: the 60 % placeholder
+and the control edges (deviation 4), the outlined card's edge in `outline-variant` (O1) and the section's edges (O2). Their values change in batches 4, 6 and 8, and
+`docs/material-deviations.md` no longer lists them. In their place a theme's accessibility statement comes (`specs/2026-11-21-theme-accessibility-statement-design.md`):
+`theme/accessibility.json` names the shortfalls from WCAG 2.2 AA by criterion and part, and `check:contrast`, `check:screens`, `check:a11y` and `check:announce` let a
+failure through only if it is named there (batches 11 and 12 below); this pull request lands after batch 11. The site's focus ring is M3's focus indicator;
+`check:contrast` measures it at 3:1 and it is named in the statement only if it falls under. The editor's workspace keeps its exceptions. Coloured sections stay, on M3's
+nearest container roles (batch 4). `scripts/m3-tokens.allow.mjs` ends with the editor's workspace entries. Material later becomes a theme like Venus; no base theme work
+is in 0.19.5.
 
 Every frontend deviation, by name, and the batch that removes it (the sorting is `plans/2026-11-21-0-19-5-deviations-sorted.md`):
 
 | Deviation (`docs/material-deviations.md`) | Removed by |
 | :-- | :-- |
 | Section colours 1 (inverted theme), 2 (veils), 3 (quieter text) | batch 4 |
-| Section colours 4 (placeholders, icons), O1 (outlined card edge), O2 (edges in a coloured section) | stay: WCAG 2.2 (1.4.3, 1.4.11), enforced by `check:contrast` and `check:screens` |
+| Section colours 4 (placeholders, icons), O1 (outlined card edge), O2 (edges in a coloured section) | removed, covered by the accessibility statement (batch 11); the values change in batches 4, 6 and 8 |
 | Colour sweep 1 (status badges), 6 (video still), 7 to 9 (masks, `#000`, scrim) | batch 8 (or recorded as M3's own value) |
 | Colour sweep 11 (`--block-*` aliases) | 0.20.0 names |
 | Colour sweep 12 (elevation and panel shadows) | batches 3 and 5 |
@@ -146,5 +151,5 @@ Every frontend deviation, by name, and the batch that removes it (the sorting is
 
 ## Done when
 
-`check:m3-tokens` runs in CI, its allowlist holds only the editor's workspace entries and the WCAG ones above, no frontend deviation is left, the elevation and section colours specs are done, the owner has
+`check:m3-tokens` runs in CI, its allowlist holds only the editor's workspace entries, no frontend deviation is left, the elevation and section colours specs are done, the owner has
 reviewed the feature on the demo in light and dark, and 0.19.5 has run on staging before the owner releases it.

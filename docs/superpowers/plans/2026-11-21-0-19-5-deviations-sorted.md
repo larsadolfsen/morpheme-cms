@@ -131,3 +131,9 @@ touches no density CSS. The four rows marked → 0.20.0 (choice group D1, N3, th
 "We should comply with EU Accessibility Act." Three deviations stay as WCAG 2.2 deviations naming their criterion (rows 4, 5 and 6 above): deviation 4 (placeholders
 and control edges, 1.4.3 and 1.4.11), O1 (outlined card edge, 1.4.11) and O2 (edges in a coloured section, 1.4.11). No "M3 exact, base theme" entries; the base
 theme is the roadmap's 0.22.3 and no part of this batch. The focus ring is M3's indicator, provided `check:contrast` measures it at 3:1.
+
+## Material follows M3, with an accessibility statement (owner, 21 Nov 2026)
+
+Replaces the EU Accessibility Act section above: deviation 4, O1 and O2 are removed from `docs/material-deviations.md`, covered by the accessibility statement (batch 11);
+their values change in batches 4, 6 and 8. Batches 11 and 12 build the statement. This batch lands after batch 11. The focus ring is M3's, measured at 3:1 by
+`check:contrast`, and named in the statement only if it falls under.
