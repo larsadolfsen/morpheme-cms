@@ -197,9 +197,7 @@
     translate: -50% -50%;
     border-radius: var(--mo-sys-shape-corner-full);
     border: 3px solid #fff;
-    box-shadow:
-      0 0 0 1px rgb(0 0 0 / 0.3),
-      0 2px 6px rgb(0 0 0 / 0.3);
+    box-shadow: var(--mo-sys-elevation-level1-shadow);
   }
   .mo-editor-shade-field {
     position: relative;
@@ -288,8 +286,7 @@
     box-shadow:
       0 0 0 2px #fff,
       0 0 0 4px var(--mo-sys-color-primary),
-      0 0 0 1px rgb(0 0 0 / 0.3),
-      0 2px 6px rgb(0 0 0 / 0.3);
+      var(--mo-sys-elevation-level1-shadow);
     outline-style: none;
   }
   .mo-editor-color-dots {

@@ -653,12 +653,7 @@
     align-items: center;
     justify-content: center;
     border-radius: calc(infinity * 1px);
-    box-shadow:
-      0 0 transparent,
-      0 0 transparent,
-      0 0 transparent,
-      0 0 0 2px var(--mo-sys-color-surface),
-      0 0 transparent;
+    box-shadow: 0 0 0 2px var(--mo-sys-color-surface);
   }
   .mo-editor-media-tile-check-on {
     background-color: var(--mo-sys-color-primary);

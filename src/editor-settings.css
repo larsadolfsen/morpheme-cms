@@ -1536,12 +1536,7 @@
     inline-size: 5rem;
     block-size: 5rem;
     border-radius: 1.375rem;
-    box-shadow:
-      0 0 transparent,
-      0 0 transparent,
-      0 0 transparent,
-      0 0 transparent,
-      var(--mo-sys-panel-shadow);
+    box-shadow: var(--mo-sys-panel-shadow);
   }
 
   .mo-editor-signin-title {
@@ -1700,12 +1695,7 @@
 
   .mo-editor-widget-lifted {
     z-index: 10;
-    box-shadow:
-      0 0 transparent,
-      0 0 transparent,
-      0 0 transparent,
-      0 0 transparent,
-      var(--mo-sys-elevation-level4-shadow);
+    box-shadow: var(--mo-sys-elevation-level4-shadow);
   }
 
   .mo-editor-widget-target {

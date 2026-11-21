@@ -47,6 +47,16 @@ const parts: Token[] = [
   { token: '--mo-comp-search-bar-container-shape', label: say.parts.searchBar, fallback: '--mo-sys-block-control-radius' },
 ];
 
+// The classes mo-elevation-N (a surface: the level's colour and elevation shadow) and mo-elevated-N (only the shadow), theme/styles/elevation.css.
+const elevationClasses = [
+  ...[0, 1, 2, 3].map((n) => ({
+    name: `mo-elevation-${n}`,
+    surface: true,
+    sample: n ? `var(--mo-sys-elevation-level${n}-rest-shadow)` : 'none',
+  })),
+  ...[1, 2, 3].map((n) => ({ name: `mo-elevated-${n}`, surface: false, sample: `var(--mo-sys-elevation-level${n}-shadow)` })),
+];
+
 // Material 3's elevation levels (ui.css, which every theme has, set to the theme's own look).
 const LEVELS = [0, 1, 2, 3, 4, 5];
 
@@ -329,6 +339,16 @@ export default function Tokens() {
             leading={<LeadingToken kind="elevation" value={r.sample} />}
             headline={r.title}
             supporting={r.uses.length ? list.format(r.uses.map((label, i) => inList(label, i === 0))) : say.elevation.unused}
+          />
+        ))}
+      </Group>
+      <Group title={say.groups.elevationClasses}>
+        {elevationClasses.map((c) => (
+          <ListItem
+            key={c.name}
+            leading={<LeadingToken kind="elevation" value={c.sample} />}
+            headline={c.name}
+            supporting={c.surface ? say.elevation.classSurface : say.elevation.classElevated}
           />
         ))}
       </Group>

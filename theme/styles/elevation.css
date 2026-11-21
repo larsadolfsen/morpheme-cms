@@ -1,0 +1,82 @@
+/* Elevation as classes (docs/superpowers/specs/2026-11-20-elevation-design.md), for a plain element: a block's own box, a theme's layout, an app's panel.
+   `mo-elevation-N` is a surface on level N: the level's colour, its on-colour and the level's elevation shadow (--mo-sys-elevation-levelN-rest-shadow,
+   `none` in Material). `mo-elevated-N` is an elevated object: only the level's shadow (--mo-sys-elevation-levelN-shadow), the element keeps its own colour.
+   Only 0 to 3: Material 3 puts a resting element on levels 0 to +3 (m3.material.io/styles/elevation/overview). Never on an M3 part: a part has its
+   own level for every state in its --mo-comp-* tokens, and a class would win the cascade and freeze it (check:css-values fails on it).
+   Pointed at (a clickable element, on a device that can hover) an element steps up one level, as M3 says ("All Material buttons increase elevation by
+   1 level when hovered"); dragged ([data-dragged]) it steps up three, to protect it against what it passes over. The colour stays. With focus it is as at
+   rest: the focus ring shows the focus. The change of shadow uses the theme's effects spring. */
+@layer utilities {
+  .mo-elevation-0 {
+    background-color: var(--mo-sys-elevation-level0-color);
+    color: var(--mo-sys-color-on-surface);
+  }
+  .mo-elevation-1 {
+    background-color: var(--mo-sys-elevation-level1-color);
+    color: var(--mo-sys-color-on-surface);
+    box-shadow: var(--mo-sys-elevation-level1-rest-shadow);
+  }
+  .mo-elevation-2 {
+    background-color: var(--mo-sys-elevation-level2-color);
+    color: var(--mo-sys-color-on-surface);
+    box-shadow: var(--mo-sys-elevation-level2-rest-shadow);
+  }
+  .mo-elevation-3 {
+    background-color: var(--mo-sys-elevation-level3-color);
+    color: var(--mo-sys-color-on-surface);
+    box-shadow: var(--mo-sys-elevation-level3-rest-shadow);
+  }
+  .mo-elevated-1 {
+    box-shadow: var(--mo-sys-elevation-level1-shadow);
+  }
+  .mo-elevated-2 {
+    box-shadow: var(--mo-sys-elevation-level2-shadow);
+  }
+  .mo-elevated-3 {
+    box-shadow: var(--mo-sys-elevation-level3-shadow);
+  }
+
+  :is(.mo-elevation-0, .mo-elevation-1, .mo-elevation-2, .mo-elevation-3, .mo-elevated-1, .mo-elevated-2, .mo-elevated-3) {
+    transition: box-shadow var(--mo-sys-motion-spring-default-effects);
+  }
+
+  /* Pointed at: one level up, only for what can be clicked and only where the device can hover. */
+  @media (hover: hover) {
+    :is(a, button, summary, [role='button'], [tabindex]):is(.mo-elevation-0):hover:not([data-dragged]) {
+      box-shadow: var(--mo-sys-elevation-level1-rest-shadow);
+    }
+    :is(a, button, summary, [role='button'], [tabindex]):is(.mo-elevation-1):hover:not([data-dragged]) {
+      box-shadow: var(--mo-sys-elevation-level2-rest-shadow);
+    }
+    :is(a, button, summary, [role='button'], [tabindex]):is(.mo-elevation-2):hover:not([data-dragged]) {
+      box-shadow: var(--mo-sys-elevation-level3-rest-shadow);
+    }
+    :is(a, button, summary, [role='button'], [tabindex]):is(.mo-elevation-3):hover:not([data-dragged]) {
+      box-shadow: var(--mo-sys-elevation-level4-rest-shadow);
+    }
+    :is(a, button, summary, [role='button'], [tabindex]).mo-elevated-1:hover:not([data-dragged]) {
+      box-shadow: var(--mo-sys-elevation-level2-shadow);
+    }
+    :is(a, button, summary, [role='button'], [tabindex]).mo-elevated-2:hover:not([data-dragged]) {
+      box-shadow: var(--mo-sys-elevation-level3-shadow);
+    }
+    :is(a, button, summary, [role='button'], [tabindex]).mo-elevated-3:hover:not([data-dragged]) {
+      box-shadow: var(--mo-sys-elevation-level4-shadow);
+    }
+  }
+
+  /* Dragged: three levels up (never above 5), over everything else, so it needs the shadow itself. */
+  .mo-elevation-0[data-dragged] {
+    box-shadow: var(--mo-sys-elevation-level3-shadow);
+  }
+  .mo-elevation-1[data-dragged],
+  .mo-elevated-1[data-dragged] {
+    box-shadow: var(--mo-sys-elevation-level4-shadow);
+  }
+  .mo-elevation-2[data-dragged],
+  .mo-elevated-2[data-dragged],
+  .mo-elevation-3[data-dragged],
+  .mo-elevated-3[data-dragged] {
+    box-shadow: var(--mo-sys-elevation-level5-shadow);
+  }
+}
