@@ -1,5 +1,11 @@
 # @morphemecms/cms
 
+## 0.19.1
+
+### Patch Changes
+
+- e4bb1fd: The editor checks every image and link address before it draws it, and a file preview never opens an unchecked address.
+
 ## 0.19.0
 
 ### Minor Changes
