@@ -42,6 +42,7 @@ Source: `theme/styles/global.css` (the section swap block), `theme/styles/blocks
 - **We do:** placeholders keep 4.5:1, slot icons and control borders 3:1 on every section colour (`check:screens`, `check:contrast`). Disabled parts are exempt, as in WCAG 1.4.3.
 - **Why:** 60% fails 4.5:1 on most backgrounds. A part that is not disabled is never drawn at 38%; the faded "Add button" under a card takes `on-surface-variant` instead of an opacity.
 - **Date:** 2026-11-13. **PR:** #476.
+- **Moves to the base theme:** once Material follows M3 exactly it is a theme like Venus, and a new M3-based base theme with exact WCAG 2.2 AA takes its place (owner decision, 21 Nov 2026, through the CTO); this fix is lifted out as it is (WCAG 2.2 1.4.3 and 1.4.11). No base theme work is in 0.19.5.
 
 ## Outlines (contrast, owner decision, 20 Nov 2026)
 
@@ -53,6 +54,7 @@ Source: `theme/styles/tokens/material/comp/card.css`, `theme/styles/tokens/mater
 - **We do:** the Outlined card's edge (`--mo-comp-outlined-card-outline-color`) is `--mo-sys-color-outline`. M3's own `outline-variant` is a pale tone: 1.5:1 to 1.6:1 on the light surface and 1.85:1 to 2.0:1 on the dark one. `outline` measures 4.1:1 to 4.3:1 in light and 5.4:1 to 5.8:1 in dark.
 - **Why:** WCAG 2.2 1.4.11 (Non-text Contrast) asks 3:1 for the parts of a component that show where it is; the card's edge is the only mark that a card is a card. Where Material 3 and WCAG differ, WCAG wins (`CLAUDE.md`, *Accessibility*).
 - **Date:** 2026-11-20, owner decision ("yes", after the before and after images in the branch `pr-screenshots/card-border-proposal`). **PR:** `a11y-card-border` (0.19.2).
+- **Moves to the base theme:** once Material follows M3 exactly it is a theme like Venus, and a new M3-based base theme with exact WCAG 2.2 AA takes its place (owner decision, 21 Nov 2026, through the CTO); this fix is lifted out as it is (WCAG 2.2 1.4.11). No base theme work is in 0.19.5.
 
 ### O2. In a coloured section `outline` is the section's on-colour, not 35% of it
 
@@ -60,6 +62,7 @@ Source: `theme/styles/tokens/material/comp/card.css`, `theme/styles/tokens/mater
 - **We do:** in a section on Primary, Secondary or Tertiary `--mo-sys-color-outline` is `--mo-sys-section-on-accent`: the section's on-colour (On primary, On secondary or On tertiary), a predefined Material 3 role, with no colour mix (was the on-colour at 35% over the section colour, the same as `outline-variant`, which stays 35%). Measured on the demo's three section colours: 6.46:1 to 6.49:1 in light and 7.63:1 to 7.76:1 in dark (was 1.83:1 to 2.20:1). Text field edges and outlined buttons use the same role, so they follow.
 - **Why:** WCAG 1.4.11, 3:1 for the edge of a card or a field. Owner rule, 20 Nov 2026: only Material 3's predefined colour roles are used, so no mix of a role is made; the owner chose the on-colour ("use the on-color") over a mix of it.
 - **Date:** 2026-11-20, owner decision (as O1). **PR:** `a11y-card-border` (0.19.2).
+- **Moves to the base theme:** once Material follows M3 exactly it is a theme like Venus, and a new M3-based base theme with exact WCAG 2.2 AA takes its place (owner decision, 21 Nov 2026, through the CTO); this fix is lifted out as it is (WCAG 2.2 1.4.11). No base theme work is in 0.19.5.
 
 ## Colour sweep
 
@@ -304,6 +307,7 @@ Source: `theme/styles/base.css` (`:focus-visible`). Read 18 Nov 2026 on m3.mater
 - **We do:** one ring for every part, `--mo-sys-color-primary`, 3dp thick, 2dp from the part, with `border-radius: inherit` (`base.css`, the one `:focus-visible` rule). The part rules that draw a ring of their own (the checkbox, switch and radio inputs, the slider's handle, the table block, the list's inset ring) write the same three values, or say why they differ: the list keeps its own offset of -3dp, inside, as the Lists specs print it.
 - **Why:** a site's Secondary is a theme colour and can be close to the page, so it cannot promise the 3:1 that WCAG 2.2, 1.4.11 (Non-text Contrast) asks of a focus indicator. Owner approved, 18 Nov 2026 ("One focus ring"; plan `docs/superpowers/plans/2026-11-17-cards-and-lists-0-19.md`, step 1). It closes the open question of `docs/superpowers/specs/2026-11-13-custom-colors-design.md`.
 - **Date:** 2026-11-18. **PR:** the step 1 pull request.
+- **Moves to the base theme:** once Material follows M3 exactly it is a theme like Venus, and a new M3-based base theme with exact WCAG 2.2 AA takes its place (owner decision, 21 Nov 2026, through the CTO); this fix is lifted out as it is (WCAG 2.2 1.4.11 and 2.4.7). No base theme work is in 0.19.5.
 
 ## Focus ring on the search view's field (A1 of the Modern Web Guidance audit)
 
@@ -316,6 +320,7 @@ Source: `theme/styles/ui.css` (`.mo-search-view__header`, `.mo-search-view__inpu
 - **Why:** Chrome's Modern Web Guidance, `accessibility`: "Mandatory - Don't disable browser native focus indicators without providing a replacement custom focus indicator" (WCAG 2.4.7, 1.4.11, 3:1). Owner approved, 15 Nov 2026 (relayed by the PM).
 - **Changed 18 Nov 2026 (cards and lists plan):** this 2dp ring is the field's own focus state and stays. The ring of every part (the search view's rows, buttons, cards) is now the one ring of deviation FR1 (One focus ring, in primary): `--mo-sys-color-primary`, 3dp, offset 2dp.
 - **Date:** 2026-11-15. **PR:** #754.
+- **Moves to the base theme:** once Material follows M3 exactly it is a theme like Venus, and a new M3-based base theme with exact WCAG 2.2 AA takes its place (owner decision, 21 Nov 2026, through the CTO); this fix is lifted out as it is (WCAG 2.2 2.4.7 and 1.4.11). No base theme work is in 0.19.5.
 
 ## The error text of a text field has no alert role (text field `:user-invalid`)
 
