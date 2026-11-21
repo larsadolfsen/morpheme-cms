@@ -101,6 +101,9 @@ A theme needs no change. CSS outside a layer beats every layer, so nothing is le
   - The lift when a part is pointed at or dragged stays.
   - M3: "use shadows only when required".
   - Source: `specs/2026-11-20-elevation-design.md`.
+- **The menu's edge** (owner, 21 November 2026: "I agree with them, but this is customization"). M3 puts the navigation drawer on the
+  start edge, and so does the standard; a site owner may put the menu and its button on the end edge. It is already a setting
+  (`menuSide`, *Globals › Header*) and moves into the customizer when there is one.
 - **Component levels** (moved from 0.22.2; owner, 20 November 2026: "Agreed on moving 0.22.2").
   - Each component's level is a number that expands into its `--mo-comp-*` tokens (colour, shape, density), the component-token
     direction of `specs/2026-11-17-list-to-cards-design.md`.
