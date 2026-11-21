@@ -43,7 +43,7 @@ Suggested order: **8 first** (shared parts and token overrides: fixing a part on
 5. **Own colour, mix and opacity.** `#fff`, grey `rgb`, `color-mix` of a role (M3 allows it only for state layers and shadows), `opacity` 50 % and 60 % for a disabled state, and a focus ring in `primary` or `#fff`. The PageSpeed and Google preview colours are documented editor-only parts; they are one row each.
 6. **Own motion and elevation.** Own keyframes (sheet, pop, drawer, screen, save bar, pulse) and `cubic-bezier(0.4,0,0.2,1)` with 150 ms or 1200 ms, plus an own level-4 shadow, where M3 has effect motion tokens and elevation levels.
 7. **Own full-screen pages and bars.** A 48 rem column with 1/1.5/5.5 rem padding for the crop and block pages, a hand-built screen top bar (`Screen.tsx`), and a save bar and snackbar offset in literal rem.
-8. **Phosphor imports.** About 20 files in the dashboard and list scope import Phosphor components directly; whether each is allowlisted in `scripts/phosphor-allowlist.json` was not checked here (`check:phosphor` is the source of truth).
+8. **Phosphor imports.** 78 files in `src/` import Phosphor components from `@phosphor-icons/react` directly, and `lib/snackbar.ts`, `src/contextualMenu.ts` and `src/MarkdownEditor.tsx` import Phosphor SVG files as text. Each is in `scripts/phosphor-allowlist.json`, so `check:phosphor` is green. Moving these to `Icon` is the Phosphor audit's follow-up, not an M3 finding, and no row here depends on it.
 
 ## Batch 1: Shell: rail, drawer, top app bar, screen frame, footer, logo
 
@@ -681,7 +681,7 @@ The editor's own workspace: its bar, overflow menu, text bar and menu, block men
 - Rows 1-6 (app bar): should `Screen` move to the theme's `TopAppBar` slots (`leading` / `headline` / `subtitle` / `trailing`, kind `small` or `search`) now? The editor's page-form top bar and the 0.20 search app bar plan (docs: P3 "more than two actions in the top bar until 0.20") may block it.
 - Is the 36 px footer link (deviation 16) kept, now that the owner's 21 Nov rule says M3 wins everywhere? The 21 Nov status lines in the deviations file keep the "editor exceptions"; entry 16 has none.
 - `CreateFab` uses `FabMenu` for one action; does the owner want a `Fab`/`ExtendedFab` for single actions?
-- Phosphor imports (row "Shared parts > Icons"): are they all in `scripts/phosphor-allowlist.json`, or does `check:phosphor` pass because `icon={...}` props are not component imports? Not verified.
+- Phosphor imports (row "Shared parts > Icons"): answered. All are in `scripts/phosphor-allowlist.json` and `check:phosphor` is green; moving to `Icon` is not an M3 finding.
 - The editor's rhythm tokens (`--mo-comp-editor-rhythm-150/200/250/300/400/500`) drive most spacing hooks above; do they count as "own spacing" to remove, or as the theme's density feature (editor-density.css)?
 - `foundations__typography__type-scale-tokens.txt` was a 404 stub, so type rows name roles without px; re-dump before fixing sizes (0.875rem/1.25rem = body-medium, 1rem/1.5rem = body-large presumably, not verified).
 - Footer links at 36px (deviation 16) are recorded as an editor exception; the owner's 21 Nov rule says M3 wins in screens, but the footer is chrome. Keep or move to the workspace file?
