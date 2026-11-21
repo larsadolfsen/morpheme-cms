@@ -196,7 +196,7 @@ export default function NavigationRestParts() {
       <Part name="Search" use={say.search}>
         <Preview>
           <div className="mo-editor-nav-search-demo">
-            <Example label={eg(1)} flat>
+            <Example label={eg(1)}>
               <SiteSearch
                 label={say.searchLabel}
                 backLabel={say.back}
@@ -206,7 +206,7 @@ export default function NavigationRestParts() {
                 trailing={<SiteIconButton icon="user" label={say.destinations[3]} />}
               />
             </Example>
-            <Example label={eg(2)} flat>
+            <Example label={eg(2)}>
               <SiteSearch
                 label={say.searchLabel}
                 backLabel={say.back}
