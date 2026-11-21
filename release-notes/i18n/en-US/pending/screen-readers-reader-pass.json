@@ -1,7 +1,0 @@
-{
-  "id": "screen-readers-reader-pass",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Screen readers",
-  "text": "A screen reader tells you what happens in the editor. Turn on NVDA, Narrator or TalkBack and work as before: buttons have names, and Saved, Not saved, problems and removed blocks are said. Every screen has its own title."
-}
