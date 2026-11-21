@@ -198,51 +198,84 @@ export function fieldProblem(f: Field, v: unknown, label = f.label): { text: str
   return null;
 }
 
-/** As check, with the field the problem is about (Problem). */
+/** As check, with the field the problem is about (Problem): the first one. */
 export function problemAt(fields: Field[], value: Record<string, unknown>, where = '', around?: Around, at = ''): Problem | null {
+  return problemsAt(fields, value, where, around, at, true)[0] ?? null;
+}
+
+/** Every problem of the form, each with its field, in the order of the form: one for a field of its own, and those of the fields in it. The
+ * count is announced on Save (`3 problems`); `first` stops at the first, which is what Save shows. */
+export function problemsAt(
+  fields: Field[],
+  value: Record<string, unknown>,
+  where = '',
+  around?: Around,
+  at = '',
+  first = false,
+): Problem[] {
+  const found: Problem[] = [];
   const here: Around = { fields, value, around };
   for (const f of fields) {
+    if (first && found.length) break;
     if (!inUse(f, fields, value, around)) continue;
     const v = value?.[f.name];
     const label = where ? `${where} › ${f.label}` : f.label;
     const path = at ? `${at}.${f.name}` : f.name;
     const wrong = (text: string) => ({ text, path });
     const own = fieldProblem(f, v, label);
-    if (own) return wrong(own.text);
+    if (own) {
+      found.push(wrong(own.text));
+      continue;
+    }
     if (f.type === 'markdown' && f.template && typeof v === 'string') {
       const [rule] = textProblems(f.template, v);
-      if (rule) return wrong(t.check.inField(label, rule));
+      if (rule) {
+        found.push(wrong(t.check.inField(label, rule)));
+        continue;
+      }
     }
     if (f.type === 'object') {
-      const problem = problemAt(f.fields!, v as Record<string, unknown>, label, here, path);
-      if (problem) return problem;
+      const inside = problemsAt(f.fields!, v as Record<string, unknown>, label, here, path, first);
+      if (inside.length) {
+        found.push(...inside);
+        continue;
+      }
     }
     if (f.type === 'blocks' && Array.isArray(v) && f.template) {
       const name = (type: string) => f.blocks!.find((b) => b.type === type)?.label ?? type;
       const [rule] = templateProblems(f.template, v as Item[], name);
-      if (rule) return wrong(t.check.inField(label, rule));
+      if (rule) {
+        found.push(wrong(t.check.inField(label, rule)));
+        continue;
+      }
     }
     if (f.type === 'blocks' && Array.isArray(v)) {
       // Hidden blocks are not on the site, so they may be unfinished.
       for (const [i, item] of (v as Item[]).entries()) {
         const block = blockOf(f, item);
         if (item.hidden || !block) continue;
-        const problem = problemAt(block.fields, item, `${label} › ${block.label}`, undefined, `${path}.${i}`);
-        if (problem) return problem;
+        found.push(...problemsAt(block.fields, item, `${label} › ${block.label}`, undefined, `${path}.${i}`, first));
+        if (first && found.length) break;
       }
+      if (found.length) continue;
     }
     if (f.type === 'list' && Array.isArray(v)) {
-      if (f.maxItems !== undefined && v.length > f.maxItems) return wrong(t.check.atMostItems(label, f.maxItems));
+      if (f.maxItems !== undefined && v.length > f.maxItems) {
+        found.push(wrong(t.check.atMostItems(label, f.maxItems)));
+        continue;
+      }
       for (const [i, item] of v.entries()) {
         const named = `${label} ${i + 1}`;
-        const problem = f.field
-          ? problemAt([f.field], { [f.field.name]: item }, named, here, `${path}.${i}`)
-          : problemAt(f.fields!, item as Record<string, unknown>, named, here, `${path}.${i}`);
-        if (problem) return problem;
+        found.push(
+          ...(f.field
+            ? problemsAt([f.field], { [f.field.name]: item }, named, here, `${path}.${i}`, first)
+            : problemsAt(f.fields!, item as Record<string, unknown>, named, here, `${path}.${i}`, first)),
+        );
+        if (first && found.length) break;
       }
     }
   }
-  return null;
+  return found;
 }
 
 // The value as it is saved: optional fields left empty (text, number, list) are left out, as in the
@@ -271,7 +304,7 @@ export function clean(fields: Field[], value: Record<string, unknown>, around?: 
 }
 
 // An image in Markdown (MarkdownEditor.tsx puts them in).
-const IMAGES = /!\[(?:\\.|[^\]])*\]\([^)\s]+/g;
+const IMAGES = /!\[(?:\\.|[^\\\]])*\]\([^)\s]+/g;
 
 // A block's name by its type: a standard block's (the editor's texts), an image's, else its type.
 const nameOf = (type: string) =>

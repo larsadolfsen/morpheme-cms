@@ -29,8 +29,9 @@ import { SearchPreview } from './SearchPreview';
 import { searchedAs } from './googleResult.mjs';
 import { plain, SEO_FIELDS, seoRating, SHARE_FIELDS, sharedAs } from './seo';
 import type { Env } from './App';
-import { kindAndName, lower, nameOf, savedText } from './deploy';
+import { capital, kindAndName, lower, nameOf, savedText } from './deploy';
 import { siteT, t } from './i18n';
+import { fileLabel, kindOf } from './FileView';
 
 type Props = {
   collection: FolderCollection | FilesCollection;
@@ -435,7 +436,18 @@ function Form({
           {uses.length > 0 && (
             <Group title={t.forms.usedOn}>
               {uses.map((u) => (
-                <ListItem key={u.path} href={`#${u.path}`} headline={u.name} arrow />
+                <ListItem
+                  key={u.path}
+                  href={`#${u.path}`}
+                  headline={u.name}
+                  arrow
+                  // A file is named by what it is (a file name alone says nothing): `Image “editor-colors.webp”`; so is an entry with no name of its own.
+                  {...(u.path.startsWith('files/')
+                    ? { 'aria-label': fileLabel(kindOf(u.path), u.name) }
+                    : /\.(json|md)$/i.test(u.name)
+                      ? { 'aria-label': capital(kindAndName(t.forms.itemTitle, u.name)) }
+                      : {})}
+                />
               ))}
             </Group>
           )}

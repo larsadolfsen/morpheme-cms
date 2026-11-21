@@ -6,6 +6,7 @@
 
 import { oneLine } from '../lib/one-line.mjs';
 import { rectangle } from './standard/table/rows.mjs';
+import { stripAll } from '../lib/stripAll.mjs';
 
 /** @typedef {Record<string, unknown>} Row */
 
@@ -112,9 +113,7 @@ const ENTITIES = {
 /** The text of an html cell: its tags dropped (a line break or a paragraph is a space), entities decoded, on one line. @param {string} html */
 const cellText = (html) =>
   oneLine(
-    html
-      .replace(/<br\s*\/?>|<\/(?:p|div|li)>/gi, ' ')
-      .replace(/<[^>]*>/g, '')
+    stripAll(html.replace(/<br\s*\/?>|<\/(?:p|div|li)>/gi, ' '), /<[^>]*>/g)
       .replace(/&(#x[0-9a-f]+|#\d+|[a-z]+);/gi, (all, name) => {
         if (name[0] !== '#') return ENTITIES[name.toLowerCase()] ?? all;
         const code = name[1] === 'x' || name[1] === 'X' ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);

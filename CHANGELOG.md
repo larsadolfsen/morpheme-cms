@@ -1,5 +1,19 @@
 # @morphemecms/cms
 
+## 0.19.4
+
+### Patch Changes
+
+- 59d3252: A screen reader now says when a page is saving, saved or not saved, reads every message and error once, and says how many problems stop a save
+- 59d3252: Safer handling of HTML and addresses in the editor and the build (code scanning alerts).
+- 59d3252: The editor tells screen reader users when a long load starts and ends, and when a progress passes each quarter. A failed load, a notice and a copied link are each said once.
+- 59d3252: The check that the Preview looks like the site no longer counts the Preview's deliberate `inert` marks as a difference.
+- 59d3252: A screen reader names rows' actions by their row (Remove Contact, Move Contact up), files by their kind, the footer links and each screen's title
+- 59d3252: A screen reader now says whether a menu or dialog button is open, and every dialog and sheet is named by a heading that is on the page
+- 59d3252: A screen reader now hears a block selected, moved, added and removed (with where the focus went), the Alt+F10 hint on the text, and "Preview updated" when you ask for the preview; the preview itself is hidden from screen readers.
+- 59d3252: A screen reader names dialogs and side sheets, reads messages sent while a dialog is open, and says the screen's heading on a screen change
+- 59d3252: A screen reader tells you what happens in the editor: controls have names, saves, problems and removed blocks are said, and every screen has its own title
+
 ## 0.19.3
 
 ### Patch Changes

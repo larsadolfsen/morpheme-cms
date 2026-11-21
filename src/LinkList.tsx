@@ -178,7 +178,7 @@ export function LinkList({
                 actions={
                   value.length > 1 && (
                     <span className="mo-editor-move-buttons">
-                      <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} />
+                      <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} name={nameOf(url) || t.forms.empty} />
                     </span>
                   )
                 }

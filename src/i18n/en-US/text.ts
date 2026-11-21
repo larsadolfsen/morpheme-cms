@@ -86,12 +86,27 @@ export const text = {
   /** The snackbar after Change type, with Undo; it names the block it became. */
   changedTo: (name: string) => `Changed to ${name}`,
   blocksSelected: (count: number) => (count === 1 ? '1 block selected' : `${count} blocks selected`),
+  /** Said when a block is selected, moved, added or removed (the editor's announcer; `place` of `of` counts the blocks of the page). */
+  blockSelected: (name: string, place: number, of: number) => `${name}, block ${place} of ${of}, selected`,
+  selected: (name: string) => `${name}, selected`,
+  blockAdded: (name: string, place: number, of: number) => `${name} added, block ${place} of ${of}`,
+  blockMoved: (name: string, place: number, of: number) => `${name} moved to block ${place} of ${of}`,
+  blocksMoved: (count: number, up: boolean) => `${count} blocks moved ${up ? 'up' : 'down'}`,
+  /** What a removal says, and where the focus is after it. */
+  blockRemoved: (name: string) => `${name} removed`,
+  blocksRemoved: (count: number) => `${count} blocks removed`,
+  focusInText: 'Focus is in the text.',
+  focusInTools: 'Focus is on the text tools.',
+  /** The text area's description the first time it gets focus on a page. */
+  toolsHint: 'Alt+F10 moves to the formatting tools',
   clearBlockSelection: (count: number) => `Clear selection, ${count === 1 ? '1 block selected' : `${count} blocks selected`}`,
   selectBlock: 'Select',
   selectAllBlocks: 'Select all',
   duplicateBlock: 'Duplicate',
   removeBlocks: (count: number, names: string[], kept: string[]) =>
     `Remove ${count} ${count === 1 ? 'block' : 'blocks'}${names.length > 0 && names.length <= 5 ? ` (${names.join(', ')})` : ''}?${kept.length ? ` ${kept.join(', ')} ${kept.length === 1 ? 'stays' : 'stay'}, as the page needs ${kept.length === 1 ? 'it' : 'them'}.` : ''} Undo brings ${count === 1 ? 'it' : 'them'} back.`,
+  /** The name of a block when the page has more than one of its kind ("Image 2 of 3"), so a screen reader can tell the cards and handles apart. */
+  blockOf: (name: string, place: number, of: number) => `${name} ${place} of ${of}`,
   /** The handle on a block: dragging it moves the block (Move up and Move down do it with the keyboard). */
   dragBlock: (name: string) => `Drag ${name} to move it`,
   /** Shown in an empty line of the text, under the pointer or the cursor. */

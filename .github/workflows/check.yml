@@ -212,7 +212,17 @@ jobs:
           build: 'true'
           browser: 'true'
       # --areas: `all` (the full level, or in doubt), `none` (the core units only) or the touched areas besides the core units.
+      # ANNOUNCE_LOG: the speech log of the screen reader check's flows (what a reader would say at each step, scripts/announce-flows.mjs), kept below.
       - run: npm run check:screens:shard -- ${{ matrix.shard }}/${{ strategy.job-total }} --areas "${{ needs.changes.outputs.areas || 'all' }}"
+        env:
+          ANNOUNCE_LOG: ${{ github.workspace }}/announce-log-${{ matrix.shard }}.txt
+      - uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: announce-log-${{ matrix.shard }}
+          path: announce-log-${{ matrix.shard }}.txt
+          if-no-files-found: ignore
+          retention-days: 7
 
   # The checks that run once over the whole built demo (saving twice, unlisted pages, the preview).
   screens-extra:

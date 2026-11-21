@@ -212,7 +212,7 @@ export const parts: Messages['parts'] = {
     values: {
       email: 'kontakt@eksempel.dk',
       heading: 'En overskrift',
-      text: 'En tekst med **fed** skrift og et [link](/).',
+      text: 'En tekst med **fed** skrift og en [forside](/).',
       question: 'Hvor lang er en samtale?',
       answer: 'En samtale varer 60 minutter.',
     },
@@ -377,6 +377,8 @@ export const parts: Messages['parts'] = {
       'Fyldt (det, man skal gøre), tonet, hævet, med ramme og kun tekst, i fem størrelser, rund eller firkantet, slået fra og til, med ikon og grå, når den ikke kan bruges.',
     iconButton:
       'Knap med et ikon: standard, fyldt, tonet og med ramme, i fem størrelser og tre bredder, rund eller firkantet, slået fra og til.',
+    example: (n) => `Eksempel ${n}`,
+    rows: { kinds: 'Slags', sizes: 'Størrelser', states: 'Tilstande' },
     sizes: { xsmall: 'Ekstra lille', small: 'Lille', medium: 'Medium', large: 'Stor', xlarge: 'Ekstra stor' },
     shapes: { round: 'Rund', square: 'Firkantet' },
     widths: { narrow: 'Smal', default: 'Standard', wide: 'Bred' },

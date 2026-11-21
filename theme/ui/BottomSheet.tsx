@@ -239,7 +239,7 @@ export default function BottomSheet({
     >
       <BottomSheetHeader
         headline={headline}
-        headlineId={standard && headline !== undefined ? titleId : headlineId}
+        headlineId={headline !== undefined ? titleId : headlineId}
         supportingText={supportingText}
         closeLabel={closeLabel}
         resizeLabel={standard ? resizeLabel : undefined}

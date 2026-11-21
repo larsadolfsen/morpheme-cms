@@ -112,6 +112,7 @@ import {
   siteRipples,
 } from './themeUi';
 import { locale, t } from './i18n';
+import { Announce, LoadAnnounce } from './useAnnounce';
 import { useRegisterFab } from './fabPresence';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
 import { SvgFile } from './icon';
@@ -965,16 +966,17 @@ export function Notice({
   title: string;
   children: ReactNode;
   action?: ReactNode;
-  /** `alert` for what went wrong just now (a save that failed): screen readers say it at once. */
+  /** `alert` for what went wrong just now (a save that failed): said at once, through the announcer (an alert that comes into the page with its text is often not read). */
   role?: 'status' | 'alert';
   onClose?: () => void;
 }) {
   return (
     <SiteCard
       kind="filled"
-      role={role}
+      role={role === 'alert' ? undefined : role}
       className={onClose ? 'mo-editor-gapped-100 mo-editor-notice mo-editor-notice-closable' : 'mo-editor-gapped-100 mo-editor-notice'}
     >
+      {role === 'alert' && <Announce text={`${title} ${nodeText(children)}`} urgent />}
       <p className="mo-editor-notice-title">{title}</p>
       <div className="mo-editor-notice-text">{children}</div>
       {action}
@@ -1305,7 +1307,7 @@ export function IconPicker({
         <SlotButton
           label={value ? t.forms.changeIcon : t.forms.pickIcon}
           expanded={open}
-          controls={grid}
+          controls={open ? grid : undefined}
           onClick={() => setOpen((o) => !o)}
           iconColor={iconColor}
         >
@@ -1372,7 +1374,8 @@ export function IconPicker({
             </div>
           )}
           {searching && !loading && hits.every((o) => !o.value) && (
-            <p role="status" className="mo-editor-icon-picker-status">
+            <p className="mo-editor-icon-picker-status">
+              <Announce text={t.forms.noIconsFound} />
               {t.forms.noIconsFound}
             </p>
           )}
@@ -2902,19 +2905,45 @@ const inText = {
   '--mo-comp-loading-indicator-active-indicator-color': 'currentColor',
 } as CSSProperties;
 
+// The plain text of a node, for what a screen reader is told (a loading line is text).
+const nodeText = (node: ReactNode): string =>
+  typeof node === 'string' || typeof node === 'number'
+    ? String(node)
+    : Array.isArray(node)
+      ? node.map(nodeText).join(' ')
+      : isValidElement(node)
+        ? nodeText((node.props as { children?: ReactNode }).children)
+        : '';
+
 /** What a list or a screen says when it has nothing to show (No …), or while it is fetched (`busy`,
  * with the LoadingIndicator: Loading…): grey, in the middle. `item`: as an item of a list. */
 export function EmptyNote({ item, busy, children }: { item?: boolean; busy?: boolean; children: ReactNode }) {
   const className = 'mo-editor-list-empty';
-  const text = busy ? <LoadingIndicator>{children}</LoadingIndicator> : children;
-  return item ? <li className={className}>{text}</li> : <p className={className}>{text}</p>;
+  const text = busy ? (
+    <>
+      <LoadingIndicator>{children}</LoadingIndicator>
+      <LoadAnnounce text={nodeText(children)} />
+    </>
+  ) : (
+    children
+  );
+  return item ? (
+    <li className={className} aria-busy={busy || undefined}>
+      {text}
+    </li>
+  ) : (
+    <p className={className} aria-busy={busy || undefined}>
+      {text}
+    </p>
+  );
 }
 
 /** What is wrong, in the accent colour: why a sheet cannot be saved (under its fields), or what could
  * not be read. `alert`: read by screen readers as soon as it is shown. */
 export function ProblemNote({ alert, children }: { alert?: boolean; children: ReactNode }) {
   return (
-    <div role={alert ? 'alert' : undefined} className="mo-editor-problem-note">
+    <div className="mo-editor-problem-note">
+      {alert && <Announce text={nodeText(children)} urgent />}
       {children}
     </div>
   );
@@ -3306,6 +3335,21 @@ export function SideSheet({
   children: ReactNode;
 }) {
   const id = useId();
+  // On arrival the focus goes to the heading (a reader says the sheet's name, and the keyboard goes on from there); on close it goes back to what had it, as
+  // long as it has not moved on by then (WCAG 2.4.3, 4.1.2; plan 0.19.4, *Focus and what is said on open and close*).
+  useEffect(() => {
+    const heading = document.getElementById(id);
+    const before = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (heading) {
+      heading.tabIndex = -1;
+      heading.style.outline = 'none';
+      heading.focus({ preventScroll: true });
+    }
+    return () => {
+      const at = document.activeElement;
+      if ((!at || at === document.body) && before?.isConnected) before.focus({ preventScroll: true });
+    };
+  }, [id]);
   return (
     <SiteSideSheet
       headline={title}
