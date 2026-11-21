@@ -1,0 +1,6 @@
+{
+  "id": "search-ring-keyboard-only",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Søgefeltet viser kun sin fokusramme, når du bruger tastaturet, ikke efter et klik eller et tryk"
+}

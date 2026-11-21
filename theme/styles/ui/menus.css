@@ -112,8 +112,9 @@
     text-align: start;
     cursor: pointer;
   }
+  /* M3's focus indicator of a menu item sits inside it: `menu-item.focus.indicator.outline.offset` is the inner offset (-3dp). */
   .mo-menu__item:focus-visible {
-    outline-offset: -2px;
+    outline-offset: var(--mo-sys-state-focus-indicator-inner-offset, -3px);
   }
   /* Its icon (or, when it is on, the tick in its place), its text, and what trails it. */
   .mo-menu__item-leading {

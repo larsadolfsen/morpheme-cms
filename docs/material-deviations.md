@@ -266,12 +266,23 @@ Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `the
 - **Material:** "Nav rail expanded container width minimum 220dp", "maximum 360dp" (it hugs its content).
 - **We do:** the editor's drawers (`.mo-editor-main-drawer-panel`, `src/editor.css`) keep 360dp (at most the screen less 56dp) through their levels and sections, because the layout beside them counts on that width (`--mo-sys-section-pane-width`, the columns). Editor workspace only. **Date:** 2026-11-15.
 
+## The header's sub-menu (owner, 21 Nov 2026: "M3 wins everywhere outside the page and post editor")
+
+Source: `theme/components/Header.astro`, `theme/styles/site-header.css`, `theme/styles/material/navigation.css`, `theme/styles/tokens/material/comp/menu.css`. The sub-menu that opens under "Product" is the theme's `Menu` (the same tokens as every menu), in M3 Expressive's standard vertical menu. Read 21 Nov 2026 on m3.material.io (Playwright): `/components/menus/specs`, `/guidelines`, `/accessibility`, and M3's own token data (`docs/m3-tokens/md.comp.menus*.json`): container `surface-container-low`, shape 16 dp, elevation level 2, item height 44, 16 dp at each side, 12 dp between an item's parts, selected `tertiary-container`, focus indicator 3 dp on the item's inside (-3 dp). The measurement images of the Specs page did not load in headless Chromium (blurred placeholders), so the token data is the source for the numbers.
+
+### HM1. The sub-menu is a disclosure with links, not `role="menu"`
+
+- **Material:** menus/accessibility: role on web "Menu item"; keys "Up and Down arrows: for closed menus opens menu, for open menus moves focus to the next item", "Escape closes menu".
+- **We do:** the button has `aria-expanded` and opens on Down and Up arrows, with focus on the first or last item; in the menu the arrows, Home, End and letters move focus, Escape closes it and returns focus to the button. The items stay links in a list that Tab also reaches: a site's navigation is a disclosure, and `role="menu"` is for application menus (Modern Web Guidance, priority 1). **Date:** 2026-11-21.
+- **Status:** stays: Modern Web Guidance outranks M3.
+
 ## Where Material 3 is silent (not deviations)
 
 Sorted on 21 Nov 2026 (0.19.5, batch 9; `docs/superpowers/plans/2026-11-21-0-19-5-deviations-sorted.md`): M3 prints no value for these, so
 there is nothing to deviate from. The theme uses the nearest M3 pattern or the owner's number. The entries that said so are gone.
 
 - **The layout grid's margin and gutter:** 16 px on compact, 24 px from medium (`--mo-sys-grid-margin`, `--mo-sys-grid-gutter`, owner, 15 Nov 2026); the Grids page draws columns and prints no value. Cards are not on the gutter: they are `--mo-comp-card-gap` (8 px) apart, as Cards, Specs prints ("Padding between cards 8dp max"; G1, made to match 21 Nov 2026).
+- **The focus ring on the search field:** M3's Search page prints none for the field ("individual elements maintain their own interaction states"). The ring shows for keyboard focus only, never after a mouse click or a tap (owner, 21 Nov 2026; `theme/ui/inputModality.ts`, `search.css`); WCAG 2.2 AA 2.4.7 (Focus Visible) keeps it for the keyboard.
 - **How many cards stand side by side:** 2, 3 and 4 from the window classes (`--mo-comp-grid-columns`); M3 prints no count.
 - **Cards:** the media's bottom corners are the card's radius (the Container example draws it); the headline, subhead and supporting text take the list item's type roles; the gaps inside a card are the `--mo-comp-card-*` steps; a price, a badge, a "Read more" line and a trailing arrow have no card part and stay the card's content.
 - **Search view:** where the match is highlighted, "Quick results", the remove button on a recent search, the chip row and category label spacing, the docked bar's margin and its distance to the page, the docked results container's 12 dp corner (the token copy prints it); the search view's colours, paddings and chips equal the specs; on a phone it is the full-screen layout.

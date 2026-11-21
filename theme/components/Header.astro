@@ -139,7 +139,11 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
   }
 </script>
 <script>
-  // A menu's button opens and closes it (aria-expanded); Escape, a click outside it and focus leaving it close it.
+  // A menu's button opens and closes it (aria-expanded). Keys (M3's menus Accessibility, "Keyboard navigation"): Down and Up arrows on the button open it
+  // on its first or last item; in it the arrows go between the items (round), Home and End to the first and the last, a letter to the next item starting
+  // with it; Escape closes it and puts the focus back on the button; a click outside it and focus leaving it close it too. The items stay links in a list
+  // (a site's navigation is a disclosure, not an application menu), so Tab still goes through them.
+  import { nextInMenu } from '@morphemecms/cms/lib/menuTypeAhead.mjs';
   const items = [...document.querySelectorAll<HTMLElement>('[data-nav-item]:has([data-nav-toggle])')];
   const setOpen = (item: HTMLElement, open: boolean) => {
     item.toggleAttribute('data-open', open);
@@ -147,6 +151,7 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
   };
   for (const item of items) {
     const toggle = item.querySelector<HTMLElement>('[data-nav-toggle]')!;
+    const links = () => [...item.querySelectorAll<HTMLElement>('.mo-menu__item')];
     toggle.addEventListener('click', () => {
       const open = !item.hasAttribute('data-open');
       for (const other of items) if (other !== item) setOpen(other, false);
@@ -156,9 +161,31 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
       if (!item.contains(e.relatedTarget as Node | null)) setOpen(item, false);
     });
     item.addEventListener('keydown', (e) => {
-      if (e.key !== 'Escape' || !item.hasAttribute('data-open')) return;
-      setOpen(item, false);
-      toggle.focus();
+      if (e.key === 'Escape') {
+        if (!item.hasAttribute('data-open')) return;
+        setOpen(item, false);
+        toggle.focus();
+        return;
+      }
+      const list = links();
+      if (e.target === toggle) {
+        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+        e.preventDefault();
+        for (const other of items) if (other !== item) setOpen(other, false);
+        setOpen(item, true);
+        list[e.key === 'ArrowDown' ? 0 : list.length - 1]?.focus();
+        return;
+      }
+      const at = list.indexOf(e.target as HTMLElement);
+      if (at < 0) return;
+      const to = nextInMenu(
+        e,
+        list.map((l) => l.textContent ?? ''),
+        at,
+      );
+      if (to === undefined) return;
+      e.preventDefault();
+      list[((to % list.length) + list.length) % list.length]?.focus();
     });
   }
   document.addEventListener('click', (e) => {

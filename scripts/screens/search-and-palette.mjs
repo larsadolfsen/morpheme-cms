@@ -890,9 +890,45 @@ async function checkIconSearch(width, height) {
   await page.close();
 }
 
+/** The ring on the search view's field is for the keyboard only (owner, 21 Nov 2026; theme/ui/inputModality.ts, search.css): opened with a mouse click the bar draws no ring
+ * although the field has the focus (a text field matches :focus-visible then too); opened with the keyboard (Tab to the bar, Enter) it draws M3's focus indicator. */
+async function checkSearchRing(width) {
+  const label = `${width}px search field ring`;
+  const page = await browser.newPage({ viewport: { width, height: 812 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const opener = page.locator('.mo-editor-palette-bar button:visible, button[aria-keyshortcuts*="K"]:visible').first();
+  const ring = () =>
+    page.evaluate(() => {
+      const view = [...document.querySelectorAll('.mo-search-view')].find((e) => e.getBoundingClientRect().height > 0);
+      const input = view?.querySelector('.mo-search-view__input');
+      return {
+        focused: input === document.activeElement,
+        shadow: view ? getComputedStyle(view.querySelector('.mo-search-view__header')).boxShadow : 'no view',
+      };
+    });
+  for (const how of ['mouse', 'keyboard']) {
+    if (how === 'mouse') await opener.click();
+    else {
+      await opener.focus();
+      await page.keyboard.press('Enter');
+    }
+    await page.waitForTimeout(500);
+    const r = await ring();
+    if (!r.focused) problems.push(`${label} (${how}): the field has no focus`);
+    const drawn = r.shadow !== 'none' && r.shadow !== 'no view';
+    if (how === 'mouse' && drawn) problems.push(`${label}: a ring is drawn after a mouse click (${r.shadow})`);
+    if (how === 'keyboard' && !drawn) problems.push(`${label}: no ring after opening with the keyboard`);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+  }
+  await page.close();
+}
+
 export function register(unit) {
   for (const width of [375, 1280])
     for (const locale of ['en-US', 'da-DK']) unit(`search view parts ${width} ${locale}`, () => checkSearchViewParts(width, locale));
+  for (const width of [375, 1280]) unit(`search field ring ${width}`, () => checkSearchRing(width));
   for (const width of [375, 1280]) unit(`search button ${width}`, () => checkSearchButton(width));
   for (const width of [375, 1280]) unit(`command palette ${width}`, () => checkCommandPalette(width));
   for (const width of [375, 1280]) unit(`editor actions ${width}`, () => checkEditorActions(width));
