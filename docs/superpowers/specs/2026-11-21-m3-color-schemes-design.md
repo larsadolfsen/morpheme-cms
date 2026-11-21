@@ -47,7 +47,7 @@ medium contrast). Measured on 21 November 2026:
    stored `harmony` (sites skip versions, so old forms stay readable).
 6. **Staging and the demo.** The demo already uses Tonal Spot (`#425E92`) and is unchanged. `morpheme-staging` (complementary harmony,
    source `#56A4E0`) gets new colours through a pull request there: Tonal Spot from `#006397`, the owner's Figma file, so staging and
-   Figma can be compared directly. The owner confirms the source colour.
+   Figma can be compared directly (owner: "yes").
 7. **Checks.** A unit test compares the generator's roles for `#006397` with the Figma files above (every role, light and dark,
    standard, medium and high contrast; dark high contrast from the library until the owner adds Theme Builder's file). The 0.19.5
    contrast numbers, measured on M3's baseline tokens, are unaffected.
@@ -57,12 +57,14 @@ medium contrast). Measured on 21 November 2026:
 Out of scope: extended (custom) colours such as Theme Builder's `custom-color1` (roadmap 0.26.1); the sRGB mixes in `completeColors`
 that only fill roles missing from a file without `dynamic`.
 
-## Open for the owner
+## Decided by the owner
 
-- **Contrast levels for visitors.** M3 treats contrast as the user's setting. The site could store standard, medium and high, and take
-  medium or high from the browser's `prefers-contrast: more`, which would help WCAG 2.2 AA too. Today the owner picks one level for every
-  visitor. Recommendation: yes, as a second batch of this release.
-- **Staging's source colour:** `#006397`, as in the Figma file?
+- **Contrast levels for visitors** (owner, 21 November 2026: "yes"). M3 treats contrast as the user's setting. A site stores its colours
+  at standard, medium and high contrast; a visitor whose browser asks for more contrast (`prefers-contrast: more`) gets high, and
+  standard otherwise. The owner's contrast choice in the editor goes; the editor shows all three. The second batch of this release.
+  The session reads M3's contrast page for which level `more` maps to and whether medium has a use, and says so in the pull request.
+- **Staging's source colour is `#006397`** (owner, 21 November 2026: "yes"), Tonal Spot, so staging and the Figma file can be compared
+  directly.
 
 ## M3 pages to read
 
