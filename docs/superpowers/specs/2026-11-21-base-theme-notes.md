@@ -25,6 +25,10 @@ Owner, 21 November 2026: "It does change, because we will no longer follow our F
 - The ones kept for accessibility go too (owner: "Follow M3 too"): the 60% placeholder (4), the Outlined card's edge (O1) and the edges
   in a coloured section (O2). Material's theme page names them as shortfalls from WCAG 2.2 AA (owner: "state on the theme page what it
   complies with"). `CLAUDE.md`, *Accessibility*.
+- **One contrast scan at the end** (owner, 21 November 2026: "a waste of time and would be better invested in doing a final scan after
+  all this work is done"). No `check:contrast` run per batch or per feature while Material moves to M3, and no CI job for it. One full
+  scan (`--all`) runs when Material's M3 work is done, before the base theme (0.22.3) starts; what fails is either named in
+  `theme/accessibility.json` or fixed.
 - Coloured sections stay, on M3's nearest roles (the container roles and their on-colours) instead of our swaps and veils, where
   contrast allows (owner: "Keep, nearest M3 roles").
 
