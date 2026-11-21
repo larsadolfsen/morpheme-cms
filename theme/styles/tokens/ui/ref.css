@@ -17,10 +17,10 @@
   --mo-elevation-N-shadow), by Material 3; with focus a part is as at rest:
     level 0  filled, tonal and outlined buttons, icon buttons, filled and outlined cards, chips (not elevated), a
              standard side sheet, the top app bar, the navigation rail, a plain tooltip, a disabled switch and slider handle
-    level 1  elevated buttons and chips, elevated cards, bottom sheets, a modal side sheet and navigation drawer, the
+    level 1  elevated buttons and chips, elevated cards, bottom sheets, a modal side sheet, the
              handles of switches and sliders; pointed at: filled and tonal buttons (a toggle too), filled and outlined
              cards that are links, a chosen filter chip
-    level 2  menus, a rich tooltip, a modal navigation rail, the navigation bar, a docked toolbar, the top app bar once
+    level 2  menus, a rich tooltip, a modal navigation rail and the modal navigation drawer (the expanded rail, modal; md.comp.nav-rail.expanded.modal.container.elevation), the navigation bar, a docked toolbar, the top app bar once
              the page scrolls under it; pointed at: elevated buttons, chips and cards
     level 3  FABs (and the FAB menu's close button), dialogs (a bottom sheet as one), date and time pickers, the search bar
              and view, a snackbar, a floating toolbar; dragged: filled and outlined cards
