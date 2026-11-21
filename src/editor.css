@@ -2123,8 +2123,11 @@ main[tabindex='-1']:focus {
   outline: none;
 }
 
-/* The editor's icon buttons stay 48 px (a target the editor's own screens owe, checked in block-bar.mjs, page-rows.mjs and search-and-palette.mjs): Material's
-   small icon button is 40 dp with a 48 dp target, and the theme draws no target area beyond the container yet. */
-:root {
+/* The editor's own screens keep their icon buttons 48 px (a target they owe, checked in block-bar.mjs, page-rows.mjs and search-and-palette.mjs): the top bar,
+   the action row of the active block and the command palette's field row. Material's small icon button is 40 dp with a 48 dp target, and the theme draws
+   no target area beyond the container yet; the theme's own parts, and so the editor's gallery of them, keep the 40 dp. */
+.mo-editor-screen-bar,
+.mo-site-block-row,
+[data-search-controlled] .mo-search-view__header {
   --mo-comp-icon-button-small-container-height: 3rem;
 }
