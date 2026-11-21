@@ -56,6 +56,20 @@ export const selectorOf = (target) =>
         .join(''),
     );
 
+/** The parts of a theme's accessibility statement (lib/accessibility.mjs) an axe rule can be, by the rule's id. None today: axe does not measure what a theme can
+ * fall short on (it skips a placeholder's colour, and measures no edge), `check:contrast` and `check:screens` do. A rule a theme can cause is added here with its
+ * part in `PARTS`; a violation on a part the theme in use names is let through, one it does not name is judged as before. */
+export const SHORTFALL_PARTS = /** @type {Record<string, { criterion: string, part: string }>} */ ({});
+
+/** The violations the theme in use has not named as a shortfall of its own. @param {Array<{ id: string }>} violations @param {{ fallsShort: Array<{ criterion: string, part: string }> }} statement */
+export function unnamedViolations(violations, statement) {
+  const named = new Set(statement.fallsShort.map((e) => `${e.criterion} ${e.part}`));
+  return violations.filter((v) => {
+    const part = SHORTFALL_PARTS[v.id];
+    return !part || !named.has(`${part.criterion} ${part.part}`);
+  });
+}
+
 /** The keys of the violations axe found on one page. @param {Array<{ id: string, nodes: Array<{ target: any[] }> }>} violations */
 export const keysOf = (violations, place, viewport) =>
   new Set(violations.flatMap((v) => v.nodes.map((n) => [v.id, place, selectorOf(n.target), viewport].join(SEP))));

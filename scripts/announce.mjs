@@ -24,6 +24,7 @@
 // site's `morpheme check:screens` runs these units) skips it cleanly (`announceRuns`).
 import { fileURLToPath } from 'node:url';
 import { makeAllowlist, viewportOf } from './allowlist.mjs';
+import { activeStatement } from './theme-statement.mjs';
 import { blockPageFile, blockPages } from './demo-blocks.mjs';
 
 export { viewportOf };
@@ -48,11 +49,19 @@ export const PROBLEMS = [
 export const runsHere = (file) => !file.split(/[\\/]/).includes('node_modules');
 export const announceRuns = () => runsHere(fileURLToPath(import.meta.url));
 
+/** The parts of a theme's accessibility statement (lib/accessibility.mjs) a problem of the name walk can be, by the problem's name. None today: what the walk
+ * finds (a name, a role, a state, a live region) is the editor's and the CMS's markup, not a colour or size a theme sets, so no theme can name one. A problem a theme
+ * can cause is added here with its part in `PARTS`; a finding on a part the theme names is let through, one it does not name is judged as before. */
+export const SHORTFALL_PARTS = /** @type {Record<string, { criterion: string, part: string }>} */ ({});
+export const partOfProblem = (finding) => SHORTFALL_PARTS[finding.problem] ?? null;
+
 export const allowlist = makeAllowlist({
   file: new URL('announce-allowlist.json', import.meta.url),
   field: 'problem',
   label: 'announce',
   collectEnv: 'ANNOUNCE_COLLECT',
+  classify: partOfProblem,
+  statement: activeStatement,
 });
 export const { readAllowlist, keysOf, allowedKeys, compare, problemsOf, entriesOf, collect, judge } = allowlist;
 

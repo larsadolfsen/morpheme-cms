@@ -416,8 +416,13 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
         ['slot', 3],
         ['outline', 3],
       ])
-        if (got[part] !== null && got[part] < min)
-          problems.push(`${label} (${scheme}): the ${part} on a ${color} section has contrast ${got[part].toFixed(2)}:1, below ${min}`);
+        if (got[part] !== null && got[part] < min) {
+          const message = `${label} (${scheme}): the ${part} on a ${color} section has contrast ${got[part].toFixed(2)}:1, below ${min}`;
+          // A placeholder and the row's outline are parts a theme can name in its accessibility.json; text and slot icons never.
+          if (part === 'placeholder') shortfall('1.4.3', 'placeholder', message);
+          else if (part === 'outline') shortfall('1.4.11', 'section-edges', message);
+          else problems.push(message);
+        }
   }
   await page.emulateMedia({ colorScheme: 'light' });
   for (const name of ['Add above', 'Add below'])
