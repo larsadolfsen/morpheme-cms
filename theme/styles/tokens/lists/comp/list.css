@@ -1,12 +1,5 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
-/* A segmented List - Expand whose rows lead with an avatar or an image starts the media 16 dp in, as the segmented List does (owner, 16 Nov 2026: "too much padding
-     left of the media"); the 24 dp of the old segmented look stays for rows with no media. */
-@layer components {
-  .mo-block-accordion__segmented:has(.mo-list__item-leading-avatar, .mo-list__item-leading-image, .mo-list__item-leading-video) {
-    --mo-comp-list-expand-padding-inline: 1rem;
-  }
-}
 /* A row's square and landscape image has Material 3's small corner, 8 dp (owner, 16 Nov 2026, from the M3 segmented list with images); only the avatar is round. */
 @layer components {
   .mo-block-list,
