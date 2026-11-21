@@ -57,6 +57,15 @@ export function useDashboard(files: RepoFile[]) {
     setFocus({ id });
     if (said) setAnnouncement(t.dashboard.moved(said.position, said.total));
   };
+  // Edit dashboard and Done replace each other, so the one that was pressed takes the focus to the one that replaces it.
+  const handoff = useRef<'done' | 'edit' | null>(null);
+  const editing = draft !== null;
+  useEffect(() => {
+    const to = handoff.current;
+    if (!to) return;
+    handoff.current = null;
+    document.querySelector<HTMLElement>(`[data-dashboard-handoff="${to}"]`)?.focus();
+  }, [editing]);
   return {
     load,
     reload: () => setAttempt((n) => n + 1),
@@ -71,6 +80,7 @@ export function useDashboard(files: RepoFile[]) {
     focus,
     startEdit() {
       if (load.status !== 'ready') return;
+      handoff.current = 'done';
       setDraft(load.dashboard);
       setError(null);
       setAnnouncement('');
@@ -84,6 +94,7 @@ export function useDashboard(files: RepoFile[]) {
       try {
         await saveDashboard(layout);
         setLoad({ status: 'ready', dashboard: layout });
+        handoff.current = 'edit';
         setDraft(null);
       } catch (e) {
         setError(e instanceof DashboardSaveError ? e.kind : 'failed');
@@ -127,7 +138,7 @@ export type DashboardEditing = ReturnType<typeof useDashboard>;
 export function DashboardAction({ dash }: { dash: DashboardEditing }) {
   if (dash.load.status !== 'ready' || !dash.editing) return null;
   return (
-    <Button kind="tonal" busy={dash.saving} onClick={() => void dash.done()}>
+    <Button kind="tonal" busy={dash.saving} data-dashboard-handoff="done" onClick={() => void dash.done()}>
       {t.dashboard.done}
     </Button>
   );

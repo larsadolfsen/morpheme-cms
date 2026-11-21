@@ -3,6 +3,7 @@
 // away with the page. Exposes TopBarLayout and useTopBarSlot.
 // While the side panel is open the place ends at the panel's start edge (.mo-editor-top-bar-slot in editor.css).
 import { createContext, useContext, useState, type ReactNode } from 'react';
+import { t } from './i18n';
 
 const Slot = createContext<HTMLElement | null>(null);
 
@@ -16,6 +17,25 @@ export function TopBarLayout({ above, aside, children }: { above?: ReactNode; as
   const [slot, setSlot] = useState<HTMLDivElement | null>(null);
   return (
     <div>
+      {/* The first stop of the Tab order, shown only with the focus: jumps over the navigation to the screen's <main id="main-content"> (WCAG 2.4.1). The theme's skip link (.mo-skip-link). */}
+      <a
+        href="#main-content"
+        className="mo-skip-link"
+        onClick={(e) => {
+          // The address after # is the editor's route, so the link must not change it: focus the visible screen instead. <main> is focusable
+          // only until the focus leaves it (Modern Web Guidance, accessibility, Skip links): a <main> that stayed focusable would send the
+          // next Tab to its start after a click inside it.
+          e.preventDefault();
+          const main = [...document.querySelectorAll<HTMLElement>('main#main-content')].find((m) => m.offsetParent !== null);
+          if (!main) return;
+          main.setAttribute('tabindex', '-1');
+          main.addEventListener('blur', () => main.removeAttribute('tabindex'), { once: true });
+          main.focus();
+          main.scrollIntoView({ block: 'start' });
+        }}
+      >
+        {t.app.skipToContent}
+      </a>
       {above}
       <div className="mo-editor-frame">
         {aside}

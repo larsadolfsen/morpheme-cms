@@ -1,0 +1,7 @@
+{
+  "id": "toolbar-shortcut",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Genvej til tekstlinjen",
+  "text": "Du skal ikke længere trykke Tab mange gange for at nå tekstlinjen. Tryk Alt+F10 i teksten eller på en valgt blok for at gå til linjen, brug piletasterne mellem værktøjerne, og tryk Escape for at gå tilbage. Slet fjerner en valgt blok."
+}
