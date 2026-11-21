@@ -8,33 +8,9 @@ is not listed here is a bug. Add the entry in the same pull request as the chang
 
 **Priority order** (owner, 15 Nov 2026): 1. Modern web, 2. M3 Expressive, 3. M3, 4. M2 with M3 styling. Where they conflict, the lower number wins.
 
-Entries from the colour sweep and the CSS sweep were sent by those workers on 2026-11-13; the owner decisions on section
-colours are from the contrast work of the same day (`npm run check:contrast`, `scripts/check-contrast.mjs`).
+Entries from the colour sweep and the CSS sweep were sent by those workers on 2026-11-13.
 
-## Section colours (contrast)
-
-Source: `theme/styles/global.css` (the section swap block), `theme/styles/blocks.css`, `src/editor.css`.
-
-### 1. A coloured section is an inverted theme, not M3's role set
-
-- **Material:** the colour roles keep their meaning everywhere; a surface is a tone of the scheme, text on it is its `on-*` role.
-- **We do:** in a section on Primary, Secondary or Tertiary the roles are swapped once for the blocks in it: `--mo-sys-color-surface` is the section colour, `--mo-sys-color-on-surface` and `--mo-sys-color-primary` are the section's text colour, `--mo-sys-color-on-primary` is the section colour.
-- **Why:** every block has one set of styles and follows every section colour by itself, in the site and in the editor.
-- **Date:** 2026-11-13 (listed; the design is older). **PR:** none.
-
-### 2. Surface containers in a section are veils of the text colour, not opaque tones
-
-- **Material:** `surface-container-lowest` to `-highest` are opaque tones of the scheme.
-- **We do:** in a coloured section they are the section's text colour at 6, 8, 10, 12 and 14% over the section colour (were 10, 12, 14, 18 and 22%).
-- **Why:** the section stays one colour with quiet tiles, and text on every tile keeps 4.5:1 or more in light and dark mode. The elevation levels (`--mo-elevation-N-color`) take these containers, so an elevated part is a tone, not a white overlay.
-- **Date:** 2026-11-13, owner decision. **PR:** #491 (elevation colours: #473).
-
-### 3. Quieter text in a section is the full text colour
-
-- **Material:** `on-surface-variant` is a lower-emphasis role than `on-surface`.
-- **We do:** in a coloured section `--mo-sys-color-on-surface-variant` and `--mo-sys-block-muted` are the section's full text colour. The hierarchy is the type size and weight.
-- **Why:** at 80% no tile keeps 4.5:1 in light mode (3.1 to 4.2:1 measured).
-- **Date:** 2026-11-13, owner decision. **PR:** #492.
+**Section colours are not a deviation any more** (0.19.5 batch 4, #1115; owner, 21 Nov 2026: "we will no longer follow our FRONTEND deviations, instead we will follow md3"). A section on Primary, Secondary or Tertiary is painted with M3's container of its colour and its text and icons are the container's on-colour (`theme/styles/tokens/material/sys.css`); a section with an image uses M3's inverse set (`inverse-surface`, `inverse-on-surface`, `inverse-primary`); the blocks read these roles through `theme/styles/tokens/blocks/sys.css`. The old entries (the inverted theme, the veils of 14, 7 and 35 %, quieter text at full strength) are removed. The dark-mode edge shortfall (`section-edges`, 2.9:1) is a WCAG item in `theme/accessibility.json`, not a deviation (`docs/superpowers/specs/2026-11-21-section-colours-m3-roles-design.md`).
 
 ## Colour sweep
 
