@@ -12,6 +12,7 @@
 // Tailwind renames classes: scripts/compare-styles.mjs then proves the look did not change).
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import { stripAll } from '../lib/stripAll.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const IGNORE_CLASSES = process.argv.includes('--ignore-classes');
@@ -49,9 +50,7 @@ const attributes = (tag) =>
   });
 
 const normal = (html) =>
-  html
-    .replace(/<script type="module"[^>]*>[\s\S]*?<\/script>/g, '')
-    .replace(/<!--[\s\S]*?-->/g, '')
+  stripAll(stripAll(html, /<script type="module"[^>]*>[\s\S]*?<\/script\b[^>]*>/g), /<!--[\s\S]*?-->/g)
     .replace(/(<astro-island\b[^>]*?\sprefix=")r\d+"/g, '$1r"')
     .replace(/\/_astro\/([\w.-]+?)\.[\w-]{8}\.(\w+)/g, '/_astro/$1.$2')
     .replace(/<[a-zA-Z][^<>]*>/g, attributes)
