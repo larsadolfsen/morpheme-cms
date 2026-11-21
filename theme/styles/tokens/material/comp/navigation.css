@@ -6,7 +6,10 @@
 .mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* Navigation drawers: from the left, large corners towards the page, a low surface container, M3's scrim; items 56px
      high with a full active indicator in the secondary container, a label in medium weight. */
-  --mo-comp-navigation-drawer-scrim-color: var(--mo-sys-color-scrim-overlay);
+  /* M3's scrim: md.comp.navigation-drawer.scrim.color = md.ref.palette.neutral-variant20, opacity 0.4 (owner, 21 Nov 2026). The ref token is made
+     at build from the site's dynamic source (lib/ref-palette.ts, colorsCss); without one this is invalid and the scrim rule falls back. */
+  --mo-comp-navigation-drawer-scrim-color: var(--mo-ref-palette-neutral-variant20);
+  --mo-comp-navigation-drawer-scrim-opacity: 0.4;
   --mo-comp-navigation-drawer-row-gap: 0;
   --mo-comp-navigation-drawer-toggle-size: 3rem;
   --mo-comp-navigation-drawer-toggle-hover: var(--mo-sys-state-mo-hover-layer);

@@ -10,6 +10,7 @@
 // text can be read on its background (contrast). No React or browser here: the build uses it too.
 
 import type { Dynamic } from './dynamic-colors';
+import { neutralVariant20 } from './ref-palette.ts';
 
 export type ColorSet = Record<string, string>;
 export type Colors = { light: ColorSet; dark: ColorSet; dynamic?: Dynamic };
@@ -103,8 +104,11 @@ export const pageColor = (set: ColorSet): string => set.surface;
  * Throws on anything that is not a colour, so a broken file never reaches a page. */
 export function colorsCss(colors: Colors): string {
   const dark = declarations(colors.dark);
+  // M3's md.ref.palette.neutral-variant20 (the drawer's scrim), made from the site's source colour; none without one, and the
+  // scrim rule keeps its own fallback (lib/ref-palette.ts).
+  const nv20 = neutralVariant20(colors.dynamic?.source);
   return (
-    `:root{${declarations(colors.light)}}` +
+    `:root{${declarations(colors.light)}${nv20 ? `--mo-ref-palette-neutral-variant20:${nv20};` : ''}}` +
     `@media (prefers-color-scheme: dark){:root:not([data-theme='light']){${dark}}}` +
     `:root[data-theme='dark']{${dark}}`
   );
