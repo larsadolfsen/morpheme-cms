@@ -161,7 +161,7 @@ One rule so nothing is said twice: **there is one announcer, and a message goes 
 Order: **1 goes first** (the check and the baseline). **2, 3 and 4 touch different files and can run side by side** (names, states, the
 announcer). **5 follows 4** (it uses the announcer) **and 0.19.3** (its focus helper). **6 follows 5** (it touches the text area and the block cards, which 5 also touches).
 **7 goes last** (it needs the walk's final output and an empty allowlist). Every batch removes the allowlist entries it fixes, keeps
-`check:screens`, `check:a11y`, `check:keyboard` and `check:contrast` green, adds no text without its Danish version (`check:language`: a new
+`check:screens`, `check:a11y` and `check:keyboard` green, adds no text without its Danish version (`check:language`: a new
 announcement is a new text, in `en-US` and `da-DK`, skill `site-editor-writing`), follows Modern Web Guidance for accessibility (the PR names the guides read:
 `npm run audit:web -- search "aria live"`, `"accessible name"`, `"focus dialog"`) and the order of priority (Modern web, Material 3 Expressive, Material 3,
 Material 2 with Material 3 styling; a self-made solution goes to the PM). Each pull request has its **Components** line (existing components only) and an empty or `patch` changeset.

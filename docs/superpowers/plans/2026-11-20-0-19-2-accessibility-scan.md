@@ -100,7 +100,7 @@ off again without the owner.
 7. **Zoom**, as decided above: `maximum-scale=1` and the `touch-action` rules that block zoom go; the bars follow the visual viewport.
 
 Batches 2 to 6 touch different files and can run side by side; 1 goes first and 7 last. Every batch: the allowlist entries it fixes
-are removed, `check:screens` and `check:contrast` stay green, no new text without its Danish version (`check:language`), and a release
+are removed, `check:screens` stays green, no new text without its Danish version (`check:language`), and a release
 note line where a site owner notices it (skill `release-notes`).
 
 ## Done when

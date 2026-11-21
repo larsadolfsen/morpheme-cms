@@ -97,7 +97,7 @@ and holds the update where it cannot.
   and on an ours entry M3 has since got a token for. It takes over the naming part of 0.19.5's `--report`.
 - `check:token-names` fails on the old names (the map's non-reused names).
 - `migrate-code` has tests: a made-up theme and app with old names of contracts 6, 7 and 7-to-8 (no customer content), rewritten and then built; the reused-name case; a second run refused; every unsafe form listed.
-- `check:screens`, `check:themes`, `check:demo` and `check:contrast` green, with the same screens as before the rename.
+- `check:screens`, `check:themes` and `check:demo` green, with the same screens as before the rename.
 
 ## Batches (pull requests into `feature/0.20.0-m3-names`)
 

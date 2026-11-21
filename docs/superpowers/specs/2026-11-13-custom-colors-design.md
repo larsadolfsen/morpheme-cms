@@ -162,8 +162,8 @@ usable. Only the icon use needs 3:1 on the page, so:
 - **State layers**: not stored. The theme mixes them from the role (`--mo-hover`, `--mo-primary-hover` in `global.css`, 8%
   hover as M3 prints), so they follow any color.
 - **Sections** (Surface/Primary/Secondary/Tertiary): the fill is the exact chosen color and the text its On-color (4.5:1 by 5.2);
-  containers use the container pairs. A cream Secondary section is cream with dark text. Surface is unchanged. Proof:
-  `check:contrast` once by hand on the three palettes of section 9 (and a stress set).
+  containers use the container pairs. A cream Secondary section is cream with dark text. Surface is unchanged. Proof: the
+  final `check:contrast` scan when Material's M3 work is done (owner, 21 Nov 2026; `2026-11-21-base-theme-notes.md`).
 - **Themes (Material, Venus, others)**: a theme reads `--mo-*` roles only (`global.css` header). The file's `light`/`dark` roles are
   the contract; no role is added or removed. Venus and the store's themes live
   outside this repo and I have not opened them; step D runs `check:themes` on the bundled themes and the PM asks `morpheme-appstore`
@@ -231,8 +231,7 @@ for Secondary and Tertiary already exist (`preview.secondary`, `preview.tertiary
 - **`check:screens`**: Custom open with set 1 on a phone and a computer: Primary's question, the adjusted list, the kept warning, the notes by Secondary and Tertiary, the
   three draggable dots, the icon color picker without the low colors, the list focus ring, and the keyboard-safe sheet (viewport shrunk).
 - **`check:demo`/`npm run check`**: unchanged; the demo's `colors.json` stays a harmony.
-- **`check:contrast`** (by hand, not CI): once per set on every section color, light and dark, phone and computer; `check:themes`
-  for the others.
+- **`check:contrast`**: not run for this change; the one final scan covers it (owner, 21 Nov 2026). `check:themes` for the others.
 - `check:editor-colors` should stay green: the new parts take no fixed color (the adjusted list uses the tile's own swatches
   and the theme's tokens).
 
@@ -291,7 +290,7 @@ merged. Only the list focus ring line in B waited for the owner's answer; it is 
 - **C. Screen**: the chip, three tiles with pens, no lock, three draggable dots (`ColorWheel`, `wheelColorAt`), Primary's question `Notice`
   with Fix/Keep, the adjusted list and kept warning, the low-contrast note by Secondary and Tertiary, Save blocked while the question is open, texts in English and Danish,
   keyboard-safe sheet (fix if needed), `check:screens` states. Changeset `minor`.
-- **D. Proof and notes**: `check:contrast` per palette, `check:themes`, the Venus look from the store, `material-deviations.md` if the
+- **D. Proof and notes**: `check:themes`, the Venus look from the store, `material-deviations.md` if the
   owner asks for it, the release note below.
 
 **Release note** (needed; it changes how a site can look): one **paragraph**, "Set your own colors": "Pick Primary, Secondary and

@@ -24,4 +24,4 @@ slash at both ends, or `''`.
 - One heading per group (Buttons, Icon buttons, FABs, Chips, Text fields …), and a subheading per size or kind (Small, Medium, Large;
   Filled, Tonal, Outlined …). The editor's gallery gets the same headings and subheadings (owner, 21 November 2026: "Yes good idea").
 - Its title is *UI components*. Its texts are default texts in English with their Danish version (`defaults/i18n/da-DK/`).
-- It passes `check:contrast`, `check:announce` and `check:keyboard` like every other page: headings in order, every part named.
+- It passes `check:announce` and `check:keyboard` like every other page: headings in order, every part named.
