@@ -36,8 +36,11 @@
     box-shadow: var(--mo-sys-elevation-level3-shadow);
   }
 
-  :is(.mo-elevation-0, .mo-elevation-1, .mo-elevation-2, .mo-elevation-3, .mo-elevated-1, .mo-elevated-2, .mo-elevated-3) {
-    transition: box-shadow var(--mo-sys-motion-spring-default-effects);
+  /* Motion only for a visitor who has not asked for less (Modern Web Guidance, motion). */
+  @media (prefers-reduced-motion: no-preference) {
+    :is(.mo-elevation-0, .mo-elevation-1, .mo-elevation-2, .mo-elevation-3, .mo-elevated-1, .mo-elevated-2, .mo-elevated-3) {
+      transition: box-shadow var(--mo-sys-motion-spring-default-effects);
+    }
   }
 
   /* Pointed at: one level up, only for what can be clicked and only where the device can hover. */
