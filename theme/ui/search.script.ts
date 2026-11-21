@@ -8,10 +8,13 @@
 import { atLeast } from '@morphemecms/cms/lib/breakpoints.mjs';
 import { lightDismiss } from '@theme/ui/lightDismiss';
 import { isActionEnter } from '@morphemecms/cms/lib/enterKey.mjs';
+import trackInputModality from '@theme/ui/inputModality';
 
 const fold = (text: string) => text.toLocaleLowerCase().normalize('NFKD').replace(/\p{M}/gu, '').trim();
 
 export default function search() {
+  // The field's ring is for the keyboard only (search.css reads data-mo-input).
+  trackInputModality();
   const wide = matchMedia(atLeast('medium'));
 
   document.querySelectorAll<HTMLElement>('[data-search]').forEach((search) => {
