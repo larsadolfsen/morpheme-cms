@@ -55,3 +55,18 @@
   inherits: true;
   initial-value: 8px;
 }
+@property --mo-sys-state-focus-indicator-inner-offset {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: -3px;
+}
+@property --mo-sys-state-focus-indicator-outer-offset {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 2px;
+}
+@property --mo-sys-state-focus-indicator-thickness {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 3px;
+}

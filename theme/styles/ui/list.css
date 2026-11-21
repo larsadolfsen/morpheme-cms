@@ -171,8 +171,9 @@
   :is(a, button:enabled).mo-list__item-container:focus-visible,
   .mo-list__item-with-control:not(.mo-list__item-disabled):has(:focus-visible),
   .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:focus-visible) {
-    outline: 3px solid var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-color-primary));
-    outline-offset: -3px;
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid
+      var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-state-focus-indicator-color));
+    outline-offset: var(--mo-sys-state-focus-indicator-inner-offset);
   }
   .mo-list__item-with-control :focus-visible,
   .mo-list__item-multi-action > :is(a, button:enabled).mo-list__item-container:focus-visible {
@@ -428,7 +429,7 @@
     cursor: pointer;
     list-style: none;
     /* The focus ring sits inside the item, so the list's rounded edge never cuts it off. */
-    outline-offset: -3px;
+    outline-offset: var(--mo-sys-state-focus-indicator-inner-offset);
   }
   .mo-list__item-expand-summary::-webkit-details-marker {
     display: none;
@@ -468,7 +469,8 @@
     inset-inline: -0.25rem;
   }
   .mo-list__item-expand-button:focus-visible {
-    outline: 3px solid var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-color-primary));
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid
+      var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-state-focus-indicator-color));
   }
   .mo-list__item-expand-icon > svg {
     width: var(--mo-comp-list-item-icon-size, 1.25rem);
@@ -492,7 +494,8 @@
     );
   }
   .mo-list__item-expand-summary:focus-visible {
-    outline: 3px solid var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-color-primary));
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid
+      var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-state-focus-indicator-color));
   }
   .mo-list__item-expand:has(> .mo-list__item-expand-summary:active) {
     background: var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent));

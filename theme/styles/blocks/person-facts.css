@@ -120,8 +120,8 @@
     color: var(--mo-sys-block-text);
   }
   .mo-block-table__grid:focus-visible {
-    outline: 3px solid var(--mo-sys-color-primary);
-    outline-offset: 2px;
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+    outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
   }
   .mo-block-table__grid :is(th, td) {
     min-width: 6rem;

@@ -279,7 +279,7 @@ export function SearchView({
   const optionId = (index: number) => `${list}-${index}`;
 
   // Full screen (below the medium breakpoint): a modal <dialog> while it is open: the page behind it is inert, Escape closes it, and the focus goes to the field.
-  // From medium it is a dropdown (M3 docked): a panel under the bar, not modal and with no scrim: the page stays as it is, Escape, a press outside it and
+  // From medium it is a dropdown (M3 docked): a panel under the bar, not modal, with M3's scrim over the page (a ::before of the panel, so a press on it closes the view): Escape, a press outside it and
   // the back button close it, and the focus goes back to where it was.
   useEffect(() => {
     const view = dialog.current;
@@ -305,7 +305,12 @@ export function SearchView({
     if (!open || !wide) return;
     const press = (e: PointerEvent) => {
       const target = e.target as Element | null;
-      if (!target || dialog.current?.contains(target) || target.closest('[aria-haspopup="dialog"][data-keeps-block]')) return;
+      if (
+        !target ||
+        (target !== dialog.current && dialog.current?.contains(target)) ||
+        target.closest('[aria-haspopup="dialog"][data-keeps-block]')
+      )
+        return;
       onClose();
     };
     document.addEventListener('pointerdown', press, true);

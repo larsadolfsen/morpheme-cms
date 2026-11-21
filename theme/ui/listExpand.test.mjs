@@ -40,7 +40,7 @@ test("the state layers and the focus ring are the List's own tokens, the corner 
   const summary = ui.slice(ui.indexOf('.mo-list__item-expand-summary {'));
   assert.match(summary, /--mo-comp-list-item-hover-surface/);
   assert.match(summary, /--mo-comp-list-item-focus-indicator-color/);
-  assert.match(summary, /outline: 3px solid/);
+  assert.match(summary, /outline: var\(--mo-sys-state-focus-indicator-thickness\) solid/);
   assert.match(ui, /\.mo-list__expand\s*\{[^}]*--mo-comp-list-expand-container-shape, var\(--mo-sys-shape-corner-large\)/);
 });
 

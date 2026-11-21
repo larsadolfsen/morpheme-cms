@@ -66,6 +66,12 @@
   --mo-sys-grid-margin: 1rem;
   --mo-sys-grid-gutter: 1rem;
   --mo-sys-grid-layout-columns: 4;
+  /* M3's focus indicator: the component tokens print its colour as `secondary`; `md.sys.state.focus-indicator` prints 3dp thick, 2dp outside
+     the part and 3dp inside it (a list item). The editor draws it in `primary` (src/editor.css). */
+  --mo-sys-state-focus-indicator-color: var(--mo-sys-color-secondary);
+  --mo-sys-state-focus-indicator-thickness: 3px;
+  --mo-sys-state-focus-indicator-outer-offset: 2px;
+  --mo-sys-state-focus-indicator-inner-offset: -3px;
 }
 /* The blocks in a section on the accent (blocks.css) read as an inverted theme: the site's colours below are swapped for
    it, and the list above (the M3 aliases and the parts' variables, which are resolved where they are declared) is
