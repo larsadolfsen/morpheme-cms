@@ -9,7 +9,7 @@
 // effective background: the backgrounds of its ancestors, composited over each other (alpha handled) down to the page's.
 // 4.5:1 for text, 3:1 for large text (24 px, or 18.66 px bold), icons and the border of a control (outlined button, field).
 // A background that is an image or a gradient cannot be read: the pair is listed as "manual", never as a failure.
-// Placeholders and disabled controls: placeholders are checked (4.5:1), disabled controls are exempt (WCAG 1.4.3).
+// The focus ring of every control is M3's focus indicator colour against what is behind the control (3:1). Placeholders and disabled controls: placeholders are checked (4.5:1), disabled controls are exempt (WCAG 1.4.3).
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -171,6 +171,17 @@ const scan = `(root) => {
         const { back, manual } = behind(el.parentElement ?? el);
         push(el, 'border', rgba(s.borderTopColor), back, 3, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', manual });
       }
+    }
+    // The focus ring (M3's focus indicator, --mo-sys-state-focus-indicator-color, 3 dp outside the control) against what is behind the control, 3:1 (WCAG 1.4.11, 2.4.11).
+    {
+      const host = el.parentElement ?? el;
+      const probe = document.createElement('span');
+      probe.style.color = 'var(--mo-sys-state-focus-indicator-color)';
+      host.appendChild(probe);
+      const ring = rgba(getComputedStyle(probe).color);
+      probe.remove();
+      const { back, manual } = behind(host);
+      push(el, 'focus ring', ring, back, 3, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', manual });
     }
     if (el.matches('input, textarea')) {
       const p = getComputedStyle(el, '::placeholder');
