@@ -1306,7 +1306,7 @@ export function IconPicker({
         <SlotButton
           label={value ? t.forms.changeIcon : t.forms.pickIcon}
           expanded={open}
-          controls={grid}
+          controls={open ? grid : undefined}
           onClick={() => setOpen((o) => !o)}
           iconColor={iconColor}
         >

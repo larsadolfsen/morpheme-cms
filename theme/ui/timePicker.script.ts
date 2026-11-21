@@ -47,7 +47,6 @@ export function timePickerField(field: HTMLElement) {
   const input = field.querySelector<HTMLInputElement>('[data-time-picker-value]')!;
   const dialog = field.querySelector<HTMLDialogElement>('[data-time-picker-dialog]')!;
   const headlineId = `time-picker-headline-${++opened}`;
-  dialog.setAttribute('aria-labelledby', headlineId);
 
   let state: TimePickerState;
   let root: import('react-dom/client').Root | undefined;
@@ -69,6 +68,8 @@ export function timePickerField(field: HTMLElement) {
     const { hour, minute } = timeOf(input.value) ?? { hour: now.getHours(), minute: 0 };
     state = { view: 'dial', selecting: 'hour', hour, minute };
     await render();
+    // The headline is in the dialog now: it names the dialog until it closes (the label names it before).
+    dialog.setAttribute('aria-labelledby', headlineId);
     dialog.showModal();
     document.documentElement.style.overflow = 'hidden';
     opener.setAttribute('aria-expanded', 'true');
@@ -78,6 +79,7 @@ export function timePickerField(field: HTMLElement) {
   function close() {
     if (!dialog.open) return;
     dialog.close();
+    dialog.removeAttribute('aria-labelledby');
     document.documentElement.style.overflow = '';
     opener.setAttribute('aria-expanded', 'false');
     opener.focus();
