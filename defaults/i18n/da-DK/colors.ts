@@ -11,9 +11,10 @@ export const colors: Record<string, string> = {
   'Surface container lowest': 'Fladecontainer (lavest)',
   'Cards, fields, and surfaces with the least emphasis.': 'Kort, felter og flader med mindst vægt.',
   'Surface container low': 'Fladecontainer (lav)',
-  'Cards with a shadow, blocks, and sheets.': 'Kort med skygge, blokke og ark.',
+  'Menus, cards with a shadow, blocks, and sheets.': 'Menuer, kort med skygge, blokke og ark.',
   'Surface container': 'Fladecontainer',
-  'Menus and bars.': 'Menuer og bjælker.',
+  'Navigation bars, toolbars, the footer, and the modal navigation drawer.':
+    'Navigationsbjælker, værktøjslinjer, sidefoden og den modale navigationsskuffe.',
   'Surface container high': 'Fladecontainer (høj)',
   'Light boxes, dialogs, and the search field.': 'Lyse bokse, dialoger og søgefeltet.',
   'Surface container highest': 'Fladecontainer (højest)',
