@@ -644,7 +644,7 @@
   }
   /* On a phone the buttons wrap into rows: each button that shows its menu open keeps the room of its menu below it, so the menu never lies over the buttons of the next row (WCAG 2.5.8). */
   @media (width < 37.5rem) {
-    .mo-editor-nav-menus-tall > .mo-dropdown-menu:has(> .mo-dropdown-menu__menu:not([popover])) {
+    .mo-editor-nav-menus-tall .mo-dropdown-menu:has(> .mo-dropdown-menu__menu:not([popover])) {
       margin-block-end: 22rem;
     }
   }
@@ -769,7 +769,11 @@
   .mo-editor-parts-lists > *,
   .mo-editor-contain-dialogs > *,
   .mo-editor-nav-field-pair > *,
-  .mo-editor-parts-field-grid > * {
+  .mo-editor-parts-field-grid > *,
+  /* An example's own group (Example in PartsShown.tsx) takes no box: what is in it is the grid's child. */
+  .mo-editor-parts-cards > [role='group'] > *,
+  .mo-editor-nav-field-pair > [role='group'] > *,
+  .mo-editor-parts-field-grid > [role='group'] > * {
     min-inline-size: 0;
   }
 }
