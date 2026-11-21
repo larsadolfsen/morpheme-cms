@@ -364,6 +364,102 @@ async function flowI(ctx) {
   await page.waitForTimeout(100);
 }
 
+// ---------------------------------------------------------------------------------------------------- the site's flow
+
+/** The place of the site's flow in the allowlist and in the messages. */
+export const SITE_FLOW = 'site';
+
+/** Every control with `aria-expanded` in `scope` that is shown, as a selector the flow can name. In the page. */
+const expandables = (scope) =>
+  [...document.querySelectorAll(`${scope} [aria-expanded]`)]
+    .filter((e) => e.getClientRects().length > 0)
+    .map((e) => ({
+      tag: e.tagName.toLowerCase(),
+      role: e.getAttribute('role'),
+      name: (e.getAttribute('aria-label') || e.innerText || '').trim().slice(0, 30),
+    }));
+
+/** Tabs to the control with `aria-expanded` and the name `name` in `scope`, presses Space and Enter on it (each twice: open, then closed), and expects
+ * aria-expanded to change each time and the focus to stay on it. */
+async function toggleBy(ctx, scope, name) {
+  const { page } = ctx;
+  const step = `${scope}: ${name}`;
+  const find = () =>
+    page.evaluate(
+      ({ scope, name }) => {
+        const e = document.activeElement;
+        return (
+          !!e && e.matches(`${scope} [aria-expanded]`) && (e.getAttribute('aria-label') || e.innerText || '').trim().slice(0, 30) === name
+        );
+      },
+      { scope, name },
+    );
+  let reached = false;
+  if (await isBody(page)) await toTop(page);
+  for (let i = 0; i < 60 && !(reached = await find()); i++) await page.keyboard.press('Tab');
+  if (!reached) {
+    ctx.add('unreachable', step);
+    return;
+  }
+  const state = () => page.evaluate(() => document.activeElement?.getAttribute('aria-expanded'));
+  for (const key of ['Space', 'Enter']) {
+    for (let round = 0; round < 2; round++) {
+      const before = await state();
+      await press(ctx, key);
+      const after = await state();
+      if (after === before) ctx.add('unreachable', `${step} by ${key}`);
+      else if (!(await find())) ctx.add('flow-lost-focus', `${step} after ${key}`);
+      else continue;
+      // Focus moved or nothing changed: put the focus back to go on.
+      await page.evaluate(
+        ({ scope, name }) =>
+          [...document.querySelectorAll(`${scope} [aria-expanded]`)]
+            .find((e) => (e.getAttribute('aria-label') || e.innerText || '').trim().slice(0, 30) === name)
+            ?.focus(),
+        { scope, name },
+      );
+      if (!(await find())) return;
+    }
+  }
+}
+
+/** The site, by keyboard alone: every control with `aria-expanded` is a button (or has role=button), and Space and Enter toggle it with the focus staying on it,
+ * in the navigation drawer (phone) and in the header's menus (computer). */
+async function flowSite(ctx) {
+  const { page, width } = ctx;
+  await page.goto(`${ctx.site}/contact/`, { waitUntil: 'networkidle' });
+  await settle(page, 600);
+  const audit = async (scope, where) => {
+    for (const e of await page.evaluate(expandables, scope))
+      if (e.tag !== 'button' && e.role !== 'button') ctx.add('unreachable', `${where}: ${e.tag}[aria-expanded] ${e.name} is not a button`);
+  };
+  if (width < 600) {
+    await audit('body', 'the page');
+    // The menu button, by Tab and Enter, opens the drawer.
+    await reach(ctx, 'site: the menu button', { css: '[data-editor=header-menu] button' }, { max: 30, need: true });
+    await press(ctx, 'Enter');
+    await expectFocus(ctx, 'site: after the drawer opens');
+    await audit('dialog[open]', 'the drawer');
+    // A group's header is the button itself (Space and Enter toggle it), not a link with a button beside it: Space does nothing on a link.
+    const linked = await page.evaluate(() =>
+      [...document.querySelectorAll('dialog[open] .mo-navigation-drawer__row')]
+        .filter((row) => row.querySelector('[aria-expanded]') && row.querySelector('a'))
+        .map((row) => (row.querySelector('a').innerText || '').trim().slice(0, 30)),
+    );
+    for (const name of linked) ctx.add('unreachable', `the drawer: the header ${name} is a link, so Space does not toggle it`);
+    const groups = (await page.evaluate(expandables, 'dialog[open]')).filter((e) => e.tag === 'button');
+    if (!groups.length) ctx.add('unreachable', 'site: the drawer has no group header');
+    for (const g of groups) await toggleBy(ctx, 'dialog[open]', g.name);
+    await press(ctx, 'Escape');
+  } else {
+    await audit('[data-header]', 'the header');
+    const toggles = await page.evaluate(expandables, '[data-header] [data-nav-item]');
+    if (!toggles.length) ctx.add('unreachable', 'site: the header has no menu with sub-pages');
+    for (const t of toggles) await toggleBy(ctx, '[data-header] [data-nav-item]', t.name);
+  }
+  await audit('body', 'the page');
+}
+
 const RUN = { A: flowA, B: flowB, C: flowC, D: flowD, E: flowE, F: flowF, G: flowG, H: flowH, I: flowI };
 
 /** Walks one flow at `width` in a new page of `browser` on `site`; gives its findings `[{ problem, selector }]` (a flow that ends early still gives what it found).
@@ -394,6 +490,22 @@ export async function runFlow(browser, site, flow, width) {
     await RUN[flow](ctx);
   } catch (e) {
     if (!(e instanceof Stop)) errors.push(`flow ${flow}: ${e.message}`);
+  }
+  await page.close();
+  return { findings: ctx.findings, errors };
+}
+
+/** The site's flow (`flow site`) at `width` in a new page of `browser` on `site`: the drawer at a phone width, the header's menus at a computer's. Gives the same as `runFlow`.
+ * @param {import('playwright').Browser} browser */
+export async function runSiteFlow(browser, site, width) {
+  const page = await browser.newPage({ viewport: { width, height: width < 600 ? 800 : 900 }, locale: 'en-US' });
+  const ctx = { ...context(page, SITE_FLOW, width), site };
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  try {
+    await flowSite(ctx);
+  } catch (e) {
+    if (!(e instanceof Stop)) errors.push(`flow ${SITE_FLOW}: ${e.message}`);
   }
   await page.close();
   return { findings: ctx.findings, errors };
