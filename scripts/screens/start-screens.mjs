@@ -309,6 +309,36 @@ async function checkSettingsAndMenu(width, height) {
   );
   for (const m of moved) if (drawerLinks.includes(`#${m}`)) problems.push(`${label} menu: the menu has a link to #${m}`);
 
+  // The drawer's header is the theme's list item (Material 3 Lists: 72 dp two-line item, 16 dp padding, 40 dp leading avatar, body large
+  // headline over body medium supporting text) with the close button as its trailing action, and the theme's divider under it.
+  const header = await page.evaluate(() => {
+    const panel = document.querySelector('.mo-editor-main-drawer-panel');
+    const row = panel?.querySelector(':scope > :first-child .mo-list__item-multi-action');
+    const item = row?.querySelector('.mo-list__item-container');
+    const box = (e) => e && e.getBoundingClientRect();
+    return {
+      row: !!row,
+      handBuilt: !!panel?.querySelector('.mo-editor-main-drawer-header'),
+      avatar: !!item?.querySelector('.mo-avatar'),
+      headline: !!item?.querySelector('.mo-list__item-headline'),
+      supporting: !!item?.querySelector('.mo-list__item-supporting'),
+      close: !!row?.querySelector('button[aria-expanded="true"]'),
+      divider: !!panel?.querySelector(':scope > hr.mo-divider'),
+      shown: !!panel && box(panel).width > 0 && box(panel).x >= 0,
+      height: Math.round(box(item)?.height ?? 0),
+      pad: item && getComputedStyle(item).paddingInlineStart,
+      avatarSize: Math.round(box(item?.querySelector('.mo-avatar'))?.width ?? 0),
+    };
+  });
+  for (const part of ['row', 'avatar', 'headline', 'supporting', 'close', 'divider'])
+    if (!header[part])
+      problems.push(`${label} menu: the drawer's header has no ${part} (a theme ListItem with the close button as its action)`);
+  if (header.handBuilt) problems.push(`${label} menu: the drawer's header is hand-built again (mo-editor-main-drawer-header)`);
+  if (width >= 1000 && header.shown && (header.height !== 72 || header.pad !== '16px' || header.avatarSize !== 40))
+    problems.push(
+      `${label} menu: the drawer's header is ${header.height} px high with ${header.pad} padding and a ${header.avatarSize} px avatar (should be 72, 16px and 40)`,
+    );
+
   const drawer = '.mo-editor-main-drawer-panel nav';
   if (width >= 1000) {
     // The standard drawer is open: four sections, the start screen and the cog, and the cog last, at the bottom.
@@ -368,7 +398,7 @@ async function checkSettingsAndMenu(width, height) {
   if (width >= 1000) {
     // The collapsed rail: the cog at its bottom, under every other destination.
     await go('');
-    await page.click('.mo-editor-main-drawer-header button');
+    await page.click('.mo-editor-main-drawer-panel > :first-child button[aria-expanded="true"]');
     await page.waitForTimeout(600);
     checkCog(label, 'skinnen', await page.evaluate(shownItems, 'nav.mo-editor-main-rail .mo-navigation-rail__item'), height);
     const railCurrent = (hash) =>
@@ -741,7 +771,8 @@ const keyScreens = { appstore: 'settings/appstore', morpheme: 'morpheme' };
 // "Morpheme" in every state: the version, the problems and the notes are text (CMS_STATUS in built-site.mjs), every list row
 // has an action (a link or a button), and Update and the connection work. The one row without an action of its own is the
 // store connection's "Connected to Morpheme" (it shows the state; its button "Disconnect" is beside it, and the
-// key states above check that it is there), so that row is left out.
+// key states above check that it is there), so that row is left out. The status lines (a problem or a note, `.mo-editor-status-line`,
+// a list row with an icon and text) are text only and are left out too.
 async function checkMorpheme(page, state) {
   const text = await page.evaluate(() => document.querySelector('main').innerText);
   for (const x of [
@@ -754,6 +785,7 @@ async function checkMorpheme(page, state) {
   const bare = await page.evaluate(
     (connected) =>
       [...document.querySelectorAll('main .mo-list__item-container')]
+        .filter((row) => !row.closest('.mo-editor-status-line'))
         .filter((row) => !row.matches('a[href], button') && !row.closest('li')?.querySelector('a[href], button'))
         .filter((row) => !row.innerText.startsWith(connected))
         .map((row) => row.innerText.trim().split('\n')[0]),

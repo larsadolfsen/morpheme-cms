@@ -559,40 +559,6 @@
   animation-name: editor-main-drawer-in-rtl;
 }
 
-/* The main drawer's header row (MainDrawerMenuButton in ui.tsx): the account row is a pill, shaped and shaded as a drawer
-   item is when pointed at. Its inline padding puts the avatar's centre over the items' icons (the avatar is wider than the
-   24px icon: half the difference less than the items' padding). The avatar has a 1px border inside its size.
-   The pill is as high as a drawer item (56px); the row around it is the top bar's height. */
-.mo-editor-main-drawer-header {
-  --mo-comp-list-item-padding-block: 0.375rem;
-  --mo-comp-list-item-two-line-min-height: var(--mo-comp-navigation-drawer-item-height, 3.5rem);
-  --mo-comp-editor-drawer-header-text: var(--mo-comp-navigation-drawer-item-text, var(--mo-sys-block-muted));
-  --mo-comp-editor-drawer-header-padding: calc(
-    var(--mo-comp-navigation-drawer-item-padding-inline, 1rem) - (var(--mo-comp-avatar-size, 2.5rem) - 1.5rem) / 2
-  );
-  --mo-comp-list-item-padding-inline: var(--mo-comp-editor-drawer-header-padding);
-  --mo-comp-list-list-item-container-shape: var(--mo-comp-navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
-  --mo-comp-list-item-hover-radius: var(--mo-comp-navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
-  --mo-comp-list-item-hover-surface: var(
-    --mo-comp-navigation-drawer-item-hover,
-    color-mix(in srgb, var(--mo-comp-editor-drawer-header-text) 8%, transparent)
-  );
-  --mo-comp-list-item-pressed-surface: var(
-    --mo-comp-navigation-drawer-item-pressed,
-    color-mix(in srgb, var(--mo-comp-editor-drawer-header-text) 10%, transparent)
-  );
-  --mo-comp-list-item-hover-text: inherit;
-}
-
-.mo-editor-main-drawer-header .mo-list__item-container:focus-visible {
-  background: var(--mo-comp-list-item-pressed-surface, var(--mo-sys-state-mo-pressed-layer));
-}
-
-.mo-editor-main-drawer-header .mo-avatar {
-  box-sizing: border-box;
-  border: 1px solid var(--mo-sys-block-line);
-}
-
 /* From medium the drawers (MainDrawer in ui.tsx) take the rail's place (MainRail): they share its icon column, the middle
    of the rail. On a phone the drawer keeps the theme's (Material 3's navigation drawer). The rail's menu button stands
    level with the top bar's logo, as the drawers' does; the rail's items keep their place. */

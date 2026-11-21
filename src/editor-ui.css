@@ -986,20 +986,11 @@
   .mo-editor-main-footer {
     margin-block-start: auto;
   }
-  .mo-editor-main-drawer-header {
+  /* The second level's back row (MainDrawerMenuButton in ui.tsx): the back item and the close button on one row. */
+  .mo-editor-main-drawer-back-row {
     display: flex;
-    min-block-size: var(--mo-comp-top-app-bar-height, 4rem);
     align-items: center;
-    gap: var(--mo-ref-space-50);
-    padding: var(--mo-comp-navigation-drawer-item-padding, 0 1rem);
-    padding-block: 0;
-    padding-inline-start: 0;
-  }
-  .mo-editor-main-drawer-close {
-    margin-inline-end: calc((var(--mo-comp-icon-button-width) - 1.5rem) / 2 * -1);
-  }
-  .mo-editor-main-drawer-header-divider {
-    margin-block-end: var(--mo-comp-editor-rhythm-200);
+    justify-content: space-between;
   }
   .mo-editor-main-drawer-divider {
     margin-block: var(--mo-ref-space-200);
@@ -1084,7 +1075,6 @@
     .mo-editor-choice-hint,
     .mo-editor-section,
     .mo-editor-score,
-    .mo-editor-main-drawer-header-divider,
     .mo-editor-main-drawer-divider,
     .mo-editor-sheet-phone,
     .mo-editor-group-title,
@@ -1106,7 +1096,6 @@
     .mo-editor-choice-hint,
     .mo-editor-section,
     .mo-editor-score,
-    .mo-editor-main-drawer-header-divider,
     .mo-editor-main-drawer-divider,
     .mo-editor-sheet-phone,
     .mo-editor-group-title,
@@ -1128,7 +1117,6 @@
     .mo-editor-choice-hint,
     .mo-editor-section,
     .mo-editor-score,
-    .mo-editor-main-drawer-header-divider,
     .mo-editor-main-drawer-divider,
     .mo-editor-sheet-phone,
     .mo-editor-group-title,
@@ -1150,7 +1138,6 @@
     .mo-editor-choice-hint,
     .mo-editor-section,
     .mo-editor-score,
-    .mo-editor-main-drawer-header-divider,
     .mo-editor-main-drawer-divider,
     .mo-editor-sheet-phone,
     .mo-editor-group-title,

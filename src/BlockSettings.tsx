@@ -23,7 +23,7 @@ import {
   Choice,
   Filters,
   Group,
-  LeadingIcon,
+  plainListClass,
   listClass,
   SupportingText,
   Preview,
@@ -455,10 +455,9 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
   // What the sheet shows, in the side sheet from 600 dp and in the sheet from the bottom below it.
   const sheetBody = (shown: NonNullable<typeof sheet>) => (
     <>
-      <div className="mo-editor-about-row">
-        <LeadingIcon icon={shown.icon} />
-        <p className="mo-editor-about-text">{shown.about}</p>
-      </div>
+      <ul className={plainListClass}>
+        <ListItem icon={shown.icon} headline={shown.about} lines={3} />
+      </ul>
       {shown.looks}
       {shown.toggle}
       <div>
