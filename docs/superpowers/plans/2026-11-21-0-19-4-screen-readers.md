@@ -27,7 +27,7 @@ Labels, 3.3.1 Error Identification, 3.3.2 Labels or Instructions, 4.1.2 Name, Ro
 0.19.2's.
 
 Not in 0.19.4: the axe scan itself and the names it already checks (0.19.2), keyboard use and focus order (0.19.3), Material 3's tokens
-(0.19.5), the small UI fixes (0.19.6), the site's own pages (0.19.2 scans them; what a screen reader says on a site's page is the theme's). No
+(0.19.5), the editor in Material 3 (0.19.6), the small UI fixes (0.19.7), the site's own pages (0.19.2 scans them; what a screen reader says on a site's page is the theme's). No
 new component, no look change: every fix is an attribute, a name or a text, so the owner sees nothing new on screen.
 
 ## The main flows

@@ -79,7 +79,7 @@ and holds the update where it cannot.
    - what it cannot rewrite safely (a computed value, `size={big ? 'large' : 'medium'}`, an old name built from parts, a Tailwind
      class) it lists by file and line, and the update does not go: it says which file to fix.
    It runs once, because reused names make a second run wrong: the Worker runs it only when an update crosses 0.20.0, and
-   `morpheme migrate` asks for the version the site came from (`--from 0.19.6`).
+   `morpheme migrate` asks for the version the site came from (`--from 0.19.7`).
 3. **Store themes and apps** are never rewritten on a site (a published version is forever, and the site's copy must equal it). Their
    publishers release a version written to 8: the owner's apps from `morpheme-apps` (the owner releases them, as always). The store must accept contract 8 before 0.20.0 is
    released. The Worker's update to 0.20.0 checks every installed store theme and app first: if one is written to an older contract,
