@@ -213,7 +213,7 @@ export function PartSub({ name, children }: { name: string; children: ReactNode 
   const Tag = useContext(PartName) === 'h3' ? 'h4' : 'h3';
   return (
     <div className="mo-editor-part-sub">
-      <Tag className="mo-editor-part-sub-name">{name}</Tag>
+      <Tag className="mo-type-label-medium mo-editor-part-sub-name">{name}</Tag>
       {children}
     </div>
   );
