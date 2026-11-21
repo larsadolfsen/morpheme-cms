@@ -10,7 +10,7 @@
 //  - a shape is the corner step it names (`--mo-sys-shape-corner-large` <-> `md.sys.shape.corner.large`), or the same size in px;
 //  - a measure, an elevation, a font size, a line height, a tracking and an opacity is the same number (dp and points are px, rem is 16 px, `var()` and
 //    `calc()` are resolved, density's base is the value `:root` declares); a weight is the same number.
-// Where M3's data holds an Expressive value for a token (`expressive`), that one counts (skill `material-3`). The tokens M3 marks `[Deprecated]` are left out.
+// Where M3's data holds an Expressive value for a token (`expressive`), that one counts (skill `material-3`). The tokens M3 marks `[Deprecated]` are compared only where the theme declares them (they are not in `--report`'s missing list); a palette tone (`md.ref.palette.*`) is compared by name, as `@ref:<tone>`.
 // Roles and numbers are the same in light and dark in M3's data, so one resolved value is compared.
 //
 // What fails: a difference that is not in scripts/m3-tokens.allow.mjs, and an entry of it that no longer differs exactly as written, so the list only
@@ -21,6 +21,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import postcss from 'postcss';
+import { RENAMES } from './m3-tokens.renames.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const TOKENS = join(root, 'theme/styles/tokens');
@@ -79,6 +80,8 @@ export function declaredOnRoot(texts) {
 
 const ROLE = /^--mo-sys-color-([a-z0-9-]+)$/;
 const STEP = /^--mo-sys-shape-corner-([a-z0-9-]+)$/;
+/** A palette tone (`--mo-ref-palette-neutral-variant20`, M3's `md.ref.palette.neutral-variant20`): the site's colours make it at build, so a stylesheet may not declare it; the name is the value. */
+const PALETTE = /^--mo-ref-palette-([a-z0-9-]+)$/;
 /** An elevation level's shadow token (`--mo-sys-elevation-level2-shadow`, or its `-rest-shadow`) is that level (M3's `md.sys.elevation.levelN`, in dp). */
 const LEVEL = /^--mo-sys-elevation-level([0-5])-(?:rest-)?shadow$/;
 const ELEVATION_DP = [0, 1, 3, 6, 8, 12];
@@ -113,6 +116,7 @@ export function resolveVars(value, map, roles, steps, seen = []) {
     else if (level) piece = `${ELEVATION_DP[Number(level)]}px`;
     else if (step && steps.has(step)) piece = `@shape:${step}`;
     else if (map.has(name) && !seen.includes(name)) piece = resolveVars(map.get(name), map, roles, steps, [...seen, name]);
+    if (piece === null && PALETTE.test(name)) piece = `@ref:${PALETTE.exec(name)[1]}`;
     if (piece === null && fallback !== null) piece = resolveVars(fallback, map, roles, steps, seen);
     if (piece === null) return null;
     out += piece;
@@ -200,13 +204,13 @@ export function evaluate(text) {
 
 // ---------- M3's side ----------
 
-/** M3's tokens from the copy: name -> {type, ref, value (Expressive where it differs), shape}. Only `md.sys` and `md.comp`, no `[Deprecated]` group. */
+/** M3's tokens from the copy: name -> {type, ref, value (Expressive where it differs), shape}. Only `md.sys` and `md.comp`; a `[Deprecated]` group is kept and flagged (`deprecated`). */
 export function loadM3(dir = COPY) {
   const tokens = new Map();
   for (const f of readdirSync(dir).filter((f) => /^md\.(sys|comp)\..*\.json$/.test(f))) {
     const set = JSON.parse(readFileSync(join(dir, f), 'utf8'));
     for (const t of set.tokens) {
-      if (!/^md\.(sys|comp)\./.test(t.token) || /\[Deprecated\]/.test(t.group ?? '')) continue;
+      if (!/^md\.(sys|comp)\./.test(t.token)) continue;
       const r = t.expressive?.light ?? t.resolved?.light;
       if (!r) continue;
       tokens.set(t.token, {
@@ -218,6 +222,7 @@ export function loadM3(dir = COPY) {
         unit: r.unit,
         shape: r.shape,
         expressive: Boolean(t.expressive),
+        deprecated: /\[Deprecated\]/.test(t.group ?? ''),
       });
     }
   }
@@ -275,7 +280,8 @@ function m3Text(t) {
   if (t.type === 'COLOR') {
     const role = (t.chain ?? []).slice(1).find((c) => /^md\.sys\.color\./.test(c));
     if (role) return `@role:${role.slice('md.sys.color.'.length)}`;
-    return null;
+    const tone = (t.chain ?? []).slice(1).find((c) => /^md\.ref\.palette\./.test(c));
+    return tone ? `@ref:${tone.slice('md.ref.palette.'.length)}` : null;
   }
   if (t.type === 'SHAPE') {
     // `extra-large.top` is the extra-large step on the top corners only: the same step.
@@ -296,7 +302,7 @@ function themeText(t, value, map, roles, steps, cornerPx) {
   // A role at an opacity over nothing is the role; M3 holds the opacity in its own token (the drag handle's 0.4).
   if (t.type === 'COLOR') resolved = resolved.replace(/^color-mix\(in srgb, (@role:[a-z0-9-]+) [\d.]+%, transparent\)$/, '$1');
   if (t.type === 'COLOR')
-    return /^@role:[a-z0-9-]+$/.test(resolved) ? resolved : resolved === 'transparent' ? 'transparent' : '?' + resolved;
+    return /^@(role|ref):[a-z0-9-]+$/.test(resolved) ? resolved : resolved === 'transparent' ? 'transparent' : '?' + resolved;
   if (t.type === 'SHAPE') {
     if (/^@shape:[a-z0-9-]+$/.test(resolved)) return resolved;
     const e = evaluate(resolved);
@@ -312,8 +318,23 @@ function themeText(t, value, map, roles, steps, cornerPx) {
   return e.u === 'px' || e.n === 0 ? fmt(e.n) : '?' + resolved;
 }
 
-/** Every difference: {token, kind, theme, m3, m3Token}, sorted by token. @param {Map<string,string>} map @param {Map<string,any>} m3 */
-export function compare(map, m3) {
+/**
+ * The theme names an M3 token is compared with: the name its dots turn into (themeName) and every theme token the rename map (m3-tokens.renames.mjs) gives it.
+ * @param {Record<string,string[]>} [renames]
+ */
+export function themeNames(renames = RENAMES) {
+  /** @type {Map<string,string[]>} */
+  const by = new Map();
+  for (const [theme, targets] of Object.entries(renames)) for (const m3Name of targets) by.set(m3Name, [...(by.get(m3Name) ?? []), theme]);
+  return (m3Name) => [themeName(m3Name), ...(by.get(m3Name) ?? [])].filter(Boolean);
+}
+
+/**
+ * Every difference: {token, kind, theme, m3, m3Token}, sorted by token. `stats.compared` (a Set, if given) gets every theme token that was compared.
+ * @param {Map<string,string>} map @param {Map<string,any>} m3 @param {{compared?: Set<string>}} [stats] @param {Record<string,string[]>} [renames]
+ */
+export function compare(map, m3, stats = {}, renames = RENAMES) {
+  const namesOf = themeNames(renames);
   const roles = new Set([...m3.keys()].filter((n) => n.startsWith('md.sys.color.')).map((n) => n.slice('md.sys.color.'.length)));
   const steps = new Set(
     [...m3.keys()].filter((n) => /^md\.sys\.shape\.corner\.[a-z0-9-]+$/.test(n)).map((n) => n.slice('md.sys.shape.corner.'.length)),
@@ -321,27 +342,86 @@ export function compare(map, m3) {
   const cornerPx = new Map([...steps].map((s) => [s, m3.get(`md.sys.shape.corner.${s}`).value]).filter(([, v]) => typeof v === 'number'));
   const out = [];
   for (const t of m3.values()) {
-    const name = themeName(t.token);
-    if (!name || !map.has(name)) continue;
     const want = m3Text(t);
     if (want === null) continue;
-    const have = themeText(t, map.get(name), map, roles, steps, cornerPx);
-    // A corner step and a size in px (M3 writes some corners as 8 dp) are the same when the step is that size.
-    const px = (x) => (x.startsWith('@shape:') ? cornerPx.get(x.slice(7)) : Number(x));
-    if (have !== want && /^@shape:|^[\d.]+$/.test(have) && /^@shape:|^[\d.]+$/.test(want) && px(have) === px(want)) continue;
-    if (have !== want) out.push({ token: name, kind: kindOf(t.type), theme: have, m3: want, m3Token: t.token });
+    // A token of M3's `[Deprecated]` groups is compared only where the theme declares it (by name or by the rename map): M3 still prints a value for it.
+    for (const name of namesOf(t.token)) {
+      if (!map.has(name)) continue;
+      stats.compared?.add(name);
+      const have = themeText(t, map.get(name), map, roles, steps, cornerPx);
+      // A corner step and a size in px (M3 writes some corners as 8 dp) are the same when the step is that size.
+      const px = (x) => (x.startsWith('@shape:') ? cornerPx.get(x.slice(7)) : Number(x));
+      if (have !== want && /^@shape:|^[\d.]+$/.test(have) && /^@shape:|^[\d.]+$/.test(want) && px(have) === px(want)) continue;
+      // One theme token that stands for two M3 tokens of the same value (`padding` = leading + trailing) is one difference.
+      if (have !== want && !out.some((o) => o.token === name && o.theme === have && o.m3 === want))
+        out.push({ token: name, kind: kindOf(t.type), theme: have, m3: want, m3Token: t.token });
+    }
   }
   return out.sort((a, b) => (a.token < b.token ? -1 : 1));
 }
 
 /** The M3 tokens (of the kinds compared) whose `--mo-` name the theme does not declare on :root. */
-export function missing(map, m3) {
-  return [...m3.values()].filter((t) => m3Text(t) !== null && themeName(t.token) && !map.has(themeName(t.token))).map((t) => t.token);
+export function missing(map, m3, renames = RENAMES) {
+  const namesOf = themeNames(renames);
+  return [...m3.values()]
+    .filter((t) => !t.deprecated && m3Text(t) !== null && namesOf(t.token).length && !namesOf(t.token).some((n) => map.has(n)))
+    .map((t) => t.token);
+}
+
+/**
+ * The `--mo-comp-*` tokens on :root that no M3 token maps to, neither by its name nor by the rename map: they are ours (scripts/m3-tokens.ours.mjs) or the
+ * check fails on them. M3 tokens whose value the check cannot read (a composite, an axis) still count as mapped, so a token is never ours only because M3 holds
+ * its value in a form that is not compared.
+ */
+export function unmapped(map, m3, renames = RENAMES) {
+  const namesOf = themeNames(renames);
+  const mapped = new Set([...m3.keys()].flatMap((n) => namesOf(n)));
+  return [...map.keys()].filter((n) => n.startsWith('--mo-comp-') && !mapped.has(n)).sort();
+}
+
+/** The problems of the unmapped tokens against the list of ours: a token that is not named, a named one that is mapped now or no longer declared, a rename to a token M3 lacks. */
+export function judgeOurs(map, m3, ours, renames = RENAMES) {
+  const problems = [];
+  const un = new Set(unmapped(map, m3, renames));
+  const named = new Set();
+  for (const e of ours) {
+    if (!e.token || !e.reason) problems.push(`bad entry of ours ${JSON.stringify(e.token)}: it needs token and reason`);
+    if (named.has(e.token)) problems.push(`ours twice: ${e.token}`);
+    named.add(e.token);
+    if (!map.has(e.token))
+      problems.push(`${e.token}: named as ours but no longer declared on :root; remove it from scripts/m3-tokens.ours.mjs`);
+    else if (!un.has(e.token))
+      problems.push(`${e.token}: named as ours but it maps to an M3 token now; remove it from scripts/m3-tokens.ours.mjs`);
+  }
+  for (const n of un)
+    if (!named.has(n))
+      problems.push(
+        `${n}: maps to no M3 token. Name it in scripts/m3-tokens.renames.mjs (its M3 token) or in scripts/m3-tokens.ours.mjs (with the reason M3 has none)`,
+      );
+  for (const [theme, targets] of Object.entries(renames))
+    for (const t of targets) if (!m3.has(t)) problems.push(`rename ${theme} -> ${t}: no such token in docs/m3-tokens/`);
+  return problems;
 }
 
 // ---------- the allowlist ----------
 
 export const CLASSES = ['deviation', 'editor', 'wcag', 'fix'];
+
+/** The component batches of 0.19.5 (plans/2026-11-21-0-19-5-measured-m3-check.md, batches C and on), in the order the site uses them most. A `fix` names one. */
+export const COMPONENT_BATCHES = [
+  'buttons',
+  'icon buttons',
+  'lists',
+  'text fields',
+  'menus',
+  'chips',
+  'cards',
+  'dialogs and sheets',
+  'app bars and navigation',
+  'search',
+  'the rest',
+];
+const validBatch = (b) => Number.isInteger(b) || COMPONENT_BATCHES.includes(b);
 
 /** The problems of a comparison against the allowlist: a difference that is not allowed, an entry that no longer differs as written, a bad entry. */
 export function judge(found, allow) {
@@ -349,9 +429,9 @@ export function judge(found, allow) {
   const key = (e) => `${e.token}`;
   const allowed = new Map();
   for (const e of allow) {
-    if (!e.token || !e.reason || !CLASSES.includes(e.class) || (e.class === 'fix' && !Number.isInteger(e.batch)))
+    if (!e.token || !e.reason || !CLASSES.includes(e.class) || (e.class === 'fix' && !validBatch(e.batch)))
       problems.push(
-        `bad allowlist entry ${JSON.stringify(e.token)}: it needs token, class (${CLASSES.join(', ')}), reason and, for fix, the batch number`,
+        `bad allowlist entry ${JSON.stringify(e.token)}: it needs token, class (${CLASSES.join(', ')}), reason and, for fix, the batch (a component batch: ${COMPONENT_BATCHES.join(', ')})`,
       );
     if (allowed.has(key(e))) problems.push(`allowlist entry twice: ${e.token}`);
     allowed.set(key(e), e);
@@ -378,27 +458,35 @@ async function main() {
   }
   const map = declaredOnRoot(tokenFiles().map((f) => readFileSync(f, 'utf8')));
   const m3 = loadM3();
-  const found = compare(map, m3);
+  const stats = { compared: new Set() };
+  const found = compare(map, m3, stats);
+  const { ours } = await import('./m3-tokens.ours.mjs');
   if (args.includes('--report')) {
     const names = missing(map, m3);
-    console.log(`${names.length} Material 3 tokens have no --mo- token of that name on :root (they are not compared):`);
+    const un = unmapped(map, m3);
+    console.log(`${stats.compared.size} theme tokens are compared with an M3 token (${found.length} differ).`);
+    console.log(`${un.length} --mo-comp-* tokens map to no M3 token; ${ours.length} are named as ours (scripts/m3-tokens.ours.mjs):`);
+    console.log(un.map((n) => `${n}${ours.some((e) => e.token === n) ? '' : '   <- NOT NAMED'}`).join('\n'));
+    console.log(`\n${names.length} Material 3 tokens have no --mo- token of that name on :root (they are not compared):`);
     console.log(names.join('\n'));
     return;
   }
   if (args.includes('--list')) {
     for (const f of found)
       console.log(
-        `  { token: '${f.token}', theme: ${JSON.stringify(f.theme)}, m3: ${JSON.stringify(f.m3)}, class: 'fix', batch: 0, reason: '' },`,
+        `  { token: '${f.token}', theme: ${JSON.stringify(f.theme)}, m3: ${JSON.stringify(f.m3)}, class: 'fix', batch: '', reason: '' },`,
       );
     return;
   }
   const { allow } = await import('./m3-tokens.allow.mjs');
-  const problems = judge(found, allow);
+  const problems = [...judge(found, allow), ...judgeOurs(map, m3, ours)];
   if (problems.length) {
     console.error(`check:m3-tokens: ${problems.length} problem(s):\n- ${problems.join('\n- ')}`);
     process.exit(1);
   }
-  console.log(`check:m3-tokens: ${map.size} theme tokens read, ${found.length} known differences, no new one.`);
+  console.log(
+    `check:m3-tokens: ${map.size} theme tokens read, ${found.length} known differences, no new one; ${stats.compared.size} compared, ${ours.length} named as ours.`,
+  );
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) await main();
