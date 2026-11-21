@@ -1,6 +1,7 @@
-// Checks the site's pop-up in a browser (theme/components/Popup.astro, theme/ui/dialogFocus.ts): when it opens by itself the dialog has the
-// focus, no control does and no ring is drawn on the container (the owner's dialog rule: no control has the focus when a basic dialog
-// opens). Run on the built site: npm run build, then `cd .morpheme/demo/site && node ../../../scripts/check-popup-focus.mjs`.
+// Checks the site's pop-up in a browser (theme/components/Popup.astro): when it opens by itself the focus is on its first control, the Close
+// button, and not on the dialog's container, where a keyboard user would see no ring and have no place to start (owner, 21 Nov 2026,
+// docs/material-deviations.md K3; the editor's dialogs keep the rule that no control has the focus on open). Also: a scroll the keyboard makes
+// (Tab) never opens it. Run on the built site: npm run build, then `cd .morpheme/demo/site && node ../../../scripts/check-popup-focus.mjs`.
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { chromium } from 'playwright';
@@ -50,14 +51,15 @@ for (const [width, height] of [
       const dialog = document.querySelector('dialog[data-popup]');
       const active = document.activeElement;
       return {
+        onClose: !!active?.matches?.('[data-popup-close]') && dialog.contains(active),
         onDialog: active === dialog,
-        control: active && active !== dialog && active !== document.body ? active.outerHTML.slice(0, 80) : null,
-        outline: getComputedStyle(dialog).outlineStyle,
+        where: active && active !== document.body ? active.outerHTML.slice(0, 80) : 'body',
       };
     });
-    if (!state.onDialog)
-      problems.push(`${label}: the pop-up's dialog does not have the focus${state.control ? ` (${state.control} does)` : ''}`);
-    if (state.outline !== 'none') problems.push(`${label}: the pop-up's dialog draws a ${state.outline} outline`);
+    if (!state.onClose)
+      problems.push(
+        `${label}: the pop-up does not open with the focus on its Close button (${state.onDialog ? 'the dialog has it' : state.where} does)`,
+      );
   }
   await page.close();
 }
@@ -68,4 +70,4 @@ if (problems.length) {
   console.error(`${problems.length} problem(s):\n${problems.join('\n')}`);
   process.exit(1);
 }
-console.log('The pop-up opens with the focus on its dialog: no control chosen, no ring on the container.');
+console.log('The pop-up opens with the focus on its Close button.');
