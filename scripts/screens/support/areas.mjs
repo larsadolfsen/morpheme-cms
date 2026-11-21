@@ -145,6 +145,8 @@ export const RULES = [
   // templates, components, scripts, theme.json) can show anywhere.
   [/^theme\/blocks\//, BLOCKS],
   [/^theme\/(screenshots\/|LICENSE$)/, 'none'],
+  // A pull request's own screenshots (`screenshots/<pr number>/`): pictures for the review, no code.
+  [/^screenshots\//, 'none'],
   [/^theme\//, 'all'],
 
   // The demo is the site the screens run on: its Blocks pages reach the block areas, its type and names pages their own checks.
