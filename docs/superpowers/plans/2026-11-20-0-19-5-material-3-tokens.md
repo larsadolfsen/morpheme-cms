@@ -92,8 +92,7 @@ Batch 1 makes the comparison exact and turns this into the real baseline.
    criterion), or it is made to match M3 and the entry goes (for example G1, the 16 and 24 px gap between cards where M3 prints 8 dp max).
 
 Batch 1 goes first; 2 and 3 can run side by side; 4 follows 2; 5 follows 3 (both change colours of parts); 6 and 8 can run beside 4 and
-5; 7 goes last. Every batch removes the allowlist entries it fixes, keeps `check:screens`, `check:themes`, `check:contrast` and `check:a11y` green, and
-Venus is checked on the demo. Parts change their look (tonal buttons, the navigation indicators, the bars losing their shadow), so batches 4
+5; 7 goes last. Every batch removes the allowlist entries it fixes, keeps `check:screens`, `check:themes`, `check:contrast` and `check:a11y` green. Parts change their look (tonal buttons, the navigation indicators, the bars losing their shadow), so batches 4
 to 6 and 8 each add a release note line (skill `release-notes`).
 
 ## Done when

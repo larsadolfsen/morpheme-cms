@@ -81,11 +81,13 @@ and holds the update where it cannot.
    It runs once, because reused names make a second run wrong: the Worker runs it only when an update crosses 0.20.0, and
    `morpheme migrate` asks for the version the site came from (`--from 0.19.6`).
 3. **Store themes and apps** are never rewritten on a site (a published version is forever, and the site's copy must equal it). Their
-   publishers release a version written to 8: Venus and the owner's apps from `morpheme-apps` (the owner releases them, as always),
-   with Venus's private names moved to `--mo-theme-*` (scoped CSS spec, *Themes*). The store must accept contract 8 before 0.20.0 is
+   publishers release a version written to 8: the owner's apps from `morpheme-apps` (the owner releases them, as always). The store must accept contract 8 before 0.20.0 is
    released. The Worker's update to 0.20.0 checks every installed store theme and app first: if one is written to an older contract,
    the update does not go and names it. It never installs store items itself: that stays in 0.20.2 *Store auto-updates* (owner, 20
-   November 2026: the only site with Venus, Sara's, is not live, so a break there does not matter and needs no special handling).
+   November 2026).
+
+   **Sara's site and Venus are out** (owner, 20 November 2026: "We keep sara out until she is ready to continue. this also means we do
+   not maintain venus"). Venus gets no contract 8 version, and no batch waits for Sara's site, her app or Venus.
 
 ## Checks
 
@@ -94,8 +96,7 @@ and holds the update where it cannot.
   names an M3 component, a block (`mo-block-*`), the editor (`mo-editor-*`) or an entry of the ours list. It fails on any other name,
   and on an ours entry M3 has since got a token for. It takes over the naming part of 0.19.5's `--report`.
 - `check:token-names` fails on the old names (the map's non-reused names).
-- `migrate-code` has tests: a made-up theme and app with old names of contracts 6, 7 and 7-to-8 (no customer content, so not a copy of
-  Sara's app), rewritten and then built; the reused-name case; a second run refused; every unsafe form listed.
+- `migrate-code` has tests: a made-up theme and app with old names of contracts 6, 7 and 7-to-8 (no customer content), rewritten and then built; the reused-name case; a second run refused; every unsafe form listed.
 - `check:screens`, `check:themes`, `check:demo` and `check:contrast` green, with the same screens as before the rename.
 
 ## Batches (pull requests into `feature/0.20.0-m3-names`)
@@ -113,13 +114,12 @@ and holds the update where it cannot.
    for theme and app developers (the map) (skill `release-notes`).
 
 Batch 1 goes first; 2 and 3 can run side by side; 4 follows both; 5 and 6 can run beside 4; 7 goes last. Outside this repository:
-Venus and the owner's apps get their contract 8 versions in `morpheme-apps` before 0.20.0 is offered to sites. Sara's site is updated
-when it suits, and her app is fixed then (it is not live).
+the owner's apps get their contract 8 versions in `morpheme-apps` before 0.20.0 is offered to sites.
 
 ## Open decisions
 
 1. **The update test.** 0.20.1's update test (from every supported version) would catch a failed rewrite. **Recommended: batch 4
-   runs the update from the last 0.19 to 0.20.0 on a test site** with a theme and app of its own and Venus; 0.20.1 makes it cover
+   runs the update from the last 0.19 to 0.20.0 on a test site** with a theme and an app of its own and a store app; 0.20.1 makes it cover
    every version.
 
 Decided: the update does not install store items (*Migration*, 3; owner, 20 November 2026).
@@ -127,6 +127,6 @@ Decided: the update does not install store items (*Migration*, 3; owner, 20 Nove
 ## Done when
 
 `check:m3-names` fails on any name that is not M3's, the editor's or on the ours list; the screens are the same as before; a site on
-0.19 with its own theme and app and Venus updates to 0.20.0 in one step from the editor and builds, on staging; an update with a store
-item still at contract 7 does not go and names it; Venus and the owner's apps are released at contract 8; and 0.20.0 has run on staging
+0.19 with its own theme and app and a store app updates to 0.20.0 in one step from the editor and builds, on staging; an update with a store
+item still at contract 7 does not go and names it; the owner's apps are released at contract 8; and 0.20.0 has run on staging
 before the owner releases it.
