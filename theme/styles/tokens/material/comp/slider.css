@@ -26,10 +26,10 @@
   --mo-comp-slider-handle-line-width: 0;
   --mo-comp-slider-pressed-handle-width: 0.125rem;
   --mo-comp-slider-handle-inset: 0.375rem;
-  --mo-comp-slider-inactive-stop-indicator-container-color: var(--mo-sys-color-primary);
-  --mo-comp-slider-active-stop-indicator-container-color: var(--mo-sys-color-surface-container-high);
-  --mo-comp-slider-label-container-color: var(--mo-sys-color-inverse-surface);
-  --mo-comp-slider-label-label-text-color: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-slider-inactive-stop-indicator-container-color: var(--mo-sys-color-on-secondary-container);
+  --mo-comp-slider-active-stop-indicator-container-color: var(--mo-sys-color-on-primary);
+  --mo-comp-slider-label-container-color: var(--mo-sys-color-primary);
+  --mo-comp-slider-label-label-text-color: var(--mo-sys-color-on-primary);
   --mo-comp-slider-value-radius: var(--mo-sys-shape-corner-full);
   --mo-comp-slider-value-room: 3rem;
   --mo-comp-slider-disabled-active-track-opacity: var(--mo-sys-state-disabled-state-layer-opacity);

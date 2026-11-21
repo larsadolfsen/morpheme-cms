@@ -22,7 +22,7 @@
   --mo-comp-card-action-gap: 1rem;
   --mo-comp-filled-card-container-color: var(--mo-sys-color-surface-container-highest);
   --mo-comp-outlined-card-container-color: var(--mo-sys-color-surface);
-  --mo-comp-outlined-card-outline-color: var(--mo-sys-color-outline);
+  --mo-comp-outlined-card-outline-color: var(--mo-sys-color-outline-variant);
 }
 @layer components {
   .mo-block-notice {
