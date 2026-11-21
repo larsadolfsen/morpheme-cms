@@ -2122,3 +2122,9 @@ dialog {
 main[tabindex='-1']:focus {
   outline: none;
 }
+
+/* The editor's top bar keeps its icon buttons 48 px (a target the editor's own bars owe, block-bar.mjs): Material's small icon button is 40 dp
+   with a 48 dp target, and the theme draws no target area beyond the container yet. */
+.mo-editor-screen-bar-actions {
+  --mo-comp-icon-button-small-container-height: 3rem;
+}
