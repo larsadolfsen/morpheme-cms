@@ -1,21 +1,18 @@
-// Density: how much fits on the screen, Large, Medium (the default) or Small, picked on the account (Library) and kept on the
+// Density: how much fits on the screen, Medium (the default) or Small (a stored Large is read as Medium), picked on the account (Library) and kept on the
 // person (GET and PUT /api/settings, worker/settings.js) with a copy in this browser. It is set on <html> as data-density, which
 // the theme's styles/base.css turns into the person's step (--mo-sys-density-user); the script in the head of pages/editor/index.astro
 // does the same before the page is drawn, so it does not jump. Its own key, as the editor's colour mode has (theme.ts).
 // Spec: docs/superpowers/specs/2026-11-13-density-design.md.
-import { DEFAULT_DENSITY, DENSITIES, DENSITY_ATTRIBUTE } from './settings.mjs';
+import { DEFAULT_DENSITY, DENSITY_ATTRIBUTE, readDensity } from './settings.mjs';
 
-export type Density = 'large' | 'medium' | 'small';
+export type Density = 'medium' | 'small';
 
 const KEY = 'editor-density';
-
-const isDensity = (v: unknown): v is Density => DENSITIES.includes(v as string);
 
 /** The step kept in this browser: Medium when none. */
 export function savedDensity(): Density {
   try {
-    const d = localStorage.getItem(KEY);
-    return isDensity(d) ? d : DEFAULT_DENSITY;
+    return (readDensity(localStorage.getItem(KEY)) as Density | null) ?? DEFAULT_DENSITY;
   } catch {
     return DEFAULT_DENSITY;
   }
@@ -43,7 +40,7 @@ export async function loadDensity(ask: typeof fetch = (input, init) => fetch(inp
   if (res.status === 503 && (body as { error?: unknown } | null)?.error === 'no-storage') return null;
   if (!res.ok) throw new Error(`The settings answered ${res.status}`);
   const density = (body as { settings?: { density?: unknown } | null } | null)?.settings?.density;
-  return isDensity(density) ? density : null;
+  return readDensity(density) as Density | null;
 }
 
 /** Keeps the step on the account (PUT /api/settings). Resolves on any 2xx and when the Worker has no storage (the copy in

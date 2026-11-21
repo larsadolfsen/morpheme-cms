@@ -127,7 +127,7 @@
     display: inline-flex;
     min-width: 3rem;
     min-height: calc(
-      var(--mo-comp-segmented-button-height, var(--mo-comp-button-medium-container-height, 3rem)) - 2px + var(--mo-sys-density-layout) *
+      var(--mo-comp-segmented-button-height, var(--mo-comp-button-medium-container-height, 3rem)) - 2px + var(--mo-sys-density) *
         var(--mo-sys-density-step)
     );
     align-items: center;

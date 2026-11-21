@@ -50,17 +50,15 @@ const variables = {
   '--mo-sys-density-base': '0',
   '--mo-sys-density-user': '0',
   '--mo-sys-density-step': '4px',
-  '--mo-sys-density': 'clamp(-3, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 1)',
-  '--mo-sys-density-layout': 'clamp(-1, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 1)',
-  '--mo-sys-density-focus': 'clamp(0, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 1)',
+  '--mo-sys-density': 'clamp(-3, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 0)',
 };
 for (const [name, value] of Object.entries(variables))
   test(`base.css declares ${name}`, () => {
     assert.equal(count(base, `  ${name}: ${value};\n`), 1);
   });
 
-test('data-density sets the person’s step: Large 1, Small -1, Medium none', () => {
-  assert.equal(count(base, ":root[data-density='1'] {\n  --mo-sys-density-user: 1;\n}"), 1);
+test('data-density sets the person’s step: Small -1, Medium none, and no Large', () => {
+  assert.equal(count(base, "data-density='1'"), 0);
   assert.equal(count(base, ":root[data-density='-1'] {\n  --mo-sys-density-user: -1;\n}"), 1);
 });
 

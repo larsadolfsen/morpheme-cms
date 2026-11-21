@@ -35,8 +35,14 @@ const SCHEMES = ['light', 'dark'];
 const all = process.argv.includes('--all');
 const themes = process.env.CONTRAST_THEMES ? process.env.CONTRAST_THEMES.split(',') : all ? installedThemes() : [activeTheme()];
 const reportFile = process.env.CONTRAST_REPORT;
-// CONTRAST_DENSITY=-1 (or 1): the editor is checked at Small (or Large) density, data-density on <html>; the site has no density.
+// CONTRAST_DENSITY=-1: the editor is checked at Small density, data-density on <html>. -2 and -3 (a theme's own step, which no editor setting
+// offers yet) are forced on the site and in the editor through --mo-sys-density-base, so the denser parts keep their colours too.
 const density = process.env.CONTRAST_DENSITY;
+const setDensity = (d) => {
+  const root = document.documentElement;
+  if (Number(d) >= -1) root.setAttribute('data-density', d);
+  else root.style.setProperty('--mo-sys-density-base', d);
+};
 
 /** Browser side (a string for page.evaluate): scans `root` and gives one record per pair of colours. */
 const scan = `(root) => {
@@ -248,6 +254,7 @@ try {
               const response = await page.goto(`${site}${path}`).catch(() => null);
               if (!response || response.status() >= 400) continue;
               await page.addStyleTag({ content: '*,*::before,*::after{transition:none!important;animation:none!important}' });
+              if (density && Number(density) < -1) await page.evaluate(setDensity, density);
               // Scrolled through once (what fades in when seen has faded in), and every fold open, so what is inside is read too.
               await page.evaluate(async () => {
                 for (let y = 0; y < document.body.scrollHeight; y += innerHeight / 2) {
@@ -268,7 +275,7 @@ try {
             editor.on('pageerror', () => {});
             await openEditor(editor, site);
             await editor.goto(`${site}/editor/#${PAGE}`);
-            if (density) await editor.evaluate((d) => document.documentElement.setAttribute('data-density', d), density);
+            if (density) await editor.evaluate(setDensity, density);
             await editor.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 60_000 }).catch(() => {});
             await editor.addStyleTag({ content: '*,*::before,*::after{transition:none!important;animation:none!important}' });
             await editor.mouse.move(0, 0);

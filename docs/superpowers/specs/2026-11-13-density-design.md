@@ -1,5 +1,12 @@
 # Density: more or less space in the editor and the theme (design proposal)
 
+> **Changed 21 Nov 2026 (owner: "follow m3", 0.19.5 batch 10).** Large (+1) is gone and Medium is 0; the scale is M3's 0, -1, -2, -3 and one
+> variable, `--mo-sys-density` (clamped 0 to -3), replaces the three group variables (`-layout`, `-focus`). Every part that follows density
+> (buttons, chips, segmented buttons, text fields, list rows, table rows and menus, whose M3 page prints "density levels … 0 to -3") goes the
+> whole scale in the theme's styling; dialogs and snackbars never read it. The editor's setting keeps Medium and Small, a stored Large reads as
+> Medium, and the editor's own rhythm (gaps, screen padding) stops at -1. The sections below say the older three-step design; where they
+> differ, this note wins.
+
 Status: proposal for the owner. No code. Written for a phone: plain words, short.
 
 **Density** means how much fits on a screen. Dense: smaller rows and buttons, more on screen. Not dense: more air, less on screen.
