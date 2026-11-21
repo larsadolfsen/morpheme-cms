@@ -19,7 +19,7 @@ import { openEditor } from './built-site.mjs';
 export const FLOWS = 'ABCDEFGHI'.split('');
 export const PHONE_FLOWS = ['A', 'B', 'F'];
 
-class Stop extends Error {}
+export class Stop extends Error {}
 
 /** What is focused, as the flows match it (in the page). */
 const matches = (match) => {
@@ -34,7 +34,7 @@ const matches = (match) => {
 };
 
 /** The place a flow walks in: a page, and the findings and the trace it collects. */
-function context(page, flow, width) {
+export function context(page, flow, width) {
   const findings = [];
   const trace = process.env.KEYBOARD_TRACE;
   const note = (...text) => trace && console.log(`flow ${flow}:`, ...text);
@@ -45,8 +45,8 @@ function context(page, flow, width) {
   return { page, flow, width, findings, add, note };
 }
 
-const isBody = (page) => page.evaluate(() => !document.activeElement || document.activeElement === document.body);
-const settle = (page, ms = 450) => page.waitForTimeout(ms);
+export const isBody = (page) => page.evaluate(() => !document.activeElement || document.activeElement === document.body);
+export const settle = (page, ms = 450) => page.waitForTimeout(ms);
 /** Focus starts at the top of the page, as after a page load. */
 const toTop = (page) =>
   page.evaluate(() => {
@@ -73,7 +73,7 @@ const locate = (page, match) => {
 
 /** Moves focus to the control `match` with `keys` (Tab by default), at most `max` presses. When it can't be reached the finding `unreachable` is
  * added, named by `step`, and the control is focused by the script; when there is no such control the flow ends (a `Stop`). @returns {Promise<boolean>} whether the keyboard reached it */
-async function reach(ctx, step, match, { keys = ['Tab'], max = 60, optional = false, need = false } = {}) {
+export async function reach(ctx, step, match, { keys = ['Tab'], max = 60, optional = false, need = false } = {}) {
   const { page } = ctx;
   if (optional && !(await locate(page, match).count())) return false;
   if (await isBody(page)) await toTop(page);
@@ -93,32 +93,34 @@ async function reach(ctx, step, match, { keys = ['Tab'], max = 60, optional = fa
 }
 
 /** Focus is not on `body` after `step` (something opened or closed), and, when `match` is given, is on the control it names. */
-async function expectFocus(ctx, step, match) {
+export async function expectFocus(ctx, step, match) {
   await settle(ctx.page);
   const ok = !(await isBody(ctx.page)) && (!match || (await ctx.page.evaluate(matches, match)));
   ctx.note('focus after', step, '->', await describe(ctx.page));
   if (!ok) ctx.add('flow-lost-focus', step);
+  // The screen reader check (scripts/announce-flows.mjs) listens at every step the flows end on.
+  await ctx.afterStep?.(step, ok);
   return ok;
 }
 
 /** Opens a page of the editor (by its hash) from a fresh start. */
-async function open(ctx, hash, ready) {
+export async function open(ctx, hash, ready) {
   await ctx.page.evaluate((h) => (location.hash = h), hash);
   if (ready) await ctx.page.waitForSelector(ready, { timeout: 30_000 });
   await settle(ctx.page, 800);
 }
 
 /** A tool of the text bar: the bar is one Tab stop (the ARIA toolbar pattern), so Tab gets into it and the arrow keys walk its tools. */
-async function reachTool(ctx, step, match) {
+export async function reachTool(ctx, step, match) {
   await reach(ctx, `${step} (the bar)`, { css: 'button', inside: '[role=toolbar]' });
   return reach(ctx, step, match, { keys: ['ArrowRight'], max: 30 });
 }
 
-const TEXT = { css: '[role=textbox]', label: 'Text' };
-const PAGE = 'src/content/pages/about.md';
+export const TEXT = { css: '[role=textbox]', label: 'Text' };
+export const PAGE = 'src/content/pages/about.md';
 /** The bar is before the text in the page, so the keyboard goes back to it (Shift+Tab). */
-const BAR = { keys: ['Shift+Tab'], max: 60 };
-const press = async (ctx, key) => {
+export const BAR = { keys: ['Shift+Tab'], max: 60 };
+export const press = async (ctx, key) => {
   await ctx.page.keyboard.press(key);
   await settle(ctx.page);
 };
@@ -368,9 +370,10 @@ const RUN = { A: flowA, B: flowB, C: flowC, D: flowD, E: flowE, F: flowF, G: flo
 
 /** Walks one flow at `width` in a new page of `browser` on `site`; gives its findings `[{ problem, selector }]` (a flow that ends early still gives what it found).
  * @param {import('playwright').Browser} browser */
-export async function runFlow(browser, site, flow, width) {
+export async function runFlow(browser, site, flow, width, options = {}) {
   const page = await browser.newPage({ viewport: { width, height: width < 600 ? 800 : 900 }, locale: 'en-US' });
   const ctx = context(page, flow, width);
+  ctx.afterStep = options.afterStep;
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   // The editor asks once, after a Save, whether it may show notifications; whether that question comes depends on when its choices load, so it
@@ -380,6 +383,8 @@ export async function runFlow(browser, site, flow, width) {
       Object.defineProperty(Notification, 'permission', { get: () => 'denied' });
     } catch {}
   });
+  // `options.init(page)` runs before the editor loads (the screen reader check's recorder), `options.run` is a flow of its own (J to L there).
+  await options.init?.(page);
   try {
     await openEditor(page, site);
     // What a save sends and what the autosave answers, as the unit for Ctrl+S does (scripts/screens/text-bar.mjs).
@@ -391,10 +396,10 @@ export async function runFlow(browser, site, flow, width) {
         ? r.fulfill({ status: 404, body: '' })
         : r.fulfill({ status: 409, contentType: 'application/json', body: JSON.stringify({ error: 'off' }) }),
     );
-    await RUN[flow](ctx);
+    await (options.run ?? RUN[flow])(ctx);
   } catch (e) {
     if (!(e instanceof Stop)) errors.push(`flow ${flow}: ${e.message}`);
   }
   await page.close();
-  return { findings: ctx.findings, errors };
+  return { findings: ctx.findings, errors, ctx };
 }

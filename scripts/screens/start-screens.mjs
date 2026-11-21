@@ -24,6 +24,8 @@ import {
 import { allowedKeys, collect, compare, keysOf, problemsOf, readAllowlist, scan, scanRuns } from '../a11y.mjs';
 import { judge, keyboardRuns, viewportOf, walk } from '../keyboard.mjs';
 import { PHONE_FLOWS, FLOWS, runFlow } from '../keyboard-flows.mjs';
+import * as announce from '../announce.mjs';
+import * as announceFlows from '../announce-flows.mjs';
 
 /** Keyboard focus is visible (Modern Web Guidance, `accessibility`: "Don't disable browser native focus indicators without providing a
  * replacement ... at least 3:1", WCAG 2.4.7 and 1.4.11; the 13 `outline: none` of the theme and the editor, A1 of the audit of 15 Nov 2026).
@@ -763,6 +765,32 @@ async function checkKeyboard(page, width, hash) {
   problems.push(...judge(findings, `#${hash}`, viewportOf(width)).map((line) => `${width}px ${line}`));
 }
 
+/** What a screen reader gets of one screen (WCAG 2.2 AA: names, roles, states and live regions; scripts/announce.mjs): the name walk's findings must be on
+ * scripts/announce-allowlist.json and every entry of the list for this screen at this width must still match, so the list only shrinks. */
+async function checkAnnounce(page, width, hash) {
+  // Only in the CMS repository: the allowlist is the demo's (scripts/announce.mjs, announceRuns).
+  if (!announce.announceRuns()) return;
+  // The pages other units make for themselves (`zz-check-page.md`, `zz-check-post.md`, `zz-check-unlisted.md`) are test fixtures that exist only in the shard that
+  // runs those units, so the list can not hold them; the editor parts they show are the same as on the demo's own pages, which are walked.
+  if (/\/zz-check-/.test(hash)) return;
+  await page.waitForTimeout(300);
+  const { findings } = await announce.walk(page);
+  problems.push(...announce.judge(findings, `#${hash}`, announce.viewportOf(width)).map((line) => `${width}px ${line}`));
+}
+
+/** The main flows with what is announced recorded (scripts/announce-flows.mjs): A, B, C, F, I, J, K and L at the computer, A, B, F and J also at the phone (375 px).
+ * The speech log goes to announce-log.txt (ANNOUNCE_LOG); CI keeps it. */
+async function checkAnnounceFlows(width) {
+  if (!announce.announceRuns()) return;
+  for (const flow of announceFlows.FLOWS) {
+    if (width < 600 && !announceFlows.PHONE_FLOWS.includes(flow)) continue;
+    const { findings, errors, lines } = await announceFlows.runAnnounceFlow(browser, site, flow, width);
+    announceFlows.writeLog(lines);
+    problems.push(...errors.map((e) => `${width}px ${e}`));
+    problems.push(...announce.judge(findings, `flow ${flow}`, announce.viewportOf(width)).map((line) => `${width}px ${line}`));
+  }
+}
+
 /** The main flows by keyboard (scripts/keyboard-flows.mjs): A to I at the computer, A, B and F also at the phone (375 px). */
 async function checkKeyboardFlows(width) {
   if (!keyboardRuns()) return;
@@ -847,6 +875,7 @@ export function register(unit) {
           if (state.empty) problems.push(`${width}px #${hash}: the screen is empty`);
           await checkA11y(page, width, hash);
           await checkKeyboard(page, width, hash);
+          await checkAnnounce(page, width, hash);
           if (state.text.includes(`${daApp.nothingAt(hash)}.`)) problems.push(`${width}px #${hash}: there is nothing at the address`);
           for (const link of state.links) {
             if (seen.has(link)) continue;
@@ -897,6 +926,7 @@ export function register(unit) {
     unit(`checkBlockedNotice ${width}`, () => checkBlockedNotice(width, height));
 
   for (const width of [1280, 375]) unit(`checkKeyboardFlows ${width}`, () => checkKeyboardFlows(width));
+  for (const width of [1280, 375]) unit(`checkAnnounceFlows ${width}`, () => checkAnnounceFlows(width));
   unit('checkStartSubtitle', () => checkStartSubtitle());
   for (const width of [375, 1280])
     for (const hash of ['', 'developer/parts/ui', 'developer/parts/editor', 'settings'])
