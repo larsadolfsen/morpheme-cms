@@ -102,7 +102,7 @@ export function pendingShared(source) {
     const start = m.index + m[0].length;
     if (hasPendingText(text.slice(start, statementEnd(text, start)))) pendingLocals.add(m[1]);
   }
-  const escape = (n) => n.replace(/\$/g, '\\$');
+  const escape = (n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const isPending = (expr) => {
     if (/\bawait\b/.test(expr)) return false;
     if (hasPendingText(expr)) return true;

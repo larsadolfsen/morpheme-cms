@@ -199,7 +199,7 @@ export const plain = (s: unknown) =>
   withoutColors(String(s))
     // Without the blocks and images in it (a block's text).
     .replace(/<div data-block="[a-z]+"[^>]*><\/div>/g, ' ')
-    .replace(/!\[(?:\\.|[^\]])*\]\([^)]*\)/g, ' ')
+    .replace(/!\[(?:\\.|[^\\\]])*\]\([^)]*\)/g, ' ')
     .replace(/\]\([^)]*\)/g, ']')
     .replace(/[*_`#>[\]]/g, '')
     .replace(/\s+/g, ' ')
