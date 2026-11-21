@@ -80,8 +80,6 @@ export const allow = [
   }, // 2x
   { set: 'md.comp.button.small', attr: 'icon.size', got: 18, want: 20, class: 'fix', batch: 'buttons' }, // 6x
   { set: 'md.comp.button.small', attr: 'label-text.line-height', got: 14, want: 20, class: 'fix', batch: 'buttons' }, // 124x
-  { set: 'md.comp.button.small', attr: 'leading-space', got: 24, want: 16, class: 'fix', batch: 'buttons' }, // 108x
-  { set: 'md.comp.button.small', attr: 'trailing-space', got: 24, want: 16, class: 'fix', batch: 'buttons' }, // 108x
   { set: 'md.comp.button.xsmall', attr: 'label-text.line-height', got: 14, want: 20, class: 'fix', batch: 'buttons' }, // 4x
   { set: 'md.comp.button.xsmall', attr: 'leading-space', got: 16, want: 12, class: 'fix', batch: 'buttons' }, // 4x
   { set: 'md.comp.button.xsmall', attr: 'trailing-space', got: 16, want: 12, class: 'fix', batch: 'buttons' }, // 4x
