@@ -1,6 +1,7 @@
 // The theme's UI components in every kind, size and state, as the site draws them: the gallery of "Parts" › "UI components"
 // (#developer/parts/ui, BlockParts.tsx) and of the site's UI components page (`componentsPath`, pages/components.astro), one list of
 // groups and parts for both, so the two never differ. The theme gives the components their look; here are only the rows and the names.
+import type { CSSProperties } from 'react';
 import { Part, PartGroup, PartSub } from './PartsShown';
 import FrameParts from './FrameParts';
 import { Preview } from './ui';
