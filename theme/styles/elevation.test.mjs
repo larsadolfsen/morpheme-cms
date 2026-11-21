@@ -212,10 +212,10 @@ for (const name of removedDeclarations) {
   });
 }
 
-// The menu is M3 Expressive's vertical menu in its standard colours: on the low surface container (level 1's colour), with
+// The menu is M3 Expressive's vertical menu in its standard colours: on the surface container (md.comp.menu.container.color, batch 6), with
 // level 2's shadow, so it stands in front of the page (m3.material.io/components/menus/specs).
-test('global.css puts the menu on level 1 with the level 2 shadow', () => {
-  assert.equal(count(globalCss, '  --mo-comp-menu-container-color: var(--mo-sys-elevation-level1-color);\n'), 1);
+test('global.css puts the menu on the surface container with the level 2 shadow', () => {
+  assert.equal(count(globalCss, '  --mo-comp-menu-container-color: var(--mo-sys-color-surface-container);\n'), 1);
   assert.equal(count(globalCss, '  --mo-comp-menu-container-elevation: var(--mo-sys-elevation-level2-shadow);\n'), 1);
 });
 

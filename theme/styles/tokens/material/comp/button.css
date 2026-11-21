@@ -6,7 +6,7 @@
 .mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* Buttons (ui.css): M3's small size (40px), as wide as the label, full corners (or square), a label in medium weight; a text
      button with less room at its sides; tonal in the secondary container, elevated on the lowest container with the
-     first elevation, outlined with M3's outline and its label in the primary colour. */
+     first elevation, outlined with M3's outline variant and its label in on-surface-variant. */
   --mo-comp-button-medium-container-height: 2.5rem;
   --mo-comp-button-medium-container-shape-round: var(--mo-sys-shape-corner-full);
   /* Square buttons and icon buttons by M3's size: medium corners on the small ones (40px, as these buttons), large on
@@ -32,19 +32,19 @@
     var(--mo-sys-color-on-primary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
     var(--mo-sys-color-primary)
   );
-  --mo-comp-button-tonal-container-color: var(--mo-sys-color-surface-container-high);
-  --mo-comp-button-tonal-label-text-color: var(--mo-sys-color-on-surface);
+  --mo-comp-button-tonal-container-color: var(--mo-sys-color-secondary-container);
+  --mo-comp-button-tonal-label-text-color: var(--mo-sys-color-on-secondary-container);
   --mo-comp-button-tonal-hover: color-mix(
     in srgb,
-    var(--mo-sys-color-on-surface) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
-    var(--mo-sys-color-surface-container-high)
+    var(--mo-sys-color-on-secondary-container) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+    var(--mo-sys-color-secondary-container)
   );
   --mo-comp-button-elevated-label-text-color: var(--mo-sys-color-primary);
   --mo-comp-button-outlined-surface: transparent;
-  --mo-comp-button-outlined-label-text-color: var(--mo-sys-color-primary);
-  --mo-comp-button-outlined-outline-color: var(--mo-sys-color-outline);
-  --mo-comp-button-outlined-hovered-label-text-color: var(--mo-sys-color-primary);
-  --mo-comp-button-outlined-hovered-outline-color: var(--mo-sys-color-outline);
+  --mo-comp-button-outlined-label-text-color: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-button-outlined-outline-color: var(--mo-sys-color-outline-variant);
+  --mo-comp-button-outlined-hovered-label-text-color: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-button-outlined-hovered-outline-color: var(--mo-sys-color-outline-variant);
   --mo-comp-button-text-label-text-color: var(--mo-sys-color-primary);
   --mo-comp-button-text-hover: var(--mo-sys-color-primary-hover);
   /* The buttons that do more than one thing (ui.css, "Actions"), as M3's. Button groups 8px apart, or connected 2px
