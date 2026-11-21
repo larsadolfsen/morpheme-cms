@@ -107,7 +107,36 @@ Batch 1 goes first; 2 (the page) follows it, because every token batch after it 
 Venus is checked on the demo. Parts change their look (tonal buttons, the navigation indicators, the bars losing their shadow), so batches 5
 to 7 and 9 each add a release note line (skill `release-notes`).
 
+## Scope change (owner, 21 November 2026)
+
+Owner: "we will no longer follow our FRONTEND deviations, instead we will follow md3." Material, the default theme, follows M3 exactly on the site;
+every deviation outside the editor's own workspace is removed and the part takes M3's value. Material then becomes a theme like Venus, and a new
+M3-based base theme with exact WCAG 2.2 AA takes its place (CTO; owner, 21 Nov 2026). **No base theme work is in 0.19.5.** The only accessibility
+differences that stay, as allowlist entries in `check:contrast` and `check:screens` with the reason "M3 exact, owner 21 Nov 2026; the base theme
+takes it over", are the outlined card's edge (O1: back to `outline-variant`) and the placeholder at 60 % (deviation 4). Their change lands in batches 6 and 8.
+The editor's workspace keeps its exceptions (`docs/material-deviations.md`). Coloured sections stay, on M3's nearest container roles (batch 4).
+`scripts/m3-tokens.allow.mjs` ends with the editor's workspace entries and the two accessibility ones.
+
+Every frontend deviation, by name, and the batch that removes it (the sorting is `plans/2026-11-21-0-19-5-deviations-sorted.md`):
+
+| Deviation (`docs/material-deviations.md`) | Removed by |
+| :-- | :-- |
+| Section colours 1 (inverted theme), 2 (veils), 3 (quieter text), O2 (outline on a coloured section) | batch 4 |
+| Section colours 4 (placeholders, icons), O1 (outlined card edge) | batches 6 and 8, then the allowlist entries above |
+| Colour sweep 1 (status badges), 6 (video still), 7 to 9 (masks, `#000`, scrim) | batch 8 (or recorded as M3's own value) |
+| Colour sweep 11 (`--block-*` aliases) | 0.20.0 names |
+| Colour sweep 12 (elevation and panel shadows) | batches 3 and 5 |
+| CSS sweep 4 (icon button 48 dp), Buttons B1 (text button padding), CSS sweep 9 (type sizes) | batch 7 |
+| CSS sweep 1 to 3, 6 to 8 (dialog and menu corners, 56 dp buttons, list rows, checkbox ring, slider and code corners, spacing) | batch 9: they match M3 |
+| Density 13 to 15, Image tiles 17, G1 (card gap 8 dp), Lightbox 19 | batch 9 |
+| Choice group D2 and D3, Palette P1, C2, F1 (FAB), B3 (sheet padding), T1 (text measure), Cards CM1 to CM3 | batch 9 |
+| Search view SV1 to SV5, SV7 (scrim), SV8 to SV13, SV12 (list rows on Surface), button group `aria-pressed` | batch 9 |
+| Navigation rail N1, N2, N7 | batch 9 |
+| CSS sweep 5 and FR1 (focus ring), A1 (search field ring) | asked of the CTO (focus indicator `secondary`, 3 dp, 2 dp) |
+| E1 (error text without `role="alert"`), N5 (native dialog, no swipe) | open: Modern Web Guidance (priority 1) against M3; asked of the PM |
+| Pending the owner (new component work or a contract change, 0.20.0): choice group D1 (radio-list fallback), N3 (icons on rail items), N4 (`menuSide`), the Dialog's full-screen kind, density Large (+1) | the owner's answer |
+
 ## Done when
 
-`check:m3-tokens` runs in CI, its allowlist holds only the editor's workspace and WCAG entries, no deviation outside them is left, the elevation and section colours specs are done, the owner has
+`check:m3-tokens` runs in CI, its allowlist holds only the editor's workspace entries and the two accessibility ones above, no frontend deviation is left, the elevation and section colours specs are done, the owner has
 reviewed the feature on the demo in light and dark, and 0.19.5 has run on staging before the owner releases it.

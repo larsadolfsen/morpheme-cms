@@ -108,3 +108,10 @@ Owner: "We are focusing on the theme, not choices I have taken in the backend." 
 - **Lightbox (row 32):** unchanged in this batch; its scrim mix is the colour batch's (8).
 - **Density Large (row 25):** kept; removing a theme API option is a contract change, so it goes with 0.20.0.
 - **Pending the owner's decision, nothing changed:** the choice group's radio-list fallback (D1), N3 (icons on rail items), N4 (`menuSide`), the Dialog's missing full-screen kind.
+
+## Scope change (owner, 21 Nov 2026)
+
+"We will no longer follow our FRONTEND deviations, instead we will follow md3." The WCAG-stay verdicts above become GO, except the outlined card edge (O1)
+and the 60 % placeholder (deviation 4), which stay as allowlist entries ("M3 exact, owner 21 Nov 2026; the base theme takes it over") until batches 6 and 8
+change them. FR1 and A1 wait for the CTO's answer. The plan (`2026-11-20-0-19-5-material-3-tokens.md`, *Scope change*) lists every frontend deviation with
+the batch that removes it. This batch removes the Lightbox entry as well; the pending-owner rows and E1 and N5 stay untouched until answered.
