@@ -65,7 +65,7 @@ The owner's rules for it:
 - **Drop target while dragging on the dashboard:** M3 is silent. The nearest M3 pattern is the dragged state's state layer and an
   outline in `outline`, named in the pull request.
 - **Phosphor imports:** not an M3 finding. On `main`, all 81 files that import Phosphor components are on the allowlist, and
-  `check:phosphor` is green. Moving them to `Icon` is its own follow-up.
+  `check:phosphor` is green. They move to `Icon` in 0.20.0, where Phosphor leaves the CMS.
 - **The save bar** is a standard bottom sheet in the screens (EB1), so it is in scope. The text bar and the block's action row are the
   page and post editor's, so they are not.
 

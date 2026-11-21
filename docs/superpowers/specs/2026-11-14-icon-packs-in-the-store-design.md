@@ -1,5 +1,11 @@
 # Icon packs in the store (0.18)
 
+> **21 Nov 2026, the owner:** "phosphor should not be a part of the cms. it should be installable. so remove it and lucide for
+> now. we will add it later to the store", in 0.20.0, and "We will add Phosphor, lucide and font awesome to the store" (0.27.2).
+> This replaces decision 1's way out below: the names do not stay Phosphor's. 0.20.0 rewrites every stored name to its Material
+> Symbols name and removes both packs (`specs/2026-11-20-material-3-names-design.md`, *What is renamed*, 5), so a store pack is keyed
+> by Material names. Read the rest of this spec with that change.
+
 > **Moved to 0.22** by the owner's roadmap of 14 November 2026
 > (`docs/superpowers/plans/2026-11-14-roadmap-0-18-to-0-24.md`); removing its seeds moves one version later.
 
