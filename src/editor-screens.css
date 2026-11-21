@@ -203,6 +203,7 @@
   }
   .mo-editor-updates-notice-apps {
     border-block-start: 1px solid var(--mo-sys-color-outline-variant);
+    padding: var(--mo-ref-space-100) var(--mo-ref-space-200);
   }
 
   .mo-editor-selection-columns {
