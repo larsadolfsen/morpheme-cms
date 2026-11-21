@@ -4,7 +4,7 @@
 // group, the one picked as a chip that removes it. A screen can add the filter by style (how much of a part
 // the active theme styles itself, coverage.ts), and each part then carries its mark (CoverageBadge.tsx). The
 // search, the group and the style are kept while the editor is open.
-import { createContext, useContext, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useContext, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowsDownUp } from '@phosphor-icons/react';
 import { Choice, EmptyNote, Filters, FormHeading, InputChip, SearchRow, SupportingText, useKept } from './ui';
 import { byText } from './schema';
@@ -12,6 +12,9 @@ import { CoverageBadge } from './CoverageBadge';
 import { themeCoverage } from './coverage';
 import { headed, letterOf } from './Sheet';
 import { t } from './i18n';
+
+/** The tag of the part's name above (h2 or h3): a subheading under it is one level deeper. */
+const PartName = createContext<'h2' | 'h3'>('h3');
 
 export type PartGroupInfo = { id: string; title: string };
 
@@ -170,13 +173,27 @@ export function PartsShown({
 /** The parts of a group, under its name while all the groups are shown in their groups; nothing when
  * another group is picked, and no name when none of its parts is what is searched for. By name, the parts
  * stand in one list, without the groups. */
-export function PartGroup({ group, children }: { group: string; children: ReactNode }) {
+export function PartGroup({ group, title, children }: { group: string; title?: string; children: ReactNode }) {
   const shown = useContext(Shown);
   if (shown.group && shown.group !== group) return null;
   if (shown.sort !== 'group') return <div className="mo-contents">{children}</div>;
   return (
     <div className="mo-editor-parts-group">
-      {!shown.group && <FormHeading>{shown.groups.find((g) => g.id === group)?.title}</FormHeading>}
+      {!shown.group && <FormHeading>{shown.groups.find((g) => g.id === group)?.title ?? title}</FormHeading>}
+      {children}
+    </div>
+  );
+}
+
+/** The attributes that make an example's own element a named group: the examples of one part repeat each other's labels (a `Cancel` in every dialog), and
+ * a reader tells them apart by the group's name. Spread it on the element that holds the example. The name is the example's caption where it has one. */
+export const named = (label: string) => ({ role: 'group' as const, 'aria-label': label });
+
+/** An example in a part, named by `label` (`named`), for where it has no element of its own to name. Draws a plain div, so its look is the container's; `flat`:
+ * the div takes no box (`display: contents`), so what is in it lies in the container as if it were not there. */
+export function Example({ label, className, flat, children }: { label: string; className?: string; flat?: boolean; children: ReactNode }) {
+  return (
+    <div className={className} style={flat ? { display: 'contents' } : undefined} {...named(label)}>
       {children}
     </div>
   );
@@ -187,18 +204,39 @@ export function PartGroup({ group, children }: { group: string; children: ReactN
  * what is searched for, or when the style filter picks another status. */
 export function Part({ name, use, coverage, children }: { name: string; use?: string; coverage?: string; children?: ReactNode }) {
   const shown = useContext(Shown);
+  const heading = useId();
   const covered = themeCoverage?.parts[coverage ?? name.split(',')[0].trim()];
   if (shown.style && covered?.status !== shown.style) return null;
   const query = shown.query.trim().toLocaleLowerCase();
   if (query && !`${name} ${use ?? ''}`.toLocaleLowerCase().includes(query)) return null;
+  // Under a group's heading (the page's h1, the group's h2) a part's name is an h3; with no group heading above it (a group picked, or the parts by name) it is an h2.
+  const Name = shown.sort === 'group' && !shown.group ? 'h3' : 'h2';
   return (
-    <section data-part={name} className="mo-editor-flow-3" style={{ order: shown.order.get(name) }}>
+    // A group named by its heading: the examples of one part repeat each other's labels (every part has a `Cancel`), and a reader tells the parts apart by it.
+    <section data-part={name} role="group" aria-labelledby={heading} className="mo-editor-flow-3" style={{ order: shown.order.get(name) }}>
       <div>
-        <h2 className="mo-editor-part-name">{name}</h2>
+        <Name id={heading} className="mo-editor-part-name">
+          {name}
+        </Name>
         {use && <SupportingText>{use}</SupportingText>}
         {covered && <CoverageBadge coverage={covered} />}
       </div>
-      {children}
+      <PartName.Provider value={Name}>{children}</PartName.Provider>
     </section>
+  );
+}
+
+/** A subheading inside a part, one for each size or kind it shows (Small, Medium, Large; Filled, Tonal, Outlined), with what it names under it. */
+export function PartSub({ name, children }: { name: string; children: ReactNode }) {
+  const Tag = useContext(PartName) === 'h3' ? 'h4' : 'h3';
+  const heading = useId();
+  // A group named by its heading, as a part is: the examples under it repeat each other's labels, and a reader tells the rows apart by the name.
+  return (
+    <div role="group" aria-labelledby={heading} className="mo-editor-part-sub">
+      <Tag id={heading} className="mo-type-label-medium mo-editor-part-sub-name">
+        {name}
+      </Tag>
+      {children}
+    </div>
   );
 }

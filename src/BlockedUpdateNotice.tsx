@@ -27,7 +27,7 @@ export function BlockedUpdateNotice() {
       <Notice
         title={t.cms.blockedTitle}
         action={
-          <LinkButton kind="text" size="small" href={`#${CMS_ROUTE}`}>
+          <LinkButton kind="text" size="small" href={`#${CMS_ROUTE}`} aria-label={t.library.readMoreOn(t.cms.blockedTitle)}>
             {t.library.readMore}
           </LinkButton>
         }

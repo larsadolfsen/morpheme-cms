@@ -22,11 +22,12 @@ import {
   SiteButton,
 } from './themeUi';
 import { useState } from 'react';
-import { Part } from './PartsShown';
+import { Example, Part } from './PartsShown';
 import { Button, Preview, SearchBarButton } from './ui';
 import { t } from './i18n';
 
 const say = t.parts.screens.navigationRest;
+const eg = t.parts.screens.example;
 const icons = ['house', 'magnifying-glass', 'chats', 'user'];
 const actions = ['pencil-simple', 'heart', 'copy', 'trash'];
 const colors = ['standard', 'vibrant'] as const;
@@ -112,55 +113,63 @@ export default function NavigationRestParts() {
           <div className="mo-editor-nav-demo">
             <div className="mo-editor-nav-demo-row">
               {[false, true].map((expanded) => (
-                <SiteNavigationRail
-                  key={String(expanded)}
-                  label={say.name}
-                  menuLabel={say.menu}
-                  expanded={expanded}
-                  fab={{ icon: 'pencil-simple', label: say.compose }}
-                >
-                  <Destinations rail />
-                </SiteNavigationRail>
+                <Example label={eg(1)} flat>
+                  <SiteNavigationRail
+                    key={String(expanded)}
+                    label={say.name}
+                    menuLabel={say.menu}
+                    expanded={expanded}
+                    fab={{ icon: 'pencil-simple', label: say.compose }}
+                  >
+                    <Destinations rail />
+                  </SiteNavigationRail>
+                </Example>
               ))}
             </div>
             <div className="mo-editor-nav-demo-row">
               {[false, true].map((expanded) => (
-                <SiteNavigationRail key={String(expanded)} label={say.name} menuLabel={say.menu} expanded={expanded}>
-                  {say.sections.map((section, s) => (
-                    <SiteNavigationRailSection key={section} label={section}>
-                      {say.destinations.slice(s * 2, s * 2 + 2).map((label, i) => (
-                        <SiteNavigationRailItem
-                          key={label}
-                          href=""
-                          icon={icons[s * 2 + i]}
-                          label={label}
-                          selected={s + i === 0}
-                          trailingSupporting={(s * 2 + i + 1) * 4}
-                        />
-                      ))}
-                    </SiteNavigationRailSection>
-                  ))}
-                </SiteNavigationRail>
+                <Example label={eg(2)} flat>
+                  <SiteNavigationRail key={String(expanded)} label={say.name} menuLabel={say.menu} expanded={expanded}>
+                    {say.sections.map((section, s) => (
+                      <SiteNavigationRailSection key={section} label={section}>
+                        {say.destinations.slice(s * 2, s * 2 + 2).map((label, i) => (
+                          <SiteNavigationRailItem
+                            key={label}
+                            href=""
+                            icon={icons[s * 2 + i]}
+                            label={label}
+                            selected={s + i === 0}
+                            trailingSupporting={(s * 2 + i + 1) * 4}
+                          />
+                        ))}
+                      </SiteNavigationRailSection>
+                    ))}
+                  </SiteNavigationRail>
+                </Example>
               ))}
             </div>
             {/* Over the content: its scrim (fixed on the site) held in this box. */}
             <div className="mo-editor-nav-rail-frame">
-              <SiteNavigationRail
-                label={say.name}
-                menuLabel={say.menu}
-                expanded
-                modality="modal"
-                fab={{ icon: 'pencil-simple', label: say.compose }}
-              >
-                <Destinations rail />
-              </SiteNavigationRail>
+              <Example label={eg(3)} flat>
+                <SiteNavigationRail
+                  label={say.name}
+                  menuLabel={say.menu}
+                  expanded
+                  modality="modal"
+                  fab={{ icon: 'pencil-simple', label: say.compose }}
+                >
+                  <Destinations rail />
+                </SiteNavigationRail>
+              </Example>
               <p className="mo-editor-nav-note">{say.content}</p>
             </div>
             <div className="mo-editor-nav-demo">
               <div className="mo-editor-nav-rail-row">
-                <SiteNavigationRail id="parts-navigation-rail-hidden" label={say.name} menuLabel={say.menu} expandedBehavior="hide">
-                  <Destinations rail />
-                </SiteNavigationRail>
+                <Example label={eg(4)} flat>
+                  <SiteNavigationRail id="parts-navigation-rail-hidden" label={say.name} menuLabel={say.menu} expandedBehavior="hide">
+                    <Destinations rail />
+                  </SiteNavigationRail>
+                </Example>
                 <div className="mo-editor-nav-rail-actions">
                   <SiteIconButton
                     icon="list"
@@ -173,9 +182,11 @@ export default function NavigationRestParts() {
                 </div>
               </div>
               <div className="mo-editor-nav-rail-row">
-                <SiteNavigationRail label={say.name} menuLabel={say.menu} expanded expandedBehavior="hide">
-                  <Destinations rail />
-                </SiteNavigationRail>
+                <Example label={eg(5)} flat>
+                  <SiteNavigationRail label={say.name} menuLabel={say.menu} expanded expandedBehavior="hide">
+                    <Destinations rail />
+                  </SiteNavigationRail>
+                </Example>
                 <p className="mo-editor-nav-note">{say.content}</p>
               </div>
             </div>
@@ -185,28 +196,32 @@ export default function NavigationRestParts() {
       <Part name="Search" use={say.search}>
         <Preview>
           <div className="mo-editor-nav-search-demo">
-            <SiteSearch
-              label={say.searchLabel}
-              backLabel={say.back}
-              clearLabel={say.clear}
-              emptyText={say.empty}
-              results={[]}
-              trailing={<SiteIconButton icon="user" label={say.destinations[3]} />}
-            />
-            <SiteSearch
-              label={say.searchLabel}
-              backLabel={say.back}
-              clearLabel={say.clear}
-              emptyText={say.empty}
-              open
-              query={say.query}
-              results={say.results.map((r, i) => ({
-                href: '',
-                headline: r.headline,
-                supporting: r.supporting,
-                icon: i ? 'book-open' : 'clock',
-              }))}
-            />
+            <Example label={eg(1)}>
+              <SiteSearch
+                label={say.searchLabel}
+                backLabel={say.back}
+                clearLabel={say.clear}
+                emptyText={say.empty}
+                results={[]}
+                trailing={<SiteIconButton icon="user" label={say.destinations[3]} />}
+              />
+            </Example>
+            <Example label={eg(2)}>
+              <SiteSearch
+                label={say.searchLabel}
+                backLabel={say.back}
+                clearLabel={say.clear}
+                emptyText={say.empty}
+                open
+                query={say.query}
+                results={say.results.map((r, i) => ({
+                  href: '',
+                  headline: r.headline,
+                  supporting: r.supporting,
+                  icon: i ? 'book-open' : 'clock',
+                }))}
+              />
+            </Example>
             <SearchViewExample />
             <SearchBarButton label={say.searchLabel} open={false} keys="Control+K" onOpen={() => {}} />
             <div className="mo-editor-nav-search-results">
@@ -259,38 +274,43 @@ export default function NavigationRestParts() {
             </div>
             <div className="mo-editor-nav-color-row-wide">
               {colors.map((color) => (
+                <Example key={color} label={`${say.withFab}: ${say.colors[color]}`} flat>
+                  <SiteToolbar
+                    label={`${say.withFab}: ${say.colors[color]}`}
+                    kind="floating"
+                    color={color}
+                    fab={<SiteFab icon="pencil-simple" label={say.compose} kind={color === 'vibrant' ? 'primary' : 'secondary'} />}
+                  >
+                    {actions.slice(1).map((icon, i) => (
+                      <SiteIconButton key={icon} icon={icon} label={say.actions[i + 1]} />
+                    ))}
+                  </SiteToolbar>
+                </Example>
+              ))}
+              <Example label={`${say.withFab}: ${say.vertical}`} flat>
                 <SiteToolbar
-                  key={color}
-                  label={`${say.withFab}: ${say.colors[color]}`}
+                  label={`${say.withFab}: ${say.vertical}`}
                   kind="floating"
-                  color={color}
-                  fab={<SiteFab icon="pencil-simple" label={say.compose} kind={color === 'vibrant' ? 'primary' : 'secondary'} />}
+                  vertical
+                  fab={<SiteFab icon="pencil-simple" label={say.compose} kind="secondary" />}
                 >
                   {actions.slice(1).map((icon, i) => (
                     <SiteIconButton key={icon} icon={icon} label={say.actions[i + 1]} />
                   ))}
                 </SiteToolbar>
-              ))}
-              <SiteToolbar
-                label={`${say.withFab}: ${say.vertical}`}
-                kind="floating"
-                vertical
-                fab={<SiteFab icon="pencil-simple" label={say.compose} kind="secondary" />}
-              >
-                {actions.slice(1).map((icon, i) => (
-                  <SiteIconButton key={icon} icon={icon} label={say.actions[i + 1]} />
-                ))}
-              </SiteToolbar>
-              <SiteToolbar
-                label={say.collapsed}
-                kind="floating"
-                expanded={false}
-                fab={<SiteFab icon="pencil-simple" label={say.compose} />}
-              >
-                {actions.slice(1).map((icon, i) => (
-                  <SiteIconButton key={icon} icon={icon} label={say.actions[i + 1]} />
-                ))}
-              </SiteToolbar>
+              </Example>
+              <Example label={say.collapsed} flat>
+                <SiteToolbar
+                  label={say.collapsed}
+                  kind="floating"
+                  expanded={false}
+                  fab={<SiteFab icon="pencil-simple" label={say.compose} />}
+                >
+                  {actions.slice(1).map((icon, i) => (
+                    <SiteIconButton key={icon} icon={icon} label={say.actions[i + 1]} />
+                  ))}
+                </SiteToolbar>
+              </Example>
             </div>
           </div>
         </Preview>

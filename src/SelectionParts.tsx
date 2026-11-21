@@ -5,7 +5,7 @@
 // nothing is saved, and the side sheets are only drawn (on the site a modal one opens over the page with sideSheet()).
 // On a phone the standard one is drawn without the page beside it, as there is no room for both.
 import { SiteButton, SiteDivider, SiteRadioButton, SiteRadioGroup, SiteSettingRow, SiteSideSheet, SiteSlider, SiteSwitch } from './themeUi';
-import { Part } from './PartsShown';
+import { Example, named, Part } from './PartsShown';
 import { Preview } from './ui';
 import { t } from './i18n';
 
@@ -37,12 +37,24 @@ export default function SelectionParts() {
       <Part name="Switch" use={say.switch}>
         <Preview>
           <div className={grid}>
-            <SiteSwitch label={say.switchLabel} />
-            <SiteSwitch label={say.switchLabel} checked />
-            <SiteSwitch label={say.switchLabel} supporting={say.switchSupporting} icons="both" />
-            <SiteSwitch label={say.switchLabel} supporting={say.switchSupporting} icons="both" checked />
-            <SiteSwitch label={say.switchLabel} icons="selected" checked />
-            <SiteSwitch label={say.switchLabel} checked disabled />
+            <Example label={t.parts.screens.example(1)}>
+              <SiteSwitch label={say.switchLabel} />
+            </Example>
+            <Example label={t.parts.screens.example(2)}>
+              <SiteSwitch label={say.switchLabel} checked />
+            </Example>
+            <Example label={t.parts.screens.example(3)}>
+              <SiteSwitch label={say.switchLabel} supporting={say.switchSupporting} icons="both" />
+            </Example>
+            <Example label={t.parts.screens.example(4)}>
+              <SiteSwitch label={say.switchLabel} supporting={say.switchSupporting} icons="both" checked />
+            </Example>
+            <Example label={t.parts.screens.example(5)}>
+              <SiteSwitch label={say.switchLabel} icons="selected" checked />
+            </Example>
+            <Example label={t.parts.screens.example(6)}>
+              <SiteSwitch label={say.switchLabel} checked disabled />
+            </Example>
           </div>
         </Preview>
       </Part>
@@ -88,12 +100,24 @@ export default function SelectionParts() {
       <Part name="Slider" use={say.slider}>
         <Preview>
           <div className="mo-editor-selection-sliders">
-            <SiteSlider label={say.volume} value={40} valueLabel />
-            <SiteSlider label={say.count} max={10} value={6} stops valueLabel="always" />
-            <SiteSlider label={say.price} max={1000} step={50} range={[200, 700]} handleLabels={say.handles} valueLabel="always" />
-            <SiteSlider label={say.volume} value={40} disabled />
-            <SiteSlider label={say.balance} min={-50} max={50} value={20} centered valueLabel />
-            <SiteSlider label={say.balance} min={-50} max={50} step={10} value={-30} centered stops valueLabel="always" />
+            <Example label={t.parts.screens.example(1)}>
+              <SiteSlider label={say.volume} value={40} valueLabel />
+            </Example>
+            <Example label={t.parts.screens.example(2)}>
+              <SiteSlider label={say.count} max={10} value={6} stops valueLabel="always" />
+            </Example>
+            <Example label={t.parts.screens.example(3)}>
+              <SiteSlider label={say.price} max={1000} step={50} range={[200, 700]} handleLabels={say.handles} valueLabel="always" />
+            </Example>
+            <Example label={t.parts.screens.example(4)}>
+              <SiteSlider label={say.volume} value={40} disabled />
+            </Example>
+            <Example label={t.parts.screens.example(5)}>
+              <SiteSlider label={say.balance} min={-50} max={50} value={20} centered valueLabel />
+            </Example>
+            <Example label={t.parts.screens.example(6)}>
+              <SiteSlider label={say.balance} min={-50} max={50} step={10} value={-30} centered stops valueLabel="always" />
+            </Example>
           </div>
           <div className="mo-editor-selection-sliders">
             {sliderSizes.map((size) => (
@@ -102,7 +126,9 @@ export default function SelectionParts() {
             {(['medium', 'large', 'xlarge'] as const).map((size) => (
               <SiteSlider key={size} label={`${say.brightness}: ${say.sliderSizes[size]}`} size={size} value={60} icon="sun" />
             ))}
-            <SiteSlider label={`${say.brightness}: ${say.sliderSizes.large}`} size="large" value={4} icon="sun" />
+            <Example label={t.parts.screens.example(1)}>
+              <SiteSlider label={`${say.brightness}: ${say.sliderSizes.large}`} size="large" value={4} icon="sun" />
+            </Example>
           </div>
           <div className="mo-editor-selection-vertical-sliders" role="group" aria-label={say.verticalSliders}>
             <SiteSlider label={say.volume} orientation="vertical" value={40} valueLabel />
@@ -133,21 +159,21 @@ export default function SelectionParts() {
       <Part name="SideSheet" use={say.sideSheet}>
         <Preview>
           <div className="mo-editor-selection-sheets">
-            <div className="mo-editor-selection-kind">
+            <div className="mo-editor-selection-kind" {...named(say.sheetKinds.standard)}>
               <p className="mo-editor-selection-sheet-label">{say.sheetKinds.standard}</p>
               <div className="mo-editor-selection-sheet-stage">
                 <p className="mo-editor-selection-sheet-page">{say.page}</p>
                 {sheet('standard')}
               </div>
             </div>
-            <div className="mo-editor-selection-kind">
+            <div className="mo-editor-selection-kind" {...named(say.sheetKinds.withBack)}>
               <p className="mo-editor-selection-sheet-label">{say.sheetKinds.withBack}</p>
               <div className="mo-editor-selection-sheet-stage">
                 <p className="mo-editor-selection-sheet-page">{say.page}</p>
                 {sheet('standard', true)}
               </div>
             </div>
-            <div className="mo-editor-selection-kind">
+            <div className="mo-editor-selection-kind" {...named(say.sheetKinds.modal)}>
               <p className="mo-editor-selection-sheet-label">{say.sheetKinds.modal}</p>
               <div className="mo-editor-selection-modal-stage">{sheet('modal')}</div>
             </div>

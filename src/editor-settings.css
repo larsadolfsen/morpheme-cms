@@ -1053,6 +1053,16 @@
     color: var(--mo-sys-color-primary);
   }
 
+  /* PartsShown.tsx PartSub: a subheading and the row under it. */
+  .mo-editor-part-sub {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-part-sub-name {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
   .mo-editor-parts-group {
     &:not(:has([data-part])) {
       display: none;

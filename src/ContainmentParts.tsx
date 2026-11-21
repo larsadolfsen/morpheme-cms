@@ -9,7 +9,7 @@
 import type { ReactNode } from 'react';
 import { SiteBottomSheet, SiteButton, SiteCarousel, SiteCheckbox, SiteDialog } from './themeUi';
 import ModalSheetSample from './ModalSheetSample';
-import { Part } from './PartsShown';
+import { named, Part } from './PartsShown';
 import { Preview } from './ui';
 import { exampleImage } from './examples';
 import { t } from './i18n';
@@ -20,7 +20,7 @@ const numbers = [1, 2, 3, 4, 5, 6];
 /** A label over an example: what the example shows. */
 function Shown({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="mo-editor-contain-example">
+    <div className="mo-editor-contain-example" {...named(label)}>
       <p className="mo-editor-contain-example-label">{label}</p>
       {children}
     </div>
