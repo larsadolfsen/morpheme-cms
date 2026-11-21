@@ -169,9 +169,9 @@ Owner, 19 Nov 2026: the sites the CMS builds and the editor meet **WCAG 2.2 leve
 (`check:contrast`), keyboard use, a visible focus ring for keyboard focus (`:focus-visible`), names for screen readers, and
 target sizes. Where Material 3 and WCAG differ, WCAG wins. The checks that enforce it: roadmap 0.19.2 to 0.19.4.
 
-One exception (owner, 21 Nov 2026): the theme *Material* follows Material 3 exactly on the site, even where M3 falls short of WCAG
-(the Outlined card's edge, the 60% placeholder). A new base theme will replace it as the default and keep WCAG
-(`docs/superpowers/specs/2026-11-21-base-theme-notes.md`). The editor's own workspace still meets WCAG.
+The theme *Material* follows Material 3 exactly on the site except where WCAG needs otherwise (owner, 21 Nov 2026): placeholders,
+slot icons and control edges keep their contrast, and the Outlined card's edge is `outline` (`docs/material-deviations.md`, 4, O1, O2).
+Every site must be able to meet the European Accessibility Act.
 
 ### Icons are Material Symbols
 
