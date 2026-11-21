@@ -28,7 +28,6 @@ import {
   NavigationDrawerRow,
   NavigationDrawerSection,
   NavigationDrawerSubitem,
-  NavigationDrawerToggle,
   focusNavigationDrawerItem,
   navigationDrawerBleedClass,
   navigationDrawerDialogClass,
@@ -167,20 +166,25 @@ export default function MobileMenu({
                   {items.map((item, i) => (
                     <li key={item.href}>
                       <NavigationDrawerRow data-active={holdsCurrent(item) || undefined}>
-                        <NavigationDrawerItem
-                          href={item.href}
-                          onClick={() => void close()}
-                          aria-current={current === item.href ? 'page' : undefined}
-                        >
-                          {item.label}
-                        </NavigationDrawerItem>
-                        {item.children && (
-                          <NavigationDrawerToggle
-                            label={texts.subpages[i]}
-                            expanded={expanded === item.href}
-                            onClick={() => setExpanded(expanded === item.href ? null : item.href)}
+                        {item.children ? (
+                          // A group header is a button (a disclosure: Enter and Space both toggle it, the focus stays on it); its own page
+                          // is the first of its sub-pages below.
+                          <NavigationDrawerItem
+                            trailing="caret-down"
+                            aria-expanded={expanded === item.href}
                             aria-controls={`sub-${item.href}`}
-                          />
+                            onClick={() => setExpanded(expanded === item.href ? null : item.href)}
+                          >
+                            {item.label}
+                          </NavigationDrawerItem>
+                        ) : (
+                          <NavigationDrawerItem
+                            href={item.href}
+                            onClick={() => void close()}
+                            aria-current={current === item.href ? 'page' : undefined}
+                          >
+                            {item.label}
+                          </NavigationDrawerItem>
                         )}
                       </NavigationDrawerRow>
                       <AnimatePresence initial={false}>
@@ -192,7 +196,10 @@ export default function MobileMenu({
                             animate={{ height: 'auto', opacity: 1, transition: spring.enter }}
                             exit={reduce ? undefined : { height: 0, opacity: 0, transition: spring.leave }}
                           >
-                            {item.children.map((child) => (
+                            {(item.children.some((c) => c.href === item.href)
+                              ? item.children
+                              : [{ label: item.label, href: item.href }, ...item.children]
+                            ).map((child) => (
                               <li key={child.href}>
                                 <NavigationDrawerSubitem
                                   href={child.href}

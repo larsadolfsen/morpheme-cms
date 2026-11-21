@@ -132,6 +132,13 @@
       color: var(--mo-sys-color-primary);
     }
   }
+  /* Small links (the logo, the link back, a post's tags, a link in the text) have the ring 4dp from the text, not the 2dp of a control: the 3dp ring would
+     crowd the letters and the underline. The ring is an outline, so nothing in the layout moves; its corner is the small one, not the part's own square one. */
+  :is(.mo-header__title, .mo-back-link, .mo-post-meta__tag, .mo-link):focus-visible,
+  :where(.mo-prose) a:not(:where(.mo-is-not-prose, .mo-is-not-prose *)):focus-visible {
+    outline-offset: 4px;
+    border-radius: var(--mo-sys-shape-corner-extra-small, 4px);
+  }
   /* A Markdown text (Markdown.astro) keeps to the text's measure; after a heading it has space above. */
   .mo-markdown {
     max-inline-size: var(--mo-sys-block-text-measure-max);
@@ -203,6 +210,10 @@
   }
   .mo-main {
     flex: 1 1 0%;
+  }
+  /* The skip link moves the focus to the main content (tabindex -1: it can have the focus, but is not a stop for Tab); the page, not a control, so no ring on it. */
+  .mo-main:focus {
+    outline: none;
   }
   /* The skip link: hidden until it has the focus, then a pill in the top left corner. */
   .mo-skip-link {
