@@ -8,15 +8,6 @@
 // through the rename map (scripts/m3-tokens.renames.mjs), which found these.
 export const allow = [
   {
-    token: '--mo-comp-button-padding',
-    theme: '24',
-    m3: '16',
-    class: 'fix',
-    batch: 'buttons',
-    reason:
-      'Our medium button (M3 Expressive small, 40 dp) has 24 dp leading and trailing space; M3 prints 16 (md.comp.button.small.leading-space). Old source: M3 baseline, before 21 Nov 2026.',
-  },
-  {
     token: '--mo-comp-button-xsmall-padding',
     theme: '16',
     m3: '12',

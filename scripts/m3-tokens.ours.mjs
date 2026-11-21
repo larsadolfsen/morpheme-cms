@@ -271,6 +271,11 @@ export const ours = [
       'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
   },
   {
+    token: '--mo-comp-list-expand-divider-default-color',
+    reason:
+      'The divider of an expandable list, in our own words (a colour per list kind); M3 has one md.comp.list.divider.color and the mapping is not read yet; to review in the lists batch.',
+  },
+  {
     token: '--mo-comp-list-divider-default-color',
     reason: 'No M3 token of this name or role found in docs/m3-tokens/; to review in the component batch.',
   },
