@@ -1,0 +1,35 @@
+---
+// "Book an appointment" as an extended FAB at the bottom right of the screen (ui/Fab.tsx, m3.material.io/components/extended-fab), which shows only its icon
+// while the page scrolls down. Not on the booking page and the thank-you page. It stands after the page's content and before the footer in the source (Base.astro), so
+// the keyboard reaches it after the content, not before it; it is fixed to the screen, so its place there is the same. (global.css puts it as the bottom bar's
+// first button on a phone with a bar.)
+import Icon from '@theme/components/Icon.astro';
+import { extendedFabClass } from '@theme/ui/Fab';
+import { site } from '@morphemecms/cms/site/site';
+
+const fab = !Astro.url.pathname.startsWith(site.bookingPath) && Astro.url.pathname !== '/tak/';
+---
+
+{fab && (
+  <a href={site.bookingPath} data-open="booking" data-fab class={extendedFabClass()}>
+    <Icon name="calendar-blank" size={24} />
+    <span class="mo-extended-fab__label">{site.labels.book}</span>
+  </a>
+)}
+
+<script>
+  // The FAB shows only its icon while the page scrolls down, and its label again when it scrolls up or is at the top.
+  const fab = document.querySelector<HTMLElement>('[data-fab]');
+  if (fab) {
+    let last = scrollY;
+    addEventListener(
+      'scroll',
+      () => {
+        if (Math.abs(scrollY - last) < 8) return;
+        fab.toggleAttribute('data-collapsed', scrollY > last && scrollY > 64);
+        last = scrollY;
+      },
+      { passive: true },
+    );
+  }
+</script>
