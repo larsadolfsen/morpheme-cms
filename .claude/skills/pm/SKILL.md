@@ -148,14 +148,14 @@ show the editor (no sign-in), so the owner sees screenshots in the pull request.
 - **A feature branch** is approved once, as a whole, on its pull request into `main` (section 2); its pieces need no approval.
 - **A change nobody sees** (docs, tests, CI, Worker internals, tooling) needs no screenshots and no approval.
 - There is no separate "screenshots" session and no Artifact page: the images live in the pull request.
-- **A prompt for Claude in Chrome** (owner, 21 Nov 2026: "when something in frontend is ready for testing, send me a prompt for claude in
-  chrome to do the testing"). When a change to the site (not the editor) can be tried at an address, a pull request's Preview, the demo
-  or `morpheme-staging`, the report gives the owner a prompt to paste into Claude in Chrome, in one fenced code block that stands alone:
-  the exact address of each page; what changed, in a sentence; numbered steps, each with what to look for and what counts as a fail;
-  a phone width (390 px) and a desktop width (1280 px), light and dark; the keyboard (Tab, Shift+Tab, Enter, Space, Escape) and a
-  visible focus ring wherever the change has a control; a closing line "Report each step as pass or fail, with a screenshot of every
-  fail; do not sign in, save or change anything." The PM writes the steps from the pull request and the spec, never from memory, and
-  sends the prompt only once the address shows the change (the build is green and the page is checked).
+- **The PM tests a site change itself** (owner, 21 Nov 2026: "PMs have access to preview sites, so they do not have to send me a
+  prompt, instead they test themselves"; it replaces the owner's earlier rule of a Claude in Chrome prompt). When a change to the site
+  (not the editor) can be tried at an address, a pull request's Preview, the demo or `morpheme-staging`, the PM opens it with Playwright
+  once the build is green and tests it: each changed page; numbered steps written from the pull request and the spec, never from
+  memory, each with what to look for and what counts as a fail; a phone width (390 px) and a desktop width (1280 px), light and dark;
+  the keyboard (Tab, Shift+Tab, Enter, Space, Escape) and a visible focus ring wherever the change has a control. It never signs in,
+  saves or changes anything there. Its report to the owner says in a line that it tested and what failed, with a screenshot of every
+  fail it opened itself; the owner gets no test prompt.
 
 The owner only sees pull requests that are assigned to them on GitHub. When a pull request needs the owner to see, approve or decide
 something, the PM assigns it to `larsadolfsen` (`update_pull_request`, `issue_write` assignees or the GitHub API) and keeps it assigned
