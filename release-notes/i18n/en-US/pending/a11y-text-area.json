@@ -1,6 +1,0 @@
-{
-  "id": "a11y-text-area",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "Screen readers name the text area of a page and no longer reach into block previews"
-}

@@ -1,5 +1,18 @@
 # @morphemecms/cms
 
+## 0.19.2
+
+### Patch Changes
+
+- cc64e5f: Outlined cards and the outlines in coloured sections reach 3:1 contrast
+- a074867: Rows, cards and fields typed in place in a list are easier to use with a keyboard, a screen reader and a touch screen: the chevron of a folding row is a button of its own, a card's media is its own button, and every field is at least 24 px high.
+- 6992091: Block cards, notices, choice fields and the subpage buttons are named by the text they show
+- d71a79c: Check list items, Image grid cards and keyboard keys are readable by screen readers and in dark mode
+- 92891b8: The page's text area has a name for screen readers
+- d87aa54: Carousels and bottom sheets can be scrolled with the keyboard, and menus, search results and the time picker read better for screen readers and low vision
+- 880f565: You can zoom the editor on a phone with a pinch or a double tap, and the Save bar and the text toolbar stay in view
+- d926591: The editor's back arrow and breadcrumb links percent-encode `"`, `<` and `>` in their address, so code scanning finds no way for a picked file's name to reach the link as HTML.
+
 ## 0.19.1
 
 ### Patch Changes

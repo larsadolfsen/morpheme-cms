@@ -1,7 +1,0 @@
-{
-  "id": "a11y-card-border",
-  "kind": "paragraph",
-  "mark": "improvement",
-  "title": "Kortkanter",
-  "text": "Kort med kant var svære at se, når kanten var bleg. Kanten er nu en tydeligere grå, og i en sektion med Primær, Sekundær eller Tertiær er konturerne på kort og felter stærkere. Udfyldte og hævede kort er uændrede."
-}
