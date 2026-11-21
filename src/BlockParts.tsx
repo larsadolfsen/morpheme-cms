@@ -381,7 +381,7 @@ function FieldParts() {
             <SiteCheckbox label={screens.checkboxParent} supporting={screens.checkboxSupporting} indeterminate />
             <SiteCheckbox label={screens.checkboxParent} indeterminate disabled />
             <SiteCheckbox label={screens.checkboxLabel} error={screens.checkboxError} />
-            <SiteCheckbox label={screens.checkboxLabel} error checked />
+            <SiteCheckbox label={screens.checkboxLabel} error={screens.checkboxError} checked />
           </div>
         </Preview>
       </Part>

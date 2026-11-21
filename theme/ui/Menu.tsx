@@ -171,7 +171,7 @@ export function MenuItem({
           className={menuItemClass}
           role={role}
           aria-haspopup={inMenu ? 'menu' : undefined}
-          aria-expanded={open ? true : undefined}
+          aria-expanded={open ? true : false}
           aria-controls={menu}
           popoverTarget={open ? undefined : menu}
           disabled={disabled}
@@ -246,7 +246,7 @@ export function DropdownMenu({
   const button = {
     id,
     'aria-haspopup': 'menu',
-    'aria-expanded': open ? true : undefined,
+    'aria-expanded': open ? true : false,
     'aria-controls': menu,
     popoverTarget: open ? undefined : menu,
     style: { anchorName: anchor } as CSSProperties,
