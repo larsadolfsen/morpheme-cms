@@ -16,7 +16,7 @@
   --mo-comp-button-medium-container-shape-square: var(--mo-sys-shape-corner-medium);
   --mo-comp-button-large-container-shape-square: var(--mo-sys-shape-corner-extra-large);
   --mo-comp-button-xlarge-container-shape-square: var(--mo-sys-shape-corner-extra-large);
-  --mo-comp-button-padding: 1.5rem;
+  --mo-comp-button-padding: 1rem;
   --mo-comp-button-medium-icon-label-space: 0.5rem;
   --mo-comp-button-font-size: var(--mo-sys-typescale-label-large-size);
   --mo-comp-button-weight: var(--mo-sys-typescale-label-large-weight);
@@ -26,7 +26,7 @@
   --mo-comp-button-xsmall-container-height: 2rem;
   --mo-comp-button-xsmall-padding: 1rem;
   --mo-comp-button-xsmall-icon-label-space: 0.25rem;
-  --mo-comp-button-text-padding: 1.5rem;
+  --mo-comp-button-text-padding: 1rem;
   --mo-comp-button-filled-hover: color-mix(
     in srgb,
     var(--mo-sys-color-on-primary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),

@@ -15,7 +15,8 @@
      "every item but the first" (ui.css) drew a line above it only. Every item has its line and the list hides the first row's (clipped, and moved up by its width, so
      nothing else moves), whatever the number of columns (owner, 17 Nov 2026: "There are dividers that shouldn't be there"). */
   .mo-block-accordion:not(.mo-block-accordion__segmented) > li {
-    border-top: var(--mo-comp-list-expand-divider-width, 1px) solid var(--mo-comp-list-expand-divider, var(--mo-sys-block-line));
+    border-top: var(--mo-comp-list-expand-divider-width, 1px) solid
+      var(--mo-comp-list-expand-divider-default-color, var(--mo-comp-list-expand-divider, var(--mo-sys-block-line)));
   }
   .mo-block-accordion:not(.mo-block-accordion__segmented) {
     clip-path: inset(var(--mo-comp-list-expand-divider-width, 1px) 0 0 0);

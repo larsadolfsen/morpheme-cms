@@ -1,0 +1,6 @@
+{
+  "id": "m3-side-padding",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Knapper, udfoldelige lister, Spørgsmål og svar og Tjekliste har 16 dp sidemargen, som i Material 3"
+}

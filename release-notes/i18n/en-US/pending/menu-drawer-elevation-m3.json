@@ -1,0 +1,6 @@
+{
+  "id": "menu-drawer-elevation-m3",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "The main menu casts a shadow when it opens over the page, as in Material 3"
+}
