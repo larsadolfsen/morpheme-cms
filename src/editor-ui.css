@@ -491,11 +491,6 @@
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 150ms;
   }
-  /* The editor's own outlined cards keep a 3:1 edge (WCAG 1.4.11): the edge is the only mark of an idle choice card or a group. The theme's outlined card on the site
-     is M3's outline-variant (named in theme/accessibility.json); the editor's workspace is outside Material 3 (docs/material-deviations.md). */
-  :is(.mo-editor-choice-card, .mo-editor-field-group, .mo-editor-share-preview, .mo-editor-first-run) {
-    --mo-comp-outlined-card-outline-color: var(--mo-sys-color-outline);
-  }
   .mo-editor-choice-card:has(*:focus-visible) {
     outline: 2px solid var(--mo-sys-color-primary);
     outline-offset: 2px;
