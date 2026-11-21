@@ -8,7 +8,7 @@
   --mo-comp-plain-tooltip-supporting-text-color: var(--mo-sys-color-inverse-on-surface);
   --mo-comp-plain-tooltip-container-shape: var(--mo-sys-shape-corner-extra-small);
   --mo-comp-rich-tooltip-supporting-text-color: var(--mo-sys-color-on-surface-variant);
-  --mo-comp-rich-tooltip-subhead-color: var(--mo-sys-color-on-surface);
+  --mo-comp-rich-tooltip-subhead-color: var(--mo-sys-color-on-surface-variant);
   --mo-comp-rich-tooltip-container-shape: var(--mo-sys-shape-corner-medium);
   --mo-comp-tooltip-rich-line: transparent;
 }
