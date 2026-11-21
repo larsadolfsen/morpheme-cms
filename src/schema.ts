@@ -428,7 +428,7 @@ export type Part = {
    * saved so. */
   upgrade?: (data: Record<string, unknown>) => Record<string, unknown>;
   /** The part's own values (at `at`) as the form has them now, from a value written before it was renamed (the shared text
-   * of "Accordion" with its old placeholder, now {topic}: upgradeMore in standard/accordion/topic.mjs); the form shows them so and
+   * of the old "Accordion" with its old placeholder, now {topic}); the form shows them so and
    * the next save writes them so. */
   upgradeValues?: (values: Record<string, unknown>) => Record<string, unknown>;
   /** A block drawn under the fields with them as they are now (its draw, src/apps/<app>/blocks/): its type, and props

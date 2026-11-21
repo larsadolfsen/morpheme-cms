@@ -1,6 +1,6 @@
 {
   "name": "@morphemecms/cms",
-  "version": "0.19.1",
+  "version": "0.19.2",
   "description": "Morpheme CMS: the editor for a site built with Astro, its screens, its blocks and the rules a site gives it. See README.md.",
   "license": "MIT",
   "author": "Lars Adolfsen",
@@ -69,6 +69,7 @@
     "format:check": "prettier --check .",
     "check:language": "node scripts/check-language.mjs",
     "check:phosphor": "node scripts/check-phosphor.mjs",
+    "check:a11y": "cd .morpheme/demo/site && node ../../../scripts/check-a11y.mjs",
     "check:token-names": "node scripts/check-token-names.mjs",
     "check:token-registry": "node scripts/gen-token-registry.mjs --check",
     "check:css-tokens": "node scripts/check-css-tokens.mjs",
@@ -154,6 +155,7 @@
     "@phosphor-icons/core": "^2.1.1",
     "@phosphor-icons/react": "^2.1.10",
     "astro": "^7.4.8",
+    "axe-core": "4.14.1",
     "esbuild": "^0.28.2",
     "github-slugger": "^2.0.0",
     "jsdom": "^29.1.1 || ^31.0.0",

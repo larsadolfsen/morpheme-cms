@@ -215,6 +215,7 @@ import { forgetRecent } from './paletteRecent';
 import { ShortcutsPage } from './ShortcutsSheet';
 import { EditorOwn, InEditor } from './standard/view';
 import { cmsNotice } from './cmsNotice.mjs';
+import { followVisualViewport } from './visualViewportBars';
 import './editor.css';
 
 // What the forms and lists need from the app.
@@ -366,6 +367,8 @@ function Editor() {
   const waitingFor = useRef<string[]>([]);
 
   useEffect(registerWorker, []);
+  // Pinch zoom is on: the bars follow the visual viewport while zoomed (visualViewportBars.ts).
+  useEffect(followVisualViewport, []);
   useEffect(startRipples, []);
   // Signed up for the notifications on the phone from the site's Worker, also when the editor is closed, while
   // "On the phone" is on (notificationData.ts).

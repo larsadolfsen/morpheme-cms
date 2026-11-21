@@ -14,6 +14,14 @@ export default defineShared({
     { name: 'previous', label: t.blocks.imageGrid.previous, type: 'string', required: true, max: 40 },
     { name: 'next', label: t.blocks.imageGrid.next, type: 'string', required: true, max: 40 },
     {
+      name: 'linkName',
+      label: t.blocks.imageGrid.linkName,
+      type: 'string',
+      required: true,
+      max: 40,
+      hint: t.blocks.imageGrid.linkNameHint,
+    },
+    {
       name: 'position',
       label: t.blocks.imageGrid.position,
       type: 'string',
@@ -32,5 +40,6 @@ export default defineShared({
     previous: siteT.blocks.imageGrid.previousText,
     next: siteT.blocks.imageGrid.nextText,
     position: siteT.blocks.imageGrid.positionText,
+    linkName: siteT.blocks.imageGrid.linkNameText,
   },
 });

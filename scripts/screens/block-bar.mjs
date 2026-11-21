@@ -33,9 +33,9 @@ async function checkCardBar(width, height = 800) {
   await page.locator('.ProseMirror .mo-site-block-card').first().click();
   await page.waitForTimeout(400);
   const selected = await page.evaluate(() => ({
-    pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"]').length,
+    pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"], .mo-site-block-card-button[aria-pressed="true"]').length,
     popup: document.querySelectorAll('.mo-site-block-menu').length,
-    haspopup: document.querySelectorAll('.mo-site-block-card[aria-haspopup]').length,
+    haspopup: document.querySelectorAll('.mo-site-block-card[aria-haspopup], .mo-site-block-card-button[aria-haspopup]').length,
     groups: [...document.querySelectorAll('.mo-editor-tools [role=group]')].map((g) => g.getAttribute('aria-label')),
   }));
   if (selected.pressed !== 1) problems.push(`${label}: a tap on the card did not select it (${selected.pressed} selected)`);
@@ -48,7 +48,7 @@ async function checkCardBar(width, height = 800) {
   if (!tools.names.includes('Remove')) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
   const rowNames = await page
     .locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')
-    .evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
+    .evaluateAll((els) => els.map((e) => (e.querySelector(':scope > .mo-site-block-card-button') ?? e).getAttribute('aria-label')));
   if (!rowNames.includes('Move up')) problems.push(`${label}: the card's action row has no Move up (${rowNames})`);
   if (tools.names.includes('Move up') || tools.names.includes('Hide'))
     problems.push(`${label}: Move up or Hide is in the bar as well as in the action row (${tools.names})`);
@@ -77,7 +77,8 @@ async function checkCardBar(width, height = 800) {
     const hello = [...document.querySelectorAll('.ProseMirror p')].find((p) => p.textContent.trim() === 'Hello')?.getBoundingClientRect();
     return {
       first: !!card && !!hello && card.top < hello.top,
-      pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"]').length,
+      pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"], .mo-site-block-card-button[aria-pressed="true"]')
+        .length,
       group: document.querySelector('.mo-editor-tools [role=group]')?.getAttribute('aria-label'),
     };
   });
@@ -88,7 +89,7 @@ async function checkCardBar(width, height = 800) {
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(500);
   const back = await page.evaluate(() => ({
-    pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"]').length,
+    pressed: document.querySelectorAll('.mo-site-block-card[aria-pressed="true"], .mo-site-block-card-button[aria-pressed="true"]').length,
     names: [...document.querySelectorAll('.mo-editor-tools button')]
       .filter((b) => !b.closest('.mo-editor-tools-ghost'))
       .map((b) => b.getAttribute('aria-label')),
@@ -685,7 +686,7 @@ async function checkBlockHandleCorner(width) {
     for (let i = 0; i < count; i++) {
       const block = blocks.nth(i);
       const card = block.locator(':scope > .mo-site-block-card');
-      const name = await card.getAttribute('aria-label');
+      const name = await card.evaluate((el) => (el.querySelector(':scope > .mo-site-block-card-button') ?? el).getAttribute('aria-label'));
       if (seen.has(name)) continue;
       seen.add(name);
       // The cursor is out of every block first, as the other units do: the block before lets go of its row, and the page settles.

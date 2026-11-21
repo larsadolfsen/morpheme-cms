@@ -156,7 +156,7 @@ async function checkChoiceGroupFields(width, locale) {
   const skipped = [];
   for (let i = 0; i < count; i++) {
     const card = cards.nth(i);
-    const name = await card.getAttribute('aria-label');
+    const name = await card.evaluate((el) => (el.querySelector(':scope > .mo-site-block-card-button') ?? el).getAttribute('aria-label'));
     // At the top of the screen, clear of the save bar over the bottom (a phone).
     await card.evaluate((el) => el.scrollIntoView({ block: 'start' }));
     await page.waitForTimeout(200);

@@ -40,7 +40,9 @@ feature's first changes it (the PM's move on a conflict, skill `pm`, is the exce
 
 **The check** (`scripts/version-rule.mjs`, job `static`, tested in `scripts/version-rule.test.mjs`; it replaces the old series check `release-line.mjs` and
 `release-lines.json`): on a pull request into `main` and on a feature's first pull request (into `feature/*`, `version` differs from the base's), `version`
-is exactly one step above npm's `latest` (next patch or next minor `.0`) and not published; below `latest` fails. A `version` equal to `latest` with a
+is above npm's `latest` and not published; below `latest` fails. Into `main` (the merge gate) it is exactly one step above `latest` (next patch or next
+minor `.0`); on a feature's first pull request it may be further, up to the next minor's line (`latest` 0.18.1: 0.18.x or 0.19.y, never 0.20.0), because
+features are built side by side (owner, 20 Nov 2026, on top of the 19 Nov rule that the demo shows the version). A `version` equal to `latest` with a
 non-empty changeset fails ("Set the feature's version") once `latest` is 0.19.0 or later; until then (`latest` 0.18.x, before `feature/tailwind` sets 0.19.0)
 it passes and Changesets still computes the number, so a fix with a patch or empty changeset keeps working. The level a changeset may have is only the
 note's: never `major`; `minor` for a feature that adds something, `patch` for a fix; empty for no release note.

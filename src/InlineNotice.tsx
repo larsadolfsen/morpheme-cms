@@ -25,7 +25,8 @@ export default function InlineNotice({ props, data, active, focus, onChange }: I
             <div
               role="button"
               tabIndex={0}
-              aria-label={t.blocks.notice.text}
+              // Named by the notice's text (what is shown, WCAG 2.5.3); the field's name is its description.
+              aria-description={t.blocks.notice.text}
               className="mo-editor-inline-notice"
               onClick={(e) => {
                 e.preventDefault();

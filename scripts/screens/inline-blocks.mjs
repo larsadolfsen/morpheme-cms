@@ -538,7 +538,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       problems.push(`${label}: a card with an icon does not show the icon as a button`);
     if (await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-slots').count())
       problems.push(`${label}: the media buttons show although the card has its icon`);
-    if ((await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-media svg').count()) !== 1)
+    if ((await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-media-box svg').count()) !== 1)
       problems.push(`${label}: the card's icon is not shown exactly once`);
     await cardSettings('a card with an icon');
     // A video: the Media choice of the first card, then its link.

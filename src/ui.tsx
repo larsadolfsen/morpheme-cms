@@ -2061,7 +2061,7 @@ export function UnfoldButton({
       size="small"
       trailingIcon={open ? <CaretUp /> : <CaretDown />}
       aria-expanded={open}
-      aria-label={label}
+      aria-label={t.library.unfoldName(count, label)}
       title={title}
       className={`mo-keep ${className}`}
       onClick={onClick}

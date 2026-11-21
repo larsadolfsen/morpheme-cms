@@ -14,8 +14,6 @@ import { frontLeads } from '@site/standardPages';
 type Link = { label: string; href: string };
 
 type Sections = {
-  // The standard block "Accordion" with a heading and an introduction.
-  accordion: { heading: string; intro: string; items: (Link & { text?: string; more?: Link[] })[] };
   // The standard block "Testimonials" (show 'front': the front page's).
   testimonials: { heading: string; show?: string };
   // The standard block "Cards" with a heading (design: '' an icon, 'image' an image, 'text' neither).
