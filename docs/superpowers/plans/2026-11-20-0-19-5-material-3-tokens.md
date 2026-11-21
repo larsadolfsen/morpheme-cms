@@ -82,21 +82,30 @@ Batch 1 makes the comparison exact and turns this into the real baseline.
 1. **The version, the copy and the check.** Sets the version to 0.19.5 (`plans/2026-11-19-version-at-feature-start.md`), adds
    `scripts/m3-tokens.mjs`, `docs/m3-tokens/`, `check:m3-tokens` in CI and its allowlist with exactly the baseline found, each entry sorted
    as a recorded deviation or "to fix". `.claude/skills/checks/SKILL.md` says when to run it (a change to `theme/styles/tokens/`).
-2. **Elevation, the classes and the shadow check** (elevation spec, batches 1 and 2).
-3. **The section colours check and swap** (section colours spec, batches 1 and 2).
-4. **The current parts' elevation** (elevation spec, batch 3), with its test against the copy.
-5. **Colour roles of parts.** Every "to fix" colour entry fixed to M3's role. `check:contrast` and `check:screens` on every section colour,
+2. **The UI components page** (owner, 21 November 2026, "Yes and yes"). A page `/ui/` on the demo and on `morpheme-staging` that shows the theme's UI
+   components as a visitor sees them, with the site's own theme and CSS, so the owner sees each token batch's before and after on one Preview page.
+   - *Shared gallery:* it draws the same gallery as the editor's *Developer › Parts › UI components* (`#developer/parts/ui`, `ComponentParts` in
+     `src/BlockParts.tsx`), so the two never differ.
+   - *Layout:* one heading per group (Buttons, Icon buttons, FABs, Chips, Text fields …) and a subheading per size or kind (Small, Medium, Large;
+     Filled, Tonal, Outlined …). The editor's gallery gets the same headings and subheadings.
+   - *Visibility:* hidden from search engines and not in the menu. The CMS package provides the page and a site turns it on, so only the demo and
+     `morpheme-staging` show it, never a customer's site. Staging needs its own pull request in that repository.
+   - *Design first:* a short design, for the setting's name, goes before the build.
+3. **Elevation, the classes and the shadow check** (elevation spec, batches 1 and 2).
+4. **The section colours check and swap** (section colours spec, batches 1 and 2).
+5. **The current parts' elevation** (elevation spec, batch 3), with its test against the copy.
+6. **Colour roles of parts.** Every "to fix" colour entry fixed to M3's role. `check:contrast` and `check:screens` on every section colour,
    light and dark.
-6. **Sizes, shapes and type.** Every "to fix" size, shape and type entry fixed to M3's value.
-7. **The rest of the colour allowlist** (section colours spec, batch 3).
-8. **The recorded deviations.** Every entry of `docs/material-deviations.md` outside the editor's workspace is sorted: it matches M3
+7. **Sizes, shapes and type.** Every "to fix" size, shape and type entry fixed to M3's value.
+8. **The rest of the colour allowlist** (section colours spec, batch 3).
+9. **The recorded deviations.** Every entry of `docs/material-deviations.md` outside the editor's workspace is sorted: it matches M3
    Expressive after all (the entry goes, as with the 16 dp menu corner and the 56 dp hero buttons), WCAG requires it (it stays, naming the
    criterion), or it is made to match M3 and the entry goes (for example G1, the 16 and 24 px gap between cards where M3 prints 8 dp max).
 
-Batch 1 goes first; 2 and 3 can run side by side; 4 follows 2; 5 follows 3 (both change colours of parts); 6 and 8 can run beside 4 and
-5; 7 goes last. Every batch removes the allowlist entries it fixes, keeps `check:screens`, `check:themes`, `check:contrast` and `check:a11y` green, and
-Venus is checked on the demo. Parts change their look (tonal buttons, the navigation indicators, the bars losing their shadow), so batches 4
-to 6 and 8 each add a release note line (skill `release-notes`).
+Batch 1 goes first; 2 (the page) follows it, because every token batch after it is reviewed on that page; 3 and 4 can run side by side; 5 follows 3; 6 follows 4 (both change colours of parts); 7 and 9 can run beside 5 and
+6; 8 goes last. Every batch removes the allowlist entries it fixes, keeps `check:screens`, `check:themes`, `check:contrast` and `check:a11y` green, and
+Venus is checked on the demo. Parts change their look (tonal buttons, the navigation indicators, the bars losing their shadow), so batches 5
+to 7 and 9 each add a release note line (skill `release-notes`).
 
 ## Done when
 
