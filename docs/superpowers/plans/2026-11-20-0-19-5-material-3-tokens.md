@@ -133,7 +133,7 @@ Every frontend deviation, by name, and the batch that removes it (the sorting is
 | Search view SV1 to SV5, SV7 (scrim), SV8 to SV13, SV12 (list rows on Surface), button group `aria-pressed` | batch 9 |
 | Navigation rail N1, N2, N7 | batch 9 |
 | CSS sweep 5 and FR1 (focus ring), A1 (search field ring) | batch 9: the site takes M3's focus indicator (`secondary`, 3 dp, 2 dp); the editor keeps `primary`. Only if `check:contrast` or `check:keyboard` fails on it does it join the accessibility allowlist |
-| E1 (error text without `role="alert"`), N5 (native dialog, no swipe) | open: Modern Web Guidance (priority 1) against M3; asked of the PM |
+| E1 (error text without `role="alert"`), N5 (native dialog, no swipe) | stays: Modern Web Guidance outranks M3 (priority 1), guides named in each entry |
 | Choice group D1 (radio-list fallback) | → 0.20.0 |
 | N3 (icons on rail items) | → 0.20.0 |
 | N4 (`menuSide`) | → 0.20.0 |

@@ -62,7 +62,6 @@ Source: `theme/styles/tokens/material/comp/card.css`, `theme/styles/tokens/mater
 - **We do:** in a section on Primary, Secondary or Tertiary `--mo-sys-color-outline` is `--mo-sys-section-on-accent`: the section's on-colour (On primary, On secondary or On tertiary), a predefined Material 3 role, with no colour mix (was the on-colour at 35% over the section colour, the same as `outline-variant`, which stays 35%). Measured on the demo's three section colours: 6.46:1 to 6.49:1 in light and 7.63:1 to 7.76:1 in dark (was 1.83:1 to 2.20:1). Text field edges and outlined buttons use the same role, so they follow.
 - **Why:** WCAG 1.4.11, 3:1 for the edge of a card or a field. Owner rule, 20 Nov 2026: only Material 3's predefined colour roles are used, so no mix of a role is made; the owner chose the on-colour ("use the on-color") over a mix of it.
 - **Date:** 2026-11-20, owner decision (as O1). **PR:** `a11y-card-border` (0.19.2).
-- **Status:** M3 exact, owner 21 Nov 2026; the base theme takes it over. The change itself lands in batches 6 and 8; until then the part keeps this value (WCAG 2.2 1.4.11).
 
 ## Colour sweep
 
@@ -300,6 +299,7 @@ Source: `theme/ui/TextField.tsx` (`.mo-text-field__invalid-text`), `theme/ui/tex
 - **We do:** the line that says what is wrong has no `role="alert"`. While the field is invalid after the person has worked in it (`:user-invalid`), its `aria-invalid` is true and the line's id is in its `aria-describedby`, so a screen reader reads the message once, with the field.
 - **Why:** Chrome's Modern Web Guidance (`validate-input-after-interaction`, `accessible-error-announcement`) says to list the error in `aria-describedby` only while the field is invalid and not to make each message a live region, as a message that is shown rather than changed is not announced reliably and would be read twice. The owner's order puts the modern web guidance before Material 3 here: the PM, 15 Nov 2026 (owner: "We follow modern web").
 - **Date:** 2026-11-15 (owner, through the PM). **PR:** the pull request that adds this entry.
+- **Status:** stays: Modern Web Guidance outranks M3 (priority 1); guides `validate-input-after-interaction` and `accessible-error-announcement`.
 
 ## The site's menu is the modal expanded navigation rail (follow-up of D2 of the Modern Web Guidance audit)
 
@@ -321,6 +321,7 @@ Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `the
 
 - **Material:** Navigation drawer, Guidelines: "Modal navigation drawers use a scrim to block interaction with the rest of an app's content"; dismissal "by tapping the scrim or swiping the drawer toward its anchoring screen edge". Navigation rail, Guidelines: "Predictive back only applies to the modal expanded navigation rail."
 - **We do:** a scrim (the dialog's `::backdrop`), light dismiss and Escape through the native `<dialog>` and its `closedby="any"` and back gesture; no custom swipe (Modern Web Guidance, `dialog`: the browser handles the platform's dismissal). **Date:** 2026-11-15.
+- **Status:** stays: Modern Web Guidance outranks M3 (priority 1); guide `dialog`.
 
 ### N6. The editor's drawers keep one width
 
