@@ -12,7 +12,7 @@ if (!existsSync(join(DIST, 'ui', 'index.html'))) {
   process.exit(0);
 }
 // Whole words that only Danish uses, in the gallery's own texts.
-const DANISH = /\b(Annuller|Gem|Slet|Luk|Vælg|Søg|Dato|Indstillinger|Overskrift|Fortryd|Næste|Forrige|Mere|Ryd)\b/;
+const DANISH = /\b(Annuller|Gem|Slet|Luk|V\u00e6lg|S\u00f8g|Dato|Indstillinger|Overskrift|Fortryd|N\u00e6ste|Forrige|Mere|Ryd)\b/;
 
 const { server, site } = await serveBuilt(DIST);
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
