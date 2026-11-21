@@ -72,7 +72,8 @@ export default function TimePicker({
       />
       <IconButton
         icon="clock"
-        label={texts.select}
+        // Named by its field too (`Select time: Publish`): two time fields on one screen have two buttons a reader can tell apart.
+        label={label ? `${texts.select}: ${label}` : texts.select}
         className="mo-time-picker__field-button"
         aria-haspopup="dialog"
         aria-expanded="false"

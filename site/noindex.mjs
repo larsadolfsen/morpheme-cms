@@ -1,10 +1,11 @@
 // Pages that are not for search engines: the pages a booking or an order ends on (`booking.thanks` in the site's
-// config; someone arriving there from Google would also count as a booking in Google Ads) and the editor. Left out
+// config; someone arriving there from Google would also count as a booking in Google Ads), the editor and the UI components page
+// (`componentsPath`, which only the demo and the test site set). Left out
 // of the sitemap (packages/editor/astro.mjs) and marked noindex (Base.astro).
 import { config } from './siteConfig.mjs';
 import { inPreview, PREVIEW, renamedPreview } from '../lib/previewAddress.mjs';
 
-export const NOINDEX = [...config.booking.thanks, '/editor/'];
+export const NOINDEX = [...config.booking.thanks, '/editor/', ...(config.componentsPath ? [config.componentsPath] : [])];
 
 // New versions of the service pages, for the owner to compare with the current ones before they replace
 // them: /new/<the current page's address>, e.g. /new/services/consulting/. The overview is

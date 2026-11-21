@@ -25,7 +25,9 @@ export default function InlineNotice({ props, data, active, focus, onChange }: I
             <div
               role="button"
               tabIndex={0}
-              // Named by the notice's text (what is shown, WCAG 2.5.3); the field's name is its description.
+              // Named by the notice's text (what is shown, WCAG 2.5.3); the field's name is its description. Written out because the
+              // notice's own `aside` inside a button gives a reader no name from its content.
+              aria-label={new DOMParser().parseFromString(view.html, 'text/html').body.textContent?.trim() || t.blocks.notice.text}
               aria-description={t.blocks.notice.text}
               className="mo-editor-inline-notice"
               onClick={(e) => {
