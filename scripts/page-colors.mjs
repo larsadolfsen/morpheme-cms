@@ -16,7 +16,8 @@ const DARK = /:root\[data-theme='dark'\]\{([^}]*)\}/;
 
 const attribute = (attributes, name) => {
   const value = new RegExp(`\\b${name}="([^"]*)"`).exec(attributes)?.[1];
-  return value && value.replaceAll('&amp;', '&').replaceAll('&quot;', '"').replaceAll('&#39;', "'");
+  const entities = { '&amp;': '&', '&quot;': '"', '&#39;': "'" };
+  return value && value.replace(/&amp;|&quot;|&#39;/g, (entity) => entities[entity]);
 };
 const declarations = (css) =>
   Object.fromEntries([...(css ?? '').matchAll(/--mo-([a-z][a-z0-9-]*):(#[0-9a-f]{6});/gi)].map(([, name, value]) => [name, value]));

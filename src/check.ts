@@ -271,7 +271,7 @@ export function clean(fields: Field[], value: Record<string, unknown>, around?: 
 }
 
 // An image in Markdown (MarkdownEditor.tsx puts them in).
-const IMAGES = /!\[(?:\\.|[^\]])*\]\([^)\s]+/g;
+const IMAGES = /!\[(?:\\.|[^\\\]])*\]\([^)\s]+/g;
 
 // A block's name by its type: a standard block's (the editor's texts), an image's, else its type.
 const nameOf = (type: string) =>
