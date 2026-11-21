@@ -11,7 +11,7 @@ import { existsSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { openEditor, serveBuilt } from './built-site.mjs';
-import { FLOWS, PHONE_FLOWS, runFlow } from './keyboard-flows.mjs';
+import { FLOWS, PHONE_FLOWS, SITE_FLOW, runFlow, runSiteFlow } from './keyboard-flows.mjs';
 import { allowedKeys, entriesOf, judge, keysOf, readAllowlist, viewportOf, walk } from './keyboard.mjs';
 
 const args = process.argv.slice(2);
@@ -82,11 +82,22 @@ if (doScreens) {
 }
 
 if (doFlows) {
-  for (const flow of only && !doScreens ? only : FLOWS) {
+  for (const flow of only && !doScreens ? only.filter((f) => f !== SITE_FLOW) : FLOWS) {
     for (const width of [1280, 375]) {
       if (width < 600 && !PHONE_FLOWS.includes(flow)) continue;
       const { findings, errors } = await runFlow(browser, site, flow, width);
       const place = `flow ${flow}`;
+      ran.add(place);
+      for (const key of keysOf(findings, place, viewportOf(width))) found.add(key);
+      problems.push(...errors.map((e) => `${width}px ${e}`));
+      problems.push(...(flag('list') ? [] : judge(findings, place, viewportOf(width))));
+    }
+  }
+  // The site, not the editor (`--only site` runs it alone).
+  if (!only || !doScreens || only.includes(SITE_FLOW)) {
+    for (const width of [1280, 375]) {
+      const { findings, errors } = await runSiteFlow(browser, site, width);
+      const place = `flow ${SITE_FLOW}`;
       ran.add(place);
       for (const key of keysOf(findings, place, viewportOf(width))) found.add(key);
       problems.push(...errors.map((e) => `${width}px ${e}`));

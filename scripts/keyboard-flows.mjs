@@ -367,6 +367,222 @@ async function flowI(ctx) {
   await page.waitForTimeout(100);
 }
 
+// ---------------------------------------------------------------------------------------------------- the site's flow
+
+/** The place of the site's flow in the allowlist and in the messages. */
+export const SITE_FLOW = 'site';
+
+/** Every control with `aria-expanded` in `scope` that is shown, as a selector the flow can name. In the page. */
+const expandables = (scope) =>
+  [...document.querySelectorAll(`${scope} [aria-expanded]`)]
+    .filter((e) => e.getClientRects().length > 0)
+    .map((e) => ({
+      tag: e.tagName.toLowerCase(),
+      role: e.getAttribute('role'),
+      name: (e.getAttribute('aria-label') || e.innerText || '').trim().slice(0, 30),
+    }));
+
+/** Tabs to the control with `aria-expanded` and the name `name` in `scope`, presses Space and Enter on it (each twice: open, then closed), and expects
+ * aria-expanded to change each time and the focus to stay on it. */
+async function toggleBy(ctx, scope, name) {
+  const { page } = ctx;
+  const step = `${scope}: ${name}`;
+  const find = () =>
+    page.evaluate(
+      ({ scope, name }) => {
+        const e = document.activeElement;
+        return (
+          !!e && e.matches(`${scope} [aria-expanded]`) && (e.getAttribute('aria-label') || e.innerText || '').trim().slice(0, 30) === name
+        );
+      },
+      { scope, name },
+    );
+  let reached = false;
+  if (await isBody(page)) await toTop(page);
+  for (let i = 0; i < 60 && !(reached = await find()); i++) await page.keyboard.press('Tab');
+  if (!reached) {
+    ctx.add('unreachable', step);
+    return;
+  }
+  const state = () => page.evaluate(() => document.activeElement?.getAttribute('aria-expanded'));
+  for (const key of ['Space', 'Enter']) {
+    for (let round = 0; round < 2; round++) {
+      const before = await state();
+      await press(ctx, key);
+      const after = await state();
+      if (after === before) ctx.add('unreachable', `${step} by ${key}`);
+      else if (!(await find())) ctx.add('flow-lost-focus', `${step} after ${key}`);
+      else continue;
+      // Focus moved or nothing changed: put the focus back to go on.
+      await page.evaluate(
+        ({ scope, name }) =>
+          [...document.querySelectorAll(`${scope} [aria-expanded]`)]
+            .find((e) => (e.getAttribute('aria-label') || e.innerText || '').trim().slice(0, 30) === name)
+            ?.focus(),
+        { scope, name },
+      );
+      if (!(await find())) return;
+    }
+  }
+}
+
+/** The site, by keyboard alone: every control with `aria-expanded` is a button (or has role=button), and Space and Enter toggle it with the focus staying on it,
+ * in the navigation drawer (phone) and in the header's menus (computer). */
+async function flowSite(ctx) {
+  const { page, width } = ctx;
+  await page.goto(`${ctx.site}/contact/`, { waitUntil: 'networkidle' });
+  await settle(page, 600);
+  const audit = async (scope, where) => {
+    for (const e of await page.evaluate(expandables, scope))
+      if (e.tag !== 'button' && e.role !== 'button') ctx.add('unreachable', `${where}: ${e.tag}[aria-expanded] ${e.name} is not a button`);
+  };
+  if (width < 600) {
+    await audit('body', 'the page');
+    // The menu button, by Tab and Enter, opens the drawer.
+    await reach(ctx, 'site: the menu button', { css: '[data-editor=header-menu] button' }, { max: 30, need: true });
+    await press(ctx, 'Enter');
+    await expectFocus(ctx, 'site: after the drawer opens');
+    await audit('dialog[open]', 'the drawer');
+    // A group's header is the button itself (Space and Enter toggle it), not a link with a button beside it: Space does nothing on a link.
+    const linked = await page.evaluate(() =>
+      [...document.querySelectorAll('dialog[open] .mo-navigation-drawer__row')]
+        .filter((row) => row.querySelector('[aria-expanded]') && row.querySelector('a'))
+        .map((row) => (row.querySelector('a').innerText || '').trim().slice(0, 30)),
+    );
+    for (const name of linked) ctx.add('unreachable', `the drawer: the header ${name} is a link, so Space does not toggle it`);
+    const groups = (await page.evaluate(expandables, 'dialog[open]')).filter((e) => e.tag === 'button');
+    if (!groups.length) ctx.add('unreachable', 'site: the drawer has no group header');
+    for (const g of groups) await toggleBy(ctx, 'dialog[open]', g.name);
+    await press(ctx, 'Escape');
+    // Escape closes the drawer and the focus goes back to its menu button.
+    await expectFocus(ctx, 'site: after Escape closes the drawer', { css: '[data-editor=header-menu] button' });
+    // Enter on a link in the drawer follows it.
+    await press(ctx, 'Enter');
+    await expectFocus(ctx, 'site: after the drawer opens again');
+    await reach(ctx, 'site: Blog in the drawer', { css: 'dialog[open] a', text: 'Blog' }, { max: 30 });
+    await Promise.all([page.waitForURL('**/blog/', { timeout: 10_000 }).catch(() => {}), page.keyboard.press('Enter')]);
+    if (!page.url().endsWith('/blog/')) ctx.add('unreachable', 'site: Enter on Blog in the drawer does not follow it');
+  } else {
+    await audit('[data-header]', 'the header');
+    const toggles = await page.evaluate(expandables, '[data-header] [data-nav-item]');
+    if (!toggles.length) ctx.add('unreachable', 'site: the header has no menu with sub-pages');
+    // (Opened by a key the header's menu takes the focus to its first item, so its toggle is walked in siteParts, not here.)
+  }
+  await audit('body', 'the page');
+  await siteParts(ctx);
+}
+
+/** What else on the site the keyboard has to do, at every width: the skip link, the order of the floating button, the pop-up, the header's menu, the colour
+ * scheme choice and the room round a focus ring. */
+async function siteParts(ctx) {
+  const { page, width } = ctx;
+  const scrolled = () => page.evaluate(() => Math.round(scrollY));
+  // The skip link: the first Tab stop, and Enter puts the focus on the main content, with no ring on it.
+  await page.goto(`${ctx.site}/contact/`, { waitUntil: 'networkidle' });
+  await toTop(page);
+  await page.keyboard.press('Tab');
+  if (!(await page.evaluate(() => document.activeElement?.matches?.('.mo-skip-link'))))
+    ctx.add('unreachable', 'site: the skip link is not the first Tab stop');
+  await press(ctx, 'Enter');
+  const main = await page.evaluate(() => ({
+    on: document.activeElement?.matches?.('main#main-content'),
+    ring: getComputedStyle(document.activeElement).outlineStyle,
+  }));
+  if (!main.on) ctx.add('flow-lost-focus', 'site: after the skip link the focus is not on main#main-content');
+  else if (main.ring !== 'none') ctx.add('no-indicator', 'site: main#main-content shows a ring when the skip link focuses it');
+  // The floating button comes after the content and before the footer in the Tab order.
+  const fab = await page.evaluate(() => {
+    const f = document.querySelector('[data-fab]');
+    return f
+      ? [
+          !!(document.querySelector('main').compareDocumentPosition(f) & 4),
+          !!(f.compareDocumentPosition(document.querySelector('footer')) & 4),
+        ]
+      : null;
+  });
+  if (fab && !(fab[0] && fab[1])) ctx.add('unreachable', 'site: the floating button is not after the main content and before the footer');
+  // The room round a focus ring: the logo, a link in the text and a list row.
+  // (the ring is only drawn while focused, so the offset is read with the focus on the link)
+  for (const [name, css] of [
+    ['the logo', '.mo-header__title'],
+    ['a link in the text', 'main a:not([class])'],
+  ]) {
+    const link = page.locator(css).first();
+    if (!(await link.count())) continue;
+    await link.focus();
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Tab');
+    if ((await link.evaluate((e) => parseFloat(getComputedStyle(e).outlineOffset))) < 4)
+      ctx.add('no-indicator', `site: the ring on ${name} is closer than 4px to it`);
+  }
+  // A list row on the Blocks page: the text is at least 4dp from the inside of the 3dp ring.
+  await page.goto(`${ctx.site}/blocks/`, { waitUntil: 'networkidle' });
+  const row = page.locator('a.mo-list__item-container').first();
+  await row.focus();
+  await page.keyboard.press('Shift+Tab');
+  await page.keyboard.press('Tab');
+  const room = await row.evaluate((e) => {
+    const css = getComputedStyle(e);
+    return parseFloat(css.paddingLeft) + parseFloat(css.outlineOffset);
+  });
+  if (room < 4) ctx.add('no-indicator', 'site: the ring on a list row of the Blocks page is closer than 4px to its text');
+  // A pop-up that opens on a scroll is not opened by the Tab key, which scrolls the page to the control it focuses.
+  await page.goto(`${ctx.site}/build-a-page-from-blocks/`, { waitUntil: 'networkidle' });
+  await toTop(page);
+  for (let i = 0; i < 80; i++) await page.keyboard.press('Tab');
+  await settle(page, 1500);
+  if (await page.locator('dialog[open]').count())
+    ctx.add('flow-lost-focus', 'site: the pop-up opens while the keyboard tabs through the page');
+  // The colour scheme choice: Home chooses Light and End Dark, and the page does not scroll.
+  await page.goto(`${ctx.site}/contact/`, { waitUntil: 'networkidle' });
+  await page.evaluate(() => scrollTo(0, document.body.scrollHeight));
+  await page.locator('[data-scheme-choice] [data-scheme][tabindex="0"]').focus();
+  const y = await scrolled();
+  for (const [key, scheme] of [
+    ['Home', 'light'],
+    ['End', 'dark'],
+  ]) {
+    await page.keyboard.press(key);
+    if ((await page.evaluate(() => document.documentElement.dataset.theme)) !== scheme)
+      ctx.add('unreachable', `site: ${key} does not choose ${scheme} in the colour scheme`);
+    if ((await scrolled()) !== y) ctx.add('flow-lost-focus', `site: ${key} scrolls the page in the colour scheme`);
+  }
+  await page.keyboard.press('ArrowLeft');
+  // The header's menu (a computer): Enter opens it with the focus on its first item, the arrow keys, Home and End move without scrolling the page, Escape
+  // closes it and the focus goes back to its button.
+  if (width >= 600) {
+    await page.goto(`${ctx.site}/contact/`, { waitUntil: 'networkidle' });
+    const toggle = page.locator('[data-nav-toggle]').first();
+    if (await toggle.count()) {
+      await toggle.focus();
+      const top = await scrolled();
+      const first = () =>
+        page.evaluate(() =>
+          document.activeElement?.closest?.('.mo-header__submenu')
+            ? [...document.activeElement.closest('.mo-header__submenu').querySelectorAll('a')].indexOf(document.activeElement)
+            : -1,
+        );
+      await press(ctx, 'Enter');
+      if ((await first()) !== 0) ctx.add('flow-lost-focus', 'site: opening the header menu does not focus its first item');
+      await page.keyboard.press('ArrowDown');
+      if ((await first()) !== 1) ctx.add('unreachable', 'site: the Down arrow does not move in the header menu');
+      await page.keyboard.press('End');
+      const last = await first();
+      await page.keyboard.press('Home');
+      if (last < 1 || (await first()) !== 0) ctx.add('unreachable', 'site: Home and End do not move in the header menu');
+      if ((await scrolled()) !== top) ctx.add('flow-lost-focus', 'site: the header menu scrolls the page');
+      await press(ctx, 'Escape');
+      if (!(await page.evaluate(() => document.activeElement?.matches?.('[data-nav-toggle][aria-expanded=false]'))))
+        ctx.add('flow-lost-focus', 'site: Escape does not close the header menu and return the focus to its button');
+      // Space opens it the same way as Enter.
+      await toggle.focus();
+      await press(ctx, 'Space');
+      if ((await first()) !== 0) ctx.add('flow-lost-focus', 'site: Space on the header menu button does not open it on its first item');
+      await press(ctx, 'Escape');
+    }
+  }
+}
+
 const RUN = { A: flowA, B: flowB, C: flowC, D: flowD, E: flowE, F: flowF, G: flowG, H: flowH, I: flowI };
 
 /** Walks one flow at `width` in a new page of `browser` on `site`; gives its findings `[{ problem, selector }]` (a flow that ends early still gives what it found).
@@ -403,4 +619,20 @@ export async function runFlow(browser, site, flow, width, options = {}) {
   }
   await page.close();
   return { findings: ctx.findings, errors, ctx };
+}
+
+/** The site's flow (`flow site`) at `width` in a new page of `browser` on `site`: the drawer at a phone width, the header's menus at a computer's. Gives the same as `runFlow`.
+ * @param {import('playwright').Browser} browser */
+export async function runSiteFlow(browser, site, width) {
+  const page = await browser.newPage({ viewport: { width, height: width < 600 ? 800 : 900 }, locale: 'en-US' });
+  const ctx = { ...context(page, SITE_FLOW, width), site };
+  const errors = [];
+  page.on('pageerror', (e) => errors.push(e.message));
+  try {
+    await flowSite(ctx);
+  } catch (e) {
+    if (!(e instanceof Stop)) errors.push(`flow ${SITE_FLOW}: ${e.message}`);
+  }
+  await page.close();
+  return { findings: ctx.findings, errors };
 }

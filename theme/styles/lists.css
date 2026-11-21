@@ -88,4 +88,14 @@
       margin-inline: calc(-1 * var(--mo-sys-block-list-layer-room));
     }
   }
+  /* A plain list's row has no inner padding from the medium window size, so its text stands on the item's edge and the focus ring (3dp, inside the item)
+     would touch it (WCAG 2.2, 2.4.11 and 2.4.13: a focus indicator must not crowd the content). While it is focused, the row takes the layer's room on
+     both sides (the compact layout's, above) as padding and an equal negative margin: the text stays where it is, with room inside the ring. */
+  @media (width >= 37.5rem) {
+    :is(.mo-block-list:not(.mo-list__segmented), .mo-block-accordion:not(.mo-block-accordion__segmented))
+      a.mo-list__item-container:focus-visible {
+      margin-inline: calc(-1 * var(--mo-sys-block-list-layer-room));
+      padding-inline: var(--mo-sys-block-list-layer-room);
+    }
+  }
 }
