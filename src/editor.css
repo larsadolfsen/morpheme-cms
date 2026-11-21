@@ -1402,6 +1402,12 @@ html {
   outline-offset: 2px;
 }
 
+/* Inside a filled button the ring is drawn on the button's own container, which is the ring role's colour (1:1). It takes the button's
+   on-colour instead (the same tokens the theme's filled button uses for its label), so it holds on every section colour, light and dark. */
+.mo-button.mo-is-filled .mo-editor-inline-list-slot:focus-visible {
+  outline-color: var(--mo-comp-button-filled-label-text-color, var(--mo-sys-block-on-accent));
+}
+
 /* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
    shadow, so it stands in front of the editor's page also in a theme whose menu has the page's colour and no shadow. */
 .mo-editor-menu {

@@ -125,6 +125,56 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   await page.close();
 }
 
+/** The icon control inside a filled button (Buttons, Price cards) draws its keyboard focus ring on the button's own container, so the ring is the button's on-colour and
+ * holds at least 3:1 against that container (WCAG 2.4.7, 1.4.11), light and dark, on the page's colour and on a coloured section. */
+async function checkFilledSlotRing(scheme, sectionColor) {
+  const label = `${scheme} inline buttons slot ring${sectionColor ? ` on ${sectionColor}` : ''}`;
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, locale: 'en-US', colorScheme: scheme });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Buttons with text and icon.' }).first().click();
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="label"]', { timeout: 8000 });
+  await page.keyboard.type('One');
+  await page.waitForTimeout(300);
+  if (sectionColor)
+    await page.evaluate((color) => {
+      for (const el of document.querySelector('.ProseMirror').children) {
+        if (el.classList.contains('mo-editor-section-picture')) continue;
+        el.setAttribute('data-section-color', color);
+        el.setAttribute('data-section-box', 'only');
+      }
+    }, sectionColor);
+  await page.waitForTimeout(300);
+  // Keyboard focus: Shift+Tab from the label (the slot comes before it) until the slot has it (the ring shows for the keyboard only).
+  await page.locator('.mo-site-block-inline [data-field="label"]').first().click();
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="label"]');
+  let onSlot = false;
+  for (let i = 0; i < 4 && !onSlot; i++) {
+    await page.keyboard.press('Shift+Tab');
+    onSlot = await page.evaluate(() => !!document.activeElement?.matches('.mo-button.mo-is-filled .mo-editor-inline-list-slot'));
+  }
+  if (!onSlot) problems.push(`${label}: Shift+Tab did not reach the icon control inside the filled button`);
+  else {
+    const m = await page.evaluate(`(() => {
+      ${ratioOf}
+      const slot = document.activeElement;
+      const button = slot.closest('.mo-button.mo-is-filled');
+      const cs = getComputedStyle(slot);
+      return { style: cs.outlineStyle, width: parseFloat(cs.outlineWidth), ratio: ratio(cs.outlineColor, button, 1, button) };
+    })()`);
+    if (m.style === 'none' || m.width < 2) problems.push(`${label}: the focused icon control has no ring (${m.style} ${m.width}px)`);
+    else if (m.ratio < 3) problems.push(`${label}: the ring is ${m.ratio.toFixed(2)}:1 against the filled button, under 3:1`);
+  }
+  await page.close();
+}
+
 /** A List and a List - Expand, each in the design Plain and Segmented (owner, 16 Nov 2026: "The white list is the correct one"), are edited the same way: the active
  * row has the same slots (its icon and its link, at its end), the toolbar the same Link, the add button the same text, and the link slot the same sheet with its page; nothing is
  * drawn at the bottom of a row; the design is a setting of the block (Plain or Segmented) that changes only how the rows are drawn. Each is measured, then compared with the List's. */
@@ -913,6 +963,9 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkSteps ${width}`, () => checkSteps(width, height));
+  for (const scheme of ['light', 'dark'])
+    for (const color of ['', 'primary', 'tertiary'])
+      unit(`checkFilledSlotRing ${scheme} ${color || 'default'}`, () => checkFilledSlotRing(scheme, color));
   for (const block of pasteBlocks)
     for (const w of [375, 1280]) unit(`checkInlinePaste ${w} ${block.name}`, () => checkInlinePaste(w, w < 600 ? 740 : 900, block));
   for (const w of [375, 1280]) unit(`checkInlinePaste ${w} table`, () => checkTablePaste(w, w < 600 ? 740 : 900));
