@@ -245,14 +245,17 @@ const manualSeen = new Set();
 const started = Date.now();
 const themeFile = join(ROOT, 'src/data/theme.json');
 const themeBefore = readFileSync(themeFile, 'utf8');
-/** Waits until nothing is animating or transitioning: a pair read halfway through a fold's opening is a colour between two (the 375 px light failures of 21 Nov 2026
- *  were read inside the `::details-content` transition, which `*` does not reach), so every scan waits for `document.getAnimations()` to finish first. */
+/** Waits until nothing is animating or transitioning: a pair read halfway through a transition is a colour between two (8 failures at 375 px light on 21 Nov 2026,
+ *  colours halfway between a section's two colours, gone on a second run), so every scan waits for `document.getAnimations()` to finish first. */
 async function settled(page) {
   await page.evaluate(async () => {
-    for (let i = 0; i < 20; i++) {
-      const running = document.getAnimations().filter((a) => a.playState === 'running' || a.pending);
+    // An animation that never ends (a loading indicator) is not waited for, and no wait lasts longer than 3 s.
+    const finite = (a) => a.effect?.getComputedTiming().endTime !== Infinity;
+    const until = Date.now() + 3000;
+    while (Date.now() < until) {
+      const running = document.getAnimations().filter((a) => finite(a) && (a.playState === 'running' || a.pending));
       if (!running.length) break;
-      await Promise.allSettled(running.map((a) => a.finished));
+      await Promise.race([Promise.allSettled(running.map((a) => a.finished)), new Promise((r) => setTimeout(r, 500))]);
     }
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
   });
@@ -274,14 +277,12 @@ try {
             const ctx = { viewport: { width, height }, colorScheme: scheme, hasTouch: phone, isMobile: phone, locale: 'en-US' };
             // The site.
             const page = await browser.newPage(ctx);
-            await page
-              .addStyleTag({ content: '*,*::before,*::after,::details-content{transition:none!important;animation:none!important}' })
-              .catch(() => {});
+            await page.addStyleTag({ content: '*,*::before,*::after{transition:none!important;animation:none!important}' }).catch(() => {});
             for (const path of pages) {
               const response = await page.goto(`${site}${path}`).catch(() => null);
               if (!response || response.status() >= 400) continue;
               await page.addStyleTag({
-                content: '*,*::before,*::after,::details-content{transition:none!important;animation:none!important}',
+                content: '*,*::before,*::after{transition:none!important;animation:none!important}',
               });
               if (density && Number(density) < -1) await page.evaluate(setDensity, density);
               // Scrolled through once (what fades in when seen has faded in), and every fold open, so what is inside is read too.
@@ -307,8 +308,13 @@ try {
             if (density) await editor.evaluate(setDensity, density);
             await editor.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 60_000 }).catch(() => {});
             await editor.addStyleTag({
-              content: '*,*::before,*::after,::details-content{transition:none!important;animation:none!important}',
+              content: '*,*::before,*::after{transition:none!important;animation:none!important}',
             });
+            // The editor opens slowly now and then (fonts and photos from hosts that answer late): once more, rather than a scan of nothing.
+            if (!(await editor.$('.ProseMirror'))) {
+              await editor.reload();
+              await editor.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 120_000 });
+            }
             await editor.mouse.move(0, 0);
             await settled(editor);
             const view = `${theme} editor ${scheme} ${width}`;
@@ -321,7 +327,6 @@ try {
               if (!(await field.count())) continue;
               await field.click({ timeout: 2000 }).catch(() => {});
               await editor.mouse.move(0, 0);
-              await settled(editor);
               const records = await editor.evaluate(`(${scan})(document.querySelectorAll('.ProseMirror .mo-site-block-inline')[${i}])`);
               results.push(...unique(records, `${view} selected`));
             }
