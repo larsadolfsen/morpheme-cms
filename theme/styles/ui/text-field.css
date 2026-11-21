@@ -281,6 +281,10 @@
   }
   /* The clear button only once something is written; the error's icon only while the field is wrong, in place of the
      others at the end. */
+  /* The theme's clear button is the only one: hide the browser's own in a search field. */
+  .mo-text-field__container:has(> .mo-text-field__clear) > .mo-text-field__input::-webkit-search-cancel-button {
+    appearance: none;
+  }
   .mo-text-field__container:has(> .mo-text-field__input:placeholder-shown) > .mo-text-field__clear,
   .mo-text-field__error-icon {
     display: none;
