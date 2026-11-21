@@ -19,6 +19,21 @@ export const REUSED = ['A', 'B', 'C', 'F', 'I'];
 export const FLOWS = [...REUSED, 'J', 'K', 'L'];
 export const PHONE_FLOWS = ['A', 'B', 'F', 'J'];
 
+/** Which element announces each message (batch 4, plan *Live regions*): the editor's one announcer (`lib/announce.ts`, two regions made at start, used through
+ * `announce()` or `useAnnounce`), never an element's own `role` as well.
+ *   Autosave `Saving…`, `Saved`, `Not saved`   announcer, from `useAnnounce` in EntryForm (800 ms after the last change); all three polite (a failed autosave is not a failed Save)
+ *   `Save changes` and every save or delete    announcer, through the snackbar (`snackbar()` in lib/snackbar.ts, which has no live role of its own)
+ *   A failed save, any `error` snackbar        announcer, urgent (the snackbar's `error`)
+ *   A form's problems and their count          announcer, urgent, through the snackbar (`3 problems. …`); focus goes to the first wrong field (fields.tsx)
+ *   `Change type` with Undo                    announcer, through the snackbar (`undoSnackbar` in MarkdownEditor.tsx; the theme part's `role` is taken off the copy)
+ *   Selected rows (library, media)             announcer, from `useAnnounce` in SelectionBar
+ *   The dashboard's moves, its loading line    announcer (DashboardEdit, DashboardGrid)
+ *   Updates notice, no icons found             announcer, once, from `Announce` (UpdatesNotice, IconPicker)
+ *   Preview width                              announcer, only when the person picks a size (PreviewScreen); the width line itself is silent
+ *   Blocks selected in the text, position of a file, search result count, date picker headline, lightbox count
+ *                                              their own persistent region (kept: the text changes in a region that was there before)
+ *   A page-level `Notice` (Media, dashboard)   its own `role="alert"` (kept: an alert is read when it comes in)
+ */
 /** The steps that must be announced, and how: `{ urgent }` (the plan's *Live regions*: saves, errors, snackbars and block moves are said). */
 export const EXPECT = {
   'A: after Save': { urgent: false },

@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 import { X } from '@phosphor-icons/react';
 import { Button, Checkbox, IconButton } from './ui';
 import { t } from './i18n';
+import { useAnnounce } from './useAnnounce';
 
 export default function SelectionBar({
   count,
@@ -31,11 +32,10 @@ export default function SelectionBar({
   kind?: 'icons' | 'buttons' | 'actions';
   children?: ReactNode;
 }) {
+  // The count is said by the editor's one announcer, when it changes (a region that comes into the page with its text is often not read).
+  useAnnounce(t.library.selectedCount(count));
   return (
     <>
-      <span className="mo-visually-hidden" role="status" aria-live="polite">
-        {t.library.selectedCount(count)}
-      </span>
       {kind === 'actions' ? (
         children
       ) : kind === 'icons' ? (
