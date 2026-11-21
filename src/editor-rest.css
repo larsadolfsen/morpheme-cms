@@ -205,9 +205,11 @@
 
   /* ---- The start screen's widgets (widgets/*.tsx, FirstRun.tsx) ---- */
 
-  /* A card whose list runs to its edges: the title and the empty line carry the inset. */
+  /* A card that holds a list keeps its 16 dp padding on every side (M3 Cards, Specs: "Left/right padding 16dp") and the list sits inside it, so a row's layer has the card's
+     padding on each side. A row's own 16 dp leading and trailing space (Lists, Specs) puts its text 16 dp in from the layer, so the title and the empty line take the same
+     16 dp and line up with the text. M3 prints nothing for a list inside a card (docs/material-deviations.md, "Where Material 3 is silent"). */
   .mo-editor-widget-list {
-    --mo-comp-card-padding: 1rem 0 0.5rem;
+    --mo-comp-card-padding: 1rem 1rem 0.5rem;
   }
   .mo-editor-widget-text {
     --mo-comp-card-padding: 1rem;
@@ -247,7 +249,7 @@
   .mo-editor-first-run {
     position: relative;
     margin-block-end: var(--mo-comp-editor-rhythm-200);
-    --mo-comp-card-padding: 1rem 0 0.5rem;
+    --mo-comp-card-padding: 1rem 1rem 0.5rem;
   }
   .mo-editor-first-run-title {
     padding-inline-start: var(--mo-ref-space-200);

@@ -669,6 +669,54 @@ async function checkDraftsCard(width, height) {
   await few.close();
 }
 
+/** A list in a start-screen card (the "Unfinished" card here; "Continue where you left off", the first-run card and the updates notice share its rules): the card keeps its
+ * 16 dp padding on every side (M3 Cards › Specs, "Left/right padding 16dp"), so a row's layer is 16 dp in from the card's edges and not at them, and the row's own 16 dp
+ * leading space (Lists › Specs) puts its icon on the title's text edge. M3 prints nothing for a list in a card (docs/material-deviations.md, "Where Material 3 is silent").
+ * Owner, 21 Nov 2026 (the layer ran to the card's edges after PR #1125's room past the text). */
+async function checkListInCard(width, height) {
+  const label = `${width}px list in a card`;
+  const draft = (n) => `---\ntitle: "Draft ${n}"\nstatus: draft\n---\n\nText\n`;
+  const files = Object.fromEntries([1, 2].map((n) => [`src/content/pages/check-draft-${n}.md`, draft(n)]));
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site, files);
+  await page.evaluate(() => (location.hash = ''));
+  const card = page.getByRole('region', { name: daLibrary.unfinishedTitle, exact: true });
+  await card.waitFor({ state: 'visible', timeout: 5000 }).catch(() => problems.push(`${label}: the card is missing`));
+  const m = await card.evaluate((c) => {
+    const text = (e) => {
+      const r = document.createRange();
+      r.selectNodeContents(e);
+      return r.getBoundingClientRect();
+    };
+    const row = c.querySelector('.mo-list__item-container');
+    const icon = row?.querySelector('.mo-list__item-leading');
+    const cr = c.getBoundingClientRect();
+    const rr = row?.getBoundingClientRect();
+    return (
+      row && {
+        left: rr.left - cr.left,
+        right: cr.right - rr.right,
+        title: text(c.querySelector('h2')).left,
+        icon: icon.getBoundingClientRect().left,
+      }
+    );
+  });
+  if (!m) problems.push(`${label}: the card has no row`);
+  else {
+    // The card's 1 dp edge is inside its box, so the layer is at least 16 dp from the box.
+    if (m.left < 15.5 || m.right < 15.5)
+      problems.push(
+        `${label}: the row's layer is ${Math.round(m.left)} and ${Math.round(m.right)} dp from the card's edges, under the card's 16 dp padding`,
+      );
+    if (Math.abs(m.title - m.icon) > 1)
+      problems.push(
+        `${label}: the title starts at ${Math.round(m.title)} and the row's icon at ${Math.round(m.icon)}; they should line up`,
+      );
+  }
+  await page.close();
+}
+
 // "Appstore" and "Morpheme" in the three states of the site's key to the store (STORE_STATES): what each shows, and an image of it in
 // SCREENS_DIR.
 const keyStates = {
@@ -948,4 +996,9 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkDraftsCard ${width}`, () => checkDraftsCard(width, height));
+  for (const [width, height] of [
+    [390, 800],
+    [1280, 900],
+  ])
+    unit(`checkListInCard ${width}`, () => checkListInCard(width, height));
 }
