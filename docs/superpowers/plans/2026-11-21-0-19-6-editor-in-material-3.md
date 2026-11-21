@@ -4,6 +4,10 @@ Status: **21 November 2026.** Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md
 `specs/2026-11-21-editor-screens-m3-audit.md` (0.19.5 batch 14, #1120): 392 rows in 8 batches, and 110 rows of the page and post editor
 apart.
 
+Already done in 0.19.5 (owner, 21 Nov 2026, after seeing them on staging): batch 17 (#1123) removed the rail's colour override
+(audit row 1.16), and found the search bar (row 1.28) and the dashboard's outlined cards already matching M3 on the feature. Those
+rows are not part of 0.19.6.
+
 ## What 0.19.6 is
 
 Every editor screen (theme page, settings, lists, dialogs, dashboard, start screen, sheets) becomes the theme's Material parts with
