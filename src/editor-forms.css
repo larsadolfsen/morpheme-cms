@@ -185,13 +185,6 @@
     padding-inline: var(--mo-ref-space-50);
     color: var(--mo-sys-color-on-surface-variant);
   }
-  .mo-editor-app-list-owner {
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
-    display: flex;
-    align-items: center;
-    gap: var(--mo-ref-space-150);
-    padding-inline: var(--mo-ref-space-200);
-  }
   .mo-editor-app-list-owner-text {
     min-inline-size: 0;
     flex: 1;

@@ -51,7 +51,7 @@ export function MainDrawerSample() {
         footer={section === null ? <MainDrawerItem href="" icon={Gear} label={parts.settings} /> : undefined}
         header={
           section === null ? (
-            <AccountRow user={sampleUser} supporting="example.com" href="" />
+            (close) => <AccountRow user={sampleUser} supporting="example.com" href="" actions={close} />
           ) : (
             <MainDrawerBack label={t.library.back} name={t.common.backTo(t.library.mainMenu)} onClick={() => setSection(null)} />
           )

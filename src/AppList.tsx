@@ -29,7 +29,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Info, UserCircle, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
-import { Button, EmptyNote, Group, LeadingIcon, SupportingText, SearchRow, useKept, ListItem, type TabChoice } from './ui';
+import { Button, EmptyNote, Group, LeadingIcon, SupportingText, SearchRow, useKept, ListItem, plainListClass, type TabChoice } from './ui';
 import { pagesWith } from './BlockSettings';
 import { ConflictError, type Change, type RepoFile } from './github';
 import { cookieChanges, inCookieList } from './cookieList';
@@ -391,17 +391,16 @@ export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; fi
   return (
     <Screen title={name ?? t.apps.developer} wide back={backToStore}>
       {name && (
-        <div className="mo-editor-app-list-owner">
-          <LeadingIcon icon={UserCircle} />
-          <span className="mo-editor-app-list-owner-text">
-            <span className="mo-truncate mo-editor-app-list-name">{name}</span>
-            <span className="mo-truncate mo-editor-app-list-meta">
-              {[theirs.length && t.apps.appCount(theirs.length), theirThemes.length && t.library.themeCount(theirThemes.length)]
-                .filter(Boolean)
-                .join(' · ')}
-            </span>
-          </span>
-        </div>
+        <ul className={plainListClass}>
+          <ListItem
+            icon={UserCircle}
+            headline={name}
+            supporting={[theirs.length && t.apps.appCount(theirs.length), theirThemes.length && t.library.themeCount(theirThemes.length)]
+              .filter(Boolean)
+              .join(' · ')}
+            truncate
+          />
+        </ul>
       )}
       {theirs.length > 0 && (
         <Group title={t.apps.developerApps}>

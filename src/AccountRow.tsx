@@ -1,13 +1,13 @@
 // The signed-in user as a list row: their GitHub image in a round avatar (their initials until it loads or when it fails),
 // their name and a line under it. Exposes AccountRow. Uses ListItem (ui.tsx) and lib/account.mjs; the main drawer's header
 // (MainMenu.tsx) and the account screen (Library.tsx) show it.
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { avatarOf, initialsOf } from '../lib/account.mjs';
 import type { Viewer } from './github';
 import { ListItem, plainListClass } from './ui';
 
-/** The user's avatar, name (`user.name`, or the login) and `supporting` under it, each on one line; a link when `href` is set. */
-export function AccountRow({ user, supporting, href }: { user: Viewer; supporting?: string; href?: string }) {
+/** The user's avatar, name (`user.name`, or the login) and `supporting` under it, each on one line; a link when `href` is set, and `actions` (an icon button) at its end. */
+export function AccountRow({ user, supporting, href, actions }: { user: Viewer; supporting?: string; href?: string; actions?: ReactNode }) {
   const initials = initialsOf(user.name, user.login);
   const src = avatarOf(user.login, 80);
   const [loaded, setLoaded] = useState(false);
@@ -28,6 +28,7 @@ export function AccountRow({ user, supporting, href }: { user: Viewer; supportin
         leadingAvatar={loaded ? { src } : initials}
         headline={user.name ?? user.login}
         supporting={supporting}
+        actions={actions}
         truncate
       />
     </ul>
