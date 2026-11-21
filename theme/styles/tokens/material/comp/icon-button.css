@@ -10,11 +10,11 @@
   --mo-comp-icon-button-small-container-height: 2.5rem;
   --mo-comp-icon-button-small-icon-size: 1.5rem;
   --mo-comp-icon-button-standard-icon-color: var(--mo-sys-color-on-surface-variant);
-  --mo-comp-icon-button-tonal-container-color: var(--mo-sys-color-surface-container-high);
-  --mo-comp-icon-button-tonal-icon-color: var(--mo-sys-color-on-surface);
+  --mo-comp-icon-button-tonal-container-color: var(--mo-sys-color-secondary-container);
+  --mo-comp-icon-button-tonal-icon-color: var(--mo-sys-color-on-secondary-container);
   --mo-comp-icon-button-outlined-surface: transparent;
   --mo-comp-icon-button-outlined-icon-color: var(--mo-sys-color-on-surface-variant);
-  --mo-comp-icon-button-outlined-outline-color: var(--mo-sys-color-outline);
+  --mo-comp-icon-button-outlined-outline-color: var(--mo-sys-color-outline-variant);
 }
 @layer components {
   .mo-bottom-sheet__header {

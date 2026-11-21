@@ -4,7 +4,7 @@
     {
       "criterion": "1.4.11",
       "part": "outlined-card-edge",
-      "why": "In dark mode the edge of an outlined card, and the outline of a block typed in place, on a coloured section is Material 3's outline role, 2.9:1 against the section's container, just below 3:1. In light mode it is 3.5:1. The theme uses M3's roles as printed."
+      "why": "On the site and in the editor's screens, the edge of an outlined card is Material 3's outline-variant role (md.comp.outlined-card.outline.color), about 1.6:1 on the surface, under 3:1. In dark mode the edge of an outlined card, and the outline of a block typed in place, on a coloured section is M3's outline role, 2.9:1 against the section's container. The theme uses M3's roles as printed."
     }
   ]
 }

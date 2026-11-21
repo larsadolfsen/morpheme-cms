@@ -7,12 +7,12 @@
   --mo-comp-segmented-button-surface: transparent;
   --mo-comp-outlined-segmented-button-outline-color: var(--mo-sys-color-outline);
   --mo-comp-segmented-button-padding: 0.75rem;
-  --mo-comp-outlined-segmented-button-selected-container-color: var(--mo-sys-color-surface-container-high);
-  --mo-comp-outlined-segmented-button-selected-label-text-color: var(--mo-sys-color-on-surface);
+  --mo-comp-outlined-segmented-button-selected-container-color: var(--mo-sys-color-secondary-container);
+  --mo-comp-outlined-segmented-button-selected-label-text-color: var(--mo-sys-color-on-secondary-container);
   --mo-comp-segmented-button-selected-hover: color-mix(
     in srgb,
-    var(--mo-sys-color-on-surface) 8%,
-    var(--mo-sys-color-surface-container-high)
+    var(--mo-sys-color-on-secondary-container) 8%,
+    var(--mo-sys-color-secondary-container)
   );
   --mo-comp-segmented-button-radius: var(--mo-sys-shape-corner-full);
 }
