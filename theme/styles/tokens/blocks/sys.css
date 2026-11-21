@@ -37,8 +37,6 @@
     --mo-sys-block-ease       the easing of motion (else the motion scheme's, --mo-sys-motion-ease)
     --mo-sys-block-ease-quick the easing of a quick change of state (a colour, an arrow that turns or moves; else the motion
                        scheme's, --mo-sys-motion-ease-quick)
-    --mo-sys-block-hero-shade, --mo-sys-block-hero-on-shade  (optional) the colour an image behind a section's text is darkened with,
-                       and the text's on it; without them the text's colour and the surface's
     --mo-sys-block-page-width, --mo-sys-block-gutter  the page's container (its width, gutters included, and its gutter at the
                        side), whose left edge the text starts at: how far a section across the whole width reaches out
                        of the text to the window's edges, and where its content starts again (the standard theme's
@@ -121,39 +119,31 @@
   }
 }
 @layer components {
-  :where(.mo-text-section).mo-has-image {
-    --mo-sys-section-fill: var(--mo-sys-block-hero-shade, var(--mo-sys-block-text));
-    --mo-sys-section-on-fill: var(--mo-sys-block-hero-on-shade, var(--mo-sys-block-surface));
-    --mo-sys-section-shade: var(--mo-sys-section-fill);
-  }
-}
-@layer components {
-  :where(.mo-text-section).mo-has-image.mo-is-surface {
-    --mo-sys-section-shade: var(--mo-sys-block-surface);
-  }
-}
-@layer components {
   :where(.mo-text-section).mo-is-primary {
     --mo-sys-section-fill: var(--mo-sys-block-primary);
     --mo-sys-section-on-fill: var(--mo-sys-block-on-primary);
-    --mo-sys-section-container: var(--mo-sys-color-primary-container, var(--mo-sys-block-tint));
-    --mo-sys-section-on-container: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-text));
   }
 }
 @layer components {
   :where(.mo-text-section).mo-is-secondary {
     --mo-sys-section-fill: var(--mo-sys-block-secondary);
     --mo-sys-section-on-fill: var(--mo-sys-block-on-secondary);
-    --mo-sys-section-container: var(--mo-sys-color-secondary-container, var(--mo-sys-block-tint));
-    --mo-sys-section-on-container: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-text));
   }
 }
 @layer components {
   :where(.mo-text-section).mo-is-tertiary {
     --mo-sys-section-fill: var(--mo-sys-block-tertiary);
     --mo-sys-section-on-fill: var(--mo-sys-block-on-tertiary);
-    --mo-sys-section-container: var(--mo-sys-color-tertiary-container, var(--mo-sys-block-tint));
-    --mo-sys-section-on-container: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-text));
+  }
+}
+/* A section with an image is the inverse roles, Material 3's set for an area that contrasts with the page: text and icons
+   inverse-on-surface, actions inverse-primary, on an inverse-surface panel behind the text (text-section.css), whatever the image
+   and the section's colour (spec 2026-11-20-section-colours-design.md, Decisions). After the colour kinds, so it wins over them. */
+@layer components {
+  :where(.mo-text-section).mo-has-image {
+    --mo-sys-section-fill: var(--mo-sys-color-inverse-surface);
+    --mo-sys-section-on-fill: var(--mo-sys-color-inverse-on-surface);
+    --mo-sys-section-action: var(--mo-sys-color-inverse-primary);
   }
 }
 @layer components {
@@ -172,34 +162,34 @@
     :where(.mo-text-section).mo-is-primary,
     :where(.mo-text-section).mo-is-secondary,
     :where(.mo-text-section).mo-is-tertiary,
-    :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)
+    :where(.mo-text-section).mo-has-image
   ) {
     --mo-sys-section-accent: var(--mo-sys-section-fill);
     --mo-sys-section-on-accent: var(--mo-sys-section-on-fill);
-    --mo-sys-section-text: var(--mo-sys-block-text);
-    --mo-sys-section-surface: var(--mo-sys-block-surface);
   }
 }
-/* The blocks in it read as an inverted theme on the accent: text, lines and the accent itself are the text-on-primary
-     colour, a surface is a veil of it, and what was text-on-primary (a filled button's label, a step number) is the
-     accent. Dark mode follows, as the variables do. */
+/* The blocks in a section on a colour read the roles of the swap (tokens/material/sys.css): the aliases, which are resolved where they are
+   declared, are declared again on them, from the swapped roles. */
 @layer components {
-  :is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
-  /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-  .mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-    --mo-sys-block-text: var(--mo-sys-section-on-accent);
-    --mo-sys-block-muted: var(--mo-sys-section-on-accent);
-    --mo-sys-block-accent: var(--mo-sys-section-on-accent);
-    --mo-sys-block-accent-hover: color-mix(in srgb, var(--mo-sys-section-on-accent) 88%, var(--mo-sys-section-accent));
-    --mo-sys-block-on-accent: var(--mo-sys-section-accent);
-    --mo-sys-block-surface: color-mix(in srgb, var(--mo-sys-section-on-accent) 14%, transparent);
-    --mo-sys-block-tint: color-mix(in srgb, var(--mo-sys-section-on-accent) 14%, transparent);
-    --mo-sys-block-stripe: color-mix(in srgb, var(--mo-sys-section-on-accent) 7%, transparent);
-    --mo-sys-block-line: color-mix(in srgb, var(--mo-sys-section-on-accent) 35%, transparent);
+  :is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]),
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image) :is(.mo-card:is(.mo-is-filled, .mo-is-elevated, .mo-is-selected), :where(.mo-button, .mo-icon-button).mo-is-tonal, .mo-list__segmented > li, .mo-block-accordion:not(.mo-block-accordion__segmented) > li:has(> .mo-list__item-expand[open]), .mo-block-steps__step-number, .mo-block-tag, .mo-block-badge, .mo-block-table__grid thead th, .mo-block-table__grid[data-striped] tbody tr:nth-child(even), .mo-prose :where(:not(pre) > code), .mo-block-testimonials__testimonial, .mo-block-testimonials__testimonial-mark, .mo-block-video__facade, .mo-block-link-row, .mo-text-field.mo-is-filled, .mo-block-accordion__segmented > li),
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]) :is(.mo-card:is(.mo-is-filled, .mo-is-elevated, .mo-is-selected), :where(.mo-button, .mo-icon-button).mo-is-tonal, .mo-list__segmented > li, .mo-block-accordion:not(.mo-block-accordion__segmented) > li:has(> .mo-list__item-expand[open]), .mo-block-steps__step-number, .mo-block-tag, .mo-block-badge, .mo-block-table__grid thead th, .mo-block-table__grid[data-striped] tbody tr:nth-child(even), .mo-prose :where(:not(pre) > code), .mo-block-testimonials__testimonial, .mo-block-testimonials__testimonial-mark, .mo-block-video__facade, .mo-block-link-row, .mo-text-field.mo-is-filled, .mo-block-accordion__segmented > li) {
+    --mo-sys-block-text: var(--mo-sys-color-on-surface);
+    --mo-sys-block-muted: var(--mo-sys-color-on-surface-variant);
+    --mo-sys-block-accent: var(--mo-sys-color-primary);
+    --mo-sys-block-accent-hover: color-mix(
+      in srgb,
+      var(--mo-sys-color-on-primary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+      var(--mo-sys-color-primary)
+    );
+    --mo-sys-block-on-accent: var(--mo-sys-color-on-primary);
+    --mo-sys-block-surface: var(--mo-sys-color-surface-container-lowest);
+    --mo-sys-block-tint: var(--mo-sys-color-surface-container-high);
+    --mo-sys-block-stripe: var(--mo-sys-color-surface-container);
+    --mo-sys-block-line: var(--mo-sys-color-outline-variant);
     --mo-sys-block-shadow: none;
-    /* A section with its image behind the text is darkened with the section's own text colour, in its own surface. */
-    --mo-sys-block-hero-shade: var(--mo-sys-section-text);
-    --mo-sys-block-hero-on-shade: var(--mo-sys-section-surface);
   }
 }
 @layer components {

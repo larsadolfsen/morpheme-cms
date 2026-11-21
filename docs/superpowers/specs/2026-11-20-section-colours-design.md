@@ -132,3 +132,17 @@ Decided by the owner on 20 November 2026:
 
 Done when `check:color-roles` fails on a home-made mix, its allowlist is empty, the owner has seen the coloured sections on the demo in
 light and dark, and 0.19.5 has run on staging.
+
+## As built (batches 1 and 2, 21 November 2026)
+
+- `check:color-roles` is in `check:source` with `scripts/color-roles.allow.mjs` (one entry per file and rule, `max` and `why`; only shrinks). The spec's third rule, a
+  fixed colour, stays `check:colors`' `fixed-colour` (same scope, own allowlist), so it is not counted twice. A state layer is any `color-mix()` whose
+  percentage is a `--mo-sys-state-*-opacity` token (over transparency or another colour), and the scrim token declares M3's 32 %.
+- The swap is role for role in `tokens/material/sys.css`; the block aliases are declared again from the roles in `tokens/blocks/sys.css`. **Container-lowest is
+  the section's colour, not the on-colour**: M3's lowest container is the page surface with the least tint, and the theme fills outlined buttons, chips and
+  segmented buttons with it, so they stay outlined.
+- The filled parts (the list in the reverse rule of `sys.css`, repeated in the head of every token file that is re-resolved on a section) keep their container
+  (the on-colour) and draw their text, icons and edges in the section's colour. Only one level is reversed: a tonal button inside a card is the on-colour on
+  the on-colour with the section's colour as its label. Add a part to the list when `check:contrast` fails on it.
+- A section with an image (any colour) is `inverse-surface` / `inverse-on-surface` with `inverse-primary` actions (`--mo-sys-section-action`), on a panel inset half a
+  padding from the image's edge. `--mo-sys-block-hero-shade` and `-hero-on-shade` are gone, with the gradient.

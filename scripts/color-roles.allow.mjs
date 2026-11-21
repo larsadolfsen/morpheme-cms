@@ -1,0 +1,36 @@
+// The mixes of a colour role that are not Material 3's yet (check:color-roles, spec docs/superpowers/specs/2026-11-20-section-colours-design.md).
+// One entry per file and rule: how many findings the file may have now (`max`), never more, and why. A fix lowers `max` or removes the entry,
+// and an entry that no longer matches fails, so the list only shrinks. Empty at release (plan 2026-11-20-0-19-5-material-3-tokens.md, batch 8).
+const REST =
+  'to fix in the last batch (the rest of the colour allowlist, section colours spec batch 3): a role or an M3 opacity token instead of the mix';
+export const allow = [
+  { file: 'src/editor-forms.css', rule: 'mix', max: 1, why: REST },
+  { file: 'src/editor-screens.css', rule: 'mix', max: 1, why: REST },
+  { file: 'src/editor-ui.css', rule: 'mix', max: 3, why: REST },
+  { file: 'src/editor.css', rule: 'mix', max: 13, why: REST },
+  { file: 'src/pagePreview.tsx', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/blocks/panel.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/blocks/prose.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/reset.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/tokens/material/comp/bottom-sheet.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/tokens/material/comp/card.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/tokens/material/comp/fab.css', rule: 'mix', max: 2, why: REST },
+  { file: 'theme/styles/tokens/material/comp/list.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/tokens/material/comp/segmented-button.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/tokens/ui/comp/button.css', rule: 'mix', max: 2, why: REST },
+  { file: 'theme/styles/tokens/ui/comp/icon-button.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/tokens/ui/comp/menu.css', rule: 'mix', max: 5, why: REST },
+  { file: 'theme/styles/ui/bottom-sheet.css', rule: 'mix', max: 2, why: REST },
+  { file: 'theme/styles/ui/buttons.css', rule: 'mix', max: 5, why: REST },
+  { file: 'theme/styles/ui/chips.css', rule: 'mix', max: 2, why: REST },
+  { file: 'theme/styles/ui/dialog.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/ui/lightbox.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/ui/menus.css', rule: 'mix', max: 3, why: REST },
+  { file: 'theme/styles/ui/navigation-drawer.css', rule: 'mix', max: 3, why: REST },
+  { file: 'theme/styles/ui/navigation-rail.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/ui/search.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/ui/side-sheet.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/ui/switch.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/ui/toolbar.css', rule: 'mix', max: 1, why: REST },
+  { file: 'theme/styles/ui/top-app-bar.css', rule: 'mix', max: 2, why: REST },
+];

@@ -153,10 +153,12 @@ surfaces and fonts.
 ### Colours in editor-drawn block parts
 
 Colours in the editor's block parts (`src/editor.css`, `src/Inline*.tsx`) come only from the theme's context tokens: the `--mo-*`
-roles, `currentColor` and `color-mix` of them, never a fixed value. A section on a colour swaps those roles to its on-colours once, in
-`theme/styles/global.css` (the site's `.mo-text-section` with its `mo-is-<color>` kinds, and the editor's `[data-section-color]` nodes), so a part that uses the normal
+roles and `currentColor`, never a fixed value and never a mix of a role (only Material 3's state layers and shadows may use `color-mix`).
+A section on a colour has two colours, its own and its on-colour, and swaps the roles to them role for role once, in
+`theme/styles/tokens/material/sys.css` (the site's `.mo-text-section` with its `mo-is-<color>` kinds, and the editor's `[data-section-color]` nodes), so a part that uses the normal
 tokens follows every section colour by itself. `npm run check:editor-colors` fails on a fixed colour (its allowlist gives the
-reasons), and `check:screens` checks text, placeholder, slot icons and outline of every entry of `inlineBlocks` on every section colour.
+reasons), `npm run check:color-roles` on a mix of a role or a role declared as anything but another role (its allowlist,
+`scripts/color-roles.allow.mjs`, only shrinks), and `check:screens` checks text, placeholder, slot icons and outline of every entry of `inlineBlocks` on every section colour.
 
 ### Accessibility: WCAG 2.2 AA
 

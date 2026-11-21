@@ -19,9 +19,11 @@
   --mo-sys-density-base: 0;
 }
 :root,
-:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]),
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image) :is(.mo-card:is(.mo-is-filled, .mo-is-elevated, .mo-is-selected), :where(.mo-button, .mo-icon-button).mo-is-tonal, .mo-list__segmented > li, .mo-block-accordion:not(.mo-block-accordion__segmented) > li:has(> .mo-list__item-expand[open]), .mo-block-steps__step-number, .mo-block-tag, .mo-block-badge, .mo-block-table__grid thead th, .mo-block-table__grid[data-striped] tbody tr:nth-child(even), .mo-prose :where(:not(pre) > code), .mo-block-testimonials__testimonial, .mo-block-testimonials__testimonial-mark, .mo-block-video__facade, .mo-block-link-row, .mo-text-field.mo-is-filled, .mo-block-accordion__segmented > li),
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]) :is(.mo-card:is(.mo-is-filled, .mo-is-elevated, .mo-is-selected), :where(.mo-button, .mo-icon-button).mo-is-tonal, .mo-list__segmented > li, .mo-block-accordion:not(.mo-block-accordion__segmented) > li:has(> .mo-list__item-expand[open]), .mo-block-steps__step-number, .mo-block-tag, .mo-block-badge, .mo-block-table__grid thead th, .mo-block-table__grid[data-striped] tbody tr:nth-child(even), .mo-prose :where(:not(pre) > code), .mo-block-testimonials__testimonial, .mo-block-testimonials__testimonial-mark, .mo-block-video__facade, .mo-block-link-row, .mo-text-field.mo-is-filled, .mo-block-accordion__segmented > li) {
   /* State layers: on-surface (or primary) over the element, at M3's state opacities (hover 0.08, pressed 0.1; tokens/ui/ref.css). */
   --mo-sys-state-mo-hover-layer: color-mix(
     in srgb,
@@ -67,39 +69,108 @@
   --mo-sys-grid-gutter: 1rem;
   --mo-sys-grid-layout-columns: 4;
 }
-/* The blocks in a section on the accent (blocks.css) read as an inverted theme: the site's colours below are swapped for
-   it, and the list above (the M3 aliases and the parts' variables, which are resolved where they are declared) is
-   declared again on them (the selector of its rule), so every part takes the swapped colours. The section's own
-   colours are in --section-… (blocks.css). */
-:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* A section on a colour has two colours: its own, --mo-sys-section-accent, and its on-colour, --mo-sys-section-on-accent (spec
+   docs/superpowers/specs/2026-11-20-section-colours-design.md; Material 3 guarantees the pair: "Any color roles starting with "on-" are
+   guaranteed to have sufficient contrast with the corresponding color role"). The blocks in it read the roles below instead of the page's
+   (the aliases and the parts' variables, which are resolved where they are declared, are declared again on them: the selector of this rule,
+   at the head of every token file), role for role, with no mix:
+   - drawn on the section (text, icons, edges, a text or outlined control): the on-colour;
+   - what the page paints with its surface: the section's colour; every container (the fill of a card, a field, a tonal button): the on-colour,
+     and what is drawn on it takes the pair once more (the rule for filled parts, below). Container-lowest is M3's surface itself (the page
+     colour with the least tint), so it is the section's colour too: an outlined part is not filled. */
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]) {
   --mo-sys-color-on-surface: var(--mo-sys-section-on-accent);
   --mo-sys-color-on-surface-variant: var(--mo-sys-section-on-accent);
-  --mo-sys-color-outline-variant: color-mix(in srgb, var(--mo-sys-section-on-accent) 35%, transparent);
   --mo-sys-color-outline: var(--mo-sys-section-on-accent);
-  --mo-sys-color-surface: var(--mo-sys-section-accent);
-  --mo-sys-color-primary: var(--mo-sys-section-on-accent);
+  --mo-sys-color-outline-variant: var(--mo-sys-section-on-accent);
+  --mo-sys-color-primary: var(--mo-sys-section-action, var(--mo-sys-section-on-accent));
+  --mo-sys-color-secondary: var(--mo-sys-section-action, var(--mo-sys-section-on-accent));
+  --mo-sys-color-tertiary: var(--mo-sys-section-action, var(--mo-sys-section-on-accent));
   --mo-sys-color-on-primary: var(--mo-sys-section-accent);
-  --mo-sys-color-surface-dim: color-mix(in srgb, var(--mo-sys-section-on-accent) 18%, transparent);
-  --mo-sys-color-surface-bright: var(--mo-sys-section-accent);
-  --mo-sys-color-surface-container-lowest: color-mix(in srgb, var(--mo-sys-section-on-accent) 6%, transparent);
-  --mo-sys-color-surface-container-low: color-mix(in srgb, var(--mo-sys-section-on-accent) 8%, transparent);
-  --mo-sys-color-surface-container: color-mix(in srgb, var(--mo-sys-section-on-accent) 10%, transparent);
-  --mo-sys-color-surface-container-high: color-mix(in srgb, var(--mo-sys-section-on-accent) 12%, transparent);
-  --mo-sys-color-surface-container-highest: color-mix(in srgb, var(--mo-sys-section-on-accent) 14%, transparent);
-  --mo-sys-color-secondary: var(--mo-sys-section-on-accent);
   --mo-sys-color-on-secondary: var(--mo-sys-section-accent);
-  --mo-sys-color-secondary-container: var(--mo-sys-section-container, color-mix(in srgb, var(--mo-sys-section-on-accent) 22%, transparent));
-  --mo-sys-color-on-secondary-container: var(--mo-sys-section-on-container, var(--mo-sys-section-on-accent));
-  --mo-sys-color-tertiary: var(--mo-sys-section-on-accent);
   --mo-sys-color-on-tertiary: var(--mo-sys-section-accent);
-  --mo-sys-color-tertiary-container: var(--mo-sys-section-container, color-mix(in srgb, var(--mo-sys-section-on-accent) 22%, transparent));
-  --mo-sys-color-on-tertiary-container: var(--mo-sys-section-on-container, var(--mo-sys-section-on-accent));
-  --mo-sys-color-primary-container: var(--mo-sys-section-container, color-mix(in srgb, var(--mo-sys-section-on-accent) 22%, transparent));
-  --mo-sys-color-on-primary-container: var(--mo-sys-section-on-container, var(--mo-sys-section-on-accent));
+  --mo-sys-color-surface: var(--mo-sys-section-accent);
+  --mo-sys-color-surface-bright: var(--mo-sys-section-accent);
+  --mo-sys-color-surface-container-lowest: var(--mo-sys-section-accent);
+  --mo-sys-color-surface-dim: var(--mo-sys-section-on-accent);
+  --mo-sys-color-surface-container-low: var(--mo-sys-section-on-accent);
+  --mo-sys-color-surface-container: var(--mo-sys-section-on-accent);
+  --mo-sys-color-surface-container-high: var(--mo-sys-section-on-accent);
+  --mo-sys-color-surface-container-highest: var(--mo-sys-section-on-accent);
+  --mo-sys-color-primary-container: var(--mo-sys-section-on-accent);
+  --mo-sys-color-secondary-container: var(--mo-sys-section-on-accent);
+  --mo-sys-color-tertiary-container: var(--mo-sys-section-on-accent);
+  --mo-sys-color-on-primary-container: var(--mo-sys-section-accent);
+  --mo-sys-color-on-secondary-container: var(--mo-sys-section-accent);
+  --mo-sys-color-on-tertiary-container: var(--mo-sys-section-accent);
   --mo-sys-block-shadow: none;
   --mo-sys-panel-shadow: none;
+}
+/* What is filled on the section (a card, a tonal button, a field, a table head: the parts of the list in this rule) keeps its container, the
+   on-colour, and what is drawn on it takes the pair once more, the other way round: a card's text, icons and edges are the section's colour,
+   and its own filled button is the pair again (the section's colour as its fill, the on-colour as its label). The page's own surface, which an
+   outlined part is drawn on, is the on-colour here too, so it is not a second fill. */
+:is(
+    :where(.mo-text-section).mo-is-primary,
+    :where(.mo-text-section).mo-is-secondary,
+    :where(.mo-text-section).mo-is-tertiary,
+    :where(.mo-text-section).mo-has-image
+  )
+  :is(
+    .mo-card:is(.mo-is-filled, .mo-is-elevated, .mo-is-selected),
+    :where(.mo-button, .mo-icon-button).mo-is-tonal,
+    .mo-list__segmented > li,
+    .mo-block-accordion:not(.mo-block-accordion__segmented) > li:has(> .mo-list__item-expand[open]),
+    .mo-block-steps__step-number,
+    .mo-block-tag,
+    .mo-block-badge,
+    .mo-block-table__grid thead th,
+    .mo-block-table__grid[data-striped] tbody tr:nth-child(even),
+    .mo-prose :where(:not(pre) > code),
+    .mo-block-testimonials__testimonial,
+    .mo-block-testimonials__testimonial-mark,
+    .mo-block-video__facade,
+    .mo-block-link-row,
+    .mo-text-field.mo-is-filled,
+    .mo-block-accordion__segmented > li
+  ),
+.mo-editor-text
+  .ProseMirror
+  > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture])
+  :is(
+    .mo-card:is(.mo-is-filled, .mo-is-elevated, .mo-is-selected),
+    :where(.mo-button, .mo-icon-button).mo-is-tonal,
+    .mo-list__segmented > li,
+    .mo-block-accordion:not(.mo-block-accordion__segmented) > li:has(> .mo-list__item-expand[open]),
+    .mo-block-steps__step-number,
+    .mo-block-tag,
+    .mo-block-badge,
+    .mo-block-table__grid thead th,
+    .mo-block-table__grid[data-striped] tbody tr:nth-child(even),
+    .mo-prose :where(:not(pre) > code),
+    .mo-block-testimonials__testimonial,
+    .mo-block-testimonials__testimonial-mark,
+    .mo-block-video__facade,
+    .mo-block-link-row,
+    .mo-text-field.mo-is-filled,
+    .mo-block-accordion__segmented > li
+  ) {
+  color: var(--mo-sys-section-accent);
+  --mo-sys-color-on-surface: var(--mo-sys-section-accent);
+  --mo-sys-color-on-surface-variant: var(--mo-sys-section-accent);
+  --mo-sys-color-outline: var(--mo-sys-section-accent);
+  --mo-sys-color-outline-variant: var(--mo-sys-section-accent);
+  --mo-sys-color-primary: var(--mo-sys-section-accent);
+  --mo-sys-color-secondary: var(--mo-sys-section-accent);
+  --mo-sys-color-tertiary: var(--mo-sys-section-accent);
+  --mo-sys-color-on-primary: var(--mo-sys-section-on-accent);
+  --mo-sys-color-on-secondary: var(--mo-sys-section-on-accent);
+  --mo-sys-color-on-tertiary: var(--mo-sys-section-on-accent);
+  --mo-sys-color-surface: var(--mo-sys-section-on-accent);
+  --mo-sys-color-surface-bright: var(--mo-sys-section-on-accent);
+  --mo-sys-color-surface-container-lowest: var(--mo-sys-section-on-accent);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
