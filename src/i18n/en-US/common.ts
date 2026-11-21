@@ -20,6 +20,10 @@ export const common = {
   searchIn: (what: string) => `Search ${what.toLowerCase()}`,
   moveUp: 'Move up',
   moveDown: 'Move down',
+  /** The same actions on a row of a list, named by the row, for screen readers: "Move Contact up". */
+  moveUpItem: (name: string) => `Move ${name} up`,
+  moveDownItem: (name: string) => `Move ${name} down`,
+  removeItem: (name: string) => `Remove ${name}`,
   notInUse: 'Not in use',
   noMatch: 'No results',
   notSaved: (error: string) => `Couldn’t save: ${error}`,

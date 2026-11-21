@@ -92,6 +92,8 @@ export const text = {
   duplicateBlock: 'Duplicate',
   removeBlocks: (count: number, names: string[], kept: string[]) =>
     `Remove ${count} ${count === 1 ? 'block' : 'blocks'}${names.length > 0 && names.length <= 5 ? ` (${names.join(', ')})` : ''}?${kept.length ? ` ${kept.join(', ')} ${kept.length === 1 ? 'stays' : 'stay'}, as the page needs ${kept.length === 1 ? 'it' : 'them'}.` : ''} Undo brings ${count === 1 ? 'it' : 'them'} back.`,
+  /** The name of a block when the page has more than one of its kind ("Image 2 of 3"), so a screen reader can tell the cards and handles apart. */
+  blockOf: (name: string, place: number, of: number) => `${name} ${place} of ${of}`,
   /** The handle on a block: dragging it moves the block (Move up and Move down do it with the keyboard). */
   dragBlock: (name: string) => `Drag ${name} to move it`,
   /** Shown in an empty line of the text, under the pointer or the cursor. */
