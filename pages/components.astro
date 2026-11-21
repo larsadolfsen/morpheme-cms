@@ -1,0 +1,19 @@
+---
+// The UI components page (`componentsPath` in the site's config, "/ui/"): the theme's UI components in every kind, size and state, as a visitor
+// sees them, with the site's own theme and CSS. It draws the gallery of the editor's "Parts" › "UI components" (src/ComponentGallery.tsx), so the two
+// never differ. Not for search engines (site/noindex.mjs), not in the menu and not in the lists of pages. Only a site that sets the path has it: the
+// CMS's demo and morpheme-staging, for the owner to review the theme's tokens on.
+import Base from '@theme/layouts/Base.astro';
+import Container from '@theme/components/Container.astro';
+import PageHeader from '@theme/components/PageHeader.astro';
+import { ComponentGallery } from '@morphemecms/cms/src/ComponentGallery.tsx';
+import '@morphemecms/cms/src/editor.css';
+import { siteT } from '@morphemecms/cms/src/i18n';
+---
+
+<Base title={siteT.theme.uiComponents} description={siteT.theme.uiComponentsDescription}>
+  <PageHeader title={siteT.theme.uiComponents} />
+  <Container as="section" class="mo-ui-components">
+    <ComponentGallery client:only="react" />
+  </Container>
+</Base>

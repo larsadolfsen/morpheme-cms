@@ -31,6 +31,9 @@
  *   opens ('': the site has none, and the header has no button to it), and the pages a booking or an order ends on: not
  *   for search engines (site/noindex.mjs), and without the action bar.
  * @property {string} aboutPath The page about the owner (an AboutPage in the structured data), or ''.
+ * @property {string} componentsPath The address of the page that shows the theme's UI components as a visitor sees them (`/ui/`), with a slash at
+ *   both ends, or '': no page, as on every site that does not set it. Only the CMS's demo and `morpheme-staging` set it; the page is not for search
+ *   engines (site/noindex.mjs), not in the menu and not in the lists of pages.
  * @property {string} postEnd The block drawn across the page after every blog post (its type, with its shared texts), or ''.
  * @property {string} titleEnd A word a page's title can end in, after a dash, for search engines (" – Copenhagen"): kept in
  *   <title>, left out of the page's heading (displayTitle in site/text.ts). Empty: nothing is left out.
@@ -61,6 +64,7 @@ const CHOICES = {
   picture: null,
   booking: { path: '', thanks: [] },
   aboutPath: '',
+  componentsPath: '',
   postEnd: '',
   titleEnd: '',
   samePictures: {},
@@ -168,6 +172,6 @@ export const defineSite = (own) => {
   const pinned = PINNABLE.filter((name) => (name === 'folders.files' ? own.folders?.files : own[name]) !== undefined);
   // The address the files folder has on the site, besides the old and the new standard one, which a page cannot have.
   const files = `/${folders.files.replace(/^public\//, '')}/`;
-  const reserved = [...new Set([...STANDARD.reserved, files, '/filer/', '/files/', '/ny/'])]; // language-ok: the old files and new-versions addresses are reserved too
+  const reserved = [...new Set([...STANDARD.reserved, files, '/filer/', '/files/', '/ny/', ...(own.componentsPath ? [own.componentsPath] : [])])]; // language-ok: the old files and new-versions addresses are reserved too
   return { ...STANDARD, ...CHOICES, ...own, folders, reserved, pinned };
 };

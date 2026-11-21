@@ -170,13 +170,13 @@ export function PartsShown({
 /** The parts of a group, under its name while all the groups are shown in their groups; nothing when
  * another group is picked, and no name when none of its parts is what is searched for. By name, the parts
  * stand in one list, without the groups. */
-export function PartGroup({ group, children }: { group: string; children: ReactNode }) {
+export function PartGroup({ group, title, children }: { group: string; title?: string; children: ReactNode }) {
   const shown = useContext(Shown);
   if (shown.group && shown.group !== group) return null;
   if (shown.sort !== 'group') return <div className="mo-contents">{children}</div>;
   return (
     <div className="mo-editor-parts-group">
-      {!shown.group && <FormHeading>{shown.groups.find((g) => g.id === group)?.title}</FormHeading>}
+      {!shown.group && <FormHeading>{shown.groups.find((g) => g.id === group)?.title ?? title}</FormHeading>}
       {children}
     </div>
   );

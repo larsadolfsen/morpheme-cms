@@ -33,6 +33,8 @@ export const theme: Messages['theme'] = {
   postsAbout: (count, tag) => `${count} indlæg om ${tag}`,
   notFound: 'Siden findes ikke',
   didYouMean: 'Mente du',
+  uiComponents: 'UI-komponenter',
+  uiComponentsDescription: 'Temaets UI-komponenter, som en besøgende ser dem.',
   newPages: 'Nye sider',
   newPagesDescription: 'Nye versioner af siderne, til gennemsyn.',
   newPagesIntro:
