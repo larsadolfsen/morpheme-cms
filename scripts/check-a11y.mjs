@@ -8,7 +8,8 @@ import { existsSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { serveBuilt } from './built-site.mjs';
-import { VIEWPORTS, allowedKeys, compare, entriesOf, keysOf, problemsOf, readAllowlist, scan } from './a11y.mjs';
+import { VIEWPORTS, allowedKeys, compare, entriesOf, keysOf, problemsOf, readAllowlist, scan, unnamedViolations } from './a11y.mjs';
+import { activeStatement } from './theme-statement.mjs';
 
 const DIST = resolve(process.cwd(), process.argv.find((a, i) => i > 1 && !a.startsWith('--')) ?? 'dist');
 if (!existsSync(join(DIST, 'index.html'))) {
@@ -24,6 +25,8 @@ const pages = readdirSync(DIST, { recursive: true, withFileTypes: true })
   .map((p) => (p.endsWith('/index.html') ? p.slice(0, -'index.html'.length) : p))
   .sort();
 
+// What the theme in use names as its own shortfall in accessibility.json is let through (lib/accessibility.mjs).
+const { statement } = activeStatement();
 const { server, site } = await serveBuilt(DIST);
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
 const found = new Set();
@@ -49,7 +52,7 @@ for (const [viewport, width] of Object.entries(VIEWPORTS)) {
         })
         .catch(() => {});
       await page.evaluate(() => document.fonts.ready);
-      for (const key of keysOf(await scan(page), path, viewport)) found.add(key);
+      for (const key of keysOf(unnamedViolations(await scan(page), statement), path, viewport)) found.add(key);
     }
     await context.close();
   }

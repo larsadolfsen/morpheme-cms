@@ -17,10 +17,22 @@ const SEP = '\t';
 export const cleanSelector = (selector) => selector.replace(/:r[0-9a-z]*:|_r_[0-9a-z]+_/g, 'r*');
 
 /**
- * @param {{ file: URL, field: string, label: string, collectEnv: string }} options `file`: the list; `field`: the name of the kind in an entry;
- *   `label`: the name in the messages (`announce`); `collectEnv`: the environment variable that collects findings instead of judging them.
+ * @param {{ file: URL, field: string, label: string, collectEnv: string, classify?: (finding: { problem: string, selector: string }) => { criterion: string, part: string } | null,
+ *   statement?: () => { statement: { fallsShort: Array<{ criterion: string, part: string }> } } }} options `file`: the list; `field`: the name of the kind in an entry;
+ *   `label`: the name in the messages (`announce`); `collectEnv`: the environment variable that collects findings instead of judging them; `classify` and
+ *   `statement`: a finding that falls on a part the theme in use names in its accessibility.json (lib/accessibility.mjs) is let through, not judged.
  */
-export function makeAllowlist({ file, field, label, collectEnv }) {
+export function makeAllowlist({ file, field, label, collectEnv, classify, statement }) {
+  /** The findings the theme in use does not name as a shortfall of its own. */
+  const unnamedOf = (findings) => {
+    if (!classify || !statement) return findings;
+    const named = new Set(statement().statement.fallsShort.map((e) => `${e.criterion} ${e.part}`));
+    return findings.filter((f) => {
+      const part = classify(f);
+      return !part || !named.has(`${part.criterion} ${part.part}`);
+    });
+  };
+
   /** The allowlist's entries. @returns {Array<Record<string, any>>} */
   const readAllowlist = () => JSON.parse(readFileSync(file, 'utf8'));
 
@@ -86,7 +98,7 @@ export function makeAllowlist({ file, field, label, collectEnv }) {
 
   /** Checks one place's findings against the allowlist: gives the problems to print, or collects the keys when the collect variable is set. @returns {string[]} */
   function judge(findings, place, viewport) {
-    const found = keysOf(findings, place, viewport);
+    const found = keysOf(unnamedOf(findings), place, viewport);
     if (process.env[collectEnv]) {
       collect(process.env[collectEnv], found);
       return [];
