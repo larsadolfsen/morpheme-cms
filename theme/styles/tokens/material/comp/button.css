@@ -27,7 +27,7 @@
   --mo-comp-button-small-padding: 1rem;
   --mo-comp-button-xsmall-container-height: 2rem;
   --mo-comp-button-xsmall-padding: 1rem;
-  --mo-comp-button-xsmall-icon-label-space: 0.5rem;
+  --mo-comp-button-xsmall-icon-label-space: 0.25rem;
   --mo-comp-button-text-padding: 1.5rem;
   --mo-comp-button-filled-hover: color-mix(
     in srgb,
@@ -49,14 +49,14 @@
   --mo-comp-button-outlined-hovered-outline-color: var(--mo-sys-color-outline);
   --mo-comp-button-text-label-text-color: var(--mo-sys-color-primary);
   --mo-comp-button-text-hover: var(--mo-sys-color-primary-hover);
-  /* The buttons that do more than one thing (ui.css, "Actions"), as M3's. Button groups 12px apart, or connected 2px
+  /* The buttons that do more than one thing (ui.css, "Actions"), as M3's. Button groups 8px apart, or connected 2px
      apart with small corners between them (extra-small for the extra-small buttons, large and large increased for the
      large and extra-large); a toggle off in a surface container in on-surface-variant, on in the primary colour, with
      medium corners in a standard group. Segmented buttons 40px high (the buttons' height) with the
      outline and no container, the chosen in the secondary container with its check. Split buttons 2px apart with
      extra-small corners between them (small for the large, medium for the extra-large). A FAB menu's actions as pills in the secondary container (the theme's --mo-sys-color-surface-container-high, below) and its
      FAB a circle while open. */
-  --mo-comp-button-group-standard-medium-between-space: 0.75rem;
+  --mo-comp-button-group-standard-medium-between-space: 0.5rem;
   --mo-comp-button-group-connected-gap: 0.125rem;
   --mo-comp-button-group-xsmall-inner-radius: var(--mo-sys-shape-corner-extra-small);
   --mo-comp-button-group-inner-radius: var(--mo-sys-shape-corner-small);

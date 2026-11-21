@@ -10,19 +10,15 @@
 
 /* Density (theme/styles/base.css) reaches the editor's own screens, not the page and post editing area: what is typed in place
    there keeps the theme's own step (--mo-sys-density-base) at every choice, as on the site, so a block is drawn as it will be. The
-   derived variables are computed where they are declared, so they are declared again here. */
+   derived variable is computed where they are declared, so it is declared again here. */
 .mo-editor-text .ProseMirror {
   --mo-sys-density-user: 0;
-  --mo-sys-density: clamp(-3, var(--mo-sys-density-base), 1);
-  --mo-sys-density-layout: clamp(-1, var(--mo-sys-density-base), 1);
-  --mo-sys-density-focus: clamp(0, var(--mo-sys-density-base), 1);
+  --mo-sys-density: clamp(-3, var(--mo-sys-density-base), 0);
 }
 /* The rows that pick the density are always at the default size, so a person can always go back. */
 [data-density-fixed] {
   --mo-sys-density-user: 0;
   --mo-sys-density: 0;
-  --mo-sys-density-layout: 0;
-  --mo-sys-density-focus: 0;
 }
 
 :where(:root) {
@@ -1900,11 +1896,11 @@ dialog {
 
 /* The screen's own top padding (24 px, 32 px from a medium window up) takes the step too, from the medium width. */
 .mo-editor-screen {
-  padding-top: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  padding-top: calc(var(--mo-ref-space-300) + max(var(--mo-sys-density), -1) * var(--mo-sys-density-step));
 }
 @media (width >= 37.5rem) {
   .mo-editor-screen {
-    padding-top: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-top: calc(var(--mo-ref-space-400) + max(var(--mo-sys-density), -1) * var(--mo-sys-density-step));
   }
 }
 
@@ -2089,4 +2085,13 @@ dialog {
    reaches. */
 main[tabindex='-1']:focus {
   outline: none;
+}
+
+/* The editor's own screens keep their icon buttons 48 px (a target they owe, checked in block-bar.mjs, page-rows.mjs and search-and-palette.mjs): the top bar,
+   the action row of the active block and the command palette's field row. Material's small icon button is 40 dp with a 48 dp target, and the theme draws
+   no target area beyond the container yet; the theme's own parts, and so the editor's gallery of them, keep the 40 dp. */
+.mo-editor-screen-bar,
+.mo-site-block-row,
+[data-search-controlled] .mo-search-view__header {
+  --mo-comp-icon-button-small-container-height: 3rem;
 }

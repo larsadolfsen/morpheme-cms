@@ -96,4 +96,20 @@ export const allow = [
     reason:
       "the reset's values are Tailwind's preflight as it was (batch T14, a pure migration): the page's default line height before the body's own, and the code elements' size that keeps em from compounding",
   },
+  {
+    file: /^theme\/styles\/prose\.css$/,
+    line: /^box-shadow: 0 0 0 1px var\(--mo-comp-prose-kbd-shadows\), 0 3px 0 var\(--mo-comp-prose-kbd-shadows\)$/,
+    reason: 'the kbd key edge has an offset and no blur: it draws the edge of a key, not a height (elevation spec, The check)',
+  },
+  {
+    file: /^src\/editor\.css$/,
+    line: /^box-shadow: 0 -?3px 0 0 var\(--mo-sys-color-primary\)$/,
+    reason: "the editor's drop indicator is a 3px line above or below a part: an offset and no blur, a line and not a height",
+  },
+  {
+    file: /^theme\/styles\/blocks\/prose\.css$/,
+    line: /^filter: drop-shadow\(0 2px 8px rgb\(0 0 0 \/ 0\.5\)\)$/,
+    reason:
+      "the video facade's play icon sits on a video, M3's case for a shadow (\"Protect elements\"); drop-shadow() takes one shadow and not the level tokens' two-part list, so it keeps a drop-shadow of level 3's strength until the icon is drawn as a box",
+  },
 ];

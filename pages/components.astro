@@ -1,0 +1,45 @@
+---
+// The UI components page (`componentsPath` in the site's config, "/ui/"): the theme's UI components in every kind, size and state, with the site's own
+// theme and CSS. It draws the gallery of the editor's "Parts" › "UI components" (src/ComponentGallery.tsx), so the two never differ. A bare page, as the
+// editor's is: no header, footer, action bar or cookie banner, because it tests the theme, not the site (owner, 21 Nov 2026), so it holds nothing of the site's
+// own. Not for search engines (site/noindex.mjs), not in the menu and not in the lists of pages. Only a site that sets the path has it: the CMS's demo and
+// morpheme-staging, for the owner to review the theme's tokens on.
+import '@theme/styles/global.css';
+import '@morphemecms/cms/src/editor.css';
+import FontPreload from '@theme/components/FontPreload.astro';
+import Container from '@theme/components/Container.astro';
+import PageHeader from '@theme/components/PageHeader.astro';
+import { ComponentGallery } from '@morphemecms/cms/src/ComponentGallery.tsx';
+import { pageColors } from '@morphemecms/cms/site/pageColors';
+import { colorsCss } from '@morphemecms/cms/lib/colors';
+import { motionCss } from '@morphemecms/cms/lib/motion';
+import { motionScheme } from '@morphemecms/cms/site/motion';
+import { site } from '@morphemecms/cms/site/site';
+import { siteT } from '@morphemecms/cms/src/i18n';
+
+const { colors } = await pageColors({ path: Astro.url.pathname, pictures: [] });
+---
+
+<!doctype html>
+<html lang={site.locale.split('-')[0]} data-site-language data-motion-scheme={motionScheme}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{siteT.theme.uiComponents}</title>
+    <meta name="description" content={siteT.theme.uiComponentsDescription} />
+    <FontPreload />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="color-scheme" content="light dark" />
+    <style is:inline set:html={colorsCss(colors)}></style>
+    <style is:inline data-motion-springs set:html={motionCss(motionScheme)}></style>
+  </head>
+  <body class="mo-body">
+    <main id="main-content" class="mo-main">
+      <PageHeader title={siteT.theme.uiComponents} />
+      <Container as="section" class="mo-ui-components">
+        <ComponentGallery client:only="react" />
+      </Container>
+    </main>
+  </body>
+</html>

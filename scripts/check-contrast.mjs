@@ -21,6 +21,8 @@ import { buildOutDir } from './build-out.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
 import { blockHtml } from '../lib/blocks.mjs';
 import { demoBlocksTestBody } from './demo-blocks.mjs';
+import { judgeShortfalls } from '../lib/accessibility.mjs';
+import { statementOf } from './theme-statement.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const PAGE = 'src/content/pages/contrast-test.md';
@@ -35,8 +37,14 @@ const SCHEMES = ['light', 'dark'];
 const all = process.argv.includes('--all');
 const themes = process.env.CONTRAST_THEMES ? process.env.CONTRAST_THEMES.split(',') : all ? installedThemes() : [activeTheme()];
 const reportFile = process.env.CONTRAST_REPORT;
-// CONTRAST_DENSITY=-1 (or 1): the editor is checked at Small (or Large) density, data-density on <html>; the site has no density.
+// CONTRAST_DENSITY=-1: the editor is checked at Small density, data-density on <html>. -2 and -3 (a theme's own step, which no editor setting
+// offers yet) are forced on the site and in the editor through --mo-sys-density-base, so the denser parts keep their colours too.
 const density = process.env.CONTRAST_DENSITY;
+const setDensity = (d) => {
+  const root = document.documentElement;
+  if (Number(d) >= -1) root.setAttribute('data-density', d);
+  else root.style.setProperty('--mo-sys-density-base', d);
+};
 
 /** Browser side (a string for page.evaluate): scans `root` and gives one record per pair of colours. */
 const scan = `(root) => {
@@ -128,7 +136,7 @@ const scan = `(root) => {
   const push = (el, kind, front, back, min, extra) => {
     const blockEl = el.closest('[data-block], .mo-is-in-text, .mo-site-block-inline');
     const r = ratio(over(front, back), back);
-    records.push({ block: blockOf(el), variant: variantOf(el, blockEl), section: sectionOf(el), kind, fg: hex(over(front, back)), bg: hex(back), ratio: r, min, text: (extra.text ?? '').slice(0, 40), manual: extra.manual, tag: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.split(/\\s+/)[0] : '') });
+    records.push({ block: blockOf(el), variant: variantOf(el, blockEl), section: sectionOf(el), kind, fg: hex(over(front, back)), bg: hex(back), ratio: r, min, text: (extra.text ?? '').slice(0, 40), manual: extra.manual, card: !!el.closest('.mo-card'), tag: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.split(/\\s+/)[0] : '') });
   };
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const seen = new Set();
@@ -248,6 +256,7 @@ try {
               const response = await page.goto(`${site}${path}`).catch(() => null);
               if (!response || response.status() >= 400) continue;
               await page.addStyleTag({ content: '*,*::before,*::after{transition:none!important;animation:none!important}' });
+              if (density && Number(density) < -1) await page.evaluate(setDensity, density);
               // Scrolled through once (what fades in when seen has faded in), and every fold open, so what is inside is read too.
               await page.evaluate(async () => {
                 for (let y = 0; y < document.body.scrollHeight; y += innerHeight / 2) {
@@ -268,7 +277,7 @@ try {
             editor.on('pageerror', () => {});
             await openEditor(editor, site);
             await editor.goto(`${site}/editor/#${PAGE}`);
-            if (density) await editor.evaluate((d) => document.documentElement.setAttribute('data-density', d), density);
+            if (density) await editor.evaluate(setDensity, density);
             await editor.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 60_000 }).catch(() => {});
             await editor.addStyleTag({ content: '*,*::before,*::after{transition:none!important;animation:none!important}' });
             await editor.mouse.move(0, 0);
@@ -302,6 +311,43 @@ try {
 }
 
 const failed = results.filter((r) => !r.manual && r.ratio < r.min);
+
+/** The criterion and part of a failure the theme can name in its accessibility.json (lib/accessibility.mjs), else null part: a text, an icon or a border no
+ * statement names fails as it always did. A placeholder is 1.4.3; the edge of a control or card is 1.4.11, in a coloured section the part `section-edges`. */
+const shortfallOf = (r) => {
+  if (r.kind === 'placeholder') return { criterion: '1.4.3', part: 'placeholder' };
+  if (r.kind === 'border' && r.section !== 'surface') return { criterion: '1.4.11', part: 'section-edges' };
+  if (r.kind === 'border' && r.card) return { criterion: '1.4.11', part: 'outlined-card-edge' };
+  return { criterion: r.kind === 'text' ? '1.4.3' : '1.4.11', part: null };
+};
+// Each theme is judged by its own statement: a failure it names is let through, one it does not name fails, and a name that no longer fails is stale (not when
+// only some section colours were run).
+const unnamed = [];
+const letThrough = [];
+for (const theme of themes) {
+  const mine = failed.filter((r) => r.view.startsWith(`${theme} `));
+  const { statement, where } = statementOf(theme);
+  const found = new Map();
+  for (const r of mine) {
+    const { criterion, part } = shortfallOf(r);
+    found.set(`${criterion} ${part}`, {
+      criterion,
+      part,
+      detail: `${r.view}: ${r.kind} ${r.fg} on ${r.bg} is ${r.ratio.toFixed(2)}:1, needs ${r.min}`,
+    });
+  }
+  const verdict = judgeShortfalls(
+    [...found.values()].filter((f) => f.part),
+    statement,
+    { check: 'contrast', stale: !process.env.CONTRAST_SECTIONS, where },
+  );
+  unnamed.push(...verdict.problems);
+  letThrough.push(...verdict.named.map((id) => `${theme}: ${id}`));
+  for (const r of mine) {
+    const { part, criterion } = shortfallOf(r);
+    if (!part || !verdict.named.includes(`${criterion} ${part}`)) r.unnamed = true;
+  }
+}
 const manual = results.filter((r) => r.manual);
 const checked = results.filter((r) => !r.manual);
 if (reportFile) writeFileSync(reportFile, JSON.stringify(results, null, 1));
@@ -314,7 +360,7 @@ const design = (v) =>
     .filter((c) => /^(card|button)-/.test(c))
     .join(' ') || '-';
 const groups = new Map();
-for (const r of failed) {
+for (const r of failed.filter((f) => f.unnamed)) {
   const key = [r.block.replace(/^editor /, ''), design(r.variant), r.section, r.kind, r.fg, r.bg].join(' | ');
   const g = groups.get(key) ?? { r, views: new Set(), worst: 99, text: r.text };
   g.views.add(r.view.split(' ').slice(1).join(' '));
@@ -322,10 +368,12 @@ for (const r of failed) {
   groups.set(key, g);
 }
 console.log(
-  `Contrast: ${checked.length} pairs checked (${themes.join(', ')}; ${Math.round((Date.now() - started) / 1000)} s), ${failed.length} fail in ${groups.size} groups, ${manual.length} need a manual look (image or gradient behind).`,
+  `Contrast: ${checked.length} pairs checked (${themes.join(', ')}; ${Math.round((Date.now() - started) / 1000)} s), ${failed.filter((f) => f.unnamed).length} fail in ${groups.size} groups, ${manual.length} need a manual look (image or gradient behind).`,
 );
+if (letThrough.length) console.log(`  Let through, named in the theme's accessibility.json: ${letThrough.join(', ')}.`);
+for (const line of unnamed) console.log(`  ${line}`);
 for (const [key, g] of [...groups].sort((a, b) => a[1].worst - b[1].worst).slice(0, 60)) {
   console.log(`  ${key}: ${g.worst.toFixed(2)}:1 (needs ${g.r.min}) "${g.text}" in ${g.views.size} views, e.g. ${[...g.views][0]}`);
 }
 if (groups.size > 60) console.log(`  … and ${groups.size - 60} more groups (see the report file).`);
-if (failed.length) process.exit(1);
+if (failed.some((f) => f.unnamed) || unnamed.length) process.exit(1);

@@ -1,7 +1,7 @@
 import { openEditor } from '../built-site.mjs';
 import { browser, problems, site } from './support/context.mjs';
 
-/** Density on "Account": Large, Medium and Small set data-density on <html> and are kept on the account (PUT /api/settings) and in this browser (editor-density), the head script sets it again before the page is drawn, and the account's step replaces the browser's copy. */
+/** Density on "Account": Medium and Small (no Large since 0.19.5) set data-density on <html> and are kept on the account (PUT /api/settings) and in this browser (editor-density), the head script sets it again before the page is drawn, the account's step replaces the browser's copy, and a stored Large is read as Medium. */
 async function checkDensitySetting(width, height) {
   const sent = [];
   let kept = null;
@@ -18,17 +18,18 @@ async function checkDensitySetting(width, height) {
   await page.evaluate(() => (location.hash = '#account'));
   const attribute = () => page.evaluate(() => document.documentElement.dataset.density ?? null);
   const stored = () => page.evaluate(() => localStorage.getItem('editor-density'));
+  if (await page.getByRole('button', { name: 'Large', exact: true }).count())
+    problems.push(`${width}px density setting: Large is still offered`);
   for (const [label, want, store] of [
     ['Small', '-1', 'small'],
-    ['Large', '1', 'large'],
     ['Medium', '0', null],
   ]) {
     await page.getByRole('button', { name: label, exact: true }).click();
     if ((await attribute()) !== want || (await stored()) !== store)
       problems.push(`${width}px density setting: ${label} gave data-density ${await attribute()} and ${await stored()} in the browser`);
   }
-  if (sent.map((b) => b.density).join() !== 'small,large,medium')
-    problems.push(`${width}px density setting: the account got ${JSON.stringify(sent)}, not small, large, medium`);
+  if (sent.map((b) => b.density).join() !== 'small,medium')
+    problems.push(`${width}px density setting: the account got ${JSON.stringify(sent)}, not small, medium`);
   // The head script, before the page is drawn: a copy in the browser is on <html> at once.
   await page.evaluate(() => localStorage.setItem('editor-density', 'small'));
   await page.reload({ waitUntil: 'commit' });
@@ -36,15 +37,22 @@ async function checkDensitySetting(width, height) {
   if ((await attribute()) !== '-1')
     problems.push(`${width}px density setting: after a reload the copy in the browser did not give data-density -1`);
   // The account's step replaces the copy.
-  kept = 'large';
+  kept = 'medium';
   await page.reload();
-  await page.waitForFunction(() => document.documentElement.dataset.density === '1', null, { timeout: 10000 }).catch(() => {});
-  if ((await attribute()) !== '1' || (await stored()) !== 'large')
-    problems.push(`${width}px density setting: the account's Large did not replace the copy (${await attribute()}, ${await stored()})`);
+  await page.waitForFunction(() => document.documentElement.dataset.density === '0', null, { timeout: 10000 }).catch(() => {});
+  if ((await attribute()) !== '0' || (await stored()) !== null)
+    problems.push(`${width}px density setting: the account's Medium did not replace the copy (${await attribute()}, ${await stored()})`);
+  // A Large kept before 0.19.5 (on the account or in this browser) is Medium, and the editor loads.
+  kept = 'large';
+  await page.evaluate(() => localStorage.setItem('editor-density', 'large'));
+  await page.reload();
+  await page.waitForFunction(() => document.documentElement.dataset.density === '0', null, { timeout: 10000 }).catch(() => {});
+  if ((await attribute()) !== '0' || (await stored()) !== null)
+    problems.push(`${width}px density setting: a stored Large was not read as Medium (${await attribute()}, ${await stored()})`);
   await page.close();
 }
 
-/** The parts read density (theme/styles/ui.css): at Large, Medium and Small a button, a chip, a segmented button and a text field are 4 px taller or lower (the chip 2 px a side), a list row follows the data-heavy step, a target keeps its size (an invisible area of at least --mo-sys-target-size, 48 on a phone and 44 on a computer), a part in the page editing area or in a row that picks the density does not change, and a menu stays at Medium. */
+/** The parts read density (theme/styles/ui.css): from Medium down to -3 a button, a chip, a segmented button, a text field and a menu item are 4 px lower a step (the chip 2 px a side), a list row follows the same step but never goes below the target, a target keeps its size (an invisible area of at least --mo-sys-target-size, 48 on a phone and 44 on a computer), a part in the page editing area does not follow the person's step and a part in a row that picks the density never changes. Small is the person's step (data-density -1); -2 and -3 are a theme's own step (--mo-sys-density-base), which no editor setting offers yet. */
 async function checkDensityParts(width, height, touch) {
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${width}px density parts: ${e.message}`));
@@ -56,12 +64,14 @@ async function checkDensityParts(width, height, touch) {
     <div class="mo-text-field mo-is-outlined"><div class="mo-text-field__container"><input class="mo-text-field__input" data-part="field"></div></div>
     <div class="mo-list__item-container" data-part="row"><div class="mo-list__item-content"><span class="mo-list__item-headline">Row</span></div></div>
     <div class="mo-menu__item" data-part="menu-item">Item</div>`;
-  const measure = (attr) =>
+  const measure = (attr, base) =>
     page.evaluate(
-      ([attr, parts]) => {
+      ([attr, base, parts]) => {
         const root = document.documentElement;
         if (attr === null) root.removeAttribute('data-density');
         else root.setAttribute('data-density', attr);
+        if (base === null) root.style.removeProperty('--mo-sys-density-base');
+        else root.style.setProperty('--mo-sys-density-base', base);
         const host = document.createElement('div');
         host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
         host.innerHTML = `<div data-where="screen">${parts}</div><div class="mo-editor-text"><div class="ProseMirror" data-where="content">${parts}</div></div><div data-density-fixed data-where="fixed">${parts}</div>`;
@@ -76,53 +86,51 @@ async function checkDensityParts(width, height, touch) {
         got.target = parseFloat(getComputedStyle(root).getPropertyValue('--mo-sys-target-size'));
         host.remove();
         root.removeAttribute('data-density');
+        root.style.removeProperty('--mo-sys-density-base');
         return got;
       },
-      [attr, parts],
+      [attr, base, parts],
     );
-  const [large, medium, small] = [await measure('1'), await measure('0'), await measure('-1')];
-  const target = medium.target;
+  // The steps 0, -1 (the person's Small), -2 and -3 (a theme's step).
+  const steps = [await measure('0', null), await measure('-1', null), await measure(null, '-2'), await measure(null, '-3')];
+  const names = ['Medium', 'Small', '-2', '-3'];
+  const target = steps[0].target;
   if (target !== (touch ? 48 : 44)) problems.push(`${width}px density parts: --mo-sys-target-size is ${target}, not ${touch ? 48 : 44}`);
   const expect = (what, ok) => ok || problems.push(`${width}px density parts: ${what}`);
-  for (const part of ['button', 'chip', 'segment', 'field']) {
-    const key = `screen/${part}`;
+  const sizes = (key) => steps.map((m) => m[key][0]);
+  for (const part of ['button', 'chip', 'segment', 'field', 'menu-item']) {
+    const h = sizes(`screen/${part}`);
     expect(
-      `${part} is ${large[key][0]} / ${medium[key][0]} / ${small[key][0]} px at Large / Medium / Small, not 4 px apart`,
-      large[key][0] - medium[key][0] === 4 && medium[key][0] - small[key][0] === 4,
+      `${part} is ${h.join(' / ')} px at ${names.join(' / ')}, not 4 px apart`,
+      h.every((v, i) => i === 0 || h[i - 1] - v === 4),
     );
   }
-  // The row: a data-heavy part, 4 px a step, never below the target.
+  // The row: 4 px a step, never below the target.
+  const rows = sizes('screen/row');
   expect(
-    `a list row is ${large['screen/row'][0]} / ${medium['screen/row'][0]} / ${small['screen/row'][0]} px, not 4 px apart`,
-    large['screen/row'][0] - medium['screen/row'][0] === 4 && medium['screen/row'][0] - small['screen/row'][0] === 4,
+    `a list row is ${rows.join(' / ')} px at ${names.join(' / ')}, not 4 px apart down to the target ${target}`,
+    rows.every((v, i) => v === Math.max(target, rows[0] - 4 * i)),
   );
-  expect(`a list row at Small is ${small['screen/row'][0]} px, below the target ${target}`, small['screen/row'][0] >= target);
   // A target keeps its size: the part or its invisible area is at least --mo-sys-target-size, at every step.
-  for (const [name, m] of [
-    ['Large', large],
-    ['Medium', medium],
-    ['Small', small],
-  ])
+  for (const [i, m] of steps.entries())
     for (const part of ['button', 'chip', 'segment'])
       expect(
-        `${part} at ${name} has a target of ${Math.max(...m[`screen/${part}`])} px, below ${target}`,
+        `${part} at ${names[i]} has a target of ${Math.max(...m[`screen/${part}`])} px, below ${target}`,
         Math.max(...m[`screen/${part}`]) >= target,
       );
-  // The page editing area and the rows that pick the density are drawn the same at every step; a menu stays at Medium.
-  for (const where of ['content', 'fixed'])
-    for (const part of ['button', 'chip', 'segment', 'field', 'row'])
-      expect(
-        `${part} in ${where} is ${large[`${where}/${part}`][0]} / ${medium[`${where}/${part}`][0]} / ${small[`${where}/${part}`][0]} px, not the same at every step`,
-        large[`${where}/${part}`][0] === medium[`${where}/${part}`][0] && medium[`${where}/${part}`][0] === small[`${where}/${part}`][0],
-      );
-  expect(
-    `a menu item changes with the step (${large['screen/menu-item'][0]} / ${medium['screen/menu-item'][0]} / ${small['screen/menu-item'][0]} px): it must not get denser than Medium`,
-    small['screen/menu-item'][0] === medium['screen/menu-item'][0],
-  );
+  // The page editing area follows the theme's step, not the person's: Small changes nothing in it. A row that picks the density never changes.
+  for (const part of ['button', 'chip', 'segment', 'field', 'row', 'menu-item']) {
+    expect(
+      `${part} in the page editing area is ${steps[0][`content/${part}`][0]} px at Medium and ${steps[1][`content/${part}`][0]} px at Small, not the same`,
+      steps[0][`content/${part}`][0] === steps[1][`content/${part}`][0],
+    );
+    const fixed = steps.map((m) => m[`fixed/${part}`][0]);
+    expect(`${part} in a row that picks the density is ${fixed.join(' / ')} px, not the same at every step`, new Set(fixed).size === 1);
+  }
   await page.close();
 }
 
-/** The editor's layout gaps follow density (src/editor.css): the space between stacked sections (space-y, the margins above and below, a column's gap) and the screen's top padding change 4 px a step at Large, Medium and Small, the side padding never changes, and in the page editing area and in a row that picks the density nothing changes. */
+/** The editor's layout gaps follow density (src/editor.css): the space between stacked sections (space-y, the margins above and below, a column's gap) and the screen's top padding change 4 px at Small, the side padding never changes, a theme's step below Small does not go further, and in the page editing area and in a row that picks the density nothing changes. */
 async function checkDensityLayout(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${width}px density layout: ${e.message}`));
@@ -135,12 +143,14 @@ async function checkDensityLayout(width, height) {
     <div style="display: flex; flex-direction: column; row-gap: var(--mo-comp-editor-rhythm-200)"><p data-part="gap">One</p><p>Two</p></div>
     <p style="margin-block-end: 0.5rem" data-part="small">Small gap</p>
     <p style="margin-block-end: 0" data-part="last">Last</p>`;
-  const measure = (attr) =>
+  const measure = (attr, base = null) =>
     page.evaluate(
-      ([attr, layout]) => {
+      ([attr, base, layout]) => {
         const root = document.documentElement;
         if (attr === null) root.removeAttribute('data-density');
         else root.setAttribute('data-density', attr);
+        if (base === null) root.style.removeProperty('--mo-sys-density-base');
+        else root.style.setProperty('--mo-sys-density-base', base);
         const host = document.createElement('div');
         host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
         host.innerHTML = `<div data-where="screen">${layout}</div><div class="mo-editor-text"><div class="ProseMirror" data-where="content">${layout}</div></div><div data-density-fixed data-where="fixed">${layout}</div>`;
@@ -164,49 +174,56 @@ async function checkDensityLayout(width, height) {
         got.screen.top = screenEl ? px(getComputedStyle(screenEl).paddingTop) : null;
         host.remove();
         root.removeAttribute('data-density');
+        root.style.removeProperty('--mo-sys-density-base');
         return got;
       },
-      [attr, layout],
+      [attr, base, layout],
     );
-  const [large, medium, small] = [await measure('1'), await measure('0'), await measure('-1')];
+  const [medium, small, deep] = [await measure('0'), await measure('-1'), await measure(null, '-3')];
   const expect = (what, ok) => ok || problems.push(`${width}px density layout: ${what}`);
   for (const key of ['space-y', 'mb', 'pt', 'gap'])
     expect(
-      `${key} is ${large.screen[key]} / ${medium.screen[key]} / ${small.screen[key]} px at Large / Medium / Small, not 4 px apart`,
-      large.screen[key] - medium.screen[key] === 4 && medium.screen[key] - small.screen[key] === 4,
+      `${key} is ${medium.screen[key]} / ${small.screen[key]} / ${deep.screen[key]} px at Medium / Small / a theme's -3, not 4 px apart and then the same`,
+      medium.screen[key] - small.screen[key] === 4 && small.screen[key] === deep.screen[key],
     );
   if (medium.screen.top !== null)
     expect(
-      `the screen's top padding is ${large.screen.top} / ${medium.screen.top} / ${small.screen.top} px, not 4 px apart`,
-      large.screen.top - medium.screen.top === 4 && medium.screen.top - small.screen.top === 4,
+      `the screen's top padding is ${medium.screen.top} / ${small.screen.top} / ${deep.screen.top} px, not 4 px apart and then the same`,
+      medium.screen.top - small.screen.top === 4 && small.screen.top === deep.screen.top,
     );
   for (const key of ['px', 'small', 'last'])
     expect(
-      `${key} is ${large.screen[key]} / ${medium.screen[key]} / ${small.screen[key]} px: it must not change with density`,
-      large.screen[key] === medium.screen[key] && medium.screen[key] === small.screen[key],
+      `${key} is ${medium.screen[key]} / ${small.screen[key]} / ${deep.screen[key]} px: it must not change with density`,
+      medium.screen[key] === small.screen[key] && small.screen[key] === deep.screen[key],
     );
-  for (const where of ['content', 'fixed'])
-    for (const key of Object.keys(medium[where]))
-      expect(
-        `${key} in ${where} is ${large[where][key]} / ${medium[where][key]} / ${small[where][key]} px, not the same at every step`,
-        large[where][key] === medium[where][key] && medium[where][key] === small[where][key],
-      );
+  for (const key of Object.keys(medium.fixed))
+    expect(
+      `${key} in a row that picks the density is ${medium.fixed[key]} / ${small.fixed[key]} / ${deep.fixed[key]} px, not the same at every step`,
+      medium.fixed[key] === small.fixed[key] && small.fixed[key] === deep.fixed[key],
+    );
+  for (const key of Object.keys(medium.content))
+    expect(
+      `${key} in the page editing area is ${medium.content[key]} px at Medium and ${small.content[key]} at Small, not the same`,
+      medium.content[key] === small.content[key],
+    );
   await page.close();
 }
 
-/** A table's rows read density (theme/styles/blocks.css, the data-heavy step): the body row is 52 px at Medium and the header row 56, 4 px a step (Large +4, Small -4); in the page editing area and in a row that picks the density it is the same at every step. */
+/** A table's rows read density (theme/styles/blocks.css, the data-heavy step): the body row is 52 px at Medium and the header row 56, 4 px a step down to -3 (header 44, row 40); in a row that picks the density it is the same at every step, and in the page editing area Small changes nothing. */
 async function checkDensityTable(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${width}px density table: ${e.message}`));
   await openEditor(page, site);
   const table =
     '<div class="mo-block-table mo-block-table__grid"><table><thead><tr><th>Head</th></tr></thead><tbody><tr><td data-part="row">Cell</td></tr></tbody></table></div>';
-  const measure = (attr) =>
+  const measure = (attr, base = null) =>
     page.evaluate(
-      ([attr, table]) => {
+      ([attr, base, table]) => {
         const root = document.documentElement;
         if (attr === null) root.removeAttribute('data-density');
         else root.setAttribute('data-density', attr);
+        if (base === null) root.style.removeProperty('--mo-sys-density-base');
+        else root.style.setProperty('--mo-sys-density-base', base);
         const host = document.createElement('div');
         host.style.cssText = 'position:fixed;left:0;top:0;width:360px;z-index:-1;visibility:hidden';
         host.innerHTML = `<div data-where="screen">${table}</div><div class="mo-editor-text"><div class="ProseMirror" data-where="content">${table}</div></div><div data-density-fixed data-where="fixed">${table}</div>`;
@@ -218,11 +235,13 @@ async function checkDensityTable(width, height) {
           );
         host.remove();
         root.removeAttribute('data-density');
+        root.style.removeProperty('--mo-sys-density-base');
         return got;
       },
-      [attr, table],
+      [attr, base, table],
     );
-  const [large, medium, small] = [await measure('1'), await measure('0'), await measure('-1')];
+  const steps = [await measure('0'), await measure('-1'), await measure(null, '-2'), await measure(null, '-3')];
+  const [medium, small] = steps;
   const expect = (what, ok) => ok || problems.push(`${width}px density table: ${what}`);
   expect(
     `at Medium the header is ${medium.screen[0]} px and a row ${medium.screen[1]}, not 56 and 52`,
@@ -231,20 +250,25 @@ async function checkDensityTable(width, height) {
   for (const [i, name] of [
     [0, 'header'],
     [1, 'row'],
-  ])
+  ]) {
+    const h = steps.map((m) => m.screen[i]);
     expect(
-      `the ${name} is ${large.screen[i]} / ${medium.screen[i]} / ${small.screen[i]} px at Large / Medium / Small, not 4 px apart`,
-      large.screen[i] - medium.screen[i] === 4 && medium.screen[i] - small.screen[i] === 4,
+      `the ${name} is ${h.join(' / ')} px at Medium / Small / -2 / -3, not 4 px apart`,
+      h.every((v, k) => k === 0 || h[k - 1] - v === 4),
     );
-  for (const where of ['content', 'fixed'])
-    expect(
-      `the table in ${where} is ${large[where]} / ${medium[where]} / ${small[where]} px, not the same at every step`,
-      large[where].join() === medium[where].join() && medium[where].join() === small[where].join(),
-    );
+  }
+  expect(
+    `the table in the page editing area is ${small.content} px at Small, not ${medium.content} as at Medium`,
+    small.content.join() === medium.content.join(),
+  );
+  expect(
+    `the table in a row that picks the density is not the same at every step (${steps.map((m) => m.fixed).join(' / ')})`,
+    steps.every((m) => m.fixed.join() === medium.fixed.join()),
+  );
   await page.close();
 }
 
-/** Density on the editor's screens (spec: docs/superpowers/specs/2026-11-13-density-design.md, checks): the main screens open at Large and Small (Medium is what "screens" checks) without an error and without the page scrolling sideways, on a phone and a computer; and the colours of the parts do not depend on density (a row, a button, a chip and a field have the same text and surface colour at every step), which is why check:contrast (CONTRAST_DENSITY=-1 for Small, by hand) needs no run of its own in CI. */
+/** Density on the editor's screens (spec: docs/superpowers/specs/2026-11-13-density-design.md, checks): the main screens open at Small and at a theme's -2 and -3 (Medium is what "screens" checks) without an error and without the page scrolling sideways, on a phone and a computer; and the colours of the parts do not depend on density (a row, a button, a chip and a field have the same text and surface colour at every step), which is why check:contrast (CONTRAST_DENSITY=-1 for Small, by hand) needs no run of its own in CI. */
 async function checkDensityScreens(width, height) {
   const label = `${width}px density screens`;
   const phone = width < 600;
@@ -280,12 +304,19 @@ async function checkDensityScreens(width, height) {
       return got;
     });
   const colourAt = {};
-  for (const [name, attr] of [
-    ['Large', '1'],
-    ['Medium', '0'],
-    ['Small', '-1'],
+  for (const [name, attr, base] of [
+    ['Medium', '0', '0'],
+    ['Small', '-1', '0'],
+    ['-2', '0', '-2'],
+    ['-3', '0', '-3'],
   ]) {
-    await page.evaluate((a) => document.documentElement.setAttribute('data-density', a), attr);
+    await page.evaluate(
+      ([a, b]) => {
+        document.documentElement.setAttribute('data-density', a);
+        document.documentElement.style.setProperty('--mo-sys-density-base', b);
+      },
+      [attr, base],
+    );
     colourAt[name] = await colours();
     if (name === 'Medium') continue;
     for (const route of routes) {
@@ -297,14 +328,18 @@ async function checkDensityScreens(width, height) {
     }
   }
   for (const part of Object.keys(colourAt.Medium))
-    if (colourAt.Large[part] !== colourAt.Medium[part] || colourAt.Small[part] !== colourAt.Medium[part])
+    if (['Small', '-2', '-3'].some((name) => colourAt[name][part] !== colourAt.Medium[part]))
       problems.push(
-        `${label}: the colours of ${part} change with density (${colourAt.Large[part]} / ${colourAt.Medium[part]} / ${colourAt.Small[part]})`,
+        `${label}: the colours of ${part} change with density (${['Medium', 'Small', '-2', '-3'].map((name) => colourAt[name][part]).join(' / ')})`,
       );
+  await page.evaluate(() => {
+    document.documentElement.removeAttribute('data-density');
+    document.documentElement.style.removeProperty('--mo-sys-density-base');
+  });
   await page.close();
 }
 
-/** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up, each group clamps them, and a part's calc() gives its default at 0 and 4px per step. */
+/** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up and are clamped to 0 down to -3, and a part's calc() gives its default at 0 and 4px per step. */
 async function checkDensity(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${width}px density: ${e.message}`));
@@ -327,8 +362,6 @@ async function checkDensity(width, height) {
         };
         const got = {
           all: step('--mo-sys-density'),
-          layout: step('--mo-sys-density-layout'),
-          focus: step('--mo-sys-density-focus'),
           row: 0,
           space: style.getPropertyValue('--mo-ref-space-100').trim(),
         };
@@ -341,24 +374,27 @@ async function checkDensity(width, height) {
       },
       [attr, base],
     );
-  // [data-density, the theme's step, the three variables (data-heavy, layout, focused), a 52px row]
+  // [data-density, the theme's step, the step, a 52px row]: 0 down to -3 (Large went in 0.19.5, so a stale '1' and a positive theme step read as Medium)
   const cases = [
-    [null, '0', [0, 0, 0], 52],
-    ['0', '0', [0, 0, 0], 52],
-    ['1', '0', [1, 1, 1], 56],
-    ['-1', '0', [-1, -1, 0], 48],
-    ['-1', '-1', [-2, -1, 0], 44],
-    ['-1', '-3', [-3, -1, 0], 40],
-    ['1', '1', [1, 1, 1], 56],
-    [null, '-1', [-1, -1, 0], 48],
+    [null, '0', 0, 52],
+    ['0', '0', 0, 52],
+    ['1', '0', 0, 52],
+    [null, '1', 0, 52],
+    ['-1', '0', -1, 48],
+    ['-1', '-1', -2, 44],
+    ['-1', '-3', -3, 40],
+    [null, '-1', -1, 48],
+    [null, '-2', -2, 44],
+    [null, '-3', -3, 40],
+    [null, '-5', -3, 40],
   ];
-  for (const [attr, base, [all, layout, focus], row] of cases) {
+  for (const [attr, base, step, row] of cases) {
     const got = await read(attr, base);
-    const want = `${all}/${layout}/${focus}/${row}`;
-    const have = `${got.all}/${got.layout}/${got.focus}/${got.row}`;
+    const want = `${step}/${row}`;
+    const have = `${got.all}/${got.row}`;
     if (have !== want || got.space !== '8px')
       problems.push(
-        `${width}px density: data-density ${attr}, theme step ${base}: expected ${want} (data-heavy/layout/focused/row), got ${have}, space-100 ${got.space}`,
+        `${width}px density: data-density ${attr}, theme step ${base}: expected ${want} (step/row), got ${have}, space-100 ${got.space}`,
       );
   }
   await page.close();

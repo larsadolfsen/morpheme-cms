@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { clickPreview, openEditor } from '../built-site.mjs';
 import { BUILT_PAGE, DIST, PAGE_SOURCE, browser, problems, site } from './support/context.mjs';
 import { onTestPage, ratioOf } from './support/shared.mjs';
+import { shortfall } from './support/statement.mjs';
 
 /** The Preview (the devices icon) draws a section's background from the page's text as saved, also when the built site does not have the section yet (it is rebuilt after a save), and with the colour the editor shows. */
 async function checkPreviewSection() {
@@ -300,7 +301,12 @@ async function checkSectionOnImage() {
           return out; })()`);
         for (const [part, ratio] of Object.entries(got)) {
           const min = ['icon', 'chevron', 'outline'].includes(part) ? 3 : 4.5;
-          if (ratio < min) problems.push(`${label}: the ${part} has contrast ${ratio.toFixed(2)}:1 on the panel, below ${min}`);
+          if (ratio < min) {
+            const message = `${label}: the ${part} has contrast ${ratio.toFixed(2)}:1 on the panel, below ${min}`;
+            if (part === 'placeholder') shortfall('1.4.3', 'placeholder', message);
+            else if (part === 'outline') shortfall('1.4.11', 'section-edges', message);
+            else problems.push(message);
+          }
         }
         await page.close();
       }

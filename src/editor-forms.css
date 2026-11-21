@@ -327,14 +327,23 @@
     row-gap: var(--mo-ref-space-300);
     padding: var(--mo-ref-space-200);
   }
-  .mo-editor-comm-tooltip-plain {
-    padding-block-start: var(--mo-comp-editor-rhythm-400);
+  /* The examples' tooltips are drawn in the flow, over their anchor, not placed against the window as on a page: a fixed tooltip flips under its
+     anchor and covers the next group. They stay inside their example at every width. */
+  .mo-editor-comm-tooltips [data-tooltip] {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: var(--mo-comp-tooltip-gap, 0.25rem);
+    max-inline-size: 100%;
   }
-  .mo-editor-comm-tooltip-rich {
-    padding-block-start: 6rem;
+  .mo-editor-comm-tooltips .mo-tooltip__plain {
+    align-self: center;
   }
-  .mo-editor-comm-tooltip-action {
-    padding-block-start: 9rem;
+  .mo-editor-comm-tooltips .mo-tooltip {
+    position: static;
+    translate: none;
+    margin: 0;
+    inset: auto;
+    max-inline-size: 100%;
   }
   /* BlockParts.tsx */
   :where(.mo-editor-parts-chips > :not(:last-child)) {
@@ -644,7 +653,7 @@
   }
   /* On a phone the buttons wrap into rows: each button that shows its menu open keeps the room of its menu below it, so the menu never lies over the buttons of the next row (WCAG 2.5.8). */
   @media (width < 37.5rem) {
-    .mo-editor-nav-menus-tall > .mo-dropdown-menu:has(> .mo-dropdown-menu__menu:not([popover])) {
+    .mo-editor-nav-menus-tall .mo-dropdown-menu:has(> .mo-dropdown-menu__menu:not([popover])) {
       margin-block-end: 22rem;
     }
   }
@@ -769,7 +778,11 @@
   .mo-editor-parts-lists > *,
   .mo-editor-contain-dialogs > *,
   .mo-editor-nav-field-pair > *,
-  .mo-editor-parts-field-grid > * {
+  .mo-editor-parts-field-grid > *,
+  /* An example's own group (Example in PartsShown.tsx) takes no box: what is in it is the grid's child. */
+  .mo-editor-parts-cards > [role='group'] > *,
+  .mo-editor-nav-field-pair > [role='group'] > *,
+  .mo-editor-parts-field-grid > [role='group'] > * {
     min-inline-size: 0;
   }
 }

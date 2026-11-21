@@ -44,7 +44,7 @@
   }
   .mo-menu__item {
     display: flex;
-    min-height: var(--mo-comp-menu-list-item-container-height, 0);
+    min-height: calc(var(--mo-comp-menu-list-item-container-height, 0px) + var(--mo-sys-density) * var(--mo-sys-density-step));
     align-items: center;
     gap: var(--mo-comp-menu-item-gap, 0.75rem);
     border-radius: var(--mo-comp-menu-item-radius, calc(var(--mo-sys-block-radius-small) - 0.25rem));
@@ -373,7 +373,7 @@
       color: var(--mo-sys-block-text);
     }
     .mo-exposed-dropdown-menu__option {
-      min-height: var(--mo-comp-menu-list-item-container-height, 0);
+      min-height: calc(var(--mo-comp-menu-list-item-container-height, 0px) + var(--mo-sys-density) * var(--mo-sys-density-step));
       border-radius: var(--mo-comp-menu-item-radius, calc(var(--mo-sys-block-radius-small) - 0.25rem));
       padding: var(--mo-comp-menu-item-padding, 0.5rem 0.75rem);
       color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));

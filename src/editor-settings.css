@@ -1053,6 +1053,16 @@
     color: var(--mo-sys-color-primary);
   }
 
+  /* PartsShown.tsx PartSub: a subheading and the row under it. */
+  .mo-editor-part-sub {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-part-sub-name {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
   .mo-editor-parts-group {
     &:not(:has([data-part])) {
       display: none;
@@ -1536,12 +1546,7 @@
     inline-size: 5rem;
     block-size: 5rem;
     border-radius: 1.375rem;
-    box-shadow:
-      0 0 transparent,
-      0 0 transparent,
-      0 0 transparent,
-      0 0 transparent,
-      var(--mo-sys-panel-shadow);
+    box-shadow: var(--mo-sys-panel-shadow);
   }
 
   .mo-editor-signin-title {
@@ -1700,12 +1705,7 @@
 
   .mo-editor-widget-lifted {
     z-index: 10;
-    box-shadow:
-      0 0 transparent,
-      0 0 transparent,
-      0 0 transparent,
-      0 0 transparent,
-      var(--mo-sys-elevation-level4-shadow);
+    box-shadow: var(--mo-sys-elevation-level4-shadow);
   }
 
   .mo-editor-widget-target {

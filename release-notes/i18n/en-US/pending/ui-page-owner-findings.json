@@ -1,0 +1,6 @@
+{
+  "id": "ui-page-owner-findings",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A docked date picker fits a narrow screen, and a search field shows one clear button"
+}

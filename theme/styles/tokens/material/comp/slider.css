@@ -13,7 +13,7 @@
      surface; 38% when it cannot be moved. */
   --mo-comp-slider-height: 2.75rem;
   --mo-comp-slider-active-track-height: 1rem;
-  --mo-comp-slider-active-track-shape: var(--mo-sys-shape-corner-small);
+  --mo-comp-slider-active-track-shape: var(--mo-sys-shape-corner-full);
   --mo-comp-slider-medium-track-radius: var(--mo-sys-shape-corner-medium);
   --mo-comp-slider-large-track-radius: var(--mo-sys-shape-corner-large);
   --mo-comp-slider-xlarge-track-radius: var(--mo-sys-shape-corner-extra-large);

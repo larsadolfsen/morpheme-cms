@@ -33,6 +33,8 @@ export const theme = {
   postsAbout: (count: number, tag: string) => `${count} ${count === 1 ? 'post' : 'posts'} about ${tag}`,
   notFound: 'Page not found',
   didYouMean: 'Did you mean',
+  uiComponents: 'UI components',
+  uiComponentsDescription: 'The theme’s UI components as a visitor sees them.',
   newPages: 'New pages',
   newPagesDescription: 'New versions of the pages, for review.',
   newPagesIntro:

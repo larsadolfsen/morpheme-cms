@@ -65,7 +65,7 @@
     white-space: nowrap;
     border: 0;
     border-radius: var(--mo-comp-button-corners);
-    min-height: calc(var(--mo-comp-button-box) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    min-height: calc(var(--mo-comp-button-box) + var(--mo-sys-density) * var(--mo-sys-density-step));
     padding: 0 var(--mo-comp-button-inline);
     font-family: inherit;
     font-weight: var(--mo-comp-button-weight, var(--mo-sys-typescale-title-medium-weight));

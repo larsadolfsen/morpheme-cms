@@ -1,15 +1,22 @@
 // Tests the account side of Density (src/density.ts, src/settings.mjs): what is read from and sent to /api/settings.
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { DENSITIES, DENSITY_ATTRIBUTE, validSettings } from './settings.mjs';
+import { DENSITIES, DENSITY_ATTRIBUTE, readDensity, validSettings } from './settings.mjs';
 import { loadDensity, saveDensity } from './density.ts';
 
 const answer = (status, body) => async () =>
   new Response(body === undefined ? null : JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
-test('the steps are Large, Medium and Small, and Medium is 0', () => {
-  assert.deepEqual(DENSITIES, ['large', 'medium', 'small']);
-  assert.deepEqual(DENSITY_ATTRIBUTE, { large: '1', medium: '0', small: '-1' });
+test('the steps are Medium and Small, and Medium is 0 (Large went in 0.19.5)', () => {
+  assert.deepEqual(DENSITIES, ['medium', 'small']);
+  assert.deepEqual(DENSITY_ATTRIBUTE, { medium: '0', small: '-1' });
+});
+
+test('a stored Large is read as Medium, with no failed load', () => {
+  assert.equal(readDensity('large'), 'medium');
+  assert.equal(readDensity('small'), 'small');
+  assert.equal(readDensity('tiny'), null);
+  assert.deepEqual(validSettings({ density: 'large' }), { density: 'medium' });
 });
 
 test('validSettings keeps a known density and drops the rest', () => {
@@ -19,7 +26,7 @@ test('validSettings keeps a known density and drops the rest', () => {
 });
 
 test('loadDensity gives the step on the account, or null', async () => {
-  assert.equal(await loadDensity(answer(200, { settings: { density: 'large' } })), 'large');
+  assert.equal(await loadDensity(answer(200, { settings: { density: 'large' } })), 'medium');
   assert.equal(await loadDensity(answer(200, { settings: null })), null);
   assert.equal(await loadDensity(answer(200, { settings: { density: 'huge' } })), null);
   assert.equal(await loadDensity(answer(503, { error: 'no-storage' })), null);
@@ -35,6 +42,6 @@ test('saveDensity sends the step, and a Worker without storage is not an error',
   assert.equal(sent.url, '/api/settings');
   assert.equal(sent.method, 'PUT');
   assert.equal(sent.body, '{"density":"small"}');
-  await saveDensity('large', answer(503, { error: 'no-storage' }));
-  await assert.rejects(saveDensity('large', answer(500, {})));
+  await saveDensity('medium', answer(503, { error: 'no-storage' }));
+  await assert.rejects(saveDensity('medium', answer(500, {})));
 });

@@ -217,7 +217,7 @@ export const parts = {
     values: {
       email: 'contact@example.com',
       heading: 'A heading',
-      text: 'A text with **bold** type and a [link](/).',
+      text: 'A text with **bold** type and a [home page](/).',
       question: 'How long is a session?',
       answer: 'A session lasts 60 minutes.',
     },
@@ -260,7 +260,7 @@ export const parts = {
   /** "Parts" › "Values" (#developer/parts/values, Tokens.tsx): the theme's design tokens, each with what it is used for. */
   tokens: {
     intro: 'The theme’s design tokens for corners, shadows, typography, and colors, as the theme sets them.',
-    groups: { shape: 'Corners', elevation: 'Shadows', type: 'Typography', color: 'Colors' },
+    groups: { shape: 'Corners', elevation: 'Shadows', elevationClasses: 'Elevation classes', type: 'Typography', color: 'Colors' },
     shape: {
       radius: 'Panels',
       radiusSmall: 'What is smaller in a panel',
@@ -306,6 +306,8 @@ export const parts = {
       unused: 'Not used',
       /** A shadow that is none of the levels: the theme's own. */
       own: 'Own shadow',
+      classSurface: "A surface: the level's color and elevation shadow",
+      classElevated: "Elevated: only the level's shadow",
       shadow: 'Panels',
       blockShadow: 'Blocks',
     },
@@ -399,10 +401,19 @@ export const parts = {
     button:
       "Filled for the main action, tonal, elevated, outlined, and text only, in 5 sizes, round or square, turned off and on, with an icon and gray when it can't be used.",
     iconButton: 'Button with an icon: standard, filled, tonal, and outlined, in 5 sizes and 3 widths, round or square, turned off and on.',
+    /** The name of an example that has no caption of its own (the gallery's groups), for screen readers: "Example 2". */
+    example: (n: number) => `Example ${n}`,
+    /** The names of the rows of buttons and chips in the gallery, for screen readers. */
+    rows: { kinds: 'Kinds', sizes: 'Sizes', states: 'States' },
     sizes: { xsmall: 'Extra small', small: 'Small', medium: 'Medium', large: 'Large', xlarge: 'Extra large' },
     shapes: { round: 'Round', square: 'Square' },
     widths: { narrow: 'Narrow', default: 'Default', wide: 'Wide' },
     toggle: { off: 'Off', on: 'On' },
+    /** The subheadings of a part: one for each size or kind it shows. */
+    subs: {
+      widths: 'Widths',
+      toggle: (shape: string) => `Toggle, ${shape.toLowerCase()}`,
+    },
     iconKinds: { standard: 'Standard', filled: 'Filled', tonal: 'Tonal', outlined: 'Outlined' },
     withIcon: 'With icon',
     disabled: "Can't be used",

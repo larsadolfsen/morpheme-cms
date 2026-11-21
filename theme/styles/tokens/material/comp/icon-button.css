@@ -7,9 +7,9 @@
 :is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image) :is(.mo-card:is(.mo-is-filled, .mo-is-elevated, .mo-is-selected), :where(.mo-button, .mo-icon-button).mo-is-tonal, .mo-list__segmented > li, .mo-block-accordion:not(.mo-block-accordion__segmented) > li:has(> .mo-list__item-expand[open]), .mo-block-steps__step-number, .mo-block-tag, .mo-block-badge, .mo-block-table__grid thead th, .mo-block-table__grid[data-striped] tbody tr:nth-child(even), .mo-prose :where(:not(pre) > code), .mo-block-testimonials__testimonial, .mo-block-testimonials__testimonial-mark, .mo-block-video__facade, .mo-block-link-row, .mo-text-field.mo-is-filled, .mo-block-accordion__segmented > li),
 .mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]) :is(.mo-card:is(.mo-is-filled, .mo-is-elevated, .mo-is-selected), :where(.mo-button, .mo-icon-button).mo-is-tonal, .mo-list__segmented > li, .mo-block-accordion:not(.mo-block-accordion__segmented) > li:has(> .mo-list__item-expand[open]), .mo-block-steps__step-number, .mo-block-tag, .mo-block-badge, .mo-block-table__grid thead th, .mo-block-table__grid[data-striped] tbody tr:nth-child(even), .mo-prose :where(:not(pre) > code), .mo-block-testimonials__testimonial, .mo-block-testimonials__testimonial-mark, .mo-block-video__facade, .mo-block-link-row, .mo-text-field.mo-is-filled, .mo-block-accordion__segmented > li) {
   --mo-comp-icon-button-medium-container-shape-square: var(--mo-sys-shape-corner-large);
-  /* Icon buttons: 48 by 48 with a 24px icon; standard in on-surface-variant without a container, tonal in the
+  /* Icon buttons: 40 by 40 with a 24px icon; standard in on-surface-variant without a container, tonal in the
      secondary container (the cross on a pop-up, as it can stand on an image). */
-  --mo-comp-icon-button-small-container-height: 3rem;
+  --mo-comp-icon-button-small-container-height: 2.5rem;
   --mo-comp-icon-button-small-icon-size: 1.5rem;
   --mo-comp-icon-button-standard-icon-color: var(--mo-sys-color-on-surface-variant);
   --mo-comp-icon-button-tonal-container-color: var(--mo-sys-color-surface-container-high);

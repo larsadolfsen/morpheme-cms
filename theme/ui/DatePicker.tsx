@@ -81,7 +81,8 @@ export default function DatePicker({
       />
       <IconButton
         icon="calendar-blank"
-        label={title}
+        // Named by its field too (`Select date: Publish`), so two date fields on one screen have two buttons a reader can tell apart.
+        label={label ? `${title}: ${label}` : title}
         className="mo-date-picker__field-button"
         aria-haspopup="dialog"
         aria-expanded="false"

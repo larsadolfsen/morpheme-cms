@@ -24,7 +24,7 @@
   --mo-comp-list-item-padding-block: 0.625rem;
   --mo-comp-list-item-padding-inline: 1rem;
   --mo-comp-list-item-gap: 0.75rem;
-  --mo-comp-list-list-item-container-shape: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-list-list-item-container-shape: var(--mo-sys-shape-corner-none);
   --mo-comp-list-item-hover-radius: var(--mo-sys-shape-corner-medium);
   --mo-comp-list-item-pressed-radius: var(--mo-sys-shape-corner-large);
   --mo-comp-list-item-selected-radius: var(--mo-sys-shape-corner-large);

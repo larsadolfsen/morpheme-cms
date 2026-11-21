@@ -2,6 +2,7 @@
 import type { Messages } from '../en-US';
 
 export const footer: Messages['footer'] = {
+  label: 'Sidefod',
   support: 'Support',
   status: 'Driftsstatus',
   terms: 'Vilkår',

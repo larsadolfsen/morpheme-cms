@@ -1,5 +1,7 @@
 // What the editor's footer and its "System status" screen say (EditorFooter.tsx, ServiceStatus.tsx).
 export const footer = {
+  /** The name of the footer's row of links (a navigation), for screen readers. */
+  label: 'Footer',
   support: 'Support',
   status: 'System status',
   terms: 'Terms of use',

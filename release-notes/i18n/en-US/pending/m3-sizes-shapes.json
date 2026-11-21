@@ -1,0 +1,6 @@
+{
+  "id": "m3-sizes-shapes",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Small icon buttons, switch icons, slider tracks, list rows and spaces between buttons now have Material 3’s sizes and shapes"
+}

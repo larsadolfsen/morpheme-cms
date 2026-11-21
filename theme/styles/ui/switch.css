@@ -10,7 +10,7 @@
     --mo-comp-switch-track-width, --mo-comp-switch-track-height, --mo-comp-switch-gap   the track, and the room between the name and it
     --mo-comp-switch-unselected-track-color, --mo-comp-switch-unselected-track-outline-color, --mo-comp-switch-track-outline-width   the track off, and its edge
     --mo-comp-switch-track-checked-surface   the track on
-    --mo-comp-switch-unselected-handle-width, --mo-comp-switch-unselected-icon-size, --mo-comp-switch-selected-handle-width, --mo-comp-switch-pressed-handle-width   the
+    --mo-comp-switch-unselected-handle-width, --mo-comp-switch-with-icon-handle-width, --mo-comp-switch-selected-handle-width, --mo-comp-switch-pressed-handle-width   the
       handle off, off with its icon, on, and while it is pressed
     --mo-comp-switch-unselected-handle-color, --mo-comp-switch-selected-handle-color, --mo-comp-switch-handle-shadow   the handle off and on
     --mo-comp-switch-icon-size, --mo-comp-switch-unselected-icon-color, --mo-comp-switch-selected-icon-color   the icons in the handle, off and on
@@ -55,14 +55,14 @@
     /* A settings form follows the layout density, and its row stays a target. */
     min-height: max(
       var(--mo-sys-target-size),
-      calc(var(--mo-comp-list-list-item-container-height) + var(--mo-sys-density-layout) * var(--mo-sys-density-step))
+      calc(var(--mo-comp-list-list-item-container-height) + var(--mo-sys-density) * var(--mo-sys-density-step))
     );
     padding-block: var(--mo-comp-list-item-padding-block);
   }
   .mo-setting-list > .mo-setting-row:has(.mo-setting-row__supporting) {
     min-height: max(
       var(--mo-sys-target-size),
-      calc(var(--mo-comp-list-item-two-line-min-height) + var(--mo-sys-density-layout) * var(--mo-sys-density-step))
+      calc(var(--mo-comp-list-item-two-line-min-height) + var(--mo-sys-density) * var(--mo-sys-density-step))
     );
   }
   .mo-setting-list > .mo-setting-row > :not(.mo-setting-row__text) {
@@ -124,8 +124,8 @@
     box-shadow: var(--mo-sys-elevation-level0-shadow);
   }
   .mo-switch__icons .mo-switch__handle {
-    width: var(--mo-comp-switch-unselected-icon-size, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
-    height: var(--mo-comp-switch-unselected-icon-size, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
+    width: var(--mo-comp-switch-with-icon-handle-width, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
+    height: var(--mo-comp-switch-with-icon-handle-width, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
   }
   .mo-switch__input:checked + .mo-switch__handle {
     left: calc(100% - var(--mo-comp-switch-track-height, 1.625rem) / 2);

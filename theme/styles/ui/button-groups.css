@@ -127,12 +127,12 @@
     display: inline-flex;
     min-width: 3rem;
     min-height: calc(
-      var(--mo-comp-segmented-button-height, var(--mo-comp-button-medium-container-height, 3rem)) - 2px + var(--mo-sys-density-layout) *
+      var(--mo-comp-segmented-button-height, var(--mo-comp-button-medium-container-height, 3rem)) - 2px + var(--mo-sys-density) *
         var(--mo-sys-density-step)
     );
     align-items: center;
     justify-content: center;
-    gap: var(--mo-comp-segmented-button-gap, var(--mo-comp-button-xsmall-icon-label-space, 0.5rem));
+    gap: var(--mo-comp-segmented-button-gap, 0.5rem);
     border: 0;
     padding: 0 var(--mo-comp-segmented-button-padding, 1rem);
     background: transparent;
