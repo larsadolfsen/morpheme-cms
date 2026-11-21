@@ -135,7 +135,7 @@ Every frontend deviation, by name, and the batch that removes it (the sorting is
 | Colour sweep 1 (status badges), 6 (video still), 7 to 9 (masks, `#000`, scrim) | batch 8 (or recorded as M3's own value) |
 | Colour sweep 11 (`--block-*` aliases) | 0.20.0 names |
 | Colour sweep 12 (elevation and panel shadows) | batches 3 and 5 |
-| CSS sweep 4 (icon button 48 dp), Buttons B1 (text button padding), CSS sweep 9 (type sizes) | batch 7 |
+| CSS sweep 4 (icon button 48 dp), Buttons B1 (text button padding), CSS sweep 9 (type sizes) | batch 7 (merged); the entries are removed in batch 9 |
 | CSS sweep 1 to 3, 6 to 8 (dialog and menu corners, 56 dp buttons, list rows, checkbox ring, slider and code corners, spacing) | batch 9: they match M3 |
 | Image tiles 17, G1 (card gap 8 dp), Lightbox 19 | batch 9 |
 | Choice group D2 and D3, Palette P1, C2, F1 (FAB), B3 (sheet padding), T1 (text measure), Cards CM1 to CM3 | batch 9 |

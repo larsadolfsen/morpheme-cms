@@ -58,8 +58,6 @@ Not deviations, fixed to M3: hover 5% and 6% became M3's 8% (#474), and the snac
 
 Allow-list: #477.
 
-4. **Icon button:** M3 has a 40dp container with a 48dp target; we draw 48dp, so the target is always met. 2026-11-13. No PR.
-9. **Type:** the editor's page preview draws the site's headings and texts at the sizes of the components' classes (`[data-look]` sizes, `editor.css`), not M3 steps, so the preview matches the site; they move together with the site's blocks. Site `text-lg`, `text-xl` and `text-4xl`, `rounded-md` and the tracking value moved to M3 steps in #490. Some `font-size`, `line-height` and `letter-spacing` in `blocks.css`, `ui.css`, `global.css`, `base.css` and the site shell's files (`site-*.css`) are not yet moved to the type scale (tracked for the next pull request of the shape and type sweep). 2026-11-13. #477, #490.
 
 ## Editor-only parts
 
@@ -296,14 +294,6 @@ Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `the
 
 - **Material:** "Nav rail expanded container width minimum 220dp", "maximum 360dp" (it hugs its content).
 - **We do:** the editor's drawers (`.mo-editor-main-drawer-panel`, `src/editor.css`) keep 360dp (at most the screen less 56dp) through their levels and sections, because the layout beside them counts on that width (`--mo-sys-section-pane-width`, the columns). Editor workspace only. **Date:** 2026-11-15.
-
-## Buttons
-
-### B1. A text button has the other buttons' side padding (owner decision)
-
-- **Material:** m3.material.io/components/buttons/specs (read with Playwright, 16 Nov 2026) prints "The text button's container is invisible at rest, but the opacity and state layers behave the same as other button styles" and "Padding and size measurements of each button size" (Extra small to Extra large). The measurement drawing did not load in the browser and the page's text prints no text-button padding number, so M3's own number is not quoted here. Before this change the theme gave a text button a 12dp side padding (`--mo-comp-button-text-padding: 0.75rem`, "Material's 12dp" in an earlier comment in `theme/styles/blocks.css`), a step narrower than the 24dp of the other buttons.
-- **We do:** a text button has the same side padding as the other buttons of its size (24dp for medium, `--mo-comp-button-padding`; the sizes' own padding for the others). `--mo-comp-button-text-padding` (now 1.5rem) is only the shift that lines a text button's label up with the text above it (Segmented list and FAQ buttons, tooltip actions).
-- **Why:** the owner's own rule ("The text button should have the same paddings as the other buttons"), seen on the demo Buttons page where the text button stood closer to its neighbours than the others. **Date:** 2026-11-16. **PR:** #852.
 
 ## Where Material 3 is silent (not deviations)
 
