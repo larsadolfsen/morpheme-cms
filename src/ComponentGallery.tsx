@@ -42,7 +42,7 @@ function ChipParts() {
   const row = 'mo-editor-parts-row';
   const { input, filter, suggestion, assist } = screens.chipKinds;
   return (
-    <Part name="Chip" use={screens.chip}>
+    <Part name="Chip" m3="md.comp.chip" use={screens.chip}>
       <Preview>
         <div className="mo-editor-parts-chips">
           <PartSub name={screens.rows.kinds}>
@@ -102,7 +102,7 @@ function ChipParts() {
 /** The theme's chip sets, as the site draws them: each layout, with more chips than there is room for on one line. */
 function ChipSetParts() {
   return (
-    <Part name="ChipSet" use={screens.chipSet}>
+    <Part name="ChipSet" m3="md.comp.chip" use={screens.chipSet}>
       <Preview>
         <div className="mo-editor-parts-chip-sets">
           {chipSetLayouts.map((layout) => (
@@ -128,7 +128,7 @@ function ButtonParts() {
   const kinds = t.blocks.buttons.kinds;
   return (
     <>
-      <Part name="Button" use={screens.button}>
+      <Part name="Button" m3="md.comp.button" use={screens.button}>
         <Preview>
           <div className="mo-editor-parts-chips">
             <PartSub name={screens.rows.kinds}>
@@ -200,7 +200,7 @@ function ButtonParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="IconButton" use={screens.iconButton}>
+      <Part name="IconButton" m3="md.comp.icon-button" use={screens.iconButton}>
         <Preview>
           <div className="mo-editor-parts-chips">
             <PartSub name={screens.rows.kinds}>
@@ -302,7 +302,7 @@ function FieldParts() {
   const fields = 'mo-editor-parts-field-grid';
   return (
     <>
-      <Part name="TextField" use={screens.textField}>
+      <Part name="TextField" m3="md.comp.text-field" use={screens.textField}>
         <Preview>
           <div className="mo-editor-parts-fields">
             {(['outlined', 'filled'] as const).map((kind) => (
@@ -389,7 +389,7 @@ function FieldParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="Checkbox" use={screens.checkbox}>
+      <Part name="Checkbox" m3="md.comp.checkbox" use={screens.checkbox}>
         <Preview>
           <div className={`${fields} mo-editor-parts-checkboxes`}>
             <Example label={screens.example(1)} flat>
@@ -433,7 +433,7 @@ function CardParts() {
   const [checkbox, radio, switchItem, after] = lists.choices;
   return (
     <>
-      <Part name="Card" use={say.card}>
+      <Part name="Card" m3="md.comp.card" use={say.card}>
         <Preview>
           <div className="mo-editor-parts-cards">
             {cardKinds.map((k) => (
@@ -480,7 +480,7 @@ function CardParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="Avatar" use={say.avatar}>
+      <Part name="Avatar" m3="none" use={say.avatar}>
         <Preview>
           <div className="mo-editor-parts-list-row">
             <SiteAvatar>{lists.letter}</SiteAvatar>
@@ -488,7 +488,7 @@ function CardParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="List" use={say.list}>
+      <Part name="List" m3="md.comp.list" use={say.list}>
         <Preview>
           <div className="mo-editor-parts-lists">
             <SiteCard>

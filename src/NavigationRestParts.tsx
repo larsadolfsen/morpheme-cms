@@ -91,7 +91,7 @@ function SearchViewExample() {
 export default function NavigationRestParts() {
   return (
     <>
-      <Part name="NavigationBar" use={say.navigationBar}>
+      <Part name="NavigationBar" m3="md.comp.navigation-bar" use={say.navigationBar}>
         <Preview>
           <div className="mo-editor-nav-demo">
             <div className="mo-editor-nav-demo-narrow">
@@ -108,7 +108,7 @@ export default function NavigationRestParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="NavigationRail" use={say.navigationRail}>
+      <Part name="NavigationRail" m3="md.comp.navigation-rail" use={say.navigationRail}>
         <Preview>
           <div className="mo-editor-nav-demo">
             <div className="mo-editor-nav-demo-row">
@@ -193,7 +193,7 @@ export default function NavigationRestParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="Search" use={say.search}>
+      <Part name="Search" m3="md.comp.search" use={say.search}>
         <Preview>
           <div className="mo-editor-nav-search-demo">
             <Example label={eg(1)}>
@@ -230,7 +230,7 @@ export default function NavigationRestParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="Toolbar" use={say.toolbar}>
+      <Part name="Toolbar" m3="md.comp.toolbar" use={say.toolbar}>
         <Preview>
           <div className="mo-editor-nav-demo">
             <div className="mo-editor-nav-colors">
