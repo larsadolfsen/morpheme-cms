@@ -21,3 +21,9 @@ Plain arrangements of your own rows, cells, buttons and media, grouped by the co
 Blocks with their own content or logic, a page each.
 
 <div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Testimonials&quot;,&quot;text&quot;:&quot;A special block: it reads the Testimonials list and draws it as cards (the Card component, in a Carousel) or as a list (the List component).&quot;,&quot;href&quot;:&quot;/blocks/testimonials/&quot;},{&quot;title&quot;:&quot;Price cards&quot;,&quot;text&quot;:&quot;A special block with its own plan layout: a Card for each plan, with its points as a check list and Buttons inside.&quot;,&quot;href&quot;:&quot;/blocks/price-cards/&quot;},{&quot;title&quot;:&quot;Blog posts&quot;,&quot;text&quot;:&quot;A special block: it reads the blog and draws the posts as rows of the List component, with the newest large on top if you choose.&quot;,&quot;href&quot;:&quot;/blocks/blog-posts/&quot;},{&quot;title&quot;:&quot;Image grid&quot;,&quot;text&quot;:&quot;A special block: it shows the Library’s images as Card tiles, with a filter and a full view.&quot;,&quot;href&quot;:&quot;/blocks/image-grid/&quot;},{&quot;title&quot;:&quot;Video&quot;,&quot;text&quot;:&quot;A special block: it loads nothing from YouTube or Vimeo until a visitor presses play.&quot;,&quot;href&quot;:&quot;/blocks/video/&quot;}]}"></div>
+
+## Sections
+
+A section takes a colour or an image behind it, a page for all of them.
+
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Section colours&quot;,&quot;text&quot;:&quot;Sections on Surface, Primary, Secondary, Tertiary and an image, each holding the main blocks.&quot;,&quot;href&quot;:&quot;/blocks/section-colours/&quot;}]}"></div>

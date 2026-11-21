@@ -100,7 +100,7 @@
    inverse-on-surface, actions inverse-primary, every surface and container inverse-surface, on the panel behind the text (text-section.css). After the
    colours, so it wins. */
 :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface) > *,
-.mo-editor-text .ProseMirror > [data-section-picture] {
+.mo-editor-text .ProseMirror > [data-section-picture]:not([data-section-color='surface']) {
   --mo-sys-color-on-surface: var(--mo-sys-color-inverse-on-surface);
   --mo-sys-color-on-surface-variant: var(--mo-sys-color-inverse-on-surface);
   --mo-sys-color-outline: var(--mo-sys-color-inverse-on-surface);
