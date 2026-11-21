@@ -95,8 +95,8 @@ async function checkListLeftEdge(width) {
             `${label}: ${where} a Default list's row is from ${r.container} to ${r.right}, not the whole window of ${got.view}px`,
           );
     for (const r of got.rows) {
-      // Plain design: on a compact screen the row's layer starts 16 dp before the text's edge (full width), else on it; Segmented design: its container is on the text's edge.
-      const want = r.kind === 'plain' && width < 600 ? got.text - 16 : got.text;
+      // Plain design: the row's layer starts 16 dp before the text's edge at every width (M3 Lists › Specs, 21 Nov 2026); Segmented design: its container is on the text's edge.
+      const want = r.kind === 'plain' ? got.text - 16 : got.text;
       if (Math.abs(r.container - want) > 0.5)
         problems.push(
           `${label}: ${where} a ${r.kind} list's ${r.kind === 'plain' ? 'row layer' : 'container'} starts at ${r.container}, not at ${want} (the text's edge is ${got.text})`,
@@ -115,7 +115,7 @@ async function checkListLeftEdge(width) {
     await page.waitForSelector('main .mo-prose ul.mo-block-list');
     await animationsSettled(page);
     verify('on the site', await page.evaluate(measure, 'main .mo-prose'));
-    // Edge to edge, the layer of a Default list's row has square corners, also pointed at (owner, 16 Nov 2026: "No border radius when full width").
+    // Edge to edge, the layer of a Default list's row pointed at has M3's hover shape, 12 dp, like at every width (the 16 Nov 2026 rule "No border radius when full width" went on 21 Nov 2026).
     if (width < 600) {
       const row = page.locator('main .mo-prose ul.mo-block-list:not(.mo-list__segmented) a.mo-list__item-container').first();
       await row.hover();
@@ -123,8 +123,10 @@ async function checkListLeftEdge(width) {
       const radius = await row.evaluate(
         (el) => getComputedStyle(el).borderTopLeftRadius + ' ' + getComputedStyle(el).borderBottomRightRadius,
       );
-      if (radius !== '0px 0px')
-        problems.push(`${label}: a Default list's row pointed at has the corners ${radius}, not square, when it is full width`);
+      if (radius !== '12px 12px')
+        problems.push(
+          `${label}: a Default list's row pointed at has the corners ${radius}, not M3's hover shape of 12px, when it is full width`,
+        );
     }
   }
   await openEditor(page, site, { [BUILT_PAGE]: LIST_PAGE });

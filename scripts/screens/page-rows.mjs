@@ -1331,14 +1331,10 @@ async function checkPageLeftEdge(width) {
           range.selectNodeContents(n);
           first = n.textContent.trim() ? ([...range.getClientRects()].find((q) => q.width) ?? null) : null;
         }
-        // Below 600 dp a plain list (not the segmented design) goes edge to edge (owner, 16 Nov 2026): at the viewport's left edge and as wide as it.
-        if (
-          innerWidth < 600 &&
-          c.matches('.mo-block-list:not(.mo-list__segmented), .mo-block-accordion:not(.mo-block-accordion__segmented)')
-        ) {
-          const box = c.getBoundingClientRect();
-          if (Math.abs(left) > 1 || Math.abs(box.width - innerWidth) > 1)
-            out.push(`plain list ${c.className.toString().slice(0, 30)} at ${left}, ${box.width} wide, not edge to edge`);
+        // A plain list (not the segmented design) is 16 dp wider than the text column on each side at every width (its negative margin), so its row layer starts 16 dp before the text (M3 Lists › Specs; the 16 Nov 2026 rule "edge to edge below 600 dp" went on 21 Nov 2026).
+        if (c.matches('.mo-block-list:not(.mo-list__segmented), .mo-block-accordion:not(.mo-block-accordion__segmented)')) {
+          if (Math.abs(left - (text - 16)) > 1)
+            out.push(`plain list ${c.className.toString().slice(0, 30)} at ${left}, not 16 dp before the text column ${text}`);
           continue;
         }
         if (Math.abs(left - text) > 1 && !(first && Math.abs(first.left - text) <= 1.5))

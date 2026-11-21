@@ -14,40 +14,20 @@
     --mo-comp-list-item-image-radius: var(--mo-sys-shape-corner-small);
   }
 }
-/* The plain design of a list (its rows on the page, no drawn container) starts its rows' own content, the leading icon or else the text, on the text's
-     left edge (the row's 16 dp, M3 Lists › Specs "leading space", belongs to a drawn container, which only the segmented design has: .mo-list__segmented,
-     .mo-block-accordion__segmented). On compact screens it is also full width (owner, 16 Nov 2026: "Full width on compact screens"; M3 Lists "edge-to-edge in compact
-     windows"): the layer of a row (hovered, pressed, focused, selected) reaches the row's 16 dp past the text column on both sides, the content stays on the text
-     edges, and the layer has square corners. It is the row's own inner padding and an equal negative margin of the list; from medium the layer is on the text column. */
+/* The plain design of a list (its rows on the page, no drawn container) keeps its content, the leading icon or else the text, on the text's edges, while the layer of
+     a row (hovered, pressed, focused, selected) reaches the row's 16 dp past the text column on both sides, as M3 Lists › Specs prints 16 dp leading and trailing space
+     inside the item's container (owner, 21 Nov 2026; it replaces the 16 Nov rule that the layer sat on the text's left edge from medium). It is the row's own inner
+     padding and an equal negative margin of the list (theme/styles/lists.css), at every width. On compact screens the list is also full width, as M3 Lists › Guidelines
+     prints ("Lists should extend edge-to-edge in compact windows."). The layer has M3's own shapes at every width, from the theme's tokens (hover 12 dp, pressed, focused
+     and selected 16 dp; the item at rest is square, "Baseline list items have square corners"); the 16 Nov 2026 owner rule "No border radius when full width" went on
+     21 Nov 2026, because M3 prints no square layer for a full-width list. */
 @layer components {
   .mo-block-list:not(.mo-list__segmented) {
-    --mo-comp-list-item-padding-inline: 0;
+    --mo-comp-list-item-padding-inline: var(--mo-sys-block-list-layer-room);
   }
 }
 @layer components {
   .mo-block-accordion:not(.mo-block-accordion__segmented) {
-    --mo-comp-list-expand-padding-inline: 0;
-  }
-}
-@layer components {
-  @media (width < 37.5rem) {
-    .mo-block-list:not(.mo-list__segmented) {
-      --mo-comp-list-item-padding-inline: var(--mo-sys-block-list-layer-room);
-      /* Edge to edge, a row's layer has no rounded corners, at rest, pointed at, pressed or selected (owner, 16 Nov 2026: "No border radius when full width"). */
-      --mo-comp-list-list-item-container-shape: 0;
-      --mo-comp-list-item-hover-radius: 0;
-      --mo-comp-list-item-pressed-radius: 0;
-      --mo-comp-list-item-selected-radius: 0;
-    }
-  }
-}
-@layer components {
-  @media (width < 37.5rem) {
-    .mo-block-accordion:not(.mo-block-accordion__segmented) {
-      --mo-comp-list-expand-padding-inline: var(--mo-sys-block-list-layer-room);
-      /* Edge to edge, an open item's colour has square corners too. */
-      --mo-comp-list-expand-open-radius: 0;
-      --mo-comp-list-expand-container-shape: 0;
-    }
+    --mo-comp-list-expand-padding-inline: var(--mo-sys-block-list-layer-room);
   }
 }

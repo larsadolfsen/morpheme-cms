@@ -167,7 +167,7 @@ async function checkListDesigns(width, height) {
       ),
       add: [...document.querySelectorAll('[data-add-row]')].map((x) => x.textContent.trim()),
       own: document.querySelectorAll('[data-row-link], [data-add-button], [data-row-arrow], .mo-editor-inline-segmented-buttons').length,
-      // The plain design is full width on a compact screen (owner, 16 Nov 2026): the row's layer is 16 dp wider than the text column on each side, its leading icon on the text's edge.
+      // The plain design's row layer is 16 dp wider than the text column on each side at every width (M3 Lists › Specs: 16 dp leading and trailing space; 21 Nov 2026), its leading icon on the text's edge.
       edge: (() => {
         const row = document.querySelector('.mo-editor-inline-list-row-active');
         const box = row?.matches('.mo-list__item-container') ? row : row?.querySelector('.mo-list__item-container');
@@ -210,9 +210,9 @@ async function checkListDesigns(width, height) {
     if (!one.end) problems.push(`${label}: ${one.look}: the link slot is not at the end of the row`);
     if (!one.edge) problems.push(`${label}: ${one.look}: no row layer or leading icon to measure`);
     else {
-      // Default: on a compact screen the layer starts 16 dp before the text's edge, else on it, and the icon on the text's edge; Card: the container on the text's edge (its icon one 16 dp padding in).
+      // Default: the layer starts 16 dp before the text's edge at every width, and the icon is on the text's edge; Card: the container on the text's edge (its icon one 16 dp padding in).
       // The rows that fold out have the 24 dp padding of the theme's accordion (global.css) inside their card.
-      const [layer, icon] = one.card ? [0, one.look.includes('Expand') ? 24 : 16] : [width < 600 ? -16 : 0, 0];
+      const [layer, icon] = one.card ? [0, one.look.includes('Expand') ? 24 : 16] : [-16, 0];
       if (Math.abs(one.edge.layer - layer) > 0.5)
         problems.push(`${label}: ${one.look}: the row starts ${one.edge.layer} px from the text's edge, not ${layer}`);
       if (Math.abs(one.edge.icon - icon) > 1)
