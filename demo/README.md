@@ -24,4 +24,4 @@ on a background in the demo's colors. The photographs are from [Unsplash](https:
 | `maya-bakery.webp` | https://unsplash.com/photos/woman-in-white-crew-neck-shirt-smiling-IF9TK5Uy-KI, photo by Jake Nackos |
 
 The logo (`public/logo.svg`, and `public/favicon.svg` with the icons, which `npx morpheme editor-icons` wrote) is drawn for
-the demo. The colors are Material 3's scheme of a calm blue, `#425E92` (*tonal spot*).
+the demo. The colors are Material 3's scheme of a blue, `#006397` (*tonal spot*).
