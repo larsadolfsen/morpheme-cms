@@ -11,7 +11,7 @@
 //   icon-name          a name that is an icon's ligature or file name (`more_vert`, `arrowBack`): the glyph's name, not what the control does.
 //   bad-name           a name that is only punctuation, is the node's role (`button`), or is a file name or an id (`photo.jpg`, a uuid).
 //   repeated-name      two controls of one role with the same name in one list, group or table, so a reader can not tell them apart (ten `Remove`).
-//   unnamed-container  a dialog, menu, tab panel or region with no name, or a second landmark of one role with no name.
+//   unnamed-container  a dialog, menu, tab panel or region with no name, or a second navigation with no name.
 //   tab-state          a tab with no selected state; a menu button (`aria-haspopup`) with no `aria-expanded`.
 //   broken-reference   an `aria-describedby`, `aria-labelledby` or `aria-controls` that points at an element that is not there; an invalid field with no
 //                      description (the error is not tied to its field).
@@ -76,8 +76,9 @@ export const INTERACTIVE = new Set([
 ]);
 /** Roles that must be named when they hold the person's place (a reader says the name on arrival). */
 export const NAMED_CONTAINERS = new Set(['dialog', 'alertdialog', 'menu', 'tabpanel', 'region']);
-/** Landmarks that need a name only when there are two of one role. */
-export const LANDMARKS = new Set(['navigation', 'complementary', 'form', 'search']);
+/** Landmarks that need a name only when there are two of one role. Only `navigation`: whether a second `complementary`, `form` or `search` is in the page depends on
+ * which panel is open when the walk reads it, so a finding for those would come and go from run to run (CI found it on `aside.mo-editor-main-drawer-frame`). */
+export const LANDMARKS = new Set(['navigation']);
 /** The roles a list of controls is made in: a repeated name is told apart only inside one of these. */
 export const GROUPS = new Set([
   'list',
