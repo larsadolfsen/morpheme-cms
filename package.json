@@ -50,7 +50,8 @@
   "scripts": {
     "build": "node scripts/demo-build.mjs",
     "check": "npm run format:check && npm run check:source && npm run build && npm run check:built",
-    "check:source": "npm run check:language && npm run check:phosphor && npm run check:css-tokens && npm run check:mo-names && npm run check:token-names && npm run check:token-registry && npm run check:web && npm run check:editor-colors && npm run check:tailwind && npm run check:colors && npm run check:css-values && npm run check:density && npm run check:release-notes && npm test && npm run check:types",
+    "check:m3-tokens": "node scripts/check-m3-tokens.mjs",
+    "check:source": "npm run check:language && npm run check:phosphor && npm run check:m3-tokens && npm run check:css-tokens && npm run check:mo-names && npm run check:token-names && npm run check:token-registry && npm run check:web && npm run check:editor-colors && npm run check:tailwind && npm run check:colors && npm run check:css-values && npm run check:density && npm run check:release-notes && npm test && npm run check:types",
     "check:built": "npm run check:site-types && npm run check:editor",
     "check:site-types": "node scripts/check-site-types.mjs",
     "check:types": "tsc -p tsconfig.types.json --noEmit --incremental --tsBuildInfoFile .morpheme/tsc/types.tsbuildinfo",
