@@ -339,6 +339,70 @@ async function checkDensityScreens(width, height) {
   await page.close();
 }
 
+/** A tap never lands on the wrong control (owner, 21 Nov 2026: at -3 on a phone the invisible target of "Several lines 1" covered the chip above it). On the theme's UI components page (/ui/) at a theme's -3, on a phone (touch, target 48) and a computer (mouse, target 44), every visible control is hit at 9 points (the four corners, the four edge middles and the centre, 1 px inside its box): what answers there is the control, or something in it, or no other control. An area of a control that reaches into its neighbour (target-size.css, --mo-sys-target-gap) fails this. A control that is fixed or sticky on the page (the page's own jump button) lies over what is under it by design and is not counted. */
+async function checkDensityTargets(width, height, touch) {
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${width}px density targets: ${e.message}`));
+  await page.goto(`${site}/ui/`, { waitUntil: 'networkidle' });
+  await page.addStyleTag({
+    content:
+      ':root { --mo-sys-density-base: -3 !important } *, ::before, ::after { animation: none !important; transition: none !important }',
+  });
+  // The page draws its parts as they come into view: go down it once, so every one is there.
+  const total = await page.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y < total + height; y += height - 100) {
+    await page.evaluate((y) => scrollTo(0, y), y);
+    await page.waitForTimeout(20);
+  }
+  const found = await page.evaluate(() => {
+    const controls =
+      'button, a[href], input:not([type=hidden]), select, textarea, summary, [role=button], [role=tab], [role=menuitem], [role=option], [role=switch], [role=checkbox], [role=radio], [tabindex]:not([tabindex="-1"])';
+    const label = (e) =>
+      `${e.tagName.toLowerCase()}.${String(e.className).split(' ').slice(0, 2).join('.')} "${(e.getAttribute('aria-label') || e.textContent || '').trim().slice(0, 28)}"`;
+    const overlay = (e) => {
+      for (let p = e; p; p = p.parentElement) {
+        const position = getComputedStyle(p).position;
+        if (position === 'fixed' || position === 'sticky') return true;
+      }
+      return false;
+    };
+    let count = 0;
+    const wrong = [];
+    for (const el of document.querySelectorAll(controls)) {
+      const style = getComputedStyle(el);
+      if (style.visibility === 'hidden' || style.display === 'none' || overlay(el)) continue;
+      el.scrollIntoView({ block: 'center', inline: 'center' });
+      const box = el.getBoundingClientRect();
+      if (box.width < 2 || box.height < 2 || box.left < 0 || box.right > innerWidth || box.top < 0 || box.bottom > innerHeight) continue;
+      count++;
+      for (const y of [box.top + 1, box.top + box.height / 2, box.bottom - 1])
+        for (const x of [box.left + 1, box.left + box.width / 2, box.right - 1]) {
+          const hit = document.elementFromPoint(x, y);
+          if (!hit || el.contains(hit)) continue;
+          const other = hit.closest(controls);
+          if (other && other !== el && !other.contains(el) && !overlay(other)) {
+            const o = other.getBoundingClientRect();
+            wrong.push(
+              `${label(el)} (${Math.round(box.width)}x${Math.round(box.height)}) at ${Math.round(x - box.left)},${Math.round(y - box.top)} answers as ${label(other)} (${Math.round(o.width)}x${Math.round(o.height)}, ${Math.round(o.left - box.left)},${Math.round(o.top - box.top)} from it)`,
+            );
+          }
+        }
+    }
+    return { count, wrong };
+  });
+  if (found.count < 300) problems.push(`${width}px density targets: only ${found.count} controls found on /ui/ (expected 300 or more)`);
+  const seen = new Set();
+  for (const w of found.wrong) {
+    const key = w.replace(/ at \d+,\d+ /, ' ');
+    if (seen.has(key) || seen.size >= 12) continue;
+    seen.add(key);
+    problems.push(`${width}px density targets (-3): ${w}`);
+  }
+  if (found.wrong.length > seen.size)
+    problems.push(`${width}px density targets (-3): ${found.wrong.length} wrong hits in all, ${seen.size} parts listed`);
+  await page.close();
+}
+
 /** The density variables (theme/styles/base.css) work in the browser: a person's step (data-density on <html>) and a theme's step add up and are clamped to 0 down to -3, and a part's calc() gives its default at 0 and 4px per step. */
 async function checkDensity(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
@@ -411,6 +475,8 @@ export function register(unit) {
   unit('checkDensityTable 1280', () => checkDensityTable(1280, 900));
   unit('checkDensityScreens 375', () => checkDensityScreens(375, 740));
   unit('checkDensityScreens 1280', () => checkDensityScreens(1280, 900));
+  unit('checkDensityTargets 390', () => checkDensityTargets(390, 844, true));
+  unit('checkDensityTargets 1280', () => checkDensityTargets(1280, 900, false));
   unit('checkDensitySetting 375', () => checkDensitySetting(375, 740));
   unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
 }

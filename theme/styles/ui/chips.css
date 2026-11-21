@@ -65,7 +65,8 @@
     top: 50%;
     right: 0;
     left: 0;
-    height: max(100%, 3rem);
+    /* The target (--mo-sys-target-size), but in a group it stops half way to the next chip (target-size.css: --mo-sys-target-gap-block). */
+    height: min(max(100%, var(--mo-sys-target-size)), calc(100% + var(--mo-sys-target-gap-block, var(--mo-sys-target-gap, 100vmax))));
     transform: translateY(-50%);
   }
   .mo-chip > svg,

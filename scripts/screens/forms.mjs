@@ -57,13 +57,33 @@ async function checkUserInvalid(width, height, theme) {
   await input.focus();
   await input.fill('name@');
   await input.blur();
-  const wrong = await readUntil((now) => now.edge !== before.edge);
+  let wrong = await readUntil((now) => now.edge !== before.edge);
+  for (let last = ''; wrong.edge !== last;) {
+    last = wrong.edge;
+    await page.waitForTimeout(400);
+    wrong = await read();
+  }
   if (!wrong.invalid || !wrong.said || wrong.supporting || !wrong.icon || wrong.aria !== 'true' || !wrong.described)
     problems.push(`${label}: not marked after a wrong text was typed and left (${JSON.stringify(wrong)})`);
   if (wrong.edge === before.edge) problems.push(`${label}: the edge did not change to the error's`);
   if (wrong.height !== before.height)
     problems.push(`${label}: the line under the field moved the layout (${before.height} to ${wrong.height})`);
+  // Keyboard focus shows in the error state too (WCAG 2.4.7, 2.4.11; Material 3: the focused outline is thicker than the resting one): the edge
+  // keeps the error colour and gets thicker.
   await input.focus();
+  // The edge moves through a transition: read it when it has stopped.
+  let focused = await readUntil((now) => now.edge !== wrong.edge);
+  for (let last = ''; focused.edge !== last;) {
+    last = focused.edge;
+    await page.waitForTimeout(400);
+    focused = await read();
+  }
+  const widthOf = (edge) => Number(/(\d+(?:\.\d+)?)px inset/.exec(edge)?.[1] ?? 0);
+  const colourOf = (edge) => /rgb\([^)]*\)/.exec(edge)?.[0];
+  if (focused.edge === wrong.edge || widthOf(focused.edge) <= widthOf(wrong.edge))
+    problems.push(`${label}: focus is not visible in the error state (edge at rest ${wrong.edge}, focused ${focused.edge})`);
+  if (colourOf(focused.edge) !== colourOf(wrong.edge))
+    problems.push(`${label}: the focused error field's edge is not in the error colour (${wrong.edge}, then ${focused.edge})`);
   await input.fill('name@example.com');
   await input.blur();
   const right = await readUntil((now) => now.edge === before.edge);

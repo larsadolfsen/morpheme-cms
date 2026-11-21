@@ -107,6 +107,9 @@
   :where(.mo-text-field).mo-is-filled .mo-text-field__container:has(> .mo-text-field__input:focus) {
     box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
   }
+  /* Wrong: the error colour for the edge, as thick as M3's resting outline (1 dp; a filled field's active indicator is a line under it), and
+     with the focus as thick as every focused field's edge (2 px, all round), so the focus shows in the error state too (WCAG 2.4.7, 2.4.11; M3: the
+     focused outline is thicker than the resting one). */
   :is(
       .mo-is-error,
       .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
@@ -116,7 +119,16 @@
       .mo-is-error,
       .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
     )
-    .mo-text-field__container:hover,
+    .mo-text-field__container:hover {
+    box-shadow: inset 0 0 0 1px var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+  }
+  .mo-is-filled:is(
+      .mo-is-error,
+      .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
+    )
+    .mo-text-field__container:not(:has(> .mo-text-field__input:is(:focus, [aria-expanded='true']))) {
+    box-shadow: inset 0 -1px 0 var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+  }
   :is(
       .mo-is-error,
       .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
