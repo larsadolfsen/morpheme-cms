@@ -154,7 +154,7 @@ surfaces and fonts.
 
 Colours in the editor's block parts (`src/editor.css`, `src/Inline*.tsx`) come only from the theme's context tokens: the `--mo-*`
 roles, `currentColor` and `color-mix` of them, never a fixed value. A section on a colour swaps those roles to its on-colours once, in
-`theme/styles/global.css` (the site's `.mo-text-section` with its `mo-is-<color>` kinds, and the editor's `[data-section-color]` nodes), so a part that uses the normal
+`theme/styles/tokens/blocks/sys.css` (the site's `.mo-text-section` with its `mo-is-<color>` kinds, and the editor's `[data-section-color]` nodes), so a part that uses the normal
 tokens follows every section colour by itself. `npm run check:editor-colors` fails on a fixed colour (its allowlist gives the
 reasons), and `check:screens` checks text, placeholder, slot icons and outline of every entry of `inlineBlocks` on every section colour.
 
