@@ -26,11 +26,10 @@ export const PHONE_FLOWS = ['A', 'B', 'F', 'J'];
  *   A failed save, any `error` snackbar        announcer, urgent (the snackbar's `error`)
  *   A form's problems and their count          announcer, urgent, through the snackbar (`3 problems. …`); focus goes to the first wrong field (fields.tsx)
  *   `Change type` with Undo                    announcer, through the snackbar (`undoSnackbar` in MarkdownEditor.tsx; the theme part's `role` is taken off the copy)
- *   Selected rows (library, media)             announcer, from `useAnnounce` in SelectionBar
  *   The dashboard's moves, its loading line    announcer (DashboardEdit, DashboardGrid)
- *   Updates notice, no icons found             announcer, once, from `Announce` (UpdatesNotice, IconPicker)
+ *   No icons found (icon picker)               announcer, once, from `Announce` (IconPicker)
  *   Preview width                              announcer, only when the person picks a size (PreviewScreen); the width line itself is silent
- *   Blocks selected in the text, position of a file, search result count, date picker headline, lightbox count
+ *   Selected rows (SelectionBar), updates notice, blocks selected in the text, position of a file, search result count, date picker headline, lightbox count
  *                                              their own persistent region (kept: the text changes in a region that was there before)
  *   A page-level `Notice` (Media, dashboard)   its own `role="alert"` (kept: an alert is read when it comes in)
  */

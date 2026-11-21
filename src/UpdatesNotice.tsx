@@ -12,7 +12,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { version } from '../package.json';
 import { locale, t } from './i18n';
-import { Announce } from './useAnnounce';
 import { installedApps } from './apps';
 import { apps } from './site';
 import { changesSince, versioned, type Versions } from './startView.mjs';
@@ -120,8 +119,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       : t.library.cmsVersion(cms.version)
     : t.library.appsUpdated(updatedApps.length);
   return (
-    <SiteCard kind="elevated" as="section" aria-labelledby="updates-title" className="mo-editor-updates-notice">
-      <Announce text={title} />
+    <SiteCard kind="elevated" as="section" role="status" aria-labelledby="updates-title" className="mo-editor-updates-notice">
       <div className="mo-editor-updates-notice-body">
         {edition && (
           <div className="mo-editor-updates-notice-photo">
