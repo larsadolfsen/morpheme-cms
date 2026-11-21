@@ -134,11 +134,11 @@ Every frontend deviation, by name, and the batch that removes it (the sorting is
 | Navigation rail N1, N2, N7 | batch 9 |
 | CSS sweep 5 and FR1 (focus ring), A1 (search field ring) | batch 9: the site takes M3's focus indicator (`secondary`, 3 dp, 2 dp); the editor keeps `primary`. Only if `check:contrast` or `check:keyboard` fails on it does it join the accessibility allowlist |
 | E1 (error text without `role="alert"`), N5 (native dialog, no swipe) | stays: Modern Web Guidance outranks M3 (priority 1), guides named in each entry |
-| Choice group D1 (radio-list fallback) | → 0.20.0 |
-| N3 (icons on rail items) | → 0.20.0 |
-| N4 (`menuSide`) | → 0.20.0 |
-| The Dialog's full-screen kind | → 0.20.0 |
-| Density Large (+1) | → 0.20.0 |
+| Choice group D1 (radio-list fallback) | → 0.20.0: follows M3's button group (one line, smaller buttons, then an overflow menu) |
+| N3 (site menu: icons on rail items) | → 0.20.0: M3's navigation drawer built on the rail code with the rail off; the editor keeps the rail |
+| N4 (`menuSide`, menu on the end edge) | not a deviation: customization (owner, 21 Nov 2026); removed from `docs/material-deviations.md`, not on the 0.20.0 list |
+| The Dialog's full-screen kind | → 0.20.0: the theme's Dialog gets the kind back for compact windows; the editor keeps its pages for now |
+| Density Large (+1) | → 0.20.0: removed; Medium becomes 0; accounts on Large move to Medium |
 
 ## Done when
 

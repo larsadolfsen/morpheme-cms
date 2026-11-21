@@ -121,7 +121,7 @@ Read 13 Nov 2026 on m3.material.io: `/components/toolbars/` (guidelines, specs, 
 
 Read 13 Nov 2026 on m3.material.io: `/foundations/layout/grids-spacing/density`, `/components/segmented-buttons/specs`, `/components/chips/specs`, `/components/text-fields/specs`, `/components/buttons/specs`, `/components/lists/specs`.
 
-12. **Large (+1) is a step above M3's default (→ 0.20.0: removing a theme API option is a contract change; CTO, 21 Nov 2026):** M3: "The density scale is numbered, starting at 0 for a component's default density. The scale moves to negative numbers (-1, -2, -3) as space decreases, creating higher density." M3 has no step above 0. We: Large adds 4 dp to the height (or 2 dp a side of padding), by the same rule M3 gives for a step down. Why: the owner's screenshot of the density page offers Large, Medium and Small.
+12. **Large (+1) is a step above M3's default (→ 0.20.0, owner via the CTO, 21 Nov 2026: Large is removed, Medium becomes 0 and accounts on Large move to Medium; a contract change):** M3: "The density scale is numbered, starting at 0 for a component's default density. The scale moves to negative numbers (-1, -2, -3) as space decreases, creating higher density." M3 has no step above 0. We: Large adds 4 dp to the height (or 2 dp a side of padding), by the same rule M3 gives for a step down. Why: the owner's screenshot of the density page offers Large, Medium and Small.
 
 ## Footer links (owner decision, 14 Nov)
 
@@ -186,7 +186,7 @@ Source: `theme/ui/ChoiceGroup.tsx`, `theme/ui/choiceGroupFit.mjs`, `theme/styles
 - **We do:** when the buttons' labels do not all fit at an equal share of the width (the widest button × the count + the 2 dp gaps; more than five choices always), the same choice is drawn as a vertical list of radio buttons instead, one choice per row, the whole row the tap target. The form is measured before the first paint and again on a resize, a font load or a density change; the switch back to buttons needs 8 dp more.
 - **Why:** owner, 14 Nov 2026: "One theme part that chooses its own form by measuring, so it can never squeeze … it never wraps a group and never overlaps." Smaller buttons still clip long or Danish labels, and an overflow menu hides choices the owner compares.
 - **Date:** 2026-11-14. **PR:** the pull request that adds this entry (choice group, the part).
-- **Status:** → 0.20.0: matching M3 needs new component work, removes an owner setting or is a contract change, which a patch does not make (CTO, 21 Nov 2026); nothing changes in 0.19.5.
+- **Status:** → 0.20.0 (owner via the CTO, 21 Nov 2026): the choice group follows M3's button group: one line, smaller buttons, then an overflow menu. Nothing changes in 0.19.5.
 
 ## Command palette (command palette, step 5)
 
@@ -275,7 +275,7 @@ Followed: "When actions don’t fit in a toolbar, add a menu." and "If more acti
 - **We do:** the theme's `Dialog` (`theme/ui/Dialog.tsx`) is the basic dialog only. The `full-screen` kind, `dialogFullScreenModalClass`, the classes `dialog-full-screen`, `dialog-modal-full-screen`, `dialog-header` and `dialog-header-actions` and the two `--dialog-full-screen-*` tokens are gone, and `THEME_API` is 5. A task that needs a whole screen is a page with the top app bar's back arrow (B2). The lightbox is its own modal `<dialog>` with the dialog's container (19).
 - **Why:** owner decision, 14 Nov 2026: no full-screen views anywhere; full screens become pages with a back arrow. It is the same thing as the dialog's full-screen kind, so the kind is removed (relayed by the 0.18 project manager).
 - **Date:** 2026-11-15. **PR:** the pull request that removes the kind.
-- **Status:** → 0.20.0: matching M3 needs new component work, removes an owner setting or is a contract change, which a patch does not make (CTO, 21 Nov 2026); nothing changes in 0.19.5.
+- **Status:** → 0.20.0 (owner via the CTO, 21 Nov 2026): the theme's Dialog gets the full-screen kind back for compact windows; the editor keeps its pages for now. Nothing changes in 0.19.5.
 
 ## The search view (search page, M3 search)
 
@@ -309,13 +309,7 @@ Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `the
 
 - **Material:** Navigation rail, Guidelines: "Navigation rail items must use icons that symbolize the content of their page"; "All navigation items require a one word label text."
 - **We do:** the site's menu items are the site's own pages, which have no icons, and an item with sub-pages unfolds them. Items that have an icon (the editor's) use the rail's 8dp icon-label space. **Date:** 2026-11-15.
-- **Status:** → 0.20.0: matching M3 needs new component work, removes an owner setting or is a contract change, which a patch does not make (CTO, 21 Nov 2026); nothing changes in 0.19.5.
-
-### N4. The menu can open from the end edge
-
-- **Material:** Navigation rail, Guidelines: "The navigation rail should be placed on the leading edge of the window"; "Always put the rail in the same place".
-- **We do:** the site's menu opens from the edge its button is on (`menuSide` of `header.json`, an owner setting), the end edge included, and its menu button stands on that edge. **Date:** 2026-11-15.
-- **Status:** → 0.20.0: matching M3 needs new component work, removes an owner setting or is a contract change, which a patch does not make (CTO, 21 Nov 2026); nothing changes in 0.19.5.
+- **Status:** → 0.20.0 (owner via the CTO, 21 Nov 2026): the site menu becomes M3's navigation drawer, built on the rail code with the rail off; the editor keeps the rail. Nothing changes in 0.19.5.
 
 ### N5. The scrim, a tap on it and Escape; no custom swipe
 
@@ -355,5 +349,6 @@ there is nothing to deviate from. The theme uses the nearest M3 pattern or the o
 - **The site's text measure:** 40ch to 60ch (owner's rule); M3 prints no text width.
 - **Button group toggles:** `aria-pressed` in a `role="group"`; M3 prints no ARIA roles for them.
 - **Editor-only parts** (score ring, colour and icon pickers, the Google preview, crop handle sizes) and the editor's fixed colours (PageSpeed, Google, the picker, the preview frame) are no M3 parts.
+- **The site's menu on the end edge** (`menuSide` of `header.json`): customization, not a deviation (owner, 21 Nov 2026).
 - **Focus indicator:** the site's focus ring is M3's (`secondary`, 3 dp, 2 dp outside, 3 dp inside a list item; the component tokens and `md.sys.state.focus-indicator`); the editor draws it in `primary`.
 - **Closed because they match M3:** the dialog corner (extra large, 28 dp), the menu corner (large, 16 dp), the 56 dp buttons and 56, 72 and 88 dp list rows (Expressive), the contained search view, chips (32 dp, 8 dp corner, 18 dp icon), the expanded modal navigation rail (surface container, 220 dp to 360 dp), the zoom slider's inactive track (secondary container).
