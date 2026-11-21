@@ -100,7 +100,7 @@ One rule so nothing is said twice: **there is one announcer, and a message goes 
   screen's heading once; focus goes to the heading, or to the page's title field when the screen is a page (the same place 0.19.3 chose).
 - **Block selection and the page preview.** Selecting a block announces its type and place (`Image, block 3 of 7, selected`), moving it announces
   the new place, removing it announces the removal and where focus went. The count that exists now (`blocksSelected`) is reused. The page preview is
-  a picture of the site: it is `aria-hidden` and `inert` (0.19.2 and 0.19.3 do the first and second for the header and footer preview); a change that
+  an image of the site: it is `aria-hidden` and `inert` (0.19.2 and 0.19.3 do the first and second for the header and footer preview); a change that
   the person makes shows as `Preview updated` only when they ask for the preview, never on each keystroke.
 - **Text bar.** Alt+F10 (0.19.3) is announced when the text gets focus the first time per page, as the text area's description (`Alt+F10 moves to
   the formatting tools`), and the toolbar is `role="toolbar"` with the group's label and `aria-pressed` on Bold, Italic and the list buttons.
