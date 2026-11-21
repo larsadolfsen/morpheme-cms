@@ -73,39 +73,58 @@
   --mo-sys-state-focus-indicator-outer-offset: 2px;
   --mo-sys-state-focus-indicator-inner-offset: -3px;
 }
-/* The blocks in a section on the accent (blocks.css) read as an inverted theme: the site's colours below are swapped for
-   it, and the list above (the M3 aliases and the parts' variables, which are resolved where they are declared) is
-   declared again on them (the selector of its rule), so every part takes the swapped colours. The section's own
-   colours are in --section-… (blocks.css). */
-:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
-/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
-.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-  --mo-sys-color-on-surface: var(--mo-sys-section-on-accent);
-  --mo-sys-color-on-surface-variant: var(--mo-sys-section-on-accent);
-  --mo-sys-color-outline-variant: color-mix(in srgb, var(--mo-sys-section-on-accent) 35%, transparent);
-  --mo-sys-color-outline: var(--mo-sys-section-on-accent);
-  --mo-sys-color-surface: var(--mo-sys-section-accent);
-  --mo-sys-color-primary: var(--mo-sys-section-on-accent);
-  --mo-sys-color-on-primary: var(--mo-sys-section-accent);
-  --mo-sys-color-surface-dim: color-mix(in srgb, var(--mo-sys-section-on-accent) 18%, transparent);
-  --mo-sys-color-surface-bright: var(--mo-sys-section-accent);
-  --mo-sys-color-surface-container-lowest: color-mix(in srgb, var(--mo-sys-section-on-accent) 6%, transparent);
-  --mo-sys-color-surface-container-low: color-mix(in srgb, var(--mo-sys-section-on-accent) 8%, transparent);
-  --mo-sys-color-surface-container: color-mix(in srgb, var(--mo-sys-section-on-accent) 10%, transparent);
-  --mo-sys-color-surface-container-high: color-mix(in srgb, var(--mo-sys-section-on-accent) 12%, transparent);
-  --mo-sys-color-surface-container-highest: color-mix(in srgb, var(--mo-sys-section-on-accent) 14%, transparent);
-  --mo-sys-color-secondary: var(--mo-sys-section-on-accent);
-  --mo-sys-color-on-secondary: var(--mo-sys-section-accent);
-  --mo-sys-color-secondary-container: var(--mo-sys-section-container, color-mix(in srgb, var(--mo-sys-section-on-accent) 22%, transparent));
-  --mo-sys-color-on-secondary-container: var(--mo-sys-section-on-container, var(--mo-sys-section-on-accent));
-  --mo-sys-color-tertiary: var(--mo-sys-section-on-accent);
-  --mo-sys-color-on-tertiary: var(--mo-sys-section-accent);
-  --mo-sys-color-tertiary-container: var(--mo-sys-section-container, color-mix(in srgb, var(--mo-sys-section-on-accent) 22%, transparent));
-  --mo-sys-color-on-tertiary-container: var(--mo-sys-section-on-container, var(--mo-sys-section-on-accent));
-  --mo-sys-color-primary-container: var(--mo-sys-section-container, color-mix(in srgb, var(--mo-sys-section-on-accent) 22%, transparent));
-  --mo-sys-color-on-primary-container: var(--mo-sys-section-on-container, var(--mo-sys-section-on-accent));
-  --mo-sys-block-shadow: none;
-  --mo-sys-panel-shadow: none;
+/* A section on Primary, Secondary or Tertiary is painted with M3's container of that colour, and what is in it takes the pair M3 prints for it
+   (docs/superpowers/specs/2026-11-21-section-colours-m3-roles-design.md): the section's own surface is the container, and text, secondary text and icons
+   are its on-colour. Everything else (outline, accents, a card's or a field's own surface roles) stays as on the page. The blocks' aliases and
+   the parts' variables, which are resolved where they are declared, are declared again on the section's parts (the selector heads of the token
+   files), so every part takes these roles. */
+:where(.mo-text-section).mo-is-primary > *,
+.mo-editor-text .ProseMirror > [data-section-color='primary'] {
+  --mo-sys-color-surface: var(--mo-sys-color-primary-container);
+  --mo-sys-color-on-surface: var(--mo-sys-color-on-primary-container);
+  --mo-sys-color-on-surface-variant: var(--mo-sys-color-on-primary-container);
+}
+:where(.mo-text-section).mo-is-secondary > *,
+.mo-editor-text .ProseMirror > [data-section-color='secondary'] {
+  --mo-sys-color-surface: var(--mo-sys-color-secondary-container);
+  --mo-sys-color-on-surface: var(--mo-sys-color-on-secondary-container);
+  --mo-sys-color-on-surface-variant: var(--mo-sys-color-on-secondary-container);
+}
+:where(.mo-text-section).mo-is-tertiary > *,
+.mo-editor-text .ProseMirror > [data-section-color='tertiary'] {
+  --mo-sys-color-surface: var(--mo-sys-color-tertiary-container);
+  --mo-sys-color-on-surface: var(--mo-sys-color-on-tertiary-container);
+  --mo-sys-color-on-surface-variant: var(--mo-sys-color-on-tertiary-container);
+}
+/* A section with an image (any colour but Surface) is the inverse set M3 prints for an area that contrasts with the page: text, icons and edges
+   inverse-on-surface, actions inverse-primary, every surface and container inverse-surface, on the panel behind the text (text-section.css). After the
+   colours, so it wins. */
+:where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface) > *,
+.mo-editor-text .ProseMirror > [data-section-picture] {
+  --mo-sys-color-on-surface: var(--mo-sys-color-inverse-on-surface);
+  --mo-sys-color-on-surface-variant: var(--mo-sys-color-inverse-on-surface);
+  --mo-sys-color-outline: var(--mo-sys-color-inverse-on-surface);
+  --mo-sys-color-outline-variant: var(--mo-sys-color-inverse-on-surface);
+  --mo-sys-color-on-primary-container: var(--mo-sys-color-inverse-on-surface);
+  --mo-sys-color-on-secondary-container: var(--mo-sys-color-inverse-on-surface);
+  --mo-sys-color-on-tertiary-container: var(--mo-sys-color-inverse-on-surface);
+  --mo-sys-color-primary: var(--mo-sys-color-inverse-primary);
+  --mo-sys-color-secondary: var(--mo-sys-color-inverse-primary);
+  --mo-sys-color-tertiary: var(--mo-sys-color-inverse-primary);
+  --mo-sys-color-on-primary: var(--mo-sys-color-inverse-surface);
+  --mo-sys-color-on-secondary: var(--mo-sys-color-inverse-surface);
+  --mo-sys-color-on-tertiary: var(--mo-sys-color-inverse-surface);
+  --mo-sys-color-surface: var(--mo-sys-color-inverse-surface);
+  --mo-sys-color-surface-bright: var(--mo-sys-color-inverse-surface);
+  --mo-sys-color-surface-dim: var(--mo-sys-color-inverse-surface);
+  --mo-sys-color-surface-container-lowest: var(--mo-sys-color-inverse-surface);
+  --mo-sys-color-surface-container-low: var(--mo-sys-color-inverse-surface);
+  --mo-sys-color-surface-container: var(--mo-sys-color-inverse-surface);
+  --mo-sys-color-surface-container-high: var(--mo-sys-color-inverse-surface);
+  --mo-sys-color-surface-container-highest: var(--mo-sys-color-inverse-surface);
+  --mo-sys-color-primary-container: var(--mo-sys-color-inverse-surface);
+  --mo-sys-color-secondary-container: var(--mo-sys-color-inverse-surface);
+  --mo-sys-color-tertiary-container: var(--mo-sys-color-inverse-surface);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {

@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { openEditor } from '../built-site.mjs';
 import { FIXTURE_PAGE, browser, problems, shots, site } from './support/context.mjs';
 import { barTools, inlineBlocks, inlineSingles, pressInsert, pressMore, pressTool, ratioOf, saveOrClose } from './support/shared.mjs';
+import { shortfall } from './support/statement.mjs';
 
 /** One choice of a choice group by its name, whichever form it has now: its visible button, or its row of radio buttons (the row's label is the target:
  * the text under it cannot be pressed on its own). */
@@ -420,7 +421,8 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
           const message = `${label} (${scheme}): the ${part} on a ${color} section has contrast ${got[part].toFixed(2)}:1, below ${min}`;
           // A placeholder and the row's outline are parts a theme can name in its accessibility.json; text and slot icons never.
           if (part === 'placeholder') shortfall('1.4.3', 'placeholder', message);
-          else if (part === 'outline') shortfall('1.4.11', 'section-edges', message);
+          else if (part === 'outline')
+            shortfall('1.4.11', 'outlined-card-edge', message); // the edge of a block typed in place on a section, M3's outline: judged with the card edge, which the contrast scan measures in whole
           else problems.push(message);
         }
   }

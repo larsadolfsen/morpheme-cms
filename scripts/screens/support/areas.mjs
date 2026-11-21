@@ -84,7 +84,7 @@ export const RULES = [
   [/^worker\//, 'none'],
   // The static-only check scripts and allowlists: `npm run check` runs them, no screens unit imports them.
   [
-    /^scripts\/(check-language|check-phosphor|check-web|check-editor-colors|check-colors|check-colors\.allow|check-css-values|check-css-values\.allow|check-density)\.mjs$/,
+    /^scripts\/(check-language|check-phosphor|check-web|check-editor-colors|check-colors|check-colors\.allow|check-css-values|check-css-values\.allow|check-density|check-color-roles|color-roles\.allow)\.mjs$/,
     'none',
   ],
   [/^scripts\/(phosphor|web)-allowlist\.json$/, 'none'],
