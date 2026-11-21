@@ -13,7 +13,7 @@
 // (PartsShown.tsx). Nothing here is saved.
 import { useMemo, type CSSProperties } from 'react';
 import Screen from './Screen';
-import { Part, PartGroup, PartsShown } from './PartsShown';
+import { Example, named, Part, PartGroup, PartsShown } from './PartsShown';
 import { CoverageSummary } from './CoverageSummary';
 import FrameParts from './FrameParts';
 import { Preview } from './ui';
@@ -99,35 +99,49 @@ function ChipParts() {
     <Part name="Chip" use={screens.chip}>
       <Preview>
         <div className="mo-editor-parts-chips">
-          <div className={row}>
+          <div className={row} {...named(screens.rows.kinds)}>
             {chipKinds.map((k) => (
               <SiteChip key={k} kind={k} label={screens.chipKinds[k]} />
             ))}
           </div>
-          <div className={`${row} mo-editor-parts-chip-image`} style={{ backgroundImage: `url("${exampleImage}")` }}>
+          <div
+            className={`${row} mo-editor-parts-chip-image`}
+            {...named(screens.elevated)}
+            style={{ backgroundImage: `url("${exampleImage}")` }}
+          >
             <SiteChip elevated icon="calendar-blank" label={`${assist} · ${screens.elevated}`} />
             <SiteChip elevated kind="filter" label={`${filter} · ${screens.elevated}`} />
             <SiteChip elevated kind="filter" selected label={screens.selected} />
             <SiteChip elevated kind="suggestion" label={`${suggestion} · ${screens.elevated}`} />
           </div>
-          <div className={row}>
-            <SiteChip kind="filter" selected label={screens.selected} />
+          <div className={row} {...named(screens.selected)}>
+            <Example label={`${filter} · ${screens.selected}`} flat>
+              <SiteChip kind="filter" selected label={screens.selected} />
+            </Example>
             <SiteChip kind="filter" label={filter} />
             <SiteChip kind="suggestion" selected label={`${suggestion} · ${screens.selected}`} />
             <SiteChip icon="calendar-blank" label={screens.withIcon} />
             <SiteChip kind="input" trailingIcon="x" label={input} />
             <SiteChip kind="input" avatar={exampleImage} removeLabel={screens.remove(screens.withAvatar)} label={screens.withAvatar} />
-            <SiteChip kind="input" selected removeLabel={screens.remove(screens.selected)} label={screens.selected} />
+            <Example label={`${input} · ${screens.selected}`} flat>
+              <SiteChip kind="input" selected removeLabel={screens.remove(screens.selected)} label={screens.selected} />
+            </Example>
             <SiteChip kind="input" dragged avatar={exampleImage} label={screens.dragged} />
             <SiteChip plain label={screens.plain} />
           </div>
-          <div className={row}>
+          <div className={row} {...named(screens.disabled)}>
             {chipKinds.map((k) => (
-              <SiteChip key={k} kind={k} disabled label={screens.disabled} />
+              <Example key={k} label={screens.chipKinds[k]} flat>
+                <SiteChip kind={k} disabled label={screens.disabled} />
+              </Example>
             ))}
-            <SiteChip kind="input" disabled removeLabel={screens.remove(screens.disabled)} label={screens.disabled} />
+            <Example label={screens.example(1)} flat>
+              <SiteChip kind="input" disabled removeLabel={screens.remove(screens.disabled)} label={screens.disabled} />
+            </Example>
             <SiteChip elevated disabled label={`${screens.elevated} · ${screens.disabled}`} />
-            <SiteChip href="" disabled label={screens.disabled} />
+            <Example label={screens.example(2)} flat>
+              <SiteChip href="" disabled label={screens.disabled} />
+            </Example>
           </div>
         </div>
       </Preview>
@@ -170,21 +184,21 @@ function ButtonParts() {
       <Part name="Button" use={screens.button}>
         <Preview>
           <div className="mo-editor-parts-chips">
-            <div className={row}>
+            <div className={row} {...named(screens.rows.kinds)}>
               {buttonKinds.map((k) => (
                 <SiteButton key={k} kind={k}>
                   {kinds[k]}
                 </SiteButton>
               ))}
             </div>
-            <div className={row}>
+            <div className={row} {...named(screens.rows.sizes)}>
               {buttonSizes.map((size) => (
                 <SiteButton key={size} size={size}>
                   {screens.sizes[size]}
                 </SiteButton>
               ))}
             </div>
-            <div className={row}>
+            <div className={row} {...named(`${screens.rows.sizes}, ${screens.shapes.square}`)}>
               {buttonSizes.map((size) => (
                 <SiteButton key={size} size={size} shape="square" kind="tonal">
                   {screens.sizes[size]}
@@ -193,28 +207,38 @@ function ButtonParts() {
             </div>
             {buttonShapes.map((shape) => (
               <div key={shape} className={row} role="group" aria-label={screens.shapes[shape]}>
-                {toggleKinds.map((k) =>
-                  ([false, true] as const).map((on) => (
-                    <SiteButton key={`${k}-${on}`} kind={k} shape={shape} selected={on} icon="heart">
-                      {on ? screens.toggle.on : screens.toggle.off}
-                    </SiteButton>
-                  )),
-                )}
+                {toggleKinds.map((k) => (
+                  <Example key={k} label={kinds[k]} flat>
+                    {([false, true] as const).map((on) => (
+                      <SiteButton key={`${k}-${on}`} kind={k} shape={shape} selected={on} icon="heart">
+                        {on ? screens.toggle.on : screens.toggle.off}
+                      </SiteButton>
+                    ))}
+                  </Example>
+                ))}
               </div>
             ))}
-            <div className={row}>
-              <SiteButton icon="phone">{screens.withIcon}</SiteButton>
-              <SiteButton kind="outlined" trailingIcon="arrow-right">
-                {screens.withIcon}
-              </SiteButton>
+            <div className={row} {...named(screens.rows.states)}>
+              <Example label={screens.example(1)} flat>
+                <SiteButton icon="phone">{screens.withIcon}</SiteButton>
+              </Example>
+              <Example label={screens.example(2)} flat>
+                <SiteButton kind="outlined" trailingIcon="arrow-right">
+                  {screens.withIcon}
+                </SiteButton>
+              </Example>
               {buttonKinds.map((k) => (
-                <SiteButton key={k} kind={k} disabled>
+                <Example key={k} label={`${kinds[k]}, ${screens.disabled}`} flat>
+                  <SiteButton kind={k} disabled>
+                    {screens.disabled}
+                  </SiteButton>
+                </Example>
+              ))}
+              <Example label={`${screens.selected}, ${screens.disabled}`} flat>
+                <SiteButton selected disabled>
                   {screens.disabled}
                 </SiteButton>
-              ))}
-              <SiteButton selected disabled>
-                {screens.disabled}
-              </SiteButton>
+              </Example>
             </div>
           </div>
         </Preview>
@@ -222,17 +246,17 @@ function ButtonParts() {
       <Part name="IconButton" use={screens.iconButton}>
         <Preview>
           <div className="mo-editor-parts-chips">
-            <div className={row}>
+            <div className={row} {...named(screens.rows.kinds)}>
               {iconButtonKinds.map((k) => (
                 <SiteIconButton key={k} kind={k} icon="x" label={screens.iconKinds[k]} title={screens.iconKinds[k]} />
               ))}
             </div>
-            <div className={row}>
+            <div className={row} {...named(screens.rows.sizes)}>
               {buttonSizes.map((size) => (
                 <SiteIconButton key={size} kind="filled" size={size} icon="phone" label={screens.sizes[size]} title={screens.sizes[size]} />
               ))}
             </div>
-            <div className={row}>
+            <div className={row} {...named(`${screens.rows.sizes}, ${screens.shapes.square}`)}>
               {buttonSizes.map((size) => (
                 <SiteIconButton
                   key={size}
@@ -245,7 +269,7 @@ function ButtonParts() {
                 />
               ))}
             </div>
-            <div className={row}>
+            <div className={row} {...named(`${screens.rows.sizes}, ${screens.widths.default}`)}>
               {(['small', 'medium'] as const).flatMap((size) =>
                 iconButtonWidths.map((width) => (
                   <SiteIconButton
@@ -277,11 +301,15 @@ function ButtonParts() {
                 )}
               </div>
             ))}
-            <div className={row}>
+            <div className={row} {...named(screens.rows.states)}>
               {iconButtonKinds.map((k) => (
-                <SiteIconButton key={k} kind={k} icon="phone" label={screens.disabled} disabled />
+                <Example key={k} label={screens.iconKinds[k]} flat>
+                  <SiteIconButton kind={k} icon="phone" label={screens.disabled} disabled />
+                </Example>
               ))}
-              <SiteIconButton kind="filled" icon="phone" label={screens.disabled} selected disabled />
+              <Example label={screens.selected} flat>
+                <SiteIconButton kind="filled" icon="phone" label={screens.disabled} selected disabled />
+              </Example>
             </div>
           </div>
         </Preview>
@@ -374,14 +402,30 @@ function FieldParts() {
       <Part name="Checkbox" use={screens.checkbox}>
         <Preview>
           <div className={`${fields} mo-editor-parts-checkboxes`}>
-            <SiteCheckbox label={screens.checkboxLabel} />
-            <SiteCheckbox label={screens.checkboxLabel} checked />
-            <SiteCheckbox label={screens.checkboxLabel} supporting={screens.checkboxSupporting} />
-            <SiteCheckbox label={screens.checkboxLabel} supporting={screens.checkboxSupporting} checked disabled />
-            <SiteCheckbox label={screens.checkboxParent} supporting={screens.checkboxSupporting} indeterminate />
-            <SiteCheckbox label={screens.checkboxParent} indeterminate disabled />
-            <SiteCheckbox label={screens.checkboxLabel} error={screens.checkboxError} />
-            <SiteCheckbox label={screens.checkboxLabel} error checked />
+            <Example label={screens.example(1)} flat>
+              <SiteCheckbox label={screens.checkboxLabel} />
+            </Example>
+            <Example label={screens.example(2)} flat>
+              <SiteCheckbox label={screens.checkboxLabel} checked />
+            </Example>
+            <Example label={screens.example(3)} flat>
+              <SiteCheckbox label={screens.checkboxLabel} supporting={screens.checkboxSupporting} />
+            </Example>
+            <Example label={screens.example(4)} flat>
+              <SiteCheckbox label={screens.checkboxLabel} supporting={screens.checkboxSupporting} checked disabled />
+            </Example>
+            <Example label={screens.example(5)} flat>
+              <SiteCheckbox label={screens.checkboxParent} supporting={screens.checkboxSupporting} indeterminate />
+            </Example>
+            <Example label={screens.example(6)} flat>
+              <SiteCheckbox label={screens.checkboxParent} indeterminate disabled />
+            </Example>
+            <Example label={screens.example(7)} flat>
+              <SiteCheckbox label={screens.checkboxLabel} error={screens.checkboxError} />
+            </Example>
+            <Example label={screens.example(8)} flat>
+              <SiteCheckbox label={screens.checkboxLabel} error checked />
+            </Example>
           </div>
         </Preview>
       </Part>
@@ -413,20 +457,21 @@ function CardParts() {
               <p className="mo-editor-parts-card-text">{say.text}</p>
             </SiteCard>
             {cardKinds.map((k) => (
-              <SiteCard
-                key={`${k}-parts`}
-                kind={k}
-                media={<img src={exampleImage} alt="" />}
-                headline={say.anatomy.headline}
-                subhead={say.kinds[k]}
-                supporting={say.anatomy.supporting}
-                actions={
-                  <>
-                    <SiteButton kind="text">{say.anatomy.save}</SiteButton>
-                    <SiteButton kind="text">{say.anatomy.learnMore}</SiteButton>
-                  </>
-                }
-              />
+              <Example key={`${k}-parts`} label={say.kinds[k]} flat>
+                <SiteCard
+                  kind={k}
+                  media={<img src={exampleImage} alt="" />}
+                  headline={say.anatomy.headline}
+                  subhead={say.kinds[k]}
+                  supporting={say.anatomy.supporting}
+                  actions={
+                    <>
+                      <SiteButton kind="text">{say.anatomy.save}</SiteButton>
+                      <SiteButton kind="text">{say.anatomy.learnMore}</SiteButton>
+                    </>
+                  }
+                />
+              </Example>
             ))}
             <SiteCard
               kind="outlined"
@@ -506,8 +551,11 @@ function CardParts() {
             <SiteCard>
               <SiteList aria-label={lists.controls}>
                 <SiteListItem control={{ type: 'checkbox', checked: true }} headline={checkbox} supporting={say.supporting} />
-                <SiteListItem control={{ type: 'radio-button', name: 'parts-list-radio', checked: true }} headline={radio} />
-                <SiteListItem control={{ type: 'radio-button', name: 'parts-list-radio' }} headline={radio} />
+                <SiteListItem
+                  control={{ type: 'radio-button', name: 'parts-list-radio', checked: true }}
+                  headline={`${radio}, ${screens.toggle.on}`}
+                />
+                <SiteListItem control={{ type: 'radio-button', name: 'parts-list-radio' }} headline={`${radio}, ${screens.toggle.off}`} />
                 <SiteListItem control={{ type: 'switch', checked: true, icons: 'selected' }} leadingIcon="moon" headline={switchItem} />
                 <SiteListItem control={{ type: 'checkbox', at: 'trailing' }} leadingAvatar={lists.letter} headline={after} />
               </SiteList>

@@ -13,7 +13,7 @@ import {
   datePickerTexts,
   timePickerTexts,
 } from './themeUi';
-import { Part } from './PartsShown';
+import { Example, Part } from './PartsShown';
 import { Preview } from './ui';
 import { t } from './i18n';
 
@@ -39,10 +39,18 @@ export default function PickerParts() {
         <Preview>
           <div className="mo-editor-sample-stack-6">
             <div className="mo-editor-two-columns" role="group" aria-label={say.fields}>
-              <SiteDatePicker label={say.date} name="date" />
-              <SiteDatePicker label={say.date} name="date-modal" kind="modal" value={picked} />
-              <SiteDatePicker label={say.period} name="from" endName="to" range value={start} endValue={end} />
-              <SiteDatePicker label={say.date} name="date-wrong" defaultValue="31.02.2026" error={dates.wrongFormat} />
+              <Example label={t.parts.screens.example(1)} flat>
+                <SiteDatePicker label={say.date} name="date" />
+              </Example>
+              <Example label={t.parts.screens.example(2)} flat>
+                <SiteDatePicker label={say.date} name="date-modal" kind="modal" value={picked} />
+              </Example>
+              <Example label={t.parts.screens.example(3)} flat>
+                <SiteDatePicker label={say.period} name="from" endName="to" range value={start} endValue={end} />
+              </Example>
+              <Example label={t.parts.screens.example(4)} flat>
+                <SiteDatePicker label={say.date} name="date-wrong" defaultValue="31.02.2026" error={dates.wrongFormat} />
+              </Example>
             </div>
           </div>
           <div className={drawn}>
@@ -127,9 +135,15 @@ export default function PickerParts() {
       <Part name="TimePicker" use={say.timePicker}>
         <Preview>
           <div className="mo-editor-sample-columns" role="group" aria-label={say.fields}>
-            <SiteTimePicker label={say.time} name="time" />
-            <SiteTimePicker label={say.time} name="time-set" value="14:30" />
-            <SiteTimePicker label={`${say.time} (${say.twelveHours})`} name="time-12" value="14:30" timeFormat="12h" />
+            <Example label={t.parts.screens.example(1)} flat>
+              <SiteTimePicker label={say.time} name="time" />
+            </Example>
+            <Example label={t.parts.screens.example(2)} flat>
+              <SiteTimePicker label={say.time} name="time-set" value="14:30" />
+            </Example>
+            <Example label={t.parts.screens.example(3)} flat>
+              <SiteTimePicker label={`${say.time} (${say.twelveHours})`} name="time-12" value="14:30" timeFormat="12h" />
+            </Example>
           </div>
           <div className={drawn}>
             <div className="mo-editor-picker-sample" role="group" aria-label={say.hours}>

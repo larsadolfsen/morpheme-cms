@@ -182,6 +182,20 @@ export function PartGroup({ group, children }: { group: string; children: ReactN
   );
 }
 
+/** The attributes that make an example's own element a named group: the examples of one part repeat each other's labels (a `Cancel` in every dialog), and
+ * a reader tells them apart by the group's name. Spread it on the element that holds the example. The name is the example's caption where it has one. */
+export const named = (label: string) => ({ role: 'group' as const, 'aria-label': label });
+
+/** An example in a part, named by `label` (`named`), for where it has no element of its own to name. Draws a plain div, so its look is the container's; `flat`:
+ * the div takes no box (`display: contents`), so what is in it lies in the container as if it were not there. */
+export function Example({ label, className, flat, children }: { label: string; className?: string; flat?: boolean; children: ReactNode }) {
+  return (
+    <div className={className} style={flat ? { display: 'contents' } : undefined} {...named(label)}>
+      {children}
+    </div>
+  );
+}
+
 /** A part's name and what it is for, above it, with its coverage mark when the theme in use has one for it
  * (`coverage`: the id in the catalogue, the first word of the name when not given); nothing when it is not
  * what is searched for, or when the style filter picks another status. */
