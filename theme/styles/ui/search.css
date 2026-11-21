@@ -95,7 +95,7 @@
   .mo-search-bar__input:focus {
     outline: none;
   }
-  .mo-search-bar:has(.mo-search-bar__input:focus-visible) {
+  :root[data-mo-input='keyboard'] .mo-search-bar:has(.mo-search-bar__input:focus-visible) {
     box-shadow:
       inset 0 0 0 var(--mo-sys-state-focus-indicator-thickness) var(--mo-sys-state-focus-indicator-color),
       var(--mo-comp-search-bar-shadow, var(--mo-sys-elevation-level3-rest-shadow));
@@ -227,9 +227,11 @@
     font-size: var(--mo-comp-search-bar-font-size, var(--mo-sys-typescale-body-large-size));
     outline: none;
   }
-  /* Keyboard and pointer focus in the field: M3's focus indicator (colour, thickness) as the search bar's, drawn on the bar container (the
-     M3 search page prints no ring of its own for the field). The transparent outline is what forced-colors mode draws. */
-  .mo-search-view__header:has(.mo-search-view__input:focus-visible) {
+  /* Keyboard focus in the field: M3's focus indicator (colour, thickness) as the search bar's, drawn on the bar container (the M3 search page
+     prints no ring of its own for the field: "individual elements maintain their own interaction states"). Only while the keyboard was last used
+     (inputModality.ts): a text field matches :focus-visible after a click or a tap too, and the view puts the focus in the field by itself when
+     it opens (owner, 21 Nov 2026). The transparent outline is what forced-colors mode draws. */
+  :root[data-mo-input='keyboard'] .mo-search-view__header:has(.mo-search-view__input:focus-visible) {
     box-shadow: inset 0 0 0 var(--mo-sys-state-focus-indicator-thickness) var(--mo-sys-state-focus-indicator-color);
     outline: 2px solid transparent;
   }

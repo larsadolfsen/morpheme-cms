@@ -22,6 +22,7 @@ import List, { ListItem } from '@theme/ui/List';
 import Chip from '@theme/ui/Chip';
 import ChipSet from '@theme/ui/ChipSet';
 import { atLeast } from '@morphemecms/cms/lib/breakpoints.mjs';
+import trackInputModality from '@theme/ui/inputModality';
 
 export type SearchResult = { href: string; headline: ReactNode; supporting?: ReactNode; icon?: string };
 
@@ -156,6 +157,8 @@ export function SearchBar({
   className,
   ...rest
 }: { label: string; leadingIcon?: string; className?: string } & Record<string, unknown>) {
+  // The bar's ring is for the keyboard only (search.css reads data-mo-input).
+  useEffect(trackInputModality, []);
   return (
     <label className={['mo-search-bar', className].filter(Boolean).join(' ')}>
       <span className="mo-search-bar__field">
@@ -277,6 +280,8 @@ export function SearchView({
   const flat = shown.flatMap((g) => g.items);
   const at = activeId === undefined ? -1 : flat.findIndex((i) => i.id === activeId);
   const optionId = (index: number) => `${list}-${index}`;
+  // The field's ring is for the keyboard only (search.css reads data-mo-input): a text field matches :focus-visible after a click too.
+  useEffect(trackInputModality, []);
 
   // Full screen (below the medium breakpoint): a modal <dialog> while it is open: the page behind it is inert, Escape closes it, and the focus goes to the field.
   // From medium it is a dropdown (M3 docked): a panel under the bar, not modal, with M3's scrim over the page (a ::before of the panel, so a press on it closes the view): Escape, a press outside it and
