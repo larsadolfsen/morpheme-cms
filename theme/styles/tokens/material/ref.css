@@ -22,14 +22,17 @@
   --mo-sys-elevation-level5-shadow:
     0 4px 4px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent),
     0 8px 12px 6px color-mix(in srgb, var(--mo-sys-color-shadow) 15%, transparent);
-  /* Resting shadows are on (owner, 18 Nov 2026: "Follow the token: 1dp shadow at rest"): a part on level N shows level N's shadow at
-     rest, as M3's token page prints (m3.material.io/styles/elevation/tokens), and the same one when it is lifted a level higher. A theme
-     turns resting shadows off by pointing these at --mo-sys-elevation-level0-shadow. */
-  --mo-sys-elevation-level1-rest-shadow: var(--mo-sys-elevation-level1-shadow);
-  --mo-sys-elevation-level2-rest-shadow: var(--mo-sys-elevation-level2-shadow);
-  --mo-sys-elevation-level3-rest-shadow: var(--mo-sys-elevation-level3-shadow);
-  --mo-sys-elevation-level4-rest-shadow: var(--mo-sys-elevation-level4-shadow);
-  --mo-sys-elevation-level5-rest-shadow: var(--mo-sys-elevation-level5-shadow);
+  /* No shadow at rest on a surface (owner, 20 Nov 2026: "we need to fix elevation/shadow on current elements. Search bar is for example wrong."): M3 shows a surface's
+     level by its tone (the search overview: "Lower elevation and no shadow by default"; the navigation bar: "No shadow"; the scrolled top app bar: "No drop shadow,
+     instead a color fill"), so a part on level N reads --mo-sys-elevation-levelN-rest-shadow and Material sets these to level 0's no shadow. An elevated object
+     (an elevated card, button or chip, a FAB, a dialog, a menu, a snackbar, a rich tooltip, a modal sheet, a floating toolbar) and a lift (hovered, dragged) read
+     --mo-sys-elevation-levelN-shadow and keep theirs. A theme that wants shadows at rest points these at the level shadows
+     (docs/superpowers/specs/2026-11-20-elevation-design.md). */
+  --mo-sys-elevation-level1-rest-shadow: var(--mo-sys-elevation-level0-shadow);
+  --mo-sys-elevation-level2-rest-shadow: var(--mo-sys-elevation-level0-shadow);
+  --mo-sys-elevation-level3-rest-shadow: var(--mo-sys-elevation-level0-shadow);
+  --mo-sys-elevation-level4-rest-shadow: var(--mo-sys-elevation-level0-shadow);
+  --mo-sys-elevation-level5-rest-shadow: var(--mo-sys-elevation-level0-shadow);
   /* M3's corner radius scale (m3.material.io/styles/shape/corner-radius-scale), its ten steps named for how round a
      corner is. Every corner in the theme is one of them: a part's variable below maps it to its step, as M3's component
      tokens do, also one corner at a time (a sheet's top, the inner corners of a split button or a menu's groups).

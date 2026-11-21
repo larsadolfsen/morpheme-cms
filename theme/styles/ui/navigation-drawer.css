@@ -49,7 +49,7 @@
     );
     /* Expanded rail, modal: "Nav rail expanded modal container color", the surface container (level 2's colour). */
     background: var(--mo-comp-navigation-drawer-surface, var(--mo-sys-elevation-level2-color));
-    box-shadow: var(--mo-comp-navigation-drawer-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+    box-shadow: var(--mo-comp-navigation-drawer-shadow, var(--mo-sys-elevation-level2-rest-shadow));
   }
   .mo-navigation-drawer:dir(rtl) {
     border-radius: var(--mo-comp-navigation-drawer-radius-rtl, 1rem 0 0 1rem);

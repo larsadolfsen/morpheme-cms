@@ -47,7 +47,7 @@
     border-start-start-radius: var(--mo-comp-sheet-side-docked-container-shape, var(--mo-sys-block-radius));
     border-end-start-radius: var(--mo-comp-sheet-side-docked-container-shape, var(--mo-sys-block-radius));
     background: var(--mo-comp-side-sheet-modal-surface, var(--mo-comp-side-sheet-surface, var(--mo-sys-elevation-level1-color)));
-    box-shadow: var(--mo-comp-side-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+    box-shadow: var(--mo-comp-side-sheet-shadow, var(--mo-sys-elevation-level1-shadow));
   }
   /* M3's measures run to the close icon's glyph, and its button holds the space round the glyph (--mo-comp-side-sheet-icon-inset),
      so the header takes that off its top and end padding and has no gap: 24 from the top and the end edges to the glyph,

@@ -126,6 +126,16 @@
       min-width var(--mo-sys-motion-spring-default-spatial),
       border-radius var(--mo-sys-motion-spring-default-spatial);
   }
+  /* The actions (M3 Specs: fab-menu menu-item elevation, level 0): on the page at rest, level 4 pointed at, level 3 with focus or pressed. */
+  .mo-fab-menu__list .mo-fab-menu__item {
+    box-shadow: var(--mo-comp-fab-menu-item-shadow, var(--mo-sys-elevation-level0-shadow));
+  }
+  .mo-fab-menu__list .mo-fab-menu__item:hover {
+    box-shadow: var(--mo-comp-fab-menu-item-hover-shadow, var(--mo-sys-elevation-level4-shadow));
+  }
+  .mo-fab-menu__list .mo-fab-menu__item:is(:focus-visible, :active) {
+    box-shadow: var(--mo-comp-fab-menu-item-focus-shadow, var(--mo-sys-elevation-level3-shadow));
+  }
   /* Open, the FAB of any size is the close button: round, in the FAB's size, in the set's filled colour. */
   .mo-fab-menu__button[aria-expanded='true'] {
     height: var(--mo-comp-fab-menu-close-size, var(--mo-comp-fab-size, 3.5rem));
