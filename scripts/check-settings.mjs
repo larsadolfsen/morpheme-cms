@@ -61,19 +61,24 @@ for (const bad of [{ density: 'tiny' }, { density: 2 }, 'not json {', '[]', 'nul
   expect((await put('one', bad)).status === 400, `${JSON.stringify(bad)} was not refused with 400`);
 expect((await put('one', { density: 'x'.repeat(2000) })).status === 413, 'a body of 2 KB was not refused with 413');
 expect(
-  (await put('one', { density: 'large' }, { 'content-length': '99999' })).status === 413,
+  (await put('one', { density: 'small' }, { 'content-length': '99999' })).status === 413,
   'a content-length over 1 KB was not refused with 413',
 );
 expect((await read('one')) === '{"density":"small"}', 'a refused body changed the saved settings');
 
-await put('one', { density: 'large', other: 1 });
-expect(kv.get('settings:101') === '{"density":"large"}', 'what was kept was not the cleaned record');
+await put('one', { density: 'medium', other: 1 });
+expect(kv.get('settings:101') === '{"density":"medium"}', 'what was kept was not the cleaned record');
 await put('one', {});
-expect(kv.get('settings:101') === '{"density":"large"}', 'an empty record erased the density');
+expect(kv.get('settings:101') === '{"density":"medium"}', 'an empty record erased the density');
+// Large went in 0.19.5: a stored or sent `large` is read as Medium, with no failed load.
+kv.set('settings:101', '{"density":"large"}');
+expect((await read('one')) === '{"density":"medium"}', 'a stored Large was not read as Medium');
+expect((await put('one', { density: 'large' })).status === 204, 'a sent Large was refused');
+expect(kv.get('settings:101') === '{"density":"medium"}', 'a sent Large was not kept as Medium');
 
 await put('two', { density: 'medium' });
 expect(
-  (await read('one')) === '{"density":"large"}' && (await read('two')) === '{"density":"medium"}',
+  (await read('one')) === '{"density":"medium"}' && (await read('two')) === '{"density":"medium"}',
   "one person saw the other one's settings",
 );
 

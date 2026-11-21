@@ -55,14 +55,14 @@
     /* A settings form follows the layout density, and its row stays a target. */
     min-height: max(
       var(--mo-sys-target-size),
-      calc(var(--mo-comp-list-list-item-container-height) + var(--mo-sys-density-layout) * var(--mo-sys-density-step))
+      calc(var(--mo-comp-list-list-item-container-height) + var(--mo-sys-density) * var(--mo-sys-density-step))
     );
     padding-block: var(--mo-comp-list-item-padding-block);
   }
   .mo-setting-list > .mo-setting-row:has(.mo-setting-row__supporting) {
     min-height: max(
       var(--mo-sys-target-size),
-      calc(var(--mo-comp-list-item-two-line-min-height) + var(--mo-sys-density-layout) * var(--mo-sys-density-step))
+      calc(var(--mo-comp-list-item-two-line-min-height) + var(--mo-sys-density) * var(--mo-sys-density-step))
     );
   }
   .mo-setting-list > .mo-setting-row > :not(.mo-setting-row__text) {

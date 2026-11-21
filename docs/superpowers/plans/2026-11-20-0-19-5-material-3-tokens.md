@@ -101,6 +101,9 @@ Batch 1 makes the comparison exact and turns this into the real baseline.
 9. **The recorded deviations.** Every entry of `docs/material-deviations.md` outside the editor's workspace is sorted: it matches M3
    Expressive after all (the entry goes, as with the 16 dp menu corner and the 56 dp hero buttons), WCAG requires it (it stays, naming the
    criterion), or it is made to match M3 and the entry goes (for example G1, the 16 and 24 px gap between cards where M3 prints 8 dp max).
+10. **Density follows M3** (owner, 21 November 2026: "follow m3"). Large (+1) goes and Medium is 0 (a stored Large reads as Medium); every part
+    M3 gives a density supports 0 to -3 in the theme's styling; the editor's setting keeps Medium and Small. `check:screens` and
+    `check:contrast` force -2 and -3. Spec note: `specs/2026-11-13-density-design.md`; entries 12 to 15 of `docs/material-deviations.md`.
 
 Batch 1 goes first; 2 (the page) follows it, because every token batch after it is reviewed on that page; 3 and 4 can run side by side; 5 follows 3; 6 follows 4 (both change colours of parts); 7 and 9 can run beside 5 and
 6; 8 goes last. Every batch removes the allowlist entries it fixes, keeps `check:screens`, `check:themes`, `check:contrast` and `check:a11y` green, and

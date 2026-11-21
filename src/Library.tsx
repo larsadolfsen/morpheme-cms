@@ -17,7 +17,6 @@ import {
   Check,
   ClockCounterClockwise,
   CircleHalf,
-  Rows,
   FileText,
   GoogleLogo,
   List as ListIcon,
@@ -924,13 +923,12 @@ function ThemePicker() {
   );
 }
 
-// How much fits on the screen, as three buttons side by side: Large (looser), Medium (the default) or Small (denser), with
+// How much fits on the screen, as two buttons side by side: Medium (the default) or Small (denser), with
 // an icon of lines each. It is kept on the person's account and in this browser (density.ts). The buttons never follow it
 // themselves, so a person can always go back.
 function DensityPicker() {
   const [density, pick] = useState(savedDensity);
   const choices: { value: Density; label: string; icon: Icon }[] = [
-    { value: 'large', label: t.library.densities.large, icon: Rows },
     { value: 'medium', label: t.library.densities.medium, icon: ListIcon },
     { value: 'small', label: t.library.densities.small, icon: ListBullets },
   ];
