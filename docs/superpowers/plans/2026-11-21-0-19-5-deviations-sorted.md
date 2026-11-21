@@ -119,3 +119,9 @@ the batch that removes it. This batch removes the Lightbox entry as well; the pe
 ## Focus ring (owner, 21 Nov 2026)
 
 FR1 and A1 are removed: the site's focus ring is M3's (`secondary`, 3 dp, 2 dp outside), the editor keeps `primary`. The five pending rows are marked → 0.20.0 (CTO).
+
+## Batches 9 and 10 (PM, 21 Nov 2026)
+
+Density follows M3 (owner, 21 Nov 2026) in a new batch 10: Large goes, Medium becomes 0, parts M3 gives a density support 0 to -3, the editor keeps Medium and
+Small. Density deviations 12 to 15 (rows 25 to 28 above) are removed by batch 10, so this batch keeps them in `docs/material-deviations.md` with that note and
+touches no density CSS. The four rows marked → 0.20.0 (choice group D1, N3, the Dialog's full-screen kind) carry the owner's words in the plan; N4 is customization.

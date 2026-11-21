@@ -101,6 +101,9 @@ Batch 1 makes the comparison exact and turns this into the real baseline.
 9. **The recorded deviations.** Every entry of `docs/material-deviations.md` outside the editor's workspace is sorted: it matches M3
    Expressive after all (the entry goes, as with the 16 dp menu corner and the 56 dp hero buttons), WCAG requires it (it stays, naming the
    criterion), or it is made to match M3 and the entry goes (for example G1, the 16 and 24 px gap between cards where M3 prints 8 dp max).
+10. **Density follows M3** (owner, 21 November 2026; a new session builds it). Large goes and Medium becomes 0; every part that M3 gives a density supports 0 to
+    -3 in the theme's styling; the editor keeps Medium and Small; accounts on Large move to Medium. Removes density deviations 12 to 15 and adds a release note line.
+    Batches 9 and earlier do not touch the density CSS.
 
 Batch 1 goes first; 2 (the page) follows it, because every token batch after it is reviewed on that page; 3 and 4 can run side by side; 5 follows 3; 6 follows 4 (both change colours of parts); 7 and 9 can run beside 5 and
 6; 8 goes last. Every batch removes the allowlist entries it fixes, keeps `check:screens`, `check:themes`, `check:contrast` and `check:a11y` green, and
@@ -128,7 +131,7 @@ Every frontend deviation, by name, and the batch that removes it (the sorting is
 | Colour sweep 12 (elevation and panel shadows) | batches 3 and 5 |
 | CSS sweep 4 (icon button 48 dp), Buttons B1 (text button padding), CSS sweep 9 (type sizes) | batch 7 |
 | CSS sweep 1 to 3, 6 to 8 (dialog and menu corners, 56 dp buttons, list rows, checkbox ring, slider and code corners, spacing) | batch 9: they match M3 |
-| Density 13 to 15, Image tiles 17, G1 (card gap 8 dp), Lightbox 19 | batch 9 |
+| Image tiles 17, G1 (card gap 8 dp), Lightbox 19 | batch 9 |
 | Choice group D2 and D3, Palette P1, C2, F1 (FAB), B3 (sheet padding), T1 (text measure), Cards CM1 to CM3 | batch 9 |
 | Search view SV1 to SV5, SV7 (scrim), SV8 to SV13, SV12 (list rows on Surface), button group `aria-pressed` | batch 9 |
 | Navigation rail N1, N2, N7 | batch 9 |
@@ -138,7 +141,7 @@ Every frontend deviation, by name, and the batch that removes it (the sorting is
 | N3 (site menu: icons on rail items) | → 0.20.0: M3's navigation drawer built on the rail code with the rail off; the editor keeps the rail |
 | N4 (`menuSide`, menu on the end edge) | not a deviation: customization (owner, 21 Nov 2026); removed from `docs/material-deviations.md`, not on the 0.20.0 list |
 | The Dialog's full-screen kind | → 0.20.0: the theme's Dialog gets the kind back for compact windows; the editor keeps its pages for now |
-| Density Large (+1) | → 0.20.0: removed; Medium becomes 0; accounts on Large move to Medium |
+| Density Large (+1) (12) and density 13 to 15 (horizontal padding, list row never below the target, invisible target area) | batch 10 |
 
 ## Done when
 
