@@ -10,12 +10,9 @@
 /* A list's row icon and arrow are the row heading's colour (the block's text, which a coloured section swaps to its on-colour), as the
      section's other text is; only the supporting line stays the quieter --mo-sys-block-muted. A row icon with its own colour (below) keeps it. */
 @layer components {
-  /* On the rows, not on the list: a row that is filled in a coloured section (its container is the on-colour) draws its icon in the section's colour. */
-  :where(.mo-block-list) :is(li, .mo-list__item-container) {
+  .mo-block-list {
     --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-block-text);
     --mo-comp-list-item-trailing-text: var(--mo-sys-block-text);
-  }
-  .mo-block-list {
     /* A segmented list stands on the page, which is Surface: its rows on Surface would vanish, so the block's are on the surface container (the
        theme's default is M3's Surface, for a list on a higher container; owner, 15 Nov 2026, docs/material-deviations.md SV12). */
     --mo-comp-list-list-item-segmented-container-color: var(--mo-sys-color-surface-container);

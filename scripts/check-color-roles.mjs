@@ -4,6 +4,9 @@
 //                  colour), not a shadow (a *shadow property, or a file of the elevation shadows: tokens/ui/ref.css and
 //                  tokens/material/ref.css, which M3 leaves to the platform) and not the scrim token's own declaration;
 //   role-redeclare a colour role (--mo-sys-color-<role>) declared as anything but another variable (one var() reference, or one with another as its fallback).
+//   section-roles inside a section's scope (a rule whose selector names .mo-text-section or data-section-…) a role may be declared only as the
+//                  role of M3's pair for that kind of section (SECTION_ROLES: Primary, Secondary and Tertiary are their container and its on-colour,
+//                  an image the inverse set); spec docs/superpowers/specs/2026-11-21-section-colours-m3-roles-design.md.
 // The third rule of the spec, a fixed colour value outside the token reference files, is `check:colors` (kind `fixed-colour`, same
 // scope, its own allowlist), so it is not counted twice here.
 // The allowlist (scripts/color-roles.allow.mjs) has one entry per file and rule: { file, rule, max, why }. A finding above `max`, or a
@@ -58,6 +61,72 @@ function propertyAt(text, pos) {
 }
 
 const lineOf = (text, pos) => text.slice(0, pos).split('\n').length;
+/** The pairs of a section's roles (design 2021-11-21): the role a part reads → the M3 role it takes, per kind of section. Tested against docs/m3-tokens. */
+export const SECTION_ROLES = {
+  ...Object.fromEntries(
+    ['primary', 'secondary', 'tertiary'].map((c) => [
+      c,
+      { surface: `${c}-container`, 'on-surface': `on-${c}-container`, 'on-surface-variant': `on-${c}-container` },
+    ]),
+  ),
+  image: {
+    ...Object.fromEntries(
+      [
+        'on-surface',
+        'on-surface-variant',
+        'outline',
+        'outline-variant',
+        'on-primary-container',
+        'on-secondary-container',
+        'on-tertiary-container',
+      ].map((r) => [r, 'inverse-on-surface']),
+    ),
+    ...Object.fromEntries(['primary', 'secondary', 'tertiary'].map((r) => [r, 'inverse-primary'])),
+    ...Object.fromEntries(['on-primary', 'on-secondary', 'on-tertiary'].map((r) => [r, 'inverse-surface'])),
+    ...Object.fromEntries(
+      [
+        'surface',
+        'surface-bright',
+        'surface-dim',
+        'surface-container-lowest',
+        'surface-container-low',
+        'surface-container',
+        'surface-container-high',
+        'surface-container-highest',
+        'primary-container',
+        'secondary-container',
+        'tertiary-container',
+      ].map((r) => [r, 'inverse-surface']),
+    ),
+  },
+};
+
+/** The selector split at its top-level commas. */
+const parts = (selector) => {
+  const out = [];
+  let depth = 0;
+  let from = 0;
+  for (let i = 0; i < selector.length; i++) {
+    if (selector[i] === '(' || selector[i] === '[') depth++;
+    else if (selector[i] === ')' || selector[i] === ']') depth--;
+    else if (selector[i] === ',' && depth === 0) {
+      out.push(selector.slice(from, i));
+      from = i + 1;
+    }
+  }
+  return [...out, selector.slice(from)];
+};
+
+/** The kind of section one selector is the scope of: 'primary' | 'secondary' | 'tertiary' | 'image', 'mixed' when it names more than one, '' when it is no section's scope. */
+export function sectionKind(selector) {
+  if (!/mo-text-section|data-section-(color|picture)/.test(selector)) return '';
+  const kinds = new Set();
+  for (const m of selector.matchAll(/mo-is-(primary|secondary|tertiary)\b|data-section-color='(primary|secondary|tertiary)'/g))
+    kinds.add(m[1] ?? m[2]);
+  if (/mo-has-image|data-section-picture/.test(selector)) kinds.add('image');
+  return kinds.size === 0 ? '' : kinds.size === 1 ? [...kinds][0] : 'mixed';
+}
+
 const SIMPLE_VAR = /^var\(\s*--[\w-]+\s*(,\s*var\(\s*--[\w-]+\s*\)\s*)?\)$/;
 
 /**
@@ -74,6 +143,23 @@ export function findings(file, source, roles) {
     if (!SIMPLE_VAR.test(value)) {
       out.push({ rule: 'role-redeclare', line: lineOf(text, m.index), text: `${m[1]}: ${value}` });
       inRole.push([m.index, m.index + m[0].length]);
+    }
+  }
+  // A role in a section's scope is the role of M3's pair for that kind of section.
+  for (const block of text.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    const kinds = parts(block[1]).map((p) => sectionKind(p.trim()));
+    if (!kinds.some(Boolean)) continue;
+    for (const d of block[2].matchAll(new RegExp(`--mo-sys-color-(${[...roles].join('|')})\\s*:\\s*([^;]*)`, 'g'))) {
+      const value = d[2].replace(/\s+/g, ' ').trim();
+      const ok = kinds.every(
+        (k) => k && k !== 'mixed' && SECTION_ROLES[k]?.[d[1]] && value === `var(--mo-sys-color-${SECTION_ROLES[k][d[1]]})`,
+      );
+      if (!ok)
+        out.push({
+          rule: 'section-roles',
+          line: lineOf(text, block.index),
+          text: `--mo-sys-color-${d[1]}: ${value} in ${block[1].trim().replace(/\s+/g, ' ').slice(0, 80)}`,
+        });
     }
   }
   for (const mix of mixes(text)) {
@@ -108,7 +194,9 @@ export function compare(counts, allow) {
       problems.push(
         rule === 'mix'
           ? `${file}: ${n} color-mix() that is not a state layer or a shadow. Use a colour role of Material 3 (or a state-layer opacity token), or add an allowlist entry with its reason.`
-          : `${file}: ${n} colour role declared as something other than another variable. A role is another role (a var() reference to a --mo-sys role), never a mix or a value.`,
+          : rule === 'section-roles'
+            ? `${file}: ${n} role in a section's scope that is not M3's pair for that section (SECTION_ROLES in scripts/check-color-roles.mjs).`
+            : `${file}: ${n} colour role declared as something other than another variable. A role is another role (a var() reference to a --mo-sys role), never a mix or a value.`,
       );
     else if (n > max) problems.push(`${key}: ${n} findings, the allowlist says at most ${max}. Fix the new one.`);
     else if (n < max) problems.push(`${key}: ${n} findings, the allowlist says ${max}. Lower "max" to ${n} (the list only shrinks).`);
@@ -146,7 +234,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (problems.length) {
     console.error(`check:color-roles: ${problems.length} problem(s)\n${problems.join('\n')}`);
     for (const p of problems) {
-      const key = /^([^:]+)\|(mix|role-redeclare):/.exec(p)?.[0].slice(0, -1);
+      const key = /^([^:]+)\|(mix|role-redeclare|section-roles):/.exec(p)?.[0].slice(0, -1);
       for (const w of where[key] ?? []) console.error(`  ${w}`);
     }
     process.exit(1);

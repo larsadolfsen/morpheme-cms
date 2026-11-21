@@ -253,18 +253,18 @@
 }
 
 .mo-editor-text .ProseMirror > [data-section-color='primary'] {
-  --mo-sys-section-fill: var(--mo-sys-block-primary);
-  --mo-sys-section-on: var(--mo-sys-block-on-primary);
+  --mo-sys-section-fill: var(--mo-sys-color-primary-container);
+  --mo-sys-section-on: var(--mo-sys-color-on-primary-container);
 }
 
 .mo-editor-text .ProseMirror > [data-section-color='secondary'] {
-  --mo-sys-section-fill: var(--mo-sys-block-secondary);
-  --mo-sys-section-on: var(--mo-sys-block-on-secondary);
+  --mo-sys-section-fill: var(--mo-sys-color-secondary-container);
+  --mo-sys-section-on: var(--mo-sys-color-on-secondary-container);
 }
 
 .mo-editor-text .ProseMirror > [data-section-color='tertiary'] {
-  --mo-sys-section-fill: var(--mo-sys-block-tertiary);
-  --mo-sys-section-on: var(--mo-sys-block-on-tertiary);
+  --mo-sys-section-fill: var(--mo-sys-color-tertiary-container);
+  --mo-sys-section-on: var(--mo-sys-color-on-tertiary-container);
 }
 
 /* The image behind a section (the widget before its first part, placed over the section's parts by sectionFrame.ts): it fills
@@ -337,7 +337,6 @@
   --mo-comp-prose-hr: var(--mo-sys-color-inverse-on-surface);
   --mo-sys-section-accent: var(--mo-sys-color-inverse-surface);
   --mo-sys-section-on-accent: var(--mo-sys-color-inverse-on-surface);
-  --mo-sys-section-action: var(--mo-sys-color-inverse-primary);
   color: var(--mo-sys-color-inverse-on-surface);
 }
 

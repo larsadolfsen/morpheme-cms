@@ -1,6 +1,6 @@
 # Coloured sections on M3's container roles (design, revision)
 
-Status: **21 November 2026, for review; no CSS changed for it yet.** Revises `2026-11-20-section-colours-design.md` after the owner's changes of 21 November
+Status: **21 November 2026, approved by the CTO; built in batch 4.** Revises `2026-11-20-section-colours-design.md` after the owner's changes of 21 November
 ("we will no longer follow our FRONTEND deviations, instead we will follow md3"; sections: "Keep, nearest M3 roles"; then "We should comply with the EU Accessibility
 Act": a shortfall against WCAG is named in the accessibility statement, `theme/accessibility.json`, not patched with a swap or veil). The two-colour swap of the old
 spec (on-colour fills, a reversed rule for filled parts) is **replaced**; its first batch, `check:color-roles`, stays.
@@ -73,7 +73,8 @@ and its selector in the head of 34 token files, container-lowest as the section 
 - Tonal button, and anything whose only boundary is a container fill on a container: named (above) unless the owner decides otherwise.
 - A theme that sets its own roles keeps working: it sets roles, not the remap.
 
-## Decisions for the owner
+## Decisions (CTO, 21 November 2026, via the PM)
 
-1. Name the tonal button's missing 3:1 boundary in the statement, or give it an outline in sections?
-2. Filled button and text button in a section: leave `primary` on the container (5.0 and 5.5 measured, M3 silent), or use `on-X-container`?
+1. The tonal button is not a 1.4.11 shortfall: a button identified by its text label needs no 3:1 boundary (WCAG Understanding 1.4.11); its label and an icon button's icon are measured against its own fill in every section colour, light and dark. No `tonal-button-edge` part.
+2. Filled and text buttons in a section keep `primary` (5.0 and 5.5 measured; M3 prints no pair).
+3. An image section keeps the inverse set for every surface and container too (a card there is the panel's colour with an edge), so no part needs a reversed rule.
