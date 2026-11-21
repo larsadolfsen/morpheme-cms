@@ -27,6 +27,13 @@ test('a step that must be announced needs a text from a region that was there be
   assert.deepEqual(judgeWindow([at(1, 'Saved', 1)], {}), []);
 });
 
+test('a step may say what must be said', () => {
+  const expect = { urgent: false, text: /block \d+ of \d+, selected/ };
+  assert.deepEqual(judgeWindow([at(1, 'Notice, block 2 of 3, selected', 1)], { expect }), []);
+  assert.deepEqual(judgeWindow([at(1, 'Saved', 1)], { expect }), ['wrong-announcement']);
+  assert.deepEqual(judgeWindow([], { expect }), ['no-announcement']);
+});
+
 test('the same text from two regions within a second is said twice, from one region it is not', () => {
   assert.deepEqual(judgeWindow([at(1, 'Saved', 1), at(300, 'Saved', 2)]), ['double-announcement']);
   assert.deepEqual(judgeWindow([at(1, 'Saved', 1), at(300, 'Saved', 1)]), []);

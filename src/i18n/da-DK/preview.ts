@@ -9,6 +9,7 @@ export const preview: Messages['preview'] = {
   current: (width, size) => `${width} pixels, ${size}`,
   phone: 'Telefon',
   computer: 'Computer',
+  updated: 'Forhåndsvisningen er opdateret',
   making: 'Henter forhåndsvisningen…',
   failed: (error) => `Kunne ikke oprette forhåndsvisningen: ${error}`,
   notHere: 'Den side kan ikke forhåndsvises',

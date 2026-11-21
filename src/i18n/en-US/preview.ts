@@ -13,6 +13,8 @@ export const preview = {
   /** The preview of a part every page has (partPreview.tsx, the header): on a phone and on a computer. */
   phone: 'Phone',
   computer: 'Computer',
+  /** Said once when the preview the person asked for is ready. */
+  updated: 'Preview updated',
   making: 'Loading the preview…',
   failed: (error: string) => `Couldn’t create the preview: ${error}`,
   notHere: 'That page can’t be previewed',

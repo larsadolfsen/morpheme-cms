@@ -126,7 +126,17 @@ export function PreviewScreen({ html, message, title }: { html: string | null; m
                   marginBottom: height * (scale - 1),
                   transform: `scale(${scale})`,
                 }}
-                onLoad={(e) => setAt(siteBreakpoints(e.currentTarget.contentDocument))}
+                // A picture of the site, not a place to work: hidden from screen readers and out of the tab order, and nothing in it takes focus
+                // (its links and controls are inert, as in the header and footer preview). The page itself is not inert, so it still scrolls.
+                aria-hidden="true"
+                tabIndex={-1}
+                onLoad={(e) => {
+                  const doc = e.currentTarget.contentDocument;
+                  doc
+                    ?.querySelectorAll<HTMLElement>('a, button, input, select, textarea, summary, [tabindex]')
+                    .forEach((el) => (el.inert = true));
+                  setAt(siteBreakpoints(doc));
+                }}
               />
               {handle(1)}
             </>
