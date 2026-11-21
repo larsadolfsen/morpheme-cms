@@ -1,0 +1,7 @@
+{
+  "id": "theme-accessibility-row",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Temaers tilgængelighed",
+  "text": "Du kan se, om et tema er tilgængeligt, før du vælger det. Åbn et tema under Temaer: Det viser, om det lever op til WCAG 2.2 AA, og hvilke dele og kriterier det ikke gør. Dine egne farver og billeder er ikke en del af det."
+}

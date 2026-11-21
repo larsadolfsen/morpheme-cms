@@ -188,6 +188,17 @@ are all still red: when in doubt it stays red.
 | `cd .morpheme/demo/site && node ../../../scripts/measure-speed.mjs` | by hand, after `npm run build`, when a speed claim or a performance fix needs numbers (a few minutes, not in CI or `npm run check`; the numbers depend on the machine, so compare runs on the same one) | LCP, CLS, TBT, long tasks, long animation frames and the INP of scripted interactions (open menu, open a sheet, type, scroll, search) on the site's key pages and the editor's key screens, on a phone (375 px, CPU 4x) and a computer. `--runs N`, `--profile mobile\|desktop`, `--only <text>`, `--json <file>`; `CHROMIUM_PATH` for another Chromium. Baseline and method: `docs/performance-baseline.md`. |
 | `npm run check:contrast` | by hand, after `npm run build`, when colours or blocks changed (about 4 minutes per theme, not in CI) | WCAG AA contrast of every block's text, icons and control borders on each section colour, on the site and typed in place in the editor, light and dark, phone and computer. `--all` runs every installed theme; `CONTRAST_DENSITY=-1` checks the editor at Small density, `-2` and `-3` force a theme's denser steps on the site and in the editor. |
 
+## A theme's accessibility statement (0.19.5, batch 11)
+
+Owner, 21 Nov 2026: Material follows Material 3 on the site, and a theme that falls short of WCAG 2.2 AA says so openly. `theme/accessibility.json` (beside `theme.json`; another theme's is `src/themes/<theme>/accessibility.json`) is
+`{ "standard": "WCAG 2.2 AA", "fallsShort": [ { "criterion", "part", "why" } ] }`; no file or an empty list means the theme meets the standard. The format and the parts a theme can name
+(`PARTS`: `placeholder` 1.4.3, `outlined-card-edge` and `section-edges` 1.4.11) are in `lib/accessibility.mjs`, tested in `lib/accessibility.test.mjs`; `themeProblems` validates the file, so `check:themes` and
+`check:content` fail on a wrong one. A new part is added to `PARTS` in the pull request that first needs it, with its criterion and the checks that measure it.
+**The checks never hide a failure the theme does not name:** `check:contrast` judges each theme by its own file (a named failure passes, an unnamed one fails, and an entry that no longer fails is stale: "remove it from
+accessibility.json"); `check:screens` lets a named part through in its units (`scripts/screens/support/statement.mjs`, `shortfall(criterion, part, message)`) and never judges an entry stale, because its units run in shards;
+`check:a11y` and `check:announce` read the file through `SHORTFALL_PARTS` (`scripts/a11y.mjs`, `scripts/announce.mjs`), empty today because axe and the name walk see no part a theme sets. A batch that changes a value to
+Material 3's names what then falls short, with its criterion and part.
+
 ## Proving that a class rename did not change the look: `compare-styles`
 
 Added 18 Nov 2026 (batch T01 of `docs/superpowers/plans/2026-11-16-move-away-from-tailwind.md`). A batch that renames classes without changing the look
