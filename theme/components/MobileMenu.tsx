@@ -77,7 +77,7 @@ export default function MobileMenu({
   }));
   // The scrim is the dialog's ::backdrop, which inherits this variable from the dialog (navigation-drawer.css), so it fades with the
   // effects' springs while the drawer moves with the spatial ones.
-  const scrim = '--mo-comp-navigation-drawer-scrim-opacity';
+  const scrim = '--mo-comp-navigation-drawer-scrim-fade';
 
   // The edge it comes from is its side's: the start edge slides it in from the left (from the right in right-to-left
   // languages), the end edge from the right (the left).

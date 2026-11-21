@@ -2,7 +2,7 @@
   Navigation drawer (NavigationDrawer, NavigationDrawerItem, NavigationDrawerToggle, NavigationDrawerSubitem,
   navigationDrawerClass, navigationDrawerScrimClass): .mo-navigation-drawer, the drawer, over .mo-navigation-drawer__scrim;
   .mo-navigation-drawer__standard, the standard one, beside the content (--mo-comp-navigation-drawer-standard-shadow, level 0);
-  .mo-navigation-drawer__dialog, a <dialog> it is in, at the start edge (at the end edge with .mo-navigation-drawer__end on it too; its ::backdrop the scrim, faded through --mo-comp-navigation-drawer-scrim-opacity); .mo-navigation-drawer__end,
+  .mo-navigation-drawer__dialog, a <dialog> it is in, at the start edge (at the end edge with .mo-navigation-drawer__end on it too; its ::backdrop the scrim, faded through --mo-comp-navigation-drawer-scrim-fade); .mo-navigation-drawer__end,
   one at the end edge (its corners towards the page, mirrored); .mo-navigation-drawer__bleed, one that springs in (on the
   drawer, or on the <dialog> it is in): wider by --mo-comp-navigation-drawer-bleed (32dp) at the edge it comes from, that strip
   off the screen, so a spring that overshoots shows no gap at the edge; .mo-navigation-drawer__item,
@@ -32,7 +32,10 @@
 @layer components {
   /* Navigation drawer, modal (m3.material.io/components/navigation-drawer): the pages in a panel over the page. */
   .mo-navigation-drawer__scrim {
-    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--mo-comp-theme-scrim-colour) 45%, transparent));
+    /* M3: the scrim is neutral-variant20 at 0.4 (md.comp.navigation-drawer.scrim). A site without a dynamic source has no
+       --mo-ref-palette-neutral-variant20, so the colour falls back, here only, to the scrim role at 80 %: 0.8 × 0.4 = black at 0.32 as before. */
+    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--mo-sys-color-scrim) 80%, transparent));
+    opacity: var(--mo-comp-navigation-drawer-scrim-opacity, 0.4);
   }
   .mo-navigation-drawer {
     display: flex;
@@ -175,9 +178,10 @@
       );
   }
   .mo-navigation-drawer__dialog::backdrop {
-    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--mo-comp-theme-scrim-colour) 45%, transparent));
+    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--mo-sys-color-scrim) 80%, transparent));
     /* The menu fades it with the motion scheme's springs through this variable, which the backdrop inherits from the dialog. */
-    opacity: var(--mo-comp-navigation-drawer-scrim-opacity, 1);
+    /* M3's scrim opacity (0.4) times the menu's fade, 0 to 1, which the springs play (--mo-comp-navigation-drawer-scrim-fade, MobileMenu.tsx). */
+    opacity: calc(var(--mo-comp-navigation-drawer-scrim-opacity, 0.4) * var(--mo-comp-navigation-drawer-scrim-fade, 1));
   }
   /* Scrolling in or over it does not move the page behind it (no overflow: hidden on the page). */
   .mo-navigation-drawer__dialog:modal {
