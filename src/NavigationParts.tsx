@@ -36,7 +36,7 @@ import {
   fabKinds,
   fabSizes,
 } from './themeUi';
-import { Part } from './PartsShown';
+import { Example, named, Part } from './PartsShown';
 import { Preview } from './ui';
 import { t } from './i18n';
 
@@ -47,6 +47,8 @@ const [mail, account] = say.drawerSections;
 const [backLabel] = say.drawerBack;
 const [inbox, messages, favourites, trash, profile] = say.drawerItems;
 const row = 'mo-editor-nav-row';
+const eg = t.parts.screens.example;
+const rows = t.parts.screens.rows;
 const kinds = ['primary', 'secondary'] as const;
 const bar = say.appBar;
 const flexible = ['medium-flexible', 'large-flexible'] as const;
@@ -137,21 +139,35 @@ export default function NavigationParts() {
         <Preview>
           <div className="mo-editor-nav-bars">
             {[false, true].map((stuck) => (
-              <SiteAppBar key={String(stuck)} data-stuck={stuck || undefined} className="mo-editor-nav-app-bar">
+              <SiteAppBar
+                key={String(stuck)}
+                {...named(eg(stuck ? 2 : 1))}
+                data-stuck={stuck || undefined}
+                className="mo-editor-nav-app-bar"
+              >
                 <span className="mo-editor-nav-app-bar-title">{stuck ? say.stuck : say.name}</span>
                 <SiteIconButton icon="list" label={say.open} />
               </SiteAppBar>
             ))}
             <SiteAppBar
+              {...named(eg(3))}
               kind="search"
               leading={<SiteIconButton icon="list" label={say.open} />}
               search={search(true)}
               trailing={<SiteIconButton icon="heart" label={bar.favourite} />}
             />
-            <SiteAppBar kind="search" align="center" search={search()} />
-            <SiteAppBar kind="small" leading={back} headline={bar.kinds.small} trailing={actions} />
-            <SiteAppBar kind="small" leading={back} headline={bar.kinds.small} subtitle={bar.subtitle} trailing={actions} />
+            <SiteAppBar {...named(eg(4))} kind="search" align="center" search={search()} />
+            <SiteAppBar {...named(eg(5))} kind="small" leading={back} headline={bar.kinds.small} trailing={actions} />
             <SiteAppBar
+              {...named(eg(6))}
+              kind="small"
+              leading={back}
+              headline={bar.kinds.small}
+              subtitle={bar.subtitle}
+              trailing={actions}
+            />
+            <SiteAppBar
+              {...named(eg(7))}
               kind="small"
               align="center"
               leading={back}
@@ -161,8 +177,16 @@ export default function NavigationParts() {
             />
             {flexible.map((kind) => (
               <Fragment key={kind}>
-                <SiteAppBar kind={kind} leading={back} headline={bar.kinds[kind]} subtitle={bar.subtitle} trailing={actions} />
                 <SiteAppBar
+                  {...named(`${bar.kinds[kind]}, ${eg(1)}`)}
+                  kind={kind}
+                  leading={back}
+                  headline={bar.kinds[kind]}
+                  subtitle={bar.subtitle}
+                  trailing={actions}
+                />
+                <SiteAppBar
+                  {...named(`${bar.kinds[kind]}, ${eg(2)}`)}
                   kind={kind}
                   align="center"
                   leading={back}
@@ -175,6 +199,7 @@ export default function NavigationParts() {
                   }
                 />
                 <SiteAppBar
+                  {...named(`${bar.kinds[kind]}, ${eg(3)}`)}
                   kind={kind}
                   collapsed
                   leading={back}
@@ -219,14 +244,20 @@ export default function NavigationParts() {
       <Part name="DropdownMenu" use={say.dropdownMenu}>
         <Preview>
           <div className="mo-editor-nav-menus-tall">
-            <SiteDropdownMenu label={menus.more}>{menuActions()}</SiteDropdownMenu>
-            <SiteDropdownMenu label={menus.more} iconButton icon="list">
-              {groups()}
-            </SiteDropdownMenu>
-            {colors.map((color) => (
-              <SiteDropdownMenu key={color} label={menus.more} kind={color === 'vibrant' ? 'filled' : 'outlined'} color={color} open>
-                {menuActions()}
+            <Example label={eg(1)} flat>
+              <SiteDropdownMenu label={menus.more}>{menuActions()}</SiteDropdownMenu>
+            </Example>
+            <Example label={eg(2)} flat>
+              <SiteDropdownMenu label={menus.more} iconButton icon="list">
+                {groups()}
               </SiteDropdownMenu>
+            </Example>
+            {colors.map((color) => (
+              <Example key={color} label={`${eg(3)}, ${color}`} flat>
+                <SiteDropdownMenu label={menus.more} kind={color === 'vibrant' ? 'filled' : 'outlined'} color={color} open>
+                  {menuActions()}
+                </SiteDropdownMenu>
+              </Example>
             ))}
           </div>
         </Preview>
@@ -238,11 +269,21 @@ export default function NavigationParts() {
               const options = menus.options.map((label, i) => ({ value: String(i), label, disabled: i === 3 }));
               return (
                 <div key={kind} className="mo-editor-nav-field-pair" aria-label={menus.kinds[kind]} role="group">
-                  <SiteTextFieldMenu kind={kind} label={menus.field} options={options} />
-                  <SiteTextFieldMenu kind={kind} label={menus.field} options={options} value="1" />
-                  <SiteTextFieldMenu kind={kind} label={menus.field} options={options} value="0" supporting={menus.supporting} />
-                  <SiteTextFieldMenu kind={kind} label={menus.field} options={options} error={menus.error} />
-                  <SiteTextFieldMenu kind={kind} label={menus.field} options={options} value="2" disabled />
+                  <Example label={eg(1)} flat>
+                    <SiteTextFieldMenu kind={kind} label={menus.field} options={options} />
+                  </Example>
+                  <Example label={eg(2)} flat>
+                    <SiteTextFieldMenu kind={kind} label={menus.field} options={options} value="1" />
+                  </Example>
+                  <Example label={eg(3)} flat>
+                    <SiteTextFieldMenu kind={kind} label={menus.field} options={options} value="0" supporting={menus.supporting} />
+                  </Example>
+                  <Example label={eg(4)} flat>
+                    <SiteTextFieldMenu kind={kind} label={menus.field} options={options} error={menus.error} />
+                  </Example>
+                  <Example label={eg(5)} flat>
+                    <SiteTextFieldMenu kind={kind} label={menus.field} options={options} value="2" disabled />
+                  </Example>
                 </div>
               );
             })}
@@ -363,29 +404,33 @@ export default function NavigationParts() {
       <Part name="Fab" use={say.fab}>
         <Preview>
           <div className="mo-editor-nav-fields">
-            <div className={row}>
+            <div className={row} {...named(rows.kinds)}>
               {fabKinds.map((k) => (
                 <SiteFab key={k} kind={k} icon="calendar-blank" label={say.kinds[k]} title={say.kinds[k]} />
               ))}
             </div>
-            <div className={row}>
+            <div className={row} {...named(rows.sizes)}>
               {fabSizes.map((size) => (
                 <SiteFab key={size} size={size} icon="calendar-blank" label={say.sizes[size]} title={say.sizes[size]} />
               ))}
             </div>
-            <div className={row}>
+            <div className={row} {...named(eg(3))}>
               {fabKinds.map((k) => (
                 <SiteExtendedFab key={k} kind={k} icon="calendar-blank" label={say.kinds[k]} />
               ))}
             </div>
-            <div className={row}>
+            <div className={row} {...named(eg(4))}>
               {extendedFabSizes.map((size) => (
-                <SiteExtendedFab key={size} size={size} icon="calendar-blank" label={say.book} title={say.extendedSizes[size]} />
+                <Example key={size} label={say.extendedSizes[size]} flat>
+                  <SiteExtendedFab size={size} icon="calendar-blank" label={say.book} title={say.extendedSizes[size]} />
+                </Example>
               ))}
             </div>
-            <div className={row}>
+            <div className={row} {...named(eg(5))}>
               {extendedFabSizes.map((size) => (
-                <SiteExtendedFab key={size} size={size} icon="calendar-blank" label={say.book} title={say.extendedSizes[size]} collapsed />
+                <Example key={size} label={`${say.extendedSizes[size]}, ${eg(2)}`} flat>
+                  <SiteExtendedFab size={size} icon="calendar-blank" label={say.book} title={say.extendedSizes[size]} collapsed />
+                </Example>
               ))}
             </div>
           </div>

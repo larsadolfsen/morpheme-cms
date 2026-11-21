@@ -20,11 +20,12 @@ import {
   SiteTooltip,
 } from './themeUi';
 import { Svg } from './icon';
-import { Part } from './PartsShown';
+import { Example as Group, named, Part } from './PartsShown';
 import { Preview } from './ui';
 import { t } from './i18n';
 
 const say = t.parts.screens.communication;
+const eg = t.parts.screens.example;
 
 // A made-up example under its name.
 const Example = ({ name, children }: { name: string; children: ReactNode }) => (
@@ -177,13 +178,27 @@ export default function CommunicationParts() {
       <Part name="Snackbar" use={say.snackbar}>
         <Preview>
           <div className="mo-editor-comm-snackbars">
-            <SiteSnackbar text={say.sent} />
-            <SiteSnackbar text={say.booked} />
-            <SiteSnackbar text={say.sent} action={{ label: say.undo }} />
-            <SiteSnackbar text={say.sent} closeLabel={say.close} />
-            <SiteSnackbar text={say.booked} action={{ label: say.undo }} closeLabel={say.close} />
-            <SiteSnackbar text={say.booked} action={{ label: say.seeBooking }} longerAction closeLabel={say.close} />
-            <SiteSnackbar text={say.preview} links={say.links.map((text) => ({ text, href: '' }))} />
+            <Group label={eg(1)} flat>
+              <SiteSnackbar text={say.sent} />
+            </Group>
+            <Group label={eg(2)} flat>
+              <SiteSnackbar text={say.booked} />
+            </Group>
+            <Group label={eg(3)} flat>
+              <SiteSnackbar text={say.sent} action={{ label: say.undo }} />
+            </Group>
+            <Group label={eg(4)} flat>
+              <SiteSnackbar text={say.sent} closeLabel={say.close} />
+            </Group>
+            <Group label={eg(5)} flat>
+              <SiteSnackbar text={say.booked} action={{ label: say.undo }} closeLabel={say.close} />
+            </Group>
+            <Group label={eg(6)} flat>
+              <SiteSnackbar text={say.booked} action={{ label: say.seeBooking }} longerAction closeLabel={say.close} />
+            </Group>
+            <Group label={eg(7)} flat>
+              <SiteSnackbar text={say.preview} links={say.links.map((text) => ({ text, href: '' }))} />
+            </Group>
           </div>
         </Preview>
       </Part>
@@ -195,12 +210,12 @@ export default function CommunicationParts() {
                 <SiteIconButton icon="phone" label={say.call} />
               </SiteTooltip>
             </div>
-            <div className="mo-editor-comm-tooltip-rich">
+            <div className="mo-editor-comm-tooltip-rich" {...named(eg(2))}>
               <SiteTooltip subhead={say.cancelHeading} supportingText={say.cancelText} open>
                 <SiteIconButton icon="info" label={say.cancelHeading} />
               </SiteTooltip>
             </div>
-            <div className="mo-editor-comm-tooltip-action">
+            <div className="mo-editor-comm-tooltip-action" {...named(eg(3))}>
               <SiteTooltip subhead={say.cancelHeading} supportingText={say.cancelText} action={{ label: say.readMore, href: '' }} open>
                 <SiteButton kind="outlined" size="small">
                   {say.cancelHeading}

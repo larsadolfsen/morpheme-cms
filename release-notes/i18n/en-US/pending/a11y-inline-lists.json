@@ -1,6 +1,0 @@
-{
-  "id": "a11y-inline-lists",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "Lists and cards typed in place work better with a screen reader and the keyboard: a folding row has its own button, a card’s media has its own button, and the fields are tall enough to tap"
-}

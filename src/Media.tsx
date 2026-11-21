@@ -56,7 +56,7 @@ import { config, siteName } from '@site/editor';
 import { apps, collections } from './site';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { fileKindOf, pickedKindOf, pickImage, prepareFile, prepareImage, publicPath, showMoved, shownAt, type Uploads } from './images';
-import { fileIcons, FileView, KINDS, kindOf, type Kind } from './FileView';
+import { fileIcons, fileLabel, FileView, KINDS, kindOf, type Kind } from './FileView';
 import MediaAlt from './MediaAlt';
 import MediaTags from './MediaTags';
 import { SiteCard, SiteImageTile, SiteToolbar } from './themeUi';
@@ -185,7 +185,14 @@ function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, Small> | n
 function FileTile({ src, selected, ...rest }: { src: string; selected?: boolean; [prop: string]: unknown }) {
   const Icon = fileIcons[fileKindOf(src)!];
   return (
-    <SiteCard as="button" kind="filled" selected={selected} aria-label={nameOfSrc(src)} aria-pressed={selected} {...rest}>
+    <SiteCard
+      as="button"
+      kind="filled"
+      selected={selected}
+      aria-label={fileLabel(kindOf(src), nameOfSrc(src))}
+      aria-pressed={selected}
+      {...rest}
+    >
       <span className="mo-stack mo-editor-media-file-tile">
         <Icon size={36} className="mo-keep mo-editor-media-muted" />
         <span className="mo-clamp-2 mo-editor-media-file-name">{nameOfSrc(src)}</span>
@@ -236,7 +243,7 @@ function Tile({
       {fileKindOf(src) ? (
         <FileTile src={src} {...tile} />
       ) : (
-        <SiteImageTile label={nameOfSrc(src)} ratio={ratioOf(thumbs?.[shownAt(src)])} {...tile}>
+        <SiteImageTile label={fileLabel('image', nameOfSrc(src))} ratio={ratioOf(thumbs?.[shownAt(src)])} {...tile}>
           <Thumb src={src} thumbs={thumbs} />
         </SiteImageTile>
       )}
