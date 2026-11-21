@@ -14,6 +14,7 @@ import { declarationProblems, ownerId } from '@morphemecms/cms/lib/licenses.mjs'
 import { installedPacks, isIconName, packFolder, packProblems, phosphorFile, svgProblems, usedIcons } from './icons.mjs';
 import { MATERIAL_ALL, MATERIAL_SSR, materialModule, materialSsrModule } from './materialSymbols.mjs';
 import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS, THEME_PACKS_FOLDER, packInUse, packTheme, themePackId } from './iconPacks.mjs';
+import { STATEMENT_FILE, statementProblems } from '@morphemecms/cms/lib/accessibility.mjs';
 import { MOTION_SCHEMES } from '@morphemecms/cms/lib/motion-schemes.mjs';
 import { templateProblems } from '@morphemecms/cms/lib/page-template.mjs';
 import { strayStoreId } from '@morphemecms/cms/lib/storeEntries.mjs';
@@ -347,6 +348,17 @@ export function themeProblems(theme) {
   const needed = theme === STANDARD_THEME ? THEME_FILES : OWN_FILES;
   const problems = needed.filter((f) => !has(`${themeFolder(theme)}/${f}`)).map((f) => `${themeFolder(theme)}/${f} is missing.`);
   const standard = new Set(standardTypes());
+  // Its accessibility statement, when it has one (lib/accessibility.mjs): the parts it falls short on, which the checks let through.
+  if (has(`${themeFolder(theme)}/${STATEMENT_FILE}`))
+    try {
+      problems.push(
+        ...statementProblems(JSON.parse(readFileSync(new URL(`${themeFolder(theme)}/${STATEMENT_FILE}`, root), 'utf8'))).map(
+          (p) => `${themeFolder(theme)}/${p}`,
+        ),
+      );
+    } catch (e) {
+      problems.push(`${themeFolder(theme)}/${STATEMENT_FILE}: ${e.message}`);
+    }
   if (theme === STANDARD_THEME)
     for (const type of standard)
       if (!has(`${themeFolder(theme)}/blocks/${type}/View.tsx`)) problems.push(`${themeFolder(theme)}/blocks/${type}/View.tsx is missing.`);

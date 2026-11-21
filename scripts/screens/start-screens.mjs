@@ -21,7 +21,8 @@ import {
   shownItems,
   site,
 } from './support/context.mjs';
-import { allowedKeys, collect, compare, keysOf, problemsOf, readAllowlist, scan, scanRuns } from '../a11y.mjs';
+import { allowedKeys, collect, compare, keysOf, problemsOf, readAllowlist, scan, scanRuns, unnamedViolations } from '../a11y.mjs';
+import { activeStatement } from '../theme-statement.mjs';
 import { judge, keyboardRuns, viewportOf, walk } from '../keyboard.mjs';
 import { PHONE_FLOWS, FLOWS, runFlow } from '../keyboard-flows.mjs';
 import * as announce from '../announce.mjs';
@@ -746,7 +747,7 @@ async function checkA11y(page, width, hash) {
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(500);
   await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
-  const found = keysOf(await scan(page), place, viewport);
+  const found = keysOf(unnamedViolations(await scan(page), activeStatement().statement), place, viewport);
   if (process.env.A11Y_COLLECT) return collect(process.env.A11Y_COLLECT, found);
   const allowed = allowedKeys(readAllowlist(), (p) => p === place);
   for (const key of [...allowed.keys()]) if (!key.endsWith(`\t${viewport}`)) allowed.delete(key);
