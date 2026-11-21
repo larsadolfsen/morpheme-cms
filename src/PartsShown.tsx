@@ -13,6 +13,9 @@ import { themeCoverage } from './coverage';
 import { headed, letterOf } from './Sheet';
 import { t } from './i18n';
 
+/** The tag of the part's name above (h2 or h3): a subheading under it is one level deeper. */
+const PartName = createContext<'h2' | 'h3'>('h3');
+
 export type PartGroupInfo = { id: string; title: string };
 
 type Sort = 'group' | 'az' | 'za';
@@ -191,14 +194,27 @@ export function Part({ name, use, coverage, children }: { name: string; use?: st
   if (shown.style && covered?.status !== shown.style) return null;
   const query = shown.query.trim().toLocaleLowerCase();
   if (query && !`${name} ${use ?? ''}`.toLocaleLowerCase().includes(query)) return null;
+  // Under a group's heading (the page's h1, the group's h2) a part's name is an h3; with no group heading above it (a group picked, or the parts by name) it is an h2.
+  const Name = shown.sort === 'group' && !shown.group ? 'h3' : 'h2';
   return (
     <section data-part={name} className="mo-editor-flow-3" style={{ order: shown.order.get(name) }}>
       <div>
-        <h2 className="mo-editor-part-name">{name}</h2>
+        <Name className="mo-editor-part-name">{name}</Name>
         {use && <SupportingText>{use}</SupportingText>}
         {covered && <CoverageBadge coverage={covered} />}
       </div>
-      {children}
+      <PartName.Provider value={Name}>{children}</PartName.Provider>
     </section>
+  );
+}
+
+/** A subheading inside a part, one for each size or kind it shows (Small, Medium, Large; Filled, Tonal, Outlined), with what it names under it. */
+export function PartSub({ name, children }: { name: string; children: ReactNode }) {
+  const Tag = useContext(PartName) === 'h3' ? 'h4' : 'h3';
+  return (
+    <div className="mo-editor-part-sub">
+      <Tag className="mo-editor-part-sub-name">{name}</Tag>
+      {children}
+    </div>
   );
 }

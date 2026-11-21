@@ -381,6 +381,13 @@ export const parts: Messages['parts'] = {
     shapes: { round: 'Rund', square: 'Firkantet' },
     widths: { narrow: 'Smal', default: 'Standard', wide: 'Bred' },
     toggle: { off: 'Slået fra', on: 'Slået til' },
+    subs: {
+      kinds: 'Slags',
+      sizes: 'Størrelser',
+      squareSizes: 'Størrelser, firkantede',
+      widths: 'Bredder',
+      toggle: (shape) => `Til og fra, ${shape.toLowerCase()}`,
+    },
     iconKinds: { standard: 'Standard', filled: 'Fyldt', tonal: 'Tonet', outlined: 'Med ramme' },
     withIcon: 'Med ikon',
     disabled: 'Kan ikke bruges',

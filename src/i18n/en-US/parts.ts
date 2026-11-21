@@ -403,6 +403,14 @@ export const parts = {
     shapes: { round: 'Round', square: 'Square' },
     widths: { narrow: 'Narrow', default: 'Default', wide: 'Wide' },
     toggle: { off: 'Off', on: 'On' },
+    /** The subheadings of a part: one for each size or kind it shows. */
+    subs: {
+      kinds: 'Kinds',
+      sizes: 'Sizes',
+      squareSizes: 'Sizes, square',
+      widths: 'Widths',
+      toggle: (shape: string) => `Toggle, ${shape.toLowerCase()}`,
+    },
     iconKinds: { standard: 'Standard', filled: 'Filled', tonal: 'Tonal', outlined: 'Outlined' },
     withIcon: 'With icon',
     disabled: "Can't be used",

@@ -1,7 +1,7 @@
 // The theme's UI components in every kind, size and state, as the site draws them: the gallery of "Parts" › "UI components"
 // (#developer/parts/ui, BlockParts.tsx) and of the site's UI components page (`componentsPath`, pages/components.astro), one list of
 // groups and parts for both, so the two never differ. The theme gives the components their look; here are only the rows and the names.
-import { Part, PartGroup } from './PartsShown';
+import { Part, PartGroup, PartSub } from './PartsShown';
 import FrameParts from './FrameParts';
 import { Preview } from './ui';
 import {
@@ -113,119 +113,152 @@ function ButtonParts() {
       <Part name="Button" use={screens.button}>
         <Preview>
           <div className="mo-editor-parts-chips">
-            <div className={row}>
-              {buttonKinds.map((k) => (
-                <SiteButton key={k} kind={k}>
-                  {kinds[k]}
-                </SiteButton>
-              ))}
-            </div>
-            <div className={row}>
-              {buttonSizes.map((size) => (
-                <SiteButton key={size} size={size}>
-                  {screens.sizes[size]}
-                </SiteButton>
-              ))}
-            </div>
-            <div className={row}>
-              {buttonSizes.map((size) => (
-                <SiteButton key={size} size={size} shape="square" kind="tonal">
-                  {screens.sizes[size]}
-                </SiteButton>
-              ))}
-            </div>
-            {buttonShapes.map((shape) => (
-              <div key={shape} className={row} role="group" aria-label={screens.shapes[shape]}>
-                {toggleKinds.map((k) =>
-                  ([false, true] as const).map((on) => (
-                    <SiteButton key={`${k}-${on}`} kind={k} shape={shape} selected={on} icon="heart">
-                      {on ? screens.toggle.on : screens.toggle.off}
-                    </SiteButton>
-                  )),
-                )}
+            <PartSub name={screens.subs.kinds}>
+              <div className={row}>
+                {buttonKinds.map((k) => (
+                  <SiteButton key={k} kind={k}>
+                    {kinds[k]}
+                  </SiteButton>
+                ))}
               </div>
+            </PartSub>
+            <PartSub name={screens.subs.sizes}>
+              <div className={row}>
+                {buttonSizes.map((size) => (
+                  <SiteButton key={size} size={size}>
+                    {screens.sizes[size]}
+                  </SiteButton>
+                ))}
+              </div>
+            </PartSub>
+            <PartSub name={screens.subs.squareSizes}>
+              <div className={row}>
+                {buttonSizes.map((size) => (
+                  <SiteButton key={size} size={size} shape="square" kind="tonal">
+                    {screens.sizes[size]}
+                  </SiteButton>
+                ))}
+              </div>
+            </PartSub>
+            {buttonShapes.map((shape) => (
+              <PartSub key={shape} name={screens.subs.toggle(screens.shapes[shape])}>
+                <div className={row} role="group" aria-label={screens.shapes[shape]}>
+                  {toggleKinds.map((k) =>
+                    ([false, true] as const).map((on) => (
+                      <SiteButton key={`${k}-${on}`} kind={k} shape={shape} selected={on} icon="heart">
+                        {on ? screens.toggle.on : screens.toggle.off}
+                      </SiteButton>
+                    )),
+                  )}
+                </div>
+              </PartSub>
             ))}
-            <div className={row}>
-              <SiteButton icon="phone">{screens.withIcon}</SiteButton>
-              <SiteButton kind="outlined" trailingIcon="arrow-right">
-                {screens.withIcon}
-              </SiteButton>
-              {buttonKinds.map((k) => (
-                <SiteButton key={k} kind={k} disabled>
+            <PartSub name={screens.withIcon}>
+              <div className={row}>
+                <SiteButton icon="phone">{screens.withIcon}</SiteButton>
+                <SiteButton kind="outlined" trailingIcon="arrow-right">
+                  {screens.withIcon}
+                </SiteButton>
+              </div>
+            </PartSub>
+            <PartSub name={screens.disabled}>
+              <div className={row}>
+                {buttonKinds.map((k) => (
+                  <SiteButton key={k} kind={k} disabled>
+                    {screens.disabled}
+                  </SiteButton>
+                ))}
+                <SiteButton selected disabled>
                   {screens.disabled}
                 </SiteButton>
-              ))}
-              <SiteButton selected disabled>
-                {screens.disabled}
-              </SiteButton>
-            </div>
+              </div>
+            </PartSub>
           </div>
         </Preview>
       </Part>
       <Part name="IconButton" use={screens.iconButton}>
         <Preview>
           <div className="mo-editor-parts-chips">
-            <div className={row}>
-              {iconButtonKinds.map((k) => (
-                <SiteIconButton key={k} kind={k} icon="x" label={screens.iconKinds[k]} title={screens.iconKinds[k]} />
-              ))}
-            </div>
-            <div className={row}>
-              {buttonSizes.map((size) => (
-                <SiteIconButton key={size} kind="filled" size={size} icon="phone" label={screens.sizes[size]} title={screens.sizes[size]} />
-              ))}
-            </div>
-            <div className={row}>
-              {buttonSizes.map((size) => (
-                <SiteIconButton
-                  key={size}
-                  kind="tonal"
-                  size={size}
-                  shape="square"
-                  icon="phone"
-                  label={`${screens.sizes[size]}, ${screens.shapes.square}`}
-                  title={`${screens.sizes[size]}, ${screens.shapes.square}`}
-                />
-              ))}
-            </div>
-            <div className={row}>
-              {(['small', 'medium'] as const).flatMap((size) =>
-                iconButtonWidths.map((width) => (
+            <PartSub name={screens.subs.kinds}>
+              <div className={row}>
+                {iconButtonKinds.map((k) => (
+                  <SiteIconButton key={k} kind={k} icon="x" label={screens.iconKinds[k]} title={screens.iconKinds[k]} />
+                ))}
+              </div>
+            </PartSub>
+            <PartSub name={screens.subs.sizes}>
+              <div className={row}>
+                {buttonSizes.map((size) => (
                   <SiteIconButton
-                    key={`${size}-${width}`}
-                    kind="outlined"
+                    key={size}
+                    kind="filled"
                     size={size}
-                    width={width}
                     icon="phone"
-                    label={`${screens.sizes[size]}, ${screens.widths[width]}`}
-                    title={`${screens.sizes[size]}, ${screens.widths[width]}`}
+                    label={screens.sizes[size]}
+                    title={screens.sizes[size]}
                   />
-                )),
-              )}
-            </div>
-            {buttonShapes.map((shape) => (
-              <div key={shape} className={row} role="group" aria-label={screens.shapes[shape]}>
-                {iconButtonKinds.map((k) =>
-                  ([false, true] as const).map((on) => (
+                ))}
+              </div>
+            </PartSub>
+            <PartSub name={screens.subs.squareSizes}>
+              <div className={row}>
+                {buttonSizes.map((size) => (
+                  <SiteIconButton
+                    key={size}
+                    kind="tonal"
+                    size={size}
+                    shape="square"
+                    icon="phone"
+                    label={`${screens.sizes[size]}, ${screens.shapes.square}`}
+                    title={`${screens.sizes[size]}, ${screens.shapes.square}`}
+                  />
+                ))}
+              </div>
+            </PartSub>
+            <PartSub name={screens.subs.widths}>
+              <div className={row}>
+                {(['small', 'medium'] as const).flatMap((size) =>
+                  iconButtonWidths.map((width) => (
                     <SiteIconButton
-                      key={`${k}-${on}`}
-                      kind={k}
-                      shape={shape}
-                      selected={on}
-                      icon="heart"
-                      label={`${screens.iconKinds[k]}, ${on ? screens.toggle.on : screens.toggle.off}`}
-                      title={`${screens.iconKinds[k]}, ${on ? screens.toggle.on : screens.toggle.off}`}
+                      key={`${size}-${width}`}
+                      kind="outlined"
+                      size={size}
+                      width={width}
+                      icon="phone"
+                      label={`${screens.sizes[size]}, ${screens.widths[width]}`}
+                      title={`${screens.sizes[size]}, ${screens.widths[width]}`}
                     />
                   )),
                 )}
               </div>
+            </PartSub>
+            {buttonShapes.map((shape) => (
+              <PartSub key={shape} name={screens.subs.toggle(screens.shapes[shape])}>
+                <div className={row} role="group" aria-label={screens.shapes[shape]}>
+                  {iconButtonKinds.map((k) =>
+                    ([false, true] as const).map((on) => (
+                      <SiteIconButton
+                        key={`${k}-${on}`}
+                        kind={k}
+                        shape={shape}
+                        selected={on}
+                        icon="heart"
+                        label={`${screens.iconKinds[k]}, ${on ? screens.toggle.on : screens.toggle.off}`}
+                        title={`${screens.iconKinds[k]}, ${on ? screens.toggle.on : screens.toggle.off}`}
+                      />
+                    )),
+                  )}
+                </div>
+              </PartSub>
             ))}
-            <div className={row}>
-              {iconButtonKinds.map((k) => (
-                <SiteIconButton key={k} kind={k} icon="phone" label={screens.disabled} disabled />
-              ))}
-              <SiteIconButton kind="filled" icon="phone" label={screens.disabled} selected disabled />
-            </div>
+            <PartSub name={screens.disabled}>
+              <div className={row}>
+                {iconButtonKinds.map((k) => (
+                  <SiteIconButton key={k} kind={k} icon="phone" label={screens.disabled} disabled />
+                ))}
+                <SiteIconButton kind="filled" icon="phone" label={screens.disabled} selected disabled />
+              </div>
+            </PartSub>
           </div>
         </Preview>
       </Part>
