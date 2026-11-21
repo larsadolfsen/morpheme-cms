@@ -974,7 +974,7 @@
     block-size: 100dvh;
     flex-shrink: 0;
     align-self: flex-start;
-    background-color: var(--mo-comp-navigation-rail-surface, var(--mo-sys-color-surface));
+    background-color: var(--mo-comp-navigation-rail-surface, var(--mo-sys-elevation-level0-color));
     padding-block-start: env(safe-area-inset-top);
   }
   .mo-editor-main-rail {
