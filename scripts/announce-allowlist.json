@@ -26,54 +26,5 @@
     "places": ["flow L"],
     "viewports": ["computer"],
     "reason": "Baseline found by the first run of check:announce (0.19.4 batch 1, 21 Nov 2026), not approved by the owner: batch 4 fixes it and removes this entry."
-  },
-  {
-    "problem": "bad-name",
-    "selector": "div[role=textbox] > h1 > a",
-    "places": ["#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Demo content, not an editor screen: the typography and prose fixtures repeat the word `link` as a link. The CTO's change stops the name walk from walking demo content; this entry goes with it."
-  },
-  {
-    "problem": "bad-name",
-    "selector": "div[role=textbox] > h3 > a",
-    "places": ["#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Demo content, not an editor screen: the typography and prose fixtures repeat the word `link` as a link. The CTO's change stops the name walk from walking demo content; this entry goes with it."
-  },
-  {
-    "problem": "bad-name",
-    "selector": "div[role=textbox] > h4 > a",
-    "places": ["#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Demo content, not an editor screen: the typography and prose fixtures repeat the word `link` as a link. The CTO's change stops the name walk from walking demo content; this entry goes with it."
-  },
-  {
-    "problem": "bad-name",
-    "selector": "div[role=textbox] > h5 > a",
-    "places": ["#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Demo content, not an editor screen: the typography and prose fixtures repeat the word `link` as a link. The CTO's change stops the name walk from walking demo content; this entry goes with it."
-  },
-  {
-    "problem": "bad-name",
-    "selector": "div[role=textbox] > h6 > a",
-    "places": ["#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Demo content, not an editor screen: the typography and prose fixtures repeat the word `link` as a link. The CTO's change stops the name walk from walking demo content; this entry goes with it."
-  },
-  {
-    "problem": "bad-name",
-    "selector": "div[role=textbox] > p > a",
-    "places": ["#src/content/pages/prose-fixture.md", "#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Demo content, not an editor screen: the typography and prose fixtures repeat the word `link` as a link. The CTO's change stops the name walk from walking demo content; this entry goes with it."
-  },
-  {
-    "problem": "repeated-name",
-    "selector": "div[role=textbox] > h3 > a",
-    "places": ["#src/content/pages/typography.md"],
-    "viewports": ["phone", "computer"],
-    "reason": "Demo content, not an editor screen: the typography and prose fixtures repeat the word `link` as a link. The CTO's change stops the name walk from walking demo content; this entry goes with it."
   }
 ]

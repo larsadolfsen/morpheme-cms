@@ -766,16 +766,17 @@ async function checkKeyboard(page, width, hash) {
 }
 
 /** What a screen reader gets of one screen (WCAG 2.2 AA: names, roles, states and live regions; scripts/announce.mjs): the name walk's findings must be on
- * scripts/announce-allowlist.json and every entry of the list for this screen at this width must still match, so the list only shrinks. */
+ * scripts/announce-allowlist.json and every entry of the list for this screen at this width must still match, so the list only shrinks. Gives whether it walked.
+ * Only the editor's own screens and the demo's Blocks pages are walked (`announceWalks`, owner, 21 Nov 2026: the CMS's blocks, not the demo's content); the
+ * other content items, the pages other units make for themselves (`zz-check-page.md` …) among them, are not. */
 async function checkAnnounce(page, width, hash) {
   // Only in the CMS repository: the allowlist is the demo's (scripts/announce.mjs, announceRuns).
-  if (!announce.announceRuns()) return;
-  // The pages other units make for themselves (`zz-check-page.md`, `zz-check-post.md`, `zz-check-unlisted.md`) are test fixtures that exist only in the shard that
-  // runs those units, so the list can not hold them; the editor parts they show are the same as on the demo's own pages, which are walked.
-  if (/\/zz-check-/.test(hash)) return;
+  if (!announce.announceRuns()) return false;
+  if (!announce.announceWalks(hash)) return false;
   await page.waitForTimeout(300);
   const { findings } = await announce.walk(page);
   problems.push(...announce.judge(findings, `#${hash}`, announce.viewportOf(width)).map((line) => `${width}px ${line}`));
+  return true;
 }
 
 /** The main flows with what is announced recorded (scripts/announce-flows.mjs): A, B, C, F, I, J, K and L at the computer, A, B, F and J also at the phone (375 px).
@@ -836,6 +837,7 @@ export function register(unit) {
         'apps',
       ];
       const seen = new Set(starts);
+      const announced = new Set();
       let next = starts;
       for (let depth = 0; depth <= 2 && next.length; depth++) {
         const found = [];
@@ -875,7 +877,7 @@ export function register(unit) {
           if (state.empty) problems.push(`${width}px #${hash}: the screen is empty`);
           await checkA11y(page, width, hash);
           await checkKeyboard(page, width, hash);
-          await checkAnnounce(page, width, hash);
+          if (await checkAnnounce(page, width, hash)) announced.add(hash);
           if (state.text.includes(`${daApp.nothingAt(hash)}.`)) problems.push(`${width}px #${hash}: there is nothing at the address`);
           for (const link of state.links) {
             if (seen.has(link)) continue;
@@ -885,6 +887,14 @@ export function register(unit) {
         }
         next = found;
       }
+      // Every block is walked by the screen reader check on its demo Blocks page, also one the links above did not reach (scripts/announce.mjs).
+      if (announce.announceRuns())
+        for (const hash of announce.blockPagesLeft(announced)) {
+          route = hash;
+          await page.evaluate((h) => (location.hash = h), hash);
+          await page.waitForTimeout(150);
+          await checkAnnounce(page, width, hash);
+        }
       await page.close();
     });
     unit(`checkSettingsAndMenu ${width}`, () => checkSettingsAndMenu(width, height));
