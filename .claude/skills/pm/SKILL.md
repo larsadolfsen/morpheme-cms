@@ -115,6 +115,10 @@ The PM squash-merges a pull request when all of this holds, one pull request at 
   `morpheme-appstore` (no `check` job) the green Cloudflare `Workers Builds` check and the test result the session reports are the
   condition;
 - its changeset has the level its base branch allows (skill `changesets`; read it each time, never work from memory);
+- CodeQL has scanned it and found no new alert (owner, 21 Nov 2026: "we need to fix these as they occur"). The session fixes one
+  in the same pull request; the PM never dismisses an alert, only the owner does, in words. The GitHub ruleset *Code* blocks the
+  merge into `main` or `feature/*` while a High or higher alert is open; if it blocks a merge into a feature for lack of results
+  (CodeQL did not scan a pull request into that branch), the PM tells the owner instead of working around it;
 - its description has the **Components** line, and the M3 pages and Modern Web guides it had to read are named (section 5);
 - for a change the owner can see, the owner has approved it (section 4).
 

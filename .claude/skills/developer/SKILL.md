@@ -48,6 +48,10 @@ Every pull request, whatever the change:
 
 - Its description has the **Components** line (the hard rule above).
 - It has its changeset (`changesets`) and its `check` job is green on the current head.
+- **It adds no code-scanning alert** (owner, 21 Nov 2026: "we need to fix these as they occur"). CodeQL scans the pull request; an
+  alert it finds in your change is fixed in the same pull request, by fixing the code, never by a dismissal or a comment that
+  silences it. Only the owner dismisses an alert, in words. A GitHub ruleset on `main` and `feature/*` blocks the merge while a
+  High or higher alert is open.
 - You report the link and the head sha to the PM and leave the merge to it. Never merge your own pull request, and never
   ask the owner to merge it (`CLAUDE.md`, *Pull requests go to the PM*).
 - Your PM is the PM of your own version: your pull request goes into that version's feature branch (or into `main` for its single
