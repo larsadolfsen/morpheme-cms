@@ -131,11 +131,12 @@ once it has no open question for the owner and no unmerged branch.
 ## 4. What the owner sees
 
 Owner decision, 14 Nov 2026. A change the owner can see (the editor or the site) is merged only after the owner has seen it and said
-yes. The approval happens before the merge, so it is not a release gate: a release never waits on a list of reviews. A Preview cannot
-show the editor (no sign-in), so the owner sees screenshots in the pull request.
+yes. The approval happens before the merge, so it is not a release gate: a release never waits on a list of reviews. The owner cannot
+sign in to the editor on a Preview, so an editor change is seen in screenshots in the pull request; a site change is seen on its
+Preview, whose link the report gives (owner, 21 Nov 2026: no before and after screenshots, since the PM tests on the Preview).
 
-- **The session** adds before and after screenshots to a comment on its own pull request when the change is done and `check` is green
-  (skill `developer`, *Screenshots in the pull request*), and tells the PM the link and head sha.
+- **The session** adds *after* screenshots of an editor change to a comment on its own pull request when the change is done and `check`
+  is green (skill `developer`, *Screenshots in the pull request*), and tells the PM the link and head sha. A site change gets none.
 - **The PM** opens the screenshot files itself and looks at them: it fetches the shared orphan branch `screenshots` (`git fetch
   origin screenshots`, then `git archive FETCH_HEAD <number>/` into the session's scratchpad directory) and opens each PNG
   with the Read tool. It never reports on screenshots it has not opened and never relies on a worker's description of them. It reads
@@ -146,6 +147,8 @@ show the editor (no sign-in), so the owner sees screenshots in the pull request.
   session of the pull request, or starts a new session with the whole task and the pull request's link when that session is gone; the
   new head gets new screenshots and a new report.
 - **A feature branch** is approved once, as a whole, on its pull request into `main` (section 2); its pieces need no approval.
+- **A site change** has no screenshots: the PM tests it on the Preview (below) and the report gives the Preview's link, with a
+  screenshot only of a fail.
 - **A change nobody sees** (docs, tests, CI, Worker internals, tooling) needs no screenshots and no approval.
 - There is no separate "screenshots" session and no Artifact page: the images live in the pull request.
 - **The PM tests a change itself** (owner, 21 Nov 2026: "PMs have access to preview sites, so they do not have to send me a
@@ -185,9 +188,9 @@ never did. The first prompt also carries:
 
 - "Do not run the full `check:screens` locally; see the `checks` skill." It also says that the pull request's CI is kept to one push,
   so everything is fixed before it.
-- In these words: "When a change the owner can see (the editor or the site) is done and `check` is green, add before and after
-  screenshots of every changed screen to a comment on your own pull request, as the `developer` skill's *Screenshots in the pull
-  request* says, and tell the PM with the link and head sha. A change nobody sees needs none."
+- In these words: "When a change to the editor is done and `check` is green, add after screenshots of every changed screen to a
+  comment on your own pull request, as the `developer` skill's *Screenshots in the pull request* says, and tell the PM with the link
+  and head sha. A change to the site only, or one nobody sees, needs none."
 - The branch to open the pull request into: the feature branch, or the line.
 - When the change builds a new component or edits an existing component's design (look, measurements, behaviour, states): read the M3
   pages with Playwright (skill `material-3`, *Reading the real pages*) and say in the pull request which pages were read. A session that
@@ -316,6 +319,6 @@ Example:
 > **Approve the new text bar** ([pull request #123](https://github.com/larsadolfsen/morpheme-cms/pull/123))
 >
 > - **Why:** the text bar now cross-fades between its two sets of tools.
-> - **How:** open the pull request and look at the screenshots, before and after, on a phone and a computer; answer approve, or what to
+> - **How:** open the pull request and look at the screenshots on a phone and a computer; answer approve, or what to
 >   change.
 > - **What:** nothing you have not seen is merged.

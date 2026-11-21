@@ -58,9 +58,9 @@ Every pull request, whatever the change:
   fix), and you report to that PM only. A PM merges only within its own feature (owner, 20 Nov 2026: "Pms tend to merge future
   feature branches. They are only allowed to merge branches within their feature."), so never send your pull request to another
   version's PM; if no PM runs for your version, tell the owner.
-- A change the owner can see (the editor or the site) gets before and after screenshots of every changed screen in a
-  comment on your own pull request: *Screenshots in the pull request* below says how. A change nobody sees
-  needs none.
+- A change to the editor gets after screenshots of every changed screen in a comment on your own pull request: *Screenshots in
+  the pull request* below says how. A change to the site only needs none: the owner opens its Preview, and the PM tests it there
+  (owner, 21 Nov 2026). A change nobody sees needs none.
 - A change to one component is checked on that component's demo page (`/blocks/<component>/`), not on all of them (`checks`).
 - When `origin/<base>` moves, merge it into your branch (never a rebase, amend or force-push on a branch that is
   shared).
@@ -72,11 +72,12 @@ Every pull request, whatever the change:
 ## 3b. Screenshots in the pull request
 
 Moved here from the `pm` skill on 18 Nov 2026 (the sessions take them; the PM opens and reports them, `pm` skill section 4).
-One comment on the pull request, headed with what changed, for every screen the
-change touched: a before and an after, each on a phone and a computer, in English, light theme, at
-`deviceScaleFactor: 2`, in every state the change touched (open menu, error, empty, selected). Take them from the built
-branch (`npm run build`; `openEditor` and `serveBuilt` in `scripts/built-site.mjs` open the editor without a login) and,
-for *before*, from `main` the same way. Put a short caption under each image. The images never go into the shipped
+For a change to the editor only (owner, 21 Nov 2026: the owner cannot sign in to the editor on a Preview, so the images are how the
+owner sees it; a site change is seen on its Preview instead, and the PM's own test on the Preview replaces the *before*). One comment
+on the pull request, headed with what changed, for every screen the change touched: an *after* on a phone and a computer, in English,
+light theme, at `deviceScaleFactor: 2`, in every state the change touched (open menu, error, empty, selected). Take them from the
+built branch (`npm run build`; `openEditor` and `serveBuilt` in `scripts/built-site.mjs` open the editor without a login); no *before*
+and no build of `main` for it. Put a short caption under each image. The images never go into the shipped
 package or into the pull request's own diff.
 
 **How the images get into the comment.** The GitHub tools cannot upload an image, so the images
