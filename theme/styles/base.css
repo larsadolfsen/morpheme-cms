@@ -10,6 +10,7 @@
 /* The cards (Card, the Cards and Price cards blocks), the card grid and the Carousel. */
 @import './cards.css';
 @import './type.css';
+@import './elevation.css';
 @import './prose.css';
 /* The layout classes (docs/theme-layout-classes.md): mo-row, mo-stack, mo-grid … */
 @import './layout.css';
