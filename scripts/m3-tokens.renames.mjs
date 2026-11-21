@@ -12,6 +12,14 @@ export const RENAMES = {
   '--mo-comp-button-xsmall-padding': both('md.comp.button.xsmall'),
   '--mo-comp-button-small-container-height': ['md.comp.button.small.container.height'],
   '--mo-comp-button-small-container-shape-square': ['md.comp.button.small.container.shape.square'],
+  // Button groups (connected)
+  '--mo-comp-button-group-connected-gap': ['xsmall', 'small', 'medium', 'large', 'xlarge'].map(
+    (z) => `md.comp.button-group.connected.${z}.between-space`,
+  ),
+  '--mo-comp-button-group-xsmall-inner-radius': ['md.comp.button-group.connected.xsmall.inner-corner.corner-size'],
+  '--mo-comp-button-group-inner-radius': ['small', 'medium'].map((z) => `md.comp.button-group.connected.${z}.inner-corner.corner-size`),
+  '--mo-comp-button-group-large-inner-radius': ['md.comp.button-group.connected.large.inner-corner.corner-size'],
+  '--mo-comp-button-group-xlarge-inner-radius': ['md.comp.button-group.connected.xlarge.inner-corner.corner-size'],
   // Cards
   '--mo-comp-card-radius': [
     'md.comp.elevated-card.container.shape',

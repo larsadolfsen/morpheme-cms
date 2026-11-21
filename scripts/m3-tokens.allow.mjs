@@ -16,6 +16,15 @@ export const allow = [
     reason: 'Our xsmall button (32 dp) has 16 dp leading and trailing space; M3 prints 12 (md.comp.button.xsmall.leading-space).',
   },
   {
+    token: '--mo-comp-button-group-xsmall-inner-radius',
+    theme: '@shape:extra-small',
+    m3: '8',
+    class: 'fix',
+    batch: 'buttons',
+    reason:
+      'Our xsmall connected button group has a 4 dp inner corner; M3 prints 8 (md.comp.button-group.connected.xsmall.inner-corner.corner-size).',
+  },
+  {
     token: '--mo-comp-navigation-bar-active-indicator-color',
     theme: '@role:surface-container-high',
     m3: '@role:secondary-container',

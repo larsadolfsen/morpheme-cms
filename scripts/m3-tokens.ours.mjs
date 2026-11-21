@@ -51,27 +51,7 @@ export const ours = [
       "A text value read from the type scale; M3 holds it as the part's composite label-text token, which the check does not compare.",
   },
   {
-    token: '--mo-comp-button-group-connected-gap',
-    reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
-  },
-  {
-    token: '--mo-comp-button-group-inner-radius',
-    reason: "A corner of a part state or size; M3 holds it as the part's shape token for that state, which the check does not map yet.",
-  },
-  {
-    token: '--mo-comp-button-group-large-inner-radius',
-    reason: "A corner of a part state or size; M3 holds it as the part's shape token for that state, which the check does not map yet.",
-  },
-  {
     token: '--mo-comp-button-group-selected-radius',
-    reason: "A corner of a part state or size; M3 holds it as the part's shape token for that state, which the check does not map yet.",
-  },
-  {
-    token: '--mo-comp-button-group-xlarge-inner-radius',
-    reason: "A corner of a part state or size; M3 holds it as the part's shape token for that state, which the check does not map yet.",
-  },
-  {
-    token: '--mo-comp-button-group-xsmall-inner-radius',
     reason: "A corner of a part state or size; M3 holds it as the part's shape token for that state, which the check does not map yet.",
   },
   {
