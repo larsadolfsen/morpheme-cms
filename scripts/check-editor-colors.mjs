@@ -1,5 +1,5 @@
 // Colours in the editor's block parts come only from the context tokens (the theme's --mo-* roles, which a section on a colour swaps,
-// currentColor and color-mix of them), never from a fixed value: a fixed colour does not follow the section's colours (the check list
+// currentColor), never from a fixed value; a mix of a role is check:color-roles': a fixed colour does not follow the section's colours (the check list
 // marks and the List's rows once did not). Fails on a hex, rgb()/hsl() or named colour in src/editor.css and src/Inline*.tsx, except
 // where the allowlist below gives a reason. Run by npm run check.
 import { readFileSync, readdirSync } from 'node:fs';

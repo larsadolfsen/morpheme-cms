@@ -245,7 +245,7 @@ async function checkLabelGap() {
     }
 }
 
-/** A section on an image (no colour): the text, the placeholder, the icons and the arrow of a list row typed in place are the theme's colour for text on an image, as on the site, and read on the image's scrim (4.5:1 for text, 3:1 for an icon), on a dark and on a bright photo, light and dark mode, on a phone and a computer. The contrast is taken against the scrim as drawn (the shade over the photo's average colour at the height of the part), so a part drawn in the page's own colours instead (dark on the dark scrim) fails. */
+/** A section on an image (no colour): the text, the placeholder, the icons and the arrow of a list row typed in place are the theme's colour for text on an image, as on the site, and read on the inverse-surface panel behind the text (4.5:1 for text, 3:1 for an icon), on a dark and on a bright photo, light and dark mode, on a phone and a computer. The contrast is taken against the scrim as drawn (the shade over the photo's average colour at the height of the part), so a part drawn in the page's own colours instead (dark on the dark scrim) fails. */
 async function checkSectionOnImage() {
   const path = BUILT_PAGE;
   const list =
@@ -277,19 +277,10 @@ async function checkSectionOnImage() {
         await page.waitForFunction((src) => document.querySelector('.mo-editor-section-picture img')?.complete, image);
         const got = await page.evaluate(`(() => { ${ratioOf}
           const strip = document.querySelector('.mo-editor-section-picture');
-          const img = strip.querySelector('img');
-          const c = document.createElement('canvas'); c.width = c.height = 1;
-          const g = c.getContext('2d'); g.drawImage(img, 0, 0, 1, 1);
-          const photo = [...g.getImageData(0, 0, 1, 1).data.slice(0, 3)];
-          const shade = pixel(getComputedStyle(strip).backgroundColor, 'rgb(0,0,0)');
-          const box = strip.getBoundingClientRect();
+          // The text sits on a panel of the inverse-surface role at full strength (editor.css, as text-section.css), whatever the photo.
+          const back = pixel(getComputedStyle(strip, '::after').backgroundColor, 'rgb(0,0,0)');
           const lumOf = lum;
           const contrast = (el, css) => {
-            const r = el.getBoundingClientRect();
-            const up = 1 - Math.min(1, Math.max(0, (r.top + r.height / 2 - box.top) / box.height));
-            // The scrim runs from 85% at the bottom to 55% at 70% up and 40% at the top (editor.css, as blocks.css).
-            const a = up <= 0.7 ? 0.85 + (0.55 - 0.85) * (up / 0.7) : 0.55 + (0.4 - 0.55) * ((up - 0.7) / 0.3);
-            const back = photo.map((v, i) => Math.round(v * (1 - a) + shade[i] * a));
             const front = pixel(css, 'rgb(' + back + ')');
             return (Math.max(lumOf(front), lumOf(back)) + 0.05) / (Math.min(lumOf(front), lumOf(back)) + 0.05);
           };
@@ -311,7 +302,7 @@ async function checkSectionOnImage() {
         for (const [part, ratio] of Object.entries(got)) {
           const min = ['icon', 'chevron', 'outline'].includes(part) ? 3 : 4.5;
           if (ratio < min) {
-            const message = `${label}: the ${part} has contrast ${ratio.toFixed(2)}:1 on the scrim, below ${min}`;
+            const message = `${label}: the ${part} has contrast ${ratio.toFixed(2)}:1 on the panel, below ${min}`;
             if (part === 'placeholder') shortfall('1.4.3', 'placeholder', message);
             else if (part === 'outline') shortfall('1.4.11', 'section-edges', message);
             else problems.push(message);

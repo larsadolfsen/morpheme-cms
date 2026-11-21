@@ -4,7 +4,7 @@
     {
       "criterion": "1.4.11",
       "part": "outlined-card-edge",
-      "why": "Material 3 draws the outlined card's edge in outline-variant (md.comp.outlined-card.outline.color), which is about 1.6:1 on the surface, under the 3:1 non-text contrast"
+      "why": "The edge of an outlined card is Material 3's outline-variant role (md.comp.outlined-card.outline.color), about 1.6:1 on the surface, under 3:1. In dark mode the edge of an outlined card, and the outline of a block typed in place, on a coloured section is M3's outline role, 2.9:1 against the section's container. The theme uses M3's roles as printed."
     }
   ]
 }
