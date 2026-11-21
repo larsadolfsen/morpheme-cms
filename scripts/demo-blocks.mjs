@@ -126,6 +126,9 @@ export const blockPages = {
   'blog-posts': { title: 'Blog posts', kind: 'special', types: ['posts'] },
   'image-grid': { title: 'Image grid', kind: 'special', types: ['imagegrid'] },
   video: { title: 'Video', kind: 'special', types: ['video'] },
+  // Kind `sections`: the page of the section colours. Its sections hold examples of the main blocks, which belong on their own component's page, so
+  // it has no `types`, and its examples are not held to the home and twice rules (each differs in its props, and exampleProblems still holds them apart).
+  'section-colours': { title: 'Section colours', kind: 'sections', types: [] },
 };
 
 const pagesDir = join(root, 'demo/src/content/pages');
@@ -156,7 +159,10 @@ export const demoBlocksPage = (dir = pagesDir) =>
 export function demoBlocksTestBody(dir = pagesDir) {
   const { pages } = demoBlockPages(dir);
   const slugs = [...Object.keys(blockPages).filter((slug) => slug in pages), ...Object.keys(pages).filter((slug) => !(slug in blockPages))];
-  const body = slugs.map((slug) => withoutFrontMatter(pages[slug]).replace(/^## /gm, '### ').replace(/^# /m, '## ').trim());
+  // The section colours page is left out: the checks that read the test body put every page in each section colour themselves.
+  const body = slugs
+    .filter((slug) => blockPages[slug]?.kind !== 'sections')
+    .map((slug) => withoutFrontMatter(pages[slug]).replace(/^## /gm, '### ').replace(/^# /m, '## ').trim());
   return `# Blocks\n\n${body.join('\n\n')}\n`;
 }
 
@@ -207,12 +213,13 @@ export function pageProblems({ index, pages }, registry = blockPages, check = { 
     if (!text.includes('\n[All blocks](/blocks/)\n'))
       problems.push(`${blockPageFile(slug)} has no link back to the index ("[All blocks](/blocks/)").`);
     for (const [, type, props = ''] of examplesOf(text)) {
-      if (!page.types.includes(type))
+      if (page.kind !== 'sections' && !page.types.includes(type))
         problems.push(
           `An example of "${type}" is on the "${page.title}" page; it belongs on "${registry[home.get(type)]?.title ?? 'no page'}".`,
         );
       const key = `${type}${props}`;
-      if (seen.has(key)) problems.push(`An example of "${type}" is on two Blocks pages ("${seen.get(key)}" and "${slug}").`);
+      if (page.kind !== 'sections' && seen.has(key))
+        problems.push(`An example of "${type}" is on two Blocks pages ("${seen.get(key)}" and "${slug}").`);
       seen.set(key, slug);
     }
   }
