@@ -13,7 +13,8 @@
   --mo-comp-switch-unselected-track-outline-color: var(--mo-sys-color-outline);
   --mo-comp-switch-track-outline-width: 2px;
   --mo-comp-switch-unselected-handle-width: 1rem;
-  --mo-comp-switch-unselected-icon-size: 1.5rem;
+  --mo-comp-switch-unselected-icon-size: 1rem;
+  --mo-comp-switch-with-icon-handle-width: 1.5rem;
   --mo-comp-switch-selected-handle-width: 1.5rem;
   --mo-comp-switch-pressed-handle-width: 1.75rem;
   --mo-comp-switch-unselected-handle-color: var(--mo-sys-color-outline);

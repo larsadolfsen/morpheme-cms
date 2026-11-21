@@ -229,6 +229,13 @@ export const EXPRESSIVE = [
   ['md.comp.nav-bar.', '--mo-comp-navigation-bar-'],
   ['md.comp.nav-rail.collapsed.', '--mo-comp-navigation-rail-'],
   ['md.comp.button.small.', '--mo-comp-button-medium-'],
+  // One token each, where the theme's part is the Expressive set's, not the baseline's (batch 7): the menu is Expressive's `menus` (large corners, 44 dp rows; the
+  // baseline `menu` says extra-small and 48), the docked search view is the contained style (results in medium corners; the baseline token is the divided style's
+  // one container, extra-large), and the side sheet's token is drawn by the modal sheet (16 dp towards the page; the docked token says none).
+  ['md.comp.menus.container.shape', '--mo-comp-menu-container-shape'],
+  ['md.comp.menus.menu-item.height', '--mo-comp-menu-list-item-container-height'],
+  ['md.comp.search-view.contained.docked.results.shape', '--mo-comp-search-view-docked-container-shape'],
+  ['md.comp.sheet.side.docked.modal.container.shape', '--mo-comp-sheet-side-docked-container-shape'],
 ];
 const EXPRESSIVE_THEME_PREFIXES = EXPRESSIVE.map(([, theme]) => theme);
 
