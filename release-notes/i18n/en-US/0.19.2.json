@@ -1,0 +1,49 @@
+{
+  "version": "0.19.2",
+  "date": "2026-11-21",
+  "notes": [
+    {
+      "id": "a11y-card-border",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Card edges",
+      "text": "Outlined cards were hard to see where their edge was pale. Their edge is now a clearer grey, and in a section on Primary, Secondary or Tertiary the outlines of cards and fields are stronger. Filled and elevated cards are unchanged."
+    },
+    {
+      "id": "a11y-theme-ui",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Carousels and bottom sheets can be scrolled with the keyboard, and the time picker numbers are easier to read"
+    },
+    {
+      "id": "a11y-site",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Check list boxes and Image grid links get names for screen readers, and keys in text are readable in dark mode"
+    },
+    {
+      "id": "a11y-inline-lists",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Lists and cards typed in place work better with a screen reader and the keyboard: a folding row has its own button, a card’s media has its own button, and the fields are tall enough to tap"
+    },
+    {
+      "id": "a11y-names",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Screen readers and voice control name block cards, notices, choice fields and subpage buttons by the text you see on them"
+    },
+    {
+      "id": "a11y-text-area",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Screen readers name the text area of a page and no longer reach into block previews"
+    },
+    {
+      "id": "a11y-zoom",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "You can zoom the editor on a phone with a pinch or a double tap, and the Save bar and the text toolbar stay in view"
+    }
+  ]
+}
