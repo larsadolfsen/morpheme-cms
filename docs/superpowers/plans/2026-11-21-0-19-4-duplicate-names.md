@@ -10,25 +10,25 @@ The name walk's own rule (`scripts/announce.mjs`, problem `repeated-name`): two 
 control inside a *differently named group* is a different control by that rule ("no other difference", as the plan states it). Textboxes and search boxes are left
 out, as in the check.
 
-- **Before:** the base of this branch, `45def02` (`feature/0.19.4-screen-readers`, batch 1). **After:** `bce62a9` (this branch).
+- **Before:** the base of this branch, `45def02` (`feature/0.19.4-screen-readers`, batch 1). **After:** the tip of this branch.
 - The same walk on both, over the screens `check:announce` opens (the 13 starting places and the links two steps from them), at 1280 px (computer) and 390 px
   (phone). Names are read in `en-US` here (the check runs `da-DK`; the selectors and counts are the same).
 - A *place* is a screen (hash); a count is how many controls share the name in one container. `group` is the nearest list-like container: `none` is the page
   itself, `list` is a list that holds all of them with nothing between them.
-- `check:announce` on this branch has **no** `repeated-name`, `bad-name`, `no-name` or `unnamed-container` entry left on its allowlist (it had 48 entries,
-  37 of them `repeated-name`).
+- `check:announce` on this branch has no `repeated-name`, `bad-name`, `no-name` or `unnamed-container` entry left on its allowlist except the 7 for
+  the typography and prose fixtures (demo content, which batch 2 does not change). It had 48 such entries, 37 of them `repeated-name`.
 
 Totals (rows are one name in one container on one screen at one width):
 
 | | Rows before | Rows after |
 | --- | ---: | ---: |
-| Real screens | 262 | 0 |
+| Real screens | 262 | 2 (the typography fixture's `link words here` ×5, at both widths; demo content, no longer walked once the CTO's change is in) |
 | The component gallery (Developer › Parts) | 170 | 0 |
-| **All** | **432** | **0** |
+| **All** | **432** | **2** |
 
 ## Real screens (in full)
 
-All 29 findings (distinct name and control on one or more screens) are **fixed**. *What tells them apart today* is "nothing" for each: no row text, no group.
+All 29 findings (distinct name and control on one or more screens) are **fixed**, except the one marked *no longer walked*. *What tells them apart today* is "nothing" for each: no row text, no group.
 
 | Screen (hash) | Container (selector) | Role | Repeated name | Times | Told apart today by | Source | Status |
 | --- | --- | --- | --- | ---: | --- | --- | --- |
@@ -49,11 +49,11 @@ All 29 findings (distinct name and control on one or more screens) are **fixed**
 | `#src/content/pages/blocks-blog-posts.md` | same | button | Drag Blog posts to move it | 4 | nothing | `src/MarkdownEditor.tsx` | fixed |
 | `#src/content/pages/blocks-image-grid.md` | same | button | Drag Image grid to move it | 3 | nothing | `src/MarkdownEditor.tsx` | fixed |
 | `#src/content/pages/blocks.md`, `blocks-buttons.md`, `blocks-tables.md`, `blocks-testimonials.md` | same | button | Drag List / Buttons / Table / Testimonials to move it | 2 each | nothing | `src/MarkdownEditor.tsx` | fixed |
-| `#src/content/pages/typography.md` | `div[role=textbox] > h3 > a` | link | link words here | 5 | nothing (identical link text in the fixture) | `demo/src/content/pages/typography.md` | fixed: the 20 specimen links have distinct text |
+| `#src/content/pages/typography.md` | `div[role=textbox] > h3 > a` | link | link words here | 5 | nothing (identical link text in the fixture) | `demo/src/content/pages/typography.md` | **no longer walked** (demo content: the CTO's change stops the name walk from walking pages and posts; batch 2 changes no demo content, the entry stays until that change removes it) |
 
 Also on real screens (not `repeated-name`, so not in the table above, but on the same allowlist): `bad-name` for 8 selectors (image tiles named by a file name,
 rows under *Used on* named by a file name or path, the typography links named `link`) and `no-name` for the inline notice, and `unnamed-container` for the footer
-`nav`. All are fixed: files read `Image “saturn.webp”`; an entry with no name reads `Item “<path>”`; the notice is named by its text; the footer is `Footer`.
+`nav`. All are fixed, except the 7 entries of the typography and prose fixtures (links named `link` in demo content), which are *no longer walked* once the CTO's change is in and stay on the allowlist until then: files read `Image “saturn.webp”`; an entry with no name reads `Item “<path>”`; the notice is named by its text; the footer is `Footer`.
 
 ## The component gallery (grouped by part; counts, not rows)
 
@@ -101,7 +101,7 @@ nothing for all of them (the toggle rows of Button and IconButton and the picker
 
 - The groups give the gallery's examples names by their own captions where there is one, and `Example n` where there is none. `Example n` is weak: it tells a
   reader the controls are apart, not what each example is. Better captions are a gallery task for a later batch.
-- Two visible texts changed in the gallery and the fixtures, and are the only visible changes of this batch: the two list-item radios (`Radio button, On` and
-  `Radio button, Off`) and the specimen link text of the typography page and the prose fixture (`link` became words such as `team`, `story` and `about us`).
+- One visible text changed in the gallery, and is the only visible change of this batch: the two list-item radios (`Radio button, On` and `Radio button, Off`),
+  and the gallery's sample text link (`link` became `home page`). Batch 2 changes no demo content (`src/content`, `src/data`): the typography and prose fixtures are as they were.
 - Not done here, found on the way: nothing else. The allowlist of this branch still holds the entries of other batches (`tab-state` and `broken-reference`:
   batch 3; `no-announcement`: batches 4 to 6).

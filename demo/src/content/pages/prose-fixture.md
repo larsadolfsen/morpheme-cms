@@ -7,7 +7,7 @@ nofollow: true
 
 # Heading one
 
-Text right under a heading one, with a [about us](/about/), **bold**, *italic*, `inline code` and <kbd>Ctrl</kbd> + <kbd>S</kbd>.
+Text right under a heading one, with a [link](/about/), **bold**, *italic*, `inline code` and <kbd>Ctrl</kbd> + <kbd>S</kbd>.
 
 <p class="mo-type-lead">This is a lead paragraph, one step larger than the text.</p>
 
