@@ -252,68 +252,36 @@
   color: var(--mo-sys-section-on);
 }
 
-.mo-editor-text .ProseMirror {
-  --mo-comp-page-primary-container: var(--mo-sys-color-primary-container, var(--mo-sys-block-tint));
-  --mo-comp-page-on-primary-container: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-text));
-  --mo-comp-page-secondary-container: var(--mo-sys-color-secondary-container, var(--mo-sys-block-tint));
-  --mo-comp-page-on-secondary-container: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-text));
-  --mo-comp-page-tertiary-container: var(--mo-sys-color-tertiary-container, var(--mo-sys-block-tint));
-  --mo-comp-page-on-tertiary-container: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-text));
-}
-
 .mo-editor-text .ProseMirror > [data-section-color='primary'] {
-  --mo-sys-section-fill: var(--mo-sys-block-primary);
-  --mo-sys-section-on: var(--mo-sys-block-on-primary);
-  --mo-sys-section-container: var(--mo-comp-page-primary-container);
-  --mo-sys-section-on-container: var(--mo-comp-page-on-primary-container);
+  --mo-sys-section-fill: var(--mo-sys-color-primary-container);
+  --mo-sys-section-on: var(--mo-sys-color-on-primary-container);
 }
 
 .mo-editor-text .ProseMirror > [data-section-color='secondary'] {
-  --mo-sys-section-fill: var(--mo-sys-block-secondary);
-  --mo-sys-section-on: var(--mo-sys-block-on-secondary);
-  --mo-sys-section-container: var(--mo-comp-page-secondary-container);
-  --mo-sys-section-on-container: var(--mo-comp-page-on-secondary-container);
+  --mo-sys-section-fill: var(--mo-sys-color-secondary-container);
+  --mo-sys-section-on: var(--mo-sys-color-on-secondary-container);
 }
 
 .mo-editor-text .ProseMirror > [data-section-color='tertiary'] {
-  --mo-sys-section-fill: var(--mo-sys-block-tertiary);
-  --mo-sys-section-on: var(--mo-sys-block-on-tertiary);
-  --mo-sys-section-container: var(--mo-comp-page-tertiary-container);
-  --mo-sys-section-on-container: var(--mo-comp-page-on-tertiary-container);
+  --mo-sys-section-fill: var(--mo-sys-color-tertiary-container);
+  --mo-sys-section-on: var(--mo-sys-color-on-tertiary-container);
 }
 
 /* The image behind a section (the widget before its first part, placed over the section's parts by sectionFrame.ts): it fills
-   the section's box behind the text, darkened from below as on the site (blocks.css, :where(.mo-text-section).mo-has-image), and the text on it is
-   the theme's colour for text on an image. */
+   the section's box behind the text, with the text on a panel of the inverse-surface role as on the site (text-section.css), and the text on it is
+   the inverse-on-surface role. */
 .mo-editor-text .ProseMirror {
   position: relative;
 }
 
 .mo-editor-text .mo-editor-section-picture {
-  --mo-sys-section-shade: var(--mo-sys-block-hero-shade, var(--mo-sys-block-text));
   position: absolute;
   z-index: 0;
   margin: 0;
   overflow: hidden;
   pointer-events: none;
-  background: var(--mo-sys-section-shade);
+  background: var(--mo-sys-color-inverse-surface);
   border-radius: var(--mo-sys-block-radius);
-}
-
-.mo-editor-text .mo-editor-section-picture[data-color='surface'] {
-  --mo-sys-section-shade: var(--mo-sys-block-surface);
-}
-
-.mo-editor-text .mo-editor-section-picture[data-color='primary'] {
-  --mo-sys-section-shade: var(--mo-sys-block-primary);
-}
-
-.mo-editor-text .mo-editor-section-picture[data-color='secondary'] {
-  --mo-sys-section-shade: var(--mo-sys-block-secondary);
-}
-
-.mo-editor-text .mo-editor-section-picture[data-color='tertiary'] {
-  --mo-sys-section-shade: var(--mo-sys-block-tertiary);
 }
 
 .mo-editor-text .mo-editor-section-picture[data-width='full'] {
@@ -333,13 +301,14 @@
 .mo-editor-text .mo-editor-section-picture::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    color-mix(in srgb, var(--mo-sys-section-shade) 85%, transparent),
-    color-mix(in srgb, var(--mo-sys-section-shade) 55%, transparent) 70%,
-    color-mix(in srgb, var(--mo-sys-section-shade) 40%, transparent)
-  );
+  inset: calc(var(--mo-comp-editor-section-pad) / 2);
+  border-radius: var(--mo-sys-block-radius-small);
+  background: var(--mo-sys-color-inverse-surface);
+}
+
+.mo-editor-text .mo-editor-section-picture[data-width='full']::after {
+  inset-inline: 0;
+  border-radius: 0;
 }
 
 .mo-editor-text .ProseMirror > [data-section-picture] {
@@ -354,23 +323,21 @@
 /* The page's own colours, kept before a section's parts swap them (the site keeps them on the section itself, blocks.css; here the parts
    are the swapped nodes, so they are kept one level up). A part on an image reads them, never its own swapped --block-… (that would
    point at itself and every colour of the part would be lost: the text then falls back to the page's, dark on the dark scrim). */
-.mo-editor-text .ProseMirror {
-  --mo-sys-section-text: var(--mo-sys-block-text);
-  --mo-sys-section-surface: var(--mo-sys-block-surface);
-  --mo-sys-section-picture-fill: var(--mo-sys-block-hero-shade, var(--mo-sys-block-text));
-  --mo-sys-section-picture-on-fill: var(--mo-sys-block-hero-on-shade, var(--mo-sys-block-surface));
-}
-
-.mo-editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) {
-  --mo-comp-prose-body: var(--mo-sys-section-picture-on-fill);
-  --mo-comp-prose-headings: var(--mo-sys-section-picture-on-fill);
-  --mo-comp-prose-bold: var(--mo-sys-section-picture-on-fill);
-  --mo-comp-prose-links: var(--mo-sys-section-picture-on-fill);
-  --mo-comp-prose-bullets: var(--mo-sys-section-picture-on-fill);
-  --mo-comp-prose-counters: var(--mo-sys-section-picture-on-fill);
-  --mo-sys-section-accent: var(--mo-sys-section-picture-fill);
-  --mo-sys-section-on-accent: var(--mo-sys-section-picture-on-fill);
-  color: var(--mo-sys-section-picture-on-fill);
+.mo-editor-text .ProseMirror > [data-section-picture] {
+  --mo-comp-prose-body: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-headings: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-bold: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-links: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-bullets: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-counters: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-code: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-quotes: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-quote-borders: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-captions: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-hr: var(--mo-sys-color-inverse-on-surface);
+  --mo-sys-section-accent: var(--mo-sys-color-inverse-surface);
+  --mo-sys-section-on-accent: var(--mo-sys-color-inverse-on-surface);
+  color: var(--mo-sys-color-inverse-on-surface);
 }
 
 .mo-editor-text .ProseMirror > [data-section-picture][data-section-width='full'] {

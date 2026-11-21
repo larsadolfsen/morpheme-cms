@@ -205,9 +205,68 @@ const scan = `(root) => {
 }`;
 
 /** The page's records, as the unique pairs with how often each one is on the page. */
+/** Material 3's text/ground pairs by role (owner, 21 Nov 2026: text on its own on-colour is readable by design, so the scan only checks that the pairing is right):
+ *  [text role, ground roles]. Only text and icons are left out; edges, placeholders and any text on another ground are still measured. */
+const PAIRED = [
+  ...['primary', 'secondary', 'tertiary', 'error'].flatMap((c) => [
+    [`on-${c}`, [c]],
+    [`on-${c}-container`, [`${c}-container`]],
+  ]),
+  ...['primary', 'secondary', 'tertiary'].flatMap((c) => [
+    [`on-${c}-fixed`, [`${c}-fixed`, `${c}-fixed-dim`]],
+    [`on-${c}-fixed-variant`, [`${c}-fixed`, `${c}-fixed-dim`]],
+  ]),
+  ...['on-surface', 'on-surface-variant'].map((r) => [
+    r,
+    [
+      'surface',
+      'surface-dim',
+      'surface-bright',
+      'surface-container-lowest',
+      'surface-container-low',
+      'surface-container',
+      'surface-container-high',
+      'surface-container-highest',
+      'surface-variant',
+      'background',
+    ],
+  ]),
+  ['inverse-on-surface', ['inverse-surface']],
+  ['inverse-primary', ['inverse-surface']],
+];
+let pairs = new Set();
+let pairedSkipped = 0;
+/** The pairs of the page's own roles, as `fg|bg` in the scan's hex, read in the page (a role's value is the same in a section, which only maps roles to roles). */
+async function loadPairs(page) {
+  const list = await page.evaluate((table) => {
+    const canvas = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+    const hex = (role) => {
+      const css = getComputedStyle(document.documentElement).getPropertyValue(`--mo-sys-color-${role}`).trim();
+      if (!css) return null;
+      canvas.clearRect(0, 0, 1, 1);
+      canvas.fillStyle = '#000';
+      canvas.fillStyle = css;
+      canvas.fillRect(0, 0, 1, 1);
+      const [r, g, b] = canvas.getImageData(0, 0, 1, 1).data;
+      return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+    };
+    return table.flatMap(([text, grounds]) =>
+      grounds
+        .map((g) => [hex(text), hex(g)])
+        .filter(([a, b]) => a && b)
+        .map(([a, b]) => `${a}|${b}`),
+    );
+  }, PAIRED);
+  pairs = new Set(list);
+}
+
 function unique(records, view) {
   const map = new Map();
   for (const r of records) {
+    if ((r.kind === 'text' || r.kind === 'icon') && !r.manual && pairs.has(`${r.fg}|${r.bg}`)) {
+      pairedSkipped++;
+      continue;
+    }
     const key = [view, r.block, r.variant, r.section, r.kind, r.fg, r.bg, r.min, r.manual ?? ''].join('|');
     if (!map.has(key)) map.set(key, { ...r, view, count: 0 });
     map.get(key).count++;
@@ -245,6 +304,21 @@ const manualSeen = new Set();
 const started = Date.now();
 const themeFile = join(ROOT, 'src/data/theme.json');
 const themeBefore = readFileSync(themeFile, 'utf8');
+/** Waits until nothing is animating or transitioning: a pair read halfway through a transition is a colour between two (8 failures at 375 px light on 21 Nov 2026,
+ *  colours halfway between a section's two colours, gone on a second run), so every scan waits for `document.getAnimations()` to finish first. */
+async function settled(page) {
+  await page.evaluate(async () => {
+    // An animation that never ends (a loading indicator) is not waited for, and no wait lasts longer than 3 s.
+    const finite = (a) => a.effect?.getComputedTiming().endTime !== Infinity;
+    const until = Date.now() + 3000;
+    while (Date.now() < until) {
+      const running = document.getAnimations().filter((a) => finite(a) && (a.playState === 'running' || a.pending));
+      if (!running.length) break;
+      await Promise.race([Promise.allSettled(running.map((a) => a.finished)), new Promise((r) => setTimeout(r, 500))]);
+    }
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  });
+}
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
 
 try {
@@ -266,7 +340,9 @@ try {
             for (const path of pages) {
               const response = await page.goto(`${site}${path}`).catch(() => null);
               if (!response || response.status() >= 400) continue;
-              await page.addStyleTag({ content: '*,*::before,*::after{transition:none!important;animation:none!important}' });
+              await page.addStyleTag({
+                content: '*,*::before,*::after{transition:none!important;animation:none!important}',
+              });
               if (density && Number(density) < -1) await page.evaluate(setDensity, density);
               // Scrolled through once (what fades in when seen has faded in), and every fold open, so what is inside is read too.
               await page.evaluate(async () => {
@@ -278,7 +354,8 @@ try {
               });
               await page.waitForTimeout(400);
               await page.evaluate(() => document.querySelectorAll('details').forEach((d) => (d.open = true)));
-              await page.waitForTimeout(500);
+              await settled(page);
+              await loadPairs(page);
               const records = await page.evaluate(`(${scan})(document.body)`);
               results.push(...unique(records, `${theme} site ${scheme} ${width}${path === '/contrast-test/' ? '' : ` ${path}`}`));
             }
@@ -290,8 +367,17 @@ try {
             await editor.goto(`${site}/editor/#${PAGE}`);
             if (density) await editor.evaluate(setDensity, density);
             await editor.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 60_000 }).catch(() => {});
-            await editor.addStyleTag({ content: '*,*::before,*::after{transition:none!important;animation:none!important}' });
+            await editor.addStyleTag({
+              content: '*,*::before,*::after{transition:none!important;animation:none!important}',
+            });
+            // The editor opens slowly now and then (fonts and photos from hosts that answer late): once more, rather than a scan of nothing.
+            if (!(await editor.$('.ProseMirror'))) {
+              await editor.reload();
+              await editor.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 120_000 });
+            }
             await editor.mouse.move(0, 0);
+            await settled(editor);
+            await loadPairs(editor);
             const view = `${theme} editor ${scheme} ${width}`;
             results.push(...unique(await editor.evaluate(`(${scan})(document.querySelector('.ProseMirror'))`), `${view} resting`));
             const inline = await editor.locator('.ProseMirror .mo-site-block-inline').count();
@@ -379,7 +465,7 @@ for (const r of failed.filter((f) => f.unnamed)) {
   groups.set(key, g);
 }
 console.log(
-  `Contrast: ${checked.length} pairs checked (${themes.join(', ')}; ${Math.round((Date.now() - started) / 1000)} s), ${failed.filter((f) => f.unnamed).length} fail in ${groups.size} groups, ${manual.length} need a manual look (image or gradient behind).`,
+  `Contrast: ${checked.length} pairs checked, ${pairedSkipped} text and icon pairs left out as M3's own pairs (${themes.join(', ')}; ${Math.round((Date.now() - started) / 1000)} s), ${failed.filter((f) => f.unnamed).length} fail in ${groups.size} groups, ${manual.length} need a manual look (image or gradient behind).`,
 );
 if (letThrough.length) console.log(`  Let through, named in the theme's accessibility.json: ${letThrough.join(', ')}.`);
 for (const line of unnamed) console.log(`  ${line}`);
