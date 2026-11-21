@@ -21,7 +21,7 @@ const { colors } = await pageColors({ path: Astro.url.pathname, pictures: [] });
 ---
 
 <!doctype html>
-<html lang={site.locale.split('-')[0]} data-motion-scheme={motionScheme}>
+<html lang={site.locale.split('-')[0]} data-site-language data-motion-scheme={motionScheme}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />

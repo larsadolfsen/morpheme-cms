@@ -77,7 +77,11 @@ export const browserLocale = (): Locale | undefined => (inBrowser ? matchLocale(
 const saved = inBrowser ? savedLocale() : 'auto';
 
 /** The editor's language, and its texts. */
-export const locale: Locale = (saved !== 'auto' && saved) || browserLocale() || siteLocale;
+/** A page that is the site's, not the editor's (the UI components page), marks `<html data-site-language>`: its texts then use the site's language, so
+ * they agree with its `lang`, whatever the browser asks for. */
+const siteLanguagePage = inBrowser && document.documentElement.hasAttribute('data-site-language');
+
+export const locale: Locale = siteLanguagePage ? siteLocale : (saved !== 'auto' && saved) || browserLocale() || siteLocale;
 export const t: Messages = messages[locale];
 
 /** The texts in the site's language: the commits. */
