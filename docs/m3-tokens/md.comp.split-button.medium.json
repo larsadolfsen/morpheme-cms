@@ -1,0 +1,20 @@
+{
+ "set": "md.comp.split-button.medium",
+ "displayName": "Split button - Size - Medium",
+ "description": "For medium split buttons.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.split-button.medium.container.height","type":"LENGTH","group":null,"value":{"value":56,"unit":"dp"},"resolved":{"light":{"value":56,"unit":"dp"},"dark":{"value":56,"unit":"dp"}},"chain":["md.comp.split-button.medium.container.height"]},
+  {"token":"md.comp.split-button.medium.between-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space25"},"resolved":{"light":{"value":2,"unit":"dp"},"dark":{"value":2,"unit":"dp"}},"chain":["md.comp.split-button.medium.between-space","md.sys.measurement.space25"]},
+  {"token":"md.comp.split-button.medium.container.shape","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner.full"},"resolved":{"light":{"value":"circular","unit":null,"shape":"circular"},"dark":{"value":"circular","unit":null,"shape":"circular"}},"chain":["md.comp.split-button.medium.container.shape","md.sys.shape.corner.full"]},
+  {"token":"md.comp.split-button.medium.inner-corner.corner-size","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner-value.extra-small"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.split-button.medium.inner-corner.corner-size","md.sys.shape.corner-value.extra-small"]},
+  {"token":"md.comp.split-button.medium.leading-button.leading-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space300"},"resolved":{"light":{"value":24,"unit":"dp"},"dark":{"value":24,"unit":"dp"}},"chain":["md.comp.split-button.medium.leading-button.leading-space","md.sys.measurement.space300"]},
+  {"token":"md.comp.split-button.medium.leading-button.trailing-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space300"},"resolved":{"light":{"value":24,"unit":"dp"},"dark":{"value":24,"unit":"dp"}},"chain":["md.comp.split-button.medium.leading-button.trailing-space","md.sys.measurement.space300"]},
+  {"token":"md.comp.split-button.medium.trailing-button.icon.size","type":"LENGTH","group":null,"value":{"value":26,"unit":"dp"},"resolved":{"light":{"value":26,"unit":"dp"},"dark":{"value":26,"unit":"dp"}},"chain":["md.comp.split-button.medium.trailing-button.icon.size"]},
+  {"token":"md.comp.split-button.medium.trailing-button.leading-space","type":"LENGTH","group":null,"value":{"value":15,"unit":"dp"},"resolved":{"light":{"value":15,"unit":"dp"},"dark":{"value":15,"unit":"dp"}},"chain":["md.comp.split-button.medium.trailing-button.leading-space"]},
+  {"token":"md.comp.split-button.medium.trailing-button.trailing-space","type":"LENGTH","group":null,"value":{"value":15,"unit":"dp"},"resolved":{"light":{"value":15,"unit":"dp"},"dark":{"value":15,"unit":"dp"}},"chain":["md.comp.split-button.medium.trailing-button.trailing-space"]},
+  {"token":"md.comp.split-button.medium.inner-corner.hovered.corner-size","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner-value.medium"},"resolved":{"light":{"value":12,"unit":"dp"},"dark":{"value":12,"unit":"dp"}},"chain":["md.comp.split-button.medium.inner-corner.hovered.corner-size","md.sys.shape.corner-value.medium"]},
+  {"token":"md.comp.split-button.medium.inner-corner.pressed.corner-size","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner-value.medium"},"resolved":{"light":{"value":12,"unit":"dp"},"dark":{"value":12,"unit":"dp"}},"chain":["md.comp.split-button.medium.inner-corner.pressed.corner-size","md.sys.shape.corner-value.medium"]},
+  {"token":"md.comp.split-button.medium.trailing-button.inner-corner.selected.corner-size","type":"LENGTH","group":null,"value":{"value":50,"unit":"percent"},"resolved":{"light":{"value":50,"unit":"percent"},"dark":{"value":50,"unit":"percent"}},"chain":["md.comp.split-button.medium.trailing-button.inner-corner.selected.corner-size"]}
+ ]
+}

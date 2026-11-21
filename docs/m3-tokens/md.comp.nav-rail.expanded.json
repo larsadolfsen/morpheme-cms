@@ -1,0 +1,19 @@
+{
+ "set": "md.comp.nav-rail.expanded",
+ "displayName": "Nav rail - Expanded",
+ "description": "For expanded nav rail.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.nav-rail.expanded.container.width.minimum","type":"LENGTH","group":null,"value":{"value":220,"unit":"dp"},"resolved":{"light":{"value":220,"unit":"dp"},"dark":{"value":220,"unit":"dp"}},"chain":["md.comp.nav-rail.expanded.container.width.minimum"]},
+  {"token":"md.comp.nav-rail.expanded.container.width.maximum","type":"LENGTH","group":null,"value":{"value":360,"unit":"dp"},"resolved":{"light":{"value":360,"unit":"dp"},"dark":{"value":360,"unit":"dp"}},"chain":["md.comp.nav-rail.expanded.container.width.maximum"]},
+  {"token":"md.comp.nav-rail.expanded.top-space","type":"LENGTH","group":null,"value":{"value":44,"unit":"dp"},"resolved":{"light":{"value":44,"unit":"dp"},"dark":{"value":44,"unit":"dp"}},"chain":["md.comp.nav-rail.expanded.top-space"]},
+  {"token":"md.comp.nav-rail.expanded.container.elevation","type":"ELEVATION","group":null,"value":{"ref":"md.sys.elevation.level0"},"resolved":{"light":{"value":0,"unit":"dp"},"dark":{"value":0,"unit":"dp"}},"chain":["md.comp.nav-rail.expanded.container.elevation","md.sys.elevation.level0"]},
+  {"token":"md.comp.nav-rail.expanded.modal.container.elevation","type":"ELEVATION","group":null,"value":{"ref":"md.sys.elevation.level2"},"resolved":{"light":{"value":3,"unit":"dp"},"dark":{"value":3,"unit":"dp"}},"chain":["md.comp.nav-rail.expanded.modal.container.elevation","md.sys.elevation.level2"]},
+  {"token":"md.comp.nav-rail.expanded.container.color","type":"COLOR","group":null,"value":{"ref":"md.sys.color.surface"},"resolved":{"light":{"value":"#FEF7FF","unit":"color"},"dark":{"value":"#141218","unit":"color"}},"chain":["md.comp.nav-rail.expanded.container.color","md.sys.color.surface","md.ref.palette.neutral98"]},
+  {"token":"md.comp.nav-rail.expanded.modal.container.color","type":"COLOR","group":null,"value":{"ref":"md.sys.color.surface-container"},"resolved":{"light":{"value":"#F3EDF7","unit":"color"},"dark":{"value":"#211F26","unit":"color"}},"chain":["md.comp.nav-rail.expanded.modal.container.color","md.sys.color.surface-container","md.ref.palette.neutral94"]},
+  {"token":"md.comp.nav-rail.expanded.container.shape","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner.none"},"resolved":{"light":{"value":0,"unit":"dp","shape":"rounded_corners"},"dark":{"value":0,"unit":"dp","shape":"rounded_corners"}},"chain":["md.comp.nav-rail.expanded.container.shape","md.sys.shape.corner.none"]},
+  {"token":"md.comp.nav-rail.expanded.modal.container.shape","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner.large"},"resolved":{"light":{"value":16,"unit":"dp","shape":"rounded_corners"},"dark":{"value":16,"unit":"dp","shape":"rounded_corners"}},"chain":["md.comp.nav-rail.expanded.modal.container.shape","md.sys.shape.corner.large"]},
+  {"token":"md.comp.nav-rail.expanded.between-item-space","type":"LENGTH","group":null,"value":{"value":0,"unit":"dp"},"resolved":{"light":{"value":0,"unit":"dp"},"dark":{"value":0,"unit":"dp"}},"chain":["md.comp.nav-rail.expanded.between-item-space"]},
+  {"token":"md.comp.nav-rail.expanded.vertical.trailing-space","type":"LENGTH","group":null,"value":{"value":20,"unit":"dp"},"resolved":{"light":{"value":20,"unit":"dp"},"dark":{"value":20,"unit":"dp"}},"chain":["md.comp.nav-rail.expanded.vertical.trailing-space"]}
+ ]
+}

@@ -1,0 +1,12 @@
+{
+ "set": "md.comp.app-bar.medium-flexible",
+ "displayName": "App bar - Size - Medium Flexible",
+ "description": "For the medium flexible app bar.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.app-bar.medium-flexible.container.height","type":"LENGTH","group":null,"value":{"value":112,"unit":"dp"},"resolved":{"light":{"value":112,"unit":"dp"},"dark":{"value":112,"unit":"dp"}},"chain":["md.comp.app-bar.medium-flexible.container.height"]},
+  {"token":"md.comp.app-bar.medium-flexible.with-subtitle.container.height","type":"LENGTH","group":null,"value":{"value":136,"unit":"dp"},"resolved":{"light":{"value":136,"unit":"dp"},"dark":{"value":136,"unit":"dp"}},"chain":["md.comp.app-bar.medium-flexible.with-subtitle.container.height"]},
+  {"token":"md.comp.app-bar.medium-flexible.title.font","type":"TYPOGRAPHY","group":null,"value":{"ref":"md.sys.typescale.headline-medium"},"resolved":{"light":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":400,"fontSize":{"value":28,"unit":"POINTS"},"fontTracking":{"unit":"POINTS"},"lineHeight":{"value":36,"unit":"POINTS"}},"unit":"typography"},"dark":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":400,"fontSize":{"value":28,"unit":"POINTS"},"fontTracking":{"unit":"POINTS"},"lineHeight":{"value":36,"unit":"POINTS"}},"unit":"typography"}},"chain":["md.comp.app-bar.medium-flexible.title.font","md.sys.typescale.headline-medium","md.sys.typescale.headline-medium.font","md.ref.typeface.brand"]},
+  {"token":"md.comp.app-bar.medium-flexible.subtitle.font","type":"TYPOGRAPHY","group":null,"value":{"ref":"md.sys.typescale.label-large"},"resolved":{"light":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":14,"unit":"POINTS"},"fontTracking":{"value":0.1,"unit":"POINTS"},"lineHeight":{"value":20,"unit":"POINTS"}},"unit":"typography"},"dark":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":14,"unit":"POINTS"},"fontTracking":{"value":0.1,"unit":"POINTS"},"lineHeight":{"value":20,"unit":"POINTS"}},"unit":"typography"}},"chain":["md.comp.app-bar.medium-flexible.subtitle.font","md.sys.typescale.label-large","md.sys.typescale.label-large.font","md.ref.typeface.plain"]}
+ ]
+}

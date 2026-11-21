@@ -1,0 +1,14 @@
+{
+ "set": "md.comp.nav-rail.item.vertical",
+ "displayName": "Nav rail item - Vertical",
+ "description": "For vertical nav rail items, where elements are stacked. ",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.nav-rail.item.vertical.active-indicator.height","type":"LENGTH","group":null,"value":{"value":32,"unit":"dp"},"resolved":{"light":{"value":32,"unit":"dp"},"dark":{"value":32,"unit":"dp"}},"chain":["md.comp.nav-rail.item.vertical.active-indicator.height"]},
+  {"token":"md.comp.nav-rail.item.vertical.active-indicator.width","type":"LENGTH","group":null,"value":{"value":56,"unit":"dp"},"resolved":{"light":{"value":56,"unit":"dp"},"dark":{"value":56,"unit":"dp"}},"chain":["md.comp.nav-rail.item.vertical.active-indicator.width"]},
+  {"token":"md.comp.nav-rail.item.vertical.label-text.font","type":"TYPOGRAPHY","group":null,"value":{"ref":"md.sys.typescale.label-medium"},"resolved":{"light":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":12,"unit":"POINTS"},"fontTracking":{"value":0.5,"unit":"POINTS"},"lineHeight":{"value":16,"unit":"POINTS"}},"unit":"typography"},"dark":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":12,"unit":"POINTS"},"fontTracking":{"value":0.5,"unit":"POINTS"},"lineHeight":{"value":16,"unit":"POINTS"}},"unit":"typography"}},"chain":["md.comp.nav-rail.item.vertical.label-text.font","md.sys.typescale.label-medium","md.sys.typescale.label-medium.font","md.ref.typeface.plain"]},
+  {"token":"md.comp.nav-rail.item.vertical.icon-label-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space50"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.nav-rail.item.vertical.icon-label-space","md.sys.measurement.space50"]},
+  {"token":"md.comp.nav-rail.item.vertical.leading-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space200"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.nav-rail.item.vertical.leading-space","md.sys.measurement.space200"]},
+  {"token":"md.comp.nav-rail.item.vertical.trailing-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space200"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.nav-rail.item.vertical.trailing-space","md.sys.measurement.space200"]}
+ ]
+}

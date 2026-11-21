@@ -1,0 +1,15 @@
+{
+ "set": "md.sys.elevation",
+ "displayName": "Elevation",
+ "description": "Elevation level tokens",
+ "tokenClass": "SYSTEM",
+ "tokens": [
+  {"token":"md.sys.elevation.surface-tint-color","type":"COLOR","group":null,"value":{"ref":"md.sys.color.primary"},"resolved":{"light":{"value":"#6750A4","unit":"color"},"dark":{"value":"#D0BCFF","unit":"color"}},"chain":["md.sys.elevation.surface-tint-color","md.sys.color.primary","md.ref.palette.primary40"]},
+  {"token":"md.sys.elevation.level5","type":"ELEVATION","group":null,"value":{"value":12,"unit":"dp"},"resolved":{"light":{"value":12,"unit":"dp"},"dark":{"value":12,"unit":"dp"}},"chain":["md.sys.elevation.level5"]},
+  {"token":"md.sys.elevation.level4","type":"ELEVATION","group":null,"value":{"value":8,"unit":"dp"},"resolved":{"light":{"value":8,"unit":"dp"},"dark":{"value":8,"unit":"dp"}},"chain":["md.sys.elevation.level4"]},
+  {"token":"md.sys.elevation.level3","type":"ELEVATION","group":null,"value":{"value":6,"unit":"dp"},"resolved":{"light":{"value":6,"unit":"dp"},"dark":{"value":6,"unit":"dp"}},"chain":["md.sys.elevation.level3"]},
+  {"token":"md.sys.elevation.level2","type":"ELEVATION","group":null,"value":{"value":3,"unit":"dp"},"resolved":{"light":{"value":3,"unit":"dp"},"dark":{"value":3,"unit":"dp"}},"chain":["md.sys.elevation.level2"]},
+  {"token":"md.sys.elevation.level1","type":"ELEVATION","group":null,"value":{"value":1,"unit":"dp"},"resolved":{"light":{"value":1,"unit":"dp"},"dark":{"value":1,"unit":"dp"}},"chain":["md.sys.elevation.level1"]},
+  {"token":"md.sys.elevation.level0","type":"ELEVATION","group":null,"value":{"value":0,"unit":"dp"},"resolved":{"light":{"value":0,"unit":"dp"},"dark":{"value":0,"unit":"dp"}},"chain":["md.sys.elevation.level0"]}
+ ]
+}

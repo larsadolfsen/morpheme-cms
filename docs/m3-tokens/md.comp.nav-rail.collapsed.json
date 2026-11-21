@@ -1,0 +1,15 @@
+{
+ "set": "md.comp.nav-rail.collapsed",
+ "displayName": "Nav rail - Collapsed",
+ "description": "For collapsed nav rail.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.nav-rail.collapsed.container.width","type":"LENGTH","group":null,"value":{"value":96,"unit":"dp"},"resolved":{"light":{"value":96,"unit":"dp"},"dark":{"value":96,"unit":"dp"}},"chain":["md.comp.nav-rail.collapsed.container.width"]},
+  {"token":"md.comp.nav-rail.collapsed.narrow.container.width","type":"LENGTH","group":null,"value":{"value":80,"unit":"dp"},"resolved":{"light":{"value":80,"unit":"dp"},"dark":{"value":80,"unit":"dp"}},"chain":["md.comp.nav-rail.collapsed.narrow.container.width"]},
+  {"token":"md.comp.nav-rail.collapsed.container.elevation","type":"ELEVATION","group":null,"value":{"ref":"md.sys.elevation.level0"},"resolved":{"light":{"value":0,"unit":"dp"},"dark":{"value":0,"unit":"dp"}},"chain":["md.comp.nav-rail.collapsed.container.elevation","md.sys.elevation.level0"]},
+  {"token":"md.comp.nav-rail.collapsed.container.shape","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner.none"},"resolved":{"light":{"value":0,"unit":"dp","shape":"rounded_corners"},"dark":{"value":0,"unit":"dp","shape":"rounded_corners"}},"chain":["md.comp.nav-rail.collapsed.container.shape","md.sys.shape.corner.none"]},
+  {"token":"md.comp.nav-rail.collapsed.container.color","type":"COLOR","group":null,"value":{"ref":"md.sys.color.surface"},"resolved":{"light":{"value":"#FEF7FF","unit":"color"},"dark":{"value":"#141218","unit":"color"}},"chain":["md.comp.nav-rail.collapsed.container.color","md.sys.color.surface","md.ref.palette.neutral98"]},
+  {"token":"md.comp.nav-rail.collapsed.item.vertical-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space50"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.nav-rail.collapsed.item.vertical-space","md.sys.measurement.space50"]},
+  {"token":"md.comp.nav-rail.collapsed.top-space","type":"LENGTH","group":null,"value":{"value":44,"unit":"dp"},"resolved":{"light":{"value":44,"unit":"dp"},"dark":{"value":44,"unit":"dp"}},"chain":["md.comp.nav-rail.collapsed.top-space"]}
+ ]
+}

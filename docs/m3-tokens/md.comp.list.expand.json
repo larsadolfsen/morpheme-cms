@@ -1,0 +1,16 @@
+{
+ "set": "md.comp.list.expand",
+ "displayName": "List - Expand",
+ "description": "For list items that can expand and collapse.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.list.expand.expanded.list-item.container.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.surface"},"resolved":{"light":{"value":"#FEF7FF","unit":"color"},"dark":{"value":"#141218","unit":"color"}},"chain":["md.comp.list.expand.expanded.list-item.container.color","md.sys.color.surface","md.ref.palette.neutral98"]},
+  {"token":"md.comp.list.expand.expanded.list-item.segmented.container.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.surface"},"resolved":{"light":{"value":"#FEF7FF","unit":"color"},"dark":{"value":"#141218","unit":"color"}},"chain":["md.comp.list.expand.expanded.list-item.segmented.container.color","md.sys.color.surface","md.ref.palette.neutral98"]},
+  {"token":"md.comp.list.expand.collapsed.list-item.trailing-icon.container.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.surface"},"resolved":{"light":{"value":"#FEF7FF","unit":"color"},"dark":{"value":"#141218","unit":"color"}},"chain":["md.comp.list.expand.collapsed.list-item.trailing-icon.container.color","md.sys.color.surface","md.ref.palette.neutral98"]},
+  {"token":"md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.on-surface"},"resolved":{"light":{"value":"#1D1B20","unit":"color"},"dark":{"value":"#E6E0E9","unit":"color"}},"chain":["md.comp.list.expand.collapsed.list-item.trailing-icon.icon.color","md.sys.color.on-surface","md.ref.palette.neutral10"]},
+  {"token":"md.comp.list.expand.expanded.list-item.trailing-icon.container.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.surface-container"},"resolved":{"light":{"value":"#F3EDF7","unit":"color"},"dark":{"value":"#211F26","unit":"color"}},"chain":["md.comp.list.expand.expanded.list-item.trailing-icon.container.color","md.sys.color.surface-container","md.ref.palette.neutral94"]},
+  {"token":"md.comp.list.expand.expanded.list-item.trailing-icon.icon.color","type":"COLOR","group":"Color","value":{"ref":"md.sys.color.on-surface"},"resolved":{"light":{"value":"#1D1B20","unit":"color"},"dark":{"value":"#E6E0E9","unit":"color"}},"chain":["md.comp.list.expand.expanded.list-item.trailing-icon.icon.color","md.sys.color.on-surface","md.ref.palette.neutral10"]},
+  {"token":"md.comp.list.expand.container.shape","type":"SHAPE","group":"Shape","value":{"ref":"md.sys.shape.corner.large"},"resolved":{"light":{"value":16,"unit":"dp","shape":"rounded_corners"},"dark":{"value":16,"unit":"dp","shape":"rounded_corners"}},"chain":["md.comp.list.expand.container.shape","md.sys.shape.corner.large"]},
+  {"token":"md.comp.list.expand.trailing-icon.shape","type":"SHAPE","group":"Shape","value":{"ref":"md.sys.shape.corner.full"},"resolved":{"light":{"value":"circular","unit":null,"shape":"circular"},"dark":{"value":"circular","unit":null,"shape":"circular"}},"chain":["md.comp.list.expand.trailing-icon.shape","md.sys.shape.corner.full"]}
+ ]
+}
