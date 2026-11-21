@@ -2,7 +2,7 @@
 // say "Cancel" and "OK". ask() opens it and tells which button was tapped; choose() offers more
 // than one answer, a text to write (a new address), and notes to read first (what an update brings);
 // <Ask /> is in App.tsx.
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Button, DateTimeField, Dialog, TextField } from './ui';
 import { t } from './i18n';
 
@@ -51,6 +51,9 @@ export function Ask() {
   const [question, setQuestion] = useState<Question | null>(null);
   const [text, setText] = useState('');
   const dialog = useRef<HTMLDialogElement>(null);
+  // The dialog is named by its headline, or by its text when it has none, and described by its text (WCAG 4.1.2; a reader says both on arrival, as no control has the focus).
+  const titleId = useId();
+  const textId = useId();
 
   useEffect(() => {
     open = (q) => {
@@ -77,7 +80,14 @@ export function Ask() {
     if (question && !question.input) dialog.current?.focus();
   }, [question]);
   return (
-    <Dialog ref={dialog} tabIndex={-1} onCancel={() => answer(null)} className="mo-editor-ask-dialog">
+    <Dialog
+      ref={dialog}
+      tabIndex={-1}
+      aria-labelledby={question?.title ? titleId : question?.text ? textId : undefined}
+      aria-describedby={question?.title && question.text ? textId : undefined}
+      onCancel={() => answer(null)}
+      className="mo-editor-ask-dialog"
+    >
       <form
         method="dialog"
         onSubmit={(e) => {
@@ -85,7 +95,11 @@ export function Ask() {
           if (choices[0]) answer(choices[0].value);
         }}
       >
-        {question?.title && <h2 className="mo-editor-ask-title">{question.title}</h2>}
+        {question?.title && (
+          <h2 id={titleId} className="mo-editor-ask-title">
+            {question.title}
+          </h2>
+        )}
         {!!question?.notes?.length && (
           <div className="mo-editor-ask-notes">
             {question.notes.map((n) => (
@@ -100,7 +114,11 @@ export function Ask() {
             ))}
           </div>
         )}
-        {question?.text && <p className={question.notes?.length ? 'mo-editor-ask-follow' : ''}>{question.text}</p>}
+        {question?.text && (
+          <p id={textId} className={question.notes?.length ? 'mo-editor-ask-follow' : ''}>
+            {question.text}
+          </p>
+        )}
         {question?.input && (
           <div className="mo-editor-ask-follow">
             {question.input.type === 'datetime' ? (

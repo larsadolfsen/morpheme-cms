@@ -41,6 +41,7 @@ import { openPalette, usePaletteOpen } from './paletteOpen';
 import { ariaShortcut, shortcutText } from './shortcuts';
 import { SiteLogoLink } from './SiteLogoLink';
 import { ScreenHidden } from './screenHidden';
+import { announce } from '../lib/announce';
 import { useTopBarSlot } from './topBarSlot';
 import { safeHref } from '../lib/safe-url.mjs';
 
@@ -154,6 +155,9 @@ export function PaletteBar({ className = '' }: { className?: string }) {
   );
 }
 
+/** Whether a screen has been drawn in this visit: the first one is the page's load, which a reader says by itself. */
+let arrived = false;
+
 export default function Screen<T extends string>({
   title,
   back,
@@ -198,6 +202,19 @@ export default function Screen<T extends string>({
   }, [home, slot]);
   // The form under its Preview (screenHidden.ts): kept, but not drawn.
   const hidden = useContext(ScreenHidden);
+  // A screen reached from a screen of the editor says its heading once (WCAG 2.4.2, 4.1.3): the heading that takes the focus above is read by the focus itself, and
+  // a screen where the focus stays in a field or a button (the focus effect leaves it alone) is told by the announcer. The first screen of a visit is read by the page's own load.
+  useEffect(() => {
+    if (hidden) return;
+    if (!arrived) {
+      arrived = true;
+      return;
+    }
+    const timer = setTimeout(() => {
+      if (!document.activeElement?.matches('[data-screen-title]')) announce(title);
+    }, 200);
+    return () => clearTimeout(timer);
+  }, []);
   const fabs = useCountFabs();
   useFabLift(fabs.count > 0);
   // The way here, without the start screen: the logo in the bar is the way there.

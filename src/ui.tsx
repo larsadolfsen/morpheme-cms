@@ -3308,6 +3308,21 @@ export function SideSheet({
   children: ReactNode;
 }) {
   const id = useId();
+  // On arrival the focus goes to the heading (a reader says the sheet's name, and the keyboard goes on from there); on close it goes back to what had it, as
+  // long as it has not moved on by then (WCAG 2.4.3, 4.1.2; plan 0.19.4, *Focus and what is said on open and close*).
+  useEffect(() => {
+    const heading = document.getElementById(id);
+    const before = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    if (heading) {
+      heading.tabIndex = -1;
+      heading.style.outline = 'none';
+      heading.focus({ preventScroll: true });
+    }
+    return () => {
+      const at = document.activeElement;
+      if ((!at || at === document.body) && before?.isConnected) before.focus({ preventScroll: true });
+    };
+  }, [id]);
   return (
     <SiteSideSheet
       headline={title}

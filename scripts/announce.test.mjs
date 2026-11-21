@@ -21,6 +21,7 @@ const at = (t, text, region, extra = {}) => ({ t, kind: 'live', text, urgency: '
 
 test('a step that must be announced needs a text from a region that was there before', () => {
   assert.deepEqual(judgeWindow([], { expect: { urgent: false } }), ['no-announcement']);
+  assert.deepEqual(judgeWindow([at(1, 'Saved', 1, { unreachable: true })], { expect: { urgent: false } }), ['no-announcement']);
   assert.deepEqual(judgeWindow([at(1, 'Saved', 1, { inserted: true })], { expect: { urgent: false } }), ['no-announcement']);
   assert.deepEqual(judgeWindow([at(1, 'Saved', 1)], { expect: { urgent: false } }), []);
   assert.deepEqual(judgeWindow([at(1, 'Saved', 1)], {}), []);
