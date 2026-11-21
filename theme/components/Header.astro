@@ -4,9 +4,7 @@
 // the open page in an active indicator on a computer (an item with sub-pages has a button with a caret that opens them
 // in a menu (ui/Menu.tsx), also on hover), and the call to action at the end (HeaderCta.tsx): the phone number as a text
 // button and the header's button after it; without the menu and its button when "Main menu" is turned off. Under it the
-// bar of "Mobile menu" (MobileNav.astro), when it is on. Under it, "Book an appointment" as an extended FAB at the bottom right of
-// the screen (ui/Fab.tsx, m3.material.io/components/extended-fab), which shows only its icon while the page scrolls down.
-// Not on the booking page and the thank-you page; on a phone with a bar at the bottom of the screen, the bar's first
+// bar of "Mobile menu" (MobileNav.astro), when it is on. // (BookingFab.astro, after the page's content in the source, so the keyboard reaches it after the content.) Not on the booking page and the thank-you page; on a phone with a bar at the bottom of the screen, the bar's first
 // button is the FAB instead (global.css). header.json (optional, site/header.mjs) turns the call to action's button and
 // phone number on and off (they are at the bottom of the navigation drawer too) and puts the menu button at the end (the
 // drawer then opens from that side); data-editor marks the header, the menu button, the menu's items (header-nav) and
@@ -18,7 +16,6 @@ import Container from '@theme/components/Container.astro';
 import MobileNav from '@theme/components/MobileNav.astro';
 import { topAppBarClass } from '@theme/ui/TopAppBar';
 import { menuClass, menuItemClass } from '@theme/ui/Menu';
-import { extendedFabClass } from '@theme/ui/Fab';
 import HeaderCta from '@theme/components/HeaderCta';
 import { headerMenuClass } from '@theme/components/headerParts';
 import { loadButtons } from '@morphemecms/cms/src/standard/buttons/load';
@@ -51,7 +48,6 @@ const menuProps = {
     subpages: nav.map((item) => siteT.theme.subpagesOf(item.label)),
   },
 };
-const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
 ---
 
 <header data-header data-editor="header" class:list={[topAppBarClass, 'mo-header']}>
@@ -139,6 +135,8 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
   }
 </script>
 <script>
+  import { nextInMenu } from '@morphemecms/cms/lib/menuTypeAhead.mjs';
+
   // A menu's button opens and closes it (aria-expanded); Escape, a click outside it and focus leaving it close it.
   const items = [...document.querySelectorAll<HTMLElement>('[data-nav-item]:has([data-nav-toggle])')];
   const setOpen = (item: HTMLElement, open: boolean) => {
@@ -147,10 +145,38 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
   };
   for (const item of items) {
     const toggle = item.querySelector<HTMLElement>('[data-nav-toggle]')!;
-    toggle.addEventListener('click', () => {
+    const links = () => [...item.querySelectorAll<HTMLElement>('.mo-header__submenu a')];
+    const openOn = (which: 'first' | 'last') => {
+      for (const other of items) if (other !== item) setOpen(other, false);
+      setOpen(item, true);
+      const all = links();
+      (which === 'first' ? all[0] : all[all.length - 1])?.focus({ preventScroll: true });
+    };
+    // Opened by a key (a click without a pointer: Enter, Space), the focus goes to the menu's first item, as WAI-ARIA's menu button does.
+    toggle.addEventListener('click', (e) => {
       const open = !item.hasAttribute('data-open');
       for (const other of items) if (other !== item) setOpen(other, false);
       setOpen(item, open);
+      if (open && (e as MouseEvent).detail === 0) links()[0]?.focus({ preventScroll: true });
+    });
+    toggle.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      e.preventDefault();
+      openOn(e.key === 'ArrowDown' ? 'first' : 'last');
+    });
+    // In the open menu the arrow keys go between its items (round), Home and End to the first and the last, and a letter to the next item starting with it,
+    // without the page scrolling.
+    item.querySelector('.mo-header__submenu')?.addEventListener('keydown', (e) => {
+      const key = e as KeyboardEvent;
+      const all = links();
+      const to = nextInMenu(
+        key,
+        all.map((a) => a.textContent ?? ''),
+        all.indexOf(document.activeElement as HTMLElement),
+      );
+      if (to === undefined) return;
+      key.preventDefault();
+      all[(to + all.length) % all.length]?.focus({ preventScroll: true });
     });
     item.addEventListener('focusout', (e) => {
       if (!item.contains(e.relatedTarget as Node | null)) setOpen(item, false);
@@ -164,28 +190,4 @@ const fab = !current.startsWith(site.bookingPath) && current !== '/tak/';
   document.addEventListener('click', (e) => {
     for (const item of items) if (!item.contains(e.target as Node)) setOpen(item, false);
   });
-</script>
-
-{fab && (
-  <a href={site.bookingPath} data-open="booking" data-fab class={extendedFabClass()}>
-    <Icon name="calendar-blank" size={24} />
-    <span class="mo-extended-fab__label">{site.labels.book}</span>
-  </a>
-)}
-
-<script>
-  // The FAB shows only its icon while the page scrolls down, and its label again when it scrolls up or is at the top.
-  const fab = document.querySelector<HTMLElement>('[data-fab]');
-  if (fab) {
-    let last = scrollY;
-    addEventListener(
-      'scroll',
-      () => {
-        if (Math.abs(scrollY - last) < 8) return;
-        fab.toggleAttribute('data-collapsed', scrollY > last && scrollY > 64);
-        last = scrollY;
-      },
-      { passive: true },
-    );
-  }
 </script>

@@ -113,7 +113,7 @@ export function Dashboard({ dash, env, files }: { dash: DashboardEditing; env: E
       )}
       {!dash.editing && (
         <div>
-          <Button kind="text" size="medium" icon={CustomizeIcon} onClick={dash.startEdit}>
+          <Button kind="text" size="medium" icon={CustomizeIcon} data-dashboard-handoff="edit" onClick={dash.startEdit}>
             {t.dashboard.edit}
           </Button>
         </div>

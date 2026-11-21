@@ -413,6 +413,13 @@
   padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
 }
 
+/* A focused control scrolls clear of the bars that stay on the screen: their heights are measured by useScrollClearance (ui.tsx;
+   the top app bar, the Save bar, the media file bar) and set on the root. */
+:root {
+  scroll-padding-block-start: var(--mo-editor-clearance-top, 0px);
+  scroll-padding-block-end: var(--mo-editor-clearance-bottom, 0px);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .mo-editor-save-bar {
     animation: none;
@@ -2100,4 +2107,18 @@ dialog {
 }
 :root[data-zoomed] .mo-editor-tools-bar {
   inset-block-start: calc(env(safe-area-inset-top) + var(--mo-comp-editor-visual-top, 0px));
+}
+
+/* The skip link (topBarSlot.tsx, the theme's .mo-skip-link): the editor's unlayered link styles would drop its pill, so it is set again here,
+   above the navigation and the bars (z-index of the drawer and the top bar are below 50). */
+.mo-skip-link:focus {
+  background-color: var(--mo-sys-color-primary);
+  color: var(--mo-sys-color-on-primary);
+  z-index: 50;
+}
+
+/* The <main> the skip link focuses (topBarSlot.tsx) is no control, so it draws no ring of its own; the next Tab shows the ring of the control it
+   reaches. */
+main[tabindex='-1']:focus {
+  outline: none;
 }
