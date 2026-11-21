@@ -2,6 +2,7 @@ import type { Messages } from '../en-US';
 
 export const app: Messages['app'] = {
   logIn: 'Log ind med GitHub',
+  skipToContent: 'Spring til indhold',
   loading: 'Henter hjemmesidens indhold…',
   cannotSave: (login) => `${login} har ikke adgang til at gemme. Log ind med en anden GitHub-konto under Konto.`,
   notFound: 'Findes ikke',

@@ -8,6 +8,7 @@
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
 import { ArrowDown, ArrowUp, DotsSixVertical, DotsThreeVertical, GearSix, Trash } from '@phosphor-icons/react';
 import { t } from './i18n';
+import { useAnnounce } from './useAnnounce';
 import { apps } from './site';
 import { activeApps } from './apps';
 import { allWidgets, spanClass, type WidgetDefinition } from './widgets';
@@ -57,6 +58,15 @@ export function useDashboard(files: RepoFile[]) {
     setFocus({ id });
     if (said) setAnnouncement(t.dashboard.moved(said.position, said.total));
   };
+  // Edit dashboard and Done replace each other, so the one that was pressed takes the focus to the one that replaces it.
+  const handoff = useRef<'done' | 'edit' | null>(null);
+  const editing = draft !== null;
+  useEffect(() => {
+    const to = handoff.current;
+    if (!to) return;
+    handoff.current = null;
+    document.querySelector<HTMLElement>(`[data-dashboard-handoff="${to}"]`)?.focus();
+  }, [editing]);
   return {
     load,
     reload: () => setAttempt((n) => n + 1),
@@ -71,6 +81,7 @@ export function useDashboard(files: RepoFile[]) {
     focus,
     startEdit() {
       if (load.status !== 'ready') return;
+      handoff.current = 'done';
       setDraft(load.dashboard);
       setError(null);
       setAnnouncement('');
@@ -84,6 +95,7 @@ export function useDashboard(files: RepoFile[]) {
       try {
         await saveDashboard(layout);
         setLoad({ status: 'ready', dashboard: layout });
+        handoff.current = 'edit';
         setDraft(null);
       } catch (e) {
         setError(e instanceof DashboardSaveError ? e.kind : 'failed');
@@ -127,7 +139,7 @@ export type DashboardEditing = ReturnType<typeof useDashboard>;
 export function DashboardAction({ dash }: { dash: DashboardEditing }) {
   if (dash.load.status !== 'ready' || !dash.editing) return null;
   return (
-    <Button kind="tonal" busy={dash.saving} onClick={() => void dash.done()}>
+    <Button kind="tonal" busy={dash.saving} data-dashboard-handoff="done" onClick={() => void dash.done()}>
       {t.dashboard.done}
     </Button>
   );
@@ -159,6 +171,8 @@ export function EditableCards({
   const [drag, setDrag] = useState<Drag | null>(null);
   const [menu, setMenu] = useState<{ id: string; anchor: HTMLElement } | null>(null);
   const { shown, focus } = dash;
+  // What a move or a removal did, said by the editor's one announcer.
+  useAnnounce(dash.announcement);
 
   // After a move (or a removal) the menu button of the card keeps the focus.
   useEffect(() => {
@@ -201,9 +215,6 @@ export function EditableCards({
   const open = at === -1 ? null : shown[at];
   return (
     <>
-      <div aria-live="polite" className="mo-visually-hidden">
-        {dash.announcement}
-      </div>
       <div ref={grid} className="mo-staggered-grid mo-editor-settings-dashboard-grid">
         {shown.map(({ placement, definition }) => {
           const dragging = drag?.id === placement.id;

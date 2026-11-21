@@ -92,6 +92,14 @@ export const RULES = [
   // module and the list; the site's part (check-a11y.mjs) is its own command, in the job `demo`.
   [/^scripts\/(a11y\.mjs|a11y-allowlist\.json)$/, ['start-screens']],
   [/^scripts\/check-a11y\.mjs$/, 'none'],
+  // The keyboard check (plan 2026-11-20-0-19-3-keyboard): the walk and the flows run in start-screens.mjs (the units `screens 390`, `screens 1280` and
+  // `checkKeyboardFlows`), which read the shared modules and the list; its own command (check-keyboard.mjs) is not read by a unit.
+  [/^scripts\/(keyboard\.mjs|keyboard-flows\.mjs|keyboard-allowlist\.json)$/, ['start-screens']],
+  [/^scripts\/check-keyboard\.mjs$/, 'none'],
+  // The screen reader check (plan 2026-11-21-0-19-4-screen-readers): the name walk and the flows run in start-screens.mjs (the units `screens 390`, `screens 1280`
+  // and `checkAnnounceFlows`), which read the shared modules and the list; its own command (check-announce.mjs) is not read by a unit.
+  [/^scripts\/(allowlist\.mjs|announce\.mjs|announce-flows\.mjs|announce-allowlist\.json)$/, ['start-screens']],
+  [/^scripts\/check-announce\.mjs$/, 'none'],
   // The version rule (job `static`) and the release version step: read changesets, package.json and CHANGELOG.md only.
   [/^scripts\/(version-rule\.mjs|release-version\.mjs)$/, 'none'],
   // The token checks of `npm run check` and their lists (only check-css-tokens.mjs and check-token-names.mjs read them), and the checks

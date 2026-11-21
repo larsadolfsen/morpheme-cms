@@ -13,6 +13,7 @@
 // One about something going on ("Saving…") stays until the next message replaces it; snackbar(null) only
 // takes that one away.
 import arrow from '@phosphor-icons/core/assets/regular/arrow-right.svg?raw';
+import { announce } from './announce';
 
 export type SnackbarLink = { text: string; href: string; onClick?: (e: MouseEvent) => void };
 export type SnackbarMessage = {
@@ -56,9 +57,15 @@ function show(stack: HTMLDivElement, { text, error, links = [], ms, element }: S
   el.dataset.text = text;
   if (!element) {
     el.className = 'mo-snackbar';
-    el.setAttribute('role', error ? 'alert' : 'status');
     el.append(text);
   }
+  // The message is said by the editor's one announcer (lib/announce.ts), once, from a region that was in the page before; the element itself
+  // has no live role (a region that comes into the page with its text is often not read, and it would be said twice).
+  for (const live of [el, ...el.querySelectorAll<HTMLElement>('[role=status], [role=alert], [aria-live]')]) {
+    live.removeAttribute('role');
+    live.removeAttribute('aria-live');
+  }
+  announce(text, { urgent: error });
   for (const link of element ? [] : links) {
     const a = document.createElement('a');
     a.className = 'mo-snackbar__link';

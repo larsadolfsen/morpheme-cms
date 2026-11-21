@@ -1,0 +1,7 @@
+{
+  "id": "toolbar-shortcut",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Text bar shortcut",
+  "text": "Reaching the text bar no longer takes many Tab presses. Press Alt+F10 in the text or on a selected block to move to the bar, use the arrow keys to move between tools, and press Escape to return. Delete removes a selected block."
+}

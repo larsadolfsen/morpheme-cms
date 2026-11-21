@@ -151,10 +151,14 @@ export const WrongField = createContext<Wrong | null>(null);
 export function useWrongField(say: (text: string) => void, open?: (path: string) => void) {
   const [wrong, setWrong] = useState<{ path: string; at: number } | null>(null);
   const field = useMemo<Wrong | null>(() => wrong && { ...wrong, clear: () => setWrong(null) }, [wrong]);
-  const stop = (problem: Problem | null) => {
+  // `problem` is the first problem, or all of them (problemsAt): with several, the message starts with how many ("3 problems. …"), and the
+  // first one's field is marked and gets the focus (3.3.1).
+  const stop = (found: Problem | Problem[] | null) => {
+    const all = Array.isArray(found) ? found : found ? [found] : [];
+    const problem = all[0] ?? null;
     if (problem) open?.(problem.path);
     setWrong(problem && { path: problem.path, at: Date.now() });
-    if (problem) say(problem.text);
+    if (problem) say(all.length > 1 ? `${t.common.problems(all.length)}. ${problem.text}` : problem.text);
     return !!problem;
   };
   return { field, stop };
@@ -176,6 +180,10 @@ function useMarked<T extends HTMLElement>(props: Props) {
     void el.offsetWidth;
     el.classList.add('mo-editor-wrong');
     el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    // Focus goes to the first field that is wrong, so a screen reader says its name and its problem (3.3.1); the scroll above is the one that moves.
+    el.querySelector<HTMLElement>('input:not([type=hidden]), textarea, select, [contenteditable=true], [role=textbox], button')?.focus({
+      preventScroll: true,
+    });
   }, [here, wrong?.at]);
   // A change in the marked field ends the marking.
   const onChange = (v: unknown) => {

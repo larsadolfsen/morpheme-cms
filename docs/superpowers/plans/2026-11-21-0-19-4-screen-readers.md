@@ -59,6 +59,30 @@ flows) and the allowlist holds what it finds. The source today:
 | Page and route | one `<title>` for the whole editor (`pages/editor/index.astro`: the site's name) | a screen change in the one-page editor announces nothing and the title does not change (2.4.2) |
 | Block cards and the text | the text area's name is 0.19.2's; the block cards' names are 0.19.2's (2.5.3) | what is said when a block is selected, moved, removed; the text bar's Alt+F10 is not announced |
 
+## Inventory
+
+Measured by batch 1 (21 Nov 2026) on the built demo, on the base that has 0.19.2 and 0.19.3 (`check:announce`, 306 editor screens at 1280 and 390 px, and the
+flows A, B, C, F, I, J, K, L). It is what `scripts/announce-allowlist.json` holds: 73 entries, each a problem, a selector and the screens or flows it is on.
+A count of **entries** is distinct selectors; **places** is the screens or flows they are found on (one entry on many screens counts once per screen).
+
+| Problem | What it is | Entries | Places | Fixed by batch |
+| --- | --- | ---: | ---: | :---: |
+| `no-announcement` | a step that should be announced (a save, an inserted, moved or removed block, a snackbar, a selected block) says nothing from a region that was there before: the status text is in a region that comes into the page with its text, or there is none | 11 | 11 | 4, 5, 6 |
+| `repeated-name` | two controls of one role with one name in one list (the `Remove` and the footer links of the licences; the component gallery's examples) | 37 | 250 | 2 |
+| `tab-state` | a menu button with `aria-haspopup` and no `aria-expanded` (the top bar's icon buttons, list rows that open a menu or sheet, text-field buttons) | 9 | 342 | 3 |
+| `broken-reference` | an `aria-describedby`, `aria-labelledby` or `aria-controls` that points at an element that is not in the page (the crop page's dialog on every screen; the gallery's examples) | 5 | 292 | 3 |
+| `unnamed-container` | the footer links' `nav` has no name, and there are two navigations | 2 | 288 | 2 |
+| `bad-name` | a link whose name is a file name or an id (the category rows, links in the text area) | 8 | 12 | 2 |
+| `no-name` | the inline notice's `role=button` has no name | 1 | 3 | 2 |
+| `icon-name`, `disabled-no-reason`, `live-region`, `double-announcement`, `wrong-urgency`, `flow-focus-unnamed`, `flow-lost-focus` | found nowhere | 0 | 0 | — |
+
+What the first run shows about the source reading above: **icon ligature names are not a problem today** (icons are SVG and `aria-hidden`); the
+**inserted live region** is (every status that the editor draws, `Saving…`, `Draft saved`, the dashboard's loading text and the updates card, comes into the
+page with its text, so a reader may not read it); there is **no live region at all** for a moved or removed block or for the autosave state while typing
+(`J: after typing`); the speech log (`announce-log.txt`) has what is said at each step. Flow K covers *Change type* and *a removed block*; a copied link, a
+notice and a failed load are not walked yet (batch 4 adds them with their messages). Flow J's error step runs only when emptying the page settings' fields
+marks one invalid, which it does today; the required fields and the error count come with batch 4.
+
 ## Live regions
 
 One rule so nothing is said twice: **there is one announcer, and a message goes through it or through an element's own `role`, never both.**
@@ -190,6 +214,8 @@ so `starter/package.json` pins it (CI's `static` runs `node scripts/starter.mjs 
 docs-only pull request (the plan) goes into `main` with an **empty changeset** and no `version` change, because it is a plan, not the feature's first pull request.
 
 ## Check again when 0.19.2 and 0.19.3 are in `main`
+
+*Batch 1 did this on 21 Nov 2026:* `feature/0.19.4-screen-readers` has 0.19.2 (`scripts/a11y.mjs`, the allowlist code) and 0.19.3 (`check:keyboard`, `scripts/keyboard-flows.mjs`). The check reuses the flows through new hooks in `scripts/keyboard-flows.mjs` (`afterStep`, `init`, `run`; the flows themselves are unchanged) and has its own `scripts/allowlist.mjs` (the same entry shape as the two others, so they can import it later) instead of importing `a11y.mjs`'s, whose list file is fixed.
 
 Batch 1 reads these before it writes the check, and corrects this plan in its own pull request where the real code differs:
 

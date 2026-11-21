@@ -112,6 +112,7 @@ import {
   siteRipples,
 } from './themeUi';
 import { locale, t } from './i18n';
+import { Announce } from './useAnnounce';
 import { useRegisterFab } from './fabPresence';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
 import { SvgFile } from './icon';
@@ -124,7 +125,7 @@ import { motionTiming } from '../lib/motion';
 import { atLeast, type Breakpoint } from '../lib/breakpoints.mjs';
 import { swipeCloses } from '../lib/drawer-swipe.mjs';
 import { menuLayout } from '../lib/menu-layout.mjs';
-import { isTypeAheadKey, nextByLetter } from '../lib/menuTypeAhead.mjs';
+import { nextInMenu } from '../lib/menuTypeAhead.mjs';
 import { ariaShortcut, shortcutText } from './shortcuts';
 import { safeImageSrc } from '../lib/safe-url.mjs';
 
@@ -1372,7 +1373,8 @@ export function IconPicker({
             </div>
           )}
           {searching && !loading && hits.every((o) => !o.value) && (
-            <p role="status" className="mo-editor-icon-picker-status">
+            <p className="mo-editor-icon-picker-status">
+              <Announce text={t.forms.noIconsFound} />
               {t.forms.noIconsFound}
             </p>
           )}
@@ -2120,10 +2122,12 @@ const anchoredByCss = typeof CSS !== 'undefined' && CSS.supports('position-area'
  * room under it), and again when the page scrolls or the window changes; on a phone in a sheet from the bottom with
  * `label` as its title (useAtLeast('medium')), so a long one is not too long for the screen. A choice closes it, and so do a tap
  * outside it, Esc, and the button going out of sight (the sheet: its cross and a swipe down). The button says it opens
- * one (aria-haspopup="menu", aria-expanded). `attached`: the dropdown of a field (ChoiceMenu: Material 3's exposed
- * dropdown menu), the `anchor` being the field's box: the menu is at least as wide as it, the focus goes into it (on the
- * chosen one), the arrow keys, Home and End move between the choices, and a choice, Esc and Tab close it, the first two
- * giving the focus back to the field. */
+ * one (aria-haspopup="menu", aria-expanded). It has the keyboard of the theme's menu (WAI-ARIA's menu button, lib/menuTypeAhead.mjs, in
+ * every mode): the focus goes into it when it opens (on the first choice when it was opened with a key, else on the menu itself, so no
+ * choice looks picked; a bar's menu opened by mouse leaves the focus in the text), the choices are one stop for Tab (the arrow keys, Home, End
+ * and a letter move between them), Enter and Space choose, and a choice, Esc and Tab close it with the focus back on the button (on a phone the
+ * sheet gives it back too). `attached`: the dropdown of a field (ChoiceMenu: Material 3's exposed dropdown menu), the `anchor` being the
+ * field's box: the menu is at least as wide as it and the focus goes in on the chosen one. */
 export function Menu({
   anchor,
   label,
@@ -2141,7 +2145,7 @@ export function Menu({
    * visible screen allows (it scrolls when it does not fit) and inside it: `start` has its leading edge on the button's, `end` its trailing edge. */
   popup?: 'start' | 'end';
   attached?: boolean;
-  /** With `attached`: it was opened with the keyboard, so a choice has the focus (and its ring); else the menu has it. */
+  /** It was opened with the keyboard, so a choice has the focus (and its ring); else the menu has it. Left out, it is read from the last input. */
   keyboard?: boolean;
   /** The menu is at a next level (a submenu): Escape goes back one level with this, and only the level above closes the menu. */
   onBack?: () => void;
@@ -2154,6 +2158,11 @@ export function Menu({
   back.current = onBack;
   const sheet = useRef<HTMLDialogElement>(null);
   const wide = useAtLeast('medium') || !!popup;
+  // Whether it was opened with a key, read when it opens.
+  const byKey = useRef(false);
+  useLayoutEffect(() => {
+    if (anchor) byKey.current = keyboard ?? lastByKey;
+  }, [anchor]); // eslint-disable-line react-hooks/exhaustive-deps
   // The name the menu's CSS anchor has (only letters, digits, - and _), put on the button while the menu is open.
   const anchorName = `--editor-menu-${useId().replace(/[^\w-]/g, '')}`;
   useEffect(() => {
@@ -2162,7 +2171,9 @@ export function Menu({
     // No choice has the focus to begin with (the sheet has it, as in ask.tsx), so none looks picked.
     if (anchor && !el?.open) {
       el?.showModal();
-      el?.focus();
+      // The sheet has the focus; with a key, the first choice.
+      if (byKey.current) el?.querySelector<HTMLElement>('[role^="menuitem"]:not(:disabled)')?.focus();
+      else el?.focus();
     }
     if (!anchor && el?.open) el.close();
   }, [anchor, wide]);
@@ -2186,11 +2197,11 @@ export function Menu({
         e.stopPropagation();
         return back.current();
       }
-      if (e.type === 'keydown' && attached) {
-        // Esc closes only the menu (not the sheet or dialog the field is in), and the field has the focus again.
+      if (e.type === 'keydown' && (attached || menu.current?.contains(document.activeElement))) {
+        // Esc closes only the menu (not the sheet or dialog it is in), and its button has the focus again.
         e.preventDefault();
         e.stopPropagation();
-        anchor.querySelector<HTMLElement>('button')?.focus();
+        openerOf(anchor)?.focus();
       }
       onClose();
     };
@@ -2223,12 +2234,12 @@ export function Menu({
       }
     };
     place();
-    if (attached) {
-      const items = [...(menu.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? [])];
-      const first = items.find((i) => i.getAttribute('aria-checked') === 'true') ?? items[0];
-      // With the mouse the menu itself has the focus (arrow keys work, no ring on a choice).
-      (keyboard ? first : menu.current)?.focus({ preventScroll: true });
-    }
+    const items = [...(menu.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]') ?? [])];
+    const first = items.find((i) => i.getAttribute('aria-checked') === 'true') ?? items[0];
+    // With a key the first choice has the focus; with the mouse the menu itself (arrow keys work, no ring on a choice), except a bar's menu,
+    // whose text keeps the cursor.
+    if (byKey.current) first?.focus({ preventScroll: true });
+    else if (!popup) menu.current?.focus({ preventScroll: true });
     for (const type of ['pointerdown', 'keydown']) document.addEventListener(type, close, true);
     addEventListener('scroll', place, { capture: true, passive: true });
     addEventListener('resize', place, { passive: true });
@@ -2241,6 +2252,15 @@ export function Menu({
       if (anchoredByCss) anchor.style.removeProperty('anchor-name');
     };
   }, [anchor, wide, attached, keyboard, popup, anchorName]);
+  // A next level (Change type) or the way back replaces the rows the focus was on: it goes to the first row of the new ones.
+  const level = useRef(label);
+  useEffect(() => {
+    if (level.current === label) return;
+    level.current = label;
+    const el = menu.current;
+    if (el && byKey.current && !el.contains(document.activeElement))
+      el.querySelector<HTMLElement>('[role^="menuitem"]:not(:disabled)')?.focus();
+  }, [label]);
   if (!wide)
     return (
       <BottomSheet
@@ -2252,7 +2272,13 @@ export function Menu({
             ((e.target as Element).closest('[role^="menuitem"]') && !(e.target as Element).closest('[data-menu-stays]'))) &&
           sheet.current?.close()
         }
-        onClose={(e) => e.target === e.currentTarget && onClose()}
+        onKeyDown={moveInMenu}
+        onClose={(e) => {
+          if (e.target !== e.currentTarget) return;
+          onClose();
+          // The button has the focus again (the dialog does it too where the browser does, but not for a touch).
+          if (anchor?.isConnected) openerOf(anchor)?.focus();
+        }}
         className="mo-editor-focus-quiet"
       >
         <SheetTitle title={label} onClose={() => sheet.current?.close()} />
@@ -2274,14 +2300,21 @@ export function Menu({
       data-menu-attached={attached ? '' : undefined}
       data-menu-popup={popup}
       style={anchoredByCss ? ({ positionAnchor: anchorName } as CSSProperties) : undefined}
-      tabIndex={attached ? -1 : undefined}
+      tabIndex={-1}
       onClick={(e: MouseEvent) => {
         // A row that opens the next level, or goes back from it, keeps the menu open.
         if (!(e.target as Element).closest('[role^="menuitem"]') || (e.target as Element).closest('[data-menu-stays]')) return;
-        if (attached) anchor.querySelector<HTMLElement>('button')?.focus();
+        if (attached || e.currentTarget.contains(document.activeElement)) openerOf(anchor)?.focus();
         onClose();
       }}
-      onKeyDown={attached ? (e: KeyboardEvent<HTMLElement>) => (e.key === 'Tab' ? onClose() : moveInMenu(e)) : undefined}
+      onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
+        // Tab leaves the menu: its button has the focus, so Tab goes on from there.
+        if (e.key === 'Tab') {
+          openerOf(anchor)?.focus();
+          return onClose();
+        }
+        moveInMenu(e);
+      }}
     >
       {children}
     </SiteMenu>
@@ -2303,23 +2336,36 @@ function placePopup(menu: HTMLElement, anchor: HTMLElement, side: 'start' | 'end
   menu.style.left = `${Math.max(screen.offsetLeft + 8, Math.min(at, screen.offsetLeft + screen.width - offsetWidth - 8))}px`;
 }
 
-// The keys of an attached menu: the arrow keys (round), Home and End go between its choices, and a letter goes to the next choice that starts with it.
+// The keys of a menu: the arrow keys (round), Home, End and a letter go between its choices (the theme's keys, lib/menuTypeAhead.mjs).
 function moveInMenu(e: KeyboardEvent<HTMLElement>) {
   const items = [...e.currentTarget.querySelectorAll<HTMLElement>('[role^="menuitem"]:not(:disabled)')];
   const at = items.indexOf(document.activeElement as HTMLElement);
-  let to = { ArrowDown: at + 1, ArrowUp: at < 0 ? items.length - 1 : at - 1, Home: 0, End: items.length - 1 }[e.key];
-  // A letter: the next item whose label starts with it (M3 menus: "Letters: Focus moves to the next menu item starting with letter").
-  if (to === undefined && isTypeAheadKey(e)) {
-    to = nextByLetter(
-      items.map((i) => i.querySelector('.mo-menu__item-label')?.textContent ?? i.textContent ?? ''),
-      at,
-      e.key,
-    );
-  }
+  const to = nextInMenu(
+    e,
+    items.map((i) => i.querySelector('.mo-menu__item-label')?.textContent ?? i.textContent ?? ''),
+    at,
+  );
   if (to === undefined) return;
   e.preventDefault();
   items[(to + items.length) % items.length]?.focus();
 }
+
+// Whether the last thing the person did was press a key, so a menu opens on its first choice (with a ring) for the keyboard and on itself for the mouse
+// and a touch. One listener for the page, put on when the first menu is made.
+let lastByKey = false;
+let tracking = false;
+function trackInput() {
+  if (tracking || typeof document === 'undefined') return;
+  tracking = true;
+  // Only the keys that open a button count: typing in a text must not make a menu opened later by a script or a tap take the focus from the text.
+  document.addEventListener('keydown', (e) => (lastByKey = ['Enter', ' ', 'ArrowDown', 'ArrowUp'].includes(e.key)), true);
+  document.addEventListener('pointerdown', () => (lastByKey = false), true);
+}
+
+trackInput();
+
+// The button a menu opens from: the anchor itself, or the button in the field's box (`attached`).
+const openerOf = (anchor: HTMLElement) => anchor.closest<HTMLElement>('button') ?? anchor.querySelector<HTMLElement>('button');
 
 /** A line between the groups of a Menu (the theme's Divider). */
 export const MenuDivider = SiteMenuDivider;
@@ -2361,6 +2407,7 @@ export function MenuItem({
       aria-haspopup={opens ? 'menu' : undefined}
       aria-expanded={opens ? false : undefined}
       aria-label={label}
+      tabIndex={-1}
       data-menu-stays={opens || back || undefined}
       onMouseDown={(e: MouseEvent) => e.preventDefault()}
       onKeyDown={(e: KeyboardEvent<HTMLElement>) => {
@@ -3782,15 +3829,30 @@ export function TabRow<T extends string>({ id, label, value, options, onChange }
   );
 }
 
-/** What the open tab of a TabRow (the same `id`) shows. */
+/** What the open tab of a TabRow (the same `id`) shows. It is a Tab stop only when it holds nothing to focus (the tabs pattern of the
+ * ARIA Authoring Practices), and then it shows the focus ring (WCAG 2.4.7). */
 export function TabPanel({ id, value, className = '', children }: { id: string; value: string; className?: string; children: ReactNode }) {
+  const panel = useRef<HTMLDivElement>(null);
+  const [stop, setStop] = useState(false);
+  useEffect(() => {
+    const el = panel.current;
+    if (!el) return;
+    const FOCUSABLE = 'a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
+    const check = () =>
+      setStop(![...el.querySelectorAll<HTMLElement>(FOCUSABLE)].some((c) => !c.hasAttribute('disabled') && !c.closest('[inert]')));
+    check();
+    const watch = new MutationObserver(check);
+    watch.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'tabindex', 'href', 'inert'] });
+    return () => watch.disconnect();
+  }, [value]);
   return (
     <div
+      ref={panel}
       role="tabpanel"
       id={`${id}-panel`}
       aria-labelledby={`${id}-tab-${value}`}
-      tabIndex={0}
-      className={`mo-editor-focus-quiet-visible ${className}`}
+      tabIndex={stop ? 0 : undefined}
+      className={className || undefined}
     >
       {children}
     </div>
@@ -3884,6 +3946,7 @@ export function LeadingToken({ kind, value, weight }: { kind: TokenKind; value: 
  * below a phone's clock, and marked as the theme marks it once the screen has scrolled under it (data-stuck). */
 export function TopAppBar({ children }: { children: ReactNode }) {
   const [stuck, setStuck] = useState(false);
+  useScrollClearance('top', '.mo-editor-app-bar-inset');
   useEffect(() => {
     const check = () => setStuck(scrollY > 0);
     check();
@@ -3895,6 +3958,31 @@ export function TopAppBar({ children }: { children: ReactNode }) {
       {children}
     </SiteAppBar>
   );
+}
+
+/** Keeps what has focus out from behind a bar that stays on the screen while the page scrolls (WCAG 2.4.11 Focus Not Obscured):
+ * the height of the tallest bar found by `selector` goes to `--mo-editor-clearance-<edge>` on the root, which
+ * `scroll-padding-block-start` and `-end` there (editor.css) read, so the browser scrolls a focused field clear of the bar.
+ * Measured from the bars themselves, so no screen has a number of its own. */
+export function useScrollClearance(edge: 'top' | 'bottom', selector: string, active = true) {
+  useEffect(() => {
+    if (!active) return;
+    const root = document.documentElement;
+    const name = `--mo-editor-clearance-${edge}`;
+    const bars = () => [...document.querySelectorAll<HTMLElement>(selector)];
+    const update = () => {
+      const tallest = Math.max(0, ...bars().map((bar) => bar.offsetHeight));
+      if (tallest) root.style.setProperty(name, `${tallest + 8}px`);
+      else root.style.removeProperty(name);
+    };
+    const watch = new ResizeObserver(update);
+    bars().forEach((bar) => watch.observe(bar));
+    update();
+    return () => {
+      watch.disconnect();
+      root.style.removeProperty(name);
+    };
+  }, [edge, selector, active]);
 }
 
 /** The theme's dialog (Material 3's), in the middle of the screen over its scrim, on a <dialog> (`ref`; opened with
@@ -3955,6 +4043,7 @@ export function BottomSheet({
  * `label`, with the buttons in it. It stays above the on-screen keyboard; from the medium width it stays a bottom sheet
  * (wide="sheet"), as wide as the theme allows, between the navigation rail and the panels (editor.css). */
 export function ActionSheet({ label, className, children }: { label: string; className?: string; children: ReactNode }) {
+  useScrollClearance('bottom', '.mo-editor-action-sheet');
   return (
     <SiteBottomSheet
       kind="standard"
@@ -3963,7 +4052,7 @@ export function ActionSheet({ label, className, children }: { label: string; cla
       dragHandle={false}
       label={label}
       liftAboveKeyboard
-      className={className}
+      className={['mo-editor-action-sheet', className].filter(Boolean).join(' ')}
     >
       {children}
     </SiteBottomSheet>
@@ -3989,6 +4078,8 @@ export function PageFrame({ html, width, title, part }: { html: string; width: n
   const scale = size.width ? Math.min(1, size.width / width) : 1;
   const measure = (frame: HTMLIFrameElement) => {
     const doc = frame.contentDocument;
+    // An image of the site, not a place to work: nothing in it takes focus (WCAG 2.4.3, 2.4.7).
+    if (doc) doc.documentElement.inert = true;
     const el = part && doc?.querySelector(part);
     if (!doc || !el) return;
     // Only the part is shown: the page does not scroll in its frame.
@@ -4004,9 +4095,10 @@ export function PageFrame({ html, width, title, part }: { html: string; width: n
           title={title}
           srcDoc={html}
           sandbox="allow-same-origin"
+          tabIndex={-1}
           className="mo-editor-block-preview-iframe"
           style={{ width, height, top: -(cut?.top ?? 0) * scale, transform: `translateX(-50%) scale(${scale})` }}
-          onLoad={part ? (e) => measure(e.currentTarget) : undefined}
+          onLoad={(e) => measure(e.currentTarget)}
         />
       )}
     </div>
