@@ -1,5 +1,0 @@
----
-'@morphemecms/cms': patch
----
-
-You can zoom the editor on a phone with a pinch or a double tap, and the Save bar and the text toolbar stay in view
