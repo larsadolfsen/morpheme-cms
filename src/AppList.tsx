@@ -765,15 +765,14 @@ function AppHead({
 }) {
   return (
     <div className="mo-editor-app-list-heading">
-      <div className="mo-editor-app-list-title-row">
-        {icon}
-        <span className="mo-editor-app-list-owner-text">
-          <span className="mo-truncate mo-editor-app-list-name">{label}</span>
-          <span className="mo-truncate mo-editor-app-list-meta">{t.apps.publisher(publisher)}</span>
-          <span className="mo-truncate mo-editor-app-list-meta">{status}</span>
-          {version && <span className="mo-truncate mo-editor-app-list-meta">{t.apps.version(version)}</span>}
-        </span>
-      </div>
+      <ul className={plainListClass}>
+        <ListItem
+          leading={icon}
+          headline={label}
+          supporting={[t.apps.publisher(publisher), status, version && t.apps.version(version)].filter(Boolean).join(' · ')}
+          lines={3}
+        />
+      </ul>
       <p className="mo-editor-app-list-hint">{hint}</p>
     </div>
   );

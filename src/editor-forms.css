@@ -185,28 +185,8 @@
     padding-inline: var(--mo-ref-space-50);
     color: var(--mo-sys-color-on-surface-variant);
   }
-  .mo-editor-app-list-owner-text {
-    min-inline-size: 0;
-    flex: 1;
-  }
-  .mo-editor-app-list-name {
-    display: block;
-    font-weight: 500;
-  }
-  .mo-editor-app-list-meta {
-    display: block;
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    color: var(--mo-sys-color-on-surface-variant);
-  }
   .mo-editor-app-list-heading {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
-    padding-inline: var(--mo-ref-space-200);
-  }
-  .mo-editor-app-list-title-row {
-    display: flex;
-    align-items: center;
-    gap: var(--mo-ref-space-150);
   }
   .mo-editor-app-list-hint {
     margin-block-start: var(--mo-comp-editor-rhythm-150);

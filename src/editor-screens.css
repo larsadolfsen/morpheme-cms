@@ -508,23 +508,8 @@
   .mo-editor-library-line {
     display: block;
   }
-  .mo-editor-library-theme-head {
-    --mo-comp-row-gap: var(--mo-ref-space-200);
+  .mo-editor-list-head {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
-    padding-inline: var(--mo-ref-space-200);
-  }
-  .mo-editor-library-theme-icon {
-    inline-size: var(--mo-ref-space-800);
-    block-size: var(--mo-ref-space-800);
-    border-radius: 1rem;
-  }
-  .mo-editor-library-name {
-    font-weight: 500;
-  }
-  .mo-editor-library-byline {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-library-section {
     margin-block-end: var(--mo-comp-editor-rhythm-400);

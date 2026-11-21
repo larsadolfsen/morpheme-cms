@@ -7,7 +7,7 @@ import { Sparkle, WarningCircle, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { MorphemeConnection } from './MorphemeConnection';
 import { ReleaseNotes, type VersionNotes } from './ReleaseNotes';
-import { Button, EmptyNote, ProblemNote } from './ui';
+import { Button, EmptyNote, ListItem, plainListClass, ProblemNote } from './ui';
 import { backFrom } from './site';
 import { cmsView } from './cmsView.mjs';
 import { runningLine, runningNotes } from './bundledNotes';
@@ -57,10 +57,9 @@ const reasonOf = (view: View) =>
 /** A line of the status text, with its icon only where the icon means something (a warning, an update). */
 function StatusLine({ icon: Glyph, tone, children }: { icon?: Icon; tone?: 'accent'; children: ReactNode }) {
   return (
-    <p className={`mo-editor-line ${tone ? 'mo-editor-primary-text' : ''}`}>
-      {Glyph && <Glyph aria-hidden size={20} className="mo-keep" />}
-      <span className="mo-editor-settings-wrap">{children}</span>
-    </p>
+    <ul className={plainListClass}>
+      <ListItem tone={tone} icon={Glyph} headline={children} lines={3} />
+    </ul>
   );
 }
 

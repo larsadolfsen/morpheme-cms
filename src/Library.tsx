@@ -76,6 +76,7 @@ import {
   Group,
   IconButton,
   LeadingIcon,
+  plainListClass,
   SearchRow,
   useKept,
   SegmentedButton,
@@ -535,16 +536,14 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
 
   return (
     <Screen title={of.name} wide back={backToThemes}>
-      <div className="mo-row mo-editor-library-theme-head">
-        <img src={of.icon} alt="" className="mo-keep mo-editor-library-theme-icon" />
-        <span className="mo-fill">
-          <span className="mo-editor-library-line mo-truncate mo-editor-library-name">{of.name}</span>
-          <span className="mo-editor-library-line mo-truncate mo-editor-library-byline">
-            {t.library.themeByline(of.version, of.author)}
-          </span>
-          {status && <span className="mo-editor-library-line mo-editor-library-byline">{status}</span>}
-        </span>
-      </div>
+      <ul className={`${plainListClass} mo-editor-list-head`}>
+        <ListItem
+          leadingImage={{ src: of.icon }}
+          headline={of.name}
+          supporting={[t.library.themeByline(of.version, of.author), status].filter(Boolean).join(' · ')}
+          lines={3}
+        />
+      </ul>
       {of.id !== chosen && themeInstalled(of.id) && (
         <div className="mo-editor-library-section">
           <Button busy={saving} disabled={saving} onClick={use}>

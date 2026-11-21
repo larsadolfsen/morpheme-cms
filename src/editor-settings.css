@@ -4,17 +4,6 @@
    theme/styles/layout.css. The vertical rhythm reads the shared tokens of src/editor-density.css (--mo-comp-editor-rhythm-*); the space-y rules keep the
    exemptions src/editor.css gave their Tailwind class names. They sit in @layer utilities, where the utility classes were, so the cascade does not change. */
 @layer utilities {
-  .mo-editor-about-row {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--mo-ref-space-150);
-  }
-
-  .mo-editor-about-text {
-    padding-block-start: var(--mo-ref-space-75);
-    color: var(--mo-sys-color-on-surface-variant);
-  }
-
   .mo-editor-ask-buttons {
     margin-block-start: var(--mo-comp-editor-rhythm-300);
     display: flex;
@@ -58,7 +47,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -75,7 +63,6 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
@@ -110,7 +97,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -155,27 +141,6 @@
 
   .mo-editor-byline-lines {
     line-height: 1.375;
-  }
-
-  .mo-editor-code-box {
-    min-inline-size: 0;
-    flex: 1 1 0%;
-    border-radius: 0.5rem;
-    background-color: var(--mo-sys-color-surface-container);
-    padding-inline: var(--mo-ref-space-150);
-    padding-block: var(--mo-ref-space-100);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    word-break: break-all;
-    -webkit-user-select: all;
-    user-select: all;
-  }
-
-  .mo-editor-code-row {
-    margin-block: var(--mo-ref-space-150);
-    display: flex;
-    align-items: center;
-    gap: var(--mo-ref-space-100);
   }
 
   .mo-editor-colors-columns {
@@ -255,7 +220,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -272,7 +236,6 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
@@ -307,7 +270,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -335,7 +297,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -352,7 +313,6 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
@@ -387,7 +347,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -410,7 +369,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -427,7 +385,6 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
@@ -462,7 +419,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -485,7 +441,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -502,7 +457,6 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
@@ -537,7 +491,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -560,7 +513,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -577,7 +529,6 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
@@ -612,7 +563,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -725,12 +675,6 @@
     border-radius: 0.75rem;
   }
 
-  .mo-editor-line {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--mo-ref-space-100);
-  }
-
   .mo-editor-menu-sample {
     display: flex;
     justify-content: flex-end;
@@ -777,7 +721,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -794,7 +737,6 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
@@ -829,7 +771,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -870,7 +811,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -887,7 +827,6 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
@@ -922,7 +861,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -960,7 +898,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -977,7 +914,6 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
@@ -1012,7 +948,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -1071,7 +1006,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -1088,7 +1022,6 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
@@ -1123,7 +1056,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -1176,7 +1108,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -1193,7 +1124,6 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
@@ -1228,7 +1158,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -1318,7 +1247,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -1335,7 +1263,6 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
@@ -1370,7 +1297,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -1396,7 +1322,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -1413,7 +1338,6 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
@@ -1448,7 +1372,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -1568,51 +1491,11 @@
     }
   }
 
-  .mo-editor-store-byline {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: var(--mo-sys-color-on-surface-variant);
-  }
-
-  .mo-editor-store-head {
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
-    display: flex;
-    align-items: center;
-    gap: var(--mo-ref-space-200);
-    padding-inline: var(--mo-ref-space-200);
-  }
-
   .mo-editor-store-icon {
     inline-size: var(--mo-ref-space-450);
     block-size: var(--mo-ref-space-450);
     flex-shrink: 0;
     border-radius: var(--mo-sys-block-radius-small);
-  }
-
-  .mo-editor-store-icon-large {
-    inline-size: var(--mo-ref-space-800);
-    block-size: var(--mo-ref-space-800);
-    flex-shrink: 0;
-    border-radius: 1rem;
-  }
-
-  .mo-editor-store-name {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-weight: 500;
-  }
-
-  .mo-editor-store-status {
-    display: block;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: var(--mo-sys-color-on-surface-variant);
   }
 
   .mo-editor-target-icon {
