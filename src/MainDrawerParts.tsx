@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Gear } from '@phosphor-icons/react';
 import { icons } from './site';
 import { t } from './i18n';
+import { Example } from './PartsShown';
 import { AccountRow } from './AccountRow';
 import {
   Button,
@@ -28,10 +29,14 @@ export function MainDrawerSample() {
   const [section, setSection] = useState<string | null>(null);
   return (
     <div className="mo-editor-actions-row">
-      <Button kind="outlined" onClick={() => setOpen(true)}>
-        {t.library.openMenu}
-      </Button>
-      <MenuButton label={t.library.openMenu} onClick={() => setOpen(true)} />
+      <Example label={t.parts.screens.example(1)} flat>
+        <Button kind="outlined" onClick={() => setOpen(true)}>
+          {t.library.openMenu}
+        </Button>
+      </Example>
+      <Example label={t.parts.screens.example(2)} flat>
+        <MenuButton label={t.library.openMenu} onClick={() => setOpen(true)} />
+      </Example>
       <MenuButton label={t.library.closeMenu} open onClick={() => setOpen(false)} />
       <MainDrawer
         label={t.library.navigation}

@@ -42,6 +42,12 @@ for (const [viewport, width] of Object.entries(VIEWPORTS)) {
     page.on('pageerror', (e) => problems.push(`${width}px ${colorScheme}: ${e.message}`));
     for (const path of pages) {
       await page.goto(`${site}${path}`, { waitUntil: 'load' });
+      // A page with an island that draws in the browser only (`client:only`, the UI components page) is scanned once it is drawn, not before.
+      await page
+        .waitForFunction(() => [...document.querySelectorAll('astro-island')].every((i) => i.childElementCount > 0), null, {
+          timeout: 15000,
+        })
+        .catch(() => {});
       await page.evaluate(() => document.fonts.ready);
       for (const key of keysOf(await scan(page), path, viewport)) found.add(key);
     }

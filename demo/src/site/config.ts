@@ -16,4 +16,6 @@ export const config = defineSite({
   repo: { owner: 'morpheme', name: 'demo', branch: 'main' },
   booking: { path: '/get-started/', thanks: [] },
   aboutPath: '/about/',
+  // The page that shows the theme's UI components, for the owner to review the tokens on (the demo and morpheme-staging only).
+  componentsPath: '/ui/',
 });
