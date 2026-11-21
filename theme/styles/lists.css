@@ -82,10 +82,9 @@
       --mo-comp-list-expand-open-radius: var(--mo-sys-shape-corner-large);
     }
   }
-  @media (width < 37.5rem) {
-    .mo-block-list:not(.mo-list__segmented),
-    .mo-block-accordion:not(.mo-block-accordion__segmented) {
-      margin-inline: calc(-1 * var(--mo-sys-block-list-layer-room));
-    }
+  /* The rows' layer reaches the layer room past the text column (tokens/lists/comp/list.css), so the list moves out by the same room and the content stays on the text edges. */
+  .mo-block-list:not(.mo-list__segmented),
+  .mo-block-accordion:not(.mo-block-accordion__segmented) {
+    margin-inline: calc(-1 * var(--mo-sys-block-list-layer-room));
   }
 }
