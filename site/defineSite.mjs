@@ -172,8 +172,8 @@ export const defineSite = (own) => {
   const pinned = PINNABLE.filter((name) => (name === 'folders.files' ? own.folders?.files : own[name]) !== undefined);
   // The address the files folder has on the site, besides the old and the new standard one, which a page cannot have.
   const files = `/${folders.files.replace(/^public\//, '')}/`;
-  const reserved = [
-    ...new Set([...STANDARD.reserved, files, '/filer/', '/files/', '/ny/', ...(own.componentsPath ? [own.componentsPath] : [])]),
-  ]; // language-ok: the old files and new-versions addresses are reserved too
+  const reserved = [...new Set([...STANDARD.reserved, files, '/filer/', '/files/', '/ny/'])]; // language-ok: the old files and new-versions addresses are reserved too
+  // The UI components page's address (`componentsPath`), when the site has the page, is reserved as well.
+  if (own.componentsPath) reserved.push(own.componentsPath);
   return { ...STANDARD, ...CHOICES, ...own, folders, reserved, pinned };
 };
