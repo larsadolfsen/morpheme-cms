@@ -204,6 +204,7 @@ import { arrived, screenOf, up } from './nav';
 import { siteT, siteText, t } from './i18n';
 import { setBuildState } from './buildState';
 import { snackbar } from '../lib/snackbar';
+import { ensureAnnouncer } from '../lib/announce';
 import { appRouteOf } from '../lib/appRoute.mjs';
 import { movedRoute } from './movedRoutes.mjs';
 import { appType, clearNotifications, isOn, remember, signOff, stopServerWait, syncDevice, told, waitOnServer } from './notificationData';
@@ -327,6 +328,10 @@ function routeOf(hash: string) {
 // The editor; what it draws of the site is in the editor (InEditor: a link only drawn …), its own screens are its own
 // (EditorOwn: the theme's UI parts on them are links that lead somewhere).
 export default function App() {
+  // The announcer's two live regions are in the page before anything is said (lib/announce.ts), outside every sheet and dialog.
+  useEffect(() => {
+    ensureAnnouncer();
+  }, []);
   return (
     <InEditor>
       <EditorOwn>
