@@ -73,6 +73,11 @@
     background: var(--mo-sys-state-mo-pressed-layer);
     color: var(--mo-sys-color-on-surface);
   }
+  /* M3's "Active (main menu reveals submenu)": the item whose menu is open keeps the state layer (menus Specs, States, 6). */
+  .mo-header__nav-toggle[aria-expanded='true'] {
+    background: var(--mo-sys-state-mo-hover-layer);
+    color: var(--mo-sys-color-on-surface);
+  }
   .mo-header__nav-toggle > svg {
     transition: transform var(--mo-sys-motion-spring-fast-spatial);
   }
@@ -85,12 +90,12 @@
     color: var(--mo-sys-color-on-surface);
   }
   /* A menu (its variables above): a state layer with focus from the keyboard (the ripple when pressed), and the open page
-   in the secondary container also when pointed at. */
+   in the menu's selected container also when pointed at (the same tokens as the Menu component). */
   .mo-menu__item:focus-visible {
     background: var(--mo-sys-state-mo-pressed-layer);
   }
   .mo-menu__item[aria-current='page']:hover {
-    background: var(--mo-sys-color-surface-container-high);
+    background: var(--mo-comp-menu-list-item-selected-container-color);
   }
 
   /* The extended FAB (its variables above, Header.astro): at the bottom right of the screen, with the ripple when pressed. It
