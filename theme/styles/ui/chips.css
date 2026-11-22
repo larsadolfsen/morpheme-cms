@@ -28,12 +28,12 @@
     display: inline-flex;
     align-items: center;
     gap: var(--mo-comp-chip-gap, 0.5rem);
-    min-height: calc(var(--mo-comp-filter-chip-container-height, 0px) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    min-height: calc(var(--mo-comp-filter-chip-container-height, 0px) + var(--mo-sys-density) * var(--mo-sys-density-step));
     border: 0;
     border-radius: var(--mo-comp-filter-chip-container-shape, var(--mo-sys-block-control-radius));
     padding: var(--mo-comp-chip-padding, 0.55rem 1rem);
     /* Density takes 2 px off each side, never the text; --mo-comp-chip-padding-block (else 0.55rem) is the room today. */
-    padding-block: calc(var(--mo-comp-chip-padding-block, 0.55rem) + var(--mo-sys-density-layout) * var(--mo-sys-density-step) / 2);
+    padding-block: calc(var(--mo-comp-chip-padding-block, 0.55rem) + var(--mo-sys-density) * var(--mo-sys-density-step) / 2);
     background: var(--mo-comp-chip-surface, var(--mo-sys-block-surface));
     color: var(--mo-comp-filter-chip-unselected-label-text-color, inherit);
     box-shadow: inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-sys-block-line));
@@ -65,7 +65,8 @@
     top: 50%;
     right: 0;
     left: 0;
-    height: max(100%, 3rem);
+    /* The target (--mo-sys-target-size), but in a group it stops half way to the next chip (target-size.css: --mo-sys-target-gap-block). */
+    height: min(max(100%, var(--mo-sys-target-size)), calc(100% + var(--mo-sys-target-gap-block, var(--mo-sys-target-gap, 100vmax))));
     transform: translateY(-50%);
   }
   .mo-chip > svg,
@@ -116,7 +117,7 @@
   }
   :where(.mo-chip).mo-is-elevated,
   .mo-chip.mo-is-elevated:is([aria-pressed='true'], [aria-current='page']) {
-    box-shadow: var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+    box-shadow: var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level1-shadow));
   }
   :where(.mo-chip).mo-is-elevated:hover,
   .mo-chip.mo-is-elevated:is([aria-pressed='true'], [aria-current='page']):hover {
@@ -124,7 +125,7 @@
   }
   :where(.mo-chip).mo-is-elevated:active,
   .mo-chip.mo-is-elevated:is([aria-pressed='true'], [aria-current='page']):active {
-    box-shadow: var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+    box-shadow: var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level1-shadow));
   }
 
   /* A person's image before the label (an input chip): round, nearer the start. */
@@ -222,9 +223,11 @@
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
-    padding: 0.5rem var(--mo-comp-chip-set-bleed, 0rem);
-    margin: -0.5rem calc(-1 * var(--mo-comp-chip-set-bleed, 0rem));
-    scroll-padding-inline: var(--mo-comp-chip-set-bleed, 0rem);
+    /* The row clips what is outside it, so the room round a chip is at least its focus ring (3 px and 2 px offset, 0.5rem): the first and the last chip
+       have it at the ends, and a chip that Tab brings into view is scrolled to it (scroll-padding), never with the right side of its ring cut off. */
+    padding: 0.5rem max(var(--mo-comp-chip-set-bleed, 0rem), 0.5rem);
+    margin: -0.5rem calc(-1 * max(var(--mo-comp-chip-set-bleed, 0rem), 0.5rem));
+    scroll-padding-inline: max(var(--mo-comp-chip-set-bleed, 0rem), 0.5rem);
   }
   .mo-chip__set-scroll::-webkit-scrollbar {
     display: none;

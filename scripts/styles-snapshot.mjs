@@ -3,7 +3,7 @@
 //   node scripts/styles-snapshot.mjs [built site, else dist]        (from .morpheme/demo/site, as check:screens runs; STYLES_OUT is the folder)
 // It uses the harness of check:screens (scripts/screens/support/context.mjs: the browser and the served built site; scripts/built-site.mjs: openEditor, which
 // answers GitHub from the files on disk, so no login and nothing changes). It does not touch scripts/editor-screens.mjs, and it lives in scripts/, not in scripts/screens/ or its support/ folder: the runner imports every .mjs file of scripts/screens/ as an area, and the independence test forbids writing files there. It visits every screen unit the
-// way the unit "screens 390" finds them (the editor's own links, two steps down from the start screens) at 375 and 1280 px, light and dark, density -1,
+// way the unit "screens 390" finds them (the editor's own links, two steps down from the start screens) at 375 and 1280 px, light and dark, density -1 and
 // 0 and 1, and writes one gzipped JSON snapshot of the computed styles for each unit, screen and setting: <STYLES_OUT>/<width>-<scheme>-d<density>--<screen>.json.gz
 // (default STYLES_OUT: .morpheme/styles-snapshots/<current time>). STYLES_ONLY=a,b limits the screens (the hash addresses), for a quick try.
 import { mkdirSync, writeFileSync } from 'node:fs';
@@ -22,7 +22,7 @@ const VIEWPORTS = [
   [1280, 900],
 ];
 const SCHEMES = ['light', 'dark'];
-const DENSITIES = [-1, 0, 1];
+const DENSITIES = [-1, 0];
 // The screens: the start screens of "screens 390" (scripts/screens/start-screens.mjs) and every screen they link to, two steps down.
 const STARTS = [
   '',

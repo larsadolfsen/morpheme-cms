@@ -1,0 +1,10 @@
+{
+ "set": "md.comp.divider",
+ "displayName": "Divider",
+ "description": "For dividers.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.divider.thickness","type":"LENGTH","group":"Enabled › Container","value":{"value":1,"unit":"dp"},"resolved":{"light":{"value":1,"unit":"dp"},"dark":{"value":1,"unit":"dp"}},"chain":["md.comp.divider.thickness"]},
+  {"token":"md.comp.divider.color","type":"COLOR","group":"Enabled › Container","value":{"ref":"md.sys.color.outline-variant"},"resolved":{"light":{"value":"#CAC4D0","unit":"color"},"dark":{"value":"#49454F","unit":"color"}},"chain":["md.comp.divider.color","md.sys.color.outline-variant","md.ref.palette.neutral-variant80"]}
+ ]
+}

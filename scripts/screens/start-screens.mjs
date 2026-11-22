@@ -21,7 +21,8 @@ import {
   shownItems,
   site,
 } from './support/context.mjs';
-import { allowedKeys, collect, compare, keysOf, problemsOf, readAllowlist, scan, scanRuns } from '../a11y.mjs';
+import { allowedKeys, collect, compare, keysOf, problemsOf, readAllowlist, scan, scanRuns, unnamedViolations } from '../a11y.mjs';
+import { activeStatement } from '../theme-statement.mjs';
 import { judge, keyboardRuns, viewportOf, walk } from '../keyboard.mjs';
 import * as announce from '../announce.mjs';
 import * as announceFlows from '../announce-flows.mjs';
@@ -308,6 +309,36 @@ async function checkSettingsAndMenu(width, height) {
   );
   for (const m of moved) if (drawerLinks.includes(`#${m}`)) problems.push(`${label} menu: the menu has a link to #${m}`);
 
+  // The drawer's header is the theme's list item (Material 3 Lists: 72 dp two-line item, 16 dp padding, 40 dp leading avatar, body large
+  // headline over body medium supporting text) with the close button as its trailing action, and the theme's divider under it.
+  const header = await page.evaluate(() => {
+    const panel = document.querySelector('.mo-editor-main-drawer-panel');
+    const row = panel?.querySelector(':scope > :first-child .mo-list__item-multi-action');
+    const item = row?.querySelector('.mo-list__item-container');
+    const box = (e) => e && e.getBoundingClientRect();
+    return {
+      row: !!row,
+      handBuilt: !!panel?.querySelector('.mo-editor-main-drawer-header'),
+      avatar: !!item?.querySelector('.mo-avatar'),
+      headline: !!item?.querySelector('.mo-list__item-headline'),
+      supporting: !!item?.querySelector('.mo-list__item-supporting'),
+      close: !!row?.querySelector('button[aria-expanded="true"]'),
+      divider: !!panel?.querySelector(':scope > hr.mo-divider'),
+      shown: !!panel && box(panel).width > 0 && box(panel).x >= 0,
+      height: Math.round(box(item)?.height ?? 0),
+      pad: item && getComputedStyle(item).paddingInlineStart,
+      avatarSize: Math.round(box(item?.querySelector('.mo-avatar'))?.width ?? 0),
+    };
+  });
+  for (const part of ['row', 'avatar', 'headline', 'supporting', 'close', 'divider'])
+    if (!header[part])
+      problems.push(`${label} menu: the drawer's header has no ${part} (a theme ListItem with the close button as its action)`);
+  if (header.handBuilt) problems.push(`${label} menu: the drawer's header is hand-built again (mo-editor-main-drawer-header)`);
+  if (width >= 1000 && header.shown && (header.height !== 72 || header.pad !== '16px' || header.avatarSize !== 40))
+    problems.push(
+      `${label} menu: the drawer's header is ${header.height} px high with ${header.pad} padding and a ${header.avatarSize} px avatar (should be 72, 16px and 40)`,
+    );
+
   const drawer = '.mo-editor-main-drawer-panel nav';
   if (width >= 1000) {
     // The standard drawer is open: four sections, the start screen and the cog, and the cog last, at the bottom.
@@ -367,7 +398,7 @@ async function checkSettingsAndMenu(width, height) {
   if (width >= 1000) {
     // The collapsed rail: the cog at its bottom, under every other destination.
     await go('');
-    await page.click('.mo-editor-main-drawer-header button');
+    await page.click('.mo-editor-main-drawer-panel > :first-child button[aria-expanded="true"]');
     await page.waitForTimeout(600);
     checkCog(label, 'skinnen', await page.evaluate(shownItems, 'nav.mo-editor-main-rail .mo-navigation-rail__item'), height);
     const railCurrent = (hash) =>
@@ -668,6 +699,54 @@ async function checkDraftsCard(width, height) {
   await few.close();
 }
 
+/** A list in a start-screen card (the "Unfinished" card here; "Continue where you left off", the first-run card and the updates notice share its rules): the card keeps its
+ * 16 dp padding on every side (M3 Cards › Specs, "Left/right padding 16dp"), so a row's layer is 16 dp in from the card's edges and not at them, and the row's own 16 dp
+ * leading space (Lists › Specs) puts its icon on the title's text edge. M3 prints nothing for a list in a card (docs/material-deviations.md, "Where Material 3 is silent").
+ * Owner, 21 Nov 2026 (the layer ran to the card's edges after PR #1125's room past the text). */
+async function checkListInCard(width, height) {
+  const label = `${width}px list in a card`;
+  const draft = (n) => `---\ntitle: "Draft ${n}"\nstatus: draft\n---\n\nText\n`;
+  const files = Object.fromEntries([1, 2].map((n) => [`src/content/pages/check-draft-${n}.md`, draft(n)]));
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'da-DK' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site, files);
+  await page.evaluate(() => (location.hash = ''));
+  const card = page.getByRole('region', { name: daLibrary.unfinishedTitle, exact: true });
+  await card.waitFor({ state: 'visible', timeout: 5000 }).catch(() => problems.push(`${label}: the card is missing`));
+  const m = await card.evaluate((c) => {
+    const text = (e) => {
+      const r = document.createRange();
+      r.selectNodeContents(e);
+      return r.getBoundingClientRect();
+    };
+    const row = c.querySelector('.mo-list__item-container');
+    const icon = row?.querySelector('.mo-list__item-leading');
+    const cr = c.getBoundingClientRect();
+    const rr = row?.getBoundingClientRect();
+    return (
+      row && {
+        left: rr.left - cr.left,
+        right: cr.right - rr.right,
+        title: text(c.querySelector('h2')).left,
+        icon: icon.getBoundingClientRect().left,
+      }
+    );
+  });
+  if (!m) problems.push(`${label}: the card has no row`);
+  else {
+    // The card's 1 dp edge is inside its box, so the layer is at least 16 dp from the box.
+    if (m.left < 15.5 || m.right < 15.5)
+      problems.push(
+        `${label}: the row's layer is ${Math.round(m.left)} and ${Math.round(m.right)} dp from the card's edges, under the card's 16 dp padding`,
+      );
+    if (Math.abs(m.title - m.icon) > 1)
+      problems.push(
+        `${label}: the title starts at ${Math.round(m.title)} and the row's icon at ${Math.round(m.icon)}; they should line up`,
+      );
+  }
+  await page.close();
+}
+
 // "Appstore" and "Morpheme" in the three states of the site's key to the store (STORE_STATES): what each shows, and an image of it in
 // SCREENS_DIR.
 const keyStates = {
@@ -692,7 +771,8 @@ const keyScreens = { appstore: 'settings/appstore', morpheme: 'morpheme' };
 // "Morpheme" in every state: the version, the problems and the notes are text (CMS_STATUS in built-site.mjs), every list row
 // has an action (a link or a button), and Update and the connection work. The one row without an action of its own is the
 // store connection's "Connected to Morpheme" (it shows the state; its button "Disconnect" is beside it, and the
-// key states above check that it is there), so that row is left out.
+// key states above check that it is there), so that row is left out. The status lines (a problem or a note, `.mo-editor-status-line`,
+// a list row with an icon and text) are text only and are left out too.
 async function checkMorpheme(page, state) {
   const text = await page.evaluate(() => document.querySelector('main').innerText);
   for (const x of [
@@ -705,6 +785,7 @@ async function checkMorpheme(page, state) {
   const bare = await page.evaluate(
     (connected) =>
       [...document.querySelectorAll('main .mo-list__item-container')]
+        .filter((row) => !row.closest('.mo-editor-status-line'))
         .filter((row) => !row.matches('a[href], button') && !row.closest('li')?.querySelector('a[href], button'))
         .filter((row) => !row.innerText.startsWith(connected))
         .map((row) => row.innerText.trim().split('\n')[0]),
@@ -746,7 +827,7 @@ async function checkA11y(page, width, hash) {
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(500);
   await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
-  const found = keysOf(await scan(page), place, viewport);
+  const found = keysOf(unnamedViolations(await scan(page), activeStatement().statement), place, viewport);
   if (process.env.A11Y_COLLECT) return collect(process.env.A11Y_COLLECT, found);
   const allowed = allowedKeys(readAllowlist(), (p) => p === place);
   for (const key of [...allowed.keys()]) if (!key.endsWith(`\t${viewport}`)) allowed.delete(key);
@@ -942,6 +1023,7 @@ export function register(unit) {
   for (const width of [1280, 375]) unit(`checkKeyboardFlows ${width}`, () => checkKeyboardFlows(width));
   for (const width of [1280, 375]) unit(`checkAnnounceFlows ${width}`, () => checkAnnounceFlows(width));
   unit('checkStartSubtitle', () => checkStartSubtitle());
+  unit('checkNoTitleRing 390', () => checkNoTitleRing());
   for (const width of [375, 1280])
     for (const hash of ['', 'developer/parts/ui', 'developer/parts/editor', 'settings'])
       unit(`checkFocusIndicators ${width} ${hash || 'start'}`, () => checkFocusIndicators(width, hash));
@@ -951,4 +1033,39 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkDraftsCard ${width}`, () => checkDraftsCard(width, height));
+  for (const [width, height] of [
+    [390, 800],
+    [1280, 900],
+  ])
+    unit(`checkListInCard ${width}`, () => checkListInCard(width, height));
+}
+
+/** No ring on the screen title after a load (owner, 22 Nov 2026): at 390 px with touch and no keyboard the title has the focus by script, and nothing the
+ * active element draws is an outline or a ring; the first Tab then lands on a control that does draw one (WCAG 2.4.7). */
+async function checkNoTitleRing() {
+  const label = '390px no title focus ring';
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  const page = await context.newPage();
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = 'pages'));
+  await page.waitForTimeout(1000);
+  await page.reload();
+  await page.waitForTimeout(1500);
+  const ring = () =>
+    page.evaluate(() => {
+      const e = document.activeElement;
+      const s = e ? getComputedStyle(e) : null;
+      return {
+        tag: e ? `${e.tagName.toLowerCase()}${e.hasAttribute('data-screen-title') ? '[title]' : ''}` : 'none',
+        drawn: !!s && ((s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0) || s.boxShadow !== 'none'),
+      };
+    });
+  const start = await ring();
+  if (start.drawn) problems.push(`${label}: ${start.tag} draws a ring after the load`);
+  await page.keyboard.press('Tab');
+  await page.waitForTimeout(200);
+  const tab = await ring();
+  if (!tab.drawn) problems.push(`${label}: no ring on the first Tab stop (${tab.tag})`);
+  await context.close();
 }

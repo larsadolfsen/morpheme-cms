@@ -1,6 +1,10 @@
 // Tests of the pure parts of the screen reader check (scripts/announce.mjs, scripts/allowlist.mjs). Run: node --test scripts/announce.test.mjs
 import assert from 'node:assert/strict';
+import { mkdtempSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { test } from 'node:test';
+import { pathToFileURL } from 'node:url';
 import { makeAllowlist } from './allowlist.mjs';
 import { BLOCK_PAGES, announceWalks, badName, blockPagesLeft, isAuthored, judgeWindow, nameProblem, speech } from './announce.mjs';
 import { blockPages, demoBlockPages } from './demo-blocks.mjs';
@@ -144,4 +148,26 @@ test("a link or text in a text area is the site owner's; the text area and the e
   assert.equal(isAuthored(handle), false);
   assert.equal(isAuthored(inlineText), false);
   assert.equal(isAuthored(el({}, screen)), false);
+});
+
+test('a finding on a part the theme names in its accessibility.json is let through, an unnamed one is judged', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'mo-allow-'));
+  writeFileSync(join(dir, 'x-allowlist.json'), '[]');
+  const make = (fallsShort) =>
+    makeAllowlist({
+      file: pathToFileURL(join(dir, 'x-allowlist.json')),
+      field: 'problem',
+      label: 'x',
+      collectEnv: 'X_COLLECT',
+      classify: (f) => (f.problem === 'low-contrast' ? { criterion: '1.4.3', part: 'placeholder' } : null),
+      statement: () => ({ statement: { fallsShort } }),
+    });
+  const findings = [
+    { problem: 'low-contrast', selector: 'input.a' },
+    { problem: 'no-name', selector: 'button.b' },
+  ];
+  const named = make([{ criterion: '1.4.3', part: 'placeholder' }]).judge(findings, '#x', 'phone');
+  assert.equal(named.length, 1);
+  assert.match(named[0], /no-name/);
+  assert.equal(make([]).judge(findings, '#x', 'phone').length, 2);
 });

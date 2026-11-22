@@ -2,9 +2,9 @@
 
 @layer components {
   .mo-text-field {
-    /* The field's height with the person's and the theme's density (--mo-sys-density-layout, in base.css): 4 px a step, never the text. */
+    /* The field's height with the person's and the theme's density (--mo-sys-density, in base.css): 4 px a step, never the text. */
     --mo-comp-text-field-box: calc(
-      var(--mo-comp-filled-text-field-container-height, 3rem) + var(--mo-sys-density-layout) * var(--mo-sys-density-step)
+      var(--mo-comp-filled-text-field-container-height, 3rem) + var(--mo-sys-density) * var(--mo-sys-density-step)
     );
   }
 }

@@ -1,0 +1,15 @@
+{
+ "set": "md.comp.slider.medium",
+ "displayName": "Slider - Size - Medium",
+ "description": "For expressive medium sliders.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.slider.medium.active.track.height","type":"LENGTH","group":"Active track","value":{"value":40,"unit":"dp"},"resolved":{"light":{"value":40,"unit":"dp"},"dark":{"value":40,"unit":"dp"}},"chain":["md.comp.slider.medium.active.track.height"]},
+  {"token":"md.comp.slider.medium.active.track.shape.leading","type":"LENGTH","group":"Active track","value":{"value":12,"unit":"dp"},"resolved":{"light":{"value":12,"unit":"dp"},"dark":{"value":12,"unit":"dp"}},"chain":["md.comp.slider.medium.active.track.shape.leading"]},
+  {"token":"md.comp.slider.medium.inactive.track.height","type":"LENGTH","group":"Inactive track","value":{"value":40,"unit":"dp"},"resolved":{"light":{"value":40,"unit":"dp"},"dark":{"value":40,"unit":"dp"}},"chain":["md.comp.slider.medium.inactive.track.height"]},
+  {"token":"md.comp.slider.medium.inactive.track.shape.trailing","type":"LENGTH","group":"Inactive track","value":{"value":12,"unit":"dp"},"resolved":{"light":{"value":12,"unit":"dp"},"dark":{"value":12,"unit":"dp"}},"chain":["md.comp.slider.medium.inactive.track.shape.trailing"]},
+  {"token":"md.comp.slider.medium.active.handle.height","type":"LENGTH","group":"Handle","value":{"value":52,"unit":"dp"},"resolved":{"light":{"value":52,"unit":"dp"},"dark":{"value":52,"unit":"dp"}},"chain":["md.comp.slider.medium.active.handle.height"]},
+  {"token":"md.comp.slider.medium.icon.padding","type":"LENGTH","group":"Icon","value":{"value":6,"unit":"dp"},"resolved":{"light":{"value":6,"unit":"dp"},"dark":{"value":6,"unit":"dp"}},"chain":["md.comp.slider.medium.icon.padding"]},
+  {"token":"md.comp.slider.medium.icon.size","type":"LENGTH","group":"Icon","value":{"value":24,"unit":"dp"},"resolved":{"light":{"value":24,"unit":"dp"},"dark":{"value":24,"unit":"dp"}},"chain":["md.comp.slider.medium.icon.size"]}
+ ]
+}

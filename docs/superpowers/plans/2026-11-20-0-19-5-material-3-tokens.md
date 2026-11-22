@@ -9,7 +9,9 @@ goal: "I want us to match md both in appearance and in naming". 0.19.5 makes the
 
 A check that compares the theme's tokens with Material 3's own tokens, run in CI and failing on a difference that is not on its
 allowlist, released together with the fixes that make it pass (a check and its fixes are one bite, `plans/2026-11-18-release-per-feature.md`).
-One feature, `feature/0.19.5-m3-tokens`, cut from `main` by PM 0.19.5 once 0.19.4 is released. Two specs ride in it:
+One feature, `feature/0.19.5-m3-tokens`, cut from `feature/0.19.4-screen-readers`, not from `main` (owner, 21 November 2026: 0.19.5 is built
+alongside 0.19.4). After every merge into `feature/0.19.4-screen-readers`, 0.19.4 is merged forward into this branch (never a rebase). It goes into `main`,
+and so onto `next`, only after the owner has approved or rejected the staged 0.19.4. Two specs ride in it:
 
 - `specs/2026-11-20-elevation-design.md`: the surface and elevated kinds, the classes, the check on hand-written shadows, the current parts;
 - `specs/2026-11-20-section-colours-design.md`: the two colours of a coloured section and `check:color-roles`.
@@ -80,22 +82,74 @@ Batch 1 makes the comparison exact and turns this into the real baseline.
 1. **The version, the copy and the check.** Sets the version to 0.19.5 (`plans/2026-11-19-version-at-feature-start.md`), adds
    `scripts/m3-tokens.mjs`, `docs/m3-tokens/`, `check:m3-tokens` in CI and its allowlist with exactly the baseline found, each entry sorted
    as a recorded deviation or "to fix". `.claude/skills/checks/SKILL.md` says when to run it (a change to `theme/styles/tokens/`).
-2. **Elevation, the classes and the shadow check** (elevation spec, batches 1 and 2).
-3. **The section colours check and swap** (section colours spec, batches 1 and 2).
-4. **The current parts' elevation** (elevation spec, batch 3), with its test against the copy.
-5. **Colour roles of parts.** Every "to fix" colour entry fixed to M3's role. `check:screens` on every section colour,
+2. **The UI components page** (owner, 21 November 2026, "Yes and yes"). A page `/ui/` on the demo and on `morpheme-staging` that shows the theme's UI
+   components as a visitor sees them, with the site's own theme and CSS, so the owner sees each token batch's before and after on one Preview page.
+   - *Shared gallery:* it draws the same gallery as the editor's *Developer › Parts › UI components* (`#developer/parts/ui`, `ComponentParts` in
+     `src/BlockParts.tsx`), so the two never differ.
+   - *Layout:* one heading per group (Buttons, Icon buttons, FABs, Chips, Text fields …) and a subheading per size or kind (Small, Medium, Large;
+     Filled, Tonal, Outlined …). The editor's gallery gets the same headings and subheadings.
+   - *Visibility:* hidden from search engines and not in the menu. The CMS package provides the page and a site turns it on, so only the demo and
+     `morpheme-staging` show it, never a customer's site. Staging needs its own pull request in that repository.
+   - *Design first:* a short design, for the setting's name, goes before the build.
+3. **Elevation, the classes and the shadow check** (elevation spec, batches 1 and 2).
+4. **The section colours check and swap** (section colours spec, batches 1 and 2).
+5. **The current parts' elevation** (elevation spec, batch 3), with its test against the copy.
+6. **Colour roles of parts.** Every "to fix" colour entry fixed to M3's role. `check:screens` on every section colour,
    light and dark.
-6. **Sizes, shapes and type.** Every "to fix" size, shape and type entry fixed to M3's value.
-7. **The rest of the colour allowlist** (section colours spec, batch 3).
-8. **The recorded deviations.** Every entry of `docs/material-deviations.md` outside the editor's workspace is sorted: it matches M3
+7. **Sizes, shapes and type.** Every "to fix" size, shape and type entry fixed to M3's value.
+8. **The rest of the colour allowlist** (section colours spec, batch 3).
+9. **The recorded deviations.** Every entry of `docs/material-deviations.md` outside the editor's workspace is sorted: it matches M3
    Expressive after all (the entry goes, as with the 16 dp menu corner and the 56 dp hero buttons), WCAG requires it (it stays, naming the
    criterion), or it is made to match M3 and the entry goes (for example G1, the 16 and 24 px gap between cards where M3 prints 8 dp max).
+10. **Density follows M3** (owner, 21 November 2026: "follow m3"). Large (+1) goes and Medium is 0 (a stored Large reads as Medium); every part
+    M3 gives a density supports 0 to -3 in the theme's styling; the editor's setting keeps Medium and Small. `check:screens` and
+    `check:contrast` force -2 and -3. Spec note: `specs/2026-11-13-density-design.md`; entries 12 to 15 of `docs/material-deviations.md`.
+11. **The theme's accessibility statement: file and checks.** `theme/accessibility.json` (Material's own file), and `check:contrast`, `check:screens`, `check:a11y`
+    and `check:announce` let a failure through only if it is named there (spec on #1071). Batch 9 lands after it.
+12. **The accessibility statement in the editor.** The editor's theme page row and its texts.
 
-Batch 1 goes first; 2 and 3 can run side by side; 4 follows 2; 5 follows 3 (both change colours of parts); 6 and 8 can run beside 4 and
-5; 7 goes last. Every batch removes the allowlist entries it fixes, keeps `check:screens`, `check:themes` and `check:a11y` green (no `check:contrast` per batch: one final scan when Material's M3 work is done, owner 21 Nov 2026, `specs/2026-11-21-base-theme-notes.md`). Parts change their look (tonal buttons, the navigation indicators, the bars losing their shadow), so batches 4
-to 6 and 8 each add a release note line (skill `release-notes`).
+Batch 1 goes first; 2 (the page) follows it, because every token batch after it is reviewed on that page; 3 and 4 can run side by side; 5 follows 3; 6 follows 4 (both change colours of parts); 7 and 9 can run beside 5 and
+6; 8 goes last. Every batch removes the allowlist entries it fixes, keeps `check:screens`, `check:themes` and `check:a11y` green (no `check:contrast` per batch: one final scan when Material's M3 work is done, owner 21 Nov 2026), and
+Venus is checked on the demo. Parts change their look (tonal buttons, the navigation indicators, the bars losing their shadow), so batches 5
+to 7 and 9 each add a release note line (skill `release-notes`).
+
+## Scope change (owner, 21 November 2026)
+
+Owner: "we will no longer follow our FRONTEND deviations, instead we will follow md3". Material, the default theme, follows M3 exactly on the site; every
+deviation outside the editor's own workspace is removed and the part takes M3's value, **including the three accessibility ones**: the 60 % placeholder
+and the control edges (deviation 4), the outlined card's edge in `outline-variant` (O1) and the section's edges (O2). Their values change in batches 4, 6 and 8, and
+`docs/material-deviations.md` no longer lists them. In their place a theme's accessibility statement comes (`specs/2026-11-21-theme-accessibility-statement-design.md`):
+`theme/accessibility.json` names the shortfalls from WCAG 2.2 AA by criterion and part, and `check:contrast`, `check:screens`, `check:a11y` and `check:announce` let a
+failure through only if it is named there (batches 11 and 12 below); this pull request lands after batch 11. The site's focus ring is M3's focus indicator;
+`check:contrast` measures it at 3:1 and it is named in the statement only if it falls under. The editor's workspace keeps its exceptions. Coloured sections stay, on M3's
+nearest container roles (batch 4). `scripts/m3-tokens.allow.mjs` ends with the editor's workspace entries. Material later becomes a theme like Venus; no base theme work
+is in 0.19.5.
+
+Every frontend deviation, by name, and the batch that removes it (the sorting is `plans/2026-11-21-0-19-5-deviations-sorted.md`):
+
+| Deviation (`docs/material-deviations.md`) | Removed by |
+| :-- | :-- |
+| Section colours 1 (inverted theme), 2 (veils), 3 (quieter text) | batch 4 |
+| Section colours 4 (placeholders, icons), O1 (outlined card edge), O2 (edges in a coloured section) | removed, covered by the accessibility statement (batch 11); the values change in batches 4, 6 and 8 |
+| Colour sweep 1 (status badges), 6 (video still), 7 to 9 (masks, `#000`, scrim) | batch 8 (or recorded as M3's own value) |
+| Colour sweep 11 (`--block-*` aliases) | 0.20.0 names |
+| Colour sweep 12 (elevation and panel shadows) | batches 3 and 5 |
+| CSS sweep 4 (icon button 48 dp), Buttons B1 (text button padding), CSS sweep 9 (type sizes) | batch 7 (merged); the entries are removed in batch 9 |
+| CSS sweep 1 to 3, 6 to 8 (dialog and menu corners, 56 dp buttons, list rows, checkbox ring, slider and code corners, spacing) | batch 9: they match M3 |
+| Image tiles 17, G1 (card gap 8 dp), Lightbox 19 | batch 9 |
+| Choice group D2 and D3, Palette P1, C2, F1 (FAB), B3 (sheet padding), T1 (text measure), Cards CM1 to CM3 | batch 9 |
+| Search view SV1 to SV5, SV7 (scrim), SV8 to SV13, SV12 (list rows on Surface), button group `aria-pressed` | batch 9 |
+| Navigation rail N1, N2, N7 | batch 9 |
+| CSS sweep 5 and FR1 (focus ring), A1 (search field ring) | batch 9: the site takes M3's focus indicator (`secondary`, 3 dp, 2 dp); the editor keeps `primary`. Only if `check:contrast` or `check:keyboard` fails on it does it join the accessibility allowlist |
+| E1 (error text without `role="alert"`), N5 (native dialog, no swipe) | stays: Modern Web Guidance outranks M3 (priority 1), guides named in each entry |
+| Choice group D1 (radio-list fallback) | → 0.20.0: follows M3's button group (one line, smaller buttons, then an overflow menu) |
+| N3 (site menu: icons on rail items) | → 0.20.0: M3's navigation drawer built on the rail code with the rail off; the editor keeps the rail |
+| N4 (`menuSide`, menu on the end edge) | not a deviation: customization (owner, 21 Nov 2026); removed from `docs/material-deviations.md`, not on the 0.20.0 list |
+| The Dialog's full-screen kind | → 0.20.0: the theme's Dialog gets the kind back for compact windows; the editor keeps its pages for now |
+| Density Large (+1) (12) and density 13 to 15 (horizontal padding, list row never below the target, invisible target area) | batch 10 (merged, #1101) |
+| DP1 (a docked date picker's steppers wrap on a narrow screen) | stays: WCAG 2.2 reflow, 1.4.10 (owner, 21 Nov 2026; #1100) |
 
 ## Done when
 
-`check:m3-tokens` runs in CI, its allowlist holds only the editor's workspace and WCAG entries, no deviation outside them is left, the elevation and section colours specs are done, the owner has
+`check:m3-tokens` runs in CI, its allowlist holds only the editor's workspace entries, no frontend deviation is left, the elevation and section colours specs are done, the owner has
 reviewed the feature on the demo in light and dark, and 0.19.5 has run on staging before the owner releases it.

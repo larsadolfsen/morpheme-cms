@@ -1,0 +1,12 @@
+{
+ "set": "md.comp.fab.medium",
+ "displayName": "FAB - Size - Medium",
+ "description": "For medium FABs.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.fab.medium.container.height","type":"LENGTH","group":null,"value":{"value":80,"unit":"dp"},"resolved":{"light":{"value":80,"unit":"dp"},"dark":{"value":80,"unit":"dp"}},"chain":["md.comp.fab.medium.container.height"]},
+  {"token":"md.comp.fab.medium.container.width","type":"LENGTH","group":null,"value":{"value":80,"unit":"dp"},"resolved":{"light":{"value":80,"unit":"dp"},"dark":{"value":80,"unit":"dp"}},"chain":["md.comp.fab.medium.container.width"]},
+  {"token":"md.comp.fab.medium.icon.size","type":"LENGTH","group":null,"value":{"value":28,"unit":"dp"},"resolved":{"light":{"value":28,"unit":"dp"},"dark":{"value":28,"unit":"dp"}},"chain":["md.comp.fab.medium.icon.size"]},
+  {"token":"md.comp.fab.medium.container.shape","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner.large-increased"},"resolved":{"light":{"value":20,"unit":"dp","shape":"rounded_corners"},"dark":{"value":20,"unit":"dp","shape":"rounded_corners"}},"chain":["md.comp.fab.medium.container.shape","md.sys.shape.corner.large-increased"]}
+ ]
+}

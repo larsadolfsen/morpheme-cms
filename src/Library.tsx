@@ -17,7 +17,6 @@ import {
   Check,
   ClockCounterClockwise,
   CircleHalf,
-  Rows,
   FileText,
   GoogleLogo,
   List as ListIcon,
@@ -36,6 +35,7 @@ import { byText, entryData, type Collection, type Part, type PartScreen } from '
 import { config, countsOf, header, relationsOf, siteName } from '@site/editor';
 import { iconPack, iconPacks } from './iconPacks';
 import { theme, themes, type ThemeInfo } from './themes';
+import { partWords, statementOf } from './themeAccessibility.mjs';
 import { StartFab } from './StartFab';
 import { ListFab } from './ListFab';
 import { StartStatus } from './StartStatus';
@@ -76,6 +76,7 @@ import {
   Group,
   IconButton,
   LeadingIcon,
+  plainListClass,
   SearchRow,
   useKept,
   SegmentedButton,
@@ -506,6 +507,7 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
   const inLocale = <T,>(x?: Record<string, T>) => x && (x[locale] ?? Object.values(x)[0]);
   const description = inLocale(of.description);
   const highlights = inLocale(of.highlights) ?? [];
+  const statement = statementOf(of.accessibility);
   const shotName = (key: string) => t.library.themeShots[key] ?? of.name;
   const kept: [Icon, string][] = [
     [FileText, t.library.themeKeptContent],
@@ -534,16 +536,14 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
 
   return (
     <Screen title={of.name} wide back={backToThemes}>
-      <div className="mo-row mo-editor-library-theme-head">
-        <img src={of.icon} alt="" className="mo-keep mo-editor-library-theme-icon" />
-        <span className="mo-fill">
-          <span className="mo-editor-library-line mo-truncate mo-editor-library-name">{of.name}</span>
-          <span className="mo-editor-library-line mo-truncate mo-editor-library-byline">
-            {t.library.themeByline(of.version, of.author)}
-          </span>
-          {status && <span className="mo-editor-library-line mo-editor-library-byline">{status}</span>}
-        </span>
-      </div>
+      <ul className={`${plainListClass} mo-editor-list-head`}>
+        <ListItem
+          leadingImage={{ src: of.icon }}
+          headline={of.name}
+          supporting={[t.library.themeByline(of.version, of.author), status].filter(Boolean).join(' · ')}
+          lines={3}
+        />
+      </ul>
       {of.id !== chosen && themeInstalled(of.id) && (
         <div className="mo-editor-library-section">
           <Button busy={saving} disabled={saving} onClick={use}>
@@ -571,6 +571,25 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
           ))}
         </Group>
       )}
+      <Group>
+        <ListItem
+          icon={statement.state === 'meets' ? Check : ListChecks}
+          headline={
+            statement.state === 'meets'
+              ? t.library.themeA11yMeets
+              : statement.state === 'short'
+                ? t.library.themeA11yShort
+                : t.library.themeA11yUnchecked
+          }
+        />
+        {statement.shortfalls.map((x) => (
+          <ListItem
+            key={`${x.part}-${x.criterion}`}
+            headline={t.library.themeA11yItem(t.library.themeA11yParts[x.part] ?? partWords(x.part), x.criterion)}
+          />
+        ))}
+        <ListItem headline={t.library.themeA11yNotYours} />
+      </Group>
       <Group title={t.library.themeKept}>
         {kept.map(([glyph, text]) => (
           <ListItem key={text} icon={glyph} headline={text} />
@@ -903,13 +922,12 @@ function ThemePicker() {
   );
 }
 
-// How much fits on the screen, as three buttons side by side: Large (looser), Medium (the default) or Small (denser), with
+// How much fits on the screen, as two buttons side by side: Medium (the default) or Small (denser), with
 // an icon of lines each. It is kept on the person's account and in this browser (density.ts). The buttons never follow it
 // themselves, so a person can always go back.
 function DensityPicker() {
   const [density, pick] = useState(savedDensity);
   const choices: { value: Density; label: string; icon: Icon }[] = [
-    { value: 'large', label: t.library.densities.large, icon: Rows },
     { value: 'medium', label: t.library.densities.medium, icon: ListIcon },
     { value: 'small', label: t.library.densities.small, icon: ListBullets },
   ];

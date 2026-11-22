@@ -252,7 +252,7 @@ export const parts: Messages['parts'] = {
   },
   tokens: {
     intro: 'Temaets designtokens for hjørner, skygger, typografi og farver, som temaet sætter dem.',
-    groups: { shape: 'Hjørner', elevation: 'Skygger', type: 'Typografi', color: 'Farver' },
+    groups: { shape: 'Hjørner', elevation: 'Skygger', elevationClasses: 'Højdeklasser', type: 'Typografi', color: 'Farver' },
     shape: {
       radius: 'Paneler',
       radiusSmall: 'Det mindre i et panel',
@@ -293,6 +293,8 @@ export const parts: Messages['parts'] = {
       level: (n) => `Niveau ${n}`,
       unused: 'Ikke brugt',
       own: 'Egen skygge',
+      classSurface: 'En flade: niveauets farve og højdeskygge',
+      classElevated: 'Hævet: kun niveauets skygge',
       shadow: 'Paneler',
       blockShadow: 'Blokke',
     },
@@ -383,6 +385,10 @@ export const parts: Messages['parts'] = {
     shapes: { round: 'Rund', square: 'Firkantet' },
     widths: { narrow: 'Smal', default: 'Standard', wide: 'Bred' },
     toggle: { off: 'Slået fra', on: 'Slået til' },
+    subs: {
+      widths: 'Bredder',
+      toggle: (shape) => `Til og fra, ${shape.toLowerCase()}`,
+    },
     iconKinds: { standard: 'Standard', filled: 'Fyldt', tonal: 'Tonet', outlined: 'Med ramme' },
     withIcon: 'Med ikon',
     disabled: 'Kan ikke bruges',

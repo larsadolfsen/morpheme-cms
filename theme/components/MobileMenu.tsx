@@ -1,6 +1,6 @@
 // The menu in Material: the theme's modal navigation drawer (ui/NavigationDrawer.tsx, m3.material.io/components/navigation-drawer), opened by the
 // navigation icon in the top app bar (Header.astro). It comes in over a scrim from the edge its button is on (
-// the start, left, or the end, right; mirrored in right-to-left languages), with the site's name, the menu's items with
+// the start, left, or the end, right; mirrored in right-to-left languages), with the site's name and, at the end of the head, the close button (as the editor's drawer), the menu's items with
 // the open page in an active indicator, and at its bottom the header's call to action (header.json), each part when it
 // is on: the phone number (a tel: link on a phone, the contact page from the medium window size up) and the button after
 // it in one row, sharing the drawer's width (the button on top of the number when they do not fit side by side). Items with sub-pages unfold
@@ -19,6 +19,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { motionSpring } from '@morphemecms/cms/lib/motion';
 import { lightDismiss } from '@theme/ui/lightDismiss';
 import IconButton from '@theme/ui/IconButton';
+import Divider from '@theme/ui/Divider';
 import Buttons from '@theme/blocks/buttons/Buttons';
 import HeaderPhoneButton, { type HeaderPhone } from '@theme/components/HeaderPhoneButton';
 import type { ButtonView } from '@morphemecms/cms/src/standard/buttons/view';
@@ -76,14 +77,14 @@ export default function MobileMenu({
   }));
   // The scrim is the dialog's ::backdrop, which inherits this variable from the dialog (navigation-drawer.css), so it fades with the
   // effects' springs while the drawer moves with the spatial ones.
-  const scrim = '--mo-comp-navigation-drawer-scrim-opacity';
+  const scrim = '--mo-comp-navigation-drawer-scrim-fade';
 
   // The edge it comes from is its side's: the start edge slides it in from the left (from the right in right-to-left
   // languages), the end edge from the right (the left).
   const away = () => ((getComputedStyle(document.documentElement).direction === 'rtl') === (side === 'end') ? '-100%' : '100%');
 
   // The expanded rail's menu button (M3 Navigation rail, Guidelines: "When the navigation rail is expanded, the menu icon should change to
-  // represent that it can be collapsed"): at the top, on the edge the header's menu button is on, it closes the drawer.
+  // represent that it can be collapsed"): at the top, on the end edge as in the editor's drawer (owner, 22 Nov 2026), it closes the drawer.
   const menuButton = <IconButton icon="menu-open" label={texts.close} onClick={() => void close()} />;
 
   const show = () => {
@@ -151,14 +152,14 @@ export default function MobileMenu({
         >
           <NavigationDrawer variant="modal" className={side === 'end' ? navigationDrawerEndClass : undefined}>
             <div className="mo-navigation-drawer__head">
-              {side !== 'end' && menuButton}
               <span aria-hidden="true" className="mo-logo-mark mo-drawer__mark" />
               <div className="mo-drawer__title">
                 <p className="mo-navigation-drawer__name">{name}</p>
                 <p className="mo-navigation-drawer__role">{role}</p>
               </div>
-              {side === 'end' && menuButton}
+              {menuButton}
             </div>
+            <Divider className="mo-navigation-drawer__head-divider" />
 
             <NavigationDrawerSection>
               <nav aria-label={texts.menu}>

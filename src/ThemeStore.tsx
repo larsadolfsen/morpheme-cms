@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import { Check, Smiley } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { busyFor } from './busyAction.mjs';
-import { Button, EmptyNote, Group, GroupTitle, ImageCarousel, SupportingText, ListItem } from './ui';
+import { Button, EmptyNote, Group, GroupTitle, ImageCarousel, SupportingText, ListItem, plainListClass } from './ui';
 import { ConflictError, type RepoFile } from './github';
 import type { Env } from './App';
 import { ask } from './ask';
@@ -282,14 +282,14 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
     <Screen title={of?.name ?? t.common.parts.themes} wide back={{ href: `#${STORE_THEMES}`, label: t.common.parts.themeStore }}>
       {of ? (
         <>
-          <div className="mo-editor-store-head">
-            <img src={of.icon} alt="" className="mo-editor-store-icon-large" />
-            <span className="mo-fill">
-              <span className="mo-editor-store-name">{of.name}</span>
-              <span className="mo-editor-store-byline">{t.library.themeByline(of.version, of.author)}</span>
-              <span className="mo-editor-store-status">{pending ? t.apps.pending : t.apps.notInstalled}</span>
-            </span>
-          </div>
+          <ul className={`${plainListClass} mo-editor-list-head`}>
+            <ListItem
+              leadingImage={{ src: of.icon }}
+              headline={of.name}
+              supporting={[t.library.themeByline(of.version, of.author), pending ? t.apps.pending : t.apps.notInstalled].join(' · ')}
+              lines={3}
+            />
+          </ul>
           {!pending && (
             <div className="mo-editor-settings-section">
               <Button

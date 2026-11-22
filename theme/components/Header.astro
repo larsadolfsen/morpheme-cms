@@ -135,9 +135,11 @@ const menuProps = {
   }
 </script>
 <script>
+  // A menu's button opens and closes it (aria-expanded). Keys (M3's menus Accessibility, "Keyboard navigation"): Down and Up arrows on the button open it
+  // on its first or last item; in it the arrows go between the items (round), Home and End to the first and the last, a letter to the next item starting
+  // with it; Escape closes it and puts the focus back on the button; a click outside it and focus leaving it close it too. The items stay links in a list
+  // (a site's navigation is a disclosure, not an application menu), so Tab still goes through them.
   import { nextInMenu } from '@morphemecms/cms/lib/menuTypeAhead.mjs';
-
-  // A menu's button opens and closes it (aria-expanded); Escape, a click outside it and focus leaving it close it.
   const items = [...document.querySelectorAll<HTMLElement>('[data-nav-item]:has([data-nav-toggle])')];
   const setOpen = (item: HTMLElement, open: boolean) => {
     item.toggleAttribute('data-open', open);
@@ -145,13 +147,7 @@ const menuProps = {
   };
   for (const item of items) {
     const toggle = item.querySelector<HTMLElement>('[data-nav-toggle]')!;
-    const links = () => [...item.querySelectorAll<HTMLElement>('.mo-header__submenu a')];
-    const openOn = (which: 'first' | 'last') => {
-      for (const other of items) if (other !== item) setOpen(other, false);
-      setOpen(item, true);
-      const all = links();
-      (which === 'first' ? all[0] : all[all.length - 1])?.focus({ preventScroll: true });
-    };
+    const links = () => [...item.querySelectorAll<HTMLElement>('.mo-menu__item')];
     // Opened by a key (a click without a pointer: Enter, Space), the focus goes to the menu's first item, as WAI-ARIA's menu button does.
     toggle.addEventListener('click', (e) => {
       const open = !item.hasAttribute('data-open');
@@ -159,32 +155,35 @@ const menuProps = {
       setOpen(item, open);
       if (open && (e as MouseEvent).detail === 0) links()[0]?.focus({ preventScroll: true });
     });
-    toggle.addEventListener('keydown', (e) => {
-      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
-      e.preventDefault();
-      openOn(e.key === 'ArrowDown' ? 'first' : 'last');
-    });
-    // In the open menu the arrow keys go between its items (round), Home and End to the first and the last, and a letter to the next item starting with it,
-    // without the page scrolling.
-    item.querySelector('.mo-header__submenu')?.addEventListener('keydown', (e) => {
-      const key = e as KeyboardEvent;
-      const all = links();
-      const to = nextInMenu(
-        key,
-        all.map((a) => a.textContent ?? ''),
-        all.indexOf(document.activeElement as HTMLElement),
-      );
-      if (to === undefined) return;
-      key.preventDefault();
-      all[(to + all.length) % all.length]?.focus({ preventScroll: true });
-    });
     item.addEventListener('focusout', (e) => {
       if (!item.contains(e.relatedTarget as Node | null)) setOpen(item, false);
     });
     item.addEventListener('keydown', (e) => {
-      if (e.key !== 'Escape' || !item.hasAttribute('data-open')) return;
-      setOpen(item, false);
-      toggle.focus();
+      if (e.key === 'Escape') {
+        if (!item.hasAttribute('data-open')) return;
+        setOpen(item, false);
+        toggle.focus();
+        return;
+      }
+      const list = links();
+      if (e.target === toggle) {
+        if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+        e.preventDefault();
+        for (const other of items) if (other !== item) setOpen(other, false);
+        setOpen(item, true);
+        list[e.key === 'ArrowDown' ? 0 : list.length - 1]?.focus();
+        return;
+      }
+      const at = list.indexOf(e.target as HTMLElement);
+      if (at < 0) return;
+      const to = nextInMenu(
+        e,
+        list.map((l) => l.textContent ?? ''),
+        at,
+      );
+      if (to === undefined) return;
+      e.preventDefault();
+      list[((to % list.length) + list.length) % list.length]?.focus();
     });
   }
   document.addEventListener('click', (e) => {

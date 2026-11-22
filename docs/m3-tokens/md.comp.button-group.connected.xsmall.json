@@ -1,0 +1,14 @@
+{
+ "set": "md.comp.button-group.connected.xsmall",
+ "displayName": "Button group connected - Size - Xsmall",
+ "description": "For XS connected button groups.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.button-group.connected.xsmall.container.height","type":"LENGTH","group":null,"value":{"value":32,"unit":"dp"},"resolved":{"light":{"value":32,"unit":"dp"},"dark":{"value":32,"unit":"dp"}},"chain":["md.comp.button-group.connected.xsmall.container.height"]},
+  {"token":"md.comp.button-group.connected.xsmall.between-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space25"},"resolved":{"light":{"value":2,"unit":"dp"},"dark":{"value":2,"unit":"dp"}},"chain":["md.comp.button-group.connected.xsmall.between-space","md.sys.measurement.space25"]},
+  {"token":"md.comp.button-group.connected.xsmall.container.shape","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner.full"},"resolved":{"light":{"value":"circular","unit":null,"shape":"circular"},"dark":{"value":"circular","unit":null,"shape":"circular"}},"chain":["md.comp.button-group.connected.xsmall.container.shape","md.sys.shape.corner.full"]},
+  {"token":"md.comp.button-group.connected.xsmall.inner-corner.corner-size","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner-value.small"},"resolved":{"light":{"value":8,"unit":"dp"},"dark":{"value":8,"unit":"dp"}},"chain":["md.comp.button-group.connected.xsmall.inner-corner.corner-size","md.sys.shape.corner-value.small"]},
+  {"token":"md.comp.button-group.connected.xsmall.pressed.inner-corner.corner-size","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner-value.extra-small"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.button-group.connected.xsmall.pressed.inner-corner.corner-size","md.sys.shape.corner-value.extra-small"]},
+  {"token":"md.comp.button-group.connected.xsmall.selected.inner-corner.corner-size","type":"LENGTH","group":null,"value":{"value":50,"unit":"percent"},"resolved":{"light":{"value":50,"unit":"percent"},"dark":{"value":50,"unit":"percent"}},"chain":["md.comp.button-group.connected.xsmall.selected.inner-corner.corner-size"]}
+ ]
+}

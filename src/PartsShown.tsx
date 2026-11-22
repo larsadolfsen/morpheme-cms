@@ -13,6 +13,9 @@ import { themeCoverage } from './coverage';
 import { headed, letterOf } from './Sheet';
 import { t } from './i18n';
 
+/** The tag of the part's name above (h2 or h3): a subheading under it is one level deeper. */
+const PartName = createContext<'h2' | 'h3'>('h3');
+
 export type PartGroupInfo = { id: string; title: string };
 
 type Sort = 'group' | 'az' | 'za';
@@ -170,13 +173,13 @@ export function PartsShown({
 /** The parts of a group, under its name while all the groups are shown in their groups; nothing when
  * another group is picked, and no name when none of its parts is what is searched for. By name, the parts
  * stand in one list, without the groups. */
-export function PartGroup({ group, children }: { group: string; children: ReactNode }) {
+export function PartGroup({ group, title, children }: { group: string; title?: string; children: ReactNode }) {
   const shown = useContext(Shown);
   if (shown.group && shown.group !== group) return null;
   if (shown.sort !== 'group') return <div className="mo-contents">{children}</div>;
   return (
     <div className="mo-editor-parts-group">
-      {!shown.group && <FormHeading>{shown.groups.find((g) => g.id === group)?.title}</FormHeading>}
+      {!shown.group && <FormHeading>{shown.groups.find((g) => g.id === group)?.title ?? title}</FormHeading>}
       {children}
     </div>
   );
@@ -196,27 +199,74 @@ export function Example({ label, className, flat, children }: { label: string; c
   );
 }
 
+/** The mark of a sample that is not of its part's component (a button inside a card, a chip in a menu): `data-m3` names the Material 3 token family the
+ * sample is (`check:m3-render` measures it against that family; `none` with the reason's id in scripts/check-m3-render.mjs, NONE, when Material 3 has no
+ * component for it). Draws a box-less div (`display: contents`), so nothing moves. */
+export function M3({ set, children }: { set: string; children: ReactNode }) {
+  return (
+    <div data-m3={set} style={{ display: 'contents' }}>
+      {children}
+    </div>
+  );
+}
+
 /** A part's name and what it is for, above it, with its coverage mark when the theme in use has one for it
  * (`coverage`: the id in the catalogue, the first word of the name when not given); nothing when it is not
  * what is searched for, or when the style filter picks another status. */
-export function Part({ name, use, coverage, children }: { name: string; use?: string; coverage?: string; children?: ReactNode }) {
+export function Part({
+  name,
+  use,
+  coverage,
+  m3,
+  children,
+}: {
+  name: string;
+  use?: string;
+  coverage?: string;
+  m3?: string;
+  children?: ReactNode;
+}) {
   const shown = useContext(Shown);
   const heading = useId();
   const covered = themeCoverage?.parts[coverage ?? name.split(',')[0].trim()];
   if (shown.style && covered?.status !== shown.style) return null;
   const query = shown.query.trim().toLocaleLowerCase();
   if (query && !`${name} ${use ?? ''}`.toLocaleLowerCase().includes(query)) return null;
+  // Under a group's heading (the page's h1, the group's h2) a part's name is an h3; with no group heading above it (a group picked, or the parts by name) it is an h2.
+  const Name = shown.sort === 'group' && !shown.group ? 'h3' : 'h2';
   return (
     // A group named by its heading: the examples of one part repeat each other's labels (every part has a `Cancel`), and a reader tells the parts apart by it.
-    <section data-part={name} role="group" aria-labelledby={heading} className="mo-editor-flow-3" style={{ order: shown.order.get(name) }}>
+    <section
+      data-part={name}
+      data-m3={m3}
+      role="group"
+      aria-labelledby={heading}
+      className="mo-editor-flow-3"
+      style={{ order: shown.order.get(name) }}
+    >
       <div>
-        <h2 id={heading} className="mo-editor-part-name">
+        <Name id={heading} className="mo-editor-part-name">
           {name}
-        </h2>
+        </Name>
         {use && <SupportingText>{use}</SupportingText>}
         {covered && <CoverageBadge coverage={covered} />}
       </div>
-      {children}
+      <PartName.Provider value={Name}>{children}</PartName.Provider>
     </section>
+  );
+}
+
+/** A subheading inside a part, one for each size or kind it shows (Small, Medium, Large; Filled, Tonal, Outlined), with what it names under it. */
+export function PartSub({ name, children }: { name: string; children: ReactNode }) {
+  const Tag = useContext(PartName) === 'h3' ? 'h4' : 'h3';
+  const heading = useId();
+  // A group named by its heading, as a part is: the examples under it repeat each other's labels, and a reader tells the rows apart by the name.
+  return (
+    <div role="group" aria-labelledby={heading} className="mo-editor-part-sub">
+      <Tag id={heading} className="mo-type-label-medium mo-editor-part-sub-name">
+        {name}
+      </Tag>
+      {children}
+    </div>
   );
 }

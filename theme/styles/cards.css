@@ -147,21 +147,22 @@
   }
 
   /* The theme grid (docs/theme-grid.md; M3 Cards: "customized in code to show cards in staggered or mosaic grids"): columns of
-     cards in their own heights, --mo-sys-grid-gutter apart both ways (16px on compact, 24px from medium: owner values; M3 Spacing says
-     "Cards should maintain consistent horizontal spacing to establish a strong rhythm when their height varies" and prints no
-     gutter). --mo-comp-grid-columns is how many cards stand side by side, per breakpoint; M3's layout grid itself has 4 columns on
-     compact, 8 on medium and expanded and 12 on large and extra-large (--mo-sys-grid-layout-columns, in global.css, what a span counts
-     in). A part with other counts sets --mo-comp-grid-columns on its element. */
+     cards in their own heights, --mo-comp-card-gap apart both ways (8px: M3 Cards, Specs, "Padding between cards 8dp max"; M3 Spacing
+     says "Cards should maintain consistent horizontal spacing to establish a strong rhythm when their height varies"). The layout
+     grid's own gutter, --mo-sys-grid-gutter, is for everything that is not a card. --mo-comp-grid-columns is how many cards stand side
+     by side, per breakpoint; M3's layout grid itself has 4 columns on compact, 8 on medium and expanded and 12 on large and
+     extra-large (--mo-sys-grid-layout-columns, in global.css, what a span counts in). A part with other counts sets
+     --mo-comp-grid-columns on its element. */
   .mo-staggered-grid {
     margin: 0;
     padding: 0;
     list-style: none;
     column-count: var(--mo-comp-grid-columns);
-    column-gap: var(--mo-sys-grid-gutter, 16px);
+    column-gap: var(--mo-comp-card-gap, 0.5rem);
   }
   .mo-staggered-grid > * {
     break-inside: avoid;
-    margin-block-end: var(--mo-sys-grid-gutter, 16px);
+    margin-block-end: var(--mo-comp-card-gap, 0.5rem);
   }
   /* A card across all the columns (a span of the whole grid; the cards before and after it pack in their own columns).
      Spans of other widths are not possible in columns: see docs/theme-grid.md. */
@@ -178,7 +179,7 @@
      the top and either a link (the whole card) or buttons, two side by side from small screens (cards/LinkCards.tsx). */
   .mo-block-cards {
     display: grid;
-    gap: var(--mo-sys-grid-gutter);
+    gap: var(--mo-comp-card-gap);
     padding: 0;
     list-style: none;
   }
@@ -327,7 +328,7 @@
     .mo-block-cards__carousel .mo-carousel__items {
       display: grid;
       overflow-x: visible;
-      gap: var(--mo-sys-grid-gutter);
+      gap: var(--mo-comp-card-gap);
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .mo-block-cards__carousel .mo-carousel__item {
@@ -359,7 +360,7 @@
   }
   .mo-block-pricecards__cards {
     display: grid;
-    gap: var(--mo-sys-grid-gutter);
+    gap: var(--mo-comp-card-gap);
   }
   /* A big price, an elevated card (.mo-card in ui.css). */
   .mo-block-pricecards__card {
@@ -460,7 +461,7 @@
   }
   .mo-block-pricecards__plans-list {
     display: grid;
-    gap: var(--mo-sys-grid-gutter);
+    gap: var(--mo-comp-card-gap);
     margin: 0;
     padding: 0;
     list-style: none;

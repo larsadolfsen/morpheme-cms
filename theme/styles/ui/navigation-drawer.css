@@ -2,7 +2,7 @@
   Navigation drawer (NavigationDrawer, NavigationDrawerItem, NavigationDrawerToggle, NavigationDrawerSubitem,
   navigationDrawerClass, navigationDrawerScrimClass): .mo-navigation-drawer, the drawer, over .mo-navigation-drawer__scrim;
   .mo-navigation-drawer__standard, the standard one, beside the content (--mo-comp-navigation-drawer-standard-shadow, level 0);
-  .mo-navigation-drawer__dialog, a <dialog> it is in, at the start edge (at the end edge with .mo-navigation-drawer__end on it too; its ::backdrop the scrim, faded through --mo-comp-navigation-drawer-scrim-opacity); .mo-navigation-drawer__end,
+  .mo-navigation-drawer__dialog, a <dialog> it is in, at the start edge (at the end edge with .mo-navigation-drawer__end on it too; its ::backdrop the scrim, faded through --mo-comp-navigation-drawer-scrim-fade); .mo-navigation-drawer__end,
   one at the end edge (its corners towards the page, mirrored); .mo-navigation-drawer__bleed, one that springs in (on the
   drawer, or on the <dialog> it is in): wider by --mo-comp-navigation-drawer-bleed (32dp) at the edge it comes from, that strip
   off the screen, so a spring that overshoots shows no gap at the edge; .mo-navigation-drawer__item,
@@ -16,10 +16,10 @@
   .mo-navigation-drawer__subitem, a sub-page ([data-active]); .mo-navigation-drawer__section, items under a label
   (.mo-navigation-drawer__section-label, title small) with, in one that follows another, the divider
   (.mo-navigation-drawer__section-divider, edge to edge).
-    --mo-comp-navigation-drawer-width (set: that width; else it hugs its content from 220dp to 360dp, at most the screen less 56dp),
+    --mo-comp-navigation-drawer-width (set: that width; else it hugs its content from 220dp, 320dp on a compact window, to 360dp, at most the screen less 56dp),
     --mo-comp-navigation-drawer-radius (0 16dp 16dp 0; under right-to-left --mo-comp-navigation-drawer-radius-rtl), --mo-comp-navigation-drawer-surface
     (the modal one: the surface container, level 2's colour; the standard one: the surface),
-    --mo-comp-navigation-drawer-shadow (level 1), --mo-comp-navigation-drawer-scrim-color, --mo-comp-navigation-drawer-inset (12dp each side, from
+    --mo-comp-navigation-drawer-shadow (the modal one: level 2, the lift shadow), --mo-comp-navigation-drawer-scrim-color, --mo-comp-navigation-drawer-inset (12dp each side, from
     the edges to the items), --mo-comp-navigation-drawer-padding (all of it, with room for the home indicator),
     --mo-comp-navigation-drawer-section-gap (8dp around the divider), --mo-comp-navigation-drawer-section-label-text
     --mo-comp-navigation-drawer-item-height (56dp), -padding (16dp start and end), -gap (12dp), -radius (full), -font-size,
@@ -32,12 +32,15 @@
 @layer components {
   /* Navigation drawer, modal (m3.material.io/components/navigation-drawer): the pages in a panel over the page. */
   .mo-navigation-drawer__scrim {
-    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--mo-comp-theme-scrim-colour) 45%, transparent));
+    /* M3: the scrim is neutral-variant20 at 0.4 (md.comp.navigation-drawer.scrim). A site without a dynamic source has no
+       --mo-ref-palette-neutral-variant20, so the colour falls back, here only, to the scrim role at 80 %: 0.8 × 0.4 = black at 0.32 as before. */
+    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--mo-sys-color-scrim) 80%, transparent));
+    opacity: var(--mo-comp-navigation-drawer-scrim-opacity, 0.4);
   }
   .mo-navigation-drawer {
     display: flex;
     /* Expanded navigation rail (M3 Expressive, "Expanded layout: Modal"): it hugs its content, "container width minimum 220dp",
-       "maximum 360dp"; a theme that sets --mo-comp-navigation-drawer-width gets that width, as it did. */
+       "maximum 360dp" (on a compact window the least is 320dp, owner, 22 Nov 2026, inside that range); a theme that sets --mo-comp-navigation-drawer-width gets that width, as it did. */
     min-width: var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-width-min-default));
     max-width: var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-container-width));
     flex-direction: column;
@@ -49,7 +52,7 @@
     );
     /* Expanded rail, modal: "Nav rail expanded modal container color", the surface container (level 2's colour). */
     background: var(--mo-comp-navigation-drawer-surface, var(--mo-sys-elevation-level2-color));
-    box-shadow: var(--mo-comp-navigation-drawer-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+    box-shadow: var(--mo-comp-navigation-drawer-shadow, var(--mo-sys-elevation-level2-shadow));
   }
   .mo-navigation-drawer:dir(rtl) {
     border-radius: var(--mo-comp-navigation-drawer-radius-rtl, 1rem 0 0 1rem);
@@ -175,9 +178,10 @@
       );
   }
   .mo-navigation-drawer__dialog::backdrop {
-    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--mo-comp-theme-scrim-colour) 45%, transparent));
+    background: var(--mo-comp-navigation-drawer-scrim-color, color-mix(in srgb, var(--mo-sys-color-scrim) 80%, transparent));
     /* The menu fades it with the motion scheme's springs through this variable, which the backdrop inherits from the dialog. */
-    opacity: var(--mo-comp-navigation-drawer-scrim-opacity, 1);
+    /* M3's scrim opacity (0.4) times the menu's fade, 0 to 1, which the springs play (--mo-comp-navigation-drawer-scrim-fade, MobileMenu.tsx). */
+    opacity: calc(var(--mo-comp-navigation-drawer-scrim-opacity, 0.4) * var(--mo-comp-navigation-drawer-scrim-fade, 1));
   }
   /* Scrolling in or over it does not move the page behind it (no overflow: hidden on the page). */
   .mo-navigation-drawer__dialog:modal {

@@ -131,3 +131,9 @@ Decided by the owner on 20 November 2026:
 
 Done when `check:color-roles` fails on a home-made mix, its allowlist is empty, the owner has seen the coloured sections on the demo in
 light and dark, and 0.19.5 has run on staging.
+
+## As built (batch 1, 21 November 2026)
+
+**The design above (two colours, role for role, the reverse rule for filled parts) is superseded by `2026-11-21-section-colours-m3-roles-design.md`**, after the owner's change to M3's
+nearest roles. What was built and stays: `check:color-roles` (in `check:source`, with `scripts/color-roles.allow.mjs`: one entry per file and rule, `max` and `why`, only shrinks); the spec's
+third rule, a fixed colour, stays `check:colors`' `fixed-colour`. A state layer is any `color-mix()` whose percentage is a `--mo-sys-state-*-opacity` token, and the scrim token declares M3's 32 %.

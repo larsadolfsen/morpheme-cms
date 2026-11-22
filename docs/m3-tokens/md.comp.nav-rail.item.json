@@ -1,0 +1,18 @@
+{
+ "set": "md.comp.nav-rail.item",
+ "displayName": "Nav rail item - Common",
+ "description": "Common tokens for all nav items.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.nav-rail.item.icon.size","type":"LENGTH","group":null,"value":{"value":24,"unit":"dp"},"resolved":{"light":{"value":24,"unit":"dp"},"dark":{"value":24,"unit":"dp"}},"chain":["md.comp.nav-rail.item.icon.size"]},
+  {"token":"md.comp.nav-rail.item.active-indicator.shape","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner.full"},"resolved":{"light":{"value":"circular","unit":null,"shape":"circular"},"dark":{"value":"circular","unit":null,"shape":"circular"}},"chain":["md.comp.nav-rail.item.active-indicator.shape","md.sys.shape.corner.full"]},
+  {"token":"md.comp.nav-rail.item.active-indicator.leading-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space200"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.nav-rail.item.active-indicator.leading-space","md.sys.measurement.space200"]},
+  {"token":"md.comp.nav-rail.item.active-indicator.icon-label-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space100"},"resolved":{"light":{"value":8,"unit":"dp"},"dark":{"value":8,"unit":"dp"}},"chain":["md.comp.nav-rail.item.active-indicator.icon-label-space","md.sys.measurement.space100"]},
+  {"token":"md.comp.nav-rail.item.active-indicator.trailing-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space200"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.nav-rail.item.active-indicator.trailing-space","md.sys.measurement.space200"]},
+  {"token":"md.comp.nav-rail.item.container.height","type":"LENGTH","group":null,"value":{"value":64,"unit":"dp"},"resolved":{"light":{"value":64,"unit":"dp"},"dark":{"value":64,"unit":"dp"}},"chain":["md.comp.nav-rail.item.container.height"]},
+  {"token":"md.comp.nav-rail.item.short.container.height","type":"LENGTH","group":null,"value":{"value":56,"unit":"dp"},"resolved":{"light":{"value":56,"unit":"dp"},"dark":{"value":56,"unit":"dp"}},"chain":["md.comp.nav-rail.item.short.container.height"]},
+  {"token":"md.comp.nav-rail.item.container.shape","type":"SHAPE","group":null,"value":{"ref":"md.sys.shape.corner.none"},"resolved":{"light":{"value":0,"unit":"dp","shape":"rounded_corners"},"dark":{"value":0,"unit":"dp","shape":"rounded_corners"}},"chain":["md.comp.nav-rail.item.container.shape","md.sys.shape.corner.none"]},
+  {"token":"md.comp.nav-rail.item.container.vertical-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space75"},"resolved":{"light":{"value":6,"unit":"dp"},"dark":{"value":6,"unit":"dp"}},"chain":["md.comp.nav-rail.item.container.vertical-space","md.sys.measurement.space75"]},
+  {"token":"md.comp.nav-rail.item.header-space-minimum","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space500"},"resolved":{"light":{"value":40,"unit":"dp"},"dark":{"value":40,"unit":"dp"}},"chain":["md.comp.nav-rail.item.header-space-minimum","md.sys.measurement.space500"]}
+ ]
+}

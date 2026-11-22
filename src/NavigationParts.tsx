@@ -135,7 +135,7 @@ function groups(open?: boolean) {
 export default function NavigationParts() {
   return (
     <>
-      <Part name="TopAppBar" use={say.topAppBar}>
+      <Part name="TopAppBar" m3="md.comp.top-app-bar" use={say.topAppBar}>
         <Preview>
           <div className="mo-editor-nav-bars">
             {[false, true].map((stuck) => (
@@ -212,7 +212,7 @@ export default function NavigationParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="Menu" use={say.menu}>
+      <Part name="Menu" m3="md.comp.menu" use={say.menu}>
         <Preview>
           <div className="mo-editor-nav-menus">
             <SiteMenu>
@@ -241,7 +241,7 @@ export default function NavigationParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="DropdownMenu" use={say.dropdownMenu}>
+      <Part name="DropdownMenu" m3="md.comp.menu" use={say.dropdownMenu}>
         <Preview>
           <div className="mo-editor-nav-menus-tall">
             <Example label={eg(1)} flat>
@@ -262,7 +262,7 @@ export default function NavigationParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="ExposedDropdownMenu" use={say.exposedDropdownMenu}>
+      <Part name="ExposedDropdownMenu" m3="md.comp.select" use={say.exposedDropdownMenu}>
         <Preview>
           <div className="mo-editor-nav-fields">
             {(['outlined', 'filled'] as const).map((kind) => {
@@ -290,7 +290,7 @@ export default function NavigationParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="NavigationDrawer" use={say.navigationDrawer}>
+      <Part name="NavigationDrawer" m3="md.comp.navigation-drawer" use={say.navigationDrawer}>
         <Preview>
           <div className="mo-editor-nav-drawers">
             <SiteNavigationDrawer>
@@ -353,7 +353,7 @@ export default function NavigationParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="Tabs" use={say.tabs}>
+      <Part name="Tabs" m3="md.comp.tabs" use={say.tabs}>
         <Preview>
           <div className="mo-editor-nav-tabs">
             <SiteTabs aria-label={say.viewList}>
@@ -401,7 +401,7 @@ export default function NavigationParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="Fab" use={say.fab}>
+      <Part name="Fab" m3="md.comp.fab" use={say.fab}>
         <Preview>
           <div className="mo-editor-nav-fields">
             <div className={row} {...named(rows.kinds)}>

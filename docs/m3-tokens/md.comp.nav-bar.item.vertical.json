@@ -1,0 +1,13 @@
+{
+ "set": "md.comp.nav-bar.item.vertical",
+ "displayName": "Nav bar - Item - Vertical",
+ "description": "For vertical nav items, where elements are stacked.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.nav-bar.item.vertical.label-text.font","type":"TYPOGRAPHY","group":null,"value":{"ref":"md.sys.typescale.label-medium"},"resolved":{"light":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":12,"unit":"POINTS"},"fontTracking":{"value":0.5,"unit":"POINTS"},"lineHeight":{"value":16,"unit":"POINTS"}},"unit":"typography"},"dark":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":12,"unit":"POINTS"},"fontTracking":{"value":0.5,"unit":"POINTS"},"lineHeight":{"value":16,"unit":"POINTS"}},"unit":"typography"}},"chain":["md.comp.nav-bar.item.vertical.label-text.font","md.sys.typescale.label-medium","md.sys.typescale.label-medium.font","md.ref.typeface.plain"]},
+  {"token":"md.comp.nav-bar.item.vertical.active-indicator.height","type":"LENGTH","group":null,"value":{"value":32,"unit":"dp"},"resolved":{"light":{"value":32,"unit":"dp"},"dark":{"value":32,"unit":"dp"}},"chain":["md.comp.nav-bar.item.vertical.active-indicator.height"]},
+  {"token":"md.comp.nav-bar.item.vertical.active-indicator.width","type":"LENGTH","group":null,"value":{"value":56,"unit":"dp"},"resolved":{"light":{"value":56,"unit":"dp"},"dark":{"value":56,"unit":"dp"}},"chain":["md.comp.nav-bar.item.vertical.active-indicator.width"]},
+  {"token":"md.comp.nav-bar.item.vertical.container.between-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space75"},"resolved":{"light":{"value":6,"unit":"dp"},"dark":{"value":6,"unit":"dp"}},"chain":["md.comp.nav-bar.item.vertical.container.between-space","md.sys.measurement.space75"]},
+  {"token":"md.comp.nav-bar.item.vertical.active-indicator.icon-label-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space50"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.nav-bar.item.vertical.active-indicator.icon-label-space","md.sys.measurement.space50"]}
+ ]
+}

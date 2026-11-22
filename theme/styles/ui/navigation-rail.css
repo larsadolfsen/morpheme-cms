@@ -69,7 +69,7 @@
     border-start-end-radius: var(--mo-comp-navigation-rail-modal-radius, var(--mo-sys-block-radius));
     border-end-end-radius: var(--mo-comp-navigation-rail-modal-radius, var(--mo-sys-block-radius));
     background: var(--mo-comp-navigation-rail-modal-surface, var(--mo-sys-elevation-level2-color));
-    box-shadow: var(--mo-comp-navigation-rail-modal-shadow, var(--mo-sys-elevation-level2-rest-shadow));
+    box-shadow: var(--mo-comp-navigation-rail-modal-shadow, var(--mo-sys-elevation-level2-shadow));
   }
   .mo-navigation-rail__scrim {
     position: fixed;

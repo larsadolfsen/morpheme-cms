@@ -15,14 +15,16 @@
      container. Segmented: 2px between the items, the list's outer corners medium (12px), each item on a surface
      container (a step up from the page; the editor puts the items on the surface over a container page, as Material's
      spec does, editor.css). */
-  --mo-comp-list-divider-color: transparent;
+  --mo-comp-list-divider-color: var(--mo-sys-color-outline);
+  --mo-comp-list-divider-default-color: transparent;
+  --mo-comp-list-expand-divider-default-color: transparent;
   --mo-comp-list-list-item-container-height: 3.5rem;
   --mo-comp-list-item-two-line-min-height: 4.5rem;
   --mo-comp-list-item-three-line-min-height: 5.5rem;
   --mo-comp-list-item-padding-block: 0.625rem;
   --mo-comp-list-item-padding-inline: 1rem;
   --mo-comp-list-item-gap: 0.75rem;
-  --mo-comp-list-list-item-container-shape: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-list-list-item-container-shape: var(--mo-sys-shape-corner-none);
   --mo-comp-list-item-hover-radius: var(--mo-sys-shape-corner-medium);
   --mo-comp-list-item-pressed-radius: var(--mo-sys-shape-corner-large);
   --mo-comp-list-item-selected-radius: var(--mo-sys-shape-corner-large);
@@ -30,9 +32,8 @@
   --mo-comp-list-item-hover-surface: var(--mo-sys-state-mo-hover-layer);
   --mo-comp-list-item-pressed-surface: var(--mo-sys-state-mo-pressed-layer);
   --mo-comp-list-item-focus-surface: var(--mo-sys-state-mo-pressed-layer);
-  /* The one focus ring, in primary (deviation FR1, docs/material-deviations.md; M3's list token is md.comp.list.focus.indicator.color = secondary); its
-     offset is the list's own, -3 dp (inside the item). */
-  --mo-comp-list-item-focus-indicator-color: var(--mo-sys-color-primary);
+  /* M3's focus indicator (md.comp.list.focus.indicator.color = secondary); its offset is the list's own, -3 dp (inside the item). */
+  --mo-comp-list-item-focus-indicator-color: var(--mo-sys-state-focus-indicator-color);
   /* Dragged (M3 List - Common: level 4, the 0.16 dragged state layer, the selected corners 16 dp). */
   --mo-comp-list-item-dragged-radius: var(--mo-sys-shape-corner-large);
   /* The two columns of an item with `columns` (M3's content slot, Lists › Specs, Flexibility & slots). */
@@ -68,7 +69,7 @@
     --mo-comp-list-expand-item-surface: var(--mo-sys-color-surface-container);
     --mo-comp-list-expand-item-radius: var(--mo-sys-shape-corner-extra-small);
     --mo-comp-list-expand-divider-width: 0px;
-    --mo-comp-list-expand-padding-inline: 1.5rem;
+    --mo-comp-list-expand-padding-inline: 1rem;
     --mo-comp-list-expand-open-radius: var(--mo-sys-shape-corner-large);
     --mo-comp-list-expand-icon-open-surface: var(--mo-sys-color-surface-container-high);
   }

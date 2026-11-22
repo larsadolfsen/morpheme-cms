@@ -47,7 +47,7 @@
     border-start-start-radius: var(--mo-comp-sheet-side-docked-container-shape, var(--mo-sys-block-radius));
     border-end-start-radius: var(--mo-comp-sheet-side-docked-container-shape, var(--mo-sys-block-radius));
     background: var(--mo-comp-side-sheet-modal-surface, var(--mo-comp-side-sheet-surface, var(--mo-sys-elevation-level1-color)));
-    box-shadow: var(--mo-comp-side-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));
+    box-shadow: var(--mo-comp-side-sheet-shadow, var(--mo-sys-elevation-level1-shadow));
   }
   /* M3's measures run to the close icon's glyph, and its button holds the space round the glyph (--mo-comp-side-sheet-icon-inset),
      so the header takes that off its top and end padding and has no gap: 24 from the top and the end edges to the glyph,
@@ -88,6 +88,8 @@
     flex-shrink: 0;
     flex-wrap: wrap;
     justify-content: flex-start;
+    /* The buttons keep their own height at every density step: the row is at least 72 high, which at a dense step is more than they need, and the default stretch would pull them up to it (31 px, not 28, at -3). */
+    align-items: flex-start;
     gap: 0.5rem;
     border-top: 1px solid var(--mo-comp-side-sheet-actions-line, var(--mo-sys-block-line));
     padding: 1rem var(--mo-comp-side-sheet-padding, 1.5rem) max(var(--mo-comp-side-sheet-padding, 1.5rem), env(safe-area-inset-bottom));

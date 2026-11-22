@@ -16,7 +16,8 @@
   each <li> is the item's surface (also around what is beside its container in it: a button, fields folded out), the
   first and the last with the list's corners. A multi-action item (.mo-list__item-multi-action): an item's container and
   secondary actions beside it on one row, which has the container's state.
-    --mo-comp-list-divider-color   the line between the items (transparent for none)
+    --mo-comp-list-divider-color   the line of a divider the list asks for (.mo-list__dividers-inset, -middle-inset; M3's md.comp.list.divider.color)
+    --mo-comp-list-divider-default-color   the line a plain list draws between its items (ours, M3 has none: dividers are optional; transparent in Material)
     --mo-comp-list-list-item-container-height, --mo-comp-list-item-two-line-min-height, --mo-comp-list-item-three-line-min-height   by its lines
     --mo-comp-list-item-padding-block, --mo-comp-list-item-padding-inline, --mo-comp-list-item-gap
     --mo-comp-list-list-item-container-shape, --mo-comp-list-item-hover-radius, --mo-comp-list-item-pressed-radius (also focused), --mo-comp-list-item-selected-radius
@@ -51,7 +52,7 @@
     list-style: none;
   }
   .mo-list > li + li {
-    border-top: 1px solid var(--mo-comp-list-divider-color, var(--mo-sys-block-line));
+    border-top: 1px solid var(--mo-comp-list-divider-default-color, var(--mo-comp-list-divider-color, var(--mo-sys-block-line)));
   }
   /* --mo-comp-list-item-shape: the item's corners now, by its state (below). */
   .mo-list__item-container {
@@ -171,8 +172,9 @@
   :is(a, button:enabled).mo-list__item-container:focus-visible,
   .mo-list__item-with-control:not(.mo-list__item-disabled):has(:focus-visible),
   .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:focus-visible) {
-    outline: 3px solid var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-color-primary));
-    outline-offset: -3px;
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid
+      var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-state-focus-indicator-color));
+    outline-offset: var(--mo-sys-state-focus-indicator-inner-offset);
   }
   .mo-list__item-with-control :focus-visible,
   .mo-list__item-multi-action > :is(a, button:enabled).mo-list__item-container:focus-visible {
@@ -397,7 +399,7 @@
     gap: var(--mo-comp-list-expand-gap, 0);
     border-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
     background: var(--mo-comp-list-expand-surface, var(--mo-sys-block-surface));
-    box-shadow: var(--mo-comp-list-expand-shadow, var(--mo-sys-block-shadow));
+    box-shadow: var(--mo-comp-list-expand-shadow, var(--mo-sys-elevation-level0-shadow));
     overflow: clip;
   }
   .mo-list__expand > li {
@@ -406,7 +408,8 @@
     overflow: clip;
   }
   .mo-list__expand > li + li {
-    border-top: var(--mo-comp-list-expand-divider-width, 1px) solid var(--mo-comp-list-expand-divider, var(--mo-sys-block-line));
+    border-top: var(--mo-comp-list-expand-divider-width, 1px) solid
+      var(--mo-comp-list-expand-divider-default-color, var(--mo-comp-list-expand-divider, var(--mo-sys-block-line)));
   }
   .mo-list__expand > li:first-child {
     border-start-start-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
@@ -428,7 +431,7 @@
     cursor: pointer;
     list-style: none;
     /* The focus ring sits inside the item, so the list's rounded edge never cuts it off. */
-    outline-offset: -3px;
+    outline-offset: var(--mo-sys-state-focus-indicator-inner-offset);
   }
   .mo-list__item-expand-summary::-webkit-details-marker {
     display: none;
@@ -468,7 +471,8 @@
     inset-inline: -0.25rem;
   }
   .mo-list__item-expand-button:focus-visible {
-    outline: 3px solid var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-color-primary));
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid
+      var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-state-focus-indicator-color));
   }
   .mo-list__item-expand-icon > svg {
     width: var(--mo-comp-list-item-icon-size, 1.25rem);
@@ -492,7 +496,8 @@
     );
   }
   .mo-list__item-expand-summary:focus-visible {
-    outline: 3px solid var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-color-primary));
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid
+      var(--mo-comp-list-item-focus-indicator-color, var(--mo-sys-state-focus-indicator-color));
   }
   .mo-list__item-expand:has(> .mo-list__item-expand-summary:active) {
     background: var(--mo-comp-list-item-pressed-surface, var(--mo-comp-list-item-hover-surface, transparent));

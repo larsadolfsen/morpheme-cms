@@ -86,19 +86,18 @@
 }
 :root {
   /* Density (m3.material.io/foundations/layout/grids-spacing/density: "The density scale is numbered, starting at 0 for a component's
-     default density", "Higher density is typically applied by decreasing the top and bottom padding or overall height by 4dp").
-     Two steps add up: the theme's own (--mo-sys-density-base, a theme sets it: 0 is Medium, 1 Large, -1 Small, down to -3) and the
-     person's (--mo-sys-density-user, set only by the editor through data-density on <html>; a site has none, so it is 0 there).
-     A part writes its size as calc(<default> + var(--mo-sys-density) * var(--mo-sys-density-step)), so at 0 it is the default.
-     Which one a part reads depends on its group: --mo-sys-density for data-heavy parts (lists, tables: -3 to 1), --mo-sys-density-layout for
-     layout and controls (-1 to 1), --mo-sys-density-focus for focused single-task parts (menus, dialogs: never denser than Medium, 0 to 1).
-     Only height and vertical padding follow it, never the text size or the horizontal padding. */
+     default density. The scale moves to negative numbers (-1, -2, -3) as space decreases", "Higher density is typically applied by
+     decreasing the top and bottom padding or overall height by 4dp"). There is no step above 0 (Large went in 0.19.5). Two steps add up:
+     the theme's own (--mo-sys-density-base, a theme sets it: 0 is Medium, -1 Small, down to -3) and the person's (--mo-sys-density-user,
+     set only by the editor through data-density on <html>: 0 or -1; a site has none, so it is 0 there). A part writes its size as
+     calc(<default> + var(--mo-sys-density) * var(--mo-sys-density-step)), so at 0 it is the default and every part that M3 gives a
+     density (buttons, chips, segmented buttons, text fields, lists, tables, menus) goes the whole scale, 0 to -3. A dialog, a snackbar
+     and the date and time pickers never read it (M3: not "in components that alert a person of changes"). Only height and vertical
+     padding follow it, never the text size or the horizontal padding. */
   --mo-sys-density-base: 0;
   --mo-sys-density-user: 0;
   --mo-sys-density-step: 4px;
-  --mo-sys-density: clamp(-3, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 1);
-  --mo-sys-density-layout: clamp(-1, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 1);
-  --mo-sys-density-focus: clamp(0, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 1);
+  --mo-sys-density: clamp(-3, calc(var(--mo-sys-density-base) + var(--mo-sys-density-user)), 0);
   /* The smallest target of something to tap or click (m3.material.io/foundations/designing/structure, "Target sizes" and "Pointer
      targets"): 48 dp on touch, 44 dp for a mouse. Density shrinks the part, never its target (ui.css gives it a hit area). */
   --mo-sys-target-size: 44px;
@@ -140,11 +139,8 @@
     --mo-sys-target-size: 48px;
   }
 }
-/* The editor's Density setting (Large, Medium, Small) as the person's step. A site never sets the attribute. A box that must not follow it
-   re-declares --mo-sys-density-user and the three derived variables above, which are computed where they are declared. */
-:root[data-density='1'] {
-  --mo-sys-density-user: 1;
-}
+/* The editor's Density setting (Medium, Small) as the person's step. A site never sets the attribute. A box that must not follow it
+   re-declares --mo-sys-density-user and --mo-sys-density, which are computed where they are declared. */
 :root[data-density='-1'] {
   --mo-sys-density-user: -1;
 }

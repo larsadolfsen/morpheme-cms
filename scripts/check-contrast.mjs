@@ -9,7 +9,7 @@
 // effective background: the backgrounds of its ancestors, composited over each other (alpha handled) down to the page's.
 // 4.5:1 for text, 3:1 for large text (24 px, or 18.66 px bold), icons and the border of a control (outlined button, field).
 // A background that is an image or a gradient cannot be read: the pair is listed as "manual", never as a failure.
-// Placeholders and disabled controls: placeholders are checked (4.5:1), disabled controls are exempt (WCAG 1.4.3).
+// The focus ring of every control is M3's focus indicator colour against what is behind the control (3:1). Placeholders and disabled controls: placeholders are checked (4.5:1), disabled controls are exempt (WCAG 1.4.3).
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,6 +21,8 @@ import { buildOutDir } from './build-out.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
 import { blockHtml } from '../lib/blocks.mjs';
 import { demoBlocksTestBody } from './demo-blocks.mjs';
+import { judgeShortfalls } from '../lib/accessibility.mjs';
+import { statementOf } from './theme-statement.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const PAGE = 'src/content/pages/contrast-test.md';
@@ -35,8 +37,14 @@ const SCHEMES = ['light', 'dark'];
 const all = process.argv.includes('--all');
 const themes = process.env.CONTRAST_THEMES ? process.env.CONTRAST_THEMES.split(',') : all ? installedThemes() : [activeTheme()];
 const reportFile = process.env.CONTRAST_REPORT;
-// CONTRAST_DENSITY=-1 (or 1): the editor is checked at Small (or Large) density, data-density on <html>; the site has no density.
+// CONTRAST_DENSITY=-1: the editor is checked at Small density, data-density on <html>. -2 and -3 (a theme's own step, which no editor setting
+// offers yet) are forced on the site and in the editor through --mo-sys-density-base, so the denser parts keep their colours too.
 const density = process.env.CONTRAST_DENSITY;
+const setDensity = (d) => {
+  const root = document.documentElement;
+  if (Number(d) >= -1) root.setAttribute('data-density', d);
+  else root.style.setProperty('--mo-sys-density-base', d);
+};
 
 /** Browser side (a string for page.evaluate): scans `root` and gives one record per pair of colours. */
 const scan = `(root) => {
@@ -128,7 +136,7 @@ const scan = `(root) => {
   const push = (el, kind, front, back, min, extra) => {
     const blockEl = el.closest('[data-block], .mo-is-in-text, .mo-site-block-inline');
     const r = ratio(over(front, back), back);
-    records.push({ block: blockOf(el), variant: variantOf(el, blockEl), section: sectionOf(el), kind, fg: hex(over(front, back)), bg: hex(back), ratio: r, min, text: (extra.text ?? '').slice(0, 40), manual: extra.manual, tag: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.split(/\\s+/)[0] : '') });
+    records.push({ block: blockOf(el), variant: variantOf(el, blockEl), section: sectionOf(el), kind, fg: hex(over(front, back)), bg: hex(back), ratio: r, min, text: (extra.text ?? '').slice(0, 40), manual: extra.manual, card: !!el.closest('.mo-card'), tag: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.split(/\\s+/)[0] : '') });
   };
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const seen = new Set();
@@ -172,6 +180,17 @@ const scan = `(root) => {
         push(el, 'border', rgba(s.borderTopColor), back, 3, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', manual });
       }
     }
+    // The focus ring (M3's focus indicator, --mo-sys-state-focus-indicator-color, 3 dp outside the control) against what is behind the control, 3:1 (WCAG 1.4.11, 2.4.11).
+    {
+      const host = el.parentElement ?? el;
+      const probe = document.createElement('span');
+      probe.style.color = 'var(--mo-sys-state-focus-indicator-color)';
+      host.appendChild(probe);
+      const ring = rgba(getComputedStyle(probe).color);
+      probe.remove();
+      const { back, manual } = behind(host);
+      push(el, 'focus ring', ring, back, 3, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', manual });
+    }
     if (el.matches('input, textarea')) {
       const p = getComputedStyle(el, '::placeholder');
       if (el.getAttribute('placeholder')) {
@@ -186,9 +205,68 @@ const scan = `(root) => {
 }`;
 
 /** The page's records, as the unique pairs with how often each one is on the page. */
+/** Material 3's text/ground pairs by role (owner, 21 Nov 2026: text on its own on-colour is readable by design, so the scan only checks that the pairing is right):
+ *  [text role, ground roles]. Only text and icons are left out; edges, placeholders and any text on another ground are still measured. */
+const PAIRED = [
+  ...['primary', 'secondary', 'tertiary', 'error'].flatMap((c) => [
+    [`on-${c}`, [c]],
+    [`on-${c}-container`, [`${c}-container`]],
+  ]),
+  ...['primary', 'secondary', 'tertiary'].flatMap((c) => [
+    [`on-${c}-fixed`, [`${c}-fixed`, `${c}-fixed-dim`]],
+    [`on-${c}-fixed-variant`, [`${c}-fixed`, `${c}-fixed-dim`]],
+  ]),
+  ...['on-surface', 'on-surface-variant'].map((r) => [
+    r,
+    [
+      'surface',
+      'surface-dim',
+      'surface-bright',
+      'surface-container-lowest',
+      'surface-container-low',
+      'surface-container',
+      'surface-container-high',
+      'surface-container-highest',
+      'surface-variant',
+      'background',
+    ],
+  ]),
+  ['inverse-on-surface', ['inverse-surface']],
+  ['inverse-primary', ['inverse-surface']],
+];
+let pairs = new Set();
+let pairedSkipped = 0;
+/** The pairs of the page's own roles, as `fg|bg` in the scan's hex, read in the page (a role's value is the same in a section, which only maps roles to roles). */
+async function loadPairs(page) {
+  const list = await page.evaluate((table) => {
+    const canvas = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+    const hex = (role) => {
+      const css = getComputedStyle(document.documentElement).getPropertyValue(`--mo-sys-color-${role}`).trim();
+      if (!css) return null;
+      canvas.clearRect(0, 0, 1, 1);
+      canvas.fillStyle = '#000';
+      canvas.fillStyle = css;
+      canvas.fillRect(0, 0, 1, 1);
+      const [r, g, b] = canvas.getImageData(0, 0, 1, 1).data;
+      return `#${[r, g, b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+    };
+    return table.flatMap(([text, grounds]) =>
+      grounds
+        .map((g) => [hex(text), hex(g)])
+        .filter(([a, b]) => a && b)
+        .map(([a, b]) => `${a}|${b}`),
+    );
+  }, PAIRED);
+  pairs = new Set(list);
+}
+
 function unique(records, view) {
   const map = new Map();
   for (const r of records) {
+    if ((r.kind === 'text' || r.kind === 'icon') && !r.manual && pairs.has(`${r.fg}|${r.bg}`)) {
+      pairedSkipped++;
+      continue;
+    }
     const key = [view, r.block, r.variant, r.section, r.kind, r.fg, r.bg, r.min, r.manual ?? ''].join('|');
     if (!map.has(key)) map.set(key, { ...r, view, count: 0 });
     map.get(key).count++;
@@ -226,6 +304,21 @@ const manualSeen = new Set();
 const started = Date.now();
 const themeFile = join(ROOT, 'src/data/theme.json');
 const themeBefore = readFileSync(themeFile, 'utf8');
+/** Waits until nothing is animating or transitioning: a pair read halfway through a transition is a colour between two (8 failures at 375 px light on 21 Nov 2026,
+ *  colours halfway between a section's two colours, gone on a second run), so every scan waits for `document.getAnimations()` to finish first. */
+async function settled(page) {
+  await page.evaluate(async () => {
+    // An animation that never ends (a loading indicator) is not waited for, and no wait lasts longer than 3 s.
+    const finite = (a) => a.effect?.getComputedTiming().endTime !== Infinity;
+    const until = Date.now() + 3000;
+    while (Date.now() < until) {
+      const running = document.getAnimations().filter((a) => finite(a) && (a.playState === 'running' || a.pending));
+      if (!running.length) break;
+      await Promise.race([Promise.allSettled(running.map((a) => a.finished)), new Promise((r) => setTimeout(r, 500))]);
+    }
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+  });
+}
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
 
 try {
@@ -247,7 +340,10 @@ try {
             for (const path of pages) {
               const response = await page.goto(`${site}${path}`).catch(() => null);
               if (!response || response.status() >= 400) continue;
-              await page.addStyleTag({ content: '*,*::before,*::after{transition:none!important;animation:none!important}' });
+              await page.addStyleTag({
+                content: '*,*::before,*::after{transition:none!important;animation:none!important}',
+              });
+              if (density && Number(density) < -1) await page.evaluate(setDensity, density);
               // Scrolled through once (what fades in when seen has faded in), and every fold open, so what is inside is read too.
               await page.evaluate(async () => {
                 for (let y = 0; y < document.body.scrollHeight; y += innerHeight / 2) {
@@ -258,7 +354,8 @@ try {
               });
               await page.waitForTimeout(400);
               await page.evaluate(() => document.querySelectorAll('details').forEach((d) => (d.open = true)));
-              await page.waitForTimeout(500);
+              await settled(page);
+              await loadPairs(page);
               const records = await page.evaluate(`(${scan})(document.body)`);
               results.push(...unique(records, `${theme} site ${scheme} ${width}${path === '/contrast-test/' ? '' : ` ${path}`}`));
             }
@@ -268,10 +365,19 @@ try {
             editor.on('pageerror', () => {});
             await openEditor(editor, site);
             await editor.goto(`${site}/editor/#${PAGE}`);
-            if (density) await editor.evaluate((d) => document.documentElement.setAttribute('data-density', d), density);
+            if (density) await editor.evaluate(setDensity, density);
             await editor.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 60_000 }).catch(() => {});
-            await editor.addStyleTag({ content: '*,*::before,*::after{transition:none!important;animation:none!important}' });
+            await editor.addStyleTag({
+              content: '*,*::before,*::after{transition:none!important;animation:none!important}',
+            });
+            // The editor opens slowly now and then (fonts and photos from hosts that answer late): once more, rather than a scan of nothing.
+            if (!(await editor.$('.ProseMirror'))) {
+              await editor.reload();
+              await editor.waitForSelector('.ProseMirror [data-section-color="tertiary"]', { timeout: 120_000 });
+            }
             await editor.mouse.move(0, 0);
+            await settled(editor);
+            await loadPairs(editor);
             const view = `${theme} editor ${scheme} ${width}`;
             results.push(...unique(await editor.evaluate(`(${scan})(document.querySelector('.ProseMirror'))`), `${view} resting`));
             const inline = await editor.locator('.ProseMirror .mo-site-block-inline').count();
@@ -302,6 +408,43 @@ try {
 }
 
 const failed = results.filter((r) => !r.manual && r.ratio < r.min);
+
+/** The criterion and part of a failure the theme can name in its accessibility.json (lib/accessibility.mjs), else null part: a text, an icon or a border no
+ * statement names fails as it always did. A placeholder is 1.4.3; the edge of a control or card is 1.4.11, in a coloured section the part `section-edges`. */
+const shortfallOf = (r) => {
+  if (r.kind === 'placeholder') return { criterion: '1.4.3', part: 'placeholder' };
+  if (r.kind === 'border' && r.section !== 'surface') return { criterion: '1.4.11', part: 'section-edges' };
+  if (r.kind === 'border' && r.card) return { criterion: '1.4.11', part: 'outlined-card-edge' };
+  return { criterion: r.kind === 'text' ? '1.4.3' : '1.4.11', part: null };
+};
+// Each theme is judged by its own statement: a failure it names is let through, one it does not name fails, and a name that no longer fails is stale (not when
+// only some section colours were run).
+const unnamed = [];
+const letThrough = [];
+for (const theme of themes) {
+  const mine = failed.filter((r) => r.view.startsWith(`${theme} `));
+  const { statement, where } = statementOf(theme);
+  const found = new Map();
+  for (const r of mine) {
+    const { criterion, part } = shortfallOf(r);
+    found.set(`${criterion} ${part}`, {
+      criterion,
+      part,
+      detail: `${r.view}: ${r.kind} ${r.fg} on ${r.bg} is ${r.ratio.toFixed(2)}:1, needs ${r.min}`,
+    });
+  }
+  const verdict = judgeShortfalls(
+    [...found.values()].filter((f) => f.part),
+    statement,
+    { check: 'contrast', stale: !process.env.CONTRAST_SECTIONS, where },
+  );
+  unnamed.push(...verdict.problems);
+  letThrough.push(...verdict.named.map((id) => `${theme}: ${id}`));
+  for (const r of mine) {
+    const { part, criterion } = shortfallOf(r);
+    if (!part || !verdict.named.includes(`${criterion} ${part}`)) r.unnamed = true;
+  }
+}
 const manual = results.filter((r) => r.manual);
 const checked = results.filter((r) => !r.manual);
 if (reportFile) writeFileSync(reportFile, JSON.stringify(results, null, 1));
@@ -314,7 +457,7 @@ const design = (v) =>
     .filter((c) => /^(card|button)-/.test(c))
     .join(' ') || '-';
 const groups = new Map();
-for (const r of failed) {
+for (const r of failed.filter((f) => f.unnamed)) {
   const key = [r.block.replace(/^editor /, ''), design(r.variant), r.section, r.kind, r.fg, r.bg].join(' | ');
   const g = groups.get(key) ?? { r, views: new Set(), worst: 99, text: r.text };
   g.views.add(r.view.split(' ').slice(1).join(' '));
@@ -322,10 +465,12 @@ for (const r of failed) {
   groups.set(key, g);
 }
 console.log(
-  `Contrast: ${checked.length} pairs checked (${themes.join(', ')}; ${Math.round((Date.now() - started) / 1000)} s), ${failed.length} fail in ${groups.size} groups, ${manual.length} need a manual look (image or gradient behind).`,
+  `Contrast: ${checked.length} pairs checked, ${pairedSkipped} text and icon pairs left out as M3's own pairs (${themes.join(', ')}; ${Math.round((Date.now() - started) / 1000)} s), ${failed.filter((f) => f.unnamed).length} fail in ${groups.size} groups, ${manual.length} need a manual look (image or gradient behind).`,
 );
+if (letThrough.length) console.log(`  Let through, named in the theme's accessibility.json: ${letThrough.join(', ')}.`);
+for (const line of unnamed) console.log(`  ${line}`);
 for (const [key, g] of [...groups].sort((a, b) => a[1].worst - b[1].worst).slice(0, 60)) {
   console.log(`  ${key}: ${g.worst.toFixed(2)}:1 (needs ${g.r.min}) "${g.text}" in ${g.views.size} views, e.g. ${[...g.views][0]}`);
 }
 if (groups.size > 60) console.log(`  … and ${groups.size - 60} more groups (see the report file).`);
-if (failed.length) process.exit(1);
+if (failed.some((f) => f.unnamed) || unnamed.length) process.exit(1);

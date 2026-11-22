@@ -271,7 +271,7 @@ async function checkCardHeadline(width, height) {
 }
 
 /** The Library's images are the theme's image tiles in a staggered grid: cards with media (filled, the image to the edge), each in its own proportions (the box is
- * there before the image loads), a gutter apart (16 px on a phone, 24 px from medium: deviation G1), 2 columns on a phone and 4 on a computer, and a selected card has its own surface. */
+ * there before the image loads), 8 px apart (M3 Cards, Specs: "Padding between cards 8dp max"), 2 columns on a phone and 4 on a computer, and a selected card has its own surface. */
 async function checkImageGrid(width, height) {
   const label = `${width}px image grid`;
   const phone = width < 600;
@@ -319,10 +319,9 @@ async function checkImageGrid(width, height) {
   const columns = phone ? '2' : '4';
   if (m.tiles === 0) problems.push(`${label}: the Library has no tiles to measure`);
   if (m.columns !== columns) problems.push(`${label}: ${m.columns} columns, expected ${columns}`);
-  // The theme grid's gutter: 16 px on compact, 24 px from medium (docs/material-deviations.md, G1: the owner's deviation from Material 3's "8dp max").
-  const gutter = width < 600 ? '16px' : '24px';
-  if (m.gap !== gutter)
-    problems.push(`${label}: the gap between columns is ${m.gap}, expected ${gutter} (the theme grid's gutter, deviation G1)`);
+  // The room between cards is 8 px (M3 Cards, Specs: "Padding between cards 8dp max"), on every width.
+  const gutter = '8px';
+  if (m.gap !== gutter) problems.push(`${label}: the gap between columns is ${m.gap}, expected ${gutter} (M3's 8dp max between cards)`);
   if (m.cards !== m.tiles) problems.push(`${label}: ${m.tiles - m.cards} tiles are not a filled card with media`);
   if (m.forced) problems.push(`${label}: ${m.forced} tiles have an image box with a fixed ratio of its own, not the image's`);
   if (m.sideways) problems.push(`${label}: the page scrolls sideways`);
@@ -616,8 +615,8 @@ async function checkCardsSpacing(width, height) {
   const want = (what, got, expected) => {
     if (got !== expected) problems.push(`${label}: ${what} is ${got}, not ${expected}`);
   };
-  // The room between cards is the grid gutter: 16 on compact, 24 from medium (owner, 15 Nov 2026; docs/material-deviations.md, G1).
-  const gutter = width < 600 ? 16 : 24;
+  // The room between cards is 8 on every width (M3 Cards, Specs: "Padding between cards 8dp max").
+  const gutter = 8;
   if (m.cols === 1) want('the gap between stacked cards', m.stacked, gutter);
   else {
     want('the gap between cards in a row', m.colGap, gutter);
@@ -625,8 +624,8 @@ async function checkCardsSpacing(width, height) {
   }
   want('the gap in the CSS', m.css, `${gutter}px`);
   want('the card padding', m.padding, '16px');
-  // The phone carousel scrolls its cards 8px apart (Material 3's carousel); from medium it is the grid, with the cards' own gap.
-  if (m.carouselGap) want('the carousel gap', m.carouselGap, width < 600 ? '8px' : m.css);
+  // The phone carousel scrolls its cards 8px apart (Material 3's carousel); from medium it is the grid, with the same 8px.
+  if (m.carouselGap) want('the carousel gap', m.carouselGap, '8px');
   want("the room from a card's edge to its text on the left", m.iconCard.left, 16);
   want("the room from a card's edge to its text on the right", m.iconCard.right, 16);
   want('the icon to the headline', m.iconCard.mediaToTitle, 16);
@@ -743,11 +742,12 @@ async function checkCardVideoPlay(width, height) {
   await page.close();
 }
 
-/** The room between cards is the grid gutter (16 px on compact, 24 px from medium; docs/material-deviations.md, G1) on the demo's Cards, Price cards and Image grid pages (/blocks/<name>/), at 375, 768 and 1280 px, and the page does not scroll sideways. A site without those pages (the starter) has none to measure. */
+/** The room between cards is 8 px (M3 Cards, Specs: "Padding between cards 8dp max"; the page grid's own gutter stays 16 px on compact, 24 px from medium) on the demo's Cards, Price cards and Image grid pages (/blocks/<name>/), at 375, 768 and 1280 px, and the page does not scroll sideways. A site without those pages (the starter) has none to measure. */
 async function checkCardGutter(width, height) {
   const label = `${width}px gap between cards`;
   const phone = width < 600;
   const gutter = phone ? 16 : 24;
+  const cardGap = 8;
   const pages = [
     ['Cards', 'cards', 'ul.mo-block-cards', true],
     ['Price cards', 'price-cards', '.mo-block-pricecards__plans-list', true],
@@ -784,16 +784,16 @@ async function checkCardGutter(width, height) {
     if (m.token !== gutter) problems.push(`${label}: the gutter is ${m.token}, not ${gutter}`);
     if (m.row === null) problems.push(`${label}: the ${name} page has no ${name} block`);
     else {
-      if (hasRows && m.row !== gutter) problems.push(`${label}: the ${name} row gap is ${m.row}, not the gutter ${gutter}`);
-      if (!Number.isNaN(m.column) && m.column !== gutter && m.column !== 0)
-        problems.push(`${label}: the ${name} column gap is ${m.column}, not the gutter ${gutter}`);
+      if (hasRows && m.row !== cardGap) problems.push(`${label}: the ${name} row gap is ${m.row}, not ${cardGap}`);
+      if (!Number.isNaN(m.column) && m.column !== cardGap && m.column !== 0)
+        problems.push(`${label}: the ${name} column gap is ${m.column}, not ${cardGap}`);
     }
     if (m.wide > 1) problems.push(`${label}: the ${name} page scrolls sideways by ${m.wide}px`);
     await page.close();
   }
 }
 
-/** The Cards block typed in the page editor (the demo's Cards page) has the site's card, at 375, 768 and 1280 px (on the demo's Cards page): a card without a subhead draws no empty subhead row (so no room is kept for it) and has the same padding (16 on every side), icon to headline (16), headline to text (8) and gap between cards (the grid gutter, 16 or 24) as checkCardsSpacing asserts on the site; a tap in the card shows its subhead row with its hint, 4 px under the headline and 8 over the text, so the owner can add one. Reads the geometry once the card is active, never after a fixed wait. */
+/** The Cards block typed in the page editor (the demo's Cards page) has the site's card, at 375, 768 and 1280 px (on the demo's Cards page): a card without a subhead draws no empty subhead row (so no room is kept for it) and has the same padding (16 on every side), icon to headline (16), headline to text (8) and gap between cards (8) as checkCardsSpacing asserts on the site; a tap in the card shows its subhead row with its hint, 4 px under the headline and 8 over the text, so the owner can add one. Reads the geometry once the card is active, never after a fixed wait. */
 async function checkCardsEditorSpacing(width, height) {
   const label = `${width}px cards spacing in the editor`;
   const phone = width < 600;
@@ -858,8 +858,8 @@ async function checkCardsEditorSpacing(width, height) {
     problems.push(`${label}: the cards of a row are not equally high (${rest.rowHeights.join(', ')})`);
   want('the icon to the headline', rest.mediaToTitle, 16);
   want('the headline to the text', rest.toText, 8);
-  if (rest.rowGap !== null) want('the gap between cards in a column', rest.rowGap, width < 600 ? 16 : 24);
-  if (rest.colGap !== null) want('the gap between cards in a row', rest.colGap, width < 600 ? 16 : 24);
+  if (rest.rowGap !== null) want('the gap between cards in a column', rest.rowGap, 8);
+  if (rest.colGap !== null) want('the gap between cards in a row', rest.colGap, 8);
   // A tap in the card makes it active: its subhead row appears, with its hint, in the site's rhythm.
   // Focus in the headline is what makes a card active (InlineItems.tsx onFocus), on any width.
   await page.locator('ul.mo-block-cards .mo-block-cards__card').first().locator('[data-field="title"]').focus();
@@ -1156,7 +1156,7 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkImageGrid ${width}`, () => checkImageGrid(width, height));
-  // 768 px: the grid wraps to two columns, the gaps are the grid gutter (the site and the page editor).
+  // 768 px: the grid wraps to two columns, the gaps are 8 px (the site and the page editor).
   unit('checkCardsSpacing 768', () => checkCardsSpacing(768, 1024));
   unit('checkCardGutter 768', () => checkCardGutter(768, 1024));
   unit('checkCardsEditorSpacing 768', () => checkCardsEditorSpacing(768, 1024));

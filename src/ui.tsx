@@ -3418,6 +3418,9 @@ export function SectionPane({ caption, title, children }: { caption: string; tit
   );
 }
 
+/** What a drawer's header is: a node (the back row), or a function of the close button that puts it in its list item. */
+export type DrawerHeader = ReactNode | ((close: ReactNode) => ReactNode);
+
 /** The editor's main navigation (Material 3's navigation drawer, the theme's, in its design): the site's parts in sections
  * (`MainDrawerSection`, `MainDrawerItem`), at the full height of the window, with a header row at the top: `header` (the
  * signed-in user, AccountRow) at the start and the menu button at the end. From medium
@@ -3450,7 +3453,7 @@ export function MainDrawer({
   onEscape?: () => boolean;
   variant?: 'modal' | 'standard';
   rail?: ReactNode;
-  header?: ReactNode;
+  header?: DrawerHeader;
   footer?: ReactNode;
   railFooter?: ReactNode;
   children: ReactNode;
@@ -3498,20 +3501,24 @@ function MainRail({ label, onOpen, footer, children }: { label: string; onOpen: 
   );
 }
 
-// The header row at the top of either drawer: `header` (the signed-in user on the first level, the back row on a section's
-// list; MainMenu.tsx) at the start and the menu button at the end, which closes the drawer and stays level with the top bar's
-// menu button. The header cell starts at the drawer items' outer edge: the row has no start padding, and the header (the
-// account row, the back row) brings the items' inline padding itself, so its pill (editor.css, .mo-editor-main-drawer-header)
-// has the shape of an item's and the avatar or arrow stands over the items' icons. The button is centred on the 1.5rem box
-// of the items' trailing arrows (a negative end margin from the button's own width). The row is the top bar's height (`--mo-comp-top-app-bar-height`), so the divider (middle inset) under it stands level with the top bar's line.
-function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header?: ReactNode }) {
+// The header at the top of either drawer, and the divider under it (the theme's, full width: Material 3's navigation drawer,
+// Guidelines, Divider). `header` is what stands there; the menu button that closes the drawer (`close`) is the header's
+// trailing action. A function gets `close` and puts it in its list item (AccountRow: the item's `actions`, Material 3's
+// multi-action item with the icon button in the trailing position); a plain node is the second level's back row, which
+// shares a row with `close`.
+function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header?: DrawerHeader }) {
+  const close = <MenuButton label={t.library.closeMenu} open onClick={onClick} />;
   return (
     <>
-      <div className="mo-editor-main-drawer-header mo-editor-main-drawer-header">
-        <div className="mo-fill">{header}</div>
-        <MenuButton label={t.library.closeMenu} open onClick={onClick} className="mo-editor-main-drawer-close" />
-      </div>
-      <SiteDivider kind="middle-inset" className="mo-editor-main-drawer-header-divider" />
+      {typeof header === 'function' ? (
+        header(close)
+      ) : (
+        <div className="mo-editor-main-drawer-back-row">
+          {header}
+          {close}
+        </div>
+      )}
+      <SiteDivider />
     </>
   );
 }
@@ -3547,7 +3554,7 @@ function StandardMainDrawer({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEscape?: () => boolean;
-  header?: ReactNode;
+  header?: DrawerHeader;
   footer?: ReactNode;
   children: ReactNode;
 }) {
@@ -3585,7 +3592,7 @@ function ModalMainDrawer({
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEscape?: () => boolean;
-  header?: ReactNode;
+  header?: DrawerHeader;
   footer?: ReactNode;
   children: ReactNode;
 }) {

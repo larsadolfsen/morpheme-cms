@@ -1,0 +1,13 @@
+{
+ "set": "md.comp.nav-bar.item.horizontal",
+ "displayName": "Nav bar - Item - Horizontal",
+ "description": "For horizontal nav items, where elements are side-by-side.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.nav-bar.item.horizontal.label-text.font","type":"TYPOGRAPHY","group":null,"value":{"ref":"md.sys.typescale.label-medium"},"resolved":{"light":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":12,"unit":"POINTS"},"fontTracking":{"value":0.5,"unit":"POINTS"},"lineHeight":{"value":16,"unit":"POINTS"}},"unit":"typography"},"dark":{"value":{"fontNames":{"values":["Roboto"]},"fontWeight":500,"fontSize":{"value":12,"unit":"POINTS"},"fontTracking":{"value":0.5,"unit":"POINTS"},"lineHeight":{"value":16,"unit":"POINTS"}},"unit":"typography"}},"chain":["md.comp.nav-bar.item.horizontal.label-text.font","md.sys.typescale.label-medium","md.sys.typescale.label-medium.font","md.ref.typeface.plain"]},
+  {"token":"md.comp.nav-bar.item.horizontal.active-indicator.height","type":"LENGTH","group":null,"value":{"value":40,"unit":"dp"},"resolved":{"light":{"value":40,"unit":"dp"},"dark":{"value":40,"unit":"dp"}},"chain":["md.comp.nav-bar.item.horizontal.active-indicator.height"]},
+  {"token":"md.comp.nav-bar.item.horizontal.active-indicator.leading-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space200"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.nav-bar.item.horizontal.active-indicator.leading-space","md.sys.measurement.space200"]},
+  {"token":"md.comp.nav-bar.item.horizontal.active-indicator.trailing-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space200"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.nav-bar.item.horizontal.active-indicator.trailing-space","md.sys.measurement.space200"]},
+  {"token":"md.comp.nav-bar.item.horizontal.active-indicator.icon-label-space","type":"LENGTH","group":null,"value":{"ref":"md.sys.measurement.space50"},"resolved":{"light":{"value":4,"unit":"dp"},"dark":{"value":4,"unit":"dp"}},"chain":["md.comp.nav-bar.item.horizontal.active-indicator.icon-label-space","md.sys.measurement.space50"]}
+ ]
+}

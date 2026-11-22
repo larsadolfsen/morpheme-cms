@@ -9,3 +9,12 @@
     --mo-comp-navigation-drawer-inset-default: 0.75rem;
   }
 }
+/* Compact (under 600dp): the modal drawer still hugs its content, but is at least 320dp wide (at most the screen less 56dp), owner, 22 Nov 2026.
+   Navigation rail, Specs, Expanded layout: modal, "container width minimum 220dp", "maximum 360dp": 320dp is inside that range, so no deviation. */
+@layer components {
+  @media (width < 600px) {
+    :root {
+      --mo-comp-navigation-drawer-width-min-default: min(20rem, calc(100vw - 3.5rem));
+    }
+  }
+}

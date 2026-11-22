@@ -1,0 +1,10 @@
+{
+ "set": "md.sys.glass",
+ "displayName": "iOS Liquid Glass",
+ "description": "For applying Material Glass effects. Material Glass is an edited version of Liquid Glass, designed to complement GM3.",
+ "tokenClass": "SYSTEM",
+ "tokens": [
+  {"token":"md.sys.glass.tint.opacity","type":"OPACITY","group":null,"value":null,"resolved":{"light":null,"dark":null},"chain":["md.sys.glass.tint.opacity"]},
+  {"token":"md.sys.glass.scrim.opacity","type":"OPACITY","group":null,"value":null,"resolved":{"light":null,"dark":null},"chain":["md.sys.glass.scrim.opacity"]}
+ ]
+}

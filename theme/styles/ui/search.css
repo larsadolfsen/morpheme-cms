@@ -95,9 +95,9 @@
   .mo-search-bar__input:focus {
     outline: none;
   }
-  .mo-search-bar:has(.mo-search-bar__input:focus-visible) {
+  :root[data-mo-input='keyboard'] .mo-search-bar:has(.mo-search-bar__input:focus-visible) {
     box-shadow:
-      inset 0 0 0 2px var(--mo-sys-block-accent),
+      inset 0 0 0 var(--mo-sys-state-focus-indicator-thickness) var(--mo-sys-state-focus-indicator-color),
       var(--mo-comp-search-bar-shadow, var(--mo-sys-elevation-level3-rest-shadow));
   }
   /* The view: over the whole screen on a phone; docked from the medium width, where the bar is (search.script.ts sets where), and
@@ -131,8 +131,8 @@
   dialog.mo-search-view {
     background: var(--mo-comp-search-view-container-surface, var(--mo-sys-color-surface-container-low));
   }
-  /* From medium the view is a dropdown (M3 docked), not a layer over the page: a panel on the bar (--mo-comp-search-view-top, -left, -width: where the bar is), no
-     scrim and not modal (owner, 15 Nov 2026). */
+  /* From medium the view is a dropdown (M3 docked, "with a scrim covering main content"), not a layer over the page: a panel on the bar (--mo-comp-search-view-top, -left,
+     -width: where the bar is), not modal. The scrim is a ::before of the panel behind its parts (the page stays reachable by pointer: a press on it closes the view). */
   div.mo-search-view.mo-search-view__docked {
     position: fixed;
     z-index: 70;
@@ -142,6 +142,13 @@
     border-radius: 0;
     background: transparent;
     box-shadow: none;
+  }
+  div.mo-search-view.mo-search-view__docked::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: var(--mo-comp-search-view-scrim, transparent);
   }
   /* M3 specs, tokens (contained, read 15 Nov 2026): "Search view contained docked bar results gap 2dp": the bar, where the bar was, and the results container
      under it. The bar has no margin of its own then (Compose and Material Web keep the bar where it was). Shapes, from Material Web's tokens (`search-view`): bar `contained-docked-bar-shape` corner-full, results `contained-docked-results-shape` corner-medium (12dp, as Compose's `dockedDropdownShape`); 28dp (`docked-container-shape`, extra large) is the divided style's one container. */
@@ -220,11 +227,12 @@
     font-size: var(--mo-comp-search-bar-font-size, var(--mo-sys-typescale-body-large-size));
     outline: none;
   }
-  /* Keyboard and pointer focus in the field: the same 2dp accent ring as the search bar's, drawn on the bar container (a deviation from the
-     M3 search page, which prints none; owner, 15 Nov 2026, for Google's accessibility guide: a visible focus indicator is mandatory).
-     The transparent outline is what forced-colors mode draws. */
-  .mo-search-view__header:has(.mo-search-view__input:focus-visible) {
-    box-shadow: inset 0 0 0 2px var(--mo-sys-block-accent);
+  /* Keyboard focus in the field: M3's focus indicator (colour, thickness) as the search bar's, drawn on the bar container (the M3 search page
+     prints no ring of its own for the field: "individual elements maintain their own interaction states"). Only while the keyboard was last used
+     (inputModality.ts): a text field matches :focus-visible after a click or a tap too, and the view puts the focus in the field by itself when
+     it opens (owner, 21 Nov 2026). The transparent outline is what forced-colors mode draws. */
+  :root[data-mo-input='keyboard'] .mo-search-view__header:has(.mo-search-view__input:focus-visible) {
+    box-shadow: inset 0 0 0 var(--mo-sys-state-focus-indicator-thickness) var(--mo-sys-state-focus-indicator-color);
     outline: 2px solid transparent;
   }
   .mo-search-view__input::placeholder {

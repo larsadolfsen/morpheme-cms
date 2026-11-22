@@ -40,11 +40,11 @@
     padding: var(--mo-comp-menu-padding, 0.5rem);
     box-shadow:
       0 0 0 1px var(--mo-comp-menu-line, var(--mo-sys-block-line)),
-      var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-rest-shadow));
+      var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-shadow));
   }
   .mo-menu__item {
     display: flex;
-    min-height: var(--mo-comp-menu-list-item-container-height, 0);
+    min-height: calc(var(--mo-comp-menu-list-item-container-height, 0px) + var(--mo-sys-density) * var(--mo-sys-density-step));
     align-items: center;
     gap: var(--mo-comp-menu-item-gap, 0.75rem);
     border-radius: var(--mo-comp-menu-item-radius, calc(var(--mo-sys-block-radius-small) - 0.25rem));
@@ -112,8 +112,9 @@
     text-align: start;
     cursor: pointer;
   }
+  /* M3's focus indicator of a menu item sits inside it: `menu-item.focus.indicator.outline.offset` is the inner offset (-3dp). */
   .mo-menu__item:focus-visible {
-    outline-offset: -2px;
+    outline-offset: var(--mo-sys-state-focus-indicator-inner-offset, -3px);
   }
   /* Its icon (or, when it is on, the tick in its place), its text, and what trails it. */
   .mo-menu__item-leading {
@@ -197,7 +198,7 @@
     padding: var(--mo-comp-menu-padding, 0.5rem);
     box-shadow:
       0 0 0 1px var(--mo-comp-menu-line, var(--mo-sys-block-line)),
-      var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-rest-shadow));
+      var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-shadow));
   }
   .mo-menu:has(> .mo-menu__group):not(.mo-menu__groups-divider) > .mo-menu__group:first-child {
     border-start-start-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
@@ -369,11 +370,11 @@
       padding: var(--mo-comp-menu-padding, 0.5rem);
       box-shadow:
         0 0 0 1px var(--mo-comp-menu-line, var(--mo-sys-block-line)),
-        var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-rest-shadow));
+        var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-shadow));
       color: var(--mo-sys-block-text);
     }
     .mo-exposed-dropdown-menu__option {
-      min-height: var(--mo-comp-menu-list-item-container-height, 0);
+      min-height: calc(var(--mo-comp-menu-list-item-container-height, 0px) + var(--mo-sys-density) * var(--mo-sys-density-step));
       border-radius: var(--mo-comp-menu-item-radius, calc(var(--mo-sys-block-radius-small) - 0.25rem));
       padding: var(--mo-comp-menu-item-padding, 0.5rem 0.75rem);
       color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));

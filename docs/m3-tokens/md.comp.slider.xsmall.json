@@ -1,0 +1,13 @@
+{
+ "set": "md.comp.slider.xsmall",
+ "displayName": "Slider - Size - Xsmall",
+ "description": "For expressive XS sliders.",
+ "tokenClass": "COMPONENT",
+ "tokens": [
+  {"token":"md.comp.slider.xsmall.active.track.height","type":"LENGTH","group":"Active track","value":{"value":16,"unit":"dp"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.slider.xsmall.active.track.height"]},
+  {"token":"md.comp.slider.xsmall.active.track.shape.leading","type":"LENGTH","group":"Active track","value":{"value":8,"unit":"dp"},"resolved":{"light":{"value":8,"unit":"dp"},"dark":{"value":8,"unit":"dp"}},"chain":["md.comp.slider.xsmall.active.track.shape.leading"]},
+  {"token":"md.comp.slider.xsmall.inactive.track.height","type":"LENGTH","group":"Inactive track","value":{"value":16,"unit":"dp"},"resolved":{"light":{"value":16,"unit":"dp"},"dark":{"value":16,"unit":"dp"}},"chain":["md.comp.slider.xsmall.inactive.track.height"]},
+  {"token":"md.comp.slider.xsmall.inactive.track.shape.trailing","type":"LENGTH","group":"Inactive track","value":{"value":8,"unit":"dp"},"resolved":{"light":{"value":8,"unit":"dp"},"dark":{"value":8,"unit":"dp"}},"chain":["md.comp.slider.xsmall.inactive.track.shape.trailing"]},
+  {"token":"md.comp.slider.xsmall.active.handle.height","type":"LENGTH","group":"Handle","value":{"value":44,"unit":"dp"},"resolved":{"light":{"value":44,"unit":"dp"},"dark":{"value":44,"unit":"dp"}},"chain":["md.comp.slider.xsmall.active.handle.height"]}
+ ]
+}

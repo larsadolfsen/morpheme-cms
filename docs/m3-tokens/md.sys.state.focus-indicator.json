@@ -1,0 +1,11 @@
+{
+ "set": "md.sys.state.focus-indicator",
+ "displayName": "State - focus indicator",
+ "description": "Common focus indicator tokens for all components",
+ "tokenClass": "SYSTEM",
+ "tokens": [
+  {"token":"md.sys.state.focus-indicator.thickness","type":"LENGTH","group":null,"value":{"value":3,"unit":"dp"},"resolved":{"light":{"value":3,"unit":"dp"},"dark":{"value":3,"unit":"dp"}},"chain":["md.sys.state.focus-indicator.thickness"]},
+  {"token":"md.sys.state.focus-indicator.outer-offset","type":"LENGTH","group":null,"value":{"value":2,"unit":"dp"},"resolved":{"light":{"value":2,"unit":"dp"},"dark":{"value":2,"unit":"dp"}},"chain":["md.sys.state.focus-indicator.outer-offset"]},
+  {"token":"md.sys.state.focus-indicator.inner-offset","type":"LENGTH","group":null,"value":{"value":-3,"unit":"dp"},"resolved":{"light":{"value":-3,"unit":"dp"},"dark":{"value":-3,"unit":"dp"}},"chain":["md.sys.state.focus-indicator.inner-offset"]}
+ ]
+}

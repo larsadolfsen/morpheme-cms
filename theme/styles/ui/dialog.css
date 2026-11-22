@@ -9,11 +9,14 @@
 @layer components {
   /* A dialog's container. */
   .mo-dialog {
+    /* M3, Density: "Don't increase the density in components that alert a person of changes, such as snackbars or dialogs". The dialog and every part in
+       it (its buttons, a field, a list row) are at Medium at every step, so a dialog is the same height at -3 as at 0 (PM, 21 Nov 2026). */
+    --mo-sys-density: 0;
     border-radius: var(--mo-comp-dialog-container-shape, var(--mo-sys-block-radius));
     background: var(--mo-comp-dialog-surface, var(--mo-sys-elevation-level3-color));
     box-shadow:
       0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
-      var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+      var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-shadow));
   }
   /* A modal dialog: in the middle of the screen over the scrim, coming up a little as it opens. */
   .mo-dialog__modal {

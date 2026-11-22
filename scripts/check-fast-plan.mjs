@@ -30,6 +30,7 @@ const STATIC = [
   { name: 'check:phosphor', reads: /^(src|theme|lib|pages|site|scripts\/phosphor-allowlist\.json|scripts\/check-phosphor\.mjs)/ },
   { name: 'check:web', reads: /^(src|theme|pages|lib|worker|starter|demo|scripts\/(check-web\.mjs|web-allowlist\.json))/ },
   { name: 'check:editor-colors', reads: /^(src\/(editor\.css|Inline\w*)|scripts\/check-editor-colors\.mjs|theme\/styles)/ },
+  { name: 'check:color-roles', reads: /^(src\/[^/]*\.(css|tsx)|theme\/styles|defaults\/colors\.ts|scripts\/(check-)?color-roles)/ },
   { name: 'check:colors', reads: /^(src|theme|demo|starter|scripts\/check-colors)/ },
   { name: 'check:css-values', reads: /^(src|theme|demo|starter|scripts\/check-css-values)/ },
   { name: 'check:token-registry', reads: /^(theme\/styles\/tokens|scripts\/gen-token-registry\.mjs)/ },

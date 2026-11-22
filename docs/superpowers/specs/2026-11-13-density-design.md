@@ -1,5 +1,12 @@
 # Density: more or less space in the editor and the theme (design proposal)
 
+> **Changed 21 Nov 2026 (owner: "follow m3", 0.19.5 batch 10).** Large (+1) is gone and Medium is 0; the scale is M3's 0, -1, -2, -3 and one
+> variable, `--mo-sys-density` (clamped 0 to -3), replaces the three group variables (`-layout`, `-focus`). Every part that follows density
+> (buttons, chips, segmented buttons, text fields, list rows, table rows and menus, whose M3 page prints "density levels … 0 to -3") goes the
+> whole scale in the theme's styling; dialogs and snackbars never read it. The editor's setting keeps Medium and Small, a stored Large reads as
+> Medium, and the editor's own rhythm (gaps, screen padding) stops at -1. The sections below say the older three-step design; where they
+> differ, this note wins.
+
 Status: proposal for the owner. No code. Written for a phone: plain words, short.
 
 **Density** means how much fits on a screen. Dense: smaller rows and buttons, more on screen. Not dense: more air, less on screen.
@@ -170,6 +177,8 @@ editor outside the page and post editing area, except where a group says otherwi
 | **Data-heavy** (people scan a lot) | list rows (the Library, Files, Redirects, the start screen's page and post lists, own lists), tables (`DataTable`), the headers and filter chips directly above a list | +4 | standard | -4 | yes, -8 and -12, but only for a theme that asks; the editor's menu does not offer them |
 | **Layout** (space around things) | gaps between sections, screen and column padding, toolbars, tabs, chip rows, buttons, and **the fields, switches, checkboxes and radio buttons in a settings form** (M3 allows these as an opt-in, with the 48 dp target kept) | +4 | standard | -4 | no |
 | **Focused single-task** | dialogs, snackbars, the date picker, the time picker, bottom and side sheets, the colour and icon pickers, the density setting's own rows, the FAB, and **menus and dropdowns in the theme** (the density page says not to; see below) | +4 | standard | stays standard | never |
+
+**Dialogs and snackbars: everything in them stays at Medium (PM, 21 Nov 2026, 0.19.5).** M3's density page (read 21 Nov 2026) says "Don't increase the density in components that alert a person of changes, such as snackbars or dialogs" and names the whole component; the dialogs Specs page gives a dynamic container height and no density rule. So `.mo-dialog` and `.mo-snackbar` set `--mo-sys-density: 0`, and the buttons, fields and rows inside them (and a date picker, which is a dialog) are the same height at every step; a dialog is not shorter at -3 (`checkDensityParts` measures the parts in both, `check:density` forbids them reading `--mo-sys-density`). **Menus are the one exception to the density page's second "Don't" (focused tasks, "such as selecting from a menu")**: the menus page prints density 0 to -3 "on web only" and is the part's own spec, so the theme's menus stay on the scale (21 Nov 2026, batch 10; entry 12 of `docs/material-deviations.md`); this section's older table row that keeps them at Medium is replaced by that.
 
 **M3 and the menu (decided by the owner, 2026-11-13: "They don't. Except the editor menus.").** M3 says two things: the density page,
 "Don't increase density in UIs that involve focused tasks, such as selecting from a menu", and the menus page, density levels 0 to -3

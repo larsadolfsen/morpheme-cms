@@ -10,17 +10,17 @@
     --mo-sys-elevation-level0-shadow … --mo-sys-elevation-level5-shadow                   the level's shadow; level 0 is no shadow (0 0 #0000, so it can
                                                      stand in a list of shadows)
     --mo-sys-elevation-level0-color … --mo-sys-elevation-level5-color   the level's colour (the site's surface-container colours)
-    --mo-sys-elevation-level1-rest-shadow … -5-rest-shadow      the shadow a part shows at rest on that level: level N's own shadow (owner, 18 Nov
-                                                     2026); a theme turns resting shadows off here and keeps the lift, which reads
-                                                     --mo-sys-elevation-levelN-shadow
+    --mo-sys-elevation-level1-rest-shadow … -5-rest-shadow      the shadow a surface shows at rest on that level: none (owner, 20 Nov 2026: "we need to
+                                                     fix elevation/shadow on current elements. Search bar is for example wrong."), M3 shows a
+                                                     surface's level by its tone; an elevated object and a lift read --mo-sys-elevation-levelN-shadow
   At rest (the shadow reads --mo-elevation-N-rest-shadow), pointed at (hover), pressed and dragged (the lift reads
   --mo-elevation-N-shadow), by Material 3; with focus a part is as at rest:
     level 0  filled, tonal and outlined buttons, icon buttons, filled and outlined cards, chips (not elevated), a
              standard side sheet, the top app bar, the navigation rail, a plain tooltip, a disabled switch and slider handle
-    level 1  elevated buttons and chips, elevated cards, bottom sheets, a modal side sheet and navigation drawer, the
+    level 1  elevated buttons and chips, elevated cards, bottom sheets, a modal side sheet, the
              handles of switches and sliders; pointed at: filled and tonal buttons (a toggle too), filled and outlined
              cards that are links, a chosen filter chip
-    level 2  menus, a rich tooltip, a modal navigation rail, the navigation bar, a docked toolbar, the top app bar once
+    level 2  menus, a rich tooltip, a modal navigation rail and the modal navigation drawer (the expanded rail, modal; md.comp.nav-rail.expanded.modal.container.elevation), the navigation bar, a docked toolbar, the top app bar once
              the page scrolls under it; pointed at: elevated buttons, chips and cards
     level 3  FABs (and the FAB menu's close button), dialogs (a bottom sheet as one), date and time pickers, the search bar
              and view, a snackbar, a floating toolbar; dragged: filled and outlined cards
@@ -70,11 +70,11 @@
   --mo-sys-elevation-level3-color: var(--mo-sys-color-surface-container-high, var(--mo-sys-block-surface));
   --mo-sys-elevation-level4-color: var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-surface));
   --mo-sys-elevation-level5-color: var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-surface));
-  --mo-sys-elevation-level1-rest-shadow: var(--mo-sys-elevation-level1-shadow);
-  --mo-sys-elevation-level2-rest-shadow: var(--mo-sys-elevation-level2-shadow);
-  --mo-sys-elevation-level3-rest-shadow: var(--mo-sys-elevation-level3-shadow);
-  --mo-sys-elevation-level4-rest-shadow: var(--mo-sys-elevation-level4-shadow);
-  --mo-sys-elevation-level5-rest-shadow: var(--mo-sys-elevation-level5-shadow);
+  --mo-sys-elevation-level1-rest-shadow: var(--mo-sys-elevation-level0-shadow);
+  --mo-sys-elevation-level2-rest-shadow: var(--mo-sys-elevation-level0-shadow);
+  --mo-sys-elevation-level3-rest-shadow: var(--mo-sys-elevation-level0-shadow);
+  --mo-sys-elevation-level4-rest-shadow: var(--mo-sys-elevation-level0-shadow);
+  --mo-sys-elevation-level5-rest-shadow: var(--mo-sys-elevation-level0-shadow);
 }
 @media (prefers-color-scheme: dark) {
   :where(:root:not([data-theme='light'])) {

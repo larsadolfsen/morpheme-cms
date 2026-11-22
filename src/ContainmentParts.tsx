@@ -217,17 +217,17 @@ function Carousels() {
 export default function ContainmentParts() {
   return (
     <>
-      <Part name="Dialog" use={say.dialog}>
+      <Part name="Dialog" m3="md.comp.dialog" use={say.dialog}>
         <Preview>
           <Dialogs />
         </Preview>
       </Part>
-      <Part name="BottomSheet" use={say.bottomSheet}>
+      <Part name="BottomSheet" m3="md.comp.sheet.bottom" use={say.bottomSheet}>
         <Preview>
           <BottomSheets />
         </Preview>
       </Part>
-      <Part name="Carousel" use={say.carousel}>
+      <Part name="Carousel" m3="md.comp.carousel" use={say.carousel}>
         <Preview>
           <Carousels />
         </Preview>

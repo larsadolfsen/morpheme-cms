@@ -43,15 +43,21 @@ export type ThemeInfo = {
    * when it was installed from it (its store.json). */
   inStore?: boolean;
   store?: StoreRecord;
+  /** Its accessibility.json beside its theme.json (src/themeAccessibility.mjs reads it); none for a theme without one. */
+  accessibility?: unknown;
 };
 
 // The standard theme's files (the package's theme/, @saturn) as if they were in src/themes/<its id>/, beside the others'.
 const asStandard = <T>(found: Record<string, T>) =>
   Object.fromEntries(Object.entries(found).map(([path, v]) => [`/src/themes/${STANDARD_THEME}/${path.split('/theme/').pop()}`, v]));
-type Manifest = Omit<ThemeInfo, 'id' | 'screenshots' | 'inStore' | 'store'> & { store?: boolean };
+type Manifest = Omit<ThemeInfo, 'id' | 'screenshots' | 'inStore' | 'store' | 'accessibility'> & { store?: boolean };
 const manifests = {
   ...asStandard(import.meta.glob<Manifest>('@saturn/theme.json', { eager: true, import: 'default' })),
   ...import.meta.glob<Manifest>('/src/themes/*/theme.json', { eager: true, import: 'default' }),
+};
+const statements = {
+  ...asStandard(import.meta.glob<unknown>('@saturn/accessibility.json', { eager: true, import: 'default' })),
+  ...import.meta.glob<unknown>('/src/themes/*/accessibility.json', { eager: true, import: 'default' }),
 };
 const records = import.meta.glob<StoreRecord>('/src/themes/*/store.json', { eager: true, import: 'default' });
 const images = {
@@ -93,6 +99,9 @@ export const themes: ThemeInfo[] = Object.entries(manifests)
     highlights: m.highlights,
     screenshots: screenshotsOf(idOf(path)),
     ...(m.store ? { inStore: true } : {}),
+    ...(statements[`/src/themes/${idOf(path)}/accessibility.json`]
+      ? { accessibility: statements[`/src/themes/${idOf(path)}/accessibility.json`] }
+      : {}),
     ...(records[`/src/themes/${idOf(path)}/store.json`] ? { store: records[`/src/themes/${idOf(path)}/store.json`] } : {}),
   }))
   .sort((a, b) => a.name.localeCompare(b.name));

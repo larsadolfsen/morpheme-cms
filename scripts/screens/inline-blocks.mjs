@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { openEditor } from '../built-site.mjs';
 import { FIXTURE_PAGE, browser, problems, shots, site } from './support/context.mjs';
 import { barTools, inlineBlocks, inlineSingles, pressInsert, pressMore, pressTool, ratioOf, saveOrClose } from './support/shared.mjs';
+import { shortfall } from './support/statement.mjs';
 
 /** One choice of a choice group by its name, whichever form it has now: its visible button, or its row of radio buttons (the row's label is the target:
  * the text under it cannot be pressed on its own). */
@@ -124,6 +125,56 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   await page.close();
 }
 
+/** The icon control inside a filled button (Buttons, Price cards) draws its keyboard focus ring on the button's own container, so the ring is the button's on-colour and
+ * holds at least 3:1 against that container (WCAG 2.4.7, 1.4.11), light and dark, on the page's colour and on a coloured section. */
+async function checkFilledSlotRing(scheme, sectionColor) {
+  const label = `${scheme} inline buttons slot ring${sectionColor ? ` on ${sectionColor}` : ''}`;
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, locale: 'en-US', colorScheme: scheme });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Buttons with text and icon.' }).first().click();
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="label"]', { timeout: 8000 });
+  await page.keyboard.type('One');
+  await page.waitForTimeout(300);
+  if (sectionColor)
+    await page.evaluate((color) => {
+      for (const el of document.querySelector('.ProseMirror').children) {
+        if (el.classList.contains('mo-editor-section-picture')) continue;
+        el.setAttribute('data-section-color', color);
+        el.setAttribute('data-section-box', 'only');
+      }
+    }, sectionColor);
+  await page.waitForTimeout(300);
+  // Keyboard focus: Shift+Tab from the label (the slot comes before it) until the slot has it (the ring shows for the keyboard only).
+  await page.locator('.mo-site-block-inline [data-field="label"]').first().click();
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="label"]');
+  let onSlot = false;
+  for (let i = 0; i < 4 && !onSlot; i++) {
+    await page.keyboard.press('Shift+Tab');
+    onSlot = await page.evaluate(() => !!document.activeElement?.matches('.mo-button.mo-is-filled .mo-editor-inline-list-slot'));
+  }
+  if (!onSlot) problems.push(`${label}: Shift+Tab did not reach the icon control inside the filled button`);
+  else {
+    const m = await page.evaluate(`(() => {
+      ${ratioOf}
+      const slot = document.activeElement;
+      const button = slot.closest('.mo-button.mo-is-filled');
+      const cs = getComputedStyle(slot);
+      return { style: cs.outlineStyle, width: parseFloat(cs.outlineWidth), ratio: ratio(cs.outlineColor, button, 1, button) };
+    })()`);
+    if (m.style === 'none' || m.width < 2) problems.push(`${label}: the focused icon control has no ring (${m.style} ${m.width}px)`);
+    else if (m.ratio < 3) problems.push(`${label}: the ring is ${m.ratio.toFixed(2)}:1 against the filled button, under 3:1`);
+  }
+  await page.close();
+}
+
 /** A List and a List - Expand, each in the design Plain and Segmented (owner, 16 Nov 2026: "The white list is the correct one"), are edited the same way: the active
  * row has the same slots (its icon and its link, at its end), the toolbar the same Link, the add button the same text, and the link slot the same sheet with its page; nothing is
  * drawn at the bottom of a row; the design is a setting of the block (Plain or Segmented) that changes only how the rows are drawn. Each is measured, then compared with the List's. */
@@ -166,7 +217,7 @@ async function checkListDesigns(width, height) {
       ),
       add: [...document.querySelectorAll('[data-add-row]')].map((x) => x.textContent.trim()),
       own: document.querySelectorAll('[data-row-link], [data-add-button], [data-row-arrow], .mo-editor-inline-segmented-buttons').length,
-      // The plain design is full width on a compact screen (owner, 16 Nov 2026): the row's layer is 16 dp wider than the text column on each side, its leading icon on the text's edge.
+      // The plain design's row layer is 16 dp wider than the text column on each side at every width (M3 Lists › Specs: 16 dp leading and trailing space; 21 Nov 2026), its leading icon on the text's edge.
       edge: (() => {
         const row = document.querySelector('.mo-editor-inline-list-row-active');
         const box = row?.matches('.mo-list__item-container') ? row : row?.querySelector('.mo-list__item-container');
@@ -209,9 +260,9 @@ async function checkListDesigns(width, height) {
     if (!one.end) problems.push(`${label}: ${one.look}: the link slot is not at the end of the row`);
     if (!one.edge) problems.push(`${label}: ${one.look}: no row layer or leading icon to measure`);
     else {
-      // Default: on a compact screen the layer starts 16 dp before the text's edge, else on it, and the icon on the text's edge; Card: the container on the text's edge (its icon one 16 dp padding in).
-      // The rows that fold out have the 24 dp padding of the theme's accordion (global.css) inside their card.
-      const [layer, icon] = one.card ? [0, one.look.includes('Expand') ? 24 : 16] : [width < 600 ? -16 : 0, 0];
+      // Default: the layer starts 16 dp before the text's edge at every width, and the icon is on the text's edge; Card: the container on the text's edge (its icon one 16 dp padding in).
+      // The rows that fold out have Material 3's 16 dp list padding inside their card, as the other cards (M3 Lists spec: "Leading element left padding 16dp", "Label left padding 16dp"). Old source: the 24 dp of the theme's accordion (global.css), set before 21 Nov 2026 and not M3's.
+      const [layer, icon] = one.card ? [0, 16] : [-16, 0];
       if (Math.abs(one.edge.layer - layer) > 0.5)
         problems.push(`${label}: ${one.look}: the row starts ${one.edge.layer} px from the text's edge, not ${layer}`);
       if (Math.abs(one.edge.icon - icon) > 1)
@@ -416,8 +467,14 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
         ['slot', 3],
         ['outline', 3],
       ])
-        if (got[part] !== null && got[part] < min)
-          problems.push(`${label} (${scheme}): the ${part} on a ${color} section has contrast ${got[part].toFixed(2)}:1, below ${min}`);
+        if (got[part] !== null && got[part] < min) {
+          const message = `${label} (${scheme}): the ${part} on a ${color} section has contrast ${got[part].toFixed(2)}:1, below ${min}`;
+          // A placeholder and the row's outline are parts a theme can name in its accessibility.json; text and slot icons never.
+          if (part === 'placeholder') shortfall('1.4.3', 'placeholder', message);
+          else if (part === 'outline')
+            shortfall('1.4.11', 'outlined-card-edge', message); // the edge of a block typed in place on a section, M3's outline: judged with the card edge, which the contrast scan measures in whole
+          else problems.push(message);
+        }
   }
   await page.emulateMedia({ colorScheme: 'light' });
   for (const name of ['Add above', 'Add below'])
@@ -906,6 +963,9 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkSteps ${width}`, () => checkSteps(width, height));
+  for (const scheme of ['light', 'dark'])
+    for (const color of ['', 'primary', 'tertiary'])
+      unit(`checkFilledSlotRing ${scheme} ${color || 'default'}`, () => checkFilledSlotRing(scheme, color));
   for (const block of pasteBlocks)
     for (const w of [375, 1280]) unit(`checkInlinePaste ${w} ${block.name}`, () => checkInlinePaste(w, w < 600 ? 740 : 900, block));
   for (const w of [375, 1280]) unit(`checkInlinePaste ${w} table`, () => checkTablePaste(w, w < 600 ? 740 : 900));

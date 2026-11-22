@@ -185,35 +185,8 @@
     padding-inline: var(--mo-ref-space-50);
     color: var(--mo-sys-color-on-surface-variant);
   }
-  .mo-editor-app-list-owner {
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
-    display: flex;
-    align-items: center;
-    gap: var(--mo-ref-space-150);
-    padding-inline: var(--mo-ref-space-200);
-  }
-  .mo-editor-app-list-owner-text {
-    min-inline-size: 0;
-    flex: 1;
-  }
-  .mo-editor-app-list-name {
-    display: block;
-    font-weight: 500;
-  }
-  .mo-editor-app-list-meta {
-    display: block;
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    color: var(--mo-sys-color-on-surface-variant);
-  }
   .mo-editor-app-list-heading {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
-    padding-inline: var(--mo-ref-space-200);
-  }
-  .mo-editor-app-list-title-row {
-    display: flex;
-    align-items: center;
-    gap: var(--mo-ref-space-150);
   }
   .mo-editor-app-list-hint {
     margin-block-start: var(--mo-comp-editor-rhythm-150);
@@ -327,14 +300,23 @@
     row-gap: var(--mo-ref-space-300);
     padding: var(--mo-ref-space-200);
   }
-  .mo-editor-comm-tooltip-plain {
-    padding-block-start: var(--mo-comp-editor-rhythm-400);
+  /* The examples' tooltips are drawn in the flow, over their anchor, not placed against the window as on a page: a fixed tooltip flips under its
+     anchor and covers the next group. They stay inside their example at every width. */
+  .mo-editor-comm-tooltips [data-tooltip] {
+    flex-direction: column-reverse;
+    align-items: flex-start;
+    gap: var(--mo-comp-tooltip-gap, 0.25rem);
+    max-inline-size: 100%;
   }
-  .mo-editor-comm-tooltip-rich {
-    padding-block-start: 6rem;
+  .mo-editor-comm-tooltips .mo-tooltip__plain {
+    align-self: center;
   }
-  .mo-editor-comm-tooltip-action {
-    padding-block-start: 9rem;
+  .mo-editor-comm-tooltips .mo-tooltip {
+    position: static;
+    translate: none;
+    margin: 0;
+    inset: auto;
+    max-inline-size: 100%;
   }
   /* BlockParts.tsx */
   :where(.mo-editor-parts-chips > :not(:last-child)) {
@@ -742,10 +724,17 @@
     align-items: center;
     gap: var(--mo-ref-space-150);
   }
+  /* A part in a row has the room of the row's gap round it (an example's own group takes no box), so its tap area (theme/styles/ui/target-size.css) stops half way to the next part. */
+  .mo-editor-parts-row > *,
+  .mo-editor-parts-row > [role='group'] > * {
+    --mo-sys-target-gap: var(--mo-ref-space-150);
+  }
   /* BlockParts.tsx (a constant) */
   .mo-editor-parts-field-grid {
     display: grid;
     gap: var(--mo-ref-space-300);
+    /* A field keeps its own height: the grid does not stretch it to the tallest in its row (one with supporting text). */
+    align-items: start;
   }
   @media (width >= 37.5rem) {
     .mo-editor-parts-field-grid {

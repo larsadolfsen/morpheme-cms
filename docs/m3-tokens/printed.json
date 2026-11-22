@@ -1,0 +1,65 @@
+{
+  "note": "Values Material 3 prints only on a page, not as a token. Each was read with Playwright from the real page on 21 Nov 2026 (skill material-3, rule 2). scripts/check-m3-render.mjs measures them: `selector` finds the elements on /ui/, `measure` says what is read (min-width and max-width are computed CSS values, height is the box) and `op` how it compares (eq: equal within 1 px, min: at least).",
+  "values": [
+    {
+      "id": "search-view.min-width",
+      "family": "md.comp.search",
+      "attr": "min-width",
+      "value": 360,
+      "unit": "dp",
+      "op": "eq",
+      "selector": ".mo-search-view",
+      "measure": "min-width",
+      "url": "https://m3.material.io/components/search/specs",
+      "quote": "Width | Min: 360dp, max: 720dp"
+    },
+    {
+      "id": "search-view.max-width",
+      "family": "md.comp.search",
+      "attr": "max-width",
+      "value": 720,
+      "unit": "dp",
+      "op": "eq",
+      "selector": ".mo-search-view",
+      "measure": "max-width",
+      "url": "https://m3.material.io/components/search/specs",
+      "quote": "Width | Min: 360dp, max: 720dp"
+    },
+    {
+      "id": "dialog.min-width",
+      "family": "md.comp.dialog",
+      "attr": "min-width",
+      "value": 280,
+      "unit": "dp",
+      "op": "eq",
+      "selector": ".mo-dialog__modal",
+      "measure": "min-width",
+      "url": "https://m3.material.io/components/dialogs/specs",
+      "quote": "Container width | Min 280dp; Max 560dp"
+    },
+    {
+      "id": "dialog.max-width",
+      "family": "md.comp.dialog",
+      "attr": "max-width",
+      "value": 560,
+      "unit": "dp",
+      "op": "eq",
+      "selector": ".mo-dialog__modal",
+      "measure": "max-width",
+      "url": "https://m3.material.io/components/dialogs/specs",
+      "quote": "Container width | Min 280dp; Max 560dp"
+    },
+    {
+      "id": "list-item.target-height",
+      "family": "md.comp.list",
+      "attr": "target-height",
+      "value": 48,
+      "unit": "dp",
+      "op": "min",
+      "selector": ".mo-list__item-container",
+      "measure": "height",
+      "url": "https://m3.material.io/components/lists/specs",
+      "quote": "Target size must be at least 48x48dp"
+    }
+  ]
+}

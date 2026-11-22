@@ -30,11 +30,11 @@ const tokens = {
   '--mo-sys-elevation-level3-color': 'var(--mo-sys-color-surface-container-high, var(--mo-sys-block-surface))',
   '--mo-sys-elevation-level4-color': 'var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-surface))',
   '--mo-sys-elevation-level5-color': 'var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-surface))',
-  '--mo-sys-elevation-level1-rest-shadow': 'var(--mo-sys-elevation-level1-shadow)',
-  '--mo-sys-elevation-level2-rest-shadow': 'var(--mo-sys-elevation-level2-shadow)',
-  '--mo-sys-elevation-level3-rest-shadow': 'var(--mo-sys-elevation-level3-shadow)',
-  '--mo-sys-elevation-level4-rest-shadow': 'var(--mo-sys-elevation-level4-shadow)',
-  '--mo-sys-elevation-level5-rest-shadow': 'var(--mo-sys-elevation-level5-shadow)',
+  '--mo-sys-elevation-level1-rest-shadow': 'var(--mo-sys-elevation-level0-shadow)',
+  '--mo-sys-elevation-level2-rest-shadow': 'var(--mo-sys-elevation-level0-shadow)',
+  '--mo-sys-elevation-level3-rest-shadow': 'var(--mo-sys-elevation-level0-shadow)',
+  '--mo-sys-elevation-level4-rest-shadow': 'var(--mo-sys-elevation-level0-shadow)',
+  '--mo-sys-elevation-level5-rest-shadow': 'var(--mo-sys-elevation-level0-shadow)',
 };
 
 for (const [name, value] of Object.entries(tokens)) {
@@ -111,43 +111,44 @@ test('no part reads the old surface fallbacks', () => {
   assert.equal(count(uiCss, 'var(--mo-comp-navigation-rail-surface, var(--mo-sys-block-surface))'), 0);
 });
 
-// Resting shadows: the part's own variable first, then its level's rest-shadow token.
+// Shadows: the part's own variable first, then the level's token: an elevated object reads --mo-sys-elevation-levelN-shadow, a surface
+// --mo-sys-elevation-levelN-rest-shadow, which Material sets to no shadow (elevation spec, batch 3).
 const restShadows = [
-  ['elevated button', 'box-shadow: var(--mo-comp-button-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
-  ['elevated chip', 'box-shadow: var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
-  [
-    'elevated card',
-    '--mo-comp-card-shadow: var(--mo-comp-elevated-card-container-elevation, var(--mo-sys-elevation-level1-rest-shadow));',
-    1,
-  ],
+  ['elevated button', 'box-shadow: var(--mo-comp-button-elevated-shadow, var(--mo-sys-elevation-level1-shadow));', 2],
+  ['elevated chip', 'box-shadow: var(--mo-comp-chip-elevated-shadow, var(--mo-sys-elevation-level1-shadow));', 2],
+  ['elevated card', '--mo-comp-card-shadow: var(--mo-comp-elevated-card-container-elevation, var(--mo-sys-elevation-level1-shadow));', 1],
   [
     'modal side sheet (container and wide layout)',
-    'box-shadow: var(--mo-comp-side-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));',
+    'box-shadow: var(--mo-comp-side-sheet-shadow, var(--mo-sys-elevation-level1-shadow));',
     2,
   ],
-  ['bottom sheet', 'box-shadow: var(--mo-comp-bottom-sheet-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
-  ['bottom sheet as a dialog', 'box-shadow: var(--mo-comp-bottom-sheet-shadow-large, var(--mo-sys-elevation-level3-rest-shadow));', 1],
-  ['dialog (also date and time picker)', 'var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
+  ['bottom sheet', 'box-shadow: var(--mo-comp-bottom-sheet-shadow, var(--mo-sys-elevation-level1-shadow));', 1],
+  ['bottom sheet as a dialog', 'box-shadow: var(--mo-comp-bottom-sheet-shadow-large, var(--mo-sys-elevation-level1-shadow));', 1],
+  ['dialog (also date and time picker)', 'var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-shadow));', 1],
   [
     'docked date picker',
     'var(--mo-comp-date-picker-docked-shadow, var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow)));',
     1,
   ],
   ['scrolled top app bar', 'box-shadow: var(--mo-comp-top-app-bar-stuck-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
-  ['modal navigation rail', 'box-shadow: var(--mo-comp-navigation-rail-modal-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
-  ['navigation drawer', 'box-shadow: var(--mo-comp-navigation-drawer-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
-  ['menu, menu group and select list', 'var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-rest-shadow));', 3],
-  ['rich tooltip', 'var(--mo-comp-tooltip-rich-shadow, var(--mo-sys-elevation-level2-rest-shadow));', 1],
+  ['modal navigation rail', 'box-shadow: var(--mo-comp-navigation-rail-modal-shadow, var(--mo-sys-elevation-level2-shadow));', 1],
+  [
+    'modal navigation drawer (the expanded rail, modal: M3 level 2, 3dp)',
+    'box-shadow: var(--mo-comp-navigation-drawer-shadow, var(--mo-sys-elevation-level2-shadow));',
+    1,
+  ],
+  ['menu, menu group and select list', 'var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-shadow));', 3],
+  ['rich tooltip', 'var(--mo-comp-tooltip-rich-shadow, var(--mo-sys-elevation-level2-shadow));', 1],
   ['search view', 'var(--mo-comp-search-view-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
-  ['floating toolbar', 'var(--mo-comp-toolbar-floating-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
-  ['FAB and FAB menu', 'box-shadow: var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 2],
-  ['snackbar', 'box-shadow: var(--mo-comp-snackbar-shadow, var(--mo-sys-elevation-level3-rest-shadow));', 1],
+  ['floating toolbar', 'var(--mo-comp-toolbar-floating-shadow, var(--mo-sys-elevation-level3-shadow));', 1],
+  ['FAB and FAB menu', 'box-shadow: var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level3-shadow));', 2],
+  ['snackbar', 'box-shadow: var(--mo-comp-snackbar-shadow, var(--mo-sys-elevation-level3-shadow));', 1],
   ['switch handle', 'box-shadow: var(--mo-comp-switch-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 1],
   ['slider handle (both directions)', 'box-shadow: var(--mo-comp-slider-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));', 2],
 ];
 
 for (const [part, line, times] of restShadows) {
-  test(`${part} reads its level's rest shadow`, () => {
+  test(`${part} reads its shadow`, () => {
     assert.equal(count(uiCss, line), times);
   });
 }
@@ -169,12 +170,12 @@ test('outlined card keeps --mo-sys-elevation-level0-shadow', () => {
   assert.equal(count(uiCss, '--mo-comp-card-shadow: var(--mo-comp-card-outlined-shadow, var(--mo-sys-elevation-level0-shadow));'), 1);
 });
 
-// The Material theme (global.css): resting shadows on, each level's rest shadow is that level's shadow.
+// The Material theme (global.css): no shadow at rest on a surface, each level's rest shadow is level 0's.
 const globalCss = withTokens('./global.css', 'material') + MATERIAL_FILES.map((f) => read(`./${f}`)).join('');
 
 for (let level = 1; level <= 5; level++) {
-  test(`global.css sets --mo-sys-elevation-level${level}-rest-shadow to level ${level}'s shadow (resting shadows on)`, () => {
-    assert.equal(count(globalCss, `  --mo-sys-elevation-level${level}-rest-shadow: var(--mo-sys-elevation-level${level}-shadow);\n`), 1);
+  test(`global.css sets --mo-sys-elevation-level${level}-rest-shadow to level 0's shadow (no shadow on a surface)`, () => {
+    assert.equal(count(globalCss, `  --mo-sys-elevation-level${level}-rest-shadow: var(--mo-sys-elevation-level0-shadow);\n`), 1);
   });
 }
 
@@ -215,10 +216,10 @@ for (const name of removedDeclarations) {
   });
 }
 
-// The menu is M3 Expressive's vertical menu in its standard colours: on the low surface container (level 1's colour), with
+// The menu is M3 Expressive's vertical menu in its standard colours: on surface-container-low (md.comp.menus.standard.container.color), with
 // level 2's shadow, so it stands in front of the page (m3.material.io/components/menus/specs).
-test('global.css puts the menu on level 1 with the level 2 shadow', () => {
-  assert.equal(count(globalCss, '  --mo-comp-menu-container-color: var(--mo-sys-elevation-level1-color);\n'), 1);
+test('global.css puts the menu on the lowest surface container with the level 2 shadow', () => {
+  assert.equal(count(globalCss, '  --mo-comp-menu-container-color: var(--mo-sys-color-surface-container-low);\n'), 1);
   assert.equal(count(globalCss, '  --mo-comp-menu-container-elevation: var(--mo-sys-elevation-level2-shadow);\n'), 1);
 });
 
@@ -230,4 +231,89 @@ test('global.css keeps the extended FAB lines in the navigation drawer', () => {
     ),
     1,
   );
+});
+
+// The classes (theme/styles/elevation.css, spec 2026-11-20-elevation-design.md): mo-elevation-0 to -3 are surfaces, mo-elevated-1 to -3 only a shadow.
+const classCss = read('./elevation.css');
+const rule = (selector) => {
+  const at = classCss.indexOf(`  ${selector} {`);
+  assert.notEqual(at, -1, `${selector} has a rule`);
+  return classCss.slice(at, classCss.indexOf('}', at));
+};
+
+for (const n of [0, 1, 2, 3]) {
+  test(`.mo-elevation-${n} is a surface: the level's colour and on-colour${n ? ', and the elevation shadow' : ''}`, () => {
+    const body = rule(`.mo-elevation-${n}`);
+    assert.match(body, new RegExp(`background-color: var\\(--mo-sys-elevation-level${n}-color\\);`));
+    assert.match(body, /color: var\(--mo-sys-color-on-surface\);/);
+    if (n) assert.match(body, new RegExp(`box-shadow: var\\(--mo-sys-elevation-level${n}-rest-shadow\\);`));
+    else assert.doesNotMatch(body, /box-shadow/);
+  });
+}
+
+for (const n of [1, 2, 3]) {
+  test(`.mo-elevated-${n} sets only the level's shadow, no colour`, () => {
+    const body = rule(`.mo-elevated-${n}`);
+    assert.match(body, new RegExp(`box-shadow: var\\(--mo-sys-elevation-level${n}-shadow\\);`));
+    assert.doesNotMatch(body, /background|color:/);
+  });
+}
+
+test('there is no mo-elevated-0 and no class above level 3', () => {
+  assert.doesNotMatch(classCss, /mo-elevated-0|mo-elevation-[45]|mo-elevated-[45]/);
+});
+
+test('hover steps up one level, for what can be clicked and where the device can hover', () => {
+  assert.match(classCss, /@media \(hover: hover\)/);
+  const hover = classCss.slice(classCss.indexOf('@media (hover: hover)'));
+  for (const n of [1, 2, 3]) {
+    assert.match(
+      hover,
+      new RegExp(
+        `\\.mo-elevated-${n}:hover:not\\(\\[data-dragged\\]\\) \\{\\s*box-shadow: var\\(--mo-sys-elevation-level${n + 1}-shadow\\);`,
+      ),
+    );
+  }
+  for (const n of [0, 1, 2, 3]) {
+    assert.match(
+      hover,
+      new RegExp(
+        `\\.mo-elevation-${n}\\)\\:hover:not\\(\\[data-dragged\\]\\) \\{\\s*box-shadow: var\\(--mo-sys-elevation-level${n + 1}-rest-shadow\\);`,
+      ),
+    );
+  }
+  assert.match(hover, /:is\(a, button, summary, \[role='button'\], \[tabindex\]\)/);
+});
+
+test('dragged steps up three levels, never above 5', () => {
+  const dragged = { 0: 3, 1: 4, 2: 5, 3: 5 };
+  for (const [n, to] of Object.entries(dragged)) {
+    const at = classCss.indexOf(`.mo-elevation-${n}[data-dragged]`);
+    assert.notEqual(at, -1);
+    assert.match(classCss.slice(at, classCss.indexOf('}', at)), new RegExp(`var\\(--mo-sys-elevation-level${to}-shadow\\)`));
+    if (n !== '0') {
+      const e = classCss.indexOf(`.mo-elevated-${n}[data-dragged]`);
+      assert.match(classCss.slice(e, classCss.indexOf('}', e)), new RegExp(`var\\(--mo-sys-elevation-level${to}-shadow\\)`));
+    }
+  }
+});
+
+test('the classes use the theme’s effects spring and sit in the utilities layer', () => {
+  assert.match(classCss, /transition: box-shadow var\(--mo-sys-motion-spring-default-effects\);/);
+  assert.match(classCss, /^@layer utilities \{/m);
+});
+
+// Batch 3 (the current parts): the surfaces that M3 draws flat, and the FAB menu's actions.
+test('the modal date picker is a surface (rest shadow), the dialog around a time picker is elevated', () => {
+  assert.equal(count(uiCss, 'var(--mo-comp-date-picker-modal-shadow, var(--mo-sys-elevation-level3-rest-shadow));'), 1);
+});
+
+test('the FAB menu actions are level 0 at rest, level 4 pointed at, level 3 with focus or pressed', () => {
+  assert.equal(count(uiCss, 'var(--mo-comp-fab-menu-item-shadow, var(--mo-sys-elevation-level0-shadow))'), 1);
+  assert.equal(count(uiCss, 'var(--mo-comp-fab-menu-item-hover-shadow, var(--mo-sys-elevation-level4-shadow))'), 1);
+  assert.equal(count(uiCss, 'var(--mo-comp-fab-menu-item-focus-shadow, var(--mo-sys-elevation-level3-shadow))'), 1);
+});
+
+test('a list that expands has no shadow of its own (level 0, not the block shadow)', () => {
+  assert.equal(count(uiCss, 'box-shadow: var(--mo-comp-list-expand-shadow, var(--mo-sys-elevation-level0-shadow));'), 1);
 });

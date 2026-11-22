@@ -1,5 +1,6 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
+/* How far a plain row's layer reaches past the text column on each side: M3 Lists › Specs, 16 dp leading and trailing space inside the item's container (every width). */
 @layer components {
   /* The room a plain row's layer takes past its text: all the row's width on a compact screen, and its focus ring from medium (lists.css). */
   .mo-block-list:not(.mo-list__segmented),

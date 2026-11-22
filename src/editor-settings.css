@@ -4,17 +4,6 @@
    theme/styles/layout.css. The vertical rhythm reads the shared tokens of src/editor-density.css (--mo-comp-editor-rhythm-*); the space-y rules keep the
    exemptions src/editor.css gave their Tailwind class names. They sit in @layer utilities, where the utility classes were, so the cascade does not change. */
 @layer utilities {
-  .mo-editor-about-row {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--mo-ref-space-150);
-  }
-
-  .mo-editor-about-text {
-    padding-block-start: var(--mo-ref-space-75);
-    color: var(--mo-sys-color-on-surface-variant);
-  }
-
   .mo-editor-ask-buttons {
     margin-block-start: var(--mo-comp-editor-rhythm-300);
     display: flex;
@@ -58,7 +47,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -75,14 +63,12 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
       .mo-editor-license-photo,
       .mo-editor-list-lead,
       .mo-editor-main-drawer-divider,
-      .mo-editor-main-drawer-header-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
       .mo-editor-no-match,
@@ -111,7 +97,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -156,27 +141,6 @@
 
   .mo-editor-byline-lines {
     line-height: 1.375;
-  }
-
-  .mo-editor-code-box {
-    min-inline-size: 0;
-    flex: 1 1 0%;
-    border-radius: 0.5rem;
-    background-color: var(--mo-sys-color-surface-container);
-    padding-inline: var(--mo-ref-space-150);
-    padding-block: var(--mo-ref-space-100);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    word-break: break-all;
-    -webkit-user-select: all;
-    user-select: all;
-  }
-
-  .mo-editor-code-row {
-    margin-block: var(--mo-ref-space-150);
-    display: flex;
-    align-items: center;
-    gap: var(--mo-ref-space-100);
   }
 
   .mo-editor-colors-columns {
@@ -256,7 +220,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -273,14 +236,12 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
       .mo-editor-license-photo,
       .mo-editor-list-lead,
       .mo-editor-main-drawer-divider,
-      .mo-editor-main-drawer-header-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
       .mo-editor-no-match,
@@ -309,7 +270,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -337,7 +297,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -354,14 +313,12 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
       .mo-editor-license-photo,
       .mo-editor-list-lead,
       .mo-editor-main-drawer-divider,
-      .mo-editor-main-drawer-header-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
       .mo-editor-no-match,
@@ -390,7 +347,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -413,7 +369,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -430,14 +385,12 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
       .mo-editor-license-photo,
       .mo-editor-list-lead,
       .mo-editor-main-drawer-divider,
-      .mo-editor-main-drawer-header-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
       .mo-editor-no-match,
@@ -466,7 +419,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -489,7 +441,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -506,14 +457,12 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
       .mo-editor-license-photo,
       .mo-editor-list-lead,
       .mo-editor-main-drawer-divider,
-      .mo-editor-main-drawer-header-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
       .mo-editor-no-match,
@@ -542,7 +491,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -565,7 +513,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -582,14 +529,12 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
       .mo-editor-license-photo,
       .mo-editor-list-lead,
       .mo-editor-main-drawer-divider,
-      .mo-editor-main-drawer-header-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
       .mo-editor-no-match,
@@ -618,7 +563,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -731,12 +675,6 @@
     border-radius: 0.75rem;
   }
 
-  .mo-editor-line {
-    display: flex;
-    align-items: flex-start;
-    gap: var(--mo-ref-space-100);
-  }
-
   .mo-editor-menu-sample {
     display: flex;
     justify-content: flex-end;
@@ -783,7 +721,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -800,14 +737,12 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
       .mo-editor-license-photo,
       .mo-editor-list-lead,
       .mo-editor-main-drawer-divider,
-      .mo-editor-main-drawer-header-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
       .mo-editor-no-match,
@@ -836,7 +771,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -877,7 +811,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -894,14 +827,12 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
       .mo-editor-license-photo,
       .mo-editor-list-lead,
       .mo-editor-main-drawer-divider,
-      .mo-editor-main-drawer-header-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
       .mo-editor-no-match,
@@ -930,7 +861,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -968,7 +898,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -985,14 +914,12 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
       .mo-editor-license-photo,
       .mo-editor-list-lead,
       .mo-editor-main-drawer-divider,
-      .mo-editor-main-drawer-header-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
       .mo-editor-no-match,
@@ -1021,7 +948,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -1053,6 +979,16 @@
     color: var(--mo-sys-color-primary);
   }
 
+  /* PartsShown.tsx PartSub: a subheading and the row under it. */
+  .mo-editor-part-sub {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-part-sub-name {
+    color: var(--mo-sys-color-on-surface-variant);
+  }
+
   .mo-editor-parts-group {
     &:not(:has([data-part])) {
       display: none;
@@ -1070,7 +1006,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -1087,14 +1022,12 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
       .mo-editor-license-photo,
       .mo-editor-list-lead,
       .mo-editor-main-drawer-divider,
-      .mo-editor-main-drawer-header-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
       .mo-editor-no-match,
@@ -1123,7 +1056,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -1176,7 +1108,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -1193,14 +1124,12 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
       .mo-editor-license-photo,
       .mo-editor-list-lead,
       .mo-editor-main-drawer-divider,
-      .mo-editor-main-drawer-header-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
       .mo-editor-no-match,
@@ -1229,7 +1158,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -1290,6 +1218,18 @@
     flex-wrap: wrap;
     align-items: center;
     gap: var(--mo-ref-space-200);
+    /* A part wider than the row (the extra-large split button, 340 px, on a phone) scrolls inside the row instead of sticking out of the gallery and being clipped by the page; the space round the row keeps the focus ring whole. */
+    overflow-x: auto;
+    padding: var(--mo-ref-space-100);
+    margin: calc(-1 * var(--mo-ref-space-100));
+  }
+  /* A part in a sample row has the room of the row's gap round it, so its tap area (theme/styles/ui/target-size.css) stops half way to the next part. */
+  .mo-editor-sample-row > * {
+    --mo-sys-target-gap: var(--mo-ref-space-200);
+  }
+  /* Below another part the stack's own space (--mo-ref-space-200) still holds between the two rows' content. */
+  .mo-editor-sample-stack-4 > .mo-editor-sample-row:not(:last-child) {
+    margin-block-end: calc(var(--mo-ref-space-200) - var(--mo-ref-space-100));
   }
 
   .mo-editor-sample-stack-4 {
@@ -1307,7 +1247,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -1324,14 +1263,12 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
       .mo-editor-license-photo,
       .mo-editor-list-lead,
       .mo-editor-main-drawer-divider,
-      .mo-editor-main-drawer-header-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
       .mo-editor-no-match,
@@ -1360,7 +1297,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -1386,7 +1322,6 @@
       .mo-editor-ask-title,
       .mo-editor-block-label,
       .mo-editor-choice-hint,
-      .mo-editor-code-row,
       .mo-editor-dialog-title,
       .mo-editor-empty-note,
       .mo-editor-field-hint,
@@ -1403,14 +1338,12 @@
       .mo-editor-library-empty,
       .mo-editor-library-filters,
       .mo-editor-library-section,
-      .mo-editor-library-theme-head,
       .mo-editor-library-toolbar,
       .mo-editor-license-note,
       .mo-editor-license-paragraph,
       .mo-editor-license-photo,
       .mo-editor-list-lead,
       .mo-editor-main-drawer-divider,
-      .mo-editor-main-drawer-header-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
       .mo-editor-no-match,
@@ -1439,7 +1372,6 @@
       .mo-editor-sheet-chips,
       .mo-editor-sheet-phone,
       .mo-editor-sheet-search,
-      .mo-editor-store-head,
       .mo-editor-subtitle,
       .mo-editor-subtitle-tight,
       .mo-editor-swatches-title,
@@ -1536,12 +1468,7 @@
     inline-size: 5rem;
     block-size: 5rem;
     border-radius: 1.375rem;
-    box-shadow:
-      0 0 transparent,
-      0 0 transparent,
-      0 0 transparent,
-      0 0 transparent,
-      var(--mo-sys-panel-shadow);
+    box-shadow: var(--mo-sys-panel-shadow);
   }
 
   .mo-editor-signin-title {
@@ -1564,51 +1491,11 @@
     }
   }
 
-  .mo-editor-store-byline {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: var(--mo-sys-color-on-surface-variant);
-  }
-
-  .mo-editor-store-head {
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
-    display: flex;
-    align-items: center;
-    gap: var(--mo-ref-space-200);
-    padding-inline: var(--mo-ref-space-200);
-  }
-
   .mo-editor-store-icon {
     inline-size: var(--mo-ref-space-450);
     block-size: var(--mo-ref-space-450);
     flex-shrink: 0;
     border-radius: var(--mo-sys-block-radius-small);
-  }
-
-  .mo-editor-store-icon-large {
-    inline-size: var(--mo-ref-space-800);
-    block-size: var(--mo-ref-space-800);
-    flex-shrink: 0;
-    border-radius: 1rem;
-  }
-
-  .mo-editor-store-name {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-weight: 500;
-  }
-
-  .mo-editor-store-status {
-    display: block;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: var(--mo-sys-color-on-surface-variant);
   }
 
   .mo-editor-target-icon {
@@ -1700,12 +1587,7 @@
 
   .mo-editor-widget-lifted {
     z-index: 10;
-    box-shadow:
-      0 0 transparent,
-      0 0 transparent,
-      0 0 transparent,
-      0 0 transparent,
-      var(--mo-sys-elevation-level4-shadow);
+    box-shadow: var(--mo-sys-elevation-level4-shadow);
   }
 
   .mo-editor-widget-target {

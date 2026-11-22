@@ -130,6 +130,18 @@ export const library = {
   themeKeptContent: 'Pages and posts',
   themeKeptBrand: 'Colors and logo',
   themeKeptBlocks: "All blocks, in the theme's look",
+  /** On a theme's page: what it meets (its accessibility.json, src/themeAccessibility.mjs). */
+  themeA11yMeets: 'Accessibility: meets WCAG 2.2 AA, the level the European Accessibility Act asks for',
+  themeA11yShort: 'Accessibility: falls short of WCAG 2.2 AA',
+  themeA11yUnchecked: 'Accessibility: not checked',
+  themeA11yNotYours: 'Your own colors and images are not part of this.',
+  /** A shortfall: the part and its WCAG criterion. */
+  themeA11yItem: (part: string, criterion: string) => `${part} (${criterion})`,
+  themeA11yParts: {
+    placeholder: 'Placeholder text contrast',
+    'outlined-card-edge': 'Outlined card edge contrast',
+    'section-edges': 'Edge contrast in a colored section',
+  } as Record<string, string>,
   /** The button on a theme's page that swaps the theme the website uses to it. */
   useTheme: 'Use the theme',
   /** The question's button before the theme is changed. */
@@ -207,7 +219,7 @@ export const library = {
   themes: { light: 'Light', auto: 'Auto', dark: 'Dark' },
   density: 'Density',
   densityNotSaved: 'Density is changed here, but not saved to your account.',
-  densities: { large: 'Large', medium: 'Medium', small: 'Small' },
+  densities: { medium: 'Medium', small: 'Small' },
   language: 'Language',
   /** The browser's language, else the site's, with the one it is now. */
   languageAuto: (name: string) => `Automatic: ${name}`,

@@ -27,9 +27,10 @@
     background: var(--mo-sys-block-surface);
     box-shadow: var(--mo-sys-block-shadow);
   }
-  /* An image behind the section (<img class="mo-text-section__image"> first in it, RichText.astro): it fills the panel, darkened
-     from below with the section's colour (Surface: --mo-sys-block-surface; none: --mo-sys-block-hero-shade, the text's colour unless the theme
-     sets it) so the text on it can be read. Without a colour the text is --mo-sys-block-hero-on-shade, the surface's. */
+  /* An image behind the section (<img class="mo-text-section__image"> first in it, RichText.astro): it fills the panel, and the text sits on a
+     panel of Material 3's inverse-surface at full strength (the section's fill is --mo-sys-color-inverse-surface here, tokens/blocks/sys.css; with Surface the panel is the surface), with
+     inverse-on-surface text and inverse-primary actions, a pair M3 prints, so the text is readable whatever the image. The image is not
+     darkened. The panel leaves a frame of the image half the section's padding wide around it. */
   :where(.mo-text-section).mo-has-image {
     position: relative;
     isolation: isolate;
@@ -40,14 +41,19 @@
   :where(.mo-text-section).mo-has-image::before {
     content: '';
     position: absolute;
-    inset: 0;
+    inset: calc(var(--mo-sys-block-section-padding) / 2);
+    inset-block-end: calc(var(--mo-sys-block-section-padding) / 2 + var(--mo-sys-block-section-margin));
     z-index: -1;
-    background: linear-gradient(
-      to top,
-      color-mix(in srgb, var(--mo-sys-section-shade) 85%, transparent),
-      color-mix(in srgb, var(--mo-sys-section-shade) 55%, transparent) 70%,
-      color-mix(in srgb, var(--mo-sys-section-shade) 40%, transparent)
-    );
+    border-radius: var(--mo-sys-block-radius-small);
+    background: var(--mo-sys-section-fill);
+  }
+  /* Surface with an image: the panel is the section's own surface, and the text keeps the page's roles on it. */
+  :where(.mo-text-section).mo-has-image.mo-is-surface::before {
+    background: var(--mo-sys-block-surface);
+  }
+  :where(.mo-text-section).mo-has-image.mo-is-full::before {
+    inset-inline: 0;
+    border-radius: 0;
   }
   .mo-text-section__image {
     position: absolute;

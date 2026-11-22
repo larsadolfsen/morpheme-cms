@@ -118,6 +118,12 @@
       0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
       var(--mo-comp-date-picker-docked-shadow, var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow)));
   }
+  /* The modal date picker is a surface on level 3 with no shadow (M3 Date pickers, Specs: md.comp.date-picker.modal container elevation 3, drawn flat); the dialog around the time picker is elevated. */
+  .mo-dialog.mo-date-picker {
+    box-shadow:
+      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
+      var(--mo-comp-date-picker-modal-shadow, var(--mo-sys-elevation-level3-rest-shadow));
+  }
   .mo-date-picker__header {
     padding: 1rem 0.75rem 0.75rem 1.5rem;
     border-bottom: 1px solid var(--mo-comp-date-picker-line, var(--mo-sys-block-line));
@@ -157,6 +163,7 @@
     padding: 0.5rem 0.75rem 0 1rem;
   }
   .mo-date-picker__docked .mo-date-picker__controls {
+    flex-wrap: wrap;
     padding-inline: 0.25rem;
   }
   .mo-date-picker__steps {
@@ -254,6 +261,12 @@
   .mo-date-picker__year[aria-current='date'] {
     color: var(--mo-comp-date-picker-today-text, var(--mo-sys-block-accent));
     box-shadow: inset 0 0 0 1px var(--mo-comp-date-picker-today-line, var(--mo-sys-block-accent));
+  }
+  /* A day shrinks with its column, so seven of them fit a narrow picker. */
+  .mo-date-picker__day {
+    width: min(var(--mo-comp-date-picker-day-size, 2.5rem), 100%);
+    height: auto;
+    aspect-ratio: 1;
   }
   .mo-date-picker__cell[aria-selected='true'] .mo-date-picker__day,
   .mo-date-picker__year[aria-selected='true'] {
@@ -587,8 +600,8 @@
     color: var(--mo-comp-time-picker-period-selected-text, var(--mo-sys-color-on-primary-container));
   }
   .mo-time-picker__period-button:focus-visible {
-    outline: 2px solid var(--mo-sys-block-accent);
-    outline-offset: -2px;
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+    outline-offset: var(--mo-sys-state-focus-indicator-inner-offset);
   }
 
   /* Horizontal (the dial's view): the boxes, and AM and PM side by side under them, to the left of the dial, the

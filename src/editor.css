@@ -10,19 +10,15 @@
 
 /* Density (theme/styles/base.css) reaches the editor's own screens, not the page and post editing area: what is typed in place
    there keeps the theme's own step (--mo-sys-density-base) at every choice, as on the site, so a block is drawn as it will be. The
-   derived variables are computed where they are declared, so they are declared again here. */
+   derived variable is computed where they are declared, so it is declared again here. */
 .mo-editor-text .ProseMirror {
   --mo-sys-density-user: 0;
-  --mo-sys-density: clamp(-3, var(--mo-sys-density-base), 1);
-  --mo-sys-density-layout: clamp(-1, var(--mo-sys-density-base), 1);
-  --mo-sys-density-focus: clamp(0, var(--mo-sys-density-base), 1);
+  --mo-sys-density: clamp(-3, var(--mo-sys-density-base), 0);
 }
 /* The rows that pick the density are always at the default size, so a person can always go back. */
 [data-density-fixed] {
   --mo-sys-density-user: 0;
   --mo-sys-density: 0;
-  --mo-sys-density-layout: 0;
-  --mo-sys-density-focus: 0;
 }
 
 :where(:root) {
@@ -256,68 +252,36 @@
   color: var(--mo-sys-section-on);
 }
 
-.mo-editor-text .ProseMirror {
-  --mo-comp-page-primary-container: var(--mo-sys-color-primary-container, var(--mo-sys-block-tint));
-  --mo-comp-page-on-primary-container: var(--mo-sys-color-on-primary-container, var(--mo-sys-block-text));
-  --mo-comp-page-secondary-container: var(--mo-sys-color-secondary-container, var(--mo-sys-block-tint));
-  --mo-comp-page-on-secondary-container: var(--mo-sys-color-on-secondary-container, var(--mo-sys-block-text));
-  --mo-comp-page-tertiary-container: var(--mo-sys-color-tertiary-container, var(--mo-sys-block-tint));
-  --mo-comp-page-on-tertiary-container: var(--mo-sys-color-on-tertiary-container, var(--mo-sys-block-text));
-}
-
 .mo-editor-text .ProseMirror > [data-section-color='primary'] {
-  --mo-sys-section-fill: var(--mo-sys-block-primary);
-  --mo-sys-section-on: var(--mo-sys-block-on-primary);
-  --mo-sys-section-container: var(--mo-comp-page-primary-container);
-  --mo-sys-section-on-container: var(--mo-comp-page-on-primary-container);
+  --mo-sys-section-fill: var(--mo-sys-color-primary-container);
+  --mo-sys-section-on: var(--mo-sys-color-on-primary-container);
 }
 
 .mo-editor-text .ProseMirror > [data-section-color='secondary'] {
-  --mo-sys-section-fill: var(--mo-sys-block-secondary);
-  --mo-sys-section-on: var(--mo-sys-block-on-secondary);
-  --mo-sys-section-container: var(--mo-comp-page-secondary-container);
-  --mo-sys-section-on-container: var(--mo-comp-page-on-secondary-container);
+  --mo-sys-section-fill: var(--mo-sys-color-secondary-container);
+  --mo-sys-section-on: var(--mo-sys-color-on-secondary-container);
 }
 
 .mo-editor-text .ProseMirror > [data-section-color='tertiary'] {
-  --mo-sys-section-fill: var(--mo-sys-block-tertiary);
-  --mo-sys-section-on: var(--mo-sys-block-on-tertiary);
-  --mo-sys-section-container: var(--mo-comp-page-tertiary-container);
-  --mo-sys-section-on-container: var(--mo-comp-page-on-tertiary-container);
+  --mo-sys-section-fill: var(--mo-sys-color-tertiary-container);
+  --mo-sys-section-on: var(--mo-sys-color-on-tertiary-container);
 }
 
 /* The image behind a section (the widget before its first part, placed over the section's parts by sectionFrame.ts): it fills
-   the section's box behind the text, darkened from below as on the site (blocks.css, :where(.mo-text-section).mo-has-image), and the text on it is
-   the theme's colour for text on an image. */
+   the section's box behind the text, with the text on a panel of the inverse-surface role as on the site (text-section.css), and the text on it is
+   the inverse-on-surface role. */
 .mo-editor-text .ProseMirror {
   position: relative;
 }
 
 .mo-editor-text .mo-editor-section-picture {
-  --mo-sys-section-shade: var(--mo-sys-block-hero-shade, var(--mo-sys-block-text));
   position: absolute;
   z-index: 0;
   margin: 0;
   overflow: hidden;
   pointer-events: none;
-  background: var(--mo-sys-section-shade);
+  background: var(--mo-sys-color-inverse-surface);
   border-radius: var(--mo-sys-block-radius);
-}
-
-.mo-editor-text .mo-editor-section-picture[data-color='surface'] {
-  --mo-sys-section-shade: var(--mo-sys-block-surface);
-}
-
-.mo-editor-text .mo-editor-section-picture[data-color='primary'] {
-  --mo-sys-section-shade: var(--mo-sys-block-primary);
-}
-
-.mo-editor-text .mo-editor-section-picture[data-color='secondary'] {
-  --mo-sys-section-shade: var(--mo-sys-block-secondary);
-}
-
-.mo-editor-text .mo-editor-section-picture[data-color='tertiary'] {
-  --mo-sys-section-shade: var(--mo-sys-block-tertiary);
 }
 
 .mo-editor-text .mo-editor-section-picture[data-width='full'] {
@@ -337,13 +301,14 @@
 .mo-editor-text .mo-editor-section-picture::after {
   content: '';
   position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    color-mix(in srgb, var(--mo-sys-section-shade) 85%, transparent),
-    color-mix(in srgb, var(--mo-sys-section-shade) 55%, transparent) 70%,
-    color-mix(in srgb, var(--mo-sys-section-shade) 40%, transparent)
-  );
+  inset: calc(var(--mo-comp-editor-section-pad) / 2);
+  border-radius: var(--mo-sys-block-radius-small);
+  background: var(--mo-sys-color-inverse-surface);
+}
+
+.mo-editor-text .mo-editor-section-picture[data-width='full']::after {
+  inset-inline: 0;
+  border-radius: 0;
 }
 
 .mo-editor-text .ProseMirror > [data-section-picture] {
@@ -351,30 +316,28 @@
   z-index: 1;
 }
 
-.mo-editor-text .ProseMirror > [data-section-picture] {
+.mo-editor-text .ProseMirror > [data-section-picture]:not([data-section-color='surface']) {
   background: transparent;
 }
 
 /* The page's own colours, kept before a section's parts swap them (the site keeps them on the section itself, blocks.css; here the parts
    are the swapped nodes, so they are kept one level up). A part on an image reads them, never its own swapped --block-… (that would
    point at itself and every colour of the part would be lost: the text then falls back to the page's, dark on the dark scrim). */
-.mo-editor-text .ProseMirror {
-  --mo-sys-section-text: var(--mo-sys-block-text);
-  --mo-sys-section-surface: var(--mo-sys-block-surface);
-  --mo-sys-section-picture-fill: var(--mo-sys-block-hero-shade, var(--mo-sys-block-text));
-  --mo-sys-section-picture-on-fill: var(--mo-sys-block-hero-on-shade, var(--mo-sys-block-surface));
-}
-
-.mo-editor-text .ProseMirror > [data-section-picture]:not([data-section-color]) {
-  --mo-comp-prose-body: var(--mo-sys-section-picture-on-fill);
-  --mo-comp-prose-headings: var(--mo-sys-section-picture-on-fill);
-  --mo-comp-prose-bold: var(--mo-sys-section-picture-on-fill);
-  --mo-comp-prose-links: var(--mo-sys-section-picture-on-fill);
-  --mo-comp-prose-bullets: var(--mo-sys-section-picture-on-fill);
-  --mo-comp-prose-counters: var(--mo-sys-section-picture-on-fill);
-  --mo-sys-section-accent: var(--mo-sys-section-picture-fill);
-  --mo-sys-section-on-accent: var(--mo-sys-section-picture-on-fill);
-  color: var(--mo-sys-section-picture-on-fill);
+.mo-editor-text .ProseMirror > [data-section-picture]:not([data-section-color='surface']) {
+  --mo-comp-prose-body: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-headings: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-bold: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-links: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-bullets: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-counters: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-code: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-quotes: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-quote-borders: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-captions: var(--mo-sys-color-inverse-on-surface);
+  --mo-comp-prose-hr: var(--mo-sys-color-inverse-on-surface);
+  --mo-sys-section-accent: var(--mo-sys-color-inverse-surface);
+  --mo-sys-section-on-accent: var(--mo-sys-color-inverse-on-surface);
+  color: var(--mo-sys-color-inverse-on-surface);
 }
 
 .mo-editor-text .ProseMirror > [data-section-picture][data-section-width='full'] {
@@ -416,6 +379,8 @@
 /* A focused control scrolls clear of the bars that stay on the screen: their heights are measured by useScrollClearance (ui.tsx;
    the top app bar, the Save bar, the media file bar) and set on the root. */
 :root {
+  /* The editor keeps its focus ring in `primary`; the site's parts take M3's `secondary` (theme/styles/base.css). */
+  --mo-sys-state-focus-indicator-color: var(--mo-sys-color-primary);
   scroll-padding-block-start: var(--mo-editor-clearance-top, 0px);
   scroll-padding-block-end: var(--mo-editor-clearance-bottom, 0px);
 }
@@ -594,40 +559,6 @@
   animation-name: editor-main-drawer-in-rtl;
 }
 
-/* The main drawer's header row (MainDrawerMenuButton in ui.tsx): the account row is a pill, shaped and shaded as a drawer
-   item is when pointed at. Its inline padding puts the avatar's centre over the items' icons (the avatar is wider than the
-   24px icon: half the difference less than the items' padding). The avatar has a 1px border inside its size.
-   The pill is as high as a drawer item (56px); the row around it is the top bar's height. */
-.mo-editor-main-drawer-header {
-  --mo-comp-list-item-padding-block: 0.375rem;
-  --mo-comp-list-item-two-line-min-height: var(--mo-comp-navigation-drawer-item-height, 3.5rem);
-  --mo-comp-editor-drawer-header-text: var(--mo-comp-navigation-drawer-item-text, var(--mo-sys-block-muted));
-  --mo-comp-editor-drawer-header-padding: calc(
-    var(--mo-comp-navigation-drawer-item-padding-inline, 1rem) - (var(--mo-comp-avatar-size, 2.5rem) - 1.5rem) / 2
-  );
-  --mo-comp-list-item-padding-inline: var(--mo-comp-editor-drawer-header-padding);
-  --mo-comp-list-list-item-container-shape: var(--mo-comp-navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
-  --mo-comp-list-item-hover-radius: var(--mo-comp-navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
-  --mo-comp-list-item-hover-surface: var(
-    --mo-comp-navigation-drawer-item-hover,
-    color-mix(in srgb, var(--mo-comp-editor-drawer-header-text) 8%, transparent)
-  );
-  --mo-comp-list-item-pressed-surface: var(
-    --mo-comp-navigation-drawer-item-pressed,
-    color-mix(in srgb, var(--mo-comp-editor-drawer-header-text) 10%, transparent)
-  );
-  --mo-comp-list-item-hover-text: inherit;
-}
-
-.mo-editor-main-drawer-header .mo-list__item-container:focus-visible {
-  background: var(--mo-comp-list-item-pressed-surface, var(--mo-sys-state-mo-pressed-layer));
-}
-
-.mo-editor-main-drawer-header .mo-avatar {
-  box-sizing: border-box;
-  border: 1px solid var(--mo-sys-block-line);
-}
-
 /* From medium the drawers (MainDrawer in ui.tsx) take the rail's place (MainRail): they share its icon column, the middle
    of the rail. On a phone the drawer keeps the theme's (Material 3's navigation drawer). The rail's menu button stands
    level with the top bar's logo, as the drawers' does; the rail's items keep their place. */
@@ -638,7 +569,7 @@
 }
 
 /* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: --mo-sys-section-pane-width and
-   the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N2). */
+   the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N6). */
 .mo-editor-main-drawer-panel {
   --mo-comp-navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
 }
@@ -649,14 +580,6 @@
 
 .mo-editor-main-rail .mo-navigation-rail__header {
   margin-bottom: 1rem;
-}
-
-/* The rail (and the room above it for a phone's notch) in the open drawer's colour, so it does not change when the drawer opens. */
-.mo-editor-main-rail-frame {
-  --mo-comp-navigation-rail-surface: var(
-    --mo-comp-navigation-drawer-surface,
-    var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface))
-  );
 }
 
 @keyframes editor-pop {
@@ -880,6 +803,12 @@
 html,
 body {
   overflow-x: clip;
+}
+/* The UI components page (pages/components.astro, "/ui/") draws the gallery with this sheet but is a page of the site, not the editor: it does not clip what
+   sticks out at the side, so a part wider than the screen shows as a sideways scroll (and a check can see it) instead of being hidden. */
+html:has(.mo-ui-components),
+html:has(.mo-ui-components) > body {
+  overflow-x: visible;
 }
 
 html {
@@ -1439,6 +1368,12 @@ html {
   outline-offset: 2px;
 }
 
+/* Inside a filled button the ring is drawn on the button's own container, which is the ring role's colour (1:1). It takes the button's
+   on-colour instead (the same tokens the theme's filled button uses for its label), so it holds on every section colour, light and dark. */
+.mo-button.mo-is-filled .mo-editor-inline-list-slot:focus-visible {
+  outline-color: var(--mo-comp-button-filled-label-text-color, var(--mo-sys-block-on-accent));
+}
+
 /* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
    shadow, so it stands in front of the editor's page also in a theme whose menu has the page's colour and no shadow. */
 .mo-editor-menu {
@@ -1932,11 +1867,11 @@ dialog {
 
 /* The screen's own top padding (24 px, 32 px from a medium window up) takes the step too, from the medium width. */
 .mo-editor-screen {
-  padding-top: calc(var(--mo-ref-space-300) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+  padding-top: calc(var(--mo-ref-space-300) + max(var(--mo-sys-density), -1) * var(--mo-sys-density-step));
 }
 @media (width >= 37.5rem) {
   .mo-editor-screen {
-    padding-top: calc(var(--mo-ref-space-400) + var(--mo-sys-density-layout) * var(--mo-sys-density-step));
+    padding-top: calc(var(--mo-ref-space-400) + max(var(--mo-sys-density), -1) * var(--mo-sys-density-step));
   }
 }
 
@@ -2121,4 +2056,21 @@ dialog {
    reaches. */
 main[tabindex='-1']:focus {
   outline: none;
+}
+
+/* A screen's title takes the focus by script when the screen opens (Screen.tsx, so screen readers start at the top of it). It is no control and
+   not a Tab stop (tabindex -1), so it draws no ring: a browser counts a script focus without a click first (a refresh on a phone) as
+   :focus-visible. The next Tab shows the ring of the control it reaches (WCAG 2.4.7; owner, 22 Nov 2026). */
+[data-screen-title]:focus,
+[data-screen-title]:focus-visible {
+  outline: none;
+}
+
+/* The editor's own screens keep their icon buttons 48 px (a target they owe, checked in block-bar.mjs, page-rows.mjs and search-and-palette.mjs): the top bar,
+   the action row of the active block and the command palette's field row. Material's small icon button is 40 dp with a 48 dp target, and the theme draws
+   no target area beyond the container yet; the theme's own parts, and so the editor's gallery of them, keep the 40 dp. */
+.mo-editor-screen-bar,
+.mo-site-block-row,
+[data-search-controlled] .mo-search-view__header {
+  --mo-comp-icon-button-small-container-height: 3rem;
 }

@@ -5,16 +5,16 @@
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   --mo-comp-icon-button-medium-container-shape-square: var(--mo-sys-shape-corner-large);
-  /* Icon buttons: 48 by 48 with a 24px icon; standard in on-surface-variant without a container, tonal in the
+  /* Icon buttons: 40 by 40 with a 24px icon; standard in on-surface-variant without a container, tonal in the
      secondary container (the cross on a pop-up, as it can stand on an image). */
-  --mo-comp-icon-button-small-container-height: 3rem;
+  --mo-comp-icon-button-small-container-height: 2.5rem;
   --mo-comp-icon-button-small-icon-size: 1.5rem;
   --mo-comp-icon-button-standard-icon-color: var(--mo-sys-color-on-surface-variant);
-  --mo-comp-icon-button-tonal-container-color: var(--mo-sys-color-surface-container-high);
-  --mo-comp-icon-button-tonal-icon-color: var(--mo-sys-color-on-surface);
+  --mo-comp-icon-button-tonal-container-color: var(--mo-sys-color-secondary-container);
+  --mo-comp-icon-button-tonal-icon-color: var(--mo-sys-color-on-secondary-container);
   --mo-comp-icon-button-outlined-surface: transparent;
   --mo-comp-icon-button-outlined-icon-color: var(--mo-sys-color-on-surface-variant);
-  --mo-comp-icon-button-outlined-outline-color: var(--mo-sys-color-outline);
+  --mo-comp-icon-button-outlined-outline-color: var(--mo-sys-color-outline-variant);
 }
 @layer components {
   .mo-bottom-sheet__header {

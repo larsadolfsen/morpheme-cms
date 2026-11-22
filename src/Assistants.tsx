@@ -9,7 +9,7 @@ import { ask } from './ask';
 import { assistants, disconnect, type Assistants as State, type Connection } from './assistantList';
 import { lastUsedOf } from './assistantsCall';
 import { backFrom } from './site';
-import { Button, EmptyNote, Group, GroupTitle, ListItem, ProblemNote, SupportingText } from './ui';
+import { Button, EmptyNote, Group, GroupTitle, ListItem, plainListClass, ProblemNote, SupportingText } from './ui';
 import { locale, t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 
@@ -73,14 +73,17 @@ export default function Assistants() {
           <GroupTitle>{t.assistants.connectTitle}</GroupTitle>
           <div className="mo-editor-settings-inset">
             <SupportingText>{t.assistants.connectText}</SupportingText>
-            <p className="mo-editor-code-row">
-              <code aria-label={t.assistants.address} className="mo-editor-code-box">
-                {state.address}
-              </code>
-              <Button kind="text" size="small" icon={Copy} onClick={() => copy(state.address)}>
-                {t.assistants.copy}
-              </Button>
-            </p>
+            <ul className={plainListClass}>
+              <ListItem
+                headline={<code aria-label={t.assistants.address}>{state.address}</code>}
+                truncate
+                actions={
+                  <Button kind="text" size="small" icon={Copy} onClick={() => copy(state.address)}>
+                    {t.assistants.copy}
+                  </Button>
+                }
+              />
+            </ul>
           </div>
         </section>
       )}

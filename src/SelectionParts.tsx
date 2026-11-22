@@ -34,7 +34,7 @@ export default function SelectionParts() {
   );
   return (
     <>
-      <Part name="Switch" use={say.switch}>
+      <Part name="Switch" m3="md.comp.switch" use={say.switch}>
         <Preview>
           <div className={grid}>
             <Example label={t.parts.screens.example(1)}>
@@ -58,7 +58,7 @@ export default function SelectionParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="SettingRow" use={say.settingRow}>
+      <Part name="SettingRow" m3="md.comp.list" use={say.settingRow}>
         <Preview>
           <div className={grid}>
             <SiteSettingRow label={say.switchLabel} supporting={say.switchSupporting}>
@@ -74,7 +74,7 @@ export default function SelectionParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="RadioButton" use={say.radioButton}>
+      <Part name="RadioButton" m3="md.comp.radio-button" use={say.radioButton}>
         <Preview>
           <div className={grid}>
             <SiteRadioGroup label={say.groupLabel}>
@@ -97,7 +97,7 @@ export default function SelectionParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="Slider" use={say.slider}>
+      <Part name="Slider" m3="md.comp.slider" use={say.slider}>
         <Preview>
           <div className="mo-editor-selection-sliders">
             <Example label={t.parts.screens.example(1)}>
@@ -138,7 +138,7 @@ export default function SelectionParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="Divider" use={say.divider}>
+      <Part name="Divider" m3="md.comp.divider" use={say.divider}>
         <Preview>
           <div className="mo-editor-selection-dividers">
             {dividerKinds.map((k) => (
@@ -156,7 +156,7 @@ export default function SelectionParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="SideSheet" use={say.sideSheet}>
+      <Part name="SideSheet" m3="md.comp.sheet.side" use={say.sideSheet}>
         <Preview>
           <div className="mo-editor-selection-sheets">
             <div className="mo-editor-selection-kind" {...named(say.sheetKinds.standard)}>

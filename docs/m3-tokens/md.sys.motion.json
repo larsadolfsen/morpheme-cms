@@ -1,0 +1,11 @@
+{
+ "set": "md.sys.motion",
+ "displayName": null,
+ "description": null,
+ "tokenClass": null,
+ "tokens": [
+  {"token":"md.sys.motion.spring.fast.spatial","type":"CUSTOM_COMPOSITE","group":null,"value":{"value":{"damping":{"ref":"md.sys.motion.spring.fast.spatial.damping"},"stiffness":{"ref":"md.sys.motion.spring.fast.spatial.stiffness"}},"unit":"composite"},"resolved":{"light":{"value":{"damping":{"ref":"md.sys.motion.spring.fast.spatial.damping"},"stiffness":{"ref":"md.sys.motion.spring.fast.spatial.stiffness"}},"unit":"composite"},"dark":{"value":{"damping":{"ref":"md.sys.motion.spring.fast.spatial.damping"},"stiffness":{"ref":"md.sys.motion.spring.fast.spatial.stiffness"}},"unit":"composite"}},"chain":["md.sys.motion.spring.fast.spatial"]},
+  {"token":"md.sys.motion.spring.fast.spatial.damping","type":"NUMERIC","group":null,"value":null,"resolved":{"light":{"value":0.9,"unit":null},"dark":{"value":0.9,"unit":null}},"chain":["md.sys.motion.spring.fast.spatial.damping"],"expressive":{"light":{"value":0.6,"unit":null},"dark":{"value":0.6,"unit":null}}},
+  {"token":"md.sys.motion.spring.fast.spatial.stiffness","type":"NUMERIC","group":null,"value":null,"resolved":{"light":{"value":1400,"unit":null},"dark":{"value":1400,"unit":null}},"chain":["md.sys.motion.spring.fast.spatial.stiffness"],"expressive":{"light":{"value":800,"unit":null},"dark":{"value":800,"unit":null}}}
+ ]
+}
