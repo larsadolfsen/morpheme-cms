@@ -1,0 +1,171 @@
+{
+  "version": "0.19.5",
+  "date": "2026-11-22",
+  "notes": [
+    {
+      "id": "section-two-colours",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Farvede sektioner",
+      "text": "Tekst på en farvet sektion er altid let at læse. En sektion får Material 3’s beholderfarve og beholderens tekstfarve, og kort og felter beholder deres eget udseende. En sektion med et billede lægger sin tekst på et massivt panel, så alle fotos kan bruges."
+    },
+    {
+      "id": "toolbar-shortcut",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Genvej til tekstlinjen",
+      "text": "Du skal ikke længere trykke Tab mange gange for at nå tekstlinjen. Tryk Alt+F10 i teksten eller på en valgt blok for at gå til linjen, brug piletasterne mellem værktøjerne, og tryk Escape for at gå tilbage. Slet fjerner en valgt blok."
+    },
+    {
+      "id": "theme-accessibility-row",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Temaers tilgængelighed",
+      "text": "Du kan se, om et tema er tilgængeligt, før du vælger det. Åbn et tema under Temaer: Det viser, om det lever op til WCAG 2.2 AA, og hvilke dele og kriterier det ikke gør. Dine egne farver og billeder er ikke en del af det."
+    },
+    {
+      "id": "rail-surface-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Editorens menusøjle har farven fra Material 3's navigationssøjle"
+    },
+    {
+      "id": "ui-page-owner-findings",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En datovælger under feltet passer på en smal skærm, og et søgefelt viser én ryd-knap"
+    },
+    {
+      "id": "density-followups",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Et tekstfelt med en fejl viser tastaturfokus med en tykkere kant, og i et tættere tema rammer et tryk den knap, du rører"
+    },
+    {
+      "id": "menu-drawer-width-360",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Hovedmenuen er bredere på en telefon, med lukkeknappen til sidst og en streg under toppen"
+    },
+    {
+      "id": "menu-drawer-elevation-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Hovedmenuen kaster en skygge, når den åbner over siden, som i Material 3"
+    },
+    {
+      "id": "filled-slot-focus-ring",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Ikonknappen i en udfyldt knap viser tastaturfokus i knappens tekstfarve, så du kan se den"
+    },
+    {
+      "id": "m3-side-padding",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Knapper, udfoldelige lister, Spørgsmål og svar og Tjekliste har 16 dp sidemargen, som i Material 3"
+    },
+    {
+      "id": "cards-gap-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Kort står 8 px fra hinanden, som i Material 3, i Kort, Priskort, Bokse, Billedgitter og relaterede indlæg"
+    },
+    {
+      "id": "start-card-list-padding",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Lister i startskærmens kort holder kortets afstand, og overskriften flugter med rækkerne"
+    },
+    {
+      "id": "drawer-scrim-neutral-variant",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Menuens skygge over siden får en tone af hjemmesidens farver"
+    },
+    {
+      "id": "drawer-header-list-item",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Menuens top er et standard listepunkt med dit avatarbillede, dit navn og hjemmesidens adresse og med knappen Luk menuen i enden"
+    },
+    {
+      "id": "keyboard-menus",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Menuer i editoren fungerer med tastaturet: brug piletasterne, Home, End og et bogstav til at flytte, og Esc til at lukke og gå tilbage til knappen"
+    },
+    {
+      "id": "search-scrim-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "På en computer dæmper søgevisningen siden bag sig, som i Material 3"
+    },
+    {
+      "id": "list-surface-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Segmenterede lister står på sidens overflade, som i Material 3"
+    },
+    {
+      "id": "no-title-focus-ring",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Skærmens titel viser ikke længere en fokusramme, når en skærm åbner eller efter en opdatering på en telefon"
+    },
+    {
+      "id": "m3-sizes-shapes",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Små ikonknapper, kontakters ikoner, skyderes spor, listerækker og afstanden mellem knapper har nu Material 3’s størrelser og former"
+    },
+    {
+      "id": "parts-elevation",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Søgefelter, bjælker og datovælgere mister deres skygge, som Material 3 tegner dem, mens menuer, dialoger og flydende knapper beholder deres"
+    },
+    {
+      "id": "search-ring-keyboard-only",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Søgefeltet viser kun sin fokusramme, når du bruger tastaturet, ikke efter et klik eller et tryk"
+    },
+    {
+      "id": "focus-ring-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Tastaturfokus på hjemmesiden bruger Material 3’s sekundære farve, 3 px tyk"
+    },
+    {
+      "id": "elevation-classes",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Temaer og apps kan give et element et højdeniveau med klasserne mo-elevation-0 til mo-elevation-3 og mo-elevated-1 til mo-elevated-3"
+    },
+    {
+      "id": "part-colour-roles",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Tonale knapper, omrids, menuer, skydere og kontakter bruger Material 3’s farver"
+    },
+    {
+      "id": "editor-skip-link",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Tryk Tab én gang i editoren for at vise Spring til indhold, og Enter for at springe navigationen over og hen til skærmens indhold"
+    },
+    {
+      "id": "density-follows-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Tæthed har kun Mellem og Lille, fordi Material 3 ikke har et trin over Mellem, og en konto sat til Stor bliver Mellem"
+    },
+    {
+      "id": "choice-rows-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Valgrækker i lister med radioknapper har Material 3’s sidemargen på 16 px"
+    }
+  ]
+}

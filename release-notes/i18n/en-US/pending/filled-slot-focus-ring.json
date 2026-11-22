@@ -1,6 +1,0 @@
-{
-  "id": "filled-slot-focus-ring",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "The icon button inside a filled button shows its keyboard focus ring in the button’s text colour, so you can see it"
-}

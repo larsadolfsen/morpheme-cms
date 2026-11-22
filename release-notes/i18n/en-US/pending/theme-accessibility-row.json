@@ -1,7 +1,0 @@
-{
-  "id": "theme-accessibility-row",
-  "kind": "paragraph",
-  "mark": "feature",
-  "title": "Theme accessibility",
-  "text": "You see before you choose a theme whether it is accessible. Open a theme under Themes: it says if it meets WCAG 2.2 AA and lists each part and criterion where it falls short. Your own colors and images are not part of this."
-}

@@ -1,5 +1,46 @@
 # @morphemecms/cms
 
+## 0.19.5
+
+### Patch Changes
+
+- ce5bbc0: A screen reader now says when a page is saving, saved or not saved, reads every message and error once, and says how many problems stop a save
+- ce5bbc0: Cards stand 8 px apart, segmented lists sit on the page's surface, radio choice rows have 16 px side padding, the search view dims the page behind it and keyboard focus rings use the secondary colour, as Material 3 prints
+- ce5bbc0: Safer handling of HTML and addresses in the editor and the build (code scanning alerts).
+- ce5bbc0: The demo's Blocks pages get a Section colours page: sections on Surface, Primary, Secondary, Tertiary and an image, each holding the main blocks. A Surface section with an image keeps its surface and text colours in the editor, as on the site
+- ce5bbc0: The demo's colours are Material 3's Tonal Spot scheme from #006397
+- ce5bbc0: Density follows Material 3: Large goes, Medium is the default, and the theme's parts support Small down to -3
+- ce5bbc0: Density at -2 and -3: a tap never lands on a neighbouring control, a text field with an error shows keyboard focus, and side sheet buttons keep their height
+- ce5bbc0: The navigation drawer's header is the theme's list item: your avatar, name and site address, with the close button at its end.
+- ce5bbc0: The navigation drawer's scrim follows Material 3: your site's neutral variant colour at 40%, in place of black at 32%.
+- ce5bbc0: The editor has a Skip to content link: the first Tab shows it, and Enter jumps over the navigation to the screen's content.
+- ce5bbc0: Themes and apps can give an element a Material 3 elevation level with the classes mo-elevation-0 to mo-elevation-3 and mo-elevated-1 to mo-elevated-3
+- ce5bbc0: In the editor, the icon button inside a filled button (Buttons, Price cards) shows its keyboard focus ring in the button's text colour, so you can see it
+- ce5bbc0: The header's sub-menu follows Material 3's menu: it sits on the lowest surface container, the open page is in the tertiary container, the focus ring is drawn inside the item, the button keeps its state layer while the menu is open, and the arrow keys, Home, End and letters move between the items
+- ce5bbc0: In the editor, a field you reach with the Tab key now scrolls clear of the top bar, the Save bar and the file bar. The header and footer previews no longer take Tab stops, the photo credit no longer hides its own Close, and a tab's content shows a focus ring when it takes focus.
+- ce5bbc0: The focus stays where you are working with the keyboard: it goes to the page's title when a page opens from the list, stays in the text after Save, stays in a block after Move down or Move up, and moves between Edit dashboard and Done.
+- ce5bbc0: Menus in the editor work with the keyboard: focus goes into a menu when it opens, the arrow keys, Home, End and a letter move between the choices, and Escape, Tab or a choice close it with focus back on its button.
+- ce5bbc0: A plain list's rows show their hover, pressed and focus layer 16 px past the text, with Material 3's corners, on every screen size, so the text no longer touches the layer's edge
+- ce5bbc0: A new check measures every sample of the UI components page against Material 3's tokens in light and dark, and the gallery's samples carry their Material 3 component
+- ce5bbc0: Buttons, List - Expand rows, Questions and answers rows and the Checklist take Material 3's 16 dp side padding, and a plain List - Expand has no line between its items.
+- ce5bbc0: Parts follow Material 3's sizes and shapes: lists, sliders, icon buttons, switches and button groups
+- ce5bbc0: The Material 3 token check compares our tokens with Material 3's through the rename map and names every token that is ours
+- ce5bbc0: The main menu drawer, when it opens over the page, stands at Material 3's level 2 elevation with its shadow; beside the page it stays level 0. The Colors page describes Surface container low and Surface container as the parts use them now
+- ce5bbc0: The main menu drawer on a phone is at least 320 dp wide (at most the screen less 56 dp) and still as wide as its items need above that; its close button is at the end of the head, as in the editor, with a full-width divider under the head
+- ce5bbc0: The screen title no longer shows a focus ring when a screen opens or after a refresh on a phone.
+- ce5bbc0: Parts take Material 3's colour roles: tonal buttons, the selected segmented button and the selected menu item in the secondary container, outlined edges in the outline variant, the menu on the surface container, and the slider's label and the switch's icon in the primary colour
+- ce5bbc0: Search bars, bars, date pickers and other flat parts no longer draw a shadow, as Material 3 shows them; menus, dialogs, floating buttons and other raised parts keep theirs
+- ce5bbc0: The editor's navigation rail takes the colour of Material 3's navigation rail instead of the drawer's
+- ce5bbc0: A screen reader names rows' actions by their row (Remove Contact, Move Contact up), files by their kind, the footer links and each screen's title
+- ce5bbc0: A screen reader now says whether a menu or dialog button is open, and every dialog and sheet is named by a heading that is on the page
+- ce5bbc0: The search field shows its focus ring only when you use the keyboard, not after a click or a tap
+- ce5bbc0: Coloured sections are painted with Material 3's container of their colour, with the container's on-colour for text and icons, and a section with an image puts its text on a panel of M3's inverse surface. `check:color-roles` fails on a mix of a colour role and on a role in a section that is not M3's pair.
+- ce5bbc0: A list in a start-screen card keeps the card's 16 dp padding, and the title lines up with the rows
+- ce5bbc0: A theme's page shows whether the theme meets WCAG 2.2 AA, and where it falls short.
+- ce5bbc0: A theme can say where it falls short of WCAG 2.2 AA in its own accessibility.json, and the accessibility checks let through only what it names.
+- ce5bbc0: Alt+F10 moves the focus from the text, or from a selected block, to the text bar. The arrow keys move between its tools, and Escape goes back to where you were. Delete removes a selected block.
+- ce5bbc0: A docked date picker's month and year steppers wrap on a narrow screen, so the next-year button is never cut off; a search field shows only the theme's clear button
+
 ## 0.19.4
 
 ### Patch Changes
