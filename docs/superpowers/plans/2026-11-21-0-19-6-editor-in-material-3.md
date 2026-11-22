@@ -1,5 +1,9 @@
 # 0.19.6 The editor in Material 3 (plan)
 
+**The third batch of the 0.19.6 release** (owner, 22 Nov 2026; `plans/2026-11-22-one-release-per-line.md`): after the Material 3 names
+and Phosphor in the store, before the UI fixes (`plans/2026-11-22-0-19-7-ui-fixes.md`), with the same PM (`/pm 0.19.6`). The release is
+made once all four are on staging. Its first batch (0, the version) is done by the names batch, which sets `0.19.6`.
+
 Status: **21 November 2026.** Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md`, item 0.19.6. The audit it is built from:
 `specs/2026-11-21-editor-screens-m3-audit.md` (0.19.5 batch 14, #1120): 392 rows in 8 batches, and 110 rows of the page and post editor
 apart.
@@ -38,7 +42,7 @@ The owner's rules for it:
 | P3, more than two top bar actions | Actions after the second move into the top app bar's overflow menu. | The search app bar (0.25.0) ends the entry. |
 | B3, settings in a pane from 600 dp | The batch reads the side-sheets and dialogs pages again. If the standard side sheet is M3's pattern for this, the entry moves to *Where Material 3 is silent*; otherwise the batch reports what M3 prints and stops. | |
 | SV6, the search bar on the start screen | The same check as B3: "Add a search bar below a title to search specific content" may make it M3 already. Where M3's 360 dp minimum width and the 16 dp side margins clash on a narrow phone, the margins win and the bar narrows (owner, 21 Nov 2026). | |
-| C1, B1, B2, the full-screen pages | Not now. They need the theme Dialog's full-screen kind, which comes back in 0.20.0 (DG1). | 0.20.0: below 600 dp a full-screen dialog, from 600 dp a basic dialog or the side sheet (B3), as M3 prints. |
+| C1, B1, B2, the full-screen pages | Below 600 dp a full-screen dialog, from 600 dp a basic dialog or the side sheet (B3), as M3 prints. The theme Dialog's full-screen kind (DG1) comes back in the names batch before this one (owner, 22 Nov 2026: "the full screen dialog should be there"). | |
 | P2, the browser's right-click menu | Not now. M3 wins here means the editor draws its own context menu, which is a feature with its own spec. | 0.25 (Screens), owner, 21 Nov 2026. |
 
 ## The audit's open questions, answered by the rules
@@ -69,7 +73,7 @@ The owner's rules for it:
 - **Drop target while dragging on the dashboard:** M3 is silent. The nearest M3 pattern is the dragged state's state layer and an
   outline in `outline`, named in the pull request.
 - **Phosphor imports:** not an M3 finding. On `main`, all 81 files that import Phosphor components are on the allowlist, and
-  `check:phosphor` is green. They move to `Icon` in 0.20.0, where Phosphor leaves the CMS.
+  `check:phosphor` is green. They move to `Icon` in the names batch of 0.19.6, where Phosphor leaves the CMS.
 - **Dialogs** (owner, 21 Nov 2026, audit #1126): the actions are text buttons and focus goes to the first control when a dialog
   opens, as M3 prints. `src/ask.tsx` and `src/BlockDialog.tsx` change in batch 3.
 - **The save bar** is a standard bottom sheet in the screens (EB1), so it is in scope. The text bar and the block's action row are the

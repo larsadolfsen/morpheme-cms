@@ -6,7 +6,9 @@ description: Use when the owner wants to release @morphemecms/cms to the sites -
 # Releasing @morphemecms/cms
 
 Announce "Using release". A release reaches every site (the editor updates itself to a new minor or patch), so each
-phase is a gate: a failure stops here and is reported with its output verbatim. Never `npm publish` by hand, never
+phase is a gate: a failure stops here and is reported with its output verbatim. From 0.20 a release is a whole line (`0.N.0`, every batch of
+its plan on staging and approved) or an urgent fix the owner called (`0.N.1` from `hotfix/0.N`); nothing else is released
+(`docs/superpowers/plans/2026-11-22-one-release-per-line.md`). Never `npm publish` by hand, never
 bump a version by hand, never merge anything but the Release PR, never retry a failed publish. Design:
 `docs/superpowers/specs/2026-11-03-development-flow-and-releases-design.md` (section 4).
 

@@ -1,5 +1,21 @@
 # Icon packs in the store (0.18)
 
+> **22 Nov 2026, the owner: Phosphor goes into 0.19.6.** "Also move phosphor icons as in a store icon into it, so Sarah can get it", then
+> "don't give a warning about the icons. When we start working on it, we'll make sure that themes can bundle icons into them, so say also
+> install this, but we won't do that before that. So right now, just add Phosphor to the store so we can install it and add it to the
+> site." For 0.19.6 (branch `feature/0.19.6-phosphor-pack`, after the Material 3 names, which key every name by Material Symbols):
+> - **In:** a store kind `icons` (decision 4's recommendation; `morpheme-appstore`, B1 and B2), `ICON_PACK_API = 1` (decision 7),
+>   Phosphor as a first-party pack in `morpheme-apps/icon-packs/phosphor/` (decision 6; C1, C2), and in the editor its install,
+>   uninstall and pick (A2, A5, A6; *Appearance › Icon packs* lists it once installed).
+> - **Out:** no seeds and no migration (A7, A10): a site that picked Phosphor draws Material Symbols until the owner installs the pack,
+>   with **no warning**. No `iconPack` key for themes (A8) and no "Needs" on a theme's page: themes asking for or bundling a pack come
+>   later. Lucide and Font Awesome stay in 0.27.2.
+> - **Its own page in the store** (owner, 22 Nov 2026: "An icon should have its own page in the store"): the store has an *Icons*
+>   section beside themes and apps, and each pack has its own page there (section 7, 1 and 2). Choosing the pack the site draws is
+>   *Style › Icons* (`plans/2026-11-22-0-19-7-ui-fixes.md`, C20).
+> - **Done by the names batch already:** A1, A3, A4 and A9 (the names are Material Symbols' names, and Phosphor and Lucide leave the
+>   package).
+
 > **21 Nov 2026, the owner:** "phosphor should not be a part of the cms. it should be installable. so remove it and lucide for
 > now. we will add it later to the store", in 0.20.0, and "We will add Phosphor, lucide and font awesome to the store" (0.27.2).
 > This replaces decision 1's way out below: the names do not stay Phosphor's. 0.20.0 rewrites every stored name to its Material

@@ -12,7 +12,7 @@ in one place only, so never work from memory of a skill.
 | Skill | Load it when |
 | :--- | :--- |
 | `developer` | you start any task in this repository as a developer session (build, fix or docs): it comes first and says which of the other skills to load |
-| `changesets` | you open a pull request: its changeset, which level the base branch allows, and the version lines (`0.17`, `0.18`, `0.19`) |
+| `changesets` | you open a pull request: its changeset, which level the base branch allows, the version lines, and the line's one version (`0.20.0`) |
 | `release-notes` | a change is something a site owner sees, or a note, an edition or a version's notes are written or fixed |
 | `checks` | you choose which checks to run before a push, or a CI job fails |
 | `material-3` | a spec or a change touches anything outside the page and post editor's bar and menus, or deviates from Material 3 |
@@ -44,7 +44,9 @@ plain words. The plans go to the PM, who hands them to new sessions.
 
 Every change goes branch → feature → `next` → live (owner, 19 Nov 2026), one feature at a time (`docs/superpowers/plans/2026-11-18-release-per-feature.md`), and is seen at each step: a branch on its own demo Preview; a feature (`feature/<name>`, cut from `main`, its pull requests merged into it) on the demo, where the owner reviews it (`morpheme-demo`, whose production branch in Cloudflare the owner sets to the feature being built; the demo never shows the live site); `next`, the feature merged into `main`, on `morpheme-staging` as the test version from npm, with real sign-in and saving; live, a release on the sites (`latest`). A single fix skips the feature and goes as one pull request into `main`. Nothing is released that staging has not run (skill `release`).
 
-The repository has only `main`, the Release PR's branch, the feature branches being built, the branches of open pull requests and
+**One release per line** (owner, 22 Nov 2026: "we only do 19, 20, 21, etc."; `docs/superpowers/plans/2026-11-22-one-release-per-line.md`): from 0.20 a line is released once, as `0.N.0`. Its features are batches: each goes through the demo, `main` and staging, where the owner approves it, and then the next batch starts; only the whole line goes live. The one exception is an urgent fix for a bug that breaks a live site, released as `0.N.1` from `hotfix/0.N`, and only when the owner calls it in words.
+
+The repository has only `main`, the Release PR's branch, the feature branches being built, `hotfix/0.N` while an urgent fix is open, the branches of open pull requests and
 `screenshots` (owner, 21 Nov 2026). GitHub deletes a branch when its pull request merges; a session never makes a branch for anything
 else (screenshots go into `screenshots`, skill `developer`).
 
@@ -70,7 +72,7 @@ session loads the `release` skill and follows its phases in order; it never rele
 
 ### Pull requests go to the PM
 
-**There is always a PM.** Each version being built has a session as its project manager (skill `pm`). The owner names the version (`/pm 0.19.2`, `/pm 0.20`). It merges the pull
+**There is always a PM.** Each version being built has a session as its project manager (skill `pm`). The owner names the version: a line (`/pm 0.20`), or an urgent fix the owner calls (`/pm 0.20.1`). It merges the pull
 requests of its own feature only, and never creates, changes, pushes or merges anything of another version, earlier or later (owner,
 20 Nov 2026), except releases, in this repository and in
 `morpheme-staging`, `morpheme-appstore` and `morpheme-apps`, and it keeps nothing behind. The owner does not merge and is not

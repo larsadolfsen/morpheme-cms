@@ -130,7 +130,7 @@ Source: `theme/ui/ChoiceGroup.tsx`, `theme/ui/choiceGroupFit.mjs`, `theme/styles
 - **We do:** when the buttons' labels do not all fit at an equal share of the width (the widest button × the count + the 2 dp gaps; more than five choices always), the same choice is drawn as a vertical list of radio buttons instead, one choice per row, the whole row the tap target. The form is measured before the first paint and again on a resize, a font load or a density change; the switch back to buttons needs 8 dp more.
 - **Why:** owner, 14 Nov 2026: "One theme part that chooses its own form by measuring, so it can never squeeze … it never wraps a group and never overlaps." Smaller buttons still clip long or Danish labels, and an overflow menu hides choices the owner compares.
 - **Date:** 2026-11-14. **PR:** #660 (the part).
-- **Status:** → 0.20.0 (owner via the CTO, 21 Nov 2026): the choice group follows M3's button group: one line, smaller buttons, then an overflow menu. Nothing changes in 0.19.5.
+- **Status:** → 0.19.6 (owner via the CTO, 21 Nov 2026; moved from 0.20.0 with the names, 22 Nov 2026): the choice group follows M3's button group: one line, smaller buttons, then an overflow menu. Nothing changes in 0.19.5.
 
 ## Command palette (command palette, step 5)
 
@@ -219,7 +219,7 @@ Followed: "When actions don’t fit in a toolbar, add a menu." and "If more acti
 - **We do:** the theme's `Dialog` (`theme/ui/Dialog.tsx`) is the basic dialog only. The `full-screen` kind, `dialogFullScreenModalClass`, the classes `dialog-full-screen`, `dialog-modal-full-screen`, `dialog-header` and `dialog-header-actions` and the two `--dialog-full-screen-*` tokens are gone, and `THEME_API` is 5. A task that needs a whole screen is a page with the top app bar's back arrow (B2). The lightbox is its own modal `<dialog>` with the dialog's container (*Where Material 3 is silent*).
 - **Why:** owner decision, 14 Nov 2026: no full-screen views anywhere; full screens become pages with a back arrow. It is the same thing as the dialog's full-screen kind, so the kind is removed (relayed by the 0.18 project manager).
 - **Date:** 2026-11-15. **PR:** #739.
-- **Status:** → 0.20.0 (owner via the CTO, 21 Nov 2026): the theme's Dialog gets the full-screen kind back for compact windows; the editor keeps its pages for now. Nothing changes in 0.19.5.
+- **Status:** → 0.19.6 (owner via the CTO, 21 Nov 2026; moved from 0.20.0 with the names, 22 Nov 2026): the theme's Dialog gets the full-screen kind back for compact windows; the editor's full-screen pages (C1, B1, B2) follow it in the same release (`plans/2026-11-21-0-19-6-editor-in-material-3.md`). Nothing changes in 0.19.5.
 
 ## The search view (search page, M3 search)
 
@@ -253,7 +253,7 @@ Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `the
 
 - **Material:** Navigation rail, Guidelines: "Navigation rail items must use icons that symbolize the content of their page"; "All navigation items require a one word label text."
 - **We do:** the site's menu items are the site's own pages, which have no icons, and an item with sub-pages unfolds them. Items that have an icon (the editor's) use the rail's 8dp icon-label space. **Date:** 2026-11-15.
-- **Status:** → 0.20.0 (owner via the CTO, 21 Nov 2026): the site menu becomes M3's navigation drawer, built on the rail code with the rail off; the editor keeps the rail. Nothing changes in 0.19.5.
+- **Status:** → 0.19.6 (owner via the CTO, 21 Nov 2026; moved from 0.20.0 with the names, 22 Nov 2026): the site menu becomes M3's navigation drawer, built on the rail code with the rail off; the editor keeps the rail. Nothing changes in 0.19.5.
 
 ### N5. The scrim, a tap on it and Escape; no custom swipe
 

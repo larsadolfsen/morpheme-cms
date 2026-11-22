@@ -1,5 +1,16 @@
 # 0.20.0 Material 3 names, contract 8 (spec)
 
+> **Moved into 0.19.6, 22 Nov 2026** (owner, 22 Nov 2026: "Yes, move the names into 096. Also move phosphor icons as in a store icon into it, so Sarah can get it. And also the full screen dialog should be there." `plans/2026-11-22-one-release-per-line.md`). It is the first batch of the 0.19.6
+> release: branch `feature/0.19.6-m3-names`, version `0.19.6`, PM `/pm 0.19.6`; where this spec says 0.20.0, read 0.19.6 (the update
+> crosses 0.19.6, and `morpheme migrate --from 0.19.5`). Changed with it:
+> - **The full-screen dialog** comes back in the theme's Dialog (DG1) here, and the editor's full-screen pages (C1, B1, B2) follow it in
+>   the editor-in-Material-3 batch (`plans/2026-11-21-0-19-6-editor-in-material-3.md`).
+> - **Icons:** a site whose chosen pack is `phosphor` or `lucide` draws Material Symbols with **no warning** (owner, 22 Nov 2026: "don't
+>   give a warning about the icons"). Phosphor is in the store in the same release, as a pack the site installs and picks (the next
+>   batch; `specs/2026-11-14-icon-packs-in-the-store-design.md`).
+> - **Sara and Venus are back in:** Sara updates on Wednesday 25 Nov 2026, prepared on 24 and 25 Nov (owner, 22 Nov 2026). Venus gets a
+>   version written to contract 8 in `morpheme-apps`, so her site can update; *Migration*, 3, below no longer leaves it out.
+
 Status: **20 November 2026, for the owner.** Owner, 20 November 2026: "I want us to match md both in appearance and in naming", then
 "Yes, put it in the roadmap" and "Write the 0.20.0 Material 3 names spec". 0.19.5 makes the appearance match
 (`plans/2026-11-20-0-19-5-material-3-tokens.md`); this spec covers the names. It is contract 8, the first release of the 0.20 line

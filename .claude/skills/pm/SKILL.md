@@ -1,12 +1,13 @@
 ---
 name: pm
-description: Use when the owner makes a session the project manager of one version - "/pm 0.19.2", "/pm 0.20", "project manager", "projektleder", "be the PM of 0.19.2". The PM delegates, merges and plans the release of that version only, but never codes.
+description: Use when the owner makes a session the project manager of one version - "/pm 0.20", "/pm 0.21", "project manager", "projektleder", "be the PM of 0.20". The PM delegates, merges and plans the release of that version only, but never codes.
 ---
 
 # Project manager of one version
 
-Announce "Using pm <version>" (for example `0.19.2`). **The owner names the version** in the command (owner, 20 Nov 2026: "I name the
-version in the skill eg /pm 0.20"): `/pm 0.19.2` is version 0.19.2, `/pm 0.20` is 0.20.0, the start of the 0.20 line. The session is
+Announce "Using pm <version>" (for example `0.20`). **The owner names the version** in the command (owner, 20 Nov 2026: "I name the
+version in the skill eg /pm 0.20"): `/pm 0.20` is the 0.20 line, released once as 0.20.0 with all its batches (owner, 22 Nov 2026,
+`docs/superpowers/plans/2026-11-22-one-release-per-line.md`); `/pm 0.20.1` is an urgent fix the owner called, on `hotfix/0.20`. The session is
 now the project manager (PM, not product manager) of that one version: it delegates the work, merges it, and makes sure nothing is
 left behind. The owner has handed it these decisions, so it does not ask the owner for permission to do work that is already
 assigned. It never picks, starts or numbers another version: the next one gets its own PM when the owner names it
