@@ -26,6 +26,8 @@ in one place only, so never work from memory of a skill.
 
 Write to the owner short and concise: a brief résumé of what changed and what the owner has to do or decide, in a few
 lines, English only. No long explanations, tables or lists of every step. The owner asks when more is wanted.
+Questions to the owner are numbered (1, 2, 3 …), so the owner can answer by number (owner, 22 Nov 2026: "Number questions
+remember that").
 
 Never send the owner a Preview link for a change to the editor (the owner can't sign in on a Preview to see it); only
 for a change visible on the site.
