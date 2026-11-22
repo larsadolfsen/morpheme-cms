@@ -180,7 +180,19 @@ async function checkMenuDrawerWidth(width) {
       ...rect(el),
     }));
     const phone = [...drawer.querySelectorAll('.mo-drawer__call .mo-button, .mo-button')].map(rect).find((r) => r.width > 0);
-    return { left: box.left, right: box.right, width: box.width, inner, items, phone, padLeft: parseFloat(style.paddingLeft) };
+    const close = drawer.querySelector('.mo-navigation-drawer__head button');
+    const title = drawer.querySelector('.mo-drawer__title');
+    return {
+      left: box.left,
+      right: box.right,
+      width: box.width,
+      inner,
+      items,
+      phone,
+      padLeft: parseFloat(style.paddingLeft),
+      close: close && rect(close),
+      title: title && rect(title),
+    };
   });
   // The visible width: the drawer's strip off the screen at its edge (the bleed) is not counted.
   const visible = got.right - Math.max(0, got.left);
@@ -188,6 +200,10 @@ async function checkMenuDrawerWidth(width) {
     problems.push(
       `${label}: ${visible}px wide, should be ${least}px to ${most}px (it hugs its content, at least 320 dp on a compact window)`,
     );
+  // The close button is at the end of the head, after the name, as in the editor's drawer (owner, 22 Nov 2026).
+  if (!got.close || !got.title) problems.push(`${label}: no close button or name in the drawer's head`);
+  else if (got.close.left < got.title.left)
+    problems.push(`${label}: the close button is before the name, should be at the end of the head`);
   const inset = 12;
   for (const item of got.items) {
     if (Math.abs(item.left - inset) > 1)
