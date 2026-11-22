@@ -17,7 +17,8 @@ and nothing reaches her `main` before Wednesday.
 
 Her own app `src/apps/sara/` uses CMS exports that are gone since 0.19.1:
 
-- `pictureOf` (`src/standard/load`), `shownPicture` and `Picture` (`src/standard/view`), and the `picture` prop, now `image`:
+- The image helpers of `src/standard/load` and `src/standard/view`, and the image prop of the views, under their names from before the
+  image rename (`tsc` lists each one):
   `blocks/contact/`, `blocks/side-card/`, `blocks/portraithero/`, `parts/Img.tsx`.
 - `@morphemecms/cms/src/standard/hero/fields` (removed): `blocks/portraithero/load.ts` and `viewOf.ts`. This crashes `check:content`
   with `ERR_MODULE_NOT_FOUND`, so the build stops.
