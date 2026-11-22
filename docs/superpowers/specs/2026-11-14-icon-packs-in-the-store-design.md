@@ -10,6 +10,9 @@
 > - **Out:** no seeds and no migration (A7, A10): a site that picked Phosphor draws Material Symbols until the owner installs the pack,
 >   with **no warning**. No `iconPack` key for themes (A8) and no "Needs" on a theme's page: themes asking for or bundling a pack come
 >   later. Lucide and Font Awesome stay in 0.27.2.
+> - **Its own page in the store** (owner, 22 Nov 2026: "An icon should have its own page in the store"): the store has an *Icons*
+>   section beside themes and apps, and each pack has its own page there (section 7, 1 and 2). Choosing the pack the site draws is
+>   *Style › Icons* (`plans/2026-11-22-0-19-7-ui-fixes.md`, C20).
 > - **Done by the names batch already:** A1, A3, A4 and A9 (the names are Material Symbols' names, and Phosphor and Lucide leave the
 >   package).
 
