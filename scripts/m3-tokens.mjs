@@ -337,7 +337,7 @@ function build(db) {
 }
 
 // ---------- 4. write ----------
-const mdCell = (s) => String(s).replace(/\|/g, '\\|');
+const mdCell = (s) => String(s).replace(/\\/g, '\\\\').replace(/\|/g, '\\|');
 function markdown(set, version) {
   const lines = [
     `# ${set.set}`,
