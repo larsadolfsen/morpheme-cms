@@ -330,6 +330,13 @@
   .mo-navigation-drawer__toggle[aria-expanded='true'] > svg {
     rotate: 180deg;
   }
+  /* An item that unfolds sub-pages is a button with its caret at the end, turned while they are open. */
+  .mo-navigation-drawer__item > .mo-navigation-drawer__trailing > svg {
+    transition: rotate var(--mo-sys-motion-spring-default-spatial);
+  }
+  .mo-navigation-drawer__item[aria-expanded='true'] > .mo-navigation-drawer__trailing > svg {
+    rotate: 180deg;
+  }
   .mo-navigation-drawer__subitem {
     display: flex;
     align-items: center;

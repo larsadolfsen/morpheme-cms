@@ -2,11 +2,11 @@
 
 Status: **20 November 2026, for the owner.** Owner, 20 November 2026: "instead of the dev setting the css, can we do it in build time",
 then "do that". It changes what an app's CSS can reach, so it raises `APP_API` and ships with the next app contract, in **0.20**
-(*Decision*). A small part is preparation in 0.19.6 (*Batches*, batch 0).
+(*Decision*). A small part is preparation in 0.19.7 (*Batches*, batch 0).
 
 ## The problem
 
-- **An app's CSS is global.** An app block's `View.tsx` imports the app's CSS (`import '../../style.css'`, as Sara's app does), and Vite
+- **An app's CSS is global.** An app block's `View.tsx` imports the app's CSS (`import '../../style.css'`), and Vite
   bundles it into the page's one stylesheet, on the site and in the editor. The sandbox (contract 4, QuickJS) runs only an app's build
   code (hooks and after-build steps); a block is a `full` place (`docs/app-contract.md`) and its CSS is not isolated.
 - **Two apps can collide without a sound:**
@@ -58,15 +58,15 @@ put it in the roadmap"), because a contract raise starts a line and apps should 
 
 ## Batches
 
-0. **Preparation in 0.19.6 UI fixes (no contract change).** The CMS puts `data-mo-app="<id>"` on every app block's outer element (it changes no
+0. **Preparation in 0.19.7 UI fixes (no contract change).** The CMS puts `data-mo-app="<id>"` on every app block's outer element (it changes no
    look), and `npm run check:app-css -- --report` lists, without failing, what batch 2 would rename or refuse in each app. It is run on
-   the owner's apps (`morpheme-apps`, which have no CSS today) and on Sara's app (`src/apps/sara/style.css`), so their fixes are known
-   before the contract changes.
+   the owner's apps (`morpheme-apps`, which have no CSS today), so their fixes are known before the contract changes. Sara's site and
+   the Venus theme are left out until Sara continues (owner, 20 November 2026).
 1. **The plugin.** The Vite plugin with its tests (selectors, private names, the other global names, the layer), on the site and in
    the editor; the `@scope` support decided against the browser list. If it is the feature's first pull request, it sets the version.
 2. **The check and the contract.** The refusals in `check:content`, `APP_API` raised, `docs/app-contract.md` and the developer guide's
    section, `--mo-theme-*` in `docs/css-tokens.md` and `check:themes`. `check:screens`, `check:themes` and `check:demo` green; the owner's
-   apps and Sara's app pass. A release note for app developers (skill `release-notes`).
+   apps pass. A release note for app developers (skill `release-notes`).
 
 Done when two test apps with the same class, custom property and keyframes names render side by side on the demo without touching each
 other, an app's rule on `:root` fails the check, and the release has run on staging.

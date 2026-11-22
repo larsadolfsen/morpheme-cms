@@ -86,6 +86,19 @@ export const text = {
   /** The snackbar after Change type, with Undo; it names the block it became. */
   changedTo: (name: string) => `Changed to ${name}`,
   blocksSelected: (count: number) => (count === 1 ? '1 block selected' : `${count} blocks selected`),
+  /** Said when a block is selected, moved, added or removed (the editor's announcer; `place` of `of` counts the blocks of the page). */
+  blockSelected: (name: string, place: number, of: number) => `${name}, block ${place} of ${of}, selected`,
+  selected: (name: string) => `${name}, selected`,
+  blockAdded: (name: string, place: number, of: number) => `${name} added, block ${place} of ${of}`,
+  blockMoved: (name: string, place: number, of: number) => `${name} moved to block ${place} of ${of}`,
+  blocksMoved: (count: number, up: boolean) => `${count} blocks moved ${up ? 'up' : 'down'}`,
+  /** What a removal says, and where the focus is after it. */
+  blockRemoved: (name: string) => `${name} removed`,
+  blocksRemoved: (count: number) => `${count} blocks removed`,
+  focusInText: 'Focus is in the text.',
+  focusInTools: 'Focus is on the text tools.',
+  /** The text area's description the first time it gets focus on a page. */
+  toolsHint: 'Alt+F10 moves to the formatting tools',
   clearBlockSelection: (count: number) => `Clear selection, ${count === 1 ? '1 block selected' : `${count} blocks selected`}`,
   selectBlock: 'Select',
   selectAllBlocks: 'Select all',

@@ -15,7 +15,7 @@ in one place only, so never work from memory of a skill.
 | `changesets` | you open a pull request: its changeset, which level the base branch allows, and the version lines (`0.17`, `0.18`, `0.19`) |
 | `release-notes` | a change is something a site owner sees, or a note, an edition or a version's notes are written or fixed |
 | `checks` | you choose which checks to run before a push, or a CI job fails |
-| `material-3` | a spec or a change touches anything outside the editor's own workspace, or deviates from Material 3 |
+| `material-3` | a spec or a change touches anything outside the page and post editor's bar and menus, or deviates from Material 3 |
 | `pm` | the owner makes the session the project manager (`/pm <version>`), or the orchestrator merges while no PM runs |
 | `cto` | the owner makes the session the CTO, or asks where the product, the code, the process or the roadmap should go next |
 | `release` | the owner says `/release`, or asks to release, publish to `latest` or ship a version |
@@ -42,6 +42,10 @@ plain words. The plans go to the PM, who hands them to new sessions.
 
 Every change goes branch → feature → `next` → live (owner, 19 Nov 2026), one feature at a time (`docs/superpowers/plans/2026-11-18-release-per-feature.md`), and is seen at each step: a branch on its own demo Preview; a feature (`feature/<name>`, cut from `main`, its pull requests merged into it) on the demo, where the owner reviews it (`morpheme-demo`, whose production branch in Cloudflare the owner sets to the feature being built; the demo never shows the live site); `next`, the feature merged into `main`, on `morpheme-staging` as the test version from npm, with real sign-in and saving; live, a release on the sites (`latest`). A single fix skips the feature and goes as one pull request into `main`. Nothing is released that staging has not run (skill `release`).
 
+The repository has only `main`, the Release PR's branch, the feature branches being built, the branches of open pull requests and
+`screenshots` (owner, 21 Nov 2026). GitHub deletes a branch when its pull request merges; a session never makes a branch for anything
+else (screenshots go into `screenshots`, skill `developer`).
+
 ### Only the owner releases a new version
 
 **Only the owner releases a new version of `@morphemecms/cms`.** No agent releases, and no agent takes a step towards a
@@ -64,8 +68,9 @@ session loads the `release` skill and follows its phases in order; it never rele
 
 ### Pull requests go to the PM
 
-**There is always a PM.** Each version being built has a session as its project manager (skill `pm`). It merges the pull
-requests of its own feature only, never another version's (owner, 20 Nov 2026), except releases, in this repository and in
+**There is always a PM.** Each version being built has a session as its project manager (skill `pm`). The owner names the version (`/pm 0.19.2`, `/pm 0.20`). It merges the pull
+requests of its own feature only, and never creates, changes, pushes or merges anything of another version, earlier or later (owner,
+20 Nov 2026), except releases, in this repository and in
 `morpheme-staging`, `morpheme-appstore` and `morpheme-apps`, and it keeps nothing behind. The owner does not merge and is not
 asked to.
 
@@ -163,8 +168,17 @@ reasons), `npm run check:color-roles` on a mix of a role or a role declared as a
 ### Accessibility: WCAG 2.2 AA
 
 Owner, 19 Nov 2026: the sites the CMS builds and the editor meet **WCAG 2.2 level AA**. A change never lowers it: contrast
-(`check:contrast`), keyboard use, a visible focus ring for keyboard focus (`:focus-visible`), names for screen readers, and
-target sizes. Where Material 3 and WCAG differ, WCAG wins. The checks that enforce it: roadmap 0.19.2 to 0.19.4.
+(one final `check:contrast` scan when Material's M3 work is done, not per change; owner, 21 Nov 2026), keyboard use, a visible focus ring for keyboard focus (`:focus-visible`), names for screen readers, and
+target sizes. Where Material 3 and WCAG differ, **Material 3 wins** (owner, 21 Nov 2026: "we follow MD3 even if it does not comply
+with accessibility"): the part takes M3's value as printed, and the theme names the shortfall (below). A new base theme, built on
+Material 3 and meeting WCAG 2.2 AA everywhere, comes after Material follows M3 (0.22.3; `docs/superpowers/specs/2026-11-21-base-theme-notes.md`).
+The checks that enforce it: roadmap 0.19.2 to 0.19.4.
+
+A theme may fall short of it on the site if its page says so (owner, 21 Nov 2026): the theme's `accessibility.json` names each
+shortfall by WCAG criterion, the checks let through only what it names, and the editor shows it on the theme's page
+(`docs/superpowers/specs/2026-11-21-theme-accessibility-statement-design.md`). *Material* follows Material 3 exactly and names the
+shortfalls that gives; the editor's screens (theme page, settings, lists, dialogs) use the same parts, so the same named shortfalls hold
+there. Only the page and post editor (its bar, overflow menu, text and block menus), which is outside Material 3, always meets WCAG 2.2 AA (owner, 21 Nov 2026).
 
 ### Icons are Material Symbols
 
@@ -209,8 +223,9 @@ All wording in UI components, buttons and fields follows Material 3's *Global wr
   setting `Hide from search engines`.
 - Action buttons: active verbs without filler words (`Add tag`, `Edit page`, `Save`).
 
-### Material 3 everywhere except the editor
+### Material 3 everywhere except the page and post editor
 
-Owner, 13 Nov 2026: "We follow MD3 everywhere except the editor." Outside the editor's own workspace (its toolbar/bar,
-overflow menu, text and block menus) every design choice follows what m3.material.io prints, read from the real pages,
-never from memory. Load the skill `material-3` before a spec or a change that touches such a part.
+Owner, 13 Nov 2026: "We follow MD3 everywhere except the editor." Owner, 21 Nov 2026: that means only the page and post editor (its bar, overflow menu, text and block menus); the editor's other screens (theme page, settings, lists, dialogs) follow Material 3 like the site. Outside the page and post editor every design choice follows what m3.material.io prints, read from the real pages,
+never from memory. Load the skill `material-3` before a spec or a change that touches such a part. An older decision, spec or rule
+that differs from what M3 prints does not carry over (owner, 21 Nov 2026): M3 wins, and the session reports the old source
+(`material-3`, rule 6).

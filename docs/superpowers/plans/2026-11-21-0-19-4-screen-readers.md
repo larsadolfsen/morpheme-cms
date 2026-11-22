@@ -1,7 +1,7 @@
 # 0.19.4 Screen readers (plan)
 
 Status: **draft, 21 November 2026, for the owner's approval.** It follows the owner's rule of 19 November 2026 that the sites and the editor meet
-**WCAG 2.2 level AA** and that WCAG wins where Material 3 differs (`CLAUDE.md`, *Accessibility: WCAG 2.2 AA*). Roadmap:
+**WCAG 2.2 level AA** and that WCAG wins where Material 3 differs (`CLAUDE.md`, *Accessibility: WCAG 2.2 AA*) (since 21 Nov 2026: where Material 3 itself falls short, M3 wins and the theme names the shortfall; only the page and post editor's bar and menus must meet WCAG). Roadmap:
 `plans/2026-11-14-roadmap-0-18-to-0-24.md`, item 0.19.4: "What a screen reader says on the editor's main flows: names of icon buttons and
 fields, and saves, errors and messages announced." Structure copied from `plans/2026-11-20-0-19-3-keyboard.md` and
 `plans/2026-11-20-0-19-2-accessibility-scan.md` (on `feature/0.19.2-a11y-scan`, PR #1080).
@@ -27,7 +27,7 @@ Labels, 3.3.1 Error Identification, 3.3.2 Labels or Instructions, 4.1.2 Name, Ro
 0.19.2's.
 
 Not in 0.19.4: the axe scan itself and the names it already checks (0.19.2), keyboard use and focus order (0.19.3), Material 3's tokens
-(0.19.5), the small UI fixes (0.19.6), the site's own pages (0.19.2 scans them; what a screen reader says on a site's page is the theme's). No
+(0.19.5), the editor in Material 3 (0.19.6), the small UI fixes (0.19.7), the site's own pages (0.19.2 scans them; what a screen reader says on a site's page is the theme's). No
 new component, no look change: every fix is an attribute, a name or a text, so the owner sees nothing new on screen.
 
 ## The main flows
@@ -67,16 +67,22 @@ check*: the editor's screens and one page per block, never the content): `check:
 1, whose first run also walked the demo's pages, posts and categories), each a problem, a selector and the screens or flows it is on. A count of **entries** is
 distinct selectors; **places** is the screens or flows they are found on (one entry on many screens counts once per screen).
 
-| Problem | What it is | Entries | Places | Fixed by batch |
+| Problem | What it is | Entries at the baseline | Now | Fixed by batch (pull request) |
 | --- | --- | ---: | ---: | :---: |
-| `no-announcement` | a step that should be announced (an inserted, moved or removed block, a selected block) says nothing from a region that was there before: the status text is in a region that comes into the page with its text, or there is none | 4 | 4 | 4, 5, 6 |
-| `repeated-name` | two controls of one role with one name in one list (the footer links of the licences, the screen crumbs, the block handles on the Blocks pages; the component gallery's examples) | 35 | 234 | 2 |
-| `tab-state` | a menu button with `aria-haspopup` and no `aria-expanded` (the top bar's icon buttons, list rows that open a menu or sheet, text-field buttons, the page editor's outlined menu button) | 0 | 0 | 3 (done) |
-| `broken-reference` | an `aria-describedby`, `aria-labelledby` or `aria-controls` that points at an element that is not in the page (the crop page's dialog on every screen; the gallery's examples) | 0 | 0 | 3 (done) |
-| `unnamed-container` | the footer links' `nav` has no name, and there are two navigations | 2 | 260 | 2 |
-| `bad-name` | a card whose name is a file name (the Files screen) | 1 | 1 | 2 |
-| `no-name` | the inline notice's `role=button` has no name (the Cards page) | 1 | 1 | 2 |
-| `icon-name`, `disabled-no-reason`, `live-region`, `double-announcement`, `wrong-urgency`, `flow-focus-unnamed`, `flow-lost-focus` | found nowhere | 0 | 0 | — |
+| `no-announcement` | a step that should be announced (an inserted, moved or removed block, a selected block) says nothing from a region that was there before | 4 | 0 | 4 (#1086), 4b (#1097), 5 (#1102), 6 (#1105) |
+| `repeated-name` | two controls of one role with one name in one list (the footer links of the licences, the screen crumbs, the block handles on the Blocks pages; the component gallery's examples) | 35 | 0 | 2 (#1090) |
+| `tab-state` | a menu button with `aria-haspopup` and no `aria-expanded` | 0 | 0 | 3 (#1088) |
+| `broken-reference` | an `aria-describedby`, `aria-labelledby` or `aria-controls` that points at an element that is not in the page | 0 | 0 | 3 (#1088) |
+| `unnamed-container` | the footer links' `nav` has no name, and there are two navigations | 2 | 0 | 2 (#1090) |
+| `bad-name` | a card whose name is a file name (the Files screen) | 1 | 0 | 2 (#1090) |
+| `no-name` | the inline notice's `role=button` has no name (the Cards page) | 1 | 0 | 2 (#1090) |
+| `icon-name`, `disabled-no-reason`, `live-region`, `double-announcement`, `wrong-urgency`, `flow-focus-unnamed`, `flow-lost-focus`, `wrong-description` | found nowhere | 0 | 0 | none |
+
+**The allowlist is at 0** (`scripts/announce-allowlist.json` is `[]`) since batch 6 (#1105) merged.
+
+**The batches and their pull requests** (all into `feature/0.19.4-screen-readers`): 1 the version and the check, #1085; 2 names, #1090; 3 roles and states, #1088; 4 the announcer and the live
+regions, #1086, with 4b loading, progress and flow K, #1097; 5 open, close and change, #1102; 6 blocks, the text and the preview, #1105; 7 the reader pass and the notes (this one:
+`docs/screen-reader-test.md`, the release note `screen-readers-reader-pass` in both languages, the `checks` entry). Also in the feature: the scope fix, #1089, and the CodeQL alerts, #1087.
 
 The scope fix removed 9 entries (by the count before batch 3 merged): the category rows' links (`src/data/categories/`), the links and headings a site owner wrote in the text area
 (`typography.md`, `prose-fixture.md` and the text sample of *Developer › Parts › Editor*), and the repeated name of the block cards on those two prose pages
@@ -198,7 +204,7 @@ One rule so nothing is said twice: **there is one announcer, and a message goes 
 Order: **1 goes first** (the check and the baseline). **2, 3 and 4 touch different files and can run side by side** (names, states, the
 announcer). **5 follows 4** (it uses the announcer) **and 0.19.3** (its focus helper). **6 follows 5** (it touches the text area and the block cards, which 5 also touches).
 **7 goes last** (it needs the walk's final output and an empty allowlist). Every batch removes the allowlist entries it fixes, keeps
-`check:screens`, `check:a11y`, `check:keyboard` and `check:contrast` green, adds no text without its Danish version (`check:language`: a new
+`check:screens`, `check:a11y` and `check:keyboard` green, adds no text without its Danish version (`check:language`: a new
 announcement is a new text, in `en-US` and `da-DK`, skill `site-editor-writing`), follows Modern Web Guidance for accessibility (the PR names the guides read:
 `npm run audit:web -- search "aria live"`, `"accessible name"`, `"focus dialog"`) and the order of priority (Modern web, Material 3 Expressive, Material 3,
 Material 2 with Material 3 styling; a self-made solution goes to the PM). Each pull request has its **Components** line (existing components only) and an empty or `patch` changeset.
@@ -244,6 +250,10 @@ Batch 1 reads these before it writes the check, and corrects this plan in its ow
 
 ## Done when
 
-`check:announce` runs in CI on every pull request with its flows, its allowlist is empty (or holds only entries the owner approved), the owner has
-done a reader pass on staging with NVDA or Narrator and on a phone with TalkBack (or has decided in words that the check alone is enough), and 0.19.4 has run on
-staging before the owner releases it.
+Status, 21 Nov 2026, after batch 7 is written:
+
+- [x] `check:announce` runs in CI on every pull request with its flows (A, B, C, F, I, J, K, L).
+- [x] Its allowlist is empty (since #1105).
+- [x] The owner's steps for the reader pass are in `docs/screen-reader-test.md`; the release note *Screen readers* is pending in English and Danish.
+- [ ] The owner has done a reader pass on staging with NVDA or Narrator and on a phone with TalkBack (or has decided in words that the check alone is enough).
+- [ ] 0.19.4 has run on staging before the owner releases it.

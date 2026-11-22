@@ -27,4 +27,5 @@ Only the owner releases. The exact build must have run on staging first. The PM 
 - Set the demo's production branch (it shows the development branch).
 - Revert #980 and delete `feature/demo-editor`; delete the merged `feature/cards-lists`; empty `feature/store-auto-updates`.
 - Open items: 17 CodeQL alerts, `MORPHEME_LIVE_URL`, repo secret `STAGING_DEPLOY_HOOK` (PR #990).
-- Never delete `pr-screenshots/*` branches.
+- ~~Never delete `pr-screenshots/*` branches.~~ Replaced (owner, 21 Nov 2026): the old branches are deleted, and screenshots go into
+  the one branch `screenshots` (skill `developer`).

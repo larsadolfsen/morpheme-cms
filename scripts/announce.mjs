@@ -18,7 +18,7 @@
 //   disabled-no-reason a `Save` button that is disabled and says nothing of why (no `aria-describedby`).
 //   live-region        `aria-live` and `role=status` or `alert` that disagree on one node, an assertive region that is not an error, a live region inside
 //                      another one, or a live region inside `aria-hidden` or `inert`.
-// The flows add `no-announcement`, `double-announcement`, `wrong-urgency` and `flow-focus-unnamed` / `flow-lost-focus` (scripts/announce-flows.mjs).
+// The flows add `no-announcement`, `double-announcement`, `wrong-urgency`, `wrong-announcement`, `wrong-description` and `flow-focus-unnamed` / `flow-lost-focus` (scripts/announce-flows.mjs).
 //
 // The check is the CMS repository's own: the allowlist is keyed to the demo's screens, so a site that installed the package (it ships `scripts/`, so a
 // site's `morpheme check:screens` runs these units) skips it cleanly (`announceRuns`).
@@ -41,6 +41,8 @@ export const PROBLEMS = [
   'no-announcement',
   'double-announcement',
   'wrong-urgency',
+  'wrong-announcement',
+  'wrong-description',
   'flow-focus-unnamed',
   'flow-lost-focus',
 ];
@@ -374,7 +376,10 @@ export const RECORDER = `(() => {
     if (!text) return void last.set(region, '');
     if (last.get(region) === text && !inserted) return;
     last.set(region, text);
-    events.push({ t: performance.now(), kind: 'live', text, urgency: urgencyOf(region), region: idOf(region), inserted: Boolean(inserted) });
+    // A region a reader can not reach: inert, or outside the topmost open modal dialog (which makes the rest of the page inert).
+    const modal = [...document.querySelectorAll('dialog[open]')].filter((d) => d.matches(':modal')).pop();
+    const unreachable = Boolean(region.closest('[inert]')) || Boolean(modal && !modal.contains(region));
+    events.push({ t: performance.now(), kind: 'live', text, urgency: urgencyOf(region), region: idOf(region), inserted: Boolean(inserted), unreachable });
   };
   const regionsIn = (node) => {
     if (node.nodeType !== 1) return [];
@@ -404,7 +409,8 @@ export const RECORDER = `(() => {
 export function judgeWindow(events, { expect, within = 1000 } = {}) {
   const live = events.filter((e) => e.kind === 'live');
   const problems = [];
-  const said = live.filter((e) => !e.inserted);
+  // A message from a region that came in with its text, or that a reader can not reach (inert, or behind a modal dialog), is not said.
+  const said = live.filter((e) => !e.inserted && !e.unreachable);
   if (expect && !said.length) problems.push('no-announcement');
   for (let i = 0; i < live.length; i++)
     for (let j = i + 1; j < live.length; j++)
@@ -417,5 +423,7 @@ export function judgeWindow(events, { expect, within = 1000 } = {}) {
     const urgent = said.some((e) => e.urgency === 'urgent');
     if (urgent !== expect.urgent) problems.push('wrong-urgency');
   }
+  // `expect.text`: what is said must be this (a block's place, a removal), not any text at all.
+  if (expect?.text && said.length && !said.some((e) => expect.text.test(e.text))) problems.push('wrong-announcement');
   return problems;
 }

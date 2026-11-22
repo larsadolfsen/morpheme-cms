@@ -26,9 +26,17 @@ const at = (t, text, region, extra = {}) => ({ t, kind: 'live', text, urgency: '
 
 test('a step that must be announced needs a text from a region that was there before', () => {
   assert.deepEqual(judgeWindow([], { expect: { urgent: false } }), ['no-announcement']);
+  assert.deepEqual(judgeWindow([at(1, 'Saved', 1, { unreachable: true })], { expect: { urgent: false } }), ['no-announcement']);
   assert.deepEqual(judgeWindow([at(1, 'Saved', 1, { inserted: true })], { expect: { urgent: false } }), ['no-announcement']);
   assert.deepEqual(judgeWindow([at(1, 'Saved', 1)], { expect: { urgent: false } }), []);
   assert.deepEqual(judgeWindow([at(1, 'Saved', 1)], {}), []);
+});
+
+test('a step may say what must be said', () => {
+  const expect = { urgent: false, text: /block \d+ of \d+, selected/ };
+  assert.deepEqual(judgeWindow([at(1, 'Notice, block 2 of 3, selected', 1)], { expect }), []);
+  assert.deepEqual(judgeWindow([at(1, 'Saved', 1)], { expect }), ['wrong-announcement']);
+  assert.deepEqual(judgeWindow([], { expect }), ['no-announcement']);
 });
 
 test('the same text from two regions within a second is said twice, from one region it is not', () => {

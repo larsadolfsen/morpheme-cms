@@ -319,3 +319,27 @@ there is nothing to deviate from. The theme uses the nearest M3 pattern or the o
 - **We do:** the item keeps no shadow on hover.
 - **Why:** an item is clipped to its mask (`overflow: hidden`, `clip-path`) and the row scrolls (`overflow-x: auto`), so a level 1 shadow would be cut off and show nothing. The PM decided on 21 Nov 2026 to leave it and record it here.
 - **Date:** 2026-11-21. **PR:** #1112.
+
+## The site's keyboard use (0.19.3, WCAG 2.2 AA; owner approval through the PM, 21 Nov 2026)
+
+The owner approved these theme changes on 21 Nov 2026 (relayed by the PM of 0.19.3: "the owner approved both theme changes" and "Go ahead and push"). Where Material 3 and WCAG differ, WCAG wins (`CLAUDE.md`, *Accessibility*). The session that built them did not read the M3 pages again for this change, so no M3 text is quoted here; the PM or the next session that touches these parts quotes the real pages (skill `material-3`).
+
+### K1. A group in the navigation drawer is one button with the caret at its end
+
+- **We do:** an item with sub-pages (`MobileMenu.tsx`) is a `NavigationDrawerItem` that is a button with `aria-expanded`, `aria-controls` and a trailing caret (turned while open: `navigation-drawer.css`); Enter and Space toggle it and the focus stays on it. Before, it was a link with a separate caret button beside it, so Space did nothing on it. Its own page is the first sub-page when it is not already one.
+- **Why:** a disclosure header is a button (Modern Web Guidance, `navbar`: "Use a `<button>` with `aria-expanded` and `aria-controls` as the trigger for nested site navigation"); WCAG 2.1.1.
+
+### K2. A plain list's row has room inside its focus ring
+
+- **We do:** from 600 dp a focused row of a plain List or List - Expand (no drawn container) takes the layer's room (`--mo-sys-block-list-layer-room`, 16dp) as padding and an equal negative margin (`theme/styles/lists.css`), so the text stays where it is and the 3dp ring is 13dp from it. Rest and hover are unchanged.
+- **Why:** the ring touched the first letters (WCAG 2.2, 2.4.11 and 2.4.13).
+
+### K3. A pop-up opens with the focus on its Close button
+
+- **We do:** the site's pop-ups (`Popup.astro`) open with `showModal()`, so the focus is on the first control, the Close button, with its ring when the visitor uses the keyboard. A scroll the keyboard makes (Tab, the arrow keys, Page Down) never opens a pop-up that opens on a scroll.
+- **Why:** the editor's dialog rule (no control has the focus when a basic dialog opens, `src/ask.tsx`) is for the editor; on the site a dialog with no focused control gave a keyboard user no ring and no place to start (WCAG 2.4.3, 2.4.7). The editor's dialogs are unchanged.
+
+### K4. The header's menu, the colour choice, the floating button, the skip link and small links
+
+- **We do:** the header's menu button (`Header.astro`) opens on its first item with Enter, Space or the arrow keys, and the menu answers the arrow keys, Home, End and a letter without scrolling the page, as the theme's other menus do; the colour choice in the footer answers Home (Light) and End (Dark) as well as the arrows; the floating "Get started" button stands after the page's content in the source (`BookingFab.astro`) so Tab reaches it after the content; `main#main-content` has `tabindex="-1"` and no ring, so the skip link puts the focus on it; the logo, the link back, a post's tags and links in the text have the focus ring 4dp from them (`site-page.css`).
+- **Why:** WCAG 2.1.1, 2.4.1, 2.4.3 and 2.4.7; WAI-ARIA's menu button and radio group keys. `check:keyboard`'s `flow site` fails on each.

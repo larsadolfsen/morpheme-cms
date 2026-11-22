@@ -73,7 +73,6 @@
     "check:phosphor": "node scripts/check-phosphor.mjs",
     "check:a11y": "cd .morpheme/demo/site && node ../../../scripts/check-a11y.mjs",
     "check:announce": "cd .morpheme/demo/site && node ../../../scripts/check-announce.mjs",
-    "check:ui-language": "cd .morpheme/demo/site && node ../../../scripts/check-ui-language.mjs",
     "check:keyboard": "cd .morpheme/demo/site && node ../../../scripts/check-keyboard.mjs",
     "check:token-names": "node scripts/check-token-names.mjs",
     "check:token-registry": "node scripts/gen-token-registry.mjs --check",

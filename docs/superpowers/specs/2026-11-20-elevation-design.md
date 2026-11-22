@@ -72,8 +72,8 @@ elevated only get the elevation shadow", and "md3 sets elevation-shadow to none 
   `tokens/material/ref.css` and `tokens/ui/ref.css`, and keeps the `--mo-sys-elevation-levelN-shadow` tokens as they are. So a surface on a
   level shows its tone only, and an elevated object still casts its shadow. This replaces the owner's rule of 18 November 2026, and the
   comment in `ref.css` quotes the new words.
-- **The token keeps its name.** `--mo-sys-elevation-levelN-rest-shadow` is already a `--mo-` name themes use (Venus); renaming it would break them and need a
-  `THEME_API` raise. The spec, the comments and the tokens screen call it the elevation shadow.
+- **The token keeps its name in 0.19.5.** Renaming `--mo-sys-elevation-levelN-rest-shadow` needs a `THEME_API` raise, so its final name comes
+  with 0.20.0's map (`specs/2026-11-20-material-3-names-design.md`; M3 has no shadow token, so it is on the list of ours). The spec, the comments and the tokens screen call it the elevation shadow.
 - **A simpler theme later.** Owner, 20 November 2026: Material is the base theme, and "when it is perfect we will make another more simpler
   theme". Such a theme turns the elevation shadow on by pointing `--mo-sys-elevation-levelN-rest-shadow` at `--mo-sys-elevation-levelN-shadow`, with no change to a part or a class.
 
@@ -232,7 +232,7 @@ the other contexts, so the copy stays small.
 1. **The classes.** If it is 0.19.5's first pull request, it sets the version (`plans/2026-11-19-version-at-feature-start.md`).
    It adds `theme/styles/elevation.css` with its tests in `elevation.test.mjs`: `mo-elevation-0` to `-3` and `mo-elevated-1` to `-3`,
    the hover and dragged steps, and no colour on `mo-elevated-*`. The tokens screen shows a sample of each class and calls `--mo-sys-elevation-levelN-rest-shadow` the
-   elevation shadow. `person-facts.css` uses the class. `check:contrast` passes on every section colour.
+   elevation shadow. `person-facts.css` uses the class.
 2. **The check and the fixes.** Adds shadows and the part rule to `check:css-values`, fixes the colour picker's handle, removes
    Tailwind's empty shadow lists and closes deviation 12. Adds a release note line, because a theme or app developer can now use the
    class (skill `release-notes`).
