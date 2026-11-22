@@ -10,7 +10,9 @@ batches and we approve them on staging, we just open up the next batch to contin
 21, etc." The CTO proposed three points, and the owner answered "I agree" to all three:
 
 1. An urgent fix stays possible as `0.N.1`, only when the owner calls it.
-2. 0.19.5 is released as the last patch release, and 0.19.6 and 0.19.7 fold into 0.20.
+2. 0.19.5 is released as the last patch release, and 0.19.6 and 0.19.7 fold into 0.20. The owner then changed it: "Except I want a
+   19.6, and that is a merge between 19.6 and 19.7 because there's a lot of small fixes I want to have done before 20." So 0.19.6
+   is one more release, holding both, and it is the last patch release.
 3. The plan and the rule changes go as one docs pull request (this one).
 
 ## The rule
@@ -47,21 +49,21 @@ Until the path is built (batch B below), an urgent fix waits, or the owner decid
 
 ## The change over
 
-- **0.19.5** is released as soon as the release gate allows it (`plans/2026-11-22-release-gate-unshipped-commits.md`). It is the last
-  patch release.
-- **0.19.6 and 0.19.7 become the first batches of 0.20**, in that order: `plans/2026-11-21-0-19-6-editor-in-material-3.md` and
-  `plans/2026-11-22-0-19-7-ui-fixes.md`. Their feature branches are `feature/0.20-editor-in-material-3` and `feature/0.20-ui-fixes`,
-  and their version is `0.20.0`. What they say otherwise stays.
-- **0.20's own items** (Material 3 names, safe updates, store auto-updates, an app's Worker code in a sandbox, UI fixes) follow as its
-  next batches.
-- **The next PM is `/pm 0.20`**, started after 0.19.5 is released. No `/pm 0.19.6` or `/pm 0.19.7` is started.
+- **0.19.5** is released as soon as the release gate allows it (`plans/2026-11-22-release-gate-unshipped-commits.md`).
+- **0.19.6 holds what was 0.19.6 and 0.19.7**, and is the last patch release. It already works the new way: one release, with two
+  features as its batches, in this order: the editor in Material 3 (`plans/2026-11-21-0-19-6-editor-in-material-3.md`, branch
+  `feature/0.19.6-editor-m3`), then the UI fixes (`plans/2026-11-22-0-19-7-ui-fixes.md`, branch `feature/0.19.6-ui-fixes`). Both set
+  version `0.19.6`, and one PM runs both (`/pm 0.19.6`). There is no 0.19.7.
+- **0.20 keeps its own items** (Material 3 names, safe updates, store auto-updates, an app's Worker code in a sandbox, UI fixes) as its
+  batches, released once as 0.20.0.
+- **The next PM is `/pm 0.19.6`**, started after 0.19.5 is released; then `/pm 0.20`.
 
 ## Changed in this pull request
 
 - `CLAUDE.md`: *The flow* and *Pull requests go to the PM* say one release per line, with the urgent-fix exception.
 - The roadmap: *Releases at a glance* and the 0.19 and 0.20 sections.
 - The skills `changesets`, `pm` and `release`: the version is the line's, `/pm 0.20`, a release is a whole line or an urgent fix.
-- The 0.19.6 and 0.19.7 plans: a line at the top saying they are now batches of 0.20.
+- The 0.19.6 and 0.19.7 plans: a line at the top saying they are now the two batches of the 0.19.6 release.
 
 ## To build (two pull requests into `main`, for the 0.20 PM)
 
