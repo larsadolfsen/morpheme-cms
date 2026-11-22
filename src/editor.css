@@ -2058,6 +2058,14 @@ main[tabindex='-1']:focus {
   outline: none;
 }
 
+/* A screen's title takes the focus by script when the screen opens (Screen.tsx, so screen readers start at the top of it). It is no control and
+   not a Tab stop (tabindex -1), so it draws no ring: a browser counts a script focus without a click first (a refresh on a phone) as
+   :focus-visible. The next Tab shows the ring of the control it reaches (WCAG 2.4.7; owner, 22 Nov 2026). */
+[data-screen-title]:focus,
+[data-screen-title]:focus-visible {
+  outline: none;
+}
+
 /* The editor's own screens keep their icon buttons 48 px (a target they owe, checked in block-bar.mjs, page-rows.mjs and search-and-palette.mjs): the top bar,
    the action row of the active block and the command palette's field row. Material's small icon button is 40 dp with a 48 dp target, and the theme draws
    no target area beyond the container yet; the theme's own parts, and so the editor's gallery of them, keep the 40 dp. */
