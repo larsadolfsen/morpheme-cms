@@ -1,5 +1,8 @@
 # 0.19.6 The editor in Material 3 (plan)
 
+**Now the first batch of 0.20** (owner, 22 Nov 2026; `plans/2026-11-22-one-release-per-line.md`): branch `feature/0.20-editor-in-material-3`, version
+`0.20.0`, PM `/pm 0.20`. Where this plan says 0.19.6, its branch or its version, that rule wins.
+
 Status: **21 November 2026.** Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md`, item 0.19.6. The audit it is built from:
 `specs/2026-11-21-editor-screens-m3-audit.md` (0.19.5 batch 14, #1120): 392 rows in 8 batches, and 110 rows of the page and post editor
 apart.
