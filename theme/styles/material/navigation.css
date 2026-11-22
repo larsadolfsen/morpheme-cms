@@ -135,7 +135,13 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.25rem 0.25rem 1rem;
+    padding: 0.25rem 0.25rem 0.5rem;
+  }
+  /* A full-width divider between the head and the menu (Navigation drawer, Guidelines: "Use full-width dividers to separate groups of
+     destinations"; owner, 22 Nov 2026): it takes the drawer's inset back, as the sections' divider does. */
+  .mo-navigation-drawer__head-divider {
+    margin-block: 0 var(--mo-comp-navigation-drawer-section-gap, 0.5rem);
+    margin-inline: calc(-1 * var(--mo-comp-navigation-drawer-inset, var(--mo-comp-navigation-drawer-inset-default)));
   }
   .mo-navigation-drawer__name {
     font-size: var(--mo-sys-typescale-title-medium-size);

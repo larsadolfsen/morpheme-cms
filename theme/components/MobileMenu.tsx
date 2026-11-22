@@ -19,6 +19,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { motionSpring } from '@morphemecms/cms/lib/motion';
 import { lightDismiss } from '@theme/ui/lightDismiss';
 import IconButton from '@theme/ui/IconButton';
+import Divider from '@theme/ui/Divider';
 import Buttons from '@theme/blocks/buttons/Buttons';
 import HeaderPhoneButton, { type HeaderPhone } from '@theme/components/HeaderPhoneButton';
 import type { ButtonView } from '@morphemecms/cms/src/standard/buttons/view';
@@ -159,6 +160,7 @@ export default function MobileMenu({
               </div>
               {menuButton}
             </div>
+            <Divider className="mo-navigation-drawer__head-divider" />
 
             <NavigationDrawerSection>
               <nav aria-label={texts.menu}>
