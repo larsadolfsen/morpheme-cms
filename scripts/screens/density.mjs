@@ -346,11 +346,21 @@ async function checkDensityScreens(width, height) {
   await page.close();
 }
 
+/** The UI components page (/ui/) is a route only on a site that sets `componentsPath` (the demo, morpheme-staging; pages/components.astro): the starter has none, so a unit that reads it skips there, like the units that need the demo's Blocks pages. */
+async function openUiPage(page, label) {
+  const response = await page.goto(`${site}/ui/`, { waitUntil: 'networkidle' });
+  if (response && response.status() === 404) {
+    console.log(`${label}: skipped, the site has no UI components page, which the demo has.`);
+    return false;
+  }
+  return true;
+}
+
 /** A tap never lands on the wrong control (owner, 21 Nov 2026: at -3 on a phone the invisible target of "Several lines 1" covered the chip above it). On the theme's UI components page (/ui/) at a theme's -3, on a phone (touch, target 48) and a computer (mouse, target 44), every visible control is hit at 9 points (the four corners, the four edge middles and the centre, 1 px inside its box): what answers there is the control, or something in it, or no other control. An area of a control that reaches into its neighbour (target-size.css, --mo-sys-target-gap) fails this. A control that is fixed or sticky on the page (the page's own jump button) lies over what is under it by design and is not counted. */
 async function checkDensityTargets(width, height, touch) {
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${width}px density targets: ${e.message}`));
-  await page.goto(`${site}/ui/`, { waitUntil: 'networkidle' });
+  if (!(await openUiPage(page, `${width}px density targets`))) return void (await page.close());
   await page.addStyleTag({
     content:
       ':root { --mo-sys-density-base: -3 !important } *, ::before, ::after { animation: none !important; transition: none !important }',
@@ -426,7 +436,7 @@ async function checkChipRowFocus(width, height, scheme) {
     colorScheme: scheme,
   });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-  await page.goto(`${site}/ui/`, { waitUntil: 'networkidle' });
+  if (!(await openUiPage(page, label))) return void (await page.close());
   const total = await page.evaluate(() => document.documentElement.scrollHeight);
   for (let y = 0; y < total + height; y += height - 100) {
     await page.evaluate((y) => scrollTo(0, y), y);

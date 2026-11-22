@@ -234,7 +234,9 @@ async function checkMenuDrawerWidth(width) {
       problems.push(`${label} item "${item.name}": ends ${rightGap}px from the far edge, should be 12px or more`);
   }
   const plain = got.items.filter((i) => !i.name || i.name.length >= 0).find((i) => Math.abs(visible - inset - i.right) < 1);
-  if (compact && !plain) problems.push(`${label}: no item's layer reaches 12px from the far edge, so the layer does not span the drawer`);
+  // A site whose menu has no items (the starter's) has an empty drawer: there is no layer to measure.
+  if (compact && got.items.length && !plain)
+    problems.push(`${label}: no item's layer reaches 12px from the far edge, so the layer does not span the drawer`);
   if (!got.phone) {
     if (compact) problems.push(`${label}: no phone button in the drawer`);
   } else if (compact && Math.abs(got.phone.width - (visible - 2 * 16)) > 1.5) {
