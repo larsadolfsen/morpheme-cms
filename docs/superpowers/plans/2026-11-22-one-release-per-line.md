@@ -50,12 +50,18 @@ Until the path is built (batch B below), an urgent fix waits, or the owner decid
 ## The change over
 
 - **0.19.5** is released as soon as the release gate allows it (`plans/2026-11-22-release-gate-unshipped-commits.md`).
-- **0.19.6 holds what was 0.19.6 and 0.19.7**, and is the last patch release. It already works the new way: one release, with two
-  features as its batches, in this order: the editor in Material 3 (`plans/2026-11-21-0-19-6-editor-in-material-3.md`, branch
-  `feature/0.19.6-editor-m3`), then the UI fixes (`plans/2026-11-22-0-19-7-ui-fixes.md`, branch `feature/0.19.6-ui-fixes`). Both set
-  version `0.19.6`, and one PM runs both (`/pm 0.19.6`). There is no 0.19.7.
-- **0.20 keeps its own items** (Material 3 names, safe updates, store auto-updates, an app's Worker code in a sandbox, UI fixes) as its
-  batches, released once as 0.20.0.
+- **0.19.6 finishes Material 3, and is the last patch release.** It already works the new way: one release, its features as batches,
+  all on version `0.19.6`, one PM (`/pm 0.19.6`), in this order:
+  1. **Material 3 names**, contract 8, with the full-screen dialog back (moved from 0.20.0; owner, 22 Nov 2026: "Yes, move the names into 096. Also move phosphor icons as in a store icon into it, so Sarah can get it. And also the full screen dialog should be there." Spec
+     `specs/2026-11-20-material-3-names-design.md`, branch `feature/0.19.6-m3-names`.
+  2. **Phosphor in the store**, as an icon pack a site installs and picks (same decision; `specs/2026-11-14-icon-packs-in-the-store-design.md`,
+     its note of 22 Nov), branch `feature/0.19.6-phosphor-pack`.
+  3. **The editor in Material 3** (`plans/2026-11-21-0-19-6-editor-in-material-3.md`), branch `feature/0.19.6-editor-m3`.
+  4. **The UI fixes**, the old 0.19.7, with the divider line (`plans/2026-11-22-0-19-7-ui-fixes.md`), branch `feature/0.19.6-ui-fixes`.
+
+  There is no 0.19.7. The names go first so that everything after them is written with the final names.
+- **0.20 keeps four items** (safe updates, store auto-updates, an app's Worker code in a sandbox, UI fixes) as its batches, released once
+  as 0.20.0.
 - **The next PM is `/pm 0.19.6`**, started after 0.19.5 is released; then `/pm 0.20`.
 
 ## Changed in this pull request
