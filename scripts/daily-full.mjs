@@ -106,12 +106,12 @@ export function pick(branches, max = MAX_PER_DAY, now = Date.now()) {
 export function summaryTable(rows) {
   const cell = (v) =>
     String(v ?? '')
-      .replace(/\|/g, '\\|')
+      .replace(/[\\|`]/g, '\\$&')
       .replace(/\s+/g, ' ');
   return [
     '| Branch | Result | Reason |',
     '| :--- | :--- | :--- |',
-    ...rows.map((r) => `| \`${cell(r.name)}\` | ${cell(r.result)} | ${cell(r.reason)} |`),
+    ...rows.map((r) => `| ${cell(r.name)} | ${cell(r.result)} | ${cell(r.reason)} |`),
     '',
   ].join('\n');
 }

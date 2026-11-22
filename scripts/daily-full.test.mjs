@@ -196,7 +196,11 @@ test('dispatch: a 422 is a skip, a 500 is an error, every other branch is dispat
   const dispatched = calls.filter((c) => c.path.endsWith('/dispatches')).map((c) => JSON.parse(c.init.body).ref);
   assert.equal(dispatched[0], 'feature/e', 'the branch with an open pull request goes first');
   assert.equal(lines.length, rows.length);
-  assert.match(summaryTable(rows), /^\| Branch \| Result \| Reason \|\n\| :--- \| :--- \| :--- \|\n\| `feature\/e` \| dispatched \|/);
+  assert.match(summaryTable(rows), /^\| Branch \| Result \| Reason \|\n\| :--- \| :--- \| :--- \|\n\| feature\/e \| dispatched \|/);
+  assert.equal(
+    summaryTable([{ name: 'a|b', result: 'error', reason: 'x\\|y `z`' }]).split('\n')[2],
+    '| a\\|b | error | x\\\\\\|y \\`z\\` |',
+  );
 });
 
 test('dispatch: a dry run writes nothing and fails on nothing', async () => {
