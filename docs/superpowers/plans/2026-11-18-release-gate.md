@@ -1,5 +1,7 @@
 # The release gate: nothing is staged for `latest` until staging runs it (plan)
 
+> The rule for commits that ship nothing (`next` may trail `main` by docs and agent files) is in `2026-11-22-release-gate-unshipped-commits.md`.
+
 Status: **ordered by the owner, 18 November 2026**. Owner's words: "the pm keep asking me to release a version that hasnt been tested on staging", "we released 0.18 which wasnt done because of this", "it cant happen again". Written by the CTO for the PM.
 
 ## Why a check, not only a rule

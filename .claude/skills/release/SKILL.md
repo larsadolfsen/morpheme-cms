@@ -16,7 +16,7 @@ for a release (Phase 2), the exact build that would be released must already hav
 Cloudflare; the PM verifies that build and, where it can, that staging's page loads (Phase 1). A Release PR whose version was never
 seen on staging is never merged, even with a yes in the conversation earlier.
 
-The release gate (`docs/superpowers/plans/2026-11-18-release-gate.md`) makes this a check in `publish.yml` and on the Release PR once it is built; until then Phase 1 is the gate, by hand. The question gives the staging address and version, and the PM asks only when the gate check is green and the line's plan has nothing open.
+The release gate (`docs/superpowers/plans/2026-11-18-release-gate.md`) makes this a check in `publish.yml` and on the Release PR once it is built (`next` may trail `main` by commits that change only unshipped paths: `docs/`, `.claude/`, `.agents/`, `AGENTS.md`, `CLAUDE.md` and empty changesets; anything else needs a new `next`, `docs/superpowers/plans/2026-11-22-release-gate-unshipped-commits.md`); until then Phase 1 is the gate, by hand. The question gives the staging address and version, and the PM asks only when the gate check is green and the line's plan has nothing open.
 
 Every command shown to the owner starts with `cd C:/Users/adolf/Documents/Interstellar/morpheme-cms && `.
 

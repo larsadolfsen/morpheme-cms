@@ -309,8 +309,9 @@ jobs:
     steps:
       - uses: actions/checkout@v5
         with:
-          # The pull request's merge commit; its first parent is the main commit being released.
-          fetch-depth: 2
+          # The pull request's merge commit; its first parent is the main commit being released. All history, so next's gitHead is reachable
+          # when next trails main by unshipped commits (scripts/release-gate.mjs).
+          fetch-depth: 0
       - uses: actions/setup-node@v5
         with:
           node-version: 24
