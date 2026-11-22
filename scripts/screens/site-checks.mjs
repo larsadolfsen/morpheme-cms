@@ -191,6 +191,7 @@ async function checkMenuDrawerWidth(width) {
       phone,
       padLeft: parseFloat(style.paddingLeft),
       close: close && rect(close),
+      drawerTop: box.top,
       head: rect(drawer.querySelector('.mo-navigation-drawer__head')),
       divider: rect(drawer.querySelector('.mo-navigation-drawer__head-divider')),
       firstItem: items[0],
@@ -209,6 +210,14 @@ async function checkMenuDrawerWidth(width) {
     problems.push(`${label}: the close button is before the name, should be at the end of the head`);
   // The head is 64 dp high with a full-width divider (100%, edge to edge) right under it and 8 dp to the first item (owner, 22 Nov 2026; Divider, Specs).
   if (Math.abs(got.head.height - 64) > 0.5) problems.push(`${label}: the head is ${got.head.height}px high, should be 64px`);
+  if (Math.abs(got.head.top - got.drawerTop) > 1)
+    problems.push(`${label}: the head starts ${got.head.top - got.drawerTop}px under the drawer's top, should be 0`);
+  for (const [name, r] of [
+    ['close button', got.close],
+    ['name', got.title],
+  ])
+    if (r && Math.abs(r.top + r.height / 2 - (got.head.top + got.head.height / 2)) > 1)
+      problems.push(`${label}: the ${name} is not centred in the head`);
   if (Math.abs(got.divider.top - got.head.bottom) > 1) problems.push(`${label}: the divider is not right under the head`);
   if (Math.abs(got.divider.width - visible) > 1)
     problems.push(`${label}: the divider is ${got.divider.width}px wide, should be the drawer's ${visible}px`);

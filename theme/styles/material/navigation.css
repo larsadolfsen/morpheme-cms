@@ -138,6 +138,8 @@
     /* 64dp high (the top app bar's height; owner, 22 Nov 2026), the divider right under it. */
     min-block-size: 4rem;
     padding: 0 0.25rem;
+    /* From the drawer's top edge (it takes the drawer's top padding back), so the mark, name and button are centred between the edge and the divider. */
+    margin-block-start: -0.75rem;
   }
   /* A full-width divider between the head and the menu (Navigation drawer, Guidelines: "Use full-width dividers to separate groups of
      destinations"; owner, 22 Nov 2026): 100% wide (Divider, Specs, Measurements: "Divider full-width 100%"), so it takes the drawer's inset
