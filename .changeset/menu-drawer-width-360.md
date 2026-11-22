@@ -2,4 +2,4 @@
 '@morphemecms/cms': patch
 ---
 
-The main menu drawer is 360 dp wide (at most the screen less 56 dp) at every window size, as the editor's menu, instead of hugging its items
+The main menu drawer on a phone is at least 320 dp wide (at most the screen less 56 dp) and still as wide as its items need above that

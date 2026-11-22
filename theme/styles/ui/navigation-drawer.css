@@ -16,7 +16,7 @@
   .mo-navigation-drawer__subitem, a sub-page ([data-active]); .mo-navigation-drawer__section, items under a label
   (.mo-navigation-drawer__section-label, title small) with, in one that follows another, the divider
   (.mo-navigation-drawer__section-divider, edge to edge).
-    --mo-comp-navigation-drawer-width (set: that width; else 360dp, at most the screen less 56dp, as the editor's drawer: it does not hug its content),
+    --mo-comp-navigation-drawer-width (set: that width; else it hugs its content from 220dp, 320dp on a compact window, to 360dp, at most the screen less 56dp),
     --mo-comp-navigation-drawer-radius (0 16dp 16dp 0; under right-to-left --mo-comp-navigation-drawer-radius-rtl), --mo-comp-navigation-drawer-surface
     (the modal one: the surface container, level 2's colour; the standard one: the surface),
     --mo-comp-navigation-drawer-shadow (the modal one: level 2, the lift shadow), --mo-comp-navigation-drawer-scrim-color, --mo-comp-navigation-drawer-inset (12dp each side, from
@@ -36,8 +36,8 @@
   }
   .mo-navigation-drawer {
     display: flex;
-    /* Expanded navigation rail (M3 Expressive, "Expanded layout: Modal"): it is as wide as the Navigation drawer's 360dp (owner, 22 Nov 2026; the rail allows "container width minimum 220dp",
-       "maximum 360dp", so this is inside it) and not hugging its content; a theme that sets --mo-comp-navigation-drawer-width gets that width, as it did. */
+    /* Expanded navigation rail (M3 Expressive, "Expanded layout: Modal"): it hugs its content, "container width minimum 220dp",
+       "maximum 360dp" (on a compact window the least is 320dp, owner, 22 Nov 2026, inside that range); a theme that sets --mo-comp-navigation-drawer-width gets that width, as it did. */
     min-width: var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-width-min-default));
     max-width: var(--mo-comp-navigation-drawer-width, var(--mo-comp-navigation-drawer-container-width));
     flex-direction: column;

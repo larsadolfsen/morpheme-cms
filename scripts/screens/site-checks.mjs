@@ -139,7 +139,7 @@ async function checkFooterTargets(width, touch) {
   await page.close();
 }
 
-/** The site's modal menu drawer on the demo's home page. Owner, 22 Nov 2026: it is 360 dp wide at every window size, at most the screen less 56 dp, as the editor's drawer (it does not hug its content) (Navigation drawer, Specs, "Modal navigation drawer: Container width 360dp"); the Navigation rail's expanded modal layout allows 220 to 360 dp, so 360 is inside the range and no deviation. The items stand 12 dp in from each edge, 56 dp high, as wide as the drawer less those insets (the layer of the current one reaches across), and the phone button is as wide as the items less the drawer's 16 dp of padding to each side. Before: the drawer hugged its content at 390 px (251 px wide), 22 Nov 2026 (the old source: theme/styles/ui/navigation-drawer.css, min-width on the hug default alone). */
+/** The site's modal menu drawer on the demo's home page. Owner, 22 Nov 2026: on a compact window (under 600 dp) it hugs its content but is at least 320 dp wide, at most the screen less 56 dp (Navigation rail, Specs, Expanded layout: modal, "container width minimum 220dp", "maximum 360dp"; 320 is inside the range, so no deviation); from 600 dp the least is 220 dp. The items stand 12 dp in from each edge, 56 dp high, as wide as the drawer less those insets (the layer of the current one reaches across), and the phone button is as wide as the items less the drawer's 16 dp of padding to each side. Before: the least width was 220 dp at every size, so the drawer was 251 px wide at 390 px (the old source: the min-width default in theme/styles/tokens/ui/comp/navigation.css). */
 async function checkMenuDrawerWidth(width) {
   const label = `${width}px menu drawer`;
   const page = await browser.newPage({ viewport: { width, height: 844 }, hasTouch: width < 600, isMobile: width < 600, locale: 'en-US' });
@@ -148,7 +148,8 @@ async function checkMenuDrawerWidth(width) {
   const button = page.locator('[data-editor="header-menu"] button[aria-expanded]').first();
   const shown = (await button.count()) > 0 && (await button.isVisible());
   const compact = width < 600;
-  const expected = Math.min(360, width - 56);
+  const least = compact ? Math.min(320, width - 56) : 220;
+  const most = Math.min(360, width - 56);
   if (!shown) {
     if (compact) problems.push(`${label}: no menu button to open the drawer`);
     else {
@@ -160,8 +161,7 @@ async function checkMenuDrawerWidth(width) {
         probe.remove();
         return w;
       });
-      if (Math.abs(min - expected) > 0.5)
-        problems.push(`${label}: the drawer's least width is ${min}px, should be ${expected}px (it does not hug its content)`);
+      if (Math.abs(min - least) > 0.5) problems.push(`${label}: the drawer's least width is ${min}px, should be ${least}px`);
     }
     return page.close();
   }
@@ -184,8 +184,10 @@ async function checkMenuDrawerWidth(width) {
   });
   // The visible width: the drawer's strip off the screen at its edge (the bleed) is not counted.
   const visible = got.right - Math.max(0, got.left);
-  if (Math.abs(visible - expected) > 1)
-    problems.push(`${label}: ${visible}px wide, should be ${expected}px (360 dp, at most the screen less 56 dp)`);
+  if (visible < least - 1 || visible > most + 1)
+    problems.push(
+      `${label}: ${visible}px wide, should be ${least}px to ${most}px (it hugs its content, at least 320 dp on a compact window)`,
+    );
   const inset = 12;
   for (const item of got.items) {
     if (Math.abs(item.left - inset) > 1)
