@@ -2,7 +2,7 @@
 
 Status: written by the CTO on 22 Nov 2026 at the 0.19.5 PM's request; the owner chose the change ("change the release gate so docs-only
 commits do not block a release", relayed by the 0.19.5 PM). One build session, one pull request into `main`.
-**Waiting for the owner's approval.**
+**Approved by the owner, 22 Nov 2026** ("Yes and yes").
 
 ## Why
 
