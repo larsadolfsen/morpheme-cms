@@ -1019,6 +1019,7 @@ export function register(unit) {
   for (const width of [1280, 375]) unit(`checkKeyboardFlows ${width}`, () => checkKeyboardFlows(width));
   for (const width of [1280, 375]) unit(`checkAnnounceFlows ${width}`, () => checkAnnounceFlows(width));
   unit('checkStartSubtitle', () => checkStartSubtitle());
+  unit('checkNoTitleRing 390', () => checkNoTitleRing());
   for (const width of [375, 1280])
     for (const hash of ['', 'developer/parts/ui', 'developer/parts/editor', 'settings'])
       unit(`checkFocusIndicators ${width} ${hash || 'start'}`, () => checkFocusIndicators(width, hash));
@@ -1033,4 +1034,34 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkListInCard ${width}`, () => checkListInCard(width, height));
+}
+
+/** No ring on the screen title after a load (owner, 22 Nov 2026): at 390 px with touch and no keyboard the title has the focus by script, and nothing the
+ * active element draws is an outline or a ring; the first Tab then lands on a control that does draw one (WCAG 2.4.7). */
+async function checkNoTitleRing() {
+  const label = '390px no title focus ring';
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  const page = await context.newPage();
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = 'pages'));
+  await page.waitForTimeout(1000);
+  await page.reload();
+  await page.waitForTimeout(1500);
+  const ring = () =>
+    page.evaluate(() => {
+      const e = document.activeElement;
+      const s = e ? getComputedStyle(e) : null;
+      return {
+        tag: e ? `${e.tagName.toLowerCase()}${e.hasAttribute('data-screen-title') ? '[title]' : ''}` : 'none',
+        drawn: !!s && ((s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0) || s.boxShadow !== 'none'),
+      };
+    });
+  const start = await ring();
+  if (start.drawn) problems.push(`${label}: ${start.tag} draws a ring after the load`);
+  await page.keyboard.press('Tab');
+  await page.waitForTimeout(200);
+  const tab = await ring();
+  if (!tab.drawn) problems.push(`${label}: no ring on the first Tab stop (${tab.tag})`);
+  await context.close();
 }
