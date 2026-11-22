@@ -1,0 +1,171 @@
+{
+  "version": "0.19.5",
+  "date": "2026-11-22",
+  "notes": [
+    {
+      "id": "section-two-colours",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Coloured sections",
+      "text": "Text on a coloured section is always easy to read. A section takes Material 3’s container of its colour, with the container’s text colour on it, and cards and fields keep their own look. A section with an image puts its text on a solid panel, so any photo works."
+    },
+    {
+      "id": "toolbar-shortcut",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Text bar shortcut",
+      "text": "Reaching the text bar no longer takes many Tab presses. Press Alt+F10 in the text or on a selected block to move to the bar, use the arrow keys to move between tools, and press Escape to return. Delete removes a selected block."
+    },
+    {
+      "id": "theme-accessibility-row",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Theme accessibility",
+      "text": "You see before you choose a theme whether it is accessible. Open a theme under Themes: it says if it meets WCAG 2.2 AA and lists each part and criterion where it falls short. Your own colors and images are not part of this."
+    },
+    {
+      "id": "ui-page-owner-findings",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A docked date picker fits a narrow screen, and a search field shows one clear button"
+    },
+    {
+      "id": "density-followups",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A text field with an error shows keyboard focus with a thicker edge, and in a denser theme a tap lands on the control you touch"
+    },
+    {
+      "id": "m3-side-padding",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Buttons, expanding lists, Questions and answers and Checklist have 16 dp side padding, as in Material 3"
+    },
+    {
+      "id": "cards-gap-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Cards stand 8 px apart, as in Material 3, in Cards, Price cards, Panels, Image grid and related posts"
+    },
+    {
+      "id": "choice-rows-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Choice rows in lists of radio buttons have Material 3’s 16 px side padding"
+    },
+    {
+      "id": "density-follows-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Density has Medium and Small only, as Material 3 has no step above Medium, and an account set to Large becomes Medium"
+    },
+    {
+      "id": "focus-ring-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Keyboard focus rings on the site use Material 3’s secondary colour, 3 px thick"
+    },
+    {
+      "id": "start-card-list-padding",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Lists in the start screen's cards keep the card's padding, and the title lines up with the rows"
+    },
+    {
+      "id": "keyboard-menus",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Menus in the editor work with the keyboard: use the arrow keys, Home, End and a letter to move, and Escape to close and go back to the button"
+    },
+    {
+      "id": "search-scrim-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On a computer, the search view dims the page behind it, as in Material 3"
+    },
+    {
+      "id": "editor-skip-link",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Press Tab once in the editor to show Skip to content, and Enter to jump over the navigation to the screen’s content"
+    },
+    {
+      "id": "parts-elevation",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Search bars, bars and date pickers lose their shadow, as Material 3 draws them, while menus, dialogs and floating buttons keep theirs"
+    },
+    {
+      "id": "list-surface-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Segmented lists sit on the page’s surface, as in Material 3"
+    },
+    {
+      "id": "m3-sizes-shapes",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Small icon buttons, switch icons, slider tracks, list rows and spaces between buttons now have Material 3’s sizes and shapes"
+    },
+    {
+      "id": "rail-surface-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The editor's menu rail has the colour of Material 3's navigation rail"
+    },
+    {
+      "id": "filled-slot-focus-ring",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The icon button inside a filled button shows its keyboard focus ring in the button’s text colour, so you can see it"
+    },
+    {
+      "id": "menu-drawer-elevation-m3",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The main menu casts a shadow when it opens over the page, as in Material 3"
+    },
+    {
+      "id": "menu-drawer-width-360",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The main menu is wider on a phone, with its close button at the end and a line under its head"
+    },
+    {
+      "id": "drawer-scrim-neutral-variant",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The menu drawer’s shade over the page takes a tint of your site’s colours"
+    },
+    {
+      "id": "drawer-header-list-item",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The menu's header is a standard list item with your avatar, name and site address, and the close button at its end"
+    },
+    {
+      "id": "no-title-focus-ring",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The screen title no longer shows a focus ring when a screen opens or after a refresh on a phone"
+    },
+    {
+      "id": "search-ring-keyboard-only",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The search field shows its focus ring only when you use the keyboard, not after a click or a tap"
+    },
+    {
+      "id": "elevation-classes",
+      "kind": "line",
+      "mark": "feature",
+      "text": "Themes and apps can give an element an elevation level with the classes mo-elevation-0 to mo-elevation-3 and mo-elevated-1 to mo-elevated-3"
+    },
+    {
+      "id": "part-colour-roles",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Tonal buttons, outlined edges, menus, sliders and switches use Material 3's colours"
+    }
+  ]
+}

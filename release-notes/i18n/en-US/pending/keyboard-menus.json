@@ -1,6 +1,0 @@
-{
-  "id": "keyboard-menus",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "Menus in the editor work with the keyboard: use the arrow keys, Home, End and a letter to move, and Escape to close and go back to the button"
-}
