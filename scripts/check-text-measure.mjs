@@ -1,6 +1,6 @@
 // The page's text measure (owner, 16 Nov 2026: a paragraph is 40ch to 60ch wide, --mo-sys-block-text-measure-min/-max in blocks.css): on every built
 // page of the site, at 1280 and 1580, a plain-text block (List, List - Expand, accordion, Steps, Blog posts as a list, Testimonials list)
-// starts at the same left edge as the paragraph above it, is in columns of at least 344px (Steps at most 720px wide), no paragraph is wider than 60ch of its own font, and at 375 and 768 nothing scrolls sideways.
+// starts at the left edge of the paragraph above it (a plain List or List - Expand: its layer 16px before it, its content on it; in a coloured section, the section's text), is in columns of at least 344px (Steps at most 720px wide), no paragraph is wider than 60ch of its own font, and at 375 and 768 nothing scrolls sideways.
 // Run in a site's folder after the site is built: node …/scripts/check-text-measure.mjs (check:screens:extra).
 import { createServer } from 'node:http';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
@@ -80,22 +80,29 @@ for (const width of [375, 768, 1280, 1580]) {
             if (one && w > 721) out.push(`${name} with Columns off is ${w}px wide, more than 720px`);
           }
           if (!before?.matches?.('p') || !before.closest('.mo-prose')) continue;
-          // Owner, 16 Nov 2026: "Full width on compact screens". Below 600px the layer of a plain List or List - Expand (no drawn container) reaches
-          // 16px past the text column on each side, so its box starts 16px before the text above it and its content (leading icon or text) is on
-          // the text's edge. From 600px, and in the segmented design, the box itself is on the text's edge.
-          const bleeds =
-            width < 600 &&
-            block.matches('.mo-block-list:not(.mo-list__segmented), .mo-block-accordion:not(.mo-block-accordion__segmented)');
+          // The text edge the block lines up with. A block in a coloured text section (a panel with its own padding) lines up with the text inside the
+          // panel, not with a paragraph above the panel, so when the paragraph found is outside the block's section, the edge is the section's content box.
+          const section = block.closest('.mo-text-section');
+          let edge = left(before);
+          let edgeName = 'the text above it';
+          if (section && !section.contains(before)) {
+            edge = Math.round(section.getBoundingClientRect().left + parseFloat(getComputedStyle(section).paddingLeft));
+            edgeName = "the section's text";
+          }
+          // Owner, 21 Nov 2026 (replaces the 16 Nov rule): Material 3 Lists › Specs prints 16 dp leading and trailing space inside the item's container.
+          // The layer of a plain List or List - Expand (no drawn container) reaches that 16px past the text column on each side at every width
+          // (--mo-sys-block-list-layer-room, tokens/lists/comp/list.css), so its box starts 16px before the text and its content (leading icon or text)
+          // is on the text's edge. In the segmented design the box itself is on the text's edge.
+          const bleeds = block.matches('.mo-block-list:not(.mo-list__segmented), .mo-block-accordion:not(.mo-block-accordion__segmented)');
           const name2 = block.className.toString().split(' ')[0];
-          if (left(block) !== left(before) - (bleeds ? 16 : 0))
+          if (left(block) !== edge - (bleeds ? 16 : 0))
             out.push(
-              `${name2} starts at ${left(block)}px, the text above it at ${left(before)}px${bleeds ? ' (the layer is 16px wider on a compact screen)' : ''}`,
+              `${name2} starts at ${left(block)}px, ${edgeName} at ${edge}px${bleeds ? ' (the layer is 16px wider, M3 Lists › Specs)' : ''}`,
             );
           if (bleeds && block.matches('.mo-block-list')) {
             const lead =
               block.querySelector('.mo-list__item-leading-icon, .mo-list__item-leading') ?? block.querySelector('.mo-list__item-content');
-            if (lead && left(lead) !== left(before))
-              out.push(`${name2}'s row content starts at ${left(lead)}px, the text above it at ${left(before)}px`);
+            if (lead && left(lead) !== edge) out.push(`${name2}'s row content starts at ${left(lead)}px, ${edgeName} at ${edge}px`);
           }
         }
         return out;
