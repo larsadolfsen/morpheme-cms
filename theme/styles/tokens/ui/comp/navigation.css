@@ -4,7 +4,8 @@
 @layer components {
   :root {
     --mo-comp-navigation-drawer-container-width: min(22.5rem, calc(100vw - 3.5rem));
-    --mo-comp-navigation-drawer-width-min-default: min(13.75rem, calc(100vw - 3.5rem));
+    /* The modal drawer does not hug its content: it is as wide as the editor's drawer, M3's 360dp (at most the screen less 56dp), at every window size (owner, 22 Nov 2026: "They should use the same basic design, the nav rail"). Navigation drawer, Specs, "Modal navigation drawer: Container width 360dp"; the expanded rail's 220dp to 360dp range holds it, so it is no deviation. */
+    --mo-comp-navigation-drawer-width-min-default: var(--mo-comp-navigation-drawer-container-width);
     --mo-comp-navigation-drawer-bleed-default: 2rem;
     --mo-comp-navigation-drawer-inset-default: 0.75rem;
   }

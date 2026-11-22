@@ -263,8 +263,8 @@ Source: `theme/components/MobileMenu.tsx`, `theme/ui/NavigationDrawer.tsx`, `the
 
 ### N6. The editor's drawers keep one width
 
-- **Material:** "Nav rail expanded container width minimum 220dp", "maximum 360dp" (it hugs its content).
-- **We do:** the editor's drawers (`.mo-editor-main-drawer-panel`, `src/editor.css`) keep 360dp (at most the screen less 56dp) through their levels and sections, because the layout beside them counts on that width (`--mo-sys-section-pane-width`, the columns). Editor workspace only. **Date:** 2026-11-15.
+- **Material:** "Nav rail expanded container width minimum 220dp", "maximum 360dp" (it hugs its content); Navigation drawer, Specs, "Modal navigation drawer: Container width 360dp".
+- **We do:** the site's main menu drawer is 360dp too (owner, 22 Nov 2026: the site's and the editor's drawer use the same basic design, the nav rail), at most the screen less 56dp, not hugging its content; 360dp is inside M3's range and is what the drawer's Specs print, so it is no deviation. The editor's drawers (`.mo-editor-main-drawer-panel`, `src/editor.css`) keep 360dp (at most the screen less 56dp) through their levels and sections, because the layout beside them counts on that width (`--mo-sys-section-pane-width`, the columns). Editor workspace only. **Date:** 2026-11-15.
 
 ## The header's sub-menu (owner, 21 Nov 2026: "M3 wins everywhere outside the page and post editor")
 

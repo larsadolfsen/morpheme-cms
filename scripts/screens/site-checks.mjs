@@ -139,10 +139,81 @@ async function checkFooterTargets(width, touch) {
   await page.close();
 }
 
+/** The site's modal menu drawer on the demo's home page. Owner, 22 Nov 2026: it is 360 dp wide at every window size, at most the screen less 56 dp, as the editor's drawer (it does not hug its content) (Navigation drawer, Specs, "Modal navigation drawer: Container width 360dp"); the Navigation rail's expanded modal layout allows 220 to 360 dp, so 360 is inside the range and no deviation. The items stand 12 dp in from each edge, 56 dp high, as wide as the drawer less those insets (the layer of the current one reaches across), and the phone button is as wide as the items less the drawer's 16 dp of padding to each side. Before: the drawer hugged its content at 390 px (251 px wide), 22 Nov 2026 (the old source: theme/styles/ui/navigation-drawer.css, min-width on the hug default alone). */
+async function checkMenuDrawerWidth(width) {
+  const label = `${width}px menu drawer`;
+  const page = await browser.newPage({ viewport: { width, height: 844 }, hasTouch: width < 600, isMobile: width < 600, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await page.goto(new URL('/', site).href, { waitUntil: 'networkidle' });
+  const button = page.locator('[data-editor="header-menu"] button[aria-expanded]').first();
+  const shown = (await button.count()) > 0 && (await button.isVisible());
+  const compact = width < 600;
+  const expected = Math.min(360, width - 56);
+  if (!shown) {
+    if (compact) problems.push(`${label}: no menu button to open the drawer`);
+    else {
+      const min = await page.evaluate(() => {
+        const probe = document.createElement('div');
+        probe.style.width = 'var(--mo-comp-navigation-drawer-width-min-default)';
+        document.body.append(probe);
+        const w = probe.getBoundingClientRect().width;
+        probe.remove();
+        return w;
+      });
+      if (Math.abs(min - expected) > 0.5)
+        problems.push(`${label}: the drawer's least width is ${min}px, should be ${expected}px (it does not hug its content)`);
+    }
+    return page.close();
+  }
+  await button.click();
+  await page.waitForSelector('dialog[open] .mo-navigation-drawer');
+  await animationsSettled(page);
+  const got = await page.evaluate(() => {
+    const drawer = document.querySelector('dialog[open] .mo-navigation-drawer');
+    const style = getComputedStyle(drawer);
+    const box = drawer.getBoundingClientRect();
+    const left = box.left + parseFloat(style.paddingLeft);
+    const inner = box.right - parseFloat(style.paddingRight) - left;
+    const rect = (el) => el.getBoundingClientRect().toJSON();
+    const items = [...drawer.querySelectorAll('nav .mo-navigation-drawer__item')].map((el) => ({
+      name: el.textContent.trim(),
+      ...rect(el),
+    }));
+    const phone = [...drawer.querySelectorAll('.mo-drawer__call .mo-button, .mo-button')].map(rect).find((r) => r.width > 0);
+    return { left: box.left, right: box.right, width: box.width, inner, items, phone, padLeft: parseFloat(style.paddingLeft) };
+  });
+  // The visible width: the drawer's strip off the screen at its edge (the bleed) is not counted.
+  const visible = got.right - Math.max(0, got.left);
+  if (Math.abs(visible - expected) > 1)
+    problems.push(`${label}: ${visible}px wide, should be ${expected}px (360 dp, at most the screen less 56 dp)`);
+  const inset = 12;
+  for (const item of got.items) {
+    if (Math.abs(item.left - inset) > 1)
+      problems.push(`${label} item "${item.name}": starts ${item.left}px from the edge, should be ${inset}px`);
+    if (Math.abs(item.height - 56) > 0.5) problems.push(`${label} item "${item.name}": ${item.height}px high, should be 56px`);
+    // A plain item fills the drawer less its insets; the row with a toggle is narrower by the toggle.
+    const rightGap = visible - item.right;
+    if (item.width > 0 && rightGap < inset - 1)
+      problems.push(`${label} item "${item.name}": ends ${rightGap}px from the far edge, should be 12px or more`);
+  }
+  const plain = got.items.filter((i) => !i.name || i.name.length >= 0).find((i) => Math.abs(visible - inset - i.right) < 1);
+  if (compact && !plain) problems.push(`${label}: no item's layer reaches 12px from the far edge, so the layer does not span the drawer`);
+  if (!got.phone) {
+    if (compact) problems.push(`${label}: no phone button in the drawer`);
+  } else if (compact && Math.abs(got.phone.width - (visible - 2 * 16)) > 1.5) {
+    problems.push(
+      `${label}: the phone button is ${got.phone.width}px wide, should fill the drawer less 16px each side (${visible - 32}px)`,
+    );
+  }
+  await page.close();
+}
+
 export function register(unit) {
   unit('checkSpacingGrid 375', () => checkSpacingGrid(375, 740));
   unit('checkSpacingGrid 1280', () => checkSpacingGrid(1280, 800));
   unit('checkHints', () => checkHints());
+  unit('checkMenuDrawerWidth 390', () => checkMenuDrawerWidth(390));
+  unit('checkMenuDrawerWidth 1280', () => checkMenuDrawerWidth(1280));
   unit('checkFooterTargets 320', () => checkFooterTargets(320, true));
   unit('checkFooterTargets 375', () => checkFooterTargets(375, true));
   unit('checkFooterTargets 1280', () => checkFooterTargets(1280, false));
