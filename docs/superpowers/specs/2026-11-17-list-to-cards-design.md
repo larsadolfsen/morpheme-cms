@@ -210,6 +210,18 @@ in its own frame, or the theme on container queries (after Tailwind is gone, the
 builder; wide sizes on a phone (scaled, perhaps view only); which previews go (page and post; header, footer and part
 previews; Google's result preview stays). Needs a design, after Tailwind is gone.
 
+**Owner, 23 Nov 2026 (decided, for the design):**
+
+- **A form per window size.** Not only phone and larger: the builder shows the page at each of M3's five window sizes (compact,
+  medium, expanded, large, extra-large), and the owner sets a collection's form for each size there. This replaces the two forms
+  of 8.1 (phone, larger) and its one 600 dp switch.
+- **Everything that can change type does.** Any part that has more than one type for the same data (list, cards, carousel, table
+  …) can take another type at each size. The data stays the same; only how it is drawn changes per size.
+- **Data lists can show media in the first column** (owner: "Data lists should be able to show media in the first column"): when
+  a data list is drawn as a table, its first column can be the entry's image or video, as a list item's leading image and a
+  card's media.
+- It stays in 0.23 (0.23.0 and 0.23.1).
+
 ## 9. The last decisions
 
 Owner, 17 November: "Lists are more simple. Not all cards should be convertible. No need to ask me." The session decided the
