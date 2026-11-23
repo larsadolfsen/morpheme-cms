@@ -218,8 +218,9 @@ previews; Google's result preview stays). Needs a design, after Tailwind is gone
 - **Everything that can change type does.** Any part that has more than one type for the same data (list, cards, carousel, table
   …) can take another type at each size. The data stays the same; only how it is drawn changes per size.
 - **A data table can show media or an icon in the first column** (owner: "Data lists should be able to show media in the first
-  column", "Data table can also show icon"): when a data list is drawn as a table, its first column can be the entry's image, video
-  or icon, as a list item's leading image or icon and a card's media.
+  column", "Data table can also show icon", "Data lists i mean data tables"): wherever a data table is drawn (the Table block, or
+  a collection drawn as a table), its first column can be the row's image, video or icon, as a list item's leading image or icon
+  and a card's media.
 - It stays in 0.23 (0.23.0 and 0.23.1).
 
 ## 9. The last decisions
