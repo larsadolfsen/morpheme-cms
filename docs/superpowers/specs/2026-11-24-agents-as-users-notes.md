@@ -1,9 +1,9 @@
-# Agents as users: plan
+# Agents as users: notes
 
-> **Status:** written in a brainstorm session, 24 November 2026; no code written, no builds, no checks run. It extends the
-> roadmap's *Agents as users* item (`plans/2026-11-14-roadmap-0-18-to-0-24.md`, *Later*). The owner's word stands: "Just keep it.
-> First we must make it work for humans." Nothing here starts before the editor works for people, unless the owner moves a step
-> earlier (question 1). Read against `origin/main` at `7c254ab`.
+> **Status:** ideas, not a plan. Written in a brainstorm session, 24 November 2026; no code written, no builds, no checks run.
+> They expand the idea *Agents as users* under *Later* in the roadmap (`plans/2026-11-14-roadmap-0-18-to-0-24.md`), which stays
+> as it is. The owner's word stands: "Just keep it. First we must make it work for humans." Nothing here starts before the editor
+> works for people; when it does, a plan is written first. Read against `origin/main` at `7c254ab`.
 
 ## Why
 
@@ -43,10 +43,9 @@ utilities let a theme write values the M3 tokens forbid). What makes an agent ch
 7. **No scaffolds.** An agent copies an existing block or app by hand and guesses what to remove.
 8. **No measurement.** Nobody knows how often an agent succeeds on a fresh site.
 
-## The steps
+## The ideas
 
-Each step is one pull request unless it says otherwise, and each stands alone. Order: A, then B, then C; D starts with A and runs from
-then on.
+Numbered so they can be named; none is designed. A likely order: A, then B, then C; D starts with A and runs from then on.
 
 ### A. The rules reach the agent
 
@@ -77,13 +76,13 @@ then on.
    that validates them (never a second source), shipped in `agents/schemas/` and named by `$schema` in the starter's files, so
    editors and agents validate while they write.
 10. **Fewer allowlists.** Count every allowlist entry today; each one an agent meets is a rule with an exception it cannot guess. The
-    goal is a number per release, going down; this plan does not remove any by itself.
+    goal is a number per release, going down; these notes remove none.
 
 ### C. The agent operates the site
 
 11. **MCP writes**: roadmap 0.27.0, as `specs/2026-11-11-mcp-design.md` designs them (drafts by default).
 12. **MCP reads an agent needs before it writes:** `list_blocks` (every block a site has, standard and apps', with its fields'
-    schema from step 9) and `read_settings` (menu, colours, contact), so the drafts it writes are valid the first time. Part of
+    schema from idea 9) and `read_settings` (menu, colours, contact), so the drafts it writes are valid the first time. Part of
     0.27.0's spec, not a new one.
 
 ### D. Measure it
@@ -96,9 +95,9 @@ then on.
 14. **Being found.** The npm description and keywords, the README's first lines and `llms.txt` say what an agent needs to choose
     Morpheme. Listing the MCP server in public registries waits for C and is the owner's decision, never an agent's.
 
-## Sizes and order
+## Rough sizes
 
-| Step | Size | Depends on |
+| Idea | Size | Depends on |
 | :-- | :-- | :-- |
 | 1, 3, 5 | small | nothing |
 | 2 | small, two repositories (`morpheme-cms`, `morpheme-website`) | 1 |
@@ -112,11 +111,11 @@ then on.
 | 13 | small to write, recurring to run | 1 to 3 |
 | 14 | small | 4; registries after 11 |
 
-A (steps 1 to 5) is about a day of work and changes no runtime code; it is the cheapest step towards "agents choose Morpheme".
+A (ideas 1 to 5) is about a day of work and changes no runtime code; it is the cheapest step towards "agents choose Morpheme".
 
-## Decisions for the owner
+## Open questions (for when it starts)
 
 1. Does A wait until the editor works for people, like the rest, or go earlier as docs-only pull requests?
 2. Which site is Morpheme's public website, where `llms.txt` is published?
-3. Do the `site-editor-*` skills move from `morpheme-website` into the package (step 2)?
-4. Who runs the agent test (step 13), and how often: per line, or per batch on staging?
+3. Do the `site-editor-*` skills move from `morpheme-website` into the package (idea 2)?
+4. Who runs the agent test (idea 13), and how often: per line, or per batch on staging?
