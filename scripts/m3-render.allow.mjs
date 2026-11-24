@@ -107,6 +107,7 @@ export const allow = [
   // ---- to fix in batch: dialogs and sheets
   { set: 'md.comp.dialog', attr: 'max-width', got: 360, want: 560, class: 'fix', batch: 'dialogs and sheets' }, // 1x
   { set: 'md.comp.dialog', attr: 'max-width', got: 328, want: 560, class: 'fix', batch: 'dialogs and sheets' }, // 1x
+  { set: 'md.comp.dialog', attr: 'max-width', got: 448, want: 560, class: 'fix', batch: 'dialogs and sheets' }, // 1x, the full-screen sample from 600 dp
   { set: 'md.comp.dialog', attr: 'min-width', got: 0, want: 280, class: 'fix', batch: 'dialogs and sheets' }, // 1x
   // ---- to fix in batch: icon buttons
   { set: 'md.comp.icon-button.medium', attr: 'container.height', got: 60, want: 56, class: 'fix', batch: 'icon buttons' }, // 10x

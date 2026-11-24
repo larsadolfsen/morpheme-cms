@@ -122,6 +122,7 @@ export const NOT_PARTS = [
   'mo-is-with-fab-vertical',
   'mo-is-collapsed',
   'mo-is-dialog',
+  'mo-is-full-screen',
   'mo-is-horizontal',
   'mo-has-icon',
   'mo-has-media',

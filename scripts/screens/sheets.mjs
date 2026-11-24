@@ -1791,7 +1791,90 @@ async function checkVideoChangeLink(width, height = 800) {
   await page.close();
 }
 
+/** The theme's full-screen dialog (theme/ui/Dialog.tsx, kind full-screen; DG1) on "Parts" › "UI components" (ContainmentParts.tsx). Below 600 dp it fills the screen with 0 dp
+ * corners and a 56 dp header holding the close icon, the headline and Save (the first control has the focus; Cancel is not shown); from 600 dp it is the basic dialog in the middle
+ * (28 dp corners, at most 28rem wide) with Cancel and Save at its end, Save last, and no close icon. Escape closes it at both. */
+async function checkFullScreenDialog(width, height) {
+  const label = `${width}px full-screen dialog`;
+  const compact = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: compact, isMobile: compact });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const opener = page.getByRole('button', { name: 'Open the full-screen dialog' });
+  await opener.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the sample is not on the page`));
+  if (!(await opener.count())) return page.close();
+  await opener.scrollIntoViewIfNeeded();
+  await opener.click();
+  const dialog = page.locator('dialog[open][aria-labelledby="mo-parts-full-screen-dialog"]');
+  await dialog.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dialog does not open`));
+  if (!(await dialog.count())) return page.close();
+  await page.waitForTimeout(500);
+  const look = await dialog.evaluate((el) => {
+    const box = (e) => {
+      if (!e) return null;
+      const r = e.getBoundingClientRect();
+      const shown = getComputedStyle(e).display !== 'none' && r.width > 0;
+      return { shown, left: r.left, right: r.right, top: r.top, width: r.width, height: r.height };
+    };
+    const root = el.querySelector('.mo-dialog');
+    const names = (sel) => [...el.querySelectorAll(sel)].map((b) => b.getAttribute('aria-label') ?? b.textContent.trim());
+    const focus = document.activeElement;
+    return {
+      kind: root.classList.contains('mo-is-full-screen'),
+      dialog: box(el),
+      header: box(el.querySelector('.mo-dialog__header')),
+      close: box(el.querySelector('.mo-dialog__close')),
+      dismiss: box(el.querySelector('.mo-dialog__dismiss button')),
+      save: box(el.querySelector('.mo-dialog__action button')),
+      headline: box(el.querySelector('.mo-dialog__headline')),
+      radius: parseFloat(getComputedStyle(root).borderTopLeftRadius),
+      buttons: names('button'),
+      focusIn: el.contains(focus) && focus !== el,
+      focusName: focus?.getAttribute?.('aria-label') ?? focus?.textContent?.trim(),
+      vw: innerWidth,
+      vh: innerHeight,
+      sideways: document.documentElement.scrollWidth > innerWidth,
+    };
+  });
+  if (!look.kind) problems.push(`${label}: the dialog is not the full-screen kind`);
+  if (look.sideways) problems.push(`${label}: the page scrolls sideways with the dialog open`);
+  if (!look.focusIn) problems.push(`${label}: the focus is not on a control of the dialog (M3: the first interactive element)`);
+  if (compact) {
+    const d = look.dialog;
+    if (Math.abs(d.width - look.vw) > 1 || Math.abs(d.height - look.vh) > 1)
+      problems.push(`${label}: on a phone it fills the screen: ${Math.round(d.width)}x${Math.round(d.height)} of ${look.vw}x${look.vh}`);
+    if (look.radius !== 0) problems.push(`${label}: the container's corners are ${look.radius}px, not 0`);
+    if (Math.round(look.header.height) !== 56) problems.push(`${label}: the header is ${look.header.height}px high, not 56`);
+    if (!look.close.shown || !look.save.shown) problems.push(`${label}: the close icon and Save must show in the header`);
+    if (look.dismiss.shown) problems.push(`${label}: Cancel is shown below 600 dp (the close icon is the dismissal)`);
+    if (look.focusName !== 'Close') problems.push(`${label}: the focus is on "${look.focusName}", not the close icon (the first control)`);
+    if (look.headline.left < look.close.right - 1) problems.push(`${label}: the headline is not after the close icon`);
+    if (look.save.right > look.vw - 11) problems.push(`${label}: Save stands too near the screen's edge`);
+  } else {
+    const d = look.dialog;
+    if (d.width > 28 * 16 + 1 || Math.abs((d.left + d.right) / 2 - look.vw / 2) > 2)
+      problems.push(`${label}: from 600 dp it is the basic dialog in the middle, at most 28rem: ${Math.round(d.width)} wide`);
+    if (look.radius !== 28) problems.push(`${label}: the basic dialog's corners are ${look.radius}px, not 28`);
+    if (look.close.shown) problems.push(`${label}: the close icon is shown from 600 dp (a basic dialog has none)`);
+    if (!look.dismiss.shown || !look.save.shown) problems.push(`${label}: Cancel and Save must show at the end of the basic dialog`);
+    else if (look.dismiss.left > look.save.left || look.save.right > d.right)
+      problems.push(`${label}: Save is the last action, inside the dialog`);
+  }
+  await page.screenshot({ path: join(shots, `full-screen-dialog-${width}.png`) });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(500);
+  if (await page.locator('dialog[open][aria-labelledby="mo-parts-full-screen-dialog"]').count())
+    problems.push(`${label}: Escape does not close it`);
+  await page.close();
+}
+
 export function register(unit) {
+  for (const [width, height] of [
+    [375, 740],
+    [1280, 900],
+  ])
+    unit(`checkFullScreenDialog ${width}`, () => checkFullScreenDialog(width, height));
   unit('checkLiveSideSheet 1280', () => checkLiveSideSheet(1280));
   unit('checkPhoneSheet 375', () => checkPhoneSheet(375));
   unit('checkComputerRestore 1280', () => checkComputerRestore(1280));

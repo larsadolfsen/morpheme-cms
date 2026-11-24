@@ -444,7 +444,12 @@ export const parts: Messages['parts'] = {
         'Et ark nedefra: modalt over siden (en dialog i midten på en computer, fx bookingarket), eller standard nederst på skærmen, hvor siden kan bruges bag det, og som trækkes op og ned.',
       carousel:
         'Kort eller billeder på en række, der skubbes til siden, med prikker under: lige store, i flere størrelser, ét stort (fra starten eller i midten) og ét ad gangen.',
-      dialogKinds: { basic: 'Almindelig', icon: 'Med ikon, liste og skillelinje', container: 'Kun boksen' },
+      dialogKinds: {
+        basic: 'Almindelig',
+        icon: 'Med ikon, liste og skillelinje',
+        container: 'Kun boksen',
+        fullScreen: 'Fuld skærm, en almindelig dialog fra 600 dp',
+      },
       sheetKinds: {
         modal: 'Modalt, en dialog på en computer',
         modalSideSheet: 'Modalt, et sideark på en computer',
@@ -468,6 +473,9 @@ export const parts: Messages['parts'] = {
       choices: ['Første valg', 'Andet valg', 'Tredje valg'],
       cancel: 'Annuller',
       accept: 'Godkend',
+      openFullScreen: 'Åbn dialogen på fuld skærm',
+      save: 'Gem',
+      fullScreenHeading: 'Ny begivenhed',
       page: 'Siden bag arket kan stadig bruges.',
       dragHandle: 'Fold arket ud eller sammen',
       openSheet: 'Åbn det modale ark',

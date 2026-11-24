@@ -470,7 +470,12 @@ export const parts = {
         'A sheet from the bottom: modal over the page, on a computer as a dialog in the middle, for example, the booking sheet, or standard at the bottom of the screen, with the page usable behind it, dragged up and down.',
       carousel:
         'Cards or images in a row that are swiped sideways, with dots under them: all the same size, in several sizes, one large (from the start or in the middle) and one at a time.',
-      dialogKinds: { basic: 'Basic', icon: 'With icon, list, and divider', container: 'Only the box' },
+      dialogKinds: {
+        basic: 'Basic',
+        icon: 'With icon, list, and divider',
+        container: 'Only the box',
+        fullScreen: 'Full screen, a basic dialog from 600 dp',
+      },
       sheetKinds: {
         modal: 'Modal, a dialog on a computer',
         modalSideSheet: 'Modal, a side sheet on a computer',
@@ -494,6 +499,9 @@ export const parts = {
       choices: ['First choice', 'Second choice', 'Third choice'],
       cancel: 'Cancel',
       accept: 'Accept',
+      openFullScreen: 'Open the full-screen dialog',
+      save: 'Save',
+      fullScreenHeading: 'New event',
       page: 'The page behind the sheet can still be used.',
       dragHandle: 'Expand or collapse the sheet',
       openSheet: 'Open the modal sheet',
