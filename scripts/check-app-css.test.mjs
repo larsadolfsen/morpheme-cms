@@ -91,3 +91,14 @@ test('two apps with the same class, custom property and keyframes names do not t
     await browser.close();
   }
 });
+
+test("an .astro file's <style> and <style is:global> blocks are read: refusals with their line, and said as not scoped", () => {
+  const dir = mkdtempSync(join(tmpdir(), 'app-css-astro-'));
+  writeFileSync(
+    join(dir, 'a.astro'),
+    '---\n---\n<div />\n<style is:global>\n  .calendly-inline-widget { height: 1px }\n  body { margin: 0 }\n</style>\n',
+  );
+  const r = reportApp(dir, 'cal', new Set());
+  assert.deepEqual(r.refused, ['a.astro:6: a rule on body']);
+  assert.ok(r.limits.some((l) => /a\.astro: a <style is:global> block is not scoped/.test(l)));
+});

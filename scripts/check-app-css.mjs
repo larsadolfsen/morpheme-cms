@@ -24,15 +24,23 @@ const walk = (dir, test) =>
 export function reportApp(folder, id, cmsNames = new Set()) {
   const css = walk(folder, (n) => n.endsWith('.css'));
   const code = walk(folder, (n) => /\.(tsx?|jsx?|mjs)$/.test(n) && !/\.test\./.test(n));
-  const texts = css.map((f) => [f, readFileSync(f, 'utf8')]);
+  // An `.astro` file's `<style>` and `<style is:global>` blocks are CSS too: read for the refusals (their lines kept), and said as not scoped, because the build rewrites `.css` files only.
+  const astro = walk(folder, (n) => n.endsWith('.astro')).flatMap((f) => {
+    const src = readFileSync(f, 'utf8');
+    return [...src.matchAll(/<style\b([^>]*)>([\s\S]*?)<\/style>/gi)].map((m) => {
+      const line = src.slice(0, m.index + m[0].indexOf('>') + 1).split('\n').length;
+      return [f, '\n'.repeat(line - 1) + m[2], m[1].includes('is:global') ? '<style is:global>' : '<style>'];
+    });
+  });
+  const texts = [...css.map((f) => [f, readFileSync(f, 'utf8')]), ...astro];
   const names = collectNames(
-    texts.map(([, t]) => t),
+    texts.filter(([f]) => f.endsWith('.css')).map(([, t]) => t),
     id,
     cmsNames,
   );
   const refused = [];
   const limits = [];
-  for (const [file, text] of texts) {
+  for (const [file, text, tag] of texts) {
     const rel = relative(folder, file);
     let tree;
     try {
@@ -45,6 +53,8 @@ export function reportApp(folder, id, cmsNames = new Set()) {
       if (rule.selectors.some((s) => PAGE_RULE.test(s))) refused.push(`${rel}:${rule.source?.start?.line}: a rule on ${rule.selector}`);
       if (/\[\s*data-mo-app/.test(rule.selector)) refused.push(`${rel}:${rule.source?.start?.line}: an attribute selector on data-mo-app`);
     });
+    if (file.endsWith('.astro'))
+      limits.push(`${rel}: a ${tag} block is not scoped by the build (only .css files are): move it to a .css file.`);
     tree.walkAtRules('import', (r) => limits.push(`${rel}:${r.source?.start?.line}: @import ${r.params} is not scoped`));
   }
   const priv = [...names.vars];
