@@ -6,9 +6,11 @@ type ListItemImage = { src: string; alt?: string };
 
 type Leading = { leading?: 'avatar' | 'square' | 'landscape'; image?: ListItemImage; letter?: string };
 
-export const leadingProps = (row: Leading): { thumbnail?: string | ListItemImage; media?: ListItemImage & { video?: true } } => {
-  if (row.leading === 'avatar') return row.image || row.letter ? { thumbnail: row.image ?? row.letter } : {};
-  if (row.leading === 'square' && row.image) return { media: row.image };
-  if (row.leading === 'landscape' && row.image) return { media: { ...row.image, video: true as const } };
+export const leadingProps = (
+  row: Leading,
+): { leadingAvatar?: string | ListItemImage; leadingImage?: ListItemImage; leadingVideo?: ListItemImage } => {
+  if (row.leading === 'avatar') return row.image || row.letter ? { leadingAvatar: row.image ?? row.letter } : {};
+  if (row.leading === 'square' && row.image) return { leadingImage: row.image };
+  if (row.leading === 'landscape' && row.image) return { leadingVideo: row.image };
   return {};
 };

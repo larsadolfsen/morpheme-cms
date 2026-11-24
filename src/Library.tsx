@@ -518,7 +518,7 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
     <Screen title={of.name} wide back={backToThemes}>
       <ul className={`${plainListClass} mo-editor-list-head`}>
         <ListItem
-          media={{ src: of.icon }}
+          leadingImage={{ src: of.icon }}
           headline={of.name}
           supporting={[t.library.themeByline(of.version, of.author), status].filter(Boolean).join(' · ')}
           lines={3}
@@ -1684,7 +1684,7 @@ export function List({
   );
 }
 
-// What is under a row's name in a list (its supporting text; beside it on a computer, ListItem's `columns`): its status
+// What is under a row's name in a list (its supporting text): its status
 // and date (`children`), at the right on a computer, and there a page's or post's address before them (`address`).
 function Under({ item, address, children }: { item: Item; address?: boolean; children: ReactNode }) {
   return (

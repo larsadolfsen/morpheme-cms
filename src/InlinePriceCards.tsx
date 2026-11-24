@@ -107,7 +107,7 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
                   {list.map((text, j) => (
                     <ListItem
                       key={j}
-                      icon="check"
+                      leadingIcon="check"
                       headline={
                         <InlineField
                           name={`f${j}`}

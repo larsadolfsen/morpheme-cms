@@ -2,4 +2,4 @@
 '@morphemecms/cms': patch
 ---
 
-List items take the same props as cards: `icon`, `thumbnail` and `media` replace `leadingIcon`, `leadingAvatar`, `leadingImage`, `leadingVideo` and `leadingMedia`, and `columns` is gone. The update rewrites your own themes and apps.
+List items no longer take `columns` (the side-by-side headline and supporting text). The update removes it from your own themes and apps.

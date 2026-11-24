@@ -6,14 +6,14 @@
 // none) are Material's. An item has one, two or three lines (`lines`): with a supporting text two (also when the text
 // is empty, so the items of a list are alike), with a subhead too three; a supporting text of two lines needs
 // `lines={3}`. What leads it: `leading` (anything: an icon, an image, a block's own), or Material's leading
-// kinds, an icon (`icon`), an avatar (`thumbnail`: a letter or an image), or media (`media`: an image, or with `video` a
-// video's thumbnail; a node is drawn as it is). The same names as a Card's (docs/superpowers/specs/2026-11-24-card-list-item-api.md). What trails it: a trailing supporting text (`trailingSupporting`: a number, a
+// kinds, an icon (`leadingIcon`), an avatar (`leadingAvatar`: a letter or an image), an image (`leadingImage`) or a
+// video's thumbnail (`leadingVideo`). What trails it: a trailing supporting text (`trailingSupporting`: a number, a
 // date), anything (`trailing`: swatches, what is chosen) and an icon (`trailingIcon`: an arrow). With `control` the item is a choice, the theme's
 // Checkbox, RadioButton or Switch before or after its text (`at`; a switch after it, the others before it by default),
 // and a tap anywhere on the item changes it; its name is the headline. `selected`: the chosen one; `disabled`: it
 // cannot be followed or changed. With `href` the item is a link (Link: on the site; in the editor only drawn), with
 // `onClick` a button (what a tap does: the editor's rows), else a <div>; the rest (data-…, aria-…) on it, and
-// `presentation` takes the <li>'s own role away (an item that is an option of a listbox: Search.tsx). `iconSelected`:
+// `presentation` takes the <li>'s own role away (an item that is an option of a listbox: Search.tsx). `leadingIconSelected`:
 // its icon in the selected colour (the open one, where the item itself is not drawn selected). `truncate`: its texts each
 // on one line, cut off (a name, an address); else they wrap. `actions`: secondary actions beside it (icon buttons, a
 // switch), a multi-action item (Material's) with the item its primary action; `children`: what is in its <li> after it
@@ -35,7 +35,7 @@
 // What leads an item, its leading icon, trailing supporting text and trailing icon are parts of their own (ListItemLeading,
 // ListItemLeadingIcon, ListItemTrailingSupporting, ListItemTrailingIcon), so the editor's rows have the same; an icon is its name, as the site
 // gives it, or an icon made, as the editor gives it (IconRef).
-import { isValidElement, useId, type HTMLAttributes, type MouseEvent, type ReactNode } from 'react';
+import { useId, type HTMLAttributes, type MouseEvent, type ReactNode } from 'react';
 import { Glyph, Svg, type IconRef } from '@morphemecms/cms/src/icon';
 import { Link } from '@morphemecms/cms/src/standard/view';
 import Avatar from '@theme/ui/Avatar';
@@ -114,9 +114,6 @@ export default function List({
 /** An image before an item: its address and what it shows (empty: the headline says it). */
 export type ListItemImage = { src: string; alt?: string };
 
-/** The item's media (a card's media, a list item's leading image or video): an image, or with `video` a video's thumbnail. A node is drawn as it is. */
-export type ItemMedia = ListItemImage & { video?: true };
-
 /** A choice in an item: the theme's checkbox, radio button or switch, before or after the text (`at`). */
 export type ListItemControl = {
   type: 'checkbox' | 'radio-button' | 'switch';
@@ -178,18 +175,16 @@ export function ListItemSelectBox({ selected, at, onChange }: { selected: boolea
   );
 }
 
-/** Whether `media` is an ItemMedia (`{ src, alt, video }`) and not a node to draw. */
-const isItemMedia = (v: unknown): v is ItemMedia =>
-  typeof v === 'object' && v !== null && !isValidElement(v) && typeof (v as ItemMedia).src === 'string';
-
 export function ListItem({
   href,
   onClick,
   leading,
-  icon,
-  iconSelected,
-  thumbnail,
-  media,
+  leadingIcon,
+  leadingIconSelected,
+  leadingAvatar,
+  leadingImage,
+  leadingVideo,
+  leadingMedia,
   li,
   subhead,
   headline,
@@ -222,14 +217,13 @@ export function ListItem({
   href?: string;
   onClick?: (event: MouseEvent<HTMLElement>) => void;
   leading?: ReactNode;
-  /** The leading icon (a card's `icon`). */
-  icon?: IconRef;
-  /** The icon in the selected colour (the open one, where the item itself is not drawn selected). */
-  iconSelected?: boolean;
-  /** The leading avatar (a card's `thumbnail`): a letter or an image. */
-  thumbnail?: string | ListItemImage;
-  /** The leading image or, with `video`, video thumbnail (a card's `media`); or a node the caller draws (an image or its placeholder, srcset, sizes: a site's own image part). */
-  media?: ItemMedia | ReactNode;
+  leadingIcon?: IconRef;
+  leadingIconSelected?: boolean;
+  leadingAvatar?: string | ListItemImage;
+  leadingImage?: ListItemImage;
+  leadingVideo?: ListItemImage;
+  /** An image (or its placeholder) the caller draws, with `.mo-list__item-image` on it (srcset, sizes: a site's own image part). */
+  leadingMedia?: ReactNode;
   /** Attributes of the item's <li> (hidden, data-…): the rest go on the item. */
   li?: HTMLAttributes<HTMLLIElement>;
   /** The small line over the headline (M3's overline; a card draws the same prop under its headline). */
@@ -314,24 +308,22 @@ export function ListItem({
       choice
     ) : leading != null ? (
       <ListItemLeading>{leading}</ListItemLeading>
-    ) : icon ? (
-      <ListItemLeadingIcon icon={icon} selected={iconSelected} />
-    ) : typeof thumbnail === 'string' ? (
+    ) : leadingIcon ? (
+      <ListItemLeadingIcon icon={leadingIcon} selected={leadingIconSelected} />
+    ) : typeof leadingAvatar === 'string' ? (
       <span className="mo-list__item-leading mo-list__item-leading-avatar" aria-hidden="true">
-        <Avatar>{thumbnail}</Avatar>
+        <Avatar>{leadingAvatar}</Avatar>
       </span>
-    ) : thumbnail ? (
+    ) : leadingAvatar ? (
       <span className="mo-list__item-leading mo-list__item-leading-avatar">
-        <Avatar image={thumbnail} />
+        <Avatar image={leadingAvatar} />
       </span>
-    ) : isItemMedia(media) ? (
-      media.video ? (
-        <span className="mo-list__item-leading mo-list__item-leading-video">{image(media, 'video')}</span>
-      ) : (
-        <span className="mo-list__item-leading mo-list__item-leading-image">{image(media, 'image')}</span>
-      )
-    ) : media != null && media !== false ? (
-      <span className="mo-list__item-leading mo-list__item-leading-image">{media as ReactNode}</span>
+    ) : leadingImage ? (
+      <span className="mo-list__item-leading mo-list__item-leading-image">{image(leadingImage, 'image')}</span>
+    ) : leadingVideo ? (
+      <span className="mo-list__item-leading mo-list__item-leading-video">{image(leadingVideo, 'video')}</span>
+    ) : leadingMedia != null ? (
+      <span className="mo-list__item-leading mo-list__item-leading-image">{leadingMedia}</span>
     ) : null;
 
   // What leads the item that is not a choice: the item has a leading visual (the box goes after the text) or has none (the box leads).

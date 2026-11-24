@@ -284,7 +284,7 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
         <>
           <ul className={`${plainListClass} mo-editor-list-head`}>
             <ListItem
-              media={{ src: of.icon }}
+              leadingImage={{ src: of.icon }}
               headline={of.name}
               supporting={[t.library.themeByline(of.version, of.author), pending ? t.apps.pending : t.apps.notInstalled].join(' · ')}
               lines={3}

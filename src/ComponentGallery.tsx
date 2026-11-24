@@ -513,7 +513,7 @@ function CardParts() {
                 <SiteListItem
                   href=""
                   lines={3}
-                  icon="calendar-blank"
+                  leadingIcon="calendar-blank"
                   headline={one}
                   supporting={lists.long}
                   trailingSupporting={lists.trailing}
@@ -522,17 +522,17 @@ function CardParts() {
             </SiteCard>
             <SiteCard>
               <SiteList dividers="inset" aria-label={lists.leading}>
-                <SiteListItem href="" icon="phone" headline={icon} supporting={say.supporting} trailingIcon="caret-right" />
+                <SiteListItem href="" leadingIcon="phone" headline={icon} supporting={say.supporting} trailingIcon="caret-right" />
                 <SiteListItem
                   href=""
-                  thumbnail={lists.letter}
+                  leadingAvatar={lists.letter}
                   headline={avatar}
                   supporting={say.supporting}
                   trailingSupporting={lists.trailing}
                 />
-                <SiteListItem href="" thumbnail={{ src: exampleImage }} headline={avatarImage} supporting={say.supporting} />
-                <SiteListItem href="" media={{ src: exampleImage }} headline={image} supporting={say.supporting} />
-                <SiteListItem href="" media={{ src: exampleImage, video: true }} lines={3} headline={video} supporting={lists.long} />
+                <SiteListItem href="" leadingAvatar={{ src: exampleImage }} headline={avatarImage} supporting={say.supporting} />
+                <SiteListItem href="" leadingImage={{ src: exampleImage }} headline={image} supporting={say.supporting} />
+                <SiteListItem href="" leadingVideo={{ src: exampleImage }} lines={3} headline={video} supporting={lists.long} />
               </SiteList>
             </SiteCard>
             <SiteCard>
@@ -543,14 +543,14 @@ function CardParts() {
                   headline={`${radio}, ${screens.toggle.on}`}
                 />
                 <SiteListItem control={{ type: 'radio-button', name: 'parts-list-radio' }} headline={`${radio}, ${screens.toggle.off}`} />
-                <SiteListItem control={{ type: 'switch', checked: true, icons: 'selected' }} icon="moon" headline={switchItem} />
-                <SiteListItem control={{ type: 'checkbox', at: 'trailing' }} thumbnail={lists.letter} headline={after} />
+                <SiteListItem control={{ type: 'switch', checked: true, icons: 'selected' }} leadingIcon="moon" headline={switchItem} />
+                <SiteListItem control={{ type: 'checkbox', at: 'trailing' }} leadingAvatar={lists.letter} headline={after} />
               </SiteList>
             </SiteCard>
             <SiteCard>
               <SiteList aria-label={lists.states}>
-                <SiteListItem href="" selected icon="house" headline={lists.selected} supporting={say.supporting} />
-                <SiteListItem href="" disabled icon="house" headline={lists.disabled} supporting={say.supporting} />
+                <SiteListItem href="" selected leadingIcon="house" headline={lists.selected} supporting={say.supporting} />
+                <SiteListItem href="" disabled leadingIcon="house" headline={lists.disabled} supporting={say.supporting} />
                 <SiteListItem control={{ type: 'switch' }} disabled headline={lists.disabled} />
               </SiteList>
             </SiteCard>
@@ -558,7 +558,7 @@ function CardParts() {
               <SiteList aria-label={lists.more}>
                 <SiteListItem
                   onClick={() => {}}
-                  icon="pencil-simple"
+                  leadingIcon="pencil-simple"
                   headline={lists.tapped}
                   supporting={say.supporting}
                   trailingIcon="caret-right"
@@ -577,24 +577,30 @@ function CardParts() {
               <SiteCard key={dividers}>
                 <SiteList dividers={dividers} aria-label={lists.dividers[dividers]}>
                   {[icon, avatar, image].map((h) => (
-                    <SiteListItem key={h} href="" icon="phone" headline={`${lists.dividers[dividers]} · ${h}`} trailingIcon="caret-right" />
+                    <SiteListItem
+                      key={h}
+                      href=""
+                      leadingIcon="phone"
+                      headline={`${lists.dividers[dividers]} · ${h}`}
+                      trailingIcon="caret-right"
+                    />
                   ))}
                 </SiteList>
               </SiteCard>
             ))}
             <SiteList kind="segmented" aria-label={lists.segmented}>
-              <SiteListItem href="" icon="phone" headline={lists.segmented} supporting={say.supporting} trailingIcon="caret-right" />
+              <SiteListItem href="" leadingIcon="phone" headline={lists.segmented} supporting={say.supporting} trailingIcon="caret-right" />
               <SiteListItem
                 href=""
                 selected
-                icon="envelope-simple"
+                leadingIcon="envelope-simple"
                 headline={lists.selected}
                 supporting={say.supporting}
                 trailingIcon="caret-right"
               />
               <SiteListItem control={{ type: 'checkbox', checked: true }} headline={checkbox} />
-              <SiteListItem control={{ type: 'switch' }} icon="moon" headline={switchItem} />
-              <SiteListItem href="" disabled icon="map-pin" headline={lists.disabled} />
+              <SiteListItem control={{ type: 'switch' }} leadingIcon="moon" headline={switchItem} />
+              <SiteListItem href="" disabled leadingIcon="map-pin" headline={lists.disabled} />
             </SiteList>
             {/* The "expand" kind (Material's "List - Expand"): items that fold out, one open at a time; the second one open. */}
             <SiteList expand aria-label={lists.expand[0]}>

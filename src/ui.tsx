@@ -2020,8 +2020,8 @@ export function ListItem({
       supporting={some(item.supporting)}
       trailing={some(item.trailing)}
       actions={some(item.actions)}
-      icon={Lead ? <Lead /> : (icon as ReactElement | undefined)}
-      iconSelected={iconSelected}
+      leadingIcon={Lead ? <Lead /> : (icon as ReactElement | undefined)}
+      leadingIconSelected={iconSelected}
       trailingSupporting={some(count)}
       trailingIcon={Arrow ? <Arrow /> : undefined}
       className={[tone && toneClass[tone], className].filter(Boolean).join(' ') || undefined}

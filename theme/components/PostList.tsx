@@ -45,7 +45,7 @@ export default function PostList({
             li={{ hidden: random && i >= count }}
             href={post.href}
             lines={3}
-            media={
+            leadingMedia={
               post.image ? (
                 <Img
                   image={post.image}

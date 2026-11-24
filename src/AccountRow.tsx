@@ -25,7 +25,7 @@ export function AccountRow({ user, supporting, href, actions }: { user: Viewer; 
     <ul className={plainListClass}>
       <ListItem
         href={href}
-        thumbnail={loaded ? { src } : initials}
+        leadingAvatar={loaded ? { src } : initials}
         headline={user.name ?? user.login}
         supporting={supporting}
         actions={actions}
