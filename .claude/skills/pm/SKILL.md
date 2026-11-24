@@ -56,7 +56,7 @@ A PM session runs only as Sonnet with effort high (owner, 24 Nov 2026: "PMs may 
 
 **The CTO** (skill `cto`) starts PM sessions, answers questions from the owner and other sessions and plans the work with the owner, and sends the PM
 approved plans (owner, 24 Nov 2026). It writes no code and reviews no pull request: the PM starts the sessions that build a plan and
-reviews their work itself. The CTO's own docs pull requests go to the PM like any other.
+reviews their work itself. The CTO never pushes or merges: it sends the PM the exact text of a docs or skill change, and the PM has a session push it as a docs-only pull request and merges it (owner, 24 Nov 2026).
 
 **When no PM is running, the orchestrator merges.** The orchestrator is the session that started the other sessions for the owner
 (the owner's "To do list" session). While no PM session is active, it may merge the pull requests of the sessions it started, under
