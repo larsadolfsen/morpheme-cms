@@ -49,7 +49,7 @@ Swipeable cards on phones.
 
 Large, medium and small cards in a row, for browsing many.
 
-<div data-block="cards" data-props="{&quot;phone&quot;:&quot;carousel&quot;,&quot;layout&quot;:&quot;multi-browse&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;First&quot;,&quot;text&quot;:&quot;The large card.&quot;},{&quot;icon&quot;:&quot;hand-heart&quot;,&quot;title&quot;:&quot;Second&quot;,&quot;text&quot;:&quot;Next, a medium one.&quot;},{&quot;icon&quot;:&quot;book-open&quot;,&quot;title&quot;:&quot;Third&quot;,&quot;text&quot;:&quot;Then a small one.&quot;},{&quot;icon&quot;:&quot;medal&quot;,&quot;title&quot;:&quot;Fourth&quot;,&quot;text&quot;:&quot;They change size as they pass.&quot;},{&quot;icon&quot;:&quot;star&quot;,&quot;title&quot;:&quot;Fifth&quot;,&quot;text&quot;:&quot;Brief texts fade as a card shrinks.&quot;}]}"></div>
+<div data-block="cards" data-props="{&quot;phone&quot;:&quot;carousel&quot;,&quot;layout&quot;:&quot;multi-browse&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;First&quot;,&quot;text&quot;:&quot;The large card.&quot;},{&quot;icon&quot;:&quot;hand-heart&quot;,&quot;title&quot;:&quot;Second&quot;,&quot;text&quot;:&quot;Next, a medium one.&quot;},{&quot;icon&quot;:&quot;book-open&quot;,&quot;title&quot;:&quot;Third&quot;,&quot;text&quot;:&quot;Then a small one.&quot;},{&quot;icon&quot;:&quot;medal&quot;,&quot;title&quot;:&quot;Fourth&quot;,&quot;text&quot;:&quot;They change size as they pass.&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Fifth&quot;,&quot;text&quot;:&quot;Brief texts fade as a card shrinks.&quot;}]}"></div>
 
 ## Cards in a phone carousel: hero
 
