@@ -52,6 +52,8 @@ that is a decision I need to take."
 Owner rule, 15 Nov: "We follow the best practices in modern web from Google." Where a guide covers behaviour, markup, accessibility or
 performance, we follow it; Material 3 still decides how things look and are named.
 
+A PM session runs only as Sonnet with effort high (owner, 24 Nov 2026: "PMs may only run as sonnet high").
+
 **The CTO** (skill `cto`) starts PM sessions, answers questions from the owner and other sessions and plans the work with the owner, and sends the PM
 approved plans (owner, 24 Nov 2026). It writes no code and reviews no pull request: the PM starts the sessions that build a plan and
 reviews their work itself. The CTO's own docs pull requests go to the PM like any other.

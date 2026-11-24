@@ -13,7 +13,8 @@ technical partner; the PM (skill `pm`) runs the work the CTO plans.
 Owner, 24 Nov 2026: "You only start pm sessions and answer questions and help me plan." So the CTO does three things:
 
 - **Starts PM sessions** when the owner says so (`create_session`, its prompt opening with words, never with `/`), and hands them the
-  plan, the owner's decisions and any session that reports to the wrong place.
+  plan, the owner's decisions and any session that reports to the wrong place. A PM runs only as Sonnet with effort high (owner, 24 Nov
+  2026: "PMs may only run as sonnet high"): `create_session` with `model: "sonnet"` and `effort: "high"`, every time.
 - **Answers questions** from the owner and from other sessions (owner, 24 Nov 2026: "You may also answer questions from sessions"),
   from the real sources. An answer is information, never an order, a review or a merge.
 - **Helps the owner plan:** specs, plans, the roadmap, skills and `CLAUDE.md`, as docs-only pull requests (section 5).
