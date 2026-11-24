@@ -14,6 +14,7 @@
 import type { IconWeight } from '@phosphor-icons/react';
 import { cloneElement, isValidElement, useEffect, useState, type ComponentType, type ReactElement, type SVGProps } from 'react';
 import { materialName, materialNames, resolveIcon } from '../lib/materialIcon.mjs';
+import { brandOf, type BRANDS } from '../lib/brandLogos.mjs';
 import { svgParts } from '../lib/svg.mjs';
 import ssrMaterial from 'virtual:material-symbols-ssr';
 import moreVertFile from '@material-symbols/svg-400/outlined/more_vert.svg?raw';
@@ -25,6 +26,22 @@ import addBlockFile from './icons/add-block.svg?raw';
 import blockSettingsFile from './icons/block-settings.svg?raw';
 import matchCaseFile from '@material-symbols/svg-400/outlined/match_case.svg?raw';
 import { allIcons as ssrPhosphor } from 'virtual:all-icons-ssr';
+import facebookBrand from '../site/brand/facebook.svg?raw';
+import xBrand from '../site/brand/x.svg?raw';
+import linkedinBrand from '../site/brand/linkedin.svg?raw';
+import pinterestBrand from '../site/brand/pinterest.svg?raw';
+import githubBrand from '../site/brand/github.svg?raw';
+import googleBrand from '../site/brand/google.svg?raw';
+
+/** The brand pack's files (site/brand/, lib/brandLogos.mjs): drawn at once, whichever icon pack the site picks, and never replaced by a theme's or a pack's icon or a Material one. */
+const BRAND_FILES: Record<(typeof BRANDS)[number], string> = {
+  facebook: facebookBrand,
+  x: xBrand,
+  linkedin: linkedinBrand,
+  pinterest: pinterestBrand,
+  github: githubBrand,
+  google: googleBrand,
+};
 
 const MATERIAL = '/node_modules/@material-symbols/svg-400/outlined/';
 /** Material Symbols' viewBox, every file's. */
@@ -121,7 +138,10 @@ export function Svg({
   /** A color role of the site (src/iconColor.ts): `data-icon-color`, drawn by the theme. */
   iconColor?: string;
 }) {
-  const found = resolveIcon(name, weight, { list: iconFile, material: materialLookup(), phosphor: phosphorLookup() });
+  const brand = brandOf(name);
+  const found = brand
+    ? { file: BRAND_FILES[brand] }
+    : resolveIcon(name, weight, { list: iconFile, material: materialLookup(), phosphor: phosphorLookup() });
   useMaterialLoaded(!!found.pending);
   return (
     <Drawn
@@ -142,12 +162,15 @@ export function Svg({
  * their place as Svg's. Then Material Symbols' by its Material name (marked data-icon-fallback). Nothing while it loads, and
  * MISSING for a name neither has. */
 export function AnyIcon({ name, size = 20 }: { name: string; size?: number }) {
+  const brand = brandOf(name);
   // file null: not found; fallback: the file is Material Symbols'.
   const [found, setFound] = useState<{ file: string | null; fallback?: boolean } | undefined>(() => {
+    if (brand) return { file: BRAND_FILES[brand] };
     const file = iconFile(name);
     return file ? { file } : undefined;
   });
   useEffect(() => {
+    if (brand) return setFound({ file: BRAND_FILES[brand] });
     const own = iconFile(name);
     if (own) return setFound({ file: own });
     setFound(undefined);
@@ -162,7 +185,7 @@ export function AnyIcon({ name, size = 20 }: { name: string; size?: number }) {
     return () => {
       on = false;
     };
-  }, [name]);
+  }, [name, brand]);
   if (found === undefined) return null;
   return (
     <Drawn
@@ -354,6 +377,9 @@ export function materialIcon(name: string, fill?: 'fill'): IconComponent {
   }
   return component;
 }
+
+/** A brand's logo from the brand pack as a component (`brandIcon('google')`), for the places that take one: the same under every icon pack. */
+export const brandIcon = (brand: (typeof BRANDS)[number]): IconComponent => materialIcon(`${brand}-logo`);
 
 /** The same as Svg (the editor's fields and the site's promotions draw their icons with it). */
 export const Icon = Svg;

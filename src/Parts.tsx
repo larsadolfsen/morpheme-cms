@@ -74,7 +74,16 @@ import {
 } from './ui';
 import { FieldList, Fields, useWrongField, WrongField, type FieldContext } from './fields';
 import { newValue, problemAt } from './check';
-import { Icon, iconOptions, useAllIconNames, AddBlockIcon, Icon as MaterialIcon, materialIcon, type IconComponent } from './icon';
+import {
+  Icon,
+  iconOptions,
+  useAllIconNames,
+  AddBlockIcon,
+  brandIcon,
+  Icon as MaterialIcon,
+  materialIcon,
+  type IconComponent,
+} from './icon';
 import { exampleImage, exampleData } from './examples';
 import { exampleOf } from './blocks';
 import { siteBlocks } from './registry';
@@ -86,7 +95,6 @@ import { SiteList, SiteListItem } from './themeUi';
 import { jurisdictionName } from './r2Caching';
 import type { Env } from './App';
 import { t } from './i18n';
-import { GoogleLogo } from '@phosphor-icons/react';
 
 const { use, sample, examples } = t.parts;
 
@@ -375,7 +383,7 @@ export default function Parts({ env }: { env: Env }) {
                 }
                 seo={
                   <IconButton
-                    icon={GoogleLogo}
+                    icon={brandIcon('google')}
                     label={seo ? t.library.hideSeo : t.library.showSeo}
                     aria-pressed={seo}
                     selected={seo}
