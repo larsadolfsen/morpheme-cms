@@ -59,6 +59,9 @@ export const THEME_PARTS = [
 
 /** Classes of theme/styles/ui.css that belong to no part. A kind or a state (`mo-is-*`) and what a part holds (`mo-has-*`) are styled with the root of the part they sit on, so the root's part covers them. @type {string[]} */
 export const NOT_PARTS = [
+  // The editor's own elements that take a part's kind class (the dashboard's dragged card, the editor's plain tooltip), named in ui.css so the kind rules reach them.
+  'mo-editor-widget-card',
+  'mo-editor-tooltip',
   'astro',
   'material',
   'comp',
