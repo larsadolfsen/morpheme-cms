@@ -139,7 +139,7 @@ async function checkFilledSlotRing(scheme, sectionColor) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Buttons with text and icon.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Prompt actions with buttons.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="label"]', { timeout: 8000 });
   await page.keyboard.type('One');
   await page.waitForTimeout(300);
@@ -182,10 +182,10 @@ async function checkListDesigns(width, height) {
   const label = `${width}px inline list designs`;
   const phone = width < 600;
   const looks = [
-    { look: 'List', hint: 'Rows with icon, heading and text.' },
-    { look: 'List, Segmented', hint: 'Rows with icon, heading and text.', card: true },
-    { look: 'List - Expand', hint: 'Rows that open to show more.' },
-    { look: 'List - Expand, Segmented', hint: 'Rows that open to show more.', card: true },
+    { look: 'List', hint: 'Show text and images in a list.' },
+    { look: 'List, Segmented', hint: 'Show text and images in a list.', card: true },
+    { look: 'List - Expand', hint: 'Show list items that expand and collapse.' },
+    { look: 'List - Expand, Segmented', hint: 'Show list items that expand and collapse.', card: true },
   ];
   const seen = [];
   for (const { look, hint, card } of looks) {
@@ -635,7 +635,7 @@ async function checkSteps(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show the steps in order.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-steps .mo-editor-inline-list-row-active [data-field="title"]');
   const steps = () =>
     page.evaluate(() =>
@@ -750,7 +750,7 @@ async function checkSteps(width, height) {
     await p2.keyboard.press('Enter');
     await p2.waitForTimeout(300);
     await pressInsert(p2, 'click');
-    await p2.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
+    await p2.locator('dialog[open] button', { hasText: 'Show the steps in order.' }).first().click();
     await p2.waitForSelector('.mo-editor-inline-steps .mo-editor-inline-list-row-active [data-field="title"]');
     const taken = await p2.evaluate(
       ([html, plain]) => {
@@ -778,10 +778,10 @@ async function checkSteps(width, height) {
  * text), the cursor in the last field of the last; a paste with a `#` line is left as it is; a paste into an empty item after Add below
  * makes items there and keeps the items before; Ctrl+Z gives the block back as it was before the paste. */
 const pasteBlocks = [
-  { name: 'list', hint: 'Rows with icon, heading and text.', first: 'title', second: 'text', last: 'text' },
-  { name: 'expand', hint: 'Rows that open to show more.', first: 'title', second: 'text', last: 'text' },
-  { name: 'cards', hint: 'Cards that link to pages.', first: 'title', second: 'text', last: 'text' },
-  { name: 'steps', hint: 'Numbered steps.', first: 'title', second: 'text', last: 'text' },
+  { name: 'list', hint: 'Show text and images in a list.', first: 'title', second: 'text', last: 'text' },
+  { name: 'expand', hint: 'Show list items that expand and collapse.', first: 'title', second: 'text', last: 'text' },
+  { name: 'cards', hint: 'Show content and actions in cards.', first: 'title', second: 'text', last: 'text' },
+  { name: 'steps', hint: 'Show the steps in order.', first: 'title', second: 'text', last: 'text' },
 ];
 async function checkInlinePaste(width, height, block) {
   const label = `${width}px paste in ${block.name}`;
@@ -873,7 +873,7 @@ async function checkTablePaste(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show data in rows and columns.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-table-cell-active textarea');
   // Pastes into the cell at row `r`, column `c`; true when the Table took the paste over (preventDefault).
   const paste = (r, c, plain, html = '') =>

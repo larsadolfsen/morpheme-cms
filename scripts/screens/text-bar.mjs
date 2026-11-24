@@ -525,7 +525,7 @@ async function checkBarSlide(width, reduced = false, height = 800) {
   const barHeight = () => page.evaluate(() => document.querySelector('.mo-editor-tools').getBoundingClientRect().height);
   const heightBefore = await barHeight();
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   const heightDuring = await barHeight();
   await page.waitForTimeout(500);

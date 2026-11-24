@@ -478,7 +478,7 @@ async function checkListsAndBlocks(width) {
   await page.locator('.ProseMirror li > p').nth(0).click();
   await page.keyboard.press('End');
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Numbered steps.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show the steps in order.' }).first().click();
   await page.waitForSelector('.ProseMirror .mo-site-block, .ProseMirror [data-site-block]', { timeout: 8000 }).catch(() => {});
   const shape = await page.evaluate(() =>
     [...document.querySelector('.ProseMirror').children].map((c) =>
@@ -575,7 +575,7 @@ async function checkDynamicList(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('Typed row');
   await page.waitForTimeout(300);
@@ -635,7 +635,7 @@ async function checkDynamicPicker(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await pressTool(page, 'Fill from a list');
   const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Rows from' }).first();
@@ -1060,7 +1060,7 @@ async function checkNewList(width, height, label) {
     await page.keyboard.press('Enter');
     await page.waitForTimeout(300);
     await pressInsert(page, 'click');
-    await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+    await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
     await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
     await page.keyboard.type('Typed row');
     await pressTool(page, 'Fill from a list');

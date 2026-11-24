@@ -1697,7 +1697,7 @@ async function checkVideoChangeLink(width, height = 800) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, phone ? 'tap' : 'click');
-  await page.locator('dialog[open] button', { hasText: 'A YouTube or Vimeo video.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Play a video from YouTube or Vimeo.' }).first().click();
   await page.waitForSelector('.mo-site-block-inline [data-field="title"]');
   await page.keyboard.type('My film');
   await page.waitForTimeout(300);
