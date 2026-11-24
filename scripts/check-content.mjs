@@ -29,6 +29,7 @@ import {
 import { appFoldersPlugin, appIds, appWorkersProblems } from '@morphemecms/cms/lib/apps.mjs';
 import { readManifest } from '@morphemecms/cms/lib/appManifest.mjs';
 import { appSelf } from '@morphemecms/cms/site/appSelf.mjs';
+import { appCss } from '@morphemecms/cms/site/appCss.mjs';
 import { caseCollisionProblems } from '@morphemecms/cms/lib/caseCollisions.mjs';
 import { codePackageProblems, declarationProblems, ownerId } from '@morphemecms/cms/lib/licenses.mjs';
 import { breakpointProblems } from '@morphemecms/cms/site/breakpoints.mjs';
@@ -79,7 +80,7 @@ const server = await createServer({
   logLevel: 'error',
   appType: 'custom',
   // As in packages/editor/astro.mjs: the editor takes the site from src/site/ as @site, and the theme in use as @theme.
-  plugins: [themePlugin(), appFoldersPlugin(process.cwd()), appSelf()],
+  plugins: [themePlugin(), appFoldersPlugin(process.cwd()), appSelf(), appCss()],
   resolve: { alias: aliases() },
   server: { middlewareMode: true, hmr: false, ws: false },
 });

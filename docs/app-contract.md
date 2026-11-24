@@ -196,6 +196,19 @@ not rewritten. An app or a theme written to 6 that already uses no utility needs
 
 The migration, class by class, is `docs/tailwind-migration.md` and `docs/tailwind-migration-classes.md`.
 
+## Scoped CSS (in the build, in force from the next contract)
+
+Spec: `docs/superpowers/specs/2026-11-20-scoped-app-css-design.md`. The outer element of every app block carries `data-mo-app="<id>"` (it takes no space,
+`display: contents`; the app does not write it and cannot remove it). From the contract that raises `SCOPED_CSS_FROM_API` (`lib/appCss.mjs`), the build
+rewrites every `.css` file in `src/apps/<id>/`, on the site and in the editor (`site/appCss.mjs`):
+
+- every selector applies only inside the app's own blocks (`:where([data-mo-app="<id>"])` before it: the build targets Firefox 114 and Safari 16.4, which lack `@scope`; `APP_CSS_MODE` switches to `@scope` when the target moves);
+- a `--mo-…` custom property the app declares that is not the CMS's is renamed `--mo-app-<id>-<name>`, where it is declared and where it is read in the app's CSS;
+- the app's `@keyframes`, `@property`, `@font-face` families and `@layer` names are renamed `mo-app-<id>-<name>`;
+- the rules go into the layer `mo-app`, the lowest layer, below the theme's parts.
+
+An app written to an older contract keeps its global CSS. `npm run check:app-css -- --report` lists what the build would rename in each app, and what the contract will refuse.
+
 ## Contract 6: the design tokens' names
 
 Contract 6 renames every design token that is not Tailwind's to Material 3's pattern: `--mo-ref-*`, `--mo-sys-*` and
