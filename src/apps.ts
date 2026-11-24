@@ -51,6 +51,7 @@ import { config } from '@site/config';
 import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 import { definitionOf, type AppDefinitionData } from '../lib/appDefinition.mjs';
 import type { AppManifest } from '../lib/appManifest.mjs';
+import { scoped, scopedNode } from './standard/appScope';
 import { AnyIcon, type IconComponent as Icon } from './icon';
 
 /** An app's settings, on its page once it is installed (#apps/<app>, AppList.tsx). */
@@ -87,6 +88,22 @@ export type AppKind = {
   variants?: PreviewVariant[];
   opens?: Opens;
 };
+
+/** An app's kinds drawn in the app's scope (data-mo-app on the outer element, standard/appScope.tsx), so the app's scoped CSS applies to them in the editor as
+ * on the site: the drawing of each (`draw`) and its part in the list's box (`part.View`). Done once, where the app is made (src/site.ts). */
+export function scopedKinds<K extends Record<string, AppKind> | undefined>(id: string, kinds: K): K {
+  if (!kinds) return kinds;
+  return Object.fromEntries(
+    Object.entries(kinds).map(([list, k]) => [
+      list,
+      {
+        ...k,
+        ...(k.draw ? { draw: (props: Record<string, any>, data: BlockData) => scopedNode(id, k.draw!(props, data)) } : {}),
+        ...(k.part ? { part: { ...k.part, View: scoped(id, k.part.View) } } : {}),
+      },
+    ]),
+  ) as K;
+}
 
 /** How an entry of an app's kind looks on the site, beside its form and under "Parts": its own drawing, or its part in the
  * list's own drawing (`collection`: the list it is a kind of). */
