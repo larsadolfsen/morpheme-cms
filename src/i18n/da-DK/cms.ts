@@ -34,6 +34,9 @@ export const cms: Messages['cms'] = {
   slowUndo: 'GitHub-tokenet kan ikke se, om opdateringen lykkedes, så en mislykket opdatering fortrydes først efter 20 minutter.',
   blockedTitle: 'Morpheme kan ikke opdatere sig selv',
   blockedNeedsNpm: (v) => `Version ${v} skal installeres med npm. Åbn Morpheme for at se kommandoen.`,
+  blockedUnsafeCode: (v, places) =>
+    `Version ${v} er ikke installeret, fordi Morpheme ikke kan omskrive disse steder i dine egne temaer og apps: ${places}. Ret dem, og opdater derefter.`,
+  andMore: (n) => ` og ${n} flere`,
   blockedNoToken: 'Tilføj hemmeligheden GITHUB_PUBLISH_TOKEN i Cloudflare, så hjemmesiden kan opdatere sig selv.',
   blockedNoKv: 'Bind et KV-namespace med navnet PUSH i Cloudflare, så hjemmesiden kan opdatere sig selv.',
   blockedTheme: (v, id) => `Version ${v} er ikke installeret, fordi temaet ${id} ikke virker med den endnu.`,

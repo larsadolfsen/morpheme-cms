@@ -35,3 +35,13 @@ test('a problem with no newer version waiting, and the ones the Morpheme page ex
   assert.equal(blockedUpdate(problem({ kind: 'contract' })), null);
   assert.equal(blockedUpdate(status({ running: '0.18.0-next-1' })), null);
 });
+
+test('unsafe-code blocks while a newer version waits and carries the lines that say which file to fix', () => {
+  const detail = 'src/apps/mine/View.tsx:3: <Button> size is a computed value\nsrc/themes/mine/a.css:2: Tailwind (@apply)';
+  assert.deepEqual(blockedUpdate(problem({ kind: 'unsafe-code', detail })), {
+    kind: 'unsafe-code',
+    version: '0.18.0',
+    lines: ['src/apps/mine/View.tsx:3: <Button> size is a computed value', 'src/themes/mine/a.css:2: Tailwind (@apply)'],
+  });
+  assert.equal(blockedUpdate(problem({ kind: 'unsafe-code' })), null);
+});

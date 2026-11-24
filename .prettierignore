@@ -21,3 +21,4 @@ starter/
 lib/fixtures/paste/
 # Written by scripts/m3-tokens.mjs, one token to a line so a new M3 version gives a readable diff.
 docs/m3-tokens/
+lib/migrate-code-maps.mjs
