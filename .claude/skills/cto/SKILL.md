@@ -56,6 +56,10 @@ approach within the owner's decisions, and every question the order of priority 
   are used.
 - **Say what was done.** After every step the owner hears in a few lines what the CTO did (built, read, wrote, pushed, sent), in
   English (`CLAUDE.md`, *Reports to the owner are short*). Nothing is done silently.
+- **A correction goes into the skill at once.** When the owner corrects how the CTO works, the CTO writes it into this skill (or the
+  skill or `CLAUDE.md` section it belongs to) in the same turn, with the owner's words and the date, and removes the older text it
+  replaces. A correction kept only in the conversation is lost when the conversation is summarised (owner, 24 Nov 2026, after the 19
+  and 21 Nov corrections were never written down and had to be given again).
 - **Draft until approved.** A spec or plan says "waiting for the owner's approval" until the owner approves it in words; only then is it
   marked approved and sent to the PM. The CTO never presents a draft as decided.
 
