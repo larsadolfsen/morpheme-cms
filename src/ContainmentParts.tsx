@@ -9,6 +9,7 @@
 import type { ReactNode } from 'react';
 import { SiteBottomSheet, SiteButton, SiteCarousel, SiteCheckbox, SiteDialog } from './themeUi';
 import ModalSheetSample from './ModalSheetSample';
+import FullScreenDialogSample from './FullScreenDialogSample';
 import { named, Part } from './PartsShown';
 import { Preview } from './ui';
 import { exampleImage } from './examples';
@@ -59,6 +60,9 @@ function Dialogs() {
             ))}
           </div>
         </SiteDialog>
+      </Shown>
+      <Shown label={say.dialogKinds.fullScreen}>
+        <FullScreenDialogSample />
       </Shown>
       <Shown label={say.dialogKinds.container}>
         <SiteDialog className="mo-editor-contain-dialog">
