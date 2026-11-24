@@ -303,9 +303,18 @@
   .mo-block-cards__show-all {
     display: none;
   }
+  /* A card is the item itself (its outline, surface and corners), so in a contained layout it shrinks with the item instead of being cut: the mask is
+     not clipped and the card's sides move in by the mask's inset (what carouselLayout.ts gives it). */
+  .mo-block-cards__carousel .mo-carousel__item-mask {
+    clip-path: none;
+    overflow: visible;
+    background: transparent;
+  }
   .mo-block-cards__carousel .mo-carousel__item-mask > * {
     flex: 1;
     min-width: 0;
+    margin-inline: var(--mo-comp-carousel-mask-inset, 0px);
+    overflow: hidden;
   }
   .mo-block-cards__carousel .mo-carousel__item-mask .mo-card__body {
     opacity: calc(1 - var(--mo-comp-carousel-mask, 0) * 3);
