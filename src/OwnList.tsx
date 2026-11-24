@@ -27,7 +27,7 @@ const named = (name: string) =>
   )) as unknown as PhosphorIcon;
 const DotsThreeVertical = named('more_vert');
 const PencilSimple = named('edit');
-const Trash = named('trash');
+const Trash = named('delete');
 
 type Definition = { version: 2; label: string; fields: { id: string; kind: string; label?: string }[]; dropped: string[] };
 

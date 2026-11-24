@@ -29,7 +29,7 @@ import { t } from './i18n';
 const say = t.parts.screens.navigationRest;
 const eg = t.parts.screens.example;
 const icons = ['house', 'search', 'forum', 'person'];
-const actions = ['edit', 'heart', 'copy', 'trash'];
+const actions = ['edit', 'favorite', 'content_copy', 'delete'];
 const colors = ['standard', 'vibrant'] as const;
 
 function Destinations({ rail }: { rail?: boolean }) {
