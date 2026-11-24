@@ -52,9 +52,9 @@ that is a decision I need to take."
 Owner rule, 15 Nov: "We follow the best practices in modern web from Google." Where a guide covers behaviour, markup, accessibility or
 performance, we follow it; Material 3 still decides how things look and are named.
 
-**The CTO** (skill `cto`) plans the work with the owner and sends the PM approved plans. It is not a build session: the PM
-starts the sessions that build a plan, unless the CTO says it does a step itself. The CTO's own pull requests go to the PM like
-any other.
+**The CTO** (skill `cto`) starts PM sessions, answers the owner's questions and plans the work with the owner, and sends the PM
+approved plans (owner, 24 Nov 2026). It writes no code and reviews no pull request: the PM starts the sessions that build a plan and
+reviews their work itself. The CTO's own docs pull requests go to the PM like any other.
 
 **When no PM is running, the orchestrator merges.** The orchestrator is the session that started the other sessions for the owner
 (the owner's "To do list" session). While no PM session is active, it may merge the pull requests of the sessions it started, under
