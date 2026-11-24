@@ -121,6 +121,7 @@ import { waitingOf } from './pageVersions.mjs';
 import { offBlocks } from './registry';
 import { sideChoicesOf, sideSettingOf } from './SideColumn';
 import { Icon as MaterialIcon, materialIcon, type IconComponent as Icon } from './icon';
+import { GoogleLogo } from '@phosphor-icons/react';
 
 // Where a part opens: its list, or the file itself when it is one file (the menu).
 export const hrefOf = (c: Collection) => (c.kind === 'files' && c.files.length === 1 ? `#${c.files[0].file}` : `#list/${c.id}`);
@@ -1612,7 +1613,7 @@ export function List({
           seo={
             rated && (
               <IconButton
-                icon={materialIcon('public')}
+                icon={GoogleLogo}
                 label={seo ? t.library.hideSeo : t.library.showSeo}
                 aria-pressed={seo}
                 selected={seo}

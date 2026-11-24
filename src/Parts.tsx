@@ -86,6 +86,7 @@ import { SiteList, SiteListItem } from './themeUi';
 import { jurisdictionName } from './r2Caching';
 import type { Env } from './App';
 import { t } from './i18n';
+import { GoogleLogo } from '@phosphor-icons/react';
 
 const { use, sample, examples } = t.parts;
 
@@ -374,7 +375,7 @@ export default function Parts({ env }: { env: Env }) {
                 }
                 seo={
                   <IconButton
-                    icon={materialIcon('public')}
+                    icon={GoogleLogo}
                     label={seo ? t.library.hideSeo : t.library.showSeo}
                     aria-pressed={seo}
                     selected={seo}

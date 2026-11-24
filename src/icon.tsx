@@ -11,6 +11,7 @@
 // server render has the whole set at once, virtual:material-symbols-ssr; in the browser it is one lazy chunk, loaded the
 // first time one is drawn); only a name Material Symbols lacks too is MISSING, the question mark, marked with
 // data-icon-missing (its name), which check:screens finds on the built site's pages and the editor's screens.
+import type { IconWeight } from '@phosphor-icons/react';
 import { cloneElement, isValidElement, useEffect, useState, type ComponentType, type ReactElement, type SVGProps } from 'react';
 import { materialName, materialNames, resolveIcon } from '../lib/materialIcon.mjs';
 import { svgParts } from '../lib/svg.mjs';
@@ -337,7 +338,7 @@ export const BlockSettingsIcon = bodyA(blockSettingsFile, 'block_settings');
 
 /** An icon as a component, for the places that take one (a table of icons by id, a prop `icon: IconComponent`): the props an icon takes (`size`, `className`,
  * `weight`; the SVG's own, as aria-hidden, go to the SVG). */
-export type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; weight?: string }>;
+export type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; weight?: IconWeight }>;
 
 const made = new Map<string, IconComponent>();
 /** A Material Symbols icon by its Material name as a component (`materialIcon('settings')`), drawn by `Icon`; the same name gives the same component, so it can be a
@@ -346,7 +347,7 @@ export function materialIcon(name: string, fill?: 'fill'): IconComponent {
   const key = `${name}:${fill ?? ''}`;
   let component = made.get(key);
   if (!component) {
-    component = (({ size = 20, className, weight }: { size?: number | string; className?: string; weight?: string }) => (
+    component = (({ size = 20, className, weight }: { size?: number | string; className?: string; weight?: IconWeight }) => (
       <Svg name={name} size={Number(size)} className={className} weight={weight === 'fill' ? 'fill' : fill} />
     )) as IconComponent;
     made.set(key, component);

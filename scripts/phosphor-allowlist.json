@@ -1,1 +1,14 @@
-{}
+{
+  "src/Library.tsx": {
+    "max": 1,
+    "why": "Brand logos (facebook, google, linkedin, pinterest, x) are not Material Symbols and stay drawn as the real logos until batch 7b brings the brand icon pack as our own SVGs (owner, 24 Nov 2026)."
+  },
+  "src/LinkList.tsx": {
+    "max": 4,
+    "why": "Brand logos (facebook, google, linkedin, pinterest, x) are not Material Symbols and stay drawn as the real logos until batch 7b brings the brand icon pack as our own SVGs (owner, 24 Nov 2026)."
+  },
+  "src/Parts.tsx": {
+    "max": 1,
+    "why": "Brand logos (facebook, google, linkedin, pinterest, x) are not Material Symbols and stay drawn as the real logos until batch 7b brings the brand icon pack as our own SVGs (owner, 24 Nov 2026)."
+  }
+}
