@@ -57,7 +57,7 @@ function choiceGroupsIn(root) {
             (x) => x.getClientRects().length && !x.closest('[aria-hidden="true"][style*="hidden"]'),
           );
         if (!b) return [];
-        const pad = b.classList.contains('mo-button__text') ? parseFloat(getComputedStyle(b).paddingRight) : 0;
+        const pad = b.classList.contains('mo-is-text') ? parseFloat(getComputedStyle(b).paddingRight) : 0;
         return [b.getBoundingClientRect().right - pad - gr.right];
       });
       return {
@@ -138,7 +138,7 @@ async function checkChoiceGroupFields(width, locale) {
   // A sheet is closed by its Cancel (nothing was changed), else by Escape (the side panel on a computer).
   const close = async () => {
     const cancel = page.locator(
-      'dialog[open] .mo-side-sheet__actions button, dialog[open] [aria-label="Close"], dialog[open] [aria-label="Luk"]',
+      'dialog[open] .mo-is-side .mo-sheet__actions button, dialog[open] [aria-label="Close"], dialog[open] [aria-label="Luk"]',
     );
     const named = cancel.filter({ hasText: /^(Cancel|Annuller)$/ });
     // On a phone the block's fields are a subpage: its back arrow is the first button of its app bar.
@@ -322,7 +322,7 @@ async function checkButtonStyleSamples(width, locale) {
             const b = (visible ?? button).getBoundingClientRect();
             const r = slot.getBoundingClientRect();
             // A text button's side padding (it has no surface) may stand over the slot's end: its text is what must be inside.
-            const pad = (visible ?? button).classList.contains('mo-button__text')
+            const pad = (visible ?? button).classList.contains('mo-is-text')
               ? parseFloat(getComputedStyle(visible ?? button).paddingRight)
               : 0;
             return {

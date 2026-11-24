@@ -181,7 +181,7 @@
 
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'mo-button mo-is-outlined mo-button__xsmall';
+  button.className = 'mo-button mo-is-outlined mo-is-xsmall';
   button.dataset.demoNames = 'toggle';
   button.textContent = 'Names';
   const show = () => {

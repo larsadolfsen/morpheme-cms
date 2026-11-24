@@ -23,9 +23,7 @@ export type CardKind = (typeof cardKinds)[number];
 /** A card's classes: its kind's, and evt. dragged, `media` (its first part is a CardMedia, edge to edge, no padding) and
  * `selected` (Material 3's selection: a check mark and a change of surface colour). */
 export const cardClass = (kind: CardKind = 'outlined', { dragged = false, media = false, selected = false } = {}) =>
-  ['mo-card', `mo-is-${kind}`, dragged && 'mo-card__dragged', media && 'mo-has-media', selected && 'mo-is-selected']
-    .filter(Boolean)
-    .join(' ');
+  ['mo-card', `mo-is-${kind}`, dragged && 'mo-is-dragged', media && 'mo-has-media', selected && 'mo-is-selected'].filter(Boolean).join(' ');
 
 /** The media of a card (Material 3: the image under "Container"): an image box with the card's corner at the top, edge to
  * edge. `ratio` (width / height) reserves its box before the image loads. */

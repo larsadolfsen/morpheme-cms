@@ -153,9 +153,9 @@ async function checkBlockRow(width, options = {}) {
     .locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')
     .evaluateAll((els) => els.map((e) => [...e.classList]));
   for (const list of classes)
-    if (list.some((c) => !/^mo-icon-button(__|$)/.test(c)))
+    if (list.some((c) => !/^mo-icon-button(__|$)|^mo-is-/.test(c)))
       problems.push(`${label}: a row button has a class of its own (${list.join(' ')}); it must be the theme's icon button`);
-  if (classes.some((list) => !list.includes('mo-icon-button') || !list.includes('mo-icon-button__standard')))
+  if (classes.some((list) => !list.includes('mo-icon-button') || !list.includes('mo-is-standard')))
     problems.push(`${label}: a row button is not the theme's standard icon button (${JSON.stringify(classes)})`);
   const hoverOf = async (locator) => {
     await locator.hover();
@@ -170,7 +170,7 @@ async function checkBlockRow(width, options = {}) {
     const probe = document.createElement('button');
     probe.type = 'button';
     probe.dataset.probe = 'icon';
-    probe.className = 'mo-icon-button mo-icon-button__standard';
+    probe.className = 'mo-icon-button mo-is-standard';
     probe.innerHTML = document.querySelector('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row="up"]')?.innerHTML ?? '';
     document.querySelector('.mo-site-block-row:not(.mo-site-block-row-hover) .mo-site-block-row-inner').prepend(probe);
   });
@@ -186,13 +186,13 @@ async function checkBlockRow(width, options = {}) {
   if (await add.count()) {
     const addHover = await hoverOf(add);
     const classes2 = await add.evaluate((e) => [...e.classList]);
-    if (!classes2.includes('mo-button') || !classes2.includes('mo-button__text'))
+    if (!classes2.includes('mo-button') || !classes2.includes('mo-is-text'))
       problems.push(`${label}: Add list row is not the theme's text button (${classes2})`);
     const wantText = page.locator('[data-probe="text"]');
     await page.evaluate(() => {
       const probe = document.createElement('button');
       probe.dataset.probe = 'text';
-      probe.className = 'mo-button mo-button__text';
+      probe.className = 'mo-button mo-is-text';
       probe.textContent = 'x';
       document.querySelector('.mo-site-block-card.mo-site-block-inline').append(probe);
     });
@@ -328,7 +328,7 @@ async function checkBlockRow(width, options = {}) {
       if (!hovered.inside) problems.push(`${label}: the pointed block's row is not inside the dotted outline`);
       for (const name of ['Move up', 'Move down', 'Hide'])
         if (!hovered.names.includes(name)) problems.push(`${label}: the pointed block's row has no "${name}" (${hovered.names})`);
-      if (hovered.classes.some((c) => c !== 'mo-icon-button mo-icon-button__standard'))
+      if (hovered.classes.some((c) => c !== 'mo-icon-button mo-is-standard'))
         problems.push(`${label}: the pointed block's buttons are not the theme icon button (${hovered.classes})`);
       if (!hovered.handle) problems.push(`${label}: the pointed block shows no drag handle`);
     }

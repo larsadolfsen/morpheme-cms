@@ -62,12 +62,10 @@ export default function SelectionParts() {
         <Preview>
           <div className={grid}>
             <SiteSettingRow label={say.switchLabel} supporting={say.switchSupporting}>
-              <SiteButton kind="text" size="small">
-                {say.choices[0]}
-              </SiteButton>
+              <SiteButton kind="text">{say.choices[0]}</SiteButton>
             </SiteSettingRow>
             <SiteSettingRow label={say.switchLabel}>
-              <SiteButton kind="text" size="small" disabled>
+              <SiteButton kind="text" disabled>
                 {say.choices[1]}
               </SiteButton>
             </SiteSettingRow>

@@ -2,8 +2,8 @@
   Date pickers (DatePicker.tsx, the picker drawn by DatePickerContainer.tsx, datePicker.script.ts for what it does in a
   browser; m3.material.io/components/date-pickers): .mo-date-picker__field, the theme's text field with the calendar button
   in it (.mo-date-picker__field-button) and the <dialog> the picker opens in: .mo-date-picker__popover under the field (docked)
-  or .mo-date-picker__dialog, a modal dialog (.mo-dialog__modal) in the middle of the screen. The picker is a dialog's container
-  (.mo-dialog, so its surface, corners and shadow are --dialog-*) with .mo-date-picker and its kind, .mo-date-picker__docked or
+  or .mo-date-picker.mo-is-dialog, a modal dialog (.mo-dialog.mo-is-modal) in the middle of the screen. The picker is a dialog's container
+  (.mo-dialog, so its surface, corners and shadow are --dialog-*) with .mo-date-picker and its kind, .mo-date-picker.mo-is-docked or
   .date-picker-modal ([data-range] for two days): a modal one's .mo-date-picker__header (.mo-date-picker__supporting-text, the .mo-date-picker__headline in its
   .mo-date-picker__headline-row with the button to the input mode); .mo-date-picker__controls with the .mo-date-picker__menu-button
   (the month and the year, a list under it) and the arrows in .mo-date-picker__steps; in .mo-date-picker__content the month
@@ -24,7 +24,7 @@
     --mo-comp-date-picker-range-surface, --mo-comp-date-picker-range-text   the band of a range's days
   Time pickers (TimePicker.tsx, the picker drawn by TimePickerContainer.tsx, timePicker.script.ts;
   m3.material.io/components/time-pickers): .mo-time-picker__field, the text field with the clock button
-  (.mo-time-picker__field-button) and the modal dialog the picker opens in (.mo-time-picker__dialog). The picker is a dialog's
+  (.mo-time-picker__field-button) and the modal dialog the picker opens in (.mo-time-picker.mo-is-dialog). The picker is a dialog's
   container with .mo-time-picker: .mo-time-picker__headline; .mo-time-picker__selector with the hours' and the minutes' boxes
   (.mo-time-picker__box, the one on the dial aria-pressed) and .mo-time-picker__separator between them; the dial
   (.mo-time-picker__dial, a slider: .mo-time-picker__dial-hand with its .mo-time-picker__dial-knob, [data-inner] on the inner ring
@@ -32,7 +32,7 @@
   [data-selected], or [data-covered] where the hand's circle covers it); or the input mode (.mo-time-picker__input, a text field for each, .mo-time-picker__text-field), with what is
   wrong under it (.mo-time-picker__error); and .mo-time-picker__actions. A 12-hour clock (.mo-time-picker__12h) has the period
   selector beside the boxes (.mo-time-picker__period with a .mo-time-picker__period-button for AM and PM, the half of the day
-  shown aria-pressed) and its hours on one ring; .mo-time-picker__horizontal has the dial beside the boxes (in the dial's
+  shown aria-pressed) and its hours on one ring; .mo-time-picker.mo-is-horizontal has the dial beside the boxes (in the dial's
   view, [data-view='dial']), AM and PM under them.
     --mo-comp-time-picker-width, --mo-comp-time-picker-horizontal-width, --mo-comp-time-picker-horizontal-gap   how wide it is, and a
                      horizontal one, with the room between the boxes and the dial
@@ -74,7 +74,7 @@
     right: 0.25rem;
   }
 
-  /* Where it opens: under the field (docked), or in the middle of the screen (modal: .mo-dialog__modal, its scrim). */
+  /* Where it opens: under the field (docked), or in the middle of the screen (modal: .mo-dialog.mo-is-modal, its scrim). */
   .mo-date-picker__popover {
     position: absolute;
     inset: calc(var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) + 0.25rem) auto auto 0;
@@ -86,10 +86,10 @@
     background: transparent;
     color: inherit;
   }
-  .mo-date-picker__dialog {
+  :where([data-date-picker-dialog]).mo-is-dialog {
     max-width: var(--mo-comp-date-picker-width, 22.5rem);
   }
-  .mo-time-picker__dialog {
+  :where([data-time-picker-dialog]).mo-is-dialog {
     max-width: var(--mo-comp-time-picker-width, 20.5rem);
   }
   @media (prefers-reduced-motion: no-preference) {
@@ -112,7 +112,7 @@
     overflow: hidden;
     color: var(--mo-comp-block-text);
   }
-  .mo-date-picker__docked {
+  :where(.mo-date-picker).mo-is-docked {
     border-radius: var(--mo-comp-date-picker-docked-container-shape, var(--mo-comp-dialog-container-shape, var(--mo-comp-block-radius)));
     box-shadow:
       0 0 0 1px var(--mo-comp-dialog-line, var(--mo-comp-block-line)),
@@ -162,7 +162,7 @@
     gap: 0.25rem;
     padding: 0.5rem 0.75rem 0 1rem;
   }
-  .mo-date-picker__docked .mo-date-picker__controls {
+  :where(.mo-date-picker).mo-is-docked .mo-date-picker__controls {
     flex-wrap: wrap;
     padding-inline: 0.25rem;
   }
@@ -606,34 +606,35 @@
 
   /* Horizontal (the dial's view): the boxes, and AM and PM side by side under them, to the left of the dial, the
      headline and the actions across; the dialog wider for it. */
-  .mo-time-picker__dialog:has(.mo-time-picker__horizontal[data-view='dial']) {
+  :where([data-time-picker-dialog]).mo-is-dialog:has(:where(.mo-time-picker).mo-is-horizontal[data-view='dial']) {
     max-width: var(--mo-comp-time-picker-horizontal-width, 36rem);
   }
-  .mo-time-picker__horizontal[data-view='dial'] {
+  :where(.mo-time-picker).mo-is-horizontal[data-view='dial'] {
     grid-template-columns: auto auto;
     column-gap: var(--mo-comp-time-picker-horizontal-gap, 2.5rem);
     align-items: start;
     justify-content: safe center;
   }
-  .mo-time-picker__horizontal[data-view='dial'] > :is(.mo-time-picker__headline, .mo-time-picker__error, .mo-time-picker__actions) {
+  :where(.mo-time-picker).mo-is-horizontal[data-view='dial']
+    > :is(.mo-time-picker__headline, .mo-time-picker__error, .mo-time-picker__actions) {
     grid-column: 1 / -1;
   }
-  .mo-time-picker__horizontal .mo-time-picker__selector {
+  :where(.mo-time-picker).mo-is-horizontal .mo-time-picker__selector {
     flex-wrap: wrap;
     row-gap: 0.75rem;
     width: calc(2 * var(--mo-comp-time-picker-box-width, 6rem) + 1.5rem);
   }
-  .mo-time-picker__horizontal .mo-time-picker__selector .mo-time-picker__period {
+  :where(.mo-time-picker).mo-is-horizontal .mo-time-picker__selector .mo-time-picker__period {
     flex-direction: row;
     width: 100%;
     height: var(--mo-comp-time-picker-period-height, 2.5rem);
     margin-inline-start: 0;
   }
-  .mo-time-picker__horizontal .mo-time-picker__selector .mo-time-picker__period-button + .mo-time-picker__period-button {
+  :where(.mo-time-picker).mo-is-horizontal .mo-time-picker__selector .mo-time-picker__period-button + .mo-time-picker__period-button {
     border-top: 0;
     border-inline-start: 1px solid var(--mo-comp-time-picker-period-line, var(--mo-comp-block-line));
   }
-  .mo-time-picker__horizontal[data-view='dial'] .mo-time-picker__dial {
+  :where(.mo-time-picker).mo-is-horizontal[data-view='dial'] .mo-time-picker__dial {
     margin-top: 0;
   }
 }

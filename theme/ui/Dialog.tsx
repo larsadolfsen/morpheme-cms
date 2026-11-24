@@ -17,8 +17,8 @@ import Divider from '@theme/ui/Divider';
 /** A dialog's container's class (`parts` when it has its headline, supporting text and actions), and the class of the
  * <dialog> a modal one is shown in. */
 export const dialogClass = 'mo-dialog';
-export const dialogClassOf = (parts = false) => (parts ? 'mo-dialog mo-dialog__basic' : dialogClass);
-export const dialogModalClass = 'mo-dialog__modal';
+export const dialogClassOf = (parts = false) => (parts ? 'mo-dialog mo-is-basic' : dialogClass);
+export const dialogModalClass = 'mo-is-modal';
 
 export default function Dialog({
   icon,

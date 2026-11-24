@@ -15,6 +15,7 @@ import {
   buttonGroupKinds,
   buttonShapes,
   buttonSizes,
+  iconButtonSizes,
   fabMenuKinds,
   splitButtonKinds,
 } from './themeUi';
@@ -85,7 +86,7 @@ export default function ActionParts() {
                 </SiteButtonGroup>
               </div>
             ))}
-            {buttonSizes.map((size) => (
+            {iconButtonSizes.map((size) => (
               <div key={size} className={row} role="group" aria-label={sizes[size]}>
                 <SiteButtonGroup kind="connected" label={say.mode}>
                   {say.modes.map((mode, i) => (
@@ -94,7 +95,7 @@ export default function ActionParts() {
                 </SiteButtonGroup>
                 <SiteButtonGroup label={say.group}>
                   {say.views.map((view, i) => (
-                    <SiteButton key={view} size={size} selected={i === 1}>
+                    <SiteButton key={view} size={size === 'medium' ? undefined : size} selected={i === 1}>
                       {view}
                     </SiteButton>
                   ))}
@@ -106,7 +107,7 @@ export default function ActionParts() {
                 {buttonGroupKinds.map((kind) => (
                   <SiteButtonGroup key={kind} kind={kind} label={say.group}>
                     {say.views.map((view, i) => (
-                      <SiteButton key={view} kind="outlined" size="small" shape={shape} selected={i === 0}>
+                      <SiteButton key={view} kind="outlined" shape={shape} selected={i === 0}>
                         {view}
                       </SiteButton>
                     ))}

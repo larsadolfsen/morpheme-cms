@@ -1,10 +1,10 @@
 /*
   Tabs (Tabs, Tab, tabsClass, tabsClasses, tabClass, tabs.script.ts): .mo-tabs, a row of tabs to swipe sideways, or sharing
-  its width (.mo-tabs__fixed); .mo-tabs__tab, a link or a role="tab" button, the open one with aria-current or aria-selected, and in it
+  its width (.mo-tabs.mo-is-fixed); .mo-tabs__tab, a link or a role="tab" button, the open one with aria-current or aria-selected, and in it
   .mo-tabs__tab-content with optionally .mo-tabs__tab-icon and .mo-tabs__tab-label (and .mo-tabs__tab-badge, the theme's Badge, on the icon or after the label).
   Without a kind only the label, the open one's in its own colour (the bar of "Mobile menu"); with one, the divider under
-  the row and the indicator under the open tab: .mo-tabs__primary (each icon over its label, beside it with .mo-tabs__inline; the
-  indicator under the label) or .mo-tabs__secondary (the icon beside the label; the indicator under the whole tab). In a top
+  the row and the indicator under the open tab: .mo-tabs.mo-is-primary (each icon over its label, beside it with .mo-tabs.mo-is-inline; the
+  indicator under the label) or .mo-tabs.mo-is-secondary (the icon beside the label; the indicator under the whole tab). In a top
   app bar (the editor's screens) the bar's line (--mo-comp-top-app-bar-line) is the divider.
     --mo-comp-tabs-height, --mo-comp-tabs-padding, --mo-comp-tabs-font-size, --mo-comp-tabs-weight, --mo-comp-tabs-text, --mo-comp-tabs-hover-surface, --mo-comp-tabs-hover-text,
     --mo-comp-tabs-selected-text
@@ -93,20 +93,20 @@
     top: -0.375rem;
     left: calc(50% + 0.25rem);
   }
-  .mo-tabs__tab-icon > .mo-tabs__tab-badge.mo-badge__small {
+  .mo-tabs__tab-icon > .mo-tabs__tab-badge:where(.mo-badge).mo-is-small {
     top: -0.125rem;
     left: calc(50% + 0.5rem);
   }
 
   /* Primary and secondary tabs: the divider under the row, and the indicator under the open tab. */
-  .mo-tabs:is(.mo-tabs__primary, .mo-tabs__secondary) {
+  .mo-tabs:is(:where(.mo-tabs).mo-is-primary, :where(.mo-tabs).mo-is-secondary) {
     box-shadow: inset 0 -1px 0 var(--mo-comp-tabs-divider, var(--mo-comp-block-line));
   }
-  .mo-tabs:is(.mo-tabs__primary, .mo-tabs__secondary):not(.mo-tabs__fixed) .mo-tabs__tab {
+  .mo-tabs:is(:where(.mo-tabs).mo-is-primary, :where(.mo-tabs).mo-is-secondary):not(:where(.mo-tabs).mo-is-fixed) .mo-tabs__tab {
     min-width: var(--mo-comp-tabs-min-width, 5.5rem);
     justify-content: center;
   }
-  :is(.mo-tabs__primary, .mo-tabs__secondary) .mo-tabs__tab:active {
+  :is(:where(.mo-tabs).mo-is-primary, :where(.mo-tabs).mo-is-secondary) .mo-tabs__tab:active {
     background: var(
       --mo-comp-tabs-pressed-surface,
       var(
@@ -115,20 +115,20 @@
       )
     );
   }
-  :is(.mo-tabs__primary, .mo-tabs__secondary) .mo-tabs__tab:is(:disabled, [aria-disabled='true']) {
+  :is(:where(.mo-tabs).mo-is-primary, :where(.mo-tabs).mo-is-secondary) .mo-tabs__tab:is(:disabled, [aria-disabled='true']) {
     opacity: var(--mo-comp-tabs-disabled-opacity, 0.45);
     background: none;
     cursor: default;
   }
-  .mo-tabs__primary:not(.mo-tabs__inline):has(.mo-tabs__tab-icon) .mo-tabs__tab {
+  :where(.mo-tabs).mo-is-primary:not(:where(.mo-tabs).mo-is-inline):has(.mo-tabs__tab-icon) .mo-tabs__tab {
     height: var(--mo-comp-tabs-stacked-height, 4rem);
   }
-  :is(.mo-tabs__inline, .mo-tabs__secondary) .mo-tabs__tab-content {
+  :is(:where(.mo-tabs).mo-is-inline, :where(.mo-tabs).mo-is-secondary) .mo-tabs__tab-content {
     flex-direction: row;
     gap: var(--mo-comp-tabs-gap, 0.5rem);
   }
-  .mo-tabs__primary .mo-tabs__tab-content::after,
-  .mo-tabs__secondary .mo-tabs__tab::after {
+  :where(.mo-tabs).mo-is-primary .mo-tabs__tab-content::after,
+  :where(.mo-tabs).mo-is-secondary .mo-tabs__tab::after {
     position: absolute;
     bottom: 0;
     background: var(--mo-comp-tabs-indicator, var(--mo-comp-block-accent));
@@ -136,51 +136,51 @@
     transform: scaleX(0);
     transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
-  .mo-tabs__primary .mo-tabs__tab-content::after {
+  :where(.mo-tabs).mo-is-primary .mo-tabs__tab-content::after {
     left: 0.125rem;
     right: 0.125rem;
     height: var(--mo-comp-tabs-primary-indicator-height, 3px);
     border-radius: var(--mo-comp-tabs-primary-indicator-radius, 3px 3px 0 0);
   }
-  .mo-tabs__secondary .mo-tabs__tab {
+  :where(.mo-tabs).mo-is-secondary .mo-tabs__tab {
     position: relative;
   }
-  .mo-tabs__secondary .mo-tabs__tab::after {
+  :where(.mo-tabs).mo-is-secondary .mo-tabs__tab::after {
     left: 0;
     right: 0;
     height: var(--mo-comp-tabs-secondary-indicator-height, 2px);
   }
-  .mo-tabs__primary .mo-tabs__tab:is([aria-current='page'], [aria-selected='true']) .mo-tabs__tab-content::after,
-  .mo-tabs__secondary .mo-tabs__tab:is([aria-current='page'], [aria-selected='true'])::after {
+  :where(.mo-tabs).mo-is-primary .mo-tabs__tab:is([aria-current='page'], [aria-selected='true']) .mo-tabs__tab-content::after,
+  :where(.mo-tabs).mo-is-secondary .mo-tabs__tab:is([aria-current='page'], [aria-selected='true'])::after {
     transform: scaleX(1);
   }
-  .mo-tabs__secondary .mo-tabs__tab:is([aria-current='page'], [aria-selected='true']) {
+  :where(.mo-tabs).mo-is-secondary .mo-tabs__tab:is([aria-current='page'], [aria-selected='true']) {
     color: var(--mo-comp-tabs-secondary-selected-text, var(--mo-comp-block-text));
   }
   /* Fixed: the tabs share the row's width. */
-  .mo-tabs__fixed {
+  :where(.mo-tabs).mo-is-fixed {
     overflow-x: visible;
   }
-  .mo-tabs__fixed > li {
+  :where(.mo-tabs).mo-is-fixed > li {
     min-width: 0;
     flex: 1 1 0;
   }
-  .mo-tabs__fixed .mo-tabs__tab {
+  :where(.mo-tabs).mo-is-fixed .mo-tabs__tab {
     width: 100%;
     justify-content: center;
   }
   /* A label too long for its share of the row is cut short (the editor's: an app's tab on a phone). */
-  .mo-tabs__fixed :is(.mo-tabs__tab-content, .mo-tabs__tab-label) {
+  :where(.mo-tabs).mo-is-fixed :is(.mo-tabs__tab-content, .mo-tabs__tab-label) {
     min-width: 0;
     max-width: 100%;
   }
   /* In a top app bar (the editor's: the tabs of a screen), the bar's line is the divider under the tabs. */
-  .mo-top-app-bar .mo-tabs:is(.mo-tabs__primary, .mo-tabs__secondary) {
+  .mo-top-app-bar .mo-tabs:is(:where(.mo-tabs).mo-is-primary, :where(.mo-tabs).mo-is-secondary) {
     box-shadow: none;
   }
   @media (prefers-reduced-motion: reduce) {
-    .mo-tabs__primary .mo-tabs__tab-content::after,
-    .mo-tabs__secondary .mo-tabs__tab::after {
+    :where(.mo-tabs).mo-is-primary .mo-tabs__tab-content::after,
+    :where(.mo-tabs).mo-is-secondary .mo-tabs__tab::after {
       transition: none;
     }
   }

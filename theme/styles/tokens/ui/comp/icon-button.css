@@ -18,7 +18,7 @@
 }
 /* The sizes: Material's five, the small one the default; and the widths, narrower or wider than high. */
 @layer components {
-  .mo-icon-button__xsmall {
+  :where(.mo-icon-button).mo-is-xsmall {
     --mo-comp-icon-button-box: var(--mo-comp-icon-button-xsmall-size, 2.25rem);
     --mo-comp-icon-button-glyph: var(--mo-comp-icon-button-xsmall-icon-size, 1.25rem);
     --mo-comp-icon-button-square: var(
@@ -29,7 +29,7 @@
   }
 }
 @layer components {
-  .mo-icon-button__medium {
+  :where(.mo-icon-button).mo-is-medium {
     --mo-comp-icon-button-box: var(--mo-comp-icon-button-medium-size, 3.75rem);
     --mo-comp-icon-button-glyph: var(--mo-comp-icon-button-medium-icon-size, 1.5rem);
     --mo-comp-icon-button-square: var(
@@ -40,7 +40,7 @@
   }
 }
 @layer components {
-  .mo-icon-button__large {
+  :where(.mo-icon-button).mo-is-large {
     --mo-comp-icon-button-box: var(--mo-comp-icon-button-large-size, 6rem);
     --mo-comp-icon-button-glyph: var(--mo-comp-icon-button-large-icon-size, 2rem);
     --mo-comp-icon-button-square: var(
@@ -51,7 +51,7 @@
   }
 }
 @layer components {
-  .mo-icon-button__xlarge {
+  :where(.mo-icon-button).mo-is-xlarge {
     --mo-comp-icon-button-box: var(--mo-comp-icon-button-xlarge-size, 8.5rem);
     --mo-comp-icon-button-glyph: var(--mo-comp-icon-button-xlarge-icon-size, 2.5rem);
     --mo-comp-icon-button-square: var(
@@ -62,24 +62,24 @@
   }
 }
 @layer components {
-  .mo-icon-button__narrow {
+  :where(.mo-icon-button).mo-is-narrow {
     --mo-comp-icon-button-ratio: var(--mo-comp-icon-button-narrow-ratio, 0.8);
   }
 }
 @layer components {
-  .mo-icon-button__wide {
+  :where(.mo-icon-button).mo-is-wide {
     --mo-comp-icon-button-ratio: var(--mo-comp-icon-button-wide-ratio, 1.3);
   }
 }
 /* The shapes: round (the default) or square; a toggle that is on takes the other one. */
 @layer components {
-  .mo-icon-button__square,
+  :where(.mo-icon-button).mo-is-square,
   .mo-icon-button[aria-pressed='true'] {
     --mo-comp-icon-button-corners: var(--mo-comp-icon-button-square);
   }
 }
 @layer components {
-  .mo-icon-button__square[aria-pressed='true'] {
+  :where(.mo-icon-button).mo-is-square[aria-pressed='true'] {
     --mo-comp-icon-button-corners: var(--mo-comp-icon-button-round);
   }
 }
@@ -92,7 +92,7 @@
 }
 @layer components {
   @media (width >= 37.5rem) {
-    .mo-bottom-sheet__container[data-wide='side-sheet'] > .mo-bottom-sheet__header {
+    :where(.mo-sheet__container).mo-is-bottom[data-wide='side-sheet'] > .mo-sheet__header {
       --mo-comp-icon-button-small-container-height: 3rem;
       --mo-comp-icon-button-small-icon-size: 1.5rem;
     }
@@ -110,7 +110,7 @@
   }
 }
 @layer components {
-  .mo-toolbar__vibrant {
+  :where(.mo-toolbar).mo-is-vibrant {
     --mo-comp-icon-button-standard-surface: transparent;
     --mo-comp-icon-button-standard-line: transparent;
     --mo-comp-icon-button-standard-icon-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent));

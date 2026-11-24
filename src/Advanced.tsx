@@ -249,7 +249,7 @@ export default function Advanced({ env }: { env: Env }) {
                 target="_blank"
                 rel="noopener"
                 kind="text"
-                size="small"
+
                 icon={materialIcon('open_in_new')}
                 className="mo-setting-list__action"
               >

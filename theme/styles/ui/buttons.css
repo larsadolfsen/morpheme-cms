@@ -4,8 +4,8 @@
   ripple's :where(.mo-button, .mo-icon-button, …) position list. base.css imports this file right before ui.css, after the Lightbox, where the buttons stood.
 
   Buttons (Button.tsx, buttonClass): .mo-button with its kind, .mo-is-filled, .mo-is-tonal, .mo-is-elevated,
-  .mo-is-outlined or .mo-button__text, its size, .mo-button__xsmall, .mo-button__small, none (medium), .mo-button__large or
-  .mo-button__xlarge, and its shape, none (round) or .mo-button__square; the icon before the label, and .mo-button__trailing-icon
+  .mo-is-outlined or .mo-button.mo-is-text, its size, .mo-button.mo-is-xsmall, , none (medium), .mo-button.mo-is-large or
+  .mo-button.mo-is-xlarge, and its shape, none (round) or .mo-button.mo-is-square; the icon before the label, and .mo-button__trailing-icon
   after it. A toggle button has aria-pressed: off, a filled one in the toggle's surface (the others as their kind), on
   in its kind's selected colours with its corners square (round when it is square), its icon filled
   (.mo-button__selected-icon in .mo-button__unselected-icon's place) where the site draws it filled. Pressed, the corners are
@@ -38,9 +38,9 @@
     --mo-comp-button-busy-delay   the wait before it shows (200ms; a shorter wait shows nothing)
     --mo-comp-button-busy-indicator-size   a button's indicator (1.5rem, or its icon's size where that is larger)
     --mo-comp-icon-button-busy-indicator-size   an icon button's indicator (its icon's size)
-  Icon buttons (IconButton.tsx, iconButtonClass): .mo-icon-button with its kind, .mo-icon-button__standard, -filled, -tonal or
-  -outlined, its size, .mo-icon-button__xsmall, none (small), -medium, -large or -xlarge, its width, .mo-icon-button__narrow,
-  none or -wide, and its shape, none (round) or .mo-icon-button__square. A toggle as a button's (aria-pressed; the filled
+  Icon buttons (IconButton.tsx, iconButtonClass): .mo-icon-button with its kind, .mo-icon-button.mo-is-standard, -filled, -tonal or
+  -outlined, its size, .mo-icon-button.mo-is-xsmall, none (small), -medium, -large or -xlarge, its width, .mo-icon-button.mo-is-narrow,
+  none or -wide, and its shape, none (round) or .mo-icon-button.mo-is-square. A toggle as a button's (aria-pressed; the filled
   one off and on in the button toggle's colours; .mo-icon-button__selected-icon and -unselected-icon).
     --mo-comp-icon-button-small-container-height, --mo-comp-icon-button-small-icon-size   the small size (the default)
     --mo-comp-icon-button-xsmall-size, -icon-size; --icon-button-medium-…; --icon-button-large-…; --icon-button-xlarge-…
@@ -130,22 +130,19 @@
     }
   }
   /* The sizes: Material's five, the medium one the default. */
-  .mo-button__xsmall {
+  :where(.mo-button).mo-is-xsmall {
     gap: var(--mo-comp-button-xsmall-icon-label-space, 0.4rem);
     font-size: var(--mo-comp-button-xsmall-font-size, var(--mo-sys-typescale-label-large-size));
   }
-  .mo-button__xsmall > .mo-button__trailing-icon {
+  :where(.mo-button).mo-is-xsmall > .mo-button__trailing-icon {
     width: var(--mo-comp-button-glyph);
     height: var(--mo-comp-button-glyph);
   }
-  .mo-button__small {
-    font-size: var(--mo-comp-button-small-font-size, var(--mo-sys-typescale-label-large-size));
-  }
-  .mo-button__large {
+  :where(.mo-button).mo-is-large {
     gap: var(--mo-comp-button-large-gap, 0.75rem);
     font-size: var(--mo-comp-button-large-font-size, var(--mo-sys-typescale-headline-small-size));
   }
-  .mo-button__xlarge {
+  :where(.mo-button).mo-is-xlarge {
     gap: var(--mo-comp-button-xlarge-gap, 1rem);
     font-size: var(--mo-comp-button-xlarge-font-size, var(--mo-sys-typescale-headline-large-size));
   }
@@ -216,12 +213,12 @@
     }
   }
   /* Text: no container, only its label in the accent; its side padding is the other buttons' of its size (M3 prints no spacing token of its own for a text button: md.comp.button.small.leading-space and trailing-space, 16 dp). */
-  .mo-button__text {
+  :where(.mo-button).mo-is-text {
     background: transparent;
     color: var(--mo-comp-button-text-label-text-color, var(--mo-comp-block-accent));
   }
   @media (hover: hover) {
-    .mo-button__text:hover {
+    :where(.mo-button).mo-is-text:hover {
       background: var(
         --mo-comp-button-text-hover,
         color-mix(in srgb, var(--mo-comp-block-accent) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
@@ -348,13 +345,13 @@
     cursor: default;
   }
   /* Standard: only the icon, a light shade when pointed at. */
-  .mo-icon-button__standard {
+  :where(.mo-icon-button).mo-is-standard {
     background: var(--mo-comp-icon-button-standard-surface, transparent);
     color: var(--mo-comp-icon-button-standard-icon-color, var(--mo-comp-block-text));
     box-shadow: inset 0 0 0 1px var(--mo-comp-icon-button-standard-line, transparent);
   }
   @media (hover: hover) {
-    .mo-icon-button__standard:hover {
+    :where(.mo-icon-button).mo-is-standard:hover {
       background: color-mix(
         in srgb,
         currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
@@ -404,7 +401,7 @@
   /* Toggle icon buttons (aria-pressed): the standard one's icon in the accent when on; the filled one off and on as a
      filled toggle button; the tonal one off on a quiet surface and on in the secondary container; the outlined one on
      turned round, as an outlined toggle button. */
-  .mo-icon-button__standard[aria-pressed='true'] {
+  :where(.mo-icon-button).mo-is-standard[aria-pressed='true'] {
     color: var(--mo-comp-icon-button-standard-selected-text, var(--mo-comp-block-accent));
   }
   :where(.mo-icon-button).mo-is-filled[aria-pressed='false'] {

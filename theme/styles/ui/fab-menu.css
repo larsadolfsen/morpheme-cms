@@ -5,11 +5,11 @@
   button as wide as the button is high.
     --mo-comp-split-button-gap, --mo-comp-split-button-menu-gap
     --mo-comp-split-button-medium-inner-corner-corner-size (up to medium), --mo-comp-split-button-large-inner-corner-corner-size, --mo-comp-split-button-xlarge-inner-corner-corner-size
-  FAB menu (FabMenu, fabMenuClass): .mo-fab-menu with its colour set, .mo-fab-menu__primary, .mo-fab-menu__secondary or
-  .mo-fab-menu__tertiary; its .mo-fab in any size and colour (.mo-fab-menu__button, aria-expanded: .mo-fab-menu__icon, or while open
+  FAB menu (FabMenu, fabMenuClass): .mo-fab-menu with its colour set, .mo-fab-menu.mo-is-primary, .mo-fab-menu.mo-is-secondary or
+  .mo-fab-menu.mo-is-tertiary; its .mo-fab in any size and colour (.mo-fab-menu__button, aria-expanded: .mo-fab-menu__icon, or while open
   the close button: .mo-fab-menu__close-icon, the close size and corners and the set's filled colour, the FAB's
   --fab-<colour>-… variables) and .mo-fab-menu__list above it at its end, each action an .mo-extended-fab (.mo-fab-menu__item) in
-  the set's container colour (.mo-fab__primary-container …). It keeps the place of a medium or large FAB while that is the
+  the set's container colour (.mo-fab.mo-is-primary-container …). It keeps the place of a medium or large FAB while that is the
   smaller close button.
     --mo-comp-fab-menu-gap, --mo-comp-fab-menu-item-gap, --mo-comp-fab-menu-close-size, --mo-comp-fab-menu-close-radius, --mo-comp-fab-menu-close-icon-size
   Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
@@ -71,11 +71,11 @@
     justify-content: flex-end;
   }
   /* The place of the FAB that opened it, while that is the smaller close button (its bottom end stays where it was). */
-  .mo-fab-menu:has(> .mo-fab__medium) {
+  .mo-fab-menu:has(> :where(.mo-fab).mo-is-medium) {
     min-width: var(--mo-comp-fab-medium-size, 5rem);
     min-height: var(--mo-comp-fab-medium-size, 5rem);
   }
-  .mo-fab-menu:has(> .mo-fab__large) {
+  .mo-fab-menu:has(> :where(.mo-fab).mo-is-large) {
     min-width: var(--mo-comp-fab-large-size, 6rem);
     min-height: var(--mo-comp-fab-large-size, 6rem);
   }
@@ -146,21 +146,21 @@
     width: var(--mo-comp-fab-menu-close-icon-size, var(--mo-comp-fab-icon-size, 1.5rem));
     height: var(--mo-comp-fab-menu-close-icon-size, var(--mo-comp-fab-icon-size, 1.5rem));
   }
-  .mo-fab-menu__primary > .mo-fab-menu__button[aria-expanded='true'] {
+  :where(.mo-fab-menu).mo-is-primary > .mo-fab-menu__button[aria-expanded='true'] {
     background: var(--mo-comp-fab-primary-surface, var(--mo-comp-block-accent));
     color: var(--mo-comp-fab-primary-text, var(--mo-comp-block-on-accent));
   }
-  .mo-fab-menu__primary > .mo-fab-menu__button[aria-expanded='true']:hover {
+  :where(.mo-fab-menu).mo-is-primary > .mo-fab-menu__button[aria-expanded='true']:hover {
     background: var(--mo-comp-fab-primary-hover, var(--mo-comp-block-accent-hover));
   }
-  .mo-fab-menu__primary > .mo-fab-menu__button[aria-expanded='true']:active {
+  :where(.mo-fab-menu).mo-is-primary > .mo-fab-menu__button[aria-expanded='true']:active {
     background: var(--mo-comp-fab-primary-pressed, var(--mo-comp-fab-primary-hover, var(--mo-comp-block-accent-hover)));
   }
-  .mo-fab-menu__secondary > .mo-fab-menu__button[aria-expanded='true'] {
+  :where(.mo-fab-menu).mo-is-secondary > .mo-fab-menu__button[aria-expanded='true'] {
     background: var(--mo-comp-fab-secondary-surface, var(--mo-sys-color-secondary));
     color: var(--mo-comp-fab-secondary-text, var(--mo-sys-color-on-secondary));
   }
-  .mo-fab-menu__secondary > .mo-fab-menu__button[aria-expanded='true']:hover {
+  :where(.mo-fab-menu).mo-is-secondary > .mo-fab-menu__button[aria-expanded='true']:hover {
     background: var(
       --mo-comp-fab-secondary-hover,
       color-mix(
@@ -170,7 +170,7 @@
       )
     );
   }
-  .mo-fab-menu__secondary > .mo-fab-menu__button[aria-expanded='true']:active {
+  :where(.mo-fab-menu).mo-is-secondary > .mo-fab-menu__button[aria-expanded='true']:active {
     background: var(
       --mo-comp-fab-secondary-pressed,
       var(
@@ -183,11 +183,11 @@
       )
     );
   }
-  .mo-fab-menu__tertiary > .mo-fab-menu__button[aria-expanded='true'] {
+  :where(.mo-fab-menu).mo-is-tertiary > .mo-fab-menu__button[aria-expanded='true'] {
     background: var(--mo-comp-fab-tertiary-surface, var(--mo-sys-color-tertiary));
     color: var(--mo-comp-fab-tertiary-text, var(--mo-sys-color-on-tertiary));
   }
-  .mo-fab-menu__tertiary > .mo-fab-menu__button[aria-expanded='true']:hover {
+  :where(.mo-fab-menu).mo-is-tertiary > .mo-fab-menu__button[aria-expanded='true']:hover {
     background: var(
       --mo-comp-fab-tertiary-hover,
       color-mix(
@@ -197,7 +197,7 @@
       )
     );
   }
-  .mo-fab-menu__tertiary > .mo-fab-menu__button[aria-expanded='true']:active {
+  :where(.mo-fab-menu).mo-is-tertiary > .mo-fab-menu__button[aria-expanded='true']:active {
     background: var(
       --mo-comp-fab-tertiary-pressed,
       var(

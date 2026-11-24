@@ -1,9 +1,9 @@
 /*
   Side sheets (SideSheet.tsx, sideSheetClass, sideSheetContainerClass, and sideSheet() and standardSideSheet() in
-  sideSheetControl.ts for what they do in a browser, sideSheet.script.ts for a button with data-side-sheet-open="<id>"; m3.material.io/components/side-sheets): .mo-side-sheet__container with its kind,
-  .mo-side-sheet__standard (beside what it is about, with a line between) or .mo-side-sheet__modal (over the page, in the
-  <dialog> .mo-side-sheet at the side of the screen, over the scrim like a dialog's); in it .mo-side-sheet__header
-  (.mo-side-sheet__headline and the close button), .mo-side-sheet__content (scrolling) and .mo-side-sheet__actions.
+  sideSheetControl.ts for what they do in a browser, sideSheet.script.ts for a button with data-side-sheet-open="<id>"; m3.material.io/components/side-sheets): .mo-sheet__container.mo-is-side with its kind,
+  .mo-sheet__standard.mo-is-side (beside what it is about, with a line between) or .mo-sheet__modal (over the page, in the
+  <dialog> .mo-sheet.mo-is-side at the side of the screen, over the scrim like a dialog's); in it .mo-is-side .mo-sheet__header
+  (.mo-is-side .mo-sheet__headline and the close button), .mo-is-side .mo-sheet__content (scrolling) and .mo-is-side .mo-sheet__actions.
     --mo-comp-side-sheet-width   how wide it is (a modal one leaves room for the scrim on a phone)
     --mo-comp-side-sheet-surface, --mo-comp-side-sheet-line   a standard one's surface and the line between it and the page
     --mo-comp-side-sheet-modal-surface, --mo-comp-sheet-side-docked-modal-container-shape, --mo-comp-side-sheet-shadow   a modal one's surface, its corners towards
@@ -21,7 +21,7 @@
 */
 @layer components {
   /* Side sheets: the header, what it shows (scrolling) and the actions at the bottom. */
-  .mo-side-sheet__container {
+  :where(.mo-sheet__container).mo-is-side {
     display: flex;
     width: var(--mo-comp-side-sheet-width, 22.5rem);
     max-width: 100%;
@@ -31,17 +31,17 @@
     background: var(--mo-comp-side-sheet-surface, var(--mo-sys-elevation-level0-color));
     color: var(--mo-comp-block-text);
   }
-  .mo-side-sheet__container[hidden] {
+  :where(.mo-sheet__container).mo-is-side[hidden] {
     display: none;
   }
   /* The sheet itself has the focus when it opens, so no control shows a focus ring from the start. */
-  .mo-side-sheet__container:focus {
+  :where(.mo-sheet__container).mo-is-side:focus {
     outline: none;
   }
-  .mo-side-sheet__standard {
+  :where(.mo-sheet__standard).mo-is-side {
     border-inline-start: 1px solid var(--mo-comp-side-sheet-line, var(--mo-comp-block-line));
   }
-  .mo-side-sheet__modal {
+  .mo-sheet__modal {
     width: 100%;
     height: 100%;
     border-start-start-radius: var(--mo-comp-sheet-side-docked-modal-container-shape, var(--mo-comp-block-radius));
@@ -52,7 +52,7 @@
   /* M3's measures run to the close icon's glyph, and its button holds the space round the glyph (--mo-comp-sheet-side-icon-inset),
      so the header takes that off its top and end padding and has no gap: 24 from the top and the end edges to the glyph,
      12 between the headline and the glyph. */
-  .mo-side-sheet__header {
+  :where(.mo-is-side) .mo-sheet__header {
     display: flex;
     flex-shrink: 0;
     align-items: center;
@@ -63,10 +63,10 @@
   }
   /* With a back icon button (M3's modal side sheet: "Start padding with icon" 16): 16 from the start edge to the back glyph, then 12 to the
      headline (the button's own space round the glyph is that 12, so no gap). */
-  .mo-side-sheet__header[data-has-back] {
+  :where(.mo-is-side) .mo-sheet__header[data-has-back] {
     padding-inline-start: calc(1rem - var(--mo-comp-sheet-side-icon-inset));
   }
-  .mo-side-sheet__headline {
+  :where(.mo-is-side) .mo-sheet__headline {
     flex: 1;
     min-width: 0;
     margin: 0;
@@ -75,14 +75,14 @@
     line-height: var(--mo-sys-typescale-title-large-line-height);
     letter-spacing: var(--mo-sys-typescale-title-large-tracking);
   }
-  .mo-side-sheet__content {
+  :where(.mo-is-side) .mo-sheet__content {
     flex: 1;
     min-height: 0;
     overflow-y: auto;
     padding: var(--mo-comp-side-sheet-content-top, 1rem) var(--mo-comp-side-sheet-padding, 1.5rem) var(--mo-comp-side-sheet-padding, 1.5rem);
   }
   /* M3's actions: at least 72 high, 16 above and 24 below (more where the screen has a safe area), at the start. */
-  .mo-side-sheet__actions {
+  :where(.mo-is-side) .mo-sheet__actions {
     display: flex;
     min-height: 4.5rem;
     flex-shrink: 0;
@@ -95,7 +95,7 @@
     padding: 1rem var(--mo-comp-side-sheet-padding, 1.5rem) max(var(--mo-comp-side-sheet-padding, 1.5rem), env(safe-area-inset-bottom));
   }
   /* A modal side sheet: in a <dialog> at the end of the screen, as high as it, over the scrim. */
-  .mo-side-sheet {
+  :where(.mo-sheet).mo-is-side {
     position: fixed;
     inset: 0 0 0 auto;
     width: min(var(--mo-comp-side-sheet-width, 22.5rem), calc(100% - 3.5rem));
@@ -109,17 +109,17 @@
     color: var(--mo-comp-block-text);
     overflow: visible;
   }
-  .mo-side-sheet:dir(rtl) {
+  :where(.mo-sheet).mo-is-side:dir(rtl) {
     inset: 0 auto 0 0;
   }
-  .mo-side-sheet::backdrop {
+  :where(.mo-sheet).mo-is-side::backdrop {
     background: var(
       --mo-comp-sheet-side-scrim,
       color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-comp-block-text)) 50%, transparent)
     );
   }
   @media (prefers-reduced-motion: no-preference) {
-    .mo-side-sheet[open]::backdrop {
+    :where(.mo-sheet).mo-is-side[open]::backdrop {
       animation: dialog-scrim-in var(--mo-sys-motion-spring-slow-effects);
     }
   }

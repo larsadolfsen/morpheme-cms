@@ -32,7 +32,7 @@ export function LineNav({ line }: { line: string }) {
       {newer ? (
         <LinkButton
           kind="outlined"
-          size="small"
+
           href={lineHref(newer.line)}
           icon={materialIcon('arrow_back')}
           aria-label={t.library.cmsVersion(newer.line)}
@@ -45,7 +45,7 @@ export function LineNav({ line }: { line: string }) {
       {older && (
         <LinkButton
           kind="outlined"
-          size="small"
+
           href={lineHref(older.line)}
           icon={materialIcon('arrow_forward')}
           aria-label={t.library.cmsVersion(older.line)}

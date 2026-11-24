@@ -4,8 +4,8 @@
   Without a kind what is in it is the header's own; with one, Material's elements in their places: .mo-top-app-bar__leading
   (the leading button), .mo-top-app-bar__headline-group (.mo-top-app-bar__headline and .mo-top-app-bar__subtitle) or, in a search
   app bar, .mo-top-app-bar__search-bar (the theme's search bar), and .mo-top-app-bar__trailing (icon buttons, an avatar, a filled
-  button). The kinds: .mo-top-app-bar__search, .mo-top-app-bar__small (the headline in the bar), .mo-top-app-bar__medium-flexible and
-  .mo-top-app-bar__large-flexible (a larger headline under the bar, wrapping; in the bar once [data-collapsed]); with
+  button). The kinds: .mo-top-app-bar__search, .mo-top-app-bar.mo-is-small (the headline in the bar), .mo-top-app-bar.mo-is-medium-flexible and
+  .mo-top-app-bar.mo-is-large-flexible (a larger headline under the bar, wrapping; in the bar once [data-collapsed]); with
   .mo-top-app-bar__center the headline (or the search bar's text) in the middle.
     --mo-comp-top-app-bar-surface, --mo-comp-top-app-bar-line, --mo-comp-top-app-bar-line-width, --mo-comp-top-app-bar-backdrop
     --mo-comp-top-app-bar-stuck-surface (level 2's colour), --mo-comp-top-app-bar-stuck-line, --mo-comp-top-app-bar-stuck-shadow   (the shadow: level 2, M3's on
@@ -39,7 +39,12 @@
   }
   /* With a kind: the leading button, the headline (or the search bar) and the trailing elements in a row, and what else
      is in it under them. */
-  .mo-top-app-bar:is(.mo-top-app-bar__search, .mo-top-app-bar__small, .mo-top-app-bar__medium-flexible, .mo-top-app-bar__large-flexible) {
+  .mo-top-app-bar:is(
+    .mo-top-app-bar__search,
+    :where(.mo-top-app-bar).mo-is-small,
+    :where(.mo-top-app-bar).mo-is-medium-flexible,
+    :where(.mo-top-app-bar).mo-is-large-flexible
+  ) {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto;
     grid-template-areas: 'leading headline trailing';
@@ -106,9 +111,9 @@
   }
   /* In the middle: the headline between two equal sides; a search app bar keeps its width and centres its text. */
   .mo-top-app-bar__center:is(
-    .mo-top-app-bar__small,
-    .mo-top-app-bar__medium-flexible[data-collapsed],
-    .mo-top-app-bar__large-flexible[data-collapsed]
+    :where(.mo-top-app-bar).mo-is-small,
+    :where(.mo-top-app-bar).mo-is-medium-flexible[data-collapsed],
+    :where(.mo-top-app-bar).mo-is-large-flexible[data-collapsed]
   ) {
     grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr);
   }
@@ -121,42 +126,42 @@
   }
   /* Medium and large flexible: the bar with the buttons, the headline under it, larger and wrapping when it is long;
      collapsed, the headline in the bar as in a small one. */
-  .mo-top-app-bar:is(.mo-top-app-bar__medium-flexible, .mo-top-app-bar__large-flexible) {
+  .mo-top-app-bar:is(:where(.mo-top-app-bar).mo-is-medium-flexible, :where(.mo-top-app-bar).mo-is-large-flexible) {
     grid-template-rows: var(--mo-comp-top-app-bar-height, 4rem) auto;
     grid-template-areas:
       'leading . trailing'
       'headline headline headline';
   }
-  .mo-top-app-bar:is(.mo-top-app-bar__medium-flexible, .mo-top-app-bar__large-flexible):not([data-collapsed])
+  .mo-top-app-bar:is(:where(.mo-top-app-bar).mo-is-medium-flexible, :where(.mo-top-app-bar).mo-is-large-flexible):not([data-collapsed])
     :is(.mo-top-app-bar__headline, .mo-top-app-bar__subtitle) {
     white-space: normal;
     overflow-wrap: break-word;
   }
-  .mo-top-app-bar__medium-flexible:not([data-collapsed]) .mo-top-app-bar__headline-group {
+  :where(.mo-top-app-bar).mo-is-medium-flexible:not([data-collapsed]) .mo-top-app-bar__headline-group {
     padding-bottom: var(--mo-comp-top-app-bar-medium-padding-bottom, 0.75rem);
   }
-  .mo-top-app-bar__medium-flexible:not([data-collapsed]) .mo-top-app-bar__headline {
+  :where(.mo-top-app-bar).mo-is-medium-flexible:not([data-collapsed]) .mo-top-app-bar__headline {
     font-size: var(--mo-comp-top-app-bar-medium-headline-font-size, var(--mo-sys-typescale-headline-medium-size));
     line-height: var(--mo-sys-typescale-headline-medium-line-height);
   }
-  .mo-top-app-bar__medium-flexible:not([data-collapsed]) .mo-top-app-bar__subtitle {
+  :where(.mo-top-app-bar).mo-is-medium-flexible:not([data-collapsed]) .mo-top-app-bar__subtitle {
     margin-top: 0.125rem;
     font-size: var(--mo-comp-top-app-bar-medium-subtitle-font-size, var(--mo-sys-typescale-label-large-size));
     line-height: var(--mo-sys-typescale-label-large-line-height);
   }
-  .mo-top-app-bar__large-flexible:not([data-collapsed]) .mo-top-app-bar__headline-group {
+  :where(.mo-top-app-bar).mo-is-large-flexible:not([data-collapsed]) .mo-top-app-bar__headline-group {
     padding-bottom: var(--mo-comp-top-app-bar-large-padding-bottom, 1rem);
   }
-  .mo-top-app-bar__large-flexible:not([data-collapsed]) .mo-top-app-bar__headline {
+  :where(.mo-top-app-bar).mo-is-large-flexible:not([data-collapsed]) .mo-top-app-bar__headline {
     font-size: var(--mo-comp-top-app-bar-large-headline-font-size, var(--mo-sys-typescale-display-small-size));
     line-height: var(--mo-sys-typescale-display-small-line-height);
   }
-  .mo-top-app-bar__large-flexible:not([data-collapsed]) .mo-top-app-bar__subtitle {
+  :where(.mo-top-app-bar).mo-is-large-flexible:not([data-collapsed]) .mo-top-app-bar__subtitle {
     margin-top: 0.25rem;
     font-size: var(--mo-comp-top-app-bar-large-subtitle-font-size, var(--mo-sys-typescale-title-medium-size));
     line-height: var(--mo-sys-typescale-title-medium-line-height);
   }
-  .mo-top-app-bar:is(.mo-top-app-bar__medium-flexible, .mo-top-app-bar__large-flexible)[data-collapsed] {
+  .mo-top-app-bar:is(:where(.mo-top-app-bar).mo-is-medium-flexible, :where(.mo-top-app-bar).mo-is-large-flexible)[data-collapsed] {
     grid-template-rows: auto;
     grid-template-areas: 'leading headline trailing';
   }

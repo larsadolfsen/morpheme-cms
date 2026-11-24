@@ -1,6 +1,6 @@
 /*
   Menu (Menu, MenuItem, MenuGroup, MenuDivider, DropdownMenu, menuClass, menuClasses, menuItemClass): .mo-menu, a surface
-  with its items, .mo-menu__vibrant in the accent; .mo-menu__item, a link or a <button>, with .mo-menu__item-leading (.mo-menu__item-icon,
+  with its items, .mo-menu.mo-is-vibrant in the accent; .mo-menu__item, a link or a <button>, with .mo-menu__item-leading (.mo-menu__item-icon,
   and .mo-menu__item-check, the tick of an item that is on), .mo-menu__item-text (.mo-menu__item-label, .mo-menu__item-supporting),
   .mo-menu__item-trailing-supporting and .mo-menu__item-trailing-icon; the chosen one with aria-current, or aria-checked (in a
   WAI-ARIA menu) or aria-pressed (elsewhere); :disabled or aria-disabled. Groups: .mo-menu__group (optionally .mo-menu__group-label
@@ -20,9 +20,9 @@
     --mo-comp-menu-vibrant-surface, --mo-comp-menu-vibrant-text, --mo-comp-menu-vibrant-selected-surface, --mo-comp-menu-vibrant-selected-text
     --mo-comp-menu-submenu-gap, --mo-comp-dropdown-menu-gap   between a submenu and its item, and a dropdown menu and its button
   Exposed dropdown menu (ExposedDropdownMenu, exposedDropdownMenuClass): the theme's text field (.mo-text-field with its
-  kind) with .mo-exposed-dropdown-menu, in its .mo-text-field__container its <select> (.mo-text-field__input,
-  .mo-exposed-dropdown-menu__select), its name and the arrow at its end (.mo-exposed-dropdown-menu__icon, turned while it is open); where the browser can style the select's menu
-  (appearance: base-select), the menu (::picker(select)) and its options (.mo-exposed-dropdown-menu__option, the chosen one
+  kind) with .mo-select, in its .mo-text-field__container its <select> (.mo-text-field__input,
+  .mo-select__select), its name and the arrow at its end (.mo-select__icon, turned while it is open); where the browser can style the select's menu
+  (appearance: base-select), the menu (::picker(select)) and its options (.mo-select__option, the chosen one
   :checked) are drawn with the menu's variables.
     --mo-comp-exposed-dropdown-menu-icon-size, --mo-comp-exposed-dropdown-menu-icon-color
   Moved here from ui.css with its rules unchanged and in their order, in the same layer, imported by base.css after top-app-bar.css (docs/superpowers/plans/2026-11-16-css-split.md).
@@ -219,7 +219,7 @@
   .mo-menu__divider {
     margin: var(--mo-comp-menu-divider-margin, 0.375rem) 0;
   }
-  .mo-menu__vibrant
+  :where(.mo-menu).mo-is-vibrant
     .mo-menu__item:is([aria-current='page'], [aria-current='true'], [aria-checked='true'], [aria-pressed='true'])
     :is(.mo-menu__item-icon, .mo-menu__item-trailing-icon, .mo-menu__item-supporting, .mo-menu__item-trailing-supporting) {
     color: inherit;
@@ -314,17 +314,17 @@
 
   /* Exposed dropdown menu (m3.material.io/components/menus): the theme's text field with the browser's <select> and
      an arrow at its end; its menu the theme's where the browser can style it. */
-  .mo-exposed-dropdown-menu__select {
+  .mo-select__select {
     width: 100%;
     appearance: none;
     padding-inline-end: calc(var(--mo-comp-text-field-padding, 1.25rem) + var(--mo-comp-exposed-dropdown-menu-icon-size, 1.25rem) + 0.5rem);
     text-overflow: ellipsis;
     cursor: pointer;
   }
-  .mo-exposed-dropdown-menu__select:disabled {
+  .mo-select__select:disabled {
     cursor: default;
   }
-  .mo-exposed-dropdown-menu__icon {
+  .mo-select__icon {
     position: absolute;
     top: 50%;
     inset-inline-end: var(--mo-comp-text-field-padding, 1.25rem);
@@ -335,16 +335,14 @@
     translate: 0 -50%;
     transition: rotate var(--mo-sys-motion-spring-fast-spatial);
   }
-  .mo-exposed-dropdown-menu__select:disabled ~ .mo-exposed-dropdown-menu__icon {
+  .mo-select__select:disabled ~ .mo-select__icon {
     opacity: 0.6;
   }
-  .mo-exposed-dropdown-menu:has(.mo-exposed-dropdown-menu__select:open) .mo-exposed-dropdown-menu__icon {
+  .mo-select:has(.mo-select__select:open) .mo-select__icon {
     rotate: 180deg;
   }
   /* Nothing chosen yet: the name stands in the field, as on an empty text field. */
-  .mo-exposed-dropdown-menu:has(.mo-exposed-dropdown-menu__empty:checked)
-    .mo-exposed-dropdown-menu__select:not(:focus)
-    + .mo-text-field__label {
+  .mo-select:has(.mo-select__empty:checked) .mo-select__select:not(:focus) + .mo-text-field__label {
     top: calc(var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) / 2);
     margin-left: 0;
     padding: 0;
@@ -353,18 +351,18 @@
     transform: translateY(-50%);
   }
   @supports (appearance: base-select) {
-    .mo-exposed-dropdown-menu__select,
-    .mo-exposed-dropdown-menu__select::picker(select) {
+    .mo-select__select,
+    .mo-select__select::picker(select) {
       appearance: base-select;
     }
-    .mo-exposed-dropdown-menu__select {
+    .mo-select__select {
       display: flex;
       align-items: center;
     }
-    .mo-exposed-dropdown-menu__select::picker-icon {
+    .mo-select__select::picker-icon {
       display: none;
     }
-    .mo-exposed-dropdown-menu__select::picker(select) {
+    .mo-select__select::picker(select) {
       max-height: var(--mo-comp-menu-max-height, min(20rem, calc(100dvh - 2rem)));
       margin-block: var(--mo-comp-dropdown-menu-gap, 0.25rem);
       border: 0;
@@ -376,7 +374,7 @@
         var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-shadow));
       color: var(--mo-comp-block-text);
     }
-    .mo-exposed-dropdown-menu__option {
+    .mo-select__option {
       min-height: calc(var(--mo-comp-menus-menu-item-height, 0px) + var(--mo-sys-density) * var(--mo-sys-density-step));
       border-radius: var(--mo-comp-menus-menu-item-shape, calc(var(--mo-comp-block-radius-small) - 0.25rem));
       padding: var(--mo-comp-menu-item-padding, 0.5rem 0.75rem);
@@ -389,20 +387,20 @@
         background-color var(--mo-sys-motion-spring-fast-effects),
         color var(--mo-sys-motion-spring-fast-effects);
     }
-    .mo-exposed-dropdown-menu__option::checkmark {
+    .mo-select__option::checkmark {
       display: none;
     }
-    .mo-exposed-dropdown-menu__option:checked {
+    .mo-select__option:checked {
       background: var(--mo-comp-menus-standard-menu-item-selected-container-color, transparent);
       color: var(--mo-comp-menus-standard-menu-item-selected-label-text-color, var(--mo-comp-block-accent));
       font-weight: var(--mo-comp-menu-item-selected-weight, 500);
     }
-    .mo-exposed-dropdown-menu__option:is(:hover, :focus-visible) {
+    .mo-select__option:is(:hover, :focus-visible) {
       outline: none;
       background: var(--mo-comp-menu-item-hover-surface, var(--mo-comp-block-tint));
       color: var(--mo-comp-menu-item-hover-text, var(--mo-comp-block-accent));
     }
-    .mo-exposed-dropdown-menu__option:disabled {
+    .mo-select__option:disabled {
       opacity: var(--mo-comp-menu-item-disabled-opacity, 0.5);
       background: transparent;
       cursor: default;

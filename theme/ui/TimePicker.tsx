@@ -80,7 +80,7 @@ export default function TimePicker({
         data-time-picker-open=""
       />
       <input type="hidden" name={name} defaultValue={known ? value : ''} data-time-picker-value="" />
-      <dialog className="mo-dialog__modal mo-time-picker__dialog" aria-label={texts.select} data-time-picker-dialog=""></dialog>
+      <dialog className="mo-is-modal mo-is-dialog" aria-label={texts.select} data-time-picker-dialog=""></dialog>
     </div>
   );
 }

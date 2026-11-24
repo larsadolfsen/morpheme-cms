@@ -27,9 +27,9 @@ export const sliderClass = (range = false, size: SliderSize = 'xsmall', centered
   [
     'mo-slider',
     range && 'mo-slider__range',
-    centered && !range && 'mo-slider__centered',
-    size !== 'xsmall' && `mo-slider__${size}`,
-    orientation === 'vertical' && 'mo-slider__vertical',
+    centered && !range && 'mo-is-centered',
+    size !== 'xsmall' && `mo-is-${size}`,
+    orientation === 'vertical' && 'mo-is-vertical',
   ]
     .filter(Boolean)
     .join(' ');
@@ -141,7 +141,7 @@ export default function Slider({
           valueLabel && (
             <output
               key={`value-${i}`}
-              className={valueLabel === 'always' ? 'mo-slider__value mo-slider__value-always' : 'mo-slider__value'}
+              className={valueLabel === 'always' ? 'mo-slider__value mo-is-value-always' : 'mo-slider__value'}
               aria-hidden="true"
               data-slider-value=""
             >

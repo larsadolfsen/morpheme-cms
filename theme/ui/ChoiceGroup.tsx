@@ -174,9 +174,9 @@ export default function ChoiceGroup({
       {...rest}
     >
       {form === 'auto' && (
-        <div className="mo-button-group mo-button-group__connected mo-choice-group__measure" aria-hidden="true" inert>
+        <div className="mo-button-group mo-is-connected mo-choice-group__measure" aria-hidden="true" inert>
           {choices.map((c) => (
-            <Button key={c.value} kind="filled" size="small" selected={false} icon={c.icon} tabIndex={-1}>
+            <Button key={c.value} kind="filled" selected={false} icon={c.icon} tabIndex={-1}>
               {buttonContent(c)}
             </Button>
           ))}
@@ -187,7 +187,7 @@ export default function ChoiceGroup({
           <Button
             key={c.value}
             kind="filled"
-            size="small"
+
             selected={c.value === value}
             icon={c.icon}
             disabled={disabled || c.disabled}

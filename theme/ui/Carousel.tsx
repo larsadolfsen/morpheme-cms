@@ -38,7 +38,7 @@ export const carouselLayouts: CarouselLayout[] = ['multi-browse', 'uncontained',
 export const carouselClass = (layout: CarouselLayout = 'uncontained', alignment: CarouselAlignment = 'start') =>
   [
     'mo-carousel',
-    layout !== 'uncontained' && `mo-carousel__contained mo-carousel__${layout}`,
+    layout !== 'uncontained' && `mo-is-contained mo-is-${layout}`,
     layout === 'hero' && alignment === 'center' && 'mo-carousel__center',
   ]
     .filter(Boolean)

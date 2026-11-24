@@ -11,7 +11,7 @@ import { cms as cmsEn } from '../src/i18n/en-US/cms';
 import { cms as cmsDa } from '../src/i18n/da-DK/cms';
 import { withCiBuild } from '../lib/build-command.mjs';
 import { addToLock, NeedsNpm } from '../lib/lockfile.mjs';
-import { CLASS_NAMES_SINCE, holdsMarkdown, migrateClassNamesPath, revertClassNamesPath } from '../lib/content-class-names.mjs';
+import { crossesClassNames, holdsMarkdown, migrateClassNamesPath, revertClassNamesPath } from '../lib/content-class-names.mjs';
 import { contractHold, parseContracts } from '../lib/contractHold.mjs';
 import { checkDue, compareVersions, managedVersion, nextVersion, PACKAGE, siteZone, watchStep } from '../lib/cms-version.mjs';
 import { withInstallDefaults } from '../lib/npmrc.mjs';
@@ -165,10 +165,9 @@ export async function startUpdate(env, version, deps = defaultDeps, now = Date.n
   const changes = await filesFor(env, deps, site, version);
   // The version that reads only the new class names takes the site's content with it, in the same commit (only the `class`
   // attributes; never a word of text), so the site never has a version and content that do not match.
-  const migrated =
-    compareVersions(version, CLASS_NAMES_SINCE) >= 0 && compareVersions(managed.version, CLASS_NAMES_SINCE) < 0
-      ? await contentChanges(env, deps, migrateClassNamesPath)
-      : [];
+  const migrated = crossesClassNames(managed.version, version, compareVersions)
+    ? await contentChanges(env, deps, migrateClassNamesPath)
+    : [];
   const commit = await deps.commitFiles(env, site.head, siteTexts().commitUpdate(version), [...changes, ...migrated]);
   const update = {
     commit,

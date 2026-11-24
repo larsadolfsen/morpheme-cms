@@ -234,7 +234,7 @@ export default function DatePickerContainer({
 
   return (
     <Dialog
-      className={['mo-date-picker', `mo-date-picker__${modal ? 'modal' : 'docked'}`, className].filter(Boolean).join(' ')}
+      className={['mo-date-picker', modal ? 'mo-date-picker__modal' : 'mo-is-docked', className].filter(Boolean).join(' ')}
       data-view={view}
       data-range={range || undefined}
     >
@@ -304,10 +304,10 @@ export default function DatePickerContainer({
       </div>
 
       <div className="mo-date-picker__actions">
-        <Button kind="text" size="small" data-date-picker-action="cancel">
+        <Button kind="text" data-date-picker-action="cancel">
           {texts.cancel}
         </Button>
-        <Button kind="text" size="small" data-date-picker-action="ok">
+        <Button kind="text" data-date-picker-action="ok">
           {texts.ok}
         </Button>
       </div>

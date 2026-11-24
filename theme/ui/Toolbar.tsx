@@ -17,10 +17,10 @@ export type ToolbarColor = 'standard' | 'vibrant';
 
 /** A toolbar's classes; `expanded` false: collapsed into its FAB. */
 export const toolbarClass = (kind: ToolbarKind = 'docked', color: ToolbarColor = 'standard', vertical = false, expanded = true) =>
-  `mo-toolbar mo-toolbar__${kind} mo-toolbar__${color}${vertical && kind === 'floating' ? ' mo-toolbar__vertical' : ''}${expanded ? '' : ' mo-toolbar__collapsed'}`;
+  `mo-toolbar mo-is-${kind} mo-is-${color}${vertical && kind === 'floating' ? ' mo-is-vertical' : ''}${expanded ? '' : ' mo-is-collapsed'}`;
 
 /** The classes of the box round a floating toolbar and its FAB. */
-export const toolbarWithFabClass = (vertical = false) => `mo-toolbar__with-fab${vertical ? ' mo-toolbar__with-fab-vertical' : ''}`;
+export const toolbarWithFabClass = (vertical = false) => `mo-is-with-fab${vertical ? ' mo-is-with-fab-vertical' : ''}`;
 
 export default function Toolbar({
   label,

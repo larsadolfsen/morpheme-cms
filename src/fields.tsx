@@ -264,11 +264,11 @@ export function HeadImage(props: Props) {
       </button>
       {text && (
         <div className="mo-editor-theme-picture-actions">
-          <Button kind="tonal" size="small" onClick={pick}>
+          <Button kind="tonal" onClick={pick}>
             {t.forms.changeImage}
           </Button>
           {!field.required && (
-            <Button kind="tonal" size="small" onClick={() => onChange('')}>
+            <Button kind="tonal" onClick={() => onChange('')}>
               {t.common.remove}
             </Button>
           )}
@@ -924,7 +924,7 @@ export function ListInput({
       </FoldList>
       {/* No more than `maxItems` (the action bar's two buttons). */}
       {canAdd && !(field.maxItems !== undefined && value.length >= field.maxItems) && (
-        <Button kind="outlined" size="small" icon={materialIcon('add')} className="mo-editor-field-add" onClick={add}>
+        <Button kind="outlined" icon={materialIcon('add')} className="mo-editor-field-add" onClick={add}>
           {t.forms.addOne(field.singular ?? t.forms.item)}
         </Button>
       )}
@@ -1168,7 +1168,7 @@ function AddItem({ field, sub = false, onClick }: { field: Field; sub?: boolean;
   return (
     <Button
       kind="text"
-      size="small"
+
       icon={materialIcon('add')}
       className={sub ? 'mo-editor-field-add-nested' : 'mo-editor-field-add-text'}
       onClick={onClick}

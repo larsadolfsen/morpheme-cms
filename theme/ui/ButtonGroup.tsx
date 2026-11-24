@@ -14,7 +14,7 @@ export const buttonGroupKinds = ['standard', 'connected'] as const;
 export type ButtonGroupKind = (typeof buttonGroupKinds)[number];
 
 /** A button group's classes: its kind's. */
-export const buttonGroupClass = (kind: ButtonGroupKind = 'standard') => `mo-button-group mo-button-group__${kind}`;
+export const buttonGroupClass = (kind: ButtonGroupKind = 'standard') => `mo-button-group mo-is-${kind}`;
 
 export default function ButtonGroup({
   kind,

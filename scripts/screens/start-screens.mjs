@@ -400,7 +400,7 @@ async function checkSettingsAndMenu(width, height) {
     await go('');
     await page.click('.mo-editor-main-drawer-panel > :first-child button[aria-expanded="true"]');
     await page.waitForTimeout(600);
-    checkCog(label, 'skinnen', await page.evaluate(shownItems, 'nav.mo-editor-main-rail .mo-navigation-rail__item'), height);
+    checkCog(label, 'skinnen', await page.evaluate(shownItems, 'nav.mo-editor-main-rail .mo-nav-rail__item'), height);
     const railCurrent = (hash) =>
       go(hash).then(() =>
         page.evaluate(() => document.querySelector('nav.mo-editor-main-rail a[href="#settings"]')?.getAttribute('aria-current')),
@@ -947,7 +947,7 @@ export function register(unit) {
             const tooTall = await page.evaluate(() => {
               const cap = innerHeight / 2 + 1;
               const bad = [];
-              for (const d of document.querySelectorAll('dialog.mo-editor-sheet.mo-bottom-sheet:not(.mo-editor-side-panel)')) {
+              for (const d of document.querySelectorAll('dialog.mo-editor-sheet.mo-sheet.mo-is-bottom:not(.mo-editor-side-panel)')) {
                 if (d.open) continue;
                 d.showModal();
                 if (d.offsetHeight > cap) bad.push(`${d.getAttribute('aria-label') ?? d.className} (${Math.round(d.offsetHeight)}px)`);

@@ -27,14 +27,14 @@
       background: var(--mo-sys-color-primary-hover);
     }
   }
-  .mo-button__text:focus-visible {
+  :where(.mo-button).mo-is-text:focus-visible {
     background: color-mix(in srgb, var(--mo-sys-color-primary) calc(var(--mo-sys-state-focus-state-layer-opacity) * 100%), transparent);
   }
   /* A text button reaches 48px for a finger, above and below it. */
-  .mo-button__text {
+  :where(.mo-button).mo-is-text {
     position: relative;
   }
-  .mo-button__text::after {
+  :where(.mo-button).mo-is-text::after {
     content: '';
     position: absolute;
     inset: -0.25rem 0;
@@ -93,7 +93,7 @@
       var(--mo-comp-chip-elevated-surface, var(--mo-comp-block-surface))
     );
   }
-  .mo-chip__filter:is([aria-pressed='true'], [aria-current='page']) {
+  :where(.mo-chip).mo-is-filter:is([aria-pressed='true'], [aria-current='page']) {
     padding-left: 0.5rem;
   }
   /* M3 Chips, specs: "Left/right padding with icon 8dp": the side an icon is on (a leading icon, a person's image is the avatar's own, a trailing icon). */

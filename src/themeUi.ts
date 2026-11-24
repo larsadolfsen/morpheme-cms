@@ -3,7 +3,7 @@
 // "UI components" (BlockParts.tsx). Only the theme's parts, nothing of the editor, so the editor's parts can be made of them as
 // it loads.
 export { default as SiteButton, buttonShapes, buttonSizes } from '@theme/ui/Button';
-export { default as SiteIconButton, iconButtonWidths } from '@theme/ui/IconButton';
+export { default as SiteIconButton, iconButtonSizes, iconButtonWidths } from '@theme/ui/IconButton';
 export {
   default as SiteTextField,
   textFieldClass as siteTextFieldClass,

@@ -725,9 +725,7 @@ async function checkPaletteLast(width) {
       const on = await page.evaluate(() => document.activeElement?.tagName);
       if (on === 'BUTTON') problems.push(`${label}: the shortcuts dialog opens with a button focused`);
       // A dialog in the middle of the screen has no drag handle (the handle belongs to a sheet from the bottom).
-      if (
-        await sheet.locator('.mo-bottom-sheet__drag-handle').evaluateAll((els) => els.some((e) => getComputedStyle(e).display !== 'none'))
-      )
+      if (await sheet.locator('.mo-sheet__drag-handle').evaluateAll((els) => els.some((e) => getComputedStyle(e).display !== 'none')))
         problems.push(`${label}: the shortcuts dialog shows a drag handle`);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);

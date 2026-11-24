@@ -980,7 +980,7 @@
   .mo-editor-main-rail {
     block-size: 100%;
   }
-  .mo-editor-main-rail [class~='mo-navigation-rail__items'] {
+  .mo-editor-main-rail [class~='mo-nav-rail__items'] {
     flex: 1;
   }
   .mo-editor-main-footer {

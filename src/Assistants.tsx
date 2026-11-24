@@ -78,7 +78,7 @@ export default function Assistants() {
                 headline={<code aria-label={t.assistants.address}>{state.address}</code>}
                 truncate
                 actions={
-                  <Button kind="text" size="small" icon={materialIcon('content_copy')} onClick={() => copy(state.address)}>
+                  <Button kind="text" icon={materialIcon('content_copy')} onClick={() => copy(state.address)}>
                     {t.assistants.copy}
                   </Button>
                 }
@@ -104,7 +104,7 @@ export default function Assistants() {
                     supporting={`${t.assistants.by(c.login)} · ${used ? t.assistants.lastUsed(when(used)) : t.assistants.neverUsed}`}
                     actions={
                       state.mayChange && (
-                        <Button kind="text" size="small" disabled={busy === c.id} onClick={() => end(c)}>
+                        <Button kind="text" disabled={busy === c.id} onClick={() => end(c)}>
                           {t.assistants.disconnect}
                         </Button>
                       )

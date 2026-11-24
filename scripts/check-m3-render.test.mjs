@@ -34,8 +34,8 @@ test('a sample is resolved from its classes: our medium button is Material 3 sma
   assert.equal(r.family, 'button');
   assert.equal(r.size, 'small');
   assert.equal(r.kind, 'filled');
-  assert.equal(resolve(button({ classes: ['mo-button', 'mo-button__text'] })).kind, 'text');
-  assert.equal(resolve(button({ classes: ['mo-button', 'mo-is-tonal', 'mo-button__xlarge'] })).size, 'large');
+  assert.equal(resolve(button({ classes: ['mo-button', 'mo-is-text'] })).kind, 'text');
+  assert.equal(resolve(button({ classes: ['mo-button', 'mo-is-tonal', 'mo-is-xlarge'] })).size, 'large');
   assert.equal(resolve({ root: 'mo-list', classes: [] }), undefined);
 });
 

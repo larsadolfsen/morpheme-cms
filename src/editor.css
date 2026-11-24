@@ -392,7 +392,7 @@
 }
 
 /* An element's name as the theme's plain tooltip (useTooltip in ui.tsx): a popover over everything, placed by the
-   script under or over the element; its look is the theme's .mo-tooltip__plain. */
+   script under or over the element; its look is the theme's .mo-tooltip.mo-is-plain. */
 .mo-editor-tooltip {
   position: fixed;
   inset: auto;
@@ -461,7 +461,7 @@
     --mo-comp-editor-sheet-tall: calc(100dvh - max(var(--mo-comp-bottom-sheet-top-gap, 4.5rem), env(safe-area-inset-top)));
     max-height: var(--mo-comp-editor-sheet-tall);
   }
-  .mo-editor-sheet.mo-bottom-sheet__full[data-tall] {
+  .mo-editor-sheet.mo-sheet__full[data-tall] {
     height: var(--mo-comp-editor-sheet-tall);
   }
 }
@@ -578,7 +578,7 @@
   --mo-comp-nav-rail-padding: 0.5rem 0.5rem 1.5rem;
 }
 
-.mo-editor-main-rail .mo-navigation-rail__header {
+.mo-editor-main-rail .mo-nav-rail__header {
   margin-bottom: 1rem;
 }
 
@@ -776,7 +776,7 @@
   /* The same for a standard side sheet in the page's own layout (the details in Files), while it reaches (nearly) the window's edge: the button
      stands beside it, not on it. The column stops growing at 73.5rem, and from there the button has room at its end. */
   @media (width < 73.5rem) {
-    :root:has(main .mo-side-sheet__container:not([hidden])) .mo-editor-fab {
+    :root:has(main :where(.mo-sheet__container).mo-is-side:not([hidden])) .mo-editor-fab {
       right: calc(var(--mo-comp-side-sheet-width, 22.5rem) + 2.5rem + env(safe-area-inset-right));
     }
   }
@@ -2029,10 +2029,10 @@ dialog {
 }
 
 /* The Keyboard shortcuts dialog (ShortcutsSheet.tsx) is a dialog in the middle of the screen on a computer, not a sheet from the bottom: no drag handle. */
-.mo-editor-shortcuts-dialog .mo-bottom-sheet__drag-handle {
+.mo-editor-shortcuts-dialog .mo-sheet__drag-handle {
   display: none;
 }
-.mo-editor-shortcuts-dialog .mo-bottom-sheet__header {
+.mo-editor-shortcuts-dialog :where(.mo-is-bottom) .mo-sheet__header {
   padding-top: 1.25rem;
 }
 .mo-editor-shortcuts-dialog:focus {

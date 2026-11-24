@@ -67,7 +67,7 @@ export function Dashboard({ dash, env, files }: { dash: DashboardEditing; env: E
         role="alert"
         title={t.dashboard.notLoaded}
         action={
-          <Button kind="tonal" size="small" onClick={dash.reload}>
+          <Button kind="tonal" onClick={dash.reload}>
             {t.dashboard.tryAgain}
           </Button>
         }
@@ -120,7 +120,7 @@ export function Dashboard({ dash, env, files }: { dash: DashboardEditing; env: E
       )}
       {!dash.editing && (
         <div>
-          <Button kind="text" size="medium" icon={CustomizeIcon} data-dashboard-handoff="edit" onClick={dash.startEdit}>
+          <Button kind="text" icon={CustomizeIcon} data-dashboard-handoff="edit" onClick={dash.startEdit}>
             {t.dashboard.edit}
           </Button>
         </div>

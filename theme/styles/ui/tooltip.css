@@ -1,7 +1,7 @@
 /*
   Tooltips (Tooltip, tooltipClass; m3.material.io/components/tooltips): .mo-tooltip__anchor ([data-tooltip], shown with
   [data-tooltip-open] by ../ui/tooltip.script.ts, placed by CSS anchor positioning, and where the browser lacks it by the script, which puts [data-tooltip-below] under its anchor) with what it is about and
-  its .mo-tooltip, .mo-tooltip__plain (a short label, in the middle over it) or .mo-tooltip__rich (.mo-tooltip__subhead,
+  its .mo-tooltip, .mo-tooltip.mo-is-plain (a short label, in the middle over it) or .mo-tooltip.mo-is-rich (.mo-tooltip__subhead,
   .mo-tooltip__supporting-text and optionally .mo-tooltip__actions with a text button, .mo-tooltip__action; from its anchor's start).
     --mo-comp-tooltip-gap (between it and its anchor)
     --mo-comp-plain-tooltip-container-color, -text, -radius, -padding, -font-size, -weight, -max-width
@@ -44,7 +44,7 @@
     pointer-events: auto;
   }
   /* Plain: a short label on the text's colour. */
-  .mo-tooltip__plain {
+  :where(.mo-tooltip, .mo-editor-tooltip).mo-is-plain {
     max-width: var(--mo-comp-tooltip-plain-max-width, 12.5rem);
     border-radius: var(--mo-comp-plain-tooltip-container-shape, 0.5rem);
     background: var(--mo-comp-plain-tooltip-container-color, var(--mo-comp-block-text));
@@ -56,7 +56,7 @@
     line-height: var(--mo-sys-typescale-body-small-line-height);
   }
   /* Rich: a subhead, a text and optionally an action on a surface, from the anchor's start. */
-  .mo-tooltip__rich {
+  :where(.mo-tooltip).mo-is-rich {
     left: 0;
     display: flex;
     max-width: var(--mo-comp-tooltip-rich-max-width, 20rem);
@@ -108,7 +108,7 @@
         flip-block, --tooltip-top-end, --tooltip-top-start, --tooltip-bottom-end, --tooltip-bottom-start, --tooltip-top-window,
         --tooltip-bottom-window;
     }
-    .mo-tooltip__rich {
+    :where(.mo-tooltip).mo-is-rich {
       position-area: block-start span-inline-end;
       inset-inline: 0 0.5rem;
       position-try-fallbacks: flip-block, --tooltip-top-start, --tooltip-bottom-start, --tooltip-top-window, --tooltip-bottom-window;

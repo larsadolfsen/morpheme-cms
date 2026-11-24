@@ -27,7 +27,7 @@ export const tabClass = 'mo-tabs__tab';
 /** The row's classes with its kind, fixed or scrollable, and with the primary tabs' icons beside their labels
  * (`inline`). */
 export const tabsClasses = (kind?: TabsKind, scrollable = true, inline = false) =>
-  [tabsClass, kind && `mo-tabs__${kind}`, !scrollable && 'mo-tabs__fixed', inline && 'mo-tabs__inline'].filter(Boolean).join(' ');
+  [tabsClass, kind && `mo-is-${kind}`, !scrollable && 'mo-is-fixed', inline && 'mo-is-inline'].filter(Boolean).join(' ');
 
 export function Tabs({
   kind,
