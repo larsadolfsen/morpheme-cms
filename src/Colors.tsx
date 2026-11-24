@@ -20,7 +20,6 @@
 // page and its colours in the mode open), and those with the site's own. Saved with "Save changes" in one commit; the
 // editor shows the new colours at once (theme.ts applyColors), the site when it is built again.
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Moon, Palette, Sun } from '@phosphor-icons/react';
 import { ConflictError, type RepoFile } from './github';
 import FormFrame, { useFormPages } from './FormFrame';
 import {
@@ -78,6 +77,7 @@ import { colorFields, colorPairs, apps as siteApps } from './site';
 import { activeApps, appSettings, type SiteApp } from './apps';
 import { settingsRoute } from './AppList';
 import { splitPicture } from '../lib/crop.mjs';
+import { materialIcon } from './icon';
 
 const names = colorFields.map((f) => f.name);
 /** The pairs where Primary is text on Surface or a container: what the question about Primary is about, and what Keep skips. */
@@ -296,9 +296,9 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
         label: t.colors.modes,
         value: tab,
         options: [
-          { value: 'generator', label: d.tab, icon: Palette },
-          { value: 'light', label: t.colors.light, icon: Sun },
-          { value: 'dark', label: t.colors.dark, icon: Moon },
+          { value: 'generator', label: d.tab, icon: materialIcon('palette') },
+          { value: 'light', label: t.colors.light, icon: materialIcon('light_mode') },
+          { value: 'dark', label: t.colors.dark, icon: materialIcon('dark_mode') },
         ],
         onChange: show,
       }}
@@ -378,7 +378,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                         }),
                     }))}
                   />
-                  <Button kind="outlined" size="small" icon={Image} onClick={fromImage}>
+                  <Button kind="outlined" size="small" icon={materialIcon('image')} onClick={fromImage}>
                     {d.fromImage}
                   </Button>
                 </div>

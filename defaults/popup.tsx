@@ -92,7 +92,7 @@ export function drawActionBar(p: Record<string, any>, data: BlockData) {
               href=""
               kind={i === first ? 'filled' : 'outlined'}
               icon={arrow ? undefined : to === 'phone' ? 'phone' : 'calendar-blank'}
-              trailingIcon={arrow ? 'arrow-right' : undefined}
+              trailingIcon={arrow ? 'arrow_forward' : undefined}
             >
               {text}
             </Button>

@@ -4,13 +4,13 @@
 //   markdown: a folder of .md files (front matter + text): blog posts and pages.
 //   folder:   a folder of .json files, one entry per file: categories, prices, testimonials.
 //   files:    single .json files: the pages built in code (fixed pages) and the menu.
-import type { Icon } from '@phosphor-icons/react';
 import type { ComponentType, ReactNode } from 'react';
 import type { BlockData } from './blocks';
 import type { AppCategory } from './store';
 import type { AppPageProps } from './apps';
 import type { SiteData } from '@site/editor';
 import { locale } from './i18n';
+import type { IconComponent as Icon } from './icon';
 
 /** What a relation field picks from: one of the lists the site makes of its files (relationsOf in
  * packages/editor/defaults/editor.ts), e.g. 'pages', 'blog', 'categories', 'files' (the PDFs). 'fixed': the fixed pages, only offered

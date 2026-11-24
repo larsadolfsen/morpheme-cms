@@ -13,7 +13,6 @@
 // letter) and, over the redirects, the funnel that shows only those to one page or post, picked as a
 // chip. The Save and Delete buttons show the loading indicator while their save runs (Forget does not).
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { ArrowRight, ArrowsDownUp, Funnel, LinkBreak, Signpost, Trash, X } from '@phosphor-icons/react';
 import { addressOf, escape, REDIRECTS } from './addresses';
 import { ask } from './ask';
 import { CreateFab } from './CreateFab';
@@ -51,6 +50,7 @@ import { siteT, t } from './i18n';
 import { backFrom } from './site';
 import { useSelection } from './useSelection';
 import SelectionBar from './SelectionBar';
+import { Icon, materialIcon } from './icon';
 
 // An address as typed, as one: "/ny-side/", "/" for the front page, a #part kept, the site's own
 // domain left out; a link to another site as it is. '' when nothing is typed.
@@ -286,8 +286,13 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
   const m = editing?.missing;
   if (!tab) {
     const rows = [
-      { tab: 'redirects' as const, label: t.redirects.all, icon: Signpost, count: files ? entries.length : null },
-      { tab: 'missing' as const, label: t.redirects.missing.title, icon: LinkBreak, count: missing && files ? stillMissing.length : null },
+      { tab: 'redirects' as const, label: t.redirects.all, icon: materialIcon('signpost'), count: files ? entries.length : null },
+      {
+        tab: 'missing' as const,
+        label: t.redirects.missing.title,
+        icon: materialIcon('link_off'),
+        count: missing && files ? stillMissing.length : null,
+      },
     ];
     return (
       <Screen title={t.common.parts.redirects} wide back={backFrom('redirects')}>
@@ -334,12 +339,18 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
         {m ? t.redirects.missing.sendOn : t.common.save}
       </Button>
       {m && (
-        <Button kind="outlined" icon={X} disabled={saving} onClick={() => drop(m.path)}>
+        <Button kind="outlined" icon={materialIcon('close')} disabled={saving} onClick={() => drop(m.path)}>
           {t.redirects.missing.forget}
         </Button>
       )}
       {!editing.isNew && (
-        <Button kind="outlined" icon={Trash} busy={running === 'delete'} disabled={saving} onClick={() => remove(editing.from)}>
+        <Button
+          kind="outlined"
+          icon={materialIcon('delete')}
+          busy={running === 'delete'}
+          disabled={saving}
+          onClick={() => remove(editing.from)}
+        >
           {t.redirects.deleteRedirect}
         </Button>
       )}
@@ -389,7 +400,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
             onClose={selection.clear}
           >
             <IconButton
-              icon={Trash}
+              icon={materialIcon('delete')}
               label={t.library.deleteSelected(selection.count)}
               disabled={saving}
               busy={running === 'delete'}
@@ -416,7 +427,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
         sort={
           <Choice
             title={t.library.sort}
-            icon={ArrowsDownUp}
+            icon={materialIcon('swap_vert')}
             value={sort}
             options={SORTS[tab].map((s) => ({ value: s, label: t.redirects.sorts[s] }))}
             onChange={pickSort}
@@ -427,7 +438,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
           pageChoices.length > 1 && (
             <Choice
               title={t.redirects.pageFilter}
-              icon={Funnel}
+              icon={materialIcon('filter_alt')}
               value={shownPage}
               selected={!!shownPage}
               options={[{ value: '', label: t.library.allPages }, ...pageChoices]}
@@ -489,7 +500,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
                   headline={e.from}
                   supporting={
                     <span className="mo-editor-target-row">
-                      <ArrowRight size={14} className="mo-editor-target-icon" />
+                      <Icon name="arrow_forward" size={14} className="mo-editor-target-icon" />
                       <span className="mo-editor-settings-wrap">{name(e.to)}</span>
                     </span>
                   }

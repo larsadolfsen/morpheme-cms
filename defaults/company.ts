@@ -4,18 +4,18 @@
 // used all over the site; and its social media (src/data/social.json): the profiles, a list of links added with the FAB, and
 // the post's share buttons.
 // The logo and the icon are under "Appearance" (BrandForm.tsx); the link to the calendar in Calendly is the app Calendly's (morpheme-apps/apps/calendly/).
-import { AddressBook, Bank, CreditCard, ShareNetwork } from '@phosphor-icons/react';
 import type { Part } from '../src/schema';
 import { bankFields, contactFields, socialFields } from '@site/collections';
 import { upgradeSocial } from '../site/social.mjs';
+import { materialIcon } from '../src/icon';
 
 /** The parts of "Business", in their order, at #company/<id> ("Payment"'s at #company/payment/<id>). */
 export const companyParts: Part[] = [
-  { id: 'contact', label: 'Contact', icon: AddressBook, file: 'src/data/contact.json', fields: contactFields },
+  { id: 'contact', label: 'Contact', icon: materialIcon('contacts'), file: 'src/data/contact.json', fields: contactFields },
   {
     id: 'social-media',
     label: 'Social media',
-    icon: ShareNetwork,
+    icon: materialIcon('share'),
     file: 'src/data/social.json',
     fields: socialFields,
     // A file from before the profiles were a list (a key for each network) is read and saved as one.
@@ -26,8 +26,8 @@ export const companyParts: Part[] = [
   {
     id: 'payment',
     label: 'Payment',
-    icon: CreditCard,
+    icon: materialIcon('credit_card'),
     apps: ['payments'],
-    parts: [{ id: 'bank', label: 'Bank', icon: Bank, file: 'src/data/payment.json', fields: bankFields }],
+    parts: [{ id: 'bank', label: 'Bank', icon: materialIcon('account_balance'), file: 'src/data/payment.json', fields: bankFields }],
   },
 ];

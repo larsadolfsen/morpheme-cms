@@ -4,13 +4,13 @@
 // is in App.tsx, with the pages. An e-mail or a phone number becomes a link of its own kind (mailto:,
 // tel:), and an address without https:// gets it.
 import { useEffect, useId, useRef, useState } from 'react';
-import { Trash } from '@phosphor-icons/react';
 import PagePicker, { type Group } from './PagePicker';
 import { Button, SegmentedButton, BottomSheet, SheetActions, SheetBody, SheetTitle, TextField, atLeastNow } from './ui';
 import { usePane } from './PaneHost';
 import { closeChanged } from './ask';
 import { t } from './i18n';
 import { isActionEnter } from '../lib/enterKey.mjs';
+import { materialIcon } from './icon';
 
 /** The new address of the link and the text it is shown as (the page's name, the address), '' to
  * remove it, or null when nothing is to be done. */
@@ -121,7 +121,7 @@ export function LinkAsk({ groups }: { groups: Group[] }) {
     </>
   );
   const remove = old && (
-    <Button kind="text" icon={Trash} onClick={() => done({ href: '', text: '' })}>
+    <Button kind="text" icon={materialIcon('delete')} onClick={() => done({ href: '', text: '' })}>
       {t.text.removeLink}
     </Button>
   );

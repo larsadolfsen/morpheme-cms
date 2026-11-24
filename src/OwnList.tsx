@@ -3,8 +3,7 @@
 // definition. What is new here is only the list's menu (`Edit list`, `Delete list`), its sheet, and the waiting version: making the list and adding or changing
 // its fields is kept (src/listDraft.ts) until a `Save`, the page's own or an item's (App.tsx adds the waiting definition to that commit).
 import { useMemo, useRef, useState } from 'react';
-import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
-import { Icon } from './icon';
+import { Icon, type IconComponent as PhosphorIcon } from './icon';
 import { config } from '@site/editor';
 import { List } from './Library';
 import Screen from './Screen';

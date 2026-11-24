@@ -6,7 +6,6 @@
 // (the icon of each network known, by its id). Uses the rows, the sheet and the FAB of ui.tsx and CreateFab.tsx, the
 // arrows of MoveButtons.tsx, and the address logic of linkAddress.mjs.
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import { FacebookLogo, Globe, LinkedinLogo, PinterestLogo, Trash, XLogo, type Icon } from '@phosphor-icons/react';
 import { networkOf, type NetworkId } from '../site/social.mjs';
 import { nameOf, problemOf, shownAddress, typedLink } from './linkAddress.mjs';
 import { CreateFab } from './CreateFab';
@@ -16,6 +15,8 @@ import type { Field } from './schema';
 import { BottomSheet, Button, EmptyNote, Label, ListItem, listClass, SheetBody, SheetTitle, TextField, atLeastNow } from './ui';
 import { usePane } from './PaneHost';
 import { t } from './i18n';
+import { materialIcon, type IconComponent as Icon } from './icon';
+import { FacebookLogo, LinkedinLogo, PinterestLogo, XLogo } from '@phosphor-icons/react';
 
 /** The icon of each network known (NETWORKS in site/social.mjs), as the share buttons have them; any other link has the
  * globe. */
@@ -30,7 +31,7 @@ type Link = { url?: string } & Record<string, unknown>;
 
 const iconOf = (url: string): Icon => {
   const network = networkOf(url);
-  return network ? networkIcons[network.id] : Globe;
+  return network ? networkIcons[network.id] : materialIcon('globe');
 };
 /** `hint`: what is under the list's name (hintOf in fields.tsx). `wrong`: the item whose address keeps the form from
  * being saved (WrongField), its number and when it was found, so its sheet opens again on the next try. */
@@ -111,7 +112,7 @@ export function LinkList({
     <>
       <Button type="submit">{editing?.index === null ? t.forms.links.addButton : t.forms.links.done}</Button>
       {editing && editing.index !== null && (
-        <Button kind="outlined" icon={Trash} onClick={() => remove(editing.index!)}>
+        <Button kind="outlined" icon={materialIcon('delete')} onClick={() => remove(editing.index!)}>
           {t.forms.links.remove}
         </Button>
       )}

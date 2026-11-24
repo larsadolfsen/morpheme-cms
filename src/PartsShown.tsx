@@ -5,13 +5,13 @@
 // the active theme styles itself, coverage.ts), and each part then carries its mark (CoverageBadge.tsx). The
 // search, the group and the style are kept while the editor is open.
 import { createContext, useContext, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
-import { ArrowsDownUp } from '@phosphor-icons/react';
 import { Choice, EmptyNote, Filters, FormHeading, InputChip, SearchRow, SupportingText, useKept } from './ui';
 import { byText } from './schema';
 import { CoverageBadge } from './CoverageBadge';
 import { themeCoverage } from './coverage';
 import { headed, letterOf } from './Sheet';
 import { t } from './i18n';
+import { materialIcon } from './icon';
 
 /** The tag of the part's name above (h2 or h3): a subheading under it is one level deeper. */
 const PartName = createContext<'h2' | 'h3'>('h3');
@@ -113,7 +113,7 @@ export function PartsShown({
           sort={
             <Choice
               title={t.library.sort}
-              icon={ArrowsDownUp}
+              icon={materialIcon('swap_vert')}
               value={sort}
               options={SORTS.map((s) => ({ value: s, label: t.library.sorts[s] }))}
               onChange={pickSort}

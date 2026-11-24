@@ -11,7 +11,8 @@
 // server render has the whole set at once, virtual:material-symbols-ssr; in the browser it is one lazy chunk, loaded the
 // first time one is drawn); only a name Material Symbols lacks too is MISSING, the question mark, marked with
 // data-icon-missing (its name), which check:screens finds on the built site's pages and the editor's screens.
-import { cloneElement, isValidElement, useEffect, useState, type ReactElement } from 'react';
+import type { IconWeight } from '@phosphor-icons/react';
+import { cloneElement, isValidElement, useEffect, useState, type ComponentType, type ReactElement, type SVGProps } from 'react';
 import { materialName, materialNames, resolveIcon } from '../lib/materialIcon.mjs';
 import { svgParts } from '../lib/svg.mjs';
 import ssrMaterial from 'virtual:material-symbols-ssr';
@@ -23,7 +24,6 @@ import bodyA3File from './icons/body-a3.svg?raw';
 import addBlockFile from './icons/add-block.svg?raw';
 import blockSettingsFile from './icons/block-settings.svg?raw';
 import matchCaseFile from '@material-symbols/svg-400/outlined/match_case.svg?raw';
-import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { allIcons as ssrPhosphor } from 'virtual:all-icons-ssr';
 
 const MATERIAL = '/node_modules/@material-symbols/svg-400/outlined/';
@@ -252,17 +252,17 @@ export const MoreVertIcon = (({ size = 20, className }: { size?: number | string
       dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
     />
   );
-}) as unknown as PhosphorIcon;
+}) as unknown as IconComponent;
 
 /** Preview (a page's text bar and its `⋮`) and View on site, by name through the icon pack: Material Symbols' `devices` and `open_in_new` in the
  * Material pack, Phosphor's devices and arrow-square-out in its own (site/icons.mjs), the same as the command palette draws. Shaped as a Phosphor icon so a
  * ToolbarButton and a MenuItem take them. */
 export const PreviewIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => (
   <Svg name="devices" size={Number(size)} className={className} />
-)) as unknown as PhosphorIcon;
+)) as unknown as IconComponent;
 export const ViewOnSiteIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => (
   <Svg name="arrow-square-out" size={Number(size)} className={className} />
-)) as unknown as PhosphorIcon;
+)) as unknown as IconComponent;
 
 /** Material's "close" (a cross): the clear button of the text bar's block selection (the count with a cross). Material Symbols' own file, bundled like MoreVertIcon, shaped as a
  * Phosphor icon so a ToolbarButton takes it. */
@@ -281,7 +281,7 @@ export const CloseIcon = (({ size = 20, className }: { size?: number | string; c
       dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
     />
   );
-}) as unknown as PhosphorIcon;
+}) as unknown as IconComponent;
 
 /** Material's "match_case" (a capital A and a small a: "Aa"): the icon of the three body styles in the Text style menu, where the labels (Body small, medium,
  * large) tell them apart. Material Symbols' own file, bundled like WidgetsIcon, shaped as a Phosphor icon so a menu row takes it. */
@@ -300,7 +300,7 @@ export const AaIcon = (({ size = 20, className }: { size?: number | string; clas
       dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
     />
   );
-}) as unknown as PhosphorIcon;
+}) as unknown as IconComponent;
 
 /** The icons of the three body styles in the Text style menu: a squared, bold A with a number beside it, drawn on Material Symbols' 24 grid exactly as format_h2 and
  * format_h3 are (same cap height and baseline, 60-unit stroke, square corners, the digits copied from format_h1, -h2 and -h3), so the five read as one
@@ -322,7 +322,7 @@ const bodyA = (file: string, name: string) =>
         dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
       />
     );
-  }) as unknown as PhosphorIcon;
+  }) as unknown as IconComponent;
 export const BodyA1Icon = bodyA(bodyA1File, 'body_a1');
 export const BodyA2Icon = bodyA(bodyA2File, 'body_a2');
 export const BodyA3Icon = bodyA(bodyA3File, 'body_a3');
@@ -335,6 +335,25 @@ export const BodyA3Icon = bodyA(bodyA3File, 'body_a3');
  * anything else. Bundled files, so they draw the same in every icon pack and in light and dark (currentColor). */
 export const AddBlockIcon = bodyA(addBlockFile, 'add_block');
 export const BlockSettingsIcon = bodyA(blockSettingsFile, 'block_settings');
+
+/** An icon as a component, for the places that take one (a table of icons by id, a prop `icon: IconComponent`): the props an icon takes (`size`, `className`,
+ * `weight`; the SVG's own, as aria-hidden, go to the SVG). */
+export type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; weight?: IconWeight }>;
+
+const made = new Map<string, IconComponent>();
+/** A Material Symbols icon by its Material name as a component (`materialIcon('settings')`), drawn by `Icon`; the same name gives the same component, so it can be a
+ * module constant or a key. `fill`: the filled icon (a component's `weight="fill"` also asks for it). */
+export function materialIcon(name: string, fill?: 'fill'): IconComponent {
+  const key = `${name}:${fill ?? ''}`;
+  let component = made.get(key);
+  if (!component) {
+    component = (({ size = 20, className, weight }: { size?: number | string; className?: string; weight?: IconWeight }) => (
+      <Svg name={name} size={Number(size)} className={className} weight={weight === 'fill' ? 'fill' : fill} />
+    )) as IconComponent;
+    made.set(key, component);
+  }
+  return component;
+}
 
 /** The same as Svg (the editor's fields and the site's promotions draw their icons with it). */
 export const Icon = Svg;

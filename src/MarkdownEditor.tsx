@@ -42,28 +42,6 @@ import { Decoration, DecorationSet, type EditorView } from '@milkdown/kit/prose/
 import { NodeSelection, Plugin, PluginKey, Selection, TextSelection, type EditorState } from '@milkdown/kit/prose/state';
 import { liftListItem } from '@milkdown/kit/prose/schema-list';
 import { lift } from '@milkdown/kit/prose/commands';
-import {
-  ArrowUUpLeft,
-  ArrowUUpRight,
-  Image,
-  LinkSimple,
-  ListBullets,
-  ListChecks,
-  ListNumbers,
-  Palette,
-  Quotes,
-  Tag,
-  TextAa,
-  TextAlignCenter,
-  TextAlignLeft,
-  TextAlignRight,
-  TextB,
-  TextHThree,
-  TextHOne,
-  TextHTwo,
-  TextItalic,
-  TextT,
-} from '@phosphor-icons/react';
 import { listKindOf, styleOf } from './styleKind.mjs';
 import { listRows, styleRows } from './styleMenu.mjs';
 import { planBar, toolWidth } from './textBar.mjs';
@@ -121,13 +99,25 @@ import { ask } from './ask';
 import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
 import { canLabel, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { AaIcon, AddBlockIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon, PreviewIcon, ViewOnSiteIcon } from './icon';
+import {
+  AaIcon,
+  AddBlockIcon,
+  BodyA1Icon,
+  BodyA2Icon,
+  BodyA3Icon,
+  CloseIcon,
+  MoreVertIcon,
+  PreviewIcon,
+  ViewOnSiteIcon,
+  materialIcon,
+  type IconComponent,
+} from './icon';
 import { editElsewhereIcon, settingsHereIcon } from './meaningIcons';
-import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
-import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
-import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
-import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
-import trashIcon from '@phosphor-icons/core/assets/regular/trash.svg?raw';
+import eyeIcon from '@material-symbols/svg-400/outlined/visibility.svg?raw';
+import eyeSlashIcon from '@material-symbols/svg-400/outlined/visibility_off.svg?raw';
+import arrowUpIcon from '@material-symbols/svg-400/outlined/arrow_upward.svg?raw';
+import arrowDownIcon from '@material-symbols/svg-400/outlined/arrow_downward.svg?raw';
+import trashIcon from '@material-symbols/svg-400/outlined/delete.svg?raw';
 import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
 // ProseMirror's own styles: keep its invisible helpers (around images, at the end of lines) out of the layout.
 import '@milkdown/kit/prose/view/style/prosemirror.css';
@@ -1519,14 +1509,14 @@ function textButtonWidth(label: string): number {
   }
   return width;
 }
-const rawIcons = new Map<string, typeof TextB>();
-function rawIcon(svg: string): typeof TextB {
+const rawIcons = new Map<string, IconComponent>();
+function rawIcon(svg: string): IconComponent {
   let icon = rawIcons.get(svg);
   if (!icon) {
     const html = svg.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
     icon = (() => (
       <span aria-hidden="true" className="mo-editor-inline-icon" dangerouslySetInnerHTML={{ __html: html }} />
-    )) as unknown as typeof TextB;
+    )) as unknown as IconComponent;
     rawIcons.set(svg, icon);
   }
   return icon;
@@ -1537,24 +1527,24 @@ const KIND_ICONS = {
   large: { node: TextLargeIcon },
   medium: { node: TextMediumIcon },
   small: { node: TextSmallIcon },
-  label: { node: Tag },
-  quote: { node: Quotes },
-  bullet: { node: ListBullets },
-  check: { node: ListChecks },
-  ordered: { node: ListNumbers },
+  label: { node: materialIcon('sell') },
+  quote: { node: materialIcon('format_quote') },
+  bullet: { node: materialIcon('format_list_bulleted') },
+  check: { node: materialIcon('checklist') },
+  ordered: { node: materialIcon('format_list_numbered') },
 };
 
 // The icon of a button when its style is not on: the general text (T) and list icons.
 const GENERIC_ICONS = {
-  text: { node: TextT },
-  list: { node: ListBullets },
+  text: { node: materialIcon('text_fields') },
+  list: { node: materialIcon('format_list_bulleted') },
 };
 
 // The alignments of a paragraph or a smaller heading (lib/text-align.mjs), each with its icon and name; left is the text's own.
 const ALIGN_FACES = {
-  left: { node: TextAlignLeft },
-  center: { node: TextAlignCenter },
-  right: { node: TextAlignRight },
+  left: { node: materialIcon('format_align_left') },
+  center: { node: materialIcon('format_align_center') },
+  right: { node: materialIcon('format_align_right') },
 };
 type Align = keyof typeof ALIGN_FACES;
 /** The keys of the bar's tools that have one: the text engine's own (the same as in textActions.ts), shown in their tooltips. */
@@ -3165,24 +3155,24 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const alignNow = alignIn(active);
   const styleKey = styleOf(active, true);
   const listKey = listKindOf(active, true);
-  const STYLE_FACES: Record<string, { label: string; icon: typeof TextB }> = {
-    h1: { label: t.text.pageHeading, icon: TextHOne },
-    h2: { label: t.text.heading, icon: TextHTwo },
-    h3: { label: t.text.subheading, icon: TextHThree },
+  const STYLE_FACES: Record<string, { label: string; icon: IconComponent }> = {
+    h1: { label: t.text.pageHeading, icon: materialIcon('format_h1') },
+    h2: { label: t.text.heading, icon: materialIcon('format_h2') },
+    h3: { label: t.text.subheading, icon: materialIcon('format_h3') },
     small: { label: t.text.bodySmall, icon: KIND_ICONS.small.node },
     medium: { label: t.text.bodyMedium, icon: KIND_ICONS.medium.node },
     large: { label: t.text.bodyLarge, icon: KIND_ICONS.large.node },
     label: { label: t.text.label, icon: KIND_ICONS.label.node },
     quote: { label: t.text.quote, icon: KIND_ICONS.quote.node },
   };
-  const LIST_FACES: Record<string, { label: string; icon: typeof TextB }> = {
+  const LIST_FACES: Record<string, { label: string; icon: IconComponent }> = {
     bullet: { label: t.text.bulletList, icon: KIND_ICONS.bullet.node },
     check: { label: t.text.checkList, icon: KIND_ICONS.check.node },
     ordered: { label: t.text.orderedList, icon: KIND_ICONS.ordered.node },
   };
   // In the Text style menu the body styles draw an A with a number (the smallest has the highest: A3, A2, A1); the bar's own button shows Aa
   // for every body style and while no style is on (owner decisions, 14 Nov).
-  const BODY_ROW_ICONS: Record<string, typeof TextB> = { small: BodyA3Icon, medium: BodyA2Icon, large: BodyA1Icon };
+  const BODY_ROW_ICONS: Record<string, IconComponent> = { small: BodyA3Icon, medium: BodyA2Icon, large: BodyA1Icon };
   const rowIcon = (row: string) => BODY_ROW_ICONS[row] ?? STYLE_FACES[row].icon;
   const styleFace = STYLE_FACES[styleKey]
     ? { ...STYLE_FACES[styleKey], icon: BODY_ROW_ICONS[styleKey] ? AaIcon : STYLE_FACES[styleKey].icon }
@@ -3390,7 +3380,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     id: string,
   ): {
     label: string;
-    icon?: typeof TextB;
+    icon?: IconComponent;
     text?: boolean;
     action: () => void;
     on?: string;
@@ -3402,17 +3392,17 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     if (id.startsWith('block:')) return blockTool(id.slice(6));
     switch (id) {
       case 'bold':
-        return { label: t.text.bold, icon: TextB, action: () => run(toggleStrongCommand), on: 'strong' };
+        return { label: t.text.bold, icon: materialIcon('format_bold'), action: () => run(toggleStrongCommand), on: 'strong' };
       case 'italic':
-        return { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis' };
+        return { label: t.text.italic, icon: materialIcon('format_italic'), action: () => run(toggleEmphasisCommand), on: 'emphasis' };
       case 'link':
-        return { label: t.text.link, icon: LinkSimple, action: link, on: 'link' };
+        return { label: t.text.link, icon: materialIcon('link'), action: link, on: 'link' };
       case 'insert':
-        return { label: insertLabel, icon: blocks ? AddBlockIcon : Image, action: blocks ? block : image };
+        return { label: insertLabel, icon: blocks ? AddBlockIcon : materialIcon('image'), action: blocks ? block : image };
       case 'undo':
-        return { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) };
+        return { label: t.text.undo, icon: materialIcon('undo'), action: () => run(undoCommand) };
       case 'redo':
-        return { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand) };
+        return { label: t.text.redo, icon: materialIcon('redo'), action: () => run(redoCommand) };
       case 'preview':
         return { label: t.preview.button, icon: PreviewIcon, action: () => onPreview?.() };
       default:
@@ -3454,7 +3444,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       return (
         <ToolbarButton
           key={id}
-          icon={Palette}
+          icon={materialIcon('palette')}
           label={t.text.color}
           menu={!!colorAt && colorAt !== moreButton.current}
           disabled={noColor}
@@ -3503,7 +3493,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       );
     if (id === 'color')
       return (
-        <MenuItem key={id} icon={Palette} disabled={noColor} onClick={under(() => setColorAt(moreButton.current))}>
+        <MenuItem key={id} icon={materialIcon('palette')} disabled={noColor} onClick={under(() => setColorAt(moreButton.current))}>
           {t.text.color}
         </MenuItem>
       );

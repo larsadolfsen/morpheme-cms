@@ -5,11 +5,11 @@
 // block's row actions (`Add above`, `Add below`, `Move up`, `Move down`, shown while the active row has content) and the block's own menu
 // (its handle: Hide, Move, Remove, MarkdownEditor.tsx cardMenu). Targets are 48 dp. On a computer it sits over the block; on a phone (compact)
 // it is docked above the keyboard (the visual viewport) and above the page's save bar, and wraps to a second line when 375 px is not enough. It has no dropdown: choices live in the settings sheet (the gear) or the block's own menu. No dependencies but the icons and the browser.
-import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
-import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
-import dotsIcon from '@phosphor-icons/core/assets/regular/dots-three-vertical.svg?raw';
+import arrowDownIcon from '@material-symbols/svg-400/outlined/arrow_downward.svg?raw';
+import arrowUpIcon from '@material-symbols/svg-400/outlined/arrow_upward.svg?raw';
+import dotsIcon from '@material-symbols/svg-400/outlined/more_vert.svg?raw';
 import { blockSettingsHereIcon } from './meaningIcons';
-import linkIcon from '@phosphor-icons/core/assets/regular/link-simple.svg?raw';
+import linkIcon from '@material-symbols/svg-400/outlined/link.svg?raw';
 import dynamicIcon from '@material-symbols/svg-400/outlined/dynamic_feed.svg?raw';
 import rowAboveIcon from '@material-symbols/svg-400/outlined/add_row_above.svg?raw';
 import rowBelowIcon from '@material-symbols/svg-400/outlined/add_row_below.svg?raw';

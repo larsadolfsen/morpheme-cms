@@ -5,8 +5,7 @@
 // item. What is changed is told to `onChange`; the node view in MarkdownEditor.tsx (blockCard) keeps it as the block's props. Which item is
 // empty, and the items added, moved or dropped: src/inlineRows.mjs.
 import { useEffect, useLayoutEffect, useRef, type ClipboardEvent, type FocusEvent, type KeyboardEvent, type ReactNode } from 'react';
-import { Plus } from '@phosphor-icons/react';
-import { Glyph } from './icon';
+import { Glyph, Icon } from './icon';
 import { t } from './i18n';
 import { SlotButton } from './ui';
 import { SiteButton } from './themeUi';
@@ -110,7 +109,7 @@ export function InlineIcon({
   if (!here && !icon) return null;
   return (
     <InlineSlot label={label} iconColor={here ? undefined : iconColor} onClick={onClick}>
-      {icon ? <Glyph icon={icon} size={size} /> : <Plus size={size} />}
+      {icon ? <Glyph icon={icon} size={size} /> : <Icon name="add" size={size} />}
     </InlineSlot>
   );
 }

@@ -7,7 +7,6 @@
 // default, under the first letter, Z–A, the most or the fewest links first; kept in this browser) and the funnel with
 // the filters by kind of keyword, by links and by kind of page, each picked one as a chip. A row opens the page at
 // "Search engines" (openAtSeo).
-import { ArrowsDownUp } from '@phosphor-icons/react';
 import { useEffect, useMemo, useState } from 'react';
 import { Choice, EmptyNote, Filters, FormHeading, Group, InputChip, listClass, SearchRow, useKept, ListItem } from './ui';
 import type { RepoFile } from './github';
@@ -19,6 +18,7 @@ import { collections } from './site';
 import { config, standardPages, standardPaths } from '@site/editor';
 import { byText } from './schema';
 import { t } from './i18n';
+import { materialIcon } from './icon';
 
 /** A keyword: the page it is on (its file, `#…`, its name, its address on the site and its list) and which it is. */
 type Keyword = { word: string; primary: boolean; title: string; href: string; address: string; kind: string };
@@ -182,7 +182,7 @@ export default function Keywords({ files }: { files: RepoFile[] }) {
         sort={
           <Choice
             title={t.library.sort}
-            icon={ArrowsDownUp}
+            icon={materialIcon('swap_vert')}
             value={shownSort}
             options={sorts.map((s) => ({ value: s, label: t.keywords.sorts[s] }))}
             onChange={pickSort}

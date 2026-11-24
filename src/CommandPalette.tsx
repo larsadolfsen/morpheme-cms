@@ -106,7 +106,7 @@ function filesInfo(files: RepoFile[]) {
 
 /** The icon of a row whose action names none: its group's, so every row leads with an icon (M3 lists: "Leading icons related to suggestions"). */
 const GROUP_ICONS: Record<ActionGroup, string> = {
-  go: 'arrow-right',
+  go: 'arrow_forward',
   pages: 'file-text',
   files: 'image',
   page: 'file-text',

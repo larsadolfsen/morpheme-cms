@@ -5,9 +5,8 @@
 // roles) are for all of them; the shared text of the link at the bottom ("Blocks" › "Cards", shared.ts). How it looks is the theme's
 // (packages/editor/theme/blocks/cards/View.tsx with LinkCards.tsx); what it shows: view.ts, and load.ts on the site. Cards from before
 // (`design` text, icon or image, `background`, `kind`, a `media` on each card) are read as these (FORMER in lib/blocks.mjs).
-import { Cards, Circle, Image as ImageIcon, Prohibit, Shapes, Square, VideoCamera } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
-import { iconOptions } from '../../icon';
+import { iconOptions, materialIcon } from '../../icon';
 import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import { headFields } from '../head';
@@ -18,7 +17,7 @@ import { example } from './shared';
 export default defineBlock({
   group: 'cards',
   label: t.blocks.cards.label,
-  icon: Cards,
+  icon: materialIcon('cards'),
   hint: t.blocks.cards.hint,
   edit: { to: 'blocks/cards', text: t.blocks.cards.edit },
   // Typed in place (InlineCards.tsx): the headline, the subhead and the text where they stand; the media, the page and the buttons are picked in
@@ -48,9 +47,9 @@ export default defineBlock({
       type: 'select',
       segments: true,
       options: [
-        { label: t.blocks.cards.designOutlined, value: '', icon: Square },
-        { label: t.blocks.cards.designFilled, value: 'filled', icon: Circle },
-        { label: t.blocks.cards.designElevated, value: 'elevated', icon: Shapes },
+        { label: t.blocks.cards.designOutlined, value: '', icon: materialIcon('square') },
+        { label: t.blocks.cards.designFilled, value: 'filled', icon: materialIcon('circle') },
+        { label: t.blocks.cards.designElevated, value: 'elevated', icon: materialIcon('shapes') },
       ],
     },
     // How the cards show on a phone: stacked (the empty choice), or swiped sideways in a carousel (uncontained, Material 3's layout for
@@ -88,10 +87,10 @@ export default defineBlock({
       segments: true,
       default: 'icon',
       options: [
-        { label: t.blocks.cards.mediaNone, value: 'none', icon: Prohibit },
-        { label: t.blocks.cards.mediaIcon, value: 'icon', icon: Shapes },
-        { label: t.blocks.cards.mediaImage, value: 'image', icon: ImageIcon },
-        { label: t.blocks.cards.mediaVideo, value: 'video', icon: VideoCamera },
+        { label: t.blocks.cards.mediaNone, value: 'none', icon: materialIcon('block') },
+        { label: t.blocks.cards.mediaIcon, value: 'icon', icon: materialIcon('shapes') },
+        { label: t.blocks.cards.mediaImage, value: 'image', icon: materialIcon('image') },
+        { label: t.blocks.cards.mediaVideo, value: 'video', icon: materialIcon('videocam') },
       ],
     },
     // One aspect ratio for every card's image (no Original: the cards stay aligned); 3:2 is today's look.

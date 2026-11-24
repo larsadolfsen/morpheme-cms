@@ -6,11 +6,11 @@
 //             block "Testimonials"'s, packages/editor/src/standard/testimonials/list.ts, an app's lists its own,
 //             src/apps/<app>/lists.ts).
 //   files:    single .json files: the settings (the standard pages …), the footer and the menu.
-import { AppWindow, ArrowsHorizontal, ColumnsPlusLeft, ColumnsPlusRight, File, SquareHalfBottom } from '@phosphor-icons/react';
 import type { Collection, Field } from '../src/schema';
 import { fromContactBar } from '../lib/contactBar';
 import { config } from '@site/config';
 import { standardPaths } from '@site/standardPages';
+import { materialIcon } from '../src/icon';
 
 // The fields of one button of the action bar (the bottom bar on a phone, ActionBar.astro) and of the button in the header
 // ("Call to action", src/data/header.json): its text, where it leads, and the promotion or page it leads to.
@@ -451,10 +451,10 @@ export const collections: Collection[] = [
         // The options the theme in use offers, the first of its list the default (templateFieldOf in src/templateField.ts).
         offered: 'templates',
         options: [
-          { label: 'One column', value: 'single', icon: File },
-          { label: 'Wide', value: 'full', icon: ArrowsHorizontal },
-          { label: 'Left sidebar', value: 'sidebar-left', icon: ColumnsPlusLeft },
-          { label: 'Right sidebar', value: 'sidebar-right', icon: ColumnsPlusRight },
+          { label: 'One column', value: 'single', icon: materialIcon('draft') },
+          { label: 'Wide', value: 'full', icon: materialIcon('swap_horiz') },
+          { label: 'Left sidebar', value: 'sidebar-left', icon: materialIcon('add_column_left') },
+          { label: 'Right sidebar', value: 'sidebar-right', icon: materialIcon('add_column_right') },
         ],
         hint: 'The theme decides which templates there are.',
       },
@@ -541,11 +541,11 @@ export const collections: Collection[] = [
         // Without one (those made before there were kinds), it is the standard one.
         default: 'standard',
         options: [
-          { label: 'Pop-up', value: 'standard', icon: AppWindow, hint: 'With an image, text and a button.' },
+          { label: 'Pop-up', value: 'standard', icon: materialIcon('web_asset'), hint: 'With an image, text and a button.' },
           {
             label: 'Action bar',
             value: 'bookingbar',
-            icon: SquareHalfBottom,
+            icon: materialIcon('splitscreen'),
             hint: 'Buttons or text at the bottom of the screen on a phone.',
           },
         ],

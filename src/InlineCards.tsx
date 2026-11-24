@@ -7,8 +7,7 @@
 // card has its action area at the bottom: its buttons and the next one, empty and faded (`Add button`). The parts, the keys and what is kept
 // are InlineItems.tsx and src/inlineRows.mjs; a new block starts with three empty, faded cards, the first active (the List has one); `Add
 // card` and the dotted line are as in the List.
-import { Image as ImageIcon, Shapes, VideoCamera } from '@phosphor-icons/react';
-import { Svg } from './icon';
+import { Svg, materialIcon } from './icon';
 import { t } from './i18n';
 import { SiteButton, SiteCard } from './themeUi';
 import InlineItems, { InlineField, InlineSlot, type Item } from './InlineItems';
@@ -29,9 +28,9 @@ export default function InlineCards({ items, props, data, active, focus, onChang
   const colored = type === 'filled' && props.color ? `mo-block-cards__${props.color}` : undefined;
   const media = cards[0]?.media ?? 'icon';
   const kinds = [
-    { kind: 'icon', label: t.blocks.cards.mediaIcon, Icon: Shapes },
-    { kind: 'image', label: t.blocks.cards.mediaImage, Icon: ImageIcon },
-    { kind: 'video', label: t.blocks.cards.mediaVideo, Icon: VideoCamera },
+    { kind: 'icon', label: t.blocks.cards.mediaIcon, Icon: materialIcon('shapes') },
+    { kind: 'image', label: t.blocks.cards.mediaImage, Icon: materialIcon('image') },
+    { kind: 'video', label: t.blocks.cards.mediaVideo, Icon: materialIcon('videocam') },
   ] as const;
   const more = String(sharedIn(data.site, 'cards', shared.values).more);
   // The active card's action area: each button's text is typed on the button itself (its target is in the card's sheet, the bar's Link), and the

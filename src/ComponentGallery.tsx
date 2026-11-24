@@ -179,7 +179,7 @@ function ButtonParts() {
                   <SiteButton icon="phone">{screens.withIcon}</SiteButton>
                 </Example>
                 <Example label={screens.example(2)} flat>
-                  <SiteButton kind="outlined" trailingIcon="arrow-right">
+                  <SiteButton kind="outlined" trailingIcon="arrow_forward">
                     {screens.withIcon}
                   </SiteButton>
                 </Example>
@@ -494,7 +494,7 @@ function CardParts() {
             <SiteCard>
               <SiteList>
                 <SiteListItem headline={one} />
-                <SiteListItem href="" headline={link} trailing={<Svg name="arrow-right" size={18} />} />
+                <SiteListItem href="" headline={link} trailing={<Svg name="arrow_forward" size={18} />} />
                 <SiteListItem
                   href=""
                   leading={<Svg name="phone" size={24} />}

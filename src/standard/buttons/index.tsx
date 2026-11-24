@@ -2,15 +2,15 @@
 // (`buttonTargets`: here the booking sheet and the phone), with a text and an icon: its own, or the
 // shared ones ("Blocks" › "Buttons", shared.ts) while it has none. How it looks is the theme's
 // (packages/editor/theme/blocks/buttons/View.tsx; what it shows: view.ts, and load.ts on the site).
-import { CursorClick } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 import { buttonList } from './fields';
+import { materialIcon } from '../../icon';
 
 export default defineBlock({
   group: 'buttons',
   label: t.blocks.buttons.label,
-  icon: CursorClick,
+  icon: materialIcon('ads_click'),
   hint: t.blocks.buttons.hint,
   edit: { to: 'blocks/buttons', text: t.blocks.buttons.edit },
   // Typed in place (InlineButtons.tsx): the label on the button itself; where it leads and its style are in the button's settings, its icon in the icon slot.

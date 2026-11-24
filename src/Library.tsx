@@ -10,27 +10,6 @@
 // loading indicator while they run (only the pressed one).
 // When each page was last saved is kept in savedTimes.ts, shared with the start screen.
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
-import {
-  ArrowDown,
-  ArrowsDownUp,
-  ArrowUp,
-  Check,
-  ClockCounterClockwise,
-  CircleHalf,
-  FileText,
-  GoogleLogo,
-  List as ListIcon,
-  ListBullets,
-  ListChecks,
-  Moon,
-  Palette,
-  Ruler,
-  Shapes,
-  SignOut,
-  Sun,
-  Trash,
-  type Icon,
-} from '@phosphor-icons/react';
 import { byText, entryData, type Collection, type Part, type PartScreen } from './schema';
 import { config, countsOf, header, relationsOf, siteName } from '@site/editor';
 import { iconPack, iconPacks } from './iconPacks';
@@ -141,6 +120,8 @@ import { apps } from './site';
 import { waitingOf } from './pageVersions.mjs';
 import { offBlocks } from './registry';
 import { sideChoicesOf, sideSettingOf } from './SideColumn';
+import { Icon as MaterialIcon, materialIcon, type IconComponent as Icon } from './icon';
+import { GoogleLogo } from '@phosphor-icons/react';
 
 // Where a part opens: its list, or the file itself when it is one file (the menu).
 export const hrefOf = (c: Collection) => (c.kind === 'files' && c.files.length === 1 ? `#${c.files[0].file}` : `#list/${c.id}`);
@@ -214,7 +195,7 @@ export { LeadingIcon };
 
 // A part of the site as a row: its icon, its name and how many entries it has.
 function PartRow({ id, label, href, count }: { id: string } & ReturnType<typeof partOf>) {
-  return <ListItem href={href} icon={icons[id] ?? ListChecks} headline={label} count={count} arrow />;
+  return <ListItem href={href} icon={icons[id] ?? materialIcon('checklist')} headline={label} count={count} arrow />;
 }
 
 // The start screen: the site's name, the CMS version and when the site was last updated (built on Cloudflare, App.tsx), as StartStatus.tsx shows them, under it, and the FAB
@@ -510,9 +491,9 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
   const statement = statementOf(of.accessibility);
   const shotName = (key: string) => t.library.themeShots[key] ?? of.name;
   const kept: [Icon, string][] = [
-    [FileText, t.library.themeKeptContent],
-    [Palette, t.library.themeKeptBrand],
-    [Shapes, t.library.themeKeptBlocks],
+    [materialIcon('description'), t.library.themeKeptContent],
+    [materialIcon('palette'), t.library.themeKeptBrand],
+    [materialIcon('shapes'), t.library.themeKeptBlocks],
   ];
 
   async function use() {
@@ -567,13 +548,13 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
       {highlights.length > 0 && (
         <Group title={t.library.themeHighlights}>
           {highlights.map((h) => (
-            <ListItem key={h} icon={Check} headline={h} />
+            <ListItem key={h} icon={materialIcon('check')} headline={h} />
           ))}
         </Group>
       )}
       <Group>
         <ListItem
-          icon={statement.state === 'meets' ? Check : ListChecks}
+          icon={statement.state === 'meets' ? materialIcon('check') : materialIcon('checklist')}
           headline={
             statement.state === 'meets'
               ? t.library.themeA11yMeets
@@ -611,7 +592,7 @@ export function PartsHome() {
     { id: 'ui', label: t.parts.screens.components, icon: icons.appearance },
     { id: 'blocks', label: t.parts.screens.blocks, icon: icons.blocks },
     ...kindLists().map((c) => ({ id: `list/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lists })),
-    { id: 'values', label: t.parts.screens.values, icon: Ruler },
+    { id: 'values', label: t.parts.screens.values, icon: materialIcon('straighten') },
   ];
   return <Parts title={t.common.parts.editorParts} route="developer/parts" parts={parts} back={backFrom('components')} />;
 }
@@ -727,7 +708,7 @@ export function Blocks({ files }: { files: RepoFile[] }) {
         sort={
           <Choice
             title={t.library.sort}
-            icon={ArrowsDownUp}
+            icon={materialIcon('swap_vert')}
             value={sort}
             options={BLOCK_SORTS.map((s) => ({ value: s, label: t.library.sorts[s] }))}
             onChange={pickSort}
@@ -824,7 +805,14 @@ export function Lists({ files }: { files: RepoFile[]; env?: Env }) {
         ids={listsShown(files)}
         files={files}
         more={waiting.map((d) => (
-          <ListItem key={d.id} href={`#list/${d.id}`} icon={ListChecks} headline={d.label} supporting={t.ownList.notSavedYet} arrow />
+          <ListItem
+            key={d.id}
+            href={`#list/${d.id}`}
+            icon={materialIcon('checklist')}
+            headline={d.label}
+            supporting={t.ownList.notSavedYet}
+            arrow
+          />
         ))}
       />
       <CreateFab label={t.ownList.new} onClick={() => setMaking(true)} />
@@ -857,7 +845,7 @@ export function Account({ user, files, onLogout }: { user: Viewer | null; files:
       <LocalePicker />
       <NotificationChoices files={files} />
       <Group>
-        <ListItem tone="accent" onClick={onLogout} leading={<SignOut size={20} />} headline={t.library.logOut} />
+        <ListItem tone="accent" onClick={onLogout} leading={<MaterialIcon name="logout" size={20} />} headline={t.library.logOut} />
       </Group>
     </Screen>
   );
@@ -905,9 +893,9 @@ function NotificationChoices({ files }: { files: RepoFile[] }) {
 function ThemePicker() {
   const [theme, pick] = useState(savedTheme);
   const choices: { value: Theme; label: string; icon: Icon }[] = [
-    { value: 'light', label: t.library.themes.light, icon: Sun },
-    { value: 'auto', label: t.library.themes.auto, icon: CircleHalf },
-    { value: 'dark', label: t.library.themes.dark, icon: Moon },
+    { value: 'light', label: t.library.themes.light, icon: materialIcon('light_mode') },
+    { value: 'auto', label: t.library.themes.auto, icon: materialIcon('contrast') },
+    { value: 'dark', label: t.library.themes.dark, icon: materialIcon('dark_mode') },
   ];
   return (
     <SegmentedButton
@@ -928,8 +916,8 @@ function ThemePicker() {
 function DensityPicker() {
   const [density, pick] = useState(savedDensity);
   const choices: { value: Density; label: string; icon: Icon }[] = [
-    { value: 'medium', label: t.library.densities.medium, icon: ListIcon },
-    { value: 'small', label: t.library.densities.small, icon: ListBullets },
+    { value: 'medium', label: t.library.densities.medium, icon: materialIcon('list') },
+    { value: 'small', label: t.library.densities.small, icon: materialIcon('format_list_bulleted') },
   ];
   return (
     <SegmentedButton
@@ -1517,14 +1505,14 @@ export function List({
           !selecting && (
             <span className="mo-editor-library-row-actions">
               <IconButton
-                icon={ArrowUp}
+                icon={materialIcon('arrow_upward')}
                 label={t.common.moveUpItem(item.title)}
                 busy={moving?.from === i && moving.to === i - 1}
                 disabled={i === 0 || busy}
                 onClick={() => move(i, i - 1)}
               />
               <IconButton
-                icon={ArrowDown}
+                icon={materialIcon('arrow_downward')}
                 label={t.common.moveDownItem(item.title)}
                 busy={moving?.from === i && moving.to === i + 1}
                 disabled={i === shown.length - 1 || busy}
@@ -1558,7 +1546,7 @@ export function List({
               label: collection.label,
               value: appTab?.app.id ?? '',
               options: [
-                { value: '', label: collection.label, icon: icons[collection.id as keyof typeof icons] ?? ListIcon },
+                { value: '', label: collection.label, icon: icons[collection.id as keyof typeof icons] ?? materialIcon('list') },
                 ...appTabs.map((a) => ({ value: a.app.id, label: siteText(a.tab.label), icon: a.tab.icon })),
               ],
               onChange: (v) => (location.hash = v ? `list/${collection.id}/${v}` : `list/${collection.id}`),
@@ -1574,7 +1562,7 @@ export function List({
             onClose={selection.clear}
           >
             <IconButton
-              icon={Trash}
+              icon={materialIcon('delete')}
               label={t.library.deleteSelected(live.length)}
               disabled={!live.length || deletingMany}
               busy={deletingMany}
@@ -1588,7 +1576,7 @@ export function List({
           {/* What was deleted from the list, as in "Files". */}
           {restorable(collection) && (
             <IconButton
-              icon={ClockCounterClockwise}
+              icon={materialIcon('history')}
               label={t.history.deletedOf(collection.label)}
               onClick={() => (location.hash = `deleted/${collection.id}`)}
             />
@@ -1613,7 +1601,7 @@ export function List({
               // Greyed out while the pages are shown as the menu, which has its own order, so the buttons do not move.
               <Choice
                 title={t.library.sort}
-                icon={ArrowsDownUp}
+                icon={materialIcon('swap_vert')}
                 value={sort}
                 disabled={!!tree}
                 options={sorts.map((s) => ({ value: s, label: sortLabel(collection, s) }))}
@@ -1638,7 +1626,7 @@ export function List({
             pages && (
               // The menu icon to show the pages as the menu has them, and then the list icon to go back.
               <IconButton
-                icon={view === 'menu' ? ListBullets : ListIcon}
+                icon={view === 'menu' ? materialIcon('format_list_bulleted') : materialIcon('list')}
                 label={view === 'menu' ? t.library.showAsList : t.library.showAsMenu}
                 aria-pressed={view === 'menu'}
 

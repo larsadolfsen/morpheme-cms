@@ -43,7 +43,7 @@ test('in a heading Text style is generic, never a body style, and List is generi
 test('the bar menus take each text style icon from the same table', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
   const table = source.match(/const KIND_ICONS = \{([\s\S]*?)\n\};/)[1];
-  const names = [...table.matchAll(/^ {2}(\w+): \{ node: (\w+) \}/gm)];
+  const names = [...table.matchAll(/^ {2}(\w+): \{ node: (\w+(?:\('\w+'\))?) \}/gm)];
   assert.deepEqual(
     names.map((m) => m[1]),
     STYLE_KINDS,
@@ -77,7 +77,7 @@ test('the body icons are one T at three sizes on one baseline', () => {
 // Two controls, Text style (headings and text styles as one) and List, each with its own general icon and a label that names the current choice.
 test('Text style and List are two buttons that name their choice', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
-  assert.match(source, /list: \{ node: ListBullets \}/, 'the list button shows the bullet list icon');
+  assert.match(source, /list: \{ node: materialIcon\('format_list_bulleted'\) \}/, 'the list button shows the bullet list icon');
   assert.match(source, /t\.text\.listIs\(listFace\.label\)/, 'the bar: "List: …"');
   assert.match(source, /t\.text\.kindIs\(styleFace\.label\)/, 'the bar: "Text style: …"');
   for (const locale of ['en-US', 'da-DK']) {
@@ -107,18 +107,18 @@ test('the one Text style button shows a heading level while a heading is on, els
   assert.equal(styleOf(['h2'], false), 'generic');
 });
 
-test('the generic icons are the general T and the bullet list, of Phosphor', () => {
+test('the generic icons are the general T and the bullet list, of Material Symbols', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
-  assert.match(source, /text: \{ node: TextT \}/);
-  assert.match(source, /list: \{ node: ListBullets \}/);
+  assert.match(source, /text: \{ node: materialIcon\('text_fields'\) \}/);
+  assert.match(source, /list: \{ node: materialIcon\('format_list_bulleted'\) \}/);
 });
 
 // The alignment button (lib/text-align.mjs) is on the bar with Phosphor's three alignment icons; a row of the `⋮` menu opens its menu on a phone.
 test('the alignment has a button on the bar and a row in the ⋮ menu', () => {
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
-  assert.match(source, /left: \{ node: TextAlignLeft \}/);
-  assert.match(source, /center: \{ node: TextAlignCenter \}/);
-  assert.match(source, /right: \{ node: TextAlignRight \}/);
+  assert.match(source, /left: \{ node: materialIcon\('format_align_left'\) \}/);
+  assert.match(source, /center: \{ node: materialIcon\('format_align_center'\) \}/);
+  assert.match(source, /right: \{ node: materialIcon\('format_align_right'\) \}/);
   assert.match(source, /if \(id === 'align'\)/, 'the bar and the ⋮ menu');
 });
 

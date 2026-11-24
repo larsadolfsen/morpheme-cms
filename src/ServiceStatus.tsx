@@ -2,7 +2,6 @@
 // each with its components and their status, and a link to the provider's own status page (/api/status, statusReport.ts).
 // Exposes STATUS_ROUTE and the screen. Uses Screen, Group, ListItem and EmptyNote from ui.tsx and the theme's Badge.
 import { useEffect, useState } from 'react';
-import { ArrowSquareOut } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { EmptyNote, Group, ListItem } from './ui';
 import { SiteBadge } from './themeUi';
@@ -10,6 +9,7 @@ import { backFrom } from './site';
 import { t } from './i18n';
 import { serviceStatus } from './statusReport';
 import type { StatusReport } from '../lib/serviceStatus.mjs';
+import { materialIcon } from './icon';
 
 export const STATUS_ROUTE = 'status';
 
@@ -49,7 +49,7 @@ export default function ServiceStatus() {
               href={provider.page}
               target="_blank"
               rel="noopener noreferrer"
-              arrow={ArrowSquareOut}
+              arrow={materialIcon('open_in_new')}
             />
           </Group>
         ))

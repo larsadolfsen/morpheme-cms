@@ -5,13 +5,13 @@
 // (EntryForm.tsx, DataForm.tsx, with a Notice at the top): "Save changes" makes it the current
 // version, in a new commit, so nothing is lost and every version can always be found here again.
 import { Component, Fragment, useEffect, useRef, useState, type ReactNode } from 'react';
-import { ClockCounterClockwise } from '@phosphor-icons/react';
 import { Button, EmptyNote, IconButton, listClass, Notice, BottomSheet, SheetTitle, SheetBody, ProblemNote, ListItem } from './ui';
 import { mayLeave } from './FormFrame';
 import { when } from './when';
 import type { Env } from './App';
 import type { Version } from './github';
 import { locale, siteLocale, t } from './i18n';
+import { materialIcon } from './icon';
 
 /** An earlier version shown in a form: its text, and when it was saved. */
 export type ShownVersion = { text: string; at: Date };
@@ -147,7 +147,7 @@ export function VersionsButton({ env, path, onPick }: { env: Env; path: string; 
 
   return (
     <>
-      <IconButton icon={ClockCounterClockwise} label={t.history.versions} aria-haspopup="dialog" onClick={open} />
+      <IconButton icon={materialIcon('history')} label={t.history.versions} aria-haspopup="dialog" onClick={open} />
       <BottomSheet ref={dialog} aria-label={t.history.versions} onClick={(e) => e.target === dialog.current && dialog.current?.close()}>
         <SheetTitle title={t.history.versions} onClose={() => dialog.current?.close()} />
         <SheetBody>

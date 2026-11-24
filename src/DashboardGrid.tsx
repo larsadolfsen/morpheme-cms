@@ -7,7 +7,6 @@
 // when the dashboard has MAX_WIDGETS placements, the most the Worker keeps. Outside edit mode a text button below the cards, "Edit dashboard", starts it. A card's Settings opens WidgetSettings
 // for it (the values go into the draft).
 import { useState } from 'react';
-import { Plus, type Icon as PhosphorIcon } from '@phosphor-icons/react';
 import { siteText, t } from './i18n';
 import { LoadAnnounce } from './useAnnounce';
 import { apps } from './site';
@@ -20,7 +19,7 @@ import { EditableCards, saveErrorText, type DashboardEditing } from './Dashboard
 import { AddWidget } from './AddWidget';
 import { WidgetSettings } from './WidgetSettings';
 import { spanClass, widgetGroups, type WidgetDefinition } from './widgets';
-import { Icon } from './icon';
+import { Icon, materialIcon, type IconComponent as PhosphorIcon } from './icon';
 import { Button, LoadingIndicator, Notice } from './ui';
 
 /** A group's name in the list: the CMS's, or the app's label (the site's text). */
@@ -87,7 +86,12 @@ export function Dashboard({ dash, env, files }: { dash: DashboardEditing; env: E
       {dash.editing ? (
         <>
           <div>
-            <Button kind="tonal" icon={Plus} disabled={(dash.draft?.widgets.length ?? 0) >= MAX_WIDGETS} onClick={() => setAdding(true)}>
+            <Button
+              kind="tonal"
+              icon={materialIcon('add')}
+              disabled={(dash.draft?.widgets.length ?? 0) >= MAX_WIDGETS}
+              onClick={() => setAdding(true)}
+            >
               {t.dashboard.addWidget}
             </Button>
           </div>

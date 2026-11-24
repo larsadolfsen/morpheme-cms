@@ -1,18 +1,18 @@
 // `Add field` (docs/superpowers/plans/2026-11-12-new-list.md, the owner's decision of 13 November: a list starts empty and the owner adds fields one at a
 // time, as many of each kind as wanted): the menu of the six kinds a field can have. A tap on a kind adds the field. Used by the `Edit list` sheet and by the
 // empty list's page. The parts are ui.tsx's.
-import { ImageSquare, LinkSimple, ListChecks, Tag, TextAlignLeft, TextT, type Icon } from '@phosphor-icons/react';
 import { KINDS } from '../lib/ownList.mjs';
 import { t } from './i18n';
 import { Menu, MenuItem } from './ui';
+import { materialIcon, type IconComponent as Icon } from './icon';
 
 const ICONS: Record<string, Icon> = {
-  icon: ListChecks,
-  title: TextT,
-  text: TextAlignLeft,
-  image: ImageSquare,
-  href: LinkSimple,
-  tags: Tag,
+  icon: materialIcon('checklist'),
+  title: materialIcon('text_fields'),
+  text: materialIcon('format_align_left'),
+  image: materialIcon('image'),
+  href: materialIcon('link'),
+  tags: materialIcon('sell'),
 };
 
 export default function AddFieldMenu({

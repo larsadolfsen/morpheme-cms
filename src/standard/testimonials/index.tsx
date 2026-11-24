@@ -2,12 +2,12 @@
 // the theme's list (`layout` 'list'; a `layout` 'slider' from before is 'cards', FORMER in lib/blocks.mjs), with a heading: those with any of the block's tags (all without tags), those marked "Show on the front page", or
 // those picked. The testimonials are in the list the block brings ("Testimonials", list.ts; the relation `testimonials`,
 // and BlockData.testimonials). How it looks is the theme's (packages/editor/theme/blocks/testimonials/View.tsx; what it shows: view.ts, and load.ts on the site).
-import { Columns, Quotes, Rows } from '@phosphor-icons/react';
 import { config } from '@site/config';
 import { defineBlock, names, withTags, type BlockData, type BlockProps } from '../../blocks';
 import { t } from '../../i18n';
 import { headFields } from '../head';
 import { columnsField } from '../columns';
+import { materialIcon } from '../../icon';
 
 /** The tags of these testimonials, as buttons to filter by (List.tsx), each once, in the order they come. */
 export const tagsOf = (list: { categories?: string[] }[]) => [...new Set(list.flatMap((t) => t.categories ?? []))];
@@ -36,7 +36,7 @@ export function chosen(props: BlockProps, data: BlockData) {
 export default defineBlock({
   group: 'content',
   label: t.blocks.testimonials.label,
-  icon: Quotes,
+  icon: materialIcon('format_quote'),
   hint: t.blocks.testimonials.hint,
   // Typed in place (InlineLiveList.tsx): drawn as the site draws it, with the site's own items; the heading and subheading are typed above them,
   // the rest (which items, layout, tags, design) is in Edit.
@@ -58,8 +58,8 @@ export default defineBlock({
       default: 'cards',
       hint: t.blocks.testimonials.layoutHint,
       options: [
-        { label: t.blocks.testimonials.cards, value: 'cards', icon: Columns },
-        { label: t.blocks.testimonials.list, value: 'list', icon: Rows },
+        { label: t.blocks.testimonials.cards, value: 'cards', icon: materialIcon('view_column') },
+        { label: t.blocks.testimonials.list, value: 'list', icon: materialIcon('table_rows') },
       ],
     },
     {

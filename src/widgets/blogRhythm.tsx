@@ -4,7 +4,6 @@
 // entries entries.mjs's (from the files in startData.ts). Not due, it shows nothing, unless it is being edited: then it
 // says when the next post is due.
 import { useId } from 'react';
-import { PencilSimple } from '@phosphor-icons/react';
 import { locale, t } from '../i18n';
 import { collections } from '../site';
 import { entriesOf } from '../entries.mjs';
@@ -13,6 +12,7 @@ import { useStartData } from '../startData';
 import type { WidgetProps } from '../widgets';
 import { SiteCard } from '../themeUi';
 import { LinkButton } from '../ui';
+import { materialIcon } from '../icon';
 
 const lists = collections.flatMap((c) => (c.kind === 'markdown' ? [{ id: c.id, folder: c.folder }] : []));
 const NEW_POST = '#new/blog';
@@ -41,7 +41,7 @@ export function BlogRhythmWidget({ settings, editing }: WidgetProps) {
       <p className="mo-editor-caption">{text}</p>
       {due && (
         <div className="mo-editor-widget-action">
-          <LinkButton href={NEW_POST} icon={PencilSimple} kind="tonal" size="small">
+          <LinkButton href={NEW_POST} icon={materialIcon('edit')} kind="tonal" size="small">
             {last === null ? t.library.blogRhythmWriteFirst : t.library.blogRhythmWriteNew}
           </LinkButton>
         </div>

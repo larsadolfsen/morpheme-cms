@@ -38,7 +38,6 @@
 // apps installed are in the site's file of apps (config.apps.installed), each app's settings in a file of
 // its own in config.apps.settings. The site's build reads the settings, so settings.ts imports nothing
 // that needs a browser.
-import type { Icon } from '@phosphor-icons/react';
 import { createElement, type ComponentType, type ReactNode } from 'react';
 import type { BlockData } from './blocks';
 import type { Field, FolderCollection, KindPart, Opens, OwnedList, PreviewVariant } from './schema';
@@ -52,7 +51,7 @@ import { config } from '@site/config';
 import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 import { definitionOf, type AppDefinitionData } from '../lib/appDefinition.mjs';
 import type { AppManifest } from '../lib/appManifest.mjs';
-import { AnyIcon } from './icon';
+import { AnyIcon, type IconComponent as Icon } from './icon';
 
 /** An app's settings, on its page once it is installed (#apps/<app>, AppList.tsx). */
 export type AppSettings = {

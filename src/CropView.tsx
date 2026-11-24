@@ -348,7 +348,7 @@ function CropDialog({
         <>
           <TopAppBar>
             <div className="mo-editor-crop-bar">
-              <IconButton icon="arrow-left" label={t.common.backTo(t.text.image)} onClick={() => void leave()} />
+              <IconButton icon="arrow_back" label={t.common.backTo(t.text.image)} onClick={() => void leave()} />
               <h1 id={headline} className="mo-fill mo-truncate mo-type-title-large">
                 {t.media.crop.title}
               </h1>
