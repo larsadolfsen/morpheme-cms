@@ -100,7 +100,7 @@ reported with its cause instead (skill `pm`, *Cloudflare builds*).
 
 ### Roles
 
-The **CTO** (skill `cto`) starts PM sessions, answers the owner's questions and helps the owner plan (owner, 24 Nov 2026): it writes
+The **CTO** (skill `cto`) starts PM sessions, answers questions from the owner and other sessions and helps the owner plan (owner, 24 Nov 2026): it writes
 the specs and plans, and no code, and reviews no pull request; the **PM** (skill `pm`) runs the work. Every developer session (build, fix or docs) loads the `developer` skill first. An orchestrator breaks a task down, delegates it to Claude subagents (the first choice when the task needs the repo's
 rules) or, for mechanical code with a precise specification, to the Developer (Ollama, `qwen3.8:27b` at
 `http://127.0.0.1:11434`, local only), then reviews, tests and integrates. Claude in the cloud (claude.ai/code) runs when
