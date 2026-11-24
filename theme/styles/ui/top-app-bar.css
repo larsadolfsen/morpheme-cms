@@ -47,7 +47,7 @@
     column-gap: var(--mo-comp-top-app-bar-gap, 0.25rem);
     min-height: var(--mo-comp-top-app-bar-height, 4rem);
     padding-inline: var(--mo-comp-top-app-bar-padding, 0.5rem);
-    color: var(--mo-comp-top-app-bar-headline-color, var(--mo-sys-block-text));
+    color: var(--mo-comp-top-app-bar-headline-color, var(--mo-comp-block-text));
   }
   .mo-top-app-bar
     > :not(.mo-top-app-bar__leading, .mo-top-app-bar__headline-group, .mo-top-app-bar__search-bar, .mo-top-app-bar__trailing) {
@@ -98,7 +98,7 @@
   .mo-top-app-bar__subtitle {
     margin: 0;
     overflow: hidden;
-    color: var(--mo-comp-top-app-bar-subtitle-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-top-app-bar-subtitle-color, var(--mo-comp-block-muted));
     font-size: var(--mo-comp-top-app-bar-small-subtitle-font-size, var(--mo-sys-typescale-label-medium-size));
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     white-space: nowrap;

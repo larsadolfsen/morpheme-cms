@@ -6,7 +6,7 @@
 
   The theme's variables: what the standard theme's own components (components/, layouts/, templates/) read, so
   another theme changes them in its styles/global.css instead of with selectors on their markup (docs/editor.md,
-  "Temaets variabler"). The defaults give the standard theme's look, from the theme's own --mo-sys-radius, --mo-sys-panel-shadow and colours.
+  "Temaets variabler"). The defaults give the standard theme's look, from the theme's own --mo-sys-shape-corner-medium, --mo-sys-panel-shadow and colours.
   The standard theme's base (base.css) imports this; a theme that writes all its CSS itself imports it too.
 */
 :root {
@@ -16,7 +16,7 @@
   /* What is drawn on that shade (a lightbox's controls and caption): the opposite of it. */
   --mo-comp-theme-on-scrim-colour: var(--mo-sys-color-surface);
   /* The large image at the top of a page or a blog post, and the newest post's on the blog. */
-  --mo-comp-theme-picture-radius: var(--mo-sys-radius);
+  --mo-comp-theme-picture-radius: var(--mo-sys-shape-corner-medium);
   /* How long one page fades into the next when a link is followed (below). */
   --mo-comp-theme-page-fade: 0.35s;
   /* The page's side gutters (Container.astro and a post's head): 16 dp on a phone, 24 dp from 600 dp; a carousel and a chip set reach out by the first. */
@@ -101,7 +101,7 @@
   /* The smallest target of something to tap or click (m3.material.io/foundations/designing/structure, "Target sizes" and "Pointer
      targets"): 48 dp on touch, 44 dp for a mouse. Density shrinks the part, never its target (ui.css gives it a hit area). */
   --mo-sys-target-size: 44px;
-  --mo-sys-radius: 0.75rem;
+  --mo-sys-shape-corner-medium: 0.75rem;
   --mo-sys-panel-shadow:
     0 1px 2px color-mix(in srgb, var(--mo-sys-color-shadow) 6%, transparent),
     0 8px 24px -12px color-mix(in srgb, var(--mo-sys-color-shadow) 18%, transparent);
@@ -109,30 +109,30 @@
   --mo-sys-ease: var(--mo-sys-motion-ease, cubic-bezier(0.2, 0, 0, 1));
   /* The standard blocks (blocks.css) in this design; in dark mode too, as they
      follow the tokens above. */
-  --mo-sys-block-text: var(--mo-sys-color-on-surface);
-  --mo-sys-block-muted: var(--mo-sys-color-on-surface-variant);
-  --mo-sys-block-accent: var(--mo-sys-color-primary);
-  --mo-sys-block-accent-hover: color-mix(
+  --mo-comp-block-text: var(--mo-sys-color-on-surface);
+  --mo-comp-block-muted: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-block-accent: var(--mo-sys-color-primary);
+  --mo-comp-block-accent-hover: color-mix(
     in srgb,
     var(--mo-sys-color-on-primary) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
     var(--mo-sys-color-primary)
   );
-  --mo-sys-block-on-accent: var(--mo-sys-color-on-primary);
-  --mo-sys-block-primary: var(--mo-sys-color-primary);
-  --mo-sys-block-on-primary: var(--mo-sys-color-on-primary);
-  --mo-sys-block-secondary: var(--mo-sys-color-secondary);
-  --mo-sys-block-on-secondary: var(--mo-sys-color-on-secondary);
-  --mo-sys-block-tertiary: var(--mo-sys-color-tertiary);
-  --mo-sys-block-on-tertiary: var(--mo-sys-color-on-tertiary);
-  --mo-sys-block-surface: var(--mo-sys-color-surface-container-lowest);
-  --mo-sys-block-tint: var(--mo-sys-color-surface-container-high);
-  --mo-sys-block-stripe: var(--mo-sys-color-surface-container);
-  --mo-sys-block-line: var(--mo-sys-color-outline-variant);
-  --mo-sys-block-radius: var(--mo-sys-radius);
-  --mo-sys-block-radius-small: var(--mo-sys-radius-small);
-  --mo-sys-block-control-radius: var(--mo-sys-shape-corner-full);
-  --mo-sys-block-shadow: var(--mo-sys-panel-shadow);
-  --mo-sys-block-ease: var(--mo-sys-ease);
+  --mo-comp-block-on-accent: var(--mo-sys-color-on-primary);
+  --mo-comp-block-primary: var(--mo-sys-color-primary);
+  --mo-comp-block-on-primary: var(--mo-sys-color-on-primary);
+  --mo-comp-block-secondary: var(--mo-sys-color-secondary);
+  --mo-comp-block-on-secondary: var(--mo-sys-color-on-secondary);
+  --mo-comp-block-tertiary: var(--mo-sys-color-tertiary);
+  --mo-comp-block-on-tertiary: var(--mo-sys-color-on-tertiary);
+  --mo-comp-block-surface: var(--mo-sys-color-surface-container-lowest);
+  --mo-comp-block-tint: var(--mo-sys-color-surface-container-high);
+  --mo-comp-block-stripe: var(--mo-sys-color-surface-container);
+  --mo-comp-block-line: var(--mo-sys-color-outline-variant);
+  --mo-comp-block-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-block-radius-small: var(--mo-sys-shape-corner-large);
+  --mo-comp-block-control-radius: var(--mo-sys-shape-corner-full);
+  --mo-comp-block-shadow: var(--mo-sys-panel-shadow);
+  --mo-comp-block-ease: var(--mo-sys-ease);
 }
 @media (pointer: coarse) {
   :root {

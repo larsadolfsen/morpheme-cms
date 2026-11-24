@@ -452,9 +452,9 @@ export default function Parts({ env }: { env: Env }) {
                 />
                 {/* With a sample of one of the theme's tokens before its name ("Parts" › "Values"). */}
                 <ListItem
-                  leading={<LeadingToken kind="shape" value="var(--mo-sys-radius)" />}
+                  leading={<LeadingToken kind="shape" value="var(--mo-sys-shape-corner-medium)" />}
                   headline={sample.corners}
-                  supporting="--mo-sys-radius"
+                  supporting="--mo-sys-shape-corner-medium"
                 />
               </Group>
               <div className={row}>

@@ -15,18 +15,18 @@ test('a plain list row has padding-inline > 0 at medium and wide, not only on co
   const base = outsideMedia(tokens);
   assert.match(
     base,
-    /\.mo-block-list:not\(\.mo-list__segmented\) \{\s*--mo-comp-list-item-padding-inline: var\(--mo-sys-block-list-layer-room\);/,
+    /\.mo-block-list:not\(\.mo-list__segmented\) \{\s*--mo-comp-list-list-item-leading-space: var\(--mo-comp-block-list-layer-room\);\s*--mo-comp-list-list-item-trailing-space: var\(--mo-comp-block-list-layer-room\);/,
   );
-  assert.doesNotMatch(base, /--mo-comp-list-item-padding-inline: 0;/);
+  assert.doesNotMatch(base, /--mo-comp-list-list-item-leading-space: 0;\s*--mo-comp-list-list-item-trailing-space: 0;/);
   // The room is declared at every width, not only on compact (the bug: 0 padding at 1280).
-  assert.match(outsideMedia(read('./tokens/lists/sys.css')), /--mo-sys-block-list-layer-room: 1rem;/);
+  assert.match(outsideMedia(read('./tokens/lists/sys.css')), /--mo-comp-block-list-layer-room: 1rem;/);
 });
 
 test('a plain Accordion item has padding-inline > 0 at medium and wide', () => {
   const base = outsideMedia(tokens);
   assert.match(
     base,
-    /\.mo-block-accordion:not\(\.mo-block-accordion__segmented\) \{\s*--mo-comp-list-expand-padding-inline: var\(--mo-sys-block-list-layer-room\);/,
+    /\.mo-block-accordion:not\(\.mo-block-accordion__segmented\) \{\s*--mo-comp-list-expand-padding-inline: var\(--mo-comp-block-list-layer-room\);/,
   );
   assert.doesNotMatch(base, /--mo-comp-list-expand-padding-inline: 0;/);
 });
@@ -35,7 +35,7 @@ test('the list moves out by the same room at every width, so the content stays o
   const base = outsideMedia(lists);
   assert.match(
     base,
-    /\.mo-block-list:not\(\.mo-list__segmented\),\s*\.mo-block-accordion:not\(\.mo-block-accordion__segmented\) \{\s*margin-inline: calc\(-1 \* var\(--mo-sys-block-list-layer-room\)\);/,
+    /\.mo-block-list:not\(\.mo-list__segmented\),\s*\.mo-block-accordion:not\(\.mo-block-accordion__segmented\) \{\s*margin-inline: calc\(-1 \* var\(--mo-comp-block-list-layer-room\)\);/,
   );
 });
 
@@ -44,8 +44,8 @@ test('the layer and an open item keep M3 shapes at every width, none is squared 
   assert.doesNotMatch(tokens, /expand-(open-radius|container-shape): 0;/);
   assert.doesNotMatch(tokens, /@media \(width < 37\.5rem\)/);
   const material = read('./tokens/material/comp/list.css');
-  assert.match(material, /--mo-comp-list-item-hover-radius: var\(--mo-sys-shape-corner-medium\);/);
-  assert.match(material, /--mo-comp-list-item-pressed-radius: var\(--mo-sys-shape-corner-large\);/);
-  assert.match(material, /--mo-comp-list-item-selected-radius: var\(--mo-sys-shape-corner-large\);/);
+  assert.match(material, /--mo-comp-list-list-item-hovered-container-expressive-shape: var\(--mo-sys-shape-corner-medium\);/);
+  assert.match(material, /--mo-comp-list-list-item-pressed-container-expressive-shape: var\(--mo-sys-shape-corner-large\);/);
+  assert.match(material, /--mo-comp-list-list-item-selected-container-expressive-shape: var\(--mo-sys-shape-corner-large\);/);
   assert.match(outsideMedia(lists), /--mo-comp-list-expand-open-radius: var\(--mo-sys-shape-corner-large\);/);
 });

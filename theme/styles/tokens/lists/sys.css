@@ -5,6 +5,6 @@
   /* The room a plain row's layer takes past its text: all the row's width on a compact screen, and its focus ring from medium (lists.css). */
   .mo-block-list:not(.mo-list__segmented),
   .mo-block-accordion:not(.mo-block-accordion__segmented) {
-    --mo-sys-block-list-layer-room: 1rem;
+    --mo-comp-block-list-layer-room: 1rem;
   }
 }

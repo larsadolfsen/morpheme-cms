@@ -12,8 +12,8 @@ const blocksList = read('./tokens/blocks/comp/list.css');
 const listsTokens = read('./tokens/lists/comp/list.css');
 
 test('the 40 px button and the text button have 16 dp side padding', () => {
-  assert.match(button, /--mo-comp-button-medium-container-height: 2\.5rem;/);
-  assert.match(button, /--mo-comp-button-padding: 1rem;/);
+  assert.match(button, /--mo-comp-button-small-container-height: 2\.5rem;/);
+  assert.match(button, /--mo-comp-button-small-leading-space: 1rem;\s*--mo-comp-button-small-trailing-space: 1rem;/);
   assert.match(button, /--mo-comp-button-text-padding: 1rem;/);
 });
 
@@ -28,7 +28,7 @@ test('Q&A rows keep the List - Expand padding at every width', () => {
 
 test('a checklist row keeps the list item padding, not 0', () => {
   const check = blocksList.slice(blocksList.indexOf('.mo-block-checklist'));
-  assert.doesNotMatch(check, /--mo-comp-list-item-padding-inline/);
+  assert.doesNotMatch(check, /--mo-comp-list-list-item-leading-space/);
 });
 
 test('a plain List - Expand has no line between items in Material', () => {

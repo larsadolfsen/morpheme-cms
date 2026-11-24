@@ -38,7 +38,7 @@
     line-height: var(--mo-sys-typescale-display-large-line-height);
     font-weight: var(--mo-sys-typescale-display-large-weight);
     letter-spacing: var(--mo-sys-typescale-display-large-tracking);
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
   }
   .mo-block-testimonials__testimonial-tags {
     display: flex;
@@ -66,7 +66,7 @@
     margin-bottom: 0.75rem;
   }
   .mo-block-testimonials__testimonial-context {
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   .mo-block-testimonials__testimonial-short {
     display: -webkit-box;
@@ -89,7 +89,7 @@
     line-height: var(--mo-sys-typescale-label-large-line-height);
     font-weight: var(--mo-sys-typescale-label-large-weight);
     letter-spacing: var(--mo-sys-typescale-label-large-tracking);
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
     text-decoration: none;
   }
   .mo-block-testimonials__testimonial-more[hidden] {

@@ -339,7 +339,7 @@ The owner approved these theme changes on 21 Nov 2026 (relayed by the PM of 0.19
 
 ### K2. A plain list's row has room inside its focus ring
 
-- **We do:** from 600 dp a focused row of a plain List or List - Expand (no drawn container) takes the layer's room (`--mo-sys-block-list-layer-room`, 16dp) as padding and an equal negative margin (`theme/styles/lists.css`), so the text stays where it is and the 3dp ring is 13dp from it. Rest and hover are unchanged.
+- **We do:** from 600 dp a focused row of a plain List or List - Expand (no drawn container) takes the layer's room (`--mo-comp-block-list-layer-room`, 16dp) as padding and an equal negative margin (`theme/styles/lists.css`), so the text stays where it is and the 3dp ring is 13dp from it. Rest and hover are unchanged.
 - **Why:** the ring touched the first letters (WCAG 2.2, 2.4.11 and 2.4.13).
 
 ### K3. A pop-up opens with the focus on its Close button

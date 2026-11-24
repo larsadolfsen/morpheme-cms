@@ -16,11 +16,12 @@
      21 Nov 2026, because M3 prints no square layer for a full-width list. */
 @layer components {
   .mo-block-list:not(.mo-list__segmented) {
-    --mo-comp-list-item-padding-inline: var(--mo-sys-block-list-layer-room);
+    --mo-comp-list-list-item-leading-space: var(--mo-comp-block-list-layer-room);
+    --mo-comp-list-list-item-trailing-space: var(--mo-comp-block-list-layer-room);
   }
 }
 @layer components {
   .mo-block-accordion:not(.mo-block-accordion__segmented) {
-    --mo-comp-list-expand-padding-inline: var(--mo-sys-block-list-layer-room);
+    --mo-comp-list-expand-padding-inline: var(--mo-comp-block-list-layer-room);
   }
 }

@@ -12,10 +12,10 @@
     /* M3, Density: "Don't increase the density in components that alert a person of changes, such as snackbars or dialogs". The dialog and every part in
        it (its buttons, a field, a list row) are at Medium at every step, so a dialog is the same height at -3 as at 0 (PM, 21 Nov 2026). */
     --mo-sys-density: 0;
-    border-radius: var(--mo-comp-dialog-container-shape, var(--mo-sys-block-radius));
+    border-radius: var(--mo-comp-dialog-container-shape, var(--mo-comp-block-radius));
     background: var(--mo-comp-dialog-surface, var(--mo-sys-elevation-level3-color));
     box-shadow:
-      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-comp-block-line)),
       var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-shadow));
   }
   /* A modal dialog: in the middle of the screen over the scrim, coming up a little as it opens. */
@@ -35,7 +35,7 @@
   .mo-dialog__modal::backdrop {
     background: var(
       --mo-comp-dialog-scrim,
-      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent)
+      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-comp-block-text)) 50%, transparent)
     );
   }
   @media (prefers-reduced-motion: no-preference) {
@@ -74,7 +74,7 @@
     width: 1.5rem;
     height: 1.5rem;
     margin-bottom: 1rem;
-    color: var(--mo-comp-dialog-icon-color, var(--mo-sys-block-accent));
+    color: var(--mo-comp-dialog-icon-color, var(--mo-comp-block-accent));
   }
   .mo-dialog__headline {
     flex-shrink: 0;
@@ -89,7 +89,7 @@
   }
   .mo-dialog__supporting-text {
     flex-shrink: 0;
-    color: var(--mo-comp-dialog-supporting-text-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-dialog-supporting-text-color, var(--mo-comp-block-muted));
   }
   .mo-dialog__supporting-text > * + * {
     margin-top: 0.75rem;

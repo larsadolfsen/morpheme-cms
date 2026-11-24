@@ -1261,7 +1261,9 @@ async function checkSelectionBox() {
       probe.style.background = segmented
         ? 'var(--mo-comp-list-segmented-selected-surface, var(--mo-sys-color-secondary-container))'
         : 'var(--mo-comp-list-list-item-selected-container-color)';
-      probe.style.borderRadius = segmented ? 'var(--mo-comp-list-segmented-selected-radius)' : 'var(--mo-comp-list-item-selected-radius)';
+      probe.style.borderRadius = segmented
+        ? 'var(--mo-comp-list-segmented-selected-radius)'
+        : 'var(--mo-comp-list-list-item-selected-container-expressive-shape)';
       own.appendChild(probe);
       const want = getComputedStyle(probe);
       const s = getComputedStyle(own);

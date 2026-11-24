@@ -14,7 +14,7 @@
     color: var(--mo-sys-color-primary);
   }
   .mo-block-cards__card-picture {
-    border-radius: var(--mo-comp-card-radius);
+    border-radius: var(--mo-comp-elevated-card-container-shape);
   }
   .mo-block-cards__card-text {
     font-weight: 400;
@@ -73,7 +73,7 @@
     opacity: var(--mo-sys-state-disabled-state-layer-opacity);
   }
   .mo-split-button > .mo-button:active {
-    border-radius: var(--mo-sys-block-control-radius);
+    border-radius: var(--mo-comp-block-control-radius);
   }
   .mo-split-button > .mo-split-button__leading:active {
     border-start-end-radius: var(--mo-sys-shape-corner-small);
@@ -84,6 +84,6 @@
     border-end-start-radius: var(--mo-sys-shape-corner-small);
   }
   .mo-split-button > .mo-split-button__trailing[aria-expanded='true']:active {
-    border-radius: var(--mo-sys-block-control-radius);
+    border-radius: var(--mo-comp-block-control-radius);
   }
 }

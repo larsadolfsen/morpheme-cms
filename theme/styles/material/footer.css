@@ -57,14 +57,14 @@
   }
   .mo-footer__item:hover,
   .mo-footer__column > ul a:hover {
-    background: var(--mo-sys-state-mo-hover-layer);
+    background: var(--mo-sys-state-hover-state-layer-color);
     color: var(--mo-sys-color-on-surface);
   }
   .mo-footer__item:focus-visible,
   .mo-footer__item:active,
   .mo-footer__column > ul a:focus-visible,
   .mo-footer__column > ul a:active {
-    background: var(--mo-sys-state-mo-pressed-layer);
+    background: var(--mo-sys-state-pressed-state-layer-color);
     color: var(--mo-sys-color-on-surface);
   }
   .mo-footer__column > ul > li {

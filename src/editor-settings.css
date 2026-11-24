@@ -1495,7 +1495,7 @@
     inline-size: var(--mo-ref-space-450);
     block-size: var(--mo-ref-space-450);
     flex-shrink: 0;
-    border-radius: var(--mo-sys-block-radius-small);
+    border-radius: var(--mo-comp-block-radius-small);
   }
 
   .mo-editor-target-icon {
@@ -1515,8 +1515,8 @@
 
   .mo-editor-text-area {
     max-inline-size: none;
-    border-end-start-radius: var(--mo-sys-radius);
-    border-end-end-radius: var(--mo-sys-radius);
+    border-end-start-radius: var(--mo-sys-shape-corner-medium);
+    border-end-end-radius: var(--mo-sys-shape-corner-medium);
     border-inline-style: solid;
     border-inline-width: 1px;
     border-block-end-style: solid;
@@ -1527,7 +1527,7 @@
   }
 
   .mo-editor-text-surface {
-    border-radius: var(--mo-sys-radius);
+    border-radius: var(--mo-sys-shape-corner-medium);
     background-color: var(--mo-sys-color-surface-container-lowest);
   }
 
@@ -1540,8 +1540,8 @@
     position: sticky;
     inset-block-start: env(safe-area-inset-top);
     z-index: 10;
-    border-start-start-radius: var(--mo-sys-radius);
-    border-start-end-radius: var(--mo-sys-radius);
+    border-start-start-radius: var(--mo-sys-shape-corner-medium);
+    border-start-end-radius: var(--mo-sys-shape-corner-medium);
     border-style: solid;
     border-width: 1px;
     border-color: var(--mo-sys-color-outline-variant);
@@ -1580,7 +1580,7 @@
 
   .mo-editor-widget-card {
     position: relative;
-    border-radius: var(--mo-sys-block-radius);
+    border-radius: var(--mo-comp-block-radius);
     background-color: var(--mo-sys-color-surface-container-low);
     padding-block-end: var(--mo-ref-space-100);
   }

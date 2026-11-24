@@ -34,7 +34,7 @@
     width: var(--mo-comp-checkbox-container-size, 1rem);
     height: var(--mo-comp-checkbox-container-size, 1rem);
     margin: 0;
-    accent-color: var(--mo-comp-checkbox-color, var(--mo-sys-block-accent));
+    accent-color: var(--mo-comp-checkbox-color, var(--mo-comp-block-accent));
     cursor: inherit;
   }
   .mo-checkbox__icon,
@@ -46,12 +46,12 @@
   /* Wrong: the box in the error's colour with a ring round it, and the line under it saying why. */
   :where(.mo-checkbox).mo-is-error .mo-checkbox__input {
     border-radius: 0.1875rem;
-    outline: 2px solid var(--mo-comp-checkbox-error, var(--mo-comp-text-field-error, var(--mo-sys-block-accent)));
+    outline: 2px solid var(--mo-comp-checkbox-error, var(--mo-comp-text-field-error, var(--mo-comp-block-accent)));
     outline-offset: 1px;
-    accent-color: var(--mo-comp-checkbox-error, var(--mo-comp-text-field-error, var(--mo-sys-block-accent)));
+    accent-color: var(--mo-comp-checkbox-error, var(--mo-comp-text-field-error, var(--mo-comp-block-accent)));
   }
   :where(.mo-checkbox).mo-is-error .mo-checkbox__supporting {
-    color: var(--mo-comp-checkbox-error, var(--mo-comp-text-field-error, var(--mo-sys-block-accent)));
+    color: var(--mo-comp-checkbox-error, var(--mo-comp-text-field-error, var(--mo-comp-block-accent)));
   }
   .mo-checkbox__label {
     display: block;
@@ -59,7 +59,7 @@
   }
   .mo-checkbox__supporting {
     display: block;
-    color: var(--mo-comp-checkbox-supporting-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-checkbox-supporting-color, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);

@@ -33,7 +33,7 @@ export const allow = [
   },
   {
     file: /base\.css$|blocks(\/[a-z-]+)?\.css$|tokens\/(base|blocks)\/sys\.css$/,
-    line: /^--mo-sys-(radius|radius-small|block-radius|block-radius-small|block-control-radius): /,
+    line: /^--mo-(sys-shape-corner-(medium|large)|comp-block-(radius|radius-small|control-radius)): /,
     reason: 'the fallback corners for a theme that sets no steps (global.css sets the ten steps and maps these to them)',
   },
   {
@@ -59,7 +59,7 @@ export const allow = [
   },
   {
     file: /ui\.css$|menus\.css$/,
-    line: /^--mo-comp-menu-item-radius, calc|^border-radius: var\(--mo-comp-menu-item-radius, calc/,
+    line: /^--mo-comp-menus-menu-item-shape, calc|^border-radius: var\(--mo-comp-menus-menu-item-shape, calc/,
     reason: 'a menu item inside the container: the container corner minus its padding',
   },
   {

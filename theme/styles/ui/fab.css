@@ -26,7 +26,7 @@
     min-width: var(--mo-comp-fab-size, 3.5rem);
     align-items: center;
     justify-content: center;
-    border-radius: var(--mo-comp-fab-container-shape, var(--mo-sys-block-radius-small));
+    border-radius: var(--mo-comp-fab-container-shape, var(--mo-comp-block-radius-small));
     padding: 0 var(--mo-comp-fab-padding, 1rem);
     box-shadow: var(--mo-comp-fab-shadow, var(--mo-sys-elevation-level3-shadow));
     transition:
@@ -57,7 +57,7 @@
   .mo-extended-fab__medium {
     height: var(--mo-comp-fab-medium-size, 5rem);
     min-width: var(--mo-comp-fab-medium-size, 5rem);
-    border-radius: var(--mo-comp-fab-medium-container-shape, calc(var(--mo-sys-block-radius-small) * 1.25));
+    border-radius: var(--mo-comp-fab-medium-container-shape, calc(var(--mo-comp-block-radius-small) * 1.25));
   }
   .mo-fab__medium > svg,
   .mo-extended-fab__medium > svg {
@@ -68,7 +68,7 @@
   .mo-extended-fab__large {
     height: var(--mo-comp-fab-large-size, 6rem);
     min-width: var(--mo-comp-fab-large-size, 6rem);
-    border-radius: var(--mo-comp-fab-large-container-shape, calc(var(--mo-sys-block-radius-small) * 1.75));
+    border-radius: var(--mo-comp-fab-large-container-shape, calc(var(--mo-comp-block-radius-small) * 1.75));
   }
   .mo-fab__large > svg,
   .mo-extended-fab__large > svg {
@@ -85,14 +85,14 @@
   /* The colours (M3 Expressive): filled in primary, secondary or tertiary, or tonal in their containers; a state layer
      of the text's colour when pointed at, and pressed under the ripple. */
   .mo-fab__primary {
-    background: var(--mo-comp-fab-primary-surface, var(--mo-sys-block-accent));
-    color: var(--mo-comp-fab-primary-text, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-fab-primary-surface, var(--mo-comp-block-accent));
+    color: var(--mo-comp-fab-primary-text, var(--mo-comp-block-on-accent));
   }
   .mo-fab__primary:hover {
-    background: var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover));
+    background: var(--mo-comp-fab-primary-hover, var(--mo-comp-block-accent-hover));
   }
   .mo-fab__primary:active {
-    background: var(--mo-comp-fab-primary-pressed, var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover)));
+    background: var(--mo-comp-fab-primary-pressed, var(--mo-comp-fab-primary-hover, var(--mo-comp-block-accent-hover)));
   }
   .mo-fab__secondary {
     background: var(--mo-comp-fab-secondary-surface, var(--mo-sys-color-secondary));

@@ -1,6 +1,6 @@
 // The setting "Columns" of the blocks that draw rows as a list (List, List - Expand, Questions and answers, Blog posts as a list,
 // Testimonials as a list), one definition for all of them. On (the default, and what a saved block without it has): the rows sit in as many
-// columns as fit the list's width (theme/styles/blocks.css, --mo-sys-block-list-column-min). Off: always one column, at most 720px wide. The theme draws
+// columns as fit the list's width (theme/styles/blocks.css, --mo-comp-block-list-column-min). Off: always one column, at most 720px wide. The theme draws
 // it as data-columns="one" on the list (`oneColumn` of the view), so its CSS keys on the attribute.
 import { t } from '../i18n';
 import type { Field } from '../schema';

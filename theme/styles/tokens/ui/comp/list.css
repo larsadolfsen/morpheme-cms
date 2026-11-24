@@ -17,12 +17,16 @@
     );
     --mo-comp-list-item-two-line-box: max(
       var(--mo-sys-target-size),
-      calc(var(--mo-comp-list-item-two-line-min-height, var(--mo-comp-list-list-item-container-height)) + var(--mo-comp-list-item-density))
+      calc(
+        var(--mo-comp-list-md-comp-list-list-item-two-line-container-height, var(--mo-comp-list-list-item-container-height)) +
+          var(--mo-comp-list-item-density)
+      )
     );
     --mo-comp-list-item-three-line-box: max(
       var(--mo-sys-target-size),
       calc(
-        var(--mo-comp-list-item-three-line-min-height, var(--mo-comp-list-list-item-container-height)) + var(--mo-comp-list-item-density)
+        var(--mo-comp-list-md-comp-list-list-item-three-line-container-height, var(--mo-comp-list-list-item-container-height)) +
+          var(--mo-comp-list-item-density)
       )
     );
   }
@@ -31,15 +35,18 @@
 @layer components {
   :is(a, button:enabled).mo-list__item-container:hover,
   .mo-list__item-with-control:not(.mo-list__item-disabled):hover {
-    --mo-comp-list-item-shape: var(--mo-comp-list-item-hover-radius, var(--mo-comp-list-list-item-container-shape, 0));
+    --mo-comp-list-item-shape: var(
+      --mo-comp-list-list-item-hovered-container-expressive-shape,
+      var(--mo-comp-list-list-item-container-shape, 0)
+    );
   }
 }
 @layer components {
   :is(a, button:enabled).mo-list__item-container:is(:active, :focus-visible),
   .mo-list__item-with-control:not(.mo-list__item-disabled):is(:active, :has(:focus-visible)) {
     --mo-comp-list-item-shape: var(
-      --mo-comp-list-item-pressed-radius,
-      var(--mo-comp-list-item-hover-radius, var(--mo-comp-list-list-item-container-shape, 0))
+      --mo-comp-list-list-item-pressed-container-expressive-shape,
+      var(--mo-comp-list-list-item-hovered-container-expressive-shape, var(--mo-comp-list-list-item-container-shape, 0))
     );
   }
 }
@@ -50,23 +57,28 @@
 }
 @layer components {
   .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:hover) {
-    --mo-comp-list-item-shape: var(--mo-comp-list-item-hover-radius, var(--mo-comp-list-list-item-container-shape, 0));
+    --mo-comp-list-item-shape: var(
+      --mo-comp-list-list-item-hovered-container-expressive-shape,
+      var(--mo-comp-list-list-item-container-shape, 0)
+    );
   }
 }
 @layer components {
   .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:is(:active, :focus-visible)) {
     --mo-comp-list-item-shape: var(
-      --mo-comp-list-item-pressed-radius,
-      var(--mo-comp-list-item-hover-radius, var(--mo-comp-list-list-item-container-shape, 0))
+      --mo-comp-list-list-item-pressed-container-expressive-shape,
+      var(--mo-comp-list-list-item-hovered-container-expressive-shape, var(--mo-comp-list-list-item-container-shape, 0))
     );
   }
 }
 @layer components {
   .mo-list__item-expand-summary {
     --mo-comp-list-item-shape: 0;
-    --mo-comp-list-item-padding-block: var(--mo-comp-list-expand-padding-block, 0.875rem);
-    --mo-comp-list-item-padding-inline: var(--mo-comp-list-expand-padding-inline, 1rem);
-    --mo-comp-list-item-gap: var(--mo-comp-list-expand-gap-inline, 1rem);
+    --mo-comp-list-list-item-top-space: var(--mo-comp-list-expand-padding-block, 0.875rem);
+    --mo-comp-list-list-item-bottom-space: var(--mo-comp-list-expand-padding-block, 0.875rem);
+    --mo-comp-list-list-item-leading-space: var(--mo-comp-list-expand-padding-inline, 1rem);
+    --mo-comp-list-list-item-trailing-space: var(--mo-comp-list-expand-padding-inline, 1rem);
+    --mo-comp-list-list-item-between-space: var(--mo-comp-list-expand-gap-inline, 1rem);
     --mo-comp-list-item-headline-size: var(--mo-comp-list-expand-headline-size, var(--mo-sys-typescale-title-medium-size));
     --mo-comp-list-item-headline-weight: var(--mo-comp-list-expand-headline-weight, var(--mo-sys-typescale-title-medium-weight));
     --mo-comp-list-item-headline-line-height: var(
@@ -81,22 +93,34 @@
 }
 @layer components {
   .mo-list__item-selected {
-    --mo-comp-list-item-shape: var(--mo-comp-list-item-selected-radius, var(--mo-comp-list-list-item-container-shape, 0));
+    --mo-comp-list-item-shape: var(
+      --mo-comp-list-list-item-selected-container-expressive-shape,
+      var(--mo-comp-list-list-item-container-shape, 0)
+    );
   }
 }
 @layer components {
   :is(a, button:enabled).mo-list__item-container.mo-list__item-selected:hover {
-    --mo-comp-list-item-shape: var(--mo-comp-list-item-selected-radius, var(--mo-comp-list-list-item-container-shape, 0));
+    --mo-comp-list-item-shape: var(
+      --mo-comp-list-list-item-selected-container-expressive-shape,
+      var(--mo-comp-list-list-item-container-shape, 0)
+    );
   }
 }
 @layer components {
   :is(a, button:enabled).mo-list__item-container.mo-list__item-selected:focus-visible {
-    --mo-comp-list-item-shape: var(--mo-comp-list-item-selected-radius, var(--mo-comp-list-list-item-container-shape, 0));
+    --mo-comp-list-item-shape: var(
+      --mo-comp-list-list-item-selected-container-expressive-shape,
+      var(--mo-comp-list-list-item-container-shape, 0)
+    );
   }
 }
 @layer components {
   :is(a, button:enabled).mo-list__item-container.mo-list__item-selected:active {
-    --mo-comp-list-item-shape: var(--mo-comp-list-item-selected-radius, var(--mo-comp-list-list-item-container-shape, 0));
+    --mo-comp-list-item-shape: var(
+      --mo-comp-list-list-item-selected-container-expressive-shape,
+      var(--mo-comp-list-list-item-container-shape, 0)
+    );
   }
 }
 /* Dividers: none, or in from where the items' text starts (inset: after what leads the item below the line), or in
@@ -109,7 +133,8 @@
 @layer components {
   .mo-list > li:has(> * > :is(.mo-list__item-leading, .mo-list__item-control:first-child)) {
     --mo-comp-list-item-leading-room: calc(
-      var(--mo-comp-list-item-leading-size, var(--mo-comp-list-item-icon-size, 1.5rem)) + var(--mo-comp-list-item-gap, 1.5rem)
+      var(--mo-comp-list-item-leading-size, var(--mo-comp-list-item-icon-size, 1.5rem)) +
+        var(--mo-comp-list-list-item-between-space, 1.5rem)
     );
   }
 }
@@ -161,7 +186,7 @@
   .mo-list__segmented > li:has(> .mo-list__item-selected, > .mo-list__item-with-control :checked) {
     --mo-comp-list-item-shape: var(
       --mo-comp-list-segmented-selected-radius,
-      var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small))
+      var(--mo-comp-list-segmented-radius, var(--mo-comp-block-radius-small))
     );
   }
 }
@@ -171,7 +196,7 @@
     > li:has(> .mo-list__item-selected):has(> :is(a, button:enabled).mo-list__item-container:is(:hover, :active, :focus-visible)) {
     --mo-comp-list-item-shape: var(
       --mo-comp-list-segmented-selected-radius,
-      var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small))
+      var(--mo-comp-list-segmented-radius, var(--mo-comp-block-radius-small))
     );
   }
 }

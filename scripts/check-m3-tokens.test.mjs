@@ -38,9 +38,9 @@ test('a token on :root is read, a scoped one and a media block are not', () => {
 test('names map from M3 to the theme', () => {
   assert.equal(themeName('md.comp.search-bar.container.color'), '--mo-comp-search-bar-container-color');
   assert.equal(themeName('md.sys.color.on-surface'), '--mo-sys-color-on-surface');
-  // The Expressive pairs: the theme's navigation bar is the flexible nav-bar, so the baseline navigation-bar is not its name.
-  assert.equal(themeName('md.comp.nav-bar.container.height'), '--mo-comp-navigation-bar-container-height');
-  assert.equal(themeName('md.comp.navigation-bar.container.height'), null);
+  // The Expressive pairs: the theme's navigation bar is the flexible nav-bar; the baseline navigation-bar keeps its own plain name (the theme declares none).
+  assert.equal(themeName('md.comp.nav-bar.container.height'), '--mo-comp-nav-bar-container-height');
+  assert.ok(themeName('md.comp.navigation-bar.container.height').startsWith('--mo-comp-navigation-bar-'));
 });
 
 test('var() and calc() resolve, a role and a step stay markers, density is the declared base', () => {
@@ -91,18 +91,18 @@ test('the theme today differs from Material 3 exactly as the allowlist says', ()
 
 test('a token the rename map maps is compared with its M3 token, and a wrong value fails', () => {
   const data = m3([length('md.comp.button.small.leading-space', 16), length('md.comp.button.small.trailing-space', 16)]);
-  const renames = { '--mo-comp-button-padding': ['md.comp.button.small.leading-space', 'md.comp.button.small.trailing-space'] };
+  const renames = { '--mo-comp-button-pad': ['md.comp.button.small.leading-space', 'md.comp.button.small.trailing-space'] };
   const stats = { compared: new Set() };
-  assert.deepEqual(compare(declaredOnRoot([':root { --mo-comp-button-padding: 1rem; }']), data, stats, renames), []);
-  assert.deepEqual([...stats.compared], ['--mo-comp-button-padding']);
+  assert.deepEqual(compare(declaredOnRoot([':root { --mo-comp-button-pad: 1rem; }']), data, stats, renames), []);
+  assert.deepEqual([...stats.compared], ['--mo-comp-button-pad']);
   // 24 dp against M3's 16: one difference, not two (leading and trailing are the same value).
-  const wrong = compare(declaredOnRoot([':root { --mo-comp-button-padding: 1.5rem; }']), data, {}, renames);
+  const wrong = compare(declaredOnRoot([':root { --mo-comp-button-pad: 1.5rem; }']), data, {}, renames);
   assert.deepEqual(
     wrong.map((f) => [f.token, f.theme, f.m3]),
-    [['--mo-comp-button-padding', '24', '16']],
+    [['--mo-comp-button-pad', '24', '16']],
   );
   // Without the map the same token is never compared (what batch A closes).
-  assert.deepEqual(compare(declaredOnRoot([':root { --mo-comp-button-padding: 1.5rem; }']), data, {}, {}), []);
+  assert.deepEqual(compare(declaredOnRoot([':root { --mo-comp-button-pad: 1.5rem; }']), data, {}, {}), []);
 });
 
 test('a --mo-comp token that maps to no M3 token and is not named as ours fails; so does a stale entry', () => {

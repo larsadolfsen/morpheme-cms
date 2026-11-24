@@ -2,16 +2,16 @@
 
 @layer components {
   [data-icon-color='primary'] {
-    --mo-comp-icon-color: var(--mo-sys-color-primary, var(--mo-sys-block-accent));
+    --mo-comp-icon-color: var(--mo-sys-color-primary, var(--mo-comp-block-accent));
   }
 }
 @layer components {
   [data-icon-color='secondary'] {
-    --mo-comp-icon-color: var(--mo-sys-color-secondary, var(--mo-sys-block-secondary));
+    --mo-comp-icon-color: var(--mo-sys-color-secondary, var(--mo-comp-block-secondary));
   }
 }
 @layer components {
   [data-icon-color='tertiary'] {
-    --mo-comp-icon-color: var(--mo-sys-color-tertiary, var(--mo-sys-block-tertiary));
+    --mo-comp-icon-color: var(--mo-sys-color-tertiary, var(--mo-comp-block-tertiary));
   }
 }
