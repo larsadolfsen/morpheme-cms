@@ -36,6 +36,7 @@ import { breakpointProblems } from '@morphemecms/cms/site/breakpoints.mjs';
 import { tailwindProblems } from '@morphemecms/cms/site/tailwind.mjs';
 import { siteProblems as moNameProblems } from './check-mo-names.mjs';
 import { siteProblems as appCssProblems } from './check-app-css.mjs';
+import { siteProblems as appClassProblems } from './check-app-classes.mjs';
 import { themeTokenProblems } from '../site/themeTokens.mjs';
 import { casingProblems } from '../site/casing.mjs';
 import { BUILD_SETTINGS_PATH } from '../lib/build-settings.mjs';
@@ -217,6 +218,8 @@ result.problems.push(...tailwindProblems(root));
 result.problems.push(...moNameProblems(root));
 // An app's CSS reaches only its own blocks (contract 8, docs/app-contract.md "Scoped CSS"): no rule on the page, no private custom property in code.
 result.problems.push(...appCssProblems(root));
+// An app written to contract 8 uses only mo- classes the CMS has, so an app's own classes cannot be mistaken for the CMS's (docs/app-contract.md).
+result.problems.push(...appClassProblems(root));
 // A theme's private custom property is --mo-theme-*, declared and read only in that theme's own folder (docs/css-tokens.md).
 result.problems.push(...themeTokenProblems(root));
 // What each app loads from elsewhere is in its csp.json, so the pages' Content-Security-Policy lets it through.
