@@ -107,7 +107,7 @@ export const icons: Record<string, Icon> = {
   colors: materialIcon('palette'),
   logo: materialIcon('sticker'),
   'icon-packs': materialIcon('sentiment_satisfied'),
-  motion: materialIcon('ssid_chart'),
+  motion: materialIcon('airwave'),
   'side-column': materialIcon('left_panel_open'),
   parts: materialIcon('shapes'),
 };

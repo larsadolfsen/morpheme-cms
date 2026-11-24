@@ -881,7 +881,7 @@ export function useBlockDialog(
         >
           <TopAppBar>
             <div className="mo-editor-block-dialog-bar">
-              <IconButton icon="arrow-left" label={t.common.backTo(back || t.forms.text)} onClick={() => void leave()} />
+              <IconButton icon="arrow_back" label={t.common.backTo(back || t.forms.text)} onClick={() => void leave()} />
               <h1 id={headingId} className="mo-truncate mo-editor-block-dialog-title">
                 {title}
               </h1>
