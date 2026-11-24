@@ -199,7 +199,10 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
     const refStyle = getComputedStyle(ref);
     const style = getComputedStyle(bar);
     const out = {
-      standard: bar.classList.contains('mo-sheet__container mo-is-bottom') && bar.classList.contains('mo-sheet__standard'),
+      standard:
+        bar.classList.contains('mo-sheet__container') &&
+        bar.classList.contains('mo-is-bottom') &&
+        bar.classList.contains('mo-sheet__standard'),
       background: style.backgroundColor,
       refBackground: refStyle.backgroundColor,
       radius: style.borderTopLeftRadius,
@@ -331,7 +334,11 @@ async function checkPhoneSheet(width = 375, height = 740) {
       main.scrollTo(0, main.scrollHeight);
       const last = fields.at(-1)?.getBoundingClientRect();
       const out = {
-        standardSheet: !!bar && bar.classList.contains('mo-sheet__container mo-is-bottom') && bar.classList.contains('mo-sheet__standard'),
+        standardSheet:
+          !!bar &&
+          bar.classList.contains('mo-sheet__container') &&
+          bar.classList.contains('mo-is-bottom') &&
+          bar.classList.contains('mo-sheet__standard'),
         sheetSurface: style && style.backgroundColor === refStyle.backgroundColor,
         sheetRadius: style && style.borderTopLeftRadius === refStyle.borderTopLeftRadius && style.borderTopLeftRadius !== '0px',
         sheetFixed: style?.position === 'fixed',

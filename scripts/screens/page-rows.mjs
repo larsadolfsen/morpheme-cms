@@ -153,7 +153,7 @@ async function checkBlockRow(width, options = {}) {
     .locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')
     .evaluateAll((els) => els.map((e) => [...e.classList]));
   for (const list of classes)
-    if (list.some((c) => !/^mo-icon-button(__|$)/.test(c)))
+    if (list.some((c) => !/^mo-icon-button(__|$)|^mo-is-/.test(c)))
       problems.push(`${label}: a row button has a class of its own (${list.join(' ')}); it must be the theme's icon button`);
   if (classes.some((list) => !list.includes('mo-icon-button') || !list.includes('mo-is-standard')))
     problems.push(`${label}: a row button is not the theme's standard icon button (${JSON.stringify(classes)})`);
