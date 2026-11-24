@@ -1,0 +1,268 @@
+{
+  "about": "The map of docs/superpowers/specs/2026-11-20-material-3-names-design.md (contract 8), made in batch 1 of 0.19.6 from check:m3-tokens --report and docs/m3-tokens/. tokens: old custom property → new (an array when one old token becomes several); classes: old class → new (an array: the new classes together, null: merged into the default); props: component → prop → old value → new (null: merged); reused: old names that come back with another meaning; open: what the CTO reviews. Icons: lib/materialIconMap.mjs.",
+  "tokens": {
+    "--mo-comp-button-padding": ["--mo-comp-button-small-leading-space", "--mo-comp-button-small-trailing-space"],
+    "--mo-comp-button-small-padding": ["--mo-comp-button-small-leading-space", "--mo-comp-button-small-trailing-space"],
+    "--mo-comp-button-xsmall-padding": ["--mo-comp-button-xsmall-leading-space", "--mo-comp-button-xsmall-trailing-space"],
+    "--mo-comp-button-group-connected-gap": [
+      "--mo-comp-button-group-connected-xsmall-between-space",
+      "--mo-comp-button-group-connected-small-between-space",
+      "--mo-comp-button-group-connected-medium-between-space",
+      "--mo-comp-button-group-connected-large-between-space",
+      "--mo-comp-button-group-connected-xlarge-between-space"
+    ],
+    "--mo-comp-button-group-xsmall-inner-radius": "--mo-comp-button-group-connected-xsmall-inner-corner-corner-size",
+    "--mo-comp-button-group-inner-radius": [
+      "--mo-comp-button-group-connected-small-inner-corner-corner-size",
+      "--mo-comp-button-group-connected-medium-inner-corner-corner-size"
+    ],
+    "--mo-comp-button-group-large-inner-radius": "--mo-comp-button-group-connected-large-inner-corner-corner-size",
+    "--mo-comp-button-group-xlarge-inner-radius": "--mo-comp-button-group-connected-xlarge-inner-corner-corner-size",
+    "--mo-comp-card-radius": [
+      "--mo-comp-elevated-card-container-shape",
+      "--mo-comp-filled-card-container-shape",
+      "--mo-comp-outlined-card-container-shape"
+    ],
+    "--mo-comp-list-item-two-line-min-height": "--mo-comp-list-md-comp-list-list-item-two-line-container-height",
+    "--mo-comp-list-item-three-line-min-height": "--mo-comp-list-md-comp-list-list-item-three-line-container-height",
+    "--mo-comp-list-item-padding-block": ["--mo-comp-list-list-item-top-space", "--mo-comp-list-list-item-bottom-space"],
+    "--mo-comp-list-item-padding-inline": ["--mo-comp-list-list-item-leading-space", "--mo-comp-list-list-item-trailing-space"],
+    "--mo-comp-list-item-gap": "--mo-comp-list-list-item-between-space",
+    "--mo-comp-list-item-hover-radius": "--mo-comp-list-list-item-hovered-container-expressive-shape",
+    "--mo-comp-list-item-pressed-radius": "--mo-comp-list-list-item-pressed-container-expressive-shape",
+    "--mo-comp-list-item-dragged-radius": "--mo-comp-list-list-item-dragged-container-expressive-shape",
+    "--mo-comp-list-item-selected-radius": "--mo-comp-list-list-item-selected-container-expressive-shape",
+    "--mo-comp-menu-item-radius": "--mo-comp-menus-menu-item-shape",
+    "--mo-comp-menu-item-edge-radius": ["--mo-comp-menus-menu-item-first-child-shape", "--mo-comp-menus-menu-item-last-child-shape"],
+    "--mo-comp-menu-item-selected-radius": "--mo-comp-menus-menu-item-selected-shape",
+    "--mo-comp-menu-group-inner-radius": "--mo-comp-menus-menu-item-first-child-inner-corner-corner-size",
+    "--mo-comp-menu-item-font-size": "--mo-comp-menus-menu-item-label-text-size",
+    "--mo-comp-menu-item-letter-spacing": "--mo-comp-menus-menu-item-label-text-tracking",
+    "--mo-comp-menu-item-weight": "--mo-comp-menus-menu-item-label-text-weight",
+    "--mo-comp-date-picker-docked-radius": "--mo-comp-date-picker-docked-container-shape",
+    "--mo-comp-date-picker-day-radius": "--mo-comp-date-picker-docked-date-container-shape",
+    "--mo-comp-search-bar-padding": ["--mo-comp-search-bar-leading-space", "--mo-comp-search-bar-trailing-space"],
+    "--mo-comp-search-bar-gap": "--mo-comp-search-bar-leading-icon-leading-icon-label-space",
+    "--mo-comp-search-view-radius": "--mo-comp-search-view-docked-container-shape",
+    "--mo-comp-navigation-bar-active-indicator-width": "--mo-comp-nav-bar-item-vertical-active-indicator-width",
+    "--mo-comp-navigation-bar-active-indicator-shape": "--mo-comp-nav-bar-item-active-indicator-shape",
+    "--mo-comp-navigation-bar-active-indicator-color": "--mo-comp-nav-bar-item-active-indicator-color",
+    "--mo-comp-navigation-bar-active-label-text-color": "--mo-comp-nav-bar-item-active-label-text-color",
+    "--mo-comp-navigation-bar-inactive-label-text-color": "--mo-comp-nav-bar-item-inactive-label-text-color",
+    "--mo-comp-linear-progress-indicator-radius": "--mo-comp-progress-indicator-track-shape",
+    "--mo-comp-linear-progress-indicator-stop-size": "--mo-comp-progress-indicator-linear-stop-indicator-size",
+    "--mo-comp-button-medium-container-height": "--mo-comp-button-small-container-height",
+    "--mo-comp-button-medium-icon-size": "--mo-comp-button-small-icon-size",
+    "--mo-comp-button-medium-container-shape-round": "--mo-comp-button-small-container-shape-round",
+    "--mo-comp-button-medium-container-shape-square": "--mo-comp-button-small-container-shape-square",
+    "--mo-comp-button-medium-icon-label-space": "--mo-comp-button-small-icon-label-space",
+    "--mo-comp-menu-container-shape": "--mo-comp-menus-container-shape",
+    "--mo-comp-menu-list-item-container-height": "--mo-comp-menus-menu-item-height",
+    "--mo-comp-menu-container-color": "--mo-comp-menus-standard-container-color",
+    "--mo-comp-menu-list-item-selected-container-color": "--mo-comp-menus-standard-menu-item-selected-container-color",
+    "--mo-comp-menu-list-item-selected-label-text-color": "--mo-comp-menus-standard-menu-item-selected-label-text-color",
+    "--mo-comp-navigation-bar-container-color": "--mo-comp-nav-bar-container-color",
+    "--mo-comp-navigation-bar-container-height": "--mo-comp-nav-bar-container-height",
+    "--mo-comp-navigation-rail-container-width": "--mo-comp-nav-rail-collapsed-container-width",
+    "--mo-comp-search-view-docked-container-shape": "--mo-comp-search-view-contained-docked-results-shape",
+    "--mo-comp-sheet-side-docked-container-shape": "--mo-comp-sheet-side-docked-modal-container-shape",
+    "--mo-sys-block-text": "--mo-comp-block-text",
+    "--mo-sys-block-muted": "--mo-comp-block-muted",
+    "--mo-sys-block-accent": "--mo-comp-block-accent",
+    "--mo-sys-block-accent-hover": "--mo-comp-block-accent-hover",
+    "--mo-sys-block-on-accent": "--mo-comp-block-on-accent",
+    "--mo-sys-block-primary": "--mo-comp-block-primary",
+    "--mo-sys-block-on-primary": "--mo-comp-block-on-primary",
+    "--mo-sys-block-secondary": "--mo-comp-block-secondary",
+    "--mo-sys-block-on-secondary": "--mo-comp-block-on-secondary",
+    "--mo-sys-block-tertiary": "--mo-comp-block-tertiary",
+    "--mo-sys-block-on-tertiary": "--mo-comp-block-on-tertiary",
+    "--mo-sys-block-surface": "--mo-comp-block-surface",
+    "--mo-sys-block-tint": "--mo-comp-block-tint",
+    "--mo-sys-block-stripe": "--mo-comp-block-stripe",
+    "--mo-sys-block-line": "--mo-comp-block-line",
+    "--mo-sys-block-radius": "--mo-comp-block-radius",
+    "--mo-sys-block-radius-small": "--mo-comp-block-radius-small",
+    "--mo-sys-block-control-radius": "--mo-comp-block-control-radius",
+    "--mo-sys-block-shadow": "--mo-comp-block-shadow",
+    "--mo-sys-block-ease": "--mo-comp-block-ease",
+    "--mo-sys-block-ease-quick": "--mo-comp-block-ease-quick",
+    "--mo-sys-block-page-width": "--mo-comp-block-page-width",
+    "--mo-sys-block-text-measure-min": "--mo-comp-block-text-measure-min",
+    "--mo-sys-block-text-measure-max": "--mo-comp-block-text-measure-max",
+    "--mo-sys-block-list-measure-max": "--mo-comp-block-list-measure-max",
+    "--mo-sys-block-list-column-min": "--mo-comp-block-list-column-min",
+    "--mo-sys-block-gutter": "--mo-comp-block-gutter",
+    "--mo-sys-block-section-padding": "--mo-comp-block-section-padding",
+    "--mo-sys-block-section-margin": "--mo-comp-block-section-margin",
+    "--mo-sys-block-step-gap": "--mo-comp-block-step-gap",
+    "--mo-sys-block-list-layer-room": "--mo-comp-block-list-layer-room",
+    "--mo-comp-bottom-sheet-line": "--mo-comp-sheet-bottom-line",
+    "--mo-comp-bottom-sheet-scrim": "--mo-comp-sheet-bottom-scrim",
+    "--mo-comp-navigation-rail-modal-radius": "--mo-comp-nav-rail-modal-radius",
+    "--mo-comp-navigation-bar-line": "--mo-comp-nav-bar-line",
+    "--mo-comp-navigation-bar-indicator-text": "--mo-comp-nav-bar-indicator-text",
+    "--mo-comp-navigation-bar-indicator-hover": "--mo-comp-nav-bar-indicator-hover",
+    "--mo-comp-navigation-bar-label-selected-weight": "--mo-comp-nav-bar-label-selected-weight",
+    "--mo-comp-navigation-rail-expanded-width": "--mo-comp-nav-rail-expanded-width",
+    "--mo-comp-navigation-rail-padding": "--mo-comp-nav-rail-padding",
+    "--mo-comp-navigation-rail-line": "--mo-comp-nav-rail-line",
+    "--mo-comp-navigation-rail-indicator-text": "--mo-comp-nav-rail-indicator-text",
+    "--mo-comp-navigation-rail-indicator-hover": "--mo-comp-nav-rail-indicator-hover",
+    "--mo-comp-navigation-rail-label-selected-weight": "--mo-comp-nav-rail-label-selected-weight",
+    "--mo-comp-side-sheet-scrim": "--mo-comp-sheet-side-scrim",
+    "--mo-comp-side-sheet-icon-inset": "--mo-comp-sheet-side-icon-inset"
+  },
+  "classes": {
+    "mo-bottom-sheet__drag-handle": "mo-sheet__drag-handle",
+    "mo-bottom-sheet__header": "mo-sheet__header",
+    "mo-side-sheet__headline": "mo-sheet__headline",
+    "mo-bottom-sheet__container": "mo-sheet__container",
+    "mo-bottom-sheet__headline": "mo-sheet__headline",
+    "mo-bottom-sheet__standard": "mo-sheet__standard",
+    "mo-bottom-sheet__content": "mo-sheet__content",
+    "mo-side-sheet__header": "mo-sheet__header",
+    "mo-bottom-sheet": ["mo-sheet", "mo-is-bottom"],
+    "mo-bottom-sheet__fit": "mo-sheet__fit",
+    "mo-bottom-sheet__full": "mo-sheet__full",
+    "mo-bottom-sheet__heading": "mo-sheet__heading",
+    "mo-bottom-sheet__actions": "mo-sheet__actions",
+    "mo-bottom-sheet__supporting-text": "mo-sheet__supporting-text",
+    "mo-bottom-sheet__peek": "mo-sheet__peek",
+    "mo-bottom-sheet__cover": "mo-sheet__cover",
+    "mo-bottom-sheet__footer": "mo-sheet__footer",
+    "mo-bottom-sheet__resize-up": "mo-sheet__resize-up",
+    "mo-bottom-sheet__resize-down": "mo-sheet__resize-down",
+    "mo-exposed-dropdown-menu__select": "mo-select__select",
+    "mo-exposed-dropdown-menu__icon": "mo-select__icon",
+    "mo-exposed-dropdown-menu": "mo-select",
+    "mo-exposed-dropdown-menu__empty": "mo-select__empty",
+    "mo-exposed-dropdown-menu__option": "mo-select__option",
+    "mo-navigation-bar": "mo-nav-bar",
+    "mo-navigation-bar__item": "mo-nav-bar__item",
+    "mo-navigation-rail__item": "mo-nav-rail__item",
+    "mo-navigation-bar__icon": "mo-nav-bar__icon",
+    "mo-navigation-rail__icon": "mo-nav-rail__icon",
+    "mo-navigation-bar__indicator": "mo-nav-bar__indicator",
+    "mo-navigation-bar__label": "mo-nav-bar__label",
+    "mo-navigation-rail__label": "mo-nav-rail__label",
+    "mo-navigation-bar__auto": "mo-nav-bar__auto",
+    "mo-navigation-bar__start": "mo-nav-bar__start",
+    "mo-navigation-bar__badge": "mo-nav-bar__badge",
+    "mo-navigation-rail__badge": "mo-nav-rail__badge",
+    "mo-navigation-rail": "mo-nav-rail",
+    "mo-navigation-rail__modal": "mo-nav-rail__modal",
+    "mo-navigation-rail__scrim": "mo-nav-rail__scrim",
+    "mo-navigation-rail__hide": "mo-nav-rail__hide",
+    "mo-navigation-rail__header": "mo-nav-rail__header",
+    "mo-navigation-rail__menu": "mo-nav-rail__menu",
+    "mo-navigation-rail__header-content": "mo-nav-rail__header-content",
+    "mo-navigation-rail__items": "mo-nav-rail__items",
+    "mo-navigation-rail__section": "mo-nav-rail__section",
+    "mo-navigation-rail__section-label": "mo-nav-rail__section-label",
+    "mo-navigation-rail__trailing-supporting": "mo-nav-rail__trailing-supporting",
+    "mo-navigation-rail__indicator": "mo-nav-rail__indicator",
+    "mo-side-sheet__container": "mo-sheet__container",
+    "mo-side-sheet__standard": "mo-sheet__standard",
+    "mo-side-sheet__modal": "mo-sheet__modal",
+    "mo-side-sheet__content": "mo-sheet__content",
+    "mo-side-sheet__actions": "mo-sheet__actions",
+    "mo-side-sheet": ["mo-sheet", "mo-is-side"],
+    "mo-button__text": "mo-is-text",
+    "mo-button__small": null
+  },
+  "props": {
+    "Button": {
+      "size": {
+        "medium": "small",
+        "small": null
+      }
+    },
+    "SplitButton": {
+      "size": {
+        "medium": "small",
+        "small": null
+      }
+    },
+    "Menu": {
+      "size": {
+        "medium": "small"
+      }
+    }
+  },
+  "reused": [
+    {
+      "component": "Button, SplitButton, Menu",
+      "prop": "size",
+      "name": "medium",
+      "was": "our default size, 40 dp",
+      "now": "M3 Expressive's medium, 56 dp (not added here)",
+      "note": "A stale size=\"medium\" would draw the 56 dp button once M3 medium is added; today it has no meaning, the rewrite makes it small."
+    },
+    {
+      "component": "Button, SplitButton, Menu",
+      "prop": "size",
+      "name": "small",
+      "was": "our small size, about 42 dp",
+      "now": "M3's small, 40 dp, the default",
+      "note": "Old small and old medium both end as small; both are 40 dp after 0.19.5."
+    }
+  ],
+  "open": [
+    {
+      "id": 1,
+      "question": "Button sizes: our small (2.6 rem) and medium (2.5 rem) both become M3 small (40 dp), and M3 medium (56 dp) is not added. Right?",
+      "where": "props.Button.size, tokens --mo-comp-button-medium-* and --mo-comp-button-small-*"
+    },
+    {
+      "id": 2,
+      "question": "The tokens --mo-comp-button-medium-container-height and --mo-comp-button-small-container-height collide on --mo-comp-button-small-container-height (both 2.5 rem today): which declaration wins in the rename?",
+      "where": "tokens"
+    },
+    {
+      "id": 3,
+      "question": "Our large (64 dp) and xlarge (88 dp) buttons keep the names but have M3 heights 96 and 136 dp; keep the names and the values, or change the values?",
+      "where": "Button.size"
+    },
+    {
+      "id": 4,
+      "question": "--mo-comp-button-padding becomes both leading-space and trailing-space of small (one old token, two new).",
+      "where": "tokens (array values)"
+    },
+    {
+      "id": 5,
+      "question": "Our classes use the family word (card, chip, text-field, tabs, tooltip, select) where M3 names tokens by kind (filled-card, assist-chip...). Keep the family word and the kind as mo-is-<kind>?",
+      "where": "classes"
+    },
+    {
+      "id": 6,
+      "question": "Navigation bar and rail take the Expressive names nav-bar and nav-rail (collapsed). Confirm.",
+      "where": "classes, tokens"
+    },
+    {
+      "id": 7,
+      "question": "Sheets: bottom-sheet and side-sheet become mo-sheet with mo-is-bottom / mo-is-side (M3 has one sheet component with kinds). Confirm.",
+      "where": "classes"
+    },
+    {
+      "id": 8,
+      "question": "Kinds written as parts today (mo-button__text) become mo-is-<kind>; other kinds (mo-icon-button__standard, mo-fab__primary) stay parts until batch 3.",
+      "where": "classes"
+    },
+    {
+      "id": 9,
+      "question": "Icon button has a medium size class (mo-icon-button__medium) and Fab a size named fab; M3 names are xsmall..xlarge and small/medium/large. How should they map?",
+      "where": "IconButton.size, Fab.size"
+    },
+    {
+      "id": 10,
+      "question": "Odd system tokens with no M3 name: --mo-sys-radius*, --mo-sys-state-mo-*-layer, --mo-sys-color-primary-hover, --mo-sys-color-scrim-overlay, --mo-sys-motion-spring-*, --mo-sys-default-transition-*. Keep as ours or rename into M3's groups?",
+      "where": "ours"
+    },
+    {
+      "id": 11,
+      "question": "The icon map's closest picks: brand logos (facebook, instagram, github, linkedin, pinterest, x) have no Material Symbols icon; sparkle, push-pin, columns-plus-left/right, flower-lotus, wave-sine map to the nearest icon.",
+      "where": "lib/materialIconMap.mjs"
+    }
+  ]
+}
