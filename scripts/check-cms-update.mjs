@@ -762,7 +762,7 @@ const CROSSING = (() => {
       ':where(.mo-button).mo-is-text { gap: var(--mo-sys-density-user); }\n',
     ),
     [`${apps}/mine/app.json`]: pick(
-      JSON.stringify({ api: 7, icon: 'list-numbers' }, null, 2) + '\n',
+      JSON.stringify({ api: 7, icon: 'format_list_numbered' }, null, 2) + '\n',
       JSON.stringify({ api: 7, icon: 'format_list_numbered' }, null, 2) + '\n',
     ),
     [`${apps}/app_0123456789abcdef/store.json`]: '{ "version": "1.0.0" }\n',
@@ -776,7 +776,7 @@ const CROSSING = (() => {
         {
           links: [
             { icon: 'github-logo', label: 'GitHub' },
-            { icon: 'envelope-simple', label: 'Mail' },
+            { icon: 'mail', label: 'Mail' },
           ],
         },
         null,

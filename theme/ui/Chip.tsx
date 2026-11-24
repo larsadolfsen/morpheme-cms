@@ -77,7 +77,7 @@ export default function Chip({
           {content}
         </button>
         <button type="button" className="mo-chip__remove" aria-label={removeLabel} disabled={disabled} onClick={onRemove}>
-          <Glyph icon={trailingIcon ?? 'x'} size={18} />
+          <Glyph icon={trailingIcon ?? 'close'} size={18} />
         </button>
       </span>
     );

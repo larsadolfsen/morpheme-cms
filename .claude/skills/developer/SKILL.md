@@ -230,6 +230,6 @@ make another. M3 has no page for them unless it says so.
 A pull request that adds, renames or removes a component of the theme or an export of `src/ui.tsx` or `src/themeUi.ts`
 updates this list in the same pull request, with its M3 page. Follow-up proposals, not built here: a `check:components`
 that fails when an export of `src/themeUi.ts` or `src/ui.tsx` is missing from this list (the way `check:phosphor` reads
-`src/` and keeps an allowlist with reasons), and a check that fails on a raw `<button`, `<input`, `<select` or `<dialog`
+`src/`), and a check that fails on a raw `<button`, `<input`, `<select` or `<dialog`
 in `src/*.tsx` outside `ui.tsx` and `themeUi.ts` (today 9 `<button` in 5 files, so the allowlist is small); the natural
 place for both is next to `scripts/check-phosphor.mjs` in `npm run check`.

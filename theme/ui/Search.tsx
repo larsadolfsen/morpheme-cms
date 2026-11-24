@@ -35,7 +35,7 @@ export default function Search({
   clearLabel,
   emptyText,
   results,
-  leadingIcon = 'magnifying-glass',
+  leadingIcon = 'search',
   trailing,
   open,
   query,
@@ -81,7 +81,7 @@ export default function Search({
       )}
       <dialog id={view} className="mo-search-view" aria-label={label} open={open} data-search-view="">
         <div className="mo-search-view__header">
-          <IconButton icon="arrow-left" label={backLabel} data-search-close="" />
+          <IconButton icon="arrow_back" label={backLabel} data-search-close="" />
           <input
             type="search"
             className="mo-search-view__input"
@@ -96,7 +96,7 @@ export default function Search({
             defaultValue={query}
             data-search-input=""
           />
-          <IconButton icon="x" label={clearLabel} className="mo-search-view__clear" data-search-clear="" />
+          <IconButton icon="close" label={clearLabel} className="mo-search-view__clear" data-search-clear="" />
         </div>
         <List id={list} role={listbox ? 'listbox' : undefined} aria-label={label} className="mo-search-view__results">
           {results.map((r, i) => (
@@ -153,7 +153,7 @@ export function SearchGroupLabel({ id, children, className }: { id?: string; chi
  * the view. Other attributes (`value`, `onChange`, `ref`) go on the <input>, and `className` on the bar. */
 export function SearchBar({
   label,
-  leadingIcon = 'magnifying-glass',
+  leadingIcon = 'search',
   className,
   ...rest
 }: { label: string; leadingIcon?: string; className?: string } & Record<string, unknown>) {
@@ -362,7 +362,7 @@ export function SearchView({
             })}
       >
         <div className="mo-search-view__header">
-          <IconButton icon="arrow-left" label={backLabel} onClick={onClose} />
+          <IconButton icon="arrow_back" label={backLabel} onClick={onClose} />
           <input
             ref={input}
             type="search"
@@ -400,7 +400,7 @@ export function SearchView({
             }}
           />
           <IconButton
-            icon="x"
+            icon="close"
             label={clearLabel}
             className="mo-search-view__clear"
             onClick={() => {
@@ -471,7 +471,7 @@ export function SearchView({
                           item.onRemove && (
                             // The remove button is for a pointer: the field's Delete key does it for the keyboard, so it takes no focus and screen readers skip it.
                             <IconButton
-                              icon="x"
+                              icon="close"
                               label={item.removeLabel ?? ''}
                               tabIndex={-1}
                               aria-hidden="true"

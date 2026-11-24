@@ -213,7 +213,7 @@ export default function InlineList({
               ) : undefined
             }
             trailing={linkSlot}
-            trailingIcon={here || !withHref || !r.href ? undefined : 'caret-right'}
+            trailingIcon={here || !withHref || !r.href ? undefined : 'keyboard_arrow_right'}
           />
         );
       }}
@@ -293,7 +293,7 @@ export function RowsFromList({
             headline={r.title}
             supporting={r.text || undefined}
             leadingIcon={r.icon || undefined}
-            trailingIcon={r.href ? 'caret-right' : undefined}
+            trailingIcon={r.href ? 'keyboard_arrow_right' : undefined}
           />
         ))}
       </SiteList>

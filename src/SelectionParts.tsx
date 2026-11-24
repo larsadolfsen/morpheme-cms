@@ -122,17 +122,17 @@ export default function SelectionParts() {
               <SiteSlider key={size} label={say.sliderSizes[size]} size={size} value={60} />
             ))}
             {(['medium', 'large', 'xlarge'] as const).map((size) => (
-              <SiteSlider key={size} label={`${say.brightness}: ${say.sliderSizes[size]}`} size={size} value={60} icon="sun" />
+              <SiteSlider key={size} label={`${say.brightness}: ${say.sliderSizes[size]}`} size={size} value={60} icon="light_mode" />
             ))}
             <Example label={t.parts.screens.example(1)}>
-              <SiteSlider label={`${say.brightness}: ${say.sliderSizes.large}`} size="large" value={4} icon="sun" />
+              <SiteSlider label={`${say.brightness}: ${say.sliderSizes.large}`} size="large" value={4} icon="light_mode" />
             </Example>
           </div>
           <div className="mo-editor-selection-vertical-sliders" role="group" aria-label={say.verticalSliders}>
             <SiteSlider label={say.volume} orientation="vertical" value={40} valueLabel />
             <SiteSlider label={say.count} orientation="vertical" max={10} value={6} stops />
             <SiteSlider label={say.price} orientation="vertical" max={1000} step={50} range={[200, 700]} handleLabels={say.handles} />
-            <SiteSlider label={say.brightness} orientation="vertical" size="medium" value={70} icon="sun" />
+            <SiteSlider label={say.brightness} orientation="vertical" size="medium" value={70} icon="light_mode" />
           </div>
         </Preview>
       </Part>

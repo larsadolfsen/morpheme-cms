@@ -62,9 +62,9 @@ export default defineBlock({
   ],
   example: {
     items: [
-      { icon: 'clock', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
+      { icon: 'schedule', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
       { icon: 'info', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
-      { icon: 'map-pin', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
+      { icon: 'location_on', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
     ],
   },
   detail: (p, data) => (p.from ? [...fromLine(p, data)] : [((p.items ?? []) as Row[]).map((r) => r.title ?? '').join(' · ')]),

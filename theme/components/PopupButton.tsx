@@ -13,7 +13,7 @@ export default function PopupButton({ button }: { button?: PopupButtonView }) {
   return (
     <div className="mo-block-buttons mo-popup__buttons">
       {'file' in button ? (
-        <Button href={button.file.href} icon="download-simple" download="" className="mo-popup__button">
+        <Button href={button.file.href} icon="download" download="" className="mo-popup__button">
           {button.file.label}
         </Button>
       ) : (

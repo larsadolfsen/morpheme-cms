@@ -55,11 +55,11 @@ export default function InlineButtons({ items, data, active, focus, onChange, on
               .join(' ')}
           >
             {/* The icon is the shared control: empty (a plus) while the button is active, and its icon, a tap on which opens the picker, on any button that has one. */}
-            {(here || icon !== 'arrow-right') && (
+            {(here || icon !== 'arrow_forward') && (
               <InlineIcon label={t.blocks.buttons.icon} icon={icon} here={here} size={here ? 24 : 20} onClick={() => onIcon(i)} />
             )}
             {field('label', t.blocks.buttons.text, b?.text || t.blocks.buttons.newButton)}
-            {!here && icon === 'arrow-right' && (
+            {!here && icon === 'arrow_forward' && (
               <InlineIcon label={t.blocks.buttons.icon} icon={icon} here={false} size={18} onClick={() => onIcon(i)} />
             )}
           </span>

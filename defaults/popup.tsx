@@ -20,7 +20,7 @@ function buttonOf(p: Record<string, any>, data: BlockData): PopupButtonView | un
   const own = String(p.label ?? '').trim();
   if (p.button === 'file') return { file: { href: '', label: own || 'Download PDF' } };
   if (p.button !== 'booking' && p.button !== 'phone' && p.button !== 'page') return undefined;
-  const icon = p.button === 'phone' ? 'phone' : 'arrow-right';
+  const icon = p.button === 'phone' ? 'call' : 'arrow_forward';
   return { buttons: buttonsOf([{ to: p.button, label: own, href: p.href, kind: 'filled', icon }], data) };
 }
 
@@ -91,7 +91,7 @@ export function drawActionBar(p: Record<string, any>, data: BlockData) {
               key={i}
               href=""
               kind={i === first ? 'filled' : 'outlined'}
-              icon={arrow ? undefined : to === 'phone' ? 'phone' : 'calendar-blank'}
+              icon={arrow ? undefined : to === 'phone' ? 'call' : 'calendar_today'}
               trailingIcon={arrow ? 'arrow_forward' : undefined}
             >
               {text}

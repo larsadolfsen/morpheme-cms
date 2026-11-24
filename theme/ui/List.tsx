@@ -426,7 +426,7 @@ export function ListItem({
               aria-label={expandToggle.label}
               onClick={expandToggle.onToggle}
             >
-              <Glyph icon="caret-down" size={24} />
+              <Glyph icon="keyboard_arrow_down" size={24} />
             </button>
           </div>
           <div className="mo-list__item-expand-body" hidden={!open}>
@@ -449,7 +449,7 @@ export function ListItem({
           <summary className={`${classes} mo-list__item-expand-summary`} onClick={onClick} {...rest}>
             {content}
             <span className="mo-list__item-expand-icon" aria-hidden="true">
-              <Glyph icon="caret-down" size={24} />
+              <Glyph icon="keyboard_arrow_down" size={24} />
             </span>
           </summary>
           <div className="mo-list__item-expand-body">{children}</div>
