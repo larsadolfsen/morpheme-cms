@@ -474,7 +474,6 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
                       onClick={() => open({ from: m.path, to: '', isNew: true, missing: m })}
                       headline={m.path}
                       supporting={t.redirects.missing.seen(m.count, when(new Date(m.last)))}
-                      columns
                     />
                   ))}
                 </Group>
@@ -504,7 +503,6 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
                       <span className="mo-editor-settings-wrap">{name(e.to)}</span>
                     </span>
                   }
-                  columns
                 />
               ))}
             </Group>

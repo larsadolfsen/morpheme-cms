@@ -38,8 +38,6 @@
   --mo-comp-list-item-focus-indicator-color: var(--mo-sys-state-focus-indicator-color);
   /* Dragged (M3 List - Common: level 4, the 0.16 dragged state layer, the selected corners 16 dp). */
   --mo-comp-list-list-item-dragged-container-expressive-shape: var(--mo-sys-shape-corner-large);
-  /* The two columns of an item with `columns` (M3's content slot, Lists › Specs, Flexibility & slots). */
-  --mo-comp-list-item-columns-gap: 1.5rem;
   --mo-comp-list-list-item-selected-container-color: var(--mo-sys-color-secondary-container);
   --mo-comp-list-list-item-selected-label-text-color: var(--mo-sys-color-on-secondary-container);
   --mo-comp-list-item-leading-icon-selected-color: var(--mo-sys-color-primary);

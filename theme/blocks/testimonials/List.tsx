@@ -41,7 +41,7 @@ export default function List({
             key={t.slug}
             id={t.anchor}
             data-tags={t.categories.join(' ')}
-            leadingAvatar={t.image ? { src: t.image.src } : ([...t.name.trim()][0]?.toLocaleUpperCase() ?? '')}
+            thumbnail={t.image ? { src: t.image.src } : ([...t.name.trim()][0]?.toLocaleUpperCase() ?? '')}
             subhead={t.context || undefined}
             headline={t.name}
             supporting={t.quote.join(' ')}

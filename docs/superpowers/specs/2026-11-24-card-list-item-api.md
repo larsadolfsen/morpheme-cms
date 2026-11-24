@@ -121,12 +121,15 @@ a release note line for app and theme developers (`release-notes/`, skill `relea
 screens: proved with `npx morpheme compare-html` on the demo's `/blocks/list/`, `/blocks/cards/`, `/blocks/checklist/`, `/blocks/testimonials/`
 and `check:screens` for the editor. `THEME_API` and `APP_API` stay (batch 8c).
 
-## Open questions for the PM
+## Decided (PM, 24 Nov 2026)
 
-1. **Spreads.** Stop the update on any `{...props}` onto a `ListItem` (safe, noisy), or only when the same file spells an old name
-   (recommended, with the residual risk above)?
-2. **`media` with `video`.** One `media` prop with `video: true` (recommended: the same item goes to either), or keep `leadingVideo` as
-   `video` beside `media`?
-3. **New on `Card`:** the spec lists `thumbnail`, `menu`, `menuAt`, `disabled` as existing and they are not; building them is part of this
-   batch (they are not renames). Agreed, or do they go to a separate pull request?
-4. **Where do the owner's apps and Sara's app live,** so the dry run of section 6 can be done?
+1. **Spreads:** the update stops on a `{...props}` onto a `ListItem` only when the same file spells an old name (residual risk accepted).
+2. **`media` with `video`:** one `media` prop, `{ src, alt?, video: true }`.
+3. **Card's missing props are not in this batch.** `thumbnail`, `menu`, `menuAt`, `disabled`, `truncate`, `trailingSupporting`, `icon` as an
+   `IconRef` and `media` as an object are *additions* on `Card`, so they need no rename and no contract change: they go to 0.23 with the
+   collection. `Card` keeps its props as they are here; `ItemProps` lists them for `ListItem`'s side, and `Card` does not pretend to take them.
+   Read sections 1, 2 and 7 with that: their `Card` columns marked new are 0.23.
+4. **Where the apps live:** Sara's app is site-own, `larsadolfsen/sarashjemmesidedata` `src/apps/sara` (private); the owner's apps are in
+   `larsadolfsen/morpheme-apps` (`apps/`, `themes/`). Dry run, from a checkout of this branch, over a folder's files:
+   `node -e "import('./lib/migrate-code.mjs').then(async m=>{/* read {path,text} of every .ts/.tsx/.css under the folder */ console.log(m.migrateCode(files,{from:'0.19.5'}))})"`
+   (an unsafe form throws `CodeMigrationStop` with `{path,line,why}` for each).

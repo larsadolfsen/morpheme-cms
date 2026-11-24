@@ -518,7 +518,7 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
     <Screen title={of.name} wide back={backToThemes}>
       <ul className={`${plainListClass} mo-editor-list-head`}>
         <ListItem
-          leadingImage={{ src: of.icon }}
+          media={{ src: of.icon }}
           headline={of.name}
           supporting={[t.library.themeByline(of.version, of.author), status].filter(Boolean).join(' · ')}
           lines={3}
@@ -1496,7 +1496,6 @@ export function List({
           )
         }
         truncate
-        columns
         count={item.count}
         arrow={!orderable}
         actions={
@@ -1750,7 +1749,6 @@ function TreeRows({
                 )
               }
               truncate
-              columns
               actions={
                 children.length > 0 && (
                   <span className="mo-editor-library-row-unfold">

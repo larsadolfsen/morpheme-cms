@@ -292,7 +292,7 @@ export function RowsFromList({
             key={i}
             headline={r.title}
             supporting={r.text || undefined}
-            leadingIcon={r.icon || undefined}
+            icon={r.icon || undefined}
             trailingIcon={r.href ? 'caret-right' : undefined}
           />
         ))}

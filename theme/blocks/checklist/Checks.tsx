@@ -8,7 +8,7 @@ export default function Checks({ items, className }: { items: string[]; classNam
   return (
     <List dividers="none" className={className ? `mo-block-checklist ${className}` : 'mo-block-checklist'}>
       {items.map((text, i) => (
-        <ListItem key={i} leadingIcon="check" headline={text} />
+        <ListItem key={i} icon="check" headline={text} />
       ))}
     </List>
   );

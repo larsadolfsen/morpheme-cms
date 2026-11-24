@@ -765,6 +765,11 @@ const CROSSING = (() => {
       JSON.stringify({ api: 7, icon: 'list-numbers' }, null, 2) + '\n',
       JSON.stringify({ api: 7, icon: 'format_list_numbered' }, null, 2) + '\n',
     ),
+    // The one item API of ListItem and Card (docs/superpowers/specs/2026-11-24-card-list-item-api.md): the leading props take the shared names, `columns` goes.
+    [`${apps}/mine/Rows.tsx`]: pick(
+      'import { ListItem } from \'@theme/ui/List\';\nexport const a = (\n  <>\n    <ListItem leadingIcon="check" columns headline="a" />\n    <ListItem leadingAvatar="A" leadingVideo={{ src: s }} headline="b" />\n  </>\n);\n',
+      'import { ListItem } from \'@theme/ui/List\';\nexport const a = (\n  <>\n    <ListItem icon="check" headline="a" />\n    <ListItem thumbnail="A" media={{ src: s, video: true }} headline="b" />\n  </>\n);\n',
+    ),
     [`${apps}/app_0123456789abcdef/store.json`]: '{ "version": "1.0.0" }\n',
     [`${apps}/app_0123456789abcdef/styles.css`]: STORE_CSS,
     'src/content/pages/cards.md': pick(
@@ -852,6 +857,26 @@ const CROSSING = (() => {
     `the unsafe update answered ${res.status} ${JSON.stringify(body)}`,
   );
   expect(stop.commits.length === 0, 'an unsafe update committed');
+  // The item API's unsafe forms stop the same way and name the file and line.
+  const item = world({
+    range: '0.19.5',
+    latest: CROSSING,
+    content: {
+      ...before,
+      [`${apps}/mine/Rows.tsx`]:
+        'import { ListItem } from \'@theme/ui/List\';\nexport const a = (c) => <ListItem leadingVideo={c} columns={c.wide} headline="a" />;\n',
+    },
+  });
+  await item.kv.put('cms:checked', JSON.stringify({ at: new Date(T0).toISOString(), latest: CROSSING }));
+  const itemRes = await handleCms(post(CROSSING), item.env, undefined, item.deps);
+  const itemBody = await itemRes.json();
+  expect(
+    itemRes.status === 422 &&
+      itemBody.detail.some((l) => l.includes('Rows.tsx:2') && l.includes('leadingVideo')) &&
+      itemBody.detail.some((l) => l.includes('Rows.tsx:2') && l.includes('columns')),
+    `the item API's unsafe forms answered ${itemRes.status} ${JSON.stringify(itemBody)}`,
+  );
+  expect(item.commits.length === 0, 'an unsafe item update committed');
   const auto = world({ range: '0.19.5', latest: CROSSING, content: unsafe });
   await checkForUpdate(auto.env, auto.deps, T0);
   expect(

@@ -137,3 +137,7 @@ M3 renamed the theme's UI components (`theme/ui/`, `theme/styles/ui/`, `cards.cs
 - a `mo-` class that does not have the pattern's shape (`mo-cardBody`, `mo-card_body`, `mo-a__b__c`), and a plain `class="…"` attribute with a name that does not start with `mo-`.
 
 What stays unprefixed is not ours and is listed with its reason in `NOT_RENAMED` of `scripts/mo-names.mjs`. `lib/content-class-names.mjs` (the table of the old names the update rewrites) is the one file not read.
+
+## Dropped with the item API (names batch 8i)
+
+`mo-list__item-columns` and its token `--mo-comp-list-item-columns-gap` are gone with `ListItem`'s `columns` prop (the side-by-side layout the owner removed). The update's class map drops the class from a site's own CSS.

@@ -34,7 +34,7 @@ export default function Rows({
         <ListItem
           key={i}
           href={r.href || undefined}
-          leadingIcon={r.icon || undefined}
+          icon={r.icon || undefined}
           {...leadingProps(r)}
           data-icon-color={r.icon ? iconColorOf(r.iconColor) : undefined}
           headline={r.title}

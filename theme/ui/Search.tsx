@@ -459,8 +459,8 @@ export function SearchView({
                         aria-disabled={item.disabled ? true : undefined}
                         aria-checked={item.pressed === undefined ? undefined : item.pressed}
                         aria-keyshortcuts={item.keyShortcuts ?? (item.onRemove ? 'Delete' : undefined)}
-                        leadingIcon={item.thumb ? undefined : item.icon}
-                        leadingImage={item.thumb ? { src: item.thumb } : undefined}
+                        icon={item.thumb ? undefined : item.icon}
+                        media={item.thumb ? { src: item.thumb } : undefined}
                         headline={item.headline}
                         supporting={item.supporting}
                         trailingSupporting={item.shortcut}
