@@ -10,7 +10,7 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import postcss from 'postcss';
 import { cmsDeclared } from '../site/appCss.mjs';
-import { collectNames } from '../lib/appCss.mjs';
+import { SCOPED_CSS_FROM_API, collectNames } from '../lib/appCss.mjs';
 
 const here = fileURLToPath(new URL('..', import.meta.url));
 const PAGE_RULE = /(^|[\s,>+~(])(:root|html|body)(?![\w-])/i;
@@ -72,6 +72,35 @@ export function reportSite(site, cmsNames) {
   return readdirSync(dir, { withFileTypes: true })
     .filter((e) => e.isDirectory())
     .map((e) => reportApp(join(dir, e.name), e.name, cmsNames));
+}
+
+/** The apps of a site that the contract's refusals apply to: those written to SCOPED_CSS_FROM_API or later (app.json `api`); an older app keeps its global CSS. */
+const scopedApps = (site) =>
+  existsSync(join(site, 'src/apps'))
+    ? readdirSync(join(site, 'src/apps'), { withFileTypes: true })
+        .filter((e) => e.isDirectory())
+        .filter((e) => {
+          try {
+            return JSON.parse(readFileSync(join(site, 'src/apps', e.name, 'app.json'), 'utf8')).api >= SCOPED_CSS_FROM_API;
+          } catch {
+            return false;
+          }
+        })
+        .map((e) => e.name)
+    : [];
+
+/**
+ * What `check:content` refuses in a site's apps (the spec's "What the build refuses"), only for apps written to the scoped contract: a rule on `:root`, `html` or
+ * `body`; a private custom property set or read from code; an attribute selector on `data-mo-app`. One line each, with the file and line.
+ * @param {string} [root] the site @param {Set<string>} [cmsNames]
+ */
+export function siteProblems(root = process.cwd(), cmsNames = cmsDeclared([join(here, 'theme'), join(here, 'src')])) {
+  return scopedApps(root).flatMap((id) =>
+    reportApp(join(root, 'src/apps', id), id, cmsNames).refused.map(
+      (line) =>
+        `src/apps/${id}/${line}. An app's CSS reaches only its own blocks (docs/app-contract.md, "Scoped CSS"): style the app's own elements, never the page, and keep a private custom property in CSS.`,
+    ),
+  );
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
