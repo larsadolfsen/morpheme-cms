@@ -15,6 +15,7 @@ in one place only, so never work from memory of a skill.
 | `changesets` | you open a pull request: its changeset, which level the base branch allows, the version lines, and the line's one version (`0.20.0`) |
 | `release-notes` | a change is something a site owner sees, or a note, an edition or a version's notes are written or fixed |
 | `checks` | you choose which checks to run before a push, or a CI job fails |
+| `junior-developer` | a developer session hands a mechanical step (a rename from a map, snapshots, finding every use) to a Haiku helper |
 | `material-3` | a spec or a change touches anything outside the page and post editor's bar and menus, or deviates from Material 3 |
 | `pm` | the owner makes the session the project manager (`/pm <version>`), or the orchestrator merges while no PM runs |
 | `cto` | the owner makes the session the CTO, or asks where the product, the code, the process or the roadmap should go next |
