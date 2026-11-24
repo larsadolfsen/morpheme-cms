@@ -231,7 +231,7 @@ export default function TimePickerContainer({
 
       <div className="mo-time-picker__actions">
         <IconButton
-          icon={view === 'dial' ? 'keyboard' : 'clock'}
+          icon={view === 'dial' ? 'keyboard' : 'schedule'}
           label={view === 'dial' ? texts.toInput : texts.toDial}
           data-time-picker-action="mode"
         />

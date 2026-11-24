@@ -734,10 +734,10 @@ export const parts = {
       viewOpen: 'Open the search view',
       viewGroups: ['Recent', 'Suggested'],
       viewItems: [
-        { headline: 'Prices', supporting: 'A page', icon: 'clock' },
-        { headline: 'Opening hours', supporting: 'A page', icon: 'clock' },
-        { headline: 'Bold', shortcut: 'Ctrl+B', keyShortcuts: 'Control+B', icon: 'text-b', pressed: true },
-        { headline: 'Redo', supporting: 'Nothing to redo', icon: 'arrow-u-up-right', disabled: true },
+        { headline: 'Prices', supporting: 'A page', icon: 'schedule' },
+        { headline: 'Opening hours', supporting: 'A page', icon: 'schedule' },
+        { headline: 'Bold', shortcut: 'Ctrl+B', keyShortcuts: 'Control+B', icon: 'format_bold', pressed: true },
+        { headline: 'Redo', supporting: 'Nothing to redo', icon: 'redo', disabled: true },
       ],
       viewCount: (n: number) => (n === 1 ? '1 result' : `${n} results`),
       results: [

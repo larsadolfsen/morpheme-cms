@@ -44,7 +44,7 @@ export function isDocsOnly(paths, headRef = '') {
  *  - *.test.* files: only `npm test` (job `static`) runs them (an exception: scripts/ci-changes.test.mjs, see RUN_ALL).
  *  - the static-only checks `npm run check` runs by itself, which no script, command or module imports: check-language.mjs,
  *    check-phosphor.mjs, check-web.mjs, check-editor-colors.mjs, check-colors.mjs, check-colors.allow.mjs, check-css-values.mjs,
- *    check-css-values.allow.mjs, check-density.mjs and the allowlists phosphor-allowlist.json and web-allowlist.json.
+ *    check-css-values.allow.mjs, check-density.mjs and the allowlist web-allowlist.json.
  * Left out on purpose (they run both jobs): release-notes/ and CHANGELOG.md (bundled into the editor's build), the root config
  * files, every other file under scripts/, lib/fixtures/ and lib/sandbox/fixtures/ (only tests use them, but not proven here).
  */

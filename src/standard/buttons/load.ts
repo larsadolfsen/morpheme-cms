@@ -24,7 +24,7 @@ export async function loadButtons(items: Button[] | undefined, shared?: Button[]
       const [href, text] = target
         ? [target.href, bar ? own || target.text : full!]
         : [b.href || '/', own || (await standard.pageName(b.href ?? ''))];
-      const icon = b.icon || (bar ? (target?.open === 'booking' ? 'calendar-blank' : b.to === 'phone' ? 'phone' : 'arrow-right') : '');
+      const icon = b.icon || (bar ? (target?.open === 'booking' ? 'calendar_today' : b.to === 'phone' ? 'call' : 'arrow_forward') : '');
       return { href, text, label: bar && full !== text ? full : undefined, open: target?.open, kind: kindOf(b), icon };
     }),
   );

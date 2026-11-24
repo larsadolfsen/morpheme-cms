@@ -12,13 +12,13 @@
         "label": "",
         "to": "booking",
         "kind": "filled",
-        "icon": "arrow-right"
+        "icon": "arrow_forward"
       },
       {
         "label": "",
         "to": "phone",
         "kind": "outlined",
-        "icon": "phone"
+        "icon": "call"
       }
     ]
   }

@@ -101,8 +101,7 @@ export const missingIcon = (name) =>
     ? `the icon "${name}" does not exist (a question mark instead): write it in packages/editor/src/icon.tsx`
     : 'an icon is not an SVG file (a question mark instead)';
 
-// Owner rule (14 Nov): while the icon pack in use is not Phosphor, no icon is drawn as a Phosphor glyph (viewBox 0 0 256 256: Phosphor's
-// files; Material Symbols' are 0 -960 960 960, Lucide's and Material Design Icons' 24). The glyphs allowed, by how their first path starts, with the reason.
+// Phosphor is not in the package (0.19.6): no icon is drawn as a Phosphor glyph (viewBox 0 0 256 256; Material Symbols' are 0 -960 960 960). The glyphs allowed, by how their first path starts, with the reason.
 const PHOSPHOR_OK = [
   {
     d: '<rect x="68" y="72"',
@@ -114,11 +113,11 @@ export const phosphorGlyph = (d) => !PHOSPHOR_OK.some((ok) => d.startsWith(ok.d)
 // Material Symbols), and its folder from the site's root: what the checks of the icons expect follows it (icon-pack.mjs).
 export const PACK = iconPack();
 export const PACK_FOLDER = packFolder(PACK);
-/** The problems of one Phosphor glyph (its first path `d`) found in the editor's DOM: none while Phosphor is the pack in use. */
+/** The problems of one Phosphor glyph (its first path `d`) found in the editor's DOM. */
 export const phosphorProblems = (where, d) => glyphProblems(PACK, where, '<svg viewBox="0 0 256 256">', d, (x) => !phosphorGlyph(x));
 
 export const fallbackIcon = (name) =>
-  `the icon "${name}" is from the whole of Material Symbols or Phosphor (not in the icon pack): give it an icon in each pack's map if it is to stay`;
+  `the icon "${name}" is from the whole of Material Symbols (not in the icon pack in use): give the pack an icon of that name if it is to stay`;
 
 // The icons not found on the built site's pages: each one once, with the pages it is on.
 export const problems = [];
@@ -169,7 +168,7 @@ export const LIST_PAGE = [
   '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',
   block('list', {
     items: [
-      { icon: 'clock', title: 'One', text: 'First' },
+      { icon: 'schedule', title: 'One', text: 'First' },
       { icon: 'info', title: 'Two', text: 'Second' },
     ],
   }),

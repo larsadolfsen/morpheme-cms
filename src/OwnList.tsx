@@ -25,8 +25,8 @@ const named = (name: string) =>
   (({ size, className }: { size?: number | string; className?: string }) => (
     <Icon name={name} size={Number(size) || 24} className={className} />
   )) as unknown as PhosphorIcon;
-const DotsThreeVertical = named('dots-three-vertical');
-const PencilSimple = named('pencil-simple');
+const DotsThreeVertical = named('more_vert');
+const PencilSimple = named('edit');
 const Trash = named('trash');
 
 type Definition = { version: 2; label: string; fields: { id: string; kind: string; label?: string }[]; dropped: string[] };

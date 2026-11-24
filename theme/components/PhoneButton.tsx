@@ -4,7 +4,7 @@ import Button from '@theme/ui/Button';
 
 export default function PhoneButton({ href, label, phone, className }: { href: string; label: string; phone: string; className?: string }) {
   return (
-    <Button href={href} kind="outlined" icon="phone" className={className}>
+    <Button href={href} kind="outlined" icon="call" className={className}>
       {label} {phone}
     </Button>
   );

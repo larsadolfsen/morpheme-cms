@@ -872,7 +872,7 @@ async function checkIconSearch(width, height) {
     .getByRole('button', { name: 'Suggested', exact: true })
     .tap()
     .catch(() => {});
-  // Owner rule: Phosphor's own icons are in the search only when Phosphor is the icon pack in use (acorn: Material Symbols has none of that name); with Phosphor in use, the search finds it.
+  // Phosphor is not in the package: the search finds no Phosphor icon (acorn: Material Symbols has none of that name).
   await search.fill('acorn');
   await page.waitForTimeout(1500);
   const acorn = acornProblem(PACK, label, (await picker.getByRole('button', { name: 'acorn', exact: true }).count()) > 0);
