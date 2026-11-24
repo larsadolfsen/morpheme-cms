@@ -309,11 +309,11 @@
     clip-path: none;
     overflow: visible;
     background: transparent;
+    justify-content: center;
   }
   .mo-block-cards__carousel .mo-carousel__item-mask > * {
-    flex: 1;
+    flex: 0 0 calc(100% - 2 * var(--mo-comp-carousel-mask-inset, 0px));
     min-width: 0;
-    margin-inline: var(--mo-comp-carousel-mask-inset, 0px);
     overflow: hidden;
   }
   .mo-block-cards__carousel .mo-carousel__item-mask .mo-card__body {
