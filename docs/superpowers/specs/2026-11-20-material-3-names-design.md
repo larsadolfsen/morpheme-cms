@@ -112,9 +112,40 @@ and holds the update where it cannot.
    `morpheme migrate` asks for the version the site came from (`--from 0.19.7`).
 3. **Store themes and apps** are never rewritten on a site (a published version is forever, and the site's copy must equal it). Their
    publishers release a version written to 8: the owner's apps from `morpheme-apps` (the owner releases them, as always). The store must accept contract 8 before 0.20.0 is
-   released. The Worker's update to 0.20.0 checks every installed store theme and app first: if one is written to an older contract,
-   the update does not go and names it. It never installs store items itself: that stays in 0.20.2 *Store auto-updates* (owner, 20
-   November 2026).
+   released. **The update installs what the target needs** (owner, 24 November 2026, replacing the 20 November rule that the update
+   never installs store items, so Sara's site can update): an old editor offers only themes and apps up to its own contract, and the new CMS
+   fails the build without newer ones, so the old way, a stop, undid every update. The update's Cloudflare build runs the target
+   package's code (`morpheme ci-build`, which no old editor can change), and before its checks the build does this:
+   - **When.** The live `/editor/version.json` does not record the contracts the target reads (`contracts`: `{ theme, apps }`, which
+     older versions do not write), or lists store items waiting for the editor's commit (`installs`, below). Other updates skip
+     the step.
+   - **What.** For each folder of the site's themes and apps named as a store id (`theme_<16 hex>`, `app_<16 hex>`), it asks the store
+     whether the installed version is written to a contract the target reads (`GET /store/releases/<id>/<version>`). If not, it takes the
+     store's newest version of the item for the target (`GET /store/catalog?app=<n>&theme=<n>`, the target's contracts), reads each
+     file (`GET /store/files/<oid>`), checks each against its git blob id, and writes the folder, with its `store.json`, into the build's
+     working tree, all or nothing. The checks and the Astro build then run on that tree.
+   - **What stops it.** The build fails with a line naming the item and why, and the old editor undoes the update as it does for any failed build
+     (its message, *Undo the update of Morpheme to …*, and the build log with the item's name): *an item with no version the target accepts*
+     (its publisher must release one); *a site copy* (a folder named as a store id with no `store.json`: the store never held it, so no
+     update can replace it); *an item changed in the site* (its files differ from `store.json`: the build never writes over the site's own work).
+   - **The key.** The build reads the store's key from the build variable `MORPHEME_STORE_KEY` (and `MORPHEME_STORE_URL` for another
+     store); the key a site connects with in the editor lives in its Worker's database, which a build cannot read. When the step runs for a site
+     that has store items and the variable is missing, the build fails and says exactly that: set `MORPHEME_STORE_KEY` in Cloudflare (Workers &
+     Pages, the site, Settings, Build, Variables and secrets). A site with nothing to install never needs it. When the store cannot be reached,
+     nothing is installed and the checks decide, as before. A site copy is named in either case.
+   - **Site copies are named, not swapped** (PM, 24 November 2026, from Sara's upgrade): replacing a site copy by its store version would
+     also move its settings (`src/data/apps/<name>.json` to `app_<id>.json`), which nothing in the CMS does, so the build names the copy
+     and stops; the owner does that swap by hand. The build needs no `store/catalog.json`: it reads the store's catalog.
+   - **An app's Worker part.** An installed app with a `worker.js` is written into `worker/apps.js` (`appWorkersFile`) in the build, so
+     `check:content` passes, and the editor commits that file with the last app of its first start. The build names every `env.NAME` the app's
+     Worker reads that the site's `wrangler.jsonc` does not declare (a binding or variable) in its log, and adds none.
+   - **The commit.** The build's tree is deployed, so the site runs the new items, while the site's git still has the old ones. The build
+     leaves `.morpheme/build-installs.json` (what it installed), served as `/editor/build-installs.json` (`no-store`), and lists the same items
+     as `installs` in `/editor/version.json`, so every build of that git redoes the install until the commit. On its first start the new editor
+     reads the file and commits each item through `src/store.ts` (`appChanges`, `themeChanges`) as the store's version, in its own
+     commit, once per editor session (`commitBuildInstalls` in `src/AppList.tsx`): not when the site already has that version or newer, the item
+     was uninstalled, or a file of it was changed in the site.
+   - **The Worker's nightly hold** (`heldByContract`) is unchanged by this: it still holds an update it cannot show to be safe.
 
    **Sara's site and Venus are out** (owner, 20 November 2026: "We keep sara out until she is ready to continue. this also means we do
    not maintain venus"). Venus gets no contract 8 version, and no batch waits for Sara's site, her app or Venus.
@@ -137,7 +168,7 @@ and holds the update where it cannot.
 2. **Tokens.** Every token renamed in the theme, the editor, the blocks, the demo and the starter; `renamed-tokens.json` extended.
 3. **Components, parts, kinds and sizes.** Classes, `theme/ui/` names and props; the content class map from 0.20.0.
 4. **The rewrite.** `lib/migrate-code.mjs` with its tests, in `morpheme migrate` and in the Worker's update.
-5. **The update across contract 8.** The store items' check: the update does not go and names the item (*Migration*, 3).
+5. **The update across contract 8.** The build installs the store items the target needs, or names the item it cannot (*Migration*, 3; owner, 24 Nov 2026). Tests with a fake higher contract; the contract numbers are batch 8's.
 6. **Scoped app CSS** (its spec, batches 1 and 2).
 7. **Icons** (*What is renamed*, 5). The editor's code moves onto `Icon` first, then the stored names are rewritten (with batch 4's
    rewrite), then Phosphor and Lucide leave the package.
@@ -155,11 +186,15 @@ the owner's apps get their contract 8 versions in `morpheme-apps` before 0.20.0 
    runs the update from the last 0.19 to 0.20.0 on a test site** with a theme and an app of its own and a store app; 0.20.1 makes it cover
    every version.
 
-Decided: the update does not install store items (*Migration*, 3; owner, 20 November 2026).
+Decided: the update's build installs the store items the target needs, and names the item when none fits (*Migration*, 3; owner, 24 November 2026, replacing the 20 November decision that it never installs).
+
+2. **The key for the build.** For 0.19.6 the key is the build variable `MORPHEME_STORE_KEY`; a site connected by the editor's button has its key only in its
+   Worker's database, so its update fails until the variable is set (for Sara's site, by hand), with the message above. A key the build can read
+   without that step needs a store-side change in `morpheme-appstore` (`/store/connect`): the PM takes it to the CTO for a later version.
 
 ## Done when
 
 `check:m3-names` fails on any name that is not M3's, the editor's or on the ours list; the screens are the same as before; a site on
 0.19 with its own theme and app and a store app updates to 0.20.0 in one step from the editor and builds, on staging; an update with a store
-item still at contract 7 does not go and names it; the owner's apps are released at contract 8; and 0.20.0 has run on staging
+item still at contract 7 installs the version for contract 8 in its build (and the editor commits it on its first start), or, when the store has none, stops and names it; the owner's apps are released at contract 8; and 0.20.0 has run on staging
 before the owner releases it.

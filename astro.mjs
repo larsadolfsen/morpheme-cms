@@ -43,6 +43,7 @@ const PAGES = {
   '/robots.txt': 'robots.txt.js',
   '/_headers': 'headers.js',
   '/editor': 'editor/index.astro',
+  '/editor/build-installs.json': 'editor/build-installs.json.js',
   '/editor/code-images.json': 'editor/code-images.json.js',
   '/editor/manifest.webmanifest': 'editor/manifest.webmanifest.js',
   '/editor/sw.js': 'editor/sw.js.js',
