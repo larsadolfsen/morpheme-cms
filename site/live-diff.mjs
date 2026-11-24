@@ -32,7 +32,9 @@ function git(cwd, args, timeout = GIT_TIMEOUT) {
  * @param {string} [o.cms] the installed @morphemecms/cms version; when given, a live version.json with another or no `cms` gives no list
  * @param {string} o.repoBranch the site's own branch (repo.branch in its config)
  * @param {number} [o.gitTimeout] milliseconds a git call may take (default 60 s)
- * @returns {Promise<{ paths: string[] | null, reason: string, live: string | null }>}
+ * @returns {Promise<{ paths: string[] | null, reason: string, live: string | null, cmsChanged?: boolean, liveContracts?: unknown, liveInstalls?: unknown }>}
+ *   `cmsChanged`, `liveContracts` (the contracts the live build says it read, `contracts` of its version.json; none from an older
+ *   CMS) and `liveInstalls` (the store items it replaced that git has not got yet, `installs`) are there once the live version.json was read as a commit's
  */
 export async function changedSinceLive({ siteUrl, cwd, fetch = globalThis.fetch, branch, repoBranch, gitTimeout, cms }) {
   if (branch && branch !== repoBranch) {
@@ -41,6 +43,8 @@ export async function changedSinceLive({ siteUrl, cwd, fetch = globalThis.fetch,
 
   let live;
   let liveCms;
+  let liveContracts;
+  let liveInstalls;
   try {
     const res = await fetch(siteUrl + '/editor/version.json', { signal: AbortSignal.timeout(5000) });
     if (res.status !== 200) {
@@ -49,6 +53,8 @@ export async function changedSinceLive({ siteUrl, cwd, fetch = globalThis.fetch,
     const body = await res.json();
     live = body?.commit;
     liveCms = body?.cms;
+    liveContracts = body?.contracts;
+    liveInstalls = body?.installs;
     if (typeof live !== 'string' || !/^[0-9a-f]{40}$/.test(live)) {
       return { paths: null, reason: 'live commit unknown', live: null };
     }
@@ -59,7 +65,7 @@ export async function changedSinceLive({ siteUrl, cwd, fetch = globalThis.fetch,
   // A CMS installed at build time (or by an update) is invisible to the git diff, so a new one takes the full lane.
   if (cms !== undefined && liveCms !== cms) {
     const reason = typeof liveCms === 'string' ? `CMS version changed: ${liveCms} to ${cms}` : 'live CMS version unknown';
-    return { paths: null, reason, live };
+    return { paths: null, reason, live, cmsChanged: true, liveContracts, liveInstalls };
   }
 
   try {
@@ -103,5 +109,5 @@ export async function changedSinceLive({ siteUrl, cwd, fetch = globalThis.fetch,
     'HEAD',
   ]);
   const paths = out.split('\0').filter((line) => line.length > 0);
-  return { paths, reason: 'diff against ' + live.slice(0, 7), live };
+  return { paths, reason: 'diff against ' + live.slice(0, 7), live, cmsChanged: false, liveContracts, liveInstalls };
 }

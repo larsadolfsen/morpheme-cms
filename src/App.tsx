@@ -121,6 +121,7 @@ import {
   Apps,
   appPartsIn,
   autoUpdate,
+  commitBuildInstalls,
   DeveloperPage,
   settingsHome,
   settingsRoute,
@@ -720,7 +721,8 @@ function Editor() {
   // The apps from the store updated on their own, once the files are there (autoUpdate in AppList.tsx).
   const loaded = !!files;
   useEffect(() => {
-    if (signedIn && loaded) autoUpdate(env, files!);
+    // What the update's build installed comes first: the build's themes and apps are what the site runs (commitBuildInstalls).
+    if (signedIn && loaded) commitBuildInstalls(env, files!).finally(() => autoUpdate(env, files!));
   }, [signedIn, loaded]);
 
   // What the installed apps have to say (AppNotifications in apps.ts): asked when the editor opens and every 15 minutes
