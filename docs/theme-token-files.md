@@ -84,6 +84,6 @@ with its default as `initial-value`:
 
 ## Renamed tokens
 
-The tokens are being renamed to Material 3's pattern (`--mo-ref-*`, `--mo-sys-*`, `--mo-comp-<component>-*`; plan and table in
+The tokens have Material 3's names, in the pattern Material 3's pattern (`--mo-ref-*`, `--mo-sys-*`, `--mo-comp-<component>-*`; plan and table in
 `docs/superpowers/plans/2026-11-16-token-rename-table.md`), with no alias. `scripts/renamed-tokens.json` lists the old names of every
 rename that has landed, and `npm run check:token-names` fails on one that comes back.
