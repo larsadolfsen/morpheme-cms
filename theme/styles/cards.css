@@ -559,7 +559,7 @@
   /* .mo-block-checklist.: the Checklist's own `.mo-block-checklist` rule (blocks.css) comes after this file, so this needs the second class to keep winning. */
   .mo-block-checklist.mo-block-pricecards__plan-features {
     margin-top: 1.5rem;
-    border-top: 1px solid var(--mo-comp-block-line);
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
     padding-top: 0.5rem;
   }
   /* A narrow card: a long text on its button goes onto two lines rather than out of the card. */

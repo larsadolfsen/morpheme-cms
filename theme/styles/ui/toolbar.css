@@ -5,7 +5,7 @@
   floating one paired with a FAB stands with it in .mo-toolbar.mo-is-with-fab (.mo-toolbar.mo-is-with-fab-vertical: the FAB under it),
   and .mo-toolbar.mo-is-collapsed while only the FAB is shown.
     --mo-comp-toolbar-gap, --mo-comp-toolbar-fab-gap   the room between its actions, and between it and its FAB
-    --mo-comp-toolbar-docked-padding-block, --mo-comp-toolbar-docked-padding-inline, --mo-comp-toolbar-docked-line, --mo-comp-toolbar-docked-line-width,
+    --mo-comp-toolbar-docked-padding-block, --mo-comp-toolbar-docked-padding-inline,
     --mo-comp-toolbar-docked-backdrop   a docked one's room, edge (its width 0 for none) and the blur behind it
     --mo-comp-toolbar-floating-padding, --mo-comp-toolbar-floating-container-shape, --mo-comp-toolbar-floating-line, --mo-comp-toolbar-floating-shadow
     --mo-comp-toolbar-docked-container-color, --mo-comp-toolbar-standard-text, --mo-comp-toolbar-vibrant-surface, --mo-comp-toolbar-vibrant-text
@@ -25,7 +25,7 @@
     justify-content: space-between;
     padding: var(--mo-comp-toolbar-docked-padding-block, 0.75rem) var(--mo-comp-toolbar-docked-padding-inline, 1rem)
       max(var(--mo-comp-toolbar-docked-padding-block, 0.75rem), env(safe-area-inset-bottom));
-    border-top: var(--mo-comp-toolbar-docked-line-width, 1px) solid var(--mo-comp-toolbar-docked-line, var(--mo-comp-block-line));
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
     backdrop-filter: var(--mo-comp-toolbar-docked-backdrop, blur(16px));
     /* Level 2 at rest (M3 elevation tokens: "Toolbar" 2; Toolbars, Specs: docked bottom-app-bar container elevation 2). */
     box-shadow: var(--mo-sys-elevation-level2-rest-shadow);

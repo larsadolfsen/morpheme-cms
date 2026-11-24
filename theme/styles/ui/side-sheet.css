@@ -9,8 +9,8 @@
     --mo-comp-side-sheet-modal-surface, --mo-comp-sheet-side-docked-modal-container-shape, --mo-comp-side-sheet-shadow   a modal one's surface, its corners towards
       the page, and its shadow
     --mo-comp-sheet-side-scrim   the shade over the page behind a modal one (else --mo-comp-theme-scrim-colour, as the dialog's)
-    --mo-comp-side-sheet-padding, --mo-comp-side-sheet-headline-size, --mo-comp-side-sheet-headline-weight, --mo-comp-side-sheet-actions-line   the
-      room inside it, the headline, and the line over the actions
+    --mo-comp-side-sheet-padding, --mo-comp-side-sheet-headline-size, --mo-comp-side-sheet-headline-weight   the
+      room inside it and the headline (the line over the actions is the divider)
     --mo-comp-side-sheet-content-top   the room over the content (1rem: the first outlined field's label stands above its edge)
   M3's measures (m3.material.io/components/side-sheets/specs), the same in the standard and the modal look and in the
   bottom sheet's 'side-sheet' look: --mo-comp-side-sheet-padding (24) at the start and end; the close icon's glyph 24 from the top
@@ -91,7 +91,7 @@
     /* The buttons keep their own height at every density step: the row is at least 72 high, which at a dense step is more than they need, and the default stretch would pull them up to it (31 px, not 28, at -3). */
     align-items: flex-start;
     gap: 0.5rem;
-    border-top: 1px solid var(--mo-comp-side-sheet-actions-line, var(--mo-comp-block-line));
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
     padding: 1rem var(--mo-comp-side-sheet-padding, 1.5rem) max(var(--mo-comp-side-sheet-padding, 1.5rem), env(safe-area-inset-bottom));
   }
   /* A modal side sheet: in a <dialog> at the end of the screen, as high as it, over the scrim. */

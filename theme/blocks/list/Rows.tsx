@@ -1,5 +1,5 @@
 // The rows of "List": the theme's list (List.tsx in ../../ui/), standard (its lines between the rows are the
-// theme's: --mo-comp-list-divider-color, none in Material) or `segmented`. Each row is an item with its icon leading it, its heading as
+// theme's: the divider's, none in Material) or `segmented`. Each row is an item with its icon leading it, its heading as
 // the headline and its text as the supporting text, and, with a page, the whole row is a link with an arrow after it.
 // If any row has a text, all rows have two lines, so they look alike. `className`: the classes of where it is (the
 // spacing of a block in the text).

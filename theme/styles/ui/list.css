@@ -16,8 +16,7 @@
   each <li> is the item's surface (also around what is beside its container in it: a button, fields folded out), the
   first and the last with the list's corners. A multi-action item (.mo-list__item-multi-action): an item's container and
   secondary actions beside it on one row, which has the container's state.
-    --mo-comp-list-divider-color   the line of a divider the list asks for (.mo-list__dividers-inset, -middle-inset; M3's md.comp.list.divider.color)
-    --mo-comp-list-divider-default-color   the line a plain list draws between its items (ours, M3 has none: dividers are optional; transparent in Material)
+    The lines between items are the divider's (--mo-comp-divider-color, --mo-comp-divider-thickness; none in Material until a list asks for .mo-list__dividers-inset or -middle-inset)
     --mo-comp-list-list-item-container-height, --mo-comp-list-md-comp-list-list-item-two-line-container-height, --mo-comp-list-md-comp-list-list-item-three-line-container-height   by its lines
     --mo-comp-list-list-item-top-space, --mo-comp-list-list-item-leading-space, --mo-comp-list-list-item-between-space
     --mo-comp-list-list-item-container-shape, --mo-comp-list-list-item-hovered-container-expressive-shape, --mo-comp-list-list-item-pressed-container-expressive-shape (also focused), --mo-comp-list-list-item-selected-container-expressive-shape
@@ -52,7 +51,7 @@
     list-style: none;
   }
   .mo-list > li + li {
-    border-top: 1px solid var(--mo-comp-list-divider-default-color, var(--mo-comp-list-divider-color, var(--mo-comp-block-line)));
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
   }
   /* --mo-comp-list-item-shape: the item's corners now, by its state (below). */
   .mo-list__item-container {
@@ -389,7 +388,6 @@
      with a line between the items) or, with --mo-comp-list-expand-gap, an item on each surface (Material's segmented). Tokens:
        --mo-comp-list-expand-container-shape, --mo-comp-list-expand-surface, --mo-comp-list-expand-shadow   the list's container
        --mo-comp-list-expand-gap, --mo-comp-list-expand-item-surface, --mo-comp-list-expand-item-radius   items on surfaces of their own (segmented)
-       --mo-comp-list-expand-divider, --mo-comp-list-expand-divider-width   the line between the items
        --mo-comp-list-expand-padding-inline, --mo-comp-list-expand-padding-block, --mo-comp-list-expand-gap-inline   the item's padding and gap
        --mo-comp-list-expand-headline-size, -weight, -line-height, -letter-spacing   its headline
        --mo-comp-list-expand-icon-size, --mo-comp-list-expand-icon-radius, --mo-comp-list-expand-icon-open-surface   the trailing icon
@@ -409,8 +407,7 @@
     overflow: clip;
   }
   .mo-list__expand > li + li {
-    border-top: var(--mo-comp-list-expand-divider-width, 1px) solid
-      var(--mo-comp-list-expand-divider-default-color, var(--mo-comp-list-expand-divider, var(--mo-comp-block-line)));
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
   }
   .mo-list__expand > li:first-child {
     border-start-start-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
@@ -612,7 +609,7 @@
   :is(.mo-list__dividers-inset, .mo-list__dividers-middle-inset):not(.mo-list__segmented) > li + li::before {
     content: '';
     display: block;
-    border-top: 1px solid var(--mo-comp-list-divider-color, var(--mo-comp-block-line));
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
   }
   .mo-list__dividers-inset > li + li::before {
     margin-inline-start: calc(var(--mo-comp-list-list-item-leading-space, 0px) + var(--mo-comp-list-item-leading-room));

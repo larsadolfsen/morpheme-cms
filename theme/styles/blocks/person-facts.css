@@ -104,7 +104,7 @@
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   .mo-block-table :is(th, td) {
-    border-bottom: 1px solid var(--mo-comp-block-line);
+    border-bottom: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
     text-align: left;
     vertical-align: top;
   }

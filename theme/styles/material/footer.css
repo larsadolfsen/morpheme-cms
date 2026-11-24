@@ -95,7 +95,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem 1rem;
-    border-top: 1px solid var(--mo-sys-color-outline-variant);
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-sys-color-outline-variant));
     padding-top: 1rem;
     color: var(--mo-sys-color-on-surface-variant);
     font-size: var(--mo-sys-typescale-body-medium-size);

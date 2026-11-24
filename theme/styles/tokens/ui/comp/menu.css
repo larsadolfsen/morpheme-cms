@@ -24,6 +24,6 @@
     );
     --mo-comp-menus-standard-menu-item-selected-label-text-color: var(--mo-comp-menu-vibrant-selected-text, var(--mo-comp-block-accent));
     --mo-comp-menu-group-label-text: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent)) 80%, transparent);
-    --mo-comp-menu-divider-color: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent)) 30%, transparent);
+    --mo-comp-divider-color: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent)) 30%, transparent);
   }
 }

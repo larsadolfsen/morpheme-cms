@@ -80,7 +80,7 @@
     padding-block: 1.25rem;
   }
   .mo-block-pricecards__row + .mo-block-pricecards__row {
-    border-top: 1px solid var(--mo-comp-block-line);
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
   }
   .mo-block-pricecards__row-name {
     font-size: var(--mo-sys-typescale-title-medium-size);

@@ -53,7 +53,7 @@ import { headingChoices } from '../lib/heading-levels.mjs';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
 import { sectionAttrs, sectionHeading, sectionSettingsOf, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
-import { IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock, type SheetTarget } from './BlockDialog';
+import { DIVIDER, IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock, type SheetTarget } from './BlockDialog';
 import { cropView } from './CropView';
 import { ratioProp } from './standard/cards/view';
 import { askLink } from './LinkSheet';
@@ -2935,6 +2935,24 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     closed.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['open'] });
   }
 
+  // The Divider (written `---`): a rule where the cursor is, at the top level of the text, with an empty paragraph after it for the cursor.
+  function divider() {
+    editor.current?.action((ctx) => {
+      const view = ctx.get(editorViewCtx);
+      const { state } = view;
+      const rule = state.schema.nodes.hr?.create();
+      if (!rule) return;
+      let { tr, end } = insertBlock(state, rule);
+      if (end >= 0) {
+        if (!tr.doc.resolve(end).nodeAfter?.isTextblock) tr = tr.insert(end, state.schema.nodes.paragraph.create());
+        tr = tr.setSelection(TextSelection.create(tr.doc, end + 1));
+      }
+      view.dispatch(tr.scrollIntoView());
+      view.focus();
+      announce(t.text.dividerAdded);
+    });
+  }
+
   // Puts the chosen block where the cursor is (a paragraph is split around it), or after the block
   // that is selected. With no text after it, an empty paragraph follows, where the cursor goes, so
   // the next text or block comes after it instead of replacing it.
@@ -2947,9 +2965,10 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       doc.descendants((n) => void (n.type.name === 'image' && have.push(IMAGE)));
     });
     // live: from medium a block with fields comes back at once (`open`), and its sheet opens live beside it once it is in.
-    const chosen = await holdWhile(blocks!.choose({ image: !!addImage, have, live: true }));
+    const chosen = await holdWhile(blocks!.choose({ image: !!addImage, divider: true, have, live: true }));
     if (!chosen) return;
     if (chosen.type === IMAGE) return image();
+    if (chosen.type === DIVIDER) return divider();
     editor.current?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
       const { state } = view;

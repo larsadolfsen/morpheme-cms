@@ -346,7 +346,7 @@
     padding-block: 1.25rem;
   }
   .mo-new__item:not(:first-child) {
-    border-block-start: 1px solid var(--mo-sys-color-outline-variant);
+    border-block-start: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-sys-color-outline-variant));
   }
   .mo-new__links {
     display: flex;
