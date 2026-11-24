@@ -302,6 +302,14 @@ there is nothing to deviate from. The theme uses the nearest M3 pattern or the o
 - **Colour roles of parts (0.19.5, batch 6, 21 Nov 2026):** the tonal buttons, tonal icon buttons, the selected segmented button and the selected menu item sit on `secondary-container` with `on-secondary-container`; outlined buttons and icon buttons have their edge in `outline-variant` and the button label in `on-surface-variant`; the menu is on `surface-container`; list dividers are `outline` (a divider is drawn only where a list asks for one: inset or middle-inset; a plain list draws its default line through `--mo-comp-list-divider-default-color`, `transparent` in Material); the slider's value label is on `primary` and its stop indicators are `on-primary` and `on-secondary-container`; the switch's selected icon is `primary`; the rich tooltip's subhead is `on-surface-variant` (token copy `docs/m3-tokens/`, content version `2026-11-19_06-20-01`). The slider's label text is `on-primary`, the nearest M3 pattern: the token copy marks `md.comp.slider.label.label-text.color` (`inverse-on-surface`) *[Deprecated]*, so M3 prints no current value, and `on-primary` on `primary` is M3's own pair. It is not a deviation. The outlined card's edge is `outline-variant`; where that is under 3:1 it is named in `theme/accessibility.json` (WCAG 1.4.11), not kept as a deviation (O1 is gone).
 - **Closed because they match M3:** the dialog corner (extra large, 28 dp), the menu corner (large, 16 dp), the 56 dp buttons and 56, 72 and 88 dp list rows (Expressive), the contained search view, chips (32 dp, 8 dp corner, 18 dp icon), the expanded modal navigation rail (surface container, 220 dp to 360 dp), the zoom slider's inactive track (secondary container).
 
+## Brand logos (owner, 24 Nov 2026)
+
+### BL1. Brand logos are their own icon pack, drawn the same in every icon pack
+
+- **M3 says:** icons are Material Symbols, which has no brand marks.
+- **We do:** the logos of Facebook, X, LinkedIn, Pinterest, GitHub and Google are a separate, always-drawn brand pack (`{ brand: '<name>' }` in `lib/materialIconMap.mjs`); the share buttons use the real logos, as our own standard SVGs where none exists. They never fall back to a Material icon, and a site's chosen icon pack does not change them.
+- **Why:** owner, 24 Nov 2026: "we keep brand logos as their own icon pack because they are the same no matter what"; "Share buttons must use the real logos. If missing we need to create our own standard svg logos". Self-made (priority 5), with the owner's yes. The SVGs and the share row come in a later batch of 0.19.6 (names spec, section 5).
+
 ## Date picker
 
 ### DP1. A docked date picker's month and year steppers wrap onto two lines on a narrow screen
