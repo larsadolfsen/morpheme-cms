@@ -321,6 +321,11 @@
     .mo-block-cards__carousel .mo-carousel:where(:not(.mo-is-contained)) .mo-carousel__item {
       width: 85%;
     }
+    /* Multi-browse and hero (M3: "16dp leading and trailing padding"): the row reaches the screen's edges and its items start 16 dp in, scrolling out under the padding. */
+    .mo-block-cards__carousel .mo-carousel:where(.mo-is-contained:not(.mo-is-full-screen)) .mo-carousel__items {
+      margin-inline: calc(-1 * var(--mo-comp-carousel-bleed, 0rem));
+      padding-inline: 1rem;
+    }
     .mo-js .mo-block-cards__show-all {
       display: flex;
       justify-content: center;

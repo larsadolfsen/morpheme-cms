@@ -521,6 +521,8 @@ async function checkCardsCarousel(width, height) {
         scrolls: row.scrollWidth > row.clientWidth + 1,
         radius: getComputedStyle(mask ?? first.firstElementChild).borderTopLeftRadius,
         itemWidth: Math.round(fb.width),
+        itemLeft: Math.round(fb.left),
+        rowLeft: Math.round(rb.left),
         rowWidth: Math.round(rb.width),
         showAll: (() => {
           const b = el.querySelector('[data-cards-show-all]');
@@ -542,6 +544,11 @@ async function checkCardsCarousel(width, height) {
       // M3, Carousel, Accessibility: a Show all button below the carousel (not required on a full-screen one, which shows one item).
       if (l.showAll === (l.layout === 'full-screen'))
         problems.push(`${at}: ${l.showAll ? 'a full-screen carousel has' : 'it has no'} "Show all"`);
+      // M3: multi-browse and hero have 16dp leading padding, the row reaching the screen's edge.
+      if (['multi-browse', 'hero', 'hero-center'].includes(l.layout) && (l.itemLeft !== 16 || l.rowLeft !== 0))
+        problems.push(
+          `${at}: the first item is ${l.itemLeft}px from the edge (the row starts at ${l.rowLeft}px), not 16px from the screen's edge`,
+        );
       if (l.layout === 'full-screen' && Math.abs(l.itemWidth - l.rowWidth) > 1)
         problems.push(`${at}: a full-screen item is ${l.itemWidth}px of the row's ${l.rowWidth}px`);
       if (l.layout === 'hero' && l.itemWidth <= l.rowWidth / 2)
