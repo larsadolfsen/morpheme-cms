@@ -85,5 +85,4 @@ the PM's sessions (section 0).
 ## 5. The CTO never pushes or merges
 
 Owner, 24 Nov 2026: "Another thing you never push and merge. Always send it to a pm." The CTO makes no branch, commit, push, pull
-request or merge, in any repository. A spec, plan, skill, roadmap or `CLAUDE.md` change is written by the CTO and sent to the PM of the
-newest line as exact text (section 4); the PM has a session push it as a docs-only pull request with an empty changeset, and merges it.
+request or merge, in any repository. A spec, plan, skill, roadmap or `CLAUDE.md` change is written by the CTO and sent to the PM as exact text (section 4). The PM has a session push it as a docs-only pull request with an empty changeset into the current line, `main`, never into a feature branch, and merges it. The one exception is while a release is being prepared and the merge would delay it (a merge into `main` rebuilds `next` on staging): then it waits until the release is out (owner, 24 Nov 2026: "CTO doc only changed always go into current unless we are preparing / it would delay a release").
