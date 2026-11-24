@@ -33,6 +33,9 @@ The owner's rules for it:
   becomes an outlined button, dialog actions included. A link is not a button (owner, 24 Nov 2026: "Links and buttons are two
   different things"): something that goes to another page or address stays a link (`<a>`), drawn as a link, never as a button. The
   page and post editor's bar and menus are not part of it.
+  **The site too** (owner, 24 Nov 2026: "Yes and yes, but not Sarah"): the default theme Material's blocks and parts on the site use
+  outlined buttons where they use text buttons today, in the same batch (1, shared parts). The Button part keeps its text kind, so a
+  theme or app that uses it keeps working: Venus and Sara's app are not changed.
 - **No `check:contrast` per batch.** One final scan runs when Material's M3 work is done (`specs/2026-11-21-base-theme-notes.md`).
 
 ## The recorded exceptions
