@@ -22,6 +22,8 @@ used here only to point to the brand's own service (a share button, a profile li
 | `github.svg` | GitHub | the Octocat mark |
 | `google.svg` | Google | the "G" |
 
+Pinned to 13.21.0 on purpose: later versions of Simple Icons dropped some brands at their owners' request (LinkedIn is not in 16.x), so a newer package must not replace these files. Every one of the six is in 13.21.0 itself; none comes from a press kit or our own drawing.
+
 Each file's `<title>` and `role` were removed (the icon is hidden from screen readers or named by its use) and `fill="currentColor"`
 added; the path is unchanged. No brand is drawn by us: every brand here has an official mark. Where one has none, draw our own standard
 SVG, put it here and say so in this table.
