@@ -30,14 +30,16 @@ The owner's rules for it:
   theme, with the owner's yes through the PM. It never gets its own class.
 - **Outlined buttons, not text buttons** (owner, 24 Nov 2026: "Md3 do no longer recommend text buttons, instead they recommend
   outlined. When you go through the editor convert all text buttons to outlined buttons"). Every text button in the editor's screens
-  becomes an outlined button, dialog actions and footer links included. The page and post editor's bar and menus are not part of it.
+  becomes an outlined button, dialog actions included. A link is not a button (owner, 24 Nov 2026: "Links and buttons are two
+  different things"): something that goes to another page or address stays a link (`<a>`), drawn as a link, never as a button. The
+  page and post editor's bar and menus are not part of it.
 - **No `check:contrast` per batch.** One final scan runs when Material's M3 work is done (`specs/2026-11-21-base-theme-notes.md`).
 
 ## The recorded exceptions
 
 | Entry | In 0.19.6 | Later |
 | :-- | :-- | :-- |
-| FL1, footer links 36 px | Outlined buttons at M3's size, with a 48 dp target (owner, 24 Nov 2026: no text buttons). | |
+| FL1, footer links 36 px | They are links, not buttons (owner, 24 Nov 2026): they stay links, with a 48 dp target. | |
 | EP1, score ring | Built on M3's circular progress indicator. Its good, average and bad tones are the status colours of CS1, the one recorded colour exception for status. | |
 | EP2 and CS4, colour and icon pickers | Built from M3 parts (slider, segmented button, icon button with its selected state). Where M3 has no part, the nearest M3 pattern, named in the pull request. | |
 | CS5, the preview frame's white | Goes: the frame is a surface role. | |
