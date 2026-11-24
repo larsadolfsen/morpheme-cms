@@ -736,11 +736,6 @@ export const ours = {
     { token: '--mo-sys-column-*', reason: "A column's place in the layout grid." },
     { token: '--mo-sys-target-*', reason: 'The touch target size and gap: M3 prints 48 dp in its accessibility text, not as a token.' },
     { token: '--mo-sys-tile-*', reason: "The image tile's fill and text colours." },
-    { token: '--mo-sys-radius*', reason: 'A radius the theme names for CSS that has no M3 shape step.' },
-    {
-      token: '--mo-sys-state-mo-*',
-      reason: 'The state layers as one opacity each (hover, pressed, dragged); M3 names them md.sys.state.*.state-layer-opacity.',
-    },
     {
       token: '--mo-sys-state-focus-indicator-color',
       reason: 'The focus indicator colour; M3 prints the width and offset, not a colour token.',

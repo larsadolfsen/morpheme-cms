@@ -1,5 +1,5 @@
 {
-  "about": "The map of docs/superpowers/specs/2026-11-20-material-3-names-design.md (contract 8), made in batch 1 of 0.19.6 from check:m3-tokens --report and docs/m3-tokens/. tokens: old custom property → new (an array when one old token becomes several); classes: old class → new (an array: the new classes together, null: merged into the default); props: component → prop → old value → new (null: merged); reused: old names that come back with another meaning; open: what the CTO reviews. Icons: lib/materialIconMap.mjs.",
+  "about": "The map of docs/superpowers/specs/2026-11-20-material-3-names-design.md (contract 8), made in batches 1 and 2 of 0.19.6 (the CTO answers of 24 Nov 2026 applied) from check:m3-tokens --report and docs/m3-tokens/. tokens: old custom property → new (an array when one old token becomes several); classes: old class → new (an array: the new classes together, null: merged into the default); props: component → prop → old value → new (null: merged); reused: old names that come back with another meaning; valueFixes: each size whose value is not M3's, with M3's value (applied in the UI-fixes batch, not by the rename). Icons: lib/materialIconMap.mjs.",
   "tokens": {
     "--mo-comp-button-padding": ["--mo-comp-button-small-leading-space", "--mo-comp-button-small-trailing-space"],
     "--mo-comp-button-small-padding": ["--mo-comp-button-small-leading-space", "--mo-comp-button-small-trailing-space"],
@@ -111,7 +111,12 @@
     "--mo-comp-navigation-rail-indicator-hover": "--mo-comp-nav-rail-indicator-hover",
     "--mo-comp-navigation-rail-label-selected-weight": "--mo-comp-nav-rail-label-selected-weight",
     "--mo-comp-side-sheet-scrim": "--mo-comp-sheet-side-scrim",
-    "--mo-comp-side-sheet-icon-inset": "--mo-comp-sheet-side-icon-inset"
+    "--mo-comp-side-sheet-icon-inset": "--mo-comp-sheet-side-icon-inset",
+    "--mo-sys-radius": "--mo-sys-shape-corner-medium",
+    "--mo-sys-radius-small": "--mo-sys-shape-corner-large",
+    "--mo-sys-state-mo-hover-layer": "--mo-sys-state-hover-state-layer-color",
+    "--mo-sys-state-mo-pressed-layer": "--mo-sys-state-pressed-state-layer-color",
+    "--mo-sys-state-mo-dragged-layer": "--mo-sys-state-dragged-state-layer-color"
   },
   "classes": {
     "mo-bottom-sheet__drag-handle": "mo-sheet__drag-handle",
@@ -169,7 +174,86 @@
     "mo-side-sheet__actions": "mo-sheet__actions",
     "mo-side-sheet": ["mo-sheet", "mo-is-side"],
     "mo-button__text": "mo-is-text",
-    "mo-button__small": null
+    "mo-button__small": null,
+    "mo-button__xsmall": "mo-is-xsmall",
+    "mo-button__large": "mo-is-large",
+    "mo-button__xlarge": "mo-is-xlarge",
+    "mo-button__square": "mo-is-square",
+    "mo-icon-button__standard": "mo-is-standard",
+    "mo-icon-button__narrow": "mo-is-narrow",
+    "mo-icon-button__wide": "mo-is-wide",
+    "mo-icon-button__square": "mo-is-square",
+    "mo-icon-button__xsmall": "mo-is-xsmall",
+    "mo-icon-button__medium": "mo-is-medium",
+    "mo-icon-button__large": "mo-is-large",
+    "mo-icon-button__xlarge": "mo-is-xlarge",
+    "mo-fab__medium": "mo-is-medium",
+    "mo-fab__large": "mo-is-large",
+    "mo-fab__primary": "mo-is-primary",
+    "mo-fab__primary-container": "mo-is-primary-container",
+    "mo-fab__secondary": "mo-is-secondary",
+    "mo-fab__secondary-container": "mo-is-secondary-container",
+    "mo-fab__tertiary": "mo-is-tertiary",
+    "mo-fab__tertiary-container": "mo-is-tertiary-container",
+    "mo-extended-fab__medium": "mo-is-medium",
+    "mo-extended-fab__large": "mo-is-large",
+    "mo-fab-menu__primary": "mo-is-primary",
+    "mo-fab-menu__secondary": "mo-is-secondary",
+    "mo-fab-menu__tertiary": "mo-is-tertiary",
+    "mo-card__dragged": "mo-is-dragged",
+    "mo-chip__action": "mo-is-action",
+    "mo-chip__filter": "mo-is-filter",
+    "mo-chip__input": "mo-is-input",
+    "mo-chip__suggestion": "mo-is-suggestion",
+    "mo-chip__dragged": "mo-is-dragged",
+    "mo-chip__removable": "mo-is-removable",
+    "mo-tabs__primary": "mo-is-primary",
+    "mo-tabs__secondary": "mo-is-secondary",
+    "mo-tabs__fixed": "mo-is-fixed",
+    "mo-tabs__inline": "mo-is-inline",
+    "mo-tooltip__plain": "mo-is-plain",
+    "mo-tooltip__rich": "mo-is-rich",
+    "mo-text-field__multiline": "mo-is-multiline",
+    "mo-text-field__small": "mo-is-small",
+    "mo-text-field__without-label": "mo-is-without-label",
+    "mo-dialog__basic": "mo-is-basic",
+    "mo-dialog__modal": "mo-is-modal",
+    "mo-divider__inset": "mo-is-inset",
+    "mo-divider__middle-inset": "mo-is-middle-inset",
+    "mo-divider__vertical": "mo-is-vertical",
+    "mo-carousel__contained": "mo-is-contained",
+    "mo-carousel__full-screen": "mo-is-full-screen",
+    "mo-carousel__hero": "mo-is-hero",
+    "mo-carousel__multi-browse": "mo-is-multi-browse",
+    "mo-badge__small": "mo-is-small",
+    "mo-badge__large": "mo-is-large",
+    "mo-button-group__connected": "mo-is-connected",
+    "mo-button-group__standard": "mo-is-standard",
+    "mo-slider__small": "mo-is-small",
+    "mo-slider__medium": "mo-is-medium",
+    "mo-slider__large": "mo-is-large",
+    "mo-slider__xlarge": "mo-is-xlarge",
+    "mo-slider__centered": "mo-is-centered",
+    "mo-slider__vertical": "mo-is-vertical",
+    "mo-slider__value-always": "mo-is-value-always",
+    "mo-toolbar__collapsed": "mo-is-collapsed",
+    "mo-toolbar__docked": "mo-is-docked",
+    "mo-toolbar__floating": "mo-is-floating",
+    "mo-toolbar__standard": "mo-is-standard",
+    "mo-toolbar__vertical": "mo-is-vertical",
+    "mo-toolbar__vibrant": "mo-is-vibrant",
+    "mo-toolbar__with-fab": "mo-is-with-fab",
+    "mo-toolbar__with-fab-vertical": "mo-is-with-fab-vertical",
+    "mo-top-app-bar__small": "mo-is-small",
+    "mo-top-app-bar__medium-flexible": "mo-is-medium-flexible",
+    "mo-top-app-bar__large-flexible": "mo-is-large-flexible",
+    "mo-menu__vibrant": "mo-is-vibrant",
+    "mo-date-picker__docked": "mo-is-docked",
+    "mo-date-picker__dialog": "mo-is-dialog",
+    "mo-time-picker__dialog": "mo-is-dialog",
+    "mo-time-picker__horizontal": "mo-is-horizontal",
+    "mo-snackbar__longer-action": "mo-is-longer-action",
+    "mo-segmented-button__label-hidden": "mo-is-label-hidden"
   },
   "props": {
     "Button": {
@@ -188,6 +272,11 @@
       "size": {
         "medium": "small"
       }
+    },
+    "Fab": {
+      "size": {
+        "fab": null
+      }
     }
   },
   "reused": [
@@ -196,8 +285,8 @@
       "prop": "size",
       "name": "medium",
       "was": "our default size, 40 dp",
-      "now": "M3 Expressive's medium, 56 dp (not added here)",
-      "note": "A stale size=\"medium\" would draw the 56 dp button once M3 medium is added; today it has no meaning, the rewrite makes it small."
+      "now": "M3 Expressive's medium, 56 dp (not added)",
+      "note": "A stale size=\"medium\" would draw the 56 dp button once M3 medium is added; the rewrite makes it small, the default."
     },
     {
       "component": "Button, SplitButton, Menu",
@@ -206,63 +295,106 @@
       "was": "our small size, about 42 dp",
       "now": "M3's small, 40 dp, the default",
       "note": "Old small and old medium both end as small; both are 40 dp after 0.19.5."
+    },
+    {
+      "component": "Fab",
+      "prop": "size",
+      "name": "fab",
+      "was": "the 56 dp default FAB",
+      "now": "no size: the default 56 dp, as M3 prints it",
+      "note": "The rewrite drops size=\"fab\"; M3 small (40 dp) is not added here."
     }
   ],
-  "open": [
+  "valueFixes": [
     {
-      "id": 1,
-      "question": "Button sizes: our small (2.6 rem) and medium (2.5 rem) both become M3 small (40 dp), and M3 medium (56 dp) is not added. Right?",
-      "where": "props.Button.size, tokens --mo-comp-button-medium-* and --mo-comp-button-small-*"
+      "component": "Button, SplitButton",
+      "size": "large",
+      "part": "container height",
+      "ours": "64 dp (4rem)",
+      "m3": "96 dp",
+      "token": "md.comp.button.large.container.height",
+      "note": "The name stays."
     },
     {
-      "id": 2,
-      "question": "The tokens --mo-comp-button-medium-container-height and --mo-comp-button-small-container-height collide on --mo-comp-button-small-container-height (both 2.5 rem today): which declaration wins in the rename?",
-      "where": "tokens"
+      "component": "Button, SplitButton",
+      "size": "xlarge",
+      "part": "container height",
+      "ours": "88 dp (5.5rem)",
+      "m3": "136 dp",
+      "token": "md.comp.button.xlarge.container.height",
+      "note": "The name stays."
     },
     {
-      "id": 3,
-      "question": "Our large (64 dp) and xlarge (88 dp) buttons keep the names but have M3 heights 96 and 136 dp; keep the names and the values, or change the values?",
-      "where": "Button.size"
+      "component": "IconButton",
+      "size": "xsmall",
+      "part": "container size",
+      "ours": "36 dp (2.25rem)",
+      "m3": "32 dp",
+      "token": "md.comp.icon-button.xsmall.container.height",
+      "note": "The name stays."
     },
     {
-      "id": 4,
-      "question": "--mo-comp-button-padding becomes both leading-space and trailing-space of small (one old token, two new).",
-      "where": "tokens (array values)"
+      "component": "IconButton",
+      "size": "medium",
+      "part": "container size",
+      "ours": "60 dp (3.75rem)",
+      "m3": "56 dp",
+      "token": "md.comp.icon-button.medium.container.height",
+      "note": "The name stays."
     },
     {
-      "id": 5,
-      "question": "Our classes use the family word (card, chip, text-field, tabs, tooltip, select) where M3 names tokens by kind (filled-card, assist-chip...). Keep the family word and the kind as mo-is-<kind>?",
-      "where": "classes"
+      "component": "Slider",
+      "size": "xsmall (the default)",
+      "part": "active track height",
+      "ours": "6 dp (0.375rem)",
+      "m3": "16 dp",
+      "token": "md.comp.slider.xsmall.active.track.height",
+      "note": "The default size is M3 extra small."
     },
     {
-      "id": 6,
-      "question": "Navigation bar and rail take the Expressive names nav-bar and nav-rail (collapsed). Confirm.",
-      "where": "classes, tokens"
+      "component": "Slider",
+      "size": "small",
+      "part": "active track height",
+      "ours": "12 dp (0.75rem)",
+      "m3": "24 dp",
+      "token": "md.comp.slider.small.active.track.height",
+      "note": "The name stays."
     },
     {
-      "id": 7,
-      "question": "Sheets: bottom-sheet and side-sheet become mo-sheet with mo-is-bottom / mo-is-side (M3 has one sheet component with kinds). Confirm.",
-      "where": "classes"
+      "component": "Slider",
+      "size": "medium",
+      "part": "active track height",
+      "ours": "24 dp (1.5rem)",
+      "m3": "40 dp",
+      "token": "md.comp.slider.medium.active.track.height",
+      "note": "The name stays."
     },
     {
-      "id": 8,
-      "question": "Kinds written as parts today (mo-button__text) become mo-is-<kind>; other kinds (mo-icon-button__standard, mo-fab__primary) stay parts until batch 3.",
-      "where": "classes"
+      "component": "Slider",
+      "size": "large",
+      "part": "active track height",
+      "ours": "36 dp (2.25rem)",
+      "m3": "56 dp",
+      "token": "md.comp.slider.large.active.track.height",
+      "note": "The name stays."
     },
     {
-      "id": 9,
-      "question": "Icon button has a medium size class (mo-icon-button__medium) and Fab a size named fab; M3 names are xsmall..xlarge and small/medium/large. How should they map?",
-      "where": "IconButton.size, Fab.size"
+      "component": "Slider",
+      "size": "xlarge",
+      "part": "active track height",
+      "ours": "56 dp (3.5rem)",
+      "m3": "96 dp",
+      "token": "md.comp.slider.xlarge.active.track.height",
+      "note": "The name stays."
     },
     {
-      "id": 10,
-      "question": "Odd system tokens with no M3 name: --mo-sys-radius*, --mo-sys-state-mo-*-layer, --mo-sys-color-primary-hover, --mo-sys-color-scrim-overlay, --mo-sys-motion-spring-*, --mo-sys-default-transition-*. Keep as ours or rename into M3's groups?",
-      "where": "ours"
-    },
-    {
-      "id": 11,
-      "question": "The icon map's closest picks: brand logos (facebook, instagram, github, linkedin, pinterest, x) have no Material Symbols icon; sparkle, push-pin, columns-plus-left/right, flower-lotus, wave-sine map to the nearest icon.",
-      "where": "lib/materialIconMap.mjs"
+      "component": "Fab",
+      "size": "small",
+      "part": "container size",
+      "ours": "not drawn",
+      "m3": "40 dp",
+      "token": "md.comp.fab.small.container.height",
+      "note": "A missing size, added in the UI-fixes batch; the default 56 dp, medium 80 dp and large 96 dp are already M3 values."
     }
   ]
 }

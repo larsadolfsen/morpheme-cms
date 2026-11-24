@@ -60,6 +60,12 @@ M3's name, so that m3.material.io's specs pages read as the CMS's own documentat
      `SYSTEM_PACKS` is `material-symbols` alone, and `themePlugin` stops redrawing Phosphor imports. `check:phosphor` fails on any
      import of `@phosphor-icons/*` or Lucide, with no allowlist;
    - a theme may still bring its own pack (`icon-packs/`), keyed by Material names;
+   - **brand logos are their own always-drawn pack** (owner, 24 Nov 2026: "we keep brand logos as their own icon pack because they are
+     the same no matter what"; "Share buttons must use the real logos. If missing we need to create our own standard svg logos").
+     Material Symbols has no brand marks, so `facebook-logo`, `x-logo`, `linkedin-logo`, `pinterest-logo`, `github-logo` and
+     `google-logo` are `{ brand: '<name>' }` in `lib/materialIconMap.mjs`, never a `closest` Material icon. The brand pack is drawn
+     whatever icon pack a site picks. The standard SVGs and the share row that draws them come in batch 7; the map only says which
+     names are brands. Recorded in `docs/material-deviations.md`, *Brand logos*;
    - a site whose chosen pack is `phosphor` or `lucide` draws Material Symbols, with a warning in the editor, never a failed build
      (decision 3 of `specs/2026-11-14-icon-packs-in-the-store-design.md`). Venus is such a theme (`"icons": "phosphor"`). Phosphor,
      Lucide and Font Awesome come back as store packs in 0.27.2 (owner, 21 Nov 2026: "We will add Phosphor, lucide and font awesome

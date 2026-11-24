@@ -78,7 +78,7 @@ test('staleOurs lists an ours entry M3 has a token for', () => {
 
 test('the map: every rename names a different, non-empty name and the parts are there', () => {
   for (const part of ['tokens', 'classes', 'props']) assert.equal(typeof map[part], 'object', part);
-  assert.ok(Array.isArray(map.reused) && Array.isArray(map.open));
+  assert.ok(Array.isArray(map.reused) && Array.isArray(map.valueFixes) && !('open' in map));
   for (const [old, now] of Object.entries(map.tokens)) {
     for (const n of [].concat(now)) assert.ok(n.startsWith('--mo-') && n !== old, `${old} → ${n}`);
   }
@@ -88,12 +88,34 @@ test('the map: every rename names a different, non-empty name and the parts are 
   assert.equal(map.props.Button.size.medium, 'small');
 });
 
-test('every token the map renames to is an M3 name, or an own part of an M3 set, or a block token', () => {
+test('every token the map renames to is an M3 name, or an own part of an M3 set or system group, or a block token', () => {
   const sets = [...m3.sets].map((x) => `--mo-comp-${x}-`);
+  const groups = [...new Set([...m3.tokens].filter((t) => t.startsWith('--mo-sys-')).map((t) => `--mo-sys-${t.split('-')[4]}-`))];
   const bad = Object.values(map.tokens)
     .flat()
-    .filter((n) => !m3.tokens.has(n) && !n.startsWith('--mo-comp-block-') && !sets.some((s) => n.startsWith(s)));
+    .filter(
+      (n) =>
+        !m3.tokens.has(n) &&
+        !n.startsWith('--mo-comp-block-') &&
+        !sets.some((s) => n.startsWith(s)) &&
+        !groups.some((g) => n.startsWith(g)),
+    );
   assert.deepEqual(bad, []);
+});
+
+test('valueFixes name an M3 token and say what is wrong; the answered open questions are gone', () => {
+  assert.ok(map.valueFixes.length > 0);
+  for (const f of map.valueFixes) {
+    assert.ok(f.component && f.size && f.ours && f.m3 && f.token.startsWith('md.comp.'), JSON.stringify(f));
+  }
+  assert.equal(map.open, undefined);
+});
+
+test('every kind written as a part maps to mo-is-<kind>', () => {
+  assert.equal(map.classes['mo-icon-button__standard'], 'mo-is-standard');
+  assert.equal(map.classes['mo-fab__primary-container'], 'mo-is-primary-container');
+  assert.equal(map.classes['mo-button__xlarge'], 'mo-is-xlarge');
+  assert.equal(map.props.Fab.size.fab, null);
 });
 
 test('the ours list has a reason for each entry and none M3 now names', () => {
