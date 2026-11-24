@@ -4,10 +4,10 @@ import { compareVersions } from '../lib/cms-version.mjs';
 
 /**
  * The reason a site does not update by itself, or null. A missing token or KV always blocks; a refused write, `needs-npm` and
- * `contract` only matter while a newer version waits. A new major version, a skipped one and an unreachable npm are not blocks the
+ * `contract` and `unsafe-code` (the own themes and apps use names the update cannot rewrite; `detail` is one `file:line: why` per line) only matter while a newer version waits. A new major version, a skipped one and an unreachable npm are not blocks the
  * owner can fix: the Morpheme page shows those.
- * @param {{ running: string, token?: boolean, kv?: boolean, checked?: { latest?: string | null, problem?: { kind: string, item?: string, id?: string, why?: string } } | null }} status
- * @returns {{ kind: 'no-token' | 'no-kv' } | { kind: 'cannot-write' | 'needs-npm', version: string } | { kind: 'contract', version: string, item: 'theme' | 'app', id: string, sure: boolean } | null}
+ * @param {{ running: string, token?: boolean, kv?: boolean, checked?: { latest?: string | null, problem?: { kind: string, item?: string, id?: string, why?: string, detail?: string } } | null }} status
+ * @returns {{ kind: 'no-token' | 'no-kv' } | { kind: 'unsafe-code', version: string, lines: string[] } | { kind: 'cannot-write' | 'needs-npm', version: string } | { kind: 'contract', version: string, item: 'theme' | 'app', id: string, sure: boolean } | null}
  */
 export function blockedUpdate(status) {
   if (!status) return null;
@@ -23,6 +23,9 @@ export function blockedUpdate(status) {
   const problem = status.checked?.problem;
   if (!waiting || !problem) return null;
   if (problem.kind === 'cannot-write' || problem.kind === 'needs-npm') return { kind: problem.kind, version: latest };
+  if (problem.kind === 'unsafe-code' && typeof problem.detail === 'string' && problem.detail) {
+    return { kind: 'unsafe-code', version: latest, lines: problem.detail.split('\n').filter(Boolean) };
+  }
   if (problem.kind === 'contract' && (problem.item === 'theme' || problem.item === 'app') && problem.id) {
     return { kind: 'contract', version: latest, item: problem.item, id: problem.id, sure: problem.why !== 'could-not-confirm' };
   }

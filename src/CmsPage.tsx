@@ -14,7 +14,7 @@ import { EarlierVersions, LineNav } from './VersionLinePage';
 import { minorOf } from '../lib/releaseNotes.mjs';
 import { snackbar } from '../lib/snackbar';
 import { t } from './i18n';
-import { blockedText, type Blocked } from './blockedText';
+import { blockedText, unsafePlaces, type Blocked } from './blockedText';
 import { when } from './when';
 import { materialIcon, type IconComponent as Icon } from './icon';
 
@@ -36,7 +36,8 @@ type View = {
 type Status = object;
 
 /** The Worker's error code in words; any other answer says what status it was. */
-function errorText(code: unknown, status: number, version = '') {
+function errorText(code: unknown, status: number, version = '', detail?: unknown) {
+  if (code === 'unsafe-code' && Array.isArray(detail)) return t.cms.blockedUnsafeCode(version, unsafePlaces(detail.map(String)));
   if (code === 'not-set-up') return t.cms.noToken;
   if (code === 'waiting') return t.cms.waiting(version);
   return t.app.githubAnswered(status);
@@ -103,7 +104,7 @@ export default function CmsPage() {
       });
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
-        throw new Error(errorText(json.error, res.status, version));
+        throw new Error(errorText(json.error, res.status, version, json.detail));
       }
       await load();
     } catch (e) {
@@ -151,10 +152,20 @@ export default function CmsPage() {
                 </p>
               </div>
             )}
-            {view.blocked?.kind === 'contract' && (
+            {(view.blocked?.kind === 'contract' || view.blocked?.kind === 'unsafe-code') && (
               <StatusLine icon={materialIcon('error')} tone="accent">
                 {blockedText(view.blocked)}
               </StatusLine>
+            )}
+            {view.blocked?.kind === 'unsafe-code' && (
+              <p className="mo-editor-small-note">
+                {view.blocked.lines.map((line) => (
+                  <code key={line}>
+                    {line}
+                    <br />
+                  </code>
+                ))}
+              </p>
             )}
             {view.problems.map((kind) => (
               <StatusLine key={kind} icon={materialIcon('error')} tone="accent">
