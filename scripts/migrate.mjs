@@ -11,7 +11,6 @@ import { join, relative } from 'node:path';
 import { compareVersions } from '../lib/cms-version.mjs';
 import { CodeMigrationStop, CODE_NAMES_SINCE, MIGRATIONS_FILE, migrateCode, unsafeLines } from '../lib/migrate-code.mjs';
 import { migrateIconNamesPath } from '../lib/migrate-icons.mjs';
-import { utilityProblems } from '../site/tailwind.mjs';
 import { migrateClassNamesPath } from '../lib/content-class-names.mjs';
 import { migrateFile } from '../lib/migrate-content.mjs';
 
@@ -50,7 +49,7 @@ if (names) {
   );
   try {
     const marker = existsSync(MIGRATIONS_FILE) ? readFileSync(MIGRATIONS_FILE, 'utf8') : null;
-    for (const { path, text } of migrateCode({ files, marker, from, utilityProblems })) {
+    for (const { path, text } of migrateCode({ files, marker, from })) {
       if (path !== MIGRATIONS_FILE && text === files.find((f) => f.path === path)?.text) continue;
       changed.push(path);
       if (!check) {
