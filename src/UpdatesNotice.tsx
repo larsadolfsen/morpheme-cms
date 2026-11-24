@@ -138,11 +138,11 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
           )}
           {news.length > 0 && <p className="mo-editor-updates-notice-counts">{t.library.noteCounts(features, improvements)}</p>}
           <div className="mo-editor-updates-notice-actions">
-            <Button kind="text" size="small" onClick={close}>
+            <Button kind="text" onClick={close}>
               {t.common.close}
             </Button>
             {cms && (
-              <LinkButton kind="filled" size="small" href={`#${CMS_ROUTE}`} aria-label={t.library.readMoreOn(title)}>
+              <LinkButton kind="filled" href={`#${CMS_ROUTE}`} aria-label={t.library.readMoreOn(title)}>
                 {t.library.readMore}
               </LinkButton>
             )}

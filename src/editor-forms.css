@@ -308,7 +308,7 @@
     gap: var(--mo-comp-tooltip-gap, 0.25rem);
     max-inline-size: 100%;
   }
-  .mo-editor-comm-tooltips .mo-tooltip__plain {
+  .mo-editor-comm-tooltips :where(.mo-tooltip, .mo-editor-tooltip).mo-is-plain {
     align-self: center;
   }
   .mo-editor-comm-tooltips .mo-tooltip {

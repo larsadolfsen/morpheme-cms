@@ -226,7 +226,7 @@ export function EditableCards({
               data-card={placement.id}
               style={dragging ? { transform: `translate(${drag.dx}px, ${drag.dy}px)` } : undefined}
               className={`${spanClass(definition.span)} mo-editor-widget-card ${
-                dragging ? 'mo-card__dragged mo-editor-widget-lifted' : ''
+                dragging ? 'mo-is-dragged mo-editor-widget-lifted' : ''
               } ${drag?.over === placement.id ? 'mo-editor-widget-target' : ''}`}
             >
               <div className="mo-editor-widget-bar">

@@ -1,9 +1,9 @@
 /*
   FABs (Fab, ExtendedFab, fabClass, extendedFabClass): .mo-fab, an icon; .mo-extended-fab, an icon and .mo-extended-fab__label,
-  only the icon while [data-collapsed]. Each in its size, M3 Expressive's: a FAB none (the FAB, 56px), .mo-fab__medium (80)
-  or .mo-fab__large (96); an extended FAB none (small, 56), .mo-extended-fab__medium (80) or .mo-extended-fab__large (96), each
-  with its type style. And in its colour: filled .mo-fab__primary (the accent), .mo-fab__secondary or .mo-fab__tertiary, or tonal
-  .mo-fab__primary-container (the accent's container), .mo-fab__secondary-container or .mo-fab__tertiary-container, from the
+  only the icon while [data-collapsed]. Each in its size, M3 Expressive's: a FAB none (the FAB, 56px), .mo-fab.mo-is-medium (80)
+  or .mo-fab.mo-is-large (96); an extended FAB none (small, 56), .mo-extended-fab.mo-is-medium (80) or .mo-extended-fab.mo-is-large (96), each
+  with its type style. And in its colour: filled .mo-fab.mo-is-primary (the accent), .mo-fab.mo-is-secondary or .mo-fab.mo-is-tertiary, or tonal
+  .mo-fab.mo-is-primary-container (the accent's container), .mo-fab.mo-is-secondary-container or .mo-fab.mo-is-tertiary-container, from the
   site's colours of those names.
     --mo-comp-fab-size, --mo-comp-fab-container-shape, --mo-comp-fab-padding, --mo-comp-fab-gap, --mo-comp-fab-icon-size, --mo-comp-fab-shadow, --mo-comp-fab-hover-shadow,
     --mo-comp-fab-label-font-size, --mo-comp-fab-label-weight, --mo-comp-fab-label-letter-spacing   the FAB and the small extended FAB (the
@@ -53,52 +53,52 @@
   }
   /* The medium and the large size (M3 Expressive): taller, with rounder corners and a larger icon, the theme's corners
      scaled as Material's are (16, 20 and 28px). */
-  .mo-fab__medium,
-  .mo-extended-fab__medium {
+  :where(.mo-fab).mo-is-medium,
+  :where(.mo-extended-fab).mo-is-medium {
     height: var(--mo-comp-fab-medium-size, 5rem);
     min-width: var(--mo-comp-fab-medium-size, 5rem);
     border-radius: var(--mo-comp-fab-medium-container-shape, calc(var(--mo-sys-block-radius-small) * 1.25));
   }
-  .mo-fab__medium > svg,
-  .mo-extended-fab__medium > svg {
+  :where(.mo-fab).mo-is-medium > svg,
+  :where(.mo-extended-fab).mo-is-medium > svg {
     width: var(--mo-comp-fab-medium-icon-size, 1.75rem);
     height: var(--mo-comp-fab-medium-icon-size, 1.75rem);
   }
-  .mo-fab__large,
-  .mo-extended-fab__large {
+  :where(.mo-fab).mo-is-large,
+  :where(.mo-extended-fab).mo-is-large {
     height: var(--mo-comp-fab-large-size, 6rem);
     min-width: var(--mo-comp-fab-large-size, 6rem);
     border-radius: var(--mo-comp-fab-large-container-shape, calc(var(--mo-sys-block-radius-small) * 1.75));
   }
-  .mo-fab__large > svg,
-  .mo-extended-fab__large > svg {
+  :where(.mo-fab).mo-is-large > svg,
+  :where(.mo-extended-fab).mo-is-large > svg {
     width: var(--mo-comp-fab-large-icon-size, 2.25rem);
     height: var(--mo-comp-fab-large-icon-size, 2.25rem);
   }
-  .mo-extended-fab__medium {
+  :where(.mo-extended-fab).mo-is-medium {
     padding: 0 var(--mo-comp-fab-medium-padding, 1.625rem);
   }
-  .mo-extended-fab__large {
+  :where(.mo-extended-fab).mo-is-large {
     padding: 0 var(--mo-comp-fab-large-padding, 1.75rem);
   }
 
   /* The colours (M3 Expressive): filled in primary, secondary or tertiary, or tonal in their containers; a state layer
      of the text's colour when pointed at, and pressed under the ripple. */
-  .mo-fab__primary {
+  :where(.mo-fab, .mo-extended-fab).mo-is-primary {
     background: var(--mo-comp-fab-primary-surface, var(--mo-sys-block-accent));
     color: var(--mo-comp-fab-primary-text, var(--mo-sys-block-on-accent));
   }
-  .mo-fab__primary:hover {
+  :where(.mo-fab, .mo-extended-fab).mo-is-primary:hover {
     background: var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover));
   }
-  .mo-fab__primary:active {
+  :where(.mo-fab, .mo-extended-fab).mo-is-primary:active {
     background: var(--mo-comp-fab-primary-pressed, var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover)));
   }
-  .mo-fab__secondary {
+  :where(.mo-fab, .mo-extended-fab).mo-is-secondary {
     background: var(--mo-comp-fab-secondary-surface, var(--mo-sys-color-secondary));
     color: var(--mo-comp-fab-secondary-text, var(--mo-sys-color-on-secondary));
   }
-  .mo-fab__secondary:hover {
+  :where(.mo-fab, .mo-extended-fab).mo-is-secondary:hover {
     background: var(
       --mo-comp-fab-secondary-hover,
       color-mix(
@@ -108,7 +108,7 @@
       )
     );
   }
-  .mo-fab__secondary:active {
+  :where(.mo-fab, .mo-extended-fab).mo-is-secondary:active {
     background: var(
       --mo-comp-fab-secondary-pressed,
       var(
@@ -121,11 +121,11 @@
       )
     );
   }
-  .mo-fab__tertiary {
+  :where(.mo-fab, .mo-extended-fab).mo-is-tertiary {
     background: var(--mo-comp-fab-tertiary-surface, var(--mo-sys-color-tertiary));
     color: var(--mo-comp-fab-tertiary-text, var(--mo-sys-color-on-tertiary));
   }
-  .mo-fab__tertiary:hover {
+  :where(.mo-fab, .mo-extended-fab).mo-is-tertiary:hover {
     background: var(
       --mo-comp-fab-tertiary-hover,
       color-mix(
@@ -135,7 +135,7 @@
       )
     );
   }
-  .mo-fab__tertiary:active {
+  :where(.mo-fab, .mo-extended-fab).mo-is-tertiary:active {
     background: var(
       --mo-comp-fab-tertiary-pressed,
       var(
@@ -148,11 +148,11 @@
       )
     );
   }
-  .mo-fab__primary-container {
+  :where(.mo-fab, .mo-extended-fab).mo-is-primary-container {
     background: var(--mo-comp-fab-primary-container-container-color, var(--mo-sys-color-primary-container));
     color: var(--mo-comp-fab-primary-container-icon-color, var(--mo-sys-color-on-primary-container));
   }
-  .mo-fab__primary-container:hover {
+  :where(.mo-fab, .mo-extended-fab).mo-is-primary-container:hover {
     background: var(
       --mo-comp-fab-primary-container-hover,
       color-mix(
@@ -162,7 +162,7 @@
       )
     );
   }
-  .mo-fab__primary-container:active {
+  :where(.mo-fab, .mo-extended-fab).mo-is-primary-container:active {
     background: var(
       --mo-comp-fab-primary-container-pressed,
       var(
@@ -175,11 +175,11 @@
       )
     );
   }
-  .mo-fab__secondary-container {
+  :where(.mo-fab, .mo-extended-fab).mo-is-secondary-container {
     background: var(--mo-comp-fab-secondary-container-surface, var(--mo-sys-color-secondary-container));
     color: var(--mo-comp-fab-secondary-container-text, var(--mo-sys-color-on-secondary-container));
   }
-  .mo-fab__secondary-container:hover {
+  :where(.mo-fab, .mo-extended-fab).mo-is-secondary-container:hover {
     background: var(
       --mo-comp-fab-secondary-container-hover,
       color-mix(
@@ -189,7 +189,7 @@
       )
     );
   }
-  .mo-fab__secondary-container:active {
+  :where(.mo-fab, .mo-extended-fab).mo-is-secondary-container:active {
     background: var(
       --mo-comp-fab-secondary-container-pressed,
       var(
@@ -202,11 +202,11 @@
       )
     );
   }
-  .mo-fab__tertiary-container {
+  :where(.mo-fab, .mo-extended-fab).mo-is-tertiary-container {
     background: var(--mo-comp-fab-tertiary-container-surface, var(--mo-sys-color-tertiary-container));
     color: var(--mo-comp-fab-tertiary-container-text, var(--mo-sys-color-on-tertiary-container));
   }
-  .mo-fab__tertiary-container:hover {
+  :where(.mo-fab, .mo-extended-fab).mo-is-tertiary-container:hover {
     background: var(
       --mo-comp-fab-tertiary-container-hover,
       color-mix(
@@ -216,7 +216,7 @@
       )
     );
   }
-  .mo-fab__tertiary-container:active {
+  :where(.mo-fab, .mo-extended-fab).mo-is-tertiary-container:active {
     background: var(
       --mo-comp-fab-tertiary-container-pressed,
       var(
@@ -245,7 +245,7 @@
       padding var(--mo-sys-motion-spring-default-spatial),
       opacity var(--mo-sys-motion-spring-default-effects);
   }
-  .mo-extended-fab__medium > .mo-extended-fab__label {
+  :where(.mo-extended-fab).mo-is-medium > .mo-extended-fab__label {
     max-width: 20rem;
     padding-left: var(--mo-comp-fab-medium-gap, 0.75rem);
     font-size: var(--mo-comp-fab-medium-label-font-size, var(--mo-sys-typescale-title-large-size));
@@ -253,7 +253,7 @@
     font-weight: var(--mo-comp-fab-medium-label-weight, var(--mo-sys-typescale-title-large-weight));
     letter-spacing: var(--mo-comp-fab-medium-label-letter-spacing, var(--mo-sys-typescale-title-large-tracking));
   }
-  .mo-extended-fab__large > .mo-extended-fab__label {
+  :where(.mo-extended-fab).mo-is-large > .mo-extended-fab__label {
     max-width: 20rem;
     padding-left: var(--mo-comp-fab-large-gap, 1rem);
     font-size: var(--mo-comp-fab-large-label-font-size, var(--mo-sys-typescale-headline-small-size));

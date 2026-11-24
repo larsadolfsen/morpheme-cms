@@ -217,9 +217,7 @@ export default function CommunicationParts() {
             </div>
             <div className="mo-editor-comm-tooltip-action" {...named(eg(3))}>
               <SiteTooltip subhead={say.cancelHeading} supportingText={say.cancelText} action={{ label: say.readMore, href: '' }} open>
-                <SiteButton kind="outlined" size="small">
-                  {say.cancelHeading}
-                </SiteButton>
+                <SiteButton kind="outlined">{say.cancelHeading}</SiteButton>
               </SiteTooltip>
             </div>
           </div>

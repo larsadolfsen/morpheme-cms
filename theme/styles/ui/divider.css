@@ -1,6 +1,6 @@
 /*
   Dividers (Divider.tsx, dividerClass; m3.material.io/components/divider): .mo-divider, an <hr>, from edge to edge, with
-  .mo-divider__inset (in from the start) or .mo-divider__middle-inset (in from both sides), and .mo-divider__vertical (top to
+  .mo-divider.mo-is-inset (in from the start) or .mo-divider.mo-is-middle-inset (in from both sides), and .mo-divider.mo-is-vertical (top to
   bottom, between things side by side).
     --mo-comp-divider-color, --mo-comp-divider-thickness, --mo-comp-divider-inset   the line, and how far in an inset one starts
   Moved here from ui.css with its rules unchanged; imported by base.css right after ui.css, in the same layer. No other rule matches a .mo-divider,
@@ -15,23 +15,23 @@
     border: 0;
     border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-sys-block-line));
   }
-  .mo-divider__inset {
+  :where(.mo-divider).mo-is-inset {
     margin-inline-start: var(--mo-comp-divider-inset, 1rem);
   }
-  .mo-divider__middle-inset {
+  :where(.mo-divider).mo-is-middle-inset {
     margin-inline: var(--mo-comp-divider-inset, 1rem);
   }
-  .mo-divider__vertical {
+  :where(.mo-divider).mo-is-vertical {
     align-self: stretch;
     width: 0;
     height: auto;
     border-top: 0;
     border-inline-start: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-sys-block-line));
   }
-  .mo-divider__vertical.mo-divider__inset {
+  :where(.mo-divider).mo-is-vertical:where(.mo-divider).mo-is-inset {
     margin: var(--mo-comp-divider-inset, 1rem) 0 0;
   }
-  .mo-divider__vertical.mo-divider__middle-inset {
+  :where(.mo-divider).mo-is-vertical:where(.mo-divider).mo-is-middle-inset {
     margin: var(--mo-comp-divider-inset, 1rem) 0;
   }
 }

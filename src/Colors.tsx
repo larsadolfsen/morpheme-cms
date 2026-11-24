@@ -313,7 +313,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
           <Notice
             title={t.colors.pages.title}
             action={
-              <LinkButton kind="outlined" size="small" href={`#${FALLBACK_ROUTE}`}>
+              <LinkButton kind="outlined" href={`#${FALLBACK_ROUTE}`}>
                 {t.colors.pages.showFallback}
               </LinkButton>
             }
@@ -378,7 +378,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                         }),
                     }))}
                   />
-                  <Button kind="outlined" size="small" icon={materialIcon('image')} onClick={fromImage}>
+                  <Button kind="outlined" icon={materialIcon('image')} onClick={fromImage}>
                     {d.fromImage}
                   </Button>
                 </div>
@@ -391,10 +391,8 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                         title={d.fixTitle}
                         action={
                           <div className="mo-editor-settings-chips">
-                            <Button size="small" onClick={fix}>
-                              {d.fix}
-                            </Button>
-                            <Button kind="tonal" size="small" onClick={keep}>
+                            <Button onClick={fix}>{d.fix}</Button>
+                            <Button kind="tonal" onClick={keep}>
                               {d.keep}
                             </Button>
                           </div>
@@ -545,7 +543,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                 })}
               </div>
               <section className="mo-editor-flow-2">
-                <Button kind="outlined" size="small" disabled={isDefault || saving} onClick={() => setColors(defaultColors)}>
+                <Button kind="outlined" disabled={isDefault || saving} onClick={() => setColors(defaultColors)}>
                   {t.colors.standard}
                 </Button>
                 <SupportingText>{t.colors.standardHint}</SupportingText>

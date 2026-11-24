@@ -41,7 +41,7 @@ export function BlogRhythmWidget({ settings, editing }: WidgetProps) {
       <p className="mo-editor-caption">{text}</p>
       {due && (
         <div className="mo-editor-widget-action">
-          <LinkButton href={NEW_POST} icon={materialIcon('edit')} kind="tonal" size="small">
+          <LinkButton href={NEW_POST} icon={materialIcon('edit')} kind="tonal">
             {last === null ? t.library.blogRhythmWriteFirst : t.library.blogRhythmWriteNew}
           </LinkButton>
         </div>

@@ -22,13 +22,7 @@ export const chipKinds: ChipKind[] = ['assist', 'filter', 'input', 'suggestion']
 
 /** A chip's classes: its kind's, and evt. elevated (not an input chip), dragged, and with a button that removes it. */
 export const chipClass = (kind: ChipKind = 'assist', { elevated = false, dragged = false, removable = false } = {}) =>
-  [
-    'mo-chip',
-    `mo-chip__${kind}`,
-    elevated && kind !== 'input' && 'mo-is-elevated',
-    dragged && 'mo-chip__dragged',
-    removable && 'mo-chip__removable',
-  ]
+  ['mo-chip', `mo-is-${kind}`, elevated && kind !== 'input' && 'mo-is-elevated', dragged && 'mo-is-dragged', removable && 'mo-is-removable']
     .filter(Boolean)
     .join(' ');
 
@@ -79,7 +73,7 @@ export default function Chip({
   if (removable)
     return (
       <span className={classes} data-selected={selected ? '' : undefined} aria-disabled={disabled || undefined}>
-        <button type="button" className="mo-chip__action" aria-pressed={pressed} disabled={disabled} {...rest}>
+        <button type="button" className="mo-is-action" aria-pressed={pressed} disabled={disabled} {...rest}>
           {content}
         </button>
         <button type="button" className="mo-chip__remove" aria-label={removeLabel} disabled={disabled} onClick={onRemove}>

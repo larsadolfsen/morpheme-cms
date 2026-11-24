@@ -192,11 +192,7 @@ export default function NavigationParts() {
                   leading={back}
                   headline={bar.long}
                   subtitle={bar.subtitle}
-                  trailing={
-                    <SiteButton size="small" icon="calendar-blank">
-                      {say.book}
-                    </SiteButton>
-                  }
+                  trailing={<SiteButton icon="calendar-blank">{say.book}</SiteButton>}
                 />
                 <SiteAppBar
                   {...named(`${bar.kinds[kind]}, ${eg(3)}`)}

@@ -18,21 +18,14 @@ import { Glyph, Svg, iconFile, type IconRef } from '@morphemecms/cms/src/icon';
 import { Link, type ButtonKind } from '@morphemecms/cms/src/standard/view';
 import BusyContent from './BusyContent';
 
-export const buttonSizes = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
+export const buttonSizes = ['xsmall', 'small', 'large', 'xlarge'] as const;
 export type ButtonSize = (typeof buttonSizes)[number];
 export const buttonShapes = ['round', 'square'] as const;
 export type ButtonShape = (typeof buttonShapes)[number];
 
 /** A button's classes: its kind's and, unless it is medium, its size's and, unless it is round, its shape's. */
-export const buttonClass = (kind: ButtonKind = 'filled', size: ButtonSize = 'medium', shape: ButtonShape = 'round') =>
-  [
-    'mo-button',
-    kind === 'text' ? 'mo-button__text' : `mo-is-${kind}`,
-    size !== 'medium' && `mo-button__${size}`,
-    shape !== 'round' && `mo-button__${shape}`,
-  ]
-    .filter(Boolean)
-    .join(' ');
+export const buttonClass = (kind: ButtonKind = 'filled', size: ButtonSize = 'small', shape: ButtonShape = 'round') =>
+  ['mo-button', `mo-is-${kind}`, size !== 'small' && `mo-is-${size}`, shape !== 'round' && `mo-is-${shape}`].filter(Boolean).join(' ');
 
 /** A toggle's icon (a Button's, an IconButton's, a navigation drawer item's): the icon, and the same icon filled while
  * it is on, where the site draws it filled (the theme shows the one of the state it is in: .mo-<part>__unselected-icon,

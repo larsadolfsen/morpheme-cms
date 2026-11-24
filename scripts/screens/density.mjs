@@ -446,7 +446,7 @@ async function checkChipRowFocus(width, height, scheme) {
   if (!rows) problems.push(`${label}: no row that scrolls sideways on /ui/`);
   let checked = 0;
   for (let i = 0; i < rows; i++) {
-    const chips = page.locator('.mo-chip__set-scroll').nth(i).locator('button.mo-chip, a.mo-chip, .mo-chip__action');
+    const chips = page.locator('.mo-chip__set-scroll').nth(i).locator('button.mo-chip, a.mo-chip, .mo-chip > .mo-is-action');
     const count = await chips.count();
     if (count < 2) continue;
     await chips.first().scrollIntoViewIfNeeded();

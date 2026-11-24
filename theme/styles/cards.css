@@ -88,20 +88,20 @@
   /* The contained layouts: within the text's width and as high as the theme says, what is in each item filling its
      mask with the item's corners; multi-browse's and a hero's masks moved and clipped by carouselLayout.ts (before it
      runs, every item as wide as a large one). */
-  .mo-carousel__contained .mo-carousel__items {
+  :where(.mo-carousel).mo-is-contained .mo-carousel__items {
     height: var(--mo-comp-carousel-height, 14rem);
     gap: var(--mo-comp-carousel-contained-gap, 0.5rem);
     margin: 0;
     padding: 0;
     scroll-padding-inline: 0;
   }
-  .mo-carousel__contained .mo-carousel__item {
+  :where(.mo-carousel).mo-is-contained .mo-carousel__item {
     width: var(--mo-comp-carousel-item-width, 75%);
   }
-  .mo-carousel__multi-browse .mo-carousel__item {
+  :where(.mo-carousel).mo-is-multi-browse .mo-carousel__item {
     width: var(--mo-comp-carousel-item-width, var(--mo-comp-carousel-large-item-width));
   }
-  .mo-carousel__hero .mo-carousel__item {
+  :where(.mo-carousel).mo-is-hero .mo-carousel__item {
     width: var(
       --mo-comp-carousel-item-width,
       calc(100% - var(--mo-comp-carousel-small-item-max-width) - var(--mo-comp-carousel-contained-gap, 0.5rem))
@@ -125,23 +125,23 @@
     object-fit: cover;
   }
   /* Full-screen: one item at a time, as wide as the carousel, out to a phone's edges without corners there. */
-  .mo-carousel__full-screen .mo-carousel__items {
+  :where(.mo-carousel).mo-is-full-screen .mo-carousel__items {
     height: var(--mo-comp-carousel-full-screen-height, min(75svh, 36rem));
     gap: 0;
     margin: 0 calc(-1 * var(--mo-comp-carousel-bleed, 0rem));
   }
-  .mo-carousel__full-screen .mo-carousel__item {
+  :where(.mo-carousel).mo-is-full-screen .mo-carousel__item {
     width: 100%;
     scroll-snap-stop: always;
   }
   @media (width < 37.5rem) {
-    .mo-carousel__full-screen .mo-carousel__item-mask {
+    :where(.mo-carousel).mo-is-full-screen .mo-carousel__item-mask {
       border-radius: var(--mo-comp-carousel-full-screen-radius, 0);
       clip-path: none;
     }
   }
   @media (width >= 37.5rem) {
-    .mo-carousel__full-screen .mo-carousel__items {
+    :where(.mo-carousel).mo-is-full-screen .mo-carousel__items {
       margin: 0;
     }
   }

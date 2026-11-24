@@ -3,7 +3,7 @@
    (docs/superpowers/plans/2026-11-16-css-split.md). */
 @layer components {
   /* The bar at the bottom of a phone's screen (a promotion: ActionBar.astro), a standard bottom sheet
-     (.mo-bottom-sheet__standard, ui.css: fixed at the bottom, its surface, corners and shadow) with a docked toolbar in it
+     (.mo-sheet__standard.mo-is-bottom, ui.css: fixed at the bottom, its surface, corners and shadow) with a docked toolbar in it
      (.mo-action-bar__row): the page gets room under its footer, and only the first bar on a page is shown.
      data-hidden: moved down out of sight (while the buttons at the top of the front page are on screen, the script in
      Base.astro). Not from the medium width (a tablet in portrait, a computer): the display rules name both classes, so
@@ -14,7 +14,7 @@
   .mo-action-bar[data-hidden] {
     transform: translateY(100%);
   }
-  .mo-bottom-sheet__standard.mo-action-bar ~ .mo-bottom-sheet__standard.mo-action-bar {
+  :where(.mo-sheet__standard).mo-is-bottom.mo-action-bar ~ :where(.mo-sheet__standard).mo-is-bottom.mo-action-bar {
     display: none;
   }
   @media (width < 37.5rem) {
@@ -23,16 +23,16 @@
     }
   }
   @media (width >= 37.5rem) {
-    .mo-bottom-sheet__standard.mo-action-bar {
+    :where(.mo-sheet__standard).mo-is-bottom.mo-action-bar {
       display: none;
     }
   }
   /* The sheet's room round what is in it is the row's (the toolbar's), which has no surface of its own (the sheet's shows),
      no line over it and no blur behind it. */
-  .mo-bottom-sheet__standard:is(.mo-action-bar, :where(.mo-action-bar).mo-is-drawn) {
+  :where(.mo-sheet__standard).mo-is-bottom:is(.mo-action-bar, :where(.mo-action-bar).mo-is-drawn) {
     padding-bottom: 0;
   }
-  .mo-bottom-sheet__standard:is(.mo-action-bar, :where(.mo-action-bar).mo-is-drawn) > .mo-bottom-sheet__content {
+  :where(.mo-sheet__standard).mo-is-bottom:is(.mo-action-bar, :where(.mo-action-bar).mo-is-drawn) > .mo-sheet__content {
     overflow: visible;
     padding: 0;
   }
@@ -60,7 +60,7 @@
   /* The editor's drawing of one (defaults/popup.tsx): the same sheet, in its place in the editor's frame
      instead of fixed at the bottom of the screen, as wide as a phone, with the sheet's own corners and shadow. It is a
      wide="sheet" there (the editor is wider than the medium width), the selector names data-wide to win over that. */
-  .mo-bottom-sheet__standard:where(.mo-action-bar).mo-is-drawn[data-wide] {
+  :where(.mo-sheet__standard).mo-is-bottom:where(.mo-action-bar).mo-is-drawn[data-wide] {
     position: static;
     width: 100%;
     max-width: 24rem;

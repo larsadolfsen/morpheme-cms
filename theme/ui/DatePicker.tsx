@@ -91,7 +91,7 @@ export default function DatePicker({
       <input type="hidden" name={name} defaultValue={dateOf(value) ? value : ''} data-date-picker-value="0" />
       {range && <input type="hidden" name={endName} defaultValue={dateOf(endValue) ? endValue : ''} data-date-picker-value="1" />}
       <dialog
-        className={modal ? 'mo-dialog__modal mo-date-picker__dialog' : 'mo-date-picker__popover'}
+        className={modal ? 'mo-is-modal mo-is-dialog' : 'mo-date-picker__popover'}
         aria-label={title}
         data-date-picker-dialog=""
       ></dialog>

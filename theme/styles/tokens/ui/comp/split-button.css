@@ -7,12 +7,12 @@
   }
 }
 @layer components {
-  .mo-split-button > .mo-button__large {
+  .mo-split-button > :where(.mo-button).mo-is-large {
     --mo-comp-split-button-inner: var(--mo-comp-split-button-large-inner-corner-corner-size, calc(var(--mo-sys-block-radius-small) / 2));
   }
 }
 @layer components {
-  .mo-split-button > .mo-button__xlarge {
+  .mo-split-button > :where(.mo-button).mo-is-xlarge {
     --mo-comp-split-button-inner: var(
       --mo-comp-split-button-xlarge-inner-corner-corner-size,
       calc(var(--mo-sys-block-radius-small) * 0.75)

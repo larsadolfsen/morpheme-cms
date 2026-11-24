@@ -32,7 +32,7 @@
       "value": 280,
       "unit": "dp",
       "op": "eq",
-      "selector": ".mo-dialog__modal",
+      "selector": ".mo-is-modal",
       "measure": "min-width",
       "url": "https://m3.material.io/components/dialogs/specs",
       "quote": "Container width | Min 280dp; Max 560dp"
@@ -44,7 +44,7 @@
       "value": 560,
       "unit": "dp",
       "op": "eq",
-      "selector": ".mo-dialog__modal",
+      "selector": ".mo-is-modal",
       "measure": "max-width",
       "url": "https://m3.material.io/components/dialogs/specs",
       "quote": "Container width | Min 280dp; Max 560dp"

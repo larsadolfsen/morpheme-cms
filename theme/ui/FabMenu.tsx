@@ -17,7 +17,7 @@ export const fabMenuKinds = ['primary', 'secondary', 'tertiary'] as const;
 export type FabMenuKind = (typeof fabMenuKinds)[number];
 
 /** A FAB menu's classes (the whole, with its colour set: its FAB and its actions have the FABs' classes). */
-export const fabMenuClass = (kind: FabMenuKind = 'primary') => `mo-fab-menu mo-fab-menu__${kind}`;
+export const fabMenuClass = (kind: FabMenuKind = 'primary') => `mo-fab-menu mo-is-${kind}`;
 
 export default function FabMenu({
   icon,

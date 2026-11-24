@@ -32,8 +32,8 @@ test('declaredTokens reads declarations, not uses', () => {
 });
 
 test('selectorClasses reads selectors of stylesheets only, not comments', () => {
-  const c = selectorClasses({ 'a.css': '/* .mo-gone */ .mo-fab__large:hover, .mo-card {}', 'b.tsx': 'className="mo-code"' });
-  assert.deepEqual([...c.keys()].sort(), ['mo-card', 'mo-fab__large']);
+  const c = selectorClasses({ 'a.css': '/* .mo-gone */ .mo-fab.mo-is-large:hover, .mo-card {}', 'b.tsx': 'className="mo-code"' });
+  assert.deepEqual([...c.keys()].sort(), ['mo-card', 'mo-fab', 'mo-is-large']);
 });
 
 test('componentOf and inList', () => {

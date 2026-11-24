@@ -95,7 +95,7 @@
     margin-top: 1rem;
   }
   /* Text buttons under a row's text (accordion/Accordion.tsx, accordion/PageRow.tsx): the same shift, so their labels line up with the text above. */
-  .mo-block-accordion__row-links:has(> .mo-button__text) {
+  .mo-block-accordion__row-links:has(> :where(.mo-button).mo-is-text) {
     margin-inline-start: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
     column-gap: 0.5rem;
     margin-block-end: calc((1.25rem - var(--mo-comp-button-medium-container-height, 3rem)) / 2);

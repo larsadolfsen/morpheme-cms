@@ -16,6 +16,7 @@ import {
   SiteTextField,
   buttonShapes,
   buttonSizes,
+  iconButtonSizes,
   cardKinds,
   chipKinds,
   chipSetLayouts,
@@ -212,7 +213,7 @@ function ButtonParts() {
             </PartSub>
             <PartSub name={screens.rows.sizes}>
               <div className={row}>
-                {buttonSizes.map((size) => (
+                {iconButtonSizes.map((size) => (
                   <SiteIconButton
                     key={size}
                     kind="filled"
@@ -226,7 +227,7 @@ function ButtonParts() {
             </PartSub>
             <PartSub name={`${screens.rows.sizes}, ${screens.shapes.square}`}>
               <div className={row}>
-                {buttonSizes.map((size) => (
+                {iconButtonSizes.map((size) => (
                   <SiteIconButton
                     key={size}
                     kind="tonal"

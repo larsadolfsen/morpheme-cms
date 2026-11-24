@@ -36,7 +36,7 @@ export function updateSlider(root: HTMLElement, moved?: EventTarget | null) {
   const values = inputs.map((i) => Number(i.value));
   const min = Number(first.min);
   const max = Number(first.max);
-  const centered = root.classList.contains('mo-slider__centered');
+  const centered = root.classList.contains('mo-is-centered');
   const { start, end } = sliderPlace(values, min, max, centered);
   root.style.setProperty('--mo-comp-slider-start', String(start));
   root.style.setProperty('--mo-comp-slider-end', String(end));

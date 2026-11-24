@@ -6,7 +6,7 @@
 */
 @layer components {
   /* A bottom sheet. */
-  .mo-bottom-sheet {
+  :where(.mo-sheet).mo-is-bottom {
     position: fixed;
     inset: auto 0 var(--mo-comp-bottom-sheet-keyboard-inset, 0px) 0;
     width: 100%;
@@ -21,7 +21,7 @@
     overflow: visible;
   }
   /* A menu on a phone, in a sheet from the bottom (the editor's): its items on the sheet, without a surface of its own. */
-  .mo-bottom-sheet .mo-menu {
+  :where(.mo-sheet).mo-is-bottom .mo-menu {
     width: auto;
     border-radius: 0;
     background: none;
@@ -29,32 +29,32 @@
   }
   /* The one rule for how high a bottom sheet starts on a phone (Material 3: a sheet opens at most half-expanded; the rest
      is reached by dragging it up, to --mo-comp-bottom-sheet-top-gap from the top, and the content scrolls inside): the editor's
-     sheets (.mo-bottom-sheet__fit and .mo-bottom-sheet__full) and, through modalStartHeight (lib/sheet-stops.mjs), a site's modal
+     sheets (.mo-sheet__fit and .mo-sheet__full) and, through modalStartHeight (lib/sheet-stops.mjs), a site's modal
      ones all start at --mo-comp-bottom-sheet-start-max-height at most. */
   /* As high as what is in it (bottomSheetFitClass: the editor's sheets), at most --mo-comp-bottom-sheet-start-max-height. */
-  .mo-bottom-sheet__fit {
+  .mo-sheet__fit {
     height: fit-content;
     max-height: min(var(--mo-comp-bottom-sheet-start-max-height, 50dvh), 56rem, var(--mo-comp-bottom-sheet-visual-height, 100dvh));
   }
-  .mo-bottom-sheet__fit > .mo-bottom-sheet__container {
+  .mo-sheet__fit > :where(.mo-sheet__container).mo-is-bottom {
     max-height: inherit;
   }
   /* With the on-screen keyboard up (followKeyboard() in bottomSheetControl.ts) the sheet ends at the keyboard's top
      (--mo-comp-bottom-sheet-keyboard-inset), is at most as high as what is visible (--mo-comp-bottom-sheet-visual-height, the content scrolls inside) and has no
      safe-area space under it: the keyboard covers it. */
-  .mo-bottom-sheet[data-keyboard] > .mo-bottom-sheet__container {
+  :where(.mo-sheet).mo-is-bottom[data-keyboard] > :where(.mo-sheet__container).mo-is-bottom {
     padding-bottom: 0;
   }
   /* Starts at --mo-comp-bottom-sheet-start-max-height, dragged up to as high as the screen allows (bottomSheetFullClass: a whole
      page in it, the editor's preview). */
-  .mo-bottom-sheet__full {
+  .mo-sheet__full {
     max-width: none;
     height: min(var(--mo-comp-bottom-sheet-start-max-height, 50dvh), var(--mo-comp-bottom-sheet-visual-height, 100dvh));
   }
-  .mo-bottom-sheet::backdrop {
+  :where(.mo-sheet).mo-is-bottom::backdrop {
     background: var(--mo-comp-bottom-sheet-scrim, color-mix(in srgb, var(--mo-sys-block-text) 50%, transparent));
   }
-  .mo-bottom-sheet__container {
+  :where(.mo-sheet__container).mo-is-bottom {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -65,7 +65,7 @@
     box-shadow: var(--mo-comp-bottom-sheet-shadow, var(--mo-sys-elevation-level1-shadow));
     padding-bottom: env(safe-area-inset-bottom);
   }
-  .mo-bottom-sheet__drag-handle {
+  .mo-sheet__drag-handle {
     display: flex;
     flex-shrink: 0;
     justify-content: center;
@@ -73,12 +73,12 @@
     cursor: grab;
     touch-action: none;
   }
-  button.mo-bottom-sheet__drag-handle {
+  button.mo-sheet__drag-handle {
     width: 100%;
     border: 0;
     background: transparent;
   }
-  .mo-bottom-sheet__drag-handle::before {
+  .mo-sheet__drag-handle::before {
     content: '';
     width: 3rem;
     height: 0.375rem;
@@ -87,13 +87,13 @@
   }
   /* The handle shows its focus by a darker bar, as M3's does: a focus ring is cut off by the sheet's rounded top and
      would show as a coloured line between the handle and the headline. */
-  .mo-bottom-sheet__drag-handle:focus-visible {
+  .mo-sheet__drag-handle:focus-visible {
     outline: none;
   }
-  .mo-bottom-sheet__drag-handle:focus-visible::before {
+  .mo-sheet__drag-handle:focus-visible::before {
     background: var(--mo-comp-bottom-sheet-handle-focus, var(--mo-sys-block-text));
   }
-  .mo-bottom-sheet__header {
+  :where(.mo-is-bottom) .mo-sheet__header {
     display: flex;
     flex-shrink: 0;
     align-items: center;
@@ -102,43 +102,43 @@
     padding: 0 var(--mo-sys-grid-margin, 1rem) 0.75rem;
     border-bottom: 1px solid var(--mo-comp-bottom-sheet-line, var(--mo-sys-block-line));
   }
-  .mo-bottom-sheet__heading {
+  .mo-sheet__heading {
     min-width: 0;
   }
-  .mo-bottom-sheet__actions {
+  :where(.mo-is-bottom) .mo-sheet__actions {
     display: flex;
     flex-shrink: 0;
     align-items: center;
     margin-inline-start: auto;
   }
-  .mo-bottom-sheet__headline {
+  :where(.mo-is-bottom) .mo-sheet__headline {
     margin: 0;
     font-size: var(--mo-sys-typescale-headline-small-size);
     line-height: var(--mo-sys-typescale-headline-small-line-height);
     font-weight: var(--mo-sys-typescale-headline-small-weight);
     letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
   }
-  .mo-bottom-sheet__supporting-text,
-  .mo-bottom-sheet__peek {
+  .mo-sheet__supporting-text,
+  .mo-sheet__peek {
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
-  .mo-bottom-sheet__supporting-text {
+  .mo-sheet__supporting-text {
     margin: 0;
     color: var(--mo-sys-block-muted);
   }
-  .mo-bottom-sheet__peek {
+  .mo-sheet__peek {
     flex: none;
     padding: 0.75rem var(--mo-sys-grid-margin, 1rem) 1rem;
   }
-  .mo-bottom-sheet__content {
+  :where(.mo-is-bottom) .mo-sheet__content {
     position: relative;
     flex: 1;
     min-height: 0;
   }
-  .mo-bottom-sheet__content > iframe {
+  :where(.mo-is-bottom) .mo-sheet__content > iframe {
     position: relative;
     display: block;
     width: 100%;
@@ -148,22 +148,22 @@
   }
   /* A modal sheet that bottomSheet() sizes (on a phone): the content scrolls only at full height; below it a touch on the
      content, also over a frame, pulls the sheet. */
-  .mo-bottom-sheet__container[data-sized] > :is(.mo-bottom-sheet__drag-handle, .mo-bottom-sheet__header) {
+  :where(.mo-sheet__container).mo-is-bottom[data-sized] > :is(.mo-sheet__drag-handle, .mo-sheet__header) {
     touch-action: none;
   }
-  .mo-bottom-sheet__container[data-sized] > .mo-bottom-sheet__content {
+  :where(.mo-sheet__container).mo-is-bottom[data-sized] > .mo-sheet__content {
     overflow-y: auto;
     overscroll-behavior: contain;
   }
-  .mo-bottom-sheet__container[data-sized]:not([data-full]) > .mo-bottom-sheet__content {
+  :where(.mo-sheet__container).mo-is-bottom[data-sized]:not([data-full]) > .mo-sheet__content {
     overflow: hidden;
     touch-action: none;
   }
-  .mo-bottom-sheet__container[data-sized]:not([data-full]) > .mo-bottom-sheet__content > iframe {
+  :where(.mo-sheet__container).mo-is-bottom[data-sized]:not([data-full]) > .mo-sheet__content > iframe {
     pointer-events: none;
   }
   /* Over the frame while it loads, or in its place: in the middle, scrolling when it is long. */
-  .mo-bottom-sheet__cover {
+  .mo-sheet__cover {
     position: absolute;
     inset: 0;
     display: grid;
@@ -175,10 +175,10 @@
     color: var(--mo-sys-block-muted);
     text-align: center;
   }
-  .mo-bottom-sheet__cover[hidden] {
+  .mo-sheet__cover[hidden] {
     display: none;
   }
-  .mo-bottom-sheet__footer {
+  .mo-sheet__footer {
     flex-shrink: 0;
     margin: 0;
     padding: 0.75rem var(--mo-sys-grid-margin, 1rem);
@@ -195,30 +195,44 @@
      the screen: the rules below, which the other two values keep out of with :where(:not(:has(...))) so their
      specificity stays what it was. 'side-sheet' and 'sheet' follow after the standard sheet's rules. */
   @media (width >= 37.5rem) {
-    .mo-bottom-sheet:where(:not(:has(> [data-wide='side-sheet'], > [data-wide='sheet']))) {
+    :where(.mo-sheet).mo-is-bottom:where(:not(:has(> [data-wide='side-sheet'], > [data-wide='sheet']))) {
       inset: 0;
       height: min(88dvh, 52rem);
       margin: auto;
     }
     /* A modal one only: a standard one stays at the bottom. */
-    .mo-bottom-sheet__container:where(:not(.mo-bottom-sheet__standard, [data-wide='side-sheet'], [data-wide='sheet'])) {
+    :where(.mo-sheet__container).mo-is-bottom:where(
+        :not(:where(.mo-sheet__standard).mo-is-bottom, [data-wide='side-sheet'], [data-wide='sheet'])
+      ) {
       border-radius: var(--mo-comp-sheet-bottom-docked-container-shape, var(--mo-sys-block-radius));
       box-shadow: var(--mo-comp-bottom-sheet-shadow-large, var(--mo-sys-elevation-level1-shadow));
       padding-bottom: 0;
     }
-    :where(.mo-bottom-sheet__container:not(.mo-bottom-sheet__standard, [data-wide='side-sheet'], [data-wide='sheet']))
-      > .mo-bottom-sheet__drag-handle {
+    :where(
+        :where(.mo-sheet__container).mo-is-bottom:not(
+            :where(.mo-sheet__standard).mo-is-bottom,
+            [data-wide='side-sheet'],
+            [data-wide='sheet']
+          )
+      )
+      > .mo-sheet__drag-handle {
       display: none;
     }
-    .mo-bottom-sheet__fit {
+    .mo-sheet__fit {
       max-height: min(80dvh, 52rem);
     }
-    .mo-bottom-sheet__full {
+    .mo-sheet__full {
       width: min(92vw, 80rem);
       height: 90dvh;
     }
-    :where(.mo-bottom-sheet__container:not(.mo-bottom-sheet__standard, [data-wide='side-sheet'], [data-wide='sheet']))
-      > .mo-bottom-sheet__header {
+    :where(
+        :where(.mo-sheet__container).mo-is-bottom:not(
+            :where(.mo-sheet__standard).mo-is-bottom,
+            [data-wide='side-sheet'],
+            [data-wide='sheet']
+          )
+      )
+      > .mo-sheet__header {
       padding-top: 1rem;
     }
   }
@@ -226,7 +240,7 @@
   /* A standard bottom sheet: at the bottom of the screen with the page usable behind it, no scrim; as high as the state
      it rests in (data-state), its height followed by bottomSheetControl.ts while it moves. 100cqh is the screen's height, or
      the frame's that is a size container (the editor's drawing, which holds it with contain: layout). */
-  .mo-bottom-sheet__standard {
+  :where(.mo-sheet__standard).mo-is-bottom {
     position: fixed;
     inset: auto 0 var(--mo-comp-bottom-sheet-keyboard-inset, 0px);
     z-index: 30;
@@ -238,11 +252,11 @@
     color: var(--mo-sys-block-text);
   }
   /* With the on-screen keyboard up (liftAboveKeyboard) it ends at the keyboard's top, with no safe-area space under it. */
-  .mo-bottom-sheet__standard[data-keyboard] {
+  :where(.mo-sheet__standard).mo-is-bottom[data-keyboard] {
     padding-bottom: 0;
   }
   /* The handle's button is Material 3's touch target, 3rem (48px) high, the bar centred in it. */
-  .mo-bottom-sheet__standard > .mo-bottom-sheet__drag-handle {
+  :where(.mo-sheet__standard).mo-is-bottom > .mo-sheet__drag-handle {
     align-items: center;
     min-height: 3rem;
     padding: 0;
@@ -252,49 +266,49 @@
     color: inherit;
     font: inherit;
   }
-  .mo-bottom-sheet__standard > .mo-bottom-sheet__header {
+  :where(.mo-sheet__standard).mo-is-bottom > .mo-sheet__header {
     cursor: grab;
     touch-action: none;
   }
   /* Without a handle the header is at the top. */
-  .mo-bottom-sheet__standard > .mo-bottom-sheet__header:first-child {
+  :where(.mo-sheet__standard).mo-is-bottom > .mo-sheet__header:first-child {
     padding-top: 1rem;
   }
-  .mo-bottom-sheet__standard > .mo-bottom-sheet__content {
+  :where(.mo-sheet__standard).mo-is-bottom > .mo-sheet__content {
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 1rem var(--mo-sys-grid-margin, 1rem);
   }
-  .mo-bottom-sheet__standard[data-state='collapsed'] > :is(.mo-bottom-sheet__content, .mo-bottom-sheet__footer) {
+  :where(.mo-sheet__standard).mo-is-bottom[data-state='collapsed'] > :is(.mo-sheet__content, .mo-sheet__footer) {
     display: none;
   }
-  .mo-bottom-sheet__standard[data-state='collapsed'] > .mo-bottom-sheet__header {
+  :where(.mo-sheet__standard).mo-is-bottom[data-state='collapsed'] > .mo-sheet__header {
     border-bottom-color: transparent;
   }
   /* The resize button's caret: up at the lowest stop, down above it. The collapse button shows only at full height. */
-  [data-bottom-sheet-resize][aria-expanded='true'] > .mo-bottom-sheet__resize-up,
-  [data-bottom-sheet-resize]:not([aria-expanded='true']) > .mo-bottom-sheet__resize-down {
+  [data-bottom-sheet-resize][aria-expanded='true'] > .mo-sheet__resize-up,
+  [data-bottom-sheet-resize]:not([aria-expanded='true']) > .mo-sheet__resize-down {
     display: none;
   }
-  .mo-bottom-sheet__standard:not([data-full]) [data-bottom-sheet-collapse] {
+  :where(.mo-sheet__standard).mo-is-bottom:not([data-full]) [data-bottom-sheet-collapse] {
     display: none;
   }
-  .mo-bottom-sheet__standard[data-state='half-expanded'] {
+  :where(.mo-sheet__standard).mo-is-bottom[data-state='half-expanded'] {
     max-height: 50cqh;
   }
-  .mo-bottom-sheet__standard[data-state='hidden'] {
+  :where(.mo-sheet__standard).mo-is-bottom[data-state='hidden'] {
     display: none;
   }
-  .mo-bottom-sheet__standard[data-moving] {
+  :where(.mo-sheet__standard).mo-is-bottom[data-moving] {
     user-select: none;
   }
   /* From the medium width a standard sheet becomes what data-wide says (BottomSheet's `wide`; bottomSheetControl.ts does
-     nothing to it then). 'side-sheet': a standard side sheet (.mo-side-sheet__standard's look, through its tokens) at the end
+     nothing to it then). 'side-sheet': a standard side sheet (.mo-sheet__standard.mo-is-side's look, through its tokens) at the end
      of the screen, full height, without handle, resize, collapse and close buttons, and with every part shown whatever
      its state (but hidden stays hidden). 'sheet': stays at the bottom, --mo-comp-bottom-sheet-margin-wide from the sides and the
      top. */
   @media (width >= 37.5rem) {
-    .mo-bottom-sheet__standard[data-wide='side-sheet'] {
+    :where(.mo-sheet__standard).mo-is-bottom[data-wide='side-sheet'] {
       inset-block: 0;
       inset-inline: auto 0;
       width: var(--mo-comp-side-sheet-width, 22.5rem);
@@ -308,37 +322,37 @@
       background: var(--mo-comp-side-sheet-surface, var(--mo-sys-elevation-level0-color));
       box-shadow: none;
     }
-    .mo-bottom-sheet__standard[data-wide='side-sheet'] > .mo-bottom-sheet__drag-handle,
-    .mo-bottom-sheet__standard[data-wide='side-sheet'] [data-bottom-sheet-resize],
-    .mo-bottom-sheet__standard[data-wide='side-sheet'] [data-bottom-sheet-collapse],
-    .mo-bottom-sheet__standard[data-wide='side-sheet'] [data-bottom-sheet-close] {
+    :where(.mo-sheet__standard).mo-is-bottom[data-wide='side-sheet'] > .mo-sheet__drag-handle,
+    :where(.mo-sheet__standard).mo-is-bottom[data-wide='side-sheet'] [data-bottom-sheet-resize],
+    :where(.mo-sheet__standard).mo-is-bottom[data-wide='side-sheet'] [data-bottom-sheet-collapse],
+    :where(.mo-sheet__standard).mo-is-bottom[data-wide='side-sheet'] [data-bottom-sheet-close] {
       display: none;
     }
-    .mo-bottom-sheet__standard[data-wide='side-sheet'] > .mo-bottom-sheet__header {
+    :where(.mo-sheet__standard).mo-is-bottom[data-wide='side-sheet'] > .mo-sheet__header {
       border-bottom-color: transparent;
       cursor: auto;
       touch-action: auto;
     }
-    .mo-bottom-sheet__standard[data-wide='side-sheet'] > .mo-bottom-sheet__content {
+    :where(.mo-sheet__standard).mo-is-bottom[data-wide='side-sheet'] > .mo-sheet__content {
       padding: var(--mo-comp-side-sheet-content-top, 1rem) var(--mo-comp-side-sheet-padding, 1.5rem)
         var(--mo-comp-side-sheet-padding, 1.5rem);
     }
-    .mo-bottom-sheet__standard[data-wide='side-sheet'] > :is(.mo-bottom-sheet__content, .mo-bottom-sheet__footer) {
+    :where(.mo-sheet__standard).mo-is-bottom[data-wide='side-sheet'] > :is(.mo-sheet__content, .mo-sheet__footer) {
       display: revert;
     }
-    .mo-bottom-sheet__standard[data-wide='sheet'] {
+    :where(.mo-sheet__standard).mo-is-bottom[data-wide='sheet'] {
       width: calc(100% - 2 * var(--mo-comp-bottom-sheet-margin-wide, 3.5rem));
     }
-    .mo-bottom-sheet__standard[data-wide='sheet']:not([data-state='half-expanded']) {
+    :where(.mo-sheet__standard).mo-is-bottom[data-wide='sheet']:not([data-state='half-expanded']) {
       max-height: calc(100cqh - var(--mo-comp-bottom-sheet-margin-wide, 3.5rem));
     }
   }
-  /* A modal sheet from the medium width. 'side-sheet': a modal side sheet (.mo-side-sheet__modal's look, through its tokens) at
+  /* A modal sheet from the medium width. 'side-sheet': a modal side sheet (.mo-sheet__modal's look, through its tokens) at
      the end of the screen, full height, over its scrim, without the drag handle; bottomSheet() slides it in from the end.
      'sheet': stays a bottom sheet (with its handle), --mo-comp-bottom-sheet-max-width wide at most and --mo-comp-bottom-sheet-margin-wide
      from the sides and the top; bottomSheet() slides it up. */
   @media (width >= 37.5rem) {
-    .mo-bottom-sheet:has(> [data-wide='side-sheet']) {
+    :where(.mo-sheet).mo-is-bottom:has(> [data-wide='side-sheet']) {
       inset: 0 0 0 auto;
       width: var(--mo-comp-side-sheet-width, 22.5rem);
       max-width: 100%;
@@ -346,16 +360,16 @@
       max-height: none;
       margin: 0;
     }
-    .mo-bottom-sheet:has(> [data-wide='side-sheet']):dir(rtl) {
+    :where(.mo-sheet).mo-is-bottom:has(> [data-wide='side-sheet']):dir(rtl) {
       inset: 0 auto 0 0;
     }
-    .mo-bottom-sheet:has(> [data-wide='side-sheet'])::backdrop {
+    :where(.mo-sheet).mo-is-bottom:has(> [data-wide='side-sheet'])::backdrop {
       background: var(
         --mo-comp-side-sheet-scrim,
         color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent)
       );
     }
-    .mo-bottom-sheet__container:not(.mo-bottom-sheet__standard)[data-wide='side-sheet'] {
+    :where(.mo-sheet__container).mo-is-bottom:not(:where(.mo-sheet__standard).mo-is-bottom)[data-wide='side-sheet'] {
       border-radius: 0;
       border-start-start-radius: var(--mo-comp-sheet-side-docked-container-shape, var(--mo-sys-block-radius));
       border-end-start-radius: var(--mo-comp-sheet-side-docked-container-shape, var(--mo-sys-block-radius));
@@ -363,32 +377,33 @@
       box-shadow: var(--mo-comp-side-sheet-shadow, var(--mo-sys-elevation-level1-shadow));
       padding-bottom: 0;
     }
-    .mo-bottom-sheet__container:not(.mo-bottom-sheet__standard)[data-wide='side-sheet'] > .mo-bottom-sheet__drag-handle {
+    :where(.mo-sheet__container).mo-is-bottom:not(:where(.mo-sheet__standard).mo-is-bottom)[data-wide='side-sheet']
+      > .mo-sheet__drag-handle {
       display: none;
     }
-    .mo-bottom-sheet__container:not(.mo-bottom-sheet__standard)[data-wide='side-sheet'] > .mo-bottom-sheet__header {
+    :where(.mo-sheet__container).mo-is-bottom:not(:where(.mo-sheet__standard).mo-is-bottom)[data-wide='side-sheet'] > .mo-sheet__header {
       border-bottom-color: transparent;
     }
-    /* Both side sheet looks: the header as .mo-side-sheet__header's (its close icon at the standard size, 24 to the glyph from
+    /* Both side sheet looks: the header as .mo-is-side .mo-sheet__header's (its close icon at the standard size, 24 to the glyph from
        the top and end edges, 12 from the headline), the headline in title large, and the actions row of M3's measures. */
-    .mo-bottom-sheet__container[data-wide='side-sheet'] > .mo-bottom-sheet__header {
+    :where(.mo-sheet__container).mo-is-bottom[data-wide='side-sheet'] > .mo-sheet__header {
       gap: 0;
       padding-block: calc(var(--mo-comp-side-sheet-padding, 1.5rem) - var(--mo-comp-side-sheet-icon-inset)) 0;
       padding-inline: var(--mo-comp-side-sheet-padding, 1.5rem)
         calc(var(--mo-comp-side-sheet-padding, 1.5rem) - var(--mo-comp-side-sheet-icon-inset));
     }
-    .mo-bottom-sheet__container[data-wide='side-sheet'] .mo-bottom-sheet__headline {
+    :where(.mo-sheet__container).mo-is-bottom[data-wide='side-sheet'] .mo-sheet__headline {
       font-size: var(--mo-comp-side-sheet-headline-size, var(--mo-sys-typescale-title-large-size));
       font-weight: var(--mo-comp-side-sheet-headline-weight, var(--mo-sys-typescale-title-large-weight));
       line-height: var(--mo-sys-typescale-title-large-line-height);
       letter-spacing: var(--mo-sys-typescale-title-large-tracking);
     }
-    .mo-bottom-sheet__container[data-wide='side-sheet'] > .mo-bottom-sheet__footer {
+    :where(.mo-sheet__container).mo-is-bottom[data-wide='side-sheet'] > .mo-sheet__footer {
       min-height: 4.5rem;
       padding: 1rem var(--mo-comp-side-sheet-padding, 1.5rem) max(var(--mo-comp-side-sheet-padding, 1.5rem), env(safe-area-inset-bottom));
       text-align: start;
     }
-    .mo-bottom-sheet:has(> [data-wide='sheet']) {
+    :where(.mo-sheet).mo-is-bottom:has(> [data-wide='sheet']) {
       width: calc(100% - 2 * var(--mo-comp-bottom-sheet-margin-wide, 3.5rem));
       max-width: var(--mo-comp-bottom-sheet-max-width, 40rem);
       max-height: calc(100dvh - var(--mo-comp-bottom-sheet-margin-wide, 3.5rem));

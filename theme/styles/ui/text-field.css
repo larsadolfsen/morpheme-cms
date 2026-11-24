@@ -2,8 +2,8 @@
 /*
   Text fields (TextField.tsx, textFieldClass, and textField.script.ts with textFieldUpdate.ts for what it does on the
   site): .mo-text-field with its kind, .mo-is-outlined or .mo-is-filled, .mo-is-error when what is written
-  is wrong and .mo-text-field__multiline with several lines (.mo-has-leading-icon with an icon before what is
-  written, .mo-text-field__without-label with no name in the field); in it the field, .mo-text-field__container (its surface
+  is wrong and .mo-text-field.mo-is-multiline with several lines (.mo-has-leading-icon with an icon before what is
+  written, .mo-text-field.mo-is-without-label with no name in the field); in it the field, .mo-text-field__container (its surface
   and edge), with in a row the icon before (.mo-text-field__leading-icon), the prefix (.mo-text-field__prefix, shown once the
   name has moved up), the <input> or <textarea> (.mo-text-field__input; [data-text-field-grow] growing with the text), its
   name drawn in the field (.mo-text-field__label, moving above what is written; none when the field only has a
@@ -13,7 +13,7 @@
   .mo-text-field__supporting-row with the line (.mo-text-field__supporting, what is wrong with it in .mo-is-error) and the
   counter (.mo-text-field__counter; .mo-text-field__counter-over past the field's limit). A button or a link that is tapped to choose (the editor's choice from a list) can be
   the .mo-text-field__input (textFieldInputClass) in the container; with aria-expanded while its menu is open (its edge and name in the accent,
-  its arrow up), and in .mo-text-field__small a small box as wide as what is chosen. A read-only field ([readonly]) looks as an enabled one; with the focus its edge is the
+  its arrow up), and in .mo-text-field.mo-is-small a small box as wide as what is chosen. A read-only field ([readonly]) looks as an enabled one; with the focus its edge is the
   line's colour.
     --mo-comp-filled-text-field-container-height, --mo-comp-text-field-padding, --mo-comp-text-field-radius, --mo-comp-text-field-font-size   the field
     --text-field-<kind>-surface, -line, -hover-line, -focus-line   each kind's colours and edge (resting, pointed at,
@@ -77,7 +77,7 @@
     cursor: default;
   }
   /* A small box (TextFieldButton's size="small"): as wide as what is chosen, for a row's choice (SettingRow). */
-  .mo-text-field__small {
+  :where(.mo-text-field).mo-is-small {
     width: max-content;
     max-width: 100%;
   }
@@ -288,7 +288,7 @@
   /* Shown once the name has moved up (or with no name in the field). */
   .mo-text-field__container:has(> .mo-text-field__input:is(:focus, :not(:placeholder-shown)))
     > :is(.mo-text-field__prefix, .mo-text-field__suffix),
-  .mo-text-field__without-label :is(.mo-text-field__prefix, .mo-text-field__suffix) {
+  :where(.mo-text-field).mo-is-without-label :is(.mo-text-field__prefix, .mo-text-field__suffix) {
     opacity: 1;
   }
   /* The clear button only once something is written; the error's icon only while the field is wrong, in place of the
@@ -327,22 +327,22 @@
 
   /* Several lines: what is written from the top, the icons by its first line; growing with the text, or a fixed number
      of rows that scroll. */
-  .mo-text-field__multiline .mo-text-field__container {
+  :where(.mo-text-field).mo-is-multiline .mo-text-field__container {
     align-items: flex-start;
     border-radius: min(
       var(--mo-comp-text-field-radius, var(--mo-sys-block-control-radius)),
       var(--mo-comp-text-field-multiline-radius, var(--mo-sys-block-radius))
     );
   }
-  .mo-text-field__multiline .mo-text-field__input {
+  :where(.mo-text-field).mo-is-multiline .mo-text-field__input {
     padding-block: calc((var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) - 1lh) / 2);
     resize: none;
   }
-  .mo-text-field__multiline .mo-text-field__input[data-text-field-grow] {
+  :where(.mo-text-field).mo-is-multiline .mo-text-field__input[data-text-field-grow] {
     field-sizing: content;
     overflow: hidden;
   }
-  .mo-text-field__multiline :is(.mo-text-field__leading-icon, .mo-text-field__trailing-icon) {
+  :where(.mo-text-field).mo-is-multiline :is(.mo-text-field__leading-icon, .mo-text-field__trailing-icon) {
     margin-top: calc(
       (
           var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) -
@@ -351,10 +351,10 @@
         2
     );
   }
-  .mo-text-field__multiline :is(.mo-text-field__prefix, .mo-text-field__suffix) {
+  :where(.mo-text-field).mo-is-multiline :is(.mo-text-field__prefix, .mo-text-field__suffix) {
     margin-top: calc((var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) - 1lh) / 2);
   }
-  .mo-text-field__multiline .mo-text-field__trailing-action {
+  :where(.mo-text-field).mo-is-multiline .mo-text-field__trailing-action {
     margin-top: calc(
       (
           var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem)) -

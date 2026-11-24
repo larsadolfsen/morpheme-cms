@@ -134,7 +134,7 @@ export default function BrandForm({ env }: { env: Env }) {
             <span className="mo-editor-brand-logo-name">{siteName}</span>
           </div>
           <div className="mo-editor-brand-actions">
-            <Button kind="outlined" size="small" disabled={saving} onClick={newLogo}>
+            <Button kind="outlined" disabled={saving} onClick={newLogo}>
               {t.company.brand.newLogo}
             </Button>
           </div>
@@ -151,10 +151,10 @@ export default function BrandForm({ env }: { env: Env }) {
             className={`mo-keep mo-editor-brand-icon ${drawing ? 'mo-editor-brand-icon-drawing' : ''}`}
           />
           <div className="mo-editor-brand-actions">
-            <Button kind="outlined" size="small" disabled={saving || drawing} onClick={async () => newIcon(await pick(), false)}>
+            <Button kind="outlined" disabled={saving || drawing} onClick={async () => newIcon(await pick(), false)}>
               {t.company.brand.newIcon}
             </Button>
-            <Button kind="outlined" size="small" disabled={saving || drawing || !loaded} onClick={iconFromLogo}>
+            <Button kind="outlined" disabled={saving || drawing || !loaded} onClick={iconFromLogo}>
               {t.company.brand.iconFromLogo}
             </Button>
           </div>

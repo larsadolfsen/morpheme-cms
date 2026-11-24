@@ -19,7 +19,7 @@
       var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-shadow));
   }
   /* A modal dialog: in the middle of the screen over the scrim, coming up a little as it opens. */
-  .mo-dialog__modal {
+  :where(dialog).mo-is-modal {
     width: calc(100% - 2rem);
     max-width: var(--mo-comp-dialog-max-width, 28rem);
     margin: auto;
@@ -29,20 +29,20 @@
     color: inherit;
   }
   /* The dialog itself has the focus when it opens (dialogFocus.ts), so no control looks chosen: no ring on the container. */
-  .mo-dialog__modal:focus {
+  :where(dialog).mo-is-modal:focus {
     outline: none;
   }
-  .mo-dialog__modal::backdrop {
+  :where(dialog).mo-is-modal::backdrop {
     background: var(
       --mo-comp-dialog-scrim,
       color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent)
     );
   }
   @media (prefers-reduced-motion: no-preference) {
-    .mo-dialog__modal[open] {
+    :where(dialog).mo-is-modal[open] {
       animation: dialog-in var(--mo-sys-motion-spring-default-spatial);
     }
-    .mo-dialog__modal[open]::backdrop {
+    :where(dialog).mo-is-modal[open]::backdrop {
       animation: dialog-scrim-in var(--mo-sys-motion-spring-slow-effects);
     }
   }
@@ -60,12 +60,12 @@
 
   /* A basic dialog with its parts: the icon and the headline, the supporting text, what else it shows (scrolling when
      it is long), and the actions at its end. */
-  .mo-dialog__basic {
+  :where(.mo-dialog).mo-is-basic {
     display: flex;
     flex-direction: column;
     padding: var(--mo-comp-dialog-padding, 1.5rem);
   }
-  .mo-dialog__modal > .mo-dialog__basic {
+  :where(dialog).mo-is-modal > :where(.mo-dialog).mo-is-basic {
     max-height: calc(100dvh - 3rem);
   }
   .mo-dialog__icon {
@@ -94,7 +94,7 @@
   .mo-dialog__supporting-text > * + * {
     margin-top: 0.75rem;
   }
-  .mo-dialog__basic .mo-dialog__content {
+  :where(.mo-dialog).mo-is-basic .mo-dialog__content {
     min-height: 0;
     margin-inline: calc(-1 * var(--mo-comp-dialog-padding, 1.5rem));
     padding-inline: var(--mo-comp-dialog-padding, 1.5rem);

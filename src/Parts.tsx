@@ -693,14 +693,7 @@ export default function Parts({ env }: { env: Env }) {
 
           <PartGroup group="messages">
             <Part name="Notice" use={use.notice}>
-              <Notice
-                title={sample.noticeTitle}
-                action={
-                  <Button kind="outlined" size="small">
-                    {sample.noticeAction}
-                  </Button>
-                }
-              >
+              <Notice title={sample.noticeTitle} action={<Button kind="outlined">{sample.noticeAction}</Button>}>
                 {sample.noticeText}
               </Notice>
             </Part>

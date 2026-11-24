@@ -3,7 +3,7 @@
   the screen, the newest lowest (@morphemecms/cms/lib/snackbar.ts, which draws the editor's messages and shows the site's);
   .mo-snackbar with .mo-snackbar__supporting-text, its links (.mo-snackbar__link, with an arrow) and optionally .mo-snackbar__actions (the
   action, a text button, .mo-snackbar__action, and the close button, a standard icon button, .mo-snackbar__close), under the
-  text with .mo-snackbar__longer-action. The buttons on it get the snackbar's colours.
+  text with .mo-snackbar.mo-is-longer-action. The buttons on it get the snackbar's colours.
     --mo-comp-snackbar-container-color, --mo-comp-snackbar-supporting-text-color, --mo-comp-snackbar-container-shape, --mo-comp-snackbar-shadow, --mo-comp-snackbar-backdrop (the blur behind it)
     --mo-comp-snackbar-padding-block, --mo-comp-snackbar-padding-inline, --mo-comp-snackbar-max-width, --mo-comp-snackbar-font-size,
     --mo-comp-snackbar-line-height, --mo-comp-snackbar-link-weight
@@ -88,15 +88,15 @@
     align-items: center;
     gap: 0.25rem;
   }
-  .mo-snackbar.mo-snackbar__longer-action {
+  .mo-snackbar.mo-is-longer-action {
     flex-direction: column;
     align-items: stretch;
   }
-  .mo-snackbar__longer-action > .mo-snackbar__supporting-text {
+  :where(.mo-snackbar).mo-is-longer-action > .mo-snackbar__supporting-text {
     padding-inline-end: calc(var(--mo-comp-snackbar-padding-inline, 1rem) - 0.25rem);
     padding-bottom: 0;
   }
-  .mo-snackbar__longer-action > .mo-snackbar__actions {
+  :where(.mo-snackbar).mo-is-longer-action > .mo-snackbar__actions {
     justify-content: flex-end;
   }
 }

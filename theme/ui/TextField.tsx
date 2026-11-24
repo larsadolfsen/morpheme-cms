@@ -32,7 +32,7 @@ export type TextFieldKind = 'outlined' | 'filled';
 
 /** A text field's classes: its kind's, the error's when it has one, and a multi-line field's. */
 export const textFieldClass = (kind: TextFieldKind = 'outlined', error = false, multiline = false) =>
-  ['mo-text-field', `mo-is-${kind}`, error && 'mo-is-error', multiline && 'mo-text-field__multiline'].filter(Boolean).join(' ');
+  ['mo-text-field', `mo-is-${kind}`, error && 'mo-is-error', multiline && 'mo-is-multiline'].filter(Boolean).join(' ');
 
 /** The class of the box in the field, and of what is written in it (or tapped: a choice from a list). */
 export const textFieldContainerClass = 'mo-text-field__container';
@@ -127,12 +127,7 @@ export default function TextField({
   return (
     <div
       ref={root}
-      className={[
-        textFieldClass(kind, !!error, lines),
-        leadingIcon && 'mo-has-leading-icon',
-        !drawn && 'mo-text-field__without-label',
-        className,
-      ]
+      className={[textFieldClass(kind, !!error, lines), leadingIcon && 'mo-has-leading-icon', !drawn && 'mo-is-without-label', className]
         .filter(Boolean)
         .join(' ')}
       data-text-field={working ? '' : undefined}
@@ -272,12 +267,7 @@ export function TextFieldButton({
   const aside = label === undefined && href === undefined && typeof named === 'string' ? `${field}-name` : undefined;
   return (
     <div
-      className={[
-        textFieldClass(kind, !!error),
-        label === undefined && 'mo-text-field__without-label',
-        size === 'small' && 'mo-text-field__small',
-        className,
-      ]
+      className={[textFieldClass(kind, !!error), label === undefined && 'mo-is-without-label', size === 'small' && 'mo-is-small', className]
         .filter(Boolean)
         .join(' ')}
     >

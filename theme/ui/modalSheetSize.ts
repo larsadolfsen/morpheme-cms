@@ -24,13 +24,13 @@ export type ModalSheetSize = {
 };
 
 export function modalSheetSize(dialog: HTMLDialogElement, panel: HTMLElement, close: () => void): ModalSheetSize {
-  const content = panel.querySelector<HTMLElement>('.mo-bottom-sheet__content');
+  const content = panel.querySelector<HTMLElement>('.mo-is-bottom .mo-sheet__content');
   const handle = panel.querySelector<HTMLElement>('[data-bottom-sheet-handle]');
-  const header = panel.querySelector<HTMLElement>('.mo-bottom-sheet__header');
+  const header = panel.querySelector<HTMLElement>('.mo-is-bottom .mo-sheet__header');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const wide = matchMedia(atLeast('medium'));
   // The editor's sheets keep the heights their classes give them.
-  const own = dialog.classList.contains('mo-bottom-sheet__fit') || dialog.classList.contains('mo-bottom-sheet__full');
+  const own = dialog.classList.contains('mo-sheet__fit') || dialog.classList.contains('mo-sheet__full');
   const managed = () => !own && !wide.matches;
 
   let sizes: { start: number; full: number } | undefined;

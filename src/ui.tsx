@@ -123,9 +123,9 @@ import { safeImageSrc } from '../lib/safe-url.mjs';
 
 /** The theme's button (Material 3's buttons): filled, the one thing to do; tonal, an important step that is not the
  * main one; elevated, one on a coloured background; outlined, another choice beside it ("Cancel" too); text, a small
- * step on the side (Remove, Add). medium (the default): the width of its text on every screen (Save changes); small: in a line of text or by a field (Change image, Add tag). */
+ * step on the side (Remove, Add). small (the default, 40 dp): the width of its text on every screen (Save changes, Change image, Add tag). */
 export type { ButtonKind };
-export type ButtonSize = 'medium' | 'small';
+export type ButtonSize = 'small';
 
 type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
   kind?: ButtonKind;
@@ -391,7 +391,7 @@ function placeTip(tip: HTMLElement, anchor: Element) {
   tip.style.left = `${Math.max(8, Math.min(at.left + at.width / 2 - tip.offsetWidth / 2, innerWidth - tip.offsetWidth - 8))}px`;
 }
 
-/** An element's name as a tooltip (`on`: its handlers, `tip`: beside it): the theme's plain tooltip (.mo-tooltip__plain in
+/** An element's name as a tooltip (`on`: its handlers, `tip`: beside it): the theme's plain tooltip (.mo-tooltip.mo-is-plain in
  * its ui.css), shown after a moment under the mouse, and at once when the element gets the focus from the keyboard;
  * gone when the mouse leaves, on a tap, on Escape and when it loses the focus. Not on a phone, where the element's name
  * is read out instead. It is a popover (.mo-editor-tooltip in editor.css), so it stands over everything, also a sheet, and
@@ -454,7 +454,7 @@ function useTooltip(text: string, own: TooltipHandlers = {}) {
   return {
     on,
     tip: (
-      <span ref={tip} popover="manual" aria-hidden className="mo-tooltip__plain mo-editor-tooltip">
+      <span ref={tip} popover="manual" aria-hidden className="mo-is-plain mo-editor-tooltip">
         {text}
       </span>
     ),
@@ -1351,7 +1351,7 @@ export function IconPicker({
           </div>
           {hits.length > shown && (
             <div ref={more} className="mo-editor-icon-picker-more">
-              <Button kind="text" size="small" onClick={() => setShown((n) => n + PAGE)}>
+              <Button kind="text" onClick={() => setShown((n) => n + PAGE)}>
                 {t.forms.showMoreIcons}
               </Button>
             </div>
@@ -1375,11 +1375,11 @@ export function ImagePick({ id, src, onPick, onRemove }: { id?: string; src?: st
   return (
     <div className="mo-row mo-editor-image-pick">
       {safeImageSrc(src) && <img src={safeImageSrc(src)} alt="" className="mo-keep mo-editor-image-pick-thumb" />}
-      <Button id={id} kind="outlined" size="small" onClick={onPick}>
+      <Button id={id} kind="outlined" onClick={onPick}>
         {src ? t.forms.changeImage : t.forms.pickImage}
       </Button>
       {src && onRemove && (
-        <Button kind="text" size="small" onClick={onRemove}>
+        <Button kind="text" onClick={onRemove}>
           {t.common.remove}
         </Button>
       )}
@@ -1575,7 +1575,6 @@ export function MultiChoice({
         {!full && (
           <Button
             kind="outlined"
-            size="small"
             icon={materialIcon('add')}
             aria-haspopup="dialog"
             onClick={() => {
@@ -2050,7 +2049,6 @@ export function UnfoldButton({
   return (
     <SiteButton
       kind="text"
-      size="small"
       trailingIcon={open ? <MaterialIcon name="keyboard_arrow_up" /> : <MaterialIcon name="keyboard_arrow_down" />}
       aria-expanded={open}
       aria-label={t.library.unfoldName(count, label)}
@@ -2573,7 +2571,7 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
         <p className="mo-editor-colors-preview-secondary">{p.secondary}</p>
         <p className="mo-editor-colors-preview-tertiary">{p.tertiary}</p>
       </div>
-      <span className="mo-button mo-is-filled mo-button__small">{p.button}</span>
+      <span className="mo-button mo-is-filled">{p.button}</span>
     </div>
   );
 }

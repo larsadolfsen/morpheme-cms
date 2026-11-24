@@ -30,7 +30,7 @@ export const PARTS = [
   {
     name: 'dropdown option',
     file: 'theme/styles/ui/menus.css',
-    selector: '.mo-exposed-dropdown-menu__option',
+    selector: '.mo-select__option',
     reads: '--mo-sys-density',
   },
   { name: 'list item', file: 'theme/styles/ui/list.css', selector: '.mo-list__item-container', reads: '--mo-sys-density' },

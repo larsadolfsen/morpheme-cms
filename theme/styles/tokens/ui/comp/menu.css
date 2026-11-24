@@ -2,7 +2,7 @@
 
 /* Vibrant: the menu in the accent, what is on it turned around. */
 @layer components {
-  .mo-menu__vibrant {
+  :where(.mo-menu).mo-is-vibrant {
     --mo-comp-menu-container-color: var(--mo-comp-menu-vibrant-surface, var(--mo-sys-block-accent));
     --mo-comp-menu-line: transparent;
     --mo-comp-menu-list-item-label-text-color: var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent));

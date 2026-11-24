@@ -68,7 +68,7 @@ export function WaitingNotice({
       title={v.noticeWaitingTitle}
       action={
         onDiscard && (
-          <Button kind="outlined" size="small" disabled={busy} onClick={onDiscard}>
+          <Button kind="outlined" disabled={busy} onClick={onDiscard}>
             {v.discardDraft}
           </Button>
         )
