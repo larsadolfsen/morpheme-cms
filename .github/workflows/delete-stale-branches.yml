@@ -1,0 +1,75 @@
+name: Delete stale branches
+
+# Run by hand only. Reads .github/stale-branches.txt and deletes each branch that is still safe to delete.
+# A dry run (the default) only prints what it would do. See docs/stale-branches.md.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Only print what would be deleted
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      DRY_RUN: ${{ inputs.dry_run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/stale-branches.txt
+          sparse-checkout-cone-mode: false
+      - name: Delete the listed branches
+        shell: bash
+        run: |
+          deleted=(); would=(); skipped=(); failed=()
+          while IFS= read -r name || [ -n "$name" ]; do
+            name="${name%%[[:space:]]*}"
+            [ -z "$name" ] && continue
+            case "$name" in '#'*) continue ;; esac
+            if ! [[ "$name" =~ ^[A-Za-z0-9._/-]+$ ]] || [[ "$name" == *..* ]]; then
+              skipped+=("$name (unsafe name)"); continue
+            fi
+            case "$name" in
+              main|screenshots|changeset-release/main|feature/*|hotfix/*)
+                skipped+=("$name (protected or kept name)"); continue ;;
+            esac
+            if [[ "$name" =~ ^[0-9]+\.[0-9]+$ ]]; then
+              skipped+=("$name (version line)"); continue
+            fi
+            if [ "$name" = "$(gh api "repos/$REPO" --jq .default_branch)" ]; then
+              skipped+=("$name (default branch)"); continue
+            fi
+            if ! gh api "repos/$REPO/git/ref/heads/$name" --silent 2>/dev/null; then
+              skipped+=("$name (already gone)"); continue
+            fi
+            open=$(gh api -X GET "repos/$REPO/pulls" -f state=open -f head="${REPO%%/*}:$name" --jq length 2>/dev/null || echo err)
+            if [ "$open" != "0" ]; then
+              skipped+=("$name (open pull request, or check failed: $open)"); continue
+            fi
+            if [ "$DRY_RUN" = "true" ]; then
+              would+=("$name"); echo "dry run: would delete $name"; continue
+            fi
+            if err=$(gh api -X DELETE "repos/$REPO/git/refs/heads/$name" 2>&1); then
+              deleted+=("$name"); echo "deleted $name"
+            else
+              failed+=("$name: $(echo "$err" | head -1)"); echo "::warning::failed to delete $name: $err"
+            fi
+          done < .github/stale-branches.txt
+          {
+            echo "## Delete stale branches ($([ "$DRY_RUN" = "true" ] && echo dry run || echo real run))"
+            echo "Deleted: ${#deleted[@]}, would delete: ${#would[@]}, skipped: ${#skipped[@]}, failed: ${#failed[@]}"
+            for t in deleted would skipped failed; do
+              declare -n arr=$t
+              echo; echo "### ${t^}"
+              for x in "${arr[@]}"; do echo "- \`$x\`"; done
+            done
+          } >> "$GITHUB_STEP_SUMMARY"
+          [ ${#failed[@]} -eq 0 ] || echo "::warning::${#failed[@]} branches could not be deleted"
