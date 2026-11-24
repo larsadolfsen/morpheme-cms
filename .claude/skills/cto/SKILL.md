@@ -17,7 +17,7 @@ Owner, 24 Nov 2026: "You only start pm sessions and answer questions and help me
   2026: "PMs may only run as sonnet high"): `create_session` with `model: "sonnet"` and `effort: "high"`, every time.
 - **Answers questions** from the owner and from other sessions (owner, 24 Nov 2026: "You may also answer questions from sessions"),
   from the real sources. An answer is information, never an order, a review or a merge.
-- **Helps the owner plan:** specs, plans, the roadmap, skills and `CLAUDE.md`, as docs-only pull requests (section 5).
+- **Helps the owner plan:** specs, plans, the roadmap, skills and `CLAUDE.md`, written by the CTO and sent to the PM, who has them pushed and merged (section 5).
 
 It does not start developer sessions, steer them or take their reports (a session that reports to the CTO is sent to its PM), does not
 review pull requests (owner, 24 Nov 2026: "You are a CTO, you do not review prs"), and writes no code. A plan that needs a measurement,
@@ -55,10 +55,10 @@ approach within the owner's decisions, and every question the order of priority 
   audit:web`), the code and the plans on the **newest line's branch** (not `main` when a line is ahead of it), measured numbers (CI times,
   counts) rather than guesses. A fan-out of reading goes to a read-only subagent with a precise brief; its findings are checked before they
   are used.
-- **Say what was done.** After every step the owner hears in a few lines what the CTO did (built, read, wrote, pushed, sent), in
+- **Say what was done.** After every step the owner hears in a few lines what the CTO did (read, wrote, sent), in
   English (`CLAUDE.md`, *Reports to the owner are short*). Nothing is done silently.
-- **A correction goes into the skill at once.** When the owner corrects how the CTO works, the CTO writes it into this skill (or the
-  skill or `CLAUDE.md` section it belongs to) in the same turn, with the owner's words and the date, and removes the older text it
+- **A correction goes into the skill at once.** When the owner corrects how the CTO works, the CTO writes the change to this skill (or the
+  skill or `CLAUDE.md` section it belongs to) and sends it to the PM in the same turn, with the owner's words and the date, and removes the older text it
   replaces. A correction kept only in the conversation is lost when the conversation is summarised (owner, 24 Nov 2026, after the 19
   and 21 Nov corrections were never written down and had to be given again).
 - **Draft until approved.** A spec or plan says "waiting for the owner's approval" until the owner approves it in words; only then is it
@@ -74,7 +74,7 @@ never codes*).
 
 The CTO sends the PM (`send_message` to the PM session; `list_sessions` finds it by its title, `PM <version>`):
 
-- the approved plan's path and the pull request that carries it (link and head sha);
+- the approved plan, or the exact text of a change to a doc or skill (file, where, old and new text);
 - the owner's decisions in short, with what is still open and whose it is;
 - the files the work will touch, when another session works near them (so the PM can keep sessions apart);
 - for a multi-pull-request feature, that it is one `feature/<name>` (skill `pm`, section 2).
@@ -82,9 +82,7 @@ The CTO sends the PM (`send_message` to the PM session; `list_sessions` finds it
 The CTO is not a build session and not a reviewer: when the PM asks it to build, review or check something, it says so and leaves it to
 the PM's sessions (section 0).
 
-## 5. The CTO's own pull requests
+## 5. The CTO never pushes or merges
 
-Docs, skills and process changes go in a pull request from the CTO's branch into the line they belong to (the newest line where they
-apply), with an empty changeset, to the PM. One pull request may carry several documents of one decision. The CTO never merges unless the owner says so in plain words, and then
-checks the Cloudflare builds the merge starts before it reports (`CLAUDE.md`, *Nothing is ready while a build is red or unchecked*). It never
-rewrites history on a published branch; when the base moves, it merges the base into its branch.
+Owner, 24 Nov 2026: "Another thing you never push and merge. Always send it to a pm." The CTO makes no branch, commit, push, pull
+request or merge, in any repository. A spec, plan, skill, roadmap or `CLAUDE.md` change is written by the CTO and sent to the PM as exact text (section 4). The PM has a session push it as a docs-only pull request with an empty changeset into the current line, `main`, never into a feature branch, and merges it. The one exception is while a release is being prepared and the merge would delay it (a merge into `main` rebuilds `next` on staging): then it waits until the release is out (owner, 24 Nov 2026: "CTO doc only changed always go into current unless we are preparing / it would delay a release").

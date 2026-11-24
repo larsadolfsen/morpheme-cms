@@ -26,7 +26,7 @@ pieces into its own feature branch, `main` into its own feature branch, its feat
 comes, and what its version's plan puts in the other repositories. It never merges another version's feature branch or a pull
 request into one, and never a pull request that belongs to a later version (its feature, its fix, or the plan or spec for it), even
 when it is green and waiting: it names the PM it belongs to, or tells the owner that no PM runs for it yet, and leaves it. A pull
-request that belongs to no version (a docs change into `main`) it merges only when the owner or the CTO hands it to that PM by name.
+request that belongs to no version (a docs change into `main`) it merges only when the owner hands it to that PM by name, or when it is a CTO change the PM had pushed itself.
 
 **The owner decides:**
 
@@ -56,7 +56,7 @@ A PM session runs only as Sonnet with effort high (owner, 24 Nov 2026: "PMs may 
 
 **The CTO** (skill `cto`) starts PM sessions, answers questions from the owner and other sessions and plans the work with the owner, and sends the PM
 approved plans (owner, 24 Nov 2026). It writes no code and reviews no pull request: the PM starts the sessions that build a plan and
-reviews their work itself. The CTO's own docs pull requests go to the PM like any other.
+reviews their work itself. The CTO never pushes or merges: it sends the PM the exact text of a docs or skill change, and the PM has a session push it as a docs-only pull request into `main` and merges it, unless a release is being prepared and the merge would delay it; then it waits until the release is out (owner, 24 Nov 2026).
 
 **When no PM is running, the orchestrator merges.** The orchestrator is the session that started the other sessions for the owner
 (the owner's "To do list" session). While no PM session is active, it may merge the pull requests of the sessions it started, under
