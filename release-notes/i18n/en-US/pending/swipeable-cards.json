@@ -2,5 +2,5 @@
   "id": "swipeable-cards",
   "kind": "line",
   "mark": "improvement",
-  "text": "Carousel cards keep the corners of stacked cards, and the Carousel option says its cards are swipeable"
+  "text": "Cards as a carousel on phones follow Material 3 and offer five layouts: uncontained, multi-browse, hero, center-aligned hero and full-screen"
 }

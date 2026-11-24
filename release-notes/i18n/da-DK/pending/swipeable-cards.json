@@ -2,5 +2,5 @@
   "id": "swipeable-cards",
   "kind": "line",
   "mark": "improvement",
-  "text": "Karrusel-kort har samme hjørner som stablede kort, og valget Karrusel siger, at kortene kan swipes"
+  "text": "Kort som karrusel på mobil følger Material 3 og har fem visninger: uindrammet, multibrowse, hero, centreret hero og fuld skærm"
 }

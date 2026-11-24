@@ -2,4 +2,4 @@
 '@morphemecms/cms': patch
 ---
 
-Carousel cards keep the same corners as stacked cards, and the Carousel option says its cards are swipeable.
+The Cards block's carousel follows Material 3: its cards take the carousel item's corners, it has no page indicator, and a Carousel layout choice offers Uncontained, Multi-browse, Hero, Center-aligned hero and Full-screen. A card with a short text fills its item.

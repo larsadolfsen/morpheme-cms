@@ -159,6 +159,9 @@ export type Field = {
   /** Shown, checked and saved only while another field next to it (a select) has one of these values,
    * and that field is itself in use. */
   only?: Only;
+  /** A select: each of its options is a version of the block of its own on the block's screen under Blocks, also while the select is shown only
+   * for another choice (`only`: that choice is set with it, as the first of its `is`), the cards' carousel layouts. */
+  versions?: boolean;
   /** boolean: shown as a switch, with what it says when on and when off. */
   toggle?: [string, string];
   /** Its value changes how the page is laid out (its template): "Preview" shows a page whose value

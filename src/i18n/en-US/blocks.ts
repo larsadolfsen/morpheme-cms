@@ -460,12 +460,22 @@ export const blocks = {
     phoneHint: 'Swipeable cards on a phone. Larger screens show them together.',
     /** The subtext of the Carousel variant on the block's screen under Blocks. */
     phoneVariantHint: 'Swipeable cards on phones.',
+    /** The carousel's layouts, Material 3's names (m3.material.io/components/carousel/guidelines), and the subtext of each on the block's screen under Blocks. */
+    layout: 'Carousel layout',
+    layoutUncontained: 'Uncontained',
+    layoutMultiBrowse: 'Multi-browse',
+    layoutMultiBrowseHint: 'Large, medium and small cards in a row, for browsing many.',
+    layoutHero: 'Hero',
+    layoutHeroHint: 'One large card with a small one beside it.',
+    layoutHeroCenter: 'Center-aligned hero',
+    layoutHeroCenterHint: 'One large card in the middle, a small one on each side.',
+    layoutFullScreen: 'Full-screen',
+    layoutFullScreenHint: 'One card at a time, edge to edge.',
     carouselChip: 'Carousel on phones',
     /** On the site and in the drawings (in the site's language): for screen readers and the button under the carousel. */
     carousel: 'carousel',
     slide: 'card',
     slideOf: (n: number, of: number) => `${n} of ${of}`,
-    showCard: (n: number, title: string) => `Show card ${n}${title ? `: ${title}` : ''}`,
     showAll: 'Show all',
     showFewer: 'Show fewer',
     cardsLabel: 'Cards',

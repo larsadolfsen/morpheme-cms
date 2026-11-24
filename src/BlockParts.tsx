@@ -52,6 +52,20 @@ function versionsOf(block: SiteBlock): PreviewVariant[] {
         .filter((o) => o.value !== String(c.default ?? ''))
         .map((o) => ({ label: o.label, props: { [c.name]: o.value }, hint: o.hint })),
     ),
+    // A choice shown only for another one with `versions`: each option, with the choice it belongs to set (Cards: Carousel · Hero).
+    ...block.fields
+      .filter((f) => f.type === 'select' && f.versions && f.only)
+      .flatMap((c) => {
+        const gate = block.fields.find((g) => g.name === c.only!.field);
+        const on = gate?.options?.find((o) => o.value === c.only!.is[0]);
+        return (c.options ?? [])
+          .filter((o) => o.value !== String(c.default ?? ''))
+          .map((o) => ({
+            label: on ? `${on.label} · ${o.label}` : o.label,
+            props: { [c.only!.field]: c.only!.is[0], [c.name]: o.value },
+            hint: o.hint,
+          }));
+      }),
   ];
 }
 

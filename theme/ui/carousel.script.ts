@@ -8,14 +8,16 @@ export default function carousel() {
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((carousel) => {
-    const indicator = carousel.querySelector<HTMLElement>('[data-carousel-indicator]')!;
+    // The indicator is optional: a carousel without one (the Cards block's) has no dots to show or follow.
+    const indicator = carousel.querySelector<HTMLElement>('[data-carousel-indicator]');
     const row = carousel.querySelector<HTMLElement>('[data-carousel-items]')!;
     const dots = [...carousel.querySelectorAll<HTMLButtonElement>('[data-carousel-dot]')];
-    indicator.hidden = false;
+    if (indicator) indicator.hidden = false;
     carouselLayout(carousel);
 
     const go = (i: number) => row.scrollTo({ left: scrollFor(row, i), behavior: reduce ? 'auto' : 'smooth' });
     const update = () => {
+      if (!dots.length) return;
       const active = shownItem(row);
       dots.forEach((d, n) => d.setAttribute('aria-current', String(n === active)));
     };

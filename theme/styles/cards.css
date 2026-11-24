@@ -292,22 +292,33 @@
   .mo-block-cards__card-arrow {
     transition: translate var(--mo-sys-motion-spring-default-spatial);
   }
-  /* "Cards" on a phone as a carousel (`phone`, LinkCards.tsx): Material 3's uncontained layout (m3.material.io/components/carousel), which M3 gives to
-     text-heavy items. Below 600 px the cards are swiped sideways: items 8 dp apart, 8 dp above and below (room for an elevated card's shadow),
-     each card keeps the Card's own corners (Material 3's cards, not the carousel item's 28 dp: docs/material-deviations.md), the first 16 dp from the screen's edge, the next one peeking in; `Show all` under the dots turns it into the stacked cards
-     in place (data-expanded, set by script.ts). From 600 px the cards are the grid, with no dots and no button. */
+  /* "Cards" on a phone as a carousel (`phone`, LinkCards.tsx): Material 3's carousel (m3.material.io/components/carousel) in the layout the block says
+     (`layout`: uncontained, the default and the layout M3 gives to text-heavy items, multi-browse, hero, center-aligned hero or full-screen). Each card
+     is the carousel's item (--mo-comp-carousel-item-container-shape and the item's outline in tokens/material/comp/card.css). Below 600 px the
+     cards are swiped sideways; uncontained: items 8 dp apart, 8 dp above and below (room for an elevated card's shadow), the first 16 dp from the
+     screen's edge, the next one peeking in. `Show all` under the row (M3, Carousel, Accessibility: "a Show all button below the carousel"; not on a
+     full-screen one) turns it into the stacked cards in place (data-expanded, set by script.ts). From 600 px the cards are the grid, with no button
+     and whatever the layout. In a contained layout a card shrinking with the item (--mo-comp-carousel-mask, carouselLayout.ts) fades its text, as
+     M3 says an item's text adapts ("brief labels on smaller carousel items"); its image stays. */
   .mo-block-cards__show-all {
     display: none;
   }
+  .mo-block-cards__carousel .mo-carousel__item-mask > * {
+    flex: 1;
+    min-width: 0;
+  }
+  .mo-block-cards__carousel .mo-carousel__item-mask .mo-card__body {
+    opacity: calc(1 - var(--mo-comp-carousel-mask, 0) * 3);
+  }
   @media (width < 37.5rem) {
-    .mo-block-cards__carousel .mo-carousel__items {
+    .mo-block-cards__carousel .mo-carousel:where(:not(.mo-is-contained)) .mo-carousel__items {
       overflow-x: auto;
       gap: var(--mo-comp-card-gap, 0.5rem);
       padding-block: 0.5rem;
       padding-inline: 1rem;
       scroll-padding-inline: 1rem;
     }
-    .mo-block-cards__carousel .mo-carousel__item {
+    .mo-block-cards__carousel .mo-carousel:where(:not(.mo-is-contained)) .mo-carousel__item {
       width: 85%;
     }
     .mo-js .mo-block-cards__show-all {
@@ -318,6 +329,7 @@
     .mo-block-cards__carousel[data-expanded] .mo-carousel__items {
       display: grid;
       overflow-x: visible;
+      height: auto;
       margin: 0;
       padding-inline: 0;
       scroll-padding-inline: 0;
@@ -325,22 +337,25 @@
     .mo-block-cards__carousel[data-expanded] .mo-carousel__item {
       width: auto;
     }
-    .mo-block-cards__carousel[data-expanded] .mo-carousel__indicator {
-      display: none;
+    .mo-block-cards__carousel[data-expanded] .mo-carousel__item-mask {
+      display: contents;
     }
   }
   @media (width >= 37.5rem) {
     .mo-block-cards__carousel .mo-carousel__items {
       display: grid;
       overflow-x: visible;
+      height: auto;
+      margin: 0;
+      padding: 0;
       gap: var(--mo-comp-card-gap);
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
     .mo-block-cards__carousel .mo-carousel__item {
       width: auto;
     }
-    .mo-block-cards__carousel .mo-carousel__indicator {
-      display: none;
+    .mo-block-cards__carousel .mo-carousel__item-mask {
+      display: contents;
     }
   }
 
