@@ -308,7 +308,7 @@ there is nothing to deviate from. The theme uses the nearest M3 pattern or the o
 
 - **M3 says:** icons are Material Symbols, which has no brand marks.
 - **We do:** the logos of Facebook, X, LinkedIn, Pinterest, GitHub and Google are a separate, always-drawn brand pack (`{ brand: '<name>' }` in `lib/materialIconMap.mjs`); the share buttons use the real logos, as our own standard SVGs where none exists. They never fall back to a Material icon, and a site's chosen icon pack does not change them.
-- **Why:** owner, 24 Nov 2026: "we keep brand logos as their own icon pack because they are the same no matter what"; "Share buttons must use the real logos. If missing we need to create our own standard svg logos". Self-made (priority 5), with the owner's yes. The SVGs and the share row come in a later batch of 0.19.6 (names spec, section 5).
+- **Why:** owner, 24 Nov 2026: "we keep brand logos as their own icon pack because they are the same no matter what"; "Share buttons must use the real logos. If missing we need to create our own standard svg logos". Self-made (priority 5), with the owner's yes. The pack is `site/brand/` (each brand's real mark, from Simple Icons 13.21.0, CC0; sources and terms in its README); `lib/brandLogos.mjs` finds a brand from its stored name and `Icon` (`src/icon.tsx`) draws it before any icon pack is asked, so the share row (`theme/components/ShareRow.astro`), the editor's link list and the sign-in buttons draw the same logo under every pack (0.19.6, batch 7b).
 
 ## Date picker
 
