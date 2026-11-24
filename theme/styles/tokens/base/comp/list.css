@@ -18,9 +18,11 @@
 }
 @layer components {
   .mo-action-bar__text {
-    --mo-comp-list-item-padding-block: 0;
-    --mo-comp-list-item-padding-inline: 0;
+    --mo-comp-list-list-item-top-space: 0;
+    --mo-comp-list-list-item-bottom-space: 0;
+    --mo-comp-list-list-item-leading-space: 0;
+    --mo-comp-list-list-item-trailing-space: 0;
     --mo-comp-list-list-item-container-height: auto;
-    --mo-comp-list-item-two-line-min-height: auto;
+    --mo-comp-list-md-comp-list-list-item-two-line-container-height: auto;
   }
 }

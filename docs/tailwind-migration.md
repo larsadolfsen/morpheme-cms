@@ -46,7 +46,7 @@ right-to-left language.
 | `grid`, `grid-cols-*`, `col-*`, `medium:grid-cols-*` | `mo-grid` with `--mo-comp-grid-columns` (`mo-grid-2` …), or `.mo-staggered-grid` for card grids; subgrid where cards align their insides |
 | `space-y-*` | `mo-stack` (`gap`). Same space, different mechanism: no margin on the first or last child |
 | `m*`, `p*` | the part's own padding and margin in `--mo-ref-space-*`, with logical properties |
-| `w-*`, `h-*`, `size-*`, `min-*`, `max-*` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio`; a centred maximum width is `mo-center` with `--mo-comp-center-measure` set on the element, and the width of text is `--mo-sys-block-text-measure-min` and `-max` |
+| `w-*`, `h-*`, `size-*`, `min-*`, `max-*` | `inline-size`, `block-size`, `min-inline-size`, `max-inline-size`, `aspect-ratio`; a centred maximum width is `mo-center` with `--mo-comp-center-measure` set on the element, and the width of text is `--mo-comp-block-text-measure-min` and `-max` |
 | `text-sm`, `text-xs`, `text-title-large`, `font-*`, `leading-*` | a `mo-type-*` class, or `font` from `--mo-sys-typescale-*` in the part's rule |
 | `text-*`, `bg-*`, `border-*` colours | the part's rule reads `var(--mo-sys-color-*)`; `text-on-surface-variant` becomes `color: var(--mo-sys-color-on-surface-variant)` in the part's own rule (no class) |
 | `relative`, `absolute`, `inset-*`, `sticky`, `z-*`, `overflow-*` | the part's rule |
@@ -124,7 +124,7 @@ container query is free of the table.
 | `aria-expanded:rotate-180` | `.part[aria-expanded='true'] { … }` |
 | `data-[open]:flex` | `.part[data-open] { … }` |
 
-Colours of a state come from the state layers (`--mo-sys-state-mo-hover-layer`, `--mo-sys-state-mo-pressed-layer`), not from a new colour.
+Colours of a state come from the state layers (`--mo-sys-state-hover-state-layer-color`, `--mo-sys-state-pressed-state-layer-color`), not from a new colour.
 
 ## How to check
 

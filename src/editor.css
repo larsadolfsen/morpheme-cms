@@ -1,5 +1,5 @@
 /* The editor's parts are the theme's UI parts (ui.tsx), in the theme's design; its own parts take the theme's variables
-   (--mo-sys-block-radius, --mo-sys-block-radius-small, --mo-sys-block-shadow). Only what is the editor's alone is here. Low specificity
+   (--mo-comp-block-radius, --mo-comp-block-radius-small, --mo-comp-block-shadow). Only what is the editor's alone is here. Low specificity
    (:where), so a theme's :root wins. */
 @import './editor-density.css';
 @import './editor-forms.css';
@@ -59,7 +59,7 @@
 
   /* The dotted frame round an H2 section of a page or blog post (sectionFrame.ts): its line, the space between the line and
      the text, the space above a section, and the space between two parts inside it (em: it scales with the part's text). */
-  --mo-comp-editor-section-frame: 2px dotted var(--mo-sys-block-line);
+  --mo-comp-editor-section-frame: 2px dotted var(--mo-comp-block-line);
   --mo-comp-editor-section-pad: 1rem;
   --mo-comp-editor-section-gap: 2rem;
   --mo-comp-editor-section-rhythm: 0.625em;
@@ -190,14 +190,14 @@
 }
 
 .mo-editor-text .ProseMirror > :is([data-section-box='start'], [data-section-box='only']) {
-  border-start-start-radius: var(--mo-sys-block-radius);
-  border-start-end-radius: var(--mo-sys-block-radius);
+  border-start-start-radius: var(--mo-comp-block-radius);
+  border-start-end-radius: var(--mo-comp-block-radius);
   padding-block-start: var(--mo-comp-editor-section-pad);
 }
 
 .mo-editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) {
-  border-end-start-radius: var(--mo-sys-block-radius);
-  border-end-end-radius: var(--mo-sys-block-radius);
+  border-end-start-radius: var(--mo-comp-block-radius);
+  border-end-end-radius: var(--mo-comp-block-radius);
   /* The space below a section's text belongs inside its colour: it runs down to the next section's divider (or the end of the text). */
   padding-block-end: calc(var(--mo-comp-editor-section-pad) + var(--mo-comp-editor-section-gap));
 }
@@ -231,7 +231,7 @@
 /* The colours are the theme's own (blocks.css). On a colour with its own text colour, the prose colours take it, so headings, bold
    and links stay readable. */
 .mo-editor-text .ProseMirror > [data-section-color='surface'] {
-  background: var(--mo-sys-block-surface);
+  background: var(--mo-comp-block-surface);
 }
 
 .mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary']) {
@@ -281,7 +281,7 @@
   overflow: hidden;
   pointer-events: none;
   background: var(--mo-sys-color-inverse-surface);
-  border-radius: var(--mo-sys-block-radius);
+  border-radius: var(--mo-comp-block-radius);
 }
 
 .mo-editor-text .mo-editor-section-picture[data-width='full'] {
@@ -302,7 +302,7 @@
   content: '';
   position: absolute;
   inset: calc(var(--mo-comp-editor-section-pad) / 2);
-  border-radius: var(--mo-sys-block-radius-small);
+  border-radius: var(--mo-comp-block-radius-small);
   background: var(--mo-sys-color-inverse-surface);
 }
 
@@ -575,7 +575,7 @@
 }
 
 .mo-editor-main-rail {
-  --mo-comp-navigation-rail-padding: 0.5rem 0.5rem 1.5rem;
+  --mo-comp-nav-rail-padding: 0.5rem 0.5rem 1.5rem;
 }
 
 .mo-editor-main-rail .mo-nav-rail__header {
@@ -640,10 +640,10 @@
    stand beside the rail and the drawer, so they need no room. */
 @media (width >= 37.5rem) {
   .mo-snackbar__stack {
-    padding-left: var(--mo-comp-navigation-rail-container-width, 5.5rem);
+    padding-left: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
   }
   .mo-editor-save-bar {
-    left: var(--mo-comp-navigation-rail-container-width, 5.5rem);
+    left: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
     width: auto;
   }
 }
@@ -703,7 +703,7 @@
 }
 @media (width >= 37.5rem) {
   :root {
-    --mo-sys-column-start: var(--mo-comp-navigation-rail-container-width, 5.5rem);
+    --mo-sys-column-start: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
   }
   .mo-editor-column {
     margin-inline-start: clamp(
@@ -841,7 +841,7 @@ html {
   position: relative;
   /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .mo-card), so the action row, the items and the
      add button line up inside it. */
-  border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
+  border-radius: var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius));
   border: var(--mo-comp-editor-frame-line) dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
   padding-block: var(--mo-comp-card-padding, 1rem);
   padding-inline: calc(var(--mo-comp-editor-frame-outset) - var(--mo-comp-editor-frame-line));
@@ -885,7 +885,10 @@ html {
   top: 0.25rem;
   /* The block's top left corner (owner, 16 Nov): the one place to drag a block. A 48 dp touch target, drawn inside the frame, its edge 24 dp in from the frame's left
      edge, where the selection mark's 48 dp target (centred on the outline's corner curve) ends, so the two never overlap (the card is the frame outset wider than the block on each side). */
-  left: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 1.5rem - var(--mo-comp-editor-frame-outset));
+  left: calc(
+    var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius)) * 0.2929 + 0.53px + 1.5rem -
+      var(--mo-comp-editor-frame-outset)
+  );
   z-index: 2;
   display: flex;
   align-items: center;
@@ -953,7 +956,8 @@ html {
   block-size: 3rem;
   /* Room for the handle at the start: it ends 4.5 rem past the selection mark's centre; the buttons stay clear of it. */
   padding-inline-start: calc(
-    var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 4.5rem - var(--mo-comp-editor-frame-outset)
+    var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius)) * 0.2929 + 0.53px + 4.5rem -
+      var(--mo-comp-editor-frame-outset)
   );
 }
 
@@ -1007,7 +1011,7 @@ html {
   position: absolute;
   /* Centred on the outline's corner curve: the card is the frame outset wider than the block on each side, and the 45 degree point of a corner with the Card's radius r (its
      1.5px line centred) lies r * (1 - cos 45) + 0.53px in from the corner, along both edges. */
-  --mo-sys-mark-in: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px);
+  --mo-sys-mark-in: calc(var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius)) * 0.2929 + 0.53px);
   top: calc(var(--mo-sys-mark-in) - 1.5rem);
   left: calc(var(--mo-sys-mark-in) - var(--mo-comp-editor-frame-outset) - 1.5rem);
   z-index: 2;
@@ -1327,7 +1331,7 @@ html {
 
 /* In a list the row's icon button is the heading's colour, as the icon is on the site (blocks.css, .mo-block-list). */
 .mo-block-list .mo-editor-inline-list-slot:not([data-icon-color]) {
-  color: var(--mo-sys-block-text);
+  color: var(--mo-comp-block-text);
 }
 
 /* The chosen icon's tile in the grid is filled with the picked color (Text, without one) and its icon is read on it. */
@@ -1371,7 +1375,7 @@ html {
 /* Inside a filled button the ring is drawn on the button's own container, which is the ring role's colour (1:1). It takes the button's
    on-colour instead (the same tokens the theme's filled button uses for its label), so it holds on every section colour, light and dark. */
 .mo-button.mo-is-filled .mo-editor-inline-list-slot:focus-visible {
-  outline-color: var(--mo-comp-button-filled-label-text-color, var(--mo-sys-block-on-accent));
+  outline-color: var(--mo-comp-button-filled-label-text-color, var(--mo-comp-block-on-accent));
 }
 
 /* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
@@ -1422,19 +1426,27 @@ html {
   content: '';
   position: absolute;
   top: -1px;
-  width: var(--mo-sys-radius);
-  height: var(--mo-sys-radius);
+  width: var(--mo-sys-shape-corner-medium);
+  height: var(--mo-sys-shape-corner-medium);
   pointer-events: none;
 }
 
 .mo-editor-tools::before {
   left: -1px;
-  background: radial-gradient(circle at 100% 100%, transparent var(--mo-sys-radius), var(--mo-sys-color-surface) var(--mo-sys-radius));
+  background: radial-gradient(
+    circle at 100% 100%,
+    transparent var(--mo-sys-shape-corner-medium),
+    var(--mo-sys-color-surface) var(--mo-sys-shape-corner-medium)
+  );
 }
 
 .mo-editor-tools::after {
   right: -1px;
-  background: radial-gradient(circle at 0 100%, transparent var(--mo-sys-radius), var(--mo-sys-color-surface) var(--mo-sys-radius));
+  background: radial-gradient(
+    circle at 0 100%,
+    transparent var(--mo-sys-shape-corner-medium),
+    var(--mo-sys-color-surface) var(--mo-sys-shape-corner-medium)
+  );
 }
 
 /* The bar is one row, 44 dp high: the tools of the place at the left, Undo, Redo, Insert block and the `⋮` at the right end, no divider between them. It never scrolls (textBar.mjs picks what is
@@ -1493,7 +1505,7 @@ html {
    rests as the other tools do, in the standard icon button's colour (never the accent: only a tool that is on has it). */
 .mo-toolbar__menu-button,
 .mo-toolbar__menu-button:hover {
-  color: var(--mo-comp-icon-button-standard-icon-color, var(--mo-sys-block-text));
+  color: var(--mo-comp-icon-button-standard-icon-color, var(--mo-comp-block-text));
 }
 
 /* Only drawn: the taps go to the card. */

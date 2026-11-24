@@ -6,12 +6,12 @@
   docked where the bar is from the medium width, and so in the editor), in it .mo-search-view__header (back, the field,
   .mo-search-view__input, a role="combobox", and .mo-search-view__clear), .mo-search-view__results (the theme's list as a
   role="listbox", the option the arrow keys are on with aria-selected), .mo-search-view__filters (the filter chips under the bar, a .mo-chip__set-scroll) and .mo-search-view__empty (when nothing fits).
-    --mo-comp-search-bar-container-height, --mo-comp-search-bar-container-shape, --mo-comp-search-bar-padding, --mo-comp-search-bar-gap, --mo-comp-search-bar-container-color,
+    --mo-comp-search-bar-container-height, --mo-comp-search-bar-container-shape, --mo-comp-search-bar-leading-space, --mo-comp-search-bar-leading-icon-leading-icon-label-space, --mo-comp-search-bar-container-color,
     --mo-comp-search-bar-line, --mo-comp-search-bar-shadow, --mo-comp-search-bar-hover, --mo-comp-search-bar-text, --mo-comp-search-bar-supporting-text-color,
     --mo-comp-search-bar-font-size
-    --mo-comp-search-view-surface, --mo-comp-search-view-radius, --mo-comp-search-view-line, --mo-comp-search-view-shadow, --mo-comp-search-view-scrim,
+    --mo-comp-search-view-surface, --mo-comp-search-view-docked-container-shape, --mo-comp-search-view-line, --mo-comp-search-view-shadow, --mo-comp-search-view-scrim,
     --mo-comp-search-view-header-height, --mo-comp-search-view-header-surface, --mo-comp-search-view-header-radius, --mo-comp-search-view-header-margin,
-    --mo-comp-search-view-container-surface, --mo-comp-search-view-docked-surface, --mo-comp-search-view-docked-container-shape, --mo-comp-search-view-docked-gap, --mo-comp-search-view-docked-shadow, --mo-comp-search-view-divider, --mo-comp-search-view-max-height, --mo-comp-search-view-results-padding,
+    --mo-comp-search-view-container-surface, --mo-comp-search-view-docked-surface, --mo-comp-search-view-contained-docked-results-shape, --mo-comp-search-view-docked-gap, --mo-comp-search-view-docked-shadow, --mo-comp-search-view-divider, --mo-comp-search-view-max-height, --mo-comp-search-view-results-padding,
     --mo-comp-search-view-option-surface, --mo-comp-search-view-group-gap, --mo-comp-search-view-group-label-text, --mo-comp-search-view-top-default,
     --mo-comp-search-view-width-default
   Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
@@ -24,19 +24,19 @@
     min-height: var(--mo-comp-search-bar-container-height, 3.5rem);
     align-items: center;
     gap: 0.25rem;
-    border-radius: var(--mo-comp-search-bar-container-shape, var(--mo-sys-block-control-radius));
+    border-radius: var(--mo-comp-search-bar-container-shape, var(--mo-comp-block-control-radius));
     padding-inline-end: 0.25rem;
-    background: var(--mo-comp-search-bar-container-color, var(--mo-sys-block-surface));
-    color: var(--mo-comp-search-bar-text, var(--mo-sys-block-text));
+    background: var(--mo-comp-search-bar-container-color, var(--mo-comp-block-surface));
+    color: var(--mo-comp-search-bar-text, var(--mo-comp-block-text));
     box-shadow:
-      inset 0 0 0 1px var(--mo-comp-search-bar-line, var(--mo-sys-block-line)),
+      inset 0 0 0 1px var(--mo-comp-search-bar-line, var(--mo-comp-block-line)),
       var(--mo-comp-search-bar-shadow, var(--mo-sys-elevation-level3-rest-shadow));
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .mo-search-bar:has(> .mo-search-bar__field:hover) {
     background: var(
       --mo-comp-search-bar-hover,
-      color-mix(in srgb, var(--mo-sys-block-text) 4%, var(--mo-comp-search-bar-container-color, var(--mo-sys-block-surface)))
+      color-mix(in srgb, var(--mo-comp-block-text) 4%, var(--mo-comp-search-bar-container-color, var(--mo-comp-block-surface)))
     );
   }
   .mo-search-bar__field {
@@ -45,10 +45,10 @@
     min-height: var(--mo-comp-search-bar-container-height, 3.5rem);
     flex: 1;
     align-items: center;
-    gap: var(--mo-comp-search-bar-gap, 1rem);
+    gap: var(--mo-comp-search-bar-leading-icon-leading-icon-label-space, 1rem);
     border: 0;
     border-radius: inherit;
-    padding: 0 0.5rem 0 var(--mo-comp-search-bar-padding, 1rem);
+    padding: 0 0.5rem 0 var(--mo-comp-search-bar-leading-space, 1rem);
     background: transparent;
     color: inherit;
     font: inherit;
@@ -72,7 +72,7 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    color: var(--mo-comp-search-bar-supporting-text-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-search-bar-supporting-text-color, var(--mo-comp-block-muted));
   }
   .mo-search-bar__trailing {
     display: flex;
@@ -90,7 +90,7 @@
     font: inherit;
   }
   .mo-search-bar__input::placeholder {
-    color: var(--mo-comp-search-bar-supporting-text-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-search-bar-supporting-text-color, var(--mo-comp-block-muted));
   }
   .mo-search-bar__input:focus {
     outline: none;
@@ -113,7 +113,7 @@
     border: 0;
     padding: 0;
     background: var(--mo-comp-search-view-surface, var(--mo-sys-elevation-level3-color));
-    color: var(--mo-sys-block-text);
+    color: var(--mo-comp-block-text);
   }
   .mo-search-view[open] {
     display: flex;
@@ -158,7 +158,7 @@
   div.mo-search-view__docked .mo-search-view__body {
     margin-top: var(--mo-comp-search-view-docked-gap, 0.125rem);
     overflow: hidden;
-    border-radius: var(--mo-comp-search-view-docked-container-shape, var(--mo-sys-shape-corner-medium));
+    border-radius: var(--mo-comp-search-view-contained-docked-results-shape, var(--mo-sys-shape-corner-medium));
     background: var(--mo-comp-search-view-docked-surface, var(--mo-sys-color-surface-container-high));
     box-shadow: var(--mo-comp-search-view-docked-shadow, none);
   }
@@ -171,9 +171,9 @@
   }
   .mo-search-view:not(:modal),
   .mo-search-view__docked {
-    border-radius: var(--mo-comp-search-view-radius, var(--mo-sys-block-radius));
+    border-radius: var(--mo-comp-search-view-docked-container-shape, var(--mo-comp-block-radius));
     box-shadow:
-      0 0 0 1px var(--mo-comp-search-view-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-search-view-line, var(--mo-comp-block-line)),
       var(--mo-comp-search-view-shadow, var(--mo-sys-elevation-level3-rest-shadow));
   }
   .mo-search-view__docked {
@@ -236,7 +236,7 @@
     outline: 2px solid transparent;
   }
   .mo-search-view__input::placeholder {
-    color: var(--mo-comp-search-bar-supporting-text-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-search-bar-supporting-text-color, var(--mo-comp-block-muted));
   }
   .mo-search-view__input::-webkit-search-cancel-button {
     appearance: none;
@@ -264,7 +264,7 @@
     padding: var(--mo-comp-search-view-results-padding, 0.5rem 0);
   }
   .mo-search-view__results [role='option'][aria-selected='true'] {
-    background: var(--mo-comp-search-view-option-surface, var(--mo-sys-block-tint));
+    background: var(--mo-comp-search-view-option-surface, var(--mo-comp-block-tint));
   }
   /* M3 Lists, tokens: "List list item trailing space 16dp": the icon of a button after an item is 16dp from the edge (its 48dp target holds 12dp). */
   .mo-search-view__results .mo-list__item-multi-action {
@@ -272,7 +272,7 @@
   }
   /* An item with a button after it (a recent search): the one highlight covers the item and its button. */
   .mo-search-view__results .mo-list__item-multi-action:has(> [role='option'][aria-selected='true']) {
-    background: var(--mo-comp-search-view-option-surface, var(--mo-sys-block-tint));
+    background: var(--mo-comp-search-view-option-surface, var(--mo-comp-block-tint));
   }
   .mo-search-view__results .mo-list__item-multi-action > [role='option'][aria-selected='true'] {
     background: transparent;
@@ -284,7 +284,7 @@
   .mo-search-view__empty {
     margin: 0;
     padding: 1.5rem 1rem;
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   /* The controlled view (SearchView): results in groups, a name over each (M3: "Category labels"), a gap between the groups (M3: "Use gaps to
      separate a list of suggestions or results into groups"); with no bar to dock under it stands near the top, in the middle (M3 is silent
@@ -295,7 +295,7 @@
   .mo-search-view__group-label {
     /* In line with the list items' text and icons (M3 lists, specs: "Leading element left padding 16dp"). */
     padding: 0.5rem 1rem 0.25rem;
-    color: var(--mo-comp-search-view-group-label-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-search-view-group-label-text, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-label-medium-size);
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     font-weight: var(--mo-sys-typescale-label-medium-weight);

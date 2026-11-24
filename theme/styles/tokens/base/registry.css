@@ -320,20 +320,20 @@
   inherits: true;
   initial-value: 4px;
 }
-@property --mo-sys-radius {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 12px;
-}
-@property --mo-sys-radius-small {
-  syntax: '<length>';
-  inherits: true;
-  initial-value: 16px;
-}
 @property --mo-sys-shape-corner-full {
   syntax: '<length>';
   inherits: true;
   initial-value: 9999px;
+}
+@property --mo-sys-shape-corner-large {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 16px;
+}
+@property --mo-sys-shape-corner-medium {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 12px;
 }
 @property --mo-sys-target-size {
   syntax: '<length>';

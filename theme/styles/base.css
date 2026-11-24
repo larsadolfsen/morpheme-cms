@@ -234,7 +234,7 @@
   }
   /* Images in the text; not those in a block of the site in it (mo-is-not-prose, RichText.astro). */
   .mo-prose :where(img):not(:where(.mo-is-not-prose img)) {
-    border-radius: var(--mo-sys-radius);
+    border-radius: var(--mo-sys-shape-corner-medium);
     width: 100%;
     height: auto;
   }
@@ -244,7 +244,7 @@
     display: block;
     position: relative;
     overflow: hidden;
-    border-radius: var(--mo-sys-radius);
+    border-radius: var(--mo-sys-shape-corner-medium);
     margin-block: 2em;
   }
   .mo-site-picture__crop > img {
@@ -261,7 +261,7 @@
     aspect-ratio: 16 / 9;
     height: auto;
     border: 0;
-    border-radius: var(--mo-sys-radius);
+    border-radius: var(--mo-sys-shape-corner-medium);
     margin-block: 2em;
   }
 

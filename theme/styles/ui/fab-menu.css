@@ -147,14 +147,14 @@
     height: var(--mo-comp-fab-menu-close-icon-size, var(--mo-comp-fab-icon-size, 1.5rem));
   }
   :where(.mo-fab-menu).mo-is-primary > .mo-fab-menu__button[aria-expanded='true'] {
-    background: var(--mo-comp-fab-primary-surface, var(--mo-sys-block-accent));
-    color: var(--mo-comp-fab-primary-text, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-fab-primary-surface, var(--mo-comp-block-accent));
+    color: var(--mo-comp-fab-primary-text, var(--mo-comp-block-on-accent));
   }
   :where(.mo-fab-menu).mo-is-primary > .mo-fab-menu__button[aria-expanded='true']:hover {
-    background: var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover));
+    background: var(--mo-comp-fab-primary-hover, var(--mo-comp-block-accent-hover));
   }
   :where(.mo-fab-menu).mo-is-primary > .mo-fab-menu__button[aria-expanded='true']:active {
-    background: var(--mo-comp-fab-primary-pressed, var(--mo-comp-fab-primary-hover, var(--mo-sys-block-accent-hover)));
+    background: var(--mo-comp-fab-primary-pressed, var(--mo-comp-fab-primary-hover, var(--mo-comp-block-accent-hover)));
   }
   :where(.mo-fab-menu).mo-is-secondary > .mo-fab-menu__button[aria-expanded='true'] {
     background: var(--mo-comp-fab-secondary-surface, var(--mo-sys-color-secondary));

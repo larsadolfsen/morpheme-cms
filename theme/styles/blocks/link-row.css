@@ -25,7 +25,7 @@
   }
   .mo-block-link-row__arrow {
     flex-shrink: 0;
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
     transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
   a.mo-block-link-row:hover .mo-block-link-row__arrow {

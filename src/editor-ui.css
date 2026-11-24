@@ -202,7 +202,7 @@
   .mo-editor-shade-field {
     position: relative;
     block-size: 12rem;
-    border-radius: var(--mo-sys-block-radius);
+    border-radius: var(--mo-comp-block-radius);
   }
   .mo-editor-shade-thumb {
     inline-size: 1.75rem;
@@ -227,7 +227,7 @@
     block-size: 2.75rem;
     inline-size: 6rem;
     overflow: hidden;
-    border-radius: var(--mo-sys-block-radius-small);
+    border-radius: var(--mo-comp-block-radius-small);
   }
   .mo-editor-color-compare-half {
     flex: 1;
@@ -306,7 +306,7 @@
   .mo-editor-color-tiles {
     display: grid;
     overflow: hidden;
-    border-radius: var(--mo-sys-block-radius);
+    border-radius: var(--mo-comp-block-radius);
   }
   .mo-editor-color-tile {
     --mo-comp-stack-gap: var(--mo-ref-space-50);
@@ -419,7 +419,7 @@
   .mo-editor-image-pick-thumb {
     inline-size: 5rem;
     block-size: 5rem;
-    border-radius: var(--mo-sys-block-radius);
+    border-radius: var(--mo-comp-block-radius);
     object-fit: cover;
   }
   .mo-editor-fold-arrow,
@@ -667,7 +667,7 @@
     inline-size: calc(100% + 1.5rem);
     align-items: center;
     gap: var(--mo-ref-space-150);
-    border-radius: var(--mo-sys-block-radius-small);
+    border-radius: var(--mo-comp-block-radius-small);
     padding-inline: var(--mo-ref-space-150);
     padding-block: 1.125rem;
     text-align: left;
@@ -913,7 +913,7 @@
   }
   .mo-editor-section-list-link {
     inline-size: 100%;
-    border-radius: var(--mo-sys-block-radius-small);
+    border-radius: var(--mo-comp-block-radius-small);
     padding-inline: var(--mo-ref-space-100);
     padding-block: var(--mo-ref-space-100);
     text-align: start;
@@ -1023,7 +1023,7 @@
   .mo-editor-token-image {
     inline-size: 2.5rem;
     block-size: 2.5rem;
-    border-radius: var(--mo-sys-block-radius-small);
+    border-radius: var(--mo-comp-block-radius-small);
     background-color: var(--mo-sys-color-surface-container-high);
     object-fit: cover;
   }
@@ -1045,7 +1045,7 @@
   .mo-editor-token-elevation {
     inline-size: 2rem;
     block-size: 2rem;
-    border-radius: var(--mo-sys-block-radius);
+    border-radius: var(--mo-comp-block-radius);
     background-color: var(--mo-sys-color-surface-container-lowest);
   }
   .mo-editor-token-font {

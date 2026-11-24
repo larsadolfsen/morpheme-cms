@@ -15,7 +15,7 @@
   The theme's variables have two owners, told apart by their prefix. --mo-… is the contract every theme shares: the base
   reads it and a theme sets it, and none else invents its own (a theme sets --mo-sys-shape-corner-large, it does not add --mo-wide).
   --<theme>-… (--venus-glass) is a theme's own and nothing outside the theme reads it. A name with no prefix is a part's
-  variable (--mo-comp-card-radius, --mo-sys-block-gutter) or the site's data, not the contract. What is in the contract:
+  variable (--mo-comp-elevated-card-container-shape, --mo-comp-block-gutter) or the site's data, not the contract. What is in the contract:
   - The colours are Material 3's colour roles by their own names after the prefix (m3.material.io/styles/color/roles):
     --mo-sys-color-primary, --mo-sys-color-secondary, --mo-sys-color-tertiary and --mo-sys-color-error, each with --mo-on-…, --mo-…-container and
     --mo-on-…-container, and --mo-sys-color-primary-fixed, --mo-sys-color-primary-fixed-dim, --mo-sys-color-on-primary-fixed and
@@ -26,7 +26,7 @@
     site's data (src/data/colors.json) the keys are the same names without the prefix.
   - An elevation level, 0 to 5, is two things a theme sets one at a time: --mo-elevation-N-color (the surface colour at the
     level, M3's way) and --mo-elevation-N-shadow (its shadow); --mo-elevation-N-rest-shadow is the shadow a part has at rest.
-  - The corner steps (--mo-shape-…), the state layers (--mo-sys-state-mo-hover-layer, --mo-sys-state-mo-pressed-layer, --mo-sys-color-primary-hover) and --mo-sys-color-scrim-overlay.
+  - The corner steps (--mo-shape-…), the state layers (--mo-sys-state-hover-state-layer-color, --mo-sys-state-pressed-state-layer-color, --mo-sys-color-primary-hover) and --mo-sys-color-scrim-overlay.
   The colours are not here: they are data, src/data/colors.json, which the owner changes under "Colors" in the editor.
   Base.astro and the editor's page write them into <head> (colorsCss, packages/editor/lib/colors.ts), for
   light mode and dark mode as below; the editor checks them to WCAG AA before they are saved

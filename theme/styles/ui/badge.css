@@ -16,8 +16,8 @@
     align-items: center;
     justify-content: center;
     border-radius: var(--mo-comp-badge-shape, var(--mo-sys-shape-corner-full));
-    background: var(--mo-comp-badge-surface, var(--mo-sys-block-accent));
-    color: var(--mo-comp-badge-text, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-badge-surface, var(--mo-comp-block-accent));
+    color: var(--mo-comp-badge-text, var(--mo-comp-block-on-accent));
     pointer-events: none;
   }
   /* A status tone (Badge `tone`): the dot in the tone's colour instead of the error colour. */

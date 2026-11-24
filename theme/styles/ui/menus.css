@@ -9,14 +9,14 @@
   .mo-menu__item-submenu, its item (aria-expanded) and the .mo-menu__submenu it opens beside it. A dropdown menu:
   .mo-dropdown-menu, its button and its .mo-menu (.mo-dropdown-menu__menu) under it; the menus a button or an item opens are
   popovers, placed with CSS anchor positioning (else by ui/dropdownMenu.script.ts).
-    --mo-comp-menu-width, --mo-comp-menu-min-width, --mo-comp-menu-max-width, --mo-comp-menu-max-height, --mo-comp-menu-container-shape, --mo-comp-menu-container-color, --mo-comp-menu-line,
+    --mo-comp-menu-width, --mo-comp-menu-min-width, --mo-comp-menu-max-width, --mo-comp-menu-max-height, --mo-comp-menus-container-shape, --mo-comp-menus-standard-container-color, --mo-comp-menu-line,
     --mo-comp-menu-container-elevation (level 2), --mo-comp-menu-padding
-    --mo-comp-menu-list-item-container-height, --mo-comp-menu-item-padding, --mo-comp-menu-item-radius, --mo-comp-menu-item-edge-radius, --mo-comp-menu-item-selected-radius,
-    --mo-comp-menu-item-gap, --mo-comp-menu-item-font-size,
-    --mo-comp-menu-item-weight, --mo-comp-menu-item-letter-spacing, --mo-comp-menu-list-item-label-text-color, --mo-comp-menu-item-icon-color, --mo-comp-menu-item-supporting-text,
-    --mo-comp-menu-item-hover-surface, --mo-comp-menu-item-hover-text, --mo-comp-menu-item-pressed-surface, --mo-comp-menu-list-item-selected-container-color,
-    --mo-comp-menu-list-item-selected-label-text-color, --mo-comp-menu-item-selected-weight, --mo-comp-menu-item-disabled-opacity
-    --mo-comp-menu-group-gap, --mo-comp-menu-group-inner-radius, --mo-comp-menu-group-label-text, --mo-comp-menu-divider-color, --mo-comp-menu-divider-margin
+    --mo-comp-menus-menu-item-height, --mo-comp-menu-item-padding, --mo-comp-menus-menu-item-shape, --mo-comp-menus-menu-item-first-child-shape, --mo-comp-menus-menu-item-selected-shape,
+    --mo-comp-menu-item-gap, --mo-comp-menus-menu-item-label-text-size,
+    --mo-comp-menus-menu-item-label-text-weight, --mo-comp-menus-menu-item-label-text-tracking, --mo-comp-menu-list-item-label-text-color, --mo-comp-menu-item-icon-color, --mo-comp-menu-item-supporting-text,
+    --mo-comp-menu-item-hover-surface, --mo-comp-menu-item-hover-text, --mo-comp-menu-item-pressed-surface, --mo-comp-menus-standard-menu-item-selected-container-color,
+    --mo-comp-menus-standard-menu-item-selected-label-text-color, --mo-comp-menu-item-selected-weight, --mo-comp-menu-item-disabled-opacity
+    --mo-comp-menu-group-gap, --mo-comp-menus-menu-item-first-child-inner-corner-corner-size, --mo-comp-menu-group-label-text, --mo-comp-menu-divider-color, --mo-comp-menu-divider-margin
     --mo-comp-menu-vibrant-surface, --mo-comp-menu-vibrant-text, --mo-comp-menu-vibrant-selected-surface, --mo-comp-menu-vibrant-selected-text
     --mo-comp-menu-submenu-gap, --mo-comp-dropdown-menu-gap   between a submenu and its item, and a dropdown menu and its button
   Exposed dropdown menu (ExposedDropdownMenu, exposedDropdownMenuClass): the theme's text field (.mo-text-field with its
@@ -35,24 +35,24 @@
     max-width: var(--mo-comp-menu-max-width, none);
     max-height: var(--mo-comp-menu-max-height, none);
     overflow-y: auto;
-    border-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
-    background: var(--mo-comp-menu-container-color, var(--mo-sys-elevation-level2-color));
+    border-radius: var(--mo-comp-menus-container-shape, var(--mo-comp-block-radius-small));
+    background: var(--mo-comp-menus-standard-container-color, var(--mo-sys-elevation-level2-color));
     padding: var(--mo-comp-menu-padding, 0.5rem);
     box-shadow:
-      0 0 0 1px var(--mo-comp-menu-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-menu-line, var(--mo-comp-block-line)),
       var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-shadow));
   }
   .mo-menu__item {
     display: flex;
-    min-height: calc(var(--mo-comp-menu-list-item-container-height, 0px) + var(--mo-sys-density) * var(--mo-sys-density-step));
+    min-height: calc(var(--mo-comp-menus-menu-item-height, 0px) + var(--mo-sys-density) * var(--mo-sys-density-step));
     align-items: center;
     gap: var(--mo-comp-menu-item-gap, 0.75rem);
-    border-radius: var(--mo-comp-menu-item-radius, calc(var(--mo-sys-block-radius-small) - 0.25rem));
+    border-radius: var(--mo-comp-menus-menu-item-shape, calc(var(--mo-comp-block-radius-small) - 0.25rem));
     padding: var(--mo-comp-menu-item-padding, 0.5rem 0.75rem);
-    color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
-    font-size: var(--mo-comp-menu-item-font-size, var(--mo-sys-typescale-body-medium-size));
-    font-weight: var(--mo-comp-menu-item-weight, inherit);
-    letter-spacing: var(--mo-comp-menu-item-letter-spacing, var(--mo-sys-typescale-body-medium-tracking));
+    color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-comp-block-text) 80%, transparent));
+    font-size: var(--mo-comp-menus-menu-item-label-text-size, var(--mo-sys-typescale-body-medium-size));
+    font-weight: var(--mo-comp-menus-menu-item-label-text-weight, inherit);
+    letter-spacing: var(--mo-comp-menus-menu-item-label-text-tracking, var(--mo-sys-typescale-body-medium-tracking));
     transition:
       background-color var(--mo-sys-motion-spring-fast-effects),
       color var(--mo-sys-motion-spring-fast-effects);
@@ -66,31 +66,31 @@
     cursor: pointer;
   }
   .mo-menu__item:is([aria-current='page'], [aria-current='true'], [aria-checked='true'], [aria-pressed='true'], [aria-selected='true']) {
-    background: var(--mo-comp-menu-list-item-selected-container-color, transparent);
-    color: var(--mo-comp-menu-list-item-selected-label-text-color, var(--mo-sys-block-accent));
+    background: var(--mo-comp-menus-standard-menu-item-selected-container-color, transparent);
+    color: var(--mo-comp-menus-standard-menu-item-selected-label-text-color, var(--mo-comp-block-accent));
     font-weight: var(--mo-comp-menu-item-selected-weight, 500);
   }
   /* Material 3 menus page, Specs: an item has a 4dp corner, the first and last item of a menu or group 12dp on the outer
      corners, and the selected item 12dp. */
   :is(.mo-menu, .mo-menu__group-items) > li:first-child > .mo-menu__item,
   :is(.mo-menu, .mo-menu__group-items) > li:first-child > .mo-menu__item-submenu > .mo-menu__item {
-    border-start-start-radius: var(--mo-comp-menu-item-edge-radius, var(--mo-sys-block-radius-small));
-    border-start-end-radius: var(--mo-comp-menu-item-edge-radius, var(--mo-sys-block-radius-small));
+    border-start-start-radius: var(--mo-comp-menus-menu-item-first-child-shape, var(--mo-comp-block-radius-small));
+    border-start-end-radius: var(--mo-comp-menus-menu-item-first-child-shape, var(--mo-comp-block-radius-small));
   }
   :is(.mo-menu, .mo-menu__group-items) > li:last-child > .mo-menu__item,
   :is(.mo-menu, .mo-menu__group-items) > li:last-child > .mo-menu__item-submenu > .mo-menu__item {
-    border-end-start-radius: var(--mo-comp-menu-item-edge-radius, var(--mo-sys-block-radius-small));
-    border-end-end-radius: var(--mo-comp-menu-item-edge-radius, var(--mo-sys-block-radius-small));
+    border-end-start-radius: var(--mo-comp-menus-menu-item-last-child-shape, var(--mo-comp-block-radius-small));
+    border-end-end-radius: var(--mo-comp-menus-menu-item-last-child-shape, var(--mo-comp-block-radius-small));
   }
   .mo-menu__item:is([aria-current='page'], [aria-current='true'], [aria-checked='true'], [aria-pressed='true'], [aria-selected='true']) {
-    border-radius: var(--mo-comp-menu-item-selected-radius, var(--mo-sys-block-radius-small));
+    border-radius: var(--mo-comp-menus-menu-item-selected-shape, var(--mo-comp-block-radius-small));
   }
   .mo-menu__item:is(:hover, [aria-expanded='true']) {
-    background: var(--mo-comp-menu-item-hover-surface, var(--mo-sys-block-tint));
-    color: var(--mo-comp-menu-item-hover-text, var(--mo-sys-block-accent));
+    background: var(--mo-comp-menu-item-hover-surface, var(--mo-comp-block-tint));
+    color: var(--mo-comp-menu-item-hover-text, var(--mo-comp-block-accent));
   }
   .mo-menu__item:active {
-    background: var(--mo-comp-menu-item-pressed-surface, var(--mo-comp-menu-item-hover-surface, var(--mo-sys-block-tint)));
+    background: var(--mo-comp-menu-item-pressed-surface, var(--mo-comp-menu-item-hover-surface, var(--mo-comp-block-tint)));
   }
   .mo-menu__item:is(:disabled, [aria-disabled='true']) {
     opacity: var(--mo-comp-menu-item-disabled-opacity, 0.5);
@@ -98,7 +98,7 @@
   }
   .mo-menu__item:is(:disabled, [aria-disabled='true']):is(:hover, :active) {
     background: transparent;
-    color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
+    color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-comp-block-text) 80%, transparent));
   }
   /* An action: a <button> as wide as the menu, drawn as a link item. */
   button.mo-menu__item {
@@ -106,9 +106,9 @@
     border: 0;
     background: transparent;
     font: inherit;
-    font-size: var(--mo-comp-menu-item-font-size, var(--mo-sys-typescale-body-medium-size));
-    font-weight: var(--mo-comp-menu-item-weight, inherit);
-    letter-spacing: var(--mo-comp-menu-item-letter-spacing, var(--mo-sys-typescale-body-medium-tracking));
+    font-size: var(--mo-comp-menus-menu-item-label-text-size, var(--mo-sys-typescale-body-medium-size));
+    font-weight: var(--mo-comp-menus-menu-item-label-text-weight, inherit);
+    letter-spacing: var(--mo-comp-menus-menu-item-label-text-tracking, var(--mo-sys-typescale-body-medium-tracking));
     text-align: start;
     cursor: pointer;
   }
@@ -127,7 +127,7 @@
   .mo-menu__item-icon,
   .mo-menu__item-trailing-icon {
     flex-shrink: 0;
-    color: var(--mo-comp-menu-item-icon-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-menu-item-icon-color, var(--mo-comp-block-muted));
     transition: color var(--mo-sys-motion-spring-fast-effects);
   }
   .mo-menu__item:is(:hover, [aria-expanded='true']) :is(.mo-menu__item-icon, .mo-menu__item-trailing-icon),
@@ -150,7 +150,7 @@
     flex-direction: column;
   }
   .mo-menu__item-supporting {
-    color: var(--mo-comp-menu-item-supporting-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-menu-item-supporting-text, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-body-small-size);
     line-height: var(--mo-sys-typescale-body-small-line-height);
     font-weight: var(--mo-sys-typescale-body-small-weight);
@@ -158,7 +158,7 @@
   }
   .mo-menu__item-trailing-supporting {
     flex-shrink: 0;
-    color: var(--mo-comp-menu-item-supporting-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-menu-item-supporting-text, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-body-small-size);
     line-height: var(--mo-sys-typescale-body-small-line-height);
     font-weight: var(--mo-sys-typescale-body-small-weight);
@@ -177,7 +177,7 @@
   .mo-menu__group-label {
     display: block;
     padding: 0.5rem 0.75rem 0.25rem;
-    color: var(--mo-comp-menu-group-label-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-menu-group-label-text, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-label-medium-size);
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     font-weight: var(--mo-sys-typescale-label-medium-weight);
@@ -193,24 +193,27 @@
     box-shadow: none;
   }
   .mo-menu:has(> .mo-menu__group):not(.mo-menu__groups-divider) > .mo-menu__group {
-    border-radius: var(--mo-comp-menu-group-inner-radius, var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small)));
-    background: var(--mo-comp-menu-container-color, var(--mo-sys-elevation-level2-color));
+    border-radius: var(
+      --mo-comp-menus-menu-item-first-child-inner-corner-corner-size,
+      var(--mo-comp-menus-container-shape, var(--mo-comp-block-radius-small))
+    );
+    background: var(--mo-comp-menus-standard-container-color, var(--mo-sys-elevation-level2-color));
     padding: var(--mo-comp-menu-padding, 0.5rem);
     box-shadow:
-      0 0 0 1px var(--mo-comp-menu-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-menu-line, var(--mo-comp-block-line)),
       var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-shadow));
   }
   .mo-menu:has(> .mo-menu__group):not(.mo-menu__groups-divider) > .mo-menu__group:first-child {
-    border-start-start-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
-    border-start-end-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
+    border-start-start-radius: var(--mo-comp-menus-container-shape, var(--mo-comp-block-radius-small));
+    border-start-end-radius: var(--mo-comp-menus-container-shape, var(--mo-comp-block-radius-small));
   }
   .mo-menu:has(> .mo-menu__group):not(.mo-menu__groups-divider) > .mo-menu__group:last-child {
-    border-end-start-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
-    border-end-end-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
+    border-end-start-radius: var(--mo-comp-menus-container-shape, var(--mo-comp-block-radius-small));
+    border-end-end-radius: var(--mo-comp-menus-container-shape, var(--mo-comp-block-radius-small));
   }
   .mo-menu__groups-divider > .mo-menu__group + .mo-menu__group {
     margin-top: var(--mo-comp-menu-divider-margin, 0.375rem);
-    border-top: 1px solid var(--mo-comp-menu-divider-color, var(--mo-sys-block-line));
+    border-top: 1px solid var(--mo-comp-menu-divider-color, var(--mo-comp-block-line));
     padding-top: var(--mo-comp-menu-divider-margin, 0.375rem);
   }
   .mo-menu__divider {
@@ -230,7 +233,7 @@
     max-height: var(--mo-comp-menu-max-height, calc(100dvh - 2rem));
     margin: 0;
     border: 0;
-    color: var(--mo-sys-block-text);
+    color: var(--mo-comp-block-text);
     transition:
       opacity var(--mo-sys-motion-spring-fast-effects),
       scale var(--mo-sys-motion-spring-fast-spatial),
@@ -327,7 +330,7 @@
     inset-inline-end: var(--mo-comp-text-field-padding, 1.25rem);
     width: var(--mo-comp-exposed-dropdown-menu-icon-size, 1.25rem);
     height: var(--mo-comp-exposed-dropdown-menu-icon-size, 1.25rem);
-    color: var(--mo-comp-exposed-dropdown-menu-icon-color, var(--mo-comp-text-field-label-color, var(--mo-sys-block-muted)));
+    color: var(--mo-comp-exposed-dropdown-menu-icon-color, var(--mo-comp-text-field-label-color, var(--mo-comp-block-muted)));
     pointer-events: none;
     translate: 0 -50%;
     transition: rotate var(--mo-sys-motion-spring-fast-spatial);
@@ -363,22 +366,22 @@
       max-height: var(--mo-comp-menu-max-height, min(20rem, calc(100dvh - 2rem)));
       margin-block: var(--mo-comp-dropdown-menu-gap, 0.25rem);
       border: 0;
-      border-radius: var(--mo-comp-menu-container-shape, var(--mo-sys-block-radius-small));
-      background: var(--mo-comp-menu-container-color, var(--mo-sys-elevation-level2-color));
+      border-radius: var(--mo-comp-menus-container-shape, var(--mo-comp-block-radius-small));
+      background: var(--mo-comp-menus-standard-container-color, var(--mo-sys-elevation-level2-color));
       padding: var(--mo-comp-menu-padding, 0.5rem);
       box-shadow:
-        0 0 0 1px var(--mo-comp-menu-line, var(--mo-sys-block-line)),
+        0 0 0 1px var(--mo-comp-menu-line, var(--mo-comp-block-line)),
         var(--mo-comp-menu-container-elevation, var(--mo-sys-elevation-level2-shadow));
-      color: var(--mo-sys-block-text);
+      color: var(--mo-comp-block-text);
     }
     .mo-select__option {
-      min-height: calc(var(--mo-comp-menu-list-item-container-height, 0px) + var(--mo-sys-density) * var(--mo-sys-density-step));
-      border-radius: var(--mo-comp-menu-item-radius, calc(var(--mo-sys-block-radius-small) - 0.25rem));
+      min-height: calc(var(--mo-comp-menus-menu-item-height, 0px) + var(--mo-sys-density) * var(--mo-sys-density-step));
+      border-radius: var(--mo-comp-menus-menu-item-shape, calc(var(--mo-comp-block-radius-small) - 0.25rem));
       padding: var(--mo-comp-menu-item-padding, 0.5rem 0.75rem);
-      color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
-      font-size: var(--mo-comp-menu-item-font-size, var(--mo-sys-typescale-body-medium-size));
-      font-weight: var(--mo-comp-menu-item-weight, inherit);
-      letter-spacing: var(--mo-comp-menu-item-letter-spacing, var(--mo-sys-typescale-body-medium-tracking));
+      color: var(--mo-comp-menu-list-item-label-text-color, color-mix(in oklab, var(--mo-comp-block-text) 80%, transparent));
+      font-size: var(--mo-comp-menus-menu-item-label-text-size, var(--mo-sys-typescale-body-medium-size));
+      font-weight: var(--mo-comp-menus-menu-item-label-text-weight, inherit);
+      letter-spacing: var(--mo-comp-menus-menu-item-label-text-tracking, var(--mo-sys-typescale-body-medium-tracking));
       cursor: pointer;
       transition:
         background-color var(--mo-sys-motion-spring-fast-effects),
@@ -388,14 +391,14 @@
       display: none;
     }
     .mo-select__option:checked {
-      background: var(--mo-comp-menu-list-item-selected-container-color, transparent);
-      color: var(--mo-comp-menu-list-item-selected-label-text-color, var(--mo-sys-block-accent));
+      background: var(--mo-comp-menus-standard-menu-item-selected-container-color, transparent);
+      color: var(--mo-comp-menus-standard-menu-item-selected-label-text-color, var(--mo-comp-block-accent));
       font-weight: var(--mo-comp-menu-item-selected-weight, 500);
     }
     .mo-select__option:is(:hover, :focus-visible) {
       outline: none;
-      background: var(--mo-comp-menu-item-hover-surface, var(--mo-sys-block-tint));
-      color: var(--mo-comp-menu-item-hover-text, var(--mo-sys-block-accent));
+      background: var(--mo-comp-menu-item-hover-surface, var(--mo-comp-block-tint));
+      color: var(--mo-comp-menu-item-hover-text, var(--mo-comp-block-accent));
     }
     .mo-select__option:disabled {
       opacity: var(--mo-comp-menu-item-disabled-opacity, 0.5);

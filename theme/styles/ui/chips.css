@@ -30,13 +30,13 @@
     gap: var(--mo-comp-chip-gap, 0.5rem);
     min-height: calc(var(--mo-comp-filter-chip-container-height, 0px) + var(--mo-sys-density) * var(--mo-sys-density-step));
     border: 0;
-    border-radius: var(--mo-comp-filter-chip-container-shape, var(--mo-sys-block-control-radius));
+    border-radius: var(--mo-comp-filter-chip-container-shape, var(--mo-comp-block-control-radius));
     padding: var(--mo-comp-chip-padding, 0.55rem 1rem);
     /* Density takes 2 px off each side, never the text; --mo-comp-chip-padding-block (else 0.55rem) is the room today. */
     padding-block: calc(var(--mo-comp-chip-padding-block, 0.55rem) + var(--mo-sys-density) * var(--mo-sys-density-step) / 2);
-    background: var(--mo-comp-chip-surface, var(--mo-sys-block-surface));
+    background: var(--mo-comp-chip-surface, var(--mo-comp-block-surface));
     color: var(--mo-comp-filter-chip-unselected-label-text-color, inherit);
-    box-shadow: inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-sys-block-line));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-comp-block-line));
     font-family: inherit;
     font-size: var(--mo-comp-chip-font-size, var(--mo-sys-typescale-label-large-size));
     line-height: var(--mo-sys-typescale-label-large-line-height);
@@ -77,8 +77,8 @@
     height: var(--mo-comp-chip-icon-size, 1.125rem);
   }
   .mo-chip:hover {
-    box-shadow: inset 0 0 0 1px var(--mo-comp-chip-hover-line, var(--mo-sys-block-accent));
-    color: var(--mo-comp-chip-hover-text, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-chip-hover-line, var(--mo-comp-block-accent));
+    color: var(--mo-comp-chip-hover-text, var(--mo-comp-block-accent));
   }
   /* A filter chip's check: only on the chosen one, and only where the theme shows it. */
   .mo-chip > .mo-chip__check {
@@ -88,16 +88,16 @@
   :where(.mo-chip).mo-is-filter:is([aria-pressed='true'], [aria-current='page']),
   .mo-chip:is(:where(.mo-chip).mo-is-input, :where(.mo-chip).mo-is-suggestion)[aria-pressed='true'],
   :where(.mo-chip).mo-is-removable[data-selected] {
-    background: var(--mo-comp-filter-chip-flat-selected-container-color, var(--mo-sys-block-accent));
+    background: var(--mo-comp-filter-chip-flat-selected-container-color, var(--mo-comp-block-accent));
     box-shadow: none;
-    color: var(--mo-comp-filter-chip-selected-label-text-color, var(--mo-sys-block-on-accent));
+    color: var(--mo-comp-filter-chip-selected-label-text-color, var(--mo-comp-block-on-accent));
   }
   :where(.mo-chip).mo-is-filter:is([aria-pressed='true'], [aria-current='page']):hover,
   .mo-chip:is(:where(.mo-chip).mo-is-input, :where(.mo-chip).mo-is-suggestion)[aria-pressed='true']:hover,
   :where(.mo-chip).mo-is-removable[data-selected]:hover {
-    background: var(--mo-comp-chip-selected-hover, var(--mo-comp-filter-chip-flat-selected-container-color, var(--mo-sys-block-accent)));
+    background: var(--mo-comp-chip-selected-hover, var(--mo-comp-filter-chip-flat-selected-container-color, var(--mo-comp-block-accent)));
     box-shadow: none;
-    color: var(--mo-comp-filter-chip-selected-label-text-color, var(--mo-sys-block-on-accent));
+    color: var(--mo-comp-filter-chip-selected-label-text-color, var(--mo-comp-block-on-accent));
   }
   :where(.mo-chip).mo-is-filter:is([aria-pressed='true'], [aria-current='page']) > .mo-chip__check {
     display: var(--mo-comp-chip-selected-check, none);
@@ -175,7 +175,7 @@
   :where(.mo-chip).mo-is-dragged,
   :where(.mo-chip).mo-is-dragged:hover {
     box-shadow:
-      inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-sys-block-line)),
+      inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-comp-block-line)),
       var(--mo-comp-chip-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
     cursor: grabbing;
   }

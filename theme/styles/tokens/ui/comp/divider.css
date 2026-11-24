@@ -2,6 +2,6 @@
 
 @layer components {
   .mo-menu__divider {
-    --mo-comp-divider-color: var(--mo-comp-menu-divider-color, var(--mo-sys-block-line));
+    --mo-comp-divider-color: var(--mo-comp-menu-divider-color, var(--mo-comp-block-line));
   }
 }

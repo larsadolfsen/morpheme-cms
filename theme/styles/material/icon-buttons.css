@@ -20,7 +20,7 @@
   @media (hover: hover) {
     :where(.mo-icon-button).mo-is-standard:hover,
     :where(.mo-icon-button).mo-is-outlined:hover {
-      background: var(--mo-sys-state-mo-hover-layer);
+      background: var(--mo-sys-state-hover-state-layer-color);
       color: var(--mo-sys-color-on-surface-variant);
     }
   }

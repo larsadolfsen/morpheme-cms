@@ -6,14 +6,14 @@
   elements at the same specificity (the collision check in the pull request).
 */
 @layer components {
-  /* The one column of "Steps": at most --mo-sys-block-list-measure-max wide (the owner's rule for blocks of plain text rows, above the list columns in blocks.css). */
+  /* The one column of "Steps": at most --mo-comp-block-list-measure-max wide (the owner's rule for blocks of plain text rows, above the list columns in blocks.css). */
   .mo-block-steps {
-    max-width: var(--mo-sys-block-list-measure-max);
+    max-width: var(--mo-comp-block-list-measure-max);
   }
 
   /* "Notice": a short notice in a box with the accent along its left edge (notice/). */
   .mo-block-notice {
-    border-left: 4px solid var(--mo-sys-block-accent);
+    border-left: 4px solid var(--mo-comp-block-accent);
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
     font-weight: var(--mo-sys-typescale-body-large-weight);
@@ -34,7 +34,7 @@
     margin-block: 2.5rem;
   }
   .mo-block-steps > :not(:last-child) {
-    margin-bottom: var(--mo-sys-block-step-gap);
+    margin-bottom: var(--mo-comp-block-step-gap);
   }
   /* The line joins a number to the next number and goes no further: each step but the last draws it from its number's middle to the
      next number's middle (the step's own height, the gap, and half a number). */
@@ -42,10 +42,10 @@
     content: '';
     position: absolute;
     top: 1.5rem;
-    bottom: calc(-1 * var(--mo-sys-block-step-gap) - 1.5rem);
+    bottom: calc(-1 * var(--mo-comp-block-step-gap) - 1.5rem);
     inset-inline-start: 1.5rem;
     width: 1px;
-    background: var(--mo-sys-block-line);
+    background: var(--mo-comp-block-line);
   }
   .mo-block-steps__step {
     position: relative;
@@ -60,8 +60,8 @@
     flex-shrink: 0;
     place-items: center;
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--mo-sys-block-accent);
-    color: var(--mo-sys-block-on-accent);
+    background: var(--mo-comp-block-accent);
+    color: var(--mo-comp-block-on-accent);
     font-size: var(--mo-sys-typescale-title-medium-size);
     line-height: var(--mo-sys-typescale-title-medium-line-height);
     font-weight: var(--mo-sys-typescale-title-medium-weight);
@@ -81,6 +81,6 @@
   .mo-block-steps__step-text {
     margin-top: 0.375rem;
     max-width: 50ch;
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
 }

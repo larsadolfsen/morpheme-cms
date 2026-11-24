@@ -3,19 +3,19 @@
 /* The corners between the two halves follow the size (Material's 4dp up to medium, 8 and 12dp). */
 @layer components {
   .mo-split-button > .mo-button {
-    --mo-comp-split-button-inner: var(--mo-comp-split-button-medium-inner-corner-corner-size, calc(var(--mo-sys-block-radius-small) / 4));
+    --mo-comp-split-button-inner: var(--mo-comp-split-button-medium-inner-corner-corner-size, calc(var(--mo-comp-block-radius-small) / 4));
   }
 }
 @layer components {
   .mo-split-button > :where(.mo-button).mo-is-large {
-    --mo-comp-split-button-inner: var(--mo-comp-split-button-large-inner-corner-corner-size, calc(var(--mo-sys-block-radius-small) / 2));
+    --mo-comp-split-button-inner: var(--mo-comp-split-button-large-inner-corner-corner-size, calc(var(--mo-comp-block-radius-small) / 2));
   }
 }
 @layer components {
   .mo-split-button > :where(.mo-button).mo-is-xlarge {
     --mo-comp-split-button-inner: var(
       --mo-comp-split-button-xlarge-inner-corner-corner-size,
-      calc(var(--mo-sys-block-radius-small) * 0.75)
+      calc(var(--mo-comp-block-radius-small) * 0.75)
     );
   }
 }

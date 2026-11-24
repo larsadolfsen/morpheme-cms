@@ -8,7 +8,7 @@
   .mo-card__body the .mo-card__headline (title-large), .mo-card__subhead (label-small), .mo-card__supporting (body-medium), the block's .mo-card__content and the
   .mo-card__actions (the buttons). What a block puts on a card without these (its icon, heading, text, image) is the block's own (block-…).
   The tokens, M3's names where Specs prints one, else ours under --mo-comp-card-; each one the --mo-sys-* token as its fallback:
-    --mo-comp-card-radius, --mo-comp-card-padding   its corners and the room inside it (12dp, 16dp: Specs, Measurements)
+    --mo-comp-elevated-card-container-shape, --mo-comp-card-padding   its corners and the room inside it (12dp, 16dp: Specs, Measurements)
     --mo-comp-card-gap                              the room between cards (8px, M3 Cards: "Padding between cards 8dp max") and the editor's small step for a block's row and handle
     --mo-comp-card-media-gap, --mo-comp-card-subhead-gap, --mo-comp-card-text-gap, --mo-comp-card-action-gap   the media to the headline (16dp), the
                                     headline to the subhead (4dp), to the supporting text and the content (8dp), the text to the buttons (16dp); M3 is silent
@@ -19,7 +19,7 @@
 @layer components {
   .mo-card {
     display: block;
-    border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
+    border-radius: var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius));
     padding: var(--mo-comp-card-padding, var(--mo-ref-space-200));
   }
   .mo-card[hidden] {
@@ -32,7 +32,7 @@
   /* Each kind at its level (M3's, tokens/ui/comp/card.css): at rest, also while pressed or with focus; a link pointed at, one level higher;
      and dragged. */
   :where(:is(a, button).mo-card) {
-    transition: box-shadow 0.3s var(--mo-sys-block-ease-quick);
+    transition: box-shadow 0.3s var(--mo-comp-block-ease-quick);
   }
   button.mo-card {
     width: 100%;
@@ -78,7 +78,7 @@
       var(--mo-comp-card-shadow);
   }
   :where(.mo-card).mo-is-filled {
-    background: var(--mo-comp-filled-card-container-color, var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-tint)));
+    background: var(--mo-comp-filled-card-container-color, var(--mo-sys-color-surface-container-highest, var(--mo-comp-block-tint)));
     box-shadow:
       inset 0 0 0 1px var(--mo-comp-card-filled-line, transparent),
       var(--mo-comp-card-shadow);
@@ -86,7 +86,7 @@
   :where(.mo-card).mo-is-outlined {
     background: var(--mo-comp-outlined-card-container-color, var(--mo-sys-elevation-level0-color));
     box-shadow:
-      inset 0 0 0 1px var(--mo-comp-outlined-card-outline-color, var(--mo-sys-block-line)),
+      inset 0 0 0 1px var(--mo-comp-outlined-card-outline-color, var(--mo-comp-block-line)),
       var(--mo-comp-card-shadow);
   }
   /* A card with media (CardMedia, or the `media` prop): the image to the card's edge, no padding, in the card's corners. */
@@ -111,8 +111,8 @@
   }
   /* With text under it the media is its own rounded rectangle: its bottom corners are the card's radius (deviation CM1, owner 16 Nov 2026). */
   .mo-card__media-slot:has(+ .mo-card__body) {
-    border-end-start-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
-    border-end-end-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
+    border-end-start-radius: var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius));
+    border-end-end-radius: var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius));
   }
   .mo-card__media > picture,
   .mo-card__media-slot > picture {
@@ -171,14 +171,14 @@
     line-height: var(--mo-comp-card-subhead-line-height, var(--mo-sys-typescale-label-small-line-height));
     font-weight: var(--mo-comp-card-subhead-weight, var(--mo-sys-typescale-label-small-weight));
     letter-spacing: var(--mo-comp-card-subhead-tracking, var(--mo-sys-typescale-label-small-tracking));
-    color: var(--mo-comp-card-subhead-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-card-subhead-color, var(--mo-comp-block-muted));
   }
   .mo-card__supporting {
     font-size: var(--mo-comp-card-supporting-size, var(--mo-sys-typescale-body-medium-size));
     line-height: var(--mo-comp-card-supporting-line-height, var(--mo-sys-typescale-body-medium-line-height));
     font-weight: var(--mo-comp-card-supporting-weight, var(--mo-sys-typescale-body-medium-weight));
     letter-spacing: var(--mo-comp-card-supporting-tracking, var(--mo-sys-typescale-body-medium-tracking));
-    color: var(--mo-comp-card-supporting-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-card-supporting-color, var(--mo-comp-block-muted));
   }
   /* The action area (M3: buttons, icon buttons, selection controls): in a row at the bottom of the card, the card's height taken up above it. */
   .mo-card__body > .mo-card__actions {

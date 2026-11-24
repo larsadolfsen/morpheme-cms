@@ -115,8 +115,8 @@ import { safeImageSrc } from '../lib/safe-url.mjs';
 // The parts Material 3 has (a button, an icon button, a chip, a carousel …) are the theme's UI parts
 // (packages/editor/theme/ui/, through themeUi.ts), the same the site draws, in the theme's design (its ui.css and
 // styles/global.css): here only what the editor gives them (its icons, what a tap does). The editor's own parts (the
-// SEO rating, the colour field, the form's layout …) take the theme's design from its variables (--mo-sys-block-radius,
-// --mo-sys-block-radius-small, --mo-sys-block-shadow and the site's colours).
+// SEO rating, the colour field, the form's layout …) take the theme's design from its variables (--mo-comp-block-radius,
+// --mo-comp-block-radius-small, --mo-comp-block-shadow and the site's colours).
 
 // ---------------------------------------------------------------------------------------------------
 // Buttons
@@ -370,7 +370,7 @@ const toolbarMenuSize = {
   justifyContent: 'center',
   paddingInline: '0.125rem',
   gap: '0.125rem',
-  '--mo-comp-button-medium-icon-size': '1.25rem',
+  '--mo-comp-button-small-icon-size': '1.25rem',
 } as CSSProperties;
 
 // ---------------------------------------------------------------------------------------------------
@@ -3972,7 +3972,7 @@ export type TokenKind = 'shape' | 'elevation' | 'font' | 'color';
 
 /** A sample of one of the theme's design tokens before its name in a row, as a ListItem's `leading`, beside its first
  * two lines as an icon,
- * drawn with the token itself (`value`, its CSS variable as CSS: `var(--mo-sys-radius)`), so it shows what the theme sets: a corner with its radius
+ * drawn with the token itself (`value`, its CSS variable as CSS: `var(--mo-sys-shape-corner-medium)`), so it shows what the theme sets: a corner with its radius
  * (shape), a surface with its shadow (elevation), "Aa" in its font (font; in `weight`, for a type role) and a round of its
  * colour (color). Material 3 has none; the editor's own. */
 export function LeadingToken({ kind, value, weight }: { kind: TokenKind; value: string; weight?: string }) {

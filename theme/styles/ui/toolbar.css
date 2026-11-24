@@ -25,7 +25,7 @@
     justify-content: space-between;
     padding: var(--mo-comp-toolbar-docked-padding-block, 0.75rem) var(--mo-comp-toolbar-docked-padding-inline, 1rem)
       max(var(--mo-comp-toolbar-docked-padding-block, 0.75rem), env(safe-area-inset-bottom));
-    border-top: var(--mo-comp-toolbar-docked-line-width, 1px) solid var(--mo-comp-toolbar-docked-line, var(--mo-sys-block-line));
+    border-top: var(--mo-comp-toolbar-docked-line-width, 1px) solid var(--mo-comp-toolbar-docked-line, var(--mo-comp-block-line));
     backdrop-filter: var(--mo-comp-toolbar-docked-backdrop, blur(16px));
     /* Level 2 at rest (M3 elevation tokens: "Toolbar" 2; Toolbars, Specs: docked bottom-app-bar container elevation 2). */
     box-shadow: var(--mo-sys-elevation-level2-rest-shadow);
@@ -36,20 +36,20 @@
     border-radius: var(--mo-comp-toolbar-floating-container-shape, var(--mo-sys-shape-corner-full));
     padding: var(--mo-comp-toolbar-floating-padding, 0.5rem);
     box-shadow:
-      0 0 0 1px var(--mo-comp-toolbar-floating-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-toolbar-floating-line, var(--mo-comp-block-line)),
       var(--mo-comp-toolbar-floating-shadow, var(--mo-sys-elevation-level3-shadow));
   }
   :where(.mo-toolbar).mo-is-vertical {
     flex-direction: column;
   }
   :where(.mo-toolbar).mo-is-standard {
-    background: var(--mo-comp-toolbar-docked-container-color, color-mix(in srgb, var(--mo-sys-block-surface) 95%, transparent));
-    color: var(--mo-comp-toolbar-standard-text, var(--mo-sys-block-text));
+    background: var(--mo-comp-toolbar-docked-container-color, color-mix(in srgb, var(--mo-comp-block-surface) 95%, transparent));
+    color: var(--mo-comp-toolbar-standard-text, var(--mo-comp-block-text));
   }
   /* Vibrant: in the accent, without a line; what stands on it turned around, as on a banner in the accent. */
   :where(.mo-toolbar).mo-is-vibrant {
-    background: var(--mo-comp-toolbar-vibrant-surface, var(--mo-sys-block-accent));
-    color: var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-toolbar-vibrant-surface, var(--mo-comp-block-accent));
+    color: var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent));
   }
   /* Paired with a FAB: the FAB beside a floating toolbar (under a vertical one); collapsed into it, only the FAB,
      the toolbar shrinking towards it. */

@@ -14,18 +14,18 @@
 
   /* A section of a page's or post's text with a colour, an image or the whole width of the window (lib/text-sections.mjs,
      RichText.astro): a panel the width of the text column, from its heading to the next (its first and last parts' margins: at
-     the end of the file). The colours are Surface and the theme's Primary, Secondary and Tertiary (--mo-sys-block-primary and the
-     like, with their text colours --mo-sys-block-on-primary …). A section from before Tint is Surface, and Accent is Primary. */
+     the end of the file). The colours are Surface and the theme's Primary, Secondary and Tertiary (--mo-comp-block-primary and the
+     like, with their text colours --mo-comp-block-on-primary …). A section from before Tint is Surface, and Accent is Primary. */
   .mo-text-section {
-    margin-block: var(--mo-sys-block-section-margin) 0;
-    border-radius: var(--mo-sys-block-radius);
-    padding: var(--mo-sys-block-section-padding);
+    margin-block: var(--mo-comp-block-section-margin) 0;
+    border-radius: var(--mo-comp-block-radius);
+    padding: var(--mo-comp-block-section-padding);
     /* The space below belongs inside the colour: it runs down to the next section, or to the end of the text. */
-    padding-block-end: calc(var(--mo-sys-block-section-padding) + var(--mo-sys-block-section-margin));
+    padding-block-end: calc(var(--mo-comp-block-section-padding) + var(--mo-comp-block-section-margin));
   }
   :where(.mo-text-section).mo-is-surface {
-    background: var(--mo-sys-block-surface);
-    box-shadow: var(--mo-sys-block-shadow);
+    background: var(--mo-comp-block-surface);
+    box-shadow: var(--mo-comp-block-shadow);
   }
   /* An image behind the section (<img class="mo-text-section__image"> first in it, RichText.astro): it fills the panel, and the text sits on a
      panel of Material 3's inverse-surface at full strength (the section's fill is --mo-sys-color-inverse-surface here, tokens/blocks/sys.css; with Surface the panel is the surface), with
@@ -41,15 +41,15 @@
   :where(.mo-text-section).mo-has-image::before {
     content: '';
     position: absolute;
-    inset: calc(var(--mo-sys-block-section-padding) / 2);
-    inset-block-end: calc(var(--mo-sys-block-section-padding) / 2 + var(--mo-sys-block-section-margin));
+    inset: calc(var(--mo-comp-block-section-padding) / 2);
+    inset-block-end: calc(var(--mo-comp-block-section-padding) / 2 + var(--mo-comp-block-section-margin));
     z-index: -1;
-    border-radius: var(--mo-sys-block-radius-small);
+    border-radius: var(--mo-comp-block-radius-small);
     background: var(--mo-sys-section-fill);
   }
   /* Surface with an image: the panel is the section's own surface, and the text keeps the page's roles on it. */
   :where(.mo-text-section).mo-has-image.mo-is-surface::before {
-    background: var(--mo-sys-block-surface);
+    background: var(--mo-comp-block-surface);
   }
   :where(.mo-text-section).mo-has-image.mo-is-full::before {
     inset-inline: 0;
@@ -66,7 +66,7 @@
     border-radius: 0;
   }
   /* Across the whole width of the window (`width` full): without corners; it reaches out of the text to the window's edges, from
-     where the text starts at the left of the page's container (--mo-sys-block-page-width, --mo-sys-block-gutter), and its content stays in the text
+     where the text starts at the left of the page's container (--mo-comp-block-page-width, --mo-comp-block-gutter), and its content stays in the text
      column from there (the rule below). The page is clipped at the window's edges while it has one (100vw is a
      scrollbar wider). */
   :where(.mo-text-section).mo-is-full {
@@ -80,12 +80,12 @@
   /* Only the background is the whole width: the content stays in the page's text column, as the text outside a section does (the
      page's text keeps its paragraphs and headings at the text measure, PageLayout.astro; blocks, mo-is-not-prose, span the container). */
   :where(.mo-text-section).mo-is-full > :not(.mo-is-not-prose, .mo-text-section__image) {
-    max-width: var(--mo-sys-block-text-measure-max);
-    min-width: min(var(--mo-sys-block-text-measure-min), 100%);
+    max-width: var(--mo-comp-block-text-measure-max);
+    min-width: min(var(--mo-comp-block-text-measure-min), 100%);
   }
-  /* Blocks of plain text rows (owner, 16 Nov 2026). Steps is one column at most --mo-sys-block-list-measure-max (720px) wide, left aligned
+  /* Blocks of plain text rows (owner, 16 Nov 2026). Steps is one column at most --mo-comp-block-list-measure-max (720px) wide, left aligned
      with the paragraph above it. The rows of a List, Segmented list (and its accordion rows), Blog posts as a list and Testimonials
-     list are columns at least --mo-sys-block-list-column-min wide, as many as fit in the list's own width: one column below two of them
+     list are columns at least --mo-comp-block-list-column-min wide, as many as fit in the list's own width: one column below two of them
      (it is narrower than 720px, so it is never wider), two columns from 720px (a tablet's page), three from 1080px, never more in the page container
      (1104px). It follows the list's width, not the window's (Modern Web Guidance, `responsive-design`). Wide visual blocks
      (Cards, Image grid, Video, Carousel, Price cards, Table, Hero) keep the container's width. */
@@ -94,13 +94,13 @@
   .mo-list.mo-block-testimonials__testimonial-rows:not([data-columns='one']),
   .mo-block-posts__rows:not([data-columns='one']) .mo-post-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(var(--mo-sys-block-list-column-min), 100%), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(var(--mo-comp-block-list-column-min), 100%), 1fr));
     align-items: start;
     column-gap: var(--mo-sys-grid-gutter);
   }
   /* The setting Columns is off (data-columns="one", standard/columns.ts): one column, at most as wide as Steps. */
   :is(.mo-block-list, .mo-block-accordion, .mo-block-testimonials__testimonial-rows, .mo-block-posts__rows)[data-columns='one'] {
-    max-width: var(--mo-sys-block-list-measure-max);
+    max-width: var(--mo-comp-block-list-measure-max);
   }
   body:has(:where(.mo-text-section).mo-is-full) {
     overflow-x: clip;

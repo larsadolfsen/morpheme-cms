@@ -6,9 +6,9 @@
   (.mo-is-side .mo-sheet__headline and the close button), .mo-is-side .mo-sheet__content (scrolling) and .mo-is-side .mo-sheet__actions.
     --mo-comp-side-sheet-width   how wide it is (a modal one leaves room for the scrim on a phone)
     --mo-comp-side-sheet-surface, --mo-comp-side-sheet-line   a standard one's surface and the line between it and the page
-    --mo-comp-side-sheet-modal-surface, --mo-comp-sheet-side-docked-container-shape, --mo-comp-side-sheet-shadow   a modal one's surface, its corners towards
+    --mo-comp-side-sheet-modal-surface, --mo-comp-sheet-side-docked-modal-container-shape, --mo-comp-side-sheet-shadow   a modal one's surface, its corners towards
       the page, and its shadow
-    --mo-comp-side-sheet-scrim   the shade over the page behind a modal one (else --mo-comp-theme-scrim-colour, as the dialog's)
+    --mo-comp-sheet-side-scrim   the shade over the page behind a modal one (else --mo-comp-theme-scrim-colour, as the dialog's)
     --mo-comp-side-sheet-padding, --mo-comp-side-sheet-headline-size, --mo-comp-side-sheet-headline-weight, --mo-comp-side-sheet-actions-line   the
       room inside it, the headline, and the line over the actions
     --mo-comp-side-sheet-content-top   the room over the content (1rem: the first outlined field's label stands above its edge)
@@ -29,7 +29,7 @@
     flex-shrink: 0;
     overflow: hidden;
     background: var(--mo-comp-side-sheet-surface, var(--mo-sys-elevation-level0-color));
-    color: var(--mo-sys-block-text);
+    color: var(--mo-comp-block-text);
   }
   :where(.mo-sheet__container).mo-is-side[hidden] {
     display: none;
@@ -39,17 +39,17 @@
     outline: none;
   }
   :where(.mo-sheet__standard).mo-is-side {
-    border-inline-start: 1px solid var(--mo-comp-side-sheet-line, var(--mo-sys-block-line));
+    border-inline-start: 1px solid var(--mo-comp-side-sheet-line, var(--mo-comp-block-line));
   }
   .mo-sheet__modal {
     width: 100%;
     height: 100%;
-    border-start-start-radius: var(--mo-comp-sheet-side-docked-container-shape, var(--mo-sys-block-radius));
-    border-end-start-radius: var(--mo-comp-sheet-side-docked-container-shape, var(--mo-sys-block-radius));
+    border-start-start-radius: var(--mo-comp-sheet-side-docked-modal-container-shape, var(--mo-comp-block-radius));
+    border-end-start-radius: var(--mo-comp-sheet-side-docked-modal-container-shape, var(--mo-comp-block-radius));
     background: var(--mo-comp-side-sheet-modal-surface, var(--mo-comp-side-sheet-surface, var(--mo-sys-elevation-level1-color)));
     box-shadow: var(--mo-comp-side-sheet-shadow, var(--mo-sys-elevation-level1-shadow));
   }
-  /* M3's measures run to the close icon's glyph, and its button holds the space round the glyph (--mo-comp-side-sheet-icon-inset),
+  /* M3's measures run to the close icon's glyph, and its button holds the space round the glyph (--mo-comp-sheet-side-icon-inset),
      so the header takes that off its top and end padding and has no gap: 24 from the top and the end edges to the glyph,
      12 between the headline and the glyph. */
   :where(.mo-is-side) .mo-sheet__header {
@@ -57,14 +57,14 @@
     flex-shrink: 0;
     align-items: center;
     gap: 0;
-    padding-block: calc(var(--mo-comp-side-sheet-padding, 1.5rem) - var(--mo-comp-side-sheet-icon-inset)) 0;
+    padding-block: calc(var(--mo-comp-side-sheet-padding, 1.5rem) - var(--mo-comp-sheet-side-icon-inset)) 0;
     padding-inline: var(--mo-comp-side-sheet-padding, 1.5rem)
-      calc(var(--mo-comp-side-sheet-padding, 1.5rem) - var(--mo-comp-side-sheet-icon-inset));
+      calc(var(--mo-comp-side-sheet-padding, 1.5rem) - var(--mo-comp-sheet-side-icon-inset));
   }
   /* With a back icon button (M3's modal side sheet: "Start padding with icon" 16): 16 from the start edge to the back glyph, then 12 to the
      headline (the button's own space round the glyph is that 12, so no gap). */
   :where(.mo-is-side) .mo-sheet__header[data-has-back] {
-    padding-inline-start: calc(1rem - var(--mo-comp-side-sheet-icon-inset));
+    padding-inline-start: calc(1rem - var(--mo-comp-sheet-side-icon-inset));
   }
   :where(.mo-is-side) .mo-sheet__headline {
     flex: 1;
@@ -91,7 +91,7 @@
     /* The buttons keep their own height at every density step: the row is at least 72 high, which at a dense step is more than they need, and the default stretch would pull them up to it (31 px, not 28, at -3). */
     align-items: flex-start;
     gap: 0.5rem;
-    border-top: 1px solid var(--mo-comp-side-sheet-actions-line, var(--mo-sys-block-line));
+    border-top: 1px solid var(--mo-comp-side-sheet-actions-line, var(--mo-comp-block-line));
     padding: 1rem var(--mo-comp-side-sheet-padding, 1.5rem) max(var(--mo-comp-side-sheet-padding, 1.5rem), env(safe-area-inset-bottom));
   }
   /* A modal side sheet: in a <dialog> at the end of the screen, as high as it, over the scrim. */
@@ -106,7 +106,7 @@
     padding: 0;
     border: 0;
     background: transparent;
-    color: var(--mo-sys-block-text);
+    color: var(--mo-comp-block-text);
     overflow: visible;
   }
   :where(.mo-sheet).mo-is-side:dir(rtl) {
@@ -114,8 +114,8 @@
   }
   :where(.mo-sheet).mo-is-side::backdrop {
     background: var(
-      --mo-comp-side-sheet-scrim,
-      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent)
+      --mo-comp-sheet-side-scrim,
+      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-comp-block-text)) 50%, transparent)
     );
   }
   @media (prefers-reduced-motion: no-preference) {

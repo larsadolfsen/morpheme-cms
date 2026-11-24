@@ -13,11 +13,11 @@
   .mo-date-picker__menu-item with .mo-date-picker__menu-check), or the input mode (.mo-date-picker__input, the theme's text fields);
   and .mo-date-picker__actions.
     --mo-comp-date-picker-width   how wide it is
-    --mo-comp-date-picker-docked-radius, --mo-comp-date-picker-docked-shadow   a docked picker's corners and shadow (else the dialog's)
+    --mo-comp-date-picker-docked-container-shape, --mo-comp-date-picker-docked-shadow   a docked picker's corners and shadow (else the dialog's)
     --mo-comp-date-picker-supporting-color, --mo-comp-date-picker-headline-size, --mo-comp-date-picker-headline-weight, --mo-comp-date-picker-line
                      a modal picker's header: the line over the headline, the headline, and the line under the header
     --mo-comp-date-picker-menu-button-text, --mo-comp-date-picker-weekday-text   the month and year over the days, and the weekdays
-    --mo-comp-date-picker-day-size, --mo-comp-date-picker-day-radius, --mo-comp-date-picker-day-text, --mo-comp-date-picker-day-hover   a day (also a
+    --mo-comp-date-picker-day-size, --mo-comp-date-picker-docked-date-container-shape, --mo-comp-date-picker-day-text, --mo-comp-date-picker-day-hover   a day (also a
                      year, a month in a list) and the shade when it is pointed at
     --mo-comp-date-picker-today-text, --mo-comp-date-picker-today-line   today (also this year)
     --mo-comp-date-picker-selected-surface, --mo-comp-date-picker-selected-text   the day picked (also the year shown)
@@ -110,27 +110,27 @@
     flex-direction: column;
     max-height: calc(100dvh - 2rem);
     overflow: hidden;
-    color: var(--mo-sys-block-text);
+    color: var(--mo-comp-block-text);
   }
   :where(.mo-date-picker).mo-is-docked {
-    border-radius: var(--mo-comp-date-picker-docked-radius, var(--mo-comp-dialog-container-shape, var(--mo-sys-block-radius)));
+    border-radius: var(--mo-comp-date-picker-docked-container-shape, var(--mo-comp-dialog-container-shape, var(--mo-comp-block-radius)));
     box-shadow:
-      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-comp-block-line)),
       var(--mo-comp-date-picker-docked-shadow, var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-rest-shadow)));
   }
   /* The modal date picker is a surface on level 3 with no shadow (M3 Date pickers, Specs: md.comp.date-picker.modal container elevation 3, drawn flat); the dialog around the time picker is elevated. */
   .mo-dialog.mo-date-picker {
     box-shadow:
-      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-comp-block-line)),
       var(--mo-comp-date-picker-modal-shadow, var(--mo-sys-elevation-level3-rest-shadow));
   }
   .mo-date-picker__header {
     padding: 1rem 0.75rem 0.75rem 1.5rem;
-    border-bottom: 1px solid var(--mo-comp-date-picker-line, var(--mo-sys-block-line));
+    border-bottom: 1px solid var(--mo-comp-date-picker-line, var(--mo-comp-block-line));
   }
   .mo-date-picker__supporting-text {
     margin: 0;
-    color: var(--mo-comp-date-picker-supporting-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-date-picker-supporting-color, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-label-large-size);
     line-height: var(--mo-sys-typescale-label-large-line-height);
     font-weight: var(--mo-sys-typescale-label-large-weight);
@@ -179,7 +179,7 @@
     border: 0;
     border-radius: var(--mo-sys-shape-corner-full);
     background: transparent;
-    color: var(--mo-comp-date-picker-menu-button-text, var(--mo-sys-block-text));
+    color: var(--mo-comp-date-picker-menu-button-text, var(--mo-comp-block-text));
     font: inherit;
     font-size: var(--mo-sys-typescale-label-large-size);
     line-height: var(--mo-sys-typescale-label-large-line-height);
@@ -190,7 +190,7 @@
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .mo-date-picker__menu-button:hover:not(:disabled) {
-    background: var(--mo-comp-date-picker-day-hover, var(--mo-sys-block-tint));
+    background: var(--mo-comp-date-picker-day-hover, var(--mo-comp-block-tint));
   }
   .mo-date-picker__menu-button:disabled {
     opacity: 0.35;
@@ -217,7 +217,7 @@
   .mo-date-picker__weekday {
     height: 3rem;
     padding: 0;
-    color: var(--mo-comp-date-picker-weekday-text, var(--mo-sys-block-text));
+    color: var(--mo-comp-date-picker-weekday-text, var(--mo-comp-block-text));
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
     font-weight: var(--mo-sys-typescale-body-large-weight);
@@ -235,9 +235,9 @@
     width: var(--mo-comp-date-picker-day-size, 2.5rem);
     height: var(--mo-comp-date-picker-day-size, 2.5rem);
     border: 0;
-    border-radius: var(--mo-comp-date-picker-day-radius, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-date-picker-docked-date-container-shape, var(--mo-sys-shape-corner-full));
     background: transparent;
-    color: var(--mo-comp-date-picker-day-text, var(--mo-sys-block-text));
+    color: var(--mo-comp-date-picker-day-text, var(--mo-comp-block-text));
     font: inherit;
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
@@ -251,7 +251,7 @@
   }
   .mo-date-picker__day:hover:not(:disabled),
   .mo-date-picker__year:hover {
-    background: var(--mo-comp-date-picker-day-hover, var(--mo-sys-block-tint));
+    background: var(--mo-comp-date-picker-day-hover, var(--mo-comp-block-tint));
   }
   .mo-date-picker__day:disabled {
     opacity: var(--mo-sys-state-disabled-state-layer-opacity);
@@ -259,8 +259,8 @@
   }
   .mo-date-picker__day[aria-current='date'],
   .mo-date-picker__year[aria-current='date'] {
-    color: var(--mo-comp-date-picker-today-text, var(--mo-sys-block-accent));
-    box-shadow: inset 0 0 0 1px var(--mo-comp-date-picker-today-line, var(--mo-sys-block-accent));
+    color: var(--mo-comp-date-picker-today-text, var(--mo-comp-block-accent));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-date-picker-today-line, var(--mo-comp-block-accent));
   }
   /* A day shrinks with its column, so seven of them fit a narrow picker. */
   .mo-date-picker__day {
@@ -270,25 +270,25 @@
   }
   .mo-date-picker__cell[aria-selected='true'] .mo-date-picker__day,
   .mo-date-picker__year[aria-selected='true'] {
-    background: var(--mo-comp-date-picker-selected-surface, var(--mo-sys-block-accent));
-    color: var(--mo-comp-date-picker-selected-text, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-date-picker-selected-surface, var(--mo-comp-block-accent));
+    color: var(--mo-comp-date-picker-selected-text, var(--mo-comp-block-on-accent));
     box-shadow: none;
   }
   /* A range: a band from the start to the end, behind their circles. */
   .mo-date-picker__cell[data-range='middle'] {
-    background: var(--mo-comp-date-picker-range-surface, var(--mo-sys-block-tint));
+    background: var(--mo-comp-date-picker-range-surface, var(--mo-comp-block-tint));
   }
   .mo-date-picker__cell[data-range='start'] {
-    background: linear-gradient(to right, transparent 50%, var(--mo-comp-date-picker-range-surface, var(--mo-sys-block-tint)) 50%);
+    background: linear-gradient(to right, transparent 50%, var(--mo-comp-date-picker-range-surface, var(--mo-comp-block-tint)) 50%);
   }
   .mo-date-picker__cell[data-range='end'] {
-    background: linear-gradient(to left, transparent 50%, var(--mo-comp-date-picker-range-surface, var(--mo-sys-block-tint)) 50%);
+    background: linear-gradient(to left, transparent 50%, var(--mo-comp-date-picker-range-surface, var(--mo-comp-block-tint)) 50%);
   }
   .mo-date-picker__cell[data-range='middle'] .mo-date-picker__day {
-    color: var(--mo-comp-date-picker-range-text, var(--mo-sys-block-text));
+    color: var(--mo-comp-date-picker-range-text, var(--mo-comp-block-text));
   }
   .mo-date-picker__cell[data-range='middle'] .mo-date-picker__day:hover {
-    background: color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent);
+    background: color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent);
   }
 
   /* The years in a grid (modal), and a docked picker's months and years in a list. */
@@ -319,9 +319,9 @@
     min-height: 3rem;
     padding: 0 1rem;
     border: 0;
-    border-radius: var(--mo-comp-date-picker-day-radius, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-date-picker-docked-date-container-shape, var(--mo-sys-shape-corner-full));
     background: transparent;
-    color: var(--mo-comp-date-picker-day-text, var(--mo-sys-block-text));
+    color: var(--mo-comp-date-picker-day-text, var(--mo-comp-block-text));
     font: inherit;
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
@@ -331,7 +331,7 @@
     cursor: pointer;
   }
   .mo-date-picker__menu-item:hover {
-    background: var(--mo-comp-date-picker-day-hover, var(--mo-sys-block-tint));
+    background: var(--mo-comp-date-picker-day-hover, var(--mo-comp-block-tint));
   }
   .mo-date-picker__menu-check {
     flex-shrink: 0;
@@ -365,12 +365,12 @@
     display: grid;
     justify-items: center;
     padding: 1.5rem 1.5rem 0;
-    color: var(--mo-sys-block-text);
+    color: var(--mo-comp-block-text);
   }
   .mo-time-picker__headline {
     justify-self: start;
     margin: 0 0 1.25rem;
-    color: var(--mo-comp-time-picker-headline-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-time-picker-headline-color, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-label-medium-size);
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     font-weight: var(--mo-sys-typescale-label-medium-weight);
@@ -398,9 +398,9 @@
     width: var(--mo-comp-time-picker-box-width, 6rem);
     height: var(--mo-comp-time-picker-box-height, 5rem);
     border: 0;
-    border-radius: var(--mo-comp-time-picker-box-radius, var(--mo-sys-block-radius-small));
-    background: var(--mo-comp-time-picker-box-surface, var(--mo-sys-block-tint));
-    color: var(--mo-comp-time-picker-box-text, var(--mo-sys-block-text));
+    border-radius: var(--mo-comp-time-picker-box-radius, var(--mo-comp-block-radius-small));
+    background: var(--mo-comp-time-picker-box-surface, var(--mo-comp-block-tint));
+    color: var(--mo-comp-time-picker-box-text, var(--mo-comp-block-text));
     font: inherit;
     font-size: var(--mo-comp-time-picker-box-font-size, var(--mo-sys-typescale-display-large-size));
     font-weight: var(--mo-comp-time-picker-box-weight, var(--mo-sys-typescale-display-large-weight));
@@ -417,13 +417,13 @@
   .mo-time-picker__box:hover {
     background: color-mix(
       in srgb,
-      var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
-      var(--mo-comp-time-picker-box-surface, var(--mo-sys-block-tint))
+      var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+      var(--mo-comp-time-picker-box-surface, var(--mo-comp-block-tint))
     );
   }
   .mo-time-picker__box[aria-pressed='true'] {
-    background: var(--mo-comp-time-picker-box-selected-surface, var(--mo-sys-block-accent));
-    color: var(--mo-comp-time-picker-box-selected-text, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-time-picker-box-selected-surface, var(--mo-comp-block-accent));
+    color: var(--mo-comp-time-picker-box-selected-text, var(--mo-comp-block-on-accent));
   }
   .mo-time-picker__text-field .mo-text-field__input {
     min-height: 0;
@@ -446,8 +446,8 @@
     height: var(--mo-comp-time-picker-dial-size, 16rem);
     margin-top: 1.5rem;
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--mo-comp-time-picker-dial-surface, var(--mo-sys-block-tint));
-    color: var(--mo-comp-time-picker-dial-text, var(--mo-sys-block-text));
+    background: var(--mo-comp-time-picker-dial-surface, var(--mo-comp-block-tint));
+    color: var(--mo-comp-time-picker-dial-text, var(--mo-comp-block-text));
     touch-action: none;
     user-select: none;
     cursor: pointer;
@@ -480,7 +480,7 @@
       rotate(calc(-1 * var(--mo-comp-time-picker-angle)));
   }
   .mo-time-picker__dial-number[data-selected] {
-    color: var(--mo-comp-time-picker-hand-text, var(--mo-sys-block-on-accent));
+    color: var(--mo-comp-time-picker-hand-text, var(--mo-comp-block-on-accent));
   }
   /* A number the hand's circle overlaps is two-tone: the hand's text colour inside the circle (centred where the hand ends, found from the two angles and the ring), the normal text colour outside. */
   .mo-time-picker__dial-number[data-covered] {
@@ -489,8 +489,8 @@
       circle at
         calc(50% + var(--mo-comp-time-picker-ring) * (sin(var(--mo-comp-time-picker-hand-angle)) - sin(var(--mo-comp-time-picker-angle))))
         calc(50% - var(--mo-comp-time-picker-ring) * (cos(var(--mo-comp-time-picker-hand-angle)) - cos(var(--mo-comp-time-picker-angle)))),
-      var(--mo-comp-time-picker-hand-text, var(--mo-sys-block-on-accent)) calc(var(--mo-comp-time-picker-dial-knob, 3rem) / 2),
-      var(--mo-comp-time-picker-dial-text, var(--mo-sys-block-text)) 0
+      var(--mo-comp-time-picker-hand-text, var(--mo-comp-block-on-accent)) calc(var(--mo-comp-time-picker-dial-knob, 3rem) / 2),
+      var(--mo-comp-time-picker-dial-text, var(--mo-comp-block-text)) 0
     );
     background-clip: text;
   }
@@ -502,7 +502,7 @@
     width: 2px;
     height: var(--mo-comp-time-picker-ring);
     margin-left: -1px;
-    background: var(--mo-comp-time-picker-hand, var(--mo-sys-block-accent));
+    background: var(--mo-comp-time-picker-hand, var(--mo-comp-block-accent));
     pointer-events: none;
     transform: rotate(var(--mo-comp-time-picker-angle));
     transform-origin: bottom center;
@@ -518,7 +518,7 @@
     width: 0.5rem;
     height: 0.5rem;
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--mo-comp-time-picker-hand, var(--mo-sys-block-accent));
+    background: var(--mo-comp-time-picker-hand, var(--mo-comp-block-accent));
   }
   .mo-time-picker__dial-knob {
     position: absolute;
@@ -527,7 +527,7 @@
     width: var(--mo-comp-time-picker-dial-knob, 3rem);
     height: var(--mo-comp-time-picker-dial-knob, 3rem);
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--mo-comp-time-picker-hand, var(--mo-sys-block-accent));
+    background: var(--mo-comp-time-picker-hand, var(--mo-comp-block-accent));
   }
   /* A minute between the fives: a dot in the circle, where its number would be. */
   .mo-time-picker__dial-hand[data-between] .mo-time-picker__dial-knob::after {
@@ -535,7 +535,7 @@
     position: absolute;
     inset: calc(50% - 0.125rem);
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--mo-comp-time-picker-hand-text, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-time-picker-hand-text, var(--mo-comp-block-on-accent));
   }
   .mo-time-picker__dial:focus-visible {
     outline-offset: 4px;
@@ -543,7 +543,7 @@
   .mo-time-picker__error {
     justify-self: stretch;
     margin: 0.75rem 0 0;
-    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-error, var(--mo-comp-block-accent));
     font-size: var(--mo-sys-typescale-body-small-size);
     line-height: var(--mo-sys-typescale-body-small-line-height);
     font-weight: var(--mo-sys-typescale-body-small-weight);
@@ -571,14 +571,14 @@
     height: var(--mo-comp-time-picker-box-height, 5rem);
     margin-inline-start: 0.75rem;
     overflow: hidden;
-    border-radius: var(--mo-comp-time-picker-box-radius, var(--mo-sys-block-radius-small));
-    box-shadow: inset 0 0 0 1px var(--mo-comp-time-picker-period-line, var(--mo-sys-block-line));
+    border-radius: var(--mo-comp-time-picker-box-radius, var(--mo-comp-block-radius-small));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-time-picker-period-line, var(--mo-comp-block-line));
   }
   .mo-time-picker__period-button {
     flex: 1;
     border: 0;
     background: transparent;
-    color: var(--mo-comp-time-picker-period-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-time-picker-period-text, var(--mo-comp-block-muted));
     font: inherit;
     font-size: var(--mo-sys-typescale-title-medium-size);
     line-height: var(--mo-sys-typescale-title-medium-line-height);
@@ -590,10 +590,10 @@
       color var(--mo-sys-motion-spring-default-effects);
   }
   .mo-time-picker__period-button + .mo-time-picker__period-button {
-    border-top: 1px solid var(--mo-comp-time-picker-period-line, var(--mo-sys-block-line));
+    border-top: 1px solid var(--mo-comp-time-picker-period-line, var(--mo-comp-block-line));
   }
   .mo-time-picker__period-button:hover {
-    background: color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent);
+    background: color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent);
   }
   .mo-time-picker__period-button[aria-pressed='true'] {
     background: var(--mo-comp-time-picker-period-selected-surface, var(--mo-sys-color-primary-container));
@@ -632,7 +632,7 @@
   }
   :where(.mo-time-picker).mo-is-horizontal .mo-time-picker__selector .mo-time-picker__period-button + .mo-time-picker__period-button {
     border-top: 0;
-    border-inline-start: 1px solid var(--mo-comp-time-picker-period-line, var(--mo-sys-block-line));
+    border-inline-start: 1px solid var(--mo-comp-time-picker-period-line, var(--mo-comp-block-line));
   }
   :where(.mo-time-picker).mo-is-horizontal[data-view='dial'] .mo-time-picker__dial {
     margin-top: 0;
