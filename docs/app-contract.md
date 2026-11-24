@@ -196,10 +196,10 @@ not rewritten. An app or a theme written to 6 that already uses no utility needs
 
 The migration, class by class, is `docs/tailwind-migration.md` and `docs/tailwind-migration-classes.md`.
 
-## Scoped CSS (in the build, in force from the next contract)
+## Contract 8: scoped CSS
 
 Spec: `docs/superpowers/specs/2026-11-20-scoped-app-css-design.md`. The outer element of every app block carries `data-mo-app="<id>"` (the CMS puts it on the element
-the view returns, so no element is added to the page's flow; a view that returns a fragment or nothing of its own gets one that takes no space, `display: contents`; the app does not write it and cannot remove it). From the contract that raises `SCOPED_CSS_FROM_API` (`lib/appCss.mjs`), the build
+the view returns, so no element is added to the page's flow; a view that returns a fragment or nothing of its own gets one that takes no space, `display: contents`; the app does not write it and cannot remove it). From the contract that raises `SCOPED_CSS_FROM_API` (8, `lib/appCss.mjs`), the build
 rewrites every `.css` file in `src/apps/<id>/`, on the site and in the editor (`site/appCss.mjs`):
 
 - every selector applies only inside the app's own blocks (`:where([data-mo-app="<id>"])` before it: the build targets Firefox 114 and Safari 16.4, which lack `@scope`; `APP_CSS_MODE` switches to `@scope` when the target moves);
@@ -207,7 +207,17 @@ rewrites every `.css` file in `src/apps/<id>/`, on the site and in the editor (`
 - the app's `@keyframes`, `@property`, `@font-face` families and `@layer` names are renamed `mo-app-<id>-<name>`;
 - the rules go into the layer `mo-app`, the lowest layer, below the theme's parts.
 
-An app written to an older contract keeps its global CSS. `npm run check:app-css -- --report` lists what the build would rename in each app, and what the contract will refuse.
+An app written to an older contract keeps its global CSS. `npm run check:app-css -- --report` lists what the build would rename in each app, and what the contract refuses.
+
+**What the check refuses** (`check:content`, from an app written to 8; one line with the file and line, shown on the app's page):
+
+- a rule on `:root`, `html` or `body` (style the app's own elements; a CMS token is overridden on the block's outer element, `docs/css-tokens.md`);
+- a private custom property set or read from code (`style` objects, `setProperty`, `getPropertyValue`, a `var(--mo-…)` string in `View.tsx` or `script.ts`), because the build renames CSS only;
+- an attribute selector on `data-mo-app`.
+
+**What the developer sees.** The source keeps the plain names; the browser's tools show the renamed ones (`--mo-app-shop-gap`, `mo-app-shop-fade`) and the selectors with `:where([data-mo-app="shop"])` before them. Two apps may use the same class, custom property and keyframes names without touching each other. A `@import` in an app's CSS is not scoped: put the rules in the app's own files. A `<style>` or `<style is:global>` block in an app's `.astro` file is not scoped either (the build rewrites `.css` files only); `check:content` still refuses a rule on `:root`, `html` or `body` in it, and the report lists the block. The developer guide (0.22.1) takes this section over.
+
+**A theme's private custom property** is `--mo-theme-*` (`docs/css-tokens.md`); it is not renamed, and only files in the theme's own folder declare or read one (`check:content`, so `check:themes`).
 
 ## Contract 6: the design tokens' names
 
