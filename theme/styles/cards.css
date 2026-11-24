@@ -288,11 +288,8 @@
   }
   /* "Cards" on a phone as a carousel (`phone`, LinkCards.tsx): Material 3's uncontained layout (m3.material.io/components/carousel), which M3 gives to
      text-heavy items. Below 600 px the cards are swiped sideways: items 8 dp apart, 8 dp above and below (room for an elevated card's shadow),
-     corners of 28 dp, the first 16 dp from the screen's edge, the next one peeking in; `Show all` under the dots turns it into the stacked cards
+     each card keeps the Card's own corners (Material 3's cards, not the carousel item's 28 dp: docs/material-deviations.md), the first 16 dp from the screen's edge, the next one peeking in; `Show all` under the dots turns it into the stacked cards
      in place (data-expanded, set by script.ts). From 600 px the cards are the grid, with no dots and no button. */
-  .mo-block-cards__carousel .mo-block-cards__card {
-    border-radius: var(--mo-comp-carousel-item-container-shape, var(--mo-sys-shape-corner-extra-large, 1.75rem));
-  }
   .mo-block-cards__show-all {
     display: none;
   }

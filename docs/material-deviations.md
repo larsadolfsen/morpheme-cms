@@ -334,6 +334,14 @@ there is nothing to deviate from. The theme uses the nearest M3 pattern or the o
 - **Why:** an item is clipped to its mask (`overflow: hidden`, `clip-path`) and the row scrolls (`overflow-x: auto`), so a level 1 shadow would be cut off and show nothing. The PM decided on 21 Nov 2026 to leave it and record it here.
 - **Date:** 2026-11-21. **PR:** #1112.
 
+### CAR2. A card in the swipeable cards keeps the card's corners
+
+- **Material:** Carousel, Specs (read 24 Nov 2026, m3.material.io/components/carousel/specs): uncontained, "Item corner radius 28dp"; Cards, Specs: a card's corners are its own.
+- **We do:** the Cards block's swipeable layout (`phone: 'carousel'`) puts a Card in each carousel item and the card keeps its own corners, the same as the stacked cards (12dp), not 28dp.
+- **Why:** the owner (24 Nov 2026, through the PM): "they look wrong"; a card keeps the card's shape. The 28dp was the item's shape on top of the card's own. The check `checkCardsCarousel` compares the two.
+- **Also kept (the theme's addition):** the page indicator, a dot for each card, which M3's carousel does not print; the `Show all` button under it.
+- **Date:** 2026-11-24.
+
 ## The site's keyboard use (0.19.3, WCAG 2.2 AA; owner approval through the PM, 21 Nov 2026)
 
 The owner approved these theme changes on 21 Nov 2026 (relayed by the PM of 0.19.3: "the owner approved both theme changes" and "Go ahead and push"). Where Material 3 and WCAG differ, WCAG wins (`CLAUDE.md`, *Accessibility*). The session that built them did not read the M3 pages again for this change, so no M3 text is quoted here; the PM or the next session that touches these parts quotes the real pages (skill `material-3`).

@@ -411,6 +411,11 @@ async function checkCardsCarousel(width, height) {
   // The browser is en-US, the site's language is not necessarily: the live attribute must equal the served one (the client script must not rewrite it).
   if (live !== lang) problems.push(`${label}: the live <html lang> is "${live}" but the server sent "${lang}"`);
   const say = blocksOf(lang).cards;
+  const stackedRadius = await page.evaluate(() => {
+    const card = document.querySelector('ul.mo-block-cards .mo-card');
+    return card ? getComputedStyle(card).borderTopLeftRadius : null;
+  });
+  if (!stackedRadius) problems.push(`${label}: no stacked cards on the Blocks page to compare the corners with`);
   const m = await root.evaluate((el) => {
     const row = el.querySelector('[data-carousel-items]');
     const items = [...el.querySelectorAll('[data-carousel-item]')];
@@ -427,6 +432,8 @@ async function checkCardsCarousel(width, height) {
       padBottom: rs.paddingBottom,
       padLeft: rs.paddingLeft,
       firstLeft: Math.round(a.left - rowBox.left),
+      widths: items.map((i) => Math.round(i.getBoundingClientRect().width)),
+      gaps: items.slice(1).map((i, n) => Math.round(i.getBoundingClientRect().left - items[n].getBoundingClientRect().right)),
       firstRight: Math.round(a.right),
       secondLeft: Math.round(b.left),
       radius: getComputedStyle(items[0].querySelector('.mo-block-cards__card')).borderTopLeftRadius,
@@ -447,7 +454,13 @@ async function checkCardsCarousel(width, height) {
     if (m.padTop !== '8px' || m.padBottom !== '8px')
       problems.push(`${label}: the padding above and below is ${m.padTop} and ${m.padBottom}, not 8px`);
     if (m.padLeft !== '16px') problems.push(`${label}: the leading padding is ${m.padLeft}, not 16px`);
-    if (m.radius !== '28px') problems.push(`${label}: the card's corners are ${m.radius}, not 28px`);
+    // A card keeps the Card's shape in the carousel (owner, 24 Nov 2026), not the carousel item's 28dp: the same corners as the stacked cards.
+    if (m.radius !== stackedRadius) problems.push(`${label}: the card's corners are ${m.radius}, the stacked cards' are ${stackedRadius}`);
+    // Uncontained (M3): every item is as wide as the others, no empty gap between them, and the next one peeks in.
+    if (new Set(m.widths).size !== 1) problems.push(`${label}: the cards are not all as wide (${m.widths})`);
+    if (m.widths[0] < width * 0.6) problems.push(`${label}: the first card is only ${m.widths[0]}px of ${width}px`);
+    if (m.gaps.some((g) => g !== 8)) problems.push(`${label}: the gaps between the cards are ${m.gaps}, not 8px`);
+    if (m.firstLeft !== 16) problems.push(`${label}: the first card is ${m.firstLeft}px from the edge, not 16px`);
     if (m.dots !== m.items) problems.push(`${label}: ${m.dots} dots for ${m.items} cards`);
     if (!m.region) problems.push(`${label}: the carousel has no label`);
     if (m.itemLabels.join() !== m.itemLabels.map((_, i) => say.slideOf(i + 1, m.items)).join())

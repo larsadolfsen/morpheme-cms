@@ -453,12 +453,12 @@ export const blocks = {
     designOutlined: 'Outlined',
     designFilled: 'Filled',
     designElevated: 'Elevated',
-    /** How the cards show on a phone: stacked, or swiped sideways in a carousel (Material 3's uncontained layout). */
+    /** How the cards show on a phone: stacked, or swipeable sideways (a carousel in Material 3's uncontained layout). */
     phone: 'On phones',
     phoneStacked: 'Stacked',
-    phoneCarousel: 'Carousel',
+    phoneCarousel: 'Swipeable',
     phoneHint: 'Cards are swiped sideways on a phone. Larger screens show them together.',
-    carouselChip: 'Carousel on phones',
+    carouselChip: 'Swipeable on phones',
     /** On the site and in the drawings (in the site's language): for screen readers and the button under the carousel. */
     carousel: 'carousel',
     slide: 'card',
