@@ -10,8 +10,9 @@
      full screen in the low surface container and docked in the high one, docked with extra-large corners and the third elevation. */
   --mo-comp-search-bar-container-height: 3.5rem;
   --mo-comp-search-bar-container-shape: var(--mo-sys-shape-corner-full);
-  --mo-comp-search-bar-padding: 1rem;
-  --mo-comp-search-bar-gap: 1rem;
+  --mo-comp-search-bar-leading-space: 1rem;
+  --mo-comp-search-bar-trailing-space: 1rem;
+  --mo-comp-search-bar-leading-icon-leading-icon-label-space: 1rem;
   --mo-comp-search-bar-container-color: var(--mo-sys-color-surface-container-high);
   --mo-comp-search-bar-line: transparent;
   --mo-comp-search-bar-hover: color-mix(
@@ -20,10 +21,10 @@
     var(--mo-sys-color-surface-container-high)
   );
   --mo-comp-search-bar-supporting-text-color: var(--mo-sys-color-on-surface-variant);
-  --mo-comp-search-view-radius: var(--mo-sys-shape-corner-extra-large);
+  --mo-comp-search-view-docked-container-shape: var(--mo-sys-shape-corner-extra-large);
   --mo-comp-search-view-line: transparent;
-  --mo-comp-search-view-docked-container-shape: var(--mo-sys-shape-corner-medium);
+  --mo-comp-search-view-contained-docked-results-shape: var(--mo-sys-shape-corner-medium);
   /* The results (and the recent searches) stand in the page's grid margin (16dp compact, 24dp from medium; owner's grid rule, 15 Nov 2026): M3 prints no side margin for a segmented list. */
   --mo-comp-search-view-results-padding: 0.5rem var(--mo-sys-grid-margin);
-  --mo-comp-search-view-option-surface: var(--mo-sys-state-mo-hover-layer);
+  --mo-comp-search-view-option-surface: var(--mo-sys-state-hover-state-layer-color);
 }

@@ -36,7 +36,7 @@
     align-items: center;
     padding: var(--mo-comp-tabs-padding, 0 1rem);
     white-space: nowrap;
-    color: var(--mo-comp-tabs-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-tabs-text, var(--mo-comp-block-muted));
     font-size: var(--mo-comp-tabs-font-size, var(--mo-sys-typescale-title-small-size));
     letter-spacing: var(--mo-sys-typescale-title-small-tracking);
     font-weight: var(--mo-comp-tabs-weight, var(--mo-sys-typescale-title-small-weight));
@@ -47,15 +47,15 @@
   .mo-tabs__tab:hover {
     background: var(
       --mo-comp-tabs-hover-surface,
-      color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
-    color: var(--mo-comp-tabs-hover-text, var(--mo-sys-block-text));
+    color: var(--mo-comp-tabs-hover-text, var(--mo-comp-block-text));
   }
   .mo-tabs__tab:focus-visible {
     outline-offset: -2px;
   }
   .mo-tabs__tab:is([aria-current='page'], [aria-selected='true']) {
-    color: var(--mo-comp-tabs-selected-text, var(--mo-sys-block-accent));
+    color: var(--mo-comp-tabs-selected-text, var(--mo-comp-block-accent));
   }
   /* A tab of a tab list is a button, drawn as a link is. */
   button.mo-tabs__tab {
@@ -100,7 +100,7 @@
 
   /* Primary and secondary tabs: the divider under the row, and the indicator under the open tab. */
   .mo-tabs:is(.mo-tabs__primary, .mo-tabs__secondary) {
-    box-shadow: inset 0 -1px 0 var(--mo-comp-tabs-divider, var(--mo-sys-block-line));
+    box-shadow: inset 0 -1px 0 var(--mo-comp-tabs-divider, var(--mo-comp-block-line));
   }
   .mo-tabs:is(.mo-tabs__primary, .mo-tabs__secondary):not(.mo-tabs__fixed) .mo-tabs__tab {
     min-width: var(--mo-comp-tabs-min-width, 5.5rem);
@@ -111,7 +111,7 @@
       --mo-comp-tabs-pressed-surface,
       var(
         --mo-comp-tabs-hover-surface,
-        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+        color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
       )
     );
   }
@@ -131,7 +131,7 @@
   .mo-tabs__secondary .mo-tabs__tab::after {
     position: absolute;
     bottom: 0;
-    background: var(--mo-comp-tabs-indicator, var(--mo-sys-block-accent));
+    background: var(--mo-comp-tabs-indicator, var(--mo-comp-block-accent));
     content: '';
     transform: scaleX(0);
     transition: transform var(--mo-sys-motion-spring-default-spatial);
@@ -155,7 +155,7 @@
     transform: scaleX(1);
   }
   .mo-tabs__secondary .mo-tabs__tab:is([aria-current='page'], [aria-selected='true']) {
-    color: var(--mo-comp-tabs-secondary-selected-text, var(--mo-sys-block-text));
+    color: var(--mo-comp-tabs-secondary-selected-text, var(--mo-comp-block-text));
   }
   /* Fixed: the tabs share the row's width. */
   .mo-tabs__fixed {

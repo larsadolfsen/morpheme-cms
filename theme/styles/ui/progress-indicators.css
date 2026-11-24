@@ -22,7 +22,7 @@
     width: 100%;
     height: var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem);
     overflow: hidden;
-    border-radius: var(--mo-comp-linear-progress-indicator-radius, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-progress-indicator-track-shape, var(--mo-sys-shape-corner-full));
   }
   .mo-linear-progress-indicator__active,
   .mo-linear-progress-indicator__track {
@@ -33,7 +33,7 @@
   .mo-linear-progress-indicator__active {
     left: 0;
     width: calc(var(--mo-comp-progress-indicator-progress, 0) * 100%);
-    background: var(--mo-comp-linear-progress-indicator-active, var(--mo-sys-block-accent));
+    background: var(--mo-comp-linear-progress-indicator-active, var(--mo-comp-block-accent));
     transition: width var(--mo-sys-motion-spring-default-spatial);
   }
   /* The gap only once there is something before it. */
@@ -43,25 +43,25 @@
       var(--mo-comp-progress-indicator-progress, 0) * 100% + var(--mo-comp-linear-progress-indicator-gap, 0.25rem) *
         min(1, var(--mo-comp-progress-indicator-progress, 0) * 1000)
     );
-    background: var(--mo-comp-linear-progress-indicator-track, var(--mo-sys-block-tint));
+    background: var(--mo-comp-linear-progress-indicator-track, var(--mo-comp-block-tint));
     transition: left var(--mo-sys-motion-spring-default-spatial);
   }
   .mo-linear-progress-indicator__stop {
     position: absolute;
     top: 50%;
     right: 0;
-    width: var(--mo-comp-linear-progress-indicator-stop-size, 0px);
-    height: var(--mo-comp-linear-progress-indicator-stop-size, 0px);
+    width: var(--mo-comp-progress-indicator-linear-stop-indicator-size, 0px);
+    height: var(--mo-comp-progress-indicator-linear-stop-indicator-size, 0px);
     translate: 0 -50%;
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--mo-comp-linear-progress-indicator-active, var(--mo-sys-block-accent));
+    background: var(--mo-comp-linear-progress-indicator-active, var(--mo-comp-block-accent));
   }
   .mo-linear-progress-indicator__indeterminate {
-    background: var(--mo-comp-linear-progress-indicator-track, var(--mo-sys-block-tint));
+    background: var(--mo-comp-linear-progress-indicator-track, var(--mo-comp-block-tint));
   }
   .mo-linear-progress-indicator__indeterminate > .mo-linear-progress-indicator__active {
     width: auto;
-    animation: linear-progress-indicator-first 2.1s var(--mo-sys-block-ease) infinite;
+    animation: linear-progress-indicator-first 2.1s var(--mo-comp-block-ease) infinite;
     transition: none;
   }
   .mo-linear-progress-indicator__indeterminate > .mo-linear-progress-indicator__active + .mo-linear-progress-indicator__active {
@@ -87,7 +87,7 @@
     stroke-linecap: round;
   }
   .mo-circular-progress-indicator__active {
-    stroke: var(--mo-comp-circular-progress-indicator-active, var(--mo-sys-block-accent));
+    stroke: var(--mo-comp-circular-progress-indicator-active, var(--mo-comp-block-accent));
     stroke-dasharray: calc(var(--mo-comp-progress-indicator-progress, 0) * 100) 100;
     transition: stroke-dasharray var(--mo-sys-motion-spring-default-spatial);
   }
@@ -97,7 +97,7 @@
   }
   /* The track after the arc and its gaps (only once there is an arc), and nothing of it once the arc reaches round. */
   .mo-circular-progress-indicator__track {
-    stroke: var(--mo-comp-circular-progress-indicator-track, var(--mo-sys-block-tint));
+    stroke: var(--mo-comp-circular-progress-indicator-track, var(--mo-comp-block-tint));
     stroke-dasharray: 0 calc(var(--mo-comp-progress-indicator-progress, 0) * 100 + var(--mo-comp-circular-progress-indicator-shown-gap))
       max(0, var(--mo-comp-circular-progress-indicator-rest)) 100;
     opacity: min(1, max(0, var(--mo-comp-circular-progress-indicator-rest) * 10));
@@ -107,7 +107,7 @@
     animation: circular-progress-indicator-turn 1.4s linear infinite;
   }
   .mo-circular-progress-indicator__indeterminate .mo-circular-progress-indicator__active {
-    animation: circular-progress-indicator-arc 1.4s var(--mo-sys-block-ease) infinite;
+    animation: circular-progress-indicator-arc 1.4s var(--mo-comp-block-ease) infinite;
     transition: none;
   }
 
@@ -127,7 +127,7 @@
     inset-block: auto;
     top: 50%;
     height: var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem);
-    border-radius: var(--mo-comp-linear-progress-indicator-radius, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-progress-indicator-track-shape, var(--mo-sys-shape-corner-full));
     translate: 0 -50%;
   }
   .mo-linear-progress-indicator__wave {
@@ -140,7 +140,7 @@
   }
   .mo-linear-progress-indicator__wave > .mo-linear-progress-indicator__active {
     fill: none;
-    stroke: var(--mo-comp-linear-progress-indicator-active, var(--mo-sys-block-accent));
+    stroke: var(--mo-comp-linear-progress-indicator-active, var(--mo-comp-block-accent));
     stroke-width: var(--mo-comp-progress-indicator-linear-active-indicator-thickness, 0.375rem);
     stroke-linecap: round;
     translate: 0 50%;
@@ -172,7 +172,7 @@
   }
   /* Indeterminate: the two stretches of the wave running along the line, as the flat one's. */
   .mo-linear-progress-indicator__wavy.mo-linear-progress-indicator__indeterminate .mo-linear-progress-indicator__active {
-    animation: linear-progress-indicator-wave-first 2.1s var(--mo-sys-block-ease) infinite;
+    animation: linear-progress-indicator-wave-first 2.1s var(--mo-comp-block-ease) infinite;
   }
   .mo-linear-progress-indicator__wavy.mo-linear-progress-indicator__indeterminate
     .mo-linear-progress-indicator__active

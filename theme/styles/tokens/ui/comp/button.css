@@ -2,16 +2,16 @@
 
 @layer components {
   .mo-button {
-    --mo-comp-button-box: var(--mo-comp-button-medium-container-height, 3rem);
-    --mo-comp-button-inline: var(--mo-comp-button-padding, 1.6rem);
-    --mo-comp-button-glyph: var(--mo-comp-button-medium-icon-size, 1.25rem);
+    --mo-comp-button-box: var(--mo-comp-button-small-container-height, 3rem);
+    --mo-comp-button-inline: var(--mo-comp-button-small-leading-space, 1.6rem);
+    --mo-comp-button-glyph: var(--mo-comp-button-small-icon-size, 1.25rem);
     /* Round is at most half the button's height (Material's full corner), never a huge number, so a corner that
        changes shape (pressed, toggled) moves between real sizes on the spring, not through 0. */
     --mo-comp-button-round: min(
-      var(--mo-comp-button-medium-container-shape-round, var(--mo-sys-block-control-radius)),
+      var(--mo-comp-button-small-container-shape-round, var(--mo-comp-block-control-radius)),
       var(--mo-comp-button-box) / 2
     );
-    --mo-comp-button-square: var(--mo-comp-button-medium-container-shape-square, var(--mo-sys-block-radius-small));
+    --mo-comp-button-square: var(--mo-comp-button-small-container-shape-square, var(--mo-comp-block-radius-small));
     --mo-comp-button-pressed: var(--mo-comp-button-pressed-radius);
     --mo-comp-button-corners: var(--mo-comp-button-round);
   }
@@ -34,17 +34,17 @@
 @layer components {
   .mo-button__xsmall {
     --mo-comp-button-box: var(--mo-comp-button-xsmall-container-height, 2rem);
-    --mo-comp-button-inline: var(--mo-comp-button-xsmall-padding, 0.9rem);
-    --mo-comp-button-glyph: calc(var(--mo-comp-button-medium-icon-size, 1.25rem) * 0.9);
-    --mo-comp-button-square: var(--mo-comp-button-xsmall-container-shape-square, calc(var(--mo-sys-block-radius-small) * 0.75));
+    --mo-comp-button-inline: var(--mo-comp-button-xsmall-leading-space, 0.9rem);
+    --mo-comp-button-glyph: calc(var(--mo-comp-button-small-icon-size, 1.25rem) * 0.9);
+    --mo-comp-button-square: var(--mo-comp-button-xsmall-container-shape-square, calc(var(--mo-comp-block-radius-small) * 0.75));
     --mo-comp-button-pressed: var(--mo-comp-button-xsmall-pressed-radius, var(--mo-comp-button-pressed-radius));
   }
 }
 @layer components {
   .mo-button__small {
     --mo-comp-button-box: var(--mo-comp-button-small-container-height, 2.6rem);
-    --mo-comp-button-inline: var(--mo-comp-button-small-padding, 1.2rem);
-    --mo-comp-button-square: var(--mo-comp-button-small-container-shape-square, calc(var(--mo-sys-block-radius-small) * 0.75));
+    --mo-comp-button-inline: var(--mo-comp-button-small-leading-space, 1.2rem);
+    --mo-comp-button-square: var(--mo-comp-button-small-container-shape-square, calc(var(--mo-comp-block-radius-small) * 0.75));
     --mo-comp-button-pressed: var(--mo-comp-button-small-pressed-radius, var(--mo-comp-button-pressed-radius));
   }
 }
@@ -53,7 +53,7 @@
     --mo-comp-button-box: var(--mo-comp-button-large-height, 4rem);
     --mo-comp-button-inline: var(--mo-comp-button-large-padding, 2.25rem);
     --mo-comp-button-glyph: var(--mo-comp-button-large-icon-size, 1.5rem);
-    --mo-comp-button-square: var(--mo-comp-button-large-container-shape-square, calc(var(--mo-sys-block-radius-small) * 1.75));
+    --mo-comp-button-square: var(--mo-comp-button-large-container-shape-square, calc(var(--mo-comp-block-radius-small) * 1.75));
     --mo-comp-button-pressed: var(--mo-comp-button-large-pressed-radius, var(--mo-comp-button-pressed-radius));
   }
 }
@@ -62,7 +62,7 @@
     --mo-comp-button-box: var(--mo-comp-button-xlarge-height, 5.5rem);
     --mo-comp-button-inline: var(--mo-comp-button-xlarge-padding, 3rem);
     --mo-comp-button-glyph: var(--mo-comp-button-xlarge-icon-size, 2rem);
-    --mo-comp-button-square: var(--mo-comp-button-xlarge-container-shape-square, calc(var(--mo-sys-block-radius-small) * 1.75));
+    --mo-comp-button-square: var(--mo-comp-button-xlarge-container-shape-square, calc(var(--mo-comp-block-radius-small) * 1.75));
     --mo-comp-button-pressed: var(--mo-comp-button-xlarge-pressed-radius, var(--mo-comp-button-pressed-radius));
   }
 }
@@ -80,23 +80,32 @@
 }
 @layer components {
   .mo-button-group__connected > * {
-    --mo-comp-button-group-inner: var(--mo-comp-button-group-inner-radius, calc(var(--mo-sys-block-radius-small) / 2));
+    --mo-comp-button-group-inner: var(
+      --mo-comp-button-group-connected-small-inner-corner-corner-size,
+      calc(var(--mo-comp-block-radius-small) / 2)
+    );
   }
 }
 /* The corners between them follow the buttons' size (Material's 4, 8, 8, 16 and 20dp). */
 @layer components {
   .mo-button-group__connected > :is(.mo-button__xsmall, .mo-icon-button__xsmall) {
-    --mo-comp-button-group-inner: var(--mo-comp-button-group-xsmall-inner-radius, calc(var(--mo-sys-block-radius-small) / 4));
+    --mo-comp-button-group-inner: var(
+      --mo-comp-button-group-connected-xsmall-inner-corner-corner-size,
+      calc(var(--mo-comp-block-radius-small) / 4)
+    );
   }
 }
 @layer components {
   .mo-button-group__connected > :is(.mo-button__large, .mo-icon-button__large) {
-    --mo-comp-button-group-inner: var(--mo-comp-button-group-large-inner-radius, var(--mo-sys-block-radius-small));
+    --mo-comp-button-group-inner: var(--mo-comp-button-group-connected-large-inner-corner-corner-size, var(--mo-comp-block-radius-small));
   }
 }
 @layer components {
   .mo-button-group__connected > :is(.mo-button__xlarge, .mo-icon-button__xlarge) {
-    --mo-comp-button-group-inner: var(--mo-comp-button-group-xlarge-inner-radius, calc(var(--mo-sys-block-radius-small) * 1.25));
+    --mo-comp-button-group-inner: var(
+      --mo-comp-button-group-connected-xlarge-inner-corner-corner-size,
+      calc(var(--mo-comp-block-radius-small) * 1.25)
+    );
   }
 }
 /* A sample's button is the theme's smallest size at M3's extra small height (32dp; the theme's own extra small is taller),
@@ -120,23 +129,23 @@
 }
 @layer components {
   .mo-toolbar__vibrant {
-    --mo-comp-button-filled-container-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent));
+    --mo-comp-button-filled-container-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent));
     --mo-comp-button-filled-hover: color-mix(
       in srgb,
-      var(--mo-comp-toolbar-vibrant-surface, var(--mo-sys-block-accent)) 12%,
-      var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent))
+      var(--mo-comp-toolbar-vibrant-surface, var(--mo-comp-block-accent)) 12%,
+      var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent))
     );
-    --mo-comp-button-filled-label-text-color: var(--mo-comp-toolbar-vibrant-surface, var(--mo-sys-block-accent));
+    --mo-comp-button-filled-label-text-color: var(--mo-comp-toolbar-vibrant-surface, var(--mo-comp-block-accent));
     --mo-comp-button-filled-container-elevation: none;
     --mo-comp-button-filled-hovered-container-elevation: none;
     --mo-comp-button-outlined-surface: transparent;
-    --mo-comp-button-outlined-label-text-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent));
+    --mo-comp-button-outlined-label-text-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent));
     --mo-comp-button-outlined-outline-color: color-mix(
       in srgb,
-      var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent)) 55%,
+      var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent)) 55%,
       transparent
     );
-    --mo-comp-button-outlined-hovered-label-text-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent));
-    --mo-comp-button-outlined-hovered-outline-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent));
+    --mo-comp-button-outlined-hovered-label-text-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent));
+    --mo-comp-button-outlined-hovered-outline-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent));
   }
 }

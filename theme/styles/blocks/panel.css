@@ -9,7 +9,7 @@
   /* A panel (Panel.tsx): an outlined card (.mo-card in ui.css) for a block that is one box (e.g. an app's about
      or price block), with an icon, a heading and a text at the top, and parts under a line. */
   .mo-block-panel {
-    color: var(--mo-sys-block-text);
+    color: var(--mo-comp-block-text);
   }
   .mo-block-panel.mo-is-in-text + .mo-block-panel.mo-is-in-text {
     margin-top: 1rem;
@@ -17,7 +17,7 @@
   .mo-block-panel__icon {
     display: block;
     margin-bottom: 1rem;
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
   }
   .mo-block-panel__title {
     margin: 0;
@@ -28,7 +28,7 @@
   }
   .mo-block-panel__text {
     margin-top: 0.4rem;
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   :is(.mo-block-panel, .mo-block-panel > .mo-card__body > .mo-card__content) > .mo-block-arrow-link {
     margin-top: 1rem;
@@ -63,7 +63,7 @@
     text-decoration: none;
   }
   :is(.mo-block-panel__title, .mo-block-panel .mo-card__headline) a:hover {
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
   }
   :is(.mo-block-panel, .mo-block-panel > .mo-card__body > .mo-card__content) > .mo-list {
     margin-top: 1rem;
@@ -88,7 +88,7 @@
     display: block;
     width: 100%;
     aspect-ratio: 4 / 3;
-    border-radius: var(--mo-sys-block-radius);
+    border-radius: var(--mo-comp-block-radius);
     object-fit: cover;
   }
   .mo-block-media__title {
@@ -118,7 +118,7 @@
     margin: 0;
   }
   .mo-block-copy-rows dt {
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   .mo-block-copy-rows dd {
     margin: 0;
@@ -158,7 +158,7 @@
     display: inline-block;
     margin-right: 0.5rem;
     vertical-align: -0.2em;
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
   }
 
   /* Steps that go from free to the full price, each more coloured than the one before (`--mo-comp-block-timeline-step`, a share of the
@@ -178,20 +178,20 @@
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    border-radius: var(--mo-sys-block-radius-small);
-    background: color-mix(in srgb, var(--mo-sys-block-accent) var(--mo-comp-block-timeline-step, 0%), var(--mo-sys-block-tint));
+    border-radius: var(--mo-comp-block-radius-small);
+    background: color-mix(in srgb, var(--mo-comp-block-accent) var(--mo-comp-block-timeline-step, 0%), var(--mo-comp-block-tint));
     padding: 1.25rem;
   }
   .mo-block-timeline > li:last-child {
-    background: var(--mo-sys-block-accent);
-    color: var(--mo-sys-block-on-accent);
+    background: var(--mo-comp-block-accent);
+    color: var(--mo-comp-block-on-accent);
   }
   .mo-block-timeline__when {
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   .mo-block-timeline > li:last-child .mo-block-timeline__when {
     color: inherit;
@@ -216,12 +216,12 @@
       padding: 1.5rem;
     }
     .mo-block-timeline > li:first-child {
-      border-start-start-radius: var(--mo-sys-block-radius);
-      border-end-start-radius: var(--mo-sys-block-radius);
+      border-start-start-radius: var(--mo-comp-block-radius);
+      border-end-start-radius: var(--mo-comp-block-radius);
     }
     .mo-block-timeline > li:last-child {
-      border-start-end-radius: var(--mo-sys-block-radius);
-      border-end-end-radius: var(--mo-sys-block-radius);
+      border-start-end-radius: var(--mo-comp-block-radius);
+      border-end-end-radius: var(--mo-comp-block-radius);
     }
     .mo-block-timeline__value {
       margin-top: 1.5rem;
@@ -235,7 +235,7 @@
   /* A part of a panel under a line (over the part's own margin and padding: a list, the facts). */
   :is(.mo-block-panel, .mo-block-panel > .mo-card__body > .mo-card__content) > .mo-block-panel__part {
     margin-top: 1.25rem;
-    border-top: 1px solid var(--mo-sys-block-line);
+    border-top: 1px solid var(--mo-comp-block-line);
     padding-top: 1.25rem;
   }
   /* Only on phones and tablets (a block a site shows beside the text on a computer). */

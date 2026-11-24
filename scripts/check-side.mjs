@@ -1,7 +1,7 @@
 // Checks the column beside a page's text (src/data/side.json, `beside` in a block's load.ts, PageLayout.astro) with the
 // theme now in src/data/theme.json: puts a TEST-ONLY block and five pages, one for each template (scripts/fixtures/side/),
 // in the site, builds it in a folder of its own and looks in the HTML for the template and the column the theme's
-// "templates" give each, and for the width of the text (PageLayout.astro: the text measure (--mo-sys-block-text-measure-max) with a column; without one the blocks span
+// "templates" give each, and for the width of the text (PageLayout.astro: the text measure (--mo-comp-block-text-measure-max) with a column; without one the blocks span
 // the column and the first paragraph is the lead). Exposes checkSide(root), expectedFor and columnOf; used by check-themes.mjs. Removes what it
 // put in the site, however it ends; a side.json the site already has is kept and put back as it was.
 import { execFileSync } from 'node:child_process';

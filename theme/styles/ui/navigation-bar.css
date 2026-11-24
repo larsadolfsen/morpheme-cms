@@ -6,12 +6,12 @@
   pill behind the open one's icon. Horizontal items (M3 Expressive; .mo-navigation-bar__start, and .mo-navigation-bar__auto once
   the bar is 600px wide): the icon beside the label, the items as wide as their content in the middle of the bar, the
   pill behind both.
-    --mo-comp-navigation-bar-container-height, --mo-comp-navigation-bar-container-color, --mo-comp-navigation-bar-line, --mo-comp-navigation-bar-shadow
-    --mo-comp-navigation-bar-item-gap, --mo-comp-navigation-bar-inactive-label-text-color, --mo-comp-navigation-bar-active-label-text-color
-    --mo-comp-navigation-bar-active-indicator-width, --mo-comp-navigation-bar-indicator-height, --mo-comp-navigation-bar-active-indicator-shape,
-    --mo-comp-navigation-bar-active-indicator-color, --mo-comp-navigation-bar-indicator-text, --mo-comp-navigation-bar-indicator-hover,
+    --mo-comp-nav-bar-container-height, --mo-comp-nav-bar-container-color, --mo-comp-nav-bar-line, --mo-comp-navigation-bar-shadow
+    --mo-comp-navigation-bar-item-gap, --mo-comp-nav-bar-item-inactive-label-text-color, --mo-comp-nav-bar-item-active-label-text-color
+    --mo-comp-nav-bar-item-vertical-active-indicator-width, --mo-comp-navigation-bar-indicator-height, --mo-comp-nav-bar-item-active-indicator-shape,
+    --mo-comp-nav-bar-item-active-indicator-color, --mo-comp-nav-bar-indicator-text, --mo-comp-nav-bar-indicator-hover,
     --mo-comp-navigation-bar-indicator-pressed
-    --mo-comp-navigation-bar-label-font-size, --mo-comp-navigation-bar-label-weight, --mo-comp-navigation-bar-label-selected-weight
+    --mo-comp-navigation-bar-label-font-size, --mo-comp-navigation-bar-label-weight, --mo-comp-nav-bar-label-selected-weight
     --mo-comp-navigation-bar-horizontal-indicator-height, --mo-comp-navigation-bar-horizontal-indicator-padding,
     --mo-comp-navigation-bar-horizontal-gap, --mo-comp-navigation-bar-horizontal-item-max-width,
     --mo-comp-navigation-bar-horizontal-label-font-size   horizontal items
@@ -22,11 +22,11 @@
   /* Navigation bar (m3.material.io/components/navigation-bar): the destinations side by side, each icon over its label. */
   .mo-navigation-bar {
     display: flex;
-    min-height: var(--mo-comp-navigation-bar-container-height, 4.5rem);
+    min-height: var(--mo-comp-nav-bar-container-height, 4.5rem);
     padding-bottom: env(safe-area-inset-bottom);
-    background: var(--mo-comp-navigation-bar-container-color, var(--mo-sys-block-surface));
+    background: var(--mo-comp-nav-bar-container-color, var(--mo-comp-block-surface));
     box-shadow:
-      inset 0 1px 0 var(--mo-comp-navigation-bar-line, var(--mo-sys-block-line)),
+      inset 0 1px 0 var(--mo-comp-nav-bar-line, var(--mo-comp-block-line)),
       var(--mo-comp-navigation-bar-shadow, var(--mo-sys-elevation-level2-rest-shadow));
   }
   .mo-navigation-bar__item {
@@ -38,12 +38,12 @@
     justify-content: center;
     gap: var(--mo-comp-navigation-bar-item-gap, 0.25rem);
     padding: 0.5rem 0.25rem;
-    color: var(--mo-comp-navigation-bar-inactive-label-text-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-nav-bar-item-inactive-label-text-color, var(--mo-comp-block-muted));
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
   }
   .mo-navigation-bar__item[aria-current] {
-    color: var(--mo-comp-navigation-bar-active-label-text-color, var(--mo-sys-block-text));
+    color: var(--mo-comp-nav-bar-item-active-label-text-color, var(--mo-comp-block-text));
   }
   .mo-navigation-bar__item:focus-visible,
   .mo-navigation-rail__item:focus-visible {
@@ -63,9 +63,9 @@
     display: contents;
   }
   .mo-navigation-bar__icon {
-    width: var(--mo-comp-navigation-bar-active-indicator-width, 4rem);
+    width: var(--mo-comp-nav-bar-item-vertical-active-indicator-width, 4rem);
     height: var(--mo-comp-navigation-bar-indicator-height, 2rem);
-    border-radius: var(--mo-comp-navigation-bar-active-indicator-shape, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-nav-bar-item-active-indicator-shape, var(--mo-sys-shape-corner-full));
   }
   .mo-navigation-bar__icon > svg,
   .mo-navigation-rail__icon > svg {
@@ -74,7 +74,7 @@
   }
   .mo-navigation-bar__item:hover .mo-navigation-bar__icon {
     background: var(
-      --mo-comp-navigation-bar-indicator-hover,
+      --mo-comp-nav-bar-indicator-hover,
       color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
   }
@@ -82,14 +82,14 @@
     background: var(
       --mo-comp-navigation-bar-indicator-pressed,
       var(
-        --mo-comp-navigation-bar-indicator-hover,
+        --mo-comp-nav-bar-indicator-hover,
         color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
       )
     );
   }
   .mo-navigation-bar__item[aria-current] .mo-navigation-bar__icon {
-    background: var(--mo-comp-navigation-bar-active-indicator-color, var(--mo-sys-block-tint));
-    color: var(--mo-comp-navigation-bar-indicator-text, var(--mo-sys-block-accent));
+    background: var(--mo-comp-nav-bar-item-active-indicator-color, var(--mo-comp-block-tint));
+    color: var(--mo-comp-nav-bar-indicator-text, var(--mo-comp-block-accent));
   }
   .mo-navigation-bar__label,
   .mo-navigation-rail__label {
@@ -105,7 +105,7 @@
     font-weight: var(--mo-comp-navigation-bar-label-weight, var(--mo-sys-typescale-label-medium-weight));
   }
   .mo-navigation-bar__item[aria-current] .mo-navigation-bar__label {
-    font-weight: var(--mo-comp-navigation-bar-label-selected-weight, 700);
+    font-weight: var(--mo-comp-nav-bar-label-selected-weight, 700);
   }
   /* Horizontal items (M3 Expressive): the icon beside the label, the items as wide as their content in the middle of the
      bar, the pill behind both. Always with .mo-navigation-bar__start; with .mo-navigation-bar__auto once the bar (its container)
@@ -130,7 +130,7 @@
     height: var(--mo-comp-navigation-bar-horizontal-indicator-height, 2.5rem);
     align-items: center;
     gap: var(--mo-comp-navigation-bar-horizontal-gap, 0.5rem);
-    border-radius: var(--mo-comp-navigation-bar-active-indicator-shape, var(--mo-sys-shape-corner-full));
+    border-radius: var(--mo-comp-nav-bar-item-active-indicator-shape, var(--mo-sys-shape-corner-full));
     padding-inline: var(--mo-comp-navigation-bar-horizontal-indicator-padding, 1rem);
     transition:
       background-color var(--mo-sys-motion-spring-default-effects),
@@ -152,7 +152,7 @@
   }
   .mo-navigation-bar__start .mo-navigation-bar__item:hover .mo-navigation-bar__indicator {
     background: var(
-      --mo-comp-navigation-bar-indicator-hover,
+      --mo-comp-nav-bar-indicator-hover,
       color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
   }
@@ -160,14 +160,14 @@
     background: var(
       --mo-comp-navigation-bar-indicator-pressed,
       var(
-        --mo-comp-navigation-bar-indicator-hover,
+        --mo-comp-nav-bar-indicator-hover,
         color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
       )
     );
   }
   .mo-navigation-bar__start .mo-navigation-bar__item[aria-current] .mo-navigation-bar__indicator {
-    background: var(--mo-comp-navigation-bar-active-indicator-color, var(--mo-sys-block-tint));
-    color: var(--mo-comp-navigation-bar-indicator-text, var(--mo-sys-block-accent));
+    background: var(--mo-comp-nav-bar-item-active-indicator-color, var(--mo-comp-block-tint));
+    color: var(--mo-comp-nav-bar-indicator-text, var(--mo-comp-block-accent));
   }
   @container navigation-bar (min-width: 37.5rem) {
     .mo-navigation-bar__auto .mo-navigation-bar__item {
@@ -187,7 +187,7 @@
       height: var(--mo-comp-navigation-bar-horizontal-indicator-height, 2.5rem);
       align-items: center;
       gap: var(--mo-comp-navigation-bar-horizontal-gap, 0.5rem);
-      border-radius: var(--mo-comp-navigation-bar-active-indicator-shape, var(--mo-sys-shape-corner-full));
+      border-radius: var(--mo-comp-nav-bar-item-active-indicator-shape, var(--mo-sys-shape-corner-full));
       padding-inline: var(--mo-comp-navigation-bar-horizontal-indicator-padding, 1rem);
       transition:
         background-color var(--mo-sys-motion-spring-default-effects),
@@ -209,7 +209,7 @@
     }
     .mo-navigation-bar__auto .mo-navigation-bar__item:hover .mo-navigation-bar__indicator {
       background: var(
-        --mo-comp-navigation-bar-indicator-hover,
+        --mo-comp-nav-bar-indicator-hover,
         color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
       );
     }
@@ -217,14 +217,14 @@
       background: var(
         --mo-comp-navigation-bar-indicator-pressed,
         var(
-          --mo-comp-navigation-bar-indicator-hover,
+          --mo-comp-nav-bar-indicator-hover,
           color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
         )
       );
     }
     .mo-navigation-bar__auto .mo-navigation-bar__item[aria-current] .mo-navigation-bar__indicator {
-      background: var(--mo-comp-navigation-bar-active-indicator-color, var(--mo-sys-block-tint));
-      color: var(--mo-comp-navigation-bar-indicator-text, var(--mo-sys-block-accent));
+      background: var(--mo-comp-nav-bar-item-active-indicator-color, var(--mo-comp-block-tint));
+      color: var(--mo-comp-nav-bar-indicator-text, var(--mo-comp-block-accent));
     }
   }
 }

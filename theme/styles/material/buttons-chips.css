@@ -84,13 +84,13 @@
       box-shadow var(--mo-sys-motion-spring-default-effects);
   }
   .mo-chip:hover {
-    background: var(--mo-sys-state-mo-hover-layer);
+    background: var(--mo-sys-state-hover-state-layer-color);
   }
   :where(.mo-chip).mo-is-elevated:hover {
     background: color-mix(
       in srgb,
       var(--mo-sys-color-on-surface) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
-      var(--mo-comp-chip-elevated-surface, var(--mo-sys-block-surface))
+      var(--mo-comp-chip-elevated-surface, var(--mo-comp-block-surface))
     );
   }
   .mo-chip__filter:is([aria-pressed='true'], [aria-current='page']) {

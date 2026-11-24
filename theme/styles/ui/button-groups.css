@@ -9,8 +9,8 @@
   .mo-icon-button in any size and shape, a toggle with aria-pressed in its look off and on (the buttons' above); in a
   standard group one that is on has the selected corners, in a connected one it is fully round. In a standard group the
   one pressed is a little wider and its neighbours a little narrower (Material's 15 %), unless motion is reduced.
-    --mo-comp-button-group-standard-medium-between-space, --mo-comp-button-group-connected-gap, --mo-comp-button-group-selected-radius
-    --mo-comp-button-group-inner-radius (the small and medium buttons'), --mo-comp-button-group-xsmall-inner-radius, -large-, -xlarge-
+    --mo-comp-button-group-standard-medium-between-space, --mo-comp-button-group-connected-xsmall-between-space, --mo-comp-button-group-selected-radius
+    --mo-comp-button-group-connected-small-inner-corner-corner-size (the small and medium buttons'), --mo-comp-button-group-connected-xsmall-inner-corner-corner-size, -large-, -xlarge-
   Toggles' colours are the buttons' (--button-toggle-*, --button-<kind>-selected-*, --icon-button-…-selected-*).
   Segmented button (SegmentedButton, segmentedButtonClass, segmentedButtonSegmentClass): .mo-segmented-button, the frame
   (the whole width on a phone, as wide as its choices from the medium width), with a .mo-segmented-button__segment for each (the chosen with aria-pressed="true"), in it .mo-segmented-button__check (shown
@@ -52,7 +52,7 @@
   }
   .mo-button-group__connected {
     flex-wrap: nowrap;
-    gap: var(--mo-comp-button-group-connected-gap, 0.125rem);
+    gap: var(--mo-comp-button-group-connected-xsmall-between-space, 0.125rem);
   }
   .mo-button-group > :is(.mo-button, .mo-icon-button) {
     transition:
@@ -111,12 +111,12 @@
     grid-auto-columns: 1fr;
     grid-auto-flow: column;
     border: 1px solid
-      var(--mo-comp-outlined-segmented-button-outline-color, var(--mo-comp-button-outlined-outline-color, var(--mo-sys-block-line)));
+      var(--mo-comp-outlined-segmented-button-outline-color, var(--mo-comp-button-outlined-outline-color, var(--mo-comp-block-line)));
     border-radius: var(
       --mo-comp-segmented-button-radius,
-      var(--mo-comp-button-medium-container-shape-round, var(--mo-sys-block-control-radius))
+      var(--mo-comp-button-small-container-shape-round, var(--mo-comp-block-control-radius))
     );
-    background: var(--mo-comp-segmented-button-surface, var(--mo-sys-block-surface));
+    background: var(--mo-comp-segmented-button-surface, var(--mo-comp-block-surface));
   }
   @media (width >= 37.5rem) {
     .mo-segmented-button {
@@ -127,7 +127,7 @@
     display: inline-flex;
     min-width: 3rem;
     min-height: calc(
-      var(--mo-comp-segmented-button-height, var(--mo-comp-button-medium-container-height, 3rem)) - 2px + var(--mo-sys-density) *
+      var(--mo-comp-segmented-button-height, var(--mo-comp-button-small-container-height, 3rem)) - 2px + var(--mo-sys-density) *
         var(--mo-sys-density-step)
     );
     align-items: center;
@@ -136,7 +136,7 @@
     border: 0;
     padding: 0 var(--mo-comp-segmented-button-padding, 1rem);
     background: transparent;
-    color: var(--mo-comp-segmented-button-text, var(--mo-sys-block-text));
+    color: var(--mo-comp-segmented-button-text, var(--mo-comp-block-text));
     font-family: inherit;
     font-size: var(--mo-comp-segmented-button-font-size, var(--mo-comp-button-small-font-size, var(--mo-sys-typescale-label-large-size)));
     font-weight: var(--mo-comp-button-weight, var(--mo-sys-typescale-label-large-weight));
@@ -150,7 +150,7 @@
   }
   .mo-segmented-button__segment + .mo-segmented-button__segment {
     border-inline-start: 1px solid
-      var(--mo-comp-outlined-segmented-button-outline-color, var(--mo-comp-button-outlined-outline-color, var(--mo-sys-block-line)));
+      var(--mo-comp-outlined-segmented-button-outline-color, var(--mo-comp-button-outlined-outline-color, var(--mo-comp-block-line)));
   }
   .mo-segmented-button__segment:first-child {
     border-start-start-radius: inherit;
@@ -172,13 +172,13 @@
     );
   }
   .mo-segmented-button__segment[aria-pressed='true'] {
-    background: var(--mo-comp-outlined-segmented-button-selected-container-color, var(--mo-sys-block-tint));
-    color: var(--mo-comp-outlined-segmented-button-selected-label-text-color, var(--mo-sys-block-text));
+    background: var(--mo-comp-outlined-segmented-button-selected-container-color, var(--mo-comp-block-tint));
+    color: var(--mo-comp-outlined-segmented-button-selected-label-text-color, var(--mo-comp-block-text));
   }
   .mo-segmented-button__segment[aria-pressed='true']:not(:disabled):hover {
     background: var(
       --mo-comp-segmented-button-selected-hover,
-      color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-block-tint))
+      color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-comp-block-tint))
     );
   }
   .mo-segmented-button__segment:disabled {

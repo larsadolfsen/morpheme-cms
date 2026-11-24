@@ -3,7 +3,7 @@
 @layer components {
   @media (width >= 37.5rem) {
     .mo-bottom-sheet__container[data-wide='side-sheet'] > .mo-bottom-sheet__header {
-      --mo-comp-side-sheet-icon-inset: calc(
+      --mo-comp-sheet-side-icon-inset: calc(
         (var(--mo-comp-icon-button-small-container-height) - var(--mo-comp-icon-button-small-icon-size)) / 2
       );
     }
@@ -11,7 +11,7 @@
 }
 @layer components {
   .mo-side-sheet__header {
-    --mo-comp-side-sheet-icon-inset: calc(
+    --mo-comp-sheet-side-icon-inset: calc(
       (var(--mo-comp-icon-button-small-container-height, 3rem) - var(--mo-comp-icon-button-small-icon-size, 1.5rem)) / 2
     );
   }

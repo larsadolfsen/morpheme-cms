@@ -18,9 +18,9 @@
   secondary actions beside it on one row, which has the container's state.
     --mo-comp-list-divider-color   the line of a divider the list asks for (.mo-list__dividers-inset, -middle-inset; M3's md.comp.list.divider.color)
     --mo-comp-list-divider-default-color   the line a plain list draws between its items (ours, M3 has none: dividers are optional; transparent in Material)
-    --mo-comp-list-list-item-container-height, --mo-comp-list-item-two-line-min-height, --mo-comp-list-item-three-line-min-height   by its lines
-    --mo-comp-list-item-padding-block, --mo-comp-list-item-padding-inline, --mo-comp-list-item-gap
-    --mo-comp-list-list-item-container-shape, --mo-comp-list-item-hover-radius, --mo-comp-list-item-pressed-radius (also focused), --mo-comp-list-item-selected-radius
+    --mo-comp-list-list-item-container-height, --mo-comp-list-md-comp-list-list-item-two-line-container-height, --mo-comp-list-md-comp-list-list-item-three-line-container-height   by its lines
+    --mo-comp-list-list-item-top-space, --mo-comp-list-list-item-leading-space, --mo-comp-list-list-item-between-space
+    --mo-comp-list-list-item-container-shape, --mo-comp-list-list-item-hovered-container-expressive-shape, --mo-comp-list-list-item-pressed-container-expressive-shape (also focused), --mo-comp-list-list-item-selected-container-expressive-shape
     --mo-comp-list-item-headline-size, --mo-comp-list-item-headline-weight   the headline of every item
     --mo-comp-list-item-headline-line-height, --mo-comp-list-item-headline-letter-spacing   the headline of every item
     --mo-comp-list-item-supporting-size, --mo-comp-list-item-supporting-line-height, --mo-comp-list-item-overline-size,
@@ -52,16 +52,17 @@
     list-style: none;
   }
   .mo-list > li + li {
-    border-top: 1px solid var(--mo-comp-list-divider-default-color, var(--mo-comp-list-divider-color, var(--mo-sys-block-line)));
+    border-top: 1px solid var(--mo-comp-list-divider-default-color, var(--mo-comp-list-divider-color, var(--mo-comp-block-line)));
   }
   /* --mo-comp-list-item-shape: the item's corners now, by its state (below). */
   .mo-list__item-container {
     display: flex;
     min-height: var(--mo-comp-list-item-box, auto);
     align-items: center;
-    gap: var(--mo-comp-list-item-gap, 1.5rem);
+    gap: var(--mo-comp-list-list-item-between-space, 1.5rem);
     border-radius: var(--mo-comp-list-item-shape);
-    padding: var(--mo-comp-list-item-padding-block, 0.85rem) var(--mo-comp-list-item-padding-inline, 0);
+    padding: var(--mo-comp-list-list-item-top-space, 0.85rem) var(--mo-comp-list-list-item-trailing-space, 0)
+      var(--mo-comp-list-list-item-bottom-space, 0.85rem) var(--mo-comp-list-list-item-leading-space, 0);
     color: inherit;
     text-decoration: none;
     transition:
@@ -82,7 +83,7 @@
     .mo-list__item-container:not(.mo-list__item-three-line):has(> .mo-list__item-content > .mo-list__item-supporting)
   ):not(:has(> :is(.mo-list__item-leading-image, .mo-list__item-leading-video))) {
     padding-block: max(
-      var(--mo-comp-list-item-padding-block, 0.85rem),
+      var(--mo-comp-list-list-item-top-space, 0.85rem),
       (var(--mo-comp-list-item-two-line-box, 0px) - var(--mo-comp-list-item-first-lines)) / 2
     );
   }
@@ -141,14 +142,14 @@
     overflow-wrap: anywhere;
   }
   .mo-list__item-supporting {
-    color: var(--mo-comp-list-item-supporting-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-list-item-supporting-text, var(--mo-comp-block-muted));
     font-size: var(--mo-comp-list-item-supporting-size, var(--mo-sys-typescale-body-medium-size));
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
     line-height: var(--mo-comp-list-item-supporting-line-height, var(--mo-sys-typescale-body-medium-line-height));
     overflow-wrap: anywhere;
   }
   .mo-list__item-trailing {
-    color: var(--mo-comp-list-item-trailing-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-list-item-trailing-text, var(--mo-comp-block-muted));
   }
   /* An item that is tapped (a button: the editor's rows) is as one that links. */
   button.mo-list__item-container {
@@ -207,7 +208,7 @@
   }
   .mo-list__item-overline {
     display: block;
-    color: var(--mo-comp-list-item-overline-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-list-item-overline-text, var(--mo-comp-block-muted));
     font-size: var(--mo-comp-list-item-overline-size, var(--mo-sys-typescale-label-small-size));
     line-height: var(--mo-comp-list-item-overline-line-height, var(--mo-sys-typescale-label-small-line-height));
     font-weight: var(--mo-sys-typescale-label-small-weight);
@@ -216,7 +217,7 @@
   .mo-list__item-trailing-supporting {
     display: flex;
     flex-shrink: 0;
-    color: var(--mo-comp-list-item-trailing-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-list-item-trailing-text, var(--mo-comp-block-muted));
     font-size: var(--mo-comp-list-item-trailing-supporting-size, var(--mo-sys-typescale-label-small-size));
     font-weight: var(--mo-sys-typescale-label-small-weight);
     line-height: var(--mo-sys-typescale-label-small-line-height);
@@ -227,7 +228,7 @@
   /* What leads it, Material's kinds: an icon, an avatar (a letter, or an image), an image or a video's thumbnail. The
      icons that lead and trail an item as large as --mo-comp-list-item-icon-size. */
   .mo-list__item-leading-icon {
-    color: var(--mo-comp-list-list-item-leading-icon-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-list-list-item-leading-icon-color, var(--mo-comp-block-muted));
     transition: color var(--mo-sys-motion-spring-default-effects);
   }
   :is(.mo-list__item-leading-icon, .mo-list__item-trailing) > svg {
@@ -237,13 +238,13 @@
   .mo-list__item-image {
     width: var(--mo-comp-list-item-image-size, 3.5rem);
     height: var(--mo-comp-list-item-image-size, 3.5rem);
-    border-radius: var(--mo-comp-list-item-image-radius, var(--mo-sys-block-radius-small));
+    border-radius: var(--mo-comp-list-item-image-radius, var(--mo-comp-block-radius-small));
     object-fit: cover;
   }
   .mo-list__item-video {
     width: var(--mo-comp-list-item-video-width, 7.125rem);
     height: var(--mo-comp-list-item-video-height, 4rem);
-    border-radius: var(--mo-comp-list-item-image-radius, var(--mo-sys-block-radius-small));
+    border-radius: var(--mo-comp-list-item-image-radius, var(--mo-comp-block-radius-small));
     object-fit: cover;
   }
 
@@ -398,7 +399,7 @@
     display: grid;
     gap: var(--mo-comp-list-expand-gap, 0);
     border-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
-    background: var(--mo-comp-list-expand-surface, var(--mo-sys-block-surface));
+    background: var(--mo-comp-list-expand-surface, var(--mo-comp-block-surface));
     box-shadow: var(--mo-comp-list-expand-shadow, var(--mo-sys-elevation-level0-shadow));
     overflow: clip;
   }
@@ -409,7 +410,7 @@
   }
   .mo-list__expand > li + li {
     border-top: var(--mo-comp-list-expand-divider-width, 1px) solid
-      var(--mo-comp-list-expand-divider-default-color, var(--mo-comp-list-expand-divider, var(--mo-sys-block-line)));
+      var(--mo-comp-list-expand-divider-default-color, var(--mo-comp-list-expand-divider, var(--mo-comp-block-line)));
   }
   .mo-list__expand > li:first-child {
     border-start-start-radius: var(--mo-comp-list-expand-container-shape, var(--mo-sys-shape-corner-large));
@@ -566,23 +567,23 @@
      item carries its own surface (the <li>), so the lift is on the <li> there. */
   .mo-list__item-dragged {
     cursor: grabbing;
-    background: var(--mo-comp-list-item-dragged-surface, var(--mo-sys-state-mo-dragged-layer));
+    background: var(--mo-comp-list-item-dragged-surface, var(--mo-sys-state-dragged-state-layer-color));
     box-shadow: var(--mo-comp-list-item-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
     --mo-comp-list-item-shape: var(
-      --mo-comp-list-item-dragged-radius,
-      var(--mo-comp-list-item-selected-radius, var(--mo-comp-list-list-item-container-shape, 0))
+      --mo-comp-list-list-item-dragged-container-expressive-shape,
+      var(--mo-comp-list-list-item-selected-container-expressive-shape, var(--mo-comp-list-list-item-container-shape, 0))
     );
   }
   .mo-list__item-dragged.mo-list__item-selected {
     background:
-      linear-gradient(var(--mo-comp-list-item-dragged-surface, var(--mo-sys-state-mo-dragged-layer)) 0 0),
+      linear-gradient(var(--mo-comp-list-item-dragged-surface, var(--mo-sys-state-dragged-state-layer-color)) 0 0),
       var(--mo-comp-list-list-item-selected-container-color, transparent);
   }
   .mo-list__segmented > li:has(> .mo-list__item-dragged, > .mo-list__item-multi-action > .mo-list__item-dragged) {
-    background: var(--mo-comp-list-list-item-segmented-container-color, var(--mo-sys-block-tint));
+    background: var(--mo-comp-list-list-item-segmented-container-color, var(--mo-comp-block-tint));
     box-shadow: var(--mo-comp-list-item-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
     --mo-comp-list-item-shape: var(
-      --mo-comp-list-item-dragged-radius,
+      --mo-comp-list-list-item-dragged-container-expressive-shape,
       var(--mo-comp-list-segmented-selected-radius, var(--mo-sys-shape-corner-large))
     );
   }
@@ -611,10 +612,10 @@
   :is(.mo-list__dividers-inset, .mo-list__dividers-middle-inset):not(.mo-list__segmented) > li + li::before {
     content: '';
     display: block;
-    border-top: 1px solid var(--mo-comp-list-divider-color, var(--mo-sys-block-line));
+    border-top: 1px solid var(--mo-comp-list-divider-color, var(--mo-comp-block-line));
   }
   .mo-list__dividers-inset > li + li::before {
-    margin-inline-start: calc(var(--mo-comp-list-item-padding-inline, 0px) + var(--mo-comp-list-item-leading-room));
+    margin-inline-start: calc(var(--mo-comp-list-list-item-leading-space, 0px) + var(--mo-comp-list-item-leading-room));
   }
   .mo-list__dividers-middle-inset > li + li::before {
     margin-inline: var(--mo-comp-divider-inset, 1rem);
@@ -631,7 +632,7 @@
   }
   .mo-list__segmented > li {
     border-radius: var(--mo-comp-list-item-shape);
-    background: var(--mo-comp-list-list-item-segmented-container-color, var(--mo-sys-block-tint));
+    background: var(--mo-comp-list-list-item-segmented-container-color, var(--mo-comp-block-tint));
     transition:
       background-color var(--mo-sys-motion-spring-default-effects),
       border-radius var(--mo-sys-motion-spring-fast-spatial);
@@ -643,12 +644,12 @@
   }
   /* The first and the last item with the list's corners outside, whatever their state. */
   .mo-list__segmented > li:first-child {
-    border-start-start-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small)));
-    border-start-end-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small)));
+    border-start-start-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-comp-block-radius-small)));
+    border-start-end-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-comp-block-radius-small)));
   }
   .mo-list__segmented > li:last-child {
-    border-end-start-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small)));
-    border-end-end-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-sys-block-radius-small)));
+    border-end-start-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-comp-block-radius-small)));
+    border-end-end-radius: max(var(--mo-comp-list-item-shape), var(--mo-comp-list-segmented-radius, var(--mo-comp-block-radius-small)));
   }
   .mo-list__segmented > li > .mo-list__item-container {
     border-radius: inherit;
@@ -658,7 +659,7 @@
   .mo-list__segmented > li > .mo-list__item-with-control:not(.mo-list__item-disabled):hover {
     background: var(
       --mo-comp-list-segmented-hover-surface,
-      color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
   }
   .mo-list__segmented > li > :is(a, button:enabled).mo-list__item-container:active,
@@ -667,7 +668,7 @@
       --mo-comp-list-segmented-pressed-surface,
       var(
         --mo-comp-list-segmented-hover-surface,
-        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+        color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
       )
     );
   }
@@ -680,7 +681,7 @@
         --mo-comp-list-segmented-pressed-surface,
         var(
           --mo-comp-list-segmented-hover-surface,
-          color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+          color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
         )
       )
     );
@@ -691,7 +692,7 @@
   .mo-list__segmented > li > .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:hover) {
     background: var(
       --mo-comp-list-segmented-hover-surface,
-      color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+      color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
   }
   .mo-list__segmented > li > .mo-list__item-multi-action:has(> :is(a, button:enabled).mo-list__item-container:active) {
@@ -699,7 +700,7 @@
       --mo-comp-list-segmented-pressed-surface,
       var(
         --mo-comp-list-segmented-hover-surface,
-        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+        color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
       )
     );
   }
@@ -707,7 +708,7 @@
   .mo-list__segmented > li:has(> .mo-list__item-disabled, > button.mo-list__item-container:disabled) {
     background: var(
       --mo-comp-list-segmented-disabled-surface,
-      var(--mo-comp-list-list-item-segmented-container-color, var(--mo-sys-block-tint))
+      var(--mo-comp-list-list-item-segmented-container-color, var(--mo-comp-block-tint))
     );
   }
   .mo-list__segmented > li > :is(.mo-list__item-selected, .mo-list__item-with-control:has(:checked)) {

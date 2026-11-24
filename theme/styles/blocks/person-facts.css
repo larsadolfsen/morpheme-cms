@@ -16,7 +16,7 @@
     width: 3.5rem;
     height: 3.5rem;
     flex-shrink: 0;
-    border-radius: var(--mo-sys-block-radius-small);
+    border-radius: var(--mo-comp-block-radius-small);
     object-fit: cover;
     object-position: 50% 20%;
   }
@@ -33,7 +33,7 @@
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
 
   /* A list with an icon in the accent before each line. */
@@ -56,7 +56,7 @@
   .mo-block-icon-list svg {
     flex-shrink: 0;
     margin-top: 0.05rem;
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
   }
 
   /* Facts side by side, each a quiet name over its value, the last one to the right (a duration and a
@@ -72,7 +72,7 @@
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   .mo-block-facts dd {
     margin: 0.15rem 0 0;
@@ -104,7 +104,7 @@
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   .mo-block-table :is(th, td) {
-    border-bottom: 1px solid var(--mo-sys-block-line);
+    border-bottom: 1px solid var(--mo-comp-block-line);
     text-align: left;
     vertical-align: top;
   }
@@ -112,12 +112,12 @@
   /* "Table": Material 3 has no table component, so the dimensions are Material 2's data table (m2.material.io/components/data-tables:
      rows 52 dp and the header row 56 dp, 16 dp of space at the sides of a cell, a header name in a medium weight, a 1 dp outline,
      no elevation, a row's background on hover) and everything else is Material 3's: the body and label type scales, the surface container
-     (header), the outline variant (container and dividers), the cards' own corner radius (--mo-comp-card-radius) and the theme's hover state layer. The box is a region the
+     (header), the outline variant (container and dividers), the cards' own corner radius (--mo-comp-elevated-card-container-shape) and the theme's hover state layer. The box is a region the
      keyboard can scroll (a focus ring in the accent); a table with many columns scrolls instead of crushing them. */
   .mo-block-table__grid {
-    border: 1px solid var(--mo-sys-block-line);
-    border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
-    color: var(--mo-sys-block-text);
+    border: 1px solid var(--mo-comp-block-line);
+    border-radius: var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius));
+    color: var(--mo-comp-block-text);
   }
   .mo-block-table__grid:focus-visible {
     outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
@@ -133,7 +133,7 @@
   }
   .mo-block-table__grid thead th {
     height: calc(3.5rem + var(--mo-sys-density) * var(--mo-sys-density-step));
-    background: var(--mo-sys-block-tint);
+    background: var(--mo-comp-block-tint);
     font-size: var(--mo-sys-typescale-label-large-size);
     line-height: var(--mo-sys-typescale-label-large-line-height);
     font-weight: var(--mo-sys-typescale-label-large-weight);
@@ -152,15 +152,15 @@
   .mo-block-table__grid tr:last-child :is(th, td) {
     border-bottom: 0;
   }
-  /* "Striped rows": every second body row in the quieter --mo-sys-block-stripe (the header keeps the tint). */
+  /* "Striped rows": every second body row in the quieter --mo-comp-block-stripe (the header keeps the tint). */
   .mo-block-table__grid[data-striped] tbody tr:nth-child(even) {
-    background: var(--mo-sys-block-stripe);
+    background: var(--mo-comp-block-stripe);
   }
   @media (hover: hover) {
     .mo-block-table__grid tbody tr:hover {
       background: var(
-        --mo-sys-state-mo-hover-layer,
-        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+        --mo-sys-state-hover-state-layer-color,
+        color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
       );
     }
     /* The state layer over the stripe, so a striped row stays striped under the pointer. */
@@ -168,15 +168,15 @@
       background:
         linear-gradient(
           var(
-            --mo-sys-state-mo-hover-layer,
-            color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+            --mo-sys-state-hover-state-layer-color,
+            color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
           ),
           var(
-            --mo-sys-state-mo-hover-layer,
-            color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+            --mo-sys-state-hover-state-layer-color,
+            color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
           )
         ),
-        var(--mo-sys-block-stripe);
+        var(--mo-comp-block-stripe);
     }
   }
 
@@ -187,9 +187,9 @@
     height: 3.5rem;
     flex-shrink: 0;
     place-content: center;
-    border-radius: calc(var(--mo-sys-block-radius-small) - 0.25rem);
-    background: var(--mo-sys-block-tint);
-    color: var(--mo-sys-block-accent);
+    border-radius: calc(var(--mo-comp-block-radius-small) - 0.25rem);
+    background: var(--mo-comp-block-tint);
+    color: var(--mo-comp-block-accent);
     text-align: center;
     line-height: 1.1;
   }

@@ -3,20 +3,27 @@
 /* Vibrant: the menu in the accent, what is on it turned around. */
 @layer components {
   .mo-menu__vibrant {
-    --mo-comp-menu-container-color: var(--mo-comp-menu-vibrant-surface, var(--mo-sys-block-accent));
+    --mo-comp-menus-standard-container-color: var(--mo-comp-menu-vibrant-surface, var(--mo-comp-block-accent));
     --mo-comp-menu-line: transparent;
-    --mo-comp-menu-list-item-label-text-color: var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent));
-    --mo-comp-menu-item-icon-color: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent)) 80%, transparent);
+    --mo-comp-menu-list-item-label-text-color: var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent));
+    --mo-comp-menu-item-icon-color: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent)) 80%, transparent);
     --mo-comp-menu-item-supporting-text: color-mix(
       in srgb,
-      var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent)) 80%,
+      var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent)) 80%,
       transparent
     );
-    --mo-comp-menu-item-hover-surface: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent)) 14%, transparent);
-    --mo-comp-menu-item-hover-text: var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent));
-    --mo-comp-menu-list-item-selected-container-color: var(--mo-comp-menu-vibrant-selected-surface, var(--mo-sys-block-on-accent));
-    --mo-comp-menu-list-item-selected-label-text-color: var(--mo-comp-menu-vibrant-selected-text, var(--mo-sys-block-accent));
-    --mo-comp-menu-group-label-text: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent)) 80%, transparent);
-    --mo-comp-menu-divider-color: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-sys-block-on-accent)) 30%, transparent);
+    --mo-comp-menu-item-hover-surface: color-mix(
+      in srgb,
+      var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent)) 14%,
+      transparent
+    );
+    --mo-comp-menu-item-hover-text: var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent));
+    --mo-comp-menus-standard-menu-item-selected-container-color: var(
+      --mo-comp-menu-vibrant-selected-surface,
+      var(--mo-comp-block-on-accent)
+    );
+    --mo-comp-menus-standard-menu-item-selected-label-text-color: var(--mo-comp-menu-vibrant-selected-text, var(--mo-comp-block-accent));
+    --mo-comp-menu-group-label-text: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent)) 80%, transparent);
+    --mo-comp-menu-divider-color: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent)) 30%, transparent);
   }
 }

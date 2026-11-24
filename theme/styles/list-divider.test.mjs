@@ -17,9 +17,9 @@ test('Material gives a divider the outline role and a plain list no line', () =>
 test('a plain list draws its default line, a list that asks for dividers draws M3 divider colour', () => {
   assert.ok(
     listCss.includes(
-      '.mo-list > li + li {\n    border-top: 1px solid var(--mo-comp-list-divider-default-color, var(--mo-comp-list-divider-color, var(--mo-sys-block-line)));',
+      '.mo-list > li + li {\n    border-top: 1px solid var(--mo-comp-list-divider-default-color, var(--mo-comp-list-divider-color, var(--mo-comp-block-line)));',
     ),
   );
   const inset = listCss.slice(listCss.indexOf('.mo-list__dividers-middle-inset):not(.mo-list__segmented) > li + li::before'));
-  assert.ok(inset.includes('border-top: 1px solid var(--mo-comp-list-divider-color, var(--mo-sys-block-line));'));
+  assert.ok(inset.includes('border-top: 1px solid var(--mo-comp-list-divider-color, var(--mo-comp-block-line));'));
 });

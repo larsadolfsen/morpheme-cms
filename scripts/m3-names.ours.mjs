@@ -4,6 +4,91 @@
 export const ours = {
   tokens: [
     {
+      token: '--mo-comp-nav-bar-indicator-hover',
+      reason:
+        'A state of the part drawn as one mixed colour; M3 holds states as a state layer colour and opacity token (md.sys.state) per state.',
+    },
+    {
+      token: '--mo-comp-nav-bar-indicator-text',
+      reason:
+        'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
+    },
+    {
+      token: '--mo-comp-nav-bar-label-selected-weight',
+      reason:
+        "A text value read from the type scale; M3 holds it as the part's composite label-text token, which the check does not compare.",
+    },
+    {
+      token: '--mo-comp-nav-bar-line',
+      reason:
+        "The part's outline or divider in our own words; M3 names it per state (outline, active-indicator) and the mapping is not read yet.",
+    },
+    {
+      token: '--mo-comp-nav-rail-expanded-width',
+      reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
+    },
+    {
+      token: '--mo-comp-nav-rail-indicator-hover',
+      reason:
+        'A state of the part drawn as one mixed colour; M3 holds states as a state layer colour and opacity token (md.sys.state) per state.',
+    },
+    {
+      token: '--mo-comp-nav-rail-indicator-text',
+      reason:
+        'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
+    },
+    {
+      token: '--mo-comp-nav-rail-label-selected-weight',
+      reason:
+        "A text value read from the type scale; M3 holds it as the part's composite label-text token, which the check does not compare.",
+    },
+    {
+      token: '--mo-comp-nav-rail-line',
+      reason:
+        "The part's outline or divider in our own words; M3 names it per state (outline, active-indicator) and the mapping is not read yet.",
+    },
+    {
+      token: '--mo-comp-nav-rail-modal-radius',
+      reason: "A corner of a part state or size; M3 holds it as the part's shape token for that state, which the check does not map yet.",
+    },
+    {
+      token: '--mo-comp-nav-rail-padding',
+      reason:
+        'A padding as one CSS value (block and inline together); M3 prints its spaces as leading-space, trailing-space, top-space and bottom-space.',
+    },
+    {
+      token: '--mo-comp-sheet-bottom-line',
+      reason:
+        "The part's outline or divider in our own words; M3 names it per state (outline, active-indicator) and the mapping is not read yet.",
+    },
+    {
+      token: '--mo-comp-sheet-bottom-scrim',
+      reason: 'The scrim of this part; M3 holds one scrim role (md.sys.color.scrim) and prints no token per part.',
+    },
+    {
+      token: '--mo-comp-sheet-side-icon-inset',
+      reason: 'No M3 token of this name or role found in docs/m3-tokens/; to review in the component batch.',
+    },
+    {
+      token: '--mo-comp-sheet-side-scrim',
+      reason: 'The scrim of this part; M3 holds one scrim role (md.sys.color.scrim) and prints no token per part.',
+    },
+    {
+      token: '--mo-sys-state-dragged-state-layer-color',
+      reason:
+        "The state layer's colour as one of our tokens; M3 holds states as an opacity token (md.sys.state.*.state-layer-opacity) and takes the colour from the part's role.",
+    },
+    {
+      token: '--mo-sys-state-hover-state-layer-color',
+      reason:
+        "The state layer's colour as one of our tokens; M3 holds states as an opacity token (md.sys.state.*.state-layer-opacity) and takes the colour from the part's role.",
+    },
+    {
+      token: '--mo-sys-state-pressed-state-layer-color',
+      reason:
+        "The state layer's colour as one of our tokens; M3 holds states as an opacity token (md.sys.state.*.state-layer-opacity) and takes the colour from the part's role.",
+    },
+    {
       token: '--mo-comp-avatar-size',
       reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
     },

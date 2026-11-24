@@ -39,7 +39,7 @@
     align-items: center;
     min-width: 0;
     min-height: var(--mo-comp-text-field-box, var(--mo-comp-filled-text-field-container-height, 3rem));
-    border-radius: var(--mo-comp-text-field-radius, var(--mo-sys-block-control-radius));
+    border-radius: var(--mo-comp-text-field-radius, var(--mo-comp-block-control-radius));
     transition:
       box-shadow var(--mo-sys-motion-spring-default-effects),
       background-color var(--mo-sys-motion-spring-default-effects);
@@ -53,7 +53,7 @@
     border-radius: inherit;
     padding: 0 var(--mo-comp-text-field-padding, 1.25rem);
     background: transparent;
-    color: var(--mo-sys-block-text);
+    color: var(--mo-comp-block-text);
     font: inherit;
     font-size: var(--mo-comp-text-field-font-size, var(--mo-sys-typescale-body-large-size));
   }
@@ -85,18 +85,18 @@
     opacity: var(--mo-comp-text-field-disabled-opacity, 0.6);
   }
   :where(.mo-text-field).mo-is-outlined .mo-text-field__container {
-    background: var(--mo-comp-text-field-outlined-surface, var(--mo-sys-block-surface));
-    box-shadow: inset 0 0 0 1px var(--mo-comp-outlined-text-field-outline-color, var(--mo-sys-block-line));
+    background: var(--mo-comp-text-field-outlined-surface, var(--mo-comp-block-surface));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-outlined-text-field-outline-color, var(--mo-comp-block-line));
   }
   :where(.mo-text-field).mo-is-outlined .mo-text-field__container:hover {
     box-shadow: inset 0 0 0 1px
-      var(--mo-comp-outlined-text-field-hover-outline-color, var(--mo-comp-outlined-text-field-outline-color, var(--mo-sys-block-line)));
+      var(--mo-comp-outlined-text-field-hover-outline-color, var(--mo-comp-outlined-text-field-outline-color, var(--mo-comp-block-line)));
   }
   :where(.mo-text-field).mo-is-outlined .mo-text-field__container:has(> .mo-text-field__input:focus) {
-    box-shadow: inset 0 0 0 2px var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 2px var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-comp-block-accent));
   }
   :where(.mo-text-field).mo-is-filled .mo-text-field__container {
-    background: var(--mo-comp-filled-text-field-container-color, var(--mo-sys-block-tint));
+    background: var(--mo-comp-filled-text-field-container-color, var(--mo-comp-block-tint));
     box-shadow: inset 0 -1px 0 var(--mo-comp-text-field-filled-line, transparent);
   }
   :where(.mo-text-field).mo-is-filled .mo-text-field__container:hover {
@@ -105,7 +105,7 @@
   /* Written in, or wrong: an edge all round in the accent, whatever the field's shape (a theme with a line under its
      filled fields, square at the bottom, draws the line thicker instead). */
   :where(.mo-text-field).mo-is-filled .mo-text-field__container:has(> .mo-text-field__input:focus) {
-    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-filled-focus-line, var(--mo-comp-block-accent));
   }
   /* Wrong: the error colour for the edge, as thick as M3's resting outline (1 dp; a filled field's active indicator is a line under it), and
      with the focus as thick as every focused field's edge (2 px, all round), so the focus shows in the error state too (WCAG 2.4.7, 2.4.11; M3: the
@@ -120,37 +120,38 @@
       .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
     )
     .mo-text-field__container:hover {
-    box-shadow: inset 0 0 0 1px var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-text-field-error, var(--mo-comp-block-accent));
   }
   .mo-is-filled:is(
       .mo-is-error,
       .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
     )
     .mo-text-field__container:not(:has(> .mo-text-field__input:is(:focus, [aria-expanded='true']))) {
-    box-shadow: inset 0 -1px 0 var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+    box-shadow: inset 0 -1px 0 var(--mo-comp-text-field-error, var(--mo-comp-block-accent));
   }
   :is(
       .mo-is-error,
       .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
     )
     .mo-text-field__container:has(> .mo-text-field__input:is(:focus, [aria-expanded='true'])) {
-    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-error, var(--mo-comp-block-accent));
   }
   /* A choice whose menu is open under it (the button's aria-expanded): the edge as with the focus, which has moved into
      the menu; and the arrow turned up. */
   :where(.mo-text-field).mo-is-outlined .mo-text-field__container:has(> .mo-text-field__input[aria-expanded='true']) {
-    box-shadow: inset 0 0 0 2px var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 2px var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-comp-block-accent));
   }
   :where(.mo-text-field).mo-is-filled .mo-text-field__container:has(> .mo-text-field__input[aria-expanded='true']) {
-    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-filled-focus-line, var(--mo-comp-block-accent));
   }
   /* Read-only: as an enabled field, and with the focus its edge in the line's colour, as it cannot be written in. */
   :where(.mo-text-field).mo-is-outlined .mo-text-field__container:has(> .mo-text-field__input[readonly]:focus) {
     box-shadow: inset 0 0 0 2px
-      var(--mo-comp-outlined-text-field-hover-outline-color, var(--mo-comp-outlined-text-field-outline-color, var(--mo-sys-block-line)));
+      var(--mo-comp-outlined-text-field-hover-outline-color, var(--mo-comp-outlined-text-field-outline-color, var(--mo-comp-block-line)));
   }
   :where(.mo-text-field).mo-is-filled .mo-text-field__container:has(> .mo-text-field__input[readonly]:focus) {
-    box-shadow: inset 0 0 0 2px var(--mo-comp-text-field-filled-hover-line, var(--mo-comp-text-field-filled-line, var(--mo-sys-block-line)));
+    box-shadow: inset 0 0 0 2px
+      var(--mo-comp-text-field-filled-hover-line, var(--mo-comp-text-field-filled-line, var(--mo-comp-block-line)));
   }
   /* The name in the field, above what is written once there is something (or while it is written in); a placeholder
      shows only then. */
@@ -160,7 +161,7 @@
     left: var(--mo-comp-text-field-label-start);
     max-width: calc(100% - var(--mo-comp-text-field-label-start) - var(--mo-comp-text-field-padding, 1.25rem));
     overflow: hidden;
-    color: var(--mo-comp-text-field-label-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-text-field-label-color, var(--mo-comp-block-muted));
     line-height: 1.25;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -181,16 +182,16 @@
     font-size: var(--mo-sys-typescale-body-small-size);
   }
   .mo-text-field__input:focus + .mo-text-field__label {
-    color: var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
+    color: var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-comp-block-accent));
   }
   .mo-text-field__input[readonly]:focus + .mo-text-field__label {
-    color: var(--mo-comp-text-field-label-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-text-field-label-color, var(--mo-comp-block-muted));
   }
   :where(.mo-text-field).mo-is-outlined .mo-text-field__input[aria-expanded='true'] + .mo-text-field__label {
-    color: var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-sys-block-accent));
+    color: var(--mo-comp-outlined-text-field-focus-outline-color, var(--mo-comp-block-accent));
   }
   :where(.mo-text-field).mo-is-filled .mo-text-field__input[aria-expanded='true'] + .mo-text-field__label {
-    color: var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-filled-focus-line, var(--mo-comp-block-accent));
   }
   :is(
       .mo-is-error,
@@ -203,7 +204,7 @@
     )
     .mo-text-field__input:is(:focus, [aria-expanded='true'])
     + .mo-text-field__label {
-    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-error, var(--mo-comp-block-accent));
   }
   /* Outlined: the name on the edge, on the field's surface, at its start (also past the icon before it). */
   :where(.mo-text-field).mo-is-outlined .mo-text-field__input:focus + .mo-text-field__label,
@@ -211,7 +212,7 @@
     top: 0;
     margin-left: -0.25rem;
     padding: 0 0.25rem;
-    background: var(--mo-comp-text-field-label-surface, var(--mo-comp-text-field-outlined-surface, var(--mo-sys-block-surface)));
+    background: var(--mo-comp-text-field-label-surface, var(--mo-comp-text-field-outlined-surface, var(--mo-comp-block-surface)));
   }
   /* Filled: the name at the top of the field, what is written under it. */
   :where(.mo-text-field).mo-is-filled:has(.mo-text-field__label)
@@ -224,7 +225,7 @@
     transform: none;
   }
   :where(.mo-text-field).mo-is-filled .mo-text-field__input:focus + .mo-text-field__label {
-    color: var(--mo-comp-text-field-filled-focus-line, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-filled-focus-line, var(--mo-comp-block-accent));
   }
 
   /* The icons and the text before and after what is written. */
@@ -233,7 +234,7 @@
     flex-shrink: 0;
     width: var(--mo-comp-text-field-icon-size, 1.25rem);
     height: var(--mo-comp-text-field-icon-size, 1.25rem);
-    color: var(--mo-comp-text-field-icon-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-text-field-icon-color, var(--mo-comp-block-muted));
   }
   .mo-text-field__leading-icon {
     margin-inline-start: var(--mo-comp-text-field-icon-padding, 0.875rem);
@@ -268,7 +269,7 @@
   .mo-text-field__prefix,
   .mo-text-field__suffix {
     flex-shrink: 0;
-    color: var(--mo-comp-text-field-affix-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-text-field-affix-color, var(--mo-comp-block-muted));
     white-space: nowrap;
     opacity: 0;
     transition: opacity var(--mo-sys-motion-spring-default-effects);
@@ -307,7 +308,7 @@
     )
     .mo-text-field__error-icon {
     display: block;
-    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-error, var(--mo-comp-block-accent));
   }
   :is(
       .mo-is-error,
@@ -330,8 +331,8 @@
   .mo-text-field__multiline .mo-text-field__container {
     align-items: flex-start;
     border-radius: min(
-      var(--mo-comp-text-field-radius, var(--mo-sys-block-control-radius)),
-      var(--mo-comp-text-field-multiline-radius, var(--mo-sys-block-radius))
+      var(--mo-comp-text-field-radius, var(--mo-comp-block-control-radius)),
+      var(--mo-comp-text-field-multiline-radius, var(--mo-comp-block-radius))
     );
   }
   .mo-text-field__multiline .mo-text-field__input {
@@ -369,7 +370,7 @@
     display: flex;
     gap: 1rem;
     margin: 0.25rem var(--mo-comp-text-field-padding, 1.25rem) 0;
-    color: var(--mo-comp-text-field-supporting-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-text-field-supporting-color, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-body-small-size);
     line-height: var(--mo-sys-typescale-body-small-line-height);
     font-weight: var(--mo-sys-typescale-body-small-weight);
@@ -384,7 +385,7 @@
       .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
     )
     .mo-text-field__supporting {
-    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-error, var(--mo-comp-block-accent));
   }
   /* What is said when the browser finds the field invalid after the person has worked in it (invalidText, `:user-invalid`):
      it takes the place of the line under the field and does not add one (m3.material.io/components/text-fields/guidelines,
@@ -407,6 +408,6 @@
   }
   /* Past what it should have at most (limit): in the error's colour. */
   .mo-text-field__counter-over {
-    color: var(--mo-comp-text-field-error, var(--mo-sys-block-accent));
+    color: var(--mo-comp-text-field-error, var(--mo-comp-block-accent));
   }
 }

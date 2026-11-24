@@ -8,16 +8,16 @@
   expanded rail's modality: standard (beside the content, which makes room for it) or .mo-navigation-rail__modal (over the
   content, which keeps its place, with its shadow and corners, over .mo-navigation-rail__scrim just before it); its
   behaviour: back into the collapsed rail, or .mo-navigation-rail__hide, nothing while it is collapsed.
-    --mo-comp-navigation-rail-container-width, --mo-comp-navigation-rail-expanded-width, --mo-comp-navigation-rail-padding, --mo-comp-navigation-rail-radius,
-    --mo-comp-navigation-rail-surface (level 0's colour), --mo-comp-navigation-rail-line
-    --mo-comp-navigation-rail-modal-surface (level 2's colour), --mo-comp-navigation-rail-modal-radius, --mo-comp-navigation-rail-modal-shadow,
+    --mo-comp-nav-rail-collapsed-container-width, --mo-comp-nav-rail-expanded-width, --mo-comp-nav-rail-padding, --mo-comp-navigation-rail-radius,
+    --mo-comp-navigation-rail-surface (level 0's colour), --mo-comp-nav-rail-line
+    --mo-comp-navigation-rail-modal-surface (level 2's colour), --mo-comp-nav-rail-modal-radius, --mo-comp-navigation-rail-modal-shadow,
     --mo-comp-navigation-rail-scrim   a modal one, expanded
     --mo-comp-navigation-rail-item-gap, --mo-comp-navigation-rail-inactive-label-text-color, --mo-comp-navigation-rail-active-label-text-color
     --mo-comp-navigation-rail-indicator-width, --mo-comp-navigation-rail-indicator-height, --mo-comp-navigation-rail-expanded-indicator-height,
-    --mo-comp-navigation-rail-active-indicator-shape, --mo-comp-navigation-rail-active-indicator-color, --mo-comp-navigation-rail-indicator-text,
-    --mo-comp-navigation-rail-indicator-hover
+    --mo-comp-navigation-rail-active-indicator-shape, --mo-comp-navigation-rail-active-indicator-color, --mo-comp-nav-rail-indicator-text,
+    --mo-comp-nav-rail-indicator-hover
     --mo-comp-navigation-rail-label-font-size, --mo-comp-navigation-rail-expanded-label-font-size, --mo-comp-navigation-rail-label-weight,
-    --mo-comp-navigation-rail-label-selected-weight, --mo-comp-navigation-rail-section-label-text
+    --mo-comp-nav-rail-label-selected-weight, --mo-comp-navigation-rail-section-label-text
   The badges on their icons are the theme's Badge (.mo-badge, its --badge-* variables), placed at the icon's corner.
   Moved here from ui.css with its rules unchanged and in their order; imported by base.css right after ui.css, in the same layer. No other rule sets
   the same property on these parts at the same specificity, so the position does not change what wins (docs/superpowers/plans/2026-11-16-css-split.md).
@@ -40,15 +40,15 @@
      FAB over them; wide, each destination's icon and label side by side in the pill. */
   .mo-navigation-rail {
     display: flex;
-    width: var(--mo-comp-navigation-rail-container-width, 5.5rem);
+    width: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
     flex-shrink: 0;
     flex-direction: column;
     gap: 1.5rem;
     overflow: hidden;
     border-radius: var(--mo-comp-navigation-rail-radius, 0);
-    padding: var(--mo-comp-navigation-rail-padding, 1rem 0.75rem);
+    padding: var(--mo-comp-nav-rail-padding, 1rem 0.75rem);
     background: var(--mo-comp-navigation-rail-surface, var(--mo-sys-elevation-level0-color));
-    box-shadow: inset -1px 0 0 var(--mo-comp-navigation-rail-line, var(--mo-sys-block-line));
+    box-shadow: inset -1px 0 0 var(--mo-comp-nav-rail-line, var(--mo-comp-block-line));
     transition:
       width var(--mo-sys-motion-spring-default-spatial),
       margin var(--mo-sys-motion-spring-default-spatial),
@@ -58,16 +58,16 @@
       visibility 0s linear var(--mo-sys-motion-spring-default-spatial-duration);
   }
   .mo-navigation-rail[data-expanded] {
-    width: var(--mo-comp-navigation-rail-expanded-width, 16rem);
+    width: var(--mo-comp-nav-rail-expanded-width, 16rem);
     transition-delay: 0s;
   }
   /* Modal: expanded over the content, which keeps its place (the margin takes back what the rail grows by), over the
      scrim. The rail stands in a row beside the content, so its z-index holds without a position of its own. */
   .mo-navigation-rail__modal[data-expanded] {
     z-index: 50;
-    margin-inline-end: calc(var(--mo-comp-navigation-rail-container-width, 5.5rem) - var(--mo-comp-navigation-rail-expanded-width, 16rem));
-    border-start-end-radius: var(--mo-comp-navigation-rail-modal-radius, var(--mo-sys-block-radius));
-    border-end-end-radius: var(--mo-comp-navigation-rail-modal-radius, var(--mo-sys-block-radius));
+    margin-inline-end: calc(var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem) - var(--mo-comp-nav-rail-expanded-width, 16rem));
+    border-start-end-radius: var(--mo-comp-nav-rail-modal-radius, var(--mo-comp-block-radius));
+    border-end-end-radius: var(--mo-comp-nav-rail-modal-radius, var(--mo-comp-block-radius));
     background: var(--mo-comp-navigation-rail-modal-surface, var(--mo-sys-elevation-level2-color));
     box-shadow: var(--mo-comp-navigation-rail-modal-shadow, var(--mo-sys-elevation-level2-shadow));
   }
@@ -77,7 +77,7 @@
     z-index: 49;
     background: var(
       --mo-comp-navigation-rail-scrim,
-      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 40%, transparent)
+      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-comp-block-text)) 40%, transparent)
     );
     animation: navigation-rail-scrim-in var(--mo-sys-motion-spring-default-effects);
   }
@@ -97,7 +97,7 @@
     box-shadow: none;
   }
   .mo-navigation-rail__hide.mo-navigation-rail__modal[data-expanded] {
-    margin-inline-end: calc(-1 * var(--mo-comp-navigation-rail-expanded-width, 16rem));
+    margin-inline-end: calc(-1 * var(--mo-comp-nav-rail-expanded-width, 16rem));
   }
   .mo-navigation-rail__header {
     display: flex;
@@ -139,13 +139,13 @@
     gap: var(--mo-comp-navigation-rail-item-gap, 0.75rem);
   }
   .mo-navigation-rail__section + .mo-navigation-rail__section {
-    border-top: 1px solid var(--mo-comp-navigation-rail-line, var(--mo-sys-block-line));
+    border-top: 1px solid var(--mo-comp-nav-rail-line, var(--mo-comp-block-line));
     padding-top: var(--mo-comp-navigation-rail-item-gap, 0.75rem);
   }
   .mo-navigation-rail__section-label {
     display: none;
     padding-inline: 1rem;
-    color: var(--mo-comp-navigation-rail-section-label-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-navigation-rail-section-label-text, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-label-medium-size);
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     font-weight: var(--mo-sys-typescale-label-medium-weight);
@@ -163,7 +163,7 @@
   .mo-navigation-rail__trailing-supporting {
     display: none;
     margin-inline-start: auto;
-    color: var(--mo-comp-navigation-rail-inactive-label-text-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-navigation-rail-inactive-label-text-color, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-label-medium-size);
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     font-weight: var(--mo-sys-typescale-label-medium-weight);
@@ -178,12 +178,12 @@
     flex-direction: column;
     align-items: center;
     gap: 0.25rem;
-    color: var(--mo-comp-navigation-rail-inactive-label-text-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-navigation-rail-inactive-label-text-color, var(--mo-comp-block-muted));
     text-decoration: none;
     -webkit-tap-highlight-color: transparent;
   }
   .mo-navigation-rail__item[aria-current] {
-    color: var(--mo-comp-navigation-rail-active-label-text-color, var(--mo-sys-block-text));
+    color: var(--mo-comp-navigation-rail-active-label-text-color, var(--mo-comp-block-text));
   }
   button.mo-navigation-rail__item {
     width: 100%;
@@ -199,13 +199,13 @@
   }
   .mo-navigation-rail__item:hover .mo-navigation-rail__icon {
     background: var(
-      --mo-comp-navigation-rail-indicator-hover,
+      --mo-comp-nav-rail-indicator-hover,
       color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
   }
   .mo-navigation-rail__item[aria-current] .mo-navigation-rail__icon {
-    background: var(--mo-comp-navigation-rail-active-indicator-color, var(--mo-sys-block-tint));
-    color: var(--mo-comp-navigation-rail-indicator-text, var(--mo-sys-block-accent));
+    background: var(--mo-comp-navigation-rail-active-indicator-color, var(--mo-comp-block-tint));
+    color: var(--mo-comp-nav-rail-indicator-text, var(--mo-comp-block-accent));
   }
   .mo-navigation-rail__label {
     font-size: var(--mo-comp-navigation-rail-label-font-size, var(--mo-sys-typescale-label-medium-size));
@@ -213,7 +213,7 @@
     font-weight: var(--mo-comp-navigation-rail-label-weight, var(--mo-sys-typescale-label-medium-weight));
   }
   .mo-navigation-rail__item[aria-current] .mo-navigation-rail__label {
-    font-weight: var(--mo-comp-navigation-rail-label-selected-weight, 700);
+    font-weight: var(--mo-comp-nav-rail-label-selected-weight, 700);
   }
   .mo-navigation-rail[data-expanded] .mo-navigation-rail__item {
     align-items: stretch;
@@ -234,13 +234,13 @@
   }
   .mo-navigation-rail[data-expanded] .mo-navigation-rail__item:hover .mo-navigation-rail__indicator {
     background: var(
-      --mo-comp-navigation-rail-indicator-hover,
+      --mo-comp-nav-rail-indicator-hover,
       color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
   }
   .mo-navigation-rail[data-expanded] .mo-navigation-rail__item[aria-current] .mo-navigation-rail__indicator {
-    background: var(--mo-comp-navigation-rail-active-indicator-color, var(--mo-sys-block-tint));
-    color: var(--mo-comp-navigation-rail-indicator-text, var(--mo-sys-block-accent));
+    background: var(--mo-comp-navigation-rail-active-indicator-color, var(--mo-comp-block-tint));
+    color: var(--mo-comp-nav-rail-indicator-text, var(--mo-comp-block-accent));
   }
   .mo-navigation-rail[data-expanded] .mo-navigation-rail__label {
     font-size: var(--mo-comp-navigation-rail-expanded-label-font-size, var(--mo-sys-typescale-label-large-size));

@@ -47,7 +47,7 @@
   .mo-tooltip__plain {
     max-width: var(--mo-comp-tooltip-plain-max-width, 12.5rem);
     border-radius: var(--mo-comp-plain-tooltip-container-shape, 0.5rem);
-    background: var(--mo-comp-plain-tooltip-container-color, var(--mo-sys-block-text));
+    background: var(--mo-comp-plain-tooltip-container-color, var(--mo-comp-block-text));
     padding: var(--mo-comp-tooltip-plain-padding, 0.25rem 0.5rem);
     color: var(--mo-comp-plain-tooltip-supporting-text-color, var(--mo-sys-color-surface));
     font-size: var(--mo-comp-tooltip-plain-font-size, var(--mo-sys-typescale-body-small-size));
@@ -63,20 +63,20 @@
     flex-direction: column;
     gap: 0.25rem;
     translate: var(--mo-comp-tooltip-shift, 0px) 0;
-    border-radius: var(--mo-comp-rich-tooltip-container-shape, var(--mo-sys-block-radius-small));
+    border-radius: var(--mo-comp-rich-tooltip-container-shape, var(--mo-comp-block-radius-small));
     background: var(--mo-comp-tooltip-rich-surface, var(--mo-sys-elevation-level2-color));
     padding: var(--mo-comp-tooltip-rich-padding, 0.75rem 1rem);
-    color: var(--mo-comp-rich-tooltip-supporting-text-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-rich-tooltip-supporting-text-color, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
     box-shadow:
-      0 0 0 1px var(--mo-comp-tooltip-rich-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-tooltip-rich-line, var(--mo-comp-block-line)),
       var(--mo-comp-tooltip-rich-shadow, var(--mo-sys-elevation-level2-shadow));
   }
   .mo-tooltip__subhead {
-    color: var(--mo-comp-rich-tooltip-subhead-color, var(--mo-sys-block-text));
+    color: var(--mo-comp-rich-tooltip-subhead-color, var(--mo-comp-block-text));
     font-size: var(--mo-sys-typescale-title-small-size);
     line-height: var(--mo-sys-typescale-title-small-line-height);
     font-weight: var(--mo-comp-tooltip-rich-subhead-weight, var(--mo-sys-typescale-title-small-weight));

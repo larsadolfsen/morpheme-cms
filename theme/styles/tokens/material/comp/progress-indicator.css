@@ -5,7 +5,7 @@
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   --mo-comp-progress-indicator-linear-active-indicator-thickness: 0.25rem;
-  --mo-comp-linear-progress-indicator-radius: var(--mo-sys-shape-corner-full);
-  --mo-comp-linear-progress-indicator-stop-size: 0.25rem;
+  --mo-comp-progress-indicator-track-shape: var(--mo-sys-shape-corner-full);
+  --mo-comp-progress-indicator-linear-stop-indicator-size: 0.25rem;
   --mo-comp-circular-progress-indicator-gap: 7;
 }
