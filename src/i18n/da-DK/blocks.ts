@@ -35,7 +35,7 @@ export const blocks: Messages['blocks'] = {
   subheadingHint: 'Står under overskriften.',
   expand: {
     label: 'Liste - Udvid',
-    hint: 'Rækker, der åbner og viser mere.',
+    hint: 'Vis listepunkter, der folder ud og ind.',
     /** Read by name for any block (pageEmptyRows.ts): the rows and one row, in the sentence about an empty block. */
     items: 'Rækker',
     item: 'række',
@@ -58,7 +58,7 @@ export const blocks: Messages['blocks'] = {
   },
   notice: {
     label: 'Besked',
-    hint: 'En fremhævet besked.',
+    hint: 'Fremhæv en kort besked til besøgende.',
     text: 'Tekst',
     placeholder: 'Tekst til beskeden',
     until: 'Vis indtil',
@@ -104,7 +104,7 @@ export const blocks: Messages['blocks'] = {
   },
   list: {
     label: 'Liste',
-    hint: 'Rækker med ikon, overskrift og tekst.',
+    hint: 'Vis tekst og billeder i en liste.',
     items: 'Rækker',
     item: 'række',
     icon: 'Ikon',
@@ -144,7 +144,7 @@ export const blocks: Messages['blocks'] = {
   },
   table: {
     label: 'Tabel',
-    hint: 'Rækker og kolonner med tekst.',
+    hint: 'Vis data i rækker og kolonner.',
     header: 'Overskriftsrække',
     headerToggle: ['Til', 'Fra'] as [string, string],
     striped: 'Stribede rækker',
@@ -167,7 +167,7 @@ export const blocks: Messages['blocks'] = {
   },
   steps: {
     label: 'Trin',
-    hint: 'Nummererede trin.',
+    hint: 'Vis trinene i rækkefølge.',
     items: 'Trin',
     item: 'trin',
     title: 'Overskrift',
@@ -183,7 +183,7 @@ export const blocks: Messages['blocks'] = {
     /** The sample of a button style in its settings, while the button has no text of its own (choiceSamples.tsx). */
     sample: 'Knap',
     label: 'Knapper',
-    hint: 'Knapper med tekst og ikon.',
+    hint: 'Opfordr til handling med knapper.',
     edit: 'Rediger standardknapper',
     items: 'Knapper',
     item: 'knap',
@@ -216,7 +216,7 @@ export const blocks: Messages['blocks'] = {
   },
   cookies: {
     label: 'Cookieliste',
-    hint: 'De cookies, din hjemmeside sætter.',
+    hint: 'Vis de cookies, din hjemmeside sætter.',
     edit: 'Rediger cookies',
     entries: {
       label: 'Cookies',
@@ -269,7 +269,7 @@ export const blocks: Messages['blocks'] = {
   },
   testimonials: {
     label: 'Udtalelser',
-    hint: 'Udtalelser som kort eller i en liste.',
+    hint: 'Vis, hvad folk siger om dig.',
     edit: 'Rediger udtalelser',
     layout: 'Visning',
     cards: 'Kort',
@@ -312,7 +312,7 @@ export const blocks: Messages['blocks'] = {
   },
   posts: {
     label: 'Blogindlæg',
-    hint: 'Blogindlæg i en liste.',
+    hint: 'Hjælp folk med at finde et blogindlæg.',
     edit: 'Rediger standardtekster',
     design: 'Design',
     designList: 'Liste',
@@ -348,7 +348,7 @@ export const blocks: Messages['blocks'] = {
   },
   imageGrid: {
     label: 'Billedgitter',
-    hint: 'Billeder fra Filer, filtreret efter tag.',
+    hint: 'Vis billeder fra Filer i et gitter.',
     edit: 'Ret standardtekster',
     images: 'Billeder',
     addImages: 'Tilføj billeder',
@@ -408,7 +408,7 @@ export const blocks: Messages['blocks'] = {
   },
   cards: {
     label: 'Kort',
-    hint: 'Kort med links til sider.',
+    hint: 'Vis indhold og handlinger på kort.',
     edit: 'Rediger standardtekster',
     design: 'Variant',
     designOutlined: 'Med kant',
@@ -508,7 +508,7 @@ export const blocks: Messages['blocks'] = {
   },
   video: {
     label: 'Video',
-    hint: 'En video fra YouTube eller Vimeo.',
+    hint: 'Afspil en video fra YouTube eller Vimeo.',
     url: 'Videolink',
     changeUrl: 'Skift link',
     urlProblem: 'Indsæt linket til videoen fra YouTube eller Vimeo',
@@ -519,7 +519,7 @@ export const blocks: Messages['blocks'] = {
   },
   checklist: {
     label: 'Tjekliste',
-    hint: 'Punkter med flueben.',
+    hint: 'List punkter, hver med et flueben.',
     items: 'Punkter',
     item: 'punkt',
     text: 'Tekst',
@@ -527,7 +527,7 @@ export const blocks: Messages['blocks'] = {
   },
   pricecards: {
     label: 'Priskort',
-    hint: 'Priser med det, der er med.',
+    hint: 'Vis priser og det, de indeholder.',
     items: 'Kort',
     item: 'kort',
     name: 'Navn',

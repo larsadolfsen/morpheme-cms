@@ -790,7 +790,7 @@ async function checkNoContextMenu(width) {
   };
   await check('the text', '.ProseMirror p');
   await pressInsert(page, touch ? 'tap' : 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active', { timeout: 8000 });
   await check('a row of a List', '.mo-editor-inline-list-row-active');
   await page.keyboard.press('ArrowDown');
@@ -800,7 +800,7 @@ async function checkNoContextMenu(width) {
   await page.keyboard.press('Control+End');
   await page.keyboard.press('Enter');
   await pressInsert(page, touch ? 'tap' : 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show data in rows and columns.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-table-cell-active textarea', { timeout: 8000 });
   await check('a table cell', '.mo-editor-inline-table-cell-active textarea');
   await page.close();
@@ -819,7 +819,7 @@ async function checkIconSearch(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'tap');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
   await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot').first().tap();

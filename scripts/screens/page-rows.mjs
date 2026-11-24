@@ -55,7 +55,7 @@ async function checkBlockRow(width, options = {}) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  await insertBlock(page, 'Rows with icon, heading and text.', 1, 0);
+  await insertBlock(page, 'Show text and images in a list.', 1, 0);
   await page.keyboard.type('Design');
   const row = page.locator('.mo-site-block-row');
   if (reduced) await page.waitForTimeout(100);
@@ -375,7 +375,7 @@ async function checkBlockVisibility(width) {
   await page.waitForTimeout(300);
   for (let i = 0; i < 3; i++) {
     // Each new block lands above the ones before it; go on once it is the active one (insertBlock).
-    await insertBlock(page, 'Rows with icon, heading and text.', i + 1, 0);
+    await insertBlock(page, 'Show text and images in a list.', i + 1, 0);
     await newLineUnder(page, 'Hello');
   }
   const blocks = page.locator('.ProseMirror .mo-site-block');
@@ -506,7 +506,7 @@ async function checkBlockRowNarrow() {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  await insertBlock(page, 'Rows with icon, heading and text.', 1, 0);
+  await insertBlock(page, 'Show text and images in a list.', 1, 0);
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(900);
   await page.locator('.mo-site-block-card').first().hover();
@@ -964,7 +964,7 @@ async function checkEmptyRow(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'tap');
-  await page.locator('dialog[open] button', { hasText: 'Rows that open to show more.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show list items that expand and collapse.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   const dialog = page.locator('dialog[open]');
   const rows = () => page.locator('.mo-editor-inline-list-row[data-row]:not(.mo-editor-inline-list-row-next)').count();
@@ -1018,7 +1018,7 @@ async function checkEmptyRow(width, height) {
     await page.click('.ProseMirror > p');
     await page.keyboard.press('Enter');
     await pressInsert(page, 'tap');
-    await page.locator('dialog[open] button', { hasText: 'Rows that open to show more.' }).first().click();
+    await page.locator('dialog[open] button', { hasText: 'Show list items that expand and collapse.' }).first().click();
     await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
     await page.keyboard.type('First');
     for (const word of ['Second', 'Third']) {
@@ -1076,7 +1076,7 @@ async function checkEmptyRow(width, height) {
 /** Insert of every block typed in place (the lists above and the Table) puts the block in the text, on an empty page and after a line of text: it never opens a sheet. A new typed-in-place block goes in `inlineBlocks`, `inlineSingles` or here. */
 async function checkInsertNeverOpensSheet(width, height) {
   const phone = width < 600;
-  const hints = [...inlineBlocks, ...inlineSingles, ...liveLists, { name: 'table', hint: 'Rows and columns of text.' }];
+  const hints = [...inlineBlocks, ...inlineSingles, ...liveLists, { name: 'table', hint: 'Show data in rows and columns.' }];
   for (const { name, hint } of hints) {
     for (const typed of [false, true]) {
       const label = `${width}px Insert of ${name}${typed ? '' : ' on an empty page'}`;
@@ -1122,7 +1122,7 @@ async function checkChangeTo(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('Opening hours');
   await page.keyboard.press('Enter');

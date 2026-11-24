@@ -20,7 +20,7 @@ async function checkImageGridAdd(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Images from Files, filtered by tag.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show images from Files in a grid.' }).first().click();
   await page.waitForSelector('.mo-site-block-inline [data-field="heading"]', { timeout: 8000 });
   await page.waitForSelector('.mo-site-block-inline .mo-block-imagegrid__grid li', { timeout: 8000 });
   const before = await page.locator('.mo-site-block-inline .mo-block-imagegrid__grid li').count();
@@ -69,7 +69,7 @@ async function checkCardImage(width, height = 800) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, phone ? 'tap' : 'click');
-  await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show content and actions in cards.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('One');
   await page.waitForTimeout(300);
@@ -164,7 +164,7 @@ async function checkCardClickActivates(width, height, how) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show content and actions in cards.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-cards [data-row="0"] [data-field="title"]');
   await page.keyboard.type('Tea');
   await page.locator('.mo-editor-inline-list-host [data-add-row]').first().click();
@@ -230,7 +230,7 @@ async function checkCardHeadline(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show content and actions in cards.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-cards [data-row="0"] [data-field="title"]');
   await page.keyboard.type('Tea');
   // The card being typed in keeps its text field, for the text to be typed next.
@@ -951,7 +951,7 @@ async function checkIconColor(width, height, scheme = 'light') {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
   await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot').first().click();

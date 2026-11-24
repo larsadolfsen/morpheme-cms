@@ -16,7 +16,7 @@ async function checkInlineTable(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'tap');
-  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show data in rows and columns.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-table-cell-active textarea');
   await page.keyboard.type('Plan');
   await page.waitForTimeout(300);
@@ -182,7 +182,7 @@ async function checkTableAlign(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'tap');
-  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show data in rows and columns.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-table-cell-active textarea');
   const cellField = (r, c) => page.locator(`.mo-editor-inline-table-box [data-row="${r}"] [data-field="${c}"]`);
   const menu = async (name) => {

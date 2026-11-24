@@ -44,7 +44,7 @@ export const blocks = {
   /** "List - Expand" (standard/expand/). */
   expand: {
     label: 'List - Expand',
-    hint: 'Rows that open to show more.',
+    hint: 'Show list items that expand and collapse.',
     /** Read by name for any block (pageEmptyRows.ts): the rows and one row, in the sentence about an empty block. */
     items: 'Rows',
     item: 'row',
@@ -69,7 +69,7 @@ export const blocks = {
   },
   notice: {
     label: 'Notice',
-    hint: 'A highlighted message.',
+    hint: 'Highlight a short message for visitors.',
     text: 'Text',
     placeholder: 'Notice text',
     until: 'Show until',
@@ -118,7 +118,7 @@ export const blocks = {
   },
   list: {
     label: 'List',
-    hint: 'Rows with icon, heading and text.',
+    hint: 'Show text and images in a list.',
     items: 'Rows',
     item: 'row',
     icon: 'Icon',
@@ -163,7 +163,7 @@ export const blocks = {
   },
   table: {
     label: 'Table',
-    hint: 'Rows and columns of text.',
+    hint: 'Show data in rows and columns.',
     header: 'Header row',
     headerToggle: ['On', 'Off'] as [string, string],
     striped: 'Striped rows',
@@ -186,7 +186,7 @@ export const blocks = {
   },
   steps: {
     label: 'Steps',
-    hint: 'Numbered steps.',
+    hint: 'Show the steps in order.',
     items: 'Steps',
     item: 'step',
     title: 'Heading',
@@ -204,7 +204,7 @@ export const blocks = {
     /** The sample of a button style in its settings, while the button has no text of its own (choiceSamples.tsx). */
     sample: 'Button',
     label: 'Buttons',
-    hint: 'Buttons with text and icon.',
+    hint: 'Prompt actions with buttons.',
     edit: 'Edit default buttons',
     items: 'Buttons',
     item: 'button',
@@ -238,7 +238,7 @@ export const blocks = {
   },
   cookies: {
     label: 'Cookie list',
-    hint: 'The cookies your site sets.',
+    hint: 'List the cookies your site sets.',
     edit: 'Edit cookies',
     /** The list the block brings, "Cookies" under "Lists" (list.ts), and its fields. */
     entries: {
@@ -296,7 +296,7 @@ export const blocks = {
   },
   testimonials: {
     label: 'Testimonials',
-    hint: 'Testimonials as cards or in a list.',
+    hint: 'Show what people say about you.',
     edit: 'Edit testimonials',
     layout: 'Layout',
     cards: 'Cards',
@@ -342,7 +342,7 @@ export const blocks = {
   },
   posts: {
     label: 'Blog posts',
-    hint: 'Blog posts in a list.',
+    hint: 'Help people find a blog post.',
     edit: 'Edit default texts',
     /** The field "Design" and its choices: a list, or the newest post large over the list. */
     design: 'Design',
@@ -385,7 +385,7 @@ export const blocks = {
   },
   imageGrid: {
     label: 'Image grid',
-    hint: 'Images from Files, filtered by tag.',
+    hint: 'Show images from Files in a grid.',
     edit: 'Edit default texts',
     images: 'Images',
     addImages: 'Add images',
@@ -446,7 +446,7 @@ export const blocks = {
   },
   cards: {
     label: 'Cards',
-    hint: 'Cards that link to pages.',
+    hint: 'Show content and actions in cards.',
     edit: 'Edit default texts',
     /** The cards' variant, as Material 3 names its three cards, and the container color of a filled card. */
     design: 'Variant',
@@ -555,7 +555,7 @@ export const blocks = {
   },
   video: {
     label: 'Video',
-    hint: 'A YouTube or Vimeo video.',
+    hint: 'Play a video from YouTube or Vimeo.',
     url: 'Video link',
     changeUrl: 'Change link',
     urlProblem: 'Paste the link to the video from YouTube or Vimeo',
@@ -567,7 +567,7 @@ export const blocks = {
   /** "Checklist" (standard/checklist/). */
   checklist: {
     label: 'Checklist',
-    hint: 'Points with check marks.',
+    hint: 'List points, each with a check mark.',
     items: 'Points',
     item: 'point',
     text: 'Text',
@@ -577,7 +577,7 @@ export const blocks = {
   /** "Price cards" (standard/pricecards/). */
   pricecards: {
     label: 'Price cards',
-    hint: 'Prices with what is included.',
+    hint: 'Show prices and what they include.',
     items: 'Cards',
     item: 'card',
     name: 'Name',
