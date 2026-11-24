@@ -146,6 +146,16 @@ Worker, the starter or the demo is a pull request here.
 - **`release-notes/`**: owner-facing release notes in English and Danish (skill `release-notes`).
 - **`.changeset/`**: one changeset per pull request (skill `changesets`).
 
+### The standard blocks
+
+The blocks every site has, without an app: `buttons`, `cards`, `cookies`, `expand`, `imagegrid`, `list`, `notice`, `posts`,
+`pricecards`, `steps`, `table`, `testimonials` and `video`. Each has its contract (type, fields, rules, texts, `viewOf.ts`,
+`load.ts`) in `src/standard/<type>/` and its look (`View.tsx`, CSS) in `theme/blocks/<type>/`, and one page on the demo
+(`/blocks/<type>/`). `checklist` is a former block (check lists are typed in the text) and the hero went in 0.18 (`lib/migrate-hero.mjs`):
+their migrations stay, so a site that skips versions still moves its content (skill `developer`, *Removing a block*). The list is
+`editorBlocks()` in `scripts/demo-blocks.mjs`; a block added or removed changes this paragraph in the same pull request. A theme styles
+every one of them; an app brings its own blocks, never a new standard one.
+
 ### Before you push
 
 Run `npm run check`. CI (`.github/workflows/check.yml`) runs the other checks as jobs side by side; its job `check` waits
