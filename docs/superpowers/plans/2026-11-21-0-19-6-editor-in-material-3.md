@@ -28,13 +28,16 @@ The owner's rules for it:
   stay because they imitate another product: **CS2** (the PageSpeed colours) and **CS3** (the Google result preview).
 - **No own components** (skill `developer`). A screen that needs something a theme part does not offer gets the M3 variant in the
   theme, with the owner's yes through the PM. It never gets its own class.
+- **Outlined buttons, not text buttons** (owner, 24 Nov 2026: "Md3 do no longer recommend text buttons, instead they recommend
+  outlined. When you go through the editor convert all text buttons to outlined buttons"). Every text button in the editor's screens
+  becomes an outlined button, dialog actions and footer links included. The page and post editor's bar and menus are not part of it.
 - **No `check:contrast` per batch.** One final scan runs when Material's M3 work is done (`specs/2026-11-21-base-theme-notes.md`).
 
 ## The recorded exceptions
 
 | Entry | In 0.19.6 | Later |
 | :-- | :-- | :-- |
-| FL1, footer links 36 px | Text buttons at M3's size, with a 48 dp target. | |
+| FL1, footer links 36 px | Outlined buttons at M3's size, with a 48 dp target (owner, 24 Nov 2026: no text buttons). | |
 | EP1, score ring | Built on M3's circular progress indicator. Its good, average and bad tones are the status colours of CS1, the one recorded colour exception for status. | |
 | EP2 and CS4, colour and icon pickers | Built from M3 parts (slider, segmented button, icon button with its selected state). Where M3 has no part, the nearest M3 pattern, named in the pull request. | |
 | CS5, the preview frame's white | Goes: the frame is a surface role. | |
@@ -74,7 +77,8 @@ The owner's rules for it:
   outline in `outline`, named in the pull request.
 - **Phosphor imports:** not an M3 finding. On `main`, all 81 files that import Phosphor components are on the allowlist, and
   `check:phosphor` is green. They move to `Icon` in the names batch of 0.19.6, where Phosphor leaves the CMS.
-- **Dialogs** (owner, 21 Nov 2026, audit #1126): the actions are text buttons and focus goes to the first control when a dialog
+- **Dialogs** (owner, 21 Nov 2026, audit #1126): the actions are outlined buttons (owner, 24 Nov 2026, replacing
+  text buttons) and focus goes to the first control when a dialog
   opens, as M3 prints. `src/ask.tsx` and `src/BlockDialog.tsx` change in batch 3.
 - **The save bar** is a standard bottom sheet in the screens (EB1), so it is in scope. The text bar and the block's action row are the
   page and post editor's, so they are not.
