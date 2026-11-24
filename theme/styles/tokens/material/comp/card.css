@@ -39,14 +39,13 @@
   }
 }
 /* "Cards" as a carousel (cards/LinkCards.tsx): a card is the carousel's item (md.comp.carousel-item): its extra-large corners (28dp) and, on an outlined
-     card, the item's outline in `outline` (the card's own is outline-variant), in a row 20rem high where the layout is a contained one. */
+     card, the item's outline in `outline` (the card's own is outline-variant). */
 @layer components {
   .mo-block-cards__carousel {
     --mo-comp-elevated-card-container-shape: var(--mo-comp-carousel-item-container-shape);
     --mo-comp-filled-card-container-shape: var(--mo-comp-carousel-item-container-shape);
     --mo-comp-outlined-card-container-shape: var(--mo-comp-carousel-item-container-shape);
     --mo-comp-outlined-card-outline-color: var(--mo-sys-color-outline);
-    --mo-comp-carousel-height: 20rem;
   }
 }
 @layer components {

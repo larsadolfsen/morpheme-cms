@@ -95,7 +95,7 @@
      mask with the item's corners; multi-browse's and a hero's masks moved and clipped by carouselLayout.ts (before it
      runs, every item as wide as a large one). */
   :where(.mo-carousel).mo-is-contained .mo-carousel__items {
-    height: var(--mo-comp-carousel-height, 14rem);
+    height: 20rem;
     gap: var(--mo-comp-carousel-contained-gap, 0.5rem);
     margin: 0;
     padding: 0;
