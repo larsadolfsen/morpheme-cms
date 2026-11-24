@@ -10,7 +10,7 @@ import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import postcss from 'postcss';
 import { cmsDeclared } from '../site/appCss.mjs';
-import { collectNames } from '../lib/appCss.mjs';
+import { SCOPED_CSS_FROM_API, collectNames } from '../lib/appCss.mjs';
 
 const here = fileURLToPath(new URL('..', import.meta.url));
 const PAGE_RULE = /(^|[\s,>+~(])(:root|html|body)(?![\w-])/i;
@@ -24,15 +24,23 @@ const walk = (dir, test) =>
 export function reportApp(folder, id, cmsNames = new Set()) {
   const css = walk(folder, (n) => n.endsWith('.css'));
   const code = walk(folder, (n) => /\.(tsx?|jsx?|mjs)$/.test(n) && !/\.test\./.test(n));
-  const texts = css.map((f) => [f, readFileSync(f, 'utf8')]);
+  // An `.astro` file's `<style>` and `<style is:global>` blocks are CSS too: read for the refusals (their lines kept), and said as not scoped, because the build rewrites `.css` files only.
+  const astro = walk(folder, (n) => n.endsWith('.astro')).flatMap((f) => {
+    const src = readFileSync(f, 'utf8');
+    return [...src.matchAll(/<style\b([^>]*)>([\s\S]*?)<\/style>/gi)].map((m) => {
+      const line = src.slice(0, m.index + m[0].indexOf('>') + 1).split('\n').length;
+      return [f, '\n'.repeat(line - 1) + m[2], m[1].includes('is:global') ? '<style is:global>' : '<style>'];
+    });
+  });
+  const texts = [...css.map((f) => [f, readFileSync(f, 'utf8')]), ...astro];
   const names = collectNames(
-    texts.map(([, t]) => t),
+    texts.filter(([f]) => f.endsWith('.css')).map(([, t]) => t),
     id,
     cmsNames,
   );
   const refused = [];
   const limits = [];
-  for (const [file, text] of texts) {
+  for (const [file, text, tag] of texts) {
     const rel = relative(folder, file);
     let tree;
     try {
@@ -45,6 +53,8 @@ export function reportApp(folder, id, cmsNames = new Set()) {
       if (rule.selectors.some((s) => PAGE_RULE.test(s))) refused.push(`${rel}:${rule.source?.start?.line}: a rule on ${rule.selector}`);
       if (/\[\s*data-mo-app/.test(rule.selector)) refused.push(`${rel}:${rule.source?.start?.line}: an attribute selector on data-mo-app`);
     });
+    if (file.endsWith('.astro'))
+      limits.push(`${rel}: a ${tag} block is not scoped by the build (only .css files are): move it to a .css file.`);
     tree.walkAtRules('import', (r) => limits.push(`${rel}:${r.source?.start?.line}: @import ${r.params} is not scoped`));
   }
   const priv = [...names.vars];
@@ -72,6 +82,35 @@ export function reportSite(site, cmsNames) {
   return readdirSync(dir, { withFileTypes: true })
     .filter((e) => e.isDirectory())
     .map((e) => reportApp(join(dir, e.name), e.name, cmsNames));
+}
+
+/** The apps of a site that the contract's refusals apply to: those written to SCOPED_CSS_FROM_API or later (app.json `api`); an older app keeps its global CSS. */
+const scopedApps = (site) =>
+  existsSync(join(site, 'src/apps'))
+    ? readdirSync(join(site, 'src/apps'), { withFileTypes: true })
+        .filter((e) => e.isDirectory())
+        .filter((e) => {
+          try {
+            return JSON.parse(readFileSync(join(site, 'src/apps', e.name, 'app.json'), 'utf8')).api >= SCOPED_CSS_FROM_API;
+          } catch {
+            return false;
+          }
+        })
+        .map((e) => e.name)
+    : [];
+
+/**
+ * What `check:content` refuses in a site's apps (the spec's "What the build refuses"), only for apps written to the scoped contract: a rule on `:root`, `html` or
+ * `body`; a private custom property set or read from code; an attribute selector on `data-mo-app`. One line each, with the file and line.
+ * @param {string} [root] the site @param {Set<string>} [cmsNames]
+ */
+export function siteProblems(root = process.cwd(), cmsNames = cmsDeclared([join(here, 'theme'), join(here, 'src')])) {
+  return scopedApps(root).flatMap((id) =>
+    reportApp(join(root, 'src/apps', id), id, cmsNames).refused.map(
+      (line) =>
+        `src/apps/${id}/${line}. An app's CSS reaches only its own blocks (docs/app-contract.md, "Scoped CSS"): style the app's own elements, never the page, and keep a private custom property in CSS.`,
+    ),
+  );
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
