@@ -15,16 +15,15 @@ import type { Field } from './schema';
 import { BottomSheet, Button, EmptyNote, Label, ListItem, listClass, SheetBody, SheetTitle, TextField, atLeastNow } from './ui';
 import { usePane } from './PaneHost';
 import { t } from './i18n';
-import { materialIcon, type IconComponent as Icon } from './icon';
-import { FacebookLogo, LinkedinLogo, PinterestLogo, XLogo } from '@phosphor-icons/react';
+import { brandIcon, materialIcon, type IconComponent as Icon } from './icon';
 
-/** The icon of each network known (NETWORKS in site/social.mjs), as the share buttons have them; any other link has the
+/** The icon of each network known (NETWORKS in site/social.mjs): its logo from the brand pack, as the share buttons draw it; any other link has the
  * globe. */
 export const networkIcons: Record<NetworkId, Icon> = {
-  facebook: FacebookLogo,
-  x: XLogo,
-  linkedin: LinkedinLogo,
-  pinterest: PinterestLogo,
+  facebook: brandIcon('facebook'),
+  x: brandIcon('x'),
+  linkedin: brandIcon('linkedin'),
+  pinterest: brandIcon('pinterest'),
 };
 
 type Link = { url?: string } & Record<string, unknown>;
