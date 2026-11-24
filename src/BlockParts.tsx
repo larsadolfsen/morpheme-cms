@@ -46,9 +46,11 @@ function versionsOf(block: SiteBlock): PreviewVariant[] {
   const [first, ...rest] = block.fields.filter((f) => f.type === 'select' && f.segments && !f.only);
   if (!first?.options) return [{ label: '', props: {} }];
   return [
-    ...first.options.map((o) => ({ label: o.label, props: { [first.name]: o.value } })),
+    ...first.options.map((o) => ({ label: o.label, props: { [first.name]: o.value }, hint: o.hint })),
     ...rest.flatMap((c) =>
-      (c.options ?? []).filter((o) => o.value !== String(c.default ?? '')).map((o) => ({ label: o.label, props: { [c.name]: o.value } })),
+      (c.options ?? [])
+        .filter((o) => o.value !== String(c.default ?? ''))
+        .map((o) => ({ label: o.label, props: { [c.name]: o.value }, hint: o.hint })),
     ),
   ];
 }
@@ -57,7 +59,7 @@ function versionsOf(block: SiteBlock): PreviewVariant[] {
 function BlockShown({ block, data }: { block: SiteBlock; data: BlockData }) {
   const example = exampleOf(block, data);
   return versionsOf(block).map((v) => (
-    <Part key={v.label} name={v.label ? `${block.label} · ${v.label}` : block.label} use={block.hint}>
+    <Part key={v.label} name={v.label ? `${block.label} · ${v.label}` : block.label} use={v.hint ?? block.hint}>
       <Preview>{preview(block.type, imaged(block.fields, { ...example, ...v.props }), data)}</Preview>
     </Part>
   ));

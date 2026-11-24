@@ -483,7 +483,7 @@ export type Part = {
 export type PartScreen = { id: string; label: string; parts: Part[]; apps?: AppCategory[] };
 
 /** One way a block's screen under "Blocks" draws it (Part.preview): its name and its own props. */
-export type PreviewVariant = { label: string; props: Record<string, unknown> };
+export type PreviewVariant = { label: string; props: Record<string, unknown>; hint?: string };
 
 /** What a block on the site is given by RichText.astro (BlockSite.astro gives it to its load.ts): its props (as written in its line in the
  * text), its place among the parts of the text, the page's address, whether the page is a new

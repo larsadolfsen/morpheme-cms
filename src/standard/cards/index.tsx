@@ -62,7 +62,7 @@ export default defineBlock({
       hint: t.blocks.cards.phoneHint,
       options: [
         { label: t.blocks.cards.phoneStacked, value: '' },
-        { label: t.blocks.cards.phoneCarousel, value: 'carousel' },
+        { label: t.blocks.cards.phoneCarousel, value: 'carousel', hint: t.blocks.cards.phoneVariantHint },
       ],
     },
     // A filled card is Material's surface container until another container is picked.

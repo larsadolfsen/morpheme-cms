@@ -2,5 +2,5 @@
   "id": "swipeable-cards",
   "kind": "line",
   "mark": "improvement",
-  "text": "Kort, der kan swipes på mobil, hedder Swipbar og har samme hjørner som stablede kort"
+  "text": "Karrusel-kort har samme hjørner som stablede kort, og valget Karrusel siger, at kortene kan swipes"
 }
