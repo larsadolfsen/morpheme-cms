@@ -433,6 +433,15 @@ async function checkCardsCarousel(width, height) {
       padLeft: rs.paddingLeft,
       firstLeft: Math.round(a.left - rowBox.left),
       widths: items.map((i) => Math.round(i.getBoundingClientRect().width)),
+      // The card fills its item even with a short text (a flex item would shrink to its text and leave an empty gap).
+      cardWidths: items.map((i) => {
+        const card = i.querySelector('.mo-block-cards__card');
+        const saved = [...card.querySelectorAll('p')].map((p) => [p, p.textContent]);
+        saved.forEach(([p]) => (p.textContent = 'Short'));
+        const w = Math.round(card.getBoundingClientRect().width);
+        saved.forEach(([p, t]) => (p.textContent = t));
+        return w;
+      }),
       gaps: items.slice(1).map((i, n) => Math.round(i.getBoundingClientRect().left - items[n].getBoundingClientRect().right)),
       firstRight: Math.round(a.right),
       secondLeft: Math.round(b.left),
@@ -458,6 +467,8 @@ async function checkCardsCarousel(width, height) {
     if (m.radius !== stackedRadius) problems.push(`${label}: the card's corners are ${m.radius}, the stacked cards' are ${stackedRadius}`);
     // Uncontained (M3): every item is as wide as the others, no empty gap between them, and the next one peeks in.
     if (new Set(m.widths).size !== 1) problems.push(`${label}: the cards are not all as wide (${m.widths})`);
+    if (m.cardWidths.some((w, i) => w !== m.widths[i]))
+      problems.push(`${label}: a card is narrower than its item with a short text (${m.cardWidths} in ${m.widths}), leaving an empty gap`);
     if (m.widths[0] < width * 0.6) problems.push(`${label}: the first card is only ${m.widths[0]}px of ${width}px`);
     if (m.gaps.some((g) => g !== 8)) problems.push(`${label}: the gaps between the cards are ${m.gaps}, not 8px`);
     if (m.firstLeft !== 16) problems.push(`${label}: the first card is ${m.firstLeft}px from the edge, not 16px`);

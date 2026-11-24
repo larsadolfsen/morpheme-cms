@@ -36,6 +36,12 @@
     flex-shrink: 0;
     scroll-snap-align: start;
   }
+  /* What an uncontained item shows fills the item, as wide as the others (M3: items are a single size): a flex item would shrink to its
+     content, a card with a short text narrower than its item with an empty gap after it (in every browser). */
+  .mo-carousel__item > * {
+    flex: 1;
+    min-width: 0;
+  }
   .mo-carousel__indicator {
     display: flex;
     flex-wrap: wrap;
