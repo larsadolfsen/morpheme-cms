@@ -9,7 +9,6 @@
 // only then can it be chosen ("Use the theme"). The theme in use, the one the site is changing to and the standard theme
 // cannot be uninstalled.
 import { useEffect, useState } from 'react';
-import { Check, Smiley } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { busyFor } from './busyAction.mjs';
 import { Button, EmptyNote, Group, GroupTitle, ImageCarousel, SupportingText, ListItem, plainListClass } from './ui';
@@ -34,6 +33,7 @@ import { askUpdate, DeveloperRow } from './AppList';
 import { StoreLicenseRows } from './Licenses';
 import { siteT, t } from './i18n';
 import { kindAndName } from './deploy';
+import { materialIcon } from './icon';
 
 /** A theme's page (installed, or in the store). */
 export const themeHref = (id: string) => `#appearance/themes/${id}`;
@@ -316,14 +316,20 @@ export function StoreThemePage({ id, env }: { id: string; env: Env }) {
           {of.highlights.length > 0 && (
             <Group title={t.library.themeHighlights}>
               {of.highlights.map((h) => (
-                <ListItem key={h} icon={Check} headline={h} />
+                <ListItem key={h} icon={materialIcon('check')} headline={h} />
               ))}
             </Group>
           )}
           {!!of.iconPacks?.length && (
             <Group title={t.common.parts.iconPacks}>
               {of.iconPacks.map((p) => (
-                <ListItem key={p.id} icon={Smiley} headline={p.name} supporting={t.library.iconPackByline(p.author, p.license)} truncate />
+                <ListItem
+                  key={p.id}
+                  icon={materialIcon('sentiment_satisfied')}
+                  headline={p.name}
+                  supporting={t.library.iconPackByline(p.author, p.license)}
+                  truncate
+                />
               ))}
             </Group>
           )}

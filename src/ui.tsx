@@ -33,23 +33,6 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  ArrowRight,
-  ArrowsDownUp,
-  CaretDown,
-  CaretRight,
-  CaretUp,
-  Check,
-  Funnel,
-  LockSimple,
-  LockSimpleOpen,
-  PencilSimple,
-  Plus,
-  Sidebar,
-  SidebarSimple,
-  X,
-  type Icon,
-} from '@phosphor-icons/react';
-import {
   SiteBadge,
   SiteBottomSheet,
   SiteBottomSheetHeader,
@@ -115,7 +98,7 @@ import { locale, t } from './i18n';
 import { Announce, LoadAnnounce } from './useAnnounce';
 import { useRegisterFab } from './fabPresence';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
-import { SvgFile } from './icon';
+import { SvgFile, Icon as MaterialIcon, materialIcon, type IconComponent as Icon } from './icon';
 import { filterIconNames, ICON_CATEGORIES, iconLabel, inIconCategory } from '../lib/materialIcon.mjs';
 import { countries, countryName, dialCodes, flagOf, regionOf } from './countries';
 import { byText } from './schema';
@@ -322,7 +305,7 @@ export function ToolbarButton({
           kind="text"
           size="xsmall"
           icon={Glyph && <Glyph />}
-          trailingIcon={<CaretDown size={12} />}
+          trailingIcon={<MaterialIcon name="keyboard_arrow_down" size={12} />}
           aria-label={label}
           className="mo-toolbar__menu-button"
           style={toolbarMenuSize}
@@ -621,7 +604,7 @@ export function DateTimeField({
  * CaretRight leads to a page); `size="small"`: a small box without the name, for a row's choice (MenuRow). */
 export function ChoiceField({
   href,
-  arrow: Arrow = CaretDown,
+  arrow: Arrow = materialIcon('keyboard_arrow_down'),
   size,
   label,
   hint,
@@ -950,7 +933,7 @@ export function SupportingText({ id, children, className = '' }: { id?: string; 
 /** The close button in the top end corner of a card that can be closed (a Notice, the first-run card): the
  * card must be `relative`. */
 export function CloseButton({ onClick }: { onClick: () => void }) {
-  return <IconButton icon={X} label={t.common.close} onClick={onClick} className="mo-editor-close-button" />;
+  return <IconButton icon={materialIcon('close')} label={t.common.close} onClick={onClick} className="mo-editor-close-button" />;
 }
 
 /** A message at the top of a screen about what it shows (an earlier version of a page): the theme's filled card with a
@@ -1311,7 +1294,7 @@ export function IconPicker({
           onClick={() => setOpen((o) => !o)}
           iconColor={iconColor}
         >
-          {value ? icon(value, 24) : <Plus size={24} />}
+          {value ? icon(value, 24) : <MaterialIcon name="add" size={24} />}
         </SlotButton>
         <span className="mo-fill mo-truncate">{chosen ? chosen.label : value ? iconLabel(value) : t.forms.noIconYet}</span>
       </div>
@@ -1362,7 +1345,7 @@ export function IconPicker({
                   if (!startOpen) setOpen(false);
                 }}
               >
-                {o.value ? icon(o.value, 24) : <X size={20} className="mo-editor-muted-text" />}
+                {o.value ? icon(o.value, 24) : <MaterialIcon name="close" size={20} className="mo-editor-muted-text" />}
               </ChoiceTile>
             ))}
           </div>
@@ -1433,7 +1416,13 @@ export function FoldItem({
     <ListItem
       onClick={onToggle}
       aria-expanded={open}
-      leading={<CaretRight size={14} className={`mo-keep mo-editor-fold-arrow ${open ? 'mo-editor-fold-arrow-open' : ''}`} />}
+      leading={
+        <MaterialIcon
+          name="keyboard_arrow_right"
+          size={14}
+          className={`mo-keep mo-editor-fold-arrow ${open ? 'mo-editor-fold-arrow-open' : ''}`}
+        />
+      }
       headline={title}
       truncate
       actions={tools && <span className="mo-keep mo-editor-fold-tools">{tools}</span>}
@@ -1518,7 +1507,7 @@ export function usePickTools(all: Pickable[], keep: string) {
     sort: (
       <Choice
         title={t.library.sort}
-        icon={ArrowsDownUp}
+        icon={materialIcon('swap_vert')}
         value={sort}
         options={sorts.map((s) => ({ value: s, label: t.library.sorts[s] }))}
         onChange={pickSort}
@@ -1587,7 +1576,7 @@ export function MultiChoice({
           <Button
             kind="outlined"
             size="small"
-            icon={Plus}
+            icon={materialIcon('add')}
             aria-haspopup="dialog"
             onClick={() => {
               setQuery('');
@@ -1646,7 +1635,7 @@ export function ArrowLink({
   return (
     <a href={href} className={`mo-editor-arrow-link ${className}`} onClick={onClick}>
       {children}
-      <ArrowRight size={14} />
+      <MaterialIcon name="arrow_forward" size={14} />
     </a>
   );
 }
@@ -1943,7 +1932,7 @@ export function ChoiceCards<T extends string>({
               />
               {Glyph && <Glyph size={32} aria-hidden="true" />}
               <span>{text}</span>
-              {chosen && <Check size={16} weight="bold" aria-hidden="true" className="mo-editor-choice-card-check" />}
+              {chosen && <MaterialIcon name="check" size={16} aria-hidden="true" className="mo-editor-choice-card-check" />}
             </label>
           );
         })}
@@ -2011,7 +2000,7 @@ export function ListItem({
 } & Record<string, unknown>) {
   let icon = shownIcon;
   let iconSelected = shownSelected;
-  const Arrow = arrow === true ? CaretRight : arrow || null;
+  const Arrow = arrow === true ? materialIcon('keyboard_arrow_right') : arrow || null;
   // A LeadingIcon made beforehand (an app's icon in a list) is the item's leading icon.
   const made =
     isValidElement(item.leading) && item.leading.type === LeadingIcon
@@ -2062,7 +2051,7 @@ export function UnfoldButton({
     <SiteButton
       kind="text"
       size="small"
-      trailingIcon={open ? <CaretUp /> : <CaretDown />}
+      trailingIcon={open ? <MaterialIcon name="keyboard_arrow_up" /> : <MaterialIcon name="keyboard_arrow_down" />}
       aria-expanded={open}
       aria-label={t.library.unfoldName(count, label)}
       title={title}
@@ -2106,7 +2095,7 @@ export function Option({
       supporting={supporting}
       selected={selected}
       disabled={disabled}
-      trailing={selected && <Check size={20} aria-hidden />}
+      trailing={selected && <MaterialIcon name="check" size={20} aria-hidden />}
       onClick={onClick}
     />
   );
@@ -2491,7 +2480,7 @@ export function SheetLink({
     <div className="mo-keep">
       <SiteDivider />
       <div className="mo-editor-sheet-link">
-        <SiteButton kind="text" href={href} icon={<Plus />} onClick={onClick}>
+        <SiteButton kind="text" href={href} icon={<MaterialIcon name="add" />} onClick={onClick}>
           {children}
         </SiteButton>
       </div>
@@ -2645,7 +2634,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
               <span className="mo-editor-color-tile-actions">
                 {onChange && (
                   <IconButton
-                    icon={PencilSimple}
+                    icon={materialIcon('edit')}
                     label={t.common.pickColor(name)}
                     aria-haspopup="dialog"
                     disabled={disabled}
@@ -2659,7 +2648,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
                 )}
                 {onLock && (
                   <IconButton
-                    icon={locked ? LockSimple : LockSimpleOpen}
+                    icon={locked ? materialIcon('lock') : materialIcon('lock_open')}
                     label={t.common.lockColor(name)}
                     selected={!!locked}
                     onClick={() => onLock(!locked)}
@@ -2814,7 +2803,7 @@ export function ColorWheel({
             color: contrast(dot.color, '#000000') >= contrast(dot.color, '#ffffff') ? '#000000' : '#ffffff',
           }}
         >
-          {dot.locked && <LockSimple size={i ? 12 : 16} aria-hidden="true" />}
+          {dot.locked && <MaterialIcon name="lock" size={i ? 12 : 16} aria-hidden="true" />}
         </span>
       ))}
     </div>
@@ -2860,7 +2849,7 @@ export function ChoiceRow({
       trailing={
         <span className="mo-row mo-editor-choice-row">
           {trailing}
-          <Check size={20} className={`mo-keep ${selected ? 'mo-editor-accent-text' : 'mo-editor-invisible'}`} />
+          <MaterialIcon name="check" size={20} className={`mo-keep ${selected ? 'mo-editor-accent-text' : 'mo-editor-invisible'}`} />
         </span>
       }
     />
@@ -2995,7 +2984,8 @@ export function FoldSection({
             onClick={onToggle}
           >
             <span className="mo-fill mo-editor-fold-title-text">{title}</span>
-            <CaretDown
+            <MaterialIcon
+              name="keyboard_arrow_down"
               size={20}
               aria-hidden="true"
               className={`mo-keep mo-editor-section-arrow ${open ? 'mo-editor-arrow-flipped' : ''}`}
@@ -3142,7 +3132,13 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
         aria-expanded={shown}
         leading={mark(item.ok)}
         headline={text}
-        trailing={<CaretDown size={18} className={`mo-keep mo-editor-fold-arrow ${shown ? 'mo-editor-arrow-flipped' : ''}`} />}
+        trailing={
+          <MaterialIcon
+            name="keyboard_arrow_down"
+            size={18}
+            className={`mo-keep mo-editor-fold-arrow ${shown ? 'mo-editor-arrow-flipped' : ''}`}
+          />
+        }
       >
         {shown && <p className="mo-editor-reveal mo-editor-check-fix">{item.fix}</p>}
       </ListItem>
@@ -3834,7 +3830,15 @@ export function MenuButton({
   onClick: () => void;
   className?: string;
 }) {
-  return <IconButton icon={open ? Sidebar : SidebarSimple} label={label} aria-expanded={open} className={className} onClick={onClick} />;
+  return (
+    <IconButton
+      icon={open ? materialIcon('left_panel_open') : materialIcon('left_panel_open')}
+      label={label}
+      aria-expanded={open}
+      className={className}
+      onClick={onClick}
+    />
+  );
 }
 
 /** Tabs (Material 3): what they are called (`label`), the one open (`value`), each one's name and icon, and the
@@ -4430,7 +4434,7 @@ export function Filters({
   return (
     <>
       <IconButton
-        icon={Funnel}
+        icon={materialIcon('filter_alt')}
         label={title}
         selected={selected}
         aria-haspopup="dialog"
@@ -4466,7 +4470,7 @@ export function Filters({
                       aria-expanded={unfolded}
                       headline={g.title}
                       trailingSupporting={g.options.find((o) => o.value === g.value)?.label}
-                      arrow={unfolded ? CaretUp : CaretDown}
+                      arrow={unfolded ? materialIcon('keyboard_arrow_up') : materialIcon('keyboard_arrow_down')}
                       onClick={() => toggle(g.title)}
                     />
                   </ul>
@@ -4640,7 +4644,7 @@ export function Select<T extends string>({
     return <ChoiceMenu id={id} title={title} value={value} options={options} empty={empty} onChange={onChange} {...field} />;
   if (href)
     return (
-      <ChoiceField id={id} href={href} arrow={CaretRight} {...field}>
+      <ChoiceField id={id} href={href} arrow={materialIcon('keyboard_arrow_right')} {...field}>
         <span lang={chosen?.lang} className={`mo-fill mo-truncate ${chosen ? '' : 'mo-editor-placeholder-value'}`}>
           {chosen ? chosen.label : empty}
         </span>
@@ -4742,7 +4746,7 @@ export function NewChoice<T extends string>({
   const close = () => dialog.current?.close();
   return (
     <>
-      <IconButton icon={Plus} label={title} aria-haspopup="dialog" onClick={() => dialog.current?.showModal()} />
+      <IconButton icon={materialIcon('add')} label={title} aria-haspopup="dialog" onClick={() => dialog.current?.showModal()} />
       <BottomSheet ref={dialog} aria-label={title} onClick={(e) => e.target === dialog.current && close()}>
         <SheetTitle title={title} onClose={close} />
         <SheetList>

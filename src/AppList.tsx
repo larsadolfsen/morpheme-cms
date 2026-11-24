@@ -27,7 +27,6 @@
 // redirects and links only one app is active (lib/appTypes.mjs): installing or turning on another asks first, then
 // turns the active one off (it stays installed, with its settings and data), in the same commit.
 import { useEffect, useState, type ReactNode } from 'react';
-import { Info, UserCircle, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { Button, EmptyNote, Group, LeadingIcon, SupportingText, SearchRow, useKept, ListItem, plainListClass, type TabChoice } from './ui';
 import { pagesWith } from './BlockSettings';
@@ -40,7 +39,7 @@ import { appsFileText, readAppsFile, withInstalled, withOff } from '../lib/appsF
 import { rivalsOf, withRivalsOff } from '../lib/appTypes.mjs';
 import { CATEGORIES, categoryOf, roleOf, type Role } from '../lib/storeCategories.mjs';
 import { filterByRole, mcpOf, serviceOf } from './sectionChoice.mjs';
-import { AnyIcon, Icon as NamedIcon } from './icon';
+import { AnyIcon, Icon as NamedIcon, materialIcon, type IconComponent as Icon } from './icon';
 import {
   appChanges,
   appFolder,
@@ -393,7 +392,7 @@ export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; fi
       {name && (
         <ul className={plainListClass}>
           <ListItem
-            icon={UserCircle}
+            icon={materialIcon('account_circle')}
             headline={name}
             supporting={[theirs.length && t.apps.appCount(theirs.length), theirThemes.length && t.library.themeCount(theirThemes.length)]
               .filter(Boolean)
@@ -430,7 +429,7 @@ export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; fi
 export function DeveloperRow({ name }: { name: string }) {
   return (
     <Group title={t.apps.developer}>
-      <ListItem href={developerHref(name)} icon={UserCircle} headline={name} arrow />
+      <ListItem href={developerHref(name)} icon={materialIcon('account_circle')} headline={name} arrow />
     </Group>
   );
 }
@@ -898,7 +897,7 @@ const tabsOf = (app: SiteApp, tab: AppTab): TabChoice<AppTab> => ({
   value: tab,
   options: [
     { value: 'settings', label: t.apps.tabSettings, icon: SettingsIcon },
-    { value: 'information', label: t.apps.tabInfo, icon: Info },
+    { value: 'information', label: t.apps.tabInfo, icon: materialIcon('info') },
   ],
   onChange: (v) => (location.hash = v === 'settings' ? appHref(app) : `${appHref(app)}/${INFO_KEY}`),
 });

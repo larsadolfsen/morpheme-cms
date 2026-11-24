@@ -4,7 +4,6 @@
 // search by name and keyword, the order (lowest or highest first, A–Z or Z–A, kept in this browser) and the funnel with
 // the filters by rating, by primary keyword and by kind, each picked one as a chip; under the title the average. A tap
 // on the ring opens the page or post at "Search engines" (openAtSeo), on the rest of the row at its top.
-import { ArrowsDownUp } from '@phosphor-icons/react';
 import { useMemo, useState } from 'react';
 import Screen from './Screen';
 import { Choice, EmptyNote, Filters, Group, InputChip, listClass, ScoreRing, scoreOf, SearchRow, useKept, ListItem } from './ui';
@@ -16,6 +15,7 @@ import { openAtSeo } from './EntryForm';
 import { collections } from './site';
 import { byText, type Collection, type MarkdownCollection } from './schema';
 import { t } from './i18n';
+import { materialIcon } from './icon';
 
 /** Where it opens, under "Search engine optimization". */
 export const SEO_SCORES_ROUTE = 'seo/rating';
@@ -140,7 +140,7 @@ export default function SeoScores({ files, env }: { files: RepoFile[]; env: Env 
         sort={
           <Choice
             title={t.library.sort}
-            icon={ArrowsDownUp}
+            icon={materialIcon('swap_vert')}
             value={sort}
             options={SORTS.map((s) => ({ value: s, label: t.seo.sorts[s] }))}
             onChange={pickSort}

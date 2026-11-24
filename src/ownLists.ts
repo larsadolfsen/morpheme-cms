@@ -1,11 +1,11 @@
 // The lists an owner makes (docs/superpowers/plans/2026-11-12-new-list.md): a folder `<data>/<id>/` with one JSON file per entry and
 // its definition in `<data>/<id>/_list.json` (lib/ownList.mjs). Read from the site's files, so a site without a `_list.json` gets
 // nothing from here. `ownListsOf(files)` makes them as lists (OwnedList), as the standard blocks' and the apps' are.
-import { ListChecks } from '@phosphor-icons/react';
 import { config } from '@site/config';
 import { asRowsOf, DEFINITION_FILE, fieldsOf, labelOfEntry, nameOf, parseDefinition } from '../lib/ownList.mjs';
 import { t } from './i18n';
 import type { Field, OwnedList } from './schema';
+import { materialIcon } from './icon';
 
 type Files = { path: string; text: string }[];
 
@@ -59,7 +59,7 @@ export function ownListOf(id: string, definition: Definition): OwnedList {
   return {
     kind: 'folder',
     id,
-    icon: ListChecks,
+    icon: materialIcon('checklist'),
     create: say.create,
     label: definition.label,
     singular: say.singular,

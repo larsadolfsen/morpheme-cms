@@ -8,8 +8,7 @@
 // "View on site" of the other forms (`view`) is a page action (Screen.tsx `pageActions`: the end of the title row from expanded, the top
 // bar below it).
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import { ArrowSquareOut, Trash } from '@phosphor-icons/react';
-import { PreviewIcon } from './icon';
+import { PreviewIcon, Icon, materialIcon } from './icon';
 import Screen, { type Back } from './Screen';
 import { ScreenHidden } from './screenHidden';
 import { ActionSheet, Button, Group, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
@@ -268,7 +267,7 @@ export default function FormFrame<T extends string>({
         pageActions || view ? (
           <>
             {pageActions}
-            {view && <IconLink href={view} target="_blank" rel="noopener" label={t.app.viewOnSite} icon={ArrowSquareOut} />}
+            {view && <IconLink href={view} target="_blank" rel="noopener" label={t.app.viewOnSite} icon={materialIcon('open_in_new')} />}
           </>
         ) : undefined
       }
@@ -287,7 +286,7 @@ export default function FormFrame<T extends string>({
                 onClick={onDelete}
                 headline={
                   <span className="mo-editor-inline-row">
-                    <Trash size={18} />
+                    <Icon name="delete" size={18} />
                     {deleting ? <LoadingIndicator>{t.app.busy.deleting}</LoadingIndicator> : (deleteLabel ?? t.common.delete)}
                   </span>
                 }

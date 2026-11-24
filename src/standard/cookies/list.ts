@@ -4,18 +4,18 @@
 // adds those it finds (cookieList.ts). The site reads them for the block (StandardSite.cookies, the site's
 // packages/editor/site/cookieList.ts).
 // Made with the texts of a language: the editor's for the screens, the site's (siteT) for the commits (site.ts).
-import { Cookie } from '@phosphor-icons/react';
 import { config } from '@site/config';
 import { COOKIE_CATEGORIES } from '../../../lib/cookieCategories.mjs';
 import type { Messages } from '../../i18n';
 import type { OwnedList } from '../../schema';
+import { materialIcon } from '../../icon';
 
 export default function cookiesList(say: Messages): OwnedList {
   const own = say.blocks.cookies.entries;
   return {
     kind: 'folder',
     id: config.lists.cookies,
-    icon: Cookie,
+    icon: materialIcon('cookie'),
     create: own.create,
     label: own.label,
     singular: own.singular,

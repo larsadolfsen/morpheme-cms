@@ -3,7 +3,6 @@
 // Morpheme store (MorphemeConnection) as its last group. Exposes CMS_ROUTE and the page. Depends on cmsView.mjs, bundledNotes.ts,
 // ReleaseNotes (the notes as an article), MorphemeConnection and the Worker's /api/cms.
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { Sparkle, WarningCircle, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { MorphemeConnection } from './MorphemeConnection';
 import { ReleaseNotes, type VersionNotes } from './ReleaseNotes';
@@ -17,6 +16,7 @@ import { snackbar } from '../lib/snackbar';
 import { t } from './i18n';
 import { blockedText, type Blocked } from './blockedText';
 import { when } from './when';
+import { materialIcon, type IconComponent as Icon } from './icon';
 
 export const CMS_ROUTE = 'morpheme';
 
@@ -68,7 +68,7 @@ function UpdateStatus({ update }: { update: NonNullable<View['update']> }) {
   const bad = update.state === 'undone' || update.state === 'stuck';
   return (
     <div>
-      <StatusLine icon={bad ? WarningCircle : undefined} tone={bad ? 'accent' : undefined}>
+      <StatusLine icon={bad ? materialIcon('error') : undefined} tone={bad ? 'accent' : undefined}>
         {t.cms[update.state](update.to)}
       </StatusLine>
       <p className="mo-editor-small-note">{when(new Date(update.at))}</p>
@@ -137,7 +137,7 @@ export default function CmsPage() {
             {view.update && <UpdateStatus update={view.update} />}
             {view.latest && (
               <div>
-                <StatusLine icon={Sparkle} tone="accent">
+                <StatusLine icon={materialIcon('stars')} tone="accent">
                   {t.cms.available(view.latest)}
                 </StatusLine>
                 {reason && <p className="mo-editor-small-note">{reason}</p>}
@@ -152,12 +152,12 @@ export default function CmsPage() {
               </div>
             )}
             {view.blocked?.kind === 'contract' && (
-              <StatusLine icon={WarningCircle} tone="accent">
+              <StatusLine icon={materialIcon('error')} tone="accent">
                 {blockedText(view.blocked)}
               </StatusLine>
             )}
             {view.problems.map((kind) => (
-              <StatusLine key={kind} icon={WarningCircle} tone="accent">
+              <StatusLine key={kind} icon={materialIcon('error')} tone="accent">
                 {t.cms[kindText[kind]]}
               </StatusLine>
             ))}

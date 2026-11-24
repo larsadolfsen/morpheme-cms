@@ -2,20 +2,6 @@
 // is new, what it needs of the site, its notifications (names only), its cookies, its licences, who made it and where it
 // is used. Exposes AppInfoTab (default). Depends on ./ui, ./i18n and AppList.tsx's DeveloperRow.
 import type { ReactNode } from 'react';
-import {
-  Bell,
-  CheckCircle,
-  Code,
-  Cookie,
-  Globe,
-  Eye,
-  Hammer,
-  HardDrives,
-  Palette,
-  PaperPlaneTilt,
-  ShieldCheck,
-  type Icon,
-} from '@phosphor-icons/react';
 import { GroupTitle, Group, ImageCarousel, ListItem } from './ui';
 import { t } from './i18n';
 import { categoryOf } from '../lib/cookieCategories.mjs';
@@ -23,6 +9,7 @@ import type { AppCookie, AppNeeds } from './store';
 import { DeveloperRow } from './AppList';
 import AppPlaces from './AppPlaces';
 import AppProblems from './AppProblems';
+import { materialIcon, type IconComponent as Icon } from './icon';
 
 /** What every app's page says about it, from its folder or the store's catalog: its images (each opening it whole),
  * what it does more fully, what it needs of the site (needsOf, with the access of each of its places, AppPlaces, and what the last
@@ -67,23 +54,27 @@ export default function AppInfoTab({
   const row = (glyph: Icon, text: string, more?: string) => <ListItem key={text} icon={glyph} headline={text} supporting={more} />;
   const needed = needs
     ? [
-        connects?.connector && row(Globe, t.apps.connectsTo(connects.service || t.apps.otherService)),
+        connects?.connector && row(materialIcon('globe'), t.apps.connectsTo(connects.service || t.apps.otherService)),
         connects?.mcp &&
           row(
-            Globe,
+            materialIcon('globe'),
             t.apps.mcpConnectsTo(connects.mcp.host),
             connects.mcp.tools.length ? t.apps.mcpUses(connects.mcp.tools.join(', ')) : undefined,
           ),
-        connects && !connects.connector && !needs.loads.length && !needs.sends.length && row(ShieldCheck, t.apps.noOutsideAccess),
-        needs.pages && row(Code, t.apps.needsPages),
-        needs.loads.length > 0 && row(Globe, t.apps.needsLoads, needs.loads.join(', ')),
-        needs.sends.length > 0 && row(PaperPlaneTilt, t.apps.needsSends, needs.sends.join(', ')),
+        connects &&
+          !connects.connector &&
+          !needs.loads.length &&
+          !needs.sends.length &&
+          row(materialIcon('verified_user'), t.apps.noOutsideAccess),
+        needs.pages && row(materialIcon('code'), t.apps.needsPages),
+        needs.loads.length > 0 && row(materialIcon('globe'), t.apps.needsLoads, needs.loads.join(', ')),
+        needs.sends.length > 0 && row(materialIcon('send'), t.apps.needsSends, needs.sends.join(', ')),
         connects?.connector &&
           !!needs.reads?.length &&
-          row(Eye, t.apps.needsReads, needs.reads.map((r) => t.apps.readScopes[r] ?? r).join(', ')),
-        needs.server && row(HardDrives, t.apps.needsServer),
-        needs.build && row(Hammer, t.apps.needsBuild),
-        ...(needs.changes ?? []).map((hook) => row(Palette, t.apps.changes[hook])),
+          row(materialIcon('visibility'), t.apps.needsReads, needs.reads.map((r) => t.apps.readScopes[r] ?? r).join(', ')),
+        needs.server && row(materialIcon('storage'), t.apps.needsServer),
+        needs.build && row(materialIcon('hardware'), t.apps.needsBuild),
+        ...(needs.changes ?? []).map((hook) => row(materialIcon('palette'), t.apps.changes[hook])),
       ].filter((x) => !!x)
     : [];
   const lasts = (c: AppCookie) => c.lasts && t.apps.cookieLasts(c.lasts);
@@ -126,21 +117,23 @@ export default function AppInfoTab({
       {id && <AppProblems id={id} />}
       {needs && (
         <Group title={t.apps.needs}>
-          {needed.length || needs.places ? needed : row(CheckCircle, t.apps.needsNothing)}
+          {needed.length || needs.places ? needed : row(materialIcon('check_circle'), t.apps.needsNothing)}
           {needs.places && <AppPlaces places={needs.places} />}
         </Group>
       )}
       <Group title={t.apps.notifications}>
-        {notifies.length ? notifies.map((n) => row(Bell, n.label)) : row(Bell, t.apps.notifiesNone)}
+        {notifies.length
+          ? notifies.map((n) => row(materialIcon('notifications'), n.label))
+          : row(materialIcon('notifications'), t.apps.notifiesNone)}
       </Group>
       <Group title={t.apps.cookies}>
-        {consent && row(ShieldCheck, t.apps.cookiesAsk)}
+        {consent && row(materialIcon('verified_user'), t.apps.cookiesAsk)}
         {cookies.map((c) =>
           c.name
-            ? row(Cookie, c.name, [category(c), c.purpose, lasts(c)].filter(Boolean).join(' · '))
-            : row(Cookie, c.purpose, lasts(c) || undefined),
+            ? row(materialIcon('cookie'), c.name, [category(c), c.purpose, lasts(c)].filter(Boolean).join(' · '))
+            : row(materialIcon('cookie'), c.purpose, lasts(c) || undefined),
         )}
-        {!consent && !cookies.length && row(Cookie, t.apps.noCookies)}
+        {!consent && !cookies.length && row(materialIcon('cookie'), t.apps.noCookies)}
       </Group>
       {licenses}
       <DeveloperRow name={publisher} />

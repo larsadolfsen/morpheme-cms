@@ -6,7 +6,6 @@
 // the moves dashboardMoves.mjs's. The drag is a pointer extra: the card is raised with the theme's elevation and follows the
 // pointer, the others stay until it is dropped; keyboard and screen reader users move a card with the menu.
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from 'react';
-import { ArrowDown, ArrowUp, DotsSixVertical, DotsThreeVertical, GearSix, Trash } from '@phosphor-icons/react';
 import { t } from './i18n';
 import { useAnnounce } from './useAnnounce';
 import { apps } from './site';
@@ -20,6 +19,7 @@ import { cardAt, moveBy, moveOnto } from './dashboardMoves.mjs';
 import type { RepoFile } from './github';
 import { SiteMenuDivider } from './themeUi';
 import { Button, IconButton, Menu, MenuItem } from './ui';
+import { materialIcon } from './icon';
 
 type Load = { status: 'loading' } | { status: 'error' } | { status: 'ready'; dashboard: StoredDashboard };
 
@@ -231,14 +231,14 @@ export function EditableCards({
             >
               <div className="mo-editor-widget-bar">
                 <IconButton
-                  icon={DotsSixVertical}
+                  icon={materialIcon('drag_indicator')}
                   label={t.dashboard.dragCard(definition.label)}
                   tabIndex={-1}
                   className="mo-editor-grab"
                   {...handle(placement.id)}
                 />
                 <IconButton
-                  icon={DotsThreeVertical}
+                  icon={materialIcon('more_vert')}
                   label={t.dashboard.cardMenu(definition.label)}
                   aria-haspopup="menu"
                   aria-expanded={menu?.id === placement.id}
@@ -258,19 +258,23 @@ export function EditableCards({
       >
         {open && (
           <>
-            <MenuItem icon={ArrowUp} disabled={at === 0} onClick={() => dash.moveBy(open.placement.id, -1)}>
+            <MenuItem icon={materialIcon('arrow_upward')} disabled={at === 0} onClick={() => dash.moveBy(open.placement.id, -1)}>
               {t.dashboard.moveUp}
             </MenuItem>
-            <MenuItem icon={ArrowDown} disabled={at === shown.length - 1} onClick={() => dash.moveBy(open.placement.id, 1)}>
+            <MenuItem
+              icon={materialIcon('arrow_downward')}
+              disabled={at === shown.length - 1}
+              onClick={() => dash.moveBy(open.placement.id, 1)}
+            >
               {t.dashboard.moveDown}
             </MenuItem>
             {open.definition.settings && onSettings && (
-              <MenuItem icon={GearSix} onClick={() => onSettings(open.placement)}>
+              <MenuItem icon={materialIcon('settings')} onClick={() => onSettings(open.placement)}>
                 {t.dashboard.settings}
               </MenuItem>
             )}
             <SiteMenuDivider />
-            <MenuItem icon={Trash} onClick={() => dash.remove(open.placement.id)}>
+            <MenuItem icon={materialIcon('delete')} onClick={() => dash.remove(open.placement.id)}>
               {t.dashboard.remove}
             </MenuItem>
           </>

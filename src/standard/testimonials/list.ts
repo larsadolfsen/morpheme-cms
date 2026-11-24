@@ -4,17 +4,17 @@
 // on the front page" (the block's "Which testimonials"). The site reads them for its pages (StandardSite.testimonials, the
 // site's packages/editor/site/testimonials.ts).
 // Made with the texts of a language: the editor's for the screens, the site's (siteT) for the commits (site.ts).
-import { Quotes } from '@phosphor-icons/react';
 import { config } from '@site/config';
 import type { Messages } from '../../i18n';
 import type { OwnedList } from '../../schema';
+import { materialIcon } from '../../icon';
 
 export default function testimonialsList(say: Messages): OwnedList {
   const own = say.blocks.testimonials;
   return {
     kind: 'folder',
     id: config.lists.testimonials,
-    icon: Quotes,
+    icon: materialIcon('format_quote'),
     create: own.entries.create,
     label: own.entries.label,
     singular: own.entries.singular,

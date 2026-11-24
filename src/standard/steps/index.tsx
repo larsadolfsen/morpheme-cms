@@ -1,14 +1,14 @@
 // "Steps", a standard block: numbered steps with a heading and a text along a line. How it looks is the theme's
 // (packages/editor/theme/blocks/steps/View.tsx; what it shows: view.ts, and load.ts on the site).
-import { ListNumbers } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 import { headFields, headOf } from '../head';
+import { materialIcon } from '../../icon';
 
 export default defineBlock({
   group: 'lists',
   label: t.blocks.steps.label,
-  icon: ListNumbers,
+  icon: materialIcon('format_list_numbered'),
   hint: t.blocks.steps.hint,
   // Typed in place, with no sheet: a step has a heading and a text and nothing to pick. Edit is only there for an old Steps that has a
   // heading or subheading, which stay editable while they are filled.

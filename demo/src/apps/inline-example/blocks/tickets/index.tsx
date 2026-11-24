@@ -1,12 +1,12 @@
 // "Tickets", the demo's block of an app that is typed in place: a heading and a text per row, drawn by Inline.tsx where it stands in the
 // text (`inline` and its view, docs/app-contract.md, "Blocks typed in place"); a block with `inline` and no Inline.tsx keeps its sheet.
-import { Ticket } from '@phosphor-icons/react';
 import { defineBlock } from '@morphemecms/cms/src/blocks';
+import { materialIcon } from '@morphemecms/cms/src/icon';
 
 export default defineBlock({
   group: 'lists',
   label: 'Tickets',
-  icon: Ticket,
+  icon: materialIcon('confirmation_number'),
   hint: 'Rows with a heading and a text, typed where they stand.',
   inline: {
     item: 'items',

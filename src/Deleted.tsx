@@ -7,7 +7,6 @@
 // and name over it), with "Restore" under it, and comes back with its record of tags (fileRecords.mjs) when it
 // was deleted together with it and no live record has its address. "Restore" shows the loading indicator while it restores.
 import { useEffect, useRef, useState } from 'react';
-import { ArrowCounterClockwise } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { Button, IconButton, listClass, BottomSheet, SheetTitle, EmptyNote, SheetBody, ProblemNote, ListItem } from './ui';
 import { useSelection } from './useSelection';
@@ -25,6 +24,7 @@ import { when } from './when';
 import { kindAndName, nameOf, savedText } from './deploy';
 import { config, siteName } from '@site/editor';
 import { locale, siteT, t } from './i18n';
+import { materialIcon } from './icon';
 
 /** The collections whose lists have "Deleted …" (the clock in the top bar): those that can be deleted from. */
 export const restorable = (c: Collection) => c.kind !== 'files' && !!c.deletable;
@@ -250,7 +250,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
               </Button>
             )}
             <IconButton
-              icon={ArrowCounterClockwise}
+              icon={materialIcon('undo')}
               label={t.history.restoreSelected(selection.count)}
               disabled={busy}
               busy={restoringMany}

@@ -12,7 +12,7 @@
 // scroll the page. A swipe that started on a link does not also follow it.
 // One about something going on ("Saving…") stays until the next message replaces it; snackbar(null) only
 // takes that one away.
-import arrow from '@phosphor-icons/core/assets/regular/arrow-right.svg?raw';
+import arrow from '@material-symbols/svg-400/outlined/arrow_forward.svg?raw';
 import { announce } from './announce';
 
 export type SnackbarLink = { text: string; href: string; onClick?: (e: MouseEvent) => void };

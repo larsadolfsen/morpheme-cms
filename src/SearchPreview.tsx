@@ -1,11 +1,11 @@
 // How a page looks as a Google result, on a phone or a computer (tabs): the site's name and address, the title and the description.
 // Exposes SearchPreview. Depends on googleResult.mjs (the address line, the bold keyword), TabRow and TabPanel in ui.tsx, shortDate (when.ts) and i18n.
 import { useId, useState } from 'react';
-import { DeviceMobile, Desktop, DotsThreeVertical } from '@phosphor-icons/react';
 import { boldParts, searchCrumbs } from './googleResult.mjs';
 import { TabPanel, TabRow } from './ui';
 import { shortDate } from './when';
 import { t } from './i18n';
+import { Icon, materialIcon } from './icon';
 
 type Device = 'mobile' | 'desktop';
 
@@ -36,7 +36,7 @@ export function SearchPreview({
   const id = useId();
   const [device, setDevice] = useState<Device>('mobile');
   const phone = device === 'mobile';
-  const menu = <DotsThreeVertical aria-hidden="true" className="mo-keep mo-editor-search-menu" />;
+  const menu = <Icon name="more_vert" aria-hidden="true" className="mo-keep mo-editor-search-menu" />;
   return (
     <div className="mo-editor-search-preview">
       <TabRow
@@ -44,8 +44,8 @@ export function SearchPreview({
         label={t.forms.searchPreview.on}
         value={device}
         options={[
-          { value: 'mobile', label: t.forms.searchPreview.mobile, icon: DeviceMobile },
-          { value: 'desktop', label: t.forms.searchPreview.desktop, icon: Desktop },
+          { value: 'mobile', label: t.forms.searchPreview.mobile, icon: materialIcon('mobile') },
+          { value: 'desktop', label: t.forms.searchPreview.desktop, icon: materialIcon('desktop_windows') },
         ]}
         onChange={setDevice}
       />
