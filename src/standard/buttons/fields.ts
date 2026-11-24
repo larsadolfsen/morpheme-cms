@@ -77,8 +77,8 @@ export const buttonList: Field = {
       icons: true,
       hint: t.blocks.buttons.iconHint,
       options: [
-        { label: t.blocks.buttons.arrow, value: 'arrow-right' },
-        { label: t.blocks.buttons.calendar, value: 'calendar-blank' },
+        { label: t.blocks.buttons.arrow, value: 'arrow_forward' },
+        { label: t.blocks.buttons.calendar, value: 'calendar_today' },
         ...iconOptions(t.blocks.icons),
       ],
     },

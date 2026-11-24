@@ -155,8 +155,8 @@ export function BottomSheetHeader({
               {resizeLabel && (
                 <IconButton icon={<BottomSheetResizeIcon />} label={resizeLabel} aria-expanded={!!raised} data-bottom-sheet-resize="" />
               )}
-              {collapseLabel && <IconButton icon="caret-down" label={collapseLabel} data-bottom-sheet-collapse="" />}
-              {closeLabel && <IconButton icon="x" label={closeLabel} data-bottom-sheet-close="" onClick={onClose} />}
+              {collapseLabel && <IconButton icon="keyboard_arrow_down" label={collapseLabel} data-bottom-sheet-collapse="" />}
+              {closeLabel && <IconButton icon="close" label={closeLabel} data-bottom-sheet-close="" onClick={onClose} />}
             </div>
           )}
         </div>

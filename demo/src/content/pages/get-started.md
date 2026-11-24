@@ -21,4 +21,4 @@ You can have a site you edit yourself up and running in an afternoon.
 
 We’re happy to help.
 
-<div data-block="buttons" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;to&quot;:&quot;phone&quot;,&quot;kind&quot;:&quot;filled&quot;,&quot;icon&quot;:&quot;phone&quot;},{&quot;label&quot;:&quot;Contact us&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/contact/&quot;,&quot;kind&quot;:&quot;outlined&quot;,&quot;icon&quot;:&quot;envelope-simple&quot;}]}"></div>
+<div data-block="buttons" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;to&quot;:&quot;phone&quot;,&quot;kind&quot;:&quot;filled&quot;,&quot;icon&quot;:&quot;call&quot;},{&quot;label&quot;:&quot;Contact us&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/contact/&quot;,&quot;kind&quot;:&quot;outlined&quot;,&quot;icon&quot;:&quot;mail&quot;}]}"></div>

@@ -34,8 +34,6 @@
     "@material/material-color-utilities": "^0.3.0",
     "@milkdown/kit": "^7.23.0",
     "@morphemecms/cms": "0.19.6",
-    "@phosphor-icons/core": "^2.1.1",
-    "@phosphor-icons/react": "^2.1.10",
     "astro": "^7.4.8",
     "esbuild": "^0.28.2",
     "github-slugger": "^2.0.0",

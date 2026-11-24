@@ -20,14 +20,9 @@ declare module 'virtual:old-page-colors' {
   export default loaders;
 }
 
-// All Phosphor's icons (regular) as text, by their file (allIconsModule in site/theme.mjs).
-declare module 'virtual:all-icons' {
-  export const allIcons: Record<string, string>;
-}
-
-// The same on the server render only; empty in the browser (icon.tsx draws a Phosphor icon of the picker with it).
-declare module 'virtual:all-icons-ssr' {
-  export const allIcons: Record<string, string>;
+// The icons of the theme in use and of the icon pack in use, as text by their Material name (`home`, `play_arrow-fill`; themeIconsModule in site/theme.mjs).
+declare module 'virtual:theme-icons' {
+  export const themeIcons: Record<string, string>;
 }
 
 // How the theme in use covers Material's parts, null for the standard theme (coverageModule in site/themeCoverageFiles.mjs).

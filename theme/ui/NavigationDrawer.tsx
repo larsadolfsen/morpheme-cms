@@ -137,13 +137,13 @@ export function NavigationDrawerItem({
   );
 }
 
-/** The back row at the top of a drawer's second level: an `arrow-left` and the `label` (the first level's name). A
+/** The back row at the top of a drawer's second level: an `arrow_back` and the `label` (the first level's name). A
  * button; `onClick` shows the first level. */
 export function NavigationDrawerBack({ label, ...rest }: { label: string } & Record<string, unknown>) {
   return (
     <button type="button" className="mo-navigation-drawer__item mo-navigation-drawer__back" {...rest}>
       <span className="mo-navigation-drawer__icon">
-        <Svg name="arrow-left" size={24} />
+        <Svg name="arrow_back" size={24} />
       </span>
       <span className="mo-navigation-drawer__label">{label}</span>
     </button>
@@ -167,7 +167,7 @@ export function NavigationDrawerRow({
 export function NavigationDrawerToggle({ label, expanded, ...rest }: { label: string; expanded: boolean } & Record<string, unknown>) {
   return (
     <button type="button" className="mo-navigation-drawer__toggle" aria-expanded={expanded} aria-label={label} {...rest}>
-      <Svg name="caret-down" size={20} />
+      <Svg name="keyboard_arrow_down" size={20} />
     </button>
   );
 }

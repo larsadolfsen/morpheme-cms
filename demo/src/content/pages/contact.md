@@ -9,8 +9,8 @@ seoDescription: "Questions about Morpheme, the app store or themes? Call or emai
 
 Questions about the editor, the app store or themes? We’d love to hear from you.
 
-<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;phone&quot;,&quot;title&quot;:&quot;Call&quot;,&quot;text&quot;:&quot;+1 555 010 0199, weekdays 9 a.m. to 4 p.m.&quot;},{&quot;icon&quot;:&quot;envelope-simple&quot;,&quot;title&quot;:&quot;Email&quot;,&quot;text&quot;:&quot;hello@morpheme.example. We reply within one business day.&quot;},{&quot;icon&quot;:&quot;map-pin&quot;,&quot;title&quot;:&quot;Visit&quot;,&quot;text&quot;:&quot;1 Example Street, 12345 Exampleville.&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;call&quot;,&quot;title&quot;:&quot;Call&quot;,&quot;text&quot;:&quot;+1 555 010 0199, weekdays 9 a.m. to 4 p.m.&quot;},{&quot;icon&quot;:&quot;mail&quot;,&quot;title&quot;:&quot;Email&quot;,&quot;text&quot;:&quot;hello@morpheme.example. We reply within one business day.&quot;},{&quot;icon&quot;:&quot;location_on&quot;,&quot;title&quot;:&quot;Visit&quot;,&quot;text&quot;:&quot;1 Example Street, 12345 Exampleville.&quot;}]}"></div>
 
-<div data-block="buttons" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;to&quot;:&quot;phone&quot;,&quot;kind&quot;:&quot;filled&quot;,&quot;icon&quot;:&quot;phone&quot;}]}"></div>
+<div data-block="buttons" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;to&quot;:&quot;phone&quot;,&quot;kind&quot;:&quot;filled&quot;,&quot;icon&quot;:&quot;call&quot;}]}"></div>
 
 <div data-block="expand" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;faq&quot;:true,&quot;items&quot;:[{&quot;title&quot;:&quot;Is this a real company?&quot;,&quot;text&quot;:&quot;No. This is Morpheme’s demo site, with made-up contact details, so you can see how a site looks in every theme.&quot;}]}"></div>

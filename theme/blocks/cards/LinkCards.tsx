@@ -127,7 +127,7 @@ export default function LinkCards({
       <Card {...parts} href={card.href}>
         <span className="mo-block-cards__card-more">
           {more}
-          <Svg name="arrow-right" size={18} className="mo-block-cards__card-arrow" />
+          <Svg name="arrow_forward" size={18} className="mo-block-cards__card-arrow" />
         </span>
       </Card>
     ) : (

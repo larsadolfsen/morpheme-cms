@@ -14,7 +14,7 @@
 // height) and a loading indicator in the label's colour, without a container, stands in the middle (aria-hidden: the
 // button keeps its name). When busy ends, it is the button again.
 import { useEffect, useRef, type ReactNode } from 'react';
-import { Glyph, Svg, iconFile, type IconRef } from '@morphemecms/cms/src/icon';
+import { Glyph, Svg, drawsFilled, type IconRef } from '@morphemecms/cms/src/icon';
 import { Link, type ButtonKind } from '@morphemecms/cms/src/standard/view';
 import BusyContent from './BusyContent';
 
@@ -31,7 +31,7 @@ export const buttonClass = (kind: ButtonKind = 'filled', size: ButtonSize = 'sma
  * it is on, where the site draws it filled (the theme shows the one of the state it is in: .mo-<part>__unselected-icon,
  * .mo-<part>__selected-icon). */
 export function ToggleIcon({ part, name, size }: { part: 'button' | 'icon-button' | 'navigation-drawer'; name: string; size: number }) {
-  if (!iconFile(name, 'fill')) return <Svg name={name} size={size} />;
+  if (!drawsFilled(name)) return <Svg name={name} size={size} />;
   return (
     <>
       <Svg name={name} size={size} className={`mo-${part}__unselected-icon`} />

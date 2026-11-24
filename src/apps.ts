@@ -52,6 +52,7 @@ import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 import { definitionOf, type AppDefinitionData } from '../lib/appDefinition.mjs';
 import type { AppManifest } from '../lib/appManifest.mjs';
 import { AnyIcon, type IconComponent as Icon } from './icon';
+import { materialNameOf } from '../lib/materialIconMap.mjs';
 
 /** An app's settings, on its page once it is installed (#apps/<app>, AppList.tsx). */
 export type AppSettings = {
@@ -213,14 +214,17 @@ export type AppDefinitionCode = Pick<AppDefinition, 'page' | 'screens' | 'tabs' 
 };
 export const defineEditor = (editor: Partial<AppDefinitionCode>) => editor;
 
-// The icon of the name an app.json gives ("Palette", Phosphor's name for its component), drawn as the editor draws any icon
-// by its name (AnyIcon, in kebab case); a name nobody has is drawn as the question mark (MISSING), the default icon.
+// The icon of the name an app.json gives: a Material Symbols name (`palette`), or a name written the old way ("Palette", "PaperPlaneTilt": Phosphor's
+// component name, an app made before 0.19.6), turned into its Material name (lib/materialIconMap.mjs); drawn as the editor draws any icon
+// by its name (AnyIcon); a name nobody has is drawn as the question mark (MISSING), the default icon.
 const named = new Map<string, Icon>();
-/** A Phosphor icon by the name app.json gives it ("PaperPlaneTilt"), as a component the editor's rows take. */
+/** An icon by the name app.json gives it (`send`, or the old "PaperPlaneTilt"), as a component the editor's rows take. */
 export function iconOf(name: string): Icon {
   const found = named.get(name);
   if (found) return found;
-  const file = (typeof name === 'string' ? name : '').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase() || 'question';
+  const kebab = (typeof name === 'string' ? name : '').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase() || 'help';
+  const mapped = materialNameOf(kebab);
+  const file = mapped ? ('brand' in mapped ? `${mapped.brand}-logo` : mapped.name) : kebab;
   const icon = ((props: { size?: number | string }) =>
     createElement(AnyIcon, { name: file, size: typeof props.size === 'number' ? props.size : 24 })) as unknown as Icon;
   named.set(name, icon);

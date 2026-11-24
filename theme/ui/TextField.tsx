@@ -169,7 +169,7 @@ export default function TextField({
         {trailingIcon && <Svg name={trailingIcon} size={20} className="mo-text-field__trailing-icon" />}
         {clearLabel && (
           <IconButton
-            icon="x"
+            icon="close"
             label={clearLabel}
             className="mo-text-field__trailing-action mo-text-field__clear"
             disabled={off}
@@ -185,14 +185,12 @@ export default function TextField({
             disabled={off}
             data-text-field-visibility=""
           >
-            <Svg name="eye" size={22} className="mo-text-field__visibility-show" />
-            <Svg name="eye-slash" size={22} className="mo-text-field__visibility-hide" />
+            <Svg name="visibility" size={22} className="mo-text-field__visibility-show" />
+            <Svg name="visibility_off" size={22} className="mo-text-field__visibility-hide" />
           </button>
         )}
         {trailing && <span className="mo-text-field__trailing-action">{trailing}</span>}
-        {(errorIcon || saying) && (
-          <Svg name="warning-circle" size={20} className="mo-text-field__trailing-icon mo-text-field__error-icon" />
-        )}
+        {(errorIcon || saying) && <Svg name="error" size={20} className="mo-text-field__trailing-icon mo-text-field__error-icon" />}
       </div>
       {(line || counter || saying) && (
         <div className="mo-text-field__supporting-row">
@@ -240,7 +238,7 @@ export function TextFieldButton({
   kind,
   size,
   href,
-  trailingIcon = 'caret-down',
+  trailingIcon = 'keyboard_arrow_down',
   id,
   className,
   children,
