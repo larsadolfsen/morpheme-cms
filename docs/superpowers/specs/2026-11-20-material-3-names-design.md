@@ -121,7 +121,7 @@ and holds the update where it cannot.
      the step.
    - **What.** For each folder of the site's themes and apps named as a store id (`theme_<16 hex>`, `app_<16 hex>`), it asks the store
      whether the installed version is written to a contract the target reads (`GET /store/releases/<id>/<version>`). If not, it takes the
-     store's newest version of the item for the target (`GET /store/catalog?app=<n>&theme=<n>`, the target's contracts), reads each
+     store's newest version of the item for the target (`GET /store/catalog?app=<n>&theme=<n>`, asked once for each app contract the target reads and joined, because `?app=<n>` may give only versions at exactly n), reads each
      file (`GET /store/files/<oid>`), checks each against its git blob id, and writes the folder, with its `store.json`, into the build's
      working tree, all or nothing. The checks and the Astro build then run on that tree.
    - **What stops it.** The build fails with a line naming the item and why, and the old editor undoes the update as it does for any failed build
@@ -142,8 +142,8 @@ and holds the update where it cannot.
    - **The commit.** The build's tree is deployed, so the site runs the new items, while the site's git still has the old ones. The build
      leaves `.morpheme/build-installs.json` (what it installed), served as `/editor/build-installs.json` (`no-store`), and lists the same items
      as `installs` in `/editor/version.json`, so every build of that git redoes the install until the commit. On its first start the new editor
-     reads the file and commits each item through `src/store.ts` (`appChanges`, `themeChanges`) as the store's version, in its own
-     commit, once per editor session (`commitBuildInstalls` in `src/AppList.tsx`): not when the site already has that version or newer, the item
+     reads the file and commits all items through `src/store.ts` (`appChanges`, `themeChanges`) as the store's versions, with `worker/apps.js`, in one
+     commit (one build on Cloudflare, not one per item), once per editor session (`commitBuildInstalls` in `src/AppList.tsx`): not when the site already has that version or newer, the item
      was uninstalled, or a file of it was changed in the site.
    - **The Worker's nightly hold** (`heldByContract`) is unchanged by this: it still holds an update it cannot show to be safe.
 

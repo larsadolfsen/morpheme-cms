@@ -38,7 +38,7 @@ import { ask, choose } from './ask';
 import { appsState, activeApps, installedApps, settingsFile, type SiteApp } from './apps';
 import { appsFileText, readAppsFile, withInstalled, withOff } from '../lib/appsFile.mjs';
 import { rivalsOf, withRivalsOff } from '../lib/appTypes.mjs';
-import { firstStart, parseInstalls, parseWorkers } from '../lib/buildInstall.mjs';
+import { applyChanges, firstStart, mergeChanges, parseInstalls, parseWorkers } from '../lib/buildInstall.mjs';
 import { CATEGORIES, categoryOf, roleOf, type Role } from '../lib/storeCategories.mjs';
 import { filterByRole, mcpOf, serviceOf } from './sectionChoice.mjs';
 import { AnyIcon, Icon as NamedIcon } from './icon';
@@ -602,20 +602,23 @@ export async function autoUpdate(env: Env, files: RepoFile[]) {
 let buildInstalled = false;
 
 /** Commits what the site's update build installed from the store (scripts/build-install.mjs), once while the editor is open
- * (App.tsx): the build's themes and apps are in the live site, the site's git has the old ones until this runs. Each is its
- * own commit, written as the store's version (appChanges, themeChanges), when the site still has the item as the store's own,
- * older than the install and with no file changed in the site (firstStart in lib/buildInstall.mjs); an item the site has
- * already updated, uninstalled or changed is left. A failed one is tried again the next time the editor opens. */
+ * (App.tsx): the build's themes and apps are in the live site, the site's git has the old ones until this runs. All in one
+ * commit (each install on its own would start its own build on Cloudflare), written as the store's versions (appChanges,
+ * themeChanges) with worker/apps.js, for each item the site still has as the store's own, older than the install and with no
+ * file changed in the site (firstStart in lib/buildInstall.mjs); an item the site has already updated, uninstalled or changed
+ * is left. A failure is tried again the next time the editor opens. One notification for each item. */
 export async function commitBuildInstalls(env: Env, files: RepoFile[]) {
   if (buildInstalled) return;
   buildInstalled = true;
   const res = await fetch('/editor/build-installs.json', { cache: 'no-store' }).catch(() => null);
   const text = res?.ok ? await res.text() : null;
   const list = parseInstalls(text);
-  // worker/apps.js with the apps' Worker parts goes in the commit of the last app (the build wrote it so that check:content passes).
   const workers = parseWorkers(text);
-  const lastApp = list.findLast((i) => i.kind === 'app')?.id;
   const file = files.find((f) => f.path === config.apps.installed);
+  // The site's files as the installs so far leave them: the file of apps and the cookie list are changed by each app.
+  let state = files;
+  const done: typeof list = [];
+  const all: Change[] = [];
   for (const install of list) {
     try {
       const root = install.kind === 'theme' ? themeFolder(install.id) : appFolder(install.id);
@@ -627,28 +630,45 @@ export async function commitBuildInstalls(env: Env, files: RepoFile[]) {
         files: await env.store.files({ files: install.files, label: install.label }),
         record: { version: install.version, ref: install.version, files: install.files },
       };
-      const change = t.app.changes.updated(
-        kindAndName(install.kind === 'theme' ? t.app.changes.theme : t.app.changes.app, install.label),
-        install.version,
-      );
-      if (install.kind === 'theme') {
-        await env.commit(
-          siteT.library.themeCommits.update(install.label, install.version),
-          themeChanges(install.id, current, wanted),
-          change,
-        );
-      } else {
-        const changes = [...appChanges(install.id, current, wanted, file), ...cookieChanges(install.id, cookiesIn(wanted.files), files)];
-        if (workers && install.id === lastApp) {
-          const [now] = await env.load(['worker/apps.js']);
-          if (now?.text !== workers) changes.push({ path: 'worker/apps.js', content: workers, oid: now?.oid ?? null });
-        }
-        await saveApp(env, siteT.apps.commit.update(install.label, install.version), change, changes, file);
-      }
-      env.notify({ text: t.apps.autoUpdated(install.label, install.version), kind: 'updates' });
+      const changes =
+        install.kind === 'theme'
+          ? themeChanges(install.id, current, wanted)
+          : [
+              ...appChanges(
+                install.id,
+                current,
+                wanted,
+                state.find((f) => f.path === config.apps.installed),
+              ),
+              ...cookieChanges(install.id, cookiesIn(wanted.files), state),
+            ];
+      all.push(...changes);
+      state = applyChanges(state, changes);
+      done.push(install);
     } catch (e) {
+      // Left out of the commit; tried again the next time the editor opens.
       console.warn(`${install.id}:`, e);
     }
+  }
+  if (!done.length) return;
+  try {
+    const changes = mergeChanges(all);
+    if (workers && done.some((i) => i.kind === 'app')) {
+      const [now] = await env.load(['worker/apps.js']);
+      if (now?.text !== workers) changes.push({ path: 'worker/apps.js', content: workers, oid: now?.oid ?? null });
+    }
+    const messages = done.map((i) =>
+      i.kind === 'theme' ? siteT.library.themeCommits.update(i.label, i.version) : siteT.apps.commit.update(i.label, i.version),
+    );
+    const message = [messages[0], ...(messages.length > 1 ? ['', ...messages.slice(1)] : [])].join('\n');
+    const change = done
+      .map((i) => t.app.changes.updated(kindAndName(i.kind === 'theme' ? t.app.changes.theme : t.app.changes.app, i.label), i.version))
+      .join(', ');
+    if (done.some((i) => i.kind === 'app')) await saveApp(env, message, change, changes, file);
+    else await env.commit(message, changes, change);
+    for (const i of done) env.notify({ text: t.apps.autoUpdated(i.label, i.version), kind: 'updates' });
+  } catch (e) {
+    console.warn('build installs:', e);
   }
 }
 

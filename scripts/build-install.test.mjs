@@ -238,3 +238,40 @@ test('an installed app with a Worker part is written into worker/apps.js, and th
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('an app whose newest accepted release is at an older contract the target still reads is installed, not named', async () => {
+  const dir = await site([{ root: FOLDERS.apps, id: A, version: '1.0.0', files: { 'index.ts': 'x' } }]);
+  try {
+    const entry = {
+      id: A,
+      handle: 'p/mail',
+      version: '2.0.0',
+      api: 7,
+      label: 'Mail',
+      publisher: 'P',
+      icon: 'mail',
+      hint: 'h',
+      adds: { blocks: [], lists: [], kinds: [] },
+      files: [{ path: 'index.ts', oid: await blobId(enc('y')) }],
+    };
+    const s = await store({ releases: { [`${A}/1.0.0`]: { api: 6 } }, files: { a: 'y' } });
+    // The store answers `?app=n` with the versions at exactly n (the strictest reading): only n = 7 has this app.
+    const fetch = async (url, init) => {
+      if (url.includes('/store/catalog')) {
+        const n = new URL(url).searchParams.get('app');
+        return new Response(JSON.stringify({ connected: true, themes: [], apps: n === '7' ? [entry] : [] }));
+      }
+      return s.fetch(url, init);
+    };
+    const next = { theme: 8, apps: [7, 8] };
+    const r = await installForBuild({ cwd: dir, folders: FOLDERS, next, env: KEY, fetch });
+    assert.equal(r.status, 'ok');
+    assert.deepEqual(r.problems, []);
+    assert.deepEqual(
+      r.installs.map((i) => [i.id, i.version]),
+      [[A, '2.0.0']],
+    );
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

@@ -111,9 +111,15 @@ export async function installForBuild({ cwd, folders, next, env = process.env, f
       const body = res?.status === 200 ? await res.json().catch(() => null) : null;
       answers.set(`${kind}:${id}`, res?.status === 404 ? { missing: true } : Number.isInteger(body?.api) ? { api: body.api } : null);
     }
-    const res = await ask(`/store/catalog?app=${next.apps.at(-1)}&theme=${next.theme}`);
-    const catalog = res.status === 200 ? await res.json().catch(() => null) : null;
-    if (!catalog || catalog.connected === false) return { status: 'unreachable', installs: [], problems: copyProblems };
+    // One catalog for each app contract the target reads, joined: the store's `?app=<n>` may give only versions at exactly n, and an
+    // app whose newest accepted release is at an older contract the target still reads must not be named as having none.
+    const catalogs = [];
+    for (const n of next.apps) {
+      const res = await ask(`/store/catalog?app=${n}&theme=${next.theme}`);
+      catalogs.push(res.status === 200 ? await res.json().catch(() => null) : null);
+    }
+    if (catalogs.some((c) => !c || c.connected === false)) return { status: 'unreachable', installs: [], problems: copyProblems };
+    const catalog = { themes: catalogs.flatMap((c) => c.themes ?? []), apps: catalogs.flatMap((c) => c.apps ?? []) };
     const plan = planInstall({ items: stored, answers, catalog, next });
     const problems = [...copyProblems, ...plan.problems];
     if (problems.length) return { status: 'ok', installs: [], problems };
@@ -149,7 +155,10 @@ export async function installForBuild({ cwd, folders, next, env = process.env, f
     const apps = plan.install.filter((i) => i.kind === 'app');
     if (!apps.length) return { status: 'ok', installs: plan.install, problems: [] };
     const before = existsSync(join(cwd, 'worker/apps.js')) ? readFileSync(join(cwd, 'worker/apps.js'), 'utf8') : null;
+    const hasWorker = apps.some(({ id }) => existsSync(join(cwd, folders.apps, id, 'worker.js')));
+    if (!hasWorker && before === null) return { status: 'ok', installs: plan.install, problems: [] };
     const workers = appWorkersFile(cwd);
+    mkdirSync(join(cwd, 'worker'), { recursive: true });
     writeAppWorkers(cwd);
     const wrangler = ['wrangler.jsonc', 'wrangler.json'].map((f) => join(cwd, f)).find((f) => existsSync(f));
     const bindings = missingNames(
