@@ -16,6 +16,7 @@ export { default as SiteChip, chipKinds } from '@theme/ui/Chip';
 export { default as SiteChipSet, chipSetLayouts } from '@theme/ui/ChipSet';
 export { bottomSheet as siteBottomSheet, followKeyboard as siteFollowKeyboard } from '@theme/ui/bottomSheetControl';
 export { default as SiteDialog, dialogModalClass as siteDialogModalClass } from '@theme/ui/Dialog';
+export { dialog as siteDialogControl } from '@theme/ui/dialogControl';
 export {
   default as SiteBottomSheet,
   BottomSheetHeader as SiteBottomSheetHeader,
