@@ -198,8 +198,8 @@ The migration, class by class, is `docs/tailwind-migration.md` and `docs/tailwin
 
 ## Scoped CSS (in the build, in force from the next contract)
 
-Spec: `docs/superpowers/specs/2026-11-20-scoped-app-css-design.md`. The outer element of every app block carries `data-mo-app="<id>"` (it takes no space,
-`display: contents`; the app does not write it and cannot remove it). From the contract that raises `SCOPED_CSS_FROM_API` (`lib/appCss.mjs`), the build
+Spec: `docs/superpowers/specs/2026-11-20-scoped-app-css-design.md`. The outer element of every app block carries `data-mo-app="<id>"` (the CMS puts it on the element
+the view returns, so no element is added to the page's flow; a view that returns a fragment or nothing of its own gets one that takes no space, `display: contents`; the app does not write it and cannot remove it). From the contract that raises `SCOPED_CSS_FROM_API` (`lib/appCss.mjs`), the build
 rewrites every `.css` file in `src/apps/<id>/`, on the site and in the editor (`site/appCss.mjs`):
 
 - every selector applies only inside the app's own blocks (`:where([data-mo-app="<id>"])` before it: the build targets Firefox 114 and Safari 16.4, which lack `@scope`; `APP_CSS_MODE` switches to `@scope` when the target moves);
