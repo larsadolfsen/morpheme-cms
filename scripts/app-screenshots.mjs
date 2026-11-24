@@ -17,6 +17,7 @@ import { createServer } from 'vite';
 import { aliases, themePlugin } from '@morphemecms/cms/site/theme.mjs';
 import { appFoldersPlugin } from '@morphemecms/cms/lib/apps.mjs';
 import { appSelf } from '@morphemecms/cms/site/appSelf.mjs';
+import { appCss } from '@morphemecms/cms/site/appCss.mjs';
 import { categoryOf } from '@morphemecms/cms/lib/storeCategories.mjs';
 import { binOf } from './bin.mjs';
 import { buildOutDir } from './build-out.mjs';
@@ -38,7 +39,7 @@ const vite = await createServer({
   configFile: false,
   logLevel: 'error',
   appType: 'custom',
-  plugins: [themePlugin(), appFoldersPlugin(ROOT), appSelf()],
+  plugins: [themePlugin(), appFoldersPlugin(ROOT), appSelf(), appCss()],
   resolve: { alias: aliases() },
   server: { middlewareMode: true, hmr: false, ws: false },
 });

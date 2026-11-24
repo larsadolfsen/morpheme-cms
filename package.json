@@ -77,6 +77,7 @@
     "check:keyboard": "cd .morpheme/demo/site && node ../../../scripts/check-keyboard.mjs",
     "check:token-names": "node scripts/check-token-names.mjs",
     "check:token-registry": "node scripts/gen-token-registry.mjs --check",
+    "check:app-css": "node scripts/check-app-css.mjs",
     "check:css-tokens": "node scripts/check-css-tokens.mjs",
     "check:mo-names": "node scripts/check-mo-names.mjs",
     "check:web": "node scripts/check-web.mjs",
