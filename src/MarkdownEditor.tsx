@@ -91,6 +91,7 @@ import { changeTo, targets } from '../lib/changeTo.mjs';
 import { t } from './i18n';
 import { motionReduced, motionTiming } from '../lib/motion';
 import { barSlideKind } from './barMotion.mjs';
+import { caretScrollStep } from './caretScroll.mjs';
 import { dragSteps, limitSteps } from './blockDrag.mjs';
 import { blockHandleIcon, blockMarkIcon, blockSettingsIcon, changeToIcon, duplicateIcon, selectAllBlocksIcon } from './blockHandleIcon';
 import { blockSelection } from './blockSelection';
@@ -236,6 +237,34 @@ const gapHere = $prose(
           empty && $from.depth === 1 && isGap($from.parent)
             ? DecorationSet.create(doc, [Decoration.node($from.before(), $from.after(), { class: 'mo-editor-gap-here' })])
             : null,
+      },
+    }),
+);
+
+// The cursor stays in the free band between the text bar (which sticks at the top) and the Save bar or the keyboard at the bottom, with
+// the page scrolling by itself: ProseMirror's own scroll knows only the window's edges (caretScroll.mjs). A text in a box that scrolls
+// itself (a sheet) keeps ProseMirror's scroll. A selected block or divider is kept in the band the same way.
+const keepCaret = $prose(
+  () =>
+    new Plugin({
+      props: {
+        handleScrollToSelection: (view) => {
+          const { selection } = view.state;
+          const node = selection instanceof NodeSelection ? view.nodeDOM(selection.from) : null;
+          if (!(selection instanceof TextSelection) && !(node instanceof HTMLElement)) return false;
+          for (let box = view.dom.parentElement; box && box !== document.body && box !== document.documentElement; box = box.parentElement)
+            if (/auto|scroll/.test(getComputedStyle(box).overflowY) && box.scrollHeight > box.clientHeight) return false;
+          const rect = node instanceof HTMLElement ? node.getBoundingClientRect() : view.coordsAtPos(selection.head);
+          if (!rect.top && !rect.bottom) return false; // no layout (hidden or detached): ProseMirror's scroll
+          const tools = document.querySelector<HTMLElement>('.mo-editor-tools-bar')?.getBoundingClientRect();
+          const save = document.querySelector<HTMLElement>('.mo-editor-save-bar')?.getBoundingClientRect();
+          const top = tools && tools.bottom > 0 ? tools.bottom : 0;
+          const screen = window.visualViewport?.height ?? window.innerHeight;
+          const bottom = save && save.top > top ? Math.min(save.top, screen) : screen;
+          const by = caretScrollStep({ rectTop: rect.top, rectBottom: rect.bottom, top, bottom });
+          if (by) window.scrollBy({ top: by, behavior: 'instant' });
+          return true;
+        },
       },
     }),
 );
@@ -2652,6 +2681,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(numbering)
       .use(sectionFrame(framed))
       .use(gapHere)
+      .use(keepCaret)
       .use(tapBelow)
       .use(checkToggle)
       .use(history)
