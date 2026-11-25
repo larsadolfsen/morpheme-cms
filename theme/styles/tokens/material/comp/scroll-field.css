@@ -1,5 +1,5 @@
 /* Design tokens (custom-property declarations) of the scroll time picker's scroll field, M3's md.comp.scroll-field and the scroll parts of md.comp.time-pickers
-   (docs/m3-tokens/); the rules that use them are in ../../../ui/pickers.css. See docs/theme-token-files.md. */
+   (docs/m3-tokens/); the rules that use them are in ../../../ui/scroll-field.css. See docs/theme-token-files.md. */
 
 :root {
   /* Scroll field: 200 dp high (120 at least), 100 dp wide for two digits, the items 16 dp apart, large corners on the lowest surface container;
