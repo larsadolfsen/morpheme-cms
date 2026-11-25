@@ -40,7 +40,7 @@ import {
   LinkButton,
   Notice,
   SupportingText,
-  SegmentedButton,
+  ConnectedButtons,
   ProblemNote,
   ListItem,
 } from './ui';
@@ -388,7 +388,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
                 </div>
               </FormField>
               <FormField label={d.contrast} hint={d.contrastHint}>
-                <SegmentedButton<Contrast>
+                <ConnectedButtons<Contrast>
                   label={d.contrast}
                   value={choice.contrast}
                   options={(Object.keys(CONTRASTS) as Contrast[]).map((c) => ({ value: c, label: d.contrasts[c] }))}

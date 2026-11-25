@@ -176,7 +176,7 @@ are `…/specs`, `…/guidelines` and `…/accessibility` under the same address
 | Component (export) | For | M3 page |
 | :--- | :--- | :--- |
 | `Button` (`SiteButton`, `ui.tsx` `Button`, `LinkButton`) | an action: filled for the one thing to do, tonal, outlined, text | [buttons](https://m3.material.io/components/buttons/overview) |
-| `ButtonGroup`, `SegmentedButton`, `ChoiceGroup` | connected choices that fit on one line (`ChoiceGroup` falls back to a radio list) | [button-groups](https://m3.material.io/components/button-groups/overview), [segmented-buttons](https://m3.material.io/components/segmented-buttons/overview) |
+| `ButtonGroup` (`kind="connected"` is the former segmented button; `ui.tsx` `ConnectedButtons`), `ChoiceGroup` | connected choices that fit on one line (`ChoiceGroup` falls back to a radio list) | [button-groups](https://m3.material.io/components/button-groups/overview) |
 | `SplitButton` | a main action with a menu of related ones | [split-button](https://m3.material.io/components/split-button/overview) |
 | `IconButton` (`ui.tsx` `IconButton`, `IconLink`) | one icon action, labelled | [icon-buttons](https://m3.material.io/components/icon-buttons/overview) |
 | `Fab`, `ExtendedFab`, `FabMenu` (`ui.tsx` `FabMenu`) | the screen's main action, or a few related ones | [floating-action-button](https://m3.material.io/components/floating-action-button/overview), [extended-fab](https://m3.material.io/components/extended-fab/overview), [fab-menu](https://m3.material.io/components/fab-menu/overview) |

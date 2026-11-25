@@ -20,7 +20,6 @@ const PARTS = [
   '.mo-chip__remove',
   '.mo-menu__item',
   '.mo-tabs__tab',
-  '.mo-segmented-button__segment',
   '.mo-nav-bar__item',
   '.mo-nav-rail__item',
   '.mo-navigation-drawer__item',

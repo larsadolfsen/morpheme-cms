@@ -89,42 +89,60 @@
     --mo-comp-button-corners: var(--mo-comp-button-round);
   }
 }
+/* A connected group's corners, pressed corners and gap follow the buttons' size (md.comp.button-group.connected.<size>: inner corner 8, 8, 8, 16 and 20dp,
+   pressed 4, 4, 4, 12 and 16dp, between-space 2dp). The medium size is the theme's `small` (its default button); the group takes the size of its buttons. */
 @layer components {
+  :where(.mo-button-group).mo-is-connected {
+    --mo-comp-button-group-gap: var(--mo-comp-button-group-connected-small-between-space, 0.125rem);
+  }
   :where(.mo-button-group).mo-is-connected > * {
-    --mo-comp-button-group-inner: var(
-      --mo-comp-button-group-connected-small-inner-corner-corner-size,
-      calc(var(--mo-comp-block-radius-small) / 2)
-    );
+    --mo-comp-button-group-inner: var(--mo-comp-button-group-connected-small-inner-corner-corner-size, 0.5rem);
+    --mo-comp-button-group-pressed-inner: var(--mo-comp-button-group-connected-small-pressed-inner-corner-corner-size, 0.25rem);
   }
 }
-/* The corners between them follow the buttons' size (Material's 4, 8, 8, 16 and 20dp). */
 @layer components {
+  :where(.mo-button-group).mo-is-connected:has(> :is(.mo-button, .mo-icon-button).mo-is-xsmall) {
+    --mo-comp-button-group-gap: var(--mo-comp-button-group-connected-xsmall-between-space, 0.125rem);
+  }
   :where(.mo-button-group).mo-is-connected > :is(:where(.mo-button).mo-is-xsmall, :where(.mo-icon-button).mo-is-xsmall) {
-    --mo-comp-button-group-inner: var(
-      --mo-comp-button-group-connected-xsmall-inner-corner-corner-size,
-      calc(var(--mo-comp-block-radius-small) / 4)
-    );
+    --mo-comp-button-group-inner: var(--mo-comp-button-group-connected-xsmall-inner-corner-corner-size, 0.5rem);
+    --mo-comp-button-group-pressed-inner: var(--mo-comp-button-group-connected-xsmall-pressed-inner-corner-corner-size, 0.25rem);
   }
 }
 @layer components {
+  :where(.mo-button-group).mo-is-connected:has(> :is(.mo-button, .mo-icon-button).mo-is-medium) {
+    --mo-comp-button-group-gap: var(--mo-comp-button-group-connected-medium-between-space, 0.125rem);
+  }
   :where(.mo-button-group).mo-is-connected > :is(:where(.mo-button).mo-is-medium, :where(.mo-icon-button).mo-is-medium) {
     --mo-comp-button-group-inner: var(
       --mo-comp-button-group-connected-medium-inner-corner-corner-size,
       calc(var(--mo-comp-block-radius-small) / 2)
     );
+    --mo-comp-button-group-pressed-inner: var(--mo-comp-button-group-connected-medium-pressed-inner-corner-corner-size, 0.25rem);
   }
 }
 @layer components {
+  :where(.mo-button-group).mo-is-connected:has(> :is(.mo-button, .mo-icon-button).mo-is-large) {
+    --mo-comp-button-group-gap: var(--mo-comp-button-group-connected-large-between-space, 0.125rem);
+  }
   :where(.mo-button-group).mo-is-connected > :is(:where(.mo-button).mo-is-large, :where(.mo-icon-button).mo-is-large) {
-    --mo-comp-button-group-inner: var(--mo-comp-button-group-connected-large-inner-corner-corner-size, var(--mo-comp-block-radius-small));
+    --mo-comp-button-group-inner: var(--mo-comp-button-group-connected-large-inner-corner-corner-size, 1rem);
+    --mo-comp-button-group-pressed-inner: var(--mo-comp-button-group-connected-large-pressed-inner-corner-corner-size, 0.75rem);
   }
 }
 @layer components {
+  :where(.mo-button-group).mo-is-connected:has(> :is(.mo-button, .mo-icon-button).mo-is-xlarge) {
+    --mo-comp-button-group-gap: var(--mo-comp-button-group-connected-xlarge-between-space, 0.125rem);
+  }
   :where(.mo-button-group).mo-is-connected > :is(:where(.mo-button).mo-is-xlarge, :where(.mo-icon-button).mo-is-xlarge) {
-    --mo-comp-button-group-inner: var(
-      --mo-comp-button-group-connected-xlarge-inner-corner-corner-size,
-      calc(var(--mo-comp-block-radius-small) * 1.25)
-    );
+    --mo-comp-button-group-inner: var(--mo-comp-button-group-connected-xlarge-inner-corner-corner-size, 1.25rem);
+    --mo-comp-button-group-pressed-inner: var(--mo-comp-button-group-connected-xlarge-pressed-inner-corner-corner-size, 1rem);
+  }
+}
+/* A connected group's widest size on a wide screen (not an M3 token: M3 only says to consider a maximum width). */
+@layer components {
+  :where(.mo-button-group).mo-is-connected {
+    --mo-comp-button-group-connected-max-width: 30rem;
   }
 }
 /* A sample's button is the theme's smallest size at M3's extra small height (32dp; the theme's own extra small is taller),

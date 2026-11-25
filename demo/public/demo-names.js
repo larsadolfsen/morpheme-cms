@@ -41,7 +41,6 @@
     ['.mo-checkbox', () => 'Checkbox'],
     ['.mo-radio-button', () => 'RadioButton'],
     ['.mo-slider', () => 'Slider'],
-    ['.mo-segmented-button', () => 'SegmentedButton'],
     ['.mo-tabs', named('Tabs', 'tabs')],
     ['.mo-badge', named('Badge', 'badge')],
     ['.mo-divider', () => 'Divider'],

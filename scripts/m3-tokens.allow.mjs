@@ -8,15 +8,6 @@
 // through the rename map (scripts/m3-tokens.renames.mjs), which found these.
 export const allow = [
   {
-    token: '--mo-comp-button-group-connected-xsmall-inner-corner-corner-size',
-    theme: '@shape:extra-small',
-    m3: '8',
-    class: 'fix',
-    batch: 'buttons',
-    reason:
-      'Our xsmall connected button group has a 4 dp inner corner; M3 prints 8 (md.comp.button-group.connected.xsmall.inner-corner.corner-size).',
-  },
-  {
     token: '--mo-comp-navigation-rail-active-indicator-color',
     theme: '@role:surface-container-high',
     m3: '@role:secondary-container',

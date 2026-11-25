@@ -7,12 +7,12 @@
      retain a minimum of 48x48dp, even if the visual element, such as an icon, is smaller"; --mo-sys-target-size is 48 on touch and 44 for a
      mouse): an invisible area over a part that is lower or narrower than that, out from its middle. A part with a field, a button or a link in it
      (a removable chip, a button the editor types in) has none: the area would cover them. Low specificity (:where), so a part's own position wins. */
-  :where(.mo-button, .mo-icon-button, .mo-segmented-button__segment, a.mo-chip, button.mo-chip:not(:where(.mo-chip).mo-is-removable)):where(
+  :where(.mo-button, .mo-icon-button, a.mo-chip, button.mo-chip:not(:where(.mo-chip).mo-is-removable)):where(
     :not(:has(input, textarea, select, button, a))
   ) {
     position: relative;
   }
-  :where(.mo-button, .mo-icon-button, .mo-segmented-button__segment, a.mo-chip, button.mo-chip:not(:where(.mo-chip).mo-is-removable)):where(
+  :where(.mo-button, .mo-icon-button, a.mo-chip, button.mo-chip:not(:where(.mo-chip).mo-is-removable)):where(
       :not(:has(input, textarea, select, button, a))
     )::after {
     content: '';
@@ -40,9 +40,10 @@
   .mo-button-group > :is(.mo-button, .mo-icon-button) {
     --mo-sys-target-gap: var(--mo-comp-button-group-between, 0.5rem);
   }
-  /* On one line (connected, a split button, a segmented button): the neighbours are at the sides, so only the width is limited. */
+  /* On one line (connected, a split button): the neighbours are at the sides, so only the width is limited. */
   :where(.mo-button-group).mo-is-connected > :is(.mo-button, .mo-icon-button) {
-    --mo-sys-target-gap-inline: var(--mo-comp-button-group-connected-xsmall-between-space, 0.125rem);
+    --mo-sys-target-gap-block: 100vmax;
+    --mo-sys-target-gap-inline: var(--mo-comp-button-group-gap, var(--mo-comp-button-group-connected-small-between-space));
   }
   .mo-split-button > :is(.mo-button, .mo-icon-button) {
     --mo-sys-target-gap-inline: var(--mo-comp-split-button-gap, 0.125rem);
@@ -50,9 +51,6 @@
   /* A button that opens a menu under it: the area ends where the menu starts (the gap to the menu, 0.25rem, on each side). */
   .mo-dropdown-menu > :is(.mo-button, .mo-icon-button) {
     --mo-sys-target-gap-block: calc(2 * var(--mo-comp-dropdown-menu-gap, 0.25rem));
-  }
-  .mo-segmented-button > .mo-segmented-button__segment {
-    --mo-sys-target-gap-inline: 0px;
   }
   .mo-text-field__container > :is(.mo-icon-button, .mo-button),
   .mo-search-view__header > :is(.mo-icon-button, .mo-button),
