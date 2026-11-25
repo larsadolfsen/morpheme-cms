@@ -1,0 +1,6 @@
+{
+  "id": "names-status-tabs",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "On a page with a draft waiting, Published and Draft are tabs in the top bar"
+}

@@ -2,7 +2,8 @@
 // when they have no time), to edit either one, so a mistake on the live page can be fixed without touching the waiting changes. It is
 // the named slot `versionSwitch` of an app (AppDefinition.slots): the form draws the one of the first app installed that has it, else this one.
 import type { Version } from '../lib/versions.mjs';
-import { Button, Notice, SegmentedButton } from './ui';
+import { Button, Notice, SegmentedButton, type TabChoice } from './ui';
+import { materialIcon } from './icon';
 import { t } from './i18n';
 
 /** What the form gives the component of the slot `versionSwitch`. The functions do what the buttons of the form do, with a version id
@@ -28,7 +29,34 @@ export type VersionSwitchProps = {
   discard: (id?: string) => Promise<unknown>;
 };
 
-/** The core's switch: the live page and its waiting version, side by side. */
+/** The core's switch as Material 3 primary tabs in the screen's top app bar (`tabs` of FormFrame): `Published` and `Draft` (`Scheduled`), the
+ * open one is the version the form edits. `onEdit` is not called while something is saved. */
+export function versionTabs({
+  versions,
+  editing,
+  busy,
+  onEdit,
+}: Pick<VersionSwitchProps, 'versions' | 'editing' | 'busy' | 'onEdit'>): TabChoice<string> | undefined {
+  const waiting = versions.find((v) => v.id !== 'live');
+  if (!waiting) return undefined;
+  return {
+    label: t.forms.versions.switchLabel,
+    value: editing === 'live' ? 'live' : waiting.id,
+    options: [
+      { value: 'live', label: t.forms.versions.live, icon: materialIcon('public') },
+      {
+        value: waiting.id,
+        label: waiting.publishAt ? t.forms.versions.scheduled : t.forms.versions.draft,
+        icon: materialIcon(waiting.publishAt ? 'schedule' : 'edit_note'),
+      },
+    ],
+    onChange: (id) => {
+      if (!busy) onEdit(id);
+    },
+  };
+}
+
+/** The core's switch (an app's `versionSwitch` slot is drawn like this, in the form): the live page and its waiting version, side by side. */
 export default function VersionSwitch({ versions, editing, busy, onEdit }: VersionSwitchProps) {
   const waiting = versions.find((v) => v.id !== 'live');
   if (!waiting) return null;
