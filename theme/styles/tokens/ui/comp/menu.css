@@ -7,16 +7,8 @@
     --mo-comp-menus-standard-container-color: var(--mo-comp-menu-vibrant-surface, var(--mo-sys-color-tertiary-container));
     --mo-comp-menu-line: transparent;
     --mo-comp-menu-list-item-label-text-color: var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container));
-    --mo-comp-menu-item-icon-color: color-mix(
-      in srgb,
-      var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container)) 80%,
-      transparent
-    );
-    --mo-comp-menu-item-supporting-text: color-mix(
-      in srgb,
-      var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container)) 80%,
-      transparent
-    );
+    --mo-comp-menu-item-icon-color: var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container));
+    --mo-comp-menu-item-supporting-text: var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container));
     --mo-comp-menu-item-hover-surface: color-mix(
       in srgb,
       var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container)) 14%,
@@ -28,11 +20,7 @@
       --mo-comp-menu-vibrant-selected-text,
       var(--mo-sys-color-on-tertiary)
     );
-    --mo-comp-menu-group-label-text: color-mix(
-      in srgb,
-      var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container)) 80%,
-      transparent
-    );
+    --mo-comp-menu-group-label-text: var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container));
     --mo-comp-divider-color: color-mix(
       in srgb,
       var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container)) 30%,
