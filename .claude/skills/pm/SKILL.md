@@ -58,6 +58,8 @@ A PM session runs only as Sonnet with effort high (owner, 24 Nov 2026: "PMs may 
 approved plans (owner, 24 Nov 2026). It writes no code and reviews no pull request: the PM starts the sessions that build a plan and
 reviews their work itself. The CTO never pushes or merges: it sends the PM the exact text of a docs or skill change, and the PM has a session push it as a docs-only pull request and merges it (a spec or plan that belongs to one feature being built goes into that feature's branch, so it ships with the feature; every other change goes into `main`; owner, 25 Nov 2026), unless a release is being prepared and the merge would delay it; then it waits until the release is out (owner, 24 Nov 2026).
 
+**Questions go to the CTO** (owner, 25 Nov 2026: "All questions go through you and only [if] you can't answer it comes to me"). The PM sends every question and every report to the CTO session, never to the owner, and its sessions ask the PM, never the owner. The CTO answers what the owner's decisions and the order of priority answer, and brings only the rest to the owner. Wherever this skill says the PM asks, tells or reports to the owner, the PM does it through the CTO. When a session's permission check refuses a relayed yes and needs the owner's own words, the PM tells the CTO the session and the exact action, and the CTO gives the owner one line to paste there. Only while no CTO session runs does the PM ask the owner directly.
+
 **When no PM is running, the orchestrator merges.** The orchestrator is the session that started the other sessions for the owner
 (the owner's "To do list" session). While no PM session is active, it may merge the pull requests of the sessions it started, under
 section 3, and only after it has read the diff. A PM session is active when one exists that is not archived, also when it is idle: an
@@ -71,6 +73,8 @@ it started still never merge their own pull requests.
 **Take stock first (read-only).** Read what is planned for the line: `docs/superpowers/specs/`, `docs/superpowers/plans/` and the
 roadmap, the open pull requests in this repository and in `morpheme-staging`, and the owner's sessions (`list_sessions`). Start the
 one list of everything in flight (**Nothing left behind**) and keep it current.
+
+**A new contract moves every app and theme** (owner, 25 Nov 2026: "we update all apss when ever a new contract arrives"). The line that raises `APP_API` or `THEME_API` (`lib/contracts.mjs`) also moves every app and theme in `morpheme-apps` to the new contract, each with its next version and release note, in the same line, so the store offers all of them when the line is released.
 
 **The way of a change** (owner, 18 Nov 2026, `docs/superpowers/plans/2026-11-18-release-per-feature.md`; owner, 19 Nov 2026:
 branch → feature → `next` → live):
