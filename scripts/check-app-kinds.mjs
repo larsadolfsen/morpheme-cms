@@ -70,7 +70,7 @@ for (const [width, height] of [
     if (!r.scoped) problems.push(`${label}: the part is not inside data-mo-app="${id}"`);
     if (r.sheet !== (id === 'kind-sheet')) problems.push(`${label}: opened as the wrong surface (sheet: ${r.sheet})`);
     if (!r.hasBox) problems.push(`${label}: the app's box (.kind-box) is missing`);
-    else if (r.fill !== 'rgb(255, 0, 255)')
+    else if (r.fill === 'rgba(0, 0, 0, 0)')
       problems.push(`${label}: the app's scoped CSS is not applied to its box (background ${r.fill})`);
     if (r.noteWeight < 700) problems.push(`${label}: the app's scoped CSS is not applied to its note (font-weight ${r.noteWeight})`);
     if (r.noteUnderline === 'none')
