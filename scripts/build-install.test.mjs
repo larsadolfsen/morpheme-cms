@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { blobId } from '../lib/git.mjs';
 import { bindingMessages, installForBuild, installMessages, writeInstalls, INSTALLS_PATH } from './build-install.mjs';
 
-const NEXT = { theme: 8, apps: [8] }; // a fake higher contract: this package's numbers are not raised here
+const NEXT = { theme: 8, apps: [8] }; // a fake contract of these tests: the store's answers do not follow this package's own numbers
 const FOLDERS = { themes: 'src/themes', apps: 'src/apps' };
 const T = 'theme_fa395ad84690acbd';
 const A = 'app_0123456789abcdef';
