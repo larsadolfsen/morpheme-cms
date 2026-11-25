@@ -55,13 +55,21 @@ async function checkScrollTimePicker(width, height, theme) {
     });
     if (s.wide) problems.push(`${label} #${i}: the picker is wider than its room`);
   });
-  // A key moves the value one step; the last sample is the live inline picker, at 09:15 (hour 9).
+  // The last sample is the live inline picker, with no time: it starts at the current hour and the form field stays empty until a key moves the
+  // hour one step (up at the end of the day, as there is no wrap-around).
   const hour = samples.last().locator('[role="spinbutton"]').first();
+  const value = samples.last().locator('xpath=ancestor::*[@data-time-picker]//input[@data-time-picker-value]');
+  if ((await value.inputValue()) !== '') problems.push(`${label}: the inline picker wrote a time before anyone changed it`);
+  const before = Number(await hour.getAttribute('aria-valuenow'));
+  const [key, to] = before < 23 ? ['ArrowDown', before + 1] : ['ArrowUp', before - 1];
   await hour.focus();
-  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press(key);
   await page.waitForTimeout(400);
-  const now = await hour.getAttribute('aria-valuenow');
-  if (now !== '10') problems.push(`${label}: Arrow Down moved the hour to ${now}, not 10`);
+  const now = Number(await hour.getAttribute('aria-valuenow'));
+  const expected = `${String(to).padStart(2, '0')}:00`;
+  if (now !== to) problems.push(`${label}: ${key} moved the hour from ${before} to ${now}, not ${to}`);
+  if ((await value.inputValue()) !== expected)
+    problems.push(`${label}: the form field holds "${await value.inputValue()}" after a change, not ${expected}`);
   if (!(await hour.evaluate((el) => el.matches(':focus-visible')))) problems.push(`${label}: the field has no :focus-visible after a key`);
   await page.close();
 }

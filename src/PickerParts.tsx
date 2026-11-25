@@ -181,7 +181,7 @@ export default function PickerParts() {
               <SiteTimePickerContainer view="scroll" kind="scroll" selecting="hour" hour={14} minute={30} texts={times} timeFormat="12h" />
             </div>
             <div className="mo-editor-picker-sample" role="group" aria-label={`${say.scrollPicker}: ${say.inline}`}>
-              <SiteTimePicker inline label={say.time} name="time-inline" value="09:15" onChange={() => {}} />
+              <SiteTimePicker inline label={say.time} name="time-inline" onChange={() => {}} />
             </div>
           </div>
           {/* As wide as a phone on its side: scrolled sideways on a narrower screen. */}

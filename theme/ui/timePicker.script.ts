@@ -256,7 +256,9 @@ export function timePickerField(field: HTMLElement) {
 
   // The scroll fields. A scroll (touch, wheel, a drag, a key) moves the selection with the value in the middle: the new value is drawn at once (the
   // attributes of the items, no new drawing) and written when the scrolling has come to rest, where the snapping has put it.
+  // Only a scroll that changed the value writes it: the scrolling the picker does itself, to put a field at its time, writes nothing.
   let settling: ReturnType<typeof setTimeout> | undefined;
+  let moved = false;
   dialog.addEventListener(
     'scroll',
     (e) => {
@@ -267,6 +269,7 @@ export function timePickerField(field: HTMLElement) {
       const index = indexAtScroll(el.scrollTop, pitchOf(el), values.length);
       const value = values[index];
       if (value !== valueOf(name)) {
+        moved = true;
         state = name === 'hour' ? { ...state, hour: hourOfShown(value, twelve, state.hour >= 12) } : { ...state, minute: value };
         el.querySelectorAll<HTMLElement>('[data-time-picker-item]').forEach((item) => {
           if (Number(item.dataset.timePickerItem) === value) item.dataset.selected = '';
@@ -280,7 +283,8 @@ export function timePickerField(field: HTMLElement) {
       }
       clearTimeout(settling);
       settling = setTimeout(() => {
-        commit();
+        if (moved) commit();
+        moved = false;
         void render();
       }, 150);
     },
@@ -424,10 +428,10 @@ export function timePickerField(field: HTMLElement) {
     close();
   });
 
-  // Inline the picker is drawn at once, in the page, from the time of the form field (else now).
+  // Inline the picker is drawn at once, in the page, from the time of the form field (else now as the starting position: the form field stays
+  // empty until the person changes the time, so a form never posts a time nobody chose).
   if (inline) {
     state = start();
-    if (!input.value) input.value = timeString(state.hour, state.minute);
     void drawing().then(() => render(undefined, true));
   }
 }
