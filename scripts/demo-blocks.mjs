@@ -213,6 +213,9 @@ export function pageProblems({ index, pages }, registry = blockPages, check = { 
     if (!text.includes(`\n# ${page.title}\n`)) problems.push(`${blockPageFile(slug)} has no "# ${page.title}" heading.`);
     if (!text.includes('\n[All blocks](/blocks/)\n'))
       problems.push(`${blockPageFile(slug)} has no link back to the index ("[All blocks](/blocks/)").`);
+    // The first paragraph under the heading says what the page shows; the link back is not it.
+    if (new RegExp(`\\n# ${page.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\n+\\[All blocks\\]\\(/blocks/\\)\\n`).test(text))
+      problems.push(`${blockPageFile(slug)} starts with the link back to the index; its first paragraph says what the page shows.`);
     for (const [, type, props = ''] of examplesOf(text)) {
       if (page.kind !== 'sections' && !page.types.includes(type))
         problems.push(
