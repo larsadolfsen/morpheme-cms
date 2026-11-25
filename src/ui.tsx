@@ -889,13 +889,7 @@ export function ColorField({
         }}
       />
       <ColorText id={id} value={value} onChange={onChange} />
-      <BottomSheet
-        ref={dialog}
-        tabIndex={-1}
-        aria-label={label}
-        onClick={(e) => e.target === dialog.current && close()}
-        className="mo-editor-focus-quiet"
-      >
+      <BottomSheet ref={dialog} tabIndex={-1} aria-label={label} onClick={(e) => e.target === dialog.current && close()}>
         {opened > 0 && (
           <ColorSheet key={opened} id={id} title={label} value={value} swatches={swatches} onChange={onChange} onClose={close} />
         )}
@@ -2259,7 +2253,6 @@ export function Menu({
           // The button has the focus again (the dialog does it too where the browser does, but not for a touch).
           if (anchor?.isConnected) openerOf(anchor)?.focus();
         }}
-        className="mo-editor-focus-quiet"
       >
         <SheetTitle title={label} onClose={() => sheet.current?.close()} />
         <SheetList div>
@@ -2275,7 +2268,7 @@ export function Menu({
       ref={menu}
       role="menu"
       aria-label={label}
-      className="mo-editor-menu mo-dropdown-menu__menu mo-editor-focus-quiet"
+      className="mo-editor-menu mo-dropdown-menu__menu"
       popover="manual"
       data-menu-attached={attached ? '' : undefined}
       data-menu-popup={popup}
@@ -2649,13 +2642,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
           );
         })}
       </ul>
-      <BottomSheet
-        ref={dialog}
-        tabIndex={-1}
-        aria-label={tile?.name}
-        onClick={(e) => e.target === dialog.current && close()}
-        className="mo-editor-focus-quiet"
-      >
+      <BottomSheet ref={dialog} tabIndex={-1} aria-label={tile?.name} onClick={(e) => e.target === dialog.current && close()}>
         {editing.opened > 0 && tile?.onChange && (
           <ColorSheet
             key={editing.opened}
@@ -4439,7 +4426,6 @@ export function Filters({
       <BottomSheet
         ref={dialog}
         tabIndex={-1}
-        className="mo-editor-focus-quiet"
         aria-label={title}
         onClick={(e) => e.target === dialog.current && close()}
         onClose={(e) => {
