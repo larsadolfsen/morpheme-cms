@@ -1,0 +1,136 @@
+{
+  "version": "0.19.6",
+  "date": "2026-11-25",
+  "notes": [
+    {
+      "id": "card-divider",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Card divider",
+      "text": "A line between a card’s text and its buttons helps long cards read clearly. Open a card with buttons and turn on Divider. The line runs the full width of the card, and it is off until you turn it on."
+    },
+    {
+      "id": "m3-color-schemes",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Color schemes",
+      "text": "Your site's colors follow Material 3. Open Colors, pick a scheme such as Tonal spot or Vibrant and choose a source color, or pick Custom to set Primary, Secondary and Tertiary yourself. Saved colors stay as they are until you change them."
+    },
+    {
+      "id": "one-divider",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Divider",
+      "text": "A line between two parts of your text now takes one press. Choose Divider on the text bar, or type --- on its own line. Every line on your site and in the editor now shares the same look."
+    },
+    {
+      "id": "divider-toolbar",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Helping lines",
+      "text": "Dotted lines show where sections and blocks sit, but they can crowd the page. Press Hide helping lines on the text bar to see your text without them, and Show helping lines to bring them back. The section you’re in keeps its lines."
+    },
+    {
+      "id": "names-7c-packs-out",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A site that chose the Phosphor or Lucide icon pack shows Material Symbols instead"
+    },
+    {
+      "id": "contract-8-apps",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "An app or theme written for contract 8 keeps its own CSS to its own parts, may add a promotion kind that opens as a dialog or a bottom sheet, and uses Material 3’s names"
+    },
+    {
+      "id": "names-tabs-other-screens",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "An app's Settings and Information, and the search preview's Mobile and Desktop, are tabs without icons"
+    },
+    {
+      "id": "m3-names-4-migrate-code",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "An update that can’t rewrite your own themes and apps names the files and lines to fix"
+    },
+    {
+      "id": "contract-8-imports",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Apps and themes import only from a public list of the CMS’s files; a check names any other import with the nearest allowed one"
+    },
+    {
+      "id": "m3-block-hints",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Block descriptions in the Insert menu use the words of Material 3"
+    },
+    {
+      "id": "medium-buttons-selection",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Buttons have a medium size, and large and extra large buttons have the sizes of Material 3"
+    },
+    {
+      "id": "editor-buttons-centred",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Buttons you type in the editor have their label and icon centred, as on the site"
+    },
+    {
+      "id": "swipeable-cards",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Cards as a carousel on phones follow Material 3 and offer five layouts: uncontained, multi-browse, hero, center-aligned hero and full-screen"
+    },
+    {
+      "id": "m3-names-8i-items",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "List items no longer have a side-by-side layout, and the update removes it from your own themes and apps"
+    },
+    {
+      "id": "one-line-list-items",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "List items with only a name are one line high, not two"
+    },
+    {
+      "id": "names-status-tabs",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On a page with a draft waiting, Published and Draft are tabs in the top bar"
+    },
+    {
+      "id": "editor-cursor-clear-of-bars",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "On a phone, the cursor stays in view above the keyboard and below the text toolbar"
+    },
+    {
+      "id": "names-brand-logos",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Share buttons and sign-in buttons draw each brand’s real logo under every icon pack"
+    },
+    {
+      "id": "editor-lead",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The first paragraph of a page or post is drawn as the lead in the text editor, as it is on the site"
+    },
+    {
+      "id": "section-line-full-width",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The line at the start of a section runs the full width of the text field"
+    },
+    {
+      "id": "update-card-current-version",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The update card on the start screen counts only the current version"
+    }
+  ]
+}
