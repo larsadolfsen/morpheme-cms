@@ -789,7 +789,7 @@ export default function Parts({ env }: { env: Env }) {
                   color: wheelDots(wheel)[i].color,
                   name: [t.colors.dynamic.source, t.colors.preview.secondary, t.colors.preview.tertiary][i],
                   disabled: !canSetBaseColor(wheel, which),
-                  onChange: (color, lock) => setWheel((d) => withBaseColor(d, which, color, lock)),
+                  onChange: (color, lock) => setWheel((d) => withBaseColor(d, which, color)),
                   ...(which === 'source' && {
                     locked: !!wheel.sourceLocked,
                     onLock: (locked: boolean) => setWheel((d) => ({ ...d, sourceLocked: locked || undefined })),
