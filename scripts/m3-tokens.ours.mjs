@@ -741,4 +741,9 @@ export const ours = [
     reason:
       'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
   },
+  {
+    token: '--mo-comp-scroll-field-item-selected-label-text-weight',
+    reason:
+      'The weight of the selected value in a scroll field; M3 prints the selected value in a larger size (display-large), not a weight.',
+  },
 ];

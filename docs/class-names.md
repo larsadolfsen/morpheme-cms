@@ -6,6 +6,8 @@ built on them, starts with `mo-`, inside contract 7. No old name is kept for com
 `docs/superpowers/plans/mo-names/map.json` (made once, before the renames, and kept as the record of the old names); a theme or app author reads it in
 [`tailwind-migration.md`](tailwind-migration.md), *The `mo-` names*.
 
+From contract 8 an app's own classes are plain names, scoped to the app by the build; `check:mo-names` does not read an app written to 8, and `check:app-classes` refuses a `mo-` class the CMS does not have (`docs/app-contract.md`, *Contract 8: scoped CSS*).
+
 ## The pattern
 
 It follows WordPress (`wp-block-<name>`, `wp-block-<name>__<part>`, `is-<state>`, `has-<what>`), with two differences: `mo-` is on everything,

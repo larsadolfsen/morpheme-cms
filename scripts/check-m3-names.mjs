@@ -3,9 +3,9 @@
 // write, and says which of them are Material 3's name (docs/m3-tokens/), which the map renames (scripts/m3-names.json: tokens, classes, props, reused), which are
 // ours (scripts/m3-names.ours.mjs, each with the reason M3 has none) and which are none of these yet (the names the CTO reviews).
 //
-// Batch 1 (0.19.6): `--report` only; it never fails. Batch 8 makes it fail on any name that is not M3's, the editor's or on the ours list, and on an ours entry M3 has
-// since got a token for (and it takes over the naming part of check:m3-tokens --report). Until then the run without `--report` prints the same and exits 0.
-// Run: npm run check:m3-names -- --report. Tested in scripts/check-m3-names.test.mjs.
+// Contract 8 (batch 8c of 0.19.6): the run without `--report` fails on any name that is not M3's, the editor's or on the ours list, on a name the map renames that is
+// still declared or written (unless M3 also uses that name: a reused one), and on an ours entry M3 has since got a token for. `--report` prints the same and never fails.
+// Run: npm run check:m3-names [-- --report]. Tested in scripts/check-m3-names.test.mjs.
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -141,6 +141,21 @@ export function staleOurs(m3, ours) {
   return ours.tokens.filter((e) => !e.token.endsWith('*') && m3.tokens.has(e.token)).map((e) => e.token);
 }
 
+/**
+ * What fails the check: every unknown name, every old name of the map still in use (a token M3 also names is a reused name, not an old one), every stale ours entry.
+ * @returns {string[]}
+ */
+export function problems({ tokens, classes, stale }, m3) {
+  const out = [];
+  for (const n of tokens.unknown) out.push(`token ${n}: neither M3's, renamed nor on the ours list (scripts/m3-names.ours.mjs)`);
+  for (const n of classes.unknown) out.push(`class ${n}: neither M3's, renamed nor on the ours list (scripts/m3-names.ours.mjs)`);
+  for (const n of tokens.renamed)
+    if (!m3.tokens.has(n)) out.push(`token ${n}: the map renames it (scripts/m3-names.json) but it is still declared`);
+  for (const n of classes.renamed) out.push(`class ${n}: the map renames it (scripts/m3-names.json) but it is still written`);
+  for (const n of stale) out.push(`ours entry ${n}: M3 has a token for it now, so it leaves scripts/m3-names.ours.mjs`);
+  return out;
+}
+
 /** The text of the report. */
 export function formatReport({ tokens, classes, map, ours, stale }) {
   const lines = [];
@@ -177,9 +192,15 @@ async function main() {
   const { ours } = await import('./m3-names.ours.mjs');
   const tokens = classifyTokens(declaredTokens(texts).keys(), m3, map, ours);
   const classes = classifyClasses(selectorClasses(texts).keys(), m3, map, ours);
-  console.log(formatReport({ tokens, classes, map, ours, stale: staleOurs(m3, ours) }));
-  if (!process.argv.includes('--report'))
-    console.log('\ncheck:m3-names does not fail yet (batch 8 of 0.19.6 makes it fail); it ran as --report.');
+  const stale = staleOurs(m3, ours);
+  console.log(formatReport({ tokens, classes, map, ours, stale }));
+  if (process.argv.includes('--report')) return;
+  const found = problems({ tokens, classes, stale }, m3);
+  if (found.length) {
+    console.error(`\ncheck:m3-names failed (${found.length}):\n${found.join('\n')}`);
+    process.exit(1);
+  }
+  console.log("\ncheck:m3-names: every name is M3's, the editor's or ours.");
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) await main();

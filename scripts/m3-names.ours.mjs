@@ -818,6 +818,10 @@ export const ours = {
     { token: '--mo-comp-icon-color', reason: "The colour of an icon in its part's context." },
     { token: '--mo-comp-lightbox-ink', reason: "The lightbox's text colour; M3 has no lightbox." },
     { token: '--mo-comp-loading-indicator-shape-size', reason: "The loading indicator's shape size; M3 prints it on the specs page." },
+    {
+      token: '--mo-comp-scroll-field-item-selected-label-text-weight',
+      reason: 'The weight of the selected value in a scroll field; M3 prints the selected value in a larger size, not a weight.',
+    },
     { token: '--mo-comp-radio-button-offset', reason: "The radio button's offset in its target; M3 prints it on the specs page." },
     { token: '--mo-comp-ripple-opacity', reason: "The ripple's opacity; the ripple is a script effect, not an M3 component." },
     { token: '--mo-comp-side-panel-width', reason: "The editor's side panel width; M3's side sheet has its own tokens." },

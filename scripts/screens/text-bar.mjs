@@ -1069,6 +1069,63 @@ async function checkToolbarBox() {
   }
 }
 
+/** The cursor stays clear of the text bar (stuck at the top) and the Save bar (and the keyboard) on a phone: with the keyboard open (the window shorter), the
+ * arrow keys step up and down through paragraphs, a divider and a Cards block, and after every step the cursor (or the selected divider or block) is
+ * between the two bars (src/caretScroll.mjs, keepCaret in MarkdownEditor.tsx). ProseMirror alone left it 5 px from the window's top edge, under the bar. */
+async function checkCaretClearOfBars() {
+  const label = '390px cursor clear of the bars';
+  const page = await browser.newPage({ viewport: { width: 390, height: 800 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  for (let i = 0; i < 8; i++) {
+    await page.keyboard.type(`Above ${i} with some words`);
+    await page.keyboard.press('Enter');
+  }
+  await page.keyboard.type('---');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Between');
+  await page.keyboard.press('Enter');
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Show content and actions in cards.' }).first().click();
+  await page.waitForTimeout(400);
+  await page.setViewportSize({ width: 390, height: 420 });
+  await page
+    .locator('.ProseMirror > p')
+    .nth(2)
+    .tap({ position: { x: 30, y: 5 } });
+  const bands = () =>
+    page.evaluate(() => {
+      const box = (c) => document.querySelector(c)?.getBoundingClientRect();
+      const sel = getSelection();
+      const range = sel.rangeCount ? sel.getRangeAt(0) : null;
+      const picked = document.querySelector('.ProseMirror-selectednode')?.getBoundingClientRect();
+      const r = picked ?? (range && (range.getClientRects()[0] ?? range.startContainer.parentElement?.getBoundingClientRect()));
+      return {
+        r: r && { top: r.top, bottom: r.bottom },
+        top: box('.mo-editor-tools-bar')?.bottom ?? 0,
+        save: box('.mo-editor-save-bar')?.top ?? innerHeight,
+      };
+    });
+  for (const [key, steps] of [
+    ['ArrowDown', 14],
+    ['ArrowUp', 14],
+  ])
+    for (let i = 0; i < steps; i++) {
+      await page.keyboard.press(key);
+      await page.waitForTimeout(450);
+      const { r, top, save } = await bands();
+      // A block taller than the band cannot be between the bars: its top then is (the caret in one of its fields is the browser's to keep).
+      if (r && r.bottom - r.top < save - top - 16 && (r.top < top - 1 || r.bottom > save + 1))
+        problems.push(
+          `${label}: ${key} step ${i + 1}: the cursor is at ${Math.round(r.top)}-${Math.round(r.bottom)} px, behind a bar (free: ${Math.round(top)}-${Math.round(save)})`,
+        );
+    }
+  await page.close();
+}
+
 export function register(unit) {
   for (const width of [375, 1280]) unit(`Preview icon ${width}`, () => checkPreviewIcon(width));
 
@@ -1088,4 +1145,5 @@ export function register(unit) {
   ])
     unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
   unit('checkToolbarBox', () => checkToolbarBox());
+  unit('checkCaretClearOfBars', () => checkCaretClearOfBars());
 }

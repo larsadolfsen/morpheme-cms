@@ -826,6 +826,8 @@ export const parts = {
       minutes: 'The minutes',
       wrong: 'Typed wrong',
       twelveHours: '12-hour',
+      scrollPicker: 'Scrolling',
+      inline: 'In the page',
       horizontal: 'The dial beside them',
     },
   },
