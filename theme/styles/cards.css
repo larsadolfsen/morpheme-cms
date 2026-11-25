@@ -91,6 +91,35 @@
     }
   }
 
+  /* Uncontained multi-aspect ratio (M3, Carousel, Specs: "Uncontained multi-aspect ratio carousels only have leading padding, with 8dp of padding
+     between items"; leading padding 16dp, top and bottom padding 8dp, 8dp between elements, item corner radius 28dp). Every item is as high as the
+     row and as wide as its aspect ratio makes it (--mo-comp-carousel-item-aspect, width / height, 9:16 to 16:9: Guidelines, "Item widths can range
+     anywhere between 9:16 for min width size to 16:9 for max width"). Scrolling is free (Guidelines: "Default: Standard scrolling. Recommended for
+     uncontained layouts"), so no snapping. The 16dp leading padding is the bleed on a phone (the row reaches the screen's edge there and the
+     first item starts at the page's gutter); from medium it is the text's own edge, as the uncontained layout's. The 8dp above and below also
+     keep the focus ring of an item from being clipped by the row's overflow. */
+  :where(.mo-carousel).mo-is-multi-aspect .mo-carousel__items {
+    box-sizing: content-box;
+    height: var(--mo-comp-carousel-height, 14rem);
+    padding-block: 0.5rem;
+    scroll-snap-type: none;
+  }
+  @container carousel (width < 35.5rem) {
+    :where(.mo-carousel).mo-is-multi-aspect .mo-carousel__items {
+      padding-inline: var(--mo-comp-carousel-bleed, 0rem) 0;
+    }
+  }
+  :where(.mo-carousel).mo-is-multi-aspect .mo-carousel__item {
+    width: auto;
+    height: 100%;
+    aspect-ratio: var(--mo-comp-carousel-item-aspect, 1);
+    border-radius: var(
+      --mo-comp-carousel-item-container-shape,
+      var(--mo-comp-block-radius)
+    ); /* the focus ring follows the item's corners */
+    scroll-snap-align: none;
+  }
+
   /* The contained layouts: within the text's width and as high as the theme says, what is in each item filling its
      mask with the item's corners; multi-browse's and a hero's masks moved and clipped by carouselLayout.ts (before it
      runs, every item as wide as a large one). */
