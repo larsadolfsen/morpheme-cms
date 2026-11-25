@@ -231,6 +231,106 @@ async function checkMainNavColor(width, height) {
   }
 }
 
+/** Every surface keeps its Material 3 container role (the drawer and rail lost theirs twice: 0.19.5 and 0.19.7). Each row is one variant or state of a
+ * component with its own selector, the role M3's Specs page prints for it and the page that shows it; a variant that differs on purpose is its own
+ * row (the full-screen search view is Surface container low, the divided one high; a standard bottom sheet at side-sheet width is a side sheet).
+ * The colors page's preview shows the site's own colours in both schemes, so it is not measured, and the docked search view only draws while open. Measured light and dark at 1280: the computed background of every visible match must equal the role painted on a probe in the same page. */
+const SURFACE_ROLES = [
+  // [component and variant, selector, role, hash that shows it]
+  ['Navigation drawer, standard', '.mo-navigation-drawer__standard', 'surface-container', ''],
+  ['Navigation rail frame', '.mo-editor-main-rail-frame', 'surface-container', ''],
+  ['Top app bar, at rest', '.mo-top-app-bar:not([data-stuck])', 'surface', ''],
+  ['Page', 'body', 'surface', ''],
+  ['Search bar', '.mo-search-bar', 'surface-container-high', ''],
+  ['Dashboard widget (outlined card)', '.mo-editor-widget-list.mo-is-outlined, .mo-editor-widget-text.mo-is-outlined', 'surface', ''],
+  ['Card, filled', '.mo-card.mo-is-filled', 'surface-container-highest', ''],
+  ['Card, elevated', '.mo-card.mo-is-elevated', 'surface-container-low', ''],
+  ['Rich tooltip', '.mo-tooltip.mo-is-rich', 'surface-container', ''],
+  ['Theme list row', '.mo-editor-themes li, main li', 'surface', 'appearance/themes'],
+  ['Navigation drawer, modal', '.mo-navigation-drawer:not(.mo-navigation-drawer__standard)', 'surface-container', 'developer/parts/ui'],
+  ['Top app bar, scrolled', '.mo-top-app-bar[data-stuck]', 'surface-container', 'developer/parts/ui'],
+  ['Navigation bar', '.mo-nav-bar', 'surface-container', 'developer/parts/ui'],
+  ['Toolbar, docked', '.mo-toolbar.mo-is-standard', 'surface-container', 'developer/parts/ui'],
+  ['Card, outlined (not selected)', '.mo-card.mo-is-outlined:not(.mo-is-selected)', 'surface', 'developer/parts/ui'],
+  ['Card, outlined selected', '.mo-card.mo-is-outlined.mo-is-selected', 'secondary-container', 'developer/parts/ui'],
+  ['Side sheet, standard', '.mo-sheet__container.mo-is-side:not(.mo-sheet__modal)', 'surface', 'developer/parts/ui'],
+  ['Side sheet, modal', '.mo-sheet__modal', 'surface-container-low', 'developer/parts/ui'],
+  ['Bottom sheet', '.mo-sheet__container.mo-is-bottom:not([data-wide="side-sheet"])', 'surface-container-low', 'developer/parts/ui'],
+  [
+    'Bottom sheet, standard at side-sheet width (a side sheet)',
+    '.mo-sheet__container.mo-is-bottom[data-wide="side-sheet"]',
+    'surface',
+    'developer/parts/ui',
+  ],
+  ['Dialog', '.mo-dialog:not(.mo-is-full-screen)', 'surface-container-high', 'developer/parts/ui'],
+  ['Menu', '.mo-menu:not(.mo-is-vibrant):not(:has(> .mo-menu__group:first-child))', 'surface-container-low', 'developer/parts/ui'],
+  ['Menu, vibrant', '.mo-menu.mo-is-vibrant:not(:has(> .mo-menu__group:first-child))', 'tertiary-container', 'developer/parts/ui'],
+  [
+    'Menu group (gap between groups)',
+    '.mo-menu:not(.mo-is-vibrant):not(.mo-menu__groups-divider) > .mo-menu__group',
+    'surface-container-low',
+    'developer/parts/ui',
+  ],
+  [
+    'Search view, full screen (dialog)',
+    '.mo-search:not(.mo-is-divided) > dialog.mo-search-view',
+    'surface-container-low',
+    'developer/parts/ui',
+  ],
+  [
+    'Search view, divided style (dialog)',
+    '.mo-search.mo-is-divided > dialog.mo-search-view',
+    'surface-container-high',
+    'developer/parts/ui',
+  ],
+  ['Scroll field list', '.mo-scroll-field__list', 'surface-container-lowest', 'developer/parts/ui'],
+];
+
+async function checkSurfaceRoles(width, height) {
+  const label = `${width}px surface roles`;
+  for (const scheme of ['light', 'dark']) {
+    const page = await browser.newPage({ viewport: { width, height }, colorScheme: scheme });
+    page.on('pageerror', (e) => problems.push(`${label} ${scheme}: ${e.message}`));
+    await openEditor(page, site);
+    await page.waitForSelector('.mo-top-app-bar', { state: 'attached' });
+    for (const hash of [...new Set(SURFACE_ROLES.map((r) => r[3]))]) {
+      await page.evaluate((h) => (location.hash = h), hash);
+      await page.waitForTimeout(900);
+      const rows = SURFACE_ROLES.filter((r) => r[3] === hash).map(([name, selector, role]) => ({ name, selector, role }));
+      const out = await page.evaluate((rows) => {
+        const paint = (role) => {
+          const probe = document.createElement('div');
+          probe.style.cssText = `position:fixed;inline-size:1px;block-size:1px;background:var(--mo-sys-color-${role})`;
+          document.body.append(probe);
+          const c = getComputedStyle(probe).backgroundColor;
+          probe.remove();
+          return c;
+        };
+        return rows.map((r) => {
+          const seen = new Set();
+          for (const e of document.querySelectorAll(r.selector)) {
+            const b = e.getBoundingClientRect();
+            // A closed dialog and a hidden panel have no box: only what is drawn is measured.
+            if (b.width > 0 && b.height > 0) seen.add(getComputedStyle(e).backgroundColor);
+          }
+          return { ...r, expected: paint(r.role), seen: [...seen] };
+        });
+      }, rows);
+      for (const r of out) {
+        // A row that matches nothing drawn would pass for ever: every row but the rail (it shows at a phone width; checkMainNavColor measures it) needs one.
+        if (!r.seen.length && r.name !== 'Navigation rail frame')
+          problems.push(`${label} ${scheme} #${hash || 'start'}: ${r.name} (${r.selector}) matched nothing drawn`);
+        for (const c of r.seen)
+          if (c !== r.expected)
+            problems.push(
+              `${label} ${scheme} #${hash || 'start'}: ${r.name} (${r.selector}) is ${c}, M3's role is ${r.role} (${r.expected})`,
+            );
+      }
+    }
+    await page.close();
+  }
+}
+
 /** Why the site can't update itself shows on the start screen (BlockedUpdateNotice.tsx, reasons in src/cmsBlocked.mjs), in each state the Worker's
  * status can have: the notice has its title, its sentence and a "Read more" link to the Morpheme page, stays inside the screen and does not
  * overlap what is under it; a site with nothing wrong, or a problem with no newer version waiting, shows none. */
@@ -1109,6 +1209,8 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkMainNavColor ${width}`, () => checkMainNavColor(width, height));
+
+  unit('checkSurfaceRoles 1280', () => checkSurfaceRoles(1280, 900));
 
   for (const [width, height] of [
     [375, 800],

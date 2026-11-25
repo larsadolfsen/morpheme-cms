@@ -397,12 +397,12 @@ export const ours = [
   {
     token: '--mo-comp-navigation-drawer-surface',
     reason:
-      "The expanded rail, standard and modal: the Navigation rail page prints its Container role as Surface container (Specs, Color); the token table prints md.comp.nav-rail.expanded.container.color as surface, the page's own colour, so the part reads this one.",
+      "The expanded rail, standard and modal: the Navigation rail page prints its Container role as Surface container (https://m3.material.io/components/navigation-rail/specs, Color); the token table prints md.comp.nav-rail.expanded.container.color as surface, the page's own colour, so the part reads this one.",
   },
   {
     token: '--mo-comp-navigation-rail-surface',
     reason:
-      "The collapsed rail: the Navigation rail page prints its Container role as Surface container (Specs, Color); the token table prints md.comp.nav-rail.collapsed.container.color as surface, the page's own colour, so the part reads this one.",
+      "The collapsed rail: the Navigation rail page prints its Container role as Surface container (https://m3.material.io/components/navigation-rail/specs, Color); the token table prints md.comp.nav-rail.collapsed.container.color as surface, the page's own colour, so the part reads this one.",
   },
   {
     token: '--mo-comp-navigation-drawer-row-gap',
