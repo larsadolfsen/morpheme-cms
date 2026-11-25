@@ -18,7 +18,7 @@ export const allow = [
   { file: 'theme/styles/tokens/material/comp/list.css', rule: 'mix', max: 1, why: REST },
   { file: 'theme/styles/tokens/ui/comp/button.css', rule: 'mix', max: 2, why: REST },
   { file: 'theme/styles/tokens/ui/comp/icon-button.css', rule: 'mix', max: 1, why: REST },
-  { file: 'theme/styles/tokens/ui/comp/menu.css', rule: 'mix', max: 5, why: REST },
+  { file: 'theme/styles/tokens/ui/comp/menu.css', rule: 'mix', max: 2, why: REST },
   { file: 'theme/styles/ui/bottom-sheet.css', rule: 'mix', max: 2, why: REST },
   { file: 'theme/styles/ui/buttons.css', rule: 'mix', max: 5, why: REST },
   { file: 'theme/styles/ui/chips.css', rule: 'mix', max: 2, why: REST },
