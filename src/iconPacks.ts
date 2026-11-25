@@ -5,7 +5,7 @@
 // else the standard theme's). The packs' icons are read as files: the editor draws them as they are, beside the icons it
 // draws itself, which are the pack in use's (themePlugin in packages/editor/site/theme.mjs).
 import { packInUse, packTheme, themePackId } from '../site/iconPacks.mjs';
-import { STANDARD_THEME } from './store';
+import { STANDARD_THEME, type StoreRecord } from './store';
 import { theme, themes } from './themes';
 
 export type IconPack = {
@@ -24,6 +24,8 @@ export type IconPack = {
   includes?: { name: string; author: string; license: string; licenseFile: string; icons: string[] }[];
   /** A few of its icons' files, to show what it looks like (SAMPLES). */
   samples: string[];
+  /** Where it came from when it was installed from the store (its store.json). */
+  store?: StoreRecord;
 };
 
 /** The icons each pack shows of itself, by the names the site draws them by. */
@@ -47,6 +49,7 @@ const files = import.meta.glob<string>(
   ],
   { eager: true, query: '?raw', import: 'default', exhaustive: true },
 );
+const records = import.meta.glob<StoreRecord>('/src/icon-packs/*/store.json', { eager: true, import: 'default' });
 const chosen = import.meta.glob<{ pack?: string }>('/src/data/icons.json', { eager: true, import: 'default' })['/src/data/icons.json'];
 
 /** A pack's id from the path of a file in it: a theme's (src/themes/<theme>/icon-packs/<pack>/) or the system's (the
@@ -69,6 +72,8 @@ export const iconPacks: IconPack[] = Object.entries(manifests)
       license: m.license,
       samples: SAMPLES.map((name) => files[`${folder}${name}.svg`]).filter(Boolean),
     };
+    const record = records[`/src/icon-packs/${id}/store.json`];
+    if (record) pack.store = record;
     if (m.version) pack.version = m.version;
     if (m.url) pack.url = m.url;
     if (m.includes?.length) pack.includes = m.includes;

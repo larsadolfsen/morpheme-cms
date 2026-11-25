@@ -1,11 +1,12 @@
-// "Appstore" (#settings/appstore): the switch of its three sections, Themes, Connectors and Plugins, over the list of the
+// "Appstore" (#settings/appstore): the switch of its four sections, Themes, Icons, Connectors and Plugins, over the list of the
 // one open. The section last used is kept in this browser; the first time it is Plugins (sectionChoice.mjs).
-// Exposes StoreSections (default); uses ThemeStoreScreen (Themes) and AppList.tsx's RoleStore (Connectors, Plugins).
+// Exposes StoreSections (default); uses ThemeStoreScreen (Themes), IconPackStoreScreen (Icons) and AppList.tsx's RoleStore (Connectors, Plugins).
 import { useState } from 'react';
 import { SegmentedButton } from './ui';
 import type { Env } from './App';
 import type { RepoFile } from './github';
 import { ThemeStoreScreen } from './ThemeStoreScreen';
+import { IconPackStoreScreen } from './IconPackStore';
 import { RoleStore } from './AppList';
 import { SECTIONS, readSection, saveSection, type Section } from './sectionChoice.mjs';
 import { STORE_ROUTE } from './store';
@@ -30,5 +31,6 @@ export default function StoreSections({ env, files, section: opened }: { env: En
     </div>
   );
   if (section === 'themes') return <ThemeStoreScreen env={env} header={header} />;
+  if (section === 'icons') return <IconPackStoreScreen env={env} header={header} />;
   return <RoleStore key={section} env={env} files={files} role={section === 'connectors' ? 'connector' : 'plugin'} header={header} />;
 }

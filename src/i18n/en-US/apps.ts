@@ -135,7 +135,7 @@ export const apps = {
    * categories of apps (CATEGORIES in lib/storeCategories.mjs). */
   /** The Appstore's three sections (switch at its top) and the role label of an app (roleOf in lib/storeCategories.mjs). */
   sectionsLabel: 'Section of the Appstore',
-  sections: { themes: 'Themes', connectors: 'Connectors', plugins: 'Plugins' },
+  sections: { themes: 'Themes', icons: 'Icons', connectors: 'Connectors', plugins: 'Plugins' },
   roles: { connector: 'Connector', plugin: 'Plugin' },
   /** A connector's card and page: the outside service it connects to; a plugin has none. */
   connectsTo: (service: string) => `Connects to ${service}`,

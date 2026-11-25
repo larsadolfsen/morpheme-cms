@@ -301,6 +301,15 @@ async function checkSettingsAndMenu(width, height) {
     else if (found.icons < 1) problems.push(`${label} #appearance/icon-packs: ${name} shows no sample icons`);
   }
 
+  // Icon packs in the store: Appearance › Icon packs ends with a link to the store's Icons section, which is a section of the Appstore's switch.
+  const moreLink = await page.evaluate((href) => !!document.querySelector(`main a[href="${href}"]`), '#settings/appstore/icons');
+  if (!moreLink) problems.push(`${label} #appearance/icon-packs: the link to the icon packs in the store is missing`);
+  await go('settings/appstore/icons');
+  await page.waitForTimeout(150);
+  const iconsSection = await page.evaluate(() => document.querySelector('main')?.innerText ?? '');
+  if (!iconsSection.includes(daLibrary.iconPackBuiltIn))
+    problems.push(`${label} #settings/appstore/icons: the line "${daLibrary.iconPackBuiltIn}" is missing`);
+
   // The drawer's first level (in the page at both widths: the standard drawer, or the modal one, shut): no link to the moved screens.
   await go('');
   const drawerLinks = await page.evaluate(() =>

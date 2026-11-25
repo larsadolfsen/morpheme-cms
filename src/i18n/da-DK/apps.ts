@@ -91,7 +91,7 @@ export const apps: Messages['apps'] = {
   storeBroken: (app) => `${app} kunne ikke hentes rigtigt fra Appstore`,
   notInStore: 'Appen findes ikke i Appstore',
   sectionsLabel: 'Afsnit i Appstore',
-  sections: { themes: 'Temaer', connectors: 'Forbindelser', plugins: 'Udvidelser' },
+  sections: { themes: 'Temaer', icons: 'Ikoner', connectors: 'Forbindelser', plugins: 'Udvidelser' },
   roles: { connector: 'Forbindelse', plugin: 'Udvidelse' },
   connectsTo: (service: string) => `Forbinder til ${service}`,
   otherService: 'en tjeneste udefra',

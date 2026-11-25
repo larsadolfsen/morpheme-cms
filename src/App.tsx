@@ -114,6 +114,7 @@ import Assistants, { ASSISTANTS_ROUTE } from './Assistants';
 import Licenses, { LICENSES_ROUTE, LicensePage } from './Licenses';
 import ServiceStatus, { STATUS_ROUTE } from './ServiceStatus';
 import { StoreThemePage } from './ThemeStore';
+import { StoreIconPackPage } from './IconPackStore';
 import { ThemeStoreScreen } from './ThemeStoreScreen';
 import {
   AppPage,
@@ -901,6 +902,8 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === STORE_ROUTE) return <StorePage env={env} files={files} />;
   if (route.startsWith(`${STORE_ROUTE}/`) && isSection(route.slice(STORE_ROUTE.length + 1)))
     return <StorePage env={env} files={files} section={route.slice(STORE_ROUTE.length + 1) as Section} />;
+  if (new RegExp(`^${STORE_ROUTE}/icons/[^/]+$`).test(route))
+    return <StoreIconPackPage key={route} id={route.slice(STORE_ROUTE.length + 7)} env={env} />;
   if (route === STORE_THEMES) return <ThemeStoreScreen env={env} />;
   if (route.startsWith(`${DEVELOPER_ROUTE}/`))
     return <DeveloperPage key={route} slug={route.slice(DEVELOPER_ROUTE.length + 1)} env={env} files={files} />;

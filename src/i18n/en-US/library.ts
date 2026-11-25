@@ -192,6 +192,15 @@ export const library = {
     uninstall: (name: string) => `Editor: remove the icon pack ${name}`,
     update: (name: string, version: string) => `Editor: update the icon pack ${name} to ${version}`,
   },
+  /** The Appstore's Icons section and an icon pack's page (IconPackStore.tsx). */
+  searchIconPacks: 'Search icon packs',
+  iconPackBuiltIn: 'Material Symbols is built in.',
+  iconPackIcons: 'Icons',
+  iconPackAbout: 'About',
+  iconPackNotInStore: 'This icon pack is not in the store.',
+  iconPackNone: 'No icon packs in the store yet.',
+  askInstallIconPack: (name: string) => `Install ${name}? You can pick it under Appearance › Icon packs.`,
+  moreIconPacks: 'More icon packs in the store',
   iconPackCommit: (name: string) => `Editor: change icon pack to ${name}`,
   /** Under "Motion" (MotionSchemes in Library.tsx): each motion scheme's name and how it moves (lib/motion.ts); by the
    * theme's own; asked before one is chosen, the question's button, what is said after it is saved, and the commit, in

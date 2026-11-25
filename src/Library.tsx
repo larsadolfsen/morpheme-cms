@@ -400,6 +400,7 @@ export function IconPacks({ env, files }: { env: Env; files: RepoFile[] }) {
             />
           );
         })}
+        <ListItem href={`#${STORE_ROUTE}/icons`} icon={materialIcon('storefront')} headline={t.library.moreIconPacks} arrow />
       </Group>
     </Screen>
   );

@@ -1,9 +1,9 @@
-// The Appstore's three sections (Themes, Connectors, Plugins): which apps each lists and which one opens first (pure).
+// The Appstore's four sections (Themes, Icons, Connectors, Plugins): which apps each lists and which one opens first (pure).
 // Exposes SECTIONS, filterByRole(list, role), readSection(storage), saveSection(storage, section), serviceOf(app), mcpOf(mcp); used by StoreSections.tsx and AppList.tsx.
 import { roleOf } from '../lib/storeCategories.mjs';
 
 /** The sections, in the order of the switch. */
-export const SECTIONS = /** @type {const} */ (['themes', 'connectors', 'plugins']);
+export const SECTIONS = /** @type {const} */ (['themes', 'icons', 'connectors', 'plugins']);
 
 /** @typedef {typeof SECTIONS[number]} Section */
 
