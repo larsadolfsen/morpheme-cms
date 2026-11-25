@@ -1,5 +1,42 @@
 # @morphemecms/cms
 
+## 0.19.6
+
+### Patch Changes
+
+- 018d6b9: The check refuses an app's CSS that reaches outside its own blocks (from contract 8), and a theme's private custom properties use the reserved prefix `--mo-theme-*`.
+- 5451929: `check:content` refuses an app written to the scoped contract (api 8) that uses a `mo-` class the CMS does not have, and names the class and the file (`npm run check:app-classes`).
+- d257db3: An app's kind of promotion is drawn in the app's scope, and can open as the theme's bottom sheet instead of the pop-up's dialog (`export const surface = 'bottom-sheet'` in its `popups/View.tsx`).
+- 2fd6873: An update from an older editor now installs the newest store versions of your theme and apps that the new version accepts, or names the one that has none, instead of failing.
+- 4b65bd1: In the Cards block's Multi-browse and Hero layouts, the smaller cards no longer overlap their neighbours on a phone.
+- bd15498: The theme's carousel has Material 3's new "uncontained multi-aspect ratio" layout: items of different widths, free scrolling.
+- 00aaf27: Contract 8: `THEME_API` and `APP_API` are 8 and `APP_APIS` is `[8]`; an app or theme imports only from the public list (`lib/public-imports.mjs`, `check:imports`), and `check:m3-names` fails on an unknown or old name.
+- dbc15fb: The demo's block pages start with their intro sentence, so it is the lead; the link to all blocks follows it.
+- 81f3d0f: The text bar has its own Divider button, and Divider is no longer in the Insert list. A Divider in the text can be selected like a block: tap it to add above or below, move or remove it. A card with buttons can have a divider above them. In the editor, only text sections have dotted lines, full width, and the section with the cursor shows its lines in the focus colour. The bar has a button to hide or show the helping lines.
+- 099764b: Buttons typed in place in the editor (Buttons, Price cards) have the label and icon centred in the button, with Material 3's icon size and space between icon and label.
+- 9e99a90: On a phone, the text cursor stays in view above the keyboard and the Save bar, and below the text toolbar, when you move through paragraphs, dividers and blocks.
+- 464a539: In the text editor, the first paragraph of a page or post is drawn as the lead, the same size as on the site.
+- 0de5029: Block descriptions in the Insert menu use Material 3's words
+- bdb716c: The colour generator makes Material 3's colour schemes (Tonal spot, Neutral, Vibrant, Expressive, Fidelity, Content, Monochrome, Rainbow, Fruit salad) and Custom as Theme Builder's custom core colours; the older harmonies are read as Tonal spot.
+- 03bc880: An update that can’t rewrite your own themes and apps names the files and lines to fix.
+- 77a9b2a: List items no longer take `columns` (the side-by-side headline and supporting text). The update removes it from your own themes and apps.
+- 64e9538: Buttons, button groups and split buttons have Material 3's five sizes (extra small, small, medium, large and extra large) with its measurements, and a button group can select one, any or exactly one of its buttons.
+- a8d455c:
+- 329ab79: A site that chose the Phosphor or Lucide icon pack shows Material Symbols
+- b3081e5: Share buttons, profile links and the sign-in buttons draw each brand's real logo, the same under every icon pack.
+- 44163fe: Segmented buttons are now Material 3's connected button group (`ButtonGroup kind="connected"`): `mo-segmented-button*` classes and `--mo-comp-segmented-button-*` tokens are rewritten by the update.
+- d1bf3c3: The theme's Dialog has Material 3's full-screen kind back: full screen with a header (close icon, headline, Save) below 600 dp, the basic dialog from 600 dp.
+- d8fc76c: The time picker has Material 3's scroll mode: hours and minutes in scroll fields that snap, in the dialog or inline in a form.
+- 5c68ffb: The theme's Search has a divided style (`kind="divided"`), and a docked Toolbar can hold its primary action in the middle (`primary`).
+- e642185: On a page or post with a draft waiting, Published and Draft are tabs in the top bar.
+- 1e15509: An app's Settings and Information, and the search preview's Mobile and Desktop, are secondary tabs. Every tab row draws Material 3's divider.
+- ea4e7d9: Every line between parts of a page is now the one Material 3 divider, a `---` in a page or post draws it too, and the text bar has a Divider button.
+- b33f8c4: List items with only a headline are Material 3's one-line item (56 dp, centred) instead of a two-line item with an empty line.
+- 80e821e: In the text editor, the dotted line at the start of a section runs the full width of the text field; the text keeps its margin.
+- c9ec59a: The Cards block's carousel follows Material 3: its cards take the carousel item's corners, it has no page indicator, and a Carousel layout choice offers Uncontained, Multi-browse, Hero, Center-aligned hero and Full-screen. A card with a short text fills its item.
+- ccb6a2b: The start screen's update card counts only the notes of the version in its headline; Read more still shows all of them.
+- aa418bf: The editor's update to 0.19.6 now stops on the same unsafe code in a site's own themes and apps as `morpheme migrate`, including Tailwind-style class strings, so a site is never left half renamed.
+
 ## 0.19.5
 
 ### Patch Changes
