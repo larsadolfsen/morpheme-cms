@@ -8,9 +8,9 @@ seoDescription: "Tables, shown live."
 
 # Tables
 
-[All blocks](/blocks/)
-
 Drawn by a table inside a Card: the Table block and the Cookie list block.
+
+[All blocks](/blocks/)
 
 
 ## Table with a header row
