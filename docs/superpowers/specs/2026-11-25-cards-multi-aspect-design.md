@@ -55,6 +55,6 @@ Pages read: `https://m3.material.io/components/carousel/overview`, `…/specs`, 
 
 ## Order
 
-Divider #1196, then Carousel #1194, then one developer session for both Cards specs, as two pull requests in a row on the same files:
+0.19.7 (owner, 25 Nov 2026), branch `feature/0.19.7-ui-fixes`. Divider #1196 and Carousel #1194 are in 0.19.6; then one developer session for both Cards specs, as two pull requests in a row on the same files:
 first this one (`cards-multi-aspect`), then `cards-highlighted` merged after it from the updated feature branch. One session avoids two
 sessions conflicting in `src/standard/cards/` and `theme/styles/cards.css`.
