@@ -469,7 +469,7 @@ export const parts = {
       bottomSheet:
         'A sheet from the bottom: modal over the page, on a computer as a dialog in the middle, for example, the booking sheet, or standard at the bottom of the screen, with the page usable behind it, dragged up and down.',
       carousel:
-        'Cards or images in a row that are swiped sideways, with dots under them: all the same size, in several sizes, one large (from the start or in the middle) and one at a time.',
+        'Cards or images in a row that are swiped sideways, with dots under them: all the same size, in several shapes, in several sizes, one large (from the start or in the middle) and one at a time.',
       dialogKinds: {
         basic: 'Basic',
         icon: 'With icon, list, and divider',
@@ -491,6 +491,7 @@ export const parts = {
       layouts: {
         uncontained: 'All the same size',
         multiBrowse: 'Several sizes',
+        multiAspect: 'Several shapes, free scrolling',
         hero: 'One large',
         heroCenter: 'One large in the middle',
         narrow: 'Uncontained, in a narrow column',
