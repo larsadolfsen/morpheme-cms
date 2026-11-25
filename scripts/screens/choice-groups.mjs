@@ -1,5 +1,6 @@
 import { openEditor } from '../built-site.mjs';
 import { block, browser, da, daBlocks, daText, has, problems, site } from './support/context.mjs';
+import { isMaterialTheme } from '../theme-statement.mjs';
 import { pressTool, rowButton } from './support/shared.mjs';
 
 /** Every visible choice group (.mo-choice-group) in `root`, measured in the page: its form, its choices' boxes, whether two overlap
@@ -435,7 +436,8 @@ async function checkConnectedButtons(width) {
   });
   if (got.n < 2) problems.push(`${label}: the connected group has ${got.n} buttons`);
   for (const gap of got.gaps)
-    if (Math.abs(gap - 2) > 0.5) problems.push(`${label}: the gap between buttons is ${gap} px, not 2 (M3: between-space 2 dp)`);
+    if (isMaterialTheme() && Math.abs(gap - 2) > 0.5)
+      problems.push(`${label}: the gap between buttons is ${gap} px, not 2 (M3: between-space 2 dp)`);
   for (const h of got.heights)
     if (Math.abs(h - got.heights[0]) > 0.5) problems.push(`${label}: the buttons are not equally high (${got.heights.join(', ')})`);
   for (const t of got.targets) if (t < (touch ? 48 : 44) - 0.5) problems.push(`${label}: a target is ${t} px, below ${touch ? 48 : 44}`);
