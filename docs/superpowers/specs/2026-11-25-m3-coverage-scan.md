@@ -185,19 +185,21 @@ The owner decided the split (relayed by the PM of 0.19.6). Gap numbers are those
 
 **Build now, in 0.19.6**
 
-- Scroll time picker (gap 2; another session is building it).
-- Scroll fields (gap 2).
-- Carousel layout "uncontained multi-aspect ratio" (gap 5; a session has started).
+| Gap | One line | Size | Tokens that already exist |
+| :--- | :--- | :--- | :--- |
+| Scroll time picker | Another session is building it. | medium | none found |
+| Scroll fields | New Expressive part. | medium | `md.comp.scroll-field` |
+| Carousel "uncontained multi-aspect ratio" | A session has started. | medium | none found |
+| Medium button size (`Button`, `SplitButton`, `ButtonGroup`) | `buttonSizes` has no `medium`. | small | `md.comp.button.medium` in `docs/m3-tokens/` |
+| Button group selection modes | Single, multi and selection-required as a group prop, not per block. | medium | none found |
+| Search divided style | Only reachable by overriding two tokens today. | small | the search tokens (`search.css:154`, `:201`) |
+| Docked toolbar with embedded primary action | `fab` is described for floating only; not verified. | small | the toolbar tokens |
 
 **Saved for later, not built now**
 
 | Gap | One line | Size | Tokens that already exist |
 | :--- | :--- | :--- | :--- |
-| Medium button size (`Button`, `SplitButton`, `ButtonGroup`) | `buttonSizes` has no `medium`. | small | `md.comp.button.medium` in `docs/m3-tokens/` |
 | Autocomplete | Menus "Filtering": a text field that filters a menu. Already in the forms note. | medium | `md.comp.filled-autocomplete`, `md.comp.outlined-autocomplete` |
-| Button group selection modes | Single, multi and selection-required as a group prop, not per block. | medium | none found |
-| Search divided style | Only reachable by overriding two tokens today. | small | the search tokens (`search.css:154`, `:201`) |
-| Docked toolbar with embedded primary action | `fab` is described for floating only; not verified. | small | the toolbar tokens |
 | Swipe to reveal on list items | Lists "List interactions"; no reveal in `List.tsx`. | medium | `md.comp.list.reveal` |
 | Context menu | Right-click menu; no screen asks for one. | medium | none found |
 | Image in a text field | Optional leading image; low value. | small | none found |
