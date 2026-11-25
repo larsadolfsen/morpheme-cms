@@ -8,4 +8,6 @@
      (the Divider part, a Markdown rule, the lines between items, in menus, sheets, the footer) reads these two. */
   --mo-comp-divider-thickness: 1px;
   --mo-comp-divider-color: var(--mo-sys-color-outline-variant);
+  /* The inset divider ("Use inset dividers, which don't run the full width"): its distance from each edge, 16 dp. */
+  --mo-comp-divider-inset: 1rem;
 }

@@ -97,12 +97,11 @@ export type BlockAsk = {
   data: BlockData;
   /** Which block to put in, with its fields filled in; null when cancelled. A block can be put in more
    * than once, unless the template says how many (have: the types in the text now, one for each, IMAGE for an image).
-   * divider: the Divider is offered too, chosen as the type DIVIDER (a text's `---`). image: an image is offered first, and chosen as the type IMAGE. live: the caller can put a block in at once and open its live
+   * image: an image is offered first, and chosen as the type IMAGE. live: the caller can put a block in at once and open its live
    * sheet (`edit` with a LiveBlock); a block with fields then comes with its defaults and `open` true when its sheet would be live,
    * with no `Insert` of its own. */
   choose: (offer?: {
     image?: boolean;
-    divider?: boolean;
     have?: string[];
     live?: boolean;
   }) => Promise<{ type: string; props: BlockProps; open?: boolean } | null>;
@@ -178,7 +177,7 @@ export type SectionSettingsOf = { color: string | null; image?: string | null; a
 // wide, compact: the window was at least expanded, or below medium, when the step was shown; its look stays while it is open. live: its
 // changes go to the block at once.
 type Open = (
-  | { step: 'choose'; image?: boolean; divider?: boolean; have?: string[]; live?: boolean }
+  | { step: 'choose'; image?: boolean; have?: string[]; live?: boolean }
   | { step: 'fields'; type: string; isNew: boolean; live?: boolean }
   | { step: 'section'; image: boolean; width: boolean; live?: boolean }
   | { step: 'row'; live?: undefined }
@@ -206,16 +205,6 @@ const SECTION = 'section';
  * and its format and crop (CropView.tsx, props format and crop), but not on a fixed page, whose images
  * are the sections' own (sections.mjs). */
 export const IMAGE = 'image';
-/** The Divider in the text: a `---` line (an <hr>, the theme's Divider), put in by Insert; it has no fields and is no block of the site. */
-export const DIVIDER = 'divider';
-const divider: SiteBlock = {
-  type: DIVIDER,
-  group: 'banners',
-  label: t.text.divider,
-  icon: materialIcon('horizontal_rule'),
-  hint: t.text.dividerHint,
-  fields: [],
-};
 const image: SiteBlock = {
   type: IMAGE,
   group: 'media',
@@ -484,7 +473,7 @@ export function useBlockDialog(
     canCrop: crop && !data.page,
     template,
     data,
-    choose: (offer) => ask({ step: 'choose', image: offer?.image, divider: offer?.divider, have: offer?.have, live: offer?.live }),
+    choose: (offer) => ask({ step: 'choose', image: offer?.image, have: offer?.have, live: offer?.live }),
     section: async (current, options) => {
       const answered = await ask(
         { step: 'section', image: !!options?.image, width: !!options?.width },
@@ -646,11 +635,9 @@ export function useBlockDialog(
   };
   const offered =
     open?.step === 'choose'
-      ? [
-          ...(open.image && room(image) ? [image] : []),
-          ...(open.divider ? [divider] : []),
-          ...list.filter((b) => !b.written && !b.former && room(b)),
-        ].sort((a, b) => byText(a.label, b.label))
+      ? [...(open.image && room(image) ? [image] : []), ...list.filter((b) => !b.written && !b.former && room(b))].sort((a, b) =>
+          byText(a.label, b.label),
+        )
       : [];
   // The groups among them: the standard blocks first, then the apps' by their names. With only one there is
   // nothing to filter or order by.
@@ -850,13 +837,7 @@ export function useBlockDialog(
                     icon={b.icon}
                     headline={b.label}
                     supporting={b.hint}
-                    onClick={() =>
-                      b.type === IMAGE
-                        ? done({ type: IMAGE, props: {} })
-                        : b.type === DIVIDER
-                          ? done({ type: DIVIDER, props: {} })
-                          : pick(b.type)
-                    }
+                    onClick={() => (b.type === IMAGE ? done({ type: IMAGE, props: {} }) : pick(b.type))}
                   />
                 )),
               ])}

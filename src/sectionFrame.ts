@@ -53,8 +53,9 @@ function sectionDecorations(doc: Node): Decoration[] {
     parts.slice(range.from, range.to + 1).forEach(({ node, pos }, i) => {
       const index = range.from + i;
       const attrs: Record<string, string> = {};
-      // Only an H2 section has a line (an H1 starts the page, a label before the heading is part of its section).
-      if (isH2 && index === range.from) attrs['data-section-part'] = 'start';
+      // Only an H2 section has a line (an H1 starts the page, a label before the heading is part of its section), and the first section of the
+      // text has none above it: nothing is above it to be told from.
+      if (isH2 && index === range.from && range.from > 0) attrs['data-section-part'] = 'start';
       if (boxed) {
         attrs['data-section-box'] = sectionPart(index, range);
         if (color) attrs['data-section-color'] = color;
@@ -87,10 +88,13 @@ function leadDecorations(doc: Node): Decoration[] {
   return [Decoration.node(at.pos, at.pos + at.node.nodeSize, { 'data-lead': '' })];
 }
 
-/** The focus frame (data-section-focus=start|middle|end|only on each top-level node of the section the cursor is in): editor.css draws it
- *  only while the text itself has the focus, so the frame is gone when the cursor leaves. The section is the H1 or H2 section holding the
- *  cursor; text before the first one is the page's top part; a page with none is one section. A selected block (a node selection) has its
- *  own outline, so no section is marked then. */
+/** The focus lines of the section the cursor is in: horizontal only, at its top and its bottom (a section is text; the page's blocks keep their own
+ *  dotted frame and are no part of one, so a block neither starts nor ends a section). data-section-focus=start|middle|end|only is on each text
+ *  node of the section; editor.css draws the section's own line above it in the focus colour, and a bottom line under its last text node
+ *  (data-section-bottom) unless the next section's own line is right below it, which then takes the colour (data-section-focus-below on its
+ *  first node). The section is the H1 or H2 section holding the cursor; text before the first one is the page's top part; a page with none is
+ *  one section. editor.css draws them only while the text itself has the focus. A selected block (a node selection) has its own outline,
+ *  so no section is marked then. */
 function focusDecorations(doc: Node, selection: Selection): Decoration[] {
   if (selection instanceof NodeSelection || doc.childCount === 0) return [];
   const nodes: Node[] = [];
@@ -104,15 +108,34 @@ function focusDecorations(doc: Node, selection: Selection): Decoration[] {
       : ranges.length
         ? ranges
         : [{ from: 0, to: nodes.length - 1 }];
-  const range = all.find((r) => at >= r.from && at <= r.to);
-  if (!range) return [];
-  const out: Decoration[] = [];
+  const which = all.findIndex((r) => at >= r.from && at <= r.to);
+  if (which < 0) return [];
+  const range = all[which];
+  const isBlock = (node: Node) => node.type.name === 'siteBlock';
+  const starts: number[] = [];
   let pos = 0;
   nodes.forEach((node, index) => {
-    if (index >= range.from && index <= range.to)
-      out.push(Decoration.node(pos, pos + node.nodeSize, { 'data-section-focus': sectionPart(index, range) }));
+    starts.push(pos);
     pos += node.nodeSize;
   });
+  // The section's text: its parts without the blocks, the last of them ends it.
+  const text: number[] = [];
+  for (let i = range.from; i <= range.to; i++) if (!isBlock(nodes[i])) text.push(i);
+  if (!text.length) return [];
+  const last = text[text.length - 1];
+  const next = all[which + 1];
+  const nextNode = next ? nodes[next.from] : undefined;
+  const nextHeading = nextNode?.type.name === 'eyebrow' ? nodes[next!.from + 1] : nextNode;
+  const nextLine = !!next && nextHeading?.type.name === 'heading' && nextHeading.attrs.level === 2;
+  const out: Decoration[] = [];
+  text.forEach((index) => {
+    const part = sectionPart(index, { from: text[0], to: last });
+    const attrs: Record<string, string> = { 'data-section-focus': part };
+    if (index === last && !nextLine) attrs['data-section-bottom'] = '';
+    out.push(Decoration.node(starts[index], starts[index] + nodes[index].nodeSize, attrs));
+  });
+  if (next && nextLine)
+    out.push(Decoration.node(starts[next.from], starts[next.from] + nodes[next.from].nodeSize, { 'data-section-focus-below': '' }));
   return out;
 }
 

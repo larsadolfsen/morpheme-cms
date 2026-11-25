@@ -4,7 +4,7 @@
 //
 // What is on it, drawn in Material 3's order (Cards, Guidelines, Anatomy): `media` (an image or a video, edge to edge at the top) or
 // `icon`, then `headline`, `subhead`, `supporting` (the text), `children` (what the block puts there: a table, a price list, "can also
-// contain other components") and `actions` (the buttons, in the action area at the bottom). A card with none of these draws its
+// contain other components") and `actions` (the buttons, in the action area at the bottom), with `divider` a full-width line above them (Divider: "Use full-width divider lines to separate interactive and non-interactive areas of a container such as a card"). A card with none of these draws its
 // `children` as they are, as before (the block's own heading, text, image …), and `media` as `true` says that the first of them is a
 // CardMedia (no padding, the image to the card's edge).
 //
@@ -16,6 +16,7 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { Link } from '@morphemecms/cms/src/standard/view';
 import { Svg } from '@morphemecms/cms/src/icon';
+import Divider from './Divider';
 
 export const cardKinds = ['elevated', 'filled', 'outlined'] as const;
 export type CardKind = (typeof cardKinds)[number];
@@ -60,9 +61,9 @@ type Common = Omit<HTMLAttributes<HTMLElement>, 'className' | 'children'> & {
 
 export type CardProps = Common &
   (
-    | { href?: string; as?: Element | 'button'; actions?: never }
+    | { href?: string; as?: Element | 'button'; actions?: never; divider?: never }
     /** The action area: its buttons, text buttons first (Material 3: Buttons, Icon buttons). Never with `href` or `as="button"`. */
-    | { href?: undefined; as?: Element; actions?: ReactNode }
+    | { href?: undefined; as?: Element; actions?: ReactNode; divider?: boolean }
   );
 
 export default function Card({
@@ -75,6 +76,7 @@ export default function Card({
   subhead,
   supporting,
   actions,
+  divider,
   selected,
   as: Box = 'div',
   href,
@@ -98,6 +100,7 @@ export default function Card({
           {subhead && <div className="mo-card__subhead">{subhead}</div>}
           {supporting && <div className="mo-card__supporting">{supporting}</div>}
           {children && <div className="mo-card__content">{children}</div>}
+          {actions && divider && <Divider className="mo-card__divider" />}
           {actions && <div className="mo-card__actions">{actions}</div>}
         </div>
       )}

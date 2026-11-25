@@ -1,0 +1,7 @@
+{
+  "id": "card-divider",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Kortskillelinje",
+  "text": "En linje mellem kortets tekst og dets knapper gør lange kort lettere at læse. Åbn et kort med knapper, og slå Skillelinje til. Linjen går over hele kortets bredde og er slået fra, til du slår den til."
+}

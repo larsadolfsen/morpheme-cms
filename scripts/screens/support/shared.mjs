@@ -197,7 +197,7 @@ export async function newLineUnder(page, text) {
         subtree: true,
         characterData: true,
         attributes: true,
-        attributeFilter: ['class', 'data-row', 'data-section-focus'],
+        attributeFilter: ['class', 'data-row', 'data-section-focus', 'data-section-bottom', 'data-section-focus-below'],
       });
   });
   for (let tries = 0; ; tries++) {
