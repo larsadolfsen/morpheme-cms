@@ -3,7 +3,10 @@
   "enabled": true,
   "heading": "Kind sheet",
   "text": "A promotion of the demo's own app.",
-  "where": "all",
+  "where": "some",
+  "pages": [
+    "/"
+  ],
   "trigger": "time",
   "delay": "30",
   "button": "page",
