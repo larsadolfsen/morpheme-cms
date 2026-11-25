@@ -335,6 +335,14 @@ async function checkOtherTabs(width, height) {
       const r = el.getBoundingClientRect();
       return { inBar: !!b, line: getComputedStyle(el).boxShadow, same: !!b && Math.abs(b.getBoundingClientRect().width - r.width) < 1 };
     });
+    const colors = await modes.evaluate((el) => ({
+      secondary: el.classList.contains('mo-is-secondary'),
+      icons: el.querySelectorAll('svg, .mo-tabs__tab-icon').length,
+      names: [...el.querySelectorAll('[role="tab"]')].map((t) => t.textContent.trim()).join(),
+    }));
+    if (!colors.secondary) problems.push(`${label}: the Colors tabs are not secondary tabs`);
+    if (colors.icons) problems.push(`${label}: the Colors tabs have icons`);
+    if (!colors.names.startsWith('Generator')) problems.push(`${label}: the Colors tabs are ${colors.names}`);
     if (!bar.inBar) problems.push(`${label}: the Colors tabs are not in the top app bar`);
     if (!bar.line || bar.line === 'none') problems.push(`${label}: no divider under the Colors tab row`);
     if (!bar.same) problems.push(`${label}: the Colors tab row is not as wide as its bar`);

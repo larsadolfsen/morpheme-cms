@@ -37,7 +37,7 @@ export const allow = [
     set: 'md.comp.button.outlined',
     attr: 'container.color',
     mode: 'light',
-    got: 'on-surface|surface-variant|surface-tint|surface-tint-color|background|on-background',
+    got: 'on-surface|surface-tint|surface-tint-color|background|on-background',
     want: 'inverse-surface',
     class: 'fix',
     batch: 'buttons',
