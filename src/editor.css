@@ -189,13 +189,14 @@
 .mo-editor-text .ProseMirror > [data-section-part='start']::before {
   content: '';
   position: absolute;
-  inset: -2px calc(-1 * var(--mo-comp-editor-pad-x)) auto;
+  inset: -2px 0 auto;
   block-size: 0;
   pointer-events: none;
   border-block-start: var(--mo-comp-editor-section-frame);
 }
-.mo-editor-text .ProseMirror > [data-section-part='start'][data-section-width='full']::before {
-  inset-inline: 0;
+/* A coloured section's box is inset, so its line reaches out of the box to the field's edges. */
+.mo-editor-text .ProseMirror > [data-section-part='start'][data-section-box]::before {
+  inset-inline: calc(-1 * var(--mo-comp-editor-pad-x));
 }
 
 /* The line runs edge to edge of the text field, outside its side padding, while the heading keeps the page margin. A coloured section's
@@ -205,14 +206,9 @@
   padding-inline: var(--mo-comp-editor-pad-x);
 }
 
-/* The section's focus frame keeps its place beside the text: its sides are measured from the field's edge now, so the padding is added. */
-.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus]:not([data-section-box])::after {
-  inset-inline: calc(var(--mo-comp-editor-pad-x) - 0.5rem);
-}
-.mo-editor-text
-  .ProseMirror:focus-visible
-  > [data-section-part='start'][data-section-focus][data-section-width='full']:not([data-section-box])::after {
-  inset-inline: var(--mo-comp-editor-pad-x);
+/* A section's start part is as wide as the field now, so a line drawn at its bottom (data-section-bottom) needs no reach beyond it. */
+.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-bottom]:not([data-section-box])::after {
+  inset-inline: 0;
 }
 
 /* The box of a section with a colour, as the site draws it (data-section-box, data-section-color, sectionFrame.ts): one box made of

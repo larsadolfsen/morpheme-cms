@@ -377,8 +377,12 @@ async function checkSectionLine() {
       const f = field.getBoundingClientRect();
       const border = (n) => parseFloat(getComputedStyle(field)[n]);
       const start = pm.querySelector('[data-section-part="start"]');
-      const line = start.getBoundingClientRect();
-      const style = getComputedStyle(start);
+      // The line is the element's ::before (editor.css): its left edge and width are read from it.
+      const own = start.getBoundingClientRect();
+      const before = getComputedStyle(start, '::before');
+      const left = own.left + parseFloat(getComputedStyle(start).borderLeftWidth) + parseFloat(before.left);
+      const line = { left, right: left + parseFloat(before.width) };
+      const style = before;
       const textLeft = (el) => {
         const range = document.createRange();
         range.selectNodeContents(el);
