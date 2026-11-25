@@ -796,6 +796,8 @@ export const parts: Messages['parts'] = {
       minutes: 'Minutterne',
       wrong: 'Skrevet forkert',
       twelveHours: '12 timer',
+      scrollPicker: 'Rulning',
+      inline: 'I siden',
       horizontal: 'Urskiven ved siden af',
     },
   },

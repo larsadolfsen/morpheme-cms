@@ -47,6 +47,7 @@ export const timePickerTextsIn = (say: (text: string) => string, locale: string)
   pm: dayPeriods(locale)[1],
   toInput: say('Switch to typing'),
   toDial: say('Switch to the dial'),
+  toScroll: say('Switch to scrolling'),
   cancel: say('Cancel'),
   ok: say('OK'),
 });
