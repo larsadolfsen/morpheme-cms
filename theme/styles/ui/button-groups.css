@@ -9,7 +9,7 @@
   .mo-icon-button in any size and shape, a toggle with aria-pressed in its look off and on (the buttons' above); in a
   standard group one that is on has the selected corners, in a connected one it is fully round. In a standard group the
   one pressed is a little wider and its neighbours a little narrower (Material's 15 %), unless motion is reduced.
-    --mo-comp-button-group-standard-medium-between-space, --mo-comp-button-group-connected-xsmall-between-space, --mo-comp-button-group-selected-radius
+    --mo-comp-button-group-standard-<size>-between-space, --mo-comp-button-group-connected-xsmall-between-space, --mo-comp-button-group-selected-radius
     --mo-comp-button-group-connected-small-inner-corner-corner-size (the small and medium buttons'), --mo-comp-button-group-connected-xsmall-inner-corner-corner-size, -large-, -xlarge-
   Toggles' colours are the buttons' (--button-toggle-*, --button-<kind>-selected-*, --icon-button-…-selected-*).
   Segmented button (SegmentedButton, segmentedButtonClass, segmentedButtonSegmentClass): .mo-segmented-button, the frame
@@ -48,7 +48,24 @@
     display: inline-flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: var(--mo-comp-button-group-standard-medium-between-space, 0.5rem);
+    gap: var(--mo-comp-button-group-between);
+  }
+  /* The space between the buttons of a standard group follows their size (M3: 18, 12, 8, 8 and 8 dp; a group of one size has one space,
+     a group that mixes sizes takes the largest one's), so a target stays 48 dp (the target-size rules read the same name). */
+  :where(.mo-button-group).mo-is-standard {
+    --mo-comp-button-group-between: var(--mo-comp-button-group-standard-small-between-space, 0.75rem);
+  }
+  :where(.mo-button-group).mo-is-standard:has(> .mo-is-xsmall) {
+    --mo-comp-button-group-between: var(--mo-comp-button-group-standard-xsmall-between-space, 1.125rem);
+  }
+  :where(.mo-button-group).mo-is-standard:has(> .mo-is-medium) {
+    --mo-comp-button-group-between: var(--mo-comp-button-group-standard-medium-between-space, 0.5rem);
+  }
+  :where(.mo-button-group).mo-is-standard:has(> .mo-is-large) {
+    --mo-comp-button-group-between: var(--mo-comp-button-group-standard-large-between-space, 0.5rem);
+  }
+  :where(.mo-button-group).mo-is-standard:has(> .mo-is-xlarge) {
+    --mo-comp-button-group-between: var(--mo-comp-button-group-standard-xlarge-between-space, 0.5rem);
   }
   :where(.mo-button-group).mo-is-connected {
     flex-wrap: nowrap;
