@@ -212,12 +212,14 @@ export function Start({ builtAt, files, env }: { builtAt: Date | null; files: Re
       // The link to the website in the top bar (Screen.tsx).
       home
     >
-      <BlockedUpdateNotice />
-      <UpdatesNotice files={files} />
-      <FirstRunCard files={files} />
-      <StartDataContext.Provider value={{ files, savedAt: env.savedAt, builtAt }}>
-        <Dashboard dash={dash} env={env} files={files} />
-      </StartDataContext.Provider>
+      <div className="mo-editor-start-cards">
+        <BlockedUpdateNotice />
+        <UpdatesNotice files={files} />
+        <FirstRunCard files={files} />
+        <StartDataContext.Provider value={{ files, savedAt: env.savedAt, builtAt }}>
+          <Dashboard dash={dash} env={env} files={files} />
+        </StartDataContext.Provider>
+      </div>
       {!dash.editing && <StartFab />}
     </Screen>
   );

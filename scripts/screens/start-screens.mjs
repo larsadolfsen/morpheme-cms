@@ -146,6 +146,30 @@ async function checkUpdatesCard(width, height) {
   await page.close();
 }
 
+/** The start screen's cards (the notices, the first-run card and the dashboard) stand one card gap apart, 8px (M3 Cards, Specs), with nothing
+ * larger between the version card and the next one. On a phone every card is in one column, so every gap down the column is the same. */
+async function checkStartGaps(width, height) {
+  const label = `${width}px start gaps`;
+  const page = await browser.newPage({ viewport: { width, height } });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.waitForSelector('.mo-editor-start-cards');
+  await page.waitForTimeout(500);
+  const gaps = await page.evaluate(() => {
+    const boxes = [...document.querySelectorAll('.mo-editor-start-cards > *:not(.mo-editor-stack-200), .mo-editor-dashboard-grid > *')]
+      .map((e) => e.getBoundingClientRect())
+      .filter((b) => b.height > 0)
+      .sort((a, b) => a.top - b.top);
+    const out = [];
+    for (let i = 1; i < boxes.length; i++)
+      if (boxes[i].left < boxes[i - 1].right && boxes[i].top >= boxes[i - 1].bottom - 1)
+        out.push(Math.round(boxes[i].top - boxes[i - 1].bottom));
+    return out;
+  });
+  if (gaps.some((g) => g !== 8)) problems.push(`${label}: the gaps between the cards are ${gaps.join(', ')} px, not all 8`);
+  await page.close();
+}
+
 /** Why the site can't update itself shows on the start screen (BlockedUpdateNotice.tsx, reasons in src/cmsBlocked.mjs), in each state the Worker's
  * status can have: the notice has its title, its sentence and a "Read more" link to the Morpheme page, stays inside the screen and does not
  * overlap what is under it; a site with nothing wrong, or a problem with no newer version waiting, shows none. */
@@ -1012,6 +1036,12 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkUpdatesCard ${width}`, () => checkUpdatesCard(width, height));
+
+  for (const [width, height] of [
+    [375, 800],
+    [1280, 900],
+  ])
+    unit(`checkStartGaps ${width}`, () => checkStartGaps(width, height));
 
   for (const [width, height] of [
     [375, 800],

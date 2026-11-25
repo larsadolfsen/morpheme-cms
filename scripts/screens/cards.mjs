@@ -521,6 +521,7 @@ async function checkCardsCarousel(width, height) {
         scrolls: row.scrollWidth > row.clientWidth + 1,
         radius: getComputedStyle(mask ?? first.firstElementChild).borderTopLeftRadius,
         itemWidth: Math.round(fb.width),
+        widths: [...el.querySelectorAll('[data-carousel-item]')].map((i) => Math.round(i.getBoundingClientRect().width)),
         itemLeft: Math.round(fb.left),
         rowLeft: Math.round(rb.left),
         rowWidth: Math.round(rb.width),
@@ -532,7 +533,7 @@ async function checkCardsCarousel(width, height) {
       };
     }),
   );
-  for (const want of ['uncontained', 'multi-browse', 'hero', 'hero-center', 'full-screen'])
+  for (const want of ['uncontained', 'multi-aspect-ratio', 'multi-browse', 'hero', 'hero-center', 'full-screen'])
     if (!layouts.some((l) => l.layout === want)) problems.push(`${label}: no ${want} Cards carousel on the Blocks page`);
   if (phone)
     for (const l of layouts) {
@@ -545,6 +546,12 @@ async function checkCardsCarousel(width, height) {
       if (l.showAll === (l.layout === 'full-screen'))
         problems.push(`${at}: ${l.showAll ? 'a full-screen carousel has' : 'it has no'} "Show all"`);
       // M3: multi-browse and hero have 16dp leading padding, the row reaching the screen's edge.
+      // Multi-aspect ratio: leading padding 16dp, the cards of different widths (each as wide as its image's aspect ratio makes it).
+      if (l.layout === 'multi-aspect-ratio') {
+        if (l.itemLeft !== 16 || l.rowLeft !== 0) problems.push(`${at}: the first item is ${l.itemLeft}px from the edge, not 16px`);
+        if (new Set(l.widths).size < 3)
+          problems.push(`${at}: the items have the same width (${l.widths.join(', ')}px), not their images' aspect ratios`);
+      }
       if (['multi-browse', 'hero', 'hero-center'].includes(l.layout) && (l.itemLeft !== 16 || l.rowLeft !== 0))
         problems.push(
           `${at}: the first item is ${l.itemLeft}px from the edge (the row starts at ${l.rowLeft}px), not 16px from the screen's edge`,

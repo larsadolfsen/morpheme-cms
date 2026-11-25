@@ -14,7 +14,7 @@ import InlineItems, { InlineField, InlineSlot, type Item } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
 import { sharedIn } from './shared';
 import shared from './standard/cards/shared';
-import { ratioProp, shownCards, type LinkCard, type LinkCardProps } from './standard/cards/view';
+import { layoutOf, ratioProp, shownCards, type LinkCard, type LinkCardProps } from './standard/cards/view';
 import { cardKinds, type CardKind } from '@theme/ui/Card';
 import Buttons from '@theme/blocks/buttons/Buttons';
 import Divider from '@theme/ui/Divider';
@@ -24,7 +24,7 @@ import { CardMedia } from '@theme/blocks/cards/LinkCards';
 const hasMedia = (card: LinkCard) => !!(card.icon || card.image || card.video);
 
 export default function InlineCards({ items, props, data, active, focus, onChange, onSettings, onIcon, onProps }: InlineViewProps) {
-  const cards = shownCards(items as LinkCardProps[], data, props.media, ratioProp(props));
+  const cards = shownCards(items as LinkCardProps[], data, props.media, ratioProp(props), layoutOf(props) === 'multi-aspect-ratio');
   const type: CardKind = cardKinds.find((k) => k === props.design) ?? 'outlined';
   const colored = type === 'filled' && props.color ? `mo-block-cards__${props.color}` : undefined;
   const media = cards[0]?.media ?? 'icon';

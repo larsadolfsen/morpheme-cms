@@ -1,6 +1,0 @@
-{
-  "id": "contract-8-apps",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "En app eller et tema skrevet til kontrakt 8 holder sin egen CSS til sine egne dele, kan tilføje en slags kampagne, der åbner som en dialog eller et bundark, og bruger Material 3’s navne"
-}

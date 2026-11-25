@@ -12,6 +12,7 @@ import { t } from '../../i18n';
 import { headFields } from '../head';
 import { buttonList } from '../buttons/fields';
 import { FORMATS } from '../../../lib/crop.mjs';
+import { ASPECTS, DEFAULT_ASPECT } from './cut.mjs';
 import { example } from './shared';
 
 export default defineBlock({
@@ -25,7 +26,7 @@ export default defineBlock({
   inline: {
     item: 'items',
     fields: ['title', 'subhead', 'text'],
-    media: ['icon', 'iconColor', 'image', 'alt', 'video'],
+    media: ['icon', 'iconColor', 'image', 'alt', 'aspect', 'video'],
     blockMedia: ['media'],
     settings: ['href', 'buttons', 'divider'],
     blockSettings: true,
@@ -75,6 +76,13 @@ export default defineBlock({
       only: { field: 'phone', is: ['carousel'] },
       options: [
         { label: t.blocks.cards.layoutUncontained, value: '' },
+        // Only with images: its cards' widths come from their images' aspect ratios (view.ts layoutOf keeps the choice stored for when images are back).
+        {
+          label: t.blocks.cards.layoutMultiAspect,
+          value: 'multi-aspect-ratio',
+          hint: t.blocks.cards.layoutMultiAspectHint,
+          only: { field: 'media', is: ['image'] },
+        },
         { label: t.blocks.cards.layoutMultiBrowse, value: 'multi-browse', hint: t.blocks.cards.layoutMultiBrowseHint },
         { label: t.blocks.cards.layoutHero, value: 'hero', hint: t.blocks.cards.layoutHeroHint },
         { label: t.blocks.cards.layoutHeroCenter, value: 'hero-center', hint: t.blocks.cards.layoutHeroCenterHint },
@@ -116,7 +124,7 @@ export default defineBlock({
       type: 'select',
       default: '3:2',
       hint: t.blocks.cards.ratioHint,
-      only: { field: 'media', is: ['image'] },
+      only: { field: 'media', is: ['image'], and: { field: 'layout', is: ['multi-aspect-ratio'], not: true, loose: true } },
       options: FORMATS.map((f) => ({ label: f, value: f })),
     },
     {
@@ -145,6 +153,16 @@ export default defineBlock({
           hint: t.blocks.picture.altHint,
           libraryText: 'image',
           only: { field: 'media', is: ['image'] },
+        },
+        // The card's own aspect ratio, only in the multi-aspect ratio layout (the block's `ratio` is not used there and stays stored).
+        {
+          name: 'aspect',
+          label: t.blocks.cards.ratio,
+          type: 'select',
+          default: DEFAULT_ASPECT,
+          hint: t.blocks.cards.aspectHint,
+          only: { field: 'layout', is: ['multi-aspect-ratio'], and: { field: 'media', is: ['image'] } },
+          options: ASPECTS.map((f) => ({ label: f, value: f })),
         },
         {
           name: 'video',

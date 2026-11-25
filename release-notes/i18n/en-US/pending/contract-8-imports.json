@@ -1,6 +1,0 @@
-{
-  "id": "contract-8-imports",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "Apps and themes import only from a public list of the CMS’s files; a check names any other import with the nearest allowed one"
-}

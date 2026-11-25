@@ -56,7 +56,7 @@ import { sectionAttrs, sectionHeading, sectionSettingsOf, setSection } from './s
 import { sectionFrame } from './sectionFrame';
 import { IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock, type SheetTarget } from './BlockDialog';
 import { cropView } from './CropView';
-import { ratioProp } from './standard/cards/view';
+import { aspectProp, layoutOf, ratioProp } from './standard/cards/view';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel, liveSheet } from './sheetPlacement.mjs';
@@ -2218,7 +2218,8 @@ function blockCard(
       const i = active;
       const address = String(list[i]?.image ?? '');
       if (!address) return [];
-      const ratio = ratioProp(node.attrs.props);
+      // In the multi-aspect ratio layout the image is cut to the card's own aspect ratio, else to the block's.
+      const ratio = layoutOf(node.attrs.props) === 'multi-aspect-ratio' ? aspectProp(list[i]?.aspect) : ratioProp(node.attrs.props);
       const own = splitPicture(address);
       const put = (patch: Row) =>
         setItems(
