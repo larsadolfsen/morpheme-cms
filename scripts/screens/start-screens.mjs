@@ -170,6 +170,67 @@ async function checkStartGaps(width, height) {
   await page.close();
 }
 
+/** The main navigation (the rail, and the standard drawer it opens into) is drawn in M3's surface container, not in the page's own colour
+ * (Navigation rail, Specs, Color: the Container role is "Surface container"; 0.19.7, owner, 25 Nov 2026: the rail lost its colour again
+ * when 0.19.5 dropped the editor's override and the part fell back to the surface). Measures the computed background of the rail's frame
+ * and of the open drawer against probes painted with the two roles: it must equal --mo-sys-color-surface-container and differ from
+ * --mo-sys-color-surface. Light and dark. */
+async function checkMainNavColor(width, height) {
+  const label = `${width}px main navigation colour`;
+  for (const scheme of ['light', 'dark']) {
+    const page = await browser.newPage({ viewport: { width, height }, colorScheme: scheme });
+    page.on('pageerror', (e) => problems.push(`${label} ${scheme}: ${e.message}`));
+    await openEditor(page, site);
+    await page.waitForSelector('.mo-editor-main-rail-frame, .mo-navigation-drawer__standard, .mo-editor-main-drawer-frame', {
+      state: 'attached',
+    });
+    await page.waitForTimeout(500);
+    const measure = () =>
+      page.evaluate(() => {
+        const paint = (role) => {
+          const probe = document.createElement('div');
+          probe.style.cssText = `position:fixed;inline-size:1px;block-size:1px;background:var(--mo-sys-color-${role})`;
+          document.body.append(probe);
+          const c = getComputedStyle(probe).backgroundColor;
+          probe.remove();
+          return c;
+        };
+        const bg = (sel) => {
+          const e = document.querySelector(sel);
+          return e && e.getBoundingClientRect().width > 0 ? getComputedStyle(e).backgroundColor : null;
+        };
+        return {
+          container: paint('surface-container'),
+          surface: paint('surface'),
+          rail: bg('.mo-editor-main-rail-frame'),
+          drawer: bg('.mo-navigation-drawer__standard'),
+        };
+      });
+    const found = [];
+    let m = await measure();
+    if (m.rail) found.push(['the rail', m.rail]);
+    if (m.drawer) found.push(['the drawer', m.drawer]);
+    if (width >= 600 && !m.drawer) {
+      // Open the drawer (the menu button in the rail) to measure it as well.
+      await page
+        .locator('nav.mo-editor-main-rail button, .mo-editor-main-rail-frame button')
+        .first()
+        .click({ timeout: 3000 })
+        .catch(() => {});
+      await page.waitForTimeout(600);
+      m = await measure();
+      if (m.drawer) found.push(['the open drawer', m.drawer]);
+    }
+    if (!found.length) problems.push(`${label} ${scheme}: neither the rail nor the drawer was found`);
+    for (const [what, color] of found) {
+      if (color === m.surface)
+        problems.push(`${label} ${scheme}: ${what} is ${color}, the page's own surface colour; M3's role is surface-container`);
+      else if (color !== m.container) problems.push(`${label} ${scheme}: ${what} is ${color}, not surface-container (${m.container})`);
+    }
+    await page.close();
+  }
+}
+
 /** Why the site can't update itself shows on the start screen (BlockedUpdateNotice.tsx, reasons in src/cmsBlocked.mjs), in each state the Worker's
  * status can have: the notice has its title, its sentence and a "Read more" link to the Morpheme page, stays inside the screen and does not
  * overlap what is under it; a site with nothing wrong, or a problem with no newer version waiting, shows none. */
@@ -1042,6 +1103,12 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkStartGaps ${width}`, () => checkStartGaps(width, height));
+
+  for (const [width, height] of [
+    [800, 800],
+    [1280, 900],
+  ])
+    unit(`checkMainNavColor ${width}`, () => checkMainNavColor(width, height));
 
   for (const [width, height] of [
     [375, 800],

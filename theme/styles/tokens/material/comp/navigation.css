@@ -28,8 +28,13 @@
   --mo-comp-nav-bar-indicator-text: var(--mo-sys-color-on-surface);
   --mo-comp-nav-bar-indicator-hover: var(--mo-sys-state-hover-state-layer-color);
   --mo-comp-nav-bar-label-selected-weight: 500;
-  /* The navigation rail: 96px collapsed and 220px wide, on the page's background without a line, the same indicator
-     (56px high when wide), the labels in label medium, wide in label large. */
+  /* The navigation rail: 96px collapsed and 220px wide, in the surface container (Navigation rail, Specs, Color: the Container is
+     "Surface container"; the token table prints md.comp.nav-rail.*.container.color as surface, which is the page's own colour and
+     the regression of 25 Nov 2026), without a line, the same indicator (56px high when wide), the labels in label medium, wide
+     in label large. The expanded rail, standard (the editor's main drawer) and the collapsed rail share the one colour, so the
+     rail does not change colour when the drawer opens. */
+  --mo-comp-navigation-rail-surface: var(--mo-sys-color-surface-container);
+  --mo-comp-navigation-drawer-surface: var(--mo-sys-color-surface-container);
   --mo-comp-nav-rail-collapsed-container-width: 6rem;
   --mo-comp-nav-rail-expanded-width: 13.75rem;
   --mo-comp-nav-rail-padding: 1.5rem 0.5rem;

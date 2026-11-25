@@ -18,7 +18,7 @@
   (.mo-navigation-drawer__section-divider, edge to edge).
     --mo-comp-navigation-drawer-width (set: that width; else it hugs its content from 220dp, 320dp on a compact window, to 360dp, at most the screen less 56dp),
     --mo-comp-navigation-drawer-radius (0 16dp 16dp 0; under right-to-left --mo-comp-navigation-drawer-radius-rtl), --mo-comp-navigation-drawer-surface
-    (the modal one: the surface container, level 2's colour; the standard one: the surface),
+    (the modal one: the surface container, level 2's colour; the standard one: the surface container in Material),
     --mo-comp-navigation-drawer-shadow (the modal one: level 2, the lift shadow), --mo-comp-navigation-drawer-scrim-color, --mo-comp-navigation-drawer-inset (12dp each side, from
     the edges to the items), --mo-comp-navigation-drawer-padding (all of it, with room for the home indicator),
     --mo-comp-navigation-drawer-section-gap (8dp around the divider), --mo-comp-navigation-drawer-section-label-text
@@ -99,7 +99,7 @@
     height: 100%;
     flex-shrink: 0;
     box-shadow: var(--mo-comp-navigation-drawer-standard-shadow, var(--mo-sys-elevation-level0-shadow, none));
-    /* Expanded rail, standard: "Nav rail expanded container color", the surface. */
+    /* Expanded rail, standard: the surface container, the rail page's Container role (the token table prints the surface; see --mo-comp-navigation-drawer-surface in the Material tokens). Without the token: the surface. */
     background: var(--mo-comp-navigation-drawer-surface, var(--mo-sys-elevation-level0-color));
   }
   .mo-navigation-drawer__item {

@@ -395,6 +395,16 @@ export const ours = [
   { token: '--mo-comp-navigation-drawer-bleed-default', reason: 'How far a part reaches past the page margin; M3 prints no token for it.' },
   { token: '--mo-comp-navigation-drawer-inset-default', reason: 'How far a part reaches past the page margin; M3 prints no token for it.' },
   {
+    token: '--mo-comp-navigation-drawer-surface',
+    reason:
+      "The expanded rail, standard and modal: the Navigation rail page prints its Container role as Surface container (Specs, Color); the token table prints md.comp.nav-rail.expanded.container.color as surface, the page's own colour, so the part reads this one.",
+  },
+  {
+    token: '--mo-comp-navigation-rail-surface',
+    reason:
+      "The collapsed rail: the Navigation rail page prints its Container role as Surface container (Specs, Color); the token table prints md.comp.nav-rail.collapsed.container.color as surface, the page's own colour, so the part reads this one.",
+  },
+  {
     token: '--mo-comp-navigation-drawer-row-gap',
     reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
   },
