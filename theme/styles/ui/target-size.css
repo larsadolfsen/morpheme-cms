@@ -42,7 +42,7 @@
   }
   /* On one line (connected, a split button): the neighbours are at the sides, so only the width is limited. */
   :where(.mo-button-group).mo-is-connected > :is(.mo-button, .mo-icon-button) {
-    --mo-sys-target-gap-inline: var(--mo-comp-button-group-connected-xsmall-between-space, 0.125rem);
+    --mo-sys-target-gap-inline: var(--mo-comp-button-group-gap, var(--mo-comp-button-group-connected-small-between-space));
   }
   .mo-split-button > :is(.mo-button, .mo-icon-button) {
     --mo-sys-target-gap-inline: var(--mo-comp-split-button-gap, 0.125rem);

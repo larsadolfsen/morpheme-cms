@@ -42,7 +42,13 @@ export default function ButtonGroup({
   ...rest
 }: { kind?: ButtonGroupKind; label: string; className?: string; children: ReactNode } & Record<string, unknown>) {
   return (
-    <div role="group" aria-label={label} className={[buttonGroupClass(kind), className].filter(Boolean).join(' ')} {...rest}>
+    <div
+      role="group"
+      aria-label={label}
+      className={[buttonGroupClass(kind), className].filter(Boolean).join(' ')}
+      onKeyDown={kind === 'connected' ? connectedKeyDown : undefined}
+      {...rest}
+    >
       {children}
     </div>
   );

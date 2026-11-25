@@ -62,11 +62,16 @@
   --mo-comp-button-group-connected-medium-between-space: 0.125rem;
   --mo-comp-button-group-connected-large-between-space: 0.125rem;
   --mo-comp-button-group-connected-xlarge-between-space: 0.125rem;
-  --mo-comp-button-group-connected-xsmall-inner-corner-corner-size: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-button-group-connected-xsmall-inner-corner-corner-size: var(--mo-sys-shape-corner-small);
   --mo-comp-button-group-connected-small-inner-corner-corner-size: var(--mo-sys-shape-corner-small);
   --mo-comp-button-group-connected-medium-inner-corner-corner-size: var(--mo-sys-shape-corner-small);
   --mo-comp-button-group-connected-large-inner-corner-corner-size: var(--mo-sys-shape-corner-large);
   --mo-comp-button-group-connected-xlarge-inner-corner-corner-size: var(--mo-sys-shape-corner-large-increased);
+  --mo-comp-button-group-connected-xsmall-pressed-inner-corner-corner-size: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-button-group-connected-small-pressed-inner-corner-corner-size: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-button-group-connected-medium-pressed-inner-corner-corner-size: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-button-group-connected-large-pressed-inner-corner-corner-size: var(--mo-sys-shape-corner-medium);
+  --mo-comp-button-group-connected-xlarge-pressed-inner-corner-corner-size: var(--mo-sys-shape-corner-large);
   --mo-comp-button-group-selected-radius: var(--mo-sys-shape-corner-medium);
   --mo-comp-button-filled-unselected-container-color: var(--mo-sys-color-surface-container);
   --mo-comp-button-filled-unselected-label-text-color: var(--mo-sys-color-on-surface-variant);

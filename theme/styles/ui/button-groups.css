@@ -44,7 +44,7 @@
   }
   :where(.mo-button-group).mo-is-connected {
     flex-wrap: nowrap;
-    gap: var(--mo-comp-button-group-connected-xsmall-between-space, 0.125rem);
+    gap: var(--mo-comp-button-group-gap);
   }
   .mo-button-group > :is(.mo-button, .mo-icon-button) {
     transition:
@@ -81,7 +81,7 @@
   }
   @media (width >= 37.5rem) {
     :where(.mo-button-group).mo-is-connected {
-      max-width: var(--mo-comp-button-group-connected-max-width, 30rem);
+      max-width: var(--mo-comp-button-group-connected-max-width);
     }
   }
   :where(.mo-button-group).mo-is-connected > * {
@@ -95,6 +95,17 @@
   :where(.mo-button-group).mo-is-connected > :not(:last-child) {
     border-start-end-radius: var(--mo-comp-button-group-inner);
     border-end-end-radius: var(--mo-comp-button-group-inner);
+  }
+  /* Pressed, the corners between buttons shrink (the pressed inner corner of the size). */
+  :where(.mo-button-group).mo-is-connected
+    > :is(.mo-button, .mo-icon-button):not([aria-pressed='true']):active:not(:disabled):not(:first-child) {
+    border-start-start-radius: var(--mo-comp-button-group-pressed-inner);
+    border-end-start-radius: var(--mo-comp-button-group-pressed-inner);
+  }
+  :where(.mo-button-group).mo-is-connected
+    > :is(.mo-button, .mo-icon-button):not([aria-pressed='true']):active:not(:disabled):not(:last-child) {
+    border-start-end-radius: var(--mo-comp-button-group-pressed-inner);
+    border-end-end-radius: var(--mo-comp-button-group-pressed-inner);
   }
   /* A toggle that is on (its colours are the button's): with the selected corners, fully round in a connected group. */
   .mo-button-group > [aria-pressed='true'] {
