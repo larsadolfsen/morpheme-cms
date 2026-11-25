@@ -53,7 +53,7 @@ import { headingChoices } from '../lib/heading-levels.mjs';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
 import { sectionAttrs, sectionHeading, sectionSettingsOf, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
-import { DIVIDER, IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock, type SheetTarget } from './BlockDialog';
+import { IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock, type SheetTarget } from './BlockDialog';
 import { cropView } from './CropView';
 import { ratioProp } from './standard/cards/view';
 import { askLink } from './LinkSheet';
@@ -2965,10 +2965,9 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       doc.descendants((n) => void (n.type.name === 'image' && have.push(IMAGE)));
     });
     // live: from medium a block with fields comes back at once (`open`), and its sheet opens live beside it once it is in.
-    const chosen = await holdWhile(blocks!.choose({ image: !!addImage, divider: true, have, live: true }));
+    const chosen = await holdWhile(blocks!.choose({ image: !!addImage, have, live: true }));
     if (!chosen) return;
     if (chosen.type === IMAGE) return image();
-    if (chosen.type === DIVIDER) return divider();
     editor.current?.action((ctx) => {
       const view = ctx.get(editorViewCtx);
       const { state } = view;
@@ -3206,7 +3205,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const contextIds = block_
     ? [...(block_.count ? ['block:count'] : []), ...blockToolIds(block_).map((id) => `block:${id}`)]
     : textContext
-      ? ['bold', 'italic', 'style', ...(lists.length ? ['list'] : []), 'align', 'link', 'color']
+      ? ['bold', 'italic', 'style', ...(lists.length ? ['list'] : []), 'align', 'link', 'color', 'divider']
       : [];
   const blockMenu = block_?.menu ?? [];
   // Undo, Redo and Insert block (never in the ⋮) stand at the right end of the bar in every place, then the ⋮ (owner decision, 14 Nov). Section
@@ -3416,6 +3415,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         return { label: t.text.italic, icon: materialIcon('format_italic'), action: () => run(toggleEmphasisCommand), on: 'emphasis' };
       case 'link':
         return { label: t.text.link, icon: materialIcon('link'), action: link, on: 'link' };
+      case 'divider':
+        return { label: t.text.divider, icon: materialIcon('horizontal_rule'), action: divider };
       case 'insert':
         return { label: insertLabel, icon: blocks ? AddBlockIcon : materialIcon('image'), action: blocks ? block : image };
       case 'undo':
@@ -3524,7 +3525,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     );
   };
   // In the `⋮` menu the context's tools come first, then a divider, then the main tools.
-  const MORE_ORDER = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
+  const MORE_ORDER = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color', 'divider'];
   const moreContext = [...plan.more.context].sort((a, b) => MORE_ORDER.indexOf(a) - MORE_ORDER.indexOf(b));
   // Preview comes after Section settings.
   const moreMain = [

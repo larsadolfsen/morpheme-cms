@@ -571,7 +571,7 @@ async function checkTextBarFit(width) {
     if (name.startsWith('Text style')) return 'style';
     if (name === 'List' || name.startsWith('List:')) return 'list';
     if (name.startsWith('Alignment')) return 'align';
-    return { Bold: 'bold', Italic: 'italic', Link: 'link', Color: 'color' }[name] ?? null;
+    return { Bold: 'bold', Italic: 'italic', Link: 'link', Color: 'color', Divider: 'divider' }[name] ?? null;
   };
   const bar = await page.evaluate(() => {
     const el = document.querySelector('.mo-editor-tools');
@@ -588,7 +588,7 @@ async function checkTextBarFit(width) {
       pageScrolls: document.documentElement.scrollWidth > innerWidth,
     };
   });
-  const TEXT = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
+  const TEXT = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color', 'divider'];
   const onBar = bar.buttons.map((b) => idOf(b.name)).filter(Boolean);
   if (bar.scrolls || bar.pageScrolls || bar.buttons.at(-1).right > bar.barRight - 0.5)
     problems.push(`${label}: the bar overflows its box (last button ends at ${bar.buttons.at(-1).right}, box at ${bar.barRight - 1})`);
@@ -615,7 +615,7 @@ async function checkTextBarFit(width) {
           ? 'list'
           : /^Align /.test(r)
             ? 'align'
-            : { Link: 'link', Color: 'color' }[r];
+            : { Link: 'link', Color: 'color', Divider: 'divider' }[r];
       if (id && !inMenu.includes(id)) inMenu.push(id);
     }
   }
@@ -687,15 +687,15 @@ async function checkTextBarWide() {
   }
   const { more } = await barTools(page);
   const rows = more.map((m) => m.label);
-  const want = ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Color', 'Undo', 'Redo', 'Insert block', 'Preview'];
+  const want = ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Color', 'Divider', 'Undo', 'Redo', 'Insert block', 'Preview'];
   for (const name of want)
     if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)) && !rows.includes(name))
       problems.push(`1280px text bar: no ${name} on the bar or in the ⋮ (${got.names.join(', ')} | ${rows.join(', ')})`);
   for (const name of ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Undo', 'Redo', 'Insert block'])
     if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)))
       problems.push(`1280px text bar: ${name} is not on the bar (${got.names.join(', ')})`);
-  if (got.names.includes('More') && rows.some((r) => !['Preview', 'Color'].includes(r)))
-    problems.push(`1280px text bar: the ⋮ holds more than Preview and Color (${rows.join(', ')})`);
+  if (got.names.includes('More') && rows.some((r) => !['Preview', 'Color', 'Divider'].includes(r)))
+    problems.push(`1280px text bar: the ⋮ holds more than Preview, Color and Divider (${rows.join(', ')})`);
   if (got.height < 44 || got.height > 46 || got.small || got.scrolls || got.divider)
     problems.push(
       `1280px text bar: height ${got.height}, ${got.small} buttons not 44 x 44, scrolls ${got.scrolls}, divider ${got.divider} (none wanted)`,
