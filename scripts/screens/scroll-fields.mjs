@@ -55,7 +55,7 @@ async function checkScrollFields(width, height, theme) {
   const move = async (field, key) => {
     await field.focus();
     await page.keyboard.press(key);
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(1200);
     return Number(await field.getAttribute('aria-valuenow'));
   };
   // A finite field (the first, 0 to 59, at 30): down goes to 31, End to 59 and down again stays on it, Home to 0.

@@ -43,12 +43,17 @@ const indexOfValue = (list: HTMLElement) => {
 /** The place in the whole drawing a field rests on for its value (the middle copy of a looping field). */
 const restingOf = (list: HTMLElement) => (loops(list) ? restingIndex(indexOfValue(list), countOf(list)) : indexOfValue(list));
 
+/** Where a field is being scrolled to by the control itself: the scrolling on the way there does not change the value (a smooth scroll passes the items between). */
+const going = new WeakMap<HTMLElement, number>();
+
 /** A field put at its value, with that item in the middle (in one step when `instant`, else smoothly unless the person asked for less motion). */
 export function scrollFieldTo(list: HTMLElement, instant = false) {
   const pitch = pitchOf(list);
   if (!pitch) return;
   const top = restingOf(list) * pitch;
-  if (Math.abs(list.scrollTop - top) > 1) list.scrollTo({ top, behavior: instant || reduced() ? 'instant' : 'smooth' });
+  if (Math.abs(list.scrollTop - top) <= 1) return going.delete(list);
+  going.set(list, top);
+  list.scrollTo({ top, behavior: instant || reduced() ? 'instant' : 'smooth' });
 }
 
 /** Every field in `host` put at its value. */
@@ -106,6 +111,17 @@ export function scrollFieldControl(host: HTMLElement, options: ScrollFieldContro
   const onScroll = (e: Event) => {
     const list = listOf(e.target);
     if (!own(list) || list !== e.target) return;
+    const goal = going.get(list);
+    if (goal !== undefined) {
+      // On its way to where the control sent it: nothing is picked on the way, and the field is free again when it arrives (or has stopped).
+      clearTimeout(settling.get(list));
+      if (Math.abs(list.scrollTop - goal) <= 1) going.delete(list);
+      else
+        return void settling.set(
+          list,
+          setTimeout(() => going.delete(list), 300),
+        );
+    }
     const pitch = pitchOf(list);
     const count = countOf(list);
     const place = indexAtScroll(list.scrollTop, pitch, count * copiesOf(list));
