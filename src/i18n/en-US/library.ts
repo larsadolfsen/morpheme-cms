@@ -180,6 +180,18 @@ export const library = {
   changeIconPackAsk: (name: string) => `The website and the editor get the icons from ${name} in a few minutes`,
   changeIconPack: 'Change icon pack',
   iconPackSaved: (change: string) => `${change}. The website and the editor get the new icons in a few minutes.`,
+  /** An icon pack from the store (iconPackActions.ts): installed, updated or removed, asked before it is removed (what the site
+   * draws when the pack is the one in use), and the commits, in the site's language (siteT). */
+  iconPackInstalled: (name: string) => `${name} is installed. You can pick it under Appearance › Icon packs in a few minutes.`,
+  iconPackUpdated: (name: string, version: string) => `${name} is updated to ${version}. The website uses it in a few minutes.`,
+  iconPackRemoved: (name: string) => `${name} is removed`,
+  askRemoveIconPack: (name: string, inUse: boolean) =>
+    inUse ? `Remove ${name}? The website draws Material Symbols instead.` : `Remove ${name}? Its icons are removed from the website.`,
+  iconPackStoreCommits: {
+    install: (name: string) => `Editor: install the icon pack ${name}`,
+    uninstall: (name: string) => `Editor: remove the icon pack ${name}`,
+    update: (name: string, version: string) => `Editor: update the icon pack ${name} to ${version}`,
+  },
   iconPackCommit: (name: string) => `Editor: change icon pack to ${name}`,
   /** Under "Motion" (MotionSchemes in Library.tsx): each motion scheme's name and how it moves (lib/motion.ts); by the
    * theme's own; asked before one is chosen, the question's button, what is said after it is saved, and the commit, in

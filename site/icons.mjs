@@ -8,7 +8,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { cleanSvg } from '@morphemecms/cms/lib/svg.mjs';
-import { ICON_PACK_FILE, ICON_PACK_LICENSE, THEME_PACKS_FOLDER, themePackId } from './iconPacks.mjs';
+import { ICON_PACK_FILE, ICON_PACK_LICENSE, STORE_PACKS_FOLDER, THEME_PACKS_FOLDER, isStorePack, themePackId } from './iconPacks.mjs';
 
 // The site's root (the working directory) and this package's.
 const root = pathToFileURL(`${process.cwd()}/`);
@@ -17,8 +17,9 @@ const pkg = new URL('../', import.meta.url);
 /** Where the system's own packs are, one folder each (this package's icons/), from the site's root. */
 export const SYSTEM_PACKS_FOLDER = relative(process.cwd(), fileURLToPath(new URL('icons', pkg)));
 
-/** A pack's folder, from its id, from the site's root: a system pack's in this package, a theme's in its folder. */
+/** A pack's folder, from its id, from the site's root: a system pack's in this package, a store pack's in src/icon-packs/, a theme's in its folder. */
 export const packFolder = (id) => {
+  if (isStorePack(id)) return `${STORE_PACKS_FOLDER}/${id}`;
   const [theme, pack] = id.split('/');
   return pack ? `src/themes/${theme}/${THEME_PACKS_FOLDER}/${pack}` : `${SYSTEM_PACKS_FOLDER}/${theme}`;
 };
@@ -47,7 +48,7 @@ const folders = (dir) =>
         .map((e) => e.name)
     : [];
 
-/** The icon packs there are, by id: the system's (packages/editor/icons/<pack>/) and those the themes installed bring
+/** The icon packs there are, by id: the system's (packages/editor/icons/<pack>/), those installed from the store (src/icon-packs/<id>/) and those the themes installed bring
  * (src/themes/<theme>/icon-packs/<pack>/, as `<theme>/<pack>`), each a folder with its pack.json. */
 export function installedPacks() {
   const system = folders(`${SYSTEM_PACKS_FOLDER}/`).filter((p) => has(`${SYSTEM_PACKS_FOLDER}/${p}/${ICON_PACK_FILE}`));
@@ -56,7 +57,8 @@ export function installedPacks() {
       .filter((p) => has(`src/themes/${theme}/${THEME_PACKS_FOLDER}/${p}/${ICON_PACK_FILE}`))
       .map((p) => themePackId(theme, p)),
   );
-  return [...system, ...themes];
+  const store = folders(`${STORE_PACKS_FOLDER}/`).filter((p) => isStorePack(p) && has(`${STORE_PACKS_FOLDER}/${p}/${ICON_PACK_FILE}`));
+  return [...system, ...store, ...themes];
 }
 
 /** A pack's icons as their files' text, by name (its <name>.svg). */
