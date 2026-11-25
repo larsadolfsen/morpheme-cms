@@ -7,28 +7,49 @@
   /* Buttons (ui.css): M3's small size (40px), as wide as the label, full corners (or square), a label in medium weight; a text
      button with less room at its sides; tonal in the secondary container, elevated on the lowest container with the
      first elevation, outlined with M3's outline variant and its label in on-surface-variant. */
+  /* The five sizes, M3's md.comp.button.<size> (the Expressive set): height, leading and trailing space (equal), icon size, icon and label space, the
+     corners of a square button and of a pressed one, and the outline of an outlined one. The round corner is full at every size. */
+  --mo-comp-button-xsmall-container-height: 2rem;
+  --mo-comp-button-xsmall-leading-space: 0.75rem;
+  --mo-comp-button-xsmall-trailing-space: 0.75rem;
+  --mo-comp-button-xsmall-icon-size: 1.25rem;
+  --mo-comp-button-xsmall-icon-label-space: 0.25rem;
+  --mo-comp-button-xsmall-container-shape-square: var(--mo-sys-shape-corner-medium);
+  --mo-comp-button-xsmall-pressed-container-shape: var(--mo-sys-shape-corner-small);
   --mo-comp-button-small-container-height: 2.5rem;
   --mo-comp-button-small-container-shape-round: var(--mo-sys-shape-corner-full);
-  /* Square buttons and icon buttons by M3's size: medium corners on the small ones (40px, as these buttons), large on
-     the medium (56px: the hero's buttons on a computer, the medium icon button), extra-large on the large. */
-  --mo-comp-button-xsmall-container-shape-square: var(--mo-sys-shape-corner-medium);
-  --mo-comp-button-small-container-shape-square: var(--mo-sys-shape-corner-medium);
-  --mo-comp-button-small-container-shape-square: var(--mo-sys-shape-corner-medium);
-  --mo-comp-button-large-container-shape-square: var(--mo-sys-shape-corner-extra-large);
-  --mo-comp-button-xlarge-container-shape-square: var(--mo-sys-shape-corner-extra-large);
   --mo-comp-button-small-leading-space: 1rem;
   --mo-comp-button-small-trailing-space: 1rem;
+  --mo-comp-button-small-icon-size: 1.25rem;
   --mo-comp-button-small-icon-label-space: 0.5rem;
+  --mo-comp-button-small-container-shape-square: var(--mo-sys-shape-corner-medium);
+  --mo-comp-button-small-pressed-container-shape: var(--mo-sys-shape-corner-small);
+  --mo-comp-button-medium-container-height: 3.5rem;
+  --mo-comp-button-medium-leading-space: 1.5rem;
+  --mo-comp-button-medium-trailing-space: 1.5rem;
+  --mo-comp-button-medium-icon-size: 1.5rem;
+  --mo-comp-button-medium-icon-label-space: 0.5rem;
+  --mo-comp-button-medium-container-shape-square: var(--mo-sys-shape-corner-large);
+  --mo-comp-button-medium-pressed-container-shape: var(--mo-sys-shape-corner-medium);
+  --mo-comp-button-large-container-height: 6rem;
+  --mo-comp-button-large-leading-space: 3rem;
+  --mo-comp-button-large-trailing-space: 3rem;
+  --mo-comp-button-large-icon-size: 2rem;
+  --mo-comp-button-large-icon-label-space: 0.75rem;
+  --mo-comp-button-large-container-shape-square: var(--mo-sys-shape-corner-extra-large);
+  --mo-comp-button-large-pressed-container-shape: var(--mo-sys-shape-corner-large);
+  --mo-comp-button-large-outlined-outline-width: 2px;
+  --mo-comp-button-xlarge-container-height: 8.5rem;
+  --mo-comp-button-xlarge-leading-space: 4rem;
+  --mo-comp-button-xlarge-trailing-space: 4rem;
+  --mo-comp-button-xlarge-icon-size: 2.5rem;
+  --mo-comp-button-xlarge-icon-label-space: 1rem;
+  --mo-comp-button-xlarge-container-shape-square: var(--mo-sys-shape-corner-extra-large);
+  --mo-comp-button-xlarge-pressed-container-shape: var(--mo-sys-shape-corner-large);
+  --mo-comp-button-xlarge-outlined-outline-width: 3px;
   --mo-comp-button-font-size: var(--mo-sys-typescale-label-large-size);
   --mo-comp-button-weight: var(--mo-sys-typescale-label-large-weight);
   --mo-comp-button-letter-spacing: var(--mo-sys-typescale-label-large-tracking);
-  --mo-comp-button-small-container-height: 2.5rem;
-  --mo-comp-button-small-leading-space: 1rem;
-  --mo-comp-button-small-trailing-space: 1rem;
-  --mo-comp-button-xsmall-container-height: 2rem;
-  --mo-comp-button-xsmall-leading-space: 1rem;
-  --mo-comp-button-xsmall-trailing-space: 1rem;
-  --mo-comp-button-xsmall-icon-label-space: 0.25rem;
   --mo-comp-button-text-padding: 1rem;
   --mo-comp-button-filled-hover: color-mix(
     in srgb,
@@ -57,7 +78,11 @@
      outline and no container, the chosen in the secondary container with its check. Split buttons 2px apart with
      extra-small corners between them (small for the large, medium for the extra-large). A FAB menu's actions as pills in the secondary container (the theme's --mo-sys-color-surface-container-high, below) and its
      FAB a circle while open. */
+  --mo-comp-button-group-standard-xsmall-between-space: 1.125rem;
+  --mo-comp-button-group-standard-small-between-space: 0.75rem;
   --mo-comp-button-group-standard-medium-between-space: 0.5rem;
+  --mo-comp-button-group-standard-large-between-space: 0.5rem;
+  --mo-comp-button-group-standard-xlarge-between-space: 0.5rem;
   --mo-comp-button-group-connected-xsmall-between-space: 0.125rem;
   --mo-comp-button-group-connected-small-between-space: 0.125rem;
   --mo-comp-button-group-connected-medium-between-space: 0.125rem;

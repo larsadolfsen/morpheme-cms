@@ -5,7 +5,7 @@ import { boldParts, searchCrumbs } from './googleResult.mjs';
 import { TabPanel, TabRow } from './ui';
 import { shortDate } from './when';
 import { t } from './i18n';
-import { Icon, materialIcon } from './icon';
+import { Icon } from './icon';
 
 type Device = 'mobile' | 'desktop';
 
@@ -41,11 +41,12 @@ export function SearchPreview({
     <div className="mo-editor-search-preview">
       <TabRow
         id={id}
+        kind="secondary"
         label={t.forms.searchPreview.on}
         value={device}
         options={[
-          { value: 'mobile', label: t.forms.searchPreview.mobile, icon: materialIcon('mobile') },
-          { value: 'desktop', label: t.forms.searchPreview.desktop, icon: materialIcon('desktop_windows') },
+          { value: 'mobile', label: t.forms.searchPreview.mobile },
+          { value: 'desktop', label: t.forms.searchPreview.desktop },
         ]}
         onChange={setDevice}
       />
