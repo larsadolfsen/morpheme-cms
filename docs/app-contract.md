@@ -135,7 +135,7 @@ The version functions (`publish`, `schedule`, `unpublish`, `discard` and `saveDr
 
 ### Public imports
 
-Contract 8 lists what a theme or an app may import from `@morphemecms/cms`. The list is `PUBLIC_IMPORTS` in `lib/public-imports.mjs`, and this section carries the same list (`npm run check:imports` fails if they differ). 0.21.1 pre-builds the editor, and theme and app editor code is then built apart and meets the editor through an import map made from this list, so only these specifiers are there. Any other path of `@morphemecms/cms` (screens, `src/store`, `src/ui`, `src/registry`, `pages/`, `worker/`), any `virtual:*` module and any deeper path into a standard block than the files named here is refused: `check:imports` names the file, the line, the specifier and the nearest allowed one, and the store does not offer an item that imports outside the list at contract 8. Adding a specifier later is additive; removing or moving one raises the contract.
+Contract 8 lists what a theme or an app may import from `@morphemecms/cms`. The list is `PUBLIC_IMPORTS` in `lib/public-imports.mjs`, and this section carries the same list (`npm run check:imports` fails if they differ). 0.21.1 pre-builds the editor, and theme and app editor code is then built apart and meets the editor through an import map made from this list, so only these specifiers are there. Any other path of `@morphemecms/cms` (screens, `src/store`, `src/registry`, `pages/`, `worker/`), any `virtual:*` module and any deeper path into a standard block than the files named here is refused: `check:imports` names the file, the line, the specifier and the nearest allowed one, and the store does not offer an item that imports outside the list at contract 8. Adding a specifier later is additive; removing or moving one raises the contract.
 
 A theme or an app also imports its own parts and data: `@theme/ui/…`, `@theme/blocks/…`, `@theme/components/…`, `@theme/layouts/…`, `@theme/editor/…`, `@site/…`, `@data/…`, `@app/self` and relative paths. They are not CMS modules and are not in the list. The theme's shared parts are there for an app block too, by Material 3's names: for example the divider (`@theme/ui/Divider`: `Divider`, `dividerClass`; the class `.mo-divider` with `.mo-is-inset`, `.mo-is-middle-inset` and `.mo-is-vertical`; the tokens `--mo-comp-divider-thickness` and `--mo-comp-divider-color`). A hook or an after-build step still imports only the three modules of *Imports*.
 
@@ -182,6 +182,13 @@ A theme or an app also imports its own parts and data: `@theme/ui/…`, `@theme/
 - `@morphemecms/cms/src/standard/video/view`
 - `@morphemecms/cms/src/standard/video/load`
 
+**The editor's parts.**
+
+- `@morphemecms/cms/src/apps`
+- `@morphemecms/cms/src/ui`
+- `@morphemecms/cms/src/when`
+- `@morphemecms/cms/src/ask`
+
 **Icons and texts.**
 
 - `@morphemecms/cms/src/icon`
@@ -210,6 +217,7 @@ A theme or an app also imports its own parts and data: `@theme/ui/…`, `@theme/
 - `@morphemecms/cms/site/categories`
 - `@morphemecms/cms/site/apps`
 - `@morphemecms/cms/site/defineSite.mjs`
+- `@morphemecms/cms/site/tracking.client`
 
 **Helpers.**
 
@@ -233,6 +241,7 @@ A theme or an app also imports its own parts and data: `@theme/ui/…`, `@theme/
 - `@morphemecms/cms/lib/dynamic-colors`
 - `@morphemecms/cms/lib/hooks`
 - `@morphemecms/cms/lib/versions.mjs`
+- `@morphemecms/cms/lib/appDefinition.mjs`
 
 ### Limits
 
