@@ -1,0 +1,19 @@
+{
+  "api": 8,
+  "label": "Kind example: sheet",
+  "publisher": "Morpheme",
+  "license": "MIT",
+  "icon": "campaign",
+  "hint": "A promotion kind that opens as the theme's bottom sheet, to check that an app's part is drawn in the app's scope.",
+  "description": "The demo's own app: one promotion kind with its own scoped CSS, opened by a button. check:app-kinds opens it on a phone and a computer.",
+  "category": "content",
+  "version": "1.0.0",
+  "kinds": {
+    "popups": {
+      "label": "Kind example: sheet",
+      "icon": "campaign",
+      "hint": "A promotion that shows its heading in a box of the app.",
+      "fields": []
+    }
+  }
+}

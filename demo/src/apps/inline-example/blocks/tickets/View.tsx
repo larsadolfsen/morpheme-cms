@@ -5,7 +5,7 @@ export default function View({ view }: { view: TicketsView }) {
   return (
     <ul className="mo-block-list">
       {view.items.map((r, i) => (
-        <li key={i} className="mo-block-tickets__row">
+        <li key={i} className="row">
           <strong>{r.title}</strong>
           {r.text ? <p>{r.text}</p> : null}
         </li>

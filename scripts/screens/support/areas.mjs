@@ -24,6 +24,7 @@ export const AREAS = [
   'inline-blocks',
   'lists',
   'page-rows',
+  'scroll-time-picker',
   'search-and-palette',
   'sections',
   'sheets',
@@ -139,6 +140,7 @@ export const RULES = [
   ],
   [s('EntryForm|FormFrame|DataForm|formSection\\w*'), ['forms', 'sheets']],
   [s('choiceSamples'), ['choice-groups']],
+  [s('time-picker|timePicker|TimePicker|scroll-field|scrollTime|PickerParts'), ['scroll-time-picker']],
   [/^src\//, 'all'],
 
   // The default theme: a block's own folder reaches the areas that draw blocks; everything shared (styles, tokens, ui, layouts,
