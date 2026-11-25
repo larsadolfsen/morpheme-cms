@@ -1,16 +1,16 @@
-# 0.19.6 The editor in Material 3 (plan)
+# 0.19.7 The editor in Material 3 (plan)
 
-**0.19.7 and 0.19.8** (owner, 25 Nov 2026: "everything we have started ships along saras fix as 0.19.7, and then the rest in 0.19.8"). A batch already started on 25 Nov ships in 0.19.7 (`plans/2026-11-22-0-19-7-ui-fixes.md`, *Release*); every other batch is 0.19.8. Its batch 0 (the version) is set by the release it ships in.
+**0.19.7** (owner, 25 Nov 2026: "everything we have started ships along saras fix as 0.19.7, and then the rest in 0.19.8"). Its batches 1 to 8 were started on 25 Nov and ship in 0.19.7 (`plans/2026-11-22-0-19-7-ui-fixes.md`, *Release*), on `feature/0.19.7-ui-fixes`, PM `/pm 0.19.7`. Its version is 0.19.7, set by #1220.
 
-Status: **21 November 2026.** Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md`, item 0.19.6. The audit it is built from:
+Status: **21 November 2026.** Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md`, item 7. The audit it is built from:
 `specs/2026-11-21-editor-screens-m3-audit.md` (0.19.5 batch 14, #1120): 392 rows in 8 batches, and 110 rows of the page and post editor
 apart.
 
 Already done in 0.19.5 (owner, 21 Nov 2026, after seeing them on staging): batch 17 (#1123) removed the rail's colour override
 (audit row 1.16), and found the search bar (row 1.28) and the dashboard's outlined cards already matching M3 on the feature. Those
-rows are not part of 0.19.6.
+rows are not part of 0.19.7.
 
-## What 0.19.6 is
+## What 0.19.7 is
 
 Every editor screen (theme page, settings, lists, dialogs, dashboard, start screen, sheets) becomes the theme's Material parts with
 Material 3's values. The page and post editor's own bar, overflow menu, and text and block menus are not part of it (the audit's
@@ -38,7 +38,7 @@ The owner's rules for it:
 
 ## The recorded exceptions
 
-| Entry | In 0.19.6 | Later |
+| Entry | In 0.19.7 | Later |
 | :-- | :-- | :-- |
 | FL1, footer links 36 px | They are links, not buttons (owner, 24 Nov 2026): they stay links, with a 48 dp target. | |
 | EP1, score ring | Built on M3's circular progress indicator. Its good, average and bad tones are the status colours of CS1, the one recorded colour exception for status. | |
@@ -86,11 +86,11 @@ The owner's rules for it:
 - **The save bar** is a standard bottom sheet in the screens (EB1), so it is in scope. The text bar and the block's action row are the
   page and post editor's, so they are not.
 
-## Batches (pull requests into `feature/0.19.6-editor-m3`)
+## Batches (pull requests into `feature/0.19.7-ui-fixes`)
 
-PM 0.19.6 cuts the feature from `main` once 0.19.5 is released. A row named in two batches is fixed in the batch of its first row.
+PM `/pm 0.19.7` owns the feature (cut from `main`). A row named in two batches is fixed in the batch of its first row.
 
-0. **The version.** Set `version` to 0.19.6 (`plans/2026-11-19-version-at-feature-start.md`), with the audit as the batch list.
+0. **The version.** Set `version` to 0.19.7 (`plans/2026-11-19-version-at-feature-start.md`), with the audit as the batch list.
 1. **Shared parts and token overrides** (audit batch 8). This goes first: fixing a part once removes rows in every other batch. It
    includes the type, spacing, shape and colour rules above, and any M3 variant a part must offer. That variant gets the owner's yes
    through the PM before it is built.
@@ -115,4 +115,4 @@ PM 0.19.6 cuts the feature from `main` once 0.19.5 is released. A row named in t
 - Every row of the audit's main list is fixed, or recorded with the owner's yes.
 - `docs/material-deviations.md` holds no editor-screen entry except CS2, CS3 and the ones that move to 0.20.0 or 0.25.
 - The owner has reviewed the feature on the demo in light and dark.
-- 0.19.6 has run on staging before the owner releases it.
+- 0.19.7 has run on staging before the owner releases it.
