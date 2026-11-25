@@ -393,7 +393,7 @@ async function checkChoiceGroupParts(width, locale) {
 }
 
 /** The connected button group (Material 3 Expressive, Button groups, Specs: the connected group's between-space 2 dp, inner corners small 8 dp, the selected
- * button's corners 50 % (fully round), the outer corners full): on the theme's parts page, a connected group of text buttons with one toggled on. Measured:
+ * button's corners 50 % (fully round), the outer corners full): on the theme's parts page, the connected group of text buttons in the `required` selection mode (one toggled on, keys by the group). Measured:
  * the gap, the corners, the height of a small button (40 dp), the target, and the keys (ArrowRight and ArrowLeft move focus, Home and End go to the ends). */
 async function checkConnectedButtons(width) {
   const label = `${width}px connected buttons`;
@@ -405,7 +405,7 @@ async function checkConnectedButtons(width) {
   const part = page.locator('[data-part="ButtonGroup"]');
   await part.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the ButtonGroup part is not on the page`));
   if (!(await part.count())) return page.close();
-  const group = part.locator('.mo-button-group.mo-is-connected:has(> .mo-button)').first();
+  const group = part.locator('.mo-button-group.mo-is-connected[data-selection="required"]:has(> .mo-button)').first();
   await group.scrollIntoViewIfNeeded();
   await page.evaluate(() => document.fonts.ready);
   const got = await group.evaluate((g) => {

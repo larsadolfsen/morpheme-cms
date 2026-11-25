@@ -170,7 +170,7 @@ export default function ChoiceGroup({
         label={label}
         className="mo-choice-group__buttons"
         selection="required"
-        value={[value]}
+        value={value === undefined ? [] : [value]}
         onChange={([v]) => v && choose(v)}
       >
         {choices.map((c) => (
