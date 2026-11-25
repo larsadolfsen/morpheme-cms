@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { library as en } from './i18n/en-US/library.ts';
 import { library as da } from './i18n/da-DK/library.ts';
 import { readdirSync, readFileSync } from 'node:fs';
-import { markCounts, notesSince } from '../lib/releaseNotes.mjs';
+import { markCounts, notesOfVersion, notesSince } from '../lib/releaseNotes.mjs';
 import { compareVersions } from '../lib/cms-version.mjs';
 
 test('the card says features and improvements, and leaves out a count of 0', () => {
@@ -57,4 +57,22 @@ test('for every real version, features + improvements is its number of release n
   assert.equal(since.length, want.length);
   const { features, improvements } = markCounts(since);
   assert.equal(features + improvements, want.length);
+});
+
+test('the update card counts the notes of the version in its headline only', () => {
+  const note = (id, kind = 'line') => ({ id, kind, mark: 'improvement', text: id, ...(kind === 'paragraph' ? { title: id } : {}) });
+  const entries = [
+    { version: '0.19.6', notes: { 'en-US': [note('a'), note('b', 'paragraph')] } },
+    { version: '0.19.5', notes: { 'en-US': [note('c'), note('d')] } },
+  ];
+  assert.deepEqual(
+    notesOfVersion(entries, '0.19.6', 'en-US').map((n) => n.id),
+    ['b', 'a'],
+  );
+  assert.deepEqual(
+    notesOfVersion(entries, '0.19.6-next-20261125101010', 'da-DK').map((n) => n.id),
+    ['b', 'a'],
+  );
+  assert.equal(notesSince(entries, '0.19.4', 'en-US').length, 4);
+  assert.deepEqual(notesOfVersion(entries, 'x', 'en-US'), []);
 });

@@ -40,7 +40,7 @@ import { rivalsOf, withRivalsOff } from '../lib/appTypes.mjs';
 import { applyChanges, firstStart, mergeChanges, parseInstalls, parseWorkers } from '../lib/buildInstall.mjs';
 import { CATEGORIES, categoryOf, roleOf, type Role } from '../lib/storeCategories.mjs';
 import { filterByRole, mcpOf, serviceOf } from './sectionChoice.mjs';
-import { AnyIcon, Icon as NamedIcon, materialIcon, type IconComponent as Icon } from './icon';
+import { AnyIcon, materialIcon, type IconComponent as Icon } from './icon';
 import {
   appChanges,
   appFolder,
@@ -962,19 +962,15 @@ type AppProps = { app: SiteApp; env: Env; files: RepoFile[] };
 
 type AppTab = 'settings' | 'information';
 
-/** The Settings tab's icon: `settings` (the gear), which only the editor's Settings and an app's Settings tab draw (one icon per meaning). */
-const SettingsIcon = (({ size, className }: { size?: number | string; className?: string }) => (
-  <NamedIcon name="settings" size={Number(size) || 24} className={className} />
-)) as unknown as Icon;
-
 /** The tabs of an installed app's page, in the top bar: Settings (#apps/<id>) and Information (#apps/<id>/about). A form
  * with unsaved changes asks first, as for every address (App.tsx). */
 const tabsOf = (app: SiteApp, tab: AppTab): TabChoice<AppTab> => ({
+  kind: 'secondary',
   label: t.apps.tabs,
   value: tab,
   options: [
-    { value: 'settings', label: t.apps.tabSettings, icon: SettingsIcon },
-    { value: 'information', label: t.apps.tabInfo, icon: materialIcon('info') },
+    { value: 'settings', label: t.apps.tabSettings },
+    { value: 'information', label: t.apps.tabInfo },
   ],
   onChange: (v) => (location.hash = v === 'settings' ? appHref(app) : `${appHref(app)}/${INFO_KEY}`),
 });

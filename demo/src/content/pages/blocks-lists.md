@@ -8,9 +8,9 @@ seoDescription: "Lists and expanding lists, in the Plain and the Segmented desig
 
 # Lists
 
-[All blocks](/blocks/)
-
 Drawn by the List component: the List and List - Expand blocks, each in the Plain and the Segmented design, and a List - Expand marked as a FAQ. The check list is a type, on the Type page.
+
+[All blocks](/blocks/)
 
 ## List
 

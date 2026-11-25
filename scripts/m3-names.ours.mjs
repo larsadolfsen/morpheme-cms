@@ -844,7 +844,36 @@ export const ours = {
     { token: '--mo-comp-radio-button-offset', reason: "The radio button's offset in its target; M3 prints it on the specs page." },
     { token: '--mo-comp-ripple-opacity', reason: "The ripple's opacity; the ripple is a script effect, not an M3 component." },
     { token: '--mo-comp-side-panel-width', reason: "The editor's side panel width; M3's side sheet has its own tokens." },
-    { token: '--mo-comp-split-button-inner', reason: "The gap between the split button's two parts." },
+    {
+      token: '--mo-comp-split-button-inner',
+      reason:
+        "The corner between the split button's two parts at rest: the size's md.comp.split-button.<size>.inner-corner.corner-size, set on the part.",
+    },
+    {
+      token: '--mo-comp-split-button-inner-active',
+      reason:
+        "The corner between the two parts when one is hovered or pressed: the size's md.comp.split-button.<size>.inner-corner.hovered.corner-size (pressed has the same value), set on the part.",
+    },
+    {
+      token: '--mo-comp-split-button-lead-start',
+      reason: "The main action's leading space: the size's md.comp.split-button.<size>.leading-button.leading-space, set on the part.",
+    },
+    {
+      token: '--mo-comp-split-button-lead-end',
+      reason: "The main action's trailing space: the size's md.comp.split-button.<size>.leading-button.trailing-space, set on the part.",
+    },
+    {
+      token: '--mo-comp-split-button-arrow',
+      reason: "The arrow's size: the size's md.comp.split-button.<size>.trailing-button.icon.size, set on the part.",
+    },
+    {
+      token: '--mo-comp-split-button-arrow-start',
+      reason: "The space before the arrow: the size's md.comp.split-button.<size>.trailing-button.leading-space, set on the part.",
+    },
+    {
+      token: '--mo-comp-split-button-arrow-end',
+      reason: "The space after the arrow: the size's md.comp.split-button.<size>.trailing-button.trailing-space, set on the part.",
+    },
     { token: '--mo-comp-switch-gap', reason: 'The gap of the switch row.' },
     { token: '--mo-comp-time-picker-ring', reason: "The time picker's ring; M3 prints it on the specs page." },
     {
@@ -898,6 +927,11 @@ export const ours = {
     { class: 'mo-cover', reason: 'A layout utility.' },
     { class: 'mo-choice-group', reason: 'The choice group (buttons that fall back to a radio list); M3 has no such component.' },
     { class: 'mo-cookie', reason: 'The cookie notice of the site.' },
+    {
+      class: 'mo-search',
+      reason:
+        'The root of the Search component, round its bar and its view (Search `kind` sets the contained or divided style); M3 has the two parts, search-bar and search-view, not their wrapper.',
+    },
     { class: 'mo-drawer', reason: 'The site header drawer; its M3 name is navigation-drawer, kept until the layout batch.' },
     { class: 'mo-dropdown-menu', reason: 'The script-driven dropdown of the site; M3 name menu, kept until the menu batch.' },
     { class: 'mo-elevated-*', reason: 'Elevation utility classes.' },

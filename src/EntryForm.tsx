@@ -20,7 +20,7 @@ import { choose } from './ask';
 import { firstEmptyRow, withoutEmptyRows } from './pageEmptyRows';
 import { freeTitle } from '../lib/freeTitle.mjs';
 import { offeredTemplatesOf, shownTemplate, templateFieldOf } from './templateField';
-import { templateOf, templateWritten } from '../lib/page-template.mjs';
+import { hasSidebar, templateOf, templateWritten } from '../lib/page-template.mjs';
 import { booleanRead, booleanWrite, readFields, splitFrontmatter, writeFields } from './frontmatter.mjs';
 import MarkdownEditor, { type MarkdownHandle } from './MarkdownEditor';
 import { useBlockDialog } from './BlockDialog';
@@ -366,6 +366,13 @@ function Form({
   const withFields = sectionsWithFields(collection.fields, (name) => sectionOf(collection, name), fieldShown);
   const has = (id: Section) => withFields.has(id);
   const post = collection.id === 'blog';
+  // The text's first paragraph is drawn as the site draws the lead: a post's, or a page's with a single column (a page with a column beside its
+  // text, and the front page, have none; short texts neither).
+  const leadStyle = post
+    ? 'post'
+    : collection.blocks && !front && !hasSidebar(templateOf({ template: values.template }, offered))
+      ? 'page'
+      : undefined;
   const sections: NavigationItem[] = [
     ...(has('settings') ? [{ id: 'settings', label: post ? t.forms.sections.postSettings : t.forms.sections.pageSettings }] : []),
     { id: 'content', label: t.forms.sections.content },
@@ -1402,6 +1409,7 @@ function Form({
                         }
                         sections={front}
                         frame
+                        lead={leadStyle}
                         onPreview={showPreview}
                         viewOnSite={isNew ? undefined : url}
                       />

@@ -76,6 +76,8 @@ export const NOT_PARTS = [
   'mo-is-outlined',
   'mo-is-error',
   'mo-is-selected',
+  'mo-is-divided',
+  'mo-is-with-primary',
   'mo-is-removable',
   'mo-is-connected',
   'mo-is-xsmall',

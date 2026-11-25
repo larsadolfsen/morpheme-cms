@@ -8,9 +8,9 @@ seoDescription: "A video, shown live."
 
 # Video
 
-[All blocks](/blocks/)
-
 A special block: it loads nothing from YouTube or Vimeo until a visitor presses play.
+
+[All blocks](/blocks/)
 
 
 ## Video
