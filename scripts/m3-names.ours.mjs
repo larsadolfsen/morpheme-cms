@@ -894,6 +894,11 @@ export const ours = {
     { class: 'mo-cover', reason: 'A layout utility.' },
     { class: 'mo-choice-group', reason: 'The choice group (buttons that fall back to a radio list); M3 has no such component.' },
     { class: 'mo-cookie', reason: 'The cookie notice of the site.' },
+    {
+      class: 'mo-search',
+      reason:
+        'The root of the Search component, round its bar and its view (Search `kind` sets the contained or divided style); M3 has the two parts, search-bar and search-view, not their wrapper.',
+    },
     { class: 'mo-drawer', reason: 'The site header drawer; its M3 name is navigation-drawer, kept until the layout batch.' },
     { class: 'mo-dropdown-menu', reason: 'The script-driven dropdown of the site; M3 name menu, kept until the menu batch.' },
     { class: 'mo-elevated-*', reason: 'Elevation utility classes.' },
