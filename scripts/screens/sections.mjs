@@ -528,7 +528,7 @@ async function checkEditorLead() {
     const label = `editor lead ${width}px`;
     const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: 'light', locale: 'en-US', hasTouch: width < 600 });
     page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-    await openEditor(page, site, { [path]: text('') });
+    await openEditor(page, site, { [path]: text('single') });
     await page.goto(`${site}/editor/#${path}`);
     await page.waitForSelector('.ProseMirror > p[data-lead]', { timeout: 30_000 });
     const got = await page.evaluate(read);
