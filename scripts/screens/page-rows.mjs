@@ -910,6 +910,44 @@ async function checkLabelOnAnyLine(width) {
   return checkSavedLabel(saved, width);
 }
 
+/** A heading takes the Label style like any line (owner, 22 Nov 2026: "heading cannot change to label"): in the Text style menu, Label on a heading makes it a label with its text kept and no heading left, on a phone and a computer. */
+async function checkHeadingToLabel(width) {
+  const label = `${width}px heading to label`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Intro');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('Opening hours');
+  await page.waitForTimeout(300);
+  await openStyleMenu(page);
+  await page
+    .locator('[role=menu] [role^=menuitem]')
+    .filter({ hasText: /^Main heading\b/ })
+    .first()
+    .click();
+  await page.waitForTimeout(200);
+  if (!(await page.locator('.ProseMirror h1, .ProseMirror h2, .ProseMirror h3').count()))
+    problems.push(`${label}: the test line did not become a heading`);
+  await openStyleMenu(page);
+  await page
+    .locator('[role=menu] [role^=menuitem]')
+    .filter({ hasText: /^Label\b/ })
+    .first()
+    .click();
+  await page.waitForTimeout(200);
+  const now = await page.evaluate(() => ({
+    label: document.querySelector('.ProseMirror p.mo-type-label-medium')?.textContent ?? null,
+    headings: document.querySelectorAll('.ProseMirror h1, .ProseMirror h2, .ProseMirror h3').length,
+  }));
+  if (now.label !== 'Opening hours') problems.push(`${label}: Label on a heading does not make it a label with its text (${now.label})`);
+  if (now.headings) problems.push(`${label}: the heading is still a heading after Label`);
+  await page.close();
+}
+
 /** The Preview of a draft page (not on the site, so its own address answers 404) opens without an error text, and its bar of window sizes keeps its bar of window sizes inside the screen, scrolling, and apart from the caption, at phone widths. */
 async function checkPreviewDraft(width) {
   const label = `${width}px draft Preview`;
@@ -1450,6 +1488,7 @@ export function register(unit) {
   for (const w of [375, 1280]) unit(`checkChangeTo ${w}`, () => checkChangeTo(w, w < 600 ? 740 : 900));
   for (const w of [375, 768, 1280]) unit(`checkPageLeftEdge ${w}`, () => checkPageLeftEdge(w));
   for (const w of [375, 1280]) unit(`checkLabelOnAnyLine ${w}`, () => checkLabelOnAnyLine(w));
+  for (const w of [375, 1280]) unit(`checkHeadingToLabel ${w}`, () => checkHeadingToLabel(w));
   for (const w of [375, 1280]) unit(`checkFabAboveFooter ${w}`, () => checkFabAboveFooter(w));
   for (const w of [360, 375, 390, 414]) unit(`checkPreviewDraft ${w}`, () => checkPreviewDraft(w));
 }

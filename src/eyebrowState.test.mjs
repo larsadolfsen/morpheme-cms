@@ -3,7 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { Schema } from '@milkdown/kit/prose/model';
 import { EditorState, TextSelection } from '@milkdown/kit/prose/state';
-import { canLabel, enterInLabel, hasLabel, labelledHeading, toggleLabel } from './eyebrowState.mjs';
+import { canLabel, enterInLabel, toggleLabel } from './eyebrowState.mjs';
 
 const schema = new Schema({
   nodes: {
@@ -55,28 +55,17 @@ const viewOf = (state) => ({
     this.state = this.state.apply(tr);
   },
 });
-const plain = () => schema.node('doc', null, [node('heading', 'Title', { level: 3 }), node('paragraph', 'x')]);
 
-test('the heading the cursor is in', () => assert.deepEqual(labelledHeading(stateAt(labelled(), 9)), { pos: 7, level: 2 }));
-test('the heading after the label the cursor is in', () => assert.deepEqual(labelledHeading(stateAt(labelled(), 3)), { pos: 7, level: 2 }));
-test('no heading in a paragraph', () => assert.equal(labelledHeading(stateAt(labelled(), 15)), null));
-test('whether it has a label', () => {
-  assert.equal(hasLabel(stateAt(labelled(), 9)), true);
-  assert.equal(hasLabel(stateAt(plain(), 2)), false);
-});
-test('adds an empty label with the cursor in it', () => {
-  const view = viewOf(stateAt(plain(), 2));
-  toggleLabel(view);
-  assert.equal(view.state.doc.child(0).type.name, 'eyebrow');
-  assert.equal(view.state.doc.child(0).content.size, 0);
-  assert.equal(view.state.doc.child(1).textContent, 'Title');
-  assert.equal(view.state.selection.from, 1);
-});
-test('takes the label away from the heading', () => {
-  const view = viewOf(stateAt(labelled(), 9));
-  toggleLabel(view);
-  assert.equal(view.state.doc.child(0).type.name, 'heading');
-  assert.equal(view.state.doc.childCount, 2);
+test('a heading becomes a label with its text, whatever its level', () => {
+  for (const level of [1, 2, 3]) {
+    const doc = schema.node('doc', null, [node('heading', 'Title', { level }), node('paragraph', 'x')]);
+    const view = viewOf(stateAt(doc, 3));
+    toggleLabel(view);
+    assert.equal(view.state.doc.child(0).type.name, 'eyebrow');
+    assert.equal(view.state.doc.child(0).textContent, 'Title');
+    assert.equal(view.state.doc.childCount, 2);
+    assert.equal(view.state.selection.from, 3);
+  }
 });
 test('a label picked again is a plain line again, with its text', () => {
   const view = viewOf(stateAt(labelled(), 3));
