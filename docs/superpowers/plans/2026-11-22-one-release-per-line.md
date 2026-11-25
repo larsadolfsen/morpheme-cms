@@ -49,7 +49,7 @@ Until the path is built (batch B below), an urgent fix waits, or the owner decid
 ## The change over
 
 - **0.19.5** is released as soon as the release gate allows it (`plans/2026-11-22-release-gate-unshipped-commits.md`).
-- **0.19.6 finishes Material 3, and is the last patch release** (one PM, `/pm 0.19.6`, branch `feature/0.19.6-m3-names`, version
+- **0.19.6 was released on 25 Nov 2026; 0.19.7 and 0.19.8 are the last patch releases** (one PM, `/pm 0.19.6`, branch `feature/0.19.6-m3-names`, version
   `0.19.6`). Its batches:
   1. **Material 3 names**, contract 8, with the full-screen dialog back (moved from 0.20.0; owner, 22 Nov 2026: "Yes, move the names into 096. Also move phosphor icons as in a store icon into it, so Sarah can get it. And also the full screen dialog should be there.";
      `specs/2026-11-20-material-3-names-design.md`).
@@ -60,10 +60,10 @@ Until the path is built (batch B below), an urgent fix waits, or the owner decid
      **the editor in Material 3** (`plans/2026-11-21-0-19-6-editor-in-material-3.md`, 8 batches) and **the UI fixes left**
      (`plans/2026-11-22-0-19-7-ui-fixes.md`: the demo-blocks rule of A, B5 to B18, C20).
 
-  There is no 0.19.7. The Icons screens and the pack's own page are 0.31.0 (owner, 25 Nov 2026: "finish and keep it for 0.31").
+  Owner, 25 Nov 2026, after 0.19.6 was released: "everything we have started ships along saras fix as 0.19.7, and then the rest in 0.19.8" (`plans/2026-11-22-0-19-7-ui-fixes.md`, *Release*). The Icons screens and the pack's own page are 0.31.0 (owner, 25 Nov 2026: "finish and keep it for 0.31").
 - **0.20 keeps four items** (safe updates, store auto-updates, an app's Worker code in a sandbox, UI fixes) as its batches, released once
   as 0.20.0.
-- **The PMs:** `/pm 0.19.6`, then `/pm 0.20`.
+- **The PMs:** `/pm 0.19.6`, `/pm 0.19.7`, then the PM of 0.19.8, then `/pm 0.20`.
 
 ## Changed in this pull request
 
