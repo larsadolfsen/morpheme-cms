@@ -1404,7 +1404,11 @@ async function checkPageLeftEdge(width) {
         const handle = b.querySelector(':scope > .mo-site-block-handle')?.getBoundingClientRect();
         return { card: card.left, cardRight: card.right, body: body.left, mark: mark?.left ?? null, handleRight: handle?.right ?? null };
       });
-      const heads = [...pm.querySelectorAll(':scope > :is(h1, h2, h3, p)')].map((h) => h.getBoundingClientRect().left);
+      // The content edge, not the box: a section's first heading draws its line across the full width (its box reaches the field's edge, its padding puts the text back).
+      const heads = [...pm.querySelectorAll(':scope > :is(h1, h2, h3, p)')].map((h) => {
+        const cs = getComputedStyle(h);
+        return h.getBoundingClientRect().left + parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth);
+      });
       return { field: field.left, fieldRight: field.right, text, margin, outset: outset * rem, blocks, heads };
     });
     const at = `${label}${cursor ? ' with the cursor in the text' : ''}`;
