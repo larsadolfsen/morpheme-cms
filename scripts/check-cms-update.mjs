@@ -858,6 +858,23 @@ const CROSSING = (() => {
     auto.commits.length === 0 && stored(auto.kv, 'cms:checked')?.problem?.kind === 'unsafe-code',
     'the daily check did not record the unsafe code',
   );
+  // The Worker stops on the same Tailwind forms as `morpheme migrate` (one implementation, lib/tailwind-rules.mjs): a utility in a class attribute, a string of utilities, an import.
+  for (const [name, text] of [
+    ['View.tsx', `export const a = <div ${'class' + 'Name'}="flex gap-4 md:px-2" />;\n`],
+    ['util.ts', "export const a = 'flex items-center gap-4';\n"],
+    ['merge.ts', "import { twMerge } from 'tailwind-merge';\n"],
+    ['style.css', '.x { color: theme(--color-red); }\n'],
+  ]) {
+    const tw = world({ range: '0.19.5', latest: CROSSING, content: { ...before, [`${apps}/mine/${name}`]: text } });
+    await tw.kv.put('cms:checked', JSON.stringify({ at: new Date(T0).toISOString(), latest: CROSSING }));
+    const r = await handleCms(post(CROSSING), tw.env, undefined, tw.deps);
+    const b = await r.json();
+    expect(
+      r.status === 422 && b.error === 'unsafe-code' && b.detail.some((l) => l.includes(`${name}:1`)),
+      `the Worker let ${name} pass (${r.status} ${JSON.stringify(b)})`,
+    );
+    expect(tw.commits.length === 0, `an update with ${name} committed`);
+  }
 }
 
 if (problems.length) {
