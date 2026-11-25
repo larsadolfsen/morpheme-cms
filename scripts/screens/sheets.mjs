@@ -1752,6 +1752,97 @@ async function checkVideoChangeLink(width, height = 800) {
   await page.close();
 }
 
+/** The theme's carousel in M3's "uncontained multi-aspect ratio" layout (theme/ui/Carousel.tsx, layout multi-aspect-ratio) on "Parts" › "UI components" (ContainmentParts.tsx), light and dark: every item as high as the
+ * row and as wide as its aspect ratio (16:9, 9:16, 1:1 and 3:4, M3's four) with 28 dp corners, 8 dp between items, 8 dp above and below, the first one at the leading padding (the page's 16 dp gutter on a phone) and no
+ * trailing padding, free scrolling (no snap), no page indicator, named for a screen reader, and a visible focus ring on a focused item that the row does not clip. */
+async function checkCarouselMultiAspect(width, height, scheme) {
+  const label = `${width}px carousel multi-aspect ratio ${scheme}`;
+  const compact = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: compact, isMobile: compact, colorScheme: scheme });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const root = page.locator('[data-carousel-layout="multi-aspect-ratio"]');
+  await root
+    .first()
+    .waitFor({ timeout: 30_000 })
+    .catch(() => problems.push(`${label}: the sample is not on the page`));
+  if (!(await root.count())) return page.close();
+  await root.first().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+  const m = await root.first().evaluate((el) => {
+    const row = el.querySelector('[data-carousel-items]');
+    const rs = getComputedStyle(row);
+    const rr = row.getBoundingClientRect();
+    const items = [...el.querySelectorAll('[data-carousel-item]')];
+    const boxes = items.map((i) => i.getBoundingClientRect());
+    const mask = items[0].querySelector('[data-carousel-mask]');
+    return {
+      sizes: boxes.map((b) => ({ w: b.width, h: b.height })),
+      gaps: boxes.slice(1).map((b, i) => b.left - boxes[i].right),
+      first: boxes[0].left - rr.left,
+      padTop: parseFloat(rs.paddingTop),
+      padBottom: parseFloat(rs.paddingBottom),
+      padEnd: parseFloat(rs.paddingInlineEnd),
+      snap: rs.scrollSnapType,
+      radius: parseFloat(getComputedStyle(mask).borderTopLeftRadius),
+      indicators: el.querySelectorAll('[data-carousel-indicator], [data-carousel-dot]').length,
+      named: !!el.getAttribute('aria-label') && items.every((i) => !!i.getAttribute('aria-label')),
+      rowName: !!row.getAttribute('aria-label'),
+      scrolls: row.scrollWidth > row.clientWidth,
+    };
+  });
+  const ratios = [16 / 9, 9 / 16, 1, 3 / 4];
+  m.sizes.slice(0, 4).forEach((s, i) => {
+    if (Math.abs(s.w / s.h - ratios[i]) > 0.02)
+      problems.push(`${label}: item ${i + 1} is ${s.w.toFixed(1)}x${s.h.toFixed(1)}, not ${ratios[i].toFixed(3)} wide for its height`);
+  });
+  if (new Set(m.sizes.map((s) => Math.round(s.h))).size !== 1) problems.push(`${label}: the items are not all as high as the row`);
+  if (m.gaps.some((g) => Math.abs(g - 8) > 0.5))
+    problems.push(`${label}: the gap between items is ${m.gaps.map((g) => g.toFixed(1)).join(', ')}, not 8 (M3: 8dp between items)`);
+  if (m.padTop !== 8 || m.padBottom !== 8)
+    problems.push(`${label}: padding above and below is ${m.padTop} and ${m.padBottom}, not 8 (M3: 8dp)`);
+  if (m.padEnd !== 0) problems.push(`${label}: the row has ${m.padEnd}px trailing padding (M3: only leading padding)`);
+  if (m.radius !== 28) problems.push(`${label}: the item's corners are ${m.radius}px, not 28`);
+  if (m.snap !== 'none') problems.push(`${label}: the row snaps (${m.snap}); M3 recommends free scrolling for uncontained layouts`);
+  if (m.indicators) problems.push(`${label}: it has a page indicator, which M3's carousel does not`);
+  if (!m.named || !m.rowName) problems.push(`${label}: the carousel, its scroller or an item has no name for a screen reader`);
+  if (!m.scrolls) problems.push(`${label}: the row does not scroll sideways (its items are cut off or all fit)`);
+  // The leading edge: the first item stands at the row's own start plus its padding (the page's gutter on a phone, the text's edge from medium).
+  if (compact && Math.abs(m.first - 16) > 1)
+    problems.push(`${label}: the first item starts ${m.first}px in from the row's edge, not 16 (M3: leading padding 16dp)`);
+  // Free scrolling: the row moves by any amount, it does not jump to an item.
+  const scrolled = await root.first().evaluate(async (el) => {
+    const row = el.querySelector('[data-carousel-items]');
+    row.scrollTo({ left: 37, behavior: 'instant' });
+    await new Promise((r) => setTimeout(r, 300));
+    return row.scrollLeft;
+  });
+  if (Math.abs(scrolled - 37) > 1) problems.push(`${label}: the row scrolled to 37 and rests at ${scrolled}: it snaps`);
+  // Keyboard: an item is a tab stop and its focus ring is drawn inside what the row shows.
+  await root.first().evaluate((el) => (el.querySelector('[data-carousel-items]').scrollLeft = 0));
+  await root.first().locator('[data-carousel-item]').first().focus();
+  await page.keyboard.press('Shift+Tab');
+  await page.keyboard.press('Tab');
+  const ring = await root.first().evaluate((el) => {
+    const item = el.querySelector('[data-carousel-item]');
+    const row = el.querySelector('[data-carousel-items]').getBoundingClientRect();
+    const s = getComputedStyle(item);
+    const r = item.getBoundingClientRect();
+    const grow = parseFloat(s.outlineWidth) + parseFloat(s.outlineOffset);
+    return {
+      focused: document.activeElement === item,
+      shown: s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0,
+      clipped: r.top - grow < row.top - 0.5 || r.bottom + grow > row.bottom + 0.5,
+    };
+  });
+  if (!ring.focused) problems.push(`${label}: an item does not take the focus by Tab`);
+  else if (!ring.shown) problems.push(`${label}: a focused item has no focus ring`);
+  else if (ring.clipped) problems.push(`${label}: the focus ring of an item is clipped by the row`);
+  await page.screenshot({ path: join(shots, `carousel-multi-aspect-${width}-${scheme}.png`) });
+  await page.close();
+}
+
 /** The theme's full-screen dialog (theme/ui/Dialog.tsx, kind full-screen; DG1) on "Parts" › "UI components" (ContainmentParts.tsx). Below 600 dp it fills the screen with 0 dp
  * corners and a 56 dp header holding the close icon, the headline and Save (the first control has the focus; Cancel is not shown); from 600 dp it is the basic dialog in the middle
  * (28 dp corners, at most 28rem wide) with Cancel and Save at its end, Save last, and no close icon. Escape closes it at both. */
@@ -1847,6 +1938,9 @@ export function register(unit) {
   for (const width of [375, 1280]) unit(`checkCropView ${width}`, () => checkCropView(width));
   for (const width of [375, 1280]) unit(`checkVideoChangeLink ${width}`, () => checkVideoChangeLink(width));
   for (const width of [375, 1280]) unit(`checkAltSheet ${width}`, () => (width >= 840 ? checkAltLive(width) : checkAltSheet(width)));
+  for (const width of [390, 1280])
+    for (const scheme of ['light', 'dark'])
+      unit(`checkCarouselMultiAspect ${width} ${scheme}`, () => checkCarouselMultiAspect(width, width < 600 ? 800 : 900, scheme));
   unit('checkSheetKeyboard 375', () => checkSheetKeyboard(375));
   unit('checkSheetKeyboard 375 Custom', () => checkSheetKeyboard(375, 740, 300, true));
   for (const [width, height] of [

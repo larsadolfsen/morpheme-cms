@@ -364,3 +364,12 @@ The owner approved these theme changes on 21 Nov 2026 (relayed by the PM of 0.19
 
 - **We do:** the header's menu button (`Header.astro`) opens on its first item with Enter, Space or the arrow keys, and the menu answers the arrow keys, Home, End and a letter without scrolling the page, as the theme's other menus do; the colour choice in the footer answers Home (Light) and End (Dark) as well as the arrows; the floating "Get started" button stands after the page's content in the source (`BookingFab.astro`) so Tab reaches it after the content; `main#main-content` has `tabindex="-1"` and no ring, so the skip link puts the focus on it; the logo, the link back, a post's tags and links in the text have the focus ring 4dp from them (`site-page.css`).
 - **Why:** WCAG 2.1.1, 2.4.1, 2.4.3 and 2.4.7; WAI-ARIA's menu button and radio group keys. `check:keyboard`'s `flow site` fails on each.
+
+## Tabs under the top app bar
+
+### TB1. Published and Draft are secondary tabs under the top app bar
+
+- **Material:** Tabs, Guidelines (read 25 Nov 2026, m3.material.io/components/tabs/guidelines): "Primary tabs are placed at the top of the content pane under an app bar. They display the main content destinations." "Secondary tabs are used within a content area to further separate related content and establish hierarchy." "Secondary tabs should always be placed below primary tabs." "Tabs can be joined with components like app bars." Specs print the secondary divider (`md.comp.secondary-navigation-tab.divider`, 1dp, surface variant) and the active indicator (2dp, primary).
+- **We do:** on a page or post with a draft waiting, `Published` and `Draft` (`Scheduled`) are secondary tabs (name only) in the top app bar, under the title row, with the tabs' own divider. No primary tabs sit above them.
+- **Why:** the owner asked for it in words: "the published/draft should be tabs and a part of the app bar" (25 Nov 2026, relayed by the PM), and chose M3's second variation, secondary tabs. M3 prints secondary tabs for a content area below primary tabs, so the placement in the app bar with no primary row is the owner-kept deviation.
+- **Date:** 2026-11-25.

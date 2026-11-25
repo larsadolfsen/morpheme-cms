@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import { openEditor } from '../built-site.mjs';
+import { openEditor, removeVirtualFile, virtualFile } from '../built-site.mjs';
 import { browser, problems, site } from './support/context.mjs';
 
 /** A text field is marked by the browser's own validity (`:user-invalid`), as Material 3 draws its error state: nothing is wrong
@@ -249,6 +249,74 @@ async function checkNofollowSwitch(width, height) {
   }
 }
 
+/** A page with a draft waiting has its `Published` / `Draft` switch as Material 3 secondary tabs (name only, no icon) in the top app bar (390, 1280): a tablist named
+ * "Version to edit" inside the bar, directly above the draft notice (no segmented control under the title), two tabs with a name each and no icon, a divider along the row's bottom edge,
+ * the open one aria-selected (`Draft` first), 48 dp high, the arrow keys open the other one and move focus, `Published` shows the published text and its notice,
+ * and the draft notice keeps `Discard draft`. */
+async function checkVersionTabs(width, height) {
+  const label = `${width}px version tabs`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  virtualFile('src/content/pages/zz-tabs-waiting.md', `---\ntitle: "Tabs waiting"\n---\n\n# Tabs waiting\n\nPublished text.\n`);
+  virtualFile('src/drafts/pages/zz-tabs-waiting.md', `---\ntitle: "Tabs waiting"\n---\n\n# Tabs waiting\n\nPublished text. waiting text\n`);
+  try {
+    await openEditor(page, site);
+    await page.route('**/api/autosave**', (r) =>
+      r.request().method() === 'GET' ? r.fulfill({ status: 404, body: '' }) : r.fulfill({ contentType: 'application/json', body: '{}' }),
+    );
+    await page.goto(`${site}/editor/#src/content/pages/zz-tabs-waiting.md`);
+    await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+    const list = page.getByRole('tablist', { name: 'Version to edit' });
+    await list.waitFor({ timeout: 10_000 });
+    if (await page.locator('[role="radiogroup"][aria-label="Version to edit"]').count())
+      problems.push(`${label}: a segmented control is still drawn`);
+    const inBar = await list.evaluate((el) => !!el.closest('header, .mo-top-app-bar'));
+    if (!inBar) problems.push(`${label}: the tabs are not inside the top app bar`);
+    const tabs = list.getByRole('tab');
+    const names = await tabs.evaluateAll((els) => els.map((e) => `${e.textContent.trim()}:${e.getAttribute('aria-selected')}`));
+    if (names.join() !== 'Published:false,Draft:true')
+      problems.push(`${label}: the tabs are ${names.join()}, not Published:false,Draft:true`);
+    for (const box of await tabs.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height)))
+      if (box < 47.5) problems.push(`${label}: a tab is ${box} dp high, under 48`);
+    if (await list.locator('svg, .mo-tabs__tab-icon').count()) problems.push(`${label}: a tab has an icon`);
+    const line = await list.evaluate((el) => getComputedStyle(el).boxShadow);
+    if (!line || line === 'none') problems.push(`${label}: no divider under the tab row`);
+    const text = () => page.locator('.ProseMirror').first().innerText();
+    if (!(await text()).includes('waiting text')) problems.push(`${label}: Draft does not show the draft`);
+    if (!(await page.getByText('This is a draft').count())) problems.push(`${label}: no draft notice`);
+    if (!(await page.getByRole('button', { name: 'Discard draft', exact: true }).count()))
+      problems.push(`${label}: no "Discard draft" in the notice`);
+    await tabs.filter({ hasText: 'Draft' }).focus();
+    await page.keyboard.press('ArrowLeft');
+    await page
+      .waitForFunction(
+        () =>
+          document
+            .querySelector('[role="tablist"][aria-label="Version to edit"] [aria-selected="true"]')
+            ?.textContent.includes('Published'),
+        null,
+        {
+          timeout: 5000,
+        },
+      )
+      .catch(() => {});
+    const open = await list.locator('[aria-selected="true"]').allTextContents();
+    if (open.join() !== 'Published') problems.push(`${label}: ArrowLeft did not open Published (${open.join()})`);
+    await page
+      .waitForFunction(() => !document.querySelector('.ProseMirror')?.textContent.includes('waiting text'), null, { timeout: 5000 })
+      .catch(() => {});
+    if ((await text()).includes('waiting text')) problems.push(`${label}: Published shows the draft`);
+    if (!(await page.getByText('You are editing the published version').count())) problems.push(`${label}: no published notice`);
+    const focused = await page.evaluate(() => document.activeElement?.textContent?.trim());
+    if (focused !== 'Published') problems.push(`${label}: focus is on "${focused}" after the arrow key`);
+  } finally {
+    removeVirtualFile('src/content/pages/zz-tabs-waiting.md');
+    removeVirtualFile('src/drafts/pages/zz-tabs-waiting.md');
+    await page.close();
+  }
+}
+
 export function register(unit) {
   for (const [width, height] of [
     [360, 740],
@@ -261,6 +329,11 @@ export function register(unit) {
     unit(`checkEntrySettings ${width}`, () => checkEntrySettings(width, height));
     unit(`checkNofollowSwitch ${width}`, () => checkNofollowSwitch(width, height));
   }
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    unit(`checkVersionTabs ${width}`, () => checkVersionTabs(width, height));
   for (const [width, height] of [
     [375, 740],
     [1280, 900],
