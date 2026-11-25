@@ -13,9 +13,10 @@ import { textOf, type Button } from '../buttons/fields';
 import { kindOf, type ButtonView } from '../buttons/view';
 import { viewOf as videoViewOf, type VideoView } from '../video/view';
 import shared from './shared';
-import { cutOf, DEFAULT_RATIO, ratioProp } from './cut.mjs';
+import { ratioOf } from '../../../lib/crop.mjs';
+import { aspectProp, cutOf, DEFAULT_ASPECT, DEFAULT_RATIO, ratioProp } from './cut.mjs';
 
-export { DEFAULT_RATIO, ratioProp };
+export { aspectProp, ASPECTS, DEFAULT_ASPECT, DEFAULT_RATIO, ratioProp } from './cut.mjs';
 
 export type CardMedia = 'none' | 'icon' | 'image' | 'video';
 export type LinkCard = {
@@ -26,8 +27,10 @@ export type LinkCard = {
   iconColor?: string;
   /** Its image, with the part to show (percent: left, top, width, height) when the card has one made for the block's ratio. */
   image?: Image & { crop?: number[] };
-  /** The block's one aspect ratio for the images (3:2 unless set), the same on every card. */
+  /** The aspect ratio of the card's image: the block's one (3:2 unless set), or in the multi-aspect ratio layout the card's own. */
   ratio?: string;
+  /** Only in the multi-aspect ratio layout: the card's width / height (9:16 to 16:9), which sets its width in the carousel. */
+  aspect?: number;
   video?: VideoView;
   title: string;
   /** The small line under the headline (a byline, a date, a place: whatever the owner writes). */
@@ -56,18 +59,23 @@ export const phoneOf = (props: Record<string, any>): 'carousel' | undefined =>
   props.phone === 'carousel' && Array.isArray(props.items) && props.items.length >= 2 ? 'carousel' : undefined;
 
 /** The layouts of the cards' carousel besides the uncontained one (the empty choice, which every site saved before the choice has), as Material 3 names them. */
-export const cardsLayouts = ['multi-browse', 'hero', 'hero-center', 'full-screen'] as const;
+export const cardsLayouts = ['multi-aspect-ratio', 'multi-browse', 'hero', 'hero-center', 'full-screen'] as const;
 export type CardsLayout = (typeof cardsLayouts)[number];
 
-/** The carousel's layout as the block says; none (uncontained) without a carousel or for a choice that is not offered. */
-export const layoutOf = (props: Record<string, any>): CardsLayout | undefined =>
-  phoneOf(props) ? cardsLayouts.find((l) => l === props.layout) : undefined;
+/** The carousel's layout as the block says; none (uncontained) without a carousel or for a choice that is not offered (the multi-aspect ratio layout is for images only:
+ * its widths come from them; the choice stays stored and comes back with the images). */
+export const layoutOf = (props: Record<string, any>): CardsLayout | undefined => {
+  const layout = phoneOf(props) ? cardsLayouts.find((l) => l === props.layout) : undefined;
+  return layout === 'multi-aspect-ratio' && props.media !== 'image' ? undefined : layout;
+};
 
 /** A card as its field writes it. */
 export type LinkCardProps = {
   icon?: string;
   iconColor?: string;
   image?: string;
+  /** The card's image aspect ratio (width:height), used only in the multi-aspect ratio layout. */
+  aspect?: string;
   /** The image's own alternative text for this card (none: the image is decorative). */
   alt?: string;
   video?: string;
@@ -99,15 +107,19 @@ export const cardsOf = (
     video: (url: string, title: string) => VideoView | null;
     buttons: (card: LinkCardProps, i: number) => ButtonView[];
   },
+  /** The multi-aspect ratio layout: each card's image has the card's own aspect ratio instead of the block's. */
+  perCard = false,
 ): LinkCard[] =>
   items.map((card, i) => {
+    const cardRatio = perCard ? aspectProp(card.aspect) : blockRatio;
     const media = MEDIA.find((m) => m === blockMedia) ?? 'icon';
     const video = media === 'video' && card.video ? how.video(card.video, card.title) : null;
     const buttons = card.href && media !== 'video' ? [] : how.buttons(card, i);
     return {
       media,
       ...(media === 'icon' ? { icon: card.icon, ...(iconColorOf(card.iconColor) ? { iconColor: iconColorOf(card.iconColor) } : {}) } : {}),
-      ...(media === 'image' && card.image ? { image: imageOfCard(card, blockRatio, how.image), ratio: blockRatio } : {}),
+      ...(media === 'image' && card.image ? { image: imageOfCard(card, cardRatio, how.image), ratio: cardRatio } : {}),
+      ...(media === 'image' && card.image && perCard ? { aspect: ratioOf(cardRatio) } : {}),
       ...(video ? { video } : {}),
       title: card.title,
       ...(card.subhead ? { subhead: card.subhead } : {}),
@@ -120,14 +132,22 @@ export const cardsOf = (
   });
 
 /** Cards in the editor. */
-export const shownCards = (items: LinkCardProps[], data: BlockData, media?: unknown, ratio: string = DEFAULT_RATIO) =>
-  cardsOf(items, media, ratio, {
-    image: (src) => ({ src: shownAt(src), ...libraryAltPart(data.libraryAlt?.(src)) }),
-    video: (url, title) => videoViewOf({ url, title }, data),
-    // A button that has no text yet (the next one, being made in the card's sheet) is not drawn.
-    buttons: (card) =>
-      (card.buttons ?? []).map((b) => ({ href: b.href ?? '', text: textOf(b, data), kind: kindOf(b), icon: b.icon })).filter((b) => b.text),
-  });
+export const shownCards = (items: LinkCardProps[], data: BlockData, media?: unknown, ratio: string = DEFAULT_RATIO, perCard = false) =>
+  cardsOf(
+    items,
+    media,
+    ratio,
+    {
+      image: (src) => ({ src: shownAt(src), ...libraryAltPart(data.libraryAlt?.(src)) }),
+      video: (url, title) => videoViewOf({ url, title }, data),
+      // A button that has no text yet (the next one, being made in the card's sheet) is not drawn.
+      buttons: (card) =>
+        (card.buttons ?? [])
+          .map((b) => ({ href: b.href ?? '', text: textOf(b, data), kind: kindOf(b), icon: b.icon }))
+          .filter((b) => b.text),
+    },
+    perCard,
+  );
 
 export const viewOf: ViewOf<CardsView> = (props, data) => ({
   ...headOf(props),
@@ -136,5 +156,5 @@ export const viewOf: ViewOf<CardsView> = (props, data) => ({
   phone: phoneOf(props),
   layout: layoutOf(props),
   more: sharedIn(data.site, 'cards', shared.values).more,
-  items: shownCards(props.items ?? [], data, props.media, ratioProp(props)),
+  items: shownCards(props.items ?? [], data, props.media, ratioProp(props), layoutOf(props) === 'multi-aspect-ratio'),
 });

@@ -69,6 +69,12 @@ One card at a time, edge to edge.
 
 <div data-block="cards" data-props="{&quot;phone&quot;:&quot;carousel&quot;,&quot;layout&quot;:&quot;full-screen&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;One at a time&quot;,&quot;text&quot;:&quot;Each card fills the width.&quot;},{&quot;icon&quot;:&quot;volunteer_activism&quot;,&quot;title&quot;:&quot;Swipe on&quot;,&quot;text&quot;:&quot;The next one settles in place.&quot;},{&quot;icon&quot;:&quot;menu_book&quot;,&quot;title&quot;:&quot;No Show all&quot;,&quot;text&quot;:&quot;A full-screen carousel shows one card, so it needs none.&quot;}]}"></div>
 
+## Cards in a phone carousel: multi-aspect ratio
+
+Cards of different widths, each as wide as its image.
+
+<div data-block="cards" data-props="{&quot;phone&quot;:&quot;carousel&quot;,&quot;layout&quot;:&quot;multi-aspect-ratio&quot;,&quot;media&quot;:&quot;image&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Tall · 9:16&quot;,&quot;text&quot;:&quot;Brief text under the image.&quot;,&quot;image&quot;:&quot;/images/uploads/2026/10/moon.webp&quot;,&quot;aspect&quot;:&quot;9:16&quot;},{&quot;title&quot;:&quot;Wide · 16:9&quot;,&quot;text&quot;:&quot;Brief text under the image.&quot;,&quot;image&quot;:&quot;/images/uploads/2026/10/earth-from-space.webp&quot;,&quot;aspect&quot;:&quot;16:9&quot;},{&quot;title&quot;:&quot;Square · 1:1&quot;,&quot;text&quot;:&quot;Brief text under the image.&quot;,&quot;image&quot;:&quot;/images/uploads/2026/10/saturn.webp&quot;,&quot;aspect&quot;:&quot;1:1&quot;},{&quot;title&quot;:&quot;Four by three · 4:3&quot;,&quot;text&quot;:&quot;Brief text under the image.&quot;,&quot;image&quot;:&quot;/images/uploads/2026/10/andromeda.webp&quot;,&quot;aspect&quot;:&quot;4:3&quot;},{&quot;title&quot;:&quot;Portrait · 2:3&quot;,&quot;text&quot;:&quot;Brief text under the image.&quot;,&quot;image&quot;:&quot;/images/uploads/2026/10/maya-bakery.webp&quot;,&quot;aspect&quot;:&quot;2:3&quot;}]}"></div>
+
 ## Notice
 
 A single filled Card.

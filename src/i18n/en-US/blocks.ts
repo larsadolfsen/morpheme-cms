@@ -463,6 +463,8 @@ export const blocks = {
     /** The carousel's layouts, Material 3's names (m3.material.io/components/carousel/guidelines), and the subtext of each on the block's screen under Blocks. */
     layout: 'Carousel layout',
     layoutUncontained: 'Uncontained',
+    layoutMultiAspect: 'Multi-aspect ratio',
+    layoutMultiAspectHint: 'Cards of different widths, each as wide as its image.',
     layoutMultiBrowse: 'Multi-browse',
     layoutMultiBrowseHint: 'Large, medium and small cards in a row, for browsing many.',
     layoutHero: 'Hero',
@@ -491,6 +493,7 @@ export const blocks = {
     mediaImage: 'Image',
     ratio: 'Image aspect ratio',
     ratioHint: 'All the cards’ images use it.',
+    aspectHint: 'This card’s image uses it.',
     mediaVideo: 'Video',
     video: 'Video link',
     buttons: 'Buttons',
