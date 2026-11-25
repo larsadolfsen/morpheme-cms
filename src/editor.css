@@ -2108,3 +2108,17 @@ main[tabindex='-1']:focus {
 [data-search-controlled] .mo-search-view__header {
   --mo-comp-icon-button-small-container-height: 3rem;
 }
+
+/* The lead: the text's first paragraph, drawn as the site draws it (site-page.css `.mo-page__text > p:first-child` for a page, the post's
+   `mo-type-lead`): the lead's size, line height, weight and tracking; a page's lead is also muted and 52ch wide. The field says which
+   (`data-lead-style`); a page with a column beside its text has no lead on the site, so none here. */
+.mo-editor-text[data-lead-style] .ProseMirror > p[data-lead] {
+  font-size: var(--mo-sys-typescale-lead-size);
+  line-height: var(--mo-sys-typescale-lead-line-height);
+  font-weight: var(--mo-sys-typescale-lead-weight);
+  letter-spacing: var(--mo-sys-typescale-lead-tracking);
+}
+.mo-editor-text[data-lead-style='page'] .ProseMirror > p[data-lead] {
+  color: var(--mo-sys-color-on-surface-variant);
+  max-inline-size: 52ch;
+}
