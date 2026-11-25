@@ -1002,6 +1002,110 @@ async function checkDividerBlock(width) {
   await page.close();
 }
 
+/** The helping-lines button (the grid on/off icons): it hides and shows the resting dotted lines of sections and blocks, keeps the focus, hover and selection lines, names its action (the name changes with the state) and keeps the choice for the viewer. */
+async function checkHelpingLines(width) {
+  const label = `${width}px helping lines`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => {
+    try {
+      localStorage.removeItem('mo-editor-guides');
+    } catch {}
+    location.hash = '#new/pages';
+  });
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  for (const line of ['Intro', '## Alpha', 'Alpha text', '## Beta', 'Beta text']) {
+    await page.keyboard.type(line);
+    if (line !== 'Beta text') await page.keyboard.press('Enter');
+  }
+  await page.waitForTimeout(400);
+  const bar = () => page.evaluate(() => [...document.querySelectorAll('.mo-editor-tools button')].map((b) => b.getAttribute('aria-label')));
+  const lines = () =>
+    page.evaluate(() => {
+      const starts = [...document.querySelectorAll('.ProseMirror > [data-section-part="start"]')];
+      const resting = starts.find((e) => !e.hasAttribute('data-section-focus') && !e.hasAttribute('data-section-focus-below'));
+      const focused = starts.find((e) => e.hasAttribute('data-section-focus'));
+      const colour = (e) => (e ? getComputedStyle(e, '::before').borderBlockStartColor : null);
+      return {
+        resting: colour(resting),
+        focused: colour(focused),
+        attr: document.querySelector('.mo-editor-text-box')?.getAttribute('data-guides'),
+      };
+    });
+  const clear = 'rgba(0, 0, 0, 0)';
+  const press = async (name) => {
+    if ((await bar()).includes(name)) await page.click(`.mo-editor-tools [aria-label="${name}"]`);
+    else {
+      await page.click('.mo-editor-tools [aria-label="More"]');
+      await page.click(`[role=menu] [role^=menuitem]:has-text("${name}")`);
+    }
+  };
+  const names = await bar();
+  const at = names.indexOf('Hide helping lines');
+  if (width >= 1000 && !(at >= 0 && at < names.indexOf('Undo')))
+    problems.push(`${label}: Hide helping lines is not on the bar before Undo (${names.join(', ')})`);
+  if (width < 600 && at < 0) {
+    await page.click('.mo-editor-tools [aria-label="More"]');
+    if (!(await page.locator('[role=menu] [role^=menuitem]:has-text("Hide helping lines")').count()))
+      problems.push(`${label}: Hide helping lines is neither on the bar nor in the ⋮`);
+    await page.keyboard.press('Escape');
+  }
+  let got = await lines();
+  if (!got.resting || got.resting === clear)
+    problems.push(`${label}: the resting section line is not drawn while the lines are shown (${got.resting})`);
+  await press('Hide helping lines');
+  await page.waitForTimeout(300);
+  got = await lines();
+  if (got.resting !== clear) problems.push(`${label}: the resting section line is still drawn after Hide helping lines (${got.resting})`);
+  if (got.attr !== 'off') problems.push(`${label}: the text box does not say the lines are off (${got.attr})`);
+  await page.click('.ProseMirror');
+  await page.keyboard.press('Control+End');
+  await page.waitForTimeout(300);
+  got = await lines();
+  if (!got.focused || got.focused === clear)
+    problems.push(`${label}: the focused section's line is gone with the helping lines hidden (${got.focused})`);
+  const stored = await page.evaluate(() => localStorage.getItem('mo-editor-guides'));
+  if (stored !== 'off') problems.push(`${label}: the choice is not kept for the viewer (${stored})`);
+  // The editor opened again (a second page of the same browser) starts with the lines hidden.
+  const again = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  again.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(again, site);
+  await again.evaluate(() => (location.hash = '#new/pages'));
+  await again.waitForSelector('.ProseMirror');
+  await again.waitForTimeout(300);
+  const reopened = await again.evaluate(() => document.querySelector('.mo-editor-text-box')?.getAttribute('data-guides'));
+  if (reopened !== 'off') problems.push(`${label}: the lines come back after the editor is opened again (${reopened})`);
+  await again.close();
+  await page.click('.ProseMirror');
+  if (!(await bar()).includes('Show helping lines') && width >= 1000)
+    problems.push(`${label}: the button is not named Show helping lines while the lines are hidden`);
+  // A Divider block's dotted frame follows the same switch: gone at rest, back on hover.
+  await page.keyboard.type('Gamma');
+  await press('Divider');
+  const frame = () =>
+    page.evaluate(() => {
+      const card = document.querySelector('.mo-editor-divider .mo-site-block-card');
+      return card ? getComputedStyle(card).borderBlockStartColor : null;
+    });
+  await page.mouse.move(0, 0);
+  await page.waitForTimeout(400);
+  if ((await frame()) !== clear)
+    problems.push(`${label}: a Divider block keeps its resting frame with the lines hidden (${await frame()})`);
+  await page.hover('.mo-editor-divider .mo-site-block-card');
+  await page.waitForTimeout(400);
+  if (!(await frame()) || (await frame()) === clear)
+    problems.push(`${label}: a hovered Divider block shows no frame with the lines hidden`);
+  await page.mouse.move(0, 0);
+  await press('Show helping lines');
+  await page.waitForTimeout(400);
+  if ((await frame()) === clear) problems.push(`${label}: a Divider block has no frame after Show helping lines`);
+  if ((await page.evaluate(() => localStorage.getItem('mo-editor-guides'))) !== 'on')
+    problems.push(`${label}: Show helping lines did not keep the choice`);
+  await page.close();
+}
+
 /** Every Preview action of a page (the text bar's button, its row in the `⋮`, the Save bar's button) draws one icon, the monitor with a phone (Material Symbols' `devices`, Phosphor's `devices`, Lucide's `monitor-smartphone`; owner, 16 Nov 2026: "Use the monitor-cellphone icon for preview everywhere"). The Pack in use's file is the reference (Material Symbols unless the site or its theme chose another). */
 async function checkPreviewIcon(width) {
   const label = `${width}px Preview icon`;
@@ -1147,4 +1251,5 @@ export function register(unit) {
     unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
   unit('checkToolbarBox', () => checkToolbarBox());
   for (const width of [390, 1280]) unit(`checkDividerBlock ${width}`, () => checkDividerBlock(width));
+  for (const width of [390, 1280]) unit(`checkHelpingLines ${width}`, () => checkHelpingLines(width));
 }
