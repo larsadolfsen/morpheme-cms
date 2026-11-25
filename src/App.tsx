@@ -121,6 +121,7 @@ import {
   Apps,
   appPartsIn,
   autoUpdate,
+  commitBuildInstalls,
   DeveloperPage,
   settingsHome,
   settingsRoute,
@@ -136,12 +137,14 @@ import {
   readScreenshots,
   storeConnected,
   readThemes,
+  readIconPacks,
   readThemeScreenshots,
   STORE_ROUTE,
   STORE_THEMES,
   INSTALLED_ROUTE,
   type ShownApp,
   type ShownTheme,
+  type ShownIconPack,
   type StoreApp,
   type StoreFile,
   type StoreTheme,
@@ -259,6 +262,7 @@ export type Env = {
     connected: () => Promise<boolean>;
     catalog: () => Promise<ShownApp[]>;
     themes: () => Promise<ShownTheme[]>;
+    iconPacks: () => Promise<ShownIconPack[]>;
     files: (of: { files: StoreFile[]; label?: string; name?: string }) => Promise<{ path: string; content: string | Uint8Array }[]>;
     screenshots: (app: StoreApp) => Promise<{ src: string; label: string }[]>;
     themeScreenshots: (theme: Pick<StoreTheme, 'screenshots' | 'files'>) => Promise<{ key: string; src: string }[]>;
@@ -626,6 +630,7 @@ function Editor() {
       connected: storeConnected,
       catalog: readCatalog,
       themes: readThemes,
+      iconPacks: readIconPacks,
       files: readApp,
       screenshots: readScreenshots,
       themeScreenshots: readThemeScreenshots,
@@ -720,7 +725,8 @@ function Editor() {
   // The apps from the store updated on their own, once the files are there (autoUpdate in AppList.tsx).
   const loaded = !!files;
   useEffect(() => {
-    if (signedIn && loaded) autoUpdate(env, files!);
+    // What the update's build installed comes first: the build's themes and apps are what the site runs (commitBuildInstalls).
+    if (signedIn && loaded) commitBuildInstalls(env, files!).finally(() => autoUpdate(env, files!));
   }, [signedIn, loaded]);
 
   // What the installed apps have to say (AppNotifications in apps.ts): asked when the editor opens and every 15 minutes

@@ -38,7 +38,6 @@
 // apps installed are in the site's file of apps (config.apps.installed), each app's settings in a file of
 // its own in config.apps.settings. The site's build reads the settings, so settings.ts imports nothing
 // that needs a browser.
-import type { Icon } from '@phosphor-icons/react';
 import { createElement, type ComponentType, type ReactNode } from 'react';
 import type { BlockData } from './blocks';
 import type { Field, FolderCollection, KindPart, Opens, OwnedList, PreviewVariant } from './schema';
@@ -52,7 +51,9 @@ import { config } from '@site/config';
 import { activeOf, readAppsFile } from '../lib/appsFile.mjs';
 import { definitionOf, type AppDefinitionData } from '../lib/appDefinition.mjs';
 import type { AppManifest } from '../lib/appManifest.mjs';
-import { AnyIcon } from './icon';
+import { scoped, scopedNode } from './standard/appScope';
+import { AnyIcon, type IconComponent as Icon } from './icon';
+import { materialNameOf } from '../lib/materialIconMap.mjs';
 
 /** An app's settings, on its page once it is installed (#apps/<app>, AppList.tsx). */
 export type AppSettings = {
@@ -88,6 +89,22 @@ export type AppKind = {
   variants?: PreviewVariant[];
   opens?: Opens;
 };
+
+/** An app's kinds drawn in the app's scope (data-mo-app on the outer element, standard/appScope.tsx), so the app's scoped CSS applies to them in the editor as
+ * on the site: the drawing of each (`draw`) and its part in the list's box (`part.View`). Done once, where the app is made (src/site.ts). */
+export function scopedKinds<K extends Record<string, AppKind> | undefined>(id: string, kinds: K): K {
+  if (!kinds) return kinds;
+  return Object.fromEntries(
+    Object.entries(kinds).map(([list, k]) => [
+      list,
+      {
+        ...k,
+        ...(k.draw ? { draw: (props: Record<string, any>, data: BlockData) => scopedNode(id, k.draw!(props, data)) } : {}),
+        ...(k.part ? { part: { ...k.part, View: scoped(id, k.part.View) } } : {}),
+      },
+    ]),
+  ) as K;
+}
 
 /** How an entry of an app's kind looks on the site, beside its form and under "Parts": its own drawing, or its part in the
  * list's own drawing (`collection`: the list it is a kind of). */
@@ -214,14 +231,17 @@ export type AppDefinitionCode = Pick<AppDefinition, 'page' | 'screens' | 'tabs' 
 };
 export const defineEditor = (editor: Partial<AppDefinitionCode>) => editor;
 
-// The icon of the name an app.json gives ("Palette", Phosphor's name for its component), drawn as the editor draws any icon
-// by its name (AnyIcon, in kebab case); a name nobody has is drawn as the question mark (MISSING), the default icon.
+// The icon of the name an app.json gives: a Material Symbols name (`palette`), or a name written the old way ("Palette", "PaperPlaneTilt": Phosphor's
+// component name, an app made before 0.19.6), turned into its Material name (lib/materialIconMap.mjs); drawn as the editor draws any icon
+// by its name (AnyIcon); a name nobody has is drawn as the question mark (MISSING), the default icon.
 const named = new Map<string, Icon>();
-/** A Phosphor icon by the name app.json gives it ("PaperPlaneTilt"), as a component the editor's rows take. */
+/** An icon by the name app.json gives it (`send`, or the old "PaperPlaneTilt"), as a component the editor's rows take. */
 export function iconOf(name: string): Icon {
   const found = named.get(name);
   if (found) return found;
-  const file = (typeof name === 'string' ? name : '').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase() || 'question';
+  const kebab = (typeof name === 'string' ? name : '').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase() || 'help';
+  const mapped = materialNameOf(kebab);
+  const file = mapped ? ('brand' in mapped ? `${mapped.brand}-logo` : mapped.name) : kebab;
   const icon = ((props: { size?: number | string }) =>
     createElement(AnyIcon, { name: file, size: typeof props.size === 'number' ? props.size : 24 })) as unknown as Icon;
   named.set(name, icon);

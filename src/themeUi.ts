@@ -3,7 +3,7 @@
 // "UI components" (BlockParts.tsx). Only the theme's parts, nothing of the editor, so the editor's parts can be made of them as
 // it loads.
 export { default as SiteButton, buttonShapes, buttonSizes } from '@theme/ui/Button';
-export { default as SiteIconButton, iconButtonWidths } from '@theme/ui/IconButton';
+export { default as SiteIconButton, iconButtonSizes, iconButtonWidths } from '@theme/ui/IconButton';
 export {
   default as SiteTextField,
   textFieldClass as siteTextFieldClass,
@@ -16,6 +16,7 @@ export { default as SiteChip, chipKinds } from '@theme/ui/Chip';
 export { default as SiteChipSet, chipSetLayouts } from '@theme/ui/ChipSet';
 export { bottomSheet as siteBottomSheet, followKeyboard as siteFollowKeyboard } from '@theme/ui/bottomSheetControl';
 export { default as SiteDialog, dialogModalClass as siteDialogModalClass } from '@theme/ui/Dialog';
+export { dialog as siteDialogControl } from '@theme/ui/dialogControl';
 export {
   default as SiteBottomSheet,
   BottomSheetHeader as SiteBottomSheetHeader,
@@ -64,10 +65,9 @@ export {
 } from '@theme/ui/NavigationDrawer';
 export { Tabs as SiteTabs, Tab as SiteTab, tabsClass as siteTabsClass, tabClass as siteTabClass } from '@theme/ui/Tabs';
 export { Fab as SiteFab, ExtendedFab as SiteExtendedFab, fabKinds, fabSizes, extendedFabSizes } from '@theme/ui/Fab';
-/** The theme's action parts (button groups, segmented buttons, choice groups, split buttons, the FAB menu), for "Parts" › "UI components"
+/** The theme's action parts (button groups, choice groups, split buttons, the FAB menu), for "Parts" › "UI components"
  * (ActionParts.tsx). */
-export { default as SiteButtonGroup, buttonGroupKinds } from '@theme/ui/ButtonGroup';
-export { default as SiteSegmentedButton } from '@theme/ui/SegmentedButton';
+export { default as SiteButtonGroup, buttonGroupKinds, buttonGroupSelections } from '@theme/ui/ButtonGroup';
 export { default as SiteChoiceGroup, type Choice as SiteChoice } from '@theme/ui/ChoiceGroup';
 export { default as SiteSplitButton, splitButtonKinds } from '@theme/ui/SplitButton';
 export { default as SiteFabMenu, fabMenuKinds } from '@theme/ui/FabMenu';
@@ -107,7 +107,7 @@ export {
   SearchGroupLabel as SiteSearchGroupLabel,
   SearchView as SiteSearchView,
 } from '@theme/ui/Search';
-export type { SearchViewItem } from '@theme/ui/Search';
+export type { SearchViewItem, SearchKind } from '@theme/ui/Search';
 export { default as SiteToolbar } from '@theme/ui/Toolbar';
 /** The theme's date and time pickers, for "Parts" › "UI components" (PickerParts.tsx). */
 export { default as SiteDatePicker, datePickerTexts } from '@theme/ui/DatePicker';

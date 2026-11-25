@@ -4,7 +4,8 @@
 // Used by dialogControl.ts and by the pop-ups' script (Popup.astro), which open their dialogs themselves.
 export function openModal(el: HTMLDialogElement) {
   el.showModal();
-  if (el.querySelector('[autofocus]')) return;
+  // The full-screen kind keeps the browser's (M3, Accessibility: focus lands on the first interactive element, the close icon).
+  if (el.querySelector('[autofocus], .mo-is-full-screen')) return;
   el.tabIndex = -1;
   el.focus();
 }

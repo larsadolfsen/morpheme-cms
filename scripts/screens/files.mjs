@@ -286,7 +286,7 @@ async function checkFilesPane(width) {
   await page.waitForTimeout(900);
   const got = await page.evaluate(() => ({
     hash: location.hash,
-    pane: !!document.querySelector('aside.mo-side-sheet__container:not([hidden])'),
+    pane: !!document.querySelector('aside.mo-sheet__container.mo-is-side:not([hidden])'),
     dialogs: document.querySelectorAll('dialog[open]').length,
     tiles: [...document.querySelectorAll('main [data-media-tile]')].filter((t) => t.getBoundingClientRect().width > 0).length,
   }));
@@ -301,7 +301,7 @@ async function checkFilesPane(width) {
     // The create button stands beside the open details, not on them.
     const overlap = await page.evaluate(() => {
       const fab = document.querySelector('.mo-editor-fab');
-      const sheet = document.querySelector('aside.mo-side-sheet__container:not([hidden])');
+      const sheet = document.querySelector('aside.mo-sheet__container.mo-is-side:not([hidden])');
       if (!fab || !sheet) return 'missing';
       const f = fab.getBoundingClientRect();
       const r = sheet.getBoundingClientRect();

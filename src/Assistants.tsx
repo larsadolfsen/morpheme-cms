@@ -3,7 +3,6 @@
 // Disconnect (asks first). Read-only: an assistant can't change anything. Exposes ASSISTANTS_ROUTE and the page. Depends on
 // assistantList.ts (the Worker's /api/mcp/connections), ask.tsx, Screen and ui.tsx.
 import { useCallback, useEffect, useState } from 'react';
-import { Chats, Copy } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { ask } from './ask';
 import { assistants, disconnect, type Assistants as State, type Connection } from './assistantList';
@@ -12,6 +11,7 @@ import { backFrom } from './site';
 import { Button, EmptyNote, Group, GroupTitle, ListItem, plainListClass, ProblemNote, SupportingText } from './ui';
 import { locale, t } from './i18n';
 import { snackbar } from '../lib/snackbar';
+import { materialIcon } from './icon';
 
 export const ASSISTANTS_ROUTE = 'assistants';
 
@@ -78,7 +78,7 @@ export default function Assistants() {
                 headline={<code aria-label={t.assistants.address}>{state.address}</code>}
                 truncate
                 actions={
-                  <Button kind="text" size="small" icon={Copy} onClick={() => copy(state.address)}>
+                  <Button kind="text" icon={materialIcon('content_copy')} onClick={() => copy(state.address)}>
                     {t.assistants.copy}
                   </Button>
                 }
@@ -99,12 +99,12 @@ export default function Assistants() {
                 return (
                   <ListItem
                     key={c.id}
-                    icon={Chats}
+                    icon={materialIcon('forum')}
                     headline={c.name}
                     supporting={`${t.assistants.by(c.login)} · ${used ? t.assistants.lastUsed(when(used)) : t.assistants.neverUsed}`}
                     actions={
                       state.mayChange && (
-                        <Button kind="text" size="small" disabled={busy === c.id} onClick={() => end(c)}>
+                        <Button kind="text" disabled={busy === c.id} onClick={() => end(c)}>
                           {t.assistants.disconnect}
                         </Button>
                       )

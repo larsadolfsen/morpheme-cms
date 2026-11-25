@@ -24,9 +24,9 @@
     aspect-ratio: 16 / 9;
     margin-block: 2em;
     padding: 1.5rem;
-    border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
-    background: var(--mo-sys-block-tint);
-    color: var(--mo-sys-block-text);
+    border-radius: var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius));
+    background: var(--mo-comp-block-tint);
+    color: var(--mo-comp-block-text);
     text-align: center;
     text-decoration: none;
   }
@@ -55,7 +55,7 @@
     border-radius: 0;
   }
   .mo-prose .mo-block-video__facade svg {
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
     transition: transform var(--mo-sys-motion-spring-default-spatial);
   }
   .mo-prose .mo-block-video__facade:hover svg {
@@ -156,14 +156,14 @@
     line-height: var(--mo-sys-typescale-label-medium-line-height);
     font-weight: var(--mo-sys-typescale-label-medium-weight);
     letter-spacing: var(--mo-sys-typescale-label-medium-tracking);
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
   }
   .mo-block-head > .mo-block-head__subheading {
     font-size: var(--mo-sys-typescale-title-large-size);
     line-height: var(--mo-sys-typescale-title-large-line-height);
     font-weight: var(--mo-sys-typescale-title-large-weight);
     letter-spacing: var(--mo-sys-typescale-title-large-tracking);
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
 
   /* A label above a heading in a text (packages/editor/lib/eyebrow.mjs): a block's label, with the heading's space above
@@ -219,14 +219,14 @@
     height: 1.25em;
     margin: 0;
     align-self: center;
-    background-color: var(--mo-sys-block-accent);
+    background-color: var(--mo-comp-block-accent);
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='M378-246 154-470l43-43 181 181 384-384 43 43-427 427Z'/%3E%3C/svg%3E")
       center / contain no-repeat;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -960 960 960'%3E%3Cpath d='M378-246 154-470l43-43 181 181 384-384 43 43-427 427Z'/%3E%3C/svg%3E")
       center / contain no-repeat;
   }
   .mo-prose li.task-list-item > input[type='checkbox']:not(:checked) {
-    background-color: color-mix(in srgb, var(--mo-sys-block-accent) 35%, transparent);
+    background-color: color-mix(in srgb, var(--mo-comp-block-accent) 35%, transparent);
   }
 
   /* A word or more in one of the site's colours, in a text (packages/editor/lib/text-colors.mjs, the colour button in the
@@ -235,11 +235,11 @@
    is in the text's style (.mo-prose), whose colours of bold text and links it goes over. */
   .mo-has-accent-color,
   .mo-has-accent-color :is(strong, em, a) {
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
   }
   .mo-has-muted-color,
   .mo-has-muted-color :is(strong, em, a) {
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
 
   /* A word in the accent's or the quiet text's colour (above) on a section with the accent as its background would not

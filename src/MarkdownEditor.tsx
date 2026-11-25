@@ -22,6 +22,7 @@ import { editorViewCtx, type Editor } from '@milkdown/kit/core';
 import type { CmdKey } from '@milkdown/kit/core';
 import type { Ctx } from '@milkdown/kit/ctx';
 import {
+  hrSchema,
   imageSchema,
   insertImageCommand,
   toggleEmphasisCommand,
@@ -42,28 +43,6 @@ import { Decoration, DecorationSet, type EditorView } from '@milkdown/kit/prose/
 import { NodeSelection, Plugin, PluginKey, Selection, TextSelection, type EditorState } from '@milkdown/kit/prose/state';
 import { liftListItem } from '@milkdown/kit/prose/schema-list';
 import { lift } from '@milkdown/kit/prose/commands';
-import {
-  ArrowUUpLeft,
-  ArrowUUpRight,
-  Image,
-  LinkSimple,
-  ListBullets,
-  ListChecks,
-  ListNumbers,
-  Palette,
-  Quotes,
-  Tag,
-  TextAa,
-  TextAlignCenter,
-  TextAlignLeft,
-  TextAlignRight,
-  TextB,
-  TextHThree,
-  TextHOne,
-  TextHTwo,
-  TextItalic,
-  TextT,
-} from '@phosphor-icons/react';
 import { listKindOf, styleOf } from './styleKind.mjs';
 import { listRows, styleRows } from './styleMenu.mjs';
 import { planBar, toolWidth } from './textBar.mjs';
@@ -113,6 +92,7 @@ import { changeTo, targets } from '../lib/changeTo.mjs';
 import { t } from './i18n';
 import { motionReduced, motionTiming } from '../lib/motion';
 import { barSlideKind } from './barMotion.mjs';
+import { caretScrollStep } from './caretScroll.mjs';
 import { dragSteps, limitSteps } from './blockDrag.mjs';
 import { blockHandleIcon, blockMarkIcon, blockSettingsIcon, changeToIcon, duplicateIcon, selectAllBlocksIcon } from './blockHandleIcon';
 import { blockSelection } from './blockSelection';
@@ -121,13 +101,25 @@ import { ask } from './ask';
 import { canPress, edgeScroll, movedAway } from '@theme/ui/longPressRules.mjs';
 import { canLabel, toggleLabel } from './eyebrowState.mjs';
 // The icons of the card's menu (Phosphor, as everywhere in the editor), as SVG: the card is not React.
-import { AaIcon, AddBlockIcon, BodyA1Icon, BodyA2Icon, BodyA3Icon, CloseIcon, MoreVertIcon, PreviewIcon, ViewOnSiteIcon } from './icon';
+import {
+  AaIcon,
+  AddBlockIcon,
+  BodyA1Icon,
+  BodyA2Icon,
+  BodyA3Icon,
+  CloseIcon,
+  MoreVertIcon,
+  PreviewIcon,
+  ViewOnSiteIcon,
+  materialIcon,
+  type IconComponent,
+} from './icon';
 import { editElsewhereIcon, settingsHereIcon } from './meaningIcons';
-import eyeIcon from '@phosphor-icons/core/assets/regular/eye.svg?raw';
-import eyeSlashIcon from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
-import arrowUpIcon from '@phosphor-icons/core/assets/regular/arrow-up.svg?raw';
-import arrowDownIcon from '@phosphor-icons/core/assets/regular/arrow-down.svg?raw';
-import trashIcon from '@phosphor-icons/core/assets/regular/trash.svg?raw';
+import eyeIcon from '@material-symbols/svg-400/outlined/visibility.svg?raw';
+import eyeSlashIcon from '@material-symbols/svg-400/outlined/visibility_off.svg?raw';
+import arrowUpIcon from '@material-symbols/svg-400/outlined/arrow_upward.svg?raw';
+import arrowDownIcon from '@material-symbols/svg-400/outlined/arrow_downward.svg?raw';
+import trashIcon from '@material-symbols/svg-400/outlined/delete.svg?raw';
 import { TextLargeIcon, TextMediumIcon, TextSmallIcon } from './TextSizeIcons';
 // ProseMirror's own styles: keep its invisible helpers (around images, at the end of lines) out of the layout.
 import '@milkdown/kit/prose/view/style/prosemirror.css';
@@ -178,6 +170,9 @@ type Props = {
   frame?: boolean;
   /** A page's or post's `Preview` (pagePreview.tsx): a main tool of the bar, before Undo, and in its `⋮` when the contextual tools fill it. */
   onPreview?: () => void;
+  /** The first paragraph is drawn as the site draws the lead (editor.css, `data-lead-style`): a page's (muted and 52ch wide) or a post's; none
+   * for a page with a column beside its text, which has no lead on the site. Only a text with the section frame (pages and posts). */
+  lead?: 'page' | 'post';
   /** The page's address on the site, for `View on site` in the bar's `⋮` (its last group); none for a page that is not on the site yet. */
   viewOnSite?: string;
 };
@@ -246,6 +241,34 @@ const gapHere = $prose(
           empty && $from.depth === 1 && isGap($from.parent)
             ? DecorationSet.create(doc, [Decoration.node($from.before(), $from.after(), { class: 'mo-editor-gap-here' })])
             : null,
+      },
+    }),
+);
+
+// The cursor stays in the free band between the text bar (which sticks at the top) and the Save bar or the keyboard at the bottom, with
+// the page scrolling by itself: ProseMirror's own scroll knows only the window's edges (caretScroll.mjs). A text in a box that scrolls
+// itself (a sheet) keeps ProseMirror's scroll. A selected block or divider is kept in the band the same way.
+const keepCaret = $prose(
+  () =>
+    new Plugin({
+      props: {
+        handleScrollToSelection: (view) => {
+          const { selection } = view.state;
+          const node = selection instanceof NodeSelection ? view.nodeDOM(selection.from) : null;
+          if (!(selection instanceof TextSelection) && !(node instanceof HTMLElement)) return false;
+          for (let box = view.dom.parentElement; box && box !== document.body && box !== document.documentElement; box = box.parentElement)
+            if (/auto|scroll/.test(getComputedStyle(box).overflowY) && box.scrollHeight > box.clientHeight) return false;
+          const rect = node instanceof HTMLElement ? node.getBoundingClientRect() : view.coordsAtPos(selection.head);
+          if (!rect.top && !rect.bottom) return false; // no layout (hidden or detached): ProseMirror's scroll
+          const tools = document.querySelector<HTMLElement>('.mo-editor-tools-bar')?.getBoundingClientRect();
+          const save = document.querySelector<HTMLElement>('.mo-editor-save-bar')?.getBoundingClientRect();
+          const top = tools && tools.bottom > 0 ? tools.bottom : 0;
+          const screen = window.visualViewport?.height ?? window.innerHeight;
+          const bottom = save && save.top > top ? Math.min(save.top, screen) : screen;
+          const by = caretScrollStep({ rectTop: rect.top, rectBottom: rect.bottom, top, bottom });
+          if (by) window.scrollBy({ top: by, behavior: 'instant' });
+          return true;
+        },
       },
     }),
 );
@@ -383,7 +406,7 @@ function move(view: EditorView, i: number, by: -1 | 1): number | null {
 }
 
 // Selects the card at the top level at index k again (after it moved, it is a new card), so its tools are on the bar still and it can be moved again at once.
-type CardHost = HTMLElement & { select?: () => void; refresh?: () => void; describe?: (focus?: EditFocus) => void };
+type CardHost = HTMLElement & { select?: () => void; leave?: () => void; refresh?: () => void; describe?: (focus?: EditFocus) => void };
 function reopen(view: EditorView, k: number) {
   const el = partDOM(view, k);
   const host = (el?.matches('.mo-site-block') ? el : el?.querySelector('.mo-site-block')) as CardHost | null;
@@ -1052,6 +1075,7 @@ function cardBar(
     show();
   }
   (dom as CardHost).select = select;
+  (dom as CardHost).leave = leave;
   (dom as CardHost).refresh = () => selected && show();
   card.setAttribute('aria-pressed', 'false');
   card.addEventListener('mousedown', (e) => e.preventDefault());
@@ -1373,6 +1397,95 @@ function imageCard(
   return { dom, update: () => false, stopEvent: () => true, ignoreMutation: () => true, destroy: close };
 }
 
+// The arrow keys from the text next to a Divider select it (its card takes the focus): Down or Right at the end of a text, Up or Left at its start.
+const dividerArrows = $prose(
+  () =>
+    new Plugin({
+      props: {
+        handleKeyDown: (view, e) => {
+          const dir = { ArrowDown: 'down', ArrowRight: 'right', ArrowUp: 'up', ArrowLeft: 'left' }[e.key] as
+            'down' | 'right' | 'up' | 'left' | undefined;
+          if (!dir || e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) return false;
+          const { selection } = view.state;
+          if (!selection.empty || selection.$from.depth !== 1 || !selection.$from.parent.isTextblock) return false;
+          const forward = dir === 'down' || dir === 'right';
+          if (!view.endOfTextblock(dir)) return false;
+          const index = selection.$from.index(0) + (forward ? 1 : -1);
+          if (view.state.doc.maybeChild(index)?.type.name !== 'hr') return false;
+          const card = partDOM(view, index)?.querySelector<HTMLElement>('.mo-site-block-card');
+          if (!card) return false;
+          e.preventDefault();
+          card.focus();
+          card.click();
+          return true;
+        },
+      },
+    }),
+);
+
+// The Divider (`---`, the `hr` node) as a block: a card with its own name, selected by a tap or the keyboard, with the block bar's Add above, Add below,
+// Move up, Move down and Remove (it has no Settings and no Link). It is stored as `---` in the text, not as a block.
+function dividerCard(node: Node, view: EditorView, getPos: () => number | undefined) {
+  const dom = document.createElement('div');
+  dom.className = 'mo-site-block mo-editor-divider';
+  dom.contentEditable = 'false';
+  const card = dom.appendChild(document.createElement('button'));
+  card.type = 'button';
+  card.className = 'mo-site-block-card';
+  card.setAttribute('aria-label', t.text.divider);
+  const rule = card.appendChild(document.createElement('span'));
+  rule.className = 'mo-editor-divider__rule';
+  rule.setAttribute('aria-hidden', 'true');
+  const remove = () => {
+    const pos = getPos();
+    if (pos === undefined) return;
+    view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
+    announceRemoved(t.text.blockRemoved(t.text.divider));
+    view.focus();
+  };
+  // Add above or below: an empty paragraph next to the Divider, with the cursor in it (the Insert block button then puts a block there).
+  const add = (below: boolean) => () => {
+    const pos = getPos();
+    if (pos === undefined) return;
+    const at = below ? pos + node.nodeSize : pos;
+    const tr = view.state.tr.insert(at, view.state.schema.nodes.paragraph.create());
+    view.dispatch(tr.setSelection(TextSelection.create(tr.doc, at + 1)).scrollIntoView());
+    view.focus();
+  };
+  // The card has the focus once it is selected (a tap or a click), so Delete and Backspace remove it (cardBar) and the arrows leave it for the text next to it.
+  card.addEventListener('click', () => card.focus());
+  card.addEventListener('keydown', (e) => {
+    const forward = e.key === 'ArrowDown' || e.key === 'ArrowRight';
+    if (!forward && e.key !== 'ArrowUp' && e.key !== 'ArrowLeft') return;
+    if (e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) return;
+    const pos = getPos();
+    if (pos === undefined) return;
+    e.preventDefault();
+    (dom as CardHost).leave?.();
+    const $at = view.state.doc.resolve(forward ? pos + node.nodeSize : pos);
+    view.dispatch(view.state.tr.setSelection(Selection.near($at, forward ? 1 : -1)).scrollIntoView());
+    view.focus();
+  });
+  const tools = (): BarAction[] => [
+    { kind: 'below', label: t.text.dividerAddBelow, action: add(true) },
+    { kind: 'above', label: t.text.dividerAddAbove, action: add(false) },
+    { kind: 'remove', label: t.common.remove, action: remove },
+  ];
+  const close = cardBar(
+    view,
+    dom,
+    card,
+    t.text.divider,
+    () => {
+      const pos = getPos();
+      return moves(view, pos === undefined ? null : view.state.doc.resolve(pos).index(0));
+    },
+    undefined,
+    { tools, remove },
+  );
+  return { dom, update: () => false, stopEvent: () => true, ignoreMutation: () => true, destroy: close };
+}
+
 // The link where the cursor is, or in the selection: where it is (all of it, when the cursor is in it)
 // and its address; null when there is none.
 function linkAt(state: EditorView['state']) {
@@ -1519,14 +1632,14 @@ function textButtonWidth(label: string): number {
   }
   return width;
 }
-const rawIcons = new Map<string, typeof TextB>();
-function rawIcon(svg: string): typeof TextB {
+const rawIcons = new Map<string, IconComponent>();
+function rawIcon(svg: string): IconComponent {
   let icon = rawIcons.get(svg);
   if (!icon) {
     const html = svg.replace('<svg', '<svg width="20" height="20" fill="currentColor" aria-hidden="true"');
     icon = (() => (
       <span aria-hidden="true" className="mo-editor-inline-icon" dangerouslySetInnerHTML={{ __html: html }} />
-    )) as unknown as typeof TextB;
+    )) as unknown as IconComponent;
     rawIcons.set(svg, icon);
   }
   return icon;
@@ -1537,24 +1650,24 @@ const KIND_ICONS = {
   large: { node: TextLargeIcon },
   medium: { node: TextMediumIcon },
   small: { node: TextSmallIcon },
-  label: { node: Tag },
-  quote: { node: Quotes },
-  bullet: { node: ListBullets },
-  check: { node: ListChecks },
-  ordered: { node: ListNumbers },
+  label: { node: materialIcon('sell') },
+  quote: { node: materialIcon('format_quote') },
+  bullet: { node: materialIcon('format_list_bulleted') },
+  check: { node: materialIcon('checklist') },
+  ordered: { node: materialIcon('format_list_numbered') },
 };
 
 // The icon of a button when its style is not on: the general text (T) and list icons.
 const GENERIC_ICONS = {
-  text: { node: TextT },
-  list: { node: ListBullets },
+  text: { node: materialIcon('text_fields') },
+  list: { node: materialIcon('format_list_bulleted') },
 };
 
 // The alignments of a paragraph or a smaller heading (lib/text-align.mjs), each with its icon and name; left is the text's own.
 const ALIGN_FACES = {
-  left: { node: TextAlignLeft },
-  center: { node: TextAlignCenter },
-  right: { node: TextAlignRight },
+  left: { node: materialIcon('format_align_left') },
+  center: { node: materialIcon('format_align_center') },
+  right: { node: materialIcon('format_align_right') },
 };
 type Align = keyof typeof ALIGN_FACES;
 /** The keys of the bar's tools that have one: the text engine's own (the same as in textActions.ts), shown in their tooltips. */
@@ -2458,7 +2571,23 @@ function blockCard(
 }
 
 export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
-  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, startFocused, onH1, looks, sections, frame, onPreview, viewOnSite },
+  {
+    value,
+    onChange,
+    addImage,
+    blocks,
+    sheet: sheetProp,
+    short,
+    h1,
+    startFocused,
+    onH1,
+    looks,
+    sections,
+    frame,
+    onPreview,
+    viewOnSite,
+    lead,
+  },
   ref,
 ) {
   const spaced = !!blocks;
@@ -2585,6 +2714,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           () => picking.current,
         ),
     );
+    const dividerView = $view(hrSchema.node, () => (node, view, getPos) => dividerCard(node, view, getPos));
     const cardView = $view(
       siteBlockSchema.node,
       () => (node, view, getPos) =>
@@ -2654,6 +2784,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(naming)
       .use(cardView)
       .use(imageView)
+      .use(dividerView)
+      .use(dividerArrows)
       .use(cardDeletes)
       .use(marking)
       .use(blockSelecting)
@@ -2662,6 +2794,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(numbering)
       .use(sectionFrame(framed))
       .use(gapHere)
+      .use(keepCaret)
       .use(tapBelow)
       .use(checkToggle)
       .use(history)
@@ -2945,6 +3078,24 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     closed.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['open'] });
   }
 
+  // The Divider (written `---`): a rule where the cursor is, at the top level of the text, with an empty paragraph after it for the cursor.
+  function divider() {
+    editor.current?.action((ctx) => {
+      const view = ctx.get(editorViewCtx);
+      const { state } = view;
+      const rule = state.schema.nodes.hr?.create();
+      if (!rule) return;
+      let { tr, end } = insertBlock(state, rule);
+      if (end >= 0) {
+        if (!tr.doc.resolve(end).nodeAfter?.isTextblock) tr = tr.insert(end, state.schema.nodes.paragraph.create());
+        tr = tr.setSelection(TextSelection.create(tr.doc, end + 1));
+      }
+      view.dispatch(tr.scrollIntoView());
+      view.focus();
+      announce(t.text.dividerAdded);
+    });
+  }
+
   // Puts the chosen block where the cursor is (a paragraph is split around it), or after the block
   // that is selected. With no text after it, an empty paragraph follows, where the cursor goes, so
   // the next text or block comes after it instead of replacing it.
@@ -3165,24 +3316,24 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const alignNow = alignIn(active);
   const styleKey = styleOf(active, true);
   const listKey = listKindOf(active, true);
-  const STYLE_FACES: Record<string, { label: string; icon: typeof TextB }> = {
-    h1: { label: t.text.pageHeading, icon: TextHOne },
-    h2: { label: t.text.heading, icon: TextHTwo },
-    h3: { label: t.text.subheading, icon: TextHThree },
+  const STYLE_FACES: Record<string, { label: string; icon: IconComponent }> = {
+    h1: { label: t.text.pageHeading, icon: materialIcon('format_h1') },
+    h2: { label: t.text.heading, icon: materialIcon('format_h2') },
+    h3: { label: t.text.subheading, icon: materialIcon('format_h3') },
     small: { label: t.text.bodySmall, icon: KIND_ICONS.small.node },
     medium: { label: t.text.bodyMedium, icon: KIND_ICONS.medium.node },
     large: { label: t.text.bodyLarge, icon: KIND_ICONS.large.node },
     label: { label: t.text.label, icon: KIND_ICONS.label.node },
     quote: { label: t.text.quote, icon: KIND_ICONS.quote.node },
   };
-  const LIST_FACES: Record<string, { label: string; icon: typeof TextB }> = {
+  const LIST_FACES: Record<string, { label: string; icon: IconComponent }> = {
     bullet: { label: t.text.bulletList, icon: KIND_ICONS.bullet.node },
     check: { label: t.text.checkList, icon: KIND_ICONS.check.node },
     ordered: { label: t.text.orderedList, icon: KIND_ICONS.ordered.node },
   };
   // In the Text style menu the body styles draw an A with a number (the smallest has the highest: A3, A2, A1); the bar's own button shows Aa
   // for every body style and while no style is on (owner decisions, 14 Nov).
-  const BODY_ROW_ICONS: Record<string, typeof TextB> = { small: BodyA3Icon, medium: BodyA2Icon, large: BodyA1Icon };
+  const BODY_ROW_ICONS: Record<string, IconComponent> = { small: BodyA3Icon, medium: BodyA2Icon, large: BodyA1Icon };
   const rowIcon = (row: string) => BODY_ROW_ICONS[row] ?? STYLE_FACES[row].icon;
   const styleFace = STYLE_FACES[styleKey]
     ? { ...STYLE_FACES[styleKey], icon: BODY_ROW_ICONS[styleKey] ? AaIcon : STYLE_FACES[styleKey].icon }
@@ -3197,14 +3348,32 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const contextIds = block_
     ? [...(block_.count ? ['block:count'] : []), ...blockToolIds(block_).map((id) => `block:${id}`)]
     : textContext
-      ? ['bold', 'italic', 'style', ...(lists.length ? ['list'] : []), 'align', 'link', 'color']
+      ? ['bold', 'italic', 'style', ...(lists.length ? ['list'] : []), 'align', 'link', 'color', 'divider']
       : [];
   const blockMenu = block_?.menu ?? [];
   // Undo, Redo and Insert block (never in the ⋮) stand at the right end of the bar in every place, then the ⋮ (owner decision, 14 Nov). Section
   // settings is a row of the ⋮ (always there while it applies). A page's Preview stands before Undo while every tool fits, else it is in the ⋮;
   // View on site is always in the ⋮, in its last group (one save while writing, 3.3).
   const fixedIds = ['undo', 'redo', ...(hasInsert ? ['insert'] : [])];
-  const spareIds = onPreview ? ['preview'] : [];
+  // Helping lines (the dotted lines that show sections and blocks): a main tool beside Preview, hidden or shown for this viewer (kept in the browser).
+  const [guides, setGuides] = useState(() => {
+    try {
+      return localStorage.getItem('mo-editor-guides') !== 'off';
+    } catch {
+      return true;
+    }
+  });
+  const toggleGuides = () => {
+    setGuides((on) => {
+      try {
+        localStorage.setItem('mo-editor-guides', on ? 'off' : 'on');
+      } catch {
+        // the choice lasts until the page closes
+      }
+      return !on;
+    });
+  };
+  const spareIds = ['guides', ...(onPreview ? ['preview'] : [])];
   // The text's actions for the command palette (textActions.ts): the functions the bar runs, called through a ref so they are always the latest, and the
   // names the bar draws. Registered while the editor is mounted (one editor owns them: a second one on the same screen leaves them to the first).
   const textApi = useRef<TextApi>(null!);
@@ -3390,7 +3559,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     id: string,
   ): {
     label: string;
-    icon?: typeof TextB;
+    icon?: IconComponent;
     text?: boolean;
     action: () => void;
     on?: string;
@@ -3402,19 +3571,27 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     if (id.startsWith('block:')) return blockTool(id.slice(6));
     switch (id) {
       case 'bold':
-        return { label: t.text.bold, icon: TextB, action: () => run(toggleStrongCommand), on: 'strong' };
+        return { label: t.text.bold, icon: materialIcon('format_bold'), action: () => run(toggleStrongCommand), on: 'strong' };
       case 'italic':
-        return { label: t.text.italic, icon: TextItalic, action: () => run(toggleEmphasisCommand), on: 'emphasis' };
+        return { label: t.text.italic, icon: materialIcon('format_italic'), action: () => run(toggleEmphasisCommand), on: 'emphasis' };
       case 'link':
-        return { label: t.text.link, icon: LinkSimple, action: link, on: 'link' };
+        return { label: t.text.link, icon: materialIcon('link'), action: link, on: 'link' };
+      case 'divider':
+        return { label: t.text.divider, icon: materialIcon('horizontal_rule'), action: divider };
       case 'insert':
-        return { label: insertLabel, icon: blocks ? AddBlockIcon : Image, action: blocks ? block : image };
+        return { label: insertLabel, icon: blocks ? AddBlockIcon : materialIcon('image'), action: blocks ? block : image };
       case 'undo':
-        return { label: t.text.undo, icon: ArrowUUpLeft, action: () => run(undoCommand) };
+        return { label: t.text.undo, icon: materialIcon('undo'), action: () => run(undoCommand) };
       case 'redo':
-        return { label: t.text.redo, icon: ArrowUUpRight, action: () => run(redoCommand) };
+        return { label: t.text.redo, icon: materialIcon('redo'), action: () => run(redoCommand) };
       case 'preview':
         return { label: t.preview.button, icon: PreviewIcon, action: () => onPreview?.() };
+      case 'guides':
+        return {
+          label: guides ? t.text.hideGuides : t.text.showGuides,
+          icon: materialIcon(guides ? 'grid_on' : 'grid_off'),
+          action: toggleGuides,
+        };
       default:
         return { label: t.text.sectionSettings, icon: rawIcon(settingsHereIcon), action: sectionSettings };
     }
@@ -3454,7 +3631,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       return (
         <ToolbarButton
           key={id}
-          icon={Palette}
+          icon={materialIcon('palette')}
           label={t.text.color}
           menu={!!colorAt && colorAt !== moreButton.current}
           disabled={noColor}
@@ -3503,7 +3680,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       );
     if (id === 'color')
       return (
-        <MenuItem key={id} icon={Palette} disabled={noColor} onClick={under(() => setColorAt(moreButton.current))}>
+        <MenuItem key={id} icon={materialIcon('palette')} disabled={noColor} onClick={under(() => setColorAt(moreButton.current))}>
           {t.text.color}
         </MenuItem>
       );
@@ -3515,19 +3692,20 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
     );
   };
   // In the `⋮` menu the context's tools come first, then a divider, then the main tools.
-  const MORE_ORDER = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
+  const MORE_ORDER = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color', 'divider'];
   const moreContext = [...plan.more.context].sort((a, b) => MORE_ORDER.indexOf(a) - MORE_ORDER.indexOf(b));
   // Preview comes after Section settings.
   const moreMain = [
-    ...plan.more.fixed.filter((id) => id !== 'preview'),
+    ...plan.more.fixed.filter((id) => id !== 'preview' && id !== 'guides'),
     ...(settingsShown ? ['settings'] : []),
+    ...plan.more.fixed.filter((id) => id === 'guides'),
     ...plan.more.fixed.filter((id) => id === 'preview'),
   ];
   // The ⋮ menu's groups, each after a divider: the context's tools, the main tools, the block's own menu, then View on site.
   const moreGroups = moreContext.length + moreMain.length + blockMenu.length;
 
   return (
-    <div className="mo-editor-text-box mo-editor-text-surface">
+    <div className="mo-editor-text-box mo-editor-text-surface" data-guides={guides ? undefined : 'off'}>
       <span className="mo-visually-hidden" role="status" aria-live="polite">
         {selecting ? t.text.blocksSelected(picked.places.length) : ''}
       </span>
@@ -3672,6 +3850,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       </Menu>
       <div
         ref={root}
+        data-lead-style={lead}
         className={`mo-editor-text mo-prose mo-editor-text-area ${short ? 'mo-editor-text-short' : ''} ${spaced ? 'mo-editor-spaced' : ''}`}
         style={
           {

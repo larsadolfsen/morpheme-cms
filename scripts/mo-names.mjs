@@ -17,6 +17,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import postcss from 'postcss';
+import { SCOPED_CSS_FROM_API } from '../lib/appCss.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 export const MAP_PATH = 'docs/superpowers/plans/mo-names/map.json';
@@ -24,9 +25,9 @@ export const MAP_PATH = 'docs/superpowers/plans/mo-names/map.json';
 /** Folders and files scanned. The plan's five folders hold the stylesheets; the rest read the names (scripts, lib, the demo, the starter). */
 export const FOLDERS = ['theme', 'src', 'pages', 'defaults', 'site', 'lib', 'starter', 'demo', 'worker', 'bin', 'scripts'];
 const SCANNED = /\.(css|astro|tsx|ts|jsx|js|mjs|html|md)$/;
-/** Not scanned: this tool and its check (they quote names as fixtures), the table of the old names the content rewrite replaces (lib/content-class-names.mjs, the old names are its input), every test file, and generated or copied content. */
+/** Not scanned: this tool and its check (they quote names as fixtures), the tables of the old names the content and code rewrites replace (lib/content-class-names.mjs and the generated lib/migrate-code-maps.mjs, the old names are their input), every test file, and generated or copied content. */
 const SKIPPED =
-  /(^|\/)(mo-names|check-mo-names)[^/]*$|^lib\/content-class-names\.mjs$|\.test\.mjs$|^demo\/src\/data\/|(^|\/)node_modules\//;
+  /(^|\/)(mo-names|check-mo-names)[^/]*$|^lib\/(content-class-names|migrate-code-maps)\.mjs$|\.test\.mjs$|^demo\/src\/data\/|(^|\/)node_modules\//;
 
 /** Classes of other libraries and the ones kept on purpose, with the reason (also in docs/class-names.md). */
 export const NOT_RENAMED = [
@@ -223,6 +224,16 @@ export function scanStrict(files) {
   return [...new Set(out)];
 }
 
+/** Whether a file is in an app written to contract 8 or later (`…/src/apps/<id>/`): its own classes are plain names the build scopes to the app (`check:app-classes`). */
+const inScopedApp = (file) => {
+  const m = /^(.*\/src\/apps\/[^/]+)\//.exec(file);
+  try {
+    return !!m && JSON.parse(readFileSync(`${root}${m[1]}/app.json`, 'utf8')).api >= SCOPED_CSS_FROM_API;
+  } catch {
+    return false;
+  }
+};
+
 /** The files to scan, from git. */
 export function listFiles() {
   return execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', ...FOLDERS], {
@@ -231,7 +242,7 @@ export function listFiles() {
     maxBuffer: 64 * 1024 * 1024,
   })
     .split('\n')
-    .filter((f) => f && SCANNED.test(f) && !SKIPPED.test(f) && existsSync(root + f));
+    .filter((f) => f && SCANNED.test(f) && !SKIPPED.test(f) && existsSync(root + f) && !inScopedApp(f));
 }
 
 const sum = (map) => [...map.values()].reduce((a, b) => a + b, 0);
@@ -279,7 +290,7 @@ export function scan(files, renamed = RENAMED) {
 export const COMPONENTS = [
   'avatar', 'badge', 'bottom-sheet', 'button', 'button-group', 'card', 'carousel', 'center', 'checkbox', 'chip', 'date-picker', 'dialog',
   'divider', 'extended-fab', 'fab', 'fab-menu', 'grid', 'icon', 'icon-button', 'lightbox', 'list', 'loading-indicator', 'menu', 'navigation',
-  'progress-indicator', 'radio', 'ripple', 'row', 'search', 'segmented-button', 'setting', 'side-sheet', 'slider', 'snackbar', 'split-button', 'stack',
+  'progress-indicator', 'radio', 'ripple', 'row', 'search', 'setting', 'side-sheet', 'slider', 'snackbar', 'split-button', 'stack',
   'switch', 'tabs', 'text-field', 'time-picker', 'toolbar', 'tooltip', 'top-app-bar',
 ]; // prettier-ignore
 

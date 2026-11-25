@@ -1,17 +1,17 @@
 // "Checklist", a standard block: a heading and points, each a short text with a check in a circle in the accent before
 // it; with many of them, in two columns where there is room. How it looks is the theme's
 // (packages/editor/theme/blocks/checklist/View.tsx with Checks.tsx); what it shows: view.ts, and load.ts on the site.
-import { ListChecks } from '@phosphor-icons/react';
 import { cut, defineBlock } from '../../blocks';
 import { siteT, t } from '../../i18n';
 import { headFields } from '../head';
+import { materialIcon } from '../../icon';
 
 export default defineBlock({
   group: 'lists',
   // The Checklist is a check list in the text now (lib/remark-checklist.mjs); this block stays for a hidden one and for one without points.
   former: true,
   label: t.blocks.checklist.label,
-  icon: ListChecks,
+  icon: materialIcon('checklist'),
   hint: t.blocks.checklist.hint,
   fields: [
     ...headFields,

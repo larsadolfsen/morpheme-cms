@@ -115,6 +115,16 @@ export const library: Messages['library'] = {
   changeIconPack: 'Skift ikonpakke',
   changeIconPackAsk: (name) => `Hjemmesiden og editoren får ikonerne fra ${name} om et par minutter`,
   iconPackSaved: (change) => `${change}. Hjemmesiden og editoren får de nye ikoner om et par minutter.`,
+  iconPackInstalled: (name) => `${name} er installeret. Du kan vælge den under Udseende › Ikonpakker om et par minutter.`,
+  iconPackUpdated: (name, version) => `${name} er opdateret til ${version}. Hjemmesiden bruger den om et par minutter.`,
+  iconPackRemoved: (name) => `${name} er fjernet`,
+  askRemoveIconPack: (name, inUse) =>
+    inUse ? `Fjern ${name}? Hjemmesiden bruger Material Symbols i stedet.` : `Fjern ${name}? Dens ikoner fjernes fra hjemmesiden.`,
+  iconPackStoreCommits: {
+    install: (name) => `Editor: installer ikonpakken ${name}`,
+    uninstall: (name) => `Editor: fjern ikonpakken ${name}`,
+    update: (name, version) => `Editor: opdater ikonpakken ${name} til ${version}`,
+  },
   iconPackCommit: (name) => `Editor: skift ikonpakke til ${name}`,
   motionSchemes: { expressive: 'Udtryksfuld', standard: 'Standard', calm: 'Rolig' },
   motionHints: {

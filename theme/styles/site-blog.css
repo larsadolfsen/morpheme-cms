@@ -28,7 +28,7 @@
   /* The block "Blog posts" with the newest large: a note when there is no post, then the newest post (picture and text side by side from
      840 dp), then the rest as a list. */
   .mo-blog-empty {
-    border-radius: var(--mo-sys-radius);
+    border-radius: var(--mo-sys-shape-corner-medium);
     background-color: var(--mo-sys-color-surface-container-high);
     padding: 2rem;
   }

@@ -7,7 +7,7 @@
 // screen), the title and the status stand in a row under the bar, at the top of the content, and the page actions
 // (`pageActions`) at the end of that row. The bar stays at the top while
 // scrolling and keeps clear of a phone's notch. A screen's tabs (`tabs`) are the bottom of the bar, under the title, as wide
-// as the content, and stay with it. The back arrow goes to the screen above, back in the history when that is the screen
+// as the bar (the whole width of its pane), and stay with it. The back arrow goes to the screen above, back in the history when that is the screen
 // before (nav.ts up). The content is as wide as the site's text column, or wider for
 // a form with its fields beside the text (`panel`). The column (editor.css .mo-editor-column) stands centred on the window,
 // off-centre only as far as the panels beside it require.
@@ -17,7 +17,6 @@
 // footer whenever the footer is in the window (useFabLift: --mo-comp-editor-fab-lift, editor.css), so it never covers the footer.
 import { useContext, useEffect, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowLeft, Bell, CaretRight, ArrowSquareOut } from '@phosphor-icons/react';
 import { t } from './i18n';
 import {
   IconButton,
@@ -46,6 +45,7 @@ import { useTopBarSlot } from './topBarSlot';
 import { safeHref } from '../lib/safe-url.mjs';
 import { pageTitle } from '../lib/pageTitle.mjs';
 import { siteName } from '@site/editor';
+import { Icon, materialIcon } from './icon';
 
 // `label` is the screen back goes to, named by the back arrow and the breadcrumbs. `guard` takes every
 // way out of the screen (back, the breadcrumbs and the logo) and goes it, after warning about changes
@@ -91,7 +91,16 @@ export function WebsiteLink() {
     site.opener = null;
     e.preventDefault();
   };
-  return <IconLink href="/" target="_blank" rel="noopener" onClick={openWindow} icon={ArrowSquareOut} label={t.library.openWebsite} />;
+  return (
+    <IconLink
+      href="/"
+      target="_blank"
+      rel="noopener"
+      onClick={openWindow}
+      icon={materialIcon('open_in_new')}
+      label={t.library.openWebsite}
+    />
+  );
 }
 
 /** The bell in the top bar, before the link to the website: opens the notifications in a side sheet from 600 dp, below it goes to the
@@ -102,7 +111,7 @@ export function NotificationsButton({ className = '' }: { className?: string }) 
   const phone = !useAtLeast('medium');
   return (
     <IconButton
-      icon={Bell}
+      icon={materialIcon('notifications')}
       label={count ? t.library.notificationsNew(count) : t.library.notifications}
       aria-haspopup={phone ? undefined : 'dialog'}
       aria-expanded={phone ? undefined : open}
@@ -251,7 +260,7 @@ export default function Screen<T extends string>({
             aria-label={t.common.backTo(back.label)}
             className={`mo-editor-screen-back ${full ? '' : 'mo-editor-screen-narrow-only'}`}
           >
-            <ArrowLeft size={24} />
+            <Icon name="arrow_back" size={24} />
           </a>
         )}
         {/* The start screen: from medium the top bar is the search bar and the title and status stand under it; on a phone the title stays in the bar and the search bar is the first thing in the page. */}
@@ -289,7 +298,7 @@ export default function Screen<T extends string>({
       </div>
       {tabs && (
         <div className="mo-editor-bar-tabs">
-          <div className={`mo-editor-screen-tabs ${width}`}>
+          <div className="mo-editor-screen-tabs">
             <TabRow id={id} {...tabs} />
           </div>
         </div>
@@ -332,7 +341,7 @@ export default function Screen<T extends string>({
                     >
                       {c.label}
                     </a>
-                    <CaretRight size={14} className="mo-keep" />
+                    <Icon name="keyboard_arrow_right" size={14} className="mo-keep" />
                   </span>
                 ))}
               </nav>

@@ -16,13 +16,12 @@ const PARTS = [
   '.mo-extended-fab',
   'a.mo-chip',
   'button.mo-chip',
-  '.mo-chip__action',
+  '.mo-chip > .mo-is-action',
   '.mo-chip__remove',
   '.mo-menu__item',
   '.mo-tabs__tab',
-  '.mo-segmented-button__segment',
-  '.mo-navigation-bar__item',
-  '.mo-navigation-rail__item',
+  '.mo-nav-bar__item',
+  '.mo-nav-rail__item',
   '.mo-navigation-drawer__item',
   '.mo-navigation-drawer__subitem',
   '.mo-navigation-drawer__toggle',
@@ -69,11 +68,11 @@ function partAt(target: EventTarget | null) {
 /** Where a part's ripple is drawn: an input chip's on the whole chip, a navigation item's on its active indicator (the
  * icon's, where the indicator is only the box of the icon and the label), else on the part. */
 function surfaceOf(part: HTMLElement) {
-  if (part.matches('.mo-chip__action')) return part.parentElement ?? part;
-  const indicator = part.querySelector<HTMLElement>(':scope > :is(.mo-navigation-bar__indicator, .mo-navigation-rail__indicator)');
+  if (part.matches('.mo-chip > .mo-is-action')) return part.parentElement ?? part;
+  const indicator = part.querySelector<HTMLElement>(':scope > :is(.mo-nav-bar__indicator, .mo-nav-rail__indicator)');
   if (!indicator) return part;
   if (getComputedStyle(indicator).display !== 'contents') return indicator;
-  return indicator.querySelector<HTMLElement>(':scope > :is(.mo-navigation-bar__icon, .mo-navigation-rail__icon)') ?? part;
+  return indicator.querySelector<HTMLElement>(':scope > :is(.mo-nav-bar__icon, .mo-nav-rail__icon)') ?? part;
 }
 
 /** Starts a wave on `surface`, from the point pressed (else its middle), and gives what lets it go. */

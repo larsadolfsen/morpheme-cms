@@ -6,7 +6,9 @@
 .mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
   /* Cards (ui.css): 12px corners; outlined on the surface with the outline (docs/material-deviations.md, Outlines), elevated on a low container with
      the first elevation, filled on the highest container. */
-  --mo-comp-card-radius: var(--mo-sys-shape-corner-medium);
+  --mo-comp-elevated-card-container-shape: var(--mo-sys-shape-corner-medium);
+  --mo-comp-filled-card-container-shape: var(--mo-sys-shape-corner-medium);
+  --mo-comp-outlined-card-container-shape: var(--mo-sys-shape-corner-medium);
   /* An elevated card is elevated all the time (owner, 16 Nov 2026; m3.material.io/components/cards/guidelines: "Elevated cards have a drop shadow"): level 1 at
      rest and level 2 pointed at, though the theme's other parts have no shadow at rest (--mo-elevation-N-rest-shadow above). */
   --mo-comp-elevated-card-container-elevation: var(--mo-sys-elevation-level1-shadow);
@@ -36,6 +38,17 @@
     --mo-comp-filled-card-container-color: var(--mo-sys-color-surface-container);
   }
 }
+/* "Cards" as a carousel (cards/LinkCards.tsx): a card is the carousel's item (md.comp.carousel-item): its extra-large corners (28dp) and, on an outlined
+     card, the item's outline in `outline` (the card's own is outline-variant), in a row 20rem high where the layout is a contained one. */
+@layer components {
+  .mo-block-cards__carousel {
+    --mo-comp-elevated-card-container-shape: var(--mo-comp-carousel-item-container-shape);
+    --mo-comp-filled-card-container-shape: var(--mo-comp-carousel-item-container-shape);
+    --mo-comp-outlined-card-container-shape: var(--mo-comp-carousel-item-container-shape);
+    --mo-comp-outlined-card-outline-color: var(--mo-sys-color-outline);
+    --mo-comp-carousel-height: 20rem;
+  }
+}
 @layer components {
   .mo-block-testimonials__testimonial {
     --mo-comp-outlined-card-container-color: var(--mo-sys-color-surface-container);
@@ -46,7 +59,9 @@
      block's, so it takes no optical roundness from the card). */
 @layer components {
   .mo-block-cta {
-    --mo-comp-card-radius: var(--mo-sys-shape-corner-extra-large);
+    --mo-comp-elevated-card-container-shape: var(--mo-sys-shape-corner-extra-large);
+    --mo-comp-filled-card-container-shape: var(--mo-sys-shape-corner-extra-large);
+    --mo-comp-outlined-card-container-shape: var(--mo-sys-shape-corner-extra-large);
     --mo-comp-card-padding: 1.5rem;
   }
 }
@@ -59,7 +74,9 @@
 }
 @layer components {
   .mo-block-link-row {
-    --mo-comp-card-radius: var(--mo-sys-shape-corner-medium);
+    --mo-comp-elevated-card-container-shape: var(--mo-sys-shape-corner-medium);
+    --mo-comp-filled-card-container-shape: var(--mo-sys-shape-corner-medium);
+    --mo-comp-outlined-card-container-shape: var(--mo-sys-shape-corner-medium);
     --mo-comp-outlined-card-container-color: var(--mo-sys-color-surface-container-low);
     --mo-comp-outlined-card-outline-color: transparent;
   }

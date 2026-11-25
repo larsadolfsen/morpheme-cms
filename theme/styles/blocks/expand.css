@@ -11,7 +11,7 @@
 @layer components {
   .mo-block-accordion__lead {
     flex-shrink: 0;
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   /* A chosen icon colour (data-icon-color) on the lead of a List - Expand row and on a card's icon, which both read --mo-comp-icon-color. */
   .mo-block-accordion__lead[data-icon-color],
@@ -45,12 +45,12 @@
   }
   /* An answer as it was written: paragraphs and lists apart, links in the accent. */
   .mo-block-accordion__answer {
-    max-width: var(--mo-sys-block-text-measure-max);
+    max-width: var(--mo-comp-block-text-measure-max);
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
     font-weight: var(--mo-sys-typescale-body-large-weight);
     letter-spacing: var(--mo-sys-typescale-body-large-tracking);
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   .mo-block-accordion__answer * + * {
     margin-top: 0.75em;
@@ -67,11 +67,11 @@
     margin-top: 0.25em;
   }
   .mo-block-accordion__answer strong {
-    color: var(--mo-sys-block-text);
+    color: var(--mo-comp-block-text);
     font-weight: 600;
   }
   .mo-block-accordion__answer a {
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
@@ -80,12 +80,12 @@
   /* "Accordion": a row's text, the link to its page and links to more specific pages under it
      (accordion/PageRow.tsx). */
   .mo-block-accordion__row-text {
-    max-width: var(--mo-sys-block-text-measure-max);
+    max-width: var(--mo-comp-block-text-measure-max);
     font-size: var(--mo-sys-typescale-body-large-size);
     line-height: var(--mo-sys-typescale-body-large-line-height);
     font-weight: var(--mo-sys-typescale-body-large-weight);
     letter-spacing: var(--mo-sys-typescale-body-large-tracking);
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   .mo-block-accordion__row-links {
     display: flex;
@@ -95,10 +95,10 @@
     margin-top: 1rem;
   }
   /* Text buttons under a row's text (accordion/Accordion.tsx, accordion/PageRow.tsx): the same shift, so their labels line up with the text above. */
-  .mo-block-accordion__row-links:has(> .mo-button__text) {
+  .mo-block-accordion__row-links:has(> :where(.mo-button).mo-is-text) {
     margin-inline-start: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
     column-gap: 0.5rem;
-    margin-block-end: calc((1.25rem - var(--mo-comp-button-medium-container-height, 3rem)) / 2);
+    margin-block-end: calc((1.25rem - var(--mo-comp-button-small-container-height, 3rem)) / 2);
   }
   @media (width >= 37.5rem) {
     .mo-block-accordion__row-text {

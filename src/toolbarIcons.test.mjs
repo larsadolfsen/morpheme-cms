@@ -30,14 +30,14 @@ test('a tool with a menu rests in the same colour as the other tools, not the te
   assert.match(css, /\.mo-toolbar__menu-button[^{]*\{[^}]*color: var\(--mo-comp-icon-button-standard-icon-color,/);
 });
 
-test('every icon of the text toolbar is Phosphor, or one of the text sizes drawn on its grid', () => {
+test('every icon of the text toolbar is a Material Symbols file, or one of the text sizes drawn on its grid', () => {
   const imports = [...editor.matchAll(/^import \w+ from '([^']+\.svg\?raw)';/gm)].map((m) => m[1]);
   // Settings and edit icons are Material Symbols from meaningIcons.ts (one icon per meaning), not raw imports here.
   assert.ok(imports.length >= 5);
   for (const file of imports) {
     assert.match(
       file,
-      /^@phosphor-icons\/core\/assets\/(regular|bold)\/|^\.\/icons\/text-(t-(small|medium|large)|h-plain)\.svg\?raw$/,
+      /^@material-symbols\/svg-400\/outlined\/[a-z0-9_]+\.svg\?raw$|^\.\/icons\/text-(t-(small|medium|large)|h-plain)\.svg\?raw$/,
       file,
     );
   }
@@ -46,5 +46,5 @@ test('every icon of the text toolbar is Phosphor, or one of the text sizes drawn
     assert.match(svg, /viewBox="0 0 256 256"/);
     assert.doesNotMatch(svg, /#[0-9a-f]{3,8}\b|fill="(?!currentColor|none)/i);
   }
-  assert.doesNotMatch(editor, /from 'lucide-react'|from '@mui\/|material-symbols/);
+  assert.doesNotMatch(editor, new RegExp(['from .luc', 'ide-react.|from .@mui/|@phosphor-icons'].join('')));
 });

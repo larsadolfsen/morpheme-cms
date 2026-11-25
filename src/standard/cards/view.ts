@@ -37,12 +37,16 @@ export type LinkCard = {
   href?: string;
   /** The action area: none on a card with a page. */
   buttons: ButtonView[];
+  /** A line between the text and the buttons (Divider); only on a card with buttons. */
+  divider?: boolean;
 };
 export type CardsView = HeadView & {
   design?: string;
   color?: string;
   /** 'carousel': swiped sideways on a phone (two cards or more); else stacked. */
   phone?: 'carousel';
+  /** The carousel's Material 3 layout (carouselLayouts, below); none is the uncontained layout. */
+  layout?: CardsLayout;
   more: string;
   items: LinkCard[];
 };
@@ -50,6 +54,14 @@ export type CardsView = HeadView & {
 /** The cards on a phone as the block says: a carousel needs two cards at least. */
 export const phoneOf = (props: Record<string, any>): 'carousel' | undefined =>
   props.phone === 'carousel' && Array.isArray(props.items) && props.items.length >= 2 ? 'carousel' : undefined;
+
+/** The layouts of the cards' carousel besides the uncontained one (the empty choice, which every site saved before the choice has), as Material 3 names them. */
+export const cardsLayouts = ['multi-browse', 'hero', 'hero-center', 'full-screen'] as const;
+export type CardsLayout = (typeof cardsLayouts)[number];
+
+/** The carousel's layout as the block says; none (uncontained) without a carousel or for a choice that is not offered. */
+export const layoutOf = (props: Record<string, any>): CardsLayout | undefined =>
+  phoneOf(props) ? cardsLayouts.find((l) => l === props.layout) : undefined;
 
 /** A card as its field writes it. */
 export type LinkCardProps = {
@@ -65,6 +77,8 @@ export type LinkCardProps = {
   text?: string;
   href?: string;
   buttons?: Button[];
+  /** A line above the buttons; kept when the card loses its buttons or its video, drawn only with buttons. */
+  divider?: boolean;
 };
 
 const MEDIA: CardMedia[] = ['none', 'icon', 'image', 'video'];
@@ -89,6 +103,7 @@ export const cardsOf = (
   items.map((card, i) => {
     const media = MEDIA.find((m) => m === blockMedia) ?? 'icon';
     const video = media === 'video' && card.video ? how.video(card.video, card.title) : null;
+    const buttons = card.href && media !== 'video' ? [] : how.buttons(card, i);
     return {
       media,
       ...(media === 'icon' ? { icon: card.icon, ...(iconColorOf(card.iconColor) ? { iconColor: iconColorOf(card.iconColor) } : {}) } : {}),
@@ -99,7 +114,8 @@ export const cardsOf = (
       text: card.text ?? '',
       // A page makes the card one link, with no buttons; a video is played, so it is not a link.
       ...(media !== 'video' && card.href ? { href: card.href } : {}),
-      buttons: card.href && media !== 'video' ? [] : how.buttons(card, i),
+      buttons,
+      ...(card.divider === true && buttons.length > 0 ? { divider: true } : {}),
     };
   });
 
@@ -118,6 +134,7 @@ export const viewOf: ViewOf<CardsView> = (props, data) => ({
   design: props.design || undefined,
   color: props.design === 'filled' ? props.color || undefined : undefined,
   phone: phoneOf(props),
+  layout: layoutOf(props),
   more: sharedIn(data.site, 'cards', shared.values).more,
   items: shownCards(props.items ?? [], data, props.media, ratioProp(props)),
 });

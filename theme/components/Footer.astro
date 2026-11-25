@@ -17,9 +17,9 @@ import { siteT } from '@morphemecms/cms/src/i18n';
 // "Cookie settings": when the cookie banner is on and there is something to ask about (as in Base.astro).
 const banner = cookieBanner;
 const contactLinks = [
-  { href: site.phoneHref, icon: 'phone', lines: [site.phone] },
-  { href: `mailto:${site.email}`, icon: 'envelope-simple', lines: [site.email] },
-  { href: `${site.contactPath}#${site.contactAnchor}`, icon: 'map-pin', lines: [site.address.street, site.address.city] },
+  { href: site.phoneHref, icon: 'call', lines: [site.phone] },
+  { href: `mailto:${site.email}`, icon: 'mail', lines: [site.email] },
+  { href: `${site.contactPath}#${site.contactAnchor}`, icon: 'location_on', lines: [site.address.street, site.address.city] },
 ];
 ---
 
@@ -77,7 +77,7 @@ const contactLinks = [
       </span>
       <div class="mo-row mo-row-wrap">
         {banner && (
-          <button type="button" data-cookie-settings class="mo-button mo-button__text">
+          <button type="button" data-cookie-settings class="mo-button mo-is-text">
             <Icon name="cookie" size={18} />
             {siteT.theme.cookieSettings}
           </button>

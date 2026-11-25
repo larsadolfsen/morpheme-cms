@@ -1,13 +1,13 @@
 // "Internal links" under "Search engine optimization": the keywords of the pages, the posts and the blog page become links
 // to them when the site is built (packages/editor/site/autolinks.mjs), in src/data/internal-links.json: whether they do and how many
 // per page; under them the list of the keywords (`below`, Keywords.tsx in the editor).
-import { LinkSimple } from '@phosphor-icons/react';
 import type { Part } from '../src/schema';
+import { materialIcon } from '../src/icon';
 
 export const internalLinks: Part = {
   id: 'internal-links',
   label: 'Internal links',
-  icon: LinkSimple,
+  icon: materialIcon('link'),
   file: 'src/data/internal-links.json',
   defaults: { enabled: true, maxPerPage: 8 },
   below: 'keywords',

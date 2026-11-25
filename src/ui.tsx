@@ -33,23 +33,6 @@ import {
 } from 'react';
 import { createPortal } from 'react-dom';
 import {
-  ArrowRight,
-  ArrowsDownUp,
-  CaretDown,
-  CaretRight,
-  CaretUp,
-  Check,
-  Funnel,
-  LockSimple,
-  LockSimpleOpen,
-  PencilSimple,
-  Plus,
-  Sidebar,
-  SidebarSimple,
-  X,
-  type Icon,
-} from '@phosphor-icons/react';
-import {
   SiteBadge,
   SiteBottomSheet,
   SiteBottomSheetHeader,
@@ -94,7 +77,7 @@ import {
   siteNavigationDrawerBleedClass,
   siteNavigationDrawerDialogClass,
   siteFocusNavigationDrawerItem,
-  SiteSegmentedButton,
+  SiteButtonGroup,
   SiteChoiceGroup,
   SiteSideSheet,
   SiteTab,
@@ -115,7 +98,7 @@ import { locale, t } from './i18n';
 import { Announce, LoadAnnounce } from './useAnnounce';
 import { useRegisterFab } from './fabPresence';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
-import { SvgFile } from './icon';
+import { SvgFile, Icon as MaterialIcon, materialIcon, type IconComponent as Icon } from './icon';
 import { filterIconNames, ICON_CATEGORIES, iconLabel, inIconCategory } from '../lib/materialIcon.mjs';
 import { countries, countryName, dialCodes, flagOf, regionOf } from './countries';
 import { byText } from './schema';
@@ -132,17 +115,17 @@ import { safeImageSrc } from '../lib/safe-url.mjs';
 // The parts Material 3 has (a button, an icon button, a chip, a carousel …) are the theme's UI parts
 // (packages/editor/theme/ui/, through themeUi.ts), the same the site draws, in the theme's design (its ui.css and
 // styles/global.css): here only what the editor gives them (its icons, what a tap does). The editor's own parts (the
-// SEO rating, the colour field, the form's layout …) take the theme's design from its variables (--mo-sys-block-radius,
-// --mo-sys-block-radius-small, --mo-sys-block-shadow and the site's colours).
+// SEO rating, the colour field, the form's layout …) take the theme's design from its variables (--mo-comp-block-radius,
+// --mo-comp-block-radius-small, --mo-comp-block-shadow and the site's colours).
 
 // ---------------------------------------------------------------------------------------------------
 // Buttons
 
 /** The theme's button (Material 3's buttons): filled, the one thing to do; tonal, an important step that is not the
  * main one; elevated, one on a coloured background; outlined, another choice beside it ("Cancel" too); text, a small
- * step on the side (Remove, Add). medium (the default): the width of its text on every screen (Save changes); small: in a line of text or by a field (Change image, Add tag). */
+ * step on the side (Remove, Add). small (the default, 40 dp): the width of its text on every screen (Save changes, Change image, Add tag). */
 export type { ButtonKind };
-export type ButtonSize = 'medium' | 'small';
+export type ButtonSize = 'small';
 
 type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
   kind?: ButtonKind;
@@ -322,7 +305,7 @@ export function ToolbarButton({
           kind="text"
           size="xsmall"
           icon={Glyph && <Glyph />}
-          trailingIcon={<CaretDown size={12} />}
+          trailingIcon={<MaterialIcon name="keyboard_arrow_down" size={12} />}
           aria-label={label}
           className="mo-toolbar__menu-button"
           style={toolbarMenuSize}
@@ -363,8 +346,8 @@ const closeToolbar = {
   '--mo-comp-toolbar-gap': '0',
   '--mo-comp-toolbar-docked-padding-block': '0',
   '--mo-comp-toolbar-docked-padding-inline': '0',
-  '--mo-comp-toolbar-docked-line-width': '1px',
-  '--mo-comp-toolbar-docked-line': 'var(--mo-sys-color-outline-variant)',
+  '--mo-comp-divider-thickness': '1px',
+  '--mo-comp-divider-color': 'var(--mo-sys-color-outline-variant)',
 } as CSSProperties;
 
 // A tool's size in the text's bar: 44 by 44 dp with a 20 dp icon, outside the user's density choice (owner decision, 13 Nov; docs/material-deviations.md).
@@ -387,7 +370,7 @@ const toolbarMenuSize = {
   justifyContent: 'center',
   paddingInline: '0.125rem',
   gap: '0.125rem',
-  '--mo-comp-button-medium-icon-size': '1.25rem',
+  '--mo-comp-button-small-icon-size': '1.25rem',
 } as CSSProperties;
 
 // ---------------------------------------------------------------------------------------------------
@@ -408,7 +391,7 @@ function placeTip(tip: HTMLElement, anchor: Element) {
   tip.style.left = `${Math.max(8, Math.min(at.left + at.width / 2 - tip.offsetWidth / 2, innerWidth - tip.offsetWidth - 8))}px`;
 }
 
-/** An element's name as a tooltip (`on`: its handlers, `tip`: beside it): the theme's plain tooltip (.mo-tooltip__plain in
+/** An element's name as a tooltip (`on`: its handlers, `tip`: beside it): the theme's plain tooltip (.mo-tooltip.mo-is-plain in
  * its ui.css), shown after a moment under the mouse, and at once when the element gets the focus from the keyboard;
  * gone when the mouse leaves, on a tap, on Escape and when it loses the focus. Not on a phone, where the element's name
  * is read out instead. It is a popover (.mo-editor-tooltip in editor.css), so it stands over everything, also a sheet, and
@@ -471,7 +454,7 @@ function useTooltip(text: string, own: TooltipHandlers = {}) {
   return {
     on,
     tip: (
-      <span ref={tip} popover="manual" aria-hidden className="mo-tooltip__plain mo-editor-tooltip">
+      <span ref={tip} popover="manual" aria-hidden className="mo-is-plain mo-editor-tooltip">
         {text}
       </span>
     ),
@@ -621,7 +604,7 @@ export function DateTimeField({
  * CaretRight leads to a page); `size="small"`: a small box without the name, for a row's choice (MenuRow). */
 export function ChoiceField({
   href,
-  arrow: Arrow = CaretDown,
+  arrow: Arrow = materialIcon('keyboard_arrow_down'),
   size,
   label,
   hint,
@@ -950,7 +933,7 @@ export function SupportingText({ id, children, className = '' }: { id?: string; 
 /** The close button in the top end corner of a card that can be closed (a Notice, the first-run card): the
  * card must be `relative`. */
 export function CloseButton({ onClick }: { onClick: () => void }) {
-  return <IconButton icon={X} label={t.common.close} onClick={onClick} className="mo-editor-close-button" />;
+  return <IconButton icon={materialIcon('close')} label={t.common.close} onClick={onClick} className="mo-editor-close-button" />;
 }
 
 /** A message at the top of a screen about what it shows (an earlier version of a page): the theme's filled card with a
@@ -1311,7 +1294,7 @@ export function IconPicker({
           onClick={() => setOpen((o) => !o)}
           iconColor={iconColor}
         >
-          {value ? icon(value, 24) : <Plus size={24} />}
+          {value ? icon(value, 24) : <MaterialIcon name="add" size={24} />}
         </SlotButton>
         <span className="mo-fill mo-truncate">{chosen ? chosen.label : value ? iconLabel(value) : t.forms.noIconYet}</span>
       </div>
@@ -1362,13 +1345,13 @@ export function IconPicker({
                   if (!startOpen) setOpen(false);
                 }}
               >
-                {o.value ? icon(o.value, 24) : <X size={20} className="mo-editor-muted-text" />}
+                {o.value ? icon(o.value, 24) : <MaterialIcon name="close" size={20} className="mo-editor-muted-text" />}
               </ChoiceTile>
             ))}
           </div>
           {hits.length > shown && (
             <div ref={more} className="mo-editor-icon-picker-more">
-              <Button kind="text" size="small" onClick={() => setShown((n) => n + PAGE)}>
+              <Button kind="text" onClick={() => setShown((n) => n + PAGE)}>
                 {t.forms.showMoreIcons}
               </Button>
             </div>
@@ -1392,11 +1375,11 @@ export function ImagePick({ id, src, onPick, onRemove }: { id?: string; src?: st
   return (
     <div className="mo-row mo-editor-image-pick">
       {safeImageSrc(src) && <img src={safeImageSrc(src)} alt="" className="mo-keep mo-editor-image-pick-thumb" />}
-      <Button id={id} kind="outlined" size="small" onClick={onPick}>
+      <Button id={id} kind="outlined" onClick={onPick}>
         {src ? t.forms.changeImage : t.forms.pickImage}
       </Button>
       {src && onRemove && (
-        <Button kind="text" size="small" onClick={onRemove}>
+        <Button kind="text" onClick={onRemove}>
           {t.common.remove}
         </Button>
       )}
@@ -1433,7 +1416,13 @@ export function FoldItem({
     <ListItem
       onClick={onToggle}
       aria-expanded={open}
-      leading={<CaretRight size={14} className={`mo-keep mo-editor-fold-arrow ${open ? 'mo-editor-fold-arrow-open' : ''}`} />}
+      leading={
+        <MaterialIcon
+          name="keyboard_arrow_right"
+          size={14}
+          className={`mo-keep mo-editor-fold-arrow ${open ? 'mo-editor-fold-arrow-open' : ''}`}
+        />
+      }
       headline={title}
       truncate
       actions={tools && <span className="mo-keep mo-editor-fold-tools">{tools}</span>}
@@ -1518,7 +1507,7 @@ export function usePickTools(all: Pickable[], keep: string) {
     sort: (
       <Choice
         title={t.library.sort}
-        icon={ArrowsDownUp}
+        icon={materialIcon('swap_vert')}
         value={sort}
         options={sorts.map((s) => ({ value: s, label: t.library.sorts[s] }))}
         onChange={pickSort}
@@ -1586,8 +1575,7 @@ export function MultiChoice({
         {!full && (
           <Button
             kind="outlined"
-            size="small"
-            icon={Plus}
+            icon={materialIcon('add')}
             aria-haspopup="dialog"
             onClick={() => {
               setQuery('');
@@ -1646,7 +1634,7 @@ export function ArrowLink({
   return (
     <a href={href} className={`mo-editor-arrow-link ${className}`} onClick={onClick}>
       {children}
-      <ArrowRight size={14} />
+      <MaterialIcon name="arrow_forward" size={14} />
     </a>
   );
 }
@@ -1820,40 +1808,32 @@ export function ChoiceTile({
   );
 }
 
-/** The theme's segmented button: two or three choices of a setting side by side (Account › Appearance), each with its name
- * and an icon, the chosen one marked. */
-export function SegmentedButton<T extends string>({
+/** The theme's connected button group (Material's replacement of the segmented button): two or three choices of a setting side by
+ * side (Account › Appearance), each a toggle button with its name and an icon, the chosen one fully round and in the selected colour.
+ * One is always chosen (the group's `required` selection mode: Tab lands on the chosen one, the arrow keys move between them). */
+export function ConnectedButtons<T extends string>({
   label,
   value,
   options,
   disabled,
-  dots,
   onChange,
 }: {
   /** What is chosen, for screen readers. */
   label: string;
   value: T;
-  options: { value: T; label: string; icon?: Icon; swatch?: string }[];
+  options: { value: T; label: string; icon?: Icon }[];
   /** It cannot be changed now (the place of R2 caching's bucket while it is on): grey, and it stays. */
   disabled?: boolean;
-  /** Only the `swatch` dots are shown; each name is its accessible label (M3: a segment without label text is named for what it does). */
-  dots?: boolean;
   onChange: (v: T) => void;
 }) {
   return (
-    <SiteSegmentedButton
-      label={label}
-      segments={options.map(({ value: v, label: name, icon: Glyph, swatch }) => ({
-        label: name,
-        icon: Glyph && <Glyph />,
-        swatch,
-        dots,
-        value: v,
-        selected: v === value,
-        disabled,
-        onClick: () => onChange(v),
-      }))}
-    />
+    <SiteButtonGroup kind="connected" label={label} selection="required" value={[value]} onChange={([v]) => v && onChange(v as T)}>
+      {options.map(({ value: v, label: name, icon: Glyph }) => (
+        <SiteButton key={v} kind="filled" value={v} icon={Glyph && <Glyph />} disabled={disabled}>
+          {name}
+        </SiteButton>
+      ))}
+    </SiteButtonGroup>
   );
 }
 
@@ -1943,7 +1923,7 @@ export function ChoiceCards<T extends string>({
               />
               {Glyph && <Glyph size={32} aria-hidden="true" />}
               <span>{text}</span>
-              {chosen && <Check size={16} weight="bold" aria-hidden="true" className="mo-editor-choice-card-check" />}
+              {chosen && <MaterialIcon name="check" size={16} aria-hidden="true" className="mo-editor-choice-card-check" />}
             </label>
           );
         })}
@@ -2011,7 +1991,7 @@ export function ListItem({
 } & Record<string, unknown>) {
   let icon = shownIcon;
   let iconSelected = shownSelected;
-  const Arrow = arrow === true ? CaretRight : arrow || null;
+  const Arrow = arrow === true ? materialIcon('keyboard_arrow_right') : arrow || null;
   // A LeadingIcon made beforehand (an app's icon in a list) is the item's leading icon.
   const made =
     isValidElement(item.leading) && item.leading.type === LeadingIcon
@@ -2061,8 +2041,7 @@ export function UnfoldButton({
   return (
     <SiteButton
       kind="text"
-      size="small"
-      trailingIcon={open ? <CaretUp /> : <CaretDown />}
+      trailingIcon={open ? <MaterialIcon name="keyboard_arrow_up" /> : <MaterialIcon name="keyboard_arrow_down" />}
       aria-expanded={open}
       aria-label={t.library.unfoldName(count, label)}
       title={title}
@@ -2106,7 +2085,7 @@ export function Option({
       supporting={supporting}
       selected={selected}
       disabled={disabled}
-      trailing={selected && <Check size={20} aria-hidden />}
+      trailing={selected && <MaterialIcon name="check" size={20} aria-hidden />}
       onClick={onClick}
     />
   );
@@ -2404,7 +2383,7 @@ export function MenuItem({
       icon={Glyph && <Glyph />}
       selected={selected}
       disabled={disabled}
-      trailingIcon={opens ? 'caret-right' : undefined}
+      trailingIcon={opens ? 'keyboard_arrow_right' : undefined}
       aria-haspopup={opens ? 'menu' : undefined}
       aria-expanded={opens ? false : undefined}
       aria-label={label}
@@ -2491,7 +2470,7 @@ export function SheetLink({
     <div className="mo-keep">
       <SiteDivider />
       <div className="mo-editor-sheet-link">
-        <SiteButton kind="text" href={href} icon={<Plus />} onClick={onClick}>
+        <SiteButton kind="text" href={href} icon={<MaterialIcon name="add" />} onClick={onClick}>
           {children}
         </SiteButton>
       </div>
@@ -2584,7 +2563,7 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
         <p className="mo-editor-colors-preview-secondary">{p.secondary}</p>
         <p className="mo-editor-colors-preview-tertiary">{p.tertiary}</p>
       </div>
-      <span className="mo-button mo-is-filled mo-button__small">{p.button}</span>
+      <span className="mo-button mo-is-filled">{p.button}</span>
     </div>
   );
 }
@@ -2645,7 +2624,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
               <span className="mo-editor-color-tile-actions">
                 {onChange && (
                   <IconButton
-                    icon={PencilSimple}
+                    icon={materialIcon('edit')}
                     label={t.common.pickColor(name)}
                     aria-haspopup="dialog"
                     disabled={disabled}
@@ -2659,7 +2638,7 @@ export function ColorTiles({ colors, label }: { colors: ColorTile[]; label: stri
                 )}
                 {onLock && (
                   <IconButton
-                    icon={locked ? LockSimple : LockSimpleOpen}
+                    icon={locked ? materialIcon('lock') : materialIcon('lock_open')}
                     label={t.common.lockColor(name)}
                     selected={!!locked}
                     onClick={() => onLock(!locked)}
@@ -2814,7 +2793,7 @@ export function ColorWheel({
             color: contrast(dot.color, '#000000') >= contrast(dot.color, '#ffffff') ? '#000000' : '#ffffff',
           }}
         >
-          {dot.locked && <LockSimple size={i ? 12 : 16} aria-hidden="true" />}
+          {dot.locked && <MaterialIcon name="lock" size={i ? 12 : 16} aria-hidden="true" />}
         </span>
       ))}
     </div>
@@ -2860,7 +2839,7 @@ export function ChoiceRow({
       trailing={
         <span className="mo-row mo-editor-choice-row">
           {trailing}
-          <Check size={20} className={`mo-keep ${selected ? 'mo-editor-accent-text' : 'mo-editor-invisible'}`} />
+          <MaterialIcon name="check" size={20} className={`mo-keep ${selected ? 'mo-editor-accent-text' : 'mo-editor-invisible'}`} />
         </span>
       }
     />
@@ -2995,7 +2974,8 @@ export function FoldSection({
             onClick={onToggle}
           >
             <span className="mo-fill mo-editor-fold-title-text">{title}</span>
-            <CaretDown
+            <MaterialIcon
+              name="keyboard_arrow_down"
               size={20}
               aria-hidden="true"
               className={`mo-keep mo-editor-section-arrow ${open ? 'mo-editor-arrow-flipped' : ''}`}
@@ -3142,7 +3122,13 @@ export function CheckList({ title, items }: { title?: string; items: Check[] }) 
         aria-expanded={shown}
         leading={mark(item.ok)}
         headline={text}
-        trailing={<CaretDown size={18} className={`mo-keep mo-editor-fold-arrow ${shown ? 'mo-editor-arrow-flipped' : ''}`} />}
+        trailing={
+          <MaterialIcon
+            name="keyboard_arrow_down"
+            size={18}
+            className={`mo-keep mo-editor-fold-arrow ${shown ? 'mo-editor-arrow-flipped' : ''}`}
+          />
+        }
       >
         {shown && <p className="mo-editor-reveal mo-editor-check-fix">{item.fix}</p>}
       </ListItem>
@@ -3721,7 +3707,7 @@ export function MainDrawerSectionItem({
       active={selected}
       aria-current={selected ? 'true' : undefined}
       icon={<Glyph weight={selected ? 'fill' : 'regular'} />}
-      trailing="caret-right"
+      trailing="keyboard_arrow_right"
       onClick={onClick}
     >
       {label}
@@ -3821,7 +3807,7 @@ export function MainDrawerLevel({ shown = true, focus, children }: { shown?: boo
 }
 
 /** The panel icon at the start of the top bar on every screen (Screen.tsx): it opens and closes the main drawer. `open`: the drawer
- * is shown, so the icon is `left_panel_close` (`sidebar`), else `left_panel_open` (`sidebar-simple`). `label` says what the next
+ * is shown, so the icon is `left_panel_close` (`sidebar`), else `left_panel_open` (`left_panel_open`). `label` says what the next
  * press does. */
 export function MenuButton({
   label,
@@ -3834,7 +3820,15 @@ export function MenuButton({
   onClick: () => void;
   className?: string;
 }) {
-  return <IconButton icon={open ? Sidebar : SidebarSimple} label={label} aria-expanded={open} className={className} onClick={onClick} />;
+  return (
+    <IconButton
+      icon={open ? materialIcon('left_panel_open') : materialIcon('left_panel_open')}
+      label={label}
+      aria-expanded={open}
+      className={className}
+      onClick={onClick}
+    />
+  );
 }
 
 /** Tabs (Material 3): what they are called (`label`), the one open (`value`), each one's name and icon, and the
@@ -3842,14 +3836,16 @@ export function MenuButton({
 export type TabChoice<T extends string> = {
   label: string;
   value: T;
-  options: { value: T; label: string; icon: Icon }[];
+  /** `primary` (the default: icon over name) or `secondary` (the name only, with the divider under the row). */
+  kind?: 'primary' | 'secondary';
+  options: { value: T; label: string; icon?: Icon }[];
   onChange: (v: T) => void;
 };
 
 /** The row of the theme's tabs: its primary tabs, sharing the width, each with its icon over its name, the open one
  * with the theme's indicator under it. The arrow keys go to the one before and after and open it. `id` ties it to its
  * TabPanel. In a screen's top app bar (`tabs` on Screen), the bar's line is the divider under them (ui.css). */
-export function TabRow<T extends string>({ id, label, value, options, onChange }: TabChoice<T> & { id: string }) {
+export function TabRow<T extends string>({ id, label, value, kind = 'primary', options, onChange }: TabChoice<T> & { id: string }) {
   const keys = (e: KeyboardEvent<HTMLElement>) => {
     const at = options.findIndex((o) => o.value === value);
     const to = { ArrowLeft: at - 1, ArrowRight: at + 1, Home: 0, End: options.length - 1 }[e.key];
@@ -3860,7 +3856,7 @@ export function TabRow<T extends string>({ id, label, value, options, onChange }
     e.currentTarget.querySelector<HTMLElement>(`[data-tab="${next.value}"]`)?.focus();
   };
   return (
-    <SiteTabs kind="primary" scrollable={false} label={label} onKeyDown={keys}>
+    <SiteTabs kind={kind} scrollable={false} label={label} onKeyDown={keys}>
       {options.map(({ value: v, label: name, icon: Glyph }) => (
         <SiteTab
           key={v}
@@ -3868,7 +3864,7 @@ export function TabRow<T extends string>({ id, label, value, options, onChange }
           data-tab={v}
           controls={`${id}-panel`}
           selected={v === value}
-          icon={<Glyph />}
+          icon={Glyph && kind === 'primary' ? <Glyph /> : undefined}
           onClick={() => onChange(v)}
         >
           <span className="mo-truncate">{name}</span>
@@ -3970,7 +3966,7 @@ export type TokenKind = 'shape' | 'elevation' | 'font' | 'color';
 
 /** A sample of one of the theme's design tokens before its name in a row, as a ListItem's `leading`, beside its first
  * two lines as an icon,
- * drawn with the token itself (`value`, its CSS variable as CSS: `var(--mo-sys-radius)`), so it shows what the theme sets: a corner with its radius
+ * drawn with the token itself (`value`, its CSS variable as CSS: `var(--mo-sys-shape-corner-medium)`), so it shows what the theme sets: a corner with its radius
  * (shape), a surface with its shadow (elevation), "Aa" in its font (font; in `weight`, for a type role) and a round of its
  * colour (color). Material 3 has none; the editor's own. */
 export function LeadingToken({ kind, value, weight }: { kind: TokenKind; value: string; weight?: string }) {
@@ -4430,7 +4426,7 @@ export function Filters({
   return (
     <>
       <IconButton
-        icon={Funnel}
+        icon={materialIcon('filter_alt')}
         label={title}
         selected={selected}
         aria-haspopup="dialog"
@@ -4466,7 +4462,7 @@ export function Filters({
                       aria-expanded={unfolded}
                       headline={g.title}
                       trailingSupporting={g.options.find((o) => o.value === g.value)?.label}
-                      arrow={unfolded ? CaretUp : CaretDown}
+                      arrow={unfolded ? materialIcon('keyboard_arrow_up') : materialIcon('keyboard_arrow_down')}
                       onClick={() => toggle(g.title)}
                     />
                   </ul>
@@ -4640,7 +4636,7 @@ export function Select<T extends string>({
     return <ChoiceMenu id={id} title={title} value={value} options={options} empty={empty} onChange={onChange} {...field} />;
   if (href)
     return (
-      <ChoiceField id={id} href={href} arrow={CaretRight} {...field}>
+      <ChoiceField id={id} href={href} arrow={materialIcon('keyboard_arrow_right')} {...field}>
         <span lang={chosen?.lang} className={`mo-fill mo-truncate ${chosen ? '' : 'mo-editor-placeholder-value'}`}>
           {chosen ? chosen.label : empty}
         </span>
@@ -4742,7 +4738,7 @@ export function NewChoice<T extends string>({
   const close = () => dialog.current?.close();
   return (
     <>
-      <IconButton icon={Plus} label={title} aria-haspopup="dialog" onClick={() => dialog.current?.showModal()} />
+      <IconButton icon={materialIcon('add')} label={title} aria-haspopup="dialog" onClick={() => dialog.current?.showModal()} />
       <BottomSheet ref={dialog} aria-label={title} onClick={(e) => e.target === dialog.current && close()}>
         <SheetTitle title={title} onClose={close} />
         <SheetList>

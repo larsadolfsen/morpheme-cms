@@ -13,19 +13,19 @@ const px = (rem) => parseFloat(rem) * 16;
 
 test('a menu item is 44 dp high, as M3 Expressive prints (menus.menu-item.height)', () => {
   assert.equal(m3Value('menus', 'menu-item.height').value, 44);
-  assert.equal(px(declared('--mo-comp-menu-list-item-container-height')), 44);
+  assert.equal(px(declared('--mo-comp-menus-menu-item-height')), 44);
 });
 
 test('an item has 16 dp at each side, and its container the large corners', () => {
   assert.equal(m3Value('menus', 'menu-item.leading-space').value, 16);
   assert.equal(declared('--mo-comp-menu-item-padding'), '0 1rem');
-  assert.equal(declared('--mo-comp-menu-container-shape'), 'var(--mo-sys-shape-corner-large)');
+  assert.equal(declared('--mo-comp-menus-container-shape'), 'var(--mo-sys-shape-corner-large)');
 });
 
 test('the standard menu is on surface-container-low and the chosen item on the tertiary container', () => {
-  assert.equal(declared('--mo-comp-menu-container-color'), 'var(--mo-sys-color-surface-container-low)');
-  assert.equal(declared('--mo-comp-menu-list-item-selected-container-color'), 'var(--mo-sys-color-tertiary-container)');
-  assert.equal(declared('--mo-comp-menu-list-item-selected-label-text-color'), 'var(--mo-sys-color-on-tertiary-container)');
+  assert.equal(declared('--mo-comp-menus-standard-container-color'), 'var(--mo-sys-color-surface-container-low)');
+  assert.equal(declared('--mo-comp-menus-standard-menu-item-selected-container-color'), 'var(--mo-sys-color-tertiary-container)');
+  assert.equal(declared('--mo-comp-menus-standard-menu-item-selected-label-text-color'), 'var(--mo-sys-color-on-tertiary-container)');
 });
 
 test('the header sub-menu draws the Menu component, not rules of its own', () => {

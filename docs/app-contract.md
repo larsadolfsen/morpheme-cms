@@ -129,9 +129,110 @@ An app file imports from its own folder, from `@app/self`, and from these three 
 - `@morphemecms/cms/lib/dynamic-colors`
 - `@morphemecms/cms/lib/hooks`
 
-Custom colors (a site that sets Primary, Secondary and Tertiary itself) add optional fields to the `dynamic` choice in `lib/dynamic-colors`: `harmony: 'custom'`, `secondary`, `tertiary` and `kept: ['primary']`. They are only there for a site that chose Custom; `dynamicColors(dynamic, roles)` keeps its signature, and `lowContrast(set, pairs)` of `lib/colors` takes an optional third argument, the roles kept (`dynamic.kept`). A hook that reads `dynamic` must accept a `harmony` it does not know.
+The generator's `dynamic` choice in `lib/dynamic-colors` is `source`, `variant` (one of M3's schemes, default `tonalSpot`) and `contrast`. A site that chose Custom (Primary, Secondary and Tertiary set itself) has `harmony: 'custom'`, `secondary` and `tertiary` instead of `variant`. `dynamicColors(dynamic, roles)` keeps its signature. A file of the older generator has a `harmony` (`analogous` and the others) and is read as Tonal spot from its `source`; `sourceLocked` and `kept` of older files are still read and ignored. A hook that reads `dynamic` must accept a `harmony` it does not know.
 
 The version functions (`publish`, `schedule`, `unpublish`, `discard` and `saveDraft`, with a version id) are in `@morphemecms/cms/lib/versions.mjs`. An app's `editor.ts` and Worker part have full access and import them like any module; a hook or after-build step may not, as it is not one of the three above.
+
+### Public imports
+
+Contract 8 lists what a theme or an app may import from `@morphemecms/cms`. The list is `PUBLIC_IMPORTS` in `lib/public-imports.mjs`, and this section carries the same list (`npm run check:imports` fails if they differ). 0.21.1 pre-builds the editor, and theme and app editor code is then built apart and meets the editor through an import map made from this list, so only these specifiers are there. Any other path of `@morphemecms/cms` (screens, `src/store`, `src/ui`, `src/registry`, `pages/`, `worker/`), any `virtual:*` module and any deeper path into a standard block than the files named here is refused: `check:imports` names the file, the line, the specifier and the nearest allowed one, and the store does not offer an item that imports outside the list at contract 8. Adding a specifier later is additive; removing or moving one raises the contract.
+
+A theme or an app also imports its own parts and data: `@theme/ui/…`, `@theme/blocks/…`, `@theme/components/…`, `@theme/layouts/…`, `@theme/editor/…`, `@site/…`, `@data/…`, `@app/self` and relative paths. They are not CMS modules and are not in the list. The theme's shared parts are there for an app block too, by Material 3's names: for example the divider (`@theme/ui/Divider`: `Divider`, `dividerClass`; the class `.mo-divider` with `.mo-is-inset`, `.mo-is-middle-inset` and `.mo-is-vertical`; the tokens `--mo-comp-divider-thickness` and `--mo-comp-divider-color`). A hook or an after-build step still imports only the three modules of *Imports*.
+
+**The blocks' contract: the standard blocks' views and loaders, and the files that draw a block.**
+
+- `@morphemecms/cms/src/standard/view`
+- `@morphemecms/cms/src/standard/Block.astro`
+- `@morphemecms/cms/src/standard/head`
+- `@morphemecms/cms/src/standard/views`
+- `@morphemecms/cms/src/standard/sites`
+- `@morphemecms/cms/src/standard/load`
+- `@morphemecms/cms/src/standard/appScope`
+- `@morphemecms/cms/src/blocks`
+- `@morphemecms/cms/src/inline`
+- `@morphemecms/cms/src/standard/buttons/view`
+- `@morphemecms/cms/src/standard/buttons/load`
+- `@morphemecms/cms/src/standard/buttons/fields`
+- `@morphemecms/cms/src/standard/cards/view`
+- `@morphemecms/cms/src/standard/cards/load`
+- `@morphemecms/cms/src/standard/checklist/view`
+- `@morphemecms/cms/src/standard/checklist/load`
+- `@morphemecms/cms/src/standard/cookies/view`
+- `@morphemecms/cms/src/standard/cookies/load`
+- `@morphemecms/cms/src/standard/expand/view`
+- `@morphemecms/cms/src/standard/expand/load`
+- `@morphemecms/cms/src/standard/imagegrid/view`
+- `@morphemecms/cms/src/standard/imagegrid/load`
+- `@morphemecms/cms/src/standard/imagegrid/filter.mjs`
+- `@morphemecms/cms/src/standard/list/view`
+- `@morphemecms/cms/src/standard/list/load`
+- `@morphemecms/cms/src/standard/list/leading`
+- `@morphemecms/cms/src/standard/notice/view`
+- `@morphemecms/cms/src/standard/notice/load`
+- `@morphemecms/cms/src/standard/posts/view`
+- `@morphemecms/cms/src/standard/posts/load`
+- `@morphemecms/cms/src/standard/pricecards/view`
+- `@morphemecms/cms/src/standard/pricecards/load`
+- `@morphemecms/cms/src/standard/steps/view`
+- `@morphemecms/cms/src/standard/steps/load`
+- `@morphemecms/cms/src/standard/table/view`
+- `@morphemecms/cms/src/standard/table/load`
+- `@morphemecms/cms/src/standard/testimonials/view`
+- `@morphemecms/cms/src/standard/testimonials/load`
+- `@morphemecms/cms/src/standard/video/view`
+- `@morphemecms/cms/src/standard/video/load`
+
+**Icons and texts.**
+
+- `@morphemecms/cms/src/icon`
+- `@morphemecms/cms/src/iconColor`
+- `@morphemecms/cms/src/i18n`
+
+**The site's files.**
+
+- `@morphemecms/cms/site/site`
+- `@morphemecms/cms/site/content`
+- `@morphemecms/cms/site/images.mjs`
+- `@morphemecms/cms/site/standardPages`
+- `@morphemecms/cms/site/popups`
+- `@morphemecms/cms/site/noindex.mjs`
+- `@morphemecms/cms/site/social.mjs`
+- `@morphemecms/cms/site/sections`
+- `@morphemecms/cms/site/schema`
+- `@morphemecms/cms/site/home`
+- `@morphemecms/cms/site/format`
+- `@morphemecms/cms/site/text`
+- `@morphemecms/cms/site/templates`
+- `@morphemecms/cms/site/seo`
+- `@morphemecms/cms/site/pageColors`
+- `@morphemecms/cms/site/motion`
+- `@morphemecms/cms/site/consent`
+- `@morphemecms/cms/site/categories`
+- `@morphemecms/cms/site/apps`
+- `@morphemecms/cms/site/defineSite.mjs`
+
+**Helpers.**
+
+- `@morphemecms/cms/lib/motion`
+- `@morphemecms/cms/lib/breakpoints.mjs`
+- `@morphemecms/cms/lib/snackbar`
+- `@morphemecms/cms/lib/sheet-stops.mjs`
+- `@morphemecms/cms/lib/menuTypeAhead.mjs`
+- `@morphemecms/cms/lib/inline`
+- `@morphemecms/cms/lib/eyebrow.mjs`
+- `@morphemecms/cms/lib/cookieCategories.mjs`
+- `@morphemecms/cms/lib/blocks.mjs`
+- `@morphemecms/cms/lib/text-sections.mjs`
+- `@morphemecms/cms/lib/status.mjs`
+- `@morphemecms/cms/lib/page-template.mjs`
+- `@morphemecms/cms/lib/lead.mjs`
+- `@morphemecms/cms/lib/enterKey.mjs`
+- `@morphemecms/cms/lib/drawerKeys.mjs`
+- `@morphemecms/cms/lib/crop.mjs`
+- `@morphemecms/cms/lib/colors`
+- `@morphemecms/cms/lib/dynamic-colors`
+- `@morphemecms/cms/lib/hooks`
+- `@morphemecms/cms/lib/versions.mjs`
 
 ### Limits
 
@@ -153,7 +254,7 @@ Apps written to contract 2 or 3 build and run as before, and the editor shows ea
 
 Contract 5 is contract 4 with three more optional keys in `app.json`. Everything else is as in contract 4: the same files,
 places, hooks and sandbox. Contracts 6 and 7 have the same keys: 6 changes only the names of the design tokens, 7 ends Tailwind (see below). The editor
-reads contract 7 only (`APP_APIS` in `lib/contracts.mjs`).
+reads contract 8 only (`APP_APIS` in `lib/contracts.mjs`; 8 has the same keys again).
 
 | Key | Type | Required | Meaning |
 |---|---|---|---|
@@ -189,12 +290,48 @@ property. The CMS no longer builds them: such a class or rule does nothing, with
 `mo-is-not-prose` (they were `prose` and `not-prose`). A theme or an app writes layout with the `mo-` classes (`mo-row`, `mo-stack`, `mo-grid` …), breakpoints as
 `@media (width >= 37.5rem)` literals and states as CSS selectors. No key or file of `app.json` changes.
 
-`THEME_API` and `APP_API` are 7 and `APP_APIS` in `lib/contracts.mjs` is `[7]`, replacing 6. The editor reads
-contract 7 only, the store offers a CMS at 7 only apps and themes written to 7, and an installed app or theme written to 6 is
-refused with `The key "api" must be 7.` until its author publishes a new version. A published version is for ever, so it is
+`THEME_API` and `APP_API` were 7 and `APP_APIS` in `lib/contracts.mjs` was `[7]`, replacing 6; contract 8 replaces them in turn (below: `THEME_API` and `APP_API` are 8,
+`APP_APIS` is `[8]`, and an app or theme written to 7 is refused with `The key "api" must be 8.`). The same held at 7 for an app written to 6: it was
+refused with `The key "api" must be 7.` until its author published a new version. A published version is for ever, so it is
 not rewritten. An app or a theme written to 6 that already uses no utility needs only its `api` number changed.
 
 The migration, class by class, is `docs/tailwind-migration.md` and `docs/tailwind-migration-classes.md`.
+
+## Contract 8: scoped CSS
+
+**The raise.** `THEME_API` and `APP_API` are 8 and `APP_APIS` in `lib/contracts.mjs` is `[8]`, replacing 7. The editor reads contract 8 only, the store offers a CMS at 8 only apps and themes written to 8, and an installed app or theme written to 7 is refused with `The key "api" must be 8.` until its author publishes a new version; a published version is not rewritten. Contract 8 has contract 5's keys. What it adds is in this section and below: scoped CSS (an app's own classes are plain names, `check:app-classes`), a promotion kind in the app's scope that opens as a dialog or a bottom sheet, Material 3's names with no alias (`check:m3-names`), and the public imports (`check:imports`).
+
+Spec: `docs/superpowers/specs/2026-11-20-scoped-app-css-design.md`. The outer element of every app block carries `data-mo-app="<id>"` (the CMS puts it on the element
+the view returns, so no element is added to the page's flow; a view that returns a fragment or nothing of its own gets one that takes no space, `display: contents`; the app does not write it and cannot remove it). From the contract that raises `SCOPED_CSS_FROM_API` (8, `lib/appCss.mjs`), the build
+rewrites every `.css` file in `src/apps/<id>/`, on the site and in the editor (`site/appCss.mjs`):
+
+- every selector applies only inside the app's own blocks (`:where([data-mo-app="<id>"])` before it: the build targets Firefox 114 and Safari 16.4, which lack `@scope`; `APP_CSS_MODE` switches to `@scope` when the target moves);
+- a `--mo-…` custom property the app declares that is not the CMS's is renamed `--mo-app-<id>-<name>`, where it is declared and where it is read in the app's CSS;
+- the app's `@keyframes`, `@property`, `@font-face` families and `@layer` names are renamed `mo-app-<id>-<name>`;
+- the rules go into the layer `mo-app`, the lowest layer, below the theme's parts.
+
+An app written to an older contract keeps its global CSS. `npm run check:app-css -- --report` lists what the build would rename in each app, and what the contract refuses.
+
+**What the check refuses** (`check:content`, from an app written to 8; one line with the file and line, shown on the app's page):
+
+- a rule on `:root`, `html` or `body` (style the app's own elements; a CMS token is overridden on the block's outer element, `docs/css-tokens.md`);
+- a private custom property set or read from code (`style` objects, `setProperty`, `getPropertyValue`, a `var(--mo-…)` string in `View.tsx` or `script.ts`), because the build renames CSS only;
+- an attribute selector on `data-mo-app`;
+- a `mo-` class the CMS does not have, in the app's code or CSS (`scripts/check-app-classes.mjs`, `npm run check:app-classes`; one line with the class, the file and the line). An app's own elements take plain class names, which the build scopes to the app (`.signup`, not `.mo-signup`); only the CMS's classes keep `mo-`. The CMS's classes are the `mo-` names written in its own CSS and code (`theme/`, `src/`, `defaults/`, `lib/`).
+
+**What the developer sees.** The source keeps the plain names; the browser's tools show the renamed ones (`--mo-app-shop-gap`, `mo-app-shop-fade`) and the selectors with `:where([data-mo-app="shop"])` before them. Two apps may use the same class, custom property and keyframes names without touching each other. A `@import` in an app's CSS is not scoped: put the rules in the app's own files. A `<style>` or `<style is:global>` block in an app's `.astro` file is not scoped either (the build rewrites `.css` files only); `check:content` still refuses a rule on `:root`, `html` or `body` in it, and the report lists the block. The developer guide (0.22.1) takes this section over.
+
+### Contract 8: an app's promotion kind
+
+An app adds a kind of promotion (`kinds.popups` in its `index.ts` or `editor.ts`; its part is `src/apps/<app>/popups/View.tsx`, taken on the site by `theme/components/Popup.astro` and drawn in the editor by the app's `part` or `draw`). Owner, 24 Nov 2026: the kind is a promotion block like the others, drawn with the CMS's own classes.
+
+- **In the app's scope.** The CMS draws the part inside `data-mo-app="<id>"` on its outer element, on the site (`PopupView.tsx`, `PopupSheet.tsx`) and in the editor (`scopedKinds` in `src/apps.ts`: the part's `View` and the kind's `draw`), so the build's scoped CSS applies to it, as it does to an app's blocks, and reaches nothing else.
+- **The surface.** A kind opens as the pop-up's dialog (the default) or as the theme's modal bottom sheet (Material 3, `theme/ui/BottomSheet.tsx`). The part says which: `export const surface = 'bottom-sheet'` in `popups/View.tsx` (`'dialog'` is the default); the app passes the same in `part: { View, viewOf, surface }` for the editor's drawing. No key or file of `app.json` changes. The CMS draws the sheet, its handle, its close button and its closing (`bottomSheet()` in `theme/ui/bottomSheetControl.ts`: the scrim, Escape and the drag close it); the app gives only what is inside. A sheet opens only when a button opens it: a button's *Open promotion*, or a button that books (`data-open="booking"`), which opens the first sheet of the page; never by itself, so it has no trigger.
+- **What stays.** `data-popup-off` (an element in the part: the kind cannot be shown without its settings) and the event `popup:done` (the visitor is done: not shown again) work on both surfaces.
+- **What goes.** A kind without a part no longer shows itself through `slots/` (Calendly's booking sheet in `slots/body-end.astro`): from contract 8 a kind has a part, and an app written to 7 is not loaded.
+- **Scripts.** A part that needs a script (Calendly's widget loader) listens for the event `popup:open`, which the CMS sends to the part's `<dialog>` each time it opens, on both surfaces (`part.closest('dialog')`), and sends `popup:done` to it when the visitor is done.
+
+**A theme's private custom property** is `--mo-theme-*` (`docs/css-tokens.md`); it is not renamed, and only files in the theme's own folder declare or read one (`check:content`, so `check:themes`).
 
 ## Contract 6: the design tokens' names
 
@@ -236,6 +373,14 @@ ones stay as aliases of the same part until a later `THEME_API` removes them, so
 | `@theme/ui/AppBar`: `AppBar`, `appBarKinds`, `appBarClass`, `appBarClasses`, `AppBarKind` | `@theme/ui/TopAppBar`: `TopAppBar`, `topAppBarKinds`, `topAppBarClass`, `topAppBarClasses`, `TopAppBarKind` | App bars: "Four variants: Search app bar, small, medium flexible, large flexible" |
 | `@theme/ui/TextFieldMenu`: `TextFieldMenu`, `textFieldMenuClass`, `TextFieldMenuOption` | `@theme/ui/ExposedDropdownMenu`: `ExposedDropdownMenu`, `exposedDropdownMenuClass`, `ExposedDropdownMenuOption` | Menus: "Dropdown menu and exposed dropdown menu are now both referred to as menu"; text fields: "Text field dropdown menus" |
 | `@theme/blocks/Panel` | — | An outlined card; the name Panel stays |
+
+### Removed prop
+
+The update rewrites this in the site's own themes and apps (`lib/migrate-code.mjs`). A store item is never rewritten: its publisher releases a version written to contract 8. `ListItem` keeps Material 3's slot names (`leadingIcon`, `leadingIconSelected`, `leadingAvatar`, `leadingImage`, `leadingVideo`, `leadingMedia`, `trailingIcon`, `trailingSupporting`, `trailing`, as its list tokens name them), and `Card` has no renamed prop.
+
+| Component | Old prop | New |
+| :--- | :--- | :--- |
+| `ListItem` (`@theme/ui/List`) | `columns` | removed (a bare `columns` is dropped; `columns={expr}` stops the update and names the line) |
 
 A theme that draws its own bar or menu still does it in `ui/TopAppBar.tsx` and `ui/ExposedDropdownMenu.tsx` while
 the aliases stay; the new names lead to the theme's file, else the standard theme's.

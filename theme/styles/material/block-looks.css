@@ -14,7 +14,7 @@
     color: var(--mo-sys-color-primary);
   }
   .mo-block-cards__card-picture {
-    border-radius: var(--mo-comp-card-radius);
+    border-radius: var(--mo-comp-elevated-card-container-shape);
   }
   .mo-block-cards__card-text {
     font-weight: 400;
@@ -45,15 +45,15 @@
   }
 
   /* A bottom sheet (its variables above): a 32 by 4 drag handle, the headline in M3's headline small. */
-  .mo-bottom-sheet__drag-handle {
+  .mo-sheet__drag-handle {
     padding: 1.375rem 0 0.75rem;
   }
-  .mo-bottom-sheet__drag-handle::before {
+  .mo-sheet__drag-handle::before {
     width: 2rem;
     height: 0.25rem;
   }
   @media (width >= 37.5rem) {
-    .mo-bottom-sheet__header {
+    :where(.mo-is-bottom) .mo-sheet__header {
       padding: 1.5rem 1.5rem 0.75rem;
     }
   }
@@ -67,13 +67,9 @@
   }
 
   /* The buttons that do more than one thing (their variables above): the ripple when pressed; a split button's
-     corners between its two halves a little rounder while pressed, the outer ones as they are; 38% when a segment
-     cannot be used (M3). A FAB menu's actions in the secondary container, as pills. */
-  .mo-segmented-button__segment:disabled {
-    opacity: var(--mo-sys-state-disabled-state-layer-opacity);
-  }
+     corners between its two halves a little rounder while pressed, the outer ones as they are; A FAB menu's actions in the secondary container, as pills. */
   .mo-split-button > .mo-button:active {
-    border-radius: var(--mo-sys-block-control-radius);
+    border-radius: var(--mo-comp-block-control-radius);
   }
   .mo-split-button > .mo-split-button__leading:active {
     border-start-end-radius: var(--mo-sys-shape-corner-small);
@@ -84,6 +80,6 @@
     border-end-start-radius: var(--mo-sys-shape-corner-small);
   }
   .mo-split-button > .mo-split-button__trailing[aria-expanded='true']:active {
-    border-radius: var(--mo-sys-block-control-radius);
+    border-radius: var(--mo-comp-block-control-radius);
   }
 }

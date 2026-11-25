@@ -5,9 +5,8 @@
 // roles) are for all of them; the shared text of the link at the bottom ("Blocks" › "Cards", shared.ts). How it looks is the theme's
 // (packages/editor/theme/blocks/cards/View.tsx with LinkCards.tsx); what it shows: view.ts, and load.ts on the site. Cards from before
 // (`design` text, icon or image, `background`, `kind`, a `media` on each card) are read as these (FORMER in lib/blocks.mjs).
-import { Cards, Circle, Image as ImageIcon, Prohibit, Shapes, Square, VideoCamera } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
-import { iconOptions } from '../../icon';
+import { iconOptions, materialIcon } from '../../icon';
 import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import { headFields } from '../head';
@@ -18,7 +17,7 @@ import { example } from './shared';
 export default defineBlock({
   group: 'cards',
   label: t.blocks.cards.label,
-  icon: Cards,
+  icon: materialIcon('cards'),
   hint: t.blocks.cards.hint,
   edit: { to: 'blocks/cards', text: t.blocks.cards.edit },
   // Typed in place (InlineCards.tsx): the headline, the subhead and the text where they stand; the media, the page and the buttons are picked in
@@ -28,7 +27,7 @@ export default defineBlock({
     fields: ['title', 'subhead', 'text'],
     media: ['icon', 'iconColor', 'image', 'alt', 'video'],
     blockMedia: ['media'],
-    settings: ['href', 'buttons'],
+    settings: ['href', 'buttons', 'divider'],
     blockSettings: true,
     texts: {
       addAbove: t.blocks.cards.addAbove,
@@ -48,9 +47,9 @@ export default defineBlock({
       type: 'select',
       segments: true,
       options: [
-        { label: t.blocks.cards.designOutlined, value: '', icon: Square },
-        { label: t.blocks.cards.designFilled, value: 'filled', icon: Circle },
-        { label: t.blocks.cards.designElevated, value: 'elevated', icon: Shapes },
+        { label: t.blocks.cards.designOutlined, value: '', icon: materialIcon('square') },
+        { label: t.blocks.cards.designFilled, value: 'filled', icon: materialIcon('circle') },
+        { label: t.blocks.cards.designElevated, value: 'elevated', icon: materialIcon('shapes') },
       ],
     },
     // How the cards show on a phone: stacked (the empty choice), or swiped sideways in a carousel (uncontained, Material 3's layout for
@@ -63,7 +62,23 @@ export default defineBlock({
       hint: t.blocks.cards.phoneHint,
       options: [
         { label: t.blocks.cards.phoneStacked, value: '' },
-        { label: t.blocks.cards.phoneCarousel, value: 'carousel' },
+        { label: t.blocks.cards.phoneCarousel, value: 'carousel', hint: t.blocks.cards.phoneVariantHint },
+      ],
+    },
+    // The carousel's layout, Material 3's (m3.material.io/components/carousel): uncontained is the empty choice, so a site saved before the
+    // choice keeps its look. Shown only with the carousel; each layout is a version of the block of its own under Blocks (`versions`).
+    {
+      name: 'layout',
+      label: t.blocks.cards.layout,
+      type: 'select',
+      versions: true,
+      only: { field: 'phone', is: ['carousel'] },
+      options: [
+        { label: t.blocks.cards.layoutUncontained, value: '' },
+        { label: t.blocks.cards.layoutMultiBrowse, value: 'multi-browse', hint: t.blocks.cards.layoutMultiBrowseHint },
+        { label: t.blocks.cards.layoutHero, value: 'hero', hint: t.blocks.cards.layoutHeroHint },
+        { label: t.blocks.cards.layoutHeroCenter, value: 'hero-center', hint: t.blocks.cards.layoutHeroCenterHint },
+        { label: t.blocks.cards.layoutFullScreen, value: 'full-screen', hint: t.blocks.cards.layoutFullScreenHint },
       ],
     },
     // A filled card is Material's surface container until another container is picked.
@@ -88,10 +103,10 @@ export default defineBlock({
       segments: true,
       default: 'icon',
       options: [
-        { label: t.blocks.cards.mediaNone, value: 'none', icon: Prohibit },
-        { label: t.blocks.cards.mediaIcon, value: 'icon', icon: Shapes },
-        { label: t.blocks.cards.mediaImage, value: 'image', icon: ImageIcon },
-        { label: t.blocks.cards.mediaVideo, value: 'video', icon: VideoCamera },
+        { label: t.blocks.cards.mediaNone, value: 'none', icon: materialIcon('block') },
+        { label: t.blocks.cards.mediaIcon, value: 'icon', icon: materialIcon('shapes') },
+        { label: t.blocks.cards.mediaImage, value: 'image', icon: materialIcon('image') },
+        { label: t.blocks.cards.mediaVideo, value: 'video', icon: materialIcon('videocam') },
       ],
     },
     // One aspect ratio for every card's image (no Original: the cards stay aligned); 3:2 is today's look.
@@ -161,6 +176,16 @@ export default defineBlock({
           singular: t.blocks.cards.button,
           hint: t.blocks.cards.buttonsHint,
           only: { field: 'href', is: [''], loose: true },
+        },
+        // One optional line between the text and the buttons (the shared Divider, full width): only on a card with buttons. The value is kept when the card
+        // has no buttons any more (or is converted to a type without them) and comes back with them.
+        {
+          name: 'divider',
+          label: t.blocks.cards.divider,
+          type: 'boolean',
+          toggle: t.blocks.cards.dividerToggle,
+          hint: t.blocks.cards.dividerHint,
+          only: { field: 'buttons', is: [''], not: true },
         },
       ],
     },

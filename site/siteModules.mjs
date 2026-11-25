@@ -4,6 +4,7 @@ import { createServer } from 'vite';
 import { appFoldersPlugin } from '../lib/apps.mjs';
 import { aliases, themePlugin } from './theme.mjs';
 import { appSelf } from './appSelf.mjs';
+import { appCss } from './appCss.mjs';
 
 /**
  * Runs `use` with a loader of the site's modules (`@site/collections`, `/src/apps/<id>/index.ts`), then closes it.
@@ -16,7 +17,7 @@ export async function withSiteModules(use) {
     configFile: false,
     logLevel: 'error',
     appType: 'custom',
-    plugins: [themePlugin(), appFoldersPlugin(`${process.cwd()}/`), appSelf()],
+    plugins: [themePlugin(), appFoldersPlugin(`${process.cwd()}/`), appSelf(), appCss()],
     resolve: { alias: aliases() },
     server: { middlewareMode: true, hmr: false, ws: false },
   });

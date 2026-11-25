@@ -1,5 +1,5 @@
 /* The editor's parts are the theme's UI parts (ui.tsx), in the theme's design; its own parts take the theme's variables
-   (--mo-sys-block-radius, --mo-sys-block-radius-small, --mo-sys-block-shadow). Only what is the editor's alone is here. Low specificity
+   (--mo-comp-block-radius, --mo-comp-block-radius-small, --mo-comp-block-shadow). Only what is the editor's alone is here. Low specificity
    (:where), so a theme's :root wins. */
 @import './editor-density.css';
 @import './editor-forms.css';
@@ -59,7 +59,7 @@
 
   /* The dotted frame round an H2 section of a page or blog post (sectionFrame.ts): its line, the space between the line and
      the text, the space above a section, and the space between two parts inside it (em: it scales with the part's text). */
-  --mo-comp-editor-section-frame: 2px dotted var(--mo-sys-block-line);
+  --mo-comp-editor-section-frame: 2px dotted var(--mo-comp-block-line);
   --mo-comp-editor-section-pad: 1rem;
   --mo-comp-editor-section-gap: 2rem;
   --mo-comp-editor-section-rhythm: 0.625em;
@@ -91,34 +91,42 @@
    sectionFrame.ts) or the block in focus (its own outline). The frame draws only while the text itself has the focus (:focus-visible), so it is gone when the
    cursor leaves, and it is a 2 px dotted line in the focus colour, the theme's primary role (a section on a colour swaps it to its on-colour, so it stands 3:1 on every section colour; Modern Web Guidance,
    accessibility: a focus indicator stays visible). */
-.mo-editor-text .ProseMirror:focus-visible > [data-section-focus] {
-  position: relative;
-}
-.mo-editor-text .ProseMirror:focus-visible > [data-section-focus]::after {
-  content: '';
-  position: absolute;
-  inset: 0 -0.5rem;
-  pointer-events: none;
-  border: 0 dotted var(--mo-sys-color-primary);
-  border-inline-width: 2px;
-}
-.mo-editor-text .ProseMirror:focus-visible > [data-section-focus]:is([data-section-box], [data-section-width='full'])::after {
-  inset-inline: 0;
-}
-.mo-editor-text
-  .ProseMirror:focus-visible
-  > :is([data-section-focus='start'], [data-section-focus='only']):not([data-section-part='start'])::after {
-  border-block-start-width: 2px;
-}
-.mo-editor-text .ProseMirror:focus-visible > :is([data-section-focus='end'], [data-section-focus='only'])::after {
-  border-block-end-width: 2px;
-}
-/* The section's own dotted line, at the start of an H2 section, takes the same clear line while the section has the focus. */
-.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus] {
+/* A section's focus is shown by its horizontal lines only (sectionFrame.ts; the owner, 25 Nov 2026: a section has dotted lines, no sides): its own line
+   above it (2 px dotted already) and a line under it, both in the focus colour. The first section has no line above it, so it has the one under it:
+   the text with the cursor in it always shows where it is (WCAG 2.4.7). The line under a section is the next section's own line when that is right
+   below it (data-section-focus-below), else a line drawn at the bottom of the section's last text part (data-section-bottom). Blocks are no part of a section
+   and keep their full dotted frame. */
+.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus]::before,
+.mo-editor-text .ProseMirror:focus-visible > [data-section-focus-below]::before {
   border-block-start-color: var(--mo-sys-color-primary);
 }
-.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus]::after {
-  inset-block-start: -2px;
+.mo-editor-text .ProseMirror:focus-visible > [data-section-bottom] {
+  position: relative;
+}
+.mo-editor-text .ProseMirror:focus-visible > [data-section-bottom]::after {
+  content: '';
+  position: absolute;
+  inset: auto calc(-1 * var(--mo-comp-editor-pad-x)) -0.5rem;
+  block-size: 0;
+  pointer-events: none;
+  border: 0 dotted var(--mo-sys-color-primary);
+  border-block-end-width: 2px;
+}
+.mo-editor-text .ProseMirror:focus-visible > [data-section-bottom][data-section-width='full']::after {
+  inset-inline: 0;
+}
+
+/* Helping lines hidden (the bar's grid button, MarkdownEditor.tsx): the resting dotted lines of sections and blocks go; the focus, hover and selection lines stay. */
+.mo-editor-text-box[data-guides='off']
+  .mo-editor-text
+  .ProseMirror
+  > [data-section-part='start']:not([data-section-focus], [data-section-focus-below])::before {
+  border-block-start-color: transparent;
+}
+.mo-editor-text-box[data-guides='off']
+  .mo-editor-text
+  .mo-site-block-card:not(:hover, [aria-pressed='true'], :has(> .mo-site-block-card-button[aria-pressed='true'])) {
+  border-color: transparent;
 }
 
 /* A text in a field (a section of the front page) is short. */
@@ -172,9 +180,35 @@
 /* The dotted line at the start of an H2 section (data-section-part='start', sectionFrame.ts): a divider across the text. The line
    marks where a section starts; it is not the section's box. */
 .mo-editor-text .ProseMirror > [data-section-part='start'] {
+  position: relative;
   margin-block-start: var(--mo-comp-editor-section-gap);
-  border-block-start: var(--mo-comp-editor-section-frame);
+  border-block-start: 2px solid transparent;
   padding-block-start: var(--mo-comp-editor-section-pad);
+}
+/* The line is full width (the owner, 25 Nov 2026): it reaches out of the text field's padding to both edges, drawn in the border's place. */
+.mo-editor-text .ProseMirror > [data-section-part='start']::before {
+  content: '';
+  position: absolute;
+  inset: -2px 0 auto;
+  block-size: 0;
+  pointer-events: none;
+  border-block-start: var(--mo-comp-editor-section-frame);
+}
+/* A coloured section's box is inset, so its line reaches out of the box to the field's edges. */
+.mo-editor-text .ProseMirror > [data-section-part='start'][data-section-box]::before {
+  inset-inline: calc(-1 * var(--mo-comp-editor-pad-x));
+}
+
+/* The line runs edge to edge of the text field, outside its side padding, while the heading keeps the page margin. A coloured section's
+   box (data-section-box) is drawn below and does not change. */
+.mo-editor-text .ProseMirror > [data-section-part='start']:not([data-section-box]) {
+  margin-inline: calc(-1 * var(--mo-comp-editor-pad-x));
+  padding-inline: var(--mo-comp-editor-pad-x);
+}
+
+/* A section's start part is as wide as the field now, so a line drawn at its bottom (data-section-bottom) needs no reach beyond it. */
+.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-bottom]:not([data-section-box])::after {
+  inset-inline: 0;
 }
 
 /* The box of a section with a colour, as the site draws it (data-section-box, data-section-color, sectionFrame.ts): one box made of
@@ -190,14 +224,14 @@
 }
 
 .mo-editor-text .ProseMirror > :is([data-section-box='start'], [data-section-box='only']) {
-  border-start-start-radius: var(--mo-sys-block-radius);
-  border-start-end-radius: var(--mo-sys-block-radius);
+  border-start-start-radius: var(--mo-comp-block-radius);
+  border-start-end-radius: var(--mo-comp-block-radius);
   padding-block-start: var(--mo-comp-editor-section-pad);
 }
 
 .mo-editor-text .ProseMirror > :is([data-section-box='end'], [data-section-box='only']) {
-  border-end-start-radius: var(--mo-sys-block-radius);
-  border-end-end-radius: var(--mo-sys-block-radius);
+  border-end-start-radius: var(--mo-comp-block-radius);
+  border-end-end-radius: var(--mo-comp-block-radius);
   /* The space below a section's text belongs inside its colour: it runs down to the next section's divider (or the end of the text). */
   padding-block-end: calc(var(--mo-comp-editor-section-pad) + var(--mo-comp-editor-section-gap));
 }
@@ -231,7 +265,7 @@
 /* The colours are the theme's own (blocks.css). On a colour with its own text colour, the prose colours take it, so headings, bold
    and links stay readable. */
 .mo-editor-text .ProseMirror > [data-section-color='surface'] {
-  background: var(--mo-sys-block-surface);
+  background: var(--mo-comp-block-surface);
 }
 
 .mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary']) {
@@ -281,7 +315,7 @@
   overflow: hidden;
   pointer-events: none;
   background: var(--mo-sys-color-inverse-surface);
-  border-radius: var(--mo-sys-block-radius);
+  border-radius: var(--mo-comp-block-radius);
 }
 
 .mo-editor-text .mo-editor-section-picture[data-width='full'] {
@@ -302,7 +336,7 @@
   content: '';
   position: absolute;
   inset: calc(var(--mo-comp-editor-section-pad) / 2);
-  border-radius: var(--mo-sys-block-radius-small);
+  border-radius: var(--mo-comp-block-radius-small);
   background: var(--mo-sys-color-inverse-surface);
 }
 
@@ -392,7 +426,7 @@
 }
 
 /* An element's name as the theme's plain tooltip (useTooltip in ui.tsx): a popover over everything, placed by the
-   script under or over the element; its look is the theme's .mo-tooltip__plain. */
+   script under or over the element; its look is the theme's .mo-tooltip.mo-is-plain. */
 .mo-editor-tooltip {
   position: fixed;
   inset: auto;
@@ -461,7 +495,7 @@
     --mo-comp-editor-sheet-tall: calc(100dvh - max(var(--mo-comp-bottom-sheet-top-gap, 4.5rem), env(safe-area-inset-top)));
     max-height: var(--mo-comp-editor-sheet-tall);
   }
-  .mo-editor-sheet.mo-bottom-sheet__full[data-tall] {
+  .mo-editor-sheet.mo-sheet__full[data-tall] {
     height: var(--mo-comp-editor-sheet-tall);
   }
 }
@@ -575,10 +609,10 @@
 }
 
 .mo-editor-main-rail {
-  --mo-comp-navigation-rail-padding: 0.5rem 0.5rem 1.5rem;
+  --mo-comp-nav-rail-padding: 0.5rem 0.5rem 1.5rem;
 }
 
-.mo-editor-main-rail .mo-navigation-rail__header {
+.mo-editor-main-rail .mo-nav-rail__header {
   margin-bottom: 1rem;
 }
 
@@ -640,10 +674,10 @@
    stand beside the rail and the drawer, so they need no room. */
 @media (width >= 37.5rem) {
   .mo-snackbar__stack {
-    padding-left: var(--mo-comp-navigation-rail-container-width, 5.5rem);
+    padding-left: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
   }
   .mo-editor-save-bar {
-    left: var(--mo-comp-navigation-rail-container-width, 5.5rem);
+    left: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
     width: auto;
   }
 }
@@ -703,7 +737,7 @@
 }
 @media (width >= 37.5rem) {
   :root {
-    --mo-sys-column-start: var(--mo-comp-navigation-rail-container-width, 5.5rem);
+    --mo-sys-column-start: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
   }
   .mo-editor-column {
     margin-inline-start: clamp(
@@ -776,7 +810,7 @@
   /* The same for a standard side sheet in the page's own layout (the details in Files), while it reaches (nearly) the window's edge: the button
      stands beside it, not on it. The column stops growing at 73.5rem, and from there the button has room at its end. */
   @media (width < 73.5rem) {
-    :root:has(main .mo-side-sheet__container:not([hidden])) .mo-editor-fab {
+    :root:has(main :where(.mo-sheet__container).mo-is-side:not([hidden])) .mo-editor-fab {
       right: calc(var(--mo-comp-side-sheet-width, 22.5rem) + 2.5rem + env(safe-area-inset-right));
     }
   }
@@ -841,7 +875,7 @@ html {
   position: relative;
   /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .mo-card), so the action row, the items and the
      add button line up inside it. */
-  border-radius: var(--mo-comp-card-radius, var(--mo-sys-block-radius));
+  border-radius: var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius));
   border: var(--mo-comp-editor-frame-line) dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
   padding-block: var(--mo-comp-card-padding, 1rem);
   padding-inline: calc(var(--mo-comp-editor-frame-outset) - var(--mo-comp-editor-frame-line));
@@ -858,6 +892,24 @@ html {
 
 /* The button of a block that is not typed in place lies over its frame and its preview, which only draws the block (MarkdownEditor.tsx blockCard): it holds no
    text, takes the taps, and shows nothing of its own; the frame draws the hover, the selection and the focus. The action row lies over it. */
+.mo-editor-text .mo-editor-divider .mo-site-block-card {
+  /* The Divider is a block with a frame only while it is pointed at, selected or in focus: at rest it is the line alone (the same 44 dp target as the bar's buttons). */
+  min-block-size: 2.75rem;
+  padding-block: 0;
+  display: grid;
+  align-items: center;
+  border-color: transparent;
+}
+.mo-editor-text .mo-editor-divider .mo-site-block-card:hover,
+.mo-editor-text .mo-editor-divider .mo-site-block-card[aria-pressed='true'] {
+  border-color: var(--mo-sys-color-primary);
+}
+.mo-editor-divider__rule {
+  display: block;
+  block-size: var(--mo-comp-divider-thickness, 1px);
+  background: var(--mo-comp-divider-color, var(--mo-sys-color-outline-variant));
+}
+
 .mo-editor-text .mo-site-block-card-button {
   position: absolute;
   inset: 0;
@@ -885,7 +937,10 @@ html {
   top: 0.25rem;
   /* The block's top left corner (owner, 16 Nov): the one place to drag a block. A 48 dp touch target, drawn inside the frame, its edge 24 dp in from the frame's left
      edge, where the selection mark's 48 dp target (centred on the outline's corner curve) ends, so the two never overlap (the card is the frame outset wider than the block on each side). */
-  left: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 1.5rem - var(--mo-comp-editor-frame-outset));
+  left: calc(
+    var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius)) * 0.2929 + 0.53px + 1.5rem -
+      var(--mo-comp-editor-frame-outset)
+  );
   z-index: 2;
   display: flex;
   align-items: center;
@@ -953,7 +1008,8 @@ html {
   block-size: 3rem;
   /* Room for the handle at the start: it ends 4.5 rem past the selection mark's centre; the buttons stay clear of it. */
   padding-inline-start: calc(
-    var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px + 4.5rem - var(--mo-comp-editor-frame-outset)
+    var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius)) * 0.2929 + 0.53px + 4.5rem -
+      var(--mo-comp-editor-frame-outset)
   );
 }
 
@@ -1007,7 +1063,7 @@ html {
   position: absolute;
   /* Centred on the outline's corner curve: the card is the frame outset wider than the block on each side, and the 45 degree point of a corner with the Card's radius r (its
      1.5px line centred) lies r * (1 - cos 45) + 0.53px in from the corner, along both edges. */
-  --mo-sys-mark-in: calc(var(--mo-comp-card-radius, var(--mo-sys-block-radius)) * 0.2929 + 0.53px);
+  --mo-sys-mark-in: calc(var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius)) * 0.2929 + 0.53px);
   top: calc(var(--mo-sys-mark-in) - 1.5rem);
   left: calc(var(--mo-sys-mark-in) - var(--mo-comp-editor-frame-outset) - 1.5rem);
   z-index: 2;
@@ -1327,7 +1383,7 @@ html {
 
 /* In a list the row's icon button is the heading's colour, as the icon is on the site (blocks.css, .mo-block-list). */
 .mo-block-list .mo-editor-inline-list-slot:not([data-icon-color]) {
-  color: var(--mo-sys-block-text);
+  color: var(--mo-comp-block-text);
 }
 
 /* The chosen icon's tile in the grid is filled with the picked color (Text, without one) and its icon is read on it. */
@@ -1371,7 +1427,7 @@ html {
 /* Inside a filled button the ring is drawn on the button's own container, which is the ring role's colour (1:1). It takes the button's
    on-colour instead (the same tokens the theme's filled button uses for its label), so it holds on every section colour, light and dark. */
 .mo-button.mo-is-filled .mo-editor-inline-list-slot:focus-visible {
-  outline-color: var(--mo-comp-button-filled-label-text-color, var(--mo-sys-block-on-accent));
+  outline-color: var(--mo-comp-button-filled-label-text-color, var(--mo-comp-block-on-accent));
 }
 
 /* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
@@ -1422,19 +1478,27 @@ html {
   content: '';
   position: absolute;
   top: -1px;
-  width: var(--mo-sys-radius);
-  height: var(--mo-sys-radius);
+  width: var(--mo-sys-shape-corner-medium);
+  height: var(--mo-sys-shape-corner-medium);
   pointer-events: none;
 }
 
 .mo-editor-tools::before {
   left: -1px;
-  background: radial-gradient(circle at 100% 100%, transparent var(--mo-sys-radius), var(--mo-sys-color-surface) var(--mo-sys-radius));
+  background: radial-gradient(
+    circle at 100% 100%,
+    transparent var(--mo-sys-shape-corner-medium),
+    var(--mo-sys-color-surface) var(--mo-sys-shape-corner-medium)
+  );
 }
 
 .mo-editor-tools::after {
   right: -1px;
-  background: radial-gradient(circle at 0 100%, transparent var(--mo-sys-radius), var(--mo-sys-color-surface) var(--mo-sys-radius));
+  background: radial-gradient(
+    circle at 0 100%,
+    transparent var(--mo-sys-shape-corner-medium),
+    var(--mo-sys-color-surface) var(--mo-sys-shape-corner-medium)
+  );
 }
 
 /* The bar is one row, 44 dp high: the tools of the place at the left, Undo, Redo, Insert block and the `⋮` at the right end, no divider between them. It never scrolls (textBar.mjs picks what is
@@ -1493,7 +1557,7 @@ html {
    rests as the other tools do, in the standard icon button's colour (never the accent: only a tool that is on has it). */
 .mo-toolbar__menu-button,
 .mo-toolbar__menu-button:hover {
-  color: var(--mo-comp-icon-button-standard-icon-color, var(--mo-sys-block-text));
+  color: var(--mo-comp-icon-button-standard-icon-color, var(--mo-comp-block-text));
 }
 
 /* Only drawn: the taps go to the card. */
@@ -1768,8 +1832,30 @@ dialog {
   text-align: center;
 }
 
-.mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-slot {
+.mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-slot,
+.mo-editor-text .mo-editor-inline-plans .mo-block-pricecards__plan-buttons .mo-editor-inline-list-slot {
   color: inherit;
+}
+
+/* Inside a button the label and the icon slot are the button's own parts, so they have M3's measures for its size: the icon is the size's glyph
+   (--mo-comp-button-glyph) with the size's icon-label space (the button's gap) to the label, and the label is one line high (the button's
+   line-height), centred in the button. The button itself is the target (WCAG 2.5.8), so the field's 24 px minimum and the slot's 2.5rem square
+   (which kept the label above the middle and the icon at the edge) do not apply inside it. */
+.mo-editor-text .mo-editor-inline-button .mo-editor-inline-list-field {
+  min-block-size: 0;
+  align-self: center;
+}
+
+.mo-editor-text .mo-editor-inline-button .mo-editor-inline-list-slot {
+  width: var(--mo-comp-button-glyph);
+  height: var(--mo-comp-button-glyph);
+  min-width: 0;
+  flex: none;
+}
+
+.mo-editor-text .mo-editor-inline-button .mo-editor-inline-list-slot > * {
+  width: var(--mo-comp-button-glyph);
+  height: var(--mo-comp-button-glyph);
 }
 
 /* The text of an empty button, and its hint, are the button kind's own on-colour (filled on-primary, tonal on-secondary-container, elevated
@@ -2017,10 +2103,10 @@ dialog {
 }
 
 /* The Keyboard shortcuts dialog (ShortcutsSheet.tsx) is a dialog in the middle of the screen on a computer, not a sheet from the bottom: no drag handle. */
-.mo-editor-shortcuts-dialog .mo-bottom-sheet__drag-handle {
+.mo-editor-shortcuts-dialog .mo-sheet__drag-handle {
   display: none;
 }
-.mo-editor-shortcuts-dialog .mo-bottom-sheet__header {
+.mo-editor-shortcuts-dialog :where(.mo-is-bottom) .mo-sheet__header {
   padding-top: 1.25rem;
 }
 .mo-editor-shortcuts-dialog:focus {
@@ -2073,4 +2159,18 @@ main[tabindex='-1']:focus {
 .mo-site-block-row,
 [data-search-controlled] .mo-search-view__header {
   --mo-comp-icon-button-small-container-height: 3rem;
+}
+
+/* The lead: the text's first paragraph, drawn as the site draws it (site-page.css `.mo-page__text > p:first-child` for a page, the post's
+   `mo-type-lead`): the lead's size, line height, weight and tracking; a page's lead is also muted and 52ch wide. The field says which
+   (`data-lead-style`); a page with a column beside its text has no lead on the site, so none here. */
+.mo-editor-text[data-lead-style] .ProseMirror > p[data-lead] {
+  font-size: var(--mo-sys-typescale-lead-size);
+  line-height: var(--mo-sys-typescale-lead-line-height);
+  font-weight: var(--mo-sys-typescale-lead-weight);
+  letter-spacing: var(--mo-sys-typescale-lead-tracking);
+}
+.mo-editor-text[data-lead-style='page'] .ProseMirror > p[data-lead] {
+  color: var(--mo-sys-color-on-surface-variant);
+  max-inline-size: 52ch;
 }

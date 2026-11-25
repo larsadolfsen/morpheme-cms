@@ -25,11 +25,11 @@ const count = (text, part) => text.split(part).length - 1;
 // The level tokens: the exact default declaration of each, once in ui.css.
 const tokens = {
   '--mo-sys-elevation-level0-color': 'var(--mo-sys-color-surface)',
-  '--mo-sys-elevation-level1-color': 'var(--mo-sys-color-surface-container-low, var(--mo-sys-block-surface))',
-  '--mo-sys-elevation-level2-color': 'var(--mo-sys-color-surface-container, var(--mo-sys-block-surface))',
-  '--mo-sys-elevation-level3-color': 'var(--mo-sys-color-surface-container-high, var(--mo-sys-block-surface))',
-  '--mo-sys-elevation-level4-color': 'var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-surface))',
-  '--mo-sys-elevation-level5-color': 'var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-surface))',
+  '--mo-sys-elevation-level1-color': 'var(--mo-sys-color-surface-container-low, var(--mo-comp-block-surface))',
+  '--mo-sys-elevation-level2-color': 'var(--mo-sys-color-surface-container, var(--mo-comp-block-surface))',
+  '--mo-sys-elevation-level3-color': 'var(--mo-sys-color-surface-container-high, var(--mo-comp-block-surface))',
+  '--mo-sys-elevation-level4-color': 'var(--mo-sys-color-surface-container-highest, var(--mo-comp-block-surface))',
+  '--mo-sys-elevation-level5-color': 'var(--mo-sys-color-surface-container-highest, var(--mo-comp-block-surface))',
   '--mo-sys-elevation-level1-rest-shadow': 'var(--mo-sys-elevation-level0-shadow)',
   '--mo-sys-elevation-level2-rest-shadow': 'var(--mo-sys-elevation-level0-shadow)',
   '--mo-sys-elevation-level3-rest-shadow': 'var(--mo-sys-elevation-level0-shadow)',
@@ -63,7 +63,11 @@ const surfaces = [
     2,
   ],
   ['scrolled top app bar', 'background: var(--mo-comp-top-app-bar-stuck-surface, var(--mo-sys-elevation-level2-color));', 1],
-  ['menu, menu group and select list', 'background: var(--mo-comp-menu-container-color, var(--mo-sys-elevation-level2-color));', 3],
+  [
+    'menu, menu group and select list',
+    'background: var(--mo-comp-menus-standard-container-color, var(--mo-sys-elevation-level2-color));',
+    3,
+  ],
   [
     'modal navigation drawer (the expanded rail, modal)',
     'background: var(--mo-comp-navigation-drawer-surface, var(--mo-sys-elevation-level2-color));',
@@ -89,10 +93,10 @@ for (const [part, line, times] of surfaces) {
 // Parts that keep their surface: the top app bar at rest, and the role parts.
 const unchanged = [
   'background: var(--mo-comp-top-app-bar-surface, color-mix(in oklab, var(--mo-sys-color-surface) 85%, transparent));',
-  'background: var(--mo-comp-search-bar-container-color, var(--mo-sys-block-surface));',
-  'background: var(--mo-comp-navigation-bar-container-color, var(--mo-sys-block-surface));',
-  'background: var(--mo-comp-filled-card-container-color, var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-tint)));',
-  'background: var(--mo-comp-switch-unselected-handle-color, var(--mo-sys-block-surface));',
+  'background: var(--mo-comp-search-bar-container-color, var(--mo-comp-block-surface));',
+  'background: var(--mo-comp-nav-bar-container-color, var(--mo-comp-block-surface));',
+  'background: var(--mo-comp-filled-card-container-color, var(--mo-sys-color-surface-container-highest, var(--mo-comp-block-tint)));',
+  'background: var(--mo-comp-switch-unselected-handle-color, var(--mo-comp-block-surface));',
 ];
 
 for (const line of unchanged) {
@@ -102,13 +106,13 @@ for (const line of unchanged) {
 }
 
 test('no part reads the old surface fallbacks', () => {
-  assert.equal(count(uiCss, 'var(--mo-comp-menu-container-color, var(--mo-sys-block-surface))'), 0);
-  assert.equal(count(uiCss, 'var(--mo-comp-dialog-surface, var(--mo-sys-block-surface))'), 0);
+  assert.equal(count(uiCss, 'var(--mo-comp-menus-standard-container-color, var(--mo-comp-block-surface))'), 0);
+  assert.equal(count(uiCss, 'var(--mo-comp-dialog-surface, var(--mo-comp-block-surface))'), 0);
   assert.equal(
     count(uiCss, 'var(--mo-comp-navigation-drawer-surface, var(--mo-sys-color-surface-container-low, var(--mo-sys-color-surface)))'),
     0,
   );
-  assert.equal(count(uiCss, 'var(--mo-comp-navigation-rail-surface, var(--mo-sys-block-surface))'), 0);
+  assert.equal(count(uiCss, 'var(--mo-comp-navigation-rail-surface, var(--mo-comp-block-surface))'), 0);
 });
 
 // Shadows: the part's own variable first, then the level's token: an elevated object reads --mo-sys-elevation-levelN-shadow, a surface
@@ -182,7 +186,7 @@ for (let level = 1; level <= 5; level++) {
 const addedLines = [
   ['--mo-comp-fab-shadow: var(--mo-sys-elevation-level3-shadow);', 1],
   ['--mo-comp-fab-hover-shadow: var(--mo-sys-elevation-level4-shadow);', 1],
-  ['--mo-sys-block-shadow: var(--mo-sys-elevation-level1-rest-shadow);', 1],
+  ['--mo-comp-block-shadow: var(--mo-sys-elevation-level1-rest-shadow);', 1],
   // Light mode once, then the dark-mode media block and the dark theme attribute.
   ['--mo-sys-panel-shadow: var(--mo-sys-elevation-level1-rest-shadow);', 3],
 ];
@@ -219,7 +223,7 @@ for (const name of removedDeclarations) {
 // The menu is M3 Expressive's vertical menu in its standard colours: on surface-container-low (md.comp.menus.standard.container.color), with
 // level 2's shadow, so it stands in front of the page (m3.material.io/components/menus/specs).
 test('global.css puts the menu on the lowest surface container with the level 2 shadow', () => {
-  assert.equal(count(globalCss, '  --mo-comp-menu-container-color: var(--mo-sys-color-surface-container-low);\n'), 1);
+  assert.equal(count(globalCss, '  --mo-comp-menus-standard-container-color: var(--mo-sys-color-surface-container-low);\n'), 1);
   assert.equal(count(globalCss, '  --mo-comp-menu-container-elevation: var(--mo-sys-elevation-level2-shadow);\n'), 1);
 });
 

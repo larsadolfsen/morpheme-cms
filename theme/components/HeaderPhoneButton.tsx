@@ -21,7 +21,7 @@ export default function HeaderPhoneButton({
 }) {
   const to = page && phone.page ? phone.page : undefined;
   return (
-    <Button href={to ?? phone.href} kind={kind} icon="phone" aria-label={to ? undefined : phone.label} onClick={onClick}>
+    <Button href={to ?? phone.href} kind={kind} icon="call" aria-label={to ? undefined : phone.label} onClick={onClick}>
       {phone.number}
     </Button>
   );

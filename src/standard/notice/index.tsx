@@ -1,10 +1,10 @@
 // "Notice", a standard block: a short notice in a box with the accent along its left edge. With "Show until" it goes by
 // itself at that time (packages/editor/lib/notice.mjs); then its card is greyed. How it looks is the theme's
 // (packages/editor/theme/blocks/notice/View.tsx; what it shows: view.ts, and load.ts on the site).
-import { Info } from '@phosphor-icons/react';
 import { cut, defineBlock, plain } from '../../blocks';
 import { isOver, untilTime } from '../../../lib/notice.mjs';
 import { locale, t } from '../../i18n';
+import { materialIcon } from '../../icon';
 
 // When it stops being shown, for its card: "Shown until 1 Mar 2026 at 12:00", or that it is over (in
 // the editor's language).
@@ -20,7 +20,7 @@ function untilLine(until: unknown): string {
 export default defineBlock({
   group: 'banners',
   label: t.blocks.notice.label,
-  icon: Info,
+  icon: materialIcon('info'),
   hint: t.blocks.notice.hint,
   // Typed in place (InlineNotice.tsx): the text in the notice; `Show until` is in the sheet.
   inline: {

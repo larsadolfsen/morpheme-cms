@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const SKIP =
-  /^(node_modules|docs\/superpowers|release-notes|\.changeset|package-lock\.json|CHANGELOG\.md|scripts\/renamed-tokens\.json|scripts\/check-token-names\.test\.mjs)/;
+  /^(node_modules|docs\/superpowers|release-notes|\.changeset|package-lock\.json|CHANGELOG\.md|scripts\/renamed-tokens\.json|scripts\/m3-names\.json|scripts\/check-token-names\.test\.mjs|lib\/migrate-code(-maps)?(\.test)?\.mjs|scripts\/migrate-code-maps(\.test)?\.mjs|lib\/migrate-icons(\.test)?\.mjs|scripts\/check-cms-update\.mjs)/;
 const TEXT = /\.(css|ts|tsx|mjs|js|cjs|astro|md|json|html|svg|yml|yaml|txt|toml|jsonc)$/;
 
 /** The lines of `text` that write a renamed name whole: `[{ line, name, now }]`. @param {string} text @param {Record<string, string>} renamed */

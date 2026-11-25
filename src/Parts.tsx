@@ -5,32 +5,6 @@
 // (BlockParts.tsx). A part is changed in ui.tsx, and so everywhere at once. All of it is
 // shown with the made-up site of examples.ts, never the site's own, and nothing here is saved.
 import { useMemo, useRef, useState } from 'react';
-import {
-  AppWindow,
-  ArrowsHorizontal,
-  ColumnsPlusLeft,
-  ColumnsPlusRight,
-  File,
-  Gear,
-  ArrowDown,
-  ArrowsDownUp,
-  GoogleLogo,
-  List as ListIcon,
-  ListBullets,
-  ArrowUp,
-  CircleHalf,
-  EnvelopeSimple,
-  Heart,
-  FolderSimple,
-  Leaf,
-  SignOut,
-  Moon,
-  PencilSimple,
-  Sun,
-  TextB,
-  TextT,
-  Trash,
-} from '@phosphor-icons/react';
 import Screen from './Screen';
 import EditorFooter from './EditorFooter';
 import { MainDrawerSample } from './MainDrawerParts';
@@ -100,7 +74,16 @@ import {
 } from './ui';
 import { FieldList, Fields, useWrongField, WrongField, type FieldContext } from './fields';
 import { newValue, problemAt } from './check';
-import { Icon, iconOptions, useAllIconNames, AddBlockIcon } from './icon';
+import {
+  Icon,
+  iconOptions,
+  useAllIconNames,
+  AddBlockIcon,
+  brandIcon,
+  Icon as MaterialIcon,
+  materialIcon,
+  type IconComponent,
+} from './icon';
 import { exampleImage, exampleData } from './examples';
 import { exampleOf } from './blocks';
 import { siteBlocks } from './registry';
@@ -120,8 +103,8 @@ const { use, sample, examples } = t.parts;
 function SelectableSample() {
   const [picked, setPicked] = useState<string[]>(['pages']);
   const rows = [
-    { key: 'pages', icon: PencilSimple as typeof PencilSimple | undefined, label: sample.pages },
-    { key: 'media', icon: FolderSimple as typeof PencilSimple | undefined, label: sample.media },
+    { key: 'pages', icon: materialIcon('edit') as IconComponent | undefined, label: sample.pages },
+    { key: 'media', icon: materialIcon('folder') as IconComponent | undefined, label: sample.media },
     { key: 'text', icon: undefined, label: sample.versionNow },
   ];
   const selecting = picked.length > 0;
@@ -172,7 +155,7 @@ export default function Parts({ env }: { env: Env }) {
   // An e-mail address without its domain: the field says what is wrong.
   const [mail, setMail] = useState(t.parts.fields.values.email.replace(/@.*/, '@'));
   const mailWrong = !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail.trim());
-  const [icon, setIcon] = useState('heart');
+  const [icon, setIcon] = useState('favorite');
   const [searchIcons, setSearchIcons] = useState(false);
   const allIcons = useAllIconNames(searchIcons);
   const [image, setImage] = useState(exampleImage);
@@ -199,9 +182,9 @@ export default function Parts({ env }: { env: Env }) {
           <PartGroup group="buttons">
             <Part name="ToolbarButton" use={use.toolbarButton}>
               <div className="mo-editor-tight-row">
-                <ToolbarButton icon={TextB} label={sample.bold} selected onClick={() => {}} />
+                <ToolbarButton icon={materialIcon('format_bold')} label={sample.bold} selected onClick={() => {}} />
                 <ToolbarButton icon={AddBlockIcon} label={sample.insert} onClick={() => {}} />
-                <ToolbarButton icon={TextT} label={t.text.kind} menu={false} onClick={() => {}} />
+                <ToolbarButton icon={materialIcon('text_fields')} label={t.text.kind} menu={false} onClick={() => {}} />
               </div>
             </Part>
 
@@ -261,7 +244,7 @@ export default function Parts({ env }: { env: Env }) {
             </Part>
 
             <Part name="ShownValue" use={use.shownValue}>
-              <ShownValue icon={AppWindow}>{sample.standardKind}</ShownValue>
+              <ShownValue icon={materialIcon('web_asset')}>{sample.standardKind}</ShownValue>
               <ShownValue muted>{sample.fromTitle}</ShownValue>
             </Part>
 
@@ -291,9 +274,17 @@ export default function Parts({ env }: { env: Env }) {
                     onToggle={() => setFolded(folded === i ? null : i)}
                     tools={
                       <>
-                        <IconButton icon={ArrowUp} label={t.common.moveUpItem(sample.question(n))} disabled={i === 0} />
-                        <IconButton icon={ArrowDown} label={t.common.moveDownItem(sample.question(n))} disabled={i === 1} />
-                        <IconButton icon={Trash} label={t.common.removeItem(sample.question(n))} />
+                        <IconButton
+                          icon={materialIcon('arrow_upward')}
+                          label={t.common.moveUpItem(sample.question(n))}
+                          disabled={i === 0}
+                        />
+                        <IconButton
+                          icon={materialIcon('arrow_downward')}
+                          label={t.common.moveDownItem(sample.question(n))}
+                          disabled={i === 1}
+                        />
+                        <IconButton icon={materialIcon('delete')} label={t.common.removeItem(sample.question(n))} />
                       </>
                     }
                   >
@@ -362,7 +353,7 @@ export default function Parts({ env }: { env: Env }) {
                 sort={
                   <Choice
                     title={sample.sort}
-                    icon={ArrowsDownUp}
+                    icon={materialIcon('swap_vert')}
                     value={sort}
                     disabled={asMenu}
                     options={[
@@ -392,7 +383,7 @@ export default function Parts({ env }: { env: Env }) {
                 }
                 seo={
                   <IconButton
-                    icon={GoogleLogo}
+                    icon={brandIcon('google')}
                     label={seo ? t.library.hideSeo : t.library.showSeo}
                     aria-pressed={seo}
                     selected={seo}
@@ -402,7 +393,7 @@ export default function Parts({ env }: { env: Env }) {
                 }
                 view={
                   <IconButton
-                    icon={asMenu ? ListBullets : ListIcon}
+                    icon={asMenu ? materialIcon('format_list_bulleted') : materialIcon('list')}
                     label={asMenu ? t.library.showAsList : t.library.showAsMenu}
                     aria-pressed={asMenu}
 
@@ -416,7 +407,7 @@ export default function Parts({ env }: { env: Env }) {
           <PartGroup group="choices">
             <Part name="ChoiceTile" use={use.choiceTile}>
               <div role="radiogroup" aria-label={sample.icon} className="mo-editor-icon-grid">
-                {[Heart, Leaf, Sun].map((Glyph, i) => (
+                {[materialIcon('favorite'), materialIcon('eco'), materialIcon('light_mode')].map((Glyph, i) => (
                   <ChoiceTile key={sample.icons[i]} selected={tile === i} label={sample.icons[i]} onClick={() => setTile(i)}>
                     <Glyph size={24} />
                   </ChoiceTile>
@@ -429,13 +420,19 @@ export default function Parts({ env }: { env: Env }) {
             <Part name="ListItem, Group, GroupTitle, LeadingIcon, LeadingImage, LeadingToken" use={use.group}>
               <Group title={sample.group}>
                 {[
-                  { icon: FolderSimple, label: sample.media, count: 42 },
-                  { icon: PencilSimple, label: sample.pages, count: 12 },
+                  { icon: materialIcon('folder'), label: sample.media, count: 42 },
+                  { icon: materialIcon('edit'), label: sample.pages, count: 12 },
                 ].map((p) => (
                   <ListItem key={p.label} href="#developer/parts/editor" icon={p.icon} headline={p.label} count={p.count} arrow />
                 ))}
                 {/* With a text under its name: the icon beside the first two lines. */}
-                <ListItem href="#developer/parts/editor" icon={Gear} headline={sample.cookieBanner} supporting={sample.cookieHint} arrow />
+                <ListItem
+                  href="#developer/parts/editor"
+                  icon={materialIcon('settings')}
+                  headline={sample.cookieBanner}
+                  supporting={sample.cookieHint}
+                  arrow
+                />
                 {/* With an image before its name (the image a page's colours came from). */}
                 <ListItem
                   leading={<LeadingImage src={exampleImage} />}
@@ -455,27 +452,32 @@ export default function Parts({ env }: { env: Env }) {
                 />
                 {/* With a sample of one of the theme's tokens before its name ("Parts" › "Values"). */}
                 <ListItem
-                  leading={<LeadingToken kind="shape" value="var(--mo-sys-radius)" />}
+                  leading={<LeadingToken kind="shape" value="var(--mo-sys-shape-corner-medium)" />}
                   headline={sample.corners}
-                  supporting="--mo-sys-radius"
+                  supporting="--mo-sys-shape-corner-medium"
                 />
               </Group>
               <div className={row}>
-                <LeadingIcon icon={FolderSimple} />
-                <LeadingIcon icon={PencilSimple} selected />
+                <LeadingIcon icon={materialIcon('folder')} />
+                <LeadingIcon icon={materialIcon('edit')} selected />
               </div>
               <section>
                 <GroupTitle>{sample.rows}</GroupTitle>
                 <ul className={listClass}>
                   <ListItem headline={sample.versionNow} />
                   <ListItem tone="muted" headline={t.library.pageGone} />
-                  <ListItem tone="accent" onClick={() => {}} leading={<SignOut size={20} />} headline={t.library.logOut} />
+                  <ListItem
+                    tone="accent"
+                    onClick={() => {}}
+                    leading={<MaterialIcon name="logout" size={20} />}
+                    headline={t.library.logOut}
+                  />
                   <ListItem
                     tone="delete"
                     onClick={() => {}}
                     headline={
                       <span className="mo-editor-settings-inline-row">
-                        <Trash size={18} />
+                        <MaterialIcon name="delete" size={18} />
                         {t.common.delete}
                       </span>
                     }
@@ -580,14 +582,14 @@ export default function Parts({ env }: { env: Env }) {
                 <NewChoice
                   title={sample.newPopup}
                   options={[
-                    { value: 'standard', label: sample.standardKind, hint: sample.standardKindHint, icon: AppWindow },
-                    { value: 'app', label: sample.appKind, hint: sample.appKindHint, icon: EnvelopeSimple },
+                    { value: 'standard', label: sample.standardKind, hint: sample.standardKindHint, icon: materialIcon('web_asset') },
+                    { value: 'app', label: sample.appKind, hint: sample.appKindHint, icon: materialIcon('mail') },
                   ]}
                   onChange={() => {}}
                 />
                 <Choice
                   title={sample.sort}
-                  icon={ArrowsDownUp}
+                  icon={materialIcon('swap_vert')}
                   value={sort}
                   options={[
                     { value: 'newest', label: sample.newest },
@@ -651,7 +653,7 @@ export default function Parts({ env }: { env: Env }) {
                   onDone={() => dialog.current?.close()}
                   done={t.common.save}
                   start={
-                    <Button kind="text" icon={Trash}>
+                    <Button kind="text" icon={materialIcon('delete')}>
                       {t.common.remove}
                     </Button>
                   }
@@ -699,14 +701,7 @@ export default function Parts({ env }: { env: Env }) {
 
           <PartGroup group="messages">
             <Part name="Notice" use={use.notice}>
-              <Notice
-                title={sample.noticeTitle}
-                action={
-                  <Button kind="outlined" size="small">
-                    {sample.noticeAction}
-                  </Button>
-                }
-              >
+              <Notice title={sample.noticeTitle} action={<Button kind="outlined">{sample.noticeAction}</Button>}>
                 {sample.noticeText}
               </Notice>
             </Part>
@@ -794,7 +789,7 @@ export default function Parts({ env }: { env: Env }) {
                   color: wheelDots(wheel)[i].color,
                   name: [t.colors.dynamic.source, t.colors.preview.secondary, t.colors.preview.tertiary][i],
                   disabled: !canSetBaseColor(wheel, which),
-                  onChange: (color, lock) => setWheel((d) => withBaseColor(d, which, color, lock)),
+                  onChange: (color, lock) => setWheel((d) => withBaseColor(d, which, color)),
                   ...(which === 'source' && {
                     locked: !!wheel.sourceLocked,
                     onLock: (locked: boolean) => setWheel((d) => ({ ...d, sourceLocked: locked || undefined })),
@@ -927,9 +922,9 @@ function fieldTypes(): FieldType[] {
           type: 'select',
           segments: true,
           options: [
-            { value: 'light', label: t.library.themes.light, icon: Sun },
-            { value: 'auto', label: t.library.themes.auto, icon: CircleHalf },
-            { value: 'dark', label: t.library.themes.dark, icon: Moon },
+            { value: 'light', label: t.library.themes.light, icon: materialIcon('light_mode') },
+            { value: 'auto', label: t.library.themes.auto, icon: materialIcon('contrast') },
+            { value: 'dark', label: t.library.themes.dark, icon: materialIcon('dark_mode') },
           ],
         },
         {
@@ -939,10 +934,10 @@ function fieldTypes(): FieldType[] {
           cards: true,
           default: 'single',
           options: [
-            { value: 'single', label: f.layouts.single, icon: File },
-            { value: 'full', label: f.layouts.wide, icon: ArrowsHorizontal },
-            { value: 'sidebar-left', label: f.layouts.left, icon: ColumnsPlusLeft },
-            { value: 'sidebar-right', label: f.layouts.right, icon: ColumnsPlusRight },
+            { value: 'single', label: f.layouts.single, icon: materialIcon('draft') },
+            { value: 'full', label: f.layouts.wide, icon: materialIcon('swap_horiz') },
+            { value: 'sidebar-left', label: f.layouts.left, icon: materialIcon('add_column_left') },
+            { value: 'sidebar-right', label: f.layouts.right, icon: materialIcon('add_column_right') },
           ],
         },
         { name: 'icon', label: sample.icon, type: 'select', icons: true, options: iconOptions(t.blocks.icons) },
@@ -952,8 +947,8 @@ function fieldTypes(): FieldType[] {
           type: 'select',
           locked: true,
           options: [
-            { value: 'standard', label: sample.standardKind, hint: sample.standardKindHint, icon: AppWindow },
-            { value: 'app', label: sample.appKind, hint: sample.appKindHint, icon: EnvelopeSimple },
+            { value: 'standard', label: sample.standardKind, hint: sample.standardKindHint, icon: materialIcon('web_asset') },
+            { value: 'app', label: sample.appKind, hint: sample.appKindHint, icon: materialIcon('mail') },
           ],
         },
       ],
@@ -1062,7 +1057,7 @@ function FieldTypes({ env }: { env: Env }) {
       placement: 'top',
       status: 'published',
       look: 'auto',
-      icon: 'heart',
+      icon: 'favorite',
       kind: 'standard',
       page,
       tags: data.relations.categories.slice(0, 2).map((o) => o.value),

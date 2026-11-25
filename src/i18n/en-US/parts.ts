@@ -469,8 +469,13 @@ export const parts = {
       bottomSheet:
         'A sheet from the bottom: modal over the page, on a computer as a dialog in the middle, for example, the booking sheet, or standard at the bottom of the screen, with the page usable behind it, dragged up and down.',
       carousel:
-        'Cards or images in a row that are swiped sideways, with dots under them: all the same size, in several sizes, one large (from the start or in the middle) and one at a time.',
-      dialogKinds: { basic: 'Basic', icon: 'With icon, list, and divider', container: 'Only the box' },
+        'Cards or images in a row that are swiped sideways, with dots under them: all the same size, in several shapes, in several sizes, one large (from the start or in the middle) and one at a time.',
+      dialogKinds: {
+        basic: 'Basic',
+        icon: 'With icon, list, and divider',
+        container: 'Only the box',
+        fullScreen: 'Full screen, a basic dialog from 600 dp',
+      },
       sheetKinds: {
         modal: 'Modal, a dialog on a computer',
         modalSideSheet: 'Modal, a side sheet on a computer',
@@ -486,6 +491,7 @@ export const parts = {
       layouts: {
         uncontained: 'All the same size',
         multiBrowse: 'Several sizes',
+        multiAspect: 'Several shapes, free scrolling',
         hero: 'One large',
         heroCenter: 'One large in the middle',
         narrow: 'Uncontained, in a narrow column',
@@ -494,6 +500,9 @@ export const parts = {
       choices: ['First choice', 'Second choice', 'Third choice'],
       cancel: 'Cancel',
       accept: 'Accept',
+      openFullScreen: 'Open the full-screen dialog',
+      save: 'Save',
+      fullScreenHeading: 'New event',
       page: 'The page behind the sheet can still be used.',
       dragHandle: 'Expand or collapse the sheet',
       openSheet: 'Open the modal sheet',
@@ -612,6 +621,7 @@ export const parts = {
       actions: ['Book a time', 'Call', 'Write'],
       channel: 'Contact',
       channels: ['Phone', 'Email', 'Chat'],
+      selections: { single: 'Select one or none', multiple: 'Select any', required: 'Select one' },
       mode: 'Mode',
       modes: ['Light', 'Dark'],
       style: 'Style',
@@ -718,9 +728,9 @@ export const parts = {
       content: "The page's content stands here.",
       openRail: 'Open navigation',
       search:
-        'The search field and what it opens: the field with the button back and the results that fit what is typed. A search view driven by the page also groups its results under a name, shows a key beside an item, and keeps one item that cannot be used now. The search bar can be a button that opens the view, and a group has its name over it (a category label).',
+        'The search field and what it opens: the field with the button back and the results that fit what is typed. A search view driven by the page also groups its results under a name, shows a key beside an item, and keeps one item that cannot be used now. The search bar can be a button that opens the view, and a group has its name over it (a category label). The divided style has one container with a line under the field; Material 3 Expressive says it is not recommended, so use the contained style unless you need it.',
       toolbar:
-        'Actions in a row: the whole width at the bottom, as the bar at the bottom of a phone, or floating, on the surface or in the accent, across or vertical, also with a button beside it and folded into the button.',
+        'Actions in a row: the whole width at the bottom, as the bar at the bottom of a phone, or floating, on the surface or in the accent, across or vertical, also with a button beside it and folded into the button. The bar at the bottom can hold the main action in the middle, instead of a button beside it: the other actions are split evenly around it.',
       name: 'Navigation',
       destinations: ['Home', 'Search', 'Messages', 'Profile'],
       sections: ['Start', 'You'],
@@ -734,10 +744,10 @@ export const parts = {
       viewOpen: 'Open the search view',
       viewGroups: ['Recent', 'Suggested'],
       viewItems: [
-        { headline: 'Prices', supporting: 'A page', icon: 'clock' },
-        { headline: 'Opening hours', supporting: 'A page', icon: 'clock' },
-        { headline: 'Bold', shortcut: 'Ctrl+B', keyShortcuts: 'Control+B', icon: 'text-b', pressed: true },
-        { headline: 'Redo', supporting: 'Nothing to redo', icon: 'arrow-u-up-right', disabled: true },
+        { headline: 'Prices', supporting: 'A page', icon: 'schedule' },
+        { headline: 'Opening hours', supporting: 'A page', icon: 'schedule' },
+        { headline: 'Bold', shortcut: 'Ctrl+B', keyShortcuts: 'Control+B', icon: 'format_bold', pressed: true },
+        { headline: 'Redo', supporting: 'Nothing to redo', icon: 'redo', disabled: true },
       ],
       viewCount: (n: number) => (n === 1 ? '1 result' : `${n} results`),
       results: [
@@ -750,6 +760,9 @@ export const parts = {
       bar: 'The bar at the bottom',
       withFab: 'With a button',
       collapsed: 'Folded up',
+      viewOpenDivided: 'Open the divided search view',
+      divided: 'Divided style',
+      withPrimary: 'With the main action in it',
       book: 'Book a time',
       call: 'Call',
     },
@@ -817,6 +830,8 @@ export const parts = {
       minutes: 'The minutes',
       wrong: 'Typed wrong',
       twelveHours: '12-hour',
+      scrollPicker: 'Scrolling',
+      inline: 'In the page',
       horizontal: 'The dial beside them',
     },
   },

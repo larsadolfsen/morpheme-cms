@@ -54,7 +54,7 @@ const app = join(site, 'src', 'apps', 'app_a030dfba69793996');
 mkdirSync(app, { recursive: true });
 writeFileSync(
   join(app, 'app.json'),
-  '{"api":7,"label":"Fixture","publisher":"Example","license":"MIT","icon":"event","hint":"An app for this check.","version":"1.0.0"}',
+  '{"api": 8,"label":"Fixture","publisher":"Example","license":"MIT","icon":"event","hint":"An app for this check.","version":"1.0.0"}',
 );
 writeFileSync(join(app, 'LICENSE'), 'MIT License\n\nCopyright (c) Example\n');
 writeFileSync(join(app, 'worker.js'), "export default { async fetch() { return new Response('ok') } }\n");

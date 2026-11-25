@@ -8,10 +8,10 @@
      headline regular in the headline-large size, the month and year and the supporting text in on-surface-variant, the
      line under the header in outline variant; days in 40px circles with a state layer, the range's band in the
      secondary container. */
-  --mo-comp-date-picker-docked-radius: var(--mo-sys-shape-corner-large);
-  --mo-comp-date-picker-day-radius: var(--mo-sys-shape-corner-full);
+  --mo-comp-date-picker-docked-container-shape: var(--mo-sys-shape-corner-large);
+  --mo-comp-date-picker-docked-date-container-shape: var(--mo-sys-shape-corner-full);
   --mo-comp-date-picker-supporting-color: var(--mo-sys-color-on-surface-variant);
   --mo-comp-date-picker-menu-button-text: var(--mo-sys-color-on-surface-variant);
-  --mo-comp-date-picker-day-hover: var(--mo-sys-state-mo-hover-layer);
+  --mo-comp-date-picker-day-hover: var(--mo-sys-state-hover-state-layer-color);
   --mo-comp-date-picker-range-surface: var(--mo-sys-color-surface-container-high);
 }

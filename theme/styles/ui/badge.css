@@ -1,5 +1,5 @@
 /*
-  Badges (Badge, badgeClass; m3.material.io/components/badges): .mo-badge with .mo-badge__small (a dot) or .mo-badge__large (a
+  Badges (Badge, badgeClass; m3.material.io/components/badges): .mo-badge with .mo-badge.mo-is-small (a dot) or .mo-badge.mo-is-large (a
   number); on what it is about in .mo-badge__anchor (an icon, or an icon button: at its icon's top end corner), else after a
   label (a navigation drawer's item: at its end); what screen readers read in .mo-badge__label.
     --mo-comp-badge-surface, --mo-comp-badge-text, --mo-comp-badge-shape
@@ -16,8 +16,8 @@
     align-items: center;
     justify-content: center;
     border-radius: var(--mo-comp-badge-shape, var(--mo-sys-shape-corner-full));
-    background: var(--mo-comp-badge-surface, var(--mo-sys-block-accent));
-    color: var(--mo-comp-badge-text, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-badge-surface, var(--mo-comp-block-accent));
+    color: var(--mo-comp-badge-text, var(--mo-comp-block-on-accent));
     pointer-events: none;
   }
   /* A status tone (Badge `tone`): the dot in the tone's colour instead of the error colour. */
@@ -33,11 +33,11 @@
   .mo-badge[data-tone='unknown'] {
     background: var(--mo-comp-badge-unknown, var(--mo-sys-color-outline));
   }
-  .mo-badge__small {
+  :where(.mo-badge).mo-is-small {
     width: var(--mo-comp-badge-small-size, 0.375rem);
     height: var(--mo-comp-badge-small-size, 0.375rem);
   }
-  .mo-badge__large {
+  :where(.mo-badge).mo-is-large {
     min-width: var(--mo-comp-badge-large-size, 1rem);
     height: var(--mo-comp-badge-large-size, 1rem);
     padding: 0 var(--mo-comp-badge-padding, 0.25rem);
@@ -62,12 +62,12 @@
     display: inline-flex;
     vertical-align: middle;
   }
-  .mo-badge__anchor > .mo-badge__small {
+  .mo-badge__anchor > :where(.mo-badge).mo-is-small {
     position: absolute;
     top: calc(var(--mo-comp-badge-anchor-inset, 0px) - var(--mo-comp-badge-small-size, 0.375rem) / 2);
     left: calc(100% - var(--mo-comp-badge-anchor-inset, 0px) - var(--mo-comp-badge-small-size, 0.375rem));
   }
-  .mo-badge__anchor > .mo-badge__large {
+  .mo-badge__anchor > :where(.mo-badge).mo-is-large {
     position: absolute;
     top: calc(var(--mo-comp-badge-anchor-inset, 0px) - var(--mo-comp-badge-large-size, 1rem) / 2);
     left: calc(100% - var(--mo-comp-badge-anchor-inset, 0px) - 0.25rem);

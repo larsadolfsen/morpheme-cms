@@ -4,16 +4,26 @@
 // theme or the look of a block, is the standard theme's, styled by the theme in use's CSS. The site and the editor
 // reach the theme as @theme (themePlugin: the theme in use's file, else the standard theme's), and the site's own
 // parts (src/site/) as @site (aliases): for packages/editor/astro.mjs and packages/editor/scripts/check-content.mjs. Stops with what is
-// wrong, when the theme named is not installed or a folder in src/themes/ is a malformed store id (a store id is theme_ + 16 hex characters). Also the virtual modules with all Phosphor's icons (allIconsModule) and with the theme's coverage of Material's parts
+// wrong, when the theme named is not installed or a folder in src/themes/ is a malformed store id (a store id is theme_ + 16 hex characters). Also the virtual module with the theme's and the icon pack's icons (themeIconsModule) and with the theme's coverage of Material's parts
 // (coverageModule, site/themeCoverageFiles.mjs) and with what the site's files tell the site settings (detectFacts).
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { svgParts } from '@morphemecms/cms/lib/svg.mjs';
 import { declarationProblems, ownerId } from '@morphemecms/cms/lib/licenses.mjs';
-import { installedPacks, isIconName, packFolder, packProblems, phosphorFile, svgProblems, usedIcons } from './icons.mjs';
+import { installedPacks, isIconName, packFolder, packProblems, svgProblems } from './icons.mjs';
 import { MATERIAL_ALL, MATERIAL_SSR, materialModule, materialSsrModule } from './materialSymbols.mjs';
-import { ICON_PACK_FILE, ICON_PACK_LICENSE, SYSTEM_PACKS, THEME_PACKS_FOLDER, packInUse, packTheme, themePackId } from './iconPacks.mjs';
+import {
+  ICON_PACK_FILE,
+  ICON_PACK_LICENSE,
+  RETIRED_PACKS,
+  SYSTEM_PACKS,
+  isStorePack,
+  THEME_PACKS_FOLDER,
+  packInUse,
+  packTheme,
+  themePackId,
+} from './iconPacks.mjs';
 import { STATEMENT_FILE, statementProblems } from '@morphemecms/cms/lib/accessibility.mjs';
 import { MOTION_SCHEMES } from '@morphemecms/cms/lib/motion-schemes.mjs';
 import { templateProblems } from '@morphemecms/cms/lib/page-template.mjs';
@@ -120,7 +130,9 @@ function iconProblems(theme) {
       continue;
     }
     if (!isIconName(name))
-      problems.push(`${file}: the site draws no icon named "${name}". An icon is named as in Phosphor (e.g. map-pin, play-fill).`);
+      problems.push(
+        `${file}: the site draws no icon named "${name}". An icon is named as in Material Symbols (e.g. location_on, play_arrow-fill).`,
+      );
     problems.push(...svgProblems(file, readFileSync(new URL(file, root), 'utf8')));
   }
   return problems;
@@ -180,35 +192,31 @@ export function iconPackLicenses() {
 }
 
 /** The folders a theme's icons come from, first the one that wins: its own icons/, then the standard theme's (it has
- * none), then the icon pack in use's (iconPack). */
-const iconFolders = (theme) =>
-  [...new Set([theme, STANDARD_THEME])].map((t) => `${themeFolder(t)}/icons/`).concat(`${packFolder(iconPack(theme))}/`);
+ * none), then the icon pack in use's (iconPack); the system's pack has no files of its own to draw: Material Symbols' set is drawn
+ * for every name a theme and a pack have none of. */
+const iconFolders = (theme) => {
+  const pack = iconPack(theme);
+  return [...new Set([theme, STANDARD_THEME])]
+    .map((t) => `${themeFolder(t)}/icons/`)
+    .concat(SYSTEM_PACKS.includes(pack) ? [] : `${packFolder(pack)}/`);
+};
 
-/** Whether an icon's file is Phosphor's own (as its package has it, as Phosphor's pack has it): then it needs no
- * putting in Phosphor's place. */
-const isPhosphors = (name, svg) => svg.trim() === phosphorFile(name)?.trim();
-
-/** The theme in use's icons as their files' text, by name: its own (icons/<name>.svg), else its icon pack's (iconPack);
- * not those that are Phosphor's own, which the site and the editor draw as they are (all, with Phosphor's pack). */
+/** The theme in use's icons as their files' text, by Material Symbols name (`<name>`, `<name>-fill`): its own (icons/<name>.svg), else its icon pack's
+ * (iconPack). The others are Material Symbols' own. */
 function themeIcons() {
   const icons = {};
   for (const dir of iconFolders(activeTheme()).reverse())
     if (has(dir))
       for (const f of readdirSync(new URL(dir, root)))
         if (f.endsWith('.svg')) icons[f.slice(0, -'.svg'.length)] = readFileSync(new URL(dir + f, root), 'utf8');
-  for (const [name, svg] of Object.entries(icons)) if (isPhosphors(name, svg)) delete icons[name];
   return icons;
 }
 
 /** An icon of a theme (the one in use, if none is given) as its file's text: its own (icons/<name>.svg), else its icon
- * pack's; null when it is Phosphor's own, or neither has it (then it is Phosphor's). For what is drawn outside Vite: the
- * play button of a video in the text (rehypeVideo, packages/editor/astro.mjs). In Vite, themePlugin puts them in Phosphor's place. */
+ * pack's; null when neither has it (then it is Material Symbols'). For what is drawn outside Vite: the
+ * play button of a video in the text (rehypeVideo, packages/editor/astro.mjs). In Vite, themePlugin's virtual module holds them. */
 export function themeIcon(name, theme = activeTheme()) {
-  for (const dir of iconFolders(theme))
-    if (has(`${dir}${name}.svg`)) {
-      const svg = readFileSync(new URL(`${dir}${name}.svg`, root), 'utf8');
-      return isPhosphors(name, svg) ? null : svg;
-    }
+  for (const dir of iconFolders(theme)) if (has(`${dir}${name}.svg`)) return readFileSync(new URL(`${dir}${name}.svg`, root), 'utf8');
   return null;
 }
 
@@ -229,17 +237,19 @@ export function motionProblems() {
   }
 }
 
-/** What is wrong with the system's icon packs (packProblems; a theme's own are its themeProblems) and the choice of one:
- * src/data/icons.json naming one that is not there. */
+/** What is wrong with the system's icon packs and those installed from the store (packProblems, which does not ask a pack to have every
+ * icon; a theme's own are its themeProblems) and the choice of one: src/data/icons.json naming one that is not there. A choice of Phosphor or
+ * Lucide (RETIRED_PACKS) or of a store pack that is not installed is no problem: the site draws Material Symbols. */
 export function iconPackProblems() {
-  const used = usedIcons();
   const installed = installedPacks();
-  const problems = SYSTEM_PACKS.filter((id) => installed.includes(id)).flatMap((id) => packProblems(id, used));
-  for (const id of SYSTEM_PACKS)
-    if (!installed.includes(id)) problems.push(`${packFolder(id)}/${ICON_PACK_FILE} is missing: run npm run icons.`);
+  const problems = installed.filter((id) => SYSTEM_PACKS.includes(id) || isStorePack(id)).flatMap((id) => packProblems(id));
+  for (const id of SYSTEM_PACKS) if (!installed.includes(id)) problems.push(`${packFolder(id)}/${ICON_PACK_FILE} is missing.`);
   try {
     const chosen = chosenPack();
-    if (chosen !== undefined && (typeof chosen !== 'string' || !installed.includes(chosen)))
+    if (
+      chosen !== undefined &&
+      (typeof chosen !== 'string' || !(installed.includes(chosen) || RETIRED_PACKS.includes(chosen) || isStorePack(chosen)))
+    )
       problems.push(
         `${ICONS_FILE}: the icon pack ${JSON.stringify(chosen)} isn't installed. Choose another under Appearance › Icon packs.`,
       );
@@ -249,94 +259,27 @@ export function iconPackProblems() {
   return problems;
 }
 
-// Phosphor, as the site and the editor import it: its React icons (`import { CaretRight } from '@phosphor-icons/react'`)
-// and its SVG files as text (`@phosphor-icons/core/assets/regular/caret-right.svg?raw`, `…/fill/play-fill.svg?raw`, also
-// in the import.meta.glob of Svg, packages/editor/src/icon.tsx). themePlugin puts the theme's icons in their place.
-const PHOSPHOR_REACT = '@phosphor-icons/react';
-const PHOSPHOR_FILE = /@phosphor-icons\/core\/assets\/(?:regular|fill)\/([a-z0-9-]+)\.svg\?raw$/;
-const REACT_ICONS = '\0site-theme-icons';
-const FILE_ICON = '\0site-theme-icon:';
 const MATERIAL_ALL_ID = `\0${MATERIAL_ALL}`;
 const MATERIAL_SSR_ID = `\0${MATERIAL_SSR}`;
 
-/** The React component's name of a Phosphor icon by its file's name (`caret-right` → CaretRight), when Phosphor has it. */
-const reactName = (name) => {
-  const pascal = name.replace(/(^|-)([a-z0-9])/g, (_, __, c) => c.toUpperCase());
-  return has(`node_modules/@phosphor-icons/react/dist/csr/${pascal}.es.js`) ? pascal : null;
-};
-
-/** `@phosphor-icons/react` with the theme's icons in place of Phosphor's, the rest Phosphor's: each one the theme has
- * draws its SVG file in the file's viewBox, with the props of a Phosphor icon (size, color, weight, mirrored, alt, the
- * svg's own; from IconContext as Phosphor's), through Phosphor's IconBase; `weight="fill"` its `<name>-fill`, if the
- * theme has one, else the same as the others. */
-function reactIcons(icons) {
-  const lines = [
-    "import { createElement, forwardRef, useContext } from 'react';",
-    `import { IconBase, IconContext } from '${PHOSPHOR_REACT}';`,
-    `export * from '${PHOSPHOR_REACT}';`,
-    'const draw = (regular, fill) =>',
-    '  forwardRef((props, ref) => {',
-    '    const context = useContext(IconContext);',
-    "    const weight = props.weight ?? context.weight ?? 'regular';",
-    '    const color = props.color ?? context.color;',
-    "    const [viewBox, inner] = weight === 'fill' && fill ? fill : regular;",
-    // A colour of its own also for lines (a theme's own icon drawn with stroke="currentColor"), not only for what is filled.
-    "    const drawn = createElement('g', { color: color === 'currentColor' ? undefined : color, dangerouslySetInnerHTML: { __html: inner } });",
-    '    return createElement(IconBase, { ...props, ref, viewBox, weights: new Map([[weight, drawn]]) });',
-    '  });',
-  ];
-  const parts = (name) => {
-    const svg = svgParts(icons[name]);
-    return svg && JSON.stringify([svg.viewBox, svg.inner]);
-  };
-  for (const name of Object.keys(icons)) {
-    const component = reactName(name);
-    if (!component || !parts(name)) continue;
-    lines.push(
-      `export const ${component}Icon = /* @__PURE__ */ draw(${parts(name)}, ${parts(`${name}-fill`) ?? 'null'});`,
-      `export { ${component}Icon as ${component} };`,
-    );
-  }
-  return lines.join('\n');
-}
-
-/** The text of an icon's SVG file as Phosphor's are (in the text's colour, `fill="currentColor"`), not JSON-encoded. */
-const themedSvg = (svg) => {
-  const { viewBox, inner } = svgParts(svg);
-  const box = viewBox ? ` viewBox="${viewBox}"` : '';
-  return `<svg xmlns="http://www.w3.org/2000/svg"${box} fill="currentColor">${inner}</svg>`;
-};
-
-/** An icon's SVG file as Phosphor's are, for an import of Phosphor's. */
-const fileIcon = (svg) => `export default ${JSON.stringify(themedSvg(svg))};`;
-
-/** The virtual module with all Phosphor's icons (regular) as text (src/allIcons.ts). */
-export const ALL_ICONS = 'virtual:all-icons';
-/** The same on the server render only (the site's pages are drawn with it at once: icon.tsx); in the browser it is empty, so the
- * set is not in the site's bundle (the browser loads ALL_ICONS lazily, as the editor does). */
-export const ALL_ICONS_SSR = 'virtual:all-icons-ssr';
+/** The virtual module with the theme's and the icon pack in use's icons, by Material Symbols name, as text (src/icon.tsx; themeIconsModule). */
+export const THEME_ICONS = 'virtual:theme-icons';
 /** The virtual module with the theme's coverage of Material's parts (coverageModule). */
 export const THEME_COVERAGE = 'virtual:theme-coverage';
 /** The virtual module with what the site's files tell the site settings (detectFacts, lib/siteFacts.mjs, reduced to what the settings read: reduceFacts; site/settings.ts). */
 export const SITE_FACTS = 'virtual:site-facts';
 
-/** The module code of all Phosphor's icons in `folder` (its `regular/` folder), by the keys `import.meta.glob` gave, the
- * theme's (`icons`, as themeIcons returns them) in place of Phosphor's own. The files are read one at a time: a glob
- * opens them all at once, and the build image's limit of open files (1024) stops the build.
- * `onlyThemed`: only the icons the theme has, none of Phosphor's own (the icon pack in use is not Phosphor's: nothing
- * of Phosphor's is then drawn, an icon neither the pack nor Material Symbols has is MISSING). */
-export function allIconsModule(folder, icons, onlyThemed = false) {
+/** The module code of the theme's icons (`icons`, as themeIcons returns them): each one's `<svg>` text, in the text's colour (`fill="currentColor"`),
+ * by its name. Only those that draw (svgParts). @param {Record<string, string>} icons */
+export function themeIconsModule(icons) {
   const all = {};
-  for (const file of readdirSync(folder)
-    .filter((f) => f.endsWith('.svg'))
-    .sort()) {
-    const name = file.slice(0, -'.svg'.length);
-    if (onlyThemed && !svgParts(icons[name])) continue;
-    all[`/node_modules/@phosphor-icons/core/assets/regular/${file}`] = svgParts(icons[name])
-      ? themedSvg(icons[name])
-      : readFileSync(join(folder, file), 'utf8');
+  for (const name of Object.keys(icons).sort()) {
+    const parts = svgParts(icons[name]);
+    if (!parts) continue;
+    const box = parts.viewBox ? ` viewBox="${parts.viewBox}"` : '';
+    all[name] = `<svg xmlns="http://www.w3.org/2000/svg"${box} fill="currentColor">${parts.inner}</svg>`;
   }
-  return `export const allIcons = ${JSON.stringify(all)};`;
+  return `export const themeIcons = ${JSON.stringify(all)};`;
 }
 
 /** What a theme is missing (the standard theme: of THEME_FILES and the look of every standard block, another: of
@@ -426,7 +369,11 @@ export function themeProblems(theme) {
     const own = ownPacks(theme);
     if (
       (manifest.icons !== undefined || theme === STANDARD_THEME) &&
-      !(SYSTEM_PACKS.includes(manifest.icons) || (theme !== STANDARD_THEME && own.includes(manifest.icons)))
+      !(
+        SYSTEM_PACKS.includes(manifest.icons) ||
+        RETIRED_PACKS.includes(manifest.icons) ||
+        (theme !== STANDARD_THEME && own.includes(manifest.icons))
+      )
     )
       problems.push(
         `${themeFolder(theme)}/theme.json: "icons" is the icon pack the theme uses when none is chosen: ${[...SYSTEM_PACKS, ...own].map((p) => `"${p}"`).join(', ')}.`,
@@ -467,8 +414,7 @@ export function themeProblems(theme) {
     : [])
     if (!packs.includes(entry))
       problems.push(`${themeFolder(theme)}/${THEME_PACKS_FOLDER}/${entry}: an icon pack is a folder with its ${ICON_PACK_FILE}.`);
-  const used = usedIcons();
-  return [...problems, ...iconProblems(theme), ...packs.flatMap((p) => packProblems(themePackId(theme, p), used))];
+  return [...problems, ...iconProblems(theme), ...packs.flatMap((p) => packProblems(themePackId(theme, p)))];
 }
 
 // A site's own parts (src/site/<file>), else the package's standard ones (defaults/<file>): `@site/<file>`. With `/` only, as Vite's ids (Windows).
@@ -507,36 +453,23 @@ export const aliases = () => ({
  * (siteFile), and `@theme/<file>` is the theme in use's file, else the standard theme's. A glob
  * (`import.meta.glob('@theme/blocks/*\/View.tsx')`) is the theme in use's; whoever globs puts the standard
  * theme's under it (packages/editor/src/standard/siteLooks.ts, packages/editor/src/standard/themeBlocks.ts).
- * And the theme's icons (themeIcons: its own, else the icon pack in use's, iconPack) in Phosphor's place, on the site
- * and in the editor alike: an import of `@phosphor-icons/react` is Phosphor's with the theme's icons in place of its own
- * (reactIcons), and an SVG file of Phosphor's as text (`?raw`) the theme's, when it has one. An icon neither has is
- * Phosphor's (check:content stops at a pack without one the site or the editor draws: packProblems). With Phosphor's
- * pack and no icons of its own nothing is changed. The pack is read when the site is built, so a new choice
+ * And the theme's icons (themeIcons: its own, else the icon pack in use's, iconPack) as the virtual module `virtual:theme-icons`, by Material Symbols
+ * name, which Svg (packages/editor/src/icon.tsx) draws before Material Symbols' own. The pack is read when the site is built, so a new choice
  * (src/data/icons.json) or theme is in the site and the editor after the next build. */
 export function themePlugin() {
   // With forward slashes, as Vite writes ids: on Windows a mixed id (C:\…\theme\components/MobileNav.astro) hides a
   // component's script from Astro, which looks it up with forward slashes.
   const themes = [activeTheme(), STANDARD_THEME].map((t) => fileURLToPath(new URL(`${themeFolder(t)}/`, root)).replaceAll('\\', '/'));
   const icons = themeIcons();
-  const own = Object.keys(icons).length > 0;
-  // Owner rule: Phosphor's own icons are drawn only when Phosphor is the pack in use (chosen, or the theme's).
-  const onlyThemed = own && iconPack(activeTheme()) !== 'phosphor';
   return {
     name: 'site-theme',
     enforce: 'pre',
-    // Phosphor's package bundled for the browser, also when the first import of it is the theme's icons'.
-    config: () => (own ? { optimizeDeps: { include: [PHOSPHOR_REACT] } } : {}),
-    resolveId(source, importer) {
-      // The theme's icons import Phosphor's own.
-      if (source === PHOSPHOR_REACT) return own && importer !== REACT_ICONS ? REACT_ICONS : null;
-      if (source === ALL_ICONS) return '\0' + ALL_ICONS;
-      if (source === ALL_ICONS_SSR) return '\0' + ALL_ICONS_SSR;
+    resolveId(source) {
+      if (source === THEME_ICONS) return '\0' + THEME_ICONS;
       if (source === THEME_COVERAGE) return '\0' + THEME_COVERAGE;
       if (source === SITE_FACTS) return '\0' + SITE_FACTS;
       if (source === MATERIAL_ALL) return MATERIAL_ALL_ID;
       if (source === MATERIAL_SSR) return MATERIAL_SSR_ID;
-      const icon = source.match(PHOSPHOR_FILE)?.[1];
-      if (icon) return svgParts(icons[icon]) ? FILE_ICON + icon : null;
       if (source.startsWith('@site/')) return siteFile(source.slice('@site/'.length));
       if (!source.startsWith('@theme/')) return null;
       const file = source.slice('@theme/'.length);
@@ -550,16 +483,9 @@ export function themePlugin() {
     load(id, options) {
       if (id === MATERIAL_ALL_ID) return materialModule();
       if (id === MATERIAL_SSR_ID) return materialSsrModule(options?.ssr);
-      if (id === REACT_ICONS) return reactIcons(icons);
+      if (id === '\0' + THEME_ICONS) return themeIconsModule(icons);
       if (id === '\0' + THEME_COVERAGE) return coverageModule(activeTheme());
       if (id === '\0' + SITE_FACTS) return `export default ${JSON.stringify(reduceFacts(detectFacts(process.cwd())))};`;
-      if (id === '\0' + ALL_ICONS_SSR)
-        return options?.ssr
-          ? allIconsModule(fileURLToPath(new URL('node_modules/@phosphor-icons/core/assets/regular/', root)), icons, onlyThemed)
-          : 'export const allIcons = {};';
-      if (id === '\0' + ALL_ICONS)
-        return allIconsModule(fileURLToPath(new URL('node_modules/@phosphor-icons/core/assets/regular/', root)), icons, onlyThemed);
-      if (id.startsWith(FILE_ICON)) return fileIcon(icons[id.slice(FILE_ICON.length)]);
       return null;
     },
   };

@@ -1,6 +1,6 @@
 /*
   The Dialog (Dialog.tsx, ask.tsx): the container, the modal dialog in the middle of the screen over the scrim, the basic dialog's icon, headline,
-  supporting text, divider and actions, and the compact window. The doc paragraph with its variables is in tokens/ui/comp/.
+  supporting text, divider and actions, the compact window and the full-screen kind (DG1: full screen below 600 dp, the basic dialog from 600 dp). The doc paragraph with its variables is in tokens/ui/comp/.
   Moved here from ui.css with its rules and keyframes unchanged and in their order, in the same layer. Imported by base.css BEFORE ui.css, like the Checkbox
   and the Chips: the date picker's and the time picker's dialogs are `dialog-modal date-picker-dialog` and `dialog-modal time-picker-dialog` (DatePicker.tsx,
   TimePicker.tsx), and the picker rules, still in ui.css, set the same properties at the same specificity and came after them; they must still win
@@ -12,14 +12,14 @@
     /* M3, Density: "Don't increase the density in components that alert a person of changes, such as snackbars or dialogs". The dialog and every part in
        it (its buttons, a field, a list row) are at Medium at every step, so a dialog is the same height at -3 as at 0 (PM, 21 Nov 2026). */
     --mo-sys-density: 0;
-    border-radius: var(--mo-comp-dialog-container-shape, var(--mo-sys-block-radius));
+    border-radius: var(--mo-comp-dialog-container-shape, var(--mo-comp-block-radius));
     background: var(--mo-comp-dialog-surface, var(--mo-sys-elevation-level3-color));
     box-shadow:
-      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-dialog-line, var(--mo-comp-block-line)),
       var(--mo-comp-dialog-shadow, var(--mo-sys-elevation-level3-shadow));
   }
   /* A modal dialog: in the middle of the screen over the scrim, coming up a little as it opens. */
-  .mo-dialog__modal {
+  :where(dialog).mo-is-modal {
     width: calc(100% - 2rem);
     max-width: var(--mo-comp-dialog-max-width, 28rem);
     margin: auto;
@@ -29,20 +29,20 @@
     color: inherit;
   }
   /* The dialog itself has the focus when it opens (dialogFocus.ts), so no control looks chosen: no ring on the container. */
-  .mo-dialog__modal:focus {
+  :where(dialog).mo-is-modal:focus {
     outline: none;
   }
-  .mo-dialog__modal::backdrop {
+  :where(dialog).mo-is-modal::backdrop {
     background: var(
       --mo-comp-dialog-scrim,
-      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 50%, transparent)
+      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-comp-block-text)) 50%, transparent)
     );
   }
   @media (prefers-reduced-motion: no-preference) {
-    .mo-dialog__modal[open] {
+    :where(dialog).mo-is-modal[open] {
       animation: dialog-in var(--mo-sys-motion-spring-default-spatial);
     }
-    .mo-dialog__modal[open]::backdrop {
+    :where(dialog).mo-is-modal[open]::backdrop {
       animation: dialog-scrim-in var(--mo-sys-motion-spring-slow-effects);
     }
   }
@@ -60,12 +60,12 @@
 
   /* A basic dialog with its parts: the icon and the headline, the supporting text, what else it shows (scrolling when
      it is long), and the actions at its end. */
-  .mo-dialog__basic {
+  :where(.mo-dialog).mo-is-basic {
     display: flex;
     flex-direction: column;
     padding: var(--mo-comp-dialog-padding, 1.5rem);
   }
-  .mo-dialog__modal > .mo-dialog__basic {
+  :where(dialog).mo-is-modal > :where(.mo-dialog).mo-is-basic {
     max-height: calc(100dvh - 3rem);
   }
   .mo-dialog__icon {
@@ -74,7 +74,7 @@
     width: 1.5rem;
     height: 1.5rem;
     margin-bottom: 1rem;
-    color: var(--mo-comp-dialog-icon-color, var(--mo-sys-block-accent));
+    color: var(--mo-comp-dialog-icon-color, var(--mo-comp-block-accent));
   }
   .mo-dialog__headline {
     flex-shrink: 0;
@@ -89,12 +89,12 @@
   }
   .mo-dialog__supporting-text {
     flex-shrink: 0;
-    color: var(--mo-comp-dialog-supporting-text-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-dialog-supporting-text-color, var(--mo-comp-block-muted));
   }
   .mo-dialog__supporting-text > * + * {
     margin-top: 0.75rem;
   }
-  .mo-dialog__basic .mo-dialog__content {
+  :where(.mo-dialog).mo-is-basic .mo-dialog__content {
     min-height: 0;
     margin-inline: calc(-1 * var(--mo-comp-dialog-padding, 1.5rem));
     padding-inline: var(--mo-comp-dialog-padding, 1.5rem);
@@ -117,5 +117,139 @@
   }
   .mo-dialog__divider + .mo-dialog__actions {
     margin-top: 1rem;
+  }
+
+  /* The full-screen kind (m3.material.io/components/dialogs, Guidelines: "Full-screen dialogs are for compact breakpoints only, like mobile devices. For
+     medium and expanded breakpoints, use a basic dialog."). One markup, two looks: below 600 dp the container fills the screen (0 dp corners, no
+     elevation), the header is 56 dp with the close icon, the headline and the text button, and the content scrolls under it; from 600 dp the same parts
+     are the basic dialog: the headline, the content and, at the end, the dismissing and the confirming text buttons, in a grid with the header gone
+     (display: contents), so each part is one element in one place. Tokens: tokens/material/comp/full-screen-dialog.css. */
+  :where(.mo-dialog).mo-is-full-screen {
+    display: flex;
+    flex-direction: column;
+  }
+  .mo-dialog.mo-is-full-screen .mo-dialog__dismiss {
+    display: none;
+  }
+  @media (width >= 37.5rem) {
+    :where(.mo-dialog).mo-is-full-screen {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      grid-template-rows: auto minmax(0, 1fr) auto auto;
+      column-gap: 0.5rem;
+      padding: var(--mo-comp-dialog-padding, 1.5rem);
+    }
+    :where(dialog).mo-is-modal > :where(.mo-dialog).mo-is-full-screen {
+      max-height: calc(100dvh - 3rem);
+    }
+    .mo-dialog.mo-is-full-screen .mo-dialog__header {
+      display: contents;
+    }
+    .mo-dialog.mo-is-full-screen .mo-dialog__close {
+      display: none;
+    }
+    .mo-dialog.mo-is-full-screen .mo-dialog__headline {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+    .mo-dialog.mo-is-full-screen .mo-dialog__content {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      min-height: 0;
+      margin-inline: calc(-1 * var(--mo-comp-dialog-padding, 1.5rem));
+      padding-inline: var(--mo-comp-dialog-padding, 1.5rem);
+      overflow-y: auto;
+    }
+    .mo-dialog.mo-is-full-screen .mo-dialog__divider {
+      grid-column: 1 / -1;
+      grid-row: 3;
+      margin: 1rem calc(-1 * var(--mo-comp-dialog-padding, 1.5rem)) 0;
+    }
+    .mo-dialog.mo-is-full-screen .mo-dialog__dismiss {
+      display: block;
+      grid-column: 2;
+      grid-row: 4;
+      margin-top: 1.5rem;
+    }
+    .mo-dialog.mo-is-full-screen .mo-dialog__action {
+      grid-column: 3;
+      grid-row: 4;
+      margin-top: 1.5rem;
+    }
+  }
+  @media (width < 37.5rem) {
+    :where(dialog).mo-is-modal:has(> .mo-dialog.mo-is-full-screen) {
+      width: 100%;
+      max-width: none;
+      height: 100dvh;
+      max-height: none;
+    }
+    .mo-dialog.mo-is-full-screen {
+      height: 100%;
+      border-radius: var(--mo-comp-full-screen-dialog-container-shape);
+      background: var(--mo-comp-full-screen-dialog-container-color);
+      box-shadow: var(--mo-comp-full-screen-dialog-container-elevation);
+      timeline-scope: --mo-dialog-scroll;
+    }
+    .mo-dialog.mo-is-full-screen .mo-dialog__header {
+      display: flex;
+      flex-shrink: 0;
+      align-items: center;
+      gap: 0.5rem; /* "Padding between elements 8dp" */
+      box-sizing: border-box;
+      min-height: var(--mo-comp-full-screen-dialog-header-container-height);
+      /* "Top/left/right padding 24dp": the close icon's glyph and the text button's label stand 24 dp from the edges, each part having 12 dp of its own. */
+      padding-inline: 0.75rem;
+      background: var(--mo-comp-full-screen-dialog-header-container-color);
+      box-shadow: var(--mo-comp-full-screen-dialog-header-container-elevation);
+    }
+    .mo-dialog.mo-is-full-screen .mo-dialog__close {
+      flex-shrink: 0;
+      color: var(--mo-comp-full-screen-dialog-header-icon-color);
+    }
+    .mo-dialog.mo-is-full-screen .mo-dialog__headline {
+      flex: 1;
+      min-width: 0;
+      margin: 0;
+      overflow: hidden;
+      color: var(--mo-comp-full-screen-dialog-header-headline-color);
+      font-size: var(--mo-comp-full-screen-dialog-header-headline-size);
+      font-weight: var(--mo-comp-full-screen-dialog-header-headline-weight);
+      letter-spacing: var(--mo-comp-full-screen-dialog-header-headline-tracking);
+      line-height: var(--mo-comp-full-screen-dialog-header-headline-line-height);
+      text-align: start;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .mo-dialog.mo-is-full-screen .mo-dialog__action {
+      flex-shrink: 0;
+      margin-inline-start: auto;
+      color: var(--mo-comp-full-screen-dialog-header-action-label-text-color);
+    }
+    .mo-dialog.mo-is-full-screen .mo-dialog__divider {
+      flex-shrink: 0;
+      margin: 0;
+    }
+    .mo-dialog.mo-is-full-screen .mo-dialog__content {
+      flex: 1;
+      min-height: 0;
+      padding: 1.5rem; /* "Top/left/right padding 24dp" (specs) */
+      overflow-y: auto;
+      scroll-timeline: --mo-dialog-scroll block;
+    }
+    /* On scroll the header is in a surface container at the second elevation (the tokens' on-scroll values). */
+    @supports (animation-timeline: scroll()) {
+      .mo-dialog.mo-is-full-screen .mo-dialog__header {
+        animation: dialog-header-on-scroll linear both;
+        animation-timeline: --mo-dialog-scroll;
+        animation-range: 0 1.5rem;
+      }
+    }
+  }
+  @keyframes dialog-header-on-scroll {
+    to {
+      background: var(--mo-comp-full-screen-dialog-header-on-scroll-container-color);
+      box-shadow: var(--mo-comp-full-screen-dialog-header-on-scroll-container-elevation);
+    }
   }
 }

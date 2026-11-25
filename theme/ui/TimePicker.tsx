@@ -11,6 +11,8 @@
 // it; in the editor's previews it is only drawn, and with `onChange` (the editor's own fields) it works the same way,
 // here, and says the time picked (or '' for none). Its fixed texts (timePickerTexts) are the site's own, in
 // @site/texts, unless `texts` gives them (the editor's, in its language).
+// `kind` scroll starts the picker as Material's scroll time picker (hours and minutes in scroll fields) instead of the dial; `inline` draws that
+// picker in the page, with no text field, button or dialog, and the hidden input gets the time each time it changes.
 import { useEffect, useRef, type ReactNode } from 'react';
 import { siteText, locale } from '@morphemecms/cms/src/i18n';
 import { timePickerField } from '@theme/ui/timePicker.script';
@@ -18,7 +20,7 @@ import IconButton from '@theme/ui/IconButton';
 import TextField from '@theme/ui/TextField';
 import { timePickerTextsIn } from '@theme/ui/pickerTexts';
 import { timeOf, timeTyped } from '@theme/ui/dates';
-import type { TimePickerFormat, TimePickerOrientation, TimePickerTexts } from '@theme/ui/TimePickerContainer';
+import type { TimePickerFormat, TimePickerKind, TimePickerOrientation, TimePickerTexts } from '@theme/ui/TimePickerContainer';
 
 /** A time picker's fixed texts, in the language its times are written in (AM and PM the language's own). */
 export const timePickerTexts = (): TimePickerTexts => timePickerTextsIn(siteText, locale);
@@ -31,6 +33,8 @@ export default function TimePicker({
   error,
   timeFormat = '24h',
   orientation,
+  kind = 'dial',
+  inline = false,
   texts: given,
   onChange,
   className,
@@ -43,6 +47,8 @@ export default function TimePicker({
   error?: string | boolean;
   timeFormat?: TimePickerFormat;
   orientation?: TimePickerOrientation;
+  kind?: TimePickerKind;
+  inline?: boolean;
   texts?: TimePickerTexts;
   onChange?: (value: string) => void;
   className?: string;
@@ -53,12 +59,16 @@ export default function TimePicker({
   const format = twelve ? texts.format12 : texts.format;
   const typed = known ? timeTyped(value, texts.locale, twelve) : '';
   const box = useWorking(onChange, known ? value : '', typed);
+  const data = JSON.stringify({ texts, timeFormat, orientation, kind: inline ? 'scroll' : kind, inline });
+  if (inline)
+    return (
+      <div ref={box} className={['mo-time-picker__inline', className].filter(Boolean).join(' ')} data-time-picker={data}>
+        <input type="hidden" name={name} defaultValue={known ? value : ''} data-time-picker-value="" />
+        <div role="group" aria-label={label || texts.select} data-time-picker-dialog=""></div>
+      </div>
+    );
   return (
-    <div
-      ref={box}
-      className={['mo-time-picker__field', className].filter(Boolean).join(' ')}
-      data-time-picker={JSON.stringify({ texts, timeFormat, orientation })}
-    >
+    <div ref={box} className={['mo-time-picker__field', className].filter(Boolean).join(' ')} data-time-picker={data}>
       <TextField
         label={label}
         supporting={supporting ?? format}
@@ -71,7 +81,7 @@ export default function TimePicker({
         {...rest}
       />
       <IconButton
-        icon="clock"
+        icon="schedule"
         // Named by its field too (`Select time: Publish`): two time fields on one screen have two buttons a reader can tell apart.
         label={label ? `${texts.select}: ${label}` : texts.select}
         className="mo-time-picker__field-button"
@@ -80,7 +90,7 @@ export default function TimePicker({
         data-time-picker-open=""
       />
       <input type="hidden" name={name} defaultValue={known ? value : ''} data-time-picker-value="" />
-      <dialog className="mo-dialog__modal mo-time-picker__dialog" aria-label={texts.select} data-time-picker-dialog=""></dialog>
+      <dialog className="mo-is-modal mo-is-dialog" aria-label={texts.select} data-time-picker-dialog=""></dialog>
     </div>
   );
 }

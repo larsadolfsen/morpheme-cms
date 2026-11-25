@@ -9,13 +9,15 @@
 }
 @layer components {
   .mo-block-link-row {
-    --mo-comp-card-radius: var(--mo-sys-block-radius-small);
+    --mo-comp-elevated-card-container-shape: var(--mo-comp-block-radius-small);
+    --mo-comp-filled-card-container-shape: var(--mo-comp-block-radius-small);
+    --mo-comp-outlined-card-container-shape: var(--mo-comp-block-radius-small);
     --mo-comp-card-padding: 0.85rem 1.1rem 0.85rem 0.85rem;
   }
 }
 @layer components {
   a.mo-block-link-row:hover {
-    --mo-comp-outlined-card-outline-color: var(--mo-sys-block-accent);
+    --mo-comp-outlined-card-outline-color: var(--mo-comp-block-accent);
   }
 }
 @layer components {

@@ -281,7 +281,7 @@ async function checkSettingsAndMenu(width, height) {
   )
     problems.push(`${label} #settings: forkerte links: ${names}`);
 
-  // Icon packs: the three system packs (Material Symbols, Phosphor, Lucide) are listed, each with its samples (the Phosphor row has its name only: no Phosphor icon is drawn in the editor), and one is in use.
+  // Icon packs: the system pack Material Symbols is listed with its samples, Phosphor and Lucide are not (they left the package), and one is in use.
   // A site takes the package from node_modules, where a glob that skips it leaves the list empty.
   await go('appearance/icon-packs');
   await page.waitForTimeout(150);
@@ -291,11 +291,10 @@ async function checkSettingsAndMenu(width, height) {
       .filter((el, i, all) => all.indexOf(el) === i)
       .map((el) => ({ label: el.getAttribute('aria-label'), icons: el.querySelectorAll('svg').length })),
   );
-  const packNames = ['Material Symbols', 'Lucide'];
+  const packNames = ['Material Symbols'];
   const listed = await page.evaluate(() => document.querySelector('main')?.innerText ?? '');
-  if (!listed.includes('Phosphor')) problems.push(`${label} #appearance/icon-packs: the system pack Phosphor is not listed`);
-  if (packs.some((p) => p.label === daLibrary.iconPackSamples('Phosphor')))
-    problems.push(`${label} #appearance/icon-packs: the Phosphor row shows sample icons, but no Phosphor icon is drawn in the editor`);
+  for (const gone of ['Phosphor', 'Lucide'])
+    if (listed.includes(gone)) problems.push(`${label} #appearance/icon-packs: the pack ${gone} is listed, but it is not in the package`);
   for (const name of packNames) {
     const found = packs.find((p) => p.label === daLibrary.iconPackSamples(name));
     if (!found) problems.push(`${label} #appearance/icon-packs: the system pack ${name} is not listed (${packs.length} packs listed)`);
@@ -400,7 +399,7 @@ async function checkSettingsAndMenu(width, height) {
     await go('');
     await page.click('.mo-editor-main-drawer-panel > :first-child button[aria-expanded="true"]');
     await page.waitForTimeout(600);
-    checkCog(label, 'skinnen', await page.evaluate(shownItems, 'nav.mo-editor-main-rail .mo-navigation-rail__item'), height);
+    checkCog(label, 'skinnen', await page.evaluate(shownItems, 'nav.mo-editor-main-rail .mo-nav-rail__item'), height);
     const railCurrent = (hash) =>
       go(hash).then(() =>
         page.evaluate(() => document.querySelector('nav.mo-editor-main-rail a[href="#settings"]')?.getAttribute('aria-current')),
@@ -947,7 +946,7 @@ export function register(unit) {
             const tooTall = await page.evaluate(() => {
               const cap = innerHeight / 2 + 1;
               const bad = [];
-              for (const d of document.querySelectorAll('dialog.mo-editor-sheet.mo-bottom-sheet:not(.mo-editor-side-panel)')) {
+              for (const d of document.querySelectorAll('dialog.mo-editor-sheet.mo-sheet.mo-is-bottom:not(.mo-editor-side-panel)')) {
                 if (d.open) continue;
                 d.showModal();
                 if (d.offsetHeight > cap) bad.push(`${d.getAttribute('aria-label') ?? d.className} (${Math.round(d.offsetHeight)}px)`);

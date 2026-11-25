@@ -70,5 +70,5 @@ test('spot checks', () => {
   assert.equal(partOf('mo-fab-menu__item', THEME_PARTS), 'FabMenu', "partOf('mo-fab-menu__item') should be 'FabMenu'");
   assert.equal(partOf('mo-top-app-bar__search', THEME_PARTS), 'TopAppBar', "partOf('mo-top-app-bar__search') should be 'TopAppBar'");
   assert.equal(partOf('mo-footer__list', THEME_PARTS), 'Footer', "partOf('mo-footer__list') should be 'Footer'");
-  assert.equal(partOf('mo-icon-button__wide', THEME_PARTS), 'IconButton', "partOf('mo-icon-button__wide') should be 'IconButton'");
+  assert.equal(partOf('mo-icon-button__icon', THEME_PARTS), 'IconButton', "partOf('mo-icon-button__icon') should be 'IconButton'");
 });

@@ -1,4 +1,4 @@
-// A navigation rail (m3.material.io/components/navigation-rail, M3 Expressive; .mo-navigation-rail in ../styles/ui/navigation-rail.css):
+// A navigation rail (m3.material.io/components/navigation-rail, M3 Expressive; .mo-nav-rail in ../styles/ui/navigation-rail.css):
 // the main destinations down the side of a larger screen (NavigationRail, a <nav> with its name, `label`), collapsed
 // (each destination's icon over its label) or expanded (`expanded`: the icon and the label side by side), with its menu
 // button at the top (`menuLabel`, which expands and collapses it: on the site navigationRail.script.ts) and evt. the
@@ -30,20 +30,20 @@ export type NavigationRailModality = 'standard' | 'modal';
 export type NavigationRailExpandedBehavior = 'collapse' | 'hide';
 
 /** The rail's class, and a destination's. */
-export const navigationRailClass = 'mo-navigation-rail';
-export const navigationRailItemClass = 'mo-navigation-rail__item';
+export const navigationRailClass = 'mo-nav-rail';
+export const navigationRailItemClass = 'mo-nav-rail__item';
 
 /** The rail's classes with its expanded modality and behaviour. */
 export const navigationRailClasses = (
   modality: NavigationRailModality = 'standard',
   expandedBehavior: NavigationRailExpandedBehavior = 'collapse',
 ) =>
-  [navigationRailClass, modality === 'modal' && 'mo-navigation-rail__modal', expandedBehavior === 'hide' && 'mo-navigation-rail__hide']
+  [navigationRailClass, modality === 'modal' && 'mo-nav-rail__modal', expandedBehavior === 'hide' && 'mo-nav-rail__hide']
     .filter(Boolean)
     .join(' ');
 
 /** The scrim's class, behind a modal rail while it is expanded. */
-export const navigationRailScrimClass = 'mo-navigation-rail__scrim';
+export const navigationRailScrimClass = 'mo-nav-rail__scrim';
 
 export default function NavigationRail({
   label,
@@ -79,22 +79,22 @@ export default function NavigationRail({
       data-expanded={expanded || undefined}
       {...rest}
     >
-      <div className="mo-navigation-rail__header">
+      <div className="mo-nav-rail__header">
         <button
           type="button"
-          className={`${iconButtonClass('standard')} mo-navigation-rail__menu`}
+          className={`${iconButtonClass('standard')} mo-nav-rail__menu`}
           aria-label={menuLabel}
           aria-expanded={!!expanded}
           data-navigation-rail-menu={onExpandedChange ? undefined : ''}
           onClick={onExpandedChange && (() => onExpandedChange(!expanded))}
         >
           <Svg name="list" size={24} />
-          <Svg name="caret-left" size={24} />
+          <Svg name="keyboard_arrow_left" size={24} />
         </button>
         {fab && <ExtendedFab {...fab} collapsed={!expanded} />}
-        {header != null && <div className="mo-navigation-rail__header-content">{header}</div>}
+        {header != null && <div className="mo-nav-rail__header-content">{header}</div>}
       </div>
-      <div className="mo-navigation-rail__items">{children}</div>
+      <div className="mo-nav-rail__items">{children}</div>
     </nav>
   );
   // A modal one's scrim just before it, over the page and under the rail (navigationRail.script.ts shows it).
@@ -111,8 +111,8 @@ export default function NavigationRail({
 /** Destinations under each other in a section, with its name (`label`) over them while the rail is expanded. */
 export function NavigationRailSection({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <div className="mo-navigation-rail__section" role="group" aria-label={label}>
-      <span className="mo-navigation-rail__section-label" aria-hidden="true">
+    <div className="mo-nav-rail__section" role="group" aria-label={label}>
+      <span className="mo-nav-rail__section-label" aria-hidden="true">
         {label}
       </span>
       {children}
@@ -139,14 +139,14 @@ export function NavigationRailItem({
   trailingSupporting?: ReactNode;
 } & Record<string, unknown>) {
   const content = (
-    <span className="mo-navigation-rail__indicator">
-      <span className="mo-navigation-rail__icon">
+    <span className="mo-nav-rail__indicator">
+      <span className="mo-nav-rail__icon">
         <Glyph icon={icon} size={24} />
-        {badge !== undefined && <Badge count={badge === true ? undefined : badge} className="mo-navigation-rail__badge" />}
+        {badge !== undefined && <Badge count={badge === true ? undefined : badge} className="mo-nav-rail__badge" />}
       </span>
-      <span className="mo-navigation-rail__label">{label}</span>
+      <span className="mo-nav-rail__label">{label}</span>
       {trailingSupporting != null && trailingSupporting !== '' && (
-        <span className="mo-navigation-rail__trailing-supporting">{trailingSupporting}</span>
+        <span className="mo-nav-rail__trailing-supporting">{trailingSupporting}</span>
       )}
     </span>
   );

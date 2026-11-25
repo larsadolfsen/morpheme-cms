@@ -21,14 +21,14 @@ for (const [state, value] of Object.entries(opacities)) {
 
 test('the hover and pressed layer colours are made from the opacities', () => {
   const sys = readFileSync(join(root, 'tokens/material/sys.css'), 'utf8');
-  assert.match(sys, /--mo-sys-state-mo-hover-layer: color-mix\([^;]*--mo-sys-state-hover-state-layer-opacity/);
-  assert.match(sys, /--mo-sys-state-mo-pressed-layer: color-mix\([^;]*--mo-sys-state-pressed-state-layer-opacity/);
+  assert.match(sys, /--mo-sys-state-hover-state-layer-color: color-mix\([^;]*--mo-sys-state-hover-state-layer-opacity/);
+  assert.match(sys, /--mo-sys-state-pressed-state-layer-color: color-mix\([^;]*--mo-sys-state-pressed-state-layer-opacity/);
 });
 
 test('no component file writes a state-layer percentage in a colour mix of a content colour', () => {
   // The list's segmented disabled container (0.1 of on surface) is the list's own value, not one of the five (Lists specs).
   const found = all(
-    /color-mix\(in srgb, (?:currentColor|var\(--mo-sys-(?:block-text|block-accent|color-(?:on-[a-z-]+|primary|inverse-primary|inverse-on-surface)))\)?\s+(?:8|10|16|38)%/g,
+    /color-mix\(in srgb, (?:currentColor|var\(--mo-(?:comp-block-text|comp-block-accent|sys-color-(?:on-[a-z-]+|primary|inverse-primary|inverse-on-surface)))\)?\s+(?:8|10|16|38)%/g,
   );
   assert.deepEqual(
     found.filter((l) => !l.startsWith('tokens/material/comp/list.css')),

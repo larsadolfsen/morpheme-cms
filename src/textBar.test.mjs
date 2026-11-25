@@ -2,20 +2,20 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { BUTTON, TOOL_WIDTH, planBar, toolWidth } from './textBar.mjs';
 
-const TEXT = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
+const TEXT = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color', 'divider'];
 const FIXED = ['undo', 'redo', 'insert'];
 
-test('at 375 px (the bar is 352 dp inside its edges) in text: Bold, Italic, Text style, Lists, then Undo, Redo, Insert block and the ⋮; Alignment, Link, Color are in the ⋮ in the owner order', () => {
+test('at 375 px (the bar is 352 dp inside its edges) in text: Bold, Italic, Text style, Lists, then Undo, Redo, Insert block and the ⋮; Alignment, Link, Color, Divider are in the ⋮ in the owner order', () => {
   const plan = planBar({ width: 352, context: TEXT, fixed: FIXED });
   assert.deepEqual(plan.bar, { context: ['bold', 'italic', 'style', 'list'], fixed: FIXED });
-  assert.deepEqual(plan.more, { context: ['align', 'link', 'color'], fixed: [] });
+  assert.deepEqual(plan.more, { context: ['align', 'link', 'color', 'divider'], fixed: [] });
   assert.equal(plan.overflow, true);
 });
 
-test('at 360 px (335 dp inside) Lists is the first tool in the ⋮, before Alignment, Link, Color', () => {
+test('at 360 px (335 dp inside) Lists is the first tool in the ⋮, before Alignment, Link, Color, Divider', () => {
   const plan = planBar({ width: 335, context: TEXT, fixed: FIXED });
   assert.deepEqual(plan.bar.context, ['bold', 'italic', 'style']);
-  assert.deepEqual(plan.more.context, ['list', 'align', 'link', 'color']);
+  assert.deepEqual(plan.more.context, ['list', 'align', 'link', 'color', 'divider']);
 });
 
 test('Insert block is never in the ⋮: on a narrow bar the text tools give way first, then Redo, then Undo', () => {
@@ -57,7 +57,7 @@ test('Section settings (or a block menu) keeps the ⋮ on the bar even when ever
 });
 
 // The width budget (14 Nov owner requirement): no count per screen width, the most tools that fit, in order, no gap.
-const WIDE = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color'];
+const WIDE = ['bold', 'italic', 'style', 'list', 'align', 'link', 'color', 'divider'];
 const widthOf = (ids) => ids.reduce((n, id) => n + toolWidth(id), 0);
 
 test('every tool is 44 dp but the count with its cross, which is two buttons', () => {
@@ -81,9 +81,9 @@ test('from 280 to 1400 dp: nothing past the budget, order kept, ⋮ only when ne
 test('the bar holds as many tools as fit: 352 dp holds four text tools, 396 dp holds five', () => {
   assert.deepEqual(planBar({ width: 352, context: WIDE, fixed: FIXED }).bar.context, ['bold', 'italic', 'style', 'list']);
   assert.deepEqual(planBar({ width: 396, context: WIDE, fixed: FIXED }).bar.context, ['bold', 'italic', 'style', 'list', 'align']);
-  // At 440 dp all seven fit without a ⋮ (seven and three tools of 44 dp), so the ⋮ takes no room.
-  assert.equal(planBar({ width: 440, context: WIDE, fixed: FIXED }).overflow, false);
-  assert.equal(planBar({ width: 439, context: WIDE, fixed: FIXED }).bar.context.length, 5);
+  // At 484 dp all eight fit without a ⋮ (eight and three tools of 44 dp), so the ⋮ takes no room.
+  assert.equal(planBar({ width: 484, context: WIDE, fixed: FIXED }).overflow, false);
+  assert.equal(planBar({ width: 483, context: WIDE, fixed: FIXED }).bar.context.length, 6);
 });
 
 test('with wider chevron buttons the budget still holds, the order never skips and there is no gap', () => {

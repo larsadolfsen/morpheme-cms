@@ -17,8 +17,7 @@ export type SnackbarLink = { text: string; href: string };
 export type SnackbarAction = { label: string; href?: string } & Record<string, unknown>;
 
 /** A snackbar's classes: with its action under the text, or beside it. */
-export const snackbarClass = (longerAction?: boolean) =>
-  ['mo-snackbar', longerAction && 'mo-snackbar__longer-action'].filter(Boolean).join(' ');
+export const snackbarClass = (longerAction?: boolean) => ['mo-snackbar', longerAction && 'mo-is-longer-action'].filter(Boolean).join(' ');
 
 export default function Snackbar({
   text,
@@ -48,7 +47,7 @@ export default function Snackbar({
             {' '}
             <Link href={link.href} className="mo-snackbar__link">
               {link.text}
-              <Svg name="arrow-right" size={14} />
+              <Svg name="arrow_forward" size={14} />
             </Link>
           </Fragment>
         ))}
@@ -56,11 +55,11 @@ export default function Snackbar({
       {(action || closeLabel) && (
         <div className="mo-snackbar__actions">
           {action && (
-            <Button kind="text" size="small" className="mo-snackbar__action" {...actionRest}>
+            <Button kind="text" className="mo-snackbar__action" {...actionRest}>
               {label}
             </Button>
           )}
-          {closeLabel && <IconButton icon="x" label={closeLabel} className="mo-snackbar__close" data-snackbar-close="" />}
+          {closeLabel && <IconButton icon="close" label={closeLabel} className="mo-snackbar__close" data-snackbar-close="" />}
         </div>
       )}
     </div>

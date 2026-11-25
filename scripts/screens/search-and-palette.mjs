@@ -725,9 +725,7 @@ async function checkPaletteLast(width) {
       const on = await page.evaluate(() => document.activeElement?.tagName);
       if (on === 'BUTTON') problems.push(`${label}: the shortcuts dialog opens with a button focused`);
       // A dialog in the middle of the screen has no drag handle (the handle belongs to a sheet from the bottom).
-      if (
-        await sheet.locator('.mo-bottom-sheet__drag-handle').evaluateAll((els) => els.some((e) => getComputedStyle(e).display !== 'none'))
-      )
+      if (await sheet.locator('.mo-sheet__drag-handle').evaluateAll((els) => els.some((e) => getComputedStyle(e).display !== 'none')))
         problems.push(`${label}: the shortcuts dialog shows a drag handle`);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
@@ -790,7 +788,7 @@ async function checkNoContextMenu(width) {
   };
   await check('the text', '.ProseMirror p');
   await pressInsert(page, touch ? 'tap' : 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active', { timeout: 8000 });
   await check('a row of a List', '.mo-editor-inline-list-row-active');
   await page.keyboard.press('ArrowDown');
@@ -800,7 +798,7 @@ async function checkNoContextMenu(width) {
   await page.keyboard.press('Control+End');
   await page.keyboard.press('Enter');
   await pressInsert(page, touch ? 'tap' : 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows and columns of text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show data in rows and columns.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-table-cell-active textarea', { timeout: 8000 });
   await check('a table cell', '.mo-editor-inline-table-cell-active textarea');
   await page.close();
@@ -819,7 +817,7 @@ async function checkIconSearch(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'tap');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
   await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot').first().tap();
@@ -874,7 +872,7 @@ async function checkIconSearch(width, height) {
     .getByRole('button', { name: 'Suggested', exact: true })
     .tap()
     .catch(() => {});
-  // Owner rule: Phosphor's own icons are in the search only when Phosphor is the icon pack in use (acorn: Material Symbols has none of that name); with Phosphor in use, the search finds it.
+  // Phosphor is not in the package: the search finds no Phosphor icon (acorn: Material Symbols has none of that name).
   await search.fill('acorn');
   await page.waitForTimeout(1500);
   const acorn = acornProblem(PACK, label, (await picker.getByRole('button', { name: 'acorn', exact: true }).count()) > 0);
@@ -925,9 +923,99 @@ async function checkSearchRing(width) {
   await page.close();
 }
 
+/** The divided Search style and the docked Toolbar with its primary action (theme/ui/Search.tsx `kind="divided"`, theme/ui/Toolbar.tsx `primary`; m3.material.io/components/search and
+ * /toolbars) on "Parts" › "UI components", at 390 and 1280 px, light and dark: the divided view is one container whose header is see-through over it with a line under it (not the
+ * contained style's gap), the docked toolbar's primary action sits in the middle slot as a square filled button with the actions spaced evenly, every control is at least 40 px, the
+ * page does not scroll sideways and nothing throws. */
+async function checkDividedAndPrimary(width, scheme) {
+  const label = `${width}px ${scheme} divided search, docked toolbar`;
+  const touch = width < 600;
+  const page = await browser.newPage({
+    viewport: { width, height: 812 },
+    hasTouch: touch,
+    isMobile: touch,
+    locale: 'en-US',
+    colorScheme: scheme,
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const search = page.locator('[data-part="Search"]');
+  await search.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the Search part is not on the page`));
+  if (!(await search.count())) return page.close();
+  await search.scrollIntoViewIfNeeded();
+  const bar = search.locator('.mo-search.mo-is-divided').first();
+  if (!(await bar.count())) problems.push(`${label}: no divided Search on the page`);
+  await search.getByRole('button', { name: 'Open the divided search view' }).click();
+  const view = page.locator('[data-search-controlled] [data-search-view-open]');
+  await view.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the divided view does not open`));
+  await page.waitForTimeout(400);
+  if (await view.count()) {
+    const look = await view.evaluate((el) => {
+      const root = el.closest('.mo-search') ?? el;
+      const head = el.querySelector('.mo-search-view__header');
+      const hs = head ? getComputedStyle(head) : null;
+      return {
+        divided: root.classList.contains('mo-is-divided'),
+        headBg: hs?.backgroundColor,
+        line: hs ? parseFloat(hs.borderBottomWidth) : 0,
+        lineStyle: hs?.borderBottomStyle,
+        lineColor: hs?.borderBottomColor,
+        sideways: document.documentElement.scrollWidth > innerWidth,
+      };
+    });
+    if (!look.divided) problems.push(`${label}: the open view is not the divided style`);
+    if (look.headBg !== 'rgba(0, 0, 0, 0)')
+      problems.push(`${label}: the header has its own background (${look.headBg}); the divided view is one container`);
+    if (!(look.line >= 1) || look.lineStyle === 'none')
+      problems.push(`${label}: no line under the header (${look.line}px ${look.lineStyle})`);
+    if (look.lineColor === 'rgba(0, 0, 0, 0)') problems.push(`${label}: the line under the header is see-through`);
+    if (look.sideways) problems.push(`${label}: the page scrolls sideways with the view open`);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+  }
+  const toolbar = page.locator('[data-part="Toolbar"] .mo-toolbar.mo-is-docked.mo-is-with-primary').first();
+  await toolbar.scrollIntoViewIfNeeded().catch(() => {});
+  if (!(await toolbar.count())) problems.push(`${label}: no docked toolbar with its primary action`);
+  else {
+    const t = await toolbar.evaluate((el) => {
+      const kids = [...el.children];
+      const r = (e) => e.getBoundingClientRect();
+      const box = r(el);
+      const mid = kids[Math.floor(kids.length / 2)];
+      const m = mid ? r(mid) : null;
+      const gaps = kids.slice(1).map((k, i) => Math.round(r(k).left - r(kids[i]).right));
+      return {
+        count: kids.length,
+        justify: getComputedStyle(el).justifyContent,
+        midOffset: m ? Math.abs(m.left + m.width / 2 - (box.left + box.width / 2)) : 999,
+        midRadius: mid ? parseFloat(getComputedStyle(mid).borderTopLeftRadius) : 0,
+        midHeight: m ? m.height : 0,
+        midFilled: mid ? getComputedStyle(mid).backgroundColor : '',
+        small: kids.filter((k) => r(k).width < 40 || r(k).height < 40).length,
+        spread: gaps.length ? Math.max(...gaps) - Math.min(...gaps) : 0,
+        sideways: document.documentElement.scrollWidth > innerWidth,
+      };
+    });
+    if (t.count % 2 === 0)
+      problems.push(`${label}: the docked toolbar has ${t.count} slots; the primary action needs an odd number to stand in the middle`);
+    if (t.justify !== 'space-around') problems.push(`${label}: the docked toolbar's actions are not spaced evenly (${t.justify})`);
+    if (t.midOffset > 2) problems.push(`${label}: the primary action is ${Math.round(t.midOffset)}px off the middle`);
+    if (t.midFilled === 'rgba(0, 0, 0, 0)') problems.push(`${label}: the primary action is not filled`);
+    if (t.midRadius >= t.midHeight / 2 - 1) problems.push(`${label}: the primary action is round, not square (${t.midRadius}px)`);
+    if (t.small) problems.push(`${label}: ${t.small} toolbar control(s) under 40 px`);
+    if (t.spread > 1) problems.push(`${label}: the gaps in the docked toolbar differ by ${t.spread}px`);
+    if (t.sideways) problems.push(`${label}: the page scrolls sideways`);
+  }
+  await page.close();
+}
+
 export function register(unit) {
   for (const width of [375, 1280])
     for (const locale of ['en-US', 'da-DK']) unit(`search view parts ${width} ${locale}`, () => checkSearchViewParts(width, locale));
+  for (const width of [390, 1280])
+    for (const scheme of ['light', 'dark'])
+      unit(`divided search and docked toolbar ${width} ${scheme}`, () => checkDividedAndPrimary(width, scheme));
   for (const width of [375, 1280]) unit(`search field ring ${width}`, () => checkSearchRing(width));
   for (const width of [375, 1280]) unit(`search button ${width}`, () => checkSearchButton(width));
   for (const width of [375, 1280]) unit(`command palette ${width}`, () => checkCommandPalette(width));

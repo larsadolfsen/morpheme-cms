@@ -2,17 +2,16 @@
 
 @layer components {
   .mo-button {
-    --mo-comp-button-box: var(--mo-comp-button-medium-container-height, 3rem);
-    --mo-comp-button-inline: var(--mo-comp-button-padding, 1.6rem);
-    --mo-comp-button-glyph: var(--mo-comp-button-medium-icon-size, 1.25rem);
+    --mo-comp-button-box: var(--mo-comp-button-small-container-height, 3rem);
+    --mo-comp-button-inline: var(--mo-comp-button-small-leading-space, 1.6rem);
+    --mo-comp-button-glyph: var(--mo-comp-button-small-icon-size, 1.25rem);
     /* Round is at most half the button's height (Material's full corner), never a huge number, so a corner that
        changes shape (pressed, toggled) moves between real sizes on the spring, not through 0. */
     --mo-comp-button-round: min(
-      var(--mo-comp-button-medium-container-shape-round, var(--mo-sys-block-control-radius)),
+      var(--mo-comp-button-small-container-shape-round, var(--mo-comp-block-control-radius)),
       var(--mo-comp-button-box) / 2
     );
-    --mo-comp-button-square: var(--mo-comp-button-medium-container-shape-square, var(--mo-sys-block-radius-small));
-    --mo-comp-button-pressed: var(--mo-comp-button-pressed-radius);
+    --mo-comp-button-square: var(--mo-comp-button-small-container-shape-square, var(--mo-comp-block-radius-small));
     --mo-comp-button-corners: var(--mo-comp-button-round);
   }
 }
@@ -31,72 +30,119 @@
     --mo-comp-button-busy-size: var(--mo-comp-icon-button-busy-indicator-size, var(--mo-comp-icon-button-glyph));
   }
 }
+/* The sizes, Material 3's (md.comp.button.<size>): height, leading and trailing space (one padding: M3 prints the same for both), icon size, icon and label space, the corners of a square button and of a pressed one. */
 @layer components {
-  .mo-button__xsmall {
+  .mo-button {
+    --mo-comp-button-gap: var(--mo-comp-button-small-icon-label-space, 0.5rem);
+    --mo-comp-button-pressed: var(--mo-comp-button-small-pressed-container-shape, 0.5rem);
+  }
+}
+@layer components {
+  :where(.mo-button).mo-is-xsmall {
     --mo-comp-button-box: var(--mo-comp-button-xsmall-container-height, 2rem);
-    --mo-comp-button-inline: var(--mo-comp-button-xsmall-padding, 0.9rem);
-    --mo-comp-button-glyph: calc(var(--mo-comp-button-medium-icon-size, 1.25rem) * 0.9);
-    --mo-comp-button-square: var(--mo-comp-button-xsmall-container-shape-square, calc(var(--mo-sys-block-radius-small) * 0.75));
-    --mo-comp-button-pressed: var(--mo-comp-button-xsmall-pressed-radius, var(--mo-comp-button-pressed-radius));
+    --mo-comp-button-inline: var(--mo-comp-button-xsmall-leading-space, 0.75rem);
+    --mo-comp-button-glyph: var(--mo-comp-button-xsmall-icon-size, 1.25rem);
+    --mo-comp-button-gap: var(--mo-comp-button-xsmall-icon-label-space, 0.25rem);
+    --mo-comp-button-square: var(--mo-comp-button-xsmall-container-shape-square, 0.75rem);
+    --mo-comp-button-pressed: var(--mo-comp-button-xsmall-pressed-container-shape, 0.5rem);
   }
 }
 @layer components {
-  .mo-button__small {
-    --mo-comp-button-box: var(--mo-comp-button-small-container-height, 2.6rem);
-    --mo-comp-button-inline: var(--mo-comp-button-small-padding, 1.2rem);
-    --mo-comp-button-square: var(--mo-comp-button-small-container-shape-square, calc(var(--mo-sys-block-radius-small) * 0.75));
-    --mo-comp-button-pressed: var(--mo-comp-button-small-pressed-radius, var(--mo-comp-button-pressed-radius));
+  :where(.mo-button).mo-is-medium {
+    --mo-comp-button-box: var(--mo-comp-button-medium-container-height, 3.5rem);
+    --mo-comp-button-inline: var(--mo-comp-button-medium-leading-space, 1.5rem);
+    --mo-comp-button-glyph: var(--mo-comp-button-medium-icon-size, 1.5rem);
+    --mo-comp-button-gap: var(--mo-comp-button-medium-icon-label-space, 0.5rem);
+    --mo-comp-button-square: var(--mo-comp-button-medium-container-shape-square, 1rem);
+    --mo-comp-button-pressed: var(--mo-comp-button-medium-pressed-container-shape, 0.75rem);
   }
 }
 @layer components {
-  .mo-button__large {
-    --mo-comp-button-box: var(--mo-comp-button-large-height, 4rem);
-    --mo-comp-button-inline: var(--mo-comp-button-large-padding, 2.25rem);
-    --mo-comp-button-glyph: var(--mo-comp-button-large-icon-size, 1.5rem);
-    --mo-comp-button-square: var(--mo-comp-button-large-container-shape-square, calc(var(--mo-sys-block-radius-small) * 1.75));
-    --mo-comp-button-pressed: var(--mo-comp-button-large-pressed-radius, var(--mo-comp-button-pressed-radius));
+  :where(.mo-button).mo-is-large {
+    --mo-comp-button-box: var(--mo-comp-button-large-container-height, 6rem);
+    --mo-comp-button-inline: var(--mo-comp-button-large-leading-space, 3rem);
+    --mo-comp-button-glyph: var(--mo-comp-button-large-icon-size, 2rem);
+    --mo-comp-button-gap: var(--mo-comp-button-large-icon-label-space, 0.75rem);
+    --mo-comp-button-square: var(--mo-comp-button-large-container-shape-square, 1.75rem);
+    --mo-comp-button-pressed: var(--mo-comp-button-large-pressed-container-shape, 1rem);
   }
 }
 @layer components {
-  .mo-button__xlarge {
-    --mo-comp-button-box: var(--mo-comp-button-xlarge-height, 5.5rem);
-    --mo-comp-button-inline: var(--mo-comp-button-xlarge-padding, 3rem);
-    --mo-comp-button-glyph: var(--mo-comp-button-xlarge-icon-size, 2rem);
-    --mo-comp-button-square: var(--mo-comp-button-xlarge-container-shape-square, calc(var(--mo-sys-block-radius-small) * 1.75));
-    --mo-comp-button-pressed: var(--mo-comp-button-xlarge-pressed-radius, var(--mo-comp-button-pressed-radius));
+  :where(.mo-button).mo-is-xlarge {
+    --mo-comp-button-box: var(--mo-comp-button-xlarge-container-height, 8.5rem);
+    --mo-comp-button-inline: var(--mo-comp-button-xlarge-leading-space, 4rem);
+    --mo-comp-button-glyph: var(--mo-comp-button-xlarge-icon-size, 2.5rem);
+    --mo-comp-button-gap: var(--mo-comp-button-xlarge-icon-label-space, 1rem);
+    --mo-comp-button-square: var(--mo-comp-button-xlarge-container-shape-square, 1.75rem);
+    --mo-comp-button-pressed: var(--mo-comp-button-xlarge-pressed-container-shape, 1rem);
   }
 }
 /* The shapes: round (the default) or square; a toggle that is on takes the other one. */
 @layer components {
-  .mo-button__square,
+  :where(.mo-button).mo-is-square,
   .mo-button[aria-pressed='true'] {
     --mo-comp-button-corners: var(--mo-comp-button-square);
   }
 }
 @layer components {
-  .mo-button__square[aria-pressed='true'] {
+  :where(.mo-button).mo-is-square[aria-pressed='true'] {
     --mo-comp-button-corners: var(--mo-comp-button-round);
   }
 }
+/* A connected group's corners, pressed corners and gap follow the buttons' size (md.comp.button-group.connected.<size>: inner corner 8, 8, 8, 16 and 20dp,
+   pressed 4, 4, 4, 12 and 16dp, between-space 2dp). The medium size is the theme's `small` (its default button); the group takes the size of its buttons. */
 @layer components {
-  .mo-button-group__connected > * {
-    --mo-comp-button-group-inner: var(--mo-comp-button-group-inner-radius, calc(var(--mo-sys-block-radius-small) / 2));
+  :where(.mo-button-group).mo-is-connected {
+    --mo-comp-button-group-gap: var(--mo-comp-button-group-connected-small-between-space, 0.125rem);
   }
-}
-/* The corners between them follow the buttons' size (Material's 4, 8, 8, 16 and 20dp). */
-@layer components {
-  .mo-button-group__connected > :is(.mo-button__xsmall, .mo-icon-button__xsmall) {
-    --mo-comp-button-group-inner: var(--mo-comp-button-group-xsmall-inner-radius, calc(var(--mo-sys-block-radius-small) / 4));
-  }
-}
-@layer components {
-  .mo-button-group__connected > :is(.mo-button__large, .mo-icon-button__large) {
-    --mo-comp-button-group-inner: var(--mo-comp-button-group-large-inner-radius, var(--mo-sys-block-radius-small));
+  :where(.mo-button-group).mo-is-connected > * {
+    --mo-comp-button-group-inner: var(--mo-comp-button-group-connected-small-inner-corner-corner-size, 0.5rem);
+    --mo-comp-button-group-pressed-inner: var(--mo-comp-button-group-connected-small-pressed-inner-corner-corner-size, 0.25rem);
   }
 }
 @layer components {
-  .mo-button-group__connected > :is(.mo-button__xlarge, .mo-icon-button__xlarge) {
-    --mo-comp-button-group-inner: var(--mo-comp-button-group-xlarge-inner-radius, calc(var(--mo-sys-block-radius-small) * 1.25));
+  :where(.mo-button-group).mo-is-connected:has(> :is(.mo-button, .mo-icon-button).mo-is-xsmall) {
+    --mo-comp-button-group-gap: var(--mo-comp-button-group-connected-xsmall-between-space, 0.125rem);
+  }
+  :where(.mo-button-group).mo-is-connected > :is(:where(.mo-button).mo-is-xsmall, :where(.mo-icon-button).mo-is-xsmall) {
+    --mo-comp-button-group-inner: var(--mo-comp-button-group-connected-xsmall-inner-corner-corner-size, 0.5rem);
+    --mo-comp-button-group-pressed-inner: var(--mo-comp-button-group-connected-xsmall-pressed-inner-corner-corner-size, 0.25rem);
+  }
+}
+@layer components {
+  :where(.mo-button-group).mo-is-connected:has(> :is(.mo-button, .mo-icon-button).mo-is-medium) {
+    --mo-comp-button-group-gap: var(--mo-comp-button-group-connected-medium-between-space, 0.125rem);
+  }
+  :where(.mo-button-group).mo-is-connected > :is(:where(.mo-button).mo-is-medium, :where(.mo-icon-button).mo-is-medium) {
+    --mo-comp-button-group-inner: var(
+      --mo-comp-button-group-connected-medium-inner-corner-corner-size,
+      calc(var(--mo-comp-block-radius-small) / 2)
+    );
+    --mo-comp-button-group-pressed-inner: var(--mo-comp-button-group-connected-medium-pressed-inner-corner-corner-size, 0.25rem);
+  }
+}
+@layer components {
+  :where(.mo-button-group).mo-is-connected:has(> :is(.mo-button, .mo-icon-button).mo-is-large) {
+    --mo-comp-button-group-gap: var(--mo-comp-button-group-connected-large-between-space, 0.125rem);
+  }
+  :where(.mo-button-group).mo-is-connected > :is(:where(.mo-button).mo-is-large, :where(.mo-icon-button).mo-is-large) {
+    --mo-comp-button-group-inner: var(--mo-comp-button-group-connected-large-inner-corner-corner-size, 1rem);
+    --mo-comp-button-group-pressed-inner: var(--mo-comp-button-group-connected-large-pressed-inner-corner-corner-size, 0.75rem);
+  }
+}
+@layer components {
+  :where(.mo-button-group).mo-is-connected:has(> :is(.mo-button, .mo-icon-button).mo-is-xlarge) {
+    --mo-comp-button-group-gap: var(--mo-comp-button-group-connected-xlarge-between-space, 0.125rem);
+  }
+  :where(.mo-button-group).mo-is-connected > :is(:where(.mo-button).mo-is-xlarge, :where(.mo-icon-button).mo-is-xlarge) {
+    --mo-comp-button-group-inner: var(--mo-comp-button-group-connected-xlarge-inner-corner-corner-size, 1.25rem);
+    --mo-comp-button-group-pressed-inner: var(--mo-comp-button-group-connected-xlarge-pressed-inner-corner-corner-size, 1rem);
+  }
+}
+/* A connected group's widest size on a wide screen (not an M3 token: M3 only says to consider a maximum width). */
+@layer components {
+  :where(.mo-button-group).mo-is-connected {
+    --mo-comp-button-group-connected-max-width: 30rem;
   }
 }
 /* A sample's button is the theme's smallest size at M3's extra small height (32dp; the theme's own extra small is taller),
@@ -119,24 +165,24 @@
   }
 }
 @layer components {
-  .mo-toolbar__vibrant {
-    --mo-comp-button-filled-container-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent));
+  :where(.mo-toolbar).mo-is-vibrant {
+    --mo-comp-button-filled-container-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent));
     --mo-comp-button-filled-hover: color-mix(
       in srgb,
-      var(--mo-comp-toolbar-vibrant-surface, var(--mo-sys-block-accent)) 12%,
-      var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent))
+      var(--mo-comp-toolbar-vibrant-surface, var(--mo-comp-block-accent)) 12%,
+      var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent))
     );
-    --mo-comp-button-filled-label-text-color: var(--mo-comp-toolbar-vibrant-surface, var(--mo-sys-block-accent));
+    --mo-comp-button-filled-label-text-color: var(--mo-comp-toolbar-vibrant-surface, var(--mo-comp-block-accent));
     --mo-comp-button-filled-container-elevation: none;
     --mo-comp-button-filled-hovered-container-elevation: none;
     --mo-comp-button-outlined-surface: transparent;
-    --mo-comp-button-outlined-label-text-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent));
+    --mo-comp-button-outlined-label-text-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent));
     --mo-comp-button-outlined-outline-color: color-mix(
       in srgb,
-      var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent)) 55%,
+      var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent)) 55%,
       transparent
     );
-    --mo-comp-button-outlined-hovered-label-text-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent));
-    --mo-comp-button-outlined-hovered-outline-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-sys-block-on-accent));
+    --mo-comp-button-outlined-hovered-label-text-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent));
+    --mo-comp-button-outlined-hovered-outline-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent));
   }
 }

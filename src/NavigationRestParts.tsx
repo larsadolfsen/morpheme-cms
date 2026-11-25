@@ -28,8 +28,8 @@ import { t } from './i18n';
 
 const say = t.parts.screens.navigationRest;
 const eg = t.parts.screens.example;
-const icons = ['house', 'magnifying-glass', 'chats', 'user'];
-const actions = ['pencil-simple', 'heart', 'copy', 'trash'];
+const icons = ['house', 'search', 'forum', 'person'];
+const actions = ['edit', 'favorite', 'content_copy', 'delete'];
 const colors = ['standard', 'vibrant'] as const;
 
 function Destinations({ rail }: { rail?: boolean }) {
@@ -44,7 +44,7 @@ function Destinations({ rail }: { rail?: boolean }) {
 }
 
 /** The search view driven by the page (SearchView): grouped results with a key and a disabled item, the arrow keys on one of them, a count read aloud. */
-function SearchViewExample() {
+function SearchViewExample({ kind }: { kind?: 'divided' }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [active, setActive] = useState<string | undefined>('0');
@@ -68,8 +68,9 @@ function SearchViewExample() {
   };
   return (
     <>
-      <Button onClick={() => (change(''), setOpen(true))}>{say.viewOpen}</Button>
+      <Button onClick={() => (change(''), setOpen(true))}>{kind ? say.viewOpenDivided : say.viewOpen}</Button>
       <SiteSearchView
+        kind={kind}
         open={open}
         onClose={() => setOpen(false)}
         label={say.searchLabel}
@@ -119,7 +120,7 @@ export default function NavigationRestParts() {
                     label={say.name}
                     menuLabel={say.menu}
                     expanded={expanded}
-                    fab={{ icon: 'pencil-simple', label: say.compose }}
+                    fab={{ icon: 'edit', label: say.compose }}
                   >
                     <Destinations rail />
                   </SiteNavigationRail>
@@ -156,7 +157,7 @@ export default function NavigationRestParts() {
                   menuLabel={say.menu}
                   expanded
                   modality="modal"
-                  fab={{ icon: 'pencil-simple', label: say.compose }}
+                  fab={{ icon: 'edit', label: say.compose }}
                 >
                   <Destinations rail />
                 </SiteNavigationRail>
@@ -172,7 +173,7 @@ export default function NavigationRestParts() {
                 </Example>
                 <div className="mo-editor-nav-rail-actions">
                   <SiteIconButton
-                    icon="list"
+                    icon="menu"
                     label={say.openRail}
                     aria-controls="parts-navigation-rail-hidden"
                     aria-expanded="false"
@@ -203,7 +204,7 @@ export default function NavigationRestParts() {
                 clearLabel={say.clear}
                 emptyText={say.empty}
                 results={[]}
-                trailing={<SiteIconButton icon="user" label={say.destinations[3]} />}
+                trailing={<SiteIconButton icon="person" label={say.destinations[3]} />}
               />
             </Example>
             <Example label={eg(2)}>
@@ -218,11 +219,29 @@ export default function NavigationRestParts() {
                   href: '',
                   headline: r.headline,
                   supporting: r.supporting,
-                  icon: i ? 'book-open' : 'clock',
+                  icon: i ? 'menu_book' : 'schedule',
                 }))}
               />
             </Example>
             <SearchViewExample />
+            <Example label={say.divided}>
+              <SiteSearch
+                kind="divided"
+                label={say.searchLabel}
+                backLabel={say.back}
+                clearLabel={say.clear}
+                emptyText={say.empty}
+                open
+                query={say.query}
+                results={say.results.map((r, i) => ({
+                  href: '',
+                  headline: r.headline,
+                  supporting: r.supporting,
+                  icon: i ? 'menu_book' : 'schedule',
+                }))}
+              />
+            </Example>
+            <SearchViewExample kind="divided" />
             <SearchBarButton label={say.searchLabel} open={false} keys="Control+K" onOpen={() => {}} />
             <div className="mo-editor-nav-search-results">
               <SiteSearchGroupLabel>{say.viewGroups[0]}</SiteSearchGroupLabel>
@@ -241,11 +260,16 @@ export default function NavigationRestParts() {
                   ))}
                 </SiteToolbar>
               ))}
+              <SiteToolbar label={say.withPrimary} primary={<SiteIconButton icon="add" label={say.compose} kind="filled" shape="square" />}>
+                {actions.slice(0, 4).map((icon, i) => (
+                  <SiteIconButton key={icon} icon={icon} label={say.actions[i]} />
+                ))}
+              </SiteToolbar>
               <SiteToolbar label={say.bar}>
-                <SiteButton href="" icon="calendar-blank">
+                <SiteButton href="" icon="calendar_today">
                   {say.book}
                 </SiteButton>
-                <SiteButton href="" kind="outlined" icon="phone">
+                <SiteButton href="" kind="outlined" icon="call">
                   {say.call}
                 </SiteButton>
               </SiteToolbar>
@@ -279,7 +303,7 @@ export default function NavigationRestParts() {
                     label={`${say.withFab}: ${say.colors[color]}`}
                     kind="floating"
                     color={color}
-                    fab={<SiteFab icon="pencil-simple" label={say.compose} kind={color === 'vibrant' ? 'primary' : 'secondary'} />}
+                    fab={<SiteFab icon="edit" label={say.compose} kind={color === 'vibrant' ? 'primary' : 'secondary'} />}
                   >
                     {actions.slice(1).map((icon, i) => (
                       <SiteIconButton key={icon} icon={icon} label={say.actions[i + 1]} />
@@ -292,7 +316,7 @@ export default function NavigationRestParts() {
                   label={`${say.withFab}: ${say.vertical}`}
                   kind="floating"
                   vertical
-                  fab={<SiteFab icon="pencil-simple" label={say.compose} kind="secondary" />}
+                  fab={<SiteFab icon="edit" label={say.compose} kind="secondary" />}
                 >
                   {actions.slice(1).map((icon, i) => (
                     <SiteIconButton key={icon} icon={icon} label={say.actions[i + 1]} />
@@ -300,12 +324,7 @@ export default function NavigationRestParts() {
                 </SiteToolbar>
               </Example>
               <Example label={say.collapsed} flat>
-                <SiteToolbar
-                  label={say.collapsed}
-                  kind="floating"
-                  expanded={false}
-                  fab={<SiteFab icon="pencil-simple" label={say.compose} />}
-                >
+                <SiteToolbar label={say.collapsed} kind="floating" expanded={false} fab={<SiteFab icon="edit" label={say.compose} />}>
                   {actions.slice(1).map((icon, i) => (
                     <SiteIconButton key={icon} icon={icon} label={say.actions[i + 1]} />
                   ))}

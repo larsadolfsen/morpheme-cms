@@ -1,4 +1,4 @@
-// A bottom sheet (m3.material.io/components/bottom-sheets, .mo-bottom-sheet in ../styles/ui/bottom-sheet.css): its container, with the
+// A bottom sheet (m3.material.io/components/bottom-sheets, .mo-sheet.mo-is-bottom in ../styles/ui/bottom-sheet.css): its container, with the
 // drag handle, the header (the headline, `headline` with its id `headlineId`, the supporting text under it and evt. the
 // close button, `closeLabel`), what it shows (`children`, filling the rest; what stands in place of a frame while it
 // loads has bottomSheetCoverClass) and evt. a footer (`footer`). Its kind (`kind`) is Material's:
@@ -27,7 +27,7 @@
 // less, or 'full', as high as the screen allows below --mo-comp-bottom-sheet-top-gap. It is pulled up to full height and down to
 // close (modalSheetSize.ts); the content scrolls only at full height. The editor's sheets are not touched.
 // `peek` (a standard sheet only) is what it shows even while collapsed (Material 3's preview), between the header and
-// what it shows (.mo-bottom-sheet__peek). A standard sheet is named by its headline or, without one, by `label` (the props are a
+// what it shows (.mo-sheet__peek). A standard sheet is named by its headline or, without one, by `label` (the props are a
 // union: TypeScript rejects a sheet with neither `headline` nor `label`; a modal one's <dialog> is named by the
 // developer who writes it). The drag handle can be left out (`dragHandle={false}`: no handle, so no tap to step
 // through the states; the header, if there is one, still drags it). The header is drawn only when there is a
@@ -65,14 +65,14 @@ export type BottomSheetKindWide =
 
 /** The class of the <dialog> a modal bottom sheet is in, of what stands in place of what it shows (over a frame while
  * it loads, or instead of it), and a bottom sheet's container's classes. */
-export const bottomSheetClass = 'mo-bottom-sheet';
-export const bottomSheetCoverClass = 'mo-bottom-sheet__cover';
+export const bottomSheetClass = 'mo-sheet mo-is-bottom';
+export const bottomSheetCoverClass = 'mo-sheet__cover';
 export const bottomSheetContainerClass = (kind: BottomSheetKind = 'modal') =>
-  kind === 'standard' ? 'mo-bottom-sheet__container mo-bottom-sheet__standard' : 'mo-bottom-sheet__container';
+  kind === 'standard' ? 'mo-sheet__container mo-is-bottom mo-sheet__standard' : 'mo-sheet__container mo-is-bottom';
 /** The classes of the <dialog> of a modal sheet as high as what is in it (at most most of the screen), and of one as high
  * as the screen and on a computer wider than a sheet (a whole page in it: the editor's preview). */
-export const bottomSheetFitClass = 'mo-bottom-sheet mo-bottom-sheet__fit';
-export const bottomSheetFullClass = 'mo-bottom-sheet mo-bottom-sheet__full';
+export const bottomSheetFitClass = 'mo-sheet mo-is-bottom mo-sheet__fit';
+export const bottomSheetFullClass = 'mo-sheet mo-is-bottom mo-sheet__full';
 
 /** Whether a sheet's header is drawn: it has a headline or a button. */
 const hasHeader = (headline: ReactNode, ...labels: (string | undefined)[]) => headline !== undefined || labels.some(Boolean);
@@ -131,32 +131,32 @@ export function BottomSheetHeader({
       {!dragHandle ? null : handleLabel !== undefined ? (
         <button
           type="button"
-          className="mo-bottom-sheet__drag-handle"
+          className="mo-sheet__drag-handle"
           aria-label={handleLabel}
           aria-expanded={standard ? expanded : undefined}
           data-bottom-sheet-handle=""
           onClick={onHandle}
         ></button>
       ) : (
-        <div className="mo-bottom-sheet__drag-handle" data-bottom-sheet-handle=""></div>
+        <div className="mo-sheet__drag-handle" data-bottom-sheet-handle=""></div>
       )}
       {hasHeader(headline, closeLabel, resizeLabel, collapseLabel) && (
-        <div className="mo-bottom-sheet__header" data-bottom-sheet-header={standard ? '' : undefined}>
-          <div className="mo-bottom-sheet__heading">
+        <div className="mo-sheet__header" data-bottom-sheet-header={standard ? '' : undefined}>
+          <div className="mo-sheet__heading">
             {headline !== undefined && (
-              <h2 id={headlineId} className="mo-bottom-sheet__headline">
+              <h2 id={headlineId} className="mo-sheet__headline">
                 {headline}
               </h2>
             )}
-            {supportingText && <p className="mo-bottom-sheet__supporting-text">{supportingText}</p>}
+            {supportingText && <p className="mo-sheet__supporting-text">{supportingText}</p>}
           </div>
           {(resizeLabel || collapseLabel || closeLabel) && (
-            <div className="mo-bottom-sheet__actions">
+            <div className="mo-sheet__actions">
               {resizeLabel && (
                 <IconButton icon={<BottomSheetResizeIcon />} label={resizeLabel} aria-expanded={!!raised} data-bottom-sheet-resize="" />
               )}
-              {collapseLabel && <IconButton icon="caret-down" label={collapseLabel} data-bottom-sheet-collapse="" />}
-              {closeLabel && <IconButton icon="x" label={closeLabel} data-bottom-sheet-close="" onClick={onClose} />}
+              {collapseLabel && <IconButton icon="keyboard_arrow_down" label={collapseLabel} data-bottom-sheet-collapse="" />}
+              {closeLabel && <IconButton icon="close" label={closeLabel} data-bottom-sheet-close="" onClick={onClose} />}
             </div>
           )}
         </div>
@@ -250,9 +250,9 @@ export default function BottomSheet({
         raised={shownState !== 'hidden' && shownState !== startState(states)}
         standard={standard}
       />
-      {standard && peek && <div className="mo-bottom-sheet__peek">{peek}</div>}
+      {standard && peek && <div className="mo-sheet__peek">{peek}</div>}
       <div
-        className="mo-bottom-sheet__content"
+        className="mo-sheet__content"
         // Content that scrolls is a region the keyboard can reach (WCAG 2.1.1), named like the sheet.
         role={named ? 'region' : undefined}
         tabIndex={0}
@@ -261,7 +261,7 @@ export default function BottomSheet({
       >
         {children}
       </div>
-      {footer && <p className="mo-bottom-sheet__footer">{footer}</p>}
+      {footer && <p className="mo-sheet__footer">{footer}</p>}
     </Container>
   );
 }

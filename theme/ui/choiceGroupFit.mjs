@@ -2,7 +2,7 @@
 // label on one line at an equal share of the width, else the list of radio buttons. A pure function, so the rule is tested
 // on its own (choiceGroupFit.test.mjs). Exposes fitsAsButtons, MAX_BUTTONS and HYSTERESIS.
 
-/** Material's cap for a segmented button, kept for the connected group that replaces it: six or more choices are a list. */
+/** Material's cap for the former segmented button, kept for the connected group that replaced it: six or more choices are a list. */
 export const MAX_BUTTONS = 5;
 
 /** The extra width (px, 8 dp) the switch back from the list to the buttons needs, so a width at the edge never flips the

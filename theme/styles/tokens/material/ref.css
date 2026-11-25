@@ -36,7 +36,7 @@
   /* M3's corner radius scale (m3.material.io/styles/shape/corner-radius-scale), its ten steps named for how round a
      corner is. Every corner in the theme is one of them: a part's variable below maps it to its step, as M3's component
      tokens do, also one corner at a time (a sheet's top, the inner corners of a split button or a menu's groups).
-     Changing a step (--mo-sys-shape-corner-medium) changes every part mapped to it; changing a part's variable (--mo-comp-card-radius)
+     Changing a step (--mo-sys-shape-corner-medium) changes every part mapped to it; changing a part's variable (--mo-comp-elevated-card-container-shape)
      maps that part to another step. Optical roundness (outer radius - padding = inner radius) only where the theme's
      own layout always puts something in its container's corner (a card's image at its top: the card's corners);
      never on something whose place is the block's or the content's, which keeps its own step. */
@@ -51,7 +51,7 @@
   --mo-sys-shape-corner-extra-extra-large: 3rem;
   --mo-sys-shape-corner-full: 9999px;
   /* Images in a list, a row, a step on the time line: large corners. */
-  --mo-sys-radius-small: var(--mo-sys-shape-corner-large);
+  --mo-sys-shape-corner-large: var(--mo-sys-shape-corner-large);
 }
 :is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */

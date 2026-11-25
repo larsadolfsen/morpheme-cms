@@ -7,7 +7,7 @@
 // with an info button after it that credits the photographer, PhotoCredit), how many features and improvements it brings (the supporting
 // text, bundledNotes.ts) and Read more to the Morpheme page with all of them; for each app installed from the store: a
 // row with its icon and new version, to its Information tab. Exposes UpdatesNotice. The logic is startView.mjs's
-// (changesSince) and releaseNotes.mjs's (notesSince, editionOf), the storage startStorage.ts's, the card, rows, buttons
+// (changesSince) and releaseNotes.mjs's (notesOfVersion, editionOf), the storage startStorage.ts's, the card, rows, buttons
 // and tooltip the theme's (themeUi.ts, ui.tsx).
 import { useEffect, useRef, useState } from 'react';
 import { version } from '../package.json';
@@ -24,7 +24,7 @@ import { CMS_ROUTE } from './CmsPage';
 import { LICENSES_ROUTE } from './Licenses';
 import { appHref } from './AppList';
 import { runningEdition, runningNotes } from './bundledNotes';
-import { markCounts, notesSince } from '../lib/releaseNotes.mjs';
+import { markCounts, notesOfVersion } from '../lib/releaseNotes.mjs';
 import { INFO_KEY } from '../lib/appRoute.mjs';
 
 /** The CMS's version and those of the apps installed from the store, as the editor is built with them now. */
@@ -109,7 +109,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
     const app = c.id === 'cms' ? null : apps.find((a) => a.id === c.id);
     return app ? [{ app, version: c.version }] : [];
   });
-  const news = cms ? notesSince(runningNotes, cms.from, locale) : [];
+  const news = cms ? notesOfVersion(runningNotes, cms.version, locale) : [];
   const { features, improvements } = markCounts(news);
   const edition = cms && runningEdition;
   const place = edition && (edition.place[locale] ?? edition.place['en-US']);
@@ -138,11 +138,11 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
           )}
           {news.length > 0 && <p className="mo-editor-updates-notice-counts">{t.library.noteCounts(features, improvements)}</p>}
           <div className="mo-editor-updates-notice-actions">
-            <Button kind="text" size="small" onClick={close}>
+            <Button kind="text" onClick={close}>
               {t.common.close}
             </Button>
             {cms && (
-              <LinkButton kind="filled" size="small" href={`#${CMS_ROUTE}`} aria-label={t.library.readMoreOn(title)}>
+              <LinkButton kind="filled" href={`#${CMS_ROUTE}`} aria-label={t.library.readMoreOn(title)}>
                 {t.library.readMore}
               </LinkButton>
             )}

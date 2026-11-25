@@ -17,7 +17,7 @@
   --mo-comp-icon-button-outlined-outline-color: var(--mo-sys-color-outline-variant);
 }
 @layer components {
-  .mo-bottom-sheet__header {
+  :where(.mo-is-bottom) .mo-sheet__header {
     --mo-comp-icon-button-small-container-height: 2.5rem;
     --mo-comp-icon-button-small-icon-size: 1.375rem;
   }

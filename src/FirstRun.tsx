@@ -1,7 +1,6 @@
 // The start screen's first-run card: while the site has no page or post of its own, a card with the first things to do (FirstRunCard): write a page, write a blog post, add a
 // image. The card goes away when a page or post exists, and can be closed (kept in this browser). Exposes FirstRunCard. The entries are entries.mjs's, the lists START_FAB's, the storage startStorage.ts's.
 import { useId, useState } from 'react';
-import { Image } from '@phosphor-icons/react';
 import { t } from './i18n';
 import { START_FAB } from './fabScreens';
 import { collections, icons } from './site';
@@ -10,6 +9,7 @@ import { keepStored, readStored } from './startStorage';
 import type { RepoFile } from './github';
 import { SiteCard } from './themeUi';
 import { CloseButton, ListItem, plainListClass } from './ui';
+import { materialIcon } from './icon';
 
 export const FIRST_RUN_CLOSED = 'editor-first-run-closed';
 
@@ -40,7 +40,7 @@ export function FirstRunCard({ files }: { files: RepoFile[] }) {
         {rows.map((r) => (
           <ListItem key={r.key} href={r.href} icon={r.icon} headline={r.label} arrow />
         ))}
-        <ListItem href="#files" icon={Image} headline={t.library.firstRunImage} arrow />
+        <ListItem href="#files" icon={materialIcon('image')} headline={t.library.firstRunImage} arrow />
       </ul>
     </SiteCard>
   );

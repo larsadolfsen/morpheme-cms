@@ -2,27 +2,27 @@
 
 /* "Questions and answers": rows that fold out, one open at a time (expand/Accordion.tsx). Its rows take the List - Expand kind's own padding, M3's 16 dp (Lists › Specs). */
 /* A list's row icon and arrow are the row heading's colour (the block's text, which a coloured section swaps to its on-colour), as the
-     section's other text is; only the supporting line stays the quieter --mo-sys-block-muted. A row icon with its own colour (below) keeps it. */
+     section's other text is; only the supporting line stays the quieter --mo-comp-block-muted. A row icon with its own colour (below) keeps it. */
 @layer components {
   .mo-block-list {
-    --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-block-text);
-    --mo-comp-list-item-trailing-text: var(--mo-sys-block-text);
+    --mo-comp-list-list-item-leading-icon-color: var(--mo-comp-block-text);
+    --mo-comp-list-item-trailing-text: var(--mo-comp-block-text);
   }
 }
 /* The color of an icon in a row or a card (`iconColor`, src/iconColor.ts): one of the theme's color roles; without one, the text colour (Text in the editor). */
 @layer components {
   [data-icon-color='primary'] {
-    --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-color-primary, var(--mo-sys-block-accent));
+    --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-color-primary, var(--mo-comp-block-accent));
   }
 }
 @layer components {
   [data-icon-color='secondary'] {
-    --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-color-secondary, var(--mo-sys-block-secondary));
+    --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-color-secondary, var(--mo-comp-block-secondary));
   }
 }
 @layer components {
   [data-icon-color='tertiary'] {
-    --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-color-tertiary, var(--mo-sys-block-tertiary));
+    --mo-comp-list-list-item-leading-icon-color: var(--mo-sys-color-tertiary, var(--mo-comp-block-tertiary));
   }
 }
 /* ---- "Checklist" and "Price cards" ---- */
@@ -33,6 +33,7 @@
 @layer components {
   .mo-block-checklist {
     --mo-comp-list-list-item-container-height: auto;
-    --mo-comp-list-item-padding-block: 0.25em;
+    --mo-comp-list-list-item-top-space: 0.25em;
+    --mo-comp-list-list-item-bottom-space: 0.25em;
   }
 }

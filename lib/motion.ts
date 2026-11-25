@@ -87,7 +87,7 @@ export const motionVariable = (kind: MotionKind, speed: MotionSpeed) => `--mo-sy
  * (`--mo-sys-motion-spring-fast-spatial: 290ms linear(…)`), to use as `transition: transform var(--mo-sys-motion-spring-fast-spatial)`, and its
  * duration alone (`--mo-sys-motion-spring-fast-spatial-duration`), for what must last as long as it (a `visibility` that waits for it,
  * a `display … allow-discrete`); and the default spatial and effects curves alone (--mo-sys-motion-ease, --mo-sys-motion-ease-quick),
- * for what has its own duration (--mo-sys-block-ease and --mo-sys-block-ease-quick in blocks.css, --mo-sys-ease in base.css). */
+ * for what has its own duration (--mo-comp-block-ease and --mo-comp-block-ease-quick in blocks.css, --mo-sys-ease in base.css). */
 export function motionCss(scheme: MotionScheme): string {
   const springs = SPRINGS[scheme];
   const declarations = MOTION_KINDS.flatMap((kind) =>

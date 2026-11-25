@@ -7,7 +7,9 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BUILD_SETTINGS_PATH, readBuildSettings } from '../lib/build-settings.mjs';
 import { laneFor } from '../lib/build-lane.mjs';
+import { APP_APIS, THEME_API } from '../lib/contracts.mjs';
 import { changedSinceLive } from '../site/live-diff.mjs';
+import { installForBuild, installMessages, bindingMessages, writeInstalls } from './build-install.mjs';
 import { stepCommand } from './step-command.mjs';
 
 /** The version of this package, the CMS the site has installed. */
@@ -19,13 +21,31 @@ function installedVersion() {
   }
 }
 
+/** The contracts this CMS reads. */
+const ownContracts = () => ({ theme: THEME_API, apps: [...APP_APIS] });
+
+/**
+ * Whether the build takes the install step: it is an update that raised the contracts (the live site was built by another CMS
+ * version, or one that does not say, that did not read these contracts: its version.json records them, an older one does not,
+ * so it counts as another), or the live build left store items for the editor to commit (`installs` of its version.json:
+ * until the editor has, git has the old ones, and any build of git needs the step again).
+ * @param {{ cmsChanged?: boolean, liveContracts?: any, liveInstalls?: unknown }} lane what decideLane returned
+ * @param {{ theme: number, apps: number[] }} [next]
+ */
+export function needsInstallStep(lane, next = ownContracts()) {
+  if (Array.isArray(lane.liveInstalls) && lane.liveInstalls.length > 0) return true;
+  if (!lane.cmsChanged) return false;
+  const live = lane.liveContracts;
+  return !(live?.theme === next.theme && Array.isArray(live?.apps) && live.apps.join() === next.apps.join());
+}
+
 /**
  * @param {object} o
  * @param {string} o.cwd the site's root; must be the working directory too, as the site config is loaded from there
  * @param {typeof globalThis.fetch} [o.fetch]
  * @param {NodeJS.ProcessEnv} [o.env] MORPHEME_LIVE_URL, when set, is the address the live commit is read from instead of `https://<domain>`
  * @param {string} [o.cmsVersion] the installed @morphemecms/cms version (default: this package's)
- * @returns {Promise<{ lane: 'content' | 'full', reason: string, paths: string[] | null, siteUrl?: string }>} siteUrl: the live address (also the one
+ * @returns {Promise<{ lane: 'content' | 'full', reason: string, paths: string[] | null, siteUrl?: string, cmsChanged?: boolean, liveContracts?: unknown, liveInstalls?: unknown }>} siteUrl: the live address (also the one
  *   the build takes unchanged image sizes from), when the config is known; any doubt gives the full lane.
  */
 export async function decideLane({ cwd, fetch = globalThis.fetch, env = process.env, cmsVersion = installedVersion() }) {
@@ -45,7 +65,7 @@ export async function decideLane({ cwd, fetch = globalThis.fetch, env = process.
     return { ...laneFor(null, settings, 'site config unknown'), paths: null };
   }
   const siteUrl = env.MORPHEME_LIVE_URL ? env.MORPHEME_LIVE_URL.trim().replace(/\/+$/, '') : 'https://' + config.domain;
-  const { paths, reason } = await changedSinceLive({
+  const { paths, reason, cmsChanged, liveContracts, liveInstalls } = await changedSinceLive({
     siteUrl,
     cms: cmsVersion,
     cwd,
@@ -53,7 +73,7 @@ export async function decideLane({ cwd, fetch = globalThis.fetch, env = process.
     branch: env.WORKERS_CI_BRANCH,
     repoBranch: config.repo.branch,
   });
-  return { ...laneFor(paths, settings, reason), paths, siteUrl };
+  return { ...laneFor(paths, settings, reason), paths, siteUrl, cmsChanged, liveContracts, liveInstalls };
 }
 
 /** Runs a command with the output shown and stops the build with its exit code when it fails. */
@@ -64,11 +84,36 @@ function step(tool, args, env = process.env) {
   if (status !== 0) process.exit(status ?? 1);
 }
 
+/** The update's install step: the store themes and apps this CMS does not accept replaced by the store's versions it does, or the build stopped naming the item. */
+async function installStep(cwd, lane) {
+  if (!needsInstallStep(lane)) return writeInstalls(cwd, [], installedVersion());
+  const { config } = await import('../site/siteConfig.mjs');
+  const folders = { apps: config.apps.folder, themes: config.themes };
+  const { status, installs, problems, workers, bindings } = await installForBuild({ cwd, folders, next: ownContracts() });
+  if (problems.length) {
+    for (const line of installMessages(problems, folders)) console.error(`ci-build: ${line}`);
+    process.exit(1);
+  }
+  if (status === 'no-key') {
+    console.error(
+      'ci-build: The update stopped: this site has themes or apps from the store, and the new version needs the store to install the versions it accepts. ' +
+        'Set the build variable MORPHEME_STORE_KEY (the store key) in Cloudflare: Workers & Pages, this site, Settings, Build, Variables and secrets. Then update again.',
+    );
+    process.exit(1);
+  }
+  if (status === 'unreachable') console.log('ci-build: store themes and apps not checked (the store did not answer)');
+  for (const line of bindingMessages(bindings ?? [])) console.warn(`ci-build: ${line}`);
+  for (const i of installs) console.log(`ci-build: ${i.kind} ${i.id} ${i.from} → ${i.version} (the editor commits it on its first start)`);
+  writeInstalls(cwd, installs, installedVersion(), workers);
+}
+
 async function main() {
   const cwd = process.cwd();
-  const { lane, reason, paths, siteUrl } = await decideLane({ cwd });
-  console.log(`ci-build: ${lane} lane — ${reason}`);
-  if (lane === 'full') {
+  const lane = await decideLane({ cwd });
+  const { reason, paths, siteUrl } = lane;
+  console.log(`ci-build: ${lane.lane} lane — ${reason}`);
+  await installStep(cwd, lane);
+  if (lane.lane === 'full') {
     step('npm', ['run', 'check']);
   } else {
     const existing = paths.filter((path) => existsSync(join(cwd, path)));

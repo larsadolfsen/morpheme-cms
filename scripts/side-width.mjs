@@ -21,7 +21,7 @@ export function leadProblem(text, side) {
 }
 
 /** The width rule for the text's classes: with a column the text stops at the page text measure (`mo-has-side`, the token
- * --mo-sys-block-text-measure-max); without one the text is as wide as its container (`mo-is-single-column`) and only its parts outside the
+ * --mo-comp-block-text-measure-max); without one the text is as wide as its container (`mo-is-single-column`) and only its parts outside the
  * blocks stop at the measure. Returns what is wrong, or null. */
 export function widthProblem(text, side) {
   if (side)

@@ -2,7 +2,6 @@
 // "Morpheme 0.13" with the notes of each of its versions (ReleaseNotes), newest first, and at the bottom arrows to the
 // newer and the older line. Exposes VersionLinePage, EarlierVersions (the rows to these pages) and LineNav (the arrows). Depends on bundledNotes.ts (runningNotes, runningLine) and
 // lib/releaseNotes.mjs (versionLines).
-import { ArrowLeft, ArrowRight } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { CMS_ROUTE } from './CmsPage';
 import { ReleaseNotes } from './ReleaseNotes';
@@ -10,6 +9,7 @@ import { EmptyNote, Group, LinkButton, ListItem } from './ui';
 import { runningLine, runningNotes } from './bundledNotes';
 import { versionLines } from '../lib/releaseNotes.mjs';
 import { t } from './i18n';
+import { materialIcon } from './icon';
 
 /** Every line, newest first, and those older than the running one. */
 const lines = () => versionLines(runningNotes);
@@ -30,7 +30,13 @@ export function LineNav({ line }: { line: string }) {
   return (
     <nav aria-label={t.cms.otherVersions} className="mo-editor-version-nav">
       {newer ? (
-        <LinkButton kind="outlined" size="small" href={lineHref(newer.line)} icon={ArrowLeft} aria-label={t.library.cmsVersion(newer.line)}>
+        <LinkButton
+          kind="outlined"
+
+          href={lineHref(newer.line)}
+          icon={materialIcon('arrow_back')}
+          aria-label={t.library.cmsVersion(newer.line)}
+        >
           {newer.line}
         </LinkButton>
       ) : (
@@ -39,9 +45,9 @@ export function LineNav({ line }: { line: string }) {
       {older && (
         <LinkButton
           kind="outlined"
-          size="small"
+
           href={lineHref(older.line)}
-          icon={ArrowRight}
+          icon={materialIcon('arrow_forward')}
           aria-label={t.library.cmsVersion(older.line)}
         >
           {older.line}

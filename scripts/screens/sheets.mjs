@@ -6,9 +6,9 @@ import { barTools, cancelOf, pressInsert, pressTool } from './support/shared.mjs
 /** A modal sheet with a text field on a phone with its on-screen keyboard up (the Source color sheet on Colors, the shared
  * BottomSheet, followKeyboard() in theme/ui/bottomSheetControl.ts): a keyboard shrinks only the visual viewport, which is
  * emulated here by a smaller visualViewport. The sheet must end exactly at the keyboard's top (no strip of the page
- * between), and its hex field and its buttons (Use and lock, Cancel, Use color) must be visible and inside the visible screen. */
+ * between), and its hex field and its buttons (Cancel, Use color) must be visible and inside the visible screen. */
 async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, custom = false) {
-  // In Custom (the generator's sixth choice) the first colour is Primary and the sheet has no "Use and lock".
+  // In Custom (the generator's last choice) the first colour is Primary.
   const name = custom ? 'Primary' : 'Source color';
   const label = `${width}px keyboard sheet${custom ? ' (Custom)' : ''}`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -31,18 +31,18 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, cus
   const got = await page.evaluate((name) => {
     const dialog = document.querySelector(`dialog[open][aria-label="${name}"]`);
     const box = (el) => el.getBoundingClientRect();
-    const buttons = [...dialog.querySelectorAll('button')].filter((b) => /^(Use and lock|Cancel|Use color)$/.test(b.textContent.trim()));
+    const buttons = [...dialog.querySelectorAll('button')].filter((b) => /^(Cancel|Use color)$/.test(b.textContent.trim()));
     const field = dialog.querySelector('input[aria-label="Color code"], input');
     return {
       visible: visualViewport.height,
-      sheet: box(dialog.querySelector('.mo-bottom-sheet__container')),
+      sheet: box(dialog.querySelector('.mo-sheet__container.mo-is-bottom')),
       buttons: buttons.map((b) => [b.textContent.trim(), box(b)]),
       field: box(field),
     };
   }, name);
   if (Math.abs(got.sheet.bottom - got.visible) > 1)
     problems.push(`${label}: the sheet ends at ${got.sheet.bottom}, not at the keyboard's top (${got.visible})`);
-  const expected = custom ? 2 : 3;
+  const expected = 2;
   if (got.buttons.length !== expected) problems.push(`${label}: ${got.buttons.length} of the ${expected} buttons are in the sheet`);
   for (const [name, r] of got.buttons)
     if (r.top < 0 || r.bottom > got.visible + 1) problems.push(`${label}: "${name}" is outside the visible screen`);
@@ -51,11 +51,10 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, cus
   await page.close();
 }
 
-/** Custom colours on Colors (docs/superpowers/specs/2026-11-13-custom-colors-design.md, step C). The sixth chip, "Custom": the tiles are
- * Primary, Secondary and Tertiary with a pen each and no lock, and the sheet has no "Use and lock"; the wheel has three dots, each its own
- * slider, and dragging one changes only its colour; with the set-1 brand colours Primary asks "Fix this to improve accessibility?"
- * (Save says to answer first and scrolls to it), Fix gives the "Adjusted for contrast" list, Keep the warning under the tile; a
- * Secondary and a Tertiary with low contrast on the page get their note; a harmony and back keeps the custom colours. */
+/** Custom colours on Colors (docs/superpowers/specs/2026-11-21-m3-color-schemes-design.md). The last chip, "Custom": the tiles are
+ * Primary, Secondary and Tertiary with a pen each and no lock, and the sheet has Cancel and Use color; the wheel has three dots, each its
+ * own slider, and dragging one changes only its colour; no question and no contrast note, since the roles take M3's tones; a scheme
+ * (Tonal spot) and back keeps the custom colours. Primary is never questioned: the roles take M3's tones from each palette. */
 async function checkCustomColors(width, height) {
   const label = `${width}px custom colors`;
   const phone = width < 600;
@@ -94,47 +93,10 @@ async function checkCustomColors(width, height) {
   if ((await hexes()).join() !== '#f34e3d,#f5e8cc,#55263d')
     problems.push(`${label}: the tiles show "${await hexes()}", not the colors picked`);
 
-  const question = page.getByText('Fix this to improve accessibility?', { exact: true });
-  if (!(await question.isVisible())) problems.push(`${label}: Primary #F34E3D does not ask to be fixed`);
-  const numbers = await page.getByText(/^Light mode: Primary is hard to read as text on Surface: \d\.\d, at least 4\.5 needed\.$/).count();
-  if (!numbers) problems.push(`${label}: the question does not say Primary's contrast in light mode (of 4.5)`);
-  for (const name of ['Secondary', 'Tertiary'])
-    if (
-      !(await page
-        .getByText(`${name} has low contrast on the page, so it is not offered as an icon color. It is still used for fills.`)
-        .isVisible())
-    )
-      problems.push(`${label}: no note for the low ${name}`);
-  // Save waits for the answer, and takes the owner to it.
-  await page.getByRole('button', { name: 'Save changes' }).click();
-  // The first Save asks about notifications: not now.
-  const ask = page.locator('dialog[open]').getByRole('button', { name: 'Cancel', exact: true });
-  if (await ask.count()) await ask.click();
-  await page.waitForTimeout(500);
-  if (!(await page.getByText('Answer the question about Primary first.').count()))
-    problems.push(`${label}: Save does not ask to answer first`);
-  const at = await question.evaluate((el) => el.getBoundingClientRect().toJSON());
-  if (at.top < 0 || at.bottom > height)
-    problems.push(`${label}: Save did not scroll to the question (${at.top}..${at.bottom} of ${height})`);
-
-  // Fix: the adjusted list shows, the question is gone, and every pair reads.
-  await page.getByRole('button', { name: 'Fix', exact: true }).click();
-  await page.waitForTimeout(300);
-  if (await question.count()) problems.push(`${label}: the question stays after Fix`);
-  if (!(await page.getByText('Adjusted for contrast', { exact: true }).isVisible()))
-    problems.push(`${label}: no list of adjusted colors after Fix`);
-  if ((await hexes())[0] !== '#f34e3d') problems.push(`${label}: Fix changed the chosen Primary tile`);
-
-  // A new Primary asks again (a new colour, a new question), and Keep leaves it as chosen with a warning.
-  await pick('Primary', '#2589D8');
-  if (!(await question.isVisible())) problems.push(`${label}: a new hard Primary does not ask`);
-  if (await page.getByText('Adjusted for contrast', { exact: true }).count())
-    problems.push(`${label}: the adjusted list stays for a new Primary`);
-  await page.getByRole('button', { name: 'Keep', exact: true }).click();
-  await page.waitForTimeout(300);
-  if (await question.count()) problems.push(`${label}: the question stays after Keep`);
-  if (!(await page.getByText('Primary is kept as you chose it. It may be hard to read.').isVisible()))
-    problems.push(`${label}: no warning after Keep`);
+  // The roles take M3's tones from each palette, so a cream Secondary or a dark Tertiary reads on the page: no note, no question.
+  if (await page.getByText(/has low contrast on the page/).count())
+    problems.push(`${label}: a note about low contrast shows for M3's tones`);
+  if (await page.getByText(/Fix this to improve accessibility/).count()) problems.push(`${label}: Custom still asks to fix Primary`);
 
   // Each dot moves only its own colour, and a cream keeps its tone (stays light).
   const before = await hexes();
@@ -146,7 +108,6 @@ async function checkCustomColors(width, height) {
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
   await page.mouse.move(wbox.x + wbox.width * 0.8, wbox.y + wbox.height * 0.5, { steps: 5 });
-  if (await question.count()) problems.push(`${label}: the question is shown while a dot is dragged`);
   await page.mouse.up();
   const after = await hexes();
   if (after[0] !== before[0] || after[2] !== before[2])
@@ -159,10 +120,10 @@ async function checkCustomColors(width, height) {
   if (keyed[2] === after[2] || keyed[0] !== after[0] || keyed[1] !== after[1])
     problems.push(`${label}: an arrow key did not move only Tertiary (${after} to ${keyed})`);
 
-  // A harmony and back: the custom colors are kept.
-  await page.getByRole('button', { name: 'Analogous', exact: true }).click();
+  // A scheme and back: the custom colors are kept, and a scheme has no lock.
+  await page.getByRole('button', { name: 'Tonal spot', exact: true }).click();
   await page.waitForTimeout(300);
-  if ((await page.getByRole('button', { name: /^Lock / }).count()) !== 1) problems.push(`${label}: a harmony has no lock`);
+  if (await page.getByRole('button', { name: /^Lock / }).count()) problems.push(`${label}: a scheme has a lock`);
   await page.getByRole('button', { name: 'Custom', exact: true }).click();
   await page.waitForTimeout(300);
   if ((await hexes()).join() !== keyed.join()) problems.push(`${label}: back in Custom the colors are "${await hexes()}", not "${keyed}"`);
@@ -195,11 +156,14 @@ async function checkBottomSheetBar(width, height, keyboard = 0, keyboardUp = fal
     const bar = document.querySelector('.mo-editor-save-bar');
     if (!bar) return null;
     const ref = document.body.appendChild(document.createElement('div'));
-    ref.className = 'mo-bottom-sheet__container';
+    ref.className = 'mo-sheet__container mo-is-bottom';
     const refStyle = getComputedStyle(ref);
     const style = getComputedStyle(bar);
     const out = {
-      standard: bar.classList.contains('mo-bottom-sheet__container') && bar.classList.contains('mo-bottom-sheet__standard'),
+      standard:
+        bar.classList.contains('mo-sheet__container') &&
+        bar.classList.contains('mo-is-bottom') &&
+        bar.classList.contains('mo-sheet__standard'),
       background: style.backgroundColor,
       refBackground: refStyle.backgroundColor,
       radius: style.borderTopLeftRadius,
@@ -315,12 +279,12 @@ async function checkPhoneSheet(width = 375, height = 740) {
       return !!hit && b.contains(hit) && !b.closest('[inert]');
     };
     const publish = named(/^Publish/).filter((b) => !d.contains(b));
-    const bar = d.querySelector('.mo-bottom-sheet__standard');
+    const bar = d.querySelector('.mo-sheet__standard.mo-is-bottom');
     // What makes the Save row the theme's standard bottom sheet (the same surface and top corners as a BottomSheet container), and where Save
     // and the fields stand: Save stands inside the sheet's own content padding, and the last field ends above the sheet.
     const sheetLook = (bar, d) => {
       const ref = document.body.appendChild(document.createElement('div'));
-      ref.className = 'mo-bottom-sheet__container';
+      ref.className = 'mo-sheet__container mo-is-bottom';
       const refStyle = getComputedStyle(ref);
       const style = bar ? getComputedStyle(bar) : null;
       const save = [...(bar?.querySelectorAll('button') ?? [])].pop()?.getBoundingClientRect();
@@ -331,13 +295,17 @@ async function checkPhoneSheet(width = 375, height = 740) {
       main.scrollTo(0, main.scrollHeight);
       const last = fields.at(-1)?.getBoundingClientRect();
       const out = {
-        standardSheet: !!bar && bar.classList.contains('mo-bottom-sheet__container') && bar.classList.contains('mo-bottom-sheet__standard'),
+        standardSheet:
+          !!bar &&
+          bar.classList.contains('mo-sheet__container') &&
+          bar.classList.contains('mo-is-bottom') &&
+          bar.classList.contains('mo-sheet__standard'),
         sheetSurface: style && style.backgroundColor === refStyle.backgroundColor,
         sheetRadius: style && style.borderTopLeftRadius === refStyle.borderTopLeftRadius && style.borderTopLeftRadius !== '0px',
         sheetFixed: style?.position === 'fixed',
         saveEnd: save ? Math.round(window.innerWidth - save.right) : null,
         // The sheet's own content padding (the theme's): Save stands exactly inside it.
-        sheetPad: bar ? Math.round(parseFloat(getComputedStyle(bar.querySelector('.mo-bottom-sheet__content')).paddingRight)) : null,
+        sheetPad: bar ? Math.round(parseFloat(getComputedStyle(bar.querySelector('.mo-is-bottom .mo-sheet__content')).paddingRight)) : null,
         saveBelow: save && bar ? Math.round(bar.getBoundingClientRect().bottom - save.bottom) : null,
         saveAbove: save && bar ? Math.round(save.top - bar.getBoundingClientRect().top) : null,
         lastClear: last && bar ? last.bottom <= bar.getBoundingClientRect().top + 1 : null,
@@ -351,7 +319,7 @@ async function checkPhoneSheet(width = 375, height = 740) {
     return {
       rect: [r.left, r.top, r.width, r.height].map(Math.round),
       modal: d.matches(':modal'),
-      full: [...document.querySelectorAll('dialog[open] .mo-dialog__basic')].some((b) => {
+      full: [...document.querySelectorAll('dialog[open] .mo-dialog.mo-is-basic')].some((b) => {
         const r = b.getBoundingClientRect();
         return r.width >= innerWidth - 1 && r.height >= innerHeight - 1;
       }),
@@ -594,7 +562,7 @@ async function checkLiveSideSheet(width = 1280) {
   const extra = buttons.filter((b) => ['Save', 'Insert', 'Cancel', 'Remove'].includes(b));
   if (extra.length) problems.push(`${label}: the side sheet has ${extra.join(', ')} (it is live: only its close button)`);
   if (!(await sheet.locator('[data-side-sheet-close]').count())) problems.push(`${label}: the side sheet has no close button`);
-  if (await sheet.locator('.mo-side-sheet__actions').count()) problems.push(`${label}: the side sheet has a row of bottom actions`);
+  if (await sheet.locator('.mo-is-side .mo-sheet__actions').count()) problems.push(`${label}: the side sheet has a row of bottom actions`);
   // A change shows in the page at once.
   await sheet.locator('textarea').fill('<p>Live text</p>');
   await page.waitForTimeout(400);
@@ -961,8 +929,8 @@ async function checkCropView(width, height = 800) {
         fills: Math.abs(r.width - vp.w) < 1 && Math.abs(r.height - vp.h) < 1,
         title: d.querySelector('h1')?.textContent,
         bar: !!d.querySelector('header, .mo-top-app-bar'),
-        dialogParts: !!d.querySelector('.mo-dialog__basic, .mo-dialog__headline'),
-        buttons: [...d.querySelectorAll('.mo-bottom-sheet__standard button')].map((b) => b.textContent.trim()),
+        dialogParts: !!d.querySelector('.mo-dialog.mo-is-basic, .mo-dialog__headline'),
+        buttons: [...d.querySelectorAll('.mo-sheet__standard.mo-is-bottom button')].map((b) => b.textContent.trim()),
         area: d.querySelector('.mo-editor-crop-view-area').getBoundingClientRect().width,
       };
     },
@@ -1485,7 +1453,7 @@ async function checkBlockSettingsPane(width) {
   await row.click();
   await page.waitForTimeout(500);
   const got = await page.evaluate(() => {
-    const aside = document.querySelector('aside.mo-side-sheet__container:not([hidden])');
+    const aside = document.querySelector('aside.mo-sheet__container.mo-is-side:not([hidden])');
     const box = aside?.getBoundingClientRect();
     const first = [...document.querySelectorAll('main button, main [role=button]')]
       .find((b) => /^Buttons/.test(b.textContent.trim()))
@@ -1611,7 +1579,7 @@ async function checkLinkAndItemPanes(width) {
       const shown = [...document.querySelectorAll('aside.mo-editor-side-sheet')].filter((a) => !a.closest('.hidden, .mo-hidden'));
       return {
         shown: shown.length,
-        title: shown[0]?.querySelector('.mo-side-sheet__headline')?.textContent,
+        title: shown[0]?.querySelector('.mo-is-side .mo-sheet__headline')?.textContent,
         back: !!shown[0]?.querySelector('[data-side-sheet-back]'),
       };
     });
@@ -1621,7 +1589,7 @@ async function checkLinkAndItemPanes(width) {
     await page.waitForTimeout(600);
     const back = await page.evaluate(() => {
       const shown = [...document.querySelectorAll('aside.mo-editor-side-sheet')].filter((a) => !a.closest('.hidden, .mo-hidden'));
-      return { shown: shown.length, title: shown[0]?.querySelector('.mo-side-sheet__headline')?.textContent };
+      return { shown: shown.length, title: shown[0]?.querySelector('.mo-is-side .mo-sheet__headline')?.textContent };
     });
     if (back.shown !== 1 || back.title === 'Link')
       problems.push(`${label}: Back does not show the block's pane again (${JSON.stringify(back)})`);
@@ -1697,7 +1665,7 @@ async function checkVideoChangeLink(width, height = 800) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, phone ? 'tap' : 'click');
-  await page.locator('dialog[open] button', { hasText: 'A YouTube or Vimeo video.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Play a video from YouTube or Vimeo.' }).first().click();
   await page.waitForSelector('.mo-site-block-inline [data-field="title"]');
   await page.keyboard.type('My film');
   await page.waitForTimeout(300);
@@ -1784,7 +1752,181 @@ async function checkVideoChangeLink(width, height = 800) {
   await page.close();
 }
 
+/** The theme's carousel in M3's "uncontained multi-aspect ratio" layout (theme/ui/Carousel.tsx, layout multi-aspect-ratio) on "Parts" › "UI components" (ContainmentParts.tsx), light and dark: every item as high as the
+ * row and as wide as its aspect ratio (16:9, 9:16, 1:1 and 3:4, M3's four) with 28 dp corners, 8 dp between items, 8 dp above and below, the first one at the leading padding (the page's 16 dp gutter on a phone) and no
+ * trailing padding, free scrolling (no snap), no page indicator, named for a screen reader, and a visible focus ring on a focused item that the row does not clip. */
+async function checkCarouselMultiAspect(width, height, scheme) {
+  const label = `${width}px carousel multi-aspect ratio ${scheme}`;
+  const compact = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: compact, isMobile: compact, colorScheme: scheme });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const root = page.locator('[data-carousel-layout="multi-aspect-ratio"]');
+  await root
+    .first()
+    .waitFor({ timeout: 30_000 })
+    .catch(() => problems.push(`${label}: the sample is not on the page`));
+  if (!(await root.count())) return page.close();
+  await root.first().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(300);
+  const m = await root.first().evaluate((el) => {
+    const row = el.querySelector('[data-carousel-items]');
+    const rs = getComputedStyle(row);
+    const rr = row.getBoundingClientRect();
+    const items = [...el.querySelectorAll('[data-carousel-item]')];
+    const boxes = items.map((i) => i.getBoundingClientRect());
+    const mask = items[0].querySelector('[data-carousel-mask]');
+    return {
+      sizes: boxes.map((b) => ({ w: b.width, h: b.height })),
+      gaps: boxes.slice(1).map((b, i) => b.left - boxes[i].right),
+      first: boxes[0].left - rr.left,
+      padTop: parseFloat(rs.paddingTop),
+      padBottom: parseFloat(rs.paddingBottom),
+      padEnd: parseFloat(rs.paddingInlineEnd),
+      snap: rs.scrollSnapType,
+      radius: parseFloat(getComputedStyle(mask).borderTopLeftRadius),
+      indicators: el.querySelectorAll('[data-carousel-indicator], [data-carousel-dot]').length,
+      named: !!el.getAttribute('aria-label') && items.every((i) => !!i.getAttribute('aria-label')),
+      rowName: !!row.getAttribute('aria-label'),
+      scrolls: row.scrollWidth > row.clientWidth,
+    };
+  });
+  const ratios = [16 / 9, 9 / 16, 1, 3 / 4];
+  m.sizes.slice(0, 4).forEach((s, i) => {
+    if (Math.abs(s.w / s.h - ratios[i]) > 0.02)
+      problems.push(`${label}: item ${i + 1} is ${s.w.toFixed(1)}x${s.h.toFixed(1)}, not ${ratios[i].toFixed(3)} wide for its height`);
+  });
+  if (new Set(m.sizes.map((s) => Math.round(s.h))).size !== 1) problems.push(`${label}: the items are not all as high as the row`);
+  if (m.gaps.some((g) => Math.abs(g - 8) > 0.5))
+    problems.push(`${label}: the gap between items is ${m.gaps.map((g) => g.toFixed(1)).join(', ')}, not 8 (M3: 8dp between items)`);
+  if (m.padTop !== 8 || m.padBottom !== 8)
+    problems.push(`${label}: padding above and below is ${m.padTop} and ${m.padBottom}, not 8 (M3: 8dp)`);
+  if (m.padEnd !== 0) problems.push(`${label}: the row has ${m.padEnd}px trailing padding (M3: only leading padding)`);
+  if (m.radius !== 28) problems.push(`${label}: the item's corners are ${m.radius}px, not 28`);
+  if (m.snap !== 'none') problems.push(`${label}: the row snaps (${m.snap}); M3 recommends free scrolling for uncontained layouts`);
+  if (m.indicators) problems.push(`${label}: it has a page indicator, which M3's carousel does not`);
+  if (!m.named || !m.rowName) problems.push(`${label}: the carousel, its scroller or an item has no name for a screen reader`);
+  if (!m.scrolls) problems.push(`${label}: the row does not scroll sideways (its items are cut off or all fit)`);
+  // The leading edge: the first item stands at the row's own start plus its padding (the page's gutter on a phone, the text's edge from medium).
+  if (compact && Math.abs(m.first - 16) > 1)
+    problems.push(`${label}: the first item starts ${m.first}px in from the row's edge, not 16 (M3: leading padding 16dp)`);
+  // Free scrolling: the row moves by any amount, it does not jump to an item.
+  const scrolled = await root.first().evaluate(async (el) => {
+    const row = el.querySelector('[data-carousel-items]');
+    row.scrollTo({ left: 37, behavior: 'instant' });
+    await new Promise((r) => setTimeout(r, 300));
+    return row.scrollLeft;
+  });
+  if (Math.abs(scrolled - 37) > 1) problems.push(`${label}: the row scrolled to 37 and rests at ${scrolled}: it snaps`);
+  // Keyboard: an item is a tab stop and its focus ring is drawn inside what the row shows.
+  await root.first().evaluate((el) => (el.querySelector('[data-carousel-items]').scrollLeft = 0));
+  await root.first().locator('[data-carousel-item]').first().focus();
+  await page.keyboard.press('Shift+Tab');
+  await page.keyboard.press('Tab');
+  const ring = await root.first().evaluate((el) => {
+    const item = el.querySelector('[data-carousel-item]');
+    const row = el.querySelector('[data-carousel-items]').getBoundingClientRect();
+    const s = getComputedStyle(item);
+    const r = item.getBoundingClientRect();
+    const grow = parseFloat(s.outlineWidth) + parseFloat(s.outlineOffset);
+    return {
+      focused: document.activeElement === item,
+      shown: s.outlineStyle !== 'none' && parseFloat(s.outlineWidth) > 0,
+      clipped: r.top - grow < row.top - 0.5 || r.bottom + grow > row.bottom + 0.5,
+    };
+  });
+  if (!ring.focused) problems.push(`${label}: an item does not take the focus by Tab`);
+  else if (!ring.shown) problems.push(`${label}: a focused item has no focus ring`);
+  else if (ring.clipped) problems.push(`${label}: the focus ring of an item is clipped by the row`);
+  await page.screenshot({ path: join(shots, `carousel-multi-aspect-${width}-${scheme}.png`) });
+  await page.close();
+}
+
+/** The theme's full-screen dialog (theme/ui/Dialog.tsx, kind full-screen; DG1) on "Parts" › "UI components" (ContainmentParts.tsx). Below 600 dp it fills the screen with 0 dp
+ * corners and a 56 dp header holding the close icon, the headline and Save (the first control has the focus; Cancel is not shown); from 600 dp it is the basic dialog in the middle
+ * (28 dp corners, at most 28rem wide) with Cancel and Save at its end, Save last, and no close icon. Escape closes it at both. */
+async function checkFullScreenDialog(width, height) {
+  const label = `${width}px full-screen dialog`;
+  const compact = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: compact, isMobile: compact });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const opener = page.getByRole('button', { name: 'Open the full-screen dialog' });
+  await opener.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the sample is not on the page`));
+  if (!(await opener.count())) return page.close();
+  await opener.scrollIntoViewIfNeeded();
+  await opener.click();
+  const dialog = page.locator('dialog[open][aria-labelledby="mo-parts-full-screen-dialog"]');
+  await dialog.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dialog does not open`));
+  if (!(await dialog.count())) return page.close();
+  await page.waitForTimeout(500);
+  const look = await dialog.evaluate((el) => {
+    const box = (e) => {
+      if (!e) return null;
+      const r = e.getBoundingClientRect();
+      const shown = getComputedStyle(e).display !== 'none' && r.width > 0;
+      return { shown, left: r.left, right: r.right, top: r.top, width: r.width, height: r.height };
+    };
+    const root = el.querySelector('.mo-dialog');
+    const names = (sel) => [...el.querySelectorAll(sel)].map((b) => b.getAttribute('aria-label') ?? b.textContent.trim());
+    const focus = document.activeElement;
+    return {
+      kind: root.classList.contains('mo-is-full-screen'),
+      dialog: box(el),
+      header: box(el.querySelector('.mo-dialog__header')),
+      close: box(el.querySelector('.mo-dialog__close')),
+      dismiss: box(el.querySelector('.mo-dialog__dismiss button')),
+      save: box(el.querySelector('.mo-dialog__action button')),
+      headline: box(el.querySelector('.mo-dialog__headline')),
+      radius: parseFloat(getComputedStyle(root).borderTopLeftRadius),
+      buttons: names('button'),
+      focusIn: el.contains(focus) && focus !== el,
+      focusName: focus?.getAttribute?.('aria-label') ?? focus?.textContent?.trim(),
+      vw: innerWidth,
+      vh: innerHeight,
+      sideways: document.documentElement.scrollWidth > innerWidth,
+    };
+  });
+  if (!look.kind) problems.push(`${label}: the dialog is not the full-screen kind`);
+  if (look.sideways) problems.push(`${label}: the page scrolls sideways with the dialog open`);
+  if (!look.focusIn) problems.push(`${label}: the focus is not on a control of the dialog (M3: the first interactive element)`);
+  if (compact) {
+    const d = look.dialog;
+    if (Math.abs(d.width - look.vw) > 1 || Math.abs(d.height - look.vh) > 1)
+      problems.push(`${label}: on a phone it fills the screen: ${Math.round(d.width)}x${Math.round(d.height)} of ${look.vw}x${look.vh}`);
+    if (look.radius !== 0) problems.push(`${label}: the container's corners are ${look.radius}px, not 0`);
+    if (Math.round(look.header.height) !== 56) problems.push(`${label}: the header is ${look.header.height}px high, not 56`);
+    if (!look.close.shown || !look.save.shown) problems.push(`${label}: the close icon and Save must show in the header`);
+    if (look.dismiss.shown) problems.push(`${label}: Cancel is shown below 600 dp (the close icon is the dismissal)`);
+    if (look.focusName !== 'Close') problems.push(`${label}: the focus is on "${look.focusName}", not the close icon (the first control)`);
+    if (look.headline.left < look.close.right - 1) problems.push(`${label}: the headline is not after the close icon`);
+    if (look.save.right > look.vw - 11) problems.push(`${label}: Save stands too near the screen's edge`);
+  } else {
+    const d = look.dialog;
+    if (d.width > 28 * 16 + 1 || Math.abs((d.left + d.right) / 2 - look.vw / 2) > 2)
+      problems.push(`${label}: from 600 dp it is the basic dialog in the middle, at most 28rem: ${Math.round(d.width)} wide`);
+    if (look.radius !== 28) problems.push(`${label}: the basic dialog's corners are ${look.radius}px, not 28`);
+    if (look.close.shown) problems.push(`${label}: the close icon is shown from 600 dp (a basic dialog has none)`);
+    if (!look.dismiss.shown || !look.save.shown) problems.push(`${label}: Cancel and Save must show at the end of the basic dialog`);
+    else if (look.dismiss.left > look.save.left || look.save.right > d.right)
+      problems.push(`${label}: Save is the last action, inside the dialog`);
+  }
+  await page.screenshot({ path: join(shots, `full-screen-dialog-${width}.png`) });
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(500);
+  if (await page.locator('dialog[open][aria-labelledby="mo-parts-full-screen-dialog"]').count())
+    problems.push(`${label}: Escape does not close it`);
+  await page.close();
+}
+
 export function register(unit) {
+  for (const [width, height] of [
+    [375, 740],
+    [1280, 900],
+  ])
+    unit(`checkFullScreenDialog ${width}`, () => checkFullScreenDialog(width, height));
   unit('checkLiveSideSheet 1280', () => checkLiveSideSheet(1280));
   unit('checkPhoneSheet 375', () => checkPhoneSheet(375));
   unit('checkComputerRestore 1280', () => checkComputerRestore(1280));
@@ -1796,6 +1938,9 @@ export function register(unit) {
   for (const width of [375, 1280]) unit(`checkCropView ${width}`, () => checkCropView(width));
   for (const width of [375, 1280]) unit(`checkVideoChangeLink ${width}`, () => checkVideoChangeLink(width));
   for (const width of [375, 1280]) unit(`checkAltSheet ${width}`, () => (width >= 840 ? checkAltLive(width) : checkAltSheet(width)));
+  for (const width of [390, 1280])
+    for (const scheme of ['light', 'dark'])
+      unit(`checkCarouselMultiAspect ${width} ${scheme}`, () => checkCarouselMultiAspect(width, width < 600 ? 800 : 900, scheme));
   unit('checkSheetKeyboard 375', () => checkSheetKeyboard(375));
   unit('checkSheetKeyboard 375 Custom', () => checkSheetKeyboard(375, 740, 300, true));
   for (const [width, height] of [

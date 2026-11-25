@@ -27,7 +27,6 @@
 // redirects and links only one app is active (lib/appTypes.mjs): installing or turning on another asks first, then
 // turns the active one off (it stays installed, with its settings and data), in the same commit.
 import { useEffect, useState, type ReactNode } from 'react';
-import { Info, UserCircle, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { Button, EmptyNote, Group, LeadingIcon, SupportingText, SearchRow, useKept, ListItem, plainListClass, type TabChoice } from './ui';
 import { pagesWith } from './BlockSettings';
@@ -38,9 +37,10 @@ import { ask, choose } from './ask';
 import { appsState, activeApps, installedApps, settingsFile, type SiteApp } from './apps';
 import { appsFileText, readAppsFile, withInstalled, withOff } from '../lib/appsFile.mjs';
 import { rivalsOf, withRivalsOff } from '../lib/appTypes.mjs';
+import { applyChanges, firstStart, mergeChanges, parseInstalls, parseWorkers } from '../lib/buildInstall.mjs';
 import { CATEGORIES, categoryOf, roleOf, type Role } from '../lib/storeCategories.mjs';
 import { filterByRole, mcpOf, serviceOf } from './sectionChoice.mjs';
-import { AnyIcon, Icon as NamedIcon } from './icon';
+import { AnyIcon, materialIcon, type IconComponent as Icon } from './icon';
 import {
   appChanges,
   appFolder,
@@ -48,6 +48,8 @@ import {
   changedFiles,
   notesSince,
   recordIn,
+  themeChanges,
+  themeFolder,
   DEVELOPER_ROUTE,
   newer,
   STORE_ROUTE,
@@ -393,7 +395,7 @@ export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; fi
       {name && (
         <ul className={plainListClass}>
           <ListItem
-            icon={UserCircle}
+            icon={materialIcon('account_circle')}
             headline={name}
             supporting={[theirs.length && t.apps.appCount(theirs.length), theirThemes.length && t.library.themeCount(theirThemes.length)]
               .filter(Boolean)
@@ -430,7 +432,7 @@ export function DeveloperPage({ slug, env, files }: { slug: string; env: Env; fi
 export function DeveloperRow({ name }: { name: string }) {
   return (
     <Group title={t.apps.developer}>
-      <ListItem href={developerHref(name)} icon={UserCircle} headline={name} arrow />
+      <ListItem href={developerHref(name)} icon={materialIcon('account_circle')} headline={name} arrow />
     </Group>
   );
 }
@@ -592,6 +594,80 @@ export async function autoUpdate(env: Env, files: RepoFile[]) {
       // Tried again the next time the editor opens.
       console.warn(`${app.id}:`, e);
     }
+  }
+}
+
+// Whether the build's installs were committed while the editor is open (commitBuildInstalls): once.
+let buildInstalled = false;
+
+/** Commits what the site's update build installed from the store (scripts/build-install.mjs), once while the editor is open
+ * (App.tsx): the build's themes and apps are in the live site, the site's git has the old ones until this runs. All in one
+ * commit (each install on its own would start its own build on Cloudflare), written as the store's versions (appChanges,
+ * themeChanges) with worker/apps.js, for each item the site still has as the store's own, older than the install and with no
+ * file changed in the site (firstStart in lib/buildInstall.mjs); an item the site has already updated, uninstalled or changed
+ * is left. A failure is tried again the next time the editor opens. One notification for each item. */
+export async function commitBuildInstalls(env: Env, files: RepoFile[]) {
+  if (buildInstalled) return;
+  buildInstalled = true;
+  const res = await fetch('/editor/build-installs.json', { cache: 'no-store' }).catch(() => null);
+  const text = res?.ok ? await res.text() : null;
+  const list = parseInstalls(text);
+  const workers = parseWorkers(text);
+  const file = files.find((f) => f.path === config.apps.installed);
+  // The site's files as the installs so far leave them: the file of apps and the cookie list are changed by each app.
+  let state = files;
+  const done: typeof list = [];
+  const all: Change[] = [];
+  for (const install of list) {
+    try {
+      const root = install.kind === 'theme' ? themeFolder(install.id) : appFolder(install.id);
+      // As the site has it now (another tab may have come first).
+      const current = await env.folder(root);
+      const record = recordIn(current, root);
+      if (firstStart(install, record, record ? changedFiles(install.id, record, current, root) : [], newer) !== 'commit') continue;
+      const wanted = {
+        files: await env.store.files({ files: install.files, label: install.label }),
+        record: { version: install.version, ref: install.version, files: install.files },
+      };
+      const changes =
+        install.kind === 'theme'
+          ? themeChanges(install.id, current, wanted)
+          : [
+              ...appChanges(
+                install.id,
+                current,
+                wanted,
+                state.find((f) => f.path === config.apps.installed),
+              ),
+              ...cookieChanges(install.id, cookiesIn(wanted.files), state),
+            ];
+      all.push(...changes);
+      state = applyChanges(state, changes);
+      done.push(install);
+    } catch (e) {
+      // Left out of the commit; tried again the next time the editor opens.
+      console.warn(`${install.id}:`, e);
+    }
+  }
+  if (!done.length) return;
+  try {
+    const changes = mergeChanges(all);
+    if (workers && done.some((i) => i.kind === 'app')) {
+      const [now] = await env.load(['worker/apps.js']);
+      if (now?.text !== workers) changes.push({ path: 'worker/apps.js', content: workers, oid: now?.oid ?? null });
+    }
+    const messages = done.map((i) =>
+      i.kind === 'theme' ? siteT.library.themeCommits.update(i.label, i.version) : siteT.apps.commit.update(i.label, i.version),
+    );
+    const message = [messages[0], ...(messages.length > 1 ? ['', ...messages.slice(1)] : [])].join('\n');
+    const change = done
+      .map((i) => t.app.changes.updated(kindAndName(i.kind === 'theme' ? t.app.changes.theme : t.app.changes.app, i.label), i.version))
+      .join(', ');
+    if (done.some((i) => i.kind === 'app')) await saveApp(env, message, change, changes, file);
+    else await env.commit(message, changes, change);
+    for (const i of done) env.notify({ text: t.apps.autoUpdated(i.label, i.version), kind: 'updates' });
+  } catch (e) {
+    console.warn('build installs:', e);
   }
 }
 
@@ -886,19 +962,15 @@ type AppProps = { app: SiteApp; env: Env; files: RepoFile[] };
 
 type AppTab = 'settings' | 'information';
 
-/** The Settings tab's icon: `settings` (the gear), which only the editor's Settings and an app's Settings tab draw (one icon per meaning). */
-const SettingsIcon = (({ size, className }: { size?: number | string; className?: string }) => (
-  <NamedIcon name="settings" size={Number(size) || 24} className={className} />
-)) as unknown as Icon;
-
 /** The tabs of an installed app's page, in the top bar: Settings (#apps/<id>) and Information (#apps/<id>/about). A form
  * with unsaved changes asks first, as for every address (App.tsx). */
 const tabsOf = (app: SiteApp, tab: AppTab): TabChoice<AppTab> => ({
+  kind: 'secondary',
   label: t.apps.tabs,
   value: tab,
   options: [
-    { value: 'settings', label: t.apps.tabSettings, icon: SettingsIcon },
-    { value: 'information', label: t.apps.tabInfo, icon: Info },
+    { value: 'settings', label: t.apps.tabSettings },
+    { value: 'information', label: t.apps.tabInfo },
   ],
   onChange: (v) => (location.hash = v === 'settings' ? appHref(app) : `${appHref(app)}/${INFO_KEY}`),
 });

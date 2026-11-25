@@ -47,3 +47,5 @@ Owner, 21 November 2026: "It does change, because we will no longer follow our F
 - **Other themes and accessibility:** decided. Any theme may fall short if its page says so, measured by the checks
   (`specs/2026-11-21-theme-accessibility-statement-design.md`).
 - **Fit with the customizer:** where the layers go (`specs/2026-11-21-customizer-notes.md`, `@layer base, theme, custom`).
+
+No contract raise: additive, optional keys, a theme without the new part falls back (themeProblems does not require it).

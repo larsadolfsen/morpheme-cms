@@ -12,6 +12,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { SCOPED_CSS_FROM_API } from '../lib/appCss.mjs';
 import { readTree, scan, scanStrict } from './mo-names.mjs';
 
 export const METRICS = ['classDefs', 'markup', 'propsDeclared', 'propsRead'];
@@ -42,9 +43,18 @@ export function problems(files) {
   return [...problemsOf(scan(files).perFile), ...scanStrict(files)];
 }
 
-/** A site's themes and apps (`src/themes`, `src/apps`): the same rules, so a theme or an app built on the CMS starts its names with mo- too (`check:content`, so `check:themes`). */
+/** A site's themes and apps (`src/themes`, `src/apps`): the same rules, so a theme or an app built on the CMS starts its names with mo- too (`check:content`, so `check:themes`).
+ * An app written to contract 8 is not read here: its own classes are plain names the build scopes to the app, and `check:app-classes` refuses a made-up `mo-` class. */
 export function siteProblems(root = process.cwd()) {
   const files = {};
+  const scoped = (path) => {
+    const m = /^src[\\/]apps[\\/]([^\\/]+)[\\/]/.exec(path);
+    try {
+      return !!m && JSON.parse(readFileSync(join(root, 'src/apps', m[1], 'app.json'), 'utf8')).api >= SCOPED_CSS_FROM_API;
+    } catch {
+      return false;
+    }
+  };
   for (const dir of ['src/themes', 'src/apps'])
     if (existsSync(join(root, dir)))
       for (const e of readdirSync(join(root, dir), { recursive: true, withFileTypes: true }))
@@ -53,7 +63,8 @@ export function siteProblems(root = process.cwd()) {
           /\.(css|astro|tsx|ts|jsx|js|mjs|html|md)$/.test(e.name) &&
           !/(^|[\\/])node_modules[\\/]|\.test\.mjs$/.test(join(e.parentPath, e.name))
         )
-          files[relative(root, join(e.parentPath, e.name))] = readFileSync(join(e.parentPath, e.name), 'utf8');
+          !scoped(relative(root, join(e.parentPath, e.name))) &&
+            (files[relative(root, join(e.parentPath, e.name))] = readFileSync(join(e.parentPath, e.name), 'utf8'));
   return problems(files);
 }
 

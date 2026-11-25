@@ -6,7 +6,6 @@
 // src/inlineRows.mjs; this is the List's markup on them. List - Expand is typed the same way (InlineExpand.tsx hands over to this): `fold` is its rows that
 // fold out (the active one open, its text typed in it), `design` of the block (or `kind`) its rows on their own surfaces (`segmented`); the link slot, the
 // toolbar's Link, the add button and the texts are the same in every design. Depends on the theme's List (themeUi.ts).
-import { ImageSquare, LinkSimple, Tag } from '@phosphor-icons/react';
 import type { MouseEvent } from 'react';
 import { iconColorOf } from './iconColor';
 import { shownAt } from './images';
@@ -16,6 +15,7 @@ import { t } from './i18n';
 import { SiteButton, SiteList, SiteListItem } from './themeUi';
 import { columnsAttr } from './standard/columns';
 import InlineItems, { foldOf, InlineIcon, InlineSlot, type Change, type Focus, type Item } from './InlineItems';
+import { Icon } from './icon';
 
 export type { Change, Focus };
 export type Row = {
@@ -119,7 +119,7 @@ export default function InlineList({
               ? {
                   leading: (
                     <InlineSlot label={t.blocks.list.leading} onClick={() => onIcon(at)}>
-                      {lead.image || lead.letter ? <ImageSquare size={24} weight="fill" /> : <ImageSquare size={24} />}
+                      {lead.image || lead.letter ? <Icon name="image" size={24} weight="fill" /> : <Icon name="image" size={24} />}
                     </InlineSlot>
                   ),
                 }
@@ -140,7 +140,7 @@ export default function InlineList({
         const linkSlot =
           here && withHref ? (
             <InlineSlot label={t.blocks.list.href} onClick={() => onSettings(i)}>
-              <LinkSimple size={24} />
+              <Icon name="link" size={24} />
             </InlineSlot>
           ) : undefined;
         // Rows that fold out: open while it is the active row, or as the chevron left it (a tap on the heading does not fold it: the heading is typed there).
@@ -195,12 +195,16 @@ export default function InlineList({
                     <span className="mo-editor-inline-card-slots">
                       {show.image && (
                         <InlineSlot label={t.ownList.image} onClick={() => onImage?.(i)}>
-                          {r.image ? <ImageSquare size={24} weight="fill" /> : <ImageSquare size={24} />}
+                          {r.image ? <Icon name="image" size={24} weight="fill" /> : <Icon name="image" size={24} />}
                         </InlineSlot>
                       )}
                       {show.tags && (
                         <InlineSlot label={t.ownList.tags} onClick={() => onTags?.(i)}>
-                          {(r.tags as string[] | undefined)?.length ? <Tag size={24} weight="fill" /> : <Tag size={24} />}
+                          {(r.tags as string[] | undefined)?.length ? (
+                            <Icon name="sell" size={24} weight="fill" />
+                          ) : (
+                            <Icon name="sell" size={24} />
+                          )}
                         </InlineSlot>
                       )}
                     </span>
@@ -209,7 +213,7 @@ export default function InlineList({
               ) : undefined
             }
             trailing={linkSlot}
-            trailingIcon={here || !withHref || !r.href ? undefined : 'caret-right'}
+            trailingIcon={here || !withHref || !r.href ? undefined : 'keyboard_arrow_right'}
           />
         );
       }}
@@ -289,7 +293,7 @@ export function RowsFromList({
             headline={r.title}
             supporting={r.text || undefined}
             leadingIcon={r.icon || undefined}
-            trailingIcon={r.href ? 'caret-right' : undefined}
+            trailingIcon={r.href ? 'keyboard_arrow_right' : undefined}
           />
         ))}
       </SiteList>

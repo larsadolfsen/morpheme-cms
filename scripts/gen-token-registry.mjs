@@ -1,4 +1,4 @@
-// Writes theme/styles/tokens/<origin>/registry.css: an `@property` rule for each sys and ref token that has a plain default (docs/theme-token-files.md,
+// Writes theme/styles/tokens/<origin>/registry.css: an `@property` rule for each sys, ref and `--mo-comp-block-*` token (the block tokens were `--mo-sys-block-*` before the names batch) that has a plain default (docs/theme-token-files.md,
 // "Registered tokens"). A token registered with a syntax (`<color>`, `<length>`, `<number>`, `<time>`) drops a value that does not fit it, so a theme that sets
 // `--mo-sys-color-primary: banana` or `--mo-sys-shape-corner-large: 3 apples` gets today's default instead of a property that is invalid at computed time
 // (a plain `var()` with a fallback cannot do it: the faulty value is a valid custom property, so its fallback never applies).
@@ -71,7 +71,7 @@ function declarations() {
   const found = {};
   for (const o of ORIGINS) {
     for (const file of cssFiles(join(root, TOKENS, o))) {
-      postcss.parse(readFileSync(file, 'utf8')).walkDecls(/^--mo-(sys|ref)-/, (d) => {
+      postcss.parse(readFileSync(file, 'utf8')).walkDecls(/^--mo-(sys|ref|comp-block)-/, (d) => {
         const p = d.parent;
         const rootRule =
           p.type === 'rule' && p.parent.type === 'root' && p.selectors.some((s) => /^(:where\(:root\)|:root)$/.test(s.trim()));
@@ -94,7 +94,7 @@ function written(names) {
   const all = {};
   for (const f of files) {
     const text = readFileSync(join(root, f), 'utf8');
-    for (const m of text.matchAll(/(--mo-(?:sys|ref)-[a-z0-9-]+)\s*:\s*([^;}\n]+)/g))
+    for (const m of text.matchAll(/(--mo-(?:sys|ref|comp-block)-[a-z0-9-]+)\s*:\s*([^;}\n]+)/g))
       if (names.has(m[1])) (all[m[1]] ??= []).push(m[2].trim());
   }
   return all;

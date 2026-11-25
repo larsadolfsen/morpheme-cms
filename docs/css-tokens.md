@@ -12,6 +12,10 @@ Owner rule, 16 Nov 2026. `npm run check:css-tokens` enforces it.
   overrides ours without a sound.
 - **An app or a theme declares no name the CMS declares** (a collision), and no unprefixed name on `:root`.
 
+- **A theme's private value is `--mo-theme-*`** (spec `2026-11-20-scoped-app-css-design.md`). The CMS never declares the prefix, so a token it adds later cannot collide with it. Only files in the
+  theme's own folder (`src/themes/<theme>/`) declare or read one: not an app, not the site's other files, not another theme (`check:content`, so `check:themes`). It is the last resort: a value that has a
+  `--mo-` token is set through that token. An app's own private properties are renamed by the build (`--mo-app-<id>-<name>`, `docs/app-contract.md`, "Contract 8").
+
 ## What the check allows
 
 - Nothing else: no `--tw-*`, and no Tailwind theme namespace (`--color-*`, `--breakpoint-*` …); Tailwind and its `@theme` are gone (contract 7, `docs/app-contract.md`). The old names it gave are in `scripts/renamed-tokens.json`.

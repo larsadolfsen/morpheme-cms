@@ -3,7 +3,6 @@
 // (a fixed page's sections) is a list whose items each have a `type` that gives their fields; it is
 // edited as a text with the sections as cards in it (SectionsField.tsx).
 import { createContext, Fragment, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { CaretDown, PencilSimple, Plus, Trash } from '@phosphor-icons/react';
 import {
   ArrowLink,
   Button,
@@ -63,7 +62,7 @@ import { movedList } from './moveItem.mjs';
 import { iconColorOf, iconColorOptions } from './iconColor';
 import { choiceSample, sampleTextOf } from './choiceSamples';
 import { clean, fieldProblem, inPairs, inUse, newItem, phoneParts, phoneText, problemAt, type Around, type Problem } from './check';
-import { Icon, useAllIconNames } from './icon';
+import { Icon, useAllIconNames, materialIcon } from './icon';
 import { t } from './i18n';
 import { shownLibraryAlt } from './imageAlt.mjs';
 import type { ImageItem } from './standard/imagegrid/view';
@@ -265,11 +264,11 @@ export function HeadImage(props: Props) {
       </button>
       {text && (
         <div className="mo-editor-theme-picture-actions">
-          <Button kind="tonal" size="small" onClick={pick}>
+          <Button kind="tonal" onClick={pick}>
             {t.forms.changeImage}
           </Button>
           {!field.required && (
-            <Button kind="tonal" size="small" onClick={() => onChange('')}>
+            <Button kind="tonal" onClick={() => onChange('')}>
               {t.common.remove}
             </Button>
           )}
@@ -901,7 +900,11 @@ export function ListInput({
             tools={
               <>
                 <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} name={title(item, i) || t.forms.empty} />
-                <IconButton icon={Trash} label={t.common.removeItem(title(item, i) || t.forms.empty)} onClick={() => remove(i)} />
+                <IconButton
+                  icon={materialIcon('delete')}
+                  label={t.common.removeItem(title(item, i) || t.forms.empty)}
+                  onClick={() => remove(i)}
+                />
               </>
             }
           >
@@ -921,7 +924,7 @@ export function ListInput({
       </FoldList>
       {/* No more than `maxItems` (the action bar's two buttons). */}
       {canAdd && !(field.maxItems !== undefined && value.length >= field.maxItems) && (
-        <Button kind="outlined" size="small" icon={Plus} className="mo-editor-field-add" onClick={add}>
+        <Button kind="outlined" icon={materialIcon('add')} className="mo-editor-field-add" onClick={add}>
           {t.forms.addOne(field.singular ?? t.forms.item)}
         </Button>
       )}
@@ -1066,7 +1069,7 @@ export function MenuList({
                 {t.common.cancel}
               </Button>
               {!editing.fresh && (
-                <Button kind="text" icon={Trash} onClick={remove}>
+                <Button kind="text" icon={materialIcon('delete')} onClick={remove}>
                   {t.common.remove}
                 </Button>
               )}
@@ -1090,11 +1093,11 @@ export function MenuList({
               truncate
               actions={
                 <span className="mo-keep mo-editor-field-item-actions">
-                  <IconButton icon={PencilSimple} label={t.forms.editOne(nameOf(item))} onClick={() => edit(i)} />
+                  <IconButton icon={materialIcon('edit')} label={t.forms.editOne(nameOf(item))} onClick={() => edit(i)} />
                   <MoveButtons index={i} length={value.length} onMove={(to) => move(i, to)} name={nameOf(item) || t.forms.empty} />
                   {sub && (
                     <IconButton
-                      icon={CaretDown}
+                      icon={materialIcon('keyboard_arrow_down')}
                       label={open === i ? t.forms.hideChildrenOf(nameOf(item)) : t.forms.showChildrenOf(nameOf(item))}
                       aria-expanded={open === i}
                       className={`mo-editor-field-item-toggle ${open === i ? 'mo-editor-field-item-toggle-open' : ''}`}
@@ -1146,7 +1149,7 @@ export function MenuList({
               done={editing.fresh ? t.forms.add : t.common.save}
               start={
                 !editing.fresh && (
-                  <Button kind="text" icon={Trash} onClick={remove}>
+                  <Button kind="text" icon={materialIcon('delete')} onClick={remove}>
                     {t.common.remove}
                   </Button>
                 )
@@ -1165,8 +1168,8 @@ function AddItem({ field, sub = false, onClick }: { field: Field; sub?: boolean;
   return (
     <Button
       kind="text"
-      size="small"
-      icon={Plus}
+
+      icon={materialIcon('add')}
       className={sub ? 'mo-editor-field-add-nested' : 'mo-editor-field-add-text'}
       onClick={onClick}
     >

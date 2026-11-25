@@ -11,7 +11,7 @@
   --mo-comp-prose-bold: var(--mo-sys-color-on-surface);
   --mo-comp-prose-counters: var(--mo-sys-color-on-surface-variant);
   --mo-comp-prose-bullets: var(--mo-sys-color-primary);
-  --mo-comp-prose-hr: var(--mo-sys-color-outline-variant);
+  --mo-comp-prose-hr: var(--mo-comp-divider-color, var(--mo-sys-color-outline-variant));
   --mo-comp-prose-quotes: var(--mo-sys-color-on-surface);
   --mo-comp-prose-quote-borders: var(--mo-sys-color-primary);
   --mo-comp-prose-captions: var(--mo-sys-color-on-surface-variant);

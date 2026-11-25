@@ -4,13 +4,13 @@
 //   markdown: a folder of .md files (front matter + text): blog posts and pages.
 //   folder:   a folder of .json files, one entry per file: categories, prices, testimonials.
 //   files:    single .json files: the pages built in code (fixed pages) and the menu.
-import type { Icon } from '@phosphor-icons/react';
 import type { ComponentType, ReactNode } from 'react';
 import type { BlockData } from './blocks';
 import type { AppCategory } from './store';
 import type { AppPageProps } from './apps';
 import type { SiteData } from '@site/editor';
 import { locale } from './i18n';
+import type { IconComponent as Icon } from './icon';
 
 /** What a relation field picks from: one of the lists the site makes of its files (relationsOf in
  * packages/editor/defaults/editor.ts), e.g. 'pages', 'blog', 'categories', 'files' (the PDFs). 'fixed': the fixed pages, only offered
@@ -76,7 +76,7 @@ export type Field = {
   chips?: 'one' | 'many';
   /** select */
   /** `icon`: shown before its name (only with `segments`; with `cards` over it). `swatch`: a CSS colour drawn as a filled circle before its name
-   * instead of an icon (only with `segments`; the segmented button's `swatch`). `hint`: shown under the label while it is
+   * instead of an icon (only with `segments`; the connected buttons' `swatch`). `hint`: shown under the label while it is
    * chosen, in place of the field's own (the status of a page: what each one means). `onPage`: offered only while
    * that relation has a choice on the page being edited (a button that opens a promotion); chosen, it is still shown.
    * `stored`: a value an older site may still have stored: accepted when saved, but not offered to choose (shown while chosen).
@@ -159,6 +159,9 @@ export type Field = {
   /** Shown, checked and saved only while another field next to it (a select) has one of these values,
    * and that field is itself in use. */
   only?: Only;
+  /** A select: each of its options is a version of the block of its own on the block's screen under Blocks, also while the select is shown only
+   * for another choice (`only`: that choice is set with it, as the first of its `is`), the cards' carousel layouts. */
+  versions?: boolean;
   /** boolean: shown as a switch, with what it says when on and when off. */
   toggle?: [string, string];
   /** Its value changes how the page is laid out (its template): "Preview" shows a page whose value
@@ -327,6 +330,9 @@ export const entryName = (collection: FolderCollection, data: Record<string, unk
 export type KindPart = {
   View: ComponentType<{ view: any; button: ReactNode }>;
   viewOf: (values: Record<string, any>, data: BlockData) => unknown;
+  /** What it opens as on the site: the pop-up's dialog (the default) or the theme's modal bottom sheet (`'bottom-sheet'`), the `surface` that its popups/View.tsx
+   * exports (docs/app-contract.md, *Contract 8*). The editor draws the same. */
+  surface?: 'dialog' | 'bottom-sheet';
 };
 
 /** A list a standard block or an app brings ("Testimonials", "Prices"), as the site's own, with its icon under "Lists". */
@@ -483,7 +489,7 @@ export type Part = {
 export type PartScreen = { id: string; label: string; parts: Part[]; apps?: AppCategory[] };
 
 /** One way a block's screen under "Blocks" draws it (Part.preview): its name and its own props. */
-export type PreviewVariant = { label: string; props: Record<string, unknown> };
+export type PreviewVariant = { label: string; props: Record<string, unknown>; hint?: string };
 
 /** What a block on the site is given by RichText.astro (BlockSite.astro gives it to its load.ts): its props (as written in its line in the
  * text), its place among the parts of the text, the page's address, whether the page is a new

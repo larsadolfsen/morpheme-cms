@@ -4,6 +4,16 @@
 // the generic reasons ("review in the component batch") are looked at again when the component's batch fixes its tokens. 0.20.0's scripts/m3-names.ours.mjs takes this list over.
 export const ours = [
   {
+    token: '--mo-comp-divider-inset',
+    reason:
+      'The inset divider\'s distance from each edge (M3 Cards, Guidelines: "inset dividers", 16 dp); md.comp.divider holds only thickness and color.',
+  },
+  {
+    token: '--mo-comp-block-*',
+    reason:
+      "A block's own token (the blocks' look: colours, radii, gutters, widths); blocks are not M3 components (spec 2026-11-20-material-3-names-design.md, rule 4).",
+  },
+  {
     token: '--mo-comp-avatar-size',
     reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
   },
@@ -32,12 +42,7 @@ export const ours = [
     reason: "The status badge of the editor's lists (ok, minor, major); not M3's badge, which is a count or dot.",
   },
   {
-    token: '--mo-comp-bottom-sheet-line',
-    reason:
-      "The part's outline or divider in our own words; M3 names it per state (outline, active-indicator) and the mapping is not read yet.",
-  },
-  {
-    token: '--mo-comp-bottom-sheet-scrim',
+    token: '--mo-comp-sheet-bottom-scrim',
     reason: 'The scrim of this part; M3 holds one scrim role (md.sys.color.scrim) and prints no token per part.',
   },
   {
@@ -251,19 +256,6 @@ export const ours = [
       'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
   },
   {
-    token: '--mo-comp-list-expand-divider-default-color',
-    reason:
-      'The divider of an expandable list, in our own words (a colour per list kind); M3 has one md.comp.list.divider.color and the mapping is not read yet; to review in the lists batch.',
-  },
-  {
-    token: '--mo-comp-list-divider-default-color',
-    reason: 'No M3 token of this name or role found in docs/m3-tokens/; to review in the component batch.',
-  },
-  {
-    token: '--mo-comp-list-item-columns-gap',
-    reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
-  },
-  {
     token: '--mo-comp-list-item-disabled-opacity',
     reason: "The part's disabled opacity as one token; M3 prints it per element and state.",
   },
@@ -381,22 +373,22 @@ export const ours = [
     reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
   },
   {
-    token: '--mo-comp-navigation-bar-indicator-hover',
+    token: '--mo-comp-nav-bar-indicator-hover',
     reason:
       'A state of the part drawn as one mixed colour; M3 holds states as a state layer colour and opacity token (md.sys.state) per state.',
   },
   {
-    token: '--mo-comp-navigation-bar-indicator-text',
+    token: '--mo-comp-nav-bar-indicator-text',
     reason:
       'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
   },
   {
-    token: '--mo-comp-navigation-bar-label-selected-weight',
+    token: '--mo-comp-nav-bar-label-selected-weight',
     reason:
       "A text value read from the type scale; M3 holds it as the part's composite label-text token, which the check does not compare.",
   },
   {
-    token: '--mo-comp-navigation-bar-line',
+    token: '--mo-comp-nav-bar-line',
     reason:
       "The part's outline or divider in our own words; M3 names it per state (outline, active-indicator) and the mapping is not read yet.",
   },
@@ -420,51 +412,35 @@ export const ours = [
     reason: 'How far a part reaches past the page margin; M3 prints no token for it.',
   },
   {
-    token: '--mo-comp-navigation-rail-active-indicator-color',
-    reason: 'No M3 token of this name or role found in docs/m3-tokens/; to review in the component batch.',
-  },
-  {
-    token: '--mo-comp-navigation-rail-active-indicator-shape',
-    reason: 'No M3 token of this name or role found in docs/m3-tokens/; to review in the component batch.',
-  },
-  {
-    token: '--mo-comp-navigation-rail-active-label-text-color',
-    reason: 'No M3 token of this name or role found in docs/m3-tokens/; to review in the component batch.',
-  },
-  {
-    token: '--mo-comp-navigation-rail-expanded-width',
+    token: '--mo-comp-nav-rail-expanded-width',
     reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
   },
   {
-    token: '--mo-comp-navigation-rail-inactive-label-text-color',
-    reason: 'No M3 token of this name or role found in docs/m3-tokens/; to review in the component batch.',
-  },
-  {
-    token: '--mo-comp-navigation-rail-indicator-hover',
+    token: '--mo-comp-nav-rail-indicator-hover',
     reason:
       'A state of the part drawn as one mixed colour; M3 holds states as a state layer colour and opacity token (md.sys.state) per state.',
   },
   {
-    token: '--mo-comp-navigation-rail-indicator-text',
+    token: '--mo-comp-nav-rail-indicator-text',
     reason:
       'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
   },
   {
-    token: '--mo-comp-navigation-rail-label-selected-weight',
+    token: '--mo-comp-nav-rail-label-selected-weight',
     reason:
       "A text value read from the type scale; M3 holds it as the part's composite label-text token, which the check does not compare.",
   },
   {
-    token: '--mo-comp-navigation-rail-line',
+    token: '--mo-comp-nav-rail-line',
     reason:
       "The part's outline or divider in our own words; M3 names it per state (outline, active-indicator) and the mapping is not read yet.",
   },
   {
-    token: '--mo-comp-navigation-rail-modal-radius',
+    token: '--mo-comp-nav-rail-modal-radius',
     reason: "A corner of a part state or size; M3 holds it as the part's shape token for that state, which the check does not map yet.",
   },
   {
-    token: '--mo-comp-navigation-rail-padding',
+    token: '--mo-comp-nav-rail-padding',
     reason:
       'A padding as one CSS value (block and inline together); M3 prints its spaces as leading-space, trailing-space, top-space and bottom-space.',
   },
@@ -508,31 +484,12 @@ export const ours = [
     reason: 'The scrim of this part; M3 holds one scrim role (md.sys.color.scrim) and prints no token per part.',
   },
   {
-    token: '--mo-comp-segmented-button-padding',
-    reason:
-      'A padding as one CSS value (block and inline together); M3 prints its spaces as leading-space, trailing-space, top-space and bottom-space.',
-  },
-  {
-    token: '--mo-comp-segmented-button-radius',
-    reason: "A corner of a part state or size; M3 holds it as the part's shape token for that state, which the check does not map yet.",
-  },
-  {
-    token: '--mo-comp-segmented-button-selected-hover',
-    reason:
-      'A state of the part drawn as one mixed colour; M3 holds states as a state layer colour and opacity token (md.sys.state) per state.',
-  },
-  {
-    token: '--mo-comp-segmented-button-surface',
-    reason:
-      'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
-  },
-  {
     token: '--mo-comp-setting-row-label-weight',
     reason:
       "A text value read from the type scale; M3 holds it as the part's composite label-text token, which the check does not compare.",
   },
   {
-    token: '--mo-comp-side-sheet-scrim',
+    token: '--mo-comp-sheet-side-scrim',
     reason: 'The scrim of this part; M3 holds one scrim role (md.sys.color.scrim) and prints no token per part.',
   },
   {
@@ -769,11 +726,6 @@ export const ours = [
   },
   { token: '--mo-comp-toolbar-docked-backdrop', reason: "The part's backdrop blur or filter; M3 prints none." },
   {
-    token: '--mo-comp-toolbar-docked-line-width',
-    reason:
-      "The part's outline or divider in our own words; M3 names it per state (outline, active-indicator) and the mapping is not read yet.",
-  },
-  {
     token: '--mo-comp-toolbar-floating-line',
     reason:
       "The part's outline or divider in our own words; M3 names it per state (outline, active-indicator) and the mapping is not read yet.",
@@ -793,5 +745,10 @@ export const ours = [
     token: '--mo-comp-top-app-bar-surface',
     reason:
       'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
+  },
+  {
+    token: '--mo-comp-scroll-field-item-selected-label-text-weight',
+    reason:
+      'The weight of the selected value in a scroll field; M3 prints the selected value in a larger size (display-large), not a weight.',
   },
 ];

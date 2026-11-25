@@ -3,7 +3,7 @@
 // the store refuses it, and the store's refusals and failures. GitHub and the store are played by a fake fetch that records
 // each request; nothing goes to either.
 // Run: npm run check:worker
-import { APP_API, THEME_API } from '../lib/contracts.mjs';
+import { APP_API, ICON_PACK_API, THEME_API } from '../lib/contracts.mjs';
 import { DatabaseSync } from 'node:sqlite';
 import { workerModules } from './worker-modules.mjs';
 
@@ -94,7 +94,10 @@ const call = async (w, path, env = { MORPHEME_STORE_KEY: KEY }, options) => {
   const { res, text } = await call(w, 'catalog');
   expect(res.status === 200 && JSON.parse(text).apps?.[0]?.id === 'x', `kataloget var ${res.status} ${text}`);
   expect(w.storeCalls.length === 1, `butikken blev spurgt ${w.storeCalls.length} gange, ikke 1`);
-  expect(w.storeCalls[0]?.url === `${STORE_URL}/store/catalog?app=${APP_API}&theme=${THEME_API}`, `adressen var ${w.storeCalls[0]?.url}`);
+  expect(
+    w.storeCalls[0]?.url === `${STORE_URL}/store/catalog?app=${APP_API}&theme=${THEME_API}&icons=${ICON_PACK_API}`,
+    `adressen var ${w.storeCalls[0]?.url}`,
+  );
   expect(w.storeCalls[0]?.headers.authorization === `Bearer ${KEY}`, 'the catalog was asked without the key as bearer');
   expect(!text.includes(KEY), 'the catalog contained the key');
 }
@@ -104,7 +107,7 @@ const call = async (w, path, env = { MORPHEME_STORE_KEY: KEY }, options) => {
   const w = world();
   await call(w, 'catalog', { MORPHEME_STORE_KEY: KEY, MORPHEME_STORE_URL: 'https://store.example' });
   expect(
-    w.storeCalls[0]?.url === `https://store.example/store/catalog?app=${APP_API}&theme=${THEME_API}`,
+    w.storeCalls[0]?.url === `https://store.example/store/catalog?app=${APP_API}&theme=${THEME_API}&icons=${ICON_PACK_API}`,
     `MORPHEME_STORE_URL blev ikke brugt: ${w.storeCalls[0]?.url}`,
   );
 }

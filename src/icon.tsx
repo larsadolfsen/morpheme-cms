@@ -1,18 +1,16 @@
-// Every icon the site draws, on the site and in the editor alike, by its name: Phosphor's (regular, and a filled one as
-// `<name>-fill`; a name only, never a glyph unless Phosphor is the icon pack in use: with another pack the virtual sets
-// hold the pack's icons alone, so a name neither it nor Material Symbols has is MISSING), which the site's build puts the theme's own in place of (themePlugin, packages/editor/site/theme.mjs), else
-// a backup from Material Symbols (Outlined) by its Material name (`drag_indicator`, marked data-icon-fallback), else MISSING.
-// Exposes Svg, AnyIcon, Icon, Glyph, SvgFile, MISSING, iconFile, iconNames; uses lib/materialIcon.mjs (the order), materialIcons.ts (lazy set).
+// Every icon the site draws, on the site and in the editor alike, by its Material Symbols name (`location_on`; the filled one is `weight="fill"`,
+// `<name>-fill` in a pack): the theme's own (src/themes/<theme>/icons/) or the icon pack in use's file of that name (virtual:theme-icons, themePlugin in
+// packages/editor/site/theme.mjs), else Material Symbols' own (Outlined; marked data-icon-fallback), else MISSING (`help`). A brand's logo is the brand
+// pack's, whichever pack the site picks. Phosphor and Lucide are not in the package: a name stored the Phosphor way is rewritten by the update
+// (lib/migrate-icons.mjs). Exposes Svg, AnyIcon, Icon, Glyph, SvgFile, MISSING, iconFile, drawsFilled, iconNames; uses lib/materialIcon.mjs (the order), materialIcons.ts (lazy set).
 //
-// The names are Phosphor's, as the content stores them (a card's `icon: certificate`), so a theme without one still draws it.
-// Phosphor's here are those the site draws: the blocks' (src/themes/<theme>/blocks/, src/apps/<app>/blocks/), the
-// theme's parts' (Icon.astro, MobileMenu.tsx …) and those to pick from (iconNames, and `icons` in collections.ts,
-// shown as icons by fields.tsx). A name that is not among them is drawn from Material Symbols when it has one (the
-// server render has the whole set at once, virtual:material-symbols-ssr; in the browser it is one lazy chunk, loaded the
-// first time one is drawn); only a name Material Symbols lacks too is MISSING, the question mark, marked with
+// Material Symbols is in the server render at once (virtual:material-symbols-ssr); in the browser it is one lazy chunk, loaded the
+// first time one is drawn that the pack has none of; only a name Material Symbols lacks too is MISSING, the question mark, marked with
 // data-icon-missing (its name), which check:screens finds on the built site's pages and the editor's screens.
-import { cloneElement, isValidElement, useEffect, useState, type ReactElement } from 'react';
+import { cloneElement, isValidElement, useEffect, useState, type ComponentType, type ReactElement, type SVGProps } from 'react';
 import { materialName, materialNames, resolveIcon } from '../lib/materialIcon.mjs';
+import { themeIcons } from 'virtual:theme-icons';
+import { brandOf, type BRANDS } from '../lib/brandLogos.mjs';
 import { svgParts } from '../lib/svg.mjs';
 import ssrMaterial from 'virtual:material-symbols-ssr';
 import moreVertFile from '@material-symbols/svg-400/outlined/more_vert.svg?raw';
@@ -23,8 +21,26 @@ import bodyA3File from './icons/body-a3.svg?raw';
 import addBlockFile from './icons/add-block.svg?raw';
 import blockSettingsFile from './icons/block-settings.svg?raw';
 import matchCaseFile from '@material-symbols/svg-400/outlined/match_case.svg?raw';
-import type { Icon as PhosphorIcon } from '@phosphor-icons/react';
-import { allIcons as ssrPhosphor } from 'virtual:all-icons-ssr';
+import helpFile from '@material-symbols/svg-400/outlined/help.svg?raw';
+import facebookBrand from '../site/brand/facebook.svg?raw';
+import xBrand from '../site/brand/x.svg?raw';
+import linkedinBrand from '../site/brand/linkedin.svg?raw';
+import pinterestBrand from '../site/brand/pinterest.svg?raw';
+import githubBrand from '../site/brand/github.svg?raw';
+import googleBrand from '../site/brand/google.svg?raw';
+
+/** What a weight is, as the icon components take it (`fill` is the only one drawn). */
+export type IconWeight = 'thin' | 'light' | 'regular' | 'bold' | 'fill' | 'duotone';
+
+/** The brand pack's files (site/brand/, lib/brandLogos.mjs): drawn at once, whichever icon pack the site picks, and never replaced by a theme's or a pack's icon or a Material one. */
+const BRAND_FILES: Record<(typeof BRANDS)[number], string> = {
+  facebook: facebookBrand,
+  x: xBrand,
+  linkedin: linkedinBrand,
+  pinterest: pinterestBrand,
+  github: githubBrand,
+  google: googleBrand,
+};
 
 const MATERIAL = '/node_modules/@material-symbols/svg-400/outlined/';
 /** Material Symbols' viewBox, every file's. */
@@ -38,34 +54,13 @@ const loadMaterial = () =>
   }));
 /** A Material Symbols file by `<name>` or `<name>-fill` (a Material name); undefined until the set is loaded. */
 const materialLookup = () => (materialSet ? (key: string) => materialSet?.[`${MATERIAL}${key}.svg`] : undefined);
-// All Phosphor's icons (regular, the theme's in their place) by their file: at once on the server render, else after the lazy chunk.
-let phosphorSet: Record<string, string> | undefined = import.meta.env.SSR ? ssrPhosphor : undefined;
-let phosphorLoading: Promise<void> | undefined;
-const loadPhosphor = () =>
-  (phosphorLoading ??= import('./allIcons').then((m) => {
-    phosphorSet = m.allIcons;
-  }));
-const PHOSPHOR_REGULAR = '/node_modules/@phosphor-icons/core/assets/regular/';
-const phosphorLookup = () => (phosphorSet ? (name: string) => phosphorSet?.[`${PHOSPHOR_REGULAR}${name}.svg`] : undefined);
-/** The names of Phosphor's icons the site's list does not have and Material Symbols has none of by that name: those drawn
- * from Phosphor's own set (resolveIcon). */
-const phosphorOnly = (materials: Set<string>) =>
-  Object.keys(phosphorSet ?? {})
-    .map((path) => path.slice(PHOSPHOR_REGULAR.length, -'.svg'.length))
-    .filter((name) => !materials.has(materialName(name) ?? ''));
-
-/** The names of all the icons the site draws by their names but its list: all of Material Symbols' and those of Phosphor's
- * Material has not. A picked one is stored by its name, and the site draws it as the fallback above. Undefined until the lazy set is loaded, which `wanted` asks for (the icon picker's search). */
+/** The names of all of Material Symbols' icons, to pick from. A picked one is stored by its name, and the site draws it as the fallback above. Undefined until the lazy set is loaded, which `wanted` asks for (the icon picker's search). */
 export function useAllIconNames(wanted: boolean): string[] | undefined {
-  const build = () => {
-    if (!materialSet || !phosphorSet) return undefined;
-    const materials = materialNames(Object.keys(materialSet));
-    return [...materials, ...phosphorOnly(new Set(materials))].sort();
-  };
+  const build = () => (materialSet ? materialNames(Object.keys(materialSet)) : undefined);
   const [names, setNames] = useState<string[] | undefined>(build);
   useEffect(() => {
     if (!wanted || names) return;
-    Promise.all([loadMaterial(), loadPhosphor()]).then(() => setNames(build()));
+    loadMaterial().then(() => setNames(build()));
   }, [wanted, names]);
   return names;
 }
@@ -74,32 +69,28 @@ export function useAllIconNames(wanted: boolean): string[] | undefined {
 function useMaterialLoaded(wanted: boolean) {
   const [again, redraw] = useState(0);
   useEffect(() => {
-    // Material's set first; Phosphor's own only for a name Material has not.
-    if (!wanted) return;
-    if (!materialSet) loadMaterial().then(() => redraw((n) => n + 1));
-    else if (!phosphorSet) loadPhosphor().then(() => redraw((n) => n + 1));
+    if (wanted && !materialSet) loadMaterial().then(() => redraw((n) => n + 1));
   }, [wanted, again]);
 }
 
-const PHOSPHOR = '/node_modules/@phosphor-icons/core/assets/';
-const regular = import.meta.glob<string>(
-  '/node_modules/@phosphor-icons/core/assets/regular/{arrow-left,arrow-right,arrow-square-out,arrow-up-right,bank,bicycle,book-open,book-open-text,bus,calendar-blank,car,caret-down,caret-left,caret-right,caret-up,certificate,chats,check,clock,coffee,cookie,copy,device-mobile,devices,door-open,dots-three-vertical,download-simple,envelope-simple,eye,eye-slash,facebook-logo,flower-lotus,gear,graduation-cap,hand-heart,handshake,heart,house,info,keyboard,leaf,lifebuoy,lightbulb,link-simple,linkedin-logo,list,magnifying-glass,map-pin,map-trifold,medal,minus,moon,pencil-simple,phone,pinterest-logo,question,rows,selection-plus,sun,ticket,train,trash,user,users,users-three,video-camera,warning-circle,wheelchair,x,x-logo}.svg',
-  { query: '?raw', import: 'default', eager: true },
-);
-// The filled ones ("Video": its play button; the navigation drawer's active item).
-const fills = import.meta.glob<string>(
-  '/node_modules/@phosphor-icons/core/assets/fill/{browser-fill,buildings-fill,certificate-fill,chart-line-up-fill,chats-fill,envelope-simple-fill,file-text-fill,folder-simple-fill,heart-fill,list-checks-fill,magnifying-glass-fill,megaphone-fill,newspaper-fill,paint-brush-broad-fill,play-fill,puzzle-piece-fill,shield-check-fill,square-half-bottom-fill,squares-four-fill,storefront-fill,tag-fill,toggle-right-fill,trash-fill,user-fill,wrench-fill}.svg',
-  { query: '?raw', import: 'default', eager: true },
+/** The icons the site draws filled where a toggle is on (a drawer's active item, "Video"'s play button): Material names. A pack that has `<name>-fill` also draws it. */
+const FILLED = new Set(
+  'web,apartment,workspace_premium,trending_up,forum,mail,description,folder,favorite,checklist,search,campaign,newspaper,brush,play_arrow,extension,verified_user,splitscreen,grid_view,storefront,sell,toggle_on,delete,person,build'.split(
+    ',',
+  ),
 );
 
 /** The icon drawn for one that is not found (a name the site does not draw, one Material Symbols does not have either): a
- * question mark, the icon pack's as the others. */
-export const MISSING = 'question';
+ * question mark, Material's `help`. */
+export const MISSING = 'help';
 
-/** An icon's SVG file by its name: the theme's, else Phosphor's; undefined for one the site does not draw. */
+/** An icon's SVG file by its name: the theme's or the icon pack's; undefined for one they do not have (Material Symbols' own is drawn then). */
 export function iconFile(name: string, weight?: 'fill'): string | undefined {
-  return weight ? fills[`${PHOSPHOR}fill/${name}-${weight}.svg`] : regular[`${PHOSPHOR}regular/${name}.svg`];
+  return weight ? themeIcons[`${name}-fill`] : themeIcons[name];
 }
+
+/** Whether an icon has a filled look the site draws (ToggleIcon in theme/ui/Button.tsx). */
+export const drawsFilled = (name: string) => FILLED.has(name) || !!iconFile(name, 'fill');
 
 /** An icon by name as the site and the editor draw it (the theme's View.tsx and its parts, Icon.astro, the editor's
  * fields): the bare <svg> in its file's viewBox, at the size given, in the text's colour, hidden from screen readers
@@ -121,7 +112,8 @@ export function Svg({
   /** A color role of the site (src/iconColor.ts): `data-icon-color`, drawn by the theme. */
   iconColor?: string;
 }) {
-  const found = resolveIcon(name, weight, { list: iconFile, material: materialLookup(), phosphor: phosphorLookup() });
+  const brand = brandOf(name);
+  const found = brand ? { file: BRAND_FILES[brand] } : resolveIcon(name, weight, { list: iconFile, material: materialLookup() });
   useMaterialLoaded(!!found.pending);
   return (
     <Drawn
@@ -137,32 +129,31 @@ export function Svg({
   );
 }
 
-/** An icon by its name of all Phosphor's, not only those the site draws (an app's in the app store, store.ts): one the
- * site draws at once, another from all Phosphor's (allIcons.ts, loaded the first time one is drawn), the theme's in
- * their place as Svg's. Then Material Symbols' by its Material name (marked data-icon-fallback). Nothing while it loads, and
- * MISSING for a name neither has. */
+/** An icon by its Material name, not only those the site draws (an app's in the app store, store.ts): the theme's or the pack's at once, else Material
+ * Symbols' (the lazy set, loaded the first time one is drawn; marked data-icon-fallback). Nothing while it loads, and MISSING for a name neither has. */
 export function AnyIcon({ name, size = 20 }: { name: string; size?: number }) {
+  const brand = brandOf(name);
   // file null: not found; fallback: the file is Material Symbols'.
   const [found, setFound] = useState<{ file: string | null; fallback?: boolean } | undefined>(() => {
+    if (brand) return { file: BRAND_FILES[brand] };
     const file = iconFile(name);
     return file ? { file } : undefined;
   });
   useEffect(() => {
+    if (brand) return setFound({ file: BRAND_FILES[brand] });
     const own = iconFile(name);
     if (own) return setFound({ file: own });
     setFound(undefined);
     let on = true;
     (async () => {
-      const phosphor = (await import('./allIcons')).allIcons[`${PHOSPHOR}regular/${name}.svg`];
-      if (phosphor) return on && setFound({ file: phosphor });
       if (materialName(name)) await loadMaterial();
-      const backup = resolveIcon(name, undefined, { list: () => undefined, material: materialLookup(), phosphor: () => undefined });
+      const backup = resolveIcon(name, undefined, { list: () => undefined, material: materialLookup() });
       if (on) setFound(backup.file ? { file: backup.file, fallback: true } : { file: null });
     })();
     return () => {
       on = false;
     };
-  }, [name]);
+  }, [name, brand]);
   if (found === undefined) return null;
   return (
     <Drawn
@@ -203,7 +194,7 @@ function Drawn({
   iconColor?: string;
 }) {
   const parts = svgParts(file);
-  const shown = pending ? { viewBox: MATERIAL_VIEWBOX, inner: '' } : (parts ?? svgParts(iconFile(MISSING)));
+  const shown = pending ? { viewBox: MATERIAL_VIEWBOX, inner: '' } : (parts ?? svgParts(helpFile));
   if (!shown) return null;
   return (
     <svg
@@ -224,7 +215,7 @@ function Drawn({
 }
 
 /** An icon as the theme's UI parts take it (packages/editor/theme/ui/): its name, as the site gives it, or an icon already
- * made, as the editor gives it (a React icon from @phosphor-icons/react, the theme's in its place: <Plus />). */
+ * made, as the editor gives it (an icon component such as `materialIcon('add')`: <Plus />). */
 export type IconRef = string | ReactElement<{ size?: number; className?: string }>;
 
 /** An IconRef drawn: a name as Svg draws it, an icon made with this size and class. */
@@ -236,7 +227,7 @@ export function Glyph({ icon, size = 20, className }: { icon: IconRef; size?: nu
 }
 
 /** Material's "more_vert" (three dots in a column, m3.material.io Icons "More Vert"): the text bar's overflow button (`⋮`). Material Symbols' own file,
- * bundled like WidgetsIcon (the bar is drawn at once, not after the lazy Material set), and shaped as a Phosphor icon so a ToolbarButton takes it. */
+ * bundled like WidgetsIcon (the bar is drawn at once, not after the lazy Material set), and shaped as an icon component so a ToolbarButton takes it. */
 export const MoreVertIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
   const parts = svgParts(moreVertFile);
   return (
@@ -252,20 +243,19 @@ export const MoreVertIcon = (({ size = 20, className }: { size?: number | string
       dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
     />
   );
-}) as unknown as PhosphorIcon;
+}) as unknown as IconComponent;
 
-/** Preview (a page's text bar and its `⋮`) and View on site, by name through the icon pack: Material Symbols' `devices` and `open_in_new` in the
- * Material pack, Phosphor's devices and arrow-square-out in its own (site/icons.mjs), the same as the command palette draws. Shaped as a Phosphor icon so a
+/** Preview (a page's text bar and its `⋮`) and View on site, by name through the icon pack: Material Symbols' `devices` and `open_in_new` (a pack's own if it has them), the same as the command palette draws. Shaped as an icon component so a
  * ToolbarButton and a MenuItem take them. */
 export const PreviewIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => (
   <Svg name="devices" size={Number(size)} className={className} />
-)) as unknown as PhosphorIcon;
+)) as unknown as IconComponent;
 export const ViewOnSiteIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => (
-  <Svg name="arrow-square-out" size={Number(size)} className={className} />
-)) as unknown as PhosphorIcon;
+  <Svg name="open_in_new" size={Number(size)} className={className} />
+)) as unknown as IconComponent;
 
 /** Material's "close" (a cross): the clear button of the text bar's block selection (the count with a cross). Material Symbols' own file, bundled like MoreVertIcon, shaped as a
- * Phosphor icon so a ToolbarButton takes it. */
+ * icon component so a ToolbarButton takes it. */
 export const CloseIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
   const parts = svgParts(closeFile);
   return (
@@ -281,10 +271,10 @@ export const CloseIcon = (({ size = 20, className }: { size?: number | string; c
       dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
     />
   );
-}) as unknown as PhosphorIcon;
+}) as unknown as IconComponent;
 
 /** Material's "match_case" (a capital A and a small a: "Aa"): the icon of the three body styles in the Text style menu, where the labels (Body small, medium,
- * large) tell them apart. Material Symbols' own file, bundled like WidgetsIcon, shaped as a Phosphor icon so a menu row takes it. */
+ * large) tell them apart. Material Symbols' own file, bundled like WidgetsIcon, shaped as an icon component so a menu row takes it. */
 export const AaIcon = (({ size = 20, className }: { size?: number | string; className?: string }) => {
   const parts = svgParts(matchCaseFile);
   return (
@@ -300,7 +290,7 @@ export const AaIcon = (({ size = 20, className }: { size?: number | string; clas
       dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
     />
   );
-}) as unknown as PhosphorIcon;
+}) as unknown as IconComponent;
 
 /** The icons of the three body styles in the Text style menu: a squared, bold A with a number beside it, drawn on Material Symbols' 24 grid exactly as format_h2 and
  * format_h3 are (same cap height and baseline, 60-unit stroke, square corners, the digits copied from format_h1, -h2 and -h3), so the five read as one
@@ -322,7 +312,7 @@ const bodyA = (file: string, name: string) =>
         dangerouslySetInnerHTML={{ __html: parts?.inner ?? '' }}
       />
     );
-  }) as unknown as PhosphorIcon;
+  }) as unknown as IconComponent;
 export const BodyA1Icon = bodyA(bodyA1File, 'body_a1');
 export const BodyA2Icon = bodyA(bodyA2File, 'body_a2');
 export const BodyA3Icon = bodyA(bodyA3File, 'body_a3');
@@ -336,40 +326,62 @@ export const BodyA3Icon = bodyA(bodyA3File, 'body_a3');
 export const AddBlockIcon = bodyA(addBlockFile, 'add_block');
 export const BlockSettingsIcon = bodyA(blockSettingsFile, 'block_settings');
 
+/** An icon as a component, for the places that take one (a table of icons by id, a prop `icon: IconComponent`): the props an icon takes (`size`, `className`,
+ * `weight`; the SVG's own, as aria-hidden, go to the SVG). */
+export type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { size?: number | string; weight?: IconWeight }>;
+
+const made = new Map<string, IconComponent>();
+/** A Material Symbols icon by its Material name as a component (`materialIcon('settings')`), drawn by `Icon`; the same name gives the same component, so it can be a
+ * module constant or a key. `fill`: the filled icon (a component's `weight="fill"` also asks for it). */
+export function materialIcon(name: string, fill?: 'fill'): IconComponent {
+  const key = `${name}:${fill ?? ''}`;
+  let component = made.get(key);
+  if (!component) {
+    component = (({ size = 20, className, weight }: { size?: number | string; className?: string; weight?: IconWeight }) => (
+      <Svg name={name} size={Number(size)} className={className} weight={weight === 'fill' ? 'fill' : fill} />
+    )) as IconComponent;
+    made.set(key, component);
+  }
+  return component;
+}
+
+/** A brand's logo from the brand pack as a component (`brandIcon('google')`), for the places that take one: the same under every icon pack. */
+export const brandIcon = (brand: (typeof BRANDS)[number]): IconComponent => materialIcon(`${brand}-logo`);
+
 /** The same as Svg (the editor's fields and the site's promotions draw their icons with it). */
 export const Icon = Svg;
 
 /** The icons to pick from on the standard blocks (a field with `icons`: Cards); this site's own
  * fields have the same (`icons` in packages/editor/defaults/collections.ts). */
 export const iconNames = [
-  'certificate',
-  'heart',
-  'hand-heart',
-  'users-three',
-  'users',
-  'graduation-cap',
+  'workspace_premium',
+  'favorite',
+  'volunteer_activism',
+  'groups',
+  'group',
+  'school',
   'handshake',
-  'book-open',
-  'book-open-text',
-  'medal',
-  'chats',
-  'flower-lotus',
-  'leaf',
+  'menu_book',
+  'auto_stories',
+  'military_tech',
+  'forum',
+  'spa',
+  'eco',
   'lightbulb',
   'train',
-  'bus',
-  'bicycle',
-  'car',
-  'door-open',
-  'video-camera',
-  'lifebuoy',
-  'phone',
-  'clock',
-  'map-pin',
+  'directions_bus',
+  'pedal_bike',
+  'directions_car',
+  'door_open',
+  'videocam',
+  'support',
+  'call',
+  'schedule',
+  'location_on',
   'coffee',
-  'wheelchair',
+  'accessible',
   'info',
-  'envelope-simple',
+  'mail',
 ] as const;
 
 /** The icons to pick from as the options of a field, with their names (t.blocks.icons). */

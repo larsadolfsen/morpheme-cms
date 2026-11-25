@@ -14,39 +14,59 @@
 // name>"`) opens it whenever it is tapped, also when it was closed before. Without JavaScript none is shown.
 import PopupView, { type PopupPart } from '@theme/components/PopupView';
 import { loadPopup } from '@theme/components/loadPopup';
+import PopupSheet from '@theme/components/PopupSheet';
 import { dialogModalClass } from '@theme/ui/Dialog';
+import { bottomSheetClass } from '@theme/ui/BottomSheet';
 import { popupsAt, type Popup } from '@morphemecms/cms/site/popups';
 
 // The kinds the apps add (src/apps/<app>/popups/: View.tsx and load.ts), by the app's id: what is under the text of one
 // of that kind (Mailchimp: the signup form), given the button. Also when the app is no longer installed: what was made
-// with it stays on the site. A kind of an app without that part is no pop-up, and shows itself (Calendly's booking
-// sheet, in the app's slots/).
+// with it stays on the site. A kind of an app without that part is no pop-up and is not shown (contract 8: an app no longer shows
+// itself through slots/; Calendly's booking sheet is a kind whose part says `export const surface = 'bottom-sheet'`).
+// The surface (`surface` in popups/View.tsx): 'dialog' (the default) is the pop-up's box in a modal dialog; 'bottom-sheet' is the theme's modal
+// bottom sheet (PopupSheet.tsx) with the app's part inside, which opens only when a button opens it (a button's "Open promotion", or
+// `data-open="booking"`, the first sheet of the page), never by itself. Both: the part's own `popup:done` and `data-popup-off`.
 const byApp = <T,>(found: Record<string, T>) =>
   Object.fromEntries(Object.entries(found).map(([path, m]) => [path.split('/apps/')[1].split('/')[0], m]));
-const parts = byApp(import.meta.glob<{ default: PopupPart }>('/src/apps/*/popups/View.tsx', { eager: true }));
+const parts = byApp(
+  import.meta.glob<{ default: PopupPart; surface?: 'dialog' | 'bottom-sheet' }>('/src/apps/*/popups/View.tsx', { eager: true }),
+);
 const loads = byApp(import.meta.glob<{ load: (popup: Popup) => unknown }>('/src/apps/*/popups/load.ts', { eager: true }));
 const shown = await Promise.all(
   (await popupsAt(Astro.url.pathname))
     .filter((p) => p.type === 'standard' || (parts[p.type] && loads[p.type]))
-    .map(async (p) => ({ ...p, box: await loadPopup(p), Part: parts[p.type]?.default, part: loads[p.type]?.load(p) })),
+    .map(async (p) => ({
+      ...p,
+      box: await loadPopup(p),
+      Part: parts[p.type]?.default,
+      sheet: parts[p.type]?.surface === 'bottom-sheet',
+      part: loads[p.type]?.load(p),
+    })),
 );
 ---
 
-{shown.map((p) => (
-  <dialog
-    class={dialogModalClass}
-    aria-labelledby={`popup-${p.slug}`}
-    data-popup={p.slug}
-    data-trigger={p.trigger}
-    data-delay={p.delay}
-    data-scroll={p.scroll}
-  >
-    <PopupView popup={p.box} Part={p.Part} part={p.part} />
-  </dialog>
-))}
+{shown.map((p) =>
+  p.sheet ? (
+    <dialog class={bottomSheetClass} aria-label={p.heading || undefined} data-popup={p.slug} data-surface="bottom-sheet">
+      <PopupSheet appId={p.type} Part={p.Part!} part={p.part} label={p.heading || p.slug} />
+    </dialog>
+  ) : (
+    <dialog
+      class={dialogModalClass}
+      aria-labelledby={`popup-${p.slug}`}
+      data-popup={p.slug}
+      data-trigger={p.trigger}
+      data-delay={p.delay}
+      data-scroll={p.scroll}
+    >
+      <PopupView popup={p.box} Part={p.Part} part={p.part} appId={p.type === 'standard' ? undefined : p.type} />
+    </dialog>
+  ),
+)}
 
 <script>
   import { lightDismiss } from '@theme/ui/lightDismiss';
+  import { bottomSheet } from '@theme/ui/bottomSheetControl';
 
   const KEY = 'popups-closed';
   const closed = (): string[] => {
@@ -64,14 +84,23 @@ const shown = await Promise.all(
 
   // Those that can be shown (an app's that cannot, without its settings, says so with data-popup-off).
   const all = [...document.querySelectorAll<HTMLDialogElement>('dialog[data-popup]')].filter((d) => !d.querySelector('[data-popup-off]'));
+  // A bottom sheet opens and closes with its own control (the slide, the drag, the scrim); a dialog natively.
+  const controls = new Map(all.filter((d) => d.dataset.surface === 'bottom-sheet').map((d) => [d, bottomSheet(d)]));
+  // The event `popup:open` goes to the dialog when it opens: a part's script (Calendly's widget loader) starts there.
+  const openIt = (d: HTMLDialogElement) => {
+    if (controls.has(d)) controls.get(d)!.open();
+    else d.showModal();
+    d.dispatchEvent(new Event('popup:open'));
+  };
+  const closeIt = (d: HTMLDialogElement) => (controls.get(d) ? void controls.get(d)!.close() : d.open && d.close());
   for (const d of all) {
-    const close = () => d.open && d.close();
+    const close = () => closeIt(d);
     d.addEventListener('close', () => remember(d.dataset.popup!));
     // An app's kind says the visitor is done (signed up): not shown again, also before it is closed.
     d.addEventListener('popup:done', () => remember(d.dataset.popup!));
     d.querySelector('[data-popup-close]')?.addEventListener('click', close);
     // A tap on the dimmed backdrop (outside the box) closes it (light dismiss: lightDismiss.ts).
-    lightDismiss(d, close);
+    if (!controls.has(d)) lightDismiss(d, close);
     // Its button closes it first, so what it opens (the page, or an app's sheet over it) opens alone.
     d.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
   }
@@ -82,12 +111,22 @@ const shown = await Promise.all(
     const d = link && all.find((p) => `promotion:${p.dataset.popup}` === link.dataset.open);
     if (!d || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (e as MouseEvent).button !== 0) return;
     e.preventDefault();
-    all.forEach((p) => p.open && p.close());
-    d.showModal();
+    all.forEach((p) => p !== d && p.open && closeIt(p));
+    openIt(d);
+  });
+
+  // A button that books (`data-open="booking"`) opens the first bottom sheet of the page: an app's booking sheet.
+  document.addEventListener('click', (e) => {
+    const link = (e.target as Element | null)?.closest?.<HTMLElement>('[data-open="booking"]');
+    const d = link && [...controls.keys()][0];
+    if (!d || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || (e as MouseEvent).button !== 0) return;
+    e.preventDefault();
+    all.forEach((p) => p !== d && p.open && closeIt(p));
+    openIt(d);
   });
 
   // The one that opens by itself: the first the visitor has not closed.
-  const popup = all.find((d) => !closed().includes(d.dataset.popup!));
+  const popup = all.find((d) => !controls.has(d) && !closed().includes(d.dataset.popup!));
   if (popup) {
     // Not over the cookie banner (CookieConsent.astro), an app's dialog (a booking sheet) or another pop-up
     // (an app's, src/apps/): it waits until they are answered and closed.
@@ -96,7 +135,7 @@ const shown = await Promise.all(
       [...document.querySelectorAll('dialog')].some((d) => d !== popup && d.open);
     const show = () => {
       if (popup.open) return;
-      if (!busy()) return popup.showModal();
+      if (!busy()) return openIt(popup);
       setTimeout(show, 1000);
     };
 

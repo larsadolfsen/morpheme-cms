@@ -1,23 +1,20 @@
 /*
   The buttons and the icon buttons, moved here from ui.css unchanged and in their old order (docs/superpowers/plans/2026-11-16-css-split.md).
-  Left in ui.css because other parts share them: the target area (:where(.mo-button, .mo-icon-button, .mo-segmented-button__segment, a.chip, …)) and the
+  Left in ui.css because other parts share them: the target area (:where(.mo-button, .mo-icon-button, a.chip, …)) and the
   ripple's :where(.mo-button, .mo-icon-button, …) position list. base.css imports this file right before ui.css, after the Lightbox, where the buttons stood.
 
   Buttons (Button.tsx, buttonClass): .mo-button with its kind, .mo-is-filled, .mo-is-tonal, .mo-is-elevated,
-  .mo-is-outlined or .mo-button__text, its size, .mo-button__xsmall, .mo-button__small, none (medium), .mo-button__large or
-  .mo-button__xlarge, and its shape, none (round) or .mo-button__square; the icon before the label, and .mo-button__trailing-icon
+  .mo-is-outlined or .mo-button.mo-is-text, its size, .mo-button.mo-is-xsmall, none (small), .mo-button.mo-is-medium, .mo-button.mo-is-large or
+  .mo-button.mo-is-xlarge, and its shape, none (round) or .mo-button.mo-is-square; the icon before the label, and .mo-button__trailing-icon
   after it. A toggle button has aria-pressed: off, a filled one in the toggle's surface (the others as their kind), on
   in its kind's selected colours with its corners square (round when it is square), its icon filled
   (.mo-button__selected-icon in .mo-button__unselected-icon's place) where the site draws it filled. Pressed, the corners are
   the pressed ones, where the theme has them (else as they are).
-    --mo-comp-button-medium-container-height, --mo-comp-button-padding, --mo-comp-button-medium-icon-label-space, --mo-comp-button-medium-container-shape-round, --mo-comp-button-font-size, --mo-comp-button-weight,
-    --mo-comp-button-letter-spacing, --mo-comp-button-medium-icon-size   the medium size, its label and its round corners
-    --mo-comp-button-xsmall-container-height, -padding, -gap, -font-size; --mo-comp-button-small-container-height, -padding, -font-size;
-    --mo-comp-button-large-height, -padding, -gap, -font-size, -icon-size; --button-xlarge-…   the other sizes
-    --mo-comp-button-medium-container-shape-square, --button-<size>-square-radius   the square corners (also an icon button's of the size,
-      where it has none of its own)
-    --mo-comp-button-pressed-radius, --button-<size>-pressed-radius   the corners while pressed (also an icon button's); none:
-      as they are
+    --mo-comp-button-small-container-height, --mo-comp-button-small-leading-space, --mo-comp-button-small-icon-label-space, --mo-comp-button-small-container-shape-round, --mo-comp-button-font-size, --mo-comp-button-weight,
+    --mo-comp-button-letter-spacing, --mo-comp-button-small-icon-size   the small size, its label and its round corners
+    --mo-comp-button-<size>-container-height, -leading-space, -icon-size, -icon-label-space, -container-shape-square, -pressed-container-shape
+      (size: xsmall, small, medium, large, xlarge: Material 3's md.comp.button.<size>), and --mo-comp-button-<size>-label-text-size, -weight, -tracking
+      (medium, large, xlarge), -outlined-outline-width (large, xlarge)   the sizes; the square corners are also an icon button's of the size, where it has none of its own
     --mo-comp-button-text-padding   the space a text button's label stands in from its edge, as wide as the other buttons' side padding (the shift that
                             lines a label up with the text above it; the button's own padding is the size's)
     --mo-comp-button-filled-container-color, -hover, -text, -shadow, -hover-shadow
@@ -38,9 +35,9 @@
     --mo-comp-button-busy-delay   the wait before it shows (200ms; a shorter wait shows nothing)
     --mo-comp-button-busy-indicator-size   a button's indicator (1.5rem, or its icon's size where that is larger)
     --mo-comp-icon-button-busy-indicator-size   an icon button's indicator (its icon's size)
-  Icon buttons (IconButton.tsx, iconButtonClass): .mo-icon-button with its kind, .mo-icon-button__standard, -filled, -tonal or
-  -outlined, its size, .mo-icon-button__xsmall, none (small), -medium, -large or -xlarge, its width, .mo-icon-button__narrow,
-  none or -wide, and its shape, none (round) or .mo-icon-button__square. A toggle as a button's (aria-pressed; the filled
+  Icon buttons (IconButton.tsx, iconButtonClass): .mo-icon-button with its kind, .mo-icon-button.mo-is-standard, -filled, -tonal or
+  -outlined, its size, .mo-icon-button.mo-is-xsmall, none (small), -medium, -large or -xlarge, its width, .mo-icon-button.mo-is-narrow,
+  none or -wide, and its shape, none (round) or .mo-icon-button.mo-is-square. A toggle as a button's (aria-pressed; the filled
   one off and on in the button toggle's colours; .mo-icon-button__selected-icon and -unselected-icon).
     --mo-comp-icon-button-small-container-height, --mo-comp-icon-button-small-icon-size   the small size (the default)
     --mo-comp-icon-button-xsmall-size, -icon-size; --icon-button-medium-…; --icon-button-large-…; --icon-button-xlarge-…
@@ -61,7 +58,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--mo-comp-button-medium-icon-label-space, 0.6rem);
+    gap: var(--mo-comp-button-gap);
     white-space: nowrap;
     border: 0;
     border-radius: var(--mo-comp-button-corners);
@@ -129,38 +126,45 @@
       animation-duration: 0s;
     }
   }
-  /* The sizes: Material's five, the medium one the default. */
-  .mo-button__xsmall {
-    gap: var(--mo-comp-button-xsmall-icon-label-space, 0.4rem);
-    font-size: var(--mo-comp-button-xsmall-font-size, var(--mo-sys-typescale-label-large-size));
+  /* The sizes: Material 3's five (xsmall 32, small 40, medium 56, large 96, xlarge 136 dp), the small one the default. Each has its label type:
+     label large (14) up to small, title medium (16), headline small (24) and headline large (32). */
+  :where(.mo-button).mo-is-medium {
+    font-size: var(--mo-comp-button-medium-label-text-size, var(--mo-sys-typescale-title-medium-size));
+    font-weight: var(--mo-comp-button-medium-label-text-weight, var(--mo-sys-typescale-title-medium-weight));
+    letter-spacing: var(--mo-comp-button-medium-label-text-tracking, var(--mo-sys-typescale-title-medium-tracking));
+    line-height: var(--mo-comp-button-medium-label-text-line-height, var(--mo-sys-typescale-title-medium-line-height, 1.5rem));
   }
-  .mo-button__xsmall > .mo-button__trailing-icon {
-    width: var(--mo-comp-button-glyph);
-    height: var(--mo-comp-button-glyph);
+  :where(.mo-button).mo-is-large {
+    font-size: var(--mo-comp-button-large-label-text-size, var(--mo-sys-typescale-headline-small-size));
+    font-weight: var(--mo-comp-button-large-label-text-weight, var(--mo-sys-typescale-headline-small-weight));
+    letter-spacing: var(--mo-comp-button-large-label-text-tracking, var(--mo-sys-typescale-headline-small-tracking));
+    line-height: var(--mo-comp-button-large-label-text-line-height, var(--mo-sys-typescale-headline-small-line-height, 2rem));
   }
-  .mo-button__small {
-    font-size: var(--mo-comp-button-small-font-size, var(--mo-sys-typescale-label-large-size));
+  :where(.mo-button).mo-is-xlarge {
+    font-size: var(--mo-comp-button-xlarge-label-text-size, var(--mo-sys-typescale-headline-large-size));
+    font-weight: var(--mo-comp-button-xlarge-label-text-weight, var(--mo-sys-typescale-headline-large-weight));
+    letter-spacing: var(--mo-comp-button-xlarge-label-text-tracking, var(--mo-sys-typescale-headline-large-tracking));
+    line-height: var(--mo-comp-button-xlarge-label-text-line-height, var(--mo-sys-typescale-headline-large-line-height, 2.5rem));
   }
-  .mo-button__large {
-    gap: var(--mo-comp-button-large-gap, 0.75rem);
-    font-size: var(--mo-comp-button-large-font-size, var(--mo-sys-typescale-headline-small-size));
+  /* The outline of an outlined button grows with the size (md.comp.button.<size>.outlined.outline.width: 1, 1, 1, 2 and 3 dp). */
+  :where(.mo-button).mo-is-large.mo-is-outlined {
+    --mo-comp-button-outline-width: var(--mo-comp-button-large-outlined-outline-width, 2px);
   }
-  .mo-button__xlarge {
-    gap: var(--mo-comp-button-xlarge-gap, 1rem);
-    font-size: var(--mo-comp-button-xlarge-font-size, var(--mo-sys-typescale-headline-large-size));
+  :where(.mo-button).mo-is-xlarge.mo-is-outlined {
+    --mo-comp-button-outline-width: var(--mo-comp-button-xlarge-outlined-outline-width, 3px);
   }
 
   /* Filled: the main action, in the accent. */
   /* Elevation (M3's): filled and tonal on the page (level 0), lifted to level 1 when pointed at; elevated at level 1,
      at level 2 when pointed at; pressed as at rest (below), disabled without a shadow. */
   :where(.mo-button).mo-is-filled {
-    background: var(--mo-comp-button-filled-container-color, var(--mo-sys-block-accent));
-    color: var(--mo-comp-button-filled-label-text-color, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-button-filled-container-color, var(--mo-comp-block-accent));
+    color: var(--mo-comp-button-filled-label-text-color, var(--mo-comp-block-on-accent));
     box-shadow: var(--mo-comp-button-filled-container-elevation, var(--mo-sys-elevation-level0-shadow));
   }
   @media (hover: hover) {
     :where(.mo-button).mo-is-filled:hover {
-      background: var(--mo-comp-button-filled-hover, var(--mo-sys-block-accent-hover));
+      background: var(--mo-comp-button-filled-hover, var(--mo-comp-block-accent-hover));
       box-shadow: var(
         --mo-comp-button-filled-hovered-container-elevation,
         var(--mo-comp-button-filled-container-elevation, var(--mo-sys-elevation-level1-shadow))
@@ -169,15 +173,15 @@
   }
   /* Tonal: an important step that is not the main one, on the tint. */
   :where(.mo-button).mo-is-tonal {
-    background: var(--mo-comp-button-tonal-container-color, var(--mo-sys-block-tint));
-    color: var(--mo-comp-button-tonal-label-text-color, var(--mo-sys-block-text));
+    background: var(--mo-comp-button-tonal-container-color, var(--mo-comp-block-tint));
+    color: var(--mo-comp-button-tonal-label-text-color, var(--mo-comp-block-text));
     box-shadow: var(--mo-comp-button-tonal-shadow, var(--mo-sys-elevation-level0-shadow));
   }
   @media (hover: hover) {
     :where(.mo-button).mo-is-tonal:hover {
       background: var(
         --mo-comp-button-tonal-hover,
-        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-block-tint))
+        color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-comp-block-tint))
       );
       box-shadow: var(--mo-comp-button-tonal-hover-shadow, var(--mo-comp-button-tonal-shadow, var(--mo-sys-elevation-level1-shadow)));
     }
@@ -185,7 +189,7 @@
   /* Elevated: on a surface with its shadow, where the page behind it has a colour. */
   :where(.mo-button).mo-is-elevated {
     background: var(--mo-comp-button-elevated-surface, var(--mo-sys-elevation-level1-color));
-    color: var(--mo-comp-button-elevated-label-text-color, var(--mo-sys-block-accent));
+    color: var(--mo-comp-button-elevated-label-text-color, var(--mo-comp-block-accent));
     box-shadow: var(--mo-comp-button-elevated-shadow, var(--mo-sys-elevation-level1-shadow));
   }
   @media (hover: hover) {
@@ -205,26 +209,27 @@
   }
   /* Outlined: another choice beside the main one, with a thin edge. */
   :where(.mo-button).mo-is-outlined {
-    background: var(--mo-comp-button-outlined-surface, var(--mo-sys-block-surface));
-    color: var(--mo-comp-button-outlined-label-text-color, var(--mo-sys-block-text));
-    box-shadow: inset 0 0 0 1px var(--mo-comp-button-outlined-outline-color, var(--mo-sys-block-line));
+    background: var(--mo-comp-button-outlined-surface, var(--mo-comp-block-surface));
+    color: var(--mo-comp-button-outlined-label-text-color, var(--mo-comp-block-text));
+    box-shadow: inset 0 0 0 var(--mo-comp-button-outline-width, 1px) var(--mo-comp-button-outlined-outline-color, var(--mo-comp-block-line));
   }
   @media (hover: hover) {
     :where(.mo-button).mo-is-outlined:hover {
-      color: var(--mo-comp-button-outlined-hovered-label-text-color, var(--mo-sys-block-accent));
-      box-shadow: inset 0 0 0 1px var(--mo-comp-button-outlined-hovered-outline-color, var(--mo-sys-block-accent));
+      color: var(--mo-comp-button-outlined-hovered-label-text-color, var(--mo-comp-block-accent));
+      box-shadow: inset 0 0 0 var(--mo-comp-button-outline-width, 1px)
+        var(--mo-comp-button-outlined-hovered-outline-color, var(--mo-comp-block-accent));
     }
   }
   /* Text: no container, only its label in the accent; its side padding is the other buttons' of its size (M3 prints no spacing token of its own for a text button: md.comp.button.small.leading-space and trailing-space, 16 dp). */
-  .mo-button__text {
+  :where(.mo-button).mo-is-text {
     background: transparent;
-    color: var(--mo-comp-button-text-label-text-color, var(--mo-sys-block-accent));
+    color: var(--mo-comp-button-text-label-text-color, var(--mo-comp-block-accent));
   }
   @media (hover: hover) {
-    .mo-button__text:hover {
+    :where(.mo-button).mo-is-text:hover {
       background: var(
         --mo-comp-button-text-hover,
-        color-mix(in srgb, var(--mo-sys-block-accent) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
+        color-mix(in srgb, var(--mo-comp-block-accent) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
       );
     }
   }
@@ -232,15 +237,15 @@
   /* Toggle buttons (aria-pressed): a filled one that is off would look on, so it is in the toggle's surface; the others
      are as their kind when off. On, each kind in its selected colours. */
   :where(.mo-button).mo-is-filled[aria-pressed='false'] {
-    background: var(--mo-comp-button-filled-unselected-container-color, var(--mo-sys-block-tint));
-    color: var(--mo-comp-button-filled-unselected-label-text-color, var(--mo-sys-block-text));
+    background: var(--mo-comp-button-filled-unselected-container-color, var(--mo-comp-block-tint));
+    color: var(--mo-comp-button-filled-unselected-label-text-color, var(--mo-comp-block-text));
     box-shadow: var(--mo-sys-elevation-level0-shadow);
   }
   @media (hover: hover) {
     :where(.mo-button).mo-is-filled[aria-pressed='false']:hover {
       background: var(
         --mo-comp-button-toggle-hover,
-        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-block-tint))
+        color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-comp-block-tint))
       );
       box-shadow: var(--mo-sys-elevation-level1-shadow);
     }
@@ -249,13 +254,13 @@
     box-shadow: var(--mo-sys-elevation-level0-shadow);
   }
   :where(.mo-button).mo-is-filled[aria-pressed='true'] {
-    background: var(--mo-comp-button-filled-selected-container-color, var(--mo-sys-block-accent));
-    color: var(--mo-comp-button-filled-selected-label-text-color, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-button-filled-selected-container-color, var(--mo-comp-block-accent));
+    color: var(--mo-comp-button-filled-selected-label-text-color, var(--mo-comp-block-on-accent));
     box-shadow: var(--mo-comp-button-toggle-selected-shadow, var(--mo-sys-elevation-level0-shadow));
   }
   @media (hover: hover) {
     :where(.mo-button).mo-is-filled[aria-pressed='true']:hover {
-      background: var(--mo-comp-button-toggle-selected-hover, var(--mo-sys-block-accent-hover));
+      background: var(--mo-comp-button-toggle-selected-hover, var(--mo-comp-block-accent-hover));
       box-shadow: var(
         --mo-comp-button-toggle-selected-hover-shadow,
         var(--mo-comp-button-toggle-selected-shadow, var(--mo-sys-elevation-level1-shadow))
@@ -282,27 +287,27 @@
     }
   }
   :where(.mo-button).mo-is-elevated[aria-pressed='true'] {
-    background: var(--mo-comp-button-elevated-selected-surface, var(--mo-sys-block-accent));
-    color: var(--mo-comp-button-elevated-selected-text, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-button-elevated-selected-surface, var(--mo-comp-block-accent));
+    color: var(--mo-comp-button-elevated-selected-text, var(--mo-comp-block-on-accent));
   }
   @media (hover: hover) {
     :where(.mo-button).mo-is-elevated[aria-pressed='true']:hover {
-      background: var(--mo-comp-button-elevated-selected-hover, var(--mo-sys-block-accent-hover));
+      background: var(--mo-comp-button-elevated-selected-hover, var(--mo-comp-block-accent-hover));
     }
   }
   /* On, the outlined one is turned round: the text's colour as its surface, without its edge. */
   :where(.mo-button).mo-is-outlined[aria-pressed='true'] {
-    background: var(--mo-comp-button-outlined-selected-surface, var(--mo-sys-block-text));
-    color: var(--mo-comp-button-outlined-selected-text, var(--mo-sys-block-surface));
+    background: var(--mo-comp-button-outlined-selected-surface, var(--mo-comp-block-text));
+    color: var(--mo-comp-button-outlined-selected-text, var(--mo-comp-block-surface));
     box-shadow: none;
   }
   @media (hover: hover) {
     :where(.mo-button).mo-is-outlined[aria-pressed='true']:hover {
       background: var(
         --mo-comp-button-outlined-selected-hover,
-        color-mix(in srgb, var(--mo-sys-block-surface) 14%, var(--mo-sys-block-text))
+        color-mix(in srgb, var(--mo-comp-block-surface) 14%, var(--mo-comp-block-text))
       );
-      color: var(--mo-comp-button-outlined-selected-text, var(--mo-sys-block-surface));
+      color: var(--mo-comp-button-outlined-selected-text, var(--mo-comp-block-surface));
       box-shadow: none;
     }
   }
@@ -348,13 +353,13 @@
     cursor: default;
   }
   /* Standard: only the icon, a light shade when pointed at. */
-  .mo-icon-button__standard {
+  :where(.mo-icon-button).mo-is-standard {
     background: var(--mo-comp-icon-button-standard-surface, transparent);
-    color: var(--mo-comp-icon-button-standard-icon-color, var(--mo-sys-block-text));
+    color: var(--mo-comp-icon-button-standard-icon-color, var(--mo-comp-block-text));
     box-shadow: inset 0 0 0 1px var(--mo-comp-icon-button-standard-line, transparent);
   }
   @media (hover: hover) {
-    .mo-icon-button__standard:hover {
+    :where(.mo-icon-button).mo-is-standard:hover {
       background: color-mix(
         in srgb,
         currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
@@ -364,19 +369,19 @@
   }
   /* Filled: the main action, in the accent. */
   :where(.mo-icon-button).mo-is-filled {
-    background: var(--mo-comp-icon-button-filled-container-color, var(--mo-sys-block-accent));
-    color: var(--mo-comp-icon-button-filled-icon-color, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-icon-button-filled-container-color, var(--mo-comp-block-accent));
+    color: var(--mo-comp-icon-button-filled-icon-color, var(--mo-comp-block-on-accent));
     box-shadow: inset 0 0 0 1px var(--mo-comp-icon-button-filled-line, transparent);
   }
   @media (hover: hover) {
     :where(.mo-icon-button).mo-is-filled:hover {
-      background: var(--mo-comp-icon-button-filled-hover, var(--mo-sys-block-accent-hover));
+      background: var(--mo-comp-icon-button-filled-hover, var(--mo-comp-block-accent-hover));
     }
   }
   /* Tonal: on the tint, also where it stands on an image (the cross on a pop-up). */
   :where(.mo-icon-button).mo-is-tonal {
-    background: var(--mo-comp-icon-button-tonal-container-color, var(--mo-sys-block-tint));
-    color: var(--mo-comp-icon-button-tonal-icon-color, var(--mo-sys-block-text));
+    background: var(--mo-comp-icon-button-tonal-container-color, var(--mo-comp-block-tint));
+    color: var(--mo-comp-icon-button-tonal-icon-color, var(--mo-comp-block-text));
     box-shadow: inset 0 0 0 1px var(--mo-comp-icon-button-tonal-line, transparent);
   }
   @media (hover: hover) {
@@ -384,64 +389,64 @@
       background: color-mix(
         in srgb,
         currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
-        var(--mo-comp-icon-button-tonal-container-color, var(--mo-sys-block-tint))
+        var(--mo-comp-icon-button-tonal-container-color, var(--mo-comp-block-tint))
       );
     }
   }
   /* Outlined: with a thin edge. */
   :where(.mo-icon-button).mo-is-outlined {
-    background: var(--mo-comp-icon-button-outlined-surface, var(--mo-sys-block-surface));
-    color: var(--mo-comp-icon-button-outlined-icon-color, var(--mo-sys-block-text));
-    box-shadow: inset 0 0 0 1px var(--mo-comp-icon-button-outlined-outline-color, var(--mo-sys-block-line));
+    background: var(--mo-comp-icon-button-outlined-surface, var(--mo-comp-block-surface));
+    color: var(--mo-comp-icon-button-outlined-icon-color, var(--mo-comp-block-text));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-icon-button-outlined-outline-color, var(--mo-comp-block-line));
   }
   @media (hover: hover) {
     :where(.mo-icon-button).mo-is-outlined:hover {
-      color: var(--mo-sys-block-accent);
-      box-shadow: inset 0 0 0 1px var(--mo-sys-block-accent);
+      color: var(--mo-comp-block-accent);
+      box-shadow: inset 0 0 0 1px var(--mo-comp-block-accent);
     }
   }
 
   /* Toggle icon buttons (aria-pressed): the standard one's icon in the accent when on; the filled one off and on as a
      filled toggle button; the tonal one off on a quiet surface and on in the secondary container; the outlined one on
      turned round, as an outlined toggle button. */
-  .mo-icon-button__standard[aria-pressed='true'] {
-    color: var(--mo-comp-icon-button-standard-selected-text, var(--mo-sys-block-accent));
+  :where(.mo-icon-button).mo-is-standard[aria-pressed='true'] {
+    color: var(--mo-comp-icon-button-standard-selected-text, var(--mo-comp-block-accent));
   }
   :where(.mo-icon-button).mo-is-filled[aria-pressed='false'] {
-    background: var(--mo-comp-button-filled-unselected-container-color, var(--mo-sys-block-tint));
-    color: var(--mo-comp-button-filled-unselected-label-text-color, var(--mo-sys-block-text));
+    background: var(--mo-comp-button-filled-unselected-container-color, var(--mo-comp-block-tint));
+    color: var(--mo-comp-button-filled-unselected-label-text-color, var(--mo-comp-block-text));
   }
   @media (hover: hover) {
     :where(.mo-icon-button).mo-is-filled[aria-pressed='false']:hover {
       background: var(
         --mo-comp-button-toggle-hover,
-        color-mix(in srgb, var(--mo-sys-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-sys-block-tint))
+        color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-comp-block-tint))
       );
     }
   }
   :where(.mo-icon-button).mo-is-filled[aria-pressed='true'] {
-    background: var(--mo-comp-button-filled-selected-container-color, var(--mo-sys-block-accent));
-    color: var(--mo-comp-button-filled-selected-label-text-color, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-button-filled-selected-container-color, var(--mo-comp-block-accent));
+    color: var(--mo-comp-button-filled-selected-label-text-color, var(--mo-comp-block-on-accent));
     box-shadow: var(--mo-comp-button-toggle-selected-shadow, none);
   }
   @media (hover: hover) {
     :where(.mo-icon-button).mo-is-filled[aria-pressed='true']:hover {
-      background: var(--mo-comp-button-toggle-selected-hover, var(--mo-sys-block-accent-hover));
+      background: var(--mo-comp-button-toggle-selected-hover, var(--mo-comp-block-accent-hover));
     }
   }
   :where(.mo-icon-button).mo-is-tonal[aria-pressed='false'] {
     background: var(
       --mo-comp-icon-button-tonal-unselected-surface,
-      color-mix(in srgb, var(--mo-sys-block-line) 55%, var(--mo-sys-block-surface))
+      color-mix(in srgb, var(--mo-comp-block-line) 55%, var(--mo-comp-block-surface))
     );
-    color: var(--mo-comp-icon-button-tonal-unselected-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-icon-button-tonal-unselected-text, var(--mo-comp-block-muted));
   }
   @media (hover: hover) {
     :where(.mo-icon-button).mo-is-tonal[aria-pressed='false']:hover {
       background: color-mix(
         in srgb,
         currentColor 8%,
-        var(--mo-comp-icon-button-tonal-unselected-surface, color-mix(in srgb, var(--mo-sys-block-line) 55%, var(--mo-sys-block-surface)))
+        var(--mo-comp-icon-button-tonal-unselected-surface, color-mix(in srgb, var(--mo-comp-block-line) 55%, var(--mo-comp-block-surface)))
       );
     }
   }
@@ -459,14 +464,14 @@
     }
   }
   :where(.mo-icon-button).mo-is-outlined[aria-pressed='true'] {
-    background: var(--mo-comp-icon-button-outlined-selected-surface, var(--mo-sys-block-text));
-    color: var(--mo-comp-icon-button-outlined-selected-text, var(--mo-sys-block-surface));
+    background: var(--mo-comp-icon-button-outlined-selected-surface, var(--mo-comp-block-text));
+    color: var(--mo-comp-icon-button-outlined-selected-text, var(--mo-comp-block-surface));
     box-shadow: none;
   }
   @media (hover: hover) {
     :where(.mo-icon-button).mo-is-outlined[aria-pressed='true']:hover {
-      background: color-mix(in srgb, currentColor 14%, var(--mo-comp-icon-button-outlined-selected-surface, var(--mo-sys-block-text)));
-      color: var(--mo-comp-icon-button-outlined-selected-text, var(--mo-sys-block-surface));
+      background: color-mix(in srgb, currentColor 14%, var(--mo-comp-icon-button-outlined-selected-surface, var(--mo-comp-block-text)));
+      color: var(--mo-comp-icon-button-outlined-selected-text, var(--mo-comp-block-surface));
       box-shadow: none;
     }
   }

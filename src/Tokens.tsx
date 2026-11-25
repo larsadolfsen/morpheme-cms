@@ -18,15 +18,15 @@ const say = t.parts.tokens;
 const back = { href: '#developer/parts', label: t.common.parts.editorParts };
 
 /** A token: its CSS variable, its name here, and for a part's own the token or the value ui.css gives it when the theme
- * does not set it (its `var(--mo-comp-filter-chip-container-shape, var(--mo-sys-block-control-radius))`). */
+ * does not set it (its `var(--mo-comp-filter-chip-container-shape, var(--mo-comp-block-control-radius))`). */
 type Token = { token: string; label: string; fallback?: string };
 
 const shape: Token[] = [
-  { token: '--mo-sys-radius', label: say.shape.radius },
-  { token: '--mo-sys-radius-small', label: say.shape.radiusSmall },
-  { token: '--mo-sys-block-radius', label: say.shape.blockRadius },
-  { token: '--mo-sys-block-radius-small', label: say.shape.blockRadiusSmall },
-  { token: '--mo-sys-block-control-radius', label: say.shape.blockControlRadius },
+  { token: '--mo-sys-shape-corner-medium', label: say.shape.radius },
+  { token: '--mo-sys-shape-corner-large', label: say.shape.radiusSmall },
+  { token: '--mo-comp-block-radius', label: say.shape.blockRadius },
+  { token: '--mo-comp-block-radius-small', label: say.shape.blockRadiusSmall },
+  { token: '--mo-comp-block-control-radius', label: say.shape.blockControlRadius },
   { token: '--mo-comp-theme-picture-radius', label: say.shape.imageRadius },
   { token: '--mo-comp-theme-post-picture-radius', label: say.shape.postImageRadius },
   { token: '--mo-comp-theme-logo-tile-radius', label: say.shape.logoTileRadius },
@@ -34,17 +34,17 @@ const shape: Token[] = [
 
 // The UI parts' corners, with what ui.css gives each when the theme does not set it.
 const parts: Token[] = [
-  { token: '--mo-comp-button-medium-container-shape-round', label: say.parts.button, fallback: '--mo-sys-block-control-radius' },
-  { token: '--mo-comp-filter-chip-container-shape', label: say.parts.chip, fallback: '--mo-sys-block-control-radius' },
-  { token: '--mo-comp-text-field-radius', label: say.parts.textField, fallback: '--mo-sys-block-control-radius' },
-  { token: '--mo-comp-card-radius', label: say.parts.card, fallback: '--mo-sys-block-radius' },
-  { token: '--mo-comp-menu-container-shape', label: say.parts.menu, fallback: '--mo-sys-block-radius-small' },
-  { token: '--mo-comp-dialog-container-shape', label: say.parts.dialog, fallback: '--mo-sys-block-radius' },
-  { token: '--mo-comp-sheet-bottom-docked-container-shape', label: say.parts.bottomSheet, fallback: '--mo-sys-block-radius' },
-  { token: '--mo-comp-sheet-side-docked-container-shape', label: say.parts.sideSheet, fallback: '--mo-sys-block-radius' },
-  { token: '--mo-comp-fab-container-shape', label: say.parts.fab, fallback: '--mo-sys-block-radius-small' },
+  { token: '--mo-comp-button-small-container-shape-round', label: say.parts.button, fallback: '--mo-comp-block-control-radius' },
+  { token: '--mo-comp-filter-chip-container-shape', label: say.parts.chip, fallback: '--mo-comp-block-control-radius' },
+  { token: '--mo-comp-text-field-radius', label: say.parts.textField, fallback: '--mo-comp-block-control-radius' },
+  { token: '--mo-comp-elevated-card-container-shape', label: say.parts.card, fallback: '--mo-comp-block-radius' },
+  { token: '--mo-comp-menus-container-shape', label: say.parts.menu, fallback: '--mo-comp-block-radius-small' },
+  { token: '--mo-comp-dialog-container-shape', label: say.parts.dialog, fallback: '--mo-comp-block-radius' },
+  { token: '--mo-comp-sheet-bottom-docked-container-shape', label: say.parts.bottomSheet, fallback: '--mo-comp-block-radius' },
+  { token: '--mo-comp-sheet-side-docked-modal-container-shape', label: say.parts.sideSheet, fallback: '--mo-comp-block-radius' },
+  { token: '--mo-comp-fab-container-shape', label: say.parts.fab, fallback: '--mo-comp-block-radius-small' },
   { token: '--mo-comp-snackbar-container-shape', label: say.parts.snackbar, fallback: '1rem' },
-  { token: '--mo-comp-search-bar-container-shape', label: say.parts.searchBar, fallback: '--mo-sys-block-control-radius' },
+  { token: '--mo-comp-search-bar-container-shape', label: say.parts.searchBar, fallback: '--mo-comp-block-control-radius' },
 ];
 
 // The classes mo-elevation-N (a surface: the level's colour and elevation shadow) and mo-elevated-N (only the shadow), theme/styles/elevation.css.
@@ -65,7 +65,7 @@ const LEVELS = [0, 1, 2, 3, 4, 5];
 // parts with a variable of their own; the others are always level 0.
 const shadows: Token[] = [
   { token: '--mo-sys-panel-shadow', label: say.elevation.shadow },
-  { token: '--mo-sys-block-shadow', label: say.elevation.blockShadow },
+  { token: '--mo-comp-block-shadow', label: say.elevation.blockShadow },
   {
     token: '--mo-comp-button-filled-container-elevation',
     label: say.partShadows.buttonFilled,

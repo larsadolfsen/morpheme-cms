@@ -1,15 +1,15 @@
 // "Table", a standard block: rows of cells, the first row a header unless turned off. Cells are one line of text each. How it looks is the
 // theme's (packages/editor/theme/blocks/table/View.tsx; what it shows: view.ts, and load.ts on the site). Typed in place (InlineTable.tsx):
 // the sheet only has what is not text, the header row.
-import { Table } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 import { tableOf } from './view';
+import { materialIcon } from '../../icon';
 
 export default defineBlock({
   group: 'content',
   label: t.blocks.table.label,
-  icon: Table,
+  icon: materialIcon('table'),
   hint: t.blocks.table.hint,
   fields: [
     { name: 'header', label: t.blocks.table.header, type: 'boolean', default: true, toggle: t.blocks.table.headerToggle },

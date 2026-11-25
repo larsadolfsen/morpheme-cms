@@ -110,7 +110,7 @@
     gap: var(--mo-comp-navigation-drawer-item-gap, 0.5rem);
     border-radius: var(--mo-comp-navigation-drawer-item-radius, var(--mo-sys-shape-corner-full));
     padding: var(--mo-comp-navigation-drawer-item-padding, 0 1rem);
-    color: var(--mo-comp-navigation-drawer-item-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-navigation-drawer-item-text, var(--mo-comp-block-muted));
     text-decoration: none;
     font-size: var(--mo-comp-navigation-drawer-item-font-size, var(--mo-sys-typescale-label-large-size));
     line-height: var(--mo-comp-navigation-drawer-item-line-height, var(--mo-sys-typescale-label-large-line-height));
@@ -247,7 +247,7 @@
     min-height: var(--mo-comp-navigation-drawer-item-height, 3.5rem);
     align-items: center;
     padding-inline: var(--mo-comp-navigation-drawer-item-padding-inline, 1rem);
-    color: var(--mo-comp-navigation-drawer-section-label-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-navigation-drawer-section-label-text, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-title-small-size);
     line-height: var(--mo-sys-typescale-title-small-line-height);
     font-weight: var(--mo-sys-typescale-title-small-weight);
@@ -278,7 +278,7 @@
   .mo-navigation-drawer__badge {
     flex-shrink: 0;
     margin-inline-start: auto;
-    color: var(--mo-comp-navigation-drawer-badge-text, var(--mo-sys-block-muted));
+    color: var(--mo-comp-navigation-drawer-badge-text, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-label-large-size);
     line-height: var(--mo-sys-typescale-label-large-line-height);
     font-weight: var(--mo-sys-typescale-label-large-weight);
@@ -322,7 +322,7 @@
     transition: background-color var(--mo-sys-motion-spring-fast-effects);
   }
   .mo-navigation-drawer__toggle:hover {
-    background: var(--mo-comp-navigation-drawer-toggle-hover, var(--mo-sys-block-tint));
+    background: var(--mo-comp-navigation-drawer-toggle-hover, var(--mo-comp-block-tint));
   }
   .mo-navigation-drawer__toggle > svg {
     transition: rotate var(--mo-sys-motion-spring-default-spatial);
@@ -341,16 +341,16 @@
     display: flex;
     align-items: center;
     margin-left: var(--mo-comp-navigation-drawer-subitem-indent, 0.75rem);
-    border-left: 1px solid var(--mo-comp-navigation-drawer-subitem-line, var(--mo-sys-block-line));
+    border-left: 1px solid var(--mo-comp-navigation-drawer-subitem-line, var(--mo-comp-block-line));
     padding: var(--mo-comp-navigation-drawer-subitem-padding, 0.625rem 0.75rem 0.625rem 1rem);
-    color: var(--mo-comp-navigation-drawer-subitem-text, color-mix(in oklab, var(--mo-sys-block-text) 80%, transparent));
+    color: var(--mo-comp-navigation-drawer-subitem-text, color-mix(in oklab, var(--mo-comp-block-text) 80%, transparent));
     font-size: var(--mo-comp-navigation-drawer-subitem-font-size, var(--mo-sys-typescale-body-medium-size));
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
     transition: color var(--mo-sys-motion-spring-fast-effects);
   }
   .mo-navigation-drawer__subitem:hover,
   .mo-navigation-drawer__subitem[data-active] {
-    color: var(--mo-comp-navigation-drawer-subitem-active-text, var(--mo-sys-block-accent));
+    color: var(--mo-comp-navigation-drawer-subitem-active-text, var(--mo-comp-block-accent));
   }
   .mo-navigation-drawer__subitem[data-active] {
     font-weight: 500;

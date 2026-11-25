@@ -7,8 +7,7 @@
 // card has its action area at the bottom: its buttons and the next one, empty and faded (`Add button`). The parts, the keys and what is kept
 // are InlineItems.tsx and src/inlineRows.mjs; a new block starts with three empty, faded cards, the first active (the List has one); `Add
 // card` and the dotted line are as in the List.
-import { Image as ImageIcon, Shapes, VideoCamera } from '@phosphor-icons/react';
-import { Svg } from './icon';
+import { Svg, materialIcon } from './icon';
 import { t } from './i18n';
 import { SiteButton, SiteCard } from './themeUi';
 import InlineItems, { InlineField, InlineSlot, type Item } from './InlineItems';
@@ -18,6 +17,7 @@ import shared from './standard/cards/shared';
 import { ratioProp, shownCards, type LinkCard, type LinkCardProps } from './standard/cards/view';
 import { cardKinds, type CardKind } from '@theme/ui/Card';
 import Buttons from '@theme/blocks/buttons/Buttons';
+import Divider from '@theme/ui/Divider';
 import { CardMedia } from '@theme/blocks/cards/LinkCards';
 
 /** A card that has its media set: an icon, an image or a video. */
@@ -29,9 +29,9 @@ export default function InlineCards({ items, props, data, active, focus, onChang
   const colored = type === 'filled' && props.color ? `mo-block-cards__${props.color}` : undefined;
   const media = cards[0]?.media ?? 'icon';
   const kinds = [
-    { kind: 'icon', label: t.blocks.cards.mediaIcon, Icon: Shapes },
-    { kind: 'image', label: t.blocks.cards.mediaImage, Icon: ImageIcon },
-    { kind: 'video', label: t.blocks.cards.mediaVideo, Icon: VideoCamera },
+    { kind: 'icon', label: t.blocks.cards.mediaIcon, Icon: materialIcon('shapes') },
+    { kind: 'image', label: t.blocks.cards.mediaImage, Icon: materialIcon('image') },
+    { kind: 'video', label: t.blocks.cards.mediaVideo, Icon: materialIcon('videocam') },
   ] as const;
   const more = String(sharedIn(data.site, 'cards', shared.values).more);
   // The active card's action area: each button's text is typed on the button itself (its target is in the card's sheet, the bar's Link), and the
@@ -164,6 +164,12 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                   <span className="mo-block-cards__card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
                 )}
                 {card?.href && <span className="mo-block-cards__card-more">{more}</span>}
+                {/* The divider is drawn only above buttons (a card with a page or a video has none), the value kept otherwise. */}
+                {!card?.href &&
+                  item.divider === true &&
+                  ((card?.buttons.length ?? 0) > 0 || (here && Array.isArray(item.buttons) && item.buttons.length > 0)) && (
+                    <Divider className="mo-block-cards__card-divider" />
+                  )}
                 {!card?.href && here && buttonsOf(i, item)}
                 {!card?.href && !here && (card?.buttons.length ?? 0) > 0 && (
                   <span className="mo-block-cards__card-actions">

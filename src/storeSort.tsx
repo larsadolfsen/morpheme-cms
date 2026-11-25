@@ -1,9 +1,9 @@
 // The order of a list of apps or themes (A–Z or Z–A, kept in this browser) and its picker.
 // Exposes useSort(), sortChoice(sort, pickSort) and type Sort; uses Choice (ui.tsx) and t.library.
 import { useState } from 'react';
-import { ArrowsDownUp } from '@phosphor-icons/react';
 import { Choice } from './ui';
 import { t } from './i18n';
+import { materialIcon } from './icon';
 
 export type Sort = 'az' | 'za';
 const SORTS: Sort[] = ['az', 'za'];
@@ -31,7 +31,7 @@ export function useSort(): [Sort, (next: Sort) => void] {
 export const sortChoice = (sort: Sort, pickSort: (next: Sort) => void) => (
   <Choice
     title={t.library.sort}
-    icon={ArrowsDownUp}
+    icon={materialIcon('swap_vert')}
     value={sort}
     options={SORTS.map((value) => ({ value, label: t.library.sorts[value] }))}
     onChange={pickSort}

@@ -42,6 +42,9 @@ export const cms = {
   /** On the start screen, over a reason the site can't update itself (BlockedUpdateNotice.tsx); the reasons are in cmsBlocked.mjs. */
   blockedTitle: 'Morpheme can’t update itself',
   blockedNeedsNpm: (v: string) => `Version ${v} needs npm to install. Open Morpheme for the command.`,
+  blockedUnsafeCode: (v: string, places: string) =>
+    `Version ${v} isn’t installed because Morpheme can’t rewrite these places in your own themes and apps: ${places}. Fix them, then update.`,
+  andMore: (n: number) => ` and ${n} more`,
   blockedNoToken: 'Add a GITHUB_PUBLISH_TOKEN secret in Cloudflare so the website can update itself.',
   blockedNoKv: 'Bind a KV namespace named PUSH in Cloudflare so the website can update itself.',
   blockedTheme: (v: string, id: string) => `Version ${v} isn’t installed because the theme ${id} doesn’t work with it yet.`,

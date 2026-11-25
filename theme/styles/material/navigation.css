@@ -41,12 +41,12 @@
       color var(--mo-sys-motion-spring-default-effects);
   }
   .mo-header__nav-item:hover {
-    background: var(--mo-sys-state-mo-hover-layer);
+    background: var(--mo-sys-state-hover-state-layer-color);
     color: var(--mo-sys-color-on-surface);
   }
   .mo-header__nav-item:focus-visible,
   .mo-header__nav-item:active {
-    background: var(--mo-sys-state-mo-pressed-layer);
+    background: var(--mo-sys-state-pressed-state-layer-color);
     color: var(--mo-sys-color-on-surface);
   }
   /* An item with sub-pages: its label, then the button that opens them. */
@@ -65,17 +65,17 @@
       color var(--mo-sys-motion-spring-default-effects);
   }
   .mo-header__nav-toggle:hover {
-    background: var(--mo-sys-state-mo-hover-layer);
+    background: var(--mo-sys-state-hover-state-layer-color);
     color: var(--mo-sys-color-on-surface);
   }
   .mo-header__nav-toggle:focus-visible,
   .mo-header__nav-toggle:active {
-    background: var(--mo-sys-state-mo-pressed-layer);
+    background: var(--mo-sys-state-pressed-state-layer-color);
     color: var(--mo-sys-color-on-surface);
   }
   /* M3's "Active (main menu reveals submenu)": the item whose menu is open keeps the state layer (menus Specs, States, 6). */
   .mo-header__nav-toggle[aria-expanded='true'] {
-    background: var(--mo-sys-state-mo-hover-layer);
+    background: var(--mo-sys-state-hover-state-layer-color);
     color: var(--mo-sys-color-on-surface);
   }
   .mo-header__nav-toggle > svg {
@@ -92,10 +92,10 @@
   /* A menu (its variables above): a state layer with focus from the keyboard (the ripple when pressed), and the open page
    in the menu's selected container also when pointed at (the same tokens as the Menu component). */
   .mo-menu__item:focus-visible {
-    background: var(--mo-sys-state-mo-pressed-layer);
+    background: var(--mo-sys-state-pressed-state-layer-color);
   }
   .mo-menu__item[aria-current='page']:hover {
-    background: var(--mo-comp-menu-list-item-selected-container-color);
+    background: var(--mo-comp-menus-standard-menu-item-selected-container-color);
   }
 
   /* The extended FAB (its variables above, Header.astro): at the bottom right of the screen, with the ripple when pressed. It
@@ -187,10 +187,10 @@
     background: none;
   }
   .mo-navigation-drawer__row:has(> .mo-navigation-drawer__item:hover) {
-    background: var(--mo-sys-state-mo-hover-layer);
+    background: var(--mo-sys-state-hover-state-layer-color);
   }
   .mo-navigation-drawer__row:has(> .mo-navigation-drawer__item:focus-visible) {
-    background: var(--mo-sys-state-mo-pressed-layer);
+    background: var(--mo-sys-state-pressed-state-layer-color);
   }
   .mo-navigation-drawer__row[data-active] {
     background: var(--mo-sys-color-secondary-container);
@@ -217,7 +217,7 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-navigation-drawer__toggle:focus-visible {
-    background: var(--mo-sys-state-mo-pressed-layer);
+    background: var(--mo-sys-state-pressed-state-layer-color);
   }
   /* Directly in the drawer ("Call"), not in a row with a caret: as high as its content. */
   .mo-navigation-drawer > .mo-navigation-drawer__item {
@@ -235,11 +235,11 @@
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .mo-navigation-drawer__subitem:hover {
-    background: var(--mo-sys-state-mo-hover-layer);
+    background: var(--mo-sys-state-hover-state-layer-color);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-navigation-drawer__subitem:focus-visible {
-    background: var(--mo-sys-state-mo-pressed-layer);
+    background: var(--mo-sys-state-pressed-state-layer-color);
   }
   .mo-navigation-drawer__subitem[data-active] {
     background: var(--mo-sys-color-secondary-container);

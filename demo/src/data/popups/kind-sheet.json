@@ -1,0 +1,15 @@
+{
+  "type": "kind-sheet",
+  "enabled": true,
+  "heading": "Kind sheet",
+  "text": "A promotion of the demo's own app.",
+  "where": "some",
+  "pages": [
+    "/"
+  ],
+  "trigger": "time",
+  "delay": "30",
+  "button": "page",
+  "label": "Home",
+  "href": "/"
+}

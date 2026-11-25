@@ -1,0 +1,26 @@
+/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
+
+:root,
+:is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
+/* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
+.mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
+  /* The full-screen dialog (m3.material.io/components/dialogs/specs, Dialog - Full screen; docs/m3-tokens/md.comp.full-screen-dialog.json): a surface
+     container with no corners and no elevation, a 56 dp header on the surface that turns surface container with the second elevation once the content
+     scrolls under it, an on-surface close icon (24 dp) and headline in title large, and a primary text button in label large (the Button's own). The
+     divider is the theme's Divider; the action bar tokens are not used (the specs' parts list has none). */
+  --mo-comp-full-screen-dialog-container-color: var(--mo-sys-color-surface);
+  --mo-comp-full-screen-dialog-container-elevation: var(--mo-sys-elevation-level0-shadow);
+  --mo-comp-full-screen-dialog-container-shape: var(--mo-sys-shape-corner-none);
+  --mo-comp-full-screen-dialog-header-container-height: 3.5rem;
+  --mo-comp-full-screen-dialog-header-container-color: var(--mo-sys-color-surface);
+  --mo-comp-full-screen-dialog-header-container-elevation: var(--mo-sys-elevation-level0-shadow);
+  --mo-comp-full-screen-dialog-header-on-scroll-container-color: var(--mo-sys-color-surface-container);
+  --mo-comp-full-screen-dialog-header-on-scroll-container-elevation: var(--mo-sys-elevation-level2-shadow);
+  --mo-comp-full-screen-dialog-header-icon-color: var(--mo-sys-color-on-surface);
+  --mo-comp-full-screen-dialog-header-headline-color: var(--mo-sys-color-on-surface);
+  --mo-comp-full-screen-dialog-header-headline-size: var(--mo-sys-typescale-title-large-size);
+  --mo-comp-full-screen-dialog-header-headline-line-height: var(--mo-sys-typescale-title-large-line-height);
+  --mo-comp-full-screen-dialog-header-headline-weight: var(--mo-sys-typescale-title-large-weight);
+  --mo-comp-full-screen-dialog-header-headline-tracking: var(--mo-sys-typescale-title-large-tracking);
+  --mo-comp-full-screen-dialog-header-action-label-text-color: var(--mo-sys-color-primary);
+}

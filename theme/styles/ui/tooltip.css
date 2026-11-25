@@ -1,7 +1,7 @@
 /*
   Tooltips (Tooltip, tooltipClass; m3.material.io/components/tooltips): .mo-tooltip__anchor ([data-tooltip], shown with
   [data-tooltip-open] by ../ui/tooltip.script.ts, placed by CSS anchor positioning, and where the browser lacks it by the script, which puts [data-tooltip-below] under its anchor) with what it is about and
-  its .mo-tooltip, .mo-tooltip__plain (a short label, in the middle over it) or .mo-tooltip__rich (.mo-tooltip__subhead,
+  its .mo-tooltip, .mo-tooltip.mo-is-plain (a short label, in the middle over it) or .mo-tooltip.mo-is-rich (.mo-tooltip__subhead,
   .mo-tooltip__supporting-text and optionally .mo-tooltip__actions with a text button, .mo-tooltip__action; from its anchor's start).
     --mo-comp-tooltip-gap (between it and its anchor)
     --mo-comp-plain-tooltip-container-color, -text, -radius, -padding, -font-size, -weight, -max-width
@@ -44,10 +44,10 @@
     pointer-events: auto;
   }
   /* Plain: a short label on the text's colour. */
-  .mo-tooltip__plain {
+  :where(.mo-tooltip, .mo-editor-tooltip).mo-is-plain {
     max-width: var(--mo-comp-tooltip-plain-max-width, 12.5rem);
     border-radius: var(--mo-comp-plain-tooltip-container-shape, 0.5rem);
-    background: var(--mo-comp-plain-tooltip-container-color, var(--mo-sys-block-text));
+    background: var(--mo-comp-plain-tooltip-container-color, var(--mo-comp-block-text));
     padding: var(--mo-comp-tooltip-plain-padding, 0.25rem 0.5rem);
     color: var(--mo-comp-plain-tooltip-supporting-text-color, var(--mo-sys-color-surface));
     font-size: var(--mo-comp-tooltip-plain-font-size, var(--mo-sys-typescale-body-small-size));
@@ -56,27 +56,27 @@
     line-height: var(--mo-sys-typescale-body-small-line-height);
   }
   /* Rich: a subhead, a text and optionally an action on a surface, from the anchor's start. */
-  .mo-tooltip__rich {
+  :where(.mo-tooltip).mo-is-rich {
     left: 0;
     display: flex;
     max-width: var(--mo-comp-tooltip-rich-max-width, 20rem);
     flex-direction: column;
     gap: 0.25rem;
     translate: var(--mo-comp-tooltip-shift, 0px) 0;
-    border-radius: var(--mo-comp-rich-tooltip-container-shape, var(--mo-sys-block-radius-small));
+    border-radius: var(--mo-comp-rich-tooltip-container-shape, var(--mo-comp-block-radius-small));
     background: var(--mo-comp-tooltip-rich-surface, var(--mo-sys-elevation-level2-color));
     padding: var(--mo-comp-tooltip-rich-padding, 0.75rem 1rem);
-    color: var(--mo-comp-rich-tooltip-supporting-text-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-rich-tooltip-supporting-text-color, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
     box-shadow:
-      0 0 0 1px var(--mo-comp-tooltip-rich-line, var(--mo-sys-block-line)),
+      0 0 0 1px var(--mo-comp-tooltip-rich-line, var(--mo-comp-block-line)),
       var(--mo-comp-tooltip-rich-shadow, var(--mo-sys-elevation-level2-shadow));
   }
   .mo-tooltip__subhead {
-    color: var(--mo-comp-rich-tooltip-subhead-color, var(--mo-sys-block-text));
+    color: var(--mo-comp-rich-tooltip-subhead-color, var(--mo-comp-block-text));
     font-size: var(--mo-sys-typescale-title-small-size);
     line-height: var(--mo-sys-typescale-title-small-line-height);
     font-weight: var(--mo-comp-tooltip-rich-subhead-weight, var(--mo-sys-typescale-title-small-weight));
@@ -108,7 +108,7 @@
         flip-block, --tooltip-top-end, --tooltip-top-start, --tooltip-bottom-end, --tooltip-bottom-start, --tooltip-top-window,
         --tooltip-bottom-window;
     }
-    .mo-tooltip__rich {
+    :where(.mo-tooltip).mo-is-rich {
       position-area: block-start span-inline-end;
       inset-inline: 0 0.5rem;
       position-try-fallbacks: flip-block, --tooltip-top-start, --tooltip-bottom-start, --tooltip-top-window, --tooltip-bottom-window;
