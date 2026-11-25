@@ -53,19 +53,24 @@ async function base() {
 
 /** The files now: the demo's, with the saves over them. path -> { oid, text | null (a binary) }. */
 async function tree() {
-  const files = new Map((await base()).files.map((f) => [f.path, { oid: `blob:${f.path}:0`, text: f.text ?? null }]));
+  const { build = '0', files: own } = await base();
+  const files = new Map(own.map((f) => [f.path, { oid: `blob:${f.path}:${build}.0`, text: f.text ?? null }]));
   const saves = await readAll();
   for (const [path, s] of Object.entries(saves)) {
     if (path === 'commit') continue;
     if (s.deleted) files.delete(path);
-    else files.set(path, { oid: `blob:${path}:${s.version}`, text: s.text ?? null, saved: s });
+    else files.set(path, { oid: `blob:${path}:${build}.${s.version}`, text: s.text ?? null, saved: s });
   }
   return files;
 }
 const commitNow = async () => (await readAll()).commit ?? 0;
+// The commit, the tree and every file's id carry the build's id (scripts/demo-editor.mjs buildId): the editor keeps the files with the commit
+// they are from (src/cache.ts) and a file's text by its id (src/github.ts), so a new build of the demo must be a new commit with new ids, or
+// a browser that opened an earlier build shows that one's files.
 const head = async () => {
   const n = await commitNow();
-  return { commit: `commit-${n}`, tree: `root-${n}` };
+  const { build = '0' } = await base();
+  return { commit: `commit-${build}-${n}`, tree: `root-${build}-${n}` };
 };
 const listed = (path, f) => ({
   path,
@@ -91,7 +96,7 @@ async function text(path, f) {
 
 async function graphql(body, files) {
   const query = body.query ?? '';
-  const repository = { ref: { target: { oid: `commit-${await commitNow()}` } }, viewerPermission: 'ADMIN' };
+  const repository = { ref: { target: { oid: (await head()).commit } }, viewerPermission: 'ADMIN' };
   for (const [, key, path] of query.matchAll(/(f\d+): object\(expression: "[^:"]+:([^"]+)"\)/g)) {
     const f = files.get(path);
     repository[key] = f ? { oid: f.oid, text: TEXT.test(path) ? await text(path, f) : null } : null;
@@ -139,12 +144,13 @@ async function github(route, request) {
   if (route === 'commit') {
     // The demo's saves never conflict: the one browser is the only editor.
     const n = (await commitNow()) + 1;
+    const { build = '0' } = await base();
     const blobs = {};
     for (const c of body.changes ?? []) {
       const version = n;
       if (c.content === null) await put(c.path, { deleted: true, version });
       else {
-        blobs[c.path] = `blob:${c.path}:${version}`;
+        blobs[c.path] = `blob:${c.path}:${build}.${version}`;
         const bytes = c.content;
         await put(
           c.path,
@@ -155,7 +161,7 @@ async function github(route, request) {
       }
     }
     await put('commit', n);
-    return json({ commit: `commit-${n}`, blobs });
+    return json({ commit: `commit-${build}-${n}`, blobs });
   }
   return json({ error: 'not found' }, 404);
 }
