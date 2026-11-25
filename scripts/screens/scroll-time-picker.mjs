@@ -38,7 +38,9 @@ async function checkScrollTimePicker(width, height, theme) {
           return { height: box.height, off: Math.abs(box.top + box.height / 2 - (field.top + field.height / 2)) };
         }),
         inactive: fields.map((f) =>
-          Math.min(...[...f.querySelectorAll('[data-time-picker-item]:not([data-selected])')].map((i) => i.getBoundingClientRect().height)),
+          Math.min(
+            ...[...f.querySelectorAll('[data-scroll-field-item]:not([data-selected])')].map((i) => i.getBoundingClientRect().height),
+          ),
         ),
         wide: sample.scrollWidth > sample.clientWidth + 1,
       };

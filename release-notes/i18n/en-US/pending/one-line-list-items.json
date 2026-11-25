@@ -1,6 +1,0 @@
-{
-  "id": "one-line-list-items",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "List items with only a name are one line high, not two"
-}

@@ -185,6 +185,9 @@ for (const scheme of ['light', 'dark']) {
       await live.goto(name === 'home' ? `${site}/` : `${site}/${name}/`);
       await live.waitForSelector('main');
       await live.waitForTimeout(300);
+      // The demo's "Names" button sits in the footer's row on the site only (the Preview strips it) and widens the row, and the connected colour-scheme
+      // group fills that row, so it is taken out before the site is measured: it is the demo's tool, not the page.
+      await live.evaluate(() => document.querySelectorAll('[data-demo-names="toggle"]').forEach((el) => el.remove()));
       const liveRows = await live.evaluate(measure, STYLES);
       problems.push(...compare(label, liveRows, previewRows));
       await context.close();

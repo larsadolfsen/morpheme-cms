@@ -266,6 +266,17 @@
       var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius))
       var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius));
   }
+  /* The divider above the action area, in the editor's drawing of a card (Card `divider` on the site): full width, the card's padding taken back. */
+  .mo-block-cards__card-divider.mo-divider {
+    margin-block: auto 0;
+    margin-inline: calc(-1 * var(--mo-comp-card-padding, 1rem));
+  }
+  .mo-block-cards__card > :has(+ .mo-block-cards__card-divider) {
+    margin-bottom: var(--mo-comp-card-action-gap, 1rem);
+  }
+  .mo-block-cards__card-divider + .mo-block-cards__card-actions {
+    margin-top: 0;
+  }
   /* The action area: its buttons in a row at the bottom of the card. */
   .mo-block-cards__card-actions {
     display: flex;
@@ -349,6 +360,34 @@
   }
   .mo-block-cards__carousel .mo-carousel__item-mask .mo-card__body {
     opacity: calc(1 - var(--mo-comp-carousel-mask, 0) * 3);
+  }
+  /* The multi-aspect ratio layout (M3, Carousel, Specs: leading padding 16dp only, 8dp between items, 8dp above and below, corners 28dp; Guidelines: "Carousel
+     items emphasize visuals, but can also contain brief text that adapts to the item size"): each card is as wide as its image's aspect ratio makes it
+     at the row's item height (--mo-comp-carousel-height, the image's height) and as high as its image and its text, the cards top-aligned. The image
+     is the card's media at that aspect (LinkCards.tsx), so the card's width and its image agree. */
+  .mo-block-cards__carousel .mo-carousel.mo-is-multi-aspect .mo-carousel__items {
+    height: auto;
+    align-items: flex-start;
+  }
+  .mo-block-cards__carousel .mo-carousel.mo-is-multi-aspect .mo-carousel__item {
+    height: auto;
+    aspect-ratio: auto;
+  }
+  @media (width < 37.5rem) {
+    .mo-block-cards__carousel .mo-carousel.mo-is-multi-aspect .mo-carousel__items {
+      gap: var(--mo-comp-card-gap, 0.5rem);
+      padding-block: 0.5rem;
+      padding-inline: 1rem 0;
+      scroll-padding-inline: 1rem 0;
+    }
+    .mo-block-cards__carousel:not([data-expanded]) .mo-carousel.mo-is-multi-aspect .mo-carousel__item {
+      width: calc(var(--mo-comp-carousel-height, 14rem) * var(--mo-comp-carousel-item-aspect, 1));
+    }
+  }
+  @media (width >= 37.5rem) {
+    .mo-block-cards__carousel .mo-carousel.mo-is-multi-aspect .mo-carousel__items {
+      align-items: start;
+    }
   }
   @media (width < 37.5rem) {
     .mo-block-cards__carousel .mo-carousel:where(:not(.mo-is-contained)) .mo-carousel__items {

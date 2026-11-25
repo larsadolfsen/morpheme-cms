@@ -1,6 +1,0 @@
-{
-  "id": "swipeable-cards",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "Cards as a carousel on phones follow Material 3 and offer five layouts: uncontained, multi-browse, hero, center-aligned hero and full-screen"
-}

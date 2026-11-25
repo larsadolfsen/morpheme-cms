@@ -26,16 +26,8 @@ import type {
   TimePickerTexts,
 } from '@theme/ui/TimePickerContainer';
 import { timeFromTyped, timeOf, timeString, timeTyped, twoDigits } from '@theme/ui/dates';
-import {
-  fieldAfterArrow,
-  hourOfShown,
-  indexAtScroll,
-  indexOfValue,
-  scrollValues,
-  shownHour,
-  valueAfterKey,
-  type ScrollField,
-} from '@theme/ui/scrollTime';
+import { fieldAfterArrow, hourOfShown, pageOf, shownHour, type ScrollField } from '@theme/ui/scrollTime';
+import { scrollFieldControl, scrollFieldsTo } from '@theme/ui/scrollFieldControl';
 
 const load = () => Promise.all([import('react'), import('react-dom'), import('react-dom/client'), import('@theme/ui/TimePickerContainer')]);
 let loading: ReturnType<typeof load> | undefined;
@@ -77,7 +69,6 @@ export function timePickerField(field: HTMLElement) {
   const text = field.querySelector<HTMLInputElement>('[data-time-picker-text]');
   const textField = text?.closest<HTMLElement>('.mo-text-field');
   const opener = field.querySelector<HTMLButtonElement>('[data-time-picker-open]');
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const input = field.querySelector<HTMLInputElement>('[data-time-picker-value]')!;
   const dialog = field.querySelector<HTMLDialogElement>('[data-time-picker-dialog]')!;
   const headlineId = `time-picker-headline-${++opened}`;
@@ -99,20 +90,10 @@ export function timePickerField(field: HTMLElement) {
   }
 
   // The scroll fields: each scrolled so that the value of the time is in the middle (in one step when `instant`, else smoothly unless the
-  // person has asked for less motion). The size of a step is read from the items themselves (an item's height and the gap).
-  const pitchOf = (el: HTMLElement) => {
-    const items = el.querySelectorAll<HTMLElement>('[data-time-picker-item]');
-    return items.length > 1 ? items[1].getBoundingClientRect().top - items[0].getBoundingClientRect().top : 0;
-  };
+  // person has asked for less motion); the generic scroll field's (scrollFieldControl.ts).
   const valueOf = (name: ScrollField) => (name === 'hour' ? shownHour(state.hour, twelve) : state.minute);
   function scrollTo(instant = false) {
-    if (state.view !== 'scroll') return;
-    dialog.querySelectorAll<HTMLElement>('[data-time-picker-scroll]').forEach((el) => {
-      const name = el.dataset.timePickerScroll as ScrollField;
-      const pitch = pitchOf(el);
-      const top = indexOfValue(name, valueOf(name), twelve) * pitch;
-      if (pitch && Math.abs(el.scrollTop - top) > 1) el.scrollTo({ top, behavior: instant || reduced.matches ? 'instant' : 'smooth' });
-    });
+    if (state.view === 'scroll') scrollFieldsTo(dialog, instant);
   }
 
   const start = (): TimePickerState => {
@@ -169,13 +150,6 @@ export function timePickerField(field: HTMLElement) {
     const hour = twelve ? half + (((value % 12) + 12) % 12) : (value + 24) % 24;
     state = state.selecting === 'hour' ? { ...state, hour } : { ...state, minute: (value + 60) % 60 };
     void render(focus);
-  }
-
-  // A scroll field set to a value (the hour as the clock shows it): a tap on a value, a key, a scroll that has come to rest.
-  function setScroll(name: ScrollField, value: number) {
-    state = name === 'hour' ? { ...state, hour: hourOfShown(value, twelve, state.hour >= 12) } : { ...state, minute: value };
-    commit();
-    return render();
   }
 
   // What is typed in the input mode, as a time (hh:mm); else what is wrong said, and null.
@@ -245,88 +219,31 @@ export function timePickerField(field: HTMLElement) {
     }
     if (action === 'cancel') return close();
     if (action === 'ok') return done();
-    // A tap on a value above or below the selected one in a scroll field goes to it (not at the end of a drag with the mouse).
-    const item = target.closest<HTMLElement>('[data-time-picker-item]');
-    const scroller = item?.closest<HTMLElement>('[data-time-picker-scroll]');
-    if (item && scroller && !dragged) {
-      scroller.focus({ preventScroll: true });
-      void setScroll(scroller.dataset.timePickerScroll as ScrollField, Number(item.dataset.timePickerItem));
-    }
   });
 
-  // The scroll fields. A scroll (touch, wheel, a drag, a key) moves the selection with the value in the middle: the new value is drawn at once (the
-  // attributes of the items, no new drawing) and written when the scrolling has come to rest, where the snapping has put it.
-  // Only a scroll that changed the value writes it: the scrolling the picker does itself, to put a field at its time, writes nothing.
-  let settling: ReturnType<typeof setTimeout> | undefined;
-  let moved = false;
-  dialog.addEventListener(
-    'scroll',
-    (e) => {
-      const el = e.target as HTMLElement;
-      const name = el.dataset?.timePickerScroll as ScrollField | undefined;
+  // The scroll fields: swiping, dragging, tapping a value and the up and down keys are the generic scroll field's (scrollFieldControl.ts); a value picked is the
+  // time's hour or minute. While a field still scrolls the new value is only kept (drawn by the control); the picker writes and draws when it has come to rest.
+  scrollFieldControl(dialog, {
+    onChange: (list, value, settled) => {
+      const name = list.dataset.timePickerScroll as ScrollField | undefined;
       if (!name || state.view !== 'scroll') return;
-      const values = scrollValues(name, twelve);
-      const index = indexAtScroll(el.scrollTop, pitchOf(el), values.length);
-      const value = values[index];
-      if (value !== valueOf(name)) {
-        moved = true;
-        state = name === 'hour' ? { ...state, hour: hourOfShown(value, twelve, state.hour >= 12) } : { ...state, minute: value };
-        el.querySelectorAll<HTMLElement>('[data-time-picker-item]').forEach((item) => {
-          if (Number(item.dataset.timePickerItem) === value) item.dataset.selected = '';
-          else delete item.dataset.selected;
-        });
-        el.setAttribute('aria-valuenow', String(value));
-        el.setAttribute(
-          'aria-valuetext',
-          name === 'hour' && twelve ? `${value} ${state.hour >= 12 ? texts.pm : texts.am}` : twoDigits(value),
-        );
-      }
-      clearTimeout(settling);
-      settling = setTimeout(() => {
-        if (moved) commit();
-        moved = false;
-        void render();
-      }, 150);
+      const n = Number(value);
+      state = name === 'hour' ? { ...state, hour: hourOfShown(n, twelve, state.hour >= 12) } : { ...state, minute: n };
+      if (!settled) return;
+      commit();
+      void render();
     },
-    true,
-  );
-
-  // A mouse drags a scroll field (touch and the wheel scroll it by themselves): the snapping is off while it is dragged and the field goes to
-  // the nearest value when it is let go.
-  let dragged = false;
-  let grab: { el: HTMLElement; y: number; top: number } | undefined;
-  dialog.addEventListener('pointerdown', (e) => {
-    const el = (e.target as HTMLElement).closest<HTMLElement>('[data-time-picker-scroll]');
-    if (!el || e.pointerType !== 'mouse' || e.button !== 0) return;
-    grab = { el, y: e.clientY, top: el.scrollTop };
-    dragged = false;
+    valueText: (list, value) => {
+      const name = list.dataset.timePickerScroll as ScrollField | undefined;
+      return name === 'hour' && twelve ? `${value} ${state.hour >= 12 ? texts.pm : texts.am}` : twoDigits(Number(value));
+    },
+    page: (list) => pageOf(list.dataset.timePickerScroll as ScrollField),
+    // Enter on a field: the time is picked (inline there is no OK).
+    onEnter: (_list, e) => {
+      e.preventDefault();
+      if (!inline) done();
+    },
   });
-  dialog.addEventListener('pointermove', (e) => {
-    if (!grab) return;
-    const dy = e.clientY - grab.y;
-    if (!dragged && Math.abs(dy) < 4) return;
-    if (!dragged) {
-      dragged = true;
-      grab.el.style.scrollSnapType = 'none';
-      grab.el.setPointerCapture(e.pointerId);
-    }
-    grab.el.scrollTop = grab.top - dy;
-  });
-  const release = () => {
-    if (!grab) return;
-    const { el } = grab;
-    grab = undefined;
-    el.style.scrollSnapType = '';
-    if (dragged) {
-      const name = el.dataset.timePickerScroll as ScrollField;
-      const top = indexOfValue(name, valueOf(name), twelve) * pitchOf(el);
-      el.scrollTo({ top, behavior: reduced.matches ? 'instant' : 'smooth' });
-      // The click that ends the drag is not a tap on a value.
-      setTimeout(() => (dragged = false), 0);
-    }
-  };
-  dialog.addEventListener('pointerup', release);
-  dialog.addEventListener('pointercancel', release);
 
   // The dial: the number under the pointer, by its angle from the top and, for the hours, its ring.
   function valueAt(dial: HTMLElement, e: PointerEvent): number {
@@ -392,23 +309,13 @@ export function timePickerField(field: HTMLElement) {
       }
       return;
     }
-    // A scroll field: up and down to the previous and next value, left and right between hours and minutes (no wrap-around).
+    // A scroll field: left and right move between the hours and the minutes (up and down, and the other keys, are scrollFieldControl's).
     const scroller = target.closest<HTMLElement>('[data-time-picker-scroll]');
     if (scroller && state.view === 'scroll') {
-      const name = scroller.dataset.timePickerScroll as ScrollField;
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        return inline ? undefined : done();
-      }
-      const sideways = fieldAfterArrow(name, e.key);
+      const sideways = fieldAfterArrow(scroller.dataset.timePickerScroll as ScrollField, e.key);
       if (sideways) {
         e.preventDefault();
-        return dialog.querySelector<HTMLElement>(`[data-time-picker-scroll="${sideways}"]`)?.focus({ preventScroll: true });
-      }
-      const value = valueAfterKey(name, e.key, valueOf(name), twelve);
-      if (value !== undefined) {
-        e.preventDefault();
-        void setScroll(name, value);
+        dialog.querySelector<HTMLElement>(`[data-time-picker-scroll="${sideways}"]`)?.focus({ preventScroll: true });
       }
     }
   });

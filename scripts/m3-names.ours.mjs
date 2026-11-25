@@ -4,6 +4,11 @@
 export const ours = {
   tokens: [
     {
+      token: '--mo-comp-divider-inset',
+      reason:
+        'The inset divider\'s distance from each edge (M3: "inset dividers, which don\'t run the full width", 16 dp); md.comp.divider holds only thickness and color.',
+    },
+    {
       token: '--mo-comp-nav-bar-indicator-hover',
       reason:
         'A state of the part drawn as one mixed colour; M3 holds states as a state layer colour and opacity token (md.sys.state) per state.',

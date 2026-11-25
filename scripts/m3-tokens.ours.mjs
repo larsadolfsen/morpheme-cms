@@ -4,6 +4,11 @@
 // the generic reasons ("review in the component batch") are looked at again when the component's batch fixes its tokens. 0.20.0's scripts/m3-names.ours.mjs takes this list over.
 export const ours = [
   {
+    token: '--mo-comp-divider-inset',
+    reason:
+      'The inset divider\'s distance from each edge (M3 Cards, Guidelines: "inset dividers", 16 dp); md.comp.divider holds only thickness and color.',
+  },
+  {
     token: '--mo-comp-block-*',
     reason:
       "A block's own token (the blocks' look: colours, radii, gutters, widths); blocks are not M3 components (spec 2026-11-20-material-3-names-design.md, rule 4).",

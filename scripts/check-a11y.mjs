@@ -52,7 +52,10 @@ for (const [viewport, width] of Object.entries(VIEWPORTS)) {
         })
         .catch(() => {});
       await page.evaluate(() => document.fonts.ready);
-      for (const key of keysOf(unnamedViolations(await scan(page), statement), path, viewport)) found.add(key);
+      // Owner, 25 Nov 2026: "We have decided that we do check for contrast until later." Contrast waits for the final check:contrast scan, so axe's
+      // color-contrast rule is left out here until then (every other rule stays on).
+      const violations = (await scan(page)).filter((v) => v.id !== 'color-contrast');
+      for (const key of keysOf(unnamedViolations(violations, statement), path, viewport)) found.add(key);
     }
     await context.close();
   }

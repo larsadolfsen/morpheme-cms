@@ -14,16 +14,17 @@ import InlineItems, { InlineField, InlineSlot, type Item } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
 import { sharedIn } from './shared';
 import shared from './standard/cards/shared';
-import { ratioProp, shownCards, type LinkCard, type LinkCardProps } from './standard/cards/view';
+import { layoutOf, ratioProp, shownCards, type LinkCard, type LinkCardProps } from './standard/cards/view';
 import { cardKinds, type CardKind } from '@theme/ui/Card';
 import Buttons from '@theme/blocks/buttons/Buttons';
+import Divider from '@theme/ui/Divider';
 import { CardMedia } from '@theme/blocks/cards/LinkCards';
 
 /** A card that has its media set: an icon, an image or a video. */
 const hasMedia = (card: LinkCard) => !!(card.icon || card.image || card.video);
 
 export default function InlineCards({ items, props, data, active, focus, onChange, onSettings, onIcon, onProps }: InlineViewProps) {
-  const cards = shownCards(items as LinkCardProps[], data, props.media, ratioProp(props));
+  const cards = shownCards(items as LinkCardProps[], data, props.media, ratioProp(props), layoutOf(props) === 'multi-aspect-ratio');
   const type: CardKind = cardKinds.find((k) => k === props.design) ?? 'outlined';
   const colored = type === 'filled' && props.color ? `mo-block-cards__${props.color}` : undefined;
   const media = cards[0]?.media ?? 'icon';
@@ -163,6 +164,12 @@ export default function InlineCards({ items, props, data, active, focus, onChang
                   <span className="mo-block-cards__card-text">{field('text', t.blocks.cards.text, t.blocks.cards.text)}</span>
                 )}
                 {card?.href && <span className="mo-block-cards__card-more">{more}</span>}
+                {/* The divider is drawn only above buttons (a card with a page or a video has none), the value kept otherwise. */}
+                {!card?.href &&
+                  item.divider === true &&
+                  ((card?.buttons.length ?? 0) > 0 || (here && Array.isArray(item.buttons) && item.buttons.length > 0)) && (
+                    <Divider className="mo-block-cards__card-divider" />
+                  )}
                 {!card?.href && here && buttonsOf(i, item)}
                 {!card?.href && !here && (card?.buttons.length ?? 0) > 0 && (
                   <span className="mo-block-cards__card-actions">

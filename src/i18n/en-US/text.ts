@@ -24,8 +24,12 @@ export const text = {
   image: 'Image',
   /** Insert: a line between two parts of the text, written as --- in the Markdown. */
   divider: 'Divider',
+  /** The bar's switch for the dotted lines that show the sections and blocks while editing. */
+  hideGuides: 'Hide helping lines',
+  showGuides: 'Show helping lines',
   dividerAdded: 'Divider added',
-  dividerHint: 'A line between two parts of the text.',
+  dividerAddAbove: 'Add above',
+  dividerAddBelow: 'Add below',
   /** A selected image's tool on the bar that crops it (image tools spec, section 4). */
   crop: 'Crop',
   undo: 'Undo',
