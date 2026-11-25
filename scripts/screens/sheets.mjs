@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { openEditor } from '../built-site.mjs';
 import { BUILT_PAGE, browser, has, problems, shots, site } from './support/context.mjs';
 import { barTools, cancelOf, pressInsert, pressTool } from './support/shared.mjs';
+import { isMaterialTheme } from '../theme-statement.mjs';
 
 /** A modal sheet with a text field on a phone with its on-screen keyboard up (the Source color sheet on Colors, the shared
  * BottomSheet, followKeyboard() in theme/ui/bottomSheetControl.ts): a keyboard shrinks only the visual viewport, which is
@@ -1798,18 +1799,19 @@ async function checkCarouselMultiAspect(width, height, scheme) {
       problems.push(`${label}: item ${i + 1} is ${s.w.toFixed(1)}x${s.h.toFixed(1)}, not ${ratios[i].toFixed(3)} wide for its height`);
   });
   if (new Set(m.sizes.map((s) => Math.round(s.h))).size !== 1) problems.push(`${label}: the items are not all as high as the row`);
-  if (m.gaps.some((g) => Math.abs(g - 8) > 0.5))
+  if (isMaterialTheme() && m.gaps.some((g) => Math.abs(g - 8) > 0.5))
     problems.push(`${label}: the gap between items is ${m.gaps.map((g) => g.toFixed(1)).join(', ')}, not 8 (M3: 8dp between items)`);
-  if (m.padTop !== 8 || m.padBottom !== 8)
+  if (isMaterialTheme() && (m.padTop !== 8 || m.padBottom !== 8))
     problems.push(`${label}: padding above and below is ${m.padTop} and ${m.padBottom}, not 8 (M3: 8dp)`);
-  if (m.padEnd !== 0) problems.push(`${label}: the row has ${m.padEnd}px trailing padding (M3: only leading padding)`);
-  if (m.radius !== 28) problems.push(`${label}: the item's corners are ${m.radius}px, not 28`);
-  if (m.snap !== 'none') problems.push(`${label}: the row snaps (${m.snap}); M3 recommends free scrolling for uncontained layouts`);
-  if (m.indicators) problems.push(`${label}: it has a page indicator, which M3's carousel does not`);
+  if (isMaterialTheme() && m.padEnd !== 0) problems.push(`${label}: the row has ${m.padEnd}px trailing padding (M3: only leading padding)`);
+  if (isMaterialTheme() && m.radius !== 28) problems.push(`${label}: the item's corners are ${m.radius}px, not 28`);
+  if (isMaterialTheme() && m.snap !== 'none')
+    problems.push(`${label}: the row snaps (${m.snap}); M3 recommends free scrolling for uncontained layouts`);
+  if (isMaterialTheme() && m.indicators) problems.push(`${label}: it has a page indicator, which M3's carousel does not`);
   if (!m.named || !m.rowName) problems.push(`${label}: the carousel, its scroller or an item has no name for a screen reader`);
   if (!m.scrolls) problems.push(`${label}: the row does not scroll sideways (its items are cut off or all fit)`);
   // The leading edge: the first item stands at the row's own start plus its padding (the page's gutter on a phone, the text's edge from medium).
-  if (compact && Math.abs(m.first - 16) > 1)
+  if (isMaterialTheme() && compact && Math.abs(m.first - 16) > 1)
     problems.push(`${label}: the first item starts ${m.first}px in from the row's edge, not 16 (M3: leading padding 16dp)`);
   // Free scrolling: the row moves by any amount, it does not jump to an item.
   const scrolled = await root.first().evaluate(async (el) => {
@@ -1907,7 +1909,7 @@ async function checkFullScreenDialog(width, height) {
     const d = look.dialog;
     if (d.width > 28 * 16 + 1 || Math.abs((d.left + d.right) / 2 - look.vw / 2) > 2)
       problems.push(`${label}: from 600 dp it is the basic dialog in the middle, at most 28rem: ${Math.round(d.width)} wide`);
-    if (look.radius !== 28) problems.push(`${label}: the basic dialog's corners are ${look.radius}px, not 28`);
+    if (isMaterialTheme() && look.radius !== 28) problems.push(`${label}: the basic dialog's corners are ${look.radius}px, not 28`);
     if (look.close.shown) problems.push(`${label}: the close icon is shown from 600 dp (a basic dialog has none)`);
     if (!look.dismiss.shown || !look.save.shown) problems.push(`${label}: Cancel and Save must show at the end of the basic dialog`);
     else if (look.dismiss.left > look.save.left || look.save.right > d.right)

@@ -265,6 +265,9 @@ jobs:
           build: 'true'
           browser: 'true'
       - run: npm run check:demo
+      # The demo's editor without sign-in (its service worker answers the Worker): opens, saves, resets, and shows the demo's own colours to a
+      # browser that kept an earlier build's files. Reads the built demo the job build unpacked.
+      - run: npm run check:demo-editor
       # The accessibility scan of every built page (WCAG 2.2 AA, axe-core); the editor's screens are scanned inside the screens shards.
       - run: npm run check:a11y
 

@@ -1,7 +1,8 @@
 // Proof that the demo's /editor/ opens and saves without sign-in (plan "The demo editor without sign-in"): serves the built demo
 // (`npm run build`, .morpheme/demo/site/dist) with NO fake of the Worker, so only the demo's service worker answers
 // (scripts/demo-editor-sw.js). Opens the editor, edits a page, saves with Ctrl+S, reloads (the save stays), then resets (the
-// demo's own text is back). `node scripts/check-demo-editor.mjs`.
+// demo's own text is back), and shows the demo's colours to a browser that kept an earlier build's files. `node scripts/check-demo-editor.mjs`.
+import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright';
 import { serveBuilt } from './built-site.mjs';
 
@@ -54,6 +55,30 @@ try {
   await open('#src/content/pages/about.md');
   await page.waitForSelector('.ProseMirror p', { timeout: 60_000 });
   if ((await text()).includes('kept in the browser')) problems.push('the reset did not bring back the demo text');
+  // A browser that opened an earlier build keeps that build's files (src/cache.ts, and their texts by id, src/github.ts): the colours of the
+  // starter, as an earlier demo had, must give way to the demo's own on the Colors screen.
+  await open('#company/colors');
+  await page.waitForSelector('#site-colors', { state: 'attached', timeout: 60_000 });
+  await page.waitForTimeout(1500);
+  await page.evaluate(
+    async (starter) => {
+      const db = await new Promise((ok) => Object.assign(indexedDB.open('editor', 1), { onsuccess: (e) => ok(e.target.result) }));
+      const store = db.transaction('cache', 'readwrite').objectStore('cache');
+      const cached = await new Promise((ok) => Object.assign(store.get('files'), { onsuccess: (e) => ok(e.target.result) }));
+      cached.commit = 'commit-0';
+      const file = cached.files.find((f) => f.path === 'src/data/colors.json');
+      Object.assign(file, { text: starter, oid: 'blob:src/data/colors.json:0' });
+      await new Promise((ok) => Object.assign(store.put(cached, 'files'), { onsuccess: ok }));
+    },
+    readFileSync('starter/src/data/colors.json', 'utf8'),
+  );
+  await page.reload();
+  await page.waitForTimeout(6000);
+  const surface = JSON.parse(readFileSync('demo/src/data/colors.json', 'utf8')).light.surface;
+  const shown = await page.evaluate(
+    () => document.getElementById('site-colors')?.textContent.match(/--mo-sys-color-surface:\s*([^;]+)/)?.[1],
+  );
+  if (shown !== surface) problems.push(`the Colors screen shows ${shown} after an earlier build's files, not the demo's ${surface}`);
 } catch (e) {
   problems.push(String(e));
 } finally {

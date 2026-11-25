@@ -1,5 +1,6 @@
 import { openEditor } from '../built-site.mjs';
 import { browser, problems, site } from './support/context.mjs';
+import { isMaterialTheme } from '../theme-statement.mjs';
 
 /** The scroll time picker (Material 3, m3.material.io/components/time-pickers): in the editor's UI parts page, each sample of it has two
  * scroll fields (spinbuttons named Hour and Minute) whose selected value is the one in the middle and is at least 48 px high as the
@@ -53,7 +54,11 @@ async function checkScrollTimePicker(width, height, theme) {
       else if (v.off > 2) problems.push(`${label} #${i}: the selected value of field ${j} is ${v.off.toFixed(1)}px from the middle`);
     });
     s.inactive.forEach((h, j) => {
-      if (h < 48) problems.push(`${label} #${i}: an inactive value of field ${j} is ${h}px high, M3 asks for 48`);
+      // Material follows M3's 48 px; every theme keeps WCAG 2.2 AA's 24 px target size.
+      if (h < (isMaterialTheme() ? 48 : 24))
+        problems.push(
+          `${label} #${i}: an inactive value of field ${j} is ${h}px high, ${isMaterialTheme() ? 'M3 asks for 48' : 'under 24'}`,
+        );
     });
     if (s.wide) problems.push(`${label} #${i}: the picker is wider than its room`);
   });

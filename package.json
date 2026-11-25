@@ -65,6 +65,7 @@
     "check:preview": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:preview",
     "check:contrast": "cd .morpheme/demo/site && node ../../../bin/morpheme.mjs check:contrast",
     "check:demo": "node bin/morpheme.mjs check:demo",
+    "check:demo-editor": "node scripts/check-demo-editor.mjs",
     "check:starter": "node scripts/check-starter.mjs",
     "test": "node --test \"{defaults,lib,scripts,site,src,theme,worker}/**/*.test.mjs\"",
     "format": "prettier --write .",

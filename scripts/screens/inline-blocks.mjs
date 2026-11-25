@@ -3,6 +3,7 @@ import { openEditor } from '../built-site.mjs';
 import { FIXTURE_PAGE, browser, problems, shots, site } from './support/context.mjs';
 import { barTools, inlineBlocks, inlineSingles, pressInsert, pressMore, pressTool, ratioOf, saveOrClose } from './support/shared.mjs';
 import { shortfall } from './support/statement.mjs';
+import { isMaterialTheme } from '../theme-statement.mjs';
 
 /** One choice of a choice group by its name, whichever form it has now: its visible button, or its row of radio buttons (the row's label is the target:
  * the text under it cannot be pressed on its own). */
@@ -225,14 +226,18 @@ async function checkInlineButtonMeasure(width, height) {
     });
   });
   if (!found.length) problems.push(`${label}: no button found`);
+  const material = isMaterialTheme();
   for (const m of found) {
     const want = M3_BUTTON[m.size];
     const off = (what, got, exp) =>
       Math.abs(got - exp) > 0.5 && problems.push(`${label}: ${m.size} button ${what} is ${got.toFixed(1)}, Material 3 says ${exp}`);
-    off('height', m.height, want.height);
+    // Material's sizes are Material 3's, exactly; another theme has its own, and keeps WCAG 2.2 AA's target size (2.5.8: at least 24 px).
+    if (material) off('height', m.height, want.height);
+    else if (m.height < 24)
+      problems.push(`${label}: ${m.size} button is ${m.height.toFixed(1)} px high, under WCAG 2.2 AA's 24 px target size`);
     off('label centre is off the button centre by', m.labelOffset, 0);
     off('icon centre is off the button centre by', m.iconOffset, 0);
-    if (m.icon !== undefined) {
+    if (material && m.icon !== undefined) {
       off('icon size', m.icon, want.icon);
       off('icon-label space', m.gap, want.gap);
       off('leading space', m.lead, want.lead);
