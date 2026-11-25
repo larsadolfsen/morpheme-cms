@@ -120,7 +120,7 @@ Short forms, for a developer to know before reading the specs. A rule changes on
 
 - **Dialog.** As M3 prints (owner, 21 Nov 2026, replacing the 15 Nov rule): the actions are text buttons, the confirming one
   closest to the edge, and focus goes to the first control when the dialog opens (`src/ask.tsx` is the editor's one pattern; it
-  and `src/BlockDialog.tsx` change in 0.19.6; audit #1126).
+  and `src/BlockDialog.tsx` change in 0.19.7; audit #1126).
 - **Save on a phone.** Every `Save` goes in the bottom bar, and that bar is the standard bottom sheet, with no custom
   design (`docs/material-deviations.md`, *The editor's bars*, EB1, and *A block's sheet on a phone*, B1). **Ends in 0.20.0**
   (owner, 21 Nov 2026): below 600 dp a form is M3's full-screen dialog, with Save in its header.
