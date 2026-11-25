@@ -1,7 +1,7 @@
 # The brand pack
 
-The logos of the brands the CMS draws by name, the same under every icon pack (Material Symbols, a theme's own pack, Phosphor or
-Lucide): `facebook`, `x`, `linkedin`, `pinterest`, `github` and `google`. The stored icon names `facebook-logo` … `google-logo` map to
+The logos of the brands the CMS draws by name, the same under every icon pack (Material Symbols or a theme's own pack; a site that chose Phosphor or Lucide
+draws Material Symbols): `facebook`, `x`, `linkedin`, `pinterest`, `github` and `google`. The stored icon names `facebook-logo` … `google-logo` map to
 `{ brand: '<name>' }` in `lib/materialIconMap.mjs`; `lib/brandLogos.mjs` finds the brand and `src/icon.tsx` draws it. A brand is never a
 Material icon (owner, 24 Nov 2026; `docs/material-deviations.md`, BL1).
 

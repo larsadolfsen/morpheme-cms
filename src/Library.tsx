@@ -1496,7 +1496,6 @@ export function List({
           )
         }
         truncate
-        columns
         count={item.count}
         arrow={!orderable}
         actions={
@@ -1685,7 +1684,7 @@ export function List({
   );
 }
 
-// What is under a row's name in a list (its supporting text; beside it on a computer, ListItem's `columns`): its status
+// What is under a row's name in a list (its supporting text): its status
 // and date (`children`), at the right on a computer, and there a page's or post's address before them (`address`).
 function Under({ item, address, children }: { item: Item; address?: boolean; children: ReactNode }) {
   return (
@@ -1750,7 +1749,6 @@ function TreeRows({
                 )
               }
               truncate
-              columns
               actions={
                 children.length > 0 && (
                   <span className="mo-editor-library-row-unfold">

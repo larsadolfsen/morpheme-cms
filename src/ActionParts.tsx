@@ -29,9 +29,9 @@ const say = t.parts.screens.actions;
 const row = 'mo-editor-sample-row';
 const eg = t.parts.screens.example;
 // Icons the site draws (icon.tsx).
-const channelIcons = ['phone', 'envelope-simple', 'chats'];
-const modeIcons = ['sun', 'moon'];
-const wayIcons = ['phone', 'envelope-simple', 'calendar-blank'];
+const channelIcons = ['call', 'mail', 'forum'];
+const modeIcons = ['light_mode', 'dark_mode'];
+const wayIcons = ['call', 'mail', 'calendar_today'];
 
 const ways = () =>
   say.ways.map((way) => (
@@ -129,8 +129,8 @@ export default function ActionParts() {
               </div>
             ))}
             <SiteButtonGroup label={say.book}>
-              <SiteButton icon="calendar-blank">{say.actions[0]}</SiteButton>
-              <SiteButton kind="outlined" icon="phone">
+              <SiteButton icon="calendar_today">{say.actions[0]}</SiteButton>
+              <SiteButton kind="outlined" icon="call">
                 {say.actions[1]}
               </SiteButton>
               <SiteButton kind="text">{say.actions[2]}</SiteButton>
@@ -182,7 +182,7 @@ export default function ActionParts() {
             </div>
             <div className="mo-editor-menu-sample">
               <Example label={say.book} flat>
-                <SiteSplitButton icon="calendar-blank" label={say.book} menuLabel={say.more} open>
+                <SiteSplitButton icon="calendar_today" label={say.book} menuLabel={say.more} open>
                   {ways()}
                 </SiteSplitButton>
               </Example>
@@ -198,7 +198,7 @@ export default function ActionParts() {
                 <Example key={kind} label={say.fabKinds[kind]} flat>
                   <SiteFabMenu
                     kind={kind}
-                    icon="chats"
+                    icon="forum"
                     label={say.contact}
                     closeLabel={say.close}
                     items={fabItems}
@@ -207,22 +207,22 @@ export default function ActionParts() {
                 </Example>
               ))}
               <Example label={eg(1)} flat>
-                <SiteFabMenu fabKind="primary-container" icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} />
+                <SiteFabMenu fabKind="primary-container" icon="forum" label={say.contact} closeLabel={say.close} items={fabItems} />
               </Example>
               {(['medium', 'large'] as const).map((size) => (
                 <Example key={size} label={`${eg(2)}, ${size}`} flat>
-                  <SiteFabMenu size={size} icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} />
+                  <SiteFabMenu size={size} icon="forum" label={say.contact} closeLabel={say.close} items={fabItems} />
                 </Example>
               ))}
             </div>
             <div className="mo-editor-two-columns">
               {fabMenuKinds.map((kind) => (
                 <div key={kind} className="mo-editor-menu-sample-top" {...named(say.fabKinds[kind])}>
-                  <SiteFabMenu kind={kind} icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} open />
+                  <SiteFabMenu kind={kind} icon="forum" label={say.contact} closeLabel={say.close} items={fabItems} open />
                 </div>
               ))}
               <div className="mo-editor-menu-sample-top" {...named(eg(3))}>
-                <SiteFabMenu size="large" icon="chats" label={say.contact} closeLabel={say.close} items={fabItems} open />
+                <SiteFabMenu size="large" icon="forum" label={say.contact} closeLabel={say.close} items={fabItems} open />
               </div>
             </div>
           </div>

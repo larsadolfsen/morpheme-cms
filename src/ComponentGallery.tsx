@@ -55,7 +55,7 @@ function ChipParts() {
           </PartSub>
           <PartSub name={screens.elevated}>
             <div className={`${row} mo-editor-parts-chip-image`} style={{ backgroundImage: `url("${exampleImage}")` }}>
-              <SiteChip elevated icon="calendar-blank" label={`${assist} · ${screens.elevated}`} />
+              <SiteChip elevated icon="calendar_today" label={`${assist} · ${screens.elevated}`} />
               <SiteChip elevated kind="filter" label={`${filter} · ${screens.elevated}`} />
               <SiteChip elevated kind="filter" selected label={screens.selected} />
               <SiteChip elevated kind="suggestion" label={`${suggestion} · ${screens.elevated}`} />
@@ -68,8 +68,8 @@ function ChipParts() {
               </Example>
               <SiteChip kind="filter" label={filter} />
               <SiteChip kind="suggestion" selected label={`${suggestion} · ${screens.selected}`} />
-              <SiteChip icon="calendar-blank" label={screens.withIcon} />
-              <SiteChip kind="input" trailingIcon="x" label={input} />
+              <SiteChip icon="calendar_today" label={screens.withIcon} />
+              <SiteChip kind="input" trailingIcon="close" label={input} />
               <SiteChip kind="input" avatar={exampleImage} removeLabel={screens.remove(screens.withAvatar)} label={screens.withAvatar} />
               <Example label={`${input} · ${screens.selected}`} flat>
                 <SiteChip kind="input" selected removeLabel={screens.remove(screens.selected)} label={screens.selected} />
@@ -165,7 +165,7 @@ function ButtonParts() {
                   {toggleKinds.map((k) => (
                     <Example key={k} label={kinds[k]} flat>
                       {([false, true] as const).map((on) => (
-                        <SiteButton key={`${k}-${on}`} kind={k} shape={shape} selected={on} icon="heart">
+                        <SiteButton key={`${k}-${on}`} kind={k} shape={shape} selected={on} icon="favorite">
                           {on ? screens.toggle.on : screens.toggle.off}
                         </SiteButton>
                       ))}
@@ -177,7 +177,7 @@ function ButtonParts() {
             <PartSub name={screens.rows.states}>
               <div className={row}>
                 <Example label={screens.example(1)} flat>
-                  <SiteButton icon="phone">{screens.withIcon}</SiteButton>
+                  <SiteButton icon="call">{screens.withIcon}</SiteButton>
                 </Example>
                 <Example label={screens.example(2)} flat>
                   <SiteButton kind="outlined" trailingIcon="arrow_forward">
@@ -207,7 +207,7 @@ function ButtonParts() {
             <PartSub name={screens.rows.kinds}>
               <div className={row}>
                 {iconButtonKinds.map((k) => (
-                  <SiteIconButton key={k} kind={k} icon="x" label={screens.iconKinds[k]} title={screens.iconKinds[k]} />
+                  <SiteIconButton key={k} kind={k} icon="close" label={screens.iconKinds[k]} title={screens.iconKinds[k]} />
                 ))}
               </div>
             </PartSub>
@@ -218,7 +218,7 @@ function ButtonParts() {
                     key={size}
                     kind="filled"
                     size={size}
-                    icon="phone"
+                    icon="call"
                     label={screens.sizes[size]}
                     title={screens.sizes[size]}
                   />
@@ -233,7 +233,7 @@ function ButtonParts() {
                     kind="tonal"
                     size={size}
                     shape="square"
-                    icon="phone"
+                    icon="call"
                     label={`${screens.sizes[size]}, ${screens.shapes.square}`}
                     title={`${screens.sizes[size]}, ${screens.shapes.square}`}
                   />
@@ -249,7 +249,7 @@ function ButtonParts() {
                       kind="outlined"
                       size={size}
                       width={width}
-                      icon="phone"
+                      icon="call"
                       label={`${screens.sizes[size]}, ${screens.widths[width]}`}
                       title={`${screens.sizes[size]}, ${screens.widths[width]}`}
                     />
@@ -267,7 +267,7 @@ function ButtonParts() {
                         kind={k}
                         shape={shape}
                         selected={on}
-                        icon="heart"
+                        icon="favorite"
                         label={`${screens.iconKinds[k]}, ${on ? screens.toggle.on : screens.toggle.off}`}
                         title={`${screens.iconKinds[k]}, ${on ? screens.toggle.on : screens.toggle.off}`}
                       />
@@ -280,11 +280,11 @@ function ButtonParts() {
               <div className={row}>
                 {iconButtonKinds.map((k) => (
                   <Example key={k} label={screens.iconKinds[k]} flat>
-                    <SiteIconButton kind={k} icon="phone" label={screens.disabled} disabled />
+                    <SiteIconButton kind={k} icon="call" label={screens.disabled} disabled />
                   </Example>
                 ))}
                 <Example label={screens.selected} flat>
-                  <SiteIconButton kind="filled" icon="phone" label={screens.disabled} selected disabled />
+                  <SiteIconButton kind="filled" icon="call" label={screens.disabled} selected disabled />
                 </Example>
               </div>
             </PartSub>
@@ -324,14 +324,14 @@ function FieldParts() {
                   />
                   <SiteTextField kind={kind} label={screens.fieldLabel} hideLabel type="email" placeholder={screens.fieldPlaceholder} />
                   <SiteTextField kind={kind} label={screens.fieldLabel} type="email" disabled />
-                  <SiteTextField kind={kind} label={screens.fieldLabel} type="email" leadingIcon="envelope-simple" />
+                  <SiteTextField kind={kind} label={screens.fieldLabel} type="email" leadingIcon="mail" />
                   <SiteTextField
                     kind={kind}
                     label={screens.fieldSearch}
                     hideLabel
                     type="search"
                     placeholder={screens.fieldSearch}
-                    leadingIcon="magnifying-glass"
+                    leadingIcon="search"
                     clearLabel={screens.fieldClear}
                     defaultValue={screens.fieldNote}
                   />
@@ -363,7 +363,7 @@ function FieldParts() {
                     type="email"
                     defaultValue="name@"
                     error={screens.fieldError}
-                    leadingIcon="envelope-simple"
+                    leadingIcon="mail"
                     errorIcon
                   />
                   <SiteTextField
@@ -466,7 +466,7 @@ function CardParts() {
             ))}
             <SiteCard
               kind="outlined"
-              icon={<Svg name="heart" size={24} />}
+              icon={<Svg name="favorite" size={24} />}
               headline={say.anatomy.headline}
               supporting={say.anatomy.supporting}
             />
@@ -498,22 +498,28 @@ function CardParts() {
                 <SiteListItem href="" headline={link} trailing={<Svg name="arrow_forward" size={18} />} />
                 <SiteListItem
                   href=""
-                  leading={<Svg name="phone" size={24} />}
+                  leading={<Svg name="call" size={24} />}
                   headline={withIcon}
                   supporting={say.supporting}
-                  trailing={<Svg name="caret-right" size={20} />}
+                  trailing={<Svg name="keyboard_arrow_right" size={20} />}
                 />
               </SiteList>
             </SiteCard>
             <SiteCard>
               <SiteList aria-label={lists.lines}>
                 <SiteListItem href="" headline={one} trailingSupporting={lists.trailing} />
-                <SiteListItem href="" headline={one} supporting={say.supporting} trailingIcon="caret-right" />
-                <SiteListItem href="" subhead={lists.overline} headline={one} supporting={say.supporting} trailingIcon="caret-right" />
+                <SiteListItem href="" headline={one} supporting={say.supporting} trailingIcon="keyboard_arrow_right" />
+                <SiteListItem
+                  href=""
+                  subhead={lists.overline}
+                  headline={one}
+                  supporting={say.supporting}
+                  trailingIcon="keyboard_arrow_right"
+                />
                 <SiteListItem
                   href=""
                   lines={3}
-                  leadingIcon="calendar-blank"
+                  leadingIcon="calendar_today"
                   headline={one}
                   supporting={lists.long}
                   trailingSupporting={lists.trailing}
@@ -522,7 +528,7 @@ function CardParts() {
             </SiteCard>
             <SiteCard>
               <SiteList dividers="inset" aria-label={lists.leading}>
-                <SiteListItem href="" leadingIcon="phone" headline={icon} supporting={say.supporting} trailingIcon="caret-right" />
+                <SiteListItem href="" leadingIcon="call" headline={icon} supporting={say.supporting} trailingIcon="keyboard_arrow_right" />
                 <SiteListItem
                   href=""
                   leadingAvatar={lists.letter}
@@ -543,7 +549,11 @@ function CardParts() {
                   headline={`${radio}, ${screens.toggle.on}`}
                 />
                 <SiteListItem control={{ type: 'radio-button', name: 'parts-list-radio' }} headline={`${radio}, ${screens.toggle.off}`} />
-                <SiteListItem control={{ type: 'switch', checked: true, icons: 'selected' }} leadingIcon="moon" headline={switchItem} />
+                <SiteListItem
+                  control={{ type: 'switch', checked: true, icons: 'selected' }}
+                  leadingIcon="dark_mode"
+                  headline={switchItem}
+                />
                 <SiteListItem control={{ type: 'checkbox', at: 'trailing' }} leadingAvatar={lists.letter} headline={after} />
               </SiteList>
             </SiteCard>
@@ -558,19 +568,19 @@ function CardParts() {
               <SiteList aria-label={lists.more}>
                 <SiteListItem
                   onClick={() => {}}
-                  leadingIcon="pencil-simple"
+                  leadingIcon="edit"
                   headline={lists.tapped}
                   supporting={say.supporting}
-                  trailingIcon="caret-right"
+                  trailingIcon="keyboard_arrow_right"
                 />
                 <SiteListItem
                   href=""
                   headline={lists.withActions}
                   supporting={lists.long}
                   truncate
-                  actions={<SiteIconButton icon="trash" label={lists.remove} />}
+                  actions={<SiteIconButton icon="delete" label={lists.remove} />}
                 />
-                <SiteListItem href="" headline={lists.address} supporting={lists.sendsTo} columns />
+                <SiteListItem href="" headline={lists.address} supporting={lists.sendsTo} />
               </SiteList>
             </SiteCard>
             {(['middle-inset', 'none'] as const).map((dividers) => (
@@ -580,27 +590,33 @@ function CardParts() {
                     <SiteListItem
                       key={h}
                       href=""
-                      leadingIcon="phone"
+                      leadingIcon="call"
                       headline={`${lists.dividers[dividers]} · ${h}`}
-                      trailingIcon="caret-right"
+                      trailingIcon="keyboard_arrow_right"
                     />
                   ))}
                 </SiteList>
               </SiteCard>
             ))}
             <SiteList kind="segmented" aria-label={lists.segmented}>
-              <SiteListItem href="" leadingIcon="phone" headline={lists.segmented} supporting={say.supporting} trailingIcon="caret-right" />
+              <SiteListItem
+                href=""
+                leadingIcon="call"
+                headline={lists.segmented}
+                supporting={say.supporting}
+                trailingIcon="keyboard_arrow_right"
+              />
               <SiteListItem
                 href=""
                 selected
-                leadingIcon="envelope-simple"
+                leadingIcon="mail"
                 headline={lists.selected}
                 supporting={say.supporting}
-                trailingIcon="caret-right"
+                trailingIcon="keyboard_arrow_right"
               />
               <SiteListItem control={{ type: 'checkbox', checked: true }} headline={checkbox} />
-              <SiteListItem control={{ type: 'switch' }} leadingIcon="moon" headline={switchItem} />
-              <SiteListItem href="" disabled leadingIcon="map-pin" headline={lists.disabled} />
+              <SiteListItem control={{ type: 'switch' }} leadingIcon="dark_mode" headline={switchItem} />
+              <SiteListItem href="" disabled leadingIcon="location_on" headline={lists.disabled} />
             </SiteList>
             {/* The "expand" kind (Material's "List - Expand"): items that fold out, one open at a time; the second one open. */}
             <SiteList expand aria-label={lists.expand[0]}>

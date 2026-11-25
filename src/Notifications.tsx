@@ -65,7 +65,7 @@ export function NotificationsPage({ siteName }: { siteName: string }) {
         selection.selecting ? (
           <SelectionBar count={selection.keys.length} onClose={selection.clear} kind="icons">
             <IconButton
-              icon="trash"
+              icon="delete"
               label={t.library.deleteSelected(selection.keys.length)}
               onClick={() => {
                 removeNotifications(selection.keys);

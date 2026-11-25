@@ -85,7 +85,7 @@ export default function MobileMenu({
 
   // The expanded rail's menu button (M3 Navigation rail, Guidelines: "When the navigation rail is expanded, the menu icon should change to
   // represent that it can be collapsed"): at the top, on the end edge as in the editor's drawer (owner, 22 Nov 2026), it closes the drawer.
-  const menuButton = <IconButton icon="menu-open" label={texts.close} onClick={() => void close()} />;
+  const menuButton = <IconButton icon="menu_open" label={texts.close} onClick={() => void close()} />;
 
   const show = () => {
     setShown(true);
@@ -171,7 +171,7 @@ export default function MobileMenu({
                           // A group header is a button (a disclosure: Enter and Space both toggle it, the focus stays on it); its own page
                           // is the first of its sub-pages below.
                           <NavigationDrawerItem
-                            trailing="caret-down"
+                            trailing="keyboard_arrow_down"
                             aria-expanded={expanded === item.href}
                             aria-controls={`sub-${item.href}`}
                             onClick={() => setExpanded(expanded === item.href ? null : item.href)}

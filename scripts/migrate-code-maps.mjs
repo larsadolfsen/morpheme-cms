@@ -3,7 +3,7 @@
 //   tokens6   scripts/renamed-tokens.json (contract 6 and the token rename of 0.19.6: old custom property -> new);
 //   tokens7   contract 7's custom properties (docs/superpowers/plans/mo-names/map.json, `properties`: old -> new);
 //   classes7  contract 7's classes (the same file, `classes`: old -> new, only those with a new name);
-//   m3        scripts/m3-names.json: `tokens`, `classes` and `props` (the names of Material 3, contract 8).
+//   m3        scripts/m3-names.json: `tokens`, `classes`, `props` and `propNames` (the names of Material 3, contract 8).
 // Run: node scripts/migrate-code-maps.mjs [--check]. This file and the maps module keep the old names on purpose (check:token-names does not read the module).
 import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -21,7 +21,7 @@ export function makeMaps() {
     tokens6: read('./renamed-tokens.json'),
     tokens7: only(c7.properties),
     classes7: only(c7.classes),
-    m3: { tokens: m3.tokens, classes: m3.classes, props: m3.props },
+    m3: { tokens: m3.tokens, classes: m3.classes, props: m3.props, propNames: m3.propNames },
   };
 }
 

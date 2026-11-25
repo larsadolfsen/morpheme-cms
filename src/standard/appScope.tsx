@@ -2,7 +2,7 @@
 // app's CSS is scoped to at build time (lib/appCss.mjs). The attribute goes on the block's OWN outer element, so no extra element sits in the page's flow:
 // the theme's child and sibling rules (`.mo-prose > :first-child`, `.mo-text-section > :last-child`, `.mo-placed-block > …`) keep reaching the block as
 // before. Only when the view does not return one element of its own (a fragment, text, nothing) does an element that takes no space (`display: contents`)
-// carry it. The app does not write the attribute and cannot remove it. Exposes scoped, scopedNode.
+// carry it. The app does not write the attribute and cannot remove it. Exposes scoped, scopedNode, scopedPart.
 import { cloneElement, isValidElement } from 'react';
 import type { ComponentType, ReactElement, ReactNode } from 'react';
 
@@ -27,4 +27,13 @@ export function scoped<P extends object>(id: string, Component: ComponentType<P>
       : (props: P) => scopedNode(id, <Component {...props} />); // a class: drawn by React, on a wrapper
   Scoped.displayName = `Scoped(${Component.displayName ?? Component.name ?? id})`;
   return Scoped;
+}
+
+const parts = new WeakMap<object, Map<string, ComponentType<any>>>();
+/** `scoped`, the same component for the same app and part (the site draws a part again on every render; a new component each time would remount it). */
+export function scopedPart<P extends object>(id: string, Component: ComponentType<P>): ComponentType<P> {
+  const byId = parts.get(Component) ?? new Map<string, ComponentType<any>>();
+  parts.set(Component, byId);
+  if (!byId.has(id)) byId.set(id, scoped(id, Component));
+  return byId.get(id)!;
 }

@@ -89,7 +89,7 @@ export default function NavigationRail({
           onClick={onExpandedChange && (() => onExpandedChange(!expanded))}
         >
           <Svg name="list" size={24} />
-          <Svg name="caret-left" size={24} />
+          <Svg name="keyboard_arrow_left" size={24} />
         </button>
         {fab && <ExtendedFab {...fab} collapsed={!expanded} />}
         {header != null && <div className="mo-nav-rail__header-content">{header}</div>}

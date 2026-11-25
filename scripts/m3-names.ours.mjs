@@ -185,6 +185,11 @@ export const ours = {
       token: '--mo-comp-card-text-gap',
       reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
     },
+    {
+      token: '--mo-comp-carousel-height',
+      reason:
+        "How high a contained carousel is; M3 prints no height token for the carousel, only the layouts' item widths on its specs page.",
+    },
     { token: '--mo-comp-carousel-bleed', reason: 'How far a part reaches past the page margin; M3 prints no token for it.' },
     {
       token: '--mo-comp-carousel-dot-colour',
@@ -320,10 +325,6 @@ export const ours = {
       token: '--mo-comp-icon-button-outlined-surface',
       reason:
         'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
-    },
-    {
-      token: '--mo-comp-list-item-columns-gap',
-      reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
     },
     {
       token: '--mo-comp-list-item-disabled-opacity',

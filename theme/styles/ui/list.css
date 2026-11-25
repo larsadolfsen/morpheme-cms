@@ -8,8 +8,7 @@
   .mo-avatar (Avatar.tsx; avatar.css), .mo-list__item-leading-image with .mo-list__item-image, .mo-list__item-leading-video with .mo-list__item-video),
   .mo-list__item-content (a <label> for a choice) with .mo-list__item-overline, .mo-list__item-headline and .mo-list__item-supporting,
   and what trails it (.mo-list__item-trailing-supporting, .mo-list__item-trailing: an icon, an arrow); .mo-list__item-two-line or
-  .mo-list__item-three-line by its lines; .mo-list__item-columns with its headline and supporting text side by side on a wide
-  screen; .mo-list__item-with-control with the theme's checkbox, radio button or switch in
+  .mo-list__item-three-line by its lines; .mo-list__item-with-control with the theme's checkbox, radio button or switch in
   .mo-list__item-control before or after the text; .mo-list__item-selectable for one a long press selects (List.tsx
   `selectable`); .mo-list__item-selected and .mo-list__item-disabled. An item's corners change
   with its state (Material's shape morphing): pointed at (hover), pressed or focused, and selected. In a segmented list
@@ -29,7 +28,6 @@
     --mo-comp-list-item-pressed-surface (else the hover surface), --mo-comp-list-item-focus-surface (else the pressed one),
     --mo-comp-list-item-focus-indicator-color (the 3dp ring inside a focused item; else the accent),
     --mo-comp-list-item-dragged-surface, -dragged-shadow, -dragged-radius   dragged (List `dragged`)
-    --mo-comp-list-item-columns-gap   the two columns of an item with `columns` (M3's content slot)
     --mo-comp-list-list-item-selected-container-color, --mo-comp-list-list-item-selected-label-text-color, --mo-comp-list-item-disabled-opacity
     --mo-comp-list-list-item-leading-icon-color, --mo-comp-list-item-leading-icon-selected-color (ListItemLeadingIcon's `selected`)
     --mo-comp-list-item-icon-size   the icons that lead and trail an item
@@ -117,21 +115,6 @@
   .mo-list__item-headline,
   .mo-list__item-supporting {
     display: block;
-  }
-  /* Columns: when the item is wide the headline and the supporting text side by side, each in half the item's text. This follows the item's own
-     width, not the window's: an item in a narrow column or a side sheet keeps them under each other on a wide window too (Modern Web Guidance,
-     `responsive-design` and `size-aware-styling`). A container query measures the content box: 47.5rem is M3's expanded window (840 dp) less the page's
-     2 x 24 dp margins and the item's own 2 x 16 dp padding, so an item as wide as the page changes where it did. */
-  .mo-list__item-columns {
-    container: list-item / inline-size;
-  }
-  @container list-item (width >= 47.5rem) {
-    .mo-list__item-columns .mo-list__item-content {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      align-items: baseline;
-      column-gap: var(--mo-comp-list-item-columns-gap, 1.5rem);
-    }
   }
   .mo-list__item-headline {
     font-size: var(--mo-comp-list-item-headline-size, var(--mo-sys-typescale-body-large-size));

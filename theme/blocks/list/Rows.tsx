@@ -39,7 +39,7 @@ export default function Rows({
           data-icon-color={r.icon ? iconColorOf(r.iconColor) : undefined}
           headline={r.title}
           supporting={withText ? (r.text ?? '') : undefined}
-          trailingIcon={r.href ? 'caret-right' : undefined}
+          trailingIcon={r.href ? 'keyboard_arrow_right' : undefined}
           {...(cut !== undefined && i >= cut ? { 'data-extra': '' } : {})}
         />
       ))}

@@ -762,8 +762,13 @@ const CROSSING = (() => {
       ':where(.mo-button).mo-is-text { gap: var(--mo-sys-density-user); }\n',
     ),
     [`${apps}/mine/app.json`]: pick(
-      JSON.stringify({ api: 7, icon: 'list-numbers' }, null, 2) + '\n',
       JSON.stringify({ api: 7, icon: 'format_list_numbered' }, null, 2) + '\n',
+      JSON.stringify({ api: 7, icon: 'format_list_numbered' }, null, 2) + '\n',
+    ),
+    // The one item API of ListItem and Card (docs/superpowers/specs/2026-11-24-card-list-item-api.md): `columns` goes; Material's leading and trailing names stay.
+    [`${apps}/mine/Rows.tsx`]: pick(
+      'import { ListItem } from \'@theme/ui/List\';\nexport const a = (\n  <>\n    <ListItem leadingIcon="check" columns headline="a" />\n    <ListItem leadingAvatar="A" leadingVideo={{ src: s }} headline="b" />\n  </>\n);\n',
+      'import { ListItem } from \'@theme/ui/List\';\nexport const a = (\n  <>\n    <ListItem leadingIcon="check" headline="a" />\n    <ListItem leadingAvatar="A" leadingVideo={{ src: s }} headline="b" />\n  </>\n);\n',
     ),
     [`${apps}/app_0123456789abcdef/store.json`]: '{ "version": "1.0.0" }\n',
     [`${apps}/app_0123456789abcdef/styles.css`]: STORE_CSS,
@@ -776,7 +781,7 @@ const CROSSING = (() => {
         {
           links: [
             { icon: 'github-logo', label: 'GitHub' },
-            { icon: 'envelope-simple', label: 'Mail' },
+            { icon: 'mail', label: 'Mail' },
           ],
         },
         null,
@@ -852,12 +857,47 @@ const CROSSING = (() => {
     `the unsafe update answered ${res.status} ${JSON.stringify(body)}`,
   );
   expect(stop.commits.length === 0, 'an unsafe update committed');
+  // A computed `columns` stops the same way and name the file and line.
+  const item = world({
+    range: '0.19.5',
+    latest: CROSSING,
+    content: {
+      ...before,
+      [`${apps}/mine/Rows.tsx`]:
+        'import { ListItem } from \'@theme/ui/List\';\nexport const a = (c) => <ListItem leadingVideo={c} columns={c.wide} headline="a" />;\n',
+    },
+  });
+  await item.kv.put('cms:checked', JSON.stringify({ at: new Date(T0).toISOString(), latest: CROSSING }));
+  const itemRes = await handleCms(post(CROSSING), item.env, undefined, item.deps);
+  const itemBody = await itemRes.json();
+  expect(
+    itemRes.status === 422 && itemBody.detail.some((l) => l.includes('Rows.tsx:2') && l.includes('columns')),
+    `a computed columns answered ${itemRes.status} ${JSON.stringify(itemBody)}`,
+  );
+  expect(item.commits.length === 0, 'an unsafe item update committed');
   const auto = world({ range: '0.19.5', latest: CROSSING, content: unsafe });
   await checkForUpdate(auto.env, auto.deps, T0);
   expect(
     auto.commits.length === 0 && stored(auto.kv, 'cms:checked')?.problem?.kind === 'unsafe-code',
     'the daily check did not record the unsafe code',
   );
+  // The Worker stops on the same Tailwind forms as `morpheme migrate` (one implementation, lib/tailwind-rules.mjs): a utility in a class attribute, a string of utilities, an import.
+  for (const [name, text] of [
+    ['View.tsx', `export const a = <div ${'class' + 'Name'}="flex gap-4 md:px-2" />;\n`],
+    ['util.ts', "export const a = 'flex items-center gap-4';\n"],
+    ['merge.ts', "import { twMerge } from 'tailwind-merge';\n"],
+    ['style.css', '.x { color: theme(--color-red); }\n'],
+  ]) {
+    const tw = world({ range: '0.19.5', latest: CROSSING, content: { ...before, [`${apps}/mine/${name}`]: text } });
+    await tw.kv.put('cms:checked', JSON.stringify({ at: new Date(T0).toISOString(), latest: CROSSING }));
+    const r = await handleCms(post(CROSSING), tw.env, undefined, tw.deps);
+    const b = await r.json();
+    expect(
+      r.status === 422 && b.error === 'unsafe-code' && b.detail.some((l) => l.includes(`${name}:1`)),
+      `the Worker let ${name} pass (${r.status} ${JSON.stringify(b)})`,
+    );
+    expect(tw.commits.length === 0, `an update with ${name} committed`);
+  }
 }
 
 if (problems.length) {

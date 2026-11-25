@@ -39,7 +39,7 @@ export default function PostMeta({
         ·
       </span>
       <span className="mo-post-meta__duration">
-        <Svg name="clock" size={inOverline ? 12 : 15} className={inOverline ? 'mo-keep' : undefined} />
+        <Svg name="schedule" size={inOverline ? 12 : 15} className={inOverline ? 'mo-keep' : undefined} />
         <span className={inOverline ? 'mo-truncate' : undefined}>{siteT.theme.readingTime(post.minutes)}</span>
       </span>
       {tags && tags.length > 0 && (

@@ -213,9 +213,20 @@ An app written to an older contract keeps its global CSS. `npm run check:app-css
 
 - a rule on `:root`, `html` or `body` (style the app's own elements; a CMS token is overridden on the block's outer element, `docs/css-tokens.md`);
 - a private custom property set or read from code (`style` objects, `setProperty`, `getPropertyValue`, a `var(--mo-…)` string in `View.tsx` or `script.ts`), because the build renames CSS only;
-- an attribute selector on `data-mo-app`.
+- an attribute selector on `data-mo-app`;
+- a `mo-` class the CMS does not have, in the app's code or CSS (`scripts/check-app-classes.mjs`, `npm run check:app-classes`; one line with the class, the file and the line). An app's own elements take plain class names, which the build scopes to the app (`.signup`, not `.mo-signup`); only the CMS's classes keep `mo-`. The CMS's classes are the `mo-` names written in its own CSS and code (`theme/`, `src/`, `defaults/`, `lib/`).
 
 **What the developer sees.** The source keeps the plain names; the browser's tools show the renamed ones (`--mo-app-shop-gap`, `mo-app-shop-fade`) and the selectors with `:where([data-mo-app="shop"])` before them. Two apps may use the same class, custom property and keyframes names without touching each other. A `@import` in an app's CSS is not scoped: put the rules in the app's own files. A `<style>` or `<style is:global>` block in an app's `.astro` file is not scoped either (the build rewrites `.css` files only); `check:content` still refuses a rule on `:root`, `html` or `body` in it, and the report lists the block. The developer guide (0.22.1) takes this section over.
+
+### Contract 8: an app's promotion kind
+
+An app adds a kind of promotion (`kinds.popups` in its `index.ts` or `editor.ts`; its part is `src/apps/<app>/popups/View.tsx`, taken on the site by `theme/components/Popup.astro` and drawn in the editor by the app's `part` or `draw`). Owner, 24 Nov 2026: the kind is a promotion block like the others, drawn with the CMS's own classes.
+
+- **In the app's scope.** The CMS draws the part inside `data-mo-app="<id>"` on its outer element, on the site (`PopupView.tsx`, `PopupSheet.tsx`) and in the editor (`scopedKinds` in `src/apps.ts`: the part's `View` and the kind's `draw`), so the build's scoped CSS applies to it, as it does to an app's blocks, and reaches nothing else.
+- **The surface.** A kind opens as the pop-up's dialog (the default) or as the theme's modal bottom sheet (Material 3, `theme/ui/BottomSheet.tsx`). The part says which: `export const surface = 'bottom-sheet'` in `popups/View.tsx` (`'dialog'` is the default); the app passes the same in `part: { View, viewOf, surface }` for the editor's drawing. No key or file of `app.json` changes. The CMS draws the sheet, its handle, its close button and its closing (`bottomSheet()` in `theme/ui/bottomSheetControl.ts`: the scrim, Escape and the drag close it); the app gives only what is inside. A sheet opens only when a button opens it: a button's *Open promotion*, or a button that books (`data-open="booking"`), which opens the first sheet of the page; never by itself, so it has no trigger.
+- **What stays.** `data-popup-off` (an element in the part: the kind cannot be shown without its settings) and the event `popup:done` (the visitor is done: not shown again) work on both surfaces.
+- **What goes.** A kind without a part no longer shows itself through `slots/` (Calendly's booking sheet in `slots/body-end.astro`): from contract 8 a kind has a part, and an app written to 7 is not loaded.
+- **Scripts.** A part that needs a script (Calendly's widget loader) listens for the event `popup:open`, which the CMS sends to the part's `<dialog>` each time it opens, on both surfaces (`part.closest('dialog')`), and sends `popup:done` to it when the visitor is done.
 
 **A theme's private custom property** is `--mo-theme-*` (`docs/css-tokens.md`); it is not renamed, and only files in the theme's own folder declare or read one (`check:content`, so `check:themes`).
 
@@ -259,6 +270,14 @@ ones stay as aliases of the same part until a later `THEME_API` removes them, so
 | `@theme/ui/AppBar`: `AppBar`, `appBarKinds`, `appBarClass`, `appBarClasses`, `AppBarKind` | `@theme/ui/TopAppBar`: `TopAppBar`, `topAppBarKinds`, `topAppBarClass`, `topAppBarClasses`, `TopAppBarKind` | App bars: "Four variants: Search app bar, small, medium flexible, large flexible" |
 | `@theme/ui/TextFieldMenu`: `TextFieldMenu`, `textFieldMenuClass`, `TextFieldMenuOption` | `@theme/ui/ExposedDropdownMenu`: `ExposedDropdownMenu`, `exposedDropdownMenuClass`, `ExposedDropdownMenuOption` | Menus: "Dropdown menu and exposed dropdown menu are now both referred to as menu"; text fields: "Text field dropdown menus" |
 | `@theme/blocks/Panel` | — | An outlined card; the name Panel stays |
+
+### Removed prop
+
+The update rewrites this in the site's own themes and apps (`lib/migrate-code.mjs`). A store item is never rewritten: its publisher releases a version written to contract 8. `ListItem` keeps Material 3's slot names (`leadingIcon`, `leadingIconSelected`, `leadingAvatar`, `leadingImage`, `leadingVideo`, `leadingMedia`, `trailingIcon`, `trailingSupporting`, `trailing`, as its list tokens name them), and `Card` has no renamed prop.
+
+| Component | Old prop | New |
+| :--- | :--- | :--- |
+| `ListItem` (`@theme/ui/List`) | `columns` | removed (a bare `columns` is dropped; `columns={expr}` stops the update and names the line) |
 
 A theme that draws its own bar or menu still does it in `ui/TopAppBar.tsx` and `ui/ExposedDropdownMenu.tsx` while
 the aliases stay; the new names lead to the theme's file, else the standard theme's.

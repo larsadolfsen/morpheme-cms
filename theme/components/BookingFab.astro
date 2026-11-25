@@ -12,7 +12,7 @@ const fab = !Astro.url.pathname.startsWith(site.bookingPath) && Astro.url.pathna
 
 {fab && (
   <a href={site.bookingPath} data-open="booking" data-fab class={extendedFabClass()}>
-    <Icon name="calendar-blank" size={24} />
+    <Icon name="calendar_today" size={24} />
     <span class="mo-extended-fab__label">{site.labels.book}</span>
   </a>
 )}
