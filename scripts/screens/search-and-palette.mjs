@@ -1,6 +1,7 @@
 import { openEditor } from '../built-site.mjs';
 import { PACK, browser, problems, site } from './support/context.mjs';
 import { acornProblem } from './support/icon-pack.mjs';
+import { isMaterialTheme } from '../theme-statement.mjs';
 import { pressInsert } from './support/shared.mjs';
 
 /** The theme's search view driven by React (theme/ui/Search.tsx, SearchView; the command palette's view, spec docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-design.md,
@@ -283,10 +284,10 @@ async function checkCommandPalette(width) {
       icon: [...document.querySelectorAll('header button[aria-label="Search"]')].some((b) => b.getClientRects().length > 0),
     };
   });
-  if (!homeBar.bar || Math.abs(homeBar.height - 56) > 0.5)
+  if (!homeBar.bar || (isMaterialTheme() && Math.abs(homeBar.height - 56) > 0.5))
     problems.push(`${label}: the start screen has no 56 px search bar (${JSON.stringify(homeBar)})`);
   // M3 specs, Measurements: an unfocused search bar is 24dp from the screen's edge (on a phone, in the page; from medium it stands in the top bar).
-  if (touch && Math.abs(homeBar.left - 24) > 0.5)
+  if (isMaterialTheme() && touch && Math.abs(homeBar.left - 24) > 0.5)
     problems.push(`${label}: the phone's search bar is ${homeBar.left} dp from the edge, not 24 (M3 specs)`);
   if (homeBar.icon) problems.push(`${label}: the start screen also has the search icon button`);
   const view = page.locator('[data-search-controlled] [data-search-view-open]');
@@ -352,7 +353,7 @@ async function checkCommandPalette(width) {
       problems.push(
         `${label}: on a computer the palette is a dropdown on the search bar (palette left ${Math.round(box.left)}, top ${Math.round(box.top)}, width ${Math.round(box.width)}; bar ${JSON.stringify(bar)})`,
       );
-    if (box.height > box.vh * (2 / 3) + 1 || box.height < 240 - 1)
+    if (isMaterialTheme() && (box.height > box.vh * (2 / 3) + 1 || box.height < 240 - 1))
       problems.push(`${label}: the dropdown is ${Math.round(box.height)} px high, not 240 dp to 2/3 of the window (M3 specs)`);
     if (await page.evaluate(() => getComputedStyle(document.querySelector('[data-search-view-open]')).position !== 'fixed'))
       problems.push(`${label}: the dropdown is not on top of the page`);
@@ -476,14 +477,15 @@ async function checkCommandPalette(width) {
       hint: el.querySelector('input[role=combobox]').enterKeyHint,
     };
   });
-  if (Math.abs(look.barHeight - 56) > 0.5) problems.push(`${label}: the search bar is ${look.barHeight} px high, not 56 (M3 specs)`);
-  if (look.barRadius < 28) problems.push(`${label}: the search bar is not a pill (radius ${look.barRadius})`);
+  if (isMaterialTheme() && Math.abs(look.barHeight - 56) > 0.5)
+    problems.push(`${label}: the search bar is ${look.barHeight} px high, not 56 (M3 specs)`);
+  if (isMaterialTheme() && look.barRadius < 28) problems.push(`${label}: the search bar is not a pill (radius ${look.barRadius})`);
   if (!look.barFilled) problems.push(`${label}: the search bar has no container of its own: the page is a bare list`);
   if (!look.viewFilled) problems.push(`${label}: the search view has no container colour`);
   // M3 tokens: "Search view contained leading margin 12dp" full screen; docked, the bar stands where the bar was, and "docked bar results gap 2dp".
-  if (Math.abs(look.barMargin - (look.docked ? 0 : 12)) > 0.5)
+  if (isMaterialTheme() && Math.abs(look.barMargin - (look.docked ? 0 : 12)) > 0.5)
     problems.push(`${label}: the focused search bar is ${look.barMargin} px from the view's edge, not ${look.docked ? 0 : 12} (M3 tokens)`);
-  if (look.docked && Math.abs(look.gap - 2) > 0.5)
+  if (isMaterialTheme() && look.docked && Math.abs(look.gap - 2) > 0.5)
     problems.push(`${label}: the gap between the bar and the results is ${look.gap} px, not 2 (M3 tokens)`);
   if (look.hint !== 'search') problems.push(`${label}: the keyboard's key is "${look.hint}", not "search"`);
   const leadingOf = () =>
