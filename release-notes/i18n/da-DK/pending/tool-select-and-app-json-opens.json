@@ -1,0 +1,6 @@
+{
+  "id": "tool-select-and-app-json-opens",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Et gemt valg fra en apps liste, for eksempel en Calendly-begivenhed, får ikke længere kontrollen til at fejle, og en knap kan igen åbne en kampagne fra alle apps"
+}

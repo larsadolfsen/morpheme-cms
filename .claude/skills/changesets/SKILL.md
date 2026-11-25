@@ -33,7 +33,7 @@ level its base branch does not allow is not merged; fix the changeset.
 | `feature/<name>` | `patch` or empty, plus the one `minor` of a line's first feature, added just before the feature goes into `main` | the pieces of one feature | `main` after each merge into `main` and after each release |
 
 **The version is set when a feature starts** (owner, 19 Nov 2026; `docs/superpowers/plans/2026-11-19-version-at-feature-start.md`). A feature's first pull request
-sets `version` in `package.json` to the number the feature is released as, and runs `node scripts/starter.mjs` so `starter/package.json` pins the same number (`static` runs `node scripts/starter.mjs --check` at every level): the line's `0.N.0` (owner, 22 Nov 2026: one release per line, `docs/superpowers/plans/2026-11-22-one-release-per-line.md`). Before 0.20, 0.19.7 is one more patch release (owner, 25 Nov 2026).
+sets `version` in `package.json` to the number the feature is released as, and runs `node scripts/starter.mjs` so `starter/package.json` pins the same number (`static` runs `node scripts/starter.mjs --check` at every level): the line's `0.N.0` (owner, 22 Nov 2026: one release per line, `docs/superpowers/plans/2026-11-22-one-release-per-line.md`).
 Once the line's first batch is in `main`, `main` carries `0.N.0` and later batches find it set. A patch number (`0.N.1`) only for an urgent fix
 the owner calls, on `hotfix/0.N` (that plan, *The urgent-fix path*). A single fix straight into `main` sets its version in its own pull request the same way. **A changeset's level (`patch`, `minor`) no longer moves
 the version**: Changesets collects the notes and keeps the Release PR, and the release takes the number `package.json` says. No pull request after the

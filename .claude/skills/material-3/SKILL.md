@@ -33,7 +33,7 @@ page and check it. I don't want to tell you more times to follow MD3."
    status the owner set on or after 21 Nov 2026 that keeps it, or it is in the page and post editor's bar and menus.
 7. Dialogs are only for short messages (owner, 15 Nov 2026: "Dialogs are only for short messages, not for settings."): a short
    message, a confirmation or a single short choice. Settings or a form with several controls are a standard side sheet from 600 dp
-   (B3, being checked against M3 in 0.19.7). Below 600 dp the existing pages stay until 0.20.0, which makes them M3's full-screen
+   (B3, being checked against M3 in 0.19.6). Below 600 dp the existing pages stay until 0.20.0, which makes them M3's full-screen
    dialog (B2, owner 21 Nov 2026); a new view does not copy the page pattern, it asks the PM.
 
 Wording follows M3's word choice (`CLAUDE.md`, *Word choice*). A theme's own look is the skill `site-editor-theme`.

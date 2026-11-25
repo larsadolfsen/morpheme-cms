@@ -604,8 +604,8 @@
     outline-offset: var(--mo-sys-state-focus-indicator-inner-offset);
   }
 
-  /* The scroll time picker (m3.material.io/components/time-pickers, Specs and Behavior): the hours and the minutes, each a scroll field (.mo-time-picker__scroll-field, a
-     spinbutton) with its values one under the other (.mo-time-picker__scroll-item), the selected one in the middle ([data-selected]); the values snap into place.
+  /* The scroll time picker (m3.material.io/components/time-pickers, Specs and Behavior): the hours and the minutes, each a scroll field (.mo-scroll-field, scroll-field.css, a
+     spinbutton) with its values one under the other, the selected one in the middle; the values snap into place.
      The fields are as wide as the picker lets them (each as wide as the other), 100 dp at least. --mo-comp-scroll-field-* (tokens/material/comp/scroll-field.css). */
   .mo-time-picker__scroll {
     display: flex;
@@ -617,93 +617,14 @@
     align-items: center;
     min-width: 0;
   }
+  .mo-time-picker__scroll .mo-scroll-field {
+    flex: 1;
+    min-width: 0;
+  }
   .mo-time-picker__scroll .mo-time-picker__separator {
     flex: none;
     width: var(--mo-comp-time-pickers-separator-width, 1rem);
     height: auto;
-  }
-  .mo-time-picker__scroll-field {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: var(--mo-comp-scroll-field-items-gap, 1rem);
-    box-sizing: border-box;
-    min-width: var(--mo-comp-scroll-field-container-2-digits-min-width, 6.25rem);
-    height: var(--mo-comp-scroll-field-container-height, 12.5rem);
-    min-height: var(--mo-comp-scroll-field-container-min-height, 7.5rem);
-    padding-block: calc(
-      (var(--mo-comp-scroll-field-container-height, 12.5rem) - var(--mo-sys-typescale-display-large-line-height, 4rem)) / 2
-    );
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scroll-snap-type: y mandatory;
-    scrollbar-width: none;
-    border-radius: var(--mo-comp-scroll-field-container-shape, var(--mo-sys-shape-corner-large));
-    background: var(--mo-comp-scroll-field-container-color, var(--mo-sys-color-surface-container-lowest));
-    color: var(--mo-comp-scroll-field-item-unselected-color, var(--mo-sys-color-outline));
-    cursor: grab;
-    touch-action: pan-y;
-    outline: none;
-  }
-  .mo-time-picker__scroll-field::-webkit-scrollbar {
-    display: none;
-  }
-  .mo-time-picker__scroll-item {
-    display: grid;
-    flex: none;
-    place-items: center;
-    height: var(--mo-sys-typescale-display-large-line-height, 4rem);
-    scroll-snap-align: center;
-    scroll-snap-stop: always;
-    font-size: var(--mo-sys-typescale-display-medium-size);
-    line-height: var(--mo-sys-typescale-display-medium-line-height);
-    font-weight: var(--mo-sys-typescale-display-medium-weight);
-    letter-spacing: var(--mo-sys-typescale-display-medium-tracking);
-    font-variant-numeric: tabular-nums;
-    cursor: pointer;
-    user-select: none;
-  }
-  .mo-time-picker__scroll-item[data-selected] {
-    color: var(--mo-comp-scroll-field-item-selected-color, var(--mo-sys-color-on-surface));
-    font-size: var(--mo-sys-typescale-display-large-size);
-    line-height: var(--mo-sys-typescale-display-large-line-height);
-    font-weight: var(--mo-comp-scroll-field-item-selected-label-text-weight, 500);
-    letter-spacing: var(--mo-sys-typescale-display-large-tracking);
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .mo-time-picker__scroll-item {
-      transition:
-        color var(--mo-sys-motion-spring-fast-effects),
-        font-size var(--mo-sys-motion-spring-fast-spatial);
-    }
-  }
-  /* States: a state layer when pointed at (hovered) or focused, the field that has focus is the active one (a 2 dp outline, its number in the primary colour),
-     and a focus ring for the keyboard (3 dp in the secondary colour, 2 dp outside). */
-  .mo-time-picker__scroll-field:hover {
-    background: color-mix(
-      in srgb,
-      var(--mo-comp-scroll-field-state-layer-color, var(--mo-sys-color-on-surface))
-        calc(var(--mo-comp-scroll-field-hovered-state-layer-opacity, var(--mo-sys-state-hover-state-layer-opacity)) * 100%),
-      var(--mo-comp-scroll-field-container-color, var(--mo-sys-color-surface-container-lowest))
-    );
-  }
-  .mo-time-picker__scroll-field:focus {
-    background: color-mix(
-      in srgb,
-      var(--mo-comp-scroll-field-state-layer-color, var(--mo-sys-color-on-surface))
-        calc(var(--mo-comp-scroll-field-focused-state-layer-opacity, var(--mo-sys-state-focus-state-layer-opacity)) * 100%),
-      var(--mo-comp-scroll-field-container-color, var(--mo-sys-color-surface-container-lowest))
-    );
-    box-shadow: inset 0 0 0 var(--mo-comp-scroll-field-active-container-outline-width, 0.125rem)
-      var(--mo-comp-scroll-field-active-container-outline-color, var(--mo-sys-color-primary));
-  }
-  .mo-time-picker__scroll-field:focus .mo-time-picker__scroll-item[data-selected] {
-    color: var(--mo-comp-scroll-field-active-item-selected-color, var(--mo-sys-color-primary));
-  }
-  .mo-time-picker__scroll-field:focus-visible {
-    outline: var(--mo-comp-scroll-field-focused-indicator-thickness, var(--mo-sys-state-focus-indicator-thickness)) solid
-      var(--mo-comp-scroll-field-focused-indicator-color, var(--mo-sys-color-secondary));
-    outline-offset: var(--mo-comp-scroll-field-focused-indicator-outline-outer-offset, var(--mo-sys-state-focus-indicator-outer-offset));
   }
   /* The period selector of a scroll picker: AM over PM beside the fields, 56 dp wide in a dialog and 40 dp inline. */
   .mo-time-picker__scroll .mo-time-picker__period {
