@@ -52,8 +52,7 @@ when it opens. Then nothing in either build depends on a page's text, and a cont
 
 **What a theme or an app may import from the CMS** becomes a public list (the shared modules in the import map: React, `standard/view`,
 `icon`, `i18n`, the theme UI parts through `themeUi`), checked by a script (`check:themes` and the apps' sandbox check): an import outside
-it fails. That is the new contract: `THEME_API` and `APP_API` 8 (0.19.0 is 7), with Venus and the store's apps adjusted in
-`morpheme-apps` in the same release.
+it fails. That list is contract 8's (2026-11-25-public-imports-contract-8-design.md); this feature changes no contract.
 
 **The editor's version** (`/editor/version.json`, the reload of an editor left open) becomes the package's editor fingerprint and the
 site module's hash together.
@@ -79,8 +78,7 @@ build use the two builds. The screens checks run against the built editor, as th
    (`virtual:app-folders`, the icon modules) move into the site module or the manifest.
 4. **The two builds.** The package's editor build (the publish workflow and `npm pack`), the site module build and the import map in
    `pages/editor/index.astro`; the old client build of the editor removed from a site's build.
-5. **The contract.** The public module list and its check, `THEME_API`/`APP_API` 8, the release note for theme and app authors; Venus
-   and the store's apps in `morpheme-apps`.
+5. **Generate the import map from lib/public-imports.mjs.** No `THEME_API`/`APP_API` raise.
 6. **Measure and clean up.** The build on the test site before and after (written into the plan's B6), `compare-html`, the screens,
    starter and demo checks, and every doc that describes the editor's build (`docs/editor.md`, the skills).
 
@@ -92,7 +90,7 @@ sandbox (its build hooks run as before; the editor parts of an app are loaded as
 ## 7. Open points for the proof (PR 1)
 
 - An app's or theme's editor code that imports a CMS module outside the public list: how many there are today (`git grep` in `src/apps`,
-  `theme/`, `morpheme-apps`), so the list is right before the contract.
+  `theme/`, `morpheme-apps`), so the list is right before the contract. Answered by the report of `check:imports` (2026-11-25-public-imports-contract-8-design.md).
 - CSS: the theme's `styles/global.css` and a block's CSS imported from TSX: the site module emits them as files the editor page links.
 - The Content-Security-Policy of `/editor/` (`src/data/csp.json`): an inline import map needs its hash in `script-src`, or the map is a file
   (`<script type="importmap" src>` is not supported, so the hash).

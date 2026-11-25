@@ -236,3 +236,5 @@ Asked one at a time; the owner's words in quotes.
 
 Not changed (owner, 18 November: "keep the old rules"): a store app's server code runs in the sandbox, Morpheme's too, and a site's
 own app is trusted (`plans/2026-11-15-app-platform-0-23.md`, decisions 2 and 16).
+
+No contract raise: additive, optional keys, a theme without the new part falls back (themeProblems does not require it).

@@ -65,3 +65,5 @@ Morpheme's free items one at a time, 0.32 the same experience for every item.
 Not needed until the platform opens: sandboxes for blocks and page scripts, outside publishers' sign-up, a review process, the
 public SDK and `morpheme new app`, payments. Spam protection becomes a replaceable function then, with Turnstile as its built-in
 (it is "always on" in the app platform plan, decision 28).
+
+No contract raise: additive, optional keys, a theme without the new part falls back (themeProblems does not require it).
