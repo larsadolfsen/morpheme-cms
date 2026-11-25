@@ -1,5 +1,19 @@
 # @morphemecms/cms
 
+## 0.19.7
+
+### Patch Changes
+
+- e3983b5: The Cards block's carousel has Material 3's multi-aspect ratio layout: with images, each card is as wide as its image's aspect ratio (9:16 to 16:9), picked on the card.
+- e3983b5: The editor's shared parts follow Material 3: the focus ring, text styles, list rows and menus take their values from the theme instead of the editor's own overrides.
+- e3983b5: Label in the Text style menu turns a heading into a label, with its text kept.
+- e3983b5: The navigation rail and drawer are drawn in Material 3's surface container again, not in the page's own colour. The vibrant menu is drawn in Material 3's tertiary container.
+- e3983b5: Apps and themes can import six more modules of the CMS: the editor's parts, apps, dates and dialogs, tracking and app definitions.
+- e3983b5: The theme has a scroll field, Material 3's, as a part of its own (`ScrollField`): small, medium or large, with ends or looping, swiped, dragged, tapped or moved with the arrow keys, or swapped for a text field to type the value. The scroll time picker's hours and minutes are drawn and moved by it.
+- e3983b5: The start screen's cards stand one card gap apart, the notices above the dashboard included.
+- 9a179e5: A select filled by an app's tool (such as Calendly's event type) no longer fails `check:content` on its saved value, and a button's promotion from an app that has only an app.json (contract 4) is shown again.
+- e3983b5: Fixed: a text that an app block translates in its own texts.ts is no longer reported as missing from the site's texts.
+
 ## 0.19.6
 
 ### Patch Changes

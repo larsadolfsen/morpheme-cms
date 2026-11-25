@@ -1,0 +1,43 @@
+{
+  "version": "0.19.7",
+  "date": "2026-11-25",
+  "notes": [
+    {
+      "id": "cards-multi-aspect",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Multi-aspect ratio cards",
+      "text": "Photos in different shapes no longer need cropping to one. Set Cards to Carousel, pick Multi-aspect ratio under Carousel layout, and choose each card’s Image aspect ratio from 9:16 to 16:9. Each card is as wide as its image."
+    },
+    {
+      "id": "tool-select-and-app-json-opens",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "A saved choice from an app’s list, such as a Calendly event, no longer fails the check, and a button can open a promotion of every app again"
+    },
+    {
+      "id": "heading-to-label",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Label turns a heading into a label"
+    },
+    {
+      "id": "editor-m3-shared-parts",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The editor’s focus ring, text styles and menus follow Material 3"
+    },
+    {
+      "id": "nav-rail-container-color",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The navigation rail and drawer have their own colour again"
+    },
+    {
+      "id": "start-card-gap",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "The start screen’s cards no longer sit far apart in places"
+    }
+  ]
+}
