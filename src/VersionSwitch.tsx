@@ -3,7 +3,6 @@
 // the named slot `versionSwitch` of an app (AppDefinition.slots): the form draws the one of the first app installed that has it, else this one.
 import type { Version } from '../lib/versions.mjs';
 import { Button, Notice, SegmentedButton, type TabChoice } from './ui';
-import { materialIcon } from './icon';
 import { t } from './i18n';
 
 /** What the form gives the component of the slot `versionSwitch`. The functions do what the buttons of the form do, with a version id
@@ -41,13 +40,13 @@ export function versionTabs({
   if (!waiting) return undefined;
   return {
     label: t.forms.versions.switchLabel,
+    kind: 'secondary',
     value: editing === 'live' ? 'live' : waiting.id,
     options: [
-      { value: 'live', label: t.forms.versions.live, icon: materialIcon('public') },
+      { value: 'live', label: t.forms.versions.live },
       {
         value: waiting.id,
         label: waiting.publishAt ? t.forms.versions.scheduled : t.forms.versions.draft,
-        icon: materialIcon(waiting.publishAt ? 'schedule' : 'edit_note'),
       },
     ],
     onChange: (id) => {

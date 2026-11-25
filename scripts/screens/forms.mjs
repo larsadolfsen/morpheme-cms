@@ -249,8 +249,8 @@ async function checkNofollowSwitch(width, height) {
   }
 }
 
-/** A page with a draft waiting has its `Published` / `Draft` switch as Material 3 primary tabs in the top app bar (375, 1280): a tablist named
- * "Version to edit" inside the bar, directly above the draft notice (no segmented control under the title), two tabs with a name each,
+/** A page with a draft waiting has its `Published` / `Draft` switch as Material 3 secondary tabs (name only, no icon) in the top app bar (390, 1280): a tablist named
+ * "Version to edit" inside the bar, directly above the draft notice (no segmented control under the title), two tabs with a name each and no icon, a divider along the row's bottom edge,
  * the open one aria-selected (`Draft` first), 48 dp high, the arrow keys open the other one and move focus, `Published` shows the published text and its notice,
  * and the draft notice keeps `Discard draft`. */
 async function checkVersionTabs(width, height) {
@@ -279,6 +279,9 @@ async function checkVersionTabs(width, height) {
       problems.push(`${label}: the tabs are ${names.join()}, not Published:false,Draft:true`);
     for (const box of await tabs.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height)))
       if (box < 47.5) problems.push(`${label}: a tab is ${box} dp high, under 48`);
+    if (await list.locator('svg, .mo-tabs__tab-icon').count()) problems.push(`${label}: a tab has an icon`);
+    const line = await list.evaluate((el) => getComputedStyle(el).boxShadow);
+    if (!line || line === 'none') problems.push(`${label}: no divider under the tab row`);
     const text = () => page.locator('.ProseMirror').first().innerText();
     if (!(await text()).includes('waiting text')) problems.push(`${label}: Draft does not show the draft`);
     if (!(await page.getByText('This is a draft').count())) problems.push(`${label}: no draft notice`);
