@@ -62,7 +62,7 @@ function versionsOf(block: SiteBlock): PreviewVariant[] {
           .filter((o) => o.value !== String(c.default ?? ''))
           .map((o) => ({
             label: on ? `${on.label} · ${o.label}` : o.label,
-            props: { [c.only!.field]: c.only!.is[0], [c.name]: o.value },
+            props: { [c.only!.field]: c.only!.is[0], ...(o.only ? { [o.only.field]: o.only.is[0] } : {}), [c.name]: o.value },
             hint: o.hint,
           }));
       }),

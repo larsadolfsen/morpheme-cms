@@ -652,6 +652,18 @@ export function ObjectFields({ field, value, onChange }: Props) {
   );
 }
 
+// A select's options that need a choice next to it (Option.only) only while it is made, or the option is the chosen one.
+function offeredOf(field: Field, fields: Field[], value: Record<string, unknown>, around?: Around): Field {
+  if (field.type !== 'select' || !field.options?.some((o) => o.only)) return field;
+  const chosen = String(value[field.name] ?? '');
+  return {
+    ...field,
+    options: field.options.filter(
+      (o) => !o.only || o.value === chosen || inUse({ name: '', label: '', type: 'string', only: o.only }, fields, value, around),
+    ),
+  };
+}
+
 // The fields of an object, in order.
 export function FieldList({
   fields,
@@ -675,7 +687,11 @@ export function FieldList({
                 <Label hint={f.heading.hint}>{f.heading.label}</Label>
               </div>
             )}
-            <FieldInput field={f} value={value[f.name]} onChange={(v) => onChange({ ...value, [f.name]: v })} />
+            <FieldInput
+              field={offeredOf(f, fields, value, around)}
+              value={value[f.name]}
+              onChange={(v) => onChange({ ...value, [f.name]: v })}
+            />
           </Fragment>
         ))}
     </AroundHere.Provider>

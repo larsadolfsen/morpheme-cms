@@ -13,3 +13,12 @@ test('A card’s crop is used only when it was made for the block’s ratio, and
   assert.deepEqual(cutOf(image, '1:1'), { src: '/images/a.webp', crop: [10, 0, 80, 100] });
   assert.deepEqual(cutOf(image, '16:9'), { src: '/images/a.webp' });
 });
+
+test('A card’s aspect is one of the nine-to-sixteen to sixteen-to-nine choices, else 1:1', async () => {
+  const { aspectProp, ASPECTS } = await import('./cut.mjs');
+  assert.equal(aspectProp('9:16'), '9:16');
+  assert.equal(aspectProp('16:9'), '16:9');
+  assert.equal(aspectProp('21:9'), '1:1');
+  assert.equal(aspectProp(undefined), '1:1');
+  assert.deepEqual(ASPECTS[0], '9:16');
+});
