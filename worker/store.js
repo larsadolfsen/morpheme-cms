@@ -4,7 +4,7 @@
 //   GET /api/store/catalog       the store's catalog for this site's contracts; { connected: false } without a key
 //   GET /api/store/files/<oid>   a file of the store by its git id, streamed through with its content-type and cache-control
 // The key is MORPHEME_STORE_KEY or the one from "Connect to Morpheme"; a key from the button that the store refuses is forgotten.
-import { APP_API, THEME_API } from '../lib/contracts.mjs';
+import { APP_API, ICON_PACK_API, THEME_API } from '../lib/contracts.mjs';
 import { access, sessionToken } from './session.js';
 import { json } from './not-found.js';
 import { forgetKey, storeKey } from './store-connection.js';
@@ -29,7 +29,7 @@ export async function handleStore(request, env, _ctx, ask = fetch) {
   if (!found) return isCatalog ? json({ connected: false }) : json({ error: 'not found' }, 404);
 
   const base = env.MORPHEME_STORE_URL ?? STORE_URL;
-  const url = isCatalog ? `${base}/store/catalog?app=${APP_API}&theme=${THEME_API}` : `${base}/store/files/${oid}`;
+  const url = isCatalog ? `${base}/store/catalog?app=${APP_API}&theme=${THEME_API}&icons=${ICON_PACK_API}` : `${base}/store/files/${oid}`;
   let res;
   try {
     res = await ask(url, { headers: { authorization: `Bearer ${found.key}` } });
