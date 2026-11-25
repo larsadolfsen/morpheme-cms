@@ -210,7 +210,7 @@ export const IMAGE = 'image';
 export const DIVIDER = 'divider';
 const divider: SiteBlock = {
   type: DIVIDER,
-  group: 'content',
+  group: 'banners',
   label: t.text.divider,
   icon: materialIcon('horizontal_rule'),
   hint: t.text.dividerHint,
