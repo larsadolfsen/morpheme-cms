@@ -191,7 +191,8 @@ export function fieldProblem(f: Field, v: unknown, label = f.label): { text: str
   // An icon field also takes the name of any icon the site draws (Material Symbols', Phosphor's: the icon picker's search); that the
   // site has it is found where the icon is drawn (data-icon-missing, check:screens).
   const anyIcon = f.icons && typeof v === 'string' && /^[a-z0-9_-]+$/.test(v);
-  if (f.type === 'select' && f.options && !empty && !anyIcon && !f.options.some((o) => o.value === v))
+  // A field fed by an app's tool (optionsFrom, src/apps.ts) has no options of its own: the tool answers them at edit time only.
+  if (f.type === 'select' && f.options && !f.optionsFrom && !empty && !anyIcon && !f.options.some((o) => o.value === v))
     return both(t.check.notAnOption(label, String(v)));
   const form = typeof v === 'string' && problemOf(f, v);
   if (form) return { text: t.check.wrong(label, form), line: `${form}.` };

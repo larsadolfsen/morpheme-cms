@@ -1,0 +1,6 @@
+{
+  "id": "tool-select-and-app-json-opens",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A saved choice from an app’s list, such as a Calendly event, no longer fails the check, and a button can open a promotion of every app again"
+}
