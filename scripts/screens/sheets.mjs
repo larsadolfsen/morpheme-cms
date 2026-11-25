@@ -1915,9 +1915,11 @@ async function checkFullScreenDialog(width, height) {
   }
   await page.screenshot({ path: join(shots, `full-screen-dialog-${width}.png`) });
   await page.keyboard.press('Escape');
-  await page.waitForTimeout(500);
-  if (await page.locator('dialog[open][aria-labelledby="mo-parts-full-screen-dialog"]').count())
-    problems.push(`${label}: Escape does not close it`);
+  // Wait for the exit, not a fixed time: the spring takes ~336 ms on the standard motion scheme and ~562 ms on the expressive one.
+  await page
+    .locator('dialog[open][aria-labelledby="mo-parts-full-screen-dialog"]')
+    .waitFor({ state: 'detached', timeout: 3000 })
+    .catch(() => problems.push(`${label}: Escape does not close it`));
   await page.close();
 }
 
