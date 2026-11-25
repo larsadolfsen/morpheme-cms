@@ -944,6 +944,64 @@ async function checkSaveKeyNoAutosave() {
   await page.close();
 }
 
+/** A Divider behaves like a block: the bar button puts it in, a tap selects it (its card, named Divider, pressed, with Remove, Add below and Add above on the bar and no Settings or Link), the arrow keys go onto it and off it, and Backspace removes it. */
+async function checkDividerBlock(width) {
+  const label = `${width}px Divider as a block`;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Before');
+  await page.keyboard.press('Enter');
+  await page.keyboard.type('After');
+  await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('End');
+  const bar = () => page.evaluate(() => [...document.querySelectorAll('.mo-editor-tools button')].map((b) => b.getAttribute('aria-label')));
+  const state = () =>
+    page.evaluate(() => {
+      const card = document.querySelector('.mo-editor-divider .mo-site-block-card');
+      return {
+        cards: document.querySelectorAll('.mo-editor-divider').length,
+        pressed: card?.getAttribute('aria-pressed'),
+        name: card?.getAttribute('aria-label'),
+        focus: document.activeElement === card,
+      };
+    });
+  const tool = async (name) => {
+    if (!(await bar()).includes(name)) {
+      await page.click('.mo-editor-tools [aria-label="More"]');
+      await page.click(`[role=menu] [role^=menuitem]:has-text("${name}")`);
+    } else await page.click(`.mo-editor-tools [aria-label="${name}"]`);
+  };
+  await tool('Divider');
+  let got = await state();
+  if (got.cards !== 1 || got.name !== 'Divider')
+    problems.push(`${label}: the Divider button did not put in one Divider block (${JSON.stringify(got)})`);
+  await page.click('.mo-editor-divider .mo-site-block-card');
+  got = await state();
+  // The bar slides from the text tools to the block's: read it once the old tools have left.
+  await page.waitForTimeout(600);
+  const names = await bar();
+  if (got.pressed !== 'true' || !got.focus) problems.push(`${label}: a tap did not select the Divider (${JSON.stringify(got)})`);
+  for (const want of ['Remove', 'Add below', 'Add above'])
+    if (!names.includes(want)) problems.push(`${label}: no ${want} on the bar while the Divider is selected (${names.join(', ')})`);
+  for (const not of ['Settings', 'Edit', 'Link'])
+    if (names.includes(not)) problems.push(`${label}: ${not} on the bar for a Divider, which has none`);
+  await page.keyboard.press('ArrowDown');
+  got = await state();
+  if (got.pressed === 'true') problems.push(`${label}: ArrowDown did not leave the Divider for the text`);
+  await page.keyboard.press('ArrowUp');
+  got = await state();
+  if (got.pressed !== 'true' || !got.focus)
+    problems.push(`${label}: ArrowUp from the text below did not select the Divider (${JSON.stringify(got)})`);
+  await page.keyboard.press('Backspace');
+  got = await state();
+  if (got.cards !== 0) problems.push(`${label}: Backspace did not remove the selected Divider`);
+  await page.close();
+}
+
 /** Every Preview action of a page (the text bar's button, its row in the `⋮`, the Save bar's button) draws one icon, the monitor with a phone (Material Symbols' `devices`, Phosphor's `devices`, Lucide's `monitor-smartphone`; owner, 16 Nov 2026: "Use the monitor-cellphone icon for preview everywhere"). The Pack in use's file is the reference (Material Symbols unless the site or its theme chose another). */
 async function checkPreviewIcon(width) {
   const label = `${width}px Preview icon`;
@@ -1088,4 +1146,5 @@ export function register(unit) {
   ])
     unit(`checkBarSlide ${width}${reduced ? ' reduced' : ''}`, () => checkBarSlide(width, reduced));
   unit('checkToolbarBox', () => checkToolbarBox());
+  for (const width of [390, 1280]) unit(`checkDividerBlock ${width}`, () => checkDividerBlock(width));
 }

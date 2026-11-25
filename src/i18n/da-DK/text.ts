@@ -21,6 +21,8 @@ export const text: Messages['text'] = {
   image: 'Billede',
   divider: 'Skillelinje',
   dividerAdded: 'Skillelinje indsat',
+  dividerAddAbove: 'Tilføj over',
+  dividerAddBelow: 'Tilføj under',
   crop: 'Beskær',
   undo: 'Fortryd',
   redo: 'Gentag',

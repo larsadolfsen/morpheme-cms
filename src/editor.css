@@ -858,6 +858,24 @@ html {
 
 /* The button of a block that is not typed in place lies over its frame and its preview, which only draws the block (MarkdownEditor.tsx blockCard): it holds no
    text, takes the taps, and shows nothing of its own; the frame draws the hover, the selection and the focus. The action row lies over it. */
+.mo-editor-text .mo-editor-divider .mo-site-block-card {
+  /* The Divider is a block with a frame only while it is pointed at, selected or in focus: at rest it is the line alone (the same 44 dp target as the bar's buttons). */
+  min-block-size: 2.75rem;
+  padding-block: 0;
+  display: grid;
+  align-items: center;
+  border-color: transparent;
+}
+.mo-editor-text .mo-editor-divider .mo-site-block-card:hover,
+.mo-editor-text .mo-editor-divider .mo-site-block-card[aria-pressed='true'] {
+  border-color: var(--mo-sys-color-primary);
+}
+.mo-editor-divider__rule {
+  display: block;
+  block-size: var(--mo-comp-divider-thickness, 1px);
+  background: var(--mo-comp-divider-color, var(--mo-sys-color-outline-variant));
+}
+
 .mo-editor-text .mo-site-block-card-button {
   position: absolute;
   inset: 0;

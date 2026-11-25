@@ -22,6 +22,7 @@ import { editorViewCtx, type Editor } from '@milkdown/kit/core';
 import type { CmdKey } from '@milkdown/kit/core';
 import type { Ctx } from '@milkdown/kit/ctx';
 import {
+  hrSchema,
   imageSchema,
   insertImageCommand,
   toggleEmphasisCommand,
@@ -373,7 +374,7 @@ function move(view: EditorView, i: number, by: -1 | 1): number | null {
 }
 
 // Selects the card at the top level at index k again (after it moved, it is a new card), so its tools are on the bar still and it can be moved again at once.
-type CardHost = HTMLElement & { select?: () => void; refresh?: () => void; describe?: (focus?: EditFocus) => void };
+type CardHost = HTMLElement & { select?: () => void; leave?: () => void; refresh?: () => void; describe?: (focus?: EditFocus) => void };
 function reopen(view: EditorView, k: number) {
   const el = partDOM(view, k);
   const host = (el?.matches('.mo-site-block') ? el : el?.querySelector('.mo-site-block')) as CardHost | null;
@@ -1042,6 +1043,7 @@ function cardBar(
     show();
   }
   (dom as CardHost).select = select;
+  (dom as CardHost).leave = leave;
   (dom as CardHost).refresh = () => selected && show();
   card.setAttribute('aria-pressed', 'false');
   card.addEventListener('mousedown', (e) => e.preventDefault());
@@ -1358,6 +1360,95 @@ function imageCard(
       ];
     },
     () => inPanelNow() && void describe(),
+    { tools, remove },
+  );
+  return { dom, update: () => false, stopEvent: () => true, ignoreMutation: () => true, destroy: close };
+}
+
+// The arrow keys from the text next to a Divider select it (its card takes the focus): Down or Right at the end of a text, Up or Left at its start.
+const dividerArrows = $prose(
+  () =>
+    new Plugin({
+      props: {
+        handleKeyDown: (view, e) => {
+          const dir = { ArrowDown: 'down', ArrowRight: 'right', ArrowUp: 'up', ArrowLeft: 'left' }[e.key] as
+            'down' | 'right' | 'up' | 'left' | undefined;
+          if (!dir || e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) return false;
+          const { selection } = view.state;
+          if (!selection.empty || selection.$from.depth !== 1 || !selection.$from.parent.isTextblock) return false;
+          const forward = dir === 'down' || dir === 'right';
+          if (!view.endOfTextblock(dir)) return false;
+          const index = selection.$from.index(0) + (forward ? 1 : -1);
+          if (view.state.doc.maybeChild(index)?.type.name !== 'hr') return false;
+          const card = partDOM(view, index)?.querySelector<HTMLElement>('.mo-site-block-card');
+          if (!card) return false;
+          e.preventDefault();
+          card.focus();
+          card.click();
+          return true;
+        },
+      },
+    }),
+);
+
+// The Divider (`---`, the `hr` node) as a block: a card with its own name, selected by a tap or the keyboard, with the block bar's Add above, Add below,
+// Move up, Move down and Remove (it has no Settings and no Link). It is stored as `---` in the text, not as a block.
+function dividerCard(node: Node, view: EditorView, getPos: () => number | undefined) {
+  const dom = document.createElement('div');
+  dom.className = 'mo-site-block mo-editor-divider';
+  dom.contentEditable = 'false';
+  const card = dom.appendChild(document.createElement('button'));
+  card.type = 'button';
+  card.className = 'mo-site-block-card';
+  card.setAttribute('aria-label', t.text.divider);
+  const rule = card.appendChild(document.createElement('span'));
+  rule.className = 'mo-editor-divider__rule';
+  rule.setAttribute('aria-hidden', 'true');
+  const remove = () => {
+    const pos = getPos();
+    if (pos === undefined) return;
+    view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
+    announceRemoved(t.text.blockRemoved(t.text.divider));
+    view.focus();
+  };
+  // Add above or below: an empty paragraph next to the Divider, with the cursor in it (the Insert block button then puts a block there).
+  const add = (below: boolean) => () => {
+    const pos = getPos();
+    if (pos === undefined) return;
+    const at = below ? pos + node.nodeSize : pos;
+    const tr = view.state.tr.insert(at, view.state.schema.nodes.paragraph.create());
+    view.dispatch(tr.setSelection(TextSelection.create(tr.doc, at + 1)).scrollIntoView());
+    view.focus();
+  };
+  // The card has the focus once it is selected (a tap or a click), so Delete and Backspace remove it (cardBar) and the arrows leave it for the text next to it.
+  card.addEventListener('click', () => card.focus());
+  card.addEventListener('keydown', (e) => {
+    const forward = e.key === 'ArrowDown' || e.key === 'ArrowRight';
+    if (!forward && e.key !== 'ArrowUp' && e.key !== 'ArrowLeft') return;
+    if (e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) return;
+    const pos = getPos();
+    if (pos === undefined) return;
+    e.preventDefault();
+    (dom as CardHost).leave?.();
+    const $at = view.state.doc.resolve(forward ? pos + node.nodeSize : pos);
+    view.dispatch(view.state.tr.setSelection(Selection.near($at, forward ? 1 : -1)).scrollIntoView());
+    view.focus();
+  });
+  const tools = (): BarAction[] => [
+    { kind: 'below', label: t.text.dividerAddBelow, action: add(true) },
+    { kind: 'above', label: t.text.dividerAddAbove, action: add(false) },
+    { kind: 'remove', label: t.common.remove, action: remove },
+  ];
+  const close = cardBar(
+    view,
+    dom,
+    card,
+    t.text.divider,
+    () => {
+      const pos = getPos();
+      return moves(view, pos === undefined ? null : view.state.doc.resolve(pos).index(0));
+    },
+    undefined,
     { tools, remove },
   );
   return { dom, update: () => false, stopEvent: () => true, ignoreMutation: () => true, destroy: close };
@@ -2575,6 +2666,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
           () => picking.current,
         ),
     );
+    const dividerView = $view(hrSchema.node, () => (node, view, getPos) => dividerCard(node, view, getPos));
     const cardView = $view(
       siteBlockSchema.node,
       () => (node, view, getPos) =>
@@ -2644,6 +2736,8 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       .use(naming)
       .use(cardView)
       .use(imageView)
+      .use(dividerView)
+      .use(dividerArrows)
       .use(cardDeletes)
       .use(marking)
       .use(blockSelecting)

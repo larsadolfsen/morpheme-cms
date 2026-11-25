@@ -25,6 +25,8 @@ export const text = {
   /** Insert: a line between two parts of the text, written as --- in the Markdown. */
   divider: 'Divider',
   dividerAdded: 'Divider added',
+  dividerAddAbove: 'Add above',
+  dividerAddBelow: 'Add below',
   /** A selected image's tool on the bar that crops it (image tools spec, section 4). */
   crop: 'Crop',
   undo: 'Undo',
