@@ -213,7 +213,8 @@ An app written to an older contract keeps its global CSS. `npm run check:app-css
 
 - a rule on `:root`, `html` or `body` (style the app's own elements; a CMS token is overridden on the block's outer element, `docs/css-tokens.md`);
 - a private custom property set or read from code (`style` objects, `setProperty`, `getPropertyValue`, a `var(--mo-…)` string in `View.tsx` or `script.ts`), because the build renames CSS only;
-- an attribute selector on `data-mo-app`.
+- an attribute selector on `data-mo-app`;
+- a `mo-` class the CMS does not have, in the app's code or CSS (`scripts/check-app-classes.mjs`, `npm run check:app-classes`; one line with the class, the file and the line). An app's own elements take plain class names, which the build scopes to the app (`.signup`, not `.mo-signup`); only the CMS's classes keep `mo-`. The CMS's classes are the `mo-` names written in its own CSS and code (`theme/`, `src/`, `defaults/`, `lib/`).
 
 **What the developer sees.** The source keeps the plain names; the browser's tools show the renamed ones (`--mo-app-shop-gap`, `mo-app-shop-fade`) and the selectors with `:where([data-mo-app="shop"])` before them. Two apps may use the same class, custom property and keyframes names without touching each other. A `@import` in an app's CSS is not scoped: put the rules in the app's own files. A `<style>` or `<style is:global>` block in an app's `.astro` file is not scoped either (the build rewrites `.css` files only); `check:content` still refuses a rule on `:root`, `html` or `body` in it, and the report lists the block. The developer guide (0.22.1) takes this section over.
 
