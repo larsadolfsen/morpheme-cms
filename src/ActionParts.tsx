@@ -138,7 +138,7 @@ export default function ActionParts() {
           </div>
         </Preview>
       </Part>
-      <Part name="ChoiceGroup" m3="md.comp.segmented-button" use={say.choiceGroup}>
+      <Part name="ChoiceGroup" m3="md.comp.button-group" use={say.choiceGroup}>
         <Preview>
           <div className="mo-editor-sample-stack-6">
             <StyleChoice styles={['filled', 'tonal', 'outlined']} />

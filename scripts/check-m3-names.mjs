@@ -88,7 +88,6 @@ export const FAMILIES = {
   chip: ['assist-chip', 'filter-chip', 'input-chip', 'suggestion-chip'],
   'chip-set': ['assist-chip', 'filter-chip', 'input-chip', 'suggestion-chip'],
   'text-field': ['filled-text-field', 'outlined-text-field'],
-  'segmented-button': ['outlined-segmented-button'],
   tooltip: ['plain-tooltip', 'rich-tooltip'],
   tabs: ['primary-navigation-tab', 'secondary-navigation-tab'],
   carousel: ['carousel-item'],

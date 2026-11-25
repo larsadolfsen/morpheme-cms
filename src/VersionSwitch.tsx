@@ -2,7 +2,7 @@
 // when they have no time), to edit either one, so a mistake on the live page can be fixed without touching the waiting changes. It is
 // the named slot `versionSwitch` of an app (AppDefinition.slots): the form draws the one of the first app installed that has it, else this one.
 import type { Version } from '../lib/versions.mjs';
-import { Button, Notice, SegmentedButton } from './ui';
+import { Button, Notice, ConnectedButtons } from './ui';
 import { t } from './i18n';
 
 /** What the form gives the component of the slot `versionSwitch`. The functions do what the buttons of the form do, with a version id
@@ -33,7 +33,7 @@ export default function VersionSwitch({ versions, editing, busy, onEdit }: Versi
   const waiting = versions.find((v) => v.id !== 'live');
   if (!waiting) return null;
   return (
-    <SegmentedButton
+    <ConnectedButtons
       label={t.forms.versions.switchLabel}
       value={editing === 'live' ? 'live' : waiting.id}
       disabled={busy}

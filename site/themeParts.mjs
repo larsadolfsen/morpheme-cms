@@ -21,7 +21,6 @@ export const THEME_PARTS = [
   { id: 'ExposedDropdownMenu', group: 'ui', prefixes: ['mo-select'] },
   { id: 'Tabs', group: 'ui', prefixes: ['mo-tabs'] },
   { id: 'ButtonGroup', group: 'ui', prefixes: ['mo-button-group'] },
-  { id: 'SegmentedButton', group: 'ui', prefixes: ['mo-segmented-button'] },
   { id: 'ChoiceGroup', group: 'ui', prefixes: ['mo-choice-group'] },
   { id: 'SplitButton', group: 'ui', prefixes: ['mo-split-button'] },
   { id: 'Switch', group: 'ui', prefixes: ['mo-switch'] },

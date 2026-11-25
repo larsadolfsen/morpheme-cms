@@ -1089,7 +1089,7 @@ async function checkIconColor(width, height, scheme = 'light') {
           circle: !!dot && Math.abs(box.width - box.height) < 0.5 && getComputedStyle(dot).borderRadius !== '0px',
           color: dot ? getComputedStyle(dot).backgroundColor : null,
           want: colorOf(role),
-          check: !!chip.querySelector('.mo-segmented-button__check'),
+          check: !!chip.querySelector('.mo-button__check'),
           width: Math.round(chip.getBoundingClientRect().width),
         };
       });

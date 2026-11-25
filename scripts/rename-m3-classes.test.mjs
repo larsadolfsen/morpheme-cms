@@ -65,3 +65,10 @@ test("the repository's map renames every class it lists to names that exist in t
     if (now !== null) assert.notEqual(list, '', old);
   }
 });
+
+test('the repository map turns the segmented button into a connected button group', () => {
+  const map = JSON.parse(readFileSync(new URL('./m3-names.json', import.meta.url), 'utf8'));
+  const own = (text) => renameText('a.tsx', text, { classes: map.classes, props: map.props }).text;
+  assert.equal(own(`<div className="mo-segmented-button">`), `<div className="mo-button-group mo-is-connected">`);
+  assert.equal(own(`'mo-segmented-button__segment'`), `'mo-button mo-is-filled'`);
+});

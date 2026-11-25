@@ -133,7 +133,7 @@ async function checkChoiceGroupFields(width, locale) {
   const sheet = () =>
     page
       .locator('dialog[open], .mo-editor-side-sheet')
-      .filter({ has: page.locator('.mo-choice-group, .mo-segmented-button') })
+      .filter({ has: page.locator('.mo-choice-group, .mo-button-group.mo-is-connected') })
       .last();
   // A sheet is closed by its Cancel (nothing was changed), else by Escape (the side panel on a computer).
   const close = async () => {
@@ -392,6 +392,88 @@ async function checkChoiceGroupParts(width, locale) {
   await page.close();
 }
 
+/** The connected button group (Material 3 Expressive, Button groups, Specs: the connected group's between-space 2 dp, inner corners small 8 dp, the selected
+ * button's corners 50 % (fully round), the outer corners full): on the theme's parts page, a connected group of text buttons with one toggled on. Measured:
+ * the gap, the corners, the height of a small button (40 dp), the target, and the keys (ArrowRight and ArrowLeft move focus, Home and End go to the ends). */
+async function checkConnectedButtons(width) {
+  const label = `${width}px connected buttons`;
+  const touch = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  const part = page.locator('[data-part="ButtonGroup"]');
+  await part.waitFor({ timeout: 30_000 }).catch(() => problems.push(`${label}: the ButtonGroup part is not on the page`));
+  if (!(await part.count())) return page.close();
+  const group = part.locator('.mo-button-group.mo-is-connected:has(> .mo-button)').first();
+  await group.scrollIntoViewIfNeeded();
+  await page.evaluate(() => document.fonts.ready);
+  const got = await group.evaluate((g) => {
+    const px = (v) => parseFloat(v) || 0;
+    const buttons = [...g.children].filter((b) => b.matches('.mo-button'));
+    const boxes = buttons.map((b) => b.getBoundingClientRect());
+    const style = buttons.map((b) => getComputedStyle(b));
+    const on = buttons.findIndex((b) => b.getAttribute('aria-pressed') === 'true');
+    return {
+      n: buttons.length,
+      on,
+      gaps: boxes.slice(1).map((b, i) => Math.round((b.left - boxes[i].right) * 100) / 100),
+      heights: boxes.map((b) => Math.round(b.height * 100) / 100),
+      targets: buttons.map((b, i) => Math.max(boxes[i].height, px(getComputedStyle(b, '::after').height))),
+      rtl: getComputedStyle(g).direction === 'rtl',
+      // The corners facing the neighbours of an unselected button, the outer corners of the first, and the selected button's.
+      inner: buttons.map((_, i) => [
+        px(style[i].borderStartStartRadius),
+        px(style[i].borderEndStartRadius),
+        px(style[i].borderStartEndRadius),
+        px(style[i].borderEndEndRadius),
+      ]),
+      tab: buttons.map((b) => b.tabIndex),
+      names: g.getAttribute('aria-label') ?? '',
+      role: g.getAttribute('role'),
+    };
+  });
+  if (got.n < 2) problems.push(`${label}: the connected group has ${got.n} buttons`);
+  for (const gap of got.gaps)
+    if (Math.abs(gap - 2) > 0.5) problems.push(`${label}: the gap between buttons is ${gap} px, not 2 (M3: between-space 2 dp)`);
+  for (const h of got.heights)
+    if (Math.abs(h - got.heights[0]) > 0.5) problems.push(`${label}: the buttons are not equally high (${got.heights.join(', ')})`);
+  for (const t of got.targets) if (t < (touch ? 48 : 44) - 0.5) problems.push(`${label}: a target is ${t} px, below ${touch ? 48 : 44}`);
+  got.inner.forEach((c, i) => {
+    const selected = i === got.on;
+    const first = i === 0;
+    const last = i === got.n - 1;
+    const full = got.heights[i] / 2;
+    if (selected) {
+      if (c.some((r) => r < full - 0.5))
+        problems.push(`${label}: the selected button's corners are ${c.join('/')} px, not fully round (${full})`);
+      return;
+    }
+    // [start-start, end-start, start-end, end-end]: the sides that meet a neighbour are the inner corner, 8 dp, the others are full.
+    const wantStart = first ? full : 8;
+    const wantEnd = last ? full : 8;
+    const [ss, es, se, ee] = c;
+    if (Math.abs(ss - wantStart) > 0.5 || Math.abs(es - wantStart) > 0.5 || Math.abs(se - wantEnd) > 0.5 || Math.abs(ee - wantEnd) > 0.5)
+      problems.push(`${label}: button ${i + 1} has corners ${c.join('/')} px, want start ${wantStart} and end ${wantEnd}`);
+  });
+  if (got.tab.filter((t) => t === 0).length > got.n) problems.push(`${label}: more buttons in the Tab order than buttons`);
+  if (got.role !== 'group') problems.push(`${label}: the group has role ${got.role}, not group`);
+  // Keys: roving focus among the group's buttons.
+  const buttons = group.locator(':scope > .mo-button');
+  await buttons.first().focus();
+  const key = got.rtl ? 'ArrowLeft' : 'ArrowRight';
+  await page.keyboard.press(key);
+  const second = await buttons.evaluateAll((bs) => bs.indexOf(document.activeElement));
+  if (second !== 1) problems.push(`${label}: ${key} from the first button put focus on button ${second + 1}, not 2`);
+  await page.keyboard.press('End');
+  const end = await buttons.evaluateAll((bs) => bs.indexOf(document.activeElement));
+  if (end !== got.n - 1) problems.push(`${label}: End put focus on button ${end + 1}, not ${got.n}`);
+  await page.keyboard.press('Home');
+  const home = await buttons.evaluateAll((bs) => bs.indexOf(document.activeElement));
+  if (home !== 0) problems.push(`${label}: Home put focus on button ${home + 1}, not 1`);
+  await page.close();
+}
+
 /** The Buttons block offers four styles (Filled, Tonal, Outlined, Text; no Elevated), and a button saved as `elevated` is drawn, and shown in its
  * Variant choice, as Tonal: on a phone and a computer, the picker has exactly those four options in that order and the saved page does not crash. */
 async function checkButtonStyleOptions(width) {
@@ -430,6 +512,7 @@ async function checkButtonStyleOptions(width) {
 }
 
 export function register(unit) {
+  for (const width of [375, 1280]) unit(`connected buttons ${width}`, () => checkConnectedButtons(width));
   for (const width of [375, 1280]) unit(`choice-group button style options ${width}`, () => checkButtonStyleOptions(width));
   for (const width of [375, 1280])
     for (const locale of ['en-US', 'da-DK']) unit(`choice-group parts ${width} ${locale}`, () => checkChoiceGroupParts(width, locale));

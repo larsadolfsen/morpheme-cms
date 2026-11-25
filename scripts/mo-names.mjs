@@ -279,7 +279,7 @@ export function scan(files, renamed = RENAMED) {
 export const COMPONENTS = [
   'avatar', 'badge', 'bottom-sheet', 'button', 'button-group', 'card', 'carousel', 'center', 'checkbox', 'chip', 'date-picker', 'dialog',
   'divider', 'extended-fab', 'fab', 'fab-menu', 'grid', 'icon', 'icon-button', 'lightbox', 'list', 'loading-indicator', 'menu', 'navigation',
-  'progress-indicator', 'radio', 'ripple', 'row', 'search', 'segmented-button', 'setting', 'side-sheet', 'slider', 'snackbar', 'split-button', 'stack',
+  'progress-indicator', 'radio', 'ripple', 'row', 'search', 'setting', 'side-sheet', 'slider', 'snackbar', 'split-button', 'stack',
   'switch', 'tabs', 'text-field', 'time-picker', 'toolbar', 'tooltip', 'top-app-bar',
 ]; // prettier-ignore
 

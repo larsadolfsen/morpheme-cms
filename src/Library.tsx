@@ -58,7 +58,7 @@ import {
   plainListClass,
   SearchRow,
   useKept,
-  SegmentedButton,
+  ConnectedButtons,
   UnfoldButton,
   GroupTitle,
   SwitchRow,
@@ -897,7 +897,7 @@ function ThemePicker() {
     { value: 'dark', label: t.library.themes.dark, icon: materialIcon('dark_mode') },
   ];
   return (
-    <SegmentedButton
+    <ConnectedButtons
       label={t.library.theme}
       value={theme}
       options={choices}
@@ -919,7 +919,7 @@ function DensityPicker() {
     { value: 'small', label: t.library.densities.small, icon: materialIcon('format_list_bulleted') },
   ];
   return (
-    <SegmentedButton
+    <ConnectedButtons
       label={t.library.density}
       value={density}
       options={choices}

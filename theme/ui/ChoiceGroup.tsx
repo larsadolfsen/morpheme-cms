@@ -20,10 +20,10 @@
 // the group in one step, the arrow keys move between the buttons, Space or Enter chooses. When the form changes while a
 // choice has focus, the same choice in the other form gets it. Other attributes (data-…) go on the group, `className`
 // after its own class.
-import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import type { IconRef } from '@morphemecms/cms/src/icon';
 import Button from '@theme/ui/Button';
-import ButtonGroup from '@theme/ui/ButtonGroup';
+import ButtonGroup, { connectedKeyDown } from '@theme/ui/ButtonGroup';
 import List, { ListItem } from '@theme/ui/List';
 import { RadioGroup } from '@theme/ui/RadioButton';
 import { fitsAsButtons } from '@theme/ui/choiceGroupFit.mjs';
@@ -137,22 +137,6 @@ export default function ChoiceGroup({
   };
   const tabbable = choices.find((c) => c.value === value && !c.disabled && !disabled)?.value ?? choices.find((c) => !c.disabled)?.value;
 
-  // The button form's arrow keys: to the next or the previous button that can be chosen, wrapping (the inline direction's).
-  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    const keys: Record<string, number> = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
-    if (!(e.key in keys) && e.key !== 'Home' && e.key !== 'End') return;
-    const buttons = [...e.currentTarget.querySelectorAll<HTMLButtonElement>(':scope > button:not(:disabled)')];
-    const at = buttons.indexOf(document.activeElement as HTMLButtonElement);
-    if (at < 0 || !buttons.length) return;
-    e.preventDefault();
-    const rtl = getComputedStyle(e.currentTarget).direction === 'rtl';
-    const step = (keys[e.key] ?? 0) * (rtl && /Left|Right/.test(e.key) ? -1 : 1);
-    const next = e.key === 'Home' ? 0 : e.key === 'End' ? buttons.length - 1 : (at + step + buttons.length) % buttons.length;
-    for (const b of buttons) b.tabIndex = -1;
-    buttons[next].tabIndex = 0;
-    buttons[next].focus();
-  };
-
   const swatchOf = (c: Choice) =>
     c.swatch ? <span className="mo-choice-group__swatch" style={{ background: c.swatch }} aria-hidden="true" /> : null;
   const buttonContent = (c: Choice) => (
@@ -182,7 +166,7 @@ export default function ChoiceGroup({
           ))}
         </div>
       )}
-      <ButtonGroup kind="connected" label={label} className="mo-choice-group__buttons" onKeyDown={onKeyDown}>
+      <ButtonGroup kind="connected" label={label} className="mo-choice-group__buttons" onKeyDown={connectedKeyDown}>
         {choices.map((c) => (
           <Button
             key={c.value}

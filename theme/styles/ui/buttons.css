@@ -1,6 +1,6 @@
 /*
   The buttons and the icon buttons, moved here from ui.css unchanged and in their old order (docs/superpowers/plans/2026-11-16-css-split.md).
-  Left in ui.css because other parts share them: the target area (:where(.mo-button, .mo-icon-button, .mo-segmented-button__segment, a.chip, …)) and the
+  Left in ui.css because other parts share them: the target area (:where(.mo-button, .mo-icon-button, a.chip, …)) and the
   ripple's :where(.mo-button, .mo-icon-button, …) position list. base.css imports this file right before ui.css, after the Lightbox, where the buttons stood.
 
   Buttons (Button.tsx, buttonClass): .mo-button with its kind, .mo-is-filled, .mo-is-tonal, .mo-is-elevated,

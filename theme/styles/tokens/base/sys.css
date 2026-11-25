@@ -91,7 +91,7 @@
      the theme's own (--mo-sys-density-base, a theme sets it: 0 is Medium, -1 Small, down to -3) and the person's (--mo-sys-density-user,
      set only by the editor through data-density on <html>: 0 or -1; a site has none, so it is 0 there). A part writes its size as
      calc(<default> + var(--mo-sys-density) * var(--mo-sys-density-step)), so at 0 it is the default and every part that M3 gives a
-     density (buttons, chips, segmented buttons, text fields, lists, tables, menus) goes the whole scale, 0 to -3. A dialog, a snackbar
+     density (buttons, chips, connected buttons, text fields, lists, tables, menus) goes the whole scale, 0 to -3. A dialog, a snackbar
      and the date and time pickers never read it (M3: not "in components that alert a person of changes"). Only height and vertical
      padding follow it, never the text size or the horizontal padding. */
   --mo-sys-density-base: 0;
