@@ -621,6 +621,7 @@ export const parts = {
       actions: ['Book a time', 'Call', 'Write'],
       channel: 'Contact',
       channels: ['Phone', 'Email', 'Chat'],
+      selections: { single: 'Select one or none', multiple: 'Select any', required: 'Select one' },
       mode: 'Mode',
       modes: ['Light', 'Dark'],
       style: 'Style',
