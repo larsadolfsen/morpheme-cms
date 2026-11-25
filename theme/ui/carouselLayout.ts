@@ -107,8 +107,11 @@ export function carouselLayout(root: HTMLElement): () => void {
   let toEnd = 0;
 
   function measure() {
-    const width = row!.clientWidth;
-    const gap = parseFloat(getComputedStyle(row!).columnGap) || 0;
+    const style = getComputedStyle(row!);
+    // The window the items are laid out in is the row less its padding (M3: 16dp leading and trailing padding): items scroll out under it.
+    const pad = parseFloat(style.paddingInlineStart) || 0;
+    const width = row!.clientWidth - pad - (parseFloat(style.paddingInlineEnd) || 0);
+    const gap = parseFloat(style.columnGap) || 0;
     const sizes = arrangement(layout, alignment, items.length, width, gap, {
       large: lengthOf(root, '--mo-comp-carousel-large-item-width', 200),
       smallMin: lengthOf(root, '--mo-comp-carousel-small-item-min-width', 40),
@@ -135,7 +138,7 @@ export function carouselLayout(root: HTMLElement): () => void {
     );
     // Where an item rests: its start this far before the first large keyline's (scroll-padding, for scroll-snap).
     lead = normal.lines[normal.focal].loc - large / 2;
-    row!.style.scrollPaddingInlineStart = `${lead}px`;
+    row!.style.scrollPaddingInlineStart = `${lead + pad}px`;
     toStart = start.offsets[0] - normal.offsets[0];
     toEnd = normal.offsets[0] - end.offsets[0];
     update();

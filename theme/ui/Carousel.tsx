@@ -9,10 +9,10 @@
 //   between two small ones (`alignment` 'center'), for images to look at one by one, with the next one in sight.
 // - 'full-screen': one item at a time, as wide as the carousel, out to a phone's edges.
 // In the contained layouts (all but 'uncontained') an item's `content` fills its mask (.mo-carousel__item-mask), as a
-// image should; a text on it can fade as it shrinks with --mo-comp-carousel-mask (0 to 1). Under them the theme's addition to
-// M3's carousel, a page indicator: a dot for each item (`indicatorLabels`, what each says to a screen reader), which
-// follows the scroll position and jumps to an item. On the site carousel.script.ts makes it work and shows it and lays
-// out multi-browse and hero, in the editor it works here. No autoplay: the visitor decides the pace. `label`: what the
+// image should; a text on it can fade as it shrinks with --mo-comp-carousel-mask (0 to 1). Under them, only when `indicatorLabels`
+// is given, the theme's addition to M3's carousel, a page indicator: a dot for each item (what each says to a screen reader), which
+// follows the scroll position and jumps to an item (M3 prints none: the Cards block's carousel has none). On the site
+// carousel.script.ts makes it work and shows it and lays out multi-browse and hero, in the editor it works here. No autoplay: the visitor decides the pace. `label`: what the
 // carousel is called; `roleDescription` and `itemRoleDescription`: what it and an item are (aria-roledescription, in
 // the site's language); `className` after its own classes (its place in the text). An Astro component gives an element
 // the same classes with carouselClass.
@@ -60,7 +60,7 @@ export default function Carousel({
   label?: string;
   roleDescription: string;
   itemRoleDescription: string;
-  indicatorLabels: string[];
+  indicatorLabels?: string[];
   className?: string;
 }) {
   const onSite = useOnSite();
@@ -114,21 +114,23 @@ export default function Carousel({
         ))}
       </ul>
 
-      <div className="mo-carousel__indicator" data-carousel-indicator="" hidden={onSite}>
-        {items.map((item, i) => (
-          <button
-            key={item.key}
-            type="button"
-            className="mo-carousel__indicator-dot"
-            aria-label={indicatorLabels[i]}
-            aria-current={onSite ? undefined : i === shown}
-            data-carousel-dot=""
-            onClick={() => go(i)}
-          >
-            <span />
-          </button>
-        ))}
-      </div>
+      {indicatorLabels && (
+        <div className="mo-carousel__indicator" data-carousel-indicator="" hidden={onSite}>
+          {items.map((item, i) => (
+            <button
+              key={item.key}
+              type="button"
+              className="mo-carousel__indicator-dot"
+              aria-label={indicatorLabels[i]}
+              aria-current={onSite ? undefined : i === shown}
+              data-carousel-dot=""
+              onClick={() => go(i)}
+            >
+              <span />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

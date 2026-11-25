@@ -7,7 +7,7 @@ import type { Load } from '../view';
 import { headOf } from '../head';
 import { loadButtons } from '../buttons/load';
 import shared from './shared';
-import { cardsOf, DEFAULT_RATIO, phoneOf, ratioProp, type CardsView, type LinkCardProps } from './view';
+import { cardsOf, DEFAULT_RATIO, layoutOf, phoneOf, ratioProp, type CardsView, type LinkCardProps } from './view';
 
 /** Cards on the site, with their images' sizes, their videos' stills and their buttons. */
 export async function loadCards(items: LinkCardProps[], media?: unknown, ratio: string = DEFAULT_RATIO) {
@@ -28,6 +28,7 @@ export const load: Load<CardsView> = async (props, { texts }) => ({
   design: props.design || undefined,
   color: props.design === 'filled' ? props.color || undefined : undefined,
   phone: phoneOf(props),
+  layout: layoutOf(props),
   more: texts.more ?? shared.values.more,
   items: await loadCards(props.items ?? [], props.media, ratioProp(props)),
 });

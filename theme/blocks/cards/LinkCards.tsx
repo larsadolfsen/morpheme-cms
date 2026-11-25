@@ -6,7 +6,7 @@
 // `className`: the site's own classes on the list, e.g. its margin.
 import { BREAKPOINTS } from '@morphemecms/cms/lib/breakpoints.mjs';
 import { Svg } from '@morphemecms/cms/src/icon';
-import type { LinkCard } from '@morphemecms/cms/src/standard/cards/view';
+import type { CardsLayout, LinkCard } from '@morphemecms/cms/src/standard/cards/view';
 import { siteT } from '@morphemecms/cms/src/i18n';
 import Buttons from '@theme/blocks/buttons/Buttons';
 import Button from '@theme/ui/Button';
@@ -90,6 +90,7 @@ export default function LinkCards({
   design,
   color,
   phone,
+  layout,
   label,
   className,
 }: {
@@ -97,8 +98,10 @@ export default function LinkCards({
   more: string;
   design?: string;
   color?: string;
-  /** 'carousel': on a phone (below 600 px) the cards are swiped sideways, with `Show all` under them; larger screens show them together. */
+  /** 'carousel': on a phone (below 600 px) the cards are swiped sideways, with `Show all` under them (not in the full-screen layout); larger screens show them together. */
   phone?: string;
+  /** The carousel's Material 3 layout: uncontained without one. */
+  layout?: CardsLayout;
   /** What the carousel is called for screen readers. */
   label?: string;
   className?: string;
@@ -135,6 +138,8 @@ export default function LinkCards({
     return (
       <div className={['mo-block-cards__carousel', colored, className].filter(Boolean).join(' ')} data-cards-carousel="">
         <Carousel
+          layout={layout === 'hero-center' ? 'hero' : layout}
+          alignment={layout === 'hero-center' ? 'center' : 'start'}
           label={label || say.cardsLabel}
           roleDescription={say.carousel}
           itemRoleDescription={say.slide}
@@ -145,13 +150,14 @@ export default function LinkCards({
             // A card with a page is one link and one with buttons has them to focus; a text-only card is reached itself.
             focusable: !card.href && card.buttons.length === 0,
           }))}
-          indicatorLabels={items.map((card, i) => say.showCard(i + 1, card.title))}
         />
-        <div className="mo-block-cards__show-all">
-          <Button kind="text" aria-expanded="false" data-cards-show-all="" data-all={say.showAll} data-fewer={say.showFewer}>
-            {say.showAll}
-          </Button>
-        </div>
+        {layout !== 'full-screen' && (
+          <div className="mo-block-cards__show-all">
+            <Button kind="text" aria-expanded="false" data-cards-show-all="" data-all={say.showAll} data-fewer={say.showFewer}>
+              {say.showAll}
+            </Button>
+          </div>
+        )}
       </div>
     );
   return (

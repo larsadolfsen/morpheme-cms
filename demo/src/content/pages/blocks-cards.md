@@ -41,7 +41,33 @@ Group related ideas with an icon, a photo or just text, each linking to a page i
 
 ## Cards in a phone carousel
 
+Swipeable cards on phones.
+
 <div data-block="cards" data-props="{&quot;phone&quot;:&quot;carousel&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Swipe on a phone&quot;,&quot;text&quot;:&quot;On a phone these cards slide sideways, and the next one peeks in.&quot;},{&quot;icon&quot;:&quot;volunteer_activism&quot;,&quot;title&quot;:&quot;Show all&quot;,&quot;text&quot;:&quot;A Show all button under them stacks the cards in place.&quot;},{&quot;icon&quot;:&quot;menu_book&quot;,&quot;title&quot;:&quot;A grid elsewhere&quot;,&quot;text&quot;:&quot;From 600 px wide the cards are shown together, as a grid.&quot;},{&quot;icon&quot;:&quot;military_tech&quot;,&quot;title&quot;:&quot;Snap scrolling&quot;,&quot;text&quot;:&quot;Each swipe settles on a card.&quot;,&quot;href&quot;:&quot;#&quot;}]}"></div>
+
+## Cards in a phone carousel: multi-browse
+
+Large, medium and small cards in a row, for browsing many.
+
+<div data-block="cards" data-props="{&quot;phone&quot;:&quot;carousel&quot;,&quot;layout&quot;:&quot;multi-browse&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;First&quot;,&quot;text&quot;:&quot;The large card.&quot;},{&quot;icon&quot;:&quot;volunteer_activism&quot;,&quot;title&quot;:&quot;Second&quot;,&quot;text&quot;:&quot;Next, a medium one.&quot;},{&quot;icon&quot;:&quot;menu_book&quot;,&quot;title&quot;:&quot;Third&quot;,&quot;text&quot;:&quot;Then a small one.&quot;},{&quot;icon&quot;:&quot;military_tech&quot;,&quot;title&quot;:&quot;Fourth&quot;,&quot;text&quot;:&quot;They change size as they pass.&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Fifth&quot;,&quot;text&quot;:&quot;Brief texts fade as a card shrinks.&quot;}]}"></div>
+
+## Cards in a phone carousel: hero
+
+One large card with a small one beside it.
+
+<div data-block="cards" data-props="{&quot;phone&quot;:&quot;carousel&quot;,&quot;layout&quot;:&quot;hero&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Spotlight&quot;,&quot;text&quot;:&quot;One large card to look at.&quot;},{&quot;icon&quot;:&quot;volunteer_activism&quot;,&quot;title&quot;:&quot;Next up&quot;,&quot;text&quot;:&quot;A small one shows what comes next.&quot;},{&quot;icon&quot;:&quot;menu_book&quot;,&quot;title&quot;:&quot;After that&quot;,&quot;text&quot;:&quot;Swipe to bring it in.&quot;},{&quot;icon&quot;:&quot;military_tech&quot;,&quot;title&quot;:&quot;Last&quot;,&quot;text&quot;:&quot;Each swipe settles on a card.&quot;}]}"></div>
+
+## Cards in a phone carousel: center-aligned hero
+
+One large card in the middle, a small one on each side.
+
+<div data-block="cards" data-props="{&quot;phone&quot;:&quot;carousel&quot;,&quot;layout&quot;:&quot;hero-center&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;One&quot;,&quot;text&quot;:&quot;A small card before it.&quot;},{&quot;icon&quot;:&quot;volunteer_activism&quot;,&quot;title&quot;:&quot;Two&quot;,&quot;text&quot;:&quot;The large card in the middle.&quot;},{&quot;icon&quot;:&quot;menu_book&quot;,&quot;title&quot;:&quot;Three&quot;,&quot;text&quot;:&quot;A small card after it.&quot;},{&quot;icon&quot;:&quot;military_tech&quot;,&quot;title&quot;:&quot;Four&quot;,&quot;text&quot;:&quot;Swipe to center the next.&quot;}]}"></div>
+
+## Cards in a phone carousel: full-screen
+
+One card at a time, edge to edge.
+
+<div data-block="cards" data-props="{&quot;phone&quot;:&quot;carousel&quot;,&quot;layout&quot;:&quot;full-screen&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;One at a time&quot;,&quot;text&quot;:&quot;Each card fills the width.&quot;},{&quot;icon&quot;:&quot;volunteer_activism&quot;,&quot;title&quot;:&quot;Swipe on&quot;,&quot;text&quot;:&quot;The next one settles in place.&quot;},{&quot;icon&quot;:&quot;menu_book&quot;,&quot;title&quot;:&quot;No Show all&quot;,&quot;text&quot;:&quot;A full-screen carousel shows one card, so it needs none.&quot;}]}"></div>
 
 ## Notice
 
