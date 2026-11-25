@@ -317,6 +317,63 @@ async function checkVersionTabs(width, height) {
   }
 }
 
+/** The tab rows of the other screens: a bar row (Colors) draws the divider and is as wide as its bar; the search preview's Mobile/Desktop are
+ * secondary tabs, text only, in the body, not in the bar. */
+async function checkOtherTabs(width, height) {
+  const label = `${width}px other tabs`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  virtualFile('src/content/pages/zz-tabs-other.md', `---\ntitle: "Tabs other"\n---\n\n# Tabs other\n\nText.\n`);
+  try {
+    await openEditor(page, site);
+    await page.goto(`${site}/editor/#company/colors`);
+    const modes = page.getByRole('tablist', { name: 'Mode' });
+    await modes.waitFor({ timeout: 15_000 });
+    const bar = await modes.evaluate((el) => {
+      const b = el.closest('header, .mo-top-app-bar');
+      const r = el.getBoundingClientRect();
+      return { inBar: !!b, line: getComputedStyle(el).boxShadow, same: !!b && Math.abs(b.getBoundingClientRect().width - r.width) < 1 };
+    });
+    const colors = await modes.evaluate((el) => ({
+      secondary: el.classList.contains('mo-is-secondary'),
+      icons: el.querySelectorAll('svg, .mo-tabs__tab-icon').length,
+      names: [...el.querySelectorAll('[role="tab"]')].map((t) => t.textContent.trim()).join(),
+    }));
+    if (!colors.secondary) problems.push(`${label}: the Colors tabs are not secondary tabs`);
+    if (colors.icons) problems.push(`${label}: the Colors tabs have icons`);
+    if (!colors.names.startsWith('Generator')) problems.push(`${label}: the Colors tabs are ${colors.names}`);
+    if (!bar.inBar) problems.push(`${label}: the Colors tabs are not in the top app bar`);
+    if (!bar.line || bar.line === 'none') problems.push(`${label}: no divider under the Colors tab row`);
+    if (!bar.same) problems.push(`${label}: the Colors tab row is not as wide as its bar`);
+    await page.goto(`${site}/editor/#src/content/pages/zz-tabs-other.md`);
+    await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+    const preview = page.getByRole('tablist', { name: 'Google result on' });
+    if (!(await preview.count()))
+      await page
+        .getByRole('button', { name: /Search engines/ })
+        .first()
+        .click({ timeout: 5000 })
+        .catch(() => {});
+    await preview.first().waitFor({ timeout: 10_000 });
+    const tab = await preview.first().evaluate((el) => ({
+      secondary: el.classList.contains('mo-is-secondary'),
+      inBar: !!el.closest('header, .mo-top-app-bar'),
+      icons: el.querySelectorAll('svg, .mo-tabs__tab-icon').length,
+      names: [...el.querySelectorAll('[role="tab"]')].map((t) => t.textContent.trim()).join(),
+      line: getComputedStyle(el).boxShadow,
+    }));
+    if (!tab.secondary) problems.push(`${label}: the search preview's tabs are not secondary tabs`);
+    if (tab.inBar) problems.push(`${label}: the search preview's tabs are in the bar, not the body`);
+    if (tab.icons) problems.push(`${label}: the search preview's tabs have icons`);
+    if (tab.names !== 'Mobile,Desktop') problems.push(`${label}: the search preview's tabs are ${tab.names}`);
+    if (!tab.line || tab.line === 'none') problems.push(`${label}: no divider under the search preview's tab row`);
+  } finally {
+    removeVirtualFile('src/content/pages/zz-tabs-other.md');
+    await page.close();
+  }
+}
+
 export function register(unit) {
   for (const [width, height] of [
     [360, 740],
@@ -334,6 +391,11 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkVersionTabs ${width}`, () => checkVersionTabs(width, height));
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    unit(`checkOtherTabs ${width}`, () => checkOtherTabs(width, height));
   for (const [width, height] of [
     [375, 740],
     [1280, 900],

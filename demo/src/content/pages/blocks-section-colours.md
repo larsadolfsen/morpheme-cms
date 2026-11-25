@@ -8,9 +8,9 @@ seoDescription: "Sections on Surface, Primary, Secondary, Tertiary and an image,
 
 # Section colours
 
-[All blocks](/blocks/)
-
 A section takes a colour (Surface, Primary, Secondary or Tertiary) or an image behind it. Each section below holds the main blocks, so every part is seen on every colour.
+
+[All blocks](/blocks/)
 
 <div data-section="surface"></div>
 

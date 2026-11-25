@@ -1819,8 +1819,30 @@ dialog {
   text-align: center;
 }
 
-.mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-slot {
+.mo-editor-text .mo-editor-inline-buttons .mo-editor-inline-button .mo-editor-inline-list-slot,
+.mo-editor-text .mo-editor-inline-plans .mo-block-pricecards__plan-buttons .mo-editor-inline-list-slot {
   color: inherit;
+}
+
+/* Inside a button the label and the icon slot are the button's own parts, so they have M3's measures for its size: the icon is the size's glyph
+   (--mo-comp-button-glyph) with the size's icon-label space (the button's gap) to the label, and the label is one line high (the button's
+   line-height), centred in the button. The button itself is the target (WCAG 2.5.8), so the field's 24 px minimum and the slot's 2.5rem square
+   (which kept the label above the middle and the icon at the edge) do not apply inside it. */
+.mo-editor-text .mo-editor-inline-button .mo-editor-inline-list-field {
+  min-block-size: 0;
+  align-self: center;
+}
+
+.mo-editor-text .mo-editor-inline-button .mo-editor-inline-list-slot {
+  width: var(--mo-comp-button-glyph);
+  height: var(--mo-comp-button-glyph);
+  min-width: 0;
+  flex: none;
+}
+
+.mo-editor-text .mo-editor-inline-button .mo-editor-inline-list-slot > * {
+  width: var(--mo-comp-button-glyph);
+  height: var(--mo-comp-button-glyph);
 }
 
 /* The text of an empty button, and its hint, are the button kind's own on-colour (filled on-primary, tonal on-secondary-container, elevated
@@ -2124,4 +2146,18 @@ main[tabindex='-1']:focus {
 .mo-site-block-row,
 [data-search-controlled] .mo-search-view__header {
   --mo-comp-icon-button-small-container-height: 3rem;
+}
+
+/* The lead: the text's first paragraph, drawn as the site draws it (site-page.css `.mo-page__text > p:first-child` for a page, the post's
+   `mo-type-lead`): the lead's size, line height, weight and tracking; a page's lead is also muted and 52ch wide. The field says which
+   (`data-lead-style`); a page with a column beside its text has no lead on the site, so none here. */
+.mo-editor-text[data-lead-style] .ProseMirror > p[data-lead] {
+  font-size: var(--mo-sys-typescale-lead-size);
+  line-height: var(--mo-sys-typescale-lead-line-height);
+  font-weight: var(--mo-sys-typescale-lead-weight);
+  letter-spacing: var(--mo-sys-typescale-lead-tracking);
+}
+.mo-editor-text[data-lead-style='page'] .ProseMirror > p[data-lead] {
+  color: var(--mo-sys-color-on-surface-variant);
+  max-inline-size: 52ch;
 }

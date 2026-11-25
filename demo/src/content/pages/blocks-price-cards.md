@@ -8,9 +8,9 @@ seoDescription: "Plans side by side, shown live."
 
 # Price cards
 
-[All blocks](/blocks/)
-
 A special block with its own plan layout: a Card for each plan, with its points as a check list and Buttons inside.
+
+[All blocks](/blocks/)
 
 
 ## Price cards

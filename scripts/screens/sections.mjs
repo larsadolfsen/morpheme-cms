@@ -449,6 +449,40 @@ async function checkTapBelowSection(width, touch) {
   await page.close();
 }
 
+/** The editor draws the lead as the site does (editor.css, `data-lead` from sectionFrame.ts): the first paragraph after the H1 has the lead's size, line height, weight and tracking (the site's `mo-type-lead`, read from a probe), muted and at most 52ch on a page; the second paragraph does not; a page with a column beside its text has no lead. At 375 and 1280. */
+async function checkEditorLead() {
+  const path = BUILT_PAGE;
+  const text = (template) =>
+    `---\ntitle: "T"\ndescription: "d"\n${template ? `template: ${template}\n` : ''}---\n\n# T\n\nThe lead text of the page.\n\nThe second paragraph.\n\n## Alpha\n\nAlpha body.\n`;
+  const read = `(() => {
+    const pm = document.querySelector('.ProseMirror');
+    const probe = document.createElement('p');
+    probe.className = 'mo-type-lead';
+    probe.textContent = 'Probe';
+    document.body.append(probe);
+    const pick = (e) => { const c = getComputedStyle(e); return { size: c.fontSize, line: c.lineHeight, weight: c.fontWeight, tracking: c.letterSpacing }; };
+    const ps = [...pm.children].filter((e) => e.tagName === 'P');
+    const out = { probe: pick(probe), marked: ps.map((e) => e.hasAttribute('data-lead')), lead: pick(ps[0]), second: pick(ps[1]), muted: getComputedStyle(ps[0]).color, measure: getComputedStyle(ps[0]).maxInlineSize };
+    probe.remove();
+    return out; })()`;
+  for (const width of [375, 1280]) {
+    const label = `editor lead ${width}px`;
+    const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: 'light', locale: 'en-US', hasTouch: width < 600 });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site, { [path]: text('') });
+    await page.goto(`${site}/editor/#${path}`);
+    await page.waitForSelector('.ProseMirror > p[data-lead]', { timeout: 30_000 });
+    const got = await page.evaluate(read);
+    if (JSON.stringify(got.marked) !== '[true,false,false]')
+      problems.push(`${label}: lead marks ${JSON.stringify(got.marked)}, wanted only the first paragraph`);
+    if (JSON.stringify(got.lead) !== JSON.stringify(got.probe))
+      problems.push(`${label}: the lead is ${JSON.stringify(got.lead)}, the site's is ${JSON.stringify(got.probe)}`);
+    if (JSON.stringify(got.second) === JSON.stringify(got.probe)) problems.push(`${label}: the second paragraph is drawn as a lead`);
+    if (got.measure === 'none') problems.push(`${label}: a page's lead has no 52ch measure`);
+    await page.close();
+  }
+}
+
 /** Focus is shown on what has it, not on the whole text: with the cursor in text, the text field has no outline and only the section the cursor is in (the page's top part before the first H2, or an H2 section) shows its focus by horizontal dotted lines only (data-section-focus, sectionFrame.ts: its own line above it and a line under it, no sides), 3:1 on every section colour; the first section has no line above it; a block is no part of a section; a block in focus shows its own outline instead, and with the cursor gone there is no frame. At 375, 768 and 1280, light and dark. */
 async function checkFocusFrame() {
   const path = BUILT_PAGE;
@@ -593,5 +627,6 @@ export function register(unit) {
   unit('checkFullSection', () => checkFullSection());
   unit('checkH1SectionGap', () => checkH1SectionGap());
   unit('checkFocusFrame', () => checkFocusFrame());
+  unit('checkEditorLead', () => checkEditorLead());
   unit('checkSectionCardContrast', () => checkSectionCardContrast());
 }
