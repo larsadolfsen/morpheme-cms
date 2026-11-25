@@ -664,8 +664,16 @@ async function checkDashboardEdit(width, height) {
     step = 'open the sheet again';
     await openRhythm();
     step = 'pick Week and Save';
-    // The visible one: the choice group also holds its unseen measuring row and the other form.
-    await rhythmSheet.getByText(daLibrary.blogRhythmEveryWeek, { exact: true }).filter({ visible: true }).first().click();
+    // The choice has two forms (a toggle button, or a list row whose label's ::after covers the whole row, so the
+    // headline text is not the hit target): click the button by its name, or the row's label; the visible one only.
+    const every = daLibrary.blogRhythmEveryWeek;
+    const everyRow = new RegExp(`^\\s*${every.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`);
+    await rhythmSheet
+      .getByRole('button', { name: every, exact: true })
+      .or(rhythmSheet.locator('label.mo-list__item-content').filter({ hasText: everyRow }))
+      .filter({ visible: true })
+      .first()
+      .click();
     await rhythmSheet.getByRole('button', { name: daCommon.save, exact: true }).click();
     step = 'the sheet closes after Save';
     await rhythmSheet.waitFor({ state: 'hidden', timeout: 5000 });

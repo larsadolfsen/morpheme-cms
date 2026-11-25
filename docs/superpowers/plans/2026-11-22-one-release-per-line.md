@@ -11,7 +11,7 @@ batches and we approve them on staging, we just open up the next batch to contin
 
 1. An urgent fix stays possible as `0.N.1`, only when the owner calls it.
 2. 0.19.5 is released as the last patch release, and 0.19.6 and 0.19.7 fold into 0.20. The owner then changed it: "Except I want a
-   19.6, and that is a merge between 19.6 and 19.7 because there's a lot of small fixes I want to have done before 20." So 0.19.6 is one more release, holding both. On 25 Nov 2026 the owner split it again and then took the split back ("let's continue with 0.19.7 in 0.19.6, but not before the last is merged"): 0.19.6 is the last patch release (*The change over*).
+   19.6, and that is a merge between 19.6 and 19.7 because there's a lot of small fixes I want to have done before 20." So 0.19.6 is one more release, holding both. On 25 Nov 2026 the owner split it again and then took the split back ("let's continue with 0.19.7 in 0.19.6, but not before the last is merged"): 0.19.8 is the last patch release (*The change over*).
 3. The plan and the rule changes go as one docs pull request (this one).
 
 ## The rule
@@ -49,28 +49,27 @@ Until the path is built (batch B below), an urgent fix waits, or the owner decid
 ## The change over
 
 - **0.19.5** is released as soon as the release gate allows it (`plans/2026-11-22-release-gate-unshipped-commits.md`).
-- **0.19.6 finishes Material 3, and is the last patch release** (one PM, `/pm 0.19.6`, branch `feature/0.19.6-m3-names`, version
+- **0.19.6 was released on 25 Nov 2026; 0.19.7 and 0.19.8 are the last patch releases** (one PM, `/pm 0.19.6`, branch `feature/0.19.6-m3-names`, version
   `0.19.6`). Its batches:
   1. **Material 3 names**, contract 8, with the full-screen dialog back (moved from 0.20.0; owner, 22 Nov 2026: "Yes, move the names into 096. Also move phosphor icons as in a store icon into it, so Sarah can get it. And also the full screen dialog should be there.";
      `specs/2026-11-20-material-3-names-design.md`).
   2. **Phosphor in the store**, parts 1 and 2 (part 2 is #1211; `specs/2026-11-14-icon-packs-in-the-store-design.md`).
   3. **The Divider** (#1196) and the UI fixes already merged (A1 to A3, B4).
-  4. After the last open 0.19.6 pull request is merged (owner, 25 Nov 2026: "let's continue with 0.19.7 in 0.19.6, but not before the
-     last is merged"): **Cards** (`specs/2026-11-25-cards-multi-aspect-design.md`, then `specs/2026-11-25-cards-highlighted-design.md`),
+  4. Not in 0.19.6; they ship in 0.19.7 and 0.19.8 (owner, 25 Nov 2026: "everything we have started ships along saras fix as 0.19.7, and then the rest in 0.19.8"): **Cards** (`specs/2026-11-25-cards-multi-aspect-design.md`, then `specs/2026-11-25-cards-highlighted-design.md`),
      **the editor in Material 3** (`plans/2026-11-21-0-19-6-editor-in-material-3.md`, 8 batches) and **the UI fixes left**
      (`plans/2026-11-22-0-19-7-ui-fixes.md`: the demo-blocks rule of A, B5 to B18, C20).
 
-  There is no 0.19.7. The Icons screens and the pack's own page are 0.31.0 (owner, 25 Nov 2026: "finish and keep it for 0.31").
+  Owner, 25 Nov 2026, after 0.19.6 was released: "everything we have started ships along saras fix as 0.19.7, and then the rest in 0.19.8" (`plans/2026-11-22-0-19-7-ui-fixes.md`, *Release*). The Icons screens and the pack's own page are 0.31.0 (owner, 25 Nov 2026: "finish and keep it for 0.31").
 - **0.20 keeps four items** (safe updates, store auto-updates, an app's Worker code in a sandbox, UI fixes) as its batches, released once
   as 0.20.0.
-- **The PMs:** `/pm 0.19.6`, then `/pm 0.20`.
+- **The PMs:** `/pm 0.19.6`, `/pm 0.19.7`, then the PM of 0.19.8, then `/pm 0.20`.
 
 ## Changed in this pull request
 
 - `CLAUDE.md`: *The flow* and *Pull requests go to the PM* say one release per line, with the urgent-fix exception.
 - The roadmap: *Releases at a glance* and the 0.19 and 0.20 sections.
 - The skills `changesets`, `pm` and `release`: the version is the line's, `/pm 0.20`, a release is a whole line or an urgent fix.
-- The 0.19.6 and 0.19.7 plans: a line at the top saying they are now the two batches of the 0.19.6 release.
+- The 0.19.6 and 0.19.7 plans: a line at the top saying they are now the plans of 0.19.7 and 0.19.8.
 
 ## To build (two pull requests into `main`, for the 0.20 PM)
 
