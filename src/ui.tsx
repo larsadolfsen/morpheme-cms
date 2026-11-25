@@ -78,7 +78,6 @@ import {
   siteNavigationDrawerDialogClass,
   siteFocusNavigationDrawerItem,
   SiteButtonGroup,
-  connectedKeyDown,
   SiteChoiceGroup,
   SiteSideSheet,
   SiteTab,
@@ -1811,7 +1810,7 @@ export function ChoiceTile({
 
 /** The theme's connected button group (Material's replacement of the segmented button): two or three choices of a setting side by
  * side (Account › Appearance), each a toggle button with its name and an icon, the chosen one fully round and in the selected colour.
- * One is chosen (single-select). Tab lands on the chosen one and the arrow keys move between them (`connectedKeyDown`). */
+ * One is always chosen (the group's `required` selection mode: Tab lands on the chosen one, the arrow keys move between them). */
 export function ConnectedButtons<T extends string>({
   label,
   value,
@@ -1827,19 +1826,10 @@ export function ConnectedButtons<T extends string>({
   disabled?: boolean;
   onChange: (v: T) => void;
 }) {
-  const tabbable = options.find((o) => o.value === value)?.value ?? options[0]?.value;
   return (
-    <SiteButtonGroup kind="connected" label={label} onKeyDown={connectedKeyDown}>
+    <SiteButtonGroup kind="connected" label={label} selection="required" value={[value]} onChange={([v]) => v && onChange(v as T)}>
       {options.map(({ value: v, label: name, icon: Glyph }) => (
-        <SiteButton
-          key={v}
-          kind="filled"
-          selected={v === value}
-          icon={Glyph && <Glyph />}
-          disabled={disabled}
-          tabIndex={v === tabbable ? 0 : -1}
-          onClick={() => onChange(v)}
-        >
+        <SiteButton key={v} kind="filled" value={v} icon={Glyph && <Glyph />} disabled={disabled}>
           {name}
         </SiteButton>
       ))}

@@ -23,7 +23,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import type { IconRef } from '@morphemecms/cms/src/icon';
 import Button from '@theme/ui/Button';
-import ButtonGroup, { connectedKeyDown } from '@theme/ui/ButtonGroup';
+import ButtonGroup from '@theme/ui/ButtonGroup';
 import List, { ListItem } from '@theme/ui/List';
 import { RadioGroup } from '@theme/ui/RadioButton';
 import { fitsAsButtons } from '@theme/ui/choiceGroupFit.mjs';
@@ -135,7 +135,6 @@ export default function ChoiceGroup({
   const choose = (v: string) => {
     if (v !== value) onChange?.(v);
   };
-  const tabbable = choices.find((c) => c.value === value && !c.disabled && !disabled)?.value ?? choices.find((c) => !c.disabled)?.value;
 
   const swatchOf = (c: Choice) =>
     c.swatch ? <span className="mo-choice-group__swatch" style={{ background: c.swatch }} aria-hidden="true" /> : null;
@@ -166,19 +165,23 @@ export default function ChoiceGroup({
           ))}
         </div>
       )}
-      <ButtonGroup kind="connected" label={label} className="mo-choice-group__buttons" onKeyDown={connectedKeyDown}>
+      <ButtonGroup
+        kind="connected"
+        label={label}
+        className="mo-choice-group__buttons"
+        selection="required"
+        value={[value]}
+        onChange={([v]) => v && choose(v)}
+      >
         {choices.map((c) => (
           <Button
             key={c.value}
             kind="filled"
-
-            selected={c.value === value}
+            value={c.value}
             icon={c.icon}
             disabled={disabled || c.disabled}
             data-value={c.value}
             aria-label={dots && c.swatch ? c.label : undefined}
-            tabIndex={c.value === tabbable ? 0 : -1}
-            onClick={() => choose(c.value)}
           >
             {buttonContent(c)}
           </Button>

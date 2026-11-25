@@ -78,8 +78,8 @@ export function printed(file = join(COPY, 'printed.json')) {
 
 // ---- What each family of samples is, in Material 3's words ----
 
-/** Our button sizes in Material 3's: our default, `small`, is Material 3's `small` (spec 2026-11-20-material-3-names-design.md, where the old `medium` and `small` became one), and the larger two are the next sizes up. */
-export const BUTTON_SIZE = { xsmall: 'xsmall', small: 'small', large: 'medium', xlarge: 'large' };
+/** Our button sizes are Material 3's (xsmall, small the default, medium, large, xlarge), one for one. */
+export const BUTTON_SIZE = { xsmall: 'xsmall', small: 'small', medium: 'medium', large: 'large', xlarge: 'xlarge' };
 /** Our icon button sizes: `small` is the default one, the others have Material 3's names. */
 export const ICON_BUTTON_SIZE = { xsmall: 'xsmall', small: 'small', medium: 'medium', large: 'large', xlarge: 'xlarge' };
 
@@ -92,7 +92,7 @@ export function resolve(m) {
   const kindOf = (k) => ['filled', 'tonal', 'elevated', 'outlined'].find((x) => has(m, `mo-is-${x}`)) ?? k;
   if (m.root === 'mo-button') {
     const kind = has(m, 'mo-is-text') ? 'text' : kindOf('filled');
-    const ours = pick(m, 'mo-is-', ['xsmall', 'large', 'xlarge'], 'small');
+    const ours = pick(m, 'mo-is-', ['xsmall', 'medium', 'large', 'xlarge'], 'small');
     const size = BUTTON_SIZE[ours];
     return {
       family: 'button',
