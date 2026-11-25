@@ -144,3 +144,6 @@ other editor surface uses the theme's shared parts, so that themes can style the
 7. The shared `DataTable` in `theme/ui/` comes first (PR 0), with no visible change.
 8. No editor screen moves to it; the shared part is for the site's Table block now.
 9. Each PR writes its Danish and English notes.
+
+No contract raise: additive, optional keys, a theme without the new part falls back (themeProblems does not require it).
+DataTable and SettingsSheet are not on the public import list until a theme or app asks.

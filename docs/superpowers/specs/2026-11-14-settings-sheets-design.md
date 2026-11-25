@@ -307,3 +307,6 @@ later PRs update it.
 | 7 | **Clean-up**: FormFrame's floating Save bar removed from every form that now has the pattern; unused texts; this spec marked built. | empty | 4-6 |
 
 PRs 4, 5 and 6 can run side by side after 3. The first draft's autosave PR is gone (section 5).
+
+No contract raise: additive, optional keys, a theme without the new part falls back (themeProblems does not require it).
+DataTable and SettingsSheet are not on the public import list until a theme or app asks.
