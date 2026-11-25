@@ -15,6 +15,9 @@
 /** Where a theme's own packs are in its folder, one folder each. */
 export const THEME_PACKS_FOLDER = 'icon-packs';
 
+/** Where a pack installed from the store is in a site, one folder each, named by its store id (`icons_<16 hex>`; docs/icon-pack-contract.md). */
+export const STORE_PACKS_FOLDER = 'src/icon-packs';
+
 /** A pack's manifest, in its folder. */
 export const ICON_PACK_FILE = 'pack.json';
 
