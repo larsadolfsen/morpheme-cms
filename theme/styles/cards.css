@@ -309,10 +309,12 @@
     clip-path: none;
     overflow: visible;
     background: transparent;
+    display: flex;
     justify-content: center;
   }
   .mo-block-cards__carousel .mo-carousel__item-mask > * {
-    flex: 0 0 calc(100% - 2 * var(--mo-comp-carousel-mask-inset, 0px));
+    flex: none;
+    width: calc(100% - 2 * var(--mo-comp-carousel-mask-inset, 0px));
     min-width: 0;
     overflow: hidden;
   }
