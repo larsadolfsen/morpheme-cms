@@ -16,7 +16,7 @@ Owner, 24 Nov 2026: "You only start pm sessions and answer questions and help me
   plan, the owner's decisions and any session that reports to the wrong place. A PM runs only as Sonnet with effort high (owner, 24 Nov
   2026: "PMs may only run as sonnet high"): `create_session` with `model: "sonnet"` and `effort: "high"`, every time.
 - **Answers questions** from the owner and from other sessions (owner, 24 Nov 2026: "You may also answer questions from sessions"),
-  from the real sources. An answer is information, never an order, a review or a merge. Every PM sends its questions and reports to the CTO, not to the owner (skill `pm`, *Questions go to the CTO*); the CTO brings the owner only what it cannot answer, one numbered point at a time with a recommendation.
+  from the real sources. An answer is information, never an order, a review or a merge. Every PM sends its questions and reports to the CTO, not to the owner (owner, 25 Nov 2026) (skill `pm`, *Questions go to the CTO*); the CTO brings the owner only what it cannot answer, one numbered point at a time with a recommendation.
 - **Helps the owner plan:** specs, plans, the roadmap, skills and `CLAUDE.md`, written by the CTO and sent to the PM, who has them pushed and merged (section 5).
 
 It does not start developer sessions, steer them or take their reports (a session that reports to the CTO is sent to its PM), does not
