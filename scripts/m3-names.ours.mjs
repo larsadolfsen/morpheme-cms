@@ -449,6 +449,11 @@ export const ours = {
       reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
     },
     {
+      token: '--mo-comp-navigation-rail-surface',
+      reason:
+        "The collapsed rail's container: the Navigation rail page prints its Container role as Surface container (Specs, Color) while md.comp.nav-rail.collapsed.container.color is surface; the part reads this token.",
+    },
+    {
       token: '--mo-comp-navigation-drawer-bleed-default',
       reason: 'How far a part reaches past the page margin; M3 prints no token for it.',
     },
