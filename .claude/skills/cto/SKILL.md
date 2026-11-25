@@ -82,6 +82,8 @@ The CTO sends the PM (`send_message` to the PM session; `list_sessions` finds it
 The CTO is not a build session and not a reviewer: when the PM asks it to build, review or check something, it says so and leaves it to
 the PM's sessions (section 0).
 
+**Look for gaps before sending** (owner, 25 Nov 2026: "Why do you send messages to pm and dev without looking for gaps first"). Before the CTO sends a rule, a spec or a skill change to the PM, it checks that the text works as written and fixes what it finds first: what starts each step (a session acts only when a message or a scheduled task wakes it; "every 30 minutes" needs a scheduled task); which tool does it and that tool's limits (for example a repeating scheduled task runs at most hourly, and only one session receives a pull request's events); whether it clashes with another rule in `CLAUDE.md`, a skill or a session's default behaviour; what happens when a step is missed; and the live state it depends on (sessions, scheduled tasks, open pull requests, branches), read, not assumed. A gap it cannot close goes to the owner as a numbered question, not into the message.
+
 ## 5. The CTO never pushes or merges
 
 Owner, 24 Nov 2026: "Another thing you never push and merge. Always send it to a pm." The CTO makes no branch, commit, push, pull
