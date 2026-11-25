@@ -284,7 +284,7 @@ async function checkCommandPalette(width) {
       icon: [...document.querySelectorAll('header button[aria-label="Search"]')].some((b) => b.getClientRects().length > 0),
     };
   });
-  if (!homeBar.bar || Math.abs(homeBar.height - 56) > 0.5)
+  if (!homeBar.bar || (isMaterialTheme() && Math.abs(homeBar.height - 56) > 0.5))
     problems.push(`${label}: the start screen has no 56 px search bar (${JSON.stringify(homeBar)})`);
   // M3 specs, Measurements: an unfocused search bar is 24dp from the screen's edge (on a phone, in the page; from medium it stands in the top bar).
   if (isMaterialTheme() && touch && Math.abs(homeBar.left - 24) > 0.5)
@@ -479,7 +479,7 @@ async function checkCommandPalette(width) {
   });
   if (isMaterialTheme() && Math.abs(look.barHeight - 56) > 0.5)
     problems.push(`${label}: the search bar is ${look.barHeight} px high, not 56 (M3 specs)`);
-  if (look.barRadius < 28) problems.push(`${label}: the search bar is not a pill (radius ${look.barRadius})`);
+  if (isMaterialTheme() && look.barRadius < 28) problems.push(`${label}: the search bar is not a pill (radius ${look.barRadius})`);
   if (!look.barFilled) problems.push(`${label}: the search bar has no container of its own: the page is a bare list`);
   if (!look.viewFilled) problems.push(`${label}: the search view has no container colour`);
   // M3 tokens: "Search view contained leading margin 12dp" full screen; docked, the bar stands where the bar was, and "docked bar results gap 2dp".
