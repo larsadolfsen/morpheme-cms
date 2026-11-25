@@ -4,7 +4,44 @@
 :is(:where(.mo-text-section).mo-is-primary, :where(.mo-text-section).mo-is-secondary, :where(.mo-text-section).mo-is-tertiary, :where(.mo-text-section).mo-has-image:not(:where(.mo-text-section).mo-is-surface)) > *,
 /* The editor's text: the parts of a section on a colour are the text's own top-level nodes, which get the same swap. */
 .mo-editor-text .ProseMirror > :is([data-section-color='primary'], [data-section-color='secondary'], [data-section-color='tertiary'], [data-section-picture]:not([data-section-color])) {
-  --mo-comp-split-button-medium-inner-corner-corner-size: var(--mo-sys-shape-corner-extra-small);
-  --mo-comp-split-button-large-inner-corner-corner-size: var(--mo-sys-shape-corner-small);
-  --mo-comp-split-button-xlarge-inner-corner-corner-size: var(--mo-sys-shape-corner-medium);
+  --mo-comp-split-button-xsmall-inner-corner-corner-size: 0.25rem;
+  --mo-comp-split-button-xsmall-inner-corner-hovered-corner-size: 0.5rem;
+  --mo-comp-split-button-xsmall-inner-corner-pressed-corner-size: 0.5rem;
+  --mo-comp-split-button-xsmall-leading-button-leading-space: 0.75rem;
+  --mo-comp-split-button-xsmall-leading-button-trailing-space: 0.625rem;
+  --mo-comp-split-button-xsmall-trailing-button-icon-size: 1.375rem;
+  --mo-comp-split-button-xsmall-trailing-button-leading-space: 0.8125rem;
+  --mo-comp-split-button-xsmall-trailing-button-trailing-space: 0.8125rem;
+  --mo-comp-split-button-small-inner-corner-corner-size: 0.25rem;
+  --mo-comp-split-button-small-inner-corner-hovered-corner-size: 0.75rem;
+  --mo-comp-split-button-small-inner-corner-pressed-corner-size: 0.75rem;
+  --mo-comp-split-button-small-leading-button-leading-space: 1rem;
+  --mo-comp-split-button-small-leading-button-trailing-space: 0.75rem;
+  --mo-comp-split-button-small-trailing-button-icon-size: 1.375rem;
+  --mo-comp-split-button-small-trailing-button-leading-space: 0.8125rem;
+  --mo-comp-split-button-small-trailing-button-trailing-space: 0.8125rem;
+  --mo-comp-split-button-medium-inner-corner-corner-size: 0.25rem;
+  --mo-comp-split-button-medium-inner-corner-hovered-corner-size: 0.75rem;
+  --mo-comp-split-button-medium-inner-corner-pressed-corner-size: 0.75rem;
+  --mo-comp-split-button-medium-leading-button-leading-space: 1.5rem;
+  --mo-comp-split-button-medium-leading-button-trailing-space: 1.5rem;
+  --mo-comp-split-button-medium-trailing-button-icon-size: 1.625rem;
+  --mo-comp-split-button-medium-trailing-button-leading-space: 0.9375rem;
+  --mo-comp-split-button-medium-trailing-button-trailing-space: 0.9375rem;
+  --mo-comp-split-button-large-inner-corner-corner-size: 0.5rem;
+  --mo-comp-split-button-large-inner-corner-hovered-corner-size: 1.25rem;
+  --mo-comp-split-button-large-inner-corner-pressed-corner-size: 1.25rem;
+  --mo-comp-split-button-large-leading-button-leading-space: 3rem;
+  --mo-comp-split-button-large-leading-button-trailing-space: 3rem;
+  --mo-comp-split-button-large-trailing-button-icon-size: 2.375rem;
+  --mo-comp-split-button-large-trailing-button-leading-space: 1.8125rem;
+  --mo-comp-split-button-large-trailing-button-trailing-space: 1.8125rem;
+  --mo-comp-split-button-xlarge-inner-corner-corner-size: 0.75rem;
+  --mo-comp-split-button-xlarge-inner-corner-hovered-corner-size: 1.25rem;
+  --mo-comp-split-button-xlarge-inner-corner-pressed-corner-size: 1.25rem;
+  --mo-comp-split-button-xlarge-leading-button-leading-space: 4rem;
+  --mo-comp-split-button-xlarge-leading-button-trailing-space: 4rem;
+  --mo-comp-split-button-xlarge-trailing-button-icon-size: 3.125rem;
+  --mo-comp-split-button-xlarge-trailing-button-leading-space: 2.6875rem;
+  --mo-comp-split-button-xlarge-trailing-button-trailing-space: 2.6875rem;
 }

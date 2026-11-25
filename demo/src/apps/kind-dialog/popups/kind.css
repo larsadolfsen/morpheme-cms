@@ -1,0 +1,11 @@
+/* Plain class names: the build scopes them to [data-mo-app="kind-dialog"]. */
+.kind-box {
+  background-color: var(--mo-sys-color-tertiary-container);
+}
+.kind-note {
+  font-weight: 700;
+}
+/* A probe: this rule is about the page's own paragraphs, and must not reach them. */
+p {
+  text-decoration: underline wavy;
+}

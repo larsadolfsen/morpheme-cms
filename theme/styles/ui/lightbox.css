@@ -14,7 +14,7 @@
     overflow: hidden;
     background: var(
       --mo-comp-lightbox-surface,
-      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-block-text)) 88%, transparent)
+      color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-comp-block-text)) 88%, transparent)
     );
     color: var(--mo-comp-lightbox-ink);
     box-shadow: none;
@@ -136,7 +136,7 @@
     .mo-lightbox__modal > .mo-lightbox {
       height: 100%;
       max-height: none;
-      border-radius: var(--mo-comp-dialog-container-shape, var(--mo-sys-block-radius));
+      border-radius: var(--mo-comp-dialog-container-shape, var(--mo-comp-block-radius));
     }
   }
   /* The scrim and the controls fade in (M3 web: default effects, 200 ms), the image scales in (default spatial, 500 ms); with reduced motion they are

@@ -32,7 +32,7 @@ export type TextFieldKind = 'outlined' | 'filled';
 
 /** A text field's classes: its kind's, the error's when it has one, and a multi-line field's. */
 export const textFieldClass = (kind: TextFieldKind = 'outlined', error = false, multiline = false) =>
-  ['mo-text-field', `mo-is-${kind}`, error && 'mo-is-error', multiline && 'mo-text-field__multiline'].filter(Boolean).join(' ');
+  ['mo-text-field', `mo-is-${kind}`, error && 'mo-is-error', multiline && 'mo-is-multiline'].filter(Boolean).join(' ');
 
 /** The class of the box in the field, and of what is written in it (or tapped: a choice from a list). */
 export const textFieldContainerClass = 'mo-text-field__container';
@@ -127,12 +127,7 @@ export default function TextField({
   return (
     <div
       ref={root}
-      className={[
-        textFieldClass(kind, !!error, lines),
-        leadingIcon && 'mo-has-leading-icon',
-        !drawn && 'mo-text-field__without-label',
-        className,
-      ]
+      className={[textFieldClass(kind, !!error, lines), leadingIcon && 'mo-has-leading-icon', !drawn && 'mo-is-without-label', className]
         .filter(Boolean)
         .join(' ')}
       data-text-field={working ? '' : undefined}
@@ -174,7 +169,7 @@ export default function TextField({
         {trailingIcon && <Svg name={trailingIcon} size={20} className="mo-text-field__trailing-icon" />}
         {clearLabel && (
           <IconButton
-            icon="x"
+            icon="close"
             label={clearLabel}
             className="mo-text-field__trailing-action mo-text-field__clear"
             disabled={off}
@@ -190,14 +185,12 @@ export default function TextField({
             disabled={off}
             data-text-field-visibility=""
           >
-            <Svg name="eye" size={22} className="mo-text-field__visibility-show" />
-            <Svg name="eye-slash" size={22} className="mo-text-field__visibility-hide" />
+            <Svg name="visibility" size={22} className="mo-text-field__visibility-show" />
+            <Svg name="visibility_off" size={22} className="mo-text-field__visibility-hide" />
           </button>
         )}
         {trailing && <span className="mo-text-field__trailing-action">{trailing}</span>}
-        {(errorIcon || saying) && (
-          <Svg name="warning-circle" size={20} className="mo-text-field__trailing-icon mo-text-field__error-icon" />
-        )}
+        {(errorIcon || saying) && <Svg name="error" size={20} className="mo-text-field__trailing-icon mo-text-field__error-icon" />}
       </div>
       {(line || counter || saying) && (
         <div className="mo-text-field__supporting-row">
@@ -245,7 +238,7 @@ export function TextFieldButton({
   kind,
   size,
   href,
-  trailingIcon = 'caret-down',
+  trailingIcon = 'keyboard_arrow_down',
   id,
   className,
   children,
@@ -272,12 +265,7 @@ export function TextFieldButton({
   const aside = label === undefined && href === undefined && typeof named === 'string' ? `${field}-name` : undefined;
   return (
     <div
-      className={[
-        textFieldClass(kind, !!error),
-        label === undefined && 'mo-text-field__without-label',
-        size === 'small' && 'mo-text-field__small',
-        className,
-      ]
+      className={[textFieldClass(kind, !!error), label === undefined && 'mo-is-without-label', size === 'small' && 'mo-is-small', className]
         .filter(Boolean)
         .join(' ')}
     >

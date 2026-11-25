@@ -16,7 +16,6 @@
 // under the first letter) and the funnel with the filters by group, by on or off and by whether it is used,
 // each picked one as a chip.
 import { useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { ArrowsDownUp } from '@phosphor-icons/react';
 import Screen from './Screen';
 import {
   InputChip,
@@ -53,6 +52,7 @@ import { exampleImage, kindExample as newOfKind } from './examples';
 import { headed, letterOf } from './Sheet';
 import { config } from '@site/editor';
 import { siteT, t } from './i18n';
+import { materialIcon } from './icon';
 
 // In alphabetical order, as under "Insert" (BlockDialog.tsx).
 const blocks = [...siteBlocks].sort((a, b) => byText(a.label, b.label));
@@ -484,7 +484,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
         sort={
           <Choice
             title={t.library.sort}
-            icon={ArrowsDownUp}
+            icon={materialIcon('swap_vert')}
             value={sort}
             options={SORTS.map((s) => ({ value: s, label: t.library.sorts[s] }))}
             onChange={pickSort}

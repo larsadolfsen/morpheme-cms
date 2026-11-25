@@ -6,9 +6,9 @@
 // checkbox allows for easy selection or deselection of all items"; indeterminate while some are selected, ticked when all are).
 // Uses Button and IconButton (ui.tsx), the theme's Checkbox and the texts in t.library.
 import type { ReactNode } from 'react';
-import { X } from '@phosphor-icons/react';
 import { Button, Checkbox, IconButton } from './ui';
 import { t } from './i18n';
+import { materialIcon } from './icon';
 
 export default function SelectionBar({
   count,
@@ -40,7 +40,7 @@ export default function SelectionBar({
         children
       ) : kind === 'icons' ? (
         <>
-          <IconButton icon={X} label={t.library.closeSelection} onClick={onClose} />
+          <IconButton icon={materialIcon('close')} label={t.library.closeSelection} onClick={onClose} />
           {onSelectAll && total ? (
             <Checkbox
               label={t.library.selectAll}
@@ -55,7 +55,7 @@ export default function SelectionBar({
       ) : (
         <>
           {children}
-          <Button kind="text" icon={X} onClick={onClose}>
+          <Button kind="text" icon={materialIcon('close')} onClick={onClose}>
             {t.library.cancelSelection}
           </Button>
         </>

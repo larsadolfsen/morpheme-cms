@@ -1,7 +1,7 @@
 // A button (m3.material.io/components/buttons, .mo-button in ../styles/ui/buttons.css): a label, an icon before it (`icon`) and
 // evt. one after it (`trailingIcon`, the arrow; each its name, or in the editor an icon already made; its class button-trailing-icon, so a theme can hide or move it). Its
-// kind (`kind`: filled, the default, tonal, elevated, outlined or text), its size (`size`: xsmall, small, medium, the
-// default, large or xlarge) and its shape (`shape`: round, the default, or square) are Material's names; how each looks
+// kind (`kind`: filled, the default, tonal, elevated, outlined or text), its size (`size`: xsmall, small, the default,
+// medium, large or xlarge: Material 3's 32, 40, 56, 96 and 136 dp) and its shape (`shape`: round, the default, or square) are Material's names; how each looks
 // is the theme's. With `selected` (true or false) it is a toggle button, aria-pressed: the theme gives each kind its
 // look off and on, and its corners turn square when it is on (round when it is square). A text button is never a toggle
 // (Material). What turns it on and off is the script of the block that shows it. Its icon is then drawn filled while it
@@ -14,7 +14,7 @@
 // height) and a loading indicator in the label's colour, without a container, stands in the middle (aria-hidden: the
 // button keeps its name). When busy ends, it is the button again.
 import { useEffect, useRef, type ReactNode } from 'react';
-import { Glyph, Svg, iconFile, type IconRef } from '@morphemecms/cms/src/icon';
+import { Glyph, Svg, drawsFilled, type IconRef } from '@morphemecms/cms/src/icon';
 import { Link, type ButtonKind } from '@morphemecms/cms/src/standard/view';
 import BusyContent from './BusyContent';
 
@@ -23,22 +23,15 @@ export type ButtonSize = (typeof buttonSizes)[number];
 export const buttonShapes = ['round', 'square'] as const;
 export type ButtonShape = (typeof buttonShapes)[number];
 
-/** A button's classes: its kind's and, unless it is medium, its size's and, unless it is round, its shape's. */
-export const buttonClass = (kind: ButtonKind = 'filled', size: ButtonSize = 'medium', shape: ButtonShape = 'round') =>
-  [
-    'mo-button',
-    kind === 'text' ? 'mo-button__text' : `mo-is-${kind}`,
-    size !== 'medium' && `mo-button__${size}`,
-    shape !== 'round' && `mo-button__${shape}`,
-  ]
-    .filter(Boolean)
-    .join(' ');
+/** A button's classes: its kind's and, unless it is small, its size's and, unless it is round, its shape's. */
+export const buttonClass = (kind: ButtonKind = 'filled', size: ButtonSize = 'small', shape: ButtonShape = 'round') =>
+  ['mo-button', `mo-is-${kind}`, size !== 'small' && `mo-is-${size}`, shape !== 'round' && `mo-is-${shape}`].filter(Boolean).join(' ');
 
 /** A toggle's icon (a Button's, an IconButton's, a navigation drawer item's): the icon, and the same icon filled while
  * it is on, where the site draws it filled (the theme shows the one of the state it is in: .mo-<part>__unselected-icon,
  * .mo-<part>__selected-icon). */
 export function ToggleIcon({ part, name, size }: { part: 'button' | 'icon-button' | 'navigation-drawer'; name: string; size: number }) {
-  if (!iconFile(name, 'fill')) return <Svg name={name} size={size} />;
+  if (!drawsFilled(name)) return <Svg name={name} size={size} />;
   return (
     <>
       <Svg name={name} size={size} className={`mo-${part}__unselected-icon`} />

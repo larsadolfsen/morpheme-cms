@@ -1,0 +1,6 @@
+{
+  "id": "swipeable-cards",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Kort som karrusel på mobil følger Material 3 og har fem visninger: uindrammet, multibrowse, hero, centreret hero og fuld skærm"
+}

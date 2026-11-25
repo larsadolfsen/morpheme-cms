@@ -52,7 +52,7 @@ async function checkDensitySetting(width, height) {
   await page.close();
 }
 
-/** The parts read density (theme/styles/ui.css): from Medium down to -3 a button, a chip, a segmented button, a text field and a menu item are 4 px lower a step (the chip 2 px a side), a list row follows the same step but never goes below the target, a target keeps its size (an invisible area of at least --mo-sys-target-size, 48 on a phone and 44 on a computer), a part in the page editing area does not follow the person's step and a part in a row that picks the density never changes. Small is the person's step (data-density -1); -2 and -3 are a theme's own step (--mo-sys-density-base), which no editor setting offers yet. */
+/** The parts read density (theme/styles/ui.css): from Medium down to -3 a button, a chip, a connected button, a text field and a menu item are 4 px lower a step (the chip 2 px a side), a list row follows the same step but never goes below the target, a target keeps its size (an invisible area of at least --mo-sys-target-size, 48 on a phone and 44 on a computer), a part in the page editing area does not follow the person's step and a part in a row that picks the density never changes. Small is the person's step (data-density -1); -2 and -3 are a theme's own step (--mo-sys-density-base), which no editor setting offers yet. */
 async function checkDensityParts(width, height, touch) {
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${width}px density parts: ${e.message}`));
@@ -60,7 +60,7 @@ async function checkDensityParts(width, height, touch) {
   const parts = `
     <button class="mo-button" data-part="button">Label</button>
     <button class="mo-chip" data-part="chip">Label</button>
-    <div class="mo-segmented-button"><button class="mo-segmented-button__segment" data-part="segment">One</button><button class="mo-segmented-button__segment">Two</button></div>
+    <div class="mo-button-group mo-is-connected"><button class="mo-button mo-is-filled" data-part="segment">One</button><button class="mo-button mo-is-filled">Two</button></div>
     <div class="mo-text-field mo-is-outlined"><div class="mo-text-field__container"><input class="mo-text-field__input" data-part="field"></div></div>
     <div class="mo-list__item-container" data-part="row"><div class="mo-list__item-content"><span class="mo-list__item-headline">Row</span></div></div>
     <div class="mo-menu__item" data-part="menu-item">Item</div>`;
@@ -446,7 +446,7 @@ async function checkChipRowFocus(width, height, scheme) {
   if (!rows) problems.push(`${label}: no row that scrolls sideways on /ui/`);
   let checked = 0;
   for (let i = 0; i < rows; i++) {
-    const chips = page.locator('.mo-chip__set-scroll').nth(i).locator('button.mo-chip, a.mo-chip, .mo-chip__action');
+    const chips = page.locator('.mo-chip__set-scroll').nth(i).locator('button.mo-chip, a.mo-chip, .mo-chip > .mo-is-action');
     const count = await chips.count();
     if (count < 2) continue;
     await chips.first().scrollIntoViewIfNeeded();

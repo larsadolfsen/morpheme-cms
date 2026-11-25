@@ -437,3 +437,6 @@ The new rule for `morpheme-website/CLAUDE.md` (Danish, as that file is), replaci
   (`Edit dashboard`); from expanded it is the third trailing icon.
 - **P7. `/` focuses the list's search bar** (the web's common key).
 - **P8. `Save` is a filled labelled button in the medium flexible app bar** (D3), as `Publish` is in the small one.
+
+No contract raise: additive, optional keys, a theme without the new part falls back (themeProblems does not require it).
+DataTable and SettingsSheet are not on the public import list until a theme or app asks.

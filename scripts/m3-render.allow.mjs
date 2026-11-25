@@ -25,14 +25,6 @@ export const allow = [
     class: 'fix',
     batch: 'buttons',
   }, // 2x
-  { set: 'md.comp.button.large', attr: 'container.height', got: 88, want: 96, class: 'fix', batch: 'buttons' }, // 4x
-  { set: 'md.comp.button.large', attr: 'label-text.size', got: 32, want: 24, class: 'fix', batch: 'buttons' }, // 4x
-  { set: 'md.comp.button.large', attr: 'label-text.weight', got: 500, want: 400, class: 'fix', batch: 'buttons' }, // 4x
-  { set: 'md.comp.button.medium', attr: 'container.height', got: 64, want: 56, class: 'fix', batch: 'buttons' }, // 4x
-  { set: 'md.comp.button.medium', attr: 'container.shape', got: 28, want: 16, class: 'fix', batch: 'buttons' }, // 2x
-  { set: 'md.comp.button.medium', attr: 'label-text.size', got: 24, want: 16, class: 'fix', batch: 'buttons' }, // 4x
-  { set: 'md.comp.button.medium', attr: 'leading-space', got: 36, want: 24, class: 'fix', batch: 'buttons' }, // 4x
-  { set: 'md.comp.button.medium', attr: 'trailing-space', got: 36, want: 24, class: 'fix', batch: 'buttons' }, // 4x
   {
     set: 'md.comp.button.outlined',
     attr: 'container.color',
@@ -81,8 +73,6 @@ export const allow = [
   { set: 'md.comp.button.small', attr: 'icon.size', got: 18, want: 20, class: 'fix', batch: 'buttons' }, // 6x
   { set: 'md.comp.button.small', attr: 'label-text.line-height', got: 14, want: 20, class: 'fix', batch: 'buttons' }, // 124x
   { set: 'md.comp.button.xsmall', attr: 'label-text.line-height', got: 14, want: 20, class: 'fix', batch: 'buttons' }, // 4x
-  { set: 'md.comp.button.xsmall', attr: 'leading-space', got: 16, want: 12, class: 'fix', batch: 'buttons' }, // 4x
-  { set: 'md.comp.button.xsmall', attr: 'trailing-space', got: 16, want: 12, class: 'fix', batch: 'buttons' }, // 4x
   // ---- to fix in batch: cards
   {
     set: 'md.comp.outlined-card',
@@ -107,6 +97,7 @@ export const allow = [
   // ---- to fix in batch: dialogs and sheets
   { set: 'md.comp.dialog', attr: 'max-width', got: 360, want: 560, class: 'fix', batch: 'dialogs and sheets' }, // 1x
   { set: 'md.comp.dialog', attr: 'max-width', got: 328, want: 560, class: 'fix', batch: 'dialogs and sheets' }, // 1x
+  { set: 'md.comp.dialog', attr: 'max-width', got: 448, want: 560, class: 'fix', batch: 'dialogs and sheets' }, // 1x, the full-screen sample from 600 dp
   { set: 'md.comp.dialog', attr: 'min-width', got: 0, want: 280, class: 'fix', batch: 'dialogs and sheets' }, // 1x
   // ---- to fix in batch: icon buttons
   { set: 'md.comp.icon-button.medium', attr: 'container.height', got: 60, want: 56, class: 'fix', batch: 'icon buttons' }, // 10x

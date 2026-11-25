@@ -20,7 +20,7 @@ async function checkImageGridAdd(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Images from Files, filtered by tag.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show images from Files in a grid.' }).first().click();
   await page.waitForSelector('.mo-site-block-inline [data-field="heading"]', { timeout: 8000 });
   await page.waitForSelector('.mo-site-block-inline .mo-block-imagegrid__grid li', { timeout: 8000 });
   const before = await page.locator('.mo-site-block-inline .mo-block-imagegrid__grid li').count();
@@ -69,7 +69,7 @@ async function checkCardImage(width, height = 800) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, phone ? 'tap' : 'click');
-  await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show content and actions in cards.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('One');
   await page.waitForTimeout(300);
@@ -164,7 +164,7 @@ async function checkCardClickActivates(width, height, how) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show content and actions in cards.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-cards [data-row="0"] [data-field="title"]');
   await page.keyboard.type('Tea');
   await page.locator('.mo-editor-inline-list-host [data-add-row]').first().click();
@@ -230,7 +230,7 @@ async function checkCardHeadline(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Cards that link to pages.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show content and actions in cards.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-cards [data-row="0"] [data-field="title"]');
   await page.keyboard.type('Tea');
   // The card being typed in keeps its text field, for the text to be typed next.
@@ -394,7 +394,7 @@ async function checkCardIconText(width, height, scheme) {
   await page.close();
 }
 
-/** Cards that are a carousel on phones (`phone`, on the demo's Blocks page): at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), a dot for each card, labelled; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 1280 px the same block is the grid, with no dots and no button. */
+/** Cards that are a carousel on phones (`phone`, on the demo's Blocks page): at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), labelled, with no page indicator (M3 prints none); each layout the block offers (`layout`: multi-browse, hero, center-aligned hero, full-screen) is on the page, its items with M3's 28dp corners, and `Show all` is under every one but the full-screen one; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 1280 px the same block is the grid, with no dots and no button. */
 async function checkCardsCarousel(width, height) {
   const label = `${width}px cards carousel`;
   const phone = width < 600;
@@ -427,12 +427,22 @@ async function checkCardsCarousel(width, height) {
       padBottom: rs.paddingBottom,
       padLeft: rs.paddingLeft,
       firstLeft: Math.round(a.left - rowBox.left),
+      widths: items.map((i) => Math.round(i.getBoundingClientRect().width)),
+      // The card fills its item even with a short text (a flex item would shrink to its text and leave an empty gap).
+      cardWidths: items.map((i) => {
+        const card = i.querySelector('.mo-block-cards__card');
+        const saved = [...card.querySelectorAll('p')].map((p) => [p, p.textContent]);
+        saved.forEach(([p]) => (p.textContent = 'Short'));
+        const w = Math.round(card.getBoundingClientRect().width);
+        saved.forEach(([p, t]) => (p.textContent = t));
+        return w;
+      }),
+      gaps: items.slice(1).map((i, n) => Math.round(i.getBoundingClientRect().left - items[n].getBoundingClientRect().right)),
       firstRight: Math.round(a.right),
       secondLeft: Math.round(b.left),
       radius: getComputedStyle(items[0].querySelector('.mo-block-cards__card')).borderTopLeftRadius,
-      dots: el.querySelectorAll('[data-carousel-dot]').length,
+      indicators: el.querySelectorAll('[data-carousel-indicator], [data-carousel-dot]').length,
       items: items.length,
-      indicator: getComputedStyle(el.querySelector('[data-carousel-indicator]')).display,
       showAll: getComputedStyle(show.closest('.mo-block-cards__show-all')).display,
       region: el.querySelector('[role="region"]')?.getAttribute('aria-label') ?? null,
       itemLabels: items.map((i) => i.getAttribute('aria-label')),
@@ -447,8 +457,16 @@ async function checkCardsCarousel(width, height) {
     if (m.padTop !== '8px' || m.padBottom !== '8px')
       problems.push(`${label}: the padding above and below is ${m.padTop} and ${m.padBottom}, not 8px`);
     if (m.padLeft !== '16px') problems.push(`${label}: the leading padding is ${m.padLeft}, not 16px`);
-    if (m.radius !== '28px') problems.push(`${label}: the card's corners are ${m.radius}, not 28px`);
-    if (m.dots !== m.items) problems.push(`${label}: ${m.dots} dots for ${m.items} cards`);
+    // A card is the carousel's item and takes M3's item shape: extra-large, 28dp (Carousel, Specs: md.comp.carousel-item.container.shape; owner, 24 Nov 2026: "Follow md3").
+    if (m.radius !== '28px') problems.push(`${label}: the card's corners are ${m.radius}, not Material 3's 28px for a carousel item`);
+    // Uncontained (M3): every item is as wide as the others, no empty gap between them, and the next one peeks in.
+    if (new Set(m.widths).size !== 1) problems.push(`${label}: the cards are not all as wide (${m.widths})`);
+    if (m.cardWidths.some((w, i) => w !== m.widths[i]))
+      problems.push(`${label}: a card is narrower than its item with a short text (${m.cardWidths} in ${m.widths}), leaving an empty gap`);
+    if (m.widths[0] < width * 0.6) problems.push(`${label}: the first card is only ${m.widths[0]}px of ${width}px`);
+    if (m.gaps.some((g) => g !== 8)) problems.push(`${label}: the gaps between the cards are ${m.gaps}, not 8px`);
+    if (m.firstLeft !== 16) problems.push(`${label}: the first card is ${m.firstLeft}px from the edge, not 16px`);
+    if (m.indicators) problems.push(`${label}: the carousel has a page indicator, which Material 3's carousel does not have`);
     if (!m.region) problems.push(`${label}: the carousel has no label`);
     if (m.itemLabels.join() !== m.itemLabels.map((_, i) => say.slideOf(i + 1, m.items)).join())
       problems.push(
@@ -485,9 +503,58 @@ async function checkCardsCarousel(width, height) {
     await page.screenshot({ path: join(shots, `cards-carousel-${width}.png`) });
   } else {
     if (m.display !== 'grid') problems.push(`${label}: on a computer the cards are not the grid (${m.display})`);
-    if (m.indicator !== 'none' || m.showAll !== 'none')
-      problems.push(`${label}: on a computer the dots (${m.indicator}) or "Show all" (${m.showAll}) show`);
+    if (m.showAll !== 'none') problems.push(`${label}: on a computer "Show all" shows (${m.showAll})`);
   }
+  // Every layout the block offers is on the page (the rows of the demo's Cards page), each measured as Material 3 prints it.
+  const layouts = await page.evaluate(() =>
+    [...document.querySelectorAll('[data-cards-carousel]')].map((el) => {
+      const c = el.querySelector('[data-carousel]');
+      const row = el.querySelector('[data-carousel-items]');
+      const first = el.querySelector('[data-carousel-item]');
+      const mask = el.querySelector('[data-carousel-mask]');
+      const rb = row.getBoundingClientRect();
+      const fb = first.getBoundingClientRect();
+      return {
+        layout:
+          (c.getAttribute('data-carousel-layout') ?? 'uncontained') +
+          (c.getAttribute('data-carousel-alignment') === 'center' ? '-center' : ''),
+        scrolls: row.scrollWidth > row.clientWidth + 1,
+        radius: getComputedStyle(mask ?? first.firstElementChild).borderTopLeftRadius,
+        itemWidth: Math.round(fb.width),
+        itemLeft: Math.round(fb.left),
+        rowLeft: Math.round(rb.left),
+        rowWidth: Math.round(rb.width),
+        showAll: (() => {
+          const b = el.querySelector('[data-cards-show-all]');
+          return !!b && getComputedStyle(b.closest('.mo-block-cards__show-all')).display !== 'none';
+        })(),
+        indicators: el.querySelectorAll('[data-carousel-indicator], [data-carousel-dot]').length,
+      };
+    }),
+  );
+  for (const want of ['uncontained', 'multi-browse', 'hero', 'hero-center', 'full-screen'])
+    if (!layouts.some((l) => l.layout === want)) problems.push(`${label}: no ${want} Cards carousel on the Blocks page`);
+  if (phone)
+    for (const l of layouts) {
+      const at = `${label} (${l.layout})`;
+      if (!l.scrolls) problems.push(`${at}: the row does not scroll sideways`);
+      if (l.indicators) problems.push(`${at}: it has a page indicator, which Material 3's carousel does not`);
+      // Full-screen items go edge to edge without corners on a phone (the theme's M3 rule); every other item has the 28dp item shape.
+      if (l.layout !== 'full-screen' && l.radius !== '28px') problems.push(`${at}: the item's corners are ${l.radius}, not 28px`);
+      // M3, Carousel, Accessibility: a Show all button below the carousel (not required on a full-screen one, which shows one item).
+      if (l.showAll === (l.layout === 'full-screen'))
+        problems.push(`${at}: ${l.showAll ? 'a full-screen carousel has' : 'it has no'} "Show all"`);
+      // M3: multi-browse and hero have 16dp leading padding, the row reaching the screen's edge.
+      if (['multi-browse', 'hero', 'hero-center'].includes(l.layout) && (l.itemLeft !== 16 || l.rowLeft !== 0))
+        problems.push(
+          `${at}: the first item is ${l.itemLeft}px from the edge (the row starts at ${l.rowLeft}px), not 16px from the screen's edge`,
+        );
+      if (l.layout === 'full-screen' && Math.abs(l.itemWidth - l.rowWidth) > 1)
+        problems.push(`${at}: a full-screen item is ${l.itemWidth}px of the row's ${l.rowWidth}px`);
+      if (l.layout === 'hero' && l.itemWidth <= l.rowWidth / 2)
+        problems.push(`${at}: the hero's large item is only ${l.itemWidth}px of ${l.rowWidth}px`);
+    }
+  else for (const l of layouts) if (l.showAll) problems.push(`${label} (${l.layout}): on a computer "Show all" is drawn`);
   // A card's media (image or video still) sits flush against the card's top and sides: no padding or margin above it.
   const flush = await page.evaluate(() =>
     [...document.querySelectorAll('.mo-block-cards__card')].flatMap((card) => {
@@ -931,6 +998,52 @@ async function checkCardsElevation(width, height) {
   await inEditor.close();
 }
 
+/** The card's Divider (a card with buttons may have one line above them, full width, on the site and in the editor): the demo's elevated card "With buttons" has it, the card beside it does not, and no card without buttons draws one. The line runs from the card's edge to its edge, between the text and the buttons. */
+async function checkCardDivider(width, height) {
+  const label = `${width}px card divider`;
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-cards.md')))
+    return void console.log(`${label}: skipped, the site has no Cards page, which the demo has.`);
+  const phone = width < 600;
+  const read = () =>
+    [...document.querySelectorAll('ul.mo-block-cards .mo-block-cards__card')].map((card) => {
+      const line = card.querySelector('.mo-divider');
+      const actions = card.querySelector('.mo-card__actions, .mo-block-cards__card-actions');
+      const box = card.getBoundingClientRect();
+      const l = line?.getBoundingClientRect();
+      return {
+        title: card.textContent.trim().slice(0, 14),
+        lines: card.querySelectorAll('.mo-divider').length,
+        buttons: !!actions,
+        full: l ? Math.abs(l.left - box.left - 1) <= 2 && Math.abs(box.right - l.right - 1) <= 2 : null,
+        above: l && actions ? l.bottom <= actions.getBoundingClientRect().top + 1 : null,
+        tag: line?.tagName,
+      };
+    });
+  const judge = (where, cards) => {
+    const withLine = cards.filter((c) => c.lines);
+    if (withLine.length !== 1)
+      problems.push(`${label} (${where}): ${withLine.length} cards have a divider, not 1 (${JSON.stringify(cards)})`);
+    for (const c of withLine) {
+      if (c.tag !== 'HR') problems.push(`${label} (${where}): the divider is not the theme's <hr>`);
+      if (!c.buttons) problems.push(`${label} (${where}): "${c.title}" has a divider and no buttons`);
+      if (c.lines !== 1) problems.push(`${label} (${where}): "${c.title}" has ${c.lines} dividers, not 1`);
+      if (!c.full) problems.push(`${label} (${where}): the divider on "${c.title}" is not from edge to edge`);
+      if (!c.above) problems.push(`${label} (${where}): the divider on "${c.title}" is not above the buttons`);
+    }
+  };
+  const onSite = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  onSite.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (await onTestPage(onSite, label)) judge('site', await onSite.evaluate(read));
+  await onSite.close();
+  const inEditor = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  inEditor.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(inEditor, site);
+  await inEditor.evaluate(() => (location.hash = '#src/content/pages/blocks-cards.md'));
+  await inEditor.waitForSelector('ul.mo-block-cards .mo-block-cards__card', { timeout: 30_000 });
+  judge('editor', await inEditor.evaluate(read));
+  await inEditor.close();
+}
+
 /** The color of an icon (`iconColor`): the row's icon picker has the choice next to the icon (Primary, Secondary, Tertiary); a picked color is on the row (`data-icon-color`) and drawn in the theme's color role, in the editor like on the site. */
 async function checkIconColor(width, height, scheme = 'light') {
   const label = `${width}px icon color (${scheme})`;
@@ -951,7 +1064,7 @@ async function checkIconColor(width, height, scheme = 'light') {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
   await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot').first().click();
@@ -1022,7 +1135,7 @@ async function checkIconColor(width, height, scheme = 'light') {
           circle: !!dot && Math.abs(box.width - box.height) < 0.5 && getComputedStyle(dot).borderRadius !== '0px',
           color: dot ? getComputedStyle(dot).backgroundColor : null,
           want: colorOf(role),
-          check: !!chip.querySelector('.mo-segmented-button__check'),
+          check: !!chip.querySelector('.mo-button__check'),
           width: Math.round(chip.getBoundingClientRect().width),
         };
       });
@@ -1160,6 +1273,11 @@ export function register(unit) {
   unit('checkCardsSpacing 768', () => checkCardsSpacing(768, 1024));
   unit('checkCardGutter 768', () => checkCardGutter(768, 1024));
   unit('checkCardsEditorSpacing 768', () => checkCardsEditorSpacing(768, 1024));
+  for (const [width, height] of [
+    [375, 740],
+    [1280, 900],
+  ])
+    unit(`checkCardDivider ${width}`, () => checkCardDivider(width, height));
   unit('checkCardsElevation 768', () => checkCardsElevation(768, 1024));
   for (const [width, height] of [
     [375, 740],

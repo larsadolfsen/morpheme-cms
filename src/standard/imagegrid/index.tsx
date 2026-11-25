@@ -4,15 +4,15 @@
 // its own in the block. What it shows is view.ts (the editor) and load.ts (the site); the filter's rules, filter.mjs; how it looks is the theme's
 // (theme/blocks/imagegrid/View.tsx). Typed in place (InlineLiveList.tsx): drawn as the site draws it, with the images of Files; the heading and the subheading are
 // typed above them, everything else (which images, tags, what a card shows, its style, columns) is in Edit.
-import { SquaresFour } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 import { headFields } from '../head';
+import { materialIcon } from '../../icon';
 
 export default defineBlock({
   group: 'content',
   label: t.blocks.imageGrid.label,
-  icon: SquaresFour,
+  icon: materialIcon('grid_view'),
   hint: t.blocks.imageGrid.hint,
   inline: {
     item: '',

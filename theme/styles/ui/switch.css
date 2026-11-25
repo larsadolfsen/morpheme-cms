@@ -41,14 +41,14 @@
   }
   .mo-setting-row__supporting {
     display: block;
-    color: var(--mo-comp-setting-row-supporting-color, var(--mo-comp-switch-supporting-color, var(--mo-sys-block-muted)));
+    color: var(--mo-comp-setting-row-supporting-color, var(--mo-comp-switch-supporting-color, var(--mo-comp-block-muted)));
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   /* A list of setting rows (.mo-setting-list, the editor's settings screens): each row is a list item, at least one line
-     high (--mo-comp-list-list-item-container-height) or, with a line under its name, two (--mo-comp-list-item-two-line-min-height), with the
+     high (--mo-comp-list-list-item-container-height) or, with a line under its name, two (--mo-comp-list-md-comp-list-list-item-two-line-container-height), with the
      list item's padding, so the rows stand apart the same way; what sets a row is centred on it. A button after the
      rows (.mo-setting-list__action) has its icon at the left edge of the names. */
   .mo-setting-list > .mo-setting-row {
@@ -57,12 +57,12 @@
       var(--mo-sys-target-size),
       calc(var(--mo-comp-list-list-item-container-height) + var(--mo-sys-density) * var(--mo-sys-density-step))
     );
-    padding-block: var(--mo-comp-list-item-padding-block);
+    padding-block: var(--mo-comp-list-list-item-top-space);
   }
   .mo-setting-list > .mo-setting-row:has(.mo-setting-row__supporting) {
     min-height: max(
       var(--mo-sys-target-size),
-      calc(var(--mo-comp-list-item-two-line-min-height) + var(--mo-sys-density) * var(--mo-sys-density-step))
+      calc(var(--mo-comp-list-md-comp-list-list-item-two-line-container-height) + var(--mo-sys-density) * var(--mo-sys-density-step))
     );
   }
   .mo-setting-list > .mo-setting-row > :not(.mo-setting-row__text) {
@@ -95,12 +95,12 @@
     height: 100%;
     margin: 0;
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--mo-comp-switch-unselected-track-color, color-mix(in srgb, var(--mo-sys-block-muted) 40%, var(--mo-sys-block-line)));
+    background: var(--mo-comp-switch-unselected-track-color, color-mix(in srgb, var(--mo-comp-block-muted) 40%, var(--mo-comp-block-line)));
     box-shadow: inset 0 0 0 var(--mo-comp-switch-track-outline-width, 0px) var(--mo-comp-switch-unselected-track-outline-color, transparent);
     cursor: inherit;
   }
   .mo-switch__input:checked {
-    background: var(--mo-comp-switch-track-checked-surface, var(--mo-sys-block-accent));
+    background: var(--mo-comp-switch-track-checked-surface, var(--mo-comp-block-accent));
     box-shadow: none;
   }
   /* The handle: its centre half the track's height in from the end it stands at. */
@@ -113,9 +113,9 @@
     height: var(--mo-comp-switch-unselected-handle-width, 1.25rem);
     place-items: center;
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--mo-comp-switch-unselected-handle-color, var(--mo-sys-block-surface));
+    background: var(--mo-comp-switch-unselected-handle-color, var(--mo-comp-block-surface));
     box-shadow: var(--mo-comp-switch-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));
-    color: var(--mo-comp-switch-unselected-icon-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-switch-unselected-icon-color, var(--mo-comp-block-muted));
     pointer-events: none;
     translate: -50% -50%;
   }
@@ -131,8 +131,8 @@
     left: calc(100% - var(--mo-comp-switch-track-height, 1.625rem) / 2);
     width: var(--mo-comp-switch-selected-handle-width, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
     height: var(--mo-comp-switch-selected-handle-width, var(--mo-comp-switch-unselected-handle-width, 1.25rem));
-    background: var(--mo-comp-switch-selected-handle-color, var(--mo-sys-block-surface));
-    color: var(--mo-comp-switch-selected-icon-color, var(--mo-sys-block-accent));
+    background: var(--mo-comp-switch-selected-handle-color, var(--mo-comp-block-surface));
+    color: var(--mo-comp-switch-selected-icon-color, var(--mo-comp-block-accent));
   }
   .mo-switch__input:enabled:active + .mo-switch__handle {
     width: var(

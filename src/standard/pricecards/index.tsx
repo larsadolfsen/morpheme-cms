@@ -3,19 +3,19 @@
 // "Checklist") and a button at the bottom (as one of "Buttons", buttons/fields.ts); one can be highlighted, with a small
 // label over its name. The prices are written here (a site's own price list is an app's block). How it looks
 // is the theme's (packages/editor/theme/blocks/pricecards/View.tsx); what it shows: view.ts, and load.ts on the site.
-import { CurrencyCircleDollar } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { siteT, t } from '../../i18n';
 import { headFields } from '../head';
 import { buttonList } from '../buttons/fields';
 import type { PriceCardProps } from './view';
+import { materialIcon } from '../../icon';
 
 const texts = t.blocks.pricecards;
 
 export default defineBlock({
   group: 'cards',
   label: texts.label,
-  icon: CurrencyCircleDollar,
+  icon: materialIcon('paid'),
   hint: texts.hint,
   // Typed in place (InlinePriceCards.tsx): the name, price, unit and text, the points as a list in the card and the button's label where they
   // stand; Highlighted, its label and where the button leads are in the card's settings. At most four cards.

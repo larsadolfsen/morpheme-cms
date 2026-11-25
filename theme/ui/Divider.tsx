@@ -9,7 +9,7 @@ export type DividerKind = 'full-width' | 'inset' | 'middle-inset';
 
 /** A divider's classes. */
 export const dividerClass = (kind: DividerKind = 'full-width', vertical?: boolean) =>
-  ['mo-divider', kind !== 'full-width' && `mo-divider__${kind}`, vertical && 'mo-divider__vertical'].filter(Boolean).join(' ');
+  ['mo-divider', kind !== 'full-width' && `mo-is-${kind}`, vertical && 'mo-is-vertical'].filter(Boolean).join(' ');
 
 export default function Divider({
   kind,

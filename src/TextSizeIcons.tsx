@@ -2,11 +2,11 @@
 // stroke (16 on its 256 grid, round ends) with one baseline. Exposes TextSmallIcon, TextMediumIcon and TextLargeIcon, which
 // take the size and class the toolbar's buttons give an icon; the raw files are imported by MarkdownEditor.tsx for the
 // floating row, so each style has one drawing.
-import type { Icon } from '@phosphor-icons/react';
 import large from './icons/text-t-large.svg?raw';
 import medium from './icons/text-t-medium.svg?raw';
 import small from './icons/text-t-small.svg?raw';
 import plainH from './icons/text-h-plain.svg?raw';
+import type { IconComponent as Icon } from './icon';
 
 const insideOf = (file: string) => file.replace(/^[\s\S]*?<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
 

@@ -1,14 +1,14 @@
 /*
   Sliders (Slider.tsx, sliderClass, and slider.script.ts with sliderUpdate.ts for what it does on the site; m3.material.io/components/
-  sliders): .mo-slider (.mo-slider__range with two handles, .mo-slider__centered from the middle, [data-below-center] while its
-  handle is before the middle; its size, none for xsmall, .mo-slider__small, .mo-slider__medium, .mo-slider__large or
-  .mo-slider__xlarge; .mo-slider__vertical from the bottom up) with its name (.mo-slider__label) over .mo-slider__control: the track
+  sliders): .mo-slider (.mo-slider__range with two handles, .mo-slider.mo-is-centered from the middle, [data-below-center] while its
+  handle is before the middle; its size, none for xsmall, .mo-slider.mo-is-small, .mo-slider.mo-is-medium, .mo-slider.mo-is-large or
+  .mo-slider.mo-is-xlarge; .mo-slider.mo-is-vertical from the bottom up) with its name (.mo-slider__label) over .mo-slider__control: the track
   (.mo-slider__track, with .mo-slider__active-track from the start, the middle or the first handle to the handle,
   .mo-slider__inactive-track beside it, and a .mo-slider__stop at each step of a discrete slider, [data-active] on the active
   track, [data-under] under a handle; in a standard slider's active track, medium and larger, its .mo-slider__icon, and
   .mo-slider__icon-inactive after the handle while the active track is too short for it), the native range inputs
   (.mo-slider__input, whose thumb is the handle) and the label with each one's value (.mo-slider__value, over its handle while
-  it is moved or has the focus; .mo-slider__value-always all the time). Where the handles are is --mo-comp-slider-start and
+  it is moved or has the focus; .mo-slider.mo-is-value-always all the time). Where the handles are is --mo-comp-slider-start and
   --mo-comp-slider-end (0–1) on .mo-slider, which the part and its script set.
     --mo-comp-slider-height   the room the slider takes (a finger's), with the track in the middle
     --mo-comp-slider-active-track-height, --mo-comp-slider-active-track-shape, --mo-comp-slider-active-track-inner-corner-corner-size, --mo-comp-slider-track-gap   the track, its
@@ -60,7 +60,7 @@
   .mo-slider__inactive-track {
     position: absolute;
     inset-block: 0;
-    background: var(--mo-comp-slider-inactive-track, var(--mo-sys-block-line));
+    background: var(--mo-comp-slider-inactive-track, var(--mo-comp-block-line));
   }
   .mo-slider__active-track {
     left: 0;
@@ -70,7 +70,7 @@
     );
     border-radius: var(--mo-comp-slider-track-corner) var(--mo-comp-slider-active-track-inner-corner-corner-size, 0)
       var(--mo-comp-slider-active-track-inner-corner-corner-size, 0) var(--mo-comp-slider-track-corner);
-    background: var(--mo-comp-slider-active-track, var(--mo-sys-block-accent));
+    background: var(--mo-comp-slider-active-track, var(--mo-comp-block-accent));
   }
   .mo-slider__range .mo-slider__active-track {
     left: calc(
@@ -97,7 +97,7 @@
     border-radius: var(--mo-comp-slider-active-track-inner-corner-corner-size, 0) var(--mo-comp-slider-track-corner)
       var(--mo-comp-slider-track-corner) var(--mo-comp-slider-active-track-inner-corner-corner-size, 0);
   }
-  .mo-slider__centered .mo-slider__active-track {
+  :where(.mo-slider).mo-is-centered .mo-slider__active-track {
     left: calc(
       var(--mo-comp-slider-reach) + var(--mo-comp-slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-gap-start)
     );
@@ -107,13 +107,13 @@
     );
     border-radius: var(--mo-comp-slider-active-track-inner-corner-corner-size, 0);
   }
-  .mo-slider__centered .mo-slider__inactive-track-start {
+  :where(.mo-slider).mo-is-centered .mo-slider__inactive-track-start {
     right: calc(
       100% - var(--mo-comp-slider-reach) - var(--mo-comp-slider-start) * (100% - 2 * var(--mo-comp-slider-reach)) +
         var(--mo-comp-slider-gap-start)
     );
   }
-  .mo-slider__centered .mo-slider__inactive-track-end {
+  :where(.mo-slider).mo-is-centered .mo-slider__inactive-track-end {
     left: calc(
       var(--mo-comp-slider-reach) + var(--mo-comp-slider-end) * (100% - 2 * var(--mo-comp-slider-reach)) + var(--mo-comp-slider-gap-end)
     );
@@ -125,11 +125,11 @@
     width: var(--mo-comp-slider-stop-size, 0.25rem);
     height: var(--mo-comp-slider-stop-size, 0.25rem);
     border-radius: var(--mo-sys-shape-corner-full);
-    background: var(--mo-comp-slider-inactive-stop-indicator-container-color, var(--mo-sys-block-muted));
+    background: var(--mo-comp-slider-inactive-stop-indicator-container-color, var(--mo-comp-block-muted));
     translate: -50% -50%;
   }
   .mo-slider__stop[data-active] {
-    background: var(--mo-comp-slider-active-stop-indicator-container-color, var(--mo-sys-block-on-accent));
+    background: var(--mo-comp-slider-active-stop-indicator-container-color, var(--mo-comp-block-on-accent));
   }
   .mo-slider__stop[data-under] {
     visibility: hidden;
@@ -149,7 +149,7 @@
     left: calc((var(--mo-comp-slider-track-thickness) - var(--mo-comp-slider-icon-length)) / 2);
     width: var(--mo-comp-slider-icon-length);
     height: var(--mo-comp-slider-icon-length);
-    color: var(--mo-comp-slider-icon-active-color, var(--mo-sys-block-on-accent));
+    color: var(--mo-comp-slider-icon-active-color, var(--mo-comp-block-on-accent));
     translate: 0 -50%;
   }
   .mo-slider__icon-inactive {
@@ -159,29 +159,29 @@
         max(var(--mo-comp-slider-track-gap, 0px), var(--mo-comp-slider-handle-width, 1.25rem) / 2) +
         (var(--mo-comp-slider-track-thickness) - var(--mo-comp-slider-icon-length)) / 2
     );
-    color: var(--mo-comp-slider-icon-inactive-color, var(--mo-sys-block-text));
+    color: var(--mo-comp-slider-icon-inactive-color, var(--mo-comp-block-text));
   }
   @container slider-active-track (width < 2.75rem) {
-    .mo-slider__medium .mo-slider__icon {
+    :where(.mo-slider).mo-is-medium .mo-slider__icon {
       display: none;
     }
-    .mo-slider__medium .mo-slider__icon-inactive {
+    :where(.mo-slider).mo-is-medium .mo-slider__icon-inactive {
       display: block;
     }
   }
   @container slider-active-track (width < 3.5rem) {
-    .mo-slider__large .mo-slider__icon {
+    :where(.mo-slider).mo-is-large .mo-slider__icon {
       display: none;
     }
-    .mo-slider__large .mo-slider__icon-inactive {
+    :where(.mo-slider).mo-is-large .mo-slider__icon-inactive {
       display: block;
     }
   }
   @container slider-active-track (width < 5rem) {
-    .mo-slider__xlarge .mo-slider__icon {
+    :where(.mo-slider).mo-is-xlarge .mo-slider__icon {
       display: none;
     }
-    .mo-slider__xlarge .mo-slider__icon-inactive {
+    :where(.mo-slider).mo-is-xlarge .mo-slider__icon-inactive {
       display: block;
     }
   }
@@ -220,9 +220,9 @@
     height: var(--mo-comp-slider-handle-length);
     margin-top: calc((var(--mo-comp-slider-room) - var(--mo-comp-slider-handle-length)) / 2);
     appearance: none;
-    border: var(--mo-comp-slider-handle-line-width, 0.1875rem) solid var(--mo-comp-slider-handle-line, var(--mo-sys-block-surface));
+    border: var(--mo-comp-slider-handle-line-width, 0.1875rem) solid var(--mo-comp-slider-handle-line, var(--mo-comp-block-surface));
     border-radius: var(--mo-comp-slider-handle-shape, var(--mo-sys-shape-corner-full));
-    background: var(--mo-comp-slider-handle-color, var(--mo-sys-block-accent));
+    background: var(--mo-comp-slider-handle-color, var(--mo-comp-block-accent));
     box-shadow: var(--mo-comp-slider-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));
     pointer-events: auto;
     cursor: grab;
@@ -231,9 +231,9 @@
     box-sizing: border-box;
     width: var(--mo-comp-slider-handle-width, 1.25rem);
     height: var(--mo-comp-slider-handle-length);
-    border: var(--mo-comp-slider-handle-line-width, 0.1875rem) solid var(--mo-comp-slider-handle-line, var(--mo-sys-block-surface));
+    border: var(--mo-comp-slider-handle-line-width, 0.1875rem) solid var(--mo-comp-slider-handle-line, var(--mo-comp-block-surface));
     border-radius: var(--mo-comp-slider-handle-shape, var(--mo-sys-shape-corner-full));
-    background: var(--mo-comp-slider-handle-color, var(--mo-sys-block-accent));
+    background: var(--mo-comp-slider-handle-color, var(--mo-comp-block-accent));
     box-shadow: var(--mo-comp-slider-handle-shadow, var(--mo-sys-elevation-level1-rest-shadow));
     pointer-events: auto;
     cursor: grab;
@@ -271,10 +271,10 @@
     left: calc(var(--mo-comp-slider-reach) + var(--mo-comp-slider-end) * (100% - 2 * var(--mo-comp-slider-reach)));
     z-index: 2;
     min-width: 2rem;
-    border-radius: var(--mo-comp-slider-value-radius, var(--mo-sys-block-radius-small));
+    border-radius: var(--mo-comp-slider-value-radius, var(--mo-comp-block-radius-small));
     padding: 0.25rem 0.5rem;
-    background: var(--mo-comp-slider-label-container-color, var(--mo-sys-block-text));
-    color: var(--mo-comp-slider-label-label-text-color, var(--mo-sys-block-surface));
+    background: var(--mo-comp-slider-label-container-color, var(--mo-comp-block-text));
+    color: var(--mo-comp-slider-label-label-text-color, var(--mo-comp-block-surface));
     font-size: var(--mo-sys-typescale-label-large-size);
     line-height: var(--mo-sys-typescale-label-large-line-height);
     font-weight: var(--mo-sys-typescale-label-large-weight);
@@ -286,39 +286,39 @@
     translate: -50% 0;
   }
   .mo-slider__range .mo-slider__value:first-of-type,
-  .mo-slider__centered[data-below-center] .mo-slider__value {
+  :where(.mo-slider).mo-is-centered[data-below-center] .mo-slider__value {
     left: calc(var(--mo-comp-slider-reach) + var(--mo-comp-slider-start) * (100% - 2 * var(--mo-comp-slider-reach)));
   }
   .mo-slider__input:is(:active, :focus-visible) + .mo-slider__value,
-  .mo-slider__value-always {
+  :where(.mo-slider__value).mo-is-value-always {
     opacity: 1;
   }
   /* Room over a slider whose values are always shown, for their labels. */
-  .mo-slider:has(.mo-slider__value-always) .mo-slider__control {
+  .mo-slider:has(:where(.mo-slider__value).mo-is-value-always) .mo-slider__control {
     margin-top: var(--mo-comp-slider-value-room, 1.25rem);
   }
   /* Vertical: the same slider turned a quarter round, from the bottom up, in a box as tall as --mo-comp-slider-length and as
      wide as its room; its value labels and its icon upright again, the labels beside the handle. */
-  .mo-slider__vertical {
+  :where(.mo-slider).mo-is-vertical {
     justify-items: center;
     width: max-content;
   }
-  .mo-slider__vertical .mo-slider__control {
+  :where(.mo-slider).mo-is-vertical .mo-slider__control {
     width: var(--mo-comp-slider-along);
     margin: calc((var(--mo-comp-slider-along) - var(--mo-comp-slider-room)) / 2)
       calc((var(--mo-comp-slider-room) - var(--mo-comp-slider-along)) / 2);
     rotate: -90deg;
   }
-  .mo-slider__vertical:has(.mo-slider__value-always) .mo-slider__control {
+  :where(.mo-slider).mo-is-vertical:has(:where(.mo-slider__value).mo-is-value-always) .mo-slider__control {
     margin-top: calc((var(--mo-comp-slider-along) - var(--mo-comp-slider-room)) / 2);
     margin-left: calc((var(--mo-comp-slider-room) - var(--mo-comp-slider-along)) / 2 + var(--mo-comp-slider-value-room, 1.25rem) + 1rem);
   }
-  .mo-slider__vertical .mo-slider__value {
+  :where(.mo-slider).mo-is-vertical .mo-slider__value {
     /* Turned upright round its middle, and moved so its side, not its middle, is beside the handle (0.875rem: half its
        height, its line and its padding). */
     transform: rotate(90deg) translateX(calc(-50% + 0.875rem));
   }
-  .mo-slider__vertical .mo-slider__icon {
+  :where(.mo-slider).mo-is-vertical .mo-slider__icon {
     rotate: 90deg;
   }
   @media (prefers-reduced-motion: no-preference) {

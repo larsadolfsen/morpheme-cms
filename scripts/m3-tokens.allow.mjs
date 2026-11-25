@@ -8,24 +8,16 @@
 // through the rename map (scripts/m3-tokens.renames.mjs), which found these.
 export const allow = [
   {
-    token: '--mo-comp-button-xsmall-padding',
-    theme: '16',
-    m3: '12',
+    token: '--mo-comp-navigation-rail-active-indicator-color',
+    theme: '@role:surface-container-high',
+    m3: '@role:secondary-container',
     class: 'fix',
-    batch: 'buttons',
-    reason: 'Our xsmall button (32 dp) has 16 dp leading and trailing space; M3 prints 12 (md.comp.button.xsmall.leading-space).',
-  },
-  {
-    token: '--mo-comp-button-group-xsmall-inner-radius',
-    theme: '@shape:extra-small',
-    m3: '8',
-    class: 'fix',
-    batch: 'buttons',
+    batch: 'app bars and navigation',
     reason:
-      'Our xsmall connected button group has a 4 dp inner corner; M3 prints 8 (md.comp.button-group.connected.xsmall.inner-corner.corner-size).',
+      "The active item's indicator is surface-container-high; M3 (md.comp.navigation-rail.active-indicator.color, the baseline rail: the collapsed Expressive rail prints none) says secondary-container.",
   },
   {
-    token: '--mo-comp-navigation-bar-active-indicator-color',
+    token: '--mo-comp-nav-bar-item-active-indicator-color',
     theme: '@role:surface-container-high',
     m3: '@role:secondary-container',
     class: 'fix',
@@ -34,7 +26,7 @@ export const allow = [
       "The active item's indicator is surface-container-high; M3 (md.comp.nav-bar.item.active.indicator.color) says secondary-container.",
   },
   {
-    token: '--mo-comp-navigation-bar-active-label-text-color',
+    token: '--mo-comp-nav-bar-item-active-label-text-color',
     theme: '@role:on-surface',
     m3: '@role:secondary',
     class: 'fix',

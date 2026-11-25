@@ -1,7 +1,7 @@
 ---
 // The share buttons under a blog post: plain links to Facebook, X, LinkedIn and Pinterest, and a button that copies the
 // post's address (theme/ui/copyLink.script.ts). Props: the post's address, title and image, and which buttons are on
-// (site.social.share). Draws nothing without buttons. Uses shareLinks (site/social.mjs), Icon and IconButton's classes.
+// (site.social.share). Draws nothing without buttons. Uses shareLinks (site/social.mjs), Icon and IconButton's classes. The network icons are logos from the brand pack (site/brand/, lib/brandLogos.mjs), the same under every icon pack.
 import { shareLinks, type ShareId } from '@morphemecms/cms/site/social.mjs';
 import Icon from '@theme/components/Icon.astro';
 import { iconButtonClass } from '@theme/ui/IconButton';
@@ -36,7 +36,7 @@ const buttonClass = iconButtonClass('standard');
           data-copy-link={url}
           data-copied={siteT.theme.linkCopied}
         >
-          <Icon name="link-simple" size={22} />
+          <Icon name="link" size={22} />
         </button>
       ) : (
         <a href={href} class={buttonClass} aria-label={siteT.theme.shareOn(networks[id].name)} target="_blank" rel="noopener">

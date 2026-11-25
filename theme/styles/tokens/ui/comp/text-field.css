@@ -9,7 +9,7 @@
   }
 }
 @layer components {
-  .mo-text-field__small {
+  :where(.mo-text-field).mo-is-small {
     --mo-comp-filled-text-field-container-height: var(--mo-comp-text-field-small-height, 2.5rem);
     --mo-comp-text-field-padding: var(--mo-comp-text-field-small-padding, 0.75rem);
     --mo-comp-text-field-font-size: var(--mo-comp-text-field-small-font-size, var(--mo-sys-typescale-body-medium-size));

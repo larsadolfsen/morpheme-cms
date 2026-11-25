@@ -57,7 +57,7 @@ export default function SplitButton({
         disabled={disabled}
         data-split-button-toggle=""
       >
-        <Svg name="caret-down" size={20} className="mo-split-button__arrow" />
+        <Svg name="keyboard_arrow_down" size={22} className="mo-split-button__arrow" />
       </button>
       <Menu id={menu} className="mo-split-button__menu" aria-label={menuLabel} hidden={!open} data-split-button-menu="">
         {children}

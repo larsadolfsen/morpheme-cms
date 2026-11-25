@@ -50,7 +50,7 @@
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .mo-checkbox:hover .mo-checkbox__box {
-    background: var(--mo-sys-state-mo-hover-layer);
+    background: var(--mo-sys-state-hover-state-layer-color);
   }
   .mo-checkbox:has(.mo-checkbox__input:disabled):hover .mo-checkbox__box {
     background: transparent;
@@ -97,7 +97,7 @@
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .mo-switch:hover .mo-switch__input:enabled + .mo-switch__handle::before {
-    background: var(--mo-sys-state-mo-hover-layer);
+    background: var(--mo-sys-state-hover-state-layer-color);
   }
   .mo-switch:hover .mo-switch__input:enabled:checked + .mo-switch__handle::before {
     background: var(--mo-sys-color-primary-hover);
@@ -105,7 +105,7 @@
   /* Focused and pressed: 10%, as M3's state layers (hover is 8%). */
   .mo-switch .mo-switch__input:enabled:focus-visible + .mo-switch__handle::before,
   .mo-switch .mo-switch__input:enabled:active + .mo-switch__handle::before {
-    background: var(--mo-sys-state-mo-pressed-layer);
+    background: var(--mo-sys-state-pressed-state-layer-color);
   }
   .mo-switch .mo-switch__input:enabled:checked:focus-visible + .mo-switch__handle::before,
   .mo-switch .mo-switch__input:enabled:checked:active + .mo-switch__handle::before {
@@ -130,7 +130,7 @@
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
   .mo-radio-button:hover .mo-radio-button__box {
-    background: var(--mo-sys-state-mo-hover-layer);
+    background: var(--mo-sys-state-hover-state-layer-color);
   }
   .mo-radio-button:has(.mo-radio-button__input:disabled):hover .mo-radio-button__box {
     background: transparent;

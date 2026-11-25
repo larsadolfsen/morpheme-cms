@@ -665,7 +665,7 @@ const CROSSING = (() => {
   );
   expect(stored(old.kv, 'cms:checked')?.latest === '0.1.1', 'the held check did not keep latest');
 
-  const app = await run({ items: [mailchimp], releases: { 'mailchimp@2.0.0': { api: 7 } } });
+  const app = await run({ items: [mailchimp], releases: { 'mailchimp@2.0.0': { api: 8 } } });
   expect(app.commits.length === 0 && problemOf(app)?.detail === 'app mailchimp', 'a store app written to another contract was taken');
 
   const behind = await run({ items: [venus, mailchimp, own], releases: { 'venus@1.3.0': { api: 6 }, 'mailchimp@2.0.0': { api: 6 } } });
@@ -747,6 +747,157 @@ const CROSSING = (() => {
   expect(stored(due.kv, 'cms:checked')?.problem?.kind === 'no-token', 'the daily check did not record a missing token');
   const none = world();
   expect((await dailyCheck({}, none.deps, T0)) === undefined && none.urls.length === 0, 'a site without KV did something');
+}
+
+// The update that crosses 0.19.6 (from 0.19.5, the fixture's own theme and app, and a store app) rewrites the site's own themes and apps to Material 3's names, and every stored icon name,
+// in the same commit as the version; the store app is left alone; the undo writes it all back; a form it cannot rewrite safely stops the update with the list.
+{
+  const themes = String(config.themes ?? 'src/themes').replace(/\/$/, '');
+  const apps = String(config.apps?.folder ?? 'src/apps').replace(/\/$/, '');
+  const STORE_CSS = '.mo-button__text { color: red; }\n';
+  const own = (pick) => ({
+    [`${themes}/mine/theme.json`]: '{ "api": 8 }\n',
+    [`${themes}/mine/styles.css`]: pick(
+      '.mo-button__text { gap: var(--mo-density-user); }\n',
+      ':where(.mo-button).mo-is-text { gap: var(--mo-sys-density-user); }\n',
+    ),
+    [`${apps}/mine/app.json`]: pick(
+      JSON.stringify({ api: 8, icon: 'format_list_numbered' }, null, 2) + '\n',
+      JSON.stringify({ api: 8, icon: 'format_list_numbered' }, null, 2) + '\n',
+    ),
+    // The one item API of ListItem and Card (docs/superpowers/specs/2026-11-24-card-list-item-api.md): `columns` goes; Material's leading and trailing names stay.
+    [`${apps}/mine/Rows.tsx`]: pick(
+      'import { ListItem } from \'@theme/ui/List\';\nexport const a = (\n  <>\n    <ListItem leadingIcon="check" columns headline="a" />\n    <ListItem leadingAvatar="A" leadingVideo={{ src: s }} headline="b" />\n  </>\n);\n',
+      'import { ListItem } from \'@theme/ui/List\';\nexport const a = (\n  <>\n    <ListItem leadingIcon="check" headline="a" />\n    <ListItem leadingAvatar="A" leadingVideo={{ src: s }} headline="b" />\n  </>\n);\n',
+    ),
+    [`${apps}/app_0123456789abcdef/store.json`]: '{ "version": "1.0.0" }\n',
+    [`${apps}/app_0123456789abcdef/styles.css`]: STORE_CSS,
+    'src/content/pages/cards.md': pick(
+      '---\ntitle: Cards\nicon: map-pin\n---\n\nText with icon: map-pin in it.\n',
+      '---\ntitle: Cards\nicon: location_on\n---\n\nText with icon: map-pin in it.\n',
+    ),
+    'src/data/footer.json': pick(
+      JSON.stringify(
+        {
+          links: [
+            { icon: 'github-logo', label: 'GitHub' },
+            { icon: 'mail', label: 'Mail' },
+          ],
+        },
+        null,
+        2,
+      ) + '\n',
+      JSON.stringify(
+        {
+          links: [
+            { icon: 'github-logo', label: 'GitHub' },
+            { icon: 'mail', label: 'Mail' },
+          ],
+        },
+        null,
+        2,
+      ) + '\n',
+    ),
+  });
+  const before = own((old) => old);
+  const after = own((old, now) => now);
+  const w = world({ range: '0.19.5', latest: CROSSING, content: before });
+  await checkForUpdate(w.env, w.deps, T0);
+  expect(w.commits.length === 1, `the update made ${w.commits.length} commits, not 1`);
+  const paths = w.commits[0]?.changes.map((c) => c.path) ?? [];
+  for (const p of Object.keys(before)) {
+    if (p.includes('app_0123456789abcdef') || before[p] === after[p]) {
+      expect(w.files[p] === before[p] && !paths.includes(p), `${p} was changed`);
+    } else expect(w.files[p] === after[p] && paths.includes(p), `${p} was not rewritten: ${JSON.stringify(w.files[p])}`);
+  }
+  expect(/"code"/.test(w.files['.morpheme-migrations.json'] ?? ''), 'the marker file was not written in the same commit');
+  expect(paths.includes('.morpheme-migrations.json') && paths.includes('package.json'), `the commit had ${paths.join()}`);
+  expect(
+    stored(w.kv, 'cms:update')?.code?.includes(`${themes}/mine/styles.css`),
+    `cms:update was ${JSON.stringify(stored(w.kv, 'cms:update'))}`,
+  );
+  // An update that already ran is not run twice: a site with the marker keeps its own files as they are.
+  const twice = world({
+    range: '0.19.5',
+    latest: CROSSING,
+    content: { ...after, '.morpheme-migrations.json': w.files['.morpheme-migrations.json'] },
+  });
+  await checkForUpdate(twice.env, twice.deps, T0);
+  expect(
+    twice.commits.length === 1 &&
+      twice.commits[0].changes.every((c) => !c.path.startsWith('src/') && c.path !== '.morpheme-migrations.json'),
+    'an update with the marker rewrote the own files again',
+  );
+  // The undo writes the version, the own files, the icons and the marker back in one commit.
+  w.checks.c1 = 'failure';
+  await watchUpdate(w.env, w.deps, T0 + 2 * MINUTE);
+  expect(w.commits.length === 2, 'the failed update was not undone with one commit');
+  for (const p of Object.keys(before)) expect(w.files[p] === before[p], `the undo did not write ${p} back`);
+  expect(w.files['.morpheme-migrations.json'] == null, 'the undo left the marker file');
+  expect(!w.kv.map.has('cms:names-backup'), 'the undo left its backup');
+  // A site that comes from 0.19.6 on, or from below 0.19.5 into 0.19.5, is left alone.
+  const none = world({ range: '0.19.6', latest: '0.19.7', content: before });
+  await checkForUpdate(none.env, none.deps, T0);
+  expect(
+    none.commits[0]?.changes.every((c) => !c.path.startsWith('src/')) && !('code' in (stored(none.kv, 'cms:update') ?? {})),
+    'an update from 0.19.6 rewrote',
+  );
+  // A form that cannot be rewritten safely stops the update with the list (nothing is committed), by hand and by the daily check.
+  const unsafe = {
+    ...before,
+    [`${apps}/mine/View.tsx`]:
+      "import { Button } from '@theme/ui/Button';\nexport const a = (b) => <Button size={b ? 'medium' : 'large'} />;\n",
+  };
+  const stop = world({ range: '0.19.5', latest: CROSSING, content: unsafe });
+  await stop.kv.put('cms:checked', JSON.stringify({ at: new Date(T0).toISOString(), latest: CROSSING }));
+  const res = await handleCms(post(CROSSING), stop.env, undefined, stop.deps);
+  const body = await res.json();
+  expect(
+    res.status === 422 && body.error === 'unsafe-code' && body.detail.some((l) => l.includes('View.tsx:2')),
+    `the unsafe update answered ${res.status} ${JSON.stringify(body)}`,
+  );
+  expect(stop.commits.length === 0, 'an unsafe update committed');
+  // A computed `columns` stops the same way and name the file and line.
+  const item = world({
+    range: '0.19.5',
+    latest: CROSSING,
+    content: {
+      ...before,
+      [`${apps}/mine/Rows.tsx`]:
+        'import { ListItem } from \'@theme/ui/List\';\nexport const a = (c) => <ListItem leadingVideo={c} columns={c.wide} headline="a" />;\n',
+    },
+  });
+  await item.kv.put('cms:checked', JSON.stringify({ at: new Date(T0).toISOString(), latest: CROSSING }));
+  const itemRes = await handleCms(post(CROSSING), item.env, undefined, item.deps);
+  const itemBody = await itemRes.json();
+  expect(
+    itemRes.status === 422 && itemBody.detail.some((l) => l.includes('Rows.tsx:2') && l.includes('columns')),
+    `a computed columns answered ${itemRes.status} ${JSON.stringify(itemBody)}`,
+  );
+  expect(item.commits.length === 0, 'an unsafe item update committed');
+  const auto = world({ range: '0.19.5', latest: CROSSING, content: unsafe });
+  await checkForUpdate(auto.env, auto.deps, T0);
+  expect(
+    auto.commits.length === 0 && stored(auto.kv, 'cms:checked')?.problem?.kind === 'unsafe-code',
+    'the daily check did not record the unsafe code',
+  );
+  // The Worker stops on the same Tailwind forms as `morpheme migrate` (one implementation, lib/tailwind-rules.mjs): a utility in a class attribute, a string of utilities, an import.
+  for (const [name, text] of [
+    ['View.tsx', `export const a = <div ${'class' + 'Name'}="flex gap-4 md:px-2" />;\n`],
+    ['util.ts', "export const a = 'flex items-center gap-4';\n"],
+    ['merge.ts', "import { twMerge } from 'tailwind-merge';\n"],
+    ['style.css', '.x { color: theme(--color-red); }\n'],
+  ]) {
+    const tw = world({ range: '0.19.5', latest: CROSSING, content: { ...before, [`${apps}/mine/${name}`]: text } });
+    await tw.kv.put('cms:checked', JSON.stringify({ at: new Date(T0).toISOString(), latest: CROSSING }));
+    const r = await handleCms(post(CROSSING), tw.env, undefined, tw.deps);
+    const b = await r.json();
+    expect(
+      r.status === 422 && b.error === 'unsafe-code' && b.detail.some((l) => l.includes(`${name}:1`)),
+      `the Worker let ${name} pass (${r.status} ${JSON.stringify(b)})`,
+    );
+    expect(tw.commits.length === 0, `an update with ${name} committed`);
+  }
 }
 
 if (problems.length) {

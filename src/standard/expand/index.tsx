@@ -2,20 +2,20 @@
 // links to after the text; one open at a time (`only`) and an optional text button under the last row. It is the "Segmented list" from before
 // (and the "Accordion": FORMER in lib/blocks.mjs), with the `design` of every list: the rows on the page (default) or each on its own surface
 // (`card`). How it looks is the theme's (packages/editor/theme/blocks/expand/View.tsx; what it shows: view.ts, and load.ts on the site).
-import { ArrowsOutLineVertical } from '@phosphor-icons/react';
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
 import { headFields } from '../head';
 import { columnsField } from '../columns';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
 import { designField, leadingField, listInline, listRowFields, moreFields } from '../rows/listParts';
+import { materialIcon } from '../../icon';
 
 type Row = { title?: string };
 
 export default defineBlock({
   group: 'lists',
   label: t.blocks.expand.label,
-  icon: ArrowsOutLineVertical,
+  icon: materialIcon('expand'),
   nameOf: (p) => nameWith(t.blocks.expand.label, p),
   hint: t.blocks.expand.hint,
   // Typed in place as the List is (InlineList.tsx, which InlineExpand.tsx hands over to): the heading and text where they stand, the icon in a slot,
@@ -62,9 +62,9 @@ export default defineBlock({
   ],
   example: {
     items: [
-      { icon: 'clock', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
+      { icon: 'schedule', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
       { icon: 'info', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
-      { icon: 'map-pin', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
+      { icon: 'location_on', title: t.blocks.list.exampleTitle, text: t.blocks.list.exampleText },
     ],
   },
   detail: (p, data) => (p.from ? [...fromLine(p, data)] : [((p.items ?? []) as Row[]).map((r) => r.title ?? '').join(' · ')]),

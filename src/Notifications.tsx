@@ -9,7 +9,6 @@
 // slide are the theme's (sideSheet(), sideSheetControl.ts). The old address #notifications opens it over the start screen
 // (App.tsx).
 import { useEffect, useId, useRef, useState } from 'react';
-import { Info, WarningCircle } from '@phosphor-icons/react';
 import { EmptyNote, Group, IconButton, ListItem } from './ui';
 import SelectionBar from './SelectionBar';
 import Screen from './Screen';
@@ -29,6 +28,7 @@ import { closeNotifications, useNotificationsOpen } from './notificationsOpen';
 import { useSheetBack } from './useSheetBack';
 import { when } from './when';
 import { t } from './i18n';
+import { materialIcon } from './icon';
 
 type RowProps = Notification & { selection: Record<string, unknown> };
 
@@ -40,7 +40,7 @@ function Row({ text, type, error, at, link, selection }: RowProps) {
       // Without a link the row is a plain item: the keys (Space) need it in the tab order.
       tabIndex={link ? undefined : 0}
       href={link?.href}
-      icon={app?.icon ?? (error ? WarningCircle : Info)}
+      icon={app?.icon ?? (error ? materialIcon('error') : materialIcon('info'))}
       headline={text}
       supporting={link ? `${when(new Date(at))} · ${link.text}` : when(new Date(at))}
       arrow={!!link}
@@ -65,7 +65,7 @@ export function NotificationsPage({ siteName }: { siteName: string }) {
         selection.selecting ? (
           <SelectionBar count={selection.keys.length} onClose={selection.clear} kind="icons">
             <IconButton
-              icon="trash"
+              icon="delete"
               label={t.library.deleteSelected(selection.keys.length)}
               onClick={() => {
                 removeNotifications(selection.keys);

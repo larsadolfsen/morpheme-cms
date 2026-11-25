@@ -7,7 +7,6 @@
 // content-only builds, paid build plan) in src/data/build.json (buildSettings.ts), each saved at once in its own commit. The paid
 // build plan can only be turned on when Cloudflare says the account has Workers Paid (the Worker asks, /api/plan); under it, why not.
 import { useEffect, useState } from 'react';
-import { ArrowSquareOut } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { EmptyNote, GroupTitle, LinkButton, MenuRow, Notice, ProblemNote, SupportingText, SwitchRow } from './ui';
 import { DRAFTS } from '../lib/versions.mjs';
@@ -32,6 +31,7 @@ import { config } from '@site/editor';
 import { buildSettingsOf, withBuildSetting, type BuildSetting } from './buildSettings';
 import { BUILD_SETTINGS_PATH } from '../lib/build-settings.mjs';
 import { siteT, t } from './i18n';
+import { materialIcon } from './icon';
 
 export const CACHING_ROUTE = 'developer/caching';
 
@@ -249,8 +249,8 @@ export default function Advanced({ env }: { env: Env }) {
                 target="_blank"
                 rel="noopener"
                 kind="text"
-                size="small"
-                icon={ArrowSquareOut}
+
+                icon={materialIcon('open_in_new')}
                 className="mo-setting-list__action"
               >
                 {t.advanced.billing}

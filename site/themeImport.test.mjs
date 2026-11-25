@@ -31,7 +31,7 @@ test('another theme that imports ui.css is told where', () => {
 });
 
 test('another theme with no import has a problem', () => {
-  assert.equal(typeof importProblem('venus', ':root { --mo-sys-radius: 1rem; }'), 'string');
+  assert.equal(typeof importProblem('venus', ':root { --mo-sys-shape-corner-medium: 1rem; }'), 'string');
 });
 
 test('the standard theme imports ./base.css', () => {

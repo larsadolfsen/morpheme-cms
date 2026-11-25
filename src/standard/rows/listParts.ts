@@ -3,8 +3,7 @@
 // toolbar and the add action, and the row's `inline` settings. The List's way is the reference: a link icon button at the end of the active row
 // (the toolbar's Link too), the row's other settings in its sheet, `Add list row` under the last row. The two blocks differ only in what they
 // show (`buttons` of a row that folds out, a page title for a row with a page and no heading) and in the look (the theme's CSS).
-import { Rectangle, Rows, Shapes, SquaresFour, Square, UserCircle } from '@phosphor-icons/react';
-import { iconOptions } from '../../icon';
+import { iconOptions, materialIcon } from '../../icon';
 import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
 import type { Field } from '../../schema';
@@ -31,10 +30,10 @@ export const leadingField: Field = {
   type: 'select',
   segments: true,
   options: [
-    { label: t.blocks.list.leadingIcon, value: '', icon: Shapes },
-    { label: t.blocks.list.leadingAvatar, value: 'avatar', icon: UserCircle },
-    { label: t.blocks.list.leadingSquare, value: 'square', icon: Square },
-    { label: t.blocks.list.leadingLandscape, value: 'landscape', icon: Rectangle },
+    { label: t.blocks.list.leadingIcon, value: '', icon: materialIcon('shapes') },
+    { label: t.blocks.list.leadingAvatar, value: 'avatar', icon: materialIcon('account_circle') },
+    { label: t.blocks.list.leadingSquare, value: 'square', icon: materialIcon('square') },
+    { label: t.blocks.list.leadingLandscape, value: 'landscape', icon: materialIcon('rectangle') },
   ],
 };
 
@@ -94,8 +93,8 @@ export const designField: Field = {
   type: 'select',
   segments: true,
   options: [
-    { label: t.blocks.list.designPlain, value: '', icon: Rows },
-    { label: t.blocks.list.designSegmented, value: 'segmented', icon: SquaresFour },
+    { label: t.blocks.list.designPlain, value: '', icon: materialIcon('table_rows') },
+    { label: t.blocks.list.designSegmented, value: 'segmented', icon: materialIcon('grid_view') },
   ],
 };
 

@@ -2,6 +2,8 @@
 // block's drawing is the theme in use's View.tsx, else the standard theme's; an app's block is its own
 // (src/apps/<app>/blocks/), and is used instead of a standard one by its name.
 import { appLooks, themeViews } from './siteLooks';
+import { scoped } from './appScope';
+import { appIdOf } from '../../lib/appId.mjs';
 import type { Contract, View } from './view';
 import { parseBlock } from '../../lib/blocks.mjs';
 import { sideBlockOf } from '../../lib/side-block.mjs';
@@ -15,7 +17,8 @@ const defaults = <T>(found: Record<string, { default: T }>) =>
 export const blockViews: Record<string, View<any>> = {
   ...defaults(themeViews.standard),
   ...defaults(themeViews.own),
-  ...defaults(appLooks.views),
+  // An app's block is drawn in its app's scope (appScope.tsx): its outer element carries data-mo-app.
+  ...Object.fromEntries(Object.entries(appLooks.views).map(([file, m]) => [file.split('/').at(-2)!, scoped(appIdOf(file), m.default)])),
 };
 
 /** Each block's view on the site, by its type: the standard blocks' contracts (load.ts here), and the apps'. */

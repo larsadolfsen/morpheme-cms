@@ -197,7 +197,7 @@ export async function newLineUnder(page, text) {
         subtree: true,
         characterData: true,
         attributes: true,
-        attributeFilter: ['class', 'data-row', 'data-section-focus'],
+        attributeFilter: ['class', 'data-row', 'data-section-focus', 'data-section-bottom', 'data-section-focus-below'],
       });
   });
   for (let tries = 0; ; tries++) {
@@ -326,12 +326,12 @@ export async function checkSavedLabel(page, width) {
 
 /** A List typed in the text: while a row is active and the list has rows, the text button "Add list row" is under the last row and adds one, the faded empty row is not there, the active row has a dotted line, and Add above and Add below are icon buttons; when the cursor leaves, the button is gone. */
 export const inlineBlocks = [
-  { name: 'list', hint: 'Rows with icon, heading and text.', add: 'Add list row', rowLink: true },
-  { name: 'steps', hint: 'Numbered steps.', add: 'Add step', noEdit: true },
-  { name: 'expand', hint: 'Rows that open to show more.', add: 'Add list row', rowLink: true, surface: true },
-  { name: 'cards', hint: 'Cards that link to pages.', add: 'Add card', surface: true, start: 3 },
-  { name: 'pricecards', hint: 'Prices with what is included.', add: 'Add price card', surface: true, field: 'name' },
-  { name: 'buttons', hint: 'Buttons with text and icon.', add: 'Add button', surface: true, field: 'label' },
+  { name: 'list', hint: 'Show text and images in a list.', add: 'Add list row', rowLink: true },
+  { name: 'steps', hint: 'Show the steps in order.', add: 'Add step', noEdit: true },
+  { name: 'expand', hint: 'Show list items that expand and collapse.', add: 'Add list row', rowLink: true, surface: true },
+  { name: 'cards', hint: 'Show content and actions in cards.', add: 'Add card', surface: true, start: 3 },
+  { name: 'pricecards', hint: 'Show prices and what they include.', add: 'Add price card', surface: true, field: 'name' },
+  { name: 'buttons', hint: 'Prompt actions with buttons.', add: 'Add button', surface: true, field: 'label' },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
   { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
   // (Only a site that has the demo's app: another site does not have the block.)
@@ -339,15 +339,15 @@ export const inlineBlocks = [
 
 /** The blocks that read a list of the site (Testimonials, Blog posts), typed in place: drawn as the site draws them with the demo's real items, the heading typed above. */
 export const liveLists = [
-  { name: 'testimonials', hint: 'Testimonials as cards or in a list.', items: '[data-testimonial]' },
-  { name: 'posts', hint: 'Blog posts in a list.', items: '.mo-block-posts__in-text li' },
-  { name: 'imagegrid', hint: 'Images from Files, filtered by tag.', items: '.mo-block-imagegrid__grid li' },
+  { name: 'testimonials', hint: 'Show what people say about you.', items: '[data-testimonial]' },
+  { name: 'posts', hint: 'Help people find a blog post.', items: '.mo-block-posts__in-text li' },
+  { name: 'imagegrid', hint: 'Show images from Files in a grid.', items: '.mo-block-imagegrid__grid li' },
 ];
 
 /** The single blocks typed in place (Notice, Video): one item, no add button, no faded empty item. */
 export const inlineSingles = [
-  { name: 'notice', hint: 'A highlighted message.', field: 'text', text: 'Hello **there**', slot: false },
-  { name: 'video', hint: 'A YouTube or Vimeo video.', field: 'title', text: 'My film', slot: false },
+  { name: 'notice', hint: 'Highlight a short message for visitors.', field: 'text', text: 'Hello **there**', slot: false },
+  { name: 'video', hint: 'Play a video from YouTube or Vimeo.', field: 'title', text: 'My film', slot: false },
 ];
 
 /** Waits until every animation and transition that ends has ended, and the fonts are loaded, so a check reads the settled geometry (a slower runner would catch the spring `transition: padding` of a button, or a row's layer, half way). Looping ones (`iterations: Infinity`, a spinner) are left running, as they never finish; new animations that start while it waits are waited for too. Nothing is skipped or loosened: a check measures the same, once the page is at rest. */

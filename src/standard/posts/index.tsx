@@ -2,7 +2,6 @@
 // them (the newest or random ones with some tags) or those picked, with "All posts" under them but when it shows all; the newest large when its design is "Newest large".
 // The posts are the site's (the relation `blog`, and BlockData.site.posts), their tags the relation `categories`. How it
 // looks is the theme's (packages/editor/theme/blocks/posts/View.tsx; what it shows: view.ts, and load.ts on the site).
-import { Article, Newspaper, Rows } from '@phosphor-icons/react';
 import { defineBlock, type BlockData, type BlockProps } from '../../blocks';
 import { siteT, t } from '../../i18n';
 import type { Relation } from '../../schema';
@@ -11,6 +10,7 @@ import { headFields } from '../head';
 import { columnsField } from '../columns';
 import type { PostChoice } from '../site';
 import shared, { allPostsText, postCount } from './shared';
+import { materialIcon } from '../../icon';
 
 /** The posts a "Blog posts" block or a site's own section shows, as the site picks them: all (with `show` "all"), the
  * newest `count`, or those picked. Random: the newest stand here (the site picks anew on each visit), and the note says
@@ -49,7 +49,7 @@ function postsLine(p: BlockProps, data: BlockData): string {
 export default defineBlock({
   group: 'content',
   label: t.blocks.posts.label,
-  icon: Newspaper,
+  icon: materialIcon('newspaper'),
   hint: t.blocks.posts.hint,
   // Typed in place (InlineLiveList.tsx): drawn as the site draws it, with the site's own items; the heading and subheading are typed above them,
   // the rest (which items, layout, tags, design) is in Edit.
@@ -71,8 +71,8 @@ export default defineBlock({
       type: 'select',
       segments: true,
       options: [
-        { label: t.blocks.posts.designList, value: '', icon: Rows },
-        { label: t.blocks.posts.designFeatured, value: 'featured', icon: Article },
+        { label: t.blocks.posts.designList, value: '', icon: materialIcon('table_rows') },
+        { label: t.blocks.posts.designFeatured, value: 'featured', icon: materialIcon('article') },
       ],
     },
     {

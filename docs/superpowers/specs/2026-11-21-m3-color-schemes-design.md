@@ -2,7 +2,7 @@
 
 Owner, 21 November 2026, after comparing the staging site with a Figma export of Material Theme Builder for the source colour
 `#006397`: "The colors are not calculated correctly or not used correctly", then "I find it wrong, since I want to follow md3 color
-schemes" and "yes I agree" to this design. Release: **0.19.7** (roadmap; the editor in Material 3 took 0.19.6, owner 21 Nov 2026). Part of "Material follows M3 exactly" (0.19.5).
+schemes" and "yes I agree" to this design. Release: **0.19.6** (built as UI fixes A1, #1202). Part of "Material follows M3 exactly" (0.19.5).
 
 ## What is wrong today
 

@@ -2,7 +2,7 @@
 
 @layer components {
   .mo-toolbar.mo-action-bar__row {
-    --mo-comp-toolbar-docked-line-width: 0px;
+    --mo-comp-divider-thickness: 0px;
     --mo-comp-toolbar-docked-backdrop: none;
   }
 }

@@ -5,7 +5,6 @@
 // exists is shown with its address, so it is not lost silently. The same sheet opens from a row in a list (PageListItem:
 // the pages of "Default pages").
 import { useRef, useState, type Ref } from 'react';
-import { CaretRight } from '@phosphor-icons/react';
 import type { Option } from './fields';
 import {
   ChoiceField,
@@ -22,6 +21,7 @@ import {
   usePickTools,
 } from './ui';
 import { t } from './i18n';
+import { materialIcon } from './icon';
 
 export type Group = { title: string; options: Option[] };
 
@@ -116,7 +116,7 @@ export default function PagePicker({ id, inField, ...props }: Sheet & { id: stri
   const { page, shown, show, sheet } = usePageSheet(props);
   return (
     <>
-      <ChoiceField id={id} arrow={CaretRight} onClick={show} {...inField}>
+      <ChoiceField id={id} arrow={materialIcon('keyboard_arrow_right')} onClick={show} {...inField}>
         <span className={`mo-fill mo-truncate ${page ? '' : 'mo-editor-placeholder'}`}>{shown}</span>
       </ChoiceField>
       {sheet}

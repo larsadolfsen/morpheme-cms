@@ -25,6 +25,7 @@ import { remarkBlockLabels } from './lib/remark-block-label.mjs';
 import { csp, joined } from './lib/csp.mjs';
 import { appBuilds, appFoldersPlugin } from './lib/apps.mjs';
 import { appSelf } from './site/appSelf.mjs';
+import { appCss } from './site/appCss.mjs';
 import { isNoindex } from './site/noindex.mjs';
 import { activeTheme, aliases, iconPackLicenses, STANDARD_THEME, themeIcon, themePlugin } from './site/theme.mjs';
 import { licensesIntegration, siteOwners } from './lib/licenses.mjs';
@@ -43,6 +44,7 @@ const PAGES = {
   '/robots.txt': 'robots.txt.js',
   '/_headers': 'headers.js',
   '/editor': 'editor/index.astro',
+  '/editor/build-installs.json': 'editor/build-installs.json.js',
   '/editor/code-images.json': 'editor/code-images.json.js',
   '/editor/manifest.webmanifest': 'editor/manifest.webmanifest.js',
   '/editor/sw.js': 'editor/sw.js.js',
@@ -136,7 +138,7 @@ export async function siteConfig() {
           // rendered before (node_modules/.astro) are rendered again when it changes (linksDigest).
           [rehypeAutoLinks, { digest: linksDigest() }],
           // Videos load only when played (nothing from Google or Vimeo before that), with the theme's play button.
-          [rehypeVideo, { play: themeIcon('play-fill') }],
+          [rehypeVideo, { play: themeIcon('play_arrow-fill') }],
         ],
       }),
     },
@@ -175,7 +177,7 @@ export async function siteConfig() {
       // The editor (packages/editor/) takes this site from src/site/ as @site (packages/editor/defaults/editor.ts), and the
       // site and the editor take the theme in use (src/data/theme.json) as @theme: its file, else the standard
       // theme's (themePlugin, packages/editor/site/theme.mjs); and what is in each app's folder (appFoldersPlugin).
-      plugins: [themePlugin(), appFoldersPlugin(ROOT), appSelf()],
+      plugins: [themePlugin(), appFoldersPlugin(ROOT), appSelf(), appCss()],
       resolve: { alias: aliases() },
     },
   });

@@ -6,11 +6,11 @@
 //             block "Testimonials"'s, packages/editor/src/standard/testimonials/list.ts, an app's lists its own,
 //             src/apps/<app>/lists.ts).
 //   files:    single .json files: the settings (the standard pages …), the footer and the menu.
-import { AppWindow, ArrowsHorizontal, ColumnsPlusLeft, ColumnsPlusRight, File, SquareHalfBottom } from '@phosphor-icons/react';
 import type { Collection, Field } from '../src/schema';
 import { fromContactBar } from '../lib/contactBar';
 import { config } from '@site/config';
 import { standardPaths } from '@site/standardPages';
+import { materialIcon } from '../src/icon';
 
 // The fields of one button of the action bar (the bottom bar on a phone, ActionBar.astro) and of the button in the header
 // ("Call to action", src/data/header.json): its text, where it leads, and the promotion or page it leads to.
@@ -351,34 +351,34 @@ export const bookingTexts: Field[] = [
 // The icons the owner picks from on the site's own fields (the same as the standard blocks', iconNames in
 // packages/editor/src/icon.tsx, which draws them).
 export const icons = [
-  ['Diploma', 'certificate'],
-  ['Heart', 'heart'],
-  ['Hand with heart', 'hand-heart'],
-  ['Three people', 'users-three'],
-  ['Two people', 'users'],
-  ['Graduation cap', 'graduation-cap'],
+  ['Diploma', 'workspace_premium'],
+  ['Heart', 'favorite'],
+  ['Hand with heart', 'volunteer_activism'],
+  ['Three people', 'groups'],
+  ['Two people', 'group'],
+  ['Graduation cap', 'school'],
   ['Handshake', 'handshake'],
-  ['Book', 'book-open'],
-  ['Book with text', 'book-open-text'],
-  ['Medal', 'medal'],
-  ['Conversation', 'chats'],
-  ['Lotus flower', 'flower-lotus'],
-  ['Leaf', 'leaf'],
+  ['Book', 'menu_book'],
+  ['Book with text', 'auto_stories'],
+  ['Medal', 'military_tech'],
+  ['Conversation', 'forum'],
+  ['Lotus flower', 'spa'],
+  ['Leaf', 'eco'],
   ['Light bulb', 'lightbulb'],
   ['Train', 'train'],
-  ['Bus', 'bus'],
-  ['Bicycle', 'bicycle'],
-  ['Car', 'car'],
-  ['Door', 'door-open'],
-  ['Video camera', 'video-camera'],
-  ['Lifebuoy', 'lifebuoy'],
-  ['Phone', 'phone'],
-  ['Clock', 'clock'],
-  ['Map pin', 'map-pin'],
+  ['Bus', 'directions_bus'],
+  ['Bicycle', 'pedal_bike'],
+  ['Car', 'directions_car'],
+  ['Door', 'door_open'],
+  ['Video camera', 'videocam'],
+  ['Lifebuoy', 'support'],
+  ['Phone', 'call'],
+  ['Clock', 'schedule'],
+  ['Map pin', 'location_on'],
   ['Coffee', 'coffee'],
-  ['Wheelchair', 'wheelchair'],
+  ['Wheelchair', 'accessible'],
   ['Information', 'info'],
-  ['Letter', 'envelope-simple'],
+  ['Letter', 'mail'],
 ].map(([label, value]) => ({ label, value }));
 
 // A link in the menu: any page, the front page and the blog too, stored by its address.
@@ -451,10 +451,10 @@ export const collections: Collection[] = [
         // The options the theme in use offers, the first of its list the default (templateFieldOf in src/templateField.ts).
         offered: 'templates',
         options: [
-          { label: 'One column', value: 'single', icon: File },
-          { label: 'Wide', value: 'full', icon: ArrowsHorizontal },
-          { label: 'Left sidebar', value: 'sidebar-left', icon: ColumnsPlusLeft },
-          { label: 'Right sidebar', value: 'sidebar-right', icon: ColumnsPlusRight },
+          { label: 'One column', value: 'single', icon: materialIcon('draft') },
+          { label: 'Wide', value: 'full', icon: materialIcon('swap_horiz') },
+          { label: 'Left sidebar', value: 'sidebar-left', icon: materialIcon('add_column_left') },
+          { label: 'Right sidebar', value: 'sidebar-right', icon: materialIcon('add_column_right') },
         ],
         hint: 'The theme decides which templates there are.',
       },
@@ -541,11 +541,11 @@ export const collections: Collection[] = [
         // Without one (those made before there were kinds), it is the standard one.
         default: 'standard',
         options: [
-          { label: 'Pop-up', value: 'standard', icon: AppWindow, hint: 'With an image, text and a button.' },
+          { label: 'Pop-up', value: 'standard', icon: materialIcon('web_asset'), hint: 'With an image, text and a button.' },
           {
             label: 'Action bar',
             value: 'bookingbar',
-            icon: SquareHalfBottom,
+            icon: materialIcon('splitscreen'),
             hint: 'Buttons or text at the bottom of the screen on a phone.',
           },
         ],

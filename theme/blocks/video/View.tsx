@@ -35,7 +35,7 @@ function Facade({ view }: { view: VideoView }) {
             onError={failed}
           />
         )}
-        <Svg name="play" weight="fill" size={48} />
+        <Svg name="play_arrow" weight="fill" size={48} />
         <span className="mo-block-video__facade-title">{view.title}</span>
       </Link>
     </InProse>

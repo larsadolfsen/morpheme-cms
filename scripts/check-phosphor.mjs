@@ -1,71 +1,38 @@
-// Owner rule (14 Nov): "You should never use a phosphor icon as standard." With Material Symbols as the icon pack, nothing draws Phosphor.
-// Code draws an icon through the pack system (the shared Icon part, src/icon.tsx and src/ui.tsx), by its name. This check fails on a
-// direct component import from `@phosphor-icons/react` in src/ (and theme/, defaults/) that the allowlist below does not know: the
-// themePlugin (site/theme.mjs) redraws such an import in the pack in use, so the listed ones are not drawn as Phosphor, but a new one
-// must use Icon. Each file is allowed as many imported names as it has now, no more (a file's count can only fall).
-// Run: npm run check:phosphor, or node scripts/check-phosphor.mjs; `--list` prints the current counts as the allowlist's lines.
+// Owner rule (22 Nov 2026): Phosphor and Lucide are not in the package. Code draws an icon through the shared Icon (src/icon.tsx) by its
+// Material Symbols name. This check fails on any import or reference of `@phosphor-icons/*` or Lucide (`lucide`, `lucide-react`,
+// `lucide-static`, `@lucide/*`) in the tracked source, with no allowlist. A theme's own icon pack (`icon-packs/`) holds SVG files, never an import.
+// Run: npm run check:phosphor, or node scripts/check-phosphor.mjs.
 // Depends on: git (lists the files).
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
-const FOLDERS = ['src', 'theme', 'defaults', 'lib', 'demo/src', 'starter/src', 'pages'];
+const FOLDERS = ['src', 'theme', 'defaults', 'lib', 'site', 'worker', 'bin', 'pages', 'demo/src', 'starter/src', 'scripts'];
 
-/** The names a file imports from Phosphor's React package (type imports are not components), and its SVG files imported as
- * text (`@phosphor-icons/core/assets/regular/eye.svg?raw`, themePlugin puts the pack's in their place), one each. @param {string} code */
-export function phosphorImports(code) {
-  const names = [];
-  for (const [, type, list] of code.matchAll(/import\s+(type\s+)?\{([^}]*)\}\s*from\s*'@phosphor-icons\/react'/g)) {
-    if (type) continue;
-    for (const part of list.split(',')) {
-      const name = part.trim();
-      if (name && !name.startsWith('type ')) names.push(name.split(/\s+as\s+/)[0]);
-    }
-  }
-  for (const [, name] of code.matchAll(/from\s*'@phosphor-icons\/core\/assets\/(?:regular|fill)\/([a-z0-9-]+)\.svg\?raw'/g))
-    names.push(name);
-  return names;
+/** The module names a file imports or names from Phosphor or Lucide: `from '…'`, `import '…'`, `import('…')`, `require('…')`. @param {string} code */
+export function bannedImports(code) {
+  const found = [];
+  const banned = /^(@phosphor-icons\/|@lucide\/|lucide(-react|-static|-vue|-svelte|-solid|-preact)?(\/|$))/;
+  for (const [, name] of code.matchAll(/(?:from|import|require)\s*\(?\s*['"]([^'"]+)['"]/g)) if (banned.test(name)) found.push(name);
+  return found;
 }
 
-/** The allowlist: file → { max: how many names it may import (now, never more), why }, in scripts/phosphor-allowlist.json. */
-const baseline = JSON.parse(readFileSync(new URL('phosphor-allowlist.json', import.meta.url), 'utf8'));
-
+const SELF = new Set(['scripts/check-phosphor.mjs', 'scripts/check-phosphor.test.mjs']);
 const files = execFileSync('git', ['ls-files', ...FOLDERS], { cwd: root, encoding: 'utf8' })
   .split('\n')
-  .filter((f) => /\.(tsx?|mjs|astro)$/.test(f));
-const counts = {};
-for (const file of files) {
-  const n = phosphorImports(readFileSync(root + file, 'utf8')).length;
-  if (n) counts[file] = n;
-}
-
-if (process.argv.includes('--list')) {
-  console.log(JSON.stringify(counts, null, 2));
-  process.exit(0);
-}
+  .filter((f) => /\.(tsx?|mjs|js|astro)$/.test(f) && !SELF.has(f));
 
 const problems = [];
-for (const [file, n] of Object.entries(counts)) {
-  const allowed = baseline[file]?.max;
-  if (allowed === undefined)
+for (const file of files) {
+  for (const name of new Set(bannedImports(readFileSync(root + file, 'utf8'))))
     problems.push(
-      `${file}: imports ${n} component(s) from @phosphor-icons/react. Draw icons with Icon (src/icon.tsx, the pack in use), by name.`,
-    );
-  else if (n > allowed)
-    problems.push(
-      `${file}: imports ${n} Phosphor components, ${allowed} allowed (scripts/phosphor-allowlist.json). Draw the new one with Icon.`,
+      `${file}: imports ${name}. Phosphor and Lucide are not in the package: draw the icon with Icon (src/icon.tsx), by its Material Symbols name.`,
     );
 }
-// A file that imports fewer than allowed is good news, never a failure (main may remove an import while a pull request waits): lower its max.
-for (const file of Object.keys(baseline))
-  if ((counts[file] ?? 0) < baseline[file].max)
-    console.log(
-      `check:phosphor: ${file} imports ${counts[file] ?? 0} of ${baseline[file].max} allowed: lower it in scripts/phosphor-allowlist.json.`,
-    );
 
 if (problems.length) {
   console.error(problems.join('\n'));
   process.exit(1);
 }
-console.log(`check:phosphor: ${Object.keys(counts).length} files import Phosphor components, all on the allowlist.`);
+console.log('check:phosphor: no import of Phosphor or Lucide');

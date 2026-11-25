@@ -11,7 +11,7 @@
 // the site; nothing else lists them. The apps (src/apps/<app>/, apps.ts) add blocks the same way, in their folder's
 // blocks/, each with its own View.tsx and viewOf.ts for view.ts (it would differ from View.tsx only in case); they
 // are offered once the app is installed. A theme has no blocks of its own, only the look of the standard ones.
-import type { ReactNode } from 'react';
+import type { ComponentType, ReactNode } from 'react';
 import { activeApps, appIdOf } from './apps';
 import { htmlBlock, type BlockData, type BlockDefinition, type BlockProps, type DrawBlock, type SiteBlock } from './blocks';
 import { check, templateProblems } from './check';
@@ -26,6 +26,7 @@ import { inlineViews } from './inlineViews';
 import { blocksIn, splitBlocks } from '../lib/blocks.mjs';
 import { t } from './i18n';
 import { localSiteBlock } from './site';
+import { scoped } from './standard/appScope';
 
 export { apps } from './site';
 
@@ -42,6 +43,9 @@ function drawn(View: View<unknown> | undefined, viewOf: ViewOf<unknown> | undefi
     return view === null ? null : <View view={view} />;
   };
 }
+
+// An app's drawing in the app's scope (data-mo-app on its outer element, standard/appScope.tsx).
+const scopedOf = <P extends object>(path: string, Component: ComponentType<P> | undefined) => Component && scoped(appIdOf(path), Component);
 
 // A folder's file, by the path of its index.tsx.
 const beside = (path: string, file: string) => `${path.slice(0, path.lastIndexOf('/'))}/${file}`;
@@ -62,9 +66,9 @@ export const siteBlocks: SiteBlock[] = [
   ...Object.entries(fromApps).map(([path, m]) =>
     localSiteBlock({
       ...m.default,
-      draw: drawn(appViews[beside(path, 'View.tsx')]?.default, appViewOfs[beside(path, 'viewOf.ts')]?.viewOf),
+      draw: drawn(scopedOf(path, appViews[beside(path, 'View.tsx')]?.default), appViewOfs[beside(path, 'viewOf.ts')]?.viewOf),
       // An app's own: never a standard block's, whatever the app calls its block.
-      inlineView: appInlines[beside(path, 'Inline.tsx')]?.default,
+      inlineView: scopedOf(path, appInlines[beside(path, 'Inline.tsx')]?.default),
       type: typeOf(path),
       app: appIdOf(path),
     }),

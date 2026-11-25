@@ -7,6 +7,6 @@
   /* Side sheets: a standard one on the page's surface with the outline variant between them, a modal one in a low
      surface container with large corners towards the page, the first elevation and M3's scrim; the headline in title
      large, a line in the outline variant over the actions. */
-  --mo-comp-sheet-side-docked-container-shape: var(--mo-sys-shape-corner-large);
-  --mo-comp-side-sheet-scrim: var(--mo-sys-color-scrim-overlay);
+  --mo-comp-sheet-side-docked-modal-container-shape: var(--mo-sys-shape-corner-large);
+  --mo-comp-sheet-side-scrim: var(--mo-sys-color-scrim-overlay);
 }

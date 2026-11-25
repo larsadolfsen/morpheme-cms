@@ -9,28 +9,29 @@
      second elevation's shadow, so it stands in front of the page; items 44px high (`menu-item.height`; the baseline menu's 48 is the other
      variant) with 16px at each side, 12px between the parts of an item and the label in Label large, on corners of their own inside the
      container (2px from its edge); the chosen one in the tertiary container. 112–280px wide, scrolling when higher than the screen. */
-  --mo-comp-menu-container-color: var(--mo-sys-color-surface-container-low);
+  --mo-comp-menus-standard-container-color: var(--mo-sys-color-surface-container-low);
   --mo-comp-menu-container-elevation: var(--mo-sys-elevation-level2-shadow);
   --mo-comp-menu-width: max-content;
   --mo-comp-menu-min-width: 7rem;
   --mo-comp-menu-max-width: 17.5rem;
   --mo-comp-menu-max-height: calc(100dvh - 5rem);
-  --mo-comp-menu-container-shape: var(--mo-sys-shape-corner-large);
-  --mo-comp-menu-group-inner-radius: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-menus-container-shape: var(--mo-sys-shape-corner-large);
+  --mo-comp-menus-menu-item-first-child-inner-corner-corner-size: var(--mo-sys-shape-corner-extra-small);
   --mo-comp-menu-line: transparent;
   --mo-comp-menu-padding: 0.125rem;
-  --mo-comp-menu-list-item-container-height: 2.75rem;
+  --mo-comp-menus-menu-item-height: 2.75rem;
   --mo-comp-menu-item-padding: 0 1rem;
-  --mo-comp-menu-item-radius: var(--mo-sys-shape-corner-extra-small);
-  --mo-comp-menu-item-edge-radius: var(--mo-sys-shape-corner-medium);
-  --mo-comp-menu-item-selected-radius: var(--mo-sys-shape-corner-medium);
-  --mo-comp-menu-item-font-size: var(--mo-sys-typescale-label-large-size);
-  --mo-comp-menu-item-letter-spacing: var(--mo-sys-typescale-label-large-tracking);
-  --mo-comp-menu-item-weight: var(--mo-sys-typescale-label-large-weight);
+  --mo-comp-menus-menu-item-shape: var(--mo-sys-shape-corner-extra-small);
+  --mo-comp-menus-menu-item-first-child-shape: var(--mo-sys-shape-corner-medium);
+  --mo-comp-menus-menu-item-last-child-shape: var(--mo-sys-shape-corner-medium);
+  --mo-comp-menus-menu-item-selected-shape: var(--mo-sys-shape-corner-medium);
+  --mo-comp-menus-menu-item-label-text-size: var(--mo-sys-typescale-label-large-size);
+  --mo-comp-menus-menu-item-label-text-tracking: var(--mo-sys-typescale-label-large-tracking);
+  --mo-comp-menus-menu-item-label-text-weight: var(--mo-sys-typescale-label-large-weight);
   --mo-comp-menu-list-item-label-text-color: var(--mo-sys-color-on-surface);
-  --mo-comp-menu-item-hover-surface: var(--mo-sys-state-mo-hover-layer);
+  --mo-comp-menu-item-hover-surface: var(--mo-sys-state-hover-state-layer-color);
   --mo-comp-menu-item-hover-text: var(--mo-sys-color-on-surface);
-  --mo-comp-menu-list-item-selected-container-color: var(--mo-sys-color-tertiary-container);
-  --mo-comp-menu-list-item-selected-label-text-color: var(--mo-sys-color-on-tertiary-container);
+  --mo-comp-menus-standard-menu-item-selected-container-color: var(--mo-sys-color-tertiary-container);
+  --mo-comp-menus-standard-menu-item-selected-label-text-color: var(--mo-sys-color-on-tertiary-container);
   --mo-comp-menu-item-selected-weight: var(--mo-sys-typescale-label-large-weight);
 }

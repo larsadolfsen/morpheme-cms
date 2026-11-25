@@ -2,9 +2,9 @@
 // sets up for themselves. The CMS brings some (cmsWidgets.ts, src/widgets/<key>.tsx), and each app installed may bring
 // its own (AppDefinition.widgets). A widget's full id is "<source>:<key>": `cms`, or the app's id, then its key.
 // Only types are imported, so this file runs under node --test.
-import type { Icon } from '@phosphor-icons/react';
 import type { ComponentType } from 'react';
 import type { AppPageProps, AppSettings, SiteApp } from './apps';
+import type { IconComponent as Icon } from './icon';
 
 /** What a widget is given. `api` asks the app's own addresses in the site's Worker, as an app page does
  * (AppPageProps); `settings` are the values of this placed widget, set by the person (WidgetDefinition.settings, over its

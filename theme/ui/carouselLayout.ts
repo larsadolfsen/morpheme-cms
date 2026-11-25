@@ -9,9 +9,16 @@
 // themselves, so that every item grows and shrinks as it passes. Widths from the theme (--mo-comp-carousel-large-item-width,
 // --mo-comp-carousel-small-item-min-width and -max-width, the gap and the height, in ui.css); what is masked of an item is on it
 // as --mo-comp-carousel-mask (0 to 1), for what is on it to fade. The site's carousel.script.ts and, in the editor, Carousel.tsx
-// run it; it gives back what stops it. The other layouts ('uncontained', 'full-screen') are only ui.css.
-export type CarouselLayout = 'multi-browse' | 'uncontained' | 'hero' | 'full-screen';
+// run it; it gives back what stops it. The other layouts ('uncontained', 'multi-aspect-ratio', 'full-screen') are only cards.css.
+export type CarouselLayout = 'multi-browse' | 'uncontained' | 'multi-aspect-ratio' | 'hero' | 'full-screen';
 export type CarouselAlignment = 'start' | 'center';
+
+/** The narrowest and widest an item of 'multi-aspect-ratio' can be, as width / height: M3's "Item widths can range anywhere between 9:16 for min width size to 16:9 for max width". */
+export const aspectRange = { min: 9 / 16, max: 16 / 9 } as const;
+
+/** An item's aspect ratio (width / height) kept within M3's range; 1:1, one of the four M3 prints, when none (or none usable) is given. */
+export const aspectOf = (aspect?: number) =>
+  typeof aspect === 'number' && Number.isFinite(aspect) && aspect > 0 ? Math.min(aspectRange.max, Math.max(aspectRange.min, aspect)) : 1;
 
 /** The layouts laid out here, with their items' widths changing as they scroll. */
 export const keylineLayouts: CarouselLayout[] = ['multi-browse', 'hero'];
@@ -107,8 +114,11 @@ export function carouselLayout(root: HTMLElement): () => void {
   let toEnd = 0;
 
   function measure() {
-    const width = row!.clientWidth;
-    const gap = parseFloat(getComputedStyle(row!).columnGap) || 0;
+    const style = getComputedStyle(row!);
+    // The window the items are laid out in is the row less its padding (M3: 16dp leading and trailing padding): items scroll out under it.
+    const pad = parseFloat(style.paddingInlineStart) || 0;
+    const width = row!.clientWidth - pad - (parseFloat(style.paddingInlineEnd) || 0);
+    const gap = parseFloat(style.columnGap) || 0;
     const sizes = arrangement(layout, alignment, items.length, width, gap, {
       large: lengthOf(root, '--mo-comp-carousel-large-item-width', 200),
       smallMin: lengthOf(root, '--mo-comp-carousel-small-item-min-width', 40),
@@ -135,7 +145,7 @@ export function carouselLayout(root: HTMLElement): () => void {
     );
     // Where an item rests: its start this far before the first large keyline's (scroll-padding, for scroll-snap).
     lead = normal.lines[normal.focal].loc - large / 2;
-    row!.style.scrollPaddingInlineStart = `${lead}px`;
+    row!.style.scrollPaddingInlineStart = `${lead + pad}px`;
     toStart = start.offsets[0] - normal.offsets[0];
     toEnd = normal.offsets[0] - end.offsets[0];
     update();

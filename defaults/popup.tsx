@@ -20,7 +20,7 @@ function buttonOf(p: Record<string, any>, data: BlockData): PopupButtonView | un
   const own = String(p.label ?? '').trim();
   if (p.button === 'file') return { file: { href: '', label: own || 'Download PDF' } };
   if (p.button !== 'booking' && p.button !== 'phone' && p.button !== 'page') return undefined;
-  const icon = p.button === 'phone' ? 'phone' : 'arrow-right';
+  const icon = p.button === 'phone' ? 'call' : 'arrow_forward';
   return { buttons: buttonsOf([{ to: p.button, label: own, href: p.href, kind: 'filled', icon }], data) };
 }
 
@@ -36,6 +36,15 @@ export function drawPopup(p: Record<string, any>, data: BlockData, part?: KindPa
       .filter(Boolean),
     button: buttonOf(p, data),
   };
+  // An app's kind that opens as the theme's bottom sheet (its View.tsx's `surface`): the sheet drawn as it is, with the part inside.
+  if (part?.surface === 'bottom-sheet')
+    return (
+      <div className="mo-is-not-prose mo-popup-preview">
+        <BottomSheet label={String(p.heading ?? '').trim() || siteT.theme.close} closeLabel={siteT.theme.close} startAt="half" wide="sheet">
+          <part.View view={part.viewOf(p, data)} button={null} />
+        </BottomSheet>
+      </div>
+    );
   return (
     <div className="mo-is-not-prose mo-popup-preview">
       <PopupView popup={popup} Part={part?.View} part={part?.viewOf(p, data)} />
@@ -91,8 +100,8 @@ export function drawActionBar(p: Record<string, any>, data: BlockData) {
               key={i}
               href=""
               kind={i === first ? 'filled' : 'outlined'}
-              icon={arrow ? undefined : to === 'phone' ? 'phone' : 'calendar-blank'}
-              trailingIcon={arrow ? 'arrow-right' : undefined}
+              icon={arrow ? undefined : to === 'phone' ? 'call' : 'calendar_today'}
+              trailingIcon={arrow ? 'arrow_forward' : undefined}
             >
               {text}
             </Button>

@@ -2,12 +2,12 @@
 // the image behind it and the image's description, and for an H1 or H2 its width (the whole window or the text's). A page's H1 has no
 // image (owner, 14 Nov 2026). Exposes the default SectionSettings and
 // SectionValues; uses Option (ui.tsx), FieldList (fields.tsx), SECTION_COLORS.
-import { ArrowsInLineHorizontal, ArrowsOutLineHorizontal } from '@phosphor-icons/react';
 import { FieldList } from './fields';
 import type { Field } from './schema';
 import { Option } from './ui';
 import { SECTION_COLORS } from '../lib/section-marker.mjs';
 import { t } from './i18n';
+import { materialIcon } from './icon';
 
 /** A section's settings as the sheet holds them: color '' for none, image '' for none, width 'full' or ''. */
 export type SectionValues = { color: string; image: string; alt: string; width: string };
@@ -20,8 +20,8 @@ const WIDTH: Field = {
   type: 'select',
   segments: true,
   options: [
-    { label: t.text.sectionWidthText, value: '', icon: ArrowsInLineHorizontal },
-    { label: t.text.sectionWidthFull, value: 'full', icon: ArrowsOutLineHorizontal },
+    { label: t.text.sectionWidthText, value: '', icon: materialIcon('compress') },
+    { label: t.text.sectionWidthFull, value: 'full', icon: materialIcon('expand') },
   ],
 };
 

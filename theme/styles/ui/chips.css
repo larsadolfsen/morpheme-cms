@@ -1,11 +1,11 @@
 /* ---- Chips: Chip ----
   Chips (Chip.tsx, chipClass; m3.material.io/components/chips): .mo-chip with its kind, .chip-assist (a link to something
-  related: a post's tag), .mo-chip__filter (one of a few that choose what is shown, the chosen one with aria-pressed="true" on
-  a button or aria-current on a link, and a check before its label, .mo-chip__check), .mo-chip__input or .mo-chip__suggestion (each
+  related: a post's tag), .mo-chip.mo-is-filter (one of a few that choose what is shown, the chosen one with aria-pressed="true" on
+  a button or aria-current on a link, and a check before its label, .mo-chip__check), .mo-chip.mo-is-input or .mo-chip.mo-is-suggestion (each
   optionally chosen with aria-pressed="true"); an icon before the label, or a person's image (.mo-chip__avatar), and
   .mo-chip__trailing-icon after it. .mo-is-elevated: with a shadow instead of the edge (assist, filter and suggestion chips);
-  .mo-chip__dragged: while it is dragged; disabled (:disabled, or aria-disabled="true" on what is not a button): seen
-  through and not to be used. .mo-chip__removable: an input chip as a <span> with its own button (.mo-chip__action) and the one
+  .mo-chip.mo-is-dragged: while it is dragged; disabled (:disabled, or aria-disabled="true" on what is not a button): seen
+  through and not to be used. .mo-chip.mo-is-removable: an input chip as a <span> with its own button (.mo-chip.mo-is-action) and the one
   that removes it (.mo-chip__remove), chosen with data-selected.
     --mo-comp-filter-chip-container-height, --mo-comp-chip-padding, --mo-comp-chip-gap, --mo-comp-filter-chip-container-shape, --mo-comp-chip-font-size, --mo-comp-chip-icon-size   its size and label
     --mo-comp-chip-surface, --mo-comp-filter-chip-flat-unselected-outline-color, --mo-comp-chip-hover-text, --mo-comp-chip-hover-line   its colours and edge, and pointed at
@@ -30,13 +30,13 @@
     gap: var(--mo-comp-chip-gap, 0.5rem);
     min-height: calc(var(--mo-comp-filter-chip-container-height, 0px) + var(--mo-sys-density) * var(--mo-sys-density-step));
     border: 0;
-    border-radius: var(--mo-comp-filter-chip-container-shape, var(--mo-sys-block-control-radius));
+    border-radius: var(--mo-comp-filter-chip-container-shape, var(--mo-comp-block-control-radius));
     padding: var(--mo-comp-chip-padding, 0.55rem 1rem);
     /* Density takes 2 px off each side, never the text; --mo-comp-chip-padding-block (else 0.55rem) is the room today. */
     padding-block: calc(var(--mo-comp-chip-padding-block, 0.55rem) + var(--mo-sys-density) * var(--mo-sys-density-step) / 2);
-    background: var(--mo-comp-chip-surface, var(--mo-sys-block-surface));
+    background: var(--mo-comp-chip-surface, var(--mo-comp-block-surface));
     color: var(--mo-comp-filter-chip-unselected-label-text-color, inherit);
-    box-shadow: inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-sys-block-line));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-comp-block-line));
     font-family: inherit;
     font-size: var(--mo-comp-chip-font-size, var(--mo-sys-typescale-label-large-size));
     line-height: var(--mo-sys-typescale-label-large-line-height);
@@ -70,43 +70,43 @@
     transform: translateY(-50%);
   }
   .mo-chip > svg,
-  .mo-chip__action > svg,
+  :where(.mo-chip) > .mo-is-action > svg,
   .mo-chip__remove > svg {
     flex-shrink: 0;
     width: var(--mo-comp-chip-icon-size, 1.125rem);
     height: var(--mo-comp-chip-icon-size, 1.125rem);
   }
   .mo-chip:hover {
-    box-shadow: inset 0 0 0 1px var(--mo-comp-chip-hover-line, var(--mo-sys-block-accent));
-    color: var(--mo-comp-chip-hover-text, var(--mo-sys-block-accent));
+    box-shadow: inset 0 0 0 1px var(--mo-comp-chip-hover-line, var(--mo-comp-block-accent));
+    color: var(--mo-comp-chip-hover-text, var(--mo-comp-block-accent));
   }
   /* A filter chip's check: only on the chosen one, and only where the theme shows it. */
   .mo-chip > .mo-chip__check {
     display: none;
   }
   /* Chosen: a filter chip (also as the open page), and an input or a suggestion chip. */
-  .mo-chip__filter:is([aria-pressed='true'], [aria-current='page']),
-  .mo-chip:is(.mo-chip__input, .mo-chip__suggestion)[aria-pressed='true'],
-  .mo-chip__removable[data-selected] {
-    background: var(--mo-comp-filter-chip-flat-selected-container-color, var(--mo-sys-block-accent));
+  :where(.mo-chip).mo-is-filter:is([aria-pressed='true'], [aria-current='page']),
+  .mo-chip:is(:where(.mo-chip).mo-is-input, :where(.mo-chip).mo-is-suggestion)[aria-pressed='true'],
+  :where(.mo-chip).mo-is-removable[data-selected] {
+    background: var(--mo-comp-filter-chip-flat-selected-container-color, var(--mo-comp-block-accent));
     box-shadow: none;
-    color: var(--mo-comp-filter-chip-selected-label-text-color, var(--mo-sys-block-on-accent));
+    color: var(--mo-comp-filter-chip-selected-label-text-color, var(--mo-comp-block-on-accent));
   }
-  .mo-chip__filter:is([aria-pressed='true'], [aria-current='page']):hover,
-  .mo-chip:is(.mo-chip__input, .mo-chip__suggestion)[aria-pressed='true']:hover,
-  .mo-chip__removable[data-selected]:hover {
-    background: var(--mo-comp-chip-selected-hover, var(--mo-comp-filter-chip-flat-selected-container-color, var(--mo-sys-block-accent)));
+  :where(.mo-chip).mo-is-filter:is([aria-pressed='true'], [aria-current='page']):hover,
+  .mo-chip:is(:where(.mo-chip).mo-is-input, :where(.mo-chip).mo-is-suggestion)[aria-pressed='true']:hover,
+  :where(.mo-chip).mo-is-removable[data-selected]:hover {
+    background: var(--mo-comp-chip-selected-hover, var(--mo-comp-filter-chip-flat-selected-container-color, var(--mo-comp-block-accent)));
     box-shadow: none;
-    color: var(--mo-comp-filter-chip-selected-label-text-color, var(--mo-sys-block-on-accent));
+    color: var(--mo-comp-filter-chip-selected-label-text-color, var(--mo-comp-block-on-accent));
   }
-  .mo-chip__filter:is([aria-pressed='true'], [aria-current='page']) > .mo-chip__check {
+  :where(.mo-chip).mo-is-filter:is([aria-pressed='true'], [aria-current='page']) > .mo-chip__check {
     display: var(--mo-comp-chip-selected-check, none);
   }
   /* A chosen filter chip is lifted to level 1 when pointed at, and is on the page again while pressed (M3). */
-  .mo-chip__filter:is([aria-pressed='true'], [aria-current='page']):hover {
+  :where(.mo-chip).mo-is-filter:is([aria-pressed='true'], [aria-current='page']):hover {
     box-shadow: var(--mo-comp-chip-selected-hover-shadow, var(--mo-sys-elevation-level1-shadow));
   }
-  .mo-chip__filter:is([aria-pressed='true'], [aria-current='page']):active {
+  :where(.mo-chip).mo-is-filter:is([aria-pressed='true'], [aria-current='page']):active {
     box-shadow: var(--mo-sys-elevation-level0-shadow);
   }
 
@@ -141,11 +141,11 @@
   }
 
   /* An input chip with the button that removes it: the chip's own button and the cross, side by side in it. */
-  .mo-chip__removable {
+  :where(.mo-chip).mo-is-removable {
     gap: 0.25rem;
     padding-inline-end: 0.35rem;
   }
-  .mo-chip__action,
+  :where(.mo-chip) > .mo-is-action,
   .mo-chip__remove {
     display: inline-flex;
     align-items: center;
@@ -156,7 +156,7 @@
     font: inherit;
     cursor: pointer;
   }
-  .mo-chip__action {
+  :where(.mo-chip) > .mo-is-action {
     gap: var(--mo-comp-chip-gap, 0.5rem);
   }
   .mo-chip__remove {
@@ -172,14 +172,14 @@
   }
 
   /* Dragged: lifted by its shadow over what it is moved across. */
-  .mo-chip__dragged,
-  .mo-chip__dragged:hover {
+  :where(.mo-chip).mo-is-dragged,
+  :where(.mo-chip).mo-is-dragged:hover {
     box-shadow:
-      inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-sys-block-line)),
+      inset 0 0 0 1px var(--mo-comp-filter-chip-flat-unselected-outline-color, var(--mo-comp-block-line)),
       var(--mo-comp-chip-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
     cursor: grabbing;
   }
-  .mo-chip.mo-is-elevated.mo-chip__dragged {
+  .mo-chip.mo-is-elevated:where(.mo-chip).mo-is-dragged {
     box-shadow: var(--mo-comp-chip-dragged-shadow, var(--mo-sys-elevation-level4-shadow));
   }
 

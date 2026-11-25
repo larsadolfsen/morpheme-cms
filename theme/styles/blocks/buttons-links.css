@@ -34,13 +34,13 @@
     margin-top: 1rem;
   }
   .mo-block-buttons__message[data-failed] {
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
   }
 
   /* A link in a block's text: in the accent, underlined, thicker when
      pointed at. */
   .mo-block-link {
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
     font-weight: 500;
     text-decoration: underline;
     text-decoration-thickness: 1px;
@@ -55,7 +55,7 @@
     align-items: center;
     gap: 0.5rem;
     font-weight: 500;
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
     text-decoration: none;
   }
 
@@ -74,7 +74,7 @@
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   .mo-block-posts__more {
     margin: 1rem 0 0;
@@ -94,10 +94,10 @@
   }
   /* In a drawing in the editor, when there is nothing to show. */
   .mo-block-testimonials__empty {
-    border-radius: var(--mo-sys-block-radius);
-    background: var(--mo-sys-block-tint);
+    border-radius: var(--mo-comp-block-radius);
+    background: var(--mo-comp-block-tint);
     padding: 1.5rem;
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   /* Filter chips (the theme's Chip, ui.css) that filter what is under them ("Testimonials list"). */
   .mo-block-testimonials__filters {

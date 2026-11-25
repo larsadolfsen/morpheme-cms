@@ -8,7 +8,6 @@
      as M3's on every screen), no lines, the scrim, the drag handle in on-surface-variant at 40% (the first elevation,
      the third as a dialog, as every bottom sheet). */
   --mo-comp-sheet-bottom-docked-container-shape: var(--mo-sys-shape-corner-extra-large);
-  --mo-comp-bottom-sheet-line: transparent;
-  --mo-comp-bottom-sheet-scrim: var(--mo-sys-color-scrim-overlay);
+  --mo-comp-sheet-bottom-scrim: var(--mo-sys-color-scrim-overlay);
   --mo-comp-sheet-bottom-docked-drag-handle-color: color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 40%, transparent);
 }

@@ -3,7 +3,6 @@
 // Morpheme store (MorphemeConnection) as its last group. Exposes CMS_ROUTE and the page. Depends on cmsView.mjs, bundledNotes.ts,
 // ReleaseNotes (the notes as an article), MorphemeConnection and the Worker's /api/cms.
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { Sparkle, WarningCircle, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { MorphemeConnection } from './MorphemeConnection';
 import { ReleaseNotes, type VersionNotes } from './ReleaseNotes';
@@ -15,8 +14,9 @@ import { EarlierVersions, LineNav } from './VersionLinePage';
 import { minorOf } from '../lib/releaseNotes.mjs';
 import { snackbar } from '../lib/snackbar';
 import { t } from './i18n';
-import { blockedText, type Blocked } from './blockedText';
+import { blockedText, unsafePlaces, type Blocked } from './blockedText';
 import { when } from './when';
+import { materialIcon, type IconComponent as Icon } from './icon';
 
 export const CMS_ROUTE = 'morpheme';
 
@@ -36,7 +36,8 @@ type View = {
 type Status = object;
 
 /** The Worker's error code in words; any other answer says what status it was. */
-function errorText(code: unknown, status: number, version = '') {
+function errorText(code: unknown, status: number, version = '', detail?: unknown) {
+  if (code === 'unsafe-code' && Array.isArray(detail)) return t.cms.blockedUnsafeCode(version, unsafePlaces(detail.map(String)));
   if (code === 'not-set-up') return t.cms.noToken;
   if (code === 'waiting') return t.cms.waiting(version);
   return t.app.githubAnswered(status);
@@ -68,7 +69,7 @@ function UpdateStatus({ update }: { update: NonNullable<View['update']> }) {
   const bad = update.state === 'undone' || update.state === 'stuck';
   return (
     <div>
-      <StatusLine icon={bad ? WarningCircle : undefined} tone={bad ? 'accent' : undefined}>
+      <StatusLine icon={bad ? materialIcon('error') : undefined} tone={bad ? 'accent' : undefined}>
         {t.cms[update.state](update.to)}
       </StatusLine>
       <p className="mo-editor-small-note">{when(new Date(update.at))}</p>
@@ -103,7 +104,7 @@ export default function CmsPage() {
       });
       if (!res.ok) {
         const json = await res.json().catch(() => ({}));
-        throw new Error(errorText(json.error, res.status, version));
+        throw new Error(errorText(json.error, res.status, version, json.detail));
       }
       await load();
     } catch (e) {
@@ -137,7 +138,7 @@ export default function CmsPage() {
             {view.update && <UpdateStatus update={view.update} />}
             {view.latest && (
               <div>
-                <StatusLine icon={Sparkle} tone="accent">
+                <StatusLine icon={materialIcon('stars')} tone="accent">
                   {t.cms.available(view.latest)}
                 </StatusLine>
                 {reason && <p className="mo-editor-small-note">{reason}</p>}
@@ -151,13 +152,23 @@ export default function CmsPage() {
                 </p>
               </div>
             )}
-            {view.blocked?.kind === 'contract' && (
-              <StatusLine icon={WarningCircle} tone="accent">
+            {(view.blocked?.kind === 'contract' || view.blocked?.kind === 'unsafe-code') && (
+              <StatusLine icon={materialIcon('error')} tone="accent">
                 {blockedText(view.blocked)}
               </StatusLine>
             )}
+            {view.blocked?.kind === 'unsafe-code' && (
+              <p className="mo-editor-small-note">
+                {view.blocked.lines.map((line) => (
+                  <code key={line}>
+                    {line}
+                    <br />
+                  </code>
+                ))}
+              </p>
+            )}
             {view.problems.map((kind) => (
-              <StatusLine key={kind} icon={WarningCircle} tone="accent">
+              <StatusLine key={kind} icon={materialIcon('error')} tone="accent">
                 {t.cms[kindText[kind]]}
               </StatusLine>
             ))}

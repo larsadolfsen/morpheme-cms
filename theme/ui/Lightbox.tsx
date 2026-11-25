@@ -34,13 +34,13 @@ export default function Lightbox({
     <dialog className={[lightboxModalClass, className].filter(Boolean).join(' ')} aria-label={label} data-lightbox="" {...rest}>
       <div className={`${dialogClass} mo-lightbox`}>
         <div className="mo-lightbox__header">
-          <IconButton icon="x" label={closeLabel} data-dialog-close="" />
+          <IconButton icon="close" label={closeLabel} data-dialog-close="" />
         </div>
         <div className="mo-lightbox__content">
           <div className="mo-lightbox__stage">
-            <IconButton icon="caret-left" label={previousLabel} className="mo-lightbox__previous" data-lightbox-previous="" />
+            <IconButton icon="keyboard_arrow_left" label={previousLabel} className="mo-lightbox__previous" data-lightbox-previous="" />
             <ul className="mo-lightbox__track" data-lightbox-track="" tabIndex={0} aria-label={label} />
-            <IconButton icon="caret-right" label={nextLabel} className="mo-lightbox__next" data-lightbox-next="" />
+            <IconButton icon="keyboard_arrow_right" label={nextLabel} className="mo-lightbox__next" data-lightbox-next="" />
           </div>
           <p className="mo-lightbox__count" data-lightbox-count="" aria-live="polite" />
         </div>

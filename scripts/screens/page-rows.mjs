@@ -55,7 +55,7 @@ async function checkBlockRow(width, options = {}) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  await insertBlock(page, 'Rows with icon, heading and text.', 1, 0);
+  await insertBlock(page, 'Show text and images in a list.', 1, 0);
   await page.keyboard.type('Design');
   const row = page.locator('.mo-site-block-row');
   if (reduced) await page.waitForTimeout(100);
@@ -153,9 +153,9 @@ async function checkBlockRow(width, options = {}) {
     .locator('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')
     .evaluateAll((els) => els.map((e) => [...e.classList]));
   for (const list of classes)
-    if (list.some((c) => !/^mo-icon-button(__|$)/.test(c)))
+    if (list.some((c) => !/^mo-icon-button(__|$)|^mo-is-/.test(c)))
       problems.push(`${label}: a row button has a class of its own (${list.join(' ')}); it must be the theme's icon button`);
-  if (classes.some((list) => !list.includes('mo-icon-button') || !list.includes('mo-icon-button__standard')))
+  if (classes.some((list) => !list.includes('mo-icon-button') || !list.includes('mo-is-standard')))
     problems.push(`${label}: a row button is not the theme's standard icon button (${JSON.stringify(classes)})`);
   const hoverOf = async (locator) => {
     await locator.hover();
@@ -170,7 +170,7 @@ async function checkBlockRow(width, options = {}) {
     const probe = document.createElement('button');
     probe.type = 'button';
     probe.dataset.probe = 'icon';
-    probe.className = 'mo-icon-button mo-icon-button__standard';
+    probe.className = 'mo-icon-button mo-is-standard';
     probe.innerHTML = document.querySelector('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row="up"]')?.innerHTML ?? '';
     document.querySelector('.mo-site-block-row:not(.mo-site-block-row-hover) .mo-site-block-row-inner').prepend(probe);
   });
@@ -186,13 +186,13 @@ async function checkBlockRow(width, options = {}) {
   if (await add.count()) {
     const addHover = await hoverOf(add);
     const classes2 = await add.evaluate((e) => [...e.classList]);
-    if (!classes2.includes('mo-button') || !classes2.includes('mo-button__text'))
+    if (!classes2.includes('mo-button') || !classes2.includes('mo-is-text'))
       problems.push(`${label}: Add list row is not the theme's text button (${classes2})`);
     const wantText = page.locator('[data-probe="text"]');
     await page.evaluate(() => {
       const probe = document.createElement('button');
       probe.dataset.probe = 'text';
-      probe.className = 'mo-button mo-button__text';
+      probe.className = 'mo-button mo-is-text';
       probe.textContent = 'x';
       document.querySelector('.mo-site-block-card.mo-site-block-inline').append(probe);
     });
@@ -328,7 +328,7 @@ async function checkBlockRow(width, options = {}) {
       if (!hovered.inside) problems.push(`${label}: the pointed block's row is not inside the dotted outline`);
       for (const name of ['Move up', 'Move down', 'Hide'])
         if (!hovered.names.includes(name)) problems.push(`${label}: the pointed block's row has no "${name}" (${hovered.names})`);
-      if (hovered.classes.some((c) => c !== 'mo-icon-button mo-icon-button__standard'))
+      if (hovered.classes.some((c) => c !== 'mo-icon-button mo-is-standard'))
         problems.push(`${label}: the pointed block's buttons are not the theme icon button (${hovered.classes})`);
       if (!hovered.handle) problems.push(`${label}: the pointed block shows no drag handle`);
     }
@@ -375,7 +375,7 @@ async function checkBlockVisibility(width) {
   await page.waitForTimeout(300);
   for (let i = 0; i < 3; i++) {
     // Each new block lands above the ones before it; go on once it is the active one (insertBlock).
-    await insertBlock(page, 'Rows with icon, heading and text.', i + 1, 0);
+    await insertBlock(page, 'Show text and images in a list.', i + 1, 0);
     await newLineUnder(page, 'Hello');
   }
   const blocks = page.locator('.ProseMirror .mo-site-block');
@@ -506,7 +506,7 @@ async function checkBlockRowNarrow() {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  await insertBlock(page, 'Rows with icon, heading and text.', 1, 0);
+  await insertBlock(page, 'Show text and images in a list.', 1, 0);
   await page.click('.ProseMirror > p');
   await page.waitForTimeout(900);
   await page.locator('.mo-site-block-card').first().hover();
@@ -964,7 +964,7 @@ async function checkEmptyRow(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'tap');
-  await page.locator('dialog[open] button', { hasText: 'Rows that open to show more.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show list items that expand and collapse.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   const dialog = page.locator('dialog[open]');
   const rows = () => page.locator('.mo-editor-inline-list-row[data-row]:not(.mo-editor-inline-list-row-next)').count();
@@ -1018,7 +1018,7 @@ async function checkEmptyRow(width, height) {
     await page.click('.ProseMirror > p');
     await page.keyboard.press('Enter');
     await pressInsert(page, 'tap');
-    await page.locator('dialog[open] button', { hasText: 'Rows that open to show more.' }).first().click();
+    await page.locator('dialog[open] button', { hasText: 'Show list items that expand and collapse.' }).first().click();
     await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
     await page.keyboard.type('First');
     for (const word of ['Second', 'Third']) {
@@ -1076,7 +1076,7 @@ async function checkEmptyRow(width, height) {
 /** Insert of every block typed in place (the lists above and the Table) puts the block in the text, on an empty page and after a line of text: it never opens a sheet. A new typed-in-place block goes in `inlineBlocks`, `inlineSingles` or here. */
 async function checkInsertNeverOpensSheet(width, height) {
   const phone = width < 600;
-  const hints = [...inlineBlocks, ...inlineSingles, ...liveLists, { name: 'table', hint: 'Rows and columns of text.' }];
+  const hints = [...inlineBlocks, ...inlineSingles, ...liveLists, { name: 'table', hint: 'Show data in rows and columns.' }];
   for (const { name, hint } of hints) {
     for (const typed of [false, true]) {
       const label = `${width}px Insert of ${name}${typed ? '' : ' on an empty page'}`;
@@ -1122,7 +1122,7 @@ async function checkChangeTo(width, height) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('Opening hours');
   await page.keyboard.press('Enter');
@@ -1404,7 +1404,11 @@ async function checkPageLeftEdge(width) {
         const handle = b.querySelector(':scope > .mo-site-block-handle')?.getBoundingClientRect();
         return { card: card.left, cardRight: card.right, body: body.left, mark: mark?.left ?? null, handleRight: handle?.right ?? null };
       });
-      const heads = [...pm.querySelectorAll(':scope > :is(h1, h2, h3, p)')].map((h) => h.getBoundingClientRect().left);
+      // The content edge, not the box: a section's first heading draws its line across the full width (its box reaches the field's edge, its padding puts the text back).
+      const heads = [...pm.querySelectorAll(':scope > :is(h1, h2, h3, p)')].map((h) => {
+        const cs = getComputedStyle(h);
+        return h.getBoundingClientRect().left + parseFloat(cs.paddingLeft) + parseFloat(cs.borderLeftWidth);
+      });
       return { field: field.left, fieldRight: field.right, text, margin, outset: outset * rem, blocks, heads };
     });
     const at = `${label}${cursor ? ' with the cursor in the text' : ''}`;

@@ -9,7 +9,6 @@
 // (#licenses/<id>, LicensePage). An app's and a theme's page has its group too (OwnerLicenses), and one in the store,
 // from the catalog, the same without the texts (StoreLicenseRows).
 import { useEffect, useState } from 'react';
-import { Certificate, Code, Image, Shapes, TextAa, type Icon } from '@phosphor-icons/react';
 import Screen from './Screen';
 import { EmptyNote, Group, GroupTitle, SearchRow, SupportingText, useKept, ListItem } from './ui';
 import { backFrom } from './site';
@@ -32,10 +31,16 @@ import {
   type StoreLicenses,
   type ThirdParty,
 } from './licenseData';
+import { materialIcon, type IconComponent as Icon } from './icon';
 
 export const LICENSES_ROUTE = 'licenses';
 
-const KIND_ICONS: Record<LicenseKind, Icon> = { font: TextAa, icons: Shapes, library: Code, image: Image };
+const KIND_ICONS: Record<LicenseKind, Icon> = {
+  font: materialIcon('text_fields'),
+  icons: materialIcon('shapes'),
+  library: materialIcon('code'),
+  image: materialIcon('image'),
+};
 
 /** A licence's name as it is shown: its SPDX name, or "All rights reserved". */
 export const licenseName = (license: string | null | undefined) => (license === UNLICENSED ? t.licenses.unlicensed : (license ?? ''));
@@ -132,7 +137,7 @@ function OwnRow({
 }) {
   return (
     <LicenseRow
-      icon={Certificate}
+      icon={materialIcon('workspace_premium')}
       name={t.licenses.own(name)}
       lines={[byline(owner.license, owner.author)]}
       version={owner.version}
@@ -346,7 +351,12 @@ export function StoreLicenseRows({
   if (!licenses) return null;
   return (
     <Group title={t.common.parts.licenses}>
-      <LicenseRow icon={Certificate} name={t.licenses.own(name)} lines={[byline(licenses.license, author)]} version={version} />
+      <LicenseRow
+        icon={materialIcon('workspace_premium')}
+        name={t.licenses.own(name)}
+        lines={[byline(licenses.license, author)]}
+        version={version}
+      />
       {licenses.works.map((w, i) => (
         <LicenseRow
           key={i}

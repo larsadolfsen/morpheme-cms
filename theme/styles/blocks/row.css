@@ -34,7 +34,7 @@
     cursor: pointer;
   }
   .mo-block-imagegrid__empty {
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   .mo-block-imagegrid__count {
     position: absolute;

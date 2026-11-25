@@ -230,26 +230,26 @@ export function loadM3(dir = COPY) {
 }
 
 /**
- * Where the theme's part is M3 Expressive's, not the baseline's, its name is not M3's yet (the names follow in 0.20.0, plans/2026-11-20-0-19-5-material-3-tokens.md,
- * Names): the theme's `navigation-bar` is Expressive's flexible `nav-bar` (64 dp, the baseline `navigation-bar` says 80), its `navigation-rail` the collapsed
- * `nav-rail` (96 dp), and its *medium* button M3 Expressive's *small* (40 dp). Each pair is [M3's prefix, the theme's prefix]; the baseline set of the same
+ * Where the theme's part is M3 Expressive's, not the baseline's (the names are M3's since batch 2 of 0.19.6, so these prefixes are the plain ones): the theme's
+ * `nav-bar` is Expressive's flexible one (64 dp, the baseline `navigation-bar` says 80), its `nav-rail` the collapsed `nav-rail` (96 dp), and its button M3 Expressive's
+ * *small* (40 dp). Each pair is [M3's prefix, the theme's prefix]; the baseline set of the same
  * theme name is then not compared.
  */
 export const EXPRESSIVE = [
-  ['md.comp.nav-bar.', '--mo-comp-navigation-bar-'],
-  ['md.comp.nav-rail.collapsed.', '--mo-comp-navigation-rail-'],
-  ['md.comp.button.small.', '--mo-comp-button-medium-'],
+  ['md.comp.nav-bar.', '--mo-comp-nav-bar-'],
+  ['md.comp.nav-rail.collapsed.', '--mo-comp-nav-rail-collapsed-'],
+  ['md.comp.button.small.', '--mo-comp-button-small-'],
   // One token each, where the theme's part is the Expressive set's, not the baseline's (batch 7): the menu is Expressive's `menus` (large corners, 44 dp rows; the
   // baseline `menu` says extra-small and 48), the docked search view is the contained style (results in medium corners; the baseline token is the divided style's
   // one container, extra-large), and the side sheet's token is drawn by the modal sheet (16 dp towards the page; the docked token says none).
-  ['md.comp.menus.container.shape', '--mo-comp-menu-container-shape'],
-  ['md.comp.menus.menu-item.height', '--mo-comp-menu-list-item-container-height'],
+  ['md.comp.menus.container.shape', '--mo-comp-menus-container-shape'],
+  ['md.comp.menus.menu-item.height', '--mo-comp-menus-menu-item-height'],
   // The standard colours of the same set: `surface-container-low` (the baseline says `surface-container`) and the chosen item on the tertiary container (the baseline: secondary).
-  ['md.comp.menus.standard.container.color', '--mo-comp-menu-container-color'],
-  ['md.comp.menus.standard.menu-item.selected.container.color', '--mo-comp-menu-list-item-selected-container-color'],
-  ['md.comp.menus.standard.menu-item.selected.label-text.color', '--mo-comp-menu-list-item-selected-label-text-color'],
-  ['md.comp.search-view.contained.docked.results.shape', '--mo-comp-search-view-docked-container-shape'],
-  ['md.comp.sheet.side.docked.modal.container.shape', '--mo-comp-sheet-side-docked-container-shape'],
+  ['md.comp.menus.standard.container.color', '--mo-comp-menus-standard-container-color'],
+  ['md.comp.menus.standard.menu-item.selected.container.color', '--mo-comp-menus-standard-menu-item-selected-container-color'],
+  ['md.comp.menus.standard.menu-item.selected.label-text.color', '--mo-comp-menus-standard-menu-item-selected-label-text-color'],
+  ['md.comp.search-view.contained.docked.results.shape', '--mo-comp-search-view-contained-docked-results-shape'],
+  ['md.comp.sheet.side.docked.modal.container.shape', '--mo-comp-sheet-side-docked-modal-container-shape'],
 ];
 const EXPRESSIVE_THEME_PREFIXES = EXPRESSIVE.map(([, theme]) => theme);
 
@@ -384,17 +384,28 @@ export function judgeOurs(map, m3, ours, renames = RENAMES) {
   const problems = [];
   const un = new Set(unmapped(map, m3, renames));
   const named = new Set();
+  const prefixes = [];
   for (const e of ours) {
     if (!e.token || !e.reason) problems.push(`bad entry of ours ${JSON.stringify(e.token)}: it needs token and reason`);
     if (named.has(e.token)) problems.push(`ours twice: ${e.token}`);
     named.add(e.token);
+    if (e.token?.endsWith('*')) {
+      // A prefix (`--mo-comp-block-*`): a family of ours, as in scripts/m3-names.ours.mjs. It must still match a declared token that maps to no M3 token.
+      const p = e.token.slice(0, -1);
+      prefixes.push(p);
+      if (![...un].some((n) => n.startsWith(p)))
+        problems.push(
+          `${e.token}: named as ours but no declared token of it maps to no M3 token; remove it from scripts/m3-tokens.ours.mjs`,
+        );
+      continue;
+    }
     if (!map.has(e.token))
       problems.push(`${e.token}: named as ours but no longer declared on :root; remove it from scripts/m3-tokens.ours.mjs`);
     else if (!un.has(e.token))
       problems.push(`${e.token}: named as ours but it maps to an M3 token now; remove it from scripts/m3-tokens.ours.mjs`);
   }
   for (const n of un)
-    if (!named.has(n))
+    if (!named.has(n) && !prefixes.some((p) => n.startsWith(p)))
       problems.push(
         `${n}: maps to no M3 token. Name it in scripts/m3-tokens.renames.mjs (its M3 token) or in scripts/m3-tokens.ours.mjs (with the reason M3 has none)`,
       );

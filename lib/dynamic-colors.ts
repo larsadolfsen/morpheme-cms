@@ -1,19 +1,19 @@
 // Dynamic colour (Material 3, https://m3.material.io/styles/color/system/how-the-system-works): all the
-// site's colours, in light and dark mode, made from one source colour. The source colour gives tonal
-// palettes in HCT (Material's colour space), a scheme variant picks how much colour each palette has, and
-// the contrast level how far apart the tones of text and its background are. The generator ("Colors" › "Generator")
-// uses a colour harmony instead of a variant: the source colour's hue and chroma give the primary palette, and the
-// harmony puts the secondary and tertiary palettes round the colour wheel from it (HARMONIES), as on a colour wheel. Each of the site's colours
-// takes the tone of a Material colour role ("Colors": colorRoles in @site/colors), so text stays
-// readable in both modes. The site's file of colours keeps the choice ("dynamic") beside the colours it
-// gave, so the site itself never needs this: only the editor makes them (Colors.tsx).
+// site's colours, in light and dark mode, made from one source colour, as Material Theme Builder makes them
+// (docs/superpowers/specs/2026-11-21-m3-color-schemes-design.md). The source colour gives tonal palettes in HCT
+// (Material's colour space), one of M3's scheme variants (Tonal Spot, M3's default, and the others) picks how much colour each
+// palette has, and the contrast level how far apart the tones of text and its background are; the library's own scheme
+// classes do all of it, so a scheme equals Theme Builder's export for the same source colour, role by role. Custom is
+// Theme Builder's custom core colours: Primary, Secondary and Tertiary each give their own palette, and the roles take M3's tones
+// from them (never the chosen colour itself). Each of the site's colours takes the tone of a Material colour role ("Colors":
+// colorRoles in @site/colors), so text stays readable in both modes. The site's file of colours keeps the choice ("dynamic")
+// beside the colours it gave, so the site itself never needs this: only the editor makes them (Colors.tsx).
 // Content-based colour (https://m3.material.io/styles/color/dynamic/content-based-source) is the other
 // source Material has: every page takes its colours from its own image, made the same way when
 // the site is built (packages/editor/site/pageColors.ts), while an app says so (the app "Indholdsbaserede farver", with the choice
 // in its settings), or a theme asks for it.
 // No React or browser here: the check before the build uses it too.
 import {
-  Blend,
   DislikeAnalyzer,
   DynamicScheme,
   Hct,
@@ -28,7 +28,6 @@ import {
   SchemeTonalSpot,
   SchemeVibrant,
   Score,
-  TemperatureCache,
   TonalPalette,
   argbFromHex,
   argbFromRgb,
@@ -67,48 +66,12 @@ const SCHEMES: Record<Variant, new (source: Hct, isDark: boolean, contrast: numb
 export const CONTRASTS = { standard: 0, medium: 0.5, high: 1 } as const;
 export type Contrast = keyof typeof CONTRASTS;
 
-/** The colour harmonies the generator offers, in the order they are offered (the first is where it starts). */
-export const HARMONIES = ['analogous', 'monochromatic', 'complementary', 'splitComplementary', 'triadic'] as const;
-export type Harmony = (typeof HARMONIES)[number];
+/** The harmonies the generator offered before M3's schemes (0.19.6): a file may still name one (sites skip versions, so old forms stay
+ * readable). It is read as Tonal Spot from the same source colour; nothing makes the old colours again. */
+const LEGACY_HARMONIES = ['analogous', 'monochromatic', 'complementary', 'splitComplementary', 'triadic'];
 
-// Each harmony's secondary and tertiary palette: its hue, from the source colour (with Material's warm and cool
-// colours, TemperatureCache, where Material has the harmony: its analogous colours and its complement, which go better
-// with the source colour than a fixed turn round the wheel; else a turn), and its share of the harmony's chroma
-// (harmonyChroma). A palette on the source colour's own hue has less of it, so the two still differ.
-type Place = (source: Hct, warmCool: () => TemperatureCache) => number;
-const HARMONY: Record<Harmony, Record<'secondary' | 'tertiary', [hue: Place, share: number]>> = {
-  analogous: { secondary: [(_, w) => w().analogous(5, 12)[1].hue, 1], tertiary: [(_, w) => w().analogous(5, 12)[3].hue, 1] },
-  monochromatic: { secondary: [(s) => s.hue, 0.45], tertiary: [(s) => s.hue, 0.75] },
-  complementary: { secondary: [(s) => s.hue, 0.45], tertiary: [(_, w) => w().complement.hue, 1] },
-  splitComplementary: { secondary: [(_, w) => w().complement.hue - 30, 1], tertiary: [(_, w) => w().complement.hue + 30, 1] },
-  triadic: { secondary: [(s) => s.hue + 120, 1], tertiary: [(s) => s.hue - 120, 1] },
-};
-
-// The secondary and tertiary colours' chroma: the source colour's, but at least 32 and at most 48, so they are neither
-// grey nor neon (a nearly grey source colour gives grey ones: at most twice its own).
-const harmonyChroma = (chroma: number) => Math.min(48, Math.max(chroma, Math.min(32, chroma * 2)));
-// The source colour's chroma that gives a harmony chroma (the other way round).
-function sourceChromaFor(wanted: number, chroma: number): number {
-  if (wanted < 32) return wanted / 2;
-  if (wanted >= 48) return Math.max(chroma, 48);
-  if (wanted === 32) return chroma >= 16 && chroma <= 32 ? chroma : 32;
-  return wanted;
-}
-
-// The hue and chroma of a harmony's secondary or tertiary palette for a source colour (the warm and cool colours worked
-// out once for the last source colour, as dragging asks for them many times).
-let warmCool: { argb: number; cache: TemperatureCache } | undefined;
-function placed(source: Hct, harmony: Harmony, which: 'secondary' | 'tertiary'): { hue: number; chroma: number } {
-  const w = () => {
-    if (warmCool?.argb !== source.toInt()) warmCool = { argb: source.toInt(), cache: new TemperatureCache(source) };
-    return warmCool.cache;
-  };
-  const [hue, share] = HARMONY[harmony][which];
-  return { hue: sanitizeDegreesDouble(hue(source, w)), chroma: harmonyChroma(source.chroma) * share };
-}
-
-/** The generator's sixth choice (M3: "Define your own baseline scheme"): Primary, Secondary and Tertiary chosen freely, nothing
- * generated between them. The chosen colours are the site's Primary, Secondary and Tertiary exactly (see roleHex). */
+/** The generator's other choice (Theme Builder's custom core colours, M3 "Custom brand"): Primary, Secondary and Tertiary set freely,
+ * each giving its own palette; the roles take M3's tones from them. */
 export const CUSTOM = 'custom';
 
 /** The generator's three base colours, in order: the source colour (primary), the second (secondary) and the third
@@ -116,20 +79,20 @@ export const CUSTOM = 'custom';
 export const BASE_COLORS = ['source', 'secondary', 'tertiary'] as const;
 export type BaseColor = (typeof BASE_COLORS)[number];
 
-/** The choice the colours are made from, as the file of colours keeps it: the source colour, a harmony (the
- * generator's) or a variant (Material's, as a file written before the harmonies has it), never both, and the contrast.
- * The source colour can be locked (`sourceLocked`): the wheel does not move it, and the second and third colours,
- * which the harmony makes from it, cannot be changed on their own. */
+/** The choice the colours are made from, as the file of colours keeps it: the source colour, one of M3's scheme variants and the
+ * contrast. `harmony` is read from a file of the older generator (LEGACY_HARMONIES) or `custom` (Primary, Secondary and Tertiary
+ * set freely); the editor never writes an older harmony. */
 export type Dynamic = {
   source: string;
-  harmony?: Harmony | typeof CUSTOM;
+  harmony?: string;
   variant?: Variant;
   contrast: Contrast;
+  /** Read from a file of the older generator; no longer used. */
   sourceLocked?: boolean;
-  /** Custom only: the second and third colour, chosen freely (`source` is Primary). */
+  /** Custom only: the second and third colour (`source` is Primary). */
   secondary?: string;
   tertiary?: string;
-  /** Custom only: the owner kept Primary as chosen though it is hard to read as text (primaryProblem). */
+  /** Read from a file of the older generator: Primary kept as chosen though hard to read (lowContrast skips its text pairs). New colours drop it. */
   kept?: 'primary'[];
 };
 
@@ -190,76 +153,38 @@ export type Role =
 /** The role each of a site's colours takes, by its name; one role, or one in each mode. */
 export type ColorRoles = Record<string, Role | Record<Mode, Role>>;
 
-const TEXT_MIN = 4.5;
 const GRAPHIC_MIN = 3;
 
 function roleColor(scheme: DynamicScheme, role: Role): string {
   return hexFromArgb(scheme[role]);
 }
 
-// Material's error colour, which a harmony turns a little towards the source colour (Blend.harmonize, as Material
-// harmonizes its static colours), so it sits better with the others.
-const ERROR = Hct.from(25, 84, 40).toInt();
-// The variant whose rules a harmony's scheme follows for each role's tone (Material's own for tonal spot).
-const TONAL_SPOT = new SchemeTonalSpot(Hct.fromInt(ERROR), false, 0).variant;
+// A file of the older generator names a harmony, which is read as Tonal Spot (the default variant).
+const variantOf = (dynamic: Dynamic): Variant => (dynamic.harmony === undefined && dynamic.variant) || VARIANTS[0];
 
-/** Material's scheme for a choice, in a mode: its harmony's or its variant's. */
+/** M3's scheme for a choice, in a mode: the library's scheme class for the variant (Tonal Spot, M3's default, for Custom and for a file of
+ * the older generator), or, in Custom, Theme Builder's custom core colours: each of Primary, Secondary and Tertiary gives its own palette
+ * (its hue and chroma), and the neutrals and the error are M3's (the neutrals from Primary's hue, the error fixed). */
 function schemeOf(dynamic: Dynamic, isDark: boolean): DynamicScheme {
   const source = Hct.fromInt(argbFromHex(dynamic.source));
   const contrastLevel = CONTRASTS[dynamic.contrast];
-  if (!dynamic.harmony) return new SCHEMES[dynamic.variant ?? VARIANTS[0]](source, isDark, contrastLevel);
-  const { harmony } = dynamic;
-  const { hue, chroma } = source;
-  // Custom: each base colour gives its own palette, from its own hue and chroma; the neutrals still come from Primary.
-  const around = (which: 'secondary' | 'tertiary') => {
-    if (harmony === CUSTOM) {
-      const own = Hct.fromInt(argbFromHex(dynamic[which] ?? dynamic.source));
-      return TonalPalette.fromHueAndChroma(own.hue, own.chroma);
-    }
-    const p = placed(source, harmony, which);
-    return TonalPalette.fromHueAndChroma(p.hue, p.chroma);
+  if (dynamic.harmony !== CUSTOM) return new SCHEMES[variantOf(dynamic)](source, isDark, contrastLevel);
+  const core = (hex: string) => {
+    const own = Hct.fromInt(argbFromHex(hex));
+    return TonalPalette.fromHueAndChroma(own.hue, own.chroma);
   };
-  const scheme = new DynamicScheme({
+  const tonal = new SchemeTonalSpot(source, isDark, contrastLevel);
+  return new DynamicScheme({
     sourceColorArgb: source.toInt(),
-    variant: TONAL_SPOT,
+    variant: tonal.variant,
     contrastLevel,
     isDark,
-    primaryPalette: TonalPalette.fromHueAndChroma(hue, chroma),
-    secondaryPalette: around('secondary'),
-    tertiaryPalette: around('tertiary'),
-    // The surfaces and text a little of the source colour, as much as tonal spot's at most.
-    neutralPalette: TonalPalette.fromHueAndChroma(hue, Math.min(chroma / 6, 6)),
-    neutralVariantPalette: TonalPalette.fromHueAndChroma(hue, Math.min(chroma / 4.5, 8)),
+    primaryPalette: core(dynamic.source),
+    secondaryPalette: core(dynamic.secondary ?? dynamic.source),
+    tertiaryPalette: core(dynamic.tertiary ?? dynamic.source),
+    neutralPalette: tonal.neutralPalette,
+    neutralVariantPalette: tonal.neutralVariantPalette,
   });
-  scheme.errorPalette = TonalPalette.fromHueAndChroma(Hct.fromInt(Blend.harmonize(ERROR, source.toInt())).hue, 84);
-  return scheme;
-}
-
-/** The text colour on a fill: `preferred` (Material's: tone 100 in light mode, 20 in dark) where it gives 4.5:1, else white or
- * black, whichever gives more. One of the two is always at least 4.58:1, so a fill always has readable text. */
-export function onColor(fill: string, preferred?: string): string {
-  if (preferred && contrast(preferred, fill) >= TEXT_MIN) return preferred;
-  return contrast('#ffffff', fill) >= contrast('#000000', fill) ? '#ffffff' : '#000000';
-}
-
-// In Custom the roles Primary, Secondary and Tertiary are the chosen colours, exactly, in both modes and at every contrast
-// level (M3's fidelity: "adjusts tones … to produce the intended visual results"), and their on-colours are `onColor` of them.
-// Every other role is the scheme's (containers, on-containers, fixed roles, surfaces, inverse roles, outline: Material's tones).
-const CHOSEN = {
-  primary: ['source', 'onPrimary'],
-  secondary: ['secondary', 'onSecondary'],
-  tertiary: ['tertiary', 'onTertiary'],
-} as const;
-
-function roleHex(dynamic: Dynamic, scheme: DynamicScheme, role: Role): string {
-  if (dynamic.harmony === CUSTOM) {
-    for (const [fill, [key, on]] of Object.entries(CHOSEN)) {
-      const chosen = hexFromArgb(argbFromHex(dynamic[key] ?? dynamic.source));
-      if (role === fill) return chosen;
-      if (role === on) return onColor(chosen, roleColor(scheme, role));
-    }
-  }
-  return roleColor(scheme, role);
 }
 
 /** The site's colours in both modes, made from the choice, each by its role. */
@@ -267,7 +192,7 @@ export function dynamicColors(dynamic: Dynamic, roles: ColorRoles): Colors {
   const set = (mode: Mode): ColorSet => {
     const scheme = schemeOf(dynamic, mode === 'dark');
     return Object.fromEntries(
-      Object.entries(roles).map(([name, role]) => [name, roleHex(dynamic, scheme, typeof role === 'string' ? role : role[mode])]),
+      Object.entries(roles).map(([name, role]) => [name, roleColor(scheme, typeof role === 'string' ? role : role[mode])]),
     );
   };
   return { light: set('light'), dark: set('dark') };
@@ -347,73 +272,32 @@ export function completeColors(colors: Colors, roles: ColorRoles): Colors {
 export function dynamicProblems(value: unknown, key: 'dynamic' | 'contentBased' = 'dynamic'): string[] {
   const d = (value ?? {}) as Record<string, unknown>;
   const bad = (name: string) => `${key}.${name}: ${JSON.stringify(d[name] ?? null)}`;
-  // A harmony instead of a variant only in a file of colours, the generator's.
+  // A harmony instead of a variant only in a file of colours: Custom, or one the older generator wrote.
   const harmony = key === 'dynamic' && d.harmony !== undefined;
   const custom = key === 'dynamic' && d.harmony === CUSTOM;
   return [
     ...(key === 'contentBased' || isColor(d.source) ? [] : [bad('source')]),
-    ...(harmony ? (custom || HARMONIES.includes(d.harmony as Harmony) ? [] : [bad('harmony')]) : []),
+    ...(harmony ? (custom || LEGACY_HARMONIES.includes(d.harmony as string) ? [] : [bad('harmony')]) : []),
     ...((harmony ? d.variant === undefined : VARIANTS.includes(d.variant as Variant)) ? [] : [bad('variant')]),
     ...(Object.hasOwn(CONTRASTS, d.contrast as string) ? [] : [bad('contrast')]),
-    // The lock on the source colour, only in a file of colours, and not in Custom (nothing there moves a colour but its own pen).
+    // The older generator's `kept`, only in Custom.
+    ...(d.kept === undefined || (custom && Array.isArray(d.kept) && d.kept.length === 1 && d.kept[0] === 'primary') ? [] : [bad('kept')]),
+    // The lock of the older generator is still read.
     ...(d.sourceLocked === undefined || (key === 'dynamic' && !custom && d.sourceLocked === true) ? [] : [bad('sourceLocked')]),
     // Custom has both its other colours; nothing else has them.
     ...(['secondary', 'tertiary'] as const).flatMap((name) =>
       custom ? (isColor(d[name]) ? [] : [bad(name)]) : d[name] === undefined ? [] : [bad(name)],
     ),
-    // The owner's answer "Keep" for Primary, only in Custom.
-    ...(d.kept === undefined || (custom && Array.isArray(d.kept) && d.kept.length === 1 && d.kept[0] === 'primary') ? [] : [bad('kept')]),
   ];
 }
 
 // What a colour must reach on the page (Surface): 4.5:1 as text, 3:1 as a graphic (M3, "Color contrast").
 
-/** The backgrounds Primary is text on (`colorPairs`: "Primary on Surface" and three containers). */
-const PRIMARY_TEXT_ON = ['surfaceContainerHigh', 'surfaceContainerLow', 'surfaceContainerLowest', 'surface'] as const;
-const roleName = (role: (typeof PRIMARY_TEXT_ON)[number]) => role.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
-
-/** Primary as text in a mode: its contrast on the page and the containers (the lowest of the four `colorPairs`), and the
- * one it is lowest on. */
-function primaryText(dynamic: Dynamic, mode: Mode, primary?: string) {
-  const scheme = schemeOf(dynamic, mode === 'dark');
-  const color = primary ?? roleHex(dynamic, scheme, 'primary');
-  return PRIMARY_TEXT_ON.map((role) => ({ on: roleName(role), ratio: contrast(color, roleColor(scheme, role)) })).reduce((a, b) =>
-    b.ratio < a.ratio ? b : a,
-  );
-}
-
-/** The question about Primary (Custom): in each mode where Primary, as text, is below 4.5:1 on Surface or a container (the four
- * `primary on …` pairs), its lowest contrast and the background it is lowest on; [] when Primary reads everywhere. A harmony's
- * Primary is Material's and never asks. The editor then asks "Fix this to improve accessibility?"; it never changes Primary itself. */
-export function primaryProblem(dynamic: Dynamic): { mode: Mode; ratio: number; min: number; on: string }[] {
-  return MODES.flatMap((mode) => {
-    const { ratio, on } = primaryText(dynamic, mode);
-    return ratio < TEXT_MIN ? [{ mode, ratio, min: TEXT_MIN, on }] : [];
-  });
-}
-
-/** What "Fix" gives Primary in a mode: the same hue and chroma at the nearest tone that reaches 4.5:1 as text (searched from
- * the chosen tone: darker in light mode, lighter in dark mode, never past Material's own tone 40 or 80, which passes by
- * construction); undefined when Primary already does. The on-color of the fixed colour is `onColor` of it. */
-export function fixedTone(dynamic: Dynamic, mode: Mode): string | undefined {
-  const chosen = roleHex(dynamic, schemeOf(dynamic, mode === 'dark'), 'primary');
-  if (primaryText(dynamic, mode).ratio >= TEXT_MIN) return undefined;
-  const { hue, chroma, tone } = Hct.fromInt(argbFromHex(chosen));
-  // Material's own tone for Primary at this contrast level (40 or 80 at Standard, further out at Medium and High).
-  const limit = Hct.fromInt(schemeOf(dynamic, mode === 'dark').primary).tone;
-  const step = mode === 'dark' ? 0.25 : -0.25;
-  for (let t = tone + step; mode === 'dark' ? t <= limit : t >= limit; t += step) {
-    const hex = hexFromArgb(Hct.from(hue, chroma, t).toInt());
-    if (primaryText(dynamic, mode, hex).ratio >= TEXT_MIN) return hex;
-  }
-  return hexFromArgb(TonalPalette.fromHueAndChroma(hue, chroma).tone(Math.round(limit)));
-}
-
-/** Secondary's or Tertiary's contrast on Surface in each mode (Custom; a harmony's are Material's). */
+/** Secondary's or Tertiary's contrast on Surface in each mode (Custom; a scheme's are Material's). */
 export function pageContrast(dynamic: Dynamic, which: 'secondary' | 'tertiary'): Record<Mode, number> {
   const of = (mode: Mode) => {
     const scheme = schemeOf(dynamic, mode === 'dark');
-    return contrast(roleHex(dynamic, scheme, which), roleColor(scheme, 'surface'));
+    return contrast(roleColor(scheme, which), roleColor(scheme, 'surface'));
   };
   return { light: of('light'), dark: of('dark') };
 }
@@ -497,10 +381,10 @@ function onWheel(hue: number, chroma: number, tone?: number): WheelDot {
   return { x: r * Math.sin(angle), y: -r * Math.cos(angle), color: colorAt(hue, chroma, tone) };
 }
 
-/** A choice's three base colours, as dots on the colour wheel: its primary (the source colour's hue and chroma),
- * secondary and tertiary palette, in that order (BASE_COLORS). The first is the source colour itself (in its tone); the
- * others are shown where their hue is clearest (most colourful: a light yellow, a deep blue), never in a tone Material
- * dislikes (DislikeAnalyzer: a dark olive), so they look as they go together, not as one tone of each. */
+/** A choice's three base colours, as dots on the colour wheel: its primary, secondary and tertiary palette, in that order
+ * (BASE_COLORS). The first is the source colour itself (in its tone); the others are shown where their hue is clearest (most
+ * colourful: a light yellow, a deep blue), never in a tone Material dislikes (DislikeAnalyzer: a dark olive), so they look as they go
+ * together, not as one tone of each. */
 export function wheelDots(dynamic: Dynamic): WheelDot[] {
   const scheme = schemeOf(dynamic, false);
   const { tone } = Hct.fromInt(argbFromHex(dynamic.source));
@@ -519,40 +403,16 @@ export function wheelDots(dynamic: Dynamic): WheelDot[] {
 }
 
 /** Whether a base colour can be changed on its own (its edit sheet): the source colour always; the secondary and
- * tertiary colour while the source colour is not locked, as they are made from it. */
-export const canSetBaseColor = (dynamic: Dynamic, which: BaseColor) =>
-  which === 'source' || dynamic.harmony === CUSTOM || !dynamic.sourceLocked;
+ * tertiary colour only in Custom (in a scheme of M3's they are made from the source colour). */
+export const canSetBaseColor = (dynamic: Dynamic, which: BaseColor) => which === 'source' || dynamic.harmony === CUSTOM;
 
-/** A choice with one of its base colours set to `color` (its edit sheet): the source colour is that colour (locked with
- * `lock`); for the secondary or tertiary colour (canSetBaseColor) the source colour turns, in its tone, so the harmony
- * (the first, without one) gives that colour's hue, or the closest it can (Material's warm and cool colours do not
- * reach every hue: no colour has a purple complement), and takes the chroma that gives that colour's chroma. */
-export function withBaseColor(dynamic: Dynamic, which: BaseColor, color: string, lock = false): Dynamic {
-  // Custom: a pen sets its own colour and nothing else, and there is no lock.
+/** A choice with one of its base colours set to `color` (its edit sheet). A scheme of M3's has the source colour only (an older
+ * harmony is dropped: the scheme is Tonal Spot from it); Custom sets its own colour and nothing else. */
+export function withBaseColor(dynamic: Dynamic, which: BaseColor, color: string): Dynamic {
   if (dynamic.harmony === CUSTOM) return { ...dynamic, [which]: color };
-  if (which === 'source') return { ...dynamic, source: color, ...(lock && { sourceLocked: true }) };
-  if (!canSetBaseColor(dynamic, which)) return dynamic;
-  const harmony = dynamic.harmony ?? HARMONIES[0];
-  const target = Hct.fromInt(argbFromHex(color));
-  const source = Hct.fromInt(argbFromHex(dynamic.source));
-  const chroma = sourceChromaFor(target.chroma / HARMONY[harmony][which][1], source.chroma);
-  // How far the harmony's colour is from the target's hue (degrees, signed), from a source hue.
-  const off = (hue: number) =>
-    sanitizeDegreesDouble(target.hue - placed(Hct.from(hue, chroma, source.tone), harmony, which).hue + 180) - 180;
-  // The closest of every 10 degrees round the wheel, then closer in a few steps from there.
-  let best = { hue: source.hue, off: off(source.hue) };
-  for (let hue = 0; hue < 360; hue += 10) {
-    const o = off(hue);
-    if (Math.abs(o) < Math.abs(best.off)) best = { hue, off: o };
-  }
-  for (let step = 0; step < 6 && Math.abs(best.off) >= 0.5; step++) {
-    const hue = sanitizeDegreesDouble(best.hue + best.off);
-    const o = off(hue);
-    if (Math.abs(o) >= Math.abs(best.off)) break;
-    best = { hue, off: o };
-  }
-  const { variant: _, ...rest } = dynamic;
-  return { ...rest, harmony, source: hexFromArgb(Hct.from(best.hue, chroma, source.tone).toInt()) };
+  if (which !== 'source') return dynamic;
+  const { harmony: _, sourceLocked: __, ...rest } = dynamic;
+  return { ...rest, source: color, variant: variantOf(dynamic) };
 }
 
 /** The source colour at a point on the colour wheel (x and y from -1 to 1; further out is the edge): its hue and

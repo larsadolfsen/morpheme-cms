@@ -443,8 +443,13 @@ export const parts: Messages['parts'] = {
       bottomSheet:
         'Et ark nedefra: modalt over siden (en dialog i midten på en computer, fx bookingarket), eller standard nederst på skærmen, hvor siden kan bruges bag det, og som trækkes op og ned.',
       carousel:
-        'Kort eller billeder på en række, der skubbes til siden, med prikker under: lige store, i flere størrelser, ét stort (fra starten eller i midten) og ét ad gangen.',
-      dialogKinds: { basic: 'Almindelig', icon: 'Med ikon, liste og skillelinje', container: 'Kun boksen' },
+        'Kort eller billeder på en række, der skubbes til siden, med prikker under: lige store, i flere former, i flere størrelser, ét stort (fra starten eller i midten) og ét ad gangen.',
+      dialogKinds: {
+        basic: 'Almindelig',
+        icon: 'Med ikon, liste og skillelinje',
+        container: 'Kun boksen',
+        fullScreen: 'Fuld skærm, en almindelig dialog fra 600 dp',
+      },
       sheetKinds: {
         modal: 'Modalt, en dialog på en computer',
         modalSideSheet: 'Modalt, et sideark på en computer',
@@ -460,6 +465,7 @@ export const parts: Messages['parts'] = {
       layouts: {
         uncontained: 'Lige store',
         multiBrowse: 'Flere størrelser',
+        multiAspect: 'Flere former, frit rul',
         hero: 'Ét stort',
         heroCenter: 'Ét stort i midten',
         narrow: 'Uden ramme, i en smal kolonne',
@@ -468,6 +474,9 @@ export const parts: Messages['parts'] = {
       choices: ['Første valg', 'Andet valg', 'Tredje valg'],
       cancel: 'Annuller',
       accept: 'Godkend',
+      openFullScreen: 'Åbn dialogen på fuld skærm',
+      save: 'Gem',
+      fullScreenHeading: 'Ny begivenhed',
       page: 'Siden bag arket kan stadig bruges.',
       dragHandle: 'Fold arket ud eller sammen',
       openSheet: 'Åbn det modale ark',
@@ -585,6 +594,7 @@ export const parts: Messages['parts'] = {
       actions: ['Book en tid', 'Ring', 'Skriv'],
       channel: 'Kontakt',
       channels: ['Telefon', 'E-mail', 'Chat'],
+      selections: { single: 'Vælg en eller ingen', multiple: 'Vælg flere', required: 'Vælg en' },
       mode: 'Tilstand',
       modes: ['Lys', 'Mørk'],
       style: 'Stil',
@@ -689,9 +699,9 @@ export const parts: Messages['parts'] = {
       content: 'Sidens indhold står her.',
       openRail: 'Åbn navigation',
       search:
-        'Søgefeltet og det, det åbner: feltet med knappen tilbage og resultaterne, der passer til det skrevne. En søgevisning, som siden styrer, grupperer også resultaterne under et navn, viser en tast ved siden af et punkt og beholder et punkt, der ikke kan bruges nu. Søgefeltet kan være en knap, der åbner visningen, og en gruppe har sit navn over sig (en kategorietiket).',
+        'Søgefeltet og det, det åbner: feltet med knappen tilbage og resultaterne, der passer til det skrevne. En søgevisning, som siden styrer, grupperer også resultaterne under et navn, viser en tast ved siden af et punkt og beholder et punkt, der ikke kan bruges nu. Søgefeltet kan være en knap, der åbner visningen, og en gruppe har sit navn over sig (en kategorietiket). Den delte stil har én beholder med en streg under feltet; Material 3 Expressive fraråder den, så brug den indeholdte stil, medmindre du har brug for den.',
       toolbar:
-        'Handlinger på en række: i hele bredden nederst, som linjen nederst på en telefon, eller svævende, i fladen eller den primære farve, på tværs eller lodret, også med en knap ved siden af og foldet sammen til knappen.',
+        'Handlinger på en række: i hele bredden nederst, som linjen nederst på en telefon, eller svævende, i fladen eller den primære farve, på tværs eller lodret, også med en knap ved siden af og foldet sammen til knappen. Linjen nederst kan have hovedhandlingen i midten i stedet for en knap ved siden af: de andre handlinger fordeles jævnt omkring den.',
       name: 'Navigation',
       destinations: ['Forside', 'Søg', 'Beskeder', 'Profil'],
       sections: ['Start', 'Dig'],
@@ -705,10 +715,10 @@ export const parts: Messages['parts'] = {
       viewOpen: 'Åbn søgevisningen',
       viewGroups: ['Seneste', 'Foreslået'],
       viewItems: [
-        { headline: 'Priser', supporting: 'En side', icon: 'clock' },
-        { headline: 'Åbningstider', supporting: 'En side', icon: 'clock' },
-        { headline: 'Fed', shortcut: 'Ctrl+B', keyShortcuts: 'Control+B', icon: 'text-b', pressed: true },
-        { headline: 'Gentag', supporting: 'Intet at gentage', icon: 'arrow-u-up-right', disabled: true },
+        { headline: 'Priser', supporting: 'En side', icon: 'schedule' },
+        { headline: 'Åbningstider', supporting: 'En side', icon: 'schedule' },
+        { headline: 'Fed', shortcut: 'Ctrl+B', keyShortcuts: 'Control+B', icon: 'format_bold', pressed: true },
+        { headline: 'Gentag', supporting: 'Intet at gentage', icon: 'redo', disabled: true },
       ],
       viewCount: (n: number) => (n === 1 ? '1 resultat' : `${n} resultater`),
       results: [
@@ -721,6 +731,9 @@ export const parts: Messages['parts'] = {
       bar: 'Linjen nederst',
       withFab: 'Med knap',
       collapsed: 'Foldet sammen',
+      viewOpenDivided: 'Åbn den delte søgevisning',
+      divided: 'Delt stil',
+      withPrimary: 'Med hovedhandlingen i',
       book: 'Book en tid',
       call: 'Ring',
     },
@@ -788,6 +801,8 @@ export const parts: Messages['parts'] = {
       minutes: 'Minutterne',
       wrong: 'Skrevet forkert',
       twelveHours: '12 timer',
+      scrollPicker: 'Rulning',
+      inline: 'I siden',
       horizontal: 'Urskiven ved siden af',
     },
   },

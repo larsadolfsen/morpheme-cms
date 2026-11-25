@@ -1,6 +1,7 @@
 /* The layer order is ours, the first statement of the sheet: `mo-prose` (prose.css) sits right before `utilities`, so a utility rule still wins over `.mo-prose`.
-   Material's rules sit in the last layer, fallback: a theme's own unlayered rules beat them, whatever their specificity. */
-@layer base, components, prose, utilities, fallback;
+   Material's rules sit in the last layer, fallback: a theme's own unlayered rules beat them, whatever their specificity.
+   An app's CSS (scoped at build time, lib/appCss.mjs) is the first layer, mo-app: the lowest, below every part of the theme. */
+@layer mo-app, base, components, prose, utilities, fallback;
 /* The reset, in the layer base, before every rule that builds on it. */
 @import './reset.css';
 /* The theme's UI components, as Material 3 names them (buttons, icon buttons, the menus, the lists …), one file for each part, imported in
@@ -233,7 +234,7 @@
   }
   /* Images in the text; not those in a block of the site in it (mo-is-not-prose, RichText.astro). */
   .mo-prose :where(img):not(:where(.mo-is-not-prose img)) {
-    border-radius: var(--mo-sys-radius);
+    border-radius: var(--mo-sys-shape-corner-medium);
     width: 100%;
     height: auto;
   }
@@ -243,7 +244,7 @@
     display: block;
     position: relative;
     overflow: hidden;
-    border-radius: var(--mo-sys-radius);
+    border-radius: var(--mo-sys-shape-corner-medium);
     margin-block: 2em;
   }
   .mo-site-picture__crop > img {
@@ -260,7 +261,7 @@
     aspect-ratio: 16 / 9;
     height: auto;
     border: 0;
-    border-radius: var(--mo-sys-radius);
+    border-radius: var(--mo-sys-shape-corner-medium);
     margin-block: 2em;
   }
 

@@ -5,11 +5,12 @@
 //   POST   /api/store/connection   asks the store for a key (POST <store>/store/connect) and keeps it
 //   DELETE /api/store/connection   tells the store to drop the key (DELETE <store>/store/connect) and forgets it
 import { config } from '@site/config';
+import { STORE_URL } from '../lib/storeUrl.mjs';
 import { json } from './not-found.js';
 import { access, sessionToken } from './session.js';
 
-// Lives here, not in store.js, so store.js can import storeKey from this file without a cycle; store.js exports it again.
-export const STORE_URL = 'https://morpheme-appstore.larsadolfsen.workers.dev';
+// Exported here, not from store.js, so store.js can import storeKey from this file without a cycle; store.js exports it again.
+export { STORE_URL };
 
 // The table (D1 has no migrations on deploy), as in consent.js. Each request makes it until one create has finished; only
 // then does the isolate remember it for that database. A pending create is never shared: its I/O belongs to the request

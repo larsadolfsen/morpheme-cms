@@ -314,7 +314,7 @@ function CropDialog({
         </div>
       )}
       <div className="mo-editor-crop-view-zoom">
-        <IconButton icon="minus" label={t.media.crop.zoomOut} disabled={!crop} onClick={() => zoomBy(zoom - 0.25)} />
+        <IconButton icon="remove" label={t.media.crop.zoomOut} disabled={!crop} onClick={() => zoomBy(zoom - 0.25)} />
         <Slider
           label={t.media.crop.zoom}
           hideLabel
@@ -326,7 +326,7 @@ function CropDialog({
           disabled={!crop || !whole}
           onChange={(z) => zoomBy(z)}
         />
-        <IconButton icon="plus" label={t.media.crop.zoomIn} disabled={!crop} onClick={() => zoomBy(zoom + 0.25)} />
+        <IconButton icon="add" label={t.media.crop.zoomIn} disabled={!crop} onClick={() => zoomBy(zoom + 0.25)} />
       </div>
     </div>
   );
@@ -348,7 +348,7 @@ function CropDialog({
         <>
           <TopAppBar>
             <div className="mo-editor-crop-bar">
-              <IconButton icon="arrow-left" label={t.common.backTo(t.text.image)} onClick={() => void leave()} />
+              <IconButton icon="arrow_back" label={t.common.backTo(t.text.image)} onClick={() => void leave()} />
               <h1 id={headline} className="mo-fill mo-truncate mo-type-title-large">
                 {t.media.crop.title}
               </h1>

@@ -9,7 +9,7 @@ import { join, dirname } from 'node:path';
 import { clearRepoEnv } from './git-env.mjs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { relative } from 'node:path';
-import { decideLane, isMainModule } from './ci-build.mjs';
+import { decideLane, isMainModule, needsInstallStep } from './ci-build.mjs';
 
 // git sets GIT_DIR and friends for hooks (the pre-push hook runs these tests), and they would point every git call here at the real repository.
 clearRepoEnv();
@@ -193,4 +193,15 @@ test('running the file does run the build (the guard matches)', () => {
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+});
+
+test('the install step runs when the contracts changed or the live build left installs, not otherwise', () => {
+  const next = { theme: 8, apps: [8] };
+  const same = { cmsChanged: true, liveContracts: { theme: 8, apps: [8] } };
+  assert.equal(needsInstallStep({ cmsChanged: true, liveContracts: { theme: 7, apps: [7] } }, next), true);
+  assert.equal(needsInstallStep({ cmsChanged: true }, next), true); // a live build that does not say
+  assert.equal(needsInstallStep(same, next), false);
+  assert.equal(needsInstallStep({ cmsChanged: false, liveContracts: { theme: 7, apps: [7] } }, next), false);
+  assert.equal(needsInstallStep({ ...same, cmsChanged: false, liveInstalls: [{ kind: 'theme', id: 'x', version: '1' }] }, next), true);
+  assert.equal(needsInstallStep({ ...same, liveInstalls: [] }, next), false);
 });

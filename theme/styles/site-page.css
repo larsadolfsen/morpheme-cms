@@ -95,7 +95,7 @@
   }
   .mo-section__panel {
     margin-block: 0;
-    padding-block-end: var(--mo-sys-block-section-padding);
+    padding-block-end: var(--mo-comp-block-section-padding);
   }
   .mo-section__intro,
   .mo-page-section__intro,
@@ -141,8 +141,8 @@
   }
   /* A Markdown text (Markdown.astro) keeps to the text's measure; after a heading it has space above. */
   .mo-markdown {
-    max-inline-size: var(--mo-sys-block-text-measure-max);
-    min-inline-size: min(var(--mo-sys-block-text-measure-min), 100%);
+    max-inline-size: var(--mo-comp-block-text-measure-max);
+    min-inline-size: min(var(--mo-comp-block-text-measure-min), 100%);
   }
   .mo-text-after-heading {
     margin-block-start: 1.5rem;
@@ -248,17 +248,17 @@
   /* The text of a page (PageLayout.astro): without a block beside it the text spans the container, its blocks (mo-is-not-prose) too, and its other
      parts keep the text's measure, the first paragraph being the lead; with one it keeps the measure itself. */
   .mo-page__text.mo-has-side {
-    max-inline-size: var(--mo-sys-block-text-measure-max);
-    min-inline-size: min(var(--mo-sys-block-text-measure-min), 100%);
+    max-inline-size: var(--mo-comp-block-text-measure-max);
+    min-inline-size: min(var(--mo-comp-block-text-measure-min), 100%);
   }
   .mo-page__text.mo-is-single-column {
     max-inline-size: none;
   }
   .mo-page__text:where(.mo-is-single-column) > :not(.mo-is-not-prose) {
-    max-inline-size: var(--mo-sys-block-text-measure-max);
+    max-inline-size: var(--mo-comp-block-text-measure-max);
   }
   .mo-page__text:where(.mo-is-single-column) > :not(.mo-is-not-prose, :where(.mo-text-section).mo-is-full) {
-    min-inline-size: min(var(--mo-sys-block-text-measure-min), 100%);
+    min-inline-size: min(var(--mo-comp-block-text-measure-min), 100%);
   }
   .mo-page__text:where(.mo-is-single-column) > p:first-child {
     font-size: var(--mo-sys-typescale-lead-size);
@@ -303,10 +303,10 @@
     padding-inline: 1rem;
   }
   .mo-post__text > :not(.mo-is-not-prose) {
-    max-inline-size: var(--mo-sys-block-text-measure-max);
+    max-inline-size: var(--mo-comp-block-text-measure-max);
   }
   .mo-post__text > :not(.mo-is-not-prose, :where(.mo-text-section).mo-is-full) {
-    min-inline-size: min(var(--mo-sys-block-text-measure-min), 100%);
+    min-inline-size: min(var(--mo-comp-block-text-measure-min), 100%);
   }
   .mo-post__image {
     margin-inline: auto;
@@ -338,7 +338,7 @@
   }
   .mo-new__list {
     border: 1px solid var(--mo-sys-color-outline-variant);
-    border-radius: var(--mo-sys-radius);
+    border-radius: var(--mo-sys-shape-corner-medium);
     padding-inline: 1.25rem;
   }
   .mo-new__item {
@@ -346,7 +346,7 @@
     padding-block: 1.25rem;
   }
   .mo-new__item:not(:first-child) {
-    border-block-start: 1px solid var(--mo-sys-color-outline-variant);
+    border-block-start: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-sys-color-outline-variant));
   }
   .mo-new__links {
     display: flex;

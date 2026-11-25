@@ -11,7 +11,9 @@ import { cms as cmsEn } from '../src/i18n/en-US/cms';
 import { cms as cmsDa } from '../src/i18n/da-DK/cms';
 import { withCiBuild } from '../lib/build-command.mjs';
 import { addToLock, NeedsNpm } from '../lib/lockfile.mjs';
-import { CLASS_NAMES_SINCE, holdsMarkdown, migrateClassNamesPath, revertClassNamesPath } from '../lib/content-class-names.mjs';
+import { crossesClassNames, holdsMarkdown, migrateClassNamesPath, revertClassNamesPath } from '../lib/content-class-names.mjs';
+import { CodeMigrationStop, MIGRATIONS_FILE, crossesCode, migrateCode, unsafeLines } from '../lib/migrate-code.mjs';
+import { migrateIconNamesPath } from '../lib/migrate-icons.mjs';
 import { contractHold, parseContracts } from '../lib/contractHold.mjs';
 import { checkDue, compareVersions, managedVersion, nextVersion, PACKAGE, siteZone, watchStep } from '../lib/cms-version.mjs';
 import { withInstallDefaults } from '../lib/npmrc.mjs';
@@ -38,6 +40,16 @@ const BUILD_APP = 'cloudflare-workers-and-pages';
 
 // Every place the editor stores markdown: each content collection (entry bodies and front matter) and the data files (globals, block templates, rich-text props).
 const CONTENT = ['src/content', 'src/data'];
+// What the update of 0.19.6 rewrote, as the files were before (path → text), kept so the undo writes exactly them back (KV).
+const BACKUP = 'cms:names-backup';
+
+/** The own themes and apps could not be rewritten safely: `list` is every file and line (the update stops, nothing is committed). */
+export class UnsafeCode extends Error {
+  constructor(list) {
+    super('unsafe-code');
+    this.list = list;
+  }
+}
 
 const defaultDeps = {
   readFiles,
@@ -106,17 +118,44 @@ async function filesFor(env, deps, site, version, withExtras = true) {
 
 /** The site's content files (.md, .json) whose class names `change(path, text)` rewrites, as changes for the same
  * commit as the version: only the files that change. `only`: the paths to look at (the undo), else every file. Nothing for a site without the folders. */
-async function contentChanges(env, deps, change, only) {
+async function contentChanges(env, deps, change, only, originals) {
   const changes = [];
   for (const folder of CONTENT) {
     const { files } = await deps.readFolder(env, folder, 5);
     for (const { path, text } of files) {
       if (!holdsMarkdown(path) || (only && !only.includes(path))) continue;
       const next = change(path, text);
-      if (next !== text) changes.push({ path, text: next });
+      if (next !== text) {
+        changes.push({ path, text: next });
+        originals?.set(path, text);
+      }
     }
   }
   return changes;
+}
+
+/**
+ * The rewrite of 0.19.6 for a site's own themes and apps (lib/migrate-code.mjs), as changes for the update's commit: none when the marker file says it ran or the site has none of its own.
+ * Throws UnsafeCode with the list when a form cannot be rewritten safely. `originals` gets each file's text from before.
+ */
+async function codeChanges(env, deps, from, originals) {
+  const folders = [config.themes, config.apps.folder];
+  const files = [];
+  for (const folder of folders) files.push(...(await deps.readFolder(env, folder, 5)).files);
+  const { texts } = await deps.readFiles(env, [MIGRATIONS_FILE]);
+  const marker = typeof texts[0] === 'string' ? texts[0] : null;
+  try {
+    const changes = migrateCode({ files, marker, from, folders });
+    for (const c of changes)
+      originals.set(c.path, c.path === MIGRATIONS_FILE ? marker : (files.find((f) => f.path === c.path)?.text ?? null));
+    return changes;
+  } catch (e) {
+    if (e instanceof CodeMigrationStop) {
+      if (e.reason === 'already') return [];
+      throw new UnsafeCode(e.list);
+    }
+    throw e;
+  }
 }
 
 /** Sends the notification in both languages; its text is the English sentence. */
@@ -165,11 +204,25 @@ export async function startUpdate(env, version, deps = defaultDeps, now = Date.n
   const changes = await filesFor(env, deps, site, version);
   // The version that reads only the new class names takes the site's content with it, in the same commit (only the `class`
   // attributes; never a word of text), so the site never has a version and content that do not match.
+  // The version that reads only Material 3's names (0.19.6) takes the site's own themes and apps and its stored icon names with it, in the same commit.
+  const code = crossesCode(managed.version, version, compareVersions);
+  const originals = new Map();
+  const classes = crossesClassNames(managed.version, version, compareVersions);
   const migrated =
-    compareVersions(version, CLASS_NAMES_SINCE) >= 0 && compareVersions(managed.version, CLASS_NAMES_SINCE) < 0
-      ? await contentChanges(env, deps, migrateClassNamesPath)
+    classes || code
+      ? await contentChanges(
+          env,
+          deps,
+          (path, text) => {
+            const next = classes ? migrateClassNamesPath(path, text) : text;
+            return code ? migrateIconNamesPath(path, next) : next;
+          },
+          undefined,
+          originals,
+        )
       : [];
-  const commit = await deps.commitFiles(env, site.head, siteTexts().commitUpdate(version), [...changes, ...migrated]);
+  const own = code ? await codeChanges(env, deps, managed.version, originals) : [];
+  const commit = await deps.commitFiles(env, site.head, siteTexts().commitUpdate(version), [...changes, ...migrated, ...own]);
   const update = {
     commit,
     from: managed.version,
@@ -177,7 +230,10 @@ export async function startUpdate(env, version, deps = defaultDeps, now = Date.n
     at: iso(now),
     state: 'waiting',
     ...(migrated.length ? { migrated: migrated.map((c) => c.path) } : {}),
+    ...(own.length ? { code: own.map((c) => c.path) } : {}),
   };
+  if (originals.size) await putJson(env.PUSH, BACKUP, Object.fromEntries(originals));
+  else await env.PUSH.delete(BACKUP); // none left over from an older update
   await putJson(env.PUSH, 'cms:update', update);
   return update;
 }
@@ -262,6 +318,7 @@ export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) 
     await startUpdate(env, next.version, deps, now);
   } catch (e) {
     if (e instanceof NeedsNpm) return record({ kind: 'needs-npm', detail: e.message });
+    if (e instanceof UnsafeCode) return record({ kind: 'unsafe-code', detail: unsafeLines(e.list).join('\n') });
     return record(forbidden(e) ? { kind: 'cannot-write' } : { kind: 'unreachable' });
   }
   return record();
@@ -290,9 +347,14 @@ async function checkOf(env, deps, sha, now) {
 async function undoCommit(env, deps, update) {
   const site = await readSite(env, deps);
   const changes = await filesFor(env, deps, site, update.from, false);
-  // The content the update rewrote goes back with the version, as the commit's one change.
-  const content = update.migrated?.length ? await contentChanges(env, deps, revertClassNamesPath, update.migrated) : [];
-  return deps.commitFiles(env, site.head, siteTexts().commitUndo(update.to), [...changes, ...content]);
+  // The files the update rewrote go back with the version, as the commit's one change: the saved texts where there are some, else the class names reverted.
+  const backup = (await env.PUSH.get(BACKUP, 'json')) ?? {};
+  const rest = update.migrated?.filter((p) => !(p in backup));
+  const content = rest?.length ? await contentChanges(env, deps, revertClassNamesPath, rest) : [];
+  const restored = Object.entries(backup).map(([path, text]) => ({ path, text }));
+  const done = await deps.commitFiles(env, site.head, siteTexts().commitUndo(update.to), [...changes, ...content, ...restored]);
+  await env.PUSH.delete(BACKUP);
+  return done;
 }
 
 /** Each minute: watches the update's (or its undo's) check run. One KV read when nothing is waiting. */
@@ -391,6 +453,7 @@ export async function handleCms(request, env, ctx, deps = defaultDeps) {
     return json({ update: await startUpdate(env, version, deps) });
   } catch (e) {
     if (e instanceof NeedsNpm) return json({ error: 'needs-npm', detail: e.message }, 422);
+    if (e instanceof UnsafeCode) return json({ error: 'unsafe-code', detail: unsafeLines(e.list) }, 422);
     if (forbidden(e)) return json({ error: 'cannot-write' }, 502);
     if (e?.message === 'not-managed') return json({ error: 'not-managed' }, 409);
     return json({ error: 'unreachable' }, 502);

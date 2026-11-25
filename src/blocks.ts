@@ -9,10 +9,10 @@ import type { Block, Edit, Field, Lead, Relation } from './schema';
 import type { ListRows, Option, TestimonialRow } from './fields';
 import type { SiteData } from '@site/editor';
 import type { StandardSiteData } from './standard/site';
-import { CalendarCheck, Code, Newspaper, SquaresFour, TextAlignLeft, type Icon } from '@phosphor-icons/react';
 import { HTML } from './markdown.mjs';
 import { withoutColors } from '../lib/text-colors.mjs';
 import { t } from './i18n';
+import { materialIcon, type IconComponent as Icon } from './icon';
 
 export type BlockProps = Record<string, unknown>;
 
@@ -279,15 +279,15 @@ const inLead = (name: string, lead?: Lead) =>
 // The icon of each type of section (a fixed page's own: text, booking, posts); others the icon of
 // the blocks.
 const sectionIcons: Record<string, Icon> = {
-  text: TextAlignLeft,
-  booking: CalendarCheck,
-  posts: Newspaper,
+  text: materialIcon('format_align_left'),
+  booking: materialIcon('calendar_check'),
+  posts: materialIcon('newspaper'),
 };
 
 const sectionBlock = (b: Block, fields: Field[]): SiteBlock => ({
   type: b.type,
   label: b.label,
-  icon: sectionIcons[b.type] ?? SquaresFour,
+  icon: sectionIcons[b.type] ?? materialIcon('grid_view'),
   hint: b.hint,
   edit: b.edit,
   fields,
@@ -319,7 +319,7 @@ export const htmlBlock: SiteBlock = {
   type: HTML,
   group: 'developer',
   label: t.blocks.html.label,
-  icon: Code,
+  icon: materialIcon('code'),
   hint: t.blocks.html.hint,
   fields: [{ name: 'code', label: t.blocks.html.code, type: 'text', required: true }],
   detail: (p) => htmlLines(String(p.code ?? '')),

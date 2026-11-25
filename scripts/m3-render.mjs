@@ -78,8 +78,8 @@ export function printed(file = join(COPY, 'printed.json')) {
 
 // ---- What each family of samples is, in Material 3's words ----
 
-/** Our button sizes in Material 3's: our `medium` is Material 3's `small` (spec 2026-11-20-material-3-names-design.md), and the larger two are the next sizes up. */
-export const BUTTON_SIZE = { xsmall: 'xsmall', small: 'small', medium: 'small', large: 'medium', xlarge: 'large' };
+/** Our button sizes are Material 3's (xsmall, small the default, medium, large, xlarge), one for one. */
+export const BUTTON_SIZE = { xsmall: 'xsmall', small: 'small', medium: 'medium', large: 'large', xlarge: 'xlarge' };
 /** Our icon button sizes: `small` is the default one, the others have Material 3's names. */
 export const ICON_BUTTON_SIZE = { xsmall: 'xsmall', small: 'small', medium: 'medium', large: 'large', xlarge: 'xlarge' };
 
@@ -91,8 +91,8 @@ export function resolve(m) {
   const state = [m.disabled && 'disabled', m.selected === true && 'selected', m.selected === false && 'unselected'].filter(Boolean);
   const kindOf = (k) => ['filled', 'tonal', 'elevated', 'outlined'].find((x) => has(m, `mo-is-${x}`)) ?? k;
   if (m.root === 'mo-button') {
-    const kind = has(m, 'mo-button__text') ? 'text' : kindOf('filled');
-    const ours = pick(m, 'mo-button__', ['xsmall', 'small', 'large', 'xlarge'], 'medium');
+    const kind = has(m, 'mo-is-text') ? 'text' : kindOf('filled');
+    const ours = pick(m, 'mo-is-', ['xsmall', 'medium', 'large', 'xlarge'], 'small');
     const size = BUTTON_SIZE[ours];
     return {
       family: 'button',
@@ -101,14 +101,14 @@ export function resolve(m) {
       size,
       ours,
       state,
-      shape: has(m, 'mo-button__square') ? 'square' : 'round',
+      shape: has(m, 'mo-is-square') ? 'square' : 'round',
     };
   }
   if (m.root === 'mo-icon-button') {
     const kind = kindOf('standard');
-    const ours = pick(m, 'mo-icon-button__', ['xsmall', 'medium', 'large', 'xlarge'], 'small');
+    const ours = pick(m, 'mo-is-', ['xsmall', 'medium', 'large', 'xlarge'], 'small');
     const size = ICON_BUTTON_SIZE[ours];
-    const width = pick(m, 'mo-icon-button__', ['narrow', 'wide'], 'default');
+    const width = pick(m, 'mo-is-', ['narrow', 'wide'], 'default');
     return {
       family: 'icon-button',
       sets: [`md.comp.icon-button.${size}`, `md.comp.icon-button.${kind}`, 'md.comp.icon-button'],
@@ -117,11 +117,11 @@ export function resolve(m) {
       ours,
       width,
       state,
-      shape: has(m, 'mo-icon-button__square') ? 'square' : 'round',
+      shape: has(m, 'mo-is-square') ? 'square' : 'round',
     };
   }
   if (m.root === 'mo-chip') {
-    const kind = ['assist', 'filter', 'input', 'suggestion'].find((x) => has(m, `mo-chip__${x}`)) ?? 'assist';
+    const kind = ['assist', 'filter', 'input', 'suggestion'].find((x) => has(m, `mo-is-${x}`)) ?? 'assist';
     return { family: 'chip', sets: [`md.comp.${kind}-chip`], kind, state, elevated: has(m, 'mo-is-elevated') };
   }
   if (m.root === 'mo-text-field') {
@@ -135,9 +135,9 @@ export function resolve(m) {
   if (m.root === 'mo-fab' || m.root === 'mo-extended-fab') {
     const color =
       ['primary-container', 'secondary-container', 'tertiary-container', 'primary', 'secondary', 'tertiary', 'surface'].find((x) =>
-        has(m, `mo-fab__${x}`),
+        has(m, `mo-is-${x}`),
       ) ?? 'primary-container';
-    const ours = pick(m, m.root === 'mo-fab' ? 'mo-fab__' : 'mo-extended-fab__', ['small', 'medium', 'large'], 'baseline');
+    const ours = pick(m, 'mo-is-', ['small', 'medium', 'large'], 'baseline');
     const base = m.root === 'mo-fab' ? 'md.comp.fab' : 'md.comp.extended-fab';
     return {
       family: m.root === 'mo-fab' ? 'fab' : 'extended-fab',
@@ -159,7 +159,6 @@ export function resolve(m) {
 export const RESTYLES = [
   'md.comp.split-button',
   'md.comp.button-group',
-  'md.comp.segmented-button',
   'md.comp.fab-menu',
   'md.comp.toolbar',
   'md.comp.snackbar',
@@ -188,7 +187,7 @@ export const ROOTS = {
   'mo-list': 'md.comp.list',
   'mo-menu': 'md.comp.menu',
   'mo-dialog': 'md.comp.dialog',
-  'mo-bottom-sheet': 'md.comp.sheet.bottom',
+  'mo-sheet': 'md.comp.sheet',
   'mo-carousel': 'md.comp.carousel',
   'mo-avatar': 'none',
   'mo-top-app-bar': 'md.comp.top-app-bar',
@@ -196,12 +195,12 @@ export const ROOTS = {
   'mo-search-bar': 'md.comp.search',
   'mo-search-view': 'md.comp.search',
   'mo-dropdown-menu': 'md.comp.menu',
-  'mo-exposed-dropdown-menu': 'md.comp.select',
+  'mo-select': 'md.comp.select',
   'mo-navigation-drawer': 'md.comp.navigation-drawer',
   'mo-tabs': 'md.comp.tabs',
   'mo-badge': 'md.comp.badge',
   'mo-button-group': 'md.comp.button-group',
-  'mo-choice-group': 'md.comp.segmented-button',
+  'mo-choice-group': 'md.comp.button-group',
   'mo-radio-group': 'md.comp.radio-button',
   'mo-setting-row': 'md.comp.list',
   'mo-split-button': 'md.comp.split-button',
@@ -212,12 +211,11 @@ export const ROOTS = {
   'mo-circular-progress-indicator': 'md.comp.progress-indicator.circular',
   'mo-snackbar': 'md.comp.snackbar',
   'mo-tooltip': 'md.comp.plain-tooltip',
-  'mo-navigation-bar': 'md.comp.navigation-bar',
-  'mo-navigation-rail': 'md.comp.navigation-rail',
+  'mo-nav-bar': 'md.comp.navigation-bar',
+  'mo-nav-rail': 'md.comp.navigation-rail',
   'mo-toolbar': 'md.comp.toolbar',
   'mo-date-picker': 'md.comp.date-picker',
   'mo-time-picker': 'md.comp.time-picker',
-  'mo-side-sheet': 'md.comp.sheet.side',
 };
 
 /** A mark agrees with a root's family: equal, or a more exact set of it (`md.comp.sheet.bottom` stands for `md.comp.sheet`). */

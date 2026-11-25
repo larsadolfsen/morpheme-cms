@@ -2,11 +2,11 @@
 // at #privacy/<id>, and the cookie list's row: the cookie banner (src/data/cookies.json, read by packages/editor/theme/components/CookieConsent.astro),
 // "Privacy pages", which pages are the privacy policy and the cookie policy, as a list like "Default pages" (in the
 // same file, config.standardPages; standardPages.ts), and "Consents", the visitors' answers in the banner.
-import { Cookie, FileText, ListChecks } from '@phosphor-icons/react';
 import type { CookieCategory } from '../lib/cookieCategories.mjs';
 import type { Field, PartScreen } from '../src/schema';
 import { standardPageFieldsOf } from '@site/collections';
 import { config } from '@site/config';
+import { materialIcon } from '../src/icon';
 
 /** The fields of a category of cookies in the banner: its name and what it is for. */
 function categoryFields(category: CookieCategory, place: string, hint = 'Shown when an app asks for it.'): Field[] {
@@ -23,7 +23,7 @@ export const privacy: PartScreen = {
     {
       id: 'cookie-banner',
       label: 'Cookie banner',
-      icon: Cookie,
+      icon: materialIcon('cookie'),
       file: 'src/data/cookies.json',
       fields: [
         {
@@ -67,16 +67,16 @@ export const privacy: PartScreen = {
     },
     // The site's list of cookies ("Cookies", the standard block "Cookie list"), a screen of its own under "Lists"'s
     // address space (#list/<id>): only its row is here, and the list goes back to this screen (Library.tsx).
-    { id: 'cookies', label: 'Cookies', icon: Cookie, href: `#list/${config.lists.cookies}` },
+    { id: 'cookies', label: 'Cookies', icon: materialIcon('cookie'), href: `#list/${config.lists.cookies}` },
     {
       id: 'privacy-pages',
       label: 'Privacy pages',
-      icon: FileText,
+      icon: materialIcon('description'),
       file: config.standardPages,
       fields: standardPageFieldsOf('privacy', 'cookies'),
       rows: true,
     },
     // The visitors' answers in the banner, kept by the Worker (packages/editor/worker/consent.js): the editor's own screen (Consents.tsx).
-    { id: 'consents', label: 'Consents', icon: ListChecks, opens: 'consents' },
+    { id: 'consents', label: 'Consents', icon: materialIcon('checklist'), opens: 'consents' },
   ],
 };

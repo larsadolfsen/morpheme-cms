@@ -11,7 +11,7 @@ import Button from '@theme/ui/Button';
 export type TooltipAction = { label: string; href?: string } & Record<string, unknown>;
 
 /** A tooltip's classes, plain or rich. */
-export const tooltipClass = (rich?: boolean) => `mo-tooltip ${rich ? 'mo-tooltip__rich' : 'mo-tooltip__plain'}`;
+export const tooltipClass = (rich?: boolean) => `mo-tooltip ${rich ? 'mo-is-rich' : 'mo-is-plain'}`;
 
 export default function Tooltip({
   text,
@@ -43,7 +43,7 @@ export default function Tooltip({
             {supportingText && <span className="mo-tooltip__supporting-text">{supportingText}</span>}
             {action && (
               <span className="mo-tooltip__actions">
-                <Button kind="text" size="small" className="mo-tooltip__action" {...actionRest}>
+                <Button kind="text" className="mo-tooltip__action" {...actionRest}>
                   {label}
                 </Button>
               </span>

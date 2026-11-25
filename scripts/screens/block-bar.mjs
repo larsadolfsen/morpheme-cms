@@ -113,7 +113,7 @@ async function checkBlockBar(width, height = 800) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
-  await page.locator('dialog[open] button', { hasText: 'Rows with icon, heading and text.' }).first().click();
+  await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('Typed row');
   await page.waitForTimeout(300);
@@ -568,10 +568,10 @@ async function checkBlockDrag(width) {
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
   const insert = (hint, count, at) => insertBlock(page, hint, count, at);
-  await insert('Numbered steps.', 1, 0);
+  await insert('Show the steps in order.', 1, 0);
   await newLineUnder(page, 'Hello');
   // The new block lands above the first one (the cursor is in the line under 'Hello'), and its action row has opened (it moves the handle and the blocks below).
-  await insert('Rows with icon, heading and text.', 2, 0);
+  await insert('Show text and images in a list.', 2, 0);
   // Away from any block's row, so no bar or keyboard is in the way.
   const names = () => page.locator('.ProseMirror .mo-site-block-card').evaluateAll((els) => els.map((e) => e.getAttribute('aria-label')));
   const before = await names();
@@ -843,7 +843,7 @@ async function checkBlockMove(width) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  const hints = ['Numbered steps.', 'Rows with icon, heading and text.', 'Numbered steps.'];
+  const hints = ['Show the steps in order.', 'Show text and images in a list.', 'Show the steps in order.'];
   for (const [n, hint] of hints.entries()) {
     // Each new block lands above the ones before it (the cursor is in the line under 'Hello'); the check goes on once it is the active one.
     await insertBlock(page, hint, n + 1, 0);
@@ -1020,7 +1020,7 @@ async function checkBlockSelect(width) {
   await page.keyboard.type('Hello');
   await page.keyboard.press('Enter');
   await page.waitForTimeout(300);
-  for (const [n, hint] of ['Numbered steps.', 'Rows with icon, heading and text.'].entries()) {
+  for (const [n, hint] of ['Show the steps in order.', 'Show text and images in a list.'].entries()) {
     // Each new block lands above the ones before it; go on once it is the active one (insertBlock).
     await insertBlock(page, hint, n + 1, 0);
     // Away from the rows, so the next block goes after this one.
@@ -1261,7 +1261,9 @@ async function checkSelectionBox() {
       probe.style.background = segmented
         ? 'var(--mo-comp-list-segmented-selected-surface, var(--mo-sys-color-secondary-container))'
         : 'var(--mo-comp-list-list-item-selected-container-color)';
-      probe.style.borderRadius = segmented ? 'var(--mo-comp-list-segmented-selected-radius)' : 'var(--mo-comp-list-item-selected-radius)';
+      probe.style.borderRadius = segmented
+        ? 'var(--mo-comp-list-segmented-selected-radius)'
+        : 'var(--mo-comp-list-list-item-selected-container-expressive-shape)';
       own.appendChild(probe);
       const want = getComputedStyle(probe);
       const s = getComputedStyle(own);
@@ -1352,7 +1354,7 @@ async function checkInsertDialogClosesLate(width) {
     };
   });
   // insertBlock waits until the new block is the only one with a row and that row is active.
-  await insertBlock(page, 'Numbered steps.', 1, 0);
+  await insertBlock(page, 'Show the steps in order.', 1, 0);
   if (await page.evaluate(() => !!document.querySelector('dialog[open]')))
     problems.push(`${label}: the new block took its row while the insert dialog was still open`);
   const inRow = await page.evaluate(() => !!document.activeElement?.closest('.ProseMirror .mo-site-block'));

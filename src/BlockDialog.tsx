@@ -24,7 +24,6 @@
 // with them written to the block like any change.
 // Another block tapped while one is open closes the open one first (the question when changed). Exposes useBlockDialog, IMAGE.
 import { useCallback, useEffect, useId, useRef, useState, type ReactElement } from 'react';
-import { ArrowsDownUp, Image } from '@phosphor-icons/react';
 import {
   ActionSheet,
   Button,
@@ -68,6 +67,7 @@ import { typedInPlace } from './typedInPlace.mjs';
 import { useSheetBack } from './useSheetBack';
 import { drop as dropCopy, keep as keepCopy, matches as copyMatches, take as takeCopy } from './sheetCopy.mjs';
 import { safeImageSrc } from '../lib/safe-url.mjs';
+import { materialIcon } from './icon';
 
 /** Where an image's live sheet opens (from medium, the bar's Alt text and a new image): its Alt text field. Below medium the alt text sheet (`BlockAsk.alt`) is used. */
 export type EditFocus = 'alt';
@@ -209,7 +209,7 @@ const image: SiteBlock = {
   type: IMAGE,
   group: 'media',
   label: t.blocks.picture.label,
-  icon: Image,
+  icon: materialIcon('image'),
   hint: t.blocks.picture.hint,
   fields: [
     { name: 'src', label: t.blocks.picture.src, type: 'image', required: true },
@@ -793,7 +793,7 @@ export function useBlockDialog(
               sort={
                 <Choice
                   title={t.library.sort}
-                  icon={ArrowsDownUp}
+                  icon={materialIcon('swap_vert')}
                   value={shownSort}
                   options={INSERT_SORTS.filter((s) => grouped || s !== 'group').map((s) => ({ value: s, label: t.library.sorts[s] }))}
                   onChange={pickSort}
@@ -881,7 +881,7 @@ export function useBlockDialog(
         >
           <TopAppBar>
             <div className="mo-editor-block-dialog-bar">
-              <IconButton icon="arrow-left" label={t.common.backTo(back || t.forms.text)} onClick={() => void leave()} />
+              <IconButton icon="arrow_back" label={t.common.backTo(back || t.forms.text)} onClick={() => void leave()} />
               <h1 id={headingId} className="mo-truncate mo-editor-block-dialog-title">
                 {title}
               </h1>

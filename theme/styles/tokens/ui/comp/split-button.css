@@ -1,21 +1,58 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
-/* The corners between the two halves follow the size (Material's 4dp up to medium, 8 and 12dp). */
+/* The corners between the two halves, the spaces and the arrow follow the size (md.comp.split-button.<size>.*: inner corner 4, 4, 4, 8 and 12 dp, 8, 12, 12, 20 and 20 dp hovered or pressed; the arrow 22, 22, 26, 38 and 50 dp in a button 48, 48, 56, 96 and 136 dp wide). */
 @layer components {
   .mo-split-button > .mo-button {
-    --mo-comp-split-button-inner: var(--mo-comp-split-button-medium-inner-corner-corner-size, calc(var(--mo-sys-block-radius-small) / 4));
+    --mo-comp-split-button-inner: var(--mo-comp-split-button-small-inner-corner-corner-size);
+    --mo-comp-split-button-inner-active: var(--mo-comp-split-button-small-inner-corner-hovered-corner-size);
+    --mo-comp-split-button-lead-start: var(--mo-comp-split-button-small-leading-button-leading-space);
+    --mo-comp-split-button-lead-end: var(--mo-comp-split-button-small-leading-button-trailing-space);
+    --mo-comp-split-button-arrow: var(--mo-comp-split-button-small-trailing-button-icon-size);
+    --mo-comp-split-button-arrow-start: var(--mo-comp-split-button-small-trailing-button-leading-space);
+    --mo-comp-split-button-arrow-end: var(--mo-comp-split-button-small-trailing-button-trailing-space);
   }
 }
 @layer components {
-  .mo-split-button > .mo-button__large {
-    --mo-comp-split-button-inner: var(--mo-comp-split-button-large-inner-corner-corner-size, calc(var(--mo-sys-block-radius-small) / 2));
+  .mo-split-button > :where(.mo-button).mo-is-xsmall {
+    --mo-comp-split-button-inner: var(--mo-comp-split-button-xsmall-inner-corner-corner-size);
+    --mo-comp-split-button-inner-active: var(--mo-comp-split-button-xsmall-inner-corner-hovered-corner-size);
+    --mo-comp-split-button-lead-start: var(--mo-comp-split-button-xsmall-leading-button-leading-space);
+    --mo-comp-split-button-lead-end: var(--mo-comp-split-button-xsmall-leading-button-trailing-space);
+    --mo-comp-split-button-arrow: var(--mo-comp-split-button-xsmall-trailing-button-icon-size);
+    --mo-comp-split-button-arrow-start: var(--mo-comp-split-button-xsmall-trailing-button-leading-space);
+    --mo-comp-split-button-arrow-end: var(--mo-comp-split-button-xsmall-trailing-button-trailing-space);
   }
 }
 @layer components {
-  .mo-split-button > .mo-button__xlarge {
-    --mo-comp-split-button-inner: var(
-      --mo-comp-split-button-xlarge-inner-corner-corner-size,
-      calc(var(--mo-sys-block-radius-small) * 0.75)
-    );
+  .mo-split-button > :where(.mo-button).mo-is-medium {
+    --mo-comp-split-button-inner: var(--mo-comp-split-button-medium-inner-corner-corner-size);
+    --mo-comp-split-button-inner-active: var(--mo-comp-split-button-medium-inner-corner-hovered-corner-size);
+    --mo-comp-split-button-lead-start: var(--mo-comp-split-button-medium-leading-button-leading-space);
+    --mo-comp-split-button-lead-end: var(--mo-comp-split-button-medium-leading-button-trailing-space);
+    --mo-comp-split-button-arrow: var(--mo-comp-split-button-medium-trailing-button-icon-size);
+    --mo-comp-split-button-arrow-start: var(--mo-comp-split-button-medium-trailing-button-leading-space);
+    --mo-comp-split-button-arrow-end: var(--mo-comp-split-button-medium-trailing-button-trailing-space);
+  }
+}
+@layer components {
+  .mo-split-button > :where(.mo-button).mo-is-large {
+    --mo-comp-split-button-inner: var(--mo-comp-split-button-large-inner-corner-corner-size);
+    --mo-comp-split-button-inner-active: var(--mo-comp-split-button-large-inner-corner-hovered-corner-size);
+    --mo-comp-split-button-lead-start: var(--mo-comp-split-button-large-leading-button-leading-space);
+    --mo-comp-split-button-lead-end: var(--mo-comp-split-button-large-leading-button-trailing-space);
+    --mo-comp-split-button-arrow: var(--mo-comp-split-button-large-trailing-button-icon-size);
+    --mo-comp-split-button-arrow-start: var(--mo-comp-split-button-large-trailing-button-leading-space);
+    --mo-comp-split-button-arrow-end: var(--mo-comp-split-button-large-trailing-button-trailing-space);
+  }
+}
+@layer components {
+  .mo-split-button > :where(.mo-button).mo-is-xlarge {
+    --mo-comp-split-button-inner: var(--mo-comp-split-button-xlarge-inner-corner-corner-size);
+    --mo-comp-split-button-inner-active: var(--mo-comp-split-button-xlarge-inner-corner-hovered-corner-size);
+    --mo-comp-split-button-lead-start: var(--mo-comp-split-button-xlarge-leading-button-leading-space);
+    --mo-comp-split-button-lead-end: var(--mo-comp-split-button-xlarge-leading-button-trailing-space);
+    --mo-comp-split-button-arrow: var(--mo-comp-split-button-xlarge-trailing-button-icon-size);
+    --mo-comp-split-button-arrow-start: var(--mo-comp-split-button-xlarge-trailing-button-leading-space);
+    --mo-comp-split-button-arrow-end: var(--mo-comp-split-button-xlarge-trailing-button-trailing-space);
   }
 }

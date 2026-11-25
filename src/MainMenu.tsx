@@ -7,7 +7,6 @@
 // before, as everywhere else, and closes the drawer. Exposes MainMenu. The tree and the open place are lib/menu.mjs
 // (menuTree, currentPlace); it only wires them to the drawer.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Gear } from '@phosphor-icons/react';
 import { config, header } from '@site/editor';
 import { currentPlace, menuTree } from '../lib/menu.mjs';
 import { STORE_ROUTE } from './store';
@@ -32,6 +31,7 @@ import {
   useMenuLayout,
 } from './ui';
 import type { RepoFile, Viewer } from './github';
+import { materialIcon } from './icon';
 
 // The icon of a row: a part of the business its own, else the menu's icon for the id.
 const iconOf = (section: string, id: string) => (section === 'company' && companyParts.find((p) => p.id === id)?.icon) || icons[id];
@@ -114,10 +114,12 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
       }
       footer={
         shown === null ? (
-          <MainDrawerItem href="#settings" icon={Gear} label={t.common.parts.settings} selected={!!place.settings} />
+          <MainDrawerItem href="#settings" icon={materialIcon('settings')} label={t.common.parts.settings} selected={!!place.settings} />
         ) : undefined
       }
-      railFooter={<MainRailItem href="#settings" icon={Gear} label={t.common.parts.settings} selected={!!place.settings} />}
+      railFooter={
+        <MainRailItem href="#settings" icon={materialIcon('settings')} label={t.common.parts.settings} selected={!!place.settings} />
+      }
       rail={tree.flatMap((entry) =>
         flat.includes(entry.id) ? (
           entry.items.map((item) => (

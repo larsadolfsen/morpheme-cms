@@ -5,7 +5,6 @@
 // them as CSV. Tapping one opens a sheet with when, the banner's version and each yes or no, and the button that deletes
 // every answer with its id (when the visitor asks for it).
 import { useEffect, useId, useRef, useState } from 'react';
-import { ArrowsDownUp, DownloadSimple, Trash } from '@phosphor-icons/react';
 import { ask } from './ask';
 import Screen from './Screen';
 import {
@@ -31,6 +30,7 @@ import { CONSENT_API, deleteConsents, loadConsents, type ConsentAnswer } from '.
 import { CONSENT_CATEGORIES } from '../lib/cookieCategories.mjs';
 import { when } from './when';
 import { t } from './i18n';
+import { materialIcon } from './icon';
 
 type Sort = 'newest' | 'oldest';
 const SORTS: Sort[] = ['newest', 'oldest'];
@@ -130,7 +130,7 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
       <SupportingText>{t.consents.answered(when(new Date(open.at)))}</SupportingText>
       <SupportingText>{summary(open)}</SupportingText>
       {open.version && <SupportingText>{t.consents.version(open.version.slice(0, 7))}</SupportingText>}
-      <Button kind="outlined" icon={Trash} disabled={deleting} onClick={() => remove(open.id)}>
+      <Button kind="outlined" icon={materialIcon('delete')} disabled={deleting} onClick={() => remove(open.id)}>
         {t.consents.deleteAll}
       </Button>
     </>
@@ -158,7 +158,9 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
       wide
       back={back}
       status={found ? t.consents.count(found.total) : undefined}
-      actions={found && <IconLink icon={DownloadSimple} label={t.consents.download} href={`${CONSENT_API}?format=csv`} download />}
+      actions={
+        found && <IconLink icon={materialIcon('download')} label={t.consents.download} href={`${CONSENT_API}?format=csv`} download />
+      }
     >
       <p className="mo-editor-note">{t.consents.intro}</p>
       <SearchRow
@@ -168,7 +170,7 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
         sort={
           <Choice
             title={t.library.sort}
-            icon={ArrowsDownUp}
+            icon={materialIcon('swap_vert')}
             value={sort}
             options={SORTS.map((s) => ({ value: s, label: t.consents.sorts[s] }))}
             onChange={pickSort}

@@ -100,7 +100,7 @@ function measureAll({ rootClasses, roles, mode }) {
           : el.hasAttribute('aria-checked')
             ? el.getAttribute('aria-checked') === 'true'
             : undefined,
-        multiline: el.classList.contains('mo-text-field__multiline'),
+        multiline: el.classList.contains('mo-is-multiline'),
         box: { w: r.width, h: r.height },
         box2: undefined,
         pad: { l: px(s.paddingLeft), r: px(s.paddingRight), t: px(s.paddingTop), b: px(s.paddingBottom) },

@@ -41,7 +41,6 @@
     ['.mo-checkbox', () => 'Checkbox'],
     ['.mo-radio-button', () => 'RadioButton'],
     ['.mo-slider', () => 'Slider'],
-    ['.mo-segmented-button', () => 'SegmentedButton'],
     ['.mo-tabs', named('Tabs', 'tabs')],
     ['.mo-badge', named('Badge', 'badge')],
     ['.mo-divider', () => 'Divider'],
@@ -181,7 +180,7 @@
 
   const button = document.createElement('button');
   button.type = 'button';
-  button.className = 'mo-button mo-is-outlined mo-button__xsmall';
+  button.className = 'mo-button mo-is-outlined mo-is-xsmall';
   button.dataset.demoNames = 'toggle';
   button.textContent = 'Names';
   const show = () => {

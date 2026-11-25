@@ -1,0 +1,38 @@
+/* Design tokens (custom-property declarations) of the scroll time picker's scroll field, M3's md.comp.scroll-field and the scroll parts of md.comp.time-pickers
+   (docs/m3-tokens/); the rules that use them are in ../../../ui/pickers.css. See docs/theme-token-files.md. */
+
+:root {
+  /* Scroll field: 200 dp high (120 at least), 100 dp wide for two digits, the items 16 dp apart, large corners on the lowest surface container;
+     the other values are the numbers scroll fields draw in the outline colour and the selected one in the on-surface colour. */
+  --mo-comp-scroll-field-container-height: 12.5rem;
+  --mo-comp-scroll-field-container-min-height: 7.5rem;
+  --mo-comp-scroll-field-container-2-digits-min-width: 6.25rem;
+  --mo-comp-scroll-field-container-3-digits-min-width: 7.5rem;
+  --mo-comp-scroll-field-container-4-digits-min-width: 11.625rem;
+  --mo-comp-scroll-field-items-gap: 1rem;
+  --mo-comp-scroll-field-container-shape: var(--mo-sys-shape-corner-large);
+  --mo-comp-scroll-field-container-color: var(--mo-sys-color-surface-container-lowest);
+  --mo-comp-scroll-field-item-unselected-color: var(--mo-sys-color-outline);
+  --mo-comp-scroll-field-item-selected-color: var(--mo-sys-color-on-surface);
+  /* The selected number: display large, emphasized (weight 500); the others display medium. */
+  --mo-comp-scroll-field-item-selected-label-text-weight: 500;
+  /* The state layer, and the active field (the one that has focus): a 2 dp outline and its selected number in the primary colour. */
+  --mo-comp-scroll-field-state-layer-color: var(--mo-sys-color-on-surface);
+  --mo-comp-scroll-field-hovered-state-layer-opacity: var(--mo-sys-state-hover-state-layer-opacity);
+  --mo-comp-scroll-field-focused-state-layer-opacity: var(--mo-sys-state-focus-state-layer-opacity);
+  --mo-comp-scroll-field-active-container-outline-color: var(--mo-sys-color-primary);
+  --mo-comp-scroll-field-active-container-outline-width: 0.125rem;
+  --mo-comp-scroll-field-active-item-selected-color: var(--mo-sys-color-primary);
+  --mo-comp-scroll-field-focused-indicator-color: var(--mo-sys-color-secondary);
+  --mo-comp-scroll-field-focused-indicator-thickness: var(--mo-sys-state-focus-indicator-thickness);
+  --mo-comp-scroll-field-focused-indicator-outline-outer-offset: var(--mo-sys-state-focus-indicator-outer-offset);
+  --mo-comp-scroll-field-container-disabled-opacity: var(--mo-sys-state-disabled-state-layer-opacity);
+  --mo-comp-scroll-field-item-disabled-opacity: var(--mo-sys-state-disabled-state-layer-opacity);
+  /* In a time picker (md.comp.time-pickers): the period selector beside the fields, 40 dp wide inline and 56 dp in a modal, and the gap to the input toggle. */
+  --mo-comp-time-pickers-scroll-field-container-height: 7.5rem;
+  --mo-comp-time-pickers-scroll-field-container-width: 6.25rem;
+  --mo-comp-time-pickers-separator-width: 1rem;
+  --mo-comp-time-pickers-inline-period-selector-width: 2.5rem;
+  --mo-comp-time-pickers-modal-period-selector-width: 3.5rem;
+  --mo-comp-time-pickers-inline-gap-periods-input-toggle: 0.5rem;
+}

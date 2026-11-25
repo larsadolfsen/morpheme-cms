@@ -1,0 +1,25 @@
+/* Where Material draws no line (M3: dividers are optional, so the lines between items are off until a part asks for one). The line is the divider's own
+   (ui/divider.css, its tokens); a part that has none here only has its colour or width taken off, never its own token. Imported by global.css last, in the
+   components layer after the parts, so it wins over their rules at the same specificity. */
+@layer components {
+  /* A plain List and a List - Expand: no line between the items; a segmented List - Expand has no room for one either. */
+  .mo-list:not(.mo-list__dividers-inset, .mo-list__dividers-middle-inset) > li + li,
+  .mo-list__expand > li + li,
+  .mo-block-accordion:not(.mo-block-accordion__segmented) > li {
+    border-top-color: transparent;
+  }
+  .mo-block-accordion__segmented.mo-list__expand > li + li {
+    border-top-width: 0;
+  }
+  /* A docked toolbar: no line (the text's bar sets the divider's own thickness and colour again, src/ui.tsx). */
+  :where(.mo-toolbar).mo-is-docked {
+    --mo-comp-divider-thickness: 0px;
+  }
+  /* The search view's header and the navigation rail's sections: a bar and a rail without lines. */
+  .mo-search-view__header,
+  .mo-nav-rail__section + .mo-nav-rail__section,
+  .mo-sheet__header,
+  .mo-sheet__footer {
+    border-color: transparent;
+  }
+}

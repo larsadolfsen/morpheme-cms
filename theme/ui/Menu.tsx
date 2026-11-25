@@ -37,7 +37,7 @@ export const menuItemClass = 'mo-menu__item';
 
 /** A menu's classes: its colour's (none for standard) and, with groups divided by a line, `menu-groups-divider`. */
 export const menuClasses = (color: MenuColor = 'standard', groups: MenuGroups = 'gap') =>
-  [menuClass, color === 'vibrant' && 'mo-menu__vibrant', groups === 'divider' && 'mo-menu__groups-divider'].filter(Boolean).join(' ');
+  [menuClass, color === 'vibrant' && 'mo-is-vibrant', groups === 'divider' && 'mo-menu__groups-divider'].filter(Boolean).join(' ');
 
 // Inside a WAI-ARIA menu (a dropdown menu and its submenus) the items are menu items; elsewhere (the header's pages, a
 // split button's ways) links and buttons in a list.
@@ -156,7 +156,9 @@ export function MenuItem({
         <span className="mo-menu__item-trailing-supporting">{trailingSupporting}</span>
       )}
       {trailingIcon && <Glyph icon={trailingIcon} size={20} className="mo-menu__item-trailing-icon" />}
-      {submenu !== undefined && <Svg name="caret-right" size={20} className="mo-menu__item-trailing-icon mo-menu__item-submenu-icon" />}
+      {submenu !== undefined && (
+        <Svg name="keyboard_arrow_right" size={20} className="mo-menu__item-trailing-icon mo-menu__item-submenu-icon" />
+      )}
     </>
   );
 
@@ -258,7 +260,7 @@ export function DropdownMenu({
       {iconButton ? (
         <IconButton icon={icon ?? 'list'} label={label} {...button} />
       ) : (
-        <Button kind={kind} size={size} icon={icon} trailingIcon="caret-down" {...button}>
+        <Button kind={kind} size={size} icon={icon} trailingIcon="keyboard_arrow_down" {...button}>
           {label}
         </Button>
       )}

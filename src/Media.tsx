@@ -18,7 +18,6 @@
 // The clock in the top bar, "Deleted files", opens the files that were deleted (Deleted.tsx).
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 import { replace, up } from './nav';
-import { ArrowsDownUp, CalendarBlank, Check, ClockCounterClockwise, PencilSimple, Trash, UploadSimple, X } from '@phosphor-icons/react';
 import { moveRedirects, REDIRECTS } from './addresses';
 import { changesOf, flatten, readAll, REDIRECT_FILES } from './redirectData';
 import { ask } from './ask';
@@ -72,7 +71,7 @@ import { useLongPress } from '@theme/ui/longPress';
 import { useSelection } from './useSelection';
 import SelectionBar from './SelectionBar';
 import { mediaDeletion } from './mediaDelete.mjs';
-import { AnyIcon } from './icon';
+import { AnyIcon, materialIcon } from './icon';
 import { SiteChip } from './themeUi';
 import { safeImageSrc } from '../lib/safe-url.mjs';
 
@@ -379,7 +378,14 @@ function Gallery({
   ];
   // In Filer the date is a group of the funnel; the image picker has no funnel, so it keeps its own button.
   const dateChoice = (
-    <Choice title={t.media.date} icon={CalendarBlank} value={date} selected={!!date} options={dateOptions} onChange={setDate} />
+    <Choice
+      title={t.media.date}
+      icon={materialIcon('calendar_today')}
+      value={date}
+      selected={!!date}
+      options={dateOptions}
+      onChange={setDate}
+    />
   );
   const chips = [
     date && { label: dateName(date), clear: () => setDate('') },
@@ -397,7 +403,7 @@ function Gallery({
         sort={
           <Choice
             title={t.media.sort}
-            icon={ArrowsDownUp}
+            icon={materialIcon('swap_vert')}
             value={sort}
             options={SORTS.map((value) => ({ value, label: t.media.sorts[value] }))}
             onChange={pickSort}
@@ -609,7 +615,7 @@ export function useMediaPicker(
           <>
             <Button
               kind="outlined"
-              icon={UploadSimple}
+              icon={materialIcon('upload')}
               busy={images.uploading}
               onClick={async () => {
                 const added = await images.upload();
@@ -899,7 +905,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
               />
               <span className="mo-editor-media-name-ending">{endingOf(src)}</span>
               <IconButton
-                icon={X}
+                icon={materialIcon('close')}
                 label={t.common.cancel}
                 onClick={() => {
                   setName(stemOf(src));
@@ -908,7 +914,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
               />
               <IconButton
                 type="submit"
-                icon={Check}
+                icon={materialIcon('check')}
                 label={t.media.saveName}
                 kind="filled"
                 busy={renaming}
@@ -919,7 +925,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
             <>
               <span className="mo-fill mo-editor-media-name-text">{fileName(src)}</span>
               {code && !code.includes(src) && (
-                <IconButton icon={PencilSimple} label={t.media.kinds[kindOf(src)].rename} onClick={() => setEditing(true)} />
+                <IconButton icon={materialIcon('edit')} label={t.media.kinds[kindOf(src)].rename} onClick={() => setEditing(true)} />
               )}
             </>
           )}
@@ -945,7 +951,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
       {kindOf(src) === 'image' && <MediaAlt key={src} src={src} files={files} env={env} />}
       <MediaTags key={src} src={src} files={files} env={env} />
       {code && !used.has(src) && (
-        <Button kind="outlined" icon={Trash} busy={deleting} disabled={deleting} onClick={() => remove(src)}>
+        <Button kind="outlined" icon={materialIcon('delete')} busy={deleting} disabled={deleting} onClick={() => remove(src)}>
           {t.media.kinds[kindOf(src)].delete}
         </Button>
       )}
@@ -961,7 +967,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
         !detail && selection.selecting ? (
           <SelectionBar count={selection.count} onClose={selection.clear} kind="actions">
             <IconButton
-              icon={Trash}
+              icon={materialIcon('delete')}
               label={t.library.deleteSelected(selection.count)}
               disabled={deletingMany}
               busy={deletingMany}
@@ -972,10 +978,10 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
       }
       actions={
         detail && src ? (
-          <IconLink icon="download-simple" label={t.media.download} href={shownAt(src)} download={fileName(src)} />
+          <IconLink icon="download" label={t.media.download} href={shownAt(src)} download={fileName(src)} />
         ) : (
           <IconButton
-            icon={ClockCounterClockwise}
+            icon={materialIcon('history')}
             label={t.history.deletedOf(t.history.files)}
 
             onClick={() => (location.hash = 'deleted/files')}
@@ -1011,11 +1017,11 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
           <div className="mo-editor-media-details">{details(src, true)}</div>
           {total > 1 && (
             <SiteToolbar label={t.media.fileTools} kind="docked" className="mo-editor-media-file-tools">
-              <IconButton icon="caret-left" label={t.media.previous} disabled={at <= 0} onClick={() => step(-1)} />
+              <IconButton icon="keyboard_arrow_left" label={t.media.previous} disabled={at <= 0} onClick={() => step(-1)} />
               <span className="mo-editor-media-muted" aria-live="polite">
                 {t.media.position(at + 1, total)}
               </span>
-              <IconButton icon="caret-right" label={t.media.next} disabled={at >= total - 1} onClick={() => step(1)} />
+              <IconButton icon="keyboard_arrow_right" label={t.media.next} disabled={at >= total - 1} onClick={() => step(1)} />
             </SiteToolbar>
           )}
         </>

@@ -1,4 +1,4 @@
-// An exposed dropdown menu (m3.material.io/components/menus, .mo-exposed-dropdown-menu in ../styles/ui/menus.css): a field that
+// An exposed dropdown menu (m3.material.io/components/menus, .mo-select in ../styles/ui/menus.css): a field that
 // shows the chosen one of a few choices (`options`, each its `value` and `label`, evt. `disabled`) and opens a menu of
 // them, with its name (`label`), a line under it (`supporting`) or what is wrong with it (`error`). As Material's, it
 // is the theme's text field (TextField.tsx: its kind, `kind`, outlined by default or filled, its classes and its look)
@@ -15,8 +15,7 @@ import { textFieldClass, type TextFieldKind } from '@theme/ui/TextField';
 export type ExposedDropdownMenuOption = { value: string; label: string; disabled?: boolean };
 
 /** An exposed dropdown menu's classes: the text field's of its kind (and its error's), and its own. */
-export const exposedDropdownMenuClass = (kind: TextFieldKind = 'outlined', error = false) =>
-  `${textFieldClass(kind, error)} mo-exposed-dropdown-menu`;
+export const exposedDropdownMenuClass = (kind: TextFieldKind = 'outlined', error = false) => `${textFieldClass(kind, error)} mo-select`;
 
 export default function ExposedDropdownMenu({
   label,
@@ -46,16 +45,16 @@ export default function ExposedDropdownMenu({
       <div className="mo-text-field__container">
         <select
           id={field}
-          className="mo-text-field__input mo-exposed-dropdown-menu__select"
+          className="mo-text-field__input mo-select__select"
           defaultValue={value ?? ''}
           aria-invalid={error ? true : undefined}
           aria-describedby={line ? `${field}-supporting` : undefined}
           {...rest}
         >
           {/* Nothing chosen yet: an empty choice that is not in the menu. */}
-          {value === undefined && <option value="" hidden className="mo-exposed-dropdown-menu__empty" />}
+          {value === undefined && <option value="" hidden className="mo-select__empty" />}
           {options.map((o) => (
-            <option key={o.value} value={o.value} disabled={o.disabled} className="mo-exposed-dropdown-menu__option">
+            <option key={o.value} value={o.value} disabled={o.disabled} className="mo-select__option">
               {o.label}
             </option>
           ))}
@@ -63,7 +62,7 @@ export default function ExposedDropdownMenu({
         <label htmlFor={field} className="mo-text-field__label">
           {label}
         </label>
-        <Svg name="caret-down" size={20} className="mo-exposed-dropdown-menu__icon" />
+        <Svg name="keyboard_arrow_down" size={20} className="mo-select__icon" />
       </div>
       {line && (
         <div className="mo-text-field__supporting-row">

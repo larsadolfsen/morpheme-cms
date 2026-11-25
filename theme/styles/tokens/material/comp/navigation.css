@@ -12,33 +12,33 @@
   --mo-comp-navigation-drawer-scrim-opacity: 0.4;
   --mo-comp-navigation-drawer-row-gap: 0;
   --mo-comp-navigation-drawer-toggle-size: 3rem;
-  --mo-comp-navigation-drawer-toggle-hover: var(--mo-sys-state-mo-hover-layer);
+  --mo-comp-navigation-drawer-toggle-hover: var(--mo-sys-state-hover-state-layer-color);
   /* A modal navigation rail: large corners towards the page, as the drawer. */
-  --mo-comp-navigation-rail-modal-radius: var(--mo-sys-shape-corner-large);
+  --mo-comp-nav-rail-modal-radius: var(--mo-sys-shape-corner-large);
   /* The navigation bar: 64px (M3 Expressive), in a surface container without a line, the active indicator 56 × 32 in the
      secondary container, the labels in label medium. */
-  --mo-comp-navigation-bar-container-height: 4rem;
-  --mo-comp-navigation-bar-container-color: var(--mo-sys-color-surface-container);
-  --mo-comp-navigation-bar-line: transparent;
-  --mo-comp-navigation-bar-inactive-label-text-color: var(--mo-sys-color-on-surface-variant);
-  --mo-comp-navigation-bar-active-label-text-color: var(--mo-sys-color-on-surface);
-  --mo-comp-navigation-bar-active-indicator-width: 3.5rem;
-  --mo-comp-navigation-bar-active-indicator-shape: var(--mo-sys-shape-corner-full);
-  --mo-comp-navigation-bar-active-indicator-color: var(--mo-sys-color-surface-container-high);
-  --mo-comp-navigation-bar-indicator-text: var(--mo-sys-color-on-surface);
-  --mo-comp-navigation-bar-indicator-hover: var(--mo-sys-state-mo-hover-layer);
-  --mo-comp-navigation-bar-label-selected-weight: 500;
+  --mo-comp-nav-bar-container-height: 4rem;
+  --mo-comp-nav-bar-container-color: var(--mo-sys-color-surface-container);
+  --mo-comp-nav-bar-line: transparent;
+  --mo-comp-nav-bar-item-inactive-label-text-color: var(--mo-sys-color-on-surface-variant);
+  --mo-comp-nav-bar-item-active-label-text-color: var(--mo-sys-color-on-surface);
+  --mo-comp-nav-bar-item-vertical-active-indicator-width: 3.5rem;
+  --mo-comp-nav-bar-item-active-indicator-shape: var(--mo-sys-shape-corner-full);
+  --mo-comp-nav-bar-item-active-indicator-color: var(--mo-sys-color-surface-container-high);
+  --mo-comp-nav-bar-indicator-text: var(--mo-sys-color-on-surface);
+  --mo-comp-nav-bar-indicator-hover: var(--mo-sys-state-hover-state-layer-color);
+  --mo-comp-nav-bar-label-selected-weight: 500;
   /* The navigation rail: 96px collapsed and 220px wide, on the page's background without a line, the same indicator
      (56px high when wide), the labels in label medium, wide in label large. */
-  --mo-comp-navigation-rail-container-width: 6rem;
-  --mo-comp-navigation-rail-expanded-width: 13.75rem;
-  --mo-comp-navigation-rail-padding: 1.5rem 0.5rem;
-  --mo-comp-navigation-rail-line: transparent;
+  --mo-comp-nav-rail-collapsed-container-width: 6rem;
+  --mo-comp-nav-rail-expanded-width: 13.75rem;
+  --mo-comp-nav-rail-padding: 1.5rem 0.5rem;
+  --mo-comp-nav-rail-line: transparent;
   --mo-comp-navigation-rail-inactive-label-text-color: var(--mo-sys-color-on-surface-variant);
   --mo-comp-navigation-rail-active-label-text-color: var(--mo-sys-color-on-surface);
   --mo-comp-navigation-rail-active-indicator-shape: var(--mo-sys-shape-corner-full);
   --mo-comp-navigation-rail-active-indicator-color: var(--mo-sys-color-surface-container-high);
-  --mo-comp-navigation-rail-indicator-text: var(--mo-sys-color-on-surface);
-  --mo-comp-navigation-rail-indicator-hover: var(--mo-sys-state-mo-hover-layer);
-  --mo-comp-navigation-rail-label-selected-weight: 500;
+  --mo-comp-nav-rail-indicator-text: var(--mo-sys-color-on-surface);
+  --mo-comp-nav-rail-indicator-hover: var(--mo-sys-state-hover-state-layer-color);
+  --mo-comp-nav-rail-label-selected-weight: 500;
 }

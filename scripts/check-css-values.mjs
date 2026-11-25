@@ -118,7 +118,7 @@ for (const file of [...cssFiles, ...classFiles].filter(themeScope)) {
 // An elevation class on an element that has a part class: the class would win the cascade and freeze the part's own level for every state.
 const elevationClass = /\bmo-elevat(?:ion|ed)-[0-3]\b/;
 const partClass =
-  /\bmo-(?:button|icon-button|fab|extended-fab|fab-menu|chip|card|list|list-item|menu|menu-item|dialog|bottom-sheet|side-sheet|top-app-bar|toolbar|navigation-bar|navigation-rail|navigation-drawer|tabs?|search|search-bar|search-view|snackbar|tooltip|switch|slider|checkbox|radio|text-field|badge|date-picker|time-picker|segmented-button|button-group|split-button|carousel)(?:__[a-z0-9-]+|--[a-z0-9-]+)?\b/;
+  /\bmo-(?:button|icon-button|fab|extended-fab|fab-menu|chip|card|list|list-item|menu|menu-item|dialog|bottom-sheet|side-sheet|top-app-bar|toolbar|navigation-bar|navigation-rail|navigation-drawer|tabs?|search|search-bar|search-view|snackbar|tooltip|switch|slider|checkbox|radio|text-field|badge|date-picker|time-picker|button-group|split-button|carousel)(?:__[a-z0-9-]+|--[a-z0-9-]+)?\b/;
 for (const file of [...cssFiles, ...classFiles].filter(themeScope)) {
   const lines = readFileSync(root + file, 'utf8').split('\n');
   lines.forEach((l, i) => {

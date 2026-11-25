@@ -11,7 +11,7 @@ import type { ReactNode } from 'react';
 export type BadgeTone = 'ok' | 'minor' | 'major' | 'unknown';
 
 /** A badge's classes: the small dot, or the large one with a number. */
-export const badgeClass = (large: boolean) => `mo-badge ${large ? 'mo-badge__large' : 'mo-badge__small'}`;
+export const badgeClass = (large: boolean) => `mo-badge ${large ? 'mo-is-large' : 'mo-is-small'}`;
 
 export default function Badge({
   count,

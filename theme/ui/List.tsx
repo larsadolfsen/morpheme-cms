@@ -3,8 +3,8 @@
 // under it (`supporting`), and what trails it. Its kind (`kind`: standard, the default, the items on what the list
 // stands on, or segmented, M3 Expressive's, each item on its own surface with a small gap between them) and its dividers
 // (`dividers`: full-width, the default for a standard list, inset, from where the items' text starts, middle-inset or
-// none) are Material's. An item has one, two or three lines (`lines`): with a supporting text two (also when the text
-// is empty, so the items of a list are alike), with a subhead too three; a supporting text of two lines needs
+// none) are Material's. An item has one, two or three lines (`lines`): a headline alone is one (56 dp), with a supporting text two (72 dp;
+// an empty text is no text, so an item never reserves a line it does not fill), with a subhead too three (88 dp); a supporting text of two lines needs
 // `lines={3}`. What leads it: `leading` (anything: an icon, an image, a block's own), or Material's leading
 // kinds, an icon (`leadingIcon`), an avatar (`leadingAvatar`: a letter or an image), an image (`leadingImage`) or a
 // video's thumbnail (`leadingVideo`). What trails it: a trailing supporting text (`trailingSupporting`: a number, a
@@ -15,8 +15,7 @@
 // `onClick` a button (what a tap does: the editor's rows), else a <div>; the rest (data-…, aria-…) on it, and
 // `presentation` takes the <li>'s own role away (an item that is an option of a listbox: Search.tsx). `leadingIconSelected`:
 // its icon in the selected colour (the open one, where the item itself is not drawn selected). `truncate`: its texts each
-// on one line, cut off (a name, an address); else they wrap. `columns`: on a wide screen its headline and supporting text
-// side by side, as columns of the list (an address and where it sends to), under each other on a phone. `actions`: secondary actions beside it (icon buttons, a
+// on one line, cut off (a name, an address); else they wrap. `actions`: secondary actions beside it (icon buttons, a
 // switch), a multi-action item (Material's) with the item its primary action; `children`: what is in its <li> after it
 // (a sheet it opens, a text it folds out). `selectable`: on a phone (a touch or a pen) a long press selects it, or unselects
 // it, through `onSelectedChange` (useLongPress, longPress.ts), the browser's own menu for a long press kept away; with
@@ -200,7 +199,6 @@ export function ListItem({
   dragged,
   presentation,
   truncate,
-  columns,
   actions,
   selectable,
   selecting,
@@ -243,7 +241,6 @@ export function ListItem({
   dragged?: boolean;
   presentation?: boolean;
   truncate?: boolean;
-  columns?: boolean;
   actions?: ReactNode;
   /** A long press with a touch or a pen selects it (or unselects it): `onSelectedChange` with the opposite of `selected`. */
   selectable?: boolean;
@@ -275,8 +272,11 @@ export function ListItem({
     !!selecting,
     selectable ? onSelectDrag : undefined,
   );
-  const shown = (v: ReactNode) => v != null && v !== '';
-  const n: ListItemLines = lines ?? (subhead != null && supporting !== undefined ? 3 : supporting !== undefined || subhead != null ? 2 : 1);
+  // Nothing (null, false, an empty or blank text, a non-breaking space) is no line: a headline alone is Material's one-line item (56 dp,
+  // label and trailing icon in the middle), and a second line is reserved only for a text that is there (72 dp), a third for a subhead
+  // over it (88 dp). Material mixes the heights in one list ("Label text only", "Label text with supporting text").
+  const shown = (v: ReactNode) => v != null && v !== false && v !== '' && !(typeof v === 'string' && v.trim() === '');
+  const n: ListItemLines = lines ?? (shown(subhead) && shown(supporting) ? 3 : shown(supporting) || shown(subhead) ? 2 : 1);
   const at = control?.at ?? (control?.type === 'switch' ? 'trailing' : 'leading');
 
   // The choice: the theme's part, named by the headline and described by the supporting text, without a name of its own.
@@ -377,7 +377,6 @@ export function ListItem({
   const classes = [
     listItemClass(n, { selected, disabled, dragged }),
     control && 'mo-list__item-with-control',
-    columns && 'mo-list__item-columns',
     press && 'mo-list__item-selectable',
     press && selecting && 'mo-list__item-selecting',
     shortcut && 'mo-list__item-selectable-leading',
@@ -426,7 +425,7 @@ export function ListItem({
               aria-label={expandToggle.label}
               onClick={expandToggle.onToggle}
             >
-              <Glyph icon="caret-down" size={24} />
+              <Glyph icon="keyboard_arrow_down" size={24} />
             </button>
           </div>
           <div className="mo-list__item-expand-body" hidden={!open}>
@@ -449,7 +448,7 @@ export function ListItem({
           <summary className={`${classes} mo-list__item-expand-summary`} onClick={onClick} {...rest}>
             {content}
             <span className="mo-list__item-expand-icon" aria-hidden="true">
-              <Glyph icon="caret-down" size={24} />
+              <Glyph icon="keyboard_arrow_down" size={24} />
             </span>
           </summary>
           <div className="mo-list__item-expand-body">{children}</div>

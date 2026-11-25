@@ -11,8 +11,7 @@ batches and we approve them on staging, we just open up the next batch to contin
 
 1. An urgent fix stays possible as `0.N.1`, only when the owner calls it.
 2. 0.19.5 is released as the last patch release, and 0.19.6 and 0.19.7 fold into 0.20. The owner then changed it: "Except I want a
-   19.6, and that is a merge between 19.6 and 19.7 because there's a lot of small fixes I want to have done before 20." So 0.19.6
-   is one more release, holding both, and it is the last patch release.
+   19.6, and that is a merge between 19.6 and 19.7 because there's a lot of small fixes I want to have done before 20." So 0.19.6 is one more release, holding both. On 25 Nov 2026 the owner split it again and then took the split back ("let's continue with 0.19.7 in 0.19.6, but not before the last is merged"): 0.19.6 is the last patch release (*The change over*).
 3. The plan and the rule changes go as one docs pull request (this one).
 
 ## The rule
@@ -50,19 +49,21 @@ Until the path is built (batch B below), an urgent fix waits, or the owner decid
 ## The change over
 
 - **0.19.5** is released as soon as the release gate allows it (`plans/2026-11-22-release-gate-unshipped-commits.md`).
-- **0.19.6 finishes Material 3, and is the last patch release.** It already works the new way: one release, its features as batches,
-  all on version `0.19.6`, one PM (`/pm 0.19.6`), in this order:
-  1. **Material 3 names**, contract 8, with the full-screen dialog back (moved from 0.20.0; owner, 22 Nov 2026: "Yes, move the names into 096. Also move phosphor icons as in a store icon into it, so Sarah can get it. And also the full screen dialog should be there." Spec
-     `specs/2026-11-20-material-3-names-design.md`, branch `feature/0.19.6-m3-names`.
-  2. **Phosphor in the store**, as an icon pack a site installs and picks (same decision; `specs/2026-11-14-icon-packs-in-the-store-design.md`,
-     its note of 22 Nov), branch `feature/0.19.6-phosphor-pack`.
-  3. **The editor in Material 3** (`plans/2026-11-21-0-19-6-editor-in-material-3.md`), branch `feature/0.19.6-editor-m3`.
-  4. **The UI fixes**, the old 0.19.7, with the divider line (`plans/2026-11-22-0-19-7-ui-fixes.md`), branch `feature/0.19.6-ui-fixes`.
+- **0.19.6 finishes Material 3, and is the last patch release** (one PM, `/pm 0.19.6`, branch `feature/0.19.6-m3-names`, version
+  `0.19.6`). Its batches:
+  1. **Material 3 names**, contract 8, with the full-screen dialog back (moved from 0.20.0; owner, 22 Nov 2026: "Yes, move the names into 096. Also move phosphor icons as in a store icon into it, so Sarah can get it. And also the full screen dialog should be there.";
+     `specs/2026-11-20-material-3-names-design.md`).
+  2. **Phosphor in the store**, parts 1 and 2 (part 2 is #1211; `specs/2026-11-14-icon-packs-in-the-store-design.md`).
+  3. **The Divider** (#1196) and the UI fixes already merged (A1 to A3, B4).
+  4. After the last open 0.19.6 pull request is merged (owner, 25 Nov 2026: "let's continue with 0.19.7 in 0.19.6, but not before the
+     last is merged"): **Cards** (`specs/2026-11-25-cards-multi-aspect-design.md`, then `specs/2026-11-25-cards-highlighted-design.md`),
+     **the editor in Material 3** (`plans/2026-11-21-0-19-6-editor-in-material-3.md`, 8 batches) and **the UI fixes left**
+     (`plans/2026-11-22-0-19-7-ui-fixes.md`: the demo-blocks rule of A, B5 to B18, C20).
 
-  There is no 0.19.7. The names go first so that everything after them is written with the final names.
+  There is no 0.19.7. The Icons screens and the pack's own page are 0.31.0 (owner, 25 Nov 2026: "finish and keep it for 0.31").
 - **0.20 keeps four items** (safe updates, store auto-updates, an app's Worker code in a sandbox, UI fixes) as its batches, released once
   as 0.20.0.
-- **The next PM is `/pm 0.19.6`**, started after 0.19.5 is released; then `/pm 0.20`.
+- **The PMs:** `/pm 0.19.6`, then `/pm 0.20`.
 
 ## Changed in this pull request
 

@@ -10,22 +10,24 @@
 }
 @layer components {
   .mo-block-cards__primary .mo-block-cards__card {
-    --mo-comp-filled-card-container-color: var(--mo-sys-color-primary-container, var(--mo-sys-block-primary));
+    --mo-comp-filled-card-container-color: var(--mo-sys-color-primary-container, var(--mo-comp-block-primary));
   }
 }
 @layer components {
   .mo-block-cards__secondary .mo-block-cards__card {
-    --mo-comp-filled-card-container-color: var(--mo-sys-color-secondary-container, var(--mo-sys-block-secondary));
+    --mo-comp-filled-card-container-color: var(--mo-sys-color-secondary-container, var(--mo-comp-block-secondary));
   }
 }
 @layer components {
   .mo-block-cards__tertiary .mo-block-cards__card {
-    --mo-comp-filled-card-container-color: var(--mo-sys-color-tertiary-container, var(--mo-sys-block-tertiary));
+    --mo-comp-filled-card-container-color: var(--mo-sys-color-tertiary-container, var(--mo-comp-block-tertiary));
   }
 }
 @layer components {
   .mo-block-pricecards__extra {
-    --mo-comp-card-radius: var(--mo-sys-block-radius-small);
+    --mo-comp-elevated-card-container-shape: var(--mo-comp-block-radius-small);
+    --mo-comp-filled-card-container-shape: var(--mo-comp-block-radius-small);
+    --mo-comp-outlined-card-container-shape: var(--mo-comp-block-radius-small);
     --mo-comp-card-padding: 1rem;
   }
 }

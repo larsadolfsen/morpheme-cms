@@ -10,27 +10,6 @@
 // loading indicator while they run (only the pressed one).
 // When each page was last saved is kept in savedTimes.ts, shared with the start screen.
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
-import {
-  ArrowDown,
-  ArrowsDownUp,
-  ArrowUp,
-  Check,
-  ClockCounterClockwise,
-  CircleHalf,
-  FileText,
-  GoogleLogo,
-  List as ListIcon,
-  ListBullets,
-  ListChecks,
-  Moon,
-  Palette,
-  Ruler,
-  Shapes,
-  SignOut,
-  Sun,
-  Trash,
-  type Icon,
-} from '@phosphor-icons/react';
 import { byText, entryData, type Collection, type Part, type PartScreen } from './schema';
 import { config, countsOf, header, relationsOf, siteName } from '@site/editor';
 import { iconPack, iconPacks } from './iconPacks';
@@ -79,7 +58,7 @@ import {
   plainListClass,
   SearchRow,
   useKept,
-  SegmentedButton,
+  ConnectedButtons,
   UnfoldButton,
   GroupTitle,
   SwitchRow,
@@ -91,6 +70,7 @@ import {
   ColorSwatches,
   IconSwatches,
   ListItem,
+  useAtLeast,
 } from './ui';
 import { openAtSeo } from './EntryForm';
 import { isRated } from './SeoScores';
@@ -141,6 +121,7 @@ import { apps } from './site';
 import { waitingOf } from './pageVersions.mjs';
 import { offBlocks } from './registry';
 import { sideChoicesOf, sideSettingOf } from './SideColumn';
+import { brandIcon, Icon as MaterialIcon, materialIcon, type IconComponent as Icon } from './icon';
 
 // Where a part opens: its list, or the file itself when it is one file (the menu).
 export const hrefOf = (c: Collection) => (c.kind === 'files' && c.files.length === 1 ? `#${c.files[0].file}` : `#list/${c.id}`);
@@ -214,7 +195,7 @@ export { LeadingIcon };
 
 // A part of the site as a row: its icon, its name and how many entries it has.
 function PartRow({ id, label, href, count }: { id: string } & ReturnType<typeof partOf>) {
-  return <ListItem href={href} icon={icons[id] ?? ListChecks} headline={label} count={count} arrow />;
+  return <ListItem href={href} icon={icons[id] ?? materialIcon('checklist')} headline={label} count={count} arrow />;
 }
 
 // The start screen: the site's name, the CMS version and when the site was last updated (built on Cloudflare, App.tsx), as StartStatus.tsx shows them, under it, and the FAB
@@ -510,9 +491,9 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
   const statement = statementOf(of.accessibility);
   const shotName = (key: string) => t.library.themeShots[key] ?? of.name;
   const kept: [Icon, string][] = [
-    [FileText, t.library.themeKeptContent],
-    [Palette, t.library.themeKeptBrand],
-    [Shapes, t.library.themeKeptBlocks],
+    [materialIcon('description'), t.library.themeKeptContent],
+    [materialIcon('palette'), t.library.themeKeptBrand],
+    [materialIcon('shapes'), t.library.themeKeptBlocks],
   ];
 
   async function use() {
@@ -567,13 +548,13 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
       {highlights.length > 0 && (
         <Group title={t.library.themeHighlights}>
           {highlights.map((h) => (
-            <ListItem key={h} icon={Check} headline={h} />
+            <ListItem key={h} icon={materialIcon('check')} headline={h} />
           ))}
         </Group>
       )}
       <Group>
         <ListItem
-          icon={statement.state === 'meets' ? Check : ListChecks}
+          icon={statement.state === 'meets' ? materialIcon('check') : materialIcon('checklist')}
           headline={
             statement.state === 'meets'
               ? t.library.themeA11yMeets
@@ -611,7 +592,7 @@ export function PartsHome() {
     { id: 'ui', label: t.parts.screens.components, icon: icons.appearance },
     { id: 'blocks', label: t.parts.screens.blocks, icon: icons.blocks },
     ...kindLists().map((c) => ({ id: `list/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lists })),
-    { id: 'values', label: t.parts.screens.values, icon: Ruler },
+    { id: 'values', label: t.parts.screens.values, icon: materialIcon('straighten') },
   ];
   return <Parts title={t.common.parts.editorParts} route="developer/parts" parts={parts} back={backFrom('components')} />;
 }
@@ -727,7 +708,7 @@ export function Blocks({ files }: { files: RepoFile[] }) {
         sort={
           <Choice
             title={t.library.sort}
-            icon={ArrowsDownUp}
+            icon={materialIcon('swap_vert')}
             value={sort}
             options={BLOCK_SORTS.map((s) => ({ value: s, label: t.library.sorts[s] }))}
             onChange={pickSort}
@@ -824,7 +805,14 @@ export function Lists({ files }: { files: RepoFile[]; env?: Env }) {
         ids={listsShown(files)}
         files={files}
         more={waiting.map((d) => (
-          <ListItem key={d.id} href={`#list/${d.id}`} icon={ListChecks} headline={d.label} supporting={t.ownList.notSavedYet} arrow />
+          <ListItem
+            key={d.id}
+            href={`#list/${d.id}`}
+            icon={materialIcon('checklist')}
+            headline={d.label}
+            supporting={t.ownList.notSavedYet}
+            arrow
+          />
         ))}
       />
       <CreateFab label={t.ownList.new} onClick={() => setMaking(true)} />
@@ -857,7 +845,7 @@ export function Account({ user, files, onLogout }: { user: Viewer | null; files:
       <LocalePicker />
       <NotificationChoices files={files} />
       <Group>
-        <ListItem tone="accent" onClick={onLogout} leading={<SignOut size={20} />} headline={t.library.logOut} />
+        <ListItem tone="accent" onClick={onLogout} leading={<MaterialIcon name="logout" size={20} />} headline={t.library.logOut} />
       </Group>
     </Screen>
   );
@@ -905,12 +893,12 @@ function NotificationChoices({ files }: { files: RepoFile[] }) {
 function ThemePicker() {
   const [theme, pick] = useState(savedTheme);
   const choices: { value: Theme; label: string; icon: Icon }[] = [
-    { value: 'light', label: t.library.themes.light, icon: Sun },
-    { value: 'auto', label: t.library.themes.auto, icon: CircleHalf },
-    { value: 'dark', label: t.library.themes.dark, icon: Moon },
+    { value: 'light', label: t.library.themes.light, icon: materialIcon('light_mode') },
+    { value: 'auto', label: t.library.themes.auto, icon: materialIcon('contrast') },
+    { value: 'dark', label: t.library.themes.dark, icon: materialIcon('dark_mode') },
   ];
   return (
-    <SegmentedButton
+    <ConnectedButtons
       label={t.library.theme}
       value={theme}
       options={choices}
@@ -928,11 +916,11 @@ function ThemePicker() {
 function DensityPicker() {
   const [density, pick] = useState(savedDensity);
   const choices: { value: Density; label: string; icon: Icon }[] = [
-    { value: 'medium', label: t.library.densities.medium, icon: ListIcon },
-    { value: 'small', label: t.library.densities.small, icon: ListBullets },
+    { value: 'medium', label: t.library.densities.medium, icon: materialIcon('list') },
+    { value: 'small', label: t.library.densities.small, icon: materialIcon('format_list_bulleted') },
   ];
   return (
-    <SegmentedButton
+    <ConnectedButtons
       label={t.library.density}
       value={density}
       options={choices}
@@ -1225,6 +1213,7 @@ export function List({
   // Pages and posts: their address in a column on a computer, and a filter that shows only those with
   // one status (when they do not all have the same).
   const markdown = collection.kind === 'markdown';
+  const wide = useAtLeast('expanded');
   const [picked, setState] = useKept<State | 'unfinished' | ''>(`${collection.id}-status`, '');
   const states = markdown ? STATES.filter((s) => items.some((i) => i.state === s)) : [];
   // All again when the status picked is no longer there to pick (the last draft was published meanwhile).
@@ -1494,22 +1483,11 @@ export function List({
         href={item.href}
         leading={ring(item)}
         headline={item.title}
-        supporting={
-          (markdown || pages || item.detail || item.status) && (
-            <Under item={item} address={markdown}>
-              {pages ? (
-                <SavedTime item={item} />
-              ) : (
-                <>
-                  <Status item={item} />
-                  {collection.id === 'blog' ? shortDate(item.detail) : item.detail}
-                </>
-              )}
-            </Under>
-          )
-        }
+        supporting={under(item, {
+          address: markdown && wide,
+          text: pages ? savedTime(item) : collection.id === 'blog' ? shortDate(item.detail) : item.detail,
+        })}
         truncate
-        columns
         count={item.count}
         arrow={!orderable}
         actions={
@@ -1517,14 +1495,14 @@ export function List({
           !selecting && (
             <span className="mo-editor-library-row-actions">
               <IconButton
-                icon={ArrowUp}
+                icon={materialIcon('arrow_upward')}
                 label={t.common.moveUpItem(item.title)}
                 busy={moving?.from === i && moving.to === i - 1}
                 disabled={i === 0 || busy}
                 onClick={() => move(i, i - 1)}
               />
               <IconButton
-                icon={ArrowDown}
+                icon={materialIcon('arrow_downward')}
                 label={t.common.moveDownItem(item.title)}
                 busy={moving?.from === i && moving.to === i + 1}
                 disabled={i === shown.length - 1 || busy}
@@ -1555,11 +1533,13 @@ export function List({
       tabs={
         appTabs.length > 0
           ? {
+              kind: 'secondary',
               label: collection.label,
               value: appTab?.app.id ?? '',
               options: [
-                { value: '', label: collection.label, icon: icons[collection.id as keyof typeof icons] ?? ListIcon },
-                ...appTabs.map((a) => ({ value: a.app.id, label: siteText(a.tab.label), icon: a.tab.icon })),
+                { value: '', label: collection.label },
+                // Secondary tabs have no icons (M3): an app's `tab.icon` stays in its contract and is not drawn.
+                ...appTabs.map((a) => ({ value: a.app.id, label: siteText(a.tab.label) })),
               ],
               onChange: (v) => (location.hash = v ? `list/${collection.id}/${v}` : `list/${collection.id}`),
             }
@@ -1574,7 +1554,7 @@ export function List({
             onClose={selection.clear}
           >
             <IconButton
-              icon={Trash}
+              icon={materialIcon('delete')}
               label={t.library.deleteSelected(live.length)}
               disabled={!live.length || deletingMany}
               busy={deletingMany}
@@ -1588,7 +1568,7 @@ export function List({
           {/* What was deleted from the list, as in "Files". */}
           {restorable(collection) && (
             <IconButton
-              icon={ClockCounterClockwise}
+              icon={materialIcon('history')}
               label={t.history.deletedOf(collection.label)}
               onClick={() => (location.hash = `deleted/${collection.id}`)}
             />
@@ -1613,7 +1593,7 @@ export function List({
               // Greyed out while the pages are shown as the menu, which has its own order, so the buttons do not move.
               <Choice
                 title={t.library.sort}
-                icon={ArrowsDownUp}
+                icon={materialIcon('swap_vert')}
                 value={sort}
                 disabled={!!tree}
                 options={sorts.map((s) => ({ value: s, label: sortLabel(collection, s) }))}
@@ -1625,7 +1605,7 @@ export function List({
           seo={
             rated && (
               <IconButton
-                icon={GoogleLogo}
+                icon={brandIcon('google')}
                 label={seo ? t.library.hideSeo : t.library.showSeo}
                 aria-pressed={seo}
                 selected={seo}
@@ -1638,7 +1618,7 @@ export function List({
             pages && (
               // The menu icon to show the pages as the menu has them, and then the list icon to go back.
               <IconButton
-                icon={view === 'menu' ? ListBullets : ListIcon}
+                icon={view === 'menu' ? materialIcon('format_list_bulleted') : materialIcon('list')}
                 label={view === 'menu' ? t.library.showAsList : t.library.showAsMenu}
                 aria-pressed={view === 'menu'}
 
@@ -1698,29 +1678,27 @@ export function List({
   );
 }
 
-// What is under a row's name in a list (its supporting text; beside it on a computer, ListItem's `columns`): its status
-// and date (`children`), at the right on a computer, and there a page's or post's address before them (`address`).
-function Under({ item, address, children }: { item: Item; address?: boolean; children: ReactNode }) {
+/** What is under a page's or post's name: its address (from a computer's width, where the list has the room), its status and its
+ * time or date. Nothing when there is none of them (undefined): the row is then Material's one-line item, 56 dp, not a two-line
+ * one with an empty line (owner, 25 Nov 2026: "List items only with one line should not be styled like it has two"). A row
+ * gets its second line when it has something to say in it, and not before. */
+function under(item: Item, { address, text }: { address?: boolean; text?: ReactNode }) {
+  const status = item.status ? <span className="mo-editor-library-status">{item.status}</span> : null;
+  const line = text === false || text === '' || text == null ? null : text;
+  if (!address && !status && !line) return undefined;
   return (
     <span className="mo-editor-library-under">
       {address && <span className="mo-editor-library-under-address">{item.path}</span>}
-      <span className="mo-editor-library-under-status">{children}</span>
+      <span className="mo-editor-library-under-status">
+        {status}
+        {line}
+      </span>
     </span>
   );
 }
 
-// A page's or post's status (Item.status) before its date or time.
-const Status = ({ item }: { item: Item }) => (item.status ? <span className="mo-editor-library-status">{item.status}</span> : null);
-
-// The time a page was last saved, under its name (a space until it has come, so rows do not jump).
-function SavedTime({ item }: { item: Item }) {
-  return (
-    <>
-      <Status item={item} />
-      {item.file && saved.has(item.file.path) ? capital(when(saved.get(item.file.path)!.date)) : '\u00a0'}
-    </>
-  );
-}
+// The time a page was last saved, under its name (none until it has come: the row has one line until then).
+const savedTime = (item: Item) => (item.file && saved.has(item.file.path) ? capital(when(saved.get(item.file.path)!.date)) : '');
 
 // The rows of the pages as the menu has them: each item, and under it, when it is opened with the
 // arrow at the right of its row, the items under it, indented a step. An item without a page is not a link.
@@ -1738,6 +1716,8 @@ function TreeRows({
   /** With "Show SEO rating": the score of a page at the start of its row (a tap on it opens the page at its rating). */
   ring?: (item: Item) => ReactNode;
 }) {
+  // The address shows from the expanded breakpoint (840 dp), where the row has room for it.
+  const wide = useAtLeast('expanded');
   return (
     <>
       {branches.map(({ key, item, children }) => {
@@ -1753,17 +1733,8 @@ function TreeRows({
               }
               leading={ring?.(item)}
               headline={item.title}
-              supporting={
-                item.href ? (
-                  <Under item={item} address>
-                    <SavedTime item={item} />
-                  </Under>
-                ) : (
-                  t.library.pageGone
-                )
-              }
+              supporting={item.href ? under(item, { address: wide, text: savedTime(item) }) : t.library.pageGone}
               truncate
-              columns
               actions={
                 children.length > 0 && (
                   <span className="mo-editor-library-row-unfold">

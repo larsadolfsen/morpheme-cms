@@ -25,7 +25,7 @@
   /* M3's full corner (a pill or a circle): the fallback for a theme that does not set the corner steps (global.css sets all ten). */
   --mo-sys-shape-corner-full: 9999px;
   /* The corners of something smaller in or beside a panel: an image in a list, a row in a menu, an icon's square. */
-  --mo-sys-radius-small: 1rem;
+  --mo-sys-shape-corner-large: 1rem;
   /* M3's breakpoints (m3.material.io/foundations/layout/breakpoints) as plain lengths: the same four as `--breakpoint-*` below and as
      lib/breakpoints.mjs (lib/breakpoints.test.mjs checks that they agree). Not registered with @property: a registered length computes
      to px, and the Preview (previewBreakpoints.ts) reads the rem. A @media cannot read a custom property, so this is the table's home. */

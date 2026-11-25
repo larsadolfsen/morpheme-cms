@@ -3,8 +3,8 @@
 // src/data/blocks.json), and the editor makes their screens itself (sharedParts in
 // packages/editor/src/site.ts). Here only what is the site's: "Book an appointment", whose texts are the
 // site's buttons too, in src/data/booking.json.
-import { CalendarCheck } from '@phosphor-icons/react';
 import type { Part } from '../src/schema';
+import { materialIcon } from '../src/icon';
 
 const back = { href: '#blocks', label: 'Block templates' };
 
@@ -13,7 +13,7 @@ export const blockParts: Part[] = (
     {
       id: 'booking',
       label: 'Book an appointment',
-      icon: CalendarCheck,
+      icon: materialIcon('calendar_check'),
       file: 'src/data/booking.json',
       fields: [
         { name: 'heading', label: 'Heading', type: 'string', required: true },

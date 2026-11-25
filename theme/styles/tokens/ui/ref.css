@@ -32,7 +32,7 @@
 /* ---- State layers ----
   M3's state opacities (m3.material.io/foundations/interaction/states/state-layers, token set "State opacities"): the fixed
   opacity of the layer a state draws over a part, in the colour of the part's content. Every part reads these and writes no number
-  of its own (--mo-sys-state-mo-hover-layer and --mo-sys-state-mo-pressed-layer, tokens/material/sys.css, are made from them).
+  of its own (--mo-sys-state-hover-state-layer-color and --mo-sys-state-pressed-state-layer-color, tokens/material/sys.css, are made from them).
     --mo-sys-state-hover-state-layer-opacity      pointed at, 0.08
     --mo-sys-state-focus-state-layer-opacity      focused, 0.1
     --mo-sys-state-pressed-state-layer-opacity    pressed, 0.1
@@ -65,11 +65,11 @@
     0 4px 8px color-mix(in srgb, var(--mo-sys-color-shadow) 9%, transparent),
     0 20px 44px -12px color-mix(in srgb, var(--mo-sys-color-shadow) 30%, transparent);
   --mo-sys-elevation-level0-color: var(--mo-sys-color-surface);
-  --mo-sys-elevation-level1-color: var(--mo-sys-color-surface-container-low, var(--mo-sys-block-surface));
-  --mo-sys-elevation-level2-color: var(--mo-sys-color-surface-container, var(--mo-sys-block-surface));
-  --mo-sys-elevation-level3-color: var(--mo-sys-color-surface-container-high, var(--mo-sys-block-surface));
-  --mo-sys-elevation-level4-color: var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-surface));
-  --mo-sys-elevation-level5-color: var(--mo-sys-color-surface-container-highest, var(--mo-sys-block-surface));
+  --mo-sys-elevation-level1-color: var(--mo-sys-color-surface-container-low, var(--mo-comp-block-surface));
+  --mo-sys-elevation-level2-color: var(--mo-sys-color-surface-container, var(--mo-comp-block-surface));
+  --mo-sys-elevation-level3-color: var(--mo-sys-color-surface-container-high, var(--mo-comp-block-surface));
+  --mo-sys-elevation-level4-color: var(--mo-sys-color-surface-container-highest, var(--mo-comp-block-surface));
+  --mo-sys-elevation-level5-color: var(--mo-sys-color-surface-container-highest, var(--mo-comp-block-surface));
   --mo-sys-elevation-level1-rest-shadow: var(--mo-sys-elevation-level0-shadow);
   --mo-sys-elevation-level2-rest-shadow: var(--mo-sys-elevation-level0-shadow);
   --mo-sys-elevation-level3-rest-shadow: var(--mo-sys-elevation-level0-shadow);

@@ -15,7 +15,11 @@ import { Glyph, type IconRef } from '@morphemecms/cms/src/icon';
 import Badge from '@theme/ui/Badge';
 import BusyContent from '@theme/ui/BusyContent';
 import { Link, type IconButtonKind } from '@morphemecms/cms/src/standard/view';
-import { ToggleIcon, type ButtonShape, type ButtonSize } from '@theme/ui/Button';
+import { ToggleIcon, type ButtonShape } from '@theme/ui/Button';
+
+/** An icon button's sizes (Material 3's, `small` the default); a button's have no `medium`. */
+export const iconButtonSizes = ['xsmall', 'small', 'medium', 'large', 'xlarge'] as const;
+export type IconButtonSize = (typeof iconButtonSizes)[number];
 
 export const iconButtonWidths = ['narrow', 'default', 'wide'] as const;
 export type IconButtonWidth = (typeof iconButtonWidths)[number];
@@ -24,16 +28,16 @@ export type IconButtonWidth = (typeof iconButtonWidths)[number];
  * width's and, unless it is round, its shape's. */
 export const iconButtonClass = (
   kind: IconButtonKind = 'standard',
-  size: ButtonSize = 'small',
+  size: IconButtonSize = 'small',
   width: IconButtonWidth = 'default',
   shape: ButtonShape = 'round',
 ) =>
   [
     'mo-icon-button',
-    kind === 'standard' ? 'mo-icon-button__standard' : `mo-is-${kind}`,
-    size !== 'small' && `mo-icon-button__${size}`,
-    width !== 'default' && `mo-icon-button__${width}`,
-    shape !== 'round' && `mo-icon-button__${shape}`,
+    kind === 'standard' ? 'mo-is-standard' : `mo-is-${kind}`,
+    size !== 'small' && `mo-is-${size}`,
+    width !== 'default' && `mo-is-${width}`,
+    shape !== 'round' && `mo-is-${shape}`,
   ]
     .filter(Boolean)
     .join(' ');
@@ -55,7 +59,7 @@ export default function IconButton({
   icon: IconRef;
   label: string;
   kind?: IconButtonKind;
-  size?: ButtonSize;
+  size?: IconButtonSize;
   width?: IconButtonWidth;
   shape?: ButtonShape;
   selected?: boolean;

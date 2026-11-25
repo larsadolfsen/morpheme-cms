@@ -33,7 +33,7 @@
     width: var(--mo-comp-radio-button-icon-size, 1rem);
     height: var(--mo-comp-radio-button-icon-size, 1rem);
     margin: 0;
-    accent-color: var(--mo-comp-radio-button-color, var(--mo-sys-block-accent));
+    accent-color: var(--mo-comp-radio-button-color, var(--mo-comp-block-accent));
     cursor: inherit;
   }
   .mo-radio-button__label {
@@ -42,7 +42,7 @@
   }
   .mo-radio-button__supporting {
     display: block;
-    color: var(--mo-comp-radio-button-supporting-color, var(--mo-sys-block-muted));
+    color: var(--mo-comp-radio-button-supporting-color, var(--mo-comp-block-muted));
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);

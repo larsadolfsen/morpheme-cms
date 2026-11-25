@@ -19,7 +19,7 @@
   .mo-block-cta__picture {
     width: 5rem;
     height: 5rem;
-    border-radius: var(--mo-sys-block-radius-small);
+    border-radius: var(--mo-comp-block-radius-small);
     object-fit: cover;
     object-position: 50% 20%;
   }
@@ -33,7 +33,7 @@
   .mo-block-cta__text {
     margin-top: 0.5rem;
     max-width: 48ch;
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   .mo-block-cta__buttons {
     display: grid;
@@ -56,8 +56,8 @@
     align-items: center;
     gap: 0.375rem;
     margin-top: 0.25rem;
-    border-radius: var(--mo-sys-block-control-radius);
-    background: var(--mo-sys-block-tint);
+    border-radius: var(--mo-comp-block-control-radius);
+    background: var(--mo-comp-block-tint);
     padding: 0.25rem 0.75rem;
     font-size: var(--mo-sys-typescale-label-large-size);
     line-height: var(--mo-sys-typescale-label-large-line-height);
@@ -65,12 +65,12 @@
     letter-spacing: var(--mo-sys-typescale-label-large-tracking);
   }
   .mo-block-tag svg {
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
   }
   .mo-block-pricecards__list {
     margin: 0;
-    border: 1px solid var(--mo-sys-block-line);
-    border-radius: var(--mo-sys-block-radius);
+    border: 1px solid var(--mo-comp-block-line);
+    border-radius: var(--mo-comp-block-radius);
     padding: 0 1.5rem;
     list-style: none;
   }
@@ -80,7 +80,7 @@
     padding-block: 1.25rem;
   }
   .mo-block-pricecards__row + .mo-block-pricecards__row {
-    border-top: 1px solid var(--mo-sys-block-line);
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
   }
   .mo-block-pricecards__row-name {
     font-size: var(--mo-sys-typescale-title-medium-size);
@@ -91,14 +91,14 @@
     text-decoration: none;
   }
   a.mo-block-pricecards__row-name:hover {
-    color: var(--mo-sys-block-accent);
+    color: var(--mo-comp-block-accent);
   }
   .mo-block-pricecards__row-text {
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   .mo-block-pricecards__row-note {
     margin-top: 0.25rem;
@@ -107,7 +107,7 @@
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   .mo-block-pricecards__row-price {
     font-size: var(--mo-sys-typescale-headline-small-size);
@@ -122,7 +122,7 @@
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   /* A quiet text with an icon before it (the terms under the prices). */
   .mo-block-terms {
@@ -134,7 +134,7 @@
     line-height: var(--mo-sys-typescale-body-medium-line-height);
     font-weight: var(--mo-sys-typescale-body-medium-weight);
     letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-    color: var(--mo-sys-block-muted);
+    color: var(--mo-comp-block-muted);
   }
   .mo-block-terms svg {
     flex-shrink: 0;

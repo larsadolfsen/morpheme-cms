@@ -3,7 +3,6 @@
 // button open and closed. The drawer's header is a sample user (AccountRow). Exposes MainDrawerSample. Uses MainDrawer and
 // its parts from ui.tsx.
 import { useState } from 'react';
-import { Gear } from '@phosphor-icons/react';
 import { icons } from './site';
 import { t } from './i18n';
 import { Example } from './PartsShown';
@@ -19,6 +18,7 @@ import {
   MainDrawerSubitem,
   MenuButton,
 } from './ui';
+import { materialIcon } from './icon';
 
 const { parts } = t.common;
 
@@ -48,7 +48,7 @@ export function MainDrawerSample() {
           return inList;
         }}
         variant="modal"
-        footer={section === null ? <MainDrawerItem href="" icon={Gear} label={parts.settings} /> : undefined}
+        footer={section === null ? <MainDrawerItem href="" icon={materialIcon('settings')} label={parts.settings} /> : undefined}
         header={
           section === null ? (
             (close) => <AccountRow user={sampleUser} supporting="example.com" href="" actions={close} />
