@@ -18,6 +18,7 @@ import {
   ICON_PACK_LICENSE,
   RETIRED_PACKS,
   SYSTEM_PACKS,
+  isStorePack,
   THEME_PACKS_FOLDER,
   packInUse,
   packTheme,
@@ -236,15 +237,19 @@ export function motionProblems() {
   }
 }
 
-/** What is wrong with the system's icon packs (packProblems; a theme's own are its themeProblems) and the choice of one:
- * src/data/icons.json naming one that is not there. A choice of Phosphor or Lucide (RETIRED_PACKS) is no problem: the site draws Material Symbols. */
+/** What is wrong with the system's icon packs and those installed from the store (packProblems, which does not ask a pack to have every
+ * icon; a theme's own are its themeProblems) and the choice of one: src/data/icons.json naming one that is not there. A choice of Phosphor or
+ * Lucide (RETIRED_PACKS) or of a store pack that is not installed is no problem: the site draws Material Symbols. */
 export function iconPackProblems() {
   const installed = installedPacks();
-  const problems = SYSTEM_PACKS.filter((id) => installed.includes(id)).flatMap((id) => packProblems(id));
+  const problems = installed.filter((id) => SYSTEM_PACKS.includes(id) || isStorePack(id)).flatMap((id) => packProblems(id));
   for (const id of SYSTEM_PACKS) if (!installed.includes(id)) problems.push(`${packFolder(id)}/${ICON_PACK_FILE} is missing.`);
   try {
     const chosen = chosenPack();
-    if (chosen !== undefined && (typeof chosen !== 'string' || !(installed.includes(chosen) || RETIRED_PACKS.includes(chosen))))
+    if (
+      chosen !== undefined &&
+      (typeof chosen !== 'string' || !(installed.includes(chosen) || RETIRED_PACKS.includes(chosen) || isStorePack(chosen)))
+    )
       problems.push(
         `${ICONS_FILE}: the icon pack ${JSON.stringify(chosen)} isn't installed. Choose another under Appearance › Icon packs.`,
       );

@@ -137,12 +137,14 @@ import {
   readScreenshots,
   storeConnected,
   readThemes,
+  readIconPacks,
   readThemeScreenshots,
   STORE_ROUTE,
   STORE_THEMES,
   INSTALLED_ROUTE,
   type ShownApp,
   type ShownTheme,
+  type ShownIconPack,
   type StoreApp,
   type StoreFile,
   type StoreTheme,
@@ -260,6 +262,7 @@ export type Env = {
     connected: () => Promise<boolean>;
     catalog: () => Promise<ShownApp[]>;
     themes: () => Promise<ShownTheme[]>;
+    iconPacks: () => Promise<ShownIconPack[]>;
     files: (of: { files: StoreFile[]; label?: string; name?: string }) => Promise<{ path: string; content: string | Uint8Array }[]>;
     screenshots: (app: StoreApp) => Promise<{ src: string; label: string }[]>;
     themeScreenshots: (theme: Pick<StoreTheme, 'screenshots' | 'files'>) => Promise<{ key: string; src: string }[]>;
@@ -627,6 +630,7 @@ function Editor() {
       connected: storeConnected,
       catalog: readCatalog,
       themes: readThemes,
+      iconPacks: readIconPacks,
       files: readApp,
       screenshots: readScreenshots,
       themeScreenshots: readThemeScreenshots,

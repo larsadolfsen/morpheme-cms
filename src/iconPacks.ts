@@ -9,7 +9,7 @@ import { STANDARD_THEME } from './store';
 import { theme, themes } from './themes';
 
 export type IconPack = {
-  /** Its id: a system pack's folder (`material-symbols`), a theme's `<theme>/<folder>` (packages/editor/site/iconPacks.mjs). */
+  /** Its id: a system pack's folder (`material-symbols`), a store pack's (`icons_<16 hex>`), a theme's `<theme>/<folder>` (packages/editor/site/iconPacks.mjs). */
   id: string;
   name: string;
   /** Who made it. */
@@ -31,13 +31,20 @@ const SAMPLES = ['home', 'search', 'calendar_today', 'mail', 'favorite'];
 
 type Manifest = Omit<IconPack, 'id' | 'theme' | 'samples'>;
 // `exhaustive`: Vite skips node_modules in a glob unless told not to, and a site takes this package (and its icons/) from there.
-const manifests = import.meta.glob<Manifest>(['@icons/*/pack.json', '/src/themes/*/icon-packs/*/pack.json'], {
-  eager: true,
-  import: 'default',
-  exhaustive: true,
-});
+const manifests = import.meta.glob<Manifest>(
+  ['@icons/*/pack.json', '/src/icon-packs/*/pack.json', '/src/themes/*/icon-packs/*/pack.json'],
+  {
+    eager: true,
+    import: 'default',
+    exhaustive: true,
+  },
+);
 const files = import.meta.glob<string>(
-  ['@icons/*/{home,search,calendar_today,mail,favorite}.svg', '/src/themes/*/icon-packs/*/{home,search,calendar_today,mail,favorite}.svg'],
+  [
+    '@icons/*/{home,search,calendar_today,mail,favorite}.svg',
+    '/src/icon-packs/*/{home,search,calendar_today,mail,favorite}.svg',
+    '/src/themes/*/icon-packs/*/{home,search,calendar_today,mail,favorite}.svg',
+  ],
   { eager: true, query: '?raw', import: 'default', exhaustive: true },
 );
 const chosen = import.meta.glob<{ pack?: string }>('/src/data/icons.json', { eager: true, import: 'default' })['/src/data/icons.json'];
