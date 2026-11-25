@@ -1,7 +1,0 @@
-{
-  "id": "cards-multi-aspect",
-  "kind": "paragraph",
-  "mark": "feature",
-  "title": "Multi-aspect ratio cards",
-  "text": "Photos in different shapes no longer need cropping to one. Set Cards to Carousel, pick Multi-aspect ratio under Carousel layout, and choose each card’s Image aspect ratio from 9:16 to 16:9. Each card is as wide as its image."
-}
