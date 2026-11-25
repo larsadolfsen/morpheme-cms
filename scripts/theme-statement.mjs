@@ -15,4 +15,8 @@ export function statementOf(theme) {
   return { statement: readStatement(folder), where };
 }
 
-export const activeStatement = () => statementOf(JSON.parse(readFileSync(join(process.cwd(), 'src/data/theme.json'), 'utf8')).theme);
+export const activeTheme = () => JSON.parse(readFileSync(join(process.cwd(), 'src/data/theme.json'), 'utf8')).theme;
+export const activeStatement = () => statementOf(activeTheme());
+
+/** Whether the theme in use is Material, the standard theme. Only Material follows Material 3's values exactly (owner, 21 Nov 2026); another theme has its own design and is checked for the contract and WCAG 2.2 AA. */
+export const isMaterialTheme = () => activeTheme() === STANDARD_THEME;

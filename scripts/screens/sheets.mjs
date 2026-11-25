@@ -2,6 +2,7 @@ import { join } from 'node:path';
 import { openEditor } from '../built-site.mjs';
 import { BUILT_PAGE, browser, has, problems, shots, site } from './support/context.mjs';
 import { barTools, cancelOf, pressInsert, pressTool } from './support/shared.mjs';
+import { isMaterialTheme } from '../theme-statement.mjs';
 
 /** A modal sheet with a text field on a phone with its on-screen keyboard up (the Source color sheet on Colors, the shared
  * BottomSheet, followKeyboard() in theme/ui/bottomSheetControl.ts): a keyboard shrinks only the visual viewport, which is
@@ -1907,7 +1908,7 @@ async function checkFullScreenDialog(width, height) {
     const d = look.dialog;
     if (d.width > 28 * 16 + 1 || Math.abs((d.left + d.right) / 2 - look.vw / 2) > 2)
       problems.push(`${label}: from 600 dp it is the basic dialog in the middle, at most 28rem: ${Math.round(d.width)} wide`);
-    if (look.radius !== 28) problems.push(`${label}: the basic dialog's corners are ${look.radius}px, not 28`);
+    if (isMaterialTheme() && look.radius !== 28) problems.push(`${label}: the basic dialog's corners are ${look.radius}px, not 28`);
     if (look.close.shown) problems.push(`${label}: the close icon is shown from 600 dp (a basic dialog has none)`);
     if (!look.dismiss.shown || !look.save.shown) problems.push(`${label}: Cancel and Save must show at the end of the basic dialog`);
     else if (look.dismiss.left > look.save.left || look.save.right > d.right)
