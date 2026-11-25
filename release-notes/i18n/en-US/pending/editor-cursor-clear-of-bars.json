@@ -1,0 +1,6 @@
+{
+  "id": "editor-cursor-clear-of-bars",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "On a phone, the cursor stays in view above the keyboard and below the text toolbar"
+}
