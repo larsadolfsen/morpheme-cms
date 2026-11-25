@@ -6,9 +6,9 @@ import { barTools, cancelOf, pressInsert, pressTool } from './support/shared.mjs
 /** A modal sheet with a text field on a phone with its on-screen keyboard up (the Source color sheet on Colors, the shared
  * BottomSheet, followKeyboard() in theme/ui/bottomSheetControl.ts): a keyboard shrinks only the visual viewport, which is
  * emulated here by a smaller visualViewport. The sheet must end exactly at the keyboard's top (no strip of the page
- * between), and its hex field and its buttons (Use and lock, Cancel, Use color) must be visible and inside the visible screen. */
+ * between), and its hex field and its buttons (Cancel, Use color) must be visible and inside the visible screen. */
 async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, custom = false) {
-  // In Custom (the generator's sixth choice) the first colour is Primary and the sheet has no "Use and lock".
+  // In Custom (the generator's last choice) the first colour is Primary.
   const name = custom ? 'Primary' : 'Source color';
   const label = `${width}px keyboard sheet${custom ? ' (Custom)' : ''}`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -31,7 +31,7 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, cus
   const got = await page.evaluate((name) => {
     const dialog = document.querySelector(`dialog[open][aria-label="${name}"]`);
     const box = (el) => el.getBoundingClientRect();
-    const buttons = [...dialog.querySelectorAll('button')].filter((b) => /^(Use and lock|Cancel|Use color)$/.test(b.textContent.trim()));
+    const buttons = [...dialog.querySelectorAll('button')].filter((b) => /^(Cancel|Use color)$/.test(b.textContent.trim()));
     const field = dialog.querySelector('input[aria-label="Color code"], input');
     return {
       visible: visualViewport.height,
@@ -51,11 +51,10 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, cus
   await page.close();
 }
 
-/** Custom colours on Colors (docs/superpowers/specs/2026-11-13-custom-colors-design.md, step C). The sixth chip, "Custom": the tiles are
- * Primary, Secondary and Tertiary with a pen each and no lock, and the sheet has no "Use and lock"; the wheel has three dots, each its own
- * slider, and dragging one changes only its colour; with the set-1 brand colours Primary asks "Fix this to improve accessibility?"
- * (Save says to answer first and scrolls to it), Fix gives the "Adjusted for contrast" list, Keep the warning under the tile; a
- * Secondary and a Tertiary with low contrast on the page get their note; a harmony and back keeps the custom colours. */
+/** Custom colours on Colors (docs/superpowers/specs/2026-11-21-m3-color-schemes-design.md). The last chip, "Custom": the tiles are
+ * Primary, Secondary and Tertiary with a pen each and no lock, and the sheet has Cancel and Use color; the wheel has three dots, each its
+ * own slider, and dragging one changes only its colour; no question and no contrast note, since the roles take M3's tones; a scheme
+ * (Tonal spot) and back keeps the custom colours. Primary is never questioned: the roles take M3's tones from each palette. */
 async function checkCustomColors(width, height) {
   const label = `${width}px custom colors`;
   const phone = width < 600;
@@ -94,47 +93,10 @@ async function checkCustomColors(width, height) {
   if ((await hexes()).join() !== '#f34e3d,#f5e8cc,#55263d')
     problems.push(`${label}: the tiles show "${await hexes()}", not the colors picked`);
 
-  const question = page.getByText('Fix this to improve accessibility?', { exact: true });
-  if (!(await question.isVisible())) problems.push(`${label}: Primary #F34E3D does not ask to be fixed`);
-  const numbers = await page.getByText(/^Light mode: Primary is hard to read as text on Surface: \d\.\d, at least 4\.5 needed\.$/).count();
-  if (!numbers) problems.push(`${label}: the question does not say Primary's contrast in light mode (of 4.5)`);
-  for (const name of ['Secondary', 'Tertiary'])
-    if (
-      !(await page
-        .getByText(`${name} has low contrast on the page, so it is not offered as an icon color. It is still used for fills.`)
-        .isVisible())
-    )
-      problems.push(`${label}: no note for the low ${name}`);
-  // Save waits for the answer, and takes the owner to it.
-  await page.getByRole('button', { name: 'Save changes' }).click();
-  // The first Save asks about notifications: not now.
-  const ask = page.locator('dialog[open]').getByRole('button', { name: 'Cancel', exact: true });
-  if (await ask.count()) await ask.click();
-  await page.waitForTimeout(500);
-  if (!(await page.getByText('Answer the question about Primary first.').count()))
-    problems.push(`${label}: Save does not ask to answer first`);
-  const at = await question.evaluate((el) => el.getBoundingClientRect().toJSON());
-  if (at.top < 0 || at.bottom > height)
-    problems.push(`${label}: Save did not scroll to the question (${at.top}..${at.bottom} of ${height})`);
-
-  // Fix: the adjusted list shows, the question is gone, and every pair reads.
-  await page.getByRole('button', { name: 'Fix', exact: true }).click();
-  await page.waitForTimeout(300);
-  if (await question.count()) problems.push(`${label}: the question stays after Fix`);
-  if (!(await page.getByText('Adjusted for contrast', { exact: true }).isVisible()))
-    problems.push(`${label}: no list of adjusted colors after Fix`);
-  if ((await hexes())[0] !== '#f34e3d') problems.push(`${label}: Fix changed the chosen Primary tile`);
-
-  // A new Primary asks again (a new colour, a new question), and Keep leaves it as chosen with a warning.
-  await pick('Primary', '#2589D8');
-  if (!(await question.isVisible())) problems.push(`${label}: a new hard Primary does not ask`);
-  if (await page.getByText('Adjusted for contrast', { exact: true }).count())
-    problems.push(`${label}: the adjusted list stays for a new Primary`);
-  await page.getByRole('button', { name: 'Keep', exact: true }).click();
-  await page.waitForTimeout(300);
-  if (await question.count()) problems.push(`${label}: the question stays after Keep`);
-  if (!(await page.getByText('Primary is kept as you chose it. It may be hard to read.').isVisible()))
-    problems.push(`${label}: no warning after Keep`);
+  // The roles take M3's tones from each palette, so a cream Secondary or a dark Tertiary reads on the page: no note, no question.
+  if (await page.getByText(/has low contrast on the page/).count())
+    problems.push(`${label}: a note about low contrast shows for M3's tones`);
+  if (await page.getByText(/Fix this to improve accessibility/).count()) problems.push(`${label}: Custom still asks to fix Primary`);
 
   // Each dot moves only its own colour, and a cream keeps its tone (stays light).
   const before = await hexes();
@@ -146,7 +108,6 @@ async function checkCustomColors(width, height) {
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
   await page.mouse.down();
   await page.mouse.move(wbox.x + wbox.width * 0.8, wbox.y + wbox.height * 0.5, { steps: 5 });
-  if (await question.count()) problems.push(`${label}: the question is shown while a dot is dragged`);
   await page.mouse.up();
   const after = await hexes();
   if (after[0] !== before[0] || after[2] !== before[2])
@@ -159,10 +120,10 @@ async function checkCustomColors(width, height) {
   if (keyed[2] === after[2] || keyed[0] !== after[0] || keyed[1] !== after[1])
     problems.push(`${label}: an arrow key did not move only Tertiary (${after} to ${keyed})`);
 
-  // A harmony and back: the custom colors are kept.
-  await page.getByRole('button', { name: 'Analogous', exact: true }).click();
+  // A scheme and back: the custom colors are kept, and a scheme has no lock.
+  await page.getByRole('button', { name: 'Tonal spot', exact: true }).click();
   await page.waitForTimeout(300);
-  if ((await page.getByRole('button', { name: /^Lock / }).count()) !== 1) problems.push(`${label}: a harmony has no lock`);
+  if (await page.getByRole('button', { name: /^Lock / }).count()) problems.push(`${label}: a scheme has a lock`);
   await page.getByRole('button', { name: 'Custom', exact: true }).click();
   await page.waitForTimeout(300);
   if ((await hexes()).join() !== keyed.join()) problems.push(`${label}: back in Custom the colors are "${await hexes()}", not "${keyed}"`);
