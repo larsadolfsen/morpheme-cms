@@ -13,7 +13,7 @@
   }
   .mo-scroll-field__list {
     display: flex;
-    flex: 1;
+    flex: none;
     flex-direction: column;
     gap: var(--mo-comp-scroll-field-items-gap, 1rem);
     box-sizing: border-box;
