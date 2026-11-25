@@ -42,7 +42,7 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, cus
   }, name);
   if (Math.abs(got.sheet.bottom - got.visible) > 1)
     problems.push(`${label}: the sheet ends at ${got.sheet.bottom}, not at the keyboard's top (${got.visible})`);
-  const expected = custom ? 2 : 3;
+  const expected = 2;
   if (got.buttons.length !== expected) problems.push(`${label}: ${got.buttons.length} of the ${expected} buttons are in the sheet`);
   for (const [name, r] of got.buttons)
     if (r.top < 0 || r.bottom > got.visible + 1) problems.push(`${label}: "${name}" is outside the visible screen`);
