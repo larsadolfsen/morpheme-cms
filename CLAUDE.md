@@ -15,10 +15,11 @@ in one place only, so never work from memory of a skill.
 | `changesets` | you open a pull request: its changeset, which level the base branch allows, the version lines, and the line's one version (`0.20.0`) |
 | `release-notes` | a change is something a site owner sees, or a note, an edition or a version's notes are written or fixed |
 | `checks` | you choose which checks to run before a push, or a CI job fails |
+| `qa` | the PM starts a QA session to test a pull request or a version on its Preview, or a spec or pull request gets its test list |
 | `junior-developer` | a developer session hands a mechanical step (a rename from a map, snapshots, finding every use) to a Haiku helper |
 | `material-3` | a spec or a change touches anything outside the page and post editor's bar and menus, or deviates from Material 3 |
 | `pm` | the owner makes the session the project manager (`/pm <version>`), or the orchestrator merges while no PM runs |
-| `cto` | the owner makes the session the CTO, or asks where the product, the code, the process or the roadmap should go next |
+| `architect` | the owner makes the session the Architect (formerly the CTO), or asks where the product, the code, the process or the roadmap should go next |
 | `release` | the owner says `/release`, or asks to release, publish to `latest` or ship a version |
 
 ## How we work
@@ -30,8 +31,8 @@ lines, English only. No long explanations, tables or lists of every step. The ow
 Questions to the owner are numbered (1, 2, 3 …), so the owner can answer by number (owner, 22 Nov 2026: "Number questions
 remember that").
 
-Never send the owner a Preview link for a change to the editor (the owner can't sign in on a Preview to see it); only
-for a change visible on the site.
+A Preview's editor opens without sign-in (the demo editor, `scripts/demo-editor.mjs`; saves stay in the browser), so a Preview link
+can be sent for a change to the editor too.
 
 ### A brainstorm session never codes
 
@@ -85,6 +86,7 @@ Every other session starts by loading the `developer` skill and:
 - pushes its branch when its PM says "your slot": the owner has given that message the owner's own permission (owner, 20 Nov
   2026: "The pm has my permission to tell Dev sessions to push"), so the session pushes without asking the owner again;
 - reports the link and head sha to the PM and leaves the merge to it;
+- has a **How to test** section, which a QA session runs on its Preview before the merge (skill `qa`);
 - never merges its own pull request and never asks the owner to merge one.
 
 If a pull request waits and no PM seems to be running, the session tells the owner, who starts a new PM. While no PM
@@ -101,7 +103,7 @@ reported with its cause instead (skill `pm`, *Cloudflare builds*).
 
 ### Roles
 
-The **CTO** (skill `cto`) starts PM sessions, answers questions from the owner and other sessions and helps the owner plan (owner, 24 Nov 2026): it writes
+The **Architect** (skill `architect`) starts PM sessions, answers questions from the owner and other sessions and helps the owner plan (owner, 24 Nov 2026): it writes
 the specs and plans, and no code, and reviews no pull request; the **PM** (skill `pm`) runs the work. Every developer session (build, fix or docs) loads the `developer` skill first. An orchestrator breaks a task down, delegates it to Claude subagents (the first choice when the task needs the repo's
 rules) or, for mechanical code with a precise specification, to the Developer (Ollama, `qwen3.8:27b` at
 `http://127.0.0.1:11434`, local only), then reviews, tests and integrates. Claude in the cloud (claude.ai/code) runs when

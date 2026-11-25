@@ -26,7 +26,7 @@ pieces into its own feature branch, `main` into its own feature branch, its feat
 comes, and what its version's plan puts in the other repositories. It never merges another version's feature branch or a pull
 request into one, and never a pull request that belongs to a later version (its feature, its fix, or the plan or spec for it), even
 when it is green and waiting: it names the PM it belongs to, or tells the owner that no PM runs for it yet, and leaves it. A pull
-request that belongs to no version (a docs change into `main`) it merges only when the owner hands it to that PM by name, or when it is a CTO change the PM had pushed itself.
+request that belongs to no version (a docs change into `main`) it merges only when the owner hands it to that PM by name, or when it is an Architect change the PM had pushed itself.
 
 **The owner decides:**
 
@@ -54,11 +54,11 @@ performance, we follow it; Material 3 still decides how things look and are name
 
 A PM session runs only as Sonnet with effort high (owner, 24 Nov 2026: "PMs may only run as sonnet high").
 
-**The CTO** (skill `cto`) starts PM sessions, answers questions from the owner and other sessions and plans the work with the owner, and sends the PM
+**The Architect** (skill `architect`) starts PM sessions, answers questions from the owner and other sessions and plans the work with the owner, and sends the PM
 approved plans (owner, 24 Nov 2026). It writes no code and reviews no pull request: the PM starts the sessions that build a plan and
-reviews their work itself. The CTO never pushes or merges: it sends the PM the exact text of a docs or skill change, and the PM has a session push it as a docs-only pull request and merges it (a spec or plan that belongs to one feature being built goes into that feature's branch, so it ships with the feature; every other change goes into `main`; owner, 25 Nov 2026), unless a release is being prepared and the merge would delay it; then it waits until the release is out (owner, 24 Nov 2026).
+reviews their work itself. The Architect never pushes or merges: it sends the PM the exact text of a docs or skill change, and the PM has a session push it as a docs-only pull request and merges it (a spec or plan that belongs to one feature being built goes into that feature's branch, so it ships with the feature; every other change goes into `main`; owner, 25 Nov 2026), unless a release is being prepared and the merge would delay it; then it waits until the release is out (owner, 24 Nov 2026).
 
-**Questions go to the CTO** (owner, 25 Nov 2026: "All questions go through you and only [if] you can't answer it comes to me"). The PM sends every question and every report to the CTO session, never to the owner, and its sessions ask the PM, never the owner. The CTO answers what the owner's decisions and the order of priority answer, and brings only the rest to the owner. Wherever this skill says the PM asks, tells or reports to the owner, the PM does it through the CTO. When a session's permission check refuses a relayed yes and needs the owner's own words, the PM tells the CTO the session and the exact action, and the CTO gives the owner one line to paste there. Only while no CTO session runs does the PM ask the owner directly.
+**Questions go to the Architect** (owner, 25 Nov 2026: "All questions go through you and only [if] you can't answer it comes to me"). The PM sends every question and every report to the Architect session, never to the owner, and its sessions ask the PM, never the owner. The Architect answers what the owner's decisions and the order of priority answer, and brings only the rest to the owner. Wherever this skill says the PM asks, tells or reports to the owner, the PM does it through the Architect. When a session's permission check refuses a relayed yes and needs the owner's own words, the PM tells the Architect the session and the exact action, and the Architect gives the owner one line to paste there. Only while no Architect session runs does the PM ask the owner directly.
 
 **When no PM is running, the orchestrator merges.** The orchestrator is the session that started the other sessions for the owner
 (the owner's "To do list" session). While no PM session is active, it may merge the pull requests of the sessions it started, under
@@ -128,6 +128,9 @@ The PM squash-merges a pull request when all of this holds, one pull request at 
   (CodeQL did not scan a pull request into that branch), the PM tells the owner instead of working around it;
 - its description has the **Components** line, and the M3 pages and Modern Web guides it had to read are named (section 5);
 - for a change the owner can see, the owner has approved it (section 4).
+- a QA report (skill `qa`) with no `fail` on the current head. The PM starts the QA session itself once the Preview of that head is
+  built (skill `qa`, section 3), and does not start it on a pull request without a **How to test** section: it sends the pull request
+  back to its session for one.
 
 A pull request that conflicts, has no `check` job or has the wrong changeset is not merged. The PM asks the session that owns it to
 merge its base branch into the branch (never a rebase, amend or force-push on someone else's branch) or to fix the changeset, and
@@ -286,7 +289,8 @@ deploy or run `wrangler` against the live Cloudflare account itself.
 ## 7. Releases
 
 **Plan the release.** When the line looks ready, say so and say what the Release PR will contain: the changesets, the release notes and
-the peer bumps, checked as Phase 1 of the `release` skill does. Then wait. Only the owner releases, with `/release` and an explicit yes. Before planning the release question, the PM first asks the owner to approve the `next` test version on npmjs.com, checks staging as Phase 1 of the `release` skill says, and only then plans the release question; it never puts a release question to the owner before the newest `morpheme-staging` build has succeeded on exactly the `-next-` build of the release commit, and there is no "say so in the question instead". The release gate plan (`docs/superpowers/plans/2026-11-18-release-gate.md`) adds a gate check on the Release PR: once it is built, the PM asks only when that check is green, gives the staging address and version in the question, and with open items in the line's plan it reports them instead of asking.
+the peer bumps, checked as Phase 1 of the `release` skill does. Before the release question, one QA session runs the How to test of every pull request in the version, plus the smoke test, on the
+Release PR's Preview (skill `qa`, section 1, step 7); the PM asks only after a report with no `fail`. Then wait. Only the owner releases, with `/release` and an explicit yes. Before planning the release question, the PM first asks the owner to approve the `next` test version on npmjs.com, checks staging as Phase 1 of the `release` skill says, and only then plans the release question; it never puts a release question to the owner before the newest `morpheme-staging` build has succeeded on exactly the `-next-` build of the release commit, and there is no "say so in the question instead". The release gate plan (`docs/superpowers/plans/2026-11-18-release-gate.md`) adds a gate check on the Release PR: once it is built, the PM asks only when that check is green, gives the staging address and version in the question, and with open items in the line's plan it reports them instead of asking.
 
 **While the owner releases.** From the owner's `/release` (or a request to release a version) until the Release PR is merged, the PM
 does the release steps that are its job. The line goes into `main` (section 2); every merge to `main` makes the Changesets bot rebuild

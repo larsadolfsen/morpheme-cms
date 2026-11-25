@@ -48,6 +48,8 @@ All of it, before the first edit.
 Every pull request, whatever the change:
 
 - Its description has the **Components** line (the hard rule above).
+- Its description has a **How to test** section (skill `qa`, section 2): the spec's tests, and one more for anything you built that
+  the spec has no test for; a single fix without a spec writes its own. A change nobody sees says `How to test: nothing visible`.
 - It has its changeset (`changesets`) and its `check` job is green on the current head.
 - **It adds no code-scanning alert** (owner, 21 Nov 2026: "we need to fix these as they occur"). CodeQL scans the pull request; an
   alert it finds in your change is fixed in the same pull request, by fixing the code, never by a dismissal or a comment that
@@ -106,7 +108,8 @@ Owner rule, 15 Nov 2026. When the change is finished and `npm run check` is gree
 or re-run CI on your own. Send the PM one message, `ready: <branch>, <what changed>, local check green`, and wait. Only on
 the PM's "your slot" do you push (or merge `origin/<base>` and push, or open the pull request); that message carries the owner's permission
 (owner, 20 Nov 2026: "The pm has my permission to tell Dev sessions to push"), so you push without asking the owner again. Then report the link and
-the head sha once `check` is green. While you wait you may merge the base locally and run `npm run check`; never the full `check:screens` (skill `checks`). The first push
+the head sha once `check` is green. The PM then has a QA session run your **How to test** on the Preview
+(skill `qa`); a `fail` comes back to you to fix, and QA runs again on the new Preview. While you wait you may merge the base locally and run `npm run check`; never the full `check:screens` (skill `checks`). The first push
 of a new session follows the same rule: check in first. The PM keeps the order (`pm` skill, section 5, *Ready queue*, and section 6, *CI slots*).
 
 ## 3c. While you work: `npm run check:fast`
