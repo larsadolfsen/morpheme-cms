@@ -15,6 +15,7 @@ in one place only, so never work from memory of a skill.
 | `changesets` | you open a pull request: its changeset, which level the base branch allows, the version lines, and the line's one version (`0.20.0`) |
 | `release-notes` | a change is something a site owner sees, or a note, an edition or a version's notes are written or fixed |
 | `checks` | you choose which checks to run before a push, or a CI job fails |
+| `junior-developer` | a developer session hands a mechanical step (a rename from a map, snapshots, finding every use) to a Haiku helper |
 | `material-3` | a spec or a change touches anything outside the page and post editor's bar and menus, or deviates from Material 3 |
 | `pm` | the owner makes the session the project manager (`/pm <version>`), or the orchestrator merges while no PM runs |
 | `cto` | the owner makes the session the CTO, or asks where the product, the code, the process or the roadmap should go next |
@@ -100,8 +101,8 @@ reported with its cause instead (skill `pm`, *Cloudflare builds*).
 
 ### Roles
 
-The **CTO** (skill `cto`) finds out and decides with the owner what happens in the future, writes the specs and plans, and decides
-itself whether and when it writes code; the **PM** (skill `pm`) runs the work. Every developer session (build, fix or docs) loads the `developer` skill first. An orchestrator breaks a task down, delegates it to Claude subagents (the first choice when the task needs the repo's
+The **CTO** (skill `cto`) starts PM sessions, answers questions from the owner and other sessions and helps the owner plan (owner, 24 Nov 2026): it writes
+the specs and plans, and no code, and reviews no pull request; the **PM** (skill `pm`) runs the work. Every developer session (build, fix or docs) loads the `developer` skill first. An orchestrator breaks a task down, delegates it to Claude subagents (the first choice when the task needs the repo's
 rules) or, for mechanical code with a precise specification, to the Developer (Ollama, `qwen3.8:27b` at
 `http://127.0.0.1:11434`, local only), then reviews, tests and integrates. Claude in the cloud (claude.ai/code) runs when
 the PC is off and uses subagents for code.

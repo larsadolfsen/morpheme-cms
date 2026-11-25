@@ -41,6 +41,7 @@ All of it, before the first edit.
 | `release-notes` | a site owner sees the change |
 | `changesets` | before you open the pull request |
 | `checks` | before a push, or when a CI job fails |
+| `junior-developer` | you hand a mechanical step (a rename from a map, snapshots, finding every use) to a Haiku helper you start yourself |
 
 ## 3. The pull request
 
