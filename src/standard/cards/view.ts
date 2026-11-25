@@ -37,6 +37,8 @@ export type LinkCard = {
   href?: string;
   /** The action area: none on a card with a page. */
   buttons: ButtonView[];
+  /** A line between the text and the buttons (Divider); only on a card with buttons. */
+  divider?: boolean;
 };
 export type CardsView = HeadView & {
   design?: string;
@@ -75,6 +77,8 @@ export type LinkCardProps = {
   text?: string;
   href?: string;
   buttons?: Button[];
+  /** A line above the buttons; kept when the card loses its buttons or its video, drawn only with buttons. */
+  divider?: boolean;
 };
 
 const MEDIA: CardMedia[] = ['none', 'icon', 'image', 'video'];
@@ -99,6 +103,7 @@ export const cardsOf = (
   items.map((card, i) => {
     const media = MEDIA.find((m) => m === blockMedia) ?? 'icon';
     const video = media === 'video' && card.video ? how.video(card.video, card.title) : null;
+    const buttons = card.href && media !== 'video' ? [] : how.buttons(card, i);
     return {
       media,
       ...(media === 'icon' ? { icon: card.icon, ...(iconColorOf(card.iconColor) ? { iconColor: iconColorOf(card.iconColor) } : {}) } : {}),
@@ -109,7 +114,8 @@ export const cardsOf = (
       text: card.text ?? '',
       // A page makes the card one link, with no buttons; a video is played, so it is not a link.
       ...(media !== 'video' && card.href ? { href: card.href } : {}),
-      buttons: card.href && media !== 'video' ? [] : how.buttons(card, i),
+      buttons,
+      ...(card.divider === true && buttons.length > 0 ? { divider: true } : {}),
     };
   });
 

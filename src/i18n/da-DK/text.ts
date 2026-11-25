@@ -20,6 +20,8 @@ export const text: Messages['text'] = {
   insertBlock: 'Indsæt blok',
   image: 'Billede',
   divider: 'Skillelinje',
+  hideGuides: 'Skjul hjælpelinjer',
+  showGuides: 'Vis hjælpelinjer',
   dividerAdded: 'Skillelinje indsat',
   dividerAddAbove: 'Tilføj over',
   dividerAddBelow: 'Tilføj under',

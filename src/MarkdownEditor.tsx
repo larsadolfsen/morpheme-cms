@@ -3306,7 +3306,25 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   // settings is a row of the ⋮ (always there while it applies). A page's Preview stands before Undo while every tool fits, else it is in the ⋮;
   // View on site is always in the ⋮, in its last group (one save while writing, 3.3).
   const fixedIds = ['undo', 'redo', ...(hasInsert ? ['insert'] : [])];
-  const spareIds = onPreview ? ['preview'] : [];
+  // Helping lines (the dotted lines that show sections and blocks): a main tool beside Preview, hidden or shown for this viewer (kept in the browser).
+  const [guides, setGuides] = useState(() => {
+    try {
+      return localStorage.getItem('mo-editor-guides') !== 'off';
+    } catch {
+      return true;
+    }
+  });
+  const toggleGuides = () => {
+    setGuides((on) => {
+      try {
+        localStorage.setItem('mo-editor-guides', on ? 'off' : 'on');
+      } catch {
+        // the choice lasts until the page closes
+      }
+      return !on;
+    });
+  };
+  const spareIds = ['guides', ...(onPreview ? ['preview'] : [])];
   // The text's actions for the command palette (textActions.ts): the functions the bar runs, called through a ref so they are always the latest, and the
   // names the bar draws. Registered while the editor is mounted (one editor owns them: a second one on the same screen leaves them to the first).
   const textApi = useRef<TextApi>(null!);
@@ -3519,6 +3537,12 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         return { label: t.text.redo, icon: materialIcon('redo'), action: () => run(redoCommand) };
       case 'preview':
         return { label: t.preview.button, icon: PreviewIcon, action: () => onPreview?.() };
+      case 'guides':
+        return {
+          label: guides ? t.text.hideGuides : t.text.showGuides,
+          icon: materialIcon(guides ? 'grid_on' : 'grid_off'),
+          action: toggleGuides,
+        };
       default:
         return { label: t.text.sectionSettings, icon: rawIcon(settingsHereIcon), action: sectionSettings };
     }
@@ -3623,15 +3647,16 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   const moreContext = [...plan.more.context].sort((a, b) => MORE_ORDER.indexOf(a) - MORE_ORDER.indexOf(b));
   // Preview comes after Section settings.
   const moreMain = [
-    ...plan.more.fixed.filter((id) => id !== 'preview'),
+    ...plan.more.fixed.filter((id) => id !== 'preview' && id !== 'guides'),
     ...(settingsShown ? ['settings'] : []),
+    ...plan.more.fixed.filter((id) => id === 'guides'),
     ...plan.more.fixed.filter((id) => id === 'preview'),
   ];
   // The ⋮ menu's groups, each after a divider: the context's tools, the main tools, the block's own menu, then View on site.
   const moreGroups = moreContext.length + moreMain.length + blockMenu.length;
 
   return (
-    <div className="mo-editor-text-box mo-editor-text-surface">
+    <div className="mo-editor-text-box mo-editor-text-surface" data-guides={guides ? undefined : 'off'}>
       <span className="mo-visually-hidden" role="status" aria-live="polite">
         {selecting ? t.text.blocksSelected(picked.places.length) : ''}
       </span>

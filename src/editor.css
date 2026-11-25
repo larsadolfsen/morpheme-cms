@@ -91,34 +91,42 @@
    sectionFrame.ts) or the block in focus (its own outline). The frame draws only while the text itself has the focus (:focus-visible), so it is gone when the
    cursor leaves, and it is a 2 px dotted line in the focus colour, the theme's primary role (a section on a colour swaps it to its on-colour, so it stands 3:1 on every section colour; Modern Web Guidance,
    accessibility: a focus indicator stays visible). */
-.mo-editor-text .ProseMirror:focus-visible > [data-section-focus] {
-  position: relative;
-}
-.mo-editor-text .ProseMirror:focus-visible > [data-section-focus]::after {
-  content: '';
-  position: absolute;
-  inset: 0 -0.5rem;
-  pointer-events: none;
-  border: 0 dotted var(--mo-sys-color-primary);
-  border-inline-width: 2px;
-}
-.mo-editor-text .ProseMirror:focus-visible > [data-section-focus]:is([data-section-box], [data-section-width='full'])::after {
-  inset-inline: 0;
-}
-.mo-editor-text
-  .ProseMirror:focus-visible
-  > :is([data-section-focus='start'], [data-section-focus='only']):not([data-section-part='start'])::after {
-  border-block-start-width: 2px;
-}
-.mo-editor-text .ProseMirror:focus-visible > :is([data-section-focus='end'], [data-section-focus='only'])::after {
-  border-block-end-width: 2px;
-}
-/* The section's own dotted line, at the start of an H2 section, takes the same clear line while the section has the focus. */
-.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus] {
+/* A section's focus is shown by its horizontal lines only (sectionFrame.ts; the owner, 25 Nov 2026: a section has dotted lines, no sides): its own line
+   above it (2 px dotted already) and a line under it, both in the focus colour. The first section has no line above it, so it has the one under it:
+   the text with the cursor in it always shows where it is (WCAG 2.4.7). The line under a section is the next section's own line when that is right
+   below it (data-section-focus-below), else a line drawn at the bottom of the section's last text part (data-section-bottom). Blocks are no part of a section
+   and keep their full dotted frame. */
+.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus]::before,
+.mo-editor-text .ProseMirror:focus-visible > [data-section-focus-below]::before {
   border-block-start-color: var(--mo-sys-color-primary);
 }
-.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus]::after {
-  inset-block-start: -2px;
+.mo-editor-text .ProseMirror:focus-visible > [data-section-bottom] {
+  position: relative;
+}
+.mo-editor-text .ProseMirror:focus-visible > [data-section-bottom]::after {
+  content: '';
+  position: absolute;
+  inset: auto calc(-1 * var(--mo-comp-editor-pad-x)) -0.5rem;
+  block-size: 0;
+  pointer-events: none;
+  border: 0 dotted var(--mo-sys-color-primary);
+  border-block-end-width: 2px;
+}
+.mo-editor-text .ProseMirror:focus-visible > [data-section-bottom][data-section-width='full']::after {
+  inset-inline: 0;
+}
+
+/* Helping lines hidden (the bar's grid button, MarkdownEditor.tsx): the resting dotted lines of sections and blocks go; the focus, hover and selection lines stay. */
+.mo-editor-text-box[data-guides='off']
+  .mo-editor-text
+  .ProseMirror
+  > [data-section-part='start']:not([data-section-focus], [data-section-focus-below])::before {
+  border-block-start-color: transparent;
+}
+.mo-editor-text-box[data-guides='off']
+  .mo-editor-text
+  .mo-site-block-card:not(:hover, [aria-pressed='true'], :has(> .mo-site-block-card-button[aria-pressed='true'])) {
+  border-color: transparent;
 }
 
 /* A text in a field (a section of the front page) is short. */
@@ -172,9 +180,22 @@
 /* The dotted line at the start of an H2 section (data-section-part='start', sectionFrame.ts): a divider across the text. The line
    marks where a section starts; it is not the section's box. */
 .mo-editor-text .ProseMirror > [data-section-part='start'] {
+  position: relative;
   margin-block-start: var(--mo-comp-editor-section-gap);
-  border-block-start: var(--mo-comp-editor-section-frame);
+  border-block-start: 2px solid transparent;
   padding-block-start: var(--mo-comp-editor-section-pad);
+}
+/* The line is full width (the owner, 25 Nov 2026): it reaches out of the text field's padding to both edges, drawn in the border's place. */
+.mo-editor-text .ProseMirror > [data-section-part='start']::before {
+  content: '';
+  position: absolute;
+  inset: -2px calc(-1 * var(--mo-comp-editor-pad-x)) auto;
+  block-size: 0;
+  pointer-events: none;
+  border-block-start: var(--mo-comp-editor-section-frame);
+}
+.mo-editor-text .ProseMirror > [data-section-part='start'][data-section-width='full']::before {
+  inset-inline: 0;
 }
 
 /* The box of a section with a colour, as the site draws it (data-section-box, data-section-color, sectionFrame.ts): one box made of

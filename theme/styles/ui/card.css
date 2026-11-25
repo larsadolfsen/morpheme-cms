@@ -188,6 +188,19 @@
     margin-top: auto;
     padding-top: var(--mo-comp-card-action-gap, var(--mo-ref-space-200));
   }
+  /* The divider above the action area (Card `divider`): full width, edge to edge of the card (M3, Divider, Guidelines: "Use full-width divider lines to
+     separate interactive and non-interactive areas of a container such as a card"), so it takes back the card's padding on both sides. */
+  .mo-card__body > .mo-card__divider.mo-divider {
+    margin-block: auto 0;
+    margin-inline: calc(-1 * var(--mo-comp-card-padding, var(--mo-ref-space-200)));
+  }
+  /* The text above the line keeps the action area's gap, so the line sits between the text and the buttons. */
+  .mo-card__body > :has(+ .mo-card__divider) {
+    margin-bottom: var(--mo-comp-card-action-gap, var(--mo-ref-space-200));
+  }
+  .mo-card__divider + .mo-card__actions {
+    margin-top: 0;
+  }
   /* Selected (Material 3's Selection page: "a check mark icon, a checkbox component, a change in surface color, or a
      combination"): the selected surface and a check mark. The only ring is the focus ring. */
   :where(.mo-card).mo-is-selected {

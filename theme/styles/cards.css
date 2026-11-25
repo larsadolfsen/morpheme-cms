@@ -237,6 +237,17 @@
       var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius))
       var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius));
   }
+  /* The divider above the action area, in the editor's drawing of a card (Card `divider` on the site): full width, the card's padding taken back. */
+  .mo-block-cards__card-divider.mo-divider {
+    margin-block: auto 0;
+    margin-inline: calc(-1 * var(--mo-comp-card-padding, 1rem));
+  }
+  .mo-block-cards__card > :has(+ .mo-block-cards__card-divider) {
+    margin-bottom: var(--mo-comp-card-action-gap, 1rem);
+  }
+  .mo-block-cards__card-divider + .mo-block-cards__card-actions {
+    margin-top: 0;
+  }
   /* The action area: its buttons in a row at the bottom of the card. */
   .mo-block-cards__card-actions {
     display: flex;
