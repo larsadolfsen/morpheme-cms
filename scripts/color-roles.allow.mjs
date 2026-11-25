@@ -6,7 +6,7 @@ const REST =
 export const allow = [
   { file: 'src/editor-forms.css', rule: 'mix', max: 1, why: REST },
   { file: 'src/editor-screens.css', rule: 'mix', max: 1, why: REST },
-  { file: 'src/editor-ui.css', rule: 'mix', max: 3, why: REST },
+  { file: 'src/editor-ui.css', rule: 'mix', max: 2, why: REST },
   { file: 'src/editor.css', rule: 'mix', max: 11, why: REST },
   { file: 'src/pagePreview.tsx', rule: 'mix', max: 1, why: REST },
   { file: 'theme/styles/blocks/panel.css', rule: 'mix', max: 1, why: REST },

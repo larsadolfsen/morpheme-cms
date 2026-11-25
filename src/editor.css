@@ -413,10 +413,13 @@
 /* A focused control scrolls clear of the bars that stay on the screen: their heights are measured by useScrollClearance (ui.tsx;
    the top app bar, the Save bar, the media file bar) and set on the root. */
 :root {
-  /* The editor keeps its focus ring in `primary`; the site's parts take M3's `secondary` (theme/styles/base.css). */
-  --mo-sys-state-focus-indicator-color: var(--mo-sys-color-primary);
   scroll-padding-block-start: var(--mo-editor-clearance-top, 0px);
   scroll-padding-block-end: var(--mo-editor-clearance-bottom, 0px);
+}
+
+/* Only the page and post editor (outside Material 3) keeps its focus ring in `primary`; every other screen takes M3's `secondary` (theme/styles/base.css). */
+:root:has(.mo-editor-text-box) {
+  --mo-sys-state-focus-indicator-color: var(--mo-sys-color-primary);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1428,12 +1431,6 @@ html {
    on-colour instead (the same tokens the theme's filled button uses for its label), so it holds on every section colour, light and dark. */
 .mo-button.mo-is-filled .mo-editor-inline-list-slot:focus-visible {
   outline-color: var(--mo-comp-button-filled-label-text-color, var(--mo-comp-block-on-accent));
-}
-
-/* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
-   shadow, so it stands in front of the editor's page also in a theme whose menu has the page's colour and no shadow. */
-.mo-editor-menu {
-  --mo-comp-menu-container-elevation: var(--mo-comp-editor-menu-shadow);
 }
 
 /* Where the browser has CSS anchor positioning the menu is placed by the theme's rules for a dropdown menu (ui.css, under the
