@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { openEditor } from '../built-site.mjs';
 import { ROOT, blocksOf, browser, has, problems, shots, site } from './support/context.mjs';
 import { onTestPage, pressInsert } from './support/shared.mjs';
+import { isMaterialTheme } from '../theme-statement.mjs';
 import { pageLanguage } from './support/page-language.mjs';
 
 /** The Image grid typed in place: `Add images` asks for several images of the Library (a tap selects, the button under them says how many it adds), puts them in the block as picked images, and a tap on an image opens its sheet with the text of its own, which the card then has as its alt text. */
@@ -321,7 +322,8 @@ async function checkImageGrid(width, height) {
   if (m.columns !== columns) problems.push(`${label}: ${m.columns} columns, expected ${columns}`);
   // The room between cards is 8 px (M3 Cards, Specs: "Padding between cards 8dp max"), on every width.
   const gutter = '8px';
-  if (m.gap !== gutter) problems.push(`${label}: the gap between columns is ${m.gap}, expected ${gutter} (M3's 8dp max between cards)`);
+  if (isMaterialTheme() && m.gap !== gutter)
+    problems.push(`${label}: the gap between columns is ${m.gap}, expected ${gutter} (M3's 8dp max between cards)`);
   if (m.cards !== m.tiles) problems.push(`${label}: ${m.tiles - m.cards} tiles are not a filled card with media`);
   if (m.forced) problems.push(`${label}: ${m.forced} tiles have an image box with a fixed ratio of its own, not the image's`);
   if (m.sideways) problems.push(`${label}: the page scrolls sideways`);
@@ -453,20 +455,22 @@ async function checkCardsCarousel(width, height) {
     if (m.overflowX !== 'auto' || !m.scrolls) problems.push(`${label}: the row does not scroll sideways (${m.overflowX}, ${m.scrolls})`);
     if (m.firstRight > width || m.secondLeft >= width)
       problems.push(`${label}: the first card is not whole with the next peeking in (${m.firstRight}, ${m.secondLeft})`);
-    if (m.gap !== '8px') problems.push(`${label}: the gap is ${m.gap}, not 8px`);
-    if (m.padTop !== '8px' || m.padBottom !== '8px')
+    if (isMaterialTheme() && m.gap !== '8px') problems.push(`${label}: the gap is ${m.gap}, not 8px`);
+    if (isMaterialTheme() && (m.padTop !== '8px' || m.padBottom !== '8px'))
       problems.push(`${label}: the padding above and below is ${m.padTop} and ${m.padBottom}, not 8px`);
-    if (m.padLeft !== '16px') problems.push(`${label}: the leading padding is ${m.padLeft}, not 16px`);
+    if (isMaterialTheme() && m.padLeft !== '16px') problems.push(`${label}: the leading padding is ${m.padLeft}, not 16px`);
     // A card is the carousel's item and takes M3's item shape: extra-large, 28dp (Carousel, Specs: md.comp.carousel-item.container.shape; owner, 24 Nov 2026: "Follow md3").
-    if (m.radius !== '28px') problems.push(`${label}: the card's corners are ${m.radius}, not Material 3's 28px for a carousel item`);
+    if (isMaterialTheme() && m.radius !== '28px')
+      problems.push(`${label}: the card's corners are ${m.radius}, not Material 3's 28px for a carousel item`);
     // Uncontained (M3): every item is as wide as the others, no empty gap between them, and the next one peeks in.
     if (new Set(m.widths).size !== 1) problems.push(`${label}: the cards are not all as wide (${m.widths})`);
     if (m.cardWidths.some((w, i) => w !== m.widths[i]))
       problems.push(`${label}: a card is narrower than its item with a short text (${m.cardWidths} in ${m.widths}), leaving an empty gap`);
     if (m.widths[0] < width * 0.6) problems.push(`${label}: the first card is only ${m.widths[0]}px of ${width}px`);
-    if (m.gaps.some((g) => g !== 8)) problems.push(`${label}: the gaps between the cards are ${m.gaps}, not 8px`);
-    if (m.firstLeft !== 16) problems.push(`${label}: the first card is ${m.firstLeft}px from the edge, not 16px`);
-    if (m.indicators) problems.push(`${label}: the carousel has a page indicator, which Material 3's carousel does not have`);
+    if (isMaterialTheme() && m.gaps.some((g) => g !== 8)) problems.push(`${label}: the gaps between the cards are ${m.gaps}, not 8px`);
+    if (isMaterialTheme() && m.firstLeft !== 16) problems.push(`${label}: the first card is ${m.firstLeft}px from the edge, not 16px`);
+    if (isMaterialTheme() && m.indicators)
+      problems.push(`${label}: the carousel has a page indicator, which Material 3's carousel does not have`);
     if (!m.region) problems.push(`${label}: the carousel has no label`);
     if (m.itemLabels.join() !== m.itemLabels.map((_, i) => say.slideOf(i + 1, m.items)).join())
       problems.push(
@@ -521,6 +525,7 @@ async function checkCardsCarousel(width, height) {
         scrolls: row.scrollWidth > row.clientWidth + 1,
         radius: getComputedStyle(mask ?? first.firstElementChild).borderTopLeftRadius,
         itemWidth: Math.round(fb.width),
+        widths: [...el.querySelectorAll('[data-carousel-item]')].map((i) => Math.round(i.getBoundingClientRect().width)),
         itemLeft: Math.round(fb.left),
         rowLeft: Math.round(rb.left),
         rowWidth: Math.round(rb.width),
@@ -532,19 +537,26 @@ async function checkCardsCarousel(width, height) {
       };
     }),
   );
-  for (const want of ['uncontained', 'multi-browse', 'hero', 'hero-center', 'full-screen'])
+  for (const want of ['uncontained', 'multi-aspect-ratio', 'multi-browse', 'hero', 'hero-center', 'full-screen'])
     if (!layouts.some((l) => l.layout === want)) problems.push(`${label}: no ${want} Cards carousel on the Blocks page`);
   if (phone)
     for (const l of layouts) {
       const at = `${label} (${l.layout})`;
       if (!l.scrolls) problems.push(`${at}: the row does not scroll sideways`);
-      if (l.indicators) problems.push(`${at}: it has a page indicator, which Material 3's carousel does not`);
+      if (isMaterialTheme() && l.indicators) problems.push(`${at}: it has a page indicator, which Material 3's carousel does not`);
       // Full-screen items go edge to edge without corners on a phone (the theme's M3 rule); every other item has the 28dp item shape.
-      if (l.layout !== 'full-screen' && l.radius !== '28px') problems.push(`${at}: the item's corners are ${l.radius}, not 28px`);
+      if (isMaterialTheme() && l.layout !== 'full-screen' && l.radius !== '28px')
+        problems.push(`${at}: the item's corners are ${l.radius}, not 28px`);
       // M3, Carousel, Accessibility: a Show all button below the carousel (not required on a full-screen one, which shows one item).
       if (l.showAll === (l.layout === 'full-screen'))
         problems.push(`${at}: ${l.showAll ? 'a full-screen carousel has' : 'it has no'} "Show all"`);
       // M3: multi-browse and hero have 16dp leading padding, the row reaching the screen's edge.
+      // Multi-aspect ratio: leading padding 16dp, the cards of different widths (each as wide as its image's aspect ratio makes it).
+      if (l.layout === 'multi-aspect-ratio') {
+        if (l.itemLeft !== 16 || l.rowLeft !== 0) problems.push(`${at}: the first item is ${l.itemLeft}px from the edge, not 16px`);
+        if (new Set(l.widths).size < 3)
+          problems.push(`${at}: the items have the same width (${l.widths.join(', ')}px), not their images' aspect ratios`);
+      }
       if (['multi-browse', 'hero', 'hero-center'].includes(l.layout) && (l.itemLeft !== 16 || l.rowLeft !== 0))
         problems.push(
           `${at}: the first item is ${l.itemLeft}px from the edge (the row starts at ${l.rowLeft}px), not 16px from the screen's edge`,
@@ -973,7 +985,7 @@ async function checkCardsElevation(width, height) {
       problems.push(`${label} (${where}): an elevated Image grid card has no shadow at rest`);
     for (const kind of ['filled', 'outlined'])
       if (!shadows[kind]) problems.push(`${label} (${where}): no ${kind} card to measure`);
-      else if (!none.test(shadows[kind]))
+      else if (isMaterialTheme() && !none.test(shadows[kind]))
         problems.push(`${label} (${where}): a ${kind} card has a shadow, Material 3 gives it none at rest`);
   };
   const open = (viewport) => browser.newPage({ viewport, hasTouch: phone, isMobile: phone, locale: 'en-US' });

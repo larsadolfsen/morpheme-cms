@@ -1,29 +1,30 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
-/* Vibrant: the menu in the accent, what is on it turned around. */
+/* Vibrant: M3's Menus, Specs, Color (https://m3.material.io/components/menus/specs): the container is Tertiary container, what is on it On tertiary container,
+   the selected item Tertiary with On tertiary. */
 @layer components {
   :where(.mo-menu).mo-is-vibrant {
-    --mo-comp-menus-standard-container-color: var(--mo-comp-menu-vibrant-surface, var(--mo-comp-block-accent));
+    --mo-comp-menus-standard-container-color: var(--mo-comp-menu-vibrant-surface, var(--mo-sys-color-tertiary-container));
     --mo-comp-menu-line: transparent;
-    --mo-comp-menu-list-item-label-text-color: var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent));
-    --mo-comp-menu-item-icon-color: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent)) 80%, transparent);
-    --mo-comp-menu-item-supporting-text: color-mix(
-      in srgb,
-      var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent)) 80%,
-      transparent
-    );
+    --mo-comp-menu-list-item-label-text-color: var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container));
+    --mo-comp-menu-item-icon-color: var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container));
+    --mo-comp-menu-item-supporting-text: var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container));
     --mo-comp-menu-item-hover-surface: color-mix(
       in srgb,
-      var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent)) 14%,
+      var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container)) 14%,
       transparent
     );
-    --mo-comp-menu-item-hover-text: var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent));
-    --mo-comp-menus-standard-menu-item-selected-container-color: var(
-      --mo-comp-menu-vibrant-selected-surface,
-      var(--mo-comp-block-on-accent)
+    --mo-comp-menu-item-hover-text: var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container));
+    --mo-comp-menus-standard-menu-item-selected-container-color: var(--mo-comp-menu-vibrant-selected-surface, var(--mo-sys-color-tertiary));
+    --mo-comp-menus-standard-menu-item-selected-label-text-color: var(
+      --mo-comp-menu-vibrant-selected-text,
+      var(--mo-sys-color-on-tertiary)
     );
-    --mo-comp-menus-standard-menu-item-selected-label-text-color: var(--mo-comp-menu-vibrant-selected-text, var(--mo-comp-block-accent));
-    --mo-comp-menu-group-label-text: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent)) 80%, transparent);
-    --mo-comp-divider-color: color-mix(in srgb, var(--mo-comp-menu-vibrant-text, var(--mo-comp-block-on-accent)) 30%, transparent);
+    --mo-comp-menu-group-label-text: var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container));
+    --mo-comp-divider-color: color-mix(
+      in srgb,
+      var(--mo-comp-menu-vibrant-text, var(--mo-sys-color-on-tertiary-container)) 30%,
+      transparent
+    );
   }
 }

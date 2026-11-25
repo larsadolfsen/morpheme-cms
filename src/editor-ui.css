@@ -24,21 +24,6 @@
     margin-block: 0 var(--mo-ref-space-300);
   }
 
-  /* The focus ring of a control that has no outline: two dp of the primary colour, on a light gap where the old ring-offset was used. */
-  :is(.mo-editor-drag-field, .mo-editor-color-button):focus-visible {
-    box-shadow:
-      0 0 0 2px #fff,
-      0 0 0 4px var(--mo-sys-color-primary);
-    outline-style: none;
-  }
-  :is(.mo-editor-fold-toggle, .mo-editor-section-list-link):focus-visible {
-    box-shadow: 0 0 0 2px var(--mo-sys-color-primary);
-    outline-style: none;
-  }
-  .mo-editor-focus-quiet:focus {
-    outline-style: none;
-  }
-
   /* A grid's children may shrink below their content (the theme's base rule for .grid, which the old markup used). */
   :is(
       .mo-editor-date-time-field,
@@ -105,9 +90,6 @@
   .mo-editor-search-row {
     display: flex;
     gap: var(--mo-ref-space-100);
-  }
-  .mo-editor-choice-row {
-    --mo-comp-row-gap: var(--mo-ref-space-150);
   }
   .mo-editor-push-end {
     margin-inline-start: auto;
@@ -219,9 +201,6 @@
     inline-size: 2rem;
     block-size: 2rem;
   }
-  .mo-editor-color-row {
-    --mo-comp-row-gap: var(--mo-ref-space-150);
-  }
   .mo-editor-color-compare {
     display: flex;
     block-size: 2.75rem;
@@ -281,13 +260,6 @@
   .mo-editor-wheel-dot-large {
     inline-size: 2.25rem;
     block-size: 2.25rem;
-  }
-  .mo-editor-wheel-dot-focus:focus-visible {
-    box-shadow:
-      0 0 0 2px #fff,
-      0 0 0 4px var(--mo-sys-color-primary),
-      var(--mo-sys-elevation-level1-shadow);
-    outline-style: none;
   }
   .mo-editor-color-dots {
     display: flex;
@@ -413,9 +385,6 @@
   .mo-editor-icon-picker-status {
     color: var(--mo-sys-color-on-surface-variant);
   }
-  .mo-editor-image-pick {
-    --mo-comp-row-gap: var(--mo-ref-space-200);
-  }
   .mo-editor-image-pick-thumb {
     inline-size: 5rem;
     block-size: 5rem;
@@ -492,8 +461,8 @@
     transition-duration: 150ms;
   }
   .mo-editor-choice-card:has(*:focus-visible) {
-    outline: 2px solid var(--mo-sys-color-primary);
-    outline-offset: 2px;
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+    outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
   }
   .mo-editor-choice-card-disabled {
     cursor: default;
@@ -528,11 +497,10 @@
   .mo-editor-row-delete {
     justify-content: center;
     text-align: center;
-    font-weight: 500;
     color: var(--mo-sys-color-error);
   }
   .mo-editor-row-sub {
-    color: color-mix(in oklab, var(--mo-sys-color-on-surface) 80%, transparent);
+    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-menu-full {
     inline-size: 100%;
@@ -554,7 +522,7 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-placeholder-value {
-    opacity: 60%;
+    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-phone-row {
     display: flex;

@@ -90,6 +90,8 @@ export type Field = {
     onPage?: Relation;
     disabled?: boolean;
     stored?: boolean;
+    /** Offered only while a field next to the select has one of these values (or the option is the chosen one): Cards' multi-aspect ratio layout, with images. */
+    only?: Only;
   }[];
   /** select: the options come from a tool of the app's MCP server (`options.from` in app.json): `app`, the tool, and the keys of an item
    * that give each option's label and value. The field loads them through the Worker (fields.tsx, ToolSelect). */

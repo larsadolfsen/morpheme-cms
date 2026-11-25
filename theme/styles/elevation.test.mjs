@@ -206,8 +206,6 @@ const removedDeclarations = [
   '--mo-comp-dialog-surface',
   '--mo-comp-top-app-bar-stuck-surface',
   '--mo-comp-top-app-bar-stuck-shadow',
-  '--mo-comp-navigation-rail-surface',
-  '--mo-comp-navigation-drawer-surface',
   '--mo-comp-tooltip-rich-surface',
   '--mo-comp-search-view-surface',
   '--mo-comp-switch-handle-shadow',
@@ -217,6 +215,14 @@ const removedDeclarations = [
 for (const name of removedDeclarations) {
   test(`global.css no longer declares ${name}`, () => {
     assert.equal(count(globalCss, `${name}:`), 0);
+  });
+}
+
+// The rail and the expanded rail (the editor's main drawer) are in the surface container, the Container role the Navigation rail page prints
+// (Specs, Color), not in the page's own surface: 0.19.5 removed these two declarations and the rail lost its colour (0.19.7).
+for (const name of ['--mo-comp-navigation-rail-surface', '--mo-comp-navigation-drawer-surface']) {
+  test(`global.css gives ${name} the surface container`, () => {
+    assert.equal(count(globalCss, `${name}: var(--mo-sys-color-surface-container);`), 1);
   });
 }
 

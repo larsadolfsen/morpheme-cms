@@ -146,6 +146,191 @@ async function checkUpdatesCard(width, height) {
   await page.close();
 }
 
+/** The start screen's cards (the notices, the first-run card and the dashboard) stand one card gap apart, 8px (M3 Cards, Specs), with nothing
+ * larger between the version card and the next one. On a phone every card is in one column, so every gap down the column is the same. */
+async function checkStartGaps(width, height) {
+  const label = `${width}px start gaps`;
+  const page = await browser.newPage({ viewport: { width, height } });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.waitForSelector('.mo-editor-start-cards');
+  await page.waitForTimeout(500);
+  const gaps = await page.evaluate(() => {
+    const boxes = [...document.querySelectorAll('.mo-editor-start-cards > *:not(.mo-editor-stack-200), .mo-editor-dashboard-grid > *')]
+      .map((e) => e.getBoundingClientRect())
+      .filter((b) => b.height > 0)
+      .sort((a, b) => a.top - b.top);
+    const out = [];
+    for (let i = 1; i < boxes.length; i++)
+      if (boxes[i].left < boxes[i - 1].right && boxes[i].top >= boxes[i - 1].bottom - 1)
+        out.push(Math.round(boxes[i].top - boxes[i - 1].bottom));
+    return out;
+  });
+  if (gaps.some((g) => g !== 8)) problems.push(`${label}: the gaps between the cards are ${gaps.join(', ')} px, not all 8`);
+  await page.close();
+}
+
+/** The main navigation (the rail, and the standard drawer it opens into) is drawn in M3's surface container, not in the page's own colour
+ * (Navigation rail, Specs, Color: the Container role is "Surface container"; 0.19.7, owner, 25 Nov 2026: the rail lost its colour again
+ * when 0.19.5 dropped the editor's override and the part fell back to the surface). Measures the computed background of the rail's frame
+ * and of the open drawer against probes painted with the two roles: it must equal --mo-sys-color-surface-container and differ from
+ * --mo-sys-color-surface. Light and dark. */
+async function checkMainNavColor(width, height) {
+  const label = `${width}px main navigation colour`;
+  for (const scheme of ['light', 'dark']) {
+    const page = await browser.newPage({ viewport: { width, height }, colorScheme: scheme });
+    page.on('pageerror', (e) => problems.push(`${label} ${scheme}: ${e.message}`));
+    await openEditor(page, site);
+    await page.waitForSelector('.mo-editor-main-rail-frame, .mo-navigation-drawer__standard, .mo-editor-main-drawer-frame', {
+      state: 'attached',
+    });
+    await page.waitForTimeout(500);
+    const measure = () =>
+      page.evaluate(() => {
+        const paint = (role) => {
+          const probe = document.createElement('div');
+          probe.style.cssText = `position:fixed;inline-size:1px;block-size:1px;background:var(--mo-sys-color-${role})`;
+          document.body.append(probe);
+          const c = getComputedStyle(probe).backgroundColor;
+          probe.remove();
+          return c;
+        };
+        const bg = (sel) => {
+          const e = document.querySelector(sel);
+          return e && e.getBoundingClientRect().width > 0 ? getComputedStyle(e).backgroundColor : null;
+        };
+        return {
+          container: paint('surface-container'),
+          surface: paint('surface'),
+          rail: bg('.mo-editor-main-rail-frame'),
+          drawer: bg('.mo-navigation-drawer__standard'),
+        };
+      });
+    const found = [];
+    let m = await measure();
+    if (m.rail) found.push(['the rail', m.rail]);
+    if (m.drawer) found.push(['the drawer', m.drawer]);
+    if (width >= 600 && !m.drawer) {
+      // Open the drawer (the menu button in the rail) to measure it as well.
+      await page
+        .locator('nav.mo-editor-main-rail button, .mo-editor-main-rail-frame button')
+        .first()
+        .click({ timeout: 3000 })
+        .catch(() => {});
+      await page.waitForTimeout(600);
+      m = await measure();
+      if (m.drawer) found.push(['the open drawer', m.drawer]);
+    }
+    if (!found.length) problems.push(`${label} ${scheme}: neither the rail nor the drawer was found`);
+    for (const [what, color] of found) {
+      if (color === m.surface)
+        problems.push(`${label} ${scheme}: ${what} is ${color}, the page's own surface colour; M3's role is surface-container`);
+      else if (color !== m.container) problems.push(`${label} ${scheme}: ${what} is ${color}, not surface-container (${m.container})`);
+    }
+    await page.close();
+  }
+}
+
+/** Every surface keeps its Material 3 container role (the drawer and rail lost theirs twice: 0.19.5 and 0.19.7). Each row is one variant or state of a
+ * component with its own selector, the role M3's Specs page prints for it and the page that shows it; a variant that differs on purpose is its own
+ * row (the full-screen search view is Surface container low, the divided one high; a standard bottom sheet at side-sheet width is a side sheet).
+ * The colors page's preview shows the site's own colours in both schemes, so it is not measured, and the docked search view only draws while open. Measured light and dark at 1280: the computed background of every visible match must equal the role painted on a probe in the same page. */
+const SURFACE_ROLES = [
+  // [component and variant, selector, role, hash that shows it]
+  ['Navigation drawer, standard', '.mo-navigation-drawer__standard', 'surface-container', ''],
+  ['Navigation rail frame', '.mo-editor-main-rail-frame', 'surface-container', ''],
+  ['Top app bar, at rest', '.mo-top-app-bar:not([data-stuck])', 'surface', ''],
+  ['Page', 'body', 'surface', ''],
+  ['Search bar', '.mo-search-bar', 'surface-container-high', ''],
+  ['Dashboard widget (outlined card)', '.mo-editor-widget-list.mo-is-outlined, .mo-editor-widget-text.mo-is-outlined', 'surface', ''],
+  ['Card, filled', '.mo-card.mo-is-filled', 'surface-container-highest', ''],
+  ['Card, elevated', '.mo-card.mo-is-elevated', 'surface-container-low', ''],
+  ['Rich tooltip', '.mo-tooltip.mo-is-rich', 'surface-container', ''],
+  ['Theme list row', '.mo-editor-themes li, main li', 'surface', 'appearance/themes'],
+  ['Navigation drawer, modal', '.mo-navigation-drawer:not(.mo-navigation-drawer__standard)', 'surface-container', 'developer/parts/ui'],
+  ['Top app bar, scrolled', '.mo-top-app-bar[data-stuck]', 'surface-container', 'developer/parts/ui'],
+  ['Navigation bar', '.mo-nav-bar', 'surface-container', 'developer/parts/ui'],
+  ['Toolbar, docked', '.mo-toolbar.mo-is-standard', 'surface-container', 'developer/parts/ui'],
+  ['Card, outlined (not selected)', '.mo-card.mo-is-outlined:not(.mo-is-selected)', 'surface', 'developer/parts/ui'],
+  ['Card, outlined selected', '.mo-card.mo-is-outlined.mo-is-selected', 'secondary-container', 'developer/parts/ui'],
+  ['Side sheet, standard', '.mo-sheet__container.mo-is-side:not(.mo-sheet__modal)', 'surface', 'developer/parts/ui'],
+  ['Side sheet, modal', '.mo-sheet__modal', 'surface-container-low', 'developer/parts/ui'],
+  ['Bottom sheet', '.mo-sheet__container.mo-is-bottom:not([data-wide="side-sheet"])', 'surface-container-low', 'developer/parts/ui'],
+  [
+    'Bottom sheet, standard at side-sheet width (a side sheet)',
+    '.mo-sheet__container.mo-is-bottom[data-wide="side-sheet"]',
+    'surface',
+    'developer/parts/ui',
+  ],
+  ['Dialog', '.mo-dialog:not(.mo-is-full-screen)', 'surface-container-high', 'developer/parts/ui'],
+  ['Menu', '.mo-menu:not(.mo-is-vibrant):not(:has(> .mo-menu__group:first-child))', 'surface-container-low', 'developer/parts/ui'],
+  ['Menu, vibrant', '.mo-menu.mo-is-vibrant:not(:has(> .mo-menu__group:first-child))', 'tertiary-container', 'developer/parts/ui'],
+  [
+    'Menu group (gap between groups)',
+    '.mo-menu:not(.mo-is-vibrant):not(.mo-menu__groups-divider) > .mo-menu__group',
+    'surface-container-low',
+    'developer/parts/ui',
+  ],
+  [
+    'Search view, full screen (dialog)',
+    '.mo-search:not(.mo-is-divided) > dialog.mo-search-view',
+    'surface-container-low',
+    'developer/parts/ui',
+  ],
+  [
+    'Search view, divided style (dialog)',
+    '.mo-search.mo-is-divided > dialog.mo-search-view',
+    'surface-container-high',
+    'developer/parts/ui',
+  ],
+  ['Scroll field list', '.mo-scroll-field__list', 'surface-container-lowest', 'developer/parts/ui'],
+];
+
+async function checkSurfaceRoles(width, height) {
+  const label = `${width}px surface roles`;
+  for (const scheme of ['light', 'dark']) {
+    const page = await browser.newPage({ viewport: { width, height }, colorScheme: scheme });
+    page.on('pageerror', (e) => problems.push(`${label} ${scheme}: ${e.message}`));
+    await openEditor(page, site);
+    await page.waitForSelector('.mo-top-app-bar', { state: 'attached' });
+    for (const hash of [...new Set(SURFACE_ROLES.map((r) => r[3]))]) {
+      await page.evaluate((h) => (location.hash = h), hash);
+      await page.waitForTimeout(900);
+      const rows = SURFACE_ROLES.filter((r) => r[3] === hash).map(([name, selector, role]) => ({ name, selector, role }));
+      const out = await page.evaluate((rows) => {
+        const paint = (role) => {
+          const probe = document.createElement('div');
+          probe.style.cssText = `position:fixed;inline-size:1px;block-size:1px;background:var(--mo-sys-color-${role})`;
+          document.body.append(probe);
+          const c = getComputedStyle(probe).backgroundColor;
+          probe.remove();
+          return c;
+        };
+        return rows.map((r) => {
+          const seen = new Set();
+          for (const e of document.querySelectorAll(r.selector)) {
+            const b = e.getBoundingClientRect();
+            // A closed dialog and a hidden panel have no box: only what is drawn is measured.
+            if (b.width > 0 && b.height > 0) seen.add(getComputedStyle(e).backgroundColor);
+          }
+          return { ...r, expected: paint(r.role), seen: [...seen] };
+        });
+      }, rows);
+      for (const r of out) {
+        // A row that matches nothing drawn would pass for ever: every row but the rail (it shows at a phone width; checkMainNavColor measures it) needs one.
+        if (!r.seen.length && r.name !== 'Navigation rail frame')
+          problems.push(`${label} ${scheme} #${hash || 'start'}: ${r.name} (${r.selector}) matched nothing drawn`);
+        for (const c of r.seen)
+          if (c !== r.expected)
+            problems.push(
+              `${label} ${scheme} #${hash || 'start'}: ${r.name} (${r.selector}) is ${c}, M3's role is ${r.role} (${r.expected})`,
+            );
+      }
+    }
+    await page.close();
+  }
+}
+
 /** Why the site can't update itself shows on the start screen (BlockedUpdateNotice.tsx, reasons in src/cmsBlocked.mjs), in each state the Worker's
  * status can have: the notice has its title, its sentence and a "Read more" link to the Morpheme page, stays inside the screen and does not
  * overlap what is under it; a site with nothing wrong, or a problem with no newer version waiting, shows none. */
@@ -1012,6 +1197,20 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkUpdatesCard ${width}`, () => checkUpdatesCard(width, height));
+
+  for (const [width, height] of [
+    [375, 800],
+    [1280, 900],
+  ])
+    unit(`checkStartGaps ${width}`, () => checkStartGaps(width, height));
+
+  for (const [width, height] of [
+    [800, 800],
+    [1280, 900],
+  ])
+    unit(`checkMainNavColor ${width}`, () => checkMainNavColor(width, height));
+
+  unit('checkSurfaceRoles 1280', () => checkSurfaceRoles(1280, 900));
 
   for (const [width, height] of [
     [375, 800],

@@ -130,6 +130,12 @@ test('an example on the wrong page, twice, or a page missing from the index is r
   // A page without its link back to the index.
   const noBack = { ...real, pages: { ...real.pages, steps: real.pages.steps.replace('[All blocks](/blocks/)', '') } };
   assert.ok(pageProblems(noBack, blockPages, noCode).some((p) => /no link back to the index/.test(p)));
+  // The link back is not the first paragraph under the heading.
+  const linkFirst = {
+    ...real,
+    pages: { ...real.pages, steps: real.pages.steps.replace(/(\n# [^\n]+\n)\n[^\n]+\n/, '$1\n[All blocks](/blocks/)\n') },
+  };
+  assert.ok(pageProblems(linkFirst, blockPages, noCode).some((p) => /starts with the link back/.test(p)));
   // An example on the index.
   const onIndex = { ...real, index: `${real.index}\n${moved}\n` };
   assert.ok(pageProblems(onIndex, blockPages, noCode).some((p) => /index shows an example/.test(p)));

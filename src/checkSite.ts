@@ -39,7 +39,7 @@ import { widgetsWithoutComponent } from './widgets';
 import { colorPairs as shownPairs, sharedParts, translator, writtenApps, writtenBlockParts, writtenCollections } from './site';
 import { splitBlocks } from '../lib/blocks.mjs';
 import { ownListProblems } from '../lib/ownList.mjs';
-import { englishOf, splitMissing } from '../lib/translate.mjs';
+import { englishOf, siteWalkParts, splitMissing } from '../lib/translate.mjs';
 import { collections as standardCollections } from '../defaults/collections';
 import { companyParts as standardCompany } from '../defaults/company';
 import { blockParts as standardBlocks } from '../defaults/blockTexts';
@@ -257,10 +257,12 @@ type Definitions = {
   colorPairs: typeof colorPairs;
 };
 
+/** An app block's shared texts have their own bucket (its texts.ts), so the site's walk leaves them out. */
+const appBlockIds = new Set(sharedParts.map((p) => p.id));
 /** The definitions the walk goes over: the site's (the standard parts, merged with the site's own) ... */
 const siteDefinitions: Definitions = {
   collections,
-  parts: [...companyParts, ...partScreens.flatMap((s) => s.parts), ...appearance, ...seoParts, ...blockParts],
+  parts: [...companyParts, ...partScreens.flatMap((s) => s.parts), ...appearance, ...seoParts, ...siteWalkParts(blockParts, appBlockIds)],
   screens: partScreens,
   groups,
   colorFields,

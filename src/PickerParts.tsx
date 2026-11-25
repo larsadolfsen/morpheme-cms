@@ -5,22 +5,45 @@
 // on a minute between the fives, and its input mode with an error, on a 12-hour clock (the dial and the input mode)
 // and horizontal (the dial beside the boxes, 24- and 12-hour). Only drawn: on the site datePicker.script.ts and
 // timePicker.script.ts make them work.
+import { useState } from 'react';
 import {
   SiteDatePicker,
   SiteDatePickerContainer,
   SiteTimePicker,
   SiteTimePickerContainer,
+  SiteScrollField,
   datePickerTexts,
   timePickerTexts,
 } from './themeUi';
 import { Example, Part } from './PartsShown';
-import { Preview } from './ui';
+import { IconButton, Preview } from './ui';
 import { t } from './i18n';
 
 const say = t.parts.screens.pickers;
 
 const pad = (n: number) => String(n).padStart(2, '0');
 const dayOf = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+const range = (from: number, to: number) => Array.from({ length: to - from + 1 }, (_, i) => from + i);
+
+/** A scroll field with the button that swaps it to the input mode and back (Material: "Choosing text input swaps the focused scroll field to a text field"). */
+function ScrollFieldWithInput({
+  typedLabel,
+  scrollLabel,
+  ...field
+}: { typedLabel: string; scrollLabel: string } & React.ComponentProps<typeof SiteScrollField>) {
+  const [mode, setMode] = useState<'scroll' | 'input'>('scroll');
+  return (
+    <div className="mo-editor-picker-row">
+      <SiteScrollField {...field} mode={mode} invalidText={say.scrollInvalid} />
+      <IconButton
+        icon={mode === 'scroll' ? 'keyboard' : 'swipe_vertical'}
+        label={mode === 'scroll' ? typedLabel : scrollLabel}
+        onClick={() => setMode(mode === 'scroll' ? 'input' : 'scroll')}
+      />
+    </div>
+  );
+}
 
 export default function PickerParts() {
   const dates = datePickerTexts();
@@ -199,6 +222,39 @@ export default function PickerParts() {
                 timeFormat="12h"
                 orientation="horizontal"
               />
+            </div>
+          </div>
+        </Preview>
+      </Part>
+      <Part name="ScrollField" m3="md.comp.scroll-field" use={say.scrollField}>
+        <Preview>
+          <div className={drawn} data-scroll-fields="">
+            <div className="mo-editor-picker-sample" role="group" aria-label={say.sizeSmall}>
+              <SiteScrollField label={say.number} items={range(0, 59)} value={30} size="small" />
+            </div>
+            <div className="mo-editor-picker-sample" role="group" aria-label={say.sizeMedium}>
+              <SiteScrollField label={say.number} items={range(100, 199)} value={150} size="medium" />
+            </div>
+            <div className="mo-editor-picker-sample" role="group" aria-label={say.sizeLarge}>
+              <SiteScrollField label={say.year} items={range(2000, 2060)} value={2026} size="large" />
+            </div>
+            <div className="mo-editor-picker-sample" role="group" aria-label={say.looping}>
+              <SiteScrollField label={say.number} items={range(1, 12)} value={12} looping />
+            </div>
+            <div className="mo-editor-picker-sample" role="group" aria-label={say.texts}>
+              <SiteScrollField label={say.month} items={say.months} value={say.months[5]} size="large" />
+            </div>
+            <div className="mo-editor-picker-sample" role="group" aria-label={say.input}>
+              <ScrollFieldWithInput
+                label={say.number}
+                items={range(0, 59)}
+                value={30}
+                typedLabel={times.toInput}
+                scrollLabel={times.toScroll}
+              />
+            </div>
+            <div className="mo-editor-picker-sample" role="group" aria-label={say.disabled}>
+              <SiteScrollField label={say.number} items={range(0, 59)} value={30} disabled />
             </div>
           </div>
         </Preview>

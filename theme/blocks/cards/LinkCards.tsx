@@ -147,6 +147,7 @@ export default function LinkCards({
             key: String(i),
             label: say.slideOf(i + 1, items.length),
             content: cardOf(card),
+            ...(layout === 'multi-aspect-ratio' ? { aspect: card.aspect } : {}),
             // A card with a page is one link and one with buttons has them to focus; a text-only card is reached itself.
             focusable: !card.href && card.buttons.length === 0,
           }))}
