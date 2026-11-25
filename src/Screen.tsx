@@ -7,7 +7,7 @@
 // screen), the title and the status stand in a row under the bar, at the top of the content, and the page actions
 // (`pageActions`) at the end of that row. The bar stays at the top while
 // scrolling and keeps clear of a phone's notch. A screen's tabs (`tabs`) are the bottom of the bar, under the title, as wide
-// as the content, and stay with it. The back arrow goes to the screen above, back in the history when that is the screen
+// as the bar (the whole width of its pane), and stay with it. The back arrow goes to the screen above, back in the history when that is the screen
 // before (nav.ts up). The content is as wide as the site's text column, or wider for
 // a form with its fields beside the text (`panel`). The column (editor.css .mo-editor-column) stands centred on the window,
 // off-centre only as far as the panels beside it require.
@@ -298,7 +298,7 @@ export default function Screen<T extends string>({
       </div>
       {tabs && (
         <div className="mo-editor-bar-tabs">
-          <div className={`mo-editor-screen-tabs ${width}`}>
+          <div className="mo-editor-screen-tabs">
             <TabRow id={id} {...tabs} />
           </div>
         </div>

@@ -76,7 +76,7 @@ import { isPagePath } from '../lib/autosave.mjs';
 import { entryName, untouched } from '../lib/entryNames.mjs';
 import { loadAutosave, restorable } from './autosave.mjs';
 import { useAutosave, type AutosaveState } from './useAutosave';
-import VersionSwitch, { WaitingNotice } from './VersionSwitch';
+import VersionSwitch, { versionTabs, WaitingNotice } from './VersionSwitch';
 import { activeApps, versionSwitchOf } from './apps';
 import { usePagePreview } from './pagePreview';
 import { ScreenHidden } from './screenHidden';
@@ -232,7 +232,10 @@ function Form({
   const livePublished = !!live.path && isPublished(live.text);
   const state = !livePublished ? 'draft' : waiting ? 'waiting' : 'published';
   // The switch between the live page and the waiting changes: an installed app's (slot `versionSwitch`), else the core's.
-  const Switch = versionSwitchOf(apps, activeApps(env.files)) ?? VersionSwitch;
+  const appSwitch = versionSwitchOf(apps, activeApps(env.files));
+  const Switch = appSwitch ?? VersionSwitch;
+  // Without an app's switch the core's is Material 3 tabs in the top app bar; an app's is drawn in the form.
+  const coreSwitch = !appSwitch;
   // Which version the form edits while changes wait: they (`waiting`), or the live page (`live`, to fix a mistake on it).
   const [editing, setEditing] = useState<'waiting' | 'live'>('waiting');
   const editsLive = editing === 'live' && !!waiting;
@@ -284,6 +287,7 @@ function Form({
   // the page's own kept changes (the autosave) have been put back or found to be none, so the block is compared with the text shown.
   const [copyReady, setCopyReady] = useState(false);
   const isNew = !live.path;
+  const waitingVersions = waiting ? versionsOf({ path: live.path, text: live.text, drafts: { waiting: waiting.text } }) : [];
   // The form's name, in the top bar and over the sections list (the "on this page" card, on large and wider screens), and what a block's
   // subpage goes back to.
   const formTitle = isNew ? collection.create! : String(initial.title || collection.singular);
@@ -1333,21 +1337,33 @@ function Form({
             saveLabel={t.forms.versions.saveDraft}
             onDiscard={isNew ? undefined : () => void discardNow()}
             canDiscard={dirty || !!waiting}
+            tabs={
+              coreSwitch && waiting && !isNew
+                ? versionTabs({
+                    versions: waitingVersions,
+                    editing: editsLive ? 'live' : 'waiting',
+                    busy: saving || deleting,
+                    onEdit: (id) => void switchTo(id),
+                  })
+                : undefined
+            }
           >
             {version && <VersionNotice version={version} onCurrent={() => onVersion(null)} />}
             {waiting && !isNew && (
               <>
-                <Switch
-                  entry={{ path: live.path, collection: collection.id, title: String(initial.title ?? ''), post }}
-                  versions={versionsOf({ path: live.path, text: live.text, drafts: { waiting: waiting.text } })}
-                  editing={editsLive ? 'live' : 'waiting'}
-                  busy={saving || deleting}
-                  onEdit={(id) => void switchTo(id)}
-                  publish={() => publishNow()}
-                  schedule={(at) => (at === null ? cancelSchedule() : save(undefined, named(), 'schedule', at))}
-                  unpublish={unpublishNow}
-                  discard={() => discardNow()}
-                />
+                {!coreSwitch && (
+                  <Switch
+                    entry={{ path: live.path, collection: collection.id, title: String(initial.title ?? ''), post }}
+                    versions={waitingVersions}
+                    editing={editsLive ? 'live' : 'waiting'}
+                    busy={saving || deleting}
+                    onEdit={(id) => void switchTo(id)}
+                    publish={() => publishNow()}
+                    schedule={(at) => (at === null ? cancelSchedule() : save(undefined, named(), 'schedule', at))}
+                    unpublish={unpublishNow}
+                    discard={() => discardNow()}
+                  />
+                )}
                 <WaitingNotice
                   editsLive={editsLive}
                   when={scheduledAt ? timeText(scheduledAt) : undefined}

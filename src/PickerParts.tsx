@@ -173,6 +173,17 @@ export default function PickerParts() {
               <SiteTimePickerContainer view="input" selecting="hour" hour={9} minute={15} texts={times} timeFormat="12h" />
             </div>
           </div>
+          <div className={drawn} data-scroll-time-pickers="">
+            <div className="mo-editor-picker-sample" role="group" aria-label={say.scrollPicker}>
+              <SiteTimePickerContainer view="scroll" kind="scroll" selecting="hour" hour={14} minute={30} texts={times} />
+            </div>
+            <div className="mo-editor-picker-sample" role="group" aria-label={`${say.scrollPicker}: ${say.twelveHours}`}>
+              <SiteTimePickerContainer view="scroll" kind="scroll" selecting="hour" hour={14} minute={30} texts={times} timeFormat="12h" />
+            </div>
+            <div className="mo-editor-picker-sample" role="group" aria-label={`${say.scrollPicker}: ${say.inline}`}>
+              <SiteTimePicker inline label={say.time} name="time-inline" onChange={() => {}} />
+            </div>
+          </div>
           {/* As wide as a phone on its side: scrolled sideways on a narrower screen. */}
           <div className={`${drawn} mo-editor-picker-scroll`}>
             <div className="mo-editor-picker-wide" role="group" aria-label={say.horizontal}>

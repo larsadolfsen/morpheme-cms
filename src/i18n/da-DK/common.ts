@@ -85,6 +85,7 @@ export const common: Messages['common'] = {
     period: 'Før eller efter middag',
     toInput: 'Skift til at skrive',
     toDial: 'Skift til urskiven',
+    toScroll: 'Skift til at rulle',
     cancel: 'Annuller',
     ok: 'OK',
   },
