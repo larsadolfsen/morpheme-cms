@@ -271,6 +271,14 @@ ones stay as aliases of the same part until a later `THEME_API` removes them, so
 | `@theme/ui/TextFieldMenu`: `TextFieldMenu`, `textFieldMenuClass`, `TextFieldMenuOption` | `@theme/ui/ExposedDropdownMenu`: `ExposedDropdownMenu`, `exposedDropdownMenuClass`, `ExposedDropdownMenuOption` | Menus: "Dropdown menu and exposed dropdown menu are now both referred to as menu"; text fields: "Text field dropdown menus" |
 | `@theme/blocks/Panel` | — | An outlined card; the name Panel stays |
 
+### Removed prop
+
+The update rewrites this in the site's own themes and apps (`lib/migrate-code.mjs`). A store item is never rewritten: its publisher releases a version written to contract 8. `ListItem` keeps Material 3's slot names (`leadingIcon`, `leadingIconSelected`, `leadingAvatar`, `leadingImage`, `leadingVideo`, `leadingMedia`, `trailingIcon`, `trailingSupporting`, `trailing`, as its list tokens name them), and `Card` has no renamed prop.
+
+| Component | Old prop | New |
+| :--- | :--- | :--- |
+| `ListItem` (`@theme/ui/List`) | `columns` | removed (a bare `columns` is dropped; `columns={expr}` stops the update and names the line) |
+
 A theme that draws its own bar or menu still does it in `ui/TopAppBar.tsx` and `ui/ExposedDropdownMenu.tsx` while
 the aliases stay; the new names lead to the theme's file, else the standard theme's.
 

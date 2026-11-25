@@ -15,8 +15,7 @@
 // `onClick` a button (what a tap does: the editor's rows), else a <div>; the rest (data-…, aria-…) on it, and
 // `presentation` takes the <li>'s own role away (an item that is an option of a listbox: Search.tsx). `leadingIconSelected`:
 // its icon in the selected colour (the open one, where the item itself is not drawn selected). `truncate`: its texts each
-// on one line, cut off (a name, an address); else they wrap. `columns`: on a wide screen its headline and supporting text
-// side by side, as columns of the list (an address and where it sends to), under each other on a phone. `actions`: secondary actions beside it (icon buttons, a
+// on one line, cut off (a name, an address); else they wrap. `actions`: secondary actions beside it (icon buttons, a
 // switch), a multi-action item (Material's) with the item its primary action; `children`: what is in its <li> after it
 // (a sheet it opens, a text it folds out). `selectable`: on a phone (a touch or a pen) a long press selects it, or unselects
 // it, through `onSelectedChange` (useLongPress, longPress.ts), the browser's own menu for a long press kept away; with
@@ -200,7 +199,6 @@ export function ListItem({
   dragged,
   presentation,
   truncate,
-  columns,
   actions,
   selectable,
   selecting,
@@ -243,7 +241,6 @@ export function ListItem({
   dragged?: boolean;
   presentation?: boolean;
   truncate?: boolean;
-  columns?: boolean;
   actions?: ReactNode;
   /** A long press with a touch or a pen selects it (or unselects it): `onSelectedChange` with the opposite of `selected`. */
   selectable?: boolean;
@@ -377,7 +374,6 @@ export function ListItem({
   const classes = [
     listItemClass(n, { selected, disabled, dragged }),
     control && 'mo-list__item-with-control',
-    columns && 'mo-list__item-columns',
     press && 'mo-list__item-selectable',
     press && selecting && 'mo-list__item-selecting',
     shortcut && 'mo-list__item-selectable-leading',

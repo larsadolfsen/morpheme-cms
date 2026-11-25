@@ -265,10 +265,6 @@ export const ours = [
     reason: 'No M3 token of this name or role found in docs/m3-tokens/; to review in the component batch.',
   },
   {
-    token: '--mo-comp-list-item-columns-gap',
-    reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
-  },
-  {
     token: '--mo-comp-list-item-disabled-opacity',
     reason: "The part's disabled opacity as one token; M3 prints it per element and state.",
   },

@@ -580,7 +580,7 @@ function CardParts() {
                   truncate
                   actions={<SiteIconButton icon="delete" label={lists.remove} />}
                 />
-                <SiteListItem href="" headline={lists.address} supporting={lists.sendsTo} columns />
+                <SiteListItem href="" headline={lists.address} supporting={lists.sendsTo} />
               </SiteList>
             </SiteCard>
             {(['middle-inset', 'none'] as const).map((dividers) => (

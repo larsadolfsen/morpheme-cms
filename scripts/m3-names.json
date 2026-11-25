@@ -1,5 +1,5 @@
 {
-  "about": "The map of docs/superpowers/specs/2026-11-20-material-3-names-design.md (contract 8), made in batches 1 and 2 of 0.19.6 (the CTO answers of 24 Nov 2026 applied) from check:m3-tokens --report and docs/m3-tokens/. tokens: old custom property → new (an array when one old token becomes several); classes: old class → new (an array: the new classes together, null: merged into the default); props: component → prop → old value → new (null: merged); reused: old names that come back with another meaning; valueFixes: each size whose value is not M3's, with M3's value (applied in the UI-fixes batch, not by the rename). Icons: lib/materialIconMap.mjs.",
+  "about": "The map of docs/superpowers/specs/2026-11-20-material-3-names-design.md (contract 8), made in batches 1 and 2 of 0.19.6 (the CTO answers of 24 Nov 2026 applied) from check:m3-tokens --report and docs/m3-tokens/. tokens: old custom property → new (an array when one old token becomes several); classes: old class → new (an array: the new classes together, null: merged into the default); props: component → prop → old value → new (null: merged); reused: old names that come back with another meaning; valueFixes: each size whose value is not M3's, with M3's value (applied in the UI-fixes batch, not by the rename). Icons: lib/materialIconMap.mjs. propNames: component (its exported name) → old prop → new prop (null: the prop is removed; {to, add}: renamed, and `add` put into its object literal), the removal of ListItem's `columns` (its leading and trailing props keep Material's names; docs/superpowers/specs/2026-11-24-card-list-item-api.md).",
   "tokens": {
     "--mo-comp-button-padding": ["--mo-comp-button-small-leading-space", "--mo-comp-button-small-trailing-space"],
     "--mo-comp-button-small-padding": ["--mo-comp-button-small-leading-space", "--mo-comp-button-small-trailing-space"],
@@ -119,6 +119,7 @@
     "--mo-sys-state-mo-dragged-layer": "--mo-sys-state-dragged-state-layer-color"
   },
   "classes": {
+    "mo-list__item-columns": null,
     "mo-bottom-sheet__drag-handle": "mo-sheet__drag-handle",
     "mo-bottom-sheet__header": "mo-sheet__header",
     "mo-side-sheet__headline": "mo-sheet__headline",
@@ -254,6 +255,9 @@
     "mo-time-picker__horizontal": "mo-is-horizontal",
     "mo-snackbar__longer-action": "mo-is-longer-action",
     "mo-segmented-button__label-hidden": "mo-is-label-hidden"
+  },
+  "propNames": {
+    "ListItem": { "columns": null }
   },
   "props": {
     "Button": {
