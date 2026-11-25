@@ -210,6 +210,22 @@ function Carousels() {
           />
         </div>
       </Shown>
+      <Shown label={say.layouts.multiAspect}>
+        <SiteCarousel
+          layout="multi-aspect-ratio"
+          label={say.roleDescription}
+          roleDescription={say.roleDescription}
+          itemRoleDescription={say.item}
+          items={numbers.map((n) => ({
+            key: String(n),
+            label: say.image(n),
+            // M3's four printed ratios in turn: 16:9, 9:16, 1:1, 3:4.
+            aspect: [16 / 9, 9 / 16, 1, 3 / 4][(n - 1) % 4],
+            focusable: true,
+            content: <Image n={n} />,
+          }))}
+        />
+      </Shown>
       <Shown label={say.layouts.multiBrowse}>{images('multi-browse')}</Shown>
       <Shown label={say.layouts.hero}>{images('hero')}</Shown>
       <Shown label={say.layouts.heroCenter}>{images('hero', 'center')}</Shown>
