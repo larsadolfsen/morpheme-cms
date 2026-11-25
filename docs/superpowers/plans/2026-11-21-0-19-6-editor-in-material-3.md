@@ -1,8 +1,6 @@
 # 0.19.6 The editor in Material 3 (plan)
 
-**The third batch of the 0.19.6 release** (owner, 22 Nov 2026; `plans/2026-11-22-one-release-per-line.md`): after the Material 3 names
-and Phosphor in the store, before the UI fixes (`plans/2026-11-22-0-19-7-ui-fixes.md`), with the same PM (`/pm 0.19.6`). The release is
-made once all four are on staging. Its first batch (0, the version) is done by the names batch, which sets `0.19.6`.
+**Part of 0.19.7** (owner, 25 Nov 2026: "wrap up and release this and then make a 0.19.7 with the rest"; `plans/2026-11-22-one-release-per-line.md`): branch `feature/0.19.7-ui-fixes`, PM `/pm 0.19.7`, beside Cards, the rest of Phosphor in the store and the UI fixes left (`plans/2026-11-22-0-19-7-ui-fixes.md`). Where this plan says 0.19.6, read 0.19.7. Its batch 0 (the version) is done by 0.19.7's first pull request, which sets `0.19.7`.
 
 Status: **21 November 2026.** Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md`, item 0.19.6. The audit it is built from:
 `specs/2026-11-21-editor-screens-m3-audit.md` (0.19.5 batch 14, #1120): 392 rows in 8 batches, and 110 rows of the page and post editor
