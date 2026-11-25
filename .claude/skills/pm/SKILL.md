@@ -72,6 +72,8 @@ it started still never merge their own pull requests.
 roadmap, the open pull requests in this repository and in `morpheme-staging`, and the owner's sessions (`list_sessions`). Start the
 one list of everything in flight (**Nothing left behind**) and keep it current.
 
+**A new contract moves every app and theme** (owner, 25 Nov 2026: "we update all apss when ever a new contract arrives"). The line that raises `APP_API` or `THEME_API` (`lib/contracts.mjs`) also moves every app and theme in `morpheme-apps` to the new contract, each with its next version and release note, in the same line, so the store offers all of them when the line is released.
+
 **The way of a change** (owner, 18 Nov 2026, `docs/superpowers/plans/2026-11-18-release-per-feature.md`; owner, 19 Nov 2026:
 branch → feature → `next` → live):
 
