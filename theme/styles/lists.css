@@ -15,19 +15,18 @@
      "every item but the first" (ui.css) drew a line above it only. Every item has its line and the list hides the first row's (clipped, and moved up by its width, so
      nothing else moves), whatever the number of columns (owner, 17 Nov 2026: "There are dividers that shouldn't be there"). */
   .mo-block-accordion:not(.mo-block-accordion__segmented) > li {
-    border-top: var(--mo-comp-list-expand-divider-width, 1px) solid
-      var(--mo-comp-list-expand-divider-default-color, var(--mo-comp-list-expand-divider, var(--mo-comp-block-line)));
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
   }
   .mo-block-accordion:not(.mo-block-accordion__segmented) {
-    clip-path: inset(var(--mo-comp-list-expand-divider-width, 1px) 0 0 0);
-    translate: 0 calc(-1 * var(--mo-comp-list-expand-divider-width, 1px));
+    clip-path: inset(var(--mo-comp-divider-thickness, 1px) 0 0 0);
+    translate: 0 calc(-1 * var(--mo-comp-divider-thickness, 1px));
   }
   /* No line against an open item: its own line above is its surface, and its surface covers the line of the item under it. */
   .mo-block-accordion:not(.mo-block-accordion__segmented) > li:has(> .mo-list__item-expand[open]) {
     position: relative;
     z-index: 1;
     border-top-color: transparent;
-    box-shadow: 0 var(--mo-comp-list-expand-divider-width, 1px) 0 var(--mo-sys-color-surface-container);
+    box-shadow: 0 var(--mo-comp-divider-thickness, 1px) 0 var(--mo-sys-color-surface-container);
   }
   /* The corners of a segmented list in columns: the list's corners (16dp) are on the first row's and the last row's items, the inner ones are small. The columns follow the
      list's own width (one from 0, two from 712px, three from 1080px: --mo-comp-block-list-column-min and the grid gutter, --mo-sys-grid-gutter), so it is right in the

@@ -16,7 +16,7 @@
     --mo-comp-menus-menu-item-label-text-weight, --mo-comp-menus-menu-item-label-text-tracking, --mo-comp-menu-list-item-label-text-color, --mo-comp-menu-item-icon-color, --mo-comp-menu-item-supporting-text,
     --mo-comp-menu-item-hover-surface, --mo-comp-menu-item-hover-text, --mo-comp-menu-item-pressed-surface, --mo-comp-menus-standard-menu-item-selected-container-color,
     --mo-comp-menus-standard-menu-item-selected-label-text-color, --mo-comp-menu-item-selected-weight, --mo-comp-menu-item-disabled-opacity
-    --mo-comp-menu-group-gap, --mo-comp-menus-menu-item-first-child-inner-corner-corner-size, --mo-comp-menu-group-label-text, --mo-comp-menu-divider-color, --mo-comp-menu-divider-margin
+    --mo-comp-menu-group-gap, --mo-comp-menus-menu-item-first-child-inner-corner-corner-size, --mo-comp-menu-group-label-text, --mo-comp-menu-divider-margin
     --mo-comp-menu-vibrant-surface, --mo-comp-menu-vibrant-text, --mo-comp-menu-vibrant-selected-surface, --mo-comp-menu-vibrant-selected-text
     --mo-comp-menu-submenu-gap, --mo-comp-dropdown-menu-gap   between a submenu and its item, and a dropdown menu and its button
   Exposed dropdown menu (ExposedDropdownMenu, exposedDropdownMenuClass): the theme's text field (.mo-text-field with its
@@ -213,7 +213,7 @@
   }
   .mo-menu__groups-divider > .mo-menu__group + .mo-menu__group {
     margin-top: var(--mo-comp-menu-divider-margin, 0.375rem);
-    border-top: 1px solid var(--mo-comp-menu-divider-color, var(--mo-comp-block-line));
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
     padding-top: var(--mo-comp-menu-divider-margin, 0.375rem);
   }
   .mo-menu__divider {

@@ -8,7 +8,6 @@
      the third elevation;
      vibrant in the primary colour. */
   --mo-comp-toolbar-docked-container-color: var(--mo-sys-color-surface-container);
-  --mo-comp-toolbar-docked-line-width: 0;
   --mo-comp-toolbar-docked-backdrop: none;
   --mo-comp-toolbar-floating-line: transparent;
   --mo-comp-toolbar-floating-container-shape: var(--mo-sys-shape-corner-full);

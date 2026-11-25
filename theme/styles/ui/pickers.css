@@ -14,7 +14,7 @@
   and .mo-date-picker__actions.
     --mo-comp-date-picker-width   how wide it is
     --mo-comp-date-picker-docked-container-shape, --mo-comp-date-picker-docked-shadow   a docked picker's corners and shadow (else the dialog's)
-    --mo-comp-date-picker-supporting-color, --mo-comp-date-picker-headline-size, --mo-comp-date-picker-headline-weight, --mo-comp-date-picker-line
+    --mo-comp-date-picker-supporting-color, --mo-comp-date-picker-headline-size, --mo-comp-date-picker-headline-weight
                      a modal picker's header: the line over the headline, the headline, and the line under the header
     --mo-comp-date-picker-menu-button-text, --mo-comp-date-picker-weekday-text   the month and year over the days, and the weekdays
     --mo-comp-date-picker-day-size, --mo-comp-date-picker-docked-date-container-shape, --mo-comp-date-picker-day-text, --mo-comp-date-picker-day-hover   a day (also a
@@ -126,7 +126,7 @@
   }
   .mo-date-picker__header {
     padding: 1rem 0.75rem 0.75rem 1.5rem;
-    border-bottom: 1px solid var(--mo-comp-date-picker-line, var(--mo-comp-block-line));
+    border-bottom: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
   }
   .mo-date-picker__supporting-text {
     margin: 0;
@@ -590,7 +590,7 @@
       color var(--mo-sys-motion-spring-default-effects);
   }
   .mo-time-picker__period-button + .mo-time-picker__period-button {
-    border-top: 1px solid var(--mo-comp-time-picker-period-line, var(--mo-comp-block-line));
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
   }
   .mo-time-picker__period-button:hover {
     background: color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent);
@@ -632,7 +632,7 @@
   }
   :where(.mo-time-picker).mo-is-horizontal .mo-time-picker__selector .mo-time-picker__period-button + .mo-time-picker__period-button {
     border-top: 0;
-    border-inline-start: 1px solid var(--mo-comp-time-picker-period-line, var(--mo-comp-block-line));
+    border-inline-start: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
   }
   :where(.mo-time-picker).mo-is-horizontal[data-view='dial'] .mo-time-picker__dial {
     margin-top: 0;

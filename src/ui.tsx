@@ -346,8 +346,8 @@ const closeToolbar = {
   '--mo-comp-toolbar-gap': '0',
   '--mo-comp-toolbar-docked-padding-block': '0',
   '--mo-comp-toolbar-docked-padding-inline': '0',
-  '--mo-comp-toolbar-docked-line-width': '1px',
-  '--mo-comp-toolbar-docked-line': 'var(--mo-sys-color-outline-variant)',
+  '--mo-comp-divider-thickness': '1px',
+  '--mo-comp-divider-color': 'var(--mo-sys-color-outline-variant)',
 } as CSSProperties;
 
 // A tool's size in the text's bar: 44 by 44 dp with a 20 dp icon, outside the user's density choice (owner decision, 13 Nov; docs/material-deviations.md).

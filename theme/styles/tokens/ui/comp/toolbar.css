@@ -2,7 +2,7 @@
 
 @layer components {
   :where(.mo-toolbar).mo-is-vibrant {
-    --mo-comp-toolbar-docked-line: transparent;
+    --mo-comp-divider-color: transparent;
     --mo-comp-toolbar-floating-line: transparent;
   }
 }

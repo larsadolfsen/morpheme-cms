@@ -39,8 +39,7 @@
   handle and the header; half-expanded, at most half as high as the screen; expanded, as high as what it shows, but
   not to the top; hidden), data-moving while it is dragged or moves, data-full while it is expanded and as high as it
   can be (the collapse button shows only then).
-    --mo-comp-bottom-sheet-surface, --mo-comp-sheet-bottom-docked-container-shape, --mo-comp-sheet-bottom-line   its surface (also the cover's), corners, and
-                     the lines under the header and over the footer
+    --mo-comp-bottom-sheet-surface, --mo-comp-sheet-bottom-docked-container-shape   its surface (also the cover's), corners
     --mo-comp-bottom-sheet-shadow, --mo-comp-bottom-sheet-shadow-large   its shadow on a phone (and a standard one's; level 1), and as
                      a dialog from the medium width (level 3)
     --mo-comp-sheet-bottom-scrim   the shade over the page behind a modal one

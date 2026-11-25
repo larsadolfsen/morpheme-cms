@@ -32,8 +32,8 @@ test('a checklist row keeps the list item padding, not 0', () => {
 });
 
 test('a plain List - Expand has no line between items in Material', () => {
-  assert.match(list, /--mo-comp-list-expand-divider-default-color: transparent;/);
+  assert.match(read('./material/dividers.css'), /\.mo-list__expand > li \+ li/);
   for (const p of ['./lists.css', './ui/list.css']) {
-    assert.match(read(p), /var\(--mo-comp-list-expand-divider-default-color, var\(--mo-comp-list-expand-divider,/);
+    assert.match(read(p), /var\(--mo-comp-divider-color, var\(--mo-comp-block-line\)\)/);
   }
 });

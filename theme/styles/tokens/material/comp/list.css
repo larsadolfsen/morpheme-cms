@@ -15,9 +15,6 @@
      container. Segmented: 2px between the items, the list's outer corners medium (12px), each item on a surface
      container (a step up from the page; the editor puts the items on the surface over a container page, as Material's
      spec does, editor.css). */
-  --mo-comp-list-divider-color: var(--mo-sys-color-outline);
-  --mo-comp-list-divider-default-color: transparent;
-  --mo-comp-list-expand-divider-default-color: transparent;
   --mo-comp-list-list-item-container-height: 3.5rem;
   --mo-comp-list-md-comp-list-list-item-two-line-container-height: 4.5rem;
   --mo-comp-list-md-comp-list-list-item-three-line-container-height: 5.5rem;
@@ -68,7 +65,6 @@
     --mo-comp-list-expand-gap: 0.125rem;
     --mo-comp-list-expand-item-surface: var(--mo-sys-color-surface-container);
     --mo-comp-list-expand-item-radius: var(--mo-sys-shape-corner-extra-small);
-    --mo-comp-list-expand-divider-width: 0px;
     --mo-comp-list-expand-padding-inline: 1rem;
     --mo-comp-list-expand-open-radius: var(--mo-sys-shape-corner-large);
     --mo-comp-list-expand-icon-open-surface: var(--mo-sys-color-surface-container-high);

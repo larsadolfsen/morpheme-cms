@@ -24,9 +24,9 @@ import { bodyLargeSchema } from './bodyLarge.mjs';
 import { bodyMediumSchema, bodySmallSchema } from './bodySize.mjs';
 import { eyebrowKeymap, eyebrowSchema } from './eyebrow.mjs';
 
-// Write Markdown the way imported files are written: "-   " bullets and
-// "* * *" rules, so a save changes as few lines as possible.
-const stringify = { bullet: '-', listItemIndent: 'tab', rule: '*', ruleSpaces: true };
+// Write Markdown the way imported files are written: "-   " bullets, and a rule as "---" (the Divider that Insert puts in, the same line
+// the site draws with the Divider part).
+const stringify = { bullet: '-', listItemIndent: 'tab', rule: '-', ruleSpaces: false };
 
 // The site's blocks in the text (packages/editor/lib/blocks.mjs), read from and written back as their line of HTML.
 // Milkdown puts HTML at the top of the text in a paragraph; a paragraph that is only a block becomes

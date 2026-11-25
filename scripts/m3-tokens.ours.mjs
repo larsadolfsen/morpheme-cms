@@ -37,11 +37,6 @@ export const ours = [
     reason: "The status badge of the editor's lists (ok, minor, major); not M3's badge, which is a count or dot.",
   },
   {
-    token: '--mo-comp-sheet-bottom-line',
-    reason:
-      "The part's outline or divider in our own words; M3 names it per state (outline, active-indicator) and the mapping is not read yet.",
-  },
-  {
     token: '--mo-comp-sheet-bottom-scrim',
     reason: 'The scrim of this part; M3 holds one scrim role (md.sys.color.scrim) and prints no token per part.',
   },
@@ -254,15 +249,6 @@ export const ours = [
     token: '--mo-comp-icon-button-outlined-surface',
     reason:
       'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
-  },
-  {
-    token: '--mo-comp-list-expand-divider-default-color',
-    reason:
-      'The divider of an expandable list, in our own words (a colour per list kind); M3 has one md.comp.list.divider.color and the mapping is not read yet; to review in the lists batch.',
-  },
-  {
-    token: '--mo-comp-list-divider-default-color',
-    reason: 'No M3 token of this name or role found in docs/m3-tokens/; to review in the component batch.',
   },
   {
     token: '--mo-comp-list-item-disabled-opacity',
@@ -753,11 +739,6 @@ export const ours = [
       'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
   },
   { token: '--mo-comp-toolbar-docked-backdrop', reason: "The part's backdrop blur or filter; M3 prints none." },
-  {
-    token: '--mo-comp-toolbar-docked-line-width',
-    reason:
-      "The part's outline or divider in our own words; M3 names it per state (outline, active-indicator) and the mapping is not read yet.",
-  },
   {
     token: '--mo-comp-toolbar-floating-line',
     reason:

@@ -235,7 +235,7 @@
   /* A part of a panel under a line (over the part's own margin and padding: a list, the facts). */
   :is(.mo-block-panel, .mo-block-panel > .mo-card__body > .mo-card__content) > .mo-block-panel__part {
     margin-top: 1.25rem;
-    border-top: 1px solid var(--mo-comp-block-line);
+    border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
     padding-top: 1.25rem;
   }
   /* Only on phones and tablets (a block a site shows beside the text on a computer). */

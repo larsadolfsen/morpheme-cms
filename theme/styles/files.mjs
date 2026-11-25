@@ -63,6 +63,7 @@ export const MATERIAL_FILES = [
   'material/prose-testimonial.css',
   'material/navigation.css',
   'material/footer.css',
+  'material/dividers.css',
 ];
 
 /** The other CSS files base.css imports, which are not parts of ui.css. */
