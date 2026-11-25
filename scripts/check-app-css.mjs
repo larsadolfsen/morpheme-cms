@@ -1,5 +1,5 @@
 // What the scoped app CSS (lib/appCss.mjs, docs/superpowers/specs/2026-11-20-scoped-app-css-design.md) would rename or refuse in each app. Batch 0 and 1: it only
-// reports and never fails (`--report` is the only mode), so the owner's apps and a site's apps are known before the contract changes. Per app, it lists
+// reports and never fails (`--report` is the only mode; `check:content` is what refuses, from contract 8), so the owner's apps and a site's apps are known before the contract changes. Per app, it lists
 //   renamed   the private custom properties, keyframes, font families and layers the build renames,
 //   refused   what the contract's check will refuse (batch 2): a rule on :root, html or body; a private custom property set or read from code
 //             (`style` objects, setProperty, getPropertyValue, a `var(--mo-…)` string in View.tsx or script.ts); an attribute selector on `data-mo-app`,

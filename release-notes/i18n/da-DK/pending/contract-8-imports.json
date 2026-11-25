@@ -1,0 +1,6 @@
+{
+  "id": "contract-8-imports",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Apps og temaer importerer kun fra en offentlig liste over CMS’ets filer; et tjek nævner enhver anden import med den nærmeste tilladte"
+}
