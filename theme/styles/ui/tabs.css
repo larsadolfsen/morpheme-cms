@@ -5,7 +5,7 @@
   Without a kind only the label, the open one's in its own colour (the bar of "Mobile menu"); with one, the divider under
   the row and the indicator under the open tab: .mo-tabs.mo-is-primary (each icon over its label, beside it with .mo-tabs.mo-is-inline; the
   indicator under the label) or .mo-tabs.mo-is-secondary (the icon beside the label; the indicator under the whole tab). In a top
-  app bar (the editor's screens) the bar's line (--mo-comp-top-app-bar-line) is the divider.
+  app bar (the editor's screens) the row keeps its own divider: M3 prints one under every tab row, and the Material bar draws no line.
     --mo-comp-tabs-height, --mo-comp-tabs-padding, --mo-comp-tabs-font-size, --mo-comp-tabs-weight, --mo-comp-tabs-text, --mo-comp-tabs-hover-surface, --mo-comp-tabs-hover-text,
     --mo-comp-tabs-selected-text
     --mo-comp-tabs-stacked-height   a primary tab with its icon over its label
@@ -173,10 +173,6 @@
   :where(.mo-tabs).mo-is-fixed :is(.mo-tabs__tab-content, .mo-tabs__tab-label) {
     min-width: 0;
     max-width: 100%;
-  }
-  /* In a top app bar (the editor's: the tabs of a screen), the bar's line is the divider under the tabs. */
-  .mo-top-app-bar .mo-tabs:is(:where(.mo-tabs).mo-is-primary, :where(.mo-tabs).mo-is-secondary) {
-    box-shadow: none;
   }
   @media (prefers-reduced-motion: reduce) {
     :where(.mo-tabs).mo-is-primary .mo-tabs__tab-content::after,
