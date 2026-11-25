@@ -179,6 +179,33 @@ button group; the **navigation drawer**, **FAB small, surface and branded**, **b
 **bottom app bar** and the **divided/baseline list and menu** are marked "not recommended" or deprecated by M3 itself, so
 their absence (or presence) is not a gap.
 
+## Decided 25 Nov 2026
+
+The owner decided the split (relayed by the PM of 0.19.6). Gap numbers are those of the table above.
+
+**Build now, in 0.19.6**
+
+- Scroll time picker (gap 2; another session is building it).
+- Scroll fields (gap 2).
+- Carousel layout "uncontained multi-aspect ratio" (gap 5; a session has started).
+
+**Saved for later, not built now**
+
+| Gap | One line | Size | Tokens that already exist |
+| :--- | :--- | :--- | :--- |
+| Medium button size (`Button`, `SplitButton`, `ButtonGroup`) | `buttonSizes` has no `medium`. | small | `md.comp.button.medium` in `docs/m3-tokens/` |
+| Autocomplete | Menus "Filtering": a text field that filters a menu. Already in the forms note. | medium | `md.comp.filled-autocomplete`, `md.comp.outlined-autocomplete` |
+| Button group selection modes | Single, multi and selection-required as a group prop, not per block. | medium | none found |
+| Search divided style | Only reachable by overriding two tokens today. | small | the search tokens (`search.css:154`, `:201`) |
+| Docked toolbar with embedded primary action | `fab` is described for floating only; not verified. | small | the toolbar tokens |
+| Swipe to reveal on list items | Lists "List interactions"; no reveal in `List.tsx`. | medium | `md.comp.list.reveal` |
+| Context menu | Right-click menu; no screen asks for one. | medium | none found |
+| Image in a text field | Optional leading image; low value. | small | none found |
+| Custom dialog position | Not checked in the code. | not checked | none found |
+| Side sheet on the left edge (right-to-left) | Not checked in the code. | not checked | none found |
+
+Voice input and list reorder stay not applicable.
+
 ## Not checked, not printed, or not readable
 
 - All 148 component pages and both index pages loaded; none failed to read.
