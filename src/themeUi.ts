@@ -67,7 +67,7 @@ export { Tabs as SiteTabs, Tab as SiteTab, tabsClass as siteTabsClass, tabClass 
 export { Fab as SiteFab, ExtendedFab as SiteExtendedFab, fabKinds, fabSizes, extendedFabSizes } from '@theme/ui/Fab';
 /** The theme's action parts (button groups, segmented buttons, choice groups, split buttons, the FAB menu), for "Parts" › "UI components"
  * (ActionParts.tsx). */
-export { default as SiteButtonGroup, buttonGroupKinds } from '@theme/ui/ButtonGroup';
+export { default as SiteButtonGroup, buttonGroupKinds, buttonGroupSelections } from '@theme/ui/ButtonGroup';
 export { default as SiteSegmentedButton } from '@theme/ui/SegmentedButton';
 export { default as SiteChoiceGroup, type Choice as SiteChoice } from '@theme/ui/ChoiceGroup';
 export { default as SiteSplitButton, splitButtonKinds } from '@theme/ui/SplitButton';

@@ -13,6 +13,7 @@ import {
   SiteMenuItem,
   SiteSplitButton,
   buttonGroupKinds,
+  buttonGroupSelections,
   buttonShapes,
   buttonSizes,
   iconButtonSizes,
@@ -86,6 +87,25 @@ export default function ActionParts() {
                 </SiteButtonGroup>
               </div>
             ))}
+            {buttonGroupSelections.map((selection) => (
+              <div key={selection} className={row} role="group" aria-label={say.selections[selection]}>
+                {buttonGroupKinds.map((kind) => (
+                  <SiteButtonGroup
+                    key={kind}
+                    kind={kind}
+                    selection={selection}
+                    defaultValue={selection === 'multiple' ? [say.views[0], say.views[2]] : [say.views[1]]}
+                    label={say.selections[selection]}
+                  >
+                    {say.views.map((view) => (
+                      <SiteButton key={view} kind="outlined" value={view}>
+                        {view}
+                      </SiteButton>
+                    ))}
+                  </SiteButtonGroup>
+                ))}
+              </div>
+            ))}
             {iconButtonSizes.map((size) => (
               <div key={size} className={row} role="group" aria-label={sizes[size]}>
                 <SiteButtonGroup kind="connected" label={say.mode}>
@@ -95,7 +115,7 @@ export default function ActionParts() {
                 </SiteButtonGroup>
                 <SiteButtonGroup label={say.group}>
                   {say.views.map((view, i) => (
-                    <SiteButton key={view} size={size === 'medium' ? undefined : size} selected={i === 1}>
+                    <SiteButton key={view} size={size} selected={i === 1}>
                       {view}
                     </SiteButton>
                   ))}

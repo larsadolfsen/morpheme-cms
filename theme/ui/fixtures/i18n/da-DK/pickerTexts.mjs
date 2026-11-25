@@ -16,4 +16,5 @@ export function expectDanish(assert, datePickerTextsIn, timePickerTextsIn, danis
   assert.equal(t.wrong12, 'Skriv et tidspunkt mellem 1.00 og 12.59.');
   assert.equal(t.period, 'Før eller efter middag');
   assert.equal(t.toDial, 'Skift til urskiven');
+  assert.equal(t.toScroll, 'Skift til at rulle');
 }

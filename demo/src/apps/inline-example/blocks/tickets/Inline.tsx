@@ -19,7 +19,7 @@ export default function Inline({ items, active, focus, onChange }: InlineViewPro
           aria-current={here ? 'true' : undefined}
           aria-label={next ? 'New ticket' : `Ticket ${i + 1} of ${items.length}`}
           className={[
-            'mo-block-tickets__row',
+            'row',
             'mo-editor-inline-list-row',
             here && 'mo-editor-inline-list-row-active',
             next && 'mo-editor-inline-list-row-next',

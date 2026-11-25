@@ -99,6 +99,7 @@ export const common = {
     period: 'AM or PM',
     toInput: 'Switch to typing',
     toDial: 'Switch to the clock',
+    toScroll: 'Switch to scrolling',
     cancel: 'Cancel',
     ok: 'OK',
   },

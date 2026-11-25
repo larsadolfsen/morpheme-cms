@@ -1,0 +1,12 @@
+{
+  "type": "kind-dialog",
+  "enabled": true,
+  "heading": "Kind dialog",
+  "text": "A promotion of the demo's own app.",
+  "where": "all",
+  "trigger": "time",
+  "delay": "30",
+  "button": "page",
+  "label": "Home",
+  "href": "/"
+}
