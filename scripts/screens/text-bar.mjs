@@ -303,8 +303,10 @@ async function checkTextBar(width = 360) {
   await page.waitForTimeout(100);
   const idle = await readBar();
   // Idle: Preview, then Undo, Redo, Insert block at the right end, no divider and no ⋮ (a new page: no View on site).
-  if (idle.names.join() !== 'Preview,Undo,Redo,Insert block')
-    problems.push(`${label}: idle the bar has ${idle.names.join()}, not Preview, Undo, Redo, Insert block`);
+  // The helping-lines button is a spare tool: it is on the idle bar when there is room, else in the ⋮.
+  const idleNames = idle.names.filter((n) => n !== 'Hide helping lines' && n !== 'Show helping lines');
+  if (idleNames.join() !== 'Preview,Undo,Redo,Insert block')
+    problems.push(`${label}: idle the bar has ${idle.names.join()}, not Preview, Undo, Redo, Insert block (and the helping-lines button)`);
   const idleEnded = rightEndProblem(idle.names, idle.lastRight, idle.barRight - 1, idle.divider);
   if (idleEnded) problems.push(`${label}: idle: ${idleEnded}`);
   if (Math.abs(idle.height - inText.height) > 0.6)
@@ -694,8 +696,11 @@ async function checkTextBarWide() {
   for (const name of ['Bold', 'Italic', 'Text style', 'List', 'Alignment', 'Link', 'Undo', 'Redo', 'Insert block'])
     if (!got.names.some((n) => n === name || n.startsWith(`${name}:`)))
       problems.push(`1280px text bar: ${name} is not on the bar (${got.names.join(', ')})`);
-  if (got.names.includes('More') && rows.some((r) => !['Preview', 'Color', 'Divider'].includes(r)))
-    problems.push(`1280px text bar: the ⋮ holds more than Preview, Color and Divider (${rows.join(', ')})`);
+  if (
+    got.names.includes('More') &&
+    rows.some((r) => !['Preview', 'Color', 'Divider', 'Hide helping lines', 'Show helping lines'].includes(r))
+  )
+    problems.push(`1280px text bar: the ⋮ holds more than Preview, Color, Divider and the helping-lines button (${rows.join(', ')})`);
   if (got.height < 44 || got.height > 46 || got.small || got.scrolls || got.divider)
     problems.push(
       `1280px text bar: height ${got.height}, ${got.small} buttons not 44 x 44, scrolls ${got.scrolls}, divider ${got.divider} (none wanted)`,
@@ -961,7 +966,7 @@ async function checkDividerBlock(width) {
   const bar = () => page.evaluate(() => [...document.querySelectorAll('.mo-editor-tools button')].map((b) => b.getAttribute('aria-label')));
   const state = () =>
     page.evaluate(() => {
-      const card = document.querySelector('.mo-editor-divider .mo-site-block-card');
+      const card = document.querySelector('.mo-editor-text .mo-site-block-card');
       return {
         cards: document.querySelectorAll('.mo-editor-divider').length,
         pressed: card?.getAttribute('aria-pressed'),
@@ -1016,9 +1021,11 @@ async function checkHelpingLines(width) {
   });
   await page.waitForSelector('.ProseMirror');
   await page.click('.ProseMirror');
-  for (const line of ['Intro', '## Alpha', 'Alpha text', '## Beta', 'Beta text']) {
+  // The first heading of a page is its main heading, and the first section has no line above it: three sections follow, so one rests with a line.
+  const typed = ['Intro', '## Alpha', 'Alpha text', '## Beta', 'Beta text', '## Gamma', 'Gamma text', '## Delta', 'Delta text'];
+  for (const line of typed) {
     await page.keyboard.type(line);
-    if (line !== 'Beta text') await page.keyboard.press('Enter');
+    if (line !== typed.at(-1)) await page.keyboard.press('Enter');
   }
   await page.waitForTimeout(400);
   const bar = () => page.evaluate(() => [...document.querySelectorAll('.mo-editor-tools button')].map((b) => b.getAttribute('aria-label')));
@@ -1044,9 +1051,9 @@ async function checkHelpingLines(width) {
   };
   const names = await bar();
   const at = names.indexOf('Hide helping lines');
-  if (width >= 1000 && !(at >= 0 && at < names.indexOf('Undo')))
+  if (at >= 0 && at > names.indexOf('Undo'))
     problems.push(`${label}: Hide helping lines is not on the bar before Undo (${names.join(', ')})`);
-  if (width < 600 && at < 0) {
+  if (at < 0) {
     await page.click('.mo-editor-tools [aria-label="More"]');
     if (!(await page.locator('[role=menu] [role^=menuitem]:has-text("Hide helping lines")').count()))
       problems.push(`${label}: Hide helping lines is neither on the bar nor in the ⋮`);
@@ -1069,7 +1076,12 @@ async function checkHelpingLines(width) {
   const stored = await page.evaluate(() => localStorage.getItem('mo-editor-guides'));
   if (stored !== 'off') problems.push(`${label}: the choice is not kept for the viewer (${stored})`);
   // The editor opened again (a second page of the same browser) starts with the lines hidden.
-  const again = await browser.newPage({ viewport: { width, height: 900 }, locale: 'en-US' });
+  const reopenedContext = await browser.newContext({
+    storageState: await page.context().storageState(),
+    viewport: { width, height: 900 },
+    locale: 'en-US',
+  });
+  const again = await reopenedContext.newPage();
   again.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(again, site);
   await again.evaluate(() => (location.hash = '#new/pages'));
@@ -1077,30 +1089,37 @@ async function checkHelpingLines(width) {
   await again.waitForTimeout(300);
   const reopened = await again.evaluate(() => document.querySelector('.mo-editor-text-box')?.getAttribute('data-guides'));
   if (reopened !== 'off') problems.push(`${label}: the lines come back after the editor is opened again (${reopened})`);
-  await again.close();
+  await reopenedContext.close();
   await page.click('.ProseMirror');
-  if (!(await bar()).includes('Show helping lines') && width >= 1000)
-    problems.push(`${label}: the button is not named Show helping lines while the lines are hidden`);
-  // A Divider block's dotted frame follows the same switch: gone at rest, back on hover.
-  await page.keyboard.type('Gamma');
-  await press('Divider');
+  if (!(await bar()).includes('Show helping lines')) {
+    await page.click('.mo-editor-tools [aria-label="More"]');
+    if (!(await page.locator('[role=menu] [role^=menuitem]:has-text("Show helping lines")').count()))
+      problems.push(`${label}: the button is not named Show helping lines while the lines are hidden`);
+    await page.keyboard.press('Escape');
+  }
+  // A block's dotted frame follows the same switch: gone at rest, back on hover and after Show.
+  await page.keyboard.type('Epsilon');
+  await page.keyboard.press('Enter');
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
+  await page.locator('.ProseMirror p').first().click();
+  await page.waitForTimeout(300);
   const frame = () =>
     page.evaluate(() => {
-      const card = document.querySelector('.mo-editor-divider .mo-site-block-card');
+      const card = document.querySelector('.mo-editor-text .mo-site-block-card');
       return card ? getComputedStyle(card).borderBlockStartColor : null;
     });
   await page.mouse.move(0, 0);
   await page.waitForTimeout(400);
-  if ((await frame()) !== clear)
-    problems.push(`${label}: a Divider block keeps its resting frame with the lines hidden (${await frame()})`);
-  await page.hover('.mo-editor-divider .mo-site-block-card');
+  if ((await frame()) !== clear) problems.push(`${label}: a block keeps its resting frame with the lines hidden (${await frame()})`);
+  await page.hover('.mo-editor-text .mo-site-block-card');
   await page.waitForTimeout(400);
-  if (!(await frame()) || (await frame()) === clear)
-    problems.push(`${label}: a hovered Divider block shows no frame with the lines hidden`);
+  if (!(await frame()) || (await frame()) === clear) problems.push(`${label}: a hovered block shows no frame with the lines hidden`);
   await page.mouse.move(0, 0);
   await press('Show helping lines');
   await page.waitForTimeout(400);
-  if ((await frame()) === clear) problems.push(`${label}: a Divider block has no frame after Show helping lines`);
+  if ((await frame()) === clear) problems.push(`${label}: a block has no frame after Show helping lines`);
   if ((await page.evaluate(() => localStorage.getItem('mo-editor-guides'))) !== 'on')
     problems.push(`${label}: Show helping lines did not keep the choice`);
   await page.close();
