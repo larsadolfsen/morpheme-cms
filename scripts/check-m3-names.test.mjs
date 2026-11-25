@@ -12,6 +12,7 @@ import {
   inList,
   loadM3Names,
   plainName,
+  problems,
   selectorClasses,
   sourceFiles,
   staleOurs,
@@ -130,4 +131,26 @@ test('the repository has no token or class that is neither M3, renamed, ours nor
   assert.deepEqual(t.unknown, []);
   assert.deepEqual(c.unknown, []);
   assert.match(formatReport({ tokens: t, classes: c, map, ours, stale: [] }), /Tokens \(\d+\)/);
+});
+
+test('problems: unknown, old and stale names fail; a reused M3 name and a clean report do not', () => {
+  const fake = { tokens: new Set(['--mo-comp-reused']) };
+  const clean = { tokens: { unknown: [], renamed: [] }, classes: { unknown: [], renamed: [] }, stale: [] };
+  assert.deepEqual(problems(clean, fake), []);
+  const found = problems(
+    {
+      tokens: { unknown: ['--mo-comp-x'], renamed: ['--mo-comp-old', '--mo-comp-reused'] },
+      classes: { unknown: ['mo-y'], renamed: ['mo-old'] },
+      stale: ['--mo-comp-z'],
+    },
+    fake,
+  );
+  assert.equal(found.length, 5);
+  assert.ok(found.some((p) => p.startsWith('token --mo-comp-old')));
+  assert.ok(!found.some((p) => p.includes('--mo-comp-reused')));
+});
+
+test('the repository passes check:m3-names (no --report)', async () => {
+  const { execFileSync } = await import('node:child_process');
+  execFileSync('node', [fileURLToPath(new URL('./check-m3-names.mjs', import.meta.url))], { cwd: root, stdio: 'pipe' });
 });

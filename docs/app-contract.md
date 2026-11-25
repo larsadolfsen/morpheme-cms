@@ -133,6 +133,107 @@ Custom colors (a site that sets Primary, Secondary and Tertiary itself) add opti
 
 The version functions (`publish`, `schedule`, `unpublish`, `discard` and `saveDraft`, with a version id) are in `@morphemecms/cms/lib/versions.mjs`. An app's `editor.ts` and Worker part have full access and import them like any module; a hook or after-build step may not, as it is not one of the three above.
 
+### Public imports
+
+Contract 8 lists what a theme or an app may import from `@morphemecms/cms`. The list is `PUBLIC_IMPORTS` in `lib/public-imports.mjs`, and this section carries the same list (`npm run check:imports` fails if they differ). 0.21.1 pre-builds the editor, and theme and app editor code is then built apart and meets the editor through an import map made from this list, so only these specifiers are there. Any other path of `@morphemecms/cms` (screens, `src/store`, `src/ui`, `src/registry`, `pages/`, `worker/`), any `virtual:*` module and any deeper path into a standard block than the files named here is refused: `check:imports` names the file, the line, the specifier and the nearest allowed one, and the store does not offer an item that imports outside the list at contract 8. Adding a specifier later is additive; removing or moving one raises the contract.
+
+A theme or an app also imports its own parts and data: `@theme/ui/…`, `@theme/blocks/…`, `@theme/components/…`, `@theme/layouts/…`, `@theme/editor/…`, `@site/…`, `@data/…`, `@app/self` and relative paths. They are not CMS modules and are not in the list. The theme's shared parts are there for an app block too, by Material 3's names: for example the divider (`@theme/ui/Divider`: `Divider`, `dividerClass`; the class `.mo-divider` with `.mo-is-inset`, `.mo-is-middle-inset` and `.mo-is-vertical`; the tokens `--mo-comp-divider-thickness` and `--mo-comp-divider-color`). A hook or an after-build step still imports only the three modules of *Imports*.
+
+**The blocks' contract: the standard blocks' views and loaders, and the files that draw a block.**
+
+- `@morphemecms/cms/src/standard/view`
+- `@morphemecms/cms/src/standard/Block.astro`
+- `@morphemecms/cms/src/standard/head`
+- `@morphemecms/cms/src/standard/views`
+- `@morphemecms/cms/src/standard/sites`
+- `@morphemecms/cms/src/standard/load`
+- `@morphemecms/cms/src/standard/appScope`
+- `@morphemecms/cms/src/blocks`
+- `@morphemecms/cms/src/inline`
+- `@morphemecms/cms/src/standard/buttons/view`
+- `@morphemecms/cms/src/standard/buttons/load`
+- `@morphemecms/cms/src/standard/buttons/fields`
+- `@morphemecms/cms/src/standard/cards/view`
+- `@morphemecms/cms/src/standard/cards/load`
+- `@morphemecms/cms/src/standard/checklist/view`
+- `@morphemecms/cms/src/standard/checklist/load`
+- `@morphemecms/cms/src/standard/cookies/view`
+- `@morphemecms/cms/src/standard/cookies/load`
+- `@morphemecms/cms/src/standard/expand/view`
+- `@morphemecms/cms/src/standard/expand/load`
+- `@morphemecms/cms/src/standard/imagegrid/view`
+- `@morphemecms/cms/src/standard/imagegrid/load`
+- `@morphemecms/cms/src/standard/imagegrid/filter.mjs`
+- `@morphemecms/cms/src/standard/list/view`
+- `@morphemecms/cms/src/standard/list/load`
+- `@morphemecms/cms/src/standard/list/leading`
+- `@morphemecms/cms/src/standard/notice/view`
+- `@morphemecms/cms/src/standard/notice/load`
+- `@morphemecms/cms/src/standard/posts/view`
+- `@morphemecms/cms/src/standard/posts/load`
+- `@morphemecms/cms/src/standard/pricecards/view`
+- `@morphemecms/cms/src/standard/pricecards/load`
+- `@morphemecms/cms/src/standard/steps/view`
+- `@morphemecms/cms/src/standard/steps/load`
+- `@morphemecms/cms/src/standard/table/view`
+- `@morphemecms/cms/src/standard/table/load`
+- `@morphemecms/cms/src/standard/testimonials/view`
+- `@morphemecms/cms/src/standard/testimonials/load`
+- `@morphemecms/cms/src/standard/video/view`
+- `@morphemecms/cms/src/standard/video/load`
+
+**Icons and texts.**
+
+- `@morphemecms/cms/src/icon`
+- `@morphemecms/cms/src/iconColor`
+- `@morphemecms/cms/src/i18n`
+
+**The site's files.**
+
+- `@morphemecms/cms/site/site`
+- `@morphemecms/cms/site/content`
+- `@morphemecms/cms/site/images.mjs`
+- `@morphemecms/cms/site/standardPages`
+- `@morphemecms/cms/site/popups`
+- `@morphemecms/cms/site/noindex.mjs`
+- `@morphemecms/cms/site/social.mjs`
+- `@morphemecms/cms/site/sections`
+- `@morphemecms/cms/site/schema`
+- `@morphemecms/cms/site/home`
+- `@morphemecms/cms/site/format`
+- `@morphemecms/cms/site/text`
+- `@morphemecms/cms/site/templates`
+- `@morphemecms/cms/site/seo`
+- `@morphemecms/cms/site/pageColors`
+- `@morphemecms/cms/site/motion`
+- `@morphemecms/cms/site/consent`
+- `@morphemecms/cms/site/categories`
+- `@morphemecms/cms/site/apps`
+- `@morphemecms/cms/site/defineSite.mjs`
+
+**Helpers.**
+
+- `@morphemecms/cms/lib/motion`
+- `@morphemecms/cms/lib/breakpoints.mjs`
+- `@morphemecms/cms/lib/snackbar`
+- `@morphemecms/cms/lib/sheet-stops.mjs`
+- `@morphemecms/cms/lib/menuTypeAhead.mjs`
+- `@morphemecms/cms/lib/inline`
+- `@morphemecms/cms/lib/eyebrow.mjs`
+- `@morphemecms/cms/lib/cookieCategories.mjs`
+- `@morphemecms/cms/lib/blocks.mjs`
+- `@morphemecms/cms/lib/text-sections.mjs`
+- `@morphemecms/cms/lib/status.mjs`
+- `@morphemecms/cms/lib/page-template.mjs`
+- `@morphemecms/cms/lib/lead.mjs`
+- `@morphemecms/cms/lib/enterKey.mjs`
+- `@morphemecms/cms/lib/drawerKeys.mjs`
+- `@morphemecms/cms/lib/crop.mjs`
+- `@morphemecms/cms/lib/colors`
+- `@morphemecms/cms/lib/dynamic-colors`
+- `@morphemecms/cms/lib/hooks`
+- `@morphemecms/cms/lib/versions.mjs`
+
 ### Limits
 
 | Run | Time | Memory | Output |
