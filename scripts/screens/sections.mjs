@@ -359,6 +359,61 @@ async function checkFullWidthSection() {
   }
 }
 
+/** The dotted line at the start of a text section (never the first one) runs edge to edge of the text field, while the text keeps its page
+ * margin; a coloured section's box is unchanged (inset, with corners). At 375 and 1280 px. */
+async function checkSectionLine() {
+  for (const width of [375, 1280]) {
+    const label = `${width}px section line`;
+    const page = await browser.newPage({ viewport: { width, height: 740 }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    const path = BUILT_PAGE;
+    const text = `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n## Alpha\n\nAlpha body.\n\n## Beta\n\nBeta body.\n`;
+    await openEditor(page, site, { [path]: text });
+    await page.goto(`${site}/editor/#${path}`);
+    await page.waitForSelector('.ProseMirror [data-section-part="start"]', { timeout: 30_000 });
+    const got = await page.evaluate(() => {
+      const pm = document.querySelector('.ProseMirror');
+      const field = pm.closest('.mo-editor-text');
+      const f = field.getBoundingClientRect();
+      const border = (n) => parseFloat(getComputedStyle(field)[n]);
+      const start = pm.querySelector('[data-section-part="start"]');
+      const line = start.getBoundingClientRect();
+      const style = getComputedStyle(start);
+      const textLeft = (el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        return range.getBoundingClientRect().left;
+      };
+      const intro = pm.querySelector('p');
+      const out = {
+        style: style.borderBlockStartStyle,
+        left: line.left - f.left - border('borderLeftWidth'),
+        right: f.right - border('borderRightWidth') - line.right,
+        shift: textLeft(start) - textLeft(intro),
+        first: start === pm.firstElementChild,
+      };
+      // With a section colour the box is as before: inset, with corners.
+      for (const el of [...pm.children]) {
+        el.setAttribute('data-section-color', 'primary');
+        el.setAttribute('data-section-box', 'only');
+      }
+      const box = start.getBoundingClientRect();
+      out.boxLeft = box.left - f.left - border('borderLeftWidth');
+      out.radius = getComputedStyle(start).borderStartStartRadius;
+      return out;
+    });
+    if (got.first) problems.push(`${label}: the test text's first part is the section`);
+    if (got.style !== 'dotted') problems.push(`${label}: the section's line is "${got.style}", not dotted`);
+    if (Math.abs(got.left) > 0.5 || Math.abs(got.right) > 0.5)
+      problems.push(`${label}: the line stands ${got.left} from the left and ${got.right} from the right of the text field, not 0`);
+    if (Math.abs(got.shift) > 0.5)
+      problems.push(`${label}: the heading is ${got.shift} from the text's left edge, it keeps the page margin`);
+    if (got.boxLeft < 1 || got.radius === '0px')
+      problems.push(`${label}: a coloured section's box changed (left ${got.boxLeft}, corner ${got.radius})`);
+    await page.close();
+  }
+}
+
 /** A coloured section's background runs down to the next section's divider, or to the end of the text when it is the last (the space below its text is inside the colour, not a white band), in the editor, and in the Preview where the panel has no margin below (375 px with touch, and a computer). */
 async function checkSectionBackground(width, touch) {
   const path = BUILT_PAGE;
@@ -555,6 +610,7 @@ export function register(unit) {
   unit('checkSectionOnImage', () => checkSectionOnImage());
   unit('checkLabelGap', () => checkLabelGap());
   unit('checkFullWidthSection', () => checkFullWidthSection());
+  unit('checkSectionLine', () => checkSectionLine());
   unit('checkSectionBackground 375', () => checkSectionBackground(375, true));
   unit('checkSectionBackground 1280', () => checkSectionBackground(1280, false));
   unit('checkTapBelowSection 375', () => checkTapBelowSection(375, true));

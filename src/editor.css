@@ -177,6 +177,23 @@
   padding-block-start: var(--mo-comp-editor-section-pad);
 }
 
+/* The line runs edge to edge of the text field, outside its side padding, while the heading keeps the page margin. A coloured section's
+   box (data-section-box) is drawn below and does not change. */
+.mo-editor-text .ProseMirror > [data-section-part='start']:not([data-section-box]) {
+  margin-inline: calc(-1 * var(--mo-comp-editor-pad-x));
+  padding-inline: var(--mo-comp-editor-pad-x);
+}
+
+/* The section's focus frame keeps its place beside the text: its sides are measured from the field's edge now, so the padding is added. */
+.mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus]:not([data-section-box])::after {
+  inset-inline: calc(var(--mo-comp-editor-pad-x) - 0.5rem);
+}
+.mo-editor-text
+  .ProseMirror:focus-visible
+  > [data-section-part='start'][data-section-focus][data-section-width='full']:not([data-section-box])::after {
+  inset-inline: var(--mo-comp-editor-pad-x);
+}
+
 /* The box of a section with a colour, as the site draws it (data-section-box, data-section-color, sectionFrame.ts): one box made of
    the parts' own backgrounds. The space between two parts is padding, not margin, so the box has no gaps. */
 .mo-editor-text .ProseMirror > [data-section-box] {
