@@ -44,7 +44,7 @@ export default function Switch({
         <input type="checkbox" role="switch" className="mo-switch__input" aria-label={hideLabel ? label : undefined} {...on} {...rest} />
         <span className="mo-switch__handle">
           {icons && <Svg name="check" size={16} className="mo-switch__icon mo-switch__icon-on" />}
-          {icons === 'both' && <Svg name="x" size={16} className="mo-switch__icon mo-switch__icon-off" />}
+          {icons === 'both' && <Svg name="close" size={16} className="mo-switch__icon mo-switch__icon-off" />}
         </span>
       </span>
     </SettingRow>

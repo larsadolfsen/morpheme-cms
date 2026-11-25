@@ -18,21 +18,21 @@ Drawn by the List component: the List and List - Expand blocks, each in the Plai
 
 Rows under each other, as your theme draws a list. A row can have an icon, a text and a page. A List or a List - Expand can also take its rows from an existing list, such as the blog or the testimonials, instead of typed rows.
 
-<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Publishes on its own at the time you pick.&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Stays in the editor until you publish it.&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address but stays off Google.&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;schedule&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Publishes on its own at the time you pick.&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Stays in the editor until you publish it.&quot;},{&quot;icon&quot;:&quot;door_open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address but stays off Google.&quot;}]}"></div>
 
 ### Segmented design
 
 Each row on its own surface, with a small gap between the rows (the segmented list of Material 3).
 
-<div data-block="list" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Monday to Friday&quot;,&quot;text&quot;:&quot;9 am to 5 pm&quot;},{&quot;icon&quot;:&quot;coffee&quot;,&quot;title&quot;:&quot;Saturday&quot;,&quot;text&quot;:&quot;10 am to 2 pm&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Sunday&quot;,&quot;text&quot;:&quot;Closed&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;schedule&quot;,&quot;title&quot;:&quot;Monday to Friday&quot;,&quot;text&quot;:&quot;9 am to 5 pm&quot;},{&quot;icon&quot;:&quot;coffee&quot;,&quot;title&quot;:&quot;Saturday&quot;,&quot;text&quot;:&quot;10 am to 2 pm&quot;},{&quot;icon&quot;:&quot;door_open&quot;,&quot;title&quot;:&quot;Sunday&quot;,&quot;text&quot;:&quot;Closed&quot;}]}"></div>
 
 ## List in one column
 
-<div data-block="list" data-props="{&quot;columns&quot;:false,&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Publishes on its own at the time you pick.&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Stays in the editor until you publish it.&quot;},{&quot;icon&quot;:&quot;door-open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address but stays off Google.&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;columns&quot;:false,&quot;items&quot;:[{&quot;icon&quot;:&quot;schedule&quot;,&quot;title&quot;:&quot;Scheduled&quot;,&quot;text&quot;:&quot;Publishes on its own at the time you pick.&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Draft&quot;,&quot;text&quot;:&quot;Stays in the editor until you publish it.&quot;},{&quot;icon&quot;:&quot;door_open&quot;,&quot;title&quot;:&quot;Hidden&quot;,&quot;text&quot;:&quot;Opens at its address but stays off Google.&quot;}]}"></div>
 
 ## List with links
 
-<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;book-open&quot;,&quot;title&quot;:&quot;Blocks&quot;,&quot;text&quot;:&quot;Every block a page can be built from.&quot;,&quot;href&quot;:&quot;#&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;App store&quot;,&quot;text&quot;:&quot;Apps and themes you install with one tap.&quot;,&quot;href&quot;:&quot;#&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;About&quot;,&quot;text&quot;:&quot;What the editor is built on.&quot;,&quot;href&quot;:&quot;#&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;menu_book&quot;,&quot;title&quot;:&quot;Blocks&quot;,&quot;text&quot;:&quot;Every block a page can be built from.&quot;,&quot;href&quot;:&quot;#&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;App store&quot;,&quot;text&quot;:&quot;Apps and themes you install with one tap.&quot;,&quot;href&quot;:&quot;#&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;About&quot;,&quot;text&quot;:&quot;What the editor is built on.&quot;,&quot;href&quot;:&quot;#&quot;}]}"></div>
 
 ## List from the blog
 
@@ -110,7 +110,7 @@ A square or a landscape image leads each row.
 
 ## List with links, Segmented design
 
-<div data-block="list" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;book-open&quot;,&quot;title&quot;:&quot;Blocks&quot;,&quot;text&quot;:&quot;Every block a page can be built from.&quot;,&quot;href&quot;:&quot;#&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;App store&quot;,&quot;text&quot;:&quot;Apps and themes you install with one tap.&quot;,&quot;href&quot;:&quot;#&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;About&quot;,&quot;text&quot;:&quot;What the editor is built on.&quot;,&quot;href&quot;:&quot;#&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;menu_book&quot;,&quot;title&quot;:&quot;Blocks&quot;,&quot;text&quot;:&quot;Every block a page can be built from.&quot;,&quot;href&quot;:&quot;#&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;App store&quot;,&quot;text&quot;:&quot;Apps and themes you install with one tap.&quot;,&quot;href&quot;:&quot;#&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;About&quot;,&quot;text&quot;:&quot;What the editor is built on.&quot;,&quot;href&quot;:&quot;#&quot;}]}"></div>
 
 ## List - Expand
 
@@ -118,11 +118,11 @@ A square or a landscape image leads each row.
 
 Rows that fold out with a text and a link, with a text button under the last row. A row with a page and no text shows the beginning of the page.
 
-<div data-block="expand" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Opening hours&quot;,&quot;text&quot;:&quot;Monday to Friday, 9 am to 5 pm.\n\nSaturday, 10 am to 2 pm.&quot;},{&quot;icon&quot;:&quot;map-pin&quot;,&quot;title&quot;:&quot;Where to find us&quot;,&quot;text&quot;:&quot;Ground floor, next to the station.&quot;,&quot;href&quot;:&quot;#&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Good to know&quot;,&quot;text&quot;:&quot;Bring your booking number.&quot;}]}"></div>
+<div data-block="expand" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;schedule&quot;,&quot;title&quot;:&quot;Opening hours&quot;,&quot;text&quot;:&quot;Monday to Friday, 9 am to 5 pm.\n\nSaturday, 10 am to 2 pm.&quot;},{&quot;icon&quot;:&quot;location_on&quot;,&quot;title&quot;:&quot;Where to find us&quot;,&quot;text&quot;:&quot;Ground floor, next to the station.&quot;,&quot;href&quot;:&quot;#&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Good to know&quot;,&quot;text&quot;:&quot;Bring your booking number.&quot;}]}"></div>
 
 ### Segmented design
 
-<div data-block="expand" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;button&quot;:&quot;See all&quot;,&quot;buttonHref&quot;:&quot;#&quot;,&quot;only&quot;:true,&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Opening hours&quot;,&quot;text&quot;:&quot;Monday to Friday, 9 am to 5 pm.\n\nSaturday, 10 am to 2 pm.&quot;},{&quot;icon&quot;:&quot;map-pin&quot;,&quot;title&quot;:&quot;Where to find us&quot;,&quot;text&quot;:&quot;Ground floor, next to the station.&quot;,&quot;href&quot;:&quot;#&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Good to know&quot;,&quot;text&quot;:&quot;Bring your booking number.&quot;}]}"></div>
+<div data-block="expand" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;button&quot;:&quot;See all&quot;,&quot;buttonHref&quot;:&quot;#&quot;,&quot;only&quot;:true,&quot;items&quot;:[{&quot;icon&quot;:&quot;schedule&quot;,&quot;title&quot;:&quot;Opening hours&quot;,&quot;text&quot;:&quot;Monday to Friday, 9 am to 5 pm.\n\nSaturday, 10 am to 2 pm.&quot;},{&quot;icon&quot;:&quot;location_on&quot;,&quot;title&quot;:&quot;Where to find us&quot;,&quot;text&quot;:&quot;Ground floor, next to the station.&quot;,&quot;href&quot;:&quot;#&quot;},{&quot;icon&quot;:&quot;info&quot;,&quot;title&quot;:&quot;Good to know&quot;,&quot;text&quot;:&quot;Bring your booking number.&quot;}]}"></div>
 
 ## List - Expand with page links
 

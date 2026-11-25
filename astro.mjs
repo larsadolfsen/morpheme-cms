@@ -138,7 +138,7 @@ export async function siteConfig() {
           // rendered before (node_modules/.astro) are rendered again when it changes (linksDigest).
           [rehypeAutoLinks, { digest: linksDigest() }],
           // Videos load only when played (nothing from Google or Vimeo before that), with the theme's play button.
-          [rehypeVideo, { play: themeIcon('play-fill') }],
+          [rehypeVideo, { play: themeIcon('play_arrow-fill') }],
         ],
       }),
     },
