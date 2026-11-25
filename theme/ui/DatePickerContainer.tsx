@@ -224,7 +224,7 @@ export default function DatePickerContainer({
       disabled={view !== 'days' && view !== list}
     >
       {label}
-      <Svg name="caret-down" size={18} className="mo-date-picker__menu-button-icon" />
+      <Svg name="keyboard_arrow_down" size={18} className="mo-date-picker__menu-button-icon" />
     </button>
   );
 
@@ -248,7 +248,7 @@ export default function DatePickerContainer({
               {headline}
             </h2>
             <IconButton
-              icon={view === 'input' ? 'calendar-blank' : 'pencil-simple'}
+              icon={view === 'input' ? 'calendar_today' : 'edit'}
               label={view === 'input' ? texts.toCalendar : texts.toInput}
               data-date-picker-action="mode"
             />
@@ -261,21 +261,21 @@ export default function DatePickerContainer({
           <div className="mo-date-picker__controls">
             {menuButton(monthName(month, locale), 'years', texts.chooseYear)}
             <span className="mo-date-picker__steps">
-              {step('previous-month', 'caret-left', texts.previousMonth)}
-              {step('next-month', 'caret-right', texts.nextMonth)}
+              {step('previous-month', 'keyboard_arrow_left', texts.previousMonth)}
+              {step('next-month', 'keyboard_arrow_right', texts.nextMonth)}
             </span>
           </div>
         ) : (
           <div className="mo-date-picker__controls">
             <span className="mo-date-picker__steps">
-              {step('previous-month', 'caret-left', texts.previousMonth)}
+              {step('previous-month', 'keyboard_arrow_left', texts.previousMonth)}
               {menuButton(monthName(`${year}-${monthNumber}`, locale, 'short'), 'months', texts.chooseMonth)}
-              {step('next-month', 'caret-right', texts.nextMonth)}
+              {step('next-month', 'keyboard_arrow_right', texts.nextMonth)}
             </span>
             <span className="mo-date-picker__steps">
-              {step('previous-year', 'caret-left', texts.previousYear)}
+              {step('previous-year', 'keyboard_arrow_left', texts.previousYear)}
               {menuButton(year, 'years', texts.chooseYear)}
-              {step('next-year', 'caret-right', texts.nextYear)}
+              {step('next-year', 'keyboard_arrow_right', texts.nextYear)}
             </span>
           </div>
         ))}

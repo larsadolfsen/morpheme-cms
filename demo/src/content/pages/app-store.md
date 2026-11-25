@@ -20,13 +20,13 @@ Find it in the editor under Apps. An app adds something new to your site, like a
 
 <p class="mo-type-label-medium">Available now</p>
 
-<div data-block="list" data-props="{&quot;heading&quot;:&quot;Apps in the store&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;clock&quot;,&quot;title&quot;:&quot;Calendly&quot;,&quot;text&quot;:&quot;Your Calendly calendar in a sheet that every booking button opens.&quot;},{&quot;icon&quot;:&quot;envelope-simple&quot;,&quot;title&quot;:&quot;Mailchimp&quot;,&quot;text&quot;:&quot;A pop-up that signs visitors up for your Mailchimp newsletter.&quot;},{&quot;icon&quot;:&quot;flower-lotus&quot;,&quot;title&quot;:&quot;Content-based colors&quot;,&quot;text&quot;:&quot;Each page takes its colors from its own photos.&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;heading&quot;:&quot;Apps in the store&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;schedule&quot;,&quot;title&quot;:&quot;Calendly&quot;,&quot;text&quot;:&quot;Your Calendly calendar in a sheet that every booking button opens.&quot;},{&quot;icon&quot;:&quot;mail&quot;,&quot;title&quot;:&quot;Mailchimp&quot;,&quot;text&quot;:&quot;A pop-up that signs visitors up for your Mailchimp newsletter.&quot;},{&quot;icon&quot;:&quot;spa&quot;,&quot;title&quot;:&quot;Content-based colors&quot;,&quot;text&quot;:&quot;Each page takes its colors from its own photos.&quot;}]}"></div>
 
 ## Themes, too
 
 The store has themes on its own tab. A theme only changes the look: fonts, shapes, how colors are used and how blocks are drawn. Your content and apps stay exactly as they are, and you can switch back anytime.
 
-<div data-block="buttons" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;Read about themes&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/switch-themes-without-losing-anything/&quot;,&quot;kind&quot;:&quot;tonal&quot;,&quot;icon&quot;:&quot;arrow-right&quot;}]}"></div>
+<div data-block="buttons" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;Read about themes&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/switch-themes-without-losing-anything/&quot;,&quot;kind&quot;:&quot;tonal&quot;,&quot;icon&quot;:&quot;arrow_forward&quot;}]}"></div>
 
 Built in
 

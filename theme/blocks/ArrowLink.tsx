@@ -8,7 +8,7 @@ export default function ArrowLink({ href, label, className }: { href: string; la
   return (
     <Link href={href} className={className ? `mo-block-arrow-link ${className}` : 'mo-block-arrow-link'}>
       {label}
-      <Svg name="arrow-right" size={18} />
+      <Svg name="arrow_forward" size={18} />
     </Link>
   );
 }

@@ -1,5 +1,5 @@
 // The site's icon packs, for the editor ("Settings" › "Appearance" › "Icon packs", IconPacks in Library.tsx): the
-// system's own (packages/editor/icons/<pack>/: Material Symbols, Phosphor and Lucide) and those the themes installed bring
+// system's own (packages/editor/icons/<pack>/: Material Symbols) and those the themes installed bring
 // (src/themes/<theme>/icon-packs/<pack>/), each by its manifest (pack.json) with a few of its icons to show; and the one
 // the site and this editor are built with (packages/editor/site/iconPacks.mjs: the one chosen, src/data/icons.json, else the theme's,
 // else the standard theme's). The packs' icons are read as files: the editor draws them as they are, beside the icons it
@@ -9,7 +9,7 @@ import { STANDARD_THEME } from './store';
 import { theme, themes } from './themes';
 
 export type IconPack = {
-  /** Its id: a system pack's folder (`lucide`), a theme's `<theme>/<folder>` (packages/editor/site/iconPacks.mjs). */
+  /** Its id: a system pack's folder (`material-symbols`), a theme's `<theme>/<folder>` (packages/editor/site/iconPacks.mjs). */
   id: string;
   name: string;
   /** Who made it. */
@@ -27,7 +27,7 @@ export type IconPack = {
 };
 
 /** The icons each pack shows of itself, by the names the site draws them by. */
-const SAMPLES = ['house', 'magnifying-glass', 'calendar-blank', 'envelope-simple', 'heart'];
+const SAMPLES = ['home', 'search', 'calendar_today', 'mail', 'favorite'];
 
 type Manifest = Omit<IconPack, 'id' | 'theme' | 'samples'>;
 // `exhaustive`: Vite skips node_modules in a glob unless told not to, and a site takes this package (and its icons/) from there.
@@ -37,10 +37,7 @@ const manifests = import.meta.glob<Manifest>(['@icons/*/pack.json', '/src/themes
   exhaustive: true,
 });
 const files = import.meta.glob<string>(
-  [
-    '@icons/*/{house,magnifying-glass,calendar-blank,envelope-simple,heart}.svg',
-    '/src/themes/*/icon-packs/*/{house,magnifying-glass,calendar-blank,envelope-simple,heart}.svg',
-  ],
+  ['@icons/*/{home,search,calendar_today,mail,favorite}.svg', '/src/themes/*/icon-packs/*/{home,search,calendar_today,mail,favorite}.svg'],
   { eager: true, query: '?raw', import: 'default', exhaustive: true },
 );
 const chosen = import.meta.glob<{ pack?: string }>('/src/data/icons.json', { eager: true, import: 'default' })['/src/data/icons.json'];
@@ -63,8 +60,7 @@ export const iconPacks: IconPack[] = Object.entries(manifests)
       name: m.name,
       author: m.author,
       license: m.license,
-      // Owner rule (14 Nov): no Phosphor icon is drawn in the editor, not even the Phosphor pack's own samples: its row shows its name only.
-      samples: id === 'phosphor' ? [] : SAMPLES.map((name) => files[`${folder}${name}.svg`]).filter(Boolean),
+      samples: SAMPLES.map((name) => files[`${folder}${name}.svg`]).filter(Boolean),
     };
     if (m.version) pack.version = m.version;
     if (m.url) pack.url = m.url;

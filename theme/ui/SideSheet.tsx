@@ -56,11 +56,11 @@ export default function SideSheet({
       data-side-sheet-container=""
     >
       <div className="mo-sheet__header" data-has-back={onBack ? '' : undefined}>
-        {onBack && <IconButton icon="arrow-left" label={backLabel ?? ''} data-side-sheet-back="" onClick={onBack} />}
+        {onBack && <IconButton icon="arrow_back" label={backLabel ?? ''} data-side-sheet-back="" onClick={onBack} />}
         <h2 id={headlineId} className="mo-sheet__headline">
           {headline}
         </h2>
-        {closeLabel && <IconButton icon="x" label={closeLabel} data-side-sheet-close="" onClick={onClose} />}
+        {closeLabel && <IconButton icon="close" label={closeLabel} data-side-sheet-close="" onClick={onClose} />}
       </div>
       <div className="mo-sheet__content">{children}</div>
       {actions && <div className="mo-sheet__actions">{actions}</div>}

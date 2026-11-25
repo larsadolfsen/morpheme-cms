@@ -978,7 +978,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
       }
       actions={
         detail && src ? (
-          <IconLink icon="download-simple" label={t.media.download} href={shownAt(src)} download={fileName(src)} />
+          <IconLink icon="download" label={t.media.download} href={shownAt(src)} download={fileName(src)} />
         ) : (
           <IconButton
             icon={materialIcon('history')}
@@ -1017,11 +1017,11 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
           <div className="mo-editor-media-details">{details(src, true)}</div>
           {total > 1 && (
             <SiteToolbar label={t.media.fileTools} kind="docked" className="mo-editor-media-file-tools">
-              <IconButton icon="caret-left" label={t.media.previous} disabled={at <= 0} onClick={() => step(-1)} />
+              <IconButton icon="keyboard_arrow_left" label={t.media.previous} disabled={at <= 0} onClick={() => step(-1)} />
               <span className="mo-editor-media-muted" aria-live="polite">
                 {t.media.position(at + 1, total)}
               </span>
-              <IconButton icon="caret-right" label={t.media.next} disabled={at >= total - 1} onClick={() => step(1)} />
+              <IconButton icon="keyboard_arrow_right" label={t.media.next} disabled={at >= total - 1} onClick={() => step(1)} />
             </SiteToolbar>
           )}
         </>

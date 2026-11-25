@@ -31,11 +31,11 @@ Body text on surface keeps its contrast, with a [link](/about/) and `inline code
 
 ### Cards on surface
 
-<div data-block="cards" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Card on Surface&quot;,&quot;text&quot;:&quot;A card on a section keeps its text and icon readable.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Button card on Surface&quot;,&quot;text&quot;:&quot;Its button sits inside the card.&quot;,&quot;icon&quot;:&quot;heart&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Open on Surface&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Later&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;text&quot;}]}]}"></div>
+<div data-block="cards" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Card on Surface&quot;,&quot;text&quot;:&quot;A card on a section keeps its text and icon readable.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Button card on Surface&quot;,&quot;text&quot;:&quot;Its button sits inside the card.&quot;,&quot;icon&quot;:&quot;favorite&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Open on Surface&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Later&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;text&quot;}]}]}"></div>
 
 ### List on surface
 
-<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Row on Surface&quot;,&quot;text&quot;:&quot;A row with a text.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Second row on Surface&quot;,&quot;text&quot;:&quot;And its supporting text.&quot;,&quot;icon&quot;:&quot;heart&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Row on Surface&quot;,&quot;text&quot;:&quot;A row with a text.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Second row on Surface&quot;,&quot;text&quot;:&quot;And its supporting text.&quot;,&quot;icon&quot;:&quot;favorite&quot;}]}"></div>
 
 ### Price cards on surface
 
@@ -72,11 +72,11 @@ Body text on primary keeps its contrast, with a [link](/about/) and `inline code
 
 ### Cards on primary
 
-<div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Card on Primary&quot;,&quot;text&quot;:&quot;A card on a section keeps its text and icon readable.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Button card on Primary&quot;,&quot;text&quot;:&quot;Its button sits inside the card.&quot;,&quot;icon&quot;:&quot;heart&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Open on Primary&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Later&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;text&quot;}]}]}"></div>
+<div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Card on Primary&quot;,&quot;text&quot;:&quot;A card on a section keeps its text and icon readable.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Button card on Primary&quot;,&quot;text&quot;:&quot;Its button sits inside the card.&quot;,&quot;icon&quot;:&quot;favorite&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Open on Primary&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Later&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;text&quot;}]}]}"></div>
 
 ### List on primary
 
-<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Row on Primary&quot;,&quot;text&quot;:&quot;A row with a text.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Second row on Primary&quot;,&quot;text&quot;:&quot;And its supporting text.&quot;,&quot;icon&quot;:&quot;heart&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Row on Primary&quot;,&quot;text&quot;:&quot;A row with a text.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Second row on Primary&quot;,&quot;text&quot;:&quot;And its supporting text.&quot;,&quot;icon&quot;:&quot;favorite&quot;}]}"></div>
 
 ### Price cards on primary
 
@@ -110,11 +110,11 @@ Body text on secondary keeps its contrast, with a [link](/about/) and `inline co
 
 ### Cards on secondary
 
-<div data-block="cards" data-props="{&quot;design&quot;:&quot;elevated&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Card on Secondary&quot;,&quot;text&quot;:&quot;A card on a section keeps its text and icon readable.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Button card on Secondary&quot;,&quot;text&quot;:&quot;Its button sits inside the card.&quot;,&quot;icon&quot;:&quot;heart&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Open on Secondary&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Later&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;text&quot;}]}]}"></div>
+<div data-block="cards" data-props="{&quot;design&quot;:&quot;elevated&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Card on Secondary&quot;,&quot;text&quot;:&quot;A card on a section keeps its text and icon readable.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Button card on Secondary&quot;,&quot;text&quot;:&quot;Its button sits inside the card.&quot;,&quot;icon&quot;:&quot;favorite&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Open on Secondary&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Later&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;text&quot;}]}]}"></div>
 
 ### List on secondary
 
-<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Row on Secondary&quot;,&quot;text&quot;:&quot;A row with a text.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Second row on Secondary&quot;,&quot;text&quot;:&quot;And its supporting text.&quot;,&quot;icon&quot;:&quot;heart&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Row on Secondary&quot;,&quot;text&quot;:&quot;A row with a text.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Second row on Secondary&quot;,&quot;text&quot;:&quot;And its supporting text.&quot;,&quot;icon&quot;:&quot;favorite&quot;}]}"></div>
 
 ### Price cards on secondary
 
@@ -148,11 +148,11 @@ Body text on tertiary keeps its contrast, with a [link](/about/) and `inline cod
 
 ### Cards on tertiary
 
-<div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Card on Tertiary&quot;,&quot;text&quot;:&quot;A card on a section keeps its text and icon readable.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Button card on Tertiary&quot;,&quot;text&quot;:&quot;Its button sits inside the card.&quot;,&quot;icon&quot;:&quot;heart&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Open on Tertiary&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Later&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;text&quot;}]}]}"></div>
+<div data-block="cards" data-props="{&quot;design&quot;:&quot;filled&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Card on Tertiary&quot;,&quot;text&quot;:&quot;A card on a section keeps its text and icon readable.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Button card on Tertiary&quot;,&quot;text&quot;:&quot;Its button sits inside the card.&quot;,&quot;icon&quot;:&quot;favorite&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Open on Tertiary&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Later&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;text&quot;}]}]}"></div>
 
 ### List on tertiary
 
-<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Row on Tertiary&quot;,&quot;text&quot;:&quot;A row with a text.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Second row on Tertiary&quot;,&quot;text&quot;:&quot;And its supporting text.&quot;,&quot;icon&quot;:&quot;heart&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Row on Tertiary&quot;,&quot;text&quot;:&quot;A row with a text.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Second row on Tertiary&quot;,&quot;text&quot;:&quot;And its supporting text.&quot;,&quot;icon&quot;:&quot;favorite&quot;}]}"></div>
 
 ### Price cards on tertiary
 
@@ -186,11 +186,11 @@ Body text on image keeps its contrast, with a [link](/about/) and `inline code`.
 
 ### Cards on image
 
-<div data-block="cards" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Card on Image&quot;,&quot;text&quot;:&quot;A card on a section keeps its text and icon readable.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Button card on Image&quot;,&quot;text&quot;:&quot;Its button sits inside the card.&quot;,&quot;icon&quot;:&quot;heart&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Open on Image&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Later&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;text&quot;}]}]}"></div>
+<div data-block="cards" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Card on Image&quot;,&quot;text&quot;:&quot;A card on a section keeps its text and icon readable.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Button card on Image&quot;,&quot;text&quot;:&quot;Its button sits inside the card.&quot;,&quot;icon&quot;:&quot;favorite&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Open on Image&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Later&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;text&quot;}]}]}"></div>
 
 ### List on image
 
-<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Row on Image&quot;,&quot;text&quot;:&quot;A row with a text.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Second row on Image&quot;,&quot;text&quot;:&quot;And its supporting text.&quot;,&quot;icon&quot;:&quot;heart&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Row on Image&quot;,&quot;text&quot;:&quot;A row with a text.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Second row on Image&quot;,&quot;text&quot;:&quot;And its supporting text.&quot;,&quot;icon&quot;:&quot;favorite&quot;}]}"></div>
 
 ### Price cards on image
 
@@ -224,11 +224,11 @@ Body text on surface with image keeps its contrast, with a [link](/about/) and `
 
 ### Cards on surface with image
 
-<div data-block="cards" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Card on Surface with image&quot;,&quot;text&quot;:&quot;A card on a section keeps its text and icon readable.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Button card on Surface with image&quot;,&quot;text&quot;:&quot;Its button sits inside the card.&quot;,&quot;icon&quot;:&quot;heart&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Open on Surface with image&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Later&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;text&quot;}]}]}"></div>
+<div data-block="cards" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Card on Surface with image&quot;,&quot;text&quot;:&quot;A card on a section keeps its text and icon readable.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Button card on Surface with image&quot;,&quot;text&quot;:&quot;Its button sits inside the card.&quot;,&quot;icon&quot;:&quot;favorite&quot;,&quot;buttons&quot;:[{&quot;label&quot;:&quot;Open on Surface with image&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;filled&quot;},{&quot;label&quot;:&quot;Later&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;#&quot;,&quot;kind&quot;:&quot;text&quot;}]}]}"></div>
 
 ### List on surface with image
 
-<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Row on Surface with image&quot;,&quot;text&quot;:&quot;A row with a text.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Second row on Surface with image&quot;,&quot;text&quot;:&quot;And its supporting text.&quot;,&quot;icon&quot;:&quot;heart&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Row on Surface with image&quot;,&quot;text&quot;:&quot;A row with a text.&quot;,&quot;icon&quot;:&quot;lightbulb&quot;},{&quot;title&quot;:&quot;Second row on Surface with image&quot;,&quot;text&quot;:&quot;And its supporting text.&quot;,&quot;icon&quot;:&quot;favorite&quot;}]}"></div>
 
 ### Price cards on surface with image
 

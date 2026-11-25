@@ -80,7 +80,7 @@ export default function DatePicker({
         {...rest}
       />
       <IconButton
-        icon="calendar-blank"
+        icon="calendar_today"
         // Named by its field too (`Select date: Publish`), so two date fields on one screen have two buttons a reader can tell apart.
         label={label ? `${title}: ${label}` : title}
         className="mo-date-picker__field-button"

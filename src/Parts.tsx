@@ -155,7 +155,7 @@ export default function Parts({ env }: { env: Env }) {
   // An e-mail address without its domain: the field says what is wrong.
   const [mail, setMail] = useState(t.parts.fields.values.email.replace(/@.*/, '@'));
   const mailWrong = !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail.trim());
-  const [icon, setIcon] = useState('heart');
+  const [icon, setIcon] = useState('favorite');
   const [searchIcons, setSearchIcons] = useState(false);
   const allIcons = useAllIconNames(searchIcons);
   const [image, setImage] = useState(exampleImage);
@@ -1057,7 +1057,7 @@ function FieldTypes({ env }: { env: Env }) {
       placement: 'top',
       status: 'published',
       look: 'auto',
-      icon: 'heart',
+      icon: 'favorite',
       kind: 'standard',
       page,
       tags: data.relations.categories.slice(0, 2).map((o) => o.value),

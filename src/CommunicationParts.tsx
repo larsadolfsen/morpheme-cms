@@ -43,42 +43,42 @@ export default function CommunicationParts() {
           <div className="mo-editor-comm-examples">
             <Example name={say.dot}>
               <SiteBadge label={say.new}>
-                <Svg name="envelope-simple" size={24} />
+                <Svg name="mail" size={24} />
               </SiteBadge>
             </Example>
             <Example name={say.number}>
               <SiteBadge count={3} label={say.count(3)}>
-                <Svg name="envelope-simple" size={24} />
+                <Svg name="mail" size={24} />
               </SiteBadge>
             </Example>
             <Example name={say.many}>
               <SiteBadge count={1200} label={say.count(1200)}>
-                <Svg name="envelope-simple" size={24} />
+                <Svg name="mail" size={24} />
               </SiteBadge>
             </Example>
             <Example name={say.onIconButton}>
               <div className="mo-editor-comm-badges">
                 <SiteBadge>
-                  <SiteIconButton icon="envelope-simple" label={`${say.messages}, ${say.new}`} />
+                  <SiteIconButton icon="mail" label={`${say.messages}, ${say.new}`} />
                 </SiteBadge>
                 <SiteBadge count={3}>
-                  <SiteIconButton icon="envelope-simple" label={`${say.messages}, ${say.count(3)}`} />
+                  <SiteIconButton icon="mail" label={`${say.messages}, ${say.count(3)}`} />
                 </SiteBadge>
               </div>
             </Example>
             <Example name={say.statusTones}>
               <div className="mo-editor-comm-badges-wide">
                 <SiteBadge tone="ok" label={say.toneOk}>
-                  <Svg name="envelope-simple" size={24} />
+                  <Svg name="mail" size={24} />
                 </SiteBadge>
                 <SiteBadge tone="minor" label={say.toneMinor}>
-                  <Svg name="envelope-simple" size={24} />
+                  <Svg name="mail" size={24} />
                 </SiteBadge>
                 <SiteBadge tone="major" label={say.toneMajor}>
-                  <Svg name="envelope-simple" size={24} />
+                  <Svg name="mail" size={24} />
                 </SiteBadge>
                 <SiteBadge tone="unknown" label={say.toneUnknown}>
-                  <Svg name="envelope-simple" size={24} />
+                  <Svg name="mail" size={24} />
                 </SiteBadge>
               </div>
             </Example>
@@ -207,7 +207,7 @@ export default function CommunicationParts() {
           <div className="mo-editor-comm-tooltips">
             <div className="mo-editor-comm-tooltip-plain">
               <SiteTooltip text={say.call} open>
-                <SiteIconButton icon="phone" label={say.call} />
+                <SiteIconButton icon="call" label={say.call} />
               </SiteTooltip>
             </div>
             <div className="mo-editor-comm-tooltip-rich" {...named(eg(2))}>

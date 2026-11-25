@@ -23,7 +23,7 @@ export default function PopupView({ popup, Part, part, appId }: { popup: PopupBo
   const Scoped = Part && appId ? scopedPart(appId, Part) : Part;
   return (
     <Dialog className="mo-popup">
-      <IconButton icon="x" label={siteT.theme.close} kind="tonal" className="mo-popup__close" data-popup-close="true" />
+      <IconButton icon="close" label={siteT.theme.close} kind="tonal" className="mo-popup__close" data-popup-close="true" />
       {popup.image && (
         <img
           src={popup.image.src}
