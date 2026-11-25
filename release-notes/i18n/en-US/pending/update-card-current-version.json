@@ -1,6 +1,0 @@
-{
-  "id": "update-card-current-version",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "The update card on the start screen counts only the current version"
-}

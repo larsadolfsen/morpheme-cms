@@ -1,0 +1,136 @@
+{
+  "version": "0.19.6",
+  "date": "2026-11-25",
+  "notes": [
+    {
+      "id": "m3-color-schemes",
+      "kind": "paragraph",
+      "mark": "improvement",
+      "title": "Farveskemaer",
+      "text": "Hjemmesidens farver følger Material 3. Åbn Farver, vælg et skema som Tonal spot eller Vibrant og en kildefarve, eller vælg Tilpasset for selv at vælge primær, sekundær og tertiær. Gemte farver bliver, som de er, indtil du ændrer dem."
+    },
+    {
+      "id": "divider-toolbar",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Hjælpelinjer",
+      "text": "Prikkede linjer viser, hvor sektioner og blokke sidder, men de kan fylde meget. Tryk på Skjul hjælpelinjer på tekstlinjen for at se teksten uden dem, og på Vis hjælpelinjer for at få dem tilbage. Sektionen, du står i, beholder sine linjer."
+    },
+    {
+      "id": "card-divider",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Kortskillelinje",
+      "text": "En linje mellem kortets tekst og dets knapper gør lange kort lettere at læse. Åbn et kort med knapper, og slå Skillelinje til. Linjen går over hele kortets bredde og er slået fra, til du slår den til."
+    },
+    {
+      "id": "one-divider",
+      "kind": "paragraph",
+      "mark": "feature",
+      "title": "Skillelinje",
+      "text": "Du sætter en linje mellem to dele af teksten med ét tryk. Vælg Skillelinje på tekstlinjen, eller skriv --- på en linje for sig selv. Alle streger på hjemmesiden og i editoren ser nu ens ud."
+    },
+    {
+      "id": "contract-8-imports",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Apps og temaer importerer kun fra en offentlig liste over CMS’ets filer; et tjek nævner enhver anden import med den nærmeste tilladte"
+    },
+    {
+      "id": "m3-block-hints",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Blokkenes beskrivelser i menuen Indsæt bruger Material 3’s ord"
+    },
+    {
+      "id": "names-brand-logos",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Del-knapper og log ind-knapper viser hvert mærkes rigtige logo i alle ikonpakker"
+    },
+    {
+      "id": "contract-8-apps",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En app eller et tema skrevet til kontrakt 8 holder sin egen CSS til sine egne dele, kan tilføje en slags kampagne, der åbner som en dialog eller et bundark, og bruger Material 3’s navne"
+    },
+    {
+      "id": "names-tabs-other-screens",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En apps Indstillinger og Information og søgeeksemplets Mobil og Computer er faner uden ikon"
+    },
+    {
+      "id": "names-7c-packs-out",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En hjemmeside, der brugte ikonpakken Phosphor eller Lucide, viser Material Symbols i stedet"
+    },
+    {
+      "id": "m3-names-4-migrate-code",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "En opdatering, der ikke kan omskrive dine egne temaer og apps, nævner filerne og linjerne, der skal rettes"
+    },
+    {
+      "id": "editor-lead",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Første afsnit på en side eller et indlæg vises som indledning i tekstfeltet, som det gør på hjemmesiden"
+    },
+    {
+      "id": "medium-buttons-selection",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Knapper har en mellemstor størrelse, og store og ekstra store knapper har Material 3’s størrelser"
+    },
+    {
+      "id": "editor-buttons-centred",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Knapper, du skriver i editoren, har tekst og ikon centreret, som på hjemmesiden"
+    },
+    {
+      "id": "swipeable-cards",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Kort som karrusel på mobil følger Material 3 og har fem visninger: uindrammet, multibrowse, hero, centreret hero og fuld skærm"
+    },
+    {
+      "id": "section-line-full-width",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Linjen i starten af en sektion går over hele tekstfeltets bredde"
+    },
+    {
+      "id": "m3-names-8i-items",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Listeelementer har ikke længere et side-om-side-layout, og opdateringen fjerner det fra dine egne temaer og apps"
+    },
+    {
+      "id": "one-line-list-items",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Listepunkter med kun et navn er én linje høje, ikke to"
+    },
+    {
+      "id": "update-card-current-version",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "Opdateringskortet på startskærmen tæller kun den nuværende version"
+    },
+    {
+      "id": "names-status-tabs",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "På en side med en kladde er Udgivet og Kladde faner i topbjælken"
+    },
+    {
+      "id": "editor-cursor-clear-of-bars",
+      "kind": "line",
+      "mark": "improvement",
+      "text": "På en telefon bliver markøren synlig over tastaturet og under tekstværktøjslinjen"
+    }
+  ]
+}
