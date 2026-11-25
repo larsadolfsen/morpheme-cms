@@ -293,12 +293,13 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
       onSave={save}
       panel
       tabs={{
+        kind: 'secondary',
         label: t.colors.modes,
         value: tab,
         options: [
-          { value: 'generator', label: d.tab, icon: materialIcon('palette') },
-          { value: 'light', label: t.colors.light, icon: materialIcon('light_mode') },
-          { value: 'dark', label: t.colors.dark, icon: materialIcon('dark_mode') },
+          { value: 'generator', label: d.tab },
+          { value: 'light', label: t.colors.light },
+          { value: 'dark', label: t.colors.dark },
         ],
         onChange: show,
       }}

@@ -1541,11 +1541,13 @@ export function List({
       tabs={
         appTabs.length > 0
           ? {
+              kind: 'secondary',
               label: collection.label,
               value: appTab?.app.id ?? '',
               options: [
-                { value: '', label: collection.label, icon: icons[collection.id as keyof typeof icons] ?? materialIcon('list') },
-                ...appTabs.map((a) => ({ value: a.app.id, label: siteText(a.tab.label), icon: a.tab.icon })),
+                { value: '', label: collection.label },
+                // Secondary tabs have no icons (M3): an app's `tab.icon` stays in its contract and is not drawn.
+                ...appTabs.map((a) => ({ value: a.app.id, label: siteText(a.tab.label) })),
               ],
               onChange: (v) => (location.hash = v ? `list/${collection.id}/${v}` : `list/${collection.id}`),
             }
