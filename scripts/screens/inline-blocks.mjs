@@ -178,6 +178,69 @@ async function checkFilledSlotRing(scheme, sectionColor) {
 /** A List and a List - Expand, each in the design Plain and Segmented (owner, 16 Nov 2026: "The white list is the correct one"), are edited the same way: the active
  * row has the same slots (its icon and its link, at its end), the toolbar the same Link, the add button the same text, and the link slot the same sheet with its page; nothing is
  * drawn at the bottom of a row; the design is a setting of the block (Plain or Segmented) that changes only how the rows are drawn. Each is measured, then compared with the List's. */
+/** A button typed in place (Buttons block) is drawn with Material 3's measures for its size (m3.material.io/components/buttons/specs): the label and the
+ * icon are centred on the button's middle, the icon is the size's icon (20 dp on small), the space between icon and label is the size's icon-label space
+ * (8 dp on small) and the space before the icon is the size's leading space (16 dp). The numbers are M3's as printed, not read from our tokens. */
+const M3_BUTTON = {
+  xsmall: { height: 32, icon: 20, gap: 4, lead: 12 },
+  small: { height: 40, icon: 20, gap: 8, lead: 16 },
+  medium: { height: 56, icon: 24, gap: 8, lead: 24 },
+  large: { height: 96, icon: 32, gap: 12, lead: 48 },
+  xlarge: { height: 136, icon: 40, gap: 16, lead: 64 },
+};
+async function checkInlineButtonMeasure(width, height) {
+  const label = `${width} inline button measures`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US', hasTouch: width < 600, isMobile: width < 600 });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Prompt actions with buttons.' }).first().click();
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="label"]', { timeout: 8000 });
+  await page.keyboard.type('Book');
+  await page.waitForTimeout(300);
+  const found = await page.evaluate(() => {
+    const sizes = ['xlarge', 'large', 'medium', 'xsmall'];
+    return [...document.querySelectorAll('.mo-editor-inline-button')].map((button) => {
+      const box = (e) => e.getBoundingClientRect();
+      const slot = button.querySelector('.mo-editor-inline-list-slot');
+      const field = button.querySelector('.mo-editor-inline-list-field');
+      const b = box(button);
+      const f = box(field);
+      const s = slot && box(slot);
+      return {
+        size: sizes.find((x) => button.classList.contains(`mo-is-${x}`)) ?? 'small',
+        height: b.height,
+        labelOffset: f.top + f.height / 2 - (b.top + b.height / 2),
+        iconOffset: s ? s.top + s.height / 2 - (b.top + b.height / 2) : 0,
+        icon: s?.width,
+        gap: s ? f.left - s.right : undefined,
+        lead: s ? s.left - b.left : undefined,
+      };
+    });
+  });
+  if (!found.length) problems.push(`${label}: no button found`);
+  for (const m of found) {
+    const want = M3_BUTTON[m.size];
+    const off = (what, got, exp) =>
+      Math.abs(got - exp) > 0.5 && problems.push(`${label}: ${m.size} button ${what} is ${got.toFixed(1)}, Material 3 says ${exp}`);
+    off('height', m.height, want.height);
+    off('label centre is off the button centre by', m.labelOffset, 0);
+    off('icon centre is off the button centre by', m.iconOffset, 0);
+    if (m.icon !== undefined) {
+      off('icon size', m.icon, want.icon);
+      off('icon-label space', m.gap, want.gap);
+      off('leading space', m.lead, want.lead);
+    }
+  }
+  await page.close();
+}
+
 async function checkListDesigns(width, height) {
   const label = `${width}px inline list designs`;
   const phone = width < 600;
@@ -966,6 +1029,7 @@ export function register(unit) {
   for (const scheme of ['light', 'dark'])
     for (const color of ['', 'primary', 'tertiary'])
       unit(`checkFilledSlotRing ${scheme} ${color || 'default'}`, () => checkFilledSlotRing(scheme, color));
+  for (const w of [390, 1280]) unit(`checkInlineButtonMeasure ${w}`, () => checkInlineButtonMeasure(w, w < 600 ? 740 : 900));
   for (const block of pasteBlocks)
     for (const w of [375, 1280]) unit(`checkInlinePaste ${w} ${block.name}`, () => checkInlinePaste(w, w < 600 ? 740 : 900, block));
   for (const w of [375, 1280]) unit(`checkInlinePaste ${w} table`, () => checkTablePaste(w, w < 600 ? 740 : 900));
