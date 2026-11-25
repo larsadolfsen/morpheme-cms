@@ -10,7 +10,7 @@
 // text can be read on its background (contrast). No React or browser here: the build uses it too.
 
 import type { Dynamic } from './dynamic-colors';
-import { neutralVariant20, neutralVariantTone } from './ref-palette.ts';
+import { neutralVariant20 } from './ref-palette.ts';
 
 export type ColorSet = Record<string, string>;
 export type Colors = { light: ColorSet; dark: ColorSet; dynamic?: Dynamic };
@@ -103,19 +103,12 @@ export const pageColor = (set: ColorSet): string => set.surface;
  * computer is set to it (unless light is picked, data-theme="light" on <html>) and when dark is picked.
  * Throws on anything that is not a colour, so a broken file never reaches a page. */
 export function colorsCss(colors: Colors): string {
-  const source = colors.dynamic?.source;
-  // M3's md.ref.palette.neutral-variant20 (the drawer's scrim), made from the site's source colour; none without one, and the scrim rule keeps
-  // its own fallback (lib/ref-palette.ts).
-  const nv20 = neutralVariant20(source);
-  // M3's Surface variant (md.sys.color.surface-variant: tone 90 of the neutral variant palette in light mode, tone 30 in dark mode), the tab rows'
-  // divider; made from the source colour like the scrim's tone. None without one, and the divider keeps its fallback (theme/styles/tokens/material/comp/tabs.css).
-  const surfaceVariant = (tone: number): string => {
-    const hex = neutralVariantTone(source, tone);
-    return hex ? `--mo-sys-color-surface-variant:${hex};` : '';
-  };
-  const dark = declarations(colors.dark) + surfaceVariant(30);
+  const dark = declarations(colors.dark);
+  // M3's md.ref.palette.neutral-variant20 (the drawer's scrim), made from the site's source colour; none without one, and the
+  // scrim rule keeps its own fallback (lib/ref-palette.ts).
+  const nv20 = neutralVariant20(colors.dynamic?.source);
   return (
-    `:root{${declarations(colors.light)}${nv20 ? `--mo-ref-palette-neutral-variant20:${nv20};` : ''}${surfaceVariant(90)}}` +
+    `:root{${declarations(colors.light)}${nv20 ? `--mo-ref-palette-neutral-variant20:${nv20};` : ''}}` +
     `@media (prefers-color-scheme: dark){:root:not([data-theme='light']){${dark}}}` +
     `:root[data-theme='dark']{${dark}}`
   );

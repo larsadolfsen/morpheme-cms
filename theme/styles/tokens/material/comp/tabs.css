@@ -1,9 +1,0 @@
-/* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
-
-:root {
-  /* The divider under a tab row, primary and secondary alike (m3.material.io/components/tabs/specs; docs/m3-tokens/md.comp.primary-navigation-tab.json and
-     md.comp.secondary-navigation-tab.json): 1dp, `md.sys.color.surface-variant`. The site's colours make that role from the source colour, in light
-     and in dark mode (lib/colors.ts); a site without a source colour has none, and the divider falls back to outline variant. */
-  --mo-comp-primary-navigation-tab-divider-color: var(--mo-sys-color-surface-variant, var(--mo-sys-color-outline-variant));
-  --mo-comp-secondary-navigation-tab-divider-color: var(--mo-sys-color-surface-variant, var(--mo-sys-color-outline-variant));
-}
