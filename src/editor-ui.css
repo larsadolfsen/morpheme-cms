@@ -91,9 +91,6 @@
     display: flex;
     gap: var(--mo-ref-space-100);
   }
-  .mo-editor-choice-row {
-    --mo-comp-row-gap: var(--mo-ref-space-150);
-  }
   .mo-editor-push-end {
     margin-inline-start: auto;
   }
@@ -203,9 +200,6 @@
     inset-block-start: 50%;
     inline-size: 2rem;
     block-size: 2rem;
-  }
-  .mo-editor-color-row {
-    --mo-comp-row-gap: var(--mo-ref-space-150);
   }
   .mo-editor-color-compare {
     display: flex;
@@ -391,9 +385,6 @@
   .mo-editor-icon-picker-status {
     color: var(--mo-sys-color-on-surface-variant);
   }
-  .mo-editor-image-pick {
-    --mo-comp-row-gap: var(--mo-ref-space-200);
-  }
   .mo-editor-image-pick-thumb {
     inline-size: 5rem;
     block-size: 5rem;
@@ -506,7 +497,6 @@
   .mo-editor-row-delete {
     justify-content: center;
     text-align: center;
-    font-weight: 500;
     color: var(--mo-sys-color-error);
   }
   .mo-editor-row-sub {

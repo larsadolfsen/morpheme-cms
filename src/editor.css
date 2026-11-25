@@ -1433,12 +1433,6 @@ html {
   outline-color: var(--mo-comp-button-filled-label-text-color, var(--mo-comp-block-on-accent));
 }
 
-/* A menu over the page (Menu in ui.tsx: a field's dropdown, a button's menu): the theme's menu, always with the menu
-   shadow, so it stands in front of the editor's page also in a theme whose menu has the page's colour and no shadow. */
-.mo-editor-menu {
-  --mo-comp-menu-container-elevation: var(--mo-comp-editor-menu-shadow);
-}
-
 /* Where the browser has CSS anchor positioning the menu is placed by the theme's rules for a dropdown menu (ui.css, under the
    button from its start; the other side when there is no room), with the button as its anchor (Menu in ui.tsx names it). Here
    only what the editor's menus add: a field's menu (`attached`) is at least as wide as the field and grows from its end edge;
