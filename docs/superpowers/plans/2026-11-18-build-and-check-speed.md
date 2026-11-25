@@ -667,3 +667,82 @@ the timing: `prepare` now prints `prepare timing: <step> <seconds>s` after `npm 
 show it without reading the whole log. **Next, if it keeps coming back:** cache the apt packages (`/var/cache/apt/archives`), or skip
 `--with-deps` and install only the libraries the screens need; both change what `prepare` installs, so they are a separate pull request.
 
+### Round 2 (25 Nov 2026): the screens check without fixed waits, on test pages
+
+Owner, 25 Nov 2026, after asking why the screens shards take so long and whether they can be loosened: "Can we make special test pages
+instead?", then "Yes, write the plan". The direction of 18 Nov stands ("test less, but the important things") and so does this plan's
+rule: no test is skipped, disabled or deleted to save time. What is new: a check may **move** to a faster form, when the new form is
+proved to catch what the old one caught.
+
+#### Where the time goes (the times file, the full run of 18 Nov: 363 units, 3,468 s, about 434 s a shard)
+
+- **Two widths.** Units at 375 px take 1,412 s and at 1280 px 1,307 s: 78 % of the time is the same checks at a phone and a computer width.
+- **Fixed waits.** `scripts/screens/` holds 557 `waitForTimeout` calls (199 of 300 ms, 79 of 400, 70 of 500), many inside loops that run
+  per screen, per section colour and per width. A few units already wait for the real state (`getAnimations()` in `block-bar.mjs`,
+  `reducedMotion` in `page-rows.mjs` and `text-bar.mjs`).
+- **The slowest checks** (both widths together): `choice-group` 242 s, `checkFocusIndicators` 203, `checkInsertNeverOpensSheet` 169,
+  `checkTextBar` 157, `checkBlockHandleCorner` 155, `checkTableAlign` 149, `checkInlineTable` 148, `checkDynamicList` 141,
+  `checkAnchoredParts` 107, the walk `screens` 104.
+- **Per shard:** `prepare` (install, the build's artifact, Chromium) before the first unit, and every shard waits for `build`.
+
+#### A13. Wait for the state, not for the clock
+
+One helper in `scripts/screens/support/` that waits for what a unit needs: the element is there and visible, its animations have ended
+(`getAnimations({ subtree: true })` empty), no request is pending. Every `waitForTimeout` in `scripts/screens/` is replaced with it, or
+with Playwright's own wait for the condition (`waitForSelector`, `waitForFunction`). A wait that stays (a continuous indicator, a timer
+the editor itself runs) carries the comment `// wait-ok` with the reason. A test (`scripts/screens-waits.test.mjs`) fails on a new
+`waitForTimeout` without one. No unit changes what it checks.
+
+Gap closed: motion is a spring (`--motion-spatial-fast`), so a fixed wait that is too short flakes on a slow runner and one that is too
+long wastes time; waiting for the animations to end is both faster and steadier. Units that test motion itself (`page-rows`, `text-bar`)
+keep their own waits on the animation.
+
+#### A14. One width where the widths do not differ
+
+A unit runs at both widths only when the screen it checks is laid out differently below 600 dp (a page or bottom sheet on a phone, a side
+sheet or menu on a computer, the rail or the drawer, a carousel that shows only on a phone). Otherwise it runs once, at 375 px (the tighter
+of the two). The pull request lists each unit that drops a width with that reason, beside its `unit(...)` line in its area file. When in
+doubt it keeps both. The walk `screens` keeps both widths.
+
+#### A15. Test pages for what things look like
+
+A check of **how something looks** (colours on every section colour, contrast, sizes and targets, icons, the outline, text in a state)
+moves to a test page: every case laid out at once, loaded once, measured in one pass, as `m3-render` measures the UI components page today.
+A check of **behaviour** (a click, a key, a save, a drag, what a screen reader announces as you move, a list growing as you type) stays a
+flow on the real screen.
+
+- **Where.** Editor parts: the editor's developer screens (*Developer > Parts*, `#developer/parts/…`), which already hold the UI
+  components and the editor's own parts and ship with every site's editor; a state the page cannot hold by itself (an open menu, an error)
+  is shown by the sample's props, not by a copy. Blocks in the page editor: unlisted demo pages (`demo/src/content/pages/test-<area>.md`,
+  *Hide from search engines*, in no menu), opened in the editor, with every block on every section colour. Never a customer's content
+  and never a page of the starter.
+- **No weight for the editor.** The developer screens' test samples load only on those screens (their own chunk, as a lazy import), so
+  no other screen of the editor loads more (`CLAUDE.md`: blazingly fast).
+- **The starter's run.** The full level runs the screens again on the starter (`starter` shards). `check:starter` lays the demo's
+  `test-*.md` pages into its temporary site for the run, never into `starter/` itself, so a moved check runs there as before.
+- **Real parts only.** A test page draws the real components through `src/ui.tsx` and the real `View.tsx`, never a copy or a
+  test-only variant, so it tests what ships.
+- **The demo's rules.** `scripts/demo-blocks.mjs` and `check:demo` know the test pages: they are not Blocks pages (not in `/blocks/`, not
+  counted by "none twice"), and the demo's screenshots of themes skip them.
+- **Moving a check.** One area at a time. The new check is proved to catch what the old one caught: the pull request breaks each rule the
+  old unit checked once on purpose (locally, not committed), shows the new check failing on it, and lists the cases. Only then is the old
+  unit removed, in the same pull request. The walk `screens` stays as it is, so a part used wrongly on a real screen is still found there.
+- **First candidates**, by time: `choice-group`, `checkInlineTable` and `checkTableAlign`, `checkIconSlots` and `checkIconColor`,
+  `checkCardsElevation`, `checkListDesigns`; the inventory below decides.
+
+**Step 0, the inventory** (one session, no code): every unit in `scripts/screens/*.mjs` marked *look*, *behaviour* or *both* (split),
+with its time from `unit-times.json`, written as a table into this plan. The PM gives the moves in that order, slowest first.
+
+#### A16. The number of shards, last
+
+After A13 to A15 have merged, `node scripts/refresh-unit-times.mjs` on the next full run's logs rewrites the times file, and the matrix of
+`screens` is set from its table (A8). More shards cost nothing on a public repository but each repeats `prepare`, and GitHub runs 20 jobs
+at a time per account, so the count is chosen from the measured times and A12's CI slots are set again from the new cost.
+
+#### Order and measuring
+
+A13, then A14, then step 0 and A15 area by area, then A16. Each is a pull request into `main`, one at a time (test code has an empty
+changeset; one that adds samples to the developer screens ships editor code and has a patch changeset, skill `changesets`): they share
+`scripts/screens/`. After the auto-merge plan's CI step (`2026-11-25-dev-auto-merge-feature.md`, step 2), which also touches `check.yml`.
+Each pull request measures a full run before and after (building block 4) and writes the numbers here. The `checks` skill, *What CI runs*,
+changes with A13 (the wait rule) and A16 (the shard count).
