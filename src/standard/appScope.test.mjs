@@ -8,7 +8,7 @@ let loaded;
 async function modules() {
   loaded ??= (async () => {
     const root = new URL('../..', import.meta.url).pathname;
-    const entry = `export { scoped, scopedNode } from './src/standard/appScope.tsx'; export { renderToStaticMarkup } from 'react-dom/server'; export { createElement } from 'react'; export { useState } from 'react';`;
+    const entry = `export { scoped, scopedNode, scopedPart } from './src/standard/appScope.tsx'; export { renderToStaticMarkup } from 'react-dom/server'; export { createElement } from 'react'; export { useState } from 'react';`;
     const { outputFiles } = await build({
       stdin: { contents: entry, resolveDir: root, loader: 'ts' },
       bundle: true,
@@ -65,4 +65,13 @@ test('a view without one element of its own gets a wrapper that takes no space',
     ),
     '',
   );
+});
+
+test("an app's promotion part is drawn in the app's scope, the same component each time", async () => {
+  const { scopedPart, renderToStaticMarkup, createElement } = await modules();
+  const Part = ({ view, button }) => createElement('form', { className: 'mo-block-buttons__form' }, view, button);
+  assert.equal(scopedPart('shop', Part), scopedPart('shop', Part));
+  assert.notEqual(scopedPart('shop', Part), scopedPart('other', Part));
+  const html = renderToStaticMarkup(createElement(scopedPart('shop', Part), { view: 'Sign up', button: null }));
+  assert.equal(html, '<form class="mo-block-buttons__form" data-mo-app="shop">Sign up</form>');
 });

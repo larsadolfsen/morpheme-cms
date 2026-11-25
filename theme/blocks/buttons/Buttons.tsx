@@ -23,8 +23,8 @@ export default function Buttons({
           key={i}
           href={b.href}
           kind={b.kind}
-          icon={b.icon !== 'arrow-right' ? b.icon : undefined}
-          trailingIcon={b.icon === 'arrow-right' ? 'arrow-right' : undefined}
+          icon={b.icon !== 'arrow_forward' ? b.icon : undefined}
+          trailingIcon={b.icon === 'arrow_forward' ? 'arrow_forward' : undefined}
           data-open={b.open}
           className={className}
           aria-label={b.label}

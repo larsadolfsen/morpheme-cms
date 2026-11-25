@@ -53,13 +53,13 @@ const kinds = ['primary', 'secondary'] as const;
 const bar = say.appBar;
 const flexible = ['medium-flexible', 'large-flexible'] as const;
 // Icons the site draws (icon.tsx).
-const viewIcons = ['house', 'ticket', 'chats', 'phone', 'map-pin', 'video-camera'];
+const viewIcons = ['house', 'confirmation_number', 'forum', 'call', 'location_on', 'videocam'];
 
-const back = <SiteIconButton icon="arrow-left" label={bar.back} />;
+const back = <SiteIconButton icon="arrow_back" label={bar.back} />;
 const actions = (
   <>
-    <SiteIconButton icon="heart" label={bar.favourite} />
-    <SiteIconButton icon="user" label={bar.profile} />
+    <SiteIconButton icon="favorite" label={bar.favourite} />
+    <SiteIconButton icon="person" label={bar.profile} />
   </>
 );
 const search = (trailing?: boolean) => (
@@ -69,13 +69,13 @@ const search = (trailing?: boolean) => (
     clearLabel={bar.clear}
     emptyText={bar.empty}
     results={[]}
-    trailing={trailing ? <SiteIconButton icon="user" label={bar.profile} /> : undefined}
+    trailing={trailing ? <SiteIconButton icon="person" label={bar.profile} /> : undefined}
   />
 );
 
 const menus = say.menus;
 const colors = ['standard', 'vibrant'] as const;
-const actionIcons = ['pencil-simple', 'copy', 'download-simple', 'arrow-right', 'trash'];
+const actionIcons = ['edit', 'content_copy', 'download', 'arrow_forward', 'delete'];
 
 /** A menu's actions: an icon and a shortcut, a text under one, a disabled one, a divider, ticks and a choice. */
 function menuActions() {
@@ -117,10 +117,10 @@ function groups(open?: boolean) {
       </SiteMenuGroup>
       <SiteMenuGroup>
         <SiteMenuItem
-          icon="envelope-simple"
+          icon="mail"
           open={open}
           submenu={menus.shares.map((name, i) => (
-            <SiteMenuItem key={name} icon={['envelope-simple', 'phone', 'copy'][i]}>
+            <SiteMenuItem key={name} icon={['mail', 'call', 'content_copy'][i]}>
               {name}
             </SiteMenuItem>
           ))}
@@ -146,15 +146,15 @@ export default function NavigationParts() {
                 className="mo-editor-nav-app-bar"
               >
                 <span className="mo-editor-nav-app-bar-title">{stuck ? say.stuck : say.name}</span>
-                <SiteIconButton icon="list" label={say.open} />
+                <SiteIconButton icon="menu" label={say.open} />
               </SiteAppBar>
             ))}
             <SiteAppBar
               {...named(eg(3))}
               kind="search"
-              leading={<SiteIconButton icon="list" label={say.open} />}
+              leading={<SiteIconButton icon="menu" label={say.open} />}
               search={search(true)}
-              trailing={<SiteIconButton icon="heart" label={bar.favourite} />}
+              trailing={<SiteIconButton icon="favorite" label={bar.favourite} />}
             />
             <SiteAppBar {...named(eg(4))} kind="search" align="center" search={search()} />
             <SiteAppBar {...named(eg(5))} kind="small" leading={back} headline={bar.kinds.small} trailing={actions} />
@@ -173,7 +173,7 @@ export default function NavigationParts() {
               leading={back}
               headline={`${bar.kinds.small}, ${bar.center}`}
               subtitle={bar.subtitle}
-              trailing={<SiteIconButton icon="user" label={bar.profile} />}
+              trailing={<SiteIconButton icon="person" label={bar.profile} />}
             />
             {flexible.map((kind) => (
               <Fragment key={kind}>
@@ -192,7 +192,7 @@ export default function NavigationParts() {
                   leading={back}
                   headline={bar.long}
                   subtitle={bar.subtitle}
-                  trailing={<SiteButton icon="calendar-blank">{say.book}</SiteButton>}
+                  trailing={<SiteButton icon="calendar_today">{say.book}</SiteButton>}
                 />
                 <SiteAppBar
                   {...named(`${bar.kinds[kind]}, ${eg(3)}`)}
@@ -244,7 +244,7 @@ export default function NavigationParts() {
               <SiteDropdownMenu label={menus.more}>{menuActions()}</SiteDropdownMenu>
             </Example>
             <Example label={eg(2)} flat>
-              <SiteDropdownMenu label={menus.more} iconButton icon="list">
+              <SiteDropdownMenu label={menus.more} iconButton icon="menu">
                 {groups()}
               </SiteDropdownMenu>
             </Example>
@@ -310,39 +310,39 @@ export default function NavigationParts() {
             </SiteNavigationDrawer>
             <SiteNavigationDrawer variant="standard">
               <SiteNavigationDrawerSection label={mail}>
-                <SiteNavigationDrawerItem href="" icon="envelope-simple" badge={24} active>
+                <SiteNavigationDrawerItem href="" icon="mail" badge={24} active>
                   {inbox}
                 </SiteNavigationDrawerItem>
-                <SiteNavigationDrawerItem href="" icon="chats" badge={3}>
+                <SiteNavigationDrawerItem href="" icon="forum" badge={3}>
                   {messages}
                 </SiteNavigationDrawerItem>
-                <SiteNavigationDrawerItem href="" icon="heart">
+                <SiteNavigationDrawerItem href="" icon="favorite">
                   {favourites}
                 </SiteNavigationDrawerItem>
-                <SiteNavigationDrawerItem href="" icon="trash">
+                <SiteNavigationDrawerItem href="" icon="delete">
                   {trash}
                 </SiteNavigationDrawerItem>
               </SiteNavigationDrawerSection>
               <SiteNavigationDrawerSection label={account}>
-                <SiteNavigationDrawerItem href="" icon="user">
+                <SiteNavigationDrawerItem href="" icon="person">
                   {profile}
                 </SiteNavigationDrawerItem>
               </SiteNavigationDrawerSection>
             </SiteNavigationDrawer>
             <SiteNavigationDrawer variant="standard">
-              <SiteNavigationDrawerItem icon="envelope-simple" trailing="arrow-right" active>
+              <SiteNavigationDrawerItem icon="mail" trailing="arrow_forward" active>
                 {mail}
               </SiteNavigationDrawerItem>
-              <SiteNavigationDrawerItem icon="user" trailing="arrow-right">
+              <SiteNavigationDrawerItem icon="person" trailing="arrow_forward">
                 {account}
               </SiteNavigationDrawerItem>
             </SiteNavigationDrawer>
             <SiteNavigationDrawer variant="standard">
               <SiteNavigationDrawerBack label={backLabel} />
-              <SiteNavigationDrawerItem href="" icon="envelope-simple" badge={24} active>
+              <SiteNavigationDrawerItem href="" icon="mail" badge={24} active>
                 {inbox}
               </SiteNavigationDrawerItem>
-              <SiteNavigationDrawerItem href="" icon="chats">
+              <SiteNavigationDrawerItem href="" icon="forum">
                 {messages}
               </SiteNavigationDrawerItem>
             </SiteNavigationDrawer>
@@ -402,30 +402,30 @@ export default function NavigationParts() {
           <div className="mo-editor-nav-fields">
             <div className={row} {...named(rows.kinds)}>
               {fabKinds.map((k) => (
-                <SiteFab key={k} kind={k} icon="calendar-blank" label={say.kinds[k]} title={say.kinds[k]} />
+                <SiteFab key={k} kind={k} icon="calendar_today" label={say.kinds[k]} title={say.kinds[k]} />
               ))}
             </div>
             <div className={row} {...named(rows.sizes)}>
               {fabSizes.map((size) => (
-                <SiteFab key={size} size={size} icon="calendar-blank" label={say.sizes[size]} title={say.sizes[size]} />
+                <SiteFab key={size} size={size} icon="calendar_today" label={say.sizes[size]} title={say.sizes[size]} />
               ))}
             </div>
             <div className={row} {...named(eg(3))}>
               {fabKinds.map((k) => (
-                <SiteExtendedFab key={k} kind={k} icon="calendar-blank" label={say.kinds[k]} />
+                <SiteExtendedFab key={k} kind={k} icon="calendar_today" label={say.kinds[k]} />
               ))}
             </div>
             <div className={row} {...named(eg(4))}>
               {extendedFabSizes.map((size) => (
                 <Example key={size} label={say.extendedSizes[size]} flat>
-                  <SiteExtendedFab size={size} icon="calendar-blank" label={say.book} title={say.extendedSizes[size]} />
+                  <SiteExtendedFab size={size} icon="calendar_today" label={say.book} title={say.extendedSizes[size]} />
                 </Example>
               ))}
             </div>
             <div className={row} {...named(eg(5))}>
               {extendedFabSizes.map((size) => (
                 <Example key={size} label={`${say.extendedSizes[size]}, ${eg(2)}`} flat>
-                  <SiteExtendedFab size={size} icon="calendar-blank" label={say.book} title={say.extendedSizes[size]} collapsed />
+                  <SiteExtendedFab size={size} icon="calendar_today" label={say.book} title={say.extendedSizes[size]} collapsed />
                 </Example>
               ))}
             </div>

@@ -713,10 +713,10 @@ export const parts: Messages['parts'] = {
       viewOpen: 'Åbn søgevisningen',
       viewGroups: ['Seneste', 'Foreslået'],
       viewItems: [
-        { headline: 'Priser', supporting: 'En side', icon: 'clock' },
-        { headline: 'Åbningstider', supporting: 'En side', icon: 'clock' },
-        { headline: 'Fed', shortcut: 'Ctrl+B', keyShortcuts: 'Control+B', icon: 'text-b', pressed: true },
-        { headline: 'Gentag', supporting: 'Intet at gentage', icon: 'arrow-u-up-right', disabled: true },
+        { headline: 'Priser', supporting: 'En side', icon: 'schedule' },
+        { headline: 'Åbningstider', supporting: 'En side', icon: 'schedule' },
+        { headline: 'Fed', shortcut: 'Ctrl+B', keyShortcuts: 'Control+B', icon: 'format_bold', pressed: true },
+        { headline: 'Gentag', supporting: 'Intet at gentage', icon: 'redo', disabled: true },
       ],
       viewCount: (n: number) => (n === 1 ? '1 resultat' : `${n} resultater`),
       results: [

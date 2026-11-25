@@ -2391,7 +2391,7 @@ export function MenuItem({
       icon={Glyph && <Glyph />}
       selected={selected}
       disabled={disabled}
-      trailingIcon={opens ? 'caret-right' : undefined}
+      trailingIcon={opens ? 'keyboard_arrow_right' : undefined}
       aria-haspopup={opens ? 'menu' : undefined}
       aria-expanded={opens ? false : undefined}
       aria-label={label}
@@ -3715,7 +3715,7 @@ export function MainDrawerSectionItem({
       active={selected}
       aria-current={selected ? 'true' : undefined}
       icon={<Glyph weight={selected ? 'fill' : 'regular'} />}
-      trailing="caret-right"
+      trailing="keyboard_arrow_right"
       onClick={onClick}
     >
       {label}
@@ -3815,7 +3815,7 @@ export function MainDrawerLevel({ shown = true, focus, children }: { shown?: boo
 }
 
 /** The panel icon at the start of the top bar on every screen (Screen.tsx): it opens and closes the main drawer. `open`: the drawer
- * is shown, so the icon is `left_panel_close` (`sidebar`), else `left_panel_open` (`sidebar-simple`). `label` says what the next
+ * is shown, so the icon is `left_panel_close` (`sidebar`), else `left_panel_open` (`left_panel_open`). `label` says what the next
  * press does. */
 export function MenuButton({
   label,
