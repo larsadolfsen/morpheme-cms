@@ -1,8 +1,17 @@
 // Icon packs installed from the store (src/icon-packs/<id>/): their folder, which pack is in use, and what a missing one does.
 import assert from 'node:assert/strict';
+import { registerHooks } from 'node:module';
 import { test } from 'node:test';
-import { isStorePack, packInUse } from './iconPacks.mjs';
-import { packFolder } from './icons.mjs';
+
+// These modules import this package by its name, which only works from an installed copy: point the name at this folder.
+const PACKAGE = '@morphemecms/cms/';
+const pkg = new URL('../', import.meta.url);
+registerHooks({
+  resolve: (specifier, context, next) =>
+    specifier.startsWith(PACKAGE) ? next(new URL(specifier.slice(PACKAGE.length), pkg).href, context) : next(specifier, context),
+});
+const { isStorePack, packInUse } = await import('./iconPacks.mjs');
+const { packFolder } = await import('./icons.mjs');
 
 const ID = 'icons_0123456789abcdef';
 const use = (chosen, installed) =>
