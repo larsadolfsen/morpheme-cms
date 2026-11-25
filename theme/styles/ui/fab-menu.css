@@ -24,20 +24,32 @@
     gap: var(--mo-comp-split-button-gap, 0.125rem);
   }
   .mo-split-button > .mo-split-button__leading {
+    padding-inline: var(--mo-comp-split-button-lead-start) var(--mo-comp-split-button-lead-end);
     border-start-end-radius: var(--mo-comp-split-button-inner);
     border-end-end-radius: var(--mo-comp-split-button-inner);
   }
-  /* The arrow's button as wide as the button is high, in each size. */
+  /* The arrow's button is as wide as its spaces and its arrow (48 dp up to small, then as high as the button), in each size. */
   .mo-split-button > .mo-split-button__trailing {
-    width: var(--mo-comp-button-box);
+    width: calc(var(--mo-comp-split-button-arrow-start) + var(--mo-comp-split-button-arrow) + var(--mo-comp-split-button-arrow-end));
     padding: 0;
     border-start-start-radius: var(--mo-comp-split-button-inner);
     border-end-start-radius: var(--mo-comp-split-button-inner);
+  }
+  /* Hovered or pressed, the corner between the halves grows (md.comp.split-button.<size>.inner-corner.hovered and pressed). */
+  .mo-split-button > .mo-split-button__leading:is(:hover, :active):not(:disabled) {
+    border-start-end-radius: var(--mo-comp-split-button-inner-active);
+    border-end-end-radius: var(--mo-comp-split-button-inner-active);
+  }
+  .mo-split-button > .mo-split-button__trailing:is(:hover, :active):not(:disabled) {
+    border-start-start-radius: var(--mo-comp-split-button-inner-active);
+    border-end-start-radius: var(--mo-comp-split-button-inner-active);
   }
   .mo-split-button > .mo-split-button__trailing[aria-expanded='true'] {
     border-radius: var(--mo-sys-shape-corner-full);
   }
   .mo-split-button__arrow {
+    inline-size: var(--mo-comp-split-button-arrow);
+    block-size: var(--mo-comp-split-button-arrow);
     transition: rotate var(--mo-sys-motion-spring-default-spatial);
   }
   [aria-expanded='true'] > .mo-split-button__arrow {

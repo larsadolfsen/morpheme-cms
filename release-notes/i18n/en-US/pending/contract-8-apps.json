@@ -1,0 +1,6 @@
+{
+  "id": "contract-8-apps",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "An app or theme written for contract 8 keeps its own CSS to its own parts, may add a promotion kind that opens as a dialog or a bottom sheet, and uses Material 3’s names"
+}

@@ -594,6 +594,7 @@ export const parts: Messages['parts'] = {
       actions: ['Book en tid', 'Ring', 'Skriv'],
       channel: 'Kontakt',
       channels: ['Telefon', 'E-mail', 'Chat'],
+      selections: { single: 'Vælg en eller ingen', multiple: 'Vælg flere', required: 'Vælg en' },
       mode: 'Tilstand',
       modes: ['Lys', 'Mørk'],
       style: 'Stil',
