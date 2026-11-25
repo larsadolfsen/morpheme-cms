@@ -330,6 +330,9 @@ export const entryName = (collection: FolderCollection, data: Record<string, unk
 export type KindPart = {
   View: ComponentType<{ view: any; button: ReactNode }>;
   viewOf: (values: Record<string, any>, data: BlockData) => unknown;
+  /** What it opens as on the site: the pop-up's dialog (the default) or the theme's modal bottom sheet (`'bottom-sheet'`), the `surface` that its popups/View.tsx
+   * exports (docs/app-contract.md, *Contract 8*). The editor draws the same. */
+  surface?: 'dialog' | 'bottom-sheet';
 };
 
 /** A list a standard block or an app brings ("Testimonials", "Prices"), as the site's own, with its icon under "Lists". */
