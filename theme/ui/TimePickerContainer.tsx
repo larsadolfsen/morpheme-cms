@@ -22,6 +22,7 @@ import Button from '@theme/ui/Button';
 import TextField from '@theme/ui/TextField';
 import { timeSeparator, twoDigits } from '@theme/ui/dates';
 import { scrollValues } from '@theme/ui/scrollTime';
+import ScrollFieldContainer from '@theme/ui/ScrollFieldContainer';
 
 export type TimePickerView = 'scroll' | 'dial' | 'input';
 /** The selector a time picker starts with (the input mode toggles back to it): Material's scroll or dial time picker. */
@@ -128,19 +129,10 @@ export default function TimePickerContainer({
       ))}
     </span>
   );
-  // A scroll field: the values one under the other, the selected one in the middle (a spinbutton for screen readers: its items are only drawn).
-  // A field drawn without the picker's script (a sample) is scrolled to its value when it first has a size; with the script, it does it itself.
-  const place = (el: HTMLElement | null, index: number) => {
-    if (!el || el.dataset.placed !== undefined) return;
-    const items = el.querySelectorAll<HTMLElement>('[data-time-picker-item]');
-    const pitch = items.length > 1 ? items[1].offsetTop - items[0].offsetTop : 0;
-    if (!pitch) return;
-    el.dataset.placed = '';
-    el.scrollTop = index * pitch;
-  };
+  // A scroll field (the generic one, ScrollFieldContainer.tsx): the values one under the other, the selected one in the middle; timePicker.script.ts makes it work
+  // through scrollFieldControl.ts, with `data-time-picker-scroll` to tell the hours from the minutes.
   const scrollField = (f: (typeof fields)[number], i: number) => {
     const field = f.key;
-    const values = scrollValues(field, twelve);
     const current = field === 'hour' ? shown : minute;
     return (
       <span key={field} className="mo-time-picker__selector-part">
@@ -149,30 +141,14 @@ export default function TimePickerContainer({
             {separator}
           </span>
         )}
-        <div
-          className="mo-time-picker__scroll-field"
-          role="spinbutton"
-          tabIndex={0}
-          aria-label={f.label}
-          aria-valuemin={values[0]}
-          aria-valuemax={values[values.length - 1]}
-          aria-valuenow={current}
-          aria-valuetext={field === 'hour' && twelve ? `${shown} ${pm ? texts.pm : texts.am}` : twoDigits(current)}
-          data-time-picker-scroll={field}
-          ref={(el) => place(el, values.indexOf(current))}
-        >
-          {values.map((n) => (
-            <span
-              key={n}
-              className="mo-time-picker__scroll-item"
-              data-selected={n === current || undefined}
-              data-time-picker-item={n}
-              aria-hidden="true"
-            >
-              {twoDigits(n)}
-            </span>
-          ))}
-        </div>
+        <ScrollFieldContainer
+          items={scrollValues(field, twelve).map((n) => ({ value: n, label: twoDigits(n) }))}
+          value={current}
+          label={f.label}
+          size="small"
+          valueText={field === 'hour' && twelve ? `${shown} ${pm ? texts.pm : texts.am}` : twoDigits(current)}
+          listProps={{ 'data-time-picker-scroll': field }}
+        />
       </span>
     );
   };

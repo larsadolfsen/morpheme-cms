@@ -37,6 +37,7 @@ export const UI_PART_FILES = [
   'ui/navigation-rail.css',
   'ui/search.css',
   'ui/toolbar.css',
+  'ui/scroll-field.css',
   'ui/pickers.css',
   'ui/ripple.css',
   'ui/reduced-motion.css',

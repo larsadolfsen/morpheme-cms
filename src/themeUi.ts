@@ -114,6 +114,8 @@ export { default as SiteToolbar } from '@theme/ui/Toolbar';
 export { default as SiteDatePicker, datePickerTexts } from '@theme/ui/DatePicker';
 export { default as SiteDatePickerContainer } from '@theme/ui/DatePickerContainer';
 export { default as SiteTimePicker, timePickerTexts } from '@theme/ui/TimePicker';
+export { default as SiteScrollField } from '@theme/ui/ScrollField';
+export { default as SiteScrollFieldContainer } from '@theme/ui/ScrollFieldContainer';
 export { default as SiteTimePickerContainer } from '@theme/ui/TimePickerContainer';
 export type { DatePickerTexts } from '@theme/ui/DatePickerContainer';
 export type { TimePickerTexts } from '@theme/ui/TimePickerContainer';
