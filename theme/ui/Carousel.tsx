@@ -3,6 +3,10 @@
 // scroll-snap, so swiping works on a phone without JavaScript. Its layout (`layout`) is Material's:
 // - 'uncontained' (the default): every item as wide as the others, as many as fit and the next one cut off at the edge,
 //   reaching out to a phone's edges: one with the next peeking in, two on a tablet, three on a computer.
+// - 'multi-aspect-ratio' (M3, new Nov 2025): the uncontained layout with items of various widths: every item as high as the theme says and as
+//   wide as its `aspect` (width / height, 9:16 to 16:9, 1:1 without one) makes it, from the leading edge out to the trailing one, which has no
+//   padding. Its items are images (their `content` fills the item's mask, with M3's 28dp corners) and scroll freely, with no snapping (M3:
+//   "Default: Standard scrolling. Recommended for uncontained layouts").
 // - 'multi-browse': large items from the start, then a medium and a small one, as high as the theme says; each grows
 //   and shrinks as it passes (carouselLayout.ts), for leafing quickly through many images.
 // - 'hero': one large item (more on a wide screen) and a small one after it (`alignment` 'start', the default) or
@@ -16,9 +20,10 @@
 // carousel is called; `roleDescription` and `itemRoleDescription`: what it and an item are (aria-roledescription, in
 // the site's language); `className` after its own classes (its place in the text). An Astro component gives an element
 // the same classes with carouselClass.
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { useOnSite } from '@morphemecms/cms/src/standard/view';
 import {
+  aspectOf,
   carouselLayout,
   keylineLayouts,
   scrollFor,
@@ -28,17 +33,18 @@ import {
 } from '@theme/ui/carouselLayout';
 
 export type { CarouselAlignment, CarouselLayout };
-/** `focusable`: the item is a tab stop itself (an item with nothing to focus in it). */
-export type CarouselItem = { key: string; label: string; content: ReactNode; focusable?: boolean };
+/** `focusable`: the item is a tab stop itself (an item with nothing to focus in it). `aspect`: width / height, only for the layout 'multi-aspect-ratio' (kept between 9/16 and 16/9; 1 without one). */
+export type CarouselItem = { key: string; label: string; content: ReactNode; focusable?: boolean; aspect?: number };
 
 /** The layouts of a carousel, as Material 3 names them. */
-export const carouselLayouts: CarouselLayout[] = ['multi-browse', 'uncontained', 'hero', 'full-screen'];
+export const carouselLayouts: CarouselLayout[] = ['multi-browse', 'uncontained', 'multi-aspect-ratio', 'hero', 'full-screen'];
 
-/** A carousel's classes: a contained layout's (none for the default, uncontained), and a hero's aligned to the centre. */
+/** A carousel's classes: a contained layout's (none for the uncontained ones, the default and 'multi-aspect-ratio', which has its own), and a hero's aligned to the centre. */
 export const carouselClass = (layout: CarouselLayout = 'uncontained', alignment: CarouselAlignment = 'start') =>
   [
     'mo-carousel',
-    layout !== 'uncontained' && `mo-is-contained mo-is-${layout}`,
+    layout === 'multi-aspect-ratio' && 'mo-is-multi-aspect',
+    layout !== 'uncontained' && layout !== 'multi-aspect-ratio' && `mo-is-contained mo-is-${layout}`,
     layout === 'hero' && alignment === 'center' && 'mo-carousel__center',
   ]
     .filter(Boolean)
@@ -68,6 +74,7 @@ export default function Carousel({
   const row = useRef<HTMLUListElement>(null);
   const [shown, setShown] = useState(0);
   const contained = layout !== 'uncontained';
+  const multiAspect = layout === 'multi-aspect-ratio';
   // In the editor: multi-browse and hero laid out here, as carousel.script.ts does on the site.
   useEffect(
     () => (root.current && keylineLayouts.includes(layout) ? carouselLayout(root.current) : undefined),
@@ -102,6 +109,7 @@ export default function Carousel({
             aria-label={item.label}
             data-carousel-item=""
             tabIndex={item.focusable ? 0 : undefined}
+            style={multiAspect ? ({ '--mo-comp-carousel-item-aspect': aspectOf(item.aspect) } as CSSProperties) : undefined}
           >
             {contained ? (
               <div className="mo-carousel__item-mask" data-carousel-mask="">
@@ -114,7 +122,8 @@ export default function Carousel({
         ))}
       </ul>
 
-      {indicatorLabels && (
+      {/* No page indicator for 'multi-aspect-ratio': its items differ in width, so a dot per step does not fit, and M3 prints none. */}
+      {indicatorLabels && !multiAspect && (
         <div className="mo-carousel__indicator" data-carousel-indicator="" hidden={onSite}>
           {items.map((item, i) => (
             <button
