@@ -26,7 +26,7 @@ pieces into its own feature branch, `main` into its own feature branch, its feat
 comes, and what its version's plan puts in the other repositories. It never merges another version's feature branch or a pull
 request into one, and never a pull request that belongs to a later version (its feature, its fix, or the plan or spec for it), even
 when it is green and waiting: it names the PM it belongs to, or tells the owner that no PM runs for it yet, and leaves it. A pull
-request that belongs to no version (a docs change into `main`) it merges only when the owner or the CTO hands it to that PM by name.
+request that belongs to no version (a docs change into `main`) it merges only when the owner hands it to that PM by name, or when it is a CTO change the PM had pushed itself.
 
 **The owner decides:**
 
@@ -52,9 +52,11 @@ that is a decision I need to take."
 Owner rule, 15 Nov: "We follow the best practices in modern web from Google." Where a guide covers behaviour, markup, accessibility or
 performance, we follow it; Material 3 still decides how things look and are named.
 
-**The CTO** (skill `cto`) plans the work with the owner and sends the PM approved plans. It is not a build session: the PM
-starts the sessions that build a plan, unless the CTO says it does a step itself. The CTO's own pull requests go to the PM like
-any other.
+A PM session runs only as Sonnet with effort high (owner, 24 Nov 2026: "PMs may only run as sonnet high").
+
+**The CTO** (skill `cto`) starts PM sessions, answers questions from the owner and other sessions and plans the work with the owner, and sends the PM
+approved plans (owner, 24 Nov 2026). It writes no code and reviews no pull request: the PM starts the sessions that build a plan and
+reviews their work itself. The CTO never pushes or merges: it sends the PM the exact text of a docs or skill change, and the PM has a session push it as a docs-only pull request and merges it (a spec or plan that belongs to one feature being built goes into that feature's branch, so it ships with the feature; every other change goes into `main`; owner, 25 Nov 2026), unless a release is being prepared and the merge would delay it; then it waits until the release is out (owner, 24 Nov 2026).
 
 **When no PM is running, the orchestrator merges.** The orchestrator is the session that started the other sessions for the owner
 (the owner's "To do list" session). While no PM session is active, it may merge the pull requests of the sessions it started, under
@@ -213,6 +215,15 @@ back to the theme.
 **Ready queue** (owner rule, 15 Nov 2026). Sessions send a "ready: …" message when their change is done and checked locally
 (`developer` skill, *3a*). The PM keeps the queue in the order of those messages (a fix of a red base branch goes first), gives slots
 (section 6), tells the next session "your slot", and starts or re-runs the CI itself when a session has pushed out of turn.
+
+**Order of the queue** (owner, 25 Nov 2026: "Pr merge priority 1 No file overlap 2 most file overlap 3 waiting for something. When a pr is merged, the priority is reset and rechecked"). Before every slot and every merge, the PM orders what is open or ready:
+
+0. A red base (the feature's head or `main` red) goes before everything (section 3).
+1. **No file overlap** with any other open pull request or ready branch: it gets its slot, or is merged, at once, several side by side.
+2. **Most file overlap**: among the branches that share files, the one that shares files with the most others goes first, so the rest merge it once instead of each other. On equal overlap, the one that reported ready first goes first.
+3. **Waiting for something** (a red check, a conflict, the owner's word, a pull request it builds on): last, named in the PM's report with what it waits for.
+
+After every merge the PM counts the overlaps again and orders the queue anew. It counts from the files of the open pull requests (`get_files`) and the file lists in the sessions' `ready:` messages.
 
 **Archive finished sessions every 30 minutes.** The PM lists its sessions (`list_sessions`) and archives (`archive_session`) each one
 whose work is finished: its pull request is merged or closed (or it opened none and its report was read and acted on), it has no open

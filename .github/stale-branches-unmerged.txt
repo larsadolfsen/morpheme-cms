@@ -1,0 +1,212 @@
+# Branches nobody deletes automatically. Made 2026-11-24 with the same data as stale-branches.txt.
+# The owner decides about each one. The workflow "Delete stale branches" never reads this file.
+# Format: name <TAB> last commit date <TAB> last commit subject
+# Branches that have no pull request and whose commits are not in main or in a feature/* branch, plus:
+# - the version lines 0.18 and 0.19, which the "Version lines" ruleset protects from deletion;
+# - feature/0.19.6-scoped-app-css: its work was merged as #1166, but feature/* is never listed for deletion
+#   and the branch still has 3 commits that main lacks (a merge of feature/0.19.6-m3-names).
+0.18	version line (protected by the Version lines ruleset)
+0.19	version line (protected by the Version lines ruleset)
+assets/0.19-edition	2026-11-16	The owner's 0.19 edition photo (Unsplash T-LfvX-7IVg, Damian Patkowski), for the release-notes session
+backup/ci-skip-starter-demo	2026-11-16	CI: skip starter and demo when no changed file can affect them
+claude/0.17-edition-source	2026-11-11	Edition 0.17: the source photo the owner sent (not for merging)
+claude/0.17-expandable-segmented	2026-11-11	Expandable list becomes a Segmented list (0.17 batch 7, part 2)
+claude/0.17-no-empty-section-shots	2026-11-11	Screenshots for the no-empty-section PR
+claude/0.17-segmented-max-rows-shots	2026-11-11	Screenshots for the Max rows PR
+claude/0.18-page-head-screens	2026-11-11	Preview slim row
+claude/blocks-widget-icon-shots	2026-11-12	Screenshots
+claude/css-split-material-footer	2026-11-18	Move the footer rules into theme/styles/material/footer.css
+claude/css-split-material-navigation	2026-11-18	Move the header menu, FAB and drawer-menu rules into theme/styles/material/navigation.css
+claude/css-split-material-prose-testimonial	2026-11-18	Move the text image and testimonial mark rules into theme/styles/material/prose-testimonial.css
+claude/css-split-material-rest	2026-11-18	Move the rest of global.css into theme/styles/material/
+claude/english-source-batch-6	2026-11-10	Write the Danish comments in src/i18n/en-US and astro.mjs in English
+claude/one-app-types	2026-11-10	Warn before activating a second app of a one-app type
+claude/sandbox-card	2026-11-11	0.15.0 release notes: the sandbox gets its own paragraph
+claude/testimonial-photo-source	2026-11-16	Handoff: Unsplash portrait IF9TK5Uy-KI (Jake Nackos) as the source for the demo testimonial photo
+claude/text-steps-shots	2026-11-13	Throwaway: before and after screenshots of the editor's text steps
+css-fab-button-groups	2026-11-18	Import the FAB, button group and FAB menu files right after ui.css
+css-split-accordion	2026-11-18	Move the Accordion rules into theme/styles/blocks/accordion.css
+css-split-buttons	2026-11-18	Leave the changeset to the combined pull request
+css-split-buttons-links	2026-11-18	Move the Buttons, form, link, Blog posts and small block rules into theme/styles/blocks/buttons-links.css
+css-split-buttons-links-v2	2026-11-18	Move the Buttons, Link, Form, Posts and Filters rules of blocks.css to blocks/buttons-links.css
+css-split-checklist	2026-11-18	Move the Checklist rules in the text into theme/styles/blocks/checklist.css
+css-split-cta-prices	2026-11-18	Move the Call to action and Prices rules into theme/styles/blocks/cta-prices.css
+css-split-link-row	2026-11-18	Move the Link row rules into theme/styles/blocks/link-row.css
+css-split-panel	2026-11-18	Move the Panel, Panels, Points, Checklist, Media, Copy rows and Timeline rules into theme/styles/blocks/panel.css
+css-split-prose	2026-11-18	Move the fallback-layer prose rules into theme/styles/blocks/prose.css
+css-split-rest	2026-11-18	Move the Image grid, Link row and Checklist rules into theme/styles/blocks/
+css-split-ripple	2026-11-18	Leave the changeset to the integrator's combined PR
+css-split-row	2026-11-18	Move the Row and Image grid rules of blocks.css to blocks/row.css
+css-split-shared	2026-11-18	Move the two shared block rules into the Testimonial and Accordion files
+css-split-steps	2026-11-18	Move the Steps and Notice rules into theme/styles/blocks/steps.css
+css-split-testimonial	2026-11-18	Move the Testimonial rules into theme/styles/blocks/testimonial.css
+css-split-text-field	2026-11-18	Merge remote-tracking branch 'origin/0.18' into css-split-text-field
+css-split-text-section	2026-11-18	Read the list column rules from text-section.css in the Columns test
+docs-contrast-shots	2026-11-13	Throwaway: item 3 screenshots (not for merge)
+edition-0.18-photo-src	2026-11-15	Add the 0.18 edition photo (webp only, JSON follows)
+feat/english-source-batch-3	2026-11-10	Write the license messages in English
+feat/settings-cog	2026-11-07	Merge remote-tracking branch 'origin/main' into feat/settings-cog
+feature/0.19.6-scoped-app-css	2026-11-24	Merged as #1166; 3 commits not in main (merge of feature/0.19.6-m3-names)
+icon-picker-colour-shots	2026-11-13	Screenshots
+icon-picker-screenshots	2026-11-12	Screenshots of the icon picker at 375px (PR 409)
+pane-1-merged-backup	2026-11-15	Merge origin/0.18 into section-settings-pane
+perf-scratch-notes	2026-11-15	Note: content-visibility on the editor page, tried and dropped
+pr-408-screenshots	2026-11-12	Screenshots for PR 408
+pr-assets-insert-sheet	2026-11-12	Screenshots for the sheet list styling pull request
+pr-assets-sticky-toolbar	2026-11-12	Screenshots for the sticky toolbar fix
+pr-screens-check-list	2026-11-12	Screenshot, body styles
+pr-screenshots/1121	2026-11-21	Screenshots for PR 1121
+pr-screenshots/1127	2026-11-21	Screenshots for PR 1127
+pr-screenshots/1128	2026-11-21	Screenshots for #1128
+pr-screenshots/616	2026-11-14	Screenshots for #616
+pr-screenshots/640	2026-11-14	Round 4 screenshots for #640
+pr-screenshots/643	2026-11-14	Screenshots for #643
+pr-screenshots/650	2026-11-15	Screenshots for the phone block page (#650)
+pr-screenshots/652	2026-11-14	Screenshots for #652
+pr-screenshots/653	2026-11-14	Screenshots for #653
+pr-screenshots/656	2026-11-14	Screenshots for #656
+pr-screenshots/658	2026-11-14	Screenshots for #658
+pr-screenshots/660	2026-11-14	Screenshots for #660: filled toggles
+pr-screenshots/661	2026-11-14	Screenshots for #661
+pr-screenshots/662	2026-11-14	Screenshots for #662
+pr-screenshots/665	2026-11-14	Screenshots for #665
+pr-screenshots/666	2026-11-14	Screenshots for #666
+pr-screenshots/667	2026-11-14	Screenshots for #667
+pr-screenshots/668	2026-11-14	Screenshots for #668
+pr-screenshots/672	2026-11-14	Screenshots for #672
+pr-screenshots/673	2026-11-14	Screenshots for #673
+pr-screenshots/676	2026-11-14	Screenshots for #676
+pr-screenshots/677	2026-11-14	Screenshots for #677
+pr-screenshots/678	2026-11-14	Screenshots for PR 678
+pr-screenshots/679	2026-11-14	Screenshots for #679
+pr-screenshots/680	2026-11-14	Screenshots for #680
+pr-screenshots/682	2026-11-14	Screenshots for #682: alignment before
+pr-screenshots/683	2026-11-14	Screenshots for #683
+pr-screenshots/685	2026-11-14	Screenshots for #685
+pr-screenshots/686	2026-11-14	Screenshots for #686: the crop page
+pr-screenshots/688	2026-11-14	Screenshots for #688
+pr-screenshots/690	2026-11-14	Screenshots for #690
+pr-screenshots/691	2026-11-14	Screenshots for #691
+pr-screenshots/692	2026-11-15	Grouped menu screenshots for PR 692
+pr-screenshots/695	2026-11-14	Screenshots for #695
+pr-screenshots/696	2026-11-14	Screenshots for PR 696
+pr-screenshots/697	2026-11-14	Screenshots for PR 697
+pr-screenshots/698	2026-11-14	Screenshots for #698
+pr-screenshots/699	2026-11-15	Screenshots for #699: the live sheet from expanded
+pr-screenshots/700	2026-11-15	Screenshots for #700
+pr-screenshots/701	2026-11-15	Screenshots for #701: after the subtitle change
+pr-screenshots/702	2026-11-15	Screenshots for #702
+pr-screenshots/704	2026-11-15	Screenshots for PR 704
+pr-screenshots/705	2026-11-15	Screenshots for #705
+pr-screenshots/707	2026-11-15	Screenshots for #707
+pr-screenshots/708	2026-11-15	Screenshots for #708
+pr-screenshots/710	2026-11-15	Screenshots for #710
+pr-screenshots/711	2026-11-15	Mockup C: a field's settings as a page with a back arrow on a phone
+pr-screenshots/712	2026-11-16	After screenshots for PR 712 (FAB above the footer)
+pr-screenshots/714	2026-11-15	Screenshots for #714 (FAB above the footer)
+pr-screenshots/715	2026-11-15	Updated screenshots for #715
+pr-screenshots/718	2026-11-15	Screenshots for #718
+pr-screenshots/719	2026-11-15	Screenshots for #719
+pr-screenshots/721	2026-11-15	Screenshots for #721
+pr-screenshots/724	2026-11-15	Screenshots for #724
+pr-screenshots/727	2026-11-15	Screenshots for #727
+pr-screenshots/728	2026-11-15	Screenshots for #728
+pr-screenshots/729	2026-11-15	Screenshots for #729
+pr-screenshots/731	2026-11-15	Screenshots for #731
+pr-screenshots/732	2026-11-15	Screenshots for PR 732
+pr-screenshots/734	2026-11-15	Screenshots for #734: spacing, v8
+pr-screenshots/736	2026-11-15	Screenshots for #736
+pr-screenshots/737	2026-11-15	Screenshots for Preview in the text bar (#737)
+pr-screenshots/739	2026-11-15	Screenshots for #739
+pr-screenshots/740	2026-11-15	Screenshots for #740
+pr-screenshots/741	2026-11-15	Screenshots of the 16/24 gutter grid
+pr-screenshots/743	2026-11-15	Screenshots for #743: M3 grids diagram
+pr-screenshots/745	2026-11-15	Screenshots for pull request 745
+pr-screenshots/746	2026-11-15	Screenshots for PR 746
+pr-screenshots/747	2026-11-15	Screenshots final
+pr-screenshots/749	2026-11-15	Screenshots for #749
+pr-screenshots/752	2026-11-15	Screenshots for #752
+pr-screenshots/753	2026-11-15	Retake after shots with no focus ring
+pr-screenshots/754	2026-11-15	More screenshots for PR 754
+pr-screenshots/755	2026-11-15	Screenshots for PR 755
+pr-screenshots/756	2026-11-15	Screenshots for PR 756
+pr-screenshots/757	2026-11-15	Screenshots for #757
+pr-screenshots/758	2026-11-15	Screenshots for PR 758
+pr-screenshots/759	2026-11-15	Screenshots for #759
+pr-screenshots/760	2026-11-15	Screenshots for PR 760
+pr-screenshots/761	2026-11-15	Retake the dialog shots on the theme's real dialog markup
+pr-screenshots/764	2026-11-15	Screenshots for #764
+pr-screenshots/765	2026-11-15	Screenshots for PR 765
+pr-screenshots/766	2026-11-15	Screenshots for #766
+pr-screenshots/767	2026-11-15	Footer shots with the connected button group
+pr-screenshots/768	2026-11-15	Screenshots for #768
+pr-screenshots/772	2026-11-15	Screenshots for the dropdown menu PR
+pr-screenshots/774	2026-11-15	Screenshots for #774
+pr-screenshots/778	2026-11-15	Screenshots of the 0.18 edition photo on the update card (PR #778)
+pr-screenshots/780	2026-11-15	Screenshots for the footer two-columns branch
+pr-screenshots/781	2026-11-15	Screenshots for #781
+pr-screenshots/782	2026-11-15	Screenshots for #782
+pr-screenshots/783	2026-11-15	Screenshots for #783
+pr-screenshots/786	2026-11-16	Screenshots for #786
+pr-screenshots/800	2026-11-16	Screenshots for #800 at head 36c1e31 (44 px footer links)
+pr-screenshots/811	2026-11-16	Screenshots for PR 811 on the final build
+pr-screenshots/812	2026-11-16	Screenshots for PR #812: Cards before and after, 375 and 1280
+pr-screenshots/814	2026-11-16	Screenshots for pull request 814
+pr-screenshots/816	2026-11-16	Screenshots for PR 816
+pr-screenshots/819	2026-11-16	Screenshots for #819, start-aligned footer
+pr-screenshots/820	2026-11-16	Screenshots for PR 820
+pr-screenshots/821	2026-11-16	Screenshots for #821
+pr-screenshots/822	2026-11-16	Screenshots for #822
+pr-screenshots/827	2026-11-16	Contact sheets for PR 827
+pr-screenshots/828	2026-11-16	Screenshots for PR #828: testimonial photo, before and after
+pr-screenshots/831	2026-11-16	Screenshots for #831
+pr-screenshots/832	2026-11-16	Screenshots for #832
+pr-screenshots/838	2026-11-16	Blog posts screenshots at 61ede1d
+pr-screenshots/840	2026-11-16	Screenshots for #840
+pr-screenshots/842	2026-11-16	Screenshots for #842
+pr-screenshots/844	2026-11-16	Screenshots for PR 844
+pr-screenshots/845	2026-11-16	Screenshots for PR 845
+pr-screenshots/846	2026-11-16	Screenshots for #846 (before and after)
+pr-screenshots/847	2026-11-16	Screenshots for PR 847
+pr-screenshots/849	2026-11-16	Screenshots for #849
+pr-screenshots/850	2026-11-16	Screenshots for #850
+pr-screenshots/851	2026-11-16	Screenshots for #851, Label type
+pr-screenshots/852	2026-11-16	Demo Buttons page: two blocks
+pr-screenshots/853	2026-11-16	Screenshots for #853
+pr-screenshots/855	2026-11-16	Screenshots for PR 855
+pr-screenshots/869	2026-11-16	Screenshots for the card media corners
+pr-screenshots/921	2026-11-18	Screenshots for #921
+pr-screenshots/941	2026-11-18	Screenshots for #941
+pr-screenshots/943	2026-11-18	Screenshots for pull request 943
+pr-screenshots/944	2026-11-18	Screenshots for #944
+pr-screenshots/946	2026-11-18	Screenshots for #946
+pr-screenshots/954	2026-11-18	Retake the blog list and related post cards on 0.18 with #948 and feature/cards-lists after the sync
+pr-screenshots/992	2026-11-18	Screenshots for PR 992
+pr-screenshots/back-icon	2026-11-16	Screenshots for the side sheet back icon (gallery, before and after)
+pr-screenshots/button-xsmall-32	2026-11-15	Screenshots for the xsmall 32 dp branch
+pr-screenshots/card-border-proposal	2026-11-20	Screenshots: card border proposal
+pr-screenshots/dropdown	2026-11-15	Screenshots for the dropdown menu PR
+pr-screenshots/footer-two-columns	2026-11-15	Screenshots for the footer two-columns branch
+pr-screenshots/list-menu-768	2026-11-16	Screenshots for #791
+pr-screenshots/lists-expand-design	2026-11-16	Screenshots: new List - Expand glyph and description; settings scrolled to Design
+pr-screenshots/pane-2	2026-11-15	Screenshots for pane PR 2 (before and after, search field fixed)
+pr-screenshots/pane-3b	2026-11-16	Screenshots for pane PR 3b (before and after)
+pr-screenshots/pane-4	2026-11-16	Screenshots for pane PR 4 (before and after)
+pr-screenshots/pane-5	2026-11-16	768 after: the create button beside the pane
+pr-screenshots/test-skill-check	2026-11-14	Throwaway screenshot test
+pr-shots-section-settings	2026-11-12	Add new-page screenshot
+proto-section-contrast	2026-11-13	Prototype: before and after screenshots for the section colour proposal (not for merge)
+release/0.12	2026-11-06	Merge pull request #142 from larsadolfsen/changeset-release/release/0.12
+s1-light-dark-backup	2026-11-15	Audit: record the C3 spike result
+screens/caching-screen	2026-11-11	Screenshots for the caching screen PR
+screenshots-accordion-row-text-button	2026-11-13	Screenshots for the Expandable list row text button
+screenshots-card-spacing	2026-11-13	Screenshots: whole Cards stack at 375 px, without the sticky bar
+screenshots-cards-design	2026-11-12	Screenshots: Cards carousel at 375 px
+screenshots-checklist-marks	2026-11-12	Screenshots: check list marks in coloured sections, before and after
+screenshots-full-section	2026-11-13	Screenshots: full-width section content column
+screenshots-list-bullets	2026-11-12	Screenshots: list bullets in the Preview
+screenshots-pr-413	2026-11-12	Screenshots for PR 413
+screenshots-section-bg	2026-11-12	Screenshots: section background before and after
+screenshots-segmented-text-buttons	2026-11-13	Screenshots
+spec/app-sandbox-build	2026-11-07	Add the app sandbox design and build plan (part 1)
+spike-light-dark-tokens	2026-11-15	SPIKE (throwaway, no PR): colorsCss emits light-dark() tokens
