@@ -443,7 +443,7 @@ export const parts: Messages['parts'] = {
       bottomSheet:
         'Et ark nedefra: modalt over siden (en dialog i midten på en computer, fx bookingarket), eller standard nederst på skærmen, hvor siden kan bruges bag det, og som trækkes op og ned.',
       carousel:
-        'Kort eller billeder på en række, der skubbes til siden, med prikker under: lige store, i flere størrelser, ét stort (fra starten eller i midten) og ét ad gangen.',
+        'Kort eller billeder på en række, der skubbes til siden, med prikker under: lige store, i flere former, i flere størrelser, ét stort (fra starten eller i midten) og ét ad gangen.',
       dialogKinds: {
         basic: 'Almindelig',
         icon: 'Med ikon, liste og skillelinje',
@@ -465,6 +465,7 @@ export const parts: Messages['parts'] = {
       layouts: {
         uncontained: 'Lige store',
         multiBrowse: 'Flere størrelser',
+        multiAspect: 'Flere former, frit rul',
         hero: 'Ét stort',
         heroCenter: 'Ét stort i midten',
         narrow: 'Uden ramme, i en smal kolonne',

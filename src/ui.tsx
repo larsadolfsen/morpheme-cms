@@ -3846,14 +3846,16 @@ export function MenuButton({
 export type TabChoice<T extends string> = {
   label: string;
   value: T;
-  options: { value: T; label: string; icon: Icon }[];
+  /** `primary` (the default: icon over name) or `secondary` (the name only, with the divider under the row). */
+  kind?: 'primary' | 'secondary';
+  options: { value: T; label: string; icon?: Icon }[];
   onChange: (v: T) => void;
 };
 
 /** The row of the theme's tabs: its primary tabs, sharing the width, each with its icon over its name, the open one
  * with the theme's indicator under it. The arrow keys go to the one before and after and open it. `id` ties it to its
  * TabPanel. In a screen's top app bar (`tabs` on Screen), the bar's line is the divider under them (ui.css). */
-export function TabRow<T extends string>({ id, label, value, options, onChange }: TabChoice<T> & { id: string }) {
+export function TabRow<T extends string>({ id, label, value, kind = 'primary', options, onChange }: TabChoice<T> & { id: string }) {
   const keys = (e: KeyboardEvent<HTMLElement>) => {
     const at = options.findIndex((o) => o.value === value);
     const to = { ArrowLeft: at - 1, ArrowRight: at + 1, Home: 0, End: options.length - 1 }[e.key];
@@ -3864,7 +3866,7 @@ export function TabRow<T extends string>({ id, label, value, options, onChange }
     e.currentTarget.querySelector<HTMLElement>(`[data-tab="${next.value}"]`)?.focus();
   };
   return (
-    <SiteTabs kind="primary" scrollable={false} label={label} onKeyDown={keys}>
+    <SiteTabs kind={kind} scrollable={false} label={label} onKeyDown={keys}>
       {options.map(({ value: v, label: name, icon: Glyph }) => (
         <SiteTab
           key={v}
@@ -3872,7 +3874,7 @@ export function TabRow<T extends string>({ id, label, value, options, onChange }
           data-tab={v}
           controls={`${id}-panel`}
           selected={v === value}
-          icon={<Glyph />}
+          icon={Glyph && kind === 'primary' ? <Glyph /> : undefined}
           onClick={() => onChange(v)}
         >
           <span className="mo-truncate">{name}</span>
