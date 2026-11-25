@@ -532,7 +532,7 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-placeholder-value {
-    opacity: 60%;
+    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-phone-row {
     display: flex;

@@ -45,7 +45,10 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-strong {
-    font-weight: 500;
+    font-size: var(--mo-sys-typescale-title-small-size);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
   .mo-editor-block {
     display: block;
@@ -61,13 +64,15 @@
     word-break: break-all;
   }
   .mo-editor-placeholder {
-    opacity: 60%;
+    color: var(--mo-sys-color-on-surface-variant);
   }
   /* A short text under or beside something: 14/20, in the muted colour. */
   .mo-editor-caption {
     color: var(--mo-sys-color-on-surface-variant);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   /* The intro of a screen: a muted line above the list. */
   .mo-editor-note {
@@ -77,25 +82,34 @@
   /* The small title of a part (Fields, Tags, Preview): medium weight, the space before what it names. */
   .mo-editor-subtitle {
     margin-block-end: var(--mo-ref-space-100);
-    font-weight: 500;
+    font-size: var(--mo-sys-typescale-title-small-size);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
   .mo-editor-subtitle-tight {
     margin-block-end: var(--mo-ref-space-50);
-    font-weight: 500;
+    font-size: var(--mo-sys-typescale-title-small-size);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
   /* The label of one preview (a block's name above its drawing). */
   .mo-editor-preview-label {
     margin-block-end: var(--mo-ref-space-100);
     color: var(--mo-sys-color-on-surface-variant);
-    font-size: 0.875rem;
-    font-weight: 500;
-    line-height: 1.25rem;
+    font-size: var(--mo-sys-typescale-label-large-size);
+    font-weight: var(--mo-sys-typescale-label-large-weight);
+    line-height: var(--mo-sys-typescale-label-large-line-height);
+    letter-spacing: var(--mo-sys-typescale-label-large-tracking);
   }
   .mo-editor-shortcut-key {
     color: var(--mo-sys-color-on-surface-variant);
     font-family: var(--mo-ref-typeface-plain);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
 
   /* ---- Spaces round a block of a page ---- */
