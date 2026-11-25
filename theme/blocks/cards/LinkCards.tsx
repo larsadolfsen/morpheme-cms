@@ -131,7 +131,7 @@ export default function LinkCards({
         </span>
       </Card>
     ) : (
-      <Card {...parts} actions={card.buttons.length > 0 ? <Buttons buttons={card.buttons} /> : undefined} />
+      <Card {...parts} actions={card.buttons.length > 0 ? <Buttons buttons={card.buttons} /> : undefined} divider={card.divider} />
     );
   };
   if (phone === 'carousel' && items.length >= 2)

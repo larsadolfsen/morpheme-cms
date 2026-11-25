@@ -1,0 +1,7 @@
+{
+  "id": "divider-toolbar",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Hjælpelinjer",
+  "text": "Prikkede linjer viser, hvor sektioner og blokke sidder, men de kan fylde meget. Tryk på Skjul hjælpelinjer på tekstlinjen for at se teksten uden dem, og på Vis hjælpelinjer for at få dem tilbage. Sektionen, du står i, beholder sine linjer."
+}

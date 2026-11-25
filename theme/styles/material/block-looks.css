@@ -67,11 +67,7 @@
   }
 
   /* The buttons that do more than one thing (their variables above): the ripple when pressed; a split button's
-     corners between its two halves a little rounder while pressed, the outer ones as they are; 38% when a segment
-     cannot be used (M3). A FAB menu's actions in the secondary container, as pills. */
-  .mo-segmented-button__segment:disabled {
-    opacity: var(--mo-sys-state-disabled-state-layer-opacity);
-  }
+     corners between its two halves a little rounder while pressed, the outer ones as they are; A FAB menu's actions in the secondary container, as pills. */
   .mo-split-button > .mo-button:active {
     border-radius: var(--mo-comp-block-control-radius);
   }

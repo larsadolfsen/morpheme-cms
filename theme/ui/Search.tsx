@@ -13,7 +13,9 @@
 // bar container, 56dp, surface container high) with the back arrow, the field and the clear button, in a container of its own (surface container
 // low full screen, high docked); under the bar optional filter chips (`filters`: M3 "Filter chips to narrow down results"), then the lists with their
 // category labels. An item can lead with an image (`thumb`) and have a button that removes it (`onRemove`: a recent search; Delete does it from the
-// field). Exposes Search, SearchBar, SearchBarButton, SearchGroupLabel, SearchView, searchClass.
+// field). `kind` (Search and SearchView) is M3's style: contained (the default) or divided (baseline; M3 Expressive: "Not recommended. Use contained.", kept as a variant on the owner's ask: one container, no filled bar, a divider under the
+// header; `mo-is-divided` on the root, searchClasses for an Astro component). Exposes Search, SearchBar, SearchBarButton, SearchGroupLabel, SearchView,
+// searchClass, searchClasses, searchKinds.
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Svg, type IconRef } from '@morphemecms/cms/src/icon';
 import { useOnSite } from '@morphemecms/cms/src/standard/view';
@@ -26,8 +28,15 @@ import trackInputModality from '@theme/ui/inputModality';
 
 export type SearchResult = { href: string; headline: ReactNode; supporting?: ReactNode; icon?: string };
 
+/** A search's style (M3 search, Specs, *Style*: "Contained" has a filled container, "Divided (baseline)" a divider between the bar and the results). */
+export const searchKinds = ['contained', 'divided'] as const;
+export type SearchKind = (typeof searchKinds)[number];
+
 /** The class of a search (the bar and its view). */
 export const searchClass = 'mo-search';
+
+/** A search's classes: its own and, for the divided style, `mo-is-divided` (the contained one, the default, has none). */
+export const searchClasses = (kind: SearchKind = 'contained') => (kind === 'divided' ? `${searchClass} mo-is-divided` : searchClass);
 
 export default function Search({
   label,
@@ -39,6 +48,7 @@ export default function Search({
   trailing,
   open,
   query,
+  kind,
   className,
   ...rest
 }: {
@@ -49,6 +59,8 @@ export default function Search({
   results: SearchResult[];
   leadingIcon?: string;
   trailing?: ReactNode;
+  /** The style: contained (the default) or divided. */
+  kind?: SearchKind;
   open?: boolean;
   query?: string;
   className?: string;
@@ -60,7 +72,7 @@ export default function Search({
   const onSite = useOnSite();
   const listbox = results.length > 0 && onSite;
   return (
-    <div className={[searchClass, className].filter(Boolean).join(' ')} data-search="" {...rest}>
+    <div className={[searchClasses(kind), className].filter(Boolean).join(' ')} data-search="" {...rest}>
       {!open && (
         <div className="mo-search-bar">
           <button
@@ -241,6 +253,7 @@ export function SearchView({
   filtersLabel,
   filter,
   onFilterChange,
+  kind,
   className,
   ...rest
 }: {
@@ -268,6 +281,8 @@ export function SearchView({
   /** The chosen filter's id, or none. */
   filter?: string | null;
   onFilterChange?: (id: string | null) => void;
+  /** The style: contained (the default) or divided. */
+  kind?: SearchKind;
   className?: string;
 } & Record<string, unknown>) {
   const id = useId();
@@ -346,7 +361,7 @@ export function SearchView({
   let index = -1;
   const Panel = (wide ? 'div' : 'dialog') as 'div';
   return (
-    <div className={[searchClass, className].filter(Boolean).join(' ')} data-search-controlled="" {...rest}>
+    <div className={[searchClasses(kind), className].filter(Boolean).join(' ')} data-search-controlled="" {...rest}>
       <Panel
         ref={dialog}
         className={['mo-search-view', wide && 'mo-search-view__docked'].filter(Boolean).join(' ')}

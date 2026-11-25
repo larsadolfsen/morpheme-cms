@@ -998,6 +998,52 @@ async function checkCardsElevation(width, height) {
   await inEditor.close();
 }
 
+/** The card's Divider (a card with buttons may have one line above them, full width, on the site and in the editor): the demo's elevated card "With buttons" has it, the card beside it does not, and no card without buttons draws one. The line runs from the card's edge to its edge, between the text and the buttons. */
+async function checkCardDivider(width, height) {
+  const label = `${width}px card divider`;
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-cards.md')))
+    return void console.log(`${label}: skipped, the site has no Cards page, which the demo has.`);
+  const phone = width < 600;
+  const read = () =>
+    [...document.querySelectorAll('ul.mo-block-cards .mo-block-cards__card')].map((card) => {
+      const line = card.querySelector('.mo-divider');
+      const actions = card.querySelector('.mo-card__actions, .mo-block-cards__card-actions');
+      const box = card.getBoundingClientRect();
+      const l = line?.getBoundingClientRect();
+      return {
+        title: card.textContent.trim().slice(0, 14),
+        lines: card.querySelectorAll('.mo-divider').length,
+        buttons: !!actions,
+        full: l ? Math.abs(l.left - box.left - 1) <= 2 && Math.abs(box.right - l.right - 1) <= 2 : null,
+        above: l && actions ? l.bottom <= actions.getBoundingClientRect().top + 1 : null,
+        tag: line?.tagName,
+      };
+    });
+  const judge = (where, cards) => {
+    const withLine = cards.filter((c) => c.lines);
+    if (withLine.length !== 1)
+      problems.push(`${label} (${where}): ${withLine.length} cards have a divider, not 1 (${JSON.stringify(cards)})`);
+    for (const c of withLine) {
+      if (c.tag !== 'HR') problems.push(`${label} (${where}): the divider is not the theme's <hr>`);
+      if (!c.buttons) problems.push(`${label} (${where}): "${c.title}" has a divider and no buttons`);
+      if (c.lines !== 1) problems.push(`${label} (${where}): "${c.title}" has ${c.lines} dividers, not 1`);
+      if (!c.full) problems.push(`${label} (${where}): the divider on "${c.title}" is not from edge to edge`);
+      if (!c.above) problems.push(`${label} (${where}): the divider on "${c.title}" is not above the buttons`);
+    }
+  };
+  const onSite = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  onSite.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (await onTestPage(onSite, label)) judge('site', await onSite.evaluate(read));
+  await onSite.close();
+  const inEditor = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  inEditor.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(inEditor, site);
+  await inEditor.evaluate(() => (location.hash = '#src/content/pages/blocks-cards.md'));
+  await inEditor.waitForSelector('ul.mo-block-cards .mo-block-cards__card', { timeout: 30_000 });
+  judge('editor', await inEditor.evaluate(read));
+  await inEditor.close();
+}
+
 /** The color of an icon (`iconColor`): the row's icon picker has the choice next to the icon (Primary, Secondary, Tertiary); a picked color is on the row (`data-icon-color`) and drawn in the theme's color role, in the editor like on the site. */
 async function checkIconColor(width, height, scheme = 'light') {
   const label = `${width}px icon color (${scheme})`;
@@ -1089,7 +1135,7 @@ async function checkIconColor(width, height, scheme = 'light') {
           circle: !!dot && Math.abs(box.width - box.height) < 0.5 && getComputedStyle(dot).borderRadius !== '0px',
           color: dot ? getComputedStyle(dot).backgroundColor : null,
           want: colorOf(role),
-          check: !!chip.querySelector('.mo-segmented-button__check'),
+          check: !!chip.querySelector('.mo-button__check'),
           width: Math.round(chip.getBoundingClientRect().width),
         };
       });
@@ -1227,6 +1273,11 @@ export function register(unit) {
   unit('checkCardsSpacing 768', () => checkCardsSpacing(768, 1024));
   unit('checkCardGutter 768', () => checkCardGutter(768, 1024));
   unit('checkCardsEditorSpacing 768', () => checkCardsEditorSpacing(768, 1024));
+  for (const [width, height] of [
+    [375, 740],
+    [1280, 900],
+  ])
+    unit(`checkCardDivider ${width}`, () => checkCardDivider(width, height));
   unit('checkCardsElevation 768', () => checkCardsElevation(768, 1024));
   for (const [width, height] of [
     [375, 740],

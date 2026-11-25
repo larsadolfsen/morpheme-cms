@@ -27,7 +27,7 @@ export default defineBlock({
     fields: ['title', 'subhead', 'text'],
     media: ['icon', 'iconColor', 'image', 'alt', 'video'],
     blockMedia: ['media'],
-    settings: ['href', 'buttons'],
+    settings: ['href', 'buttons', 'divider'],
     blockSettings: true,
     texts: {
       addAbove: t.blocks.cards.addAbove,
@@ -176,6 +176,16 @@ export default defineBlock({
           singular: t.blocks.cards.button,
           hint: t.blocks.cards.buttonsHint,
           only: { field: 'href', is: [''], loose: true },
+        },
+        // One optional line between the text and the buttons (the shared Divider, full width): only on a card with buttons. The value is kept when the card
+        // has no buttons any more (or is converted to a type without them) and comes back with them.
+        {
+          name: 'divider',
+          label: t.blocks.cards.divider,
+          type: 'boolean',
+          toggle: t.blocks.cards.dividerToggle,
+          hint: t.blocks.cards.dividerHint,
+          only: { field: 'buttons', is: [''], not: true },
         },
       ],
     },

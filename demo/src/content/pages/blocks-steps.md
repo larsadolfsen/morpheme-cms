@@ -8,9 +8,9 @@ seoDescription: "A numbered sequence, shown live."
 
 # Steps
 
-[All blocks](/blocks/)
-
 Drawn by the Steps block’s own numbered list; no other block uses it.
+
+[All blocks](/blocks/)
 
 
 ## Steps

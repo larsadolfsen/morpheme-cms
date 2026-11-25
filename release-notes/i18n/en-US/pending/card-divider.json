@@ -1,0 +1,7 @@
+{
+  "id": "card-divider",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Card divider",
+  "text": "A line between a card’s text and its buttons helps long cards read clearly. Open a card with buttons and turn on Divider. The line runs the full width of the card, and it is off until you turn it on."
+}

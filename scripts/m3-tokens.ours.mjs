@@ -4,6 +4,11 @@
 // the generic reasons ("review in the component batch") are looked at again when the component's batch fixes its tokens. 0.20.0's scripts/m3-names.ours.mjs takes this list over.
 export const ours = [
   {
+    token: '--mo-comp-divider-inset',
+    reason:
+      'The inset divider\'s distance from each edge (M3 Cards, Guidelines: "inset dividers", 16 dp); md.comp.divider holds only thickness and color.',
+  },
+  {
     token: '--mo-comp-block-*',
     reason:
       "A block's own token (the blocks' look: colours, radii, gutters, widths); blocks are not M3 components (spec 2026-11-20-material-3-names-design.md, rule 4).",
@@ -477,25 +482,6 @@ export const ours = [
   {
     token: '--mo-comp-search-view-scrim',
     reason: 'The scrim of this part; M3 holds one scrim role (md.sys.color.scrim) and prints no token per part.',
-  },
-  {
-    token: '--mo-comp-segmented-button-padding',
-    reason:
-      'A padding as one CSS value (block and inline together); M3 prints its spaces as leading-space, trailing-space, top-space and bottom-space.',
-  },
-  {
-    token: '--mo-comp-segmented-button-radius',
-    reason: "A corner of a part state or size; M3 holds it as the part's shape token for that state, which the check does not map yet.",
-  },
-  {
-    token: '--mo-comp-segmented-button-selected-hover',
-    reason:
-      'A state of the part drawn as one mixed colour; M3 holds states as a state layer colour and opacity token (md.sys.state) per state.',
-  },
-  {
-    token: '--mo-comp-segmented-button-surface',
-    reason:
-      'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
   },
   {
     token: '--mo-comp-setting-row-label-weight',

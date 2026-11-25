@@ -26,14 +26,15 @@ import { blobId } from '../lib/git.mjs';
 import { locale, t } from './i18n';
 import { hooksOf, type AppHook } from '../lib/hooks';
 import type { StoreLicenses } from './licenseData';
-import { APP_API, APP_APIS, THEME_API } from '../lib/contracts.mjs';
-import { RECORD, STANDARD, isText, validApp, validTheme } from '../lib/storeEntries.mjs';
+import { APP_API, APP_APIS, ICON_PACK_APIS, THEME_API } from '../lib/contracts.mjs';
+import { RECORD, STANDARD, isText, validApp, validIconPack, validTheme } from '../lib/storeEntries.mjs';
 import { categoryOf, type Category, type Role } from '../lib/storeCategories.mjs';
 import { timedFetch } from './storeFetch';
 import { appChanges as appChangesIn } from '../lib/appChanges.mjs';
 import { placesOf, type AppPlaces } from '../lib/appPlaces.mjs';
 import type { AppManifest } from '../lib/appManifest.mjs';
 import { folderChanges } from '../lib/folderChanges.mjs';
+import { STORE_PACKS_FOLDER } from '../site/iconPacks.mjs';
 
 // The contracts this editor runs (lib/contracts.mjs, also read by the site's Worker).
 export { APP_API, THEME_API };
@@ -187,6 +188,33 @@ export type StoreTheme = {
   files: StoreFile[];
 };
 
+/** An icon pack in the store's catalog (docs/icon-pack-contract.md): SVG files and text, no code. It may lack icons; the site
+ * draws those in Material Symbols. `samples` are five inline SVGs, so the editor draws it without a second request. */
+export type StoreIconPack = {
+  id: string;
+  handle?: string;
+  version: string;
+  api: number;
+  name: string;
+  author: string;
+  license: string;
+  /** `outline`, `filled`, `duotone` or `mixed`, for the store's filter. */
+  style?: string;
+  description?: Record<string, string>;
+  /** What is new in each version, by the language and then the version. */
+  releaseNotes?: Record<string, Record<string, string>>;
+  licenses?: StoreLicenses;
+  samples: string[];
+  files: StoreFile[];
+};
+
+/** An icon pack of the catalog as the editor shows it: its texts in the editor's language, and its words for the search. */
+export type ShownIconPack = Omit<StoreIconPack, 'description' | 'releaseNotes'> & {
+  description?: string;
+  releaseNotes?: Record<string, string>;
+  words: string;
+};
+
 /** A theme of the catalog as the editor shows it: its texts in the editor's language, and its words for the search. */
 export type ShownTheme = Omit<StoreTheme, 'description' | 'highlights' | 'releaseNotes'> & {
   description?: string;
@@ -217,6 +245,8 @@ export const DEVELOPER_ROUTE = 'apps/developer';
 export const appFolder = (id: string) => `${config.apps.folder}/${id}`;
 /** A theme's folder in the site; the standard theme's is always there. */
 export const themeFolder = (id: string) => `${config.themes}/${id}`;
+/** An icon pack's folder in the site (src/icon-packs/<id>), by its store id. */
+export const iconPackFolder = (id: string) => `${STORE_PACKS_FOLDER}/${id}`;
 export const STANDARD_THEME = STANDARD;
 export { RECORD };
 
@@ -324,6 +354,32 @@ export function catalogThemes(text: string): ShownTheme[] {
   });
 }
 
+/** The icon packs in a catalog (catalog.json, as text) the editor can read (`icons` entries, written to a contract in
+ * ICON_PACK_APIS), with their texts in its language (else the first they have). A catalog without them, as an older store's,
+ * has none; an entry of another contract is left out. */
+export function catalogIconPacks(text: string): ShownIconPack[] {
+  let json: any;
+  try {
+    json = JSON.parse(text);
+  } catch {
+    return [];
+  }
+  const packs: unknown[] = Array.isArray(json?.icons) ? json.icons : [];
+  const inLocale = <T>(x?: Record<string, T>) => x && (x[locale] ?? Object.values(x)[0]);
+  return packs
+    .filter((x): x is StoreIconPack => validIconPack(x, ICON_PACK_APIS))
+    .map((x) => {
+      const description = inLocale(x.description);
+      return {
+        ...x,
+        description: typeof description === 'string' ? description : undefined,
+        releaseNotes: notesOf(inLocale(x.releaseNotes)),
+        samples: (Array.isArray(x.samples) ? x.samples : []).filter(isText),
+        words: [x.name, x.author, x.style, ...Object.values(x.description ?? {})].filter(isText).join(' ').toLowerCase(),
+      };
+    });
+}
+
 // The catalog, read once while the editor is open (again after it could not be read).
 let catalog: Promise<string> | null = null;
 
@@ -363,6 +419,9 @@ export const readCatalog = (): Promise<ShownApp[]> => catalogText().then(catalog
 
 /** The store's themes. Fails when the catalog cannot be read. */
 export const readThemes = (): Promise<ShownTheme[]> => catalogText().then(catalogThemes);
+
+/** The store's icon packs. Fails when the catalog cannot be read. */
+export const readIconPacks = (): Promise<ShownIconPack[]> => catalogText().then(catalogIconPacks);
 
 // A file from the store by its blob id (through the site's Worker), checked against the id.
 async function readFile(oid: string): Promise<Uint8Array> {
@@ -448,6 +507,16 @@ export function themeChanges(
   next: { files: { path: string; content: string | Uint8Array }[]; record: StoreRecord } | null,
 ): Change[] {
   return folderChanges(themeFolder(id), current, next);
+}
+
+/** The changes that make an icon pack's folder in the site (`current`, its files now) the store's version, with the note of
+ * where it came from, or remove it (`next` null: uninstalling, which is never refused). In one commit. */
+export function iconPackChanges(
+  id: string,
+  current: RepoFile[],
+  next: { files: { path: string; content: string | Uint8Array }[]; record: StoreRecord } | null,
+): Change[] {
+  return folderChanges(iconPackFolder(id), current, next);
 }
 
 /** The changes that make an app's folder in the site (`current`, its files now) the store's version, with the note of

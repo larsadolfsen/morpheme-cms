@@ -4,6 +4,11 @@
 export const ours = {
   tokens: [
     {
+      token: '--mo-comp-divider-inset',
+      reason:
+        'The inset divider\'s distance from each edge (M3: "inset dividers, which don\'t run the full width", 16 dp); md.comp.divider holds only thickness and color.',
+    },
+    {
       token: '--mo-comp-nav-bar-indicator-hover',
       reason:
         'A state of the part drawn as one mixed colour; M3 holds states as a state layer colour and opacity token (md.sys.state) per state.',
@@ -508,25 +513,6 @@ export const ours = {
       reason: 'The scrim of this part; M3 holds one scrim role (md.sys.color.scrim) and prints no token per part.',
     },
     {
-      token: '--mo-comp-segmented-button-padding',
-      reason:
-        'A padding as one CSS value (block and inline together); M3 prints its spaces as leading-space, trailing-space, top-space and bottom-space.',
-    },
-    {
-      token: '--mo-comp-segmented-button-radius',
-      reason: "A corner of a part state or size; M3 holds it as the part's shape token for that state, which the check does not map yet.",
-    },
-    {
-      token: '--mo-comp-segmented-button-selected-hover',
-      reason:
-        'A state of the part drawn as one mixed colour; M3 holds states as a state layer colour and opacity token (md.sys.state) per state.',
-    },
-    {
-      token: '--mo-comp-segmented-button-surface',
-      reason:
-        'A colour of the part by our own name; M3 holds it as a `container.color` or `label-text.color` token of a state the check does not map yet.',
-    },
-    {
       token: '--mo-comp-setting-row-label-weight',
       reason:
         "A text value read from the type scale; M3 holds it as the part's composite label-text token, which the check does not compare.",
@@ -927,6 +913,11 @@ export const ours = {
     { class: 'mo-cover', reason: 'A layout utility.' },
     { class: 'mo-choice-group', reason: 'The choice group (buttons that fall back to a radio list); M3 has no such component.' },
     { class: 'mo-cookie', reason: 'The cookie notice of the site.' },
+    {
+      class: 'mo-search',
+      reason:
+        'The root of the Search component, round its bar and its view (Search `kind` sets the contained or divided style); M3 has the two parts, search-bar and search-view, not their wrapper.',
+    },
     { class: 'mo-drawer', reason: 'The site header drawer; its M3 name is navigation-drawer, kept until the layout batch.' },
     { class: 'mo-dropdown-menu', reason: 'The script-driven dropdown of the site; M3 name menu, kept until the menu batch.' },
     { class: 'mo-elevated-*', reason: 'Elevation utility classes.' },

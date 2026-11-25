@@ -359,6 +359,65 @@ async function checkFullWidthSection() {
   }
 }
 
+/** The dotted line at the start of a text section (never the first one) runs edge to edge of the text field, while the text keeps its page
+ * margin; a coloured section's box is unchanged (inset, with corners). At 375 and 1280 px. */
+async function checkSectionLine() {
+  for (const width of [375, 1280]) {
+    const label = `${width}px section line`;
+    const page = await browser.newPage({ viewport: { width, height: 740 }, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    const path = BUILT_PAGE;
+    const text = `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n\n## Alpha\n\nAlpha body.\n\n## Beta\n\nBeta body.\n`;
+    await openEditor(page, site, { [path]: text });
+    await page.goto(`${site}/editor/#${path}`);
+    await page.waitForSelector('.ProseMirror [data-section-part="start"]', { timeout: 30_000 });
+    const got = await page.evaluate(() => {
+      const pm = document.querySelector('.ProseMirror');
+      const field = pm.closest('.mo-editor-text');
+      const f = field.getBoundingClientRect();
+      const border = (n) => parseFloat(getComputedStyle(field)[n]);
+      const start = pm.querySelector('[data-section-part="start"]');
+      // The line is the element's ::before (editor.css): its left edge and width are read from it.
+      const own = start.getBoundingClientRect();
+      const before = getComputedStyle(start, '::before');
+      const left = own.left + parseFloat(getComputedStyle(start).borderLeftWidth) + parseFloat(before.left);
+      const line = { left, right: left + parseFloat(before.width) };
+      const style = before;
+      const textLeft = (el) => {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        return range.getBoundingClientRect().left;
+      };
+      const intro = pm.querySelector('p');
+      const out = {
+        style: style.borderBlockStartStyle,
+        left: line.left - f.left - border('borderLeftWidth'),
+        right: f.right - border('borderRightWidth') - line.right,
+        shift: textLeft(start) - textLeft(intro),
+        first: start === pm.firstElementChild,
+      };
+      // With a section colour the box is as before: inset, with corners.
+      for (const el of [...pm.children]) {
+        el.setAttribute('data-section-color', 'primary');
+        el.setAttribute('data-section-box', 'only');
+      }
+      const box = start.getBoundingClientRect();
+      out.boxLeft = box.left - f.left - border('borderLeftWidth');
+      out.radius = getComputedStyle(start).borderStartStartRadius;
+      return out;
+    });
+    if (got.first) problems.push(`${label}: the test text's first part is the section`);
+    if (got.style !== 'dotted') problems.push(`${label}: the section's line is "${got.style}", not dotted`);
+    if (Math.abs(got.left) > 0.5 || Math.abs(got.right) > 0.5)
+      problems.push(`${label}: the line stands ${got.left} from the left and ${got.right} from the right of the text field, not 0`);
+    if (Math.abs(got.shift) > 0.5)
+      problems.push(`${label}: the heading is ${got.shift} from the text's left edge, it keeps the page margin`);
+    if (got.boxLeft < 1 || got.radius === '0px')
+      problems.push(`${label}: a coloured section's box changed (left ${got.boxLeft}, corner ${got.radius})`);
+    await page.close();
+  }
+}
+
 /** A coloured section's background runs down to the next section's divider, or to the end of the text when it is the last (the space below its text is inside the colour, not a white band), in the editor, and in the Preview where the panel has no margin below (375 px with touch, and a computer). */
 async function checkSectionBackground(width, touch) {
   const path = BUILT_PAGE;
@@ -449,7 +508,41 @@ async function checkTapBelowSection(width, touch) {
   await page.close();
 }
 
-/** Focus is shown on what has it, not on the whole text: with the cursor in text, the text field has no outline and only the section the cursor is in (the page's top part before the first H2, or an H2 section) has the dotted frame (data-section-focus, sectionFrame.ts), 3:1 on every section colour; a block in focus shows its own outline instead, and with the cursor gone there is no frame. At 375, 768 and 1280, light and dark. */
+/** The editor draws the lead as the site does (editor.css, `data-lead` from sectionFrame.ts): the first paragraph after the H1 has the lead's size, line height, weight and tracking (the site's `mo-type-lead`, read from a probe), muted and at most 52ch on a page; the second paragraph does not; a page with a column beside its text has no lead. At 375 and 1280. */
+async function checkEditorLead() {
+  const path = BUILT_PAGE;
+  const text = (template) =>
+    `---\ntitle: "T"\ndescription: "d"\n${template ? `template: ${template}\n` : ''}---\n\n# T\n\nThe lead text of the page.\n\nThe second paragraph.\n\n## Alpha\n\nAlpha body.\n`;
+  const read = `(() => {
+    const pm = document.querySelector('.ProseMirror');
+    const probe = document.createElement('p');
+    probe.className = 'mo-type-lead';
+    probe.textContent = 'Probe';
+    document.body.append(probe);
+    const pick = (e) => { const c = getComputedStyle(e); return { size: c.fontSize, line: c.lineHeight, weight: c.fontWeight, tracking: c.letterSpacing }; };
+    const ps = [...pm.children].filter((e) => e.tagName === 'P');
+    const out = { probe: pick(probe), marked: ps.map((e) => e.hasAttribute('data-lead')), lead: pick(ps[0]), second: pick(ps[1]), muted: getComputedStyle(ps[0]).color, measure: getComputedStyle(ps[0]).maxInlineSize };
+    probe.remove();
+    return out; })()`;
+  for (const width of [375, 1280]) {
+    const label = `editor lead ${width}px`;
+    const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: 'light', locale: 'en-US', hasTouch: width < 600 });
+    page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+    await openEditor(page, site, { [path]: text('') });
+    await page.goto(`${site}/editor/#${path}`);
+    await page.waitForSelector('.ProseMirror > p[data-lead]', { timeout: 30_000 });
+    const got = await page.evaluate(read);
+    if (JSON.stringify(got.marked) !== '[true,false,false]')
+      problems.push(`${label}: lead marks ${JSON.stringify(got.marked)}, wanted only the first paragraph`);
+    if (JSON.stringify(got.lead) !== JSON.stringify(got.probe))
+      problems.push(`${label}: the lead is ${JSON.stringify(got.lead)}, the site's is ${JSON.stringify(got.probe)}`);
+    if (JSON.stringify(got.second) === JSON.stringify(got.probe)) problems.push(`${label}: the second paragraph is drawn as a lead`);
+    if (got.measure === 'none') problems.push(`${label}: a page's lead has no 52ch measure`);
+    await page.close();
+  }
+}
+
+/** Focus is shown on what has it, not on the whole text: with the cursor in text, the text field has no outline and only the section the cursor is in (the page's top part before the first H2, or an H2 section) shows its focus by horizontal dotted lines only (data-section-focus, sectionFrame.ts: its own line above it and a line under it, no sides), 3:1 on every section colour; the first section has no line above it; a block is no part of a section; a block in focus shows its own outline instead, and with the cursor gone there is no frame. At 375, 768 and 1280, light and dark. */
 async function checkFocusFrame() {
   const path = BUILT_PAGE;
   const list =
@@ -461,7 +554,7 @@ async function checkFocusFrame() {
     const parts = [...pm.children].filter((e) => !e.classList.contains('mo-editor-section-picture'));
     const first = parts.findIndex((e) => e.textContent.includes('Alpha'));
     const last = parts.findIndex((e) => e.textContent.includes('Beta')) - 1;
-    const rows = parts.map((e, i) => ({ inAlpha: i >= first && i <= last, text: e.textContent.trim().slice(0, 12), focus: e.dataset.sectionFocus ?? null, drawn: getComputedStyle(e, '::after').content !== 'none' && getComputedStyle(e, '::after').content !== 'normal', line: getComputedStyle(e, '::after').borderInlineStartStyle, width: getComputedStyle(e, '::after').borderInlineStartWidth }));
+    const rows = parts.map((e, i) => ({ inAlpha: i >= first && i <= last, text: e.textContent.trim().slice(0, 12), focus: e.dataset.sectionFocus ?? null, drawn: getComputedStyle(e, '::after').content !== 'none' && getComputedStyle(e, '::after').content !== 'normal', isBlock: e.matches('.mo-site-block') || !!e.querySelector('.mo-site-block-inline'), bottom: e.hasAttribute('data-section-bottom'), below: e.hasAttribute('data-section-focus-below'), part: e.dataset.sectionPart ?? null, side: getComputedStyle(e, '::after').borderInlineStartWidth, afterLine: getComputedStyle(e, '::after').borderBlockEndStyle, afterWidth: getComputedStyle(e, '::after').borderBlockEndWidth, topStyle: getComputedStyle(e, '::before').borderBlockStartStyle, topWidth: getComputedStyle(e, '::before').borderBlockStartWidth, topColor: getComputedStyle(e, '::before').borderBlockStartColor, topSpan: Math.round(parseFloat(getComputedStyle(e, '::before').width)), fieldWidth: Math.round(e.closest('.mo-editor-text')?.getBoundingClientRect().width ?? 0) }));
     const out = { editorOutline: getComputedStyle(pm).outlineStyle, focused: pm.matches(':focus-visible'), rows, contrast: {} };
     if (${colors}) {
       const alpha = parts[first];
@@ -470,7 +563,7 @@ async function checkFocusFrame() {
       for (const color of ['surface', 'primary', 'secondary', 'tertiary']) {
         for (const e of parts.slice(first, last + 1)) { e.setAttribute('data-section-color', color); e.setAttribute('data-section-box', 'only'); }
         out.contrast[color] = {
-          frame: pm.matches(':focus-visible') ? ratio(getComputedStyle(alpha, '::after').borderInlineStartColor, alpha) : null,
+          frame: pm.matches(':focus-visible') ? ratio(getComputedStyle(alpha, '::before').borderBlockStartColor, alpha) : null,
           block: blockEl ? ratio(getComputedStyle(blockEl).outlineColor, block, 1, blockEl) : null,
           blockBorder: blockEl ? getComputedStyle(blockEl).outlineStyle : null,
         };
@@ -503,12 +596,28 @@ async function checkFocusFrame() {
       let got = await page.evaluate(read(true));
       if (got.editorOutline !== 'none')
         problems.push(`${label}: the text field has an outline (${got.editorOutline}) with the cursor in text`);
+      // Alpha's own line above it is in the focus colour and 2px dotted, the next section's line (Beta, right below Alpha) takes the colour as the line
+      // under it, and nothing is drawn at the sides or below Alpha's last text (the next section's line is there); the block between is no part of it.
       for (const r of got.rows) {
-        const inAlpha = r.inAlpha;
-        if (inAlpha && !(r.focus && r.drawn && r.line === 'dotted' && r.width === '2px'))
-          problems.push(`${label}: "${r.text}" is in the focused section but has no 2px dotted frame (${JSON.stringify(r)})`);
-        if (!inAlpha && (r.focus || r.drawn)) problems.push(`${label}: "${r.text}" is outside the focused section but has a frame`);
+        const isBlock = r.isBlock;
+        if (r.inAlpha && !isBlock && !r.focus) problems.push(`${label}: "${r.text}" is in the focused section but is not marked`);
+        if (r.inAlpha && isBlock && r.focus) problems.push(`${label}: the block "${r.text}" is marked as part of a section`);
+        if (!r.inAlpha && r.focus) problems.push(`${label}: "${r.text}" is outside the focused section but is marked`);
+        if (r.drawn && r.side !== '0px') problems.push(`${label}: "${r.text}" has a line at its sides (${r.side})`);
+        if (r.bottom) problems.push(`${label}: "${r.text}" draws a bottom line, though the next section's line is below it`);
+        if (r.text.startsWith('Alpha') && r.part === 'start' && !(r.topStyle === 'dotted' && r.topWidth === '2px'))
+          problems.push(`${label}: Alpha's line above is not 2px dotted (${r.topStyle} ${r.topWidth})`);
+        if (r.part === 'start' && r.topSpan < r.fieldWidth - 2)
+          problems.push(`${label}: the line above "${r.text}" is ${r.topSpan}px wide, not the text field's full width (${r.fieldWidth}px)`);
       }
+      const alphaRow = got.rows.find((r) => r.text === 'Alpha');
+      const betaRow = got.rows.find((r) => r.text === 'Beta');
+      if (!alphaRow?.part) problems.push(`${label}: the second section has no line above it`);
+      if (!betaRow?.below) problems.push(`${label}: the line under the focused section is not marked`);
+      if (alphaRow && betaRow && alphaRow.topColor !== betaRow.topColor)
+        problems.push(
+          `${label}: the line under the section (${betaRow.topColor}) is not the colour of the line above it (${alphaRow.topColor})`,
+        );
       for (const [color, c] of Object.entries(got.contrast))
         if (c.frame < 3) problems.push(`${label}: the frame on a ${color} section is ${c.frame?.toFixed(2)}:1, under 3:1`);
       // Cursor in the page's top text: the top part has the frame, the sections do not.
@@ -523,7 +632,21 @@ async function checkFocusFrame() {
         const top = r.text.startsWith('T') && (r.text === 'T' || r.text.startsWith('Top'));
         if (top !== !!r.focus)
           problems.push(`${label}: with the cursor in the top text, "${r.text}" ${r.focus ? 'has' : 'lacks'} the frame`);
+        if (r.part && !r.text.startsWith('Alpha') && !r.text.startsWith('Beta'))
+          problems.push(`${label}: "${r.text}" has a section line above it`);
       }
+      if (got.rows.some((r) => r.text === 'T' && r.part)) problems.push(`${label}: the first section has a line above it`);
+      // The last section has nothing below it: a 2px dotted line under its last text, none at the sides.
+      await tap('.ProseMirror > p:has-text("Beta body")', { x: 6, y: 6 });
+      await page
+        .waitForFunction(() => document.querySelector('.ProseMirror > p[data-section-bottom]')?.textContent.includes('Beta body'), null, {
+          timeout: 10_000,
+        })
+        .catch(() => problems.push(`${label}: the last section has no line under it`));
+      got = await page.evaluate(read(false));
+      const bottomRow = got.rows.find((r) => r.text.startsWith('Beta body'));
+      if (!bottomRow?.drawn || bottomRow.afterLine !== 'dotted' || bottomRow.afterWidth !== '2px' || bottomRow.side !== '0px')
+        problems.push(`${label}: the line under the last section is not 2px dotted without sides (${JSON.stringify(bottomRow)})`);
       // A block in focus: its own outline shows it, no section frame, and the line stands 3:1 on every section colour.
       await tap('.mo-site-block-inline [data-field="title"]', { x: 8, y: 8 });
       await page
@@ -555,6 +678,7 @@ export function register(unit) {
   unit('checkSectionOnImage', () => checkSectionOnImage());
   unit('checkLabelGap', () => checkLabelGap());
   unit('checkFullWidthSection', () => checkFullWidthSection());
+  unit('checkSectionLine', () => checkSectionLine());
   unit('checkSectionBackground 375', () => checkSectionBackground(375, true));
   unit('checkSectionBackground 1280', () => checkSectionBackground(1280, false));
   unit('checkTapBelowSection 375', () => checkTapBelowSection(375, true));
@@ -563,5 +687,6 @@ export function register(unit) {
   unit('checkFullSection', () => checkFullSection());
   unit('checkH1SectionGap', () => checkH1SectionGap());
   unit('checkFocusFrame', () => checkFocusFrame());
+  unit('checkEditorLead', () => checkEditorLead());
   unit('checkSectionCardContrast', () => checkSectionCardContrast());
 }

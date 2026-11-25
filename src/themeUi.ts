@@ -65,10 +65,9 @@ export {
 } from '@theme/ui/NavigationDrawer';
 export { Tabs as SiteTabs, Tab as SiteTab, tabsClass as siteTabsClass, tabClass as siteTabClass } from '@theme/ui/Tabs';
 export { Fab as SiteFab, ExtendedFab as SiteExtendedFab, fabKinds, fabSizes, extendedFabSizes } from '@theme/ui/Fab';
-/** The theme's action parts (button groups, segmented buttons, choice groups, split buttons, the FAB menu), for "Parts" › "UI components"
+/** The theme's action parts (button groups, choice groups, split buttons, the FAB menu), for "Parts" › "UI components"
  * (ActionParts.tsx). */
 export { default as SiteButtonGroup, buttonGroupKinds, buttonGroupSelections } from '@theme/ui/ButtonGroup';
-export { default as SiteSegmentedButton } from '@theme/ui/SegmentedButton';
 export { default as SiteChoiceGroup, type Choice as SiteChoice } from '@theme/ui/ChoiceGroup';
 export { default as SiteSplitButton, splitButtonKinds } from '@theme/ui/SplitButton';
 export { default as SiteFabMenu, fabMenuKinds } from '@theme/ui/FabMenu';
@@ -108,7 +107,7 @@ export {
   SearchGroupLabel as SiteSearchGroupLabel,
   SearchView as SiteSearchView,
 } from '@theme/ui/Search';
-export type { SearchViewItem } from '@theme/ui/Search';
+export type { SearchViewItem, SearchKind } from '@theme/ui/Search';
 export { default as SiteToolbar } from '@theme/ui/Toolbar';
 /** The theme's date and time pickers, for "Parts" › "UI components" (PickerParts.tsx). */
 export { default as SiteDatePicker, datePickerTexts } from '@theme/ui/DatePicker';

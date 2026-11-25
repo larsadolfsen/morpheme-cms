@@ -77,7 +77,7 @@ import {
   siteNavigationDrawerBleedClass,
   siteNavigationDrawerDialogClass,
   siteFocusNavigationDrawerItem,
-  SiteSegmentedButton,
+  SiteButtonGroup,
   SiteChoiceGroup,
   SiteSideSheet,
   SiteTab,
@@ -1808,40 +1808,32 @@ export function ChoiceTile({
   );
 }
 
-/** The theme's segmented button: two or three choices of a setting side by side (Account › Appearance), each with its name
- * and an icon, the chosen one marked. */
-export function SegmentedButton<T extends string>({
+/** The theme's connected button group (Material's replacement of the segmented button): two or three choices of a setting side by
+ * side (Account › Appearance), each a toggle button with its name and an icon, the chosen one fully round and in the selected colour.
+ * One is always chosen (the group's `required` selection mode: Tab lands on the chosen one, the arrow keys move between them). */
+export function ConnectedButtons<T extends string>({
   label,
   value,
   options,
   disabled,
-  dots,
   onChange,
 }: {
   /** What is chosen, for screen readers. */
   label: string;
   value: T;
-  options: { value: T; label: string; icon?: Icon; swatch?: string }[];
+  options: { value: T; label: string; icon?: Icon }[];
   /** It cannot be changed now (the place of R2 caching's bucket while it is on): grey, and it stays. */
   disabled?: boolean;
-  /** Only the `swatch` dots are shown; each name is its accessible label (M3: a segment without label text is named for what it does). */
-  dots?: boolean;
   onChange: (v: T) => void;
 }) {
   return (
-    <SiteSegmentedButton
-      label={label}
-      segments={options.map(({ value: v, label: name, icon: Glyph, swatch }) => ({
-        label: name,
-        icon: Glyph && <Glyph />,
-        swatch,
-        dots,
-        value: v,
-        selected: v === value,
-        disabled,
-        onClick: () => onChange(v),
-      }))}
-    />
+    <SiteButtonGroup kind="connected" label={label} selection="required" value={[value]} onChange={([v]) => v && onChange(v as T)}>
+      {options.map(({ value: v, label: name, icon: Glyph }) => (
+        <SiteButton key={v} kind="filled" value={v} icon={Glyph && <Glyph />} disabled={disabled}>
+          {name}
+        </SiteButton>
+      ))}
+    </SiteButtonGroup>
   );
 }
 

@@ -41,6 +41,7 @@ All of it, before the first edit.
 | `release-notes` | a site owner sees the change |
 | `changesets` | before you open the pull request |
 | `checks` | before a push, or when a CI job fails |
+| `junior-developer` | you hand a mechanical step (a rename from a map, snapshots, finding every use) to a Haiku helper you start yourself |
 
 ## 3. The pull request
 
@@ -120,7 +121,7 @@ Short forms, for a developer to know before reading the specs. A rule changes on
 
 - **Dialog.** As M3 prints (owner, 21 Nov 2026, replacing the 15 Nov rule): the actions are text buttons, the confirming one
   closest to the edge, and focus goes to the first control when the dialog opens (`src/ask.tsx` is the editor's one pattern; it
-  and `src/BlockDialog.tsx` change in 0.19.6; audit #1126).
+  and `src/BlockDialog.tsx` change in 0.19.7; audit #1126).
 - **Save on a phone.** Every `Save` goes in the bottom bar, and that bar is the standard bottom sheet, with no custom
   design (`docs/material-deviations.md`, *The editor's bars*, EB1, and *A block's sheet on a phone*, B1). **Ends in 0.20.0**
   (owner, 21 Nov 2026): below 600 dp a form is M3's full-screen dialog, with Save in its header.
@@ -176,7 +177,7 @@ are `…/specs`, `…/guidelines` and `…/accessibility` under the same address
 | Component (export) | For | M3 page |
 | :--- | :--- | :--- |
 | `Button` (`SiteButton`, `ui.tsx` `Button`, `LinkButton`) | an action: filled for the one thing to do, tonal, outlined, text | [buttons](https://m3.material.io/components/buttons/overview) |
-| `ButtonGroup`, `SegmentedButton`, `ChoiceGroup` | connected choices that fit on one line (`ChoiceGroup` falls back to a radio list) | [button-groups](https://m3.material.io/components/button-groups/overview), [segmented-buttons](https://m3.material.io/components/segmented-buttons/overview) |
+| `ButtonGroup` (`kind="connected"` is the former segmented button; `ui.tsx` `ConnectedButtons`), `ChoiceGroup` | connected choices that fit on one line (`ChoiceGroup` falls back to a radio list) | [button-groups](https://m3.material.io/components/button-groups/overview) |
 | `SplitButton` | a main action with a menu of related ones | [split-button](https://m3.material.io/components/split-button/overview) |
 | `IconButton` (`ui.tsx` `IconButton`, `IconLink`) | one icon action, labelled | [icon-buttons](https://m3.material.io/components/icon-buttons/overview) |
 | `Fab`, `ExtendedFab`, `FabMenu` (`ui.tsx` `FabMenu`) | the screen's main action, or a few related ones | [floating-action-button](https://m3.material.io/components/floating-action-button/overview), [extended-fab](https://m3.material.io/components/extended-fab/overview), [fab-menu](https://m3.material.io/components/fab-menu/overview) |

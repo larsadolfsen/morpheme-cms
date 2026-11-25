@@ -498,6 +498,9 @@ export const blocks = {
     buttonText: 'Button label',
     addButton: 'Add button',
     buttonsHint: 'A card with buttons has no link.',
+    divider: 'Divider',
+    dividerToggle: ['On', 'Off'] as [string, string],
+    dividerHint: 'A line above the buttons.',
     items: 'Cards',
     item: 'card',
     /** A card typed in place: the add button, the faded card of an empty block, the floating toolbar, a card's place for screen readers. */
