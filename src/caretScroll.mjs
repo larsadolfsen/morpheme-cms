@@ -4,8 +4,8 @@
 // visible screen; `margin` is the room kept around the cursor. Gives the px to scroll by (negative: up), 0 when the cursor is in the band.
 export function caretScrollStep({ rectTop, rectBottom, top, bottom, margin = 8 }) {
   const room = bottom - top - 2 * margin;
-  // A rect taller than the band (a block's field): its top goes to the top edge, as the browser's own scroll does.
-  if (rectBottom - rectTop > room) return Math.round(rectTop - top - margin);
+  // A rect taller than the band (a block, a tall image): left where it is while part of it is in the band; out of it, its top goes to the top edge.
+  if (rectBottom - rectTop > room) return rectBottom < top || rectTop > bottom ? Math.round(rectTop - top - margin) : 0;
   if (rectTop < top + margin) return Math.round(rectTop - top - margin);
   if (rectBottom > bottom - margin) return Math.round(rectBottom - bottom + margin);
   return 0;

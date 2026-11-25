@@ -21,6 +21,10 @@ test('a cursor below the keyboard scrolls down', () => {
   assert.equal(caretScrollStep({ rectTop: 600, rectBottom: 616, ...band }), 276);
 });
 
-test('a rect taller than the band gets its top at the top edge', () => {
+test('a rect taller than the band that is in it stays where it is', () => {
+  assert.equal(caretScrollStep({ rectTop: 76, rectBottom: 700, ...band }), 0);
+});
+
+test('a rect taller than the band below it gets its top at the top edge', () => {
   assert.equal(caretScrollStep({ rectTop: 376, rectBottom: 800, ...band }), 322);
 });

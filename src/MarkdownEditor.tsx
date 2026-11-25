@@ -255,6 +255,7 @@ const keepCaret = $prose(
           for (let box = view.dom.parentElement; box && box !== document.body && box !== document.documentElement; box = box.parentElement)
             if (/auto|scroll/.test(getComputedStyle(box).overflowY) && box.scrollHeight > box.clientHeight) return false;
           const rect = node instanceof HTMLElement ? node.getBoundingClientRect() : view.coordsAtPos(selection.head);
+          if (!rect.top && !rect.bottom) return false; // no layout (hidden or detached): ProseMirror's scroll
           const tools = document.querySelector<HTMLElement>('.mo-editor-tools-bar')?.getBoundingClientRect();
           const save = document.querySelector<HTMLElement>('.mo-editor-save-bar')?.getBoundingClientRect();
           const top = tools && tools.bottom > 0 ? tools.bottom : 0;
