@@ -389,11 +389,6 @@
       display: none;
     }
   }
-  .mo-editor-screen-tabs {
-    @media (width >= 37.5rem) {
-      padding-inline: var(--mo-ref-space-300);
-    }
-  }
   .mo-editor-screen-full-page {
     display: flex;
     min-block-size: 0;
