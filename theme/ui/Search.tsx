@@ -13,7 +13,7 @@
 // bar container, 56dp, surface container high) with the back arrow, the field and the clear button, in a container of its own (surface container
 // low full screen, high docked); under the bar optional filter chips (`filters`: M3 "Filter chips to narrow down results"), then the lists with their
 // category labels. An item can lead with an image (`thumb`) and have a button that removes it (`onRemove`: a recent search; Delete does it from the
-// field). `kind` (Search and SearchView) is M3's style: contained (the default) or divided (baseline: one container, no filled bar, a divider under the
+// field). `kind` (Search and SearchView) is M3's style: contained (the default) or divided (baseline; M3 Expressive: "Not recommended. Use contained.", kept as a variant on the owner's ask: one container, no filled bar, a divider under the
 // header; `mo-is-divided` on the root, searchClasses for an Astro component). Exposes Search, SearchBar, SearchBarButton, SearchGroupLabel, SearchView,
 // searchClass, searchClasses, searchKinds.
 import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from 'react';

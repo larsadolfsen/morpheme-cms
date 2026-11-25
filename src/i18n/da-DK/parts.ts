@@ -697,9 +697,9 @@ export const parts: Messages['parts'] = {
       content: 'Sidens indhold står her.',
       openRail: 'Åbn navigation',
       search:
-        'Søgefeltet og det, det åbner: feltet med knappen tilbage og resultaterne, der passer til det skrevne. En søgevisning, som siden styrer, grupperer også resultaterne under et navn, viser en tast ved siden af et punkt og beholder et punkt, der ikke kan bruges nu. Søgefeltet kan være en knap, der åbner visningen, og en gruppe har sit navn over sig (en kategorietiket). Den delte stil har én beholder med en streg under feltet.',
+        'Søgefeltet og det, det åbner: feltet med knappen tilbage og resultaterne, der passer til det skrevne. En søgevisning, som siden styrer, grupperer også resultaterne under et navn, viser en tast ved siden af et punkt og beholder et punkt, der ikke kan bruges nu. Søgefeltet kan være en knap, der åbner visningen, og en gruppe har sit navn over sig (en kategorietiket). Den delte stil har én beholder med en streg under feltet; Material 3 Expressive fraråder den, så brug den indeholdte stil, medmindre du har brug for den.',
       toolbar:
-        'Handlinger på en række: i hele bredden nederst, som linjen nederst på en telefon, eller svævende, i fladen eller den primære farve, på tværs eller lodret, også med en knap ved siden af og foldet sammen til knappen. Linjen nederst kan have hovedhandlingen i midten i stedet for en knap ved siden af.',
+        'Handlinger på en række: i hele bredden nederst, som linjen nederst på en telefon, eller svævende, i fladen eller den primære farve, på tværs eller lodret, også med en knap ved siden af og foldet sammen til knappen. Linjen nederst kan have hovedhandlingen i midten i stedet for en knap ved siden af: de andre handlinger fordeles jævnt omkring den.',
       name: 'Navigation',
       destinations: ['Forside', 'Søg', 'Beskeder', 'Profil'],
       sections: ['Start', 'Dig'],

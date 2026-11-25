@@ -11,7 +11,7 @@
 // the same classes with toolbarClass (and role="toolbar" and its aria-label itself), and the box round it and its FAB
 // with toolbarWithFabClass. A docked one holds the primary action itself instead of a FAB (`primary`: M3 toolbars, Overview, "Docked with embedded
 // primary action instead of FAB"; the theme's IconButton `kind="filled"` `shape="square"`: Specs, Color, "Filled button (Primary, On primary)" and
-// Guidelines "Square buttons can be used in the docked toolbar"): it stands in the middle slot, among the actions, which are then spaced evenly
+// Guidelines "Square buttons can be used in the docked toolbar"): it stands in the middle slot (the children are split at ceil(n/2), the first half before it and the rest after it, so n actions give a bar with n+1 slots, the action in the middle when n is even), among the actions, which are then spaced evenly
 // (`mo-is-with-primary`; Guidelines: "In compact breakpoints, elements in the toolbar should be evenly spaced" and "highlight a primary action in the middle").
 import { Children, Fragment, type ReactNode } from 'react';
 

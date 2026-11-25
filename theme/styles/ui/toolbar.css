@@ -28,8 +28,7 @@
       max(var(--mo-comp-toolbar-docked-padding-block, 0.75rem), env(safe-area-inset-bottom));
     border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
     backdrop-filter: var(--mo-comp-toolbar-docked-backdrop, blur(16px));
-    /* Level 2 at rest (M3 elevation tokens: "Toolbar" 2; Toolbars, Specs: docked bottom-app-bar container elevation 2). */
-    box-shadow: var(--mo-sys-elevation-level2-rest-shadow);
+    /* No shadow: M3 Overview, Differences from M2: "Elevation: No shadow"; md.comp.toolbar.docked has no elevation token. */
   }
   /* Docked with its primary action embedded (Toolbar `primary`, M3 Overview: "Docked with embedded primary action instead of FAB"): the actions and the
      action in the middle spaced evenly (M3 Guidelines: "In compact breakpoints, elements in the toolbar should be evenly spaced"; the image has equal
