@@ -95,6 +95,8 @@ at 8 only themes and apps written to 8, and an installed one written to 7 is ref
 publisher releases a new version. A published version is forever, so it is not rewritten. `docs/app-contract.md` gets a section
 *Contract 8* with the names (here) and the scoped CSS (its spec). No key or file of `app.json` changes.
 
+**What a theme or an app may import from the CMS** (owner, 25 Nov 2026: "Yes, so we avoid the extra contract"; moved here from `specs/2026-11-18-editor-prebuilt-design.md`, so 0.21.1 needs no contract): a public list of CMS modules (React, `standard/view`, `standard/load`, `icon`, `i18n`, the theme UI parts through `themeUi`, and every other module that Venus, the store apps in `morpheme-apps` and Sara's own app import today, counted with `git grep` before the list is fixed), checked by `check:themes` and the apps' sandbox check: an import outside it fails. The list only grows; adding a module needs no contract, removing one would. It is written into `docs/app-contract.md`, *Contract 8*. See specs/2026-11-25-public-imports-contract-8-design.md.
+
 ## Migration
 
 Contracts 6 and 7 rewrote nothing: authors released new versions, and a site with an old theme or app broke on update until they did
