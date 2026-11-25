@@ -2,7 +2,7 @@
 // one open. The section last used is kept in this browser; the first time it is Plugins (sectionChoice.mjs).
 // Exposes StoreSections (default); uses ThemeStoreScreen (Themes) and AppList.tsx's RoleStore (Connectors, Plugins).
 import { useState } from 'react';
-import { SegmentedButton } from './ui';
+import { ConnectedButtons } from './ui';
 import type { Env } from './App';
 import type { RepoFile } from './github';
 import { ThemeStoreScreen } from './ThemeStoreScreen';
@@ -17,7 +17,7 @@ export default function StoreSections({ env, files, section: opened }: { env: En
   const section = opened ?? chosen;
   const header = (
     <div className="mo-editor-list-lead">
-      <SegmentedButton
+      <ConnectedButtons
         label={t.apps.sectionsLabel}
         value={section}
         options={SECTIONS.map((value) => ({ value, label: t.apps.sections[value] }))}

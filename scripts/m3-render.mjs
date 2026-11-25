@@ -159,7 +159,6 @@ export function resolve(m) {
 export const RESTYLES = [
   'md.comp.split-button',
   'md.comp.button-group',
-  'md.comp.segmented-button',
   'md.comp.fab-menu',
   'md.comp.toolbar',
   'md.comp.snackbar',
@@ -201,7 +200,7 @@ export const ROOTS = {
   'mo-tabs': 'md.comp.tabs',
   'mo-badge': 'md.comp.badge',
   'mo-button-group': 'md.comp.button-group',
-  'mo-choice-group': 'md.comp.segmented-button',
+  'mo-choice-group': 'md.comp.button-group',
   'mo-radio-group': 'md.comp.radio-button',
   'mo-setting-row': 'md.comp.list',
   'mo-split-button': 'md.comp.split-button',

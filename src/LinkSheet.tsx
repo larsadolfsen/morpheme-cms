@@ -5,7 +5,7 @@
 // tel:), and an address without https:// gets it.
 import { useEffect, useId, useRef, useState } from 'react';
 import PagePicker, { type Group } from './PagePicker';
-import { Button, SegmentedButton, BottomSheet, SheetActions, SheetBody, SheetTitle, TextField, atLeastNow } from './ui';
+import { Button, ConnectedButtons, BottomSheet, SheetActions, SheetBody, SheetTitle, TextField, atLeastNow } from './ui';
 import { usePane } from './PaneHost';
 import { closeChanged } from './ask';
 import { t } from './i18n';
@@ -94,7 +94,7 @@ export function LinkAsk({ groups }: { groups: Group[] }) {
   // What the link has: page or address, and the field of each.
   const fields = (
     <>
-      <SegmentedButton
+      <ConnectedButtons
         label={t.text.linkTo}
         value={kind}
         options={[

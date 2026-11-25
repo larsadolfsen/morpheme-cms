@@ -7,7 +7,7 @@ import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } fr
 import type { Breakpoint } from '../lib/breakpoints.mjs';
 import { HEIGHT, MAX_WIDTH, MIN_WIDTH, SIZES, siteBreakpoints, sizeAt, widthOf } from './previewBreakpoints';
 import { BREAKPOINTS } from '../lib/breakpoints.mjs';
-import { SegmentedButton } from './ui';
+import { ConnectedButtons } from './ui';
 import { t } from './i18n';
 import { announce } from '../lib/announce';
 
@@ -91,7 +91,7 @@ export function PreviewScreen({ html, message, title }: { html: string | null; m
       <div className="mo-editor-preview-bar">
         <div className="mo-editor-preview-sizes">
           <div className="mo-editor-preview-sizes-inner">
-            <SegmentedButton
+            <ConnectedButtons
               label={t.preview.size}
               value={size}
               options={SIZES.map((s) => ({ value: s, label: `${t.preview.sizes[s]} ${Math.round(widthOf(s, at))}` }))}

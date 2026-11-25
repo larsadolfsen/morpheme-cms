@@ -13,12 +13,6 @@ import { UI_PART_FILES, MATERIAL_FILES } from '../theme/styles/files.mjs';
 export const PARTS = [
   { name: 'button', file: 'theme/styles/ui/buttons.css', selector: '.mo-button', reads: '--mo-sys-density' },
   { name: 'chip', file: 'theme/styles/ui/chips.css', selector: '.mo-chip', reads: '--mo-sys-density' },
-  {
-    name: 'segmented button',
-    file: 'theme/styles/ui/button-groups.css',
-    selector: '.mo-segmented-button__segment',
-    reads: '--mo-sys-density',
-  },
   { name: 'text field', file: 'theme/styles/ui/text-field.css', selector: '.mo-text-field', reads: '--mo-sys-density' },
   {
     name: 'choice group row',

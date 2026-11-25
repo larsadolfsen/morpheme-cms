@@ -1,27 +1,19 @@
 /*
-  The buttons that do more than one thing (../ui/ButtonGroup.tsx, SegmentedButton.tsx, ChoiceGroup.tsx, SplitButton.tsx, FabMenu.tsx),
+  The buttons that do more than one thing (../ui/ButtonGroup.tsx, ChoiceGroup.tsx, SplitButton.tsx, FabMenu.tsx),
   named as Material 3 names them. They are made of the buttons and the FABs above (their classes), so they take their
   variables (--button-*, --fab-*) where it is the same thing; what is here is what they add. A theme changes it with
   these variables, and with rules on the classes where a variable is not enough.
 
   Button group (ButtonGroup, buttonGroupClass): .mo-button-group with its kind, .mo-button-group.mo-is-standard (apart) or
-  .mo-button-group.mo-is-connected (joined, the corners between them small, larger with the buttons' size); in it .mo-button and
+  .mo-button-group.mo-is-connected (joined, the corners between them small, larger with the buttons' size; it replaces the segmented
+  button, which Material no longer recommends: "Connected button groups should replace the baseline segmented button"; it spans the width of
+  its container, up to --mo-comp-button-group-connected-max-width from the medium width, as the buttons inside share it); in it .mo-button and
   .mo-icon-button in any size and shape, a toggle with aria-pressed in its look off and on (the buttons' above); in a
   standard group one that is on has the selected corners, in a connected one it is fully round. In a standard group the
   one pressed is a little wider and its neighbours a little narrower (Material's 15 %), unless motion is reduced.
     --mo-comp-button-group-standard-<size>-between-space, --mo-comp-button-group-connected-xsmall-between-space, --mo-comp-button-group-selected-radius
     --mo-comp-button-group-connected-small-inner-corner-corner-size (the small and medium buttons'), --mo-comp-button-group-connected-xsmall-inner-corner-corner-size, -large-, -xlarge-
   Toggles' colours are the buttons' (--button-toggle-*, --button-<kind>-selected-*, --icon-button-…-selected-*).
-  Segmented button (SegmentedButton, segmentedButtonClass, segmentedButtonSegmentClass): .mo-segmented-button, the frame
-  (the whole width on a phone, as wide as its choices from the medium width), with a .mo-segmented-button__segment for each (the chosen with aria-pressed="true"), in it .mo-segmented-button__check (shown
-  on the chosen), optionally .mo-segmented-button__icon (hidden on the chosen, the check in its place) and
-  .mo-segmented-button__label. A segment with a colour (Segment.swatch) has .mo-segmented-button__swatch, a filled circle of it in every
-  segment, in place of the check.
-    --mo-comp-segmented-button-height, -padding, -gap, -radius, -font-size, -icon-size   (the button's where it has none)
-    --mo-comp-segmented-button-surface, -text, -line, -hover
-    --mo-comp-outlined-segmented-button-selected-container-color, -selected-text, -selected-hover
-    --mo-comp-segmented-button-selected-check, --mo-comp-segmented-button-selected-icon   whether the chosen shows its check and its
-                                                                         icon (none, or a display value: block)
   Choice group (ChoiceGroup, choiceGroupClass): .mo-choice-group, one choice of a few that takes its form by measuring
   (data-form="buttons" or "list" on it; "list" until it is measured, data-forced when a form is forced): the buttons, a
   .mo-button-group.mo-is-connected .mo-choice-group__buttons with a filled, small toggle .mo-button for each choice (aria-pressed, no
@@ -69,7 +61,7 @@
   }
   :where(.mo-button-group).mo-is-connected {
     flex-wrap: nowrap;
-    gap: var(--mo-comp-button-group-connected-xsmall-between-space, 0.125rem);
+    gap: var(--mo-comp-button-group-gap);
   }
   .mo-button-group > :is(.mo-button, .mo-icon-button) {
     transition:
@@ -98,8 +90,20 @@
       width: calc(var(--mo-comp-icon-button-width) * 0.925);
     }
   }
+  /* Material: "The connected button group should span the width of the page or surface it's placed on, increasing the button widths
+     inside. In larger windows, consider adding a maximum width to the connected group to avoid it growing too wide." */
+  :where(.mo-button-group).mo-is-connected {
+    display: flex;
+    width: 100%;
+  }
+  @media (width >= 37.5rem) {
+    :where(.mo-button-group).mo-is-connected {
+      max-width: var(--mo-comp-button-group-connected-max-width);
+    }
+  }
   :where(.mo-button-group).mo-is-connected > * {
     flex: 1 1 auto;
+    min-width: 0;
   }
   :where(.mo-button-group).mo-is-connected > :not(:first-child) {
     border-start-start-radius: var(--mo-comp-button-group-inner);
@@ -108,6 +112,17 @@
   :where(.mo-button-group).mo-is-connected > :not(:last-child) {
     border-start-end-radius: var(--mo-comp-button-group-inner);
     border-end-end-radius: var(--mo-comp-button-group-inner);
+  }
+  /* Pressed, the corners between buttons shrink (the pressed inner corner of the size). */
+  :where(.mo-button-group).mo-is-connected
+    > :is(.mo-button, .mo-icon-button):not([aria-pressed='true']):active:not(:disabled):not(:first-child) {
+    border-start-start-radius: var(--mo-comp-button-group-pressed-inner);
+    border-end-start-radius: var(--mo-comp-button-group-pressed-inner);
+  }
+  :where(.mo-button-group).mo-is-connected
+    > :is(.mo-button, .mo-icon-button):not([aria-pressed='true']):active:not(:disabled):not(:last-child) {
+    border-start-end-radius: var(--mo-comp-button-group-pressed-inner);
+    border-end-end-radius: var(--mo-comp-button-group-pressed-inner);
   }
   /* A toggle that is on (its colours are the button's): with the selected corners, fully round in a connected group. */
   .mo-button-group > [aria-pressed='true'] {
@@ -118,117 +133,6 @@
   }
   :where(.mo-button-group).mo-is-connected > .mo-icon-button[aria-pressed='true'] {
     border-radius: var(--mo-comp-icon-button-round);
-  }
-
-  /* Segmented buttons (m3.material.io/components/segmented-buttons): the choices side by side in one frame, each as
-     wide as the widest. */
-  /* The whole width on a phone, the choices sharing it; as wide as its choices from the medium width. */
-  .mo-segmented-button {
-    display: grid;
-    grid-auto-columns: 1fr;
-    grid-auto-flow: column;
-    border: 1px solid
-      var(--mo-comp-outlined-segmented-button-outline-color, var(--mo-comp-button-outlined-outline-color, var(--mo-comp-block-line)));
-    border-radius: var(
-      --mo-comp-segmented-button-radius,
-      var(--mo-comp-button-small-container-shape-round, var(--mo-comp-block-control-radius))
-    );
-    background: var(--mo-comp-segmented-button-surface, var(--mo-comp-block-surface));
-  }
-  @media (width >= 37.5rem) {
-    .mo-segmented-button {
-      display: inline-grid;
-    }
-  }
-  .mo-segmented-button__segment {
-    display: inline-flex;
-    min-width: 3rem;
-    min-height: calc(
-      var(--mo-comp-segmented-button-height, var(--mo-comp-button-small-container-height, 3rem)) - 2px + var(--mo-sys-density) *
-        var(--mo-sys-density-step)
-    );
-    align-items: center;
-    justify-content: center;
-    gap: var(--mo-comp-segmented-button-gap, 0.5rem);
-    border: 0;
-    padding: 0 var(--mo-comp-segmented-button-padding, 1rem);
-    background: transparent;
-    color: var(--mo-comp-segmented-button-text, var(--mo-comp-block-text));
-    font-family: inherit;
-    font-size: var(--mo-comp-segmented-button-font-size, var(--mo-comp-button-small-font-size, var(--mo-sys-typescale-label-large-size)));
-    font-weight: var(--mo-comp-button-weight, var(--mo-sys-typescale-label-large-weight));
-    letter-spacing: var(--mo-comp-button-letter-spacing, var(--mo-sys-typescale-label-large-tracking));
-    line-height: 1;
-    white-space: nowrap;
-    cursor: pointer;
-    transition:
-      background-color var(--mo-sys-motion-spring-default-effects),
-      color var(--mo-sys-motion-spring-default-effects);
-  }
-  .mo-segmented-button__segment + .mo-segmented-button__segment {
-    border-inline-start: 1px solid
-      var(--mo-comp-outlined-segmented-button-outline-color, var(--mo-comp-button-outlined-outline-color, var(--mo-comp-block-line)));
-  }
-  .mo-segmented-button__segment:first-child {
-    border-start-start-radius: inherit;
-    border-end-start-radius: inherit;
-  }
-  .mo-segmented-button__segment:last-child {
-    border-start-end-radius: inherit;
-    border-end-end-radius: inherit;
-  }
-  .mo-segmented-button__segment > svg {
-    flex-shrink: 0;
-    width: var(--mo-comp-segmented-button-icon-size, 1.125rem);
-    height: var(--mo-comp-segmented-button-icon-size, 1.125rem);
-  }
-  .mo-segmented-button__segment:not(:disabled):hover {
-    background: var(
-      --mo-comp-segmented-button-hover,
-      color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
-    );
-  }
-  .mo-segmented-button__segment[aria-pressed='true'] {
-    background: var(--mo-comp-outlined-segmented-button-selected-container-color, var(--mo-comp-block-tint));
-    color: var(--mo-comp-outlined-segmented-button-selected-label-text-color, var(--mo-comp-block-text));
-  }
-  .mo-segmented-button__segment[aria-pressed='true']:not(:disabled):hover {
-    background: var(
-      --mo-comp-segmented-button-selected-hover,
-      color-mix(in srgb, var(--mo-comp-block-text) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), var(--mo-comp-block-tint))
-    );
-  }
-  .mo-segmented-button__segment:disabled {
-    opacity: 0.45;
-    cursor: default;
-  }
-  /* The chosen one's check, in its icon's place. */
-  .mo-segmented-button__segment > .mo-segmented-button__check {
-    display: none;
-  }
-  .mo-segmented-button__segment[aria-pressed='true'] > .mo-segmented-button__check {
-    display: var(--mo-comp-segmented-button-selected-check, block);
-  }
-  .mo-segmented-button__segment[aria-pressed='true'] > .mo-segmented-button__icon {
-    display: var(--mo-comp-segmented-button-selected-icon, none);
-  }
-  /* A colour's circle (Segment.swatch): in every segment, in the check's place, with a thin edge so it reads on any surface. */
-  .mo-segmented-button__swatch {
-    flex-shrink: 0;
-    width: var(--mo-comp-segmented-button-icon-size, 1.125rem);
-    height: var(--mo-comp-segmented-button-icon-size, 1.125rem);
-    border-radius: 50%;
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 30%, transparent);
-  }
-
-  /* A segment shown as its dot only (Segment.dots): the name stays for screen readers. */
-  :where(.mo-segmented-button__label).mo-is-label-hidden {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
   }
 
   /* Choice groups: the connected buttons when every label fits at an equal share of the width, else a list of radio

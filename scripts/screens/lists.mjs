@@ -1524,7 +1524,81 @@ async function checkListColumnsLook(width) {
   await page.close();
 }
 
+/** A list item is as many lines as it has text (Material 3, Lists: Specs, "One-line lists" 56 dp, "Two-line lists" 72 dp; Guidelines, "Label text only" and "Label text with
+ * supporting text"; owner, 25 Nov 2026: "List items only with one line should not be styled like it has two"). In the editor's lists (the pages list, the posts list, Settings, the main
+ * menu's lists, the start screen's "Continue" rows) every item measured in a real browser: with no text under its headline it is 56 dp (the density's step added) and has no empty
+ * supporting element (a blank or non-breaking space is none), its headline and its trailing icon or count are in the middle of it (a pixel allowed); with a supporting text it is
+ * at least 72 dp and its trailing part is in the middle of its first two lines, not higher. */
+async function checkListItemLines(width, height) {
+  const label = `${width}px list item lines`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const measure = () =>
+    page.evaluate(() =>
+      [...document.querySelectorAll('main .mo-list__item-container, main li > .mo-list__item-container')].flatMap((el) => {
+        const box = el.getBoundingClientRect();
+        if (!box.height || !box.width) return [];
+        const name = (el.querySelector('.mo-list__item-headline')?.textContent || el.textContent || '').trim().slice(0, 30);
+        const supporting = el.querySelector('.mo-list__item-supporting');
+        const mid = (n) => {
+          const r = n?.getBoundingClientRect();
+          return r && r.height ? r.top + r.height / 2 - box.top : null;
+        };
+        const headline = el.querySelector('.mo-list__item-headline');
+        const lead = [...el.querySelectorAll(':scope > .mo-list__item-trailing, :scope > .mo-list__item-trailing-supporting')][0];
+        const icon = lead?.querySelector('svg, [data-icon]') || lead;
+        const oneLineBox = parseFloat(getComputedStyle(el).minHeight);
+        return [
+          {
+            name,
+            height: box.height,
+            oneLineBox,
+            supporting: supporting ? supporting.innerText : null,
+            twoLineClass: el.classList.contains('mo-list__item-two-line'),
+            headline: mid(headline),
+            trailing: mid(icon),
+          },
+        ];
+      }),
+    );
+  for (const hash of ['#settings', '#list/pages', '#list/blog']) {
+    await page.evaluate((h) => (location.hash = h), hash);
+    await page.waitForSelector('main .mo-list__item-container', { timeout: 30_000 }).catch(() => {});
+    await page.waitForTimeout(1000);
+    const rows = await measure();
+    if (!rows.length) {
+      problems.push(`${label}: ${hash} has no list items to measure`);
+      continue;
+    }
+    for (const r of rows) {
+      const where = `${label}, ${hash}, "${r.name}"`;
+      const blank = r.supporting !== null && r.supporting.replace(/\s/g, '') === '';
+      if (blank) problems.push(`${where}: has an empty supporting text (${JSON.stringify(r.supporting)}): an empty second line`);
+      const two = r.supporting !== null && !blank;
+      if (!two) {
+        if (Math.abs(r.height - 56) > 0.5) problems.push(`${where}: a one-line item is ${r.height} dp, not 56`);
+        if (r.headline != null && Math.abs(r.headline - r.height / 2) > 1)
+          problems.push(`${where}: its headline is ${r.headline - r.height / 2} dp from the middle`);
+        if (r.trailing != null && Math.abs(r.trailing - r.height / 2) > 1)
+          problems.push(`${where}: its trailing icon or count is ${r.trailing - r.height / 2} dp from the middle`);
+      } else {
+        if (r.height < 72 - 0.5) problems.push(`${where}: a two-line item is ${r.height} dp, not at least 72`);
+        if (r.trailing != null && Math.abs(r.trailing - r.height / 2) > 1)
+          problems.push(`${where}: its trailing icon or count is ${r.trailing - r.height / 2} dp from the middle`);
+      }
+    }
+  }
+  await page.close();
+}
+
 export function register(unit) {
+  for (const [w, h] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    unit(`checkListItemLines ${w}`, () => checkListItemLines(w, h));
   for (const block of liveLists)
     for (const w of [375, 1280]) unit(`checkLiveList ${w} ${block.name}`, () => checkLiveList(w, w < 600 ? 740 : 900, block));
   for (const w of [375, 768, 1280]) unit(`checkListLeftEdge ${w}`, () => checkListLeftEdge(w));

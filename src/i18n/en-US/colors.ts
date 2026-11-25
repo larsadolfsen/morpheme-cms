@@ -13,7 +13,7 @@ export const colors = {
     link: 'A link',
     card: 'Text on a surface.',
     box: 'A light box',
-    /** The boxes in the secondary and tertiary colors, which a harmony places; also the names of the
+    /** The boxes in the secondary and tertiary colors, which the scheme makes; also the names of the
      * generator's base colors after the source color. */
     secondary: 'Secondary',
     tertiary: 'Tertiary',
@@ -36,42 +36,35 @@ export const colors = {
     noColorInImage: 'The image has no color that can be used as a source color',
     /** The generator's three base colors at the top (ColorTiles), under this heading and named by it for screen readers. */
     base: 'Colors',
-    /** The color wheel with the color harmonies (lib/dynamic-colors.ts HARMONIES). */
-    harmony: 'Harmony',
-    harmonyHint: 'Drag the big dot, and the other colors follow the harmony.',
+    /** The scheme variants (Material 3's, lib/dynamic-colors.ts VARIANTS) and Custom, and the color wheel that picks the source color. */
+    scheme: 'Scheme',
+    schemeHint: 'Drag the dot to pick the source color. The scheme decides how colorful the others are.',
     wheel: 'Color wheel',
-    harmonies: {
-      analogous: 'Analogous',
-      monochromatic: 'Monochromatic',
-      complementary: 'Complementary',
-      splitComplementary: 'Split complementary',
-      triadic: 'Triadic',
+    variants: {
+      tonalSpot: 'Tonal spot',
+      neutral: 'Neutral',
+      vibrant: 'Vibrant',
+      expressive: 'Expressive',
+      fidelity: 'Fidelity',
+      content: 'Content',
+      monochrome: 'Monochrome',
+      rainbow: 'Rainbow',
+      fruitSalad: 'Fruit salad',
     },
+    /** A file made by the older generator (a harmony): opened on Tonal spot, its colors kept until a change. */
+    olderTitle: 'Colors from an older generator',
+    older: 'The current colors come from an older generator. They stay as they are until you change something here.',
     contrast: 'Contrast',
     contrastHint: 'Higher contrast makes the text easier to read.',
     contrasts: { standard: 'Standard', medium: 'Medium', high: 'High' },
     /** Custom, the generator's sixth choice (lib/dynamic-colors.ts CUSTOM): Primary, Secondary and Tertiary chosen freely. */
     custom: 'Custom',
-    customHint: 'Select Primary, Secondary and Tertiary yourself. The other colors are made from them.',
+    customHint: 'Select Primary, Secondary and Tertiary yourself. Each gives its own palette, and the other colors are made from them.',
     /** The first base color's name in Custom (else it is the source color). */
     primary: 'Primary',
     /** A dot on the color wheel in Custom, named by its color. */
     wheelDot: (name: string) => `${name}: drag to change this color`,
     wheelHintCustom: 'Drag a dot to change only that color.',
-    /** The question about Primary (it is used as text): a notice with Fix and Keep. */
-    fixTitle: 'Fix this to improve accessibility?',
-    hardText: (name: string, ratio: string, min: string) => `${name} is hard to read as text on Surface: ${ratio}, at least ${min} needed.`,
-    fix: 'Fix',
-    keep: 'Keep',
-    /** Under Primary's tile after Keep. */
-    kept: (name: string) => `${name} is kept as you chose it. It may be hard to read.`,
-    /** A save while the question about Primary is open. */
-    answerFirst: 'Answer the question about Primary first.',
-    /** The colors Fix changed, a row each: chosen, used, hex, mode. */
-    adjustedTitle: 'Adjusted for contrast',
-    adjusted: (name: string, mode: string, direction: string, used: string) =>
-      `${name} is ${direction} in ${mode} so it can be seen: ${used}.`,
-    directions: { darker: 'darker', lighter: 'lighter' },
     /** A note by the Secondary or Tertiary tile whose color is below 3:1 on the page. */
     lowOnPage: (name: string) => `${name} has low contrast on the page, so it is not offered as an icon color. It is still used for fills.`,
     /** A color changed by hand while they are made from the source color. */

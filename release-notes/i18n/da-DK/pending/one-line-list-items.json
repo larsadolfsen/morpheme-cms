@@ -1,0 +1,6 @@
+{
+  "id": "one-line-list-items",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Listepunkter med kun et navn er én linje høje, ikke to"
+}

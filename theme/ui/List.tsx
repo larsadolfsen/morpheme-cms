@@ -3,8 +3,8 @@
 // under it (`supporting`), and what trails it. Its kind (`kind`: standard, the default, the items on what the list
 // stands on, or segmented, M3 Expressive's, each item on its own surface with a small gap between them) and its dividers
 // (`dividers`: full-width, the default for a standard list, inset, from where the items' text starts, middle-inset or
-// none) are Material's. An item has one, two or three lines (`lines`): with a supporting text two (also when the text
-// is empty, so the items of a list are alike), with a subhead too three; a supporting text of two lines needs
+// none) are Material's. An item has one, two or three lines (`lines`): a headline alone is one (56 dp), with a supporting text two (72 dp;
+// an empty text is no text, so an item never reserves a line it does not fill), with a subhead too three (88 dp); a supporting text of two lines needs
 // `lines={3}`. What leads it: `leading` (anything: an icon, an image, a block's own), or Material's leading
 // kinds, an icon (`leadingIcon`), an avatar (`leadingAvatar`: a letter or an image), an image (`leadingImage`) or a
 // video's thumbnail (`leadingVideo`). What trails it: a trailing supporting text (`trailingSupporting`: a number, a
@@ -272,8 +272,11 @@ export function ListItem({
     !!selecting,
     selectable ? onSelectDrag : undefined,
   );
-  const shown = (v: ReactNode) => v != null && v !== '';
-  const n: ListItemLines = lines ?? (subhead != null && supporting !== undefined ? 3 : supporting !== undefined || subhead != null ? 2 : 1);
+  // Nothing (null, false, an empty or blank text, a non-breaking space) is no line: a headline alone is Material's one-line item (56 dp,
+  // label and trailing icon in the middle), and a second line is reserved only for a text that is there (72 dp), a third for a subhead
+  // over it (88 dp). Material mixes the heights in one list ("Label text only", "Label text with supporting text").
+  const shown = (v: ReactNode) => v != null && v !== false && v !== '' && !(typeof v === 'string' && v.trim() === '');
+  const n: ListItemLines = lines ?? (shown(subhead) && shown(supporting) ? 3 : shown(supporting) || shown(subhead) ? 2 : 1);
   const at = control?.at ?? (control?.type === 'switch' ? 'trailing' : 'leading');
 
   // The choice: the theme's part, named by the headline and described by the supporting text, without a name of its own.
