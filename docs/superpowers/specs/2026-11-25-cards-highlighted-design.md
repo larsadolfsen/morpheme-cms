@@ -1,5 +1,7 @@
 # One highlighted card in Cards
 
+Release: 0.19.7 (owner, 25 Nov 2026), after `cards-multi-aspect` (its *Order*).
+
 Owner, 25 Nov 2026: "Add a highlighted option to cards. Do the designs yourself." Earlier the same day the owner agreed that a card's
 style (outlined, filled, elevated) stays one choice for the whole group, so a user who wants one card to stand out switches it to
 Highlighted instead of giving it its own style. This replaces the proposal of a per-card colour field (CTO session, 25 Nov): no
