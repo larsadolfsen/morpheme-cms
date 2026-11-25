@@ -70,6 +70,7 @@ import {
   ColorSwatches,
   IconSwatches,
   ListItem,
+  useAtLeast,
 } from './ui';
 import { openAtSeo } from './EntryForm';
 import { isRated } from './SeoScores';
@@ -1212,6 +1213,7 @@ export function List({
   // Pages and posts: their address in a column on a computer, and a filter that shows only those with
   // one status (when they do not all have the same).
   const markdown = collection.kind === 'markdown';
+  const wide = useAtLeast('expanded');
   const [picked, setState] = useKept<State | 'unfinished' | ''>(`${collection.id}-status`, '');
   const states = markdown ? STATES.filter((s) => items.some((i) => i.state === s)) : [];
   // All again when the status picked is no longer there to pick (the last draft was published meanwhile).
@@ -1481,20 +1483,10 @@ export function List({
         href={item.href}
         leading={ring(item)}
         headline={item.title}
-        supporting={
-          (markdown || pages || item.detail || item.status) && (
-            <Under item={item} address={markdown}>
-              {pages ? (
-                <SavedTime item={item} />
-              ) : (
-                <>
-                  <Status item={item} />
-                  {collection.id === 'blog' ? shortDate(item.detail) : item.detail}
-                </>
-              )}
-            </Under>
-          )
-        }
+        supporting={under(item, {
+          address: markdown && wide,
+          text: pages ? savedTime(item) : collection.id === 'blog' ? shortDate(item.detail) : item.detail,
+        })}
         truncate
         count={item.count}
         arrow={!orderable}
@@ -1686,29 +1678,27 @@ export function List({
   );
 }
 
-// What is under a row's name in a list (its supporting text): its status
-// and date (`children`), at the right on a computer, and there a page's or post's address before them (`address`).
-function Under({ item, address, children }: { item: Item; address?: boolean; children: ReactNode }) {
+/** What is under a page's or post's name: its address (from a computer's width, where the list has the room), its status and its
+ * time or date. Nothing when there is none of them (undefined): the row is then Material's one-line item, 56 dp, not a two-line
+ * one with an empty line (owner, 25 Nov 2026: "List items only with one line should not be styled like it has two"). A row
+ * gets its second line when it has something to say in it, and not before. */
+function under(item: Item, { address, text }: { address?: boolean; text?: ReactNode }) {
+  const status = item.status ? <span className="mo-editor-library-status">{item.status}</span> : null;
+  const line = text === false || text === '' || text == null ? null : text;
+  if (!address && !status && !line) return undefined;
   return (
     <span className="mo-editor-library-under">
       {address && <span className="mo-editor-library-under-address">{item.path}</span>}
-      <span className="mo-editor-library-under-status">{children}</span>
+      <span className="mo-editor-library-under-status">
+        {status}
+        {line}
+      </span>
     </span>
   );
 }
 
-// A page's or post's status (Item.status) before its date or time.
-const Status = ({ item }: { item: Item }) => (item.status ? <span className="mo-editor-library-status">{item.status}</span> : null);
-
-// The time a page was last saved, under its name (a space until it has come, so rows do not jump).
-function SavedTime({ item }: { item: Item }) {
-  return (
-    <>
-      <Status item={item} />
-      {item.file && saved.has(item.file.path) ? capital(when(saved.get(item.file.path)!.date)) : '\u00a0'}
-    </>
-  );
-}
+// The time a page was last saved, under its name (none until it has come: the row has one line until then).
+const savedTime = (item: Item) => (item.file && saved.has(item.file.path) ? capital(when(saved.get(item.file.path)!.date)) : '');
 
 // The rows of the pages as the menu has them: each item, and under it, when it is opened with the
 // arrow at the right of its row, the items under it, indented a step. An item without a page is not a link.
@@ -1726,6 +1716,8 @@ function TreeRows({
   /** With "Show SEO rating": the score of a page at the start of its row (a tap on it opens the page at its rating). */
   ring?: (item: Item) => ReactNode;
 }) {
+  // The address shows from the expanded breakpoint (840 dp), where the row has room for it.
+  const wide = useAtLeast('expanded');
   return (
     <>
       {branches.map(({ key, item, children }) => {
@@ -1741,15 +1733,7 @@ function TreeRows({
               }
               leading={ring?.(item)}
               headline={item.title}
-              supporting={
-                item.href ? (
-                  <Under item={item} address>
-                    <SavedTime item={item} />
-                  </Under>
-                ) : (
-                  t.library.pageGone
-                )
-              }
+              supporting={item.href ? under(item, { address: wide, text: savedTime(item) }) : t.library.pageGone}
               truncate
               actions={
                 children.length > 0 && (
