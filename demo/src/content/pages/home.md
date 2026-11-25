@@ -11,7 +11,7 @@ Edit pages, posts and photos from any browser, even your phone.
 
 Make a change, tap Save, and it’s live about a minute later: checked, backed up and fast.
 
-<div data-block="buttons" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;to&quot;:&quot;booking&quot;,&quot;kind&quot;:&quot;filled&quot;,&quot;icon&quot;:&quot;arrow-right&quot;},{&quot;label&quot;:&quot;See what it can do&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/blocks/&quot;,&quot;kind&quot;:&quot;outlined&quot;}]}"></div>
+<div data-block="buttons" data-props="{&quot;items&quot;:[{&quot;label&quot;:&quot;&quot;,&quot;to&quot;:&quot;booking&quot;,&quot;kind&quot;:&quot;filled&quot;,&quot;icon&quot;:&quot;arrow_forward&quot;},{&quot;label&quot;:&quot;See what it can do&quot;,&quot;to&quot;:&quot;page&quot;,&quot;href&quot;:&quot;/blocks/&quot;,&quot;kind&quot;:&quot;outlined&quot;}]}"></div>
 
 Free and open source under the MIT license.
 
@@ -19,7 +19,7 @@ Free and open source under the MIT license.
 
 <p class="mo-type-label-medium">Why Morpheme</p>
 
-<div data-block="list" data-props="{&quot;heading&quot;:&quot;Everything you need, nothing you don’t&quot;,&quot;intro&quot;:&quot;The editor takes care of the careful work, so you can focus on what you want to say.&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;phone&quot;,&quot;title&quot;:&quot;Edit from anywhere&quot;,&quot;text&quot;:&quot;Works in any browser and installs on your phone’s home screen like an app.&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Build with blocks&quot;,&quot;text&quot;:&quot;Cards, steps, FAQs, price tables and more, styled to match your site automatically.&quot;},{&quot;icon&quot;:&quot;book-open&quot;,&quot;title&quot;:&quot;Never lose a thing&quot;,&quot;text&quot;:&quot;Every save is a version you can restore with one tap. Deleted files come back too.&quot;},{&quot;icon&quot;:&quot;lifebuoy&quot;,&quot;title&quot;:&quot;Private by default&quot;,&quot;text&quot;:&quot;No tracking cookies until visitors say yes, and a strict security policy on every page.&quot;}]}"></div>
+<div data-block="list" data-props="{&quot;heading&quot;:&quot;Everything you need, nothing you don’t&quot;,&quot;intro&quot;:&quot;The editor takes care of the careful work, so you can focus on what you want to say.&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;call&quot;,&quot;title&quot;:&quot;Edit from anywhere&quot;,&quot;text&quot;:&quot;Works in any browser and installs on your phone’s home screen like an app.&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Build with blocks&quot;,&quot;text&quot;:&quot;Cards, steps, FAQs, price tables and more, styled to match your site automatically.&quot;},{&quot;icon&quot;:&quot;menu_book&quot;,&quot;title&quot;:&quot;Never lose a thing&quot;,&quot;text&quot;:&quot;Every save is a version you can restore with one tap. Deleted files come back too.&quot;},{&quot;icon&quot;:&quot;support&quot;,&quot;title&quot;:&quot;Private by default&quot;,&quot;text&quot;:&quot;No tracking cookies until visitors say yes, and a strict security policy on every page.&quot;}]}"></div>
 
 <p class="mo-type-label-medium">Take a closer look</p>
 

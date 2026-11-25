@@ -66,6 +66,7 @@ export const styleChecks = [
   ['cards', 'color', ''],
   ['cards', 'media', 'icon'],
   ['cards', 'phone', ''],
+  ['cards', 'layout', ''],
   ['list', 'design', '', 'rows/listParts.ts'],
   ['expand', 'design', '', 'rows/listParts.ts'],
   ['posts', 'design', ''],

@@ -62,7 +62,23 @@ export default defineBlock({
       hint: t.blocks.cards.phoneHint,
       options: [
         { label: t.blocks.cards.phoneStacked, value: '' },
-        { label: t.blocks.cards.phoneCarousel, value: 'carousel' },
+        { label: t.blocks.cards.phoneCarousel, value: 'carousel', hint: t.blocks.cards.phoneVariantHint },
+      ],
+    },
+    // The carousel's layout, Material 3's (m3.material.io/components/carousel): uncontained is the empty choice, so a site saved before the
+    // choice keeps its look. Shown only with the carousel; each layout is a version of the block of its own under Blocks (`versions`).
+    {
+      name: 'layout',
+      label: t.blocks.cards.layout,
+      type: 'select',
+      versions: true,
+      only: { field: 'phone', is: ['carousel'] },
+      options: [
+        { label: t.blocks.cards.layoutUncontained, value: '' },
+        { label: t.blocks.cards.layoutMultiBrowse, value: 'multi-browse', hint: t.blocks.cards.layoutMultiBrowseHint },
+        { label: t.blocks.cards.layoutHero, value: 'hero', hint: t.blocks.cards.layoutHeroHint },
+        { label: t.blocks.cards.layoutHeroCenter, value: 'hero-center', hint: t.blocks.cards.layoutHeroCenterHint },
+        { label: t.blocks.cards.layoutFullScreen, value: 'full-screen', hint: t.blocks.cards.layoutFullScreenHint },
       ],
     },
     // A filled card is Material's surface container until another container is picked.

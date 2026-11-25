@@ -156,7 +156,9 @@ export function MenuItem({
         <span className="mo-menu__item-trailing-supporting">{trailingSupporting}</span>
       )}
       {trailingIcon && <Glyph icon={trailingIcon} size={20} className="mo-menu__item-trailing-icon" />}
-      {submenu !== undefined && <Svg name="caret-right" size={20} className="mo-menu__item-trailing-icon mo-menu__item-submenu-icon" />}
+      {submenu !== undefined && (
+        <Svg name="keyboard_arrow_right" size={20} className="mo-menu__item-trailing-icon mo-menu__item-submenu-icon" />
+      )}
     </>
   );
 
@@ -258,7 +260,7 @@ export function DropdownMenu({
       {iconButton ? (
         <IconButton icon={icon ?? 'list'} label={label} {...button} />
       ) : (
-        <Button kind={kind} size={size} icon={icon} trailingIcon="caret-down" {...button}>
+        <Button kind={kind} size={size} icon={icon} trailingIcon="keyboard_arrow_down" {...button}>
           {label}
         </Button>
       )}

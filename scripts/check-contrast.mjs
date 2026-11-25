@@ -291,7 +291,7 @@ const kinds = `## Button kinds\n\n${blockHtml('buttons', {
     to: 'page',
     href: '/about/',
     kind,
-    icon: 'arrow-right',
+    icon: 'arrow_forward',
   })),
 })}\n`;
 // A section runs from its marker to the next H1 or H2, so each heading gets the marker.

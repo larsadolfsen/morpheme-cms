@@ -196,11 +196,12 @@ there. Only the page and post editor (its bar, overflow menu, text and block men
 
 ### Icons are Material Symbols
 
-Owner rule, 14 Nov: the editor and the site draw Material Symbols until a site chooses another icon pack; Phosphor and
-Lucide appear only when a site picks that pack (`src/data/icons.json`, or an installed theme's pack). Code draws icons by
-name through the shared `Icon` (`src/icon.tsx`), never by a direct `@phosphor-icons/react` component import:
-`npm run check:phosphor` fails on a new one (allowlist with reasons in `scripts/phosphor-allowlist.json`), and
-`check:screens` fails on a Phosphor glyph while Material Symbols is the pack.
+Owner rule, 14 Nov, and 22 Nov 2026: the editor and the site draw Material Symbols, and Phosphor and Lucide are not in the package (0.19.6). A site whose
+chosen pack is `phosphor` or `lucide` draws Material Symbols, with no warning; the update rewrites a stored icon name to its Material name
+(`lib/migrate-icons.mjs`). Code draws icons by their Material name (`location_on`; `<name>-fill` is the filled one) through the shared `Icon`
+(`src/icon.tsx`). A theme may bring its own pack (`icon-packs/`, files keyed by Material names, only the icons it draws its own way); the brand
+logos (`site/brand/`) are drawn whatever pack is picked. `npm run check:phosphor` fails on any import of `@phosphor-icons/*` or Lucide, with no allowlist,
+and `check:screens` fails on a Phosphor glyph and on an icon that is MISSING.
 
 ### Worker: no pending I/O promise in module memory
 

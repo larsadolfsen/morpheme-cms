@@ -54,7 +54,7 @@ export default function FabMenu({
         data-close-label={closeLabel}
       >
         <Glyph icon={icon} size={24} className="mo-fab-menu__icon" />
-        <Svg name="x" size={24} className="mo-fab-menu__close-icon" />
+        <Svg name="close" size={24} className="mo-fab-menu__close-icon" />
       </button>
       <ul id={list} className="mo-fab-menu__list" aria-label={label} hidden={!open}>
         {items.map(({ icon: glyph, label: name, ...item }) => (

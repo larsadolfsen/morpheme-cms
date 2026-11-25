@@ -6,7 +6,7 @@
 import * as site from '@site/editor';
 import type { ColorPair } from '../lib/colors';
 import { backTarget, placeOf as menuPlaceOf } from '../lib/menu.mjs';
-import { activeApps, appFromManifest, appIdOf, withKinds, type AppDefinition, type AppList, type SiteApp } from './apps';
+import { activeApps, appFromManifest, appIdOf, scopedKinds, withKinds, type AppDefinition, type AppList, type SiteApp } from './apps';
 import { appBlocks, appEditors, appFiles, appFolders, appManifests, appImages, appShared, appStores, appTextFiles } from './appFiles';
 import type { AppManifest } from '../lib/appManifest.mjs';
 import type { BlockDefinition, SiteBlock } from './blocks';
@@ -257,6 +257,8 @@ export const writtenApps: SiteApp[] = [...fromManifests, ...fromIndexes]
     const store = Object.entries(appStores).find(([p]) => appIdOf(p) === id)?.[1].default;
     return {
       ...definition,
+      // An app's kinds are drawn in its scope, as its blocks are (src/registry.tsx).
+      ...(definition.kinds ? { kinds: scopedKinds(id, definition.kinds) } : {}),
       id,
       blocks: appBlockPaths.filter((p) => appIdOf(p) === id).map((p) => p.split('/').at(-2)!),
       needs: needsOf(

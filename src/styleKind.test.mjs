@@ -141,9 +141,6 @@ test('the T icons have the same weight and size as Bold and Italic', () => {
     assert.equal(barY, stemY, `${size}: the bar is the top of the stem`);
     assert.ok(stemHeight >= 112 && barWidth >= 80, `${size}: not a scaled-down glyph`);
   }
-  const phosphor = (name) =>
-    readFileSync(new URL(`../node_modules/@phosphor-icons/core/assets/regular/${name}.svg`, import.meta.url), 'utf8');
-  for (const name of ['text-b', 'text-italic', 'text-t']) assert.match(phosphor(name), /viewBox="0 0 256 256" fill="currentColor"/);
   const source = readFileSync(new URL('./MarkdownEditor.tsx', import.meta.url), 'utf8');
   assert.equal(source.match(/replace\('<svg', '<svg width="(\d+)" height="(\d+)"/g)?.[0], `replace('<svg', '<svg width="20" height="20"`);
   assert.match(readFileSync(new URL('./TextSizeIcons.tsx', import.meta.url), 'utf8'), /size = 20/);

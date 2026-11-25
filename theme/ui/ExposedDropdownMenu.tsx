@@ -62,7 +62,7 @@ export default function ExposedDropdownMenu({
         <label htmlFor={field} className="mo-text-field__label">
           {label}
         </label>
-        <Svg name="caret-down" size={20} className="mo-select__icon" />
+        <Svg name="keyboard_arrow_down" size={20} className="mo-select__icon" />
       </div>
       {line && (
         <div className="mo-text-field__supporting-row">

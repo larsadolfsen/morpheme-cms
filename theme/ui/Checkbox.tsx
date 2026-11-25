@@ -51,7 +51,7 @@ export default function Checkbox({
           {...rest}
         />
         <Svg name="check" size={14} className="mo-checkbox__icon" />
-        {indeterminate && <Svg name="minus" size={14} className="mo-checkbox__indeterminate-icon" />}
+        {indeterminate && <Svg name="remove" size={14} className="mo-checkbox__indeterminate-icon" />}
       </span>
       <span className="mo-checkbox__text">
         <span className="mo-checkbox__label">{label}</span>

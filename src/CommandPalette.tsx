@@ -60,7 +60,7 @@ function pagesOf(files: RepoFile[]) {
         title: title || f.path,
         href: `#${f.path}`,
         list: c.label,
-        icon: c.id === 'pages' ? 'file-text' : 'newspaper',
+        icon: c.id === 'pages' ? 'description' : 'newspaper',
         collection: c.id,
       });
     }
@@ -97,7 +97,7 @@ function filesInfo(files: RepoFile[]) {
         name: f.path.split('/').pop() ?? f.path,
         src: shownAt(src),
         kind: kind === 'image' ? ('image' as const) : ('file' as const),
-        icon: { image: 'image', pdf: 'file-pdf', video: 'file-video', zip: 'file-zip' }[kind],
+        icon: { image: 'image', pdf: 'picture_as_pdf', video: 'video_file', zip: 'folder_zip' }[kind],
         what: word.charAt(0).toUpperCase() + word.slice(1),
       },
     ];
@@ -107,18 +107,18 @@ function filesInfo(files: RepoFile[]) {
 /** The icon of a row whose action names none: its group's, so every row leads with an icon (M3 lists: "Leading icons related to suggestions"). */
 const GROUP_ICONS: Record<ActionGroup, string> = {
   go: 'arrow_forward',
-  pages: 'file-text',
+  pages: 'description',
   files: 'image',
-  page: 'file-text',
-  text: 'text-aa',
-  section: 'rows',
-  insert: 'plus',
+  page: 'description',
+  text: 'text_fields',
+  section: 'table_rows',
+  insert: 'add',
   block: 'cube',
   table: 'table',
   image: 'image',
   list: 'list',
-  setting: 'gear',
-  app: 'puzzle-piece',
+  setting: 'settings',
+  app: 'extension',
 };
 
 /** The ids of the rows that are not an action: a search typed before (`search:<query>`), and the last row. */
@@ -134,10 +134,10 @@ const FILTERS = ['actions', 'pages', 'posts', 'images', 'files'] as const;
 type Filter = (typeof FILTERS)[number];
 const FILTER_ICONS: Record<Filter, string> = {
   actions: 'bolt',
-  pages: 'file-text',
+  pages: 'description',
   posts: 'newspaper',
   images: 'image',
-  files: 'file-pdf',
+  files: 'picture_as_pdf',
 };
 
 /** The first actions of the menu, for the palette's *Suggested* where nothing is active (the text's and the block's come with the editor). */
@@ -217,7 +217,7 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
           setRecent(loadRecent());
         },
       },
-      { id: 'go.notifications', label: t.library.notifications, icon: 'bell', group: 'go', where: {}, run: openNotifications },
+      { id: 'go.notifications', label: t.library.notifications, icon: 'notifications', group: 'go', where: {}, run: openNotifications },
       ...collectionsFor(all).flatMap((c): EditorAction[] =>
         c.kind === 'markdown' && c.create
           ? [{ id: `go.new-${c.id}`, label: c.create, icon: 'add', group: 'pages', where: {}, run: () => navigate(`#new/${c.id}`) }]
@@ -386,7 +386,7 @@ export function CommandPalette({ route, files }: { route: string; files: RepoFil
               id: ALL,
               headline: t.palette.allResults(typed),
               supporting: t.palette.allResultsCount(total),
-              icon: 'magnifying-glass',
+              icon: 'search',
             } as ItemOf,
           ],
         });

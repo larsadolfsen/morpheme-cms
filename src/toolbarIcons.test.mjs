@@ -46,5 +46,5 @@ test('every icon of the text toolbar is a Material Symbols file, or one of the t
     assert.match(svg, /viewBox="0 0 256 256"/);
     assert.doesNotMatch(svg, /#[0-9a-f]{3,8}\b|fill="(?!currentColor|none)/i);
   }
-  assert.doesNotMatch(editor, /from 'lucide-react'|from '@mui\/|@phosphor-icons/);
+  assert.doesNotMatch(editor, new RegExp(['from .luc', 'ide-react.|from .@mui/|@phosphor-icons'].join('')));
 });

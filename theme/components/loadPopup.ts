@@ -9,7 +9,7 @@ import type { PopupButtonView } from '@theme/components/PopupButton';
 async function buttonOf(button: Popup['button']): Promise<PopupButtonView | undefined> {
   if (!button) return undefined;
   if (button.to === 'file') return button.href ? { file: { href: button.href, label: button.label?.trim() || 'Download PDF' } } : undefined;
-  const icon = button.to === 'phone' ? 'phone' : 'arrow-right';
+  const icon = button.to === 'phone' ? 'call' : 'arrow_forward';
   return { buttons: await loadButtons([{ to: button.to, label: button.label, href: button.href, kind: 'filled', icon }]) };
 }
 

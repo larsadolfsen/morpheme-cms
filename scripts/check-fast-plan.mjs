@@ -27,7 +27,7 @@ const STATIC = [
     reads: /\.(css|mjs|ts|tsx)$|^(docs\/css-tokens\.md|scripts\/css-tokens-allowlist\.json)$|^(starter|theme|src|demo)\//,
   },
   { name: 'check:density', reads: /\.(css|mjs)$|^(theme|docs)\// },
-  { name: 'check:phosphor', reads: /^(src|theme|lib|pages|site|scripts\/phosphor-allowlist\.json|scripts\/check-phosphor\.mjs)/ },
+  { name: 'check:phosphor', reads: /^(src|theme|lib|pages|site|scripts\/check-phosphor\.mjs)/ },
   { name: 'check:web', reads: /^(src|theme|pages|lib|worker|starter|demo|scripts\/(check-web\.mjs|web-allowlist\.json))/ },
   { name: 'check:editor-colors', reads: /^(src\/(editor\.css|Inline\w*)|scripts\/check-editor-colors\.mjs|theme\/styles)/ },
   { name: 'check:color-roles', reads: /^(src\/[^/]*\.(css|tsx)|theme\/styles|defaults\/colors\.ts|scripts\/(check-)?color-roles)/ },

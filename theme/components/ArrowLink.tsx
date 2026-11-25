@@ -8,7 +8,7 @@ export default function ArrowLink({ href, label, className }: { href?: string; l
   const inside = (
     <>
       {label}
-      <Svg name="arrow-right" size={18} />
+      <Svg name="arrow_forward" size={18} />
     </>
   );
   return href ? (

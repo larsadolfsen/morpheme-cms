@@ -63,7 +63,7 @@ export default function Testimonial({
           </blockquote>
           <Link href={t.href} className="mo-block-testimonials__testimonial-more">
             {texts.more} <span className="mo-block-testimonials__sr-only">{siteT.blocks.testimonials.from(t.name)}</span>
-            <Svg name="arrow-right" size={16} />
+            <Svg name="arrow_forward" size={16} />
           </Link>
         </>
       ) : (
@@ -100,7 +100,7 @@ export default function Testimonial({
           onClick={() => setOpen(!open)}
         >
           <span>{open ? texts.less : texts.more}</span>
-          <Svg name="caret-down" size={16} />
+          <Svg name="keyboard_arrow_down" size={16} />
         </button>
       )}
       <figcaption className="mo-block-testimonials__testimonial-name">

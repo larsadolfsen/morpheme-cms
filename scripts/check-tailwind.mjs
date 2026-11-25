@@ -10,7 +10,7 @@ import { EXTENSIONS, configFiles, configProblems, utilityProblems } from '../sit
 
 export const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const FOLDERS = ['theme', 'src', 'pages', 'starter', 'demo', 'site', 'lib', 'defaults', 'worker', 'bin'];
-const SELF = new Set(['site/tailwind.mjs']);
+const SELF = new Set(['site/tailwind.mjs', 'lib/tailwind-rules.mjs']);
 
 /** The tracked files of the scanned folders (what is in the repository, not a build or `node_modules`). */
 export function trackedFiles(root = ROOT) {
