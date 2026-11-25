@@ -43,7 +43,7 @@ function astroCode(text) {
   const parts = [];
   const fm = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text);
   if (fm) parts.push([2, fm[1]]);
-  for (const m of text.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\s*>/gi))
+  for (const m of text.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script\b[^>]*>/gi))
     parts.push([text.slice(0, m.index + m[0].indexOf('>') + 1).split('\n').length, m[1]]);
   return parts;
 }
