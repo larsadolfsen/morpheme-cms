@@ -665,7 +665,7 @@ const CROSSING = (() => {
   );
   expect(stored(old.kv, 'cms:checked')?.latest === '0.1.1', 'the held check did not keep latest');
 
-  const app = await run({ items: [mailchimp], releases: { 'mailchimp@2.0.0': { api: 7 } } });
+  const app = await run({ items: [mailchimp], releases: { 'mailchimp@2.0.0': { api: 8 } } });
   expect(app.commits.length === 0 && problemOf(app)?.detail === 'app mailchimp', 'a store app written to another contract was taken');
 
   const behind = await run({ items: [venus, mailchimp, own], releases: { 'venus@1.3.0': { api: 6 }, 'mailchimp@2.0.0': { api: 6 } } });
@@ -756,14 +756,14 @@ const CROSSING = (() => {
   const apps = String(config.apps?.folder ?? 'src/apps').replace(/\/$/, '');
   const STORE_CSS = '.mo-button__text { color: red; }\n';
   const own = (pick) => ({
-    [`${themes}/mine/theme.json`]: '{ "api": 7 }\n',
+    [`${themes}/mine/theme.json`]: '{ "api": 8 }\n',
     [`${themes}/mine/styles.css`]: pick(
       '.mo-button__text { gap: var(--mo-density-user); }\n',
       ':where(.mo-button).mo-is-text { gap: var(--mo-sys-density-user); }\n',
     ),
     [`${apps}/mine/app.json`]: pick(
-      JSON.stringify({ api: 7, icon: 'format_list_numbered' }, null, 2) + '\n',
-      JSON.stringify({ api: 7, icon: 'format_list_numbered' }, null, 2) + '\n',
+      JSON.stringify({ api: 8, icon: 'format_list_numbered' }, null, 2) + '\n',
+      JSON.stringify({ api: 8, icon: 'format_list_numbered' }, null, 2) + '\n',
     ),
     // The one item API of ListItem and Card (docs/superpowers/specs/2026-11-24-card-list-item-api.md): `columns` goes; Material's leading and trailing names stay.
     [`${apps}/mine/Rows.tsx`]: pick(

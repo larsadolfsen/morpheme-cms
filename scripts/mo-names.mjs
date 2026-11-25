@@ -17,6 +17,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import postcss from 'postcss';
+import { SCOPED_CSS_FROM_API } from '../lib/appCss.mjs';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 export const MAP_PATH = 'docs/superpowers/plans/mo-names/map.json';
@@ -223,6 +224,16 @@ export function scanStrict(files) {
   return [...new Set(out)];
 }
 
+/** Whether a file is in an app written to contract 8 or later (`…/src/apps/<id>/`): its own classes are plain names the build scopes to the app (`check:app-classes`). */
+const inScopedApp = (file) => {
+  const m = /^(.*\/src\/apps\/[^/]+)\//.exec(file);
+  try {
+    return !!m && JSON.parse(readFileSync(`${root}${m[1]}/app.json`, 'utf8')).api >= SCOPED_CSS_FROM_API;
+  } catch {
+    return false;
+  }
+};
+
 /** The files to scan, from git. */
 export function listFiles() {
   return execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard', ...FOLDERS], {
@@ -231,7 +242,7 @@ export function listFiles() {
     maxBuffer: 64 * 1024 * 1024,
   })
     .split('\n')
-    .filter((f) => f && SCANNED.test(f) && !SKIPPED.test(f) && existsSync(root + f));
+    .filter((f) => f && SCANNED.test(f) && !SKIPPED.test(f) && existsSync(root + f) && !inScopedApp(f));
 }
 
 const sum = (map) => [...map.values()].reduce((a, b) => a + b, 0);

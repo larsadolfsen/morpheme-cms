@@ -3,7 +3,10 @@
 // timePicker.script.ts draws it in the time picker's <dialog> (TimePicker.tsx) each time something changes and does
 // what it is told by the data-time-picker-… attributes, and for the editor, which only draws it. Built on the theme's
 // Dialog (the surface), IconButton, Button and TextField; how it looks is the theme's (--time-picker-*).
-//   `view`: the dial (the hours and the minutes, each a box, the one `selecting` on the dial under them: the hours
+//   `kind` (dial, the default, or scroll): the selector the picker starts with and the input mode toggles back to (Material: "Toggle back to
+//   dial picker with a clock icon. Toggle back to scroll picker with a swipe icon."). `view`: the scroll fields (the hours and the minutes, each a
+//   list of its values in a spinbutton, the one in the middle the selected one; timePicker.script.ts scrolls, snaps and moves them; `inline`
+//   draws it in the page, as Material places the scroll picker, without the dialog's surface, headline and actions) or the dial (the hours and the minutes, each a box, the one `selecting` on the dial under them: the hours
 //   00–11 on the outer ring and 12–23 on the inner one, the minutes in fives, the hand pointing at the time; a slider
 //   for screen readers and the arrow keys) or the input mode (the hours and the minutes, each the theme's TextField).
 //   `typed`, `error`: what is written in the input mode's fields, and what is wrong with it (on which one).
@@ -12,14 +15,17 @@
 //   horizontal, the dial beside them (Material's on a phone turned on its side).
 // No texts of its own (`texts`, TimePicker.tsx's timePickerTexts) and no React state, so the site's script can draw it
 // without the editor's dictionaries.
-import type { CSSProperties } from 'react';
+import type { CSSProperties, ElementType } from 'react';
 import Dialog from '@theme/ui/Dialog';
 import IconButton from '@theme/ui/IconButton';
 import Button from '@theme/ui/Button';
 import TextField from '@theme/ui/TextField';
 import { timeSeparator, twoDigits } from '@theme/ui/dates';
+import { scrollValues } from '@theme/ui/scrollTime';
 
-export type TimePickerView = 'dial' | 'input';
+export type TimePickerView = 'scroll' | 'dial' | 'input';
+/** The selector a time picker starts with (the input mode toggles back to it): Material's scroll or dial time picker. */
+export type TimePickerKind = 'dial' | 'scroll';
 /** A time picker's time formats and orientations, as Material 3 names them. */
 export type TimePickerFormat = '24h' | '12h';
 export type TimePickerOrientation = 'vertical' | 'horizontal';
@@ -41,6 +47,7 @@ export type TimePickerTexts = {
   pm: string;
   toInput: string;
   toDial: string;
+  toScroll: string;
   cancel: string;
   ok: string;
 };
@@ -59,6 +66,9 @@ export type TimePickerContainerProps = TimePickerState & {
   texts: TimePickerTexts;
   timeFormat?: TimePickerFormat;
   orientation?: TimePickerOrientation;
+  kind?: TimePickerKind;
+  /** In the page, with no dialog around it: no headline, no Cancel and OK (the time is written as it changes). */
+  inline?: boolean;
   headlineId?: string;
   className?: string;
 };
@@ -86,6 +96,8 @@ export default function TimePickerContainer({
   texts,
   timeFormat = '24h',
   orientation = 'vertical',
+  kind = 'dial',
+  inline = false,
   headlineId,
   className,
 }: TimePickerContainerProps) {
@@ -116,18 +128,81 @@ export default function TimePickerContainer({
       ))}
     </span>
   );
+  // A scroll field: the values one under the other, the selected one in the middle (a spinbutton for screen readers: its items are only drawn).
+  // A field drawn without the picker's script (a sample) is scrolled to its value when it first has a size; with the script, it does it itself.
+  const place = (el: HTMLElement | null, index: number) => {
+    if (!el || el.dataset.placed !== undefined) return;
+    const items = el.querySelectorAll<HTMLElement>('[data-time-picker-item]');
+    const pitch = items.length > 1 ? items[1].offsetTop - items[0].offsetTop : 0;
+    if (!pitch) return;
+    el.dataset.placed = '';
+    el.scrollTop = index * pitch;
+  };
+  const scrollField = (f: (typeof fields)[number], i: number) => {
+    const field = f.key;
+    const values = scrollValues(field, twelve);
+    const current = field === 'hour' ? shown : minute;
+    return (
+      <span key={field} className="mo-time-picker__selector-part">
+        {i === 1 && (
+          <span className="mo-time-picker__separator" aria-hidden="true">
+            {separator}
+          </span>
+        )}
+        <div
+          className="mo-time-picker__scroll-field"
+          role="spinbutton"
+          tabIndex={0}
+          aria-label={f.label}
+          aria-valuemin={values[0]}
+          aria-valuemax={values[values.length - 1]}
+          aria-valuenow={current}
+          aria-valuetext={field === 'hour' && twelve ? `${shown} ${pm ? texts.pm : texts.am}` : twoDigits(current)}
+          data-time-picker-scroll={field}
+          ref={(el) => place(el, values.indexOf(current))}
+        >
+          {values.map((n) => (
+            <span
+              key={n}
+              className="mo-time-picker__scroll-item"
+              data-selected={n === current || undefined}
+              data-time-picker-item={n}
+              aria-hidden="true"
+            >
+              {twoDigits(n)}
+            </span>
+          ))}
+        </div>
+      </span>
+    );
+  };
+  const Surface: ElementType = inline ? 'div' : Dialog;
   return (
-    <Dialog
-      className={['mo-time-picker', orientation === 'horizontal' && 'mo-is-horizontal', twelve && 'mo-time-picker__12h', className]
+    <Surface
+      className={[
+        'mo-time-picker',
+        orientation === 'horizontal' && 'mo-is-horizontal',
+        twelve && 'mo-time-picker__12h',
+        kind === 'scroll' && 'mo-is-scroll',
+        inline && 'mo-is-inline',
+        className,
+      ]
         .filter(Boolean)
         .join(' ')}
       data-view={view}
     >
-      <h2 id={headlineId} className="mo-time-picker__headline">
-        {view === 'input' ? texts.enter : texts.select}
-      </h2>
+      {!inline && (
+        <h2 id={headlineId} className="mo-time-picker__headline">
+          {view === 'input' ? texts.enter : texts.select}
+        </h2>
+      )}
 
-      {view === 'dial' ? (
+      {view === 'scroll' ? (
+        <div className="mo-time-picker__scroll">
+          {fields.map(scrollField)}
+          {period}
+        </div>
+      ) : view === 'dial' ? (
         <>
           <div className="mo-time-picker__selector">
             {fields.map((f, i) => (
@@ -231,19 +306,21 @@ export default function TimePickerContainer({
 
       <div className="mo-time-picker__actions">
         <IconButton
-          icon={view === 'dial' ? 'keyboard' : 'schedule'}
-          label={view === 'dial' ? texts.toInput : texts.toDial}
+          icon={view !== 'input' ? 'keyboard' : kind === 'scroll' ? 'swipe_vertical' : 'schedule'}
+          label={view !== 'input' ? texts.toInput : kind === 'scroll' ? texts.toScroll : texts.toDial}
           data-time-picker-action="mode"
         />
-        <span className="mo-time-picker__actions-end">
-          <Button kind="text" data-time-picker-action="cancel">
-            {texts.cancel}
-          </Button>
-          <Button kind="text" data-time-picker-action="ok">
-            {texts.ok}
-          </Button>
-        </span>
+        {!inline && (
+          <span className="mo-time-picker__actions-end">
+            <Button kind="text" data-time-picker-action="cancel">
+              {texts.cancel}
+            </Button>
+            <Button kind="text" data-time-picker-action="ok">
+              {texts.ok}
+            </Button>
+          </span>
+        )}
       </div>
-    </Dialog>
+    </Surface>
   );
 }

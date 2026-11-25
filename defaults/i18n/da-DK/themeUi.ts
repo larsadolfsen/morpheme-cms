@@ -31,4 +31,5 @@ export const themeUi: Record<string, string> = {
   'Enter a time between 1:00 and 12:59.': 'Skriv et tidspunkt mellem 1.00 og 12.59.',
   'Before or after noon': 'Før eller efter middag',
   'Switch to the dial': 'Skift til urskiven',
+  'Switch to scrolling': 'Skift til at rulle',
 };

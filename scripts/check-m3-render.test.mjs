@@ -29,13 +29,14 @@ test('the token copy is read: a length, a shape, a type and a colour role', () =
   assert.equal(find([set, 'md.comp.button'], 'nothing.here'), undefined);
 });
 
-test('a sample is resolved from its classes: our medium button is Material 3 small', () => {
+test('a sample is resolved from its classes: our default button is Material 3 small, the others are the same', () => {
   const r = resolve(button());
   assert.equal(r.family, 'button');
   assert.equal(r.size, 'small');
   assert.equal(r.kind, 'filled');
   assert.equal(resolve(button({ classes: ['mo-button', 'mo-is-text'] })).kind, 'text');
-  assert.equal(resolve(button({ classes: ['mo-button', 'mo-is-tonal', 'mo-is-xlarge'] })).size, 'large');
+  assert.equal(resolve(button({ classes: ['mo-button', 'mo-is-tonal', 'mo-is-xlarge'] })).size, 'xlarge');
+  assert.equal(resolve(button({ classes: ['mo-button', 'mo-is-medium'] })).size, 'medium');
   assert.equal(resolve({ root: 'mo-list', classes: [] }), undefined);
 });
 
