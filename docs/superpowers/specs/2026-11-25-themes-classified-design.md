@@ -191,3 +191,9 @@ Themes are classified, not tested (owner, 25 Nov 2026), the page and post editor
 values are measured and scored (the SEO score wheel, on its page and in the store), never failed; our code's behaviour (keyboard, a focus ring, names, roles and states)
 is a hard check on every theme; the base theme (0.22.3) is hard-checked on everything. The rules: skill `theme`, section 5.
 ```
+
+## Score changes
+
+- **Material, 26 Nov 2026 (0.19.8, touch-target fix):** 94 (17 of 18) became 100 (18 of 18). The chip part measured 21 px (the removable input chip's own button, "Selected"
+  on `/ui/`) and is now 40 px; the checkbox went from 28 to 41 px and the radio button from 36 to 48 px (the pixel counts are the scan's smallest click area, so a part in a
+  group is its size plus half the gap on each side).
