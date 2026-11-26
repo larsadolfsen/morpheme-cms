@@ -5,7 +5,7 @@
 // on a minute between the fives, and its input mode with an error, on a 12-hour clock (the dial and the input mode)
 // and horizontal (the dial beside the boxes, 24- and 12-hour). Only drawn (`Drawn`: an inert picture that takes no focus): on the site
 // datePicker.script.ts and timePicker.script.ts make them work.
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import {
   SiteDatePicker,
   SiteDatePickerContainer,
@@ -47,9 +47,18 @@ function ScrollFieldWithInput({
 
 /** A sample that is only drawn (the container with no script behind it): a picture that takes no focus and has no role of its parts, so a keyboard or a screen reader finds nothing that ignores its keys. */
 function Drawn({ className, label, children }: { className: string; label: string; children: React.ReactNode }) {
+  const inner = useRef<HTMLDivElement>(null);
+  // A drawn sample is a picture: its live regions (the date headline, the time error) would never announce
+  // inside an inert tree, so they lose their live semantics here, in the sample only.
+  useLayoutEffect(() => {
+    for (const el of inner.current?.querySelectorAll('[aria-live], [role=alert], [role=status]') ?? []) {
+      el.removeAttribute('aria-live');
+      if (el.getAttribute('role') === 'alert' || el.getAttribute('role') === 'status') el.removeAttribute('role');
+    }
+  });
   return (
     <div className={className} role="img" aria-label={label}>
-      <div className="mo-editor-picker-inert" inert>
+      <div ref={inner} className="mo-editor-picker-inert" inert>
         {children}
       </div>
     </div>
@@ -219,7 +228,7 @@ export default function PickerParts() {
             </div>
           </div>
           {/* As wide as a phone on its side: scrolled sideways on a narrower screen. */}
-          <div className={`${drawn} mo-editor-picker-scroll`}>
+          <div className={`${drawn} mo-editor-picker-scroll`} role="region" aria-label={say.horizontal} tabIndex={0}>
             <Drawn className="mo-editor-picker-wide" label={say.horizontal}>
               <SiteTimePickerContainer view="dial" selecting="minute" hour={14} minute={30} texts={times} orientation="horizontal" />
             </Drawn>
