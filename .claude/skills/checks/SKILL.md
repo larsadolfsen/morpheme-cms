@@ -191,16 +191,14 @@ are all still red: when in doubt it stays red.
 | `cd .morpheme/demo/site && node ../../../scripts/measure-speed.mjs` | by hand, after `npm run build`, when a speed claim or a performance fix needs numbers (a few minutes, not in CI or `npm run check`; the numbers depend on the machine, so compare runs on the same one) | LCP, CLS, TBT, long tasks, long animation frames and the INP of scripted interactions (open menu, open a sheet, type, scroll, search) on the site's key pages and the editor's key screens, on a phone (375 px, CPU 4x) and a computer. `--runs N`, `--profile mobile\|desktop`, `--only <text>`, `--json <file>`; `CHROMIUM_PATH` for another Chromium. Baseline and method: `docs/performance-baseline.md`. |
 | `npm run check:contrast` | not now: one final full run when Material's M3 work is done (owner, 21 Nov 2026; `docs/superpowers/specs/2026-11-21-base-theme-notes.md`), not per change and not in CI; about 4 minutes per theme | WCAG AA contrast of every block's text, icons and control borders on each section colour, on the site and typed in place in the editor, light and dark, phone and computer. `--all` runs every installed theme; `CONTRAST_DENSITY=-1` checks the editor at Small density. |
 
-## A theme's accessibility statement (0.19.5, batch 11)
+## A theme's accessibility score (0.19.8, task 17)
 
-Owner, 21 Nov 2026: Material follows Material 3 on the site, and a theme that falls short of WCAG 2.2 AA says so openly. `theme/accessibility.json` (beside `theme.json`; another theme's is `src/themes/<theme>/accessibility.json`) is
-`{ "standard": "WCAG 2.2 AA", "fallsShort": [ { "criterion", "part", "why" } ] }`; no file or an empty list means the theme meets the standard. The format and the parts a theme can name
-(`PARTS`: `placeholder` 1.4.3, `outlined-card-edge` and `section-edges` 1.4.11) are in `lib/accessibility.mjs`, tested in `lib/accessibility.test.mjs`; `themeProblems` validates the file, so `check:themes` and
-`check:content` fail on a wrong one. A new part is added to `PARTS` in the pull request that first needs it, with its criterion and the checks that measure it.
-**The checks never hide a failure the theme does not name:** `check:contrast` judges each theme by its own file (a named failure passes, an unnamed one fails, and an entry that no longer fails is stale: "remove it from
-accessibility.json"); `check:screens` lets a named part through in its units (`scripts/screens/support/statement.mjs`, `shortfall(criterion, part, message)`) and never judges an entry stale, because its units run in shards;
-`check:a11y` and `check:announce` read the file through `SHORTFALL_PARTS` (`scripts/a11y.mjs`, `scripts/announce.mjs`), empty today because axe and the name walk see no part a theme sets. A batch that changes a value to
-Material 3's names what then falls short, with its criterion and part.
+Theme values are classified, never failed; our code is a hard check on every theme (skill `theme`, section 5). `theme/accessibility.json` (beside `theme.json`; another theme's is `src/themes/<theme>/accessibility.json`) is written by
+`npm run accessibility` (`morpheme accessibility [<theme>]`, run on a built demo or site, about 4 minutes per theme) as `{ "standard": "WCAG 2.2 AA", "measured": "<CMS version>", "score", "checks": [ { "criterion", "part", "ok", "why" } ] }`, where
+`score` is `scoreOf(checks)` (the SEO rating's function, `lib/score.mjs`) and `why` is the measured sentence; a reason a person adds after `; ` is kept while the check is unchanged. The one rule that says which findings are theme values and
+which are our code is `kindOf` in `lib/accessibility.mjs`, with the parts a theme is measured on (`PARTS`); an unplaced finding is our code. `check:contrast` measures and prints each theme's score and never fails on it; `check:a11y`, `check:announce`,
+`check:keyboard` and the `check:screens` units (`shortfall(criterion, part, message)` in `scripts/screens/support/statement.mjs`) print a theme value and fail on our code. `themeProblems` validates the file, so `check:themes` and `check:content` fail on a
+wrong one, and CI's `static` runs the command for `theme/` and fails only when the committed file differs from what it measured (never a WCAG gate).
 
 ## Proving that a class rename did not change the look: `compare-styles`
 

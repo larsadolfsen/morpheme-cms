@@ -130,17 +130,24 @@ export const library = {
   themeKeptContent: 'Pages and posts',
   themeKeptBrand: 'Colors and logo',
   themeKeptBlocks: "All blocks, in the theme's look",
-  /** On a theme's page: what it meets (its accessibility.json, src/themeAccessibility.mjs). */
-  themeA11yMeets: 'Accessibility: meets WCAG 2.2 AA, the level the European Accessibility Act asks for',
-  themeA11yShort: 'Accessibility: falls short of WCAG 2.2 AA',
-  themeA11yUnchecked: 'Accessibility: not checked',
+  /** On a theme's page: its accessibility score and the checks behind it (its accessibility.json, src/themeAccessibility.mjs). */
+  themeA11yHeadline: 'Accessibility',
+  themeA11yScoreLabel: (score: number) => `Accessibility score ${score}`,
+  themeA11ySupporting: (standard: string, version: string) => `${standard}, measured with Morpheme ${version}`,
+  themeA11yUnmeasured: 'Accessibility: not measured',
+  themeA11yChecks: 'Accessibility checks',
   themeA11yNotYours: 'Your own colors and images are not part of this.',
-  /** A shortfall: the part and its WCAG criterion. */
-  themeA11yItem: (part: string, criterion: string) => `${part} (${criterion})`,
+  /** A check: the part and its WCAG criterion, then what was measured. */
+  themeA11yCheck: (part: string, criterion: string, why: string) => (why ? `${part} (${criterion}): ${why}` : `${part} (${criterion})`),
   themeA11yParts: {
+    text: 'Text contrast',
     placeholder: 'Placeholder text contrast',
+    icon: 'Icon contrast',
     'outlined-card-edge': 'Outlined card edge contrast',
     'section-edges': 'Edge contrast in a colored section',
+    'control-edge': 'Control edge contrast',
+    'focus-ring': 'Focus ring contrast',
+    'target-size': 'Control size',
   } as Record<string, string>,
   /** The button on a theme's page that swaps the theme the website uses to it. */
   useTheme: 'Use the theme',

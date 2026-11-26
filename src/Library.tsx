@@ -63,6 +63,7 @@ import {
   GroupTitle,
   SwitchRow,
   ScoreRing,
+  CheckList,
   scoreOf,
   Button,
   EmptyNote,
@@ -491,6 +492,7 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
   const description = inLocale(of.description);
   const highlights = inLocale(of.highlights) ?? [];
   const statement = statementOf(of.accessibility);
+  const [checksOpen, setChecksOpen] = useState(false);
   const shotName = (key: string) => t.library.themeShots[key] ?? of.name;
   const kept: [Icon, string][] = [
     [materialIcon('description'), t.library.themeKeptContent],
@@ -555,22 +557,28 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
         </Group>
       )}
       <Group>
-        <ListItem
-          icon={statement.state === 'meets' ? materialIcon('check') : materialIcon('checklist')}
-          headline={
-            statement.state === 'meets'
-              ? t.library.themeA11yMeets
-              : statement.state === 'short'
-                ? t.library.themeA11yShort
-                : t.library.themeA11yUnchecked
-          }
-        />
-        {statement.shortfalls.map((x) => (
+        {statement.state === 'measured' ? (
           <ListItem
-            key={`${x.part}-${x.criterion}`}
-            headline={t.library.themeA11yItem(t.library.themeA11yParts[x.part] ?? partWords(x.part), x.criterion)}
-          />
-        ))}
+            onClick={() => setChecksOpen(!checksOpen)}
+            aria-expanded={checksOpen}
+            leading={<ScoreRing score={statement.score} label={t.library.themeA11yScoreLabel(statement.score)} />}
+            headline={t.library.themeA11yHeadline}
+            supporting={t.library.themeA11ySupporting(statement.standard, statement.measured)}
+            arrow={materialIcon(checksOpen ? 'keyboard_arrow_up' : 'keyboard_arrow_down')}
+          >
+            {checksOpen && (
+              <CheckList
+                title={t.library.themeA11yChecks}
+                items={statement.checks.map((c) => ({
+                  ok: c.ok,
+                  text: t.library.themeA11yCheck(t.library.themeA11yParts[c.part] ?? partWords(c.part), c.criterion, c.why),
+                }))}
+              />
+            )}
+          </ListItem>
+        ) : (
+          <ListItem icon={materialIcon('checklist')} headline={t.library.themeA11yUnmeasured} />
+        )}
         <ListItem headline={t.library.themeA11yNotYours} />
       </Group>
       <Group title={t.library.themeKept}>

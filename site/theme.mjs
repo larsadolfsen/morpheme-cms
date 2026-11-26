@@ -291,7 +291,7 @@ export function themeProblems(theme) {
   const needed = theme === STANDARD_THEME ? THEME_FILES : OWN_FILES;
   const problems = needed.filter((f) => !has(`${themeFolder(theme)}/${f}`)).map((f) => `${themeFolder(theme)}/${f} is missing.`);
   const standard = new Set(standardTypes());
-  // Its accessibility statement, when it has one (lib/accessibility.mjs): the parts it falls short on, which the checks let through.
+  // Its accessibility statement, when it has one (lib/accessibility.mjs): its score and checks, measured and never judged.
   if (has(`${themeFolder(theme)}/${STATEMENT_FILE}`))
     try {
       problems.push(

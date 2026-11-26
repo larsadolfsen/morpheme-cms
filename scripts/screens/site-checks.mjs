@@ -2,6 +2,7 @@ import { openEditor } from '../built-site.mjs';
 import { allow, nestedUnits } from '../spacing-grid.allow.mjs';
 import { browser, problems, site } from './support/context.mjs';
 import { animationsSettled, hintContrasts, onTestPage } from './support/shared.mjs';
+import { shortfall } from './support/statement.mjs';
 
 /** The site's spacing is on the 4 dp grid (docs/superpowers/specs/2026-11-13-site-spacing-audit.md, step 6): every margin, padding and gap of what the demo's Blocks page draws is a multiple of 4 px (also 2, 6 and 10: Material 3's nested units), except what scripts/spacing-grid.allow.mjs allows with its reason. Run at 375 and 1280, as a value that follows the width is what drifts. */
 async function checkSpacingGrid(width, height) {
@@ -79,7 +80,11 @@ async function checkHints() {
       });
       for (const [color, ratio] of Object.entries(colors))
         if (ratio < 4.5)
-          problems.push(`${width}px ${scheme} hints: the hint on a ${color} section has contrast ${ratio.toFixed(2)}:1, below 4.5`);
+          shortfall(
+            '1.4.3',
+            'text',
+            `${width}px ${scheme} hints: the hint on a ${color} section has contrast ${ratio.toFixed(2)}:1, below 4.5`,
+          );
       if (Math.abs(got.gapLeft - got.textLeft) > 0.5 || Math.abs(got.h1Left - got.textLeft) > 0.5)
         problems.push(`${width}px ${scheme} hints: the hint starts at ${got.gapLeft}, the text at ${got.textLeft}`);
       await page.close();

@@ -21,8 +21,8 @@ import { buildOutDir } from './build-out.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
 import { blockHtml } from '../lib/blocks.mjs';
 import { demoBlocksTestBody } from './demo-blocks.mjs';
-import { judgeShortfalls } from '../lib/accessibility.mjs';
-import { statementOf } from './theme-statement.mjs';
+import { checksOf, statementOfChecks, summaryLines } from '../lib/accessibility.mjs';
+import { statementOf, statementPlace } from './theme-statement.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const PAGE = 'src/content/pages/contrast-test.md';
@@ -135,7 +135,7 @@ const scan = `(root) => {
   const records = [];
   const push = (el, kind, front, back, min, extra) => {
     const blockEl = el.closest('[data-block], .mo-is-in-text, .mo-site-block-inline');
-    const r = ratio(over(front, back), back);
+    const r = extra.ratioOverride ?? ratio(over(front, back), back);
     records.push({ block: blockOf(el), variant: variantOf(el, blockEl), section: sectionOf(el), kind, fg: hex(over(front, back)), bg: hex(back), ratio: r, min, text: (extra.text ?? '').slice(0, 40), manual: extra.manual, card: !!el.closest('.mo-card'), tag: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.split(/\\s+/)[0] : '') });
   };
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -190,6 +190,11 @@ const scan = `(root) => {
       probe.remove();
       const { back, manual } = behind(host);
       push(el, 'focus ring', ring, back, 3, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', manual });
+    }
+    // The target size of a control (WCAG 2.5.8, 24 px): the smaller side of its box. Links in a text are exempt, so only buttons and fields are read.
+    if (el.matches('button, input:not([type="hidden"]), select, textarea, [role="button"]')) {
+      const box = el.getBoundingClientRect();
+      if (box.width > 0 && box.height > 0) push(el, 'target', [0, 0, 0, 1], [255, 255, 255, 1], 24, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', ratioOverride: Math.min(box.width, box.height) });
     }
     if (el.matches('input, textarea')) {
       const p = getComputedStyle(el, '::placeholder');
@@ -267,7 +272,18 @@ function unique(records, view) {
       pairedSkipped++;
       continue;
     }
-    const key = [view, r.block, r.variant, r.section, r.kind, r.fg, r.bg, r.min, r.manual ?? ''].join('|');
+    const key = [
+      view,
+      r.block,
+      r.variant,
+      r.section,
+      r.kind,
+      r.fg,
+      r.bg,
+      r.min,
+      r.manual ?? '',
+      r.kind === 'target' ? Math.round(r.ratio) : '',
+    ].join('|');
     if (!map.has(key)) map.set(key, { ...r, view, count: 0 });
     map.get(key).count++;
   }
@@ -409,40 +425,19 @@ try {
 
 const failed = results.filter((r) => !r.manual && r.ratio < r.min);
 
-/** The criterion and part of a failure the theme can name in its accessibility.json (lib/accessibility.mjs), else null part: a text, an icon or a border no
- * statement names fails as it always did. A placeholder is 1.4.3; the edge of a control or card is 1.4.11, in a coloured section the part `section-edges`. */
-const shortfallOf = (r) => {
-  if (r.kind === 'placeholder') return { criterion: '1.4.3', part: 'placeholder' };
-  if (r.kind === 'border' && r.section !== 'surface') return { criterion: '1.4.11', part: 'section-edges' };
-  if (r.kind === 'border' && r.card) return { criterion: '1.4.11', part: 'outlined-card-edge' };
-  return { criterion: r.kind === 'text' ? '1.4.3' : '1.4.11', part: null };
-};
-// Each theme is judged by its own statement: a failure it names is let through, one it does not name fails, and a name that no longer fails is stale (not when
-// only some section colours were run).
-const unnamed = [];
-const letThrough = [];
+// A theme's values are measured, never judged (lib/accessibility.mjs, `kindOf`; spec 2026-11-25-themes-classified-design.md): each theme gets its checks and its score, printed
+// here. With CONTRAST_WRITE=1 (the command `morpheme accessibility`) the result is written to the theme's accessibility.json; a partial run (CONTRAST_SECTIONS) never writes.
+const version = JSON.parse(readFileSync(join(fileURLToPath(new URL('..', import.meta.url)), 'package.json'), 'utf8')).version;
+const summaries = [];
 for (const theme of themes) {
-  const mine = failed.filter((r) => r.view.startsWith(`${theme} `));
+  const mine = results.filter((r) => r.view.startsWith(`${theme} `));
   const { statement, where } = statementOf(theme);
-  const found = new Map();
-  for (const r of mine) {
-    const { criterion, part } = shortfallOf(r);
-    found.set(`${criterion} ${part}`, {
-      criterion,
-      part,
-      detail: `${r.view}: ${r.kind} ${r.fg} on ${r.bg} is ${r.ratio.toFixed(2)}:1, needs ${r.min}`,
-    });
-  }
-  const verdict = judgeShortfalls(
-    [...found.values()].filter((f) => f.part),
-    statement,
-    { check: 'contrast', stale: !process.env.CONTRAST_SECTIONS, where },
-  );
-  unnamed.push(...verdict.problems);
-  letThrough.push(...verdict.named.map((id) => `${theme}: ${id}`));
-  for (const r of mine) {
-    const { part, criterion } = shortfallOf(r);
-    if (!part || !verdict.named.includes(`${criterion} ${part}`)) r.unnamed = true;
+  const now = statementOfChecks(checksOf(mine), statement, version);
+  summaries.push(`${theme}:`, ...summaryLines(now, statement, where));
+  if (process.env.CONTRAST_WRITE && !process.env.CONTRAST_SECTIONS) {
+    const { folder } = statementPlace(theme);
+    writeFileSync(join(folder, 'accessibility.json'), `${JSON.stringify(now, null, 2)}\n`);
+    summaries.push(`  wrote ${where}`);
   }
 }
 const manual = results.filter((r) => r.manual);
@@ -457,7 +452,7 @@ const design = (v) =>
     .filter((c) => /^(card|button)-/.test(c))
     .join(' ') || '-';
 const groups = new Map();
-for (const r of failed.filter((f) => f.unnamed)) {
+for (const r of failed) {
   const key = [r.block.replace(/^editor /, ''), design(r.variant), r.section, r.kind, r.fg, r.bg].join(' | ');
   const g = groups.get(key) ?? { r, views: new Set(), worst: 99, text: r.text };
   g.views.add(r.view.split(' ').slice(1).join(' '));
@@ -465,12 +460,10 @@ for (const r of failed.filter((f) => f.unnamed)) {
   groups.set(key, g);
 }
 console.log(
-  `Contrast: ${checked.length} pairs checked, ${pairedSkipped} text and icon pairs left out as M3's own pairs (${themes.join(', ')}; ${Math.round((Date.now() - started) / 1000)} s), ${failed.filter((f) => f.unnamed).length} fail in ${groups.size} groups, ${manual.length} need a manual look (image or gradient behind).`,
+  `Contrast: ${checked.length} pairs checked, ${pairedSkipped} text and icon pairs left out as M3's own pairs (${themes.join(', ')}; ${Math.round((Date.now() - started) / 1000)} s), ${failed.length} under their limit in ${groups.size} groups (theme values: measured, not failed), ${manual.length} need a manual look (image or gradient behind).`,
 );
-if (letThrough.length) console.log(`  Let through, named in the theme's accessibility.json: ${letThrough.join(', ')}.`);
-for (const line of unnamed) console.log(`  ${line}`);
+for (const line of summaries) console.log(line);
 for (const [key, g] of [...groups].sort((a, b) => a[1].worst - b[1].worst).slice(0, 60)) {
   console.log(`  ${key}: ${g.worst.toFixed(2)}:1 (needs ${g.r.min}) "${g.text}" in ${g.views.size} views, e.g. ${[...g.views][0]}`);
 }
 if (groups.size > 60) console.log(`  … and ${groups.size - 60} more groups (see the report file).`);
-if (failed.some((f) => f.unnamed) || unnamed.length) process.exit(1);
