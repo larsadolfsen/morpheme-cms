@@ -1,0 +1,7 @@
+{
+  "id": "save-progress",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Save progress",
+  "text": "You see when a save is on your website. After Save, a bar under the top bar says Publishing, then Live. If the build fails, it says Not live, that your changes are saved, and links to the build."
+}

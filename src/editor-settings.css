@@ -1079,6 +1079,10 @@
     padding: var(--mo-ref-space-200);
   }
 
+  .mo-editor-picker-inert {
+    display: contents;
+  }
+
   .mo-editor-picker-sample {
     inline-size: 20.5rem;
     max-inline-size: 100%;
@@ -1181,6 +1185,36 @@
     & > * {
       min-inline-size: 12rem;
       flex: 1 1 0%;
+    }
+  }
+
+  /* The strip from Save until the website has the save (BuildProgress.tsx): a row of icon, text and actions on the surface, the theme's
+     linear progress indicator on its lower edge (M3: a linear indicator sits on the edge of what it belongs to). Not live is on the error container. */
+  .mo-editor-build-progress {
+    position: sticky;
+    inset-block-start: 0;
+    z-index: 2;
+    background-color: var(--mo-sys-color-surface-container);
+    color: var(--mo-sys-color-on-surface);
+    &[data-step='not-live'] {
+      background-color: var(--mo-sys-color-error-container);
+      color: var(--mo-sys-color-on-error-container);
+    }
+    & > .mo-editor-build-progress__row {
+      display: flex;
+      align-items: center;
+      gap: var(--mo-ref-space-100);
+      padding-inline: var(--mo-ref-space-200);
+      padding-block: var(--mo-ref-space-100);
+      & > svg {
+        flex: none;
+      }
+      & > p {
+        flex: 1 1 auto;
+        margin: 0;
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+      }
     }
   }
 

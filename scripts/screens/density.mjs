@@ -283,18 +283,7 @@ async function checkDensityScreens(width, height) {
   let where = '';
   page.on('pageerror', (e) => problems.push(`${label} ${where}: ${e.message}`));
   await openEditor(page, site);
-  const routes = [
-    '',
-    'settings',
-    'company/colors',
-    'global/header',
-    'licenses',
-    'appearance/themes',
-    'seo',
-    'apps',
-    'new/pages',
-    'new/blog',
-  ];
+  const routes = ['', 'settings', 'style/color', 'global/header', 'licenses', 'appearance/themes', 'seo', 'apps', 'new/pages', 'new/blog'];
   const colours = async () =>
     page.evaluate(() => {
       const host = document.createElement('div');
@@ -543,6 +532,200 @@ async function checkDensity(width, height) {
   await page.close();
 }
 
+/** Four theme buttons that M3 draws as text buttons are outlined buttons (owner, 26 Nov 2026; docs/material-deviations.md, TB2 to TB5): the snackbar's action, the rich tooltip's action, and Cancel and OK of the date picker and of the time picker. On the editor's parts gallery (#developer/parts/ui) and the demo's /ui/ page, on a phone and a computer, light and dark, each of them has the outlined button's look (class, a 1 px edge, corner full, the same label size as another outlined button) and Tab gives it a focus ring. */
+async function checkOutlinedTextButtons(width, height, scheme, where) {
+  const touch = width < 600;
+  const label = `${width}px ${scheme} outlined text buttons (${where})`;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: touch,
+    isMobile: touch,
+    locale: 'en-US',
+    colorScheme: scheme,
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (where === 'demo') {
+    if (!(await openUiPage(page, label))) return void (await page.close());
+  } else {
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+    await page
+      .locator('.mo-snackbar__action')
+      .first()
+      .waitFor({ timeout: 30_000 })
+      .catch(() => {});
+  }
+  const total = await page.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y < total + height; y += height - 100) {
+    await page.evaluate((y) => scrollTo(0, y), y);
+    await page.waitForTimeout(20);
+  }
+  const selectors = {
+    'snackbar action': '.mo-snackbar__action',
+    'tooltip action': '.mo-tooltip__action',
+    'date picker Cancel and OK': '.mo-date-picker__actions .mo-button',
+    'time picker Cancel and OK': '.mo-time-picker__actions .mo-button',
+  };
+  const reference = await page.evaluate(() => {
+    const b = document.querySelector('.mo-button.mo-is-outlined:not(.mo-snackbar__action):not(.mo-tooltip__action)');
+    return b ? { font: getComputedStyle(b).fontSize, weight: getComputedStyle(b).fontWeight } : null;
+  });
+  for (const [name, selector] of Object.entries(selectors)) {
+    const buttons = page.locator(selector);
+    const count = await buttons.count();
+    if (!count) {
+      problems.push(`${label}: no ${name} found`);
+      continue;
+    }
+    for (let i = 0; i < count; i++) {
+      const b = buttons.nth(i);
+      if (!(await b.evaluate((el) => el.getClientRects().length > 0))) continue;
+      await b.scrollIntoViewIfNeeded();
+      const seen = await b.evaluate((el) => {
+        const cs = getComputedStyle(el);
+        const box = el.getBoundingClientRect();
+        return {
+          outlined: el.classList.contains('mo-is-outlined'),
+          text: el.classList.contains('mo-is-text'),
+          edge: cs.boxShadow,
+          radius: parseFloat(cs.borderTopLeftRadius),
+          height: box.height,
+          font: cs.fontSize,
+          weight: cs.fontWeight,
+        };
+      });
+      if (!seen.outlined || seen.text) problems.push(`${label}: ${name} #${i} is not an outlined button`);
+      if (!/inset/.test(seen.edge) || !/ 1px\b/.test(seen.edge))
+        problems.push(`${label}: ${name} #${i} has no 1 px outline (${seen.edge})`);
+      if (seen.radius < seen.height / 2 - 0.5) problems.push(`${label}: ${name} #${i} corner is ${seen.radius}px, not full`);
+      if (reference && (seen.font !== reference.font || seen.weight !== reference.weight))
+        problems.push(
+          `${label}: ${name} #${i} label is ${seen.font}/${seen.weight}, another outlined button has ${reference.font}/${reference.weight}`,
+        );
+    }
+    // Tab reaches it: focus the control before it, press Tab, and the ring (:focus-visible) is drawn.
+    await page.evaluate(() => document.activeElement?.blur?.());
+    await buttons.first().focus();
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Tab');
+    const focused = await page.evaluate(() => {
+      const el = document.activeElement;
+      if (!el || !el.matches(':focus-visible')) return false;
+      const cs = getComputedStyle(el);
+      return (parseFloat(cs.outlineWidth) || 0) > 0 && cs.outlineStyle !== 'none';
+    });
+    if (!focused) problems.push(`${label}: ${name} shows no focus ring for the keyboard`);
+  }
+  await page.close();
+}
+
+/** A danger button (`tone="error"`, owner, 26 Nov 2026; docs/material-deviations.md, TB6) is drawn in the error role: outlined, its label and its 1 px edge are `error`; filled, its container is `error` and its label `on-error`. On the editor's parts gallery (#developer/parts/ui) and the demo's /ui/ page, on a phone and a computer, light and dark, and a keyboard's Tab gives it a focus ring. */
+async function checkErrorTone(width, height, scheme, where) {
+  const touch = width < 600;
+  const label = `${width}px ${scheme} error tone (${where})`;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: touch,
+    isMobile: touch,
+    locale: 'en-US',
+    colorScheme: scheme,
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (where === 'demo') {
+    if (!(await openUiPage(page, label))) return void (await page.close());
+  } else {
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  }
+  await page
+    .locator('[data-error-tone]')
+    .first()
+    .waitFor({ timeout: 30_000 })
+    .catch(() => {});
+  for (const kind of ['outlined', 'filled']) {
+    const button = page.locator(`[data-error-tone="${kind}"]`).first();
+    if (!(await button.count())) {
+      problems.push(`${label}: no ${kind} error button found`);
+      continue;
+    }
+    await button.scrollIntoViewIfNeeded();
+    const seen = await button.evaluate((el) => {
+      const role = (name) => {
+        const probe = document.createElement('i');
+        probe.style.color = `var(--mo-sys-color-${name})`;
+        document.body.append(probe);
+        const value = getComputedStyle(probe).color;
+        probe.remove();
+        return value;
+      };
+      const cs = getComputedStyle(el);
+      return {
+        cls: el.className,
+        color: cs.color,
+        background: cs.backgroundColor,
+        edge: cs.boxShadow,
+        error: role('error'),
+        onError: role('on-error'),
+      };
+    });
+    if (!/mo-is-error/.test(seen.cls)) problems.push(`${label}: ${kind} error button has no error tone (${seen.cls})`);
+    if (kind === 'outlined') {
+      if (seen.color !== seen.error) problems.push(`${label}: outlined label is ${seen.color}, not the error role ${seen.error}`);
+      if (!seen.edge.includes(seen.error) || !/ 1px\b/.test(seen.edge))
+        problems.push(`${label}: outlined edge is not 1 px error (${seen.edge})`);
+    } else {
+      if (seen.background !== seen.error)
+        problems.push(`${label}: filled container is ${seen.background}, not the error role ${seen.error}`);
+      if (seen.color !== seen.onError) problems.push(`${label}: filled label is ${seen.color}, not on-error ${seen.onError}`);
+    }
+    if (kind === 'outlined' && !touch) {
+      // The state layers take the label colour: the error role at the hover opacity, never the primary.
+      await button.hover();
+      await page.waitForTimeout(800);
+      const hov = await button.evaluate((el) => {
+        const probe = document.createElement('i');
+        probe.style.background =
+          'color-mix(in srgb, var(--mo-sys-color-error) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)';
+        document.body.append(probe);
+        const want = getComputedStyle(probe).backgroundColor;
+        probe.remove();
+        return { got: getComputedStyle(el).backgroundColor, want };
+      });
+      if (hov.got !== hov.want)
+        problems.push(`${label}: outlined hover layer is ${hov.got}, not the error role at the hover opacity (${hov.want})`);
+      await page.mouse.move(0, 0);
+    }
+    await page.evaluate(() => document.activeElement?.blur?.());
+    await button.focus();
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Tab');
+    const ring = await page.evaluate(() => {
+      const el = document.activeElement;
+      if (!el || !el.matches(':focus-visible')) return false;
+      const cs = getComputedStyle(el);
+      return (parseFloat(cs.outlineWidth) || 0) > 0 && cs.outlineStyle !== 'none';
+    });
+    if (!ring) problems.push(`${label}: ${kind} error button shows no focus ring for the keyboard`);
+  }
+  if (where === 'editor') {
+    // The image field's Remove only empties a field before saving: it stays a text button, not red.
+    await page.evaluate(() => (location.hash = '#developer/parts/editor'));
+    await page
+      .locator('.mo-editor-image-pick')
+      .first()
+      .waitFor({ timeout: 30_000 })
+      .catch(() => {});
+    const remove = page.locator('.mo-editor-image-pick').getByRole('button', { name: 'Remove' }).first();
+    if (!(await remove.count())) problems.push(`${label}: no Remove button in the image field sample`);
+    else {
+      const cls = (await remove.getAttribute('class')) ?? '';
+      if (!/\bmo-is-text\b/.test(cls) || /\bmo-is-error\b/.test(cls))
+        problems.push(`${label}: the image field's Remove is not a plain text button (${cls})`);
+    }
+  }
+  await page.close();
+}
+
 export function register(unit) {
   unit('checkDensity 375', () => checkDensity(375, 740));
   unit('checkDensity 1280', () => checkDensity(1280, 900));
@@ -563,4 +746,18 @@ export function register(unit) {
     for (const scheme of ['light', 'dark']) unit(`checkChipRowFocus ${width} ${scheme}`, () => checkChipRowFocus(width, height, scheme));
   unit('checkDensitySetting 375', () => checkDensitySetting(375, 740));
   unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    for (const scheme of ['light', 'dark'])
+      for (const where of ['editor', 'demo'])
+        unit(`checkOutlinedTextButtons ${width} ${scheme} ${where}`, () => checkOutlinedTextButtons(width, height, scheme, where));
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    for (const scheme of ['light', 'dark'])
+      for (const where of ['editor', 'demo'])
+        unit(`checkErrorTone ${width} ${scheme} ${where}`, () => checkErrorTone(width, height, scheme, where));
 }

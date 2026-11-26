@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import Screen from './Screen';
 import { MorphemeConnection } from './MorphemeConnection';
 import { ReleaseNotes, type VersionNotes } from './ReleaseNotes';
-import { Button, EmptyNote, ListItem, plainListClass, ProblemNote } from './ui';
+import { Button, EmptyNote, LinkButton, ListItem, plainListClass, ProblemNote } from './ui';
 import { backFrom } from './site';
 import { cmsView } from './cmsView.mjs';
 import { runningLine, runningNotes } from './bundledNotes';
@@ -20,16 +20,17 @@ import { materialIcon, type IconComponent as Icon } from './icon';
 
 export const CMS_ROUTE = 'morpheme';
 
-type Problem = 'unreachable' | 'cannot-write' | 'no-token' | 'no-kv' | 'not-managed' | 'slow-undo';
-type UpdateState = 'waiting' | 'undoing' | 'done' | 'undone' | 'stuck';
+type Problem = 'unreachable' | 'cannot-write' | 'no-token' | 'no-kv' | 'not-managed' | 'slow-undo' | 'no-preview';
+type UpdateState = 'trying' | 'waiting' | 'undoing' | 'done' | 'undone' | 'stuck';
 type View = {
   running: string;
   checkedAt: string | null;
   latest: string | null;
   notes: VersionNotes[];
-  action: 'update' | 'try-again' | null;
+  action: 'try-again' | null;
   npmCommand: string | null;
-  update: { state: UpdateState; to: string; at: string } | null;
+  update: { state: UpdateState; to: string; at: string; buildUrl: string | null } | null;
+  failed: { version: string; reason: string; buildUrl: string | null; retryAt: number | null } | null;
   problems: Problem[];
   blocked: Blocked | null;
 };
@@ -51,9 +52,21 @@ async function readStatus(): Promise<Status> {
   return json;
 }
 
-/** Why the site does not take the newer version by itself, or nothing. */
-const reasonOf = (view: View) =>
-  view.action === 'update' ? t.cms.major : view.action === 'try-again' && view.latest ? t.cms.skipped(view.latest) : null;
+/** Why the newer version is not installed: it did not build (or not in time, or could not be saved), the website as it was. */
+const failedText = (failed: NonNullable<View['failed']>) =>
+  failed.reason === 'cannot-merge'
+    ? t.cms.failedMerge(failed.version)
+    : failed.reason === 'build-failed'
+      ? t.cms.failedBuild(failed.version)
+      : t.cms.failedNoAnswer(failed.version);
+
+/** The build's page on GitHub, as a text link under a failed or stuck update. */
+const BuildLink = ({ href, version }: { href: string | null; version: string }) =>
+  href ? (
+    <LinkButton kind="text" href={href} target="_blank" rel="noreferrer">
+      {t.cms.seeBuild(version)}
+    </LinkButton>
+  ) : null;
 
 /** A line of the status text, with its icon only where the icon means something (a warning, an update). */
 function StatusLine({ icon: Glyph, tone, children }: { icon?: Icon; tone?: 'accent'; children: ReactNode }) {
@@ -73,6 +86,7 @@ function UpdateStatus({ update }: { update: NonNullable<View['update']> }) {
         {t.cms[update.state](update.to)}
       </StatusLine>
       <p className="mo-editor-small-note">{when(new Date(update.at))}</p>
+      {update.state === 'stuck' && <BuildLink href={update.buildUrl} version={update.to} />}
     </div>
   );
 }
@@ -114,7 +128,6 @@ export default function CmsPage() {
     }
   }
 
-  const reason = view && reasonOf(view);
   // The running minor line's versions; the older lines are on pages of their own (EarlierVersions).
   const yourLine = runningNotes.filter((entry) => minorOf(entry.version) === runningLine);
   return (
@@ -141,7 +154,17 @@ export default function CmsPage() {
                 <StatusLine icon={materialIcon('stars')} tone="accent">
                   {t.cms.available(view.latest)}
                 </StatusLine>
-                {reason && <p className="mo-editor-small-note">{reason}</p>}
+                {view.failed && (
+                  <>
+                    <StatusLine icon={materialIcon('error')} tone="accent">
+                      {failedText(view.failed)}
+                    </StatusLine>
+                    {view.failed.retryAt !== null && (
+                      <p className="mo-editor-small-note">{t.cms.nextTry(when(new Date(view.failed.retryAt)))}</p>
+                    )}
+                    <BuildLink href={view.failed.buildUrl} version={view.failed.version} />
+                  </>
+                )}
               </div>
             )}
             {view.npmCommand && (
@@ -175,7 +198,7 @@ export default function CmsPage() {
           </section>
           {view.action && view.latest && (
             <Button kind="filled" disabled={busy} onClick={() => void update(view.latest!)}>
-              {view.action === 'update' ? t.cms.update : t.cms.tryAgain}
+              {t.cms.tryAgain}
             </Button>
           )}
           {view.notes.length > 0 && <ReleaseNotes title={t.cms.whatsNew} entries={view.notes} />}
@@ -187,11 +210,12 @@ export default function CmsPage() {
   );
 }
 
-const kindText: Record<Problem, 'unreachable' | 'cannotWrite' | 'noToken' | 'noKv' | 'notManaged' | 'slowUndo'> = {
+const kindText: Record<Problem, 'unreachable' | 'cannotWrite' | 'noToken' | 'noKv' | 'notManaged' | 'slowUndo' | 'noPreview'> = {
   unreachable: 'unreachable',
   'cannot-write': 'cannotWrite',
   'no-token': 'noToken',
   'no-kv': 'noKv',
   'not-managed': 'notManaged',
   'slow-undo': 'slowUndo',
+  'no-preview': 'noPreview',
 };

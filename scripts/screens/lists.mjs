@@ -1590,7 +1590,185 @@ async function checkListItemLines(width, height) {
   await page.close();
 }
 
+/** The pages and posts lists (B18, plan 0.19.7): each page or post is one row (`.mo-list__item-container`), with a square leading image of 8 dp corners, or (no image) the kind icon in the leading icon slot and no grey tile,
+ * one supporting line naming its versions (`Published`, `Published · Draft`, `Draft`, `Scheduled …`), no trailing icon unless Hidden (`visibility_off`, named `Hidden`), dividers between
+ * the rows, and in the menu tree the drop-down rightmost (`aria-expanded`, named `Show subpages of …`). */
+async function checkPageRowsList(width, height) {
+  const label = `${width}px pages and posts rows`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  for (const hash of ['#list/pages', '#list/blog']) {
+    await page.evaluate((h) => (location.hash = h), hash);
+    await page.waitForSelector('main .mo-editor-section .mo-list__item-container', { timeout: 30_000 }).catch(() => {});
+    await page.waitForTimeout(1000);
+    const rows = await page.evaluate(() =>
+      [...document.querySelectorAll('main .mo-editor-section .mo-list__item-container')].map((el) => {
+        const img = el.querySelector('.mo-list__item-leading-image .mo-list__item-image');
+        const box = img?.getBoundingClientRect();
+        const li = el.closest('li');
+        const lead = el.querySelector('.mo-list__item-leading-icon');
+        return {
+          icon: !!lead?.querySelector('svg'),
+          tile: !!el.querySelector('.mo-list__item-image-placeholder'),
+          name: (el.querySelector('.mo-list__item-headline')?.textContent || '').trim(),
+          href: el.getAttribute('href') || '',
+          img: box ? { w: Math.round(box.width), h: Math.round(box.height), radius: getComputedStyle(img).borderTopLeftRadius } : null,
+          supporting:
+            (el.querySelector('.mo-editor-library-under-status') ?? el.querySelector('.mo-list__item-supporting'))?.textContent?.trim() ??
+            '',
+          icons: [...el.querySelectorAll('[role="img"][aria-label]')].map((i) => i.getAttribute('aria-label')),
+          // The line between two rows: the inset divider is the <li>'s ::before (a border drawn in a colour, not transparent).
+          divider:
+            li && li.previousElementSibling
+              ? (() => {
+                  const b = getComputedStyle(li, '::before');
+                  return b.content !== 'none' && b.borderTopWidth !== '0px' && b.borderTopColor !== 'rgba(0, 0, 0, 0)';
+                })()
+              : null,
+          // How far the line is in from the row's edges: M3 prints 16 dp on the left and 24 dp on the right (Lists > Specs).
+          dividerInset:
+            li && li.previousElementSibling
+              ? [parseFloat(getComputedStyle(li, '::before').marginLeft), parseFloat(getComputedStyle(li, '::before').marginRight)]
+              : null,
+        };
+      }),
+    );
+    if (!rows.length) {
+      problems.push(`${label}: ${hash} has no rows`);
+      continue;
+    }
+    const links = rows.map((r) => r.href).filter(Boolean);
+    if (new Set(links).size !== links.length) problems.push(`${label}: ${hash} lists a page or post twice (${links.join(', ')})`);
+    for (const r of rows) {
+      const where = `${label}, ${hash}, "${r.name}"`;
+      if (r.tile) problems.push(`${where}: has a grey placeholder tile`);
+      if (!r.img && !r.icon) problems.push(`${where}: has neither a square image nor the kind icon`);
+      if (r.img) {
+        if (r.img.w !== r.img.h) problems.push(`${where}: its image is ${r.img.w} x ${r.img.h}, not square`);
+        if (r.img.radius !== '8px') problems.push(`${where}: its image corner is ${r.img.radius}, not 8px`);
+      }
+      if (!/^(Published|Draft|Scheduled)/.test(r.supporting))
+        problems.push(`${where}: the line under it names no version (${JSON.stringify(r.supporting)})`);
+      if (r.icons.some((n) => n !== 'Hidden')) problems.push(`${where}: has a trailing icon that is not Hidden (${r.icons.join(', ')})`);
+      if (r.divider === false) problems.push(`${where}: has no divider above it`);
+      if (r.dividerInset && (Math.abs(r.dividerInset[0] - 16) > 0.5 || Math.abs(r.dividerInset[1] - 24) > 0.5))
+        problems.push(
+          `${where}: its divider is ${r.dividerInset[0]} dp in from the left and ${r.dividerInset[1]} from the right, not 16 and 24`,
+        );
+    }
+  }
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForTimeout(1000);
+  for (const toggle of await page.$$('main button[aria-expanded]')) {
+    const name = (await toggle.getAttribute('aria-label')) || '';
+    if (!/^Show subpages of /.test(name)) continue;
+    await toggle.click();
+    const now = await toggle.getAttribute('aria-expanded');
+    const after = (await toggle.getAttribute('aria-label')) || '';
+    if (now !== 'true' || !/^Hide subpages of /.test(after))
+      problems.push(`${label}: "${name}" does not open to "Hide subpages of …" (${now}, ${after})`);
+    break;
+  }
+  // The menu tree: a subpage's leading edge is 20 dp right of its parent's (an inline padding once replaced the container's own start padding, so the step was 4 dp).
+  const asMenu = page.getByRole('button', { name: 'Show as menu' });
+  if (await asMenu.count()) await asMenu.first().click();
+  await page.waitForTimeout(500);
+  const parentToggle = await page.$('main button[aria-expanded="false"][aria-label^="Show subpages of "]');
+  if (!parentToggle) problems.push(`${label}: the menu tree has no page with subpages to open`);
+  else {
+    await parentToggle.click();
+    await page.waitForTimeout(500);
+    const edges = await page.evaluate(() => {
+      const left = (el) => el.querySelector('.mo-list__item-leading')?.getBoundingClientRect().left ?? null;
+      const open = document.querySelector('main button[aria-expanded="true"][aria-label^="Hide subpages of "]');
+      const parent = open?.closest('li')?.querySelector('.mo-list__item-container');
+      const kids = [...(open?.closest('li')?.parentElement?.children ?? [])]
+        .map((li) => li.querySelector('.mo-list__item-container'))
+        .filter((c) => c && c !== parent && left(c) > left(parent) - 1 && left(c) !== null);
+      const inset = (c) => {
+        const li = c.closest('li');
+        const m = getComputedStyle(li, '::before');
+        return li.previousElementSibling ? [parseFloat(m.marginLeft), parseFloat(m.marginRight)] : [16, 24];
+      };
+      const all = [...document.querySelectorAll('main .mo-editor-section .mo-list__item-container')];
+      return parent
+        ? {
+            parent: left(parent),
+            child: kids.length ? left(kids[0]) : null,
+            gaps: all.map((c) => inset(c)).filter((g) => Math.abs(g[0] - 16) > 0.5 || Math.abs(g[1] - 24) > 0.5),
+          }
+        : null;
+    });
+    if (edges?.gaps.length)
+      problems.push(
+        `${label}: in the menu tree ${edges.gaps.length} divider(s) are not 16 dp in from the left and 24 from the right (${edges.gaps.map((g) => g.map(Math.round).join('/')).join(', ')} dp)`,
+      );
+    if (!edges || edges.child == null) problems.push(`${label}: no subpage row shows under the opened page`);
+    else if (Math.abs(edges.child - edges.parent - 20) > 1)
+      problems.push(`${label}: a subpage's leading edge is ${edges.child - edges.parent} dp right of its parent's, not 20`);
+  }
+  // With the Google button on, a tap on a score ring opens the page at "Search engines" (the ring needs an area of its own and must
+  // sit above the leading slot's tap area, or the tap goes to the row's link and the page opens at its top).
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForSelector('main .mo-editor-section .mo-list__item-container', { state: 'attached', timeout: 30_000 }).catch(() => {});
+  // The flat list (not the menu tree above): its rows can be selected, which puts a tap area over the leading slot.
+  await page
+    .getByRole('button', { name: 'Show as a list' })
+    .click({ timeout: 3000 })
+    .catch(() => {});
+  await page
+    .getByRole('button', { name: /show seo rating|google/i })
+    .first()
+    .click()
+    .catch(() => problems.push(`${label}: no Google button in the pages list`));
+  const ring = page.locator('main .mo-editor-score-ring').first();
+  if (
+    await ring.waitFor({ state: 'attached', timeout: 10_000 }).then(
+      () => true,
+      () => false,
+    )
+  ) {
+    await ring.click();
+    await page.waitForTimeout(2000);
+    const top = await page.evaluate(() => {
+      const h = [...document.querySelectorAll('main h2, main summary, main button')].find((e) =>
+        /^Search engines/.test(e.textContent.trim()),
+      );
+      return h ? h.getBoundingClientRect().top : null;
+    });
+    if (top == null || top < 0 || top > height / 2)
+      problems.push(
+        `${label}: a tap on a score ring does not open the page at "Search engines" (its heading is at ${top == null ? 'nowhere' : Math.round(top)} px of ${height})`,
+      );
+  } else problems.push(`${label}: no score ring shows with the Google button on`);
+  await page.close();
+  // In Danish (the editor follows the browser's language) the lines name the versions in Danish. The demo has no page with a waiting draft, so "Udgivet · Kladde" (the two words joined by " · " in `versionsOf`) is tested by hand.
+  const da = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'da-DK' });
+  da.on('pageerror', (e) => problems.push(`${label} (da-DK): ${e.message}`));
+  await openEditor(da, site);
+  await da.evaluate(() => (location.hash = '#list/pages'));
+  await da.waitForSelector('main .mo-editor-section .mo-list__item-container', { timeout: 30_000 }).catch(() => {});
+  await da.waitForTimeout(1000);
+  const lines = await da.evaluate(() =>
+    [...document.querySelectorAll('main .mo-editor-section .mo-list__item-container')].map(
+      (el) =>
+        (el.querySelector('.mo-editor-library-under-status') ?? el.querySelector('.mo-list__item-supporting'))?.textContent?.trim() ?? '',
+    ),
+  );
+  for (const line of lines)
+    if (!/^(Udgivet|Kladde|Planlagt)/.test(line))
+      problems.push(`${label} (da-DK): the line under a page names no version in Danish (${JSON.stringify(line)})`);
+  await da.close();
+}
+
 export function register(unit) {
+  for (const [w, h] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    unit(`checkPageRowsList ${w}`, () => checkPageRowsList(w, h));
   for (const [w, h] of [
     [390, 844],
     [1280, 900],

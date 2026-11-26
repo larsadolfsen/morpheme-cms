@@ -32,7 +32,7 @@ const STARTS = [
   '',
   'settings',
   'developer/parts',
-  'company/colors',
+  'style/color',
   'global/header',
   'global/side-column',
   'licenses',

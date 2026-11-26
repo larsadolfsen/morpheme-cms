@@ -8,8 +8,8 @@ import { existsSync, readdirSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { serveBuilt } from './built-site.mjs';
-import { VIEWPORTS, allowedKeys, compare, entriesOf, keysOf, problemsOf, readAllowlist, scan, unnamedViolations } from './a11y.mjs';
-import { activeStatement } from './theme-statement.mjs';
+import { VIEWPORTS, allowedKeys, compare, entriesOf, keysOf, problemsOf, readAllowlist, scan, codeViolations } from './a11y.mjs';
+import { activeTheme } from './theme-statement.mjs';
 
 const DIST = resolve(process.cwd(), process.argv.find((a, i) => i > 1 && !a.startsWith('--')) ?? 'dist');
 if (!existsSync(join(DIST, 'index.html'))) {
@@ -25,8 +25,9 @@ const pages = readdirSync(DIST, { recursive: true, withFileTypes: true })
   .map((p) => (p.endsWith('/index.html') ? p.slice(0, -'index.html'.length) : p))
   .sort();
 
-// What the theme in use names as its own shortfall in accessibility.json is let through (lib/accessibility.mjs).
-const { statement } = activeStatement();
+// A theme value (axe's color-contrast, target-size, link-in-text-block) is classified, never failed: `check:contrast` measures it (lib/accessibility.mjs, `kindOf`).
+const theme = activeTheme();
+let themeValues = 0;
 const { server, site } = await serveBuilt(DIST);
 const browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
 const found = new Set();
@@ -52,10 +53,10 @@ for (const [viewport, width] of Object.entries(VIEWPORTS)) {
         })
         .catch(() => {});
       await page.evaluate(() => document.fonts.ready);
-      // Owner, 25 Nov 2026: "We have decided that we do check for contrast until later." Contrast waits for the final check:contrast scan, so axe's
-      // color-contrast rule is left out here until then (every other rule stays on).
-      const violations = (await scan(page)).filter((v) => v.id !== 'color-contrast');
-      for (const key of keysOf(unnamedViolations(violations, statement), path, viewport)) found.add(key);
+      const violations = await scan(page);
+      const code = codeViolations(violations, theme);
+      themeValues += violations.length - code.length;
+      for (const key of keysOf(code, path, viewport)) found.add(key);
     }
     await context.close();
   }
@@ -76,5 +77,5 @@ if (problems.length) {
   process.exit(1);
 }
 console.log(
-  `check:a11y: ${pages.length} pages, 1280 and 375 px, light and dark: every violation is on the allowlist (${found.size}), nothing stale.`,
+  `check:a11y: ${pages.length} pages, 1280 and 375 px, light and dark: every violation is on the allowlist (${found.size}), nothing stale (${themeValues} theme values measured, not failed).`,
 );

@@ -36,7 +36,10 @@ the token. A session confirms it before building (*Before building*, 1).
 
 ### 1. Try the update on a branch first
 
-- The update is committed to a branch `cms-update/<version>`, cut from `main`'s head. `main` doesn't change.
+- The update is committed to a branch `cms-update-<version>` (lower-case letters, digits and hyphens only: `cms-update-0-19-9`), cut from `main`'s head. `main` doesn't change.
+- **The preview's address** (Architect, 26 Nov 2026, option ii): the Worker derives it from its own `*.workers.dev` hostname, `<branch>-<host>`. It keeps that
+  host in KV when the editor is opened on it (the cron has no request). `PREVIEW_URL` overrides it. With neither, the update is not tried: `main` is left
+  alone and the owner is told. A ruleset or branch protection that refuses the fast-forward ends the same way. Verified once on staging.
 - Cloudflare builds the branch as a preview. It's the same `morpheme ci-build` with the same checks, so a version that fails the
   checks or the build fails there.
 - **How the Worker learns the result, without check runs.** Each build writes `editor/version.json` (the commit and `builtAt`). The
@@ -47,8 +50,10 @@ the token. A session confirms it before building (*Before building*, 1).
   - Check runs are used too where the token may read them, because they report a failure sooner. They are no longer needed.
 - **Green.** The Worker moves `main` to the branch commit (a fast-forward, never a force) and deletes the branch. The live build of
   `main` follows, and is watched as today.
-- **`main` moved meanwhile** (the owner saved). The Worker writes the same update again on top of the new `main` head and commits it
-  there. Only content moved, and the version is known to build.
+- **`main` moved meanwhile** (the owner saved). The update starts over from the new `main` head: a new branch, a new preview, and the fast-forward
+  only once that is green. At most once in a run; after a second move the next scheduled check tries again. Never a commit on `main` (Architect, 26 Nov 2026).
+- **The fast-forward is refused for any other reason** (a ruleset, branch protection, permissions). The update ends as failed with the reason "cannot-merge" at
+  once: `main` untouched, the update branch kept, the owner told.
 - **Red, or no answer within the limit.** The Worker deletes the branch and notes the reason and the time. `main` was never touched,
   so saves keep going live. The version is tried again 24 hours later (3).
 

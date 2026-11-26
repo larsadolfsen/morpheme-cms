@@ -184,6 +184,16 @@ function ButtonParts() {
                     {screens.withIcon}
                   </SiteButton>
                 </Example>
+                <Example label={screens.errorOutlined} flat>
+                  <SiteButton kind="outlined" tone="error" icon="delete" data-error-tone="outlined">
+                    {screens.errorOutlined}
+                  </SiteButton>
+                </Example>
+                <Example label={screens.errorFilled} flat>
+                  <SiteButton tone="error" icon="delete" data-error-tone="filled">
+                    {screens.errorFilled}
+                  </SiteButton>
+                </Example>
                 {buttonKinds.map((k) => (
                   <Example key={k} label={`${kinds[k]}, ${screens.disabled}`} flat>
                     <SiteButton kind={k} disabled>

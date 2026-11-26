@@ -1,0 +1,7 @@
+{
+  "id": "safe-cms-update",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Safe updates",
+  "text": "A bad update no longer stops your website from saving. Morpheme tries each new version on a copy first and installs it only when it builds, then tries a failed one again after 24 hours. The Morpheme page shows what failed and why."
+}
