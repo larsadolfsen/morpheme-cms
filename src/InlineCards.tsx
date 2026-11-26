@@ -7,6 +7,7 @@
 // its action area at the bottom: its buttons and the next one, empty and faded (`Add button`; with a page it says so and adds none). The parts, the keys and what is kept
 // are InlineItems.tsx and src/inlineRows.mjs; a new block starts with three empty, faded cards, the first active (the List has one); `Add
 // card` and the dotted line are as in the List.
+import { buttonClass } from '@theme/ui/Button';
 import { useState } from 'react';
 import { Icon, materialIcon } from './icon';
 import { t } from './i18n';
@@ -16,6 +17,7 @@ import type { InlineViewProps } from './inlineViews';
 import { sharedIn } from './shared';
 import ButtonMenu, { type ButtonPatch } from './ButtonMenu';
 import { buttonList, type Button } from './standard/buttons/fields';
+import { buttonsOf as resolveButtons } from './standard/buttons/view';
 import shared from './standard/cards/shared';
 import { layoutOf, ratioProp, shownCards, type LinkCard, type LinkCardProps } from './standard/cards/view';
 import { cardKinds, type CardKind } from '@theme/ui/Card';
@@ -86,7 +88,12 @@ export default function InlineCards({
     return (
       <span className="mo-block-cards__card-actions mo-editor-inline-card-buttons">
         {list.map((b, n) => (
-          <span key={n} className="mo-editor-inline-card-button">
+          <span
+            key={n}
+            className={[buttonClass(resolveButtons([b], data)[0]?.kind), 'mo-editor-inline-button', 'mo-editor-inline-card-button'].join(
+              ' ',
+            )}
+          >
             <InlineField
               name={`button-${n}`}
               value={b.label ?? ''}

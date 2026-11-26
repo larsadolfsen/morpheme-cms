@@ -702,6 +702,13 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     const items = await menu.locator('[role^=menuitem]').allInnerTexts();
     for (const want of ['Page', 'Style: Filled', 'Style: Outlined', 'Icon', 'Remove button'])
       if (!items.some((x) => x.trim() === want)) problems.push(`${label}: the card button's menu has no "${want}"`);
+    // The drawn button follows its style, as the Buttons block's buttons do.
+    await menu.locator('[role^=menuitem]', { hasText: /^Style: Outlined$/ }).click();
+    await page.waitForTimeout(200);
+    if (!(await row.locator('.mo-editor-inline-card-button.mo-is-outlined').count()))
+      problems.push(`${label}: the card's drawn button does not follow its style (no mo-is-outlined after Style: Outlined)`);
+    await row.locator('.mo-editor-inline-card-button [aria-label="Button options"]').first().click();
+    await menu.locator('[role^=menuitem]').first().waitFor({ timeout: 4000 });
     await noCardSheet('the button menu');
     await page.keyboard.press('Escape');
     await page
