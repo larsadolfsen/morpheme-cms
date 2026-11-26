@@ -208,7 +208,7 @@ const scan = `(root) => {
   // Boxes are read before the loop: the loop adds and removes probes, and a read after each would lay the page out again every time.
   const boxes = new Map();
   for (const el of root.querySelectorAll('button, input, select, textarea, [role="button"]')) boxes.set(el, el.getBoundingClientRect());
-  for (const el of root.querySelectorAll('a, button, input, textarea, select, summary')) {
+  for (const el of root.querySelectorAll('a, button, input, textarea, select, summary, .mo-nav-bar__item, .mo-nav-rail__item')) {
     if (hidden(el) || el.closest(':disabled, [aria-disabled="true"]')) continue;
     const s = getComputedStyle(el);
     if (!TARGET_ONLY && (el.matches('input, textarea, select') || el.matches('.mo-is-outlined'))) {
@@ -230,7 +230,8 @@ const scan = `(root) => {
       push(el, 'focus ring', ring, back, 3, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', manual });
     }
     // The target size of a control (WCAG 2.5.8, 24 px): the smaller side of its box. Links in a text are exempt, so only buttons and fields are read.
-    if (el.matches('button, input:not([type="hidden"]), select, textarea, [role="button"]')) {
+    // A navigation bar's and a rail's items are links (a span while the gallery gives no address): named here, since they are not a button or a field.
+    if (el.matches('button, input:not([type="hidden"]), select, textarea, [role="button"], .mo-nav-bar__item, .mo-nav-rail__item')) {
       const box = boxes.get(el) ?? el.getBoundingClientRect();
       if (box.width > 0 && box.height > 0) {
         // The part the control belongs to (the first selector it sits in); a control no part names is not a theme's part and is left out.
