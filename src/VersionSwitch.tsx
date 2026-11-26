@@ -2,7 +2,7 @@
 // when they have no time), to edit either one, so a mistake on the live page can be fixed without touching the waiting changes. It is
 // the named slot `versionSwitch` of an app (AppDefinition.slots): the form draws the one of the first app installed that has it, else this one.
 import type { Version } from '../lib/versions.mjs';
-import { Button, Notice, ConnectedButtons, type TabChoice } from './ui';
+import { Notice, ConnectedButtons, type TabChoice } from './ui';
 import { t } from './i18n';
 
 /** What the form gives the component of the slot `versionSwitch`. The functions do what the buttons of the form do, with a version id
@@ -75,33 +75,11 @@ export default function VersionSwitch({ versions, editing, busy, onEdit }: Versi
 
 /** The notice under the switch on a page or post that has changes waiting: while `Published` is edited, that what is saved goes on the website at
  * once and the waiting changes stay; while they are edited, that the website shows the published version (`when`: when they go live, if they have a time). */
-export function WaitingNotice({
-  editsLive,
-  when,
-  busy,
-  onDiscard,
-}: {
-  editsLive: boolean;
-  when?: string;
-  busy?: boolean;
-  /** `Discard draft`, shown in the notice of the draft; it asks first. */
-  onDiscard?: () => void;
-}) {
+export function WaitingNotice({ editsLive, when }: { editsLive: boolean; when?: string }) {
   const v = t.forms.versions;
   return editsLive ? (
     <Notice title={v.noticeLiveTitle}>{v.noticeLive}</Notice>
   ) : (
-    <Notice
-      title={v.noticeWaitingTitle}
-      action={
-        onDiscard && (
-          <Button kind="outlined" disabled={busy} onClick={onDiscard}>
-            {v.discardDraft}
-          </Button>
-        )
-      }
-    >
-      {when ? v.noticeScheduled(when) : v.noticeWaiting}
-    </Notice>
+    <Notice title={v.noticeWaitingTitle}>{when ? v.noticeScheduled(when) : v.noticeWaiting}</Notice>
   );
 }

@@ -1,9 +1,8 @@
-// "Image grid": its head (BlockHead.tsx), the tag filter (the theme's filter chips, drawn hidden and shown by script.ts: without JavaScript every image
+// "Image grid": its head, the tag filter (the theme's filter chips, drawn hidden and shown by script.ts: without JavaScript every image
 // shows), and the images as the theme's cards (Card, kind by `card`: Filled, Elevated or Outlined) in a staggered grid (.mo-staggered-grid): the image to the
 // card's edge in its own proportions (`media`, a CardMedia), under it the lines the block asks for (the subhead: credit and tags, then the caption: Material 3's
 // card text under the media), never on the image. A card is a link to the image itself (so it opens without JavaScript; script.ts opens it in the lightbox, among the images shown),
 // or only a card when the block says the images do not open. What it shows: view.ts, filter.mjs. Cards in the editor are only drawn.
-import BlockHead from '@theme/blocks/BlockHead';
 import Card, { CardMedia } from '@theme/ui/Card';
 import Chip from '@theme/ui/Chip';
 import ChipSet from '@theme/ui/ChipSet';
@@ -59,7 +58,6 @@ export default function ImageGrid({ view }: { view: ImageGridView }) {
   const sizes = sizesOf(view.columns);
   return (
     <>
-      <BlockHead view={view} />
       <div
         className={['mo-block-imagegrid', useInText()].filter(Boolean).join(' ')}
         data-imagegrid=""

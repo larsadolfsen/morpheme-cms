@@ -1,0 +1,7 @@
+{
+  "id": "bottom-bar-danger",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Danger section",
+  "text": "The bottom bar of a page or post now holds only Preview, Save and Publish, and Save is outlined so Publish stands out. Discard, Discard draft and Delete page or Delete post sit together in a new section, Danger, at the end of the form. Each shows only when it can act and asks before it does."
+}

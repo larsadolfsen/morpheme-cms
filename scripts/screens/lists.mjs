@@ -514,11 +514,13 @@ async function checkLiveList(width, height, { name, hint, items }) {
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: hint }).first().click();
   try {
-    await page.waitForSelector('.mo-site-block-inline [data-field="heading"]', { timeout: 8000 });
+    await page.waitForSelector(`.mo-site-block-inline ${items}`, { timeout: 8000 });
   } catch {
-    problems.push(`${label}: the block was not typed in place (no heading field)`);
+    problems.push(`${label}: the block was not drawn in place`);
     return page.close();
   }
+  if (await page.locator('.mo-site-block-inline [data-field="heading"], .mo-site-block-inline [data-field="intro"]').count())
+    problems.push(`${label}: the block has a heading or subheading field`);
   if (await page.locator('dialog[open]').count()) problems.push(`${label}: Insert opened a sheet`);
   if (!(await page.locator(`.mo-site-block-inline ${items}`).count())) problems.push(`${label}: the block shows none of the demo's items`);
   if (name === 'imagegrid') {
@@ -528,8 +530,7 @@ async function checkLiveList(width, height, { name, hint, items }) {
     else if ((await chips.first().evaluate((c) => getComputedStyle(c).pointerEvents)) !== 'none')
       problems.push(`${label}: a chip is not inert`);
   }
-  await page.keyboard.type('Our list');
-  // The gear opens the settings: they do not repeat the heading and subheading typed in place, and still hold the rest.
+  // The gear opens the settings: they have no Heading and no Subheading (B8, a heading above a block is the text's), and still hold the rest.
   // On a phone the bar's gear; on a computer the block's own menu in the bar's ⋮.
   if (phone) await pressTool(page, 'Edit');
   else await pressMore(page, 'Edit');
@@ -540,7 +541,7 @@ async function checkLiveList(width, height, { name, hint, items }) {
     ].map((e) => e.textContent.trim()),
   );
   if (settings.some((x) => /^(heading|subheading)$/i.test(x)))
-    problems.push(`${label}: the settings repeat the typed heading or subheading (${settings.join(', ')})`);
+    problems.push(`${label}: the settings show Heading or Subheading (${settings.join(', ')})`);
   if (!settings.length) problems.push(`${label}: the settings show no field`);
   await page.screenshot({ path: join(shots, `live-list-settings-${name}-${width}.png`) });
   await page.keyboard.press('Escape');
@@ -549,14 +550,10 @@ async function checkLiveList(width, height, { name, hint, items }) {
   await page.waitForTimeout(300);
   const drawn = await page.evaluate(
     (sel) => ({
-      field: !!document.querySelector('.mo-site-block-inline [data-field="heading"]'),
-      heading: document.querySelector('.mo-site-block-inline h2')?.textContent ?? '',
       items: document.querySelectorAll(`.mo-site-block-inline ${sel}`).length,
     }),
     items,
   );
-  if (drawn.field) problems.push(`${label}: the head is still a field after the cursor left`);
-  if (drawn.heading !== 'Our list') problems.push(`${label}: the typed heading is drawn as "${drawn.heading}", not "Our list"`);
   if (!drawn.items) problems.push(`${label}: the items are gone after the cursor left`);
   await page.close();
 }

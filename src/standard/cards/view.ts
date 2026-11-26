@@ -8,7 +8,6 @@ import { libraryAltPart } from '../../imageAlt.mjs';
 import { iconColorOf } from '../../iconColor';
 import { sharedIn } from '../../shared';
 import type { Image, ViewOf } from '../view';
-import { headOf, type HeadView } from '../head';
 import { textOf, type Button } from '../buttons/fields';
 import { kindOf, type ButtonView } from '../buttons/view';
 import { viewOf as videoViewOf, type VideoView } from '../video/view';
@@ -43,7 +42,7 @@ export type LinkCard = {
   /** A line between the text and the buttons (Divider); only on a card with buttons. */
   divider?: boolean;
 };
-export type CardsView = HeadView & {
+export type CardsView = {
   design?: string;
   color?: string;
   /** 'carousel': swiped sideways on a phone (two cards or more); else stacked. */
@@ -150,7 +149,6 @@ export const shownCards = (items: LinkCardProps[], data: BlockData, media?: unkn
   );
 
 export const viewOf: ViewOf<CardsView> = (props, data) => ({
-  ...headOf(props),
   design: props.design || undefined,
   color: props.design === 'filled' ? props.color || undefined : undefined,
   phone: phoneOf(props),

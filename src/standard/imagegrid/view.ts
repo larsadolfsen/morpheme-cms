@@ -6,7 +6,6 @@ import type { BlockData } from '../../blocks';
 import { libraryAltPart, resolveAlt } from '../../imageAlt.mjs';
 import { shownAt } from '../../images';
 import { sharedIn } from '../../shared';
-import { headOf, type HeadView } from '../head';
 import type { Image, ViewOf } from '../view';
 import { gridImages } from './filter.mjs';
 import shared from './shared';
@@ -44,7 +43,7 @@ export type ImageGridTexts = {
   linkName: string;
 };
 
-export type ImageGridView = HeadView & {
+export type ImageGridView = {
   images: GridImage[];
   /** The tags the shown images have, with their names: the filter's chips (when `filter`) and the names on a card. */
   tags: { slug: string; name: string }[];
@@ -103,7 +102,6 @@ export function gridOf(
   const slugs = [...new Set(images.flatMap((i) => i.tags))];
   const known = (tags: unknown) => (Array.isArray(tags) ? (tags as string[]).filter((tag) => slugs.includes(tag)) : []);
   return {
-    ...headOf(props),
     images,
     tags: slugs.map((slug) => ({ slug, name: how.name(slug) })),
     filter: props.filter !== false && slugs.length >= 2,

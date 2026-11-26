@@ -4,7 +4,6 @@ import { facadeOf } from '../../../lib/video.mjs';
 import { videoOf } from '../../../lib/video-id.mjs';
 import { imageOf } from '../load';
 import type { Load } from '../view';
-import { headOf } from '../head';
 import { loadButtons } from '../buttons/load';
 import shared from './shared';
 import { cardsOf, DEFAULT_RATIO, layoutOf, phoneOf, ratioProp, type CardsView, type LinkCardProps } from './view';
@@ -30,7 +29,6 @@ export async function loadCards(items: LinkCardProps[], media?: unknown, ratio: 
 }
 
 export const load: Load<CardsView> = async (props, { texts }) => ({
-  ...headOf(props),
   design: props.design || undefined,
   color: props.design === 'filled' ? props.color || undefined : undefined,
   phone: phoneOf(props),
