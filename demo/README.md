@@ -15,6 +15,8 @@ The images `editor-*.webp` in `public/images/uploads/2026/10/` are screenshots o
 on a background in the demo's colors. The photographs are from [Unsplash](https://unsplash.com) under the
 [Unsplash license](https://unsplash.com/license), made smaller and saved as WebP:
 
+The six edition photographs below (`quiraing` to `seljalandsfoss`) are in `public/images/editions/`, not in the uploads folder: the Library and the Image grid show only uploads, and a longer Library stops the check of the block handle at 768 (the Image grid does not become active).
+
 | File | The image at Unsplash |
 | --- | --- |
 | `saturn.webp` | https://images.unsplash.com/photo-1614732414444-096e5f1122d5 |
