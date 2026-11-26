@@ -32,9 +32,16 @@ const scrollerOf = (el: HTMLElement) => {
 };
 
 let holding: { anchor: HTMLElement; top: number; el: HTMLElement } | null = null;
+// The hold lets go the moment the person scrolls (a finger moving, the wheel): the touch that closes a row is often the start of a swipe,
+// and holding the page against it scrolls it back every frame, so it sticks and jumps while the row's animation runs.
+const SCROLLING = ['touchmove', 'wheel'] as const;
+const letGo = () => {
+  holding = null;
+  for (const type of SCROLLING) removeEventListener(type, letGo);
+};
 const adjust = () => {
   if (!holding) return;
-  if (!holding.anchor.isConnected) return void (holding = null);
+  if (!holding.anchor.isConnected) return letGo();
   const by = holding.anchor.getBoundingClientRect().top - holding.top;
   if (Math.abs(by) < 0.5) return;
   const box = scrollerOf(holding.anchor);
@@ -45,12 +52,13 @@ const adjust = () => {
 const hold = (anchor: HTMLElement | null, top: number | undefined, el: HTMLElement) => {
   if (!anchor || top === undefined) return;
   holding = { anchor, top, el };
+  for (const type of SCROLLING) addEventListener(type, letGo, { passive: true, once: true });
   adjust();
   const step = () => {
     if (holding?.el !== el) return;
     adjust();
     if (el.getAnimations().length) requestAnimationFrame(step);
-    else holding = null;
+    else letGo();
   };
   requestAnimationFrame(step);
 };
