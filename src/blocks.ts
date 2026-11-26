@@ -93,7 +93,7 @@ export type InlineSpec = {
   media?: string[];
   /** The block's own fields that the first item's media sheet has too, above the item's (a card's one media choice for every card). */
   blockMedia?: string[];
-  /** The item's fields that are edited on the item's own parts, not in a sheet (a button's target, style and icon, in its menu). */
+  /** The item's fields that are edited on the item's own parts, not in a sheet (a button's target, style and icon, in its menu; a card's divider). */
   onItem?: string[];
   /** Instead of `link`: the fields the link slot opens (a card's page and buttons). */
   settings?: string[];

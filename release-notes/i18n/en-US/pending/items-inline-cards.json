@@ -1,0 +1,6 @@
+{
+  "id": "items-inline-cards",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A card’s page and buttons are set on the card itself, with the same menu as buttons, and Block settings no longer lists the cards"
+}
