@@ -69,7 +69,7 @@ theme's design: only Material is held to Material 3's exact values, and no theme
 ## 3. Tokens and class names
 
 - **A shared value is a `--mo-…` token** (`docs/css-tokens.md`). The CMS owns the name; the theme sets its value once on `:root`; a
-  block or a section may override it on its own root element. A role is set by its name (`--mo-primary`, `--mo-on-surface`; an
+  block or a section may override it on its own root element. A role is set by its name (`--mo-sys-color-primary`, `--mo-sys-color-on-surface`; an
   elevation level has `-color` and `-shadow`).
 - **Never a second name for a value that has a `--mo-` name.** A theme's private value is `--mo-theme-*`, declared and read only in its
   own folder, and only when no `--mo-` token exists. A theme never redeclares a name the CMS declares for something else.
