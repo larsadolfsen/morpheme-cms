@@ -1108,24 +1108,27 @@ function Form({
   }
   // `Discard draft` (the list under the form) and `Discard` (the bar): what was changed since the page was published goes, saved (the waiting
   // version, removed through the Worker's commit) or not (the form goes back to the file as last loaded or saved).
-  async function discardNow() {
-    if (!waiting && !dirty) return;
+  // `draft` false: `Discard`, the unsaved changes go and the saved draft stays; true: `Discard draft`, the saved draft goes.
+  async function discardNow(draft = !!waiting) {
+    if (draft ? !waiting : !dirty) return;
     const answer = await choose({
-      title: t.forms.versions.discardTitle,
+      title: draft ? t.forms.versions.discardDraftTitle : t.forms.versions.discardTitle,
       text: t.forms.versions.discardText(post, livePublished),
-      choices: [{ value: 'discard', label: t.app.discard }],
+      choices: [{ value: 'discard', label: draft ? t.forms.versions.discardDraft : t.app.discard }],
     });
     if (!answer) return;
     const { what, entry, singular } = nameForMessages();
+    // Back to the version that was being edited (`Discard`) or to the published one (`Discard draft`).
+    const back = draft || !waiting || editsLive ? live : { ...live, text: waiting.text };
     const reset = () => {
-      setEditing('waiting');
-      setBase(live);
-      setValues(valuesOf(collection, live));
+      setEditing(waiting && !draft && editsLive ? 'live' : 'waiting');
+      setBase(back);
+      setValues(valuesOf(collection, back));
       setBodyChanged(false);
-      setBody(splitFrontmatter(live.text).body);
+      setBody(splitFrontmatter(back.text).body);
       setEra((n) => n + 1);
     };
-    if (!waiting) {
+    if (!draft || !waiting) {
       // Nothing is saved to remove: the form is the saved page again (its undo starts again with the new text editor).
       reset();
       notify({ text: t.forms.versions.discarded(entry) });
@@ -1194,18 +1197,27 @@ function Form({
     { label: t.forms.versions.schedule, onClick: scheduleNow },
     ...(scheduledAt ? [{ label: t.forms.versions.cancelSchedule, onClick: cancelSchedule }] : []),
   ];
-  const discardRow = waiting ? [{ label: t.forms.versions.discardDraft, onClick: discardNow }] : [];
+  // The section *Danger*: each row only when it can act, each asking first.
+  const dangerRows = isNew
+    ? []
+    : [
+        ...(dirty ? [{ label: t.app.discard, icon: 'undo', onClick: () => void discardNow(false) }] : []),
+        ...(waiting ? [{ label: t.forms.versions.discardDraft, icon: 'draft', onClick: () => void discardNow(true) }] : []),
+        ...(collection.deletable
+          ? [{ label: t.forms.deleteOne(collection.singular), onClick: () => env.remove(collection, live, setDeleting) }]
+          : []),
+      ];
   const publishBar = editsLive
     ? {
         onPublish: publishNow,
-        actions: [...(dirty ? [] : [{ label: t.forms.versions.unpublish, onClick: unpublishNow }]), ...discardRow],
+        actions: [...(dirty ? [] : [{ label: t.forms.versions.unpublish, onClick: unpublishNow }])],
       }
     : state === 'draft'
-      ? { label: t.forms.versions.publish, onPublish: publishNow, actions: [...scheduleRows, ...discardRow] }
+      ? { label: t.forms.versions.publish, onPublish: publishNow, actions: [...scheduleRows] }
       : {
           ...(state === 'waiting' || dirty ? { label: t.forms.versions.publish } : {}),
           onPublish: publishNow,
-          actions: [...scheduleRows, ...(dirty ? [] : [{ label: t.forms.versions.unpublish, onClick: unpublishNow }]), ...discardRow],
+          actions: [...scheduleRows, ...(dirty ? [] : [{ label: t.forms.versions.unpublish, onClick: unpublishNow }])],
         };
 
   // "Preview": the page or post with what is changed in the form; a new one, or one whose layout is changed in the
@@ -1339,11 +1351,8 @@ function Form({
             deleting={deleting}
             onSave={() => save()}
             onPreview={showPreview}
-            onDelete={collection.deletable && !isNew ? () => env.remove(collection, live, setDeleting) : undefined}
-            deleteLabel={t.forms.deleteOne(collection.singular)}
             saveLabel={t.forms.versions.saveDraft}
-            onDiscard={isNew ? undefined : () => void discardNow()}
-            canDiscard={dirty || !!waiting}
+            danger={dangerRows}
             tabs={
               coreSwitch && waiting && !isNew
                 ? versionTabs({
@@ -1371,12 +1380,7 @@ function Form({
                     discard={() => discardNow()}
                   />
                 )}
-                <WaitingNotice
-                  editsLive={editsLive}
-                  when={scheduledAt ? timeText(scheduledAt) : undefined}
-                  busy={saving || deleting}
-                  onDiscard={() => void discardNow()}
-                />
+                <WaitingNotice editsLive={editsLive} when={scheduledAt ? timeText(scheduledAt) : undefined} />
               </>
             )}
             <FormColumns
