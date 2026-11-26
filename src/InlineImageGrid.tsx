@@ -2,7 +2,7 @@
 // subheading are typed above them. The filter's chips are drawn hidden (the site's script shows them): here the card shows them, and they do
 // nothing (editor.css), so a tap selects the block; the Preview has the real behaviour. Under the grid, the text button `Add images` asks for
 // several images of the Library at once and puts them in the block as `Picked images` (the images the grid shows now come first, so nothing that
-// is shown goes away). A tap on an image opens its settings sheet: the text it has in this block (a picked image's own, with the Library's text
+// is shown goes away). A tap on an image makes the block the active one and opens its settings sheet: the text it has in this block (a picked image's own, with the Library's text
 // as the hint); with `All images with tags` an image has no text of its own (it is the Library's), so a tap opens Edit. The large view is the
 // site's only. Which images, what a card shows and its style are in Edit.
 import { useLayoutEffect, useRef } from 'react';
@@ -43,9 +43,11 @@ export default function InlineImageGrid({ props, data, active, focus, onChange, 
   function open(e: MouseEvent) {
     const card = (e.target as Element).closest('a[data-image]');
     if (!card) return;
-    // The tap is about the image: it does not start the head, and the link leads nowhere here.
+    // The tap is about the image: the link leads nowhere here.
     e.preventDefault();
     e.stopPropagation();
+    // The block is the active one while its image's sheet is open, so its row (move, delete) is there, whatever the number of images.
+    onChange({ active: 0 });
     if (props.show !== 'picked' || !onRow) return void onEdit?.();
     const at = Number(card.closest('li')?.getAttribute('data-index'));
     // The rows with an image are the images the grid shows, in order.

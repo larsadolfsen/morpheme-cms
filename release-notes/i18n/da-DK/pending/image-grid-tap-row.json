@@ -1,0 +1,6 @@
+{
+  "id": "image-grid-tap-row",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Et tryk på et billede i et billedgitter viser blokkens række sammen med billedets ark"
+}
