@@ -124,10 +124,11 @@ async function checkCardImage(width, height = 800) {
   await page.waitForTimeout(800);
   const square = await picture();
   if (square?.ratio !== 1) problems.push(`${label}: after 1:1 the card's image box is ${square?.ratio}, not square`);
-  // Crop in the bar: the crop view of the block's ratio only, no ratio chips; Save puts the ratio and the crop after the image's address.
-  await tap(page.locator('.mo-editor-inline-list-row [data-field="title"]').first());
-  await page.waitForTimeout(400);
-  await tap(page.locator('.mo-editor-tools-context button[aria-label="Crop"]').first());
+  // Crop: the crop view of the block's ratio only, no ratio chips; Save puts the ratio and the crop after the image's address.
+  // Crop is in the image's sheet, which a tap on the card's image opens (B11, B12); the bar has no image tools.
+  await tap(page.locator('.mo-editor-inline-card-media').first());
+  await page.waitForTimeout(700);
+  await tap(page.locator('dialog[open], .mo-editor-side-sheet').last().getByRole('button', { name: 'Crop', exact: true }));
   await page
     .waitForSelector('dialog.mo-editor-crop-page[open]', { timeout: 8000 })
     .catch(() => problems.push(`${label}: Crop did not open the crop page`));
@@ -147,6 +148,94 @@ async function checkCardImage(width, height = 800) {
   );
   if (!/transform/.test(cut)) problems.push(`${label}: the saved crop is not drawn on the card (style "${cut}")`);
   await page.screenshot({ path: join(shots, `card-image-${width}.png`) });
+  await page.close();
+}
+
+/** The media sheet of a card (0.19.8 plan, section 4; B6, B11, B12): a tap on the card's image selects the block and opens the image's sheet in one tap, on the image,
+ * with Change media, Change image, Crop, Alt text and Remove under it and no list of kinds; Change media shows the kinds as a radio list; the text bar has no image tools;
+ * from a keyboard Enter and Space on the image do the same, Escape closes the sheet and the focus is back on the image with the block still selected. */
+async function checkMediaSheet(width, height = 800) {
+  const phone = width < 600;
+  const label = `${width}px media sheet`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, phone ? 'tap' : 'click');
+  await page.locator('dialog[open] button', { hasText: 'Show content and actions in cards.' }).first().click();
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('One');
+  await page.waitForTimeout(300);
+  await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Image"]').click();
+  await page.waitForTimeout(1000);
+  await page
+    .locator('dialog[open] button, .mo-editor-side-sheet button', { hasText: /^Select image$/ })
+    .first()
+    .click();
+  await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+  await page.locator('dialog[open] [data-media-tile]').first().click();
+  await page.waitForTimeout(800);
+  const sheet = () => page.locator('dialog[open], .mo-editor-side-sheet').last();
+  const close = async () => {
+    await page
+      .locator('dialog[open] button[aria-label="Close"], .mo-editor-side-sheet [data-side-sheet-close]')
+      .first()
+      .click({ timeout: 2000 })
+      .catch(() => {});
+    await page.waitForTimeout(500);
+  };
+  const names = async () => (await sheet().locator('button').allTextContents()).map((b) => b.trim()).filter(Boolean);
+  await close();
+  // Nothing else is selected: a tap in the text above leaves the block.
+  await page.locator('.ProseMirror p').first().click();
+  await page.waitForTimeout(400);
+  const media = page.locator('.mo-editor-inline-card-media').first();
+  await media[phone ? 'tap' : 'click']();
+  await page.waitForTimeout(900);
+  const state = await page.evaluate(() => ({
+    row: !!document.querySelector('.mo-site-block-row:not(.mo-site-block-row-hover)'),
+    open: !!document.querySelector('dialog[open], .mo-editor-side-sheet'),
+    tools: [...document.querySelectorAll('.mo-editor-tools-context button')].map((b) => b.getAttribute('aria-label') || b.textContent.trim()),
+  }));
+  if (!state.open) problems.push(`${label}: one tap on a card's image did not open its sheet`);
+  if (!state.row) problems.push(`${label}: one tap on a card's image did not select the block (no action row)`);
+  const have = await names();
+  for (const name of ['Change media', 'Change image', 'Crop', 'Alt text', 'Remove'])
+    if (!have.includes(name)) problems.push(`${label}: the image's sheet has no ${name} (${have.join(', ')})`);
+  if (await sheet().locator('input[type=radio]').count()) problems.push(`${label}: the kinds of media show before Change media is pressed`);
+  if (!(await sheet().locator('.mo-editor-media-panel-preview img').count())) problems.push(`${label}: the sheet does not show the selected image`);
+  for (const name of ['Replace', 'Change image', 'Crop', 'Alt text', 'Delete'])
+    if (state.tools.includes(name)) problems.push(`${label}: the text bar still has the image tool ${name}`);
+  await sheet().getByRole('button', { name: 'Change media', exact: true }).click();
+  await page.waitForTimeout(400);
+  const kinds = await sheet().locator('input[type=radio]').count();
+  if (kinds < 3) problems.push(`${label}: Change media shows ${kinds} kinds, not a radio list of the kinds`);
+  await close();
+  if (!phone) {
+    // Keyboard: Enter and Space open the sheet, Escape closes it and the focus is back on the image, the block still selected.
+    for (const key of ['Enter', 'Space']) {
+      await media.focus();
+      await page.keyboard.press(key);
+      await page.waitForTimeout(700);
+      if (!(await page.locator('.mo-editor-side-sheet, dialog[open]').count())) problems.push(`${label}: ${key} on the image did not open the sheet`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(600);
+      const back = await page.evaluate(() => ({
+        onImage: document.activeElement?.classList.contains('mo-editor-inline-card-media') ?? false,
+        row: !!document.querySelector('.mo-site-block-row:not(.mo-site-block-row-hover)'),
+        ring: document.activeElement ? getComputedStyle(document.activeElement).outlineStyle !== 'none' : false,
+      }));
+      if (!back.onImage) problems.push(`${label}: after Escape (${key}) the focus is not on the image`);
+      if (!back.row) problems.push(`${label}: after Escape (${key}) the block is not selected`);
+    }
+  }
+  await page.screenshot({ path: join(shots, `media-sheet-${width}.png`) });
   await page.close();
 }
 
@@ -1338,6 +1427,7 @@ async function checkIconColor(width, height, scheme = 'light') {
 
 export function register(unit) {
   for (const width of [375, 1280]) unit(`checkCardImage ${width}`, () => checkCardImage(width));
+  for (const width of [375, 1280]) unit(`checkMediaSheet ${width}`, () => checkMediaSheet(width, width < 600 ? 740 : 900));
   for (const [width, height] of [
     [375, 740],
     [1280, 900],

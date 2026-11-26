@@ -201,7 +201,7 @@ export default function InlineCards({
                       type="button"
                       className="mo-editor-inline-card-media"
                       aria-label={t.blocks.cards.media}
-                      onClick={() => (card.image ? !here && onChange({ active: i }) : onIcon(i))}
+                      onClick={() => onIcon(i)}
                     />
                   </div>
                 ) : (
@@ -216,7 +216,7 @@ export default function InlineCards({
                             pressed={media === kind}
                             onClick={() => {
                               onProps({ media: kind });
-                              onIcon(i);
+                              onIcon(i, true);
                             }}
                           >
                             <Icon size={24} />

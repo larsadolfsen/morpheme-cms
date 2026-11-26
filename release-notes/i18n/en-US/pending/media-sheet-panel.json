@@ -1,0 +1,7 @@
+{
+  "id": "media-sheet-panel",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Media sheet",
+  "text": "Image, icon and video tools no longer crowd the text bar. Tap the media of a card, a list row or an image in the text to open its sheet. It shows the media and holds Change media, Change image, Crop, Alt text and Remove."
+}

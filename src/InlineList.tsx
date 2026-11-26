@@ -65,7 +65,7 @@ export default function InlineList({
   /** The link of a row is asked for (its slot is tapped). */
   onSettings: (row: number) => void;
   /** The icon slot of a row is tapped: its icon picker. */
-  onIcon: (row: number) => void;
+  onIcon: (row: number, kindChosen?: boolean) => void;
   /** A list the owner made has the fields it chose: `false` leaves a row's icon, text or link out (a List block has all three). */
   show?: { icon?: boolean; text?: boolean; href?: boolean; image?: boolean; tags?: boolean };
   /** A list the owner made can have an image and tags: their slots on the active row, which open them (not part of a List block). */
