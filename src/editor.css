@@ -116,7 +116,12 @@
   inset-inline: 0;
 }
 
-/* Helping lines hidden (the bar's grid button, MarkdownEditor.tsx): the resting dotted lines of sections and blocks go; the focus, hover and selection lines stay. */
+/* Helping lines hidden (the bar's grid button, MarkdownEditor.tsx): the resting dotted lines of sections and blocks go; the focus, hover and selection lines stay.
+   A section's start line that marks the focus (data-section-focus, data-section-focus-below) is a focus line only while the text has the focus (:focus-visible,
+   above); without it, it is a resting line like the others and goes too. */
+.mo-editor-text-box[data-guides='off'] .mo-editor-text .ProseMirror:not(:focus-visible) > [data-section-part='start']::before {
+  border-block-start-color: transparent;
+}
 .mo-editor-text-box[data-guides='off']
   .mo-editor-text
   .ProseMirror
