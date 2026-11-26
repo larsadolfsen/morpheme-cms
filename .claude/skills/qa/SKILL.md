@@ -51,20 +51,28 @@ Example:
 
 The PM starts one cloud session per pull request, on the Morpheme environment, with the repository at the pull request's head, and
 this message: `Load the qa skill and test pull request #<n> (head <sha>) on <Preview address>. Its How to test is in the pull request.
-Report to me.` For a version: `… test version <x.y.z> on <Release PR's Preview address>: the How to test of pull requests #a, #b, ….`
+Report to me with send_message, session_id <the PM's own session id>.` The PM always gives its session id: `@parent` is not certain to
+reach a session that is not a standing one. For a version: `… test version <x.y.z> on <Release PR's Preview address>: the How to test of pull requests #a, #b, ….`
 
 ## 4. Rules for the QA session
 
 1. **Never code.** No edits, commits, pushes, merges, GitHub comments or approvals. Read the repository only to understand a test.
 2. **Only the list.** Run every test of the list, in order, and nothing else beyond the smoke test (section 5). Where the pull
    request claims something the list does not test, report it as `not on the list`; never invent a test for it.
-3. **The real Preview.** Never a local build, never `morpheme-demo`, never staging. `/editor/version.json` names the commit the
+3. **The real Preview.** Never a local build, never `morpheme-demo`, and never staging, except in a version QA for a test whose Where
+   names `morpheme-staging` (a change that only a real site can show, such as a CMS update; owner, 25 Nov 2026). Those run after the
+   version is staged on `next`, and the PM starts them. `/editor/version.json` names the commit the
    Preview runs: it must be the pull request's head; if not, wait for Cloudflare's new Preview or tell the PM.
 4. **Seen, not assumed.** A test is `pass` only when you saw the expected result; `fail` when you saw something else; `blocked` when
    you could not run it (say why: a step that does not exist, a page that does not open, an unclear test). Measure numbers in the
    browser (`getBoundingClientRect`, `getComputedStyle`), never by eye. Where the source is an M3 page, read it with Playwright
-   (skill `material-3`, *Reading the real pages*) before you compare.
+   (skill `material-3`, *Reading the real pages*) before you compare. Where the page prints the value only in an image or a token
+   table (a focus ring's thickness and offset, a menu's elevation), take a screenshot of that part of the page and read it, or read
+   the Specs tab's token table. If the value is not there either, compare with the test's Source (the spec, the CHANGELOG) and say in
+   a `NOTE` that M3 does not print it in text.
 5. **No page errors.** A page error in the console during a test makes that test `fail`, with the error.
+6. **Live samples only.** The theme parts gallery (`/editor/#developer/parts/ui`) shows static "drawn" samples beside the live ones.
+   Test the live ones. A static sample that takes the focus but ignores keys is a `NOTE`, not a `fail`.
 
 ## 5. Opening the Preview
 
@@ -80,10 +88,21 @@ await ctx.addInitScript(() => (window.demoEditorProof = true));
 const page = await ctx.newPage();
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
-await page.goto(`${preview}/editor/`);
-// The first visit installs the service worker and reloads once; wait until it answers, then load again.
-await page.waitForFunction(() => fetch('/api/github/head').then((r) => r.ok, () => false), null, { timeout: 30000 });
-await page.reload();
+await page.goto(`${preview}/editor/`, { waitUntil: 'load' });
+// The first visit installs the service worker, which reloads the page by itself once. Never reload it yourself (the two reloads
+// collide: net::ERR_ABORTED). Wait until the worker answers, then let its own reload finish.
+const deadline = Date.now() + 30000;
+for (;;) {
+  try {
+    await page.waitForLoadState('load');
+    const ok = await page.evaluate(() => fetch('/api/github/head').then((r) => r.ok, () => false));
+    if (ok) break;
+  } catch {} // the page's own reload replaced it: try again
+  if (Date.now() > deadline) throw new Error('the demo editor did not start');
+  await page.waitForTimeout(500);
+}
+await page.waitForTimeout(2000);
+await page.waitForLoadState('load');
 ```
 
 - "Log in with GitHub" means the service worker did not take over: open `${preview}/editor/?demo-reset` once and open the editor again.
@@ -93,19 +112,36 @@ await page.reload();
   `${preview}/editor/?demo-reset`.
 - Screenshots: one for every `fail`, in your scratchpad, named `<test number>-<width>-<theme>.png`.
 
+**Where things are** (the demo editor, 25 Nov 2026; a place that has moved is a `NOTE`):
+
+| What | Where |
+| --- | --- |
+| Start screen (dashboard) | `/editor/` |
+| A page | `/editor/#src/content/pages/<file>.md` (the demo's files: `home`, `about`, `contact`, `blocks-<name>` …) |
+| Pages and Blog lists | `/editor/#list/pages`, `/editor/#list/blog` |
+| A block's settings | click a field inside the block, then *Block settings* in the block's action row |
+| The text toolbar | Alt+F10 from the text |
+| Theme parts gallery (menus, fields, pickers, scroll field …) | `/editor/#developer/parts/ui` (live samples only, rule 6) |
+| The editor's own parts, block parts | `/editor/#developer/parts/editor`, `/editor/#developer/parts/blocks` |
+| Appearance, icon packs, motion, colours | `/editor/#appearance`, `#appearance/icon-packs`, `#appearance/motion`, `#company/colors` |
+| Account (the editor's language, density) | `/editor/#account` |
+| Apps | `/editor/#apps` (the demo has no app installed: a test that needs one is `blocked`) |
+| The site's block pages | `/blocks/`, `/blocks/<name>/` |
+
 **Smoke test** (every run, after the list): the dashboard opens; `/editor/#src/content/pages/about.md` opens, a typed word saves with
 Ctrl+S and is still there after a reload; the block menu opens; the site's `/` and the changed block's `/blocks/<name>/` render
 without page errors.
 
 ## 6. The report
 
-One message to the PM (`send_message` to the PM's session, or `@parent`), short:
+One message to the PM (`send_message` with the session id the PM gave in the brief), short:
 
 ```
 QA #<n> (head <sha>) on <Preview> (cms <version.json's cms>): <n> pass, <n> fail, <n> blocked, <n> not on the list.
 FAIL 3. <test name>: got <what you saw> instead of <Expect> (<width>, <theme>). Screenshot: <path>
 BLOCKED 5. <test name>: <why>
 NOT ON THE LIST: <claim from the pull request>
+NOTE: <something seen that no test claims, or a place in the map that moved>
 PASS: 1, 2, 4
 Smoke test: pass (or what failed)
 ```
