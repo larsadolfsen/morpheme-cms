@@ -252,7 +252,7 @@ async function checkNofollowSwitch(width, height) {
 /** A page with a draft waiting has its `Published` / `Draft` switch as Material 3 secondary tabs (name only, no icon) in the top app bar (390, 1280): a tablist named
  * "Version to edit" inside the bar, directly above the draft notice (no segmented control under the title), two tabs with a name each and no icon, a divider along the row's bottom edge,
  * the open one aria-selected (`Draft` first), 48 dp high, the arrow keys open the other one and move focus, `Published` shows the published text and its notice,
- * and the draft notice keeps `Discard draft`. */
+ * and the draft notice has no `Discard draft` (it is in Danger). */
 async function checkVersionTabs(width, height) {
   const label = `${width}px version tabs`;
   const phone = width < 600;
@@ -285,8 +285,8 @@ async function checkVersionTabs(width, height) {
     const text = () => page.locator('.ProseMirror').first().innerText();
     if (!(await text()).includes('waiting text')) problems.push(`${label}: Draft does not show the draft`);
     if (!(await page.getByText('This is a draft').count())) problems.push(`${label}: no draft notice`);
-    if (!(await page.getByRole('button', { name: 'Discard draft', exact: true }).count()))
-      problems.push(`${label}: no "Discard draft" in the notice`);
+    if (await page.locator('.mo-notice').getByRole('button', { name: 'Discard draft', exact: true }).count())
+      problems.push(`${label}: the draft notice still has "Discard draft" (it is in Danger)`);
     await tabs.filter({ hasText: 'Draft' }).focus();
     await page.keyboard.press('ArrowLeft');
     await page
@@ -374,6 +374,84 @@ async function checkOtherTabs(width, height) {
   }
 }
 
+/** The bottom bar and the section Danger of a page (390, 1280): Save is outlined and Publish filled with no Discard in the bar; after a change Danger is the last section with
+ * Discard and Delete page, in that order, Discard Draft only with a saved draft; a page with nothing to do has no Discard; Discard asks first (Esc keeps the change, the
+ * dialog has no control focused) and drops the change. */
+async function checkDanger(width, height) {
+  const label = `${width}px danger`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  virtualFile('src/content/pages/zz-danger.md', `---\ntitle: "Risk page"\n---\n\n# Risk page\n\nPublished text.\n`);
+  try {
+    await openEditor(page, site);
+    await page.goto(`${site}/editor/#src/content/pages/zz-danger.md`);
+    await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+    const danger = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: /^Danger$/ }) });
+    // Danger is folded on load, like every section but Content (owner, 14 Nov 2026): open it to see its rows.
+    const rows = () => danger.locator(':scope > div').getByRole('button');
+    const openDanger = async () => {
+      const toggle = danger.locator('h2 button');
+      if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+    };
+    if ((await danger.locator('h2 button').getAttribute('aria-expanded')) === 'true') problems.push(`${label}: Danger is open on load`);
+    await openDanger();
+    const idle = (await rows().allTextContents()).map((n) => n.trim()).join();
+    if (idle !== 'Delete page') problems.push(`${label}: Danger has "${idle}" with nothing changed, not only Delete page`);
+    if (await page.getByRole('button', { name: /^Discard/ }).count()) problems.push(`${label}: a Discard shows with nothing changed`);
+    await page.locator('.ProseMirror p').first().click();
+    await page.keyboard.type(' more');
+    const bar = page.locator('.mo-editor-save-bar');
+    await bar.waitFor({ timeout: 10_000 });
+    const kinds = await bar
+      .getByRole('button')
+      .evaluateAll((els) =>
+        els.map(
+          (e) =>
+            `${e.textContent.trim()}:${[...e.classList].find((c) => /^mo-is-(filled|tonal|outlined|text)$/.test(c))?.replace('mo-is-', '') ?? 'filled'}`,
+        ),
+      );
+    const save = kinds.find((k) => /^Save/.test(k));
+    if (!save || (!save.endsWith(':outlined') && kinds.some((k) => /^Publish/.test(k))))
+      problems.push(`${label}: Save is not outlined (${kinds.join(', ')})`);
+    if (kinds.some((k) => /^Discard/.test(k))) problems.push(`${label}: the bar still has Discard (${kinds.join(', ')})`);
+    const publish = kinds.find((k) => /^Publish/.test(k));
+    if (publish && !publish.endsWith(':filled')) problems.push(`${label}: Publish is not filled (${publish})`);
+    await danger.waitFor({ timeout: 10_000 });
+    await openDanger();
+    const names = await rows().allTextContents();
+    if (names.map((n) => n.trim()).join() !== 'Discard,Delete page')
+      problems.push(`${label}: Danger has ${names.join(', ')}, not Discard, Delete page`);
+    const last = await page.evaluate(() => {
+      const all = [...document.querySelectorAll('section[data-fold-section]')];
+      return all.at(-1)?.querySelector('h2')?.textContent?.trim();
+    });
+    if (last !== 'Danger') problems.push(`${label}: the last section is "${last}", not Danger`);
+    const discard = danger.getByRole('button', { name: 'Discard', exact: true });
+    await discard.click();
+    const dialog = page.getByRole('dialog');
+    await dialog.waitFor({ timeout: 5000 });
+    const focused = await page.evaluate(
+      () => document.activeElement?.closest('[role="dialog"]') && document.activeElement?.tagName === 'BUTTON',
+    );
+    if (focused) problems.push(`${label}: the dialog opens with a button focused`);
+    await page.keyboard.press('Escape');
+    await dialog.waitFor({ state: 'detached', timeout: 5000 });
+    if (!(await page.locator('.ProseMirror').first().innerText()).includes('more')) problems.push(`${label}: Cancel dropped the change`);
+    await discard.click();
+    await dialog.getByRole('button', { name: 'Discard', exact: true }).click();
+    await page
+      .waitForFunction(() => !document.querySelector('.ProseMirror')?.textContent.includes('more'), null, { timeout: 5000 })
+      .catch(() => {});
+    if ((await page.locator('.ProseMirror').first().innerText()).includes('more')) problems.push(`${label}: Discard kept the change`);
+    if (await danger.getByRole('button', { name: 'Discard', exact: true }).count())
+      problems.push(`${label}: Discard stays after it was used`);
+  } finally {
+    removeVirtualFile('src/content/pages/zz-danger.md');
+    await page.close();
+  }
+}
+
 export function register(unit) {
   for (const [width, height] of [
     [360, 740],
@@ -391,6 +469,11 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkVersionTabs ${width}`, () => checkVersionTabs(width, height));
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    unit(`checkDanger ${width}`, () => checkDanger(width, height));
   for (const [width, height] of [
     [390, 844],
     [1280, 900],
