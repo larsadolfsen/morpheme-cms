@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import { blockHtml } from '../lib/blocks.mjs';
 import { firstEmptyRow, leaveOut, withoutEmptyRows } from './emptyRows.mjs';
 
-// The blocks as the registry describes them: List and List - Expand have required rows, Gallery does not; Notice has no rows.
+// The blocks as the registry describes them: List and Expandable list have required rows, Gallery does not; Notice has no rows.
 const facts = {
   list: { key: 'items', required: true, name: 'List', word: 'row', items: 'rows' },
-  expand: { key: 'items', required: true, name: 'List - Expand', word: 'row', items: 'rows' },
+  expand: { key: 'items', required: true, name: 'Expandable list', word: 'row', items: 'rows' },
   gallery: { key: 'items', required: false, name: 'Gallery', word: 'image', items: 'images' },
 };
 const describe = (type) => facts[type] ?? null;
@@ -26,7 +26,7 @@ test('an empty row between or before content is found and left out', () => {
     at: 1,
     type: 'expand',
     kind: 'row',
-    name: 'List - Expand',
+    name: 'Expandable list',
     word: 'row',
     items: 'rows',
   });

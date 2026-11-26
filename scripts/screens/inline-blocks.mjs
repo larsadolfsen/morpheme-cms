@@ -177,7 +177,7 @@ async function checkFilledSlotRing(scheme, sectionColor) {
   await page.close();
 }
 
-/** A List and a List - Expand, each in the design Plain and Segmented (owner, 16 Nov 2026: "The white list is the correct one"), are edited the same way: the active
+/** A List and an Expandable list, each in the design Plain and Segmented (owner, 16 Nov 2026: "The white list is the correct one"), are edited the same way: the active
  * row has the same slots (its icon and its link, at its end), the toolbar the same Link, the add button the same text, and the link slot the same sheet with its page; nothing is
  * drawn at the bottom of a row; the design is a setting of the block (Plain or Segmented) that changes only how the rows are drawn. Each is measured, then compared with the List's. */
 /** A button typed in place (Buttons block) is drawn with Material 3's measures for its size (m3.material.io/components/buttons/specs): the label and the
@@ -257,8 +257,8 @@ async function checkListDesigns(width, height) {
   const looks = [
     { look: 'List', hint: 'Show text and images in a list.' },
     { look: 'List, Segmented', hint: 'Show text and images in a list.', card: true },
-    { look: 'List - Expand', hint: 'Show list items that expand and collapse.', expand: true },
-    { look: 'List - Expand, Segmented', hint: 'Show list items that expand and collapse.', card: true, expand: true },
+    { look: 'Expandable list', hint: 'Show list items that expand and collapse.', expand: true },
+    { look: 'Expandable list, Segmented', hint: 'Show list items that expand and collapse.', card: true, expand: true },
   ];
   const seen = [];
   for (const { look, hint, card, expand } of looks) {
@@ -389,7 +389,7 @@ async function checkListDesigns(width, height) {
   }
 }
 /** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
-async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowLink, field = 'title', open, start = 1 }) {
+async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowLink, noRowLink, field = 'title', open, start = 1 }) {
   const label = `${width}px inline ${name}`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
@@ -776,9 +776,21 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   if (noEdit)
     for (const name of ['Link', 'Edit'])
       if (one.bar.some((b) => b.label === name)) problems.push(`${label}: the toolbar has "${name}" although the block has no settings`);
-  // A row's link (List and List - Expand alike, owner, 16 Nov 2026): the link slot at the end of the active row and the toolbar's Link, no text row of
+  // A row's link (List and Expandable list alike, owner, 16 Nov 2026): the link slot at the end of the active row and the toolbar's Link, no text row of
   // its own at the bottom of the row; the slot opens the page picker. List rows: no button of their own; Expand rows: at most one typed button at the bottom
   // of the open row, besides the Icon and Page slots (owner, 26 Nov 2026).
+  // An Expandable list row has no link at all (owner, 26 Nov 2026: "No link on them. Just buttons."): only the Icon slot, no Page slot, no toolbar Link.
+  if (noRowLink) {
+    const slots = await page
+      .locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')
+      .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')));
+    if (slots.join() !== 'Icon')
+      problems.push(`${label}: the active row's slots are "${slots}", not "Icon" (a row that folds out has no link)`);
+    if (await page.locator('[data-row-link], .mo-editor-inline-segmented-buttons').count())
+      problems.push(`${label}: the row has a link control`);
+    if ((await state()).bar.some((b) => b.label === 'Link'))
+      problems.push(`${label}: the toolbar has a Link button on a row that has no link`);
+  }
   if (rowLink) {
     const slots = await page
       .locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')
@@ -797,8 +809,28 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
   }
+  // The add actions of the block (Add list row, Add button, Add card, Add point ...) are the theme's outlined button, not a text button (owner, 26 Nov 2026: "Don't use text buttons.
+  // Use outline button. Also in cards."), with its outline (drawn by the theme as an inset ring), the theme's label colour and a tap target of at least 40 px (the theme adds the rest to 48 dp).
+  const adds = await page.locator('[data-add-row], [data-add-button], [data-add-feature]').evaluateAll((bs) =>
+    bs.map((b) => {
+      const c = getComputedStyle(b);
+      const r = b.getBoundingClientRect();
+      return {
+        name: b.textContent,
+        outlined: b.classList.contains('mo-is-outlined'),
+        text: b.classList.contains('mo-is-text'),
+        border: parseFloat(c.borderTopWidth) || (c.boxShadow.includes('inset') ? 1 : 0),
+        height: r.height,
+      };
+    }),
+  );
+  if (!adds.length) problems.push(`${label}: no add action found`);
+  for (const a of adds) {
+    if (!a.outlined || a.text || !(a.border >= 1)) problems.push(`${label}: "${a.name}" is not an outlined button (${JSON.stringify(a)})`);
+    if (a.height < 40) problems.push(`${label}: "${a.name}" is ${a.height} px high, under 40`);
+  }
   if (phone) {
-    // A touch screen has no hover (hover: none), but the browser leaves :hover on what was tapped: the add button stays a text button, without the pointed-at background.
+    // A touch screen has no hover (hover: none), but the browser leaves :hover on what was tapped: the add button has no pointed-at background.
     const session = await page.context().newCDPSession(page);
     await session.send('Emulation.setEmulatedMedia', { features: [{ name: 'hover', value: 'none' }] });
     await page.locator('[data-add-row]').hover();
@@ -808,8 +840,8 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       const c = getComputedStyle(b);
       return { pointed: b.matches(':hover'), background: c.backgroundColor, shadow: c.boxShadow };
     });
-    if (!sticky.pointed || sticky.background !== 'rgba(0, 0, 0, 0)' || sticky.shadow !== 'none')
-      problems.push(`${label}: "${add}" tapped on a touch screen is no longer a text button (${JSON.stringify(sticky)})`);
+    if (!sticky.pointed || sticky.background !== 'rgba(0, 0, 0, 0)' || !sticky.shadow.includes('inset'))
+      problems.push(`${label}: "${add}" tapped on a touch screen is not quiet on a touch screen (${JSON.stringify(sticky)})`);
     await session.send('Emulation.setEmulatedMedia', { features: [] });
   }
   await page.click('[data-add-row]');
@@ -1087,7 +1119,7 @@ async function checkSteps(width, height) {
   }
 }
 
-/** Pasting lines into an empty item makes one item each (spec 2026-11-14-paste-and-change-to-design.md, section 2): in List, List - Expand,
+/** Pasting lines into an empty item makes one item each (spec 2026-11-14-paste-and-change-to-design.md, section 2): in List, Expandable list,
  * Cards and Steps, three lines pasted into the empty block make three items with those titles (a tab gives the second field its
  * text), the cursor in the last field of the last; a paste with a `#` line is left as it is; a paste into an empty item after Add below
  * makes items there and keeps the items before; Ctrl+Z gives the block back as it was before the paste. */

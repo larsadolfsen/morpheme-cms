@@ -986,7 +986,7 @@ async function checkPreviewDraft(width) {
   await page.close();
 }
 
-/** An empty row in a block typed in place (the List - Expand's "New row" left empty) is not a snackbar and a page that cannot be saved: Save or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
+/** An empty row in a block typed in place (the Expandable list's "New row" left empty) is not a snackbar and a page that cannot be saved: Save or Publish scrolls to the block and asks (375 px, touch): "You have an empty segmented list row." with Remove item (the row goes, nothing is saved), the action tapped (the page is saved without the empty rows) and Cancel (nothing changes). A page without an empty row saves as before, with no question. */
 async function checkEmptyRow(width, height) {
   const label = `${width}px empty row`;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -1023,7 +1023,7 @@ async function checkEmptyRow(width, height) {
   await press('Publish');
   if (!(await dialog.count())) problems.push(`${label}: a block with no row on Publish did not open a dialog`);
   else {
-    if ((await sayOf()) !== 'List - Expand has no rows. The block will be deleted.')
+    if ((await sayOf()) !== 'Expandable list has no rows. The block will be deleted.')
       problems.push(`${label}: the dialog says "${await sayOf()}"`);
     const got = await buttons();
     if (got.join('|') !== 'Cancel|Delete and publish')
@@ -1227,7 +1227,7 @@ async function checkChangeTo(width, height) {
   await opener.click();
   await page.waitForTimeout(200);
   const level = await menuRows();
-  const want = 'Change type,List - Expand,Steps,Cards,Table';
+  const want = 'Change type,Expandable list,Steps,Cards,Table';
   if (level.join() !== want) problems.push(`${label}: Change type's level is ${level.join(', ')}, not ${want}`);
   // The header of the level has the swap icon of the row (not a back arrow) and says where it goes.
   const header = page.locator('[role=menu] [role^=menuitem]', { hasText: /^Change type$/ }).first();
@@ -1299,7 +1299,7 @@ async function checkChangeTo(width, height) {
   if (!(await page.locator('.mo-editor-inline-list').count()) || !(await hasIcon()))
     problems.push(`${label}: Table → List did not give the List with its icon`);
   if (JSON.stringify(await rows('title')) !== was) problems.push(`${label}: Table → List has ${JSON.stringify(await rows('title'))}`);
-  // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and a List - Expand's Markdown on their
+  // Kept data is never on the site: the Steps of the system's test page (the demo's Blocks page) keep a card's subhead and an Expandable list's Markdown on their
   // first step, as Change type leaves them, and the page shows neither.
   if (await onTestPage(page, label)) {
     const html = await page.content();
@@ -1309,7 +1309,7 @@ async function checkChangeTo(width, height) {
   await page.close();
 }
 
-/** In the page: the inner padding of the first row of each block that shows rows with a title and a trailing chevron (the List, List - Expand, Questions and answers and Link
+/** In the page: the inner padding of the first row of each block that shows rows with a title and a trailing chevron (the List, Expandable list, Questions and answers and Link
  * collection), by the heading above it: the title's distance from the row's left edge and the chevron's from its right edge. Runs in the page. */
 const rowPadding = () => {
   const out = {};
@@ -1422,9 +1422,9 @@ async function checkPageLeftEdge(width) {
       problems.push(
         `${label}: on the site the rows of "${head}" have ${pad.left} px of padding on the left and ${pad.right} px on the right`,
       );
-  // The rows of a List and of a List - Expand (the FAQ) are both measured above; without one of them the check would pass on nothing.
+  // The rows of a List and of an Expandable list (the FAQ) are both measured above; without one of them the check would pass on nothing.
   if (!['plain design', 'list - expand as a faq'].every((h) => h in editorPads))
-    problems.push(`${label}: a List and a List - Expand have no row to measure (${Object.keys(editorPads)})`);
+    problems.push(`${label}: a List and an Expandable list have no row to measure (${Object.keys(editorPads)})`);
   for (const cursor of [false, true]) {
     if (cursor) await page.locator('.ProseMirror p').first().click();
     const got = await page.evaluate(() => {

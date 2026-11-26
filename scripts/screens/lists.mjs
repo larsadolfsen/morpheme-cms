@@ -14,7 +14,7 @@ import {
   ratioOf,
 } from './support/shared.mjs';
 
-/** The rows of a List and List - Expand are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
+/** The rows of a List and Expandable list are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
 async function checkListMarkers(width) {
   const path = BUILT_PAGE;
   const markers = () =>
@@ -137,7 +137,7 @@ async function checkListLeftEdge(width) {
   await page.close();
 }
 
-/** The setting Columns of List, List and List - Expand (standard/columns.ts): on (the default, and what a block from before has) the rows sit in as many columns as fit the list's
+/** The setting Columns of List, List and Expandable list (standard/columns.ts): on (the default, and what a block from before has) the rows sit in as many columns as fit the list's
  * width, at least 344px each, never more than three; off (`data-columns="one"`) one column at most 720px wide. In the editor and in the Preview, at 375, 768 and 1280. */
 async function checkListColumns(width) {
   const label = `${width}px list columns`;
@@ -197,7 +197,7 @@ async function checkListColumns(width) {
   await page.close();
 }
 
-/** The hover action row is not drawn over a control of the block: a mouse over the first row of a List - Expand or Questions and answers shows no row over the row's chevron, at 768
+/** The hover action row is not drawn over a control of the block: a mouse over the first row of an Expandable list or Questions and answers shows no row over the row's chevron, at 768
  * and 1280 (the block shows its row once it is active). The drag handle, in the block's top left corner, shows only on the active block: it takes no pointer on a block that is only pointed at. */
 async function checkChevronUnderHoverRow(width) {
   const label = `${width}px chevron under the hover row`;
@@ -247,7 +247,7 @@ async function checkChevronUnderHoverRow(width) {
   await page.close();
 }
 
-/** Rows that fold out, typed in place (List - Expand, Questions and answers): the chevron opens and closes any row as on the site, Enter or Space on the focused
+/** Rows that fold out, typed in place (Expandable list, Questions and answers): the chevron opens and closes any row as on the site, Enter or Space on the focused
  * head does too, a tap on the head's own surface (not the title, not the chevron) folds nothing, and typing in the page's text does not collapse an open row.
  * What is folded is a view state: the page does not change (Undo stays off). */
 async function checkChevronRows(width) {
@@ -280,7 +280,7 @@ async function checkChevronRows(width) {
   await page.waitForSelector('.mo-editor-inline-list-host div.mo-list__item-expand', { timeout: 30_000 });
   const undoOff = () => page.locator('.mo-editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (const [at, name] of [
-    [0, 'List - Expand'],
+    [0, 'Expandable list'],
     [1, 'Questions and answers'],
   ]) {
     // The cursor is out of every block: no row's settings panel narrows the page while a row is tapped.
@@ -1236,13 +1236,13 @@ async function checkChecklistMarks() {
   }
 }
 
-/** The List "expand" kind on the built site (the List - Expand marked as a FAQ on /blocks/), 375 and 1280 px: a <ul class="mo-list mo-list__expand"> of <li><details name><summary> items (a row of 48 px or more, a corner of 16 px on the list), the closed caret has no container and the open one turns over and gets one while the headline keeps its colour (Material's "List - Expand" tokens), one row open at a time, Space on the focused summary opens it and the focus ring is 3 px, nothing scrolls sideways. */
+/** The List "expand" kind on the built site (the Expandable list marked as a FAQ on /blocks/), 375 and 1280 px: a <ul class="mo-list mo-list__expand"> of <li><details name><summary> items (a row of 48 px or more, a corner of 16 px on the list), the closed caret has no container and the open one turns over and gets one while the headline keeps its colour (Material's "Expandable list" tokens), one row open at a time, Space on the focused summary opens it and the focus ring is 3 px, nothing scrolls sideways. */
 async function checkExpandList(width, height) {
   const label = `${width}px List expand`;
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
-  // The segmented design (the segmented List - Expand) has the 16 px corner on its list; the plain design is the rows on the page, and
+  // The segmented design (the segmented Expandable list) has the 16 px corner on its list; the plain design is the rows on the page, and
   // edge to edge on a phone with no corner (checkListLeftEdge), so it is not the one measured here.
   const list = page.locator('ul.mo-list.mo-list__expand.mo-block-accordion__segmented:has(> li:nth-child(2))').first();
   if (!(await list.count())) {
@@ -1397,7 +1397,7 @@ async function checkListButtonsRow(width) {
   await page.close();
 }
 
-/** An open item of a plain List - Expand has the segmented design's item surface, and a closed one has none (375, 768 and 1280 px, the demo's Lists page): no line is
+/** An open item of a plain Expandable list has the segmented design's item surface, and a closed one has none (375, 768 and 1280 px, the demo's Lists page): no line is
  * drawn above an open item or under it (owner, 17 Nov 2026: "A plain design list item that is open should have a bg color"). */
 async function checkOpenPlainExpand(width) {
   const label = `${width}px open plain expand item`;
@@ -1412,7 +1412,7 @@ async function checkOpenPlainExpand(width) {
   }
   const plain = page.locator('.mo-block-accordion:not(.mo-block-accordion__segmented):has(> li:nth-child(3))').first();
   if (!(await plain.count())) {
-    problems.push(`${label}: no plain List - Expand with three items on the Lists page`);
+    problems.push(`${label}: no plain Expandable list with three items on the Lists page`);
     return page.close();
   }
   const segmentedSurface = await page.evaluate(() => {
@@ -1447,7 +1447,7 @@ async function checkOpenPlainExpand(width) {
   await page.close();
 }
 
-/** The look of the lists in columns (900 and 1280 px, the demo's Lists page): the dividers of a plain List - Expand are between its rows, none above the first row's items and none against
+/** The look of the lists in columns (900 and 1280 px, the demo's Lists page): the dividers of a plain Expandable list are between its rows, none above the first row's items and none against
  * an open item, and the corners of a segmented list are the list's (16 px) on its first and last rows' items and small between rows, in each number of columns (owner, 17 Nov 2026:
  * "There are dividers that shouldn't be there and corners that does not have the right radius"). */
 async function checkListColumnsLook(width) {
@@ -1496,7 +1496,7 @@ async function checkListColumnsLook(width) {
     });
   }
   const plain = page.locator('.mo-block-accordion:not(.mo-block-accordion__segmented):has(> li:nth-child(3))').first();
-  if (!(await plain.count())) problems.push(`${label}: no plain List - Expand with three items`);
+  if (!(await plain.count())) problems.push(`${label}: no plain Expandable list with three items`);
   else {
     await plain.scrollIntoViewIfNeeded();
     await plain.locator(':scope > li > details > summary').nth(0).click();
@@ -1514,7 +1514,7 @@ async function checkListColumnsLook(width) {
         openShadow: css(items[0]).boxShadow,
       };
     });
-    if (!got.clip || got.clip === 'none') problems.push(`${label}: the plain List - Expand does not hide the dividers of its first row`);
+    if (!got.clip || got.clip === 'none') problems.push(`${label}: the plain Expandable list does not hide the dividers of its first row`);
     if (got.openLine !== 'rgba(0, 0, 0, 0)') problems.push(`${label}: the open item has a line above it (${got.openLine})`);
     if (!got.openShadow || got.openShadow === 'none') problems.push(`${label}: the open item does not cover the line of the item under it`);
   }

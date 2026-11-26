@@ -1,4 +1,4 @@
-// The fields a list block (List, List - Expand, FAQ list) has to take its rows from an existing list ("Rows from"): the list, the tags to
+// The fields a list block (List, Expandable list, FAQ list) has to take its rows from an existing list ("Rows from"): the list, the tags to
 // show, and how many; the typed rows are in use only while no list is picked (`typed`). The choices of the list are the relation `rowSources`
 // (App.tsx, rowSources in view.ts). Which rows it gives: rows.mjs; drawn by the block's own view.
 import { t } from '../../i18n';
