@@ -1185,7 +1185,7 @@ export function SlotButton({
   children,
 }: {
   label: string;
-  onClick: () => void;
+  onClick: (e: MouseEvent<HTMLButtonElement>) => void;
   /** One of several kinds, and the one that is chosen. */
   pressed?: boolean;
   /** It opens something below it, shown or not. */

@@ -1,7 +1,17 @@
 import { join } from 'node:path';
 import { openEditor } from '../built-site.mjs';
 import { FIXTURE_PAGE, browser, problems, shots, site } from './support/context.mjs';
-import { barTools, inlineBlocks, inlineSingles, pressInsert, pressMore, pressTool, ratioOf, saveOrClose } from './support/shared.mjs';
+import {
+  barTools,
+  chooseKind,
+  inlineBlocks,
+  inlineSingles,
+  pressInsert,
+  pressMore,
+  pressTool,
+  ratioOf,
+  saveOrClose,
+} from './support/shared.mjs';
 import { shortfall } from './support/statement.mjs';
 import { isMaterialTheme } from '../theme-statement.mjs';
 
@@ -97,6 +107,7 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   // The first row gets an icon from its own control.
   await page.locator(`[data-row="0"] [data-field="${field}"]`).click();
   await slotOf(0).click();
+  await chooseKind(page, 'Icon');
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon control did not open the icon picker`));
   await picker.getByRole('button').nth(1).click();
@@ -543,6 +554,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     else {
       if ((await slot.locator('svg').count()) !== 1) problems.push(`${label}: the empty icon area has no placeholder`);
       await slot.click();
+      await chooseKind(page, 'Icon');
       const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
       await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon area did not open the icon picker`));
       await picker.getByRole('button').nth(1).click();
@@ -928,6 +940,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     // A media that is set is changed by a tap on it: an icon is picked from the Icon button, then the icon itself opens the picker and no media button is left.
     await page.locator('.mo-editor-inline-list-row [data-field="title"]').first().click();
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Icon"]').click();
+    await chooseKind(page, 'Icon');
     const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
     await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the Icon button did not open the icon picker`));
     await picker.getByRole('button').nth(1).click();

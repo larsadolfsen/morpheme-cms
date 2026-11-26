@@ -2,7 +2,7 @@ import { openEditor } from '../built-site.mjs';
 import { PACK, browser, problems, site } from './support/context.mjs';
 import { acornProblem } from './support/icon-pack.mjs';
 import { isMaterialTheme } from '../theme-statement.mjs';
-import { pressInsert } from './support/shared.mjs';
+import { chooseKind, pressInsert } from './support/shared.mjs';
 
 /** The theme's search view driven by React (theme/ui/Search.tsx, SearchView; the command palette's view, spec docs/superpowers/specs/2026-11-13-command-palette-and-context-menus-design.md,
  * sections 4.1, 4.5 and 4.7) on "Parts" › "UI components" (NavigationRestParts.tsx), on a phone and a computer, in English and Danish: it opens as a modal <dialog> with the focus in its
@@ -823,6 +823,7 @@ async function checkIconSearch(width, height) {
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
   await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot').first().tap();
+  await chooseKind(page, 'Icon');
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
   const first = await picker.getByRole('button').count();

@@ -361,7 +361,8 @@ async function checkPhoneSheet(width = 375, height = 740) {
   if (look.saveAbove !== 16) problems.push(`${label}: Save is ${look.saveAbove} dp from the sheet's top, not 16`);
   if (look.saveBelow < 16) problems.push(`${label}: Save is ${look.saveBelow} dp from the sheet's bottom, under 16`);
   if (!look.lastClear) problems.push(`${label}: the last field stays behind the Save row`);
-  if (look.removes) problems.push(`${label}: the subpage has Remove (it is in the block's ⋮)`);
+  // An image's tools, Remove included, are in its sheet (0.19.8, B12), not on the text bar.
+  if (look.removes !== 1) problems.push(`${label}: the image's subpage has ${look.removes} Remove buttons, not one (B12)`);
   if (!look.publish) problems.push(`${label}: the changed page has no Publish to check under the subpage`);
   if (look.publishReachable) problems.push(`${label}: the page's Publish can be reached while the subpage is open`);
   if (look.saves !== 1) problems.push(`${label}: ${look.saves} Save buttons can be reached, not one`);
@@ -809,17 +810,27 @@ async function checkImageTools(width, height = 800) {
   await pressTool(page, 'Undo', phone ? 'tap' : 'click');
   await page.waitForTimeout(500);
   if (!(await page.locator('.ProseMirror .mo-site-picture').count())) problems.push(`${label}: Undo did not bring the removed image back`);
-  // Delete on the selected image (a keyboard) does what Remove does.
+  // A mouse tap opens the sheet, Close or Escape gives the focus back to the image, and Delete then removes it, as it does from the keyboard.
   if (!phone) {
-    await closeSheet();
-    await image.focus();
-    await page.keyboard.press('Enter');
-    await page.waitForTimeout(400);
-    await image.focus();
-    await page.keyboard.press('Delete');
-    await page.waitForTimeout(400);
-    if (await page.locator('.ProseMirror .mo-site-picture').count())
-      problems.push(`${label}: Delete on the selected image did not remove it`);
+    for (const how of ['Close', 'Escape']) {
+      await closeSheet();
+      await image.click();
+      await page.waitForTimeout(900);
+      if (how === 'Escape') {
+        await page.keyboard.press('Escape');
+        await page.waitForTimeout(600);
+      } else await closeSheet();
+      if (!(await image.evaluate((c) => document.activeElement === c)))
+        problems.push(`${label}: after a tap and ${how} the focus is not on the image`);
+      await page.keyboard.press('Delete');
+      await page.waitForTimeout(400);
+      if (await page.locator('.ProseMirror .mo-site-picture').count())
+        problems.push(`${label}: Delete after a tap and ${how} did not remove the image`);
+      await pressTool(page, 'Undo', 'click');
+      await page.waitForTimeout(500);
+      if (!(await page.locator('.ProseMirror .mo-site-picture').count()))
+        problems.push(`${label}: Undo did not bring the image back after ${how}`);
+    }
   }
   await page.close();
 }

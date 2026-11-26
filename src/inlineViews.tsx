@@ -37,7 +37,7 @@ export type InlineViewProps = {
   /** The link slot of an item is tapped: its settings. */
   onSettings: (item: number) => void;
   /** The icon (or image) slot of an item is tapped: its picker. */
-  onIcon: (item: number, kindChosen?: boolean) => void;
+  onIcon: (item: number) => void;
   /** Changes the block's own props (a card's media kind). */
   onProps: (patch: BlockProps) => void;
   /** Opens the page sheet for a relation field (a button's page, or what its target opens): the value picked, or null when the sheet was closed. */

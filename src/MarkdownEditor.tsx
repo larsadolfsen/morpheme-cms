@@ -1017,6 +1017,13 @@ function cardBar(
 ) {
   const owner = {};
   let selected = false;
+  // What Delete or Backspace does on the card itself: its Remove.
+  const removal =
+    own.remove ??
+    (() =>
+      items()
+        .find((it): it is CardItem => !!it && it.label === t.common.remove)
+        ?.action(true));
   const show = () => {
     const all = items().filter((it): it is CardItem => !!it);
     // The row (blockRow.ts) has Move up, Move down, Hide or Show and, Settings (when it has any: the item with `row: 'settings'`); the bar's `⋮` has the rest.
@@ -1039,12 +1046,6 @@ function cardBar(
   };
   const escape = (e: KeyboardEvent) => {
     // Delete or Backspace on the selected card itself does what its Remove does.
-    const removal =
-      own.remove ??
-      (() =>
-        items()
-          .find((it): it is CardItem => !!it && it.label === t.common.remove)
-          ?.action(true));
     if ((e.key === 'Delete' || e.key === 'Backspace') && document.activeElement === card) {
       e.preventDefault();
       leave();
@@ -1098,7 +1099,16 @@ function cardBar(
     document.addEventListener('pointercancel', unlock, { capture: true, once: true });
     timer = window.setTimeout(unlock, 1000);
   });
+  // Delete or Backspace on the focused card removes it, selected or not (a sheet closed on it leaves it focused and deselected).
+  card.addEventListener('keydown', (e) => {
+    if ((e.key !== 'Delete' && e.key !== 'Backspace') || e.defaultPrevented || document.activeElement !== card) return;
+    e.preventDefault();
+    leave();
+    removal();
+  });
   card.addEventListener('click', () => {
+    // The card takes the focus first (a mouse press does not give it), so a sheet it opens gives the focus back to it.
+    card.focus({ preventScroll: true });
     tap?.();
     select();
   });
@@ -1779,7 +1789,6 @@ function blockCard(
   let bar: { refresh: (shown: boolean) => void; destroy: () => void } | null = null;
   let syncRow: (open: boolean) => void = () => {};
   let mediaIsSet: (row: number) => boolean = () => true;
-  let mediaKindIsNone: () => boolean = () => true;
   // A block whose item link is picked straight from its link button (no sheet of the item): the row's link slot calls it.
   let linkTo: ((row: number) => void) | null = null;
   // The row whose icon picker is open instead of its settings.
@@ -1896,11 +1905,11 @@ function blockCard(
                   view.state.tr.setNodeMarkup(here.pos, undefined, { ...node.attrs, props: { ...node.attrs.props, ...patch } }),
                 );
             }}
-            onIcon={(row, kindChosen) => {
+            onIcon={(row) => {
               // The row's media, also on a row that is not active: the row becomes the active one and its media sheet opens at once, not the settings: on
               // its media when it is set, else on the kinds of media (unless a kind is already chosen, as the List default icon, or was just chosen on the slot: its own picker).
               iconOf = row;
-              mediaMode = mediaIsSet(row) ? 'panel' : kindChosen || !mediaKindIsNone() ? 'pick' : 'kinds';
+              mediaMode = mediaIsSet(row) ? 'panel' : 'kinds';
               if (active !== row) change({ active: row, focus: null });
               syncRow(true);
             }}
@@ -2371,7 +2380,6 @@ function blockCard(
     const kindField = blockFields[0];
     const kindOf = () => String(node.attrs.props[kindField?.name ?? ''] ?? kindField?.default ?? '');
     const isImageKind = (k: string) => ['image', 'avatar', 'square', 'landscape'].includes(k);
-    mediaKindIsNone = () => kindOf() === 'none';
     mediaIsSet = (i) => {
       const r = rows()[i] ?? {};
       const k = kindOf();
@@ -2409,13 +2417,6 @@ function blockCard(
       const value = { ...valueOf(r, slotNames), ...blockValue() };
       const base = { headline: spec!.texts.icon ?? '', value };
       if (mediaMode === 'kinds') return { ...base, fields: [], onChange: () => {}, media: { kinds } };
-      if (mediaMode === 'alt')
-        return {
-          ...base,
-          fields: iconFields.filter((f) => f.name === 'alt'),
-          onChange: (v: BlockProps) => setItems(setFields(rows(), i, slotNames, v)),
-          media: { preview: mediaPreview(r, k), actions: [{ label: t.forms.changeMedia, action: () => reopen('kinds') }] },
-        };
       if (mediaMode === 'pick' || !mediaIsSet(i))
         return {
           ...base,
@@ -2435,10 +2436,12 @@ function blockCard(
             ? aspectProp(r.aspect)
             : ratioProp(node.attrs.props)
           : '';
+      // The Alt text view is the panel with the Alt text field under it: the media's actions stay.
+      const altView = mediaMode === 'alt';
       return {
         ...base,
-        fields: [],
-        onChange: () => {},
+        fields: altView ? iconFields.filter((f) => f.name === 'alt') : [],
+        onChange: altView ? (v: BlockProps) => setItems(setFields(rows(), i, slotNames, v)) : () => {},
         media: {
           preview: mediaPreview(r, k),
           actions: [

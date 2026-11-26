@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { openEditor } from '../built-site.mjs';
 import { ROOT, blocksOf, browser, has, problems, shots, site } from './support/context.mjs';
-import { onTestPage, pressInsert } from './support/shared.mjs';
+import { chooseKind, onTestPage, pressInsert } from './support/shared.mjs';
 import { isMaterialTheme } from '../theme-statement.mjs';
 import { pageLanguage } from './support/page-language.mjs';
 import { shortfall } from './support/statement.mjs';
@@ -76,6 +76,7 @@ async function checkCardImage(width, height = 800) {
   await page.waitForTimeout(300);
   await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Image"]').click();
   await page.waitForTimeout(1000);
+  await chooseKind(page, 'Image');
   await page
     .locator('dialog[open] button, .mo-editor-side-sheet button', { hasText: /^Select image$/ })
     .first()
@@ -180,6 +181,10 @@ async function checkMediaSheet(width, height = 800) {
   await page.waitForTimeout(300);
   await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Image"]').click();
   await page.waitForTimeout(1000);
+  // Nothing is set yet: one tap opens the sheet at the radio list of kinds.
+  const firstKinds = await page.locator('dialog[open] input[type=radio], .mo-editor-side-sheet input[type=radio]').count();
+  if (firstKinds < 3) problems.push(`${label}: a media slot with nothing set did not open the radio list of kinds (${firstKinds})`);
+  await chooseKind(page, 'Image');
   await page
     .locator('dialog[open] button, .mo-editor-side-sheet button', { hasText: /^Select image$/ })
     .first()
@@ -221,6 +226,14 @@ async function checkMediaSheet(width, height = 800) {
     problems.push(`${label}: the sheet does not show the selected image`);
   for (const name of ['Replace', 'Change image', 'Crop', 'Alt text', 'Delete'])
     if (state.tools.includes(name)) problems.push(`${label}: the text bar still has the image tool ${name}`);
+  // After a mouse or touch tap the focus comes back to the image when the sheet closes, as it does from the keyboard.
+  await close();
+  if (!(await media.evaluate((m) => document.activeElement === m)))
+    problems.push(
+      `${label}: after closing the sheet by a tap the focus is not on the image (${await page.evaluate(() => document.activeElement?.tagName + '.' + document.activeElement?.className)})`,
+    );
+  await media[phone ? 'tap' : 'click']();
+  await page.waitForTimeout(900);
   await sheet().getByRole('button', { name: 'Change media', exact: true }).click();
   await page.waitForTimeout(400);
   const kinds = await sheet().locator('input[type=radio]').count();

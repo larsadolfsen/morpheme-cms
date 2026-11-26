@@ -520,7 +520,9 @@ export function useBlockDialog(
       if (!openNow.current && !show_) return;
       rowSpec.current = spec;
       if (!openNow.current) {
-        trigger.current = null;
+        // A button that opened it (an item's media or icon) has the focus back when it closes; a field typed in keeps it (keepFocus).
+        const at = document.activeElement;
+        trigger.current = at instanceof HTMLButtonElement ? at : null;
         show({ step: 'row' });
       }
       setValues(spec.value);

@@ -81,7 +81,16 @@ export function InlineSlot({
   children: ReactNode;
 }) {
   return (
-    <SlotButton label={label} pressed={pressed} iconColor={iconColor} onClick={onClick}>
+    <SlotButton
+      label={label}
+      pressed={pressed}
+      iconColor={iconColor}
+      onClick={(e) => {
+        // A mouse press does not always give a button the focus: it takes it, so the sheet it opens gives the focus back to it.
+        e.currentTarget.focus();
+        onClick();
+      }}
+    >
       {children}
     </SlotButton>
   );
