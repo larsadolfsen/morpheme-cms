@@ -1,0 +1,6 @@
+{
+  "id": "button-menu",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A button’s link, style and icon are set in a menu on the button itself"
+}

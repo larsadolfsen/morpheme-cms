@@ -13,19 +13,17 @@ export default defineBlock({
   icon: materialIcon('ads_click'),
   hint: t.blocks.buttons.hint,
   edit: { to: 'blocks/buttons', text: t.blocks.buttons.edit },
-  // Typed in place (InlineButtons.tsx): the label on the button itself; where it leads and its style are in the button's settings, its icon in the icon slot.
+  // Typed in place (InlineButtons.tsx): the label on the button itself; where it leads, its style and its icon are in the button's menu (ButtonMenu.tsx,
+  // opened from the control on the active button), its icon also in the icon slot. No sheet of the button, and so no Block settings (the block has only its buttons).
   inline: {
     item: 'items',
     fields: ['label'],
     icon: 'icon',
-    settings: ['to', 'open', 'href', 'kind'],
-    blockSettings: true,
+    onItem: ['to', 'open', 'href', 'kind'],
     texts: {
       addAbove: t.blocks.buttons.addAbove,
       addBelow: t.blocks.buttons.addBelow,
-      link: t.blocks.buttons.settingsAction,
       row: t.blocks.buttons.button,
-      settings: t.blocks.buttons.buttonSettings,
       icon: t.blocks.buttons.icon,
     },
   },

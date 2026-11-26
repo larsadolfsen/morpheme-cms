@@ -458,34 +458,61 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       if (hintColor !== rowColor || fieldColor !== rowColor)
         problems.push(`${label}: the ${kind} button's hint is ${hintColor} and its text ${fieldColor}, not its own ${rowColor}`);
     {
-      // The contextual menu's Settings, a plain icon button on a computer and a phone.
-      await pressTool(page, 'Settings').catch(async (e) =>
-        problems.push(
-          `${label}: the toolbar has no way to open the button's settings ${JSON.stringify((await barTools(page)).names)} ${e.message.slice(0, 200)}`,
-        ),
-      );
+      // The button's menu (ButtonMenu), opened from the control on the active button: no sheet of the button, on a computer and a phone.
       const kinds = ['Filled', 'Tonal', 'Outlined', 'Text'];
-      // The choice group (ChoiceGroup): its buttons, or its list of radio buttons when they do not fit.
-      const group = page.getByRole('group', { name: 'Variant', exact: true }).last();
-      await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Variant choice`));
-      const radios = await group.getByRole('radio').count();
-      const names = radios
-        ? await group.locator('.mo-list__item-headline').allTextContents()
-        : await group
-            .getByRole('button')
-            .allTextContents()
-            .catch(() => []);
-      if (names.map((n) => n.trim()).join() !== kinds.join()) problems.push(`${label}: the button's styles are "${names}", not "${kinds}"`);
-      await (
-        radios
-          ? group.locator('.mo-list__item-content', { hasText: /^Outlined$/ })
-          : group.getByRole('button', { name: 'Outlined', exact: true })
-      )
+      // The button is one once it has text (the empty one is the faded next button): its menu control is there.
+      await page.locator('.mo-editor-inline-list-row-active [data-field="label"]').first().fill('Go');
+      await page.waitForTimeout(300);
+      await page
+        .locator('.mo-editor-inline-list-row-active [aria-label="Button options"]')
+        .click({ timeout: 4000 })
+        .catch(() => problems.push(`${label}: the active button has no menu control`));
+      const menu = page.locator('[role=menu][aria-label="Button"]');
+      await menu.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's menu does not open`));
+      await menu
+        .locator('[role^=menuitem]')
+        .first()
+        .waitFor({ timeout: 4000 })
+        .catch(() => {});
+      const names = (await menu.locator('[role^=menuitem]').allTextContents()).map((n) => n.trim());
+      const styles = names.filter((n) => n.startsWith('Style: ')).map((n) => n.slice(7));
+      if (styles.join() !== kinds.join()) problems.push(`${label}: the button's styles are "${styles}", not "${kinds}"`);
+      for (const want of ['Page', 'Icon', 'Remove button'])
+        if (!names.includes(want)) problems.push(`${label}: the button's menu has no "${want}": ${names}`);
+      if (await page.getByText('Button settings').count()) problems.push(`${label}: a "Button settings" sheet shows`);
+      await menu
+        .locator('[role^=menuitem]', { hasText: /^Style: Outlined$/ })
         .click({ timeout: 3000 })
         .catch(() => {});
       await page.waitForTimeout(300);
       if (!(await page.locator('.mo-editor-inline-list-row-active.mo-button.mo-is-outlined').count()))
         problems.push(`${label}: choosing Outlined does not change the active button's style`);
+      // Page: the menu opens the page picker at once; a page picked is on the button, and the menu says so.
+      const openMenu = async () => {
+        await page.locator('.mo-editor-inline-list-row-active [aria-label="Button options"]').click({ timeout: 4000 });
+        await menu.locator('[role^=menuitem]').first().waitFor({ timeout: 4000 });
+      };
+      await openMenu().catch(() => problems.push(`${label}: the button's menu does not open again`));
+      await menu
+        .locator('[role^=menuitem]', { hasText: /^Page$/ })
+        .click({ timeout: 3000 })
+        .catch(() => {});
+      const option = page.locator('[role="option"]:not(:has-text("No page"))').filter({ visible: true }).first();
+      await option.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the menu's Page did not open the page picker`));
+      await option.click().catch(() => {});
+      await page.waitForTimeout(400);
+      if (await page.getByText('Button settings').count())
+        problems.push(`${label}: a "Button settings" sheet shows after a page was picked`);
+      await openMenu().catch(() => {});
+      if (
+        (await menu
+          .locator('[role^=menuitem]', { hasText: /^Page$/ })
+          .getAttribute('aria-checked')
+          .catch(() => null)) !== 'true'
+      )
+        problems.push(`${label}: the menu does not show that the button leads to a page`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
       await page.locator('.mo-editor-inline-list-row [data-field="label"]').first().click();
