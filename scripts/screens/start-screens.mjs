@@ -549,6 +549,38 @@ async function checkStyleSublist(width, height) {
     problems.push(`${label}: the first level has no Style row with a chevron (${got.rows.join(', ')})`);
   if (got.links.length) problems.push(`${label}: the first level lists Style pages (${got.links.map((l) => l.href).join(', ')})`);
 
+  // 1b. The drawer's scrolling lists draw no scrollbar (M3 prints none) and still scroll: on a short screen the panel is higher than it
+  // shows, takes scrollTop, and no space is kept for a bar.
+  const full = await page.viewportSize();
+  await page.setViewportSize({ width, height: 300 });
+  await page.waitForTimeout(300);
+  const bars = await page.evaluate((panel) => {
+    const scrollers = [document.querySelector(panel), document.querySelector('.mo-editor-main-drawer-frame')]
+      .concat(document.querySelector('.mo-editor-main-rail .mo-nav-rail__items'))
+      .filter(Boolean);
+    return scrollers.map((e) => {
+      const before = e.scrollTop;
+      e.scrollTop = 40;
+      const moved = e.scrollTop !== before;
+      e.scrollTop = before;
+      return {
+        name: e.className.toString().split(' ')[0],
+        width: getComputedStyle(e).scrollbarWidth,
+        gutter: e.offsetWidth - e.clientWidth - e.clientLeft * 2,
+        scrolls: e.scrollHeight > e.clientHeight,
+        moved,
+      };
+    });
+  }, panel);
+  for (const b of bars) {
+    if (b.width !== 'none' || b.gutter !== 0)
+      problems.push(`${label}: ${b.name} shows a scrollbar (scrollbar-width ${b.width}, ${b.gutter}px)`);
+    if (b.scrolls && !b.moved) problems.push(`${label}: ${b.name} no longer scrolls`);
+  }
+  if (!bars.some((b) => b.scrolls)) problems.push(`${label}: no drawer list is high enough to scroll on a 300px screen`);
+  await page.setViewportSize(full);
+  await page.waitForTimeout(300);
+
   // 2. Style opens its list, in order, each with an icon; the back row reads "Style" and is named "Back to Main menu".
   await press('Style');
   got = await read();
