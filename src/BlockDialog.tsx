@@ -706,13 +706,13 @@ export function useBlockDialog(
     <>
       {rowSpec.current.media && <MediaPanel spec={rowSpec.current.media} />}
       <FieldList
-      fields={rowSpec.current.fields}
-      value={values}
-      onChange={(v) => {
-        setValues(v as BlockProps);
-        rowSpec.current?.onChange(v as BlockProps);
-        if (rowSpec.current?.closes) done(null);
-      }}
+        fields={rowSpec.current.fields}
+        value={values}
+        onChange={(v) => {
+          setValues(v as BlockProps);
+          rowSpec.current?.onChange(v as BlockProps);
+          if (rowSpec.current?.closes) done(null);
+        }}
       />
     </>
   );

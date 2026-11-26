@@ -126,7 +126,11 @@ async function checkCardImage(width, height = 800) {
   if (square?.ratio !== 1) problems.push(`${label}: after 1:1 the card's image box is ${square?.ratio}, not square`);
   // Crop: the crop view of the block's ratio only, no ratio chips; Save puts the ratio and the crop after the image's address.
   // Crop is in the image's sheet, which a tap on the card's image opens (B11, B12); the bar has no image tools.
-  await page.locator('dialog[open] button[aria-label="Close"], .mo-editor-side-sheet button[aria-label="Close"]').last().click({ timeout: 2000 }).catch(() => {});
+  await page
+    .locator('dialog[open] button[aria-label="Close"], .mo-editor-side-sheet button[aria-label="Close"]')
+    .last()
+    .click({ timeout: 2000 })
+    .catch(() => {});
   await page.waitForTimeout(400);
   await tap(page.locator('.mo-editor-inline-card-media').first());
   await page.waitForTimeout(700);
@@ -203,7 +207,9 @@ async function checkMediaSheet(width, height = 800) {
   const state = await page.evaluate(() => ({
     row: !!document.querySelector('.mo-site-block-row:not(.mo-site-block-row-hover)'),
     open: !!document.querySelector('dialog[open], .mo-editor-side-sheet'),
-    tools: [...document.querySelectorAll('.mo-editor-tools-context button')].map((b) => b.getAttribute('aria-label') || b.textContent.trim()),
+    tools: [...document.querySelectorAll('.mo-editor-tools-context button')].map(
+      (b) => b.getAttribute('aria-label') || b.textContent.trim(),
+    ),
   }));
   if (!state.open) problems.push(`${label}: one tap on a card's image did not open its sheet`);
   if (!state.row) problems.push(`${label}: one tap on a card's image did not select the block (no action row)`);
@@ -211,7 +217,8 @@ async function checkMediaSheet(width, height = 800) {
   for (const name of ['Change media', 'Change image', 'Crop', 'Alt text', 'Remove'])
     if (!have.includes(name)) problems.push(`${label}: the image's sheet has no ${name} (${have.join(', ')})`);
   if (await sheet().locator('input[type=radio]').count()) problems.push(`${label}: the kinds of media show before Change media is pressed`);
-  if (!(await sheet().locator('.mo-editor-media-panel-preview img').count())) problems.push(`${label}: the sheet does not show the selected image`);
+  if (!(await sheet().locator('.mo-editor-media-panel-preview img').count()))
+    problems.push(`${label}: the sheet does not show the selected image`);
   for (const name of ['Replace', 'Change image', 'Crop', 'Alt text', 'Delete'])
     if (state.tools.includes(name)) problems.push(`${label}: the text bar still has the image tool ${name}`);
   await sheet().getByRole('button', { name: 'Change media', exact: true }).click();
@@ -225,7 +232,8 @@ async function checkMediaSheet(width, height = 800) {
       await media.focus();
       await page.keyboard.press(key);
       await page.waitForTimeout(700);
-      if (!(await page.locator('.mo-editor-side-sheet, dialog[open]').count())) problems.push(`${label}: ${key} on the image did not open the sheet`);
+      if (!(await page.locator('.mo-editor-side-sheet, dialog[open]').count()))
+        problems.push(`${label}: ${key} on the image did not open the sheet`);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(600);
       const back = await page.evaluate(() => ({
@@ -1233,7 +1241,11 @@ async function checkIconColor(width, height, scheme = 'light') {
   await page.keyboard.type('First');
   await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot').first().click();
   // A row with no media opens its sheet at the kind of media (B6); choosing Icon shows the icon picker.
-  await page.getByRole('radio', { name: 'Icon', exact: true }).last().click({ timeout: 5000 }).catch(() => problems.push(`${label}: the media sheet has no Icon kind`));
+  await page
+    .getByRole('radio', { name: 'Icon', exact: true })
+    .last()
+    .click({ timeout: 5000 })
+    .catch(() => problems.push(`${label}: the media sheet has no Icon kind`));
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
   // With no icon picked the Icon color row is there (Text chosen, the default), and no tile of the grid is selected, not even the cross of No icon.

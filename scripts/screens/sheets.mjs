@@ -757,7 +757,9 @@ async function checkImageTools(width, height = 800) {
   // Closes the sheet the image opened, to start from a selected image with no sheet.
   const closeSheet = async () => {
     await page
-      .locator('dialog[open] button[aria-label="Close"], dialog[open] button:text-is("Cancel"), .mo-editor-side-sheet [data-side-sheet-close]')
+      .locator(
+        'dialog[open] button[aria-label="Close"], dialog[open] button:text-is("Cancel"), .mo-editor-side-sheet [data-side-sheet-close]',
+      )
       .first()
       .click({ timeout: 3000 })
       .catch(() => {});
@@ -768,8 +770,12 @@ async function checkImageTools(width, height = 800) {
   await page.waitForTimeout(900);
   const state = await page.evaluate(() => ({
     pressed: document.querySelector('.mo-site-picture .mo-site-block-card')?.getAttribute('aria-pressed'),
-    tools: [...document.querySelectorAll('.mo-editor-tools-context button')].map((b) => b.getAttribute('aria-label') || b.textContent.trim()),
-    row: [...document.querySelectorAll('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')].map((b) => b.getAttribute('aria-label')),
+    tools: [...document.querySelectorAll('.mo-editor-tools-context button')].map(
+      (b) => b.getAttribute('aria-label') || b.textContent.trim(),
+    ),
+    row: [...document.querySelectorAll('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')].map((b) =>
+      b.getAttribute('aria-label'),
+    ),
     open: !!document.querySelector('dialog[open], .mo-editor-side-sheet'),
   }));
   if (state.pressed !== 'true') problems.push(`${label}: a tap on the image did not select it`);
@@ -788,7 +794,11 @@ async function checkImageTools(width, height = 800) {
     await page.waitForTimeout(900);
     if (!(await page.locator('.mo-editor-crop-page[open]').count())) problems.push(`${label}: Aspect ratio did not open the crop view`);
     else {
-      await page.locator('.mo-editor-crop-page[open]').getByRole('button', { name: /^Back to/ }).first().click();
+      await page
+        .locator('.mo-editor-crop-page[open]')
+        .getByRole('button', { name: /^Back to/ })
+        .first()
+        .click();
       await page.waitForTimeout(500);
     }
   } else problems.push(`${label}: the image's sheet has no Aspect ratio row`);
