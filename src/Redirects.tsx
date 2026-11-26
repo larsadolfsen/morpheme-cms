@@ -252,7 +252,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
   async function remove(from: string) {
     if (!all) return;
     const via = entries.filter((e) => e.from !== from && e.to.split('#')[0] === from).length;
-    const sure = await ask(t.redirects.deleteAsk(from, via), t.common.delete);
+    const sure = await ask(t.redirects.deleteAsk(from, via), t.common.delete, true);
     if (!sure) return;
     // First straight to where it ends, so those that went on through it keep going there.
     const flat = flatten(all);
@@ -273,7 +273,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
   async function removeSelected() {
     if (!all || !selection.count) return;
     const froms = selection.keys;
-    if (!(await ask(t.redirects.deleteManyAsk(froms.length), t.common.delete))) return;
+    if (!(await ask(t.redirects.deleteManyAsk(froms.length), t.common.delete, true))) return;
     // First straight to where each ends, so those that went on through a deleted one keep going there.
     const flat = flatten(all);
     if (typeof flat === 'string') return env.notify({ text: flat, error: true });

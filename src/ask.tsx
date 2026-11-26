@@ -21,14 +21,16 @@ type Question = {
   /** The choices in one row in reading order, the confirming one last (M3's basic dialog: "The confirmation button is
    * always closest to the edge"), with no "Cancel" button; Esc is still null. The confirming one is `choices[0]` all the same. */
   confirmLast?: boolean;
+  /** The main choice deletes something: it is a filled button in the error role (Cancel stays outlined). */
+  danger?: boolean;
   resolve: (answer: { choice: string; text: string } | null) => void;
 };
 
 let open: (q: Question) => void = () => {};
 
 // "Cancel" (or Esc) gives false, `yes` gives true.
-export const ask = (text: string, yes: string) =>
-  new Promise<boolean>((resolve) => open({ text, choices: [{ value: 'yes', label: yes }], resolve: (a) => resolve(!!a) }));
+export const ask = (text: string, yes: string, danger = false) =>
+  new Promise<boolean>((resolve) => open({ text, choices: [{ value: 'yes', label: yes }], danger, resolve: (a) => resolve(!!a) }));
 
 /** The choice tapped (the first is the main one) and the text written; null for "Cancel". */
 export const choose = (question: Omit<Question, 'resolve'>) =>
@@ -131,7 +133,12 @@ export function Ask() {
         <div className={`mo-editor-ask-buttons ${many ? 'mo-editor-ask-buttons-stacked' : 'mo-row-end'}`}>
           {row &&
             [...choices].reverse().map((c, i, all) => (
-              <Button key={c.value} kind={i === all.length - 1 ? 'filled' : 'outlined'} onClick={() => answer(c.value)}>
+              <Button
+                key={c.value}
+                kind={i === all.length - 1 ? 'filled' : 'outlined'}
+                tone={question?.danger && i === all.length - 1 ? 'error' : undefined}
+                onClick={() => answer(c.value)}
+              >
                 {c.label}
               </Button>
             ))}
@@ -142,7 +149,12 @@ export function Ask() {
           )}
           {!row &&
             choices.map((c, i) => (
-              <Button key={c.value} kind={i === 0 ? 'filled' : 'outlined'} onClick={() => answer(c.value)}>
+              <Button
+                key={c.value}
+                kind={i === 0 ? 'filled' : 'outlined'}
+                tone={question?.danger && i === 0 ? 'error' : undefined}
+                onClick={() => answer(c.value)}
+              >
                 {c.label}
               </Button>
             ))}

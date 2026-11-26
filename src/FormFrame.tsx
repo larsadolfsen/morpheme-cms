@@ -8,7 +8,7 @@
 // "View on site" of the other forms (`view`) is a page action (Screen.tsx `pageActions`: the end of the title row from expanded, the top
 // bar below it).
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import { PreviewIcon, Icon, materialIcon } from './icon';
+import { PreviewIcon, materialIcon } from './icon';
 import Screen, { type Back } from './Screen';
 import { ScreenHidden } from './screenHidden';
 import { ActionSheet, Button, Group, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
@@ -269,25 +269,21 @@ export default function FormFrame<T extends string>({
     >
       <div className="mo-editor-stack-300">{children}</div>
       {(onDelete || publish?.actions?.length) && (
-        <div className="mo-editor-form-more">
-          <Group>
-            {publish?.actions?.map((a) => (
-              <ListItem key={a.label} disabled={saving} onClick={a.onClick} headline={a.label} />
-            ))}
-            {onDelete && (
-              <ListItem
-                tone="delete"
-                disabled={saving}
-                onClick={onDelete}
-                headline={
-                  <span className="mo-editor-inline-row">
-                    <Icon name="delete" size={18} />
-                    {deleting ? <LoadingIndicator>{t.app.busy.deleting}</LoadingIndicator> : (deleteLabel ?? t.common.delete)}
-                  </span>
-                }
-              />
-            )}
-          </Group>
+        <div className="mo-editor-form-more mo-editor-stack-200">
+          {!!publish?.actions?.length && (
+            <Group>
+              {publish.actions.map((a) => (
+                <ListItem key={a.label} disabled={saving} onClick={a.onClick} headline={a.label} />
+              ))}
+            </Group>
+          )}
+          {onDelete && (
+            <div className="mo-editor-danger-buttons">
+              <Button kind="filled" tone="error" icon={materialIcon('delete')} disabled={saving} onClick={onDelete}>
+                {deleting ? <LoadingIndicator>{t.app.busy.deleting}</LoadingIndicator> : (deleteLabel ?? t.common.delete)}
+              </Button>
+            </div>
+          )}
         </div>
       )}
       {!hidden && (dirty || saving || publish?.label || publishing) && (

@@ -1375,7 +1375,7 @@ export function ImagePick({ id, src, onPick, onRemove }: { id?: string; src?: st
         {src ? t.forms.changeImage : t.forms.pickImage}
       </Button>
       {src && onRemove && (
-        <Button kind="outlined" tone="error" onClick={onRemove}>
+        <Button kind="text" onClick={onRemove}>
           {t.common.remove}
         </Button>
       )}
@@ -1939,10 +1939,9 @@ export const subListClass = `${siteListClass} mo-editor-sub-list`;
  * colour; `delete`, the row that deletes what a screen shows, alone in a Group at the bottom, in the middle in the error
  * colour; `muted`, grey (what cannot be opened: a page that is gone); `sub`, a row under a row (a submenu), its text a
  * little lighter. */
-export type RowTone = 'accent' | 'delete' | 'muted' | 'sub';
+export type RowTone = 'accent' | 'muted' | 'sub';
 const toneClass: Record<RowTone, string> = {
   accent: 'mo-editor-accent-text',
-  delete: 'mo-editor-row-delete',
   muted: 'mo-editor-muted-text',
   sub: 'mo-editor-row-sub',
 };

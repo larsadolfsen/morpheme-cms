@@ -654,7 +654,7 @@ function Editor() {
     async remove(collection, file, deleting) {
       const reason = usedBy(collection, file, files ?? []);
       if (reason) return notify(reason);
-      if (!(await ask(t.app.deleteEntry(collection.singular), t.common.delete))) return;
+      if (!(await ask(t.app.deleteEntry(collection.singular), t.common.delete, true))) return;
       deleting(true);
       notify({ text: t.common.deleting });
       const change = t.app.changes.deleted(kindAndName(collection.singular, nameOf(collection, file)));
@@ -679,7 +679,7 @@ function Editor() {
       const what = lower(collection.label);
       if (kept.length) notify({ text: t.app.notDeletedSome(kept.length, what, kept[0].reason), error: true, kind: 'failed' });
       if (!changes.length) return false;
-      if (!(await ask(t.app.deleteEntries(changes.length, what), t.common.delete))) return false;
+      if (!(await ask(t.app.deleteEntries(changes.length, what), t.common.delete, true))) return false;
       notify({ text: t.common.deleting });
       const change = t.app.changes.deleted(`${changes.length} ${what}`);
       try {

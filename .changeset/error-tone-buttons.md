@@ -2,4 +2,4 @@
 '@morphemecms/cms': patch
 ---
 
-Danger buttons (Delete list, Remove image, Delete selected and Clear notifications) are outlined buttons in the error colour.
+Danger buttons are red: Delete page is a filled red button, Discard and the other danger buttons are outlined red, and the Delete button in a delete question is filled red.

@@ -111,7 +111,7 @@ export default function OwnListSheet({
     const used = listUses(files, id, collection.folder);
     if (used.length) return env.notify({ text: t.ownList.used(used.length), error: true });
     const all = filesOfList(files, collection.folder);
-    if (!(await ask(t.ownList.deleteAsk(definition.label, entries.length), t.common.delete))) return;
+    if (!(await ask(t.ownList.deleteAsk(definition.label, entries.length), t.common.delete, true))) return;
     onDeleting();
     // The changes that are not saved go with the list; nothing asks about them on the way out.
     setUnsaved(false);
