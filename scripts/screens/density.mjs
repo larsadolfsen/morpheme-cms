@@ -718,6 +718,22 @@ async function checkErrorTone(width, height, scheme, where) {
     });
     if (!ring) problems.push(`${label}: ${kind} error button shows no focus ring for the keyboard`);
   }
+  if (where === 'editor') {
+    // The image field's Remove only empties a field before saving: it stays a text button, not red.
+    await page.evaluate(() => (location.hash = '#developer/parts/editor'));
+    await page
+      .locator('.mo-editor-image-pick')
+      .first()
+      .waitFor({ timeout: 30_000 })
+      .catch(() => {});
+    const remove = page.locator('.mo-editor-image-pick').getByRole('button', { name: 'Remove' }).first();
+    if (!(await remove.count())) problems.push(`${label}: no Remove button in the image field sample`);
+    else {
+      const cls = (await remove.getAttribute('class')) ?? '';
+      if (!/\bmo-is-text\b/.test(cls) || /\bmo-is-error\b/.test(cls))
+        problems.push(`${label}: the image field's Remove is not a plain text button (${cls})`);
+    }
+  }
   await page.close();
 }
 
