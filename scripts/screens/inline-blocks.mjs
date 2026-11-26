@@ -317,7 +317,7 @@ async function checkListDesigns(width, height) {
         .waitFor({ timeout: 4000 })
         .then(() => true)
         .catch(() => false);
-      seen.push({ look, card, ...got, opened, expand, kept: true, rowSheet: 0, closed: true, items: 0 });
+      seen.push({ look, card, ...got, opened, expand, kept: true, iconFilled: true, iconBack: true, rowSheet: 0, closed: true, items: 0 });
       await page.close();
       continue;
     }
@@ -332,14 +332,25 @@ async function checkListDesigns(width, height) {
     const rowSheet = await page.getByText('Row settings').filter({ visible: true }).count();
     // A page picked is written to the row (the picker opens again on it), No page takes it away and closes the picker; Block settings then lists no row.
     let kept = true;
+    let iconFilled = true;
+    let iconBack = true;
     if (opened) {
       const slot = page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]');
+      const iconNow = () =>
+        slot
+          .locator('svg')
+          .first()
+          .evaluate((el) => el.outerHTML);
+      const iconEmpty = await iconNow();
       await sheet.locator('[role="option"]:not(:has-text("No page"))').first().click();
       await page.waitForTimeout(300);
+      iconFilled = (await iconNow()) !== iconEmpty;
       await slot.click();
       await sheet.getByText('No page', { exact: true }).first().waitFor({ timeout: 4000 });
       kept = (await sheet.locator('[role="option"][aria-selected="true"]:not(:has-text("No page"))').count()) === 1;
       await sheet.getByText('No page', { exact: true }).first().click();
+      await page.waitForTimeout(300);
+      iconBack = (await iconNow()) === iconEmpty;
     }
     const closed = await sheet.count().then((n) => n === 0);
     await pressMore(page, 'Edit');
@@ -348,7 +359,7 @@ async function checkListDesigns(width, height) {
       .locator('dialog[open], .mo-editor-side-sheet')
       .getByText(/^Rows?$|^Add row$/)
       .count();
-    seen.push({ look, card, ...got, opened, kept, rowSheet, closed, items });
+    seen.push({ look, card, ...got, opened, kept, iconFilled, iconBack, rowSheet, closed, items });
     await page.close();
   }
   const [first] = seen;
@@ -372,6 +383,8 @@ async function checkListDesigns(width, height) {
     }
     if (!one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the page picker`);
     if (!one.kept) problems.push(`${label}: ${one.look}: the page picked is not on the row`);
+    if (!one.iconFilled) problems.push(`${label}: ${one.look}: the link button's icon does not change when a page is set (filled)`);
+    if (!one.iconBack) problems.push(`${label}: ${one.look}: the link button's icon is not outlined again after No page`);
     if (one.rowSheet) problems.push(`${label}: ${one.look}: a Row settings sheet opened`);
     if (!one.closed) problems.push(`${label}: ${one.look}: the page picker stays open after No page`);
     if (one.items) problems.push(`${label}: ${one.look}: Block settings lists the rows`);
