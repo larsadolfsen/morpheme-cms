@@ -11,7 +11,6 @@ export { cutAt, maxRowsOf } from '../rows/maxRows.mjs';
 import type { ViewOf } from '../view';
 import { editorRows } from '../rows/view';
 import { withRows } from '../rows/rows.mjs';
-import { headOf, type HeadView } from '../head';
 import { columnsOf, type ColumnsView } from '../columns';
 import { leadingOf, listSettings, type ListRow, type ListRowProps, type ListView } from '../list/view';
 import { shownAt } from '../../images';
@@ -39,8 +38,7 @@ export type PageRowView = { label: string; text: string; href: string; link: str
 /** A row of the folding list the theme draws (theme/blocks/expand/Accordion.tsx): a row with its text as HTML, or a page's row (PageRow, a site's own). */
 export type AccordionRow = FoldRow | { label: string; page: PageRowView };
 
-export type ExpandView = HeadView &
-  ColumnsView &
+export type ExpandView = ColumnsView &
   Pick<ListView, 'design' | 'max' | 'button' | 'showMore'> & {
     /** The rows folded out: closed, one open at a time when `group`. */
     group?: string;
@@ -81,7 +79,6 @@ export const expandOf = (
 ): ExpandView => {
   const items = ((props.items ?? []) as ListRowProps[]).map((r) => ({ ...r, leading: props.leading })) as ListRow[];
   return {
-    ...headOf(props),
     ...columnsOf(props),
     ...listSettings(props),
     several: props.only === false,

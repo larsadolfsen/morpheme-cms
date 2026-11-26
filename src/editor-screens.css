@@ -125,11 +125,6 @@
     place-items: center;
     border-radius: calc(infinity * 1px);
     color: var(--mo-sys-color-on-surface-variant);
-    &:focus-visible {
-      outline-style: solid;
-      outline-width: 2px;
-      outline-offset: -8px;
-    }
     & > * {
       min-inline-size: 0;
     }
@@ -432,6 +427,17 @@
       padding-block-end: var(--mo-ref-space-200);
     }
   }
+  /* A screen's tabs (Screen.tsx): the bar's row clips the tab row's divider, which runs the whole width of the bar; the tab group stands in the
+     content column, so its first tab starts where the breadcrumb and the content start (the tabs spec 2026-11-25, design 3). On a phone the
+     tabs share the whole bar. */
+  .mo-editor-bar-tabs {
+    overflow-x: clip;
+  }
+  .mo-editor-screen-tabs {
+    @media (width >= 37.5rem) {
+      padding-inline: var(--mo-ref-space-300);
+    }
+  }
   .mo-editor-screen-panel {
     @media (width >= 75rem) {
       --mo-sys-column-width: 72rem;
@@ -574,9 +580,24 @@
     font-weight: 500;
     color: var(--mo-sys-color-primary);
   }
+  .mo-editor-library-row-trail {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+  }
+  /* The slot of the drop-down, empty on a row without subpages, so the eyes line up. */
   .mo-editor-library-row-unfold {
     flex-shrink: 0;
+    inline-size: 3rem;
     padding-inline-end: var(--mo-ref-space-75);
+  }
+  .mo-editor-library-row-eye {
+    align-items: center;
+    padding-inline-end: var(--mo-ref-space-300);
+  }
+  .mo-editor-library-hidden {
+    display: inline-flex;
+    color: var(--mo-sys-color-on-surface-variant);
   }
 
   .mo-editor-media-file-tile {

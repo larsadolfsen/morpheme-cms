@@ -107,7 +107,7 @@ function checkChoiceGroups(label, groups) {
 const CHOICE_PAGE = [
   '---\ntitle: "Choices"\ndescription: "d"\n---\n\n# Choices\n\nIntro.\n',
   block('posts', {}),
-  block('testimonials', { show: 'all', heading: 'Kind words' }),
+  block('testimonials', { show: 'all' }),
   block('cards', { design: 'filled', items: [{ title: 'One', text: 'First' }] }),
   block('imagegrid', {}),
   block('segmented', { items: [{ title: 'Row', text: 'Text' }] }),
@@ -253,33 +253,6 @@ async function checkChoiceGroupFields(width, locale) {
     problems.push(
       `${label}: ${seen.length} choice groups seen in the blocks' settings (${seen.join(', ')}); not opened: ${skipped.join(', ') || 'none'}`,
     );
-  // The owner's case: a button's Style, the list with a sample of each style.
-  await page.locator('.ProseMirror [data-field="label"]').last().click();
-  await page.waitForTimeout(300);
-  await pressTool(page, say.settings).catch(() => problems.push(`${label}: the button has no ${say.settings}`));
-  const style = page.getByRole('group', { name: say.style, exact: true }).last();
-  if (
-    !(await style.waitFor({ timeout: 4000 }).then(
-      () => true,
-      () => false,
-    ))
-  )
-    problems.push(`${label}: the button's settings have no ${say.style}`);
-  else {
-    const g = (await sheet().evaluate(choiceGroupsIn)).find((x) => x.name === say.style);
-    if (!g || g.form !== 'list' || g.samples !== 4)
-      problems.push(
-        `${label}: Buttons › ${say.settings} › ${say.style} is not the list with four samples (${g?.form}, ${g?.samples} samples)`,
-      );
-    checkChoiceGroups(`${label} button style`, g ? [g] : []);
-    await style.locator('input[type="radio"]:checked').focus();
-    await page.keyboard.press('ArrowDown');
-    const chosen = await style.evaluate((l) => [...l.querySelectorAll('input[type="radio"]')].findIndex((r) => r.checked));
-    if (chosen !== 1) problems.push(`${label}: ArrowDown in ${say.style} did not choose the second style (${chosen})`);
-    if (!(await page.locator('.mo-editor-inline-list-row-active.mo-button.mo-is-tonal, .ProseMirror .mo-button.mo-is-tonal').count()))
-      problems.push(`${label}: choosing Tonal by the arrow key did not change the button`);
-    if (process.env.SHOTS_FULL) await sheet().screenshot({ path: `${process.env.SHOTS_FULL}-button-style-${width}-${locale}.png` });
-  }
   await page.close();
 }
 
@@ -297,20 +270,14 @@ async function checkButtonStyleSamples(width, locale) {
     const label = `${width}px ${locale} button style samples (${text.length} characters)`;
     const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: touch, isMobile: touch, locale });
     page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-    const path = 'src/content/pages/zz-samples.md';
-    const md = `---\ntitle: "Samples"\ndescription: "d"\n---\n\n# Samples\n\nIntro.\n\n${block('buttons', { items: [{ label: text, to: 'page', kind: 'filled' }] })}\n`;
-    await openEditor(page, site, { [path]: md });
-    await page.goto(`${site}/editor/#${path}`);
-    await page.waitForSelector('.ProseMirror [data-field="label"]', { timeout: 30_000 });
-    await page.locator('.ProseMirror [data-field="label"]').last().click();
+    // A button's Style is in the form of a button of the site's default buttons (Blocks › Buttons): the Buttons block's own buttons have it in their menu.
+    await openEditor(page, site, {});
+    await page.goto(`${site}/editor/#blocks/buttons`);
+    await page.getByText(/^(button|knap) 1$/).click({ timeout: 30_000 });
     await page.waitForTimeout(500);
-    await pressTool(page, say.settings).catch(() => problems.push(`${label}: the button has no ${say.settings}`));
-    const here = page
-      .locator('dialog[open], .mo-editor-side-sheet')
-      .filter({ has: page.locator('.mo-choice-group') })
-      .last();
-    await here.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the settings did not open`));
-    await page.waitForTimeout(600);
+    await page.getByRole('textbox').first().fill(text);
+    await page.waitForTimeout(500);
+    const here = page.locator('body');
     const samples = await here
       .evaluate((root) =>
         [...root.querySelectorAll('.mo-choice-group__list .mo-choice-group__sample')]
@@ -494,21 +461,26 @@ async function checkButtonStyleOptions(width) {
     problems.push(`${label}: a saved elevated button is not drawn as tonal in the editor`);
   if (await page.locator('.ProseMirror .mo-button.mo-is-elevated').count())
     problems.push(`${label}: a saved elevated button is still drawn elevated`);
-  await pressTool(page, 'Settings').catch(() => problems.push(`${label}: the button has no Settings`));
-  const style = page.getByRole('group', { name: 'Variant', exact: true }).last();
+  await page
+    .locator('.ProseMirror [aria-label="Button options"]')
+    .first()
+    .click({ timeout: 4000 })
+    .catch(() => problems.push(`${label}: the button has no menu`));
+  const menu = page.locator('[role=menu][aria-label="Button"]');
   if (
-    !(await style.waitFor({ timeout: 4000 }).then(
+    !(await menu.waitFor({ timeout: 4000 }).then(
       () => true,
       () => false,
     ))
   )
-    problems.push(`${label}: the button's settings have no Variant`);
+    problems.push(`${label}: the button's menu does not open`);
   else {
-    const names = (await style.locator('.mo-list__item-headline').allTextContents()).map((n) => n.trim());
-    if (names.join() !== 'Filled,Tonal,Outlined,Text')
-      problems.push(`${label}: the styles are "${names}", not "Filled,Tonal,Outlined,Text"`);
-    const checked = await style.evaluate((l) => [...l.querySelectorAll('input[type="radio"]')].findIndex((r) => r.checked));
-    if (checked !== 1) problems.push(`${label}: a saved elevated button does not show Tonal as chosen (${checked})`);
+    const styles = (await menu.locator('[role^=menuitem]').allTextContents()).map((n) => n.trim()).filter((n) => n.startsWith('Style: '));
+    if (styles.map((n) => n.slice(7)).join() !== 'Filled,Tonal,Outlined,Text')
+      problems.push(`${label}: the styles are "${styles}", not "Filled,Tonal,Outlined,Text"`);
+    const chosen = await menu.locator('[role^=menuitem][aria-checked="true"], [role^=menuitem][aria-current="true"]').allTextContents();
+    if (chosen.filter((n) => n.startsWith('Style: ')).join() !== 'Style: Tonal')
+      problems.push(`${label}: a saved elevated button does not show Tonal as chosen (${chosen})`);
   }
   await page.close();
 }

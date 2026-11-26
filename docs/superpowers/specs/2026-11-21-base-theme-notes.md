@@ -49,3 +49,5 @@ Owner, 21 November 2026: "It does change, because we will no longer follow our F
 - **Fit with the customizer:** where the layers go (`specs/2026-11-21-customizer-notes.md`, `@layer base, theme, custom`).
 
 No contract raise: additive, optional keys, a theme without the new part falls back (themeProblems does not require it).
+
+The base theme is hard-checked for every WCAG 2.2 AA finding, theme values included (owner, 25 Nov 2026).

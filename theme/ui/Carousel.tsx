@@ -25,7 +25,7 @@ import { useOnSite } from '@morphemecms/cms/src/standard/view';
 import {
   aspectOf,
   carouselLayout,
-  keylineLayouts,
+  scriptedLayouts,
   scrollFor,
   shownItem,
   type CarouselAlignment,
@@ -58,6 +58,7 @@ export default function Carousel({
   roleDescription,
   itemRoleDescription,
   indicatorLabels,
+  itemsFocusable,
   className,
 }: {
   items: CarouselItem[];
@@ -67,6 +68,8 @@ export default function Carousel({
   roleDescription: string;
   itemRoleDescription: string;
   indicatorLabels?: string[];
+  /** Every item has something to focus in it (or is a tab stop itself): the row is then no tab stop, so the first Tab lands on the first item (M3, Accessibility, Initial focus). */
+  itemsFocusable?: boolean;
   className?: string;
 }) {
   const onSite = useOnSite();
@@ -77,9 +80,22 @@ export default function Carousel({
   const multiAspect = layout === 'multi-aspect-ratio';
   // In the editor: multi-browse and hero laid out here, as carousel.script.ts does on the site.
   useEffect(
-    () => (root.current && keylineLayouts.includes(layout) ? carouselLayout(root.current) : undefined),
+    () => (root.current && scriptedLayouts.includes(layout) ? carouselLayout(root.current) : undefined),
     [layout, alignment, items.length],
   );
+  // With focusable items the row is no tab stop; where nothing in it can take focus (the editor's previews draw the items inert) it is one again.
+  const [stop, setStop] = useState(!itemsFocusable);
+  useEffect(() => {
+    const el = row.current;
+    if (!el || !itemsFocusable) return;
+    const FOCUSABLE = 'a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])';
+    const check = () =>
+      setStop(![...el.querySelectorAll<HTMLElement>(FOCUSABLE)].some((c) => !c.hasAttribute('disabled') && !c.closest('[inert]')));
+    check();
+    const watch = new MutationObserver(check);
+    watch.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'tabindex', 'href', 'inert'] });
+    return () => watch.disconnect();
+  }, [itemsFocusable, items.length]);
   const go = (i: number) => row.current?.scrollTo({ left: scrollFor(row.current, i), behavior: 'smooth' });
   return (
     <div
@@ -96,8 +112,8 @@ export default function Carousel({
         ref={row}
         className="mo-carousel__items"
         data-carousel-items=""
-        // A scroller the keyboard can reach (WCAG 2.1.1; axe: scrollable-region-focusable), named like the carousel.
-        tabIndex={0}
+        // A scroller the keyboard can reach (WCAG 2.1.1; axe: scrollable-region-focusable), named like the carousel; with focusable items (the Cards block's) the first of them is reached instead.
+        tabIndex={stop ? 0 : undefined}
         aria-label={label || undefined}
         onScroll={(e) => setShown(shownItem(e.currentTarget))}
       >

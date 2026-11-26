@@ -110,6 +110,14 @@ export const icons: Record<string, Icon> = {
   motion: materialIcon('airwave'),
   'side-column': materialIcon('left_panel_open'),
   parts: materialIcon('shapes'),
+  // The seven pages of the main menu's section "Style" (#style/<name>).
+  'style-color': materialIcon('palette'),
+  'style-elevation': materialIcon('layers'),
+  'style-icons': materialIcon('emoji_symbols'),
+  'style-motion': materialIcon('airwave'),
+  'style-shape': materialIcon('shapes'),
+  'style-spacing': materialIcon('space_bar'),
+  'style-typography': materialIcon('text_fields'),
 };
 
 /** The site's own parts under "Appearance" (#appearance), after the colours, each a screen of its own at #appearance/<id>:
@@ -131,7 +139,7 @@ export const appearance: Part[] = [
 // uploads ("Content": the pages, the blog, the short lists, the pop-ups, the tags, the files, "internal links" (seoParts)
 // and "redirects", Redirects.tsx), the business ("Business": the logo and icon first (company/logo, BrandForm.tsx), then the
 // section of the editor's part "company": its parts, name, contact and booking, are its rows; lib/menu.mjs; "colors" is
-// the second row), what every page shares ("Globals", id `global`: the header, the footer, the side column and the block
+// the colours moved to "Style"), what every page shares ("Globals", id `global`: the header, the footer, the side column and the block
 // templates, their shared texts) and the apps ("Apps": the apps that
 // are four rows: "appstore" and the installed connectors, plugins and themes, AppList.tsx).
 // Appearance, Block settings, Caching and builds, Components, Morpheme and Privacy are not sections of the menu: they are the rows of the Settings
@@ -148,7 +156,14 @@ export const groups: { id: string; title: string; href?: string; flat?: boolean;
     title: 'Content',
     ids: ['pages', 'blog', 'lists', 'popups', 'tags', 'files', internalLinks.id, 'redirects'],
   },
-  { id: 'company', title: 'Business', ids: ['logo', 'colors', 'company'] },
+  { id: 'company', title: 'Business', ids: ['logo', 'company'] },
+  // "Style" (M3's Styles and Spacing): what the theme sets, each on a page of its own (#style/<name>), its rows under its label like Apps.
+  {
+    id: 'style',
+    title: 'Style',
+    flat: true,
+    ids: ['style-color', 'style-elevation', 'style-icons', 'style-motion', 'style-shape', 'style-spacing', 'style-typography'],
+  },
   { id: 'global', title: 'Globals', ids: ['header', 'footer', 'side-column', 'blocks'] },
   { id: 'apps', title: 'Apps', flat: true, ids: ['appstore', 'installed-connectors', 'installed-plugins', 'installed-themes'] },
 ];

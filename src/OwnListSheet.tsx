@@ -6,7 +6,7 @@
 // `Remove field` asks, then takes the field and its data out of every item (at the final `Save`). `Delete list` is refused while a page or an
 // app reads the list; else it asks, then deletes the entries and the definition in one commit (they stay in the history, under Deleted). The rules
 // are lib/ownList.mjs and lib/ownListEdit.mjs.
-import { useEffect, useId, useImperativeHandle, useRef, useState, type CSSProperties, type Ref } from 'react';
+import { useEffect, useId, useImperativeHandle, useRef, useState, type Ref } from 'react';
 import { BottomSheet, Button, SheetBody, SheetTitle, SwitchRow, SupportingText, TextField, atLeastNow } from './ui';
 import { usePane } from './PaneHost';
 import AddFieldMenu from './AddFieldMenu';
@@ -111,7 +111,7 @@ export default function OwnListSheet({
     const used = listUses(files, id, collection.folder);
     if (used.length) return env.notify({ text: t.ownList.used(used.length), error: true });
     const all = filesOfList(files, collection.folder);
-    if (!(await ask(t.ownList.deleteAsk(definition.label, entries.length), t.common.delete))) return;
+    if (!(await ask(t.ownList.deleteAsk(definition.label, entries.length), t.common.delete, true))) return;
     onDeleting();
     // The changes that are not saved go with the list; nothing asks about them on the way out.
     setUnsaved(false);
@@ -209,12 +209,7 @@ export default function OwnListSheet({
           onClose={() => setAdding(false)}
         />
       </div>
-      <Button
-        kind="text"
-        disabled={busy}
-        style={{ '--mo-comp-button-text-label-text-color': 'var(--mo-sys-color-error)' } as CSSProperties}
-        onClick={() => void deleteList()}
-      >
+      <Button kind="outlined" tone="error" disabled={busy} onClick={() => void deleteList()}>
         {t.ownList.delete}
       </Button>
     </>

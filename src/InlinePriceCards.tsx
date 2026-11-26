@@ -9,11 +9,9 @@ import { t } from './i18n';
 import { Glyph } from './icon';
 import InlineItems, { InlineField, type Item } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
-import { headOf } from './standard/head';
 import { buttonsOf } from './standard/buttons/view';
 import { targets, type Button } from './standard/buttons/fields';
 import type { PriceCardProps } from './standard/pricecards/view';
-import BlockHead from '@theme/blocks/BlockHead';
 import { SiteButton, SiteCard } from './themeUi';
 import List, { ListItem } from '@theme/ui/List';
 import { buttonClass } from '@theme/ui/Button';
@@ -60,7 +58,6 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
 
   return (
     <>
-      <BlockHead view={headOf(props)} />
       <InlineItems
         items={items}
         active={active}

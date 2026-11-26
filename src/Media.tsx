@@ -744,7 +744,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
   // A file nothing uses, deleted at once in its own commit (after asking), with its record of tags.
   async function remove(src: string) {
     const file = images.find((p) => publicPath(p.path) === src);
-    if (!file || !(await ask(t.media.kinds[kindOf(src)].deleteAsk, t.common.delete))) return;
+    if (!file || !(await ask(t.media.kinds[kindOf(src)].deleteAsk, t.common.delete, true))) return;
     setDeleting(true);
     env.notify({ text: t.common.deleting });
     try {
@@ -782,7 +782,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
         kind: 'failed',
       });
     }
-    if (!deleted.length || !(await ask(t.media.deleteFiles(deleted.length), t.common.delete))) return;
+    if (!deleted.length || !(await ask(t.media.deleteFiles(deleted.length), t.common.delete, true))) return;
     setDeletingMany(true);
     env.notify({ text: t.common.deleting });
     try {

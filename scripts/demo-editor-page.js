@@ -5,12 +5,10 @@
   if (!('serviceWorker' in navigator)) return;
   // A browser under automation (the screens checks open this build and fake the Worker themselves) keeps its own fakes, unless the
   // proof of the demo editor (scripts/check-demo-editor.mjs) asks for the worker.
-  if (navigator.webdriver && !window.demoEditorProof) return;
-  // The editor registers its notification worker, `/editor/sw.js`, itself when it opens: here that is the same file with `?demo`, so the
-  // editor's call does not replace the demo's worker with the plain one.
-  const register = navigator.serviceWorker.register.bind(navigator.serviceWorker);
-  navigator.serviceWorker.register = (url, options) => register(String(url).replace(/^(\/editor\/sw\.js)$/, '$1?demo'), options);
-  const reg = await register('/editor/sw.js?demo', { scope: '/editor/' });
+  // Then the editor gets the plain worker too (lib/editorWorker.mjs), so the demo's worker never answers over those fakes.
+  if (navigator.webdriver && !window.demoEditorProof) return void delete window.moEditorWorker;
+  // The build wrote the worker's URL (scripts/demo-editor.mjs); the editor registers the same one (lib/editorWorker.mjs), so nothing replaces it.
+  const reg = await navigator.serviceWorker.register(window.moEditorWorker, { scope: '/editor/' });
   await navigator.serviceWorker.ready;
   if (new URLSearchParams(location.search).has('demo-reset')) {
     const done = new Promise((ok) =>

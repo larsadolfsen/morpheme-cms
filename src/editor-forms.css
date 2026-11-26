@@ -405,7 +405,10 @@
   .mo-editor-parts-intro-text {
     color: var(--mo-sys-color-on-surface-variant);
   }
-  /* SearchPreview.tsx */
+  /* SearchPreview.tsx. Its tab row's divider runs the width of this container (the theme's fixed tabs, tabs.css). */
+  .mo-editor-search-preview {
+    overflow-x: clip;
+  }
   .mo-editor-search-menu {
     color: var(--mo-comp-google-text);
   }
@@ -653,6 +656,10 @@
     flex-wrap: wrap;
     align-items: flex-start;
     gap: var(--mo-ref-space-300);
+  }
+  /* A fixed tab row's divider runs past its row (theme/styles/ui/tabs.css); the gallery's box clips it. */
+  .mo-editor-nav-tabs {
+    overflow-x: clip;
   }
   :where(.mo-editor-nav-tabs > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-300);

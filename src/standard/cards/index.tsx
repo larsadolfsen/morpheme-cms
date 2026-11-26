@@ -9,7 +9,6 @@ import { defineBlock } from '../../blocks';
 import { iconOptions, materialIcon } from '../../icon';
 import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
-import { headFields } from '../head';
 import { buttonList } from '../buttons/fields';
 import { FORMATS } from '../../../lib/crop.mjs';
 import { ASPECTS, DEFAULT_ASPECT } from './cut.mjs';
@@ -40,7 +39,6 @@ export default defineBlock({
     },
   },
   fields: [
-    ...headFields,
     // Material 3's three cards; outlined is the empty choice (the cards from before there was a choice).
     {
       name: 'design',
@@ -53,8 +51,8 @@ export default defineBlock({
         { label: t.blocks.cards.designElevated, value: 'elevated', icon: materialIcon('shapes') },
       ],
     },
-    // How the cards show on a phone: stacked (the empty choice), or swiped sideways in a carousel (uncontained, Material 3's layout for
-    // text-heavy items). Larger screens show the cards together either way. Fewer than two cards is never a carousel (view.ts).
+    // How the cards show, on every screen size: a grid (the empty choice), or swiped sideways in a carousel (uncontained, Material 3's layout for
+    // text-heavy items, adapting to the carousel's width). The name `phone` and its value stay as stored (no migration). Fewer than two cards is never a carousel (view.ts).
     {
       name: 'phone',
       label: t.blocks.cards.phone,
@@ -76,13 +74,8 @@ export default defineBlock({
       only: { field: 'phone', is: ['carousel'] },
       options: [
         { label: t.blocks.cards.layoutUncontained, value: '' },
-        // Only with images: its cards' widths come from their images' aspect ratios (view.ts layoutOf keeps the choice stored for when images are back).
-        {
-          label: t.blocks.cards.layoutMultiAspect,
-          value: 'multi-aspect-ratio',
-          hint: t.blocks.cards.layoutMultiAspectHint,
-          only: { field: 'media', is: ['image'] },
-        },
+        // Every layout is offered for every card: the editor decides (owner, 25 Nov 2026). Its cards' widths come from their images' aspect ratios; a card without an image is square.
+        { label: t.blocks.cards.layoutMultiAspect, value: 'multi-aspect-ratio', hint: t.blocks.cards.layoutMultiAspectHint },
         { label: t.blocks.cards.layoutMultiBrowse, value: 'multi-browse', hint: t.blocks.cards.layoutMultiBrowseHint },
         { label: t.blocks.cards.layoutHero, value: 'hero', hint: t.blocks.cards.layoutHeroHint },
         { label: t.blocks.cards.layoutHeroCenter, value: 'hero-center', hint: t.blocks.cards.layoutHeroCenterHint },

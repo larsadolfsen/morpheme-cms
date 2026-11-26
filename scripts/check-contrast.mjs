@@ -21,18 +21,25 @@ import { buildOutDir } from './build-out.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
 import { blockHtml } from '../lib/blocks.mjs';
 import { demoBlocksTestBody } from './demo-blocks.mjs';
-import { judgeShortfalls } from '../lib/accessibility.mjs';
-import { statementOf } from './theme-statement.mjs';
+import { PARTS, checksOf, statementOfChecks, summaryLines } from '../lib/accessibility.mjs';
+import { statementOf, statementPlace } from './theme-statement.mjs';
 
 const ROOT = `${process.cwd()}/`;
 const PAGE = 'src/content/pages/contrast-test.md';
 // CONTRAST_SECTIONS=surface,tint,accent: the section colours of an older version (v0.16.0 has no primary, secondary or tertiary).
-const SECTIONS = process.env.CONTRAST_SECTIONS ? process.env.CONTRAST_SECTIONS.split(',') : ['surface', 'primary', 'secondary', 'tertiary'];
+// CONTRAST_TARGET_ONLY=1 (the command `morpheme accessibility`): only the target size of each interactive part, which is all the file holds (colour is the site owner's, not the theme's).
+// It reads one section colour and the light scheme, the editor at rest, and skips text, icons, edges, focus ring and placeholder, so it ends in minutes.
+const TARGET_ONLY = process.env.CONTRAST_TARGET_ONLY === '1';
+const SECTIONS = process.env.CONTRAST_SECTIONS
+  ? process.env.CONTRAST_SECTIONS.split(',')
+  : TARGET_ONLY
+    ? ['surface']
+    : ['surface', 'primary', 'secondary', 'tertiary'];
 const SIZES = [
   [375, 740],
   [1280, 900],
 ];
-const SCHEMES = ['light', 'dark'];
+const SCHEMES = TARGET_ONLY ? ['light'] : ['light', 'dark'];
 // CONTRAST_THEMES=saturn,mercury: only these themes (default: the theme in use, and with --all every installed theme).
 const all = process.argv.includes('--all');
 const themes = process.env.CONTRAST_THEMES ? process.env.CONTRAST_THEMES.split(',') : all ? installedThemes() : [activeTheme()];
@@ -133,16 +140,44 @@ const scan = `(root) => {
   };
   const opacityOf = (el) => { let o = 1; for (let e = el; e; e = e.parentElement) o *= parseFloat(getComputedStyle(e).opacity); return o; };
   const records = [];
+  const TARGET_ONLY = ${TARGET_ONLY};
+  // The area that takes the click (WCAG 2.5.8): along the middle of the control, in each direction, the run of points where a click reaches it (the control, what is in it or its label).
+  // The state layer is never counted by assumption: only points a click reaches count.
+  const clickArea = (el) => {
+    el.scrollIntoView({ block: 'center', inline: 'center' });
+    const r = el.getBoundingClientRect();
+    const reaches = (x, y) => {
+      if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false;
+      const n = document.elementFromPoint(x, y);
+      if (!n) return false;
+      if (n === el || el.contains(n)) return true;
+      const label = n.closest('label');
+      return !!label && (label.control === el || label.contains(el));
+    };
+    const run = (from, to, at) => {
+      const cx = Math.round((from + to) / 2);
+      let a = cx, b = cx;
+      if (!at(cx)) return to - from;
+      while (a > from - 48 && at(a - 1)) a--;
+      while (b < to + 48 && at(b + 1)) b++;
+      return b - a + 1;
+    };
+    const midX = r.left + r.width / 2;
+    const midY = r.top + r.height / 2;
+    return { width: run(r.left, r.right, (x) => reaches(x, midY)), height: run(r.top, r.bottom, (y) => reaches(midX, y)) };
+  };
+  const TARGET_PARTS = ${JSON.stringify(Object.entries(PARTS).map(([id, p]) => [id, p.selector]))};
   const push = (el, kind, front, back, min, extra) => {
     const blockEl = el.closest('[data-block], .mo-is-in-text, .mo-site-block-inline');
-    const r = ratio(over(front, back), back);
-    records.push({ block: blockOf(el), variant: variantOf(el, blockEl), section: sectionOf(el), kind, fg: hex(over(front, back)), bg: hex(back), ratio: r, min, text: (extra.text ?? '').slice(0, 40), manual: extra.manual, card: !!el.closest('.mo-card'), tag: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.split(/\\s+/)[0] : '') });
+    const r = extra.ratioOverride ?? ratio(over(front, back), back);
+    records.push({ block: blockOf(el), variant: variantOf(el, blockEl), section: sectionOf(el), kind, fg: hex(over(front, back)), bg: hex(back), ratio: r, min, text: (extra.text ?? '').slice(0, 40), manual: extra.manual, part: extra.part, card: !!el.closest('.mo-card'), tag: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.split(/\\s+/)[0] : '') });
   };
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const seen = new Set();
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
     const el = n.parentElement;
     const text = n.textContent.replace(/\\s+/g, ' ').trim();
+    if (TARGET_ONLY) break;
     if (!text || seen.has(el) || el.closest('svg, script, style, option, noscript, template')) continue;
     if (el.closest(':disabled, [aria-disabled="true"], [disabled]')) continue;
     if (hidden(el)) continue;
@@ -156,7 +191,7 @@ const scan = `(root) => {
     front[3] *= opacityOf(el);
     push(el, 'text', front, back, large ? 3 : 4.5, { text, manual });
   }
-  for (const svg of root.querySelectorAll('svg')) {
+  for (const svg of TARGET_ONLY ? [] : root.querySelectorAll('svg')) {
     if (hidden(svg) || svg.closest(':disabled, [aria-disabled="true"]') || svg.closest('[data-icon-hidden]')) continue;
     const s = getComputedStyle(svg);
     const paint = (v) => (v && v !== 'none' && v !== 'transparent' ? v : null);
@@ -170,10 +205,13 @@ const scan = `(root) => {
     push(svg, 'icon', front, back, 3, { text: svg.getAttribute('data-icon') ?? svg.getAttribute('aria-label') ?? '', manual });
   }
   // The border of a control: outlined buttons, fields.
-  for (const el of root.querySelectorAll('a, button, input, textarea, select, summary')) {
+  // Boxes are read before the loop: the loop adds and removes probes, and a read after each would lay the page out again every time.
+  const boxes = new Map();
+  for (const el of root.querySelectorAll('button, input, select, textarea, [role="button"]')) boxes.set(el, el.getBoundingClientRect());
+  for (const el of root.querySelectorAll('a, button, input, textarea, select, summary, .mo-nav-bar__item, .mo-nav-rail__item')) {
     if (hidden(el) || el.closest(':disabled, [aria-disabled="true"]')) continue;
     const s = getComputedStyle(el);
-    if (el.matches('input, textarea, select') || el.matches('.mo-is-outlined')) {
+    if (!TARGET_ONLY && (el.matches('input, textarea, select') || el.matches('.mo-is-outlined'))) {
       const w = parseFloat(s.borderTopWidth);
       if (w > 0 && s.borderTopStyle !== 'none') {
         const { back, manual } = behind(el.parentElement ?? el);
@@ -181,7 +219,7 @@ const scan = `(root) => {
       }
     }
     // The focus ring (M3's focus indicator, --mo-sys-state-focus-indicator-color, 3 dp outside the control) against what is behind the control, 3:1 (WCAG 1.4.11, 2.4.11).
-    {
+    if (!TARGET_ONLY) {
       const host = el.parentElement ?? el;
       const probe = document.createElement('span');
       probe.style.color = 'var(--mo-sys-state-focus-indicator-color)';
@@ -191,7 +229,20 @@ const scan = `(root) => {
       const { back, manual } = behind(host);
       push(el, 'focus ring', ring, back, 3, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', manual });
     }
-    if (el.matches('input, textarea')) {
+    // The target size of a control (WCAG 2.5.8, 24 px): the smaller side of its box. Links in a text are exempt, so only buttons and fields are read.
+    // A navigation bar's and a rail's items are links (a span while the gallery gives no address): named here, since they are not a button or a field.
+    if (el.matches('button, input:not([type="hidden"]), select, textarea, [role="button"], .mo-nav-bar__item, .mo-nav-rail__item')) {
+      const box = boxes.get(el) ?? el.getBoundingClientRect();
+      if (box.width > 0 && box.height > 0) {
+        // The part the control belongs to (the first selector it sits in); a control no part names is not a theme's part and is left out.
+        const hit = TARGET_PARTS.find(([, selector]) => el.closest(selector));
+        if (hit) {
+          const area = clickArea(el);
+          push(el, 'target', [0, 0, 0, 1], [255, 255, 255, 1], 24, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', ratioOverride: Math.min(area.width, area.height), part: hit[0] });
+        }
+      }
+    }
+    if (!TARGET_ONLY && el.matches('input, textarea')) {
       const p = getComputedStyle(el, '::placeholder');
       if (el.getAttribute('placeholder')) {
         const { back, manual } = behind(el);
@@ -267,7 +318,18 @@ function unique(records, view) {
       pairedSkipped++;
       continue;
     }
-    const key = [view, r.block, r.variant, r.section, r.kind, r.fg, r.bg, r.min, r.manual ?? ''].join('|');
+    const key = [
+      view,
+      r.block,
+      r.variant,
+      r.section,
+      r.kind,
+      r.fg,
+      r.bg,
+      r.min,
+      r.manual ?? '',
+      r.kind === 'target' ? `${r.part}:${Math.round(r.ratio)}` : '',
+    ].join('|');
     if (!map.has(key)) map.set(key, { ...r, view, count: 0 });
     map.get(key).count++;
   }
@@ -298,7 +360,17 @@ const kinds = `## Button kinds\n\n${blockHtml('buttons', {
 const on = (c) => `${body}\n${kinds}`.replace(/^(#{1,2} )/gm, `<div data-section="${c}"></div>\n\n$1`);
 const testPage = `---\ntitle: "Contrast test"\ndescription: "Made by check:contrast, never saved."\n---\n\n${SECTIONS.map(on).join('\n\n')}\n`;
 
-const pages = ['/contrast-test/', '/', '/contact/', '/about/', '/get-started/', '/app-store/', '/blog-page/', '/privacy-policy/'];
+const pages = [
+  ...(TARGET_ONLY ? ['/ui/'] : []),
+  '/contrast-test/',
+  '/',
+  '/contact/',
+  '/about/',
+  '/get-started/',
+  '/app-store/',
+  '/blog-page/',
+  '/privacy-policy/',
+];
 const results = [];
 const manualSeen = new Set();
 const started = Date.now();
@@ -360,6 +432,8 @@ try {
               results.push(...unique(records, `${theme} site ${scheme} ${width}${path === '/contrast-test/' ? '' : ` ${path}`}`));
             }
             await page.close();
+            // The theme's parts are measured on the site (the UI components page and the site's pages); the editor's own drawing is not the theme's.
+            if (TARGET_ONLY) continue;
             // The editor, typed in place: at rest, then each block selected.
             const editor = await browser.newPage(ctx);
             editor.on('pageerror', () => {});
@@ -381,7 +455,7 @@ try {
             const view = `${theme} editor ${scheme} ${width}`;
             results.push(...unique(await editor.evaluate(`(${scan})(document.querySelector('.ProseMirror'))`), `${view} resting`));
             const inline = await editor.locator('.ProseMirror .mo-site-block-inline').count();
-            for (let i = 0; i < inline; i++) {
+            for (let i = 0; i < (TARGET_ONLY ? 0 : inline); i++) {
               const block = editor.locator('.ProseMirror .mo-site-block-inline').nth(i);
               await block.scrollIntoViewIfNeeded().catch(() => {});
               const field = block.locator('input, textarea, [contenteditable="true"], .mo-editor-inline-list-field').first();
@@ -409,40 +483,19 @@ try {
 
 const failed = results.filter((r) => !r.manual && r.ratio < r.min);
 
-/** The criterion and part of a failure the theme can name in its accessibility.json (lib/accessibility.mjs), else null part: a text, an icon or a border no
- * statement names fails as it always did. A placeholder is 1.4.3; the edge of a control or card is 1.4.11, in a coloured section the part `section-edges`. */
-const shortfallOf = (r) => {
-  if (r.kind === 'placeholder') return { criterion: '1.4.3', part: 'placeholder' };
-  if (r.kind === 'border' && r.section !== 'surface') return { criterion: '1.4.11', part: 'section-edges' };
-  if (r.kind === 'border' && r.card) return { criterion: '1.4.11', part: 'outlined-card-edge' };
-  return { criterion: r.kind === 'text' ? '1.4.3' : '1.4.11', part: null };
-};
-// Each theme is judged by its own statement: a failure it names is let through, one it does not name fails, and a name that no longer fails is stale (not when
-// only some section colours were run).
-const unnamed = [];
-const letThrough = [];
+// A theme's values are measured, never judged (lib/accessibility.mjs, `kindOf`; spec 2026-11-25-themes-classified-design.md): each theme gets its checks and its score, printed
+// here. With CONTRAST_WRITE=1 (the command `morpheme accessibility`) the result is written to the theme's accessibility.json; a partial run (CONTRAST_SECTIONS) never writes.
+const version = JSON.parse(readFileSync(join(fileURLToPath(new URL('..', import.meta.url)), 'package.json'), 'utf8')).version;
+const summaries = [];
 for (const theme of themes) {
-  const mine = failed.filter((r) => r.view.startsWith(`${theme} `));
+  const mine = results.filter((r) => r.view.startsWith(`${theme} `));
   const { statement, where } = statementOf(theme);
-  const found = new Map();
-  for (const r of mine) {
-    const { criterion, part } = shortfallOf(r);
-    found.set(`${criterion} ${part}`, {
-      criterion,
-      part,
-      detail: `${r.view}: ${r.kind} ${r.fg} on ${r.bg} is ${r.ratio.toFixed(2)}:1, needs ${r.min}`,
-    });
-  }
-  const verdict = judgeShortfalls(
-    [...found.values()].filter((f) => f.part),
-    statement,
-    { check: 'contrast', stale: !process.env.CONTRAST_SECTIONS, where },
-  );
-  unnamed.push(...verdict.problems);
-  letThrough.push(...verdict.named.map((id) => `${theme}: ${id}`));
-  for (const r of mine) {
-    const { part, criterion } = shortfallOf(r);
-    if (!part || !verdict.named.includes(`${criterion} ${part}`)) r.unnamed = true;
+  const now = statementOfChecks(checksOf(mine), statement, version);
+  summaries.push(`${theme}:`, ...summaryLines(now, statement, where));
+  if (process.env.CONTRAST_WRITE && !process.env.CONTRAST_SECTIONS) {
+    const { folder } = statementPlace(theme);
+    writeFileSync(join(folder, 'accessibility.json'), `${JSON.stringify(now, null, 2)}\n`);
+    summaries.push(`  wrote ${where}`);
   }
 }
 const manual = results.filter((r) => r.manual);
@@ -457,7 +510,7 @@ const design = (v) =>
     .filter((c) => /^(card|button)-/.test(c))
     .join(' ') || '-';
 const groups = new Map();
-for (const r of failed.filter((f) => f.unnamed)) {
+for (const r of failed) {
   const key = [r.block.replace(/^editor /, ''), design(r.variant), r.section, r.kind, r.fg, r.bg].join(' | ');
   const g = groups.get(key) ?? { r, views: new Set(), worst: 99, text: r.text };
   g.views.add(r.view.split(' ').slice(1).join(' '));
@@ -465,12 +518,10 @@ for (const r of failed.filter((f) => f.unnamed)) {
   groups.set(key, g);
 }
 console.log(
-  `Contrast: ${checked.length} pairs checked, ${pairedSkipped} text and icon pairs left out as M3's own pairs (${themes.join(', ')}; ${Math.round((Date.now() - started) / 1000)} s), ${failed.filter((f) => f.unnamed).length} fail in ${groups.size} groups, ${manual.length} need a manual look (image or gradient behind).`,
+  `Contrast: ${checked.length} pairs checked, ${pairedSkipped} text and icon pairs left out as M3's own pairs (${themes.join(', ')}; ${Math.round((Date.now() - started) / 1000)} s), ${failed.length} under their limit in ${groups.size} groups (theme values: measured, not failed), ${manual.length} need a manual look (image or gradient behind).`,
 );
-if (letThrough.length) console.log(`  Let through, named in the theme's accessibility.json: ${letThrough.join(', ')}.`);
-for (const line of unnamed) console.log(`  ${line}`);
+for (const line of summaries) console.log(line);
 for (const [key, g] of [...groups].sort((a, b) => a[1].worst - b[1].worst).slice(0, 60)) {
   console.log(`  ${key}: ${g.worst.toFixed(2)}:1 (needs ${g.r.min}) "${g.text}" in ${g.views.size} views, e.g. ${[...g.views][0]}`);
 }
 if (groups.size > 60) console.log(`  … and ${groups.size - 60} more groups (see the report file).`);
-if (failed.some((f) => f.unnamed) || unnamed.length) process.exit(1);

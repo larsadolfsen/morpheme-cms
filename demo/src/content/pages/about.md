@@ -13,7 +13,9 @@ Morpheme is a website editor for sites built with [Astro](https://astro.build) a
 
 <p class="mo-type-label-medium">Under the hood</p>
 
-<div data-block="list" data-props="{&quot;heading&quot;:&quot;Three proven parts&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;auto_stories&quot;,&quot;title&quot;:&quot;GitHub&quot;,&quot;text&quot;:&quot;Your content lives as plain files in your own repository. Every save is one commit.&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Astro&quot;,&quot;text&quot;:&quot;Your site is built ahead of time into finished pages that open instantly.&quot;},{&quot;icon&quot;:&quot;support&quot;,&quot;title&quot;:&quot;Cloudflare&quot;,&quot;text&quot;:&quot;Pages are served from a location near each visitor, and sign-in runs on Cloudflare Workers.&quot;}]}"></div>
+## Three proven parts
+
+<div data-block="list" data-props="{&quot;items&quot;:[{&quot;icon&quot;:&quot;auto_stories&quot;,&quot;title&quot;:&quot;GitHub&quot;,&quot;text&quot;:&quot;Your content lives as plain files in your own repository. Every save is one commit.&quot;},{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Astro&quot;,&quot;text&quot;:&quot;Your site is built ahead of time into finished pages that open instantly.&quot;},{&quot;icon&quot;:&quot;support&quot;,&quot;title&quot;:&quot;Cloudflare&quot;,&quot;text&quot;:&quot;Pages are served from a location near each visitor, and sign-in runs on Cloudflare Workers.&quot;}]}"></div>
 
 <p class="mo-type-label-medium">Step by step</p>
 

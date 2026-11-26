@@ -356,6 +356,14 @@ async function checkSelection() {
     await sheet.waitFor();
     await page.waitForTimeout(600);
     const items = sheet.locator('[role=checkbox], .mo-list__item-container', { hasText: /Selection check/ });
+    // The sheet's buttons are outlined error buttons: "Clear" with nothing selected, "Delete selected" while some are.
+    const outlinedError = async (name, what) => {
+      const button = page.getByRole('button', { name }).first();
+      const cls = (await button.count()) ? ((await button.getAttribute('class')) ?? '') : '';
+      if (!/\bmo-is-error\b/.test(cls) || !/\bmo-is-outlined\b/.test(cls))
+        problems.push(`${label}: the notifications' ${what} is not an outlined error button (${cls || 'not found'})`);
+    };
+    await outlinedError(/^Clear$/, 'Clear');
     if ((await items.count()) !== 3) {
       problems.push(`${label}: the notifications sheet does not show the three seeded notifications`);
     } else if (touch) {
@@ -371,6 +379,7 @@ async function checkSelection() {
       await page.waitForTimeout(300);
       if (!/^2 selected$/.test((await count(page)) ?? ''))
         problems.push(`${label}: the notifications' count is not announced ("2 selected")`);
+      // On a phone the delete is the top bar's icon button; the outlined one is in the dialog (below).
       await page.getByRole('button', { name: 'Close selection' }).click();
       if (await checked(page, scope)) problems.push(`${label}: Cancel does not unselect the notifications`);
     } else {
@@ -381,6 +390,7 @@ async function checkSelection() {
       await items.nth(1).focus();
       await page.keyboard.press('Space');
       if ((await checked(page, scope)) !== 2) problems.push(`${label}: Shift+click and Space do not select notifications`);
+      await outlinedError(/^Delete \d+ selected$/, 'Delete selected');
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
       if (await checked(page, scope)) problems.push(`${label}: Escape does not unselect the notifications`);
@@ -1362,6 +1372,32 @@ async function checkInsertDialogClosesLate(width) {
   await page.close();
 }
 
+// A tap on an image of the Image grid opens that image's sheet and makes the block the active one, so its row is there however many images fill the block
+// (the other check taps the middle of a block, which is a gap only while the grid is small).
+async function checkImageGridTap(width) {
+  const label = `image grid tap ${width}`;
+  if (!existsSync(join(ROOT, 'src/content/pages/blocks-image-grid.md')))
+    return console.log(`${label}: skipped, the site has no Image grid page.`);
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height: 900 }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#src/content/pages/blocks-image-grid.md'));
+  await page.waitForSelector('.ProseMirror > .mo-site-block', { timeout: 30_000 });
+  const tile = page.locator('.ProseMirror > .mo-site-block a[data-image]').first();
+  await tile.waitFor({ timeout: 15_000 });
+  await tile.scrollIntoViewIfNeeded();
+  await (phone ? tile.tap({ timeout: 3000 }) : tile.click({ timeout: 3000 }));
+  const row = await page
+    .waitForFunction(() => !!document.querySelector('.ProseMirror > .mo-site-block.mo-site-block-has-row'), null, { timeout: 5000 })
+    .then(
+      () => true,
+      () => false,
+    );
+  if (!row) problems.push(`${label}: a tap on an image did not make its block the active one (no row)`);
+  await page.close();
+}
+
 export function register(unit) {
   for (const width of [375, 1280]) unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
   for (const width of [375, 1280]) unit(`checkCardBar ${width}`, () => checkCardBar(width));
@@ -1371,6 +1407,7 @@ export function register(unit) {
   unit('checkTwoFinger', () => checkTwoFinger());
   for (const w of [375, 1280]) unit(`checkBlockDrag ${w}`, () => checkBlockDrag(w));
   for (const w of [375, 768, 1280]) unit(`checkBlockHandleCorner ${w}`, () => checkBlockHandleCorner(w));
+  for (const w of [375, 768, 1280]) unit(`checkImageGridTap ${w}`, () => checkImageGridTap(w));
   for (const w of [375, 1280]) unit(`checkBlockSelect ${w}`, () => checkBlockSelect(w));
   for (const w of [375, 1280]) unit(`checkInsertDialogClosesLate ${w}`, () => checkInsertDialogClosesLate(w));
   for (const w of [375, 1280]) unit(`checkBlockMove ${w}`, () => checkBlockMove(w));

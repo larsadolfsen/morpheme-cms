@@ -98,7 +98,7 @@ export default function LinkCards({
   more: string;
   design?: string;
   color?: string;
-  /** 'carousel': on a phone (below 600 px) the cards are swiped sideways, with `Show all` under them (not in the full-screen layout); larger screens show them together. */
+  /** 'carousel': the cards are swiped sideways on every screen size, adapting to the carousel's width, with `Show all` under them (the full-screen layout shows it only where it is drawn as the hero, from 840 px or in landscape). */
   phone?: string;
   /** The carousel's Material 3 layout: uncontained without one. */
   layout?: CardsLayout;
@@ -142,6 +142,7 @@ export default function LinkCards({
           alignment={layout === 'hero-center' ? 'center' : 'start'}
           label={label || say.cardsLabel}
           roleDescription={say.carousel}
+          itemsFocusable
           itemRoleDescription={say.slide}
           items={items.map((card, i) => ({
             key: String(i),
@@ -152,13 +153,13 @@ export default function LinkCards({
             focusable: !card.href && card.buttons.length === 0,
           }))}
         />
-        {layout !== 'full-screen' && (
+        {
           <div className="mo-block-cards__show-all">
             <Button kind="text" aria-expanded="false" data-cards-show-all="" data-all={say.showAll} data-fewer={say.showFewer}>
               {say.showAll}
             </Button>
           </div>
-        )}
+        }
       </div>
     );
   return (

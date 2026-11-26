@@ -171,7 +171,8 @@ async function checkFilledSlotRing(scheme, sectionColor) {
       return { style: cs.outlineStyle, width: parseFloat(cs.outlineWidth), ratio: ratio(cs.outlineColor, button, 1, button) };
     })()`);
     if (m.style === 'none' || m.width < 2) problems.push(`${label}: the focused icon control has no ring (${m.style} ${m.width}px)`);
-    else if (m.ratio < 3) problems.push(`${label}: the ring is ${m.ratio.toFixed(2)}:1 against the filled button, under 3:1`);
+    else if (m.ratio < 3)
+      shortfall('1.4.11', 'focus-ring', `${label}: the ring is ${m.ratio.toFixed(2)}:1 against the filled button, under 3:1`);
   }
   await page.close();
 }
@@ -234,7 +235,11 @@ async function checkInlineButtonMeasure(width, height) {
     // Material's sizes are Material 3's, exactly; another theme has its own, and keeps WCAG 2.2 AA's target size (2.5.8: at least 24 px).
     if (material) off('height', m.height, want.height);
     else if (m.height < 24)
-      problems.push(`${label}: ${m.size} button is ${m.height.toFixed(1)} px high, under WCAG 2.2 AA's 24 px target size`);
+      shortfall(
+        '2.5.8',
+        'target-size',
+        `${label}: ${m.size} button is ${m.height.toFixed(1)} px high, under WCAG 2.2 AA's 24 px target size`,
+      );
     off('label centre is off the button centre by', m.labelOffset, 0);
     off('icon centre is off the button centre by', m.iconOffset, 0);
     if (material && m.icon !== undefined) {
@@ -252,11 +257,11 @@ async function checkListDesigns(width, height) {
   const looks = [
     { look: 'List', hint: 'Show text and images in a list.' },
     { look: 'List, Segmented', hint: 'Show text and images in a list.', card: true },
-    { look: 'List - Expand', hint: 'Show list items that expand and collapse.' },
-    { look: 'List - Expand, Segmented', hint: 'Show list items that expand and collapse.', card: true },
+    { look: 'List - Expand', hint: 'Show list items that expand and collapse.', expand: true },
+    { look: 'List - Expand, Segmented', hint: 'Show list items that expand and collapse.', card: true, expand: true },
   ];
   const seen = [];
-  for (const { look, hint, card } of looks) {
+  for (const { look, hint, card, expand } of looks) {
     const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`${label} (${look}): ${e.message}`));
     await openEditor(page, site);
@@ -308,14 +313,58 @@ async function checkListDesigns(width, height) {
       })(),
     }));
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
-    const sheet = phone ? page.locator('dialog[open]') : page.locator('.mo-editor-side-sheet');
+    if (expand) {
+      // List - Expand keeps its row's sheet for now (its row buttons; the next pull request of B5).
+      const sheet = phone ? page.locator('dialog[open]') : page.locator('.mo-editor-side-sheet');
+      const opened = await sheet
+        .getByText('Page', { exact: true })
+        .first()
+        .waitFor({ timeout: 4000 })
+        .then(() => true)
+        .catch(() => false);
+      seen.push({ look, card, ...got, opened, expand, kept: true, iconFilled: true, iconBack: true, rowSheet: 0, closed: true, items: 0 });
+      await page.close();
+      continue;
+    }
+    // The page picker opens straight from the link button (B5): the sheet with the pages and No page, on a phone and a computer, and no sheet of the row.
+    const sheet = page.locator('dialog[open]');
     const opened = await sheet
-      .getByText('Page', { exact: true })
+      .getByText('No page', { exact: true })
       .first()
       .waitFor({ timeout: 4000 })
       .then(() => true)
       .catch(() => false);
-    seen.push({ look, card, ...got, opened });
+    const rowSheet = await page.getByText('Row settings').filter({ visible: true }).count();
+    // A page picked is written to the row (the picker opens again on it), No page takes it away and closes the picker; Block settings then lists no row.
+    let kept = true;
+    let iconFilled = true;
+    let iconBack = true;
+    if (opened) {
+      const slot = page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]');
+      const iconNow = () =>
+        slot
+          .locator('svg')
+          .first()
+          .evaluate((el) => el.outerHTML);
+      const iconEmpty = await iconNow();
+      await sheet.locator('[role="option"]:not(:has-text("No page"))').first().click();
+      await page.waitForTimeout(300);
+      iconFilled = (await iconNow()) !== iconEmpty;
+      await slot.click();
+      await sheet.getByText('No page', { exact: true }).first().waitFor({ timeout: 4000 });
+      kept = (await sheet.locator('[role="option"][aria-selected="true"]:not(:has-text("No page"))').count()) === 1;
+      await sheet.getByText('No page', { exact: true }).first().click();
+      await page.waitForTimeout(300);
+      iconBack = (await iconNow()) === iconEmpty;
+    }
+    const closed = await sheet.count().then((n) => n === 0);
+    await pressMore(page, 'Edit');
+    await page.waitForTimeout(400);
+    const items = await page
+      .locator('dialog[open], .mo-editor-side-sheet')
+      .getByText(/^Rows?$|^Add row$/)
+      .count();
+    seen.push({ look, card, ...got, opened, kept, iconFilled, iconBack, rowSheet, closed, items });
     await page.close();
   }
   const [first] = seen;
@@ -337,7 +386,13 @@ async function checkListDesigns(width, height) {
         problems.push(`${label}: ${one.look}: the leading icon starts ${one.edge.icon} px from the text's edge, not ${icon}`);
       if (one.edge.wide > 0.5) problems.push(`${label}: ${one.look}: the page scrolls sideways by ${one.edge.wide}px`);
     }
-    if (!one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the row's page field`);
+    if (!one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the page picker`);
+    if (!one.kept) problems.push(`${label}: ${one.look}: the page picked is not on the row`);
+    if (!one.iconFilled) problems.push(`${label}: ${one.look}: the link button's icon does not change when a page is set (filled)`);
+    if (!one.iconBack) problems.push(`${label}: ${one.look}: the link button's icon is not outlined again after No page`);
+    if (one.rowSheet) problems.push(`${label}: ${one.look}: a Row settings sheet opened`);
+    if (!one.closed) problems.push(`${label}: ${one.look}: the page picker stays open after No page`);
+    if (one.items) problems.push(`${label}: ${one.look}: Block settings lists the rows`);
   }
 }
 /** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
@@ -408,34 +463,61 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       if (hintColor !== rowColor || fieldColor !== rowColor)
         problems.push(`${label}: the ${kind} button's hint is ${hintColor} and its text ${fieldColor}, not its own ${rowColor}`);
     {
-      // The contextual menu's Settings, a plain icon button on a computer and a phone.
-      await pressTool(page, 'Settings').catch(async (e) =>
-        problems.push(
-          `${label}: the toolbar has no way to open the button's settings ${JSON.stringify((await barTools(page)).names)} ${e.message.slice(0, 200)}`,
-        ),
-      );
+      // The button's menu (ButtonMenu), opened from the control on the active button: no sheet of the button, on a computer and a phone.
       const kinds = ['Filled', 'Tonal', 'Outlined', 'Text'];
-      // The choice group (ChoiceGroup): its buttons, or its list of radio buttons when they do not fit.
-      const group = page.getByRole('group', { name: 'Variant', exact: true }).last();
-      await group.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's settings have no Variant choice`));
-      const radios = await group.getByRole('radio').count();
-      const names = radios
-        ? await group.locator('.mo-list__item-headline').allTextContents()
-        : await group
-            .getByRole('button')
-            .allTextContents()
-            .catch(() => []);
-      if (names.map((n) => n.trim()).join() !== kinds.join()) problems.push(`${label}: the button's styles are "${names}", not "${kinds}"`);
-      await (
-        radios
-          ? group.locator('.mo-list__item-content', { hasText: /^Outlined$/ })
-          : group.getByRole('button', { name: 'Outlined', exact: true })
-      )
+      // The button is one once it has text (the empty one is the faded next button): its menu control is there.
+      await page.locator('.mo-editor-inline-list-row-active [data-field="label"]').first().fill('Go');
+      await page.waitForTimeout(300);
+      await page
+        .locator('.mo-editor-inline-list-row-active [aria-label="Button options"]')
+        .click({ timeout: 4000 })
+        .catch(() => problems.push(`${label}: the active button has no menu control`));
+      const menu = page.locator('[role=menu][aria-label="Button"]');
+      await menu.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the button's menu does not open`));
+      await menu
+        .locator('[role^=menuitem]')
+        .first()
+        .waitFor({ timeout: 4000 })
+        .catch(() => {});
+      const names = (await menu.locator('[role^=menuitem]').allTextContents()).map((n) => n.trim());
+      const styles = names.filter((n) => n.startsWith('Style: ')).map((n) => n.slice(7));
+      if (styles.join() !== kinds.join()) problems.push(`${label}: the button's styles are "${styles}", not "${kinds}"`);
+      for (const want of ['Page', 'Icon', 'Remove button'])
+        if (!names.includes(want)) problems.push(`${label}: the button's menu has no "${want}": ${names}`);
+      if (await page.getByText('Button settings').count()) problems.push(`${label}: a "Button settings" sheet shows`);
+      await menu
+        .locator('[role^=menuitem]', { hasText: /^Style: Outlined$/ })
         .click({ timeout: 3000 })
         .catch(() => {});
       await page.waitForTimeout(300);
       if (!(await page.locator('.mo-editor-inline-list-row-active.mo-button.mo-is-outlined').count()))
         problems.push(`${label}: choosing Outlined does not change the active button's style`);
+      // Page: the menu opens the page picker at once; a page picked is on the button, and the menu says so.
+      const openMenu = async () => {
+        await page.locator('.mo-editor-inline-list-row-active [aria-label="Button options"]').click({ timeout: 4000 });
+        await menu.locator('[role^=menuitem]').first().waitFor({ timeout: 4000 });
+      };
+      await openMenu().catch(() => problems.push(`${label}: the button's menu does not open again`));
+      await menu
+        .locator('[role^=menuitem]', { hasText: /^Page$/ })
+        .click({ timeout: 3000 })
+        .catch(() => {});
+      const option = page.locator('[role="option"]:not(:has-text("No page"))').filter({ visible: true }).first();
+      await option.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the menu's Page did not open the page picker`));
+      await option.click().catch(() => {});
+      await page.waitForTimeout(400);
+      if (await page.getByText('Button settings').count())
+        problems.push(`${label}: a "Button settings" sheet shows after a page was picked`);
+      await openMenu().catch(() => {});
+      if (
+        (await menu
+          .locator('[role^=menuitem]', { hasText: /^Page$/ })
+          .getAttribute('aria-checked')
+          .catch(() => null)) !== 'true'
+      )
+        problems.push(`${label}: the menu does not show that the button leads to a page`);
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(300);
       await page.keyboard.press('Escape');
       await page.waitForTimeout(300);
       await page.locator('.mo-editor-inline-list-row [data-field="label"]').first().click();
@@ -537,11 +619,12 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       ])
         if (got[part] !== null && got[part] < min) {
           const message = `${label} (${scheme}): the ${part} on a ${color} section has contrast ${got[part].toFixed(2)}:1, below ${min}`;
-          // A placeholder and the row's outline are parts a theme can name in its accessibility.json; text and slot icons never.
+          // Contrast is a theme value (lib/accessibility.mjs, `kindOf`): measured and printed, never failed.
           if (part === 'placeholder') shortfall('1.4.3', 'placeholder', message);
           else if (part === 'outline')
             shortfall('1.4.11', 'outlined-card-edge', message); // the edge of a block typed in place on a section, M3's outline: judged with the card edge, which the contrast scan measures in whole
-          else problems.push(message);
+          else if (part === 'slot') shortfall('1.4.11', 'icon', message);
+          else shortfall('1.4.3', 'text', message);
         }
   }
   await page.emulateMedia({ colorScheme: 'light' });

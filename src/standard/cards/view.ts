@@ -8,7 +8,6 @@ import { libraryAltPart } from '../../imageAlt.mjs';
 import { iconColorOf } from '../../iconColor';
 import { sharedIn } from '../../shared';
 import type { Image, ViewOf } from '../view';
-import { headOf, type HeadView } from '../head';
 import { textOf, type Button } from '../buttons/fields';
 import { kindOf, type ButtonView } from '../buttons/view';
 import { viewOf as videoViewOf, type VideoView } from '../video/view';
@@ -43,10 +42,10 @@ export type LinkCard = {
   /** A line between the text and the buttons (Divider); only on a card with buttons. */
   divider?: boolean;
 };
-export type CardsView = HeadView & {
+export type CardsView = {
   design?: string;
   color?: string;
-  /** 'carousel': swiped sideways on a phone (two cards or more); else stacked. */
+  /** 'carousel': swiped sideways on every screen size (two cards or more); else a grid. */
   phone?: 'carousel';
   /** The carousel's Material 3 layout (carouselLayouts, below); none is the uncontained layout. */
   layout?: CardsLayout;
@@ -54,7 +53,7 @@ export type CardsView = HeadView & {
   items: LinkCard[];
 };
 
-/** The cards on a phone as the block says: a carousel needs two cards at least. */
+/** The cards as the block says (a carousel on every screen size): a carousel needs two cards at least. */
 export const phoneOf = (props: Record<string, any>): 'carousel' | undefined =>
   props.phone === 'carousel' && Array.isArray(props.items) && props.items.length >= 2 ? 'carousel' : undefined;
 
@@ -62,12 +61,9 @@ export const phoneOf = (props: Record<string, any>): 'carousel' | undefined =>
 export const cardsLayouts = ['multi-aspect-ratio', 'multi-browse', 'hero', 'hero-center', 'full-screen'] as const;
 export type CardsLayout = (typeof cardsLayouts)[number];
 
-/** The carousel's layout as the block says; none (uncontained) without a carousel or for a choice that is not offered (the multi-aspect ratio layout is for images only:
- * its widths come from them; the choice stays stored and comes back with the images). */
-export const layoutOf = (props: Record<string, any>): CardsLayout | undefined => {
-  const layout = phoneOf(props) ? cardsLayouts.find((l) => l === props.layout) : undefined;
-  return layout === 'multi-aspect-ratio' && props.media !== 'image' ? undefined : layout;
-};
+/** The carousel's layout as the block says, drawn as stored (every layout is offered for every card: the editor decides); none (uncontained) without a carousel. */
+export const layoutOf = (props: Record<string, any>): CardsLayout | undefined =>
+  phoneOf(props) ? cardsLayouts.find((l) => l === props.layout) : undefined;
 
 /** A card as its field writes it. */
 export type LinkCardProps = {
@@ -150,7 +146,6 @@ export const shownCards = (items: LinkCardProps[], data: BlockData, media?: unkn
   );
 
 export const viewOf: ViewOf<CardsView> = (props, data) => ({
-  ...headOf(props),
   design: props.design || undefined,
   color: props.design === 'filled' ? props.color || undefined : undefined,
   phone: phoneOf(props),

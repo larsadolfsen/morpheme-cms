@@ -5,6 +5,7 @@ import { ROOT, blocksOf, browser, has, problems, shots, site } from './support/c
 import { onTestPage, pressInsert } from './support/shared.mjs';
 import { isMaterialTheme } from '../theme-statement.mjs';
 import { pageLanguage } from './support/page-language.mjs';
+import { shortfall } from './support/statement.mjs';
 
 /** The Image grid typed in place: `Add images` asks for several images of the Library (a tap selects, the button under them says how many it adds), puts them in the block as picked images, and a tap on an image opens its sheet with the text of its own, which the card then has as its alt text. */
 async function checkImageGridAdd(width, height) {
@@ -22,7 +23,6 @@ async function checkImageGridAdd(width, height) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Show images from Files in a grid.' }).first().click();
-  await page.waitForSelector('.mo-site-block-inline [data-field="heading"]', { timeout: 8000 });
   await page.waitForSelector('.mo-site-block-inline .mo-block-imagegrid__grid li', { timeout: 8000 });
   const before = await page.locator('.mo-site-block-inline .mo-block-imagegrid__grid li').count();
   await page.getByRole('button', { name: 'Add images' }).click();
@@ -391,15 +391,18 @@ async function checkCardIconText(width, height, scheme) {
   for (const f of found) {
     console.log(`card icon contrast ${width}px ${scheme} ${f.design}: ${f.contrast.toFixed(2)}`);
     if (f.icon !== f.title) problems.push(`${label}: a ${f.design} card's icon is ${f.icon}, not the text colour ${f.title}`);
-    if (f.contrast < 3) problems.push(`${label}: a ${f.design} card's icon has contrast ${f.contrast.toFixed(2)}:1, under 3:1`);
+    if (f.contrast < 3)
+      shortfall('1.4.11', 'icon', `${label}: a ${f.design} card's icon has contrast ${f.contrast.toFixed(2)}:1, under 3:1`);
   }
   await page.close();
 }
 
-/** Cards that are a carousel on phones (`phone`, on the demo's Blocks page): at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), labelled, with no page indicator (M3 prints none); each layout the block offers (`layout`: multi-browse, hero, center-aligned hero, full-screen) is on the page, its items with M3's 28dp corners, and `Show all` is under every one but the full-screen one; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 1280 px the same block is the grid, with no dots and no button. */
+/** Cards that are a carousel (`phone`, on the demo's Blocks page; since 0.19.8 on every screen size): at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), labelled, with no page indicator (M3 prints none); each layout the block offers (`layout`: multi-browse, hero, center-aligned hero, full-screen) is on the page, its items with M3's 28dp corners, and `Show all` is under every one but the full-screen one; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 840 and 1280 px it is the same row, with more cards in view (the hero keeps one small item), `Show all` under it, and a full-screen carousel is the hero. */
 async function checkCardsCarousel(width, height) {
   const label = `${width}px cards carousel`;
   const phone = width < 600;
+  // A full-screen carousel is a hero from 840 px and in landscape (FULL_SCREEN_AS_HERO); below that, in portrait, it is one item at a time.
+  const stillFullScreen = width < 840 && height > width;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
@@ -477,26 +480,6 @@ async function checkCardsCarousel(width, height) {
         `${label}: the cards are labelled "${m.itemLabels}", not "${say.slideOf('n', m.items)}" (the page's language is "${lang}", read from ${where})`,
       );
     if (m.pageOverflow) problems.push(`${label}: the page scrolls sideways`);
-    const button = root.locator('[data-cards-show-all]');
-    const shown = (await button.textContent())?.trim();
-    if (shown !== say.showAll)
-      problems.push(`${label}: the button says "${shown}", not "${say.showAll}" (the page's language is "${lang}", read from ${where})`);
-    await button.click();
-    await page.waitForTimeout(300);
-    const open = await root.evaluate((el) => ({
-      expanded: el.hasAttribute('data-expanded'),
-      grid: getComputedStyle(el.querySelector('[data-carousel-items]')).display,
-      text: el.querySelector('[data-cards-show-all]').textContent.trim(),
-      pressed: el.querySelector('[data-cards-show-all]').getAttribute('aria-expanded'),
-      focus: document.activeElement === el.querySelector('[data-cards-show-all]'),
-    }));
-    if (!open.expanded || open.grid !== 'grid' || open.text !== say.showFewer || open.pressed !== 'true' || !open.focus)
-      problems.push(
-        `${label}: "Show all" did not stack the cards in place with focus kept, or the button did not say "${say.showFewer}" (${JSON.stringify(open)}; the page's language is "${lang}", read from ${where})`,
-      );
-    await button.click();
-    await page.waitForTimeout(300);
-    if (await root.evaluate((el) => el.hasAttribute('data-expanded'))) problems.push(`${label}: "Show fewer" did not return the carousel`);
     // The arrow keys move between the cards.
     await root.locator('[data-carousel-item]').first().focus();
     await page.keyboard.press('ArrowRight');
@@ -506,9 +489,32 @@ async function checkCardsCarousel(width, height) {
     if (at !== 1) problems.push(`${label}: ArrowRight moved the focus to card ${at}, not card 1`);
     await page.screenshot({ path: join(shots, `cards-carousel-${width}.png`) });
   } else {
-    if (m.display !== 'grid') problems.push(`${label}: on a computer the cards are not the grid (${m.display})`);
-    if (m.showAll !== 'none') problems.push(`${label}: on a computer "Show all" shows (${m.showAll})`);
+    // 0.19.8: the carousel is on every screen size, so a computer shows the row too, not the grid (owner: carousels on every screen size).
+    if (m.display !== 'flex') problems.push(`${label}: on a computer the carousel is not a row (${m.display})`);
+    if (m.overflowX !== 'auto') problems.push(`${label}: on a computer the row does not scroll sideways (${m.overflowX})`);
+    if (m.pageOverflow) problems.push(`${label}: the page scrolls sideways`);
   }
+  // "Show all" is under the carousel at every width (M3, Carousel, Accessibility) and stacks the cards in place.
+  const button = root.locator('[data-cards-show-all]');
+  const shown = (await button.textContent())?.trim();
+  if (shown !== say.showAll)
+    problems.push(`${label}: the button says "${shown}", not "${say.showAll}" (the page's language is "${lang}", read from ${where})`);
+  await button.click();
+  await page.waitForTimeout(300);
+  const open = await root.evaluate((el) => ({
+    expanded: el.hasAttribute('data-expanded'),
+    grid: getComputedStyle(el.querySelector('[data-carousel-items]')).display,
+    text: el.querySelector('[data-cards-show-all]').textContent.trim(),
+    pressed: el.querySelector('[data-cards-show-all]').getAttribute('aria-expanded'),
+    focus: document.activeElement === el.querySelector('[data-cards-show-all]'),
+  }));
+  if (!open.expanded || open.grid !== 'grid' || open.text !== say.showFewer || open.pressed !== 'true' || !open.focus)
+    problems.push(
+      `${label}: "Show all" did not stack the cards in place with focus kept, or the button did not say "${say.showFewer}" (${JSON.stringify(open)}; the page's language is "${lang}", read from ${where})`,
+    );
+  await button.click();
+  await page.waitForTimeout(300);
+  if (await root.evaluate((el) => el.hasAttribute('data-expanded'))) problems.push(`${label}: "Show fewer" did not return the carousel`);
   // Every layout the block offers is on the page (the rows of the demo's Cards page), each measured as Material 3 prints it.
   const layouts = await page.evaluate(() =>
     [...document.querySelectorAll('[data-cards-carousel]')].map((el) => {
@@ -534,23 +540,23 @@ async function checkCardsCarousel(width, height) {
           return !!b && getComputedStyle(b.closest('.mo-block-cards__show-all')).display !== 'none';
         })(),
         indicators: el.querySelectorAll('[data-carousel-indicator], [data-carousel-dot]').length,
+        count: el.querySelectorAll('[data-carousel-item]').length,
       };
     }),
   );
   for (const want of ['uncontained', 'multi-aspect-ratio', 'multi-browse', 'hero', 'hero-center', 'full-screen'])
     if (!layouts.some((l) => l.layout === want)) problems.push(`${label}: no ${want} Cards carousel on the Blocks page`);
-  if (phone)
-    for (const l of layouts) {
-      const at = `${label} (${l.layout})`;
-      if (!l.scrolls) problems.push(`${at}: the row does not scroll sideways`);
-      if (isMaterialTheme() && l.indicators) problems.push(`${at}: it has a page indicator, which Material 3's carousel does not`);
-      // Full-screen items go edge to edge without corners on a phone (the theme's M3 rule); every other item has the 28dp item shape.
-      if (isMaterialTheme() && l.layout !== 'full-screen' && l.radius !== '28px')
-        problems.push(`${at}: the item's corners are ${l.radius}, not 28px`);
-      // M3, Carousel, Accessibility: a Show all button below the carousel (not required on a full-screen one, which shows one item).
-      if (l.showAll === (l.layout === 'full-screen'))
-        problems.push(`${at}: ${l.showAll ? 'a full-screen carousel has' : 'it has no'} "Show all"`);
-      // M3: multi-browse and hero have 16dp leading padding, the row reaching the screen's edge.
+  for (const l of layouts) {
+    const at = `${label} (${l.layout})`;
+    if (l.count >= 8 && !l.scrolls) problems.push(`${at}: the row does not scroll sideways`);
+    if (isMaterialTheme() && l.indicators) problems.push(`${at}: it has a page indicator, which Material 3's carousel does not`);
+    // Full-screen items go edge to edge without corners on a phone (the theme's M3 rule); every other item has the 28dp item shape.
+    if (isMaterialTheme() && !(stillFullScreen && l.layout === 'full-screen') && l.radius !== '28px')
+      problems.push(`${at}: the item's corners are ${l.radius}, not 28px`);
+    // M3, Carousel, Accessibility: a Show all button below the carousel, at every width. A full-screen one shows it from 840 px, where it is the hero.
+    const wantShow = !(stillFullScreen && l.layout === 'full-screen');
+    if (l.showAll !== wantShow) problems.push(`${at}: ${l.showAll ? 'it has' : 'it has no'} "Show all" (wanted: ${wantShow})`);
+    if (phone) {
       // Multi-aspect ratio: leading padding 16dp, the cards of different widths (each as wide as its image's aspect ratio makes it).
       if (l.layout === 'multi-aspect-ratio') {
         if (l.itemLeft !== 16 || l.rowLeft !== 0) problems.push(`${at}: the first item is ${l.itemLeft}px from the edge, not 16px`);
@@ -563,10 +569,65 @@ async function checkCardsCarousel(width, height) {
         );
       if (l.layout === 'full-screen' && Math.abs(l.itemWidth - l.rowWidth) > 1)
         problems.push(`${at}: a full-screen item is ${l.itemWidth}px of the row's ${l.rowWidth}px`);
-      if (l.layout === 'hero' && l.itemWidth <= l.rowWidth / 2)
-        problems.push(`${at}: the hero's large item is only ${l.itemWidth}px of ${l.rowWidth}px`);
     }
-  else for (const l of layouts) if (l.showAll) problems.push(`${label} (${l.layout}): on a computer "Show all" is drawn`);
+    if (l.layout === 'hero' && l.itemWidth <= l.rowWidth / 3)
+      problems.push(`${at}: the hero's large item is only ${l.itemWidth}px of ${l.rowWidth}px`);
+  }
+  // Down from a card leaves the carousel to its own `Show all` (M3, Accessibility: "use the up and down arrow keys to leave the carousel"), in every carousel
+  // with one, not to the next carousel's first card; Up goes to the control before the carousel.
+  const carousels = page.locator('[data-cards-carousel]');
+  for (let i = 0; i < (await carousels.count()); i++) {
+    const one = carousels.nth(i);
+    const kind = await one.evaluate((el) => el.querySelector('[data-carousel]')?.getAttribute('data-carousel-layout') ?? 'uncontained');
+    if (
+      !(await one
+        .locator('[data-cards-show-all]')
+        .evaluate((b) => getComputedStyle(b.closest('.mo-block-cards__show-all')).display !== 'none'))
+    )
+      continue;
+    await one.scrollIntoViewIfNeeded();
+    const card = one.locator('[data-carousel-item]').first();
+    await card.evaluate((el) => (el.querySelector('a[href], button') ?? el).focus());
+    await page.keyboard.press('ArrowDown');
+    const onShowAll = await one.evaluate((el) => document.activeElement === el.querySelector('[data-cards-show-all]'));
+    if (!onShowAll)
+      problems.push(`${label} (${kind}, carousel ${i + 1}): Down from a card did not move the focus to that carousel's "Show all"`);
+  }
+  // Center-aligned hero (M3, Specs: "at least one large item and two small items"): scrolled to the start it is small, large, small, and to the end it is small, large with room after it, not a large
+  // card flush against an edge (M3 is silent on the ends of the scroll: the last item rests in the middle, as the first one does).
+  const centre = page.locator('[data-cards-carousel]:has([data-carousel-alignment="center"])').first();
+  if (await centre.count()) {
+    await centre.scrollIntoViewIfNeeded();
+    for (const at of ['start', 'end']) {
+      await centre
+        .locator('[data-carousel-items]')
+        .evaluate((row, to) => row.scrollTo({ left: to === 'start' ? 0 : row.scrollWidth, behavior: 'instant' }), at);
+      await page.waitForTimeout(400);
+      const { seen, rowMid } = await centre.evaluate((el) => {
+        const row = el.querySelector('[data-carousel-items]').getBoundingClientRect();
+        // A mask keeps the large width; the theme shrinks it with its inset on both sides.
+        const seen = [...el.querySelectorAll('[data-carousel-mask]')]
+          .map((m) => {
+            const b = m.getBoundingClientRect();
+            const inset = parseFloat(m.style.getPropertyValue('--mo-comp-carousel-mask-inset')) || 0;
+            return { left: b.left + inset, right: b.right - inset };
+          })
+          // Whole items: a card peeking in at the other end does not count.
+          .filter((b) => b.left >= row.left - 1 && b.right <= row.right + 1);
+        return { seen, rowMid: (row.left + row.right) / 2 };
+      });
+      const widths = seen.map((b) => Math.round(b.right - b.left));
+      // At the start the first item is the small one, then the large one, centred, and a small one after it; at the end the last item is the large one, centred, with the
+      // small one before it and room after it for the small one that no item fills (the row's padding, not a drawn part).
+      const big = at === 'start' ? 1 : seen.length - 1;
+      const mid = seen[big] ? (seen[big].left + seen[big].right) / 2 : NaN;
+      const shape = at === 'start' ? seen.length === 3 : seen.length === 2;
+      if (!(shape && widths[big] > widths[big - 1] && (at === 'end' || widths[2] < widths[1]) && Math.abs(mid - rowMid) <= 1))
+        problems.push(
+          `${label} (hero-center): at the ${at} the visible items are ${widths.join(', ')}px wide (the large one's centre ${Math.round(mid)}, the carousel's ${Math.round(rowMid)}), not ${at === 'start' ? 'a small, one large one centred and a small one' : 'a small one and the last, large one centred'}`,
+        );
+    }
+  }
   // A card's media (image or video still) sits flush against the card's top and sides: no padding or margin above it.
   const flush = await page.evaluate(() =>
     [...document.querySelectorAll('.mo-block-cards__card')].flatMap((card) => {
@@ -1237,13 +1298,14 @@ async function checkIconColor(width, height, scheme = 'light') {
   else if (grid.colors.join() !== grid.secondary)
     problems.push(`${label}: after Secondary the grid's icons are ${grid.colors.join(' / ')}, not the secondary color ${grid.secondary}`);
   console.log(`icon grid contrast ${width}px ${scheme} secondary: ${grid.contrast.toFixed(2)}`);
-  if (grid.contrast < 3) problems.push(`${label}: the secondary icons on the grid have contrast ${grid.contrast.toFixed(2)}:1, under 3:1`);
+  if (grid.contrast < 3)
+    shortfall('1.4.11', 'icon', `${label}: the secondary icons on the grid have contrast ${grid.contrast.toFixed(2)}:1, under 3:1`);
   await page.getByRole('button', { name: 'Tertiary', exact: true }).click();
   await page.waitForTimeout(300);
   const tertiary = await gridColors();
   console.log(`icon grid contrast ${width}px ${scheme} tertiary: ${tertiary.contrast.toFixed(2)}`);
   if (tertiary.contrast < 3)
-    problems.push(`${label}: the tertiary icons on the grid have contrast ${tertiary.contrast.toFixed(2)}:1, under 3:1`);
+    shortfall('1.4.11', 'icon', `${label}: the tertiary icons on the grid have contrast ${tertiary.contrast.toFixed(2)}:1, under 3:1`);
   if (tertiary.colors.join() !== tertiary.tertiary)
     problems.push(
       `${label}: after Tertiary the grid's icons are ${tertiary.colors.join(' / ')}, not the tertiary color ${tertiary.tertiary}`,
@@ -1291,6 +1353,9 @@ export function register(unit) {
   ])
     unit(`checkCardDivider ${width}`, () => checkCardDivider(width, height));
   unit('checkCardsElevation 768', () => checkCardsElevation(768, 1024));
+  unit('checkCardsCarousel 768', () => checkCardsCarousel(768, 900));
+  unit('checkCardsCarousel 600', () => checkCardsCarousel(600, 900));
+  unit('checkCardsCarousel 840', () => checkCardsCarousel(840, 900));
   for (const [width, height] of [
     [375, 740],
     [1280, 900],

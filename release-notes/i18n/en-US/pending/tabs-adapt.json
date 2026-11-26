@@ -1,0 +1,6 @@
+{
+  "id": "tabs-adapt",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Tabs fit their labels on wide screens and line up with the content, and share the row on a phone"
+}

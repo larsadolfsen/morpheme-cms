@@ -12,6 +12,17 @@ export const app = {
    * changed, as a list (changesText in deploy.ts). */
   siteUpdated: (changes: string) => `The website has been updated: ${changes}.`,
   siteNotUpdated: (changes: string) => `The website wasn’t updated (${changes}). Restore the previous version under History.`,
+  /** The strip under the top bar from Save until the website is built with it (BuildProgress.tsx): Saved, Publishing, then Live, or Not live
+   * (the save is safe; the build failed or took too long, and its page on GitHub). */
+  buildProgress: {
+    /** The progress bar's name for screen readers. */
+    label: 'Publishing your changes to the website',
+    publishing: 'Saved. Publishing to the website.',
+    live: 'Live. The website has your changes.',
+    notLive: 'Not live. Your changes are saved, but the website’s build failed or took too long.',
+    seeBuild: 'See the build',
+    dismiss: 'Dismiss',
+  },
   /** What a save changed (deploy.ts): said right after it and, with the other saves since, when the website has been
    * updated. Each starts with a small letter, as it stands inside a sentence; `what` is a thing (`named`: its kind and
    * its name) or a part of the website. */

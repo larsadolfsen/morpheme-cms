@@ -8,7 +8,7 @@
 // "View on site" of the other forms (`view`) is a page action (Screen.tsx `pageActions`: the end of the title row from expanded, the top
 // bar below it).
 import { useContext, useEffect, useRef, useState, type ReactNode } from 'react';
-import { PreviewIcon, Icon, materialIcon } from './icon';
+import { PreviewIcon, materialIcon } from './icon';
 import Screen, { type Back } from './Screen';
 import { ScreenHidden } from './screenHidden';
 import { ActionSheet, Button, Group, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
@@ -41,7 +41,7 @@ type Props<T extends string> = {
   title: string;
   /** The way back; leaving asks first while something is unsaved, unless it has a `guard` of its own (a field's page
    * goes back to its form, which keeps what is unsaved). */
-  back: Back;
+  back?: Back;
   status?: ReactNode;
   view?: string;
   /** More in the top bar, before the link to the site. */
@@ -67,9 +67,6 @@ type Props<T extends string> = {
   /** A page or post that is published in steps: `Publish` at the end of the bar, shown
    * also when nothing is unsaved, and its other actions (`Unpublish`, `Discard draft`) above "Delete". */
   publish?: Publish;
-  /** `Discard` at the start of the bar (a page or post): throws away the changes since it was published. It is disabled while `canDiscard` is false. */
-  onDiscard?: () => void;
-  canDiscard?: boolean;
   /** The fields beside the text on a wide computer screen (FormColumns in ui.tsx). */
   panel?: boolean;
   /** A list (the menu): as wide as the other lists on a computer. */
@@ -222,8 +219,6 @@ export default function FormFrame<T extends string>({
   deleteLabel,
   saveLabel,
   publish,
-  onDiscard,
-  canDiscard,
   panel,
   wide,
   children,
@@ -261,7 +256,7 @@ export default function FormFrame<T extends string>({
       wide={wide}
       drawer={drawer}
       tabs={tabs}
-      back={{ guard: leaveTo, ...back }}
+      back={back && { guard: leaveTo, ...back }}
       actions={actions}
       pageActions={
         pageActions || view ? (
@@ -274,25 +269,21 @@ export default function FormFrame<T extends string>({
     >
       <div className="mo-editor-stack-300">{children}</div>
       {(onDelete || publish?.actions?.length) && (
-        <div className="mo-editor-form-more">
-          <Group>
-            {publish?.actions?.map((a) => (
-              <ListItem key={a.label} disabled={saving} onClick={a.onClick} headline={a.label} />
-            ))}
-            {onDelete && (
-              <ListItem
-                tone="delete"
-                disabled={saving}
-                onClick={onDelete}
-                headline={
-                  <span className="mo-editor-inline-row">
-                    <Icon name="delete" size={18} />
-                    {deleting ? <LoadingIndicator>{t.app.busy.deleting}</LoadingIndicator> : (deleteLabel ?? t.common.delete)}
-                  </span>
-                }
-              />
-            )}
-          </Group>
+        <div className="mo-editor-form-more mo-editor-stack-200">
+          {!!publish?.actions?.length && (
+            <Group>
+              {publish.actions.map((a) => (
+                <ListItem key={a.label} disabled={saving} onClick={a.onClick} headline={a.label} />
+              ))}
+            </Group>
+          )}
+          {onDelete && (
+            <div className="mo-editor-danger-buttons">
+              <Button kind="filled" tone="error" icon={materialIcon('delete')} disabled={saving} onClick={onDelete}>
+                {deleting ? <LoadingIndicator>{t.app.busy.deleting}</LoadingIndicator> : (deleteLabel ?? t.common.delete)}
+              </Button>
+            </div>
+          )}
         </div>
       )}
       {!hidden && (dirty || saving || publish?.label || publishing) && (
@@ -310,14 +301,9 @@ export default function FormFrame<T extends string>({
                 {t.preview.button}
               </Button>
             )}
-            {onDiscard && (
-              <Button kind="text" disabled={saving || !canDiscard} onClick={onDiscard}>
-                {t.app.discard}
-              </Button>
-            )}
             {(dirty || saving) && (
               <Button
-                kind={publish?.label ? 'tonal' : 'filled'}
+                kind={publish?.label ? 'outlined' : 'filled'}
                 disabled={saving}
                 busy={saving && !deleting}
                 onClick={() => {

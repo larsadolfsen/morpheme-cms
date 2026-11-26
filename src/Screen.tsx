@@ -298,7 +298,7 @@ export default function Screen<T extends string>({
       </div>
       {tabs && (
         <div className="mo-editor-bar-tabs">
-          <div className="mo-editor-screen-tabs">
+          <div className={`mo-editor-screen-tabs ${width}`}>
             <TabRow id={id} {...tabs} />
           </div>
         </div>

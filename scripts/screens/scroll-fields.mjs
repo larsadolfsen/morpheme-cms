@@ -1,6 +1,7 @@
 import { openEditor } from '../built-site.mjs';
 import { browser, problems, site } from './support/context.mjs';
 import { isMaterialTheme } from '../theme-statement.mjs';
+import { shortfall } from './support/statement.mjs';
 
 /** The scroll field (Material 3, m3.material.io/components/scroll-fields): in the editor's UI parts page, the samples of the ScrollField part are spinbuttons
  * whose selected value is the one in the middle, the inactive values at least 48 px high; a small, a medium and a large field have the minimum widths of
@@ -49,9 +50,10 @@ async function checkScrollFields(width, height, theme) {
   seen.forEach((s, i) => {
     if (s.off === null) problems.push(`${label} #${i}: no selected value`);
     else if (s.off > 2) problems.push(`${label} #${i}: the selected value is ${s.off.toFixed(1)}px from the middle`);
-    // Material follows M3's 48 px; every theme keeps WCAG 2.2 AA's 24 px target size.
-    if (s.inactive < (isMaterialTheme() ? 48 : 24))
-      problems.push(`${label} #${i}: an inactive value is ${s.inactive}px high, ${isMaterialTheme() ? 'M3 asks for 48' : 'under 24'}`);
+    // Material follows M3's 48 px (a hard check for Material only); another theme's smaller target is a 2.5.8 theme value, measured, never failed.
+    if (isMaterialTheme()) {
+      if (s.inactive < 48) problems.push(`${label} #${i}: an inactive value is ${s.inactive}px high, M3 asks for 48`);
+    } else if (s.inactive < 24) shortfall('2.5.8', 'target-size', `${label} #${i}: an inactive value is ${s.inactive}px high, under 24`);
     if (s.width + 1 < minimum[s.size] * rem) problems.push(`${label} #${i}: ${s.size} is ${s.width}px wide, under its minimum`);
     if (s.wide) problems.push(`${label} #${i}: the page scrolls sideways`);
   });

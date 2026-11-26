@@ -1,18 +1,14 @@
 // The Steps block typed in place (docs/superpowers/plans/2026-11-12-inline-steps.md): the steps are drawn as the site draws them (the theme's
 // StepList markup: ol.mo-block-steps, li.mo-block-steps__step with its number, and the line) and each step's heading and text are typed where they
-// stand. A step has nothing else to pick, so there is no slot and no sheet; the numbers are the steps' places (the first is 1). An old
-// Steps with a heading or subheading over it keeps showing them (the site does). The parts, the keys and what is kept are InlineItems.tsx
+// stand. A step has nothing else to pick, so there is no slot and no sheet; the numbers are the steps' places (the first is 1). The parts, the keys and what is kept are InlineItems.tsx
 // and src/inlineRows.mjs; the empty, faded step, `Add step` and the dotted line are as in the List.
 import { t } from './i18n';
 import InlineItems from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
-import { headOf } from './standard/head';
-import BlockHead from '@theme/blocks/BlockHead';
 
-export default function InlineSteps({ items, props, active, focus, onChange }: InlineViewProps) {
+export default function InlineSteps({ items, active, focus, onChange }: InlineViewProps) {
   return (
     <>
-      <BlockHead view={headOf(props)} />
       <InlineItems
         items={items}
         active={active}

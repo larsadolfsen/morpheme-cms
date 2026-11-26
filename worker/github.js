@@ -5,6 +5,7 @@
 // Through the cache of the site's files in R2, like the editor's (packages/editor/worker/files.js): the files are read from it, and
 // what is saved goes into it. `ctx`: the request's, so R2 is written after the answer has gone. `token`: another sign-in
 // than the Worker's own (someone signed in to the editor who asked for it, packages/editor/worker/index.js), whose name the commit is in.
+import { config } from '@site/config';
 import { filesOf, toBase64 } from './files.js';
 
 /** The branch's head and the files at it, by their paths (a file that is not there: undefined). */
@@ -76,8 +77,8 @@ export async function readStoreItems(env, folders, ctx, token = env.GITHUB_PUBLI
   }
 }
 
-/** Saves the files (`{ path, text }`, `{ path, text: null }` to delete one, or `{ path, bytes }` for an image) in one commit on the branch, if its head is still `head`; returns the new commit's id. */
-export async function commitFiles(env, head, headline, changes, ctx, token = env.GITHUB_PUBLISH_TOKEN) {
+/** Saves the files (`{ path, text }`, `{ path, text: null }` to delete one, or `{ path, bytes }` for an image) in one commit on the branch (`onBranch`: another branch than the site's), if its head is still `head`; returns the new commit's id. */
+export async function commitFiles(env, head, headline, changes, ctx, token = env.GITHUB_PUBLISH_TOKEN, onBranch = undefined) {
   const files = filesOf(env, token, ctx);
   try {
     const at = { commit: head, tree: await files.rootOf(head) };
@@ -86,9 +87,69 @@ export async function commitFiles(env, head, headline, changes, ctx, token = env
         at,
         headline,
         changes.map((f) => ({ path: f.path, contents: f.text === null ? null : toBase64(f.bytes ?? new TextEncoder().encode(f.text)) })),
+        onBranch,
       )
     ).commit;
   } finally {
     await files.finish('Workeren gemmer');
+  }
+}
+
+const REF = `
+  query ($owner: String!, $name: String!, $ref: String!) {
+    repository(owner: $owner, name: $name) {
+      id
+      ref(qualifiedName: $ref) { id target { oid } }
+    }
+  }
+`;
+
+/** A branch's id and commit (null when it is not there), and the repository's id. */
+async function refOf(files, branch) {
+  const { owner, name } = config.repo;
+  const data = await files.graphql(REF, { owner, name, ref: `refs/heads/${branch}` });
+  return { repository: data.repository.id, id: data.repository.ref?.id ?? null, commit: data.repository.ref?.target?.oid ?? null };
+}
+
+/** A new branch at `commit`; one of that name that is there is deleted first (a retry of the same version starts afresh). */
+export async function createBranch(env, branch, commit, ctx, token = env.GITHUB_PUBLISH_TOKEN) {
+  const files = filesOf(env, token, ctx);
+  try {
+    const old = await refOf(files, branch);
+    if (old.id) await files.graphql('mutation ($id: ID!) { deleteRef(input: { refId: $id }) { clientMutationId } }', { id: old.id });
+    await files.graphql(
+      'mutation ($repo: ID!, $name: String!, $oid: GitObjectID!) { createRef(input: { repositoryId: $repo, name: $name, oid: $oid }) { ref { id } } }',
+      { repo: old.repository, name: `refs/heads/${branch}`, oid: commit },
+    );
+  } finally {
+    await files.finish('Worker saves');
+  }
+}
+
+/** Deletes a branch; nothing happens when it is not there. */
+export async function deleteBranch(env, branch, ctx, token = env.GITHUB_PUBLISH_TOKEN) {
+  const files = filesOf(env, token, ctx);
+  try {
+    const old = await refOf(files, branch);
+    if (old.id) await files.graphql('mutation ($id: ID!) { deleteRef(input: { refId: $id }) { clientMutationId } }', { id: old.id });
+  } finally {
+    await files.finish('Worker saves');
+  }
+}
+
+/**
+ * Moves the site's branch to `commit` as a fast-forward and never a force: GitHub refuses when the branch is no longer where `commit` was cut
+ * (the error says "not a fast forward"), or when a rule protects it.
+ */
+export async function fastForward(env, commit, ctx, token = env.GITHUB_PUBLISH_TOKEN) {
+  const files = filesOf(env, token, ctx);
+  try {
+    const main = await refOf(files, config.repo.branch);
+    await files.graphql(
+      'mutation ($id: ID!, $oid: GitObjectID!) { updateRef(input: { refId: $id, oid: $oid, force: false }) { ref { id } } }',
+      { id: main.id, oid: commit },
+    );
+  } finally {
+    await files.finish('Worker saves');
   }
 }
