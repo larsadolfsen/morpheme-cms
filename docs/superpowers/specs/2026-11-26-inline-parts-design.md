@@ -39,8 +39,8 @@ The page and post editor. It follows Material 3 like the rest of the editor (`CL
 6a. **The active item has a dotted line around it** (owner, 26 Nov 2026: "The list item needs a dotted line"), in the primary
     colour, like the selected block, with the item menu inside it at the top (rule 14). A card's dotted line takes the place of its
     own outline while it is active.
-7. **The selected block keeps its dotted primary-colour outline**, so a selected block reads differently from a part. *(Architect's
-   recommendation; the owner has not answered it.)*
+7. **The selected block keeps its dotted primary-colour outline**, also while an item in it is active, so two dotted lines show:
+   the block's and the item's (owner, 26 Nov 2026: "yes keep it").
 8. **The text keeps its formatting** in the parts: the label text and the headline in their own type, the subhead and the
    supporting text in theirs. The parts do not take M3's text-field type.
 9. **Empty parts ask for an action**, in the placeholder colour (`on-surface-variant` at full strength, so it meets 4.5:1 and
@@ -74,6 +74,11 @@ The page and post editor. It follows Material 3 like the rest of the editor (`CL
     item and its menu.
 14. **The item menu looks like the block menu, one size smaller** (owner, 26 Nov 2026: "yes"): the same bar and icon buttons, with
     M3's next smaller icon-button size (read on the M3 *Icon buttons* pages in the build), keeping a 48px target.
+    On compact windows (below 600dp) the item menu has no drag handle; on every larger window it has one (owner, 26 Nov 2026: "hiding
+    it on compact. Show it on others"). On a phone a long press and drag moves the item (M3 Gestures, *Pick up and move*: "A long
+    press and drag allows people to reorder content"), and the menu's up and down arrows are the single-pointer way (M3 Cards,
+    Accessibility: "any dragging and swiping interactions need a single-pointer alternative, like selecting the same actions from a
+    menu"). M3's pages read on 26 Nov 2026 (Lists, Cards, Gestures, Compact layout) do not print a rule on the handle itself.
 15. **The Save bar hides while the phone's keyboard is open** (owner, 26 Nov 2026: "yes") and comes back when the keyboard closes.
 
 ## Deviations to record
@@ -88,10 +93,9 @@ Center link and icon verically", and then "Keep current formatting."
 
 ## Open questions
 
-1. **Block outline:** keep it dotted (rule 7), or another mark? Being discussed with the owner.
-2. **Ghost text:** the owner's screenshot of 26 Nov 2026 (22.21) shows "G" under the label text while "Gh" is typed. Check whether
+1. **Ghost text:** the owner's screenshot of 26 Nov 2026 (22.21) shows "G" under the label text while "Gh" is typed. Check whether
    the drawn row shows through the part and lags a keystroke.
-3. **The dashed circle** at the selected block's top-left corner: what is it, and does it stay?
+2. **The dashed circle** at the selected block's top-left corner: what is it, and does it stay?
 
 ## Checks
 
