@@ -250,7 +250,8 @@ async function checkPhoneSheet(width = 375, height = 740) {
     await card.scrollIntoViewIfNeeded();
     await card.tap();
     await page.waitForTimeout(300);
-    await pressTool(page, 'Edit', 'tap');
+    // A tap on the image opens its sheet (B11); the bar's Edit is only there while the sheet is not open.
+    if (!(await sheet.count())) await pressTool(page, 'Edit', 'tap');
     await sheet.waitFor({ timeout: 5000 });
     await page.waitForTimeout(400);
   };
