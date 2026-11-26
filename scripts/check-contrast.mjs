@@ -170,6 +170,9 @@ const scan = `(root) => {
     push(svg, 'icon', front, back, 3, { text: svg.getAttribute('data-icon') ?? svg.getAttribute('aria-label') ?? '', manual });
   }
   // The border of a control: outlined buttons, fields.
+  // Boxes are read before the loop: the loop adds and removes probes, and a read after each would lay the page out again every time.
+  const boxes = new Map();
+  for (const el of root.querySelectorAll('button, input, select, textarea, [role="button"]')) boxes.set(el, el.getBoundingClientRect());
   for (const el of root.querySelectorAll('a, button, input, textarea, select, summary')) {
     if (hidden(el) || el.closest(':disabled, [aria-disabled="true"]')) continue;
     const s = getComputedStyle(el);
@@ -193,7 +196,7 @@ const scan = `(root) => {
     }
     // The target size of a control (WCAG 2.5.8, 24 px): the smaller side of its box. Links in a text are exempt, so only buttons and fields are read.
     if (el.matches('button, input:not([type="hidden"]), select, textarea, [role="button"]')) {
-      const box = el.getBoundingClientRect();
+      const box = boxes.get(el) ?? el.getBoundingClientRect();
       if (box.width > 0 && box.height > 0) push(el, 'target', [0, 0, 0, 1], [255, 255, 255, 1], 24, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', ratioOverride: Math.min(box.width, box.height) });
     }
     if (el.matches('input, textarea')) {
