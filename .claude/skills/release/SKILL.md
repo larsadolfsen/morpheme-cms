@@ -103,8 +103,15 @@ gh release view vX.Y.Z -R larsadolfsen/morpheme-cms --json tagName,url
 ```
 
 The run's `latest` job (it waits for the approval) must succeed, `latest` must print X.Y.Z (npm can lag a minute:
-check up to three times, a minute apart, with a Monitor until-loop), and the release must exist. Anything else: stop
-and report.
+check up to three times, a minute apart, with a Monitor until-loop), and the release must exist.
+
+**When `latest` is on npm but the run has not finished** (owner, 26 Nov 2026; seen with 0.19.7 on 25 Nov 2026): the `latest` job
+polls `npm view` every 60 s for up to 240 minutes and can miss the approval, so it still waits or times out, and the tag and the
+GitHub release are not made. Then, only for a release (the run that puts X.Y.Z on `latest`, never a test version on `next`), and before anything else, give the
+owner the run's link and ask for **Re-run failed jobs** on GitHub Actions; never **Re-run all jobs**, which runs the `release` job again. Check the three commands above again once it has run. No session makes the
+tag or the GitHub release by hand, and no session re-runs the job itself.
+
+Anything else: stop and report.
 
 ## Phase 6 - Sites on the new version
 
