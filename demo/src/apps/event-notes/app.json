@@ -1,0 +1,36 @@
+{
+  "api": 8,
+  "label": "Event notes",
+  "publisher": "Morpheme",
+  "license": "MIT",
+  "icon": "event",
+  "hint": "A made-up app that lists upcoming events, with a block, a promotion and settings.",
+  "description": "The demo's own app, made up so the editor's app screens can be tested: settings (a text, a choice and a switch), one block, Events, and one promotion kind. It holds no content from any customer.",
+  "category": "content",
+  "keywords": ["events", "dates"],
+  "version": "1.0.0",
+  "settings": {
+    "fields": [
+      { "name": "heading", "label": "Heading", "type": "string", "hint": "Shown above the events." },
+      {
+        "name": "layout",
+        "label": "Layout",
+        "type": "select",
+        "options": [
+          { "label": "List", "value": "list" },
+          { "label": "Cards", "value": "cards" }
+        ]
+      },
+      { "name": "showDates", "label": "Show dates", "type": "boolean" }
+    ],
+    "values": { "heading": "Upcoming events", "layout": "list", "showDates": true }
+  },
+  "kinds": {
+    "popups": {
+      "label": "Event note",
+      "icon": "event",
+      "hint": "A promotion that shows its heading as an event note.",
+      "fields": []
+    }
+  }
+}
