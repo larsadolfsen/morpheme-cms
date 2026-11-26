@@ -51,7 +51,7 @@ The page and post editor. It follows Material 3 like the rest of the editor (`CL
     `add_link` without a page and `link` with one.
 10a. **A card's action row has *Add button* and *Add link*** (owner, 26 Nov 2026: "On cards, remeber add button and make add link an
     outlined button … make it an outlined button with icon"): two M3 outlined buttons with a leading icon (`add` and `add_link`),
-    the same kind as rule 12, at least 48px high, at the bottom of the active card. *Add button* adds one of the card's buttons
+    the same kind and size as rule 12, at the bottom of the active card. *Add button* adds one of the card's buttons
     inline (plan B5: "Buttons are added only with the card's inline *Add button*"); *Add link* opens the page picker. With a page,
     the link button shows `link` and the page's name *(Architect's proposal, so the owner sees where the card goes)*, and *No page* in
     the picker removes it. Plan B5's rule "a card with a page has no buttons" stays: the inline control says so when it applies.
@@ -65,8 +65,10 @@ The page and post editor. It follows Material 3 like the rest of the editor (`CL
 
     The hints and example texts that use the old names change with them (List's hint *Rows with icon, heading and text.*).
     The Danish texts follow the skill `site-editor-writing`. Stored field names (`title`, `subhead`, `text`) do not change.
-12. **Add buttons** (*Add list row*, *Add card*) are Material 3's outlined button: an `outline-variant` outline, an
-    `on-surface-variant` label (M3 Buttons, Specs, read 26 Nov 2026).
+12. **Add buttons** (*Add list row*, *Add card*, and a card's *Add button* and *Add link*) are Material 3's outlined button in the
+    small size: an `outline-variant` outline, an `on-surface-variant` label, 40dp high with 16dp sides, and with an icon a 20dp icon
+    and an 8dp gap (M3 Buttons, Specs, *Measurements*, read 26 Nov 2026), with a 48dp target around it (M3 Buttons, Specs, *Target
+    areas*). The owner, 26 Nov 2026: "I think you're buttons are too tall" (the mocks had them 48px high).
 
 13. **One menu per level** (owner, 26 Nov 2026: "yes"). Each action has one home:
     - the editor's toolbar holds the page and its text only (*Add block*, text formatting, undo, redo, its overflow menu), never a

@@ -60,7 +60,8 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
 .text-col { display: grid; }
 /* A row without an icon starts at the left, as the site draws it. */
 .row.no-icon { grid-template-columns: 1fr; min-height: 60px; padding-left: 12px; }
-.add { display: inline-flex; align-items: center; height: 48px; padding: 0 20px; margin: 8px 0 0; border: 1px solid var(--outline-variant); border-radius: 24px; font-weight: 500; color: var(--on-surface-variant); }
+/* M3 small outlined button (Buttons, Specs, Measurements): 40dp high, 16dp sides; 48dp target around it. */
+.add { display: inline-flex; align-items: center; height: 40px; padding: 0 16px; margin: 12px 0 4px; border: 1px solid var(--outline-variant); border-radius: 20px; font-weight: 500; color: var(--on-surface-variant); }
 .bar { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px 16px; margin-top: 16px; background: var(--surface-container-low); border-radius: 28px 28px 0 0; }
 .btn { height: 40px; padding: 0 24px; border-radius: 20px; display: inline-flex; align-items: center; font-weight: 500; }
 .btn.o { border: 1px solid var(--outline-variant); color: var(--on-surface-variant); }
@@ -84,8 +85,8 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
 
 .card.on .part { margin: 0; }
 .card.on .foot { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-/* M3 outlined button with a leading icon: outline-variant outline, on-surface-variant label and icon; 48px high here (rule 10a). */
-.obtn { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 16px; border: 1px solid var(--outline-variant); border-radius: 24px; font-weight: 500; color: var(--on-surface-variant); }
+/* M3 small outlined button with a leading icon (Buttons, Specs, Measurements): 40dp high, 16dp sides, 20dp icon, 8dp gap; 48dp target. */
+.obtn { display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px; margin: 4px 0; border: 1px solid var(--outline-variant); border-radius: 20px; font-weight: 500; color: var(--on-surface-variant); }
 .obtn .icon { font-size: 20px; }
 .media .icon { color: var(--on-surface-variant); }
 .media.empty { background: transparent; }
