@@ -401,6 +401,8 @@ async function checkCardIconText(width, height, scheme) {
 async function checkCardsCarousel(width, height) {
   const label = `${width}px cards carousel`;
   const phone = width < 600;
+  // A full-screen carousel is a hero from 840 px and in landscape (FULL_SCREEN_AS_HERO); below that, in portrait, it is one item at a time.
+  const stillFullScreen = width < 840 && height > width;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   if (!(await onTestPage(page, label))) return page.close();
@@ -549,10 +551,10 @@ async function checkCardsCarousel(width, height) {
     if (l.count >= 8 && !l.scrolls) problems.push(`${at}: the row does not scroll sideways`);
     if (isMaterialTheme() && l.indicators) problems.push(`${at}: it has a page indicator, which Material 3's carousel does not`);
     // Full-screen items go edge to edge without corners on a phone (the theme's M3 rule); every other item has the 28dp item shape.
-    if (isMaterialTheme() && !(phone && l.layout === 'full-screen') && l.radius !== '28px')
+    if (isMaterialTheme() && !(stillFullScreen && l.layout === 'full-screen') && l.radius !== '28px')
       problems.push(`${at}: the item's corners are ${l.radius}, not 28px`);
     // M3, Carousel, Accessibility: a Show all button below the carousel, at every width. A full-screen one shows it from 840 px, where it is the hero.
-    const wantShow = !(phone && l.layout === 'full-screen');
+    const wantShow = !(stillFullScreen && l.layout === 'full-screen');
     if (l.showAll !== wantShow) problems.push(`${at}: ${l.showAll ? 'it has' : 'it has no'} "Show all" (wanted: ${wantShow})`);
     if (phone) {
       // Multi-aspect ratio: leading padding 16dp, the cards of different widths (each as wide as its image's aspect ratio makes it).
@@ -591,33 +593,40 @@ async function checkCardsCarousel(width, height) {
     if (!onShowAll)
       problems.push(`${label} (${kind}, carousel ${i + 1}): Down from a card did not move the focus to that carousel's "Show all"`);
   }
-  // Center-aligned hero (M3, Specs: "at least one large item and two small items"): scrolled to the start it is small, large, small, not a large card flush left.
+  // Center-aligned hero (M3, Specs: "at least one large item and two small items"): scrolled to the start it is small, large, small, and to the end it is small, large with room after it, not a large
+  // card flush against an edge (M3 is silent on the ends of the scroll: the last item rests in the middle, as the first one does).
   const centre = page.locator('[data-cards-carousel]:has([data-carousel-alignment="center"])').first();
   if (await centre.count()) {
     await centre.scrollIntoViewIfNeeded();
-    await centre.locator('[data-carousel-items]').evaluate((row) => row.scrollTo({ left: 0, behavior: 'instant' }));
-    await page.waitForTimeout(400);
-    const { seen, rowMid } = await centre.evaluate((el) => {
-      const row = el.querySelector('[data-carousel-items]').getBoundingClientRect();
-      // A mask keeps the large width; the theme shrinks it with its inset on both sides.
-      const seen = [...el.querySelectorAll('[data-carousel-mask]')]
-        .map((m) => {
-          const b = m.getBoundingClientRect();
-          const inset = parseFloat(m.style.getPropertyValue('--mo-comp-carousel-mask-inset')) || 0;
-          return { left: b.left + inset, right: b.right - inset };
-        })
-        // Whole items: a card peeking in at the end does not count.
-        .filter((b) => b.left >= row.left - 1 && b.right <= row.right + 1);
-      return { seen, rowMid: (row.left + row.right) / 2 };
-    });
-    const widths = seen.map((b) => Math.round(b.right - b.left));
-    const [lead, large] = widths;
-    // M3, Guidelines: "A centered hero carousel has two small carousel items, with a large item centered": exactly one large item at every width, its centre the carousel's centre.
-    const mid = large === undefined ? NaN : (seen[1].left + seen[1].right) / 2;
-    if (!(seen.length === 3 && lead < large && widths[2] < large && Math.abs(mid - rowMid) <= 1))
-      problems.push(
-        `${label} (hero-center): at the start the visible items are ${widths.join(', ')}px wide (the second one's centre ${Math.round(mid)}, the carousel's ${Math.round(rowMid)}), not a small, one large one centred and a small one`,
-      );
+    for (const at of ['start', 'end']) {
+      await centre
+        .locator('[data-carousel-items]')
+        .evaluate((row, to) => row.scrollTo({ left: to === 'start' ? 0 : row.scrollWidth, behavior: 'instant' }), at);
+      await page.waitForTimeout(400);
+      const { seen, rowMid } = await centre.evaluate((el) => {
+        const row = el.querySelector('[data-carousel-items]').getBoundingClientRect();
+        // A mask keeps the large width; the theme shrinks it with its inset on both sides.
+        const seen = [...el.querySelectorAll('[data-carousel-mask]')]
+          .map((m) => {
+            const b = m.getBoundingClientRect();
+            const inset = parseFloat(m.style.getPropertyValue('--mo-comp-carousel-mask-inset')) || 0;
+            return { left: b.left + inset, right: b.right - inset };
+          })
+          // Whole items: a card peeking in at the other end does not count.
+          .filter((b) => b.left >= row.left - 1 && b.right <= row.right + 1);
+        return { seen, rowMid: (row.left + row.right) / 2 };
+      });
+      const widths = seen.map((b) => Math.round(b.right - b.left));
+      // At the start the first item is the small one, then the large one, centred, and a small one after it; at the end the last item is the large one, centred, with the
+      // small one before it and room after it for the small one that no item fills (the row's padding, not a drawn part).
+      const big = at === 'start' ? 1 : seen.length - 1;
+      const mid = seen[big] ? (seen[big].left + seen[big].right) / 2 : NaN;
+      const shape = at === 'start' ? seen.length === 3 : seen.length === 2;
+      if (!(shape && widths[big] > widths[big - 1] && (at === 'end' || widths[2] < widths[1]) && Math.abs(mid - rowMid) <= 1))
+        problems.push(
+          `${label} (hero-center): at the ${at} the visible items are ${widths.join(', ')}px wide (the large one's centre ${Math.round(mid)}, the carousel's ${Math.round(rowMid)}), not ${at === 'start' ? 'a small, one large one centred and a small one' : 'a small one and the last, large one centred'}`,
+        );
+    }
   }
   // A card's media (image or video still) sits flush against the card's top and sides: no padding or margin above it.
   const flush = await page.evaluate(() =>
@@ -1344,6 +1353,7 @@ export function register(unit) {
   ])
     unit(`checkCardDivider ${width}`, () => checkCardDivider(width, height));
   unit('checkCardsElevation 768', () => checkCardsElevation(768, 1024));
+  unit('checkCardsCarousel 768', () => checkCardsCarousel(768, 900));
   unit('checkCardsCarousel 600', () => checkCardsCarousel(600, 900));
   unit('checkCardsCarousel 840', () => checkCardsCarousel(840, 900));
   for (const [width, height] of [
