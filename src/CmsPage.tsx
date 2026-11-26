@@ -61,10 +61,10 @@ const failedText = (failed: NonNullable<View['failed']>) =>
       : t.cms.failedNoAnswer(failed.version);
 
 /** The build's page on GitHub, as a text link under a failed or stuck update. */
-const BuildLink = ({ href }: { href: string | null }) =>
+const BuildLink = ({ href, version }: { href: string | null; version: string }) =>
   href ? (
     <LinkButton kind="text" href={href} target="_blank" rel="noreferrer">
-      {t.cms.seeBuild}
+      {t.cms.seeBuild(version)}
     </LinkButton>
   ) : null;
 
@@ -86,7 +86,7 @@ function UpdateStatus({ update }: { update: NonNullable<View['update']> }) {
         {t.cms[update.state](update.to)}
       </StatusLine>
       <p className="mo-editor-small-note">{when(new Date(update.at))}</p>
-      {update.state === 'stuck' && <BuildLink href={update.buildUrl} />}
+      {update.state === 'stuck' && <BuildLink href={update.buildUrl} version={update.to} />}
     </div>
   );
 }
@@ -162,7 +162,7 @@ export default function CmsPage() {
                     {view.failed.retryAt !== null && (
                       <p className="mo-editor-small-note">{t.cms.nextTry(when(new Date(view.failed.retryAt)))}</p>
                     )}
-                    <BuildLink href={view.failed.buildUrl} />
+                    <BuildLink href={view.failed.buildUrl} version={view.failed.version} />
                   </>
                 )}
               </div>

@@ -964,7 +964,7 @@ async function checkMorpheme(page, state) {
     `Version ${CMS_STATUS.running}`,
     'Version 99.0.0 er klar',
     daCms.failedBuild('99.0.0'),
-    daCms.seeBuild,
+    daCms.seeBuild('99.0.0'),
     'Hjemmesiden har intet GitHub-token',
     'A made-up note for the checks.',
   ])

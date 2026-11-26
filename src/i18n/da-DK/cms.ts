@@ -22,7 +22,7 @@ export const cms: Messages['cms'] = {
   failedNoAnswer: (v) => `Version ${v} blev ikke færdig med at bygge i tide, så den blev ikke installeret. Hjemmesiden virker som før.`,
   failedMerge: (v) => `Version ${v} blev bygget, men GitHub ville ikke lade Morpheme gemme den. Hjemmesiden virker som før.`,
   nextTry: (when) => `Næste forsøg: ${when}`,
-  seeBuild: 'Se buildet',
+  seeBuild: (v) => `Se buildet for ${v}`,
   noPreview: 'Hjemmesiden har ingen preview-adresse (PREVIEW_URL), så Morpheme kan ikke prøve en opdatering først.',
   waiting: (v) => `Opdaterer til ${v}. Det tager et par minutter.`,
   undoing: (v) => `Fortryder opdateringen til ${v}.`,

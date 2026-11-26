@@ -32,7 +32,7 @@ export const cms = {
   failedMerge: (v: string) => `Version ${v} built, but GitHub wouldn’t let Morpheme save it. The website still works as before.`,
   nextTry: (when: string) => `Next try: ${when}`,
   /** A link to the build's checks on GitHub, beside a failed or stuck update. */
-  seeBuild: 'See the build',
+  seeBuild: (v: string) => `See the build of ${v}`,
   noPreview: 'The website has no preview address (PREVIEW_URL), so Morpheme can’t try an update first.',
   waiting: (v: string) => `Updating to ${v}. This takes a few minutes.`,
   undoing: (v: string) => `Undoing the update to ${v}.`,
