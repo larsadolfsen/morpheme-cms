@@ -522,8 +522,22 @@ async function checkStyleSublist(width, height) {
           const r = e.getBoundingClientRect();
           return r.width > 0 && r.height > 0;
         };
+        const typeOf = (e) => {
+          const c = e && getComputedStyle(e);
+          return c && [c.fontFamily, c.fontSize, c.fontWeight, c.lineHeight, c.letterSpacing].join(' | ');
+        };
         return {
-          back: back && visible(back) ? { text: back.textContent.trim(), name: back.getAttribute('aria-label') } : null,
+          back:
+            back && visible(back)
+              ? {
+                  text: back.textContent.trim(),
+                  name: back.getAttribute('aria-label'),
+                  type: typeOf(back.querySelector('.mo-navigation-drawer__label')),
+                  title: typeOf(document.querySelector('h1[data-screen-title]')),
+                  target: Math.round(back.querySelector('.mo-navigation-drawer__icon').getBoundingClientRect().width),
+                  glyph: Math.round(back.querySelector('.mo-navigation-drawer__icon svg').getBoundingClientRect().width),
+                }
+              : null,
           links: [...document.querySelectorAll(`${panel} nav a[href^="#style/"]`)].filter(visible).map((a) => ({
             href: a.getAttribute('href'),
             text: a.textContent.trim(),
@@ -593,6 +607,13 @@ async function checkStyleSublist(width, height) {
     if (got.back.name !== 'Back to Main menu: Style')
       problems.push(`${label}: the back row's name is "${got.back.name}" (should be "Back to Main menu: Style")`);
   }
+  // The back row is set like the top bar: its name in the page title's type, its arrow a 48dp target with the 24dp icon.
+  if (got.back) {
+    if (got.back.type !== got.back.title)
+      problems.push(`${label}: the back row's type is "${got.back.type}", the page title's is "${got.back.title}"`);
+    if (got.back.target !== 48 || got.back.glyph !== 24)
+      problems.push(`${label}: the back arrow is ${got.back.target}px with a ${got.back.glyph}px icon (should be 48 and 24)`);
+  }
   await page.screenshot({ path: join(shots, `style-sublist-${width}.png`) });
 
   // 3. A page of Style is marked in the list, and the drawer opens at Style on it (Escape or the back row first closes the list).
@@ -614,6 +635,35 @@ async function checkStyleSublist(width, height) {
   got = await read();
   if (got.back?.text !== 'Globals') problems.push(`${label}: the back row of Globals reads "${got.back?.text}" (should be "Globals")`);
   if (got.back?.name !== 'Back to Main menu: Globals') problems.push(`${label}: Globals' back row is named "${got.back?.name}"`);
+
+  // 5b. Escape and the back row return the focus to the section that opened the list, for every section, with the focus ring showing.
+  await go('');
+  await openDrawer();
+  const focused = () =>
+    page.evaluate(() => {
+      const a = document.activeElement;
+      return a && { text: a.textContent.trim(), visible: a.matches(':focus-visible') };
+    });
+  for (const section of ['Content', 'Business', 'Style', 'Globals']) {
+    for (const how of ['Escape', 'back row']) {
+      await page
+        .locator(`${panel} nav button.mo-navigation-drawer__item`, { hasText: new RegExp(`^${section}$`) })
+        .first()
+        .focus();
+      await page.keyboard.press('Enter');
+      await page.waitForTimeout(400);
+      if (how === 'Escape') await page.keyboard.press('Escape');
+      else {
+        await page.locator(`${panel} .mo-navigation-drawer__back`).first().focus();
+        await page.keyboard.press('Enter');
+      }
+      await page.waitForTimeout(400);
+      const f = await focused();
+      if (f?.text !== section)
+        problems.push(`${label}: after ${how} from ${section} the focus is on "${f?.text}" (should be "${section}")`);
+      else if (!f.visible) problems.push(`${label}: after ${how} from ${section} the focus ring does not show`);
+    }
+  }
 
   // 6. The rail: one Style item, no Style page in it; it opens the drawer at its list.
   if (wide) {

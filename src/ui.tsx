@@ -3688,15 +3688,19 @@ export function MainDrawerSectionItem({
   icon: Glyph,
   label,
   selected,
+  section,
   onClick,
 }: {
   icon: Icon;
   label: string;
   selected?: boolean;
+  /** The section's id: the way back from its list puts the focus on this button. */
+  section?: string;
   onClick: () => void;
 }) {
   return (
     <SiteNavigationDrawerItem
+      data-section={section}
       active={selected}
       aria-current={selected ? 'true' : undefined}
       icon={<Glyph weight={selected ? 'fill' : 'regular'} />}
@@ -3781,7 +3785,18 @@ export function MainDrawerSubitem({ href, label, selected }: { href: string; lab
 /** One level of the main drawer (the first, or a section's list). Every level stays in the page; the ones not `shown` are
  * `hidden`, so out of the accessibility tree and the focus order. A level takes the focus when it is shown after a change of
  * level (`focus`: `list`, the first item under the back row, or `top`, the section it came from). */
-export function MainDrawerLevel({ shown = true, focus, children }: { shown?: boolean; focus?: 'list' | 'top'; children: ReactNode }) {
+export function MainDrawerLevel({
+  shown = true,
+  focus,
+  from,
+  children,
+}: {
+  shown?: boolean;
+  focus?: 'list' | 'top';
+  /** With `top`: the id of the section whose list was left; its button takes the focus. */
+  from?: string;
+  children: ReactNode;
+}) {
   const el = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const root = el.current;
@@ -3789,9 +3804,11 @@ export function MainDrawerLevel({ shown = true, focus, children }: { shown?: boo
     const target =
       focus === 'list'
         ? root.querySelector<HTMLElement>('.mo-navigation-drawer__item:not(.mo-navigation-drawer__back), .mo-navigation-drawer__subitem')
-        : (root.querySelector<HTMLElement>('[data-active]') ?? root.querySelector<HTMLElement>('.mo-navigation-drawer__item'));
+        : ((from ? root.querySelector<HTMLElement>(`[data-section="${CSS.escape(from)}"]`) : null) ??
+          root.querySelector<HTMLElement>('[data-active]') ??
+          root.querySelector<HTMLElement>('.mo-navigation-drawer__item'));
     target?.focus();
-  }, [shown, focus]);
+  }, [shown, focus, from]);
   return (
     <div ref={el} hidden={!shown} className={shown ? 'mo-contents' : undefined}>
       {children}

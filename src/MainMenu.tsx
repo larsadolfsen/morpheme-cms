@@ -64,6 +64,8 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
   const sectionOf = place.section && !flat.includes(place.section) ? place.section : null;
   const [shown, setShown] = useState<string | null>(sectionOf);
   const [focus, setFocus] = useState<'list' | 'top' | undefined>();
+  // The section whose list was left: its button on the first level takes the focus.
+  const [from, setFrom] = useState<string | undefined>();
   const shownRef = useRef(shown);
   shownRef.current = shown;
   // The section a click in the rail asked for: the drawer opens at its list instead of at the route's section.
@@ -78,12 +80,14 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     setOpen(true);
   };
   const show = (section: string | null) => {
+    setFrom(section === null ? (shownRef.current ?? undefined) : undefined);
     setFocus(section === null ? 'top' : 'list');
     setShown(section);
   };
   // Escape in a section's list goes to the first level; at the first level it is not used, so the modal drawer closes.
   const onEscape = useCallback(() => {
     if (shownRef.current === null) return false;
+    setFrom(shownRef.current);
     setFocus('top');
     setShown(null);
     return true;
@@ -146,7 +150,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
         ),
       )}
     >
-      <MainDrawerLevel shown={shown === null} focus={focus}>
+      <MainDrawerLevel shown={shown === null} focus={focus} from={from}>
         <MainDrawerSection>
           {tree
             .filter((entry) => !flat.includes(entry.id))
@@ -159,6 +163,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
                   icon={icons[entry.id]}
                   label={entry.label}
                   selected={place.section === entry.id}
+                  section={entry.id}
                   onClick={() => show(entry.id)}
                 />
               ),
