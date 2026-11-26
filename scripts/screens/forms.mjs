@@ -527,29 +527,47 @@ async function checkDangerAlign(width, height, dir) {
     await danger.waitFor({ timeout: 10_000 });
     const toggle = danger.locator('h2 button');
     if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+    // The danger buttons (tone="error"; owner, 26 Nov 2026): Delete page filled, Discard outlined, both in the error role, the first at the leading edge of the section's flow.
     const rows = await danger
       .locator(':scope > div')
       .getByRole('button')
-      .evaluateAll((els) =>
-        els.map((e) => {
+      .evaluateAll((els) => {
+        const box = els[0]?.parentElement?.getBoundingClientRect();
+        return els.map((e) => {
           const r = e.getBoundingClientRect();
-          const inner = e.querySelector('.mo-editor-inline-row').getBoundingClientRect();
-          const cs = getComputedStyle(e);
           const rtl = getComputedStyle(e).direction === 'rtl';
           return {
             name: e.textContent.trim(),
-            gap: Math.round(rtl ? r.right - inner.right : inner.left - r.left),
-            align: cs.textAlign,
-            justify: cs.justifyContent,
+            gap: box ? Math.round(rtl ? box.right - r.right : r.left - box.left) : 0,
+            error: e.classList.contains('mo-is-error'),
+            kind: e.classList.contains('mo-is-filled') ? 'filled' : e.classList.contains('mo-is-outlined') ? 'outlined' : 'other',
           };
-        }),
-      );
+        });
+      });
     if (rows.length < 2) problems.push(`${label}: expected Discard and Delete page, got ${rows.map((r) => r.name).join()}`);
+    if (rows[0] && rows[0].gap > 1) problems.push(`${label}: "${rows[0].name}" starts ${rows[0].gap}px from the leading edge`);
     for (const r of rows) {
-      if (r.align === 'center' || r.justify === 'center') problems.push(`${label}: "${r.name}" is centred (${r.align}, ${r.justify})`);
-      if (r.gap !== rows[0].gap) problems.push(`${label}: "${r.name}" starts ${r.gap}px in, "${rows[0].name}" ${rows[0].gap}px`);
-      if (r.gap > 40) problems.push(`${label}: "${r.name}" starts ${r.gap}px from the leading edge`);
+      if (!r.error) problems.push(`${label}: "${r.name}" is not a danger button (no error tone)`);
+      const want = r.name === 'Delete page' ? 'filled' : 'outlined';
+      if (r.kind !== want) problems.push(`${label}: "${r.name}" is ${r.kind}, not ${want}`);
     }
+    // A delete question's confirm is the dialog's main choice: filled in the error role; Cancel stays outlined, not red.
+    await danger.getByRole('button', { name: 'Delete page', exact: true }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.waitFor({ timeout: 5000 });
+    const confirm = await dialog.getByRole('button').evaluateAll((els) =>
+      els.map((e) => ({
+        name: e.textContent.trim(),
+        error: e.classList.contains('mo-is-error'),
+        filled: e.classList.contains('mo-is-filled'),
+      })),
+    );
+    const yes = confirm.find((c) => c.name === 'Delete');
+    const no = confirm.find((c) => c.name === 'Cancel');
+    if (!yes || !yes.error || !yes.filled)
+      problems.push(`${label}: the Delete confirm is not a filled error button (${JSON.stringify(confirm)})`);
+    if (!no || no.error) problems.push(`${label}: Cancel is red or missing (${JSON.stringify(confirm)})`);
+    await page.keyboard.press('Escape');
   } finally {
     removeVirtualFile('src/content/pages/zz-danger-align.md');
     await page.close();

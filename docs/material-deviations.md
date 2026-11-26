@@ -401,3 +401,13 @@ The owner approved these four on 26 Nov 2026 (relayed by the Architect: "Yes to 
 - **Material:** Time pickers, Specs and Guidelines (modal dial and input pickers): Cancel and OK are text buttons, as in the date picker.
 - **We do:** `TimePickerContainer`'s Cancel and OK are outlined buttons.
 - **Why:** owner's yes of 26 Nov 2026.
+
+## Danger buttons in the error role (0.19.8, task 19b)
+
+### TB6. A danger button is outlined, or filled, in the error colour
+
+- **Owner:** 26 Nov 2026: "Danger buttons are text buttons. Change to outlined." and "Delete page, change it to filled. Both in red."
+- **Material:** read 26 Nov 2026 with Playwright: `m3.material.io/components/buttons/{overview,specs}`. Buttons, Specs: "There are five built-in button color styles: elevated, filled, tonal, outlined, and text"; the outlined button's container is "Outlined container", "Outlined icon & label" in "Outline variant (outline)" and "On surface variant"; "The outlined button's container fill is invisible at rest, but the opacity and state layers behave the same as other button styles". M3 prints no error-coloured button.
+- **We do:** `Button` takes `tone="error"` (`theme/ui/Button.tsx`, class `mo-is-error`; tokens in `theme/styles/tokens/ui/comp/button.css`). Outlined: label, icon and 1 px edge are the `error` role. Filled: container `error`, label and icon `on-error`, hover the `on-error` state layer. Outlined: hover, focus and pressed state layers are the `error` role at M3's opacities (the state layer takes the label colour). The focus ring is the theme's one ring, as on every button. It is the theme's one rule, so the editor and the site both follow.
+- **Used for:** the page and post form's *Danger* section (Delete page and Delete post filled; Discard and Discard draft outlined, each with its icon, left-aligned), "Delete list", the notifications' "Delete selected" and "Clear" (outlined), and the main button of a delete question in the dialog (`ask(…, true)`: filled; Cancel stays outlined, not red). The former danger rows (`ListItem tone="delete"`) are gone. "Remove" beside an image only empties a field before saving, so it stays a text button.
+- **Why:** owner's yes of 26 Nov 2026.

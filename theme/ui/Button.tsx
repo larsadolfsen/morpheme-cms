@@ -24,8 +24,16 @@ export const buttonShapes = ['round', 'square'] as const;
 export type ButtonShape = (typeof buttonShapes)[number];
 
 /** A button's classes: its kind's and, unless it is small, its size's and, unless it is round, its shape's. */
-export const buttonClass = (kind: ButtonKind = 'filled', size: ButtonSize = 'small', shape: ButtonShape = 'round') =>
-  ['mo-button', `mo-is-${kind}`, size !== 'small' && `mo-is-${size}`, shape !== 'round' && `mo-is-${shape}`].filter(Boolean).join(' ');
+export const buttonClass = (kind: ButtonKind = 'filled', size: ButtonSize = 'small', shape: ButtonShape = 'round', tone?: 'error') =>
+  [
+    'mo-button',
+    `mo-is-${kind}`,
+    size !== 'small' && `mo-is-${size}`,
+    shape !== 'round' && `mo-is-${shape}`,
+    tone === 'error' && 'mo-is-error',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
 /** A toggle's icon (a Button's, an IconButton's, a navigation drawer item's): the icon, and the same icon filled while
  * it is on, where the site draws it filled (the theme shows the one of the state it is in: .mo-<part>__unselected-icon,
@@ -44,6 +52,7 @@ export default function Button({
   kind,
   size,
   shape,
+  tone,
   selected,
   busy,
   icon,
@@ -57,6 +66,8 @@ export default function Button({
   kind?: ButtonKind;
   size?: ButtonSize;
   shape?: ButtonShape;
+  /** `error`: a danger button (deletes or removes), in the error role: filled (container error, label on-error) or outlined (label and edge error). */
+  tone?: 'error';
   selected?: boolean;
   busy?: boolean;
   icon?: IconRef;
@@ -72,7 +83,7 @@ export default function Button({
   useEffect(() => {
     if (isBusy && ref.current) ref.current.style.setProperty('--mo-comp-button-busy-from', `${ref.current.offsetWidth}px`);
   }, [isBusy]);
-  const classes = [buttonClass(kind, size, shape), isBusy && 'mo-button__busy', className].filter(Boolean).join(' ');
+  const classes = [buttonClass(kind, size, shape, tone), isBusy && 'mo-button__busy', className].filter(Boolean).join(' ');
   const toggle = selected !== undefined && href === undefined;
   const content = (
     <>

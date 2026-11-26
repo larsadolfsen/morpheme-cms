@@ -431,6 +431,8 @@ export const parts = {
     },
     iconKinds: { standard: 'Standard', filled: 'Filled', tonal: 'Tonal', outlined: 'Outlined' },
     withIcon: 'With icon',
+    errorOutlined: 'Error, outlined',
+    errorFilled: 'Error, filled',
     disabled: "Can't be used",
     /** The theme's form controls (TextField, Checkbox), under "UI components". */
     fields: 'Fields',

@@ -619,6 +619,113 @@ async function checkOutlinedTextButtons(width, height, scheme, where) {
   await page.close();
 }
 
+/** A danger button (`tone="error"`, owner, 26 Nov 2026; docs/material-deviations.md, TB6) is drawn in the error role: outlined, its label and its 1 px edge are `error`; filled, its container is `error` and its label `on-error`. On the editor's parts gallery (#developer/parts/ui) and the demo's /ui/ page, on a phone and a computer, light and dark, and a keyboard's Tab gives it a focus ring. */
+async function checkErrorTone(width, height, scheme, where) {
+  const touch = width < 600;
+  const label = `${width}px ${scheme} error tone (${where})`;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: touch,
+    isMobile: touch,
+    locale: 'en-US',
+    colorScheme: scheme,
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (where === 'demo') {
+    if (!(await openUiPage(page, label))) return void (await page.close());
+  } else {
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+  }
+  await page
+    .locator('[data-error-tone]')
+    .first()
+    .waitFor({ timeout: 30_000 })
+    .catch(() => {});
+  for (const kind of ['outlined', 'filled']) {
+    const button = page.locator(`[data-error-tone="${kind}"]`).first();
+    if (!(await button.count())) {
+      problems.push(`${label}: no ${kind} error button found`);
+      continue;
+    }
+    await button.scrollIntoViewIfNeeded();
+    const seen = await button.evaluate((el) => {
+      const role = (name) => {
+        const probe = document.createElement('i');
+        probe.style.color = `var(--mo-sys-color-${name})`;
+        document.body.append(probe);
+        const value = getComputedStyle(probe).color;
+        probe.remove();
+        return value;
+      };
+      const cs = getComputedStyle(el);
+      return {
+        cls: el.className,
+        color: cs.color,
+        background: cs.backgroundColor,
+        edge: cs.boxShadow,
+        error: role('error'),
+        onError: role('on-error'),
+      };
+    });
+    if (!/mo-is-error/.test(seen.cls)) problems.push(`${label}: ${kind} error button has no error tone (${seen.cls})`);
+    if (kind === 'outlined') {
+      if (seen.color !== seen.error) problems.push(`${label}: outlined label is ${seen.color}, not the error role ${seen.error}`);
+      if (!seen.edge.includes(seen.error) || !/ 1px\b/.test(seen.edge))
+        problems.push(`${label}: outlined edge is not 1 px error (${seen.edge})`);
+    } else {
+      if (seen.background !== seen.error)
+        problems.push(`${label}: filled container is ${seen.background}, not the error role ${seen.error}`);
+      if (seen.color !== seen.onError) problems.push(`${label}: filled label is ${seen.color}, not on-error ${seen.onError}`);
+    }
+    if (kind === 'outlined' && !touch) {
+      // The state layers take the label colour: the error role at the hover opacity, never the primary.
+      await button.hover();
+      await page.waitForTimeout(800);
+      const hov = await button.evaluate((el) => {
+        const probe = document.createElement('i');
+        probe.style.background =
+          'color-mix(in srgb, var(--mo-sys-color-error) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)';
+        document.body.append(probe);
+        const want = getComputedStyle(probe).backgroundColor;
+        probe.remove();
+        return { got: getComputedStyle(el).backgroundColor, want };
+      });
+      if (hov.got !== hov.want)
+        problems.push(`${label}: outlined hover layer is ${hov.got}, not the error role at the hover opacity (${hov.want})`);
+      await page.mouse.move(0, 0);
+    }
+    await page.evaluate(() => document.activeElement?.blur?.());
+    await button.focus();
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Tab');
+    const ring = await page.evaluate(() => {
+      const el = document.activeElement;
+      if (!el || !el.matches(':focus-visible')) return false;
+      const cs = getComputedStyle(el);
+      return (parseFloat(cs.outlineWidth) || 0) > 0 && cs.outlineStyle !== 'none';
+    });
+    if (!ring) problems.push(`${label}: ${kind} error button shows no focus ring for the keyboard`);
+  }
+  if (where === 'editor') {
+    // The image field's Remove only empties a field before saving: it stays a text button, not red.
+    await page.evaluate(() => (location.hash = '#developer/parts/editor'));
+    await page
+      .locator('.mo-editor-image-pick')
+      .first()
+      .waitFor({ timeout: 30_000 })
+      .catch(() => {});
+    const remove = page.locator('.mo-editor-image-pick').getByRole('button', { name: 'Remove' }).first();
+    if (!(await remove.count())) problems.push(`${label}: no Remove button in the image field sample`);
+    else {
+      const cls = (await remove.getAttribute('class')) ?? '';
+      if (!/\bmo-is-text\b/.test(cls) || /\bmo-is-error\b/.test(cls))
+        problems.push(`${label}: the image field's Remove is not a plain text button (${cls})`);
+    }
+  }
+  await page.close();
+}
+
 export function register(unit) {
   unit('checkDensity 375', () => checkDensity(375, 740));
   unit('checkDensity 1280', () => checkDensity(1280, 900));
@@ -646,4 +753,11 @@ export function register(unit) {
     for (const scheme of ['light', 'dark'])
       for (const where of ['editor', 'demo'])
         unit(`checkOutlinedTextButtons ${width} ${scheme} ${where}`, () => checkOutlinedTextButtons(width, height, scheme, where));
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    for (const scheme of ['light', 'dark'])
+      for (const where of ['editor', 'demo'])
+        unit(`checkErrorTone ${width} ${scheme} ${where}`, () => checkErrorTone(width, height, scheme, where));
 }

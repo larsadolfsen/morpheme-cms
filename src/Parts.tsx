@@ -472,16 +472,6 @@ export default function Parts({ env }: { env: Env }) {
                     leading={<MaterialIcon name="logout" size={20} />}
                     headline={t.library.logOut}
                   />
-                  <ListItem
-                    tone="delete"
-                    onClick={() => {}}
-                    headline={
-                      <span className="mo-editor-settings-inline-row">
-                        <MaterialIcon name="delete" size={18} />
-                        {t.common.delete}
-                      </span>
-                    }
-                  />
                 </ul>
               </section>
             </Part>

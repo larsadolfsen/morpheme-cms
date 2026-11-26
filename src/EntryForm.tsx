@@ -45,11 +45,10 @@ import { FieldInput, Fields, HeadImage, HeadTitle, useWrongField, WrongField, ty
 import { SearchPreview } from './SearchPreview';
 import { searchedAs } from './googleResult.mjs';
 import {
+  Button,
   CheckList,
   FoldSection,
   FormColumns,
-  Group,
-  ListItem,
   LoadingIndicator,
   type NavigationItem,
   SectionList,
@@ -57,7 +56,7 @@ import {
   SharePreview,
   useInView,
 } from './ui';
-import { Icon } from './icon';
+import { materialIcon } from './icon';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
 import { askToNotify } from './notificationData';
 import {
@@ -1203,13 +1202,13 @@ function Form({
     ...(scheduledAt ? [{ label: t.forms.versions.cancelSchedule, onClick: cancelSchedule }] : []),
   ];
   // The section *Danger*: each row only when it can act, each asking first.
-  const dangerRows: { label: string; icon?: string; onClick: () => void }[] = isNew
+  const dangerRows: { label: string; icon?: string; onClick: () => void; filled?: boolean }[] = isNew
     ? []
     : [
         ...(dirty ? [{ label: t.app.discard, icon: 'undo', onClick: () => void discardNow(false) }] : []),
         ...(waiting ? [{ label: t.forms.versions.discardDraft, icon: 'draft', onClick: () => void discardNow(true) }] : []),
         ...(collection.deletable
-          ? [{ label: t.forms.deleteOne(collection.singular), onClick: () => env.remove(collection, live, setDeleting) }]
+          ? [{ label: t.forms.deleteOne(collection.singular), filled: true, onClick: () => env.remove(collection, live, setDeleting) }]
           : []),
       ];
   const publishBar = editsLive
@@ -1460,22 +1459,20 @@ function Form({
                   )}
                   {shows('danger') && (
                     <FoldSection {...sectionProps('danger')}>
-                      <Group>
+                      <div className="mo-editor-danger-buttons">
                         {dangerRows.map((a) => (
-                          <ListItem
+                          <Button
                             key={a.label}
-                            tone="delete"
+                            kind={a.filled ? 'filled' : 'outlined'}
+                            tone="error"
+                            icon={materialIcon(a.icon ?? 'delete')}
                             disabled={saving || deleting}
                             onClick={a.onClick}
-                            headline={
-                              <span className="mo-editor-inline-row">
-                                <Icon name={a.icon ?? 'delete'} size={18} />
-                                {a.label}
-                              </span>
-                            }
-                          />
+                          >
+                            {a.label}
+                          </Button>
                         ))}
-                      </Group>
+                      </div>
                     </FoldSection>
                   )}
                 </>

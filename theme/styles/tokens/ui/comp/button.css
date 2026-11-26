@@ -191,3 +191,33 @@
     --mo-comp-button-outlined-hovered-outline-color: var(--mo-comp-toolbar-vibrant-text, var(--mo-comp-block-on-accent));
   }
 }
+@layer components {
+  /* A danger button (tone="error"; docs/material-deviations.md, TB6): filled in the error role with the on-error label, outlined with
+     the error role as label and edge. Hover is the state layer of the label colour. */
+  .mo-button.mo-is-error {
+    --mo-comp-button-filled-container-color: var(--mo-sys-color-error);
+    --mo-comp-button-filled-label-text-color: var(--mo-sys-color-on-error);
+    --mo-comp-button-filled-hover: color-mix(
+      in srgb,
+      var(--mo-sys-color-on-error) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+      var(--mo-sys-color-error)
+    );
+    --mo-comp-button-outlined-surface: transparent;
+    --mo-comp-button-outlined-label-text-color: var(--mo-sys-color-error);
+    --mo-comp-button-outlined-outline-color: var(--mo-sys-color-error);
+    --mo-comp-button-outlined-hovered-label-text-color: var(--mo-sys-color-error);
+    --mo-comp-button-outlined-hovered-outline-color: var(--mo-sys-color-error);
+  }
+  /* The outlined one's state layers take the label colour (M3), here the error role; the filled one's hover is its token above. */
+  @media (hover: hover) {
+    .mo-button.mo-is-error.mo-is-outlined:hover {
+      background: color-mix(in srgb, var(--mo-sys-color-error) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent);
+    }
+  }
+  .mo-button.mo-is-error.mo-is-outlined:focus-visible {
+    background: color-mix(in srgb, var(--mo-sys-color-error) calc(var(--mo-sys-state-focus-state-layer-opacity) * 100%), transparent);
+  }
+  .mo-button.mo-is-error.mo-is-outlined:active {
+    background: color-mix(in srgb, var(--mo-sys-color-error) calc(var(--mo-sys-state-pressed-state-layer-opacity) * 100%), transparent);
+  }
+}

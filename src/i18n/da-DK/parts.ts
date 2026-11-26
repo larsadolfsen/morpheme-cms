@@ -405,6 +405,8 @@ export const parts: Messages['parts'] = {
     },
     iconKinds: { standard: 'Standard', filled: 'Fyldt', tonal: 'Tonet', outlined: 'Med ramme' },
     withIcon: 'Med ikon',
+    errorOutlined: 'Fejl, med ramme',
+    errorFilled: 'Fejl, fyldt',
     disabled: 'Kan ikke bruges',
     /** The theme's form controls (TextField, Checkbox), under "UI-komponenter". */
     fields: 'Felter',
