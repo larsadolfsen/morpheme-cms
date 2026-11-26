@@ -1,10 +1,43 @@
 {
   "standard": "WCAG 2.2 AA",
-  "fallsShort": [
+  "measured": "0.19.8",
+  "score": 83,
+  "checks": [
     {
-      "criterion": "1.4.11",
-      "part": "outlined-card-edge",
-      "why": "On the site and in the editor's screens, the edge of an outlined card is Material 3's outline-variant role (md.comp.outlined-card.outline.color), about 1.6:1 on the surface, under 3:1. In dark mode the edge of an outlined card, and the outline of a block typed in place, on a coloured section is M3's outline role, 2.9:1 against the section's container. The theme uses M3's roles as printed."
+      "criterion": "2.5.8",
+      "part": "segmented-button",
+      "ok": true,
+      "why": "Segmented button 32 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "button-small",
+      "ok": false,
+      "why": "Small button 14 px, under 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "icon-button",
+      "ok": true,
+      "why": "Icon button 40 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "chip",
+      "ok": true,
+      "why": "Chip 32 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "list-item",
+      "ok": true,
+      "why": "List item 24 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "carousel-control",
+      "ok": true,
+      "why": "Carousel control 24 px, needs 24 px"
     }
   ]
 }

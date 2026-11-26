@@ -27,12 +27,19 @@ import { statementOf, statementPlace } from './theme-statement.mjs';
 const ROOT = `${process.cwd()}/`;
 const PAGE = 'src/content/pages/contrast-test.md';
 // CONTRAST_SECTIONS=surface,tint,accent: the section colours of an older version (v0.16.0 has no primary, secondary or tertiary).
-const SECTIONS = process.env.CONTRAST_SECTIONS ? process.env.CONTRAST_SECTIONS.split(',') : ['surface', 'primary', 'secondary', 'tertiary'];
+// CONTRAST_TARGET_ONLY=1 (the command `morpheme accessibility`): only the target size of each interactive part, which is all the file holds (colour is the site owner's, not the theme's).
+// It reads one section colour and the light scheme, the editor at rest, and skips text, icons, edges, focus ring and placeholder, so it ends in minutes.
+const TARGET_ONLY = process.env.CONTRAST_TARGET_ONLY === '1';
+const SECTIONS = process.env.CONTRAST_SECTIONS
+  ? process.env.CONTRAST_SECTIONS.split(',')
+  : TARGET_ONLY
+    ? ['surface']
+    : ['surface', 'primary', 'secondary', 'tertiary'];
 const SIZES = [
   [375, 740],
   [1280, 900],
 ];
-const SCHEMES = ['light', 'dark'];
+const SCHEMES = TARGET_ONLY ? ['light'] : ['light', 'dark'];
 // CONTRAST_THEMES=saturn,mercury: only these themes (default: the theme in use, and with --all every installed theme).
 const all = process.argv.includes('--all');
 const themes = process.env.CONTRAST_THEMES ? process.env.CONTRAST_THEMES.split(',') : all ? installedThemes() : [activeTheme()];
@@ -133,6 +140,7 @@ const scan = `(root) => {
   };
   const opacityOf = (el) => { let o = 1; for (let e = el; e; e = e.parentElement) o *= parseFloat(getComputedStyle(e).opacity); return o; };
   const records = [];
+  const TARGET_ONLY = ${TARGET_ONLY};
   const TARGET_PARTS = ${JSON.stringify(Object.entries(PARTS).map(([id, p]) => [id, p.selector]))};
   const push = (el, kind, front, back, min, extra) => {
     const blockEl = el.closest('[data-block], .mo-is-in-text, .mo-site-block-inline');
@@ -144,6 +152,7 @@ const scan = `(root) => {
   for (let n = walker.nextNode(); n; n = walker.nextNode()) {
     const el = n.parentElement;
     const text = n.textContent.replace(/\\s+/g, ' ').trim();
+    if (TARGET_ONLY) break;
     if (!text || seen.has(el) || el.closest('svg, script, style, option, noscript, template')) continue;
     if (el.closest(':disabled, [aria-disabled="true"], [disabled]')) continue;
     if (hidden(el)) continue;
@@ -157,7 +166,7 @@ const scan = `(root) => {
     front[3] *= opacityOf(el);
     push(el, 'text', front, back, large ? 3 : 4.5, { text, manual });
   }
-  for (const svg of root.querySelectorAll('svg')) {
+  for (const svg of TARGET_ONLY ? [] : root.querySelectorAll('svg')) {
     if (hidden(svg) || svg.closest(':disabled, [aria-disabled="true"]') || svg.closest('[data-icon-hidden]')) continue;
     const s = getComputedStyle(svg);
     const paint = (v) => (v && v !== 'none' && v !== 'transparent' ? v : null);
@@ -177,7 +186,7 @@ const scan = `(root) => {
   for (const el of root.querySelectorAll('a, button, input, textarea, select, summary')) {
     if (hidden(el) || el.closest(':disabled, [aria-disabled="true"]')) continue;
     const s = getComputedStyle(el);
-    if (el.matches('input, textarea, select') || el.matches('.mo-is-outlined')) {
+    if (!TARGET_ONLY && (el.matches('input, textarea, select') || el.matches('.mo-is-outlined'))) {
       const w = parseFloat(s.borderTopWidth);
       if (w > 0 && s.borderTopStyle !== 'none') {
         const { back, manual } = behind(el.parentElement ?? el);
@@ -185,7 +194,7 @@ const scan = `(root) => {
       }
     }
     // The focus ring (M3's focus indicator, --mo-sys-state-focus-indicator-color, 3 dp outside the control) against what is behind the control, 3:1 (WCAG 1.4.11, 2.4.11).
-    {
+    if (!TARGET_ONLY) {
       const host = el.parentElement ?? el;
       const probe = document.createElement('span');
       probe.style.color = 'var(--mo-sys-state-focus-indicator-color)';
@@ -204,7 +213,7 @@ const scan = `(root) => {
         if (hit) push(el, 'target', [0, 0, 0, 1], [255, 255, 255, 1], 24, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', ratioOverride: Math.min(box.width, box.height), part: hit[0] });
       }
     }
-    if (el.matches('input, textarea')) {
+    if (!TARGET_ONLY && el.matches('input, textarea')) {
       const p = getComputedStyle(el, '::placeholder');
       if (el.getAttribute('placeholder')) {
         const { back, manual } = behind(el);
@@ -405,7 +414,7 @@ try {
             const view = `${theme} editor ${scheme} ${width}`;
             results.push(...unique(await editor.evaluate(`(${scan})(document.querySelector('.ProseMirror'))`), `${view} resting`));
             const inline = await editor.locator('.ProseMirror .mo-site-block-inline').count();
-            for (let i = 0; i < inline; i++) {
+            for (let i = 0; i < (TARGET_ONLY ? 0 : inline); i++) {
               const block = editor.locator('.ProseMirror .mo-site-block-inline').nth(i);
               await block.scrollIntoViewIfNeeded().catch(() => {});
               const field = block.locator('input, textarea, [contenteditable="true"], .mo-editor-inline-list-field').first();

@@ -163,6 +163,7 @@ jobs:
       # committed theme/accessibility.json is not what it measured, so the file on the theme page and in the store is the one the checks give.
       - name: Material's accessibility.json is what the checks measure
         if: needs.changes.outputs.docs_only != 'true'
+        timeout-minutes: 20
         run: |
           npm run accessibility
           git diff --exit-code -- theme/accessibility.json
