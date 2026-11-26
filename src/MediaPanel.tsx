@@ -37,6 +37,8 @@ export default function MediaPanel({ spec }: { spec: MediaPanelSpec }) {
               value={o.value}
               checked={o.value === spec.kinds!.value}
               onChange={() => spec.kinds!.onChange(o.value)}
+              // The kind that is already chosen fires no change, but choosing it still goes on (a new List row has Icon chosen).
+              onClick={() => o.value === spec.kinds!.value && spec.kinds!.onChange(o.value)}
             />
           ))}
         </SiteRadioGroup>

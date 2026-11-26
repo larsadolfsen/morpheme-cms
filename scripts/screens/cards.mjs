@@ -1232,6 +1232,8 @@ async function checkIconColor(width, height, scheme = 'light') {
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
   await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot').first().click();
+  // A row with no media opens its sheet at the kind of media (B6); choosing Icon shows the icon picker.
+  await page.getByRole('radio', { name: 'Icon', exact: true }).last().click({ timeout: 5000 }).catch(() => problems.push(`${label}: the media sheet has no Icon kind`));
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
   // With no icon picked the Icon color row is there (Text chosen, the default), and no tile of the grid is selected, not even the cross of No icon.

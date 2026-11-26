@@ -2417,8 +2417,8 @@ function blockCard(
           fields: iconFields,
           onChange: (v: BlockProps) => {
             setItems(setFields(rows(), i, slotNames, v));
-            // A picked media shows in the panel again, with its actions.
-            if (v.icon || v.image || v.video) mediaMode = 'panel';
+            // A picked image or video shows in the panel again, with its actions; a picked icon stays in the picker, where its color is chosen.
+            if (v.image || v.video) mediaMode = 'panel';
             if (mediaMode === 'panel') again();
           },
           media: { actions: [{ label: t.forms.changeMedia, action: () => reopen('kinds') }] },
