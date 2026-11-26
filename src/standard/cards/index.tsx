@@ -20,21 +20,23 @@ export default defineBlock({
   icon: materialIcon('cards'),
   hint: t.blocks.cards.hint,
   edit: { to: 'blocks/cards', text: t.blocks.cards.edit },
-  // Typed in place (InlineCards.tsx): the headline, the subhead and the text where they stand; the media, the page and the buttons are picked in
-  // the card's sheet from the slots (the first card's has the block's one media choice), the design and colour in the block's (Edit).
+  // Typed in place (InlineCards.tsx): the headline, the subhead and the text where they stand; the media is picked from its slots (the first
+  // card's has the block's one media choice), the page and the buttons on the card itself (its action row), the design and colour in the block's (Edit).
+  // No sheet of the card: the block's settings (Edit) hold only what applies to every card.
   inline: {
     item: 'items',
     fields: ['title', 'subhead', 'text'],
     media: ['icon', 'iconColor', 'image', 'alt', 'aspect', 'video'],
     blockMedia: ['media'],
-    settings: ['href', 'buttons', 'divider'],
+    link: 'href',
+    onItem: ['buttons', 'divider'],
+    barLink: false,
     blockSettings: true,
     texts: {
       addAbove: t.blocks.cards.addAbove,
       addBelow: t.blocks.cards.addBelow,
       link: t.blocks.cards.link,
       row: t.blocks.cards.cardMenu,
-      settings: t.blocks.cards.cardSettings,
       icon: t.blocks.cards.media,
     },
   },
