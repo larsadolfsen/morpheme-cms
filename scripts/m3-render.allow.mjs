@@ -2,7 +2,7 @@
 // at a time. An entry is `{ set, attr, mode?, got, want, class, batch | why }`, matched on set, attribute, mode (colours only), what the sample has and what Material 3 has.
 // The check fails on a difference that is not here and on an entry that no longer differs, so a fix removes its line in the same pull request.
 // Classes: 'fix' (to fix in the named batch of 0.19.5: buttons, icon buttons, lists, text fields, menus, chips, cards, dialogs and sheets, app bars and
-// navigation, search, the rest), 'owner' (kept by the owner, 21 Nov 2026 or later: CS2, CS3; `why` names the decision) and 'wcag' (a criterion named in
+// navigation, search, the rest), 'owner' (kept by the owner, 21 Nov 2026 or later: CS2, CS3; `why` names the decision) and 'wcag' (a criterion measured in
 // theme/accessibility.json; `why` names it). The list is empty at release.
 // First run, 21 Nov 2026 (batch B of 0.19.5).
 export const allow = [
@@ -211,5 +211,78 @@ export const allow = [
     want: 'secondary-container',
     class: 'fix',
     batch: 'the rest',
+  }, // 1x
+  // ---- kept by the owner: the error tone of the Button (TB6)
+  {
+    set: 'md.comp.button.outlined',
+    attr: 'label-text.color',
+    mode: 'light',
+    got: 'error',
+    want: 'on-surface-variant',
+    class: 'owner',
+    why: 'owner, 26 Nov 2026 (TB6): the error tone of the theme Button, see docs/material-deviations.md',
+  }, // 1x
+  {
+    set: 'md.comp.button.outlined',
+    attr: 'icon.color',
+    mode: 'light',
+    got: 'error',
+    want: 'on-surface-variant',
+    class: 'owner',
+    why: 'owner, 26 Nov 2026 (TB6): the error tone of the theme Button, see docs/material-deviations.md',
+  }, // 1x
+  {
+    set: 'md.comp.button.filled',
+    attr: 'container.color',
+    mode: 'light',
+    got: 'error',
+    want: 'primary',
+    class: 'owner',
+    why: 'owner, 26 Nov 2026 (TB6): the error tone of the theme Button, see docs/material-deviations.md',
+  }, // 1x
+  {
+    set: 'md.comp.button.outlined',
+    attr: 'label-text.color',
+    mode: 'dark',
+    got: 'error',
+    want: 'on-surface-variant',
+    class: 'owner',
+    why: 'owner, 26 Nov 2026 (TB6): the error tone of the theme Button, see docs/material-deviations.md',
+  }, // 1x
+  {
+    set: 'md.comp.button.outlined',
+    attr: 'icon.color',
+    mode: 'dark',
+    got: 'error',
+    want: 'on-surface-variant',
+    class: 'owner',
+    why: 'owner, 26 Nov 2026 (TB6): the error tone of the theme Button, see docs/material-deviations.md',
+  }, // 1x
+  {
+    set: 'md.comp.button.filled',
+    attr: 'container.color',
+    mode: 'dark',
+    got: 'error',
+    want: 'primary',
+    class: 'owner',
+    why: 'owner, 26 Nov 2026 (TB6): the error tone of the theme Button, see docs/material-deviations.md',
+  }, // 1x
+  {
+    set: 'md.comp.button.filled',
+    attr: 'label-text.color',
+    mode: 'dark',
+    got: 'on-error',
+    want: 'on-primary',
+    class: 'owner',
+    why: 'owner, 26 Nov 2026 (TB6): the error tone of the theme Button, see docs/material-deviations.md',
+  }, // 1x
+  {
+    set: 'md.comp.button.filled',
+    attr: 'icon.color',
+    mode: 'dark',
+    got: 'on-error',
+    want: 'on-primary',
+    class: 'owner',
+    why: 'owner, 26 Nov 2026 (TB6): the error tone of the theme Button, see docs/material-deviations.md',
   }, // 1x
 ];

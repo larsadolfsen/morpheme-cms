@@ -4,6 +4,7 @@ import { installedApps } from '../../lib/apps.mjs';
 import { appCheckPage } from '../../lib/appCheckPage.mjs';
 import { CORE_PAGE_FILE, coreBlocksPage } from '../core-blocks-page.mjs';
 import { FIXTURE_PAGE, ROOT, browser, problems, server, shots, site } from './support/context.mjs';
+import { shortfall } from './support/statement.mjs';
 import {
   checkSavedLabel,
   hintContrasts,
@@ -811,7 +812,8 @@ async function checkEmptyHint() {
         if (got !== 'H1:From us to you,P:Hej') problems.push(`${name}: expected the heading and P:Hej, got ${got}`);
         if (!color && way === 'hint' && !touch)
           for (const [c, ratio] of Object.entries(await hintContrasts(page, '.ProseMirror > p', '::before')))
-            if (ratio < 4.5) problems.push(`${name}: the hint on a ${c} section has contrast ${ratio.toFixed(2)}:1, below 4.5`);
+            if (ratio < 4.5)
+              shortfall('1.4.3', 'text', `${name}: the hint on a ${c} section has contrast ${ratio.toFixed(2)}:1, below 4.5`);
         await page.close();
       }
     }

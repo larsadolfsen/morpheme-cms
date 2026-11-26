@@ -332,7 +332,7 @@ async function flowG(ctx) {
 
 async function flowH(ctx) {
   const { page } = ctx;
-  await open(ctx, 'company/colors');
+  await open(ctx, 'style/color');
   await reach(ctx, 'H: the Colours tabs', { css: '[role=tab]', inside: '[role=tablist]' }, { max: 60 });
   const selected = () =>
     page.evaluate(() => [...document.querySelectorAll('[role=tab]')].findIndex((t) => t.getAttribute('aria-selected') === 'true'));

@@ -494,9 +494,6 @@
     border: 0 solid var(--mo-sys-color-outline-variant);
     border-inline-start-width: 1px;
   }
-  .mo-editor-row-delete {
-    color: var(--mo-sys-color-error);
-  }
   .mo-editor-row-sub {
     color: var(--mo-sys-color-on-surface-variant);
   }
@@ -706,7 +703,12 @@
     margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
   .mo-editor-score-ring {
+    /* A box of its own: in a list item's leading slot (not a flex or grid box) an inline span ignores its size, so the ring
+       has no area to tap and the tap goes to the row's link. Above the leading slot's 48 dp tap area (`::after`, drawn when the
+       row can be selected), which would otherwise take the tap. */
+    display: block;
     position: relative;
+    z-index: 1;
     inline-size: 2.5rem;
     block-size: 2.5rem;
   }

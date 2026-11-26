@@ -95,6 +95,7 @@ export const RULES = [
   // module and the list; the site's part (check-a11y.mjs) is its own command, in the job `demo`.
   [/^scripts\/(a11y\.mjs|a11y-allowlist\.json)$/, ['start-screens']],
   [/^scripts\/check-a11y\.mjs$/, 'none'],
+  [/^scripts\/accessibility\.mjs$/, 'none'],
   // The keyboard check (plan 2026-11-20-0-19-3-keyboard): the walk and the flows run in start-screens.mjs (the units `screens 390`, `screens 1280` and
   // `checkKeyboardFlows`), which read the shared modules and the list; its own command (check-keyboard.mjs) is not read by a unit.
   [/^scripts\/(keyboard\.mjs|keyboard-flows\.mjs|keyboard-allowlist\.json)$/, ['start-screens']],

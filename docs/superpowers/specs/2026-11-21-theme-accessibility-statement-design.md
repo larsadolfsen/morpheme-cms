@@ -1,5 +1,7 @@
 # A theme's accessibility statement (design)
 
+Changed on 25 Nov 2026: the checks classify a theme's values and never fail on them, and the theme page shows a score instead of a list (`specs/2026-11-25-themes-classified-design.md`).
+
 Status: **design, 21 November 2026.** Owner: "What I suggest is that we instead state on the theme page what it complies with", then "yes".
 Version 0.19.5 (roadmap, *0.19.5 Material 3 tokens*). The store's part waits for its next release.
 

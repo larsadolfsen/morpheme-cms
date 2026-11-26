@@ -189,7 +189,7 @@ export default function Parts({ env }: { env: Env }) {
             </Part>
 
             <Part name="ArrowLink" use={use.arrowLink}>
-              <ArrowLink href="#company/colors">{sample.editColors}</ArrowLink>
+              <ArrowLink href="#style/color">{sample.editColors}</ArrowLink>
             </Part>
           </PartGroup>
 
@@ -471,16 +471,6 @@ export default function Parts({ env }: { env: Env }) {
                     onClick={() => {}}
                     leading={<MaterialIcon name="logout" size={20} />}
                     headline={t.library.logOut}
-                  />
-                  <ListItem
-                    tone="delete"
-                    onClick={() => {}}
-                    headline={
-                      <span className="mo-editor-settings-inline-row">
-                        <MaterialIcon name="delete" size={18} />
-                        {t.common.delete}
-                      </span>
-                    }
                   />
                 </ul>
               </section>
@@ -864,7 +854,7 @@ function fieldTypes(): FieldType[] {
         { name: 'phone', label: sample.phone, type: 'string', phone: '+45', digitsInPairs: 8 },
         { name: 'keyword', label: f.keyword, type: 'string', chips: 'one' },
         { name: 'keywords', label: f.keywords, type: 'string', chips: 'many' },
-        { name: 'linkText', label: f.linkText, type: 'string', edit: { to: 'company/colors', text: f.editColors } },
+        { name: 'linkText', label: f.linkText, type: 'string', edit: { to: 'style/color', text: f.editColors } },
       ],
     },
     {

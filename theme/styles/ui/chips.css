@@ -167,6 +167,31 @@
     border-radius: var(--mo-sys-shape-corner-full);
     transition: background-color var(--mo-sys-motion-spring-default-effects);
   }
+  /* M3 Chips, specs: "Target size for close icon Min 48dp", and accessibility: "Don't apply density to chips by default". The remove button is 28 px and the chip's
+     own button 20 px high inside a 32 px chip, so each gets an invisible area behind its content (the chip's own, above, is not over them): the chip's button
+     over the whole chip, the remove button 48 wide and out from its middle, both stopping half way to the next chip in a group (target-size.css). */
+  :where(.mo-chip) > .mo-is-action::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: min(max(100%, var(--mo-sys-target-size)), calc(100% + var(--mo-sys-target-gap-block, var(--mo-sys-target-gap, 100vmax))));
+    transform: translateY(-50%);
+  }
+  .mo-chip__remove {
+    position: relative;
+  }
+  .mo-chip__remove::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    /* Not over the chip's own button beside it (half the 0.25rem gap), the rest of the 48 px out to the chip's edge and, in a group, half way to the next chip. */
+    left: -0.125rem;
+    right: calc(-1 * min(1.125rem, 0.35rem + var(--mo-sys-target-gap, 100vmax) / 2));
+    height: min(3rem, calc(100% + 0.25rem + var(--mo-sys-target-gap-block, var(--mo-sys-target-gap, 100vmax))));
+    transform: translateY(-50%);
+  }
   .mo-chip__remove:hover {
     background: color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent);
   }

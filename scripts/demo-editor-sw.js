@@ -94,8 +94,37 @@ async function text(path, f) {
   return null;
 }
 
-async function graphql(body, files) {
+// Two things a Preview's QA can set in the address of the editor (the page's address is the fetch's referrer, the part after # is not in it):
+// `/editor/?demo-build=failed`: the website's build of a save fails (src/deploy.ts waitForSite: the save ends as "Not live" with the build's link);
+// `/editor/?cms=held|failed|stuck|trying#morpheme`: the Morpheme page in that state (cmsFixture). Without them a save goes live at once.
+const askedFor = (request, name) => {
+  try {
+    return new URL(request.referrer).searchParams.get(name);
+  } catch {
+    return null;
+  }
+};
+
+async function graphql(body, files, request) {
   const query = body.query ?? '';
+  // The build's check run on a commit (deploy.ts buildFailed).
+  if (query.includes('checkSuites'))
+    return {
+      data: {
+        repository: {
+          object: {
+            checkSuites: {
+              nodes: [
+                {
+                  conclusion: askedFor(request, 'demo-build') === 'failed' ? 'FAILURE' : 'SUCCESS',
+                  app: { slug: 'cloudflare-workers-and-pages' },
+                },
+              ],
+            },
+          },
+        },
+      },
+    };
   const repository = { ref: { target: { oid: (await head()).commit } }, viewerPermission: 'ADMIN' };
   for (const [, key, path] of query.matchAll(/(f\d+): object\(expression: "[^:"]+:([^"]+)"\)/g)) {
     const f = files.get(path);
@@ -108,7 +137,7 @@ async function github(route, request) {
   if (route === 'logout') return new Response(null, { status: 204 });
   const files = await tree();
   const body = request.method === 'POST' ? await request.json().catch(() => ({})) : {};
-  if (route === 'graphql') return json(await graphql(body, files));
+  if (route === 'graphql') return json(await graphql(body, files, request));
   if (route === 'head') return json(await head());
   if (route === 'files')
     return json({
@@ -166,8 +195,42 @@ async function github(route, request) {
   return json({ error: 'not found' }, 404);
 }
 
+// The Worker's answer to GET /api/cms (worker/cms-update.js cmsStatus) in the states the Morpheme page shows, made up (`?cms=` above).
+const cmsFixture = (state, running) => {
+  const at = new Date(Date.now() - 3600_000).toISOString();
+  const retryAt = Date.now() + 23 * 3600_000;
+  const base = { running, token: true, kv: true, checked: { at, latest: '99.0.0' }, update: null, failed: [], skipped: [], notes: [] };
+  if (state === 'held') return { ...base, checked: { ...base.checked, problem: { kind: 'contract', item: 'theme', id: 'venus' } } };
+  if (state === 'failed')
+    return {
+      ...base,
+      failed: [{ version: '99.0.0', at, reason: 'build-failed', buildUrl: 'https://github.com/example/site/commit/abc/checks', retryAt }],
+      skipped: ['99.0.0'],
+    };
+  if (state === 'stuck')
+    return { ...base, update: { state: 'stuck', to: '99.0.0', at, buildUrl: 'https://github.com/example/site/commit/abc/checks' } };
+  if (state === 'trying') return { ...base, update: { state: 'trying', to: '99.0.0', at } };
+  return { ...base, checked: { at, latest: null } };
+};
+
 // What the editor's other screens ask of the Worker, made up as scripts/built-site.mjs does for the screens checks.
 const fakes = {
+  '/api/cms': async (request) => {
+    const real = await fetch('/editor/version.json', { cache: 'no-store' }).then(
+      (r) => r.json(),
+      () => ({}),
+    );
+    return json(cmsFixture(askedFor(request, 'cms'), real.cms ?? '0.19.8'));
+  },
+  // The site is "built" with each save at once, unless the address asks for a failed build (`?demo-build=failed`): the demo's own version.json
+  // names the build's commit, which no save in the browser is.
+  '/editor/version.json': async (request) => {
+    const real = await fetch(request, { cache: 'no-store' }).then(
+      (r) => r.json(),
+      () => ({}),
+    );
+    return json(askedFor(request, 'demo-build') === 'failed' ? real : { ...real, commit: (await head()).commit });
+  },
   '/api/dashboard': (request) => (request.method === 'PUT' ? new Response(null, { status: 204 }) : json({ dashboard: null })),
   // No autosave in R2: a save is a commit (kept in the browser), as on a site without R2 caching.
   '/api/autosave': (request) => (request.method === 'GET' ? new Response('', { status: 404 }) : json({ error: 'off' }, 409)),

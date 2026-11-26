@@ -130,17 +130,36 @@ export const library = {
   themeKeptContent: 'Pages and posts',
   themeKeptBrand: 'Colors and logo',
   themeKeptBlocks: "All blocks, in the theme's look",
-  /** On a theme's page: what it meets (its accessibility.json, src/themeAccessibility.mjs). */
-  themeA11yMeets: 'Accessibility: meets WCAG 2.2 AA, the level the European Accessibility Act asks for',
-  themeA11yShort: 'Accessibility: falls short of WCAG 2.2 AA',
-  themeA11yUnchecked: 'Accessibility: not checked',
+  /** On a theme's page: its accessibility score and the checks behind it (its accessibility.json, src/themeAccessibility.mjs). */
+  themeA11yHeadline: 'Accessibility',
+  themeA11yScoreLabel: (score: number) => `Accessibility score ${score}`,
+  themeA11ySupporting: (standard: string, version: string) => `${standard}, measured with Morpheme ${version}`,
+  themeA11yUnmeasured: 'Accessibility: not measured',
+  themeA11yChecks: 'Accessibility checks',
   themeA11yNotYours: 'Your own colors and images are not part of this.',
-  /** A shortfall: the part and its WCAG criterion. */
-  themeA11yItem: (part: string, criterion: string) => `${part} (${criterion})`,
+  /** A check: the part and its WCAG criterion, then what was measured. */
+  themeA11yCheck: (part: string, criterion: string, why: string) => (why ? `${part} (${criterion}): ${why}` : `${part} (${criterion})`),
   themeA11yParts: {
-    placeholder: 'Placeholder text contrast',
-    'outlined-card-edge': 'Outlined card edge contrast',
-    'section-edges': 'Edge contrast in a colored section',
+    'segmented-button': 'Segmented button size',
+    'button-xsmall': 'Extra small button size',
+    'button-medium': 'Medium button size',
+    'button-large': 'Large button size',
+    'button-xlarge': 'Extra large button size',
+    'button-small': 'Small button size',
+    'icon-button': 'Icon button size',
+    fab: 'Floating action button size',
+    chip: 'Chip size',
+    switch: 'Switch size',
+    checkbox: 'Checkbox size',
+    'radio-button': 'Radio button size',
+    'slider-handle': 'Slider handle size',
+    'text-field': 'Text field size',
+    'menu-item': 'Menu item size',
+    tab: 'Tab size',
+    'list-item': 'List item size',
+    'carousel-control': 'Carousel control size',
+    'navigation-item': 'Navigation bar and rail item size',
+    'sheet-control': 'Sheet drag handle size',
   } as Record<string, string>,
   /** The button on a theme's page that swaps the theme the website uses to it. */
   useTheme: 'Use the theme',
@@ -175,6 +194,9 @@ export const library = {
   iconPackByline: (author: string, license: string) => `${author} · ${license}`,
   iconPackFrom: (theme: string) => `From the theme ${theme}`,
   iconPackSamples: (name: string) => `Icons from ${name}`,
+  /** Style › Icons (StyleIcons): the set the editor and the site draw their icons with. */
+  styleIconsName: 'Material Symbols',
+  styleIconsHint: 'The icons the editor and the site draw.',
   iconPackInUse: 'In use',
   iconPackNext: 'Changing to it in a few minutes',
   changeIconPackAsk: (name: string) => `The website and the editor get the icons from ${name} in a few minutes`,
@@ -249,6 +271,14 @@ export const library = {
     /** A published page or post with changes waiting (src/drafts/), without and with a time they go live. */
     unpublishedChanges: 'Unpublished changes',
     scheduledChanges: (when: string) => `Scheduled changes ${when}`,
+  },
+  /** The line under a page's or post's name: which versions it has, joined by " · ". */
+  versions: {
+    published: 'Published',
+    draft: 'Draft',
+    scheduled: 'Scheduled',
+    /** "Scheduled Nov 30" (the short date; the full time is the tooltip). */
+    scheduledOn: (date: string) => `Scheduled ${date}`,
   },
   /** The filter over the pages and posts that shows only those with one status. */
   statusFilter: 'Status',

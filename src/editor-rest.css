@@ -182,6 +182,13 @@
   .mo-editor-quiet-focus:focus {
     outline-style: none;
   }
+  /* Danger buttons (tone="error") in a section: left-aligned in the flow, side by side while they fit. */
+  .mo-editor-danger-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--mo-ref-space-150);
+  }
   .mo-editor-form-more {
     margin-block-start: 3rem;
   }

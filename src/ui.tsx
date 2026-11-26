@@ -111,6 +111,7 @@ import { menuLayout } from '../lib/menu-layout.mjs';
 import { nextInMenu } from '../lib/menuTypeAhead.mjs';
 import { ariaShortcut, shortcutText } from './shortcuts';
 import { safeImageSrc } from '../lib/safe-url.mjs';
+import { scoreOf } from '../lib/score.mjs';
 
 // The parts Material 3 has (a button, an icon button, a chip, a carousel …) are the theme's UI parts
 // (packages/editor/theme/ui/, through themeUi.ts), the same the site draws, in the theme's design (its ui.css and
@@ -130,6 +131,8 @@ export type ButtonSize = 'small';
 type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
   kind?: ButtonKind;
   size?: ButtonSize;
+  /** `error`: a danger button (it deletes or removes), outlined or filled in the error role. */
+  tone?: 'error';
   /** Before the text. */
   icon?: Icon;
   /** Its action runs: disabled, and after a moment a loading indicator. */
@@ -1937,10 +1940,9 @@ export const subListClass = `${siteListClass} mo-editor-sub-list`;
  * colour; `delete`, the row that deletes what a screen shows, alone in a Group at the bottom, in the middle in the error
  * colour; `muted`, grey (what cannot be opened: a page that is gone); `sub`, a row under a row (a submenu), its text a
  * little lighter. */
-export type RowTone = 'accent' | 'delete' | 'muted' | 'sub';
+export type RowTone = 'accent' | 'muted' | 'sub';
 const toneClass: Record<RowTone, string> = {
   accent: 'mo-editor-accent-text',
-  delete: 'mo-editor-row-delete',
   muted: 'mo-editor-muted-text',
   sub: 'mo-editor-row-sub',
 };
@@ -2843,6 +2845,10 @@ export const listClass = siteListClasses('segmented');
 /** The classes of a list without surfaces (the theme's standard list): a row or two that stand on the page, AccountRow. */
 export const plainListClass = siteListClasses('standard');
 
+/** The standard list with Material 3's inset dividers between its rows: 16 dp from the left edge, 24 dp from the right (Lists > Specs; the
+ * theme draws no line in a standard list until one asks for `middle-inset`). */
+export const dividedListClass = siteListClasses('standard', 'middle-inset');
+
 /** The small heading over a Group, and over what stands as one (the themes on Account): in Material 3's title small, as
  * written (not in capitals, Material 2's subheader), muted as a group's heading in a sheet (SheetGroupTitle). */
 export function GroupTitle({ children }: { children: ReactNode }) {
@@ -2978,11 +2984,11 @@ export function FoldSection({
 }
 
 /** Rows in the theme's segmented list, under a small heading: the start screen, the lists. Never with a note under it. */
-export function Group({ title, children }: { title?: string; children: ReactNode }) {
+export function Group({ title, children, dividers }: { title?: string; children: ReactNode; dividers?: boolean }) {
   return (
     <section className="mo-editor-section">
       {title && <GroupTitle>{title}</GroupTitle>}
-      <ul className={listClass}>{children}</ul>
+      <ul className={dividers ? dividedListClass : listClass}>{children}</ul>
     </section>
   );
 }
@@ -3014,8 +3020,8 @@ const statusTones = {
   },
 };
 
-/** The score of checks from 0 to 100: the share that is fine (100 with none). */
-export const scoreOf = (items: Check[]) => (items.length ? Math.round((items.filter((i) => i.ok).length / items.length) * 100) : 100);
+/** The score of checks from 0 to 100: the share that is fine (100 with none). The function is `lib/score.mjs`, which `morpheme accessibility` imports too. */
+export { scoreOf };
 const toneOf = (score: number) => statusTones[score >= 90 ? 'good' : score >= 50 ? 'average' : 'bad'];
 
 /** A score from 0 to 100 in a small ring, in the colours of CheckList's (green from 90, orange from 50, else red), at
