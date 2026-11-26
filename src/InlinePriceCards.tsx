@@ -1,16 +1,18 @@
 // The Price cards block typed in place (docs/superpowers/specs/2026-11-12-inline-block-editing-design.md, section 5): the cards are drawn as the
 // site draws them (the theme's price cards, View.tsx) and each card's name, price, unit and text are typed where they stand. What is included
 // is a checklist inside the card, with its own `Add feature`, and the card's button label is typed on the button. Whether the card is
-// highlighted, its label and where its button leads are not typed: they are in the card's settings (the toolbar's Settings). A price list has
+// highlighted is a switch on the active card and its label is typed on it; where its button leads, its style and its icon are in the button's menu (ButtonMenu.tsx). A price list has
 // at most four cards. The parts, the keys and what is kept are InlineItems.tsx and src/inlineRows.mjs; the empty, faded card, `Add price
 // card` and the dotted line are as in the List.
 import type { KeyboardEvent } from 'react';
 import { t } from './i18n';
-import { Glyph } from './icon';
-import InlineItems, { InlineField, type Item } from './InlineItems';
+import { Glyph, Icon } from './icon';
+import { useState } from 'react';
+import ButtonMenu, { type ButtonPatch } from './ButtonMenu';
+import InlineItems, { InlineField, InlineSlot, type Item } from './InlineItems';
 import type { InlineViewProps } from './inlineViews';
 import { buttonsOf } from './standard/buttons/view';
-import { targets, type Button } from './standard/buttons/fields';
+import { buttonList, targets, type Button } from './standard/buttons/fields';
 import type { PriceCardProps } from './standard/pricecards/view';
 import { SiteButton, SiteCard } from './themeUi';
 import List, { ListItem } from '@theme/ui/List';
@@ -19,8 +21,29 @@ import { buttonClass } from '@theme/ui/Button';
 const texts = t.blocks.pricecards;
 export const maxCards = 4;
 
-export default function InlinePriceCards({ items, props, data, active, focus, onChange }: InlineViewProps) {
+export default function InlinePriceCards({ items, props, data, active, focus, onChange, onRow, onPick }: InlineViewProps) {
   const cards = items as PriceCardProps[];
+  // The menu of the active card's button, opened from the control on the button.
+  const [menu, setMenu] = useState<{ card: number; at: HTMLElement } | null>(null);
+  const changeButton = (card: number, patch: ButtonPatch) =>
+    onChange({
+      items: cards.map((c, j) =>
+        j === card ? { ...c, buttons: ((c.buttons ?? []) as Button[]).map((x, m) => (m === 0 ? { ...x, ...patch } : x)) } : c,
+      ),
+      active: card,
+      focus: null,
+    });
+  // The button's icon: the icon picker of the button's own field.
+  const pickIcon = (card: number) => {
+    const f = buttonList.fields!.find((x) => x.name === 'icon')!;
+    onRow?.({
+      headline: t.blocks.buttons.icon,
+      fields: [f],
+      value: { icon: ((cards[card]?.buttons ?? []) as Button[])[0]?.icon ?? '' },
+      closes: true,
+      onChange: (v) => changeButton(card, { icon: v.icon as string }),
+    });
+  };
   const put = (i: number, patch: Item, focusField?: string) =>
     onChange({
       items: cards.map((c, j) => (j === i ? { ...c, ...patch } : c)),
@@ -62,7 +85,7 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
         items={items}
         active={active}
         focus={focus}
-        fields={['name', 'price', 'unit', 'text']}
+        fields={['name', 'price', 'unit', 'text', 'badge']}
         add={texts.addCard}
         max={maxCards}
         onChange={onChange}
@@ -92,7 +115,20 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
                 .filter(Boolean)
                 .join(' ')}
             >
-              {card.featured === true && card.badge?.trim() && <span className="mo-block-pricecards__plan-badge">{card.badge}</span>}
+              {here && !next && (
+                <span className="mo-editor-inline-card-slots">
+                  <InlineSlot
+                    label={texts.featured}
+                    pressed={card.featured === true}
+                    onClick={() => put(i, { featured: card.featured === true ? undefined : true })}
+                  >
+                    <Icon name="star" size={24} />
+                  </InlineSlot>
+                </span>
+              )}
+              {card.featured === true && (here || card.badge?.trim()) && (
+                <span className="mo-block-pricecards__plan-badge">{field('badge', texts.badge, texts.badge)}</span>
+              )}
               <h3 className="mo-block-pricecards__plan-name">{field('name', texts.name, next ? texts.newCard : texts.name)}</h3>
               <p className="mo-block-pricecards__plan-price">
                 <span className="mo-block-pricecards__plan-amount">{field('price', texts.price, texts.price)}</span>
@@ -156,12 +192,30 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
                     />
                     {view?.icon === 'arrow_forward' && <Glyph icon={view.icon} size={18} className="mo-button__trailing-icon" />}
                   </span>
+                  {here && button && onPick && (
+                    <span onClickCapture={(e) => setMenu({ card: i, at: e.currentTarget })}>
+                      <InlineSlot label={t.blocks.buttons.options} onClick={() => {}}>
+                        <Icon name="more_vert" size={18} />
+                      </InlineSlot>
+                    </span>
+                  )}
                 </div>
               )}
             </SiteCard>
           );
         }}
       />
+      {menu && onPick && (
+        <ButtonMenu
+          anchor={menu.at}
+          button={((cards[menu.card]?.buttons ?? []) as Button[])[0] ?? {}}
+          onChange={(patch) => changeButton(menu.card, patch)}
+          onRemove={() => put(menu.card, { buttons: [] })}
+          onPick={onPick}
+          onIcon={() => pickIcon(menu.card)}
+          onClose={() => setMenu(null)}
+        />
+      )}
     </>
   );
 }

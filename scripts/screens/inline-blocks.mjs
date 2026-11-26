@@ -727,6 +727,33 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   );
   if (kept !== one.background)
     problems.push(`${label}: the row has background ${one.background} while typed in, ${kept} when the cursor left it`);
+  if (name === 'pricecards') {
+    // A card has no sheet: Highlighted is a switch on the active card with its label typed on it, and the button has the shared menu.
+    await page.locator('.mo-editor-inline-list-row [data-field="name"]').first().click();
+    const row = page.locator('.mo-editor-inline-list-row-active');
+    const featured = row.locator('[aria-label="Highlighted"]');
+    if ((await featured.count()) !== 1) problems.push(`${label}: the active price card has no Highlighted switch`);
+    else {
+      await featured.click();
+      if ((await row.locator('[aria-label="Highlighted"][aria-pressed="true"]').count()) !== 1)
+        problems.push(`${label}: the Highlighted switch did not turn on`);
+      if ((await row.locator('[data-field="badge"]').count()) !== 1) problems.push(`${label}: a highlighted card has no label field`);
+    }
+    await row.locator('[data-field="button"]').first().fill('Buy');
+    await row.locator('[aria-label="Button options"]').first().click();
+    const menu = page.locator('[role=menu][aria-label="Button"]');
+    await menu
+      .locator('[role^=menuitem]')
+      .first()
+      .waitFor({ timeout: 4000 })
+      .catch(() => problems.push(`${label}: the price card button's options did not open the menu`));
+    const items = await menu.locator('[role^=menuitem]').allInnerTexts();
+    for (const want of ['Page', 'Style: Filled', 'Icon', 'Remove button'])
+      if (!items.some((x) => x.trim() === want)) problems.push(`${label}: the price card button's menu has no "${want}"`);
+    if (await page.getByText('Card settings').filter({ visible: true }).count()) problems.push(`${label}: a "Card settings" sheet shows`);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+  }
   if (name === 'cards') {
     // A media that is set is changed by a tap on it: an icon is picked from the Icon button, then the icon itself opens the picker and no media button is left.
     await page.locator('.mo-editor-inline-list-row [data-field="title"]').first().click();
