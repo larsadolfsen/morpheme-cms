@@ -555,15 +555,13 @@ async function checkDangerAlign(width, height, dir) {
     await danger.getByRole('button', { name: 'Delete page', exact: true }).click();
     const dialog = page.getByRole('dialog');
     await dialog.waitFor({ timeout: 5000 });
-    const confirm = await dialog
-      .getByRole('button')
-      .evaluateAll((els) =>
-        els.map((e) => ({
-          name: e.textContent.trim(),
-          error: e.classList.contains('mo-is-error'),
-          filled: e.classList.contains('mo-is-filled'),
-        })),
-      );
+    const confirm = await dialog.getByRole('button').evaluateAll((els) =>
+      els.map((e) => ({
+        name: e.textContent.trim(),
+        error: e.classList.contains('mo-is-error'),
+        filled: e.classList.contains('mo-is-filled'),
+      })),
+    );
     const yes = confirm.find((c) => c.name === 'Delete');
     const no = confirm.find((c) => c.name === 'Cancel');
     if (!yes || !yes.error || !yes.filled)
