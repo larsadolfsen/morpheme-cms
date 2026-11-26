@@ -106,13 +106,14 @@ export const moreFields: Field[] = [
   { name: 'buttonHref', label: t.blocks.list.buttonHref, type: 'relation', to: 'pages' },
 ];
 
-/** How a list's rows are typed in place: the heading and the text where they stand, the icon in a slot, the page (and a row's buttons) in the
- * row's sheet, which the link slot and the toolbar's Link open. */
+/** How a list's rows are typed in place: the heading and the text where they stand, the icon in a slot, the page from the link slot and the toolbar's
+ * Link (a row has no sheet), the button of a row that folds out on the open row itself (`onItem`). */
 export const listInline = ({ buttons }: { buttons?: boolean }): InlineSpec => ({
   item: 'items',
   fields: ['title', 'text'],
   media: ['icon', 'iconColor', 'image', 'alt'],
   blockMedia: ['leading'],
-  ...(buttons ? { settings: ['href', 'buttons'] } : { link: 'href' }),
+  link: 'href',
+  ...(buttons ? { onItem: ['buttons'] } : {}),
   texts: listTexts,
 });

@@ -48,6 +48,9 @@ export const blocks: Messages['blocks'] = {
     rowButtons: 'Knapper',
     rowButton: 'knap',
     rowButtonsHint: 'Tekstknapper nederst i den åbne række, hver med en side.',
+    addRowButton: 'Tilføj knap',
+    rowButtonPage: 'Knappens side',
+    removeRowButton: 'Fjern knap',
     rowButtonText: 'Knapetiket',
     /** The link in an open row, without the row's heading (in the site's language). */
     readMore: 'Læs mere',
