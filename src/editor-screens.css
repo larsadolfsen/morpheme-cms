@@ -432,6 +432,17 @@
       padding-block-end: var(--mo-ref-space-200);
     }
   }
+  /* A screen's tabs (Screen.tsx): the bar's row clips the tab row's divider, which runs the whole width of the bar; the tab group stands in the
+     content column, so its first tab starts where the breadcrumb and the content start (the tabs spec 2026-11-25, design 3). On a phone the
+     tabs share the whole bar. */
+  .mo-editor-bar-tabs {
+    overflow-x: clip;
+  }
+  .mo-editor-screen-tabs {
+    @media (width >= 37.5rem) {
+      padding-inline: var(--mo-ref-space-300);
+    }
+  }
   .mo-editor-screen-panel {
     @media (width >= 75rem) {
       --mo-sys-column-width: 72rem;

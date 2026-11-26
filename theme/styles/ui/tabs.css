@@ -160,13 +160,40 @@
   :where(.mo-tabs).mo-is-secondary .mo-tabs__tab:is([aria-current='page'], [aria-selected='true']) {
     color: var(--mo-comp-tabs-secondary-selected-text, var(--mo-comp-block-text));
   }
-  /* Fixed: the tabs share the row's width. */
+  /* Fixed: the tabs are as wide as the widest tab and never wider (M3 Tabs, Guidelines, Responsive layout: "the maximum width for each
+     tab should be determined by the width of the widest tab"); where the row is narrower than that, they share it in equal sections
+     (Specs: "Tabs are divided into equal sections"). The group stands at the leading edge of its container, and the divider still runs the
+     full width of the container (Guidelines, Container): the container clips the line (overflow-x: clip). */
   :where(.mo-tabs).mo-is-fixed {
+    position: relative;
+    display: grid;
+    width: fit-content;
+    max-width: 100%;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
     overflow-x: visible;
+  }
+  /* Compact (under 600 dp): the tabs divide the whole row into equal sections. */
+  @media (width < 37.5rem) {
+    :where(.mo-tabs).mo-is-fixed {
+      width: 100%;
+    }
+  }
+  :where(.mo-tabs).mo-is-fixed:is(.mo-is-primary, .mo-is-secondary) {
+    box-shadow: none;
+  }
+  :where(.mo-tabs).mo-is-fixed:is(.mo-is-primary, .mo-is-secondary)::after {
+    position: absolute;
+    right: -100vmax;
+    bottom: 0;
+    left: -100vmax;
+    height: 1px;
+    background: var(--mo-sys-color-outline-variant);
+    content: '';
+    pointer-events: none;
   }
   :where(.mo-tabs).mo-is-fixed > li {
     min-width: 0;
-    flex: 1 1 0;
   }
   :where(.mo-tabs).mo-is-fixed .mo-tabs__tab {
     width: 100%;
