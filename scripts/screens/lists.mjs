@@ -637,13 +637,13 @@ async function checkDynamicList(width, height) {
 }
 
 /** *Dynamic list* (B9): in a List's dynamic settings *Rows from* shows only with the switch *Dynamic list* On: Off (typed rows) it is not there; On it shows with no "None" choice;
- * Off again it hides and the typed rows are back. The same on List - Expand. A phone's settings are a bottom sheet, a computer's the side panel. */
+ * Off again it hides and the typed rows are back. The same on Expandable list. A phone's settings are a bottom sheet, a computer's the side panel. */
 async function checkDynamicSwitch(width, height) {
   const label = `${width}px dynamic list switch`;
   const phone = width < 600;
   for (const [block, tip] of [
     ['List', 'Show text and images in a list.'],
-    ['List - Expand', null],
+    ['Expandable list', null],
   ]) {
     const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`${label} (${block}): ${e.message}`));
