@@ -1327,6 +1327,14 @@ html {
   display: none;
 }
 
+/* An Expandable list in the page editor stays inside the block's box: the theme moves a plain list out by the layer room on each side (so the site's text keeps the text
+   edges); here the block's dashed outline is the edge, so the list takes the box's width and the rows keep their own inner padding. */
+.mo-editor-text .mo-block-accordion.mo-editor-inline-segmented {
+  margin-inline: 0;
+  max-inline-size: 100%;
+  min-inline-size: 0;
+}
+
 /* The row being typed in has a dotted line round it in the text's own colour (3:1 on every section colour, unlike the section frame's quiet line); the empty row of an empty list is faded. */
 .mo-editor-text .mo-editor-inline-list-row-active {
   outline: 2px dotted color-mix(in srgb, currentColor 70%, transparent);

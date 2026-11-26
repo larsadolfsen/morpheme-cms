@@ -1283,6 +1283,74 @@ async function checkTablePaste(width, height) {
   await page.close();
 }
 
+/**
+ * The Expandable list in the page editor (owner, 26 Nov 2026): a click on a row's header opens or closes the row and selects the block (the row is the active one, so the
+ * block's bar shows), and the accordion's left and right edges lie inside the block's box at every width, with no horizontal overflow.
+ */
+async function checkExpandSelect(width, height) {
+  const label = `${width}px Expandable list select and width`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Show list items that expand and collapse.' }).first().click();
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]', { timeout: 8000 });
+  await page.keyboard.type('One');
+  await page.waitForTimeout(300);
+  await page.locator('[data-add-row]').click();
+  await page.keyboard.type('Two');
+  await page.waitForTimeout(300);
+  const edges = () =>
+    page.evaluate(() => {
+      const box = document.querySelector('.mo-site-block-inline').getBoundingClientRect();
+      const out = [];
+      for (const el of document.querySelectorAll(
+        '.mo-site-block-inline ul.mo-block-accordion, .mo-site-block-inline .mo-list__item-expand, .mo-site-block-inline .mo-list__item-expand-summary',
+      )) {
+        const r = el.getBoundingClientRect();
+        if (r.left < box.left - 0.5 || r.right > box.right + 0.5)
+          out.push(
+            `${el.className.split(' ')[0]} ${r.left.toFixed(1)}..${r.right.toFixed(1)} outside ${box.left.toFixed(1)}..${box.right.toFixed(1)}`,
+          );
+      }
+      const de = document.documentElement;
+      if (de.scrollWidth > de.clientWidth) out.push(`page scrolls sideways (${de.scrollWidth} > ${de.clientWidth})`);
+      return out;
+    });
+  for (const found of await edges()) problems.push(`${label}: ${found}`);
+  // Another block is selected: the cursor is in the first paragraph.
+  const away = async () => {
+    await page.click('.ProseMirror > p');
+    await page.waitForTimeout(300);
+  };
+  const selected = (row) => page.locator(`[data-row="${row}"].mo-editor-inline-list-row-active`).count();
+  const open = (row) => page.locator(`[data-row="${row}"] .mo-list__item-expand-button`).getAttribute('aria-expanded');
+  for (const [how, press] of [
+    ['the chevron', (row) => page.locator(`[data-row="${row}"] .mo-list__item-expand-button`).click()],
+    ['the header', (row) => page.locator(`[data-row="${row}"] .mo-list__item-expand-summary`).click({ position: { x: 8, y: 20 } })],
+  ]) {
+    await away();
+    if (await selected(0)) problems.push(`${label}: a row is still active after a click outside the block`);
+    const before = await open(0);
+    await press(0);
+    await page.waitForTimeout(300);
+    if (!(await selected(0))) problems.push(`${label}: a click on ${how} did not select the block`);
+    if ((await open(0)) === before) problems.push(`${label}: a click on ${how} did not open or close the row`);
+    if (!(await page.locator('[data-add-row]').count()))
+      problems.push(`${label}: the block is not selected (no add button) after a click on ${how}`);
+  }
+  for (const found of await edges()) problems.push(`${label} (selected): ${found}`);
+  await page.screenshot({ path: join(shots, `expand-select-${width}.png`) });
+  await page.close();
+}
+
 export function register(unit) {
   for (const [width, height] of [
     [375, 740],
@@ -1296,6 +1364,12 @@ export function register(unit) {
           inlineBlocks.find((b) => b.name === name),
         ),
       );
+  for (const [w, h] of [
+    [390, 740],
+    [768, 900],
+    [1280, 900],
+  ])
+    unit(`checkExpandSelect ${w}`, () => checkExpandSelect(w, h));
   for (const block of inlineBlocks) unit(`checkInlineBlock 375 ${block.name}`, () => checkInlineBlock(375, 740, block));
   // On a computer too: the row's settings are in the side panel at once (a card's: its page and its buttons).
   for (const block of inlineSingles)

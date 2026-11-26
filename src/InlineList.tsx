@@ -221,6 +221,17 @@ export default function InlineList({
         // Rows that fold out: open while it is the active row, or as the chevron left it (a tap on the heading does not fold it: the heading is typed there).
         if (fold) {
           const open = foldOf(i, here, folds, onFold);
+          // A click on the row's header opens or closes the row and selects the block (the row becomes the active one, so the block's bar and settings show), as a click on any
+          // other inline block does. The heading and the slots keep their own click (typing, the icon and link pickers); the chevron button folds the row itself.
+          const row = items.length ? i : 0;
+          const select = () => active !== row && onChange({ active: row, focus: null });
+          const headerClick = (e: MouseEvent<HTMLElement>) => {
+            const target = e.target instanceof Element ? e.target : null;
+            if (!target?.closest('.mo-list__item-expand-summary') || target.closest('textarea, input, a, .mo-editor-inline-list-slot'))
+              return;
+            if (!target.closest('.mo-list__item-expand-button')) open.toggle.onToggle();
+            select();
+          };
           return (
             <SiteListItem
               key={i}
@@ -230,6 +241,7 @@ export default function InlineList({
               expandProps={{
                 role: 'group',
                 onFocus: open.onFocus,
+                onClick: headerClick,
                 'data-row': i,
                 'aria-current': here ? 'true' : undefined,
                 'aria-label': next ? t.blocks.list.newRow : t.blocks.list.rowOf(i + 1, items.length),
