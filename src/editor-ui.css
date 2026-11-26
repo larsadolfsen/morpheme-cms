@@ -960,6 +960,22 @@
     align-items: center;
     justify-content: space-between;
   }
+  /* The back row reads as the page's top bar does (owner, 26 Nov 2026: "Write the current menu name in the menu with the same type as the
+     page name, and the back arrow with the same size."): the section's name in the top bar's headline type (Material 3, Top app bar,
+     Guidelines: "Small: Title large") and the arrow in a 48dp target with the 24dp icon, as .mo-editor-screen-back. The arrow's
+     glyph stays over the items' icons (the target reaches out past the item's padding). */
+  .mo-editor-main-drawer-back-row .mo-navigation-drawer__back {
+    color: var(--mo-comp-top-app-bar-headline-color, var(--mo-comp-block-text));
+    font-size: var(--mo-comp-top-app-bar-small-headline-font-size, var(--mo-sys-typescale-title-large-size));
+    font-weight: var(--mo-comp-top-app-bar-headline-weight, var(--mo-sys-typescale-title-large-weight));
+    letter-spacing: var(--mo-comp-top-app-bar-headline-letter-spacing, var(--mo-sys-typescale-title-large-tracking));
+    line-height: var(--mo-sys-typescale-title-large-line-height);
+  }
+  .mo-editor-main-drawer-back-row .mo-navigation-drawer__back > .mo-navigation-drawer__icon {
+    inline-size: var(--mo-ref-space-600);
+    block-size: var(--mo-ref-space-600);
+    margin-inline: -0.75rem 0;
+  }
   .mo-editor-main-drawer-divider {
     margin-block: var(--mo-ref-space-200);
   }

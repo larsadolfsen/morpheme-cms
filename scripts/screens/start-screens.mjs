@@ -522,8 +522,22 @@ async function checkStyleSublist(width, height) {
           const r = e.getBoundingClientRect();
           return r.width > 0 && r.height > 0;
         };
+        const typeOf = (e) => {
+          const c = e && getComputedStyle(e);
+          return c && [c.fontFamily, c.fontSize, c.fontWeight, c.lineHeight, c.letterSpacing].join(' | ');
+        };
         return {
-          back: back && visible(back) ? { text: back.textContent.trim(), name: back.getAttribute('aria-label') } : null,
+          back:
+            back && visible(back)
+              ? {
+                  text: back.textContent.trim(),
+                  name: back.getAttribute('aria-label'),
+                  type: typeOf(back.querySelector('.mo-navigation-drawer__label')),
+                  title: typeOf(document.querySelector('h1[data-screen-title]')),
+                  target: Math.round(back.querySelector('.mo-navigation-drawer__icon').getBoundingClientRect().width),
+                  glyph: Math.round(back.querySelector('.mo-navigation-drawer__icon svg').getBoundingClientRect().width),
+                }
+              : null,
           links: [...document.querySelectorAll(`${panel} nav a[href^="#style/"]`)].filter(visible).map((a) => ({
             href: a.getAttribute('href'),
             text: a.textContent.trim(),
@@ -592,6 +606,13 @@ async function checkStyleSublist(width, height) {
     if (got.back.text !== 'Style') problems.push(`${label}: the back row reads "${got.back.text}" (should be "Style")`);
     if (got.back.name !== 'Back to Main menu: Style')
       problems.push(`${label}: the back row's name is "${got.back.name}" (should be "Back to Main menu: Style")`);
+  }
+  // The back row is set like the top bar: its name in the page title's type, its arrow a 48dp target with the 24dp icon.
+  if (got.back) {
+    if (got.back.type !== got.back.title)
+      problems.push(`${label}: the back row's type is "${got.back.type}", the page title's is "${got.back.title}"`);
+    if (got.back.target !== 48 || got.back.glyph !== 24)
+      problems.push(`${label}: the back arrow is ${got.back.target}px with a ${got.back.glyph}px icon (should be 48 and 24)`);
   }
   await page.screenshot({ path: join(shots, `style-sublist-${width}.png`) });
 
