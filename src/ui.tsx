@@ -130,6 +130,8 @@ export type ButtonSize = 'small';
 type ButtonProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
   kind?: ButtonKind;
   size?: ButtonSize;
+  /** `error`: a danger button (it deletes or removes), outlined or filled in the error role. */
+  tone?: 'error';
   /** Before the text. */
   icon?: Icon;
   /** Its action runs: disabled, and after a moment a loading indicator. */
@@ -1373,7 +1375,7 @@ export function ImagePick({ id, src, onPick, onRemove }: { id?: string; src?: st
         {src ? t.forms.changeImage : t.forms.pickImage}
       </Button>
       {src && onRemove && (
-        <Button kind="text" onClick={onRemove}>
+        <Button kind="outlined" tone="error" onClick={onRemove}>
           {t.common.remove}
         </Button>
       )}
