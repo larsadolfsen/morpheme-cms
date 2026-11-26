@@ -89,12 +89,13 @@ if one fails on another theme, the check is the bug; report it (the PM brings it
 Owner, 25 Nov 2026: "We agreed upon not testing themes for wcag etc, but classify instead"; also for the page and post editor, "because
 this may run on the site theme"; spec `docs/superpowers/specs/2026-11-25-themes-classified-design.md`.
 
-- **A theme's values are classified.** Sizes, target sizes, corners, spacing and the focus ring's width and offset (WCAG 1.4.4, 1.4.10,
-  1.4.12, 2.5.8) are measured by the checks and written into the theme's `accessibility.json` by `morpheme accessibility [<theme>]`. No
-  check fails on them, for any theme.
+- **A theme's values are classified.** The target size of each interactive part the theme styles (WCAG 2.5.8, 24 px: each button size, icon button, chip, switch, field,
+  menu item, tab …, `PARTS` in `lib/accessibility.mjs`) is one check each, measured and written into the theme's `accessibility.json` by `morpheme accessibility [<theme>]`;
+  the score is the share of parts that pass. Corners and spacing have no criterion and stay out; the focus ring's width and offset are a later part. No check fails on them,
+  for any theme.
 - **Colours are not a theme's.** Owner, 26 Nov 2026: "No, the colors are chosen by the user. Our color editor is responsible for contrast". A theme writes no
-  colour, so contrast (1.4.3, 1.4.11 as colour, the focus ring's colour) is the colour editor's (`src/Colors.tsx`): the checks print it on the demo's colours, never fail
-  on it, and it is in no theme's `accessibility.json` or score. The `check:screens` surface-roles unit runs on Material only.
+  colour, so contrast (1.4.3, 1.4.11 as colour, the focus ring's colour) is the colour editor's (`src/Colors.tsx`): no check fails on it and no theme shows it (not on its page, not in
+  its output, not in its `accessibility.json` or score); only Material's demo colours are still printed, as before. The `check:screens` surface-roles unit runs on Material only.
 - **Our code is a hard check on every theme.** Keyboard use, a focus ring on keyboard focus at all, names for screen readers, roles and
   states, focus order, status messages (WCAG 1.1.1, 1.3.1, 2.1.1, 2.1.2, 2.4.3, 2.4.6, 2.4.7, 2.4.11, 3.3.1, 3.3.2, 4.1.2, 4.1.3). A
   failure is a CMS bug whatever the theme; a theme does not work around it. A theme that removes the focus ring (`outline: none` with no

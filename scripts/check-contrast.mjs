@@ -21,7 +21,7 @@ import { buildOutDir } from './build-out.mjs';
 import { openEditor, serveBuilt } from './built-site.mjs';
 import { blockHtml } from '../lib/blocks.mjs';
 import { demoBlocksTestBody } from './demo-blocks.mjs';
-import { checksOf, statementOfChecks, summaryLines } from '../lib/accessibility.mjs';
+import { PARTS, checksOf, statementOfChecks, summaryLines } from '../lib/accessibility.mjs';
 import { statementOf, statementPlace } from './theme-statement.mjs';
 
 const ROOT = `${process.cwd()}/`;
@@ -133,10 +133,11 @@ const scan = `(root) => {
   };
   const opacityOf = (el) => { let o = 1; for (let e = el; e; e = e.parentElement) o *= parseFloat(getComputedStyle(e).opacity); return o; };
   const records = [];
+  const TARGET_PARTS = ${JSON.stringify(Object.entries(PARTS).map(([id, p]) => [id, p.selector]))};
   const push = (el, kind, front, back, min, extra) => {
     const blockEl = el.closest('[data-block], .mo-is-in-text, .mo-site-block-inline');
     const r = extra.ratioOverride ?? ratio(over(front, back), back);
-    records.push({ block: blockOf(el), variant: variantOf(el, blockEl), section: sectionOf(el), kind, fg: hex(over(front, back)), bg: hex(back), ratio: r, min, text: (extra.text ?? '').slice(0, 40), manual: extra.manual, card: !!el.closest('.mo-card'), tag: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.split(/\\s+/)[0] : '') });
+    records.push({ block: blockOf(el), variant: variantOf(el, blockEl), section: sectionOf(el), kind, fg: hex(over(front, back)), bg: hex(back), ratio: r, min, text: (extra.text ?? '').slice(0, 40), manual: extra.manual, part: extra.part, card: !!el.closest('.mo-card'), tag: el.tagName.toLowerCase() + (typeof el.className === 'string' && el.className ? '.' + el.className.split(/\\s+/)[0] : '') });
   };
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const seen = new Set();
@@ -197,7 +198,11 @@ const scan = `(root) => {
     // The target size of a control (WCAG 2.5.8, 24 px): the smaller side of its box. Links in a text are exempt, so only buttons and fields are read.
     if (el.matches('button, input:not([type="hidden"]), select, textarea, [role="button"]')) {
       const box = boxes.get(el) ?? el.getBoundingClientRect();
-      if (box.width > 0 && box.height > 0) push(el, 'target', [0, 0, 0, 1], [255, 255, 255, 1], 24, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', ratioOverride: Math.min(box.width, box.height) });
+      if (box.width > 0 && box.height > 0) {
+        // The part the control belongs to (the first selector it sits in); a control no part names is not a theme's part and is left out.
+        const hit = TARGET_PARTS.find(([, selector]) => el.closest(selector));
+        if (hit) push(el, 'target', [0, 0, 0, 1], [255, 255, 255, 1], 24, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', ratioOverride: Math.min(box.width, box.height), part: hit[0] });
+      }
     }
     if (el.matches('input, textarea')) {
       const p = getComputedStyle(el, '::placeholder');
@@ -285,7 +290,7 @@ function unique(records, view) {
       r.bg,
       r.min,
       r.manual ?? '',
-      r.kind === 'target' ? Math.round(r.ratio) : '',
+      r.kind === 'target' ? `${r.part}:${Math.round(r.ratio)}` : '',
     ].join('|');
     if (!map.has(key)) map.set(key, { ...r, view, count: 0 });
     map.get(key).count++;

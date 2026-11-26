@@ -35,7 +35,7 @@ of three kinds. `lib/accessibility.mjs` holds the list, by WCAG criterion and, f
 | Kind | WCAG criteria (2.2 AA) | axe-core rules | What happens |
 | --- | --- | --- | --- |
 | **Theme value** | 2.5.8 Target size (minimum), 1.4.12 Text spacing, 1.4.4 Resize text, 1.4.10 Reflow | `target-size`, `link-in-text-block` | measured, scored into the theme's accessibility score, printed; never a failure |
-| **Colour** (the site owner's, not the theme's) | 1.4.3 Contrast (minimum), 1.4.11 Non-text contrast (edges, icons, the focus ring's colour) | `color-contrast` | printed on the demo's colours, as today; never a failure and in no theme's score. The colour editor makes the colours. |
+| **Colour** (the site owner's, not the theme's) | 1.4.3 Contrast (minimum), 1.4.11 Non-text contrast (edges, icons, the focus ring's colour) | `color-contrast` | printed only for Material on the demo's colours, as today, and in the last `check:contrast` scan; never a failure; under no theme (not on its page, not in its output, not in its file) and in no score. The colour editor makes the colours. |
 | **Our code** | 1.1.1, 1.3.1, 2.1.1 Keyboard, 2.1.2 No keyboard trap, 2.4.3 Focus order, 2.4.7 Focus visible (a ring is drawn at all), 2.4.11 Focus not obscured, 2.4.6, 3.3.1, 3.3.2, 4.1.2 Name, role, value, 4.1.3 Status messages | every other rule | a failure, as today, on every theme; its allowlist (`a11y-allowlist.json`, `keyboard-allowlist.json`, `announce-allowlist.json`) only shrinks |
 
 - A finding the table does not place is **our code** until the Architect places it (so nothing slips through as a theme value by
@@ -51,7 +51,7 @@ of three kinds. `lib/accessibility.mjs` holds the list, by WCAG criterion and, f
 
 1. **Measured.** One command, `morpheme accessibility [<theme>]`, runs the measuring checks with the theme and writes its
    `accessibility.json`: `{ "standard": "WCAG 2.2 AA", "measured": "<CMS version>", "score": <0 to 100>, "checks": [ { criterion, part,
-   ok, why } ] }`. Every measured theme value is one check (a part on a criterion: "Target size, 2.5.8"), whether it passes or not. `why` is what was measured, in one sentence with the numbers (`"Smallest control 16 px, under 24 px"`). A person may add a reason after it (`"…; Material 3's small button as printed"`); the command keeps an
+   ok, why } ] }`. Every measured theme value is one check (a part on a criterion: "Small button, 2.5.8"), whether it passes or not. `why` is what was measured, in one sentence with the numbers (`"Small button 16 px, under 24 px"`). A person may add a reason after it (`"…; Material 3's small button as printed"`); the command keeps an
    added reason while the check stays as it is.
 2. **Scored like SEO.** `score` is the share of checks passed, rounded: `scoreOf(checks)` (`src/ui.tsx`), the same function as the SEO
    rating, imported, not copied. No weights. A theme with no measured check has no score (the row says "Not measured").
@@ -68,7 +68,7 @@ of three kinds. `lib/accessibility.mjs` holds the list, by WCAG criterion and, f
      prints the score and never fails on it.
    - A site's own theme (`src/themes/<id>/`): `check:themes` prints the score; the site's editor shows "Not measured" until its file is
      written by the command.
-5. **Parts.** `PARTS` in `lib/accessibility.mjs` grows to every part a theme value can be measured on (target size, and later what a theme itself sets: corners, spacing, the focus ring's width and offset). No colour part is in it, each with its criterion and its label for the theme
+5. **Parts.** `PARTS` in `lib/accessibility.mjs` is one part for each interactive part the theme styles, all on 2.5.8 (24 px): segmented button, button in each of its five sizes, icon button, floating action button, chip, switch, checkbox, radio button, slider handle, text field, menu item, tab, navigation bar and rail item, list item, carousel control and sheet control. Each is its own check, so the score is the share of parts that meet 24 px; a part nothing measured has no check, and the spacing exception of 2.5.8 is not read. Corners and spacing have no WCAG criterion and stay out. The focus ring's width and offset are a later part (no scan measures them today). No colour part is in it. Each part has its criterion and its label for the theme
    page. A part is added in the pull request that first measures it, as today. Adding a part can change a theme's score; the pull
    request says which scores moved.
 
