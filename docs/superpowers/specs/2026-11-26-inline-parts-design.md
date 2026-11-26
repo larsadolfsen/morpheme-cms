@@ -1,7 +1,7 @@
 # Inline parts: how a list row or a card is edited in the page editor
 
-Status: owner's decisions from the brainstorm of 26 Nov 2026. For 0.19.8, the editor revision (owner, 26 Nov 2026), with B5 *Items inline* of
-`plans/2026-11-22-0-19-7-ui-fixes.md`. Mocks beside this file: `2026-11-26-inline-parts/list.html` and `2026-11-26-inline-parts/cards.html` (open them
+Status: owner's decisions from the brainstorm of 26 Nov 2026. For **0.23 Editor**, the line that revises the editor (owner, 26 Nov 2026:
+"Yes 0.23 Call it Editor"), as 0.23.2 *Inline parts*. Mocks beside this file: `2026-11-26-inline-parts/list.html` and `2026-11-26-inline-parts/cards.html` (open them
 in a browser; light and dark).
 
 ## Why
