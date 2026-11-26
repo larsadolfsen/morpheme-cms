@@ -373,3 +373,31 @@ The owner approved these theme changes on 21 Nov 2026 (relayed by the PM of 0.19
 - **We do:** on a page or post with a draft waiting, `Published` and `Draft` (`Scheduled`) are secondary tabs (name only) in the top app bar, under the title row, with the tabs' own divider. No primary tabs sit above them.
 - **Why:** the owner asked for it in words: "the published/draft should be tabs and a part of the app bar" (25 Nov 2026, relayed by the PM), and chose M3's second variation, secondary tabs. M3 prints secondary tabs for a content area below primary tabs, so the placement in the app bar with no primary row is the owner-kept deviation.
 - **Date:** 2026-11-25.
+
+## Outlined text buttons (0.19.8, task 19)
+
+The owner approved these four on 26 Nov 2026 (relayed by the Architect: "Yes to the rest of the five questions"). Read 26 Nov 2026 with Playwright: `m3.material.io/components/snackbar/{overview,specs,guidelines,accessibility}`, `/components/tooltips/{…}`, `/components/date-pickers/{…}` and `/components/time-pickers/{…}`. In each case the theme's existing outlined `Button` (1 px outline, corner full, label-large) is used through `theme/ui`; no component is new and no screen has a variant. Pull request: this one.
+
+### TB2. The snackbar's action is an outlined button
+
+- **Material:** Snackbar, Specs, anatomy: "Action (optional)"; Guidelines: "A snackbar can contain a single action. "Dismiss" or "cancel" actions are optional." M3 draws the action as a text button in `inverse-primary` (`md.comp.snackbar.action.label-text.color`).
+- **We do:** `Snackbar` draws its action as an outlined button (`Button kind="outlined"`), label and 1 px edge in `inverse-primary` on the inverse surface (`theme/styles/tokens/ui/comp/button.css`, scope `.mo-snackbar`).
+- **Why:** owner's yes of 26 Nov 2026.
+
+### TB3. The rich tooltip's action is an outlined button
+
+- **Material:** Tooltips, Specs, anatomy of the rich tooltip: "Text button"; "Rich tooltips can have a headline, body, and up to two buttons."
+- **We do:** `Tooltip`'s `action` is an outlined button; the text button's negative inline margin is gone (`theme/styles/ui/tooltip.css`).
+- **Why:** owner's yes of 26 Nov 2026.
+
+### TB4. Cancel and OK of the date picker are outlined buttons
+
+- **Material:** Date pickers, Specs, anatomy of the modal picker: "Text buttons" (Cancel and OK).
+- **We do:** `DatePickerContainer`'s Cancel and OK are outlined buttons.
+- **Why:** owner's yes of 26 Nov 2026.
+
+### TB5. Cancel and OK of the time picker are outlined buttons
+
+- **Material:** Time pickers, Specs and Guidelines (modal dial and input pickers): Cancel and OK are text buttons, as in the date picker.
+- **We do:** `TimePickerContainer`'s Cancel and OK are outlined buttons.
+- **Why:** owner's yes of 26 Nov 2026.
