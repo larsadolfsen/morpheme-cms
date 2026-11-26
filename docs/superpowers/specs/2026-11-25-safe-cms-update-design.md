@@ -50,8 +50,10 @@ the token. A session confirms it before building (*Before building*, 1).
   - Check runs are used too where the token may read them, because they report a failure sooner. They are no longer needed.
 - **Green.** The Worker moves `main` to the branch commit (a fast-forward, never a force) and deletes the branch. The live build of
   `main` follows, and is watched as today.
-- **`main` moved meanwhile** (the owner saved). The Worker writes the same update again on top of the new `main` head and commits it
-  there. Only content moved, and the version is known to build.
+- **`main` moved meanwhile** (the owner saved). The update starts over from the new `main` head: a new branch, a new preview, and the fast-forward
+  only once that is green. At most once in a run; after a second move the next scheduled check tries again. Never a commit on `main` (Architect, 26 Nov 2026).
+- **The fast-forward is refused for any other reason** (a ruleset, branch protection, permissions). The update ends as failed with the reason "cannot-merge" at
+  once: `main` untouched, the update branch kept, the owner told.
 - **Red, or no answer within the limit.** The Worker deletes the branch and notes the reason and the time. `main` was never touched,
   so saves keep going live. The version is tried again 24 hours later (3).
 

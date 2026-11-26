@@ -112,7 +112,8 @@ function world({
     branches: {},
     deleted: [],
     forwarded: [],
-    moved: false,
+    moves: 0, // saves on the site's branch made by someone else
+    head: () => `head${w.commits.filter((c) => !c.onBranch).length + w.moves}`,
     built: {},
     noPreview: false,
     notices: [],
@@ -130,10 +131,10 @@ function world({
   w.deps = {
     readFiles: async (env, paths) => {
       w.readCount++;
-      return { head: `head${w.commits.length}`, texts: paths.map((p) => files[p]) };
+      return { head: w.head(), texts: paths.map((p) => files[p]) };
     },
     readFolder: async (env, folder) => ({
-      head: `head${w.commits.length}`,
+      head: w.head(),
       files: Object.entries(files)
         .filter(([path]) => path.startsWith(`${folder}/`))
         .map(([path, text]) => ({ path, text })),
@@ -146,13 +147,14 @@ function world({
       w.branches[name] = { head, files: { ...files } };
     },
     deleteBranch: async (env, name) => {
+      if (!(name in w.branches)) return;
       delete w.branches[name];
       w.deleted.push(name);
     },
-    // A fast-forward only when the site's branch has not moved since the branch was cut (w.moved: it has).
+    // A fast-forward only when the site's branch has not moved since the branch was cut (w.moves counts the saves that moved it).
     fastForward: async (env, commit) => {
       const branch = Object.values(w.branches).find((b) => b.commit === commit);
-      if (!branch || w.moved || w.protected) throw new Error('not a fast forward');
+      if (!branch || w.protected || branch.head !== w.head()) throw new Error('not a fast forward');
       Object.assign(files, branch.files);
       w.forwarded.push(commit);
     },
@@ -1042,21 +1044,41 @@ const CROSSING = (() => {
     'a branch with no answer after 21 minutes was not given up on',
   );
 
-  // The site's branch moved while the branch built: the same update is written again on its head and committed there.
+  // The site's branch moved while the branch built (a save): the update starts over from the new head, on a new branch and preview, and is moved once that is green.
   const moved = world();
   await checkForUpdate(moved.env, moved.deps, T0);
-  moved.moved = true;
+  moved.moves++;
   await settle(moved, T0 + MINUTE);
   expect(
-    moved.forwarded.length === 0 &&
+    stored(moved.kv, 'cms:update')?.state === 'trying' &&
+      stored(moved.kv, 'cms:update')?.restarted === true &&
+      stored(moved.kv, 'cms:update')?.base === 'head1' &&
+      moved.forwarded.length === 0 &&
+      moved.commits.every((c) => c.onBranch),
+    `a site that moved was not tried again from its new head: ${JSON.stringify(stored(moved.kv, 'cms:update'))}`,
+  );
+  await settle(moved, T0 + 2 * MINUTE);
+  expect(
+    moved.forwarded.length === 1 &&
       moved.commits.length === 2 &&
-      moved.commits[1].onBranch === undefined &&
+      moved.commits.every((c) => c.onBranch) &&
       JSON.parse(moved.files['package.json']).dependencies[PACKAGE] === '0.1.1' &&
       stored(moved.kv, 'cms:update')?.state === 'waiting',
-    'a branch built while the site moved was not committed again on the new head',
+    "the second preview was not moved onto the site's branch",
+  );
+  // Moved again during the second try: nothing more is tried in this run, and the site's branch is as it was.
+  const movedTwice = world();
+  await checkForUpdate(movedTwice.env, movedTwice.deps, T0);
+  movedTwice.moves++;
+  await settle(movedTwice, T0 + MINUTE);
+  movedTwice.moves++;
+  await settle(movedTwice, T0 + 2 * MINUTE);
+  expect(
+    !stored(movedTwice.kv, 'cms:update') && movedTwice.forwarded.length === 0 && Object.keys(movedTwice.branches).length === 0,
+    'a site that moved twice was not left for the next check',
   );
 
-  // The site's branch is protected: nothing is merged, the update counts as failed with its reason.
+  // The site's branch refuses the move (a rule, not a save): the update ends as failed at once, the site's branch as it was and the update's branch kept.
   const locked = world();
   await checkForUpdate(locked.env, locked.deps, T0);
   locked.protected = true;
@@ -1064,8 +1086,11 @@ const CROSSING = (() => {
   expect(
     stored(locked.kv, 'cms:update')?.state === 'failed' &&
       stored(locked.kv, 'cms:update')?.reason === 'cannot-merge' &&
+      locked.commits.every((c) => c.onBranch) &&
+      locked.head() === 'head0' &&
+      Object.keys(locked.branches).length === 1 &&
       JSON.parse(locked.files['package.json']).dependencies[PACKAGE] === '0.1.0',
-    `a protected branch gave ${JSON.stringify(stored(locked.kv, 'cms:update'))}`,
+    `a refused move gave ${JSON.stringify(stored(locked.kv, 'cms:update'))}`,
   );
 
   // No preview address: the update is not tried, nothing is committed, and the page says so.
@@ -1106,7 +1131,7 @@ const CROSSING = (() => {
   expect(stored(bad.kv, 'cms:own')?.version === '0.1.1', 'a version the Worker committed was not kept as its own');
   await watchUpdate(bad.env, bad.deps, T0 + 5 * MINUTE); // the version stays; the build of the site's branch is not known yet
   await bad.kv.put('cms:update', JSON.stringify({ ...stored(bad.kv, 'cms:update'), state: 'done' }));
-  bad.checks[`head${bad.commits.length}`] = 'failure'; // the head the site's files are read at
+  bad.checks[bad.head()] = 'failure'; // the head the site's files are read at
   await dailyCheck(bad.env, bad.deps, T0 + 6 * MINUTE, 'Europe/Copenhagen');
   expect(
     JSON.parse(bad.files['package.json']).dependencies[PACKAGE] === RUNNING && stored(bad.kv, 'cms:update')?.repaired === true,
@@ -1118,7 +1143,7 @@ const CROSSING = (() => {
   await updated(person);
   await person.kv.put('cms:update', JSON.stringify({ ...stored(person.kv, 'cms:update'), state: 'done' }));
   person.files['package.json'] = JSON.stringify({ dependencies: { [PACKAGE]: '0.5.0' } });
-  person.checks[`head${person.commits.length}`] = 'failure';
+  person.checks[person.head()] = 'failure';
   const commits = person.commits.length;
   await dailyCheck(person.env, person.deps, T0 + 6 * MINUTE, 'Europe/Copenhagen');
   expect(person.commits.length === commits, 'a version a person set was undone');

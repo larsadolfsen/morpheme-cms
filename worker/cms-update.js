@@ -288,13 +288,14 @@ const branchOf = (version) =>
  * Tries `version` on a branch: writes package.json and the lock there, commits it (the site's branch is not touched) and keeps `cms:update` as 'trying'.
  * Throws NoPreview, NeedsNpm, UnsafeCode or a GitHubError.
  */
-export async function startUpdate(env, version, deps = defaultDeps, now = Date.now()) {
+export async function startUpdate(env, version, deps = defaultDeps, now = Date.now(), restarted = false) {
   const branch = branchOf(version);
   if (!(await deps.previewAddress(env, branch))) throw new NoPreview();
   const site = await readSite(env, deps);
   const managed = managedVersion(site.packageJson, site.lock);
   if (!('version' in managed)) throw new Error('not-managed');
   const plan = await planUpdate(env, deps, site, managed, version);
+  await deps.deleteBranch(env, branch).catch(() => {}); // one kept from an update that could not be merged
   await deps.createBranch(env, branch, site.head);
   let commit;
   try {
@@ -311,6 +312,7 @@ export async function startUpdate(env, version, deps = defaultDeps, now = Date.n
     from: managed.version,
     to: version,
     at: iso(now),
+    ...(restarted ? { restarted: true } : {}),
     ...(plan.migrated.length ? { migrated: plan.migrated.map((c) => c.path) } : {}),
     ...(plan.own.length ? { code: plan.own.map((c) => c.path) } : {}),
   };
@@ -465,9 +467,9 @@ async function undoCommit(env, deps, update) {
 }
 
 /** A version that did not build: its branch deleted, the reason and the time kept (cms:retry:<version>) for the next try in 24 hours, and the page told. The site's branch is as it was. */
-async function failed(env, deps, update, reason, url, now, state = 'failed') {
+async function failed(env, deps, update, reason, url, now, state = 'failed', keepBranch = false) {
   const kv = env.PUSH;
-  if (update.branch) await deps.deleteBranch(env, update.branch).catch(() => {});
+  if (update.branch && !keepBranch) await deps.deleteBranch(env, update.branch).catch(() => {});
   await putJson(kv, `cms:retry:${update.to}`, { version: update.to, at: iso(now), reason, ...(url ? { buildUrl: url } : {}) });
   await kv.delete(BACKUP);
   await putJson(kv, 'cms:update', {
@@ -481,30 +483,29 @@ async function failed(env, deps, update, reason, url, now, state = 'failed') {
 }
 
 /**
- * A branch that built: its commit becomes the site's head by a fast-forward. When the site's branch moved meanwhile (something was saved), or GitHub refuses the
- * move, the same update is written again on top of the head as it is now and committed there (only content moved, and the version is known to build).
- * Where that is refused too (a rule that protects the branch), nothing is changed: the update counts as failed with the reason 'cannot-merge'.
+ * A branch that built: its commit becomes the site's head by a fast-forward, never a commit on the site's branch (the green build comes first).
+ * Refused because the site's branch moved meanwhile (something was saved): the update starts over from the new head, once in a run (a new branch, a new
+ * preview); a second move leaves the next scheduled check to try again. Refused for any other reason (a rule, a protection, a permission): the update ends as
+ * failed with the reason 'cannot-merge' at once, the site's branch as it was and the update's branch kept.
  */
 async function promote(env, deps, update, now) {
-  let commit = update.commit;
+  const commit = update.commit;
   try {
     await deps.fastForward(env, update.commit);
   } catch {
-    try {
-      const site = await readSite(env, deps);
-      const managed = managedVersion(site.packageJson, site.lock);
-      if (!('version' in managed) || managed.version === update.to) throw new Error('not-managed');
-      const plan = await planUpdate(env, deps, site, managed, update.to);
-      commit = await deps.commitFiles(env, site.head, siteTexts().commitUpdate(update.to), plan.all);
-      await keepBackup(env, plan.originals);
-      update = {
-        ...update,
-        ...(plan.migrated.length ? { migrated: plan.migrated.map((c) => c.path) } : { migrated: undefined }),
-        ...(plan.own.length ? { code: plan.own.map((c) => c.path) } : { code: undefined }),
-      };
-    } catch {
-      return failed(env, deps, update, 'cannot-merge', null, now);
+    const site = await readSite(env, deps).catch(() => null);
+    if (!site || site.head === update.base) return failed(env, deps, update, 'cannot-merge', null, now, 'failed', true);
+    await deps.deleteBranch(env, update.branch).catch(() => {});
+    if (!update.restarted) {
+      try {
+        await startUpdate(env, update.to, deps, now, true);
+        return;
+      } catch {
+        // falls through: nothing is tried now
+      }
     }
+    await env.PUSH.delete('cms:update');
+    return;
   }
   await deps.deleteBranch(env, update.branch).catch(() => {});
   await env.PUSH.delete(`cms:retry:${update.to}`);
