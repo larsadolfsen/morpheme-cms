@@ -1,0 +1,6 @@
+{
+  "id": "items-inline-list",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A list row’s link opens the page picker from its link button, and Block settings no longer lists the rows"
+}

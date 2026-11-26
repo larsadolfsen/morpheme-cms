@@ -532,6 +532,93 @@ async function checkDensity(width, height) {
   await page.close();
 }
 
+/** Four theme buttons that M3 draws as text buttons are outlined buttons (owner, 26 Nov 2026; docs/material-deviations.md, TB2 to TB5): the snackbar's action, the rich tooltip's action, and Cancel and OK of the date picker and of the time picker. On the editor's parts gallery (#developer/parts/ui) and the demo's /ui/ page, on a phone and a computer, light and dark, each of them has the outlined button's look (class, a 1 px edge, corner full, the same label size as another outlined button) and Tab gives it a focus ring. */
+async function checkOutlinedTextButtons(width, height, scheme, where) {
+  const touch = width < 600;
+  const label = `${width}px ${scheme} outlined text buttons (${where})`;
+  const page = await browser.newPage({
+    viewport: { width, height },
+    hasTouch: touch,
+    isMobile: touch,
+    locale: 'en-US',
+    colorScheme: scheme,
+  });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (where === 'demo') {
+    if (!(await openUiPage(page, label))) return void (await page.close());
+  } else {
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#developer/parts/ui'));
+    await page
+      .locator('.mo-snackbar__action')
+      .first()
+      .waitFor({ timeout: 30_000 })
+      .catch(() => {});
+  }
+  const total = await page.evaluate(() => document.documentElement.scrollHeight);
+  for (let y = 0; y < total + height; y += height - 100) {
+    await page.evaluate((y) => scrollTo(0, y), y);
+    await page.waitForTimeout(20);
+  }
+  const selectors = {
+    'snackbar action': '.mo-snackbar__action',
+    'tooltip action': '.mo-tooltip__action',
+    'date picker Cancel and OK': '.mo-date-picker__actions .mo-button',
+    'time picker Cancel and OK': '.mo-time-picker__actions .mo-button',
+  };
+  const reference = await page.evaluate(() => {
+    const b = document.querySelector('.mo-button.mo-is-outlined:not(.mo-snackbar__action):not(.mo-tooltip__action)');
+    return b ? { font: getComputedStyle(b).fontSize, weight: getComputedStyle(b).fontWeight } : null;
+  });
+  for (const [name, selector] of Object.entries(selectors)) {
+    const buttons = page.locator(selector);
+    const count = await buttons.count();
+    if (!count) {
+      problems.push(`${label}: no ${name} found`);
+      continue;
+    }
+    for (let i = 0; i < count; i++) {
+      const b = buttons.nth(i);
+      if (!(await b.evaluate((el) => el.getClientRects().length > 0))) continue;
+      await b.scrollIntoViewIfNeeded();
+      const seen = await b.evaluate((el) => {
+        const cs = getComputedStyle(el);
+        const box = el.getBoundingClientRect();
+        return {
+          outlined: el.classList.contains('mo-is-outlined'),
+          text: el.classList.contains('mo-is-text'),
+          edge: cs.boxShadow,
+          radius: parseFloat(cs.borderTopLeftRadius),
+          height: box.height,
+          font: cs.fontSize,
+          weight: cs.fontWeight,
+        };
+      });
+      if (!seen.outlined || seen.text) problems.push(`${label}: ${name} #${i} is not an outlined button`);
+      if (!/inset/.test(seen.edge) || !/ 1px\b/.test(seen.edge))
+        problems.push(`${label}: ${name} #${i} has no 1 px outline (${seen.edge})`);
+      if (seen.radius < seen.height / 2 - 0.5) problems.push(`${label}: ${name} #${i} corner is ${seen.radius}px, not full`);
+      if (reference && (seen.font !== reference.font || seen.weight !== reference.weight))
+        problems.push(
+          `${label}: ${name} #${i} label is ${seen.font}/${seen.weight}, another outlined button has ${reference.font}/${reference.weight}`,
+        );
+    }
+    // Tab reaches it: focus the control before it, press Tab, and the ring (:focus-visible) is drawn.
+    await page.evaluate(() => document.activeElement?.blur?.());
+    await buttons.first().focus();
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Tab');
+    const focused = await page.evaluate(() => {
+      const el = document.activeElement;
+      if (!el || !el.matches(':focus-visible')) return false;
+      const cs = getComputedStyle(el);
+      return (parseFloat(cs.outlineWidth) || 0) > 0 && cs.outlineStyle !== 'none';
+    });
+    if (!focused) problems.push(`${label}: ${name} shows no focus ring for the keyboard`);
+  }
+  await page.close();
+}
+
 export function register(unit) {
   unit('checkDensity 375', () => checkDensity(375, 740));
   unit('checkDensity 1280', () => checkDensity(1280, 900));
@@ -552,4 +639,11 @@ export function register(unit) {
     for (const scheme of ['light', 'dark']) unit(`checkChipRowFocus ${width} ${scheme}`, () => checkChipRowFocus(width, height, scheme));
   unit('checkDensitySetting 375', () => checkDensitySetting(375, 740));
   unit('checkDensitySetting 1280', () => checkDensitySetting(1280, 900));
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    for (const scheme of ['light', 'dark'])
+      for (const where of ['editor', 'demo'])
+        unit(`checkOutlinedTextButtons ${width} ${scheme} ${where}`, () => checkOutlinedTextButtons(width, height, scheme, where));
 }
