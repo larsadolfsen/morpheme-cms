@@ -47,7 +47,7 @@ import {
 } from './ui';
 import { blockGroups, htmlBlock, type BlockData, type BlockProps, type SiteBlock } from './blocks';
 import { clean, newValue, problemAt, savedValue } from './check';
-import { EditLink, FieldList, useWrongField, WrongField } from './fields';
+import { EditLink, FieldList, FieldPageSheet, useWrongField, WrongField } from './fields';
 import { HTML } from './markdown.mjs';
 import { byText, type Field, type Template } from './schema';
 import { preview, siteBlocks } from './registry';
@@ -128,6 +128,9 @@ export type BlockAsk = {
     image: { src: string; alt: string; decorative: boolean },
     mode: 'new' | 'edit',
   ) => Promise<{ alt: string; decorative: boolean } | null>;
+  /** The sheet with the pages, open at once, for an item's link (a row's link button): the address picked ('' is no page), null when it is closed
+   * without a pick. No sheet of the item comes first. */
+  page: (field: Field, value: string, title: string) => Promise<string | null>;
   /** The settings of the section the cursor is in (its colour, null: none, an H2's image and its description, and the width); the new
    * ones, or null when cancelled. image: the section can have an image (an H2's); width: it can have a width (an H1's or H2's). live: as
    * `edit`'s. */
@@ -272,6 +275,8 @@ export function useBlockDialog(
   const answer = useRef<(a: Answer) => void>(() => {});
   // The row settings shown now (the `row` step).
   const rowSpec = useRef<RowSpec | null>(null);
+  // The page sheet of an item's link, open now (the `page` of the asker): the field, its value, its title and where the answer goes.
+  const [pageAsk, setPageAsk] = useState<{ field: Field; value: string; title: string; end: (v: string | null) => void } | null>(null);
   const [open, setOpen] = useState<Open | null>(null);
   // What is open now (set at once, where `open` follows a render later), the look it has, when the last one has closed
   // (a new one waits for it), and what had the focus before (back to it from a standard side sheet).
@@ -465,8 +470,21 @@ export function useBlockDialog(
   };
 
   /** The fields of the block's sheet (the gear): the ones typed where the block stands (a list's heading and subheading) are not repeated. */
-  const settingsFields = (b: NonNullable<typeof block>) =>
-    typedInPlace(b) && b.inline?.single && b.inline.blockSettings ? b.fields.filter((f) => !b.inline!.fields.includes(f.name)) : b.fields;
+  const settingsFields = (b: NonNullable<typeof block>) => {
+    const inline = b.inline;
+    if (!typedInPlace(b) || !inline?.blockSettings) return b.fields;
+    if (inline.single) return b.fields.filter((f) => !inline.fields.includes(f.name));
+    // The items are edited on the items (owner, 22 Nov 2026, B5): Block settings holds only what applies to the whole block. The list of
+    // items is left out when every field of an item is typed, picked in a slot or picked from the link button.
+    const own = new Set([
+      ...inline.fields,
+      ...(inline.media ?? []),
+      ...(inline.settings ?? []),
+      ...(inline.link ? [inline.link] : []),
+      ...(inline.icon ? [inline.icon] : []),
+    ]);
+    return b.fields.filter((f) => f.name !== inline.item || !(f.fields ?? []).every((x) => own.has(x.name)));
+  };
 
   const asker: BlockAsk = {
     list,
@@ -537,6 +555,13 @@ export function useBlockDialog(
         } else if (a?.choice === 'discard') dropCopy(copy);
       });
     },
+    page: (field, value, title) =>
+      new Promise((resolve) => {
+        setPageAsk((was) => {
+          was?.end(null);
+          return { field, value, title, end: resolve };
+        });
+      }),
     alt: async (picture, mode) => {
       const a = await ask({ step: 'alt', mode }, { src: picture.src, alt: picture.alt, decorative: picture.decorative });
       return a ? { alt: String(a.props.alt ?? ''), decorative: a.props.decorative === true } : null;
@@ -900,6 +925,22 @@ export function useBlockDialog(
         </dialog>
       )}
       {pane.portal}
+      {pageAsk && (
+        <FieldPageSheet
+          key={pageAsk.title + pageAsk.value}
+          field={pageAsk.field}
+          value={pageAsk.value}
+          title={pageAsk.title}
+          onPick={(v) => {
+            pageAsk.end(v);
+            setPageAsk(null);
+          }}
+          onClosed={() => {
+            pageAsk.end(null);
+            setPageAsk(null);
+          }}
+        />
+      )}
     </>
   );
   return [asker, element];

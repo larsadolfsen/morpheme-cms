@@ -12,7 +12,6 @@ import { shownAt } from '../../images';
 import { libraryAltPart } from '../../imageAlt.mjs';
 import type { Image, ViewOf } from '../view';
 import { chosen, tagsOf, tagsShown } from '.';
-import { headOf, type HeadView } from '../head';
 import { columnsOf, type ColumnsView } from '../columns';
 import shared from './shared';
 
@@ -28,18 +27,17 @@ export type TestimonialView = {
   href: string;
 };
 export type TestimonialTexts = { more: string; less: string };
-export type TestimonialsView = HeadView &
-  ColumnsView & {
-    layout?: string;
-    testimonials: TestimonialView[];
-    /** What the slider is called for screen readers: its heading, else the block's name (labelOf). */
-    label: string;
-    filters: { slug: string; name: string }[];
-    texts: TestimonialTexts;
-  };
+export type TestimonialsView = ColumnsView & {
+  layout?: string;
+  testimonials: TestimonialView[];
+  /** What the slider is called for screen readers: its heading, else the block's name (labelOf). */
+  label: string;
+  filters: { slug: string; name: string }[];
+  texts: TestimonialTexts;
+};
 
-/** What the slider is called for screen readers: the block's heading, else "Testimonials" in the site's language. */
-export const labelOf = (props: Record<string, any>): string => props.heading?.trim() || siteT.blocks.testimonials.label;
+/** What the slider is called for screen readers: "Testimonials" in the site's language. */
+export const labelOf = (): string => siteT.blocks.testimonials.label;
 
 // A tag's name, as the list of tags has it.
 const tagName = (data: BlockData, slug: string) => data.relations.categories?.find((o) => o.value === slug)?.label ?? slug;
@@ -77,11 +75,10 @@ export const shownTexts = (data: BlockData) => sharedIn(data.site, 'testimonials
 export const viewOf: ViewOf<TestimonialsView> = (props, data) => {
   const rows = chosen(props, data);
   return {
-    ...headOf(props),
     ...columnsOf(props),
     layout: props.layout,
     testimonials: shownTestimonials(rows, data, tagsShown(props)),
-    label: labelOf(props),
+    label: labelOf(),
     filters: props.layout === 'list' && props.filter !== false ? tagsOf(rows).map((slug) => ({ slug, name: tagName(data, slug) })) : [],
     texts: shownTexts(data),
   };

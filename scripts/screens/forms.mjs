@@ -280,8 +280,8 @@ async function checkVersionTabs(width, height) {
     for (const box of await tabs.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height)))
       if (box < 47.5) problems.push(`${label}: a tab is ${box} dp high, under 48`);
     if (await list.locator('svg, .mo-tabs__tab-icon').count()) problems.push(`${label}: a tab has an icon`);
-    const line = await list.evaluate((el) => getComputedStyle(el).boxShadow);
-    if (!line || line === 'none') problems.push(`${label}: no divider under the tab row`);
+    const line = await list.evaluate((el) => getComputedStyle(el, '::after').height);
+    if (line !== '1px') problems.push(`${label}: no divider under the tab row`);
     const text = () => page.locator('.ProseMirror').first().innerText();
     if (!(await text()).includes('waiting text')) problems.push(`${label}: Draft does not show the draft`);
     if (!(await page.getByText('This is a draft').count())) problems.push(`${label}: no draft notice`);
@@ -333,7 +333,12 @@ async function checkOtherTabs(width, height) {
     const bar = await modes.evaluate((el) => {
       const b = el.closest('header, .mo-top-app-bar');
       const r = el.getBoundingClientRect();
-      return { inBar: !!b, line: getComputedStyle(el).boxShadow, same: !!b && Math.abs(b.getBoundingClientRect().width - r.width) < 1 };
+      return {
+        inBar: !!b,
+        line: getComputedStyle(el, '::after').height,
+        // A phone: the tabs share the whole bar; a computer: the row fits its tabs (the divider still runs the bar's width).
+        same: !!b && (window.innerWidth >= 600 || Math.abs(b.getBoundingClientRect().width - r.width) < 1),
+      };
     });
     const colors = await modes.evaluate((el) => ({
       secondary: el.classList.contains('mo-is-secondary'),
@@ -344,7 +349,7 @@ async function checkOtherTabs(width, height) {
     if (colors.icons) problems.push(`${label}: the Colors tabs have icons`);
     if (!colors.names.startsWith('Generator')) problems.push(`${label}: the Colors tabs are ${colors.names}`);
     if (!bar.inBar) problems.push(`${label}: the Colors tabs are not in the top app bar`);
-    if (!bar.line || bar.line === 'none') problems.push(`${label}: no divider under the Colors tab row`);
+    if (bar.line !== '1px') problems.push(`${label}: no divider under the Colors tab row`);
     if (!bar.same) problems.push(`${label}: the Colors tab row is not as wide as its bar`);
     await page.goto(`${site}/editor/#src/content/pages/zz-tabs-other.md`);
     await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
@@ -361,15 +366,67 @@ async function checkOtherTabs(width, height) {
       inBar: !!el.closest('header, .mo-top-app-bar'),
       icons: el.querySelectorAll('svg, .mo-tabs__tab-icon').length,
       names: [...el.querySelectorAll('[role="tab"]')].map((t) => t.textContent.trim()).join(),
-      line: getComputedStyle(el).boxShadow,
+      line: getComputedStyle(el, '::after').height,
     }));
     if (!tab.secondary) problems.push(`${label}: the search preview's tabs are not secondary tabs`);
     if (tab.inBar) problems.push(`${label}: the search preview's tabs are in the bar, not the body`);
     if (tab.icons) problems.push(`${label}: the search preview's tabs have icons`);
     if (tab.names !== 'Mobile,Desktop') problems.push(`${label}: the search preview's tabs are ${tab.names}`);
-    if (!tab.line || tab.line === 'none') problems.push(`${label}: no divider under the search preview's tab row`);
+    if (tab.line !== '1px') problems.push(`${label}: no divider under the search preview's tab row`);
   } finally {
     removeVirtualFile('src/content/pages/zz-tabs-other.md');
+    await page.close();
+  }
+}
+
+/** Fixed tabs adapt (spec 2026-11-25-tabs-adapt, tests 1 and 2; Business > Colors): from 600 dp every tab is as wide as the widest tab's
+ * label and padding and no wider, the first tab starts at the content column's leading edge (the title row's, from expanded), the divider runs the
+ * bar's whole width and the open tab's indicator is under its label only; on a phone the tabs share the row in equal sections. */
+async function checkTabsAdapt(width, height) {
+  const label = `${width}px tabs adapt`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  try {
+    await openEditor(page, site);
+    await page.goto(`${site}/editor/#company/colors`);
+    const list = page.getByRole('tablist', { name: 'Mode' });
+    await list.waitFor({ timeout: 15_000 });
+    await page.waitForTimeout(500);
+    const m = await list.evaluate((el) => {
+      const rect = (e) => e.getBoundingClientRect();
+      const tabs = [...el.querySelectorAll('[role="tab"]')];
+      const bar = rect(el.closest('.mo-editor-bar-tabs'));
+      const heading = document.querySelector('.mo-editor-screen-heading');
+      const line = getComputedStyle(el, '::after');
+      return {
+        widths: tabs.map((t) => rect(t).width),
+        need: Math.max(...tabs.map((t) => rect(t.querySelector('.mo-tabs__tab-content')).width + 32)),
+        first: rect(tabs[0]).left,
+        row: rect(el).width,
+        barLeft: bar.left,
+        barWidth: bar.width,
+        headingLeft: heading && rect(heading).width ? rect(heading).left : null,
+        lineHeight: line.height,
+        lineLeft: parseFloat(line.left),
+        lineRight: parseFloat(line.right),
+        page: document.documentElement.scrollWidth - window.innerWidth,
+      };
+    });
+    if (m.page > 0) problems.push(`${label}: the page scrolls sideways by ${m.page}px`);
+    if (m.widths.some((w) => Math.abs(w - m.widths[0]) > 1)) problems.push(`${label}: the tabs differ in width (${m.widths.join()})`);
+    if (m.lineHeight !== '1px') problems.push(`${label}: the divider is ${m.lineHeight} high, not 1px`);
+    if (phone) {
+      if (Math.abs(m.row - m.barWidth) > 1) problems.push(`${label}: the tabs do not share the whole bar (${m.row} of ${m.barWidth})`);
+    } else {
+      if (m.widths[0] > m.need + 1) problems.push(`${label}: a tab is ${m.widths[0]} wide, over the widest tab's ${m.need}`);
+      if (m.headingLeft !== null && Math.abs(m.first - m.headingLeft) > 1)
+        problems.push(`${label}: the first tab starts at ${m.first}, not at the content's ${m.headingLeft}`);
+      if (m.lineLeft > -m.first + m.barLeft + 1) problems.push(`${label}: the divider does not reach the bar's start`);
+    }
+    const w = await list.evaluate((el) => el.querySelector('[role="tab"]').getBoundingClientRect().height);
+    if (w < 47.5) problems.push(`${label}: a tab is ${w} dp high, under 48`);
+  } finally {
     await page.close();
   }
 }
@@ -452,6 +509,93 @@ async function checkDanger(width, height) {
   }
 }
 
+// The rows of Danger start at the leading edge like the rows above them (nothing centres them), left to right and right to left (the PM, 26 Nov 2026).
+async function checkDangerAlign(width, height, dir) {
+  const label = `${width}px danger rows ${dir}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  virtualFile('src/content/pages/zz-danger-align.md', `---\ntitle: "Align page"\n---\n\n# Align page\n\nPublished text.\n`);
+  try {
+    await openEditor(page, site);
+    await page.goto(`${site}/editor/#src/content/pages/zz-danger-align.md`);
+    await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+    await page.locator('.ProseMirror p').first().click();
+    await page.keyboard.type(' more');
+    await page.evaluate((d) => (document.documentElement.dir = d), dir);
+    const danger = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: /^Danger$/ }) });
+    await danger.waitFor({ timeout: 10_000 });
+    const toggle = danger.locator('h2 button');
+    if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+    const rows = await danger
+      .locator(':scope > div')
+      .getByRole('button')
+      .evaluateAll((els) =>
+        els.map((e) => {
+          const r = e.getBoundingClientRect();
+          const inner = e.querySelector('.mo-editor-inline-row').getBoundingClientRect();
+          const cs = getComputedStyle(e);
+          const rtl = getComputedStyle(e).direction === 'rtl';
+          return {
+            name: e.textContent.trim(),
+            gap: Math.round(rtl ? r.right - inner.right : inner.left - r.left),
+            align: cs.textAlign,
+            justify: cs.justifyContent,
+          };
+        }),
+      );
+    if (rows.length < 2) problems.push(`${label}: expected Discard and Delete page, got ${rows.map((r) => r.name).join()}`);
+    for (const r of rows) {
+      if (r.align === 'center' || r.justify === 'center') problems.push(`${label}: "${r.name}" is centred (${r.align}, ${r.justify})`);
+      if (r.gap !== rows[0].gap) problems.push(`${label}: "${r.name}" starts ${r.gap}px in, "${rows[0].name}" ${rows[0].gap}px`);
+      if (r.gap > 40) problems.push(`${label}: "${r.name}" starts ${r.gap}px from the leading edge`);
+    }
+  } finally {
+    removeVirtualFile('src/content/pages/zz-danger-align.md');
+    await page.close();
+  }
+}
+
+// Danger is the last entry of the Sections list and jumps to the section, opening it when it is folded.
+async function checkDangerNav(width, height) {
+  const label = `${width}px danger in the sections list`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  virtualFile('src/content/pages/zz-danger-nav.md', `---\ntitle: "Nav page"\n---\n\n# Nav page\n\nPublished text.\n`);
+  try {
+    await openEditor(page, site);
+    await page.goto(`${site}/editor/#src/content/pages/zz-danger-nav.md`);
+    await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+    const nav = page.getByRole('navigation', { name: 'Sections' });
+    await nav.waitFor({ timeout: 10_000 });
+    const names = (await nav.getByRole('button').allTextContents()).map((n) => n.trim());
+    if (names.at(-1) !== 'Danger') problems.push(`${label}: the list ends with "${names.at(-1)}" (${names.join(', ')}), not Danger`);
+    const danger = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: /^Danger$/ }) });
+    if ((await danger.locator('h2 button').getAttribute('aria-expanded')) === 'true')
+      problems.push(`${label}: Danger is open before the jump`);
+    await nav.getByRole('button', { name: 'Danger', exact: true }).click();
+    await page
+      .waitForFunction(
+        () =>
+          [...document.querySelectorAll('section h2 button')]
+            .find((b) => b.textContent.trim() === 'Danger')
+            ?.getAttribute('aria-expanded') === 'true',
+        null,
+        { timeout: 5000 },
+      )
+      .catch(() => problems.push(`${label}: the jump did not open Danger`));
+    await page.waitForTimeout(800);
+    const top = await danger.evaluate((el) => Math.round(el.getBoundingClientRect().top));
+    if (top < -2 || top > innerHeightOf(height)) problems.push(`${label}: Danger is at ${top}px after the jump, not in view`);
+    const current = await nav.locator('[aria-current="location"]').textContent();
+    if (current?.trim() !== 'Danger') problems.push(`${label}: "${current?.trim()}" is marked, not Danger`);
+  } finally {
+    removeVirtualFile('src/content/pages/zz-danger-nav.md');
+    await page.close();
+  }
+}
+const innerHeightOf = (h) => h;
+
 export function register(unit) {
   for (const [width, height] of [
     [360, 740],
@@ -478,7 +622,18 @@ export function register(unit) {
     [390, 844],
     [1280, 900],
   ])
+    for (const dir of ['ltr', 'rtl']) unit(`checkDangerAlign ${width} ${dir}`, () => checkDangerAlign(width, height, dir));
+  unit('checkDangerNav 1280', () => checkDangerNav(1280, 900));
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ])
     unit(`checkOtherTabs ${width}`, () => checkOtherTabs(width, height));
+  for (const [width, height] of [
+    [390, 844],
+    [2000, 1000],
+  ])
+    unit(`checkTabsAdapt ${width}`, () => checkTabsAdapt(width, height));
   for (const [width, height] of [
     [375, 740],
     [1280, 900],
