@@ -1,9 +1,8 @@
-// "Price cards": its head in the text (BlockHead.tsx), then the cards side by side where there is room (.mo-block-pricecards__plans in
+// "Price cards": its head in the text, then the cards side by side where there is room (.mo-block-pricecards__plans in
 // ../../styles/cards.css, as many columns as cards, two by two until there is room for four), under each other on a phone: each
 // an outlined card (Card.tsx in ../../ui/) on its props: the label when it is highlighted (`icon`, the top of the card), the name
 // (`headline`), the price with what it is for (`subhead`), the text (`supporting`), what is included (../checklist/Checks.tsx, the
 // content) and the button at the bottom (`actions`; ../buttons/Buttons.tsx).
-import BlockHead from '@theme/blocks/BlockHead';
 import Buttons from '@theme/blocks/buttons/Buttons';
 import Checks from '@theme/blocks/checklist/Checks';
 import Card from '@theme/ui/Card';
@@ -13,7 +12,6 @@ import { useInText } from '@morphemecms/cms/src/standard/view';
 export default function PriceCards({ view }: { view: PriceCardsView }) {
   return (
     <>
-      <BlockHead view={view} />
       <div className={useInText('mo-block-pricecards__plans')}>
         <ul className={`mo-block-pricecards__plans-list mo-block-pricecards__plans-${view.items.length}`}>
           {view.items.map((c, i) => (

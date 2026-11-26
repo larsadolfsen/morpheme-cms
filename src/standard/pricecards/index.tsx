@@ -5,7 +5,6 @@
 // is the theme's (packages/editor/theme/blocks/pricecards/View.tsx); what it shows: view.ts, and load.ts on the site.
 import { defineBlock } from '../../blocks';
 import { siteT, t } from '../../i18n';
-import { headFields } from '../head';
 import { buttonList } from '../buttons/fields';
 import type { PriceCardProps } from './view';
 import { materialIcon } from '../../icon';
@@ -35,7 +34,6 @@ export default defineBlock({
     },
   },
   fields: [
-    ...headFields,
     {
       name: 'items',
       label: texts.items,

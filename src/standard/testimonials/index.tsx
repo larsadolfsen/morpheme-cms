@@ -5,7 +5,6 @@
 import { config } from '@site/config';
 import { defineBlock, names, withTags, type BlockData, type BlockProps } from '../../blocks';
 import { t } from '../../i18n';
-import { headFields } from '../head';
 import { columnsField } from '../columns';
 import { materialIcon } from '../../icon';
 
@@ -49,7 +48,6 @@ export default defineBlock({
   },
   edit: { to: `list/${config.lists.testimonials}`, text: t.blocks.testimonials.edit },
   fields: [
-    ...headFields,
     {
       name: 'layout',
       label: t.blocks.testimonials.layout,
@@ -91,9 +89,5 @@ export default defineBlock({
       only: { field: 'show', is: ['picked'] },
     },
   ],
-  detail: (p, data) => [
-    p.heading ? String(p.heading) : '',
-    showOptions.find((o) => o.value === p.show)?.label ?? '',
-    names(chosen(p, data)),
-  ],
+  detail: (p, data) => [showOptions.find((o) => o.value === p.show)?.label ?? '', names(chosen(p, data))],
 });

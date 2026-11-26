@@ -4,7 +4,6 @@
 // button has none, not the shared buttons of "Buttons".
 import type { Button } from '../buttons/fields';
 import { buttonsOf, type ButtonView } from '../buttons/view';
-import { headOf, type HeadView } from '../head';
 import type { ViewOf } from '../view';
 
 /** A card as its fields write it. */
@@ -30,7 +29,7 @@ export type PriceCard = {
   featured: boolean;
   badge?: string;
 };
-export type PriceCardsView = HeadView & { items: PriceCard[] };
+export type PriceCardsView = { items: PriceCard[] };
 
 /** A card with its buttons, as the editor or the site makes them. */
 export const priceCardOf = (c: PriceCardProps, buttons: ButtonView[]): PriceCard => ({
@@ -45,6 +44,5 @@ export const priceCardOf = (c: PriceCardProps, buttons: ButtonView[]): PriceCard
 });
 
 export const viewOf: ViewOf<PriceCardsView> = (props, data) => ({
-  ...headOf(props),
   items: ((props.items ?? []) as PriceCardProps[]).map((c) => priceCardOf(c, c.buttons?.length ? buttonsOf(c.buttons, data) : [])),
 });

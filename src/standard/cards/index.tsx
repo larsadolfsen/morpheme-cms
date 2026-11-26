@@ -9,7 +9,6 @@ import { defineBlock } from '../../blocks';
 import { iconOptions, materialIcon } from '../../icon';
 import { iconColorField } from '../../iconColor';
 import { t } from '../../i18n';
-import { headFields } from '../head';
 import { buttonList } from '../buttons/fields';
 import { FORMATS } from '../../../lib/crop.mjs';
 import { ASPECTS, DEFAULT_ASPECT } from './cut.mjs';
@@ -40,7 +39,6 @@ export default defineBlock({
     },
   },
   fields: [
-    ...headFields,
     // Material 3's three cards; outlined is the empty choice (the cards from before there was a choice).
     {
       name: 'design',
