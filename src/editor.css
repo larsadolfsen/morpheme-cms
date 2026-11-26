@@ -1841,10 +1841,27 @@ dialog {
 .mo-editor-text .mo-editor-inline-button .mo-editor-inline-list-field {
   min-block-size: 0;
   align-self: center;
-  /* The typed label is its own control inside the button, so it is a target of its own: WCAG 2.5.8 (target size minimum, 24 px). Its hit area
-     grows with padding, and the same amount of negative margin takes it back out of the layout, so the label stays where it is drawn. */
-  padding-block: 0.3125rem;
-  margin-block: -0.3125rem;
+}
+
+/* The button's target (Material 3, Buttons, Specs, Target areas: "Extra small and small icon buttons must have a target size of 48x48dp or larger to be
+   accessible"): the theme draws it as an invisible area over a button (theme/styles/ui/target-size.css) but not over a button with a field in it, which this
+   one is. So the area is drawn here, behind the label field and the icon slot, which stay above it; a tap on it that no field gets goes to the label
+   (InlineButtons.tsx). Out from the button's middle to --mo-sys-target-size (48 on touch, 44 for a mouse), never further than half of the room to the
+   next row of buttons (0.5rem, so 4px a side), as the theme's button group does. */
+.mo-editor-text .mo-editor-inline-button {
+  position: relative;
+}
+
+.mo-editor-text .mo-editor-inline-button::after {
+  content: '';
+  position: absolute;
+  inset-block: max(min(0px, calc((100% - var(--mo-sys-target-size)) / 2)), -0.25rem);
+  inset-inline: 0;
+}
+
+.mo-editor-text .mo-editor-inline-button > * {
+  position: relative;
+  z-index: 1;
 }
 
 .mo-editor-text .mo-editor-inline-button .mo-editor-inline-list-slot {
