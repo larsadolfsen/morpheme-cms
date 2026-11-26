@@ -34,7 +34,7 @@ export const blocks: Messages['blocks'] = {
   subheading: 'Underoverskrift',
   subheadingHint: 'Står under overskriften.',
   expand: {
-    label: 'Liste - Udvid',
+    label: 'Udvidelig liste',
     hint: 'Vis listepunkter, der folder ud og ind.',
     /** Read by name for any block (pageEmptyRows.ts): the rows and one row, in the sentence about an empty block. */
     items: 'Rækker',

@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 const read = (p) => readFileSync(new URL(p, import.meta.url), 'utf8');
 const blocks = ['list', 'expand', 'posts', 'testimonials'];
 
-test('List, List - Expand, Blog posts and Testimonials have the setting Columns, and their views carry it', () => {
+test('List, Expandable list, Blog posts and Testimonials have the setting Columns, and their views carry it', () => {
   for (const name of blocks) {
     assert.match(read(`./${name}/index.tsx`), /columnsField\(/, `${name} has no Columns field`);
     const views = [`./${name}/view.ts`, `./${name}/load.ts`].map((f) => {

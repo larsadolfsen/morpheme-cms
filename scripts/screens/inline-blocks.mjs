@@ -177,7 +177,7 @@ async function checkFilledSlotRing(scheme, sectionColor) {
   await page.close();
 }
 
-/** A List and a List - Expand, each in the design Plain and Segmented (owner, 16 Nov 2026: "The white list is the correct one"), are edited the same way: the active
+/** A List and an Expandable list, each in the design Plain and Segmented (owner, 16 Nov 2026: "The white list is the correct one"), are edited the same way: the active
  * row has the same slots (its icon and its link, at its end), the toolbar the same Link, the add button the same text, and the link slot the same sheet with its page; nothing is
  * drawn at the bottom of a row; the design is a setting of the block (Plain or Segmented) that changes only how the rows are drawn. Each is measured, then compared with the List's. */
 /** A button typed in place (Buttons block) is drawn with Material 3's measures for its size (m3.material.io/components/buttons/specs): the label and the
@@ -257,8 +257,8 @@ async function checkListDesigns(width, height) {
   const looks = [
     { look: 'List', hint: 'Show text and images in a list.' },
     { look: 'List, Segmented', hint: 'Show text and images in a list.', card: true },
-    { look: 'List - Expand', hint: 'Show list items that expand and collapse.', expand: true },
-    { look: 'List - Expand, Segmented', hint: 'Show list items that expand and collapse.', card: true, expand: true },
+    { look: 'Expandable list', hint: 'Show list items that expand and collapse.', expand: true },
+    { look: 'Expandable list, Segmented', hint: 'Show list items that expand and collapse.', card: true, expand: true },
   ];
   const seen = [];
   for (const { look, hint, card, expand } of looks) {
@@ -318,15 +318,18 @@ async function checkListDesigns(width, height) {
       }),
       expand,
     );
-    await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
+    // An Expandable list row has no link slot (owner, 26 Nov 2026), so only a List row opens the page picker.
+    if (!expand) await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
     // The page picker opens straight from the link button (B5): the sheet with the pages and No page, on a phone and a computer, and no sheet of the row.
     const sheet = page.locator('dialog[open]');
-    const opened = await sheet
-      .getByText('No page', { exact: true })
-      .first()
-      .waitFor({ timeout: 4000 })
-      .then(() => true)
-      .catch(() => false);
+    const opened = expand
+      ? false
+      : await sheet
+          .getByText('No page', { exact: true })
+          .first()
+          .waitFor({ timeout: 4000 })
+          .then(() => true)
+          .catch(() => false);
     const rowSheet = await page.getByText('Row settings').filter({ visible: true }).count();
     // A page picked is written to the row (the picker opens again on it), No page takes it away and closes the picker; Block settings then lists no row.
     let kept = true;
@@ -363,11 +366,13 @@ async function checkListDesigns(width, height) {
   const [first] = seen;
   if (first.slots.join() !== 'Icon,Page') problems.push(`${label}: the List's active row has the slots "${first.slots}", not "Icon,Page"`);
   for (const one of seen) {
-    if (one.slots.join() !== first.slots.join())
-      problems.push(`${label}: ${one.look} has the slots "${one.slots}", the List "${first.slots}"`);
+    const expand = one.look.startsWith('Expandable');
+    // A List row has an icon and a page slot; an Expandable list row has the icon only (no link on it, owner, 26 Nov 2026).
+    const wantSlots = expand ? 'Icon' : first.slots.join();
+    if (one.slots.join() !== wantSlots) problems.push(`${label}: ${one.look} has the slots "${one.slots}", not "${wantSlots}"`);
     if (one.add.join() !== 'Add list row') problems.push(`${label}: ${one.look} has the add button "${one.add}", not "Add list row"`);
     if (one.own) problems.push(`${label}: ${one.look} has a text row or a button of its own for the row's link`);
-    if (!one.end) problems.push(`${label}: ${one.look}: the link slot is not at the end of the row`);
+    if (!expand && !one.end) problems.push(`${label}: ${one.look}: the link slot is not at the end of the row`);
     if (!one.edge) problems.push(`${label}: ${one.look}: no row layer or leading icon to measure`);
     else {
       // Default: the layer starts 16 dp before the text's edge at every width, and the icon is on the text's edge; Card: the container on the text's edge (its icon one 16 dp padding in).
@@ -379,7 +384,7 @@ async function checkListDesigns(width, height) {
         problems.push(`${label}: ${one.look}: the leading icon starts ${one.edge.icon} px from the text's edge, not ${icon}`);
       if (one.edge.wide > 0.5) problems.push(`${label}: ${one.look}: the page scrolls sideways by ${one.edge.wide}px`);
     }
-    if (!one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the page picker`);
+    if (!expand && !one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the page picker`);
     if (!one.kept) problems.push(`${label}: ${one.look}: the page picked is not on the row`);
     if (!one.iconFilled) problems.push(`${label}: ${one.look}: the link button's icon does not change when a page is set (filled)`);
     if (!one.iconBack) problems.push(`${label}: ${one.look}: the link button's icon is not outlined again after No page`);
@@ -389,7 +394,7 @@ async function checkListDesigns(width, height) {
   }
 }
 /** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */
-async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowLink, field = 'title', open, start = 1 }) {
+async function checkInlineBlock(width, height, { name, hint, add, surface, noEdit, rowLink, noRowLink, field = 'title', open, start = 1 }) {
   const label = `${width}px inline ${name}`;
   const phone = width < 600;
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
@@ -426,8 +431,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     const next = await page
       .locator('.mo-editor-inline-list-row-active .mo-block-cards__card-actions .mo-editor-inline-card-next-button')
       .allTextContents();
-    if (next.join() !== 'Add button')
-      problems.push(`${label}: the active card's action area has "${next}", not the text button "Add button"`);
+    if (next.join() !== 'Add button') problems.push(`${label}: the active card's action area has "${next}", not "Add button"`);
     if (width >= 1000 && !(await page.locator('.mo-editor-tools button[aria-label="Link"]').count()))
       problems.push(`${label}: the toolbar has no Link while the card is still empty`);
     // The header line of a card is a headline and ONE optional subhead, both typed in place; no badge, date or tags.
@@ -776,9 +780,21 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   if (noEdit)
     for (const name of ['Link', 'Edit'])
       if (one.bar.some((b) => b.label === name)) problems.push(`${label}: the toolbar has "${name}" although the block has no settings`);
-  // A row's link (List and List - Expand alike, owner, 16 Nov 2026): the link slot at the end of the active row and the toolbar's Link, no text row of
+  // A row's link (List and Expandable list alike, owner, 16 Nov 2026): the link slot at the end of the active row and the toolbar's Link, no text row of
   // its own at the bottom of the row; the slot opens the page picker. List rows: no button of their own; Expand rows: at most one typed button at the bottom
   // of the open row, besides the Icon and Page slots (owner, 26 Nov 2026).
+  // An Expandable list row has no link at all (owner, 26 Nov 2026: "No link on them. Just buttons."): only the Icon slot, no Page slot, no toolbar Link.
+  if (noRowLink) {
+    const slots = await page
+      .locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')
+      .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')));
+    if (slots.join() !== 'Icon')
+      problems.push(`${label}: the active row's slots are "${slots}", not "Icon" (a row that folds out has no link)`);
+    if (await page.locator('[data-row-link], .mo-editor-inline-segmented-buttons').count())
+      problems.push(`${label}: the row has a link control`);
+    if ((await state()).bar.some((b) => b.label === 'Link'))
+      problems.push(`${label}: the toolbar has a Link button on a row that has no link`);
+  }
   if (rowLink) {
     const slots = await page
       .locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')
@@ -797,8 +813,28 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
   }
+  // The add actions of the block (Add list row, Add button, Add card, Add point ...) are the theme's outlined button, not a text button (owner, 26 Nov 2026: "Don't use text buttons.
+  // Use outline button. Also in cards."), with its outline (drawn by the theme as an inset ring), the theme's label colour and a tap target of at least 40 px (the theme adds the rest to 48 dp).
+  const adds = await page.locator('[data-add-row], [data-add-button], [data-add-feature]').evaluateAll((bs) =>
+    bs.map((b) => {
+      const c = getComputedStyle(b);
+      const r = b.getBoundingClientRect();
+      return {
+        name: b.textContent,
+        outlined: b.classList.contains('mo-is-outlined'),
+        text: b.classList.contains('mo-is-text'),
+        border: parseFloat(c.borderTopWidth) || (c.boxShadow.includes('inset') ? 1 : 0),
+        height: r.height,
+      };
+    }),
+  );
+  if (!adds.length) problems.push(`${label}: no add action found`);
+  for (const a of adds) {
+    if (!a.outlined || a.text || !(a.border >= 1)) problems.push(`${label}: "${a.name}" is not an outlined button (${JSON.stringify(a)})`);
+    if (a.height < 40) problems.push(`${label}: "${a.name}" is ${a.height} px high, under 40`);
+  }
   if (phone) {
-    // A touch screen has no hover (hover: none), but the browser leaves :hover on what was tapped: the add button stays a text button, without the pointed-at background.
+    // A touch screen has no hover (hover: none), but the browser leaves :hover on what was tapped: the add button has no pointed-at background.
     const session = await page.context().newCDPSession(page);
     await session.send('Emulation.setEmulatedMedia', { features: [{ name: 'hover', value: 'none' }] });
     await page.locator('[data-add-row]').hover();
@@ -808,8 +844,8 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       const c = getComputedStyle(b);
       return { pointed: b.matches(':hover'), background: c.backgroundColor, shadow: c.boxShadow };
     });
-    if (!sticky.pointed || sticky.background !== 'rgba(0, 0, 0, 0)' || sticky.shadow !== 'none')
-      problems.push(`${label}: "${add}" tapped on a touch screen is no longer a text button (${JSON.stringify(sticky)})`);
+    if (!sticky.pointed || sticky.background !== 'rgba(0, 0, 0, 0)' || !sticky.shadow.includes('inset'))
+      problems.push(`${label}: "${add}" tapped on a touch screen is not quiet on a touch screen (${JSON.stringify(sticky)})`);
     await session.send('Emulation.setEmulatedMedia', { features: [] });
   }
   await page.click('[data-add-row]');
@@ -1087,7 +1123,7 @@ async function checkSteps(width, height) {
   }
 }
 
-/** Pasting lines into an empty item makes one item each (spec 2026-11-14-paste-and-change-to-design.md, section 2): in List, List - Expand,
+/** Pasting lines into an empty item makes one item each (spec 2026-11-14-paste-and-change-to-design.md, section 2): in List, Expandable list,
  * Cards and Steps, three lines pasted into the empty block make three items with those titles (a tab gives the second field its
  * text), the cursor in the last field of the last; a paste with a `#` line is left as it is; a paste into an empty item after Add below
  * makes items there and keeps the items before; Ctrl+Z gives the block back as it was before the paste. */

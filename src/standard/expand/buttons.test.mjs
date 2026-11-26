@@ -1,4 +1,4 @@
-// A List - Expand row holds at most one text button: the field says so (the form hides `Add one`, the check stops a second).
+// An Expandable list row holds at most one text button: the field says so (the form hides `Add one`, the check stops a second).
 // Run: node --test src/standard/expand/buttons.test.mjs
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
