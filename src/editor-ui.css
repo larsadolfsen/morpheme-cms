@@ -494,11 +494,6 @@
     border: 0 solid var(--mo-sys-color-outline-variant);
     border-inline-start-width: 1px;
   }
-  .mo-editor-row-delete {
-    justify-content: center;
-    text-align: center;
-    color: var(--mo-sys-color-error);
-  }
   .mo-editor-row-sub {
     color: var(--mo-sys-color-on-surface-variant);
   }

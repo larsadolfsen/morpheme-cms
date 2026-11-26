@@ -10,6 +10,7 @@ import {
   daCms,
   daCommon,
   daDashboard,
+  daForms,
   daLibrary,
   fallbackAt,
   missingIcon,
@@ -436,6 +437,48 @@ async function checkStartSubtitle() {
   }
 }
 
+/** Style (C20): the main menu's section of seven pages. Each item opens its own page at #style/<name> with its title, the old addresses
+ * land on the new ones, and Icons names Material Symbols only. */
+async function checkStyleMenu(width, height) {
+  const label = `${width}px style menu`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const go = async (hash) => {
+    await page.evaluate((h) => (location.hash = h), hash);
+    await page.waitForTimeout(300);
+  };
+  const names = {
+    color: 'Color',
+    elevation: 'Elevation',
+    icons: 'Icons',
+    motion: 'Motion',
+    shape: 'Shape',
+    spacing: 'Spacing',
+    typography: 'Typography',
+  };
+  for (const [name, title] of Object.entries(names)) {
+    await go(`style/${name}`);
+    const heading = await page.evaluate(
+      () => document.querySelector('main h1, main [role=heading][aria-level="1"], header h1')?.textContent?.trim() ?? '',
+    );
+    if (heading !== title) problems.push(`${label} #style/${name}: the page's title is "${heading}" (should be "${title}")`);
+  }
+  for (const [old, now] of [
+    ['company/colors', 'style/color'],
+    ['appearance/motion', 'style/motion'],
+    ['developer/parts/values', 'style/color'],
+  ]) {
+    await go(old);
+    const hash = await page.evaluate(() => location.hash);
+    if (hash !== `#${now}`) problems.push(`${label} #${old}: lands on ${hash} (should be #${now})`);
+  }
+  await go('style/icons');
+  const text = await page.evaluate(() => document.querySelector('main')?.textContent ?? '');
+  if (/phosphor|lucide/i.test(text)) problems.push(`${label} #style/icons: names Phosphor or Lucide`);
+  await page.close();
+}
+
 /** Settings lists the seven screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
@@ -526,12 +569,16 @@ async function checkSettingsAndMenu(width, height) {
   const drawer = '.mo-editor-main-drawer-panel nav';
   if (width >= 1000) {
     // The standard drawer is open: four sections, the start screen and the cog, and the cog last, at the bottom.
+    await scrollMenuToEnd(page);
     const items = await page.evaluate(shownItems, `${drawer} .mo-navigation-drawer__item`);
     const sections = items.filter((i) => i.tag === 'BUTTON').length;
     const links = items.filter((i) => i.tag === 'A').map((i) => i.href);
     // Under "Apps": Store, then the pages of the installed connectors, plugins and themes, and no app installed.
     const appRows = ['#settings/appstore', '#installed/connectors', '#installed/plugins', '#appearance/themes'];
-    const apps = ['#', ...appRows, '#settings'];
+    // Style is a labelled section of seven pages, each its own page with no Style screen in between (C20): Color, Elevation, Icons, Motion,
+    // Shape, Spacing, Typography.
+    const styleRows = ['color', 'elevation', 'icons', 'motion', 'shape', 'spacing', 'typography'].map((n) => `#style/${n}`);
+    const apps = ['#', ...styleRows, ...appRows, '#settings'];
     if (sections !== 3 || links.join() !== apps.join())
       problems.push(
         `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 3 and ${apps.join(', ')})`,
@@ -545,11 +592,20 @@ async function checkSettingsAndMenu(width, height) {
       { d: drawer, appRows },
     );
     if (noIcon.length) problems.push(`${label} menu: no icon on ${noIcon.join(', ')}`);
+    const styleNoIcon = await page.evaluate(
+      ({ d, styleRows }) =>
+        [...document.querySelectorAll(styleRows.map((h) => `${d} a[href="${h}"]`).join(', '))]
+          .filter((a) => !a.querySelector('.mo-navigation-drawer__icon svg'))
+          .map((a) => a.getAttribute('href')),
+      { d: drawer, styleRows },
+    );
+    if (styleNoIcon.length) problems.push(`${label} menu: no icon on ${styleNoIcon.join(', ')}`);
     checkCog(label, 'menuen', items, height);
   } else {
     // The modal drawer: open it with the top bar's button.
     await page.locator('header').getByRole('button', { name: '\u00c5bn menuen' }).first().click();
     await page.waitForTimeout(600);
+    await scrollMenuToEnd(page);
     checkCog(label, 'menuen', await page.evaluate(shownItems, `${drawer} .mo-navigation-drawer__item`), height);
     await page.keyboard.press('Escape');
     await page.waitForTimeout(400);
@@ -564,7 +620,7 @@ async function checkSettingsAndMenu(width, height) {
     ['developer/caching', true],
     ['developer/parts', true],
     ['developer/parts/editor', true],
-    ['company/colors', false],
+    ['style/color', false],
     ['global/header', false],
     ['global/footer', false],
     ['global/side-column', false],
@@ -584,6 +640,7 @@ async function checkSettingsAndMenu(width, height) {
     await go('');
     await page.click('.mo-editor-main-drawer-panel > :first-child button[aria-expanded="true"]');
     await page.waitForTimeout(600);
+    await scrollMenuToEnd(page);
     checkCog(label, 'skinnen', await page.evaluate(shownItems, 'nav.mo-editor-main-rail .mo-nav-rail__item'), height);
     const railCurrent = (hash) =>
       go(hash).then(() =>
@@ -591,7 +648,7 @@ async function checkSettingsAndMenu(width, height) {
       );
     if ((await railCurrent('developer/caching')) !== 'page')
       problems.push(`${label} the rail #developer/caching: the cog must be selected`);
-    for (const hash of ['company/colors', 'global/header', 'licenses'])
+    for (const hash of ['style/color', 'global/header', 'licenses'])
       if ((await railCurrent(hash)) === 'page') problems.push(`${label} the rail #${hash}: the cog must not be selected`);
     if ((await railCurrent('list/pages')) === 'page') problems.push(`${label} the rail #list/pages: the cog must not be selected`);
     await page.screenshot({ path: join(shots, 'rail.png') });
@@ -826,6 +883,15 @@ async function checkDashboardEdit(width, height) {
 }
 
 // The cog is the last of `items` (shown, from the top) and at the bottom of the screen.
+/** Scrolls the main menu (the drawer, its modal panel or the rail) to its end, so the cog, the last item, is in the window. */
+const scrollMenuToEnd = (page) =>
+  page.evaluate(() => {
+    for (const el of document.querySelectorAll(
+      '.mo-editor-main-drawer-frame, .mo-editor-main-rail-frame, .mo-editor-main-drawer-panel, .mo-nav-rail__items, dialog nav',
+    ))
+      el.scrollTo({ top: el.scrollHeight, behavior: 'instant' });
+  });
+
 function checkCog(label, where, items, height) {
   const cog = items.find((i) => i.href === '#settings');
   if (!cog) return problems.push(`${label} ${where}: the cog (#settings) is missing or hidden`);
@@ -953,7 +1019,7 @@ const keyStates = {
 // The screens that show the key: where each is (its address after the "#", CMS_ROUTE in CmsPage.tsx for "Morpheme").
 const keyScreens = { appstore: 'settings/appstore', morpheme: 'morpheme' };
 // "Morpheme" in every state: the version, the problems and the notes are text (CMS_STATUS in built-site.mjs), every list row
-// has an action (a link or a button), and Update and the connection work. The one row without an action of its own is the
+// has an action (a link or a button), and Try again and the connection work. The one row without an action of its own is the
 // store connection's "Connected to Morpheme" (it shows the state; its button "Disconnect" is beside it, and the
 // key states above check that it is there), so that row is left out. The status lines (a problem or a note, `.mo-editor-status-line`,
 // a list row with an icon and text) are text only and are left out too.
@@ -962,6 +1028,8 @@ async function checkMorpheme(page, state) {
   for (const x of [
     `Version ${CMS_STATUS.running}`,
     'Version 99.0.0 er klar',
+    daCms.failedBuild('99.0.0'),
+    daCms.seeBuild('99.0.0'),
     'Hjemmesiden har intet GitHub-token',
     'A made-up note for the checks.',
   ])
@@ -986,8 +1054,8 @@ async function checkMorpheme(page, state) {
       () => true,
       () => false,
     );
-  await page.getByRole('button', { name: daCms.update, exact: true }).click();
-  if (!(await posted)) problems.push(`morpheme (${state}): Update does not send a POST to /api/cms/update`);
+  await page.getByRole('button', { name: daCms.tryAgain, exact: true }).click();
+  if (!(await posted)) problems.push(`morpheme (${state}): Try again does not send a POST to /api/cms/update`);
   // The connection: Connect makes the site connected (the fake store flips on the POST).
   if (state === 'open') {
     await page.getByRole('button', { name: da.connect, exact: true }).click();
@@ -1072,7 +1140,109 @@ async function checkKeyboardFlows(width) {
   problems.push(...judge(findings, `flow ${SITE_FLOW}`, viewportOf(width)).map((line) => `${width}px ${line}`));
 }
 
+/** The strip from Save until the website has the save (BuildProgress.tsx, plan 2026-11-25-0-19-8, task 12): "Saved. Publishing" with the theme's
+ * progress bar (named, role progressbar) under the top bar, then "Live" (determinate, gone by itself) or, when the build fails, "Not live" with
+ * the build's link and Dismiss, the failure message of the save still there. Nothing scrolls the page sideways and the strip stays in the width.
+ * `outcome`: what Cloudflare's build of the save does (the poll of deploy.ts waitForSite is 10 seconds). */
+async function checkBuildProgress(width, outcome) {
+  const label = `${width}px save progress (${outcome})`;
+  const text = daApp.buildProgress;
+  const page = await browser.newPage({ viewport: { width, height: 800 }, locale: 'da-DK' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  let commitsSeen = 0;
+  await page.route('**/api/github/commit', (r) => {
+    commitsSeen++;
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'saved-commit', blobs: {} }) });
+  });
+  await page.route('**/api/autosave**', (r) =>
+    r.request().method() === 'GET'
+      ? r.fulfill({ status: 404, body: '' })
+      : r.fulfill({ status: 409, contentType: 'application/json', body: JSON.stringify({ error: 'off' }) }),
+  );
+  // The build's answer: the site's version.json names the saved commit (live) or an old one, and the build's check run says failure or not.
+  await page.route('**/editor/version.json', (r) =>
+    r.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({ commit: outcome === 'live' ? 'saved-commit' : 'old-commit', editor: 'x' }),
+    }),
+  );
+  await page.route('**/api/github/graphql', async (r) => {
+    const body = r.request().postData() || '';
+    if (!body.includes('checkSuites')) return r.fallback();
+    const nodes = outcome === 'failed' ? [{ conclusion: 'FAILURE', app: { slug: 'cloudflare-workers-and-pages' } }] : [];
+    return r.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({ data: { repository: { object: { checkSuites: { nodes } } } } }),
+    });
+  });
+  await page.goto(`${site}/editor/#src/content/pages/zz-check-page.md`);
+  await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+  await page.click('.ProseMirror p');
+  await page.keyboard.press('End');
+  await page.keyboard.type(' saved for the progress');
+  // Publish (a draft's save does not go to the website, so it has no progress to show).
+  await page.getByRole('button', { name: daForms.versions.publish, exact: true }).click();
+  const strip = page.locator('.mo-editor-build-progress');
+  await strip.waitFor({ timeout: 10_000 }).catch(async () => {
+    problems.push(
+      `${label}: no strip after Save (commits ${commitsSeen}; ${await page.evaluate(() => document.body.innerText.slice(0, 300))})`,
+    );
+  });
+  if (!(await strip.count())) return page.close();
+  const state = () =>
+    strip.evaluate((el) => ({
+      step: el.dataset.step,
+      text: el.querySelector('p')?.textContent,
+      bar: el.querySelector('[role="progressbar"]')
+        ? {
+            name: el.querySelector('[role="progressbar"]').getAttribute('aria-label'),
+            now: el.querySelector('[role="progressbar"]').getAttribute('aria-valuenow'),
+          }
+        : null,
+      links: [...el.querySelectorAll('a[href]')].map((a) => [a.textContent, a.getAttribute('href')]),
+      buttons: [...el.querySelectorAll('button')].map((b) => b.textContent),
+      wide: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1 || el.scrollWidth > el.clientWidth + 1,
+    }));
+  const first = await state();
+  if (first.step !== 'publishing' || first.text !== text.publishing)
+    problems.push(`${label}: first the strip says "${first.text}" (${first.step}), not "${text.publishing}"`);
+  if (!first.bar || first.bar.name !== text.label || first.bar.now !== null)
+    problems.push(
+      `${label}: while publishing the progress bar is ${JSON.stringify(first.bar)}, not an indeterminate one named "${text.label}"`,
+    );
+  if (first.wide) problems.push(`${label}: the strip scrolls the page sideways`);
+  const step = outcome === 'live' ? 'live' : 'not-live';
+  await page.waitForSelector(`.mo-editor-build-progress[data-step="${step}"]`, { timeout: 30_000 }).catch(() => {});
+  const last = await state();
+  if (last.step !== step) problems.push(`${label}: after the build the strip is "${last.step}", not ${step}`);
+  else if (outcome === 'live') {
+    if (last.text !== text.live || last.bar?.now !== '100')
+      problems.push(`${label}: Live shows "${last.text}" and bar ${JSON.stringify(last.bar)}`);
+    await page
+      .waitForSelector('.mo-editor-build-progress', { state: 'detached', timeout: 10_000 })
+      .catch(() => problems.push(`${label}: Live does not go away by itself`));
+  } else {
+    if (last.text !== text.notLive) problems.push(`${label}: Not live says "${last.text}"`);
+    if (last.bar) problems.push(`${label}: Not live still shows a progress bar`);
+    if (!last.links.some(([name, href]) => name === text.seeBuild && /\/commit\/saved-commit\/checks$/.test(href)))
+      problems.push(`${label}: no "${text.seeBuild}" link to the build's checks (${JSON.stringify(last.links)})`);
+    if (!last.buttons.includes(text.dismiss)) problems.push(`${label}: no ${text.dismiss} button`);
+    if (last.wide) problems.push(`${label}: Not live scrolls the page sideways`);
+    await strip.getByRole('button', { name: text.dismiss, exact: true }).click();
+    await page
+      .waitForSelector('.mo-editor-build-progress', { state: 'detached', timeout: 3000 })
+      .catch(() => problems.push(`${label}: ${text.dismiss} does not close the strip`));
+  }
+  await page.close();
+}
+
 export function register(unit) {
+  for (const [width, outcome] of [
+    [390, 'failed'],
+    [1280, 'live'],
+  ])
+    unit(`checkBuildProgress ${width} ${outcome}`, () => checkBuildProgress(width, outcome));
   for (const [width, height] of [
     [390, 844],
     [1280, 900],
@@ -1094,7 +1264,7 @@ export function register(unit) {
         '',
         'settings',
         'developer/parts',
-        'company/colors',
+        'style/color',
         'global/header',
         'global/side-column',
         'licenses',
@@ -1167,6 +1337,7 @@ export function register(unit) {
       await page.close();
     });
     unit(`checkSettingsAndMenu ${width}`, () => checkSettingsAndMenu(width, height));
+    unit(`checkStyleMenu ${width}`, () => checkStyleMenu(width, height));
     unit(`checkDashboardEdit ${width}`, () => checkDashboardEdit(width, height));
   }
 

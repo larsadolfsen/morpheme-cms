@@ -109,7 +109,7 @@ export default function Consents({ env, back }: { env: Env; back: { href: string
   }
 
   async function remove(id: string) {
-    if (!(await ask(t.consents.deleteAsk(id), t.common.delete))) return;
+    if (!(await ask(t.consents.deleteAsk(id), t.common.delete, true))) return;
     setDeleting(true);
     try {
       const n = await deleteConsents(id);

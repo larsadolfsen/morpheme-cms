@@ -1,0 +1,7 @@
+{
+  "id": "safe-cms-update",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Sikre opdateringer",
+  "text": "En dårlig opdatering stopper ikke længere din hjemmeside fra at gemme. Morpheme prøver hver ny version på en kopi først og installerer den kun, når den kan bygges, og prøver en mislykket igen efter 24 timer. Siden Morpheme viser, hvad der fejlede, og hvorfor."
+}
