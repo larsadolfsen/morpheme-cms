@@ -2,7 +2,7 @@ import { openEditor } from '../built-site.mjs';
 import { UNLISTED_POST, browser, problems, site } from './support/context.mjs';
 import { onTestPage } from './support/shared.mjs';
 
-/** A blog post that is not on the blog (`unlisted: true`, the demo's "A post only for those with the link", or the one the check makes) shows its status in the posts list, and the Status filter offers it. */
+/** A blog post that is not on the blog (`unlisted: true`, the demo's "A post only for those with the link", or the one the check makes) shows its status in the posts list (the eye named Hidden), and the Status filter offers it. */
 async function checkUnlistedPost() {
   const page = await browser.newPage({ viewport: { width: 1200, height: 900 }, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`hidden post: ${e.message}`));
@@ -11,7 +11,10 @@ async function checkUnlistedPost() {
   await page.waitForSelector('main a.mo-list__item-container');
   const row = page.locator('main a.mo-list__item-container').filter({ hasText: UNLISTED_POST });
   if (!(await row.count())) return problems.push('hidden post: the posts list has no row for the post that is not on the blog');
-  if (!(await row.first().innerText()).includes('Hidden')) problems.push('hidden post: the posts list does not say "Hidden" on its row');
+  // The row shows an eye named "Hidden" (the row's action, a sibling of the link inside the same list item).
+  const item = page.locator('main li').filter({ has: page.locator('a.mo-list__item-container', { hasText: UNLISTED_POST }) });
+  if (!(await item.first().locator('[role="img"][aria-label="Hidden"]').count()))
+    problems.push('hidden post: the posts list does not say "Hidden" on its row');
   await page.close();
 }
 
