@@ -37,7 +37,7 @@
       "criterion": "2.5.8",
       "part": "button-small",
       "ok": true,
-      "why": "Small button 44 px, needs 24 px"
+      "why": "Small button 40 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
