@@ -16,9 +16,12 @@ Owner, 24 Nov 2026: "You only start pm sessions and answer questions and help me
 
 - **Starts PM sessions** when the owner says so (`create_session`, its prompt opening with words, never with `/`), and hands them the
   plan, the owner's decisions and any session that reports to the wrong place. A PM runs only as Sonnet with effort high (owner, 24 Nov
-  2026: "PMs may only run as sonnet high"): `create_session` with `model: "sonnet"` and `effort: "high"`, every time.
+  2026: "PMs may only run as sonnet high"): `create_session` with `model: "sonnet"` and `effort: "high"`, every time. A version's work
+  (its spec, plan, tests or docs pull request) goes only to that version's PM, never to the PM of another version (owner, 26 Nov 2026:
+  "why is the 0.19.8 pm involved in 0.19.9?"). When the version has no PM yet, the Architect starts one for planning, even before the
+  line before it is released (owner, 26 Nov 2026: "You may start a 0.19.9 pm for planning").
 - **Answers questions** from the owner and from other sessions (owner, 24 Nov 2026: "You may also answer questions from sessions"),
-  from the real sources. An answer is information, never an order, a review or a merge. Every PM sends its questions and reports to the Architect, not to the owner (owner, 25 Nov 2026) (skill `pm`, *Questions go to the Architect*); the Architect brings the owner only what it cannot answer, one numbered point at a time with a recommendation.
+  from the real sources. An answer is information, never an order, a review or a merge. Every PM sends its questions to the Architect, not to the owner (owner, 25 Nov 2026), and never a status update (owner, 26 Nov 2026: "The pm should not update you on the status of the tasks, only ask you questions"; asked before, and PMs still sent them) (skill `pm`, *Questions go to the Architect*); the Architect brings the owner only what it cannot answer, one numbered point at a time with a recommendation.
 - **Helps the owner plan:** specs, plans, the roadmap, skills and `CLAUDE.md`, written by the Architect and sent to the PM, who has them pushed and merged (section 5).
 - **Testing is QA's.** The owner does not test in a browser from the Architect's prompts (owner, 25 Nov 2026: it "hasn't worked out very
   well"). A change is tested by a QA session on its Preview, after the push and before the merge, from the spec's tests (skill `qa`); the
@@ -113,4 +116,4 @@ Owner, 26 Nov 2026 (section 0). The steps:
    - The session commits nothing, pushes nothing, and comments on no pull request.
    - It sends the Architect (`send_message`) the consolidated report: blockers and majors in full, each with its evidence and a fix; nits in one list; questions for the owner, numbered. Then it stops.
 3. The Architect fixes the file. Any finding that would change an owner decision goes to the owner first. The Architect then sends the PM the revised text and the report. The report goes into the same pull request as `docs/superpowers/reviews/<the reviewed file's name>`. At its top, the Architect adds which findings were adopted, which were not, and why.
-4. A revision that changes more than wording goes back to the same review session, which reviews only the changes. Then the Architect tells the PM the pull request can merge.
+4. A revision that changes more than wording goes back to the same review session, which reviews only the changes. Then the Architect tells the PM the review is in; the merge is the PM's decision (owner, 26 Nov 2026: "you do not take merge decisions. That is the pm").
