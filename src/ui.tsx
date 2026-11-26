@@ -111,6 +111,7 @@ import { menuLayout } from '../lib/menu-layout.mjs';
 import { nextInMenu } from '../lib/menuTypeAhead.mjs';
 import { ariaShortcut, shortcutText } from './shortcuts';
 import { safeImageSrc } from '../lib/safe-url.mjs';
+import { scoreOf } from '../lib/score.mjs';
 
 // The parts Material 3 has (a button, an icon button, a chip, a carousel …) are the theme's UI parts
 // (packages/editor/theme/ui/, through themeUi.ts), the same the site draws, in the theme's design (its ui.css and
@@ -3019,8 +3020,8 @@ const statusTones = {
   },
 };
 
-/** The score of checks from 0 to 100: the share that is fine (100 with none). */
-export const scoreOf = (items: Check[]) => (items.length ? Math.round((items.filter((i) => i.ok).length / items.length) * 100) : 100);
+/** The score of checks from 0 to 100: the share that is fine (100 with none). The function is `lib/score.mjs`, which `morpheme accessibility` imports too. */
+export { scoreOf };
 const toneOf = (score: number) => statusTones[score >= 90 ? 'good' : score >= 50 ? 'average' : 'bad'];
 
 /** A score from 0 to 100 in a small ring, in the colours of CheckList's (green from 90, orange from 50, else red), at

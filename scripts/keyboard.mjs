@@ -23,6 +23,8 @@
 // site's `morpheme check:screens` runs these units) skips it cleanly (`keyboardRuns`, as `scanRuns` of a11y.mjs does).
 import { appendFileSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { kindOf } from '../lib/accessibility.mjs';
+import { activeTheme } from './theme-statement.mjs';
 
 export const PROBLEMS = ['trap', 'covered', 'invisible', 'no-indicator', 'lost-focus', 'unreachable', 'flow-lost-focus'];
 /** The widths by the name an entry uses (a unit's phone is 390 or 375 px, its computer 1280). */
@@ -108,7 +110,12 @@ export const collect = (file, keys) => appendFileSync(file, [...keys].map((k) =>
 /** Checks one place's findings against the allowlist: gives the problems to print, or collects the keys when `KEYBOARD_COLLECT` is set.
  * `matches` says which entries are this place's (the walk of a screen at a width checks its own entries). @returns {string[]} */
 export function judge(findings, place, viewport) {
-  const found = keysOf(findings, place, viewport);
+  // Every problem of the walk is our code's, so it fails on every theme (the one rule, `kindOf` in lib/accessibility.mjs; none of them is a theme value).
+  const found = keysOf(
+    findings.filter((f) => kindOf({ criterion: null, rule: f.problem }, activeTheme()) === 'code'),
+    place,
+    viewport,
+  );
   if (process.env.KEYBOARD_COLLECT) {
     collect(process.env.KEYBOARD_COLLECT, found);
     return [];

@@ -7,6 +7,7 @@
 // Reconcile (0.19.4 batch 1): scripts/a11y.mjs and scripts/keyboard.mjs each hold their own copy of this code, written before this file. When a later
 // batch touches them, they can import `makeAllowlist` and drop their copy; batch 1 leaves them as they are, so check:a11y and check:keyboard do not change.
 import { appendFileSync, readFileSync } from 'node:fs';
+import { kindOf } from '../lib/accessibility.mjs';
 
 /** The widths by the name an entry uses (a unit's phone is 375 or 390 px, its computer 1280). */
 export const viewportOf = (width) => (width < 600 ? 'phone' : 'computer');
@@ -17,21 +18,14 @@ const SEP = '\t';
 export const cleanSelector = (selector) => selector.replace(/:r[0-9a-z]*:|_r_[0-9a-z]+_/g, 'r*');
 
 /**
- * @param {{ file: URL, field: string, label: string, collectEnv: string, classify?: (finding: { problem: string, selector: string }) => { criterion: string, part: string } | null,
- *   statement?: () => { statement: { fallsShort: Array<{ criterion: string, part: string }> } } }} options `file`: the list; `field`: the name of the kind in an entry;
- *   `label`: the name in the messages (`announce`); `collectEnv`: the environment variable that collects findings instead of judging them; `classify` and
- *   `statement`: a finding that falls on a part the theme in use names in its accessibility.json (lib/accessibility.mjs) is let through, not judged.
+ * @param {{ file: URL, field: string, label: string, collectEnv: string, criterionOf?: (finding: { problem: string, selector: string }) => string | null,
+ *   theme?: () => string | null }} options `file`: the list; `field`: the name of the kind in an entry; `label`: the name in the messages (`announce`); `collectEnv`: the
+ *   environment variable that collects findings instead of judging them; `criterionOf`: the WCAG criterion of a finding, when it has one (none by default: a finding no
+ *   criterion places is our code); `theme`: the theme in use. A finding the one rule (`kindOf`, lib/accessibility.mjs) calls a theme value is measured, never judged.
  */
-export function makeAllowlist({ file, field, label, collectEnv, classify, statement }) {
-  /** The findings the theme in use does not name as a shortfall of its own. */
-  const unnamedOf = (findings) => {
-    if (!classify || !statement) return findings;
-    const named = new Set(statement().statement.fallsShort.map((e) => `${e.criterion} ${e.part}`));
-    return findings.filter((f) => {
-      const part = classify(f);
-      return !part || !named.has(`${part.criterion} ${part.part}`);
-    });
-  };
+export function makeAllowlist({ file, field, label, collectEnv, criterionOf = () => null, theme = () => null }) {
+  /** The findings that are our code's: the ones a theme's value is behind are left out, they are measured by `check:contrast`. */
+  const unnamedOf = (findings) => findings.filter((f) => kindOf({ criterion: criterionOf(f), rule: f.problem }, theme()) === 'code');
 
   /** The allowlist's entries. @returns {Array<Record<string, any>>} */
   const readAllowlist = () => JSON.parse(readFileSync(file, 'utf8'));

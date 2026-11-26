@@ -22,8 +22,9 @@ import {
   shownItems,
   site,
 } from './support/context.mjs';
-import { allowedKeys, collect, compare, keysOf, problemsOf, readAllowlist, scan, scanRuns, unnamedViolations } from '../a11y.mjs';
-import { activeStatement } from '../theme-statement.mjs';
+import { allowedKeys, collect, compare, keysOf, problemsOf, readAllowlist, scan, scanRuns, codeViolations } from '../a11y.mjs';
+import { activeTheme, isMaterialTheme } from '../theme-statement.mjs';
+import { shortfall } from './support/statement.mjs';
 import { judge, keyboardRuns, viewportOf, walk } from '../keyboard.mjs';
 import * as announce from '../announce.mjs';
 import * as announceFlows from '../announce-flows.mjs';
@@ -112,7 +113,11 @@ async function checkFocusIndicators(width, hash) {
     if (changed < 12 || best < 3) await sharp(focused).toFile(join(shots, `focus-${width}-${stops}.png`));
     if (changed < 12) problems.push(`${label}: ${info.name} shows no indicator when it has the keyboard focus`);
     else if (best < 3)
-      problems.push(`${label}: the focus indicator of ${info.name} (${info.key}) has ${best.toFixed(2)}:1 contrast, under 3:1`);
+      shortfall(
+        '1.4.11',
+        'focus-ring',
+        `${label}: the focus indicator of ${info.name} (${info.key}) has ${best.toFixed(2)}:1 contrast, under 3:1`,
+      );
   }
   if (stops < 5) problems.push(`${label}: only ${stops} stops were checked`);
   await page.close();
@@ -322,10 +327,13 @@ async function checkSurfaceRoles(width, height) {
         if (!r.seen.length && r.name !== 'Navigation rail frame')
           problems.push(`${label} ${scheme} #${hash || 'start'}: ${r.name} (${r.selector}) matched nothing drawn`);
         for (const c of r.seen)
-          if (c !== r.expected)
-            problems.push(
-              `${label} ${scheme} #${hash || 'start'}: ${r.name} (${r.selector}) is ${c}, M3's role is ${r.role} (${r.expected})`,
-            );
+          if (c !== r.expected) {
+            // Material keeps the hard check; on any other theme the unit does not run (the colours are the site owner's, chosen in the colour editor).
+            if (isMaterialTheme())
+              problems.push(
+                `${label} ${scheme} #${hash || 'start'}: ${r.name} (${r.selector}) is ${c}, M3's role is ${r.role} (${r.expected})`,
+              );
+          }
       }
     }
     await page.close();
@@ -1079,7 +1087,7 @@ async function checkA11y(page, width, hash) {
   await page.evaluate(() => document.fonts.ready);
   await page.waitForTimeout(500);
   await page.evaluate(() => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))));
-  const found = keysOf(unnamedViolations(await scan(page), activeStatement().statement), place, viewport);
+  const found = keysOf(codeViolations(await scan(page), activeTheme()), place, viewport);
   if (process.env.A11Y_COLLECT) return collect(process.env.A11Y_COLLECT, found);
   const allowed = allowedKeys(readAllowlist(), (p) => p === place);
   for (const key of [...allowed.keys()]) if (!key.endsWith(`\t${viewport}`)) allowed.delete(key);

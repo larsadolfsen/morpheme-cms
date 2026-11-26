@@ -29,6 +29,7 @@ const COMMANDS = {
   'check:screens': ['editor-screens'],
   'check:preview': ['check-preview'],
   'check:themes': ['check-themes'],
+  accessibility: ['accessibility'],
   'check:contrast': ['check-contrast'],
   'check:demo': ['check-demo'],
   'compare-html': ['compare-html'],

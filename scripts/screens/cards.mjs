@@ -5,6 +5,7 @@ import { ROOT, blocksOf, browser, has, problems, shots, site } from './support/c
 import { onTestPage, pressInsert } from './support/shared.mjs';
 import { isMaterialTheme } from '../theme-statement.mjs';
 import { pageLanguage } from './support/page-language.mjs';
+import { shortfall } from './support/statement.mjs';
 
 /** The Image grid typed in place: `Add images` asks for several images of the Library (a tap selects, the button under them says how many it adds), puts them in the block as picked images, and a tap on an image opens its sheet with the text of its own, which the card then has as its alt text. */
 async function checkImageGridAdd(width, height) {
@@ -390,7 +391,8 @@ async function checkCardIconText(width, height, scheme) {
   for (const f of found) {
     console.log(`card icon contrast ${width}px ${scheme} ${f.design}: ${f.contrast.toFixed(2)}`);
     if (f.icon !== f.title) problems.push(`${label}: a ${f.design} card's icon is ${f.icon}, not the text colour ${f.title}`);
-    if (f.contrast < 3) problems.push(`${label}: a ${f.design} card's icon has contrast ${f.contrast.toFixed(2)}:1, under 3:1`);
+    if (f.contrast < 3)
+      shortfall('1.4.11', 'icon', `${label}: a ${f.design} card's icon has contrast ${f.contrast.toFixed(2)}:1, under 3:1`);
   }
   await page.close();
 }
@@ -1283,13 +1285,14 @@ async function checkIconColor(width, height, scheme = 'light') {
   else if (grid.colors.join() !== grid.secondary)
     problems.push(`${label}: after Secondary the grid's icons are ${grid.colors.join(' / ')}, not the secondary color ${grid.secondary}`);
   console.log(`icon grid contrast ${width}px ${scheme} secondary: ${grid.contrast.toFixed(2)}`);
-  if (grid.contrast < 3) problems.push(`${label}: the secondary icons on the grid have contrast ${grid.contrast.toFixed(2)}:1, under 3:1`);
+  if (grid.contrast < 3)
+    shortfall('1.4.11', 'icon', `${label}: the secondary icons on the grid have contrast ${grid.contrast.toFixed(2)}:1, under 3:1`);
   await page.getByRole('button', { name: 'Tertiary', exact: true }).click();
   await page.waitForTimeout(300);
   const tertiary = await gridColors();
   console.log(`icon grid contrast ${width}px ${scheme} tertiary: ${tertiary.contrast.toFixed(2)}`);
   if (tertiary.contrast < 3)
-    problems.push(`${label}: the tertiary icons on the grid have contrast ${tertiary.contrast.toFixed(2)}:1, under 3:1`);
+    shortfall('1.4.11', 'icon', `${label}: the tertiary icons on the grid have contrast ${tertiary.contrast.toFixed(2)}:1, under 3:1`);
   if (tertiary.colors.join() !== tertiary.tertiary)
     problems.push(
       `${label}: after Tertiary the grid's icons are ${tertiary.colors.join(' / ')}, not the tertiary color ${tertiary.tertiary}`,
