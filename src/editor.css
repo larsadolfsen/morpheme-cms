@@ -128,6 +128,13 @@
   > [data-section-part='start']:not([data-section-focus], [data-section-focus-below])::before {
   border-block-start-color: transparent;
 }
+/* The 2px the start line is drawn in is only there for the line, so it goes with it (the page keeps the section rhythm only); a focus line drawn then starts at the edge. */
+.mo-editor-text-box[data-guides='off'] .mo-editor-text .ProseMirror > [data-section-part='start'] {
+  border-block-start-width: 0;
+}
+.mo-editor-text-box[data-guides='off'] .mo-editor-text .ProseMirror > [data-section-part='start']::before {
+  inset-block-start: 0;
+}
 .mo-editor-text-box[data-guides='off']
   .mo-editor-text
   .mo-site-block-card:not(:hover, [aria-pressed='true'], :has(> .mo-site-block-card-button[aria-pressed='true'])) {
