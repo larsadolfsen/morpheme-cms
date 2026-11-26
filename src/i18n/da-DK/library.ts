@@ -93,13 +93,6 @@ export const library: Messages['library'] = {
   themeA11yNotYours: 'Dine egne farver og billeder er ikke en del af det.',
   themeA11yCheck: (part, criterion, why) => (why ? `${part} (${criterion}): ${why}` : `${part} (${criterion})`),
   themeA11yParts: {
-    text: 'Kontrast i tekst',
-    placeholder: 'Kontrast i pladsholdertekst',
-    icon: 'Kontrast i ikoner',
-    'outlined-card-edge': 'Kontrast i kanten på det optrukne kort',
-    'section-edges': 'Kontrast i kanter i en farvet sektion',
-    'control-edge': 'Kontrast i kanten på en knap eller et felt',
-    'focus-ring': 'Kontrast i fokusringen',
     'target-size': 'Størrelse på knapper og felter',
   } as Record<string, string>,
   useTheme: 'Brug temaet',

@@ -140,13 +140,6 @@ export const library = {
   /** A check: the part and its WCAG criterion, then what was measured. */
   themeA11yCheck: (part: string, criterion: string, why: string) => (why ? `${part} (${criterion}): ${why}` : `${part} (${criterion})`),
   themeA11yParts: {
-    text: 'Text contrast',
-    placeholder: 'Placeholder text contrast',
-    icon: 'Icon contrast',
-    'outlined-card-edge': 'Outlined card edge contrast',
-    'section-edges': 'Edge contrast in a colored section',
-    'control-edge': 'Control edge contrast',
-    'focus-ring': 'Focus ring contrast',
     'target-size': 'Control size',
   } as Record<string, string>,
   /** The button on a theme's page that swaps the theme the website uses to it. */

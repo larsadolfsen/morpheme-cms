@@ -328,10 +328,11 @@ async function checkSurfaceRoles(width, height) {
           problems.push(`${label} ${scheme} #${hash || 'start'}: ${r.name} (${r.selector}) matched nothing drawn`);
         for (const c of r.seen)
           if (c !== r.expected) {
-            const said = `${label} ${scheme} #${hash || 'start'}: ${r.name} (${r.selector}) is ${c}, M3's role is ${r.role} (${r.expected})`;
-            // Material keeps the hard check; another theme's surfaces are its own values, measured and never failed (it is Material 3 fidelity, not a WCAG criterion).
-            if (isMaterialTheme()) problems.push(said);
-            else console.log(`theme value (surface role), measured, not failed: ${said}`);
+            // Material keeps the hard check; on any other theme the unit does not run (the colours are the site owner's, chosen in the colour editor).
+            if (isMaterialTheme())
+              problems.push(
+                `${label} ${scheme} #${hash || 'start'}: ${r.name} (${r.selector}) is ${c}, M3's role is ${r.role} (${r.expected})`,
+              );
           }
       }
     }

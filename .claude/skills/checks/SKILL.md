@@ -197,7 +197,7 @@ Theme values are classified, never failed; our code is a hard check on every the
 `npm run accessibility` (`morpheme accessibility [<theme>]`, run on a built demo or site, about 4 minutes per theme) as `{ "standard": "WCAG 2.2 AA", "measured": "<CMS version>", "score", "checks": [ { "criterion", "part", "ok", "why" } ] }`, where
 `score` is `scoreOf(checks)` (the SEO rating's function, `lib/score.mjs`) and `why` is the measured sentence; a reason a person adds after `; ` is kept while the check is unchanged. The one rule that says which findings are theme values and
 which are our code is `kindOf` in `lib/accessibility.mjs`, with the parts a theme is measured on (`PARTS`); an unplaced finding is our code. `check:contrast` measures and prints each theme's score and never fails on it; `check:a11y`, `check:announce`,
-`check:keyboard` and the `check:screens` units (`shortfall(criterion, part, message)` in `scripts/screens/support/statement.mjs`) print a theme value and fail on our code. `themeProblems` validates the file, so `check:themes` and `check:content` fail on a
+`check:keyboard` and the `check:screens` units (`shortfall(criterion, part, message)` in `scripts/screens/support/statement.mjs`) print a theme value or a colour (contrast is the site owner's, made by the colour editor, and in no score: owner, 26 Nov 2026) and fail on our code. `themeProblems` validates the file, so `check:themes` and `check:content` fail on a
 wrong one, and CI's `static` runs the command for `theme/` and fails only when the committed file differs from what it measured (never a WCAG gate).
 
 ## Proving that a class rename did not change the look: `compare-styles`
