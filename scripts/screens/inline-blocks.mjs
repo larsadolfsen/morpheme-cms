@@ -252,11 +252,11 @@ async function checkListDesigns(width, height) {
   const looks = [
     { look: 'List', hint: 'Show text and images in a list.' },
     { look: 'List, Segmented', hint: 'Show text and images in a list.', card: true },
-    { look: 'List - Expand', hint: 'Show list items that expand and collapse.' },
-    { look: 'List - Expand, Segmented', hint: 'Show list items that expand and collapse.', card: true },
+    { look: 'List - Expand', hint: 'Show list items that expand and collapse.', expand: true },
+    { look: 'List - Expand, Segmented', hint: 'Show list items that expand and collapse.', card: true, expand: true },
   ];
   const seen = [];
-  for (const { look, hint, card } of looks) {
+  for (const { look, hint, card, expand } of looks) {
     const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`${label} (${look}): ${e.message}`));
     await openEditor(page, site);
@@ -308,14 +308,47 @@ async function checkListDesigns(width, height) {
       })(),
     }));
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
-    const sheet = phone ? page.locator('dialog[open]') : page.locator('.mo-editor-side-sheet');
+    if (expand) {
+      // List - Expand keeps its row's sheet for now (its row buttons; the next pull request of B5).
+      const sheet = phone ? page.locator('dialog[open]') : page.locator('.mo-editor-side-sheet');
+      const opened = await sheet
+        .getByText('Page', { exact: true })
+        .first()
+        .waitFor({ timeout: 4000 })
+        .then(() => true)
+        .catch(() => false);
+      seen.push({ look, card, ...got, opened, expand, kept: true, rowSheet: 0, closed: true, items: 0 });
+      await page.close();
+      continue;
+    }
+    // The page picker opens straight from the link button (B5): the sheet with the pages and No page, on a phone and a computer, and no sheet of the row.
+    const sheet = page.locator('dialog[open]');
     const opened = await sheet
-      .getByText('Page', { exact: true })
+      .getByText('No page', { exact: true })
       .first()
       .waitFor({ timeout: 4000 })
       .then(() => true)
       .catch(() => false);
-    seen.push({ look, card, ...got, opened });
+    const rowSheet = await page.getByText('Row settings').filter({ visible: true }).count();
+    // A page picked is written to the row (the picker opens again on it), No page takes it away and closes the picker; Block settings then lists no row.
+    let kept = true;
+    if (opened) {
+      const slot = page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]');
+      await sheet.locator('[role="option"]:not(:has-text("No page"))').first().click();
+      await page.waitForTimeout(300);
+      await slot.click();
+      await sheet.getByText('No page', { exact: true }).first().waitFor({ timeout: 4000 });
+      kept = (await sheet.locator('[role="option"][aria-selected="true"]:not(:has-text("No page"))').count()) === 1;
+      await sheet.getByText('No page', { exact: true }).first().click();
+    }
+    const closed = await sheet.count().then((n) => n === 0);
+    await pressMore(page, 'Edit');
+    await page.waitForTimeout(400);
+    const items = await page
+      .locator('dialog[open], .mo-editor-side-sheet')
+      .getByText(/^Rows?$|^Add row$/)
+      .count();
+    seen.push({ look, card, ...got, opened, kept, rowSheet, closed, items });
     await page.close();
   }
   const [first] = seen;
@@ -337,7 +370,11 @@ async function checkListDesigns(width, height) {
         problems.push(`${label}: ${one.look}: the leading icon starts ${one.edge.icon} px from the text's edge, not ${icon}`);
       if (one.edge.wide > 0.5) problems.push(`${label}: ${one.look}: the page scrolls sideways by ${one.edge.wide}px`);
     }
-    if (!one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the row's page field`);
+    if (!one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the page picker`);
+    if (!one.kept) problems.push(`${label}: ${one.look}: the page picked is not on the row`);
+    if (one.rowSheet) problems.push(`${label}: ${one.look}: a Row settings sheet opened`);
+    if (!one.closed) problems.push(`${label}: ${one.look}: the page picker stays open after No page`);
+    if (one.items) problems.push(`${label}: ${one.look}: Block settings lists the rows`);
   }
 }
 /** `surface`: the item is a card with a container of its own, so it has a background colour. `start`: how many empty, faded items a new block starts with (the first active; typing in one makes the first item, and the others go). */

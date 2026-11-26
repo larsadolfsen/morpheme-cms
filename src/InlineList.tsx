@@ -140,7 +140,7 @@ export default function InlineList({
         const linkSlot =
           here && withHref ? (
             <InlineSlot label={t.blocks.list.href} onClick={() => onSettings(i)}>
-              <Icon name="link" size={24} />
+              <Icon name="link" size={24} weight={r.href ? 'fill' : undefined} />
             </InlineSlot>
           ) : undefined;
         // Rows that fold out: open while it is the active row, or as the chevron left it (a tap on the heading does not fold it: the heading is typed there).
