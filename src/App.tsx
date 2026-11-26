@@ -195,6 +195,7 @@ import { useMenuOpen } from './menuOpen';
 import { MainMenu } from './MainMenu';
 import { CommandPalette } from './CommandPalette';
 import { TopBarLayout } from './topBarSlot';
+import BuildProgress from './BuildProgress';
 import { rememberEdit } from './startStorage';
 import { bulkDeletion } from './bulkDelete.mjs';
 import { Ask, ask } from './ask';
@@ -206,7 +207,7 @@ import { endOf, entriesOf, lookup, readAll } from './redirectData';
 import { inForm, leaveTo, type Status } from './FormFrame';
 import { arrived, screenOf, up } from './nav';
 import { siteT, siteText, t } from './i18n';
-import { setBuildState } from './buildState';
+import { setBuildResult, setBuildState } from './buildState';
 import { snackbar } from '../lib/snackbar';
 import { ensureAnnouncer } from '../lib/announce';
 import { appRouteOf } from '../lib/appRoute.mjs';
@@ -568,12 +569,12 @@ function Editor() {
     if (!waitingFor.current.includes(change)) waitingFor.current.push(change);
     const what = changesText(waitingFor.current);
     // The Worker says it on the phone too, also when the editor is closed by then (notificationData.ts).
-    // The form's Publish button shows it until the website is updated (buildState.ts); only a failure is a message.
+    // The form's Publish button and the strip under the bar (BuildProgress.tsx) show it until the website is updated (buildState.ts); only a failure is a message too.
     setBuildState('updating');
     const onServer = waitOnServer(saved.commit, t.app.siteUpdated(what), t.app.siteNotUpdated(what));
-    stopWaiting.current = waitForSite(saved.commit, async (online) => {
+    stopWaiting.current = waitForSite(saved.commit, async (online, buildUrl) => {
       waitingFor.current = [];
-      setBuildState('idle');
+      setBuildResult(online, buildUrl ?? null);
       const text = online ? t.app.siteUpdated(what) : t.app.siteNotUpdated(what);
       // On screen the editor says it, and the Worker does not; else only the Worker sends it to the phone.
       const byServer = document.visibilityState !== 'visible' && (await onServer);
@@ -794,7 +795,12 @@ function Editor() {
     <>
       <TopBarLayout
         aside={<MainMenu route={route} files={files} user={user} />}
-        above={files && user && !user.canSave && <p className="mo-editor-read-only-bar">{t.app.cannotSave(user.login)}</p>}
+        above={
+          <>
+            {files && user && !user.canSave && <p className="mo-editor-read-only-bar">{t.app.cannotSave(user.login)}</p>}
+            <BuildProgress />
+          </>
+        }
       >
         <>
           <div className="mo-editor-content mo-fill mo-editor-content-frame">

@@ -10,6 +10,7 @@ import {
   daCms,
   daCommon,
   daDashboard,
+  daForms,
   daLibrary,
   fallbackAt,
   missingIcon,
@@ -953,7 +954,7 @@ const keyStates = {
 // The screens that show the key: where each is (its address after the "#", CMS_ROUTE in CmsPage.tsx for "Morpheme").
 const keyScreens = { appstore: 'settings/appstore', morpheme: 'morpheme' };
 // "Morpheme" in every state: the version, the problems and the notes are text (CMS_STATUS in built-site.mjs), every list row
-// has an action (a link or a button), and Update and the connection work. The one row without an action of its own is the
+// has an action (a link or a button), and Try again and the connection work. The one row without an action of its own is the
 // store connection's "Connected to Morpheme" (it shows the state; its button "Disconnect" is beside it, and the
 // key states above check that it is there), so that row is left out. The status lines (a problem or a note, `.mo-editor-status-line`,
 // a list row with an icon and text) are text only and are left out too.
@@ -962,6 +963,8 @@ async function checkMorpheme(page, state) {
   for (const x of [
     `Version ${CMS_STATUS.running}`,
     'Version 99.0.0 er klar',
+    daCms.failedBuild('99.0.0'),
+    daCms.seeBuild('99.0.0'),
     'Hjemmesiden har intet GitHub-token',
     'A made-up note for the checks.',
   ])
@@ -986,8 +989,8 @@ async function checkMorpheme(page, state) {
       () => true,
       () => false,
     );
-  await page.getByRole('button', { name: daCms.update, exact: true }).click();
-  if (!(await posted)) problems.push(`morpheme (${state}): Update does not send a POST to /api/cms/update`);
+  await page.getByRole('button', { name: daCms.tryAgain, exact: true }).click();
+  if (!(await posted)) problems.push(`morpheme (${state}): Try again does not send a POST to /api/cms/update`);
   // The connection: Connect makes the site connected (the fake store flips on the POST).
   if (state === 'open') {
     await page.getByRole('button', { name: da.connect, exact: true }).click();
@@ -1072,7 +1075,109 @@ async function checkKeyboardFlows(width) {
   problems.push(...judge(findings, `flow ${SITE_FLOW}`, viewportOf(width)).map((line) => `${width}px ${line}`));
 }
 
+/** The strip from Save until the website has the save (BuildProgress.tsx, plan 2026-11-25-0-19-8, task 12): "Saved. Publishing" with the theme's
+ * progress bar (named, role progressbar) under the top bar, then "Live" (determinate, gone by itself) or, when the build fails, "Not live" with
+ * the build's link and Dismiss, the failure message of the save still there. Nothing scrolls the page sideways and the strip stays in the width.
+ * `outcome`: what Cloudflare's build of the save does (the poll of deploy.ts waitForSite is 10 seconds). */
+async function checkBuildProgress(width, outcome) {
+  const label = `${width}px save progress (${outcome})`;
+  const text = daApp.buildProgress;
+  const page = await browser.newPage({ viewport: { width, height: 800 }, locale: 'da-DK' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  let commitsSeen = 0;
+  await page.route('**/api/github/commit', (r) => {
+    commitsSeen++;
+    return r.fulfill({ contentType: 'application/json', body: JSON.stringify({ commit: 'saved-commit', blobs: {} }) });
+  });
+  await page.route('**/api/autosave**', (r) =>
+    r.request().method() === 'GET'
+      ? r.fulfill({ status: 404, body: '' })
+      : r.fulfill({ status: 409, contentType: 'application/json', body: JSON.stringify({ error: 'off' }) }),
+  );
+  // The build's answer: the site's version.json names the saved commit (live) or an old one, and the build's check run says failure or not.
+  await page.route('**/editor/version.json', (r) =>
+    r.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({ commit: outcome === 'live' ? 'saved-commit' : 'old-commit', editor: 'x' }),
+    }),
+  );
+  await page.route('**/api/github/graphql', async (r) => {
+    const body = r.request().postData() || '';
+    if (!body.includes('checkSuites')) return r.fallback();
+    const nodes = outcome === 'failed' ? [{ conclusion: 'FAILURE', app: { slug: 'cloudflare-workers-and-pages' } }] : [];
+    return r.fulfill({
+      contentType: 'application/json',
+      body: JSON.stringify({ data: { repository: { object: { checkSuites: { nodes } } } } }),
+    });
+  });
+  await page.goto(`${site}/editor/#src/content/pages/zz-check-page.md`);
+  await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+  await page.click('.ProseMirror p');
+  await page.keyboard.press('End');
+  await page.keyboard.type(' saved for the progress');
+  // Publish (a draft's save does not go to the website, so it has no progress to show).
+  await page.getByRole('button', { name: daForms.versions.publish, exact: true }).click();
+  const strip = page.locator('.mo-editor-build-progress');
+  await strip.waitFor({ timeout: 10_000 }).catch(async () => {
+    problems.push(
+      `${label}: no strip after Save (commits ${commitsSeen}; ${await page.evaluate(() => document.body.innerText.slice(0, 300))})`,
+    );
+  });
+  if (!(await strip.count())) return page.close();
+  const state = () =>
+    strip.evaluate((el) => ({
+      step: el.dataset.step,
+      text: el.querySelector('p')?.textContent,
+      bar: el.querySelector('[role="progressbar"]')
+        ? {
+            name: el.querySelector('[role="progressbar"]').getAttribute('aria-label'),
+            now: el.querySelector('[role="progressbar"]').getAttribute('aria-valuenow'),
+          }
+        : null,
+      links: [...el.querySelectorAll('a[href]')].map((a) => [a.textContent, a.getAttribute('href')]),
+      buttons: [...el.querySelectorAll('button')].map((b) => b.textContent),
+      wide: document.documentElement.scrollWidth > document.documentElement.clientWidth + 1 || el.scrollWidth > el.clientWidth + 1,
+    }));
+  const first = await state();
+  if (first.step !== 'publishing' || first.text !== text.publishing)
+    problems.push(`${label}: first the strip says "${first.text}" (${first.step}), not "${text.publishing}"`);
+  if (!first.bar || first.bar.name !== text.label || first.bar.now !== null)
+    problems.push(
+      `${label}: while publishing the progress bar is ${JSON.stringify(first.bar)}, not an indeterminate one named "${text.label}"`,
+    );
+  if (first.wide) problems.push(`${label}: the strip scrolls the page sideways`);
+  const step = outcome === 'live' ? 'live' : 'not-live';
+  await page.waitForSelector(`.mo-editor-build-progress[data-step="${step}"]`, { timeout: 30_000 }).catch(() => {});
+  const last = await state();
+  if (last.step !== step) problems.push(`${label}: after the build the strip is "${last.step}", not ${step}`);
+  else if (outcome === 'live') {
+    if (last.text !== text.live || last.bar?.now !== '100')
+      problems.push(`${label}: Live shows "${last.text}" and bar ${JSON.stringify(last.bar)}`);
+    await page
+      .waitForSelector('.mo-editor-build-progress', { state: 'detached', timeout: 10_000 })
+      .catch(() => problems.push(`${label}: Live does not go away by itself`));
+  } else {
+    if (last.text !== text.notLive) problems.push(`${label}: Not live says "${last.text}"`);
+    if (last.bar) problems.push(`${label}: Not live still shows a progress bar`);
+    if (!last.links.some(([name, href]) => name === text.seeBuild && /\/commit\/saved-commit\/checks$/.test(href)))
+      problems.push(`${label}: no "${text.seeBuild}" link to the build's checks (${JSON.stringify(last.links)})`);
+    if (!last.buttons.includes(text.dismiss)) problems.push(`${label}: no ${text.dismiss} button`);
+    if (last.wide) problems.push(`${label}: Not live scrolls the page sideways`);
+    await strip.getByRole('button', { name: text.dismiss, exact: true }).click();
+    await page
+      .waitForSelector('.mo-editor-build-progress', { state: 'detached', timeout: 3000 })
+      .catch(() => problems.push(`${label}: ${text.dismiss} does not close the strip`));
+  }
+  await page.close();
+}
+
 export function register(unit) {
+  for (const [width, outcome] of [
+    [390, 'failed'],
+    [1280, 'live'],
+  ])
+    unit(`checkBuildProgress ${width} ${outcome}`, () => checkBuildProgress(width, outcome));
   for (const [width, height] of [
     [390, 844],
     [1280, 900],
