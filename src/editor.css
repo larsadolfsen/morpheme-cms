@@ -1841,6 +1841,10 @@ dialog {
 .mo-editor-text .mo-editor-inline-button .mo-editor-inline-list-field {
   min-block-size: 0;
   align-self: center;
+  /* The typed label is its own control inside the button, so it is a target of its own: WCAG 2.5.8 (target size minimum, 24 px). Its hit area
+     grows with padding, and the same amount of negative margin takes it back out of the layout, so the label stays where it is drawn. */
+  padding-block: 0.3125rem;
+  margin-block: -0.3125rem;
 }
 
 .mo-editor-text .mo-editor-inline-button .mo-editor-inline-list-slot {
