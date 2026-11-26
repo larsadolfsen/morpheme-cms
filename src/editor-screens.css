@@ -585,6 +585,10 @@
     inline-size: 3rem;
     padding-inline-end: var(--mo-ref-space-75);
   }
+  .mo-editor-library-row-eye {
+    align-items: center;
+    padding-inline-end: var(--mo-ref-space-300);
+  }
   .mo-editor-library-hidden {
     display: inline-flex;
     color: var(--mo-sys-color-on-surface-variant);

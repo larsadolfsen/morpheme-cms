@@ -1526,13 +1526,12 @@ export function List({
                 text: pages ? savedTime(item) : collection.id === 'blog' ? shortDate(item.detail) : item.detail,
               })
         }
-        trailing={hiddenIcon(item)}
         truncate
         count={item.count}
         arrow={!orderable && !item.versions}
         actions={
-          orderable &&
-          !selecting && (
+          !selecting &&
+          (orderable ? (
             <span className="mo-editor-library-row-actions">
               <IconButton
                 icon={materialIcon('arrow_upward')}
@@ -1549,7 +1548,11 @@ export function List({
                 onClick={() => move(i, i + 1)}
               />
             </span>
-          )
+          ) : (
+            // The eye of a hidden page or post stands in the middle of the row (the theme's trailing slot sits in the middle of the text lines,
+            // which is higher than the middle of a row with an image), as in the menu tree.
+            item.hidden && <span className="mo-editor-library-row-actions mo-editor-library-row-eye">{hiddenIcon(item)}</span>
+          ))
         }
       />
     );
