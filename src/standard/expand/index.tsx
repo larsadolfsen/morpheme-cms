@@ -26,6 +26,7 @@ export default defineBlock({
     {
       name: 'items',
       only: typed,
+      keep: true,
       label: t.blocks.list.items,
       singular: t.blocks.list.item,
       type: 'list',

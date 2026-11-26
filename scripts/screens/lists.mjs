@@ -12,6 +12,7 @@ import {
   pressMore,
   pressTool,
   ratioOf,
+  saveOrClose,
 } from './support/shared.mjs';
 
 /** The rows of a List and List - Expand are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
@@ -665,8 +666,61 @@ async function checkDynamicSwitch(width, height) {
     if (await toggle.isChecked()) problems.push(`${label} (${block}): the switch is not Off again`);
     if (await panel.getByText('Rows from', { exact: true }).count())
       problems.push(`${label} (${block}): Rows from stays with Dynamic list Off`);
+    // Off again gives the typed rows back (they were only set aside while the list was On).
+    await page.keyboard.press('Escape').catch(() => {});
+    const back = await page.evaluate(() =>
+      [...document.querySelectorAll('.mo-site-block [data-field="title"]')].map((x) => (x.value ?? x.textContent ?? '').trim()),
+    );
+    if (!back.includes('Typed row')) problems.push(`${label} (${block}): the typed row is gone after On and Off (${JSON.stringify(back)})`);
     await page.close();
   }
+}
+
+/** A stored list keeps its typed rows through Dynamic list On and Off (QA, 26 Nov 2026): the demo's Lists page opened in the editor, its first List switched On and
+ * Off again, and its rows (Scheduled, Draft, Hidden) are still there, not one empty row. */
+async function checkDynamicSwitchStored(width, height) {
+  const label = `${width}px dynamic list switch on a stored list`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#src/content/pages/blocks-lists.md'));
+  const title = page.locator('.mo-site-block [data-field="title"]', { hasText: 'Scheduled' }).first();
+  await page.waitForSelector('.ProseMirror .mo-site-block');
+  const titles = () =>
+    page.evaluate(() =>
+      [...(document.querySelector('.ProseMirror .mo-site-block')?.querySelectorAll('[data-field="title"]') ?? [])].map((x) =>
+        (x.value ?? x.textContent ?? '').trim(),
+      ),
+    );
+  const before = await titles();
+  if (!before.includes('Scheduled'))
+    return void problems.push(`${label}: the stored rows did not show (${JSON.stringify(before)})`) || page.close();
+  await title.scrollIntoViewIfNeeded();
+  await animationsSettled(page);
+  await title.focus();
+  await animationsSettled(page);
+  // The panel of the bar's Fill from a list, and the block's own settings (Edit): the switch is in both, and each writes to the block as it changes.
+  for (const way of ['Fill from a list', 'Edit']) {
+    await (way === 'Edit' ? pressMore(page, 'Edit') : pressTool(page, way));
+    const sheet = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Dynamic list' }).first();
+    await sheet.waitFor({ timeout: 5000 });
+    const toggle = sheet.getByRole('switch', { name: 'Dynamic list' });
+    await toggle.click();
+    await page.waitForTimeout(400);
+    await toggle.click();
+    await page.waitForTimeout(400);
+    const live = await titles();
+    if (live.join() !== before.join())
+      problems.push(`${label}: the stored rows are gone after On and Off in ${way} (${JSON.stringify(live)})`);
+    await saveOrClose(page, 'last');
+    const after = await titles();
+    if (after.join() !== before.join())
+      problems.push(`${label}: the stored rows are gone after On, Off and closing ${way} (${JSON.stringify(after)})`);
+    await title.focus();
+    await animationsSettled(page);
+  }
+  await page.close();
 }
 
 /** The field picker of a dynamic List: with the demo's own list "Highlights" as its source, the rows show its items, each part of a row has a button with the field now shown, a tap on the bottom line (the button or the row's own line) opens the choice of the list's fields (a bottom sheet on a phone, a menu in the side panel on a computer), and a pick shows in the rows and in the button (it is read from the block's `map`). */
@@ -1840,6 +1894,7 @@ export function register(unit) {
   unit('checkDynamicList 1280', () => checkDynamicList(1280, 900));
   unit('checkDynamicSwitch 375', () => checkDynamicSwitch(375, 740));
   unit('checkDynamicSwitch 1280', () => checkDynamicSwitch(1280, 900));
+  unit('checkDynamicSwitchStored 1280', () => checkDynamicSwitchStored(1280, 900));
   unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));
   unit('checkDynamicPicker 1280', () => checkDynamicPicker(1280, 900));
   unit('checkOwnList 375', () => checkOwnList(375, 740));

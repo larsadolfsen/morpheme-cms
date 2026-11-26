@@ -2,7 +2,10 @@
 // and nothing new is written to a file. The switch on a screen is checked by scripts/screens/lists.mjs (checkDynamicSwitch).
 // Run: node --test src/standard/rows/dynamicList.test.mjs
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { test } from 'node:test';
 import { inlineRowsOf, sourceOf } from './rows.mjs';
 
@@ -37,4 +40,32 @@ test('typed rows stay in use while no list is picked, though `from` itself is hi
     readFileSync(new URL('./fields.ts', import.meta.url), 'utf8'),
     /export const typed: Field\['only'\] = \{ field: 'from', is: \[''\], loose: true \}/,
   );
+});
+
+test('typed rows are set aside, not thrown away, while a list is picked (the live sheet writes `clean` on every change)', async () => {
+  const { build } = await import('esbuild');
+  const dir = mkdtempSync(join(tmpdir(), 'dynamic-list-'));
+  const out = join(dir, 'check.mjs');
+  const stub = join(dir, 'stub.mjs');
+  writeFileSync(stub, 'export default {}; export const config = {}; export const texts = {}; export const appTexts = {};');
+  await build({
+    entryPoints: [fileURLToPath(new URL('../../check.ts', import.meta.url))],
+    bundle: true,
+    format: 'esm',
+    platform: 'node',
+    outfile: out,
+    logLevel: 'silent',
+    alias: { '@site/config': stub, '@site/texts': stub },
+  });
+  const { clean } = await import(pathToFileURL(out).href);
+  const text = { name: 'title', type: 'text' };
+  const fields = [
+    { name: 'from', type: 'text', required: true },
+    { name: 'items', type: 'list', fields: [text], keep: true, only: { field: 'from', is: [''], loose: true } },
+  ];
+  const items = [{ title: 'Scheduled' }];
+  assert.deepEqual(clean(fields, { from: 'posts', items }).items, items);
+  assert.deepEqual(clean(fields, { from: '', items }).items, items);
+  assert.equal(clean([{ ...fields[1], keep: false }], { from: 'posts', items }).items, undefined);
+  for (const type of ['list', 'expand']) assert.match(read(`../${type}/index.tsx`), /only: typed,\s*keep: true,/);
 });
