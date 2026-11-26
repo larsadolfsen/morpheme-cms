@@ -480,6 +480,7 @@ export function useBlockDialog(
       ...inline.fields,
       ...(inline.media ?? []),
       ...(inline.settings ?? []),
+      ...(inline.onItem ?? []),
       ...(inline.link ? [inline.link] : []),
       ...(inline.icon ? [inline.icon] : []),
     ]);
