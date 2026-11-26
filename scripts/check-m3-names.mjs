@@ -1,7 +1,7 @@
 // Owner goal (20 Nov 2026): "I want us to match md both in appearance and in naming" (specs/2026-11-20-material-3-names-design.md, contract 8).
 // This check reads every `--mo-sys-*`, `--mo-comp-*` and `--mo-ref-*` custom property the theme and the editor declare and every `mo-` class their stylesheets
 // write, and says which of them are Material 3's name (docs/m3-tokens/), which the map renames (scripts/m3-names.json: tokens, classes, props, reused), which are
-// ours (scripts/m3-names.ours.mjs, each with the reason M3 has none) and which are none of these yet (the names the CTO reviews).
+// ours (scripts/m3-names.ours.mjs, each with the reason M3 has none) and which are none of these yet (the names the Architect reviews).
 //
 // Contract 8 (batch 8c of 0.19.6): the run without `--report` fails on any name that is not M3's, the editor's or on the ours list, on a name the map renames that is
 // still declared or written (unless M3 also uses that name: a reused one), and on an ours entry M3 has since got a token for. `--report` prints the same and never fails.
@@ -100,7 +100,7 @@ export const FAMILIES = {
 
 /**
  * Sorts every declared token into: `m3` (an M3 token's name), `renamed` (the map names its new one), `ours` (listed with its reason), `editor` (`--mo-comp-editor-*`: the page
- * and post editor is outside Material 3) or `unknown` (none of these: the CTO reviews it).
+ * and post editor is outside Material 3) or `unknown` (none of these: the Architect reviews it).
  * @param {Iterable<string>} names @param {{ tokens: Set<string> }} m3 @param {{ tokens: Record<string, unknown> }} map @param {{ tokens: { token: string }[] }} ours
  */
 export function classifyTokens(names, m3, map, ours) {

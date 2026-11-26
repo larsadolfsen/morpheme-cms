@@ -1,6 +1,6 @@
 # One highlighted card in Cards
 
-Release: 0.19.6 (owner, 25 Nov 2026), after `cards-multi-aspect` (its *Order*).
+Release: **0.19.8** (owner, 25 Nov 2026; `plans/2026-11-25-0-19-8.md`, task 10), after task 1 (items inline).
 
 Owner, 25 Nov 2026: "Add a highlighted option to cards. Do the designs yourself." Earlier the same day the owner agreed that a card's
 style (outlined, filled, elevated) stays one choice for the whole group, so a user who wants one card to stand out switches it to
@@ -24,9 +24,11 @@ Pages read: `https://m3.material.io/components/cards/overview`, `…/specs`, `�
 
 ## The design
 
-1. **The setting.** Each card in Cards gets `featured` (boolean), labelled **Highlighted** with `On` / `Off` (da-DK `Fremhævet`,
-   `Til` / `Fra`), the same stored name, label and words as Pricecards. It sits in the card's sheet (`settings` in
-   `src/standard/cards/index.tsx`), after the fields the card has, and shows for every design. No hint text.
+1. **The setting is a button on the card** (owner, 25 Nov 2026: "button"; after task 1 of 0.19.8 a card has no settings sheet).
+   Each card in Cards gets `featured` (boolean), the same stored name as Pricecards. The card's inline action row gets a toggle icon
+   button **Highlighted** (da-DK `Fremhævet`) beside the card's link button: Material Symbols `star`, filled when on, with
+   `aria-pressed`. It shows for every design. Pricecards' plan gets the same button in place of its sheet's switch (its *Badge* text
+   field shows inline on the highlighted plan, as task 1 makes it). The icon name goes into every icon pack's map (`npm run icons`).
 2. **One per group.** At most one card in a group is highlighted. Switching it on for one card switches it off on the others in the
    same block, in the same edit (one undo step). Content that has more than one (hand-edited) draws only the first as highlighted.
    Pricecards gets the same rule.
