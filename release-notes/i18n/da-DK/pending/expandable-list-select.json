@@ -1,0 +1,6 @@
+{
+  "id": "expandable-list-select",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "I sideeditoren åbner eller lukker et klik på en række i en Udvidelig liste rækken og markerer blokken, og listen bliver inden for blokkens kant"
+}
