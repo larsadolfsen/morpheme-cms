@@ -186,10 +186,11 @@
     content: '';
     position: absolute;
     top: 50%;
-    left: 50%;
-    width: 3rem;
+    /* Not over the chip's own button beside it (half the 0.25rem gap), the rest of the 48 px out to the chip's edge and, in a group, half way to the next chip. */
+    left: -0.125rem;
+    right: calc(-1 * min(1.125rem, 0.35rem + var(--mo-sys-target-gap, 100vmax) / 2));
     height: min(3rem, calc(100% + 0.25rem + var(--mo-sys-target-gap-block, var(--mo-sys-target-gap, 100vmax))));
-    transform: translate(-50%, -50%);
+    transform: translateY(-50%);
   }
   .mo-chip__remove:hover {
     background: color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent);
