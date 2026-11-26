@@ -77,7 +77,8 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
 .sh { font-size: 14px; line-height: 20px; color: var(--on-surface-variant); }
 .st { font-size: 14px; line-height: 20px; color: var(--on-surface-variant); margin-top: 8px; }
 /* The active card: its parts with a border, 48px high; the image is one part. */
-.card.on { border: 2px dotted var(--primary); }
+/* The active card keeps its own container; no dotted line (rule 6a). */
+.card.on { }
 .card.on .cbody { padding: 8px; gap: 4px; }
 .card.on .media { margin: 8px 8px 0; border-radius: 8px; height: 112px; }
 

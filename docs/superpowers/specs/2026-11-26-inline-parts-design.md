@@ -35,11 +35,12 @@ The page and post editor. It follows Material 3 like the rest of the editor (`CL
 5. **The keyboard focus ring shows for the keyboard only** (`:focus-visible`): the theme's solid ring outside the part, with a
    gap, never in the active border's colour. A tap or a click shows no ring, only the primary border.
 6. **No tinted background** on the active row or card (owner, 26 Nov 2026).
-6a. **The active item has a dotted line around it** (owner, 26 Nov 2026: "The list item needs a dotted line"), in the primary
-    colour, like the selected block, with the item menu inside it at the top (rule 14). A card's dotted line takes the place of its
-    own outline while it is active.
+6a. **The active row has a dotted line around it** (owner, 26 Nov 2026: "The list item needs a dotted line"), in the primary
+    colour, like the selected block, with the item menu inside it at the top (rule 14). **The active card has none** (owner,
+    26 Nov 2026: "the dotted line around the card doesn't work"): its own container (outline, fill or shadow, as the theme draws the
+    card) already marks it, and the item menu sits inside it at the top.
 7. **The selected block keeps its dotted primary-colour outline**, also while an item in it is active, so two dotted lines show:
-   the block's and the item's (owner, 26 Nov 2026: "yes keep it").
+   the block's and the row's (owner, 26 Nov 2026: "yes keep it"). A card shows only the block's (rule 6a).
 8. **The text keeps its formatting** in the parts: the label text and the headline in their own type, the subhead and the
    supporting text in theirs. The parts do not take M3's text-field type.
 9. **Empty parts ask for an action**, in the placeholder colour (`on-surface-variant` at full strength, so it meets 4.5:1 and
