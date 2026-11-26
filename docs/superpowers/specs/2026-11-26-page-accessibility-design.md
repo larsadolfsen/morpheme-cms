@@ -213,9 +213,10 @@ image block's hint, "Describe the image in a few words, for people who can’t s
 ## Tests
 
 The pages with faults are not added to the demo's content, whose own accessibility checks they would fail. Each test that needs one makes
-a new page in the demo's editor and does not save it. Tests 1 to 8 run on the pull request's Preview (skill `qa`); test 9 runs on `morpheme-staging`,
-by the version QA. Checks are named by the texts on screen. Every image of the demo has a Library text, so a test that needs an image
-without one uploads a new image.
+a new page in the demo's editor; only test 9 saves it, and on the Preview a save stays in the browser (skill `qa`, _Opening the Preview_).
+All nine run on the pull request's Preview (skill `qa`); none needs a sign-in or `morpheme-staging`, as the rating runs only in the editor.
+Checks are named by the texts on screen. Every image of the demo has a Library text, so a test that needs an image without one uploads a
+new image.
 
 ```
 1. The section is there
@@ -282,8 +283,8 @@ without one uploads a new image.
    Source: Texts
 
 9. Nothing blocks
-   Where: morpheme-staging, a new page with test 2's faults, scored below 50 (version QA)
-   Do:    save, then publish; then delete the page
+   Where: the demo's editor, a new page made as in test 2, scored below 50, 1280
+   Do:    save it; then publish it and save; then delete the page
    Expect: save and publish work, and no dialog appears
    Source: What the writer sees
 ```
