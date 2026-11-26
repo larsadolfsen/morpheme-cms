@@ -807,7 +807,7 @@ async function checkPreviewInBar(width) {
   await page.close();
 }
 
-/** `Discard` in the page form's bar (375, 768, 1280): at the start of the bar before Save and Publish (a text button), disabled with nothing to discard, enabled after an edit; it asks first (no control focused, Cancel keeps everything), and the confirm goes back to the published version: the saved draft is removed in a commit, undo starts again, the message shows, and the buttons are as with no changes. All three buttons fit in one row. */
+/** `Discard` and `Discard draft` in the page form's Danger section (375, 768, 1280), never in the bar: the bar holds Save (outlined) and Publish in one row; the section's row (`Discard` after an edit, `Discard draft` with a saved draft) asks first (no control focused, Cancel keeps everything), and the confirm goes back to the published version: the saved draft is removed in a commit, undo starts again, the message shows, and the buttons are as with no changes. */
 async function checkDiscardInBar(width) {
   const phone = width < 600;
   const label = `${width}px Discard in the bar`;
@@ -830,9 +830,9 @@ async function checkDiscardInBar(width) {
     r.request().method() === 'GET' ? r.fulfill({ status: 404, body: '' }) : r.fulfill({ contentType: 'application/json', body: '{}' }),
   );
   const bar = page.locator('.mo-editor-save-bar');
-  const button = (name) => bar.getByRole('button', { name, exact: true });
   const tap = (loc) => (phone ? loc.tap() : loc.click());
   const text = () => page.locator('.ProseMirror').first().innerText();
+  const danger = page.locator('section[data-fold-section]', { hasText: 'Danger' }).last();
   const rows = async () =>
     bar.evaluate((b) =>
       [...b.querySelectorAll('button')]
@@ -861,18 +861,21 @@ async function checkDiscardInBar(width) {
     }
     await bar.waitFor({ timeout: 10_000 });
     const names = (await rows()).map((b) => b.name).filter((n) => n !== 'Preview');
-    const want = draft ? ['Discard', 'Publish'] : ['Discard', 'Save', 'Publish'];
+    const want = draft ? ['Publish'] : ['Save', 'Publish'];
     if (names.join() !== want.join()) problems.push(`${at}: the bar has ${names.join(', ')}, not ${want.join(', ')}`);
-    const discard = button('Discard');
-    if (await discard.isDisabled()) problems.push(`${at}: Discard is disabled though there is something to discard`);
+    // The row that discards is in Danger: `Discard draft` for a saved draft, `Discard` for unsaved edits.
+    const rowName = draft ? 'Discard draft' : 'Discard';
+    const discard = danger.getByRole('button', { name: rowName, exact: true });
+    if (!(await discard.count())) problems.push(`${at}: Danger has no ${rowName}`);
+    else if (await discard.isDisabled()) problems.push(`${at}: ${rowName} is disabled though there is something to discard`);
     // One row, nothing clipped, 48 dp targets.
     const geometry = await rows();
     if (geometry.some((b) => Math.abs(b.y - geometry[0].y) > 1)) problems.push(`${at}: the buttons wrap (${JSON.stringify(geometry)})`);
     if (geometry.some((b) => b.x < 0 || b.right > width + 0.5)) problems.push(`${at}: a button is clipped (${JSON.stringify(geometry)})`);
     // As high as the other buttons of the bar (the editor's density gives every button 40 dp; a bigger one would be a variant of its own).
-    const d = geometry.find((b) => b.name === 'Discard');
+    const save = geometry.find((b) => b.name === 'Save');
     const publish = geometry.find((b) => b.name === 'Publish');
-    if (d && publish && Math.abs(d.h - publish.h) > 0.5) problems.push(`${at}: Discard is ${d.h} dp high, Publish ${publish.h}`);
+    if (save && publish && Math.abs(save.h - publish.h) > 0.5) problems.push(`${at}: Save is ${save.h} dp high, Publish ${publish.h}`);
     const order = geometry.map((b) => b.name).filter((n) => n !== 'Preview');
     if (order.join() !== want.join()) problems.push(`${at}: the buttons run ${order.join(', ')}`);
 
@@ -891,7 +894,7 @@ async function checkDiscardInBar(width) {
     // Discard: the published text, the draft removed, a message, and the buttons as with no changes.
     await tap(discard);
     await dialog.waitFor({ timeout: 5000 });
-    await tap(dialog.getByRole('button', { name: 'Discard', exact: true }));
+    await tap(dialog.getByRole('button', { name: rowName, exact: true }));
     await page.waitForFunction(() => !document.querySelector('dialog[open]'), null, { timeout: 5000 });
     await page
       .locator('.mo-snackbar__stack .mo-snackbar', { hasText: 'discarded' })
