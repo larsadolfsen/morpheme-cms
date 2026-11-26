@@ -45,7 +45,7 @@ Body text on surface keeps its contrast, with a [link](/about/) and `inline code
 
 <p class="mo-type-body-large">Quotes on Surface</p>
 
-<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;all&quot;,&quot;layout&quot;:&quot;cards&quot;}"></div>
+<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;all&quot;,&quot;filter&quot;:false,&quot;layout&quot;:&quot;cards&quot;}"></div>
 
 ### Table on surface
 
@@ -88,7 +88,7 @@ Body text on primary keeps its contrast, with a [link](/about/) and `inline code
 
 <p class="mo-type-body-large">Quotes on Primary</p>
 
-<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;all&quot;,&quot;layout&quot;:&quot;list&quot;}"></div>
+<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;categories&quot;,&quot;categories&quot;:[&quot;design&quot;,&quot;editing&quot;],&quot;layout&quot;:&quot;list&quot;}"></div>
 
 ### Table on primary
 
