@@ -15,7 +15,7 @@ A special block: it shows the Library’s images as Card tiles, with a filter an
 
 ## Image grid: filled cards with a filter
 
-### Images by tag
+## Images by tag
 
 <div data-block="imagegrid" data-props="{&quot;show&quot;:&quot;tags&quot;,&quot;tags&quot;:[],&quot;filter&quot;:true,&quot;card&quot;:&quot;filled&quot;}"></div>
 

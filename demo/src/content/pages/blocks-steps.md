@@ -17,7 +17,7 @@ Drawn by the Steps block’s own numbered list; no other block uses it.
 
 A numbered sequence, for a process or a plan.
 
-### Three steps to a page
+## Three steps to a page
 
 <p class="mo-type-body-large">A heading and a short intro can sit above any block.</p>
 

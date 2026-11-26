@@ -27,13 +27,13 @@ Free and open source under the MIT license.
 
 <p class="mo-type-label-medium">Take a closer look</p>
 
-### Grows with your business
+## Grows with your business
 
 <div data-block="cards" data-props="{&quot;media&quot;:&quot;image&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Blocks&quot;,&quot;text&quot;:&quot;Thirteen building blocks for pages that look designed, not assembled.&quot;,&quot;href&quot;:&quot;/blocks/&quot;,&quot;image&quot;:&quot;/images/uploads/2026/10/editor-page.webp&quot;},{&quot;title&quot;:&quot;App store&quot;,&quot;text&quot;:&quot;Add booking, newsletters and more in one tap, and remove them just as easily.&quot;,&quot;href&quot;:&quot;/app-store/&quot;,&quot;image&quot;:&quot;/images/uploads/2026/10/andromeda.webp&quot;},{&quot;title&quot;:&quot;Themes&quot;,&quot;text&quot;:&quot;Change the whole look of your site and keep every word and photo.&quot;,&quot;href&quot;:&quot;/switch-themes-without-losing-anything/&quot;,&quot;image&quot;:&quot;/images/uploads/2026/10/editor-themes.webp&quot;}]}"></div>
 
 <p class="mo-type-label-medium">Get started</p>
 
-### Live in three steps
+## Live in three steps
 
 <p class="mo-type-body-large">No servers to manage and nothing to install on your computer.</p>
 
@@ -41,12 +41,12 @@ Free and open source under the MIT license.
 
 <p class="mo-type-label-medium">From the blog</p>
 
-### Tips and ideas
+## Tips and ideas
 
 <div data-block="posts" data-props="{&quot;show&quot;:&quot;categories&quot;,&quot;categories&quot;:[],&quot;count&quot;:&quot;3&quot;,&quot;order&quot;:&quot;newest&quot;}"></div>
 
 <p class="mo-type-label-medium">FAQ</p>
 
-### Questions, answered
+## Questions, answered
 
 <div data-block="expand" data-props="{&quot;design&quot;:&quot;segmented&quot;,&quot;faq&quot;:true,&quot;items&quot;:[{&quot;title&quot;:&quot;Do I need to know how to code?&quot;,&quot;text&quot;:&quot;No. Everything you change day to day happens in the editor: pages, posts, photos, menus, colors and settings.&quot;},{&quot;title&quot;:&quot;What does it cost?&quot;,&quot;text&quot;:&quot;Morpheme is free and open source under the MIT license. You only need free accounts on GitHub and Cloudflare. See [Get started](/get-started/).&quot;},{&quot;title&quot;:&quot;Can I break my site?&quot;,&quot;text&quot;:&quot;The editor checks every page before it saves, and every save can be restored under History.&quot;},{&quot;title&quot;:&quot;Do I own my content?&quot;,&quot;text&quot;:&quot;Yes. Your pages and posts are plain files in your own GitHub repository, so you can take them anywhere.&quot;}]}"></div>
