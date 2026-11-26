@@ -1706,6 +1706,40 @@ async function checkPageRowsList(width, height) {
     else if (Math.abs(edges.child - edges.parent - 20) > 1)
       problems.push(`${label}: a subpage's leading edge is ${edges.child - edges.parent} dp right of its parent's, not 20`);
   }
+  // With the Google button on, a tap on a score ring opens the page at "Search engines" (the ring needs an area of its own and must
+  // sit above the leading slot's tap area, or the tap goes to the row's link and the page opens at its top).
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForSelector('main .mo-editor-section .mo-list__item-container', { state: 'attached', timeout: 30_000 }).catch(() => {});
+  // The flat list (not the menu tree above): its rows can be selected, which puts a tap area over the leading slot.
+  await page
+    .getByRole('button', { name: 'Show as a list' })
+    .click({ timeout: 3000 })
+    .catch(() => {});
+  await page
+    .getByRole('button', { name: /show seo rating|google/i })
+    .first()
+    .click()
+    .catch(() => problems.push(`${label}: no Google button in the pages list`));
+  const ring = page.locator('main .mo-editor-score-ring').first();
+  if (
+    await ring.waitFor({ state: 'attached', timeout: 10_000 }).then(
+      () => true,
+      () => false,
+    )
+  ) {
+    await ring.click();
+    await page.waitForTimeout(2000);
+    const top = await page.evaluate(() => {
+      const h = [...document.querySelectorAll('main h2, main summary, main button')].find((e) =>
+        /^Search engines/.test(e.textContent.trim()),
+      );
+      return h ? h.getBoundingClientRect().top : null;
+    });
+    if (top == null || top < 0 || top > height / 2)
+      problems.push(
+        `${label}: a tap on a score ring does not open the page at "Search engines" (its heading is at ${top == null ? 'nowhere' : Math.round(top)} px of ${height})`,
+      );
+  } else problems.push(`${label}: no score ring shows with the Google button on`);
   await page.close();
   // In Danish (the editor follows the browser's language) the lines name the versions in Danish. The demo has no page with a waiting draft, so "Udgivet · Kladde" (the two words joined by " · " in `versionsOf`) is tested by hand.
   const da = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'da-DK' });
