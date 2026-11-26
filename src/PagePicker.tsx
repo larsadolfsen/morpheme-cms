@@ -4,7 +4,7 @@
 // filtered by their status and by whether the menu links to them (usePickTools, as the sheets that pick several). A link to a part of a page (/contact/#directions) is shown as that page; a page that no longer
 // exists is shown with its address, so it is not lost silently. The same sheet opens from a row in a list (PageListItem:
 // the pages of "Default pages").
-import { useRef, useState, type Ref } from 'react';
+import { useEffect, useRef, useState, type Ref } from 'react';
 import type { Option } from './fields';
 import {
   ChoiceField,
@@ -33,12 +33,14 @@ type Sheet = {
   title?: string;
   hint?: string;
   onChange: (value: string) => void;
+  /** The sheet has closed (picked or not). */
+  onClosed?: () => void;
 };
 
 const plain = (s: string) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
 
 // The sheet with the pages, the page picked and how it is shown, and how the sheet is opened.
-function usePageSheet({ value, groups, required, title, hint, onChange }: Sheet) {
+function usePageSheet({ value, groups, required, title, hint, onChange, onClosed }: Sheet) {
   const dialog = useRef<HTMLDialogElement>(null);
   const search = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
@@ -67,7 +69,11 @@ function usePageSheet({ value, groups, required, title, hint, onChange }: Sheet)
     <BottomSheet
       ref={dialog}
       aria-label={title ?? t.forms.pickPage}
-      onClose={(e) => e.target === e.currentTarget && setQuery('')}
+      onClose={(e) => {
+        if (e.target !== e.currentTarget) return;
+        setQuery('');
+        onClosed?.();
+      }}
       onClick={(e) => e.target === dialog.current && dialog.current.close()}
     >
       <SheetTitle title={title ?? t.forms.pickPage} onClose={() => dialog.current?.close()} />
@@ -133,4 +139,11 @@ export function PageListItem({ ref, ...props }: Sheet & { title: string; ref?: R
       {sheet}
     </PickListItem>
   );
+}
+
+/** The sheet with the pages, open at once (a row's link button in a block typed in place: no field is shown first); `onClosed` when it is closed. */
+export function PageSheet(props: Sheet) {
+  const { show, sheet } = usePageSheet(props);
+  useEffect(show, []);
+  return sheet;
 }

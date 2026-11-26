@@ -48,6 +48,8 @@ import {
   CheckList,
   FoldSection,
   FormColumns,
+  Group,
+  ListItem,
   LoadingIndicator,
   type NavigationItem,
   SectionList,
@@ -55,6 +57,7 @@ import {
   SharePreview,
   useInView,
 } from './ui';
+import { Icon } from './icon';
 import FormFrame, { savedStatus, useSavedAt } from './FormFrame';
 import { askToNotify } from './notificationData';
 import {
@@ -106,7 +109,7 @@ const SHARE = SHARE_FIELDS;
 // this page" card at the end of the form, on large and wider screens only) opens one and scrolls to it, and marks the
 // one in view. A field that keeps the form from being saved has its section opened and is scrolled to (FieldInput in
 // fields.tsx).
-type Section = 'settings' | 'content' | 'seo' | 'share' | 'versions';
+type Section = 'settings' | 'content' | 'seo' | 'share' | 'versions' | 'danger';
 // The fields only the settings have: the status, `unlisted`, a page's title and the template. A field of none of the other
 // sections is a setting too (the URL, the excerpt, the tags …), after these.
 const isOwnSetting = (collection: MarkdownCollection, name: string) =>
@@ -379,6 +382,8 @@ function Form({
     ...(has('seo') ? [{ id: 'seo', label: t.forms.seo }] : []),
     ...(has('share') ? [{ id: 'share', label: t.forms.share }] : []),
     ...(isNew ? [] : [{ id: 'versions', label: t.history.versions }]),
+    // Last: each of its rows shows only when it can act (see dangerRows).
+    ...(!isNew && (dirty || waiting || collection.deletable) ? [{ id: 'danger', label: t.forms.danger }] : []),
   ];
   const shows = (id: Section) => sections.some((s) => s.id === id);
   // The sections: which are open, at first only the text (always open), and "Search engines" when it is opened at it from
@@ -1198,7 +1203,7 @@ function Form({
     ...(scheduledAt ? [{ label: t.forms.versions.cancelSchedule, onClick: cancelSchedule }] : []),
   ];
   // The section *Danger*: each row only when it can act, each asking first.
-  const dangerRows = isNew
+  const dangerRows: { label: string; icon?: string; onClick: () => void }[] = isNew
     ? []
     : [
         ...(dirty ? [{ label: t.app.discard, icon: 'undo', onClick: () => void discardNow(false) }] : []),
@@ -1352,7 +1357,6 @@ function Form({
             onSave={() => save()}
             onPreview={showPreview}
             saveLabel={t.forms.versions.saveDraft}
-            danger={dangerRows}
             tabs={
               coreSwitch && waiting && !isNew
                 ? versionTabs({
@@ -1452,6 +1456,26 @@ function Form({
                   {shows('versions') && (
                     <FoldSection {...sectionProps('versions')}>
                       <VersionList env={env} path={base.path} oid={base.oid} onPick={onVersion} />
+                    </FoldSection>
+                  )}
+                  {shows('danger') && (
+                    <FoldSection {...sectionProps('danger')}>
+                      <Group>
+                        {dangerRows.map((a) => (
+                          <ListItem
+                            key={a.label}
+                            tone="delete"
+                            disabled={saving || deleting}
+                            onClick={a.onClick}
+                            headline={
+                              <span className="mo-editor-inline-row">
+                                <Icon name={a.icon ?? 'delete'} size={18} />
+                                {a.label}
+                              </span>
+                            }
+                          />
+                        ))}
+                      </Group>
                     </FoldSection>
                   )}
                 </>
