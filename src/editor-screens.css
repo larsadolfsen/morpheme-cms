@@ -574,9 +574,20 @@
     font-weight: 500;
     color: var(--mo-sys-color-primary);
   }
+  .mo-editor-library-row-trail {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+  }
+  /* The slot of the drop-down, empty on a row without subpages, so the eyes line up. */
   .mo-editor-library-row-unfold {
     flex-shrink: 0;
+    inline-size: 3rem;
     padding-inline-end: var(--mo-ref-space-75);
+  }
+  .mo-editor-library-hidden {
+    display: inline-flex;
+    color: var(--mo-sys-color-on-surface-variant);
   }
 
   .mo-editor-media-file-tile {

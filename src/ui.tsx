@@ -2978,11 +2978,11 @@ export function FoldSection({
 }
 
 /** Rows in the theme's segmented list, under a small heading: the start screen, the lists. Never with a note under it. */
-export function Group({ title, children }: { title?: string; children: ReactNode }) {
+export function Group({ title, children, dividers }: { title?: string; children: ReactNode; dividers?: boolean }) {
   return (
     <section className="mo-editor-section">
       {title && <GroupTitle>{title}</GroupTitle>}
-      <ul className={listClass}>{children}</ul>
+      <ul className={dividers ? plainListClass : listClass}>{children}</ul>
     </section>
   );
 }

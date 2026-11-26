@@ -59,7 +59,6 @@ import {
   SearchRow,
   useKept,
   ConnectedButtons,
-  UnfoldButton,
   GroupTitle,
   SwitchRow,
   ScoreRing,
@@ -74,7 +73,7 @@ import {
 } from './ui';
 import { openAtSeo } from './EntryForm';
 import { isRated } from './SeoScores';
-import { fileRating } from './seo';
+import { fileRating, firstImage } from './seo';
 import { dateName, headed, letterOf } from './Sheet';
 import type { Env } from './App';
 import { kindAndName, savedText } from './deploy';
@@ -87,7 +86,8 @@ import NewListDialog from './NewListDialog';
 import { useListDrafts } from './listDraft';
 import { ownListsOf } from './ownLists';
 import { isOver, untilTime } from '../lib/notice.mjs';
-import { isUnlisted } from '../lib/status.mjs';
+import { safeImageSrc } from '../lib/safe-url.mjs';
+import { hiddenFromSearch, isUnlisted } from '../lib/status.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
 import { saveDensity, savedDensity, setDensity, type Density } from './density';
 import { browserLocale, locale, localeName, locales, savedLocale, setLocale, siteLocale, siteT, siteText, t, type Locale } from './i18n';
@@ -968,6 +968,12 @@ type Item = {
   /** Kladde, Skjult or Planlagt (statusOf), before its date; an entry not yet looked through, what it says
    * (FolderCollection.fresh: "New"). */
   status?: string;
+  /** Pages and posts: which versions exist, one line (`Published · Draft`), with the full time of a scheduled one as its tooltip. */
+  versions?: { text: string; title?: string };
+  /** Pages and posts: kept out of the lists (a post's Hidden) or out of search engines (a page's). */
+  hidden?: boolean;
+  /** Pages and posts: the image the page shares (the Open Graph image, else its own), not the site's own. */
+  image?: string;
   /** Added by something else and not yet looked through (FolderCollection.fresh): at the top of the list. */
   fresh?: boolean;
   /** Which of them, or published: what the choices over the list show. */
@@ -1022,6 +1028,26 @@ function statusOf(d: Record<string, unknown>, w?: Waiting, post = false): string
   return timed(w.publishAt, t.library.status.scheduledChanges, t.library.status.unpublishedChanges);
 }
 
+// The line under a page's or post's name: the versions it has, joined by " · " (`Published`, `Published · Draft`, `Published · Scheduled Nov 30`,
+// `Draft`, `Scheduled Nov 27`); the full time of a scheduled one is the tooltip.
+function versionsOf(d: Record<string, unknown>, w?: Waiting): { text: string; title?: string } {
+  const v = t.library.versions;
+  const scheduled = (time: unknown) => {
+    const at = untilTime(String(time ?? ''));
+    if (at === null) return { text: v.scheduled };
+    const date = new Date(at);
+    return {
+      text: v.scheduledOn(date.toLocaleDateString(locale, { month: 'short', day: 'numeric' })),
+      title: t.library.status.scheduledAt(when(date)),
+    };
+  };
+  if (d.status === 'draft') return w?.publishAt ? scheduled(w.publishAt) : { text: v.draft };
+  if (d.status === 'scheduled' && !isOver(String(d.publishAt ?? ''))) return scheduled(d.publishAt);
+  if (!w) return { text: v.published };
+  const next = w.publishAt ? scheduled(w.publishAt) : { text: v.draft };
+  return { text: `${v.published} · ${next.text}`, title: next.title };
+}
+
 function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
   if (collection.kind === 'files') return collection.files.map((f) => ({ href: `#${f.file}`, title: f.label, detail: f.view }));
   const own = files.filter((f) => f.path.startsWith(`${collection.folder}/`) && (collection.kind !== 'folder' || isEntryPath(f.path)));
@@ -1034,6 +1060,9 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
         // Blog posts show their date; pages when they were last saved (`saved`, asked in List).
         const detail = collection.id === 'blog' ? String(d.date ?? '') : '';
         const date = collection.id === 'blog' ? detail : undefined;
+        const post = collection.id === 'blog';
+        const body = splitFrontmatter(file.text).body;
+        const image = String(d.shareImage || d.image || firstImage(body) || '');
         const path = String(d.path ?? `/${file.path.slice(collection.folder.length + 1).replace(/(\/index)?\.md$/, '')}/`);
         return {
           href: `#${file.path}`,
@@ -1041,6 +1070,9 @@ function itemsOf(collection: Collection, files: RepoFile[]): Item[] {
           detail,
           date,
           status: statusOf(d, waiting.get(file.path), collection.id === 'blog'),
+          versions: versionsOf(d, waiting.get(file.path)),
+          hidden: post ? isUnlisted(d) : hiddenFromSearch(d, 'page'),
+          image: image || undefined,
           state: stateOf(d, waiting.get(file.path), collection.id === 'blog'),
           // Hidden is on the site, so nothing is unfinished about it.
           unfinished:
@@ -1484,14 +1516,20 @@ export function List({
         {...(path ? selection.row(path) : {})}
         href={item.href}
         leading={ring(item)}
+        {...(!scores && item.versions ? pictureOf(item, collection.id === 'blog') : {})}
         headline={item.title}
-        supporting={under(item, {
-          address: markdown && wide,
-          text: pages ? savedTime(item) : collection.id === 'blog' ? shortDate(item.detail) : item.detail,
-        })}
+        supporting={
+          item.versions
+            ? versionLine(item, markdown && wide)
+            : under(item, {
+                address: markdown && wide,
+                text: pages ? savedTime(item) : collection.id === 'blog' ? shortDate(item.detail) : item.detail,
+              })
+        }
+        trailing={hiddenIcon(item)}
         truncate
         count={item.count}
-        arrow={!orderable}
+        arrow={!orderable && !item.versions}
         actions={
           orderable &&
           !selecting && (
@@ -1642,11 +1680,11 @@ export function List({
       )}
       {!appTab && tree && (
         <>
-          <Group title={t.library.menu}>
+          <Group title={t.library.menu} dividers>
             <TreeRows branches={tree.menu} depth={0} open={openBranches} toggle={toggleBranch} ring={scores ? ring : undefined} />
           </Group>
           {tree.rest.length > 0 && (
-            <Group title={t.library.notInMenu}>
+            <Group title={t.library.notInMenu} dividers>
               <TreeRows
                 branches={tree.rest.map((item) => ({ key: item.href, item, children: [] }))}
                 depth={0}
@@ -1665,6 +1703,7 @@ export function List({
         groups.map((g) => (
           <Group
             key={g.key || 'all'}
+            dividers={markdown}
             title={g.key ? (sort === 'type' || sort === 'az' || sort === 'za' ? g.key : dateName(g.key)) : undefined}
           >
             {g.items.map(listRow)}
@@ -1680,12 +1719,41 @@ export function List({
   );
 }
 
+/** A page's or post's leading part: its share image, else a square with its icon, the same size and corners (the image itself and its corner are ListItem's). */
+function pictureOf(item: Item, post: boolean): Record<string, unknown> {
+  if (!item.file) return {};
+  const src = item.image ? safeImageSrc(item.image) : '';
+  if (src) return { leadingImage: { src } };
+  return {
+    leadingMedia: (
+      <span className="mo-list__item-image mo-list__item-image-placeholder" aria-hidden="true">
+        <MaterialIcon name={post ? 'article' : 'description'} />
+      </span>
+    ),
+  };
+}
+
+/** The line under a page's or post's name: its versions (and its address from a computer's width), the full time of a scheduled version as the tooltip. */
+function versionLine(item: Item, address?: boolean) {
+  if (!item.versions) return under(item, { address, text: '' });
+  const { text, title } = item.versions;
+  return under(item, { address, text: <span title={title}>{text}</span>, plain: true });
+}
+
+/** Hidden is an icon at the right of the row, not a button. */
+const hiddenIcon = (item: Item) =>
+  item.hidden ? (
+    <span role="img" aria-label={t.library.status.unlisted} title={t.library.status.unlisted} className="mo-editor-library-hidden">
+      <MaterialIcon name="visibility_off" />
+    </span>
+  ) : undefined;
+
 /** What is under a page's or post's name: its address (from a computer's width, where the list has the room), its status and its
  * time or date. Nothing when there is none of them (undefined): the row is then Material's one-line item, 56 dp, not a two-line
  * one with an empty line (owner, 25 Nov 2026: "List items only with one line should not be styled like it has two"). A row
  * gets its second line when it has something to say in it, and not before. */
-function under(item: Item, { address, text }: { address?: boolean; text?: ReactNode }) {
-  const status = item.status ? <span className="mo-editor-library-status">{item.status}</span> : null;
+function under(item: Item, { address, text, plain }: { address?: boolean; text?: ReactNode; plain?: boolean }) {
+  const status = item.status && !plain ? <span className="mo-editor-library-status">{item.status}</span> : null;
   const line = text === false || text === '' || text == null ? null : text;
   if (!address && !status && !line) return undefined;
   return (
@@ -1729,24 +1797,28 @@ function TreeRows({
             <ListItem
               href={item.href || undefined}
               tone={item.href ? undefined : 'muted'}
-              // Indented a step under the item it is under, in the editor's segmented lists.
-              style={
-                depth ? { paddingInlineStart: `calc(var(--mo-comp-list-segmented-padding-inline, 1rem) + ${depth * 1.25}rem)` } : undefined
-              }
+              // Indented a step under the item it is under.
+              style={depth ? { paddingInlineStart: `${depth * 1.25}rem` } : undefined}
               leading={ring?.(item)}
+              {...(!ring && item.versions ? pictureOf(item, false) : {})}
               headline={item.title}
-              supporting={item.href ? under(item, { address: wide, text: savedTime(item) }) : t.library.pageGone}
+              supporting={item.href ? versionLine(item, wide) : t.library.pageGone}
               truncate
               actions={
-                children.length > 0 && (
-                  <span className="mo-editor-library-row-unfold">
-                    <UnfoldButton
-                      open={shown}
-                      count={children.length}
-                      label={shown ? t.library.hideSubpagesOf(item.title) : t.library.showSubpagesOf(item.title)}
-                      title={shown ? t.library.hideSubpages : t.library.showSubpages}
-                      onClick={() => toggle(key)}
-                    />
+                item.href && (
+                  <span className="mo-editor-library-row-trail">
+                    {hiddenIcon(item)}
+                    <span className="mo-editor-library-row-unfold">
+                      {children.length > 0 && (
+                        <IconButton
+                          kind="tonal"
+                          icon={shown ? materialIcon('keyboard_arrow_up') : materialIcon('keyboard_arrow_down')}
+                          aria-expanded={shown}
+                          label={shown ? t.library.hideSubpagesOf(item.title) : t.library.showSubpagesOf(item.title)}
+                          onClick={() => toggle(key)}
+                        />
+                      )}
+                    </span>
                   </span>
                 )
               }

@@ -1593,7 +1593,76 @@ async function checkListItemLines(width, height) {
   await page.close();
 }
 
+/** The pages and posts lists (B18, plan 0.19.7): each page or post is one row (`.mo-list__item-container`), with a square leading image or its placeholder of 8 dp corners from ListItem itself,
+ * one supporting line naming its versions (`Published`, `Published · Draft`, `Draft`, `Scheduled …`), no trailing icon unless Hidden (`visibility_off`, named `Hidden`), dividers between
+ * the rows, and in the menu tree the drop-down rightmost (`aria-expanded`, named `Show subpages of …`). */
+async function checkPageRowsList(width, height) {
+  const label = `${width}px pages and posts rows`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  for (const hash of ['#list/pages', '#list/blog']) {
+    await page.evaluate((h) => (location.hash = h), hash);
+    await page.waitForSelector('main .mo-editor-section .mo-list__item-container', { timeout: 30_000 }).catch(() => {});
+    await page.waitForTimeout(1000);
+    const rows = await page.evaluate(() =>
+      [...document.querySelectorAll('main .mo-editor-section .mo-list__item-container')].map((el) => {
+        const img = el.querySelector('.mo-list__item-leading-image .mo-list__item-image');
+        const box = img?.getBoundingClientRect();
+        const li = el.closest('li');
+        return {
+          name: (el.querySelector('.mo-list__item-headline')?.textContent || '').trim(),
+          href: el.getAttribute('href') || '',
+          img: box ? { w: Math.round(box.width), h: Math.round(box.height), radius: getComputedStyle(img).borderTopLeftRadius } : null,
+          supporting:
+            (el.querySelector('.mo-editor-library-under-status') ?? el.querySelector('.mo-list__item-supporting'))?.textContent?.trim() ??
+            '',
+          icons: [...el.querySelectorAll('[role="img"][aria-label]')].map((i) => i.getAttribute('aria-label')),
+          divider: li && li.previousElementSibling ? getComputedStyle(li).borderTopWidth : null,
+        };
+      }),
+    );
+    if (!rows.length) {
+      problems.push(`${label}: ${hash} has no rows`);
+      continue;
+    }
+    const links = rows.map((r) => r.href).filter(Boolean);
+    if (new Set(links).size !== links.length) problems.push(`${label}: ${hash} lists a page or post twice (${links.join(', ')})`);
+    for (const r of rows) {
+      const where = `${label}, ${hash}, "${r.name}"`;
+      if (!r.img) problems.push(`${where}: has no square image or placeholder`);
+      else {
+        if (r.img.w !== r.img.h) problems.push(`${where}: its image is ${r.img.w} x ${r.img.h}, not square`);
+        if (r.img.radius !== '8px') problems.push(`${where}: its image corner is ${r.img.radius}, not 8px`);
+      }
+      if (!/^(Published|Draft|Scheduled)/.test(r.supporting))
+        problems.push(`${where}: the line under it names no version (${JSON.stringify(r.supporting)})`);
+      if (r.icons.some((n) => n !== 'Hidden')) problems.push(`${where}: has a trailing icon that is not Hidden (${r.icons.join(', ')})`);
+      if (r.divider !== null && r.divider === '0px') problems.push(`${where}: has no divider above it`);
+    }
+  }
+  await page.evaluate(() => (location.hash = '#list/pages'));
+  await page.waitForTimeout(1000);
+  for (const toggle of await page.$$('main button[aria-expanded]')) {
+    const name = (await toggle.getAttribute('aria-label')) || '';
+    if (!/^Show subpages of /.test(name)) continue;
+    await toggle.click();
+    const now = await toggle.getAttribute('aria-expanded');
+    const after = (await toggle.getAttribute('aria-label')) || '';
+    if (now !== 'true' || !/^Hide subpages of /.test(after))
+      problems.push(`${label}: "${name}" does not open to "Hide subpages of …" (${now}, ${after})`);
+    break;
+  }
+  await page.close();
+}
+
 export function register(unit) {
+  for (const [w, h] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    unit(`checkPageRowsList ${w}`, () => checkPageRowsList(w, h));
   for (const [w, h] of [
     [390, 844],
     [1280, 900],
