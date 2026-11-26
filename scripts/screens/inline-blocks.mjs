@@ -422,9 +422,9 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   if ((await page.locator('.mo-editor-inline-list-row-active').count()) !== 1)
     problems.push(`${label}: not exactly one active item at the start`);
   if (name === 'cards') {
-    // The media area is there while the card is active: one button for each kind (icon, image, video); the link is the bar's, not a slot in the card; the action area has the next button, empty and faded.
+    // The media area is there while the card is active: one button for each kind (icon, image, video); the link is the control in the action row, not a media slot; the action area has the next button, empty and faded.
     const slots = await page
-      .locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')
+      .locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-slots .mo-editor-inline-list-slot')
       .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')));
     if (slots.join() !== 'Icon,Image,Video')
       problems.push(`${label}: the active card's media buttons are "${slots}", not "Icon,Image,Video"`);
@@ -630,28 +630,40 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   await page.emulateMedia({ colorScheme: 'light' });
   for (const name of ['Add above', 'Add below'])
     if (!one.bar.some((b) => b.label === name && b.svg)) problems.push(`${label}: the toolbar has no icon button "${name}"`);
-  // The card's settings (the toolbar's gear on a phone, a sheet; the panel on a computer already) open with its page and buttons, never an empty page.
-  const cardSettings = async (when) => {
-    if (width >= 1000) return;
-    await pressTool(page, 'Edit');
-    const sheet = page.locator('dialog[open][aria-label="Card settings"]');
-    await sheet.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the card's settings do not open (${when})`));
-    if (!(await sheet.getByText(/^(Page|Buttons)$/).count())) problems.push(`${label}: the card's settings are empty (${when})`);
-    await sheet
-      .getByRole('button', { name: 'Close' })
-      .click({ timeout: 2000 })
-      .catch(() => {});
-    await page.waitForTimeout(300);
+  // A card has no sheet of its own: no "Card settings" anywhere, and its page is picked from the control in its action row (the picker opens at once).
+  const noCardSheet = async (when) => {
+    if (await page.locator('dialog[open][aria-label="Card settings"], .mo-editor-side-sheet').getByText('Card settings').count())
+      problems.push(`${label}: a "Card settings" sheet shows (${when})`);
   };
-  if (name === 'cards' && width >= 1000) {
-    // A card has a page or buttons, never both: with a button the page is gone from its settings, with a page there are no buttons.
-    const panel = page.locator('.mo-editor-side-sheet');
-    // The card's own Page field, found by its hint (a button has a Page of its own once it is added).
-    const page_ = panel.getByText('With a page, the whole card is the link and has no buttons.');
-    await page_.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the card's settings have no Page`));
-    await panel.getByRole('button', { name: 'Add button' }).click();
-    await page.waitForTimeout(300);
-    if (await page_.count()) problems.push(`${label}: a card with a button still offers a Page`);
+  if (name === 'cards') {
+    await noCardSheet('a card with no buttons');
+    const row = page.locator('.mo-editor-inline-list-row-active');
+    const linkControl = row.locator('.mo-editor-inline-card-buttons [aria-label="Add page"]');
+    if ((await linkControl.count()) !== 1) problems.push(`${label}: the card's action row has no link control`);
+    else {
+      await linkControl.click();
+      const picker = page.locator('[role="option"]:not(:has-text("No page"))').filter({ visible: true }).first();
+      await picker.waitFor({ timeout: 4000 }).catch(() => problems.push(`${label}: the link control did not open the page picker`));
+      await picker.click().catch(() => {});
+      await page.waitForTimeout(400);
+      await noCardSheet('after the page was picked');
+      const noButtons = row.locator('[data-add-button]');
+      if (!/no buttons/.test((await noButtons.textContent()) ?? '') || !(await noButtons.isDisabled()))
+        problems.push(`${label}: a card with a page does not say it has no buttons`);
+      // The link control is pressed once the card has a page; its picker has No page to take it away again.
+      if ((await row.locator('[aria-label="Page"][aria-pressed="true"]').count()) !== 1)
+        problems.push(`${label}: the link control does not show that the card has a page`);
+      await row.locator('[aria-label="Page"]').click({ timeout: 4000 });
+      await page
+        .locator('[role="option"]:has-text("No page")')
+        .filter({ visible: true })
+        .first()
+        .click({ timeout: 4000 })
+        .catch(() => problems.push(`${label}: the picker has no "No page"`));
+      await page.waitForTimeout(400);
+      if (/no buttons/.test((await row.locator('[data-add-button]').textContent()) ?? ''))
+        problems.push(`${label}: "No page" left the card without its Add button`);
+    }
   }
   if (name === 'cards') {
     // A button is typed on the button itself, then the next one is there, empty and faded.
@@ -667,7 +679,57 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     if ((await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-next-button').count()) !== 1)
       problems.push(`${label}: no next button after the first`);
   }
-  if (name === 'cards') await cardSettings('a card with a button');
+  if (name === 'cards') {
+    await noCardSheet('a card with a button');
+    const row = page.locator('.mo-editor-inline-list-row-active');
+    // With a button the link control is gone and a Divider switch is there; the button's own menu opens from its options control, with its target and style.
+    if (await row.locator('.mo-editor-inline-card-buttons [aria-label="Add page"], [aria-label="Page"]').count())
+      problems.push(`${label}: a card with a button still has a link control`);
+    const divider = row.locator('.mo-editor-inline-card-buttons [aria-label="Divider"]');
+    if ((await divider.count()) !== 1) problems.push(`${label}: a card with a button has no Divider switch`);
+    else {
+      await divider.click();
+      if ((await row.locator('[aria-label="Divider"][aria-pressed="true"]').count()) !== 1)
+        problems.push(`${label}: the Divider switch did not turn on`);
+    }
+    await row.locator('.mo-editor-inline-card-button [aria-label="Button options"]').first().click();
+    const menu = page.locator('[role=menu][aria-label="Button"]');
+    await menu
+      .locator('[role^=menuitem]')
+      .first()
+      .waitFor({ timeout: 4000 })
+      .catch(() => problems.push(`${label}: the card button's options did not open the menu`));
+    const items = await menu.locator('[role^=menuitem]').allInnerTexts();
+    for (const want of ['Page', 'Style: Filled', 'Style: Outlined', 'Icon', 'Remove button'])
+      if (!items.some((x) => x.trim() === want)) problems.push(`${label}: the card button's menu has no "${want}"`);
+    await noCardSheet('the button menu');
+    await page.keyboard.press('Escape');
+    await page
+      .locator('dialog[open] button[aria-label="Close"]')
+      .click({ timeout: 1000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+    // Block settings holds only what applies to every card: no list of cards, no card's title, text, buttons or page.
+    await pressMore(page, 'Edit');
+    await page.waitForTimeout(400);
+    const listed = await page
+      .locator('dialog[open], .mo-editor-side-sheet')
+      .getByText(/^Add card$|^Buttons$|^Divider$|^Heading$|^Subheading$/)
+      .count();
+    if (listed)
+      problems.push(
+        `${label}: Block settings lists the cards or their parts: ${await page
+          .locator('dialog[open], .mo-editor-side-sheet')
+          .getByText(/^Add card$|^Buttons$|^Divider$|^Heading$|^Subheading$/)
+          .allInnerTexts()}`,
+      );
+    await page.keyboard.press('Escape');
+    await page
+      .locator('dialog[open] button[aria-label="Close"]')
+      .click({ timeout: 1000 })
+      .catch(() => {});
+    await page.waitForTimeout(300);
+  }
   // A block with no settings (Steps): no Link action and no Edit button, a step has nothing to set.
   if (noEdit)
     for (const name of ['Link', 'Edit'])
@@ -748,7 +810,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       problems.push(`${label}: the media buttons show although the card has its icon`);
     if ((await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-media-box svg').count()) !== 1)
       problems.push(`${label}: the card's icon is not shown exactly once`);
-    await cardSettings('a card with an icon');
+    await noCardSheet('a card with an icon');
     // A video: the Media choice of the first card, then its link.
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-media').click();
     // The Media choice is the choice group: buttons when they fit, else the list of radio buttons (the whole row is the target).
@@ -767,7 +829,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       .catch(() => {});
     await page.waitForTimeout(300);
     await page.locator('.mo-editor-inline-list-row [data-field="title"]').first().click();
-    await cardSettings('a card with a video');
+    await noCardSheet('a card with a video');
   }
   await page.close();
 }
