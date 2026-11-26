@@ -284,34 +284,40 @@ async function checkListDesigns(width, height) {
       await page.locator('.mo-list__segmented, .mo-block-accordion__segmented').first().waitFor({ timeout: 8000 });
     }
     await page.locator('[data-add-row]').waitFor({ timeout: 8000 });
-    const got = await page.evaluate(() => ({
-      slots: [...document.querySelectorAll('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')].map((x) =>
-        x.getAttribute('aria-label'),
-      ),
-      add: [...document.querySelectorAll('[data-add-row]')].map((x) => x.textContent.trim()),
-      own: document.querySelectorAll('[data-row-link], [data-add-button], [data-row-arrow], .mo-editor-inline-segmented-buttons').length,
-      // The plain design's row layer is 16 dp wider than the text column on each side at every width (M3 Lists › Specs: 16 dp leading and trailing space; 21 Nov 2026), its leading icon on the text's edge.
-      edge: (() => {
-        const row = document.querySelector('.mo-editor-inline-list-row-active');
-        const box = row?.matches('.mo-list__item-container') ? row : row?.querySelector('.mo-list__item-container');
-        const lead = box?.querySelector('.mo-list__item-leading');
-        const text = document.querySelector('.ProseMirror p')?.getBoundingClientRect().left;
-        return box && lead && text !== undefined
-          ? {
-              layer: box.getBoundingClientRect().left - text,
-              icon: lead.getBoundingClientRect().left - text,
-              wide: document.documentElement.scrollWidth - window.innerWidth,
-            }
-          : null;
-      })(),
-      // The link slot is at the end of the row: to the right of the heading.
-      end: (() => {
-        const row = document.querySelector('.mo-editor-inline-list-row-active');
-        const slot = row?.querySelector('.mo-editor-inline-list-slot[aria-label="Page"]');
-        const field = row?.querySelector('[data-field="title"]');
-        return !!slot && !!field && slot.getBoundingClientRect().left >= field.getBoundingClientRect().left;
-      })(),
-    }));
+    const got = await page.evaluate(
+      (expand) => ({
+        slots: [...document.querySelectorAll('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')].map((x) =>
+          x.getAttribute('aria-label'),
+        ),
+        add: [...document.querySelectorAll('[data-add-row]')].map((x) => x.textContent.trim()),
+        // An Expand row may have one typed button at the bottom of the open row (owner, 26 Nov 2026); a List row has none.
+        own: document.querySelectorAll(
+          `[data-row-link], ${expand ? '' : '[data-add-button], '}[data-row-arrow], .mo-editor-inline-segmented-buttons`,
+        ).length,
+        // The plain design's row layer is 16 dp wider than the text column on each side at every width (M3 Lists › Specs: 16 dp leading and trailing space; 21 Nov 2026), its leading icon on the text's edge.
+        edge: (() => {
+          const row = document.querySelector('.mo-editor-inline-list-row-active');
+          const box = row?.matches('.mo-list__item-container') ? row : row?.querySelector('.mo-list__item-container');
+          const lead = box?.querySelector('.mo-list__item-leading');
+          const text = document.querySelector('.ProseMirror p')?.getBoundingClientRect().left;
+          return box && lead && text !== undefined
+            ? {
+                layer: box.getBoundingClientRect().left - text,
+                icon: lead.getBoundingClientRect().left - text,
+                wide: document.documentElement.scrollWidth - window.innerWidth,
+              }
+            : null;
+        })(),
+        // The link slot is at the end of the row: to the right of the heading.
+        end: (() => {
+          const row = document.querySelector('.mo-editor-inline-list-row-active');
+          const slot = row?.querySelector('.mo-editor-inline-list-slot[aria-label="Page"]');
+          const field = row?.querySelector('[data-field="title"]');
+          return !!slot && !!field && slot.getBoundingClientRect().left >= field.getBoundingClientRect().left;
+        })(),
+      }),
+      expand,
+    );
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
     // The page picker opens straight from the link button (B5): the sheet with the pages and No page, on a phone and a computer, and no sheet of the row.
     const sheet = page.locator('dialog[open]');
