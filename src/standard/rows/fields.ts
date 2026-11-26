@@ -1,4 +1,4 @@
-// The fields a list block (List, List - Expand, FAQ list) has to take its rows from an existing list ("Rows from"): the list, the tags to
+// The fields a list block (List, Expandable list, FAQ list) has to take its rows from an existing list ("Rows from"): the list, the tags to
 // show, and how many; the typed rows are in use only while no list is picked (`typed`). The choices of the list are the relation `rowSources`
 // (App.tsx, rowSources in view.ts). Which rows it gives: rows.mjs; drawn by the block's own view.
 import { t } from '../../i18n';
@@ -14,7 +14,16 @@ const NEVER = '\u0000';
 const dynamic: Field['only'] = { field: 'from', is: [''], not: true };
 
 export const rowsFromFields: Field[] = [
-  { name: 'from', label: t.blocks.rows.from, type: 'relation', to: 'rowSources', hint: t.blocks.rows.fromHint },
+  // The switch is On while a list is picked (no value of its own, so a stored list keeps working); the choice shows under it and has no "None".
+  {
+    name: 'dynamic',
+    label: t.blocks.rows.dynamicList,
+    type: 'boolean',
+    toggle: t.blocks.rows.toggle,
+    switchFor: 'from',
+    hint: t.blocks.rows.dynamicListHint,
+  },
+  { name: 'from', label: t.blocks.rows.from, type: 'relation', to: 'rowSources', required: true, only: dynamic },
   {
     name: 'tags',
     label: t.blocks.rows.tags,
@@ -38,7 +47,7 @@ export const rowsFromFields: Field[] = [
 ];
 
 /** The typed rows' field is in use only while the block reads no list. */
-export const typed: Field['only'] = { field: 'from', is: [''] };
+export const typed: Field['only'] = { field: 'from', is: [''], loose: true };
 
 /** The name of a block that reads a list in the editor ("Dynamic list"); the block's own name for typed rows. */
 export const nameWith = (label: string, props: BlockProps) => (sourceOf(props.from) ? t.blocks.rows.named(label) : label);

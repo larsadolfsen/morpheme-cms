@@ -1,0 +1,7 @@
+{
+  "id": "dynamic-list-switch",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Dynamic list",
+  "text": "It is now clear whether a list shows typed rows or rows from another list. In Block settings of a List or List - Expand, turn on Dynamic list, then choose the list under Rows from. Turn it off to see your typed rows again."
+}

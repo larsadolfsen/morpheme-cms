@@ -701,6 +701,17 @@ export function FieldList({
   onChange: (v: unknown) => void;
 }) {
   const around = useContext(AroundHere);
+  const context = useContext(Fields);
+  // A switch over another field (Field.switchFor): On while that field has a value; On picks its first choice, Off empties it.
+  const asSwitch = (f: Field) => {
+    if (!f.switchFor) return { value: value[f.name], change: (v: unknown) => onChange({ ...value, [f.name]: v }) };
+    const target = fields.find((x) => x.name === f.switchFor);
+    const first = (target?.to && context?.relations[target.to]?.[0]?.value) || '';
+    return {
+      value: String(value[f.switchFor] ?? '').trim() !== '',
+      change: (on: unknown) => onChange({ ...value, [f.switchFor!]: on ? first : '' }),
+    };
+  };
   return (
     <AroundHere.Provider value={{ fields, value, around }}>
       {fields
@@ -713,11 +724,7 @@ export function FieldList({
                 <Label hint={f.heading.hint}>{f.heading.label}</Label>
               </div>
             )}
-            <FieldInput
-              field={offeredOf(f, fields, value, around)}
-              value={value[f.name]}
-              onChange={(v) => onChange({ ...value, [f.name]: v })}
-            />
+            <FieldInput field={offeredOf(f, fields, value, around)} value={asSwitch(f).value} onChange={asSwitch(f).change} />
           </Fragment>
         ))}
     </AroundHere.Provider>

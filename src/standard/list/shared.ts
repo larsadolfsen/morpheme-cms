@@ -1,6 +1,6 @@
-// The shared text of "List" and "List - Expand" ("Blocks" › "List"): the text button under the rows that shows the rest of them (`Max rows`), to
+// The shared text of "List" and "Expandable list" ("Blocks" › "List"): the text button under the rows that shows the rest of them (`Max rows`), to
 // begin with in the site's language (siteT). It was "Segmented list"'s (site/site.ts keeps a text a site saved there). The link text in an open
-// row of "List - Expand" is the one of the old "Accordion".
+// row of "Expandable list" is the one of the old "Accordion".
 import { siteT, t } from '../../i18n';
 import { defineShared } from '../../shared';
 

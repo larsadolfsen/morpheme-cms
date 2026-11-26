@@ -41,9 +41,9 @@ export const blocks = {
   /** A block's head (standard/head.ts): the label above its heading and the subheading under it. */
   subheading: 'Subheading',
   subheadingHint: 'Shown under the heading.',
-  /** "List - Expand" (standard/expand/). */
+  /** "Expandable list" (standard/expand/). */
   expand: {
-    label: 'List - Expand',
+    label: 'Expandable list',
     hint: 'Show list items that expand and collapse.',
     /** Read by name for any block (pageEmptyRows.ts): the rows and one row, in the sentence about an empty block. */
     items: 'Rows',
@@ -81,8 +81,11 @@ export const blocks = {
     over: (day: string, time: string) => `No longer shown (until ${day} at ${time})`,
   },
   rows: {
+    dynamicList: 'Dynamic list',
+    dynamicListHint: 'On: the rows come from a list. Off: you type the rows yourself.',
+    toggle: ['On', 'Off'] as [string, string],
     from: 'Rows from',
-    fromHint: 'Select a list to show its items as rows. Leave empty to type the rows yourself.',
+    fromHint: 'Select the list to show its items as rows.',
     tags: 'Only with these tags',
     addTag: 'Add tag',
     tagsHint: 'Leave empty to show all items of the list.',
@@ -143,7 +146,7 @@ export const blocks = {
     newRow: 'New row',
     /** A row of the list typed in place: its place, for screen readers (row 2 of 4). */
     rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
-    /** The caret of a row that folds out (List - Expand typed in place); its state is `aria-expanded`. */
+    /** The caret of a row that folds out (Expandable list typed in place); its state is `aria-expanded`. */
     foldRow: 'Expand row',
     /** The design of a list: rows on the page (plain), or each row on its own surface (segmented). */
     design: 'Design',

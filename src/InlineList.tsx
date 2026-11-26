@@ -3,7 +3,7 @@
 // row shows its empty fields (a slot for the icon, the heading, the text, a slot for the link); the others show their live look. While the
 // list has no row there is one, empty and faded: typing in it starts the first row; while it is active and has rows, a text button
 // below the last row (`Add list row`) adds one. The parts, the keys and what is kept are the shared ones of InlineItems.tsx and
-// src/inlineRows.mjs; this is the List's markup on them. List - Expand is typed the same way (InlineExpand.tsx hands over to this): `fold` is its rows that
+// src/inlineRows.mjs; this is the List's markup on them. Expandable list is typed the same way (InlineExpand.tsx hands over to this): `fold` is its rows that
 // fold out (the active one open, its text typed in it), `design` of the block (or `kind`) its rows on their own surfaces (`segmented`); the link slot, the
 // toolbar's Link, the add button and the texts are the same in every design. Depends on the theme's List (themeUi.ts).
 import type { MouseEvent } from 'react';
@@ -33,7 +33,7 @@ export type Row = {
   image?: string;
   alt?: string;
   tags?: string[];
-  /** The text button at the bottom of an open row that folds out (List - Expand): at most one. */
+  /** The text button at the bottom of an open row that folds out (Expandable list): at most one. */
   buttons?: { label?: string; href?: string }[];
 };
 
@@ -73,7 +73,7 @@ export default function InlineList({
   onTags?: (row: number) => void;
   /** `segmented`: each row on its own surface (the design `segmented`); the standard rows are on the page. Without it, the block's own `design` says. */
   kind?: 'standard' | 'segmented';
-  /** The rows fold out (a List - Expand): the active row is open, its text typed in it. */
+  /** The rows fold out (an Expandable list): the active row is open, its text typed in it. */
   fold?: boolean;
   /** The rows of a block that folds out the owner opened or closed with the chevron (a view state), and what a tap on a chevron says. */
   folds?: Record<number, boolean>;
@@ -84,7 +84,7 @@ export default function InlineList({
   // The design (`design` of the block, or the one the caller says): each row on its own surface (`segmented`), else the rows on the page.
   const look = kind ?? (props?.design === 'segmented' ? 'segmented' : 'standard');
   const segmented = look === 'segmented';
-  const [withIcon, withText, withHref] = [show.icon !== false, show.text !== false, show.href !== false];
+  const [withIcon, withText, withHref] = [show.icon !== false, show.text !== false, show.href !== false && !fold];
   // While one row is active every row has its two lines, so the list does not change height when another is made active; else, as the site.
   // The button of a row that folds out is typed on the open row (no sheet): its label where it stands, its page from the slot, and Remove. A row that is not
   // open draws it as the site does.
@@ -142,7 +142,7 @@ export default function InlineList({
           </span>
         ) : (
           <SiteButton
-            kind="text"
+            kind="outlined"
             data-add-button=""
             className="mo-editor-inline-card-next-button"
             onClick={() => setButtons(i, [{ label: '', href: '' }], true)}

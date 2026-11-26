@@ -1,4 +1,4 @@
-// A List - Expand row's page link says the plain `Read more`, never with the row's heading in it. Run: node --test src/standard/expand/link.test.mjs
+// An Expandable list row's page link says the plain `Read more`, never with the row's heading in it. Run: node --test src/standard/expand/link.test.mjs
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';

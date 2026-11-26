@@ -114,7 +114,7 @@ export function InlineIcon({
   );
 }
 
-/** The folding of a row of a block that folds (Questions and answers, List - Expand), for the props of its theme row: the row is open while it is
+/** The folding of a row of a block that folds (Questions and answers, Expandable list), for the props of its theme row: the row is open while it is
  * the active one unless the owner folded it with the chevron (`folds`, a view state). The chevron is a button of its own beside the typed title (a
  * field may not sit inside the row's summary): a tap or Enter or Space on it opens or closes the row; a tap on the typed title types (and opens a
  * row the chevron closed). */
@@ -133,7 +133,7 @@ export function foldOf(i: number, here: boolean, folds?: Record<number, boolean>
 /** The text button under the last item (`Add card`), shown while the block is active and has an item. */
 export function InlineAdd({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <SiteButton kind="text" data-add-row="" className="mo-editor-inline-list-add" onClick={onClick}>
+    <SiteButton kind="outlined" data-add-row="" className="mo-editor-inline-list-add" onClick={onClick}>
       {label}
     </SiteButton>
   );

@@ -1,4 +1,4 @@
-// "List - Expand", a standard block: rows that fold out (closed to begin with), each with a heading, an icon before it, a text and a page it
+// "Expandable list", a standard block: rows that fold out (closed to begin with), each with a heading, an icon before it, a text and a page it
 // links to after the text; one open at a time (`only`) and an optional text button under the last row. It is the "Segmented list" from before
 // (and the "Accordion": FORMER in lib/blocks.mjs), with the `design` of every list: the rows on the page (default) or each on its own surface
 // (`card`). How it looks is the theme's (packages/editor/theme/blocks/expand/View.tsx; what it shows: view.ts, and load.ts on the site).
@@ -26,6 +26,7 @@ export default defineBlock({
     {
       name: 'items',
       only: typed,
+      keep: true,
       label: t.blocks.list.items,
       singular: t.blocks.list.item,
       type: 'list',

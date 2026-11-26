@@ -1815,7 +1815,7 @@ function blockCard(
   let focus: Focus | null = null;
   // A grid (the Table): the column of the active cell.
   let col: number | null = null;
-  // A folding block (Questions and answers, List - Expand): the rows the owner opened or closed with the chevron, by row. A view state only: it is
+  // A folding block (Questions and answers, Expandable list): the rows the owner opened or closed with the chevron, by row. A view state only: it is
   // not in the block's content, the Markdown or undo, and typing redraws the block without losing it. A row not here is open while it is the active one.
   const folds: Record<number, boolean> = {};
   // Its tools in the text's one bar (blockBar.ts), made below: shown while a row is active.
@@ -2330,7 +2330,7 @@ function blockCard(
     };
     // The dynamic settings: where the rows come from (the block's `Rows from`, tags and How many, its own fields), live in the panel or sheet.
     // Only a block with `Rows from` has them. Switching to a list sets the typed rows aside (they stay in the file) and offers Undo.
-    const dynamicNames = ['from', 'tags', 'howMany', 'button'];
+    const dynamicNames = ['dynamic', 'from', 'tags', 'howMany', 'button'];
     const dynamicFields = (block?.fields ?? []).filter((f) => dynamicNames.includes(f.name));
     const canDynamic = dynamicFields.some((f) => f.name === 'from');
     const isDynamic = () => !!sourceOf(node.attrs.props.from);
@@ -2359,7 +2359,8 @@ function blockCard(
             delete next.tags;
             delete next.map;
           }
-          dropped = !was && !!now && rows().some((r) => !isEmptyRow(r));
+          // Typed rows set aside by turning the switch On stay offered for Undo while another list is picked.
+          if (!was && now) dropped = rows().some((r) => !isEmptyRow(r));
           if (!now) dropped = false;
           setProps(next);
         },
