@@ -321,6 +321,14 @@ async function checkChevronRows(width) {
     await row.locator('.mo-list__item-expand-icon').click();
     await shown().catch(() => problems.push(`${label} ${name}: a tap on the chevron does not open the row and show its text`));
     if ((await state()) !== 'true') problems.push(`${label} ${name}: the open row has aria-expanded ${await state()}`);
+    // The chevron selects the block, and its active row shows the icon slot before the title: measure the open row with the cursor out of the block
+    // (the fold is a view state and stays), as the row looks when it is read.
+    await page.locator('.ProseMirror > p').first().click();
+    await page.waitForFunction(
+      () => !document.querySelector('.mo-editor-side-sheet, dialog[open]') && !document.querySelector('.mo-editor-inline-list-row-active'),
+      null,
+      { timeout: 8000 },
+    );
     // The open row is round on all four corners, as large as the list's ends; its closed neighbours keep the small inner corners; the body text
     // starts where the title does (the connected button group's selected item, Material 3's Button groups and Lists specs).
     const corners = await page
@@ -372,11 +380,12 @@ async function checkChevronRows(width) {
     await page.keyboard.press('Space');
     await page.waitForTimeout(500);
     await shut().catch(() => problems.push(`${label} ${name}: Space on the focused row does not close it`));
-    // A tap on the head's own surface, outside the title and the chevron, folds nothing.
+    // A tap on the head's own surface, outside the title and the chevron, opens the row, and a second tap closes it (owner, 26 Nov 2026).
     const edge = await head.boundingBox();
     await page.mouse.click(edge.x + 2, edge.y + edge.height / 2);
-    await page.waitForTimeout(300);
-    if ((await state()) !== 'false') problems.push(`${label} ${name}: a tap on the row's surface folds it`);
+    await shown().catch(() => problems.push(`${label} ${name}: a tap on the row's surface does not open it`));
+    await page.mouse.click(edge.x + 2, edge.y + edge.height / 2);
+    await shut().catch(() => problems.push(`${label} ${name}: a second tap on the row's surface does not close it`));
     // Typing in the page's text does not collapse an open row.
     await row.locator('.mo-list__item-expand-icon').click();
     await shown();
@@ -400,6 +409,13 @@ async function checkChevronRows(width) {
   await fresh.waitForSelector('.mo-editor-inline-list-host div.mo-list__item-expand', { timeout: 30_000 });
   const undoBefore = await fresh.locator('.mo-editor-tools button[aria-label="Undo"]').first().isDisabled();
   for (let h = 0; h < 2; h++) {
+    // The cursor is out of every block first: the settings panel of the block just tapped narrows the page, and a tap that lands as it closes is lost.
+    await fresh.locator('.ProseMirror > p').first().click();
+    await fresh.waitForFunction(
+      () => !document.querySelector('.mo-editor-side-sheet, dialog[open]') && !document.querySelector('.mo-editor-inline-list-row-active'),
+      null,
+      { timeout: 8000 },
+    );
     const icon = fresh.locator('.mo-editor-inline-list-host').nth(h).locator('.mo-list__item-expand-icon').nth(1);
     await icon.click();
     await fresh.waitForFunction(
@@ -621,13 +637,13 @@ async function checkDynamicList(width, height) {
 }
 
 /** *Dynamic list* (B9): in a List's dynamic settings *Rows from* shows only with the switch *Dynamic list* On: Off (typed rows) it is not there; On it shows with no "None" choice;
- * Off again it hides and the typed rows are back. The same on List - Expand. A phone's settings are a bottom sheet, a computer's the side panel. */
+ * Off again it hides and the typed rows are back. The same on Expandable list. A phone's settings are a bottom sheet, a computer's the side panel. */
 async function checkDynamicSwitch(width, height) {
   const label = `${width}px dynamic list switch`;
   const phone = width < 600;
   for (const [block, tip] of [
     ['List', 'Show text and images in a list.'],
-    ['List - Expand', null],
+    ['Expandable list', null],
   ]) {
     const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
     page.on('pageerror', (e) => problems.push(`${label} (${block}): ${e.message}`));
