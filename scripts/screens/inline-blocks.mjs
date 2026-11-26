@@ -284,48 +284,41 @@ async function checkListDesigns(width, height) {
       await page.locator('.mo-list__segmented, .mo-block-accordion__segmented').first().waitFor({ timeout: 8000 });
     }
     await page.locator('[data-add-row]').waitFor({ timeout: 8000 });
-    const got = await page.evaluate(() => ({
-      slots: [...document.querySelectorAll('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')].map((x) =>
-        x.getAttribute('aria-label'),
-      ),
-      add: [...document.querySelectorAll('[data-add-row]')].map((x) => x.textContent.trim()),
-      own: document.querySelectorAll('[data-row-link], [data-add-button], [data-row-arrow], .mo-editor-inline-segmented-buttons').length,
-      // The plain design's row layer is 16 dp wider than the text column on each side at every width (M3 Lists › Specs: 16 dp leading and trailing space; 21 Nov 2026), its leading icon on the text's edge.
-      edge: (() => {
-        const row = document.querySelector('.mo-editor-inline-list-row-active');
-        const box = row?.matches('.mo-list__item-container') ? row : row?.querySelector('.mo-list__item-container');
-        const lead = box?.querySelector('.mo-list__item-leading');
-        const text = document.querySelector('.ProseMirror p')?.getBoundingClientRect().left;
-        return box && lead && text !== undefined
-          ? {
-              layer: box.getBoundingClientRect().left - text,
-              icon: lead.getBoundingClientRect().left - text,
-              wide: document.documentElement.scrollWidth - window.innerWidth,
-            }
-          : null;
-      })(),
-      // The link slot is at the end of the row: to the right of the heading.
-      end: (() => {
-        const row = document.querySelector('.mo-editor-inline-list-row-active');
-        const slot = row?.querySelector('.mo-editor-inline-list-slot[aria-label="Page"]');
-        const field = row?.querySelector('[data-field="title"]');
-        return !!slot && !!field && slot.getBoundingClientRect().left >= field.getBoundingClientRect().left;
-      })(),
-    }));
+    const got = await page.evaluate(
+      (expand) => ({
+        slots: [...document.querySelectorAll('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')].map((x) =>
+          x.getAttribute('aria-label'),
+        ),
+        add: [...document.querySelectorAll('[data-add-row]')].map((x) => x.textContent.trim()),
+        // An Expand row may have one typed button at the bottom of the open row (owner, 26 Nov 2026); a List row has none.
+        own: document.querySelectorAll(
+          `[data-row-link], ${expand ? '' : '[data-add-button], '}[data-row-arrow], .mo-editor-inline-segmented-buttons`,
+        ).length,
+        // The plain design's row layer is 16 dp wider than the text column on each side at every width (M3 Lists › Specs: 16 dp leading and trailing space; 21 Nov 2026), its leading icon on the text's edge.
+        edge: (() => {
+          const row = document.querySelector('.mo-editor-inline-list-row-active');
+          const box = row?.matches('.mo-list__item-container') ? row : row?.querySelector('.mo-list__item-container');
+          const lead = box?.querySelector('.mo-list__item-leading');
+          const text = document.querySelector('.ProseMirror p')?.getBoundingClientRect().left;
+          return box && lead && text !== undefined
+            ? {
+                layer: box.getBoundingClientRect().left - text,
+                icon: lead.getBoundingClientRect().left - text,
+                wide: document.documentElement.scrollWidth - window.innerWidth,
+              }
+            : null;
+        })(),
+        // The link slot is at the end of the row: to the right of the heading.
+        end: (() => {
+          const row = document.querySelector('.mo-editor-inline-list-row-active');
+          const slot = row?.querySelector('.mo-editor-inline-list-slot[aria-label="Page"]');
+          const field = row?.querySelector('[data-field="title"]');
+          return !!slot && !!field && slot.getBoundingClientRect().left >= field.getBoundingClientRect().left;
+        })(),
+      }),
+      expand,
+    );
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
-    if (expand) {
-      // List - Expand keeps its row's sheet for now (its row buttons; the next pull request of B5).
-      const sheet = phone ? page.locator('dialog[open]') : page.locator('.mo-editor-side-sheet');
-      const opened = await sheet
-        .getByText('Page', { exact: true })
-        .first()
-        .waitFor({ timeout: 4000 })
-        .then(() => true)
-        .catch(() => false);
-      seen.push({ look, card, ...got, opened, expand, kept: true, iconFilled: true, iconBack: true, rowSheet: 0, closed: true, items: 0 });
-      await page.close();
-      continue;
-    }
     // The page picker opens straight from the link button (B5): the sheet with the pages and No page, on a phone and a computer, and no sheet of the row.
     const sheet = page.locator('dialog[open]');
     const opened = await sheet
@@ -784,14 +777,18 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     for (const name of ['Link', 'Edit'])
       if (one.bar.some((b) => b.label === name)) problems.push(`${label}: the toolbar has "${name}" although the block has no settings`);
   // A row's link (List and List - Expand alike, owner, 16 Nov 2026): the link slot at the end of the active row and the toolbar's Link, no text row of
-  // its own at the bottom of the row and no text button typed there; the slot opens the row's sheet, which has the page.
+  // its own at the bottom of the row; the slot opens the page picker. List rows: no button of their own; Expand rows: at most one typed button at the bottom
+  // of the open row, besides the Icon and Page slots (owner, 26 Nov 2026).
   if (rowLink) {
     const slots = await page
       .locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot')
       .evaluateAll((b) => b.map((x) => x.getAttribute('aria-label')));
     if (slots.join() !== 'Icon,Page') problems.push(`${label}: the active row's slots are "${slots}", not "Icon,Page"`);
-    if (await page.locator('[data-row-link], [data-add-button], .mo-editor-inline-segmented-buttons').count())
-      problems.push(`${label}: the row has a text row or a button of its own for its link`);
+    const own =
+      name === 'expand'
+        ? '[data-row-link], .mo-editor-inline-segmented-buttons'
+        : '[data-row-link], [data-add-button], .mo-editor-inline-segmented-buttons';
+    if (await page.locator(own).count()) problems.push(`${label}: the row has a text row or a button of its own for its link`);
     if (!(await state()).bar.some((b) => b.label === 'Link')) problems.push(`${label}: the toolbar has no Link button`);
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
     await page.waitForTimeout(500);
@@ -838,6 +835,34 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
   );
   if (kept !== one.background)
     problems.push(`${label}: the row has background ${one.background} while typed in, ${kept} when the cursor left it`);
+  if (name === 'expand') {
+    // The open row's one button is typed on the row (no sheet): an Add button control, its label typed there, its page from a slot, and Remove.
+    await page.locator('.mo-editor-inline-list-row [data-field="title"]').first().click();
+    const row = page.locator('.mo-editor-inline-list-row-active');
+    await row.locator('[data-add-button]').click();
+    // The new label field has the focus, so typing goes into it at once.
+    await page.waitForTimeout(300);
+    if (!(await page.evaluate(() => document.activeElement?.getAttribute('data-field') === 'row-button')))
+      problems.push(`${label}: after Add button the focus is not in the button's label field`);
+    await row.locator('[data-field="row-button"]').fill('More');
+    for (const want of ['Button page', 'Remove button'])
+      if ((await row.locator(`.mo-editor-inline-card-button [aria-label="${want}"]`).count()) !== 1)
+        problems.push(`${label}: the row's button has no "${want}" control`);
+    if ((await row.locator('[data-add-button]').count()) !== 0) problems.push(`${label}: a row with a button still offers Add button`);
+    await row.locator('[aria-label="Button page"]').click();
+    await page.waitForTimeout(500);
+    await page
+      .locator('[role="option"]:not(:has-text("No page"))')
+      .filter({ visible: true })
+      .first()
+      .waitFor({ timeout: 4000 })
+      .catch(() => problems.push(`${label}: the row button's Page slot did not open the page picker`));
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(300);
+    await row.locator('[aria-label="Remove button"]').click();
+    if ((await row.locator('[data-add-button]').count()) !== 1) problems.push(`${label}: Remove button did not leave Add button`);
+    if (await page.getByText('Row settings').filter({ visible: true }).count()) problems.push(`${label}: a "Row settings" sheet shows`);
+  }
   if (name === 'pricecards') {
     // A card has no sheet: Highlighted is a switch on the active card with its label typed on it, and the button has the shared menu.
     await page.locator('.mo-editor-inline-list-row [data-field="name"]').first().click();
