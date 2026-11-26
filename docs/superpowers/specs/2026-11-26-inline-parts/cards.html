@@ -56,7 +56,7 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
 .kbd { outline: 3px solid var(--secondary, #565F71); outline-offset: 2px; }
 .ph { color: var(--on-surface-variant); }
 .caret { display: inline-block; width: 2px; height: 20px; background: var(--primary); vertical-align: -4px; margin-left: 1px; }
-.editing { background: var(--surface-container-low); border-radius: 12px; }
+.editing { border-radius: 12px; }
 .text-col { display: grid; }
 /* A row without an icon starts at the left, as the site draws it. */
 .row.no-icon { grid-template-columns: 1fr; min-height: 60px; padding-left: 12px; }
@@ -85,23 +85,29 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
 .card.on .foot { display: flex; justify-content: flex-end; }
 .media .icon { color: var(--on-surface-variant); }
 .media.empty { background: transparent; }
+/* The item menu: the block menu's bar, one icon-button size smaller; it takes the block menu's place while an item is active. */
+.ibar { display: flex; align-items: center; color: var(--on-surface-variant); margin: 4px 0 2px; }
+.ibar .icon { width: 40px; height: 40px; display: grid; place-items: center; font-size: 20px; }
+.ibar .sp { flex: 1; }
+.ibar .dim { opacity: .38; }
 </style>
 </head>
 <body>
 <h1 class="top">The Cards block in the page editor, with the same rules</h1>
-<p class="note">Cards are drawn as the site draws them. Only the active card shows its parts: the image (tap to change it), headline, subhead and supporting text, each with a border and 48px high, and the link button at the bottom. The active part's border turns blue; the solid ring is only for keyboard focus. Empty parts ask for an action, with M3's names: <i>Your headline</i>, <i>Your subhead</i>, <i>Your supporting text</i>.</p>
+<p class="note">Cards are drawn as the site draws them. Only the active card shows its parts: the image (tap to change it), headline, subhead and supporting text, each with a border and 48px high, and the link button at the bottom. The active part's border turns blue; the solid ring is only for keyboard focus. The active card has its own menu (move, <i>Add item</i>, remove) in place of the block menu; the toolbar holds only the page and its text. Empty parts ask for an action, with M3's names: <i>Your headline</i>, <i>Your subhead</i>, <i>Your supporting text</i>.</p>
 <div class="frames">
   <section class="frame">
     <h2>1. Phone: tap on the supporting text</h2>
     <div class="phone">
       <div class="field-name">Text</div>
       <div class="doc">
-        <div class="toolbar"><span class="icon">add_row_above</span><span class="icon">add_row_below</span><span class="icon">link</span><span class="sp"></span><span class="icon">undo</span><span class="icon">redo</span><span class="icon">more_vert</span></div>
+        <div class="toolbar"><span class="icon">add_circle</span><span class="icon">format_bold</span><span class="icon">format_italic</span><span class="sp"></span><span class="icon">undo</span><span class="icon">redo</span><span class="icon">more_vert</span></div>
         <div class="content">
           <div class="block">
-            <div class="bbar"><span class="icon">drag_indicator</span><span class="sp"></span><span class="icon dim">arrow_upward</span><span class="icon dim">arrow_downward</span><span class="icon">visibility_off</span><span class="icon">widgets</span></div>
+            
             <div class="cards">
 <div class="card"><div class="media" style="background:#B7C8E8"></div><div class="cbody"><span class="hl">Dog</span><span class="sh">Loyal and friendly</span><span class="st">The best animal in the world.</span></div></div><div class="card on">
+              <div class="ibar" style="padding:0 4px" aria-label="Item menu"><span class="icon">drag_indicator</span><span class="sp"></span><span class="icon">arrow_upward</span><span class="icon dim">arrow_downward</span><span class="icon">add</span><span class="icon">delete</span></div>
               <div class="media hit" style="background:#C9D8C4"><span class="icon">add_photo_alternate</span></div>
               <div class="cbody">
                 <span class="part hit"><span class="hl">Cat</span></span>
@@ -115,7 +121,7 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
           </div>
         </div>
       </div>
-      <div class="bar"><span class="btn o">Save</span><span class="btn f">Publish</span></div>
+      <!-- The phone keyboard is open while typing, so the Save bar is hidden (rule 15). -->
     </div>
   </section>
   <section class="frame wide">
@@ -123,12 +129,13 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
     <div class="phone">
       <div class="field-name">Text</div>
       <div class="doc">
-        <div class="toolbar"><span class="icon">add_row_above</span><span class="icon">add_row_below</span><span class="icon">link</span><span class="sp"></span><span class="icon">undo</span><span class="icon">redo</span><span class="icon">more_vert</span></div>
+        <div class="toolbar"><span class="icon">add_circle</span><span class="icon">format_bold</span><span class="icon">format_italic</span><span class="sp"></span><span class="icon">undo</span><span class="icon">redo</span><span class="icon">more_vert</span></div>
         <div class="content">
           <div class="block">
-            <div class="bbar"><span class="icon">drag_indicator</span><span class="sp"></span><span class="icon dim">arrow_upward</span><span class="icon dim">arrow_downward</span><span class="icon">visibility_off</span><span class="icon">widgets</span></div>
+            
             <div class="cards">
 <div class="card"><div class="media" style="background:#B7C8E8"></div><div class="cbody"><span class="hl">Dog</span><span class="sh">Loyal and friendly</span><span class="st">The best animal in the world.</span></div></div><div class="card on">
+              <div class="ibar" style="padding:0 4px" aria-label="Item menu"><span class="icon">drag_indicator</span><span class="sp"></span><span class="icon">arrow_upward</span><span class="icon dim">arrow_downward</span><span class="icon">add</span><span class="icon">delete</span></div>
               <div class="media hit" style="background:#C9D8C4"><span class="icon">add_photo_alternate</span></div>
               <div class="cbody">
                 <span class="part hit kbd"><span class="hl">Cat</span></span>

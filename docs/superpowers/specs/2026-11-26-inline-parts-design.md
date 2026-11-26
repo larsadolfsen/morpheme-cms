@@ -58,6 +58,20 @@ The page and post editor. It follows Material 3 like the rest of the editor (`CL
 12. **Add buttons** (*Add list row*, *Add card*) are Material 3's outlined button: an `outline-variant` outline, an
     `on-surface-variant` label (M3 Buttons, Specs, read 26 Nov 2026).
 
+13. **One menu per level, and only the innermost shows** (owner, 26 Nov 2026: "yes"). Each action has one home:
+    - the editor's toolbar holds the page and its text only (*Add block*, text formatting, undo, redo, its overflow menu), never a
+      block's or an item's action;
+    - the block menu, on the selected block, holds every action of the block (move, hide, duplicate, delete, *Block settings*);
+    - the item menu, on the active row or card, holds every action of the item: move up, move down, *Add item* (a menu with
+      *Above* and *Below*, plan B, *bundled actions*) and *Remove*. The link stays the item's own link button (rule 10), so it is
+      not in two places.
+
+    While an item is active its menu takes the block menu's place; Escape, or a tap on the block outside the item, goes back to the
+    block and its menu.
+14. **The item menu looks like the block menu, one size smaller** (owner, 26 Nov 2026: "yes"): the same bar and icon buttons, with
+    M3's next smaller icon-button size (read on the M3 *Icon buttons* pages in the build), keeping a 48px target.
+15. **The Save bar hides while the phone's keyboard is open** (owner, 26 Nov 2026: "yes") and comes back when the keyboard closes.
+
 ## Deviations to record
 
 In `docs/material-deviations.md`, in the same pull request. The owner chose both in words on 26 Nov 2026, after an M3 mock with
@@ -70,17 +84,15 @@ Center link and icon verically", and then "Keep current formatting."
 
 ## Open questions
 
-1. **Block outline:** keep it dotted (rule 7), or a regular border too?
-2. **Remove and move a row or card:** the up and down arrows move the whole block; where do the item's own move and delete go
-   (only on the active item)?
-3. **Save bar while typing:** hide it while the phone's keyboard is open?
-4. **Ghost text:** the owner's screenshot of 26 Nov 2026 (22.21) shows "G" under the label text while "Gh" is typed. Check whether
+1. **Block outline:** keep it dotted (rule 7), or another mark? Being discussed with the owner.
+2. **Ghost text:** the owner's screenshot of 26 Nov 2026 (22.21) shows "G" under the label text while "Gh" is typed. Check whether
    the drawn row shows through the part and lags a keystroke.
-5. **The dashed circle** at the selected block's top-left corner: what is it, and does it stay?
+3. **The dashed circle** at the selected block's top-left corner: what is it, and does it stay?
 
 ## Checks
 
 - `check:screens`: a unit per row block and per card block, closed and active, on a phone and a computer, light and dark, and with
-  the keyboard (focus ring) and the pointer (blue border).
+  the keyboard (focus ring) and the pointer (blue border); the toolbar holds no block or item action, an active item shows its
+  menu and not the block's, and on a phone the Save bar is hidden while the keyboard is open.
 - Contrast: the part's border (3:1), the placeholders (4.5:1), on every section colour (`check:screens` already walks
   `inlineBlocks` on each).

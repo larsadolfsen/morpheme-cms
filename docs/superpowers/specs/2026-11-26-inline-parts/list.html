@@ -66,22 +66,28 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
 .btn.o { border: 1px solid var(--outline-variant); color: var(--on-surface-variant); }
 .btn.f { background: var(--primary); color: var(--on-primary); }
 .legend { font-size: 12px; color: var(--on-surface-variant); margin: 8px 4px 0; }
+/* The item menu: the block menu's bar, one icon-button size smaller; it takes the block menu's place while an item is active. */
+.ibar { display: flex; align-items: center; color: var(--on-surface-variant); margin: 4px 0 2px; }
+.ibar .icon { width: 40px; height: 40px; display: grid; place-items: center; font-size: 20px; }
+.ibar .sp { flex: 1; }
+.ibar .dim { opacity: .38; }
 </style>
 </head>
 <body>
 <h1 class="top">The List block in the page editor, with the new rules</h1>
-<p class="note">Every part you can click has a border and is 48px high (icon, label text, supporting text, link). The active part's border turns blue. The blue solid ring is only for keyboard focus. Empty parts ask for an action: <i>Your label</i>, <i>Your supporting text</i>. Only the active row shows its parts; the others are drawn as the site draws them.</p>
+<p class="note">Every part you can click has a border and is 48px high (icon, label text, supporting text, link). The active part's border turns blue. The blue solid ring is only for keyboard focus. Empty parts ask for an action: <i>Your label</i>, <i>Your supporting text</i>. Only the active row shows its parts and its own menu (move, <i>Add item</i>, remove), which takes the block menu's place; the others are drawn as the site draws them. The toolbar holds only the page and its text.</p>
 <div class="frames">
   <section class="frame">
     <h2>1. Tap on the supporting text (touch or mouse)</h2>
     <div class="phone">
       <div class="field-name">Text</div>
       <div class="doc">
-        <div class="toolbar"><span class="icon">add_row_above</span><span class="icon">add_row_below</span><span class="icon">link</span><span class="sp"></span><span class="icon">undo</span><span class="icon">redo</span><span class="icon">more_vert</span></div>
+        <div class="toolbar"><span class="icon">add_circle</span><span class="icon">format_bold</span><span class="icon">format_italic</span><span class="sp"></span><span class="icon">undo</span><span class="icon">redo</span><span class="icon">more_vert</span></div>
         <div class="content">
           <div class="block">
-            <div class="bbar"><span class="icon">drag_indicator</span><span class="sp"></span><span class="icon dim">arrow_upward</span><span class="icon dim">arrow_downward</span><span class="icon">visibility_off</span><span class="icon">widgets</span></div>
+            
             <div class="row"><span class="lead"><span class="icon">pets</span></span><div class="text-col"><span class="h">Dog</span><span class="s">The best animal in the world</span></div><span class="trail"><span class="icon">chevron_right</span></span></div>
+            <div class="ibar" aria-label="Item menu"><span class="icon">drag_indicator</span><span class="sp"></span><span class="icon">arrow_upward</span><span class="icon dim">arrow_downward</span><span class="icon">add</span><span class="icon">delete</span></div>
             <div class="row editing">
               <span class="lead hit"><span class="icon">add</span></span>
               <div class="text-col">
@@ -95,7 +101,7 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
           </div>
         </div>
       </div>
-      <div class="bar"><span class="btn o">Save</span><span class="btn f">Publish</span></div>
+      <!-- The phone keyboard is open while typing, so the Save bar is hidden (rule 15). -->
     </div>
     <p class="legend">Touch or mouse: the supporting text you tapped is active, its border blue. No solid ring.</p>
   </section>
@@ -105,11 +111,12 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
     <div class="phone">
       <div class="field-name">Text</div>
       <div class="doc">
-        <div class="toolbar"><span class="icon">add_row_above</span><span class="icon">add_row_below</span><span class="icon">link</span><span class="sp"></span><span class="icon">undo</span><span class="icon">redo</span><span class="icon">more_vert</span></div>
+        <div class="toolbar"><span class="icon">add_circle</span><span class="icon">format_bold</span><span class="icon">format_italic</span><span class="sp"></span><span class="icon">undo</span><span class="icon">redo</span><span class="icon">more_vert</span></div>
         <div class="content">
           <div class="block">
-            <div class="bbar"><span class="icon">drag_indicator</span><span class="sp"></span><span class="icon dim">arrow_upward</span><span class="icon dim">arrow_downward</span><span class="icon">visibility_off</span><span class="icon">widgets</span></div>
+            
             <div class="row"><span class="lead"><span class="icon">pets</span></span><div class="text-col"><span class="h">Dog</span><span class="s">The best animal in the world</span></div><span class="trail"><span class="icon">chevron_right</span></span></div>
+            <div class="ibar" aria-label="Item menu"><span class="icon">drag_indicator</span><span class="sp"></span><span class="icon">arrow_upward</span><span class="icon dim">arrow_downward</span><span class="icon">add</span><span class="icon">delete</span></div>
             <div class="row editing">
               <span class="lead hit"><span class="icon">add</span></span>
               <div class="text-col">
