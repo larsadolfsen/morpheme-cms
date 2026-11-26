@@ -21,12 +21,19 @@ export const cms = {
   otherVersions: 'Other versions',
   alsoInThisVersion: 'Also in this version',
   storeConnection: 'Store connection',
-  major: 'A new major version isn’t installed by itself.',
-  skipped: (v: string) => `Version ${v} was undone because the website couldn’t be updated with it.`,
   /** Followed by the command, in a code block. */
   needsNpm: 'Updating needs npm. Run this in the website’s repository:',
-  update: 'Update',
   tryAgain: 'Try again',
+  /** The update is built on a copy of the website first (a branch); only when that builds is it saved to the website. */
+  trying: (v: string) => `Trying version ${v} on a copy of the website first. This takes a few minutes.`,
+  /** A version that failed its trial: why, the website as it was, and when Morpheme tries again (24 hours after the try). */
+  failedBuild: (v: string) => `Version ${v} didn’t build, so it wasn’t installed. The website still works as before.`,
+  failedNoAnswer: (v: string) => `Version ${v} didn’t finish building in time, so it wasn’t installed. The website still works as before.`,
+  failedMerge: (v: string) => `Version ${v} built, but GitHub wouldn’t let Morpheme save it. The website still works as before.`,
+  nextTry: (when: string) => `Next try: ${when}`,
+  /** A link to the build's checks on GitHub, beside a failed or stuck update. */
+  seeBuild: 'See the build',
+  noPreview: 'The website has no preview address (PREVIEW_URL), so Morpheme can’t try an update first.',
   waiting: (v: string) => `Updating to ${v}. This takes a few minutes.`,
   undoing: (v: string) => `Undoing the update to ${v}.`,
   done: (v: string) => `Updated to ${v}`,
@@ -38,7 +45,7 @@ export const cms = {
   noToken: 'The website has no GitHub token (GITHUB_PUBLISH_TOKEN).',
   noKv: 'The website has no KV namespace bound as PUSH, so it can’t look for new versions.',
   notManaged: 'The version is fixed in the website’s package.json, so it can’t be updated here.',
-  slowUndo: 'The GitHub token can’t see whether the update worked, so a failed update is undone after 20 minutes.',
+  slowUndo: 'The GitHub token can’t see whether a build worked, so an update that fails after it is installed is undone after 20 minutes.',
   /** On the start screen, over a reason the site can't update itself (BlockedUpdateNotice.tsx); the reasons are in cmsBlocked.mjs. */
   blockedTitle: 'Morpheme can’t update itself',
   blockedNeedsNpm: (v: string) => `Version ${v} needs npm to install. Open Morpheme for the command.`,

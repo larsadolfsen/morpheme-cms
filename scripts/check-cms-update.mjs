@@ -6,8 +6,11 @@ import { gzipSync } from 'node:zlib';
 import { config } from '../site/siteConfig.mjs';
 import { workerModules } from './worker-modules.mjs';
 
-const [{ RUNNING, checkForUpdate, cmsStatus, dailyCheck, handleCms, startUpdate, watchUpdate }, { GitHubError }, { releaseFor }] =
-  await workerModules('cms-update.js', 'files.js', 'store.js');
+const [
+  { RUNNING, checkForUpdate, cmsStatus, dailyCheck, handleCms, previewAddress, rememberHost, startUpdate, watchUpdate },
+  { GitHubError },
+  { releaseFor },
+] = await workerModules('cms-update.js', 'files.js', 'store.js');
 
 const problems = [];
 const expect = (ok, what) => ok || problems.push(what);
@@ -106,6 +109,12 @@ function world({
     kv: kvStore(),
     files,
     commits: [],
+    branches: {},
+    deleted: [],
+    forwarded: [],
+    moved: false,
+    built: {},
+    noPreview: false,
     notices: [],
     urls: [],
     checks: {},
@@ -117,7 +126,7 @@ function world({
     items,
     releases,
   };
-  w.env = { GITHUB_PUBLISH_TOKEN: 'token', PUSH: w.kv };
+  w.env = { GITHUB_PUBLISH_TOKEN: 'token', PUSH: w.kv, PREVIEW_URL: 'https://{branch}-site.example' };
   w.deps = {
     readFiles: async (env, paths) => {
       w.readCount++;
@@ -131,11 +140,31 @@ function world({
     }),
     readStoreItems: async () => w.items,
     storeRelease: async (env, id, version) => w.releases[`${id}@${version}`] ?? null,
-    commitFiles: async (env, head, headline, changes) => {
+    previewAddress: (env, branch) => (w.noPreview ? null : previewAddress(env, branch)),
+    createBranch: async (env, name, head) => {
+      if (w.branchFailure) throw w.branchFailure;
+      w.branches[name] = { head, files: { ...files } };
+    },
+    deleteBranch: async (env, name) => {
+      delete w.branches[name];
+      w.deleted.push(name);
+    },
+    // A fast-forward only when the site's branch has not moved since the branch was cut (w.moved: it has).
+    fastForward: async (env, commit) => {
+      const branch = Object.values(w.branches).find((b) => b.commit === commit);
+      if (!branch || w.moved || w.protected) throw new Error('not a fast forward');
+      Object.assign(files, branch.files);
+      w.forwarded.push(commit);
+    },
+    commitFiles: async (env, head, headline, changes, ctx, token, onBranch) => {
       if (w.failure && w.commits.length >= (w.commitFails ?? 0)) throw w.failure;
-      for (const { path, text } of changes) files[path] = text;
-      w.commits.push({ headline, changes, head });
-      return `c${w.commits.length}`;
+      if (!onBranch && w.protected) throw new GitHubError('protected branch', 200);
+      const target = onBranch ? w.branches[onBranch].files : files;
+      for (const { path, text } of changes) target[path] = text;
+      w.commits.push({ headline, changes, head, onBranch });
+      const id = `c${w.commits.length}`;
+      if (onBranch) w.branches[onBranch].commit = id;
+      return id;
     },
     fetch: async (url) => {
       url = String(url);
@@ -148,6 +177,11 @@ function world({
         if (conclusion) runs.push({ app: { slug: 'cloudflare-workers-and-pages' }, conclusion, started_at: '2026-11-04T10:01:00Z' });
         return Response.json({ check_runs: runs });
       }
+      const preview = /^https:\/\/(.+)-site\.example\/editor\/version\.json$/.exec(url);
+      if (preview)
+        return w.built[preview[1]]
+          ? Response.json({ commit: w.built[preview[1]], builtAt: '2026-11-04T10:02:00Z' })
+          : new Response('{}', { status: 404 });
       if (url === 'https://registry.npmjs.org/-/package/@morphemecms%2fcms/dist-tags') return Response.json({ latest: w.latest });
       const manifest = /^https:\/\/registry\.npmjs\.org\/@morphemecms%2fcms\/(\d+\.\d+\.\d+)$/.exec(url);
       if (manifest) return Response.json(manifestOf(manifest[1], manifest[1] === w.latest ? manifestExtra : {}));
@@ -166,6 +200,26 @@ function world({
   return w;
 }
 
+/** The update's branch is built green (its preview answers with the commit), and the minute's watch moves it onto the site's branch. */
+async function settle(w, now = T0 + MINUTE) {
+  const update = stored(w.kv, 'cms:update');
+  w.built[update.branch.replace(/[^a-zA-Z0-9]+/g, '-').toLowerCase()] = update.commit;
+  await watchUpdate(w.env, w.deps, now);
+}
+
+/** The check of npm as the hourly cron makes it, and a branch it made built green and moved onto the site's branch (one minute later). */
+async function updated(w, now = T0) {
+  await checkForUpdate(w.env, w.deps, now);
+  if (stored(w.kv, 'cms:update')?.state === 'trying') await settle(w, now + MINUTE);
+}
+
+/** The update started by hand, and its branch settled. */
+async function started(w, now = T0) {
+  const update = await startUpdate(w.env, '0.1.1', w.deps, now);
+  await settle(w, now + MINUTE);
+  return update;
+}
+
 const request = (path, init) => new Request(`https://site.example${path}`, init);
 const post = (version) =>
   request('/api/cms/update', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ version }) });
@@ -173,8 +227,23 @@ const post = (version) =>
 // 1. An exact version, a newer one on npm: one commit, the files written, the update kept, the notes kept.
 {
   const w = world();
+  const base = { 'package.json': w.files['package.json'], 'package-lock.json': w.files['package-lock.json'] };
   await checkForUpdate(w.env, w.deps, T0);
   expect(w.commits.length === 1, `opdateringen lavede ${w.commits.length} commits, ikke 1`);
+  // The update is tried on its own branch first: the site's branch is not touched until the branch has built.
+  expect(w.commits[0]?.onBranch === 'cms-update-0-1-1', 'the update was not committed to the branch cms-update-0-1-1');
+  expect(
+    JSON.parse(w.files['package.json']).dependencies[PACKAGE] === '0.1.0' && w.forwarded.length === 0,
+    "the update reached the site's branch before its branch had built",
+  );
+  expect(stored(w.kv, 'cms:update')?.state === 'trying', `cms:update was ${JSON.stringify(stored(w.kv, 'cms:update'))}, not trying`);
+  await watchUpdate(w.env, w.deps, T0 + MINUTE);
+  expect(
+    stored(w.kv, 'cms:update')?.state === 'trying' && w.forwarded.length === 0,
+    "a branch with no answer was moved onto the site's branch",
+  );
+  await settle(w, T0 + 2 * MINUTE);
+  expect(w.forwarded.join() === 'c1' && w.deleted.join() === 'cms-update-0-1-1', 'a green branch was not fast-forwarded and deleted');
   expect(w.commits[0]?.headline === commitUpdate('0.1.1'), `commitbeskeden var "${w.commits[0]?.headline}"`);
   expect(JSON.parse(w.files['package.json']).dependencies[PACKAGE] === '0.1.1', 'package.json sagde ikke 0.1.1');
   const entry = JSON.parse(w.files['package-lock.json']).packages[`node_modules/${PACKAGE}`];
@@ -207,12 +276,17 @@ const post = (version) =>
   await watchUpdate(w.env, w.deps, T0 + 2 * MINUTE);
   expect(w.commits.length === 2 && w.commits[1].headline === commitUndo('0.1.1'), 'en fejlet opdatering blev ikke fortrudt med en commit');
   expect(!w.commits[1].changes.some((c) => c.path === 'wrangler.jsonc'), 'the undo wrote wrangler.jsonc again');
-  expect(JSON.parse(w.files['package.json']).dependencies[PACKAGE] === '0.1.0', 'fortrydelsen skrev ikke 0.1.0 tilbage');
+  // The undo goes back to the version the Worker runs (RUNNING), never to the version package.json had.
+  expect(JSON.parse(w.files['package.json']).dependencies[PACKAGE] === RUNNING, 'the undo did not write the running version back');
   expect(
-    JSON.parse(w.files['package-lock.json']).packages[`node_modules/${PACKAGE}`].integrity === 'sha512-0.1.0',
-    'the undo did not write 0.1.0 back into the lock',
+    JSON.parse(w.files['package-lock.json']).packages[`node_modules/${PACKAGE}`].integrity === `sha512-${RUNNING}`,
+    'the undo did not write the running version back into the lock',
   );
-  expect(stored(w.kv, 'cms:skip:0.1.1')?.commit === 'c1', 'den fortrudte version blev ikke sprunget over');
+  const retry = stored(w.kv, 'cms:retry:0.1.1');
+  expect(
+    retry?.version === '0.1.1' && retry.reason === 'build-failed' && typeof retry.buildUrl === 'string' && !w.kv.map.has('cms:skip:0.1.1'),
+    `the failed version was kept as ${JSON.stringify(retry)}`,
+  );
   const undoing = stored(w.kv, 'cms:update');
   expect(undoing?.state === 'undoing' && undoing.undoCommit === 'c2', `cms:update var ${JSON.stringify(undoing)}`);
   expect(w.notices.length === 0, 'a notice was sent before the undo was built');
@@ -230,9 +304,20 @@ const post = (version) =>
       .join() === 'da-DK,en-US' && w.notices[0].texts['da-DK'][notice.text]?.includes('fortrudt'),
     'beskeden havde ikke den danske tekst',
   );
-  // The skipped version is not taken by itself again.
+  // The test site's files are not on RUNNING (0.19.8), so the undo's files are put back as the site had them before the next check.
+  Object.assign(w.files, base);
+  // The failed version waits 24 hours, then it is tried again on a new branch.
   await checkForUpdate(w.env, w.deps, T0 + 70 * MINUTE);
-  expect(w.commits.length === 2 && stored(w.kv, 'cms:checked')?.problem?.kind === 'skipped', 'en fortrudt version blev taget igen');
+  const waited = stored(w.kv, 'cms:checked')?.problem;
+  expect(
+    w.commits.length === 2 && waited?.kind === 'failed' && waited.retryAt === T0 + 2 * MINUTE + 24 * 60 * MINUTE,
+    'a version that failed was tried again within 24 hours',
+  );
+  await checkForUpdate(w.env, w.deps, T0 + 2 * MINUTE + 24 * 60 * MINUTE);
+  expect(
+    w.commits.length === 3 && w.commits[2].onBranch === 'cms-update-0-1-1' && stored(w.kv, 'cms:update')?.state === 'trying',
+    'a version that failed was not tried again after 24 hours',
+  );
 }
 
 // The hourly cron checks npm once a day, from 03:00 in the site's time zone; else one KV read and nothing more.
@@ -249,7 +334,8 @@ const post = (version) =>
   await dailyCheck(w.env, w.deps, Date.parse('2026-11-14T13:07:00Z'), zone);
   await dailyCheck(w.env, w.deps, Date.parse('2026-11-15T01:07:00Z'), zone);
   expect(w.urls.length === urls && w.commits.length === 1, 'the hourly cron checked npm again the same day or before 03:00');
-  expect(w.kv.reads - reads === 2, `the hourly cron read KV ${w.kv.reads - reads} times, not once an hour`);
+  // Per hour: the Worker's own version (for the repair) and the day's check.
+  expect(w.kv.reads - reads === 4, `the hourly cron read KV ${w.kv.reads - reads} times, not twice an hour`);
   await dailyCheck(w.env, w.deps, Date.parse('2026-11-15T02:07:00Z'), zone);
   expect(w.urls.length > urls, 'the hourly cron did not check npm at 03:00 the next day');
 }
@@ -272,7 +358,7 @@ const post = (version) =>
 // 5. A version the site does not pin exactly is left alone.
 for (const range of ['*', '^0.1.0', 'next']) {
   const w = world({ range });
-  await checkForUpdate(w.env, w.deps, T0);
+  await updated(w);
   expect(w.commits.length === 0, `"${range}" blev opdateret`);
   expect(stored(w.kv, 'cms:checked')?.problem?.kind === 'not-managed', `"${range}" gav ikke not-managed`);
 }
@@ -280,21 +366,32 @@ for (const range of ['*', '^0.1.0', 'next']) {
 // 6. A new first number, and a skipped version, are not taken by themselves.
 {
   const w = world({ latest: '1.0.0' });
-  await checkForUpdate(w.env, w.deps, T0);
+  await updated(w);
+  // A new line is taken by itself like a patch, through its branch.
   expect(
-    w.commits.length === 0 && stored(w.kv, 'cms:checked')?.problem?.kind === 'major',
-    'en ny hovedversion blev taget, eller meldt forkert',
+    w.commits.length === 1 && w.commits[0].onBranch === 'cms-update-1-0-0' && !stored(w.kv, 'cms:checked')?.problem,
+    'a new line was held back, or not tried on a branch',
   );
   expect(stored(w.kv, 'cms:checked')?.latest === '1.0.0', 'latest blev ikke gemt ved en hovedversion');
   const s = world();
-  await s.kv.put('cms:skip:0.1.1', JSON.stringify({ version: '0.1.1', commit: 'x', at: new Date(T0).toISOString() }));
-  await checkForUpdate(s.env, s.deps, T0);
-  expect(
-    s.commits.length === 0 && stored(s.kv, 'cms:checked')?.problem?.kind === 'skipped',
-    'en fortrudt version blev taget, eller meldt forkert',
+  await s.kv.put(
+    'cms:retry:0.1.1',
+    JSON.stringify({ version: '0.1.1', at: new Date(T0 - 60 * MINUTE).toISOString(), reason: 'build-failed' }),
   );
+  await updated(s);
+  expect(
+    s.commits.length === 0 && stored(s.kv, 'cms:checked')?.problem?.kind === 'failed',
+    'a version that failed an hour ago was tried again, or reported wrongly',
+  );
+  const old = world();
+  await old.kv.put(
+    'cms:retry:0.1.1',
+    JSON.stringify({ version: '0.1.1', at: new Date(T0 - 25 * 60 * MINUTE).toISOString(), reason: 'build-failed' }),
+  );
+  await updated(old);
+  expect(old.commits.length === 1, 'a version that failed 25 hours ago was not tried again');
   const n = world({ latest: '0.1.0' });
-  await checkForUpdate(n.env, n.deps, T0);
+  await updated(n);
   expect(n.commits.length === 0 && !stored(n.kv, 'cms:checked')?.problem, 'der var et problem, selv om sitet er opdateret');
 }
 
@@ -302,7 +399,7 @@ for (const range of ['*', '^0.1.0', 'next']) {
 for (const error of [new GitHubError('Forbidden', 403), new GitHubError('Resource not accessible by personal access token', 200)]) {
   const w = world();
   w.failure = error;
-  await checkForUpdate(w.env, w.deps, T0);
+  await updated(w);
   expect(stored(w.kv, 'cms:update') === null, `cms:update blev gemt, selv om gemningen fejlede (${error.status})`);
   expect(
     stored(w.kv, 'cms:checked')?.problem?.kind === 'cannot-write',
@@ -328,25 +425,31 @@ for (const [what, patch] of [
 // 9. Check runs GitHub does not give: the update is undone after 20 minutes.
 {
   const w = world();
-  await checkForUpdate(w.env, w.deps, T0);
+  await updated(w);
   w.forbidden = true;
   await watchUpdate(w.env, w.deps, T0 + MINUTE);
   expect(stored(w.kv, 'cms:checked')?.noChecks === true, 'noChecks blev ikke sat, da check runs gav 403');
   await watchUpdate(w.env, w.deps, T0 + 19 * MINUTE);
   expect(stored(w.kv, 'cms:update')?.state === 'waiting' && w.commits.length === 1, 'opdateringen blev fortrudt efter 19 minutter');
-  await watchUpdate(w.env, w.deps, T0 + 21 * MINUTE);
+  // The branch built at T0 + 1 minute and moved onto the site's branch: the 20 minutes count from then.
+  await watchUpdate(w.env, w.deps, T0 + 22 * MINUTE);
   expect(stored(w.kv, 'cms:update')?.state === 'undoing' && w.commits.length === 2, 'opdateringen blev ikke fortrudt efter 21 minutter');
-  await watchUpdate(w.env, w.deps, T0 + 30 * MINUTE);
+  await watchUpdate(w.env, w.deps, T0 + 31 * MINUTE);
   expect(stored(w.kv, 'cms:update')?.state === 'undoing', 'the undo counted as finished after 9 minutes');
-  await watchUpdate(w.env, w.deps, T0 + 42 * MINUTE);
-  expect(stored(w.kv, 'cms:update')?.state === 'undone' && w.notices.length === 1, 'fortrydelsen blev ikke undone efter 20 minutter');
+  // An undo that did not answer in 20 minutes is stuck, never undone.
+  await watchUpdate(w.env, w.deps, T0 + 43 * MINUTE);
+  const timedOut = stored(w.kv, 'cms:update');
+  expect(
+    timedOut?.state === 'stuck' && typeof timedOut.buildUrl === 'string' && w.notices.length === 1,
+    `an undo that timed out was ${JSON.stringify(timedOut)}, not stuck with the build link`,
+  );
   expect(stored(w.kv, 'cms:checked')?.noChecks === true, 'noChecks got lost');
 }
 
 // 10. The undo cannot be committed: stuck, one notification, then nothing.
 {
   const w = world();
-  await checkForUpdate(w.env, w.deps, T0);
+  await updated(w);
   w.checks.c1 = 'failure';
   w.failure = new GitHubError('Conflict', 409);
   w.commitFails = 1;
@@ -358,7 +461,7 @@ for (const [what, patch] of [
   expect(w.notices.length === 1 && w.urls.length === urls && w.commits.length === 1, 'minuttet efter stuck gjorde noget');
   // Its undo's build failing is stuck as well.
   const u = world();
-  await checkForUpdate(u.env, u.deps, T0);
+  await updated(u);
   u.checks.c1 = 'failure';
   await watchUpdate(u.env, u.deps, T0 + 2 * MINUTE);
   u.checks.c2 = 'failure';
@@ -387,14 +490,15 @@ for (const [what, patch] of [
   expect((await handleCms(post('1.0.0'), w.env, undefined, w.deps))?.status === 403, 'en, der ikke kan gemme, kunne opdatere');
   expect((await handleCms(request('/api/other'), w.env, undefined, w.deps)) === null, 'en anden adresse blev ikke givet videre');
   w.may = true;
-  await checkForUpdate(w.env, w.deps, T0);
+  await updated(w);
   const status = await (await handleCms(request('/api/cms'), w.env, undefined, w.deps)).json();
   expect(
     status.running === RUNNING &&
       status.token === true &&
       status.kv === true &&
       status.checked?.latest === '1.0.0' &&
-      status.update === null &&
+      status.update?.state === 'waiting' &&
+      Array.isArray(status.failed) &&
       Array.isArray(status.skipped) &&
       Array.isArray(status.notes),
     `statussen havde ikke formen: ${JSON.stringify(status)}`,
@@ -403,20 +507,25 @@ for (const [what, patch] of [
 
   // A waiting update: 409.
   const k = world();
-  await checkForUpdate(k.env, k.deps, T0);
+  await updated(k);
   expect((await handleCms(post('0.1.1'), k.env, undefined, k.deps)).status === 409, 'en opdatering, mens en anden venter, gav ikke 409');
 
-  // A skipped version, tried again: its skip is gone and a commit is made.
+  // A failed version, tried again by hand: a branch is made at once, though the 24 hours have not passed.
   const s = world();
-  await s.kv.put('cms:skip:0.1.1', JSON.stringify({ version: '0.1.1', commit: 'x', at: new Date(T0).toISOString() }));
-  await checkForUpdate(s.env, s.deps, T0);
+  await s.kv.put('cms:retry:0.1.1', JSON.stringify({ version: '0.1.1', at: new Date(T0).toISOString(), reason: 'build-failed' }));
+  await updated(s);
+  expect(
+    s.commits.length === 0 &&
+      (await (await handleCms(request('/api/cms'), s.env, undefined, s.deps)).json()).failed[0]?.version === '0.1.1',
+    'a failed version was not in the status',
+  );
   const again = await handleCms(post('0.1.1'), s.env, undefined, s.deps);
-  expect(again.status === 200 && (await again.json()).update?.state === 'waiting', 'Try again did not give a waiting update');
-  expect(stored(s.kv, 'cms:skip:0.1.1') === null && s.commits.length === 1, 'Try again did not remove the skip key and commit');
+  expect(again.status === 200 && (await again.json()).update?.state === 'trying', 'Try again did not give a trying update');
+  expect(s.commits.length === 1 && s.commits[0].onBranch === 'cms-update-0-1-1', 'Try again did not commit to the branch');
 
   // A package that wants npm: 422.
   const n = world({ manifestExtra: { dependencies: { left: '1.0.0' } } });
-  await checkForUpdate(n.env, n.deps, T0);
+  await updated(n);
   expect(n.commits.length === 0 && stored(n.kv, 'cms:checked')?.problem?.kind === 'needs-npm', 'needs-npm blev ikke meldt af timetjekket');
   const npm = await handleCms(post('0.1.1'), n.env, undefined, n.deps);
   expect(npm.status === 422 && (await npm.json()).error === 'needs-npm', 'a package that needs npm did not give 422');
@@ -432,14 +541,14 @@ for (const [what, patch] of [
     'without a key did not give 503',
   );
   const direct = await startUpdate(world().env, '0.1.1', world().deps, T0).catch((e) => e);
-  expect(direct?.to === '0.1.1' && direct.state === 'waiting', 'startUpdate gav ikke opdateringen');
+  expect(direct?.to === '0.1.1' && direct.state === 'trying', 'startUpdate gav ikke opdateringen');
 }
 
 // The update's commit adds the install lines to .npmrc once, keeps the site's own lines, and writes nothing when they are there.
 {
   const lines = 'prefer-offline=true\naudit=false\nfund=false\n';
   const none = world();
-  await startUpdate(none.env, '0.1.1', none.deps, T0);
+  await started(none);
   expect(none.files['.npmrc'] === lines, `.npmrc was not created: ${JSON.stringify(none.files['.npmrc'])}`);
   expect(
     none.commits[0].changes
@@ -463,14 +572,14 @@ for (const [what, patch] of [
   );
   const own = world();
   own.files['.npmrc'] = 'registry=https://example.com/\naudit=true\n';
-  await startUpdate(own.env, '0.1.1', own.deps, T0);
+  await started(own);
   expect(
     own.files['.npmrc'] === 'registry=https://example.com/\naudit=true\nprefer-offline=true\nfund=false\n',
     `the .npmrc did not keep its own lines: ${JSON.stringify(own.files['.npmrc'])}`,
   );
   const done = world();
   done.files['.npmrc'] = lines;
-  await startUpdate(done.env, '0.1.1', done.deps, T0);
+  await started(done);
   expect(
     done.commits[0].changes.every((c) => c.path !== '.npmrc') && done.files['.npmrc'] === lines,
     'an .npmrc with the lines was written again',
@@ -521,7 +630,7 @@ const CROSSING = (() => {
     'src/content/pages/c.md': page(['mo-type-label-medium', 'mo-has-accent-color']),
   };
   const w = world({ range: '0.18.1', latest: CROSSING, content: before });
-  await checkForUpdate(w.env, w.deps, T0);
+  await updated(w);
   expect(w.commits.length === 1, `the update made ${w.commits.length} commits, not 1`);
   const paths = w.commits[0]?.changes.map((c) => c.path) ?? [];
   expect(
@@ -541,7 +650,7 @@ const CROSSING = (() => {
   w.checks.c1 = 'failure';
   await watchUpdate(w.env, w.deps, T0 + 2 * MINUTE);
   expect(w.commits.length === 2, 'the failed update was not undone with one commit');
-  expect(JSON.parse(w.files['package.json']).dependencies[PACKAGE] === '0.18.1', 'the undo did not write the version back');
+  expect(JSON.parse(w.files['package.json']).dependencies[PACKAGE] === RUNNING, 'the undo did not write the version back');
   expect(
     w.files['src/content/pages/a.md'] === before['src/content/pages/a.md'] &&
       w.files['src/content/blog/b.md'] === before['src/content/blog/b.md'],
@@ -550,7 +659,7 @@ const CROSSING = (() => {
   expect(w.files['src/content/pages/c.md'] === before['src/content/pages/c.md'], 'the undo touched a page the update had not');
   // An update that crosses into 0.19.0 from a 0.18.x patch rewrites too (a site already on 0.18.2 gets its content rewritten).
   const patch = world({ range: '0.18.2', latest: CROSSING, content: before });
-  await checkForUpdate(patch.env, patch.deps, T0);
+  await updated(patch);
   expect(
     patch.commits[0]?.changes.some((c) => c.path === 'src/content/pages/a.md') &&
       patch.files['src/content/pages/a.md'] === page(['mo-type-label-medium', 'mo-has-accent-color']) &&
@@ -560,7 +669,7 @@ const CROSSING = (() => {
   // An update within 0.18.x, or from 0.19.0 on, leaves the content alone.
   const noRewrite = async (range, latest) => {
     const x = world({ range, latest, content: before });
-    await checkForUpdate(x.env, x.deps, T0);
+    await updated(x);
     expect(x.commits.length === 1, `the update ${range} to ${latest} made ${x.commits.length} commits`);
     expect(
       x.commits[0]?.changes.every((c) => !c.path.startsWith('src/content/')) && !('migrated' in (stored(x.kv, 'cms:update') ?? {})),
@@ -603,7 +712,7 @@ const CROSSING = (() => {
   const after = site((old, now) => now);
   const changed = Object.keys(before).filter((p) => before[p] !== after[p]);
   const w = world({ range: '0.18.1', latest: CROSSING, content: before });
-  await checkForUpdate(w.env, w.deps, T0);
+  await updated(w);
   const paths = w.commits[0]?.changes.map((c) => c.path) ?? [];
   const notContent = (p) => !/^src\/(content|data)\//.test(p);
   expect(w.commits.length === 1 && paths.includes('package.json'), 'the update did not commit the version once');
@@ -637,7 +746,7 @@ const CROSSING = (() => {
   );
   // A second run changes nothing: the content the update wrote has nothing left to rewrite.
   const again = world({ range: '0.18.1', latest: CROSSING, content: after });
-  await checkForUpdate(again.env, again.deps, T0);
+  await updated(again);
   expect(
     again.commits[0]?.changes.every((c) => notContent(c.path)) && !('migrated' in (stored(again.kv, 'cms:update') ?? {})),
     'a second run rewrote content again',
@@ -653,7 +762,7 @@ const CROSSING = (() => {
   const problemOf = (w) => stored(w.kv, 'cms:checked')?.problem;
   const run = async (opts) => {
     const w = world(opts);
-    await checkForUpdate(w.env, w.deps, T0);
+    await updated(w);
     return w;
   };
 
@@ -689,21 +798,21 @@ const CROSSING = (() => {
   const ownOnly = world({ items: [own] });
   let asked = false;
   ownOnly.deps.storeRelease = async () => void (asked = true);
-  await checkForUpdate(ownOnly.env, ownOnly.deps, T0);
+  await updated(ownOnly);
   expect(ownOnly.commits.length === 1 && !asked, 'a site with only its own app was held, or asked the store');
 
   const unreadable = world({ items: [venus] });
   const fetch = unreadable.deps.fetch;
   unreadable.deps.fetch = async (url, init) =>
     String(url).endsWith('.tgz') ? new Response(tarball({ 'package/CHANGELOG.md': CHANGELOG })) : fetch(url, init);
-  await checkForUpdate(unreadable.env, unreadable.deps, T0);
+  await updated(unreadable);
   expect(unreadable.commits.length === 0 && problemOf(unreadable)?.kind === 'unreachable', 'unreadable contracts were taken on a guess');
 
   const failing = world({ items: [venus] });
   failing.deps.readStoreItems = async () => {
     throw new Error('github');
   };
-  await checkForUpdate(failing.env, failing.deps, T0);
+  await updated(failing);
   expect(failing.commits.length === 0 && problemOf(failing)?.kind === 'unreachable', 'an unreadable site was taken');
 
   // The Worker's own call of the store: one release, the site's key.
@@ -735,7 +844,7 @@ const CROSSING = (() => {
 {
   const w = world();
   w.env = { PUSH: w.kv };
-  await checkForUpdate(w.env, w.deps, T0);
+  await updated(w);
   expect(w.commits.length === 0 && w.urls.length === 0, 'a site without a token went to npm or GitHub');
   expect(
     stored(w.kv, 'cms:checked')?.problem?.kind === 'no-token',
@@ -802,7 +911,7 @@ const CROSSING = (() => {
   const before = own((old) => old);
   const after = own((old, now) => now);
   const w = world({ range: '0.19.5', latest: CROSSING, content: before });
-  await checkForUpdate(w.env, w.deps, T0);
+  await updated(w);
   expect(w.commits.length === 1, `the update made ${w.commits.length} commits, not 1`);
   const paths = w.commits[0]?.changes.map((c) => c.path) ?? [];
   for (const p of Object.keys(before)) {
@@ -822,7 +931,7 @@ const CROSSING = (() => {
     latest: CROSSING,
     content: { ...after, '.morpheme-migrations.json': w.files['.morpheme-migrations.json'] },
   });
-  await checkForUpdate(twice.env, twice.deps, T0);
+  await updated(twice);
   expect(
     twice.commits.length === 1 &&
       twice.commits[0].changes.every((c) => !c.path.startsWith('src/') && c.path !== '.morpheme-migrations.json'),
@@ -837,7 +946,7 @@ const CROSSING = (() => {
   expect(!w.kv.map.has('cms:names-backup'), 'the undo left its backup');
   // A site that comes from 0.19.6 on, or from below 0.19.5 into 0.19.5, is left alone.
   const none = world({ range: '0.19.6', latest: '0.19.7', content: before });
-  await checkForUpdate(none.env, none.deps, T0);
+  await updated(none);
   expect(
     none.commits[0]?.changes.every((c) => !c.path.startsWith('src/')) && !('code' in (stored(none.kv, 'cms:update') ?? {})),
     'an update from 0.19.6 rewrote',
@@ -876,7 +985,7 @@ const CROSSING = (() => {
   );
   expect(item.commits.length === 0, 'an unsafe item update committed');
   const auto = world({ range: '0.19.5', latest: CROSSING, content: unsafe });
-  await checkForUpdate(auto.env, auto.deps, T0);
+  await updated(auto);
   expect(
     auto.commits.length === 0 && stored(auto.kv, 'cms:checked')?.problem?.kind === 'unsafe-code',
     'the daily check did not record the unsafe code',
@@ -898,6 +1007,121 @@ const CROSSING = (() => {
     );
     expect(tw.commits.length === 0, `an update with ${name} committed`);
   }
+}
+
+// The update on a branch first: a red build, no answer, a moved site, a protected branch, no preview address and the repair.
+{
+  // A red branch: the branch is deleted, the reason and time kept, the site's branch untouched and the next try is in 24 hours.
+  const red = world();
+  await checkForUpdate(red.env, red.deps, T0);
+  red.checks.c1 = 'failure';
+  await watchUpdate(red.env, red.deps, T0 + MINUTE);
+  const failedUpdate = stored(red.kv, 'cms:update');
+  expect(
+    failedUpdate?.state === 'failed' && failedUpdate.reason === 'build-failed' && failedUpdate.retryAt === T0 + MINUTE + 24 * 60 * MINUTE,
+    `a red branch gave ${JSON.stringify(failedUpdate)}`,
+  );
+  expect(
+    red.deleted.join() === 'cms-update-0-1-1' && red.forwarded.length === 0,
+    "a red branch was not deleted, or reached the site's branch",
+  );
+  expect(
+    red.commits.length === 1 && JSON.parse(red.files['package.json']).dependencies[PACKAGE] === '0.1.0' && red.notices.length === 0,
+    "a red branch changed the site's branch, or gave a notice",
+  );
+  expect(stored(red.kv, 'cms:retry:0.1.1')?.reason === 'build-failed', 'a red branch kept no record of the version');
+
+  // No answer in 20 minutes: the same, with the reason 'no-answer'.
+  const mute = world();
+  await checkForUpdate(mute.env, mute.deps, T0);
+  await watchUpdate(mute.env, mute.deps, T0 + 19 * MINUTE);
+  expect(stored(mute.kv, 'cms:update')?.state === 'trying', 'a branch was given up on after 19 minutes');
+  await watchUpdate(mute.env, mute.deps, T0 + 21 * MINUTE);
+  expect(
+    stored(mute.kv, 'cms:update')?.state === 'failed' && mute.deleted.length === 1 && mute.forwarded.length === 0,
+    'a branch with no answer after 21 minutes was not given up on',
+  );
+
+  // The site's branch moved while the branch built: the same update is written again on its head and committed there.
+  const moved = world();
+  await checkForUpdate(moved.env, moved.deps, T0);
+  moved.moved = true;
+  await settle(moved, T0 + MINUTE);
+  expect(
+    moved.forwarded.length === 0 &&
+      moved.commits.length === 2 &&
+      moved.commits[1].onBranch === undefined &&
+      JSON.parse(moved.files['package.json']).dependencies[PACKAGE] === '0.1.1' &&
+      stored(moved.kv, 'cms:update')?.state === 'waiting',
+    'a branch built while the site moved was not committed again on the new head',
+  );
+
+  // The site's branch is protected: nothing is merged, the update counts as failed with its reason.
+  const locked = world();
+  await checkForUpdate(locked.env, locked.deps, T0);
+  locked.protected = true;
+  await settle(locked, T0 + MINUTE);
+  expect(
+    stored(locked.kv, 'cms:update')?.state === 'failed' &&
+      stored(locked.kv, 'cms:update')?.reason === 'cannot-merge' &&
+      JSON.parse(locked.files['package.json']).dependencies[PACKAGE] === '0.1.0',
+    `a protected branch gave ${JSON.stringify(stored(locked.kv, 'cms:update'))}`,
+  );
+
+  // No preview address: the update is not tried, nothing is committed, and the page says so.
+  const blind = world();
+  blind.noPreview = true;
+  await checkForUpdate(blind.env, blind.deps, T0);
+  expect(
+    blind.commits.length === 0 && stored(blind.kv, 'cms:checked')?.problem?.kind === 'no-preview' && !stored(blind.kv, 'cms:update'),
+    'an update without a preview address was tried',
+  );
+  expect(
+    (await previewAddress({ PREVIEW_URL: 'https://{branch}.example' }, 'cms-update-0-19-8')) === 'https://cms-update-0-19-8.example',
+    'the preview address of PREVIEW_URL was wrong',
+  );
+  expect((await previewAddress({}, 'cms-update-0-19-8')) === null, 'an address was made without a host or PREVIEW_URL');
+  // The address comes from the Worker's own *.workers.dev host, which an editor request leaves in KV.
+  const hostKv = kvStore();
+  const hostEnv = { PUSH: hostKv };
+  await rememberHost({ url: 'https://site.example/editor/' }, hostEnv);
+  await rememberHost({ url: 'https://mysite.team.workers.dev/editor/' }, hostEnv);
+  expect(hostKv.map.get('cms:host') === 'mysite.team.workers.dev', 'the Worker did not keep its own workers.dev host, or kept another');
+  const writes = hostKv.writes;
+  await rememberHost({ url: 'https://mysite.team.workers.dev/api/cms' }, hostEnv);
+  expect(hostKv.writes === writes, 'the same host was written again');
+  expect(
+    (await previewAddress(hostEnv, 'cms-update-0-19-8')) === 'https://cms-update-0-19-8-mysite.team.workers.dev',
+    'the preview address was not made from the host',
+  );
+  expect(
+    (await previewAddress({ ...hostEnv, PREVIEW_URL: 'https://{branch}.example' }, 'cms-update-0-19-8')) ===
+      'https://cms-update-0-19-8.example',
+    'PREVIEW_URL did not win over the host',
+  );
+
+  // The repair: builds of the site's branch fail and package.json names a version the Worker wrote itself: RUNNING is written back.
+  const bad = world();
+  await updated(bad);
+  expect(stored(bad.kv, 'cms:own')?.version === '0.1.1', 'a version the Worker committed was not kept as its own');
+  await watchUpdate(bad.env, bad.deps, T0 + 5 * MINUTE); // the version stays; the build of the site's branch is not known yet
+  await bad.kv.put('cms:update', JSON.stringify({ ...stored(bad.kv, 'cms:update'), state: 'done' }));
+  bad.checks[`head${bad.commits.length}`] = 'failure'; // the head the site's files are read at
+  await dailyCheck(bad.env, bad.deps, T0 + 6 * MINUTE, 'Europe/Copenhagen');
+  expect(
+    JSON.parse(bad.files['package.json']).dependencies[PACKAGE] === RUNNING && stored(bad.kv, 'cms:update')?.repaired === true,
+    'the repair did not write the running version back',
+  );
+
+  // A version a person set is never undone.
+  const person = world();
+  await updated(person);
+  await person.kv.put('cms:update', JSON.stringify({ ...stored(person.kv, 'cms:update'), state: 'done' }));
+  person.files['package.json'] = JSON.stringify({ dependencies: { [PACKAGE]: '0.5.0' } });
+  person.checks[`head${person.commits.length}`] = 'failure';
+  const commits = person.commits.length;
+  await dailyCheck(person.env, person.deps, T0 + 6 * MINUTE, 'Europe/Copenhagen');
+  expect(person.commits.length === commits, 'a version a person set was undone');
 }
 
 if (problems.length) {
