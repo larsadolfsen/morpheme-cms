@@ -50,6 +50,12 @@ export default function InlineButtons({ items, data, active, focus, onChange, on
               key={i}
               data-row={i}
               role="group"
+              // The button's target area is larger than its fields (editor.css, M3's 48 dp): a tap on it that no field got goes to the label.
+              onPointerDown={(e) => {
+                if (e.target !== e.currentTarget) return;
+                e.preventDefault();
+                e.currentTarget.querySelector<HTMLTextAreaElement>('[data-field="label"]')?.focus();
+              }}
               aria-current={here ? 'true' : undefined}
               aria-label={next ? t.blocks.buttons.newButton : t.blocks.buttons.buttonOf(i + 1, items.length)}
               className={[
