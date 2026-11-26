@@ -1,0 +1,6 @@
+{
+  "id": "no-block-heading",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Blokkenes indstillinger har ikke længere Overskrift og Underoverskrift; skriv dem i sidens tekst, og en gammel bloks overskrift flyttes dertil, når du opdaterer"
+}

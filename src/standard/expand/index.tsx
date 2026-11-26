@@ -4,7 +4,6 @@
 // (`card`). How it looks is the theme's (packages/editor/theme/blocks/expand/View.tsx; what it shows: view.ts, and load.ts on the site).
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
-import { headFields } from '../head';
 import { columnsField } from '../columns';
 import { fromLine, nameWith, rowsFromFields, typed } from '../rows/fields';
 import { designField, leadingField, listInline, listRowFields, moreFields } from '../rows/listParts';
@@ -23,7 +22,6 @@ export default defineBlock({
   // open, Rows, Max rows, the text button).
   inline: { ...listInline({ buttons: true }), blockSettings: true },
   fields: [
-    ...headFields,
     ...rowsFromFields,
     {
       name: 'items',

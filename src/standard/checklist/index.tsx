@@ -3,7 +3,6 @@
 // (packages/editor/theme/blocks/checklist/View.tsx with Checks.tsx); what it shows: view.ts, and load.ts on the site.
 import { cut, defineBlock } from '../../blocks';
 import { siteT, t } from '../../i18n';
-import { headFields } from '../head';
 import { materialIcon } from '../../icon';
 
 export default defineBlock({
@@ -14,7 +13,6 @@ export default defineBlock({
   icon: materialIcon('checklist'),
   hint: t.blocks.checklist.hint,
   fields: [
-    ...headFields,
     {
       name: 'items',
       label: t.blocks.checklist.items,

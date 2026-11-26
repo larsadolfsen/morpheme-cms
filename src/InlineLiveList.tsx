@@ -1,53 +1,27 @@
-// A block that reads a list of the site (Testimonials, Blog posts) typed in place: the block is drawn as the site draws it, with the real
-// items (the theme's View, from the list's data), and only its head is typed where it stands: the heading and the subheading above the items
-// (InlineSingle.tsx). Which items it shows, and how, are the block's settings (Edit, the gear). The block is drawn with no head of its own
-// while it is typed in (the typed fields stand there) and as the site draws it otherwise; with no head, a tap on it starts one.
+// A block that reads a list of the site (Testimonials, Blog posts, Image grid) typed in place: the block is drawn as the site draws it, with the
+// real items (the theme's View, from the list's data). It has no head of its own to type (a heading above it is the text's); which items it shows,
+// and how, are the block's settings (Edit, the gear).
 import type { ReactNode } from 'react';
-import { t } from './i18n';
-import InlineSingle from './InlineSingle';
 import type { InlineViewProps } from './inlineViews';
-import { InProse } from './standard/view';
 
 export default function InlineLiveList({
   props,
-  active,
-  focus,
   onChange,
   drawn,
 }: Pick<InlineViewProps, 'props' | 'active' | 'focus' | 'onChange'> & {
-  /** The block as the site draws it, from the props it is given (its head is the block's own while it is not typed in). */
+  /** The block as the site draws it, from the props it is given. */
   drawn: (props: InlineViewProps['props']) => ReactNode;
 }) {
-  const start = () => onChange({ active: 0, focus: { row: 0, field: 'heading' } });
+  // The items' links lead nowhere here: a tap on the items makes the block the active one and never opens a page.
   return (
-    <InlineSingle
-      props={props}
-      active={active}
-      focus={focus}
-      fields={['heading', 'intro']}
-      onChange={onChange}
-      render={({ here, field }) => (
-        <div
-          className="mo-editor-inline-live-list"
-          onClick={(e) => {
-            // A tap on the items (their links lead nowhere here) puts the cursor in the head.
-            if (!here && !(e.target as Element).closest('textarea')) {
-              e.preventDefault();
-              start();
-            }
-          }}
-        >
-          {here ? (
-            <InProse>
-              <hgroup className="mo-block-head mo-editor-inline-live-head mo-editor-inline-list-row-active">
-                <h2>{field('heading', t.blocks.heading, t.blocks.heading)}</h2>
-                <p className="mo-block-head__subheading">{field('intro', t.blocks.subheading, t.blocks.subheading)}</p>
-              </hgroup>
-            </InProse>
-          ) : null}
-          {drawn(here ? { ...props, heading: '', intro: '' } : props)}
-        </div>
-      )}
-    />
+    <div
+      className="mo-editor-inline-live-list"
+      onClick={(e) => {
+        if ((e.target as Element).closest('a')) e.preventDefault();
+        onChange({ active: 0 });
+      }}
+    >
+      {drawn(props)}
+    </div>
   );
 }
