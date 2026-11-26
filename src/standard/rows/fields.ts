@@ -47,7 +47,7 @@ export const rowsFromFields: Field[] = [
 ];
 
 /** The typed rows' field is in use only while the block reads no list. */
-export const typed: Field['only'] = { field: 'from', is: [''] };
+export const typed: Field['only'] = { field: 'from', is: [''], loose: true };
 
 /** The name of a block that reads a list in the editor ("Dynamic list"); the block's own name for typed rows. */
 export const nameWith = (label: string, props: BlockProps) => (sourceOf(props.from) ? t.blocks.rows.named(label) : label);

@@ -31,3 +31,10 @@ test('the switch is never saved and the form turns it into a list or none', () =
   assert.match(form, /on \? first : ''/);
   assert.match(read('../../MarkdownEditor.tsx'), /dynamicNames = \['dynamic', 'from'/);
 });
+
+test('typed rows stay in use while no list is picked, though `from` itself is hidden then (loose)', () => {
+  assert.match(
+    readFileSync(new URL('./fields.ts', import.meta.url), 'utf8'),
+    /export const typed: Field\['only'\] = \{ field: 'from', is: \[''\], loose: true \}/,
+  );
+});
