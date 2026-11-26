@@ -141,6 +141,31 @@ const scan = `(root) => {
   const opacityOf = (el) => { let o = 1; for (let e = el; e; e = e.parentElement) o *= parseFloat(getComputedStyle(e).opacity); return o; };
   const records = [];
   const TARGET_ONLY = ${TARGET_ONLY};
+  // The area that takes the click (WCAG 2.5.8): along the middle of the control, in each direction, the run of points where a click reaches it (the control, what is in it or its label).
+  // The state layer is never counted by assumption: only points a click reaches count.
+  const clickArea = (el) => {
+    el.scrollIntoView({ block: 'center', inline: 'center' });
+    const r = el.getBoundingClientRect();
+    const reaches = (x, y) => {
+      if (x < 0 || y < 0 || x >= innerWidth || y >= innerHeight) return false;
+      const n = document.elementFromPoint(x, y);
+      if (!n) return false;
+      if (n === el || el.contains(n)) return true;
+      const label = n.closest('label');
+      return !!label && (label.control === el || label.contains(el));
+    };
+    const run = (from, to, at) => {
+      const cx = Math.round((from + to) / 2);
+      let a = cx, b = cx;
+      if (!at(cx)) return to - from;
+      while (a > from - 48 && at(a - 1)) a--;
+      while (b < to + 48 && at(b + 1)) b++;
+      return b - a + 1;
+    };
+    const midX = r.left + r.width / 2;
+    const midY = r.top + r.height / 2;
+    return { width: run(r.left, r.right, (x) => reaches(x, midY)), height: run(r.top, r.bottom, (y) => reaches(midX, y)) };
+  };
   const TARGET_PARTS = ${JSON.stringify(Object.entries(PARTS).map(([id, p]) => [id, p.selector]))};
   const push = (el, kind, front, back, min, extra) => {
     const blockEl = el.closest('[data-block], .mo-is-in-text, .mo-site-block-inline');
@@ -210,7 +235,10 @@ const scan = `(root) => {
       if (box.width > 0 && box.height > 0) {
         // The part the control belongs to (the first selector it sits in); a control no part names is not a theme's part and is left out.
         const hit = TARGET_PARTS.find(([, selector]) => el.closest(selector));
-        if (hit) push(el, 'target', [0, 0, 0, 1], [255, 255, 255, 1], 24, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', ratioOverride: Math.min(box.width, box.height), part: hit[0] });
+        if (hit) {
+          const area = clickArea(el);
+          push(el, 'target', [0, 0, 0, 1], [255, 255, 255, 1], 24, { text: el.textContent ?? el.getAttribute('aria-label') ?? '', ratioOverride: Math.min(area.width, area.height), part: hit[0] });
+        }
       }
     }
     if (!TARGET_ONLY && el.matches('input, textarea')) {

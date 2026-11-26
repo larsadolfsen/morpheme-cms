@@ -1,13 +1,13 @@
 {
   "standard": "WCAG 2.2 AA",
   "measured": "0.19.8",
-  "score": 83,
+  "score": 94,
   "checks": [
     {
       "criterion": "2.5.8",
       "part": "segmented-button",
       "ok": true,
-      "why": "Segmented button 32 px, needs 24 px"
+      "why": "Segmented button 26 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
@@ -37,13 +37,13 @@
       "criterion": "2.5.8",
       "part": "button-small",
       "ok": true,
-      "why": "Small button 40 px, needs 24 px"
+      "why": "Small button 44 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
       "part": "icon-button",
       "ok": true,
-      "why": "Icon button 32 px, needs 24 px"
+      "why": "Icon button 40 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
@@ -55,25 +55,25 @@
       "criterion": "2.5.8",
       "part": "chip",
       "ok": false,
-      "why": "Chip 20 px, under 24 px"
+      "why": "Chip 21 px, under 24 px"
     },
     {
       "criterion": "2.5.8",
       "part": "switch",
       "ok": true,
-      "why": "Switch 32 px, needs 24 px"
+      "why": "Switch 33 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
       "part": "checkbox",
-      "ok": false,
-      "why": "Checkbox 18 px, under 24 px"
+      "ok": true,
+      "why": "Checkbox 28 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
       "part": "radio-button",
-      "ok": false,
-      "why": "Radio button 20 px, under 24 px"
+      "ok": true,
+      "why": "Radio button 36 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
@@ -97,13 +97,13 @@
       "criterion": "2.5.8",
       "part": "tab",
       "ok": true,
-      "why": "Tab 48 px, needs 24 px"
+      "why": "Tab 49 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
       "part": "list-item",
       "ok": true,
-      "why": "List item 72 px, needs 24 px"
+      "why": "List item 73 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",

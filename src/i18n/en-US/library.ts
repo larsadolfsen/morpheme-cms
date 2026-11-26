@@ -156,10 +156,8 @@ export const library = {
     'text-field': 'Text field size',
     'menu-item': 'Menu item size',
     tab: 'Tab size',
-    'navigation-item': 'Navigation bar and rail item size',
     'list-item': 'List item size',
     'carousel-control': 'Carousel control size',
-    'sheet-control': 'Sheet control size',
   } as Record<string, string>,
   /** The button on a theme's page that swaps the theme the website uses to it. */
   useTheme: 'Use the theme',
