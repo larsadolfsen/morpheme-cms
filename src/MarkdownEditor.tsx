@@ -1927,6 +1927,7 @@ function blockCard(
             onSettings={(row) => (linkTo ? linkTo(row) : settings())}
             onEdit={() => void edit()}
             onRow={(spec) => asker()?.row(spec, true)}
+            onPick={(field, value, title) => asker()?.page(field, value, title) ?? Promise.resolve(null)}
             onProps={(patch) => {
               const here = at();
               if (here)
