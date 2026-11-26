@@ -7,6 +7,8 @@ export const forms = {
   /** The sections of a page's or a post's form, in its navigation drawer (EntryForm.tsx): its name, the text, and the
    * first, with a page's title, status and template (a post's status). */
   sections: { title: 'Sections', content: 'Content', pageSettings: 'Page settings', postSettings: 'Post settings' },
+  /** The section at the end of a page's or post's form that holds what cannot be undone: Discard, Discard draft, Delete. */
+  danger: 'Danger',
   otherFields: 'Other fields',
   seo: 'Search engines',
   /** The section after it: the image, title and description when the page is shared, under a preview of how a link

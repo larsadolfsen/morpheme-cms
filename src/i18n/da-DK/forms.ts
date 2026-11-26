@@ -6,6 +6,7 @@ export const forms: Messages['forms'] = {
   addOne: (what) => `Tilføj ${what}`,
   text: 'Tekst',
   sections: { title: 'Afsnit', content: 'Indhold', pageSettings: 'Sideindstillinger', postSettings: 'Indlægsindstillinger' },
+  danger: 'Fare',
   otherFields: 'Andre felter',
   seo: 'Søgemaskiner',
   share: 'Sociale medier',
