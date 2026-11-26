@@ -29,21 +29,21 @@ The page and post editor. It follows Material 3 like the rest of the editor (`CL
    WCAG 1.4.11's 3:1; `outline-variant` does not, at about 1.6:1), with small rounded corners. Each part is at least 48px high.
    The parts:
    - a row: the icon slot (48×48, round), the label text, the supporting text and the link button (48×48, round);
-   - a card: the image (tap to change it), the headline, the subhead, the supporting text and the link button
-     (48×48, round, at the bottom right).
+   - a card: the image (tap to change it), the headline, the subhead, the supporting text and the card's action row (rule 10a).
 4. **The part you are in has a border in the primary colour:** 2px in the `primary` role, in place of the grey one. "Blue" in this spec and the mocks is the theme's primary colour (blue in the mocks); a site with another primary colour shows that, and inside a coloured section the section's remapped role (`CLAUDE.md`, *Colours in editor-drawn block parts*).
 5. **The keyboard focus ring shows for the keyboard only** (`:focus-visible`): the theme's solid ring outside the part, with a
    gap, never in the active border's colour. A tap or a click shows no ring, only the primary border.
 6. **No tinted background** on the active row or card (owner, 26 Nov 2026).
-6a. **The active item has a dotted line around it** (owner, 26 Nov 2026: "The list item needs a dotted line"), in the primary colour, like the selected block, with the item menu inside it at the top (rule 14). A card's dotted line takes the place of its own outline while it is active.
-7. **The selected block keeps its dotted primary-colour outline**, also while an item in it is active, so two dotted lines show: the block's and the item's (owner, 26 Nov 2026: "yes keep it").
+6a. **The active row has a dotted line around it** (owner, 26 Nov 2026: "The list item needs a dotted line"), in the primary colour, like the selected block, with the item menu inside it at the top (rule 14). **The active card has none** (owner, 26 Nov 2026: "the dotted line around the card doesn't work"): its own container (outline, fill or shadow, as the theme draws the card) already marks it, and the item menu sits inside it at the top.
+7. **The selected block keeps its dotted primary-colour outline**, also while an item in it is active, so two dotted lines show: the block's and the row's (owner, 26 Nov 2026: "yes keep it"). A card shows only the block's (rule 6a).
 8. **The text keeps its formatting** in the parts: the label text and the headline in their own type, the subhead and the
    supporting text in theirs. The parts do not take M3's text-field type.
 9. **Empty parts ask for an action**, in the placeholder colour (`on-surface-variant` at full strength, so it meets 4.5:1 and
    never looks like content):
    - a row: *Your label*, *Your supporting text*;
    - a card: *Your headline*, *Your subhead*, *Your supporting text*.
-10. **The empty icon slot shows `add`;** a row's link button shows `add_link` without a page and `link` with one.
+10. **The empty icon slot shows `add`;** a row's link button is an icon button (owner, 26 Nov 2026: "Keep it an icon on list"): `add_link` without a page and `link` with one.
+10a. **A card's action row has *Add button* and *Add link*** (owner, 26 Nov 2026: "On cards, remeber add button and make add link an outlined button ... make it an outlined button with icon"): two M3 outlined buttons with a leading icon (`add` and `add_link`), the same kind as rule 12, at least 48px high, at the bottom of the active card. *Add button* adds one of the card's buttons inline (plan B5: "Buttons are added only with the card's inline *Add button*"); *Add link* opens the page picker. With a page, the link button shows `link` and the page's name (Architect's proposal, so the owner sees where the card goes), and *No page* in the picker removes it. Plan B5's rule "a card with a page has no buttons" stays: the inline control says so when it applies.
 11. **The fields take Material 3's names** (owner, 26 Nov 2026: "Call them that"). M3 Lists, Specs, *Anatomy*: label text and
     supporting text. M3 Cards, Guidelines, *Anatomy*: headline, subhead and supporting text.
 
