@@ -452,6 +452,93 @@ async function checkDanger(width, height) {
   }
 }
 
+// The rows of Danger start at the leading edge like the rows above them (nothing centres them), left to right and right to left (the PM, 26 Nov 2026).
+async function checkDangerAlign(width, height, dir) {
+  const label = `${width}px danger rows ${dir}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  virtualFile('src/content/pages/zz-danger-align.md', `---\ntitle: "Align page"\n---\n\n# Align page\n\nPublished text.\n`);
+  try {
+    await openEditor(page, site);
+    await page.goto(`${site}/editor/#src/content/pages/zz-danger-align.md`);
+    await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+    await page.locator('.ProseMirror p').first().click();
+    await page.keyboard.type(' more');
+    await page.evaluate((d) => (document.documentElement.dir = d), dir);
+    const danger = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: /^Danger$/ }) });
+    await danger.waitFor({ timeout: 10_000 });
+    const toggle = danger.locator('h2 button');
+    if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+    const rows = await danger
+      .locator(':scope > div')
+      .getByRole('button')
+      .evaluateAll((els) =>
+        els.map((e) => {
+          const r = e.getBoundingClientRect();
+          const inner = e.querySelector('.mo-editor-inline-row').getBoundingClientRect();
+          const cs = getComputedStyle(e);
+          const rtl = getComputedStyle(e).direction === 'rtl';
+          return {
+            name: e.textContent.trim(),
+            gap: Math.round(rtl ? r.right - inner.right : inner.left - r.left),
+            align: cs.textAlign,
+            justify: cs.justifyContent,
+          };
+        }),
+      );
+    if (rows.length < 2) problems.push(`${label}: expected Discard and Delete page, got ${rows.map((r) => r.name).join()}`);
+    for (const r of rows) {
+      if (r.align === 'center' || r.justify === 'center') problems.push(`${label}: "${r.name}" is centred (${r.align}, ${r.justify})`);
+      if (r.gap !== rows[0].gap) problems.push(`${label}: "${r.name}" starts ${r.gap}px in, "${rows[0].name}" ${rows[0].gap}px`);
+      if (r.gap > 40) problems.push(`${label}: "${r.name}" starts ${r.gap}px from the leading edge`);
+    }
+  } finally {
+    removeVirtualFile('src/content/pages/zz-danger-align.md');
+    await page.close();
+  }
+}
+
+// Danger is the last entry of the Sections list and jumps to the section, opening it when it is folded.
+async function checkDangerNav(width, height) {
+  const label = `${width}px danger in the sections list`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  virtualFile('src/content/pages/zz-danger-nav.md', `---\ntitle: "Nav page"\n---\n\n# Nav page\n\nPublished text.\n`);
+  try {
+    await openEditor(page, site);
+    await page.goto(`${site}/editor/#src/content/pages/zz-danger-nav.md`);
+    await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+    const nav = page.getByRole('navigation', { name: 'Sections' });
+    await nav.waitFor({ timeout: 10_000 });
+    const names = (await nav.getByRole('button').allTextContents()).map((n) => n.trim());
+    if (names.at(-1) !== 'Danger') problems.push(`${label}: the list ends with "${names.at(-1)}" (${names.join(', ')}), not Danger`);
+    const danger = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: /^Danger$/ }) });
+    if ((await danger.locator('h2 button').getAttribute('aria-expanded')) === 'true')
+      problems.push(`${label}: Danger is open before the jump`);
+    await nav.getByRole('button', { name: 'Danger', exact: true }).click();
+    await page
+      .waitForFunction(
+        () =>
+          [...document.querySelectorAll('section h2 button')]
+            .find((b) => b.textContent.trim() === 'Danger')
+            ?.getAttribute('aria-expanded') === 'true',
+        null,
+        { timeout: 5000 },
+      )
+      .catch(() => problems.push(`${label}: the jump did not open Danger`));
+    await page.waitForTimeout(800);
+    const top = await danger.evaluate((el) => Math.round(el.getBoundingClientRect().top));
+    if (top < -2 || top > innerHeightOf(height)) problems.push(`${label}: Danger is at ${top}px after the jump, not in view`);
+    const current = await nav.locator('[aria-current="location"]').textContent();
+    if (current?.trim() !== 'Danger') problems.push(`${label}: "${current?.trim()}" is marked, not Danger`);
+  } finally {
+    removeVirtualFile('src/content/pages/zz-danger-nav.md');
+    await page.close();
+  }
+}
+const innerHeightOf = (h) => h;
+
 export function register(unit) {
   for (const [width, height] of [
     [360, 740],
@@ -474,6 +561,12 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkDanger ${width}`, () => checkDanger(width, height));
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    for (const dir of ['ltr', 'rtl']) unit(`checkDangerAlign ${width} ${dir}`, () => checkDangerAlign(width, height, dir));
+  unit('checkDangerNav 1280', () => checkDangerNav(1280, 900));
   for (const [width, height] of [
     [390, 844],
     [1280, 900],
