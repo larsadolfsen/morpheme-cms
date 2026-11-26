@@ -701,13 +701,20 @@ async function checkCardsCarousel(width, height) {
         const pad = parseFloat(getComputedStyle(row).paddingLeft) || 0;
         const from = Math.max(0, box.left + pad);
         const to = Math.min(innerWidth, box.right - pad);
+        // What the row shows reaches its padding too: an item may stand in the window, or be wholly outside what the row shows.
+        const shownFrom = Math.max(0, box.left);
+        const shownTo = Math.min(innerWidth, box.right);
         return [...el.querySelectorAll('[data-carousel-mask]')]
           .map((m) => {
             const b = m.getBoundingClientRect();
             const inset = parseFloat(m.style.getPropertyValue('--mo-comp-carousel-mask-inset')) || 0;
             return { left: b.left + inset, right: b.right - inset };
           })
-          .filter((b) => (b.left < from - 1 && b.right > from + 1) || (b.right > to + 1 && b.left < to - 1))
+          .filter((b) => {
+            const seen = Math.min(b.right, shownTo) - Math.max(b.left, shownFrom);
+            if (seen <= 1) return false;
+            return b.left < from - 1 || b.right > to + 1;
+          })
           .map((b) => `${Math.round(b.left)}-${Math.round(b.right)} in ${Math.round(from)}-${Math.round(to)}`);
       });
       if (cut.length)
