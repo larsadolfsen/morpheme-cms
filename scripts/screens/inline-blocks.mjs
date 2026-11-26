@@ -492,6 +492,24 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       await page.waitForTimeout(300);
       if (!(await page.locator('.mo-editor-inline-list-row-active.mo-button.mo-is-outlined').count()))
         problems.push(`${label}: choosing Outlined does not change the active button's style`);
+      // A text button's touch area must not cover its options control.
+      await page.locator('.mo-editor-inline-list-row-active [aria-label="Button options"]').click({ timeout: 4000 });
+      await menu
+        .locator('[role^=menuitem]', { hasText: /^Style: Text$/ })
+        .click({ timeout: 3000 })
+        .catch(() => {});
+      await page.waitForTimeout(300);
+      await page
+        .locator('.mo-editor-inline-list-row-active.mo-is-text [aria-label="Button options"]')
+        .click({ timeout: 4000 })
+        .catch(() => problems.push(`${label}: the options control of a Text button cannot be clicked`));
+      await menu
+        .locator('[role^=menuitem]')
+        .first()
+        .waitFor({ timeout: 3000 })
+        .catch(() => problems.push(`${label}: a click on the options of a Text button opens no menu`));
+      await page.keyboard.press('Escape');
+      await page.waitForTimeout(200);
       // Page: the menu opens the page picker at once; a page picked is on the button, and the menu says so.
       const openMenu = async () => {
         await page.locator('.mo-editor-inline-list-row-active [aria-label="Button options"]').click({ timeout: 4000 });
@@ -709,6 +727,30 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       problems.push(`${label}: the card's drawn button does not follow its style (no mo-is-outlined after Style: Outlined)`);
     await row.locator('.mo-editor-inline-card-button [aria-label="Button options"]').first().click();
     await menu.locator('[role^=menuitem]').first().waitFor({ timeout: 4000 });
+    // A text button's touch area must not cover its options control: a real click still opens the menu, and so does the keyboard.
+    await menu.locator('[role^=menuitem]', { hasText: /^Style: Text$/ }).click();
+    await page.waitForTimeout(200);
+    if (!(await row.locator('.mo-editor-inline-card-button.mo-is-text').count()))
+      problems.push(`${label}: the card's drawn button does not follow Style: Text`);
+    await row
+      .locator('.mo-editor-inline-card-button [aria-label="Button options"]')
+      .first()
+      .click({ timeout: 4000 })
+      .catch(() => problems.push(`${label}: the options control of a Text card button cannot be clicked`));
+    await menu
+      .locator('[role^=menuitem]')
+      .first()
+      .waitFor({ timeout: 3000 })
+      .catch(() => problems.push(`${label}: a click on the options of a Text card button opens no menu`));
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(200);
+    await row.locator('.mo-editor-inline-card-button [aria-label="Button options"]').first().focus();
+    await page.keyboard.press('Enter');
+    await menu
+      .locator('[role^=menuitem]')
+      .first()
+      .waitFor({ timeout: 3000 })
+      .catch(() => problems.push(`${label}: Enter on the options of a Text card button opens no menu`));
     await noCardSheet('the button menu');
     await page.keyboard.press('Escape');
     await page
