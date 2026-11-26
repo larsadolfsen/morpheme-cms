@@ -9,6 +9,7 @@ import { giveUpAfter } from '../lib/build-settings.mjs';
 import { entryName, type Collection } from './schema';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { locale, t } from './i18n';
+import { editorWorkerUrl } from '../lib/editorWorker.mjs';
 
 const fileName = (path: string) => path.split('/').pop() ?? path;
 
@@ -193,7 +194,7 @@ export function keepCurrent(onSite?: (v: Version) => void) {
   };
 }
 
-// Notifications go through the service worker (packages/editor/pages/editor/sw.js); registered when the editor opens.
+// Notifications go through the service worker (pages/editor/sw.js); registered when the editor opens. The build decides the URL (lib/editorWorker.mjs).
 export function registerWorker() {
-  navigator.serviceWorker?.register('/editor/sw.js').catch(() => {});
+  navigator.serviceWorker?.register(editorWorkerUrl(window)).catch(() => {});
 }

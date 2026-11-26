@@ -38,3 +38,17 @@ test("the service worker's commit, tree and file ids carry the build id", () => 
   assert.doesNotMatch(sw, /`commit-\$\{n\}`/);
   assert.doesNotMatch(sw, /blob:\$\{(f\.)?path\}:(0|\$\{(s\.)?version\})`/);
 });
+
+test("the demo build writes the worker's URL before the page script; the page script registers only that URL", () => {
+  const dir = site('{}');
+  try {
+    addDemoEditor(dir);
+    const html = readFileSync(join(dir, 'dist/editor/index.html'), 'utf8');
+    assert.ok(html.indexOf('window.moEditorWorker="/editor/sw.js?demo"') < html.indexOf('src="/editor/demo-editor.js"'));
+    const page = readFileSync(new URL('./demo-editor-page.js', import.meta.url), 'utf8');
+    assert.equal(page.match(/serviceWorker\.register/g).length, 1);
+    assert.doesNotMatch(page, /sw\.js\?demo/);
+  } finally {
+    rmSync(dir, { recursive: true });
+  }
+});
