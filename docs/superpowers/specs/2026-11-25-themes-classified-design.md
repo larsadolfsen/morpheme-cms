@@ -61,7 +61,7 @@ of three kinds. `lib/accessibility.mjs` holds the list, by WCAG criterion and, f
 4. **Where it is written.**
    - Material: the file is a measured result kept in the repository, like a snapshot, so the demo, its Previews and the npm package carry
      it (the demo is built on Cloudflare, which cannot measure). The developer runs the command and commits the file; CI's `static` job
-     runs it again for `theme/` and fails only if the committed file differs. That is a check that the file is current, never a WCAG
+     runs it again for `theme/` and fails only if the committed file differs in its parts, their pass or fail, or the score (a pixel count is not compared: the same page measures a few px apart on two machines). That is a check that the file is current, never a WCAG
      gate: a low score passes.
    - A store theme: `morpheme-apps`' `npm run release` runs the command before it sends the theme, so the released score is the measured
      one, and sends `score` and `measured` with the theme's entry (`themeEntry` in `scripts/release-store.mjs`). `npm run check` there

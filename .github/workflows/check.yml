@@ -160,13 +160,14 @@ jobs:
       # The demo's types and each of its pages the same after a save in the editor.
       - run: npm run check:built
       # Material's accessibility score is measured, never a gate (skill `theme`, section 5): the command measures theme/ again and the step fails only when the
-      # committed theme/accessibility.json is not what it measured, so the file on the theme page and in the store is the one the checks give.
+      # committed theme/accessibility.json is not what it measured (the same parts, each passing or not, and the score; a pixel count may differ a few px between
+      # machines, so it is not compared), so the file on the theme page and in the store is the one the checks give.
       - name: Material's accessibility.json is what the checks measure
         if: needs.changes.outputs.docs_only != 'true'
         timeout-minutes: 20
         run: |
-          npm run accessibility
-          git diff --exit-code -- theme/accessibility.json
+          npm run accessibility | tee accessibility.log
+          ! grep -q 'is not what was measured' accessibility.log
 
   # The editor and the demo built once (npm run build) for the jobs that read them: screens, screens-extra and demo unpack this one
   # tarball instead of each running npm run build. It runs when any of them can (not on a docs-only pull request). Nothing is
