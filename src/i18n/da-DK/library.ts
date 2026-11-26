@@ -178,6 +178,12 @@ export const library: Messages['library'] = {
     unpublishedChanges: 'Ikke udgivne ændringer',
     scheduledChanges: (when) => `Planlagte ændringer ${when}`,
   },
+  versions: {
+    published: 'Udgivet',
+    draft: 'Kladde',
+    scheduled: 'Planlagt',
+    scheduledOn: (date) => `Planlagt ${date}`,
+  },
   statusFilter: 'Status',
   statusShown: {
     unfinished: 'Kladder',

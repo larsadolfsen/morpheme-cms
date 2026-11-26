@@ -253,6 +253,14 @@ export const library = {
     unpublishedChanges: 'Unpublished changes',
     scheduledChanges: (when: string) => `Scheduled changes ${when}`,
   },
+  /** The line under a page's or post's name: which versions it has, joined by " · ". */
+  versions: {
+    published: 'Published',
+    draft: 'Draft',
+    scheduled: 'Scheduled',
+    /** "Scheduled Nov 30" (the short date; the full time is the tooltip). */
+    scheduledOn: (date: string) => `Scheduled ${date}`,
+  },
   /** The filter over the pages and posts that shows only those with one status. */
   statusFilter: 'Status',
   /** Its choices: all, and each status there is. */

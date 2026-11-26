@@ -2844,6 +2844,10 @@ export const listClass = siteListClasses('segmented');
 /** The classes of a list without surfaces (the theme's standard list): a row or two that stand on the page, AccountRow. */
 export const plainListClass = siteListClasses('standard');
 
+/** The standard list with Material 3's inset dividers between its rows: 16 dp from the left edge, 24 dp from the right (Lists > Specs; the
+ * theme draws no line in a standard list until one asks for `middle-inset`). */
+export const dividedListClass = siteListClasses('standard', 'middle-inset');
+
 /** The small heading over a Group, and over what stands as one (the themes on Account): in Material 3's title small, as
  * written (not in capitals, Material 2's subheader), muted as a group's heading in a sheet (SheetGroupTitle). */
 export function GroupTitle({ children }: { children: ReactNode }) {
@@ -2979,11 +2983,11 @@ export function FoldSection({
 }
 
 /** Rows in the theme's segmented list, under a small heading: the start screen, the lists. Never with a note under it. */
-export function Group({ title, children }: { title?: string; children: ReactNode }) {
+export function Group({ title, children, dividers }: { title?: string; children: ReactNode; dividers?: boolean }) {
   return (
     <section className="mo-editor-section">
       {title && <GroupTitle>{title}</GroupTitle>}
-      <ul className={listClass}>{children}</ul>
+      <ul className={dividers ? dividedListClass : listClass}>{children}</ul>
     </section>
   );
 }
