@@ -91,11 +91,11 @@ export default function InlineList({
   const buttonHref = listRowFields({ buttons: true })
     .find((f) => f.name === 'buttons')
     ?.fields?.find((f) => f.name === 'href');
-  const setButtons = (i: number, buttons: Row['buttons']) =>
+  const setButtons = (i: number, buttons: Row['buttons'], focus = false) =>
     onChange({
       items: items.map((r, j) => (j === i ? (buttons ? { ...r, buttons } : (({ buttons: _, ...rest }) => rest)(r)) : r)) as Item[],
       active: i,
-      focus: null,
+      focus: focus ? { row: i, field: 'row-button' } : null,
     });
   const rowButton = (i: number, r: Row, here: boolean) => {
     const b = r.buttons?.[0];
@@ -145,7 +145,7 @@ export default function InlineList({
             kind="text"
             data-add-button=""
             className="mo-editor-inline-card-next-button"
-            onClick={() => setButtons(i, [{ label: '', href: '' }])}
+            onClick={() => setButtons(i, [{ label: '', href: '' }], true)}
           >
             {t.blocks.expand.addRowButton}
           </SiteButton>

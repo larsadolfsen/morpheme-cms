@@ -840,6 +840,10 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     await page.locator('.mo-editor-inline-list-row [data-field="title"]').first().click();
     const row = page.locator('.mo-editor-inline-list-row-active');
     await row.locator('[data-add-button]').click();
+    // The new label field has the focus, so typing goes into it at once.
+    await page.waitForTimeout(300);
+    if (!(await page.evaluate(() => document.activeElement?.getAttribute('data-field') === 'row-button')))
+      problems.push(`${label}: after Add button the focus is not in the button's label field`);
     await row.locator('[data-field="row-button"]').fill('More');
     for (const want of ['Button page', 'Remove button'])
       if ((await row.locator(`.mo-editor-inline-card-button [aria-label="${want}"]`).count()) !== 1)
