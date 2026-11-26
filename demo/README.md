@@ -21,6 +21,12 @@ on a background in the demo's colors. The photographs are from [Unsplash](https:
 | `earth-from-space.webp` | https://images.unsplash.com/photo-1446776811953-b23d57bd21aa |
 | `moon.webp` | https://images.unsplash.com/photo-1446941611757-91d2c3bd3d45 |
 | `andromeda.webp` | https://images.unsplash.com/photo-1543722530-d2c3201371e7 |
+| `quiraing.webp` | Edition 0.10 (Quiraing), photo by Johnny Briggs: https://unsplash.com/photos/a-scenic-view-of-a-mountain-range-with-a-winding-road-in-the-foreground-_tw49ov0oyc |
+| `matterhorn.webp` | Edition 0.12 (Matterhorn), photo by Gabriel Garcia Marengo: https://unsplash.com/photos/snow-capped-mountain-with-sea-of-clouds-qJvpykJ5SKs |
+| `lake-louise.webp` | Edition 0.13 (Lake Louise), photo by Roberto Nickson: https://unsplash.com/photos/calm-mountain-lake-reflecting-snowy-peaks-vZ1JAXUO3-0 |
+| `braies.webp` | Edition 0.14 (Braies), photo by Pietro De Grandi: https://images.unsplash.com/photo-1501785888041-af3ef285b470 |
+| `passo-giau.webp` | Edition 0.15 (Passo Giau), photo by Sarmat Batagov: https://unsplash.com/photos/rocky-mountain-peak-in-golden-light--v3uBhw5J78 |
+| `seljalandsfoss.webp` | Edition 0.18 (Iceland), photo by Robert Lukeman: https://unsplash.com/photos/waterfalls-at-daytime-zNN6ubHmruI |
 | `maya-bakery.webp` | https://unsplash.com/photos/woman-in-white-crew-neck-shirt-smiling-IF9TK5Uy-KI, photo by Jake Nackos |
 
 The logo (`public/logo.svg`, and `public/favicon.svg` with the icons, which `npx morpheme editor-icons` wrote) is drawn for
