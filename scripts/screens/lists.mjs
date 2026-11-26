@@ -1665,7 +1665,46 @@ async function checkPageRowsList(width, height) {
       problems.push(`${label}: "${name}" does not open to "Hide subpages of …" (${now}, ${after})`);
     break;
   }
+  // The menu tree: a subpage's leading edge is 20 dp right of its parent's (an inline padding once replaced the container's own start padding, so the step was 4 dp).
+  const asMenu = page.getByRole('button', { name: 'Show as menu' });
+  if (await asMenu.count()) await asMenu.first().click();
+  await page.waitForTimeout(500);
+  const parentToggle = await page.$('main button[aria-expanded="false"][aria-label^="Show subpages of "]');
+  if (!parentToggle) problems.push(`${label}: the menu tree has no page with subpages to open`);
+  else {
+    await parentToggle.click();
+    await page.waitForTimeout(500);
+    const edges = await page.evaluate(() => {
+      const left = (el) => el.querySelector('.mo-list__item-leading')?.getBoundingClientRect().left ?? null;
+      const open = document.querySelector('main button[aria-expanded="true"][aria-label^="Hide subpages of "]');
+      const parent = open?.closest('li')?.querySelector('.mo-list__item-container');
+      const kids = [...(open?.closest('li')?.parentElement?.children ?? [])]
+        .map((li) => li.querySelector('.mo-list__item-container'))
+        .filter((c) => c && c !== parent && left(c) > left(parent) - 1 && left(c) !== null);
+      return parent ? { parent: left(parent), child: kids.length ? left(kids[0]) : null } : null;
+    });
+    if (!edges || edges.child == null) problems.push(`${label}: no subpage row shows under the opened page`);
+    else if (Math.abs(edges.child - edges.parent - 20) > 1)
+      problems.push(`${label}: a subpage's leading edge is ${edges.child - edges.parent} dp right of its parent's, not 20`);
+  }
   await page.close();
+  // In Danish (the editor follows the browser's language) the lines name the versions in Danish. The demo has no page with a waiting draft, so "Udgivet · Kladde" (the two words joined by " · " in `versionsOf`) is tested by hand.
+  const da = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'da-DK' });
+  da.on('pageerror', (e) => problems.push(`${label} (da-DK): ${e.message}`));
+  await openEditor(da, site);
+  await da.evaluate(() => (location.hash = '#list/pages'));
+  await da.waitForSelector('main .mo-editor-section .mo-list__item-container', { timeout: 30_000 }).catch(() => {});
+  await da.waitForTimeout(1000);
+  const lines = await da.evaluate(() =>
+    [...document.querySelectorAll('main .mo-editor-section .mo-list__item-container')].map(
+      (el) =>
+        (el.querySelector('.mo-editor-library-under-status') ?? el.querySelector('.mo-list__item-supporting'))?.textContent?.trim() ?? '',
+    ),
+  );
+  for (const line of lines)
+    if (!/^(Udgivet|Kladde|Planlagt)/.test(line))
+      problems.push(`${label} (da-DK): the line under a page names no version in Danish (${JSON.stringify(line)})`);
+  await da.close();
 }
 
 export function register(unit) {

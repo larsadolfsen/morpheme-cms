@@ -1794,8 +1794,10 @@ function TreeRows({
             <ListItem
               href={item.href || undefined}
               tone={item.href ? undefined : 'muted'}
-              // Indented a step under the item it is under.
-              style={depth ? { paddingInlineStart: `${depth * 1.25}rem` } : undefined}
+              // Indented 20 dp under the item it is under: the step is added to the container's own start padding, which an inline value would replace.
+              style={
+                depth ? { paddingInlineStart: `calc(var(--mo-comp-list-list-item-leading-space, 0px) + ${depth * 1.25}rem)` } : undefined
+              }
               leading={ring?.(item)}
               {...(!ring && item.versions ? pictureOf(item, false) : {})}
               headline={item.title}
