@@ -1,4 +1,4 @@
-// What "Cards" do in a browser on the site: a carousel on a phone (`phone`, LinkCards.tsx) has `Show all`, which turns the row into the stacked
+// What "Cards" do in a browser on the site: a carousel (`phone`, LinkCards.tsx, on every screen size) has `Show all`, which turns the row into the stacked
 // cards in place and back (focus stays on the button), and the arrow keys, which move focus from one card to the next or the one before
 // (the cards are not tab stops except through their link or first button, and a text-only card itself). Run on every page by the theme's
 // Base.astro (blockScripts, packages/editor/site/blockScripts.ts); without such a block it does nothing.
@@ -17,6 +17,23 @@ export default function cards() {
   // The thing to focus in a card: its link, its first button, or the card itself when there is nothing in it.
   const targetOf = (item: HTMLElement) => item.querySelector<HTMLElement>('a[href], button') ?? (item.tabIndex === 0 ? item : null);
   document.addEventListener('keydown', (e) => {
+    // Up and Down leave the carousel (M3, Accessibility, Keyboard navigation): to the next control after it (`Show all`) or the one before it.
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      const root = (e.target as Element | null)?.closest<HTMLElement>('[data-cards-carousel]');
+      if (!root || (e.target as Element).closest('[data-cards-show-all]')) return;
+      const tabbable = [...document.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input, select, textarea, [tabindex="0"]')].filter(
+        (el) => el.offsetParent !== null,
+      );
+      const inside = tabbable.filter((el) => root.contains(el));
+      const target =
+        e.key === 'ArrowDown'
+          ? tabbable[tabbable.indexOf(inside[inside.length - 1]) + 1]
+          : tabbable[tabbable.indexOf(inside[0]) - 1];
+      if (!target) return;
+      e.preventDefault();
+      target.focus();
+      return;
+    }
     if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
     const item = (e.target as Element | null)?.closest<HTMLElement>('[data-cards-carousel] [data-carousel-item]');
     if (!item) return;

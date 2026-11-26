@@ -23,6 +23,13 @@ export const aspectOf = (aspect?: number) =>
 /** The layouts laid out here, with their items' widths changing as they scroll. */
 export const keylineLayouts: CarouselLayout[] = ['multi-browse', 'hero'];
 
+/** The layouts carouselLayout() runs for: the keyline layouts, and the full-screen one, which is drawn as a hero where M3 says it does not work
+ * (Guidelines, Full-screen: "It only works in portrait orientation in compact and medium breakpoints. Don't use this layout in landscape orientation"). */
+export const scriptedLayouts: CarouselLayout[] = [...keylineLayouts, 'full-screen'];
+
+/** From 840 dp (M3's expanded window class) and in landscape a full-screen carousel is a hero (the stored choice stays). */
+export const FULL_SCREEN_AS_HERO = '(min-width: 52.5rem), (orientation: landscape)';
+
 type Keyline = { loc: number; size: number };
 type State = { lines: Keyline[]; offsets: number[]; focal: number };
 
@@ -44,12 +51,17 @@ function arrangement(
   gap: number,
   { large, smallMin, smallMax, height }: { large: number; smallMin: number; smallMax: number; height: number },
 ): number[] {
-  // As many large ones as there are items, side by side, when they all fit.
+  // One item, or the layout does not fit: all at one size.
   const even = (n: number) => Array<number>(n).fill((width - (n - 1) * gap) / n);
   if (layout === 'hero') {
     // A large one at most twice as wide as it is high: more large ones on a wide screen.
-    const smalls = alignment === 'center' ? 2 : 1;
-    if (count <= smalls) return even(count);
+    // Always followed by a small one (two for center-aligned: one on each side), also with two cards: never all at one size (M3, Specs: "at least one large and one small item").
+    const smalls = Math.min(alignment === 'center' ? 2 : 1, count - 1);
+    if (smalls < 1) return even(count);
+    if (smalls < (alignment === 'center' ? 2 : 1)) {
+      const l = width - smallMax - gap;
+      return [l, smallMax];
+    }
     let n = 1;
     const sizeOf = (k: number) => (width - smalls * smallMax - (k + smalls - 1) * gap) / k;
     while (sizeOf(n) > 2 * height && n + smalls < count) n++;
@@ -100,12 +112,35 @@ const mix = (a: State, b: State, t: number): State => ({
 });
 
 /** Lays out the carousel `root` (its [data-carousel-items] and their masks) in its layout (data-carousel-layout) and
- * alignment (data-carousel-alignment) as it scrolls and is resized; gives back what stops it. */
+ * alignment (data-carousel-alignment) as it scrolls and is resized; gives back what stops it. A full-screen one is a hero from 840 dp and in landscape. */
 export function carouselLayout(root: HTMLElement): () => void {
-  const layout = (root.dataset.carouselLayout ?? 'uncontained') as CarouselLayout;
+  const declared = (root.dataset.carouselLayout ?? 'uncontained') as CarouselLayout;
+  if (declared !== 'full-screen') return runLayout(root, declared);
+  const query = matchMedia(FULL_SCREEN_AS_HERO);
+  let stop = () => {};
+  const sync = () => {
+    stop();
+    if (!query.matches) return void (stop = () => {});
+    root.classList.replace('mo-is-full-screen', 'mo-is-hero');
+    const run = runLayout(root, 'hero');
+    stop = () => {
+      run();
+      root.classList.replace('mo-is-hero', 'mo-is-full-screen');
+    };
+  };
+  query.addEventListener('change', sync);
+  sync();
+  return () => {
+    query.removeEventListener('change', sync);
+    stop();
+  };
+}
+
+function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
   const alignment = (root.dataset.carouselAlignment ?? 'start') as CarouselAlignment;
   const row = root.querySelector<HTMLElement>('[data-carousel-items]');
   if (!row || !keylineLayouts.includes(layout)) return () => {};
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const items = [...row.querySelectorAll<HTMLElement>('[data-carousel-item]')];
   const masks = items.map((item) => item.querySelector<HTMLElement>('[data-carousel-mask]'));
   let start: State, normal: State, end: State, large: number;
@@ -152,6 +187,15 @@ export function carouselLayout(root: HTMLElement): () => void {
   }
 
   function update() {
+    // Reduced motion (M3, Accessibility): items do not grow or shrink as they pass; all are as large as a large one, the row reaching the edges.
+    if (reduce.matches) {
+      items.forEach((item, i) => {
+        masks[i]?.style.removeProperty('transform');
+        masks[i]?.style.setProperty('--mo-comp-carousel-mask-inset', '0px');
+        item.style.setProperty('--mo-comp-carousel-mask', '0');
+      });
+      return;
+    }
     const s = row!.scrollLeft;
     const max = row!.scrollWidth - row!.clientWidth;
     let state = start;
@@ -192,6 +236,7 @@ export function carouselLayout(root: HTMLElement): () => void {
     frame = requestAnimationFrame(update);
   };
   row.addEventListener('scroll', onScroll, { passive: true });
+  reduce.addEventListener('change', update);
   const resized = new ResizeObserver(() => measure());
   resized.observe(row);
   measure();
@@ -199,6 +244,7 @@ export function carouselLayout(root: HTMLElement): () => void {
   return () => {
     cancelAnimationFrame(frame);
     row.removeEventListener('scroll', onScroll);
+    reduce.removeEventListener('change', update);
     resized.disconnect();
     row.style.removeProperty('--mo-comp-carousel-item-width');
     row.style.scrollPaddingInlineStart = '';

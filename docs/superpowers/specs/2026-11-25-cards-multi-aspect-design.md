@@ -34,8 +34,9 @@ Pages read: `https://m3.material.io/components/carousel/overview`, `…/specs`, 
    height (the Carousel's `aspect`, clamped by `aspectOf`), with the image on top in M3's 28dp corners and the card's headline, subhead,
    text and its link or buttons below, as brief text that wraps to the card's width. The design (outlined, filled, elevated), colour,
    Highlighted and the link or buttons work as in every other layout. Free scrolling and no page indicator, as the Carousel does.
-5. **Larger screens.** As for every layout today, the carousel is for phones only (`phoneHint`): from 600 dp the cards show together, and
-   each image keeps its own card's aspect, so what the owner chose per card is seen everywhere. Cards are top-aligned in their row.
+5. **Larger screens.** The carousel is on every screen size (0.19.8, `2026-11-25-carousels-every-size-design.md`), so this layout is a row of
+   cards of different widths on a computer too, each image keeping its own card's aspect. The cards are centred vertically in the row, as M3's
+   multi-aspect ratio carousel centres its items (Carousel, Specs), and the layout is offered for every media, not only images.
 6. **The image crop.** The image field crops to the card's `aspect` (the same crop `ratio` drives today, `lib/crop.mjs`), so the picked
    focus point holds in every shape.
 7. **Editor.** The inline view (`InlineCards.tsx`) draws the same layout through the same `View.tsx` and Carousel. The aspect is picked in
