@@ -21,14 +21,12 @@ export default function cards() {
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       const root = (e.target as Element | null)?.closest<HTMLElement>('[data-cards-carousel]');
       if (!root || (e.target as Element).closest('[data-cards-show-all]')) return;
-      const tabbable = [...document.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input, select, textarea, [tabindex="0"]')].filter(
-        (el) => el.offsetParent !== null,
-      );
+      const tabbable = [
+        ...document.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input, select, textarea, [tabindex="0"]'),
+      ].filter((el) => el.offsetParent !== null);
       const inside = tabbable.filter((el) => root.contains(el));
       const target =
-        e.key === 'ArrowDown'
-          ? tabbable[tabbable.indexOf(inside[inside.length - 1]) + 1]
-          : tabbable[tabbable.indexOf(inside[0]) - 1];
+        e.key === 'ArrowDown' ? tabbable[tabbable.indexOf(inside[inside.length - 1]) + 1] : tabbable[tabbable.indexOf(inside[0]) - 1];
       if (!target) return;
       e.preventDefault();
       target.focus();

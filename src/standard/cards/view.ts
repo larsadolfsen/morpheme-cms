@@ -62,7 +62,8 @@ export const cardsLayouts = ['multi-aspect-ratio', 'multi-browse', 'hero', 'hero
 export type CardsLayout = (typeof cardsLayouts)[number];
 
 /** The carousel's layout as the block says, drawn as stored (every layout is offered for every card: the editor decides); none (uncontained) without a carousel. */
-export const layoutOf = (props: Record<string, any>): CardsLayout | undefined => (phoneOf(props) ? cardsLayouts.find((l) => l === props.layout) : undefined);
+export const layoutOf = (props: Record<string, any>): CardsLayout | undefined =>
+  phoneOf(props) ? cardsLayouts.find((l) => l === props.layout) : undefined;
 
 /** A card as its field writes it. */
 export type LinkCardProps = {
