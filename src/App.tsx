@@ -23,17 +23,18 @@
 //                    post (SeoScores.tsx); and seo/<part> the site's own (seoParts)
 //   appearance         how the site looks (Library.tsx Theme): appearance/theme-store the store's themes (ThemeStoreScreen.tsx), appearance/themes the themes installed (Themes) and appearance/themes/<theme>
 //                    a theme's page, with the button that swaps to it (ThemePage), appearance/icon-packs the icon packs (IconPacks),
-//                    appearance/motion how it moves (MotionSchemes), global/side-column the block beside the pages' text (SideColumn),
+//                    global/side-column the block beside the pages' text (SideColumn),
 //                    global/header the header's menus and settings with its preview (HeaderSettings.tsx; once at header),
 //                    global/footer the footer's texts and links with its preview (FooterSettings.tsx; once at src/data/footer.json),
-//                    company/colors the colours (Colors.tsx;
-//                    company/colors/fallback-colors the site's own while an app changes the pages'),
+//   style              the main menu's Style section, one page each: style/color the colours (Colors.tsx; style/color/fallback-colors the site's own
+//                    while an app changes the pages'), style/motion how it moves (MotionSchemes), style/icons (StyleIcons), and style/elevation,
+//                    style/shape, style/typography and style/spacing the theme's design tokens (Tokens.tsx),
 //   developer          the developer screens (Library.tsx Developer), under "Settings": developer/caching the copy of the site's files in R2 and the build settings (Advanced.tsx), and
 //                    developer/parts the parts (Library.tsx PartsHome): developer/parts/editor the editor's, every
 //                    one in every state (Parts.tsx), developer/parts/ui the theme's UI components, developer/parts/blocks the
 //                    blocks, the standard ones and the apps', and developer/parts/list/<list> each kind of a list of kinds
-//                    ("Promotion"), its own and the apps' (BlockParts.tsx), and developer/parts/values the
-//                    theme's design tokens, "Values" (Tokens.tsx)
+//                    ("Promotion"), its own and the apps' (BlockParts.tsx), (the theme's design tokens
+//                    are under Style)
 //   block-settings         the blocks that can be put in, "Block settings" (BlockSettings.tsx)
 //   morpheme         "Morpheme", under "Settings": the CMS's version, a newer one and its notes, an update's progress (CmsPage.tsx),
 //                    and morpheme/<line> an older minor line's notes, e.g. morpheme/0.13 (VersionLinePage.tsx)
@@ -104,7 +105,7 @@ import SeoScores, { SEO_SCORES_ROUTE } from './SeoScores';
 import Deleted from './Deleted';
 import Parts from './Parts';
 import { BlocksParts, ComponentParts, KindParts } from './BlockParts';
-import Tokens from './Tokens';
+import { StylePage, type StyleKind } from './Tokens';
 import BrandForm from './BrandForm';
 import BlockSettings from './BlockSettings';
 import Advanced, { CACHING_ROUTE } from './Advanced';
@@ -172,6 +173,7 @@ import {
   Themes,
   IconPacks,
   MotionSchemes,
+  StyleIcons,
   motionOf,
 } from './Library';
 import {
@@ -195,6 +197,7 @@ import { useMenuOpen } from './menuOpen';
 import { MainMenu } from './MainMenu';
 import { CommandPalette } from './CommandPalette';
 import { TopBarLayout } from './topBarSlot';
+import BuildProgress from './BuildProgress';
 import { rememberEdit } from './startStorage';
 import { bulkDeletion } from './bulkDelete.mjs';
 import { Ask, ask } from './ask';
@@ -206,7 +209,7 @@ import { endOf, entriesOf, lookup, readAll } from './redirectData';
 import { inForm, leaveTo, type Status } from './FormFrame';
 import { arrived, screenOf, up } from './nav';
 import { siteT, siteText, t } from './i18n';
-import { setBuildState } from './buildState';
+import { setBuildResult, setBuildState } from './buildState';
 import { snackbar } from '../lib/snackbar';
 import { ensureAnnouncer } from '../lib/announce';
 import { appRouteOf } from '../lib/appRoute.mjs';
@@ -568,12 +571,12 @@ function Editor() {
     if (!waitingFor.current.includes(change)) waitingFor.current.push(change);
     const what = changesText(waitingFor.current);
     // The Worker says it on the phone too, also when the editor is closed by then (notificationData.ts).
-    // The form's Publish button shows it until the website is updated (buildState.ts); only a failure is a message.
+    // The form's Publish button and the strip under the bar (BuildProgress.tsx) show it until the website is updated (buildState.ts); only a failure is a message too.
     setBuildState('updating');
     const onServer = waitOnServer(saved.commit, t.app.siteUpdated(what), t.app.siteNotUpdated(what));
-    stopWaiting.current = waitForSite(saved.commit, async (online) => {
+    stopWaiting.current = waitForSite(saved.commit, async (online, buildUrl) => {
       waitingFor.current = [];
-      setBuildState('idle');
+      setBuildResult(online, buildUrl ?? null);
       const text = online ? t.app.siteUpdated(what) : t.app.siteNotUpdated(what);
       // On screen the editor says it, and the Worker does not; else only the Worker sends it to the phone.
       const byServer = document.visibilityState !== 'visible' && (await onServer);
@@ -654,7 +657,7 @@ function Editor() {
     async remove(collection, file, deleting) {
       const reason = usedBy(collection, file, files ?? []);
       if (reason) return notify(reason);
-      if (!(await ask(t.app.deleteEntry(collection.singular), t.common.delete))) return;
+      if (!(await ask(t.app.deleteEntry(collection.singular), t.common.delete, true))) return;
       deleting(true);
       notify({ text: t.common.deleting });
       const change = t.app.changes.deleted(kindAndName(collection.singular, nameOf(collection, file)));
@@ -679,7 +682,7 @@ function Editor() {
       const what = lower(collection.label);
       if (kept.length) notify({ text: t.app.notDeletedSome(kept.length, what, kept[0].reason), error: true, kind: 'failed' });
       if (!changes.length) return false;
-      if (!(await ask(t.app.deleteEntries(changes.length, what), t.common.delete))) return false;
+      if (!(await ask(t.app.deleteEntries(changes.length, what), t.common.delete, true))) return false;
       notify({ text: t.common.deleting });
       const change = t.app.changes.deleted(`${changes.length} ${what}`);
       try {
@@ -794,7 +797,12 @@ function Editor() {
     <>
       <TopBarLayout
         aside={<MainMenu route={route} files={files} user={user} />}
-        above={files && user && !user.canSave && <p className="mo-editor-read-only-bar">{t.app.cannotSave(user.login)}</p>}
+        above={
+          <>
+            {files && user && !user.canSave && <p className="mo-editor-read-only-bar">{t.app.cannotSave(user.login)}</p>}
+            <BuildProgress />
+          </>
+        }
       >
         <>
           <div className="mo-editor-content mo-fill mo-editor-content-frame">
@@ -874,7 +882,11 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'appearance') return <Theme files={files} />;
   if (route === 'appearance/themes') return <Themes env={env} files={files} />;
   if (route === 'appearance/icon-packs') return <IconPacks env={env} files={files} />;
-  if (route === 'appearance/motion') return <MotionSchemes env={env} files={files} />;
+  // Style (the main menu's section): the pages of what the theme sets. Color and Motion are the settings, the rest show the theme's values.
+  if (route === 'style/motion') return <MotionSchemes env={env} files={files} />;
+  if (route === 'style/icons') return <StyleIcons />;
+  if (route === 'style/elevation' || route === 'style/shape' || route === 'style/typography' || route === 'style/spacing')
+    return <StylePage page={route.slice('style/'.length) as StyleKind} />;
   if (route === 'global/side-column') return <SideColumn env={env} files={files} />;
   if (route === 'global/header') return <HeaderSettings env={env} />;
   if (route === 'global/footer') return <FooterSettings env={env} />;
@@ -884,7 +896,7 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (/^appearance\/themes\/[^/]+$/.test(route))
     return <StoreThemePage key={route} id={route.slice('appearance/themes/'.length)} env={env} />;
   // The colours, or the site's own on a page of the same form while an app changes the pages' (FALLBACK_ROUTE).
-  if (route === 'company/colors' || route === FALLBACK_ROUTE) return <Colors env={env} files={files} fallback={route === FALLBACK_ROUTE} />;
+  if (route === 'style/color' || route === FALLBACK_ROUTE) return <Colors env={env} files={files} fallback={route === FALLBACK_ROUTE} />;
   if (route === 'company/logo') return <BrandForm env={env} />;
   if (route === 'block-settings') return <BlockSettings env={env} files={files} />;
   if (route === SETTINGS_ROUTE) return <SettingsScreen />;
@@ -924,7 +936,6 @@ function Page({ route, files, env, user, builtAt, onLogout }: PageProps) {
   if (route === 'developer/parts/ui') return <ComponentParts />;
   if (route === 'developer/parts/blocks') return <BlocksParts />;
   if (route.startsWith('developer/parts/list/')) return <KindParts key={route} id={route.slice('developer/parts/list/'.length)} />;
-  if (route === 'developer/parts/values') return <Tokens />;
   if (route.startsWith('deleted/')) return <Deleted id={route.slice('deleted/'.length)} files={files} env={env} />;
   // company/<part>, or company/<part>/<its part> (Part.parts).
   const [, companyId, ownId, ...more] = route.split('/');

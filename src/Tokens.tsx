@@ -1,13 +1,15 @@
-// "Parts" › "Values" (#developer/parts/values): the theme's design tokens, as the theme in use sets them, to see them in one
-// place: the corners, one row for each size the theme uses (the theme's base, base.css and the site shell's files, which every
+// "Style" in the main menu (#style/<name>): the theme's design tokens, as the theme in use sets them, one page for each of Elevation,
+// Shape, Spacing and Typography (StylePage), and the site's colours under Color's settings (ColorTokens, Colors.tsx). They were the groups
+// of "Values". Shape: the corners, one row for each size the theme uses (the theme's base, base.css and the site shell's files, which every
 // theme has, and its UI parts', ui.css: each part's own variable, else the one ui.css gives it instead), named by
-// Material 3's corner radius scale where the size is one of its steps, with what has it under; the shadows, one row for
+// Material 3's corner radius scale where the size is one of its steps, with what has it under. Elevation: one row for
 // each of Material 3's elevation levels (ui.css, set by the theme to its own look) with what has it under (the theme's
-// panels and blocks and its UI parts at rest, hovered and dragged), and one for each shadow that is none of them; the
-// typography: the typeface and Material 3's type scale (ui.css), each step with its size, line height, weight and
-// tracking; and the site's colours (colorFields, "Colors") in the mode the editor is in. Each row has a sample drawn
-// with the value (LeadingToken), read from the page (getComputedStyle), so a theme's own values show without the editor
-// knowing them, and they follow light and dark mode. Nothing here is saved.
+// panels and blocks and its UI parts at rest, hovered and dragged), and one for each shadow that is none of them, and the
+// elevation classes. Typography: the typeface and Material 3's type scale (ui.css), each step with its size, line height,
+// weight and tracking. Spacing: the theme's spacing steps (--mo-ref-space-*) and its density steps. Colors: the site's colours
+// (colorFields, "Colors") in the mode the editor is in. Each row has a sample drawn with the value (LeadingToken), read from the
+// page (getComputedStyle), so a theme's own values show without the editor knowing them, and they follow light and dark mode.
+// Nothing here is saved.
 import { useEffect, useState, type ReactNode } from 'react';
 import { colorFields } from './site';
 import Screen from './Screen';
@@ -15,7 +17,6 @@ import { Group, LeadingToken, ListItem, type TokenKind } from './ui';
 import { locale, t } from './i18n';
 
 const say = t.parts.tokens;
-const back = { href: '#developer/parts', label: t.common.parts.editorParts };
 
 /** A token: its CSS variable, its name here, and for a part's own the token or the value ui.css gives it when the theme
  * does not set it (its `var(--mo-comp-filter-chip-container-shape, var(--mo-comp-block-control-radius))`). */
@@ -182,6 +183,13 @@ const colors: Token[] = colorFields.map((f) => ({ token: `--mo-sys-color-${f.nam
 
 const groups: { kind: TokenKind; title: string; tokens: Token[] }[] = [{ kind: 'color', title: say.groups.color, tokens: colors }];
 
+/** The theme's spacing steps (base/ref.css, Material 3's spacing scale), by the number in their names. */
+const SPACE_STEPS = [0, 25, 50, 75, 100, 125, 150, 175, 200, 250, 300, 400, 450, 500, 600, 700, 800, 900];
+
+/** Density (m3.material.io/foundations/layout/grids-spacing/density): 0 is a part's own size, each step below it takes 4 dp
+ * (`--mo-sys-density-step`) off its height and vertical padding. */
+const DENSITY_LEVELS = [0, -1, -2, -3];
+
 /** A count of the times the page's look may have changed (light or dark mode, the colours loaded into <head>), so the
  * values are read again. */
 function useLookChanges() {
@@ -314,60 +322,121 @@ function shadowRows() {
   ];
 }
 
-export default function Tokens() {
+/** The pages of "Style" that read tokens from the page. */
+export type StyleKind = 'elevation' | 'shape' | 'typography' | 'spacing';
+
+/** A page of "Style" (#style/elevation, #style/shape, #style/typography, #style/spacing) with the values the theme sets now. */
+export function StylePage({ page }: { page: StyleKind }) {
   useLookChanges();
   const style = getComputedStyle(document.documentElement);
   const rootSize = parseFloat(style.fontSize) || 16;
   const list = new Intl.ListFormat(locale, { type: 'conjunction' });
+  const title = {
+    elevation: t.common.parts.styleElevation,
+    shape: t.common.parts.styleShape,
+    typography: t.common.parts.styleTypography,
+    spacing: t.common.parts.styleSpacing,
+  }[page];
   return (
-    <Screen title={t.parts.screens.values} back={back}>
+    <Screen title={title}>
       <p className="mo-editor-group mo-editor-muted">{say.intro}</p>
-      <Group title={say.groups.shape}>
-        {corners(style, rootSize).map((c) => (
-          <ListItem
-            key={c.key}
-            leading={<LeadingToken kind="shape" value={c.value} />}
-            headline={cornerName(c)}
-            supporting={list.format(c.uses.map((label, i) => inList(label, i === 0)))}
-          />
-        ))}
-      </Group>
-      <Group title={say.groups.elevation}>
-        {shadowRows().map((r) => (
-          <ListItem
-            key={r.key}
-            leading={<LeadingToken kind="elevation" value={r.sample} />}
-            headline={r.title}
-            supporting={r.uses.length ? list.format(r.uses.map((label, i) => inList(label, i === 0))) : say.elevation.unused}
-          />
-        ))}
-      </Group>
-      <Group title={say.groups.elevationClasses}>
-        {elevationClasses.map((c) => (
-          <ListItem
-            key={c.name}
-            leading={<LeadingToken kind="elevation" value={c.sample} />}
-            headline={c.name}
-            supporting={c.surface ? say.elevation.classSurface : say.elevation.classElevated}
-          />
-        ))}
-      </Group>
-      <Group title={say.groups.type}>
-        <TokenRow kind="font" value={cssValue(typeface)} label={typeface.label}>
-          {described(typeface, style, rootSize)}
-        </TokenRow>
-        {typeScale.map(({ role, size, token }) => (
-          <TokenRow
-            key={token}
-            kind="font"
-            value={cssValue(typeface)}
-            weight={`var(${token}-weight)`}
-            label={say.type.step(say.type.roles[role], say.type.sizes[size])}
-          >
-            {typeValues(token, style, rootSize)}
+      {page === 'shape' && (
+        <Group title={say.groups.shape}>
+          {corners(style, rootSize).map((c) => (
+            <ListItem
+              key={c.key}
+              leading={<LeadingToken kind="shape" value={c.value} />}
+              headline={cornerName(c)}
+              supporting={list.format(c.uses.map((label, i) => inList(label, i === 0)))}
+            />
+          ))}
+        </Group>
+      )}
+      {page === 'elevation' && (
+        <>
+          <Group title={say.groups.elevation}>
+            {shadowRows().map((r) => (
+              <ListItem
+                key={r.key}
+                leading={<LeadingToken kind="elevation" value={r.sample} />}
+                headline={r.title}
+                supporting={r.uses.length ? list.format(r.uses.map((label, i) => inList(label, i === 0))) : say.elevation.unused}
+              />
+            ))}
+          </Group>
+          <Group title={say.groups.elevationClasses}>
+            {elevationClasses.map((c) => (
+              <ListItem
+                key={c.name}
+                leading={<LeadingToken kind="elevation" value={c.sample} />}
+                headline={c.name}
+                supporting={c.surface ? say.elevation.classSurface : say.elevation.classElevated}
+              />
+            ))}
+          </Group>
+        </>
+      )}
+      {page === 'typography' && (
+        <Group title={say.groups.type}>
+          <TokenRow kind="font" value={cssValue(typeface)} label={typeface.label}>
+            {described(typeface, style, rootSize)}
           </TokenRow>
+          {typeScale.map(({ role, size, token }) => (
+            <TokenRow
+              key={token}
+              kind="font"
+              value={cssValue(typeface)}
+              weight={`var(${token}-weight)`}
+              label={say.type.step(say.type.roles[role], say.type.sizes[size])}
+            >
+              {typeValues(token, style, rootSize)}
+            </TokenRow>
+          ))}
+        </Group>
+      )}
+      {page === 'spacing' && <Spacing style={style} rootSize={rootSize} />}
+    </Screen>
+  );
+}
+
+/** The spacing steps the theme sets, smallest first, and the density steps with the one in use. */
+function Spacing({ style, rootSize }: { style: CSSStyleDeclaration; rootSize: number }) {
+  const read = (name: string) => pixels(style.getPropertyValue(name).trim(), rootSize);
+  const step = read('--mo-sys-density-step') ?? 4;
+  const inUse = parseFloat(style.getPropertyValue('--mo-sys-density').trim()) || 0;
+  return (
+    <>
+      <Group title={say.groups.spacing}>
+        {SPACE_STEPS.flatMap((n) => {
+          const token = `--mo-ref-space-${n}`;
+          const px = read(token);
+          return px === undefined ? [] : [<ListItem key={token} headline={say.spacing.step(+px.toFixed(2))} supporting={token} />];
+        })}
+      </Group>
+      <Group title={say.groups.density}>
+        {DENSITY_LEVELS.map((level) => (
+          <ListItem
+            key={level}
+            headline={`${say.spacing.density(level)} · ${say.spacing.densityName[String(level)]}`}
+            supporting={
+              level === inUse
+                ? `${say.spacing.densityValue(-level * step)} · ${say.spacing.inUse(level)}`
+                : say.spacing.densityValue(-level * step)
+            }
+          />
         ))}
       </Group>
+    </>
+  );
+}
+
+/** The site's colours as tokens, under Color's settings (Colors.tsx). */
+export function ColorTokens() {
+  useLookChanges();
+  const style = getComputedStyle(document.documentElement);
+  const rootSize = parseFloat(style.fontSize) || 16;
+  return (
+    <>
       {groups.map((g) => (
         <Group key={g.title} title={g.title}>
           {g.tokens.map((x) => (
@@ -377,7 +446,7 @@ export default function Tokens() {
           ))}
         </Group>
       ))}
-    </Screen>
+    </>
   );
 }
 

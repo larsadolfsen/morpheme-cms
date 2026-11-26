@@ -1,7 +1,14 @@
 // The Worker takes the CMS's new versions by itself: once a day, at night in the site's own time zone (dailyCheck, run by the hourly
-// cron: NIGHT_HOUR and checkDue in lib/cms-version.mjs), it asks npm for the newest @morphemecms/cms, commits the new exact
-// version in package.json and package-lock.json (and, for the version that reads only the new class names, 0.19.0, the `class` attributes of every content collection and data file, in the same commit), and each minute watches the commit's check run, undoing a version that did not build.
-// Exposes RUNNING, dailyCheck, checkForUpdate, startUpdate, watchUpdate, cmsStatus and handleCms (/api/cms, and GET /api/cms/note-image/<version>/<locale>/<id>,
+// cron: NIGHT_HOUR and checkDue in lib/cms-version.mjs), it asks npm for the newest @morphemecms/cms and tries it on a branch first
+// (docs/superpowers/specs/2026-11-25-safe-cms-update-design.md): the new exact version in package.json and package-lock.json (and, for the
+// version that reads only the new class names, 0.19.0, the `class` attributes of every content collection and data file) is committed to the
+// branch `cms-update-<version>`, cut from the site's branch, which Cloudflare builds as a preview. Each minute watchUpdate reads the build's
+// result (the preview's /editor/version.json, and the check run where the token may read it). A green branch is moved onto the site's branch
+// (a fast-forward, never a force; the update is written again on top of the new head when the site's branch moved meanwhile) and deleted; a
+// red branch, or none that answers, is deleted and the version is tried again 24 hours later (cms:retry:<version>), and the site's branch is never touched, so
+// saves keep going live. An update that still fails once it is on the site's branch is undone to the version this Worker runs (RUNNING), never
+// to the version package.json had; repair() does the same for a version the Worker committed itself when builds of the branch keep failing.
+// Exposes RUNNING, NoPreview, previewAddress, rememberHost, dailyCheck, checkForUpdate, startUpdate, watchUpdate, cmsStatus and handleCms (/api/cms, and GET /api/cms/note-image/<version>/<locale>/<id>,
 // behind the same login check). Needs GITHUB_PUBLISH_TOKEN and the KV binding PUSH. Keeps each new version's changelog text and release
 // notes (en-US, da-DK) as cms:notes:<version> and each paragraph's screenshot as cms:note-image:<version>:<locale>:<id>; cmsStatus returns
 // the notes to come, with the screenshot address on each paragraph. Depends on github.js, session.js, push.js and lib/{lockfile,cms-version,changelog,releaseNotes}.mjs;
@@ -15,13 +22,23 @@ import { crossesClassNames, holdsMarkdown, migrateClassNamesPath, revertClassNam
 import { CodeMigrationStop, MIGRATIONS_FILE, crossesCode, migrateCode, unsafeLines } from '../lib/migrate-code.mjs';
 import { migrateIconNamesPath } from '../lib/migrate-icons.mjs';
 import { contractHold, parseContracts } from '../lib/contractHold.mjs';
-import { checkDue, compareVersions, managedVersion, nextVersion, PACKAGE, siteZone, watchStep } from '../lib/cms-version.mjs';
+import {
+  checkDue,
+  compareVersions,
+  managedVersion,
+  nextVersion,
+  PACKAGE,
+  RETRY_AFTER,
+  retryAt,
+  siteZone,
+  watchStep,
+} from '../lib/cms-version.mjs';
 import { withInstallDefaults } from '../lib/npmrc.mjs';
 import { fileFromTar, gunzip, sectionsBetween } from '../lib/changelog.mjs';
 import { imageKey, notesFromTar, parseImagePath, withImageUrls } from '../lib/releaseNotes.mjs';
 import pkg from '../package.json';
 import { GitHubError } from './files.js';
-import { commitFiles, readFiles, readFolder, readStoreItems } from './github.js';
+import { commitFiles, createBranch, deleteBranch, fastForward, readFiles, readFolder, readStoreItems } from './github.js';
 import { json } from './not-found.js';
 import { notifyAll } from './push.js';
 import { releaseFor } from './store.js';
@@ -51,7 +68,42 @@ export class UnsafeCode extends Error {
   }
 }
 
+/** The update has nowhere to be tried: the Worker cannot tell the address of the branch's preview (previewAddress), so the site is left as it is. */
+export class NoPreview extends Error {
+  constructor() {
+    super('no-preview');
+  }
+}
+
+const HOST = 'cms:host';
+
+/** Keeps the Worker's own *.workers.dev hostname (seen on a request to the editor; a branch's preview has no KV, so it never writes here), for the cron, which has no request. */
+export async function rememberHost(request, env) {
+  const host = new URL(request.url).hostname.toLowerCase();
+  if (!env?.PUSH || !host.endsWith('.workers.dev')) return;
+  if ((await env.PUSH.get(HOST)) !== host) await env.PUSH.put(HOST, host);
+}
+
+/**
+ * The address of a branch's preview, where its /editor/version.json says what it was built from; null when the Worker cannot tell. The ONE place that
+ * knows how the address is made (Architect, 26 Nov 2026): Cloudflare serves a branch at `<branch>-<worker name>.<account>.workers.dev`, so it is the Worker's
+ * own *.workers.dev hostname (rememberHost) with the branch's name in front of its first label. The branch's name is lower-case letters, digits and hyphens
+ * only (branchOf), so Cloudflare's alias rule for `/` and `.` never applies. The Worker variable PREVIEW_URL, the address with `{branch}` where the name goes,
+ * overrides it (a site on its own preview address). Neither: null, and nothing is tried on a branch (NoPreview).
+ * @returns {Promise<string | null>}
+ */
+export async function previewAddress(env, branch) {
+  const template = env?.PREVIEW_URL;
+  if (typeof template === 'string' && template.includes('{branch}')) return template.replace('{branch}', branch).replace(/\/$/, '');
+  const host = await env?.PUSH?.get(HOST).catch(() => null);
+  return typeof host === 'string' && host.endsWith('.workers.dev') ? `https://${branch}-${host}` : null;
+}
+
 const defaultDeps = {
+  createBranch,
+  deleteBranch,
+  fastForward,
+  previewAddress,
   readFiles,
   readFolder,
   readStoreItems,
@@ -196,11 +248,8 @@ async function heldByContract(env, deps, version) {
 
 const putJson = (kv, key, value) => kv.put(key, JSON.stringify(value));
 
-/** Writes package.json and the lock for `version`, commits it and keeps `cms:update`. Throws NeedsNpm or a GitHubError. */
-export async function startUpdate(env, version, deps = defaultDeps, now = Date.now()) {
-  const site = await readSite(env, deps);
-  const managed = managedVersion(site.packageJson, site.lock);
-  if (!('version' in managed)) throw new Error('not-managed');
+/** The update's files for `version` on top of the site `site` (package.json and the lock, the content and the own code it takes with it): the changes, and what each rewritten file was. */
+async function planUpdate(env, deps, site, managed, version) {
   const changes = await filesFor(env, deps, site, version);
   // The version that reads only the new class names takes the site's content with it, in the same commit (only the `class`
   // attributes; never a word of text), so the site never has a version and content that do not match.
@@ -222,18 +271,52 @@ export async function startUpdate(env, version, deps = defaultDeps, now = Date.n
         )
       : [];
   const own = code ? await codeChanges(env, deps, managed.version, originals) : [];
-  const commit = await deps.commitFiles(env, site.head, siteTexts().commitUpdate(version), [...changes, ...migrated, ...own]);
+  return { all: [...changes, ...migrated, ...own], migrated, own, originals };
+}
+
+/** What the update rewrote, as the files were before: kept for the undo (KV). */
+const keepBackup = (env, originals) =>
+  originals.size ? putJson(env.PUSH, BACKUP, Object.fromEntries(originals)) : env.PUSH.delete(BACKUP); // none left over from an older update
+
+/** The branch an update to `version` is tried on. */
+const branchOf = (version) =>
+  `cms-update-${String(version)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')}`;
+
+/**
+ * Tries `version` on a branch: writes package.json and the lock there, commits it (the site's branch is not touched) and keeps `cms:update` as 'trying'.
+ * Throws NoPreview, NeedsNpm, UnsafeCode or a GitHubError.
+ */
+export async function startUpdate(env, version, deps = defaultDeps, now = Date.now(), restarted = false) {
+  const branch = branchOf(version);
+  if (!(await deps.previewAddress(env, branch))) throw new NoPreview();
+  const site = await readSite(env, deps);
+  const managed = managedVersion(site.packageJson, site.lock);
+  if (!('version' in managed)) throw new Error('not-managed');
+  const plan = await planUpdate(env, deps, site, managed, version);
+  await deps.deleteBranch(env, branch).catch(() => {}); // one kept from an update that could not be merged
+  await deps.createBranch(env, branch, site.head);
+  let commit;
+  try {
+    commit = await deps.commitFiles(env, site.head, siteTexts().commitUpdate(version), plan.all, undefined, undefined, branch);
+  } catch (e) {
+    await deps.deleteBranch(env, branch).catch(() => {});
+    throw e;
+  }
   const update = {
+    state: 'trying',
+    branch,
     commit,
+    base: site.head,
     from: managed.version,
     to: version,
     at: iso(now),
-    state: 'waiting',
-    ...(migrated.length ? { migrated: migrated.map((c) => c.path) } : {}),
-    ...(own.length ? { code: own.map((c) => c.path) } : {}),
+    ...(restarted ? { restarted: true } : {}),
+    ...(plan.migrated.length ? { migrated: plan.migrated.map((c) => c.path) } : {}),
+    ...(plan.own.length ? { code: plan.own.map((c) => c.path) } : {}),
   };
-  if (originals.size) await putJson(env.PUSH, BACKUP, Object.fromEntries(originals));
-  else await env.PUSH.delete(BACKUP); // none left over from an older update
+  await keepBackup(env, plan.originals);
   await putJson(env.PUSH, 'cms:update', update);
   return update;
 }
@@ -256,6 +339,12 @@ async function keepNotes(env, deps, current, latest) {
 
 const versionsUnder = async (kv, prefix) => (await kv.list({ prefix })).keys.map((k) => k.name.slice(prefix.length));
 
+/** The versions that failed on their branch, each with the time of its last try and why (cms:retry:<version>; they are tried again after RETRY_AFTER). */
+async function failedVersions(kv) {
+  const rows = await Promise.all((await versionsUnder(kv, 'cms:retry:')).map((v) => kv.get(`cms:retry:${v}`, 'json')));
+  return rows.filter(Boolean).map((r) => ({ ...r, retryAt: retryAt(r) }));
+}
+
 /**
  * Each hour (the hourly cron, also on a site whose wrangler.jsonc is older than this): checks npm only when the day's check is
  * due (checkDue: once a day, from 03:00 in the site's time zone), else one KV read and nothing more. Staging is not slowed
@@ -264,7 +353,11 @@ const versionsUnder = async (kv, prefix) => (await kv.list({ prefix })).keys.map
  */
 export async function dailyCheck(env, deps = defaultDeps, now = Date.now(), zone = siteZone(config)) {
   if (!env.PUSH) return; // nothing can be kept without it; the page says so (cmsStatus: kv)
-  if (!checkDue(now, await env.PUSH.get('cms:checked', 'json'), zone)) return;
+  await repair(env, deps, now).catch(() => {});
+  const checked = await env.PUSH.get('cms:checked', 'json');
+  // A version that failed is tried again 24 hours after its try, which is not always at the night's hour.
+  const retryDue = checked?.problem?.kind === 'failed' && now >= (checked.problem.retryAt ?? 0);
+  if (!retryDue && !checkDue(now, checked, zone)) return;
   return checkForUpdate(env, deps, now);
 }
 
@@ -273,7 +366,7 @@ export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) 
   if (!env.PUSH) return;
   const kv = env.PUSH;
   const update = await kv.get('cms:update', 'json');
-  if (update?.state === 'waiting' || update?.state === 'undoing') return;
+  if (update?.state === 'trying' || update?.state === 'waiting' || update?.state === 'undoing') return;
   const before = await kv.get('cms:checked', 'json');
   let latest = before?.latest ?? null;
   const record = (problem) =>
@@ -293,10 +386,10 @@ export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) 
   } catch {
     return record({ kind: 'unreachable' });
   }
-  const next = nextVersion(managed.version, latest, await versionsUnder(kv, 'cms:skip:'));
+  const next = nextVersion(managed.version, latest, await failedVersions(kv), now);
   if (!next) return record();
   if (!(await kv.get(`cms:notes:${latest}`, 'json'))) await keepNotes(env, deps, managed.version, latest).catch(() => {});
-  if (!next.auto) return record({ kind: next.why });
+  if (!next.auto) return record({ kind: next.why, retryAt: next.retryAt });
   // A version whose contracts a theme or an app from the store is not written to is not taken by itself: the site would keep
   // building, but lose that theme's or app's look. The owner presses Update (or the store has a newer version) when ready.
   try {
@@ -317,6 +410,7 @@ export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) 
   try {
     await startUpdate(env, next.version, deps, now);
   } catch (e) {
+    if (e instanceof NoPreview) return record({ kind: 'no-preview' });
     if (e instanceof NeedsNpm) return record({ kind: 'needs-npm', detail: e.message });
     if (e instanceof UnsafeCode) return record({ kind: 'unsafe-code', detail: unsafeLines(e.list).join('\n') });
     return record(forbidden(e) ? { kind: 'cannot-write' } : { kind: 'unreachable' });
@@ -324,8 +418,11 @@ export async function checkForUpdate(env, deps = defaultDeps, now = Date.now()) 
   return record();
 }
 
-/** The conclusion of the newest check run of Cloudflare's build on a commit; null when none, or when GitHub will not say. */
-async function checkOf(env, deps, sha, now) {
+/** The page of a commit's checks on GitHub: where the build's own link is when the check run cannot be read. */
+const checksPage = (sha) => `https://github.com/${config.repo.owner}/${config.repo.name}/commit/${sha}/checks`;
+
+/** The newest check run of Cloudflare's build on a commit: its conclusion ('success' | 'failure') and link; null when none, or when GitHub will not say. */
+async function buildOf(env, deps, sha, now) {
   const { owner, name } = config.repo;
   const res = await deps.fetch(`https://api.github.com/repos/${owner}/${name}/commits/${sha}/check-runs`, {
     headers: { authorization: `Bearer ${env.GITHUB_PUBLISH_TOKEN}`, accept: 'application/vnd.github+json', 'user-agent': `${name}-worker` },
@@ -340,13 +437,25 @@ async function checkOf(env, deps, sha, now) {
   const run = runs
     .filter((r) => r.app?.slug === BUILD_APP)
     .sort((a, b) => Date.parse(b.started_at ?? '') - Date.parse(a.started_at ?? ''))[0];
-  return run?.conclusion === 'success' || run?.conclusion === 'failure' ? run.conclusion : null;
+  if (run?.conclusion !== 'success' && run?.conclusion !== 'failure') return null;
+  return { conclusion: run.conclusion, url: run.html_url ?? run.details_url ?? checksPage(sha) };
 }
 
-/** The update written back to the version it came from, committed. Returns the commit's id. */
+/** The result of a branch's build: 'success' when its preview says it was built from the update's commit, else the check run's. */
+async function branchBuild(env, deps, update, now) {
+  const address = await deps.previewAddress(env, update.branch);
+  if (address) {
+    const built = await getJson(deps, `${address}/editor/version.json`).catch(() => null);
+    if (built?.commit === update.commit) return { conclusion: 'success', url: checksPage(update.commit) };
+  }
+  return (await buildOf(env, deps, update.commit, now).catch(() => null)) ?? { conclusion: null, url: checksPage(update.commit) };
+}
+
+/** `RUNNING` written into package.json and the lock, with the files the update rewrote put back, committed on the site's branch. Returns the commit's id. */
 async function undoCommit(env, deps, update) {
   const site = await readSite(env, deps);
-  const changes = await filesFor(env, deps, site, update.from, false);
+  // The version the Worker runs, which was built and deployed; never the version package.json had before (it may not build itself).
+  const changes = await filesFor(env, deps, site, RUNNING, false);
   // The files the update rewrote go back with the version, as the commit's one change: the saved texts where there are some, else the class names reverted.
   const backup = (await env.PUSH.get(BACKUP, 'json')) ?? {};
   const rest = update.migrated?.filter((p) => !(p in backup));
@@ -357,17 +466,100 @@ async function undoCommit(env, deps, update) {
   return done;
 }
 
-/** Each minute: watches the update's (or its undo's) check run. One KV read when nothing is waiting. */
+/** A version that did not build: its branch deleted, the reason and the time kept (cms:retry:<version>) for the next try in 24 hours, and the page told. The site's branch is as it was. */
+async function failed(env, deps, update, reason, url, now, state = 'failed', keepBranch = false) {
+  const kv = env.PUSH;
+  if (update.branch && !keepBranch) await deps.deleteBranch(env, update.branch).catch(() => {});
+  await putJson(kv, `cms:retry:${update.to}`, { version: update.to, at: iso(now), reason, ...(url ? { buildUrl: url } : {}) });
+  await kv.delete(BACKUP);
+  await putJson(kv, 'cms:update', {
+    ...update,
+    state,
+    reason,
+    ...(url ? { buildUrl: url } : {}),
+    at: iso(now),
+    retryAt: now + RETRY_AFTER,
+  });
+}
+
+/**
+ * A branch that built: its commit becomes the site's head by a fast-forward, never a commit on the site's branch (the green build comes first).
+ * Refused because the site's branch moved meanwhile (something was saved): the update starts over from the new head, once in a run (a new branch, a new
+ * preview); a second move leaves the next scheduled check to try again. Refused for any other reason (a rule, a protection, a permission): the update ends as
+ * failed with the reason 'cannot-merge' at once, the site's branch as it was and the update's branch kept.
+ */
+async function promote(env, deps, update, now) {
+  const commit = update.commit;
+  try {
+    await deps.fastForward(env, update.commit);
+  } catch {
+    const site = await readSite(env, deps).catch(() => null);
+    if (!site || site.head === update.base) return failed(env, deps, update, 'cannot-merge', null, now, 'failed', true);
+    await deps.deleteBranch(env, update.branch).catch(() => {});
+    if (!update.restarted) {
+      try {
+        await startUpdate(env, update.to, deps, now, true);
+        return;
+      } catch {
+        // falls through: nothing is tried now
+      }
+    }
+    await env.PUSH.delete('cms:update');
+    return;
+  }
+  await deps.deleteBranch(env, update.branch).catch(() => {});
+  await env.PUSH.delete(`cms:retry:${update.to}`);
+  // The version is on the site's branch now; its own build is watched as before. `own` is what repair() may take back.
+  await putJson(env.PUSH, 'cms:own', { version: update.to, commit, at: iso(now), migrated: update.migrated, code: update.code });
+  await putJson(env.PUSH, 'cms:update', { ...update, state: 'waiting', commit, at: iso(now) });
+}
+
+/**
+ * Builds of the site's branch keep failing and its package.json names a version this Worker committed itself (cms:own): the version this
+ * Worker runs is committed back, with the content backup, so every save since then goes live. A version a person set (a pull request, a pin by hand) is
+ * never touched: then package.json no longer names what the Worker wrote, and only the failed build shows.
+ */
+async function repair(env, deps, now) {
+  const kv = env.PUSH;
+  const own = await kv.get('cms:own', 'json');
+  if (!own || !env.GITHUB_PUBLISH_TOKEN) return;
+  if (own.version === RUNNING) return void (await kv.delete('cms:own'));
+  const update = await kv.get('cms:update', 'json');
+  if (update?.state === 'trying' || update?.state === 'waiting' || update?.state === 'undoing') return;
+  const site = await readSite(env, deps);
+  const managed = managedVersion(site.packageJson, site.lock);
+  if (!('version' in managed) || managed.version !== own.version) return void (await kv.delete('cms:own'));
+  const build = await buildOf(env, deps, site.head, now);
+  if (build?.conclusion !== 'failure') return;
+  const undo = { to: own.version, from: RUNNING, migrated: own.migrated, code: own.code };
+  const commit = await undoCommit(env, deps, undo);
+  await kv.delete('cms:own');
+  await putJson(kv, 'cms:update', {
+    ...undo,
+    commit: own.commit,
+    at: iso(now),
+    state: 'undoing',
+    undoCommit: commit,
+    undoAt: iso(now),
+    repaired: true,
+  });
+}
+
+/** Each minute: watches the update's branch, then its build on the site's branch (or its undo's). One KV read when nothing is waiting. */
 export async function watchUpdate(env, deps = defaultDeps, now = Date.now()) {
   if (!env.PUSH) return;
   const kv = env.PUSH;
   const update = await kv.get('cms:update', 'json');
-  if (update?.state !== 'waiting' && update?.state !== 'undoing') return;
+  if (update?.state !== 'trying' && update?.state !== 'waiting' && update?.state !== 'undoing') return;
   if (!env.GITHUB_PUBLISH_TOKEN) return;
-  const sha = update.state === 'waiting' ? update.commit : update.undoCommit;
-  const check = update.state === 'waiting' && update.to === RUNNING ? null : await checkOf(env, deps, sha, now).catch(() => null);
-  const step = watchStep(update, RUNNING, check, now);
+  let build = { conclusion: null, url: null };
+  if (update.state === 'trying') build = await branchBuild(env, deps, update, now);
+  else if (!(update.state === 'waiting' && update.to === RUNNING))
+    build = (await buildOf(env, deps, update.state === 'waiting' ? update.commit : update.undoCommit, now).catch(() => null)) ?? build;
+  const step = watchStep(update, RUNNING, build.conclusion, now);
   if (step === 'wait') return;
+  if (step === 'promote') return promote(env, deps, update, now);
+  if (step === 'fail') return failed(env, deps, update, build.conclusion === 'failure' ? 'build-failed' : 'no-answer', build.url, now);
   if (step === 'done') {
     await putJson(kv, 'cms:update', { ...update, state: 'done' });
     return tell(env, deps, 'notifyDone', update.to);
@@ -379,18 +571,24 @@ export async function watchUpdate(env, deps = defaultDeps, now = Date.now()) {
   if (step === 'undo') {
     try {
       const commit = await undoCommit(env, deps, update);
-      await putJson(kv, `cms:skip:${update.to}`, { version: update.to, commit: update.commit, at: iso(now) });
+      await kv.delete('cms:own');
+      await putJson(kv, `cms:retry:${update.to}`, {
+        version: update.to,
+        at: iso(now),
+        reason: build.conclusion === 'failure' ? 'build-failed' : 'no-answer',
+        ...(build.url ? { buildUrl: build.url } : {}),
+      });
       return await putJson(kv, 'cms:update', { ...update, state: 'undoing', undoCommit: commit, undoAt: iso(now) });
     } catch {
       // The undo could not be committed either.
     }
   }
-  await putJson(kv, 'cms:update', { ...update, state: 'stuck' });
+  await putJson(kv, 'cms:update', { ...update, state: 'stuck', buildUrl: build.url ?? checksPage(update.undoCommit ?? update.commit) });
   return tell(env, deps, 'notifyStuck', update.to, true);
 }
 
 /**
- * What the page shows: the running version, the token, what npm said, the update, the skipped versions, the notes of the
+ * What the page shows: the running version, the token, what npm said, the update, the versions that failed (`failed`: version, time of the last try, reason, the build's link, `retryAt`; `skipped` is their versions), the notes of the
  * versions still to come (`notes`). Each entry is `{ version, text, notes? }`; `notes` maps a locale to its release notes. The list stays
  * empty when the running version is a pre-release. The running version's own notes are not here: the editor reads them from the package (src/bundledNotes.ts).
  */
@@ -403,13 +601,15 @@ export async function cmsStatus(env, running = RUNNING) {
     checked: null,
     update: null,
     skipped: [],
+    failed: [],
     notes: [],
   };
   const plain = /^\d+\.\d+\.\d+$/;
   if (!kv) return status;
   status.checked = await kv.get('cms:checked', 'json');
   status.update = await kv.get('cms:update', 'json');
-  status.skipped = await versionsUnder(kv, 'cms:skip:');
+  status.failed = await failedVersions(kv);
+  status.skipped = status.failed.map((f) => f.version);
   if (!plain.test(running)) return status;
   const kept = await versionsUnder(kv, 'cms:notes:');
   const entries = (rows) =>
@@ -441,17 +641,18 @@ export async function handleCms(request, env, ctx, deps = defaultDeps) {
   const posting = !!match[1];
   if (request.method !== (posting ? 'POST' : 'GET')) return json({ error: 'method' }, 405);
   if (!(await deps.mayEdit(request))) return json({ error: 'forbidden' }, 403);
+  await rememberHost(request, env).catch(() => {});
   if (!posting) return json(await cmsStatus(env));
   if (!env.GITHUB_PUBLISH_TOKEN || !env.PUSH) return json({ error: 'not-set-up' }, 503);
   const { version } = await request.json().catch(() => ({}));
   const checked = await env.PUSH.get('cms:checked', 'json');
   if (typeof version !== 'string' || version !== checked?.latest) return json({ error: 'version' }, 400);
   const current = await env.PUSH.get('cms:update', 'json');
-  if (current?.state === 'waiting' || current?.state === 'undoing') return json({ error: 'waiting' }, 409);
-  await env.PUSH.delete(`cms:skip:${version}`);
+  if (current?.state === 'trying' || current?.state === 'waiting' || current?.state === 'undoing') return json({ error: 'waiting' }, 409);
   try {
     return json({ update: await startUpdate(env, version, deps) });
   } catch (e) {
+    if (e instanceof NoPreview) return json({ error: 'no-preview' }, 422);
     if (e instanceof NeedsNpm) return json({ error: 'needs-npm', detail: e.message }, 422);
     if (e instanceof UnsafeCode) return json({ error: 'unsafe-code', detail: unsafeLines(e.list) }, 422);
     if (forbidden(e)) return json({ error: 'cannot-write' }, 502);

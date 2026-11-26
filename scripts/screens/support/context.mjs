@@ -15,7 +15,7 @@ import { glyphProblems } from './icon-pack.mjs';
 const i18nDir = fileURLToPath(new URL('../../../src/i18n/da-DK/', import.meta.url));
 const bundled = await build({
   stdin: {
-    contents: ['apps', 'app', 'cms', 'dashboard', 'common', 'library', 'text', 'blocks']
+    contents: ['apps', 'app', 'cms', 'dashboard', 'common', 'library', 'text', 'blocks', 'forms']
       .map((name) => `export { ${name} } from './${name}.ts';`)
       .join('\n'),
     resolveDir: i18nDir,
@@ -37,6 +37,7 @@ export const {
   library: daLibrary,
   text: daText,
   blocks: daBlocks,
+  forms: daForms,
 } = texts;
 
 // The same messages in English, for a check that reads the site's own texts: the site's page is in the site's language (`<html lang>`), not the

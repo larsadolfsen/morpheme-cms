@@ -110,6 +110,8 @@ export const library: Messages['library'] = {
   iconPackByline: (author, license) => `${author} · ${license}`,
   iconPackFrom: (theme) => `Fra temaet ${theme}`,
   iconPackSamples: (name) => `Ikoner fra ${name}`,
+  styleIconsName: 'Material Symbols',
+  styleIconsHint: 'De ikoner, editoren og hjemmesiden tegner.',
   iconPackInUse: 'I brug',
   iconPackNext: 'Skifter hertil om et par minutter',
   changeIconPack: 'Skift ikonpakke',
