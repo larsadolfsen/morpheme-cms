@@ -58,7 +58,7 @@ The page and post editor. It follows Material 3 like the rest of the editor (`CL
 12. **Add buttons** (*Add list row*, *Add card*) are Material 3's outlined button: an `outline-variant` outline, an
     `on-surface-variant` label (M3 Buttons, Specs, read 26 Nov 2026).
 
-13. **One menu per level, and only the innermost shows** (owner, 26 Nov 2026: "yes"). Each action has one home:
+13. **One menu per level** (owner, 26 Nov 2026: "yes"). Each action has one home:
     - the editor's toolbar holds the page and its text only (*Add block*, text formatting, undo, redo, its overflow menu), never a
       block's or an item's action;
     - the block menu, on the selected block, holds every action of the block (move, hide, duplicate, delete, *Block settings*);
@@ -66,8 +66,9 @@ The page and post editor. It follows Material 3 like the rest of the editor (`CL
       *Above* and *Below*, plan B, *bundled actions*) and *Remove*. The link stays the item's own link button (rule 10), so it is
       not in two places.
 
-    While an item is active its menu takes the block menu's place; Escape, or a tap on the block outside the item, goes back to the
-    block and its menu.
+    An item menu never replaces the block menu (owner, 26 Nov 2026: "No an item menu cannot replace a block menu"): while an item is
+    active, the block keeps its menu and the item shows its own as well. Escape, or a tap on the block outside the item, closes the
+    item and its menu.
 14. **The item menu looks like the block menu, one size smaller** (owner, 26 Nov 2026: "yes"): the same bar and icon buttons, with
     M3's next smaller icon-button size (read on the M3 *Icon buttons* pages in the build), keeping a 48px target.
 15. **The Save bar hides while the phone's keyboard is open** (owner, 26 Nov 2026: "yes") and comes back when the keyboard closes.
@@ -93,6 +94,6 @@ Center link and icon verically", and then "Keep current formatting."
 
 - `check:screens`: a unit per row block and per card block, closed and active, on a phone and a computer, light and dark, and with
   the keyboard (focus ring) and the pointer (blue border); the toolbar holds no block or item action, an active item shows its
-  menu and not the block's, and on a phone the Save bar is hidden while the keyboard is open.
+  menu and the block keeps its own, and on a phone the Save bar is hidden while the keyboard is open.
 - Contrast: the part's border (3:1), the placeholders (4.5:1), on every section colour (`check:screens` already walks
   `inlineBlocks` on each).
