@@ -1112,7 +1112,7 @@ function Form({
   async function discardNow(draft = !!waiting) {
     if (draft ? !waiting : !dirty) return;
     const answer = await choose({
-      title: t.forms.versions.discardTitle,
+      title: draft ? t.forms.versions.discardDraftTitle : t.forms.versions.discardTitle,
       text: t.forms.versions.discardText(post, livePublished),
       choices: [{ value: 'discard', label: draft ? t.forms.versions.discardDraft : t.app.discard }],
     });

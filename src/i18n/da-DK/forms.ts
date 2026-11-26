@@ -111,6 +111,7 @@ export const forms: Messages['forms'] = {
     unpublishText: (post) =>
       `${post ? 'Indlægget' : 'Siden'} forsvinder fra hjemmesiden og bliver en kladde. Ændringer, der venter på at blive udgivet, bliver liggende.`,
     discardTitle: 'Kassér ændringerne?',
+    discardDraftTitle: 'Kassér kladden?',
     discardText: (post, published) =>
       `${post ? 'Indlægget' : 'Siden'} går tilbage til sin ${published ? 'udgivne' : 'senest gemte'} version.`,
     addressWaiting: 'Udgiv eller kassér ændringerne, før du ændrer URL’en.',
