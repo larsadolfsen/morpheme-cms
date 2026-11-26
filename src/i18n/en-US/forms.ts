@@ -7,6 +7,8 @@ export const forms = {
   /** The sections of a page's or a post's form, in its navigation drawer (EntryForm.tsx): its name, the text, and the
    * first, with a page's title, status and template (a post's status). */
   sections: { title: 'Sections', content: 'Content', pageSettings: 'Page settings', postSettings: 'Post settings' },
+  /** The section at the end of a page's or post's form that holds what cannot be undone: Discard, Discard draft, Delete. */
+  danger: 'Danger',
   otherFields: 'Other fields',
   seo: 'Search engines',
   /** The section after it: the image, title and description when the page is shared, under a preview of how a link
@@ -144,6 +146,7 @@ export const forms = {
     unpublishText: (post: boolean) =>
       `The ${post ? 'post' : 'page'} leaves the website and becomes a draft. Changes that wait to be published stay.`,
     discardTitle: 'Discard your changes?',
+    discardDraftTitle: 'Discard the draft?',
     /** `published`: the page or post has a published version to go back to; else it goes back to its last saved version. */
     discardText: (post: boolean, published: boolean) =>
       `The ${post ? 'post' : 'page'} goes back to its ${published ? 'published' : 'last saved'} version.`,
