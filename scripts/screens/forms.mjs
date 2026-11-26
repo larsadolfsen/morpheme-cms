@@ -327,7 +327,7 @@ async function checkOtherTabs(width, height) {
   virtualFile('src/content/pages/zz-tabs-other.md', `---\ntitle: "Tabs other"\n---\n\n# Tabs other\n\nText.\n`);
   try {
     await openEditor(page, site);
-    await page.goto(`${site}/editor/#company/colors`);
+    await page.goto(`${site}/editor/#style/color`);
     const modes = page.getByRole('tablist', { name: 'Mode' });
     await modes.waitFor({ timeout: 15_000 });
     const bar = await modes.evaluate((el) => {
@@ -389,7 +389,7 @@ async function checkTabsAdapt(width, height) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   try {
     await openEditor(page, site);
-    await page.goto(`${site}/editor/#company/colors`);
+    await page.goto(`${site}/editor/#style/color`);
     const list = page.getByRole('tablist', { name: 'Mode' });
     await list.waitFor({ timeout: 15_000 });
     await page.waitForTimeout(500);
@@ -509,6 +509,111 @@ async function checkDanger(width, height) {
   }
 }
 
+// The rows of Danger start at the leading edge like the rows above them (nothing centres them), left to right and right to left (the PM, 26 Nov 2026).
+async function checkDangerAlign(width, height, dir) {
+  const label = `${width}px danger rows ${dir}`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  virtualFile('src/content/pages/zz-danger-align.md', `---\ntitle: "Align page"\n---\n\n# Align page\n\nPublished text.\n`);
+  try {
+    await openEditor(page, site);
+    await page.goto(`${site}/editor/#src/content/pages/zz-danger-align.md`);
+    await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+    await page.locator('.ProseMirror p').first().click();
+    await page.keyboard.type(' more');
+    await page.evaluate((d) => (document.documentElement.dir = d), dir);
+    const danger = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: /^Danger$/ }) });
+    await danger.waitFor({ timeout: 10_000 });
+    const toggle = danger.locator('h2 button');
+    if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+    // The danger buttons (tone="error"; owner, 26 Nov 2026): Delete page filled, Discard outlined, both in the error role, the first at the leading edge of the section's flow.
+    const rows = await danger
+      .locator(':scope > div')
+      .getByRole('button')
+      .evaluateAll((els) => {
+        const box = els[0]?.parentElement?.getBoundingClientRect();
+        return els.map((e) => {
+          const r = e.getBoundingClientRect();
+          const rtl = getComputedStyle(e).direction === 'rtl';
+          return {
+            name: e.textContent.trim(),
+            gap: box ? Math.round(rtl ? box.right - r.right : r.left - box.left) : 0,
+            error: e.classList.contains('mo-is-error'),
+            kind: e.classList.contains('mo-is-filled') ? 'filled' : e.classList.contains('mo-is-outlined') ? 'outlined' : 'other',
+          };
+        });
+      });
+    if (rows.length < 2) problems.push(`${label}: expected Discard and Delete page, got ${rows.map((r) => r.name).join()}`);
+    if (rows[0] && rows[0].gap > 1) problems.push(`${label}: "${rows[0].name}" starts ${rows[0].gap}px from the leading edge`);
+    for (const r of rows) {
+      if (!r.error) problems.push(`${label}: "${r.name}" is not a danger button (no error tone)`);
+      const want = r.name === 'Delete page' ? 'filled' : 'outlined';
+      if (r.kind !== want) problems.push(`${label}: "${r.name}" is ${r.kind}, not ${want}`);
+    }
+    // A delete question's confirm is the dialog's main choice: filled in the error role; Cancel stays outlined, not red.
+    await danger.getByRole('button', { name: 'Delete page', exact: true }).click();
+    const dialog = page.getByRole('dialog');
+    await dialog.waitFor({ timeout: 5000 });
+    const confirm = await dialog.getByRole('button').evaluateAll((els) =>
+      els.map((e) => ({
+        name: e.textContent.trim(),
+        error: e.classList.contains('mo-is-error'),
+        filled: e.classList.contains('mo-is-filled'),
+      })),
+    );
+    const yes = confirm.find((c) => c.name === 'Delete');
+    const no = confirm.find((c) => c.name === 'Cancel');
+    if (!yes || !yes.error || !yes.filled)
+      problems.push(`${label}: the Delete confirm is not a filled error button (${JSON.stringify(confirm)})`);
+    if (!no || no.error) problems.push(`${label}: Cancel is red or missing (${JSON.stringify(confirm)})`);
+    await page.keyboard.press('Escape');
+  } finally {
+    removeVirtualFile('src/content/pages/zz-danger-align.md');
+    await page.close();
+  }
+}
+
+// Danger is the last entry of the Sections list and jumps to the section, opening it when it is folded.
+async function checkDangerNav(width, height) {
+  const label = `${width}px danger in the sections list`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  virtualFile('src/content/pages/zz-danger-nav.md', `---\ntitle: "Nav page"\n---\n\n# Nav page\n\nPublished text.\n`);
+  try {
+    await openEditor(page, site);
+    await page.goto(`${site}/editor/#src/content/pages/zz-danger-nav.md`);
+    await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
+    const nav = page.getByRole('navigation', { name: 'Sections' });
+    await nav.waitFor({ timeout: 10_000 });
+    const names = (await nav.getByRole('button').allTextContents()).map((n) => n.trim());
+    if (names.at(-1) !== 'Danger') problems.push(`${label}: the list ends with "${names.at(-1)}" (${names.join(', ')}), not Danger`);
+    const danger = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: /^Danger$/ }) });
+    if ((await danger.locator('h2 button').getAttribute('aria-expanded')) === 'true')
+      problems.push(`${label}: Danger is open before the jump`);
+    await nav.getByRole('button', { name: 'Danger', exact: true }).click();
+    await page
+      .waitForFunction(
+        () =>
+          [...document.querySelectorAll('section h2 button')]
+            .find((b) => b.textContent.trim() === 'Danger')
+            ?.getAttribute('aria-expanded') === 'true',
+        null,
+        { timeout: 5000 },
+      )
+      .catch(() => problems.push(`${label}: the jump did not open Danger`));
+    await page.waitForTimeout(800);
+    const top = await danger.evaluate((el) => Math.round(el.getBoundingClientRect().top));
+    if (top < -2 || top > innerHeightOf(height)) problems.push(`${label}: Danger is at ${top}px after the jump, not in view`);
+    const current = await nav.locator('[aria-current="location"]').textContent();
+    if (current?.trim() !== 'Danger') problems.push(`${label}: "${current?.trim()}" is marked, not Danger`);
+  } finally {
+    removeVirtualFile('src/content/pages/zz-danger-nav.md');
+    await page.close();
+  }
+}
+const innerHeightOf = (h) => h;
+
 export function register(unit) {
   for (const [width, height] of [
     [360, 740],
@@ -531,6 +636,12 @@ export function register(unit) {
     [1280, 900],
   ])
     unit(`checkDanger ${width}`, () => checkDanger(width, height));
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 900],
+  ])
+    for (const dir of ['ltr', 'rtl']) unit(`checkDangerAlign ${width} ${dir}`, () => checkDangerAlign(width, height, dir));
+  unit('checkDangerNav 1280', () => checkDangerNav(1280, 900));
   for (const [width, height] of [
     [390, 844],
     [1280, 900],

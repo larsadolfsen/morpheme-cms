@@ -9,6 +9,14 @@ export const app: Messages['app'] = {
   nothingAt: (route) => `Der er ikke noget på URL’en ${route}`,
   siteUpdated: (changes) => `Hjemmesiden er opdateret: ${changes}.`,
   siteNotUpdated: (changes) => `Hjemmesiden blev ikke opdateret (${changes}). Gendan den forrige version under Historik.`,
+  buildProgress: {
+    label: 'Udgiver dine ændringer på hjemmesiden',
+    publishing: 'Gemt. Udgiver på hjemmesiden.',
+    live: 'Live. Hjemmesiden har dine ændringer.',
+    notLive: 'Ikke live. Dine ændringer er gemt, men hjemmesidens build mislykkedes eller tog for lang tid.',
+    seeBuild: 'Se buildet',
+    dismiss: 'Luk',
+  },
   changes: {
     named: (kind, name) => `${kind} “${name}”`,
     edited: (what) => `${what} ændret`,

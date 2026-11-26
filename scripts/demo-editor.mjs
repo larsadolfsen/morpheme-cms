@@ -8,6 +8,7 @@ import { createHash } from 'node:crypto';
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, posix } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DEMO_WORKER } from '../lib/editorWorker.mjs';
 
 const TEXT = /\.(md|mdx|jsonc?|ya?ml|txt|ts|js|mjs|css|astro|svg)$/;
 const HERE = fileURLToPath(new URL('.', import.meta.url));
@@ -58,6 +59,12 @@ export function addDemoEditor(site) {
   cpSync(join(HERE, 'demo-editor-page.js'), join(editor, 'demo-editor.js'));
   const page = join(editor, 'index.html');
   const html = readFileSync(page, 'utf8');
-  writeFileSync(page, html.replace('<head>', '<head><script src="/editor/demo-editor.js"></script>'));
+  writeFileSync(
+    page,
+    html.replace(
+      '<head>',
+      `<head><script>window.moEditorWorker=${JSON.stringify(DEMO_WORKER)}</script><script src="/editor/demo-editor.js"></script>`,
+    ),
+  );
   return files.length;
 }

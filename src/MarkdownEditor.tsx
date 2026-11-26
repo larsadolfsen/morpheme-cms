@@ -1821,6 +1821,8 @@ function blockCard(
   // Its tools in the text's one bar (blockBar.ts), made below: shown while a row is active.
   let bar: { refresh: (shown: boolean) => void; destroy: () => void } | null = null;
   let syncRow: (open: boolean) => void = () => {};
+  // A block whose item link is picked straight from its link button (no sheet of the item): the row's link slot calls it.
+  let linkTo: ((row: number) => void) | null = null;
   // The row whose icon picker is open instead of its settings.
   let iconOf: number | null = null;
   const settings = () => {
@@ -1922,7 +1924,7 @@ function blockCard(
               else folds[row] = open;
               draw();
             }}
-            onSettings={settings}
+            onSettings={(row) => (linkTo ? linkTo(row) : settings())}
             onEdit={() => void edit()}
             onRow={(spec) => asker()?.row(spec, true)}
             onProps={(patch) => {
@@ -2109,7 +2111,9 @@ function blockCard(
     const rowFieldsOf = (names: string[]) =>
       (single ? block!.fields : (block?.fields.find((f) => f.name === spec!.item)?.fields ?? [])).filter((f) => names.includes(f.name));
     // The settings (link and small heading) and the icon picker, which the row's icon slot opens.
-    const itemNames = spec!.settings ?? (spec!.link ? [spec!.link] : []);
+    // A block with only a `link` (a List's row) opens the page picker straight from the link button; no sheet of the row comes first.
+    const itemNames = spec!.settings ?? [];
+    const linkName = spec!.settings ? undefined : spec!.link;
     const slotNames = spec!.media ?? (spec!.icon ? [spec!.icon] : []);
     const itemFields = rowFieldsOf(itemNames);
     // The icon slot of a List opens the icon picker; a card's media sheet has the media fields (what it shows, the icon picker open at once), and the first card's has the
@@ -2148,6 +2152,15 @@ function blockCard(
               setField(items, i, n, typeof v[n] === 'boolean' || Array.isArray(v[n]) ? v[n] : String(v[n] ?? ''), spec!.fields[0]),
             list,
           );
+    // The row's link: the sheet with the pages opens at once; a pick (or No page) is written to the row, closing it changes nothing.
+    const pickLink = async (i: number) => {
+      const field = linkName ? rowFieldsOf([linkName])[0] : undefined;
+      if (!field || !linkName) return;
+      const picked = await asker()?.page(field, String(rows()[i]?.[linkName] ?? ''), field.label);
+      if (picked === null || picked === undefined) return;
+      setItems(setFields(rows(), i, [linkName], { [linkName]: picked }));
+    };
+    if (linkName) linkTo = (row) => void pickLink(row);
     // The block's props with its own media choice changed (from the first card's sheet) and the items changed, in one step.
     const setBlockAndItems = (items: Row[], v: BlockProps) => {
       const here = at();
@@ -2301,8 +2314,8 @@ function blockCard(
       const i = active;
       const go = (items: Row[], to: number) => change({ items, active: to, focus: { row: to, field: spec!.fields[0] } });
       return [
-        ...(itemNames.length && spec!.barLink !== false
-          ? [{ kind: 'link' as const, label: spec!.texts.link ?? '', action: settings }]
+        ...((itemNames.length || linkName) && spec!.barLink !== false
+          ? [{ kind: 'link' as const, label: spec!.texts.link ?? '', action: itemNames.length ? settings : () => void pickLink(i) }]
           : []),
         ...(spec!.max === undefined || list.length < spec!.max
           ? [
@@ -2415,7 +2428,7 @@ function blockCard(
         ? undefined
         : isDynamic()
           ? openDynamic
-          : itemNames.length || slotNames.length
+          : itemNames.length
             ? settings
             : spec!.blockSettings === true
               ? () => void edit()
@@ -2447,7 +2460,9 @@ function blockCard(
     // sheet that Edit opens (`open`: a row's slot or Edit; else only an open sheet is updated).
     syncRow = (open) => {
       const sheet = asker();
-      if (sheet && active !== null && !dynOpen && (itemNames.length || slotNames.length)) sheet.row(specOf(active), open || !compact());
+      // A block with no item settings (a List) has the panel only for a slot's picker (the icon or image): no row settings.
+      if (sheet && active !== null && !dynOpen && (itemNames.length || (slotNames.length && iconOf !== null)))
+        sheet.row(specOf(active), open || !compact());
     };
     const specOf = (i: number) => {
       const row = rows()[i] ?? {};

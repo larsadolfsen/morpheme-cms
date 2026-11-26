@@ -6,6 +6,7 @@ export const editor: Record<string, string> = {
   Content: 'Indhold',
   Globals: 'Globale dele',
   Business: 'Virksomheden',
+  Style: 'Stil',
   Appearance: 'Udseende',
   Privacy: 'Privatliv',
   Settings: 'Indstillinger',

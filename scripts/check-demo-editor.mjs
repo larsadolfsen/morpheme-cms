@@ -57,7 +57,7 @@ try {
   if ((await text()).includes('kept in the browser')) problems.push('the reset did not bring back the demo text');
   // A browser that opened an earlier build keeps that build's files (src/cache.ts, and their texts by id, src/github.ts): the colours of the
   // starter, as an earlier demo had, must give way to the demo's own on the Colors screen.
-  await open('#company/colors');
+  await open('#style/color');
   await page.waitForSelector('#site-colors', { state: 'attached', timeout: 60_000 });
   await page.waitForTimeout(1500);
   await page.evaluate(
