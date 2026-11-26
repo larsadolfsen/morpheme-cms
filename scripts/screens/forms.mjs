@@ -327,7 +327,7 @@ async function checkOtherTabs(width, height) {
   virtualFile('src/content/pages/zz-tabs-other.md', `---\ntitle: "Tabs other"\n---\n\n# Tabs other\n\nText.\n`);
   try {
     await openEditor(page, site);
-    await page.goto(`${site}/editor/#company/colors`);
+    await page.goto(`${site}/editor/#style/color`);
     const modes = page.getByRole('tablist', { name: 'Mode' });
     await modes.waitFor({ timeout: 15_000 });
     const bar = await modes.evaluate((el) => {
@@ -389,7 +389,7 @@ async function checkTabsAdapt(width, height) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   try {
     await openEditor(page, site);
-    await page.goto(`${site}/editor/#company/colors`);
+    await page.goto(`${site}/editor/#style/color`);
     const list = page.getByRole('tablist', { name: 'Mode' });
     await list.waitFor({ timeout: 15_000 });
     await page.waitForTimeout(500);

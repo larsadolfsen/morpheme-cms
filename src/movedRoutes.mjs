@@ -3,12 +3,12 @@
 
 /** Where each moved screen is now, by its old address. */
 export const MOVED = /** @type {Record<string, string>} */ ({
-  farver: 'company/colors',
+  farver: 'style/color',
   'virksomheden/logo': 'company/logo',
   'tema/blokvalg': 'block-settings',
   dele: 'developer/parts',
   tema: 'appearance',
-  'tema/farver': 'company/colors',
+  'tema/farver': 'style/color',
   'tema/logo': 'company/logo',
   'tema/dele': 'developer/parts',
   'tema/dele/editor': 'developer/parts/editor',
@@ -53,13 +53,13 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   udseende: 'appearance',
   'udseende/temaer': 'appearance/themes',
   'udseende/ikonpakker': 'appearance/icon-packs',
-  'udseende/bevaegelse': 'appearance/motion',
+  'udseende/bevaegelse': 'style/motion',
   'udseende/sidekolonne': 'global/side-column',
-  'udseende/farver': 'company/colors',
-  'udseende/farver/reservefarver': 'company/colors/fallback-colors',
+  'udseende/farver': 'style/color',
+  'udseende/farver/reservefarver': 'style/color/fallback-colors',
   // The colours, the header, the footer and the side column left "Appearance" (0.19): the colours are under Business, the
   // others under Globals. The rest of the address (the fallback colours page) is kept.
-  'appearance/colors': 'company/colors',
+  'appearance/colors': 'style/color',
   'appearance/header': 'global/header',
   'appearance/footer': 'global/footer',
   'appearance/side-column': 'global/side-column',
@@ -68,7 +68,7 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   'udseende/dele': 'developer/parts',
   'udseende/dele/blokke': 'developer/parts/blocks',
   'udseende/dele/liste': 'developer/parts/list',
-  'udseende/dele/vaerdier': 'developer/parts/values',
+  'udseende/dele/vaerdier': 'style/color',
   'udseende/standardsider': 'appearance/default-pages',
   maaling: 'analytics',
   privatliv: 'privacy',
@@ -104,6 +104,10 @@ export const RENAMED = /** @type {Record<string, string>} */ ({
   licenser: 'licenses',
   // A licence page of an icon pack or set was `licenses/ikoner/<id>`.
   'licenses/ikoner': 'licenses/icons',
+  // "Style" (0.19.8): the colours, the motion and the design values moved into it, one page for each of its seven items.
+  'company/colors': 'style/color',
+  'appearance/motion': 'style/motion',
+  'developer/parts/values': 'style/color',
   konto: 'account',
   notifikationer: 'notifications',
 });

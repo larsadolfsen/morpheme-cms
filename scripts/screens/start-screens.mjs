@@ -437,6 +437,48 @@ async function checkStartSubtitle() {
   }
 }
 
+/** Style (C20): the main menu's section of seven pages. Each item opens its own page at #style/<name> with its title, the old addresses
+ * land on the new ones, and Icons names Material Symbols only. */
+async function checkStyleMenu(width, height) {
+  const label = `${width}px style menu`;
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const go = async (hash) => {
+    await page.evaluate((h) => (location.hash = h), hash);
+    await page.waitForTimeout(300);
+  };
+  const names = {
+    color: 'Color',
+    elevation: 'Elevation',
+    icons: 'Icons',
+    motion: 'Motion',
+    shape: 'Shape',
+    spacing: 'Spacing',
+    typography: 'Typography',
+  };
+  for (const [name, title] of Object.entries(names)) {
+    await go(`style/${name}`);
+    const heading = await page.evaluate(
+      () => document.querySelector('main h1, main [role=heading][aria-level="1"], header h1')?.textContent?.trim() ?? '',
+    );
+    if (heading !== title) problems.push(`${label} #style/${name}: the page's title is "${heading}" (should be "${title}")`);
+  }
+  for (const [old, now] of [
+    ['company/colors', 'style/color'],
+    ['appearance/motion', 'style/motion'],
+    ['developer/parts/values', 'style/color'],
+  ]) {
+    await go(old);
+    const hash = await page.evaluate(() => location.hash);
+    if (hash !== `#${now}`) problems.push(`${label} #${old}: lands on ${hash} (should be #${now})`);
+  }
+  await go('style/icons');
+  const text = await page.evaluate(() => document.querySelector('main')?.textContent ?? '');
+  if (/phosphor|lucide/i.test(text)) problems.push(`${label} #style/icons: names Phosphor or Lucide`);
+  await page.close();
+}
+
 /** Settings lists the seven screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
@@ -527,12 +569,16 @@ async function checkSettingsAndMenu(width, height) {
   const drawer = '.mo-editor-main-drawer-panel nav';
   if (width >= 1000) {
     // The standard drawer is open: four sections, the start screen and the cog, and the cog last, at the bottom.
+    await scrollMenuToEnd(page);
     const items = await page.evaluate(shownItems, `${drawer} .mo-navigation-drawer__item`);
     const sections = items.filter((i) => i.tag === 'BUTTON').length;
     const links = items.filter((i) => i.tag === 'A').map((i) => i.href);
     // Under "Apps": Store, then the pages of the installed connectors, plugins and themes, and no app installed.
     const appRows = ['#settings/appstore', '#installed/connectors', '#installed/plugins', '#appearance/themes'];
-    const apps = ['#', ...appRows, '#settings'];
+    // Style is a labelled section of seven pages, each its own page with no Style screen in between (C20): Color, Elevation, Icons, Motion,
+    // Shape, Spacing, Typography.
+    const styleRows = ['color', 'elevation', 'icons', 'motion', 'shape', 'spacing', 'typography'].map((n) => `#style/${n}`);
+    const apps = ['#', ...styleRows, ...appRows, '#settings'];
     if (sections !== 3 || links.join() !== apps.join())
       problems.push(
         `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 3 and ${apps.join(', ')})`,
@@ -546,11 +592,20 @@ async function checkSettingsAndMenu(width, height) {
       { d: drawer, appRows },
     );
     if (noIcon.length) problems.push(`${label} menu: no icon on ${noIcon.join(', ')}`);
+    const styleNoIcon = await page.evaluate(
+      ({ d, styleRows }) =>
+        [...document.querySelectorAll(styleRows.map((h) => `${d} a[href="${h}"]`).join(', '))]
+          .filter((a) => !a.querySelector('.mo-navigation-drawer__icon svg'))
+          .map((a) => a.getAttribute('href')),
+      { d: drawer, styleRows },
+    );
+    if (styleNoIcon.length) problems.push(`${label} menu: no icon on ${styleNoIcon.join(', ')}`);
     checkCog(label, 'menuen', items, height);
   } else {
     // The modal drawer: open it with the top bar's button.
     await page.locator('header').getByRole('button', { name: '\u00c5bn menuen' }).first().click();
     await page.waitForTimeout(600);
+    await scrollMenuToEnd(page);
     checkCog(label, 'menuen', await page.evaluate(shownItems, `${drawer} .mo-navigation-drawer__item`), height);
     await page.keyboard.press('Escape');
     await page.waitForTimeout(400);
@@ -565,7 +620,7 @@ async function checkSettingsAndMenu(width, height) {
     ['developer/caching', true],
     ['developer/parts', true],
     ['developer/parts/editor', true],
-    ['company/colors', false],
+    ['style/color', false],
     ['global/header', false],
     ['global/footer', false],
     ['global/side-column', false],
@@ -585,6 +640,7 @@ async function checkSettingsAndMenu(width, height) {
     await go('');
     await page.click('.mo-editor-main-drawer-panel > :first-child button[aria-expanded="true"]');
     await page.waitForTimeout(600);
+    await scrollMenuToEnd(page);
     checkCog(label, 'skinnen', await page.evaluate(shownItems, 'nav.mo-editor-main-rail .mo-nav-rail__item'), height);
     const railCurrent = (hash) =>
       go(hash).then(() =>
@@ -592,7 +648,7 @@ async function checkSettingsAndMenu(width, height) {
       );
     if ((await railCurrent('developer/caching')) !== 'page')
       problems.push(`${label} the rail #developer/caching: the cog must be selected`);
-    for (const hash of ['company/colors', 'global/header', 'licenses'])
+    for (const hash of ['style/color', 'global/header', 'licenses'])
       if ((await railCurrent(hash)) === 'page') problems.push(`${label} the rail #${hash}: the cog must not be selected`);
     if ((await railCurrent('list/pages')) === 'page') problems.push(`${label} the rail #list/pages: the cog must not be selected`);
     await page.screenshot({ path: join(shots, 'rail.png') });
@@ -827,6 +883,15 @@ async function checkDashboardEdit(width, height) {
 }
 
 // The cog is the last of `items` (shown, from the top) and at the bottom of the screen.
+/** Scrolls the main menu (the drawer, its modal panel or the rail) to its end, so the cog, the last item, is in the window. */
+const scrollMenuToEnd = (page) =>
+  page.evaluate(() => {
+    for (const el of document.querySelectorAll(
+      '.mo-editor-main-drawer-frame, .mo-editor-main-rail-frame, .mo-editor-main-drawer-panel, .mo-nav-rail__items, dialog nav',
+    ))
+      el.scrollTo({ top: el.scrollHeight, behavior: 'instant' });
+  });
+
 function checkCog(label, where, items, height) {
   const cog = items.find((i) => i.href === '#settings');
   if (!cog) return problems.push(`${label} ${where}: the cog (#settings) is missing or hidden`);
@@ -1199,7 +1264,7 @@ export function register(unit) {
         '',
         'settings',
         'developer/parts',
-        'company/colors',
+        'style/color',
         'global/header',
         'global/side-column',
         'licenses',
@@ -1272,6 +1337,7 @@ export function register(unit) {
       await page.close();
     });
     unit(`checkSettingsAndMenu ${width}`, () => checkSettingsAndMenu(width, height));
+    unit(`checkStyleMenu ${width}`, () => checkStyleMenu(width, height));
     unit(`checkDashboardEdit ${width}`, () => checkDashboardEdit(width, height));
   }
 

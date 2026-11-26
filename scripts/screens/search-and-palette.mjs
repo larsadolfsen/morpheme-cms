@@ -203,7 +203,7 @@ async function checkSearchButton(width) {
     'list/blog',
     'new/pages',
     'new/blog',
-    'company/colors',
+    'style/color',
     'appearance/themes',
   ];
   for (const route of routes) {
