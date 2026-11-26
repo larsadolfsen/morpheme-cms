@@ -569,6 +569,50 @@ async function checkCardsCarousel(width, height) {
     if (l.layout === 'hero' && l.itemWidth <= l.rowWidth / 3)
       problems.push(`${at}: the hero's large item is only ${l.itemWidth}px of ${l.rowWidth}px`);
   }
+  // Down from a card leaves the carousel to its own `Show all` (M3, Accessibility: "use the up and down arrow keys to leave the carousel"), in every carousel
+  // with one, not to the next carousel's first card; Up goes to the control before the carousel.
+  const carousels = page.locator('[data-cards-carousel]');
+  for (let i = 0; i < (await carousels.count()); i++) {
+    const one = carousels.nth(i);
+    const kind = await one.evaluate((el) => el.querySelector('[data-carousel]')?.getAttribute('data-carousel-layout') ?? 'uncontained');
+    if (
+      !(await one
+        .locator('[data-cards-show-all]')
+        .evaluate((b) => getComputedStyle(b.closest('.mo-block-cards__show-all')).display !== 'none'))
+    )
+      continue;
+    await one.scrollIntoViewIfNeeded();
+    const card = one.locator('[data-carousel-item]').first();
+    await card.evaluate((el) => (el.querySelector('a[href], button') ?? el).focus());
+    await page.keyboard.press('ArrowDown');
+    const onShowAll = await one.evaluate((el) => document.activeElement === el.querySelector('[data-cards-show-all]'));
+    if (!onShowAll)
+      problems.push(`${label} (${kind}, carousel ${i + 1}): Down from a card did not move the focus to that carousel's "Show all"`);
+  }
+  // Center-aligned hero (M3, Specs: "at least one large item and two small items"): scrolled to the start it is small, large, small, not a large card flush left.
+  const centre = page.locator('[data-cards-carousel]:has([data-carousel-alignment="center"])').first();
+  if (await centre.count()) {
+    await centre.scrollIntoViewIfNeeded();
+    await centre.locator('[data-carousel-items]').evaluate((row) => row.scrollTo({ left: 0, behavior: 'instant' }));
+    await page.waitForTimeout(400);
+    const seen = await centre.evaluate((el) => {
+      const row = el.querySelector('[data-carousel-items]').getBoundingClientRect();
+      // A mask keeps the large width; the theme shrinks it with its inset on both sides.
+      return [...el.querySelectorAll('[data-carousel-mask]')]
+        .map((m) => {
+          const b = m.getBoundingClientRect();
+          const inset = parseFloat(m.style.getPropertyValue('--mo-comp-carousel-mask-inset')) || 0;
+          return { left: b.left + inset, right: b.right - inset };
+        })
+        .filter((b) => b.right > row.left + 1 && b.left < row.right - 1)
+        .map((b) => Math.round(b.right - b.left));
+    });
+    const [lead, large] = seen;
+    if (!(seen.length >= 3 && lead < large && seen[seen.length - 1] < large))
+      problems.push(
+        `${label} (hero-center): at the start the visible items are ${seen.join(', ')}px wide, not a small, a large one and a small one`,
+      );
+  }
   // A card's media (image or video still) sits flush against the card's top and sides: no padding or margin above it.
   const flush = await page.evaluate(() =>
     [...document.querySelectorAll('.mo-block-cards__card')].flatMap((card) => {
