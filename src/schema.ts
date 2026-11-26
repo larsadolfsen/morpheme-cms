@@ -166,6 +166,11 @@ export type Field = {
   versions?: boolean;
   /** boolean: shown as a switch, with what it says when on and when off. */
   toggle?: [string, string];
+  /** boolean: a switch that is no value of its own: it is On while the field it names has a value. Turning it On sets that field to its first choice
+   * (a relation), turning it Off empties it (a List's "Dynamic list" over `from`). Never saved (`clean`). */
+  switchFor?: string;
+  /** Kept by `clean` while it is not in use: set aside, not thrown away (a list's typed rows while it reads another list, back when it is Off again). */
+  keep?: boolean;
   /** Its value changes how the page is laid out (its template): "Preview" shows a page whose value
    * is changed in another page saved with the same value (EntryForm.tsx). */
   layout?: boolean;

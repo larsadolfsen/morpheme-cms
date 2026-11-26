@@ -287,7 +287,8 @@ export function clean(fields: Field[], value: Record<string, unknown>, around?: 
   for (const [key, v] of Object.entries(value)) {
     const f = fields.find((x) => x.name === key);
     const empty = v == null || v === '' || (Array.isArray(v) && v.length === 0);
-    if (f && ((!f.required && empty) || !inUse(f, fields, value, around))) continue;
+    if (f?.switchFor) continue;
+    if (f && ((!f.required && empty) || (!f.keep && !inUse(f, fields, value, around)))) continue;
     if (f?.digitsInPairs && typeof v === 'string') out[key] = inPairs(f, v);
     else if (f?.pattern && typeof v === 'string') out[key] = v.trim();
     else if (f?.type === 'object') out[key] = clean(f.fields!, v as Record<string, unknown>, here);
