@@ -1,6 +1,6 @@
 # An Accessibility section in the page and post forms
 
-Architect, 26 Nov 2026; revised the same day after three EGM reviews (the second and third by a separate review session; its report is
+Architect, 26 Nov 2026; revised the same day after four EGM reviews (the second to the fourth by a separate review session; its reports are
 `docs/superpowers/reviews/2026-11-26-page-accessibility-design.md`). Line: **0.19.9**, a version of its own. Status: **approved by the
 owner, 26 Nov 2026**, with the answers below. Built after 0.19.8 is released, by the PM the owner starts with `/pm 0.19.9`.
 
@@ -155,14 +155,14 @@ The two ratings never judge the same thing two ways: they call the same function
   that applies, its number, whether it passed, and its count or values (the first skip's `{ from, to }`, the first vague link's text), in
   the table's order. Check 4 is `isVague(text, vagueList)` from `src/vagueLink.ts`, which loads without `./i18n`; `a11yRating` passes
   `vagueLinksOf(siteLocale)`, so nothing in `a11yChecks.ts` imports `./i18n` and `node --test` loads it. Check 5 is
-  `links(body).filter((text) => !text)`. Check 2 applies as in `seoRating` (`src/seo.ts:189-191`): not on a post, and not on a page with
-  its own H1 field (`input.h1`).
+  `links(body).filter((text) => !text)`. Check 2 applies on a page and never on a post. `a11yChecks` does not read `input.h1`:
+  `seoInputOf` never sets it, and only DataForm's fixed pages, which get no Accessibility section, have their own H1 field.
 - **The heading rule** `skippedHeadings(levels)` in `lib/heading-levels.mjs`, beside `headingChoices`: the first skip in a list of levels
-  as `{ from, to }`, or none. A post, or a page with its own H1 field, passes `[1, ...headingLevelsOf(body)]`, its title first; a page passes
+  as `{ from, to }`, or none. A post passes `[1, ...headingLevelsOf(body)]`, its title first; a page passes
   `headingLevelsOf(body)`.
 - **The input.** `SeoInput` (`src/seo.ts:14`) gains `image`, `imageAlt` and `imageDecorative` (a post's _Image at the top_, which
   `seoInputOf` reads from the values) and `library?: (src: string) => AltBase | undefined`, all optional, so `DataForm.tsx:222` keeps
-  compiling and only adds `library`. `seoInputOf(values, body, post, relations, library?)` (`src/seo.ts:43`) gains the fifth parameter;
+  compiling and only adds `library`. `seoInputOf(values, body, post, relations, library?)` (`src/seo.ts:42`) gains the fifth parameter;
   `fileRating(text, post, relations, library?)` passes it on. The form passes its `libraryAlt` (`EntryForm.tsx:283`), and both rating
   memos add `libraryAlt` to their dependencies. In `SeoScores.tsx` the module-level `rate(collection, file, relations)` (`:48`) gains
   `library` and passes it to `fileRating`; the list makes it once in a `useMemo` from `recordsIn(env.files, config.fileRecords)` and
@@ -258,7 +258,7 @@ without one uploads a new image.
           Decorative image; close it and select the toolbar's Alt text again; then Change image to another new image
    Expect: before: "1 image has no alt text" in both ratings; the switch hides Alt text; after: "All images have an alt
           text" in both; the toolbar's Alt text puts the focus on Decorative image at 1280 and shows it on at 390; the
-          changed image starts with the switch off
+          changed image starts with the switch off, and both ratings show "1 image has no alt text" again
    Source: Cards' images
 
 6. The Library's text
