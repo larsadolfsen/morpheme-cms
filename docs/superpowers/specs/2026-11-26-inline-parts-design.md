@@ -35,7 +35,10 @@ The page and post editor. It follows Material 3 like the rest of the editor (`CL
 4. **The part you are in has a border in the primary colour:** 2px in the `primary` role, in place of the grey one. "Blue" in this spec and the mocks is the theme's primary colour (blue in the mocks); a site with another primary colour shows that, and inside a coloured section the section's remapped role (`CLAUDE.md`, *Colours in editor-drawn block parts*).
 5. **The keyboard focus ring shows for the keyboard only** (`:focus-visible`): the theme's solid ring outside the part, with a
    gap, never in the active border's colour. A tap or a click shows no ring, only the primary border.
-6. **No tinted background** on the active row or card (owner, 26 Nov 2026). The card keeps its own outline.
+6. **No tinted background** on the active row or card (owner, 26 Nov 2026).
+6a. **The active item has a dotted line around it** (owner, 26 Nov 2026: "The list item needs a dotted line"), in the primary
+    colour, like the selected block, with the item menu inside it at the top (rule 14). A card's dotted line takes the place of its
+    own outline while it is active.
 7. **The selected block keeps its dotted primary-colour outline**, so a selected block reads differently from a part. *(Architect's
    recommendation; the owner has not answered it.)*
 8. **The text keeps its formatting** in the parts: the label text and the headline in their own type, the subhead and the
