@@ -330,7 +330,7 @@ export const inlineBlocks = [
   { name: 'steps', hint: 'Show the steps in order.', add: 'Add step', noEdit: true },
   { name: 'expand', hint: 'Show list items that expand and collapse.', add: 'Add list row', rowLink: true, surface: true },
   { name: 'cards', hint: 'Show content and actions in cards.', add: 'Add card', surface: true, start: 3 },
-  { name: 'pricecards', hint: 'Show prices and what they include.', add: 'Add price card', surface: true, field: 'name' },
+  { name: 'pricecards', hint: 'Show prices and what they include.', add: 'Add price card', surface: true, noEdit: true, field: 'name' },
   { name: 'buttons', hint: 'Prompt actions with buttons.', add: 'Add button', surface: true, field: 'label', noEdit: true },
   // An app's block (the demo's Inline example app): typed in place from its own Inline.tsx, not from the editor's list of views.
   { name: 'tickets', hint: 'Rows with a heading and a text, typed where they stand.', add: 'Add ticket' },
