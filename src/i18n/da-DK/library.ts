@@ -111,6 +111,8 @@ export const library: Messages['library'] = {
     tab: 'Størrelse på fane',
     'list-item': 'Størrelse på listepunkt',
     'carousel-control': 'Størrelse på karruselknap',
+    'navigation-item': 'Størrelse på punkt i navigationslinje og -skinne',
+    'sheet-control': 'Størrelse på arkets trækhåndtag',
   } as Record<string, string>,
   useTheme: 'Brug temaet',
   changeTheme: 'Skift tema',
