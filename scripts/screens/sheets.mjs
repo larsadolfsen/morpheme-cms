@@ -803,6 +803,9 @@ async function checkImageTools(width, height = 800) {
   if (!phone) {
     await closeSheet();
     await image.focus();
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(400);
+    await image.focus();
     await page.keyboard.press('Delete');
     await page.waitForTimeout(400);
     if (await page.locator('.ProseMirror .mo-site-picture').count())
@@ -851,7 +854,9 @@ async function checkCropView(width, height = 800) {
     problems.push(`${label}: the crop view opened by itself after the image was picked`);
   const view = page.locator('.mo-editor-crop-page[open]');
   const how = phone ? 'tap' : 'click';
+  // The crop view is reached from the image's sheet (B12); after Save or Discard that sheet is still open, so it is tapped only when it is not.
   const select = async () => {
+    if (await page.locator('dialog[open].mo-editor-block-page, .mo-editor-side-sheet').count()) return;
     await image[how]();
     await page.waitForTimeout(600);
   };
@@ -1082,6 +1087,11 @@ async function checkCropView(width, height = 800) {
     problems.push(`${label}: the editor is at ${stepAfter.scroll} after the crop view, it was at ${scroll0}`);
   if (stepAfter.hash !== '#new/pages' || !/Hello/.test(stepAfter.text ?? ''))
     problems.push(`${label}: the editor under the crop view was changed (${stepAfter.hash})`);
+  // On a phone the image's sheet is a page that holds the change until its Save; from medium it is live.
+  if (phone && (await page.locator('dialog[open].mo-editor-block-page').count())) {
+    await page.locator('dialog[open].mo-editor-block-page').getByRole('button', { name: 'Save', exact: true }).tap();
+    await page.waitForTimeout(700);
+  }
   const saved = await page.evaluate(() => {
     const box = document.querySelector('.ProseMirror .mo-site-picture .mo-site-picture__crop');
     return box && { box: box.getAttribute('style'), img: box.querySelector('img')?.getAttribute('style') };

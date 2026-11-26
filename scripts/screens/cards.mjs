@@ -126,6 +126,8 @@ async function checkCardImage(width, height = 800) {
   if (square?.ratio !== 1) problems.push(`${label}: after 1:1 the card's image box is ${square?.ratio}, not square`);
   // Crop: the crop view of the block's ratio only, no ratio chips; Save puts the ratio and the crop after the image's address.
   // Crop is in the image's sheet, which a tap on the card's image opens (B11, B12); the bar has no image tools.
+  await page.locator('dialog[open] button[aria-label="Close"], .mo-editor-side-sheet button[aria-label="Close"]').last().click({ timeout: 2000 }).catch(() => {});
+  await page.waitForTimeout(400);
   await tap(page.locator('.mo-editor-inline-card-media').first());
   await page.waitForTimeout(700);
   await tap(page.locator('dialog[open], .mo-editor-side-sheet').last().getByRole('button', { name: 'Crop', exact: true }));
