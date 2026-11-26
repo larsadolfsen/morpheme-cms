@@ -14,7 +14,16 @@ const NEVER = '\u0000';
 const dynamic: Field['only'] = { field: 'from', is: [''], not: true };
 
 export const rowsFromFields: Field[] = [
-  { name: 'from', label: t.blocks.rows.from, type: 'relation', to: 'rowSources', hint: t.blocks.rows.fromHint },
+  // The switch is On while a list is picked (no value of its own, so a stored list keeps working); the choice shows under it and has no "None".
+  {
+    name: 'dynamic',
+    label: t.blocks.rows.dynamicList,
+    type: 'boolean',
+    toggle: t.blocks.rows.toggle,
+    switchFor: 'from',
+    hint: t.blocks.rows.dynamicListHint,
+  },
+  { name: 'from', label: t.blocks.rows.from, type: 'relation', to: 'rowSources', required: true, only: dynamic },
   {
     name: 'tags',
     label: t.blocks.rows.tags,
