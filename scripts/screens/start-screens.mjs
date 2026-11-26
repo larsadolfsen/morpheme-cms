@@ -848,6 +848,22 @@ async function checkDashboardEdit(width, height) {
       `${label}: Blog rhythm's settings did not open and save through the sheet, at the step "${step}" (${e.message.split('\n')[0]}; ${shown})`,
     );
   }
+  // The sheet must be closed before the next part: close it with its own Cancel button (never a blanket Escape). If it stays
+  // open, stop here with a problem that names the step, so the failure is not a timeout on "Add widget" behind the sheet.
+  if (await rhythmSheet.isVisible().catch(() => false)) {
+    await rhythmSheet
+      .getByRole('button', { name: daCommon.cancel, exact: true })
+      .click({ timeout: 2000 })
+      .catch(() => {});
+    await rhythmSheet.waitFor({ state: 'hidden', timeout: 3000 }).catch(() => {});
+    if (await rhythmSheet.isVisible().catch(() => false)) {
+      problems.push(
+        `${label}: Blog rhythm's settings sheet is still open after the step "${step}", so "${daDashboard.addWidget}" was not run`,
+      );
+      await adding.close();
+      return;
+    }
+  }
   await addButton.click();
   await sheet
     .waitFor({ state: 'visible', timeout: 5000 })
