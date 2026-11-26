@@ -67,7 +67,7 @@
       "criterion": "2.5.8",
       "part": "checkbox",
       "ok": true,
-      "why": "Checkbox 41 px, needs 24 px"
+      "why": "Checkbox 49 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
@@ -110,6 +110,18 @@
       "part": "carousel-control",
       "ok": true,
       "why": "Carousel control 24 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "navigation-item",
+      "ok": true,
+      "why": "Navigation bar and rail item 53 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "sheet-control",
+      "ok": true,
+      "why": "Sheet drag handle 48 px, needs 24 px"
     }
   ]
 }
