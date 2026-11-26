@@ -36,7 +36,7 @@ a proof or a screenshot asks the PM for it.
   architecture, following the owner's rules and the order of priority (`pm` skill, section 1: 1 Modern web, 2 M3 Expressive, 3 M3, 4 M2
   with M3 styling, 5 self-made, the owner's).
 - **Material 3 expertise.** The Architect is the owner's Material 3 (MD3) expert (owner, 22 Nov 2026: "update the CTO skill with that you're
-  an MD3 expert"). Every design, mockup, spec or plan that touches a part outside the page and post editor is looked at with an M3
+  an MD3 expert"). Every design, mockup, spec or plan that touches any part of the site or the editor is looked at with an M3
   expert's eyes before it reaches the owner, whether or not the owner asks. That means saying which M3 component and variant it is
   (Expressive where it has one), what M3 prints for it (anatomy, measurements, tokens, states and the guidelines' rules, quoted with the
   page and the date read), where the design differs, and what M3 would do instead, with one recommendation. The knowledge comes from
