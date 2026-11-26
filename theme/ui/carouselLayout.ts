@@ -90,15 +90,23 @@ function arrangement(
 /** The keylines of an arrangement, with one outside at each end, and the unmasked centres of the items that stand at
  * them: an item as wide as a large one (`large`) one step (`large` and a gap) after the other, from the first large one
  * (`anchor` 'first') or back from the last (`anchor` 'last'). */
-function stateOf(sizes: number[], width: number, gap: number, large: number, anchor: 'first' | 'last'): State {
+function stateOf(
+  sizes: number[],
+  width: number,
+  gap: number,
+  large: number,
+  anchor: 'first' | 'last',
+  edge = { start: gap, end: gap },
+): State {
   const small = Math.min(...sizes);
-  const lines: Keyline[] = [{ loc: -gap - small / 2, size: small }];
+  // The item outside at each end stands beyond the row's padding (the row shows its padding too), so that no sliver of it shows at rest (M3: "Carousel items must be fully visible on-screen").
+  const lines: Keyline[] = [{ loc: -Math.max(gap, edge.start) - small / 2, size: small }];
   let x = 0;
   for (const size of sizes) {
     lines.push({ loc: x + size / 2, size });
     x += size + gap;
   }
-  lines.push({ loc: width + gap + small / 2, size: small });
+  lines.push({ loc: width + Math.max(gap, edge.end) + small / 2, size: small });
   const at = (i: number) => Math.abs(lines[i].size - large) < 0.5;
   const focal = anchor === 'first' ? lines.findIndex((_, i) => at(i)) : lines.findLastIndex((_, i) => at(i));
   const step = large + gap;
@@ -168,7 +176,8 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
     if (layout === 'hero' && alignment === 'center' && items.length > 2)
       row!.style.paddingInlineEnd = `${padEnd + gap + lengthOf(root, '--mo-comp-carousel-small-item-max-width', 56)}px`;
     row!.style.setProperty('--mo-comp-carousel-item-width', `${large}px`);
-    normal = stateOf(sizes, width, gap, large, 'first');
+    const edge = { start: pad, end: padEnd };
+    normal = stateOf(sizes, width, gap, large, 'first', edge);
     // Scrolled to the start, the large ones first (a hero) or, center-aligned, the leading small one and then the large one (small, large, small); to the end, the large ones last or,
     // center-aligned, the large one and then the trailing small one, mirroring the start (M3 is silent on the ends of the scroll: its Guidelines say "A centered hero carousel has two
     // small carousel items, with a large item centered", and "items automatically change size and snap into place to maintain the same layout"); between, the layout's own.
@@ -181,6 +190,7 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
             gap,
             large,
             'first',
+            edge,
           );
     // Center-aligned: the row has room after the last item (below), so that it rests in the middle too and the layout there is the layout's own.
     end =
@@ -192,6 +202,7 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
             gap,
             large,
             'last',
+            edge,
           );
     // Where an item rests: its start this far before the first large keyline's (scroll-padding, for scroll-snap).
     lead = normal.lines[normal.focal].loc - large / 2;

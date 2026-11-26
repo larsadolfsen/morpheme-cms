@@ -29,4 +29,15 @@ export const allow = [
     reason:
       'a chip: Material 3 sets its height (32 dp), the room above and below its label is what is left of it (Density takes 2 px off each side)',
   },
+  {
+    selector: '.mo-visually-hidden',
+    props: ['margin'],
+    reason: 'the standard visually hidden text (1 px box, margin -1 px): it takes no room, so it is not layout',
+  },
+  {
+    selector: '.mo-block-cards__item-label',
+    props: ['padding'],
+    reason:
+      "a carousel item's label: its side padding is 1rem plus the item's mask inset (a px value set while the item changes size, theme/ui/carouselLayout.ts), so the text stays inside the visible part of the item; it is not a layout space",
+  },
 ];
