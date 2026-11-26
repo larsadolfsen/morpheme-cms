@@ -107,7 +107,7 @@ function checkChoiceGroups(label, groups) {
 const CHOICE_PAGE = [
   '---\ntitle: "Choices"\ndescription: "d"\n---\n\n# Choices\n\nIntro.\n',
   block('posts', {}),
-  block('testimonials', { show: 'all', heading: 'Kind words' }),
+  block('testimonials', { show: 'all' }),
   block('cards', { design: 'filled', items: [{ title: 'One', text: 'First' }] }),
   block('imagegrid', {}),
   block('segmented', { items: [{ title: 'Row', text: 'Text' }] }),

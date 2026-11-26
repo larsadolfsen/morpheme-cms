@@ -22,7 +22,6 @@ async function checkImageGridAdd(width, height) {
   await page.waitForTimeout(300);
   await pressInsert(page, 'click');
   await page.locator('dialog[open] button', { hasText: 'Show images from Files in a grid.' }).first().click();
-  await page.waitForSelector('.mo-site-block-inline [data-field="heading"]', { timeout: 8000 });
   await page.waitForSelector('.mo-site-block-inline .mo-block-imagegrid__grid li', { timeout: 8000 });
   const before = await page.locator('.mo-site-block-inline .mo-block-imagegrid__grid li').count();
   await page.getByRole('button', { name: 'Add images' }).click();

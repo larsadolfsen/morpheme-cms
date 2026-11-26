@@ -43,7 +43,9 @@ Body text on surface keeps its contrast, with a [link](/about/) and `inline code
 
 ### Testimonials on surface
 
-<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;all&quot;,&quot;intro&quot;:&quot;Quotes on Surface&quot;,&quot;layout&quot;:&quot;cards&quot;}"></div>
+<p class="mo-type-body-large">Quotes on Surface</p>
+
+<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;all&quot;,&quot;filter&quot;:false,&quot;layout&quot;:&quot;cards&quot;}"></div>
 
 ### Table on surface
 
@@ -84,7 +86,9 @@ Body text on primary keeps its contrast, with a [link](/about/) and `inline code
 
 ### Testimonials on primary
 
-<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;all&quot;,&quot;intro&quot;:&quot;Quotes on Primary&quot;,&quot;layout&quot;:&quot;list&quot;}"></div>
+<p class="mo-type-body-large">Quotes on Primary</p>
+
+<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;categories&quot;,&quot;categories&quot;:[&quot;design&quot;,&quot;editing&quot;],&quot;layout&quot;:&quot;list&quot;}"></div>
 
 ### Table on primary
 
@@ -122,7 +126,9 @@ Body text on secondary keeps its contrast, with a [link](/about/) and `inline co
 
 ### Testimonials on secondary
 
-<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;categories&quot;,&quot;categories&quot;:[&quot;design&quot;],&quot;intro&quot;:&quot;Quotes on Secondary&quot;,&quot;layout&quot;:&quot;cards&quot;}"></div>
+<p class="mo-type-body-large">Quotes on Secondary</p>
+
+<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;categories&quot;,&quot;categories&quot;:[&quot;design&quot;],&quot;layout&quot;:&quot;cards&quot;}"></div>
 
 ### Table on secondary
 
@@ -160,7 +166,9 @@ Body text on tertiary keeps its contrast, with a [link](/about/) and `inline cod
 
 ### Testimonials on tertiary
 
-<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;categories&quot;,&quot;categories&quot;:[&quot;editing&quot;],&quot;intro&quot;:&quot;Quotes on Tertiary&quot;,&quot;layout&quot;:&quot;list&quot;}"></div>
+<p class="mo-type-body-large">Quotes on Tertiary</p>
+
+<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;categories&quot;,&quot;categories&quot;:[&quot;editing&quot;],&quot;layout&quot;:&quot;list&quot;}"></div>
 
 ### Table on tertiary
 
@@ -198,7 +206,9 @@ Body text on image keeps its contrast, with a [link](/about/) and `inline code`.
 
 ### Testimonials on image
 
-<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;categories&quot;,&quot;categories&quot;:[&quot;seo&quot;],&quot;intro&quot;:&quot;Quotes on Image&quot;,&quot;filter&quot;:false,&quot;layout&quot;:&quot;list&quot;}"></div>
+<p class="mo-type-body-large">Quotes on Image</p>
+
+<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;categories&quot;,&quot;categories&quot;:[&quot;seo&quot;],&quot;filter&quot;:false,&quot;layout&quot;:&quot;list&quot;}"></div>
 
 ### Table on image
 
@@ -236,7 +246,9 @@ Body text on surface with image keeps its contrast, with a [link](/about/) and `
 
 ### Testimonials on surface with image
 
-<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;all&quot;,&quot;intro&quot;:&quot;Quotes on Surface with image&quot;,&quot;filter&quot;:false,&quot;layout&quot;:&quot;list&quot;}"></div>
+<p class="mo-type-body-large">Quotes on Surface with image</p>
+
+<div data-block="testimonials" data-props="{&quot;show&quot;:&quot;all&quot;,&quot;filter&quot;:false,&quot;layout&quot;:&quot;list&quot;}"></div>
 
 ### Table on surface with image
 

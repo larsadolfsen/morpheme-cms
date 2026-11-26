@@ -10,7 +10,9 @@ seoTitle: "Build a page from blocks | Morpheme"
 
 A page in Morpheme is ordinary text with headings, links and photos. When text isn’t enough, add a block.
 
-<div data-block="steps" data-props="{&quot;heading&quot;:&quot;Add a block in seconds&quot;,&quot;items&quot;:[{&quot;title&quot;:&quot;Tap +&quot;,&quot;text&quot;:&quot;Tap + in the text, right where the block should go.&quot;},{&quot;title&quot;:&quot;Pick one&quot;,&quot;text&quot;:&quot;Cards, Steps, Questions and answers and more.&quot;},{&quot;title&quot;:&quot;Fill it in&quot;,&quot;text&quot;:&quot;The preview updates as you type.&quot;}]}"></div>
+## Add a block in seconds
+
+<div data-block="steps" data-props="{&quot;items&quot;:[{&quot;title&quot;:&quot;Tap +&quot;,&quot;text&quot;:&quot;Tap + in the text, right where the block should go.&quot;},{&quot;title&quot;:&quot;Pick one&quot;,&quot;text&quot;:&quot;Cards, Steps, Questions and answers and more.&quot;},{&quot;title&quot;:&quot;Fill it in&quot;,&quot;text&quot;:&quot;The preview updates as you type.&quot;}]}"></div>
 
 ## One block, every theme
 

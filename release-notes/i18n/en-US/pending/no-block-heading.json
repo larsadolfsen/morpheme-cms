@@ -1,0 +1,6 @@
+{
+  "id": "no-block-heading",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Block settings no longer have Heading and Subheading; type them in the page’s text, and an old block’s heading moves there when you update"
+}

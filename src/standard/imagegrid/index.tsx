@@ -6,7 +6,6 @@
 // typed above them, everything else (which images, tags, what a card shows, its style, columns) is in Edit.
 import { defineBlock } from '../../blocks';
 import { t } from '../../i18n';
-import { headFields } from '../head';
 import { materialIcon } from '../../icon';
 
 export default defineBlock({
@@ -23,7 +22,6 @@ export default defineBlock({
   },
   edit: { to: 'blocks/imagegrid', text: t.blocks.imageGrid.edit },
   fields: [
-    ...headFields,
     {
       name: 'show',
       label: t.blocks.imageGrid.images,

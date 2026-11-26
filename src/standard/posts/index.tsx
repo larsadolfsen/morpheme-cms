@@ -6,7 +6,6 @@ import { defineBlock, type BlockData, type BlockProps } from '../../blocks';
 import { siteT, t } from '../../i18n';
 import type { Relation } from '../../schema';
 import { sharedIn } from '../../shared';
-import { headFields } from '../head';
 import { columnsField } from '../columns';
 import type { PostChoice } from '../site';
 import shared, { allPostsText, postCount } from './shared';
@@ -62,7 +61,6 @@ export default defineBlock({
   },
   edit: { to: 'blocks/posts', text: t.blocks.posts.edit },
   fields: [
-    ...headFields,
     // A list (the empty choice: so are the blocks from before there was a choice), or the newest large over the list
     // (as on the blog page).
     {
