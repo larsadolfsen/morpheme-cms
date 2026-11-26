@@ -689,6 +689,23 @@ async function checkErrorTone(width, height, scheme, where) {
         problems.push(`${label}: filled container is ${seen.background}, not the error role ${seen.error}`);
       if (seen.color !== seen.onError) problems.push(`${label}: filled label is ${seen.color}, not on-error ${seen.onError}`);
     }
+    if (kind === 'outlined' && !touch) {
+      // The state layers take the label colour: the error role at the hover opacity, never the primary.
+      await button.hover();
+      await page.waitForTimeout(800);
+      const hov = await button.evaluate((el) => {
+        const probe = document.createElement('i');
+        probe.style.background =
+          'color-mix(in srgb, var(--mo-sys-color-error) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)';
+        document.body.append(probe);
+        const want = getComputedStyle(probe).backgroundColor;
+        probe.remove();
+        return { got: getComputedStyle(el).backgroundColor, want };
+      });
+      if (hov.got !== hov.want)
+        problems.push(`${label}: outlined hover layer is ${hov.got}, not the error role at the hover opacity (${hov.want})`);
+      await page.mouse.move(0, 0);
+    }
     await page.evaluate(() => document.activeElement?.blur?.());
     await button.focus();
     await page.keyboard.press('Shift+Tab');
