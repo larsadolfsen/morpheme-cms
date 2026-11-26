@@ -90,6 +90,8 @@ export default function InlineCards({
         {list.map((b, n) => (
           <span
             key={n}
+            role="group"
+            aria-label={t.blocks.buttons.buttonOf(n + 1, list.length)}
             className={[buttonClass(resolveButtons([b], data)[0]?.kind), 'mo-editor-inline-button', 'mo-editor-inline-card-button'].join(
               ' ',
             )}
