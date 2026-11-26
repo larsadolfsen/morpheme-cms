@@ -1378,12 +1378,23 @@ async function checkIconColor(width, height, scheme = 'light') {
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await page.keyboard.type('First');
   await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot').first().click();
-  // A row with no media opens its sheet at the kind of media (B6); choosing Icon shows the icon picker.
-  await page
-    .getByRole('radio', { name: 'Icon', exact: true })
-    .last()
-    .click({ timeout: 5000 })
-    .catch(() => problems.push(`${label}: the media sheet has no Icon kind`));
+  // A row with no media and no kind chosen opens its sheet at the kinds of media (B6): choosing Icon shows the icon picker. List has Icon chosen by default, so its picker shows at once.
+  const iconKind = page.getByRole('radio', { name: 'Icon', exact: true }).last();
+  if (
+    await iconKind.waitFor({ timeout: 2000 }).then(
+      () => true,
+      () => false,
+    )
+  )
+    await iconKind.click();
+  else if (
+    !(await page
+      .getByRole('group', { name: 'Icon', exact: true })
+      .last()
+      .isVisible()
+      .catch(() => false))
+  )
+    problems.push(`${label}: the media sheet has no Icon kind`);
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
   // With no icon picked the Icon color row is there (Text chosen, the default), and no tile of the grid is selected, not even the cross of No icon.
