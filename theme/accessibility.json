@@ -1,7 +1,7 @@
 {
   "standard": "WCAG 2.2 AA",
   "measured": "0.19.8",
-  "score": 95,
+  "score": 100,
   "checks": [
     {
       "criterion": "2.5.8",
@@ -54,8 +54,8 @@
     {
       "criterion": "2.5.8",
       "part": "chip",
-      "ok": false,
-      "why": "Chip 21 px, under 24 px"
+      "ok": true,
+      "why": "Chip 40 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
@@ -67,13 +67,13 @@
       "criterion": "2.5.8",
       "part": "checkbox",
       "ok": true,
-      "why": "Checkbox 28 px, needs 24 px"
+      "why": "Checkbox 49 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
       "part": "radio-button",
       "ok": true,
-      "why": "Radio button 36 px, needs 24 px"
+      "why": "Radio button 48 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
