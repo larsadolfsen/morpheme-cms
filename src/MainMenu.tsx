@@ -97,6 +97,8 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     window.addEventListener('hashchange', close);
     return () => window.removeEventListener('hashchange', close);
   }, [modal, open, setOpen]);
+  // The back row reads the section's name; its accessible name begins with where it goes and contains that text (WCAG 2.5.3 Label in Name).
+  const backLabel = tree.find((entry) => entry.id === shown)?.label ?? t.library.back;
   // Every level stays in the page (the screen check finds the screens from the links); the ones not shown are `hidden`.
   const sections = tree.filter((entry) => entry.href === undefined && !flat.includes(entry.id));
   return (
@@ -109,11 +111,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
         shown === null ? (
           (close) => (user ? <AccountRow user={user} supporting={config.domain} href="#account" actions={close} /> : close)
         ) : (
-          <MainDrawerBack
-            label={tree.find((entry) => entry.id === shown)?.label ?? t.library.back}
-            name={t.common.backTo(t.library.mainMenu)}
-            onClick={() => show(null)}
-          />
+          <MainDrawerBack label={backLabel} name={`${t.common.backTo(t.library.mainMenu)}: ${backLabel}`} onClick={() => show(null)} />
         )
       }
       footer={

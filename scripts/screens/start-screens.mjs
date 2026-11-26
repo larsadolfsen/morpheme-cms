@@ -489,7 +489,7 @@ async function checkStyleMenu(width, height) {
 
 /** Style is a section with a chevron, like Globals (owner, 26 Nov 2026: "Styles items should be a sublist like global. When on a submenu like global
  * write name eg Globals, inverted is back."). On the first level Style is a row with a chevron and its seven pages are not listed; its row opens the
- * list under a back row; the back row keeps the arrow (accessible name "Back to Main menu") and reads the section's name (Style, Globals), not "Back";
+ * list under a back row; the back row keeps the arrow (accessible name "Back to Main menu: <section>", which holds the visible text) and reads the section's name (Style, Globals), not "Back";
  * the open screen is marked; the back row returns to the first level. From 1000 px the collapsed rail has one Style item that opens the drawer at its
  * list. Material 3's Navigation drawer pages print nothing about a sub-level header (the nearest pattern is the header, Anatomy). */
 async function checkStyleSublist(width, height) {
@@ -581,7 +581,7 @@ async function checkStyleSublist(width, height) {
   await page.setViewportSize(full);
   await page.waitForTimeout(300);
 
-  // 2. Style opens its list, in order, each with an icon; the back row reads "Style" and is named "Back to Main menu".
+  // 2. Style opens its list, in order, each with an icon; the back row reads "Style" and is named "Back to Main menu: Style".
   await press('Style');
   got = await read();
   if (got.links.map((l) => l.href).join() !== hrefs.join() || got.links.map((l) => l.text).join() !== names.join())
@@ -590,8 +590,8 @@ async function checkStyleSublist(width, height) {
   if (!got.back) problems.push(`${label}: the Style list has no back row`);
   else {
     if (got.back.text !== 'Style') problems.push(`${label}: the back row reads "${got.back.text}" (should be "Style")`);
-    if (got.back.name !== 'Back to Main menu')
-      problems.push(`${label}: the back row's name is "${got.back.name}" (should be "Back to Main menu")`);
+    if (got.back.name !== 'Back to Main menu: Style')
+      problems.push(`${label}: the back row's name is "${got.back.name}" (should be "Back to Main menu: Style")`);
   }
   await page.screenshot({ path: join(shots, `style-sublist-${width}.png`) });
 
@@ -613,7 +613,7 @@ async function checkStyleSublist(width, height) {
   await press('Globals');
   got = await read();
   if (got.back?.text !== 'Globals') problems.push(`${label}: the back row of Globals reads "${got.back?.text}" (should be "Globals")`);
-  if (got.back?.name !== 'Back to Main menu') problems.push(`${label}: Globals' back row is named "${got.back?.name}"`);
+  if (got.back?.name !== 'Back to Main menu: Globals') problems.push(`${label}: Globals' back row is named "${got.back?.name}"`);
 
   // 6. The rail: one Style item, no Style page in it; it opens the drawer at its list.
   if (wide) {
