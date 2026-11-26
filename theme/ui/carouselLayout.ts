@@ -54,7 +54,8 @@ function arrangement(
   // One item, or the layout does not fit: all at one size.
   const even = (n: number) => Array<number>(n).fill((width - (n - 1) * gap) / n);
   if (layout === 'hero') {
-    // A large one at most twice as wide as it is high: more large ones on a wide screen.
+    // A large one at most twice as wide as it is high: more large ones on a wide screen. A center-aligned one always has exactly one large item,
+    // centred between two small ones, which only grows with the width (M3, Guidelines: "A centered hero carousel has two small carousel items, with a large item centered").
     // Always followed by a small one (two for center-aligned: one on each side), also with two cards: never all at one size (M3, Specs: "at least one large and one small item").
     const smalls = Math.min(alignment === 'center' ? 2 : 1, count - 1);
     if (smalls < 1) return even(count);
@@ -64,7 +65,7 @@ function arrangement(
     }
     let n = 1;
     const sizeOf = (k: number) => (width - smalls * smallMax - (k + smalls - 1) * gap) / k;
-    while (sizeOf(n) > 2 * height && n + smalls < count) n++;
+    while (alignment !== 'center' && sizeOf(n) > 2 * height && n + smalls < count) n++;
     const l = sizeOf(n);
     const larges = Array<number>(n).fill(l);
     return alignment === 'center' ? [smallMax, ...larges, smallMax] : [...larges, smallMax];

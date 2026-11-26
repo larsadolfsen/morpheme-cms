@@ -595,22 +595,26 @@ async function checkCardsCarousel(width, height) {
     await centre.scrollIntoViewIfNeeded();
     await centre.locator('[data-carousel-items]').evaluate((row) => row.scrollTo({ left: 0, behavior: 'instant' }));
     await page.waitForTimeout(400);
-    const seen = await centre.evaluate((el) => {
+    const { seen, rowMid } = await centre.evaluate((el) => {
       const row = el.querySelector('[data-carousel-items]').getBoundingClientRect();
       // A mask keeps the large width; the theme shrinks it with its inset on both sides.
-      return [...el.querySelectorAll('[data-carousel-mask]')]
+      const seen = [...el.querySelectorAll('[data-carousel-mask]')]
         .map((m) => {
           const b = m.getBoundingClientRect();
           const inset = parseFloat(m.style.getPropertyValue('--mo-comp-carousel-mask-inset')) || 0;
           return { left: b.left + inset, right: b.right - inset };
         })
-        .filter((b) => b.right > row.left + 1 && b.left < row.right - 1)
-        .map((b) => Math.round(b.right - b.left));
+        // Whole items: a card peeking in at the end does not count.
+        .filter((b) => b.left >= row.left - 1 && b.right <= row.right + 1);
+      return { seen, rowMid: (row.left + row.right) / 2 };
     });
-    const [lead, large] = seen;
-    if (!(seen.length >= 3 && lead < large && seen[seen.length - 1] < large))
+    const widths = seen.map((b) => Math.round(b.right - b.left));
+    const [lead, large] = widths;
+    // M3, Guidelines: "A centered hero carousel has two small carousel items, with a large item centered": exactly one large item at every width, its centre the carousel's centre.
+    const mid = large === undefined ? NaN : (seen[1].left + seen[1].right) / 2;
+    if (!(seen.length === 3 && lead < large && widths[2] < large && Math.abs(mid - rowMid) <= 1))
       problems.push(
-        `${label} (hero-center): at the start the visible items are ${seen.join(', ')}px wide, not a small, a large one and a small one`,
+        `${label} (hero-center): at the start the visible items are ${widths.join(', ')}px wide (the second one's centre ${Math.round(mid)}, the carousel's ${Math.round(rowMid)}), not a small, one large one centred and a small one`,
       );
   }
   // A card's media (image or video still) sits flush against the card's top and sides: no padding or margin above it.
@@ -1337,6 +1341,7 @@ export function register(unit) {
   ])
     unit(`checkCardDivider ${width}`, () => checkCardDivider(width, height));
   unit('checkCardsElevation 768', () => checkCardsElevation(768, 1024));
+  unit('checkCardsCarousel 600', () => checkCardsCarousel(600, 900));
   unit('checkCardsCarousel 840', () => checkCardsCarousel(840, 900));
   for (const [width, height] of [
     [375, 740],
