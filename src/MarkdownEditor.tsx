@@ -1326,6 +1326,8 @@ function imageCard(
     const pos = getPos();
     if (pos === undefined) return;
     view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
+    // The sheet that held Remove is closed and the card is gone: the focus goes back to the text, not to the page.
+    view.focus();
     announceRemoved(t.text.blockRemoved(t.text.image));
   };
   // The image's tools (Change image, Crop, Alt text, Remove) are in its sheet, not on the bar (B12); a tap opens the sheet on any screen (B11).
