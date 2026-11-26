@@ -115,6 +115,7 @@ export const listInline = ({ buttons }: { buttons?: boolean }): InlineSpec => ({
   blockMedia: ['leading'],
   // A row that folds out has no link (owner, 26 Nov 2026: "No link on them. Just buttons."): an icon, a heading, a text and typed buttons. A row's stored `href` stays
   // and the site still draws it.
-  ...(buttons ? { onItem: ['buttons'] } : { link: 'href' }),
+  // `kept: ['href']`: stored, not edited anywhere, so Block settings does not list the rows for it.
+  ...(buttons ? { onItem: ['buttons'], kept: ['href'] } : { link: 'href' }),
   texts: listTexts,
 });

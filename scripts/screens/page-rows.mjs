@@ -1423,7 +1423,7 @@ async function checkPageLeftEdge(width) {
         `${label}: on the site the rows of "${head}" have ${pad.left} px of padding on the left and ${pad.right} px on the right`,
       );
   // The rows of a List and of an Expandable list (the FAQ) are both measured above; without one of them the check would pass on nothing.
-  if (!['plain design', 'list - expand as a faq'].every((h) => h in editorPads))
+  if (!['plain design', 'expandable list as a faq'].every((h) => h in editorPads))
     problems.push(`${label}: a List and an Expandable list have no row to measure (${Object.keys(editorPads)})`);
   for (const cursor of [false, true]) {
     if (cursor) await page.locator('.ProseMirror p').first().click();

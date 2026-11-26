@@ -95,6 +95,8 @@ export type InlineSpec = {
   blockMedia?: string[];
   /** The item's fields that are edited on the item's own parts, not in a sheet (a button's target, style and icon, in its menu; a card's divider). */
   onItem?: string[];
+  /** The item's fields that stay in the data but are edited nowhere (an Expandable list row's old page link): Block settings does not list the items for them. */
+  kept?: string[];
   /** Instead of `link`: the fields the link slot opens (a card's page and buttons). */
   settings?: string[];
   /** `false`: the toolbar has no Link action; the block's own view opens the item's settings (Segmented: at the bottom of the row). */

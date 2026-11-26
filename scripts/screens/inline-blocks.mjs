@@ -318,15 +318,18 @@ async function checkListDesigns(width, height) {
       }),
       expand,
     );
-    await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
+    // An Expandable list row has no link slot (owner, 26 Nov 2026), so only a List row opens the page picker.
+    if (!expand) await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
     // The page picker opens straight from the link button (B5): the sheet with the pages and No page, on a phone and a computer, and no sheet of the row.
     const sheet = page.locator('dialog[open]');
-    const opened = await sheet
-      .getByText('No page', { exact: true })
-      .first()
-      .waitFor({ timeout: 4000 })
-      .then(() => true)
-      .catch(() => false);
+    const opened = expand
+      ? false
+      : await sheet
+          .getByText('No page', { exact: true })
+          .first()
+          .waitFor({ timeout: 4000 })
+          .then(() => true)
+          .catch(() => false);
     const rowSheet = await page.getByText('Row settings').filter({ visible: true }).count();
     // A page picked is written to the row (the picker opens again on it), No page takes it away and closes the picker; Block settings then lists no row.
     let kept = true;
@@ -363,11 +366,13 @@ async function checkListDesigns(width, height) {
   const [first] = seen;
   if (first.slots.join() !== 'Icon,Page') problems.push(`${label}: the List's active row has the slots "${first.slots}", not "Icon,Page"`);
   for (const one of seen) {
-    if (one.slots.join() !== first.slots.join())
-      problems.push(`${label}: ${one.look} has the slots "${one.slots}", the List "${first.slots}"`);
+    const expand = one.look.startsWith('Expandable');
+    // A List row has an icon and a page slot; an Expandable list row has the icon only (no link on it, owner, 26 Nov 2026).
+    const wantSlots = expand ? 'Icon' : first.slots.join();
+    if (one.slots.join() !== wantSlots) problems.push(`${label}: ${one.look} has the slots "${one.slots}", not "${wantSlots}"`);
     if (one.add.join() !== 'Add list row') problems.push(`${label}: ${one.look} has the add button "${one.add}", not "Add list row"`);
     if (one.own) problems.push(`${label}: ${one.look} has a text row or a button of its own for the row's link`);
-    if (!one.end) problems.push(`${label}: ${one.look}: the link slot is not at the end of the row`);
+    if (!expand && !one.end) problems.push(`${label}: ${one.look}: the link slot is not at the end of the row`);
     if (!one.edge) problems.push(`${label}: ${one.look}: no row layer or leading icon to measure`);
     else {
       // Default: the layer starts 16 dp before the text's edge at every width, and the icon is on the text's edge; Card: the container on the text's edge (its icon one 16 dp padding in).
@@ -379,7 +384,7 @@ async function checkListDesigns(width, height) {
         problems.push(`${label}: ${one.look}: the leading icon starts ${one.edge.icon} px from the text's edge, not ${icon}`);
       if (one.edge.wide > 0.5) problems.push(`${label}: ${one.look}: the page scrolls sideways by ${one.edge.wide}px`);
     }
-    if (!one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the page picker`);
+    if (!expand && !one.opened) problems.push(`${label}: ${one.look}: the link slot did not open the page picker`);
     if (!one.kept) problems.push(`${label}: ${one.look}: the page picked is not on the row`);
     if (!one.iconFilled) problems.push(`${label}: ${one.look}: the link button's icon does not change when a page is set (filled)`);
     if (!one.iconBack) problems.push(`${label}: ${one.look}: the link button's icon is not outlined again after No page`);
@@ -426,8 +431,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     const next = await page
       .locator('.mo-editor-inline-list-row-active .mo-block-cards__card-actions .mo-editor-inline-card-next-button')
       .allTextContents();
-    if (next.join() !== 'Add button')
-      problems.push(`${label}: the active card's action area has "${next}", not the text button "Add button"`);
+    if (next.join() !== 'Add button') problems.push(`${label}: the active card's action area has "${next}", not "Add button"`);
     if (width >= 1000 && !(await page.locator('.mo-editor-tools button[aria-label="Link"]').count()))
       problems.push(`${label}: the toolbar has no Link while the card is still empty`);
     // The header line of a card is a headline and ONE optional subhead, both typed in place; no badge, date or tags.
