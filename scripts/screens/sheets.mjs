@@ -15,7 +15,7 @@ async function checkSheetKeyboard(width = 375, height = 740, keyboard = 300, cus
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: true, isMobile: true, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
-  await page.evaluate(() => (location.hash = '#company/colors'));
+  await page.evaluate(() => (location.hash = '#style/color'));
   if (custom) await page.getByRole('button', { name: 'Custom', exact: true }).click();
   await page.getByRole('button', { name: `${name}: select a color` }).click();
   const sheet = page.locator(`dialog[open][aria-label="${name}"]`);
@@ -62,7 +62,7 @@ async function checkCustomColors(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
-  await page.evaluate(() => (location.hash = '#company/colors'));
+  await page.evaluate(() => (location.hash = '#style/color'));
   await page.getByRole('button', { name: 'Custom', exact: true }).click();
   await page.waitForTimeout(300);
   const tiles = () => page.locator('ul[aria-label="Colors"] > li').allInnerTexts();

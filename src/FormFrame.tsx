@@ -41,7 +41,7 @@ type Props<T extends string> = {
   title: string;
   /** The way back; leaving asks first while something is unsaved, unless it has a `guard` of its own (a field's page
    * goes back to its form, which keeps what is unsaved). */
-  back: Back;
+  back?: Back;
   status?: ReactNode;
   view?: string;
   /** More in the top bar, before the link to the site. */
@@ -261,7 +261,7 @@ export default function FormFrame<T extends string>({
       wide={wide}
       drawer={drawer}
       tabs={tabs}
-      back={{ guard: leaveTo, ...back }}
+      back={back && { guard: leaveTo, ...back }}
       actions={actions}
       pageActions={
         pageActions || view ? (

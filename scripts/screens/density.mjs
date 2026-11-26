@@ -283,18 +283,7 @@ async function checkDensityScreens(width, height) {
   let where = '';
   page.on('pageerror', (e) => problems.push(`${label} ${where}: ${e.message}`));
   await openEditor(page, site);
-  const routes = [
-    '',
-    'settings',
-    'company/colors',
-    'global/header',
-    'licenses',
-    'appearance/themes',
-    'seo',
-    'apps',
-    'new/pages',
-    'new/blog',
-  ];
+  const routes = ['', 'settings', 'style/color', 'global/header', 'licenses', 'appearance/themes', 'seo', 'apps', 'new/pages', 'new/blog'];
   const colours = async () =>
     page.evaluate(() => {
       const host = document.createElement('div');
