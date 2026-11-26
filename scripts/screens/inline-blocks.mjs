@@ -112,14 +112,11 @@ async function checkIconSlots(width, height, { name, hint, field = 'title' }) {
   else {
     await controlOf(0).click();
     await page.waitForTimeout(400);
-    if (
-      !(await page
-        .getByRole('group', { name: 'Icon', exact: true })
-        .last()
-        .isVisible()
-        .catch(() => false))
-    )
-      problems.push(`${label}: a tap on the icon of a row that is not active does not open the icon picker`);
+    // A row with its icon opens its media sheet (the icon and Change icon) in List, Expand and Cards; Buttons open the icon picker.
+    const opened =
+      name === 'buttons' ? page.getByRole('group', { name: 'Icon', exact: true }).last() : page.locator('.mo-editor-media-panel').last();
+    if (!(await opened.isVisible().catch(() => false)))
+      problems.push(`${label}: a tap on the icon of a row that is not active does not open its media sheet`);
     if (!(await page.locator('[data-row="0"].mo-editor-inline-list-row-active').count()))
       problems.push(`${label}: a tap on the icon of a row that is not active does not make it the active row`);
   }
@@ -914,14 +911,9 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     await noCardSheet('a card with an icon');
     // A video: the Media choice of the first card, then its link.
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-card-media').click();
-    // The Media choice is the choice group: buttons when they fit, else the list of radio buttons (the whole row is the target).
-    const mediaVideo = page.getByRole('button', { name: 'Video', exact: true }).last();
-    if (await mediaVideo.count()) await mediaVideo.click();
-    else
-      await page
-        .locator('.mo-choice-group__list .mo-list__item-content', { hasText: /^Video$/ })
-        .last()
-        .click();
+    // The icon is set, so the sheet shows it: Change media gives the kinds of media, and Video is one of them.
+    await page.getByRole('button', { name: 'Change media', exact: true }).last().click();
+    await page.getByRole('radio', { name: 'Video', exact: true }).last().click();
     await page.getByRole('textbox', { name: 'Video link' }).fill('https://www.youtube.com/watch?v=aqz-KE-bpKQ');
     await page.waitForTimeout(400);
     await page

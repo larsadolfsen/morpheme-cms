@@ -1777,11 +1777,12 @@ function blockCard(
   let bar: { refresh: (shown: boolean) => void; destroy: () => void } | null = null;
   let syncRow: (open: boolean) => void = () => {};
   let mediaIsSet: (row: number) => boolean = () => true;
+  let mediaKindIsNone: () => boolean = () => true;
   // A block whose item link is picked straight from its link button (no sheet of the item): the row's link slot calls it.
   let linkTo: ((row: number) => void) | null = null;
   // The row whose icon picker is open instead of its settings.
   let iconOf: number | null = null;
-  // The media sheet of that row (MediaPanel.tsx): its media and actions, the kinds of media (nothing set yet, or Change media), the media's own picker, or Alt text.
+  // The media sheet of that row (MediaPanel.tsx): its media and actions, the kinds of media (nothing set yet and no kind chosen, or Change media), the media's own picker, or Alt text.
   let mediaMode: 'panel' | 'kinds' | 'pick' | 'alt' = 'panel';
   const settings = () => {
     iconOf = null;
@@ -1895,9 +1896,9 @@ function blockCard(
             }}
             onIcon={(row, kindChosen) => {
               // The row's media, also on a row that is not active: the row becomes the active one and its media sheet opens at once, not the settings: on
-              // its media when it is set, else on the kinds of media (unless the kind was just chosen on the slot: its own picker).
+              // its media when it is set, else on the kinds of media (unless a kind is already chosen, as the List default icon, or was just chosen on the slot: its own picker).
               iconOf = row;
-              mediaMode = mediaIsSet(row) ? 'panel' : kindChosen ? 'pick' : 'kinds';
+              mediaMode = mediaIsSet(row) ? 'panel' : kindChosen || !mediaKindIsNone() ? 'pick' : 'kinds';
               if (active !== row) change({ active: row, focus: null });
               syncRow(true);
             }}
@@ -2368,6 +2369,7 @@ function blockCard(
     const kindField = blockFields[0];
     const kindOf = () => String(node.attrs.props[kindField?.name ?? ''] ?? kindField?.default ?? '');
     const isImageKind = (k: string) => ['image', 'avatar', 'square', 'landscape'].includes(k);
+    mediaKindIsNone = () => kindOf() === 'none';
     mediaIsSet = (i) => {
       const r = rows()[i] ?? {};
       const k = kindOf();
