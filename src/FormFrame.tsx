@@ -11,7 +11,7 @@ import { useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { PreviewIcon, Icon, materialIcon } from './icon';
 import Screen, { type Back } from './Screen';
 import { ScreenHidden } from './screenHidden';
-import { ActionSheet, Button, FoldSection, Group, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
+import { ActionSheet, Button, Group, IconLink, LoadingIndicator, type TabChoice, ListItem } from './ui';
 import { hasUnsaved, setUnsaved } from './deploy';
 import { useBuildState } from './buildState';
 import { askToNotify } from './notificationData';
@@ -67,8 +67,6 @@ type Props<T extends string> = {
   /** A page or post that is published in steps: `Publish` at the end of the bar, shown
    * also when nothing is unsaved, and its other actions (`Unpublish`, `Discard draft`) above "Delete". */
   publish?: Publish;
-  /** The section *Danger* at the end of the form (a page or post): actions that cannot be undone, each asking first. Shown only when it has one. */
-  danger?: { label: string; onClick: () => void; icon?: string }[];
   /** The fields beside the text on a wide computer screen (FormColumns in ui.tsx). */
   panel?: boolean;
   /** A list (the menu): as wide as the other lists on a computer. */
@@ -221,15 +219,12 @@ export default function FormFrame<T extends string>({
   deleteLabel,
   saveLabel,
   publish,
-  danger,
   panel,
   wide,
   children,
 }: Props<T>) {
   const save = useRef(onSave);
   save.current = onSave;
-  // Closed on load, like every section but Content.
-  const [dangerOpen, setDangerOpen] = useState(false);
   // While the website updates after a publish, the Publish button stays and is busy (it has no label once published).
   // A form that has had no Publish button shows nothing: the update is only said when it fails.
   const lastPublishLabel = useRef<string | undefined>(undefined);
@@ -293,28 +288,6 @@ export default function FormFrame<T extends string>({
               />
             )}
           </Group>
-        </div>
-      )}
-      {danger && danger.length > 0 && (
-        <div className="mo-editor-form-more">
-          <FoldSection title={t.forms.danger} open={dangerOpen} onToggle={() => setDangerOpen((o) => !o)}>
-            <Group>
-              {danger.map((a) => (
-                <ListItem
-                  key={a.label}
-                  tone="delete"
-                  disabled={saving}
-                  onClick={a.onClick}
-                  headline={
-                    <span className="mo-editor-inline-row">
-                      <Icon name={a.icon ?? 'delete'} size={18} />
-                      {a.label}
-                    </span>
-                  }
-                />
-              ))}
-            </Group>
-          </FoldSection>
         </div>
       )}
       {!hidden && (dirty || saving || publish?.label || publishing) && (
