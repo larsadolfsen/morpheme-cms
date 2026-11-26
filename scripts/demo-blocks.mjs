@@ -75,6 +75,9 @@ export const styleChecks = [
   ['imagegrid', 'card', 'filled'],
 ];
 
+/** An example of the Cards block set to Carousel (`phone` is `carousel`), as the page text holds its props. */
+export const isCarouselExample = (type, props = '') => type === 'cards' && props.includes('&quot;phone&quot;:&quot;carousel&quot;');
+
 const propsOf = (text, type) =>
   [...text.matchAll(/data-block="([^"]+)" data-props="([^"]*)"/g)]
     .filter((m) => m[1] === type)
@@ -119,6 +122,9 @@ export function styleProblems(text, dir = join(root, 'src/standard')) {
 export const blockPages = {
   buttons: { title: 'Buttons', kind: 'basic', types: ['buttons'], via: '@theme/ui/Button' },
   cards: { title: 'Cards', kind: 'basic', types: ['cards', 'notice'], via: '@theme/ui/Card' },
+  // A carousel is a layout of the Cards block, not a block of its own (owner, 26 Nov 2026: "Carousels should have their own page"): its page holds the examples of
+  // Cards set to Carousel (`carousel: 'cards'`), one for each of Material 3's layouts; the Cards page keeps one short example that links to it.
+  carousel: { title: 'Carousel', kind: 'basic', types: [], carousel: 'cards', via: '@theme/ui/Carousel' },
   lists: { title: 'Lists', kind: 'basic', types: ['list', 'expand'], via: '@theme/ui/List' },
   steps: { title: 'Steps', kind: 'basic', types: ['steps'], via: '<ol' },
   tables: { title: 'Tables', kind: 'basic', types: ['table', 'cookies'], via: '<table' },
@@ -216,10 +222,22 @@ export function pageProblems({ index, pages }, registry = blockPages, check = { 
     // The first paragraph under the heading says what the page shows; the link back is not it.
     if (new RegExp(`\\n# ${page.title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\n+\\[All blocks\\]\\(/blocks/\\)\\n`).test(text))
       problems.push(`${blockPageFile(slug)} starts with the link back to the index; its first paragraph says what the page shows.`);
+    // The Cards page keeps one short carousel example that links to the Carousel page; the others are on that page.
+    if (!page.carousel && Object.values(registry).some((p) => p.carousel)) {
+      const kept = examplesOf(text).filter(([, type, props]) => isCarouselExample(type, props)).length;
+      if (kept > 1)
+        problems.push(`The "${page.title}" page has ${kept} carousel examples; it keeps one, the others are on the Carousel page.`);
+    }
     for (const [, type, props = ''] of examplesOf(text)) {
-      if (page.kind !== 'sections' && !page.types.includes(type))
+      // The carousel page holds the carousel examples of the Cards block and nothing else.
+      const here = page.carousel ? type === page.carousel && isCarouselExample(type, props) : page.types.includes(type);
+      if (page.kind !== 'sections' && !here)
         problems.push(
-          `An example of "${type}" is on the "${page.title}" page; it belongs on "${registry[home.get(type)]?.title ?? 'no page'}".`,
+          `An example of "${type}" is on the "${page.title}" page; it belongs on "${
+            (isCarouselExample(type, props) && Object.values(registry).find((p) => p.carousel)?.title) ||
+            registry[home.get(type)]?.title ||
+            'no page'
+          }".`,
         );
       const key = `${type}${props}`;
       if (page.kind !== 'sections' && seen.has(key))
@@ -238,7 +256,7 @@ export function pageProblems({ index, pages }, registry = blockPages, check = { 
   if (check.code)
     for (const page of Object.values(registry))
       if (page.kind === 'basic')
-        for (const type of page.types)
+        for (const type of [...page.types, ...(page.carousel ? [page.carousel] : [])])
           if (!blockReaches(type, page.via))
             problems.push(`"${type}" is on the "${page.title}" page, but its code does not draw with ${page.via}.`);
   return problems;

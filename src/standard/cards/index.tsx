@@ -75,10 +75,12 @@ export default defineBlock({
       versions: true,
       only: { field: 'phone', is: ['carousel'] },
       options: [
-        { label: t.blocks.cards.layoutUncontained, value: '' },
-        // Every layout is offered for every card: the editor decides (owner, 25 Nov 2026). Its cards' widths come from their images' aspect ratios; a card without an image is square.
-        { label: t.blocks.cards.layoutMultiAspect, value: 'multi-aspect-ratio', hint: t.blocks.cards.layoutMultiAspectHint },
+        // M3's order and names (m3.material.io/components/carousel/guidelines, Layouts): Multi-browse, Uncontained, Hero, Center-aligned hero, Full-screen, each hint M3's "Best used for";
+        // the uncontained multi-aspect ratio layout is a variant of Uncontained and follows it. Every layout is offered for every card: the editor decides (owner, 25 Nov 2026). The widths of its
+        // items come from their images' aspect ratios; an item without an image is square.
         { label: t.blocks.cards.layoutMultiBrowse, value: 'multi-browse', hint: t.blocks.cards.layoutMultiBrowseHint },
+        { label: t.blocks.cards.layoutUncontained, value: '', hint: t.blocks.cards.layoutUncontainedHint },
+        { label: t.blocks.cards.layoutMultiAspect, value: 'multi-aspect-ratio', hint: t.blocks.cards.layoutMultiAspectHint },
         { label: t.blocks.cards.layoutHero, value: 'hero', hint: t.blocks.cards.layoutHeroHint },
         { label: t.blocks.cards.layoutHeroCenter, value: 'hero-center', hint: t.blocks.cards.layoutHeroCenterHint },
         { label: t.blocks.cards.layoutFullScreen, value: 'full-screen', hint: t.blocks.cards.layoutFullScreenHint },

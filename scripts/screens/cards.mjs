@@ -678,6 +678,87 @@ async function checkCardsCarousel(width, height) {
     if (isMaterialTheme() && smalls.some((w) => !(w >= 39 && w <= 57)))
       problems.push(`${label} (${kind}): the small items are ${smalls}px wide (visible items ${widths}), not 40 to 56 (M3, Specs)`);
   }
+  // M3, Guidelines: "Carousel items must be fully visible on-screen (except for the uncontained layout)": resting at the start and at the end, no item of
+  // multi-browse, hero or center-aligned hero is cut off by the carousel's edge (or shows as a sliver in its padding).
+  for (const kind of ['multi-browse', 'hero', 'hero-center']) {
+    const one = page
+      .locator(
+        kind === 'hero-center'
+          ? '[data-cards-carousel]:has([data-carousel-alignment="center"])'
+          : `[data-cards-carousel]:has([data-carousel-layout="${kind}"]:not([data-carousel-alignment]))`,
+      )
+      .first();
+    if (!(await one.count())) continue;
+    await one.scrollIntoViewIfNeeded();
+    for (const at of ['start', 'end']) {
+      await one
+        .locator('[data-carousel-items]')
+        .evaluate((row, where) => row.scrollTo({ left: where === 'end' ? row.scrollWidth : 0, behavior: 'instant' }), at);
+      await page.waitForTimeout(500);
+      const cut = await one.evaluate((el) => {
+        const row = el.querySelector('[data-carousel-items]');
+        const box = row.getBoundingClientRect();
+        const pad = parseFloat(getComputedStyle(row).paddingLeft) || 0;
+        const from = Math.max(0, box.left + pad);
+        const to = Math.min(innerWidth, box.right - pad);
+        return [...el.querySelectorAll('[data-carousel-mask]')]
+          .map((m) => {
+            const b = m.getBoundingClientRect();
+            const inset = parseFloat(m.style.getPropertyValue('--mo-comp-carousel-mask-inset')) || 0;
+            return { left: b.left + inset, right: b.right - inset };
+          })
+          .filter((b) => (b.left < from - 1 && b.right > from + 1) || (b.right > to + 1 && b.left < to - 1))
+          .map((b) => `${Math.round(b.left)}-${Math.round(b.right)} in ${Math.round(from)}-${Math.round(to)}`);
+      });
+      if (cut.length)
+        problems.push(
+          `${label} (${kind}): at the ${at} an item is cut off (${cut}); M3 prints "Carousel items must be fully visible on-screen (except for the uncontained layout)"`,
+        );
+    }
+  }
+  // M3, Guidelines, Adaptive design: "Consider adapting the text to use brief labels on smaller carousel items": scrolled to the start, a large item shows its title and text,
+  // a medium one hides the title and keeps the text, a small one shows no text.
+  {
+    const one = page.locator('[data-cards-carousel]:has([data-carousel-layout="multi-browse"]:not([data-carousel-alignment]))').first();
+    if (await one.count()) {
+      await one.scrollIntoViewIfNeeded();
+      await one.locator('[data-carousel-items]').evaluate((row) => row.scrollTo({ left: 0, behavior: 'instant' }));
+      await page.waitForTimeout(500);
+      const seen = await one.evaluate((el) =>
+        [...el.querySelectorAll('[data-carousel-mask]')]
+          .map((m) => {
+            const b = m.getBoundingClientRect();
+            const inset = parseFloat(m.style.getPropertyValue('--mo-comp-carousel-mask-inset')) || 0;
+            const title = m.querySelector('.mo-block-cards__item-title');
+            const text = m.querySelector('.mo-block-cards__item-text');
+            const label = m.querySelector('.mo-block-cards__item-label');
+            const opacity = (n) =>
+              n ? parseFloat(getComputedStyle(n).opacity) * (label ? parseFloat(getComputedStyle(label).opacity) : 1) : 0;
+            return {
+              width: Math.round(b.width - 2 * inset),
+              left: b.left + inset,
+              right: b.right - inset,
+              title: opacity(title),
+              text: opacity(text),
+            };
+          })
+          .filter((b) => b.left >= 0 && b.right <= innerWidth + 1),
+      );
+      const large = seen[0];
+      const small = seen.at(-1);
+      const medium = seen.find((b) => large && b.width > 60 && b.width < large.width * 0.85);
+      if (large && medium && small && small !== large) {
+        if (large.title < 0.9 || large.text < 0.9)
+          problems.push(`${label} (multi-browse): the large item hides its title or text (${large.title}, ${large.text})`);
+        if (medium.title > 0.1 || medium.text < 0.9)
+          problems.push(
+            `${label} (multi-browse): the ${medium.width}px medium item shows title ${medium.title} and text ${medium.text}; M3 hides the title and keeps the label`,
+          );
+        if (small.text > 0.1 || small.title > 0.1)
+          problems.push(`${label} (multi-browse): the ${small.width}px small item still shows text (${small.title}, ${small.text})`);
+      }
+    }
+  }
   // A card's media (image or video still) sits flush against the card's top and sides: no padding or margin above it.
   const flush = await page.evaluate(() =>
     [...document.querySelectorAll('.mo-block-cards__card')].flatMap((card) => {

@@ -401,8 +401,15 @@
     flex-direction: column;
     gap: 0.125rem;
     min-width: 0;
+    /* The item is as wide as a large one and its mask clips it to the size its place gives it (carouselLayout.ts): the label keeps its padding from the clipped edge. */
     padding: 1rem;
-    opacity: calc(1 - var(--mo-comp-carousel-mask, 0) * 3);
+    padding-inline: calc(1rem + var(--mo-comp-carousel-mask-inset, 0px));
+    /* Text adapts to the size (M3, Guidelines, Adaptive design: "Text should always be understandable at each size. Consider adapting the text to use brief labels on smaller carousel items."):
+       a large item shows title and text, a medium one hides the title and keeps the text, a small one shows no text (a card has no shorter label to abbreviate). The mask is 0 on a large item, about 0.4 on a medium one and 0.8 on a small one. */
+    opacity: calc(1 - (var(--mo-comp-carousel-mask, 0) - 0.5) * 8);
+  }
+  .mo-block-cards__item-label:has(.mo-block-cards__item-text) .mo-block-cards__item-title {
+    opacity: calc(1 - (var(--mo-comp-carousel-mask, 0) - 0.1) * 10);
   }
   .mo-block-cards__item:not(.mo-has-no-media) .mo-block-cards__item-label {
     padding-block-start: 2.5rem;
@@ -453,6 +460,8 @@
     .mo-block-cards__carousel .mo-carousel:where(.mo-is-contained:not(.mo-is-full-screen)) .mo-carousel__items {
       margin-inline: calc(-1 * var(--mo-comp-carousel-bleed, 0rem));
       padding-inline: 1rem;
+      /* M3, Guidelines: "Carousel items must be fully visible on-screen (except for the uncontained layout)": the padding shows no sliver of the next item. */
+      clip-path: inset(0 1rem);
     }
   }
   .mo-js .mo-block-cards__show-all {
