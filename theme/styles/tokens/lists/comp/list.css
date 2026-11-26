@@ -1,12 +1,5 @@
 /* Design tokens (custom-property declarations) moved out of the stylesheet that uses them; selectors, layers and order are unchanged. See docs/theme-token-files.md. */
 
-/* A row's square and landscape image has Material 3's small corner, 8 dp (owner, 16 Nov 2026, from the M3 segmented list with images); only the avatar is round. */
-@layer components {
-  .mo-block-list,
-  .mo-block-accordion {
-    --mo-comp-list-item-image-radius: var(--mo-sys-shape-corner-small);
-  }
-}
 /* The plain design of a list (its rows on the page, no drawn container) keeps its content, the leading icon or else the text, on the text's edges, while the layer of
      a row (hovered, pressed, focused, selected) reaches the row's 16 dp past the text column on both sides, as M3 Lists › Specs prints 16 dp leading and trailing space
      inside the item's container (owner, 21 Nov 2026; it replaces the 16 Nov rule that the layer sat on the text's left edge from medium). It is the row's own inner

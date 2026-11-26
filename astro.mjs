@@ -58,7 +58,7 @@ const pagesIntegration = () => ({
   hooks: {
     'astro:config:setup': ({ injectRoute }) => {
       // The UI components page is a route only on a site that sets `componentsPath` (the demo, morpheme-staging).
-      const componentsPath = config.componentsPath?.replace(/\/$/, '');
+      const componentsPath = (config.componentsPath || process.env.MORPHEME_COMPONENTS_PATH)?.replace(/\/$/, '');
       const pages = { ...PAGES, ...(componentsPath ? { [componentsPath]: 'components.astro' } : {}) };
       for (const [pattern, file] of Object.entries(pages))
         injectRoute({ pattern, entrypoint: fileURLToPath(new URL(`pages/${file}`, import.meta.url)) });

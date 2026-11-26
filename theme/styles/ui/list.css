@@ -220,13 +220,13 @@
   .mo-list__item-image {
     width: var(--mo-comp-list-item-image-size, 3.5rem);
     height: var(--mo-comp-list-item-image-size, 3.5rem);
-    border-radius: var(--mo-comp-list-item-image-radius, var(--mo-comp-block-radius-small));
+    border-radius: var(--mo-comp-list-item-image-radius, var(--mo-sys-shape-corner-small));
     object-fit: cover;
   }
   .mo-list__item-video {
     width: var(--mo-comp-list-item-video-width, 7.125rem);
     height: var(--mo-comp-list-item-video-height, 4rem);
-    border-radius: var(--mo-comp-list-item-image-radius, var(--mo-comp-block-radius-small));
+    border-radius: var(--mo-comp-list-item-image-radius, var(--mo-sys-shape-corner-small));
     object-fit: cover;
   }
 
@@ -425,7 +425,7 @@
     width: var(--mo-comp-list-expand-icon-size, 2.5rem);
     height: var(--mo-comp-list-expand-icon-size, 2.5rem);
     /* The container is wider than the caret: the caret stays where the padding puts it. */
-    margin-inline-end: calc((1.25rem - var(--mo-comp-list-expand-icon-size, 2.5rem)) / 2);
+    margin-inline-end: calc((var(--mo-comp-list-item-icon-size, 1.25rem) - var(--mo-comp-list-expand-icon-size, 2.5rem)) / 2);
     /* ... and never makes the item higher than its text. */
     margin-block: calc((1.5rem - var(--mo-comp-list-expand-icon-size, 2.5rem)) / 2);
     border-radius: var(--mo-comp-list-expand-icon-radius, var(--mo-sys-shape-corner-full));
@@ -598,7 +598,7 @@
     margin-inline-start: calc(var(--mo-comp-list-list-item-leading-space, 0px) + var(--mo-comp-list-item-leading-room));
   }
   .mo-list__dividers-middle-inset > li + li::before {
-    margin-inline: var(--mo-comp-divider-inset, 1rem);
+    margin-inline: var(--mo-comp-divider-inset, 1rem) var(--mo-comp-list-item-inset-end, var(--mo-comp-divider-inset, 1rem));
   }
 
   /* Segmented (M3 Expressive): each item (its <li>) on its own surface, a small gap between them, the list's corners

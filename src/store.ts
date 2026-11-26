@@ -170,6 +170,9 @@ export type StoreTheme = {
   name: string;
   author: string;
   icon: string;
+  /** Its accessibility score from 0 to 100 and the Morpheme version that measured it (`morpheme accessibility`, kept by the store); none for a theme not measured. */
+  score?: number;
+  measured?: string;
   /** Its main category and its subcategory of it, as the catalog has them, read with categoryOf: an older id is mapped to
    * its new one, one it does not know leaves them out, and the theme stays in the catalog. */
   category?: Category;
