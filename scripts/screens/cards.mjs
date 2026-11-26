@@ -435,8 +435,8 @@ async function checkCardsCarousel(width, height) {
       widths: items.map((i) => Math.round(i.getBoundingClientRect().width)),
       // The card fills its item even with a short text (a flex item would shrink to its text and leave an empty gap).
       cardWidths: items.map((i) => {
-        const card = i.querySelector('.mo-block-cards__card');
-        const saved = [...card.querySelectorAll('p')].map((p) => [p, p.textContent]);
+        const card = i.querySelector('.mo-block-cards__item');
+        const saved = [...card.querySelectorAll('.mo-block-cards__item-text')].map((p) => [p, p.textContent]);
         saved.forEach(([p]) => (p.textContent = 'Short'));
         const w = Math.round(card.getBoundingClientRect().width);
         saved.forEach(([p, t]) => (p.textContent = t));
@@ -445,7 +445,23 @@ async function checkCardsCarousel(width, height) {
       gaps: items.slice(1).map((i, n) => Math.round(i.getBoundingClientRect().left - items[n].getBoundingClientRect().right)),
       firstRight: Math.round(a.right),
       secondLeft: Math.round(b.left),
-      radius: getComputedStyle(items[0].querySelector('.mo-block-cards__card')).borderTopLeftRadius,
+      radius: getComputedStyle(items[0].querySelector('.mo-block-cards__item')).borderTopLeftRadius,
+      // M3, Carousel: an item has no card surface and no outline, and its label sits inside it on the image (Overview: "Contain visual items like images or video, along with optional label text").
+      surfaces: items.map((i) => {
+        const item = i.querySelector('.mo-block-cards__item');
+        const s = getComputedStyle(item);
+        const b = item.getBoundingClientRect();
+        const label = item.querySelector('.mo-block-cards__item-label')?.getBoundingClientRect();
+        const media = item.querySelector('.mo-block-cards__item-media')?.getBoundingClientRect();
+        return {
+          border: s.borderTopWidth,
+          shadow: s.boxShadow,
+          card: !!i.querySelector('.mo-card'),
+          labelInside: !!label && label.left >= b.left - 1 && label.right <= b.right + 1 && label.bottom <= b.bottom + 1,
+          mediaFills: !media || (Math.abs(media.width - b.width) < 1 && Math.abs(media.height - b.height) < 1),
+          height: Math.round(b.height),
+        };
+      }),
       indicators: el.querySelectorAll('[data-carousel-indicator], [data-carousel-dot]').length,
       items: items.length,
       showAll: getComputedStyle(show.closest('.mo-block-cards__show-all')).display,
@@ -465,6 +481,12 @@ async function checkCardsCarousel(width, height) {
     // A card is the carousel's item and takes M3's item shape: extra-large, 28dp (Carousel, Specs: md.comp.carousel-item.container.shape; owner, 24 Nov 2026: "Follow md3").
     if (isMaterialTheme() && m.radius !== '28px')
       problems.push(`${label}: the card's corners are ${m.radius}, not Material 3's 28px for a carousel item`);
+    if (m.surfaces.some((x) => x.card || x.border !== '0px' || x.shadow !== 'none'))
+      problems.push(
+        `${label}: an item has a card surface, an outline or a shadow (${JSON.stringify(m.surfaces[0])}), which Material 3's carousel item does not`,
+      );
+    if (m.surfaces.some((x) => !x.labelInside)) problems.push(`${label}: an item's label is not inside the item on the image`);
+    if (m.surfaces.some((x) => !x.mediaFills)) problems.push(`${label}: an item's image does not fill the whole item`);
     // Uncontained (M3): every item is as wide as the others, no empty gap between them, and the next one peeks in.
     if (new Set(m.widths).size !== 1) problems.push(`${label}: the cards are not all as wide (${m.widths})`);
     if (m.cardWidths.some((w, i) => w !== m.widths[i]))
@@ -627,6 +649,34 @@ async function checkCardsCarousel(width, height) {
           `${label} (hero-center): at the ${at} the visible items are ${widths.join(', ')}px wide (the large one's centre ${Math.round(mid)}, the carousel's ${Math.round(rowMid)}), not ${at === 'start' ? 'a small, one large one centred and a small one' : 'a small one and the last, large one centred'}`,
         );
     }
+  }
+  // M3, Specs: "Small item width 40-56dp, dynamic": scrolled to the start, the small items of multi-browse, hero and center-aligned hero are 40 to 56 wide.
+  for (const kind of ['multi-browse', 'hero', 'hero-center']) {
+    const one = page
+      .locator(
+        kind === 'hero-center'
+          ? '[data-cards-carousel]:has([data-carousel-alignment="center"])'
+          : `[data-cards-carousel]:has([data-carousel-layout="${kind}"]:not([data-carousel-alignment]))`,
+      )
+      .first();
+    if (!(await one.count())) continue;
+    await one.scrollIntoViewIfNeeded();
+    await one.locator('[data-carousel-items]').evaluate((row) => row.scrollTo({ left: 0, behavior: 'instant' }));
+    await page.waitForTimeout(400);
+    const widths = await one.evaluate((el) => {
+      const row = el.querySelector('[data-carousel-items]').getBoundingClientRect();
+      return [...el.querySelectorAll('[data-carousel-mask]')]
+        .map((m) => {
+          const b = m.getBoundingClientRect();
+          const inset = parseFloat(m.style.getPropertyValue('--mo-comp-carousel-mask-inset')) || 0;
+          return { left: b.left + inset, right: b.right - inset };
+        })
+        .filter((b) => b.left >= row.left - 1 && b.right <= row.right + 1)
+        .map((b) => Math.round(b.right - b.left));
+    });
+    const smalls = kind === 'hero-center' ? [widths[0], widths[2]] : [Math.min(...widths)];
+    if (isMaterialTheme() && smalls.some((w) => !(w >= 39 && w <= 57)))
+      problems.push(`${label} (${kind}): the small items are ${smalls}px wide (visible items ${widths}), not 40 to 56 (M3, Specs)`);
   }
   // A card's media (image or video still) sits flush against the card's top and sides: no padding or margin above it.
   const flush = await page.evaluate(() =>

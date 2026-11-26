@@ -41,7 +41,7 @@ Group related ideas with an icon, a photo or just text, each linking to a page i
 
 ## Cards in a carousel
 
-Cards swiped sideways on every screen size. The carousel shows as many cards as fit its width.
+Cards swiped sideways on every screen size, drawn as Material 3 carousel items: the image fills the item and the text sits on it. The carousel shows as many as fit its width.
 <div data-block="cards" data-props="{&quot;phone&quot;:&quot;carousel&quot;,&quot;items&quot;:[{&quot;icon&quot;:&quot;lightbulb&quot;,&quot;title&quot;:&quot;Swipe sideways&quot;,&quot;text&quot;:&quot;These cards slide sideways on every screen size, and the next one peeks in.&quot;},{&quot;icon&quot;:&quot;volunteer_activism&quot;,&quot;title&quot;:&quot;Show all&quot;,&quot;text&quot;:&quot;A Show all button under them stacks the cards in place.&quot;},{&quot;icon&quot;:&quot;menu_book&quot;,&quot;title&quot;:&quot;Wider, more cards&quot;,&quot;text&quot;:&quot;A wider carousel shows more cards at once.&quot;},{&quot;icon&quot;:&quot;military_tech&quot;,&quot;title&quot;:&quot;Snap scrolling&quot;,&quot;text&quot;:&quot;Each swipe settles on a card.&quot;,&quot;href&quot;:&quot;#&quot;}]}"></div>
 
 ## Cards in a carousel: multi-browse

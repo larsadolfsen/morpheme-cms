@@ -169,3 +169,14 @@ One implementation pull request, started from `main` after the Cards-changes pul
 is merged, because it changes the same files (`src/standard/cards/*`, `theme/blocks/cards/LinkCards.tsx`, `blocks.css`). It holds the
 setting, the carousel drawing with `Show all` and the keyboard, the theme CSS, the strings in both languages, the tests and
 screens checks, and the release note line.
+
+## Update 26 Nov 2026: items are M3 carousel items, not cards
+
+The owner compared the demo with m3.material.io/components/carousel (overview, specs, guidelines, accessibility) and found that cards in a
+carousel did not look like Material 3. This update replaces the points above that describe a card (surface, outline, elevation, text
+below the image). In a carousel an item is what M3 prints: the image fills the item (28 dp corners, no surface, no outline), the label
+(title, subhead, text) sits inside the item on the image, and a small item of a contained layout is the same full-height image cut to 40-56 dp.
+`LinkCards.tsx` draws the item (`mo-block-cards__item`) with the existing `Carousel`, `Link`, `Buttons` and `Svg`; the stacked grid still uses
+`Card`. M3 is silent on a scrim for text on an image and on an item without an image: the label gets a scrim of the theme's scrim colour with the
+on-scrim colour text, and an item without an image is the carousel item surface with the icon and label inside, no outline. The row height
+(`--mo-comp-carousel-height`, 20 rem) is the theme's, since M3 prints no item height. Keyboard and aria behaviour are unchanged.
