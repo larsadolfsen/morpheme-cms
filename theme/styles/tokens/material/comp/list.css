@@ -27,7 +27,7 @@
   --mo-comp-list-list-item-hovered-container-expressive-shape: var(--mo-sys-shape-corner-medium);
   --mo-comp-list-list-item-pressed-container-expressive-shape: var(--mo-sys-shape-corner-large);
   --mo-comp-list-list-item-selected-container-expressive-shape: var(--mo-sys-shape-corner-large);
-  --mo-comp-list-item-icon-size: 1.25rem;
+  --mo-comp-list-item-icon-size: 1.5rem;
   --mo-comp-list-item-hover-surface: var(--mo-sys-state-hover-state-layer-color);
   --mo-comp-list-item-pressed-surface: var(--mo-sys-state-pressed-state-layer-color);
   --mo-comp-list-item-focus-surface: var(--mo-sys-state-pressed-state-layer-color);
