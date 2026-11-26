@@ -80,6 +80,7 @@ export const icons: Record<string, Icon> = {
   // The sections of the main menu that are not also a part ("Business" is the part "company"'s icon).
   content: materialIcon('article'),
   global: materialIcon('language'),
+  style: materialIcon('palette'),
   settings: materialIcon('settings'),
   blocks: materialIcon('grid_view'),
   files: materialIcon('folder'),
@@ -147,7 +148,7 @@ export const appearance: Part[] = [
 // Each part is a collection (collections.ts), except those named above, "privacy"'s (partScreens) and the editor's own
 // "company" (companyParts), "blocks" (blockParts), id files (the images, PDFs, videos and zip files), "header", "lists"
 // and "block-settings" (BlockSettings.tsx).
-// `flat` (Apps) has no list of its own: its rows stand under its label on the first level. An app installed is not a row:
+// `flat` (only Apps) has no list of its own: its rows stand under its label on the first level. An app installed is not a row:
 // it is on the page of its role (Connectors, Plugins) or under Themes.
 export const groups: { id: string; title: string; href?: string; flat?: boolean; ids: string[] }[] = [
   { id: 'home', title: 'Dashboard', href: '#', ids: [] },
@@ -157,11 +158,10 @@ export const groups: { id: string; title: string; href?: string; flat?: boolean;
     ids: ['pages', 'blog', 'lists', 'popups', 'tags', 'files', internalLinks.id, 'redirects'],
   },
   { id: 'company', title: 'Business', ids: ['logo', 'company'] },
-  // "Style" (M3's Styles and Spacing): what the theme sets, each on a page of its own (#style/<name>), its rows under its label like Apps.
+  // "Style" (M3's Styles and Spacing): what the theme sets, each on a page of its own (#style/<name>); a section with a list of its own, like Globals.
   {
     id: 'style',
     title: 'Style',
-    flat: true,
     ids: ['style-color', 'style-elevation', 'style-icons', 'style-motion', 'style-shape', 'style-spacing', 'style-typography'],
   },
   { id: 'global', title: 'Globals', ids: ['header', 'footer', 'side-column', 'blocks'] },

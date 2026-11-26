@@ -1,0 +1,7 @@
+{
+  "id": "menu-section-names",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Menuafsnit",
+  "text": "Stil åbner sine syv sider i en liste for sig, som Globale dele gør, så hovedmenuen er kort på en telefon. Inde i et afsnit viser øverste række dets navn, for eksempel Globale dele, ved siden af pilen, der går tilbage til hovedmenuen."
+}

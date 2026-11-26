@@ -487,6 +487,126 @@ async function checkStyleMenu(width, height) {
   await page.close();
 }
 
+/** Style is a section with a chevron, like Globals (owner, 26 Nov 2026: "Styles items should be a sublist like global. When on a submenu like global
+ * write name eg Globals, inverted is back."). On the first level Style is a row with a chevron and its seven pages are not listed; its row opens the
+ * list under a back row; the back row keeps the arrow (accessible name "Back to Main menu") and reads the section's name (Style, Globals), not "Back";
+ * the open screen is marked; the back row returns to the first level. From 1000 px the collapsed rail has one Style item that opens the drawer at its
+ * list. Material 3's Navigation drawer pages print nothing about a sub-level header (the nearest pattern is the header, Anatomy). */
+async function checkStyleSublist(width, height) {
+  const label = `${width}px style sublist`;
+  const wide = width >= 1000;
+  const names = ['Color', 'Elevation', 'Icons', 'Motion', 'Shape', 'Spacing', 'Typography'];
+  const hrefs = names.map((n) => `#style/${n.toLowerCase()}`);
+  const panel = '.mo-editor-main-drawer-panel';
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  const go = async (hash) => {
+    await page.evaluate((h) => (location.hash = h), hash);
+    await page.waitForTimeout(300);
+  };
+  const openDrawer = async () => {
+    if (await page.locator(`${panel} nav`).first().isVisible()) return;
+    await page
+      .locator(wide ? 'nav.mo-editor-main-rail button[aria-expanded]' : 'header button[aria-expanded]')
+      .first()
+      .click();
+    await page.waitForTimeout(600);
+  };
+  // What the drawer shows: the header's text and accessible name, and the visible rows.
+  const read = () =>
+    page.evaluate(
+      ({ panel, selector }) => {
+        const back = document.querySelector(`${panel} .mo-navigation-drawer__back`);
+        const visible = (e) => {
+          const r = e.getBoundingClientRect();
+          return r.width > 0 && r.height > 0;
+        };
+        return {
+          back: back && visible(back) ? { text: back.textContent.trim(), name: back.getAttribute('aria-label') } : null,
+          links: [...document.querySelectorAll(`${panel} nav a[href^="#style/"]`)].filter(visible).map((a) => ({
+            href: a.getAttribute('href'),
+            text: a.textContent.trim(),
+            current: a.getAttribute('aria-current'),
+            icon: !!a.querySelector('.mo-navigation-drawer__icon svg'),
+          })),
+          rows: [...document.querySelectorAll(`${panel} nav ${selector}`)].filter(visible).map((e) => e.textContent.trim()),
+        };
+      },
+      { panel, selector: 'button.mo-navigation-drawer__item' },
+    );
+  const press = async (text) => {
+    await page.locator(`${panel} nav button.mo-navigation-drawer__item`, { hasText: text }).first().click();
+    await page.waitForTimeout(400);
+  };
+
+  // 1. The first level: a Style row, and no Style page listed.
+  await go('');
+  await openDrawer();
+  let got = await read();
+  if (got.back) problems.push(`${label}: the first level shows a back row ("${got.back.text}")`);
+  if (!got.rows.some((r) => r === 'Style'))
+    problems.push(`${label}: the first level has no Style row with a chevron (${got.rows.join(', ')})`);
+  if (got.links.length) problems.push(`${label}: the first level lists Style pages (${got.links.map((l) => l.href).join(', ')})`);
+
+  // 2. Style opens its list, in order, each with an icon; the back row reads "Style" and is named "Back to Main menu".
+  await press('Style');
+  got = await read();
+  if (got.links.map((l) => l.href).join() !== hrefs.join() || got.links.map((l) => l.text).join() !== names.join())
+    problems.push(`${label}: the Style list is ${got.links.map((l) => l.text).join(', ')} (should be ${names.join(', ')})`);
+  if (got.links.some((l) => !l.icon)) problems.push(`${label}: a Style row has no icon`);
+  if (!got.back) problems.push(`${label}: the Style list has no back row`);
+  else {
+    if (got.back.text !== 'Style') problems.push(`${label}: the back row reads "${got.back.text}" (should be "Style")`);
+    if (got.back.name !== 'Back to Main menu')
+      problems.push(`${label}: the back row's name is "${got.back.name}" (should be "Back to Main menu")`);
+  }
+  await page.screenshot({ path: join(shots, `style-sublist-${width}.png`) });
+
+  // 3. A page of Style is marked in the list, and the drawer opens at Style on it (Escape or the back row first closes the list).
+  await go('style/shape');
+  await openDrawer();
+  got = await read();
+  const marked = got.links.filter((l) => l.current === 'page').map((l) => l.href);
+  if (marked.join() !== '#style/shape')
+    problems.push(`${label} #style/shape: the marked rows are "${marked.join(', ')}" (should be #style/shape)`);
+
+  // 4. The back row returns to the first level.
+  await page.locator(`${panel} .mo-navigation-drawer__back`).first().click();
+  await page.waitForTimeout(400);
+  got = await read();
+  if (got.back || got.links.length) problems.push(`${label}: the back row does not return to the first level`);
+
+  // 5. Globals reads its own name, not "Back".
+  await press('Globals');
+  got = await read();
+  if (got.back?.text !== 'Globals') problems.push(`${label}: the back row of Globals reads "${got.back?.text}" (should be "Globals")`);
+  if (got.back?.name !== 'Back to Main menu') problems.push(`${label}: Globals' back row is named "${got.back?.name}"`);
+
+  // 6. The rail: one Style item, no Style page in it; it opens the drawer at its list.
+  if (wide) {
+    await page.locator(`${panel} > :first-child button[aria-expanded="true"]`).first().click();
+    await page.waitForTimeout(600);
+    const rail = await page.evaluate(() =>
+      [...document.querySelectorAll('nav.mo-editor-main-rail .mo-nav-rail__item')]
+        .filter((e) => e.getBoundingClientRect().width > 0)
+        .map((e) => ({ tag: e.tagName, text: e.textContent.trim(), href: e.getAttribute('href') })),
+    );
+    const styleItems = rail.filter((r) => r.text === 'Style');
+    if (styleItems.length !== 1 || styleItems[0].tag !== 'BUTTON')
+      problems.push(
+        `${label}: the rail has ${styleItems.length} Style items (should be one button): ${rail.map((r) => r.text).join(', ')}`,
+      );
+    if (rail.some((r) => r.href?.startsWith('#style/'))) problems.push(`${label}: the rail lists a Style page`);
+    await page.locator('nav.mo-editor-main-rail .mo-nav-rail__item', { hasText: 'Style' }).first().click();
+    await page.waitForTimeout(600);
+    got = await read();
+    if (got.back?.text !== 'Style' || got.links.length !== names.length)
+      problems.push(`${label}: the rail's Style item does not open the drawer at the Style list`);
+  }
+  await page.close();
+}
+
 /** Settings lists the seven screens A-Z, the cog is the last item at the bottom of the menu (drawer, rail) and is marked on Settings' screens only. */
 async function checkSettingsAndMenu(width, height) {
   const label = `${width}px`;
@@ -582,14 +702,13 @@ async function checkSettingsAndMenu(width, height) {
     const sections = items.filter((i) => i.tag === 'BUTTON').length;
     const links = items.filter((i) => i.tag === 'A').map((i) => i.href);
     // Under "Apps": Store, then the pages of the installed connectors, plugins and themes, and no app installed.
+    // Style is a section with its own list, like Globals: the first level has its row (a button), and its seven pages are on the second level
+    // (checkStyleSublist).
     const appRows = ['#settings/appstore', '#installed/connectors', '#installed/plugins', '#appearance/themes'];
-    // Style is a labelled section of seven pages, each its own page with no Style screen in between (C20): Color, Elevation, Icons, Motion,
-    // Shape, Spacing, Typography.
-    const styleRows = ['color', 'elevation', 'icons', 'motion', 'shape', 'spacing', 'typography'].map((n) => `#style/${n}`);
-    const apps = ['#', ...styleRows, ...appRows, '#settings'];
-    if (sections !== 3 || links.join() !== apps.join())
+    const apps = ['#', ...appRows, '#settings'];
+    if (sections !== 4 || links.join() !== apps.join())
       problems.push(
-        `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 3 and ${apps.join(', ')})`,
+        `${label} menu: the first level has ${sections} sections and the links ${links.join(', ')} (should be 4 and ${apps.join(', ')})`,
       );
     // Each row under "Apps" has an icon.
     const noIcon = await page.evaluate(
@@ -600,14 +719,6 @@ async function checkSettingsAndMenu(width, height) {
       { d: drawer, appRows },
     );
     if (noIcon.length) problems.push(`${label} menu: no icon on ${noIcon.join(', ')}`);
-    const styleNoIcon = await page.evaluate(
-      ({ d, styleRows }) =>
-        [...document.querySelectorAll(styleRows.map((h) => `${d} a[href="${h}"]`).join(', '))]
-          .filter((a) => !a.querySelector('.mo-navigation-drawer__icon svg'))
-          .map((a) => a.getAttribute('href')),
-      { d: drawer, styleRows },
-    );
-    if (styleNoIcon.length) problems.push(`${label} menu: no icon on ${styleNoIcon.join(', ')}`);
     checkCog(label, 'menuen', items, height);
   } else {
     // The modal drawer: open it with the top bar's button.
@@ -1362,6 +1473,7 @@ export function register(unit) {
     });
     unit(`checkSettingsAndMenu ${width}`, () => checkSettingsAndMenu(width, height));
     unit(`checkStyleMenu ${width}`, () => checkStyleMenu(width, height));
+    unit(`checkStyleSublist ${width}`, () => checkStyleSublist(width, height));
     unit(`checkDashboardEdit ${width}`, () => checkDashboardEdit(width, height));
   }
 
