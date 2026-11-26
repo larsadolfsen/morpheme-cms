@@ -4,7 +4,7 @@ A made-up site about Morpheme itself, in American English (`locale: 'en-US'`), w
 (`scripts/theme-screenshots.mjs`), so a theme is never shown with a real site's content. It is the starter (`starter/`)
 with this folder laid on top (`scripts/demo-site.mjs`), so only what is different is here: pages and blog posts
 (`src/content/`, the starter's own pages do not come along), the data files the demo changes (`src/data/`), `src/site/config.ts`
-and `colors.ts`, and the logo, the icons and the images (`public/`). The contact details are made up, and the testimonials on
+and `colors.ts`, and the logo, the icons and the images (`public/`). The demo has two apps of its own, both made up and holding no content from any customer: *Inline example* (the block *Tickets*, typed in place) and *Event notes* (settings, the block *Events* and a promotion kind, so the editor's app screens can be tested). The contact details are made up, and the testimonials on
 *Blocks* are marked as examples.
 
 `npx morpheme check:demo` builds the demo with the default theme and checks it. See *Themes › The demo* in `docs/editor.md`.

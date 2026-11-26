@@ -9,7 +9,8 @@ its row on the theme page stays, with the score in it.
 ## The decision (owner, 25 Nov 2026)
 
 - "We agreed upon not testing themes for wcag etc, but classify instead."
-- Not even the page and post editor is held to WCAG 2.2 AA by a hard check: "No, because this may run on the site theme."
+- Not even the page and post editor is held to WCAG 2.2 AA by a hard check: "No, because this may run on the site theme." (Owner, 26 Nov 2026: "Base theme adheres to wcag. Not others." Only the base
+  theme adheres to WCAG 2.2 AA; the rest of this spec stands, since "not others" is about theme values. `CLAUDE.md`, *Accessibility*, says so.)
 - "it stays a hard check for our base theme when we implement it" (the base theme of `specs/2026-11-21-base-theme-notes.md`, 0.22.3).
 - The split, proposed by the Architect, approved by the owner ("1 yes, 2 yes"):
   - **A theme's values are classified, never failed:** sizes, target sizes, corners, spacing, the focus ring's width and offset. That
@@ -184,12 +185,11 @@ tokens and class names, Material's exact M3 values, and section 5 of this spec. 
 Replace the section's two paragraphs with:
 
 ```
-Owner, 19 Nov 2026: the sites the CMS builds and the editor aim at **WCAG 2.2 level AA**. Where Material 3 and WCAG differ, **Material 3
-wins** (owner, 21 Nov 2026: "we follow MD3 even if it does not comply with accessibility").
-
-Themes are classified, not tested (owner, 25 Nov 2026), the page and post editor included, as it may run on the site's theme: a theme's
-values are measured and scored (the SEO score wheel, on its page and in the store), never failed; our code's behaviour (keyboard, a focus ring, names, roles and states)
-is a hard check on every theme; the base theme (0.22.3) is hard-checked on everything. The rules: skill `theme`, section 5.
+Only the **base theme** (0.22.3) adheres to **WCAG 2.2 level AA** (owner, 26 Nov 2026: "Base theme adheres to wcag. Not others."). Other themes are measured
+and scored (the SEO score wheel, on their page and in the store), never failed; our code's behaviour (keyboard, a focus ring drawn at all, names, roles, states and status
+messages) is checked on every theme (owner, 25 Nov 2026). Where Material 3 and WCAG differ, **Material 3 wins** (owner, 21 Nov 2026: "we follow MD3 even if it does not comply
+with accessibility"). This replaces the aim of 19 Nov 2026 for the sites and the editor, and the rule of 21 Nov 2026 that the page and post editor always meets WCAG 2.2 AA
+(skill `material-3`, rule 6). The rules: skill `theme`, section 5.
 ```
 
 ## Score changes
