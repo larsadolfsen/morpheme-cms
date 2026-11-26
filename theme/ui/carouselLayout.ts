@@ -162,15 +162,18 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
     });
     large = Math.max(...sizes);
     row!.style.setProperty('--mo-comp-carousel-item-width', `${large}px`);
-    // Scrolled to the start, the large ones first; to the end, last; between, the layout's own.
-    start = stateOf(
-      [...sizes].sort((a, b) => b - a),
-      width,
-      gap,
-      large,
-      'first',
-    );
     normal = stateOf(sizes, width, gap, large, 'first');
+    // Scrolled to the start, the large ones first (a hero) or, center-aligned, the leading small one and then the large ones (small, large, small); to the end, the large ones last; between, the layout's own.
+    start =
+      alignment === 'center'
+        ? { ...normal, offsets: normal.offsets.map((o) => o + large / 2 - normal.offsets[1]) }
+        : stateOf(
+            [...sizes].sort((a, b) => b - a),
+            width,
+            gap,
+            large,
+            'first',
+          );
     end = stateOf(
       [...sizes].sort((a, b) => a - b),
       width,

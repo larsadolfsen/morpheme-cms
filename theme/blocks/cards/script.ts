@@ -24,9 +24,11 @@ export default function cards() {
       const tabbable = [
         ...document.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input, select, textarea, [tabindex="0"]'),
       ].filter((el) => el.offsetParent !== null);
-      const inside = tabbable.filter((el) => root.contains(el));
-      const target =
-        e.key === 'ArrowDown' ? tabbable[tabbable.indexOf(inside[inside.length - 1]) + 1] : tabbable[tabbable.indexOf(inside[0]) - 1];
+      // The carousel's own stops are its cards; `Show all` under it is the control Down leaves to.
+      const showAll = root.querySelector<HTMLElement>('[data-cards-show-all]');
+      const inside = tabbable.filter((el) => root.contains(el) && el !== showAll);
+      const after = showAll && tabbable.includes(showAll) ? showAll : tabbable[tabbable.indexOf(inside[inside.length - 1]) + 1];
+      const target = e.key === 'ArrowDown' ? after : tabbable[tabbable.indexOf(inside[0]) - 1];
       if (!target) return;
       e.preventDefault();
       target.focus();
