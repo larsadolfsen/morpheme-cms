@@ -11,7 +11,8 @@
 import { useEffect, useState } from 'react';
 import Screen from './Screen';
 import { busyFor } from './busyAction.mjs';
-import { Button, EmptyNote, Group, GroupTitle, ImageCarousel, SupportingText, ListItem, plainListClass } from './ui';
+import { Button, EmptyNote, Group, GroupTitle, ImageCarousel, ScoreRing, SupportingText, ListItem, plainListClass } from './ui';
+import { ringScoreOf, statementOf } from './themeAccessibility.mjs';
 import { ConflictError, type RepoFile } from './github';
 import type { Env } from './App';
 import { ask } from './ask';
@@ -221,7 +222,15 @@ function useThemeActions(env: Env) {
 export function allThemes(catalog: ShownTheme[] | null | 'failed') {
   const store = Array.isArray(catalog) ? catalog : [];
   return [
-    ...store.map((x) => ({ id: x.id, name: x.name, author: x.author, version: x.version, icon: x.icon, words: x.words })),
+    ...store.map((x) => ({
+      id: x.id,
+      name: x.name,
+      author: x.author,
+      version: x.version,
+      icon: x.icon,
+      score: ringScoreOf(x),
+      words: x.words,
+    })),
     ...themes
       .filter((x) => !store.some((s) => s.id === x.id))
       .map((x) => ({
@@ -230,6 +239,10 @@ export function allThemes(catalog: ShownTheme[] | null | 'failed') {
         author: x.author,
         version: x.version,
         icon: x.icon,
+        score: (() => {
+          const a = statementOf(x.accessibility);
+          return a.state === 'measured' ? a.score : undefined;
+        })(),
         words: [x.name, x.author, ...Object.values(x.description ?? {}), ...Object.values(x.highlights ?? {}).flat()]
           .join(' ')
           .toLowerCase(),
@@ -247,6 +260,7 @@ export function ThemeRow({ of }: { of: ReturnType<typeof allThemes>[number] }) {
       headline={of.name}
       supporting={t.library.themeByline(of.version, of.author)}
       truncate
+      trailing={of.score === undefined ? undefined : <ScoreRing score={of.score} label={t.library.themeA11yScoreLabel(of.score)} />}
       count={themeInstalled(of.id) && (themePending(of.id) ? t.apps.pending : t.apps.installed)}
       arrow
     />

@@ -12,6 +12,7 @@
 import { appendFileSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
+import { kindOf } from '../lib/accessibility.mjs';
 
 /** The axe tags of WCAG 2.2 level AA (the levels A and AA of 2.0, 2.1 and 2.2). */
 export const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
@@ -56,18 +57,10 @@ export const selectorOf = (target) =>
         .join(''),
     );
 
-/** The parts of a theme's accessibility statement (lib/accessibility.mjs) an axe rule can be, by the rule's id. None today: axe does not measure what a theme can
- * fall short on (it skips a placeholder's colour, and measures no edge), `check:contrast` and `check:screens` do. A rule a theme can cause is added here with its
- * part in `PARTS`; a violation on a part the theme in use names is let through, one it does not name is judged as before. */
-export const SHORTFALL_PARTS = /** @type {Record<string, { criterion: string, part: string }>} */ ({});
-
-/** The violations the theme in use has not named as a shortfall of its own. @param {Array<{ id: string }>} violations @param {{ fallsShort: Array<{ criterion: string, part: string }> }} statement */
-export function unnamedViolations(violations, statement) {
-  const named = new Set(statement.fallsShort.map((e) => `${e.criterion} ${e.part}`));
-  return violations.filter((v) => {
-    const part = SHORTFALL_PARTS[v.id];
-    return !part || !named.has(`${part.criterion} ${part.part}`);
-  });
+/** The violations that are our code's, by the one rule (`kindOf`, lib/accessibility.mjs). An axe rule that is a theme value (`color-contrast`, `target-size`,
+ * `link-in-text-block`) is measured by `check:contrast`, never a failure here. @param {Array<{ id: string }>} violations @param {string | null} [theme] */
+export function codeViolations(violations, theme = null) {
+  return violations.filter((v) => kindOf({ rule: v.id }, theme) === 'code');
 }
 
 /** The keys of the violations axe found on one page. @param {Array<{ id: string, nodes: Array<{ target: any[] }> }>} violations */
