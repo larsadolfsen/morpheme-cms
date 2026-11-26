@@ -1,5 +1,5 @@
 // The editor's main menu (App.tsx renders it): the drawer (ui.tsx MainDrawer) in two levels. The first lists Home and the
-// sections; a section opens its list, under a back row, with the open screen marked and its fold-out folded out. Apps lists
+// sections; a section opens its list, under a back row that shows the section's name, with the open screen marked and its fold-out folded out. Apps lists
 // Store, Connectors, Plugins and Themes (the pages of the installed ones), and no row per app. From medium and wider the first level is also the collapsed navigation rail
 // (MainRailItem), whose sections open the drawer at their list. The drawer's header is the signed-in user (AccountRow), a link
 // to the account. The cog (Settings, #settings) is pinned at the bottom of the first level and of the rail; it is marked on
@@ -97,6 +97,8 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
     window.addEventListener('hashchange', close);
     return () => window.removeEventListener('hashchange', close);
   }, [modal, open, setOpen]);
+  // The back row reads the section's name; its accessible name begins with where it goes and contains that text (WCAG 2.5.3 Label in Name).
+  const backLabel = tree.find((entry) => entry.id === shown)?.label ?? t.library.back;
   // Every level stays in the page (the screen check finds the screens from the links); the ones not shown are `hidden`.
   const sections = tree.filter((entry) => entry.href === undefined && !flat.includes(entry.id));
   return (
@@ -109,7 +111,7 @@ export function MainMenu({ route, files, user }: { route: string; files: RepoFil
         shown === null ? (
           (close) => (user ? <AccountRow user={user} supporting={config.domain} href="#account" actions={close} /> : close)
         ) : (
-          <MainDrawerBack label={t.library.back} name={t.common.backTo(t.library.mainMenu)} onClick={() => show(null)} />
+          <MainDrawerBack label={backLabel} name={`${t.common.backTo(t.library.mainMenu)}: ${backLabel}`} onClick={() => show(null)} />
         )
       }
       footer={
