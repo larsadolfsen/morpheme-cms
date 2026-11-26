@@ -48,7 +48,7 @@ import type { SiteData } from '@site/editor';
 import { ask, closeChanged } from './ask';
 import MarkdownEditor, { type MarkdownHandle } from './MarkdownEditor';
 import { IMAGE, useBlockDialog } from './BlockDialog';
-import PagePicker, { PageListItem } from './PagePicker';
+import PagePicker, { PageListItem, PageSheet } from './PagePicker';
 import SectionsField from './SectionsField';
 import { leaveTo } from './FormFrame';
 import { shownAt } from './images';
@@ -288,6 +288,32 @@ function pageGroups(field: Field, context: FieldContext, options = context.relat
         { title: t.forms.pages, options },
       ]
     : [{ title: t.forms.pages, options }];
+}
+
+/** The sheet with the pages of a field that picks a page, open at once (a block typed in place, a row's link button). */
+export function FieldPageSheet({
+  field,
+  value,
+  title,
+  onPick,
+  onClosed,
+}: {
+  field: Field;
+  value: string;
+  title: string;
+  onPick: (value: string) => void;
+  onClosed: () => void;
+}) {
+  return (
+    <PageSheet
+      value={value}
+      title={title}
+      groups={pageGroups(field, useContext(Fields)!)}
+      required={field.required}
+      onChange={onPick}
+      onClosed={onClosed}
+    />
+  );
 }
 
 /** Fields that pick a page (`relation` to pages) as the rows of a list (Group), each with its name and the page picked,
