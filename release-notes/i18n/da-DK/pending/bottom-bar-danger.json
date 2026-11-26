@@ -1,0 +1,7 @@
+{
+  "id": "bottom-bar-danger",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Afsnittet Fare",
+  "text": "Nederste bjælke på en side eller et indlæg har nu kun Forhåndsvis, Gem og Udgiv, og Gem er omrids, så Udgiv står tydeligt frem. Kassér, Kassér kladde og Slet side eller Slet indlæg står samlet i et nyt afsnit, Fare, nederst i formularen. Hver knap vises kun, når den kan bruges, og spørger først."
+}
