@@ -12,6 +12,7 @@ import {
   pressMore,
   pressTool,
   ratioOf,
+  saveOrClose,
 } from './support/shared.mjs';
 
 /** The rows of a List and List - Expand are Material's: no list marker (list-style, ::marker), in the editor and in the Preview (where the page's text style, prose, must not reach them) and on the site. */
@@ -594,8 +595,9 @@ async function checkDynamicList(width, height) {
   if (!typed.inside) problems.push(`${label}: the toolbar reaches outside the screen`);
   if (typed.small) problems.push(`${label}: a toolbar button is under 44 dp`);
   await pressTool(page, 'Fill from a list');
-  const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Rows from' }).first();
+  const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Dynamic list' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
+  await panel.getByRole('switch', { name: 'Dynamic list' }).click(); // Rows from shows only with Dynamic list On
   await panel.locator('button.mo-text-field__input').first().click();
   await page.getByText('Testimonials', { exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(500);
@@ -618,6 +620,109 @@ async function checkDynamicList(width, height) {
   await page.close();
 }
 
+/** *Dynamic list* (B9): in a List's dynamic settings *Rows from* shows only with the switch *Dynamic list* On: Off (typed rows) it is not there; On it shows with no "None" choice;
+ * Off again it hides and the typed rows are back. The same on List - Expand. A phone's settings are a bottom sheet, a computer's the side panel. */
+async function checkDynamicSwitch(width, height) {
+  const label = `${width}px dynamic list switch`;
+  const phone = width < 600;
+  for (const [block, tip] of [
+    ['List', 'Show text and images in a list.'],
+    ['List - Expand', null],
+  ]) {
+    const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+    page.on('pageerror', (e) => problems.push(`${label} (${block}): ${e.message}`));
+    await openEditor(page, site);
+    await page.evaluate(() => (location.hash = '#new/pages'));
+    await page.waitForSelector('.ProseMirror');
+    await page.click('.ProseMirror');
+    await page.keyboard.type('Hello');
+    await page.keyboard.press('Enter');
+    await page.waitForTimeout(300);
+    await pressInsert(page, 'click');
+    const entry = tip
+      ? page.locator('dialog[open] button', { hasText: tip }).first()
+      : page.locator('dialog[open] button', { hasText: block }).first();
+    await entry.click();
+    await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"], .mo-editor-inline-list-row [data-field="title"]');
+    await page.keyboard.type('Typed row');
+    await pressTool(page, 'Fill from a list');
+    const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Dynamic list' }).first();
+    await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label} (${block}): the dynamic settings did not open`));
+    const toggle = panel.getByRole('switch', { name: 'Dynamic list' });
+    if (await toggle.isChecked()) problems.push(`${label} (${block}): Dynamic list is not Off for typed rows`);
+    if (await panel.getByText('Rows from', { exact: true }).count())
+      problems.push(`${label} (${block}): Rows from shows with Dynamic list Off`);
+    await toggle.click();
+    await page.waitForTimeout(400);
+    if (!(await toggle.isChecked())) problems.push(`${label} (${block}): the switch is not On after a tap`);
+    if (!(await panel.getByText('Rows from', { exact: true }).count()))
+      problems.push(`${label} (${block}): Rows from is missing with Dynamic list On`);
+    await panel.locator('button.mo-text-field__input').first().click();
+    const none = await page.getByRole('option', { name: 'None', exact: true }).locator('visible=true').count();
+    if (none) problems.push(`${label} (${block}): Rows from offers "None"`);
+    await page.keyboard.press('Escape');
+    await toggle.click();
+    await page.waitForTimeout(400);
+    if (await toggle.isChecked()) problems.push(`${label} (${block}): the switch is not Off again`);
+    if (await panel.getByText('Rows from', { exact: true }).count())
+      problems.push(`${label} (${block}): Rows from stays with Dynamic list Off`);
+    // Off again gives the typed rows back (they were only set aside while the list was On).
+    await page.keyboard.press('Escape').catch(() => {});
+    const back = await page.evaluate(() =>
+      [...document.querySelectorAll('.mo-site-block [data-field="title"]')].map((x) => (x.value ?? x.textContent ?? '').trim()),
+    );
+    if (!back.includes('Typed row')) problems.push(`${label} (${block}): the typed row is gone after On and Off (${JSON.stringify(back)})`);
+    await page.close();
+  }
+}
+
+/** A stored list keeps its typed rows through Dynamic list On and Off (QA, 26 Nov 2026): the demo's Lists page opened in the editor, its first List switched On and
+ * Off again, and its rows (Scheduled, Draft, Hidden) are still there, not one empty row. */
+async function checkDynamicSwitchStored(width, height) {
+  const label = `${width}px dynamic list switch on a stored list`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#src/content/pages/blocks-lists.md'));
+  const title = page.locator('.mo-site-block [data-field="title"]', { hasText: 'Scheduled' }).first();
+  await page.waitForSelector('.ProseMirror .mo-site-block');
+  const titles = () =>
+    page.evaluate(() =>
+      [...(document.querySelector('.ProseMirror .mo-site-block')?.querySelectorAll('[data-field="title"]') ?? [])].map((x) =>
+        (x.value ?? x.textContent ?? '').trim(),
+      ),
+    );
+  const before = await titles();
+  if (!before.includes('Scheduled'))
+    return void problems.push(`${label}: the stored rows did not show (${JSON.stringify(before)})`) || page.close();
+  await title.scrollIntoViewIfNeeded();
+  await animationsSettled(page);
+  await title.focus();
+  await animationsSettled(page);
+  // The panel of the bar's Fill from a list, and the block's own settings (Edit): the switch is in both, and each writes to the block as it changes.
+  for (const way of ['Fill from a list', 'Edit']) {
+    await (way === 'Edit' ? pressMore(page, 'Edit') : pressTool(page, way));
+    const sheet = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Dynamic list' }).first();
+    await sheet.waitFor({ timeout: 5000 });
+    const toggle = sheet.getByRole('switch', { name: 'Dynamic list' });
+    await toggle.click();
+    await page.waitForTimeout(400);
+    await toggle.click();
+    await page.waitForTimeout(400);
+    const live = await titles();
+    if (live.join() !== before.join())
+      problems.push(`${label}: the stored rows are gone after On and Off in ${way} (${JSON.stringify(live)})`);
+    await saveOrClose(page, 'last');
+    const after = await titles();
+    if (after.join() !== before.join())
+      problems.push(`${label}: the stored rows are gone after On, Off and closing ${way} (${JSON.stringify(after)})`);
+    await title.focus();
+    await animationsSettled(page);
+  }
+  await page.close();
+}
+
 /** The field picker of a dynamic List: with the demo's own list "Highlights" as its source, the rows show its items, each part of a row has a button with the field now shown, a tap on the bottom line (the button or the row's own line) opens the choice of the list's fields (a bottom sheet on a phone, a menu in the side panel on a computer), and a pick shows in the rows and in the button (it is read from the block's `map`). */
 async function checkDynamicPicker(width, height) {
   const label = `${width}px dynamic list field picker`;
@@ -635,8 +740,9 @@ async function checkDynamicPicker(width, height) {
   await page.locator('dialog[open] button', { hasText: 'Show text and images in a list.' }).first().click();
   await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
   await pressTool(page, 'Fill from a list');
-  const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Rows from' }).first();
+  const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Dynamic list' }).first();
   await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
+  await panel.getByRole('switch', { name: 'Dynamic list' }).click(); // Rows from shows only with Dynamic list On
   await panel.locator('button.mo-text-field__input').first().click();
   await page.getByText('Highlights', { exact: true }).locator('visible=true').last().click();
   await page.waitForTimeout(500);
@@ -1061,8 +1167,9 @@ async function checkNewList(width, height, label) {
     await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
     await page.keyboard.type('Typed row');
     await pressTool(page, 'Fill from a list');
-    const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Rows from' }).first();
+    const panel = page.locator('dialog[open], .mo-editor-side-sheet').filter({ hasText: 'Dynamic list' }).first();
     await panel.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the dynamic settings did not open`));
+    await panel.getByRole('switch', { name: 'Dynamic list' }).click(); // Rows from shows only with Dynamic list On
     await panel.locator('button.mo-text-field__input').first().click();
     await page
       .getByText('ZZ Fresh list', { exact: true })
@@ -1785,6 +1892,9 @@ export function register(unit) {
   unit('checkListRowColors', () => checkListRowColors());
   unit('checkDynamicList 375', () => checkDynamicList(375, 740));
   unit('checkDynamicList 1280', () => checkDynamicList(1280, 900));
+  unit('checkDynamicSwitch 375', () => checkDynamicSwitch(375, 740));
+  unit('checkDynamicSwitch 1280', () => checkDynamicSwitch(1280, 900));
+  unit('checkDynamicSwitchStored 1280', () => checkDynamicSwitchStored(1280, 900));
   unit('checkDynamicPicker 375', () => checkDynamicPicker(375, 740));
   unit('checkDynamicPicker 1280', () => checkDynamicPicker(1280, 900));
   unit('checkOwnList 375', () => checkOwnList(375, 740));

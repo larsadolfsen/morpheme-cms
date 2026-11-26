@@ -70,8 +70,11 @@ export const blocks: Messages['blocks'] = {
     over: (day, time) => `Vises ikke længere (til ${day} kl. ${time})`,
   },
   rows: {
+    dynamicList: 'Dynamisk liste',
+    dynamicListHint: 'Til: rækkerne kommer fra en liste. Fra: du skriver rækkerne selv.',
+    toggle: ['Til', 'Fra'] as [string, string],
     from: 'Rækker fra',
-    fromHint: 'Vælg en liste for at vise dens poster som rækker. Lad feltet stå tomt for selv at skrive rækkerne.',
+    fromHint: 'Vælg den liste, hvis poster vises som rækker.',
     tags: 'Kun med disse mærker',
     addTag: 'Tilføj mærke',
     tagsHint: 'Lad feltet stå tomt for at vise alle listens poster.',

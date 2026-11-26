@@ -81,8 +81,11 @@ export const blocks = {
     over: (day: string, time: string) => `No longer shown (until ${day} at ${time})`,
   },
   rows: {
+    dynamicList: 'Dynamic list',
+    dynamicListHint: 'On: the rows come from a list. Off: you type the rows yourself.',
+    toggle: ['On', 'Off'] as [string, string],
     from: 'Rows from',
-    fromHint: 'Select a list to show its items as rows. Leave empty to type the rows yourself.',
+    fromHint: 'Select the list to show its items as rows.',
     tags: 'Only with these tags',
     addTag: 'Add tag',
     tagsHint: 'Leave empty to show all items of the list.',
