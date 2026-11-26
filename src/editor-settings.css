@@ -1079,6 +1079,10 @@
     padding: var(--mo-ref-space-200);
   }
 
+  .mo-editor-picker-inert {
+    display: contents;
+  }
+
   .mo-editor-picker-sample {
     inline-size: 20.5rem;
     max-inline-size: 100%;
