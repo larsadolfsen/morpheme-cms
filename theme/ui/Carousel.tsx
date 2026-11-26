@@ -83,6 +83,19 @@ export default function Carousel({
     () => (root.current && scriptedLayouts.includes(layout) ? carouselLayout(root.current) : undefined),
     [layout, alignment, items.length],
   );
+  // With focusable items the row is no tab stop; where nothing in it can take focus (the editor's previews draw the items inert) it is one again.
+  const [stop, setStop] = useState(!itemsFocusable);
+  useEffect(() => {
+    const el = row.current;
+    if (!el || !itemsFocusable) return;
+    const FOCUSABLE = 'a[href], button, input, select, textarea, summary, [tabindex]:not([tabindex="-1"])';
+    const check = () =>
+      setStop(![...el.querySelectorAll<HTMLElement>(FOCUSABLE)].some((c) => !c.hasAttribute('disabled') && !c.closest('[inert]')));
+    check();
+    const watch = new MutationObserver(check);
+    watch.observe(el, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'tabindex', 'href', 'inert'] });
+    return () => watch.disconnect();
+  }, [itemsFocusable, items.length]);
   const go = (i: number) => row.current?.scrollTo({ left: scrollFor(row.current, i), behavior: 'smooth' });
   return (
     <div
@@ -100,7 +113,7 @@ export default function Carousel({
         className="mo-carousel__items"
         data-carousel-items=""
         // A scroller the keyboard can reach (WCAG 2.1.1; axe: scrollable-region-focusable), named like the carousel; with focusable items (the Cards block's) the first of them is reached instead.
-        tabIndex={itemsFocusable ? undefined : 0}
+        tabIndex={stop ? 0 : undefined}
         aria-label={label || undefined}
         onScroll={(e) => setShown(shownItem(e.currentTarget))}
       >
