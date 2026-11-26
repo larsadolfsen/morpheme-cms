@@ -1362,10 +1362,6 @@ html {
   min-height: 2.5rem;
   align-items: center;
 }
-/* A text button's touch area (the theme's ::after layer that reaches 48px) lies over the button's own controls; in the editor it does not take the pointer, so the options control under it is clickable. */
-.mo-editor-text .mo-editor-inline-button.mo-is-text::after {
-  pointer-events: none;
-}
 /* A card's next button: empty and quiet (on-surface-variant, not an opacity, which kept it under 3:1) until it is made (Cards, InlineCards.tsx). */
 .mo-editor-text .mo-editor-inline-card-next-button {
   color: var(--mo-sys-color-on-surface-variant);
