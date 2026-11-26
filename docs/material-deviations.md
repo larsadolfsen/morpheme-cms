@@ -1,5 +1,7 @@
 # Deviations from Material Design
 
+From 26 Nov 2026 the editor follows Material 3 (owner); an entry that rests on "the editor workspace" is under review (Architect's audit).
+
 Every place where we deliberately do something other than Material Design 3 (M3) is listed here, so we know we took the
 decision. Each entry says what Material says, what we do instead, why, the date and the pull request. A deviation that
 is not listed here is a bug. Add the entry in the same pull request as the change.

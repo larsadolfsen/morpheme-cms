@@ -177,6 +177,12 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
                     className={[buttonClass(view?.kind), 'mo-editor-inline-button', !button && 'mo-editor-inline-button-faded']
                       .filter(Boolean)
                       .join(' ')}
+                    // The button's target area is larger than its field (editor.css, M3's 48 dp): a tap on it that the field did not get goes to the field.
+                    onPointerDown={(e) => {
+                      if (e.target !== e.currentTarget) return;
+                      e.preventDefault();
+                      e.currentTarget.querySelector<HTMLTextAreaElement>('[data-field="button"]')?.focus();
+                    }}
                   >
                     {view?.icon && view.icon !== 'arrow_forward' && <Glyph icon={view.icon} size={20} />}
                     <InlineField
