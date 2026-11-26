@@ -82,7 +82,10 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
 .card.on .media { margin: 8px 8px 0; border-radius: 8px; height: 112px; }
 
 .card.on .part { margin: 0; }
-.card.on .foot { display: flex; justify-content: flex-end; }
+.card.on .foot { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+/* M3 outlined button with a leading icon: outline-variant outline, on-surface-variant label and icon; 48px high here (rule 10a). */
+.obtn { display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 16px; border: 1px solid var(--outline-variant); border-radius: 24px; font-weight: 500; color: var(--on-surface-variant); }
+.obtn .icon { font-size: 20px; }
 .media .icon { color: var(--on-surface-variant); }
 .media.empty { background: transparent; }
 /* The item menu: the block menu's bar, one icon-button size smaller; it shows on the active item, and the block keeps its own menu. */
@@ -94,7 +97,7 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
 </head>
 <body>
 <h1 class="top">The Cards block in the page editor, with the same rules</h1>
-<p class="note">Cards are drawn as the site draws them. Only the active card shows its parts: the image (tap to change it), headline, subhead and supporting text, each with a border and 48px high, and the link button at the bottom. The active part's border turns blue; the solid ring is only for keyboard focus. The active card has its own menu (move, <i>Add item</i>, remove) and the block keeps its own menu; the toolbar holds only the page and its text. Empty parts ask for an action, with M3's names: <i>Your headline</i>, <i>Your subhead</i>, <i>Your supporting text</i>.</p>
+<p class="note">Cards are drawn as the site draws them. Only the active card shows its parts: the image (tap to change it), headline, subhead and supporting text, each with a border and 48px high, and, at the bottom, <i>Add button</i> and <i>Add link</i> as outlined buttons with an icon. The active part's border turns blue; the solid ring is only for keyboard focus. The active card has its own menu (move, <i>Add item</i>, remove) and the block keeps its own menu; the toolbar holds only the page and its text. Empty parts ask for an action, with M3's names: <i>Your headline</i>, <i>Your subhead</i>, <i>Your supporting text</i>.</p>
 <div class="frames">
   <section class="frame">
     <h2>1. Phone: tap on the supporting text (no drag handle on compact)</h2>
@@ -114,7 +117,7 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
                 <span class="part hit"><span class="hl">Cat</span></span>
                 <span class="part hit"><span class="sh ph">Your subhead</span></span>
                 <span class="part hit active"><span class="st" style="margin:0">The second best animal.<span class="caret"></span></span></span>
-                <div class="foot"><span class="trail hit"><span class="icon">add_link</span></span></div>
+                <div class="foot"><span class="obtn"><span class="icon">add</span>Add button</span><span class="obtn"><span class="icon">add_link</span>Add link</span></div>
               </div>
             </div><div class="card"><div class="cbody"><span class="hl ph">Your headline</span><span class="sh ph">Your subhead</span><span class="st ph">Your supporting text</span></div></div>
             </div>
@@ -143,7 +146,7 @@ p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
                 <span class="part hit kbd"><span class="hl">Cat</span></span>
                 <span class="part hit"><span class="sh ph">Your subhead</span></span>
                 <span class="part hit"><span class="st" style="margin:0">The second best animal.</span></span>
-                <div class="foot"><span class="trail hit"><span class="icon">add_link</span></span></div>
+                <div class="foot"><span class="obtn"><span class="icon">add</span>Add button</span><span class="obtn"><span class="icon">add_link</span>Add link</span></div>
               </div>
             </div><div class="card"><div class="cbody"><span class="hl ph">Your headline</span><span class="sh ph">Your subhead</span><span class="st ph">Your supporting text</span></div></div>
             </div>
