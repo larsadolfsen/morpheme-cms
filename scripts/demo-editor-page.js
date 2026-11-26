@@ -5,7 +5,8 @@
   if (!('serviceWorker' in navigator)) return;
   // A browser under automation (the screens checks open this build and fake the Worker themselves) keeps its own fakes, unless the
   // proof of the demo editor (scripts/check-demo-editor.mjs) asks for the worker.
-  if (navigator.webdriver && !window.demoEditorProof) return;
+  // Then the editor gets the plain worker too (lib/editorWorker.mjs), so the demo's worker never answers over those fakes.
+  if (navigator.webdriver && !window.demoEditorProof) return void delete window.moEditorWorker;
   // The build wrote the worker's URL (scripts/demo-editor.mjs); the editor registers the same one (lib/editorWorker.mjs), so nothing replaces it.
   const reg = await navigator.serviceWorker.register(window.moEditorWorker, { scope: '/editor/' });
   await navigator.serviceWorker.ready;
