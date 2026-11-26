@@ -32,16 +32,25 @@ export function cmsView(status, now = Date.now()) {
     }
   }
 
-  const busy = status.update?.state === 'waiting' || status.update?.state === 'undoing';
+  const state = status.update?.state;
+  const busy = state === 'trying' || state === 'waiting' || state === 'undoing';
 
-  let action = null;
-  if (latest !== null && !busy) {
-    if (status.checked?.problem?.kind === 'major') {
-      action = 'update';
-    } else if (status.checked?.problem?.kind === 'skipped') {
-      action = 'try-again';
+  // The newer version failed on its trial branch or in its build: why, the build's link and when it is tried again (24 hours after the try).
+  // The Try again button tries it at once.
+  let failed = null;
+  if (latest !== null) {
+    const record = (status.failed ?? []).find((f) => f.version === latest);
+    if (record) {
+      failed = {
+        version: record.version,
+        reason: record.reason ?? 'build-failed',
+        buildUrl: record.buildUrl ?? null,
+        retryAt: typeof record.retryAt === 'number' ? record.retryAt : null,
+      };
     }
   }
+
+  const action = latest !== null && !busy && failed ? 'try-again' : null;
 
   let npmCommand = null;
   if (latest !== null && status.checked?.problem?.kind === 'needs-npm') {
@@ -50,13 +59,13 @@ export function cmsView(status, now = Date.now()) {
 
   let update = null;
   if (status.update) {
-    const state = status.update.state;
-    if (state === 'waiting' || state === 'undoing' || state === 'undone' || state === 'stuck') {
-      update = { state, to: status.update.to, at: status.update.at };
+    const shown = { state, to: status.update.to, at: status.update.at, buildUrl: status.update.buildUrl ?? null };
+    if (state === 'trying' || state === 'waiting' || state === 'undoing' || state === 'undone' || state === 'stuck') {
+      update = shown;
     } else if (state === 'done') {
       const at = Date.parse(status.update.at);
       if (now - at < DONE_SHOWN) {
-        update = { state, to: status.update.to, at: status.update.at };
+        update = shown;
       }
     }
   }
@@ -70,7 +79,7 @@ export function cmsView(status, now = Date.now()) {
   }
   if (status.checked?.problem) {
     const kind = status.checked.problem.kind;
-    if (kind === 'unreachable' || kind === 'cannot-write' || kind === 'not-managed') {
+    if (kind === 'unreachable' || kind === 'cannot-write' || kind === 'not-managed' || kind === 'no-preview') {
       problems.push(kind);
     }
   }
@@ -78,5 +87,5 @@ export function cmsView(status, now = Date.now()) {
     problems.push('slow-undo');
   }
 
-  return { running, checkedAt, latest, notes, action, npmCommand, update, problems, blocked: blockedUpdate(status) };
+  return { running, checkedAt, latest, notes, action, npmCommand, update, failed, problems, blocked: blockedUpdate(status) };
 }

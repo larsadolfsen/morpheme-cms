@@ -4,7 +4,7 @@ import { compareVersions } from '../lib/cms-version.mjs';
 
 /**
  * The reason a site does not update by itself, or null. A missing token or KV always blocks; a refused write, `needs-npm` and
- * `contract` and `unsafe-code` (the own themes and apps use names the update cannot rewrite; `detail` is one `file:line: why` per line) only matter while a newer version waits. A new major version, a skipped one and an unreachable npm are not blocks the
+ * `contract` and `unsafe-code` (the own themes and apps use names the update cannot rewrite; `detail` is one `file:line: why` per line) only matter while a newer version waits. A version that failed its trial build (it is tried again each day) and an unreachable npm are not blocks the
  * owner can fix: the Morpheme page shows those.
  * @param {{ running: string, token?: boolean, kv?: boolean, checked?: { latest?: string | null, problem?: { kind: string, item?: string, id?: string, why?: string, detail?: string } } | null }} status
  * @returns {{ kind: 'no-token' | 'no-kv' } | { kind: 'unsafe-code', version: string, lines: string[] } | { kind: 'cannot-write' | 'needs-npm', version: string } | { kind: 'contract', version: string, item: 'theme' | 'app', id: string, sure: boolean } | null}

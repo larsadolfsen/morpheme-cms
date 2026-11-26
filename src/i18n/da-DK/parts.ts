@@ -251,8 +251,23 @@ export const parts: Messages['parts'] = {
     entry: { name: 'Et eksempel', heading: 'En overskrift', text: 'En kort tekst, der fortæller lidt mere.' },
   },
   tokens: {
-    intro: 'Temaets designtokens for hjørner, skygger, typografi og farver, som temaet sætter dem.',
-    groups: { shape: 'Hjørner', elevation: 'Skygger', elevationClasses: 'Højdeklasser', type: 'Typografi', color: 'Farver' },
+    intro: 'De værdier, temaet sætter nu. De ændres med temaet.',
+    groups: {
+      shape: 'Hjørner',
+      elevation: 'Skygger',
+      elevationClasses: 'Højdeklasser',
+      type: 'Typografi',
+      color: 'Farver',
+      spacing: 'Afstandstrin',
+      density: 'Tæthedstrin',
+    },
+    spacing: {
+      step: (px: number) => `${px}px`,
+      density: (level: number) => (level === 0 ? 'Tæthed 0' : `Tæthed −${-level}`),
+      densityName: { '0': 'Mellem', '-1': 'Lille', '-2': 'Kompakt', '-3': 'Tæt' } as Record<string, string>,
+      densityValue: (px: number) => (px === 0 ? 'Standardhøjde og -padding' : `${px}px mindre højde og lodret padding`),
+      inUse: (level: number) => `I brug: tæthed ${level}`,
+    },
     shape: {
       radius: 'Paneler',
       radiusSmall: 'Det mindre i et panel',
@@ -344,7 +359,6 @@ export const parts: Messages['parts'] = {
     editor: 'Editor',
     components: 'Temaets komponenter',
     blocks: 'Blokke',
-    values: 'Tokens',
     componentsIntro: 'Temaets knapper, felter, lister og andre dele i alle deres slags og tilstande. Temaet giver dem deres udseende.',
     /** Theme coverage on "UI components": which parts the active theme styles, which it leaves to Material. */
     coverage: {

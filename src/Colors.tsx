@@ -1,4 +1,4 @@
-// "Business" › "Colors" (#company/colors): the site's colours, for light and dark mode, in the site's file of
+// "Style" › "Color" (#style/color): the site's colours, for light and dark mode, in the site's file of
 // colours (config.colors, packages/editor/lib/colors.ts). The first tab, "Generator", where the screen starts, or one
 // mode at a time, picked with the tabs after it, and the editor is shown in the mode while the screen is open
 // (theme.ts holdTheme). Each mode has a little page drawn in its colours, the pairs that are too hard to
@@ -15,7 +15,7 @@
 // colors", src/apps/content-colors/: pageColors in packages/editor/site/pageColors.ts). While an app installed changes the pages'
 // colours (hooks/page-colors.ts), each mode shows the pages' colours instead (PageColors), as the site was last built
 // (/editor/page-colors.json, packages/editor/scripts/page-colors.mjs): first a notice that the apps give them, with a button to the
-// site's own, which are only the fallback ("Fallback colors", #company/colors/fallback-colors, a page of the same form, so
+// site's own, which are only the fallback ("Fallback colors", #style/color/fallback-colors, a page of the same form, so
 // what is unsaved stays), then the apps, each to its settings, the pages with colours from an image (the image, the
 // page and its colours in the mode open), and those with the site's own. Saved with "Save changes" in one commit; the
 // editor shows the new colours at once (theme.ts applyColors), the site when it is built again.
@@ -75,6 +75,7 @@ import { activeApps, appSettings, type SiteApp } from './apps';
 import { settingsRoute } from './AppList';
 import { splitPicture } from '../lib/crop.mjs';
 import { materialIcon } from './icon';
+import { ColorTokens } from './Tokens';
 
 const names = colorFields.map((f) => f.name);
 /** The site's colours as the editor has them (with those a file written before them does not have made, completeColors),
@@ -119,7 +120,7 @@ const CHANGE = t.app.changes.edited(t.app.changes.colors);
 type Tab = Mode | 'generator';
 
 /** The page with the site's own colours, while an app changes the pages' colours: the fallback. */
-export const FALLBACK_ROUTE = 'company/colors/fallback-colors';
+export const FALLBACK_ROUTE = 'style/color/fallback-colors';
 
 /** The apps installed that change the pages' colours (hooks/page-colors.ts). */
 const colorApps = (files: RepoFile[]) => {
@@ -146,7 +147,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
   const changing = useMemo(() => colorApps(files), [files]);
   useEffect(() => () => holdTheme(null), []);
   // While an app changes the pages' colours, the modes show the pages', and the site's own are on a page of the form.
-  useFormPages(changing.length ? ['company/colors', FALLBACK_ROUTE] : []);
+  useFormPages(changing.length ? ['style/color', FALLBACK_ROUTE] : []);
   const ownShown = fallback || !changing.length;
   const appNames = new Intl.ListFormat(locale).format(changing.map((a) => a.label));
   const file = files.find((f) => f.path === config.colors);
@@ -250,12 +251,8 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
 
   return (
     <FormFrame
-      title={changing.length && fallback ? t.colors.pages.fallback : t.common.parts.colors}
-      back={
-        changing.length && fallback
-          ? { href: '#company/colors', label: t.common.parts.colors, guard: (go) => go() }
-          : { href: '#company', label: t.common.parts.company }
-      }
+      title={changing.length && fallback ? t.colors.pages.fallback : t.common.parts.styleColor}
+      back={changing.length && fallback ? { href: '#style/color', label: t.common.parts.styleColor, guard: (go) => go() } : undefined}
       dirty={dirty}
       saving={saving}
       onSave={save}
@@ -292,6 +289,8 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
           <PageColors env={env} files={files} apps={changing} mode={mode} />
         </>
       )}
+      {/* The colour tokens below the settings (they were Values' group Colors). */}
+      <ColorTokens />
     </FormFrame>
   );
 
