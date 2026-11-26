@@ -11,27 +11,99 @@
     },
     {
       "criterion": "2.5.8",
+      "part": "button-xsmall",
+      "ok": true,
+      "why": "Extra small button 32 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "button-medium",
+      "ok": true,
+      "why": "Medium button 56 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "button-large",
+      "ok": true,
+      "why": "Large button 96 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "button-xlarge",
+      "ok": true,
+      "why": "Extra large button 136 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
       "part": "button-small",
-      "ok": false,
-      "why": "Small button 14 px, under 24 px"
+      "ok": true,
+      "why": "Small button 40 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
       "part": "icon-button",
       "ok": true,
-      "why": "Icon button 40 px, needs 24 px"
+      "why": "Icon button 32 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "fab",
+      "ok": true,
+      "why": "Floating action button 56 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
       "part": "chip",
+      "ok": false,
+      "why": "Chip 20 px, under 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "switch",
       "ok": true,
-      "why": "Chip 32 px, needs 24 px"
+      "why": "Switch 32 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "checkbox",
+      "ok": false,
+      "why": "Checkbox 18 px, under 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "radio-button",
+      "ok": false,
+      "why": "Radio button 20 px, under 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "slider-handle",
+      "ok": true,
+      "why": "Slider handle 44 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "text-field",
+      "ok": true,
+      "why": "Text field 56 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "menu-item",
+      "ok": true,
+      "why": "Menu item 44 px, needs 24 px"
+    },
+    {
+      "criterion": "2.5.8",
+      "part": "tab",
+      "ok": true,
+      "why": "Tab 48 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",
       "part": "list-item",
       "ok": true,
-      "why": "List item 24 px, needs 24 px"
+      "why": "List item 72 px, needs 24 px"
     },
     {
       "criterion": "2.5.8",

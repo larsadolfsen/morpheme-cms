@@ -5,7 +5,13 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const [theme] = process.argv.slice(2).filter((a) => !a.startsWith('--'));
-const env = { ...process.env, CONTRAST_WRITE: '1', CONTRAST_TARGET_ONLY: '1', ...(theme ? { CONTRAST_THEMES: theme } : {}) };
+const env = {
+  ...process.env,
+  CONTRAST_WRITE: '1',
+  CONTRAST_TARGET_ONLY: '1',
+  MORPHEME_COMPONENTS_PATH: '/ui/',
+  ...(theme ? { CONTRAST_THEMES: theme } : {}),
+};
 delete env.CONTRAST_SECTIONS;
 const file = fileURLToPath(new URL('./check-contrast.mjs', import.meta.url));
 const { status } = spawnSync(process.execPath, [file], { stdio: 'inherit', env });

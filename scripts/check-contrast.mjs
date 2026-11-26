@@ -331,7 +331,17 @@ const kinds = `## Button kinds\n\n${blockHtml('buttons', {
 const on = (c) => `${body}\n${kinds}`.replace(/^(#{1,2} )/gm, `<div data-section="${c}"></div>\n\n$1`);
 const testPage = `---\ntitle: "Contrast test"\ndescription: "Made by check:contrast, never saved."\n---\n\n${SECTIONS.map(on).join('\n\n')}\n`;
 
-const pages = ['/contrast-test/', '/', '/contact/', '/about/', '/get-started/', '/app-store/', '/blog-page/', '/privacy-policy/'];
+const pages = [
+  ...(TARGET_ONLY ? ['/ui/'] : []),
+  '/contrast-test/',
+  '/',
+  '/contact/',
+  '/about/',
+  '/get-started/',
+  '/app-store/',
+  '/blog-page/',
+  '/privacy-policy/',
+];
 const results = [];
 const manualSeen = new Set();
 const started = Date.now();
@@ -393,6 +403,8 @@ try {
               results.push(...unique(records, `${theme} site ${scheme} ${width}${path === '/contrast-test/' ? '' : ` ${path}`}`));
             }
             await page.close();
+            // The theme's parts are measured on the site (the UI components page and the site's pages); the editor's own drawing is not the theme's.
+            if (TARGET_ONLY) continue;
             // The editor, typed in place: at rest, then each block selected.
             const editor = await browser.newPage(ctx);
             editor.on('pageerror', () => {});
