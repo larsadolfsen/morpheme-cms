@@ -388,7 +388,15 @@ async function checkDanger(width, height) {
     await page.goto(`${site}/editor/#src/content/pages/zz-danger.md`);
     await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
     const danger = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: /^Danger$/ }) });
-    const idle = (await danger.getByRole('button').allTextContents()).map((n) => n.trim()).join();
+    // Danger is folded on load, like every section but Content (owner, 14 Nov 2026): open it to see its rows.
+    const rows = () => danger.locator(':scope > div').getByRole('button');
+    const openDanger = async () => {
+      const toggle = danger.locator('h2 button');
+      if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
+    };
+    if ((await danger.locator('h2 button').getAttribute('aria-expanded')) === 'true') problems.push(`${label}: Danger is open on load`);
+    await openDanger();
+    const idle = (await rows().allTextContents()).map((n) => n.trim()).join();
     if (idle !== 'Delete page') problems.push(`${label}: Danger has "${idle}" with nothing changed, not only Delete page`);
     if (await page.getByRole('button', { name: /^Discard/ }).count()) problems.push(`${label}: a Discard shows with nothing changed`);
     await page.locator('.ProseMirror p').first().click();
@@ -410,7 +418,8 @@ async function checkDanger(width, height) {
     const publish = kinds.find((k) => /^Publish/.test(k));
     if (publish && !publish.endsWith(':filled')) problems.push(`${label}: Publish is not filled (${publish})`);
     await danger.waitFor({ timeout: 10_000 });
-    const names = await danger.getByRole('button').allTextContents();
+    await openDanger();
+    const names = await rows().allTextContents();
     if (names.map((n) => n.trim()).join() !== 'Discard,Delete page')
       problems.push(`${label}: Danger has ${names.join(', ')}, not Discard, Delete page`);
     const last = await page.evaluate(() => {

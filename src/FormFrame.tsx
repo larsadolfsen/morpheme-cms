@@ -228,6 +228,8 @@ export default function FormFrame<T extends string>({
 }: Props<T>) {
   const save = useRef(onSave);
   save.current = onSave;
+  // Closed on load, like every section but Content.
+  const [dangerOpen, setDangerOpen] = useState(false);
   // While the website updates after a publish, the Publish button stays and is busy (it has no label once published).
   // A form that has had no Publish button shows nothing: the update is only said when it fails.
   const lastPublishLabel = useRef<string | undefined>(undefined);
@@ -295,7 +297,7 @@ export default function FormFrame<T extends string>({
       )}
       {danger && danger.length > 0 && (
         <div className="mo-editor-form-more">
-          <FoldSection title={t.forms.danger} open onToggle={() => {}} fixed>
+          <FoldSection title={t.forms.danger} open={dangerOpen} onToggle={() => setDangerOpen((o) => !o)}>
             <Group>
               {danger.map((a) => (
                 <ListItem
