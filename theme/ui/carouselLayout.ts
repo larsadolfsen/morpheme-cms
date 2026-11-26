@@ -5,7 +5,7 @@
 // work as in any row), and its mask (.mo-carousel__item-mask) is moved and clipped to the size its place gives it. The
 // places are keylines: where each item stands and how wide it is seen, with an item that is just leaving or coming in
 // outside at each end. Scrolled to the start, the large ones are at the start (also in a hero aligned to the centre);
-// scrolled to the end, at the end; between, the layout's own; and from one to the other the keylines move by
+// scrolled to the end, at the end (center-aligned: the last item centred, with room after it, as the first one is at the start); between, the layout's own; and from one to the other the keylines move by
 // themselves, so that every item grows and shrinks as it passes. Widths from the theme (--mo-comp-carousel-large-item-width,
 // --mo-comp-carousel-small-item-min-width and -max-width, the gap and the height, in ui.css); what is masked of an item is on it
 // as --mo-comp-carousel-mask (0 to 1), for what is on it to fade. The site's carousel.script.ts and, in the editor, Carousel.tsx
@@ -54,7 +54,8 @@ function arrangement(
   // One item, or the layout does not fit: all at one size.
   const even = (n: number) => Array<number>(n).fill((width - (n - 1) * gap) / n);
   if (layout === 'hero') {
-    // A large one at most twice as wide as it is high: more large ones on a wide screen.
+    // A large one at most twice as wide as it is high: more large ones on a wide screen. A center-aligned one always has exactly one large item,
+    // centred between two small ones, which only grows with the width (M3, Guidelines: "A centered hero carousel has two small carousel items, with a large item centered").
     // Always followed by a small one (two for center-aligned: one on each side), also with two cards: never all at one size (M3, Specs: "at least one large and one small item").
     const smalls = Math.min(alignment === 'center' ? 2 : 1, count - 1);
     if (smalls < 1) return even(count);
@@ -64,7 +65,7 @@ function arrangement(
     }
     let n = 1;
     const sizeOf = (k: number) => (width - smalls * smallMax - (k + smalls - 1) * gap) / k;
-    while (sizeOf(n) > 2 * height && n + smalls < count) n++;
+    while (alignment !== 'center' && sizeOf(n) > 2 * height && n + smalls < count) n++;
     const l = sizeOf(n);
     const larges = Array<number>(n).fill(l);
     return alignment === 'center' ? [smallMax, ...larges, smallMax] : [...larges, smallMax];
@@ -151,8 +152,11 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
   function measure() {
     const style = getComputedStyle(row!);
     // The window the items are laid out in is the row less its padding (M3: 16dp leading and trailing padding): items scroll out under it.
+    // A center-aligned hero has room after its last item, as wide as a small item and a gap, so that the last item can rest in the middle: space, not a drawn part.
+    row!.style.paddingInlineEnd = '';
     const pad = parseFloat(style.paddingInlineStart) || 0;
-    const width = row!.clientWidth - pad - (parseFloat(style.paddingInlineEnd) || 0);
+    const padEnd = parseFloat(style.paddingInlineEnd) || 0;
+    const width = row!.clientWidth - pad - padEnd;
     const gap = parseFloat(style.columnGap) || 0;
     const sizes = arrangement(layout, alignment, items.length, width, gap, {
       large: lengthOf(root, '--mo-comp-carousel-large-item-width', 200),
@@ -161,9 +165,13 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
       height: row!.clientHeight,
     });
     large = Math.max(...sizes);
+    if (layout === 'hero' && alignment === 'center' && items.length > 2)
+      row!.style.paddingInlineEnd = `${padEnd + gap + lengthOf(root, '--mo-comp-carousel-small-item-max-width', 56)}px`;
     row!.style.setProperty('--mo-comp-carousel-item-width', `${large}px`);
     normal = stateOf(sizes, width, gap, large, 'first');
-    // Scrolled to the start, the large ones first (a hero) or, center-aligned, the leading small one and then the large ones (small, large, small); to the end, the large ones last; between, the layout's own.
+    // Scrolled to the start, the large ones first (a hero) or, center-aligned, the leading small one and then the large one (small, large, small); to the end, the large ones last or,
+    // center-aligned, the large one and then the trailing small one, mirroring the start (M3 is silent on the ends of the scroll: its Guidelines say "A centered hero carousel has two
+    // small carousel items, with a large item centered", and "items automatically change size and snap into place to maintain the same layout"); between, the layout's own.
     start =
       alignment === 'center'
         ? { ...normal, offsets: normal.offsets.map((o) => o + large / 2 - normal.offsets[1]) }
@@ -174,13 +182,17 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
             large,
             'first',
           );
-    end = stateOf(
-      [...sizes].sort((a, b) => a - b),
-      width,
-      gap,
-      large,
-      'last',
-    );
+    // Center-aligned: the row has room after the last item (below), so that it rests in the middle too and the layout there is the layout's own.
+    end =
+      alignment === 'center'
+        ? normal
+        : stateOf(
+            [...sizes].sort((a, b) => a - b),
+            width,
+            gap,
+            large,
+            'last',
+          );
     // Where an item rests: its start this far before the first large keyline's (scroll-padding, for scroll-snap).
     lead = normal.lines[normal.focal].loc - large / 2;
     row!.style.scrollPaddingInlineStart = `${lead + pad}px`;

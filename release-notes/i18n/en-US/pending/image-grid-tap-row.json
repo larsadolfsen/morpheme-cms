@@ -1,0 +1,6 @@
+{
+  "id": "image-grid-tap-row",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Tapping an image in an Image grid shows the block's row with the image's sheet"
+}

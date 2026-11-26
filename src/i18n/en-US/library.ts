@@ -158,6 +158,8 @@ export const library = {
     tab: 'Tab size',
     'list-item': 'List item size',
     'carousel-control': 'Carousel control size',
+    'navigation-item': 'Navigation bar and rail item size',
+    'sheet-control': 'Sheet drag handle size',
   } as Record<string, string>,
   /** The button on a theme's page that swaps the theme the website uses to it. */
   useTheme: 'Use the theme',

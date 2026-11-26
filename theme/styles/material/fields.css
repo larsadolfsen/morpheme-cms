@@ -82,6 +82,14 @@
   .mo-checkbox__box:has(.mo-checkbox__input:disabled) {
     opacity: var(--mo-sys-state-disabled-state-layer-opacity);
   }
+  /* M3 Checkbox, specs: "Target size 48dp" next to "State-layer size 40dp", and accessibility: "Don't apply density to checkboxes by default": only the target is
+     48dp, the box stays 18dp and the state layer 40dp. The label is the target (a click anywhere in it ticks the box): 48dp high, the box and the name 12dp
+     down in it, so they stand where they stood. In a list row (a choice with its control, the selection box) the row is the target. */
+  .mo-checkbox:not(.mo-list__item-select-box, .mo-list__item-with-control .mo-checkbox) {
+    box-sizing: border-box;
+    min-height: 3rem;
+    padding-block: 0.75rem;
+  }
 
   /* An M3 switch (its variables above): a round state layer (40px) around the handle when pointed at, in the primary
      colour when on; the handle off in on-surface-variant when pointed at or pressed. */
@@ -152,6 +160,31 @@
   }
   .mo-radio-button__box:has(.mo-radio-button__input:disabled) {
     opacity: var(--mo-sys-state-disabled-state-layer-opacity);
+  }
+  /* M3 Radio button, specs: "Target size 48dp" next to "State layer size 40dp", accessibility: "Don't apply density to radio buttons by default": as the
+     checkbox, only the target grows to 48dp; the ring is 20dp and the state layer 40dp as before. */
+  .mo-radio-button:not(.mo-list__item-with-control .mo-radio-button) {
+    box-sizing: border-box;
+    min-height: 3rem;
+    padding-block: 0.75rem;
+  }
+
+  /* In a list row (a choice with its control) the row's height is the row's own, so the control gets its 48dp target as an invisible area out from the
+     middle of its box; the 40dp state layer and the drawn box do not change. */
+  :is(.mo-checkbox, .mo-radio-button):where(.mo-list__item-with-control *) > .mo-checkbox__box::after,
+  .mo-list__item-with-control .mo-radio-button__box::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 3rem;
+    height: 3rem;
+    transform: translate(-50%, -50%);
+  }
+
+  /* The rows of a radio group are 48dp targets now, so the 12dp gap between them goes: the rows touch, as M3's list rows do. */
+  .mo-radio-group {
+    gap: 0;
   }
 
   /* An M3 slider's value: label large in its pill. */
