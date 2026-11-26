@@ -32,11 +32,11 @@ The page and post editor. It follows Material 3 like the rest of the editor (`CL
    - a row: the icon slot (48×48, round), the label text, the supporting text and the link button (48×48, round);
    - a card: the image (tap to change it), the headline, the subhead, the supporting text and the link button
      (48×48, round, at the bottom right).
-4. **The part you are in has a blue border:** 2px in the `primary` role, in place of the grey one.
+4. **The part you are in has a border in the primary colour:** 2px in the `primary` role, in place of the grey one. "Blue" in this spec and the mocks is the theme's primary colour (blue in the mocks); a site with another primary colour shows that, and inside a coloured section the section's remapped role (`CLAUDE.md`, *Colours in editor-drawn block parts*).
 5. **The keyboard focus ring shows for the keyboard only** (`:focus-visible`): the theme's solid ring outside the part, with a
-   gap, never in the active border's colour. A tap or a click shows no ring, only the blue border.
+   gap, never in the active border's colour. A tap or a click shows no ring, only the primary border.
 6. **No tinted background** on the active row or card (owner, 26 Nov 2026). The card keeps its own outline.
-7. **The selected block keeps its dotted blue outline**, so a selected block reads differently from a part. *(Architect's
+7. **The selected block keeps its dotted primary-colour outline**, so a selected block reads differently from a part. *(Architect's
    recommendation; the owner has not answered it.)*
 8. **The text keeps its formatting** in the parts: the label text and the headline in their own type, the subhead and the
    supporting text in theirs. The parts do not take M3's text-field type.
@@ -93,7 +93,7 @@ Center link and icon verically", and then "Keep current formatting."
 ## Checks
 
 - `check:screens`: a unit per row block and per card block, closed and active, on a phone and a computer, light and dark, and with
-  the keyboard (focus ring) and the pointer (blue border); the toolbar holds no block or item action, an active item shows its
+  the keyboard (focus ring) and the pointer (primary border); the toolbar holds no block or item action, an active item shows its
   menu and the block keeps its own, and on a phone the Save bar is hidden while the keyboard is open.
 - Contrast: the part's border (3:1), the placeholders (4.5:1), on every section colour (`check:screens` already walks
   `inlineBlocks` on each).
