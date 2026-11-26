@@ -636,6 +636,35 @@ async function checkStyleSublist(width, height) {
   if (got.back?.text !== 'Globals') problems.push(`${label}: the back row of Globals reads "${got.back?.text}" (should be "Globals")`);
   if (got.back?.name !== 'Back to Main menu: Globals') problems.push(`${label}: Globals' back row is named "${got.back?.name}"`);
 
+  // 5b. Escape and the back row return the focus to the section that opened the list, for every section, with the focus ring showing.
+  await go('');
+  await openDrawer();
+  const focused = () =>
+    page.evaluate(() => {
+      const a = document.activeElement;
+      return a && { text: a.textContent.trim(), visible: a.matches(':focus-visible') };
+    });
+  for (const section of ['Content', 'Business', 'Style', 'Globals']) {
+    for (const how of ['Escape', 'back row']) {
+      await page
+        .locator(`${panel} nav button.mo-navigation-drawer__item`, { hasText: new RegExp(`^${section}$`) })
+        .first()
+        .focus();
+      await page.keyboard.press('Enter');
+      await page.waitForTimeout(400);
+      if (how === 'Escape') await page.keyboard.press('Escape');
+      else {
+        await page.locator(`${panel} .mo-navigation-drawer__back`).first().focus();
+        await page.keyboard.press('Enter');
+      }
+      await page.waitForTimeout(400);
+      const f = await focused();
+      if (f?.text !== section)
+        problems.push(`${label}: after ${how} from ${section} the focus is on "${f?.text}" (should be "${section}")`);
+      else if (!f.visible) problems.push(`${label}: after ${how} from ${section} the focus ring does not show`);
+    }
+  }
+
   // 6. The rail: one Style item, no Style page in it; it opens the drawer at its list.
   if (wide) {
     await page.locator(`${panel} > :first-child button[aria-expanded="true"]`).first().click();
