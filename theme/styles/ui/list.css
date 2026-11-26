@@ -223,13 +223,6 @@
     border-radius: var(--mo-comp-list-item-image-radius, var(--mo-sys-shape-corner-small));
     object-fit: cover;
   }
-  /* The square of an item without an image of its own: its icon on the surface of an image that is not there, the size and corners of the image. */
-  .mo-list__item-image-placeholder {
-    display: grid;
-    place-items: center;
-    background: var(--mo-sys-color-surface-container-highest);
-    color: var(--mo-sys-color-on-surface-variant);
-  }
   .mo-list__item-video {
     width: var(--mo-comp-list-item-video-width, 7.125rem);
     height: var(--mo-comp-list-item-video-height, 4rem);

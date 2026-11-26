@@ -1724,13 +1724,7 @@ function pictureOf(item: Item, post: boolean): Record<string, unknown> {
   if (!item.file) return {};
   const src = item.image ? safeImageSrc(item.image) : '';
   if (src) return { leadingImage: { src } };
-  return {
-    leadingMedia: (
-      <span className="mo-list__item-image mo-list__item-image-placeholder" aria-hidden="true">
-        <MaterialIcon name={post ? 'article' : 'description'} />
-      </span>
-    ),
-  };
+  return { icon: materialIcon(post ? 'article' : 'description') };
 }
 
 /** The line under a page's or post's name: its versions (and its address from a computer's width), the full time of a scheduled version as the tooltip. */

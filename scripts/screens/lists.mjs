@@ -1593,7 +1593,7 @@ async function checkListItemLines(width, height) {
   await page.close();
 }
 
-/** The pages and posts lists (B18, plan 0.19.7): each page or post is one row (`.mo-list__item-container`), with a square leading image or its placeholder of 8 dp corners from ListItem itself,
+/** The pages and posts lists (B18, plan 0.19.7): each page or post is one row (`.mo-list__item-container`), with a square leading image of 8 dp corners, or (no image) the kind icon in the leading icon slot and no grey tile,
  * one supporting line naming its versions (`Published`, `Published · Draft`, `Draft`, `Scheduled …`), no trailing icon unless Hidden (`visibility_off`, named `Hidden`), dividers between
  * the rows, and in the menu tree the drop-down rightmost (`aria-expanded`, named `Show subpages of …`). */
 async function checkPageRowsList(width, height) {
@@ -1611,7 +1611,10 @@ async function checkPageRowsList(width, height) {
         const img = el.querySelector('.mo-list__item-leading-image .mo-list__item-image');
         const box = img?.getBoundingClientRect();
         const li = el.closest('li');
+        const lead = el.querySelector('.mo-list__item-leading-icon');
         return {
+          icon: !!lead?.querySelector('svg'),
+          tile: !!el.querySelector('.mo-list__item-image-placeholder'),
           name: (el.querySelector('.mo-list__item-headline')?.textContent || '').trim(),
           href: el.getAttribute('href') || '',
           img: box ? { w: Math.round(box.width), h: Math.round(box.height), radius: getComputedStyle(img).borderTopLeftRadius } : null,
@@ -1631,8 +1634,9 @@ async function checkPageRowsList(width, height) {
     if (new Set(links).size !== links.length) problems.push(`${label}: ${hash} lists a page or post twice (${links.join(', ')})`);
     for (const r of rows) {
       const where = `${label}, ${hash}, "${r.name}"`;
-      if (!r.img) problems.push(`${where}: has no square image or placeholder`);
-      else {
+      if (r.tile) problems.push(`${where}: has a grey placeholder tile`);
+      if (!r.img && !r.icon) problems.push(`${where}: has neither a square image nor the kind icon`);
+      if (r.img) {
         if (r.img.w !== r.img.h) problems.push(`${where}: its image is ${r.img.w} x ${r.img.h}, not square`);
         if (r.img.radius !== '8px') problems.push(`${where}: its image corner is ${r.img.radius}, not 8px`);
       }
