@@ -9,7 +9,7 @@
 // "Problems" on "Cookies") are in its top app bar after the list's own, each at #list/<list>/<app>. "Use theme" and the move arrows show the
 // loading indicator while they run (only the pressed one).
 // When each page was last saved is kept in savedTimes.ts, shared with the start screen.
-import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useMemo, useState, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 import { byText, entryData, type Collection, type Part, type PartScreen } from './schema';
 import { config, countsOf, header, relationsOf, siteName } from '@site/editor';
 import { iconPack, iconPacks } from './iconPacks';
@@ -1800,6 +1800,14 @@ function TreeRows({
               }
               leading={ring?.(item)}
               {...(!ring && item.versions ? pictureOf(item, false) : {})}
+              li={
+                depth
+                  ? ({
+                      className: 'mo-editor-library-subpage',
+                      style: { '--mo-editor-subpage-depth': depth } as CSSProperties,
+                    } satisfies HTMLAttributes<HTMLLIElement>)
+                  : undefined
+              }
               headline={item.title}
               supporting={item.href ? versionLine(item, wide) : t.library.pageGone}
               truncate
