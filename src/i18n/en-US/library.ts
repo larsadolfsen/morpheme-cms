@@ -182,6 +182,9 @@ export const library = {
   iconPackByline: (author: string, license: string) => `${author} · ${license}`,
   iconPackFrom: (theme: string) => `From the theme ${theme}`,
   iconPackSamples: (name: string) => `Icons from ${name}`,
+  /** Style › Icons (StyleIcons): the set the editor and the site draw their icons with. */
+  styleIconsName: 'Material Symbols',
+  styleIconsHint: 'The icons the editor and the site draw.',
   iconPackInUse: 'In use',
   iconPackNext: 'Changing to it in a few minutes',
   changeIconPackAsk: (name: string) => `The website and the editor get the icons from ${name} in a few minutes`,

@@ -293,7 +293,7 @@ export function filesOf(env, token, ctx) {
    * blob id. The new blobs and folders go into R2 afterwards: worked out from the folders before the commit, and kept
    * only when they give the root tree GitHub made (so they are the commit's).
    */
-  async function save(at, message, changes) {
+  async function save(at, message, changes, onBranch = branch) {
     const kept = changes.filter((c) => c.contents !== null);
     const data = await graphql(
       `mutation ($input: CreateCommitOnBranchInput!) {
@@ -303,7 +303,7 @@ export function filesOf(env, token, ctx) {
       }`,
       {
         input: {
-          branch: { repositoryNameWithOwner: KEY, branchName: branch },
+          branch: { repositoryNameWithOwner: KEY, branchName: onBranch },
           expectedHeadOid: at.commit,
           message: { headline: message },
           fileChanges: {

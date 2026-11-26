@@ -128,11 +128,19 @@ export const common = {
     themeStore: 'Theme store',
     /** The icon packs installed, to choose the one the site draws its icons with (#appearance/icon-packs, IconPacks). */
     iconPacks: 'Icon packs',
-    /** How the site moves, Material 3's motion schemes (#appearance/motion, MotionSchemes in Library.tsx). */
+    /** How the site moves, Material 3's motion schemes (#style/motion, MotionSchemes in Library.tsx). */
     motion: 'Motion',
     /** The block drawn in a column beside the text of the pages (#global/side-column, SideColumn.tsx). */
     sideColumn: 'Sidebar',
     colors: 'Colors',
+    /** The main menu's section for what the theme sets (#style/<name>), and its seven pages in the menu. */
+    style: 'Style',
+    styleColor: 'Color',
+    styleElevation: 'Elevation',
+    styleIcons: 'Icons',
+    styleShape: 'Shape',
+    styleSpacing: 'Spacing',
+    styleTypography: 'Typography',
     brand: 'Logo and favicon',
     blockSettings: 'Block settings',
     /** The apps that come with the site (AppList.tsx, #apps). */

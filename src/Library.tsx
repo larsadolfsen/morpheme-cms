@@ -140,7 +140,21 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'header') return { label: parts.header, href: '#global/header', count: null };
   if (id === 'footer') return { label: parts.footer, href: '#global/footer', count: null };
   if (id === 'side-column') return { label: parts.sideColumn, href: '#global/side-column', count: null };
-  if (id === 'colors') return { label: parts.colors, href: '#company/colors', count: null };
+  if (id === 'colors') return { label: parts.styleColor, href: '#style/color', count: null };
+  // The seven pages of Style (a flat section of the main menu): #style/<name>.
+  if (id.startsWith('style-')) {
+    const page = id.slice('style-'.length);
+    const label = {
+      color: parts.styleColor,
+      elevation: parts.styleElevation,
+      icons: parts.styleIcons,
+      motion: parts.motion,
+      shape: parts.styleShape,
+      spacing: parts.styleSpacing,
+      typography: parts.styleTypography,
+    }[page];
+    if (label) return { label, href: `#style/${page}`, count: null };
+  }
   if (id === 'lists') return { label: parts.lists, href: '#lists', count: listsShown(files).length };
   if (id === 'blocks') return { label: parts.blocks, href: '#blocks', count: blockParts.length };
   if (id === 'files') return { label: parts.media, href: '#files', count: mediaOf(files).length + filesOf(files).length };
@@ -226,8 +240,7 @@ export function Start({ builtAt, files, env }: { builtAt: Date | null; files: Re
   );
 }
 
-// "Business": its screen has "Logo and icon" (BrandForm.tsx, #company/logo) first, then "Colors" (Colors.tsx, #company/colors, with the
-// swatches), then its parts (CompanyForm.tsx), each on a screen of its own; or one of them with parts
+// "Business": its screen has "Logo and icon" (BrandForm.tsx, #company/logo) first, then its parts (CompanyForm.tsx), each on a screen of its own; or one of them with parts
 // of its own ("Payment"), and the settings of the apps installed of its kinds (Part.apps: MobilePay), going back to
 // "Business".
 export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
@@ -244,11 +257,7 @@ export function Company({ part, files }: { part?: Part; files: RepoFile[] }) {
     <Parts
       title={t.common.parts.company}
       route="company"
-      parts={[
-        { id: 'logo', label: t.common.parts.brand, icon: icons.logo },
-        { id: 'colors', label: t.common.parts.colors, icon: icons.colors, trailing: <ThemeColors files={files} /> },
-        ...companyParts,
-      ]}
+      parts={[{ id: 'logo', label: t.common.parts.brand, icon: icons.logo }, ...companyParts]}
     />
   );
 }
@@ -270,7 +279,6 @@ export function Theme({ files }: { files: RepoFile[] }) {
       icon: icons['icon-packs'],
       detail: iconPacks.find((x) => x.id === chosenPack(files))?.name,
     },
-    { id: 'motion', label: t.common.parts.motion, icon: icons.motion, detail: t.library.motionSchemes[motionOf(files)] },
     ...appearance,
   ];
   // A site with its own old `groups` (no section has these): the rows stay here, at the same screens (they open at their new addresses).
@@ -285,13 +293,21 @@ export function Theme({ files }: { files: RepoFile[] }) {
       href: '#global/side-column',
       detail: sideChoicesOf(files).find((x) => x.type === sideSettingOf(files))?.label ?? t.library.sideNone,
     });
-  if (!placed('colors'))
+  if (!placed('style-color') && !placed('colors'))
     parts.push({
       id: 'colors',
-      label: t.common.parts.colors,
+      label: t.common.parts.styleColor,
       icon: icons.colors,
-      href: '#company/colors',
+      href: '#style/color',
       trailing: <ThemeColors files={files} />,
+    });
+  if (!placed('style-motion'))
+    parts.push({
+      id: 'motion',
+      label: t.common.parts.motion,
+      icon: icons.motion,
+      href: '#style/motion',
+      detail: t.library.motionSchemes[motionOf(files)],
     });
   return <Parts title={t.common.parts.appearance} route="appearance" parts={parts} back={backFrom('appearance')} />;
 }
@@ -419,7 +435,30 @@ export function motionOf(files: RepoFile[]): MotionScheme {
   return schemeInUse(scheme, theme.motion, themes.find((x) => x.id === STANDARD_THEME)?.motion);
 }
 
-/** "Motion" (#appearance/motion): Material 3's motion schemes and our calm one (lib/motion.ts), each with how it
+/** "Icons" in Style (#style/icons): Material Symbols, the one set the editor and the site draw their icons with, with a few
+ * of its icons and who made it. The packs a theme brings stay under Appearance › Icon packs. */
+export function StyleIcons() {
+  const material = iconPacks.find((x) => x.id === 'material-symbols');
+  return (
+    <Screen title={t.common.parts.styleIcons} wide>
+      <Group>
+        <ListItem
+          headline={material?.name ?? t.library.styleIconsName}
+          supporting={[t.library.styleIconsHint, material && t.library.iconPackByline(material.author, material.license)]
+            .filter(Boolean)
+            .join(' · ')}
+          trailing={
+            material?.samples.length ? (
+              <IconSwatches icons={material.samples} label={t.library.iconPackSamples(material.name)} />
+            ) : undefined
+          }
+        />
+      </Group>
+    </Screen>
+  );
+}
+
+/** "Motion" in Style (#style/motion): Material 3's motion schemes and our calm one (lib/motion.ts), each with how it
  * moves, the one in use ticked (motionOf) and "The theme's choice" by the theme's own. A tap on another asks first and then
  * saves it in the site's file (config.motion) at once, in its own commit, as an icon pack is; the editor moves by it at
  * once (applyMotion, App.tsx), the site after it is built. */
@@ -455,7 +494,7 @@ export function MotionSchemes({ env, files }: { env: Env; files: RepoFile[] }) {
   }
 
   return (
-    <Screen title={t.common.parts.motion} wide back={backToAppearance}>
+    <Screen title={t.common.parts.motion} wide>
       <Group>
         {MOTION_SCHEMES.map((scheme) => (
           <ChoiceRow
@@ -595,14 +634,13 @@ export function ThemePage({ of, env, files }: { of: ThemeInfo; env: Env; files: 
 
 /** "Components" (#developer/parts, a row of Settings): the parts the editor and the site are built of, each on a screen of its own: the editor's
  * (Parts.tsx), the theme's UI components, the blocks (the standard ones and the apps') and each list of kinds
- * ("Promotion", its own kinds and the apps'), as the theme shows them (BlockParts.tsx), and the theme's design tokens ("Values", Tokens.tsx). */
+ * ("Promotion", its own kinds and the apps'), as the theme shows them (BlockParts.tsx), and the Style pages (Tokens.tsx). */
 export function PartsHome() {
   const parts: Part[] = [
     { id: 'editor', label: t.parts.screens.editor, icon: icons.parts },
     { id: 'ui', label: t.parts.screens.components, icon: icons.appearance },
     { id: 'blocks', label: t.parts.screens.blocks, icon: icons.blocks },
     ...kindLists().map((c) => ({ id: `list/${c.id}`, label: c.label, icon: icons[c.id] ?? icons.lists })),
-    { id: 'values', label: t.parts.screens.values, icon: materialIcon('straighten') },
   ];
   return <Parts title={t.common.parts.editorParts} route="developer/parts" parts={parts} back={backFrom('components')} />;
 }

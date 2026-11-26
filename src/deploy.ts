@@ -9,6 +9,7 @@ import { giveUpAfter } from '../lib/build-settings.mjs';
 import { entryName, type Collection } from './schema';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { locale, t } from './i18n';
+import { editorWorkerUrl } from '../lib/editorWorker.mjs';
 
 const fileName = (path: string) => path.split('/').pop() ?? path;
 
@@ -75,9 +76,49 @@ async function includes(build: string, commit: string): Promise<boolean> {
   return data.repository.object?.history?.nodes.some((n) => n.oid === commit) ?? false;
 }
 
-// Waits for `commit` to be on the site: done(true) when it is, done(false) when it is not after
+/** The page of the checks on a commit on GitHub, where the build's log is linked (the "See the build" link of a save that is not live). */
+export const buildPage = (commit: string) => `https://github.com/${REPO.owner}/${REPO.name}/commit/${commit}/checks`;
+
+// Whether Cloudflare's build of `commit` has failed (its check run on the commit), so a save that will never be live says so at once and
+// not after the wait runs out. Best effort: a token that may not read check runs, or any error, says false and the wait goes on.
+async function buildFailed(commit: string): Promise<boolean> {
+  try {
+    const data = await graphql<{
+      repository: { object: { checkSuites?: { nodes: { conclusion: string | null; app: { slug: string } | null }[] } } | null };
+    }>(
+      `
+        query ($owner: String!, $name: String!, $oid: GitObjectID!) {
+          repository(owner: $owner, name: $name) {
+            object(oid: $oid) {
+              ... on Commit {
+                checkSuites(first: 10) {
+                  nodes {
+                    conclusion
+                    app {
+                      slug
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      `,
+      { owner: REPO.owner, name: REPO.name, oid: commit },
+    );
+    return (
+      data.repository.object?.checkSuites?.nodes.some(
+        (n) => n.app?.slug === 'cloudflare-workers-and-pages' && n.conclusion === 'FAILURE',
+      ) ?? false
+    );
+  } catch {
+    return false;
+  }
+}
+
+// Waits for `commit` to be on the site: done(true) when it is, done(false, the build's page) when its build failed or it is not there after
 // giveUpAfter(paidBuilds) (20 minutes on the free plan, 10 on Workers Paid; paidBuilds is in version.json). Returns a function that stops waiting (a newer save takes over).
-export function waitForSite(commit: string, done: (online: boolean) => void): () => void {
+export function waitForSite(commit: string, done: (online: boolean, buildUrl?: string) => void): () => void {
   const started = Date.now();
   // The build last looked at, so GitHub is asked about each build once.
   let seen: string | null = null;
@@ -93,9 +134,15 @@ export function waitForSite(commit: string, done: (online: boolean) => void): ()
       if (stopped) return;
       if (online) return done(true);
     }
+    // A build that failed will never be the one that has the save: say so now (a later save's build may still include it, checked above).
+    if (await buildFailed(commit)) {
+      if (!stopped) done(false, buildPage(commit));
+      return;
+    }
+    if (stopped) return;
     if (Date.now() > started + giveUpAfter(paidBuilds === true)) {
       // Without any version file (a build from before it existed) there is nothing to tell.
-      if (seen) done(false);
+      if (seen) done(false, buildPage(commit));
       return;
     }
     timer = setTimeout(check, EVERY);
@@ -147,7 +194,7 @@ export function keepCurrent(onSite?: (v: Version) => void) {
   };
 }
 
-// Notifications go through the service worker (packages/editor/pages/editor/sw.js); registered when the editor opens.
+// Notifications go through the service worker (pages/editor/sw.js); registered when the editor opens. The build decides the URL (lib/editorWorker.mjs).
 export function registerWorker() {
-  navigator.serviceWorker?.register('/editor/sw.js').catch(() => {});
+  navigator.serviceWorker?.register(editorWorkerUrl(window)).catch(() => {});
 }

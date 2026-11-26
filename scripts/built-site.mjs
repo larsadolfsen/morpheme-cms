@@ -132,17 +132,27 @@ const STORE_CATALOG = {
 };
 
 /** What the Worker's GET /api/cms answers (worker/cms-update.js cmsStatus), made up so "Morpheme" (#morpheme) opens with
- * a new major version and its notes, an undone update, and two problems (no token, no check runs to read). The other
- * states (up to date, waiting, skipped, needs npm) are covered by src/cmsView.test.mjs. `running` is a fixed plain
+ * a new version that failed its trial (its reason, the build's link, the next try) and its notes, a stuck update with its build
+ * link, and two problems (no token, no check runs to read). The other states (up to date, trying, waiting, needs npm,
+ * no preview address) are covered by src/cmsView.test.mjs. `running` is a fixed plain
  * version, never the installed package's: a pre-release (next) build has a version compareVersions refuses, which hides
  * the Update button. */
 export const CMS_STATUS = {
   running: '0.0.9',
   token: false,
   kv: true,
-  checked: { at: '2026-11-03T08:00:00.000Z', latest: '99.0.0', problem: { kind: 'major' }, noChecks: true },
-  update: { state: 'undone', to: '0.0.1', at: '2026-11-02T10:30:00.000Z' },
-  skipped: ['0.0.1'],
+  checked: { at: '2026-11-03T08:00:00.000Z', latest: '99.0.0', noChecks: true },
+  update: { state: 'stuck', to: '0.0.1', at: '2026-11-02T10:30:00.000Z', buildUrl: 'https://github.com/made-up/site/commit/abc/checks' },
+  failed: [
+    {
+      version: '99.0.0',
+      at: '2026-11-03T08:00:00.000Z',
+      reason: 'build-failed',
+      buildUrl: 'https://github.com/made-up/site/commit/def/checks',
+      retryAt: Date.parse('2026-11-04T08:00:00.000Z'),
+    },
+  ],
+  skipped: ['99.0.0'],
   notes: [{ version: '99.0.0', text: 'A made-up note for the checks.\n\nA second paragraph.' }],
 };
 

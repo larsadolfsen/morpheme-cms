@@ -257,10 +257,26 @@ export const parts = {
     /** What a kind of entry an app adds (a pop-up) is drawn with. */
     entry: { name: 'An example', heading: 'A heading', text: 'A short text that tells a little more.' },
   },
-  /** "Parts" › "Values" (#developer/parts/values, Tokens.tsx): the theme's design tokens, each with what it is used for. */
+  /** "Style" pages (#style/<name>, Tokens.tsx): the theme's design tokens, each with what it is used for. */
   tokens: {
-    intro: 'The theme’s design tokens for corners, shadows, typography, and colors, as the theme sets them.',
-    groups: { shape: 'Corners', elevation: 'Shadows', elevationClasses: 'Elevation classes', type: 'Typography', color: 'Colors' },
+    intro: 'The values the theme sets now. They change with the theme.',
+    groups: {
+      shape: 'Corners',
+      elevation: 'Shadows',
+      elevationClasses: 'Elevation classes',
+      type: 'Typography',
+      color: 'Colors',
+      spacing: 'Spacing steps',
+      density: 'Density steps',
+    },
+    /** The spacing page (#style/spacing): a step's size, and the density steps, Material 3's scale (0 default, then -1 to -3). */
+    spacing: {
+      step: (px: number) => `${px}px`,
+      density: (level: number) => (level === 0 ? 'Density 0' : `Density −${-level}`),
+      densityName: { '0': 'Medium', '-1': 'Small', '-2': 'Compact', '-3': 'Tight' } as Record<string, string>,
+      densityValue: (px: number) => (px === 0 ? 'Default height and padding' : `${px}px less height and vertical padding`),
+      inUse: (level: number) => `In use: density ${level}`,
+    },
     shape: {
       radius: 'Panels',
       radiusSmall: 'What is smaller in a panel',
@@ -367,7 +383,6 @@ export const parts = {
     editor: 'Editor',
     components: 'Theme components',
     blocks: 'Blocks',
-    values: 'Tokens',
     componentsIntro: "The theme's buttons, fields, lists, and other parts in all their kinds and states. The theme gives them their look.",
     /** Theme coverage on "UI components": which parts the active theme styles, which it leaves to Material. */
     coverage: {
@@ -416,6 +431,8 @@ export const parts = {
     },
     iconKinds: { standard: 'Standard', filled: 'Filled', tonal: 'Tonal', outlined: 'Outlined' },
     withIcon: 'With icon',
+    errorOutlined: 'Error, outlined',
+    errorFilled: 'Error, filled',
     disabled: "Can't be used",
     /** The theme's form controls (TextField, Checkbox), under "UI components". */
     fields: 'Fields',
