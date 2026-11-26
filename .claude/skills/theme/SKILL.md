@@ -88,8 +88,8 @@ if one fails on another theme, the check is the bug; report it (the PM brings it
 
 Owner, 25 Nov 2026: "We agreed upon not testing themes for wcag etc, but classify instead"; also for the page and post editor, "because
 this may run on the site theme"; spec `docs/superpowers/specs/2026-11-25-themes-classified-design.md`. Owner, 26 Nov 2026: "Base theme adheres to
-wcag. Not others." and "Follow md3 including the icon": only the base theme adheres to WCAG 2.2 AA; no other theme or part does, and the editor follows
-Material 3 (`CLAUDE.md`, *Accessibility*).
+wcag. Not others.": only the base theme adheres to WCAG 2.2 AA; this is about theme values, and our code's behaviour stays a hard check on every theme
+(`CLAUDE.md`, *Accessibility*).
 
 - **A theme's values are classified.** The target size of each interactive part the theme styles (WCAG 2.5.8, 24 px: each button size, icon button, chip, switch, field,
   menu item, tab …, `PARTS` in `lib/accessibility.mjs`) is one check each, measured and written into the theme's `accessibility.json` by `morpheme accessibility [<theme>]`;

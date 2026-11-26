@@ -185,14 +185,11 @@ reasons), `npm run check:color-roles` on a mix of a role or a role declared as a
 
 ### Accessibility: WCAG 2.2 AA
 
-Owner, 26 Nov 2026: "Base theme adheres to wcag. Not others." and "Follow md3 including the icon". Only the **base theme** (0.22.3) adheres to
-**WCAG 2.2 level AA**. No other theme and no other part does, the page and post editor included: it follows Material 3, the icons too. Where Material 3 and WCAG
-differ, **Material 3 wins** (owner, 21 Nov 2026: "we follow MD3 even if it does not comply with accessibility"). This replaces the owner's aim of 19 Nov 2026 for
-the sites and the editor, and the rule of 21 Nov 2026 that the page and post editor always meets WCAG 2.2 AA (skill `material-3`, rule 6).
-
-The other themes are classified, not tested (owner, 25 Nov 2026): a theme's values are measured and scored (the SEO score wheel, on its page and in the store), never
-failed; our code's behaviour (keyboard, a focus ring, names, roles and states) is a hard check on every theme; the base theme is hard-checked on everything. The rules:
-skill `theme`, section 5.
+Only the **base theme** (0.22.3) adheres to **WCAG 2.2 level AA** (owner, 26 Nov 2026: "Base theme adheres to wcag. Not others."). Other themes are measured
+and scored (the SEO score wheel, on their page and in the store), never failed; our code's behaviour (keyboard, a focus ring drawn at all, names, roles, states and status
+messages) is checked on every theme (owner, 25 Nov 2026). Where Material 3 and WCAG differ, **Material 3 wins** (owner, 21 Nov 2026: "we follow MD3 even if it does not comply
+with accessibility"). This replaces the aim of 19 Nov 2026 for the sites and the editor, and the rule of 21 Nov 2026 that the page and post editor always meets WCAG 2.2 AA
+(skill `material-3`, rule 6). The rules: skill `theme`, section 5.
 
 ### Icons are Material Symbols
 
