@@ -6,7 +6,7 @@ description: Use when a session builds, changes or checks a theme for @morphemec
 # Theme
 
 Announce "Using theme". Owner, 25 Nov 2026: one skill for everything a theme maker needs, in English, in this repository; it replaces
-"Hvad et tema må" in `morpheme-website/docs/rules.md` and the skill `site-editor-theme` there, which now point here. The rules are checked
+the former Danish rules page in `morpheme-website/docs/rules.md` and the skill `site-editor-theme` there, which now point here. The rules are checked
 by `themeProblems` in `site/theme.mjs` (`check:content`, so `check:themes`); when this skill and the code differ, the code is checked
 and this skill is fixed in the same pull request.
 
