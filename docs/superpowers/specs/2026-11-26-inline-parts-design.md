@@ -12,8 +12,8 @@ answer is one set of rules for every item that is edited where it stands: the ro
 
 ## Where it applies
 
-The page and post editor only (its workspace is outside Material 3; `CLAUDE.md`, *Material 3 everywhere except the page and
-post editor*). It still meets WCAG 2.2 AA.
+The page and post editor. It follows Material 3 like the rest of the editor (`CLAUDE.md`, *Material 3 everywhere*, owner,
+26 Nov 2026), except for the two deviations the owner chose in words in this brainstorm (*Deviations to record*, below).
 
 - **Rows:** List (`src/standard/list/`) and Expand (`src/standard/expand/`), which share the row's fields
   (`src/standard/rows/listParts.ts`).
@@ -60,10 +60,13 @@ post editor*). It still meets WCAG 2.2 AA.
 
 ## Deviations to record
 
-In `docs/material-deviations.md`, in the same pull request:
+In `docs/material-deviations.md`, in the same pull request. The owner chose both in words on 26 Nov 2026, after an M3 mock with
+56dp outlined text fields: "No let's go back to the current one and deviate from MD. Try making the fields on active 48px high.
+Center link and icon verically", and then "Keep current formatting."
 
-- A part is a bordered box 48px high, where M3's outlined text field is 56dp with a floating label.
-- The text in a part keeps the site's type instead of the text field's.
+- A part is a bordered box 48px high, where M3's outlined text field is 56dp with a floating label ("deviate from MD", "make the
+  fields on active 48px high").
+- The text in a part keeps the site's type instead of the text field's ("Keep current formatting.").
 
 ## Open questions
 
