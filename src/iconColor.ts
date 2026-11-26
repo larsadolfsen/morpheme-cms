@@ -1,5 +1,5 @@
 // The color of an icon in a row or a card (`iconColor`): Text (nothing saved: the theme draws its own colour) or one of the site's color roles.
-// One field for every block that has icons (List, List - Expand, Cards), so they behave the same. The theme draws it (theme/styles/blocks.css,
+// One field for every block that has icons (List, Expandable list, Cards), so they behave the same. The theme draws it (theme/styles/blocks.css,
 // `data-icon-color`), so it follows the theme's colors in the editor, the Preview and on the site.
 import { t } from './i18n';
 import type { Field } from './schema';

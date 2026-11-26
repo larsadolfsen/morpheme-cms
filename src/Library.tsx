@@ -141,7 +141,7 @@ export function partOf(id: string, files: RepoFile[]): { label: string; href: st
   if (id === 'footer') return { label: parts.footer, href: '#global/footer', count: null };
   if (id === 'side-column') return { label: parts.sideColumn, href: '#global/side-column', count: null };
   if (id === 'colors') return { label: parts.styleColor, href: '#style/color', count: null };
-  // The seven pages of Style (a flat section of the main menu): #style/<name>.
+  // The seven pages of Style (a section of the main menu, opened from its row): #style/<name>.
   if (id.startsWith('style-')) {
     const page = id.slice('style-'.length);
     const label = {

@@ -328,7 +328,7 @@ export async function checkSavedLabel(page, width) {
 export const inlineBlocks = [
   { name: 'list', hint: 'Show text and images in a list.', add: 'Add list row', rowLink: true },
   { name: 'steps', hint: 'Show the steps in order.', add: 'Add step', noEdit: true },
-  { name: 'expand', hint: 'Show list items that expand and collapse.', add: 'Add list row', rowLink: true, surface: true },
+  { name: 'expand', hint: 'Show list items that expand and collapse.', add: 'Add list row', noRowLink: true, surface: true },
   { name: 'cards', hint: 'Show content and actions in cards.', add: 'Add card', surface: true, start: 3 },
   { name: 'pricecards', hint: 'Show prices and what they include.', add: 'Add price card', surface: true, noEdit: true, field: 'name' },
   { name: 'buttons', hint: 'Prompt actions with buttons.', add: 'Add button', surface: true, field: 'label', noEdit: true },

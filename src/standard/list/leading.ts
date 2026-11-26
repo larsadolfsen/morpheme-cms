@@ -1,4 +1,4 @@
-// What leads a row of "List" and "List - Expand" when it is not an icon (owner, 16 Nov 2026: examples with an avatar, a square image and a landscape
+// What leads a row of "List" and "Expandable list" when it is not an icon (owner, 16 Nov 2026: examples with an avatar, a square image and a landscape
 // image): the theme's List part draws them as Material 3's leading avatar (40dp, a letter or an image), leading image (56dp square) and leading
 // video (100 x 56dp, here a landscape image). The props go on the ListItem, so no markup or class is made here.
 /** An image as the List part draws it (theme/ui/List.tsx ListItemImage). */

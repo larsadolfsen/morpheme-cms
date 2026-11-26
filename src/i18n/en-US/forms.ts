@@ -180,7 +180,7 @@ export const forms = {
       `Another ${post ? 'post' : 'page'} has this title. Save with the suggested title, or write your own.`,
     titleStillTaken: 'Another file has that title too. Try this one, or write your own.',
     titleLabel: 'Title',
-    /** An empty row in a block typed in place when the page is saved; `name`: the block ("List - Expand"), `word`: its row ("row"). */
+    /** An empty row in a block typed in place when the page is saved; `name`: the block ("Expandable list"), `word`: its row ("row"). */
     emptyRow: (name: string, word: string) => `You have an empty ${name.toLowerCase()} ${word}.`,
     removeItem: 'Remove item',
     /** A block typed in place with no row at all when the page is saved; `items`: its rows ("rows"). */

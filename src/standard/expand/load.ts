@@ -1,4 +1,4 @@
-// "List - Expand" on the site (view.ts): a folded row with a page and no text of its own has the opening of its page (pageOpening, from the
+// "Expandable list" on the site (view.ts): a folded row with a page and no text of its own has the opening of its page (pageOpening, from the
 // site: @site/standard; on a new version of a page, /new/, the opening of the new versions), as in "Accordion", and a row whose
 // page is missing is left out. The link's text is plain (`Read more`, without the row's heading). One open at a
 // time in each list (its own group, by its place in the text).

@@ -128,7 +128,7 @@ export default function InlineCards({
         ))}
         {/* A card with a page is one link (Material 3's primary action) and has no buttons: the control says so and adds none. */}
         <SiteButton
-          kind="text"
+          kind="outlined"
           data-add-button=""
           className="mo-editor-inline-card-next-button"
           disabled={page}

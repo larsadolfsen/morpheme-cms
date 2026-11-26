@@ -163,7 +163,7 @@ const builtPages = existsSync(join(ROOT, 'src/content/pages'))
       .sort()
   : [];
 export const BUILT_PAGE = `src/content/pages/${builtPages.includes('about.md') ? 'about.md' : (builtPages[0] ?? 'about.md')}`;
-/** A page's text with a List and a List - Expand (one marked as a FAQ), for the checks of their rows: a site's page need not have them. */
+/** A page's text with a List and an Expandable list (one marked as a FAQ), for the checks of their rows: a site's page need not have them. */
 export const block = (name, props) => `<div data-block="${name}" data-props="${JSON.stringify(props).replaceAll('"', '&quot;')}"></div>`;
 export const LIST_PAGE = [
   '---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nIntro.\n',

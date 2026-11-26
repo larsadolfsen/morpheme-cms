@@ -1000,6 +1000,19 @@
   .mo-editor-main-drawer-panel {
     padding-block-start: env(safe-area-inset-top);
   }
+  /* The drawer's lists and the rail scroll by touch, wheel and keys with no scrollbar drawn: M3's navigation drawer, navigation rail and
+     side sheet pages print nothing about one (they only say the list "can be scrolled within the drawer"), and the owner asked for it
+     hidden (26 Nov 2026). Only the editor's own classes; the theme's drawer is unchanged. */
+  .mo-editor-main-drawer-frame,
+  .mo-editor-main-drawer-panel,
+  .mo-editor-main-rail .mo-nav-rail__items {
+    scrollbar-width: none;
+  }
+  .mo-editor-main-drawer-frame::-webkit-scrollbar,
+  .mo-editor-main-drawer-panel::-webkit-scrollbar,
+  .mo-editor-main-rail .mo-nav-rail__items::-webkit-scrollbar {
+    display: none;
+  }
   .mo-editor-main-drawer-panel-full {
     min-block-size: 100%;
   }

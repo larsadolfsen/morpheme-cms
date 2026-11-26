@@ -1398,6 +1398,65 @@ async function checkImageGridTap(width) {
   await page.close();
 }
 
+/** A swipe that starts outside the block being typed in is not held back: that touch closes the open row and the block's action row (blockRow.ts),
+ * and the page had been scrolled back by what the closing moved on every frame (`hold`), cancelling the finger, so it stuck and jumped up and down.
+ * On a phone, on the demo's Lists page: a row of a List - Expand is opened, a slow swipe starts below the block, and while the finger is down the page
+ * must follow it (scroll down as the finger goes up) with no frame that scrolls it back by more than the closing moved it. */
+async function checkRowSwipeScrolls(width = 375) {
+  const label = `${width}px swipe after a row was opened`;
+  const page = await browser.newPage({ viewport: { width, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#src/content/pages/blocks-lists.md'));
+  const rows = page.locator('ul.mo-list__expand .mo-list__item-expand-summary');
+  await rows.first().waitFor({ timeout: 30_000 });
+  await rows.first().scrollIntoViewIfNeeded();
+  await page.waitForTimeout(500);
+  await rows.first().tap();
+  await page.waitForTimeout(800);
+  // The block's end is brought to the middle of the screen, so a swipe can start below it (outside the block).
+  const below = await page.evaluate(async () => {
+    const block = document.activeElement?.closest('.mo-site-block-card');
+    if (!block) return null;
+    scrollBy({ top: block.getBoundingClientRect().bottom - 400, behavior: 'instant' });
+    await new Promise((r) => setTimeout(r, 300));
+    return Math.round(block.getBoundingClientRect().bottom) + 24;
+  });
+  if (below === null || below > 650) return (problems.push(`${label}: no open block with room below it to start the swipe`), page.close());
+  await page.evaluate(() => {
+    window.__ys = [];
+    const f = () => (window.__ys.push(scrollY), requestAnimationFrame(f));
+    f();
+  });
+  const cdp = await page.context().newCDPSession(page);
+  const steps = 24;
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: 190, y: below }] });
+  for (let i = 1; i <= steps; i++) {
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: 190, y: below - (300 * i) / steps }] });
+    await page.waitForTimeout(16);
+  }
+  const down = await page.evaluate(() => window.__ys.length);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await page.waitForTimeout(600);
+  const ys = (await page.evaluate(() => window.__ys)).slice(0, down);
+  // Frames where the page went back up although the finger only moves up, after the first (the closing may move it once).
+  // The closing may move the page once before the finger has moved it (the row is shorter); from the moment it rises with the finger, it never goes back.
+  let back = 0;
+  let low = ys[0];
+  let rising = false;
+  for (let i = 1; i < ys.length; i++) {
+    low = Math.min(low, ys[i]);
+    if (ys[i] > low + 5) rising = true;
+    if (rising && ys[i] < ys[i - 1] - 1) back++;
+  }
+  const net = ys.at(-1) - low;
+  if (back > 0 || net < 150)
+    problems.push(
+      `${label}: the page did not follow the finger (scrolled back in ${back} frames, ${Math.round(net)} px in all; the row's hold fights the swipe)`,
+    );
+  await page.close();
+}
+
 export function register(unit) {
   for (const width of [375, 1280]) unit(`checkBlockBar ${width}`, () => checkBlockBar(width));
   for (const width of [375, 1280]) unit(`checkCardBar ${width}`, () => checkCardBar(width));
@@ -1411,4 +1470,5 @@ export function register(unit) {
   for (const w of [375, 1280]) unit(`checkBlockSelect ${w}`, () => checkBlockSelect(w));
   for (const w of [375, 1280]) unit(`checkInsertDialogClosesLate ${w}`, () => checkInsertDialogClosesLate(w));
   for (const w of [375, 1280]) unit(`checkBlockMove ${w}`, () => checkBlockMove(w));
+  unit('checkRowSwipeScrolls 375', () => checkRowSwipeScrolls(375));
 }

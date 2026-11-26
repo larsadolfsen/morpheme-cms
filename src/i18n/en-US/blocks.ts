@@ -41,9 +41,9 @@ export const blocks = {
   /** A block's head (standard/head.ts): the label above its heading and the subheading under it. */
   subheading: 'Subheading',
   subheadingHint: 'Shown under the heading.',
-  /** "List - Expand" (standard/expand/). */
+  /** "Expandable list" (standard/expand/). */
   expand: {
-    label: 'List - Expand',
+    label: 'Expandable list',
     hint: 'Show list items that expand and collapse.',
     /** Read by name for any block (pageEmptyRows.ts): the rows and one row, in the sentence about an empty block. */
     items: 'Rows',
@@ -146,7 +146,7 @@ export const blocks = {
     newRow: 'New row',
     /** A row of the list typed in place: its place, for screen readers (row 2 of 4). */
     rowOf: (n: number, total: number) => `Row ${n} of ${total}`,
-    /** The caret of a row that folds out (List - Expand typed in place); its state is `aria-expanded`. */
+    /** The caret of a row that folds out (Expandable list typed in place); its state is `aria-expanded`. */
     foldRow: 'Expand row',
     /** The design of a list: rows on the page (plain), or each row on its own surface (segmented). */
     design: 'Design',
@@ -473,16 +473,17 @@ export const blocks = {
     /** The carousel's layouts, Material 3's names (m3.material.io/components/carousel/guidelines), and the subtext of each on the block's screen under Blocks. */
     layout: 'Carousel layout',
     layoutUncontained: 'Uncontained',
-    layoutMultiAspect: 'Multi-aspect ratio',
-    layoutMultiAspectHint: 'Cards of different widths, each as wide as its image.',
+    layoutUncontainedHint: 'Highly customized or text-heavy carousels, stacked image and text.',
+    layoutMultiAspect: 'Uncontained multi-aspect ratio',
+    layoutMultiAspectHint: 'Items of different sizes, each as wide as its image.',
     layoutMultiBrowse: 'Multi-browse',
-    layoutMultiBrowseHint: 'Large, medium and small cards in a row, for browsing many.',
+    layoutMultiBrowseHint: 'Browsing many visual items at once, like photos.',
     layoutHero: 'Hero',
-    layoutHeroHint: 'One large card with a small one beside it.',
+    layoutHeroHint: 'Spotlighting very large visual items, like a movie or a featured app.',
     layoutHeroCenter: 'Center-aligned hero',
-    layoutHeroCenterHint: 'One large card in the middle, a small one on each side.',
+    layoutHeroCenterHint: 'Centered, large visual items.',
     layoutFullScreen: 'Full-screen',
-    layoutFullScreenHint: 'One card at a time, edge to edge.',
+    layoutFullScreenHint: 'Immersive experiences, one edge-to-edge item at a time.',
     carouselChip: 'Carousel',
     /** On the site and in the drawings (in the site's language): for screen readers and the button under the carousel. */
     carousel: 'carousel',

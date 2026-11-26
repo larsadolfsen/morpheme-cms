@@ -1770,7 +1770,7 @@ function blockCard(
   let focus: Focus | null = null;
   // A grid (the Table): the column of the active cell.
   let col: number | null = null;
-  // A folding block (Questions and answers, List - Expand): the rows the owner opened or closed with the chevron, by row. A view state only: it is
+  // A folding block (Questions and answers, Expandable list): the rows the owner opened or closed with the chevron, by row. A view state only: it is
   // not in the block's content, the Markdown or undo, and typing redraws the block without losing it. A row not here is open while it is the active one.
   const folds: Record<number, boolean> = {};
   // Its tools in the text's one bar (blockBar.ts), made below: shown while a row is active.

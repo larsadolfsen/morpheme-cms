@@ -39,7 +39,7 @@ export type ListView = ColumnsView & {
   showMore: string;
 };
 
-/** What the block's fields say besides its rows: its design, `Max rows` and the text button under the last row (the same for "List - Expand"). */
+/** What the block's fields say besides its rows: its design, `Max rows` and the text button under the last row (the same for "Expandable list"). */
 export const listSettings = (props: Record<string, any>): Pick<ListView, 'design' | 'max' | 'button'> => {
   const label = typeof props.button === 'string' ? props.button.trim() : '';
   return {

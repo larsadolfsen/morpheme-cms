@@ -1,4 +1,4 @@
-// "Rows from" of the list blocks (List, List - Expand, FAQ list): a block takes its rows from an existing list instead of typed rows.
+// "Rows from" of the list blocks (List, Expandable list, FAQ list): a block takes its rows from an existing list instead of typed rows.
 // Plain JavaScript so the tests can read it. One row is `{ icon?, title, text?, href? }`, the ListRow the three views already draw.
 
 /** The source a block's `from` field names, or undefined for typed rows (empty, missing or not a text). @param {unknown} from @returns {string | undefined} */

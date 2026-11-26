@@ -1,4 +1,4 @@
-// `Max rows` of "List" and "List - Expand": how many rows show before the button `Show more`. Plain JavaScript so the tests can read it.
+// `Max rows` of "List" and "Expandable list": how many rows show before the button `Show more`. Plain JavaScript so the tests can read it.
 
 /** The `Max rows` a list's field holds as a whole number of at least 1; anything else (empty, 0, a negative, text, NaN) is no limit.
  * @param {unknown} value
