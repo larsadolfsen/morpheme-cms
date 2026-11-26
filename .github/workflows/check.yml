@@ -117,6 +117,8 @@ jobs:
       - uses: ./.github/actions/prepare
         with:
           build: ${{ needs.changes.outputs.docs_only != 'true' && 'true' || 'false' }}
+          # The command that measures Material's accessibility (the last step) drives Chromium; a docs-only pull request skips it.
+          browser: ${{ needs.changes.outputs.docs_only != 'true' && 'true' || 'false' }}
       - id: tsc
         run: node scripts/ci-tsc-key.mjs >> "$GITHUB_OUTPUT"
       # The info is restored from the newest cache with the same key prefix (same TypeScript, options and lock file); tsc compares the hash of
@@ -160,6 +162,7 @@ jobs:
       # Material's accessibility score is measured, never a gate (skill `theme`, section 5): the command measures theme/ again and the step fails only when the
       # committed theme/accessibility.json is not what it measured, so the file on the theme page and in the store is the one the checks give.
       - name: Material's accessibility.json is what the checks measure
+        if: needs.changes.outputs.docs_only != 'true'
         run: |
           npm run accessibility
           git diff --exit-code -- theme/accessibility.json
