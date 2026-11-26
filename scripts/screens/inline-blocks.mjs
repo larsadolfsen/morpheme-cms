@@ -171,7 +171,8 @@ async function checkFilledSlotRing(scheme, sectionColor) {
       return { style: cs.outlineStyle, width: parseFloat(cs.outlineWidth), ratio: ratio(cs.outlineColor, button, 1, button) };
     })()`);
     if (m.style === 'none' || m.width < 2) problems.push(`${label}: the focused icon control has no ring (${m.style} ${m.width}px)`);
-    else if (m.ratio < 3) problems.push(`${label}: the ring is ${m.ratio.toFixed(2)}:1 against the filled button, under 3:1`);
+    else if (m.ratio < 3)
+      shortfall('1.4.11', 'focus-ring', `${label}: the ring is ${m.ratio.toFixed(2)}:1 against the filled button, under 3:1`);
   }
   await page.close();
 }
@@ -234,7 +235,11 @@ async function checkInlineButtonMeasure(width, height) {
     // Material's sizes are Material 3's, exactly; another theme has its own, and keeps WCAG 2.2 AA's target size (2.5.8: at least 24 px).
     if (material) off('height', m.height, want.height);
     else if (m.height < 24)
-      problems.push(`${label}: ${m.size} button is ${m.height.toFixed(1)} px high, under WCAG 2.2 AA's 24 px target size`);
+      shortfall(
+        '2.5.8',
+        'target-size',
+        `${label}: ${m.size} button is ${m.height.toFixed(1)} px high, under WCAG 2.2 AA's 24 px target size`,
+      );
     off('label centre is off the button centre by', m.labelOffset, 0);
     off('icon centre is off the button centre by', m.iconOffset, 0);
     if (material && m.icon !== undefined) {
@@ -587,11 +592,12 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       ])
         if (got[part] !== null && got[part] < min) {
           const message = `${label} (${scheme}): the ${part} on a ${color} section has contrast ${got[part].toFixed(2)}:1, below ${min}`;
-          // A placeholder and the row's outline are parts a theme can name in its accessibility.json; text and slot icons never.
+          // Contrast is a theme value (lib/accessibility.mjs, `kindOf`): measured and printed, never failed.
           if (part === 'placeholder') shortfall('1.4.3', 'placeholder', message);
           else if (part === 'outline')
             shortfall('1.4.11', 'outlined-card-edge', message); // the edge of a block typed in place on a section, M3's outline: judged with the card edge, which the contrast scan measures in whole
-          else problems.push(message);
+          else if (part === 'slot') shortfall('1.4.11', 'icon', message);
+          else shortfall('1.4.3', 'text', message);
         }
   }
   await page.emulateMedia({ colorScheme: 'light' });

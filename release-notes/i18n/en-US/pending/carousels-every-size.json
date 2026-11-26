@@ -1,0 +1,7 @@
+{
+  "id": "carousels-every-size",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Card carousels",
+  "text": "A carousel of cards no longer turns into a grid on a computer. Set Display to Carousel on a Cards block, and visitors scroll the row on every screen size, with more cards in view on wide screens. Every layout works at every size, and Show all lists the cards."
+}

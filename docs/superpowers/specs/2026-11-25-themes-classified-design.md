@@ -12,10 +12,12 @@ its row on the theme page stays, with the score in it.
 - Not even the page and post editor is held to WCAG 2.2 AA by a hard check: "No, because this may run on the site theme."
 - "it stays a hard check for our base theme when we implement it" (the base theme of `specs/2026-11-21-base-theme-notes.md`, 0.22.3).
 - The split, proposed by the Architect, approved by the owner ("1 yes, 2 yes"):
-  - **A theme's values are classified, never failed:** contrast, sizes, target sizes, corners, spacing, the focus ring's colour. That
+  - **A theme's values are classified, never failed:** sizes, target sizes, corners, spacing, the focus ring's width and offset. That
     is design. What the checks measure becomes the theme's statement on its page.
   - **Our code's behaviour is a hard check on every theme:** keyboard use, a focus ring at all, names for screen readers, roles and
     states. No theme can change these, so a failure is a CMS bug whatever the theme.
+  - **Colours are not the theme's** (owner, 26 Nov 2026): "No, the colors are chosen by the user. Our color editor is responsible for contrast". A theme writes no colour, so
+    contrast (1.4.3, 1.4.11 as colour, the focus ring's colour) is the colour editor's (`src/Colors.tsx`) and is in no theme's checks or score.
   - **The statement is measured, never hand-written,** so it never claims more than the theme does.
 
 Why: on 25 Nov 2026 a CMS check measured Venus against Material's values, and Venus was changed to pass it (morpheme-apps #49, three
@@ -28,11 +30,12 @@ theme's page what it meets, and chooses.
 ## The two kinds of finding
 
 Every accessibility finding of `check:contrast`, `check:a11y`, `check:announce`, `check:keyboard` and the `check:screens` units is one
-of two kinds. `lib/accessibility.mjs` holds the list, by WCAG criterion and, for axe-core, by rule id, so one rule decides everywhere.
+of three kinds. `lib/accessibility.mjs` holds the list, by WCAG criterion and, for axe-core, by rule id, so one rule decides everywhere.
 
 | Kind | WCAG criteria (2.2 AA) | axe-core rules | What happens |
 | --- | --- | --- | --- |
-| **Theme value** | 1.4.3 Contrast (minimum), 1.4.11 Non-text contrast (edges, icons, the focus ring's colour), 2.5.8 Target size (minimum), 1.4.12 Text spacing, 1.4.4 Resize text, 1.4.10 Reflow | `color-contrast`, `target-size`, `link-in-text-block` | measured, scored into the theme's accessibility score, printed; never a failure |
+| **Theme value** | 2.5.8 Target size (minimum), 1.4.12 Text spacing, 1.4.4 Resize text, 1.4.10 Reflow | `target-size`, `link-in-text-block` | measured, scored into the theme's accessibility score, printed; never a failure |
+| **Colour** (the site owner's, not the theme's) | 1.4.3 Contrast (minimum), 1.4.11 Non-text contrast (edges, icons, the focus ring's colour) | `color-contrast` | printed only for Material on the demo's colours, as today, and in the last `check:contrast` scan; never a failure; under no theme (not on its page, not in its output, not in its file) and in no score. The colour editor makes the colours. |
 | **Our code** | 1.1.1, 1.3.1, 2.1.1 Keyboard, 2.1.2 No keyboard trap, 2.4.3 Focus order, 2.4.7 Focus visible (a ring is drawn at all), 2.4.11 Focus not obscured, 2.4.6, 3.3.1, 3.3.2, 4.1.2 Name, role, value, 4.1.3 Status messages | every other rule | a failure, as today, on every theme; its allowlist (`a11y-allowlist.json`, `keyboard-allowlist.json`, `announce-allowlist.json`) only shrinks |
 
 - A finding the table does not place is **our code** until the Architect places it (so nothing slips through as a theme value by
@@ -40,7 +43,7 @@ of two kinds. `lib/accessibility.mjs` holds the list, by WCAG criterion and, for
 - 1.4.10 and 1.4.4 are theme values only where the theme's sizes cause them (a theme's spacing token); a page that scrolls sideways
   because of our markup is our code. The unit says which, from what it measured.
 - **2.4.7 is split:** our code must draw a focus ring on keyboard focus with every theme (a hard check: an outline or ring is present
-  and not `none` or transparent); its colour against what is behind it is a theme value (1.4.11).
+  and not `none` or transparent); its colour against what is behind it is the site's colour (1.4.11), not the theme's.
 - **The base theme**, when it is built (0.22.3), runs every finding as a hard check: nothing is classified for it. Its id is written
   in `lib/accessibility.mjs` when it lands; until then no theme is hard-checked for theme values.
 
@@ -48,9 +51,7 @@ of two kinds. `lib/accessibility.mjs` holds the list, by WCAG criterion and, for
 
 1. **Measured.** One command, `morpheme accessibility [<theme>]`, runs the measuring checks with the theme and writes its
    `accessibility.json`: `{ "standard": "WCAG 2.2 AA", "measured": "<CMS version>", "score": <0 to 100>, "checks": [ { criterion, part,
-   ok, why } ] }`. Every measured theme value is one check (a part on a criterion: "Outlined card edge, 1.4.11"; "Small button,
-   2.5.8"), whether it passes or not. `why` is what was measured, in one sentence with the numbers (`"Outlined card edge 1.6:1 on the
-   surface, under 3:1"`). A person may add a reason after it (`"…; Material 3's outline-variant as printed"`); the command keeps an
+   ok, why } ] }`. Every measured theme value is one check (a part on a criterion: "Small button, 2.5.8"), whether it passes or not. `why` is what was measured, in one sentence with the numbers (`"Small button 16 px, under 24 px"`). A person may add a reason after it (`"…; Material 3's small button as printed"`); the command keeps an
    added reason while the check stays as it is.
 2. **Scored like SEO.** `score` is the share of checks passed, rounded: `scoreOf(checks)` (`src/ui.tsx`), the same function as the SEO
    rating, imported, not copied. No weights. A theme with no measured check has no score (the row says "Not measured").
@@ -60,15 +61,14 @@ of two kinds. `lib/accessibility.mjs` holds the list, by WCAG criterion and, for
 4. **Where it is written.**
    - Material: the file is a measured result kept in the repository, like a snapshot, so the demo, its Previews and the npm package carry
      it (the demo is built on Cloudflare, which cannot measure). The developer runs the command and commits the file; CI's `static` job
-     runs it again for `theme/` and fails only if the committed file differs. That is a check that the file is current, never a WCAG
+     runs it again for `theme/` and fails only if the committed file differs in its parts, their pass or fail, or the score (a pixel count is not compared: the same page measures a few px apart on two machines). That is a check that the file is current, never a WCAG
      gate: a low score passes.
    - A store theme: `morpheme-apps`' `npm run release` runs the command before it sends the theme, so the released score is the measured
      one, and sends `score` and `measured` with the theme's entry (`themeEntry` in `scripts/release-store.mjs`). `npm run check` there
      prints the score and never fails on it.
    - A site's own theme (`src/themes/<id>/`): `check:themes` prints the score; the site's editor shows "Not measured" until its file is
      written by the command.
-5. **Parts.** `PARTS` in `lib/accessibility.mjs` grows to every part a theme value can be measured on (text, placeholder, outlined
-   card edge, section edges, icon, control edge, focus ring colour, target size …), each with its criterion and its label for the theme
+5. **Parts.** `PARTS` in `lib/accessibility.mjs` is one part for each interactive part the theme styles, all on 2.5.8 (24 px): segmented button, button in each of its five sizes, icon button, floating action button, chip, switch, checkbox, radio button, slider handle, text field, menu item, tab, list item, carousel control, navigation bar and rail item and sheet drag handle (20 parts; the gallery on `/ui/` already draws the theme's navigation bar, rail and sheets, so the two parts that were left out in #1260 return with the scan visiting an item the gallery draws as a span, since it gives no address). Each is its own check, so the score is the share of parts that meet 24 px; a part is added in the pull request that first measures it, a part nothing measured has no check, the size is the area that takes the click (the scan tests which points reach the control, never the state layer by assumption: Material's Checkbox and Radio button Specs give a 48dp target), and the spacing exception of 2.5.8 is not read. Corners and spacing have no WCAG criterion and stay out. The focus ring's width and offset are a later part (no scan measures them today). No colour part is in it. Each part has its criterion and its label for the theme
    page. A part is added in the pull request that first measures it, as today. Adding a part can change a theme's score; the pull
    request says which scores moved.
 
@@ -145,7 +145,7 @@ it is released (a version is forever).
 
 **Proved by the pull request, not by QA** (unit tests in `node --test`, named in the pull request; the PM reads them in CI):
 
-- a theme value that a theme does not name is printed, not failed (contrast, target size), with a fixture theme;
+- a theme value that a theme does not name is printed, not failed (target size), and a weak colour is printed and in no score, with a fixture theme;
 - an our-code finding fails with every theme (a button with no name, a keyboard trap, a control with `outline: none` on focus);
 - `morpheme accessibility` writes the measured file with every check and its `score` from `scoreOf`, and keeps an added reason;
   Material's committed file equals what it measures;
@@ -191,3 +191,9 @@ Themes are classified, not tested (owner, 25 Nov 2026), the page and post editor
 values are measured and scored (the SEO score wheel, on its page and in the store), never failed; our code's behaviour (keyboard, a focus ring, names, roles and states)
 is a hard check on every theme; the base theme (0.22.3) is hard-checked on everything. The rules: skill `theme`, section 5.
 ```
+
+## Score changes
+
+- **Material, 26 Nov 2026 (0.19.8, touch-target fix):** 95 (19 of 20, after #1264) became 100 (20 of 20). The chip part measured 21 px (the removable input chip's own button, "Selected"
+  on `/ui/`) and is now 40 px; the checkbox went from 28 to 49 px and the radio button from 36 to 48 px (the pixel counts are the scan's smallest click area, so a part in a
+  group is its size plus half the gap on each side).

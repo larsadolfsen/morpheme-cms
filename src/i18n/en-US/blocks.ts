@@ -453,13 +453,13 @@ export const blocks = {
     designOutlined: 'Outlined',
     designFilled: 'Filled',
     designElevated: 'Elevated',
-    /** How the cards show on a phone: stacked, or swiped sideways in a carousel (Material 3's uncontained layout). */
-    phone: 'On phones',
-    phoneStacked: 'Stacked',
+    /** How the cards show on every screen size: side by side in a grid, or swiped sideways in a carousel. */
+    phone: 'Display',
+    phoneStacked: 'Grid',
     phoneCarousel: 'Carousel',
-    phoneHint: 'Swipeable cards on a phone. Larger screens show them together.',
+    phoneHint: 'Cards side by side, or swiped sideways on every screen size.',
     /** The subtext of the Carousel variant on the block's screen under Blocks. */
-    phoneVariantHint: 'Swipeable cards on phones.',
+    phoneVariantHint: 'Cards swiped sideways.',
     /** The carousel's layouts, Material 3's names (m3.material.io/components/carousel/guidelines), and the subtext of each on the block's screen under Blocks. */
     layout: 'Carousel layout',
     layoutUncontained: 'Uncontained',
@@ -473,7 +473,7 @@ export const blocks = {
     layoutHeroCenterHint: 'One large card in the middle, a small one on each side.',
     layoutFullScreen: 'Full-screen',
     layoutFullScreenHint: 'One card at a time, edge to edge.',
-    carouselChip: 'Carousel on phones',
+    carouselChip: 'Carousel',
     /** On the site and in the drawings (in the site's language): for screen readers and the button under the carousel. */
     carousel: 'carousel',
     slide: 'card',

@@ -20,6 +20,7 @@ in one place only, so never work from memory of a skill.
 | `material-3` | a spec or a change touches anything outside the page and post editor's bar and menus, or deviates from Material 3 |
 | `pm` | the owner makes the session the project manager (`/pm <version>`), or the orchestrator merges while no PM runs |
 | `architect` | the owner makes the session the Architect (formerly the CTO), or asks where the product, the code, the process or the roadmap should go next |
+| `theme` | you build, change or check a theme (Material, Venus, a store or a site's theme) |
 | `release` | the owner says `/release`, or asks to release, publish to `latest` or ship a version |
 
 ## How we work
@@ -184,18 +185,12 @@ reasons), `npm run check:color-roles` on a mix of a role or a role declared as a
 
 ### Accessibility: WCAG 2.2 AA
 
-Owner, 19 Nov 2026: the sites the CMS builds and the editor meet **WCAG 2.2 level AA**. A change never lowers it: contrast
-(one final `check:contrast` scan when Material's M3 work is done, not per change; owner, 21 Nov 2026), keyboard use, a visible focus ring for keyboard focus (`:focus-visible`), names for screen readers, and
-target sizes. Where Material 3 and WCAG differ, **Material 3 wins** (owner, 21 Nov 2026: "we follow MD3 even if it does not comply
-with accessibility"): the part takes M3's value as printed, and the theme names the shortfall (below). A new base theme, built on
-Material 3 and meeting WCAG 2.2 AA everywhere, comes after Material follows M3 (0.22.3; `docs/superpowers/specs/2026-11-21-base-theme-notes.md`).
-The checks that enforce it: roadmap 0.19.2 to 0.19.4.
+Owner, 19 Nov 2026: the sites the CMS builds and the editor aim at **WCAG 2.2 level AA**. Where Material 3 and WCAG differ, **Material 3
+wins** (owner, 21 Nov 2026: "we follow MD3 even if it does not comply with accessibility").
 
-A theme may fall short of it on the site if its page says so (owner, 21 Nov 2026): the theme's `accessibility.json` names each
-shortfall by WCAG criterion, the checks let through only what it names, and the editor shows it on the theme's page
-(`docs/superpowers/specs/2026-11-21-theme-accessibility-statement-design.md`). *Material* follows Material 3 exactly and names the
-shortfalls that gives; the editor's screens (theme page, settings, lists, dialogs) use the same parts, so the same named shortfalls hold
-there. Only the page and post editor (its bar, overflow menu, text and block menus), which is outside Material 3, always meets WCAG 2.2 AA (owner, 21 Nov 2026).
+Themes are classified, not tested (owner, 25 Nov 2026), the page and post editor included, as it may run on the site's theme: a theme's
+values are measured and scored (the SEO score wheel, on its page and in the store), never failed; our code's behaviour (keyboard, a focus ring, names, roles and states)
+is a hard check on every theme; the base theme (0.22.3) is hard-checked on everything. The rules: skill `theme`, section 5.
 
 ### Icons are Material Symbols
 
