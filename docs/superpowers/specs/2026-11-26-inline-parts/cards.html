@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Editor Cards Live</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=swap">
+<style>
+:root {
+  --surface: #FAF8FF; --on-surface: #1A1B21; --on-surface-variant: #44464F; --outline: #757780; --outline-variant: #C5C6D0;
+  --primary: #415E91; --on-primary: #FFFFFF; --surface-container-low: #F3F3FA; --page: #FFFFFF; --frame: #E9E9EF; --paper: #FFFFFF;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface: #121318; --on-surface: #E2E2E9; --on-surface-variant: #C5C6D0; --outline: #8F9099; --outline-variant: #44464F;
+    --primary: #AAC7FF; --on-primary: #0A305F; --surface-container-low: #1A1B21; --page: #0D0E12; --frame: #2A2B31; --paper: #121318;
+  }
+}
+:root[data-theme="dark"] {
+  --surface: #121318; --on-surface: #E2E2E9; --on-surface-variant: #C5C6D0; --outline: #8F9099; --outline-variant: #44464F;
+  --primary: #AAC7FF; --on-primary: #0A305F; --surface-container-low: #1A1B21; --page: #0D0E12; --frame: #2A2B31; --paper: #121318;
+}
+* { box-sizing: border-box; }
+body { margin: 0; padding: 16px; background: var(--page); color: var(--on-surface); font: 14px/20px Roboto, system-ui, sans-serif; }
+h1.top { font-size: 22px; line-height: 28px; font-weight: 400; margin: 0 0 4px; }
+p.note { margin: 0 0 16px; color: var(--on-surface-variant); max-width: 860px; }
+.frames { display: flex; flex-wrap: wrap; gap: 24px; }
+.frame { width: min(100%, 400px); }
+.frame > h2 { font-size: 14px; font-weight: 500; margin: 0 0 8px; }
+.phone { background: var(--surface); border-radius: 24px; border: 8px solid var(--frame); overflow: hidden; }
+.icon { font-family: 'Material Symbols Outlined'; font-size: 24px; line-height: 1; font-feature-settings: 'liga'; }
+.field-name { font-size: 16px; padding: 16px 16px 8px; }
+.doc { margin: 0 12px; border: 1px solid var(--outline-variant); border-radius: 12px; background: var(--paper); }
+.toolbar { display: flex; align-items: center; height: 56px; padding: 0 4px; border-bottom: 1px solid var(--outline-variant); color: var(--on-surface-variant); }
+.toolbar .icon { width: 48px; height: 48px; display: grid; place-items: center; }
+.toolbar .sp { flex: 1; }
+.content { padding: 12px 8px 16px; }
+/* The selected block: dotted, blue because it is active. */
+.block { border: 2px dotted var(--primary); border-radius: 12px; padding: 4px 8px 12px; }
+.bbar { display: flex; align-items: center; color: var(--on-surface-variant); }
+.bbar .icon { width: 48px; height: 48px; display: grid; place-items: center; }
+.bbar .sp { flex: 1; }
+.bbar .dim { opacity: .38; }
+/* A row as the site draws it. */
+.row { display: grid; grid-template-columns: 48px 1fr 48px; column-gap: 8px; align-items: center; padding: 6px 0; }
+.lead, .trail { width: 48px; height: 48px; display: grid; place-items: center; color: var(--on-surface-variant); }
+.h { font-size: 16px; line-height: 24px; letter-spacing: .5px; }
+.s { font-size: 14px; line-height: 20px; letter-spacing: .25px; color: var(--on-surface-variant); }
+/* Clickable parts: a regular border, 48px high; the active one's border turns blue. */
+.hit { border: 1px solid var(--outline); border-radius: 8px; }
+.part { min-height: 48px; display: flex; align-items: center; padding: 0 12px; margin: 2px 0; }
+.lead.hit, .trail.hit { border-radius: 50%; }
+.active { border: 2px solid var(--primary); }
+.part.active { padding: 0 11px; }
+/* Keyboard focus only (:focus-visible): a solid ring outside the part (M3, Applying states: keyboard focus indicator). */
+.kbd { outline: 3px solid var(--secondary, #565F71); outline-offset: 2px; }
+.ph { color: var(--on-surface-variant); opacity: .7; }
+.caret { display: inline-block; width: 2px; height: 20px; background: var(--primary); vertical-align: -4px; margin-left: 1px; }
+.editing { background: var(--surface-container-low); border-radius: 12px; }
+.text-col { display: grid; }
+/* A row without an icon starts at the left, as the site draws it. */
+.row.no-icon { grid-template-columns: 1fr; min-height: 60px; padding-left: 12px; }
+.add { display: inline-flex; align-items: center; height: 48px; padding: 0 20px; margin: 8px 0 0; border: 1px solid var(--outline-variant); border-radius: 24px; font-weight: 500; color: var(--on-surface-variant); }
+.bar { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px 16px; margin-top: 16px; background: var(--surface-container-low); border-radius: 28px 28px 0 0; }
+.btn { height: 40px; padding: 0 24px; border-radius: 20px; display: inline-flex; align-items: center; font-weight: 500; }
+.btn.o { border: 1px solid var(--outline-variant); color: var(--on-surface-variant); }
+.btn.f { background: var(--primary); color: var(--on-primary); }
+.legend { font-size: 12px; color: var(--on-surface-variant); margin: 8px 4px 0; }
+.frame.wide { width: min(100%, 900px); }
+.cards { display: grid; gap: 8px; align-items: start; margin-top: 4px; }
+.wide .cards { grid-template-columns: repeat(3, 1fr); }
+/* A card as the site draws it (M3 outlined card: 12dp corners, 16dp padding). */
+.card { border: 1px solid var(--outline-variant); border-radius: 12px; overflow: hidden; background: var(--paper); }
+.media { height: 120px; display: grid; place-items: center; }
+.cbody { padding: 16px; display: grid; }
+.hl { font-size: 16px; line-height: 24px; font-weight: 500; }
+.sh { font-size: 14px; line-height: 20px; color: var(--on-surface-variant); }
+.st { font-size: 14px; line-height: 20px; color: var(--on-surface-variant); margin-top: 8px; }
+/* The active card: its parts with a border, 48px high; the image is one part. */
+.card.on { border-color: var(--outline-variant); }
+.card.on .cbody { padding: 8px; gap: 4px; }
+.card.on .media { margin: 8px 8px 0; border-radius: 8px; height: 112px; }
+
+.card.on .part { margin: 0; }
+.card.on .foot { display: flex; justify-content: flex-end; }
+.media .icon { color: var(--on-surface-variant); }
+.media.empty { background: transparent; }
+</style>
+</head>
+<body>
+<h1 class="top">The Cards block in the page editor, with the same rules</h1>
+<p class="note">Cards are drawn as the site draws them. Only the active card shows its parts: the image (tap to change it), headline, subhead and supporting text, each with a border and 48px high, and the link button at the bottom. The active part's border turns blue; the solid ring is only for keyboard focus. Empty parts ask for an action, with M3's names: <i>Your headline</i>, <i>Your subhead</i>, <i>Your supporting text</i>.</p>
+<div class="frames">
+  <section class="frame">
+    <h2>1. Phone: tap on the supporting text</h2>
+    <div class="phone">
+      <div class="field-name">Text</div>
+      <div class="doc">
+        <div class="toolbar"><span class="icon">add_row_above</span><span class="icon">add_row_below</span><span class="icon">link</span><span class="sp"></span><span class="icon">undo</span><span class="icon">redo</span><span class="icon">more_vert</span></div>
+        <div class="content">
+          <div class="block">
+            <div class="bbar"><span class="icon">drag_indicator</span><span class="sp"></span><span class="icon dim">arrow_upward</span><span class="icon dim">arrow_downward</span><span class="icon">visibility_off</span><span class="icon">widgets</span></div>
+            <div class="cards">
+<div class="card"><div class="media" style="background:#B7C8E8"></div><div class="cbody"><span class="hl">Dog</span><span class="sh">Loyal and friendly</span><span class="st">The best animal in the world.</span></div></div><div class="card on">
+              <div class="media hit" style="background:#C9D8C4"><span class="icon">add_photo_alternate</span></div>
+              <div class="cbody">
+                <span class="part hit"><span class="hl">Cat</span></span>
+                <span class="part hit"><span class="sh ph">Your subhead</span></span>
+                <span class="part hit active"><span class="st" style="margin:0">The second best animal.<span class="caret"></span></span></span>
+                <div class="foot"><span class="trail hit"><span class="icon">add_link</span></span></div>
+              </div>
+            </div><div class="card"><div class="cbody"><span class="hl ph">Your headline</span><span class="sh ph">Your subhead</span><span class="st ph">Your supporting text</span></div></div>
+            </div>
+            <span class="add">Add card</span>
+          </div>
+        </div>
+      </div>
+      <div class="bar"><span class="btn o">Save</span><span class="btn f">Publish</span></div>
+    </div>
+  </section>
+  <section class="frame wide">
+    <h2>2. Computer, three columns: Tab to the headline (keyboard)</h2>
+    <div class="phone">
+      <div class="field-name">Text</div>
+      <div class="doc">
+        <div class="toolbar"><span class="icon">add_row_above</span><span class="icon">add_row_below</span><span class="icon">link</span><span class="sp"></span><span class="icon">undo</span><span class="icon">redo</span><span class="icon">more_vert</span></div>
+        <div class="content">
+          <div class="block">
+            <div class="bbar"><span class="icon">drag_indicator</span><span class="sp"></span><span class="icon dim">arrow_upward</span><span class="icon dim">arrow_downward</span><span class="icon">visibility_off</span><span class="icon">widgets</span></div>
+            <div class="cards">
+<div class="card"><div class="media" style="background:#B7C8E8"></div><div class="cbody"><span class="hl">Dog</span><span class="sh">Loyal and friendly</span><span class="st">The best animal in the world.</span></div></div><div class="card on">
+              <div class="media hit" style="background:#C9D8C4"><span class="icon">add_photo_alternate</span></div>
+              <div class="cbody">
+                <span class="part hit kbd"><span class="hl">Cat</span></span>
+                <span class="part hit"><span class="sh ph">Your subhead</span></span>
+                <span class="part hit"><span class="st" style="margin:0">The second best animal.</span></span>
+                <div class="foot"><span class="trail hit"><span class="icon">add_link</span></span></div>
+              </div>
+            </div><div class="card"><div class="cbody"><span class="hl ph">Your headline</span><span class="sh ph">Your subhead</span><span class="st ph">Your supporting text</span></div></div>
+            </div>
+            <span class="add">Add card</span>
+          </div>
+        </div>
+      </div>
+      <div class="bar"><span class="btn o">Save</span><span class="btn f">Publish</span></div>
+    </div>
+  </section>
+</div>
+</body>
+</html>
