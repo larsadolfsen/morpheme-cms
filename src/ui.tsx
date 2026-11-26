@@ -2843,6 +2843,9 @@ export const listClass = siteListClasses('segmented');
 /** The classes of a list without surfaces (the theme's standard list): a row or two that stand on the page, AccountRow. */
 export const plainListClass = siteListClasses('standard');
 
+/** The standard list with Material 3's inset dividers between its rows (the theme draws no line in a standard list until one asks for `inset`). */
+export const dividedListClass = siteListClasses('standard', 'inset');
+
 /** The small heading over a Group, and over what stands as one (the themes on Account): in Material 3's title small, as
  * written (not in capitals, Material 2's subheader), muted as a group's heading in a sheet (SheetGroupTitle). */
 export function GroupTitle({ children }: { children: ReactNode }) {
@@ -2982,7 +2985,7 @@ export function Group({ title, children, dividers }: { title?: string; children:
   return (
     <section className="mo-editor-section">
       {title && <GroupTitle>{title}</GroupTitle>}
-      <ul className={dividers ? plainListClass : listClass}>{children}</ul>
+      <ul className={dividers ? dividedListClass : listClass}>{children}</ul>
     </section>
   );
 }

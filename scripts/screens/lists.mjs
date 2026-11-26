@@ -1622,7 +1622,14 @@ async function checkPageRowsList(width, height) {
             (el.querySelector('.mo-editor-library-under-status') ?? el.querySelector('.mo-list__item-supporting'))?.textContent?.trim() ??
             '',
           icons: [...el.querySelectorAll('[role="img"][aria-label]')].map((i) => i.getAttribute('aria-label')),
-          divider: li && li.previousElementSibling ? getComputedStyle(li).borderTopWidth : null,
+          // The line between two rows: the inset divider is the <li>'s ::before (a border drawn in a colour, not transparent).
+          divider:
+            li && li.previousElementSibling
+              ? (() => {
+                  const b = getComputedStyle(li, '::before');
+                  return b.content !== 'none' && b.borderTopWidth !== '0px' && b.borderTopColor !== 'rgba(0, 0, 0, 0)';
+                })()
+              : null,
         };
       }),
     );
@@ -1643,7 +1650,7 @@ async function checkPageRowsList(width, height) {
       if (!/^(Published|Draft|Scheduled)/.test(r.supporting))
         problems.push(`${where}: the line under it names no version (${JSON.stringify(r.supporting)})`);
       if (r.icons.some((n) => n !== 'Hidden')) problems.push(`${where}: has a trailing icon that is not Hidden (${r.icons.join(', ')})`);
-      if (r.divider !== null && r.divider === '0px') problems.push(`${where}: has no divider above it`);
+      if (r.divider === false) problems.push(`${where}: has no divider above it`);
     }
   }
   await page.evaluate(() => (location.hash = '#list/pages'));
