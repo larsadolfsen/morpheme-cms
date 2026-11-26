@@ -1,6 +1,6 @@
 // A snackbar (m3.material.io/components/snackbar, .mo-snackbar in ../styles/ui/snackbar.css): a short message at the bottom of the
 // screen, what the site says with one (a new version of a page: layouts/PageLayout.astro). Its supporting text (`text`,
-// on one line or two), evt. links in it, each with an arrow (`links`), evt. an action, a text button (`action`, with
+// on one line or two), evt. links in it, each with an arrow (`links`), evt. an action, an outlined button (`action`, with
 // its `label` and `href` or other attributes on it), under the text when it is long (`longerAction`), and evt. a
 // button that closes it (`closeLabel`, its name). Read by screen readers as a status (`error`: an alert). On the site
 // it is drawn in a <template data-snackbar> (with `data-ms` for how long it stays), and ui/snackbar.script.ts shows it
@@ -55,7 +55,7 @@ export default function Snackbar({
       {(action || closeLabel) && (
         <div className="mo-snackbar__actions">
           {action && (
-            <Button kind="text" className="mo-snackbar__action" {...actionRest}>
+            <Button kind="outlined" className="mo-snackbar__action" {...actionRest}>
               {label}
             </Button>
           )}
