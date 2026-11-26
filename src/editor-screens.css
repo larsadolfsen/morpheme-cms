@@ -591,12 +591,6 @@
     inline-size: 3rem;
     padding-inline-end: var(--mo-ref-space-75);
   }
-  /* A subpage in the menu tree: its inset divider starts where its own text starts (the row is indented by --mo-editor-subpage-depth steps of 1.25rem, see TreeRows). */
-  .mo-list > li.mo-editor-library-subpage::before {
-    margin-inline-start: calc(
-      var(--mo-comp-list-list-item-leading-space, 0px) + var(--mo-comp-list-item-leading-room) + var(--mo-editor-subpage-depth, 0) * 1.25rem
-    );
-  }
   .mo-editor-library-row-eye {
     align-items: center;
     padding-inline-end: var(--mo-ref-space-300);

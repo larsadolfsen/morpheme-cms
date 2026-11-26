@@ -598,7 +598,7 @@
     margin-inline-start: calc(var(--mo-comp-list-list-item-leading-space, 0px) + var(--mo-comp-list-item-leading-room));
   }
   .mo-list__dividers-middle-inset > li + li::before {
-    margin-inline: var(--mo-comp-divider-inset, 1rem);
+    margin-inline: var(--mo-comp-divider-inset, 1rem) var(--mo-comp-list-item-inset-end, var(--mo-comp-divider-inset, 1rem));
   }
 
   /* Segmented (M3 Expressive): each item (its <li>) on its own surface, a small gap between them, the list's corners

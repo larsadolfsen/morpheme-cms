@@ -1627,11 +1627,10 @@ async function checkPageRowsList(width, height) {
                   return b.content !== 'none' && b.borderTopWidth !== '0px' && b.borderTopColor !== 'rgba(0, 0, 0, 0)';
                 })()
               : null,
-          // How far the divider is from the text: it starts where the row's text starts.
-          dividerGap:
+          // How far the line is in from the row's edges: M3 prints 16 dp on the left and 24 dp on the right (Lists > Specs).
+          dividerInset:
             li && li.previousElementSibling
-              ? el.querySelector('.mo-list__item-content').getBoundingClientRect().left -
-                (li.getBoundingClientRect().left + parseFloat(getComputedStyle(li, '::before').marginLeft))
+              ? [parseFloat(getComputedStyle(li, '::before').marginLeft), parseFloat(getComputedStyle(li, '::before').marginRight)]
               : null,
         };
       }),
@@ -1654,8 +1653,10 @@ async function checkPageRowsList(width, height) {
         problems.push(`${where}: the line under it names no version (${JSON.stringify(r.supporting)})`);
       if (r.icons.some((n) => n !== 'Hidden')) problems.push(`${where}: has a trailing icon that is not Hidden (${r.icons.join(', ')})`);
       if (r.divider === false) problems.push(`${where}: has no divider above it`);
-      if (r.dividerGap != null && Math.abs(r.dividerGap) > 1)
-        problems.push(`${where}: its divider starts ${r.dividerGap} dp before its text, not where the text starts`);
+      if (r.dividerInset && (Math.abs(r.dividerInset[0] - 16) > 0.5 || Math.abs(r.dividerInset[1] - 24) > 0.5))
+        problems.push(
+          `${where}: its divider is ${r.dividerInset[0]} dp in from the left and ${r.dividerInset[1]} from the right, not 16 and 24`,
+        );
     }
   }
   await page.evaluate(() => (location.hash = '#list/pages'));
@@ -1686,21 +1687,23 @@ async function checkPageRowsList(width, height) {
       const kids = [...(open?.closest('li')?.parentElement?.children ?? [])]
         .map((li) => li.querySelector('.mo-list__item-container'))
         .filter((c) => c && c !== parent && left(c) > left(parent) - 1 && left(c) !== null);
-      const gap = (c) => {
+      const inset = (c) => {
         const li = c.closest('li');
-        return li.previousElementSibling
-          ? c.querySelector('.mo-list__item-content').getBoundingClientRect().left -
-              (li.getBoundingClientRect().left + parseFloat(getComputedStyle(li, '::before').marginLeft))
-          : 0;
+        const m = getComputedStyle(li, '::before');
+        return li.previousElementSibling ? [parseFloat(m.marginLeft), parseFloat(m.marginRight)] : [16, 24];
       };
       const all = [...document.querySelectorAll('main .mo-editor-section .mo-list__item-container')];
       return parent
-        ? { parent: left(parent), child: kids.length ? left(kids[0]) : null, gaps: all.map((c) => gap(c)).filter((g) => Math.abs(g) > 1) }
+        ? {
+            parent: left(parent),
+            child: kids.length ? left(kids[0]) : null,
+            gaps: all.map((c) => inset(c)).filter((g) => Math.abs(g[0] - 16) > 0.5 || Math.abs(g[1] - 24) > 0.5),
+          }
         : null;
     });
     if (edges?.gaps.length)
       problems.push(
-        `${label}: in the menu tree ${edges.gaps.length} divider(s) do not start where their row's text starts (${edges.gaps.map((g) => Math.round(g)).join(', ')} dp)`,
+        `${label}: in the menu tree ${edges.gaps.length} divider(s) are not 16 dp in from the left and 24 from the right (${edges.gaps.map((g) => g.map(Math.round).join('/')).join(', ')} dp)`,
       );
     if (!edges || edges.child == null) problems.push(`${label}: no subpage row shows under the opened page`);
     else if (Math.abs(edges.child - edges.parent - 20) > 1)
