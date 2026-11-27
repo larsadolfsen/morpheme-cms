@@ -1807,7 +1807,12 @@ function under(item: Item, { address, text, plain }: { address?: boolean; text?:
   const line = text === false || text === '' || text == null ? null : text;
   if (!address && !status && !line) return undefined;
   // One line of the List part's supporting text: the address, the status and the time, with a middle dot between them.
-  const parts: ReactNode[] = [address && item.path, status, line].filter((part): part is ReactNode => !!part);
+  // The status keeps its own name, so a check (and a test) can read it apart from the address.
+  const parts: ReactNode[] = [
+    address && item.path,
+    status && <span className="mo-editor-library-under-status">{status}</span>,
+    line,
+  ].filter((part): part is ReactNode => !!part);
   return parts.map((part, i) => (
     <Fragment key={i}>
       {i > 0 && ' · '}
