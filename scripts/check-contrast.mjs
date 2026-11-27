@@ -381,7 +381,9 @@ const themeBefore = readFileSync(themeFile, 'utf8');
 async function settled(page) {
   await page.evaluate(async () => {
     // An animation that never ends (a loading indicator) is not waited for, and no wait lasts longer than 3 s.
-    const finite = (a) => a.effect?.getComputedTiming().endTime !== Infinity;
+    // Nor one tied to a scroll position (a carousel's items): it has no end in time.
+    const finite = (a) =>
+      a.effect?.getComputedTiming().endTime !== Infinity && !(typeof ScrollTimeline === 'function' && a.timeline instanceof ScrollTimeline);
     const until = Date.now() + 3000;
     while (Date.now() < until) {
       const running = document.getAnimations().filter((a) => finite(a) && (a.playState === 'running' || a.pending));
