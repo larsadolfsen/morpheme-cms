@@ -843,7 +843,9 @@ async function checkBlockHandleCorner(width) {
         // Its target is the part's own: 48 dp on a touch, 44 for a mouse.
         const need = width < 600 ? 47.4 : 43.4;
         if (!(m.handle.tw >= need) || !(m.handle.th >= need))
-          problems.push(`${at}: the handle's target is ${m.handle.tw}x${m.handle.th}, under ${Math.round(need + 0.6)}x${Math.round(need + 0.6)}`);
+          problems.push(
+            `${at}: the handle's target is ${m.handle.tw}x${m.handle.th}, under ${Math.round(need + 0.6)}x${Math.round(need + 0.6)}`,
+          );
         if (m.handle.left > m.frameW / 4 || m.handle.top > 16)
           problems.push(`${at}: the handle is not in the frame's top left corner (${m.handle.left}, ${m.handle.top})`);
         if (m.handle.left < 0) problems.push(`${at}: the handle starts outside the frame (${m.handle.left})`);
