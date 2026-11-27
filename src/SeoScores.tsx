@@ -6,7 +6,7 @@
 // on the ring opens the page or post at "Search engines" (openAtSeo), on the rest of the row at its top.
 import { useMemo, useState } from 'react';
 import Screen from './Screen';
-import { Choice, EmptyNote, Filters, Group, InputChip, listClass, ScoreRing, scoreOf, SearchRow, useKept, ListItem } from './ui';
+import { Choice, EmptyNote, Filters, Group, InputChip, listClass, ScoreRing, scoreOf, SearchRow, useKept, ListItem, ChipSet } from './ui';
 import type { RepoFile } from './github';
 import { readFields, splitFrontmatter } from './frontmatter.mjs';
 import { fileRating } from './seo';
@@ -150,13 +150,13 @@ export default function SeoScores({ files, env }: { files: RepoFile[]; env: Env 
         className="mo-editor-list-lead"
       />
       {chips.length > 0 && (
-        <div className="mo-editor-filter-chips">
+        <ChipSet label={t.library.filter}>
           {chips.map((c) => (
             <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
               {c.label}
             </InputChip>
           ))}
-        </div>
+        </ChipSet>
       )}
       {shown.length ? (
         shown.map((g) => (

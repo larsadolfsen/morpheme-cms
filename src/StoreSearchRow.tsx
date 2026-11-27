@@ -1,7 +1,7 @@
 // The search row of a store screen (apps or themes): search field, sort, filter dialog and a chip for each filter picked.
 // Exposes StoreSearchRow and useStateFilter (the installed / not installed filter); uses SearchRow, Filters, InputChip (ui.tsx), storeSort.tsx.
 import type { ComponentProps } from 'react';
-import { Filters, InputChip, SearchRow, useKept } from './ui';
+import { Filters, InputChip, SearchRow, useKept, ChipSet } from './ui';
 import { sortChoice, type Sort } from './storeSort';
 import { t } from './i18n';
 
@@ -54,13 +54,13 @@ export function StoreSearchRow({
         className="mo-editor-list-lead"
       />
       {shown.length > 0 && (
-        <div className="mo-editor-filter-chips">
+        <ChipSet label={t.library.filter}>
           {shown.map((c) => (
             <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
               {c.label}
             </InputChip>
           ))}
-        </div>
+        </ChipSet>
       )}
     </>
   );

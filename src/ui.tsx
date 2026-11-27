@@ -2784,12 +2784,15 @@ export function ChoiceRow({
   headline,
   supporting,
   trailing,
+  lines,
   onClick,
 }: {
   selected: boolean;
   headline: ReactNode;
   supporting?: ReactNode;
   trailing?: ReactNode;
+  /** Three, when the supporting text has two lines. */
+  lines?: 3;
   onClick: () => void;
 }) {
   return (
@@ -2798,6 +2801,7 @@ export function ChoiceRow({
       aria-pressed={selected}
       headline={headline}
       supporting={supporting}
+      lines={lines}
       trailing={
         <span className="mo-row mo-editor-choice-row">
           {trailing}

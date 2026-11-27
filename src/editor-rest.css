@@ -128,14 +128,6 @@
   .mo-editor-list-lead {
     margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
-  /* The chips of the chosen filters, under the search row. */
-  .mo-editor-filter-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--mo-ref-space-100);
-    margin-block-start: calc(var(--mo-ref-space-100) * -1);
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
-  }
   .mo-editor-chips {
     display: flex;
     flex-wrap: wrap;

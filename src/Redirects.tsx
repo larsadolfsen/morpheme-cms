@@ -35,6 +35,7 @@ import {
   ListItem,
   IconButton,
   atLeastNow,
+  ChipSet,
 } from './ui';
 import { usePane } from './PaneHost';
 import type { Env } from './App';
@@ -450,11 +451,11 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
         className="mo-editor-settings-group"
       />
       {tab === 'redirects' && shownPage && (
-        <div className="mo-editor-filter-row">
+        <ChipSet label={t.library.filter}>
           <InputChip removeLabel={t.library.removeFilter(pageName)} onRemove={() => setPage('')}>
             {pageName}
           </InputChip>
-        </div>
+        </ChipSet>
       )}
       {problem && <ProblemNote>{problem}</ProblemNote>}
       {!files && !problem && <EmptyNote busy>{t.redirects.loading}</EmptyNote>}
@@ -497,12 +498,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
                   {...selection.row(e.from)}
                   onClick={() => open({ from: e.from, to: e.to, isNew: false })}
                   headline={e.from}
-                  supporting={
-                    <span className="mo-editor-target-row">
-                      <Icon name="arrow_forward" size={18} className="mo-editor-target-icon" />
-                      <span className="mo-editor-settings-wrap">{name(e.to)}</span>
-                    </span>
-                  }
+                  supporting={`→ ${name(e.to)}`}
                 />
               ))}
             </Group>

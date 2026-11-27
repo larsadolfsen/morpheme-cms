@@ -466,9 +466,6 @@
     }
   }
 
-  .mo-editor-library-line {
-    display: block;
-  }
   .mo-editor-list-head {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
@@ -480,13 +477,6 @@
   }
   .mo-editor-library-toolbar {
     margin-block-end: var(--mo-comp-editor-rhythm-300);
-  }
-  .mo-editor-library-filters {
-    margin-block-start: calc(var(--mo-ref-space-100) * -1);
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--mo-ref-space-100);
   }
   .mo-editor-library-empty {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
@@ -507,37 +497,6 @@
     display: flex;
     flex-shrink: 0;
     padding-inline-end: var(--mo-ref-space-100);
-  }
-  .mo-editor-library-under {
-    display: flex;
-    gap: var(--mo-ref-space-300);
-  }
-  .mo-editor-library-under-address {
-    display: none;
-    min-inline-size: 0;
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    @media (width >= 52.5rem) {
-      display: block;
-    }
-  }
-  .mo-editor-library-under-status {
-    min-inline-size: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    @media (width >= 52.5rem) {
-      margin-inline-start: auto;
-      flex-shrink: 0;
-      text-align: right;
-    }
-  }
-  .mo-editor-library-status {
-    margin-inline-end: var(--mo-ref-space-100);
-    font-weight: 500;
-    color: var(--mo-sys-color-primary);
   }
   .mo-editor-library-row-trail {
     display: flex;
