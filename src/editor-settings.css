@@ -972,11 +972,7 @@
   }
 
   .mo-editor-part-name {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 500;
-    color: var(--mo-sys-color-primary);
+    color: var(--mo-sys-color-on-surface);
   }
 
   /* PartsShown.tsx PartSub: a subheading and the row under it. */

@@ -53,9 +53,6 @@
   .mo-editor-block {
     display: block;
   }
-  .mo-editor-mono {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-  }
   .mo-editor-wrap-anywhere {
     overflow-wrap: anywhere;
   }

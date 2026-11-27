@@ -15,7 +15,7 @@ export function CoverageBadge({ coverage: part }: { coverage: PartCoverage }) {
       {part.status === 'partly' && part.missing.length > 0 && (
         <>
           {' · '}
-          {coverage.missing} <span className="mo-editor-mono">{part.missing.join(', ')}</span>
+          {coverage.missing} <span>{part.missing.join(', ')}</span>
         </>
       )}
     </span>

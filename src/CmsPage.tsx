@@ -69,10 +69,10 @@ const BuildLink = ({ href, version }: { href: string | null; version: string }) 
   ) : null;
 
 /** A line of the status text, with its icon only where the icon means something (a warning, an update). */
-function StatusLine({ icon: Glyph, tone, children }: { icon?: Icon; tone?: 'accent'; children: ReactNode }) {
+function StatusLine({ icon: Glyph, children }: { icon?: Icon; children: ReactNode }) {
   return (
     <ul className={`${plainListClass} mo-editor-status-line`}>
-      <ListItem tone={tone} icon={Glyph} headline={children} lines={3} />
+      <ListItem icon={Glyph} headline={children} lines={3} />
     </ul>
   );
 }
@@ -82,7 +82,7 @@ function UpdateStatus({ update }: { update: NonNullable<View['update']> }) {
   const bad = update.state === 'undone' || update.state === 'stuck';
   return (
     <div>
-      <StatusLine icon={bad ? materialIcon('error') : undefined} tone={bad ? 'accent' : undefined}>
+      <StatusLine icon={bad ? materialIcon('error') : undefined}>
         {t.cms[update.state](update.to)}
       </StatusLine>
       <p className="mo-editor-small-note">{when(new Date(update.at))}</p>
@@ -151,12 +151,12 @@ export default function CmsPage() {
             {view.update && <UpdateStatus update={view.update} />}
             {view.latest && (
               <div>
-                <StatusLine icon={materialIcon('stars')} tone="accent">
+                <StatusLine icon={materialIcon('stars')}>
                   {t.cms.available(view.latest)}
                 </StatusLine>
                 {view.failed && (
                   <>
-                    <StatusLine icon={materialIcon('error')} tone="accent">
+                    <StatusLine icon={materialIcon('error')}>
                       {failedText(view.failed)}
                     </StatusLine>
                     {view.failed.retryAt !== null && (
@@ -176,7 +176,7 @@ export default function CmsPage() {
               </div>
             )}
             {(view.blocked?.kind === 'contract' || view.blocked?.kind === 'unsafe-code') && (
-              <StatusLine icon={materialIcon('error')} tone="accent">
+              <StatusLine icon={materialIcon('error')}>
                 {blockedText(view.blocked)}
               </StatusLine>
             )}
@@ -191,7 +191,7 @@ export default function CmsPage() {
               </p>
             )}
             {view.problems.map((kind) => (
-              <StatusLine key={kind} icon={materialIcon('error')} tone="accent">
+              <StatusLine key={kind} icon={materialIcon('error')}>
                 {t.cms[kindText[kind]]}
               </StatusLine>
             ))}

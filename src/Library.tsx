@@ -893,7 +893,7 @@ export function Account({ user, files, onLogout }: { user: Viewer | null; files:
       <LocalePicker />
       <NotificationChoices files={files} />
       <Group>
-        <ListItem tone="accent" onClick={onLogout} leading={<MaterialIcon name="logout" size={20} />} headline={t.library.logOut} />
+        <ListItem onClick={onLogout} leading={<MaterialIcon name="logout" size={20} />} headline={t.library.logOut} />
       </Group>
     </Screen>
   );
@@ -1839,7 +1839,7 @@ function TreeRows({
           <Fragment key={key}>
             <ListItem
               href={item.href || undefined}
-              tone={item.href ? undefined : 'muted'}
+              disabled={!item.href}
               // Indented 20 dp under the item it is under: the step is added to the container's own start padding, which an inline value would replace.
               style={
                 depth ? { paddingInlineStart: `calc(var(--mo-comp-list-list-item-leading-space, 0px) + ${depth * 1.25}rem)` } : undefined

@@ -79,6 +79,7 @@ import {
   siteFocusNavigationDrawerItem,
   SiteButtonGroup,
   SiteChoiceGroup,
+  SiteRadioButton,
   SiteSideSheet,
   SiteTab,
   SiteTabs,
@@ -1605,11 +1606,11 @@ export function MultiChoice({
   );
 }
 
-/** A link to another screen, with an arrow after it (under a field's name: where it is edited). */
+/** A link to another screen (under a field's name: where it is edited): the theme's link, in the text's own type role. */
 export function ArrowLink({
   href,
   onClick,
-  className = 'mo-editor-accent-text',
+  className = '',
   children,
 }: {
   href: string;
@@ -1618,9 +1619,8 @@ export function ArrowLink({
   children: ReactNode;
 }) {
   return (
-    <a href={href} className={`mo-editor-arrow-link ${className}`} onClick={onClick}>
+    <a href={href} className={`mo-link ${className}`.trim()} onClick={onClick}>
       {children}
-      <MaterialIcon name="arrow_forward" size={14} />
     </a>
   );
 }
@@ -1886,31 +1886,27 @@ export function ChoiceCards<T extends string>({
   const name = useId();
   return (
     <fieldset>
-      <legend className="mo-editor-field-label">{label}</legend>
+      <legend className="mo-type-label-large mo-editor-field-label">{label}</legend>
       {hint && <SupportingText className="mo-editor-choice-hint">{hint}</SupportingText>}
       <div className="mo-grid mo-editor-choice-cards">
         {options.map(({ value: v, label: text, icon: Glyph, disabled }) => {
           const chosen = v === value;
           return (
-            <label
+            <div
               key={v}
-              className={`${siteCardClass('outlined')} mo-editor-choice-card ${
-                disabled ? 'mo-editor-choice-card-disabled' : chosen ? 'mo-editor-choice-card-chosen' : 'mo-editor-choice-card-idle'
-              }`}
+              className={`${siteCardClass('outlined')} mo-editor-choice-card`}
+              onClick={() => !disabled && onChange(v)}
             >
-              <input
-                type="radio"
+              {Glyph && <Glyph size={24} aria-hidden="true" />}
+              <SiteRadioButton
+                label={text}
                 name={name}
                 value={v}
                 checked={chosen}
                 disabled={disabled}
                 onChange={() => onChange(v)}
-                className="mo-visually-hidden"
               />
-              {Glyph && <Glyph size={32} aria-hidden="true" />}
-              <span>{text}</span>
-              {chosen && <MaterialIcon name="check" size={16} aria-hidden="true" className="mo-editor-choice-card-check" />}
-            </label>
+            </div>
           );
         })}
       </div>
@@ -1921,20 +1917,8 @@ export function ChoiceCards<T extends string>({
 // ---------------------------------------------------------------------------------------------------
 // Rows
 
-/** The classes of the rows under a row in a list (a submenu): the theme's list, indented along a line, the text a little
- * lighter. */
-export const subListClass = `${siteListClass} mo-editor-sub-list`;
-
-/** What a row looks like besides the theme's list item: `accent`, a row that does something (Log out), in the accent
- * colour; `delete`, the row that deletes what a screen shows, alone in a Group at the bottom, in the middle in the error
- * colour; `muted`, grey (what cannot be opened: a page that is gone); `sub`, a row under a row (a submenu), its text a
- * little lighter. */
-export type RowTone = 'accent' | 'muted' | 'sub';
-const toneClass: Record<RowTone, string> = {
-  accent: 'mo-editor-accent-text',
-  muted: 'mo-editor-muted-text',
-  sub: 'mo-editor-row-sub',
-};
+/** The classes of the rows under a row in a list (a submenu): the theme's list, with the List part's own inset. */
+export const subListClass = siteListClass;
 
 /** A row in a list (Group, listClass): the theme's list item (Material 3's ListItem), with the editor's icons. A link
  * (`href`), a button (`onClick`) or only shown; its icon before it (`icon`, a Phosphor icon or one drawn; `iconSelected`:
@@ -1942,15 +1926,13 @@ const toneClass: Record<RowTone, string> = {
  * (`headline`) and what is under it (`supporting`; `truncate`: each on one line, cut off), how many at the right
  * (`count`), the arrow of a row that opens something (`arrow`, or another icon: what a tap does) or anything there
  * (`trailing`), the buttons beside it (`actions`: the arrows, Remove, a switch) and what is in its <li> after it
- * (`children`: a sheet it opens, a text it folds out); `tone`: RowTone. `selectable`: on a phone a long press selects it
+ * (`children`: a sheet it opens, a text it folds out); `selectable`: on a phone a long press selects it
  * (`onSelectedChange`), and while its list is `selecting` a tap does; its selection checkbox is the theme's ListItem's. The rest (aria-…, ref, style, onClick on a link) on the row. */
 export function ListItem({
   icon: shownIcon,
   iconSelected: shownSelected,
   arrow,
   count,
-  tone,
-  className,
   ...item
 }: {
   icon?: Icon | ReactElement<{ size?: number; className?: string }>;
@@ -1971,8 +1953,6 @@ export function ListItem({
   selectable?: boolean;
   selecting?: boolean;
   onSelectedChange?: (selected: boolean) => void;
-  tone?: RowTone;
-  className?: string;
 } & Record<string, unknown>) {
   let icon = shownIcon;
   let iconSelected = shownSelected;
@@ -1983,7 +1963,7 @@ export function ListItem({
       ? (item.leading.props as { icon?: Icon; selected?: boolean; children?: ReactNode })
       : null;
   if (made) {
-    icon = made.icon ?? ((made.children || <span className="mo-editor-icon-placeholder" />) as ReactElement<{ size?: number }>);
+    icon = made.icon ?? (made.children as ReactElement<{ size?: number }> | undefined);
     iconSelected = made.selected;
     item.leading = undefined;
   }
@@ -2001,7 +1981,6 @@ export function ListItem({
       leadingIconSelected={iconSelected}
       trailingSupporting={some(count)}
       trailingIcon={Arrow ? <Arrow /> : undefined}
-      className={[tone && toneClass[tone], className].filter(Boolean).join(' ') || undefined}
     />
   );
 }
@@ -2500,7 +2479,7 @@ export function SheetActions({
 // ---------------------------------------------------------------------------------------------------
 // The preview of a block
 
-/** How a block looks on the site, with what is in it now, in a dashed frame: it can be used as on
+/** How a block looks on the site, with what is in it now, in an outlined card: it can be used as on
  * the site (a text unfolds, a slider slides), but a link in it goes nowhere, so the editor stays open.
  * (The card of a block in the text is not this: a tap there opens its menu.) */
 export function Preview({ children }: { children: ReactNode }) {
@@ -2508,7 +2487,7 @@ export function Preview({ children }: { children: ReactNode }) {
     <div
       role="region"
       aria-label={t.common.preview}
-      className="mo-site-block-preview mo-is-not-prose mo-editor-block-preview"
+      className={`${siteCardClass('outlined')} mo-site-block-preview mo-is-not-prose mo-editor-block-preview`}
       onClickCapture={(e) => {
         if ((e.target as HTMLElement).closest('a[href]')) e.preventDefault();
       }}
@@ -2811,7 +2790,6 @@ export function ChoiceRow({
     <ListItem
       onClick={onClick}
       aria-pressed={selected}
-      tone={selected ? 'accent' : undefined}
       headline={headline}
       supporting={supporting}
       trailing={
@@ -3165,9 +3143,9 @@ export function SharePreview({ image, domain, title, description }: { image: str
         onLoad={(e) => setTall(e.currentTarget.naturalHeight >= e.currentTarget.naturalWidth)}
       />
       <figcaption className="mo-editor-gapped-25 mo-editor-share-preview-text">
-        <span className="mo-truncate mo-editor-share-preview-domain">{domain}</span>
-        <span className="mo-clamp-2 mo-editor-share-preview-title">{title}</span>
-        <span className="mo-clamp-2 mo-editor-share-preview-description">{description}</span>
+        <span className="mo-truncate mo-type-label-small mo-editor-share-preview-domain">{domain}</span>
+        <span className="mo-clamp-2 mo-type-title-small mo-editor-share-preview-title">{title}</span>
+        <span className="mo-clamp-2 mo-type-body-medium mo-editor-share-preview-description">{description}</span>
       </figcaption>
     </figure>
   );

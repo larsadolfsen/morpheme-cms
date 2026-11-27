@@ -1136,7 +1136,6 @@ export function MenuList({
           return (
             <ListItem
               key={i}
-              tone={depth ? 'sub' : undefined}
               onClick={() => edit(i)}
               headline={nameOf(item) || t.forms.empty}
               truncate
