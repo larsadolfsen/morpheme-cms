@@ -1032,7 +1032,8 @@ async function checkEmptyRow(width, height) {
     const kinds = await dialog.getByRole('button').evaluateAll((b) => b.map((x) => x.className));
     if (kinds.length !== 2 || kinds.some((k) => !/\bmo-is-text\b/.test(k)))
       problems.push(`${label}: the dialog actions are not both text buttons (${kinds.join(' | ')})`);
-    if (await dialog.locator('button:focus').count()) problems.push(`${label}: a button has the focus`);
+    // Material 3: the focus is on the dialog's first control when it opens.
+    if (!(await dialog.locator(':focus').count())) problems.push(`${label}: the focus is not in the dialog`);
     const marked = await page.evaluate(() => {
       const el = document.querySelector('.mo-editor-wrong');
       const r = el?.getBoundingClientRect();
