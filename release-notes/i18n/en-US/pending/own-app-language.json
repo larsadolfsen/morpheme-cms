@@ -1,0 +1,6 @@
+{
+  "id": "own-app-language",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A site's own app can use one default language other than English, with no English texts"
+}
