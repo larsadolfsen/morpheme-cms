@@ -13,7 +13,7 @@ import { useSelection } from './useSelection';
 import SelectionBar from './SelectionBar';
 import { fileKindOf, publicPath, typeOf } from './images';
 import { deletedRecordFor, recordsIn } from './fileRecords.mjs';
-import { fileIcons, FileView, kindOf } from './FileView';
+import { FileView, kindOf } from './FileView';
 import { ask } from './ask';
 import { REDIRECT_FILES } from './redirectData';
 import { slugOf, type Collection } from './schema';
@@ -227,10 +227,6 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
     }
   }
 
-  // A PDF's or zip file's icon, over its name in the sheet (an image and a video show themselves).
-  const shownKind = shown && fileKindOf(shown.file.path);
-  const ShownIcon = shownKind && shownKind !== 'video' ? fileIcons[shownKind] : null;
-
   return (
     <Screen
       title={selection.selecting ? t.library.selectedCount(selection.count) : t.history.deletedOf(label)}
@@ -260,7 +256,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
         ) : undefined
       }
     >
-      <p className="mo-editor-note">{t.history.deletedNote}</p>
+      <p className="mo-type-body-medium mo-editor-note">{t.history.deletedNote}</p>
       {problem && <ProblemNote>{problem}</ProblemNote>}
       {!deleted && !problem && <EmptyNote busy>{t.history.loadingDeleted}</EmptyNote>}
       {deleted && (
@@ -290,14 +286,8 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
         <SheetTitle title={shown ? fileName(shown.file.path) : ''} onClose={() => dialog.current?.close()} />
         {shown && (
           <SheetBody>
-            {ShownIcon && (
-              <p className="mo-editor-file-name">
-                <ShownIcon size={36} className="mo-keep mo-editor-muted" />
-                <span className="mo-editor-break-all">{fileName(shown.file.path)}</span>
-              </p>
-            )}
             <FileView src={shown.src} name={fileName(shown.file.path)} />
-            <p className="mo-editor-caption">{capital(t.history.deletedAt(when(shown.file.at), shown.file.by))}</p>
+            <p className="mo-type-body-medium mo-editor-caption">{capital(t.history.deletedAt(when(shown.file.at), shown.file.by))}</p>
             <Button busy={restoring} disabled={busy} onClick={() => restore(shown.file, shown.bytes)}>
               {t.history.restore}
             </Button>

@@ -20,6 +20,16 @@
     gap: var(--mo-comp-checkbox-gap, 0.75rem);
     cursor: pointer;
   }
+  /* Without its text (a box in a bar that names it) the box is still a target of 48 x 48 (Material 3, Checkbox: "Minimum target size 48dp"). */
+  .mo-checkbox.mo-is-label-hidden {
+    align-items: center;
+    justify-content: center;
+    min-width: 3rem;
+    min-height: 3rem;
+  }
+  .mo-checkbox.mo-is-label-hidden .mo-checkbox__box {
+    margin: 0;
+  }
   .mo-checkbox:has(.mo-checkbox__input:disabled) {
     cursor: default;
   }

@@ -82,7 +82,7 @@ function SwitchedRow({
       headline={add.label}
       supporting={add.hint}
       actions={
-        <span>
+        <span className="mo-editor-app-add-actions">
           <Switch
             label={add.label}
             selected={on}

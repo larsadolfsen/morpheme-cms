@@ -110,13 +110,13 @@ async function checkFilesDialog() {
 }
 
 /** Selecting files in Filer (Media.tsx): a long press on a tile (phone) or the mark on hover (computer) selects it; the tiles show
- * the Selection page's photo-grid mark (an empty circle, a filled one with a check), every tile once one is selected; a tap while
+ * the theme's Checkbox, every tile once one is selected; a tap while
  * selecting toggles instead of opening; the count control above the grid says "N" and clears; Delete keeps a file a page uses. */
 async function checkFilesSelection() {
   const marks = (page) =>
     page.evaluate(
       () =>
-        [...document.querySelectorAll('main [data-tile-mark]')].filter((m) => {
+        [...document.querySelectorAll('main .mo-editor-media-tile-mark')].filter((m) => {
           const r = m.getBoundingClientRect();
           return getComputedStyle(m).opacity === '1' && r.width > 0;
         }).length,
@@ -190,7 +190,7 @@ async function checkFilesSelection() {
       await page.mouse.move(x0, y0);
       await page.waitForTimeout(400);
       if ((await marks(page)) !== 1) problems.push(`${label}: pointing at a tile does not show exactly one mark (${await marks(page)})`);
-      const mark = page.locator('main [data-tile-mark]').first();
+      const mark = page.locator('main .mo-editor-media-tile-mark').first();
       const b = await mark.boundingBox();
       if (!b || b.width < 48 || b.height < 48)
         problems.push(`${label}: the mark's target is smaller than 48 x 48 (${b?.width}x${b?.height})`);

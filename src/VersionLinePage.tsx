@@ -21,7 +21,7 @@ const earlier = () => lines().filter(({ line }) => line !== runningLine);
 const lineHref = (line: string) => (line === runningLine ? `#${CMS_ROUTE}` : `#${CMS_ROUTE}/${line}`);
 
 /** At the bottom of a line's notes: back to the newer line (←) and forward to the older one (→), as "Earlier versions"
- * lists them: small buttons with the line's number ("← 0.14", "→ 0.12"; "Morpheme 0.14" for screen readers), so both
+ * lists them: links with the line's number ("← 0.14", "→ 0.12"; "Morpheme 0.14" for screen readers), so both
  * fit on a phone, each icon before its label, as Material 3 places it. */
 export function LineNav({ line }: { line: string }) {
   const all = lines();

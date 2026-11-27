@@ -47,6 +47,8 @@ export const media: Messages['media'] = {
     },
   },
   inUse: 'I brug',
+  selection: 'Markering',
+  filters: 'Filtre',
   removeFilter: (label) => `Fjern filteret ${label}`,
   noImages: 'Ingen billeder',
   noFiles: 'Ingen filer',
