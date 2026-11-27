@@ -72,6 +72,7 @@ import {
   ListItem,
   LeadingImage,
   useAtLeast,
+  ChipSet,
 } from './ui';
 import { openAtSeo } from './EntryForm';
 import { isRated } from './SeoScores';
@@ -402,13 +403,16 @@ export function IconPacks({ env, files }: { env: Env; files: RepoFile[] }) {
               key={x.id}
               selected={x.id === chosen}
               trailing={x.samples.length ? <IconSwatches icons={x.samples} label={t.library.iconPackSamples(x.name)} /> : undefined}
+              lines={from || status ? 3 : undefined}
               onClick={() => choose(x.id, x.name)}
               headline={x.name}
               supporting={
                 <>
                   {t.library.iconPackByline(x.author, x.license)}
-                  {from && <span className="mo-editor-library-line">{t.library.iconPackFrom(from)}</span>}
-                  {status && <span className="mo-editor-library-line">{status}</span>}
+                  {from && <br />}
+                  {from && t.library.iconPackFrom(from)}
+                  {status && <br />}
+                  {status}
                 </>
               }
             />
@@ -495,11 +499,13 @@ export function MotionSchemes({ env, files }: { env: Env; files: RepoFile[] }) {
             key={scheme}
             selected={scheme === chosen}
             onClick={() => choose(scheme)}
+            lines={scheme === ofTheme ? 3 : undefined}
             headline={t.library.motionSchemes[scheme]}
             supporting={
               <>
                 {t.library.motionHints[scheme]}
-                {scheme === ofTheme && <span className="mo-editor-library-line">{t.library.motionOfTheme}</span>}
+                {scheme === ofTheme && <br />}
+                {scheme === ofTheme && t.library.motionOfTheme}
               </>
             }
           />
@@ -760,13 +766,13 @@ export function Blocks({ files }: { files: RepoFile[] }) {
         className="mo-editor-library-toolbar"
       />
       {chips.length > 0 && (
-        <div className="mo-editor-library-filters">
+        <ChipSet label={t.library.filter}>
           {chips.map((c) => (
             <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
               {c.label}
             </InputChip>
           ))}
-        </div>
+        </ChipSet>
       )}
       {!inGroups.length ? (
         <p className="mo-editor-library-empty">{t.common.noMatch}</p>
@@ -1712,13 +1718,13 @@ export function List({
         />
       )}
       {!appTab && chips.length > 0 && (
-        <div className="mo-editor-library-filters">
+        <ChipSet label={t.library.filter}>
           {chips.map((c) => (
             <InputChip key={c.key} removeLabel={t.library.removeFilter(c.label)} onRemove={c.clear}>
               {c.label}
             </InputChip>
           ))}
-        </div>
+        </ChipSet>
       )}
       {!appTab && tree && (
         <>
@@ -1781,7 +1787,15 @@ function pictureOf(item: Item): Record<string, unknown> {
 function versionLine(item: Item, address?: boolean) {
   if (!item.versions) return under(item, { address, text: '' });
   const { text, title } = item.versions;
-  return under(item, { address, text: <span title={title}>{text}</span>, plain: true });
+  return under(item, {
+    address,
+    text: (
+      <span className="mo-editor-library-under-status" title={title}>
+        {text}
+      </span>
+    ),
+    plain: true,
+  });
 }
 
 /** Hidden is an icon at the right of the row, not a button. */
@@ -1797,18 +1811,22 @@ const hiddenIcon = (item: Item) =>
  * one with an empty line (owner, 25 Nov 2026: "List items only with one line should not be styled like it has two"). A row
  * gets its second line when it has something to say in it, and not before. */
 function under(item: Item, { address, text, plain }: { address?: boolean; text?: ReactNode; plain?: boolean }) {
-  const status = item.status && !plain ? <span className="mo-editor-library-status">{item.status}</span> : null;
+  const status = item.status && !plain ? item.status : null;
   const line = text === false || text === '' || text == null ? null : text;
   if (!address && !status && !line) return undefined;
-  return (
-    <span className="mo-editor-library-under">
-      {address && <span className="mo-editor-library-under-address">{item.path}</span>}
-      <span className="mo-editor-library-under-status">
-        {status}
-        {line}
-      </span>
-    </span>
-  );
+  // One line of the List part's supporting text: the address, the status and the time, with a middle dot between them.
+  // The status keeps its own name, so a check (and a test) can read it apart from the address.
+  const parts: ReactNode[] = [
+    address && item.path,
+    status && <span className="mo-editor-library-under-status">{status}</span>,
+    line,
+  ].filter((part): part is ReactNode => !!part);
+  return parts.map((part, i) => (
+    <Fragment key={i}>
+      {i > 0 && ' · '}
+      {part}
+    </Fragment>
+  ));
 }
 
 // The time a page was last saved, under its name (none until it has come: the row has one line until then).

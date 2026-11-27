@@ -49,7 +49,7 @@
     overflow: hidden;
   }
   .mo-editor-preview-message {
-    padding: var(--mo-ref-space-250);
+    padding: var(--mo-ref-space-300);
     color: var(--mo-sys-color-on-surface-variant);
   }
   /* The page itself, on a surface role (dark in dark mode). */
@@ -456,9 +456,6 @@
     }
   }
 
-  .mo-editor-library-line {
-    display: block;
-  }
   .mo-editor-list-head {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
@@ -469,14 +466,7 @@
     padding-inline: var(--mo-ref-space-200);
   }
   .mo-editor-library-toolbar {
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
-  }
-  .mo-editor-library-filters {
-    margin-block-start: calc(var(--mo-ref-space-100) * -1);
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--mo-ref-space-100);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-library-empty {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
@@ -486,59 +476,36 @@
   .mo-editor-library-apps {
     :where(& > :not(:last-child)) {
       margin-block-start: 0;
-      margin-block-end: var(--mo-ref-space-250);
+      margin-block-end: var(--mo-ref-space-300);
     }
     padding-inline: var(--mo-ref-space-200);
   }
   .mo-editor-library-apps > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-250);
   }
+  /* What a row ends with (icon buttons, a drop-down, a switch) stands 16 px from the row's end edge, as the list item's own trailing space (Material 3, Lists: Specs). */
   .mo-editor-library-row-actions {
     display: flex;
     flex-shrink: 0;
-    padding-inline-end: var(--mo-ref-space-100);
-  }
-  .mo-editor-library-under {
-    display: flex;
-    gap: var(--mo-ref-space-300);
-  }
-  .mo-editor-library-under-address {
-    display: none;
-    min-inline-size: 0;
-    flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    @media (width >= 52.5rem) {
-      display: block;
-    }
-  }
-  .mo-editor-library-under-status {
-    min-inline-size: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    @media (width >= 52.5rem) {
-      margin-inline-start: auto;
-      flex-shrink: 0;
-      text-align: right;
-    }
-  }
-  .mo-editor-library-status {
-    margin-inline-end: var(--mo-ref-space-100);
-    font-weight: 500;
-    color: var(--mo-sys-color-primary);
+    gap: var(--mo-ref-space-100);
+    padding-inline-end: var(--mo-ref-space-200);
   }
   .mo-editor-library-row-trail {
     display: flex;
     flex-shrink: 0;
     align-items: center;
+    padding-inline-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-app-add-actions {
+    display: flex;
+    padding-inline-end: var(--mo-ref-space-200);
   }
   /* The slot of the drop-down, empty on a row without subpages, so the eyes line up. */
   .mo-editor-library-row-unfold {
+    display: flex;
     flex-shrink: 0;
+    justify-content: flex-end;
     inline-size: 3rem;
-    padding-inline-end: var(--mo-ref-space-75);
   }
   .mo-editor-library-row-eye {
     align-items: center;
@@ -557,8 +524,6 @@
     text-align: center;
   }
   .mo-editor-media-file-name {
-    font-size: 0.75rem;
-    line-height: 1rem;
     word-break: break-all;
     color: var(--mo-sys-color-on-surface-variant);
   }
@@ -568,18 +533,15 @@
     user-select: none;
     -webkit-touch-callout: none;
   }
-  /* The round mark at a tile's top-left corner: always while selecting, else on hover and focus. */
+  /* The theme's Checkbox at a tile's top-left corner: always while selecting, else on hover and focus. */
   .mo-editor-media-tile-mark {
     position: absolute;
     inset-block-start: 0;
-    left: 0;
-    display: flex;
-    inline-size: var(--mo-ref-space-600);
-    block-size: var(--mo-ref-space-600);
-    align-items: center;
-    justify-content: center;
-    transition-property: opacity;
-    transition-duration: var(--mo-sys-motion-spring-default-effects-duration);
+    inset-inline-start: 0;
+    display: grid;
+    place-items: center;
+    inline-size: 3rem;
+    block-size: 3rem;
   }
   .mo-editor-media-tile-mark-on {
     opacity: 1;
@@ -597,78 +559,24 @@
       opacity: 1;
     }
   }
-  .mo-editor-media-tile-check {
-    display: flex;
-    inline-size: var(--mo-ref-space-300);
-    block-size: var(--mo-ref-space-300);
-    align-items: center;
-    justify-content: center;
-    border-radius: calc(infinity * 1px);
-    box-shadow: 0 0 0 2px var(--mo-sys-color-surface);
-  }
-  .mo-editor-media-tile-check-on {
-    background-color: var(--mo-sys-color-primary);
-    color: var(--mo-sys-color-on-primary);
-  }
-  .mo-editor-media-tile-check-off {
-    border: 2px solid var(--mo-sys-color-outline);
-    background-color: var(--mo-sys-color-surface);
-  }
-  .mo-editor-media-count {
-    margin-block-start: var(--mo-comp-editor-rhythm-150);
-    display: flex;
-  }
-  .mo-editor-media-chips {
-    margin-block-start: var(--mo-comp-editor-rhythm-150);
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--mo-ref-space-100);
-  }
   .mo-editor-media-group {
-    margin-block-start: var(--mo-comp-editor-rhythm-200);
+    margin-block-start: var(--mo-ref-space-200);
   }
-  .mo-editor-media-group-title {
-    margin-block-end: var(--mo-ref-space-100);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 500;
-    color: var(--mo-sys-color-on-surface-variant);
-  }
+  /* A docked toolbar (Material 3: the whole width, at the bottom) in the sheet's body: out over the body's side padding, and down to the sheet's bottom edge. */
   .mo-editor-media-pick-bar {
     position: sticky;
-    inset-block-end: 0;
-    display: flex;
+    inset-block-end: calc(-1 * var(--mo-ref-space-200));
+    margin-inline: calc(-1 * var(--mo-sys-grid-margin));
+    margin-block-end: calc(-1 * var(--mo-ref-space-200));
     justify-content: flex-end;
-    background-color: var(--mo-sys-color-surface-container-low);
-    padding-block: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-media-providers {
     display: flex;
     flex-wrap: wrap;
     gap: var(--mo-ref-space-100);
   }
-  .mo-editor-media-label {
-    display: block;
-    font-weight: 500;
-  }
-  .mo-editor-media-name-row {
-    --mo-comp-row-gap: var(--mo-ref-space-50);
-    min-block-size: 2.75rem;
-  }
-  .mo-editor-media-name-ending {
-    margin-inline-end: var(--mo-ref-space-50);
-    color: var(--mo-sys-color-on-surface-variant);
-  }
-  .mo-editor-media-name-text {
-    overflow-wrap: break-word;
-    color: var(--mo-sys-color-on-surface-variant);
-  }
   .mo-editor-media-saved-as {
     margin-block-start: var(--mo-ref-space-50);
-  }
-  .mo-editor-media-used-title {
-    margin-block-end: var(--mo-ref-space-50);
-    font-weight: 500;
   }
   .mo-editor-media-files {
     @media (width >= 37.5rem) {
@@ -684,14 +592,12 @@
   .mo-editor-media-details > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
+  /* A docked toolbar at the bottom of the screen: the whole width, out over the screen's side margin. */
   .mo-editor-media-file-tools {
     position: sticky;
     inset-block-end: 0;
-    margin-inline: calc(var(--mo-ref-space-200) * -1);
+    margin-inline: calc(-1 * var(--mo-sys-grid-margin));
     margin-block-start: var(--mo-ref-space-300);
-    @media (width >= 37.5rem) {
-      margin-inline: calc(var(--mo-ref-space-300) * -1);
-    }
   }
   .mo-editor-media-muted {
     color: var(--mo-sys-color-on-surface-variant);

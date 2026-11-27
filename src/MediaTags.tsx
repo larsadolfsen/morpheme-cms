@@ -65,7 +65,6 @@ export default function MediaTags({ src, files, env }: { src: string; files: Rep
 
   return (
     <div>
-      <p className="mo-editor-subtitle-tight">{t.media.tags}</p>
       <MultiChoice
         label={t.media.tags}
         options={env.relations.categories}

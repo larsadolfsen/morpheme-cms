@@ -1,0 +1,7 @@
+{
+  "id": "lists-media-m3",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Lists and files",
+  "text": "Lists and files look the same everywhere. Rows show address, status and time on one line, filters are chips, and you pick a file with its checkbox. A file's name is a text field with its ending, and the bars under the files use Material 3's toolbar."
+}

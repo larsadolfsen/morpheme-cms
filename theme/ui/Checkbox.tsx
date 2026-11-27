@@ -6,7 +6,7 @@
 // it is wrong (not ticked where it must be), marked, and with a text the line under it says what is wrong. The tick and
 // the dash are the theme's icons (`check`, `minus`), shown by a theme that draws the box itself; else the browser draws
 // the box in the accent. With `onChange` (the editor) `checked` is whether it is ticked now, else ticked from the start.
-// Other attributes (`name`, `value`, `required`, data-…) go on the <input>, and `className` on
+// `hideLabel`: only screen readers say its name (aria-label), as on the Switch (a box in a bar that names it). Other attributes (`name`, `value`, `required`, data-…) go on the <input>, and `className` on
 // the label.
 import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { Svg } from '@morphemecms/cms/src/icon';
@@ -16,6 +16,7 @@ export const checkboxClass = (error = false) => (error ? 'mo-checkbox mo-is-erro
 
 export default function Checkbox({
   label,
+  hideLabel,
   supporting,
   checked,
   indeterminate,
@@ -24,6 +25,7 @@ export default function Checkbox({
   ...rest
 }: {
   label: string;
+  hideLabel?: boolean;
   supporting?: ReactNode;
   checked?: boolean;
   indeterminate?: boolean;
@@ -36,15 +38,16 @@ export default function Checkbox({
   }, [indeterminate]);
   // The line under the name says what is wrong (or helps): the box points to it, so a reader says it with the box.
   const lineId = useId();
-  const line = typeof error === 'string' && error ? error : supporting;
+  const line = hideLabel ? null : typeof error === 'string' && error ? error : supporting;
   return (
-    <label className={[checkboxClass(Boolean(error)), className].filter(Boolean).join(' ')}>
+    <label className={[checkboxClass(Boolean(error)), hideLabel && 'mo-is-label-hidden', className].filter(Boolean).join(' ')}>
       <span className="mo-checkbox__box">
         <input
           ref={input}
           type="checkbox"
           className="mo-checkbox__input"
           {...(rest.onChange ? { checked: Boolean(checked) } : { defaultChecked: checked })}
+          aria-label={hideLabel ? label : undefined}
           aria-invalid={error ? true : undefined}
           aria-describedby={line ? lineId : undefined}
           data-indeterminate={indeterminate ? '' : undefined}
@@ -53,14 +56,16 @@ export default function Checkbox({
         <Svg name="check" size={14} className="mo-checkbox__icon" />
         {indeterminate && <Svg name="remove" size={14} className="mo-checkbox__indeterminate-icon" />}
       </span>
-      <span className="mo-checkbox__text">
-        <span className="mo-checkbox__label">{label}</span>
-        {line && (
-          <span id={lineId} className="mo-checkbox__supporting">
-            {line}
-          </span>
-        )}
-      </span>
+      {!hideLabel && (
+        <span className="mo-checkbox__text">
+          <span className="mo-checkbox__label">{label}</span>
+          {line && (
+            <span id={lineId} className="mo-checkbox__supporting">
+              {line}
+            </span>
+          )}
+        </span>
+      )}
     </label>
   );
 }

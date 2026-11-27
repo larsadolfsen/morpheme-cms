@@ -47,6 +47,8 @@ export const media = {
     },
   },
   inUse: 'In use',
+  selection: 'Selection',
+  filters: 'Filters',
   removeFilter: (label: string) => `Remove the filter ${label}`,
   noImages: 'No images',
   noFiles: 'No files',
