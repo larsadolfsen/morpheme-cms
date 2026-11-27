@@ -140,8 +140,8 @@ Short forms, for a developer to know before reading the specs. A rule changes on
 - **Names and no Tailwind** (owner, 18 Nov 2026, contract 7; `docs/class-names.md`): every class and custom property starts with `mo-` and no utility class, `@apply`, `theme()` or `@theme` is written; `npm run check:mo-names` and `npm run check:tailwind` fail on any, with no allowlist, also on a site's themes and apps (`check:content`). A name that is not ours (a library's) is listed with its reason in `NOT_RENAMED` (`scripts/mo-names.mjs`), never let by otherwise.
 - **Removing a block or a stored form keeps its migration** (CTO, 19 Nov 2026): sites skip versions (the editor's update goes straight to npm `latest`), so the migrate of each version takes any older supported content to its own form in one run; delete the block, view and theme part, keep the migrate-only code and its tests (`lib/migrate-hero.mjs` is the example).
 - **Icons are Material Symbols**, drawn by name through the shared `Icon` (`CLAUDE.md`, *Icons are Material Symbols*).
-- **A deviation from Material 3** is allowed only in the page and post editor's bar and menus, or where the owner keeps one in words on
-  or after 21 Nov 2026 (`material-3`, rules 5 and 6), and is
+- **A deviation from Material 3** is allowed only where the owner keeps one in words on or after 21 Nov 2026 (the page and post
+  editor is no longer an exception, owner, 26 Nov 2026: "Everything in the editor should follow md3") (`material-3`, rules 5 and 6), and is
   recorded in `docs/material-deviations.md` in the same pull request (`material-3`).
 
 ## 4a. Modern Web Guidance

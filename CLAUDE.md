@@ -16,7 +16,7 @@ in one place only, so never work from memory of a skill.
 | `release-notes` | a change is something a site owner sees, or a note, an edition or a version's notes are written or fixed |
 | `checks` | you choose which checks to run before a push, or a CI job fails |
 | `junior-developer` | a developer session hands a mechanical step (a rename from a map, snapshots, finding every use) to a Haiku helper |
-| `material-3` | a spec or a change touches anything outside the page and post editor's bar and menus, or deviates from Material 3 |
+| `material-3` | a spec or a change touches anything a person sees (the site, the theme, any editor screen, the page and post editor included), or deviates from Material 3 |
 | `pm` | the owner makes the session the project manager (`/pm <version>`), or the orchestrator merges while no PM runs |
 | `cto` | the owner makes the session the CTO, or asks where the product, the code, the process or the roadmap should go next |
 | `release` | the owner says `/release`, or asks to release, publish to `latest` or ship a version |
@@ -180,20 +180,18 @@ tokens follows every section colour by itself. `npm run check:editor-colors` fai
 reasons), `npm run check:color-roles` on a mix of a role or a role declared as anything but another role (its allowlist,
 `scripts/color-roles.allow.mjs`, only shrinks), and `check:screens` checks text, placeholder, slot icons and outline of every entry of `inlineBlocks` on every section colour.
 
-### Accessibility: WCAG 2.2 AA
+### Accessibility: not a rule until the base theme
 
-Owner, 19 Nov 2026: the sites the CMS builds and the editor meet **WCAG 2.2 level AA**. A change never lowers it: contrast
-(one final `check:contrast` scan when Material's M3 work is done, not per change; owner, 21 Nov 2026), keyboard use, a visible focus ring for keyboard focus (`:focus-visible`), names for screen readers, and
-target sizes. Where Material 3 and WCAG differ, **Material 3 wins** (owner, 21 Nov 2026: "we follow MD3 even if it does not comply
-with accessibility"): the part takes M3's value as printed, and the theme names the shortfall (below). A new base theme, built on
-Material 3 and meeting WCAG 2.2 AA everywhere, comes after Material follows M3 (0.27.3; `docs/superpowers/specs/2026-11-21-base-theme-notes.md`).
-The checks that enforce it: roadmap 0.19.2 to 0.19.4.
+Owner, 27 Nov 2026: "We agreed upon ignoring wcag until base theme!", then "Stop treating wcag add a rule". Until the base theme
+(roadmap 0.27.3) WCAG 2.2 is no rule for the site, the theme or the editor: a part takes Material 3's value as printed, a change may
+fall short of WCAG, and no spec, test or review asks for it. `check:a11y`, `check:keyboard`, `check:announce` and `check:contrast` are
+not required before a push or a merge (skill `checks`). The base theme, built on Material 3 and meeting WCAG 2.2 AA everywhere, brings
+the rule back (`docs/superpowers/specs/2026-11-21-base-theme-notes.md`). This replaces the owner's rule of 19 Nov 2026 (the sites and
+the editor meet WCAG 2.2 AA, and a change never lowers it) and the page and post editor's own AA rule of 21 Nov 2026.
 
-A theme may fall short of it on the site if its page says so (owner, 21 Nov 2026): the theme's `accessibility.json` names each
-shortfall by WCAG criterion, the checks let through only what it names, and the editor shows it on the theme's page
-(`docs/superpowers/specs/2026-11-21-theme-accessibility-statement-design.md`). *Material* follows Material 3 exactly and names the
-shortfalls that gives; the editor's screens (theme page, settings, lists, dialogs) use the same parts, so the same named shortfalls hold
-there. The page and post editor follows Material 3 too (owner, 26 Nov 2026: "Everything in the editor should follow md3"), and WCAG is not a goal anywhere until the base theme (owner, 27 Nov 2026: "We agreed upon ignoring wcag until base theme!"): a part takes M3's value even where it falls short.
+Two things are not affected: 0.22 Page accessibility, which rates a writer's content as advice (owner, 27 Nov 2026: "1 keep it"), and
+what is built already, a theme's `accessibility.json` and its statement on the theme page
+(`docs/superpowers/specs/2026-11-21-theme-accessibility-statement-design.md`), which keep working; no theme is asked to fill it in.
 
 ### Icons are Material Symbols
 
@@ -239,9 +237,9 @@ All wording in UI components, buttons and fields follows Material 3's *Global wr
   setting `Hide from search engines`.
 - Action buttons: active verbs without filler words (`Add tag`, `Edit page`, `Save`).
 
-### Material 3 everywhere except the page and post editor
+### Material 3 everywhere
 
-Owner, 13 Nov 2026: "We follow MD3 everywhere except the editor." Owner, 21 Nov 2026: that means only the page and post editor (its bar, overflow menu, text and block menus); the editor's other screens (theme page, settings, lists, dialogs) follow Material 3 like the site. Outside the page and post editor every design choice follows what m3.material.io prints, read from the real pages,
-never from memory. Load the skill `material-3` before a spec or a change that touches such a part. An older decision, spec or rule
+Owner, 26 Nov 2026: "Everything in the editor should follow md3". This ends the exception of 13 and 21 Nov 2026 ("We follow MD3 everywhere except the editor", then only the page and post editor's bar, overflow menu, text and block menus): the page and post editor follows Material 3 like the editor's other screens and the site, and its remaining deviations end in batch 9 of 0.19.8's task 13 (`plans/2026-11-25-0-19-8.md`). Every design choice follows what m3.material.io prints, read from the real pages,
+never from memory. Load the skill `material-3` before a spec or a change that touches a part a person sees. An older decision, spec or rule
 that differs from what M3 prints does not carry over (owner, 21 Nov 2026): M3 wins, and the session reports the old source
 (`material-3`, rule 6).
