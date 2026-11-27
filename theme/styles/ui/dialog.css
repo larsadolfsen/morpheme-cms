@@ -89,6 +89,11 @@
   }
   .mo-dialog__supporting-text {
     flex-shrink: 0;
+    /* M3 Dialogs > Specs, Enabled / Supporting text: size 14, line height 20, weight 400, tracking 0.25 (body medium), colour #49454F (on-surface-variant). */
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
     color: var(--mo-comp-dialog-supporting-text-color, var(--mo-comp-block-muted));
   }
   .mo-dialog__supporting-text > * + * {

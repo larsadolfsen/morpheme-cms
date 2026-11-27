@@ -27,7 +27,8 @@
   --mo-comp-list-list-item-hovered-container-expressive-shape: var(--mo-sys-shape-corner-medium);
   --mo-comp-list-list-item-pressed-container-expressive-shape: var(--mo-sys-shape-corner-large);
   --mo-comp-list-list-item-selected-container-expressive-shape: var(--mo-sys-shape-corner-large);
-  --mo-comp-list-item-icon-size: 1.5rem;
+  /* M3 Lists > Specs, Size and typography: "List list item leading icon expressive size 20dp" and "List list item trailing icon expressive size 20dp" (the baseline prints 24dp; the theme follows the Expressive list). */
+  --mo-comp-list-item-icon-size: 1.25rem;
   /* M3 Lists > Specs: a divider's inset is 16 dp on the left (--mo-comp-divider-inset) and 24 dp on the right. */
   --mo-comp-list-item-inset-end: 1.5rem;
   --mo-comp-list-item-hover-surface: var(--mo-sys-state-hover-state-layer-color);

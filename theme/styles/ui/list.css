@@ -214,8 +214,8 @@
     transition: color var(--mo-sys-motion-spring-default-effects);
   }
   :is(.mo-list__item-leading-icon, .mo-list__item-trailing) > svg {
-    width: var(--mo-comp-list-item-icon-size, 1.5rem);
-    height: var(--mo-comp-list-item-icon-size, 1.5rem);
+    width: var(--mo-comp-list-item-icon-size, 1.25rem);
+    height: var(--mo-comp-list-item-icon-size, 1.25rem);
   }
   .mo-list__item-image {
     width: var(--mo-comp-list-item-image-size, 3.5rem);

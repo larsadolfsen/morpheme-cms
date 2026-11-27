@@ -448,15 +448,9 @@ function CardParts() {
         <Preview>
           <div className="mo-editor-parts-cards">
             {cardKinds.map((k) => (
-              <SiteCard key={k} kind={k}>
-                <p className="mo-editor-parts-card-title">{say.kinds[k]}</p>
-                <p className="mo-editor-parts-card-text">{say.text}</p>
-              </SiteCard>
+              <SiteCard key={k} kind={k} headline={say.kinds[k]} supporting={say.text} />
             ))}
-            <SiteCard href="">
-              <p className="mo-editor-parts-card-title">{say.link}</p>
-              <p className="mo-editor-parts-card-text">{say.text}</p>
-            </SiteCard>
+            <SiteCard href="" headline={say.link} supporting={say.text} />
             {cardKinds.map((k) => (
               <Example key={`${k}-parts`} label={say.kinds[k]} flat>
                 <SiteCard
@@ -483,10 +477,7 @@ function CardParts() {
             <SiteCard href="" kind="filled" headline={say.anatomy.headline} subhead={say.link} supporting={say.anatomy.supporting} />
             <SiteCard kind="outlined" selected headline={say.anatomy.headline} supporting={say.anatomy.supporting} />
             {cardKinds.map((k) => (
-              <SiteCard key={k} kind={k} dragged>
-                <p className="mo-editor-parts-card-title">{`${say.kinds[k]} · ${screens.dragged}`}</p>
-                <p className="mo-editor-parts-card-text">{say.text}</p>
-              </SiteCard>
+              <SiteCard key={k} kind={k} dragged headline={`${say.kinds[k]} · ${screens.dragged}`} supporting={say.text} />
             ))}
           </div>
         </Preview>

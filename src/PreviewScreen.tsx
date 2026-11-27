@@ -8,6 +8,7 @@ import type { Breakpoint } from '../lib/breakpoints.mjs';
 import { HEIGHT, MAX_WIDTH, MIN_WIDTH, SIZES, siteBreakpoints, sizeAt, widthOf } from './previewBreakpoints';
 import { BREAKPOINTS } from '../lib/breakpoints.mjs';
 import { ConnectedButtons } from './ui';
+import { SiteToolbar } from './themeUi';
 import { t } from './i18n';
 import { announce } from '../lib/announce';
 
@@ -88,7 +89,7 @@ export function PreviewScreen({ html, message, title }: { html: string | null; m
 
   return (
     <>
-      <div className="mo-editor-preview-bar">
+      <SiteToolbar label={t.preview.size} kind="docked" className="mo-editor-preview-bar">
         <div className="mo-editor-preview-sizes">
           <div className="mo-editor-preview-sizes-inner">
             <ConnectedButtons
@@ -103,10 +104,10 @@ export function PreviewScreen({ html, message, title }: { html: string | null; m
             />
           </div>
         </div>
-        <p className="mo-editor-preview-width" data-preview-width>
+        <p className="mo-type-body-medium mo-editor-preview-width" data-preview-width>
           <span className="mo-type-title-medium mo-editor-preview-width-value">{width}</span> · {t.preview.sizes[size]}
         </p>
-      </div>
+      </SiteToolbar>
       {/* The frame is drawn over the place (absolute), so its height never makes the page taller than the window. */}
       <div className="mo-editor-preview-place">
         <div ref={stage} className="mo-editor-preview-stage">

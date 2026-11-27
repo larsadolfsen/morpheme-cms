@@ -141,14 +141,14 @@ export default function SelectionParts() {
           <div className="mo-editor-selection-dividers">
             {dividerKinds.map((k) => (
               <div key={k} className="mo-editor-selection-kind">
-                <p className="mo-editor-selection-kind-label">{say.kinds[k]}</p>
+                <p className="mo-type-body-medium mo-editor-parts-label">{say.kinds[k]}</p>
                 <SiteDivider kind={k} />
               </div>
             ))}
             <div className="mo-editor-selection-vertical-dividers">
-              <span className="mo-editor-selection-small-label">{say.kinds.vertical}</span>
+              <span className="mo-type-body-medium mo-editor-parts-label">{say.kinds.vertical}</span>
               <SiteDivider vertical />
-              <span className="mo-editor-selection-small-label">{say.kinds['middle-inset']}</span>
+              <span className="mo-type-body-medium mo-editor-parts-label">{say.kinds['middle-inset']}</span>
               <SiteDivider vertical kind="middle-inset" />
             </div>
           </div>
@@ -158,21 +158,21 @@ export default function SelectionParts() {
         <Preview>
           <div className="mo-editor-selection-sheets">
             <div className="mo-editor-selection-kind" {...named(say.sheetKinds.standard)}>
-              <p className="mo-editor-selection-sheet-label">{say.sheetKinds.standard}</p>
+              <p className="mo-type-body-medium mo-editor-parts-label">{say.sheetKinds.standard}</p>
               <div className="mo-editor-selection-sheet-stage">
                 <p className="mo-editor-selection-sheet-page">{say.page}</p>
                 {sheet('standard')}
               </div>
             </div>
             <div className="mo-editor-selection-kind" {...named(say.sheetKinds.withBack)}>
-              <p className="mo-editor-selection-sheet-label">{say.sheetKinds.withBack}</p>
+              <p className="mo-type-body-medium mo-editor-parts-label">{say.sheetKinds.withBack}</p>
               <div className="mo-editor-selection-sheet-stage">
                 <p className="mo-editor-selection-sheet-page">{say.page}</p>
                 {sheet('standard', true)}
               </div>
             </div>
             <div className="mo-editor-selection-kind" {...named(say.sheetKinds.modal)}>
-              <p className="mo-editor-selection-sheet-label">{say.sheetKinds.modal}</p>
+              <p className="mo-type-body-medium mo-editor-parts-label">{say.sheetKinds.modal}</p>
               <div className="mo-editor-selection-modal-stage">{sheet('modal')}</div>
             </div>
           </div>

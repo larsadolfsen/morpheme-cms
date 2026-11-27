@@ -1,7 +1,7 @@
 // One source of images an installed app adds to the picker (a media provider): a search, the images found and, when the source
 // needs a key, a field for it. Everything goes through the Worker (src/mediaProviders.ts). Exposes MediaProviderPicker.
 import { useEffect, useState, type ReactElement } from 'react';
-import { Button, EmptyNote, Notice, SearchBar, TextField } from './ui';
+import { Button, EmptyNote, Notice, SearchBar, SupportingText, TextField } from './ui';
 import { t } from './i18n';
 import {
   ProviderError,
@@ -106,7 +106,7 @@ export default function MediaProviderPicker({
         }}
       >
         <p className="mo-editor-settings-strong">{text.keyTitle(provider.label)}</p>
-        <p className="mo-editor-settings-muted">{text.keyText(provider.label)}</p>
+        <SupportingText medium>{text.keyText(provider.label)}</SupportingText>
         <TextField
           label={text.keyLabel}
           type="password"
