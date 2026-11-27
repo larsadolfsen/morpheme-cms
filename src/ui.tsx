@@ -1191,7 +1191,7 @@ export function SlotButton({
 }) {
   return (
     <SiteIconButton
-      icon={children}
+      icon={children as ReactElement}
       label={label}
       selected={pressed}
       aria-expanded={expanded}
