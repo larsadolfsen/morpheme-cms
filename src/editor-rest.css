@@ -73,7 +73,7 @@
   }
   /* The intro of a screen: a muted line above the list. */
   .mo-editor-note {
-    margin-block-end: var(--mo-comp-editor-rhythm-200);
+    margin-block-end: var(--mo-ref-space-200);
     color: var(--mo-sys-color-on-surface-variant);
   }
   /* The small title of a part (Fields, Tags, Preview): medium weight, the space before what it names. */

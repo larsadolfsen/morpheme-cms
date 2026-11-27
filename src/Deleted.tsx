@@ -260,7 +260,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
         ) : undefined
       }
     >
-      <p className="mo-editor-note">{t.history.deletedNote}</p>
+      <p className="mo-type-body-medium mo-editor-note">{t.history.deletedNote}</p>
       {problem && <ProblemNote>{problem}</ProblemNote>}
       {!deleted && !problem && <EmptyNote busy>{t.history.loadingDeleted}</EmptyNote>}
       {deleted && (

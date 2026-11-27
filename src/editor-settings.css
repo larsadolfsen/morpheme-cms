@@ -624,7 +624,7 @@
   }
 
   .mo-editor-intro {
-    margin-block-end: var(--mo-comp-editor-rhythm-200);
+    margin-block-end: var(--mo-ref-space-200);
     color: var(--mo-sys-color-on-surface-variant);
   }
 

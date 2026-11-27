@@ -420,7 +420,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
             : undefined
       }
     >
-      <p className="mo-editor-intro">{tab === 'redirects' ? t.redirects.intro : t.redirects.missing.intro}</p>
+      <p className="mo-type-body-medium mo-editor-intro">{tab === 'redirects' ? t.redirects.intro : t.redirects.missing.intro}</p>
       <SearchRow
         value={query}
         onChange={setQuery}
