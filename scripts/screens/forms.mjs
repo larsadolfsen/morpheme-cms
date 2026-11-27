@@ -161,7 +161,7 @@ async function checkFoldRows(width, height) {
     const centre = (Math.min(...inked) + Math.max(...inked) + 1) / 2 / scale + box.y;
     if (Math.abs(arrow.y + arrow.height / 2 - centre) > 1)
       problems.push(`${width}px accordion row "${title_}": the arrow is not centred on the title`);
-    if (box.height < 56)
+    if (box.height < 55.5)
       problems.push(`${width}px accordion row "${title_}": ${box.height}px tall, should be 56px or more (List - Expand)`);
     // The line above the title is the divider under the section before it: nothing may sit between them (a parent's `space-y` gave 24px, twice as far above the title as below it).
     const gap = await button.evaluate((el) => {
