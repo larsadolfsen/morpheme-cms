@@ -41,6 +41,9 @@ item kind beside themes, apps and icon packs, free or paid (the marketplace, 3.0
 site; the open-licence rule above is for fonts the owner imports. Like an icon pack it is files only, with no code and no install
 scripts. *Typography* picks from the fonts the site has, imported or installed.
 
+Google Fonts come first, before 2.0, as roadmap line 1.6 (owner, 27 Nov 2026: "We will start by offering Google fonts. Add Google
+fonts before 2.0. this make it easy for vibe coders to change font."), downloaded into the site and served from it.
+
 ## Customization is not a deviation
 
 Owner, 21 November 2026: "This is not a deviation in the theme. This is customization. Those things needs to be distinguished and md will
