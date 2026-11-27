@@ -30,6 +30,7 @@ import {
   Choice,
   Filters,
   IconButton,
+  Checkbox,
   TextField,
   listClass,
   SupportingText,
@@ -173,7 +174,7 @@ function Thumb({ src, thumbs }: { src: string; thumbs: Record<string, Small> | n
       alt=""
       decoding="async"
       draggable={false}
-      className="mo-editor-fade-in mo-cover"
+      className="mo-cover"
       onLoad={(e) => e.currentTarget.setAttribute('data-loaded', '')}
       onError={() => thumb && setFailed(true)}
     />
@@ -247,15 +248,15 @@ function Tile({
         </SiteImageTile>
       )}
       {row && (
-        <span
-          aria-hidden="true"
-          data-tile-mark={selected ? 'on' : 'off'}
-          className={`mo-editor-media-tile-mark ${selecting ? 'mo-editor-media-tile-mark-on' : 'mo-editor-media-tile-mark-hover'}`}
-          onClick={() => row.onSelectedChange?.()}
-        >
-          <span className={`mo-editor-media-tile-check ${selected ? 'mo-editor-media-tile-check-on' : 'mo-editor-media-tile-check-off'}`}>
-            {selected && <AnyIcon name="check" size={18} />}
-          </span>
+        // The tile itself is the check box for the keyboard and a screen reader (role=checkbox above); this box is its sight: not a second stop.
+        <span className={`mo-editor-media-tile-mark ${selecting ? 'mo-editor-media-tile-mark-on' : 'mo-editor-media-tile-mark-hover'}`}>
+          <Checkbox
+            label={fileLabel('image', nameOfSrc(src))}
+            hideLabel
+            tabIndex={-1}
+            checked={selected}
+            onChange={() => row.onSelectedChange?.()}
+          />
         </span>
       )}
     </li>

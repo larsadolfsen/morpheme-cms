@@ -537,18 +537,12 @@
     user-select: none;
     -webkit-touch-callout: none;
   }
-  /* The round mark at a tile's top-left corner: always while selecting, else on hover and focus. */
+  /* The theme's Checkbox at a tile's top-left corner: always while selecting, else on hover and focus. */
   .mo-editor-media-tile-mark {
     position: absolute;
     inset-block-start: 0;
-    left: 0;
+    inset-inline-start: 0;
     display: flex;
-    inline-size: var(--mo-ref-space-600);
-    block-size: var(--mo-ref-space-600);
-    align-items: center;
-    justify-content: center;
-    transition-property: opacity;
-    transition-duration: var(--mo-sys-motion-spring-default-effects-duration);
   }
   .mo-editor-media-tile-mark-on {
     opacity: 1;
@@ -565,23 +559,6 @@
       pointer-events: auto;
       opacity: 1;
     }
-  }
-  .mo-editor-media-tile-check {
-    display: flex;
-    inline-size: var(--mo-ref-space-300);
-    block-size: var(--mo-ref-space-300);
-    align-items: center;
-    justify-content: center;
-    border-radius: calc(infinity * 1px);
-    box-shadow: 0 0 0 2px var(--mo-sys-color-surface);
-  }
-  .mo-editor-media-tile-check-on {
-    background-color: var(--mo-sys-color-primary);
-    color: var(--mo-sys-color-on-primary);
-  }
-  .mo-editor-media-tile-check-off {
-    border: 2px solid var(--mo-sys-color-outline);
-    background-color: var(--mo-sys-color-surface);
   }
   .mo-editor-media-count {
     margin-block-start: var(--mo-comp-editor-rhythm-150);

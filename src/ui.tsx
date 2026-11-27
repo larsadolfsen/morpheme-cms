@@ -1125,6 +1125,7 @@ export function Checkbox({
   checked,
   indeterminate,
   className,
+  tabIndex,
   onChange,
 }: {
   label: string;
@@ -1135,6 +1136,8 @@ export function Checkbox({
   /** Neither ticked nor not: some of the choices it stands over are ticked. */
   indeterminate?: boolean;
   className?: string;
+  /** -1 for a box that only shows what another control already does (a tile's mark). */
+  tabIndex?: -1;
   onChange: (checked: boolean) => void;
 }) {
   return (
@@ -1145,6 +1148,7 @@ export function Checkbox({
       checked={checked}
       indeterminate={indeterminate}
       className={className}
+      tabIndex={tabIndex}
       onChange={(e: ChangeEvent<HTMLInputElement>) => onChange(e.target.checked)}
     />
   );
