@@ -18,8 +18,6 @@ const withTokens = (name, origin) =>
   ].join('\n');
 const css = withTokens('./ui.css', 'ui');
 const typeCss = readFileSync(new URL('./type.css', import.meta.url), 'utf8');
-// The lead's --mo-sys-prose-space is a token, so it is in tokens/type/sys.css (docs/theme-token-files.md), under the same selector.
-const typeTokens = readFileSync(new URL('./tokens/type/sys.css', import.meta.url), 'utf8');
 const root = css; // the type scale's tokens are in tokens/ui/ref.css
 const token = (name) => root.match(new RegExp(`--${name}: ([^;]+);`))?.[1];
 const px = (value) => (value.endsWith('rem') ? parseFloat(value) * 16 : parseFloat(value));
@@ -57,11 +55,13 @@ test('the labels have M3 prominent weight 700', () => {
   for (const size of ['large', 'medium', 'small']) assert.equal(Number(token(`mo-sys-typescale-label-${size}-prominent-weight`)), 700);
 });
 
-test('type.css has one class for each of the 15 roles and the lead, each reading its own four tokens', () => {
+test('type.css has one class for each of the 15 roles, each reading its own four tokens', () => {
   const classes = [...typeCss.matchAll(/^ {2}\.(mo-type-[a-z-]+) \{\n([^}]*)\}/gm)];
   assert.deepEqual(
     classes.map((m) => m[1]),
-    [...Object.keys(M3).map((s) => `mo-type-${s}`), 'mo-type-lead'].sort((a, b) => typeCss.indexOf(`.${a} {`) - typeCss.indexOf(`.${b} {`)),
+    Object.keys(M3)
+      .map((s) => `mo-type-${s}`)
+      .sort((a, b) => typeCss.indexOf(`.${a} {`) - typeCss.indexOf(`.${b} {`)),
   );
   for (const [, name, body] of classes) {
     const role = name.slice('mo-type-'.length);
@@ -76,14 +76,9 @@ test('type.css has one class for each of the 15 roles and the lead, each reading
       `letter-spacing: var(--mo-sys-typescale-${role}-tracking);`,
     ];
     assert.deepEqual(
-      lines.filter((l) => !l.startsWith('--mo-sys-prose-space') && !l.startsWith('/*')),
+      lines.filter((l) => !l.startsWith('/*')),
       want,
       name,
-    );
-    assert.equal(
-      new RegExp(`\\.${name} \\{[^}]*--mo-sys-prose-space: 1\\.5rem;`).test(typeTokens),
-      role === 'lead',
-      `${name} --mo-sys-prose-space`,
     );
   }
 });

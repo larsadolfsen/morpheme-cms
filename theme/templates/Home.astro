@@ -89,16 +89,12 @@ sections.forEach((s, i) => {
                   </div>
                 )
               ) : (
-                <Markdown body={item.markdown} class={n === 0 ? 'mo-home__item mo-text-lead' : 'mo-home__item'} />
+                <Markdown body={item.markdown} class="mo-home__item" />
               ),
             )}
           </section>
         </Container>
       );
-    return s.type === 'text' ? (
-      <Text {...s} class={first} lead={i === 0 && !s.heading} label={label} />
-    ) : (
-      <PageBlock section={s} class={first} label={label} />
-    );
+    return s.type === 'text' ? <Text {...s} class={first} label={label} /> : <PageBlock section={s} class={first} label={label} />;
   })}
 </Base>

@@ -147,13 +147,6 @@
   .mo-text-after-heading {
     margin-block-start: 1.5rem;
   }
-  /* The text's first paragraph as the lead (the same as mo-type-lead). */
-  .mo-text-lead > p:first-child {
-    font-size: var(--mo-sys-typescale-lead-size);
-    line-height: var(--mo-sys-typescale-lead-line-height);
-    font-weight: var(--mo-sys-typescale-lead-weight);
-    letter-spacing: var(--mo-sys-typescale-lead-tracking);
-  }
   .mo-end-block {
     margin-block-start: 5rem;
   }

@@ -171,8 +171,6 @@ type Props = {
   frame?: boolean;
   /** A page's or post's `Preview` (pagePreview.tsx): a main tool of the bar, before Undo, and in its `⋮` when the contextual tools fill it. */
   onPreview?: () => void;
-  /** A post's first paragraph is drawn as the site draws its lead (editor.css, `data-lead-style`). A page has none (owner, 27 Nov 2026). */
-  lead?: 'post';
   /** The page's address on the site, for `View on site` in the bar's `⋮` (its last group); none for a page that is not on the site yet. */
   viewOnSite?: string;
 };
@@ -2603,23 +2601,7 @@ function blockCard(
 }
 
 export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
-  {
-    value,
-    onChange,
-    addImage,
-    blocks,
-    sheet: sheetProp,
-    short,
-    h1,
-    startFocused,
-    onH1,
-    looks,
-    sections,
-    frame,
-    onPreview,
-    viewOnSite,
-    lead,
-  },
+  { value, onChange, addImage, blocks, sheet: sheetProp, short, h1, startFocused, onH1, looks, sections, frame, onPreview, viewOnSite },
   ref,
 ) {
   const spaced = !!blocks;
@@ -3882,7 +3864,6 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
       </Menu>
       <div
         ref={root}
-        data-lead-style={lead}
         className={`mo-editor-text mo-prose mo-editor-text-area ${short ? 'mo-editor-text-short' : ''} ${spaced ? 'mo-editor-spaced' : ''}`}
         style={
           {

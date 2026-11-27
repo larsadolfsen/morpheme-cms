@@ -3,5 +3,5 @@
   "kind": "paragraph",
   "mark": "improvement",
   "title": "Tekstredigering",
-  "text": "Tekstbjælken og tekstfeltet i side- og indlægseditoren ser nu ud som resten af editoren. Bjælken er højere med større knapper, og en sides første afsnit bruger den tekststil, du har valgt, i editoren og på hjemmesiden."
+  "text": "Tekstbjælken og tekstfeltet i side- og indlægseditoren ser nu ud som resten af editoren, med en højere bjælke og større knapper. Et afsnit bruger den tekststil, du har valgt, også et indlægs første afsnit og forsidens første tekst, i editoren og på hjemmesiden."
 }

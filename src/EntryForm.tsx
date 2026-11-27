@@ -368,8 +368,6 @@ function Form({
   const withFields = sectionsWithFields(collection.fields, (name) => sectionOf(collection, name), fieldShown);
   const has = (id: Section) => withFields.has(id);
   const post = collection.id === 'blog';
-  // A post's first paragraph is drawn as the site draws its lead; a page's intro has no size of its own (owner, 27 Nov 2026).
-  const leadStyle = post ? 'post' : undefined;
   const sections: NavigationItem[] = [
     ...(has('settings') ? [{ id: 'settings', label: post ? t.forms.sections.postSettings : t.forms.sections.pageSettings }] : []),
     { id: 'content', label: t.forms.sections.content },
@@ -1412,7 +1410,6 @@ function Form({
                         }
                         sections={front}
                         frame
-                        lead={leadStyle}
                         onPreview={showPreview}
                         viewOnSite={isNew ? undefined : url}
                       />

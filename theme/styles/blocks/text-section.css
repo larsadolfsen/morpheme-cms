@@ -119,7 +119,6 @@
     color: var(--mo-sys-section-on-accent);
     --mo-comp-prose-body: var(--mo-sys-section-on-accent);
     --mo-comp-prose-headings: var(--mo-sys-section-on-accent);
-    --mo-comp-prose-lead: var(--mo-sys-section-on-accent);
     --mo-comp-prose-links: var(--mo-sys-section-on-accent);
     --mo-comp-prose-bold: var(--mo-sys-section-on-accent);
     --mo-comp-prose-counters: var(--mo-sys-section-on-accent);

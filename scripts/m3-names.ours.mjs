@@ -818,7 +818,6 @@ export const ours = {
       token: '--mo-sys-state-focus-indicator-color',
       reason: 'The focus indicator colour; M3 prints the width and offset, not a colour token.',
     },
-    { token: '--mo-sys-typescale-lead-*', reason: "The lead paragraph's type scale: a step M3 has not got." },
     {
       token: '--mo-sys-typescale-label-large-prominent-weight',
       reason: 'The prominent weight of the large label; M3 prints it on its Expressive type scale page.',

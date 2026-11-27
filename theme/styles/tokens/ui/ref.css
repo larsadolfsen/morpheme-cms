@@ -207,10 +207,4 @@
   --mo-sys-typescale-label-small-tracking: 0.03125rem;
   --mo-sys-typescale-label-small-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-label-small-prominent-weight: 700;
-  /* The lead (an intro paragraph: mo-type-lead, a blog post's first paragraph, a single page's first paragraph). Each is the
-     title large's; a theme sets these four to change every lead. */
-  --mo-sys-typescale-lead-size: var(--mo-sys-typescale-title-large-size);
-  --mo-sys-typescale-lead-line-height: var(--mo-sys-typescale-title-large-line-height);
-  --mo-sys-typescale-lead-weight: var(--mo-sys-typescale-title-large-weight);
-  --mo-sys-typescale-lead-tracking: var(--mo-sys-typescale-title-large-tracking);
 }

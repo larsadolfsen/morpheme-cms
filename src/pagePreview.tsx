@@ -19,7 +19,7 @@
 // the sizes the build makes), its words are not yet links to other pages (packages/editor/site/autolinks.mjs), and
 // a video written in it as HTML is the video.
 //
-// A post's text starts with its lead, a paragraph drawn larger and before the image (data-editor="lead",
+// A post's text starts with its lead, a paragraph drawn as any other, placed before the image (data-editor="lead",
 // theme/layouts/PostLayout.astro; lib/lead.mjs). The preview splits the text the same way, for a post only (postLead.mjs).
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';

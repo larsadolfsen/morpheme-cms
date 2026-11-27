@@ -1,7 +1,6 @@
-/* The type scale as classes: one for each of Material 3's 15 type roles, and the lead (an intro paragraph). A role is a class for a
+/* The type scale as classes: one for each of Material 3's 15 type roles. A role is a class for a
    theme's own components and layouts: mo-type-title-large, mo-type-headline-small … Each reads the role's four tokens (--type-*, tokens/ui/ref.css).
    They sit in @layer utilities, where Tailwind's @utility rules were, in the alphabetical order Tailwind wrote them in, so the cascade does not change. */
-@import './tokens/type/sys.css';
 @layer utilities {
   .mo-type-body-large {
     font-size: var(--mo-sys-typescale-body-large-size);
@@ -74,12 +73,6 @@
     line-height: var(--mo-sys-typescale-label-small-line-height);
     font-weight: var(--mo-sys-typescale-label-small-weight);
     letter-spacing: var(--mo-sys-typescale-label-small-tracking);
-  }
-  .mo-type-lead {
-    font-size: var(--mo-sys-typescale-lead-size);
-    line-height: var(--mo-sys-typescale-lead-line-height);
-    font-weight: var(--mo-sys-typescale-lead-weight);
-    letter-spacing: var(--mo-sys-typescale-lead-tracking);
   }
   .mo-type-title-large {
     font-size: var(--mo-sys-typescale-title-large-size);
