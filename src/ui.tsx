@@ -45,6 +45,7 @@ import {
   siteCardClass,
   siteListClass,
   siteListClasses,
+  SiteList,
   SiteListItem,
   SiteListItemLeadingIcon,
   SiteMenu,
@@ -1967,6 +1968,14 @@ export function ListItem({
     iconSelected = made.selected;
     item.leading = undefined;
   }
+  // A LeadingImage or a LeadingToken is the part's own leading image (56 dp) or media slot.
+  if (isValidElement(item.leading) && item.leading.type === LeadingImage) {
+    item.leadingImage = { src: safeImageSrc((item.leading.props as { src: string }).src), alt: (item.leading.props as { alt?: string }).alt };
+    item.leading = undefined;
+  } else if (isValidElement(item.leading) && item.leading.type === LeadingToken) {
+    item.leadingMedia = item.leading;
+    item.leading = undefined;
+  }
   const Lead = icon && !isValidElement(icon) ? (icon as Icon) : null;
   // Nothing (false, '', null) is no part: `count={n > 0 && n}`.
   const some = (v: ReactNode) => (v === false || v === '' || v == null ? undefined : v);
@@ -2827,22 +2836,15 @@ export function GroupTitle({ children }: { children: ReactNode }) {
 export const startRipples = siteRipples;
 
 /** Something on its way that takes a moment (Saving, Loading the versions): the theme's loading indicator (Material 3's),
- * as big as the text, before what it is. */
+ * at the size the part has, before what it is. */
 export function LoadingIndicator({ children }: { children: ReactNode }) {
   return (
     <span className="mo-editor-loading">
-      <SiteLoadingIndicator label="" aria-hidden style={inText} />
+      <SiteLoadingIndicator label="" aria-hidden />
       {children}
     </span>
   );
 }
-
-// The theme's loading indicator as big as the text it is before, in its colour (on a filled button too).
-const inText = {
-  '--mo-comp-loading-indicator-active-indicator-size': '1.25em',
-  '--mo-comp-loading-indicator-shape-size': '1.125em',
-  '--mo-comp-loading-indicator-active-indicator-color': 'currentColor',
-} as CSSProperties;
 
 // The plain text of a node, for what a screen reader is told (a loading line is text).
 const nodeText = (node: ReactNode): string =>
@@ -2919,33 +2921,36 @@ export function FoldSection({
   if (fixed) open = true;
   return (
     <section ref={ref} aria-labelledby={`${id}-title`} data-fold-section="" className="mo-editor-fold-section">
-      <h2>
-        {fixed ? (
-          <span id={`${id}-title`} className="mo-type-title-large mo-editor-fold-title">
-            <span className="mo-fill mo-editor-fold-title-text">{title}</span>
-          </span>
-        ) : (
-          <button
-            type="button"
-            id={`${id}-title`}
-            aria-expanded={open}
-            aria-controls={`${id}-body`}
-            className="mo-type-title-large mo-editor-fold-toggle"
-            onClick={onToggle}
+      {fixed ? (
+        <h2 id={`${id}-title`} className="mo-type-title-large mo-editor-fold-title">
+          {title}
+        </h2>
+      ) : (
+        // The List part's expanding item (Material 3's List - Expand): its header is the item, its caret the button.
+        <SiteList expand kind="standard" aria-label={title}>
+          <SiteListItem
+            expand
+            expandOpen={open}
+            expandToggle={{ label: title, onToggle }}
+            expandProps={{
+              onClick: (e: MouseEvent<HTMLElement>) => {
+                const target = e.target instanceof Element ? e.target : null;
+                if (target?.closest('.mo-list__item-expand-summary') && !target.closest('.mo-list__item-expand-button')) onToggle();
+              },
+            }}
+            headline={<span id={`${id}-title`}>{title}</span>}
           >
-            <span className="mo-fill mo-editor-fold-title-text">{title}</span>
-            <MaterialIcon
-              name="keyboard_arrow_down"
-              size={20}
-              aria-hidden="true"
-              className={`mo-keep mo-editor-section-arrow ${open ? 'mo-editor-arrow-flipped' : ''}`}
-            />
-          </button>
-        )}
-      </h2>
-      <div id={`${id}-body`} hidden={!open} className="mo-editor-rhythm-300 mo-editor-reveal mo-editor-section-body">
-        {children}
-      </div>
+            <div id={`${id}-body`} className="mo-editor-rhythm-300 mo-editor-reveal mo-editor-section-body">
+              {children}
+            </div>
+          </SiteListItem>
+        </SiteList>
+      )}
+      {fixed && (
+        <div id={`${id}-body`} className="mo-editor-rhythm-300 mo-editor-reveal mo-editor-section-body">
+          {children}
+        </div>
+      )}
     </section>
   );
 }
@@ -3931,11 +3936,10 @@ export function LeadingIcon({ icon: Glyph, selected = false, children }: { icon?
   );
 }
 
-/** An image before a name in a row, as a ListItem's `leading` (Material's leading image): small and square, with the
- * corners of a field, beside its row's first two lines, as an icon; the image a page's colours came from ("Colors" ›
- * "Pages"). `alt` empty when the row's text says what it is. */
-export function LeadingImage({ src, alt = '' }: { src: string; alt?: string }) {
-  return <img src={safeImageSrc(src)} alt={alt} loading="lazy" className="mo-editor-token-image" />;
+/** An image before a name in a row, as a ListItem's `leading` (the List part's leading image, 56 dp, set by the part): the image a
+ * page's colours came from ("Colors" › "Pages"). `alt` empty when the row's text says what it is. */
+export function LeadingImage(_: { src: string; alt?: string }) {
+  return null;
 }
 
 /** What a design token is, for the sample of it before its row ("Parts" › "Values", Tokens.tsx). */

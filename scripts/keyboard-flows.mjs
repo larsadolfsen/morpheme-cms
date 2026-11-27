@@ -224,9 +224,9 @@ async function flowD(ctx) {
   const { page } = ctx;
   await open(ctx, PAGE, '[role=textbox][aria-label="Text"]');
   for (const section of ['Search engines', 'Social media', 'History']) {
-    await reach(ctx, `D: the ${section} section`, { css: 'button.mo-editor-fold-toggle', text: section });
+    await reach(ctx, `D: the ${section} section`, { css: `section[data-fold-section] button[aria-label="${section}"]` });
     await press(ctx, 'Enter');
-    await expectFocus(ctx, `D: after the ${section} section opens`, { css: 'button.mo-editor-fold-toggle', text: section });
+    await expectFocus(ctx, `D: after the ${section} section opens`, { css: `section[data-fold-section] button[aria-label="${section}"]` });
   }
   await reach(ctx, 'D: a field of the page settings', { css: 'input.mo-text-field__input, textarea.mo-text-field__input' }, { max: 120 });
   await page.keyboard.type('x');

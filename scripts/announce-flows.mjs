@@ -128,7 +128,7 @@ async function flowJ(ctx) {
   await step(ctx, 'J: after Save');
   // A field of the page settings left wrong: its fields emptied. When none of them is marked invalid by that, there is nothing to announce, and the step is
   // not made (the log says so); the plan's batch 4 adds the required fields and their error count.
-  await page.locator('button.mo-editor-fold-toggle', { hasText: 'Page settings' }).click();
+  await page.locator('section[data-fold-section] button[aria-label="Page settings"]').click();
   await settle(page);
   const fields = page.locator('input.mo-text-field__input:visible');
   for (let i = 0; i < (await fields.count()); i++) await fields.nth(i).fill('');
