@@ -53,7 +53,6 @@ export const apps: Messages['apps'] = {
   isInstalledSoon: (app) => `${app} er installeret og kan bruges om et par minutter`,
   isUpdatedSoon: (app, version) => `${app} er opdateret til ${version}. Hjemmesiden bruger den om et par minutter.`,
   askUninstall: (app) => `Afinstaller ${app}? Det, appen tilføjer, forsvinder fra editoren.`,
-  activeOf: (block) => `Til: ${block}`,
   uninstallHint: 'Kan afinstalleres, fordi intet på hjemmesiden bruger appen.',
   used: 'Bruges på',
   notUsed: 'Bruges ingen steder',

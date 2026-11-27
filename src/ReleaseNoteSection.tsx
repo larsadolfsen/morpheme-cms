@@ -5,8 +5,8 @@ import type { ReleaseNote } from '../lib/releaseNotes.mjs';
 export function ReleaseNoteSection({ note }: { note: Extract<ReleaseNote, { kind: 'paragraph' }> }) {
   return (
     <div className="mo-editor-stack-50">
-      <h4 className="mo-type-body-large mo-editor-release-title">{note.title}</h4>
-      <p className="mo-editor-release-text">{note.text}</p>
+      <h4 className="mo-type-title-medium">{note.title}</h4>
+      <p className="mo-type-body-large">{note.text}</p>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 // A file in Filer as it is shown (Media.tsx, and Deleted.tsx when it was deleted): an image, a video
 // to play, or a PDF to open and a zip file to download, each a button.
-import { LinkButton } from './ui';
+import { ArrowLink } from './ui';
 import { fileKindOf, type FileKind } from './images';
 import { t } from './i18n';
 import { capital, kindAndName } from './deploy';
@@ -32,12 +32,12 @@ export function FileView({ src, name }: { src: string; name: string }) {
   if (kind === 'image') return <img src={safe} alt="" className="mo-editor-file-preview mo-editor-file-preview-image" />;
   if (kind === 'video') return <video src={safe} controls preload="metadata" className="mo-editor-file-preview" />;
   return kind === 'pdf' ? (
-    <LinkButton href={safe} target="_blank" rel="noopener" kind="outlined" icon={materialIcon('open_in_new')}>
+    <ArrowLink href={safe} target="_blank" rel="noopener">
       {t.media.openPdf}
-    </LinkButton>
+    </ArrowLink>
   ) : (
-    <LinkButton href={safe} download={name} kind="outlined" icon={materialIcon('download')}>
+    <ArrowLink href={safe} download={name}>
       {t.media.download}
-    </LinkButton>
+    </ArrowLink>
   );
 }

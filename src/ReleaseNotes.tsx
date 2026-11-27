@@ -9,6 +9,8 @@ import { isParagraph, notesFor } from '../lib/releaseNotes.mjs';
 import type { Edition, ReleaseNote } from '../lib/releaseNotes.mjs';
 import { ReleaseNoteSection } from './ReleaseNoteSection';
 import { ReleaseNoteLines } from './ReleaseNoteLines';
+import { SupportingText } from './ui';
+import { SiteDivider } from './themeUi';
 
 /** A version's notes; `date` (YYYY-MM-DD) and `edition` for the versions the package carries (bundledNotes.ts). */
 export type VersionNotes = {
@@ -25,7 +27,7 @@ const dayOf = (date: string) =>
 
 type Paragraph = Extract<ReleaseNote, { kind: 'paragraph' }>;
 
-function VersionEntry({ entry, photo }: { entry: VersionNotes; photo: boolean }) {
+function VersionEntry({ entry, photo, first }: { entry: VersionNotes; photo: boolean; first: boolean }) {
   const notes = notesFor(entry.notes, locale) ?? [];
   const paragraphs = notes.filter((note): note is Paragraph => isParagraph(note));
   const lines = notes.filter((note) => note.kind === 'line');
@@ -34,12 +36,15 @@ function VersionEntry({ entry, photo }: { entry: VersionNotes; photo: boolean })
   const name = entry.edition?.name ? t.library.cmsEdition(entry.edition.name, version) : t.library.cmsVersion(version);
   return (
     <section className="mo-editor-note-section">
+      {!first && <SiteDivider />}
       <div className="mo-editor-flow-3">
         <div>
           <h3 className="mo-type-title-large">{t.cms.newIn(name)}</h3>
           {entry.date && (
-            <p className="mo-editor-small-note">
-              <time dateTime={entry.date}>{dayOf(entry.date)}</time>
+            <p>
+              <SupportingText medium>
+                <time dateTime={entry.date}>{dayOf(entry.date)}</time>
+              </SupportingText>
             </p>
           )}
         </div>
@@ -51,7 +56,7 @@ function VersionEntry({ entry, photo }: { entry: VersionNotes; photo: boolean })
           />
         )}
       </div>
-      {!notes.length && entry.text && <p className="mo-editor-body-text">{entry.text}</p>}
+      {!notes.length && entry.text && <p className="mo-type-body-large">{entry.text}</p>}
       {paragraphs.map((note) => (
         <ReleaseNoteSection key={note.id} note={note} />
       ))}
@@ -63,10 +68,10 @@ function VersionEntry({ entry, photo }: { entry: VersionNotes; photo: boolean })
 export function ReleaseNotes({ title, entries }: { title?: string; entries: VersionNotes[] }) {
   return (
     <article className="mo-editor-note-article">
-      {title && <h2 className="mo-editor-note-title">{title}</h2>}
+      {title && <h2 className="mo-type-headline-small">{title}</h2>}
       {entries.map((entry, i) => (
         // One photo per line: under its newest version's heading.
-        <VersionEntry key={entry.version} entry={entry} photo={entry.edition?.line !== entries[i - 1]?.edition?.line} />
+        <VersionEntry key={entry.version} entry={entry} photo={entry.edition?.line !== entries[i - 1]?.edition?.line} first={i === 0} />
       ))}
     </article>
   );
