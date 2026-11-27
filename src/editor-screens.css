@@ -502,7 +502,9 @@
   }
   /* The slot of the drop-down, empty on a row without subpages, so the eyes line up. */
   .mo-editor-library-row-unfold {
+    display: flex;
     flex-shrink: 0;
+    justify-content: flex-end;
     inline-size: 3rem;
   }
   .mo-editor-library-row-eye {

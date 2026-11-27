@@ -367,9 +367,12 @@
     margin-block-end: var(--mo-ref-space-100);
     flex-shrink: 0;
   }
+  /* The move buttons end the row 16 px from its end edge, 8 px apart, as the other row-end controls (Material 3, Lists: Specs). */
   .mo-editor-move-buttons {
     display: flex;
     flex-shrink: 0;
+    gap: var(--mo-ref-space-100);
+    padding-inline-end: var(--mo-ref-space-200);
   }
   /* A paragraph of an app's description or news: the space after it, but not after the last. */
   .mo-editor-app-text {
