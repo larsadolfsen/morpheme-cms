@@ -117,11 +117,16 @@ async function checkFocusIndicators(width, hash) {
     if (FOCUS_ALLOW.some((allowed) => allowed.match.test(info.name))) continue;
     if (changed < 12 || best < 3) await sharp(focused).toFile(join(shots, `focus-${width}-${stops}.png`));
     if (changed < 12) problems.push(`${label}: ${info.name} shows no indicator when it has the keyboard focus`);
-    else if (best < 3)
+    // The 3:1 measure is WCAG 1.4.11: printed, never failed (owner, 27 Nov 2026), until the base theme turns WCAG back on with WCAG_CHECKS=1.
+    else if (best < 3 && wcagOn())
       shortfall(
         '1.4.11',
         'focus-ring',
         `${label}: the focus indicator of ${info.name} (${info.key}) has ${best.toFixed(2)}:1 contrast, under 3:1`,
+      );
+    else if (best < 3)
+      console.log(
+        `${label}: the focus indicator of ${info.name} (${info.key}) has ${best.toFixed(2)}:1 contrast, under 3:1 (measured, not failed)`,
       );
   }
   if (stops < 5) problems.push(`${label}: only ${stops} stops were checked`);
