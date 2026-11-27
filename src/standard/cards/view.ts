@@ -49,6 +49,8 @@ export type CardsView = {
   phone?: 'carousel';
   /** The carousel's Material 3 layout (carouselLayouts, below); none is the uncontained layout. */
   layout?: CardsLayout;
+  /** The carousel's header (only with a carousel): the arrow next to it shows every item, instead of `Show all` under the row. */
+  header?: string;
   more: string;
   items: LinkCard[];
 };
@@ -64,6 +66,10 @@ export type CardsLayout = (typeof cardsLayouts)[number];
 /** The carousel's layout as the block says, drawn as stored (every layout is offered for every card: the editor decides); none (uncontained) without a carousel. */
 export const layoutOf = (props: Record<string, any>): CardsLayout | undefined =>
   phoneOf(props) ? cardsLayouts.find((l) => l === props.layout) : undefined;
+
+/** The carousel's header as the block says: only with a carousel, trimmed, none when empty. */
+export const headerOf = (props: Record<string, any>): string | undefined =>
+  phoneOf(props) && typeof props.header === 'string' && props.header.trim() ? props.header.trim() : undefined;
 
 /** A card as its field writes it. */
 export type LinkCardProps = {
@@ -150,6 +156,7 @@ export const viewOf: ViewOf<CardsView> = (props, data) => ({
   color: props.design === 'filled' ? props.color || undefined : undefined,
   phone: phoneOf(props),
   layout: layoutOf(props),
+  header: headerOf(props),
   more: sharedIn(data.site, 'cards', shared.values).more,
   items: shownCards(props.items ?? [], data, props.media, ratioProp(props), layoutOf(props) === 'multi-aspect-ratio'),
 });

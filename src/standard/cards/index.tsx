@@ -86,6 +86,15 @@ export default defineBlock({
         { label: t.blocks.cards.layoutFullScreen, value: 'full-screen', hint: t.blocks.cards.layoutFullScreenHint },
       ],
     },
+    // The carousel's optional header (M3, Carousel, Accessibility: "If the carousel has a header, you can use an arrow icon button instead" of Show all). Empty is
+    // today's look: no header, `Show all` under the row. Shown only with the carousel; typed in place above it (InlineCards.tsx).
+    {
+      name: 'header',
+      label: t.blocks.cards.header,
+      type: 'string',
+      hint: t.blocks.cards.headerHint,
+      only: { field: 'phone', is: ['carousel'] },
+    },
     // A filled card is Material's surface container until another container is picked.
     {
       name: 'color',
