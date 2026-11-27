@@ -911,8 +911,6 @@
   /* A design token's sample (Developer › Parts). */
   .mo-editor-token-sample {
     display: flex;
-    inline-size: 100%;
-    block-size: 100%;
     align-items: center;
     justify-content: center;
   }

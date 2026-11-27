@@ -459,7 +459,7 @@ function useTooltip(text: string, own: TooltipHandlers = {}) {
   return {
     on,
     tip: (
-      <span ref={tip} popover="manual" aria-hidden className="mo-is-plain mo-editor-tooltip">
+      <span ref={tip} popover="manual" role="tooltip" aria-hidden className="mo-is-plain mo-editor-tooltip">
         {text}
       </span>
     ),
@@ -3944,7 +3944,7 @@ export type TokenKind = 'shape' | 'elevation' | 'font' | 'color';
  * colour (color). Material 3 has none; the editor's own. */
 export function LeadingToken({ kind, value, weight }: { kind: TokenKind; value: string; weight?: string }) {
   return (
-    <span className="mo-editor-token-sample" aria-hidden="true">
+    <span className="mo-list__item-image mo-editor-token-sample" aria-hidden="true">
       {kind === 'shape' && <span className="mo-editor-token-shape" style={{ borderTopLeftRadius: value }} />}
       {kind === 'elevation' && <span className="mo-editor-token-elevation" style={{ boxShadow: value }} />}
       {kind === 'font' && (
