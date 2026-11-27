@@ -1,0 +1,7 @@
+{
+  "id": "placeholder-thumbnails",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "List thumbnails",
+  "text": "Page and post lists no longer jump between rows with and without an image. A page with no image shows the first two letters of its title in a colour of your site, so every row has the same height and the titles line up."
+}

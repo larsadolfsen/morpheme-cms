@@ -94,6 +94,26 @@ export const ours = {
         "The state layer's colour as one of our tokens; M3 holds states as an opacity token (md.sys.state.*.state-layer-opacity) and takes the colour from the part's role.",
     },
     {
+      token: '--mo-comp-avatar-container-color',
+      reason:
+        "M3 prints the leading avatar on its Lists page, not as a component with tokens; the avatar's colour, corner and label tokens are read with a role as their fallback (avatar.css), and the placeholder wave of the page list (task 24, owner 27 Nov 2026) sets them from M3's primary tonal palette.",
+    },
+    {
+      token: '--mo-comp-avatar-container-shape',
+      reason:
+        "M3 prints the leading avatar on its Lists page, not as a component with tokens; the avatar's colour, corner and label tokens are read with a role as their fallback (avatar.css), and the placeholder wave of the page list (task 24, owner 27 Nov 2026) sets them from M3's primary tonal palette.",
+    },
+    {
+      token: '--mo-comp-avatar-label-text-color',
+      reason:
+        "M3 prints the leading avatar on its Lists page, not as a component with tokens; the avatar's colour, corner and label tokens are read with a role as their fallback (avatar.css), and the placeholder wave of the page list (task 24, owner 27 Nov 2026) sets them from M3's primary tonal palette.",
+    },
+    {
+      token: '--mo-comp-avatar-wave-*',
+      reason:
+        "M3 prints the leading avatar on its Lists page, not as a component with tokens; the avatar's colour, corner and label tokens are read with a role as their fallback (avatar.css), and the placeholder wave of the page list (task 24, owner 27 Nov 2026) sets them from M3's primary tonal palette.",
+    },
+    {
       token: '--mo-comp-avatar-size',
       reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
     },
@@ -912,6 +932,26 @@ export const ours = {
   classes: [
     { class: 'mo-action-bar', reason: 'The action bar of the editor; M3 has no component of this name.' },
     { class: 'mo-arrow-link', reason: 'A site link with an arrow; a site part, not an M3 component.' },
+    {
+      class: 'mo-avatar-placeholder',
+      reason:
+        "The placeholder thumbnail of the page list (task 24): the Avatar part at the list image's size and corner, in a tone of the primary palette by the row's place.",
+    },
+    {
+      class: 'mo-avatar-wave-0',
+      reason:
+        "The placeholder thumbnail of the page list (task 24): the Avatar part at the list image's size and corner, in a tone of the primary palette by the row's place.",
+    },
+    {
+      class: 'mo-avatar-wave-1',
+      reason:
+        "The placeholder thumbnail of the page list (task 24): the Avatar part at the list image's size and corner, in a tone of the primary palette by the row's place.",
+    },
+    {
+      class: 'mo-avatar-wave-2',
+      reason:
+        "The placeholder thumbnail of the page list (task 24): the Avatar part at the list image's size and corner, in a tone of the primary palette by the row's place.",
+    },
     { class: 'mo-avatar', reason: 'M3 prints the avatar on its Lists page, not as a component with tokens.' },
     { class: 'mo-back-link', reason: 'A site link; a site part.' },
     { class: 'mo-blog*', reason: "The blog's pages and lists; a site part, not an M3 component." },

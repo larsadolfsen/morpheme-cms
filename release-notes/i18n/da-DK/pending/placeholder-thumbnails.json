@@ -1,0 +1,7 @@
+{
+  "id": "placeholder-thumbnails",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Miniaturer i lister",
+  "text": "Lister over sider og indlæg hopper ikke mere mellem rækker med og uden billede. En side uden billede viser titlens to første bogstaver i en farve fra din hjemmeside, så alle rækker er lige høje, og titlerne står på linje."
+}

@@ -88,6 +88,8 @@ import { useListDrafts } from './listDraft';
 import { ownListsOf } from './ownLists';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { safeImageSrc } from '../lib/safe-url.mjs';
+import { initials, waveStep } from '../lib/initials.mjs';
+import { SiteAvatar } from './themeUi';
 import { hiddenFromSearch, isUnlisted } from '../lib/status.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
 import { saveDensity, savedDensity, setDensity, type Density } from './density';
@@ -1477,6 +1479,17 @@ export function List({
   // The items of the menu whose pages under them are shown; all closed at first, kept in this browser.
   const [openBranches, setOpenBranches] = useState(() => savedOpen(collection));
   const orderable = collection.kind === 'folder' && collection.orderable && !q;
+  // The place of each row of the menu view as it is shown (the menu, then the pages not in it, the open branches only): the wave of the placeholder thumbnails.
+  const treePositions = new Map<string, number>();
+  if (tree) {
+    const walk = (branches: Branch[]) =>
+      branches.forEach(({ key, item, children }) => {
+        treePositions.set(item.href, treePositions.size);
+        if (openBranches.has(key)) walk(children);
+      });
+    walk(tree.menu);
+    tree.rest.forEach((item) => treePositions.set(item.href, treePositions.size));
+  }
 
   function pickSort(s: Sort) {
     setSort(s);
@@ -1562,7 +1575,7 @@ export function List({
         {...(path ? selection.row(path) : {})}
         href={item.href}
         leading={ring(item)}
-        {...(!scores && item.versions ? pictureOf(item, collection.id === 'blog') : {})}
+        {...(!scores && item.versions ? pictureOf(item, i) : {})}
         headline={item.title}
         supporting={
           item.versions
@@ -1730,7 +1743,14 @@ export function List({
       {!appTab && tree && (
         <>
           <Group title={t.library.menu} dividers>
-            <TreeRows branches={tree.menu} depth={0} open={openBranches} toggle={toggleBranch} ring={scores ? ring : undefined} />
+            <TreeRows
+              branches={tree.menu}
+              depth={0}
+              open={openBranches}
+              toggle={toggleBranch}
+              ring={scores ? ring : undefined}
+              position={treePositions}
+            />
           </Group>
           {tree.rest.length > 0 && (
             <Group title={t.library.notInMenu} dividers>
@@ -1740,6 +1760,7 @@ export function List({
                 open={openBranches}
                 toggle={toggleBranch}
                 ring={scores ? ring : undefined}
+                position={treePositions}
               />
             </Group>
           )}
@@ -1769,11 +1790,19 @@ export function List({
 }
 
 /** A page's or post's leading part: its share image, else a square with its icon, the same size and corners (the image itself and its corner are ListItem's). */
-function pictureOf(item: Item, post: boolean): Record<string, unknown> {
+function pictureOf(item: Item, position: number): Record<string, unknown> {
   if (!item.file) return {};
   const src = item.image ? safeImageSrc(item.image) : '';
   if (src) return { leadingImage: { src } };
-  return { icon: materialIcon(post ? 'article' : 'description') };
+  // No image: the Avatar part with the title's first letters, as large and as round as the image thumbnail, so every row is as high and the
+  // titles start at one place; its tone follows the row's place in the list (a wave, theme/styles/ui/avatar.css).
+  return {
+    leadingMedia: (
+      <span aria-hidden="true">
+        <SiteAvatar className={`mo-avatar-placeholder mo-avatar-wave-${waveStep(position)}`}>{initials(item.title)}</SiteAvatar>
+      </span>
+    ),
+  };
 }
 
 /** The line under a page's or post's name: its versions (and its address from a computer's width), the full time of a scheduled version as the tooltip. */
@@ -1821,11 +1850,14 @@ function TreeRows({
   open,
   toggle,
   ring,
+  position,
 }: {
   branches: Branch[];
   depth: number;
   open: Set<string>;
   toggle: (href: string) => void;
+  /** The row's place in the list as shown (the wave of the placeholder thumbnails), by the item's address. */
+  position: Map<string, number>;
   /** With "Show SEO rating": the score of a page at the start of its row (a tap on it opens the page at its rating). */
   ring?: (item: Item) => ReactNode;
 }) {
@@ -1845,7 +1877,7 @@ function TreeRows({
                 depth ? { paddingInlineStart: `calc(var(--mo-comp-list-list-item-leading-space, 0px) + ${depth * 1.25}rem)` } : undefined
               }
               leading={ring?.(item)}
-              {...(!ring && item.versions ? pictureOf(item, false) : {})}
+              {...(!ring && item.versions ? pictureOf(item, position.get(item.href) ?? 0) : {})}
               headline={item.title}
               supporting={item.href ? versionLine(item, wide) : t.library.pageGone}
               truncate
@@ -1868,7 +1900,7 @@ function TreeRows({
                 )
               }
             />
-            {shown && <TreeRows branches={children} depth={depth + 1} open={open} toggle={toggle} ring={ring} />}
+            {shown && <TreeRows branches={children} depth={depth + 1} open={open} toggle={toggle} ring={ring} position={position} />}
           </Fragment>
         );
       })}
