@@ -1,6 +1,6 @@
 # An Accessibility section in the page and post forms
 
-Architect, 26 Nov 2026. Line: **0.19.9**, a version of its own (owner, 26 Nov 2026: "Or give it is often number"). Status: **approved by
+Architect, 26 Nov 2026. Line: **0.22 Page accessibility** (was 0.19.9; owner, 27 Nov 2026), a version of its own (owner, 26 Nov 2026: "Or give it is often number"). Status: **approved by
 the owner, 26 Nov 2026** ("Yes rewrite"). Built after 0.19.8 is released, by the PM the owner starts with `/pm 0.19.9`; it builds on
 0.19.8's task 17 (`specs/2026-11-25-themes-classified-design.md`, `lib/accessibility.mjs`).
 
