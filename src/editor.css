@@ -642,6 +642,10 @@
   }
 }
 
+:root:has(.mo-editor-save-bar) .mo-snackbar__stack {
+  bottom: calc(max(env(safe-area-inset-bottom), var(--mo-editor-clearance-bottom, 0px)) + var(--mo-ref-space-100));
+}
+
 /* The screen's main actions (FabMenu in ui.tsx) at the bottom right, above the content; the messages above them. */
 .mo-editor-fab {
   --mo-editor-fab-margin: 1rem;

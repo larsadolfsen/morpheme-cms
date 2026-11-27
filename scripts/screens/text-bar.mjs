@@ -866,7 +866,7 @@ async function checkDiscardInBar(width) {
     // The row that discards is in Danger: `Discard draft` for a saved draft, `Discard` for unsaved edits.
     const rowName = draft ? 'Discard draft' : 'Discard';
     // Danger is folded on load: open it first.
-    const toggle = danger.locator('h2 button');
+    const toggle = danger.locator('button.mo-list__item-expand-button');
     if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
     const discard = danger.getByRole('button', { name: rowName, exact: true });
     if (!(await discard.count())) problems.push(`${at}: Danger has no ${rowName}`);
