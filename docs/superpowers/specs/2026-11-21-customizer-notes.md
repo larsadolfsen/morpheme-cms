@@ -1,7 +1,7 @@
 # The customizer (notes)
 
 Status: **notes, 21 November 2026.** No version, plan or design yet. This file is where the owner's decisions about a customizer are kept
-until a design is written. Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md`, *3.3 The customizer* (owner, 27 Nov 2026).
+until a design is written. Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md`, *3.1 The customizer*, major 4 (owner, 27 Nov 2026).
 
 The customizer is where a site owner changes the theme's steps without code. It works for every theme, not only Material.
 
