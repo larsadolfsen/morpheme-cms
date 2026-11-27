@@ -73,7 +73,7 @@
   }
   /* The intro of a screen: a muted line above the list. */
   .mo-editor-note {
-    margin-block-end: var(--mo-ref-space-200);
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
     color: var(--mo-sys-color-on-surface-variant);
   }
   /* The small title of a part (Fields, Tags, Preview): medium weight, the space before what it names. */
@@ -113,7 +113,7 @@
 
   /* A group of a settings page (a section with its title, or a row of switches): the space before the next one. */
   .mo-editor-group {
-    margin-block-end: var(--mo-ref-space-400);
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
   /* The inset that lines text and rows up with a list's items. */
   .mo-editor-inset {
@@ -121,7 +121,7 @@
   }
   /* A notice inside a group, above its list. */
   .mo-editor-notice-inset {
-    margin-block-end: var(--mo-ref-space-200);
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
     padding-inline: var(--mo-ref-space-200);
   }
   /* The search row or the tabs above a list: the space before the list. */
@@ -159,7 +159,7 @@
     display: flex;
     justify-content: flex-end;
     gap: var(--mo-ref-space-100);
-    margin-block-start: var(--mo-ref-space-300);
+    margin-block-start: var(--mo-comp-editor-rhythm-300);
   }
   .mo-editor-dialog-title {
     margin-block-end: var(--mo-ref-space-200);
@@ -187,7 +187,7 @@
   .mo-editor-fields {
     display: flex;
     flex-direction: column;
-    gap: var(--mo-ref-space-200) var(--mo-ref-space-200);
+    gap: var(--mo-comp-editor-rhythm-200) var(--mo-ref-space-200);
   }
   .mo-editor-prose-wide {
     max-inline-size: none;
@@ -202,7 +202,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--mo-ref-space-100);
-    margin-block-start: var(--mo-ref-space-200);
+    margin-block-start: var(--mo-comp-editor-rhythm-200);
   }
 
   /* ---- The start screen's widgets (widgets/*.tsx, FirstRun.tsx) ---- */
@@ -359,7 +359,7 @@
 
   .mo-editor-picker-hint {
     margin-inline: var(--mo-ref-space-300);
-    margin-block-end: var(--mo-ref-space-100);
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
     flex-shrink: 0;
   }
   .mo-editor-picker-search {
@@ -384,19 +384,19 @@
     flex-wrap: wrap;
     justify-content: space-between;
     gap: var(--mo-ref-space-100);
-    margin-block-end: var(--mo-ref-space-400);
+    margin-block-end: var(--mo-comp-editor-rhythm-400);
     padding-inline: var(--mo-ref-space-200);
   }
   .mo-editor-own-field {
-    margin-block-end: var(--mo-ref-space-100);
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
   }
   .mo-editor-own-field-held {
     margin-block-end: var(--mo-ref-space-100);
   }
   .mo-editor-sample-text {
-    margin-block-end: var(--mo-ref-space-100);
+    margin-block-end: var(--mo-comp-editor-rhythm-150);
     padding-inline: var(--mo-sys-grid-margin);
-    padding-block-start: var(--mo-ref-space-100);
+    padding-block-start: var(--mo-comp-editor-rhythm-150);
     color: var(--mo-sys-color-on-surface-variant);
   }
 
