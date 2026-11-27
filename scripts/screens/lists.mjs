@@ -1055,8 +1055,7 @@ async function checkNewList(width, height, label) {
     });
     if (state.focusedInside) problems.push(`${label}: the dialog puts the focus on a field or button to begin with`);
     if (!state.cancelBg || !state.createBg) problems.push(`${label}: the dialog lacks Cancel or Create`);
-    else if (width >= 600 && state.cancelBg === state.createBg)
-      problems.push(`${label}: Cancel and Create look alike (${state.cancelBg})`);
+    else if (width >= 600 && state.cancelBg === state.createBg) problems.push(`${label}: Cancel and Create look alike (${state.cancelBg})`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the dialog scrolls sideways`);
     // A name that is taken (the blog's collection, which every site has) is refused.
