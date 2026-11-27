@@ -128,7 +128,9 @@ export default function BrandForm({ env }: { env: Env }) {
     >
       <section>
         <h2 className="mo-type-title-medium mo-editor-brand-heading">{t.company.brand.logo}</h2>
-        <SupportingText size="medium" className="mo-editor-brand-hint">{t.company.brand.logoHint}</SupportingText>
+        <SupportingText size="medium" className="mo-editor-brand-hint">
+          {t.company.brand.logoHint}
+        </SupportingText>
         <div className="mo-editor-brand-column">
           <SiteCard kind="outlined" data-logo-preview="" className="mo-editor-brand-logo-preview">
             <span aria-hidden="true" className="mo-keep mo-editor-brand-logo-mark" style={mask} />
@@ -143,7 +145,9 @@ export default function BrandForm({ env }: { env: Env }) {
       </section>
       <section>
         <h2 className="mo-type-title-medium mo-editor-brand-heading">{t.company.brand.icon}</h2>
-        <SupportingText size="medium" className="mo-editor-brand-hint">{t.company.brand.iconHint}</SupportingText>
+        <SupportingText size="medium" className="mo-editor-brand-hint">
+          {t.company.brand.iconHint}
+        </SupportingText>
         <div className="mo-editor-brand-column">
           <span className="mo-editor-brand-icon-box">
             {drawing ? (

@@ -180,9 +180,7 @@ function Carousels() {
           items={numbers.slice(0, 5).map((n) => ({
             key: String(n),
             label: say.card(n),
-            content: (
-              <SiteCard kind="outlined" headline={say.card(n)} supporting={say.text} className="mo-editor-contain-panel" />
-            ),
+            content: <SiteCard kind="outlined" headline={say.card(n)} supporting={say.text} className="mo-editor-contain-panel" />,
           }))}
           indicatorLabels={numbers.slice(0, 5).map((n) => say.show(n))}
         />
@@ -196,9 +194,7 @@ function Carousels() {
             items={numbers.slice(0, 5).map((n) => ({
               key: String(n),
               label: say.card(n),
-              content: (
-                <SiteCard kind="outlined" headline={say.card(n)} supporting={say.text} className="mo-editor-contain-panel" />
-              ),
+              content: <SiteCard kind="outlined" headline={say.card(n)} supporting={say.text} className="mo-editor-contain-panel" />,
             }))}
             indicatorLabels={numbers.slice(0, 5).map((n) => say.show(n))}
           />
