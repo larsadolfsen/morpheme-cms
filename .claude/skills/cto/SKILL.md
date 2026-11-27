@@ -73,6 +73,9 @@ approach within the owner's decisions, and every question the order of priority 
 - **Every version has a goal** (owner, 27 Nov 2026: "Another note is so version must have a goal describeb"). Each line in the roadmap
   starts with one sentence saying what it achieves for the person using the CMS. Its tasks serve that goal, and where a feature or bug
   goes (the rule above) is weighed against it. A new version gets its goal from the owner before any task is put in it.
+- **The order of goals** (owner, 27 Nov 2026: "First user > developers/llms > income"): a plan, a line's place in the roadmap and
+  where a feature goes are weighed first for the people who use the CMS (site owners and writers), then for developers and LLMs
+  (clear contracts, docs and checks they can build with), then for income. The order is in `CLAUDE.md`, at the top.
 - **Draft until approved.** A spec or plan says "waiting for the owner's approval" until the owner approves it in words; only then is it
   marked approved and sent to the PM. The CTO never presents a draft as decided.
 
