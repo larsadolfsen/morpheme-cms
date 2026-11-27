@@ -2235,7 +2235,7 @@ export function Menu({
       >
         <SheetTitle title={label} onClose={() => sheet.current?.close()} />
         <SheetList div>
-          <SiteMenu role="menu" aria-label={label} className="mo-editor-menu-full">
+          <SiteMenu role="menu" aria-label={label}>
             {children}
           </SiteMenu>
         </SheetList>

@@ -426,10 +426,6 @@
   }
 
   /* Lists and rows. */
-  .mo-editor-menu-full {
-    inline-size: 100%;
-    max-inline-size: none;
-  }
   .mo-editor-choice-detail {
     display: flex;
     gap: var(--mo-ref-space-150);
