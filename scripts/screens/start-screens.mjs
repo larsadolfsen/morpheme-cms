@@ -999,10 +999,15 @@ async function checkMorpheme(page, state) {
   }
 }
 
+/** WCAG scans (axe, keyboard, screen reader) are off in the screens units until the base theme (roadmap 0.27.3): owner, 27 Nov 2026, "Stop treating wcag
+ * add a rule". Set MORPHEME_WCAG_SCANS=1 to run them on purpose; the scripts and their allowlists stay so the base theme can turn them back on. */
+const wcagScans = () => process.env.MORPHEME_WCAG_SCANS === '1';
+
 /** The accessibility scan of one screen (WCAG 2.2 AA, axe-core): what it finds must be on scripts/a11y-allowlist.json and every entry of the
  * list for this screen at this width must still match, so the list only shrinks (scripts/a11y.mjs). The unit's width is the phone (390 px)
  * or the computer (1280 px); a screen of the list is checked on its own, so a shard that runs the unit checks every screen. */
 async function checkA11y(page, width, hash) {
+  if (!wcagScans()) return;
   // Only in the CMS repository: a site that installed the package has no axe-core, and the allowlist is the demo's (scripts/a11y.mjs, scanRuns).
   if (!scanRuns()) return;
   const viewport = width < 600 ? 'phone' : 'computer';
@@ -1022,6 +1027,7 @@ async function checkA11y(page, width, hash) {
  * scripts/keyboard-allowlist.json and every entry of the list for this screen at this width must still match, so the list only shrinks. Tab only, so
  * it runs after the screen's other checks; the screen is left without focus. */
 async function checkKeyboard(page, width, hash) {
+  if (!wcagScans()) return;
   // Only in the CMS repository: the allowlist is the demo's (scripts/keyboard.mjs, keyboardRuns).
   if (!keyboardRuns()) return;
   await page.evaluate(() => document.fonts.ready);
@@ -1035,6 +1041,7 @@ async function checkKeyboard(page, width, hash) {
  * Only the editor's own screens and the demo's Blocks pages are walked (`announceWalks`, owner, 21 Nov 2026: the CMS's blocks, not the demo's content); the
  * other content items, the pages other units make for themselves (`zz-check-page.md` …) among them, are not. */
 async function checkAnnounce(page, width, hash) {
+  if (!wcagScans()) return false;
   // Only in the CMS repository: the allowlist is the demo's (scripts/announce.mjs, announceRuns).
   if (!announce.announceRuns()) return false;
   if (!announce.announceWalks(hash)) return false;
@@ -1047,6 +1054,7 @@ async function checkAnnounce(page, width, hash) {
 /** The main flows with what is announced recorded (scripts/announce-flows.mjs): A, B, C, F, I, J, K and L at the computer, A, B, F and J also at the phone (375 px).
  * The speech log goes to announce-log.txt (ANNOUNCE_LOG); CI keeps it. */
 async function checkAnnounceFlows(width) {
+  if (!wcagScans()) return;
   if (!announce.announceRuns()) return;
   for (const flow of announceFlows.FLOWS) {
     if (width < 600 && !announceFlows.PHONE_FLOWS.includes(flow)) continue;
@@ -1059,6 +1067,7 @@ async function checkAnnounceFlows(width) {
 
 /** The main flows by keyboard (scripts/keyboard-flows.mjs): A to I at the computer, A, B and F also at the phone (375 px). */
 async function checkKeyboardFlows(width) {
+  if (!wcagScans()) return;
   if (!keyboardRuns()) return;
   for (const flow of FLOWS) {
     if (width < 600 && !PHONE_FLOWS.includes(flow)) continue;
@@ -1157,7 +1166,7 @@ export function register(unit) {
         next = found;
       }
       // Every block is walked by the screen reader check on its demo Blocks page, also one the links above did not reach (scripts/announce.mjs).
-      if (announce.announceRuns())
+      if (wcagScans() && announce.announceRuns())
         for (const hash of announce.blockPagesLeft(announced)) {
           route = hash;
           await page.evaluate((h) => (location.hash = h), hash);
