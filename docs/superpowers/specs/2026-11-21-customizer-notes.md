@@ -124,10 +124,7 @@ A theme needs no change. CSS outside a layer beats every layer, so nothing is le
 - **The menu's edge** (owner, 21 November 2026: "I agree with them, but this is customization"). M3 puts the navigation drawer on the
   start edge, and so does the standard; a site owner may put the menu and its button on the end edge. It is already a setting
   (`menuSide`, *Globals › Header*) and moves into the customizer when there is one.
-- **Component levels** (moved from 0.22.2; owner, 20 November 2026: "Agreed on moving 0.22.2").
-  - Each component's level is a number that expands into its `--mo-comp-*` tokens (colour, shape, density), the component-token
-    direction of `specs/2026-11-17-list-to-cards-design.md`.
-  - It changes the contract (`THEME_API`, `APP_API`; a new contract is never major) and reads the steps table of 0.22.0.
-  - Written 20 November as "never elevation", because a component keeps M3's level (M3: "Avoid changing the default elevation of Material
-    components"). That applies to a theme's own defaults. *Block looks* lets a site owner change elevation as a customization, not a
-    deviation, so the design settles how the two fit.
+- **Component levels: dropped** (owner, 27 Nov 2026: "It shouldn't change the contract because I already told you to implement elevation
+  as a state"). Elevation is already tokens per state (`--mo-sys-elevation-levelN-rest-shadow` and the level's shadow,
+  `specs/2026-11-20-elevation-design.md`), so the customizer sets those tokens and no part needs a level that themes would have to
+  define. The customizer changes no contract.
