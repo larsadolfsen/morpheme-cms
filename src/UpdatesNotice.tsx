@@ -17,9 +17,9 @@ import { apps } from './site';
 import { changesSince, versioned, type Versions } from './startView.mjs';
 import { keepStored, SEEN, storedSeen } from './startStorage';
 import type { RepoFile } from './github';
-import { SiteCard, SiteTooltip } from './themeUi';
-import { Svg } from './icon';
+import { SiteCard, SiteDivider, SiteIconButton, SiteTooltip } from './themeUi';
 import { Button, LinkButton, ListItem, plainListClass } from './ui';
+import { materialIcon } from './icon';
 import { CMS_ROUTE } from './CmsPage';
 import { LICENSES_ROUTE } from './Licenses';
 import { appHref } from './AppList';
@@ -36,23 +36,23 @@ function versionsNow(files: RepoFile[]): Versions {
   };
 }
 
+const InfoIcon = materialIcon('info');
+
 /** The info button right after the place's name (the theme's info icon, which every icon pack has), with a rich
  * tooltip: who took the photo, on Unsplash, and a link to its licence under "Licenses". It opens while the mouse is over
- * the button or the tooltip, while focus is in them, and on a tap (a second tap closes it); Escape closes it. Under the
- * button, from its end, at most 15rem wide, so it stays on a phone's screen. */
+ * the button or the tooltip, and while focus is in them; it goes 1.5 s after the pointer and the focus have left, and is never
+ * pinned open by a click; Escape closes it. */
 function PhotoCredit({ by, line }: { by: string | null; line: string }) {
   const [open, setOpen] = useState(false);
   const leave = useRef<ReturnType<typeof setTimeout>>(undefined);
-  // When it opened: a tap focuses the button (which opens it) just before its click, which must not close it again.
-  const openedAt = useRef(0);
   const show = () => {
     clearTimeout(leave.current);
-    if (!open) openedAt.current = Date.now();
     setOpen(true);
   };
+  // Material 3, Tooltips, Guidelines: "Both plain and rich tooltips disappear 1.5 seconds after navigating away from the target region".
   const hide = () => {
     clearTimeout(leave.current);
-    leave.current = setTimeout(() => setOpen(false), 150);
+    leave.current = setTimeout(() => setOpen(false), 1500);
   };
   // Escape closes it wherever the pointer and the focus are (WCAG 1.4.13).
   useEffect(() => {
@@ -77,15 +77,7 @@ function PhotoCredit({ by, line }: { by: string | null; line: string }) {
         supportingText={by ? t.library.photoBy(by) : t.library.photoFromUnsplash}
         action={{ label: t.library.photoLicense, href: `#${LICENSES_ROUTE}/${encodeURIComponent(`editions/${line}`)}` }}
       >
-        <button
-          type="button"
-          aria-label={t.library.photoInfo}
-          aria-expanded={open}
-          onClick={() => (open && Date.now() - openedAt.current < 400 ? undefined : open ? setOpen(false) : show())}
-          className="mo-editor-photo-credit-button"
-        >
-          <Svg name="info" size={20} />
-        </button>
+        <SiteIconButton icon={<InfoIcon />} label={t.library.photoInfo} aria-expanded={open} />
       </SiteTooltip>
     </div>
   );
@@ -119,7 +111,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       : t.library.cmsVersion(cms.version)
     : t.library.appsUpdated(updatedApps.length);
   return (
-    <SiteCard kind="elevated" as="section" role="status" aria-labelledby="updates-title" className="mo-editor-updates-notice">
+    <SiteCard kind="outlined" as="section" role="status" aria-labelledby="updates-title" className="mo-editor-updates-notice">
       <div className="mo-editor-updates-notice-body">
         {edition && (
           <div className="mo-editor-updates-notice-photo">
@@ -127,18 +119,20 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
           </div>
         )}
         <div className="mo-editor-updates-notice-text">
-          <h2 id="updates-title" className="mo-editor-updates-notice-title">
+          <h2 id="updates-title" className="mo-type-headline-small mo-editor-updates-notice-title">
             {title}
           </h2>
           {place && (
-            <p className="mo-editor-updates-notice-place">
+            <p className="mo-type-body-medium mo-editor-updates-notice-place">
               {place}
               <PhotoCredit by={edition.by} line={edition.line} />
             </p>
           )}
-          {news.length > 0 && <p className="mo-editor-updates-notice-counts">{t.library.noteCounts(features, improvements)}</p>}
+          {news.length > 0 && (
+            <p className="mo-type-body-medium mo-editor-updates-notice-counts">{t.library.noteCounts(features, improvements)}</p>
+          )}
           <div className="mo-editor-updates-notice-actions">
-            <Button kind="text" onClick={close}>
+            <Button kind="outlined" onClick={close}>
               {t.common.close}
             </Button>
             {cms && (
@@ -150,18 +144,21 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
         </div>
       </div>
       {updatedApps.length > 0 && (
-        <ul className={`${plainListClass} mo-editor-updates-notice-apps`}>
-          {updatedApps.map(({ app, version }) => (
-            <ListItem
-              key={app.id}
-              href={`${appHref(app)}/${INFO_KEY}`}
-              icon={app.icon}
-              headline={app.label}
-              supporting={t.library.appUpdatedTo(version)}
-              arrow
-            />
-          ))}
-        </ul>
+        <>
+          <SiteDivider />
+          <ul className={`${plainListClass} mo-editor-updates-notice-apps`}>
+            {updatedApps.map(({ app, version }) => (
+              <ListItem
+                key={app.id}
+                href={`${appHref(app)}/${INFO_KEY}`}
+                icon={app.icon}
+                headline={app.label}
+                supporting={t.library.appUpdatedTo(version)}
+                arrow
+              />
+            ))}
+          </ul>
+        </>
       )}
     </SiteCard>
   );

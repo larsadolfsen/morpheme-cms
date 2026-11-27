@@ -156,7 +156,7 @@
   }
   .mo-editor-field-item-actions {
     display: flex;
-    padding-inline-end: var(--mo-ref-space-75);
+    padding-inline-end: var(--mo-ref-space-200);
   }
   .mo-editor-field-item-toggle > svg {
     transition-property: transform, translate, scale, rotate;
@@ -671,9 +671,8 @@
   .mo-editor-block-dialog-note {
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
-  }
-  .mo-editor-block-dialog-list {
-    margin-inline: -0.75rem;
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   :where(.mo-editor-block-dialog-fields > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-250);

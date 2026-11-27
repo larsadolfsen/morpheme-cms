@@ -866,7 +866,7 @@ async function checkDiscardInBar(width) {
     // The row that discards is in Danger: `Discard draft` for a saved draft, `Discard` for unsaved edits.
     const rowName = draft ? 'Discard draft' : 'Discard';
     // Danger is folded on load: open it first.
-    const toggle = danger.locator('h2 button');
+    const toggle = danger.locator('button.mo-list__item-expand-button');
     if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
     const discard = danger.getByRole('button', { name: rowName, exact: true });
     if (!(await discard.count())) problems.push(`${at}: Danger has no ${rowName}`);
@@ -882,13 +882,18 @@ async function checkDiscardInBar(width) {
     const order = geometry.map((b) => b.name).filter((n) => n !== 'Preview');
     if (order.join() !== want.join()) problems.push(`${at}: the buttons run ${order.join(', ')}`);
 
-    // Cancel keeps everything, and no control has the focus when the dialog opens.
+    // Cancel keeps everything, and the focus is on the dialog's first control when it opens (Material 3).
     await tap(discard);
     await dialog.waitFor({ timeout: 5000 });
     if (!(await dialog.innerText()).includes('goes back to its published version'))
       problems.push(`${at}: the question says "${await dialog.innerText()}"`);
-    const focused = await page.evaluate(() => document.activeElement?.tagName);
-    if (focused === 'BUTTON' || focused === 'INPUT') problems.push(`${at}: ${focused} has the focus when the question opens`);
+    const inside = await page
+      .waitForFunction(() => !!document.activeElement?.closest('dialog[open]'), null, { timeout: 3000 })
+      .then(
+        () => true,
+        () => false,
+      );
+    if (!inside) problems.push(`${at}: the focus is not in the question when it opens`);
     await tap(dialog.getByRole('button', { name: 'Cancel', exact: true }));
     await dialog.waitFor({ state: 'detached', timeout: 5000 }).catch(() => {});
     if (commits.length) problems.push(`${at}: Cancel committed`);

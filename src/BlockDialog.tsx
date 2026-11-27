@@ -47,7 +47,7 @@ import {
 } from './ui';
 import { blockGroups, htmlBlock, type BlockData, type BlockProps, type SiteBlock } from './blocks';
 import { clean, newValue, problemAt, savedValue } from './check';
-import { EditLink, FieldList, FieldPageSheet, useWrongField, WrongField } from './fields';
+import { BLOCK_PROBLEM, EditLink, FieldList, FieldPageSheet, useWrongField, WrongField } from './fields';
 import { HTML } from './markdown.mjs';
 import { byText, type Field, type Template } from './schema';
 import { preview, siteBlocks } from './registry';
@@ -661,6 +661,13 @@ export function useBlockDialog(
   }
 
   const block = open?.step === 'fields' ? blockOf(open.type) : undefined;
+  // The page's Save stopped at a block: this one's field is marked when it is the one that is wrong.
+  useEffect(() => {
+    if (!block) return;
+    const marked = () => wrongField.mark(problemAt(block.fields, values));
+    window.addEventListener(BLOCK_PROBLEM, marked);
+    return () => window.removeEventListener(BLOCK_PROBLEM, marked);
+  });
   // The blocks to choose from (not a section of text, which is written in the text), with the image
   // when it is offered, in alphabetical order and as far as the search finds them. Only those the
   // template allows, and not one the text has as many of as it may.
@@ -756,7 +763,7 @@ export function useBlockDialog(
       {block!.type === IMAGE && crop && !data.page && !!values.src && (
         // The aspect ratio is one row: its value and an arrow; it opens the crop view over the sheet, and Save there brings the new ratio and crop
         // back here (the sheet's own Save keeps them in the page: one change, one Save).
-        <ul className="mo-editor-block-dialog-list">
+        <ul>
           <ListItem
             headline={t.media.crop.ratio}
             count={String(values.format ?? '') || t.media.crop.original}

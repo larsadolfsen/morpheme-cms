@@ -286,9 +286,9 @@ async function checkCommandPalette(width) {
   });
   if (!homeBar.bar || (isMaterialTheme() && Math.abs(homeBar.height - 56) > 0.5))
     problems.push(`${label}: the start screen has no 56 px search bar (${JSON.stringify(homeBar)})`);
-  // M3 specs, Measurements: an unfocused search bar is 24dp from the screen's edge (on a phone, in the page; from medium it stands in the top bar).
-  if (isMaterialTheme() && touch && Math.abs(homeBar.left - 24) > 0.5)
-    problems.push(`${label}: the phone's search bar is ${homeBar.left} dp from the edge, not 24 (M3 specs)`);
+  // M3 specs, Measurements: an unfocused search bar is 24dp from the screen's edge, but the page's 16dp margins win on a phone (SV6, owner 21 Nov 2026: the bar is 358 wide at 390; from medium it stands in the top bar).
+  if (isMaterialTheme() && touch && Math.abs(homeBar.left - 16) > 0.5)
+    problems.push(`${label}: the phone's search bar is ${homeBar.left} dp from the edge, not 16 (the page margin, SV6)`);
   if (homeBar.icon) problems.push(`${label}: the start screen also has the search icon button`);
   const view = page.locator('[data-search-controlled] [data-search-view-open]');
   const input = view.locator('input[role=combobox]');

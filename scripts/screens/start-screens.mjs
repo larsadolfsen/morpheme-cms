@@ -172,7 +172,16 @@ async function checkStartGaps(width, height) {
   await page.waitForSelector('.mo-editor-start-cards');
   await page.waitForTimeout(500);
   const gaps = await page.evaluate(() => {
-    const boxes = [...document.querySelectorAll('.mo-editor-start-cards > *:not(.mo-editor-stack-200), .mo-editor-dashboard-grid > *')]
+    const boxes = [
+      ...document.querySelectorAll(
+        '.mo-editor-start-cards > *:not(.mo-editor-stack-200, .mo-editor-start-cards), .mo-editor-dashboard-grid > *',
+      ),
+    ]
+      .filter(
+        (e) =>
+          !e.parentElement.parentElement?.classList.contains('mo-editor-start-cards') ||
+          e.parentElement.classList.contains('mo-editor-dashboard-grid'),
+      )
       .map((e) => e.getBoundingClientRect())
       .filter((b) => b.height > 0)
       .sort((a, b) => a.top - b.top);
@@ -259,8 +268,8 @@ const SURFACE_ROLES = [
   ['Page', 'body', 'surface', ''],
   ['Search bar', '.mo-search-bar', 'surface-container-high', ''],
   ['Dashboard widget (outlined card)', '.mo-editor-widget-list.mo-is-outlined, .mo-editor-widget-text.mo-is-outlined', 'surface', ''],
-  ['Card, filled', '.mo-card.mo-is-filled', 'surface-container-highest', ''],
-  ['Card, elevated', '.mo-card.mo-is-elevated', 'surface-container-low', ''],
+  ['Card, filled', '.mo-card.mo-is-filled', 'surface-container-highest', 'developer/parts/ui'],
+  ['Card, elevated', '.mo-card.mo-is-elevated', 'surface-container-low', 'developer/parts/ui'],
   ['Rich tooltip', '.mo-tooltip.mo-is-rich', 'surface-container', ''],
   ['Theme list row', '.mo-editor-themes li, main li', 'surface', 'appearance/themes'],
   ['Navigation drawer, modal', '.mo-navigation-drawer:not(.mo-navigation-drawer__standard)', 'surface-container', 'developer/parts/ui'],

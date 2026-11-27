@@ -88,6 +88,8 @@ import { useListDrafts } from './listDraft';
 import { ownListsOf } from './ownLists';
 import { isOver, untilTime } from '../lib/notice.mjs';
 import { safeImageSrc } from '../lib/safe-url.mjs';
+import { initials } from '../lib/initials.mjs';
+import { SiteAvatar } from './themeUi';
 import { hiddenFromSearch, isUnlisted } from '../lib/status.mjs';
 import { savedTheme, setTheme, shownMode, type Theme } from './theme';
 import { saveDensity, savedDensity, setDensity, type Density } from './density';
@@ -893,7 +895,7 @@ export function Account({ user, files, onLogout }: { user: Viewer | null; files:
       <LocalePicker />
       <NotificationChoices files={files} />
       <Group>
-        <ListItem tone="accent" onClick={onLogout} leading={<MaterialIcon name="logout" size={20} />} headline={t.library.logOut} />
+        <ListItem onClick={onLogout} leading={<MaterialIcon name="logout" size={20} />} headline={t.library.logOut} />
       </Group>
     </Screen>
   );
@@ -1477,7 +1479,6 @@ export function List({
   // The items of the menu whose pages under them are shown; all closed at first, kept in this browser.
   const [openBranches, setOpenBranches] = useState(() => savedOpen(collection));
   const orderable = collection.kind === 'folder' && collection.orderable && !q;
-
   function pickSort(s: Sort) {
     setSort(s);
     try {
@@ -1562,7 +1563,7 @@ export function List({
         {...(path ? selection.row(path) : {})}
         href={item.href}
         leading={ring(item)}
-        {...(!scores && item.versions ? pictureOf(item, collection.id === 'blog') : {})}
+        {...(!scores && item.versions ? pictureOf(item) : {})}
         headline={item.title}
         supporting={
           item.versions
@@ -1769,11 +1770,19 @@ export function List({
 }
 
 /** A page's or post's leading part: its share image, else a square with its icon, the same size and corners (the image itself and its corner are ListItem's). */
-function pictureOf(item: Item, post: boolean): Record<string, unknown> {
+function pictureOf(item: Item): Record<string, unknown> {
   if (!item.file) return {};
   const src = item.image ? safeImageSrc(item.image) : '';
   if (src) return { leadingImage: { src } };
-  return { icon: materialIcon(post ? 'article' : 'description') };
+  // No image: the Avatar part with the title's first letters, as large and as round as the image thumbnail, so every row is as high and the
+  // titles start at one place, every one in the same light colour (theme/styles/ui/avatar.css).
+  return {
+    leadingMedia: (
+      <span aria-hidden="true">
+        <SiteAvatar className="mo-avatar-placeholder">{initials(item.title)}</SiteAvatar>
+      </span>
+    ),
+  };
 }
 
 /** The line under a page's or post's name: its versions (and its address from a computer's width), the full time of a scheduled version as the tooltip. */
@@ -1839,13 +1848,13 @@ function TreeRows({
           <Fragment key={key}>
             <ListItem
               href={item.href || undefined}
-              tone={item.href ? undefined : 'muted'}
+              disabled={!item.href}
               // Indented 20 dp under the item it is under: the step is added to the container's own start padding, which an inline value would replace.
               style={
                 depth ? { paddingInlineStart: `calc(var(--mo-comp-list-list-item-leading-space, 0px) + ${depth * 1.25}rem)` } : undefined
               }
               leading={ring?.(item)}
-              {...(!ring && item.versions ? pictureOf(item, false) : {})}
+              {...(!ring && item.versions ? pictureOf(item) : {})}
               headline={item.title}
               supporting={item.href ? versionLine(item, wide) : t.library.pageGone}
               truncate

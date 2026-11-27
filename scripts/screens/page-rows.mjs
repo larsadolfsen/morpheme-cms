@@ -138,10 +138,10 @@ async function checkBlockRow(width, options = {}) {
     problems.push(`${label}: the row sits outside the dotted outline (${JSON.stringify({ row: frame.row, card: frame.card })})`);
   if (frame.radius[0] !== frame.radius[1] || frame.radius[0] === '0px')
     problems.push(`${label}: the outline's corner radius is ${frame.radius[0]}, not the Card's ${frame.radius[1]}`);
-  // Above and below the padding is the Card's; at the sides it is the frame's outset less its line (6.5 px), so the block's content stands on the text column's edge.
-  if (frame.padding[0] !== frame.padding[1] || frame.padding[2] !== '6.5px')
+  // Above and below the padding is the Card's; at the sides it is the frame's outset less its line (7 px), so the block's content stands on the text column's edge.
+  if (frame.padding[0] !== frame.padding[1] || frame.padding[2] !== '7px')
     problems.push(
-      `${label}: the outline's padding is ${frame.padding[0]} (the Card's ${frame.padding[1]}) above and ${frame.padding[2]} at the sides (6.5px: the frame's outset less its line)`,
+      `${label}: the outline's padding is ${frame.padding[0]} (the Card's ${frame.padding[1]}) above and ${frame.padding[2]} at the sides (7px: the frame's outset less its line)`,
     );
   // The row hugs the top of the outline: its space above is the Card's small gap, well under the Card's padding.
   if (frame.row && frame.row.top - frame.card.top - frame.border > 12)
@@ -821,8 +821,8 @@ async function checkEmptyHint() {
   }
 }
 
-/** The FAB never covers the footer (Screen.tsx useFabLift): on every screen that has both, at the top, in the middle and at the bottom
- * of the page, the FAB's box and the footer's do not overlap. The screens are the start screen and the lists with a create button. */
+/** Scrolled to the end, the FAB covers nothing, the footer included (task 13 test 4; Screen.tsx leaves room for it under the footer, data-clearance): on every screen that has both, at the
+ * bottom of the page the FAB's box and the footer's do not overlap. The FAB is fixed at the window's margin, so mid-page the footer may pass under it (the lift that avoided that is gone, task 13 test 4). The screens are the start screen and the lists with a create button. */
 async function checkFabAboveFooter(width) {
   const label = `${width}px FAB above the footer`;
   const touch = width < 600;
@@ -844,7 +844,7 @@ async function checkFabAboveFooter(width) {
       });
       if (!m) continue;
       seen++;
-      if (m.footerTop < m.h && m.footerBottom > 0 && m.fabBottom > m.footerTop + 0.5 && m.fabTop < m.footerBottom)
+      if (at === 1 && m.fabBottom > m.footerTop + 0.5 && m.fabTop < m.footerBottom - 1)
         problems.push(
           `${label}: on ${route} (scrolled to ${at * 100}%) the FAB (${Math.round(m.fabTop)}–${Math.round(m.fabBottom)}) overlaps the footer (${Math.round(m.footerTop)}–${Math.round(m.footerBottom)})`,
         );
@@ -1032,7 +1032,8 @@ async function checkEmptyRow(width, height) {
     const kinds = await dialog.getByRole('button').evaluateAll((b) => b.map((x) => x.className));
     if (kinds.length !== 2 || kinds.some((k) => !/\bmo-is-text\b/.test(k)))
       problems.push(`${label}: the dialog actions are not both text buttons (${kinds.join(' | ')})`);
-    if (await dialog.locator('button:focus').count()) problems.push(`${label}: a button has the focus`);
+    // Material 3: the focus is on the dialog's first control when it opens.
+    if (!(await dialog.locator(':focus').count())) problems.push(`${label}: the focus is not in the dialog`);
     const marked = await page.evaluate(() => {
       const el = document.querySelector('.mo-editor-wrong');
       const r = el?.getBoundingClientRect();

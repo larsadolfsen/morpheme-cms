@@ -114,13 +114,13 @@ async function checkUserInvalid(width, height, theme) {
   await page.close();
 }
 
-/** A page's accordion rows (FoldSection): between its divider lines the title has the same space above and below it (within 1px, measured on the pixels of the first capital, not the line box), the arrow is centred on the title, and the row stays 48px tall or more (360, 375, 390, 414 px and a computer). */
+/** A page's accordion rows (FoldSection): between its divider lines the title has the same space above and below it (within 2px, measured on the pixels of the first capital, not the line box), the arrow is centred on the title, and the row stays 56px tall or more (360, 375, 390, 414 px and a computer). */
 async function checkFoldRows(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US', deviceScaleFactor: 2 });
   page.on('pageerror', (e) => problems.push(`${width}px accordion rows: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#new/pages'));
-  const buttons = page.locator('section[aria-labelledby] > h2 > button[aria-expanded]');
+  const buttons = page.locator('section[data-fold-section] button.mo-list__item-expand-button');
   await buttons.first().waitFor();
   await page.waitForTimeout(300);
   const shown = [];
@@ -128,8 +128,8 @@ async function checkFoldRows(width, height) {
     const button = buttons.nth(i);
     await button.evaluate((el) => el.scrollIntoView({ block: 'center' }));
     await page.waitForTimeout(100);
-    const box = await button.boundingBox();
-    const title = button.locator('span');
+    const box = await button.locator('xpath=ancestor::*[contains(@class,"mo-list__item-expand-summary")][1]').boundingBox();
+    const title = button.locator('xpath=ancestor::section[1]').locator('[id$="-title"]');
     const t = await title.boundingBox();
     const title_ = await title.textContent();
     const arrow = await button.locator('svg').boundingBox();
@@ -155,16 +155,18 @@ async function checkFoldRows(width, height) {
     const above = Math.min(...inked) / scale;
     const below = (info.height - 1 - Math.max(...inked)) / scale;
     shown.push([above, below, box.height]);
-    if (Math.abs(above - below) > 1)
+    // The row is the List - Expand part's item (task 13 test 14): the part centres the text's line box, so the capitals sit up to 2px off the middle by the font's metrics.
+    if (Math.abs(above - below) > 2)
       problems.push(`${width}px accordion row "${title_}": ${above}px above the letters and ${below}px below, should be equal`);
     const centre = (Math.min(...inked) + Math.max(...inked) + 1) / 2 / scale + box.y;
     if (Math.abs(arrow.y + arrow.height / 2 - centre) > 1)
       problems.push(`${width}px accordion row "${title_}": the arrow is not centred on the title`);
-    if (box.height < 48) problems.push(`${width}px accordion row "${title_}": ${box.height}px tall, should be 48px or more`);
+    if (box.height < 55.5)
+      problems.push(`${width}px accordion row "${title_}": ${box.height}px tall, should be 56px or more (List - Expand)`);
     // The line above the title is the divider under the section before it: nothing may sit between them (a parent's `space-y` gave 24px, twice as far above the title as below it).
     const gap = await button.evaluate((el) => {
       const before = el.closest('section').previousElementSibling;
-      if (!before?.matches('section[aria-labelledby]')) return 0;
+      if (!before?.matches('section[data-fold-section]')) return 0;
       return el.closest('section').getBoundingClientRect().top - before.getBoundingClientRect().bottom;
     });
     if (Math.abs(gap) > 1)
@@ -187,19 +189,19 @@ async function checkEntrySettings(width, height) {
     page.on('pageerror', (e) => problems.push(`${width}px ${hash} settings: ${e.message}`));
     await openEditor(page, site);
     await page.evaluate((h) => (location.hash = h), hash);
-    const buttons = page.locator('section[aria-labelledby] > h2 > button[aria-expanded]');
+    const buttons = page.locator('section[data-fold-section] button.mo-list__item-expand-button');
     await buttons.first().waitFor();
     await page.waitForTimeout(300);
-    const titles = (await buttons.allTextContents()).map((t) => t.trim());
+    const titles = await buttons.evaluateAll((els) => els.map((el) => el.getAttribute('aria-label') ?? ''));
     if (titles.some((t) => t.startsWith('Other fields')))
       problems.push(`${width}px ${hash}: still has an "Other fields" fold (${titles.join(', ')})`);
     if (titles.some((t) => t.startsWith('Earlier versions')))
       problems.push(`${width}px ${hash}: "Earlier versions" is called "History" now`);
-    const settings = buttons.filter({ hasText: folds });
+    const settings = buttons.and(page.locator(`[aria-label="${folds}"]`));
     if (!(await settings.count())) problems.push(`${width}px ${hash}: no "${folds}" fold (${titles.join(', ')})`);
     else {
       if ((await settings.first().getAttribute('aria-expanded')) !== 'true') await settings.first().click();
-      const section = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: folds }) });
+      const section = page.locator('section[data-fold-section]').filter({ has: page.locator('[id$="-title"]', { hasText: folds }) });
       const text = await section.first().textContent();
       for (const label of fields) if (!text.includes(label)) problems.push(`${width}px ${hash}: "${folds}" lacks "${label}"`);
     }
@@ -214,10 +216,10 @@ async function checkNofollowSwitch(width, height) {
     page.on('pageerror', (e) => problems.push(`${width}px ${hash} nofollow: ${e.message}`));
     await openEditor(page, site);
     await page.evaluate((h) => (location.hash = h), hash);
-    const buttons = page.locator('section[aria-labelledby] > h2 > button[aria-expanded]');
+    const buttons = page.locator('section[data-fold-section] button.mo-list__item-expand-button');
     await buttons.first().waitFor();
     await page.waitForTimeout(300);
-    const seo = buttons.filter({ hasText: 'Search engines' });
+    const seo = buttons.and(page.locator('[aria-label="Search engines"]'));
     if (!(await seo.count())) {
       problems.push(`${width}px ${hash} nofollow: no "Search engines" fold`);
       await page.close();
@@ -225,8 +227,8 @@ async function checkNofollowSwitch(width, height) {
     }
     if ((await seo.first().getAttribute('aria-expanded')) !== 'true') await seo.first().click();
     const section = page
-      .locator('section[aria-labelledby]')
-      .filter({ has: page.locator('h2', { hasText: 'Search engines' }) })
+      .locator('section[data-fold-section]')
+      .filter({ has: page.locator('[id$="-title"]', { hasText: 'Search engines' }) })
       .first();
     const labels = await section
       .locator('[role="switch"], input[type="checkbox"]')
@@ -444,14 +446,15 @@ async function checkDanger(width, height) {
     await openEditor(page, site);
     await page.goto(`${site}/editor/#src/content/pages/zz-danger.md`);
     await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
-    const danger = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: /^Danger$/ }) });
+    const danger = page.locator('section[data-fold-section]').filter({ has: page.locator('[id$="-title"]', { hasText: /^Danger$/ }) });
     // Danger is folded on load, like every section but Content (owner, 14 Nov 2026): open it to see its rows.
-    const rows = () => danger.locator(':scope > div').getByRole('button');
+    const rows = () => danger.locator('.mo-editor-danger-buttons').getByRole('button');
     const openDanger = async () => {
-      const toggle = danger.locator('h2 button');
+      const toggle = danger.locator('button.mo-list__item-expand-button');
       if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
     };
-    if ((await danger.locator('h2 button').getAttribute('aria-expanded')) === 'true') problems.push(`${label}: Danger is open on load`);
+    if ((await danger.locator('button.mo-list__item-expand-button').getAttribute('aria-expanded')) === 'true')
+      problems.push(`${label}: Danger is open on load`);
     await openDanger();
     const idle = (await rows().allTextContents()).map((n) => n.trim()).join();
     if (idle !== 'Delete page') problems.push(`${label}: Danger has "${idle}" with nothing changed, not only Delete page`);
@@ -481,17 +484,20 @@ async function checkDanger(width, height) {
       problems.push(`${label}: Danger has ${names.join(', ')}, not Discard, Delete page`);
     const last = await page.evaluate(() => {
       const all = [...document.querySelectorAll('section[data-fold-section]')];
-      return all.at(-1)?.querySelector('h2')?.textContent?.trim();
+      return document.getElementById(all.at(-1)?.getAttribute('aria-labelledby') ?? '')?.textContent?.trim();
     });
     if (last !== 'Danger') problems.push(`${label}: the last section is "${last}", not Danger`);
     const discard = danger.getByRole('button', { name: 'Discard', exact: true });
     await discard.click();
     const dialog = page.getByRole('dialog');
     await dialog.waitFor({ timeout: 5000 });
-    const focused = await page.evaluate(
-      () => document.activeElement?.closest('[role="dialog"]') && document.activeElement?.tagName === 'BUTTON',
-    );
-    if (focused) problems.push(`${label}: the dialog opens with a button focused`);
+    const focused = await page
+      .waitForFunction(() => !!document.activeElement?.closest('dialog[open]'), null, { timeout: 3000 })
+      .then(
+        () => true,
+        () => false,
+      );
+    if (!focused) problems.push(`${label}: the dialog opens with the focus outside it`);
     await page.keyboard.press('Escape');
     await dialog.waitFor({ state: 'detached', timeout: 5000 });
     if (!(await page.locator('.ProseMirror').first().innerText()).includes('more')) problems.push(`${label}: Cancel dropped the change`);
@@ -523,13 +529,13 @@ async function checkDangerAlign(width, height, dir) {
     await page.locator('.ProseMirror p').first().click();
     await page.keyboard.type(' more');
     await page.evaluate((d) => (document.documentElement.dir = d), dir);
-    const danger = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: /^Danger$/ }) });
+    const danger = page.locator('section[data-fold-section]').filter({ has: page.locator('[id$="-title"]', { hasText: /^Danger$/ }) });
     await danger.waitFor({ timeout: 10_000 });
-    const toggle = danger.locator('h2 button');
+    const toggle = danger.locator('button.mo-list__item-expand-button');
     if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
     // The danger buttons (tone="error"; owner, 26 Nov 2026): Delete page filled, Discard outlined, both in the error role, the first at the leading edge of the section's flow.
     const rows = await danger
-      .locator(':scope > div')
+      .locator('.mo-editor-danger-buttons')
       .getByRole('button')
       .evaluateAll((els) => {
         const box = els[0]?.parentElement?.getBoundingClientRect();
@@ -588,16 +594,13 @@ async function checkDangerNav(width, height) {
     await nav.waitFor({ timeout: 10_000 });
     const names = (await nav.getByRole('button').allTextContents()).map((n) => n.trim());
     if (names.at(-1) !== 'Danger') problems.push(`${label}: the list ends with "${names.at(-1)}" (${names.join(', ')}), not Danger`);
-    const danger = page.locator('section[aria-labelledby]').filter({ has: page.locator('h2', { hasText: /^Danger$/ }) });
-    if ((await danger.locator('h2 button').getAttribute('aria-expanded')) === 'true')
+    const danger = page.locator('section[data-fold-section]').filter({ has: page.locator('[id$="-title"]', { hasText: /^Danger$/ }) });
+    if ((await danger.locator('button.mo-list__item-expand-button').getAttribute('aria-expanded')) === 'true')
       problems.push(`${label}: Danger is open before the jump`);
     await nav.getByRole('button', { name: 'Danger', exact: true }).click();
     await page
       .waitForFunction(
-        () =>
-          [...document.querySelectorAll('section h2 button')]
-            .find((b) => b.textContent.trim() === 'Danger')
-            ?.getAttribute('aria-expanded') === 'true',
+        () => document.querySelector('section[data-fold-section] button[aria-label="Danger"]')?.getAttribute('aria-expanded') === 'true',
         null,
         { timeout: 5000 },
       )

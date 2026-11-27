@@ -10,7 +10,7 @@
 // text can be read on its background (contrast). No React or browser here: the build uses it too.
 
 import type { Dynamic } from './dynamic-colors';
-import { neutralVariant20 } from './ref-palette.ts';
+import { neutralVariant20, primaryTones } from './ref-palette.ts';
 
 export type ColorSet = Record<string, string>;
 export type Colors = { light: ColorSet; dark: ColorSet; dynamic?: Dynamic };
@@ -107,8 +107,15 @@ export function colorsCss(colors: Colors): string {
   // M3's md.ref.palette.neutral-variant20 (the drawer's scrim), made from the site's source colour; none without one, and the
   // scrim rule keeps its own fallback (lib/ref-palette.ts).
   const nv20 = neutralVariant20(colors.dynamic?.source);
+  // M3's md.ref.palette.primary10, 30, 80 and 90 tones the page list's placeholder thumbnails use (avatar.css reads them).
+  const primary = primaryTones(colors.dynamic?.source);
+  const primaryDeclarations = primary
+    ? Object.entries(primary)
+        .map(([tone, hex]) => `--mo-ref-palette-primary${tone}:${hex};`)
+        .join('')
+    : '';
   return (
-    `:root{${declarations(colors.light)}${nv20 ? `--mo-ref-palette-neutral-variant20:${nv20};` : ''}}` +
+    `:root{${declarations(colors.light)}${nv20 ? `--mo-ref-palette-neutral-variant20:${nv20};` : ''}${primaryDeclarations}}` +
     `@media (prefers-color-scheme: dark){:root:not([data-theme='light']){${dark}}}` +
     `:root[data-theme='dark']{${dark}}`
   );

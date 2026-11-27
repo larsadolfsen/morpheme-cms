@@ -26,7 +26,7 @@
   --mo-comp-editor-menu-surface: var(--mo-sys-color-surface-container-lowest);
   --mo-comp-editor-menu-shadow: var(--mo-sys-elevation-level2-shadow);
 
-  /* The room a screen leaves above its footer for the FAB (Screen.tsx data-clearance): the FAB's 56 dp and its 16 dp margins. */
+  /* The room a screen leaves under its footer for the FAB (Screen.tsx data-clearance): the FAB's 56 dp and its 16 dp margin. */
   --mo-comp-fab-room: 4.5rem;
 
   /* How a check went (CheckList: the SEO rating), as PageSpeed shows it: the mark before a check that is fine and one
@@ -64,16 +64,11 @@
   --mo-comp-editor-section-gap: 2rem;
   --mo-comp-editor-section-rhythm: 0.625em;
 
-  /* The frame the editor draws round a block (the dotted line of .mo-site-block-card): it hangs this far outside the text column on each side, a fixed outset
+  /* The frame the editor draws round a block (the line of .mo-site-block-card, M3 outlined card: 1 dp): it hangs this far outside the text column on each side, a fixed outset
      (4 dp grid), and the block's own content stays on the column's edge, as on the site. The line's width is part of the outset: the padding inside the
      line is the outset less the line. The text field's padding (--mo-comp-editor-pad-x) is at least the outset, so the frame is never clipped by the text field. */
   --mo-comp-editor-frame-outset: 0.5rem;
-  --mo-comp-editor-frame-line: 1.5px;
-
-  /* A form's "on this page" area (SectionPane in ui.tsx) against the window's end edge: its width (the card is as wide as the navigation drawer), the card in it
-     stands --mo-sys-section-pane-gap in from the end edge and from the window's top edge. */
-  --mo-sys-section-pane-width: calc(var(--mo-comp-navigation-drawer-width, 22.5rem) + var(--mo-sys-section-pane-gap));
-  --mo-sys-section-pane-gap: 2rem;
+  --mo-comp-editor-frame-line: 1px;
 
   /* The side panel of a block's fields and the section settings (BlockDialog's standard side sheet from expanded, BottomSheet
      `panel` in ui.tsx from large): M3's side sheet is 400dp (25rem) wide at most; where the window is narrower it is half
@@ -419,7 +414,7 @@
 /* Every Save row is the theme's standard bottom sheet (ActionSheet in ui.tsx): the screen leaves room under its last field so
    nothing is hidden behind it. */
 :root:has(.mo-editor-save-bar) .mo-editor-screen {
-  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  padding-bottom: max(env(safe-area-inset-bottom), var(--mo-editor-clearance-bottom, 0px));
 }
 
 /* A focused control scrolls clear of the bars that stay on the screen: their heights are measured by useScrollClearance (ui.tsx;
@@ -427,11 +422,6 @@
 :root {
   scroll-padding-block-start: var(--mo-editor-clearance-top, 0px);
   scroll-padding-block-end: var(--mo-editor-clearance-bottom, 0px);
-}
-
-/* Only the page and post editor (outside Material 3) keeps its focus ring in `primary`; every other screen takes M3's `secondary` (theme/styles/base.css). */
-:root:has(.mo-editor-text-box) {
-  --mo-sys-state-focus-indicator-color: var(--mo-sys-color-primary);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -463,43 +453,12 @@
   }
 }
 
-/* The field that keeps a form from being saved (WrongField in fields.tsx): the edge of the theme's text field
-   (.mo-text-field__input, its edge a box-shadow) in the accent colour, flashing gently three times; around the whole field
-   when it has no box of its own (an image, icons, a switcher). It stays until the next try or a change. */
-.mo-editor-wrong .mo-text-field__input {
-  box-shadow:
-    inset 0 0 0 2px var(--mo-sys-color-primary),
-    0 0 0 3px color-mix(in srgb, var(--mo-sys-color-primary) 25%, transparent);
-}
-
-.mo-editor-wrong:not(:has(.mo-text-field__input)) {
-  border-radius: var(--mo-sys-shape-corner-large);
-  outline: 2px solid var(--mo-sys-color-primary);
-  outline-offset: 6px;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .mo-editor-wrong .mo-text-field__input {
-    animation: editor-flash 0.8s ease-in-out 3;
-  }
-
-  .mo-editor-wrong:not(:has(.mo-text-field__input)) {
-    animation: editor-flash-around 0.8s ease-in-out 3;
-  }
-}
-
-@keyframes editor-flash {
-  50% {
-    box-shadow:
-      inset 0 0 0 1px var(--mo-sys-color-outline-variant),
-      0 0 0 3px transparent;
-  }
-}
-
-@keyframes editor-flash-around {
-  50% {
-    outline-color: transparent;
-  }
+/* A block of the text that keeps a page from being saved (an empty block, showBlock in MarkdownEditor.tsx) is marked by the error
+   role, as a text field's edge is in its error state; it stays until the next try. A field of a form is the field's own error state. */
+.mo-editor-wrong {
+  border-radius: var(--mo-sys-shape-corner-medium);
+  outline: 2px solid var(--mo-sys-color-error);
+  outline-offset: 4px;
 }
 
 /* A sheet that is dragged up by its top on a phone (SheetTitle in ui.tsx) is as tall as the screen allows
@@ -570,15 +529,6 @@
   .mo-editor-fade-in[data-loaded] {
     opacity: 1;
   }
-
-  /* In the base layer, so a rule on the button itself still decides. */
-  @layer base {
-    :is(button, a):not(:disabled, .ProseMirror *) {
-      transition:
-        background-color var(--mo-sys-motion-spring-fast-effects),
-        color var(--mo-sys-motion-spring-fast-effects);
-    }
-  }
 }
 
 @keyframes editor-sheet-in {
@@ -617,18 +567,10 @@
   }
 }
 
-/* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: --mo-sys-section-pane-width and
+/* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: the pane's width and
    the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N6). */
 .mo-editor-main-drawer-panel {
   --mo-comp-navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
-}
-
-.mo-editor-main-rail {
-  --mo-comp-nav-rail-padding: 0.5rem 0.5rem 1.5rem;
-}
-
-.mo-editor-main-rail .mo-nav-rail__header {
-  margin-bottom: 1rem;
 }
 
 @keyframes editor-pop {
@@ -652,35 +594,37 @@
 }
 
 :root:has(.mo-editor-save-bar) .mo-snackbar__stack {
-  bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  bottom: calc(max(env(safe-area-inset-bottom), var(--mo-editor-clearance-bottom, 0px)) + var(--mo-ref-space-100));
 }
 
 /* The screen's main actions (FabMenu in ui.tsx) at the bottom right, above the content; the messages above them. */
 .mo-editor-fab {
+  --mo-editor-fab-margin: 1rem;
   position: fixed;
-  right: calc(1rem + env(safe-area-inset-right));
-  /* Stands 16 dp above the footer while the footer is in the window (--mo-comp-editor-fab-lift, fabPresence.tsx useFabLift). */
-  bottom: max(calc(1rem + env(safe-area-inset-bottom)), calc(var(--mo-comp-editor-fab-lift, 0px) + 1rem));
+  right: calc(var(--mo-editor-fab-margin) + env(safe-area-inset-right));
+  /* The window's margin above the bottom edge, or above a bar that stays there (the Save bar: its height is measured by useScrollClearance). */
+  bottom: calc(var(--mo-editor-fab-margin) + max(env(safe-area-inset-bottom), var(--mo-editor-clearance-bottom, 0px)));
   z-index: 30;
 }
 
-/* A FAB whose action runs or cannot be used now (FabAction.busy, .disabled): dimmed, and nothing to press. */
+/* A FAB whose action runs or cannot be used now (FabAction.busy, .disabled): nothing to press. */
 .mo-editor-fab :is(.mo-extended-fab, .mo-fab):disabled {
   opacity: 0.38;
   pointer-events: none;
 }
 
 :root:has(.mo-editor-fab) .mo-snackbar__stack {
-  bottom: max(calc(6rem + env(safe-area-inset-bottom)), calc(var(--mo-comp-editor-fab-lift, 0px) + 5rem));
+  bottom: calc(5rem + max(env(safe-area-inset-bottom), var(--mo-editor-clearance-bottom, 0px)));
 }
 
-/* While a form's save bar is up (FormFrame.tsx) the FAB stands above it, so it does not cover Save; the messages above both. */
-:root:has(.mo-editor-save-bar) .mo-editor-fab {
-  bottom: max(calc(6.5rem + env(safe-area-inset-bottom)), calc(var(--mo-comp-editor-fab-lift, 0px) + 1rem));
-}
-
-:root:has(.mo-editor-save-bar):has(.mo-editor-fab) .mo-snackbar__stack {
-  bottom: calc(11.5rem + env(safe-area-inset-bottom));
+@media (width >= 37.5rem) {
+  :root {
+    /* The FAB's 56 dp and its 24 dp margin at the window's layout margin. */
+    --mo-comp-fab-room: 5rem;
+  }
+  .mo-editor-fab {
+    --mo-editor-fab-margin: 1.5rem;
+  }
 }
 
 /* From medium the navigation rail stands at the start edge of the window (MainMenu.tsx), so the messages are in the middle of
@@ -689,44 +633,20 @@
    stand beside the rail and the drawer, so they need no room. */
 @media (width >= 37.5rem) {
   .mo-snackbar__stack {
-    padding-left: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
+    padding-inline-start: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
   }
   .mo-editor-save-bar {
-    left: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
+    inset-inline-start: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
     width: auto;
   }
 }
 @media (width >= 52.5rem) {
   :root[data-sidebar='open'] .mo-snackbar__stack {
-    padding-left: var(--mo-comp-navigation-drawer-width, 22.5rem);
+    padding-inline-start: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
   :root[data-sidebar='open'] .mo-editor-save-bar {
-    left: var(--mo-comp-navigation-drawer-width, 22.5rem);
+    inset-inline-start: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
-}
-
-/* The type of the "on this page" card (SectionPane and SectionList in ui.tsx), from the theme's type roles: the small
-   caption, the form's name under it, and a section's name (the one in view in medium weight). */
-.mo-editor-section-pane-caption {
-  font-size: var(--mo-sys-typescale-label-small-size);
-  line-height: var(--mo-sys-typescale-label-small-line-height);
-  font-weight: var(--mo-sys-typescale-label-small-weight);
-  letter-spacing: var(--mo-sys-typescale-label-small-tracking);
-}
-.mo-editor-section-pane-title {
-  font-size: var(--mo-sys-typescale-headline-small-size);
-  line-height: var(--mo-sys-typescale-headline-small-line-height);
-  font-weight: var(--mo-sys-typescale-headline-small-weight);
-  letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
-}
-.mo-editor-section-list-item {
-  font-size: var(--mo-sys-typescale-body-medium-size);
-  line-height: var(--mo-sys-typescale-body-medium-line-height);
-  font-weight: var(--mo-sys-typescale-body-medium-weight);
-  letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-}
-.mo-editor-section-list-item[aria-current='location'] {
-  font-weight: var(--mo-sys-typescale-label-medium-weight);
 }
 
 /* The content column (.mo-editor-column: Screen.tsx's tabs row and its main) stands centred on the window, not in the space
@@ -774,13 +694,13 @@
    there is room), and the save bar ends where the area begins. */
 @media (width >= 75rem) {
   :root:has(.mo-editor-section-pane:not([hidden] *)) {
-    --mo-sys-column-end: var(--mo-sys-section-pane-width);
+    --mo-sys-column-end: calc(var(--mo-comp-side-sheet-width, 22.5rem) + var(--mo-ref-space-200));
   }
   .mo-editor-content:has(.mo-editor-section-pane:not([hidden] *)) {
-    padding-inline-end: var(--mo-sys-section-pane-width);
+    padding-inline-end: calc(var(--mo-comp-side-sheet-width, 22.5rem) + var(--mo-ref-space-200));
   }
   :root:has(.mo-editor-section-pane:not([hidden] *)) .mo-editor-save-bar {
-    right: var(--mo-sys-section-pane-width);
+    inset-inline-end: calc(var(--mo-comp-side-sheet-width, 22.5rem) + var(--mo-ref-space-200));
   }
 
   /* BottomSheet's `panel` (.mo-editor-side-panel): the theme's modal side sheet at the window's end edge, the full window
@@ -816,11 +736,11 @@
     margin-inline: auto;
   }
   :root[data-side-panel] .mo-editor-save-bar {
-    right: var(--mo-comp-side-panel-width);
+    inset-inline-end: var(--mo-comp-side-panel-width);
   }
   /* The screen's create button stands beside the pane, not on it (a redirect or a new list opens the pane from it). */
   :root[data-side-panel] .mo-editor-fab {
-    right: calc(var(--mo-comp-side-panel-width) + 1rem + env(safe-area-inset-right));
+    right: calc(var(--mo-comp-side-panel-width) + var(--mo-editor-fab-margin) + env(safe-area-inset-right));
   }
   /* The same for a standard side sheet in the page's own layout (the details in Files), while it reaches (nearly) the window's edge: the button
      stands beside it, not on it. The column stops growing at 73.5rem, and from there the button has room at its end. */
@@ -888,10 +808,10 @@ html {
   width: calc(100% + 2 * var(--mo-comp-editor-frame-outset));
   margin-inline: calc(-1 * var(--mo-comp-editor-frame-outset));
   position: relative;
-  /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .mo-card), so the action row, the items and the
+  /* The outline is an outlined Card's: 1 px solid outline-variant, its corner radius and padding, the theme's tokens (the same fallbacks as .mo-card), so the action row, the items and the
      add button line up inside it. */
   border-radius: var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius));
-  border: var(--mo-comp-editor-frame-line) dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
+  border: var(--mo-comp-editor-frame-line) solid var(--mo-sys-color-outline-variant);
   padding-block: var(--mo-comp-card-padding, 1rem);
   padding-inline: calc(var(--mo-comp-editor-frame-outset) - var(--mo-comp-editor-frame-line));
   text-align: left;
@@ -992,7 +912,7 @@ html {
 .mo-editor-text .mo-site-block-row-hover {
   position: absolute;
   z-index: 1;
-  inset-block-start: calc(1.5px + var(--mo-comp-card-gap, 0.5rem));
+  inset-block-start: calc(var(--mo-comp-editor-frame-line) + var(--mo-comp-card-gap, 0.5rem));
   inset-inline: calc(var(--mo-comp-editor-frame-outset) - var(--mo-comp-editor-frame-line));
   pointer-events: none;
 }
@@ -1098,9 +1018,9 @@ html {
   justify-content: center;
   inline-size: 1.5rem;
   block-size: 1.5rem;
-  /* Part of the dotted outline it sits on: the same line (width, style and colour), on the surface the line is drawn on, with no shadow. */
+  /* Part of the outline it sits on: the same line (width, style and colour), on the surface the line is drawn on, with no shadow. */
   box-sizing: border-box;
-  border: 1.5px dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
+  border: var(--mo-comp-editor-frame-line) solid var(--mo-sys-color-outline-variant);
   border-radius: 50%;
   background: var(--mo-sys-color-surface);
   color: transparent;
@@ -1190,55 +1110,6 @@ html {
 .mo-editor-text .mo-site-block-inline:focus-within {
   border-color: var(--mo-sys-color-primary);
   outline: 2px dotted var(--mo-sys-color-primary);
-  outline-offset: 2px;
-}
-
-/* The contextual menu of a block typed in place (contextualMenu.ts): over the block on a computer, docked above the keyboard on a phone; every
-   button a 48 dp target. */
-.mo-editor-contextual-menu {
-  position: fixed;
-  z-index: 40;
-  display: flex;
-  max-width: calc(100vw - 1rem);
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: 0.125rem;
-  border: 1px solid var(--mo-sys-color-outline-variant);
-  border-radius: var(--mo-sys-shape-corner-extra-large);
-  background: var(--mo-comp-editor-menu-surface);
-  padding: 0.25rem;
-  box-shadow: var(--mo-comp-editor-menu-shadow);
-}
-
-.mo-editor-contextual-menu[hidden] {
-  display: none;
-}
-
-.mo-editor-contextual-menu button {
-  display: inline-flex;
-  min-width: 3rem;
-  height: 3rem;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  border-radius: var(--mo-sys-shape-corner-full);
-  padding-inline: 0.75rem;
-  font-size: var(--mo-sys-typescale-body-medium-size);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.mo-editor-contextual-menu button:hover,
-.mo-editor-contextual-menu button:focus-visible,
-.mo-editor-contextual-menu button[aria-expanded='true'] {
-  background: var(--mo-sys-color-surface-container-high);
-}
-
-/* Keyboard focus: the editor's 2 px ring in the primary role (a state layer alone is under 3:1 against the bar). */
-.mo-editor-contextual-menu button:focus-visible {
-  outline: 2px solid var(--mo-sys-color-primary);
   outline-offset: 2px;
 }
 
@@ -1371,25 +1242,12 @@ html {
   text-align: start;
   cursor: pointer;
 }
-.mo-editor-text .mo-editor-inline-list-slot[aria-pressed='true'] {
-  background: var(--mo-sys-color-secondary-container);
-  color: var(--mo-sys-color-on-secondary-container);
-}
 /* A card's buttons while it is active: the text of each is typed on the button itself (InlineCards.tsx), drawn in the theme button of its style. */
 .mo-editor-text .mo-editor-inline-card-button {
   display: inline-flex;
   min-width: 6rem;
   min-height: 2.5rem;
   align-items: center;
-}
-
-.mo-editor-inline-list-slot {
-  display: grid;
-  width: 2.5rem;
-  height: 2.5rem;
-  place-items: center;
-  border-radius: var(--mo-sys-shape-corner-full);
-  color: var(--mo-sys-color-on-surface-variant);
 }
 
 .mo-editor-inline-list-slot[data-icon-color] {
@@ -1428,45 +1286,8 @@ html {
   color: var(--mo-comp-icon-color);
 }
 
-.mo-editor-inline-list-slot:hover,
-.mo-editor-inline-list-slot:focus-visible {
-  background: var(--mo-sys-color-surface-container-high);
-}
-
-/* Keyboard focus: the editor's 2 px ring in the primary role (the state layer alone is about 1.2:1 against the row). */
-.mo-editor-inline-list-slot:focus-visible {
-  outline: 2px solid var(--mo-sys-color-primary);
-  outline-offset: 2px;
-}
-
-/* Inside a filled button the ring is drawn on the button's own container, which is the ring role's colour (1:1). It takes the button's
-   on-colour instead (the same tokens the theme's filled button uses for its label), so it holds on every section colour, light and dark. */
-.mo-button.mo-is-filled .mo-editor-inline-list-slot:focus-visible {
-  outline-color: var(--mo-comp-button-filled-label-text-color, var(--mo-comp-block-on-accent));
-}
-
-/* Where the browser has CSS anchor positioning the menu is placed by the theme's rules for a dropdown menu (ui.css, under the
-   button from its start; the other side when there is no room), with the button as its anchor (Menu in ui.tsx names it). Here
-   only what the editor's menus add: a field's menu (`attached`) is at least as wide as the field and grows from its end edge;
-   a bar menu (`popup`) always opens downwards (it scrolls when it is too high, the script sets its height from the visible
-   screen) and has its leading (`start`) or trailing (`end`) edge on the button's. */
-@supports (position-area: block-end) and (width: anchor-size(width)) {
-  .mo-editor-menu[data-menu-attached] {
-    width: max-content;
-    min-width: anchor-size(width);
-    max-width: max(anchor-size(width), var(--mo-comp-menu-width, 18rem));
-    position-area: block-end span-inline-start;
-    inset: var(--mo-comp-dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
-  }
-  .mo-editor-menu[data-menu-popup] {
-    position-try-fallbacks: none;
-  }
-  .mo-editor-menu[data-menu-popup='end'] {
-    position-area: block-end span-inline-start;
-    inset: var(--mo-comp-dropdown-menu-gap, 0.25rem) 0 0.5rem 0.5rem;
-  }
-}
-
+/* Menus are placed by the theme's rules for a dropdown menu (ui.css, under the button, the other side when there is no room), the menu's width
+   112 to 280 dp by the part. */
 /* On a phone the text's box (bar and body) is 354 dp wide at 375 px (352 inside its 1 dp edges), 10.5 dp from each edge instead of the screen's 16 dp (owner decision, 14 Nov:
    eight 44 dp icons fit). A deviation from M3's 16 dp margin (docs/material-deviations.md). */
 @media (width < 37.5rem) {
@@ -1592,7 +1413,7 @@ html {
 .mo-editor-text .mo-site-block-lines {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: var(--mo-ref-space-25);
   padding: 0 0.25rem;
   color: var(--mo-sys-color-on-surface-variant);
   font-size: 0.875rem;
@@ -2035,12 +1856,12 @@ dialog {
 .mo-editor-crop-page-main,
 .mo-editor-block-page-main {
   /* The Save row is the theme's standard bottom sheet (ActionSheet), fixed over the layer: the content ends above it. */
-  padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  padding-bottom: max(env(safe-area-inset-bottom), var(--mo-editor-clearance-bottom, 0px));
 }
 @media (width >= 37.5rem) {
   .mo-editor-crop-page-main,
   .mo-editor-block-page-main {
-    padding: 1.5rem 1.5rem calc(5.5rem + env(safe-area-inset-bottom));
+    padding: 1.5rem 1.5rem max(env(safe-area-inset-bottom), var(--mo-editor-clearance-bottom, 0px));
   }
 }
 /* A block's fields on a compact window (BlockDialog.tsx): the crop page's layer and column (the rules above), with the fields scrolling inside
@@ -2057,7 +1878,7 @@ dialog {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--mo-ref-space-150);
   min-height: 0;
 }
 .mo-editor-crop-view-area {
@@ -2065,7 +1886,7 @@ dialog {
   flex: 1;
   min-height: 10rem;
   overflow: hidden;
-  border-radius: var(--mo-shape-corner-medium, 0.75rem);
+  border-radius: var(--mo-sys-shape-corner-medium);
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -2092,30 +1913,33 @@ dialog {
    the blank part of the stage keeps the page's colour. */
 .mo-editor-crop-view-shade {
   position: absolute;
-  background: var(
-    --mo-comp-dialog-scrim,
-    color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-color-on-surface)) 50%, transparent)
-  );
+  background: var(--mo-comp-dialog-scrim, var(--mo-sys-color-scrim-overlay));
   pointer-events: none;
 }
+/* The theme's focus indicator (its tokens: thickness, colour and outer offset). */
 .mo-editor-crop-view-frame:focus-visible {
-  outline: 2px solid var(--mo-sys-color-primary);
-  outline-offset: 4px;
+  outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+  outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
 }
 .mo-editor-crop-view-hint {
   margin: 0;
   color: var(--mo-sys-color-on-surface-variant);
-  font-size: var(--mo-sys-typescale-body-small-size, 0.75rem);
+  font-size: var(--mo-sys-typescale-body-small-size);
+  line-height: var(--mo-sys-typescale-body-small-line-height);
+  letter-spacing: var(--mo-sys-typescale-body-small-tracking);
   text-align: center;
 }
 .mo-editor-crop-view-label {
-  margin: 0 0 0.5rem;
-  font-weight: 500;
+  margin: 0 0 var(--mo-ref-space-100);
+  font-size: var(--mo-sys-typescale-title-small-size);
+  line-height: var(--mo-sys-typescale-title-small-line-height);
+  font-weight: var(--mo-sys-typescale-title-small-weight);
+  letter-spacing: var(--mo-sys-typescale-title-small-tracking);
 }
 /* One row that scrolls sideways below medium; from medium the chips wrap. */
 .mo-editor-crop-view-ratios {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--mo-ref-space-100);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -2125,7 +1949,7 @@ dialog {
 .mo-editor-crop-view-zoom {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--mo-ref-space-50);
 }
 @media (width >= 37.5rem) {
   .mo-editor-crop-view-ratios {
@@ -2160,14 +1984,6 @@ dialog {
 }
 :root[data-zoomed] .mo-editor-tools-bar {
   inset-block-start: calc(env(safe-area-inset-top) + var(--mo-comp-editor-visual-top, 0px));
-}
-
-/* The skip link (topBarSlot.tsx, the theme's .mo-skip-link): the editor's unlayered link styles would drop its pill, so it is set again here,
-   above the navigation and the bars (z-index of the drawer and the top bar are below 50). */
-.mo-skip-link:focus {
-  background-color: var(--mo-sys-color-primary);
-  color: var(--mo-sys-color-on-primary);
-  z-index: 50;
 }
 
 /* The <main> the skip link focuses (topBarSlot.tsx) is no control, so it draws no ring of its own; the next Tab shows the ring of the control it

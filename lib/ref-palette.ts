@@ -10,3 +10,12 @@ export function neutralVariant20(source: unknown): string | undefined {
   if (typeof source !== 'string' || !/^#[0-9a-f]{6}$/i.test(source)) return undefined;
   return hexFromArgb(new SchemeTonalSpot(Hct.fromInt(argbFromHex(source)), false, 0).neutralVariantPalette.tone(20)).toLowerCase();
 }
+
+/** The primary palette tones the page list's placeholder thumbnails use (M3's `md.ref.palette.primary10/30/80/90`), of the
+ * site's source colour (SchemeTonalSpot), as "#rrggbb" by tone; undefined when `source` is not a hex colour. */
+export const PRIMARY_TONES = [10, 30, 80, 90] as const;
+export function primaryTones(source: unknown): Record<number, string> | undefined {
+  if (typeof source !== 'string' || !/^#[0-9a-f]{6}$/i.test(source)) return undefined;
+  const palette = new SchemeTonalSpot(Hct.fromInt(argbFromHex(source)), false, 0).primaryPalette;
+  return Object.fromEntries(PRIMARY_TONES.map((tone) => [tone, hexFromArgb(palette.tone(tone)).toLowerCase()]));
+}

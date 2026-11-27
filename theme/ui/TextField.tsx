@@ -190,7 +190,9 @@ export default function TextField({
           </button>
         )}
         {trailing && <span className="mo-text-field__trailing-action">{trailing}</span>}
-        {(errorIcon || saying) && <Svg name="error" size={20} className="mo-text-field__trailing-icon mo-text-field__error-icon" />}
+        {(errorIcon || saying || error) && (
+          <Svg name="error" size={24} className="mo-text-field__trailing-icon mo-text-field__error-icon" />
+        )}
       </div>
       {(line || counter || saying) && (
         <div className="mo-text-field__supporting-row">

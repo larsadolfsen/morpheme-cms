@@ -49,7 +49,7 @@ export function ContinueWidget() {
   });
   return (
     <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="mo-editor-widget-list">
-      <h2 id={titleId} className="mo-editor-widget-list-title">
+      <h2 id={titleId} className="mo-type-title-medium mo-editor-widget-list-title">
         {t.library.continueTitle}
       </h2>
       {rows.length ? (
@@ -66,7 +66,7 @@ export function ContinueWidget() {
           ))}
         </ul>
       ) : (
-        <p className="mo-editor-widget-empty">{history ? t.library.continueEmpty : t.app.loading}</p>
+        <p className="mo-type-body-medium mo-editor-widget-empty">{history ? t.library.continueEmpty : t.app.loading}</p>
       )}
     </SiteCard>
   );

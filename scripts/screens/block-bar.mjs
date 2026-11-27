@@ -1409,7 +1409,7 @@ async function checkRowSwipeScrolls(width = 375) {
   page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
   await openEditor(page, site);
   await page.evaluate(() => (location.hash = '#src/content/pages/blocks-lists.md'));
-  const rows = page.locator('ul.mo-list__expand .mo-list__item-expand-summary');
+  const rows = page.locator('.mo-site-block-card ul.mo-list__expand .mo-list__item-expand-summary');
   await rows.first().waitFor({ timeout: 30_000 });
   await rows.first().scrollIntoViewIfNeeded();
   await page.waitForTimeout(500);

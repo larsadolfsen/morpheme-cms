@@ -1,0 +1,6 @@
+{
+  "id": "sheets-follow-m3",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "Dialogs, sheets, the save bar and messages in the editor follow Material 3 for text sizes, corners and spacing"
+}

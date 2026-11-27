@@ -103,10 +103,7 @@
   }
 
   .mo-editor-photo-credit {
-    margin-block: calc(var(--mo-ref-space-150) * -1);
-    margin-inline-start: calc(var(--mo-ref-space-125) * -1);
     display: inline-flex;
-    vertical-align: middle;
   }
   .mo-editor-photo-credit-tooltip:not([data-tooltip-open]) > .mo-tooltip {
     visibility: hidden;
@@ -115,32 +112,16 @@
   .mo-editor-photo-credit-tooltip > .mo-tooltip {
     inset-inline-start: auto;
     inset-inline-end: 0;
-    /* The theme puts it above the button (and under it only where there is no room above), not on the card's Close and Read more (WCAG 2.4.11). */
-    max-inline-size: 15rem;
-  }
-  .mo-editor-photo-credit-button {
-    display: grid;
-    inline-size: var(--mo-ref-space-600);
-    block-size: var(--mo-ref-space-600);
-    place-items: center;
-    border-radius: calc(infinity * 1px);
-    color: var(--mo-sys-color-on-surface-variant);
-    & > * {
-      min-inline-size: 0;
-    }
   }
   .mo-editor-blocked-notice {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
   .mo-editor-updates-notice {
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
-    --mo-comp-card-padding: 0;
-    --mo-comp-elevated-card-container-elevation: var(--mo-sys-elevation-level1-shadow);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-updates-notice-body {
     display: grid;
-    overflow: hidden;
-    border-radius: inherit;
+    gap: var(--mo-ref-space-200);
     @media (width >= 37.5rem) {
       grid-template-columns: minmax(10rem, 14rem) 1fr;
     }
@@ -163,42 +144,38 @@
     inset: 0;
     inline-size: 100%;
     block-size: 100%;
-    border-radius: 0.75rem;
+    border-radius: var(--mo-sys-shape-corner-medium);
     object-fit: cover;
   }
   .mo-editor-updates-notice-text {
     display: flex;
     min-inline-size: 0;
     flex-direction: column;
-    padding: var(--mo-ref-space-200);
   }
   .mo-editor-updates-notice-title {
-    font-size: var(--mo-sys-typescale-headline-small-size);
-    line-height: var(--mo-sys-typescale-headline-small-line-height);
     overflow-wrap: anywhere;
   }
   .mo-editor-updates-notice-place {
     margin-block-start: var(--mo-ref-space-50);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--mo-ref-space-50);
   }
   .mo-editor-updates-notice-counts {
     margin-block-start: var(--mo-ref-space-100);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-updates-notice-actions {
-    margin-block-start: auto;
+    /* Under the text at the card's 16 dp text-to-buttons gap (M3 cards, Specs), not pushed to the bottom of a column the photo makes tall. */
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: var(--mo-ref-space-100);
-    padding-block-start: var(--mo-comp-editor-rhythm-200);
+    padding-block-start: var(--mo-comp-card-action-gap, var(--mo-ref-space-200));
   }
   .mo-editor-updates-notice-apps {
-    border-block-start: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-sys-color-outline-variant));
-    padding: var(--mo-ref-space-100) var(--mo-ref-space-200);
+    margin-block-start: var(--mo-ref-space-100);
   }
 
   .mo-editor-selection-columns {
@@ -308,11 +285,7 @@
     display: flex;
     block-size: var(--mo-ref-space-800);
     align-items: center;
-    padding-inline: var(--mo-ref-space-100);
-    @media (width >= 37.5rem) {
-      gap: var(--mo-ref-space-150);
-      padding-inline: var(--mo-ref-space-300);
-    }
+    padding-inline: var(--mo-ref-space-50);
   }
   .mo-editor-screen-show-medium {
     display: none;
@@ -324,20 +297,6 @@
     display: none;
     @media (width >= 52.5rem) {
       display: flex;
-    }
-  }
-  .mo-editor-screen-back {
-    display: flex;
-    inline-size: var(--mo-ref-space-600);
-    block-size: var(--mo-ref-space-600);
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    border-radius: calc(infinity * 1px);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--mo-sys-color-surface-container-high);
-      }
     }
   }
   .mo-editor-screen-title-sub {
@@ -363,8 +322,6 @@
     font-weight: 500;
   }
   .mo-editor-screen-status {
-    font-size: 0.75rem;
-    line-height: 1rem;
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-screen-bar-gap {
@@ -418,11 +375,10 @@
     min-inline-size: 0;
     flex: 1;
     flex-direction: column;
-    padding-inline: var(--mo-ref-space-200);
+    padding-inline: var(--mo-sys-grid-margin);
     padding-block-start: var(--mo-ref-space-300);
     padding-block-end: env(safe-area-inset-bottom);
     @media (width >= 37.5rem) {
-      padding-inline: var(--mo-ref-space-300);
       padding-block-start: var(--mo-ref-space-400);
       padding-block-end: var(--mo-ref-space-200);
     }
@@ -444,15 +400,14 @@
     }
   }
   .mo-editor-screen-search-bar {
-    margin-inline: var(--mo-ref-space-100);
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
+    /* The bar stands at the column's own margin, the grid's 16 dp: the margins win over the 360 dp minimum width (owner, 21 Nov 2026). */
+    margin-block-end: var(--mo-ref-space-300);
     display: flex;
     @media (width >= 37.5rem) {
       display: none;
     }
   }
   .mo-editor-palette-bar {
-    max-inline-size: 45rem;
     min-inline-size: 0;
     flex: 1;
   }
@@ -460,6 +415,9 @@
     max-inline-size: none;
   }
   .mo-editor-palette-bar-wide {
+    /* The search app bar's field: at most 720 dp wide, and 8 dp from the buttons outside it (the bar's own 4 dp end padding and the row's 4 dp gap leave 4 more to add). */
+    max-inline-size: 45rem;
+    margin-inline-end: var(--mo-ref-space-50);
     display: none;
     @media (width >= 37.5rem) {
       display: flex;
@@ -497,9 +455,10 @@
   }
   .mo-editor-screen-content {
     min-inline-size: 0;
-    &[data-clearance='true'] {
-      margin-block-end: var(--mo-comp-fab-room);
-    }
+  }
+  /* The room under the footer for the FAB, so that scrolled to the end nothing, the footer included, is hidden under it. */
+  .mo-editor-screen-main[data-clearance='true'] {
+    padding-block-end: calc(var(--mo-comp-fab-room) + env(safe-area-inset-bottom));
   }
   .mo-editor-screen-narrow-only {
     @media (width >= 52.5rem) {

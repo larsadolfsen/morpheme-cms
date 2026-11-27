@@ -137,10 +137,14 @@ const joined = (base: string, name: string | number) => (base ? `${base}.${name}
 
 /** The field that keeps a form from being saved (problemAt in check.ts), when it was found (a new
  * number each time, so it is shown again on the next try), and how to stop showing it: the item of a
- * list it is in is opened, it is scrolled to and its border flashes (.mo-editor-wrong in editor.css),
- * until it is changed. Every form has it (useWrongField). */
+ * list it is in is opened, it is scrolled to and has the focus, and it shows Material 3's error state (the text field's own, or
+ * the problem in error under a field with no box: FormField), until it is changed. Every form has it (useWrongField). */
 export type Wrong = { path: string; at: number; clear: () => void };
 export const WrongField = createContext<Wrong | null>(null);
+
+/** The page's Save found a problem in a block: told to the block's open sheet (BlockDialog), which marks its own field (useWrongField's `mark`) so the person sees which
+ * one it is where the field is, as when the sheet's own Save stops there. */
+export const BLOCK_PROBLEM = 'morpheme:block-problem';
 
 /** A form that cannot be saved as it is: the reason as a message at the front (`say`, the form's
  * notify; also over a sheet) and the field marked (WrongField, which the form's fields are put
@@ -155,12 +159,16 @@ export function useWrongField(say: (text: string) => void, open?: (path: string)
   const stop = (found: Problem | Problem[] | null) => {
     const all = Array.isArray(found) ? found : found ? [found] : [];
     const problem = all[0] ?? null;
-    if (problem) open?.(problem.path);
-    setWrong(problem && { path: problem.path, at: Date.now() });
+    mark(problem);
     if (problem) say(all.length > 1 ? `${t.common.problems(all.length)}. ${problem.text}` : problem.text);
     return !!problem;
   };
-  return { field, stop };
+  // Only the marking, for a form whose message was given elsewhere (the page's Save found the problem in a block whose sheet is open beside it).
+  const mark = (problem: Problem | null) => {
+    if (problem) open?.(problem.path);
+    setWrong(problem && { path: problem.path, at: Date.now() });
+  };
+  return { field, stop, mark };
 }
 
 // A field marked when it keeps the form from being saved (WrongField): its path, the element to mark (`box`), and its
@@ -170,14 +178,10 @@ function useMarked<T extends HTMLElement>(props: Props) {
   const wrong = useContext(WrongField);
   const here = wrong?.path === path;
   const box = useRef<T>(null);
-  // The class is set here, not by React, so the flashing starts again on each try.
+  // Each try scrolls to the field and focuses it again; the error state itself is drawn by the field.
   useEffect(() => {
     const el = box.current;
-    if (!el) return;
-    el.classList.remove('mo-editor-wrong');
-    if (!here) return;
-    void el.offsetWidth;
-    el.classList.add('mo-editor-wrong');
+    if (!el || !here) return;
     el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     // Focus goes to the first field that is wrong, so a screen reader says its name and its problem (3.3.1); the scroll above is the one that moves.
     el.querySelector<HTMLElement>('input:not([type=hidden]), textarea, select, [contenteditable=true], [role=textbox], button')?.focus({
@@ -657,6 +661,7 @@ function FieldControl({ field, value, onChange }: Props) {
       label={field.label}
       htmlFor={id}
       hint={hintOf(field, text)}
+      problem={wrongHere ? found?.line : undefined}
       count={field.max ? { length: text.length, max: field.max } : undefined}
     >
       {control}
@@ -876,7 +881,7 @@ function Links({ field, value, onChange }: Props) {
   return (
     <LinkList
       field={field}
-      value={(value ?? []) as Record<string, unknown>[]}
+      value={(Array.isArray(value) ? value : []) as Record<string, unknown>[]}
       onChange={(v) => {
         if (Number.isInteger(index)) wrong?.clear();
         onChange(v);
@@ -1136,7 +1141,6 @@ export function MenuList({
           return (
             <ListItem
               key={i}
-              tone={depth ? 'sub' : undefined}
               onClick={() => edit(i)}
               headline={nameOf(item) || t.forms.empty}
               truncate

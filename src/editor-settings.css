@@ -24,9 +24,17 @@
     margin-block-start: var(--mo-comp-editor-rhythm-200);
   }
 
+  /* Material 3, dialogs: the supporting text is body medium in on-surface-variant. */
+  .mo-editor-ask-text,
+  .mo-editor-ask-note {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
   .mo-editor-ask-note {
     margin-block-start: var(--mo-ref-space-50);
-    color: var(--mo-sys-color-on-surface-variant);
   }
 
   .mo-editor-ask-notes {
@@ -71,7 +79,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -90,7 +97,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -108,11 +114,12 @@
   }
 
   .mo-editor-ask-title {
-    margin-block-end: var(--mo-ref-space-100);
-    font-weight: 500;
-    font-size: var(--mo-sys-typescale-body-large-size);
-    line-height: var(--mo-sys-typescale-body-large-line-height);
-    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+    margin-block-end: var(--mo-ref-space-200);
+    color: var(--mo-sys-color-on-surface);
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
   }
 
   .mo-editor-author-name {
@@ -131,7 +138,10 @@
 
   .mo-editor-block-label {
     margin-block-end: var(--mo-ref-space-100);
-    font-weight: 500;
+    font-size: var(--mo-sys-typescale-title-small-size);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
 
   .mo-editor-body-text {
@@ -183,9 +193,9 @@
   }
 
   .mo-editor-crop-ratio-box {
-    border-radius: 3px;
+    border-radius: var(--mo-sys-shape-corner-extra-small);
     border-style: solid;
-    border-width: 1.5px;
+    border-width: 1px;
     border-color: currentcolor;
   }
 
@@ -196,7 +206,6 @@
   }
 
   .mo-editor-filter-row {
-    margin-block-start: calc(var(--mo-ref-space-100) * -1);
     margin-block-end: var(--mo-comp-editor-rhythm-300);
     display: flex;
     flex-wrap: wrap;
@@ -244,7 +253,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -263,7 +271,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -321,7 +328,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -340,7 +346,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -393,7 +398,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -412,7 +416,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -465,7 +468,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -484,7 +486,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -537,7 +538,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -556,7 +556,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -695,12 +694,6 @@
     max-inline-size: 20rem;
   }
 
-  .mo-editor-no-match {
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
-    padding-inline: var(--mo-ref-space-50);
-    color: var(--mo-sys-color-on-surface-variant);
-  }
-
   .mo-editor-note-article {
     margin-block-end: var(--mo-ref-space-400);
     max-inline-size: 65ch;
@@ -745,7 +738,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -764,7 +756,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -835,7 +826,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -854,7 +844,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -922,7 +911,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -941,7 +929,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -972,11 +959,7 @@
   }
 
   .mo-editor-part-name {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 500;
-    color: var(--mo-sys-color-primary);
+    color: var(--mo-sys-color-on-surface);
   }
 
   /* PartsShown.tsx PartSub: a subheading and the row under it. */
@@ -1030,7 +1013,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -1049,7 +1031,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -1136,7 +1117,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -1155,7 +1135,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -1222,15 +1201,11 @@
     color: var(--mo-sys-color-primary);
   }
 
+  /* The read-only notice: the theme's outlined card, set in from the window's edge by the window's margin. */
   .mo-editor-read-only-bar {
-    background-color: var(--mo-sys-color-primary);
-    padding-inline: var(--mo-ref-space-200);
-    padding-block: var(--mo-ref-space-150);
-    padding-block-start: calc(0.75rem + env(safe-area-inset-top));
-    text-align: center;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: var(--mo-sys-color-on-primary);
+    margin: var(--mo-ref-space-200);
+    margin-block-start: calc(var(--mo-ref-space-200) + env(safe-area-inset-top));
+    color: var(--mo-sys-color-on-surface);
   }
 
   .mo-editor-sample-columns {
@@ -1305,7 +1280,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -1324,7 +1298,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -1380,7 +1353,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -1399,7 +1371,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -1428,10 +1399,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--mo-ref-space-100);
-  }
-
-  .mo-editor-settings-dashboard-grid {
-    --mo-comp-grid-columns: 2;
   }
 
   .mo-editor-settings-group {
@@ -1470,7 +1437,10 @@
   }
 
   .mo-editor-settings-strong {
-    font-weight: 500;
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
   }
 
   .mo-editor-settings-trailing {
@@ -1501,14 +1471,8 @@
   .mo-editor-signin-icon {
     inline-size: 5rem;
     block-size: 5rem;
-    border-radius: 1.375rem;
-    box-shadow: var(--mo-sys-panel-shadow);
-  }
-
-  .mo-editor-signin-title {
-    font-size: 1.5rem;
-    line-height: 2rem;
-    font-weight: 600;
+    border-radius: var(--mo-sys-shape-corner-large);
+    box-shadow: var(--mo-sys-elevation-level1-shadow);
   }
 
   .mo-editor-small-note {
@@ -1597,36 +1561,38 @@
 
   .mo-editor-used-title {
     margin-block-end: var(--mo-ref-space-50);
-    font-weight: 500;
+    font-size: var(--mo-sys-typescale-title-small-size);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
 
+  /* A widget's frame in edit mode is the theme's elevated Card (Cards, Specs: 16 dp left/right padding, 8 dp between cards): its controls stand at the top
+     start and top end, and the content is inside the card's padding. */
   .mo-editor-widget-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--mo-ref-space-100);
-    padding-inline: var(--mo-ref-space-50);
   }
 
-  .mo-editor-widget-body {
-    padding-inline: var(--mo-ref-space-100);
-  }
-
-  .mo-editor-widget-card {
-    position: relative;
-    border-radius: var(--mo-comp-block-radius);
-    background-color: var(--mo-sys-color-surface-container-low);
-    padding-block-end: var(--mo-ref-space-100);
-  }
-
-  .mo-editor-widget-lifted {
+  /* While it is dragged it stands in front of the other cards (Cards, Guidelines: "it appears in front of all elements, except app bars and navigation"). */
+  .mo-editor-widget-card.mo-is-dragged {
     z-index: 10;
-    box-shadow: var(--mo-sys-elevation-level4-shadow);
   }
 
+  /* The card under the dragged one: the dragged state's layer (16 %) and a 1 dp outline in the outline role (Material 3 is silent: the nearest pattern). */
   .mo-editor-widget-target {
-    outline-style: solid;
-    outline-width: 2px;
-    outline-color: var(--mo-sys-color-primary);
+    position: relative;
+    outline: 1px solid var(--mo-sys-color-outline);
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: currentColor;
+      opacity: var(--mo-sys-state-dragged-state-layer-opacity);
+      pointer-events: none;
+    }
   }
 }

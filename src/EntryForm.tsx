@@ -41,7 +41,7 @@ import { isOver, untilTime } from '../lib/notice.mjs';
 import { splitPicture } from '../lib/crop.mjs';
 import { asStandardTemplate, blockProblems, notOffered, siteBlocks } from './registry';
 import { useAnnounce } from './useAnnounce';
-import { FieldInput, Fields, HeadImage, HeadTitle, useWrongField, WrongField, type FieldContext } from './fields';
+import { BLOCK_PROBLEM, FieldInput, Fields, HeadImage, HeadTitle, useWrongField, WrongField, type FieldContext } from './fields';
 import { SearchPreview } from './SearchPreview';
 import { searchedAs } from './googleResult.mjs';
 import {
@@ -848,6 +848,7 @@ function Form({
     const [wrongBlock] = blockProblems(body, template, front ? frontLeads : undefined);
     if (wrongBlock) {
       goTo('content', textBox.current);
+      window.dispatchEvent(new Event(BLOCK_PROBLEM));
       return notify({ text: wrongBlock, error: true });
     }
     let next = `---\n${yaml}\n---\n${body}`;
@@ -1478,7 +1479,7 @@ function Form({
                 </>
               }
               pane={
-                <SectionPane caption={t.forms.sections.title} title={formTitle}>
+                <SectionPane title={formTitle}>
                   <SectionList title={t.forms.sections.title} items={sections} value={section} onChange={pick} />
                 </SectionPane>
               }

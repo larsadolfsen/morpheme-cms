@@ -135,6 +135,15 @@ const GROUPS = (['buttons', 'fields', 'choices', 'lists', 'sheets', 'messages', 
   title: t.parts.filter.group[id],
 }));
 
+/** The sample page frame's text: body-large (16/24 px) in the theme's typeface, read from an element of this document that has the role (the frame is a page of its own, so no custom property reaches it). */
+function sampleFrameStyle() {
+  const probe = document.body.appendChild(document.createElement('span'));
+  probe.className = 'mo-type-body-large';
+  const { fontFamily, fontSize, lineHeight, fontWeight } = getComputedStyle(probe);
+  probe.remove();
+  return `font: ${fontWeight} ${fontSize}/${lineHeight} ${fontFamily}; padding: 1.5rem`.replaceAll('"', "'");
+}
+
 export default function Parts({ env }: { env: Env }) {
   const [sort, setSort] = useState('newest');
   const [filter, setFilter] = useState('');
@@ -465,13 +474,8 @@ export default function Parts({ env }: { env: Env }) {
                 <GroupTitle>{sample.rows}</GroupTitle>
                 <ul className={listClass}>
                   <ListItem headline={sample.versionNow} />
-                  <ListItem tone="muted" headline={t.library.pageGone} />
-                  <ListItem
-                    tone="accent"
-                    onClick={() => {}}
-                    leading={<MaterialIcon name="logout" size={20} />}
-                    headline={t.library.logOut}
-                  />
+                  <ListItem disabled headline={t.library.pageGone} />
+                  <ListItem onClick={() => {}} leading={<MaterialIcon name="logout" size={20} />} headline={t.library.logOut} />
                 </ul>
               </section>
             </Part>
@@ -525,7 +529,7 @@ export default function Parts({ env }: { env: Env }) {
                   <li className="mo-editor-below">
                     <ul className={subListClass}>
                       {[1, 2, 3].map((n) => (
-                        <ListItem key={n} tone="sub" href="#developer/parts/editor" headline={sample.subpage(n)} />
+                        <ListItem key={n} href="#developer/parts/editor" headline={sample.subpage(n)} />
                       ))}
                     </ul>
                   </li>
@@ -683,7 +687,7 @@ export default function Parts({ env }: { env: Env }) {
                 <PageFrame
                   title={sample.aPage}
                   width={390}
-                  html={`<!doctype html><html><body style="font: 18px/1.5 system-ui; padding: 24px"><h1>${sample.aPage}</h1><p>${sample.pageText}</p></body></html>`}
+                  html={`<!doctype html><html><body style="${sampleFrameStyle()}"><h1>${sample.aPage}</h1><p>${sample.pageText}</p></body></html>`}
                 />
               </BottomSheet>
             </Part>
@@ -742,7 +746,7 @@ export default function Parts({ env }: { env: Env }) {
 
             <Part name="SectionList, SectionPane" use={use.sectionList}>
               <div className="mo-editor-narrow-xs">
-                <SectionPane caption={t.forms.sections.title} title={examples.pages[0]}>
+                <SectionPane title={examples.pages[0]}>
                   <SectionList title={t.forms.sections.title} items={sectionItems} value={sectionPicked} onChange={setSectionPicked} />
                 </SectionPane>
               </div>

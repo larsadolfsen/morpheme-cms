@@ -1,0 +1,7 @@
+{
+  "id": "editor-forms-m3",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Form fields",
+  "text": "A form that can't save now shows what is wrong right where it is. Save scrolls to the field and focuses it, and the field shows its error, with no flash. On this page is a side sheet whose active section is marked, and sections, lists and the image field use Material 3's spacing."
+}

@@ -13,8 +13,8 @@
 // off-centre only as far as the panels beside it require.
 // Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
 // is short (the screen fills the column under the bar, TopBarLayout). While the screen has a floating action button
-// (fabPresence.tsx), the content leaves room for it above the footer (data-clearance, --mo-comp-fab-room) and the FAB stands above the
-// footer whenever the footer is in the window (useFabLift: --mo-comp-editor-fab-lift, editor.css), so it never covers the footer.
+// (fabPresence.tsx), the screen leaves room for it under the footer (data-clearance, --mo-comp-fab-room); the FAB stands at the
+// window's margin (editor.css).
 import { useContext, useEffect, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { t } from './i18n';
@@ -32,7 +32,7 @@ import {
 } from './ui';
 import { up } from './nav';
 import EditorFooter from './EditorFooter';
-import { FabPresenceContext, useCountFabs, useFabLift } from './fabPresence';
+import { FabPresenceContext, useCountFabs } from './fabPresence';
 import { useMenuOpen } from './menuOpen';
 import { unseen, useNotifications } from './notificationData';
 import { openNotifications, useNotificationsOpen } from './notificationsOpen';
@@ -231,7 +231,6 @@ export default function Screen<T extends string>({
     if (!hidden) document.title = pageTitle(title, siteName);
   }, [title, hidden]);
   const fabs = useCountFabs();
-  useFabLift(fabs.count > 0);
   // The way here, without the start screen: the logo in the bar is the way there.
   const crumbs = back && back.href !== '#' ? [back] : [];
   // The start screen shows the search bar in its top bar, in place of the title and the search icon.
@@ -253,15 +252,13 @@ export default function Screen<T extends string>({
           <SiteLogoLink onClick={leave()} className={home ? 'mo-editor-screen-show-medium' : 'mo-editor-screen-show-expanded'} />
         )}
         {back && (
-          <a
+          <IconLink
+            icon="arrow_back"
+            label={t.common.backTo(back.label)}
             href={safeHref(back.href)}
             onClick={leave(() => up(back.href))}
-            title={t.common.backTo(back.label)}
-            aria-label={t.common.backTo(back.label)}
-            className={`mo-editor-screen-back ${full ? '' : 'mo-editor-screen-narrow-only'}`}
-          >
-            <Icon name="arrow_back" size={24} />
-          </a>
+            className={full ? '' : 'mo-editor-screen-narrow-only'}
+          />
         )}
         {/* The start screen: from medium the top bar is the search bar and the title and status stand under it; on a phone the title stays in the bar and the search bar is the first thing in the page. */}
         <div
@@ -271,7 +268,7 @@ export default function Screen<T extends string>({
             {title}
           </h1>
           {status && (
-            <p data-subtitle className="mo-truncate mo-editor-screen-status">
+            <p data-subtitle className="mo-truncate mo-type-label-medium mo-editor-screen-status">
               {status}
             </p>
           )}
@@ -341,7 +338,7 @@ export default function Screen<T extends string>({
                     >
                       {c.label}
                     </a>
-                    <Icon name="keyboard_arrow_right" size={14} className="mo-keep" />
+                    <Icon name="keyboard_arrow_right" size={18} className="mo-keep" />
                   </span>
                 ))}
               </nav>

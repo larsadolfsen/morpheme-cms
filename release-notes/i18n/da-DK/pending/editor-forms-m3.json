@@ -1,0 +1,7 @@
+{
+  "id": "editor-forms-m3",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Formularfelter",
+  "text": "En formular, der ikke kan gemmes, viser nu fejlen lige ved feltet. Gem ruller til feltet og sætter markøren i det, og feltet viser sin fejl uden blink. På denne side er et sidepanel med den aktive sektion markeret, og sektioner, lister og billedfeltet bruger Material 3's afstande."
+}
