@@ -570,15 +570,6 @@
   .mo-editor-fade-in[data-loaded] {
     opacity: 1;
   }
-
-  /* In the base layer, so a rule on the button itself still decides. */
-  @layer base {
-    :is(button, a):not(:disabled, .ProseMirror *) {
-      transition:
-        background-color var(--mo-sys-motion-spring-fast-effects),
-        color var(--mo-sys-motion-spring-fast-effects);
-    }
-  }
 }
 
 @keyframes editor-sheet-in {

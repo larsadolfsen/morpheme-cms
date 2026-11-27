@@ -1426,9 +1426,6 @@
     gap: var(--mo-ref-space-100);
   }
 
-  .mo-editor-settings-dashboard-grid {
-    --mo-comp-grid-columns: 2;
-  }
 
   .mo-editor-settings-group {
     margin-block-end: var(--mo-comp-editor-rhythm-300);

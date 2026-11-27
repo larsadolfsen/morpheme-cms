@@ -261,9 +261,6 @@
   .mo-editor-widget-slot:empty {
     display: none;
   }
-  .mo-editor-dashboard-grid {
-    --mo-comp-grid-columns: 2;
-  }
   /* The start screen's cards (the notices, the first-run card and the dashboard's grid): one gap between all of them, the cards' own
      (M3 Cards, Specs: "Padding between cards 8dp max"); the grid keeps the same gap inside. */
   .mo-editor-start-cards {
