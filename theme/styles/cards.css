@@ -483,13 +483,12 @@
   }
   /* M3, Carousel, Accessibility: "If the carousel has a header, you can use an arrow icon button instead [of Show all]. Place the arrow icon directly next to the header or in the
      same row. Make sure the header is also displayed on the page of all carousel items." and "Headers should align with the leading edge, and the arrow icon should have a size of 48dp."
-     The header (.mo-block-cards__header) is the row above the carousel: its text at the leading edge (the row's 16dp padding), the 48dp arrow icon button (the theme's, small = 48dp
+     The header (.mo-block-cards__header) is the row above the carousel: its text at the leading edge, in line with the first item (the row's 16dp padding puts the items there), the 48dp arrow icon button (the theme's, small = 48dp
      touch target) next to it. The arrow is drawn only with script (it toggles data-expanded, script.ts); it shows the forward arrow, and the back arrow while every item is shown. */
   .mo-block-cards__header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    padding-inline: 1rem 0;
   }
   .mo-block-cards__heading {
     font-size: var(--mo-sys-typescale-title-large-size);

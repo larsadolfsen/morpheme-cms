@@ -1124,7 +1124,8 @@ async function checkCardsHeader(width, height) {
         isButton: arrow?.tagName === 'BUTTON',
         sameRow: !!a && !!h && Math.abs(a.top + a.height / 2 - (h.top + h.height / 2)) <= 4,
         headerFirst: !!a && !!h && (getComputedStyle(el).direction === 'rtl' ? h.left > a.left : h.left < a.left),
-        headerLeft: h ? Math.round(h.left - el.getBoundingClientRect().left) : null,
+        headerLeft: h ? Math.round(h.left) : null,
+        firstLeft: Math.round(el.querySelector('[data-carousel-item]').getBoundingClientRect().left),
         forward: visible(arrow?.querySelector('.mo-block-cards__arrow-forward')),
         back: visible(arrow?.querySelector('.mo-block-cards__arrow-back')),
         showAll: !!el.querySelector('.mo-block-cards__show-all'),
@@ -1139,8 +1140,8 @@ async function checkCardsHeader(width, height) {
   if (!closed.header || !closed.isButton) problems.push(`${label}: the header or its arrow button is missing (${JSON.stringify(closed)})`);
   if (!closed.sameRow || !closed.headerFirst)
     problems.push(`${label}: the arrow is not on the header's row after the header (${JSON.stringify(closed)})`);
-  if (isMaterialTheme() && closed.headerLeft !== 16)
-    problems.push(`${label}: the header is ${closed.headerLeft}px from the leading edge, not 16px`);
+  if (isMaterialTheme() && closed.headerLeft !== closed.firstLeft)
+    problems.push(`${label}: the header is at ${closed.headerLeft}px, not on the first card's leading edge (${closed.firstLeft}px)`);
   if (closed.name !== wantName)
     problems.push(
       `${label}: the arrow is named "${closed.name}", not "${wantName}" (the page's language is "${lang}", read from ${where})`,
