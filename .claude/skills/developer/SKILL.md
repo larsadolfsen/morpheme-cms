@@ -122,7 +122,7 @@ Run `npm run check:fast` while you build (after each step): it runs only the che
 Rules from before 21 Nov 2026 hold only where they match what M3 prints; where they differ, M3 wins (skill `material-3`, rule 6).
 Short forms, for a developer to know before reading the specs. A rule changes only where it lives.
 
-- **Dialog.** As M3 prints (owner, 21 Nov 2026, replacing the 15 Nov rule): the actions are text buttons, the confirming one
+- **Dialog.** As M3 prints (owner, 21 Nov 2026, replacing the 15 Nov rule): a dialog's actions are text buttons (Material 3; owner, 27 Nov 2026), the confirming one
   closest to the edge, and focus goes to the first control when the dialog opens (`src/ask.tsx` is the editor's one pattern; it
   and `src/BlockDialog.tsx` change in 0.19.6; audit #1126).
 - **Save on a phone.** Every `Save` goes in the bottom bar, and that bar is the standard bottom sheet, with no custom
