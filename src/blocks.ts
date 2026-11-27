@@ -93,6 +93,8 @@ export type InlineSpec = {
   media?: string[];
   /** The block's own fields that the first item's media sheet has too, above the item's (a card's one media choice for every card). */
   blockMedia?: string[];
+  /** Instead of `blockMedia`: the item's own field that says what fills it (the Carousel's `media`, empty for an image): the media sheet works on the item, with Crop and Alt text for an image. */
+  itemMedia?: string;
   /** The item's fields that are edited on the item's own parts, not in a sheet (a button's target, style and icon, in its menu; a card's divider). */
   onItem?: string[];
   /** The item's fields that stay in the data but are edited nowhere (an Expandable list row's old page link): Block settings does not list the items for them. */

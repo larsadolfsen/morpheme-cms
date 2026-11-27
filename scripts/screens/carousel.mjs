@@ -1,6 +1,7 @@
 import { join } from 'node:path';
-import { blocksOf, browser, problems, shots } from './support/context.mjs';
-import { onTestPage } from './support/shared.mjs';
+import { openEditor } from '../built-site.mjs';
+import { blocksOf, browser, has, problems, shots, site } from './support/context.mjs';
+import { chooseKind, onTestPage, pressInsert } from './support/shared.mjs';
 import { isMaterialTheme } from '../theme-statement.mjs';
 import { pageLanguage } from './support/page-language.mjs';
 
@@ -624,8 +625,80 @@ async function checkCarouselHeader(width, height) {
   await page.close();
 }
 
+/** The media sheet of a carousel item (the owner's PM, 27 Nov 2026: alt text and crop stay editable): a tap on the item's Image slot, then Image and a picked image, opens the sheet with Change media, Change image, Alt text and Remove under the image, as a card's sheet has, for a plain item; in the multi-aspect ratio layout it also has Crop, cut to the item's own aspect ratio. */
+async function checkCarouselMediaSheet(width, height) {
+  const label = `${width}px carousel media sheet`;
+  if (!has('src/data/files')) return void console.log(`${label}: skipped, the site has no images in its Library, which the demo has.`);
+  const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  await openEditor(page, site);
+  await page.evaluate(() => (location.hash = '#new/pages'));
+  await page.waitForSelector('.ProseMirror');
+  await page.click('.ProseMirror');
+  await page.keyboard.type('Hello');
+  await page.keyboard.press('Enter');
+  await page.waitForTimeout(300);
+  await pressInsert(page, 'click');
+  await page.locator('dialog[open] button', { hasText: 'Images, videos or cards swiped sideways.' }).first().click();
+  await page.waitForSelector('.mo-editor-inline-list-row-active [data-field="title"]');
+  await page.keyboard.type('One');
+  await page.waitForTimeout(300);
+  await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Image"]').click();
+  await page.waitForTimeout(1000);
+  await chooseKind(page, 'Image');
+  await page
+    .locator('dialog[open] button, .mo-editor-side-sheet button', { hasText: /^Select image$/ })
+    .first()
+    .click();
+  await page.waitForSelector('dialog[open] [data-media-tile]', { timeout: 8000 });
+  await page.locator('dialog[open] [data-media-tile]').first().click();
+  await page.waitForTimeout(800);
+  const sheet = () => page.locator('dialog[open], .mo-editor-side-sheet').last();
+  const names = async () => (await sheet().locator('button').allTextContents()).map((b) => b.trim()).filter(Boolean);
+  const plain = await names();
+  for (const want of ['Change media', 'Change image', 'Alt text', 'Remove'])
+    if (!plain.includes(want)) problems.push(`${label}: the sheet of a plain item's image has no "${want}" (${plain.join(', ')})`);
+  if (plain.includes('Crop'))
+    problems.push(`${label}: a plain item's image, which fills the item, has a Crop (there is nothing to cut it to)`);
+  // Alt text is typed in the sheet and kept on the item.
+  await sheet().getByRole('button', { name: 'Alt text', exact: true }).click();
+  await page.waitForTimeout(400);
+  await sheet().getByLabel('Alt text').first().fill('A test picture');
+  await page.waitForTimeout(500);
+  if (!(await page.evaluate(() => /A test picture/.test(document.querySelector('.mo-site-block-inline')?.innerHTML ?? ''))))
+    problems.push(`${label}: the alt text typed in the sheet is not on the item's image`);
+  // In the multi-aspect ratio layout the image is cut to the item's own aspect ratio: the sheet has Crop, and the Alt text view has the aspect ratio.
+  await page
+    .locator('dialog[open] button[aria-label="Close"], .mo-editor-side-sheet [data-side-sheet-close]')
+    .first()
+    .click({ timeout: 2000 })
+    .catch(() => {});
+  await page.waitForTimeout(500);
+  await page.getByRole('button', { name: 'Block settings' }).first().click();
+  await page.waitForTimeout(900);
+  await page
+    .locator('dialog[open] button, .mo-editor-side-sheet button', { hasText: /^Multi-browse$/ })
+    .first()
+    .click();
+  await page.waitForTimeout(300);
+  await page
+    .locator('dialog[open] *, .mo-editor-menu *, [role="listbox"] *', { hasText: /^Uncontained multi-aspect ratio$/ })
+    .last()
+    .click();
+  await page.waitForTimeout(500);
+  await page.keyboard.press('Escape');
+  await page.waitForTimeout(400);
+  await page.locator('.mo-editor-inline-card-media').first().dispatchEvent('click');
+  await page.waitForTimeout(900);
+  const cuttable = await names();
+  if (!cuttable.includes('Crop'))
+    problems.push(`${label}: in the multi-aspect ratio layout the sheet of an image has no Crop (${cuttable.join(', ')})`);
+  await page.close();
+}
+
 export function register(unit) {
   unit('checkCarouselScrollCost 375', () => checkCarouselScrollCost());
+  unit('checkCarouselMediaSheet 1280', () => checkCarouselMediaSheet(1280, 900));
   unit('checkCarouselGap 390', () => checkCarouselGap(390, 800));
   unit('checkCarouselGap 1280', () => checkCarouselGap(1280, 900));
   unit('checkCarousel 768', () => checkCarousel(768, 900));

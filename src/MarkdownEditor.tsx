@@ -57,7 +57,7 @@ import { sectionFrame } from './sectionFrame';
 import { IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock, type RowSpec, type SheetTarget } from './BlockDialog';
 import { cropView } from './CropView';
 import { Icon } from './icon';
-import { ratioProp } from './standard/cards/view';
+import { aspectProp, layoutOf, ratioProp } from './standard/carousel/view';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel, liveSheet } from './sheetPlacement.mjs';
@@ -2091,12 +2091,15 @@ function blockCard(
     const itemFields = rowFieldsOf(itemNames);
     // The icon slot of a List opens the icon picker; a card's media sheet has the media fields (what it shows, the icon picker open at once), and the first card's has the
     // block's one media choice for every card too (`blockMedia`).
-    const iconFields = rowFieldsOf(slotNames).map((f) => ({ ...f, iconsOpen: true }));
+    const iconFields = rowFieldsOf(slotNames.filter((n) => n !== spec!.itemMedia)).map((f) => ({ ...f, iconsOpen: true }));
     const blockNames = spec!.blockMedia ?? [];
     const blockFields = (block?.fields ?? []).filter((f) => blockNames.includes(f.name));
     // The block's own values that the item's fields depend on (a card's icon, image or video by the block's media).
-    const blockValue = () =>
-      Object.fromEntries(blockNames.map((n) => [n, node.attrs.props[n] ?? blockFields.find((f) => f.name === n)?.default ?? '']));
+    const blockValue = () => ({
+      ...Object.fromEntries(blockNames.map((n) => [n, node.attrs.props[n] ?? blockFields.find((f) => f.name === n)?.default ?? ''])),
+      // An item's media choice (the Carousel) depends on the block's layout (its aspect ratio only in the multi-aspect ratio layout).
+      ...(spec!.itemMedia ? { layout: layoutOf(node.attrs.props) } : {}),
+    });
     // The row's other values are under them, read only (a button's text for its style's sample, choiceSamples.tsx); a save writes the
     // named fields alone (setFields).
     const valueOf = (row: Row, names: string[]) => ({
@@ -2377,12 +2380,16 @@ function blockCard(
     };
     // The media sheet of a row (B6, B11, B12): the media as it is, with Change media and Change icon or Change image (for an image also Crop, Alt text and
     // Remove) under it; the kinds of media as a radio list when nothing is set yet or after Change media.
-    const kindField = blockFields[0];
-    const kindOf = () => String(node.attrs.props[kindField?.name ?? ''] ?? kindField?.default ?? '');
+    // The kind of media is the block's one choice (the Cards), or the item's own (the Carousel: empty is an image).
+    const kindField = spec!.itemMedia ? rowFieldsOf([spec!.itemMedia])[0] : blockFields[0];
+    const kindOf = (i = 0) =>
+      spec!.itemMedia
+        ? String(rows()[i]?.[spec!.itemMedia] || 'image')
+        : String(node.attrs.props[kindField?.name ?? ''] ?? kindField?.default ?? '');
     const isImageKind = (k: string) => ['image', 'avatar', 'square', 'landscape'].includes(k);
     mediaIsSet = (i) => {
       const r = rows()[i] ?? {};
-      const k = kindOf();
+      const k = kindOf(i);
       return k === 'none' ? false : k === 'video' ? !!r.video : isImageKind(k) ? !!r.image : !!r.icon;
     };
     const putRow = (i: number, patch: Row) =>
@@ -2393,7 +2400,7 @@ function blockCard(
       );
     const mediaSpecOf = (i: number): RowSpec => {
       const r = rows()[i] ?? {};
-      const k = kindOf();
+      const k = kindOf(i);
       const again = () => {
         syncRow(true);
       };
@@ -2406,10 +2413,13 @@ function blockCard(
         label: t.forms.mediaKind,
         name: 'mo-media-kind',
         value: k,
-        options: (kindField.options ?? []).map((o) => ({ label: o.label, value: o.value })),
+        options: (kindField.options ?? [])
+          .map((o) => ({ label: o.label, value: spec!.itemMedia && o.value === '' ? 'image' : o.value }))
+          // An item that is not a card has an image or a video (the Carousel); an icon or none is for a card.
+          .filter((o) => !spec!.itemMedia || r.card === true || (o.value !== 'icon' && o.value !== 'none')),
         onChange: (value: string) => {
-          const patch = { [kindField.name]: value };
-          setItems(rows(), patch);
+          if (spec!.itemMedia) setItems(setFields(rows(), i, [spec!.itemMedia], { [spec!.itemMedia]: value === 'image' ? '' : value }));
+          else setItems(rows(), { [kindField.name]: value });
           mediaMode = value === 'none' ? 'panel' : 'pick';
           again();
         },
@@ -2430,12 +2440,23 @@ function blockCard(
           media: { actions: [{ label: t.forms.changeMedia, action: () => reopen('kinds') }] },
         };
       const image = isImageKind(k);
-      const ratioNow = k === 'image' && !spec!.grid ? ratioProp(node.attrs.props) : '';
+      // The format an image is cut to: the block's one ratio (the Cards), or in the Carousel the item's own aspect ratio (the multi-aspect ratio layout) or the block's ratio (a card's image); a plain item's image fills it, nothing to cut.
+      const ratioNow =
+        k !== 'image' || spec!.grid
+          ? ''
+          : !spec!.itemMedia
+            ? ratioProp(node.attrs.props)
+            : layoutOf(node.attrs.props) === 'multi-aspect-ratio'
+              ? aspectProp(r.aspect)
+              : r.card === true
+                ? ratioProp(node.attrs.props)
+                : '';
       // The Alt text view is the panel with the Alt text field under it: the media's actions stay.
       const altView = mediaMode === 'alt';
       return {
         ...base,
-        fields: altView ? iconFields.filter((f) => f.name === 'alt') : [],
+        // The Alt text view also has the item's aspect ratio in the multi-aspect ratio layout (its `only` hides it elsewhere).
+        fields: altView ? iconFields.filter((f) => f.name === 'alt' || (!!spec!.itemMedia && f.name === 'aspect')) : [],
         onChange: altView ? (v: BlockProps) => setItems(setFields(rows(), i, slotNames, v)) : () => {},
         media: {
           preview: mediaPreview(r, k),

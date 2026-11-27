@@ -27,6 +27,7 @@ export default defineBlock({
     item: 'items',
     fields: ['title', 'subhead', 'text'],
     media: ['media', 'icon', 'iconColor', 'image', 'alt', 'aspect', 'video'],
+    itemMedia: 'media',
     link: 'href',
     onItem: ['buttons', 'divider', 'card'],
     barLink: false,
