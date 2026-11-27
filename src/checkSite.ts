@@ -39,7 +39,7 @@ import { widgetsWithoutComponent } from './widgets';
 import { colorPairs as shownPairs, sharedParts, translator, writtenApps, writtenBlockParts, writtenCollections } from './site';
 import { splitBlocks } from '../lib/blocks.mjs';
 import { ownListProblems } from '../lib/ownList.mjs';
-import { englishOf, siteWalkParts, splitMissing } from '../lib/translate.mjs';
+import { appNeeds, englishOf, hasIn, siteWalkParts, splitMissing } from '../lib/translate.mjs';
 import { collections as standardCollections } from '../defaults/collections';
 import { companyParts as standardCompany } from '../defaults/company';
 import { blockParts as standardBlocks } from '../defaults/blockTexts';
@@ -318,12 +318,21 @@ export function untranslated(): Record<string, Record<string, string[]>> {
     standardDefinitions,
   );
   const lacking = new Map<string, Set<string>>();
-  const missing = (l: string, own: Record<string, string>, walk: (w: ReturnType<typeof translator>) => void) => {
+  const missing = (
+    l: string,
+    own: Record<string, string>,
+    walk: (w: ReturnType<typeof translator>) => void,
+    app?: { store?: unknown; defaultLanguage?: string },
+  ) => {
+    // An app's texts are asked only for its default language: en-US in a store app, its own in a site's own app.
+    if (app && !appNeeds(app, l)) return [];
     const found = new Set<string>();
     walk(
       translator((shown) => {
         const text = original.get(shown) ?? shown;
-        if (writtenIn(text) !== l && !(text in own)) found.add(text);
+        // A site's own app that declares a default language writes the texts of its own code in it.
+        const written = app && !app.store && app.defaultLanguage && !english.has(text) ? app.defaultLanguage : writtenIn(text);
+        if (written !== l && !(text in own) && !(app && hasIn(text, own))) found.add(text);
         return shown;
       }),
     );
@@ -352,9 +361,11 @@ export function untranslated(): Record<string, Record<string, string[]>> {
               w.block(block);
               sharedParts.filter((p) => p.id === block.type).forEach(w.part);
             },
+            apps.find((a) => a.id === block.app),
           );
         // An app's name, what it does and its settings, in its texts.ts.
-        for (const app of apps) files[`src/apps/${app.id}/texts.ts`] = missing(l, { ...site, ...appTexts[app.id]?.[l] }, (w) => w.app(app));
+        for (const app of apps)
+          files[`src/apps/${app.id}/texts.ts`] = missing(l, { ...site, ...appTexts[app.id]?.[l] }, (w) => w.app(app), app);
         return [l, Object.fromEntries(Object.entries(files).filter(([, list]) => list.length))];
       }),
   );

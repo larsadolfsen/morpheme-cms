@@ -56,6 +56,7 @@ Rules:
 
 - `editor.ts` holds the app's code for the editor. It has full access.
 - `texts.json` holds the app's texts in the other languages, under the keys of today's `texts.ts`.
+- **Default language.** A store app needs en-US for every text; other languages, da-DK included, are optional and never warned or failed. A site's own app (in `src/apps/`, no store record) may set `defaultLanguage` in `defineApp` (`"da-DK"`) and may have no en-US at all: the untranslated-texts warning and `check:content` list a text only when it lacks the app's default language (en-US when it sets none).
 
 ### Screenshot keywords
 

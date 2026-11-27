@@ -180,6 +180,10 @@ export type AppDefinition = {
    * never for a new contract on its own: which editor it runs in is its `api` (APP_API), and fitting it to a new one is
    * Z (Y with new features), since a major release is not updated to on its own. */
   version?: string;
+  /** A site's own app only (src/apps/, no store record): the one language its texts are written in and must have, when it is not
+   * en-US ("da-DK"); it may have no en-US at all. Without it the app's default language is en-US. Ignored in a store app, which
+   * always needs en-US for every text; its other languages are optional. */
+  defaultLanguage?: string;
   /** In the app store: what is new in each version, by the version ("1.1.0"), shown before it is updated to it; every
    * version after the first has one: the next after the one released, given once until it is released, with all that
    * is new since in its note (packages/editor/scripts/releases.mjs). */
