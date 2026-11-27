@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import Screen from './Screen';
 import { MorphemeConnection } from './MorphemeConnection';
 import { ReleaseNotes, type VersionNotes } from './ReleaseNotes';
-import { Button, EmptyNote, LinkButton, ListItem, plainListClass, ProblemNote } from './ui';
+import { ArrowLink, Button, EmptyNote, ListItem, plainListClass, ProblemNote, SupportingText } from './ui';
 import { backFrom } from './site';
 import { cmsView } from './cmsView.mjs';
 import { runningLine, runningNotes } from './bundledNotes';
@@ -63,15 +63,15 @@ const failedText = (failed: NonNullable<View['failed']>) =>
 /** The build's page on GitHub, as a text link under a failed or stuck update. */
 const BuildLink = ({ href, version }: { href: string | null; version: string }) =>
   href ? (
-    <LinkButton kind="text" href={href} target="_blank" rel="noreferrer">
+    <ArrowLink href={href} target="_blank" rel="noreferrer">
       {t.cms.seeBuild(version)}
-    </LinkButton>
+    </ArrowLink>
   ) : null;
 
 /** A line of the status text, with its icon only where the icon means something (a warning, an update). */
-function StatusLine({ icon: Glyph, children }: { icon?: Icon; children: ReactNode }) {
+function StatusLine({ icon: Glyph, error, children }: { icon?: Icon; error?: boolean; children: ReactNode }) {
   return (
-    <ul className={`${plainListClass} mo-editor-status-line`}>
+    <ul className={`${plainListClass} mo-editor-status-line`} data-error={error || undefined}>
       <ListItem icon={Glyph} headline={children} lines={3} />
     </ul>
   );
@@ -82,8 +82,10 @@ function UpdateStatus({ update }: { update: NonNullable<View['update']> }) {
   const bad = update.state === 'undone' || update.state === 'stuck';
   return (
     <div>
-      <StatusLine icon={bad ? materialIcon('error') : undefined}>{t.cms[update.state](update.to)}</StatusLine>
-      <p className="mo-editor-small-note">{when(new Date(update.at))}</p>
+      <StatusLine icon={bad ? materialIcon('error') : undefined} error={bad}>
+        {t.cms[update.state](update.to)}
+      </StatusLine>
+      <SupportingText medium>{when(new Date(update.at))}</SupportingText>
       {update.state === 'stuck' && <BuildLink href={update.buildUrl} version={update.to} />}
     </div>
   );
@@ -140,11 +142,11 @@ export default function CmsPage() {
               <LineNav line={runningLine} />
             </>
           )}
-          <section className="mo-editor-notes">
+          <section className="mo-editor-notes mo-type-body-large">
             <div>
               <p>{t.cms.running(view.running)}</p>
-              {!view.latest && <p className="mo-editor-small-note">{t.cms.upToDate}</p>}
-              <p className="mo-editor-small-note">{view.checkedAt ? t.cms.checked(when(new Date(view.checkedAt))) : t.cms.notChecked}</p>
+              {!view.latest && <SupportingText medium>{t.cms.upToDate}</SupportingText>}
+              <SupportingText medium>{view.checkedAt ? t.cms.checked(when(new Date(view.checkedAt))) : t.cms.notChecked}</SupportingText>
             </div>
             {view.update && <UpdateStatus update={view.update} />}
             {view.latest && (
@@ -152,9 +154,11 @@ export default function CmsPage() {
                 <StatusLine icon={materialIcon('stars')}>{t.cms.available(view.latest)}</StatusLine>
                 {view.failed && (
                   <>
-                    <StatusLine icon={materialIcon('error')}>{failedText(view.failed)}</StatusLine>
+                    <StatusLine icon={materialIcon('error')} error>
+                      {failedText(view.failed)}
+                    </StatusLine>
                     {view.failed.retryAt !== null && (
-                      <p className="mo-editor-small-note">{t.cms.nextTry(when(new Date(view.failed.retryAt)))}</p>
+                      <SupportingText medium>{t.cms.nextTry(when(new Date(view.failed.retryAt)))}</SupportingText>
                     )}
                     <BuildLink href={view.failed.buildUrl} version={view.failed.version} />
                   </>
@@ -164,26 +168,25 @@ export default function CmsPage() {
             {view.npmCommand && (
               <div>
                 <p>{t.cms.needsNpm}</p>
-                <p className="mo-editor-small-note">
-                  <code>{view.npmCommand}</code>
-                </p>
+                <ul className={plainListClass}>
+                  <ListItem headline={<code>{view.npmCommand}</code>} truncate />
+                </ul>
               </div>
             )}
             {(view.blocked?.kind === 'contract' || view.blocked?.kind === 'unsafe-code') && (
-              <StatusLine icon={materialIcon('error')}>{blockedText(view.blocked)}</StatusLine>
+              <StatusLine icon={materialIcon('error')} error>
+                {blockedText(view.blocked)}
+              </StatusLine>
             )}
             {view.blocked?.kind === 'unsafe-code' && (
-              <p className="mo-editor-small-note">
+              <ul className={plainListClass}>
                 {view.blocked.lines.map((line) => (
-                  <code key={line}>
-                    {line}
-                    <br />
-                  </code>
+                  <ListItem key={line} headline={<code>{line}</code>} truncate />
                 ))}
-              </p>
+              </ul>
             )}
             {view.problems.map((kind) => (
-              <StatusLine key={kind} icon={materialIcon('error')}>
+              <StatusLine key={kind} icon={materialIcon('error')} error>
                 {t.cms[kindText[kind]]}
               </StatusLine>
             ))}

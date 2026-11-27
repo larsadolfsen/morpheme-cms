@@ -509,7 +509,7 @@ async function checkCardIconText(width, height, scheme) {
   await page.close();
 }
 
-/** Scrolling a carousel never forces a layout (the flicker on a fast swipe): while the row scrolls, the layout script reads no offsetLeft, offsetWidth, scrollWidth or getBoundingClientRect, and a frame that moves nothing writes no style. Every carousel on the Blocks page, 375 px, touch. */
+/** Scrolling a carousel never forces a layout (the flicker on a fast swipe): while the row scrolls, the layout script reads no offsetLeft, offsetWidth, scrollWidth or getBoundingClientRect, and a frame that moves nothing writes no style. Where the browser has scroll-driven animations (ScrollTimeline) the items' growing and shrinking is tied to the scroll by the browser (data-carousel-driven="scroll"), so the script writes no style at all while the row scrolls (the owner's phone: the item did not grow smoothly while a swipe ran the script on every frame; before, 1000 to 3800 style writes and 400 to 750 ms of style work in four swipes at 4x CPU). Every carousel on the Blocks page, 375 px, touch. */
 async function checkCarouselScrollCost() {
   const label = '375px carousel scroll cost';
   const page = await browser.newPage({ viewport: { width: 375, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -542,23 +542,110 @@ async function checkCarouselScrollCost() {
         return gbr.call(this);
       };
       const max = row.scrollWidth - row.clientWidth;
+      const carousel = row.closest('[data-carousel]');
+      const scripted = ['multi-browse', 'hero'].includes(carousel.dataset.carouselLayout);
+      let writes = 0;
+      const watch = new MutationObserver((l) => (writes += l.length));
+      watch.observe(carousel, { attributes: true, attributeFilter: ['style'], subtree: true });
       // One warm-up scroll first: a row is measured once when it is first shown or resized, which is not what is checked.
       row.style.scrollSnapType = 'none';
       row.scrollLeft = max * 0.1;
       await new Promise((res) => setTimeout(res, 300));
+      watch.takeRecords();
+      writes = 0;
       reads.length = 0;
       for (const f of [0.25, 0.6, 0.9, 0.3]) {
         row.style.scrollSnapType = 'none';
         row.scrollLeft = max * f;
         await new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
       }
+      writes += watch.takeRecords().length;
+      watch.disconnect();
       undo.forEach((u) => u());
       Element.prototype.getBoundingClientRect = gbr;
       row.style.scrollSnapType = '';
-      return { max, reads: [...new Set(reads)] };
+      return {
+        max,
+        reads: [...new Set(reads)],
+        writes,
+        scripted,
+        driven: carousel.dataset.carouselDriven === 'scroll',
+        supported: typeof ScrollTimeline === 'function',
+      };
     }, k);
     if (r.max > 0 && r.reads.length)
       problems.push(`${label}: carousel ${k} reads ${r.reads.join(', ')} while it scrolls, which forces a layout each frame`);
+    if (r.max > 0 && r.scripted && r.supported && !r.driven)
+      problems.push(
+        `${label}: carousel ${k} is not tied to the scroll by the browser (no data-carousel-driven="scroll"), so its items follow the finger a frame late`,
+      );
+    if (r.max > 0 && r.scripted && r.supported && r.writes)
+      problems.push(
+        `${label}: carousel ${k} writes style ${r.writes} times while it scrolls (limit 0): the script runs on every scroll frame and each write costs a style recalculation, a layout of the text and a paint`,
+      );
+  }
+  await page.close();
+}
+
+/** The gap between two cards of a carousel stays the carousel's gap on the whole way, not only at rest (the owner's phone, 27 Nov 2026: "the distance between cards ... differs": a card that entered or left at the row's edge trailed 16 px from its neighbour, twice the gap, because the item outside the row stood where the padding ends). Every multi-browse and hero carousel on the Blocks page, the row scrolled in steps from its start to its end: the visible edges of two cards next to each other (their masks less the clipped part) are one gap apart. */
+async function checkCarouselGap(width, height) {
+  const label = `${width}px carousel gap`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  const n = await page.locator('[data-carousel-items]').count();
+  for (let k = 0; k < n; k++) {
+    const r = await page.evaluate(async (idx) => {
+      const row = document.querySelectorAll('[data-carousel-items]')[idx];
+      const carousel = row.closest('[data-carousel]');
+      if (!['multi-browse', 'hero'].includes(carousel.dataset.carouselLayout)) return null;
+      const max = row.scrollWidth - row.clientWidth;
+      const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+      const masks = [...carousel.querySelectorAll('[data-carousel-mask]')];
+      if (max <= 0 || masks.length < 2) return null;
+      row.style.scrollSnapType = 'none';
+      row.style.scrollBehavior = 'auto';
+      const frame = () => new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
+      let worst = { diff: 0 };
+      for (let s = 0; s <= max + 5; s += 5) {
+        row.scrollLeft = Math.min(s, max);
+        await frame();
+        const window_ = row.getBoundingClientRect();
+        const edges = masks.map((m) => {
+          const b = m.getBoundingClientRect();
+          const inset = Number(/inset\(\S+ (-?[\d.]+)px/.exec(getComputedStyle(m).clipPath)?.[1] ?? 0);
+          return { left: b.left + inset, right: b.right - inset };
+        });
+        const shown = (e) => e.right - e.left > 1 && e.right > window_.left && e.left < window_.right;
+        for (let i = 1; i < edges.length; i++) {
+          if (!shown(edges[i - 1]) || !shown(edges[i])) continue;
+          const diff = Math.abs(edges[i].left - edges[i - 1].right - gap);
+          if (diff > worst.diff) worst = { diff, at: Math.round(row.scrollLeft), pair: i, gap: edges[i].left - edges[i - 1].right };
+        }
+      }
+      row.style.scrollSnapType = '';
+      row.style.scrollBehavior = '';
+      return { gap, worst, layout: carousel.dataset.carouselLayout };
+    }, k);
+    // `Show all` stands at the right under the row, its label on the content's edge (M3's picture of the carousel's accessibility), not centred.
+    const all = await page.evaluate((idx) => {
+      const row = document.querySelectorAll('[data-carousel-items]')[idx];
+      const box = row.closest('[data-cards-carousel]')?.querySelector('.mo-block-cards__show-all');
+      const button = box?.querySelector('button');
+      if (!box || !button || getComputedStyle(box).display === 'none') return null;
+      const text = document.createRange();
+      text.selectNodeContents(button);
+      return { label: text.getBoundingClientRect().right, edge: box.getBoundingClientRect().right };
+    }, k);
+    if (all && Math.abs(all.label - all.edge) > 1)
+      problems.push(
+        `${label}: carousel ${k}'s Show all label ends at ${Math.round(all.label)} px, not on the content's right edge at ${Math.round(all.edge)} px`,
+      );
+    if (r && r.worst.diff > 0.75)
+      problems.push(
+        `${label}: carousel ${k} (${r.layout}) has ${r.worst.gap.toFixed(1)} px between cards ${r.worst.pair - 1} and ${r.worst.pair} with the row at ${r.worst.at}, not its gap of ${r.gap} px`,
+      );
   }
   await page.close();
 }
@@ -800,8 +887,8 @@ async function checkCardsCarousel(width, height) {
             const inset = parseFloat(m.style.getPropertyValue('--mo-comp-carousel-mask-inset')) || 0;
             return { left: b.left + inset, right: b.right - inset };
           })
-          // Whole items: a card peeking in at the other end does not count.
-          .filter((b) => b.left >= row.left - 1 && b.right <= row.right + 1);
+          // Whole items: a card peeking in at the other end does not count, nor the item outside the row, which has no width.
+          .filter((b) => b.right - b.left > 1 && b.left >= row.left - 1 && b.right <= row.right + 1);
         return { seen, rowMid: (row.left + row.right) / 2 };
       });
       const widths = seen.map((b) => Math.round(b.right - b.left));
@@ -837,7 +924,7 @@ async function checkCardsCarousel(width, height) {
           const inset = parseFloat(m.style.getPropertyValue('--mo-comp-carousel-mask-inset')) || 0;
           return { left: b.left + inset, right: b.right - inset };
         })
-        .filter((b) => b.left >= row.left - 1 && b.right <= row.right + 1)
+        .filter((b) => b.right - b.left > 1 && b.left >= row.left - 1 && b.right <= row.right + 1)
         .map((b) => Math.round(b.right - b.left));
     });
     const smalls = kind === 'hero-center' ? [widths[0], widths[2]] : [Math.min(...widths)];
@@ -1676,6 +1763,8 @@ export function register(unit) {
     unit(`checkCardDivider ${width}`, () => checkCardDivider(width, height));
   unit('checkCardsElevation 768', () => checkCardsElevation(768, 1024));
   unit('checkCarouselScrollCost 375', () => checkCarouselScrollCost());
+  unit('checkCarouselGap 390', () => checkCarouselGap(390, 800));
+  unit('checkCarouselGap 1280', () => checkCarouselGap(1280, 900));
   unit('checkCardsCarousel 768', () => checkCardsCarousel(768, 900));
   unit('checkCardsCarousel 600', () => checkCardsCarousel(600, 900));
   unit('checkCardsCarousel 840', () => checkCardsCarousel(840, 900));

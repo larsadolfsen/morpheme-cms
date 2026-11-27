@@ -1313,9 +1313,9 @@ function Form({
     <header className="mo-editor-post-head" data-post-head>
       <HeadTitle field={titleField} value={values.title} onChange={(v) => onTitle(String(v ?? ''))} />
       {author.name && (
-        <p className="mo-editor-byline-lines">
-          <span className="mo-editor-author-name">{author.name}</span>
-          {author.role && <span className="mo-editor-author-role">{author.role}</span>}
+        <p>
+          <span className="mo-type-title-small mo-editor-author-name">{author.name}</span>
+          {author.role && <span className="mo-type-body-medium mo-editor-author-role">{author.role}</span>}
         </p>
       )}
       <div className="mo-editor-flow-4">
@@ -1390,7 +1390,7 @@ function Form({
                   <FoldSection {...sectionProps('content')} fixed>
                     {post ? postHead : fieldsIn(collection, 'content').map(field)}
                     <div ref={textBox} className="mo-editor-text-anchor">
-                      <span className="mo-editor-field-title">{t.forms.text}</span>
+                      <span className="mo-type-title-small mo-editor-field-title">{t.forms.text}</span>
                       <MarkdownEditor
                         key={era}
                         ref={text}
