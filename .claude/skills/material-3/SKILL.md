@@ -8,8 +8,9 @@ description: Use before writing a spec or making a change that touches the site,
 Announce "Using material-3". Owner, 13 Nov 2026: "We follow MD3 everywhere except the editor. You need to look up every
 page and check it. I don't want to tell you more times to follow MD3."
 
-1. Outside the page and post editor (its bar, overflow menu, text and block menus) every design choice follows what m3.material.io prints. The editor's other screens (theme page, settings,
-   lists, dialogs) follow it too (owner, 21 Nov 2026). Where M3 falls short of WCAG, M3 wins and the theme names the shortfall
+1. Every design choice follows what m3.material.io prints: the site, the theme, the editor's screens and the page and post editor
+   (its bar, overflow menu, text and block menus) (owner, 26 Nov 2026: "Everything in the editor should follow md3"). The exception of 13 and 21 Nov 2026 for the page and post
+   editor is gone; its remaining deviations end in batch 9 of 0.19.8's task 13. Where M3 falls short of WCAG, M3 wins and the theme names the shortfall
    (`CLAUDE.md`, *Accessibility*).
 2. When you build a new component or edit an existing component's design (look, measurements, behaviour, states), read
    the real pages of every component involved, with a real browser (Playwright). Owner rule, 15 Nov: m3.material.io
@@ -21,8 +22,8 @@ page and check it. I don't want to tell you more times to follow MD3."
    pattern.
 4. Which M3: Expressive wherever a component has an Expressive variant, otherwise baseline (owner, 15 Nov 2026). The specs' variant table says which one a component has.
    Priority order (owner, 15 Nov 2026): 1. Modern web, 2. M3 Expressive, 3. M3, 4. M2 with M3 styling. Where they conflict, the lower number wins.
-5. A deviation is allowed only in the page and post editor's bar and menus, or where the owner keeps one in words on or after
-   21 Nov 2026 (rule 6; today CS2 and CS3). Record it in
+5. A deviation is allowed only where the owner keeps one in words on or after 21 Nov 2026 (rule 6; today CS2 and CS3). The page and
+   post editor's bar and menus are no longer an exception (owner, 26 Nov 2026: "Everything in the editor should follow md3"). Record it in
    `docs/material-deviations.md` in the same pull request as the change: what Material says (quoted), what we do instead,
    why, the date and the pull request. A deviation that is not listed there is a bug.
 

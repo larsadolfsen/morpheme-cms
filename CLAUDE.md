@@ -16,7 +16,7 @@ in one place only, so never work from memory of a skill.
 | `release-notes` | a change is something a site owner sees, or a note, an edition or a version's notes are written or fixed |
 | `checks` | you choose which checks to run before a push, or a CI job fails |
 | `junior-developer` | a developer session hands a mechanical step (a rename from a map, snapshots, finding every use) to a Haiku helper |
-| `material-3` | a spec or a change touches anything outside the page and post editor's bar and menus, or deviates from Material 3 |
+| `material-3` | a spec or a change touches anything a person sees (the site, the theme, any editor screen, the page and post editor included), or deviates from Material 3 |
 | `pm` | the owner makes the session the project manager (`/pm <version>`), or the orchestrator merges while no PM runs |
 | `cto` | the owner makes the session the CTO, or asks where the product, the code, the process or the roadmap should go next |
 | `release` | the owner says `/release`, or asks to release, publish to `latest` or ship a version |
@@ -239,9 +239,9 @@ All wording in UI components, buttons and fields follows Material 3's *Global wr
   setting `Hide from search engines`.
 - Action buttons: active verbs without filler words (`Add tag`, `Edit page`, `Save`).
 
-### Material 3 everywhere except the page and post editor
+### Material 3 everywhere
 
-Owner, 13 Nov 2026: "We follow MD3 everywhere except the editor." Owner, 21 Nov 2026: that means only the page and post editor (its bar, overflow menu, text and block menus); the editor's other screens (theme page, settings, lists, dialogs) follow Material 3 like the site. Outside the page and post editor every design choice follows what m3.material.io prints, read from the real pages,
-never from memory. Load the skill `material-3` before a spec or a change that touches such a part. An older decision, spec or rule
+Owner, 26 Nov 2026: "Everything in the editor should follow md3". This ends the exception of 13 and 21 Nov 2026 ("We follow MD3 everywhere except the editor", then only the page and post editor's bar, overflow menu, text and block menus): the page and post editor follows Material 3 like the editor's other screens and the site, and its remaining deviations end in batch 9 of 0.19.8's task 13 (`plans/2026-11-25-0-19-8.md`). Every design choice follows what m3.material.io prints, read from the real pages,
+never from memory. Load the skill `material-3` before a spec or a change that touches a part a person sees. An older decision, spec or rule
 that differs from what M3 prints does not carry over (owner, 21 Nov 2026): M3 wins, and the session reports the old source
 (`material-3`, rule 6).
