@@ -25,6 +25,10 @@ Motion already let the owner choose (Motion: *Expressive*, *Standard* and *Calm*
 choices the CMS defines on the shared `--mo-` tokens, each a set of token steps, with the theme's choice as the default. Because the
 choices are the CMS's and set tokens every theme already reads, they need no contract change.
 
+*Icons* is the icon set the site draws with (owner, 27 Nov 2026: "Icons is the icon set that is active eg. Lucide or material"):
+Material Symbols, or a pack installed from the store, such as Phosphor, or Lucide once it is back (0.32.0). It picks a pack, not a
+token; a pack is files keyed by Material Symbols' names (`CLAUDE.md`, *Icons are Material Symbols*), so no code changes either.
+
 ## Customization is not a deviation
 
 Owner, 21 November 2026: "This is not a deviation in the theme. This is customization. Those things needs to be distinguished and md will
