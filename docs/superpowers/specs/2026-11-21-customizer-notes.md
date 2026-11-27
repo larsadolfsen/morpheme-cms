@@ -5,6 +5,13 @@ until a design is written. Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md`, 
 
 The customizer is where a site owner changes the theme's steps without code. It works for every theme, not only Material.
 
+## Tokens, not code
+
+Owner, 27 Nov 2026: "The customizer will not change code, but change tokens". The customizer writes token values only, in the `custom`
+layer below: never a theme's or a block's code, CSS rules or markup. What it can change is what a theme exposes as a token; a look
+that has no token gets one in the theme first. It is a major release, 4.0, built in line 3.1 (owner, 27 Nov 2026: "It is a major
+release").
+
 ## Customization is not a deviation
 
 Owner, 21 November 2026: "This is not a deviation in the theme. This is customization. Those things needs to be distinguished and md will
