@@ -180,20 +180,18 @@ tokens follows every section colour by itself. `npm run check:editor-colors` fai
 reasons), `npm run check:color-roles` on a mix of a role or a role declared as anything but another role (its allowlist,
 `scripts/color-roles.allow.mjs`, only shrinks), and `check:screens` checks text, placeholder, slot icons and outline of every entry of `inlineBlocks` on every section colour.
 
-### Accessibility: WCAG 2.2 AA
+### Accessibility: not a rule until the base theme
 
-Owner, 19 Nov 2026: the sites the CMS builds and the editor meet **WCAG 2.2 level AA**. A change never lowers it: contrast
-(one final `check:contrast` scan when Material's M3 work is done, not per change; owner, 21 Nov 2026), keyboard use, a visible focus ring for keyboard focus (`:focus-visible`), names for screen readers, and
-target sizes. Where Material 3 and WCAG differ, **Material 3 wins** (owner, 21 Nov 2026: "we follow MD3 even if it does not comply
-with accessibility"): the part takes M3's value as printed, and the theme names the shortfall (below). A new base theme, built on
-Material 3 and meeting WCAG 2.2 AA everywhere, comes after Material follows M3 (0.27.3; `docs/superpowers/specs/2026-11-21-base-theme-notes.md`).
-The checks that enforce it: roadmap 0.19.2 to 0.19.4.
+Owner, 27 Nov 2026: "We agreed upon ignoring wcag until base theme!", then "Stop treating wcag add a rule". Until the base theme
+(roadmap 0.27.3) WCAG 2.2 is no rule for the site, the theme or the editor: a part takes Material 3's value as printed, a change may
+fall short of WCAG, and no spec, test or review asks for it. `check:a11y`, `check:keyboard`, `check:announce` and `check:contrast` are
+not required before a push or a merge (skill `checks`). The base theme, built on Material 3 and meeting WCAG 2.2 AA everywhere, brings
+the rule back (`docs/superpowers/specs/2026-11-21-base-theme-notes.md`). This replaces the owner's rule of 19 Nov 2026 (the sites and
+the editor meet WCAG 2.2 AA, and a change never lowers it) and the page and post editor's own AA rule of 21 Nov 2026.
 
-A theme may fall short of it on the site if its page says so (owner, 21 Nov 2026): the theme's `accessibility.json` names each
-shortfall by WCAG criterion, the checks let through only what it names, and the editor shows it on the theme's page
-(`docs/superpowers/specs/2026-11-21-theme-accessibility-statement-design.md`). *Material* follows Material 3 exactly and names the
-shortfalls that gives; the editor's screens (theme page, settings, lists, dialogs) use the same parts, so the same named shortfalls hold
-there. The page and post editor follows Material 3 too (owner, 26 Nov 2026: "Everything in the editor should follow md3"), and WCAG is not a goal anywhere until the base theme (owner, 27 Nov 2026: "We agreed upon ignoring wcag until base theme!"): a part takes M3's value even where it falls short.
+Two things are not affected: 0.22 Page accessibility, which rates a writer's content as advice (owner, 27 Nov 2026: "1 keep it"), and
+what is built already, a theme's `accessibility.json` and its statement on the theme page
+(`docs/superpowers/specs/2026-11-21-theme-accessibility-statement-design.md`), which keep working; no theme is asked to fill it in.
 
 ### Icons are Material Symbols
 

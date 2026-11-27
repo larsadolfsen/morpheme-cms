@@ -10,8 +10,7 @@ page and check it. I don't want to tell you more times to follow MD3."
 
 1. Every design choice follows what m3.material.io prints: the site, the theme, the editor's screens and the page and post editor
    (its bar, overflow menu, text and block menus) (owner, 26 Nov 2026: "Everything in the editor should follow md3"). The exception of 13 and 21 Nov 2026 for the page and post
-   editor is gone; its remaining deviations end in batch 9 of 0.19.8's task 13. Where M3 falls short of WCAG, M3 wins and the theme names the shortfall
-   (`CLAUDE.md`, *Accessibility*).
+   editor is gone; its remaining deviations end in batch 9 of 0.19.8's task 13. WCAG is no rule until the base theme (`CLAUDE.md`, *Accessibility*).
 2. When you build a new component or edit an existing component's design (look, measurements, behaviour, states), read
    the real pages of every component involved, with a real browser (Playwright). Owner rule, 15 Nov: m3.material.io
    pages are JavaScript-rendered, so a plain fetch (WebFetch, curl) returns only the page title, an empty shell. A
