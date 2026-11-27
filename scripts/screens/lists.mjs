@@ -1015,7 +1015,7 @@ async function checkOwnList(width, height) {
 /** The text of a committed file: the commit proxy gets it base64 encoded. */
 const decoded = (content) => Buffer.from(content ?? '', 'base64').toString() || '{}';
 
-/** `New list` on the Lists screen: the button opens the dialog (the name only, `Cancel` outlined, `Create` filled, no initial focus); a name that is taken is refused; `Create` makes a list with no fields, which opens saying so with `Add field`; two body text fields are added, a row is typed in both and both values are saved and shown; the list shows under Lists and in Rows from. No horizontal overflow. */
+/** `New list` on the Lists screen: the button opens the dialog (the name only; on a phone a dialog with `Cancel` and `Create` as text buttons, from 600 dp a side sheet with `Cancel` outlined and `Create` filled; no initial focus); a name that is taken is refused; `Create` makes a list with no fields, which opens saying so with `Add field`; two body text fields are added, a row is typed in both and both values are saved and shown; the list shows under Lists and in Rows from. No horizontal overflow. */
 async function checkNewList(width, height, label) {
   label = `${label} new`;
   const phone = width < 600;
@@ -1055,7 +1055,8 @@ async function checkNewList(width, height, label) {
     });
     if (state.focusedInside) problems.push(`${label}: the dialog puts the focus on a field or button to begin with`);
     if (!state.cancelBg || !state.createBg) problems.push(`${label}: the dialog lacks Cancel or Create`);
-    else if (state.cancelBg === state.createBg) problems.push(`${label}: Cancel and Create look alike (${state.cancelBg})`);
+    else if (width >= 600 && state.cancelBg === state.createBg)
+      problems.push(`${label}: Cancel and Create look alike (${state.cancelBg})`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
       problems.push(`${label}: the dialog scrolls sideways`);
     // A name that is taken (the blog's collection, which every site has) is refused.

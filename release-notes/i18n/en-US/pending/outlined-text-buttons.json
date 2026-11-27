@@ -1,6 +1,0 @@
-{
-  "id": "outlined-text-buttons",
-  "kind": "line",
-  "mark": "improvement",
-  "text": "A snackbar's action, a tooltip's action, and Cancel and OK in the date and time pickers are outlined buttons"
-}

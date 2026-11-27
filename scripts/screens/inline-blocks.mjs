@@ -823,24 +823,21 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
     await page.keyboard.press('Escape');
     await page.waitForTimeout(300);
   }
-  // The add actions of the block (Add list row, Add button, Add card, Add point ...) are the theme's outlined button, not a text button (owner, 26 Nov 2026: "Don't use text buttons.
-  // Use outline button. Also in cards."), with its outline (drawn by the theme as an inset ring), the theme's label colour and a tap target of at least 40 px (the theme adds the rest to 48 dp).
+  // The add actions of the block (Add list row, Add button, Add card, Add point ...) are the theme's text button (task 23, owner, 27 Nov 2026: a button takes M3's style for its place, and the lowest-priority inline action is a text button), with the theme's label colour and a tap target of at least 40 px (the theme adds the rest to 48 dp).
   const adds = await page.locator('[data-add-row], [data-add-button], [data-add-feature]').evaluateAll((bs) =>
     bs.map((b) => {
-      const c = getComputedStyle(b);
       const r = b.getBoundingClientRect();
       return {
         name: b.textContent,
         outlined: b.classList.contains('mo-is-outlined'),
         text: b.classList.contains('mo-is-text'),
-        border: parseFloat(c.borderTopWidth) || (c.boxShadow.includes('inset') ? 1 : 0),
         height: r.height,
       };
     }),
   );
   if (!adds.length) problems.push(`${label}: no add action found`);
   for (const a of adds) {
-    if (!a.outlined || a.text || !(a.border >= 1)) problems.push(`${label}: "${a.name}" is not an outlined button (${JSON.stringify(a)})`);
+    if (a.outlined || !a.text) problems.push(`${label}: "${a.name}" is not a text button (${JSON.stringify(a)})`);
     if (a.height < 40) problems.push(`${label}: "${a.name}" is ${a.height} px high, under 40`);
   }
   if (phone) {
@@ -854,7 +851,7 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
       const c = getComputedStyle(b);
       return { pointed: b.matches(':hover'), background: c.backgroundColor, shadow: c.boxShadow };
     });
-    if (!sticky.pointed || sticky.background !== 'rgba(0, 0, 0, 0)' || !sticky.shadow.includes('inset'))
+    if (!sticky.pointed || sticky.background !== 'rgba(0, 0, 0, 0)')
       problems.push(`${label}: "${add}" tapped on a touch screen is not quiet on a touch screen (${JSON.stringify(sticky)})`);
     await session.send('Emulation.setEmulatedMedia', { features: [] });
   }

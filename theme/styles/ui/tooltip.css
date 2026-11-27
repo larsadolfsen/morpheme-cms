@@ -2,7 +2,7 @@
   Tooltips (Tooltip, tooltipClass; m3.material.io/components/tooltips): .mo-tooltip__anchor ([data-tooltip], shown with
   [data-tooltip-open] by ../ui/tooltip.script.ts, placed by CSS anchor positioning, and where the browser lacks it by the script, which puts [data-tooltip-below] under its anchor) with what it is about and
   its .mo-tooltip, .mo-tooltip.mo-is-plain (a short label, in the middle over it) or .mo-tooltip.mo-is-rich (.mo-tooltip__subhead,
-  .mo-tooltip__supporting-text and optionally .mo-tooltip__actions with an outlined button, .mo-tooltip__action; from its anchor's start).
+  .mo-tooltip__supporting-text and optionally .mo-tooltip__actions with a text button, .mo-tooltip__action; from its anchor's start).
     --mo-comp-tooltip-gap (between it and its anchor)
     --mo-comp-plain-tooltip-container-color, -text, -radius, -padding, -font-size, -weight, -max-width
     --mo-comp-tooltip-rich-surface, -text, -subhead, -subhead-weight, -radius, -padding, -line, -shadow, -max-width
@@ -84,7 +84,7 @@
   }
   .mo-tooltip__actions {
     display: flex;
-    margin: 0.25rem 0 -0.25rem;
+    margin: 0.25rem 0 -0.25rem calc(-1 * var(--mo-comp-button-text-padding, 1rem));
   }
   /* Anchor positioning (css-layout §5, position-aware-tooltips): where the browser has it, the browser places the tooltip
      and ui/tooltip.script.ts does not. Plain: over its anchor, in the middle; rich: over it from its start. Both go under

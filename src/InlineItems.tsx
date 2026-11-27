@@ -142,7 +142,7 @@ export function foldOf(i: number, here: boolean, folds?: Record<number, boolean>
 /** The text button under the last item (`Add card`), shown while the block is active and has an item. */
 export function InlineAdd({ label, onClick }: { label: string; onClick: () => void }) {
   return (
-    <SiteButton kind="outlined" data-add-row="" className="mo-editor-inline-list-add" onClick={onClick}>
+    <SiteButton kind="text" data-add-row="" className="mo-editor-inline-list-add" onClick={onClick}>
       {label}
     </SiteButton>
   );

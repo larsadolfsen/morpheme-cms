@@ -163,7 +163,7 @@ export default function InlinePriceCards({ items, props, data, active, focus, on
               )}
               {here && !next && (
                 <SiteButton
-                  kind="outlined"
+                  kind="text"
                   data-add-feature=""
                   className="mo-editor-inline-list-add"
                   onClick={() => setFeatures(i, [...list, ''], `f${list.length}`)}

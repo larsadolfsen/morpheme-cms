@@ -532,10 +532,10 @@ async function checkDensity(width, height) {
   await page.close();
 }
 
-/** Four theme buttons that M3 draws as text buttons are outlined buttons (owner, 26 Nov 2026; docs/material-deviations.md, TB2 to TB5): the snackbar's action, the rich tooltip's action, and Cancel and OK of the date picker and of the time picker. On the editor's parts gallery (#developer/parts/ui) and the demo's /ui/ page, on a phone and a computer, light and dark, each of them has the outlined button's look (class, a 1 px edge, corner full, the same label size as another outlined button) and Tab gives it a focus ring. */
-async function checkOutlinedTextButtons(width, height, scheme, where) {
+/** Four theme buttons that M3 draws as text buttons are text buttons (task 23, owner, 27 Nov 2026, which ends the outlined ones of 26 Nov 2026): the snackbar's action, the rich tooltip's action, and Cancel and OK of the date picker and of the time picker. On the editor's parts gallery (#developer/parts/ui) and the demo's /ui/ page, on a phone and a computer, light and dark, each of them has the text button's look (class, no edge, corner full, the same label size as another text button) and Tab gives it a focus ring. */
+async function checkTextButtons(width, height, scheme, where) {
   const touch = width < 600;
-  const label = `${width}px ${scheme} outlined text buttons (${where})`;
+  const label = `${width}px ${scheme} text buttons (${where})`;
   const page = await browser.newPage({
     viewport: { width, height },
     hasTouch: touch,
@@ -567,7 +567,7 @@ async function checkOutlinedTextButtons(width, height, scheme, where) {
     'time picker Cancel and OK': '.mo-time-picker__actions .mo-button',
   };
   const reference = await page.evaluate(() => {
-    const b = document.querySelector('.mo-button.mo-is-outlined:not(.mo-snackbar__action):not(.mo-tooltip__action)');
+    const b = document.querySelector('.mo-button.mo-is-text:not(.mo-snackbar__action):not(.mo-tooltip__action)');
     return b ? { font: getComputedStyle(b).fontSize, weight: getComputedStyle(b).fontWeight } : null;
   });
   for (const [name, selector] of Object.entries(selectors)) {
@@ -594,13 +594,12 @@ async function checkOutlinedTextButtons(width, height, scheme, where) {
           weight: cs.fontWeight,
         };
       });
-      if (!seen.outlined || seen.text) problems.push(`${label}: ${name} #${i} is not an outlined button`);
-      if (!/inset/.test(seen.edge) || !/ 1px\b/.test(seen.edge))
-        problems.push(`${label}: ${name} #${i} has no 1 px outline (${seen.edge})`);
+      if (seen.outlined || !seen.text) problems.push(`${label}: ${name} #${i} is not a text button`);
+      if (/inset/.test(seen.edge)) problems.push(`${label}: ${name} #${i} has an outline (${seen.edge})`);
       if (seen.radius < seen.height / 2 - 0.5) problems.push(`${label}: ${name} #${i} corner is ${seen.radius}px, not full`);
       if (reference && (seen.font !== reference.font || seen.weight !== reference.weight))
         problems.push(
-          `${label}: ${name} #${i} label is ${seen.font}/${seen.weight}, another outlined button has ${reference.font}/${reference.weight}`,
+          `${label}: ${name} #${i} label is ${seen.font}/${seen.weight}, another text button has ${reference.font}/${reference.weight}`,
         );
     }
     // Tab reaches it: focus the control before it, press Tab, and the ring (:focus-visible) is drawn.
@@ -752,7 +751,7 @@ export function register(unit) {
   ])
     for (const scheme of ['light', 'dark'])
       for (const where of ['editor', 'demo'])
-        unit(`checkOutlinedTextButtons ${width} ${scheme} ${where}`, () => checkOutlinedTextButtons(width, height, scheme, where));
+        unit(`checkTextButtons ${width} ${scheme} ${where}`, () => checkTextButtons(width, height, scheme, where));
   for (const [width, height] of [
     [390, 844],
     [1280, 900],

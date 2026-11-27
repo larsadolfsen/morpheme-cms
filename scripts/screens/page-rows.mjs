@@ -183,18 +183,18 @@ async function checkBlockRow(width, options = {}) {
     problems.push(`${label}: a row button's hover is ${JSON.stringify(upHover)}, not the theme icon button's ${JSON.stringify(wantHover)}`);
   // A phone has no hover (the theme's state layer is for a pointer that hovers): the hover is compared on a computer.
   if (!phone && wantHover.background === 'rgba(0, 0, 0, 0)') problems.push(`${label}: the theme icon button shows no state layer on hover`);
-  // `Add list row`: the theme's outlined button, and its hover container is whole inside the outline.
+  // `Add list row`: the theme's text button, and its hover container is whole inside the block's outline.
   const add = page.locator('.mo-editor-inline-list-add').first();
   if (await add.count()) {
     const addHover = await hoverOf(add);
     const classes2 = await add.evaluate((e) => [...e.classList]);
-    if (!classes2.includes('mo-button') || !classes2.includes('mo-is-outlined'))
-      problems.push(`${label}: Add list row is not the theme's outlined button (${classes2})`);
+    if (!classes2.includes('mo-button') || !classes2.includes('mo-is-text'))
+      problems.push(`${label}: Add list row is not the theme's text button (${classes2})`);
     const wantText = page.locator('[data-probe="text"]');
     await page.evaluate(() => {
       const probe = document.createElement('button');
       probe.dataset.probe = 'text';
-      probe.className = 'mo-button mo-is-outlined';
+      probe.className = 'mo-button mo-is-text';
       probe.textContent = 'x';
       document.querySelector('.mo-site-block-card.mo-site-block-inline').append(probe);
     });
@@ -203,7 +203,7 @@ async function checkBlockRow(width, options = {}) {
     const textWant = await wantText.evaluate((e) => getComputedStyle(e).backgroundColor);
     await wantText.evaluate((e) => e.remove());
     if (!phone && (addHover.background !== textWant || textWant === 'rgba(0, 0, 0, 0)'))
-      problems.push(`${label}: Add list row's hover is ${addHover.background}, not the theme outlined button's ${textWant}`);
+      problems.push(`${label}: Add list row's hover is ${addHover.background}, not the theme text button's ${textWant}`);
     const box = await add.boundingBox();
     const outline = await page.locator('.mo-site-block-card.mo-site-block-inline').boundingBox();
     const inner = frame.border;
