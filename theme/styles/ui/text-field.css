@@ -261,7 +261,7 @@
   :is(
       .mo-is-error,
       .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
-    )
+    ):not(:is(.mo-date-picker__field, .mo-time-picker__field) .mo-text-field)
     .mo-text-field__container:has(> .mo-text-field__error-icon)
     > :is(.mo-text-field__input, .mo-text-field__suffix):not(:has(~ .mo-text-field__suffix)) {
     padding-inline-end: var(--mo-comp-text-field-icon-gap, 0.75rem);
@@ -305,9 +305,11 @@
   :is(
       .mo-is-error,
       .mo-text-field:where(:has(> .mo-text-field__container > .mo-text-field__input:user-invalid):has(.mo-text-field__invalid-text))
-    )
+    ):not(:is(.mo-date-picker__field, .mo-time-picker__field) .mo-text-field)
     .mo-text-field__error-icon {
     display: block;
+    width: 1.5rem;
+    height: 1.5rem;
     color: var(--mo-comp-text-field-error, var(--mo-comp-block-accent));
   }
   :is(

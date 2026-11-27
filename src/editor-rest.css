@@ -187,12 +187,7 @@
     gap: var(--mo-ref-space-150);
   }
   .mo-editor-form-more {
-    margin-block-start: 3rem;
-  }
-  .mo-editor-inline-row {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--mo-ref-space-150);
+    margin-block-start: var(--mo-ref-space-600);
   }
   .mo-editor-hide-on-phone {
     @media (width < 37.5rem) {
@@ -395,12 +390,12 @@
   /* ---- Pickers, sheets and lists ---- */
 
   .mo-editor-picker-hint {
-    margin-inline: var(--mo-ref-space-250);
+    margin-inline: var(--mo-ref-space-300);
     margin-block-end: var(--mo-comp-editor-rhythm-150);
     flex-shrink: 0;
   }
   .mo-editor-picker-search {
-    margin-inline: var(--mo-ref-space-250);
+    margin-inline: var(--mo-ref-space-300);
     margin-block-end: var(--mo-ref-space-100);
     flex-shrink: 0;
   }

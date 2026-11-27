@@ -156,7 +156,7 @@
   }
   .mo-editor-field-item-actions {
     display: flex;
-    padding-inline-end: var(--mo-ref-space-75);
+    padding-inline-end: var(--mo-ref-space-200);
   }
   .mo-editor-field-item-toggle > svg {
     transition-property: transform, translate, scale, rotate;

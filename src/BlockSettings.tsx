@@ -33,6 +33,7 @@ import {
   SheetBody,
   ListItem,
   SideSheet,
+  EmptyNote,
   useAtLeast,
 } from './ui';
 import { ConflictError, type RepoFile } from './github';
@@ -469,7 +470,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
             ))}
           </ul>
         ) : (
-          <p className="mo-editor-settings-muted">{shown.none}</p>
+          <EmptyNote>{shown.none}</EmptyNote>
         )}
       </div>
     </>
@@ -505,7 +506,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
       <div className="mo-editor-split">
         <div className="mo-fill">
           {!found.length && !(sort === 'group' && inGroups.some((g) => g.empty)) ? (
-            <p className="mo-editor-no-match">{t.common.noMatch}</p>
+            <EmptyNote>{t.common.noMatch}</EmptyNote>
           ) : sort === 'group' ? (
             inGroups
               .filter((g) => g.rows.length || g.empty)

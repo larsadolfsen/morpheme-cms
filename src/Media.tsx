@@ -1008,7 +1008,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
         </div>
         {wide && src && (
           <SideSheet title={fileName(src)} onClose={closeFile}>
-            {details(src)}
+            <div className="mo-editor-rhythm-250">{details(src)}</div>
           </SideSheet>
         )}
       </div>
