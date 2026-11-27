@@ -33,7 +33,11 @@ function Image({ n }: { n: number }) {
   return (
     <>
       <img src={exampleImage} alt="" />
-      <span className="mo-editor-contain-carousel-label" style={{ opacity: 'calc(1 - 3 * var(--mo-comp-carousel-mask, 0))' }}>
+      <span
+        className="mo-editor-contain-carousel-label"
+        data-carousel-fade="0 3"
+        style={{ opacity: 'calc(1 - 3 * var(--mo-comp-carousel-mask, 0))' }}
+      >
         {say.image(n)}
       </span>
     </>
