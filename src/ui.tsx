@@ -100,7 +100,7 @@ import { locale, t } from './i18n';
 import { Announce, LoadAnnounce } from './useAnnounce';
 import { useRegisterFab } from './fabPresence';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
-import { SvgFile, Icon as MaterialIcon, materialIcon, type IconComponent as Icon } from './icon';
+import { SvgFile, Icon as MaterialIcon, materialIcon, type IconComponent as Icon, type IconRef } from './icon';
 import { filterIconNames, ICON_CATEGORIES, iconLabel, inIconCategory } from '../lib/materialIcon.mjs';
 import { countries, countryName, dialCodes, flagOf, regionOf } from './countries';
 import { byText } from './schema';
@@ -1191,7 +1191,7 @@ export function SlotButton({
 }) {
   return (
     <SiteIconButton
-      icon={children as ReactElement}
+      icon={children as IconRef}
       label={label}
       selected={pressed}
       aria-expanded={expanded}
