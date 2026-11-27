@@ -5,7 +5,7 @@ The theme's 15 type styles (Material 3's 15 type roles) are plain classes in `th
 `-line-height`, `-weight`, `-tracking`), which the theme sets in `theme/styles/tokens/ui/ref.css`. The classes sit in `@layer utilities`, in
 alphabetical order, where Tailwind's `@utility` rules were.
 
-The lead (`mo-type-lead`, the `--mo-sys-typescale-lead-*` tokens and the post's and the front page's lead size) is gone (owner, 27 Nov 2026): a paragraph is drawn in the text style it is set to.
+The lead (`mo-type-lead` and the post's and the front page's lead size) is gone (owner, 27 Nov 2026): a paragraph is drawn in the text style it is set to. The `--mo-sys-typescale-lead-*` tokens stay declared, for later (owner, 27 Nov 2026); nothing uses them.
 
 The demo's page `/typography/` shows every style with its class name and the size, line height, tracking and weight read from the computed style
 (`demo/src/content/pages/typography.md`, `demo/public/demo-type.js`). `theme/styles/typescale.test.mjs` checks the tokens against Material 3's table

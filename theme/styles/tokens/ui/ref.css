@@ -207,4 +207,10 @@
   --mo-sys-typescale-label-small-tracking: 0.03125rem;
   --mo-sys-typescale-label-small-font: var(--mo-ref-typeface-plain);
   --mo-sys-typescale-label-small-prominent-weight: 700;
+  /* The lead size setting, kept for later (owner, 27 Nov 2026). Declared only: nothing in the page, the post or the editor uses it. Each is the
+     title large's; a theme sets these four to change it. */
+  --mo-sys-typescale-lead-size: var(--mo-sys-typescale-title-large-size);
+  --mo-sys-typescale-lead-line-height: var(--mo-sys-typescale-title-large-line-height);
+  --mo-sys-typescale-lead-weight: var(--mo-sys-typescale-title-large-weight);
+  --mo-sys-typescale-lead-tracking: var(--mo-sys-typescale-title-large-tracking);
 }
