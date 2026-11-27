@@ -491,10 +491,13 @@ async function checkDanger(width, height) {
     await discard.click();
     const dialog = page.getByRole('dialog');
     await dialog.waitFor({ timeout: 5000 });
-    const focused = await page.evaluate(
-      () => document.activeElement?.closest('[role="dialog"]') && document.activeElement?.tagName === 'BUTTON',
-    );
-    if (focused) problems.push(`${label}: the dialog opens with a button focused`);
+    const focused = await page
+      .waitForFunction(() => !!document.activeElement?.closest('dialog[open]'), null, { timeout: 3000 })
+      .then(
+        () => true,
+        () => false,
+      );
+    if (!focused) problems.push(`${label}: the dialog opens with the focus outside it`);
     await page.keyboard.press('Escape');
     await dialog.waitFor({ state: 'detached', timeout: 5000 });
     if (!(await page.locator('.ProseMirror').first().innerText()).includes('more')) problems.push(`${label}: Cancel dropped the change`);

@@ -64,11 +64,11 @@
   --mo-comp-editor-section-gap: 2rem;
   --mo-comp-editor-section-rhythm: 0.625em;
 
-  /* The frame the editor draws round a block (the dotted line of .mo-site-block-card): it hangs this far outside the text column on each side, a fixed outset
+  /* The frame the editor draws round a block (the line of .mo-site-block-card, M3 outlined card: 1 dp): it hangs this far outside the text column on each side, a fixed outset
      (4 dp grid), and the block's own content stays on the column's edge, as on the site. The line's width is part of the outset: the padding inside the
      line is the outset less the line. The text field's padding (--mo-comp-editor-pad-x) is at least the outset, so the frame is never clipped by the text field. */
   --mo-comp-editor-frame-outset: 0.5rem;
-  --mo-comp-editor-frame-line: 1.5px;
+  --mo-comp-editor-frame-line: 1px;
 
   /* A form's "on this page" area (SectionPane in ui.tsx) against the window's end edge: its width (the card is as wide as the navigation drawer), the card in it
      stands --mo-sys-section-pane-gap in from the end edge and from the window's top edge. */
@@ -674,19 +674,19 @@
    stand beside the rail and the drawer, so they need no room. */
 @media (width >= 37.5rem) {
   .mo-snackbar__stack {
-    padding-left: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
+    padding-inline-start: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
   }
   .mo-editor-save-bar {
-    left: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
+    inset-inline-start: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
     width: auto;
   }
 }
 @media (width >= 52.5rem) {
   :root[data-sidebar='open'] .mo-snackbar__stack {
-    padding-left: var(--mo-comp-navigation-drawer-width, 22.5rem);
+    padding-inline-start: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
   :root[data-sidebar='open'] .mo-editor-save-bar {
-    left: var(--mo-comp-navigation-drawer-width, 22.5rem);
+    inset-inline-start: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
 }
 
@@ -765,7 +765,7 @@
     padding-inline-end: var(--mo-sys-section-pane-width);
   }
   :root:has(.mo-editor-section-pane:not([hidden] *)) .mo-editor-save-bar {
-    right: var(--mo-sys-section-pane-width);
+    inset-inline-end: var(--mo-sys-section-pane-width);
   }
 
   /* BottomSheet's `panel` (.mo-editor-side-panel): the theme's modal side sheet at the window's end edge, the full window
@@ -801,7 +801,7 @@
     margin-inline: auto;
   }
   :root[data-side-panel] .mo-editor-save-bar {
-    right: var(--mo-comp-side-panel-width);
+    inset-inline-end: var(--mo-comp-side-panel-width);
   }
   /* The screen's create button stands beside the pane, not on it (a redirect or a new list opens the pane from it). */
   :root[data-side-panel] .mo-editor-fab {
@@ -873,10 +873,10 @@ html {
   width: calc(100% + 2 * var(--mo-comp-editor-frame-outset));
   margin-inline: calc(-1 * var(--mo-comp-editor-frame-outset));
   position: relative;
-  /* The dotted outline is a Card's: its corner radius and padding, the theme's tokens (the same fallbacks as .mo-card), so the action row, the items and the
+  /* The outline is an outlined Card's: 1 px solid outline-variant, its corner radius and padding, the theme's tokens (the same fallbacks as .mo-card), so the action row, the items and the
      add button line up inside it. */
   border-radius: var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius));
-  border: var(--mo-comp-editor-frame-line) dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
+  border: var(--mo-comp-editor-frame-line) solid var(--mo-sys-color-outline-variant);
   padding-block: var(--mo-comp-card-padding, 1rem);
   padding-inline: calc(var(--mo-comp-editor-frame-outset) - var(--mo-comp-editor-frame-line));
   text-align: left;
@@ -977,7 +977,7 @@ html {
 .mo-editor-text .mo-site-block-row-hover {
   position: absolute;
   z-index: 1;
-  inset-block-start: calc(1.5px + var(--mo-comp-card-gap, 0.5rem));
+  inset-block-start: calc(var(--mo-comp-editor-frame-line) + var(--mo-comp-card-gap, 0.5rem));
   inset-inline: calc(var(--mo-comp-editor-frame-outset) - var(--mo-comp-editor-frame-line));
   pointer-events: none;
 }
@@ -1083,9 +1083,9 @@ html {
   justify-content: center;
   inline-size: 1.5rem;
   block-size: 1.5rem;
-  /* Part of the dotted outline it sits on: the same line (width, style and colour), on the surface the line is drawn on, with no shadow. */
+  /* Part of the outline it sits on: the same line (width, style and colour), on the surface the line is drawn on, with no shadow. */
   box-sizing: border-box;
-  border: 1.5px dashed color-mix(in srgb, var(--mo-sys-color-on-surface-variant) 45%, transparent);
+  border: var(--mo-comp-editor-frame-line) solid var(--mo-sys-color-outline-variant);
   border-radius: 50%;
   background: var(--mo-sys-color-surface);
   color: transparent;
@@ -1943,7 +1943,7 @@ dialog {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--mo-ref-space-150);
   min-height: 0;
 }
 .mo-editor-crop-view-area {
@@ -1951,7 +1951,7 @@ dialog {
   flex: 1;
   min-height: 10rem;
   overflow: hidden;
-  border-radius: var(--mo-shape-corner-medium, 0.75rem);
+  border-radius: var(--mo-sys-shape-corner-medium);
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -1978,30 +1978,33 @@ dialog {
    the blank part of the stage keeps the page's colour. */
 .mo-editor-crop-view-shade {
   position: absolute;
-  background: var(
-    --mo-comp-dialog-scrim,
-    color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-color-on-surface)) 50%, transparent)
-  );
+  background: var(--mo-comp-dialog-scrim, var(--mo-sys-color-scrim-overlay));
   pointer-events: none;
 }
+/* The theme's focus indicator (its tokens: thickness, colour and outer offset). */
 .mo-editor-crop-view-frame:focus-visible {
-  outline: 2px solid var(--mo-sys-color-primary);
-  outline-offset: 4px;
+  outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+  outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
 }
 .mo-editor-crop-view-hint {
   margin: 0;
   color: var(--mo-sys-color-on-surface-variant);
-  font-size: var(--mo-sys-typescale-body-small-size, 0.75rem);
+  font-size: var(--mo-sys-typescale-body-small-size);
+  line-height: var(--mo-sys-typescale-body-small-line-height);
+  letter-spacing: var(--mo-sys-typescale-body-small-tracking);
   text-align: center;
 }
 .mo-editor-crop-view-label {
-  margin: 0 0 0.5rem;
-  font-weight: 500;
+  margin: 0 0 var(--mo-ref-space-100);
+  font-size: var(--mo-sys-typescale-title-small-size);
+  line-height: var(--mo-sys-typescale-title-small-line-height);
+  font-weight: var(--mo-sys-typescale-title-small-weight);
+  letter-spacing: var(--mo-sys-typescale-title-small-tracking);
 }
 /* One row that scrolls sideways below medium; from medium the chips wrap. */
 .mo-editor-crop-view-ratios {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--mo-ref-space-100);
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -2011,7 +2014,7 @@ dialog {
 .mo-editor-crop-view-zoom {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: var(--mo-ref-space-50);
 }
 @media (width >= 37.5rem) {
   .mo-editor-crop-view-ratios {

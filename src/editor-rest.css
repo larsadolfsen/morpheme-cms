@@ -103,10 +103,10 @@
   .mo-editor-shortcut-key {
     color: var(--mo-sys-color-on-surface-variant);
     font-family: var(--mo-ref-typeface-plain);
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    font-weight: var(--mo-sys-typescale-body-medium-weight);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    font-size: var(--mo-sys-typescale-label-small-size);
+    font-weight: var(--mo-sys-typescale-label-small-weight);
+    line-height: var(--mo-sys-typescale-label-small-line-height);
+    letter-spacing: var(--mo-sys-typescale-label-small-tracking);
   }
 
   /* ---- Spaces round a block of a page ---- */
@@ -173,8 +173,8 @@
     margin-block-start: var(--mo-comp-editor-rhythm-300);
   }
   .mo-editor-dialog-title {
-    margin-block-end: var(--mo-comp-editor-rhythm-200);
-    font-weight: 500;
+    margin-block-end: var(--mo-ref-space-200);
+    color: var(--mo-sys-color-on-surface);
   }
   .mo-editor-quiet-focus:focus {
     outline-style: none;

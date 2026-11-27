@@ -24,9 +24,17 @@
     margin-block-start: var(--mo-comp-editor-rhythm-200);
   }
 
+  /* Material 3, dialogs: the supporting text is body medium in on-surface-variant. */
+  .mo-editor-ask-text,
+  .mo-editor-ask-note {
+    font-size: var(--mo-sys-typescale-body-medium-size);
+    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
+    color: var(--mo-sys-color-on-surface-variant);
+  }
   .mo-editor-ask-note {
     margin-block-start: var(--mo-ref-space-50);
-    color: var(--mo-sys-color-on-surface-variant);
   }
 
   .mo-editor-ask-notes {
@@ -108,11 +116,12 @@
   }
 
   .mo-editor-ask-title {
-    margin-block-end: var(--mo-ref-space-100);
-    font-weight: 500;
-    font-size: var(--mo-sys-typescale-body-large-size);
-    line-height: var(--mo-sys-typescale-body-large-line-height);
-    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
+    margin-block-end: var(--mo-ref-space-200);
+    color: var(--mo-sys-color-on-surface);
+    font-size: var(--mo-sys-typescale-headline-small-size);
+    line-height: var(--mo-sys-typescale-headline-small-line-height);
+    font-weight: var(--mo-sys-typescale-headline-small-weight);
+    letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
   }
 
   .mo-editor-author-name {
@@ -131,7 +140,10 @@
 
   .mo-editor-block-label {
     margin-block-end: var(--mo-ref-space-100);
-    font-weight: 500;
+    font-size: var(--mo-sys-typescale-title-small-size);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
 
   .mo-editor-body-text {
@@ -183,9 +195,9 @@
   }
 
   .mo-editor-crop-ratio-box {
-    border-radius: 3px;
+    border-radius: var(--mo-sys-shape-corner-extra-small);
     border-style: solid;
-    border-width: 1.5px;
+    border-width: 1px;
     border-color: currentcolor;
   }
 
@@ -1458,7 +1470,10 @@
   }
 
   .mo-editor-settings-strong {
-    font-weight: 500;
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    line-height: var(--mo-sys-typescale-title-medium-line-height);
+    font-weight: var(--mo-sys-typescale-title-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
   }
 
   .mo-editor-settings-trailing {
@@ -1579,7 +1594,10 @@
 
   .mo-editor-used-title {
     margin-block-end: var(--mo-ref-space-50);
-    font-weight: 500;
+    font-size: var(--mo-sys-typescale-title-small-size);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
 
   .mo-editor-widget-bar {

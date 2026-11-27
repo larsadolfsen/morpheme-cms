@@ -32,8 +32,6 @@ export default function NewListDialog({ files, open, onClose }: { files: RepoFil
       setInPane(wide);
       if (!wide && el && !el.open) {
         el.showModal();
-        // No button or field has the focus to begin with, so none looks chosen (as the editor's other dialogs).
-        el.focus();
       }
     } else {
       if (el?.open) el.close();
@@ -120,7 +118,7 @@ export default function NewListDialog({ files, open, onClose }: { files: RepoFil
               create();
             }}
           >
-            <h2 className="mo-type-body-large mo-editor-dialog-title">{t.ownList.new}</h2>
+            <h2 className="mo-type-headline-small mo-editor-dialog-title">{t.ownList.new}</h2>
             {nameField}
             <div className="mo-editor-dialog-actions">
               <Button kind="text" type="button" onClick={() => void closeIt()}>

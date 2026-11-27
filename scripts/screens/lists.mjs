@@ -1053,7 +1053,16 @@ async function checkNewList(width, height, label) {
         createBg: create && getComputedStyle(create).backgroundColor,
       };
     });
-    if (state.focusedInside) problems.push(`${label}: the dialog puts the focus on a field or button to begin with`);
+    // Material 3: the focus is on the dialog's first control when it opens (a phone's dialog). The side sheet from 600 dp is unchanged.
+    if (phone) {
+      const inside = await page
+        .waitForFunction(() => !!document.activeElement?.closest('dialog[open]'), null, { timeout: 3000 })
+        .then(
+          () => true,
+          () => false,
+        );
+      if (!inside) problems.push(`${label}: the focus is not in the dialog`);
+    } else if (state.focusedInside) problems.push(`${label}: the side sheet puts the focus on a field or button to begin with`);
     if (!state.cancelBg || !state.createBg) problems.push(`${label}: the dialog lacks Cancel or Create`);
     else if (width >= 600 && state.cancelBg === state.createBg) problems.push(`${label}: Cancel and Create look alike (${state.cancelBg})`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))

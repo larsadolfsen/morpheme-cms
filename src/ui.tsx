@@ -4006,8 +4006,41 @@ export function useScrollClearance(edge: 'top' | 'bottom', selector: string, act
 /** The theme's dialog (Material 3's), in the middle of the screen over its scrim, on a <dialog> (`ref`; opened with
  * showModal): a question (ask.tsx). */
 export function Dialog({ ref, className, children, ...rest }: DialogHTMLAttributes<HTMLDialogElement> & { ref?: Ref<HTMLDialogElement> }) {
+  // Material 3: when the dialog opens, focus moves into it, to its first interactive control (an `autofocus` one first).
+  const own = useCallback(
+    (el: HTMLDialogElement | null) => {
+      if (typeof ref === 'function') ref(el);
+      else if (ref) ref.current = el;
+      let watch: MutationObserver | undefined;
+      if (el) {
+        // The content of a dialog such as ask() is drawn just after showModal, so the first control is looked for again on each change until one has the focus.
+        const focusFirst = () => {
+          if (!el.open) return;
+          // A control inside already has the focus: leave it (the person may be typing); on the dialog itself or on the page, move it in.
+          const at = document.activeElement;
+          if (at && at !== el && el.contains(at)) return;
+          const first =
+            el.querySelector<HTMLElement>('[autofocus]:not(:disabled)') ??
+            el.querySelector<HTMLElement>(
+              'input:not([type=hidden]):not(:disabled), textarea:not(:disabled), select:not(:disabled), button:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])',
+            );
+          if (!first) return;
+          first.focus();
+        };
+        watch = new MutationObserver(focusFirst);
+        watch.observe(el, { attributes: true, attributeFilter: ['open'], childList: true, subtree: true });
+        focusFirst();
+      }
+      return () => {
+        watch?.disconnect();
+        if (typeof ref === 'function') ref(null);
+        else if (ref) ref.current = null;
+      };
+    },
+    [ref],
+  );
   return (
-    <dialog ref={ref} className={[siteDialogModalClass, className].filter(Boolean).join(' ')} {...rest}>
+    <dialog ref={own} className={[siteDialogModalClass, className].filter(Boolean).join(' ')} {...rest}>
       <SiteDialog className="mo-editor-dialog-padding">{children}</SiteDialog>
     </dialog>
   );
