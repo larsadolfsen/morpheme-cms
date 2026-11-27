@@ -12,3 +12,8 @@
   --mo-comp-toolbar-floating-line: transparent;
   --mo-comp-toolbar-floating-container-shape: var(--mo-sys-shape-corner-full);
 }
+
+/* A docked toolbar has no line over it (M3 Toolbars, Specs: the container is a surface container; no divider is printed). */
+:where(.mo-toolbar).mo-is-docked {
+  --mo-comp-divider-color: transparent;
+}

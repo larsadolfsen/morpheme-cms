@@ -448,7 +448,7 @@
   .mo-editor-tooltip {
     position-anchor: --editor-tooltip;
     position-area: block-end;
-    inset: var(--mo-comp-tooltip-gap, 0.25rem) 0.5rem 0.5rem;
+    inset: var(--mo-comp-tooltip-gap, var(--mo-ref-space-50)) 0.5rem 0.5rem;
     position-try-fallbacks: flip-block;
   }
 }
@@ -1246,33 +1246,6 @@ html {
 /* In a list the row's icon button is the heading's colour, as the icon is on the site (blocks.css, .mo-block-list). */
 .mo-block-list .mo-editor-inline-list-slot:not([data-icon-color]) {
   color: var(--mo-comp-block-text);
-}
-
-/* The chosen icon's tile in the grid is filled with the picked color (Text, without one) and its icon is read on it. */
-[data-icon-grid] {
-  --mo-sys-tile-fill: var(--mo-sys-color-on-surface);
-  --mo-sys-tile-on: var(--mo-sys-color-surface);
-}
-[data-icon-grid][data-icon-color='primary'] {
-  --mo-sys-tile-fill: var(--mo-sys-color-primary);
-  --mo-sys-tile-on: var(--mo-sys-color-on-primary);
-}
-[data-icon-grid][data-icon-color='secondary'] {
-  --mo-sys-tile-fill: var(--mo-sys-color-secondary);
-  --mo-sys-tile-on: var(--mo-sys-color-on-secondary);
-}
-[data-icon-grid][data-icon-color='tertiary'] {
-  --mo-sys-tile-fill: var(--mo-sys-color-tertiary);
-  --mo-sys-tile-on: var(--mo-sys-color-on-tertiary);
-}
-[data-icon-grid] .mo-icon-button[aria-pressed='true'] {
-  background: var(--mo-sys-tile-fill);
-  color: var(--mo-sys-tile-on);
-}
-
-/* The icon picker's grid draws its icons in the color picked in the Icon color field (IconPicker, iconColor); the chosen one keeps its own colors. */
-[data-icon-grid][data-icon-color] .mo-icon-button:not([aria-pressed='true']) {
-  color: var(--mo-comp-icon-color);
 }
 
 /* Menus are placed by the theme's rules for a dropdown menu (ui.css, under the button, the other side when there is no room), the menu's width
