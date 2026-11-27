@@ -588,28 +588,8 @@
     flex-wrap: wrap;
     gap: var(--mo-ref-space-100);
   }
-  .mo-editor-media-label {
-    display: block;
-    font-weight: 500;
-  }
-  .mo-editor-media-name-row {
-    --mo-comp-row-gap: var(--mo-ref-space-50);
-    min-block-size: 2.75rem;
-  }
-  .mo-editor-media-name-ending {
-    margin-inline-end: var(--mo-ref-space-50);
-    color: var(--mo-sys-color-on-surface-variant);
-  }
-  .mo-editor-media-name-text {
-    overflow-wrap: break-word;
-    color: var(--mo-sys-color-on-surface-variant);
-  }
   .mo-editor-media-saved-as {
     margin-block-start: var(--mo-ref-space-50);
-  }
-  .mo-editor-media-used-title {
-    margin-block-end: var(--mo-ref-space-50);
-    font-weight: 500;
   }
   .mo-editor-media-files {
     @media (width >= 37.5rem) {

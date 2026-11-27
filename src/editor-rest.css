@@ -434,7 +434,7 @@
   .mo-editor-file-preview {
     inline-size: 100%;
     max-block-size: 45dvh;
-    border-radius: 0.75rem;
+    border-radius: var(--mo-sys-shape-corner-medium);
     background-color: var(--mo-sys-color-surface-container-high);
   }
   .mo-editor-file-preview-image {
