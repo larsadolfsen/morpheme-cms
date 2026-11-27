@@ -594,7 +594,8 @@ async function checkTextBarFit(width) {
       right: b.getBoundingClientRect().right,
     }));
     return {
-      inner: el.clientWidth,
+      // The inside width planBar gets: the client width less the bar's side padding.
+      inner: el.clientWidth - parseFloat(getComputedStyle(el).paddingLeft) - parseFloat(getComputedStyle(el).paddingRight),
       barRight: el.getBoundingClientRect().right,
       scrolls: el.scrollWidth > el.clientWidth + 2,
       buttons,
