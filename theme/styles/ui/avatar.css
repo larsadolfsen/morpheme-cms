@@ -18,4 +18,26 @@
     line-height: 1;
     object-fit: cover;
   }
+
+  /* A placeholder thumbnail in a list (.mo-avatar-placeholder): the size and the corner of the list's image thumbnail, so a row with no image is as
+     high as one with an image; .mo-avatar-wave-0..2 is the tone by the row's place in the wave (tokens/ui/comp/avatar.css), each falling back to the
+     primary container when the site has no tonal palette. */
+  .mo-avatar-placeholder {
+    --mo-comp-avatar-size: var(--mo-comp-list-item-image-size, 3.5rem);
+    --mo-comp-avatar-container-shape: var(--mo-comp-list-item-image-radius, var(--mo-sys-shape-corner-small));
+    font-size: var(--mo-sys-typescale-title-medium-size);
+    letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
+  }
+  :is(.mo-avatar-wave-0, .mo-avatar-wave-1, .mo-avatar-wave-2) {
+    --mo-comp-avatar-label-text-color: var(--mo-comp-avatar-wave-label-color, var(--mo-sys-color-on-primary-container));
+  }
+  .mo-avatar-wave-0 {
+    --mo-comp-avatar-container-color: var(--mo-comp-avatar-wave-0, var(--mo-sys-color-primary-container));
+  }
+  .mo-avatar-wave-1 {
+    --mo-comp-avatar-container-color: var(--mo-comp-avatar-wave-1, var(--mo-sys-color-primary-container));
+  }
+  .mo-avatar-wave-2 {
+    --mo-comp-avatar-container-color: var(--mo-comp-avatar-wave-2, var(--mo-sys-color-primary-container));
+  }
 }

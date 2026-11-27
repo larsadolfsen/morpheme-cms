@@ -1053,7 +1053,16 @@ async function checkNewList(width, height, label) {
         createBg: create && getComputedStyle(create).backgroundColor,
       };
     });
-    if (state.focusedInside) problems.push(`${label}: the dialog puts the focus on a field or button to begin with`);
+    // Material 3: the focus is on the dialog's first control when it opens (a phone's dialog). The side sheet from 600 dp is unchanged.
+    if (phone) {
+      const inside = await page
+        .waitForFunction(() => !!document.activeElement?.closest('dialog[open]'), null, { timeout: 3000 })
+        .then(
+          () => true,
+          () => false,
+        );
+      if (!inside) problems.push(`${label}: the focus is not in the dialog`);
+    } else if (state.focusedInside) problems.push(`${label}: the side sheet puts the focus on a field or button to begin with`);
     if (!state.cancelBg || !state.createBg) problems.push(`${label}: the dialog lacks Cancel or Create`);
     else if (width >= 600 && state.cancelBg === state.createBg) problems.push(`${label}: Cancel and Create look alike (${state.cancelBg})`);
     if (await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1))
@@ -1713,7 +1722,7 @@ async function checkListItemLines(width, height) {
   await page.close();
 }
 
-/** The pages and posts lists (B18, plan 0.19.7): each page or post is one row (`.mo-list__item-container`), with a square leading image of 8 dp corners, or (no image) the kind icon in the leading icon slot and no grey tile,
+/** The pages and posts lists (B18, plan 0.19.7): each page or post is one row (`.mo-list__item-container`), with a square leading image of 8 dp corners, or (no image) the first letters of its title in an Avatar of the same size (Task 24, 0.19.8) and no grey tile,
  * one supporting line naming its versions (`Published`, `Published · Draft`, `Draft`, `Scheduled …`), no trailing icon unless Hidden (`visibility_off`, named `Hidden`), dividers between
  * the rows, and in the menu tree the drop-down rightmost (`aria-expanded`, named `Show subpages of …`). */
 async function checkPageRowsList(width, height) {
@@ -1734,6 +1743,11 @@ async function checkPageRowsList(width, height) {
         const lead = el.querySelector('.mo-list__item-leading-icon');
         return {
           icon: !!lead?.querySelector('svg'),
+          letters: (() => {
+            const a = el.querySelector('.mo-avatar-placeholder');
+            const b = a?.getBoundingClientRect();
+            return a ? { w: Math.round(b.width), h: Math.round(b.height), text: (a.textContent || '').trim() } : null;
+          })(),
           tile: !!el.querySelector('.mo-list__item-image-placeholder'),
           name: (el.querySelector('.mo-list__item-headline')?.textContent || '').trim(),
           href: el.getAttribute('href') || '',
@@ -1767,7 +1781,11 @@ async function checkPageRowsList(width, height) {
     for (const r of rows) {
       const where = `${label}, ${hash}, "${r.name}"`;
       if (r.tile) problems.push(`${where}: has a grey placeholder tile`);
-      if (!r.img && !r.icon) problems.push(`${where}: has neither a square image nor the kind icon`);
+      if (!r.img && !r.icon && !r.letters) problems.push(`${where}: has neither a square image nor the kind icon nor its first letters`);
+      if (r.letters && (r.letters.w !== 56 || r.letters.h !== 56))
+        problems.push(`${where}: its letters are ${r.letters.w} x ${r.letters.h}, not 56 x 56`);
+      if (r.letters && !/^\S{1,2}$/u.test(r.letters.text))
+        problems.push(`${where}: its letters are "${r.letters.text}", not one or two characters`);
       if (r.img) {
         if (r.img.w !== r.img.h) problems.push(`${where}: its image is ${r.img.w} x ${r.img.h}, not square`);
         if (r.img.radius !== '8px') problems.push(`${where}: its image corner is ${r.img.radius}, not 8px`);
