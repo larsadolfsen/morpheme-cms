@@ -628,6 +628,20 @@ async function checkCarouselGap(width, height) {
       row.style.scrollBehavior = '';
       return { gap, worst, layout: carousel.dataset.carouselLayout };
     }, k);
+    // `Show all` stands at the right under the row, its label on the content's edge (M3's picture of the carousel's accessibility), not centred.
+    const all = await page.evaluate((idx) => {
+      const row = document.querySelectorAll('[data-carousel-items]')[idx];
+      const box = row.closest('[data-cards-carousel]')?.querySelector('.mo-block-cards__show-all');
+      const button = box?.querySelector('button');
+      if (!box || !button || getComputedStyle(box).display === 'none') return null;
+      const text = document.createRange();
+      text.selectNodeContents(button);
+      return { label: text.getBoundingClientRect().right, edge: box.getBoundingClientRect().right };
+    }, k);
+    if (all && Math.abs(all.label - all.edge) > 1)
+      problems.push(
+        `${label}: carousel ${k}'s Show all label ends at ${Math.round(all.label)} px, not on the content's right edge at ${Math.round(all.edge)} px`,
+      );
     if (r && r.worst.diff > 0.75)
       problems.push(
         `${label}: carousel ${k} (${r.layout}) has ${r.worst.gap.toFixed(1)} px between cards ${r.worst.pair - 1} and ${r.worst.pair} with the row at ${r.worst.at}, not its gap of ${r.gap} px`,
