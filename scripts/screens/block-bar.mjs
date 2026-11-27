@@ -2,7 +2,17 @@ import { openEditor } from '../built-site.mjs';
 import { existsSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { ROOT, browser, problems, site } from './support/context.mjs';
-import { barSmallTargets, barTools, cancelOf, insertBlock, newLineUnder, pressInsert, pressMore, pressTool } from './support/shared.mjs';
+import {
+  barOrMore,
+  barSmallTargets,
+  barTools,
+  cancelOf,
+  insertBlock,
+  newLineUnder,
+  pressInsert,
+  pressMore,
+  pressTool,
+} from './support/shared.mjs';
 
 /** A card that is not typed in place (HTML code here; an image, Testimonials and the like work the same) has its tools on the text's one bar (PR 4 of the contextual toolbar plan): a tap on it selects it
  * (marked, no pop-up on the card), the bar gets a group named by the block, its Edit as the gear (on a phone; from expanded a tap opens the side panel) and the rest of its menu (Move up, Remove) in the ⋮,
@@ -896,8 +906,9 @@ async function checkBlockMove(width) {
       }),
     );
   const selected = () => page.locator('.ProseMirror .mo-site-block-selected').count();
-  const up = page.locator('.mo-editor-tools').getByRole('button', { name: 'Move up' });
-  const down = page.locator('.mo-editor-tools').getByRole('button', { name: 'Move down' });
+  // On a phone the bar has no room for them: they are then in the ⋮ (barOrMore).
+  const up = barOrMore(page, 'Move up');
+  const down = barOrMore(page, 'Move down');
   const centre = async (loc) => {
     const b = await loc.boundingBox();
     return [b.x + b.width / 2, b.y + b.height / 2];

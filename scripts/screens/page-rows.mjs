@@ -138,10 +138,10 @@ async function checkBlockRow(width, options = {}) {
     problems.push(`${label}: the row sits outside the dotted outline (${JSON.stringify({ row: frame.row, card: frame.card })})`);
   if (frame.radius[0] !== frame.radius[1] || frame.radius[0] === '0px')
     problems.push(`${label}: the outline's corner radius is ${frame.radius[0]}, not the Card's ${frame.radius[1]}`);
-  // Above and below the padding is the Card's; at the sides it is the frame's outset less its line (15 px), so the block's content stands on the text column's edge.
-  if (frame.padding[0] !== frame.padding[1] || frame.padding[2] !== '15px')
+  // Above and below the padding is the Card's; at the sides it is the frame's outset less its line (7 px), so the block's content stands on the text column's edge.
+  if (frame.padding[0] !== frame.padding[1] || frame.padding[2] !== '7px')
     problems.push(
-      `${label}: the outline's padding is ${frame.padding[0]} (the Card's ${frame.padding[1]}) above and ${frame.padding[2]} at the sides (15px: the frame's outset less its line)`,
+      `${label}: the outline's padding is ${frame.padding[0]} (the Card's ${frame.padding[1]}) above and ${frame.padding[2]} at the sides (7px: the frame's outset less its line)`,
     );
   // The row hugs the top of the outline: its space above is the Card's small gap, well under the Card's padding.
   if (frame.row && frame.row.top - frame.card.top - frame.border > 12)
@@ -1465,8 +1465,8 @@ async function checkPageLeftEdge(width) {
       problems.push(`${at}: headings and paragraphs do not share one left edge (${[...new Set(got.heads)]})`);
     if (!got.blocks.length) problems.push(`${at}: no block drawn in the text`);
     for (const b of got.blocks) {
-      if (!near(got.text - b.card, 16, 0.5))
-        problems.push(`${at}: a block's frame hangs ${got.text - b.card} px outside the text column, not the fixed outset of 16 px`);
+      if (!near(got.text - b.card, 8, 0.5))
+        problems.push(`${at}: a block's frame hangs ${got.text - b.card} px outside the text column, not the fixed outset of 8 px`);
       if (!near(b.body, got.text, 1)) problems.push(`${at}: a block's content starts at ${b.body}, not on the text's edge ${got.text}`);
       if (b.card < got.field + 1) problems.push(`${at}: a block's frame (${b.card}) is clipped by the text field's edge (${got.field})`);
       if (b.mark !== null && b.mark < got.field)

@@ -83,6 +83,55 @@ export async function barSmallTargets(page, phone) {
   }, need);
 }
 
+/**
+ * A tool that is on the bar or, where the bar has no room for it, in the ⋮ menu (planBar, src/textBar.mjs: the M3 docked toolbar keeps 16 dp of padding
+ * on each side, so the tools that do not fit are in the ⋮). It answers like the locator of a bar button: `count()`, and `first()` with `isDisabled`,
+ * `getAttribute` and `click`. A menu it opens to look is closed again with the ⋮ button (Escape would let a block's selection go).
+ */
+export function barOrMore(page, name) {
+  const bar = page.locator('.mo-editor-tools').getByRole('button', { name });
+  const more = page.locator('.mo-editor-tools [aria-label="More"]:visible');
+  const item = page.locator('[role=menu][aria-label="More"]').getByRole('menuitem', { name });
+  const close = async () => {
+    if (await item.count()) {
+      await more.first().click();
+      await page.waitForTimeout(150);
+    }
+  };
+  const target = async () => {
+    if (await bar.count()) return { el: bar.first(), menu: false };
+    if (!(await more.count())) return null;
+    if (!(await item.count())) {
+      await more.first().click();
+      await menusSettled(page);
+    }
+    return (await item.count()) ? { el: item.first(), menu: true } : null;
+  };
+  return {
+    async count() {
+      const t = await target();
+      if (t?.menu) await close();
+      return t ? 1 : 0;
+    },
+    first: () => ({
+      isDisabled: async () => {
+        const t = await target();
+        if (!t) return true;
+        const off = (await t.el.isDisabled()) || (await t.el.getAttribute('aria-disabled')) === 'true';
+        if (t.menu) await close();
+        return off;
+      },
+      getAttribute: async (attribute) => {
+        const t = await target();
+        const value = t ? await t.el.getAttribute(attribute) : null;
+        if (t?.menu) await close();
+        return value;
+      },
+      click: async () => (await target()).el.click(),
+    }),
+  };
+}
+
 /** What the bar and its ⋮ menu hold now: `bar` its buttons (name, title, icon, size, pressed), `more` the rows of the ⋮ menu (opened and closed again by its button, so the cursor stays in its field). */
 export async function barTools(page) {
   const bar = await page.evaluate(() =>
