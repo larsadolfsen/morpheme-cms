@@ -667,6 +667,11 @@
     align-items: center;
     gap: var(--mo-ref-space-150);
   }
+  /* A part in a row has the room of the row's gap round it (an example's own group takes no box), so its tap area (theme/styles/ui/target-size.css) stops half way to the next part. */
+  .mo-editor-parts-row > *,
+  .mo-editor-parts-row > [role='group'] > * {
+    --mo-sys-target-gap: var(--mo-ref-space-150);
+  }
   /* BlockParts.tsx (a constant) */
   .mo-editor-parts-field-grid {
     display: grid;
