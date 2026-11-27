@@ -972,11 +972,7 @@
   }
 
   .mo-editor-part-name {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 500;
-    color: var(--mo-sys-color-primary);
+    color: var(--mo-sys-color-on-surface);
   }
 
   /* PartsShown.tsx PartSub: a subheading and the row under it. */
@@ -1428,10 +1424,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--mo-ref-space-100);
-  }
-
-  .mo-editor-settings-dashboard-grid {
-    --mo-comp-grid-columns: 2;
   }
 
   .mo-editor-settings-group {

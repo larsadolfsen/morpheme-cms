@@ -245,7 +245,7 @@ export function Part({
       style={{ order: shown.order.get(name) }}
     >
       <div>
-        <Name id={heading} className="mo-editor-part-name">
+        <Name id={heading} className="mo-type-title-small mo-editor-part-name">
           {name}
         </Name>
         {use && <SupportingText>{use}</SupportingText>}

@@ -512,7 +512,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
               .map((g) => (
                 <Group key={g.title} title={g.title}>
                   {g.rows.map((r) => r.node)}
-                  {g.empty && <ListItem tone="muted" headline={t.blockSettings.noBlocks} />}
+                  {g.empty && <ListItem disabled headline={t.blockSettings.noBlocks} />}
                 </Group>
               ))
           ) : (

@@ -465,13 +465,8 @@ export default function Parts({ env }: { env: Env }) {
                 <GroupTitle>{sample.rows}</GroupTitle>
                 <ul className={listClass}>
                   <ListItem headline={sample.versionNow} />
-                  <ListItem tone="muted" headline={t.library.pageGone} />
-                  <ListItem
-                    tone="accent"
-                    onClick={() => {}}
-                    leading={<MaterialIcon name="logout" size={20} />}
-                    headline={t.library.logOut}
-                  />
+                  <ListItem disabled headline={t.library.pageGone} />
+                  <ListItem onClick={() => {}} leading={<MaterialIcon name="logout" size={20} />} headline={t.library.logOut} />
                 </ul>
               </section>
             </Part>
@@ -525,7 +520,7 @@ export default function Parts({ env }: { env: Env }) {
                   <li className="mo-editor-below">
                     <ul className={subListClass}>
                       {[1, 2, 3].map((n) => (
-                        <ListItem key={n} tone="sub" href="#developer/parts/editor" headline={sample.subpage(n)} />
+                        <ListItem key={n} href="#developer/parts/editor" headline={sample.subpage(n)} />
                       ))}
                     </ul>
                   </li>

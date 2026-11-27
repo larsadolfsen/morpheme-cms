@@ -48,7 +48,6 @@
   }
   .mo-editor-field-label {
     margin-block-end: var(--mo-ref-space-50);
-    font-weight: 500;
   }
   .mo-editor-field-label-block {
     display: block;
@@ -56,30 +55,17 @@
   .mo-editor-field-hint {
     display: block;
     margin-block-end: var(--mo-ref-space-100);
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-supporting-text {
     display: block;
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-sys-color-on-surface-variant);
-  }
-  .mo-editor-field-problem {
-    margin-block-start: var(--mo-ref-space-50);
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    color: var(--mo-sys-color-primary);
   }
   .mo-editor-field-count {
     margin-block-start: var(--mo-ref-space-50);
     text-align: right;
     font-size: var(--mo-sys-typescale-body-small-size);
     line-height: var(--mo-sys-typescale-body-small-line-height);
-  }
-  .mo-editor-field-group-title {
-    font-weight: 600;
   }
   .mo-editor-search-field {
     min-inline-size: 0;
@@ -97,17 +83,6 @@
   .mo-editor-invisible {
     visibility: hidden;
   }
-  .mo-editor-arrow-link {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--mo-ref-space-50);
-    font-weight: 500;
-  }
-  @media (hover: hover) {
-    .mo-editor-arrow-link:hover {
-      text-decoration-line: underline;
-    }
-  }
 
   /* Notice, empty note, problem note. */
   .mo-editor-notice-closable {
@@ -115,12 +90,7 @@
     padding-inline-end: var(--mo-ref-space-700);
   }
   .mo-editor-notice-title {
-    font-weight: 500;
-    color: var(--mo-sys-color-primary);
-  }
-  .mo-editor-notice-text {
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
+    color: var(--mo-sys-color-on-surface);
   }
   .mo-editor-close-button {
     position: absolute;
@@ -135,19 +105,12 @@
   }
   .mo-editor-problem-note {
     overflow-wrap: break-word;
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    color: var(--mo-sys-color-primary);
+    color: var(--mo-sys-color-error);
   }
   .mo-editor-loading {
     display: inline-flex;
     align-items: center;
     gap: var(--mo-ref-space-100);
-  }
-  .mo-editor-icon-placeholder {
-    display: block;
-    inline-size: 1.5rem;
-    block-size: 1.5rem;
   }
 
   /* The date and time field, the colour field and the colour sheet. */
@@ -360,10 +323,6 @@
     background-color: var(--mo-sys-color-tertiary-container);
     color: var(--mo-sys-color-on-tertiary-container);
   }
-  .mo-editor-block-preview {
-    border: 1.5px dashed var(--mo-sys-color-outline-variant);
-    padding: var(--mo-ref-space-100);
-  }
 
   /* The icon picker, the image pick, a fold of the form (FoldItem) and the chips. */
   .mo-editor-icon-picker-panel,
@@ -411,17 +370,11 @@
     flex-wrap: wrap;
     gap: var(--mo-ref-space-100);
   }
-  .mo-editor-fold-arrow,
-  .mo-editor-section-arrow {
+  .mo-editor-fold-arrow {
     color: var(--mo-sys-color-on-surface-variant);
     transition-property: transform, translate, scale, rotate;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
     transition-duration: 150ms;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .mo-editor-section-arrow {
-      transition-property: none;
-    }
   }
   .mo-editor-fold-arrow-open {
     rotate: 90deg;
@@ -465,62 +418,14 @@
     --mo-comp-grid-gap: var(--mo-ref-space-100);
   }
   .mo-editor-choice-card {
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: var(--mo-ref-space-100);
-    padding-inline: var(--mo-ref-space-150);
-    padding-block: var(--mo-comp-editor-rhythm-200);
-    text-align: center;
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    font-weight: 500;
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-  }
-  .mo-editor-choice-card:has(*:focus-visible) {
-    outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
-    outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
-  }
-  .mo-editor-choice-card-disabled {
-    cursor: default;
-    opacity: 50%;
-  }
-  .mo-editor-choice-card-chosen {
     cursor: pointer;
-    color: var(--mo-sys-color-on-secondary-container);
-    --mo-comp-outlined-card-container-color: var(--mo-sys-color-secondary-container);
-  }
-  .mo-editor-choice-card-idle {
-    cursor: pointer;
-  }
-  @media (hover: hover) {
-    .mo-editor-choice-card-idle:hover {
-      --mo-comp-outlined-card-container-color: var(--mo-sys-color-surface-container-high);
-    }
-  }
-  .mo-editor-choice-card-check {
-    position: absolute;
-    inset-block-start: var(--mo-ref-space-100);
-    inset-inline-end: var(--mo-ref-space-100);
-    color: var(--mo-sys-color-primary);
   }
 
   /* Lists and rows. */
-  .mo-editor-sub-list {
-    margin-inline-start: var(--mo-ref-space-250);
-    border: 0 solid var(--mo-sys-color-outline-variant);
-    border-inline-start-width: 1px;
-  }
-  .mo-editor-row-sub {
-    color: var(--mo-sys-color-on-surface-variant);
-  }
-  .mo-editor-menu-full {
-    inline-size: 100%;
-    max-inline-size: none;
-  }
   .mo-editor-choice-detail {
     display: flex;
     gap: var(--mo-ref-space-150);
@@ -638,31 +543,6 @@
     display: flex;
     min-block-size: 3.5rem;
     align-items: center;
-    padding-block: 1.125rem;
-    font-weight: 600;
-  }
-  .mo-editor-fold-title-text {
-    text-box: trim-both cap alphabetic;
-  }
-  .mo-editor-fold-toggle {
-    margin-inline: calc(var(--mo-ref-space-150) * -1);
-    display: flex;
-    inline-size: calc(100% + 1.5rem);
-    align-items: center;
-    gap: var(--mo-ref-space-150);
-    border-radius: var(--mo-comp-block-radius-small);
-    padding-inline: var(--mo-ref-space-150);
-    padding-block: 1.125rem;
-    text-align: left;
-    font-weight: 600;
-    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-  }
-  @media (hover: hover) {
-    .mo-editor-fold-toggle:hover {
-      background-color: var(--mo-sys-color-surface-container-high);
-    }
   }
   .mo-editor-section-body {
     padding-block-start: var(--mo-ref-space-100);
@@ -712,7 +592,7 @@
   }
   .mo-editor-check-fix {
     padding-inline: var(--mo-ref-space-200);
-    padding-inline-start: 2.75rem;
+    padding-inline-start: var(--mo-ref-space-600);
     padding-block-end: var(--mo-comp-editor-rhythm-150);
     color: var(--mo-sys-color-on-surface-variant);
   }
@@ -781,7 +661,7 @@
   .mo-editor-share-preview-image {
     aspect-ratio: 1.91 / 1;
     inline-size: 100%;
-    background-color: color-mix(in oklab, var(--mo-sys-color-outline-variant) 50%, transparent);
+    background-color: var(--mo-sys-color-surface-container-highest);
     object-fit: cover;
   }
   .mo-editor-share-preview-image-tall {
@@ -795,18 +675,10 @@
   }
   .mo-editor-share-preview-domain {
     display: block;
-    font-size: var(--mo-sys-typescale-body-small-size);
-    line-height: var(--mo-sys-typescale-body-small-line-height);
-    letter-spacing: calc(var(--mo-sys-typescale-body-small-size) * 0.025);
     text-transform: uppercase;
     color: var(--mo-sys-color-on-surface-variant);
   }
-  .mo-editor-share-preview-title {
-    font-weight: 600;
-  }
   .mo-editor-share-preview-description {
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-carousel-tile {
@@ -1037,23 +909,14 @@
   }
 
   /* A design token's sample (Developer › Parts). */
-  .mo-editor-token-image {
-    inline-size: 2.5rem;
-    block-size: 2.5rem;
-    border-radius: var(--mo-comp-block-radius-small);
-    background-color: var(--mo-sys-color-surface-container-high);
-    object-fit: cover;
-  }
   .mo-editor-token-sample {
     display: flex;
-    inline-size: 2.5rem;
-    block-size: 2.5rem;
     align-items: center;
     justify-content: center;
   }
   .mo-editor-token-shape {
-    inline-size: 2.5rem;
-    block-size: 2.5rem;
+    inline-size: 100%;
+    block-size: 100%;
     border: 0 solid var(--mo-sys-color-primary);
     border-block-start-width: 2px;
     border-inline-start-width: 2px;

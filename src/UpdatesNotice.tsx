@@ -119,7 +119,7 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
       : t.library.cmsVersion(cms.version)
     : t.library.appsUpdated(updatedApps.length);
   return (
-    <SiteCard kind="elevated" as="section" role="status" aria-labelledby="updates-title" className="mo-editor-updates-notice">
+    <SiteCard kind="outlined" as="section" role="status" aria-labelledby="updates-title" className="mo-editor-updates-notice">
       <div className="mo-editor-updates-notice-body">
         {edition && (
           <div className="mo-editor-updates-notice-photo">
@@ -127,18 +127,20 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
           </div>
         )}
         <div className="mo-editor-updates-notice-text">
-          <h2 id="updates-title" className="mo-editor-updates-notice-title">
+          <h2 id="updates-title" className="mo-type-headline-small mo-editor-updates-notice-title">
             {title}
           </h2>
           {place && (
-            <p className="mo-editor-updates-notice-place">
+            <p className="mo-type-body-medium mo-editor-updates-notice-place">
               {place}
               <PhotoCredit by={edition.by} line={edition.line} />
             </p>
           )}
-          {news.length > 0 && <p className="mo-editor-updates-notice-counts">{t.library.noteCounts(features, improvements)}</p>}
+          {news.length > 0 && (
+            <p className="mo-type-body-medium mo-editor-updates-notice-counts">{t.library.noteCounts(features, improvements)}</p>
+          )}
           <div className="mo-editor-updates-notice-actions">
-            <Button kind="text" onClick={close}>
+            <Button kind="outlined" onClick={close}>
               {t.common.close}
             </Button>
             {cms && (

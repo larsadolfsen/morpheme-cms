@@ -45,6 +45,7 @@ import {
   siteCardClass,
   siteListClass,
   siteListClasses,
+  SiteList,
   SiteListItem,
   SiteListItemLeadingIcon,
   SiteMenu,
@@ -79,6 +80,7 @@ import {
   siteFocusNavigationDrawerItem,
   SiteButtonGroup,
   SiteChoiceGroup,
+  SiteRadioButton,
   SiteSideSheet,
   SiteTab,
   SiteTabs,
@@ -98,7 +100,7 @@ import { locale, t } from './i18n';
 import { Announce, LoadAnnounce } from './useAnnounce';
 import { useRegisterFab } from './fabPresence';
 import { InEditor, type ButtonKind, type IconButtonKind } from './standard/view';
-import { SvgFile, Icon as MaterialIcon, materialIcon, type IconComponent as Icon } from './icon';
+import { SvgFile, Icon as MaterialIcon, materialIcon, type IconComponent as Icon, type IconRef } from './icon';
 import { filterIconNames, ICON_CATEGORIES, iconLabel, inIconCategory } from '../lib/materialIcon.mjs';
 import { countries, countryName, dialCodes, flagOf, regionOf } from './countries';
 import { byText } from './schema';
@@ -308,7 +310,7 @@ export function ToolbarButton({
           kind="text"
           size="xsmall"
           icon={Glyph && <Glyph />}
-          trailingIcon={<MaterialIcon name="keyboard_arrow_down" size={12} />}
+          trailingIcon={<MaterialIcon name="keyboard_arrow_down" size={18} />}
           aria-label={label}
           className="mo-toolbar__menu-button"
           style={toolbarMenuSize}
@@ -457,7 +459,7 @@ function useTooltip(text: string, own: TooltipHandlers = {}) {
   return {
     on,
     tip: (
-      <span ref={tip} popover="manual" aria-hidden className="mo-is-plain mo-editor-tooltip">
+      <span ref={tip} popover="manual" role="tooltip" aria-hidden className="mo-is-plain mo-editor-tooltip">
         {text}
       </span>
     ),
@@ -907,13 +909,13 @@ export function Label({ htmlFor, children, hint }: { htmlFor?: string; children:
   return (
     <>
       {htmlFor ? (
-        <label htmlFor={htmlFor} className="mo-editor-field-label mo-editor-field-label-block">
+        <label htmlFor={htmlFor} className="mo-type-label-large mo-editor-field-label mo-editor-field-label-block">
           {children}
         </label>
       ) : (
-        <p className="mo-editor-field-label">{children}</p>
+        <p className="mo-type-label-large mo-editor-field-label">{children}</p>
       )}
-      {hint && <span className="mo-editor-field-hint">{hint}</span>}
+      {hint && <span className="mo-type-body-small mo-editor-field-hint">{hint}</span>}
     </>
   );
 }
@@ -921,7 +923,7 @@ export function Label({ htmlFor, children, hint }: { htmlFor?: string; children:
 /** Small muted text under a field or a part: what it does, what happens. */
 export function SupportingText({ id, children, className = '' }: { id?: string; children: ReactNode; className?: string }) {
   return (
-    <span id={id} className={`mo-editor-supporting-text ${className}`}>
+    <span id={id} className={`mo-type-body-small mo-editor-supporting-text ${className}`}>
       {children}
     </span>
   );
@@ -933,7 +935,7 @@ export function CloseButton({ onClick }: { onClick: () => void }) {
   return <IconButton icon={materialIcon('close')} label={t.common.close} onClick={onClick} className="mo-editor-close-button" />;
 }
 
-/** A message at the top of a screen about what it shows (an earlier version of a page): the theme's filled card with a
+/** A message at the top of a screen about what it shows (an earlier version of a page): the theme's outlined card with a
  * title, a text, and what can be done about it (a small button). With `onClose` it can be closed: the close button in
  * its top end corner (what was updated since the last visit, on the start screen). */
 export function Notice({
@@ -952,13 +954,13 @@ export function Notice({
 }) {
   return (
     <SiteCard
-      kind="filled"
+      kind="outlined"
       role={role === 'alert' ? undefined : role}
       className={onClose ? 'mo-editor-gapped-100 mo-editor-notice mo-editor-notice-closable' : 'mo-editor-gapped-100 mo-editor-notice'}
     >
       {role === 'alert' && <Announce text={`${title} ${nodeText(children)}`} urgent />}
-      <p className="mo-editor-notice-title">{title}</p>
-      <div className="mo-editor-notice-text">{children}</div>
+      <p className="mo-type-title-small mo-editor-notice-title">{title}</p>
+      <div className="mo-type-body-medium mo-editor-notice-text">{children}</div>
       {action}
       {onClose && <CloseButton onClick={onClose} />}
     </SiteCard>
@@ -1085,15 +1087,12 @@ export function FormField({
   label,
   htmlFor,
   hint,
-  problem,
   count,
   children,
 }: {
   label: string;
   htmlFor?: string;
   hint?: ReactNode;
-  /** What is wrong, under the field; `id` is the field's aria-describedby. */
-  problem?: { id: string; text: string };
   count?: { length: number; max: number };
   children: ReactNode;
 }) {
@@ -1103,11 +1102,6 @@ export function FormField({
         {label}
       </Label>
       {children}
-      {problem && (
-        <p id={problem.id} className="mo-editor-field-problem">
-          {problem.text}.
-        </p>
-      )}
       {count && (
         <p className={`mo-editor-field-count ${count.length > count.max ? 'mo-editor-accent-text' : 'mo-editor-muted-text'}`}>
           {count.length} / {count.max}
@@ -1152,7 +1146,7 @@ export function FieldGroup({ label, hint, children }: { label: string; hint?: Re
   const id = useId();
   return (
     <div role="group" aria-labelledby={id} className={`${siteCardClass('outlined')} mo-editor-rhythm-250 mo-editor-field-group`}>
-      <h3 id={id} className="mo-editor-field-group-title">
+      <h3 id={id} className="mo-type-title-medium mo-editor-field-group-title">
         {label}
       </h3>
       {hint && <SupportingText>{hint}</SupportingText>}
@@ -1196,19 +1190,16 @@ export function SlotButton({
   children: ReactNode;
 }) {
   return (
-    <button
-      type="button"
-      className="mo-editor-inline-list-slot"
-      aria-label={label}
-      aria-pressed={pressed}
+    <SiteIconButton
+      icon={children as IconRef}
+      label={label}
+      selected={pressed}
       aria-expanded={expanded}
       aria-controls={controls}
       data-icon-color={iconColor}
-      title={label}
+      className="mo-editor-inline-list-slot"
       onClick={onClick}
-    >
-      {children}
-    </button>
+    />
   );
 }
 
@@ -1416,7 +1407,7 @@ export function FoldItem({
       leading={
         <MaterialIcon
           name="keyboard_arrow_right"
-          size={14}
+          size={20}
           className={`mo-keep mo-editor-fold-arrow ${open ? 'mo-editor-fold-arrow-open' : ''}`}
         />
       }
@@ -1616,11 +1607,11 @@ export function MultiChoice({
   );
 }
 
-/** A link to another screen, with an arrow after it (under a field's name: where it is edited). */
+/** A link to another screen (under a field's name: where it is edited): the theme's link, in the text's own type role. */
 export function ArrowLink({
   href,
   onClick,
-  className = 'mo-editor-accent-text',
+  className = '',
   children,
 }: {
   href: string;
@@ -1629,9 +1620,8 @@ export function ArrowLink({
   children: ReactNode;
 }) {
   return (
-    <a href={href} className={`mo-editor-arrow-link ${className}`} onClick={onClick}>
+    <a href={href} className={`mo-link ${className}`.trim()} onClick={onClick}>
       {children}
-      <MaterialIcon name="arrow_forward" size={14} />
     </a>
   );
 }
@@ -1897,31 +1887,16 @@ export function ChoiceCards<T extends string>({
   const name = useId();
   return (
     <fieldset>
-      <legend className="mo-editor-field-label">{label}</legend>
+      <legend className="mo-type-label-large mo-editor-field-label">{label}</legend>
       {hint && <SupportingText className="mo-editor-choice-hint">{hint}</SupportingText>}
       <div className="mo-grid mo-editor-choice-cards">
         {options.map(({ value: v, label: text, icon: Glyph, disabled }) => {
           const chosen = v === value;
           return (
-            <label
-              key={v}
-              className={`${siteCardClass('outlined')} mo-editor-choice-card ${
-                disabled ? 'mo-editor-choice-card-disabled' : chosen ? 'mo-editor-choice-card-chosen' : 'mo-editor-choice-card-idle'
-              }`}
-            >
-              <input
-                type="radio"
-                name={name}
-                value={v}
-                checked={chosen}
-                disabled={disabled}
-                onChange={() => onChange(v)}
-                className="mo-visually-hidden"
-              />
-              {Glyph && <Glyph size={32} aria-hidden="true" />}
-              <span>{text}</span>
-              {chosen && <MaterialIcon name="check" size={16} aria-hidden="true" className="mo-editor-choice-card-check" />}
-            </label>
+            <div key={v} className={`${siteCardClass('outlined')} mo-editor-choice-card`} onClick={() => !disabled && onChange(v)}>
+              {Glyph && <Glyph size={24} aria-hidden="true" />}
+              <SiteRadioButton label={text} name={name} value={v} checked={chosen} disabled={disabled} onChange={() => onChange(v)} />
+            </div>
           );
         })}
       </div>
@@ -1932,20 +1907,8 @@ export function ChoiceCards<T extends string>({
 // ---------------------------------------------------------------------------------------------------
 // Rows
 
-/** The classes of the rows under a row in a list (a submenu): the theme's list, indented along a line, the text a little
- * lighter. */
-export const subListClass = `${siteListClass} mo-editor-sub-list`;
-
-/** What a row looks like besides the theme's list item: `accent`, a row that does something (Log out), in the accent
- * colour; `delete`, the row that deletes what a screen shows, alone in a Group at the bottom, in the middle in the error
- * colour; `muted`, grey (what cannot be opened: a page that is gone); `sub`, a row under a row (a submenu), its text a
- * little lighter. */
-export type RowTone = 'accent' | 'muted' | 'sub';
-const toneClass: Record<RowTone, string> = {
-  accent: 'mo-editor-accent-text',
-  muted: 'mo-editor-muted-text',
-  sub: 'mo-editor-row-sub',
-};
+/** The classes of the rows under a row in a list (a submenu): the theme's list, with the List part's own inset. */
+export const subListClass = siteListClass;
 
 /** A row in a list (Group, listClass): the theme's list item (Material 3's ListItem), with the editor's icons. A link
  * (`href`), a button (`onClick`) or only shown; its icon before it (`icon`, a Phosphor icon or one drawn; `iconSelected`:
@@ -1953,15 +1916,13 @@ const toneClass: Record<RowTone, string> = {
  * (`headline`) and what is under it (`supporting`; `truncate`: each on one line, cut off), how many at the right
  * (`count`), the arrow of a row that opens something (`arrow`, or another icon: what a tap does) or anything there
  * (`trailing`), the buttons beside it (`actions`: the arrows, Remove, a switch) and what is in its <li> after it
- * (`children`: a sheet it opens, a text it folds out); `tone`: RowTone. `selectable`: on a phone a long press selects it
+ * (`children`: a sheet it opens, a text it folds out); `selectable`: on a phone a long press selects it
  * (`onSelectedChange`), and while its list is `selecting` a tap does; its selection checkbox is the theme's ListItem's. The rest (aria-…, ref, style, onClick on a link) on the row. */
 export function ListItem({
   icon: shownIcon,
   iconSelected: shownSelected,
   arrow,
   count,
-  tone,
-  className,
   ...item
 }: {
   icon?: Icon | ReactElement<{ size?: number; className?: string }>;
@@ -1982,8 +1943,6 @@ export function ListItem({
   selectable?: boolean;
   selecting?: boolean;
   onSelectedChange?: (selected: boolean) => void;
-  tone?: RowTone;
-  className?: string;
 } & Record<string, unknown>) {
   let icon = shownIcon;
   let iconSelected = shownSelected;
@@ -1994,8 +1953,19 @@ export function ListItem({
       ? (item.leading.props as { icon?: Icon; selected?: boolean; children?: ReactNode })
       : null;
   if (made) {
-    icon = made.icon ?? ((made.children || <span className="mo-editor-icon-placeholder" />) as ReactElement<{ size?: number }>);
+    icon = made.icon ?? (made.children as ReactElement<{ size?: number }> | undefined);
     iconSelected = made.selected;
+    item.leading = undefined;
+  }
+  // A LeadingImage or a LeadingToken is the part's own leading image (56 dp) or media slot.
+  if (isValidElement(item.leading) && item.leading.type === LeadingImage) {
+    item.leadingImage = {
+      src: safeImageSrc((item.leading.props as { src: string }).src),
+      alt: (item.leading.props as { alt?: string }).alt,
+    };
+    item.leading = undefined;
+  } else if (isValidElement(item.leading) && item.leading.type === LeadingToken) {
+    item.leadingMedia = item.leading;
     item.leading = undefined;
   }
   const Lead = icon && !isValidElement(icon) ? (icon as Icon) : null;
@@ -2012,7 +1982,6 @@ export function ListItem({
       leadingIconSelected={iconSelected}
       trailingSupporting={some(count)}
       trailingIcon={Arrow ? <Arrow /> : undefined}
-      className={[tone && toneClass[tone], className].filter(Boolean).join(' ') || undefined}
     />
   );
 }
@@ -2258,7 +2227,7 @@ export function Menu({
       >
         <SheetTitle title={label} onClose={() => sheet.current?.close()} />
         <SheetList div>
-          <SiteMenu role="menu" aria-label={label} className="mo-editor-menu-full">
+          <SiteMenu role="menu" aria-label={label}>
             {children}
           </SiteMenu>
         </SheetList>
@@ -2511,7 +2480,7 @@ export function SheetActions({
 // ---------------------------------------------------------------------------------------------------
 // The preview of a block
 
-/** How a block looks on the site, with what is in it now, in a dashed frame: it can be used as on
+/** How a block looks on the site, with what is in it now, in an outlined card: it can be used as on
  * the site (a text unfolds, a slider slides), but a link in it goes nowhere, so the editor stays open.
  * (The card of a block in the text is not this: a tap there opens its menu.) */
 export function Preview({ children }: { children: ReactNode }) {
@@ -2519,7 +2488,7 @@ export function Preview({ children }: { children: ReactNode }) {
     <div
       role="region"
       aria-label={t.common.preview}
-      className="mo-site-block-preview mo-is-not-prose mo-editor-block-preview"
+      className={`${siteCardClass('outlined')} mo-site-block-preview mo-is-not-prose mo-editor-block-preview`}
       onClickCapture={(e) => {
         if ((e.target as HTMLElement).closest('a[href]')) e.preventDefault();
       }}
@@ -2822,7 +2791,6 @@ export function ChoiceRow({
     <ListItem
       onClick={onClick}
       aria-pressed={selected}
-      tone={selected ? 'accent' : undefined}
       headline={headline}
       supporting={supporting}
       trailing={
@@ -2860,22 +2828,15 @@ export function GroupTitle({ children }: { children: ReactNode }) {
 export const startRipples = siteRipples;
 
 /** Something on its way that takes a moment (Saving, Loading the versions): the theme's loading indicator (Material 3's),
- * as big as the text, before what it is. */
+ * at the size the part has, before what it is. */
 export function LoadingIndicator({ children }: { children: ReactNode }) {
   return (
     <span className="mo-editor-loading">
-      <SiteLoadingIndicator label="" aria-hidden style={inText} />
+      <SiteLoadingIndicator label="" aria-hidden />
       {children}
     </span>
   );
 }
-
-// The theme's loading indicator as big as the text it is before, in its colour (on a filled button too).
-const inText = {
-  '--mo-comp-loading-indicator-active-indicator-size': '1.25em',
-  '--mo-comp-loading-indicator-shape-size': '1.125em',
-  '--mo-comp-loading-indicator-active-indicator-color': 'currentColor',
-} as CSSProperties;
 
 // The plain text of a node, for what a screen reader is told (a loading line is text).
 const nodeText = (node: ReactNode): string =>
@@ -2914,7 +2875,7 @@ export function EmptyNote({ item, busy, children }: { item?: boolean; busy?: boo
  * not be read. `alert`: read by screen readers as soon as it is shown. */
 export function ProblemNote({ alert, children }: { alert?: boolean; children: ReactNode }) {
   return (
-    <div className="mo-editor-problem-note">
+    <div className="mo-type-body-medium mo-editor-problem-note">
       {alert && <Announce text={nodeText(children)} urgent />}
       {children}
     </div>
@@ -2952,33 +2913,36 @@ export function FoldSection({
   if (fixed) open = true;
   return (
     <section ref={ref} aria-labelledby={`${id}-title`} data-fold-section="" className="mo-editor-fold-section">
-      <h2>
-        {fixed ? (
-          <span id={`${id}-title`} className="mo-type-title-large mo-editor-fold-title">
-            <span className="mo-fill mo-editor-fold-title-text">{title}</span>
-          </span>
-        ) : (
-          <button
-            type="button"
-            id={`${id}-title`}
-            aria-expanded={open}
-            aria-controls={`${id}-body`}
-            className="mo-type-title-large mo-editor-fold-toggle"
-            onClick={onToggle}
+      {fixed ? (
+        <h2 id={`${id}-title`} className="mo-type-title-large mo-editor-fold-title">
+          {title}
+        </h2>
+      ) : (
+        // The List part's expanding item (Material 3's List - Expand): its header is the item, its caret the button.
+        <SiteList expand kind="standard" aria-label={title}>
+          <SiteListItem
+            expand
+            expandOpen={open}
+            expandToggle={{ label: title, onToggle }}
+            expandProps={{
+              onClick: (e: MouseEvent<HTMLElement>) => {
+                const target = e.target instanceof Element ? e.target : null;
+                if (target?.closest('.mo-list__item-expand-summary') && !target.closest('.mo-list__item-expand-button')) onToggle();
+              },
+            }}
+            headline={<span id={`${id}-title`}>{title}</span>}
           >
-            <span className="mo-fill mo-editor-fold-title-text">{title}</span>
-            <MaterialIcon
-              name="keyboard_arrow_down"
-              size={20}
-              aria-hidden="true"
-              className={`mo-keep mo-editor-section-arrow ${open ? 'mo-editor-arrow-flipped' : ''}`}
-            />
-          </button>
-        )}
-      </h2>
-      <div id={`${id}-body`} hidden={!open} className="mo-editor-rhythm-300 mo-editor-reveal mo-editor-section-body">
-        {children}
-      </div>
+            <div id={`${id}-body`} className="mo-editor-rhythm-300 mo-editor-reveal mo-editor-section-body">
+              {children}
+            </div>
+          </SiteListItem>
+        </SiteList>
+      )}
+      {fixed && (
+        <div id={`${id}-body`} className="mo-editor-rhythm-300 mo-editor-reveal mo-editor-section-body">
+          {children}
+        </div>
+      )}
     </section>
   );
 }
@@ -3176,9 +3140,9 @@ export function SharePreview({ image, domain, title, description }: { image: str
         onLoad={(e) => setTall(e.currentTarget.naturalHeight >= e.currentTarget.naturalWidth)}
       />
       <figcaption className="mo-editor-gapped-25 mo-editor-share-preview-text">
-        <span className="mo-truncate mo-editor-share-preview-domain">{domain}</span>
-        <span className="mo-clamp-2 mo-editor-share-preview-title">{title}</span>
-        <span className="mo-clamp-2 mo-editor-share-preview-description">{description}</span>
+        <span className="mo-truncate mo-type-label-small mo-editor-share-preview-domain">{domain}</span>
+        <span className="mo-clamp-2 mo-type-title-small mo-editor-share-preview-title">{title}</span>
+        <span className="mo-clamp-2 mo-type-body-medium mo-editor-share-preview-description">{description}</span>
       </figcaption>
     </figure>
   );
@@ -3964,11 +3928,10 @@ export function LeadingIcon({ icon: Glyph, selected = false, children }: { icon?
   );
 }
 
-/** An image before a name in a row, as a ListItem's `leading` (Material's leading image): small and square, with the
- * corners of a field, beside its row's first two lines, as an icon; the image a page's colours came from ("Colors" ›
- * "Pages"). `alt` empty when the row's text says what it is. */
-export function LeadingImage({ src, alt = '' }: { src: string; alt?: string }) {
-  return <img src={safeImageSrc(src)} alt={alt} loading="lazy" className="mo-editor-token-image" />;
+/** An image before a name in a row, as a ListItem's `leading` (the List part's leading image, 56 dp, set by the part): the image a
+ * page's colours came from ("Colors" › "Pages"). `alt` empty when the row's text says what it is. */
+export function LeadingImage(_: { src: string; alt?: string }) {
+  return null;
 }
 
 /** What a design token is, for the sample of it before its row ("Parts" › "Values", Tokens.tsx). */
@@ -3981,7 +3944,7 @@ export type TokenKind = 'shape' | 'elevation' | 'font' | 'color';
  * colour (color). Material 3 has none; the editor's own. */
 export function LeadingToken({ kind, value, weight }: { kind: TokenKind; value: string; weight?: string }) {
   return (
-    <span className="mo-editor-token-sample" aria-hidden="true">
+    <span className="mo-list__item-image mo-editor-token-sample" aria-hidden="true">
       {kind === 'shape' && <span className="mo-editor-token-shape" style={{ borderTopLeftRadius: value }} />}
       {kind === 'elevation' && <span className="mo-editor-token-elevation" style={{ boxShadow: value }} />}
       {kind === 'font' && (

@@ -821,8 +821,8 @@ async function checkEmptyHint() {
   }
 }
 
-/** The FAB never covers the footer (Screen.tsx useFabLift): on every screen that has both, at the top, in the middle and at the bottom
- * of the page, the FAB's box and the footer's do not overlap. The screens are the start screen and the lists with a create button. */
+/** Scrolled to the end, the FAB covers nothing, the footer included (task 13 test 4; Screen.tsx leaves room for it under the footer, data-clearance): on every screen that has both, at the
+ * bottom of the page the FAB's box and the footer's do not overlap. The FAB is fixed at the window's margin, so mid-page the footer may pass under it (the lift that avoided that is gone, task 13 test 4). The screens are the start screen and the lists with a create button. */
 async function checkFabAboveFooter(width) {
   const label = `${width}px FAB above the footer`;
   const touch = width < 600;
@@ -844,7 +844,7 @@ async function checkFabAboveFooter(width) {
       });
       if (!m) continue;
       seen++;
-      if (m.footerTop < m.h && m.footerBottom > 0 && m.fabBottom > m.footerTop + 0.5 && m.fabTop < m.footerBottom)
+      if (at === 1 && m.fabBottom > m.footerTop + 0.5 && m.fabTop < m.footerBottom - 1)
         problems.push(
           `${label}: on ${route} (scrolled to ${at * 100}%) the FAB (${Math.round(m.fabTop)}–${Math.round(m.fabBottom)}) overlaps the footer (${Math.round(m.footerTop)}–${Math.round(m.footerBottom)})`,
         );

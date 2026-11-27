@@ -300,7 +300,6 @@ there is nothing to deviate from. The theme uses the nearest M3 pattern or the o
 - **The lightbox:** M3 prints no lightbox or image viewer; the theme's `Lightbox` is a modal dialog with the dialog's container and corner, sized to the window. Its see-through scrim colour is the colour batch's (batch 8).
 - **Palette:** a command palette made of the Search view (`Ctrl+K`); M3 has no page for one.
 - **Choice group:** a small sample of a look in a row's trailing slot.
-- **The FAB above the footer:** M3 says nothing about a footer under a FAB; the FAB lifts 16 dp above it.
 - **A bottom sheet's content padding:** the grid margin; M3 prints no padding for what is in a sheet.
 - **The site's text measure:** 40ch to 60ch (owner's rule); M3 prints no text width.
 - **Button group toggles:** `aria-pressed` in a `role="group"`; M3 prints no ARIA roles for them.

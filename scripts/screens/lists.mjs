@@ -1443,12 +1443,12 @@ async function checkSectionsOnLoad(width, height) {
     await page.waitForTimeout(300);
     const sections = await page.$$eval('section[data-fold-section]', (els) =>
       els.map((el) => {
-        const head = el.querySelector(':scope > h2');
-        const button = head.querySelector('button');
+        const head = document.getElementById(el.getAttribute('aria-labelledby') ?? '');
+        const button = el.querySelector(':scope > ul.mo-list__expand button[aria-expanded]');
         return {
-          title: head.textContent.trim(),
+          title: head?.textContent.trim() ?? '',
           button: !!button,
-          open: button ? button.getAttribute('aria-expanded') === 'true' : !el.querySelector(':scope > div').hidden,
+          open: button ? button.getAttribute('aria-expanded') === 'true' : true,
         };
       }),
     );

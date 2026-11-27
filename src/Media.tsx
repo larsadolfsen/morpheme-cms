@@ -254,7 +254,7 @@ function Tile({
           onClick={() => row.onSelectedChange?.()}
         >
           <span className={`mo-editor-media-tile-check ${selected ? 'mo-editor-media-tile-check-on' : 'mo-editor-media-tile-check-off'}`}>
-            {selected && <AnyIcon name="check" size={16} />}
+            {selected && <AnyIcon name="check" size={18} />}
           </span>
         </span>
       )}
@@ -942,7 +942,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
             {usedBy.map((f) => (
               <ListItem key={f.path} href={`#${f.path}`} onClick={wide ? closeFile : undefined} headline={f.name} />
             ))}
-            {code?.includes(src) && <ListItem tone="muted" headline={t.media.siteDesign} />}
+            {code?.includes(src) && <ListItem disabled headline={t.media.siteDesign} />}
           </ul>
         ) : (
           <p className="mo-editor-media-muted">{t.media.noPages}</p>
