@@ -26,14 +26,17 @@ The owner's rules for it:
   stay because they imitate another product: **CS2** (the PageSpeed colours) and **CS3** (the Google result preview).
 - **No own components** (skill `developer`). A screen that needs something a theme part does not offer gets the M3 variant in the
   theme, with the owner's yes through the PM. It never gets its own class.
-- **Outlined buttons, not text buttons** (owner, 24 Nov 2026: "Md3 do no longer recommend text buttons, instead they recommend
-  outlined. When you go through the editor convert all text buttons to outlined buttons"). Every text button in the editor's screens
-  becomes an outlined button, dialog actions included. A link is not a button (owner, 24 Nov 2026: "Links and buttons are two
+- **Buttons follow Material 3** (owner, 27 Nov 2026, reversing the "Outlined buttons, not text buttons" rule of 24 Nov 2026): each action
+  takes the button style M3 prints for its place (m3.material.io/components/buttons/guidelines, read 27 Nov 2026). Text buttons: dialog
+  actions, card actions, a snackbar's or tooltip's action, a picker's Cancel and OK, and the lowest-priority actions ("Text buttons are
+  often placed within components such as cards, dialogs, and snackbars"; "Dialogs use text buttons"; "The text button style should be
+  used for the lowest priority actions"). Outlined: medium-emphasis actions, such as a secondary action beside a filled one ("Outlined
+  buttons pair well with filled buttons to indicate alternative, secondary actions"). Where earlier work changed a text button to
+  outlined against this, the batch that touches that place puts it back. A link is not a button (owner, 24 Nov 2026: "Links and buttons are two
   different things"): something that goes to another page or address stays a link (`<a>`), drawn as a link, never as a button. The
   page and post editor's bar and menus are not part of it.
-  **The site too** (owner, 24 Nov 2026: "Yes and yes, but not Sarah"): the default theme Material's blocks and parts on the site use
-  outlined buttons where they use text buttons today, in the same batch (1, shared parts). The Button part keeps its text kind, so a
-  theme or app that uses it keeps working: Venus and Sara's app are not changed.
+  **The site too** (owner, 24 Nov 2026: "Yes and yes, but not Sarah"; 27 Nov 2026: the same rule): the default theme Material's blocks
+  and parts on the site follow the rule above. Venus and Sara's app are not changed.
 - **No `check:contrast` per batch.** One final scan runs when Material's M3 work is done (`specs/2026-11-21-base-theme-notes.md`).
 
 ## The recorded exceptions
@@ -83,8 +86,8 @@ The owner's rules for it:
   outline in `outline`, named in the pull request.
 - **Phosphor imports:** not an M3 finding. On `main`, all 81 files that import Phosphor components are on the allowlist, and
   `check:phosphor` is green. They move to `Icon` in the names batch of 0.19.6, where Phosphor leaves the CMS.
-- **Dialogs** (owner, 21 Nov 2026, audit #1126): the actions are outlined buttons (owner, 24 Nov 2026, replacing
-  text buttons) and focus goes to the first control when a dialog
+- **Dialogs** (owner, 21 Nov 2026, audit #1126): the actions are text buttons, as M3 prints (owner, 27 Nov 2026, reversing 24 Nov 2026)
+  and focus goes to the first control when a dialog
   opens, as M3 prints. `src/ask.tsx` and `src/BlockDialog.tsx` change in batch 3.
 - **The save bar** is a standard bottom sheet in the screens (EB1), so it is in scope. The text bar and the block's action row are the
   page and post editor's, so they are not any more (owner, 26 Nov 2026): the text bar is M3's docked toolbar, 64 dp high, and the
