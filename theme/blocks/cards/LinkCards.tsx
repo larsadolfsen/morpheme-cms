@@ -166,8 +166,10 @@ export default function LinkCards({
         {card.media === 'icon' && card.icon && (
           <Svg name={card.icon} size={28} className="mo-block-cards__item-icon" iconColor={card.iconColor} />
         )}
-        <span className="mo-block-cards__item-label">
-          <span className="mo-block-cards__item-title">{card.title}</span>
+        <span className="mo-block-cards__item-label" data-carousel-fade="0.5 8" data-carousel-inset="1rem">
+          <span className="mo-block-cards__item-title" data-carousel-fade="0.1 10">
+            {card.title}
+          </span>
           {card.subhead && <span className="mo-block-cards__item-subhead">{card.subhead}</span>}
           {card.text && <span className="mo-block-cards__item-text">{card.text}</span>}
           {card.href && <span className="mo-visually-hidden">{more}</span>}

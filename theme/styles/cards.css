@@ -149,6 +149,8 @@
     overflow: hidden;
     /* Its own layer: the script moves it every frame, and a layer is moved and clipped without painting the row again. */
     will-change: transform;
+    /* Its text's layout (padding that follows the clip) stays inside it. */
+    contain: layout;
     border-radius: var(--mo-comp-carousel-item-container-shape, var(--mo-comp-block-radius));
     background: var(--mo-comp-carousel-item-surface, var(--mo-comp-block-tint));
     clip-path: inset(

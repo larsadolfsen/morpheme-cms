@@ -509,7 +509,7 @@ async function checkCardIconText(width, height, scheme) {
   await page.close();
 }
 
-/** Scrolling a carousel never forces a layout (the flicker on a fast swipe): while the row scrolls, the layout script reads no offsetLeft, offsetWidth, scrollWidth or getBoundingClientRect, and a frame that moves nothing writes no style. Every carousel on the Blocks page, 375 px, touch. */
+/** Scrolling a carousel never forces a layout (the flicker on a fast swipe): while the row scrolls, the layout script reads no offsetLeft, offsetWidth, scrollWidth or getBoundingClientRect, and a frame that moves nothing writes no style. Where the browser has scroll-driven animations (ScrollTimeline) the items' growing and shrinking is tied to the scroll by the browser (data-carousel-driven="scroll"), so the script writes no style at all while the row scrolls (the owner's phone: the item did not grow smoothly while a swipe ran the script on every frame; before, 1000 to 3800 style writes and 400 to 750 ms of style work in four swipes at 4x CPU). Every carousel on the Blocks page, 375 px, touch. */
 async function checkCarouselScrollCost() {
   const label = '375px carousel scroll cost';
   const page = await browser.newPage({ viewport: { width: 375, height: 740 }, hasTouch: true, isMobile: true, locale: 'en-US' });
@@ -542,23 +542,47 @@ async function checkCarouselScrollCost() {
         return gbr.call(this);
       };
       const max = row.scrollWidth - row.clientWidth;
+      const carousel = row.closest('[data-carousel]');
+      const scripted = ['multi-browse', 'hero'].includes(carousel.dataset.carouselLayout);
+      let writes = 0;
+      const watch = new MutationObserver((l) => (writes += l.length));
+      watch.observe(carousel, { attributes: true, attributeFilter: ['style'], subtree: true });
       // One warm-up scroll first: a row is measured once when it is first shown or resized, which is not what is checked.
       row.style.scrollSnapType = 'none';
       row.scrollLeft = max * 0.1;
       await new Promise((res) => setTimeout(res, 300));
+      watch.takeRecords();
+      writes = 0;
       reads.length = 0;
       for (const f of [0.25, 0.6, 0.9, 0.3]) {
         row.style.scrollSnapType = 'none';
         row.scrollLeft = max * f;
         await new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
       }
+      writes += watch.takeRecords().length;
+      watch.disconnect();
       undo.forEach((u) => u());
       Element.prototype.getBoundingClientRect = gbr;
       row.style.scrollSnapType = '';
-      return { max, reads: [...new Set(reads)] };
+      return {
+        max,
+        reads: [...new Set(reads)],
+        writes,
+        scripted,
+        driven: carousel.dataset.carouselDriven === 'scroll',
+        supported: typeof ScrollTimeline === 'function',
+      };
     }, k);
     if (r.max > 0 && r.reads.length)
       problems.push(`${label}: carousel ${k} reads ${r.reads.join(', ')} while it scrolls, which forces a layout each frame`);
+    if (r.max > 0 && r.scripted && r.supported && !r.driven)
+      problems.push(
+        `${label}: carousel ${k} is not tied to the scroll by the browser (no data-carousel-driven="scroll"), so its items follow the finger a frame late`,
+      );
+    if (r.max > 0 && r.scripted && r.supported && r.writes)
+      problems.push(
+        `${label}: carousel ${k} writes style ${r.writes} times while it scrolls (limit 0): the script runs on every scroll frame and each write costs a style recalculation, a layout of the text and a paint`,
+      );
   }
   await page.close();
 }

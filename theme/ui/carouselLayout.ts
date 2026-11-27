@@ -30,6 +30,11 @@ export const scriptedLayouts: CarouselLayout[] = [...keylineLayouts, 'full-scree
 /** From 840 dp (M3's expanded window class) and in landscape a full-screen carousel is a hero (the stored choice stays). */
 export const FULL_SCREEN_AS_HERO = '(min-width: 52.5rem), (orientation: landscape)';
 
+// Not in every TypeScript's DOM types yet (scroll-driven animations).
+declare class ScrollTimeline extends AnimationTimeline {
+  constructor(options: { source: Element; axis?: 'block' | 'inline' | 'x' | 'y' });
+}
+
 type Keyline = { loc: number; size: number };
 type State = { lines: Keyline[]; offsets: number[]; focal: number };
 
@@ -150,6 +155,7 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
   const row = root.querySelector<HTMLElement>('[data-carousel-items]');
   if (!row || !keylineLayouts.includes(layout)) return () => {};
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+  const scrollDriven = typeof ScrollTimeline === 'function';
   const items = [...row.querySelectorAll<HTMLElement>('[data-carousel-item]')];
   const masks = items.map((item) => item.querySelector<HTMLElement>('[data-carousel-mask]'));
   let start: State, normal: State, end: State, large: number;
@@ -223,10 +229,118 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
     at = items.map((item) => item.offsetLeft - first);
     max = row!.scrollWidth - row!.clientWidth;
     written.forEach((w) => (w.shift = w.inset = w.mask = NaN));
+    drive();
     update();
   }
 
+  // Scroll-driven path: where the browser can tie an animation to the row's scroll position (ScrollTimeline, Chrome 115 and later), each item gets
+  // its shape as keyframes over the whole scroll, so that the browser moves the mask (transform) and clips it (clip-path) with the scroll itself, in
+  // the frame the row is drawn at, without running this script while the row scrolls. The text's fade and its padding follow in the same timeline.
+  // Other browsers run update() on scroll frames, as before.
+  let driven = false;
+  let animations: Animation[] = [];
+  function undrive() {
+    animations.forEach((a) => a.cancel());
+    animations = [];
+    driven = false;
+    root.removeAttribute('data-carousel-driven');
+  }
+  function drive() {
+    undrive();
+    if (!scrollDriven || reduce.matches || max <= 0) return;
+    const timeline = new ScrollTimeline({ source: row!, axis: 'inline' });
+    const radius = (el: HTMLElement) => parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
+    const radii = masks.map((m) => (m ? radius(m) : 0));
+    const samples: { shift: number; inset: number; fade: number }[][] = [];
+    const STEP = 6;
+    const count = Math.max(2, Math.ceil(max / STEP) + 1);
+    for (let n = 0; n < count; n++) samples.push(shapesAt((n / (count - 1)) * max));
+    // Only the keyframes a straight line between them does not give: an item far from the window has two.
+    const keep = (values: number[][]) => {
+      const kept = [0];
+      let anchor = 0;
+      for (let n = 2; n < values.length; n++) {
+        const ok = values
+          .slice(anchor + 1, n)
+          .every((v, m) => v.every((x, c) => Math.abs(x - lerp(values[anchor][c], values[n][c], (m + 1) / (n - anchor))) < 0.05));
+        if (!ok) kept.push((anchor = n - 1));
+      }
+      kept.push(values.length - 1);
+      return [...new Set(kept)];
+    };
+    const options = { timeline, fill: 'both' as FillMode, easing: 'linear' };
+    // Keyframes of one channel (or more) of an item: `value(frame)` for each sample, only those a straight line between does not give.
+    const frames = (values: number[][], make: (v: number[]) => Keyframe): Keyframe[] =>
+      keep(values).map((n) => ({ offset: n / (count - 1), ...make(values[n]) }));
+    items.forEach((item, i) => {
+      const mask = masks[i];
+      if (!mask) return;
+      const shape = samples.map((frame) => frame[i]);
+      // The mask: moved (transform, which the compositor does with the scroll itself) and clipped (clip-path, which the browser does in the frame the row is drawn at).
+      animations.push(
+        mask.animate(
+          frames(
+            shape.map((f) => [f.shift, f.inset]),
+            ([shift, inset]) => ({
+              transform: `translateX(${shift}px)`,
+              clipPath: `inset(0px ${inset}px 0px ${inset}px round ${radii[i]}px)`,
+            }),
+          ),
+          options,
+        ),
+      );
+      // What on the item fades (data-carousel-fade="<where it starts> <how steeply>": 1 - (masked - start) * steep, opacity only: the compositor's).
+      item.querySelectorAll<HTMLElement>('[data-carousel-fade]').forEach((el) => {
+        const [from, steep] = el.dataset.carouselFade!.split(/\s+/).map(Number);
+        animations.push(
+          el.animate(
+            frames(
+              shape.map((f) => [Math.max(0, Math.min(1, 1 - (f.fade - from) * steep))]),
+              ([opacity]) => ({ opacity: String(opacity) }),
+            ),
+            options,
+          ),
+        );
+      });
+      // What on the item keeps its distance from the clipped edge (data-carousel-inset="<padding>": that and the clipped part, at both sides).
+      item.querySelectorAll<HTMLElement>('[data-carousel-inset]').forEach((el) => {
+        animations.push(
+          el.animate(
+            frames(
+              shape.map((f) => [f.inset]),
+              ([inset]) => ({ paddingInline: `calc(${el.dataset.carouselInset} + ${inset}px)` }),
+            ),
+            options,
+          ),
+        );
+      });
+    });
+    driven = true;
+    root.setAttribute('data-carousel-driven', 'scroll');
+    // What the script wrote before is not what is shown now.
+    items.forEach((item, i) => {
+      item.style.removeProperty('--mo-comp-carousel-mask');
+      masks[i]?.style.removeProperty('transform');
+      masks[i]?.style.removeProperty('--mo-comp-carousel-mask-inset');
+    });
+    written.forEach((w) => (w.shift = w.inset = w.mask = NaN));
+  }
+
+  // When the row has stopped, what the animation shows is also written as the custom properties (--mo-comp-carousel-mask-inset, --mo-comp-carousel-mask), which
+  // what is drawn from them (and the editor's measurements) reads; nothing is written while it scrolls.
+  function settleDriven() {
+    const shapes = shapesAt(row!.scrollLeft);
+    items.forEach((item, i) => {
+      const mask = masks[i];
+      const w = written[i];
+      if (!mask) return;
+      if (shapes[i].inset !== w.inset) mask.style.setProperty('--mo-comp-carousel-mask-inset', `${(w.inset = shapes[i].inset)}px`);
+      if (shapes[i].fade !== w.mask) item.style.setProperty('--mo-comp-carousel-mask', String((w.mask = shapes[i].fade)));
+    });
+  }
+
   function update() {
+    if (driven && !reduce.matches) return void settleDriven();
     // Reduced motion (M3, Accessibility): items do not grow or shrink as they pass; all are as large as a large one, the row reaching the edges.
     if (reduce.matches) {
       items.forEach((item, i) => {
@@ -241,6 +355,20 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
     last = s;
     clearTimeout(settle);
     if (fast) settle = window.setTimeout(update, 80);
+    const shapes = shapesAt(s);
+    items.forEach((item, i) => {
+      const mask = masks[i];
+      if (!mask) return;
+      const { shift, inset, fade } = shapes[i];
+      const w = written[i];
+      if (shift !== w.shift) mask.style.transform = `translateX(${(w.shift = shift)}px)`;
+      if (inset !== w.inset) mask.style.setProperty('--mo-comp-carousel-mask-inset', `${(w.inset = inset)}px`);
+      if (!fast && fade !== w.mask) item.style.setProperty('--mo-comp-carousel-mask', String((w.mask = fade)));
+    });
+  }
+
+  /** Where every item's mask is, how much of it is clipped and how much its text fades, with the row scrolled to `s`: the one place the shapes are worked out, for the script's frames and for the scroll-driven keyframes. */
+  function shapesAt(s: number) {
     let state = start;
     if (max > 0) {
       // When the row is too short for both, each shift takes its share of it.
@@ -250,9 +378,7 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
       state = s < a ? mix(start, normal, s / a) : s > max - b ? mix(normal, end, (s - (max - b)) / b) : normal;
     }
     const { lines, offsets } = state;
-    items.forEach((item, i) => {
-      const mask = masks[i];
-      if (!mask) return;
+    return items.map((_, i) => {
       // Where its centre is in the row's window, and which two keylines it is between.
       const c = at[i] + large / 2 - s;
       let loc: number;
@@ -266,23 +392,27 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
         loc = lerp(lines[j].loc, lines[j + 1].loc, t);
         size = lerp(lines[j].size, lines[j + 1].size, t);
       }
-      const w = written[i];
-      const shift = Math.round((loc - c) * 100) / 100;
-      const inset = Math.round(Math.max(0, (large - size) / 2) * 100) / 100;
-      const fade = Math.round(Math.max(0, Math.min(1, 1 - size / large)) * 1000) / 1000;
-      if (shift !== w.shift) mask.style.transform = `translateX(${(w.shift = shift)}px)`;
-      if (inset !== w.inset) mask.style.setProperty('--mo-comp-carousel-mask-inset', `${(w.inset = inset)}px`);
-      if (!fast && fade !== w.mask) item.style.setProperty('--mo-comp-carousel-mask', String((w.mask = fade)));
+      return {
+        shift: Math.round((loc - c) * 100) / 100,
+        inset: Math.round(Math.max(0, (large - size) / 2) * 100) / 100,
+        fade: Math.round(Math.max(0, Math.min(1, 1 - size / large)) * 1000) / 1000,
+      };
     });
   }
 
   let frame = 0;
   // One update a frame, from the scroll position as it is then: a scroll event arriving before the frame runs does not queue another.
   const onScroll = () => {
+    if (driven) {
+      clearTimeout(settle);
+      settle = window.setTimeout(settleDriven, 150);
+      return;
+    }
     if (!frame) frame = requestAnimationFrame(() => ((frame = 0), update()));
   };
+  const onReduce = () => (drive(), update());
   row.addEventListener('scroll', onScroll, { passive: true });
-  reduce.addEventListener('change', update);
+  reduce.addEventListener('change', onReduce);
   const resized = new ResizeObserver(() => measure());
   resized.observe(row);
   measure();
@@ -291,8 +421,9 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
     cancelAnimationFrame(frame);
     clearTimeout(settle);
     row.removeEventListener('scroll', onScroll);
-    reduce.removeEventListener('change', update);
+    reduce.removeEventListener('change', onReduce);
     resized.disconnect();
+    undrive();
     row.style.removeProperty('--mo-comp-carousel-item-width');
     row.style.scrollPaddingInlineStart = '';
     items.forEach((item, i) => {
