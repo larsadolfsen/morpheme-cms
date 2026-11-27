@@ -1787,7 +1787,15 @@ function pictureOf(item: Item): Record<string, unknown> {
 function versionLine(item: Item, address?: boolean) {
   if (!item.versions) return under(item, { address, text: '' });
   const { text, title } = item.versions;
-  return under(item, { address, text: <span title={title}>{text}</span>, plain: true });
+  return under(item, {
+    address,
+    text: (
+      <span className="mo-editor-library-under-status" title={title}>
+        {text}
+      </span>
+    ),
+    plain: true,
+  });
 }
 
 /** Hidden is an icon at the right of the row, not a button. */
