@@ -587,6 +587,55 @@ async function checkCarouselScrollCost() {
   await page.close();
 }
 
+/** The gap between two cards of a carousel stays the carousel's gap on the whole way, not only at rest (the owner's phone, 27 Nov 2026: "the distance between cards ... differs": a card that entered or left at the row's edge trailed 16 px from its neighbour, twice the gap, because the item outside the row stood where the padding ends). Every multi-browse and hero carousel on the Blocks page, the row scrolled in steps from its start to its end: the visible edges of two cards next to each other (their masks less the clipped part) are one gap apart. */
+async function checkCarouselGap(width, height) {
+  const label = `${width}px carousel gap`;
+  const phone = width < 600;
+  const page = await browser.newPage({ viewport: { width, height }, hasTouch: phone, isMobile: phone, locale: 'en-US' });
+  page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
+  if (!(await onTestPage(page, label))) return page.close();
+  const n = await page.locator('[data-carousel-items]').count();
+  for (let k = 0; k < n; k++) {
+    const r = await page.evaluate(async (idx) => {
+      const row = document.querySelectorAll('[data-carousel-items]')[idx];
+      const carousel = row.closest('[data-carousel]');
+      if (!['multi-browse', 'hero'].includes(carousel.dataset.carouselLayout)) return null;
+      const max = row.scrollWidth - row.clientWidth;
+      const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+      const masks = [...carousel.querySelectorAll('[data-carousel-mask]')];
+      if (max <= 0 || masks.length < 2) return null;
+      row.style.scrollSnapType = 'none';
+      row.style.scrollBehavior = 'auto';
+      const frame = () => new Promise((res) => requestAnimationFrame(() => requestAnimationFrame(res)));
+      let worst = { diff: 0 };
+      for (let s = 0; s <= max + 5; s += 5) {
+        row.scrollLeft = Math.min(s, max);
+        await frame();
+        const window_ = row.getBoundingClientRect();
+        const edges = masks.map((m) => {
+          const b = m.getBoundingClientRect();
+          const inset = Number(/inset\(\S+ (-?[\d.]+)px/.exec(getComputedStyle(m).clipPath)?.[1] ?? 0);
+          return { left: b.left + inset, right: b.right - inset };
+        });
+        const shown = (e) => e.right - e.left > 1 && e.right > window_.left && e.left < window_.right;
+        for (let i = 1; i < edges.length; i++) {
+          if (!shown(edges[i - 1]) || !shown(edges[i])) continue;
+          const diff = Math.abs(edges[i].left - edges[i - 1].right - gap);
+          if (diff > worst.diff) worst = { diff, at: Math.round(row.scrollLeft), pair: i, gap: edges[i].left - edges[i - 1].right };
+        }
+      }
+      row.style.scrollSnapType = '';
+      row.style.scrollBehavior = '';
+      return { gap, worst, layout: carousel.dataset.carouselLayout };
+    }, k);
+    if (r && r.worst.diff > 0.75)
+      problems.push(
+        `${label}: carousel ${k} (${r.layout}) has ${r.worst.gap.toFixed(1)} px between cards ${r.worst.pair - 1} and ${r.worst.pair} with the row at ${r.worst.at}, not its gap of ${r.gap} px`,
+      );
+  }
+  await page.close();
+}
+
 /** Cards that are a carousel (`phone`, on the demo's Blocks page; since 0.19.8 on every screen size): at 375 px the row scrolls sideways with one card whole and the next peeking in, as Material 3's uncontained carousel is measured (gap 8, 8 above and below, 16 from the edge, corners 28), labelled, with no page indicator (M3 prints none); each layout the block offers (`layout`: multi-browse, hero, center-aligned hero, full-screen) is on the page, its items with M3's 28dp corners, and `Show all` is under every one but the full-screen one; `Show all` stacks the cards in place and `Show fewer` returns them, focus kept; the arrow keys move between the cards. At 840 and 1280 px it is the same row, with more cards in view (the hero keeps one small item), `Show all` under it, and a full-screen carousel is the hero. */
 async function checkCardsCarousel(width, height) {
   const label = `${width}px cards carousel`;
@@ -824,8 +873,8 @@ async function checkCardsCarousel(width, height) {
             const inset = parseFloat(m.style.getPropertyValue('--mo-comp-carousel-mask-inset')) || 0;
             return { left: b.left + inset, right: b.right - inset };
           })
-          // Whole items: a card peeking in at the other end does not count.
-          .filter((b) => b.left >= row.left - 1 && b.right <= row.right + 1);
+          // Whole items: a card peeking in at the other end does not count, nor the item outside the row, which has no width.
+          .filter((b) => b.right - b.left > 1 && b.left >= row.left - 1 && b.right <= row.right + 1);
         return { seen, rowMid: (row.left + row.right) / 2 };
       });
       const widths = seen.map((b) => Math.round(b.right - b.left));
@@ -861,7 +910,7 @@ async function checkCardsCarousel(width, height) {
           const inset = parseFloat(m.style.getPropertyValue('--mo-comp-carousel-mask-inset')) || 0;
           return { left: b.left + inset, right: b.right - inset };
         })
-        .filter((b) => b.left >= row.left - 1 && b.right <= row.right + 1)
+        .filter((b) => b.right - b.left > 1 && b.left >= row.left - 1 && b.right <= row.right + 1)
         .map((b) => Math.round(b.right - b.left));
     });
     const smalls = kind === 'hero-center' ? [widths[0], widths[2]] : [Math.min(...widths)];
@@ -1700,6 +1749,8 @@ export function register(unit) {
     unit(`checkCardDivider ${width}`, () => checkCardDivider(width, height));
   unit('checkCardsElevation 768', () => checkCardsElevation(768, 1024));
   unit('checkCarouselScrollCost 375', () => checkCarouselScrollCost());
+  unit('checkCarouselGap 390', () => checkCarouselGap(390, 800));
+  unit('checkCarouselGap 1280', () => checkCarouselGap(1280, 900));
   unit('checkCardsCarousel 768', () => checkCardsCarousel(768, 900));
   unit('checkCardsCarousel 600', () => checkCardsCarousel(600, 900));
   unit('checkCardsCarousel 840', () => checkCardsCarousel(840, 900));

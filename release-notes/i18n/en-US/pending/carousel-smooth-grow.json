@@ -2,5 +2,5 @@
   "id": "carousel-smooth-grow",
   "kind": "line",
   "mark": "improvement",
-  "text": "A carousel's items grow smoothly as you swipe it on a phone"
+  "text": "A carousel's items grow smoothly as you swipe it on a phone, and the space between cards stays the same"
 }
