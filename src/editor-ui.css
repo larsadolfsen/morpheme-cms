@@ -60,9 +60,7 @@
     display: block;
   }
   .mo-editor-field-hint {
-    display: block;
     margin-block-end: var(--mo-ref-space-100);
-    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-supporting-text {
     display: block;
@@ -287,11 +285,6 @@
   }
   .mo-editor-colors-preview-heading {
     font-weight: 500;
-  }
-  .mo-editor-colors-preview-hint {
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-colors-preview-text {
     font-size: var(--mo-sys-typescale-body-medium-size);

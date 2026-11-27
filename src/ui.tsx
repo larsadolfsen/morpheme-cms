@@ -918,7 +918,7 @@ export function Label({ htmlFor, children, hint }: { htmlFor?: string; children:
       ) : (
         <p className="mo-type-label-large mo-editor-field-label">{children}</p>
       )}
-      {hint && <span className="mo-type-body-small mo-editor-field-hint">{hint}</span>}
+      {hint && <SupportingText className="mo-editor-field-hint">{hint}</SupportingText>}
     </>
   );
 }
@@ -2535,7 +2535,7 @@ export function ColorsPreview({ colors, title }: { colors: Record<string, string
   return (
     <div style={vars} aria-label={title} role="img" className="mo-editor-rhythm-150 mo-editor-colors-preview">
       <p className="mo-type-body-large mo-editor-colors-preview-heading">{p.heading}</p>
-      <p className="mo-editor-colors-preview-hint">{p.text}</p>
+      <SupportingText medium>{p.text}</SupportingText>
       <p>
         <span className="mo-link">{p.link}</span>
       </p>
