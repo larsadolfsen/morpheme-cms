@@ -252,7 +252,7 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
     const radius = (el: HTMLElement) => parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
     const radii = masks.map((m) => (m ? radius(m) : 0));
     const samples: { shift: number; inset: number; fade: number }[][] = [];
-    const STEP = 6;
+    const STEP = 2;
     const count = Math.max(2, Math.ceil(max / STEP) + 1);
     for (let n = 0; n < count; n++) samples.push(shapesAt((n / (count - 1)) * max));
     // Only the keyframes a straight line between them does not give: an item far from the window has two.
@@ -277,14 +277,20 @@ function runLayout(root: HTMLElement, layout: CarouselLayout): () => void {
       if (!mask) return;
       const shape = samples.map((frame) => frame[i]);
       // The mask: moved (transform, which the compositor does with the scroll itself) and clipped (clip-path, which the browser does in the frame the row is drawn at).
+      // Two animations, not one: Chrome runs an animation on the compositor only when every property in it can be, and a clip-path cannot be,
+      // so with both in one the move would be sampled by the main thread, a frame or more behind the scroll the finger drives.
       animations.push(
         mask.animate(
           frames(
-            shape.map((f) => [f.shift, f.inset]),
-            ([shift, inset]) => ({
-              transform: `translateX(${shift}px)`,
-              clipPath: `inset(0px ${inset}px 0px ${inset}px round ${radii[i]}px)`,
-            }),
+            shape.map((f) => [f.shift]),
+            ([shift]) => ({ transform: `translateX(${shift}px)` }),
+          ),
+          options,
+        ),
+        mask.animate(
+          frames(
+            shape.map((f) => [f.inset]),
+            ([inset]) => ({ clipPath: `inset(0px ${inset}px 0px ${inset}px round ${radii[i]}px)` }),
           ),
           options,
         ),
