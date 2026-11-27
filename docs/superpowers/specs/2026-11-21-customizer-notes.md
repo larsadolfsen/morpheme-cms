@@ -29,6 +29,13 @@ choices are the CMS's and set tokens every theme already reads, they need no con
 Material Symbols, or a pack installed from the store, such as Phosphor, or Lucide once it is back (0.32.0). It picks a pack, not a
 token; a pack is files keyed by Material Symbols' names (`CLAUDE.md`, *Icons are Material Symbols*), so no code changes either.
 
+*Typography* includes choosing and importing new fonts (owner, 27 Nov 2026: "It also includes choosing and importing new fonts"). A
+chosen font sets the typeface tokens (M3's brand and plain typefaces, `--mo-ref-typeface-*`); the type scale's roles read them. Points
+for the design: the font's files are saved in the site and served from it, not loaded from another host, so no visitor's address goes
+to a font service and the site's CSP needs no new host (`lib/csp.mjs`); only fonts with an open licence that allows it (such as the
+SIL Open Font License) are imported, with the licence kept beside the files; and a font that lacks a weight or a script the site
+needs is shown as such before it is chosen.
+
 ## Customization is not a deviation
 
 Owner, 21 November 2026: "This is not a deviation in the theme. This is customization. Those things needs to be distinguished and md will
