@@ -8,7 +8,7 @@ export function SiteLogoLink({ onClick, className = '' }: { onClick?: MouseEvent
   return (
     <a href="#" onClick={onClick} className={`mo-editor-logo-link ${className}`}>
       <img src="/editor/icon-192.png" alt="" className="mo-editor-logo-image" />
-      <span className="mo-editor-logo-name">{siteName}</span>
+      <span className="mo-type-title-large mo-editor-logo-name">{siteName}</span>
     </a>
   );
 }

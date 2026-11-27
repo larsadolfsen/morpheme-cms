@@ -88,6 +88,7 @@ import {
   registerWorker,
   waitForSite,
 } from './deploy';
+import { SiteCard } from './themeUi';
 import { readCache, writeCache } from './cache';
 import { trackPopupButtons } from './popupState';
 import { forgetNotFound, loadNotFound, type Missing } from './notFound';
@@ -786,7 +787,7 @@ function Editor() {
     return (
       <main className="mo-editor-signin">
         <img src="/editor/icon-192.png" alt="" className="mo-editor-signin-icon" />
-        <h1 className="mo-editor-signin-title">{siteName}</h1>
+        <h1 className="mo-type-headline-small">{siteName}</h1>
         {signedIn === null && !error ? <EmptyNote busy>{t.app.loading}</EmptyNote> : <Button onClick={login}>{t.app.logIn}</Button>}
         {error && <ProblemNote>{error}</ProblemNote>}
       </main>
@@ -799,7 +800,11 @@ function Editor() {
         aside={<MainMenu route={route} files={files} user={user} />}
         above={
           <>
-            {files && user && !user.canSave && <p className="mo-editor-read-only-bar">{t.app.cannotSave(user.login)}</p>}
+            {files && user && !user.canSave && (
+              <SiteCard kind="outlined" role="status" className="mo-type-body-medium mo-editor-read-only-bar">
+                {t.app.cannotSave(user.login)}
+              </SiteCard>
+            )}
             <BuildProgress />
           </>
         }

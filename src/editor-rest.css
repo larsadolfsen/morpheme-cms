@@ -303,7 +303,7 @@
   }
   .mo-editor-footer-spacing {
     margin-block-start: auto;
-    padding-block-start: var(--mo-comp-editor-rhythm-300);
+    padding-block-start: var(--mo-ref-space-300);
   }
   .mo-editor-footer-row {
     padding-block-start: var(--mo-ref-space-50);
@@ -317,7 +317,7 @@
   }
   .mo-editor-footer-link {
     display: inline-flex;
-    min-block-size: 2.25rem;
+    min-block-size: 3rem;
     align-items: center;
     justify-content: center;
     gap: var(--mo-ref-space-50);
@@ -334,16 +334,10 @@
   }
   .mo-editor-footer-copyright {
     display: inline-flex;
-    min-block-size: 2.25rem;
+    min-block-size: 3rem;
     align-items: center;
     padding-inline: var(--mo-ref-space-150);
     color: var(--mo-sys-color-on-surface-variant);
-  }
-  .mo-editor-footer-divider {
-    block-size: 1rem;
-    inline-size: 1px;
-    flex-shrink: 0;
-    background-color: var(--mo-sys-color-outline-variant);
   }
   .mo-editor-logo-link {
     display: flex;
@@ -351,13 +345,12 @@
     flex-shrink: 0;
     align-items: center;
     gap: var(--mo-ref-space-150);
-    font-weight: 600;
   }
   .mo-editor-logo-image {
     inline-size: 1.75rem;
     block-size: 1.75rem;
     flex-shrink: 0;
-    border-radius: 0.5rem;
+    border-radius: var(--mo-sys-shape-corner-small);
   }
   /* The site's name beside the logo: cut short, and only for a screen reader below the expanded width. */
   .mo-editor-logo-name {
