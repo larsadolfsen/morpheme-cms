@@ -120,7 +120,8 @@ for (const file of files) {
     }
     if (!/^src\/i18n\//.test(file))
       for (const m of line.matchAll(/var\((--mo-[\w-]+)\s*([,)])/g)) {
-        if (m[2] === ')' && !roleNames.includes(m[1]) && !/^--mo-(elevation|space|shape)-$/.test(m[1]))
+        // A reference palette tone (--mo-ref-palette-primary40) is made at build from the site's source colour (lib/ref-palette.ts), so no stylesheet defines it.
+        if (m[2] === ')' && !roleNames.includes(m[1]) && !/^--mo-(elevation|space|shape)-$/.test(m[1]) && !/^--mo-ref-palette-/.test(m[1]))
           add('undefined-role', file, n, line, `${m[1]} is defined nowhere`);
       }
     if (/hover|pressed|focus|drag|disabled/.test(line))
