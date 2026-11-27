@@ -356,14 +356,15 @@ async function checkSelection() {
     await sheet.waitFor();
     await page.waitForTimeout(600);
     const items = sheet.locator('[role=checkbox], .mo-list__item-container', { hasText: /Selection check/ });
-    // The sheet's buttons are outlined error buttons: "Clear" with nothing selected, "Delete selected" while some are.
-    const outlinedError = async (name, what) => {
+    // "Clear" is a text button (lowest emphasis); "Delete selected", shown while some are selected, is an outlined error button.
+    const buttonKind = async (name, what, kind, error) => {
       const button = page.getByRole('button', { name }).first();
       const cls = (await button.count()) ? ((await button.getAttribute('class')) ?? '') : '';
-      if (!/\bmo-is-error\b/.test(cls) || !/\bmo-is-outlined\b/.test(cls))
-        problems.push(`${label}: the notifications' ${what} is not an outlined error button (${cls || 'not found'})`);
+      if (!new RegExp(`\\bmo-is-${kind}\\b`).test(cls) || /\bmo-is-error\b/.test(cls) !== error)
+        problems.push(`${label}: the notifications' ${what} is not a ${kind}${error ? ' error' : ''} button (${cls || 'not found'})`);
     };
-    await outlinedError(/^Clear$/, 'Clear');
+    const outlinedError = (name, what) => buttonKind(name, what, 'outlined', true);
+    await buttonKind(/^Clear$/, 'Clear', 'text', false);
     if ((await items.count()) !== 3) {
       problems.push(`${label}: the notifications sheet does not show the three seeded notifications`);
     } else if (touch) {
