@@ -1,9 +1,50 @@
 # The customizer (notes)
 
 Status: **notes, 21 November 2026.** No version, plan or design yet. This file is where the owner's decisions about a customizer are kept
-until a design is written. Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md`, *Ideas without a version*.
+until a design is written. Roadmap: `plans/2026-11-14-roadmap-0-18-to-0-24.md`, *3.1 The customizer*, major 4 (owner, 27 Nov 2026).
 
 The customizer is where a site owner changes the theme's steps without code. It works for every theme, not only Material.
+
+## Tokens, not code
+
+Owner, 27 Nov 2026: "The customizer will not change code, but change tokens". The customizer writes token values only, in the `custom`
+layer below: never a theme's or a block's code, CSS rules or markup. What it can change is what a theme exposes as a token; a look
+that has no token gets one in the theme first. Example (owner, 27 Nov 2026: "Eg. Increase elevation of an element"): a card's
+elevation goes from level 1 to level 3 by setting its component token (`--mo-comp-card-…-elevation`) to another of M3's levels, in
+the `custom` layer; the card's code is untouched. And for the whole site (owner, 27 Nov 2026: "Or the border radius of the site"): the corners of
+every part change by setting the shape scale's tokens (`--mo-sys-shape-corner-*`) to other steps. So the customizer works at two
+levels: the system's tokens for the whole site, and a component's tokens for one kind of part. It is a major release, 4.0, built in line 3.1 (owner, 27 Nov 2026: "It is a major
+release").
+
+## The customizer is the Style screen
+
+Owner, 27 Nov 2026, with screenshots of the editor: "We already have it in motion and color. These are the customizer sections". The
+customizer is the editor's *Style* screen and its sections: Color, Elevation, Icons, Motion, Shape, Spacing and Typography. Color and
+Motion already let the owner choose (Motion: *Expressive*, *Standard* and *Calm*, with the theme's choice marked; `MotionSchemes` in
+`src/Library.tsx`, `lib/motion.ts`); the others show the theme's tokens. Line 3.1 makes every section choosable the same way: named
+choices the CMS defines on the shared `--mo-` tokens, each a set of token steps, with the theme's choice as the default. Because the
+choices are the CMS's and set tokens every theme already reads, they need no contract change.
+
+*Icons* is the icon set the site draws with (owner, 27 Nov 2026: "Icons is the icon set that is active eg. Lucide or material"):
+Material Symbols, or a pack installed from the store, such as Phosphor, or Lucide once it is back (0.32.0). It picks a pack, not a
+token; a pack is files keyed by Material Symbols' names (`CLAUDE.md`, *Icons are Material Symbols*), so no code changes either.
+
+*Typography* includes choosing and importing new fonts (owner, 27 Nov 2026: "It also includes choosing and importing new fonts"). A
+chosen font sets the typeface tokens (M3's brand and plain typefaces, `--mo-ref-typeface-*`); the type scale's roles read them. Points
+for the design: the font's files are saved in the site and served from it, not loaded from another host, so no visitor's address goes
+to a font service and the site's CSP needs no new host (`lib/csp.mjs`); only fonts with an open licence that allows it (such as the
+SIL Open Font License) are imported, with the licence kept beside the files; and a font that lacks a weight or a script the site
+needs is shown as such before it is chosen.
+
+Fonts can also come from the store, and be sold there (owner, 27 Nov 2026: "People may sell fonts in the store"): a font becomes a store
+item kind beside themes, apps and icon packs, free or paid (the marketplace, 3.0). A store font carries its seller's licence for the
+site; the open-licence rule above is for fonts the owner imports. Like an icon pack it is files only, with no code and no install
+scripts. *Typography* picks from the fonts the site has, imported or installed.
+
+Google Fonts come first, before 2.0, as roadmap line 1.6 (owner, 27 Nov 2026: "We will start by offering Google fonts. Add Google
+fonts before 2.0. this make it easy for vibe coders to change font."), downloaded into the site and served from it. Fonts the
+person uploads through their AI come in the same line (owner, 27 Nov 2026: "And we need to support custom uploaded fonts through the
+ai"); for those the person confirms the licence allows web use, since no open licence comes with them.
 
 ## Customization is not a deviation
 
@@ -104,10 +145,7 @@ A theme needs no change. CSS outside a layer beats every layer, so nothing is le
 - **The menu's edge** (owner, 21 November 2026: "I agree with them, but this is customization"). M3 puts the navigation drawer on the
   start edge, and so does the standard; a site owner may put the menu and its button on the end edge. It is already a setting
   (`menuSide`, *Globals › Header*) and moves into the customizer when there is one.
-- **Component levels** (moved from 0.22.2; owner, 20 November 2026: "Agreed on moving 0.22.2").
-  - Each component's level is a number that expands into its `--mo-comp-*` tokens (colour, shape, density), the component-token
-    direction of `specs/2026-11-17-list-to-cards-design.md`.
-  - It changes the contract (`THEME_API`, `APP_API`; a new contract is never major) and reads the steps table of 0.22.0.
-  - Written 20 November as "never elevation", because a component keeps M3's level (M3: "Avoid changing the default elevation of Material
-    components"). That applies to a theme's own defaults. *Block looks* lets a site owner change elevation as a customization, not a
-    deviation, so the design settles how the two fit.
+- **Component levels: dropped** (owner, 27 Nov 2026: "It shouldn't change the contract because I already told you to implement elevation
+  as a state"). Elevation is already tokens per state (`--mo-sys-elevation-levelN-rest-shadow` and the level's shadow,
+  `specs/2026-11-20-elevation-design.md`), so the customizer sets those tokens and no part needs a level that themes would have to
+  define. The customizer changes no contract.
