@@ -1479,7 +1479,7 @@ html {
 .mo-editor-text .mo-site-block-lines {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: var(--mo-ref-space-25);
   padding: 0 0.25rem;
   color: var(--mo-sys-color-on-surface-variant);
   font-size: 0.875rem;

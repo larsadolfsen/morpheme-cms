@@ -310,7 +310,7 @@ export function ToolbarButton({
           kind="text"
           size="xsmall"
           icon={Glyph && <Glyph />}
-          trailingIcon={<MaterialIcon name="keyboard_arrow_down" size={12} />}
+          trailingIcon={<MaterialIcon name="keyboard_arrow_down" size={18} />}
           aria-label={label}
           className="mo-toolbar__menu-button"
           style={toolbarMenuSize}
@@ -1407,7 +1407,7 @@ export function FoldItem({
       leading={
         <MaterialIcon
           name="keyboard_arrow_right"
-          size={14}
+          size={20}
           className={`mo-keep mo-editor-fold-arrow ${open ? 'mo-editor-fold-arrow-open' : ''}`}
         />
       }

@@ -300,7 +300,6 @@ there is nothing to deviate from. The theme uses the nearest M3 pattern or the o
 - **The lightbox:** M3 prints no lightbox or image viewer; the theme's `Lightbox` is a modal dialog with the dialog's container and corner, sized to the window. Its see-through scrim colour is the colour batch's (batch 8).
 - **Palette:** a command palette made of the Search view (`Ctrl+K`); M3 has no page for one.
 - **Choice group:** a small sample of a look in a row's trailing slot.
-- **The FAB above the footer:** M3 says nothing about a footer under a FAB; the FAB lifts 16 dp above it.
 - **A bottom sheet's content padding:** the grid margin; M3 prints no padding for what is in a sheet.
 - **The site's text measure:** 40ch to 60ch (owner's rule); M3 prints no text width.
 - **Button group toggles:** `aria-pressed` in a `role="group"`; M3 prints no ARIA roles for them.
@@ -339,8 +338,8 @@ there is nothing to deviate from. The theme uses the nearest M3 pattern or the o
 ### CAR2. The Cards block's carousel has Show all below it, with or without a heading
 
 - **Material:** Carousel, Accessibility (read 24 Nov 2026, m3.material.io/components/carousel/accessibility): "Material recommends adding a Show all button below the carousel" for carousels without headers, "The Show all button should have a padding of 4dp"; "If the carousel has a header, you can use an arrow icon button instead"; not required for full-screen carousels.
-- **We do:** the Cards block's carousel (`phone: 'carousel'`) has a `Show all` text button below it (4dp padding) whether or not the block has a heading, and none on the full-screen layout. It stacks the cards in place instead of opening a page of all items. M3's page indicator is not used: the block's carousel has no dots.
-- **Why:** a block has no page of its own to open, so the button stacks the cards where they stand; the text button keeps one pattern for every Cards block.
+- **We do:** the Cards block's carousel (`phone: 'carousel'`) has a `Show all` outlined button below it (4dp padding) whether or not the block has a heading, and none on the full-screen layout. It stacks the cards in place instead of opening a page of all items. M3's page indicator is not used: the block's carousel has no dots.
+- **Why:** a block has no page of its own to open, so the button stacks the cards where they stand; the outlined button keeps one pattern for every Cards block.
 - **Date:** 2026-11-24.
 
 ## The site's keyboard use (0.19.3, WCAG 2.2 AA; owner approval through the PM, 21 Nov 2026)

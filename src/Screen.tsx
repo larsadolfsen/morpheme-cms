@@ -340,7 +340,7 @@ export default function Screen<T extends string>({
                     >
                       {c.label}
                     </a>
-                    <Icon name="keyboard_arrow_right" size={14} className="mo-keep" />
+                    <Icon name="keyboard_arrow_right" size={18} className="mo-keep" />
                   </span>
                 ))}
               </nav>

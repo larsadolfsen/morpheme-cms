@@ -499,7 +499,7 @@ export default function Redirects({ env, tab }: { env: Env; tab?: Tab }) {
                   headline={e.from}
                   supporting={
                     <span className="mo-editor-target-row">
-                      <Icon name="arrow_forward" size={14} className="mo-editor-target-icon" />
+                      <Icon name="arrow_forward" size={18} className="mo-editor-target-icon" />
                       <span className="mo-editor-settings-wrap">{name(e.to)}</span>
                     </span>
                   }

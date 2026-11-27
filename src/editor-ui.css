@@ -592,7 +592,7 @@
   }
   .mo-editor-check-fix {
     padding-inline: var(--mo-ref-space-200);
-    padding-inline-start: 2.75rem;
+    padding-inline-start: var(--mo-ref-space-600);
     padding-block-end: var(--mo-comp-editor-rhythm-150);
     color: var(--mo-sys-color-on-surface-variant);
   }
