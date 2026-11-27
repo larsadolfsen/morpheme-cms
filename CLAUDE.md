@@ -2,7 +2,9 @@
 
 **Morpheme is a blazingly fast and user-friendly CMS built for modern coding** (owner, 19 Nov 2026). Weigh every choice
 against it, in this order (owner, 27 Nov 2026: "First user > developers/llms > income"): first the people who use it (site owners and
-writers), then developers and LLMs (clear contracts, docs and checks they can build with), then income.
+writers), then vibe coders, people who build
+with AI and are not developers, and the AI they use (owner, 27 Nov 2026: "Vibe coders are not developers! This means it must be simple
+for them"), then income.
 
 The rules every agent session in `@morphemecms/cms` follows. `AGENTS.md` points here. A `README.md` is written for
 people: no agent reads one for rules, and no rule lives in one.
