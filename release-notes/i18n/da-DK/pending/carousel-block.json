@@ -1,0 +1,7 @@
+{
+  "id": "carousel-block",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Karrusel er en blok for sig",
+  "text": "En karrusel og et gitter er ikke det samme, så Karrusel er nu en blok for sig. Vælg en visning (Multibrowse, Uindrammet, Uindrammet med flere billedformater, Hero, Centreret hero eller Fuld skærm) og tilføj billeder eller videoer. I de uindrammede visninger kan et punkt også være et kort i den udgave, du valgte: Med kant, Udfyldt eller Hævet. Kort er altid et gitter, og en Kort-blok, der var en karrusel, bliver til en Karrusel-blok, når dit site opdateres."
+}

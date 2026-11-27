@@ -20,9 +20,9 @@ function bodies(css, name, prefix = '') {
 /** What a theme's CSS leaves unstyled: a design without a surface (a background), a colour without a surface or text colour. */
 export function cardDesignProblems(css) {
   const problems = [];
-  // Cards that are a carousel on phones: the row is the theme's, scrolled sideways (`overflow-x`), under .mo-block-cards__carousel.
-  if (!bodies(css, 'mo-block-cards__carousel').some((b) => /overflow-x\s*:\s*(auto|scroll)/.test(b)))
-    problems.push('the Cards carousel on phones (.mo-block-cards__carousel) does not scroll sideways (no overflow-x: auto)');
+  // The Carousel block: the row is the theme's, scrolled sideways (`overflow-x`), under .mo-block-carousel.
+  if (!bodies(css, 'mo-block-carousel').some((b) => /overflow-x\s*:\s*(auto|scroll)/.test(b)))
+    problems.push('the Carousel block (.mo-block-carousel) does not scroll sideways (no overflow-x: auto)');
   for (const design of CARD_DESIGNS) {
     if (!bodies(css, `mo-is-${design}`, '(?::where\\()?\\.mo-card\\)?').some((b) => /(^|[;\s])background(-color)?\s*:/.test(b)))
       problems.push(`the card design "${design}" (.mo-card.mo-is-${design}) has no background`);

@@ -57,7 +57,7 @@ import { sectionFrame } from './sectionFrame';
 import { IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock, type RowSpec, type SheetTarget } from './BlockDialog';
 import { cropView } from './CropView';
 import { Icon } from './icon';
-import { aspectProp, layoutOf, ratioProp } from './standard/cards/view';
+import { ratioProp } from './standard/cards/view';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
 import { editsInPanel, liveSheet } from './sheetPlacement.mjs';
@@ -2430,12 +2430,7 @@ function blockCard(
           media: { actions: [{ label: t.forms.changeMedia, action: () => reopen('kinds') }] },
         };
       const image = isImageKind(k);
-      const ratioNow =
-        k === 'image' && !spec!.grid
-          ? layoutOf(node.attrs.props) === 'multi-aspect-ratio'
-            ? aspectProp(r.aspect)
-            : ratioProp(node.attrs.props)
-          : '';
+      const ratioNow = k === 'image' && !spec!.grid ? ratioProp(node.attrs.props) : '';
       // The Alt text view is the panel with the Alt text field under it: the media's actions stay.
       const altView = mediaMode === 'alt';
       return {

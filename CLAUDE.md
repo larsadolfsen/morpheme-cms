@@ -153,7 +153,7 @@ Worker, the starter or the demo is a pull request here.
 
 ### The standard blocks
 
-The blocks every site has, without an app: `buttons`, `cards`, `cookies`, `expand`, `imagegrid`, `list`, `notice`, `posts`,
+The blocks every site has, without an app: `buttons`, `cards`, `carousel`, `cookies`, `expand`, `imagegrid`, `list`, `notice`, `posts`,
 `pricecards`, `steps`, `table`, `testimonials` and `video`. Each has its contract (type, fields, rules, texts, `viewOf.ts`,
 `load.ts`) in `src/standard/<type>/` and its look (`View.tsx`, CSS) in `theme/blocks/<type>/`, and one page on the demo
 (`/blocks/<type>/`). `checklist` is a former block (check lists are typed in the text) and the hero went in 0.18 (`lib/migrate-hero.mjs`):
