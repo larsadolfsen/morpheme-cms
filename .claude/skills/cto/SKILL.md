@@ -77,7 +77,7 @@ approach within the owner's decisions, and every question the order of priority 
   where a feature goes are weighed first for the people who use the CMS (site owners and writers), then for vibe coders, people
   who build with AI and are not developers, and the AI they use (owner, 27 Nov 2026: "Vibe coders are not developers! This means it
   must be simple for them"), then for income. An X.0 release is where a major's goal is reached (1.0 user-friendly, 2.0 simple for
-  vibe coders, 3.0 a marketplace with paid products, 4.0 more features); the lines before it work towards it. The order is in `CLAUDE.md`, at the top.
+  vibe coders, 3.0 a marketplace with paid products, 4.0 the customizer, 5.0 more features); the lines before it work towards it. The order is in `CLAUDE.md`, at the top.
 - **Draft until approved.** A spec or plan says "waiting for the owner's approval" until the owner approves it in words; only then is it
   marked approved and sent to the PM. The CTO never presents a draft as decided.
 
