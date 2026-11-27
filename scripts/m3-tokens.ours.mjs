@@ -19,11 +19,6 @@ export const ours = [
       "A block's own token (the blocks' look: colours, radii, gutters, widths); blocks are not M3 components (spec 2026-11-20-material-3-names-design.md, rule 4).",
   },
   {
-    token: '--mo-comp-avatar-wave-*',
-    reason:
-      "The tone of a placeholder thumbnail in the page list (task 24, owner 27 Nov 2026): a tone of M3's primary tonal palette (md.ref.palette.primary10 to 90) by the row's place, a container and its on-colour; M3 Lists prints a leading avatar in the primary container only.",
-  },
-  {
     token: '--mo-comp-avatar-size',
     reason: 'A size or spacing M3 prints only on its specs page, not as a token; it goes to docs/m3-tokens/printed.json in batch B.',
   },
