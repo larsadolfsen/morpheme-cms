@@ -20,24 +20,22 @@
   }
 
   /* A placeholder thumbnail in a list (.mo-avatar-placeholder): the size and the corner of the list's image thumbnail, so a row with no image is as
-     high as one with an image; .mo-avatar-wave-0..2 is the tone by the row's place in the wave (tokens/ui/comp/avatar.css), each falling back to the
-     primary container when the site has no tonal palette. */
+     high as one with an image. Every one has the same light container, M3's primary tonal palette tone 80 in light mode and tone 30 in dark mode
+     (md.ref.palette.primary80 and primary30, made at build from the site's dynamic source, lib/ref-palette.ts), with tone 10 letters in light mode and tone 90
+     in dark mode (light-dark() follows the root's color-scheme). A site with hand-set colours has no palette: it falls back to the primary container and its
+     on-colour. */
   .mo-avatar-placeholder {
     --mo-comp-avatar-size: var(--mo-comp-list-item-image-size, 3.5rem);
     --mo-comp-avatar-container-shape: var(--mo-comp-list-item-image-radius, var(--mo-sys-shape-corner-small));
+    --mo-comp-avatar-container-color: light-dark(
+      var(--mo-ref-palette-primary80, var(--mo-sys-color-primary-container)),
+      var(--mo-ref-palette-primary30, var(--mo-sys-color-primary-container))
+    );
+    --mo-comp-avatar-label-text-color: light-dark(
+      var(--mo-ref-palette-primary10, var(--mo-sys-color-on-primary-container)),
+      var(--mo-ref-palette-primary90, var(--mo-sys-color-on-primary-container))
+    );
     font-size: var(--mo-sys-typescale-title-medium-size);
     letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
-  }
-  :is(.mo-avatar-wave-0, .mo-avatar-wave-1, .mo-avatar-wave-2) {
-    --mo-comp-avatar-label-text-color: var(--mo-comp-avatar-wave-label-color, var(--mo-sys-color-on-primary-container));
-  }
-  .mo-avatar-wave-0 {
-    --mo-comp-avatar-container-color: var(--mo-comp-avatar-wave-0, var(--mo-sys-color-primary-container));
-  }
-  .mo-avatar-wave-1 {
-    --mo-comp-avatar-container-color: var(--mo-comp-avatar-wave-1, var(--mo-sys-color-primary-container));
-  }
-  .mo-avatar-wave-2 {
-    --mo-comp-avatar-container-color: var(--mo-comp-avatar-wave-2, var(--mo-sys-color-primary-container));
   }
 }
