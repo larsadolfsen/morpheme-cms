@@ -487,9 +487,10 @@
   }
   .mo-editor-screen-content {
     min-inline-size: 0;
-    &[data-clearance='true'] {
-      margin-block-end: var(--mo-comp-fab-room);
-    }
+  }
+  /* The room under the footer for the FAB, so that scrolled to the end nothing, the footer included, is hidden under it. */
+  .mo-editor-screen-main[data-clearance='true'] {
+    padding-block-end: calc(var(--mo-comp-fab-room) + env(safe-area-inset-bottom));
   }
   .mo-editor-screen-narrow-only {
     @media (width >= 52.5rem) {

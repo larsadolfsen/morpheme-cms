@@ -26,7 +26,7 @@
   --mo-comp-editor-menu-surface: var(--mo-sys-color-surface-container-lowest);
   --mo-comp-editor-menu-shadow: var(--mo-sys-elevation-level2-shadow);
 
-  /* The room a screen leaves above its footer for the FAB (Screen.tsx data-clearance): the FAB's 56 dp and its 16 dp margins. */
+  /* The room a screen leaves under its footer for the FAB (Screen.tsx data-clearance): the FAB's 56 dp and its 16 dp margin. */
   --mo-comp-fab-room: 4.5rem;
 
   /* How a check went (CheckList: the SEO rating), as PageSpeed shows it: the mark before a check that is fine and one
@@ -667,6 +667,10 @@
 }
 
 @media (width >= 37.5rem) {
+  :root {
+    /* The FAB's 56 dp and its 24 dp margin at the window's layout margin. */
+    --mo-comp-fab-room: 5rem;
+  }
   .mo-editor-fab {
     --mo-editor-fab-margin: 1.5rem;
   }

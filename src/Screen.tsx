@@ -13,7 +13,7 @@
 // off-centre only as far as the panels beside it require.
 // Under the content of every screen is the editor's footer (EditorFooter.tsx), at the bottom of the window when the content
 // is short (the screen fills the column under the bar, TopBarLayout). While the screen has a floating action button
-// (fabPresence.tsx), the content leaves room for it above the footer (data-clearance, --mo-comp-fab-room); the FAB stands at the
+// (fabPresence.tsx), the screen leaves room for it under the footer (data-clearance, --mo-comp-fab-room); the FAB stands at the
 // window's margin (editor.css).
 import { useContext, useEffect, useId, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';

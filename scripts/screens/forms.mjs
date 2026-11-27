@@ -530,7 +530,7 @@ async function checkDangerAlign(width, height, dir) {
     if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();
     // The danger buttons (tone="error"; owner, 26 Nov 2026): Delete page filled, Discard outlined, both in the error role, the first at the leading edge of the section's flow.
     const rows = await danger
-      .locator(':scope > div')
+      .locator('.mo-editor-danger-buttons')
       .getByRole('button')
       .evaluateAll((els) => {
         const box = els[0]?.parentElement?.getBoundingClientRect();
