@@ -136,7 +136,9 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
               <PhotoCredit by={edition.by} line={edition.line} />
             </p>
           )}
-          {news.length > 0 && <p className="mo-type-body-medium mo-editor-updates-notice-counts">{t.library.noteCounts(features, improvements)}</p>}
+          {news.length > 0 && (
+            <p className="mo-type-body-medium mo-editor-updates-notice-counts">{t.library.noteCounts(features, improvements)}</p>
+          )}
           <div className="mo-editor-updates-notice-actions">
             <Button kind="outlined" onClick={close}>
               {t.common.close}

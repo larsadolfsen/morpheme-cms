@@ -642,7 +642,6 @@
   }
 }
 
-
 /* The screen's main actions (FabMenu in ui.tsx) at the bottom right, above the content; the messages above them. */
 .mo-editor-fab {
   --mo-editor-fab-margin: 1rem;

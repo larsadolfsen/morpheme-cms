@@ -466,11 +466,7 @@ export default function Parts({ env }: { env: Env }) {
                 <ul className={listClass}>
                   <ListItem headline={sample.versionNow} />
                   <ListItem disabled headline={t.library.pageGone} />
-                  <ListItem
-                    onClick={() => {}}
-                    leading={<MaterialIcon name="logout" size={20} />}
-                    headline={t.library.logOut}
-                  />
+                  <ListItem onClick={() => {}} leading={<MaterialIcon name="logout" size={20} />} headline={t.library.logOut} />
                 </ul>
               </section>
             </Part>
