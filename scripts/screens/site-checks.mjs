@@ -95,7 +95,7 @@ async function checkHints() {
 /** The footer links have a target at least 48 px high (task 13, batch 2, test 9; M3: "For most platforms, consider making touch targets at least 48 x 48dp"). The old 36 px exception (FL1) is gone. */
 const FOOTER_LINK_HEIGHT = 48;
 
-/** The editor's footer links (Support, System status, the legal links, Licenses) are at least 48 px high at 320, 375 (touch) and 1280 px, as wide as their label plus 24 px of their own padding, never overlapping, with no sideways scroll; the lines of a wrapped row are 8px apart or more; the dividers are the Divider part, vertical, 1 px wide and centred on the row. */
+/** The editor's footer links (Support, System status, the legal links, Licenses) are at least 48 px high at 320, 375 (touch) and 1280 px, as wide as their label plus 24 px of their own padding, never overlapping, with no sideways scroll; the lines of a wrapped row are 8px apart or more; the row has no vertical dividers (owner, 27 Nov 2026). */
 async function checkFooterTargets(width, touch) {
   const page = await browser.newPage({ viewport: { width, height: touch ? 800 : 900 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${width}px footer links: ${e.message}`));
@@ -110,10 +110,7 @@ async function checkFooterTargets(width, touch) {
       range.selectNodeContents(text);
       return { name: a.textContent.trim(), ...box(a), labelWidth: range.getBoundingClientRect().width };
     });
-    const dividers = [...document.querySelectorAll('footer nav [data-divider]')].map((d) => ({
-      ...box(d),
-      visible: getComputedStyle(d).visibility !== 'hidden',
-    }));
+    const dividers = document.querySelectorAll('footer nav [data-divider], footer nav [role=separator], footer nav hr').length;
     return { links, dividers, scrolls: document.documentElement.scrollWidth > document.documentElement.clientWidth };
   });
   const boxes = got.links;
@@ -135,11 +132,7 @@ async function checkFooterTargets(width, touch) {
       if (sameLine && a.left < b.left && a.right > b.left + 0.5)
         problems.push(`${width}px footer links "${a.name}" and "${b.name}" overlap`);
     }
-  for (const d of got.dividers.filter((x) => x.visible)) {
-    if (Math.abs(d.width - 1) > 0.5) problems.push(`${width}px footer divider is ${d.width}px wide, not 1`);
-    const row = boxes.find((l) => Math.abs(l.top + l.height / 2 - (d.top + d.height / 2)) < 1);
-    if (!row) problems.push(`${width}px footer divider is not centred on a link`);
-  }
+  if (got.dividers) problems.push(`${width}px footer links: ${got.dividers} vertical divider(s) between them, should be none`);
   if (got.scrolls) problems.push(`${width}px footer: the page scrolls sideways`);
   await page.close();
 }

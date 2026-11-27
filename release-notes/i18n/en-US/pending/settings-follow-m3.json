@@ -2,5 +2,5 @@
   "id": "settings-follow-m3",
   "kind": "line",
   "mark": "improvement",
-  "text": "Settings, release notes, updates, apps and the stores use Material 3’s text sizes, corners and spacing, and links such as Read more and See the build are links, not buttons"
+  "text": "Settings, release notes, updates, apps and the stores use Material 3’s text sizes, corners and spacing, and links such as Read more and See the build are links, not buttons, and the footer has no lines between its links"
 }
