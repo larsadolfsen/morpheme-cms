@@ -55,7 +55,7 @@ export default function SelectionBar({
       ) : (
         <>
           {children}
-          <Button kind="outlined" icon={materialIcon('close')} onClick={onClose}>
+          <Button kind="text" icon={materialIcon('close')} onClick={onClose}>
             {t.library.cancelSelection}
           </Button>
         </>

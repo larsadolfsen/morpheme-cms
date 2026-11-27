@@ -12,7 +12,7 @@ import { unfinishedOf } from '../unfinished.mjs';
 import { useStartData } from '../startData';
 import type { WidgetProps } from '../widgets';
 import { SiteCard } from '../themeUi';
-import { ListItem, keep, plainListClass } from '../ui';
+import { ListItem, LinkButton, keep, plainListClass } from '../ui';
 
 /** How many drafts the card shows. */
 const shown = 3;
@@ -59,9 +59,9 @@ export function UnfinishedWidget({ editing }: WidgetProps) {
       )}
       {rows.length > shown && (
         <div className="mo-editor-widget-more">
-          <a className="mo-link" href={`#list/${rows[0].collection}`} onClick={() => keep(`${rows[0].collection}-status`, 'unfinished')}>
+          <LinkButton kind="text" href={`#list/${rows[0].collection}`} onClick={() => keep(`${rows[0].collection}-status`, 'unfinished')}>
             {t.library.unfinishedShowAll}
-          </a>
+          </LinkButton>
         </div>
       )}
     </SiteCard>

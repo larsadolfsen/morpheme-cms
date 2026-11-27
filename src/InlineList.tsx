@@ -102,7 +102,7 @@ export default function InlineList({
     if (!here)
       return b?.label ? (
         <div className="mo-block-accordion__row-links">
-          <SiteButton kind="outlined">{b.label}</SiteButton>
+          <SiteButton kind="text">{b.label}</SiteButton>
         </div>
       ) : null;
     if (!onPick || !buttonHref) return null;
@@ -355,20 +355,20 @@ export function RowsFromList({
       {undo && (
         <p className="mo-editor-inline-list-from">
           {undo.note}{' '}
-          <SiteButton kind="outlined" className="mo-editor-inline-list-edit" onClick={undo.run}>
+          <SiteButton kind="text" className="mo-editor-inline-list-edit" onClick={undo.run}>
             {undo.label}
           </SiteButton>
         </p>
       )}
       {editList && (
-        <SiteButton kind="outlined" className="mo-editor-inline-list-edit" onClick={editList}>
+        <SiteButton kind="text" className="mo-editor-inline-list-edit" onClick={editList}>
           {t.blocks.rows.editList}
         </SiteButton>
       )}
       {parts && onPart && (
         <div className="mo-editor-inline-list-parts" role="group" aria-label={t.blocks.rows.fieldShown}>
           {parts.map((p) => (
-            <SiteButton key={p.part} kind="outlined" className="mo-editor-inline-list-edit" onClick={() => onPart(p.part)}>
+            <SiteButton key={p.part} kind="text" className="mo-editor-inline-list-edit" onClick={() => onPart(p.part)}>
               {p.text}
             </SiteButton>
           ))}

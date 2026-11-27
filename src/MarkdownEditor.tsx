@@ -2475,7 +2475,7 @@ function blockCard(
                 ]
               : []),
             ...(image ? [{ label: t.blocks.picture.alt, action: () => reopen('alt') }] : []),
-            ...(image ? [{ label: t.common.remove, kind: 'outlined' as const, action: () => putRow(i, { image: '', alt: '' }) }] : []),
+            ...(image ? [{ label: t.common.remove, kind: 'text' as const, action: () => putRow(i, { image: '', alt: '' }) }] : []),
           ],
         },
       };

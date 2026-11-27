@@ -9,6 +9,7 @@ import { useId } from 'react';
 import PageRow from '@theme/blocks/expand/PageRow';
 import { leadingProps } from '@morphemecms/cms/src/standard/list/leading';
 import { Svg } from '@morphemecms/cms/src/icon';
+import Button from '@theme/ui/Button';
 import List, { ListItem } from '@theme/ui/List';
 import type { AccordionRow } from '@morphemecms/cms/src/standard/expand/view';
 
@@ -65,15 +66,15 @@ export default function Accordion({
               {(row.href && row.link) || ('buttons' in row && row.buttons) ? (
                 <div className="mo-block-accordion__row-links">
                   {row.href && row.link && (
-                    <a className="mo-link" href={row.href}>
+                    <Button kind="text" href={row.href}>
                       {row.link}
-                    </a>
+                    </Button>
                   )}
                   {'buttons' in row &&
                     row.buttons?.map((b, n) => (
-                      <a key={n} className="mo-link" href={b.href}>
+                      <Button key={n} kind="text" href={b.href}>
                         {b.label}
-                      </a>
+                      </Button>
                     ))}
                 </div>
               ) : null}

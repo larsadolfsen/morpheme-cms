@@ -245,7 +245,7 @@ export default function Deleted({ id, files, env }: { id: string; files: RepoFil
             onClose={selection.clear}
           >
             {images && selection.count === 1 && (
-              <Button kind="outlined" disabled={busy} onClick={() => open((deleted ?? []).find((f) => selection.keys.includes(f.path))!)}>
+              <Button kind="text" disabled={busy} onClick={() => open((deleted ?? []).find((f) => selection.keys.includes(f.path))!)}>
                 {t.history.preview}
               </Button>
             )}

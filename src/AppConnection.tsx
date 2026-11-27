@@ -69,12 +69,12 @@ export default function AppConnection({ app }: { app: SiteApp }) {
         {state.auth === 'none' ? (
           <SupportingText>{t.apps.mcpConnected}</SupportingText>
         ) : ready ? (
-          <Button kind="outlined" disabled={busy} onClick={disconnect}>
+          <Button kind="text" disabled={busy} onClick={disconnect}>
             {t.apps.mcpDisconnect}
           </Button>
         ) : (
           <Button
-            kind="outlined"
+            kind="text"
             disabled={busy || (state.auth === 'token' && !token.trim())}
             onClick={() =>
               call({

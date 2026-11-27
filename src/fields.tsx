@@ -1118,7 +1118,7 @@ export function MenuList({
                 {t.common.cancel}
               </Button>
               {!editing.fresh && (
-                <Button kind="outlined" icon={materialIcon('delete')} onClick={remove}>
+                <Button kind="text" icon={materialIcon('delete')} onClick={remove}>
                   {t.common.remove}
                 </Button>
               )}
@@ -1197,7 +1197,7 @@ export function MenuList({
               done={editing.fresh ? t.forms.add : t.common.save}
               start={
                 !editing.fresh && (
-                  <Button kind="outlined" icon={materialIcon('delete')} onClick={remove}>
+                  <Button kind="text" icon={materialIcon('delete')} onClick={remove}>
                     {t.common.remove}
                   </Button>
                 )
@@ -1215,7 +1215,7 @@ export function MenuList({
 function AddItem({ field, sub = false, onClick }: { field: Field; sub?: boolean; onClick: () => void }) {
   return (
     <Button
-      kind="outlined"
+      kind="text"
 
       icon={materialIcon('add')}
       className={sub ? 'mo-editor-field-add-nested' : 'mo-editor-field-add-text'}

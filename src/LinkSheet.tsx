@@ -121,7 +121,7 @@ export function LinkAsk({ groups }: { groups: Group[] }) {
     </>
   );
   const remove = old && (
-    <Button kind="outlined" icon={materialIcon('delete')} onClick={() => done({ href: '', text: '' })}>
+    <Button kind="text" icon={materialIcon('delete')} onClick={() => done({ href: '', text: '' })}>
       {t.text.removeLink}
     </Button>
   );
