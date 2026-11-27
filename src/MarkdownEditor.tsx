@@ -3472,7 +3472,11 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
   }, [noBlock, settingsShown, activeNames, levelNames]);
   useLayoutEffect(() => {
     const bar = toolbar.current!;
-    const measure = () => setBarWidth(bar.clientWidth);
+    // The bar's inside width (planBar, textBar.mjs): the client width less the docked bar's own side padding, which the tools do not get.
+    const measure = () => {
+      const style = getComputedStyle(bar);
+      setBarWidth(bar.clientWidth - (parseFloat(style.paddingLeft) || 0) - (parseFloat(style.paddingRight) || 0));
+    };
     measure();
     const watch = new ResizeObserver(measure);
     watch.observe(bar);

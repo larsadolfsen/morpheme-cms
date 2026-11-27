@@ -67,6 +67,8 @@ async function checkTextBar(width = 360) {
         buttonBox: button && button.getBoundingClientRect().toJSON(),
         height: bar.getBoundingClientRect().height,
         barWidth: bar.clientWidth,
+        // What the tools get (planBar): the client width less the bar's side padding.
+        innerWidth: bar.clientWidth - parseFloat(getComputedStyle(bar).paddingLeft) - parseFloat(getComputedStyle(bar).paddingRight),
         names: buttons.map((b) => b.name),
         buttons,
         scrolls: bar.scrollWidth > bar.clientWidth + 2,
@@ -87,7 +89,7 @@ async function checkTextBar(width = 360) {
   if (width === 375 && Math.abs(inText.barWidth - 341) > 0.6)
     problems.push(`${label}: the bar is ${inText.barWidth} px inside its edges, not 341`);
   if (width === 375 && Math.abs(inText.outer - 341) > 2.6) problems.push(`${label}: the bar is ${inText.outer} px wide, not 341`);
-  const slots = Math.floor(inText.barWidth / 48);
+  const slots = Math.floor((inText.innerWidth + 8) / 48);
   // M3's docked toolbar is 64 dp high (md.comp.toolbar.docked).
   if (inText.height < 64 || inText.height > 66)
     problems.push(`${label}: the bar is ${inText.height} px tall, not 64 (plus its 1 px edges)`);
@@ -130,7 +132,7 @@ async function checkTextBar(width = 360) {
     // The text tools stand at the left in the owner's order (Bold, Italic, Text style, List), as many as the width budget lets in beside Undo, Redo,
     // Insert block and the ⋮ (planBar, src/textBar.mjs); the first one that does not fit is in the ⋮.
     const labels = { bold: 'Bold', italic: 'Italic', style: 'Text style', list: 'List' };
-    const plan = planBar({ width: inText.barWidth, context: Object.keys(labels), fixed: ['undo', 'redo', 'insert'], more: true });
+    const plan = planBar({ width: inText.innerWidth, context: Object.keys(labels), fixed: ['undo', 'redo', 'insert'], more: true });
     const got = inText.names.slice(0, -4).map((n) => n.split(':')[0]);
     const want = plan.bar.context.map((id) => labels[id]);
     if (got.join() !== want.join()) problems.push(`${label}: the bar has ${got.join()} at the left, not ${want.join()}`);
