@@ -130,7 +130,7 @@
     display: grid;
     gap: var(--mo-ref-space-150);
   }
-  @container (width >= 20rem) {
+  @container (width >= 24rem) {
     .mo-editor-date-time-field-row {
       grid-template-columns: 1fr auto;
     }
