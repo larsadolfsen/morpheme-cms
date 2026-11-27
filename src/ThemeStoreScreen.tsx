@@ -2,7 +2,7 @@
 // Exposes ThemeStoreScreen; uses ThemeStore.tsx (allThemes, ThemeRow, useThemeCatalog), StoreSearchRow, StoreStatus and storeSort.
 import type { ReactNode } from 'react';
 import Screen from './Screen';
-import { Group, useKept } from './ui';
+import { EmptyNote, Group, useKept } from './ui';
 import type { Env } from './App';
 import { StoreNotice, StoreRound, useStoreConnected, useStoreKey } from './StoreStatus';
 import { StoreSearchRow, useStateFilter } from './StoreSearchRow';
@@ -48,7 +48,7 @@ function ThemeStoreList({ env, again, header }: { env: Env; again: () => void; h
       />
       <StoreNotice connected={connected} read={catalog} mayChange={key?.mayChange ?? false} again={again} />
       {catalog === null ? null : !groups.length ? (
-        <p className="mo-editor-empty-note">{t.common.noMatch}</p>
+        <EmptyNote>{t.common.noMatch}</EmptyNote>
       ) : (
         groups.map((g) => (
           <Group key={g.key ?? 'all'} title={g.key ?? undefined}>

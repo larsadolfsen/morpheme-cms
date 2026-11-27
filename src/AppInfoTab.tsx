@@ -103,7 +103,7 @@ export default function AppInfoTab({
           <GroupTitle>{t.apps.news}</GroupTitle>
           {news.map((n) => (
             <div key={n.version} className="mo-editor-app-text">
-              <h3 className="mo-editor-strong">{t.apps.version(n.version)}</h3>
+              <h3 className="mo-type-title-small">{t.apps.version(n.version)}</h3>
               {n.text.split(/\n\s*\n/).map((p) => (
                 <p key={p} className="mo-editor-muted">
                   {p}

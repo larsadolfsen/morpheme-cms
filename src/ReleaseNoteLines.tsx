@@ -7,8 +7,8 @@ import type { ReleaseNote } from '../lib/releaseNotes.mjs';
 export function ReleaseNoteLines({ lines }: { lines: ReleaseNote[] }) {
   return (
     <div className="mo-editor-stack-100">
-      <h4 className="mo-editor-release-heading">{t.cms.alsoInThisVersion}</h4>
-      <ul className="mo-editor-release-list mo-editor-stack-50">
+      <h4 className="mo-type-title-medium">{t.cms.alsoInThisVersion}</h4>
+      <ul className="mo-editor-release-list mo-type-body-large mo-editor-stack-50">
         {lines.map((note) => (
           <li key={note.id} className="mo-editor-wrap-anywhere">
             {note.text}

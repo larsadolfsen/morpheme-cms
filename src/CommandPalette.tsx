@@ -113,7 +113,7 @@ const GROUP_ICONS: Record<ActionGroup, string> = {
   text: 'text_fields',
   section: 'table_rows',
   insert: 'add',
-  block: 'cube',
+  block: 'deployed_code',
   table: 'table',
   image: 'image',
   list: 'list',

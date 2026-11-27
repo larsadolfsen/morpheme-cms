@@ -923,9 +923,20 @@ export function Label({ htmlFor, children, hint }: { htmlFor?: string; children:
 }
 
 /** Small muted text under a field or a part: what it does, what happens. */
-export function SupportingText({ id, children, className = '' }: { id?: string; children: ReactNode; className?: string }) {
+export function SupportingText({
+  id,
+  children,
+  className = '',
+  medium,
+}: {
+  id?: string;
+  children: ReactNode;
+  className?: string;
+  /** Body medium (14/20), the List part's supporting text, instead of body small. */
+  medium?: boolean;
+}) {
   return (
-    <span id={id} className={`mo-type-body-small mo-editor-supporting-text ${className}`}>
+    <span id={id} className={`${medium ? 'mo-type-body-medium' : 'mo-type-body-small'} mo-editor-supporting-text ${className}`}>
       {children}
     </span>
   );
@@ -1623,19 +1634,9 @@ export function MultiChoice({
 }
 
 /** A link to another screen (under a field's name: where it is edited): the theme's link, in the text's own type role. */
-export function ArrowLink({
-  href,
-  onClick,
-  className = '',
-  children,
-}: {
-  href: string;
-  onClick?: (e: MouseEvent<HTMLAnchorElement>) => void;
-  className?: string;
-  children: ReactNode;
-}) {
+export function ArrowLink({ className = '', children, ...rest }: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & { href: string }) {
   return (
-    <a href={href} className={`mo-link ${className}`.trim()} onClick={onClick}>
+    <a className={`mo-link ${className}`.trim()} {...rest}>
       {children}
     </a>
   );

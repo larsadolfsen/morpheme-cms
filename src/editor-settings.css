@@ -122,7 +122,6 @@
 
   .mo-editor-author-name {
     display: block;
-    font-weight: 500;
   }
 
   .mo-editor-author-role {
@@ -140,15 +139,6 @@
     line-height: var(--mo-sys-typescale-title-small-line-height);
     font-weight: var(--mo-sys-typescale-title-small-weight);
     letter-spacing: var(--mo-sys-typescale-title-small-tracking);
-  }
-
-  .mo-editor-body-text {
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-
-  .mo-editor-byline-lines {
-    line-height: 1.375;
   }
 
   .mo-editor-colors-columns {
@@ -200,7 +190,6 @@
   .mo-editor-field-title {
     margin-block-end: var(--mo-ref-space-50);
     display: block;
-    font-weight: 500;
   }
 
   .mo-editor-filter-row {
@@ -622,16 +611,6 @@
     row-gap: var(--mo-ref-space-100);
   }
 
-  .mo-editor-license-none {
-    padding-inline: var(--mo-ref-space-200);
-    color: var(--mo-sys-color-on-surface-variant);
-  }
-
-  .mo-editor-license-note {
-    margin-block-end: var(--mo-ref-space-100);
-    padding-inline: var(--mo-ref-space-200);
-  }
-
   .mo-editor-license-paragraph {
     margin-block-end: var(--mo-ref-space-150);
     padding-inline: var(--mo-ref-space-200);
@@ -646,7 +625,7 @@
     display: block;
     block-size: auto;
     inline-size: 100%;
-    border-radius: 0.75rem;
+    border-radius: var(--mo-sys-shape-corner-medium);
   }
 
   .mo-editor-menu-sample {
@@ -749,19 +728,12 @@
     display: block;
     aspect-ratio: 3/2;
     inline-size: 100%;
-    border-radius: 0.75rem;
+    border-radius: var(--mo-sys-shape-corner-medium);
     object-fit: cover;
   }
 
   .mo-editor-note-section {
-    border-block-start-style: solid;
-    border-block-start-width: 1px;
-    border-color: var(--mo-sys-color-outline-variant);
-    padding-block-start: var(--mo-ref-space-300);
-    &:first-of-type {
-      border-block-start-width: 0;
-      padding-block-start: var(--mo-ref-space-0);
-    }
+    padding-block-start: var(--mo-ref-space-0);
   }
   :where(.mo-editor-note-section > :not(:last-child)) {
     margin-block-start: 0;
@@ -831,17 +803,10 @@
     margin-block-end: var(--mo-ref-space-300);
   }
 
-  .mo-editor-note-title {
-    font-size: 1.5rem;
-    line-height: 2rem;
-  }
-
   .mo-editor-notes {
     margin-block-end: var(--mo-ref-space-300);
     max-inline-size: 65ch;
     padding-inline: var(--mo-ref-space-200);
-    font-size: 1rem;
-    line-height: 1.5;
     &:not(:first-child) {
       margin-block-start: var(--mo-ref-space-400);
     }
@@ -1118,17 +1083,17 @@
 
   .mo-editor-post-meta {
     display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    column-gap: var(--mo-ref-space-300);
+    flex-direction: column;
+    align-items: stretch;
     row-gap: var(--mo-ref-space-200);
-    border-block-start-style: solid;
-    border-block-start-width: 1px;
-    border-color: var(--mo-sys-color-outline-variant);
-    padding-block-start: var(--mo-ref-space-200);
-    & > * {
-      min-inline-size: 12rem;
-      flex: 1 1 0%;
+    @media (width >= 37.5rem) {
+      flex-direction: row;
+      align-items: flex-start;
+      column-gap: var(--mo-ref-space-300);
+      & > * {
+        flex: 1 1 0%;
+        min-inline-size: 0;
+      }
     }
   }
 
@@ -1156,14 +1121,8 @@
       & > p {
         flex: 1 1 auto;
         margin: 0;
-        font-size: 0.875rem;
-        line-height: 1.25rem;
       }
     }
-  }
-
-  .mo-editor-primary-text {
-    color: var(--mo-sys-color-primary);
   }
 
   /* The read-only notice: the theme's outlined card, set in from the window's edge by the window's margin. */
@@ -1404,11 +1363,6 @@
     letter-spacing: var(--mo-sys-typescale-title-medium-tracking);
   }
 
-  .mo-editor-settings-trailing {
-    flex-shrink: 0;
-    padding-inline-end: var(--mo-ref-space-75);
-  }
-
   .mo-editor-settings-wrap {
     min-inline-size: 0;
     overflow-wrap: break-word;
@@ -1436,25 +1390,12 @@
     box-shadow: var(--mo-sys-elevation-level1-shadow);
   }
 
-  .mo-editor-small-note {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: var(--mo-sys-color-on-surface-variant);
-  }
-
   @media (width >= 37.5rem) {
     .mo-editor-split {
       display: flex;
       align-items: flex-start;
       gap: var(--mo-ref-space-300);
     }
-  }
-
-  .mo-editor-store-icon {
-    inline-size: var(--mo-ref-space-450);
-    block-size: var(--mo-ref-space-450);
-    flex-shrink: 0;
-    border-radius: var(--mo-comp-block-radius-small);
   }
 
   .mo-editor-text-anchor {

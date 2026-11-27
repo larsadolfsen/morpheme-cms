@@ -315,7 +315,7 @@ export function Apps({ env, files, role }: { env: Env; files: RepoFile[]; role?:
           </Group>
         ))
       ) : !role || rows.some((a) => a.role === role) ? (
-        <p className="mo-editor-app-list-empty">{t.common.noMatch}</p>
+        <EmptyNote>{t.common.noMatch}</EmptyNote>
       ) : (
         <EmptyNote>{t.apps.noneInstalled(title)}</EmptyNote>
       )}
@@ -509,7 +509,7 @@ function StoreScreen({
       {/* The site's own are shown also when the store cannot be read. */}
       <StoreNotice connected={connected} read={catalog} mayChange={key?.mayChange ?? false} again={again} />
       {catalog === null ? null : !appGroups.length ? (
-        <p className="mo-editor-app-list-empty">{t.common.noMatch}</p>
+        <EmptyNote>{t.common.noMatch}</EmptyNote>
       ) : (
         appGroups.map((g) => (
           <Group key={g.key ?? 'all'} title={g.key ?? undefined}>
@@ -849,7 +849,7 @@ function AppHead({
           lines={3}
         />
       </ul>
-      <p className="mo-editor-app-list-hint">{hint}</p>
+      <SupportingText medium>{hint}</SupportingText>
     </div>
   );
 }
