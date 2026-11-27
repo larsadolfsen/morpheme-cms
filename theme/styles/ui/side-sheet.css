@@ -58,8 +58,11 @@
     align-items: center;
     gap: 0;
     padding-block: calc(var(--mo-comp-side-sheet-padding, 1.5rem) - var(--mo-comp-sheet-side-icon-inset)) 0;
-    padding-inline: var(--mo-comp-side-sheet-padding, 1.5rem)
-      calc(var(--mo-comp-side-sheet-padding, 1.5rem) - var(--mo-comp-sheet-side-icon-inset));
+    padding-inline: var(--mo-comp-side-sheet-padding, 1.5rem);
+  }
+  /* Only a close button holds the space round its glyph; a header without one keeps the full 24 at its end. */
+  :where(.mo-is-side) .mo-sheet__header:has(> [data-side-sheet-close]) {
+    padding-inline-end: calc(var(--mo-comp-side-sheet-padding, 1.5rem) - var(--mo-comp-sheet-side-icon-inset));
   }
   /* With a back icon button (M3's modal side sheet: "Start padding with icon" 16): 16 from the start edge to the back glyph, then 12 to the
      headline (the button's own space round the glyph is that 12, so no gap). */

@@ -873,7 +873,7 @@ function Links({ field, value, onChange }: Props) {
   return (
     <LinkList
       field={field}
-      value={(value ?? []) as Record<string, unknown>[]}
+      value={(Array.isArray(value) ? value : []) as Record<string, unknown>[]}
       onChange={(v) => {
         if (Number.isInteger(index)) wrong?.clear();
         onChange(v);

@@ -308,6 +308,8 @@
     )
     .mo-text-field__error-icon {
     display: block;
+    width: 1.5rem;
+    height: 1.5rem;
     color: var(--mo-comp-text-field-error, var(--mo-comp-block-accent));
   }
   :is(

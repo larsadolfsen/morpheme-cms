@@ -395,7 +395,6 @@
     flex-shrink: 0;
   }
   .mo-editor-picker-search {
-    margin-inline: var(--mo-ref-space-250);
     margin-block-end: var(--mo-ref-space-100);
     flex-shrink: 0;
   }

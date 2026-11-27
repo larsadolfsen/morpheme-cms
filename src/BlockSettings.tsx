@@ -470,7 +470,7 @@ export default function BlockSettings({ env, files }: { env: Env; files: RepoFil
             ))}
           </ul>
         ) : (
-          <p className="mo-editor-settings-muted">{shown.none}</p>
+          <EmptyNote>{shown.none}</EmptyNote>
         )}
       </div>
     </>

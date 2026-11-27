@@ -206,7 +206,6 @@
   }
 
   .mo-editor-filter-row {
-    margin-block-start: calc(var(--mo-ref-space-100) * -1);
     margin-block-end: var(--mo-comp-editor-rhythm-300);
     display: flex;
     flex-wrap: wrap;

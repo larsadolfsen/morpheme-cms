@@ -424,11 +424,6 @@
   scroll-padding-block-end: var(--mo-editor-clearance-bottom, 0px);
 }
 
-/* Only the page and post editor (outside Material 3) keeps its focus ring in `primary`; every other screen takes M3's `secondary` (theme/styles/base.css). */
-:root:has(.mo-editor-text-box) {
-  --mo-sys-state-focus-indicator-color: var(--mo-sys-color-primary);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .mo-editor-save-bar {
     animation: none;

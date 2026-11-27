@@ -3309,7 +3309,7 @@ export function SideSheet({
       backLabel={backLabel}
       className="mo-editor-reveal mo-editor-selection-pane"
     >
-      <div className="mo-editor-rhythm-250">{children}</div>
+      {children}
     </SiteSideSheet>
   );
 }
