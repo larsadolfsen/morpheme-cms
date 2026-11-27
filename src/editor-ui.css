@@ -46,9 +46,6 @@
   .mo-editor-accent-text {
     color: var(--mo-sys-color-primary);
   }
-  .mo-editor-error-text {
-    color: var(--mo-sys-color-error);
-  }
   /* A field with no box that keeps the form from being saved: its name and the line under it are in the error role (FormField). */
   .mo-editor-has-problem .mo-editor-field-label {
     color: var(--mo-sys-color-error);
@@ -70,6 +67,10 @@
   .mo-editor-supporting-text {
     display: block;
     color: var(--mo-sys-color-on-surface-variant);
+  }
+  /* After the supporting text and the hint, so the error role wins on the same specificity. */
+  .mo-editor-error-text {
+    color: var(--mo-sys-color-error);
   }
   .mo-editor-field-count {
     margin-block-start: var(--mo-ref-space-50);
