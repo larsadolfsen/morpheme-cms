@@ -201,32 +201,21 @@
   /* BrandForm.tsx */
   .mo-editor-brand-heading {
     margin-block-end: var(--mo-ref-space-50);
-    font-weight: 500;
   }
   .mo-editor-brand-hint {
-    margin-block-end: var(--mo-comp-editor-rhythm-150);
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    color: var(--mo-sys-color-on-surface-variant);
+    margin-block-end: var(--mo-ref-space-150);
   }
   .mo-editor-brand-column {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     gap: var(--mo-ref-space-200);
-    row-gap: var(--mo-comp-editor-rhythm-200);
   }
+  /* The outlined Card part gives the corner, border, surface and padding. */
   .mo-editor-brand-logo-preview {
     display: flex;
     align-items: center;
-    gap: var(--mo-ref-space-125);
-    border-radius: var(--mo-sys-shape-corner-large);
-    border-style: solid;
-    border-width: 1px;
-    border-color: var(--mo-sys-color-outline-variant);
-    background-color: var(--mo-sys-color-surface-container-lowest);
-    padding-inline: var(--mo-ref-space-200);
-    padding-block: var(--mo-comp-editor-rhythm-150);
+    gap: var(--mo-ref-space-150);
   }
   .mo-editor-brand-logo-mark {
     block-size: var(--mo-ref-space-500);
@@ -236,24 +225,21 @@
     mask-position: center;
     mask-repeat: no-repeat;
   }
-  .mo-editor-brand-logo-name {
-    font-weight: 500;
-    letter-spacing: -0.025em;
-  }
   .mo-editor-brand-actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--mo-ref-space-150);
+    gap: var(--mo-ref-space-100);
+  }
+  .mo-editor-brand-icon-box {
+    display: grid;
+    place-items: center;
+    inline-size: var(--mo-ref-space-800);
+    block-size: var(--mo-ref-space-800);
   }
   .mo-editor-brand-icon {
     inline-size: var(--mo-ref-space-800);
     block-size: var(--mo-ref-space-800);
     border-radius: var(--mo-sys-shape-corner-large);
-    box-shadow: var(--mo-sys-panel-shadow);
-  }
-  .mo-editor-brand-icon-drawing {
-    animation: mo-editor-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    opacity: 50%;
   }
   /* CommunicationParts.tsx */
   .mo-editor-comm-example {

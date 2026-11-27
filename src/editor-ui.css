@@ -570,44 +570,27 @@
   .mo-editor-section {
     margin-block-end: var(--mo-ref-space-400);
   }
-  .mo-editor-check-good-fill {
-    fill: var(--mo-comp-editor-status-good-surface);
+  /* The score's tone (CS2's status colours, deviation EP1): the ring's indicator, its number and a check's mark. */
+  .mo-editor-score-good {
+    --mo-comp-circular-progress-indicator-active: var(--mo-comp-editor-status-good);
+    --mo-editor-score-text: var(--mo-comp-editor-status-good-text);
   }
-  .mo-editor-check-good-stroke {
-    stroke: var(--mo-comp-editor-status-good);
+  .mo-editor-score-average {
+    --mo-comp-circular-progress-indicator-active: var(--mo-comp-editor-status-average);
+    --mo-editor-score-text: var(--mo-comp-editor-status-average-text);
   }
-  .mo-editor-check-good-text {
-    color: var(--mo-comp-editor-status-good-text);
+  .mo-editor-score-bad {
+    --mo-comp-circular-progress-indicator-active: var(--mo-comp-editor-status-bad);
+    --mo-editor-score-text: var(--mo-comp-editor-status-bad-text);
   }
-  .mo-editor-check-average-fill {
-    fill: var(--mo-comp-editor-status-average-surface);
+  .mo-editor-check-good-mark {
+    color: var(--mo-comp-editor-status-good);
   }
-  .mo-editor-check-average-stroke {
-    stroke: var(--mo-comp-editor-status-average);
-  }
-  .mo-editor-check-average-text {
-    color: var(--mo-comp-editor-status-average-text);
-  }
-  .mo-editor-check-bad-fill {
-    fill: var(--mo-comp-editor-status-bad-surface);
-  }
-  .mo-editor-check-bad-stroke {
-    stroke: var(--mo-comp-editor-status-bad);
-  }
-  .mo-editor-check-bad-text {
-    color: var(--mo-comp-editor-status-bad-text);
-  }
-  .mo-editor-check-good-dot {
-    margin-inline: var(--mo-ref-space-25);
-    inline-size: 0.75rem;
-    block-size: 0.75rem;
-    border-radius: var(--mo-sys-shape-corner-full);
-    background-color: var(--mo-comp-editor-status-good);
+  .mo-editor-check-average-mark {
+    color: var(--mo-comp-editor-status-average);
   }
   .mo-editor-check-bad-mark {
-    inline-size: 1rem;
-    block-size: 1rem;
-    fill: var(--mo-comp-editor-status-bad);
+    color: var(--mo-comp-editor-status-bad);
   }
   .mo-editor-check-fix {
     padding-inline: var(--mo-ref-space-200);
@@ -631,15 +614,12 @@
     inline-size: 2.5rem;
     block-size: 2.5rem;
   }
+  /* The part's size is flexible, 24 to 240 dp (progress indicators, Guidelines). */
   .mo-editor-score-ring-large {
+    --mo-comp-circular-progress-indicator-size: 7rem;
     position: relative;
     inline-size: 7rem;
     block-size: 7rem;
-  }
-  .mo-editor-score-ring-svg {
-    inline-size: 100%;
-    block-size: 100%;
-    rotate: -90deg;
   }
   .mo-editor-score-ring-value,
   .mo-editor-score-ring-value-large {
@@ -647,28 +627,8 @@
     inset: 0;
     display: grid;
     place-items: center;
+    color: var(--mo-editor-score-text);
     font-variant-numeric: tabular-nums;
-  }
-  .mo-editor-score-ring-value {
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    font-weight: 500;
-  }
-  .mo-editor-score-arc {
-    transition-property: stroke-dasharray;
-    transition-timing-function: cubic-bezier(0, 0, 0.2, 1);
-    transition-duration: 1200ms;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .mo-editor-score-arc {
-      transition-property: none;
-    }
-  }
-  .mo-editor-score-arc-hidden {
-    opacity: 0%;
-  }
-  .mo-editor-score-title {
-    font-weight: 500;
   }
 
   /* The share preview, the carousel and the lightbox. */
