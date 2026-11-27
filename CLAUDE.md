@@ -193,7 +193,7 @@ A theme may fall short of it on the site if its page says so (owner, 21 Nov 2026
 shortfall by WCAG criterion, the checks let through only what it names, and the editor shows it on the theme's page
 (`docs/superpowers/specs/2026-11-21-theme-accessibility-statement-design.md`). *Material* follows Material 3 exactly and names the
 shortfalls that gives; the editor's screens (theme page, settings, lists, dialogs) use the same parts, so the same named shortfalls hold
-there. Only the page and post editor (its bar, overflow menu, text and block menus), which is outside Material 3, always meets WCAG 2.2 AA (owner, 21 Nov 2026).
+there. The page and post editor follows Material 3 too (owner, 26 Nov 2026: "Everything in the editor should follow md3"), and WCAG is not a goal anywhere until the base theme (owner, 27 Nov 2026: "We agreed upon ignoring wcag until base theme!"): a part takes M3's value even where it falls short.
 
 ### Icons are Material Symbols
 
