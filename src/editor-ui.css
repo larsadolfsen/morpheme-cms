@@ -26,7 +26,7 @@
 
   /* A grid's children may shrink below their content (the theme's base rule for .grid, which the old markup used). */
   :is(
-      .mo-editor-date-time-field,
+      .mo-editor-date-time-field-row,
       .mo-editor-swatch-grid,
       .mo-editor-icon-picker-grid,
       .mo-editor-choice-cards,
@@ -124,11 +124,16 @@
 
   /* The date and time field, the colour field and the colour sheet. */
   .mo-editor-date-time-field {
+    container-type: inline-size;
+  }
+  .mo-editor-date-time-field-row {
     display: grid;
     gap: var(--mo-ref-space-150);
   }
-  .mo-editor-date-time-field-wide {
-    grid-template-columns: 1fr auto;
+  @container (width >= 20rem) {
+    .mo-editor-date-time-field-row {
+      grid-template-columns: 1fr auto;
+    }
   }
   /* The edge of a swatch: grey, so a light and a dark colour both show on a light and a dark sheet. */
   .mo-editor-swatch-edge {
