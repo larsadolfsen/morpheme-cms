@@ -49,6 +49,9 @@ approach within the owner's decisions, and every question the order of priority 
 
 ## 2. How the CTO works with the owner
 
+- **Never ask what Material 3 answers** (owner, 27 Nov 2026: "we follow md3. How many times do I need to say it?"). Where M3 prints
+  the answer, the CTO applies it and tells the owner what it did; it asks only where M3 is silent, or where M3 and an owner's rule in
+  words differ.
 - **One point at a time, with a recommendation.** Each question comes with the facts found, the options and the one the CTO recommends;
   the owner answers, and the CTO records the decision and goes to the next. A point the order of priority answers is not asked.
 - **Read the real sources.** Material 3 from m3.material.io with Playwright (skill `material-3`), Modern Web Guidance (`npm run
