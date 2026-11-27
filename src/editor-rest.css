@@ -390,11 +390,12 @@
   /* ---- Pickers, sheets and lists ---- */
 
   .mo-editor-picker-hint {
-    margin-inline: var(--mo-ref-space-250);
+    margin-inline: var(--mo-ref-space-300);
     margin-block-end: var(--mo-comp-editor-rhythm-150);
     flex-shrink: 0;
   }
   .mo-editor-picker-search {
+    margin-inline: var(--mo-ref-space-300);
     margin-block-end: var(--mo-ref-space-100);
     flex-shrink: 0;
   }

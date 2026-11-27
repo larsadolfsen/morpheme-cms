@@ -142,6 +142,10 @@ const joined = (base: string, name: string | number) => (base ? `${base}.${name}
 export type Wrong = { path: string; at: number; clear: () => void };
 export const WrongField = createContext<Wrong | null>(null);
 
+/** The page's Save found a problem in a block: told to the block's open sheet (BlockDialog), which marks its own field (useWrongField's `mark`) so the person sees which
+ * one it is where the field is, as when the sheet's own Save stops there. */
+export const BLOCK_PROBLEM = 'morpheme:block-problem';
+
 /** A form that cannot be saved as it is: the reason as a message at the front (`say`, the form's
  * notify; also over a sheet) and the field marked (WrongField, which the form's fields are put
  * inside). `stop(problem)` does both and is true when there is a problem, so a save can end there:
@@ -155,12 +159,16 @@ export function useWrongField(say: (text: string) => void, open?: (path: string)
   const stop = (found: Problem | Problem[] | null) => {
     const all = Array.isArray(found) ? found : found ? [found] : [];
     const problem = all[0] ?? null;
-    if (problem) open?.(problem.path);
-    setWrong(problem && { path: problem.path, at: Date.now() });
+    mark(problem);
     if (problem) say(all.length > 1 ? `${t.common.problems(all.length)}. ${problem.text}` : problem.text);
     return !!problem;
   };
-  return { field, stop };
+  // Only the marking, for a form whose message was given elsewhere (the page's Save found the problem in a block whose sheet is open beside it).
+  const mark = (problem: Problem | null) => {
+    if (problem) open?.(problem.path);
+    setWrong(problem && { path: problem.path, at: Date.now() });
+  };
+  return { field, stop, mark };
 }
 
 // A field marked when it keeps the form from being saved (WrongField): its path, the element to mark (`box`), and its
