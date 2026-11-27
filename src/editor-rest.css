@@ -157,9 +157,6 @@
     margin-block-start: var(--mo-comp-editor-rhythm-200);
   }
   /* The place before a group of choices in a sheet. */
-  .mo-editor-sheet-group {
-    margin-block-start: var(--mo-ref-space-100);
-  }
   /* The row of buttons that closes a form or a dialog, at the end. */
   .mo-editor-form-actions {
     display: flex;
@@ -226,36 +223,17 @@
   /* A card that holds a list keeps its 16 dp padding on every side (M3 Cards, Specs: "Left/right padding 16dp") and the list sits inside it, so a row's layer has the card's
      padding on each side. A row's own 16 dp leading and trailing space (Lists, Specs) puts its text 16 dp in from the layer, so the title and the empty line take the same
      16 dp and line up with the text. M3 prints nothing for a list inside a card (docs/material-deviations.md, "Where Material 3 is silent"). */
-  .mo-editor-widget-list {
-    --mo-comp-card-padding: 1rem 1rem 0.5rem;
-  }
-  .mo-editor-widget-text {
-    --mo-comp-card-padding: 1rem;
-  }
   .mo-editor-widget-list-title {
     padding-inline: var(--mo-ref-space-200);
     padding-block-end: var(--mo-ref-space-100);
-    font-weight: 500;
   }
   .mo-editor-widget-title {
     padding-block-end: var(--mo-ref-space-100);
-    font-weight: 500;
   }
   .mo-editor-widget-empty {
     padding-inline: var(--mo-ref-space-200);
     padding-block-end: var(--mo-ref-space-100);
     color: var(--mo-sys-color-on-surface-variant);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-  }
-  .mo-editor-widget-more {
-    display: flex;
-    justify-content: flex-end;
-    padding-inline: var(--mo-ref-space-100);
-    padding-block-start: var(--mo-ref-space-50);
-  }
-  .mo-editor-widget-action {
-    padding-block-start: var(--mo-comp-editor-rhythm-150);
   }
   /* The widget's own box in the dashboard: empty, it leaves no gutter. */
   .mo-editor-widget-slot:empty {
@@ -273,14 +251,12 @@
   }
   .mo-editor-first-run {
     position: relative;
-    margin-block-end: var(--mo-comp-editor-rhythm-200);
-    --mo-comp-card-padding: 1rem 1rem 0.5rem;
   }
+  /* The title ends before the close button's 48 px target, which stands in the card's top end corner. */
   .mo-editor-first-run-title {
     padding-inline-start: var(--mo-ref-space-200);
-    padding-inline-end: 3.5rem;
+    padding-inline-end: var(--mo-ref-space-600);
     padding-block-end: var(--mo-ref-space-100);
-    font-weight: 500;
   }
 
   /* ---- The editor's frame and footer (topBarSlot.tsx, pagePreview.tsx, EditorFooter.tsx, Footer*.tsx, SiteLogoLink.tsx, StartStatus.tsx) ---- */

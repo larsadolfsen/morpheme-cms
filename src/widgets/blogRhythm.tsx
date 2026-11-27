@@ -34,18 +34,23 @@ export function BlogRhythmWidget({ settings, editing }: WidgetProps) {
             nextDue(last, every).toLocaleDateString(locale, { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }),
           );
   return (
-    <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="mo-editor-widget-text">
-      <h2 id={titleId} className="mo-editor-widget-title">
-        {t.library.blogRhythmWidgetLabel}
-      </h2>
-      <p className="mo-editor-caption">{text}</p>
-      {due && (
-        <div className="mo-editor-widget-action">
+    <SiteCard
+      kind="outlined"
+      as="section"
+      aria-labelledby={titleId}
+      className="mo-editor-widget-text"
+      actions={
+        due ? (
           <LinkButton href={NEW_POST} icon={materialIcon('edit')} kind="tonal">
             {last === null ? t.library.blogRhythmWriteFirst : t.library.blogRhythmWriteNew}
           </LinkButton>
-        </div>
-      )}
+        ) : undefined
+      }
+    >
+      <h2 id={titleId} className="mo-type-title-medium mo-editor-widget-title">
+        {t.library.blogRhythmWidgetLabel}
+      </h2>
+      <p className="mo-editor-caption">{text}</p>
     </SiteCard>
   );
 }

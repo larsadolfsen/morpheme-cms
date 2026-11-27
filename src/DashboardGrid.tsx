@@ -77,7 +77,7 @@ export function Dashboard({ dash, env, files }: { dash: DashboardEditing; env: E
     );
   }
   return (
-    <div className="mo-editor-stack-200">
+    <div className="mo-editor-start-cards">
       {dash.error && (
         <Notice role="alert" title={t.dashboard.notSaved}>
           {saveErrorText[dash.error]}

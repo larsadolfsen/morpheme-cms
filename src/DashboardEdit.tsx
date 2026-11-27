@@ -17,7 +17,7 @@ import { addWidget, removeWidget, setSettings as setPlacementSettings, withoutMi
 import type { Placement, StoredDashboard } from './dashboard.mjs';
 import { cardAt, moveBy, moveOnto } from './dashboardMoves.mjs';
 import type { RepoFile } from './github';
-import { SiteMenuDivider } from './themeUi';
+import { SiteCard, SiteMenuDivider } from './themeUi';
 import { Button, IconButton, Menu, MenuItem } from './ui';
 import { materialIcon } from './icon';
 
@@ -208,7 +208,14 @@ export function EditableCards({
       if (over) dash.moveOnto(id, over);
     },
     onPointerCancel: () => setDrag(null),
-    onKeyDown: (e: KeyboardEvent) => e.key === 'Escape' && setDrag(null),
+    // A single-pointer alternative to the drag (Material 3, Cards, Accessibility): Enter or Space opens the card's menu with Move up and Move down.
+    onKeyDown: (e: KeyboardEvent<HTMLElement>) => {
+      if (e.key === 'Escape') setDrag(null);
+      else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        setMenu({ id, anchor: e.currentTarget });
+      }
+    },
   });
 
   const at = menu ? shown.findIndex((s) => s.placement.id === menu.id) : -1;
@@ -219,21 +226,22 @@ export function EditableCards({
         {shown.map(({ placement, definition }) => {
           const dragging = drag?.id === placement.id;
           return (
-            <div
+            <SiteCard
               key={placement.id}
+              kind="elevated"
+              dragged={dragging}
               role="group"
               aria-label={definition.label}
               data-card={placement.id}
               style={dragging ? { transform: `translate(${drag.dx}px, ${drag.dy}px)` } : undefined}
               className={`${spanClass(definition.span)} mo-editor-widget-card ${
-                dragging ? 'mo-is-dragged mo-editor-widget-lifted' : ''
-              } ${drag?.over === placement.id ? 'mo-editor-widget-target' : ''}`}
+                drag?.over === placement.id ? 'mo-editor-widget-target' : ''
+              }`}
             >
               <div className="mo-editor-widget-bar">
                 <IconButton
                   icon={materialIcon('drag_indicator')}
                   label={t.dashboard.dragCard(definition.label)}
-                  tabIndex={-1}
                   className="mo-editor-grab"
                   {...handle(placement.id)}
                 />
@@ -247,7 +255,7 @@ export function EditableCards({
                 />
               </div>
               <div className="mo-editor-widget-body">{draw(placement, definition)}</div>
-            </div>
+            </SiteCard>
           );
         })}
       </div>

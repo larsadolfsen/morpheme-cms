@@ -27,7 +27,7 @@ export function FirstRunCard({ files }: { files: RepoFile[] }) {
   });
   return (
     <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="mo-editor-first-run">
-      <h2 id={titleId} className="mo-editor-first-run-title">
+      <h2 id={titleId} className="mo-type-title-medium mo-editor-first-run-title">
         {t.library.firstRunTitle}
       </h2>
       <CloseButton
