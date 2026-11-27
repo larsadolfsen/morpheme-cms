@@ -26,6 +26,7 @@ import { CreateFab } from './CreateFab';
 import Screen from './Screen';
 import {
   Button,
+  ChipSet,
   InputChip,
   Choice,
   Filters,
@@ -465,7 +466,7 @@ function Gallery({
         date={!all && dateChoice}
       />
       {selection?.selecting && (
-        <div className="mo-editor-media-count">
+        <ChipSet label={t.media.selection}>
           {/* Material's photo grid: a count with a cross above the grid; the cross, or the count, unselects all. */}
           <SiteChip
             kind="input"
@@ -475,16 +476,16 @@ function Gallery({
             onRemove={selection.clear}
             onClick={selection.clear}
           />
-        </div>
+        </ChipSet>
       )}
       {chips.length > 0 && (
-        <div className="mo-editor-media-chips">
+        <ChipSet label={t.media.filters}>
           {chips.map((c) => (
             <InputChip key={c.label} removeLabel={t.media.removeFilter(c.label)} onRemove={c.clear}>
               {c.label}
             </InputChip>
           ))}
-        </div>
+        </ChipSet>
       )}
       {groups.map((g) => (
         <section key={g.key ?? 'all'} className="mo-editor-media-group">

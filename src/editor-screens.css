@@ -493,14 +493,22 @@
   .mo-editor-library-apps > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-250);
   }
+  /* What a row ends with (icon buttons, a drop-down, a switch) stands 16 px from the row's end edge, as the list item's own trailing space (Material 3, Lists: Specs). */
   .mo-editor-library-row-actions {
     display: flex;
     flex-shrink: 0;
+    gap: var(--mo-ref-space-100);
+    padding-inline-end: var(--mo-ref-space-200);
   }
   .mo-editor-library-row-trail {
     display: flex;
     flex-shrink: 0;
     align-items: center;
+    padding-inline-end: var(--mo-ref-space-200);
+  }
+  .mo-editor-app-add-actions {
+    display: flex;
+    padding-inline-end: var(--mo-ref-space-200);
   }
   /* The slot of the drop-down, empty on a row without subpages, so the eyes line up. */
   .mo-editor-library-row-unfold {
@@ -559,22 +567,15 @@
       opacity: 1;
     }
   }
-  .mo-editor-media-count {
-    margin-block-start: var(--mo-comp-editor-rhythm-150);
-    display: flex;
-  }
-  .mo-editor-media-chips {
-    margin-block-start: var(--mo-comp-editor-rhythm-150);
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--mo-ref-space-100);
-  }
   .mo-editor-media-group {
     margin-block-start: var(--mo-ref-space-200);
   }
+  /* A docked toolbar (Material 3: the whole width, at the bottom) in the sheet's body: out over the body's side padding, and down to the sheet's bottom edge. */
   .mo-editor-media-pick-bar {
     position: sticky;
-    inset-block-end: 0;
+    inset-block-end: calc(-1 * var(--mo-ref-space-200));
+    margin-inline: calc(-1 * var(--mo-sys-grid-margin));
+    margin-block-end: calc(-1 * var(--mo-ref-space-200));
     justify-content: flex-end;
   }
   .mo-editor-media-providers {
@@ -599,9 +600,11 @@
   .mo-editor-media-details > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
+  /* A docked toolbar at the bottom of the screen: the whole width, out over the screen's side margin. */
   .mo-editor-media-file-tools {
     position: sticky;
     inset-block-end: 0;
+    margin-inline: calc(-1 * var(--mo-sys-grid-margin));
     margin-block-start: var(--mo-ref-space-300);
   }
   .mo-editor-media-muted {

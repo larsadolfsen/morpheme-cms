@@ -40,7 +40,7 @@ export default function Checkbox({
   const lineId = useId();
   const line = hideLabel ? null : typeof error === 'string' && error ? error : supporting;
   return (
-    <label className={[checkboxClass(Boolean(error)), className].filter(Boolean).join(' ')}>
+    <label className={[checkboxClass(Boolean(error)), hideLabel && 'mo-is-label-hidden', className].filter(Boolean).join(' ')}>
       <span className="mo-checkbox__box">
         <input
           ref={input}
