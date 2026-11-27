@@ -36,6 +36,11 @@ to a font service and the site's CSP needs no new host (`lib/csp.mjs`); only fon
 SIL Open Font License) are imported, with the licence kept beside the files; and a font that lacks a weight or a script the site
 needs is shown as such before it is chosen.
 
+Fonts can also come from the store, and be sold there (owner, 27 Nov 2026: "People may sell fonts in the store"): a font becomes a store
+item kind beside themes, apps and icon packs, free or paid (the marketplace, 3.0). A store font carries its seller's licence for the
+site; the open-licence rule above is for fonts the owner imports. Like an icon pack it is files only, with no code and no install
+scripts. *Typography* picks from the fonts the site has, imported or installed.
+
 ## Customization is not a deviation
 
 Owner, 21 November 2026: "This is not a deviation in the theme. This is customization. Those things needs to be distinguished and md will
