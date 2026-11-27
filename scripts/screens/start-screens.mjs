@@ -172,7 +172,16 @@ async function checkStartGaps(width, height) {
   await page.waitForSelector('.mo-editor-start-cards');
   await page.waitForTimeout(500);
   const gaps = await page.evaluate(() => {
-    const boxes = [...document.querySelectorAll('.mo-editor-start-cards > *:not(.mo-editor-stack-200), .mo-editor-dashboard-grid > *')]
+    const boxes = [
+      ...document.querySelectorAll(
+        '.mo-editor-start-cards > *:not(.mo-editor-stack-200, .mo-editor-start-cards), .mo-editor-dashboard-grid > *',
+      ),
+    ]
+      .filter(
+        (e) =>
+          !e.parentElement.parentElement?.classList.contains('mo-editor-start-cards') ||
+          e.parentElement.classList.contains('mo-editor-dashboard-grid'),
+      )
       .map((e) => e.getBoundingClientRect())
       .filter((b) => b.height > 0)
       .sort((a, b) => a.top - b.top);
