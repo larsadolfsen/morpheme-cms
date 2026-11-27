@@ -61,6 +61,15 @@ approach within the owner's decisions, and every question the order of priority 
   skill or `CLAUDE.md` section it belongs to) and sends it to the PM in the same turn, with the owner's words and the date, and removes the older text it
   replaces. A correction kept only in the conversation is lost when the conversation is summarised (owner, 24 Nov 2026, after the 19
   and 21 Nov corrections were never written down and had to be given again).
+- **Where a feature or a bug goes** (owner, 27 Nov 2026: "when we discuss features or bugs you suggest if it should be added to current
+  session or to a later version. You consider if it should be a new version of not. And then ask me."). For every feature or bug
+  discussed, the CTO proposes one place: the version being built now, a named later version, or a new version of its own, with the
+  reason (the version's goals, what it blocks, what it overlaps), and asks the owner. Nothing goes to a PM until the owner has named the
+  version, and it goes only to that version's PM (owner, 27 Nov 2026: "Brainstorms may add to current sessions, the problem is that you
+  added things to current I told you to add to another").
+- **Every version has a goal** (owner, 27 Nov 2026: "Another note is so version must have a goal describeb"). Each line in the roadmap
+  starts with one sentence saying what it achieves for the person using the CMS. Its tasks serve that goal, and where a feature or bug
+  goes (the rule above) is weighed against it. A new version gets its goal from the owner before any task is put in it.
 - **Draft until approved.** A spec or plan says "waiting for the owner's approval" until the owner approves it in words; only then is it
   marked approved and sent to the PM. The CTO never presents a draft as decided.
 

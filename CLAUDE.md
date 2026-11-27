@@ -186,14 +186,14 @@ Owner, 19 Nov 2026: the sites the CMS builds and the editor meet **WCAG 2.2 leve
 (one final `check:contrast` scan when Material's M3 work is done, not per change; owner, 21 Nov 2026), keyboard use, a visible focus ring for keyboard focus (`:focus-visible`), names for screen readers, and
 target sizes. Where Material 3 and WCAG differ, **Material 3 wins** (owner, 21 Nov 2026: "we follow MD3 even if it does not comply
 with accessibility"): the part takes M3's value as printed, and the theme names the shortfall (below). A new base theme, built on
-Material 3 and meeting WCAG 2.2 AA everywhere, comes after Material follows M3 (0.22.3; `docs/superpowers/specs/2026-11-21-base-theme-notes.md`).
+Material 3 and meeting WCAG 2.2 AA everywhere, comes after Material follows M3 (0.27.3; `docs/superpowers/specs/2026-11-21-base-theme-notes.md`).
 The checks that enforce it: roadmap 0.19.2 to 0.19.4.
 
 A theme may fall short of it on the site if its page says so (owner, 21 Nov 2026): the theme's `accessibility.json` names each
 shortfall by WCAG criterion, the checks let through only what it names, and the editor shows it on the theme's page
 (`docs/superpowers/specs/2026-11-21-theme-accessibility-statement-design.md`). *Material* follows Material 3 exactly and names the
 shortfalls that gives; the editor's screens (theme page, settings, lists, dialogs) use the same parts, so the same named shortfalls hold
-there. Only the page and post editor (its bar, overflow menu, text and block menus), which is outside Material 3, always meets WCAG 2.2 AA (owner, 21 Nov 2026).
+there. The page and post editor follows Material 3 too (owner, 26 Nov 2026: "Everything in the editor should follow md3"), and WCAG is not a goal anywhere until the base theme (owner, 27 Nov 2026: "We agreed upon ignoring wcag until base theme!"): a part takes M3's value even where it falls short.
 
 ### Icons are Material Symbols
 
