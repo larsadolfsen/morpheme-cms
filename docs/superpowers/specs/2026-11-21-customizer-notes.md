@@ -16,6 +16,15 @@ every part change by setting the shape scale's tokens (`--mo-sys-shape-corner-*`
 levels: the system's tokens for the whole site, and a component's tokens for one kind of part. It is a major release, 4.0, built in line 3.1 (owner, 27 Nov 2026: "It is a major
 release").
 
+## The customizer is the Style screen
+
+Owner, 27 Nov 2026, with screenshots of the editor: "We already have it in motion and color. These are the customizer sections". The
+customizer is the editor's *Style* screen and its sections: Color, Elevation, Icons, Motion, Shape, Spacing and Typography. Color and
+Motion already let the owner choose (Motion: *Expressive*, *Standard* and *Calm*, with the theme's choice marked; `MotionSchemes` in
+`src/Library.tsx`, `lib/motion.ts`); the others show the theme's tokens. Line 3.1 makes every section choosable the same way: named
+choices the CMS defines on the shared `--mo-` tokens, each a set of token steps, with the theme's choice as the default. Because the
+choices are the CMS's and set tokens every theme already reads, they need no contract change.
+
 ## Customization is not a deviation
 
 Owner, 21 November 2026: "This is not a deviation in the theme. This is customization. Those things needs to be distinguished and md will
