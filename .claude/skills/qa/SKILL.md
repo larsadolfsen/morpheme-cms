@@ -125,7 +125,7 @@ await page.waitForLoadState('load');
 | The editor's own parts, block parts | `/editor/#developer/parts/editor`, `/editor/#developer/parts/blocks` |
 | Appearance, icon packs, motion, colours | `/editor/#appearance`, `#appearance/icon-packs`, `#appearance/motion`, `#company/colors` |
 | Account (the editor's language, density) | `/editor/#account` |
-| Apps | `/editor/#apps` (the demo has no app installed: a test that needs one is `blocked`) |
+| Apps | `/editor/#apps` (the demo has one app installed, Event notes, since #1267: a test that needs another app is `blocked`) |
 | The site's block pages | `/blocks/`, `/blocks/<name>/` |
 
 **Smoke test** (every run, after the list): the dashboard opens; `/editor/#src/content/pages/about.md` opens, a typed word saves with

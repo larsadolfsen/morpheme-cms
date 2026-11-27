@@ -369,7 +369,7 @@ The owner approved these theme changes on 21 Nov 2026 (relayed by the PM of 0.19
 
 ## Tabs under the top app bar
 
-### TB1. Published and Draft are secondary tabs under the top app bar
+### TB7. Published and Draft are secondary tabs under the top app bar
 
 - **Material:** Tabs, Guidelines (read 25 Nov 2026, m3.material.io/components/tabs/guidelines): "Primary tabs are placed at the top of the content pane under an app bar. They display the main content destinations." "Secondary tabs are used within a content area to further separate related content and establish hierarchy." "Secondary tabs should always be placed below primary tabs." "Tabs can be joined with components like app bars." Specs print the secondary divider (`md.comp.secondary-navigation-tab.divider`, 1dp, surface variant) and the active indicator (2dp, primary).
 - **We do:** on a page or post with a draft waiting, `Published` and `Draft` (`Scheduled`) are secondary tabs (name only) in the top app bar, under the title row, with the tabs' own divider. No primary tabs sit above them.
@@ -380,13 +380,13 @@ The owner approved these theme changes on 21 Nov 2026 (relayed by the PM of 0.19
 
 The owner approved these four on 26 Nov 2026 (relayed by the Architect: "Yes to the rest of the five questions"). Read 26 Nov 2026 with Playwright: `m3.material.io/components/snackbar/{overview,specs,guidelines,accessibility}`, `/components/tooltips/{…}`, `/components/date-pickers/{…}` and `/components/time-pickers/{…}`. In each case the theme's existing outlined `Button` (1 px outline, corner full, label-large) is used through `theme/ui`; no component is new and no screen has a variant. Pull request: this one.
 
-### TB2. The snackbar's action is an outlined button
+### TB8. The snackbar's action is an outlined button
 
 - **Material:** Snackbar, Specs, anatomy: "Action (optional)"; Guidelines: "A snackbar can contain a single action. "Dismiss" or "cancel" actions are optional." M3 draws the action as a text button in `inverse-primary` (`md.comp.snackbar.action.label-text.color`).
 - **We do:** `Snackbar` draws its action as an outlined button (`Button kind="outlined"`), label and 1 px edge in `inverse-primary` on the inverse surface (`theme/styles/tokens/ui/comp/button.css`, scope `.mo-snackbar`).
 - **Why:** owner's yes of 26 Nov 2026.
 
-### TB3. The rich tooltip's action is an outlined button
+### TB9. The rich tooltip's action is an outlined button
 
 - **Material:** Tooltips, Specs, anatomy of the rich tooltip: "Text button"; "Rich tooltips can have a headline, body, and up to two buttons."
 - **We do:** `Tooltip`'s `action` is an outlined button; the text button's negative inline margin is gone (`theme/styles/ui/tooltip.css`).

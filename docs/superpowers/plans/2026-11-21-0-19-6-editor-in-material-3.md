@@ -41,8 +41,8 @@ The owner's rules for it:
 | Entry | In 0.19.7 | Later |
 | :-- | :-- | :-- |
 | FL1, footer links 36 px | They are links, not buttons (owner, 24 Nov 2026): they stay links, with a 48 dp target. | |
-| EP1, score ring | Built on M3's circular progress indicator. Its good, average and bad tones are the status colours of CS1, the one recorded colour exception for status. | |
-| EP2 and CS4, colour and icon pickers | Built from M3 parts (slider, segmented button, icon button with its selected state). Where M3 has no part, the nearest M3 pattern, named in the pull request. | |
+| EP1, score ring | Built on M3's circular progress indicator. Its good, average and bad tones are the PageSpeed colours of CS2, which the ring imitates. CS1 is not changed. | |
+| EP2 and CS4, colour and icon pickers | Built from M3 parts (slider, segmented button, icon button with its selected state). Where M3 has no part, the nearest M3 pattern, named in the pull request. The colour rows wait for version 0.25 Colours (27 Nov 2026). | |
 | CS5, the preview frame's white | Goes: the frame is a surface role. | |
 | N6, the drawers' fixed width | Goes: the drawer hugs its content between M3's 220 and 360 dp. | |
 | P3, more than two top bar actions | Actions after the second move into the top app bar's overflow menu. | The search app bar (0.25.0) ends the entry. |
@@ -56,14 +56,17 @@ The owner's rules for it:
 - **Weight 600, and type written by hand:** both go. Every text takes its M3 type role (`mo-type-*`, `md.sys.typescale.*`).
   Weight 500 stays only where the role itself carries it (label and title roles). Before fixing sizes, a session reads the type
   scale tokens again (the audit's dump was a 404).
-- **Spacing:** M3's 4 dp grid. `--mo-comp-editor-rhythm-*` and the off-grid `--mo-ref-space-25/75/125/150/250` steps go from the
-  screens. Density follows only the steps M3 prints for it (DN2 to DN4 stand).
+- **Spacing:** M3's spacing scale (Space 0 to 900: 0, 2, 4, 6, 8, 10, 12, 14, 16, 20, 24, 32 ... 72 dp), not a bare 4 dp grid
+  (https://m3.material.io/styles/spacing/tokens; decisions of 27 Nov 2026 in `plans/2026-11-26-0-19-8-task-13-tests.md`).
+  `--mo-ref-space-25/75/125/150/250` stay because they are M3 steps; the `--mo-comp-editor-rhythm-*` tokens and values off the scale go
+  from the screens. Density follows only the steps M3 prints for it (DN2 to DN4 stand).
 - **Shape and elevation:** only `--mo-sys-shape-corner-*` and `--mo-sys-elevation-level*`. `--mo-sys-block-radius*` and
   `--mo-sys-panel-shadow` are not used in the screens.
 - **Token overrides in `src/*.css`** (audit pattern 4): they go. If the screen needs the value, the part offers it as an M3 variant.
-  This covers the small icon button's 48 dp target, the menu's container colour (`surface-container`, as M3 prints) and the toolbar
+  This covers the small icon button's 48 dp target, the menu's container colour (`surface-container-low`, as M3 Expressive prints) and the toolbar
   colour.
-- **Focus ring:** M3's ring (`secondary`, 3 dp, 2 dp offset) in every screen. The editor's `primary` override stays only in the page
+- **Focus ring:** M3's ring (`secondary`, 3 dp, 2 dp offset) in every screen, except a list row: the List part's own ring is `secondary`,
+  3 dp, offset -3 dp, inside the row. The editor's `primary` override stays only in the page
   and post editor, if WCAG needs it there. Batch 15 of 0.19.5 (focus ring) goes first.
 - **Colour:** no `#fff`, grey, `color-mix` (except state layers and shadows) or opacity for a disabled state. Disabled is the part's
   own disabled state.
@@ -84,7 +87,10 @@ The owner's rules for it:
   text buttons) and focus goes to the first control when a dialog
   opens, as M3 prints. `src/ask.tsx` and `src/BlockDialog.tsx` change in batch 3.
 - **The save bar** is a standard bottom sheet in the screens (EB1), so it is in scope. The text bar and the block's action row are the
-  page and post editor's, so they are not.
+  page and post editor's, so they are not any more (owner, 26 Nov 2026): the text bar is M3's docked toolbar, 64 dp high, and the
+  side sheet "On this page" marks the section in view as M3's navigation drawer marks its active item.
+- **Lists and links** (27 Nov 2026): a list row's leading and trailing icons are 20 dp, the Expressive size. Links stay links, also where
+  M3's cards would draw a button. No text buttons in the editor's screens.
 
 ## Batches (pull requests into `feature/0.19.7-ui-fixes`)
 
