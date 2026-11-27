@@ -345,8 +345,8 @@ export function Toolbar({
 
 // A tool with a text or a menu in the bar keeps the width its place in the plan has (48 dp, the icon button's target, textBar.mjs); the
 // buttons' own sizes, icon sizes and density are the theme's (Material 3: small icon button 40 dp, icon 24 dp, target 48 dp).
-const toolbarTextSize = { justifyContent: 'center', paddingInline: '0', whiteSpace: 'nowrap' } as CSSProperties;
-const toolbarMenuSize = { width: '3rem', justifyContent: 'center', paddingInline: '0', gap: '0' } as CSSProperties;
+const toolbarTextSize = { minHeight: '2.5rem', justifyContent: 'center', paddingInline: '0', whiteSpace: 'nowrap' } as CSSProperties;
+const toolbarMenuSize = { width: '3rem', minHeight: '2.5rem', justifyContent: 'center', paddingInline: '0', gap: '0' } as CSSProperties;
 
 // ---------------------------------------------------------------------------------------------------
 // Tooltips

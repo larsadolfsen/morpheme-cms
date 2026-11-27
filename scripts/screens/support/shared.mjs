@@ -97,7 +97,10 @@ export async function barTools(page) {
         height: x.getBoundingClientRect().height,
       })),
     );
-    await button.first().click();
+    // Escape closes the menu and keeps it closed: a second click on ⋮ can close it and, in the same press, open it again.
+    await page.keyboard.press('Escape');
+    await page.locator('[role=menu][aria-label="More"]').waitFor({ state: 'hidden', timeout: 5000 });
+    await menusSettled(page);
   }
   return { bar, more, names: [...bar.map((b) => b.label), ...more.map((m) => m.label)] };
 }
