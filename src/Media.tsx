@@ -77,6 +77,9 @@ import { safeImageSrc } from '../lib/safe-url.mjs';
 
 export const MEDIA = config.folders.media;
 
+// The Files list's scroll when a file was opened on a phone, put back by Back.
+let keptListScroll = 0;
+
 /** The folder of PDFs, videos and zip files (/files/ on the site; the site's setting, found when it is built). */
 export const FILES: string = settings.filesFolder;
 
@@ -662,7 +665,6 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
   // On a computer the file picked is beside the grid; on a phone it is a subpage of Files (the route files/<address>).
   const wide = useAtLeast('medium');
   const detail = !wide && !!opened;
-  const listScroll = useRef(0);
   // The subpage (or the side sheet) is closed: on a phone back to the list (the back arrow does the same through Screen).
   const closeFile = () => {
     if (!wide && opened) up('#files');
@@ -680,9 +682,12 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
       if (opened !== src) show(opened);
     } else setSrc(null);
   }, [opened, wide]);
-  // Back to the list: the scroll position it had when the file was opened.
+  // Back to the list: the scroll position it had when the file was opened (the page starts fresh on each address, so it is kept
+  // outside it, and used once).
   useLayoutEffect(() => {
-    if (!detail) scrollTo(0, listScroll.current);
+    if (detail) return;
+    scrollTo(0, keptListScroll);
+    keptListScroll = 0;
   }, [detail]);
   const [adding, setAdding] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -1001,7 +1006,7 @@ export default function Media({ files, env, open }: { files: RepoFile[]; env: En
             onShown={setOrder}
             onPick={(src) => {
               if (wide) return show(src);
-              listScroll.current = scrollY;
+              keptListScroll = scrollY;
               location.hash = `files${src}`;
             }}
           />

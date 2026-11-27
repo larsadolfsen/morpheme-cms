@@ -28,16 +28,18 @@ function Shown({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-/** The image with its number as the theme draws a carousel item (the label on its scrim, title-medium), which fades as its item shrinks
- * through the theme's own token (--mo-comp-carousel-mask, carouselLayout.ts). */
+/** The image with its number as the theme draws a carousel item (the label on its scrim, title-medium), which fades and keeps its inset as its item shrinks
+ * through the theme's own data attributes (data-carousel-fade, data-carousel-inset, carouselLayout.ts). */
 function Image({ n }: { n: number }) {
   return (
     <span className="mo-block-cards__item">
       <span className="mo-block-cards__item-media">
         <img src={exampleImage} alt="" />
       </span>
-      <span className="mo-block-cards__item-label">
-        <span className="mo-block-cards__item-title">{say.image(n)}</span>
+      <span className="mo-block-cards__item-label" data-carousel-fade="0.5 8" data-carousel-inset="1rem">
+        <span className="mo-block-cards__item-title" data-carousel-fade="0.1 10">
+          {say.image(n)}
+        </span>
       </span>
     </span>
   );

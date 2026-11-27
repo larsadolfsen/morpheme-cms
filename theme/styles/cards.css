@@ -149,6 +149,8 @@
     overflow: hidden;
     /* Its own layer: the script moves it every frame, and a layer is moved and clipped without painting the row again. */
     will-change: transform;
+    /* Its text's layout (padding that follows the clip) stays inside it. */
+    contain: layout;
     border-radius: var(--mo-comp-carousel-item-container-shape, var(--mo-comp-block-radius));
     background: var(--mo-comp-carousel-item-surface, var(--mo-comp-block-tint));
     clip-path: inset(
@@ -354,6 +356,10 @@
     height: var(--mo-comp-carousel-height, 14rem);
     padding-block: 0.5rem;
   }
+  /* A full-screen one is as high as the theme says a full screen is (portrait on a phone, M3, Carousel, Specs), not as high as a contained row. */
+  .mo-block-cards__carousel .mo-carousel.mo-is-full-screen .mo-carousel__items {
+    height: var(--mo-comp-carousel-full-screen-height, min(75svh, 36rem));
+  }
   .mo-block-cards__carousel .mo-carousel__item-mask {
     display: flex;
   }
@@ -466,10 +472,14 @@
       clip-path: inset(0 1rem);
     }
   }
+  /* M3, Carousel, Accessibility (the page's picture): `Show all` stands under the row at its right, its label on the edge of the content (the row's 16dp padding), not centred. */
   .mo-js .mo-block-cards__show-all {
     display: flex;
-    justify-content: center;
-    padding: 0.25rem;
+    justify-content: flex-end;
+    padding: 0.25rem 0;
+  }
+  .mo-js .mo-block-cards__show-all > .mo-button {
+    margin-inline-end: calc(-1 * var(--mo-comp-button-text-padding, 1rem));
   }
   /* A full-screen carousel shows one item and needs no Show all (M3); from 840 px or in landscape it is drawn as the hero, which has it (carouselLayout.ts swaps the class). */
   .mo-js .mo-block-cards__carousel:has(.mo-carousel.mo-is-full-screen) .mo-block-cards__show-all {
