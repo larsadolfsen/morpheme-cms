@@ -5,11 +5,11 @@
 import Screen from './Screen';
 import { CMS_ROUTE } from './CmsPage';
 import { ReleaseNotes } from './ReleaseNotes';
-import { EmptyNote, Group, LinkButton, ListItem } from './ui';
+import { EmptyNote, Group, ListItem } from './ui';
 import { runningLine, runningNotes } from './bundledNotes';
 import { versionLines } from '../lib/releaseNotes.mjs';
 import { t } from './i18n';
-import { materialIcon } from './icon';
+import { Icon } from './icon';
 
 /** Every line, newest first, and those older than the running one. */
 const lines = () => versionLines(runningNotes);
@@ -18,7 +18,7 @@ const earlier = () => lines().filter(({ line }) => line !== runningLine);
 const lineHref = (line: string) => (line === runningLine ? `#${CMS_ROUTE}` : `#${CMS_ROUTE}/${line}`);
 
 /** At the bottom of a line's notes: back to the newer line (←) and forward to the older one (→), as "Earlier versions"
- * lists them: small buttons with the line's number ("← 0.14", "→ 0.12"; "Morpheme 0.14" for screen readers), so both
+ * lists them: links with the line's number ("← 0.14", "→ 0.12"; "Morpheme 0.14" for screen readers), so both
  * fit on a phone, each icon before its label, as Material 3 places it. */
 export function LineNav({ line }: { line: string }) {
   const all = lines();
@@ -30,28 +30,18 @@ export function LineNav({ line }: { line: string }) {
   return (
     <nav aria-label={t.cms.otherVersions} className="mo-editor-version-nav">
       {newer ? (
-        <LinkButton
-          kind="outlined"
-
-          href={lineHref(newer.line)}
-          icon={materialIcon('arrow_back')}
-          aria-label={t.library.cmsVersion(newer.line)}
-        >
+        <a href={lineHref(newer.line)} className="mo-link mo-editor-version-link" aria-label={t.library.cmsVersion(newer.line)}>
+          <Icon name="arrow_back" size={20} />
           {newer.line}
-        </LinkButton>
+        </a>
       ) : (
         <span />
       )}
       {older && (
-        <LinkButton
-          kind="outlined"
-
-          href={lineHref(older.line)}
-          icon={materialIcon('arrow_forward')}
-          aria-label={t.library.cmsVersion(older.line)}
-        >
+        <a href={lineHref(older.line)} className="mo-link mo-editor-version-link" aria-label={t.library.cmsVersion(older.line)}>
           {older.line}
-        </LinkButton>
+          <Icon name="arrow_forward" size={20} />
+        </a>
       )}
     </nav>
   );

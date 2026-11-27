@@ -399,6 +399,12 @@
     margin-block-end: var(--mo-ref-space-400);
     padding-inline: var(--mo-ref-space-200);
   }
+  .mo-editor-version-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--mo-ref-space-100);
+    min-block-size: 3rem;
+  }
   .mo-editor-own-field {
     margin-block-end: var(--mo-ref-space-100);
   }
