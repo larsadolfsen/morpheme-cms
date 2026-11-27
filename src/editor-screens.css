@@ -524,8 +524,6 @@
     text-align: center;
   }
   .mo-editor-media-file-name {
-    font-size: 0.75rem;
-    line-height: 1rem;
     word-break: break-all;
     color: var(--mo-sys-color-on-surface-variant);
   }
@@ -570,13 +568,6 @@
   }
   .mo-editor-media-group {
     margin-block-start: var(--mo-ref-space-200);
-  }
-  .mo-editor-media-group-title {
-    margin-block-end: var(--mo-ref-space-100);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 500;
-    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-media-pick-bar {
     position: sticky;

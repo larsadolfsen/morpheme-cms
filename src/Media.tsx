@@ -194,8 +194,8 @@ function FileTile({ src, selected, ...rest }: { src: string; selected?: boolean;
       {...rest}
     >
       <span className="mo-stack mo-editor-media-file-tile">
-        <Icon size={36} className="mo-keep mo-editor-media-muted" />
-        <span className="mo-clamp-2 mo-editor-media-file-name">{nameOfSrc(src)}</span>
+        <Icon size={40} className="mo-keep mo-editor-media-muted" />
+        <span className="mo-type-body-small mo-clamp-2 mo-editor-media-file-name">{nameOfSrc(src)}</span>
       </span>
     </SiteCard>
   );
@@ -484,7 +484,7 @@ function Gallery({
       )}
       {groups.map((g) => (
         <section key={g.key ?? 'all'} className="mo-editor-media-group">
-          {g.key !== null && <h2 className="mo-editor-media-group-title">{sort === 'name' ? g.key : dateName(g.key)}</h2>}
+          {g.key !== null && <GroupTitle>{sort === 'name' ? g.key : dateName(g.key)}</GroupTitle>}
           <Grid srcs={g.items} picked={picked} onPick={onPick} selection={selection} />
         </section>
       ))}
