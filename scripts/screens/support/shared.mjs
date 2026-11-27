@@ -67,6 +67,22 @@ export async function openStyleMenu(page) {
     .click();
 }
 
+/** The bar's buttons whose target (the part's invisible ::after area, theme/styles/ui/target-size.css) is under the part's own size: 48 dp on a touch, 44 for a mouse. A button is drawn 40 dp (Material 3's small icon button); its target is what is tapped. */
+export async function barSmallTargets(page, phone) {
+  const need = phone ? 47.4 : 43.4;
+  return page.evaluate((min) => {
+    const target = (b) => {
+      const a = getComputedStyle(b, '::after');
+      const own = b.getBoundingClientRect();
+      return { w: Math.max(own.width, parseFloat(a.width) || 0), h: Math.max(own.height, parseFloat(a.height) || 0) };
+    };
+    return [...document.querySelectorAll('.mo-editor-tools button:not([hidden])')]
+      .map((b) => ({ label: b.getAttribute('aria-label'), ...target(b) }))
+      .filter((t) => t.w < min || t.h < min)
+      .map((t) => `${t.label} ${t.w}x${t.h}`);
+  }, need);
+}
+
 /** What the bar and its ⋮ menu hold now: `bar` its buttons (name, title, icon, size, pressed), `more` the rows of the ⋮ menu (opened and closed again by its button, so the cursor stays in its field). */
 export async function barTools(page) {
   const bar = await page.evaluate(() =>
@@ -97,9 +113,13 @@ export async function barTools(page) {
         height: x.getBoundingClientRect().height,
       })),
     );
-    // Escape closes the menu and keeps it closed: a second click on ⋮ can close it and, in the same press, open it again.
-    await page.keyboard.press('Escape');
-    await page.locator('[role=menu][aria-label="More"]').waitFor({ state: 'hidden', timeout: 5000 });
+    // The button closes the menu (the bar and the block stay as they were: Escape would let a block's selection go). Its closing click can open it again in the
+    // same press: then Escape closes it and keeps it closed.
+    const menu = page.locator('[role=menu][aria-label="More"]');
+    await button.first().click();
+    await menusSettled(page);
+    if (await menu.isVisible().catch(() => false)) await page.keyboard.press('Escape');
+    await menu.waitFor({ state: 'hidden', timeout: 5000 });
     await menusSettled(page);
   }
   return { bar, more, names: [...bar.map((b) => b.label), ...more.map((m) => m.label)] };

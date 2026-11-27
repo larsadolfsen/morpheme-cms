@@ -866,10 +866,10 @@ html {
 .mo-editor-text .mo-site-block-handle {
   position: absolute;
   top: 0.5rem;
-  /* The block's top left corner (owner, 16 Nov): the one place to drag a block. A 48 dp touch target, drawn inside the frame, its edge 24 dp in from the frame's left
+  /* The block's top left corner (owner, 16 Nov): the one place to drag a block. Drawn 40 dp, 4 dp in from the 48 dp target's edge, which is 24 dp in from the frame's left
      edge, where the selection mark's 48 dp target (centred on the outline's corner curve) ends, so the two never overlap (the card is the frame outset wider than the block on each side). */
   left: calc(
-    var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius)) * 0.2929 + 0.53px + 1.5rem -
+    var(--mo-comp-elevated-card-container-shape, var(--mo-comp-block-radius)) * 0.2929 + 0.53px + 1.5rem + 0.25rem -
       var(--mo-comp-editor-frame-outset)
   );
   z-index: 2;
@@ -886,6 +886,14 @@ html {
   cursor: grab;
   touch-action: none;
   transition: opacity var(--mo-sys-motion-spring-default-effects);
+}
+
+/* The handle is drawn 40 dp (Material 3's small icon button); its target is the part's own 48 dp on a touch and 44 dp for a mouse (--mo-sys-target-size,
+   theme/styles/ui/target-size.css), an invisible area out from its middle. */
+.mo-editor-text .mo-site-block-handle::after {
+  content: '';
+  position: absolute;
+  inset: calc((100% - var(--mo-sys-target-size)) / 2);
 }
 
 /* The active block's action row (blockRow.ts): inside the block's dotted outline (the card), at the top of its padding, 48 dp high, with the drag handle at its start, in the card's flow so
