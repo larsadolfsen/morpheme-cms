@@ -167,6 +167,8 @@ export async function settled(page) {
     () =>
       new Promise((done) => {
         for (const a of document.getAnimations()) {
+          // One tied to a scroll position has no end in time: finishing it would cut it from the scroll.
+          if (typeof ScrollTimeline === 'function' && a.timeline instanceof ScrollTimeline) continue;
           try {
             a.finish();
           } catch {}

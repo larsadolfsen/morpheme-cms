@@ -1,0 +1,6 @@
+{
+  "id": "carousel-smooth-grow",
+  "kind": "line",
+  "mark": "improvement",
+  "text": "A carousel's items grow smoothly as you swipe it on a phone, the space between cards stays the same, and Show all stands at the right under it"
+}

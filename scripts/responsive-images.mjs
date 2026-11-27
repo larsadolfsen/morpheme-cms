@@ -22,7 +22,11 @@ import { fetchLiveRecord, hashOf, keyOf, readRecord, RECORD_NAME, takeFromLive, 
 
 const ROOT = process.cwd();
 const IMAGES = path.join(ROOT, 'public/images');
-const SOURCES = [{ dir: 'uploads', out: 'uploads/' }];
+// `editions`: the demo's photographs that the Library does not list (demo/README.md); a site without that folder has none.
+const SOURCES = [
+  { dir: 'uploads', out: 'uploads/' },
+  { dir: 'editions', out: 'editions/' },
+];
 const OUT_DIR = path.join(ROOT, 'public/images/_r');
 const MANIFEST = path.join(ROOT, 'src/data/image-manifest.json');
 const WIDTHS = [160, 480, 800, 1200];
