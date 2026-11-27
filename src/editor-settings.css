@@ -587,22 +587,10 @@
     }
   }
 
-  .mo-editor-image-result {
-    display: block;
-    aspect-ratio: 1 / 1;
-    inline-size: 100%;
-    overflow: hidden;
-    border-radius: 0.5rem;
-    background-color: var(--mo-sys-color-surface-container-high);
-    &:disabled {
-      opacity: 60%;
-    }
-  }
-
   .mo-editor-image-results {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--mo-ref-space-75);
+    gap: var(--mo-ref-space-100);
     & > * {
       min-inline-size: 0;
     }
@@ -615,7 +603,6 @@
   @media (width >= 52.5rem) {
     .mo-editor-image-results {
       grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
-      gap: var(--mo-ref-space-100);
     }
   }
 

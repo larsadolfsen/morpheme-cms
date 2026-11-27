@@ -425,12 +425,6 @@
 
   /* ---- A deleted file's view and the release notes ---- */
 
-  .mo-editor-file-name {
-    display: flex;
-    align-items: center;
-    gap: var(--mo-ref-space-150);
-    font-weight: 500;
-  }
   .mo-editor-file-preview {
     inline-size: 100%;
     max-block-size: 45dvh;

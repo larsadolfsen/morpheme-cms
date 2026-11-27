@@ -2,6 +2,7 @@
 // needs a key, a field for it. Everything goes through the Worker (src/mediaProviders.ts). Exposes MediaProviderPicker.
 import { useEffect, useState, type ReactElement } from 'react';
 import { Button, EmptyNote, Notice, SearchBar, TextField } from './ui';
+import { SiteImageTile } from './themeUi';
 import { t } from './i18n';
 import {
   ProviderError,
@@ -105,8 +106,8 @@ export default function MediaProviderPicker({
           void connect();
         }}
       >
-        <p className="mo-editor-settings-strong">{text.keyTitle(provider.label)}</p>
-        <p className="mo-editor-settings-muted">{text.keyText(provider.label)}</p>
+        <p className="mo-type-title-small">{text.keyTitle(provider.label)}</p>
+        <p className="mo-type-body-medium mo-editor-settings-muted">{text.keyText(provider.label)}</p>
         <TextField
           label={text.keyLabel}
           type="password"
@@ -133,15 +134,14 @@ export default function MediaProviderPicker({
         <ul className="mo-editor-image-results">
           {items.map((item) => (
             <li key={item.id}>
-              <button
-                type="button"
+              <SiteImageTile
+                label={item.alt || text.credit(item.credit.name, provider.label)}
+                ratio={1}
                 disabled={busy}
-                className="mo-editor-image-result"
-                aria-label={item.alt || text.credit(item.credit.name, provider.label)}
                 onClick={() => onPick(item)}
               >
                 <img src={providerImage(provider, item.thumb)} alt="" loading="lazy" className="mo-cover" />
-              </button>
+              </SiteImageTile>
             </li>
           ))}
         </ul>
