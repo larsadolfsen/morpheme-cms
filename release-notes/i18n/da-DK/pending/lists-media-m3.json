@@ -1,0 +1,7 @@
+{
+  "id": "lists-media-m3",
+  "kind": "paragraph",
+  "mark": "improvement",
+  "title": "Lister og filer",
+  "text": "Lister og filer ser ens ud overalt. Rækker viser adresse, status og tid på én linje, filtre er chips, og du vælger en fil med dens afkrydsningsfelt. En fils navn er et tekstfelt med endelsen, og bjælkerne under filerne bruger Material 3's værktøjslinje."
+}
