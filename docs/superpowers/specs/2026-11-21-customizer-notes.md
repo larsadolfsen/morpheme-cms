@@ -9,7 +9,9 @@ The customizer is where a site owner changes the theme's steps without code. It 
 
 Owner, 27 Nov 2026: "The customizer will not change code, but change tokens". The customizer writes token values only, in the `custom`
 layer below: never a theme's or a block's code, CSS rules or markup. What it can change is what a theme exposes as a token; a look
-that has no token gets one in the theme first. It is a major release, 4.0, built in line 3.1 (owner, 27 Nov 2026: "It is a major
+that has no token gets one in the theme first. Example (owner, 27 Nov 2026: "Eg. Increase elevation of an element"): a card's
+elevation goes from level 1 to level 3 by setting its component token (`--mo-comp-card-…-elevation`) to another of M3's levels, in
+the `custom` layer; the card's code is untouched. It is a major release, 4.0, built in line 3.1 (owner, 27 Nov 2026: "It is a major
 release").
 
 ## Customization is not a deviation
