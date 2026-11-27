@@ -49,7 +49,7 @@ export default function SectionsField({ field, value, intro, page, off = [], onC
         value={markdown}
         blocks={ask}
         addImage={context.pickImage}
-        looks={(items) => looksOf(items, { file: page?.file, leads, intro: !!field.intro, sectionLooks, headingLooks })}
+        looks={(items) => looksOf(items, { file: page?.file, leads, sectionLooks, headingLooks })}
         sections
         onChange={() => {
           const parts = editor.current?.parts();

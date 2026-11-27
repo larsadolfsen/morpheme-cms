@@ -12,7 +12,7 @@ import { hasSidebar, templateOf, templatesOf } from '@morphemecms/cms/lib/page-t
 import { activeTheme, themeFolder } from '@morphemecms/cms/site/theme.mjs';
 import { binOf } from './bin.mjs';
 import { buildOutDir } from './build-out.mjs';
-import { leadProblem, textClasses, widthProblem } from './side-width.mjs';
+import { textClasses, widthProblem } from './side-width.mjs';
 
 const fixtures = fileURLToPath(new URL('fixtures/side/', import.meta.url));
 const BLOCK = 'src/apps/side-fixture/blocks/side-test';
@@ -72,8 +72,7 @@ export function checkSide(root) {
       if (found.template !== template) problems.push(`/${page}/ has the template ${found.template}, and should have ${template}`);
       if (side && !(found.column && found.side === side)) problems.push(`/${page}/ has no column on the ${side}, beside its text`);
       if (!side && (found.anywhere || found.side)) problems.push(`/${page}/ has the column, and should not`);
-      for (const problem of [widthProblem(found.text, side), leadProblem(found.text, side)])
-        if (problem) problems.push(`/${page}/: ${problem}`);
+      for (const problem of [widthProblem(found.text, side)]) if (problem) problems.push(`/${page}/: ${problem}`);
       drawn ||= found.anywhere;
     }
     if (offered.some(hasSidebar) && !drawn) problems.push('the block was not drawn at all');

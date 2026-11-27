@@ -214,21 +214,17 @@ export const leadsOf = (blocks) => Object.fromEntries(blocks.filter((b) => b.lea
 export const leadsOfField = (field) => ({ ...(field?.leads ?? {}), ...leadsOf(field?.blocks ?? []) });
 
 // How the text of a fixed page looks on the site, part by part, so the editor shows it so too
-// (editor.css): the headings of the sections as their components draw them, the text under a
-// heading that belongs to a section (its lead) as that section's text, and a page's introduction. The looks of each fixed page's sections are
+// (editor.css): the headings of the sections as their components draw them and the text under a
+// heading that belongs to a section (its lead) as that section's text. A page's introduction has no look of its own: it is a paragraph in its set style. The looks of each fixed page's sections are
 // the site's (`sectionLooks` and `headingLooks`, LOOKS and HEADINGS in a theme's editor/looks.mjs).
 /** The look of each part of the text (null: as text), from its parts in order: { kind: 'block', type }
  * for a card, 'heading' (H2), 'p' (with image: an image), 'gap' (a free line) or 'other'. The text a
  * section takes as its own is found as in sectionsFromParts. A text after the first is marked "rest". */
-export function looksOf(items, { file, leads = {}, intro = false, sectionLooks = {}, headingLooks = {} }) {
+export function looksOf(items, { file, leads = {}, sectionLooks = {}, headingLooks = {} }) {
   const looks = items.map(() => null);
   const isText = (i) => items[i].kind === 'p' && !items[i].image;
   const heading = headingLooks[file] ?? 'page-section';
   let start = 0;
-  if (intro) {
-    for (let i = 0; i < items.length && items[i].kind !== 'heading' && items[i].kind !== 'block'; i++)
-      if (isText(i)) looks[i] = 'page-intro';
-  }
   let run = start;
   for (let i = start; i <= items.length; i++) {
     const block = i < items.length && items[i].kind === 'block' ? items[i] : null;

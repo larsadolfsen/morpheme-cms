@@ -1513,20 +1513,15 @@
 
   .mo-editor-text-area {
     max-inline-size: none;
-    border-end-start-radius: var(--mo-sys-shape-corner-medium);
-    border-end-end-radius: var(--mo-sys-shape-corner-medium);
-    border-inline-style: solid;
-    border-inline-width: 1px;
-    border-block-end-style: solid;
-    border-block-end-width: 1px;
-    border-color: var(--mo-sys-color-outline-variant);
     padding-inline: var(--mo-sys-grid-margin);
-    padding-block: var(--mo-comp-editor-rhythm-200);
+    padding-block: var(--mo-ref-space-200);
   }
 
+  /* The text's box is Material 3's outlined card: surface, a 1 dp outline-variant line, the medium corner (12 dp). */
   .mo-editor-text-surface {
+    border: 1px solid var(--mo-sys-color-outline-variant);
     border-radius: var(--mo-sys-shape-corner-medium);
-    background-color: var(--mo-sys-color-surface-container-lowest);
+    background-color: var(--mo-sys-color-surface);
   }
 
   .mo-editor-tight-row {
@@ -1540,10 +1535,7 @@
     z-index: 10;
     border-start-start-radius: var(--mo-sys-shape-corner-medium);
     border-start-end-radius: var(--mo-sys-shape-corner-medium);
-    border-style: solid;
-    border-width: 1px;
-    border-color: var(--mo-sys-color-outline-variant);
-    padding-block-end: var(--mo-comp-toolbar-docked-padding-block);
+    border-block-start: 0;
   }
 
   .mo-editor-two-columns {

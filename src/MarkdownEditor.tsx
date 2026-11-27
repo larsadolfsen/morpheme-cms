@@ -45,7 +45,7 @@ import { liftListItem } from '@milkdown/kit/prose/schema-list';
 import { lift } from '@milkdown/kit/prose/commands';
 import { listKindOf, styleOf } from './styleKind.mjs';
 import { listRows, styleRows } from './styleMenu.mjs';
-import { planBar, toolWidth } from './textBar.mjs';
+import { planBar } from './textBar.mjs';
 import { sizeListText, sizeOfList } from './listSize.mjs';
 import { HTML, insertBlock, makeEditor, markdownOf, partsOf, siteBlockSchema, spacing } from './markdown.mjs';
 import { firstHeading, topHeadings } from './firstHeading.mjs';
@@ -171,9 +171,8 @@ type Props = {
   frame?: boolean;
   /** A page's or post's `Preview` (pagePreview.tsx): a main tool of the bar, before Undo, and in its `⋮` when the contextual tools fill it. */
   onPreview?: () => void;
-  /** The first paragraph is drawn as the site draws the lead (editor.css, `data-lead-style`): a page's (muted and 52ch wide) or a post's; none
-   * for a page with a column beside its text, which has no lead on the site. Only a text with the section frame (pages and posts). */
-  lead?: 'page' | 'post';
+  /** A post's first paragraph is drawn as the site draws its lead (editor.css, `data-lead-style`). A page has none (owner, 27 Nov 2026). */
+  lead?: 'post';
   /** The page's address on the site, for `View on site` in the bar's `⋮` (its last group); none for a page that is not on the site yet. */
   viewOnSite?: string;
 };
@@ -3679,7 +3678,7 @@ export default forwardRef<MarkdownHandle, Props>(function MarkdownEditor(
         key={id}
         icon={icon}
         label={label}
-        text={text ? { width: toolWidth(id, textWidths) } : undefined}
+        text={text ? { width: textWidths[id] } : undefined}
         selected={on ? active.includes(on) : pressed}
         disabled={disabled}
         reason={reason}

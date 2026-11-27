@@ -43,7 +43,7 @@ async function checkCardBar(width, height = 800) {
   if (!selected.groups.length || selected.groups[0] === 'Text tools')
     problems.push(`${label}: the bar's first group is "${selected.groups}", not the block's name`);
   const tools = await barTools(page);
-  if (tools.bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the card's bar is under 44 x 44 dp`);
+  if (tools.bar.some((b) => b.height < 39.4 || b.width < 39.4)) problems.push(`${label}: a button of the card's bar is under 40 x 40 dp`);
   // Remove is in the card's ⋮ at every width (from expanded the side sheet has none).
   if (!tools.names.includes('Remove')) problems.push(`${label}: the card's menu has no Remove (${tools.names})`);
   const rowNames = await page
@@ -125,7 +125,7 @@ async function checkBlockBar(width, height = 800) {
   for (const name of ['Add above', 'Add below', 'Undo', 'Redo'])
     if (!bar.some((b) => b.label === name && b.svg))
       problems.push(`${label}: the bar has no icon button "${name}" (${bar.map((b) => b.label)})`);
-  if (bar.some((b) => b.height < 43.4 || b.width < 43.4)) problems.push(`${label}: a button of the block's bar is under 44 x 44 dp`);
+  if (bar.some((b) => b.height < 39.4 || b.width < 39.4)) problems.push(`${label}: a button of the block's bar is under 40 x 40 dp`);
   // The List's tools in the owner's order (14 Nov), the bar's first and then the ⋮'s: Add below, Add above, Settings (Edit), Fill from a list, Move up, Move down;
   // Undo, Redo, Insert block and the ⋮ close the bar, with no divider.
   const order = ['Add below', 'Add above', 'Edit'];

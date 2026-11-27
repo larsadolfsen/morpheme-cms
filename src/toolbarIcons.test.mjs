@@ -20,9 +20,10 @@ test('the bar uses no hard-coded colour', () => {
   assert.doesNotMatch(code, /var\(--mo-sys-color-primary\)/);
 });
 
-test('a resting tool is the theme icon button, its colours come from the theme (no rule of the bar sets them), and the bar buttons are 44 dp with a 20 dp icon', () => {
+test('a resting tool is the theme icon button, its colours come from the theme (no rule of the bar sets them), and the bar sets no size or token of its own (M3 small icon button, docked toolbar)', () => {
   assert.doesNotMatch(toolbarCss, /\.mo-editor-tools button/);
-  assert.match(ui, /'--mo-comp-icon-button-small-container-height': '2\.75rem',\s*'--mo-comp-icon-button-small-icon-size': '1\.25rem'/);
+  assert.doesNotMatch(ui, /--mo-comp-icon-button-small-container-height/);
+  assert.doesNotMatch(ui, /closeToolbar|toolbarSize\b/);
 });
 
 test('a tool with a menu rests in the same colour as the other tools, not the text button accent', () => {

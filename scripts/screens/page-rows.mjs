@@ -88,8 +88,8 @@ async function checkBlockRow(width, options = {}) {
   );
   for (const name of ['Move up', 'Move down', 'Hide'])
     if (!shape.some((b) => b.label === name)) problems.push(`${label}: the row has no "${name}" (${shape.map((b) => b.label)})`);
-  if (shape.some((b) => b.w < 43.4 || b.h < 43.4))
-    problems.push(`${label}: a button of the row is under 44 x 44 dp (${JSON.stringify(shape)})`);
+  if (shape.some((b) => b.w < 39.4 || b.h < 39.4))
+    problems.push(`${label}: a button of the row is under 40 x 40 dp (${JSON.stringify(shape)})`);
   const last = shape.find((b) => b.label === 'Move down');
   if (!last?.off || !last.why)
     problems.push(`${label}: Move down is not disabled with a reason on the last block (${JSON.stringify(last)})`);
@@ -556,8 +556,8 @@ async function checkInsertBlock(width, height = 800) {
   const check = (state, got) => {
     const where = `${label} (${state})`;
     if (!got.insert) return void problems.push(`${where}: no Insert block on the bar (${got.names})`);
-    if (Math.abs(got.insert.width - 44) > 0.6 || Math.abs(got.insert.height - 44) > 0.6)
-      problems.push(`${where}: Insert block is ${got.insert.width} x ${got.insert.height}, not 44 x 44`);
+    if (Math.abs(got.insert.width - 40) > 0.6 || Math.abs(got.insert.height - 40) > 0.6)
+      problems.push(`${where}: Insert block is ${got.insert.width} x ${got.insert.height}, not 40 x 40`);
     if (got.icon !== 'add_block')
       problems.push(`${where}: Insert block has icon ${got.icon}, not the add-block icon (widgets with a plus)`);
     if (got.scrolls) problems.push(`${where}: the bar scrolls`);

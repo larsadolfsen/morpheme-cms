@@ -509,36 +509,26 @@ async function checkTapBelowSection(width, touch) {
   await page.close();
 }
 
-/** The editor draws the lead as the site does (editor.css, `data-lead` from sectionFrame.ts): the first paragraph after the H1 has the lead's size, line height, weight and tracking (the site's `mo-type-lead`, read from a probe), muted and at most 52ch on a page; the second paragraph does not; a page with a column beside its text has no lead. At 375 and 1280. */
+/** A page's first paragraph has no size of its own (owner, 27 Nov 2026): in the editor it is drawn in the same text style as the paragraph below it (Body medium, not the lead's), with no `data-lead` and no 52ch measure; the page editor's own `data-look="page-intro"` is gone too. At 375 and 1280. */
 async function checkEditorLead() {
   const path = BUILT_PAGE;
-  const text = (template) =>
-    `---\ntitle: "T"\ndescription: "d"\n${template ? `template: ${template}\n` : ''}---\n\n# T\n\nThe lead text of the page.\n\nThe second paragraph.\n\n## Alpha\n\nAlpha body.\n`;
+  const text = `---\ntitle: "T"\ndescription: "d"\n---\n\n# T\n\nThe intro of the page.\n\nThe second paragraph.\n\n## Alpha\n\nAlpha body.\n`;
   const read = `(() => {
     const pm = document.querySelector('.ProseMirror');
-    const probe = document.createElement('p');
-    probe.className = 'mo-type-lead';
-    probe.textContent = 'Probe';
-    document.body.append(probe);
-    const pick = (e) => { const c = getComputedStyle(e); return { size: c.fontSize, line: c.lineHeight, weight: c.fontWeight, tracking: c.letterSpacing }; };
+    const pick = (e) => { const c = getComputedStyle(e); return { size: c.fontSize, line: c.lineHeight, weight: c.fontWeight, tracking: c.letterSpacing, color: c.color, measure: c.maxInlineSize }; };
     const ps = [...pm.children].filter((e) => e.tagName === 'P');
-    const out = { probe: pick(probe), marked: ps.map((e) => e.hasAttribute('data-lead')), lead: pick(ps[0]), second: pick(ps[1]), muted: getComputedStyle(ps[0]).color, measure: getComputedStyle(ps[0]).maxInlineSize };
-    probe.remove();
-    return out; })()`;
+    return { marked: ps.map((e) => e.hasAttribute('data-lead') || e.hasAttribute('data-look')), first: pick(ps[0]), second: pick(ps[1]) }; })()`;
   for (const width of [375, 1280]) {
-    const label = `editor lead ${width}px`;
+    const label = `editor page intro ${width}px`;
     const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: 'light', locale: 'en-US', hasTouch: width < 600 });
     page.on('pageerror', (e) => problems.push(`${label}: ${e.message}`));
-    await openEditor(page, site, { [path]: text('single') });
+    await openEditor(page, site, { [path]: text });
     await page.goto(`${site}/editor/#${path}`);
-    await page.waitForSelector('.ProseMirror > p[data-lead]', { timeout: 30_000 });
+    await page.waitForSelector('.ProseMirror > p', { timeout: 30_000 });
     const got = await page.evaluate(read);
-    if (JSON.stringify(got.marked) !== '[true,false,false]')
-      problems.push(`${label}: lead marks ${JSON.stringify(got.marked)}, wanted only the first paragraph`);
-    if (JSON.stringify(got.lead) !== JSON.stringify(got.probe))
-      problems.push(`${label}: the lead is ${JSON.stringify(got.lead)}, the site's is ${JSON.stringify(got.probe)}`);
-    if (JSON.stringify(got.second) === JSON.stringify(got.probe)) problems.push(`${label}: the second paragraph is drawn as a lead`);
-    if (got.measure === 'none') problems.push(`${label}: a page's lead has no 52ch measure`);
+    if (got.marked.some(Boolean)) problems.push(`${label}: a paragraph is marked as a lead or a look: ${JSON.stringify(got.marked)}`);
+    if (JSON.stringify(got.first) !== JSON.stringify(got.second))
+      problems.push(`${label}: the intro is ${JSON.stringify(got.first)}, the paragraph below it ${JSON.stringify(got.second)}`);
     await page.close();
   }
 }

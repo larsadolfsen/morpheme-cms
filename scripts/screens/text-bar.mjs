@@ -81,16 +81,19 @@ async function checkTextBar(width = 360) {
   const ended = rightEndProblem(inText.names, inText.lastRight, inText.barRight - 1, inText.divider);
   if (ended) problems.push(`${label}: ${ended}`);
   // The bar is 354 dp wide at 375 px (352 inside its 1 dp edges, 10.5 dp from each edge), the page's margin less 5.5 dp each side, at every phone width.
-  if (width === 375 && inText.barWidth !== 352) problems.push(`${label}: the bar is ${inText.barWidth} px inside its edges, not 352`);
-  if (width === 375 && Math.abs(inText.outer - 354) > 0.6)
-    problems.push(`${label}: the bar is ${inText.outer} px wide, not 354 (352 inside)`);
-  const slots = Math.floor(inText.barWidth / 44);
-  if (inText.height < 44 || inText.height > 46)
-    problems.push(`${label}: the bar is ${inText.height} px tall, not 44 (plus its 1 px edges)`);
+  // The text's box is an outlined card in the page's 16 dp grid margin (batch 9): 343 dp at 375 px, 341 inside its 1 dp edges.
+  if (width === 375 && Math.abs(inText.barWidth - 341) > 0.6)
+    problems.push(`${label}: the bar is ${inText.barWidth} px inside its edges, not 341`);
+  if (width === 375 && Math.abs(inText.outer - 343) > 0.6)
+    problems.push(`${label}: the bar is ${inText.outer} px wide, not 343 (341 inside)`);
+  const slots = Math.floor(inText.barWidth / 48);
+  // M3's docked toolbar is 64 dp high (md.comp.toolbar.docked).
+  if (inText.height < 64 || inText.height > 66)
+    problems.push(`${label}: the bar is ${inText.height} px tall, not 64 (plus its 1 px edges)`);
   if (inText.scrolls || inText.pageScrolls) problems.push(`${label}: the bar or the page scrolls sideways`);
-  if (inText.buttons.some((b) => Math.abs(b.height - 44) > 0.6 || b.width < 43.4))
+  if (inText.buttons.some((b) => Math.abs(b.height - 40) > 0.6 || b.width < 39.4))
     problems.push(
-      `${label}: a button of the bar is not 44 x 44 dp (${inText.buttons.map((b) => `${b.name} ${b.width}x${b.height}`).join(', ')})`,
+      `${label}: a button of the bar is not M3's 40 dp icon button (or wider) (${inText.buttons.map((b) => `${b.name} ${b.width}x${b.height}`).join(', ')})`,
     );
   // The ⋮ is Material Symbols' more_vert (three dots in a column, 20 dp), drawn by the icon system, not Phosphor's.
   const dots = await page.evaluate(() => {
@@ -125,7 +128,7 @@ async function checkTextBar(width = 360) {
   {
     // The text tools stand at the left in the owner's order (Bold, Italic, Text style, List), as many as fit beside Undo, Redo, Insert block and the ⋮ (176 dp);
     // the last one that does not fit is in the ⋮ (at 360 px: Lists).
-    const fit = Math.max(0, Math.min(4, Math.floor((inText.barWidth - 176) / 44)));
+    const fit = Math.max(0, Math.min(4, Math.floor((inText.barWidth - 32 - 192) / 48)));
     const got = inText.names.slice(0, -4).map((n) => n.split(':')[0]);
     const want = ['Bold', 'Italic', 'Text style', 'List'].slice(0, fit);
     if (got.join() !== want.join()) problems.push(`${label}: the bar has ${got.join()} at the left, not ${want.join()}`);
@@ -596,8 +599,8 @@ async function checkTextBarFit(width) {
     problems.push(`${label}: the bar overflows its box (last button ends at ${bar.buttons.at(-1).right}, box at ${bar.barRight - 1})`);
   for (const b of bar.buttons) {
     const id = idOf(b.name) ?? { Undo: 'undo', Redo: 'redo', 'Insert block': 'insert', More: 'more' }[b.name];
-    if (id && Math.abs(b.w - toolWidth(id)) > 0.6)
-      problems.push(`${label}: ${b.name} is drawn ${b.w} dp wide, TOOL_WIDTH says ${toolWidth(id)} (src/textBar.mjs)`);
+    if (id && Math.abs(b.w + 8 - toolWidth(id)) > 0.6)
+      problems.push(`${label}: ${b.name} is drawn ${b.w} dp wide, TOOL_WIDTH says ${toolWidth(id)} with its 8 dp gap (src/textBar.mjs)`);
   }
   if (onBar.join() !== TEXT.slice(0, onBar.length).join())
     problems.push(`${label}: the bar's text tools are not in order (${onBar.join()})`);
@@ -652,7 +655,7 @@ async function checkTextBarWide() {
       width: bar.clientWidth,
       height: bar.getBoundingClientRect().height,
       names: buttons.map((b) => b.getAttribute('aria-label')),
-      small: buttons.filter((b) => Math.abs(b.getBoundingClientRect().height - 44) > 0.6 || b.getBoundingClientRect().width < 43.4).length,
+      small: buttons.filter((b) => Math.abs(b.getBoundingClientRect().height - 40) > 0.6 || b.getBoundingClientRect().width < 39.4).length,
       scrolls: bar.scrollWidth > bar.clientWidth + 2,
       divider: !!bar.querySelector('hr[aria-orientation="vertical"]'),
       barRight: bar.getBoundingClientRect().right,
@@ -701,9 +704,9 @@ async function checkTextBarWide() {
     rows.some((r) => !['Preview', 'Color', 'Divider', 'Hide helping lines', 'Show helping lines'].includes(r))
   )
     problems.push(`1280px text bar: the ⋮ holds more than Preview, Color, Divider and the helping-lines button (${rows.join(', ')})`);
-  if (got.height < 44 || got.height > 46 || got.small || got.scrolls || got.divider)
+  if (got.height < 64 || got.height > 66 || got.small || got.scrolls || got.divider)
     problems.push(
-      `1280px text bar: height ${got.height}, ${got.small} buttons not 44 x 44, scrolls ${got.scrolls}, divider ${got.divider} (none wanted)`,
+      `1280px text bar: height ${got.height}, ${got.small} buttons not 40 dp, scrolls ${got.scrolls}, divider ${got.divider} (none wanted)`,
     );
   await page.close();
 }
@@ -755,8 +758,8 @@ async function checkPreviewInBar(width) {
     .locator('.mo-editor-tools button[aria-label="Preview"]')
     .evaluate((b) => b.getBoundingClientRect().toJSON(), null, { timeout: 2000 })
     .catch(() => null);
-  if (!size || Math.abs(size.width - 44) > 0.6 || Math.abs(size.height - 44) > 0.6)
-    problems.push(`${label}: Preview on the bar is not 44 x 44 dp (${JSON.stringify(size)})`);
+  if (!size || Math.abs(size.width - 40) > 0.6 || Math.abs(size.height - 40) > 0.6)
+    problems.push(`${label}: Preview on the bar is not 40 x 40 dp (${JSON.stringify(size)})`);
   if (!idle.includes('More')) problems.push(`${label}: idle, a saved page's bar has no ⋮ for View on site (${idle.join(', ')})`);
   else {
     const rows = await moreRows();

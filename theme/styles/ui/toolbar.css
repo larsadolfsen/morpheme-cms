@@ -24,10 +24,12 @@
      the bottom of a phone, site-action.css). */
   :where(.mo-toolbar).mo-is-docked {
     justify-content: space-between;
-    padding: var(--mo-comp-toolbar-docked-padding-block, 0.75rem) var(--mo-comp-toolbar-docked-padding-inline, 1rem)
-      max(var(--mo-comp-toolbar-docked-padding-block, 0.75rem), env(safe-area-inset-bottom));
+    padding: var(--mo-comp-toolbar-docked-padding-block, 0.5rem) var(--mo-comp-toolbar-docked-padding-inline, 1rem)
+      max(var(--mo-comp-toolbar-docked-padding-block, 0.5rem), env(safe-area-inset-bottom));
     border-top: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-comp-block-line));
     backdrop-filter: var(--mo-comp-toolbar-docked-backdrop, blur(16px));
+    /* Specs: "By default all toolbars are 64dp high" (md.comp.toolbar.docked container.height 64 dp). */
+    min-block-size: 4rem;
     /* No shadow: M3 Overview, Differences from M2: "Elevation: No shadow"; md.comp.toolbar.docked has no elevation token. */
   }
   /* Docked with its primary action embedded (Toolbar `primary`, M3 Overview: "Docked with embedded primary action instead of FAB"): the actions and the
