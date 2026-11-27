@@ -88,6 +88,7 @@
 .mo-editor-text .ProseMirror:focus-visible > [data-section-part='start'][data-section-focus]::before,
 .mo-editor-text .ProseMirror:focus-visible > [data-section-focus-below]::before {
   border-block-start-color: var(--mo-sys-color-primary);
+  border-block-start-width: 2px;
 }
 .mo-editor-text .ProseMirror:focus-visible > [data-section-bottom] {
   position: relative;

@@ -815,7 +815,8 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
         ? '[data-row-link], .mo-editor-inline-segmented-buttons'
         : '[data-row-link], [data-add-button], .mo-editor-inline-segmented-buttons';
     if (await page.locator(own).count()) problems.push(`${label}: the row has a text row or a button of its own for its link`);
-    if (!(await state()).bar.some((b) => b.label === 'Link')) problems.push(`${label}: the toolbar has no Link button`);
+    // The Link tool stands on the bar or, on a narrow bar, in the ⋮ menu.
+    if (!(await barTools(page)).names.includes('Link')) problems.push(`${label}: the toolbar has no Link button`);
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
     await page.waitForTimeout(500);
     if (!(await page.getByText('Page', { exact: true }).locator('visible=true').count()))

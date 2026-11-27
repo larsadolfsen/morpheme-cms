@@ -594,7 +594,9 @@ async function checkBlockDrag(width) {
   }
   const box = (i) => handles.nth(i).boundingBox();
   const first = await box(0);
-  if (first.width < 48 || first.height < 48) problems.push(`${label}: a handle is smaller than 48 x 48 (${first.width}x${first.height})`);
+  // The handle is M3's small icon button (batch 9): a 40 dp container; its 48 dp target is the container plus the 4 dp space around it.
+  if (first.width < 39.4 || first.height < 39.4)
+    problems.push(`${label}: a handle is smaller than 40 x 40 (${first.width}x${first.height})`);
   const opacity = (want) => handleOpacity(page, 1, want);
   if (phone) {
     // A touch sees a handle only on the active block (it is the end of the block's row); go into the second block first.
@@ -824,7 +826,7 @@ async function checkBlockHandleCorner(width) {
       const at = `${label}: ${name}`;
       if (!m.handle) problems.push(`${at}: no handle`);
       else {
-        if (m.handle.w < 48 || m.handle.h < 48) problems.push(`${at}: the handle is ${m.handle.w}x${m.handle.h}, under 48x48`);
+        if (m.handle.w < 39.4 || m.handle.h < 39.4) problems.push(`${at}: the handle is ${m.handle.w}x${m.handle.h}, under 40x40`);
         if (m.handle.left > m.frameW / 4 || m.handle.top > 16)
           problems.push(`${at}: the handle is not in the frame's top left corner (${m.handle.left}, ${m.handle.top})`);
         if (m.handle.left < 0) problems.push(`${at}: the handle starts outside the frame (${m.handle.left})`);

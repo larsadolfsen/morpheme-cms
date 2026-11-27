@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { DIST, browser, problems, site } from './support/context.mjs';
 
 // The demo's Typography page (demo/src/content/pages/typography.md, demo/public/demo-type.js): only the demo has it, so a built site that is not the demo
-// has nothing to check. Each of the 16 type styles (Material 3's 15 roles and the lead) is shown with its class name and the size, line
+// has nothing to check. Each of the 15 type styles (Material 3's roles) is shown with its class name and the size, line
 // height, tracking and weight read from its computed style; then the three text lists (bullet, numbered, check) the same way.
 const STYLES = [
   'display-large',
@@ -13,7 +13,6 @@ const STYLES = [
   'headline-medium',
   'headline-small',
   'title-large',
-  'lead',
   'title-medium',
   'title-small',
   'body-large',

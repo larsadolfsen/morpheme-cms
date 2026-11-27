@@ -653,7 +653,9 @@ async function checkFocusFrame() {
       got = await page.evaluate(read(true));
       if (got.rows.some((r) => r.drawn)) problems.push(`${label}: a section frame is drawn while a block has the focus`);
       for (const [color, c] of Object.entries(got.contrast)) {
-        if (c.blockBorder !== 'dotted') problems.push(`${label}: the focused block has no dotted outline on a ${color} section`);
+        // A block in focus draws M3's focus indicator (a solid ring, batch 9), not a dotted line.
+        if (c.blockBorder !== 'solid')
+          problems.push(`${label}: the focused block has no focus ring on a ${color} section (${c.blockBorder})`);
         else if (c.block < 3)
           shortfall(
             '1.4.11',
