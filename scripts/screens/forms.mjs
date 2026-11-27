@@ -114,7 +114,7 @@ async function checkUserInvalid(width, height, theme) {
   await page.close();
 }
 
-/** A page's accordion rows (FoldSection): between its divider lines the title has the same space above and below it (within 1px, measured on the pixels of the first capital, not the line box), the arrow is centred on the title, and the row stays 48px tall or more (360, 375, 390, 414 px and a computer). */
+/** A page's accordion rows (FoldSection): between its divider lines the title has the same space above and below it (within 2px, measured on the pixels of the first capital, not the line box), the arrow is centred on the title, and the row stays 56px tall or more (360, 375, 390, 414 px and a computer). */
 async function checkFoldRows(width, height) {
   const page = await browser.newPage({ viewport: { width, height }, locale: 'en-US', deviceScaleFactor: 2 });
   page.on('pageerror', (e) => problems.push(`${width}px accordion rows: ${e.message}`));
@@ -155,12 +155,14 @@ async function checkFoldRows(width, height) {
     const above = Math.min(...inked) / scale;
     const below = (info.height - 1 - Math.max(...inked)) / scale;
     shown.push([above, below, box.height]);
-    if (Math.abs(above - below) > 1)
+    // The row is the List - Expand part's item (task 13 test 14): the part centres the text's line box, so the capitals sit up to 2px off the middle by the font's metrics.
+    if (Math.abs(above - below) > 2)
       problems.push(`${width}px accordion row "${title_}": ${above}px above the letters and ${below}px below, should be equal`);
     const centre = (Math.min(...inked) + Math.max(...inked) + 1) / 2 / scale + box.y;
     if (Math.abs(arrow.y + arrow.height / 2 - centre) > 1)
       problems.push(`${width}px accordion row "${title_}": the arrow is not centred on the title`);
-    if (box.height < 48) problems.push(`${width}px accordion row "${title_}": ${box.height}px tall, should be 48px or more`);
+    if (box.height < 56)
+      problems.push(`${width}px accordion row "${title_}": ${box.height}px tall, should be 56px or more (List - Expand)`);
     // The line above the title is the divider under the section before it: nothing may sit between them (a parent's `space-y` gave 24px, twice as far above the title as below it).
     const gap = await button.evaluate((el) => {
       const before = el.closest('section').previousElementSibling;
@@ -446,7 +448,7 @@ async function checkDanger(width, height) {
     await page.waitForSelector('.ProseMirror p', { timeout: 30_000 });
     const danger = page.locator('section[data-fold-section]').filter({ has: page.locator('[id$="-title"]', { hasText: /^Danger$/ }) });
     // Danger is folded on load, like every section but Content (owner, 14 Nov 2026): open it to see its rows.
-    const rows = () => danger.locator(':scope > div').getByRole('button');
+    const rows = () => danger.locator('.mo-editor-danger-buttons').getByRole('button');
     const openDanger = async () => {
       const toggle = danger.locator('button.mo-list__item-expand-button');
       if ((await toggle.getAttribute('aria-expanded')) !== 'true') await toggle.click();

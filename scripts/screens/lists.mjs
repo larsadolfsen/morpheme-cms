@@ -1444,7 +1444,7 @@ async function checkSectionsOnLoad(width, height) {
     const sections = await page.$$eval('section[data-fold-section]', (els) =>
       els.map((el) => {
         const head = document.getElementById(el.getAttribute('aria-labelledby') ?? '');
-        const button = el.querySelector('button[aria-expanded]');
+        const button = el.querySelector(':scope > ul.mo-list__expand button[aria-expanded]');
         return {
           title: head?.textContent.trim() ?? '',
           button: !!button,
