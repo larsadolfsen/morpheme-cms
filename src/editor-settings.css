@@ -5,7 +5,7 @@
    exemptions src/editor.css gave their Tailwind class names. They sit in @layer utilities, where the utility classes were, so the cascade does not change. */
 @layer utilities {
   .mo-editor-ask-buttons {
-    margin-block-start: var(--mo-comp-editor-rhythm-300);
+    margin-block-start: var(--mo-ref-space-300);
     display: flex;
     gap: var(--mo-ref-space-100);
   }
@@ -21,7 +21,7 @@
   }
 
   .mo-editor-ask-follow {
-    margin-block-start: var(--mo-comp-editor-rhythm-200);
+    margin-block-start: var(--mo-ref-space-200);
   }
 
   /* Material 3, dialogs: the supporting text is body medium in on-surface-variant. */
@@ -108,7 +108,7 @@
       .mo-editor-used-title,
       .mo-editor-version-nav
     ) {
-    margin-block-end: var(--mo-comp-editor-rhythm-200);
+    margin-block-end: var(--mo-ref-space-200);
   }
 
   .mo-editor-ask-title {
@@ -153,7 +153,7 @@
 
   .mo-editor-colors-columns {
     display: grid;
-    gap: var(--mo-ref-space-250);
+    gap: var(--mo-ref-space-300);
     & > * {
       min-inline-size: 0;
     }
@@ -204,7 +204,7 @@
   }
 
   .mo-editor-filter-row {
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
+    margin-block-end: var(--mo-ref-space-300);
     display: flex;
     flex-wrap: wrap;
     gap: var(--mo-ref-space-100);
@@ -280,7 +280,7 @@
       .mo-editor-used-title,
       .mo-editor-version-nav
     ) {
-    margin-block-end: var(--mo-comp-editor-rhythm-500);
+    margin-block-end: var(--mo-ref-space-500);
   }
 
   :where(.mo-editor-flow-2 > :not(:last-child)) {
@@ -353,7 +353,7 @@
       .mo-editor-used-title,
       .mo-editor-version-nav
     ) {
-    margin-block-end: var(--mo-comp-editor-rhythm-150);
+    margin-block-end: var(--mo-ref-space-100);
   }
 
   :where(.mo-editor-flow-4 > :not(:last-child)) {
@@ -421,12 +421,12 @@
       .mo-editor-used-title,
       .mo-editor-version-nav
     ) {
-    margin-block-end: var(--mo-comp-editor-rhythm-200);
+    margin-block-end: var(--mo-ref-space-200);
   }
 
   :where(.mo-editor-flow-5 > :not(:last-child)) {
     margin-block-start: 0;
-    margin-block-end: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-flow-5
     > :not(
@@ -489,7 +489,7 @@
       .mo-editor-used-title,
       .mo-editor-version-nav
     ) {
-    margin-block-end: var(--mo-comp-editor-rhythm-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
 
   :where(.mo-editor-flow-6 > :not(:last-child)) {
@@ -557,7 +557,7 @@
       .mo-editor-used-title,
       .mo-editor-version-nav
     ) {
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
+    margin-block-end: var(--mo-ref-space-300);
   }
 
   .mo-editor-grab {
@@ -566,7 +566,7 @@
   }
 
   .mo-editor-group-inset {
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
+    margin-block-end: var(--mo-ref-space-300);
     padding-inline: var(--mo-ref-space-200);
   }
 
@@ -632,7 +632,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--mo-ref-space-150);
-    row-gap: var(--mo-comp-editor-rhythm-150);
+    row-gap: var(--mo-ref-space-100);
   }
 
   .mo-editor-license-none {
@@ -641,7 +641,7 @@
   }
 
   .mo-editor-license-note {
-    margin-block-end: var(--mo-comp-editor-rhythm-150);
+    margin-block-end: var(--mo-ref-space-100);
     padding-inline: var(--mo-ref-space-200);
   }
 
@@ -655,7 +655,7 @@
   }
 
   .mo-editor-license-photo {
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    margin-block-end: var(--mo-ref-space-400);
     display: block;
     block-size: auto;
     inline-size: 100%;
@@ -692,7 +692,7 @@
   }
   :where(.mo-editor-note-article > :not(:last-child)) {
     margin-block-start: 0;
-    margin-block-end: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-note-article
     > :not(
@@ -755,7 +755,7 @@
       .mo-editor-used-title,
       .mo-editor-version-nav
     ) {
-    margin-block-end: var(--mo-comp-editor-rhythm-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
 
   .mo-editor-note-image {
@@ -770,7 +770,7 @@
     border-block-start-style: solid;
     border-block-start-width: 1px;
     border-color: var(--mo-sys-color-outline-variant);
-    padding-block-start: var(--mo-ref-space-250);
+    padding-block-start: var(--mo-ref-space-300);
     &:first-of-type {
       border-block-start-width: 0;
       padding-block-start: var(--mo-ref-space-0);
@@ -778,7 +778,7 @@
   }
   :where(.mo-editor-note-section > :not(:last-child)) {
     margin-block-start: 0;
-    margin-block-end: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-note-section
     > :not(
@@ -841,7 +841,7 @@
       .mo-editor-used-title,
       .mo-editor-version-nav
     ) {
-    margin-block-end: var(--mo-comp-editor-rhythm-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
 
   .mo-editor-note-title {
@@ -924,7 +924,7 @@
       .mo-editor-used-title,
       .mo-editor-version-nav
     ) {
-    margin-block-end: var(--mo-comp-editor-rhythm-150);
+    margin-block-end: var(--mo-ref-space-100);
   }
 
   .mo-editor-on-surface {
@@ -1024,7 +1024,7 @@
       .mo-editor-used-title,
       .mo-editor-version-nav
     ) {
-    margin-block-end: var(--mo-comp-editor-rhythm-500);
+    margin-block-end: var(--mo-ref-space-500);
   }
 
   .mo-editor-picker-box {
@@ -1059,11 +1059,11 @@
   }
 
   .mo-editor-post-head {
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
+    margin-block-end: var(--mo-ref-space-300);
   }
   :where(.mo-editor-post-head > :not(:last-child)) {
     margin-block-start: 0;
-    margin-block-end: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-post-head
     > :not(
@@ -1126,7 +1126,7 @@
       .mo-editor-used-title,
       .mo-editor-version-nav
     ) {
-    margin-block-end: var(--mo-comp-editor-rhythm-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
 
   .mo-editor-post-meta {
@@ -1138,7 +1138,7 @@
     border-block-start-style: solid;
     border-block-start-width: 1px;
     border-color: var(--mo-sys-color-outline-variant);
-    padding-block-start: var(--mo-comp-editor-rhythm-200);
+    padding-block-start: var(--mo-ref-space-200);
     & > * {
       min-inline-size: 12rem;
       flex: 1 1 0%;
@@ -1287,7 +1287,7 @@
       .mo-editor-used-title,
       .mo-editor-version-nav
     ) {
-    margin-block-end: var(--mo-comp-editor-rhythm-200);
+    margin-block-end: var(--mo-ref-space-200);
   }
 
   .mo-editor-sample-stack-6 {
@@ -1358,7 +1358,7 @@
       .mo-editor-used-title,
       .mo-editor-version-nav
     ) {
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
+    margin-block-end: var(--mo-ref-space-300);
   }
 
   .mo-editor-scroll-target {
@@ -1376,7 +1376,7 @@
   }
 
   .mo-editor-settings-group {
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
+    margin-block-end: var(--mo-ref-space-300);
   }
 
   .mo-editor-settings-inline-row {
@@ -1407,7 +1407,7 @@
   }
 
   .mo-editor-settings-section {
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    margin-block-end: var(--mo-ref-space-400);
   }
 
   .mo-editor-settings-strong {
@@ -1435,11 +1435,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--mo-ref-space-250);
+    gap: var(--mo-ref-space-300);
     padding-inline: var(--mo-ref-space-300);
     padding-block-end: env(safe-area-inset-bottom);
     text-align: center;
-    row-gap: var(--mo-comp-editor-rhythm-250);
+    row-gap: var(--mo-ref-space-300);
   }
 
   .mo-editor-signin-icon {
@@ -1484,7 +1484,7 @@
     border-block-end-width: 1px;
     border-color: var(--mo-sys-color-outline-variant);
     padding-inline: var(--mo-sys-grid-margin);
-    padding-block: var(--mo-comp-editor-rhythm-200);
+    padding-block: var(--mo-ref-space-200);
   }
 
   .mo-editor-text-surface {

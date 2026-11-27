@@ -22,21 +22,21 @@
     margin-block-end: var(--mo-ref-space-200);
   }
   .mo-editor-stack-200 > :not(:last-child, :has(+ [data-fold-section])) {
-    margin-block-end: var(--mo-comp-editor-rhythm-200);
+    margin-block-end: var(--mo-ref-space-200);
   }
   :where(.mo-editor-stack-250 > :not(:last-child)) {
     margin-block-start: 0;
-    margin-block-end: var(--mo-ref-space-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-stack-250 > :not(:last-child, :has(+ [data-fold-section])) {
-    margin-block-end: var(--mo-comp-editor-rhythm-250);
+    margin-block-end: var(--mo-ref-space-300);
   }
   :where(.mo-editor-stack-300 > :not(:last-child)) {
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-stack-300 > :not(:last-child, :has(+ [data-fold-section])) {
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
+    margin-block-end: var(--mo-ref-space-300);
   }
 
   /* ---- Text ---- */
@@ -113,7 +113,7 @@
 
   /* A group of a settings page (a section with its title, or a row of switches): the space before the next one. */
   .mo-editor-group {
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    margin-block-end: var(--mo-ref-space-400);
   }
   /* The inset that lines text and rows up with a list's items. */
   .mo-editor-inset {
@@ -121,12 +121,12 @@
   }
   /* A notice inside a group, above its list. */
   .mo-editor-notice-inset {
-    margin-block-end: var(--mo-comp-editor-rhythm-200);
+    margin-block-end: var(--mo-ref-space-200);
     padding-inline: var(--mo-ref-space-200);
   }
   /* The search row or the tabs above a list: the space before the list. */
   .mo-editor-list-lead {
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-chips {
     display: flex;
@@ -146,7 +146,7 @@
   /* The button that adds a field under a list. */
   .mo-editor-add-button {
     display: inline-block;
-    margin-block-start: var(--mo-comp-editor-rhythm-200);
+    margin-block-start: var(--mo-ref-space-200);
   }
   /* The place before a group of choices in a sheet. */
   /* The row of buttons that closes a form or a dialog, at the end. */
@@ -159,7 +159,7 @@
     display: flex;
     justify-content: flex-end;
     gap: var(--mo-ref-space-100);
-    margin-block-start: var(--mo-comp-editor-rhythm-300);
+    margin-block-start: var(--mo-ref-space-300);
   }
   .mo-editor-dialog-title {
     margin-block-end: var(--mo-ref-space-200);
@@ -187,7 +187,7 @@
   .mo-editor-fields {
     display: flex;
     flex-direction: column;
-    gap: var(--mo-comp-editor-rhythm-200) var(--mo-ref-space-200);
+    gap: var(--mo-ref-space-200) var(--mo-ref-space-200);
   }
   .mo-editor-prose-wide {
     max-inline-size: none;
@@ -202,7 +202,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: var(--mo-ref-space-100);
-    margin-block-start: var(--mo-comp-editor-rhythm-200);
+    margin-block-start: var(--mo-ref-space-200);
   }
 
   /* ---- The start screen's widgets (widgets/*.tsx, FirstRun.tsx) ---- */
@@ -359,7 +359,7 @@
 
   .mo-editor-picker-hint {
     margin-inline: var(--mo-ref-space-300);
-    margin-block-end: var(--mo-comp-editor-rhythm-150);
+    margin-block-end: var(--mo-ref-space-100);
     flex-shrink: 0;
   }
   .mo-editor-picker-search {
@@ -369,12 +369,10 @@
   }
   .mo-editor-list-action {
     flex-shrink: 0;
-    padding-inline-end: var(--mo-ref-space-200);
   }
   .mo-editor-move-buttons {
     display: flex;
     flex-shrink: 0;
-    padding-inline-end: 0.375rem;
   }
   .mo-editor-app-intro {
     display: flex;
@@ -398,24 +396,24 @@
     flex-wrap: wrap;
     justify-content: space-between;
     gap: var(--mo-ref-space-100);
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    margin-block-end: var(--mo-ref-space-400);
     padding-inline: var(--mo-ref-space-200);
   }
   .mo-editor-own-field {
-    margin-block-end: var(--mo-comp-editor-rhythm-150);
+    margin-block-end: var(--mo-ref-space-100);
   }
   .mo-editor-own-field-held {
     margin-block-end: var(--mo-ref-space-100);
   }
   .mo-editor-empty-note {
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    margin-block-end: var(--mo-ref-space-400);
     padding-inline: var(--mo-ref-space-50);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-sample-text {
-    margin-block-end: var(--mo-comp-editor-rhythm-150);
+    margin-block-end: var(--mo-ref-space-100);
     padding-inline: var(--mo-sys-grid-margin);
-    padding-block-start: var(--mo-comp-editor-rhythm-150);
+    padding-block-start: var(--mo-ref-space-100);
     color: var(--mo-sys-color-on-surface-variant);
   }
 
@@ -449,7 +447,7 @@
     line-height: 1.5rem;
   }
   .mo-editor-release-list {
-    padding-inline-start: var(--mo-ref-space-250);
+    padding-inline-start: var(--mo-ref-space-300);
     list-style-type: disc;
     font-size: 1rem;
     line-height: 1.5rem;
