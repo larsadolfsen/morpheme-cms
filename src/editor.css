@@ -682,19 +682,19 @@
    stand beside the rail and the drawer, so they need no room. */
 @media (width >= 37.5rem) {
   .mo-snackbar__stack {
-    padding-left: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
+    padding-inline-start: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
   }
   .mo-editor-save-bar {
-    left: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
+    inset-inline-start: var(--mo-comp-nav-rail-collapsed-container-width, 5.5rem);
     width: auto;
   }
 }
 @media (width >= 52.5rem) {
   :root[data-sidebar='open'] .mo-snackbar__stack {
-    padding-left: var(--mo-comp-navigation-drawer-width, 22.5rem);
+    padding-inline-start: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
   :root[data-sidebar='open'] .mo-editor-save-bar {
-    left: var(--mo-comp-navigation-drawer-width, 22.5rem);
+    inset-inline-start: var(--mo-comp-navigation-drawer-width, 22.5rem);
   }
 }
 
@@ -773,7 +773,7 @@
     padding-inline-end: var(--mo-sys-section-pane-width);
   }
   :root:has(.mo-editor-section-pane:not([hidden] *)) .mo-editor-save-bar {
-    right: var(--mo-sys-section-pane-width);
+    inset-inline-end: var(--mo-sys-section-pane-width);
   }
 
   /* BottomSheet's `panel` (.mo-editor-side-panel): the theme's modal side sheet at the window's end edge, the full window
@@ -809,7 +809,7 @@
     margin-inline: auto;
   }
   :root[data-side-panel] .mo-editor-save-bar {
-    right: var(--mo-comp-side-panel-width);
+    inset-inline-end: var(--mo-comp-side-panel-width);
   }
   /* The screen's create button stands beside the pane, not on it (a redirect or a new list opens the pane from it). */
   :root[data-side-panel] .mo-editor-fab {
@@ -1959,7 +1959,7 @@ dialog {
   flex: 1;
   min-height: 10rem;
   overflow: hidden;
-  border-radius: var(--mo-shape-corner-medium, 0.75rem);
+  border-radius: var(--mo-sys-shape-corner-medium);
   cursor: grab;
   touch-action: none;
   user-select: none;
@@ -1986,10 +1986,7 @@ dialog {
    the blank part of the stage keeps the page's colour. */
 .mo-editor-crop-view-shade {
   position: absolute;
-  background: var(
-    --mo-comp-dialog-scrim,
-    color-mix(in srgb, var(--mo-comp-theme-scrim-colour, var(--mo-sys-color-on-surface)) 50%, transparent)
-  );
+  background: var(--mo-comp-dialog-scrim, var(--mo-sys-color-scrim-overlay));
   pointer-events: none;
 }
 .mo-editor-crop-view-frame:focus-visible {
@@ -1999,12 +1996,17 @@ dialog {
 .mo-editor-crop-view-hint {
   margin: 0;
   color: var(--mo-sys-color-on-surface-variant);
-  font-size: var(--mo-sys-typescale-body-small-size, 0.75rem);
+  font-size: var(--mo-sys-typescale-body-small-size);
+  line-height: var(--mo-sys-typescale-body-small-line-height);
+  letter-spacing: var(--mo-sys-typescale-body-small-tracking);
   text-align: center;
 }
 .mo-editor-crop-view-label {
-  margin: 0 0 0.5rem;
-  font-weight: 500;
+  margin: 0 0 var(--mo-ref-space-100);
+  font-size: var(--mo-sys-typescale-title-small-size);
+  line-height: var(--mo-sys-typescale-title-small-line-height);
+  font-weight: var(--mo-sys-typescale-title-small-weight);
+  letter-spacing: var(--mo-sys-typescale-title-small-tracking);
 }
 /* One row that scrolls sideways below medium; from medium the chips wrap. */
 .mo-editor-crop-view-ratios {

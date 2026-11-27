@@ -472,9 +472,10 @@
     padding-inline: var(--mo-ref-space-150);
     padding-block-start: var(--mo-comp-editor-rhythm-200);
     padding-block-end: var(--mo-ref-space-50);
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    font-weight: 500;
+    font-size: var(--mo-sys-typescale-title-small-size);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-sheet-link {

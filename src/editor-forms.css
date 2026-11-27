@@ -671,6 +671,8 @@
   .mo-editor-block-dialog-note {
     font-size: var(--mo-sys-typescale-body-medium-size);
     line-height: var(--mo-sys-typescale-body-medium-line-height);
+    font-weight: var(--mo-sys-typescale-body-medium-weight);
+    letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
   }
   .mo-editor-block-dialog-list {
     margin-inline: -0.75rem;
