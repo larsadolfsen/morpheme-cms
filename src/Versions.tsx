@@ -191,7 +191,7 @@ export function VersionNotice({ version, onCurrent }: { version: ShownVersion; o
     <Notice
       title={t.history.shownTitle(when(version.at))}
       action={
-        <Button kind="outlined" onClick={onCurrent}>
+        <Button kind="text" onClick={onCurrent}>
           {t.history.showCurrent}
         </Button>
       }

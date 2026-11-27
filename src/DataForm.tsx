@@ -362,7 +362,7 @@ function Form({
             <Notice
               title={folder.fresh.label(values)}
               action={
-                <Button kind="outlined" disabled={saving} onClick={() => void save()}>
+                <Button kind="text" disabled={saving} onClick={() => void save()}>
                   {folder.fresh.approve}
                 </Button>
               }

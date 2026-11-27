@@ -973,7 +973,7 @@ export function ListInput({
       </FoldList>
       {/* No more than `maxItems` (the action bar's two buttons). */}
       {canAdd && !(field.maxItems !== undefined && value.length >= field.maxItems) && (
-        <Button kind="outlined" icon={materialIcon('add')} className="mo-editor-field-add" onClick={add}>
+        <Button kind="text" icon={materialIcon('add')} className="mo-editor-field-add" onClick={add}>
           {t.forms.addOne(field.singular ?? t.forms.item)}
         </Button>
       )}
