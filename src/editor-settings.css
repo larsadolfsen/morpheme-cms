@@ -1218,15 +1218,11 @@
     color: var(--mo-sys-color-primary);
   }
 
+  /* The read-only notice: the theme's outlined card, set in from the window's edge by the window's margin. */
   .mo-editor-read-only-bar {
-    background-color: var(--mo-sys-color-primary);
-    padding-inline: var(--mo-ref-space-200);
-    padding-block: var(--mo-ref-space-150);
-    padding-block-start: calc(0.75rem + env(safe-area-inset-top));
-    text-align: center;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: var(--mo-sys-color-on-primary);
+    margin: var(--mo-ref-space-200);
+    margin-block-start: calc(var(--mo-ref-space-200) + env(safe-area-inset-top));
+    color: var(--mo-sys-color-on-surface);
   }
 
   .mo-editor-sample-columns {
@@ -1493,14 +1489,8 @@
   .mo-editor-signin-icon {
     inline-size: 5rem;
     block-size: 5rem;
-    border-radius: 1.375rem;
-    box-shadow: var(--mo-sys-panel-shadow);
-  }
-
-  .mo-editor-signin-title {
-    font-size: 1.5rem;
-    line-height: 2rem;
-    font-weight: 600;
+    border-radius: var(--mo-sys-shape-corner-large);
+    box-shadow: var(--mo-sys-elevation-level1-shadow);
   }
 
   .mo-editor-small-note {

@@ -614,14 +614,6 @@
   --mo-comp-navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
 }
 
-.mo-editor-main-rail {
-  --mo-comp-nav-rail-padding: 0.5rem 0.5rem 1.5rem;
-}
-
-.mo-editor-main-rail .mo-nav-rail__header {
-  margin-bottom: 1rem;
-}
-
 @keyframes editor-pop {
   from {
     opacity: 0;
@@ -2054,14 +2046,6 @@ dialog {
 }
 :root[data-zoomed] .mo-editor-tools-bar {
   inset-block-start: calc(env(safe-area-inset-top) + var(--mo-comp-editor-visual-top, 0px));
-}
-
-/* The skip link (topBarSlot.tsx, the theme's .mo-skip-link): the editor's unlayered link styles would drop its pill, so it is set again here,
-   above the navigation and the bars (z-index of the drawer and the top bar are below 50). */
-.mo-skip-link:focus {
-  background-color: var(--mo-sys-color-primary);
-  color: var(--mo-sys-color-on-primary);
-  z-index: 50;
 }
 
 /* The <main> the skip link focuses (topBarSlot.tsx) is no control, so it draws no ring of its own; the next Tab shows the ring of the control it

@@ -92,10 +92,10 @@ async function checkHints() {
   }
 }
 
-/** The footer links are the one named exception to the 44/48 px target checks of this file: they are exactly 36 px high by the owner's decision (14 Nov 2026, "Make the footer links 36px high clickable"), a deviation from M3's 48dp target allowed in the editor's workspace (docs/material-deviations.md, "Footer links"). No other check here skips them; this one asserts the number, so the exception is as narrow as the owner's 36 (35 or 37 fails, and so does a link narrower than its label plus 24 px). */
-const FOOTER_LINK_HEIGHT = 36;
+/** The footer links have a target at least 48 px high (task 13, batch 2, test 9; M3: "For most platforms, consider making touch targets at least 48 x 48dp"). The old 36 px exception (FL1) is gone. */
+const FOOTER_LINK_HEIGHT = 48;
 
-/** The editor's footer links (Support, System status, the legal links, Licenses) are exactly 36 px high at 320, 375 (touch) and 1280 px, as wide as their label plus 24 px of their own padding, never overlapping, with no sideways scroll; the lines of a wrapped row are 8px apart or more; the dividers are 16 px high and centred on the row. */
+/** The editor's footer links (Support, System status, the legal links, Licenses) are at least 48 px high at 320, 375 (touch) and 1280 px, as wide as their label plus 24 px of their own padding, never overlapping, with no sideways scroll; the lines of a wrapped row are 8px apart or more; the dividers are the Divider part, vertical, 1 px wide and centred on the row. */
 async function checkFooterTargets(width, touch) {
   const page = await browser.newPage({ viewport: { width, height: touch ? 800 : 900 }, hasTouch: touch, isMobile: touch, locale: 'en-US' });
   page.on('pageerror', (e) => problems.push(`${width}px footer links: ${e.message}`));
@@ -119,9 +119,9 @@ async function checkFooterTargets(width, touch) {
   const boxes = got.links;
   if (boxes.length < 4) problems.push(`${width}px footer links: only ${boxes.length} found`);
   for (const b of boxes) {
-    if (Math.abs(b.height - FOOTER_LINK_HEIGHT) > 0.5)
+    if (b.height < FOOTER_LINK_HEIGHT - 0.5)
       problems.push(
-        `${width}px footer link "${b.name}": ${b.height}px high, should be exactly ${FOOTER_LINK_HEIGHT}px (owner's exception to M3's 48dp)`,
+        `${width}px footer link "${b.name}": ${b.height}px high, should be at least ${FOOTER_LINK_HEIGHT}px (M3's 48dp target)`,
       );
     if (b.width < b.labelWidth + 24 - 0.5)
       problems.push(`${width}px footer link "${b.name}": ${b.width}px wide, should be its label (${b.labelWidth}px) plus 24px of padding`);
@@ -136,7 +136,7 @@ async function checkFooterTargets(width, touch) {
         problems.push(`${width}px footer links "${a.name}" and "${b.name}" overlap`);
     }
   for (const d of got.dividers.filter((x) => x.visible)) {
-    if (Math.abs(d.height - 16) > 0.5) problems.push(`${width}px footer divider is ${d.height}px high, not 16`);
+    if (Math.abs(d.width - 1) > 0.5) problems.push(`${width}px footer divider is ${d.width}px wide, not 1`);
     const row = boxes.find((l) => Math.abs(l.top + l.height / 2 - (d.top + d.height / 2)) < 1);
     if (!row) problems.push(`${width}px footer divider is not centred on a link`);
   }

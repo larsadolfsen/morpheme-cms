@@ -135,6 +135,15 @@ const GROUPS = (['buttons', 'fields', 'choices', 'lists', 'sheets', 'messages', 
   title: t.parts.filter.group[id],
 }));
 
+/** The sample page frame's text: body-large (16/24 px) in the theme's typeface, read from an element of this document that has the role (the frame is a page of its own, so no custom property reaches it). */
+function sampleFrameStyle() {
+  const probe = document.body.appendChild(document.createElement('span'));
+  probe.className = 'mo-type-body-large';
+  const { fontFamily, fontSize, lineHeight, fontWeight } = getComputedStyle(probe);
+  probe.remove();
+  return `font: ${fontWeight} ${fontSize}/${lineHeight} ${fontFamily}; padding: 1.5rem`.replaceAll('"', "'");
+}
+
 export default function Parts({ env }: { env: Env }) {
   const [sort, setSort] = useState('newest');
   const [filter, setFilter] = useState('');
@@ -678,7 +687,7 @@ export default function Parts({ env }: { env: Env }) {
                 <PageFrame
                   title={sample.aPage}
                   width={390}
-                  html={`<!doctype html><html><body style="font: 18px/1.5 system-ui; padding: 24px"><h1>${sample.aPage}</h1><p>${sample.pageText}</p></body></html>`}
+                  html={`<!doctype html><html><body style="${sampleFrameStyle()}"><h1>${sample.aPage}</h1><p>${sample.pageText}</p></body></html>`}
                 />
               </BottomSheet>
             </Part>
