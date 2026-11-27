@@ -167,7 +167,7 @@
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-updates-notice-actions {
-    margin-block-start: auto;
+    /* Under the text at the card's 16 dp text-to-buttons gap (M3 cards, Specs), not pushed to the bottom of a column the photo makes tall. */
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
@@ -415,6 +415,9 @@
     max-inline-size: none;
   }
   .mo-editor-palette-bar-wide {
+    /* The search app bar's field: at most 720 dp wide, and 8 dp from the buttons outside it (the bar's own 4 dp end padding and the row's 4 dp gap leave 4 more to add). */
+    max-inline-size: 45rem;
+    margin-inline-end: var(--mo-ref-space-50);
     display: none;
     @media (width >= 37.5rem) {
       display: flex;
