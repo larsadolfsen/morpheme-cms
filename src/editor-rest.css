@@ -22,21 +22,21 @@
     margin-block-end: var(--mo-ref-space-200);
   }
   .mo-editor-stack-200 > :not(:last-child, :has(+ [data-fold-section])) {
-    margin-block-end: var(--mo-ref-space-200);
+    margin-block-end: var(--mo-comp-editor-rhythm-200);
   }
   :where(.mo-editor-stack-250 > :not(:last-child)) {
     margin-block-start: 0;
-    margin-block-end: var(--mo-ref-space-300);
+    margin-block-end: var(--mo-ref-space-250);
   }
   .mo-editor-stack-250 > :not(:last-child, :has(+ [data-fold-section])) {
-    margin-block-end: var(--mo-ref-space-300);
+    margin-block-end: var(--mo-comp-editor-rhythm-250);
   }
   :where(.mo-editor-stack-300 > :not(:last-child)) {
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-stack-300 > :not(:last-child, :has(+ [data-fold-section])) {
-    margin-block-end: var(--mo-ref-space-300);
+    margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
 
   /* ---- Text ---- */
