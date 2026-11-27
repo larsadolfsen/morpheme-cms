@@ -781,7 +781,7 @@ html {
 }
 
 /* A block of the site in the text (Book an appointment, Testimonials …; MarkdownEditor.tsx): the block as it
-   looks on the site (src/apps/<app>/blocks/, previews.tsx) in a thin, dashed square frame, not text. Tapping it opens a row
+   looks on the site (src/apps/<app>/blocks/, previews.tsx) in a thin, solid square frame, not text. Tapping it opens a row
    of icons on it with what can be done with it. The frame stands out a little to the sides, so the block
    lines up with the text. A image in the text is a card like it (in its paragraph). */
 .mo-editor-text .mo-site-block {
@@ -1211,7 +1211,7 @@ html {
 }
 
 /* An Expandable list in the page editor stays inside the block's box: the theme moves a plain list out by the layer room on each side (so the site's text keeps the text
-   edges); here the block's dashed outline is the edge, so the list takes the box's width and the rows keep their own inner padding. */
+   edges); here the block's outline is the edge, so the list takes the box's width and the rows keep their own inner padding. */
 .mo-editor-text .mo-block-accordion.mo-editor-inline-segmented {
   margin-inline: 0;
   max-inline-size: 100%;
@@ -1326,6 +1326,8 @@ html {
   display: flex;
   flex: none;
   align-items: center;
+  /* The `⋮` stands the toolbar's 8 dp after Insert block, as every tool does after the one before it (a tool's width in the plan includes it, textBar.mjs). */
+  gap: var(--mo-ref-space-100);
 }
 
 /* Undo, Redo, Insert block and the `⋮` stand at the right end in every place, with no divider (owner decision, 14 Nov). */
@@ -1359,6 +1361,11 @@ html {
 .mo-toolbar__menu-button,
 .mo-toolbar__menu-button:hover {
   color: var(--mo-comp-icon-button-standard-icon-color, var(--mo-comp-block-text));
+}
+
+/* Disabled (Alignment beside a block): on-surface at 38 %, as the standard icon buttons beside it (M3 States: "Disabled state layer opacity 0.38"). */
+.mo-toolbar__menu-button:disabled {
+  opacity: var(--mo-sys-state-disabled-state-layer-opacity, 0.38);
 }
 
 /* Only drawn: the taps go to the card. */

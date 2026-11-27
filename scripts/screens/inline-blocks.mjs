@@ -815,8 +815,10 @@ async function checkInlineBlock(width, height, { name, hint, add, surface, noEdi
         ? '[data-row-link], .mo-editor-inline-segmented-buttons'
         : '[data-row-link], [data-add-button], .mo-editor-inline-segmented-buttons';
     if (await page.locator(own).count()) problems.push(`${label}: the row has a text row or a button of its own for its link`);
-    // The Link tool stands on the bar or, on a narrow bar, in the ⋮ menu.
-    if (!(await barTools(page)).names.includes('Link')) problems.push(`${label}: the toolbar has no Link button`);
+    // The Link tool stands on the bar; on a 375 px phone's bar (352 dp: seven 48 dp tools, Material 3's 40 dp button and 8 dp gap, not eight) it is the first tool in the ⋮ menu.
+    const linkTool = await barTools(page);
+    if (width < 600 ? linkTool.more[0]?.label !== 'Link' && !linkTool.bar.some((b) => b.label === 'Link') : !linkTool.bar.some((b) => b.label === 'Link'))
+      problems.push(`${label}: the toolbar has no Link button${width < 600 ? ' on the bar or first in the ⋮' : ''}`);
     await page.locator('.mo-editor-inline-list-row-active .mo-editor-inline-list-slot[aria-label="Page"]').click();
     await page.waitForTimeout(500);
     if (!(await page.getByText('Page', { exact: true }).locator('visible=true').count()))

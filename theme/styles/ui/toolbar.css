@@ -54,6 +54,12 @@
     background: var(--mo-comp-toolbar-docked-container-color, color-mix(in srgb, var(--mo-comp-block-surface) 95%, transparent));
     color: var(--mo-comp-toolbar-standard-text, var(--mo-comp-block-text));
   }
+  /* A toggle icon button on a standard toolbar is selected as M3's toggle tonal button: Toolbars, Specs, Color, Standard: "Toggle tonal button (Secondary
+     container, On secondary container)"; "Standard button (Primary)" for the others, so unselected it rests as a standard one. */
+  :where(.mo-toolbar).mo-is-standard :where(.mo-icon-button).mo-is-standard[aria-pressed='true'] {
+    background: var(--mo-comp-icon-button-tonal-selected-surface, var(--mo-sys-color-secondary-container));
+    color: var(--mo-comp-icon-button-tonal-selected-text, var(--mo-sys-color-on-secondary-container));
+  }
   /* Vibrant: in the accent, without a line; what stands on it turned around, as on a banner in the accent. */
   :where(.mo-toolbar).mo-is-vibrant {
     background: var(--mo-comp-toolbar-vibrant-surface, var(--mo-comp-block-accent));
