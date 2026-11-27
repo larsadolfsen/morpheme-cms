@@ -70,11 +70,6 @@
   --mo-comp-editor-frame-outset: 0.5rem;
   --mo-comp-editor-frame-line: 1.5px;
 
-  /* A form's "on this page" area (SectionPane in ui.tsx) against the window's end edge: its width (the card is as wide as the navigation drawer), the card in it
-     stands --mo-sys-section-pane-gap in from the end edge and from the window's top edge. */
-  --mo-sys-section-pane-width: calc(var(--mo-comp-navigation-drawer-width, 22.5rem) + var(--mo-sys-section-pane-gap));
-  --mo-sys-section-pane-gap: 2rem;
-
   /* The side panel of a block's fields and the section settings (BlockDialog's standard side sheet from expanded, BottomSheet
      `panel` in ui.tsx from large): M3's side sheet is 400dp (25rem) wide at most; where the window is narrower it is half
      the space beside the start panel, the content column taking the other half (see below). */
@@ -463,43 +458,12 @@
   }
 }
 
-/* The field that keeps a form from being saved (WrongField in fields.tsx): the edge of the theme's text field
-   (.mo-text-field__input, its edge a box-shadow) in the accent colour, flashing gently three times; around the whole field
-   when it has no box of its own (an image, icons, a switcher). It stays until the next try or a change. */
-.mo-editor-wrong .mo-text-field__input {
-  box-shadow:
-    inset 0 0 0 2px var(--mo-sys-color-primary),
-    0 0 0 3px color-mix(in srgb, var(--mo-sys-color-primary) 25%, transparent);
-}
-
-.mo-editor-wrong:not(:has(.mo-text-field__input)) {
-  border-radius: var(--mo-sys-shape-corner-large);
-  outline: 2px solid var(--mo-sys-color-primary);
-  outline-offset: 6px;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .mo-editor-wrong .mo-text-field__input {
-    animation: editor-flash 0.8s ease-in-out 3;
-  }
-
-  .mo-editor-wrong:not(:has(.mo-text-field__input)) {
-    animation: editor-flash-around 0.8s ease-in-out 3;
-  }
-}
-
-@keyframes editor-flash {
-  50% {
-    box-shadow:
-      inset 0 0 0 1px var(--mo-sys-color-outline-variant),
-      0 0 0 3px transparent;
-  }
-}
-
-@keyframes editor-flash-around {
-  50% {
-    outline-color: transparent;
-  }
+/* A block of the text that keeps a page from being saved (an empty block, showBlock in MarkdownEditor.tsx) is marked by the error
+   role, as a text field's edge is in its error state; it stays until the next try. A field of a form is the field's own error state. */
+.mo-editor-wrong {
+  border-radius: var(--mo-sys-shape-corner-medium);
+  outline: 2px solid var(--mo-sys-color-error);
+  outline-offset: 4px;
 }
 
 /* A sheet that is dragged up by its top on a phone (SheetTitle in ui.tsx) is as tall as the screen allows
@@ -608,7 +572,7 @@
   }
 }
 
-/* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: --mo-sys-section-pane-width and
+/* The editor's drawers keep one width through their levels and sections (the layout beside them counts on it: the pane's width and
    the columns); the theme's drawer hugs its content (the expanded rail). An editor-only choice (docs/material-deviations.md, N6). */
 .mo-editor-main-drawer-panel {
   --mo-comp-navigation-drawer-width: min(22.5rem, calc(100vw - 3.5rem));
@@ -690,30 +654,6 @@
   }
 }
 
-/* The type of the "on this page" card (SectionPane and SectionList in ui.tsx), from the theme's type roles: the small
-   caption, the form's name under it, and a section's name (the one in view in medium weight). */
-.mo-editor-section-pane-caption {
-  font-size: var(--mo-sys-typescale-label-small-size);
-  line-height: var(--mo-sys-typescale-label-small-line-height);
-  font-weight: var(--mo-sys-typescale-label-small-weight);
-  letter-spacing: var(--mo-sys-typescale-label-small-tracking);
-}
-.mo-editor-section-pane-title {
-  font-size: var(--mo-sys-typescale-headline-small-size);
-  line-height: var(--mo-sys-typescale-headline-small-line-height);
-  font-weight: var(--mo-sys-typescale-headline-small-weight);
-  letter-spacing: var(--mo-sys-typescale-headline-small-tracking);
-}
-.mo-editor-section-list-item {
-  font-size: var(--mo-sys-typescale-body-medium-size);
-  line-height: var(--mo-sys-typescale-body-medium-line-height);
-  font-weight: var(--mo-sys-typescale-body-medium-weight);
-  letter-spacing: var(--mo-sys-typescale-body-medium-tracking);
-}
-.mo-editor-section-list-item[aria-current='location'] {
-  font-weight: var(--mo-sys-typescale-label-medium-weight);
-}
-
 /* The content column (.mo-editor-column: Screen.tsx's tabs row and its main) stands centred on the window, not in the space
    beside the panels. --mo-sys-column-start and --mo-sys-column-end are the widths of the panels beside the content: the navigation
    rail from medium, the standard drawer instead of it from expanded while it is open (:root[data-sidebar='open']; the
@@ -759,13 +699,13 @@
    there is room), and the save bar ends where the area begins. */
 @media (width >= 75rem) {
   :root:has(.mo-editor-section-pane:not([hidden] *)) {
-    --mo-sys-column-end: var(--mo-sys-section-pane-width);
+    --mo-sys-column-end: calc(var(--mo-comp-side-sheet-width, 22.5rem) + var(--mo-ref-space-200));
   }
   .mo-editor-content:has(.mo-editor-section-pane:not([hidden] *)) {
-    padding-inline-end: var(--mo-sys-section-pane-width);
+    padding-inline-end: calc(var(--mo-comp-side-sheet-width, 22.5rem) + var(--mo-ref-space-200));
   }
   :root:has(.mo-editor-section-pane:not([hidden] *)) .mo-editor-save-bar {
-    right: var(--mo-sys-section-pane-width);
+    right: calc(var(--mo-comp-side-sheet-width, 22.5rem) + var(--mo-ref-space-200));
   }
 
   /* BottomSheet's `panel` (.mo-editor-side-panel): the theme's modal side sheet at the window's end edge, the full window

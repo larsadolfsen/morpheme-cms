@@ -222,7 +222,7 @@ export default function Licenses() {
               </Group>
             ))
           ) : (
-            <p className="mo-editor-no-match">{t.common.noMatch}</p>
+            <EmptyNote>{t.common.noMatch}</EmptyNote>
           )}
         </>
       )}

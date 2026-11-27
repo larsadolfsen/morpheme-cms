@@ -187,12 +187,7 @@
     gap: var(--mo-ref-space-150);
   }
   .mo-editor-form-more {
-    margin-block-start: 3rem;
-  }
-  .mo-editor-inline-row {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--mo-ref-space-150);
+    margin-block-start: var(--mo-ref-space-600);
   }
   .mo-editor-hide-on-phone {
     @media (width < 37.5rem) {

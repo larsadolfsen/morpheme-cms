@@ -746,7 +746,7 @@ export default function Parts({ env }: { env: Env }) {
 
             <Part name="SectionList, SectionPane" use={use.sectionList}>
               <div className="mo-editor-narrow-xs">
-                <SectionPane caption={t.forms.sections.title} title={examples.pages[0]}>
+                <SectionPane title={examples.pages[0]}>
                   <SectionList title={t.forms.sections.title} items={sectionItems} value={sectionPicked} onChange={setSectionPicked} />
                 </SectionPane>
               </div>

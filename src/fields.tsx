@@ -137,8 +137,8 @@ const joined = (base: string, name: string | number) => (base ? `${base}.${name}
 
 /** The field that keeps a form from being saved (problemAt in check.ts), when it was found (a new
  * number each time, so it is shown again on the next try), and how to stop showing it: the item of a
- * list it is in is opened, it is scrolled to and its border flashes (.mo-editor-wrong in editor.css),
- * until it is changed. Every form has it (useWrongField). */
+ * list it is in is opened, it is scrolled to and has the focus, and it shows Material 3's error state (the text field's own, or
+ * the problem in error under a field with no box: FormField), until it is changed. Every form has it (useWrongField). */
 export type Wrong = { path: string; at: number; clear: () => void };
 export const WrongField = createContext<Wrong | null>(null);
 
@@ -170,14 +170,10 @@ function useMarked<T extends HTMLElement>(props: Props) {
   const wrong = useContext(WrongField);
   const here = wrong?.path === path;
   const box = useRef<T>(null);
-  // The class is set here, not by React, so the flashing starts again on each try.
+  // Each try scrolls to the field and focuses it again; the error state itself is drawn by the field.
   useEffect(() => {
     const el = box.current;
-    if (!el) return;
-    el.classList.remove('mo-editor-wrong');
-    if (!here) return;
-    void el.offsetWidth;
-    el.classList.add('mo-editor-wrong');
+    if (!el || !here) return;
     el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
     // Focus goes to the first field that is wrong, so a screen reader says its name and its problem (3.3.1); the scroll above is the one that moves.
     el.querySelector<HTMLElement>('input:not([type=hidden]), textarea, select, [contenteditable=true], [role=textbox], button')?.focus({
@@ -657,6 +653,7 @@ function FieldControl({ field, value, onChange }: Props) {
       label={field.label}
       htmlFor={id}
       hint={hintOf(field, text)}
+      problem={wrongHere ? found?.line : undefined}
       count={field.max ? { length: text.length, max: field.max } : undefined}
     >
       {control}

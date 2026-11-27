@@ -1478,7 +1478,7 @@ function Form({
                 </>
               }
               pane={
-                <SectionPane caption={t.forms.sections.title} title={formTitle}>
+                <SectionPane title={formTitle}>
                   <SectionList title={t.forms.sections.title} items={sections} value={section} onChange={pick} />
                 </SectionPane>
               }

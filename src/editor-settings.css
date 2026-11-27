@@ -71,7 +71,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -90,7 +89,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -131,7 +129,10 @@
 
   .mo-editor-block-label {
     margin-block-end: var(--mo-ref-space-100);
-    font-weight: 500;
+    font-size: var(--mo-sys-typescale-title-small-size);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
 
   .mo-editor-body-text {
@@ -244,7 +245,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -263,7 +263,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -321,7 +320,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -340,7 +338,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -393,7 +390,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -412,7 +408,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -465,7 +460,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -484,7 +478,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -537,7 +530,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -556,7 +548,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -695,12 +686,6 @@
     max-inline-size: 20rem;
   }
 
-  .mo-editor-no-match {
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
-    padding-inline: var(--mo-ref-space-50);
-    color: var(--mo-sys-color-on-surface-variant);
-  }
-
   .mo-editor-note-article {
     margin-block-end: var(--mo-ref-space-400);
     max-inline-size: 65ch;
@@ -745,7 +730,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -764,7 +748,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -835,7 +818,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -854,7 +836,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -922,7 +903,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -941,7 +921,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -1026,7 +1005,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -1045,7 +1023,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -1132,7 +1109,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -1151,7 +1127,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -1297,7 +1272,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -1316,7 +1290,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -1372,7 +1345,6 @@
       .mo-editor-main-drawer-divider,
       .mo-editor-media-group-title,
       .mo-editor-media-used-title,
-      .mo-editor-no-match,
       .mo-editor-note,
       .mo-editor-note-article,
       .mo-editor-notes,
@@ -1391,7 +1363,6 @@
       .mo-editor-screen-search-bar,
       .mo-editor-screen-title-actions,
       .mo-editor-section,
-      .mo-editor-section-pane-title,
       .mo-editor-selection-dividers,
       .mo-editor-settings-group,
       .mo-editor-settings-section,
@@ -1579,7 +1550,10 @@
 
   .mo-editor-used-title {
     margin-block-end: var(--mo-ref-space-50);
-    font-weight: 500;
+    font-size: var(--mo-sys-typescale-title-small-size);
+    line-height: var(--mo-sys-typescale-title-small-line-height);
+    font-weight: var(--mo-sys-typescale-title-small-weight);
+    letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
 
   .mo-editor-widget-bar {

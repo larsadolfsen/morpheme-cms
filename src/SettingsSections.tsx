@@ -48,7 +48,7 @@ export function SettingsSections({
         </>
       }
       pane={
-        <SectionPane caption={t.forms.sections.title} title={title}>
+        <SectionPane title={title}>
           <SectionList title={t.forms.sections.title} items={sections} value={state.section} onChange={state.pick} />
         </SectionPane>
       }

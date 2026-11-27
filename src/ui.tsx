@@ -1087,23 +1087,28 @@ export function FormField({
   label,
   htmlFor,
   hint,
+  problem,
   count,
   children,
 }: {
   label: string;
   htmlFor?: string;
   hint?: ReactNode;
+  /** What is wrong with a field that has no box of its own (an image, icons, a choice of cards): its name and this line are in the
+   * error role, and the line stands in place of the hint, as in the theme's text field in its error state. */
+  problem?: string;
   count?: { length: number; max: number };
   children: ReactNode;
 }) {
   return (
-    <div>
-      <Label htmlFor={htmlFor} hint={hint}>
+    <div className={problem ? 'mo-editor-has-problem' : undefined}>
+      <Label htmlFor={htmlFor} hint={problem ? undefined : hint}>
         {label}
       </Label>
       {children}
+      {problem && <SupportingText className="mo-editor-error-text">{problem}</SupportingText>}
       {count && (
-        <p className={`mo-editor-field-count ${count.length > count.max ? 'mo-editor-accent-text' : 'mo-editor-muted-text'}`}>
+        <p className={`mo-editor-field-count ${count.length > count.max ? 'mo-editor-error-text' : 'mo-editor-muted-text'}`}>
           {count.length} / {count.max}
         </p>
       )}
@@ -2943,6 +2948,7 @@ export function FoldSection({
           {children}
         </div>
       )}
+      <SiteDivider />
     </section>
   );
 }
@@ -3311,9 +3317,9 @@ export function SideSheet({
 /** One entry of a SectionList: its id, its name and optionally the theme's Badge (how many are new there; or a dot). */
 export type NavigationItem = { id: string; label: string; badge?: number | boolean };
 
-/** The sections of a long form (a page's, a post's: Content, Page settings, History …) as an "on this page" list, as on
- * m3.material.io: plain text, no icons and no surface; the one in view (`value`) in the accent colour and medium
- * weight (`aria-current="location"`). A tap calls `onChange` with its id (EntryForm scrolls to it). Optionally the theme's
+/** The sections of a long form (a page's, a post's: Content, Page settings, History …) as an "on this page" list: the theme's list
+ * rows, one line each, no icons. The one in view (`value`, `aria-current="location"`) is marked as Material 3's navigation drawer marks its
+ * active item (the list item's selected look). A tap calls `onChange` with its id (EntryForm scrolls to it). Optionally the theme's
  * Badge after the name. `title` names the navigation. In a SectionPane. */
 export function SectionList({
   title,
@@ -3328,36 +3334,32 @@ export function SectionList({
 }) {
   return (
     <nav aria-label={title}>
-      <ul className="mo-stack mo-editor-section-list">
+      <SheetList>
         {items.map(({ id, label, badge }) => (
-          <li key={id}>
-            <button
-              type="button"
-              aria-current={id === value ? 'location' : undefined}
-              onClick={() => onChange(id)}
-              className="mo-editor-section-list-item mo-row mo-editor-section-list-link"
-            >
-              <span className="mo-editor-section-list-label">{label}</span>
-              {badge ? <SiteBadge count={badge === true ? undefined : badge} /> : null}
-            </button>
-          </li>
+          <ListItem
+            key={id}
+            headline={label}
+            truncate
+            selected={id === value}
+            aria-current={id === value ? 'location' : undefined}
+            count={badge ? <SiteBadge count={badge === true ? undefined : badge} /> : undefined}
+            onClick={() => onChange(id)}
+          />
         ))}
-      </ul>
+      </SheetList>
     </nav>
   );
 }
 
-/** The "on this page" card at the end of a long form on large and wider screens: the theme's outlined card, as tall as
- * its content (it scrolls inside only when that is taller than the window), with the small `caption`
- * (Sections), the form's `title` under it and the form's SectionList (`children`). It stays in view while the form
- * scrolls. Its place is FormColumns' `pane`, against the window's end edge; below large it is not drawn. */
-export function SectionPane({ caption, title, children }: { caption: string; title: string; children: ReactNode }) {
+/** The "on this page" area at the end of a long form on large and wider screens: the theme's standard side sheet, with the
+ * form's `title` as its headline and the form's SectionList (`children`). It stays in view while the form scrolls, and
+ * scrolls inside only when it is taller than the window. Its place is FormColumns' `pane`, against the window's end edge; below
+ * large it is not drawn. */
+export function SectionPane({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className={`${siteCardClass('outlined')} mo-editor-section-pane-card`}>
-      <p className="mo-editor-section-pane-caption mo-editor-section-pane-caption">{caption}</p>
-      <h2 className="mo-editor-section-pane-title mo-editor-section-pane-title">{title}</h2>
+    <SiteSideSheet headline={title} className="mo-editor-section-pane-sheet">
       {children}
-    </div>
+    </SiteSideSheet>
   );
 }
 
@@ -3895,7 +3897,7 @@ export function FormColumns({
   side?: ReactNode;
   cards?: boolean;
   sticky?: boolean;
-  /** A SectionPane, on large and wider screens against the window's end edge under the top bar (--mo-sys-section-pane-width
+  /** A SectionPane, on large and wider screens against the window's end edge under the top bar (the side sheet's width and a margin
    * wide, in an absolute strip along the content that its card sticks in while the form scrolls; editor.css lets the content column keep clear of it); below large nothing.
    * Instead of first and side. */
   pane?: ReactNode;
