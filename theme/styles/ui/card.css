@@ -46,7 +46,7 @@
      and 0.1 with focus from the keyboard; a card that is dragged 0.16 (Specs: hover, focus, pressed and dragged state layer opacity). It is under the
      ripple (the ripple is the last in the card) and does not take a click. */
   :is(a, button).mo-card::before,
-  :where(.mo-card, .mo-editor-widget-card).mo-is-dragged::before {
+  :where(.mo-card).mo-is-dragged::before {
     content: '';
     position: absolute;
     inset: 0;
@@ -64,11 +64,11 @@
   :is(a, button:enabled).mo-card:focus-visible::before {
     opacity: var(--mo-comp-card-focus-layer, var(--mo-sys-state-focus-state-layer-opacity));
   }
-  :where(.mo-card, .mo-editor-widget-card).mo-is-dragged {
+  :where(.mo-card).mo-is-dragged {
     position: relative;
     cursor: grabbing;
   }
-  :where(.mo-card, .mo-editor-widget-card).mo-is-dragged::before {
+  :where(.mo-card).mo-is-dragged::before {
     opacity: var(--mo-comp-card-dragged-state-layer-opacity, var(--mo-sys-state-dragged-state-layer-opacity));
   }
   :where(.mo-card).mo-is-elevated {

@@ -103,10 +103,7 @@
   }
 
   .mo-editor-photo-credit {
-    margin-block: calc(var(--mo-ref-space-150) * -1);
-    margin-inline-start: calc(var(--mo-ref-space-125) * -1);
     display: inline-flex;
-    vertical-align: middle;
   }
   .mo-editor-photo-credit-tooltip:not([data-tooltip-open]) > .mo-tooltip {
     visibility: hidden;
@@ -115,25 +112,12 @@
   .mo-editor-photo-credit-tooltip > .mo-tooltip {
     inset-inline-start: auto;
     inset-inline-end: 0;
-    /* The theme puts it above the button (and under it only where there is no room above), not on the card's Close and Read more (WCAG 2.4.11). */
-    max-inline-size: 15rem;
-  }
-  .mo-editor-photo-credit-button {
-    display: grid;
-    inline-size: var(--mo-ref-space-600);
-    block-size: var(--mo-ref-space-600);
-    place-items: center;
-    border-radius: calc(infinity * 1px);
-    color: var(--mo-sys-color-on-surface-variant);
-    & > * {
-      min-inline-size: 0;
-    }
   }
   .mo-editor-blocked-notice {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
   }
   .mo-editor-updates-notice {
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
+    margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-updates-notice-body {
     display: grid;
@@ -173,22 +157,25 @@
   }
   .mo-editor-updates-notice-place {
     margin-block-start: var(--mo-ref-space-50);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: var(--mo-ref-space-50);
   }
   .mo-editor-updates-notice-counts {
     margin-block-start: var(--mo-ref-space-100);
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-updates-notice-actions {
-    margin-block-start: auto;
+    /* Under the text at the card's 16 dp text-to-buttons gap (M3 cards, Specs), not pushed to the bottom of a column the photo makes tall. */
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: var(--mo-ref-space-100);
-    padding-block-start: var(--mo-comp-editor-rhythm-200);
+    padding-block-start: var(--mo-comp-card-action-gap, var(--mo-ref-space-200));
   }
   .mo-editor-updates-notice-apps {
-    margin-block-start: var(--mo-ref-space-200);
-    border-block-start: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-sys-color-outline-variant));
+    margin-block-start: var(--mo-ref-space-100);
   }
 
   .mo-editor-selection-columns {
@@ -413,8 +400,7 @@
     }
   }
   .mo-editor-screen-search-bar {
-    /* M3: the unfocused search bar is 24dp from the window's edges; the column's own margin is the grid's. */
-    margin-inline: calc(var(--mo-ref-space-300) - var(--mo-sys-grid-margin));
+    /* The bar stands at the column's own margin, the grid's 16 dp: the margins win over the 360 dp minimum width (owner, 21 Nov 2026). */
     margin-block-end: var(--mo-ref-space-300);
     display: flex;
     @media (width >= 37.5rem) {
@@ -429,6 +415,9 @@
     max-inline-size: none;
   }
   .mo-editor-palette-bar-wide {
+    /* The search app bar's field: at most 720 dp wide, and 8 dp from the buttons outside it (the bar's own 4 dp end padding and the row's 4 dp gap leave 4 more to add). */
+    max-inline-size: 45rem;
+    margin-inline-end: var(--mo-ref-space-50);
     display: none;
     @media (width >= 37.5rem) {
       display: flex;

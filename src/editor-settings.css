@@ -1567,33 +1567,32 @@
     letter-spacing: var(--mo-sys-typescale-title-small-tracking);
   }
 
+  /* A widget's frame in edit mode is the theme's elevated Card (Cards, Specs: 16 dp left/right padding, 8 dp between cards): its controls stand at the top
+     start and top end, and the content is inside the card's padding. */
   .mo-editor-widget-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--mo-ref-space-100);
-    padding-inline: var(--mo-ref-space-50);
   }
 
-  .mo-editor-widget-body {
-    padding-inline: var(--mo-ref-space-100);
-  }
-
-  .mo-editor-widget-card {
-    position: relative;
-    border-radius: var(--mo-comp-block-radius);
-    background-color: var(--mo-sys-color-surface-container-low);
-    padding-block-end: var(--mo-ref-space-100);
-  }
-
-  .mo-editor-widget-lifted {
+  /* While it is dragged it stands in front of the other cards (Cards, Guidelines: "it appears in front of all elements, except app bars and navigation"). */
+  .mo-editor-widget-card.mo-is-dragged {
     z-index: 10;
-    box-shadow: var(--mo-sys-elevation-level4-shadow);
   }
 
+  /* The card under the dragged one: the dragged state's layer (16 %) and a 1 dp outline in the outline role (Material 3 is silent: the nearest pattern). */
   .mo-editor-widget-target {
-    outline-style: solid;
-    outline-width: 2px;
-    outline-color: var(--mo-sys-color-primary);
+    position: relative;
+    outline: 1px solid var(--mo-sys-color-outline);
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: currentColor;
+      opacity: var(--mo-sys-state-dragged-state-layer-opacity);
+      pointer-events: none;
+    }
   }
 }

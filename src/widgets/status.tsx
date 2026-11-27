@@ -15,7 +15,7 @@ export function StatusWidget(_props: WidgetProps) {
   const titleId = useId();
   return (
     <SiteCard kind="outlined" as="section" aria-labelledby={titleId} className="mo-editor-widget-text">
-      <h2 id={titleId} className="mo-editor-widget-title">
+      <h2 id={titleId} className="mo-type-title-medium mo-editor-widget-title">
         {t.library.statusTitle}
       </h2>
       <p className="mo-editor-caption">{builtAt ? t.library.lastPublished(when(builtAt)) : t.library.publishUnknown}</p>
