@@ -493,7 +493,9 @@ export function TextField({
   invalid,
   invalidFallback,
   ...rest
-}: InputHTMLAttributes<HTMLInputElement> & InField & Invalid & { invalidFallback?: string; ref?: Ref<HTMLInputElement> }) {
+}: InputHTMLAttributes<HTMLInputElement> &
+  InField &
+  Invalid & { invalidFallback?: string; suffix?: string; trailing?: ReactNode; ref?: Ref<HTMLInputElement> }) {
   return (
     <SiteTextField
       label={label}

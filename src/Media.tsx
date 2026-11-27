@@ -29,6 +29,7 @@ import {
   InputChip,
   Choice,
   Filters,
+  IconButton,
   Group,
   GroupTitle,
   Checkbox,
