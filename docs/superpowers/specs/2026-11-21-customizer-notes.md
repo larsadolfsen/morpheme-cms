@@ -11,7 +11,9 @@ Owner, 27 Nov 2026: "The customizer will not change code, but change tokens". Th
 layer below: never a theme's or a block's code, CSS rules or markup. What it can change is what a theme exposes as a token; a look
 that has no token gets one in the theme first. Example (owner, 27 Nov 2026: "Eg. Increase elevation of an element"): a card's
 elevation goes from level 1 to level 3 by setting its component token (`--mo-comp-card-…-elevation`) to another of M3's levels, in
-the `custom` layer; the card's code is untouched. It is a major release, 4.0, built in line 3.1 (owner, 27 Nov 2026: "It is a major
+the `custom` layer; the card's code is untouched. And for the whole site (owner, 27 Nov 2026: "Or the border radius of the site"): the corners of
+every part change by setting the shape scale's tokens (`--mo-sys-shape-corner-*`) to other steps. So the customizer works at two
+levels: the system's tokens for the whole site, and a component's tokens for one kind of part. It is a major release, 4.0, built in line 3.1 (owner, 27 Nov 2026: "It is a major
 release").
 
 ## Customization is not a deviation
