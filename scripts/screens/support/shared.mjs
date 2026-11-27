@@ -406,3 +406,15 @@ export const ratioOf = `
       const front = pixel(markCss, 'rgb(' + back + ')', opacity);
       return (Math.max(lum(front), lum(back)) + 0.05) / (Math.min(lum(front), lum(back)) + 0.05);
     };`;
+
+/** A media slot that has nothing set opens its sheet at the radio list of kinds (the plan's B6): chooses one by its name, when the list is there. */
+export async function chooseKind(page, name) {
+  const radio = page.getByRole('radio', { name, exact: true }).last();
+  if (
+    await radio.waitFor({ timeout: 2000 }).then(
+      () => true,
+      () => false,
+    )
+  )
+    await radio.click();
+}

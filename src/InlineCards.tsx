@@ -201,7 +201,10 @@ export default function InlineCards({
                       type="button"
                       className="mo-editor-inline-card-media"
                       aria-label={t.blocks.cards.media}
-                      onClick={() => (card.image ? !here && onChange({ active: i }) : onIcon(i))}
+                      onClick={(e) => {
+                        e.currentTarget.focus();
+                        onIcon(i);
+                      }}
                     />
                   </div>
                 ) : (

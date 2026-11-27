@@ -250,7 +250,8 @@ async function checkPhoneSheet(width = 375, height = 740) {
     await card.scrollIntoViewIfNeeded();
     await card.tap();
     await page.waitForTimeout(300);
-    await pressTool(page, 'Edit', 'tap');
+    // A tap on the image opens its sheet (B11); the bar's Edit is only there while the sheet is not open.
+    if (!(await sheet.count())) await pressTool(page, 'Edit', 'tap');
     await sheet.waitFor({ timeout: 5000 });
     await page.waitForTimeout(400);
   };
@@ -360,7 +361,8 @@ async function checkPhoneSheet(width = 375, height = 740) {
   if (look.saveAbove !== 16) problems.push(`${label}: Save is ${look.saveAbove} dp from the sheet's top, not 16`);
   if (look.saveBelow < 16) problems.push(`${label}: Save is ${look.saveBelow} dp from the sheet's bottom, under 16`);
   if (!look.lastClear) problems.push(`${label}: the last field stays behind the Save row`);
-  if (look.removes) problems.push(`${label}: the subpage has Remove (it is in the block's ⋮)`);
+  // An image's tools, Remove included, are in its sheet (0.19.8, B12), not on the text bar.
+  if (look.removes !== 1) problems.push(`${label}: the image's subpage has ${look.removes} Remove buttons, not one (B12)`);
   if (!look.publish) problems.push(`${label}: the changed page has no Publish to check under the subpage`);
   if (look.publishReachable) problems.push(`${label}: the page's Publish can be reached while the subpage is open`);
   if (look.saves !== 1) problems.push(`${label}: ${look.saves} Save buttons can be reached, not one`);
@@ -719,10 +721,9 @@ async function checkCloseChangedSheet(width, height = 800) {
   await page.close();
 }
 
-/** A selected image's tools on the bar (image tools spec, section 4): Insert › Image puts an image in the text; a tap selects it, and the bar shows Change image,
- * Crop, Alt text (a text button, drawn at its planned width) and Remove in that order, the ones that do not fit in the ⋮, with no Remove twice; the row has
- * Move up and Move down (and Settings below expanded). On a computer the tap also opens its settings in the side sheet; on a phone it only selects, and the row's
- * Settings opens the sheet. Crop opens the crop view, Alt text the alt text sheet; Remove takes the image out and Undo brings it back. */
+/** An image in the text and its tools (0.19.8 plan, section 4; B11, B12): Insert › Image puts an image in the text; a tap selects it and opens its sheet on every width, and the
+ * text bar shows no image tools (no Change image, Crop, Alt text or Remove). The sheet holds Change image, Aspect ratio (the crop), the Alt text field and Remove. The aspect
+ * ratio opens the crop view; Remove takes the image out and Undo brings it back; Delete on the selected image does what Remove does. */
 async function checkImageTools(width, height = 800) {
   const phone = width < 600;
   const expanded = width >= 840;
@@ -754,103 +755,82 @@ async function checkImageTools(width, height = 800) {
   const image = page.locator('.ProseMirror .mo-site-picture .mo-site-block-card').first();
   await image.waitFor({ timeout: 8000 });
   await page.waitForTimeout(500);
+  // Closes the sheet the image opened, to start from a selected image with no sheet.
+  const closeSheet = async () => {
+    await page
+      .locator(
+        'dialog[open] button[aria-label="Close"], dialog[open] button:text-is("Cancel"), .mo-editor-side-sheet [data-side-sheet-close]',
+      )
+      .first()
+      .click({ timeout: 3000 })
+      .catch(() => {});
+    await page.waitForTimeout(500);
+  };
+  await closeSheet();
   await image[phone ? 'tap' : 'click']();
-  await page.waitForTimeout(700);
+  await page.waitForTimeout(900);
   const state = await page.evaluate(() => ({
     pressed: document.querySelector('.mo-site-picture .mo-site-block-card')?.getAttribute('aria-pressed'),
-    tools: [...document.querySelectorAll('.mo-editor-tools-context button')].map((b) => ({
-      name: b.getAttribute('aria-label') || b.textContent.trim(),
-      text: b.textContent.trim(),
-      w: b.getBoundingClientRect().width,
-      scroll: b.scrollWidth > b.clientWidth + 1,
-    })),
+    tools: [...document.querySelectorAll('.mo-editor-tools-context button')].map(
+      (b) => b.getAttribute('aria-label') || b.textContent.trim(),
+    ),
     row: [...document.querySelectorAll('.mo-site-block-row:not(.mo-site-block-row-hover) [data-row]')].map((b) =>
       b.getAttribute('aria-label'),
     ),
-    panel: !!document.querySelector('.mo-editor-side-sheet input, .mo-editor-side-sheet textarea'),
-    dialog: !!document.querySelector('dialog[open]'),
+    open: !!document.querySelector('dialog[open], .mo-editor-side-sheet'),
   }));
-  const TOOLS = ['Change image', 'Crop', 'Alt text', 'Remove'];
-  const names = state.tools.map((b) => b.name);
-  let more = [];
-  if (names.length < 4) {
-    await page.locator('.mo-editor-tools [aria-label="More"]:visible').first().click();
-    await page.waitForTimeout(300);
-    more = (await page.locator('[role=menu] [role^=menuitem]').allTextContents()).map((r) => r.trim());
-    await page.keyboard.press('Escape');
-    await page.waitForTimeout(300);
-  }
   if (state.pressed !== 'true') problems.push(`${label}: a tap on the image did not select it`);
-  if (names.join() !== TOOLS.slice(0, names.length).join() || !names.length)
-    problems.push(`${label}: the bar's image tools are ${names.join(', ') || 'none'}, not Change image, Crop, Alt text, Remove in order`);
-  for (const name of TOOLS.slice(names.length))
-    if (!more.includes(name)) problems.push(`${label}: ${name} is neither on the bar nor in the ⋮ (${more})`);
-  if (more.filter((r) => r === 'Remove').length + names.filter((n) => n === 'Remove').length !== 1)
-    problems.push(`${label}: Remove is not offered exactly once`);
-  const alt = state.tools.find((b) => b.name === 'Alt text');
-  if (alt && (alt.text !== 'Alt text' || alt.scroll))
-    problems.push(`${label}: Alt text is not a text button showing its whole label (${JSON.stringify(alt)})`);
-  if (state.tools.some((b) => b.name !== 'Alt text' && (b.w < 43.4 || b.text)))
-    problems.push(`${label}: an icon tool is not a 44 dp icon button`);
+  if (!state.open) problems.push(`${label}: a tap on the image did not open its sheet`);
+  for (const name of ['Replace', 'Change image', 'Crop', 'Alt text', 'Delete', 'Remove'])
+    if (state.tools.includes(name)) problems.push(`${label}: the text bar still has the image tool ${name}`);
   for (const name of ['Move up', 'Move down'])
     if (!state.row.includes(name)) problems.push(`${label}: the row has no ${name} (${state.row})`);
-  if (expanded && !state.panel) problems.push(`${label}: on a computer the tap did not open the image's settings in the side sheet`);
-  if (!expanded && state.dialog) problems.push(`${label}: below expanded the tap opened a sheet instead of only selecting`);
-  if (!expanded && !state.row.includes('Block settings') && !state.row.includes('Edit'))
-    problems.push(`${label}: the row has no Settings below expanded (${state.row})`);
-  // Crop opens the crop view; Alt text the alt text sheet (the live sheet's field from expanded); Remove takes the image out, Undo brings it back.
-  const tool = async (name) => {
-    await image[phone ? 'tap' : 'click']();
-    await page.waitForTimeout(500);
-    await pressTool(page, name, phone ? 'tap' : 'click');
+  const have = (await sheet().locator('button').allTextContents()).map((b) => b.trim());
+  for (const name of ['Change image', 'Remove'])
+    if (!have.some((b) => b.startsWith(name))) problems.push(`${label}: the image's sheet has no ${name} (${have.join(', ')})`);
+  if (!(await sheet().getByLabel('Alt text').count())) problems.push(`${label}: the image's sheet has no Alt text field`);
+  // The aspect ratio opens the crop view.
+  if (!phone || (await sheet().getByText('Aspect ratio').count())) {
+    await sheet().getByText('Aspect ratio').first().click();
     await page.waitForTimeout(900);
-  };
-  const focused = () =>
-    page.evaluate(() => {
-      const el = document.activeElement;
-      const label = el?.id ? document.querySelector(`label[for="${CSS.escape(el.id)}"]`)?.textContent.trim() : '';
-      return { label, sheet: !!el?.closest('dialog[open], .mo-editor-side-sheet') };
-    });
-  // Cancel below expanded; from expanded the live side sheet has only its close button.
-  const cancel = async () => {
-    await (expanded ? sheet().locator('[data-side-sheet-close]').first() : cancelOf(sheet())).click({ timeout: 3000 }).catch(() => {});
-    await page.waitForTimeout(500);
-  };
-  await tool('Crop');
-  if (!(await page.locator('.mo-editor-crop-page[open]').count())) problems.push(`${label}: Crop did not open the crop view`);
-  await page.locator('.mo-editor-crop-page[open]').getByRole('button', { name: 'Back to Image', exact: true }).click();
-  await page.waitForTimeout(500);
-  await tool('Alt text');
-  if (expanded) {
-    // From expanded the image's live side sheet has the Alt text field focused.
-    const at = await focused();
-    if (at.label !== 'Alt text')
-      problems.push(`${label}: Alt text did not open the image's live sheet at its Alt text field (${JSON.stringify(at)})`);
-  } else {
-    // Below expanded the short alt text sheet opens.
-    const altSheet = page.locator('dialog[open]').filter({ hasText: 'Decorative image' }).last();
-    if (
-      !(await altSheet.getByRole('heading', { name: 'Alt text', exact: true }).count()) &&
-      !(await altSheet.getByText('Alt text', { exact: true }).count())
-    )
-      problems.push(`${label}: Alt text did not open the alt text sheet`);
-  }
-  await cancel();
-  await tool('Remove');
+    if (!(await page.locator('.mo-editor-crop-page[open]').count())) problems.push(`${label}: Aspect ratio did not open the crop view`);
+    else {
+      await page
+        .locator('.mo-editor-crop-page[open]')
+        .getByRole('button', { name: /^Back to/ })
+        .first()
+        .click();
+      await page.waitForTimeout(500);
+    }
+  } else problems.push(`${label}: the image's sheet has no Aspect ratio row`);
+  // Remove in the sheet takes the image out, Undo brings it back.
+  await sheet().getByRole('button', { name: 'Remove', exact: true }).click();
+  await page.waitForTimeout(700);
   if (await page.locator('.ProseMirror .mo-site-picture').count()) problems.push(`${label}: Remove did not take the image out`);
   await pressTool(page, 'Undo', phone ? 'tap' : 'click');
   await page.waitForTimeout(500);
   if (!(await page.locator('.ProseMirror .mo-site-picture').count())) problems.push(`${label}: Undo did not bring the removed image back`);
-  // Delete on the selected image (a keyboard) does what Remove does.
+  // A mouse tap opens the sheet, Close or Escape gives the focus back to the image, and Delete then removes it, as it does from the keyboard.
   if (!phone) {
-    await image.focus();
-    await page.keyboard.press('Enter');
-    await page.waitForTimeout(400);
-    await image.focus();
-    await page.keyboard.press('Delete');
-    await page.waitForTimeout(400);
-    if (await page.locator('.ProseMirror .mo-site-picture').count())
-      problems.push(`${label}: Delete on the selected image did not remove it`);
+    for (const how of ['Close', 'Escape']) {
+      await closeSheet();
+      await image.click();
+      await page.waitForTimeout(900);
+      if (how === 'Escape') {
+        await page.keyboard.press('Escape');
+        await page.waitForTimeout(600);
+      } else await closeSheet();
+      if (!(await image.evaluate((c) => document.activeElement === c)))
+        problems.push(`${label}: after a tap and ${how} the focus is not on the image`);
+      await page.keyboard.press('Delete');
+      await page.waitForTimeout(400);
+      if (await page.locator('.ProseMirror .mo-site-picture').count())
+        problems.push(`${label}: Delete after a tap and ${how} did not remove the image`);
+      await pressTool(page, 'Undo', 'click');
+      await page.waitForTimeout(500);
+      if (!(await page.locator('.ProseMirror .mo-site-picture').count()))
+        problems.push(`${label}: Undo did not bring the image back after ${how}`);
+    }
   }
   await page.close();
 }
@@ -895,13 +875,15 @@ async function checkCropView(width, height = 800) {
     problems.push(`${label}: the crop view opened by itself after the image was picked`);
   const view = page.locator('.mo-editor-crop-page[open]');
   const how = phone ? 'tap' : 'click';
+  // The crop view is reached from the image's sheet (B12); after Save or Discard that sheet is still open, so it is tapped only when it is not.
   const select = async () => {
+    if (await page.locator('dialog[open].mo-editor-block-page, .mo-editor-side-sheet').count()) return;
     await image[how]();
     await page.waitForTimeout(600);
   };
   const open = async () => {
     await select();
-    await pressTool(page, 'Crop', how);
+    await page.locator('dialog[open], .mo-editor-side-sheet').last().getByText('Aspect ratio').first()[how]();
     await view.waitFor({ timeout: 5000 });
     await page.waitForTimeout(500);
   };
@@ -1126,6 +1108,11 @@ async function checkCropView(width, height = 800) {
     problems.push(`${label}: the editor is at ${stepAfter.scroll} after the crop view, it was at ${scroll0}`);
   if (stepAfter.hash !== '#new/pages' || !/Hello/.test(stepAfter.text ?? ''))
     problems.push(`${label}: the editor under the crop view was changed (${stepAfter.hash})`);
+  // On a phone the image's sheet is a page that holds the change until its Save; from medium it is live.
+  if (phone && (await page.locator('dialog[open].mo-editor-block-page').count())) {
+    await page.locator('dialog[open].mo-editor-block-page').getByRole('button', { name: 'Save', exact: true }).tap();
+    await page.waitForTimeout(700);
+  }
   const saved = await page.evaluate(() => {
     const box = document.querySelector('.ProseMirror .mo-site-picture .mo-site-picture__crop');
     return box && { box: box.getAttribute('style'), img: box.querySelector('img')?.getAttribute('style') };
@@ -1270,32 +1257,14 @@ async function checkAltLive(width, height = 800) {
   await page.waitForTimeout(500);
   if ((await described(0)) !== 'A ringed planet')
     problems.push(`${label}: the text typed is not on the image at once (${await described(0)})`);
-  // The bar's Alt text: the focus goes to the field, showing the image's text.
+  // A tap on the image opens its live sheet with the image's text (B11); the bar has no Alt text tool (B12). A text typed there is on the image at once.
   await pics().first().click();
-  await page.waitForTimeout(600);
-  await pressTool(page, 'Alt text', 'click');
   await page.waitForTimeout(900);
-  if ((await focusedLabel()) !== 'Alt text')
-    problems.push(`${label}: the bar's Alt text did not focus the live sheet's Alt text field (${await focusedLabel()})`);
   if ((await field().inputValue()) !== 'A ringed planet')
     problems.push(`${label}: the live sheet shows "${await field().inputValue()}", not the image's text`);
   await field().fill('Saturn');
   await page.waitForTimeout(500);
-  if ((await described(0)) !== 'Saturn')
-    problems.push(`${label}: a text typed after the bar's Alt text is not on the image (${await described(0)})`);
-  // Change image: the new image has no text of its own, and its live sheet opens at the Alt text field.
-  await pics().first().click();
-  await page.waitForTimeout(600);
-  await pressTool(page, 'Change image', 'click');
-  await pickTile();
-  if (await shortSheet().count()) problems.push(`${label}: Change image opened the short alt text sheet from expanded`);
-  if (await described(0)) problems.push(`${label}: the changed image has a text of its own (${await described(0)})`);
-  if ((await focusedLabel()) !== 'Alt text')
-    problems.push(`${label}: Change image's live sheet does not have the Alt text field focused (${await focusedLabel()})`);
-  await field().fill('Another view');
-  await page.waitForTimeout(500);
-  if ((await described(0)) !== 'Another view')
-    problems.push(`${label}: the text typed after Change image is not on the image (${await described(0)})`);
+  if ((await described(0)) !== 'Saturn') problems.push(`${label}: a text typed after the tap is not on the image (${await described(0)})`);
   await page.close();
 }
 
@@ -1383,61 +1352,17 @@ async function checkAltSheet(width, height = 800) {
   await page.waitForTimeout(600);
   if ((await pics().count()) !== 3) problems.push(`${label}: Esc on the sheet did not keep the image (${await pics().count()} images)`);
 
-  // The bar's Alt text: the same sheet with Cancel and Save, showing the text the image has.
-  const edit = async (n) => {
-    await pics().nth(n)[how]();
-    await page.waitForTimeout(600);
-    await pressTool(page, 'Alt text', how);
-    await sheet().waitFor({ timeout: 5000 });
-    await page.waitForTimeout(400);
-  };
-  await edit(await at('A ringed planet'));
-  const shown = await sheet().getByLabel('Alt text').inputValue();
-  if (shown !== 'A ringed planet') problems.push(`${label}: the bar's Alt text shows "${shown}", not the image's text`);
-  const editNames = await buttons();
-  if (!editNames.includes('Cancel') || !editNames.includes('Save') || editNames.includes('Skip'))
-    problems.push(`${label}: the bar's Alt text has the buttons ${editNames.join(', ')}, not Cancel and Save`);
-  await sheet().getByLabel('Alt text').fill('A ringed planet, seen from space');
-  await sheet().getByRole('button', { name: 'Cancel', exact: true }).click();
-  await asked()
-    .waitFor({ timeout: 4000 })
-    .catch(() => problems.push(`${label}: Cancel with a change did not ask "Keep your changes?"`));
-  await asked().getByRole('button', { name: 'Discard', exact: true }).click();
-  await page.waitForTimeout(500);
-  if ((await at('A ringed planet')) < 0) problems.push(`${label}: Discard changed the text (${(await texts()).join('|')})`);
-  // Save with a new text.
-  await edit(await at('A ringed planet'));
-  await sheet().getByLabel('Alt text').fill('Saturn');
-  await sheet().getByRole('button', { name: 'Save', exact: true }).click();
-  await page.waitForTimeout(500);
-  if ((await at('Saturn')) < 0)
-    problems.push(`${label}: Save in the bar's Alt text did not change the text (${(await texts()).join('|')})`);
-  // Decorative: no field, and no text on the image.
-  await edit(await at('Saturn'));
-  await sheet().locator('[role=switch], input[type=checkbox]').first().click();
-  await page.waitForTimeout(300);
-  if (await sheet().getByLabel('Alt text').count()) problems.push(`${label}: a decorative image still has the Alt text field`);
-  await sheet().getByRole('button', { name: 'Save', exact: true }).click();
-  await page.waitForTimeout(500);
-  if ((await at('Saturn')) >= 0) problems.push(`${label}: a decorative image has a text (${(await texts()).join('|')})`);
-
-  // Change image: the same sheet follows the pick, as Skip and Save; the new image is selected, with its tools on the bar.
+  // A tap on an image in the text opens its sheet (B11), with the Alt text field showing the text the image has; the bar has no Alt text tool any more (B12).
   await pics()
-    .nth(await at(''))
+    .nth(await at('A ringed planet'))
     [how]();
-  await page.waitForTimeout(600);
-  await pressTool(page, 'Change image', how);
-  await pick();
-  const changeNames = await buttons();
-  if (!changeNames.includes('Skip') || !changeNames.includes('Save'))
-    problems.push(`${label}: Change image's sheet has the buttons ${changeNames.join(', ')}, not Skip and Save`);
-  await sheet().getByLabel('Alt text').fill('Another view');
-  await sheet().getByRole('button', { name: 'Save', exact: true }).click();
-  await page.waitForTimeout(700);
-  if ((await at('Another view')) < 0)
-    problems.push(`${label}: Change image did not put the new text on the image (${(await texts()).join('|')})`);
-  if (!(await page.locator('.mo-editor-tools button[aria-label="Alt text"]').count()))
-    problems.push(`${label}: the changed image is not selected, the bar has no Alt text`);
+  await page.waitForTimeout(900);
+  const own = page.locator('dialog[open], .mo-editor-side-sheet').last().getByLabel('Alt text');
+  if (!(await own.count())) problems.push(`${label}: a tap on the image did not open its sheet with an Alt text field`);
+  else if ((await own.inputValue()) !== 'A ringed planet')
+    problems.push(`${label}: the image's sheet shows "${await own.inputValue()}", not the image's text`);
+  if (await page.locator('.mo-editor-tools button[aria-label="Alt text"]').count())
+    problems.push(`${label}: the bar still has an Alt text tool`);
   await page.close();
 }
 

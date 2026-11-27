@@ -391,6 +391,26 @@
     border-radius: var(--mo-comp-block-radius);
     object-fit: cover;
   }
+  /* The top of an item's media sheet (MediaPanel.tsx): the media as it is, and its actions under it. */
+  .mo-editor-media-panel {
+    display: grid;
+    gap: var(--mo-ref-space-200);
+  }
+  .mo-editor-media-panel-preview {
+    display: flex;
+    justify-content: center;
+    color: var(--mo-sys-color-on-surface);
+  }
+  .mo-editor-media-panel-preview img {
+    max-inline-size: 100%;
+    max-block-size: 12rem;
+    border-radius: var(--mo-comp-block-radius);
+    object-fit: contain;
+  }
+  .mo-editor-media-panel-actions {
+    flex-wrap: wrap;
+    gap: var(--mo-ref-space-100);
+  }
   .mo-editor-fold-arrow,
   .mo-editor-section-arrow {
     color: var(--mo-sys-color-on-surface-variant);

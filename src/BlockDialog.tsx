@@ -55,6 +55,7 @@ import { apps } from './site';
 import { headed, letterOf } from './Sheet';
 import { cropView, type Cut } from './CropView';
 import { shownAt } from './images';
+import MediaPanel, { type MediaPanelSpec } from './MediaPanel';
 import { t } from './i18n';
 import { snackbar } from '../lib/snackbar';
 import { choose as askChoice, closeChanged } from './ask';
@@ -115,6 +116,7 @@ export type BlockAsk = {
     live?: () => LiveBlock | null,
     focus?: EditFocus,
     keep?: KeepAt,
+    remove?: () => void,
   ) => Promise<BlockProps | null>;
   /** The page whose sheets keep a hidden copy below medium (sheetCopy.mjs); undefined: none kept (another form, or not known yet). */
   copy?: string;
@@ -160,6 +162,8 @@ export type RowSpec = {
   onChange: (value: BlockProps) => void;
   /** The sheet is closed once the value is changed (the icon picker: a pick is all it asks). */
   closes?: boolean;
+  /** The media panel over the fields: the media as it is and its actions (MediaPanel.tsx). */
+  media?: MediaPanelSpec;
 };
 
 /** The link of a live sheet to its block (or section heading) in the text (MarkdownEditor.tsx). */
@@ -273,6 +277,8 @@ export function useBlockDialog(
   const offerMade = useRef<string | undefined>(undefined);
   const headingId = useId();
   const answer = useRef<(a: Answer) => void>(() => {});
+  // An image's Remove, in its sheet (B12): what takes the image out of the text; set by `edit` for an image in the text.
+  const removeImage = useRef<(() => void) | null>(null);
   // The row settings shown now (the `row` step).
   const rowSpec = useRef<RowSpec | null>(null);
   // The page sheet of an item's link, open now (the `page` of the asker): the field, its value, its title and where the answer goes.
@@ -433,6 +439,7 @@ export function useBlockDialog(
 
   // Answer and close (the side sheet slides out first; the next one waits for `closing`).
   const done = (a: Answer) => {
+    removeImage.current = null;
     answer.current(a);
     answer.current = () => {};
     openNow.current = null;
@@ -513,12 +520,15 @@ export function useBlockDialog(
       if (!openNow.current && !show_) return;
       rowSpec.current = spec;
       if (!openNow.current) {
-        trigger.current = null;
+        // A button that opened it (an item's media or icon) has the focus back when it closes; a field typed in keeps it (keepFocus).
+        const at = document.activeElement;
+        trigger.current = at instanceof HTMLButtonElement ? at : null;
         show({ step: 'row' });
       }
       setValues(spec.value);
     },
-    edit: async (type, props, isNew = false, linked, focus, keep) => {
+    edit: async (type, props, isNew = false, linked, focus, keep, remove) => {
+      removeImage.current = type === IMAGE && remove ? remove : null;
       const fields = blockOf(type)?.fields ?? [];
       if (focus === 'alt') reachField(t.blocks.picture.alt);
       // A block on the page with what a field it has no value for means; a new one with the defaults; a hidden copy put back with its values.
@@ -696,15 +706,18 @@ export function useBlockDialog(
             ? block.label
             : t.blocks.insert;
   const rowFields = open?.step === 'row' && rowSpec.current && (
-    <FieldList
-      fields={rowSpec.current.fields}
-      value={values}
-      onChange={(v) => {
-        setValues(v as BlockProps);
-        rowSpec.current?.onChange(v as BlockProps);
-        if (rowSpec.current?.closes) done(null);
-      }}
-    />
+    <>
+      {rowSpec.current.media && <MediaPanel spec={rowSpec.current.media} />}
+      <FieldList
+        fields={rowSpec.current.fields}
+        value={values}
+        onChange={(v) => {
+          setValues(v as BlockProps);
+          rowSpec.current?.onChange(v as BlockProps);
+          if (rowSpec.current?.closes) done(null);
+        }}
+      />
+    </>
   );
   const sectionSettings = (
     <SectionSettings
@@ -758,6 +771,18 @@ export function useBlockDialog(
             }}
           />
         </ul>
+      )}
+      {block!.type === IMAGE && removeImage.current && (
+        <Button
+          kind="text"
+          onClick={() => {
+            const remove = removeImage.current;
+            done(null);
+            remove?.();
+          }}
+        >
+          {t.common.remove}
+        </Button>
       )}
       {problem && <ProblemNote>{problem}</ProblemNote>}
     </>

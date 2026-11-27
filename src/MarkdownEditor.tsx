@@ -54,8 +54,9 @@ import { headingChoices } from '../lib/heading-levels.mjs';
 import { TEXT_COLORS, colorClass } from '../lib/text-colors.mjs';
 import { sectionAttrs, sectionHeading, sectionSettingsOf, setSection } from './sectionState.mjs';
 import { sectionFrame } from './sectionFrame';
-import { IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock, type SheetTarget } from './BlockDialog';
+import { IMAGE, reachField, type BlockAsk, type EditFocus, type LiveBlock, type RowSpec, type SheetTarget } from './BlockDialog';
 import { cropView } from './CropView';
+import { Icon } from './icon';
 import { aspectProp, layoutOf, ratioProp } from './standard/cards/view';
 import { askLink } from './LinkSheet';
 import { atLeastNow, Menu, MenuDivider, MenuItem, Toolbar, ToolbarButton } from './ui';
@@ -1016,6 +1017,13 @@ function cardBar(
 ) {
   const owner = {};
   let selected = false;
+  // What Delete or Backspace does on the card itself: its Remove.
+  const removal =
+    own.remove ??
+    (() =>
+      items()
+        .find((it): it is CardItem => !!it && it.label === t.common.remove)
+        ?.action(true));
   const show = () => {
     const all = items().filter((it): it is CardItem => !!it);
     // The row (blockRow.ts) has Move up, Move down, Hide or Show and, Settings (when it has any: the item with `row: 'settings'`); the bar's `⋮` has the rest.
@@ -1038,12 +1046,6 @@ function cardBar(
   };
   const escape = (e: KeyboardEvent) => {
     // Delete or Backspace on the selected card itself does what its Remove does.
-    const removal =
-      own.remove ??
-      (() =>
-        items()
-          .find((it): it is CardItem => !!it && it.label === t.common.remove)
-          ?.action(true));
     if ((e.key === 'Delete' || e.key === 'Backspace') && document.activeElement === card) {
       e.preventDefault();
       leave();
@@ -1097,7 +1099,16 @@ function cardBar(
     document.addEventListener('pointercancel', unlock, { capture: true, once: true });
     timer = window.setTimeout(unlock, 1000);
   });
+  // Delete or Backspace on the focused card removes it, selected or not (a sheet closed on it leaves it focused and deselected).
+  card.addEventListener('keydown', (e) => {
+    if ((e.key !== 'Delete' && e.key !== 'Backspace') || e.defaultPrevented || document.activeElement !== card) return;
+    e.preventDefault();
+    leave();
+    removal();
+  });
   card.addEventListener('click', () => {
+    // The card takes the focus first (a mouse press does not give it), so a sheet it opens gives the focus back to it.
+    card.focus({ preventScroll: true });
     tap?.();
     select();
   });
@@ -1264,6 +1275,16 @@ function sheetTarget(view: EditorView, index: number): SheetTarget | null {
   return open ? { index, type, props, open } : null;
 }
 
+// The media of an item as the top of its sheet shows it: the image, the icon, or the video's mark.
+function mediaPreview(row: Record<string, unknown>, kind: string) {
+  if (['image', 'avatar', 'square', 'landscape'].includes(kind)) {
+    const src = safeImageSrc(shownAt(splitPicture(String(row.image ?? '')).src));
+    return src ? <img src={src} alt="" className="mo-keep" /> : undefined;
+  }
+  if (kind === 'video') return <Icon name="videocam" size={48} />;
+  return row.icon ? <Icon name={String(row.icon)} size={48} /> : undefined;
+}
+
 // An image in the text as a card like a block's, cut to its format, with a menu to change it
 // (another image, its description for screen readers, its format), move it with its paragraph and
 // remove it.
@@ -1304,7 +1325,7 @@ function imageCard(
     const at = getPos();
     const live = () => (at === undefined ? null : liveImage(view, at));
     const keep = at === undefined ? undefined : { at: sheetIndexAt(view.state.doc, at), start };
-    const props = await sheet()?.edit(IMAGE, imagePropsOf(node), false, live, focus, keep);
+    const props = await sheet()?.edit(IMAGE, imagePropsOf(node), false, live, focus, keep, remove);
     const pos = getPos();
     if (!props || pos === undefined) return;
     view.dispatch(
@@ -1315,68 +1336,14 @@ function imageCard(
     const pos = getPos();
     if (pos === undefined) return;
     view.dispatch(view.state.tr.delete(pos, pos + node.nodeSize));
+    // The sheet that held Remove is closed and the card is gone: the focus goes back to the text, not to the page.
+    view.focus();
     announceRemoved(t.text.blockRemoved(t.text.image));
   };
-  // Crop: the crop view over the page; Save puts the new aspect ratio and crop after the image's address (crop.mjs).
-  const cropIt = async () => {
-    const next = await cropView({ src, format: format ?? '', crop });
-    const pos = getPos();
-    if (!next || pos === undefined) return;
-    view.dispatch(
-      view.state.tr.setNodeMarkup(pos, undefined, { ...node.attrs, src: joinPicture(src, next.format, next.crop, decorative) }),
-    );
-  };
-  // From medium the image's sheet is the live side panel (liveSheet): Change image and Alt text use it, with its Alt text field focused. Below medium the
-  // short sheet for the alt text is used (BlockAsk.alt).
-  const inLivePanel = () => liveSheet('fields', atLeastNow('medium'));
-  // Change image: another from the Library in its place, starting as Original (no format or crop, image tools spec decision 5) with no alt text of its own.
-  // From medium the new image is selected again and its live sheet opens at the Alt text field; below it the short sheet for its alt text comes first
-  // (Skip keeps it without), then the new image is selected again, with its tools on the bar.
-  const change = async () => {
-    const chosen = await pick()?.();
-    if (!chosen) return;
-    const own = inLivePanel()
-      ? { alt: '', decorative: false }
-      : ((await sheet()?.alt({ src: chosen, alt: '', decorative: false }, 'new')) ?? { alt: '', decorative: false });
-    const pos = getPos();
-    if (pos === undefined) return;
-    view.dispatch(
-      view.state.tr.setNodeMarkup(pos, undefined, {
-        ...node.attrs,
-        src: joinPicture(chosen, '', null, own.decorative),
-        alt: own.alt.trim(),
-      }),
-    );
-    // The node view is drawn again for the new image: its sheet is opened by the new view's card (selected by the same place).
-    const next = view.nodeDOM(pos) as CardHost | null;
-    next?.select?.();
-    if (inLivePanel()) next?.describe?.('alt');
-  };
-  // Alt text: from medium the live sheet's Alt text field; below it the short sheet (Cancel and Save) for its text and whether it is decorative.
-  const editAlt = async () => {
-    if (inLivePanel()) return void describe('alt');
-    const own = await sheet()?.alt({ src, alt: node.attrs.alt ?? '', decorative }, 'edit');
-    const pos = getPos();
-    if (!own || pos === undefined) return;
-    view.dispatch(
-      view.state.tr.setNodeMarkup(pos, undefined, {
-        ...node.attrs,
-        src: joinPicture(src, format ?? '', crop, own.decorative),
-        alt: own.alt.trim(),
-      }),
-    );
-  };
-  // The image's tools on the bar (image tools spec, section 4), in this order; Alt text is a text button.
-  const tools = (): BarAction[] => [
-    { kind: 'change-image', label: t.forms.changeImage, action: () => void change() },
-    // Crop opens the crop view (not in a Banner's text or on a fixed page, where the sheet has no aspect ratio either).
-    ...(sheet()?.canCrop === false ? [] : [{ kind: 'crop' as const, label: t.text.crop, action: () => void cropIt() }]),
-    { kind: 'alt-text', label: t.blocks.picture.alt, text: true, action: () => void editAlt() },
-    { kind: 'remove', label: t.common.remove, action: remove },
-  ];
+  // The image's tools (Change image, Crop, Alt text, Remove) are in its sheet, not on the bar (B12); a tap opens the sheet on any screen (B11).
   (dom as CardHost).describe = (focus) => void describe(focus);
   reopens.set(dom, (values) => void describe(undefined, values));
-  // From medium an image's sheet is the live side panel: a tap opens it (owner, image tools spec 1b.2), and the row has no Settings (the panel is open).
+  // From medium the sheet is the live side panel, so the row has no Settings there.
   const inPanelNow = () => editsInPanel(atLeastNow('medium'), true);
   const close = cardBar(
     view,
@@ -1391,8 +1358,8 @@ function imageCard(
         ...moves(view, pos === undefined ? null : view.state.doc.resolve(pos).index(0), sheet()?.template?.locked),
       ];
     },
-    () => inPanelNow() && void describe(),
-    { tools, remove },
+    () => void describe(),
+    { remove },
   );
   return { dom, update: () => false, stopEvent: () => true, ignoreMutation: () => true, destroy: close };
 }
@@ -1821,10 +1788,13 @@ function blockCard(
   // Its tools in the text's one bar (blockBar.ts), made below: shown while a row is active.
   let bar: { refresh: (shown: boolean) => void; destroy: () => void } | null = null;
   let syncRow: (open: boolean) => void = () => {};
+  let mediaIsSet: (row: number) => boolean = () => true;
   // A block whose item link is picked straight from its link button (no sheet of the item): the row's link slot calls it.
   let linkTo: ((row: number) => void) | null = null;
   // The row whose icon picker is open instead of its settings.
   let iconOf: number | null = null;
+  // The media sheet of that row (MediaPanel.tsx): its media and actions, the kinds of media (nothing set yet and no kind chosen, or Change media), the media's own picker, or Alt text.
+  let mediaMode: 'panel' | 'kinds' | 'pick' | 'alt' = 'panel';
   const settings = () => {
     iconOf = null;
     dynOpen = false;
@@ -1936,8 +1906,10 @@ function blockCard(
                 );
             }}
             onIcon={(row) => {
-              // The row's icon slot, also on a row that is not active: the row becomes the active one and its icon picker opens at once, not the settings.
+              // The row's media, also on a row that is not active: the row becomes the active one and its media sheet opens at once, not the settings: on
+              // its media when it is set, else on the kinds of media (unless a kind is already chosen, as the List default icon, or was just chosen on the slot: its own picker).
               iconOf = row;
+              mediaMode = mediaIsSet(row) ? 'panel' : 'kinds';
               if (active !== row) change({ active: row, focus: null });
               syncRow(true);
             }}
@@ -2222,70 +2194,7 @@ function blockCard(
           : []),
       ];
     };
-    // A card with an image (Cards, media Image): the image's tools on the bar, as for an image in the text (image tools spec, section 6): Change image,
-    // Crop (the block's one aspect ratio, no chips), Alt text and Remove. From medium the card's media sheet is the live side panel, with its Alt text field
-    // focused; below it the short alt text sheet is used.
-    const cardImageTools = (): BarAction[] => {
-      const list = rows();
-      if (spec!.grid || single || isDynamic() || active === null || node.attrs.props.media !== 'image' || !spec!.media?.includes('image'))
-        return [];
-      const i = active;
-      const address = String(list[i]?.image ?? '');
-      if (!address) return [];
-      // In the multi-aspect ratio layout the image is cut to the card's own aspect ratio, else to the block's.
-      const ratio = layoutOf(node.attrs.props) === 'multi-aspect-ratio' ? aspectProp(list[i]?.aspect) : ratioProp(node.attrs.props);
-      const own = splitPicture(address);
-      const put = (patch: Row) =>
-        setItems(
-          rows().map((r, j) =>
-            j === i ? (Object.fromEntries(Object.entries({ ...r, ...patch }).filter(([, v]) => v !== '' && v !== undefined)) as Row) : r,
-          ),
-        );
-      // From medium the card's media sheet opens live beside it at its Alt text field.
-      const openAlt = () => {
-        iconOf = i;
-        dynOpen = false;
-        syncRow(true);
-        reachField(t.blocks.picture.alt);
-      };
-      const live = () => atLeastNow('medium');
-      return [
-        {
-          kind: 'change-image',
-          label: t.forms.changeImage,
-          action: async () => {
-            const chosen = await pick()?.();
-            if (!chosen) return;
-            // A new image starts as the middle part in the block's ratio (no words), with no alt text of its own.
-            const text = live()
-              ? { alt: '', decorative: false }
-              : ((await asker()?.alt({ src: chosen, alt: '', decorative: false }, 'new')) ?? { alt: '', decorative: false });
-            put({ image: chosen, alt: text.decorative ? '' : text.alt.trim() });
-            if (live()) openAlt();
-          },
-        },
-        {
-          kind: 'crop',
-          label: t.text.crop,
-          action: async () => {
-            const next = await cropView({ src: own.src, format: ratio, crop: own.format === ratio ? own.crop : null, ratios: [ratio] });
-            if (next) put({ image: joinPicture(own.src, next.format, next.crop) });
-          },
-        },
-        {
-          kind: 'alt-text',
-          label: t.blocks.picture.alt,
-          text: true,
-          action: async () => {
-            if (live()) return openAlt();
-            const text = await asker()?.alt({ src: own.src, alt: String(list[i]?.alt ?? ''), decorative: false }, 'edit');
-            if (text) put({ alt: text.decorative ? '' : text.alt.trim() });
-          },
-        },
-        { kind: 'remove', label: t.common.remove, action: () => put({ image: '', alt: '' }) },
-      ];
-    };
-    const rowActions = (): BarAction[] => [...cardImageTools(), ...itemActions()];
+    const rowActions = (): BarAction[] => itemActions();
     const itemActions = (): BarAction[] => {
       const list = rows();
       if (spec!.grid) return gridActions(spec!.grid, list as unknown as string[][]);
@@ -2466,8 +2375,114 @@ function blockCard(
       if (sheet && active !== null && !dynOpen && (itemNames.length || (slotNames.length && iconOf !== null)))
         sheet.row(specOf(active), open || !compact());
     };
+    // The media sheet of a row (B6, B11, B12): the media as it is, with Change media and Change icon or Change image (for an image also Crop, Alt text and
+    // Remove) under it; the kinds of media as a radio list when nothing is set yet or after Change media.
+    const kindField = blockFields[0];
+    const kindOf = () => String(node.attrs.props[kindField?.name ?? ''] ?? kindField?.default ?? '');
+    const isImageKind = (k: string) => ['image', 'avatar', 'square', 'landscape'].includes(k);
+    mediaIsSet = (i) => {
+      const r = rows()[i] ?? {};
+      const k = kindOf();
+      return k === 'none' ? false : k === 'video' ? !!r.video : isImageKind(k) ? !!r.image : !!r.icon;
+    };
+    const putRow = (i: number, patch: Row) =>
+      setItems(
+        rows().map((r, j) =>
+          j === i ? (Object.fromEntries(Object.entries({ ...r, ...patch }).filter(([, v]) => v !== '' && v !== undefined)) as Row) : r,
+        ),
+      );
+    const mediaSpecOf = (i: number): RowSpec => {
+      const r = rows()[i] ?? {};
+      const k = kindOf();
+      const again = () => {
+        syncRow(true);
+      };
+      const own = splitPicture(String(r.image ?? ''));
+      const reopen = (mode: typeof mediaMode) => {
+        mediaMode = mode;
+        again();
+      };
+      const kinds = {
+        label: t.forms.mediaKind,
+        name: 'mo-media-kind',
+        value: k,
+        options: (kindField.options ?? []).map((o) => ({ label: o.label, value: o.value })),
+        onChange: (value: string) => {
+          const patch = { [kindField.name]: value };
+          setItems(rows(), patch);
+          mediaMode = value === 'none' ? 'panel' : 'pick';
+          again();
+        },
+      };
+      const value = { ...valueOf(r, slotNames), ...blockValue() };
+      const base = { headline: spec!.texts.icon ?? '', value };
+      if (mediaMode === 'kinds') return { ...base, fields: [], onChange: () => {}, media: { kinds } };
+      if (mediaMode === 'pick' || !mediaIsSet(i))
+        return {
+          ...base,
+          fields: iconFields,
+          onChange: (v: BlockProps) => {
+            setItems(setFields(rows(), i, slotNames, v));
+            // A picked image or video shows in the panel again, with its actions; a picked icon stays in the picker, where its color is chosen.
+            if (v.image || v.video) mediaMode = 'panel';
+            if (mediaMode === 'panel') again();
+          },
+          media: { actions: [{ label: t.forms.changeMedia, action: () => reopen('kinds') }] },
+        };
+      const image = isImageKind(k);
+      const ratioNow =
+        k === 'image' && !spec!.grid
+          ? layoutOf(node.attrs.props) === 'multi-aspect-ratio'
+            ? aspectProp(r.aspect)
+            : ratioProp(node.attrs.props)
+          : '';
+      // The Alt text view is the panel with the Alt text field under it: the media's actions stay.
+      const altView = mediaMode === 'alt';
+      return {
+        ...base,
+        fields: altView ? iconFields.filter((f) => f.name === 'alt') : [],
+        onChange: altView ? (v: BlockProps) => setItems(setFields(rows(), i, slotNames, v)) : () => {},
+        media: {
+          preview: mediaPreview(r, k),
+          actions: [
+            { label: t.forms.changeMedia, action: () => reopen('kinds') },
+            image
+              ? {
+                  label: t.forms.changeImage,
+                  action: async () => {
+                    const chosen = await pick()?.();
+                    if (!chosen) return;
+                    // A new image starts as the middle part in the block's ratio (no words), with no alt text of its own.
+                    putRow(i, { image: chosen, alt: '' });
+                    reopen('alt');
+                  },
+                }
+              : { label: t.forms.changeIcon, action: () => reopen('pick') },
+            ...(image && ratioNow
+              ? [
+                  {
+                    label: t.text.crop,
+                    action: async () => {
+                      const next = await cropView({
+                        src: own.src,
+                        format: ratioNow,
+                        crop: own.format === ratioNow ? own.crop : null,
+                        ratios: [ratioNow],
+                      });
+                      if (next) putRow(i, { image: joinPicture(own.src, next.format, next.crop) });
+                    },
+                  },
+                ]
+              : []),
+            ...(image ? [{ label: t.blocks.picture.alt, action: () => reopen('alt') }] : []),
+            ...(image ? [{ label: t.common.remove, kind: 'text' as const, action: () => putRow(i, { image: '', alt: '' }) }] : []),
+          ],
+        },
+      };
+    };
     const specOf = (i: number) => {
       const row = rows()[i] ?? {};
+      if (iconOf === i && spec!.media && kindField) return mediaSpecOf(i);
       if (iconOf === i)
         return {
           headline: spec!.texts.icon ?? '',

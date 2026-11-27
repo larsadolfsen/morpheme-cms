@@ -17,6 +17,7 @@ import {
   openStyleMenu,
   pressInsert,
   saveOrClose,
+  chooseKind,
 } from './support/shared.mjs';
 
 /** The active block's action row (src/blockRow.ts): it shows only while a block is active (a real touch tap on a block's rows activates it), its buttons are real 44 x 44 dp
@@ -1173,6 +1174,7 @@ async function checkChangeTo(width, height) {
   // The first row gets an icon.
   await page.locator('[data-row="0"] [data-field="title"]').click();
   await page.locator('[data-row="0"] .mo-editor-inline-list-slot[aria-label="Icon"]').click();
+  await chooseKind(page, 'Icon');
   const picker = page.getByRole('group', { name: 'Icon', exact: true }).last();
   await picker.waitFor({ timeout: 5000 }).catch(() => problems.push(`${label}: the icon picker did not open`));
   await picker.getByRole('button').nth(1).click();

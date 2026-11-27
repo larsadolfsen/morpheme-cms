@@ -257,6 +257,10 @@ export const forms = {
   /** A value that is not among the choices (a removed page). */
   missing: (value: string) => `${value} (doesn’t exist)`,
   changeImage: 'Change image',
+  /** The media sheet's action that picks another kind of media (icon, avatar, image). */
+  changeMedia: 'Change media',
+  /** The legend of the list of kinds of media. */
+  mediaKind: 'Kind of media',
   pickImage: 'Select image',
   add: 'Add',
   noneFound: 'No results',

@@ -178,17 +178,9 @@ async function flowB(ctx) {
   await expectFocus(ctx, "B: after a block's settings open");
   await press(ctx, 'Escape');
   await expectFocus(ctx, "B: after closing a block's settings", card);
+  // An image's tools, Remove included, are in its sheet, not on the bar (B12): Enter opens the sheet again, and Tab reaches its Remove.
   await press(ctx, 'Enter');
-  // The card is selected with its settings open beside the text: Alt+F10 moves the focus to the bar, whose block tools have Remove; Escape goes back to the card.
-  await press(ctx, 'Alt+F10');
-  // On a phone the bar is short, and Remove is in its More menu.
-  if (await page.evaluate(() => !!document.querySelector('[role=toolbar] button[aria-label="Remove"]')))
-    await reach(ctx, 'B: Remove', { css: 'button', label: 'Remove' }, { keys: ['ArrowRight'], max: 30 });
-  else {
-    await reach(ctx, 'B: More', { css: 'button', label: 'More' }, { keys: ['ArrowRight'], max: 30 });
-    await press(ctx, 'Enter');
-    await reach(ctx, 'B: Remove', { css: 'button', text: 'Remove' }, { keys: ['ArrowDown'], max: 20 });
-  }
+  await reach(ctx, 'B: Remove', { css: 'button', text: 'Remove' }, { max: 40 });
   await press(ctx, 'Enter');
   await expectFocus(ctx, 'B: after Remove');
 }

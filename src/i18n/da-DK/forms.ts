@@ -203,6 +203,8 @@ export const forms: Messages['forms'] = {
   noChoice: 'Ingen',
   missing: (value) => `${value} (findes ikke)`,
   changeImage: 'Skift billede',
+  changeMedia: 'Skift medie',
+  mediaKind: 'Type af medie',
   pickImage: 'Vælg billede',
   add: 'Tilføj',
   noneFound: 'Ingen resultater.',
