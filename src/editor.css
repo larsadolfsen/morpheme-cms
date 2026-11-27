@@ -448,7 +448,7 @@
   .mo-editor-tooltip {
     position-anchor: --editor-tooltip;
     position-area: block-end;
-    inset: var(--mo-comp-tooltip-gap, 0.25rem) 0.5rem 0.5rem;
+    inset: var(--mo-comp-tooltip-gap, var(--mo-ref-space-50)) 0.5rem 0.5rem;
     position-try-fallbacks: flip-block;
   }
 }

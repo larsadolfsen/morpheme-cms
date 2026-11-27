@@ -596,8 +596,10 @@ export function DateTimeField({
 }: InField & { id: string; value: string; onChange: (value: string) => void }) {
   const [day = '', time = ''] = value.split('T');
   const join = (d: string, h: string) => (d ? `${d}T${h || '00:00'}` : '');
+  // One column below M3's medium breakpoint, two from it (the breakpoint's own table, lib/breakpoints.mjs).
+  const wide = useAtLeast('medium');
   return (
-    <div className="mo-editor-date-time-field">
+    <div className={`mo-editor-date-time-field ${wide ? 'mo-editor-date-time-field-wide' : ''}`}>
       <DatePicker id={id} {...field} value={day} onChange={(d) => onChange(join(d, time))} />
       <TimePicker id={`${id}-time`} value={time.slice(0, 5)} onChange={(h) => onChange(join(day, h))} />
     </div>

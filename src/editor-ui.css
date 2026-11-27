@@ -129,10 +129,8 @@
     display: grid;
     gap: var(--mo-ref-space-150);
   }
-  @media (width >= 37.5rem) {
-    .mo-editor-date-time-field {
-      grid-template-columns: 1fr auto;
-    }
+  .mo-editor-date-time-field-wide {
+    grid-template-columns: 1fr auto;
   }
   /* The edge of a swatch: grey, so a light and a dark colour both show on a light and a dark sheet. */
   .mo-editor-swatch-edge {
@@ -386,9 +384,11 @@
   }
   .mo-editor-fold-arrow {
     color: var(--mo-sys-color-on-surface-variant);
-    transition-property: transform, translate, scale, rotate;
-    transition-timing-function: var(--mo-sys-motion-ease);
-    transition-duration: var(--mo-sys-motion-spring-default-spatial-duration);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .mo-editor-fold-arrow {
+      transition: rotate var(--mo-sys-motion-spring-default-spatial);
+    }
   }
   .mo-editor-fold-arrow-open {
     rotate: 90deg;

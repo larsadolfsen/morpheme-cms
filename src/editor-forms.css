@@ -27,9 +27,6 @@
   }
   .mo-editor-nav-note {
     padding: var(--mo-ref-space-200);
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-nav-rail-row {
     display: flex;
@@ -39,12 +36,6 @@
     align-items: flex-start;
     gap: var(--mo-ref-space-100);
     padding: var(--mo-ref-space-100);
-  }
-  .mo-editor-nav-hint {
-    padding-block: var(--mo-comp-editor-rhythm-150);
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
-    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-nav-search-demo {
     margin-inline: auto;
@@ -56,11 +47,6 @@
   }
   .mo-editor-nav-search-demo > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
-  }
-  .mo-editor-nav-search-results {
-    border-radius: var(--mo-sys-shape-corner-medium);
-    background-color: var(--mo-sys-color-surface-container-high);
-    padding-block: var(--mo-ref-space-100);
   }
   .mo-editor-nav-colors {
     margin-inline: auto;
@@ -98,8 +84,12 @@
     color: var(--mo-sys-color-on-surface);
     outline-style: none;
   }
+  .mo-editor-theme-title-input:focus-visible {
+    outline: var(--mo-sys-state-focus-indicator-thickness) solid var(--mo-sys-state-focus-indicator-color);
+    outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
+  }
   .mo-editor-theme-title-input::placeholder {
-    color: color-mix(in oklab, var(--mo-sys-color-on-surface-variant) 60%, transparent);
+    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-theme-picture-box {
     position: relative;
@@ -126,10 +116,8 @@
     justify-content: center;
     border-radius: var(--mo-comp-theme-picture-radius);
     color: var(--mo-sys-color-on-surface-variant);
-    outline-width: 2px;
-    outline-offset: -2px;
-    outline-color: var(--mo-sys-color-outline-variant);
-    outline-style: dashed;
+    outline: 1px solid var(--mo-sys-color-outline-variant);
+    outline-offset: -1px;
   }
   .mo-editor-theme-picture-actions {
     position: absolute;
@@ -158,10 +146,11 @@
     display: flex;
     padding-inline-end: var(--mo-ref-space-200);
   }
-  .mo-editor-field-item-toggle > svg {
-    transition-property: transform, translate, scale, rotate;
-    transition-duration: var(--mo-sys-motion-spring-default-spatial-duration);
-    transition-timing-function: var(--mo-sys-motion-ease);
+  /* The arrow turns with the spatial spring (its duration and curve together); with reduced motion at once. */
+  @media (prefers-reduced-motion: no-preference) {
+    .mo-editor-field-item-toggle > svg {
+      transition: rotate var(--mo-sys-motion-spring-default-spatial);
+    }
   }
   .mo-editor-field-item-toggle-open > svg {
     rotate: 180deg;
@@ -291,7 +280,7 @@
   .mo-editor-comm-tooltips [data-tooltip] {
     flex-direction: column-reverse;
     align-items: flex-start;
-    gap: var(--mo-comp-tooltip-gap, 0.25rem);
+    gap: var(--mo-comp-tooltip-gap, var(--mo-ref-space-50));
     max-inline-size: 100%;
   }
   .mo-editor-comm-tooltips :where(.mo-tooltip, .mo-editor-tooltip).mo-is-plain {
@@ -351,13 +340,6 @@
     .mo-editor-parts-cards {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-  }
-  .mo-editor-parts-card-title {
-    font-weight: 500;
-  }
-  .mo-editor-parts-card-text {
-    margin-block-start: var(--mo-ref-space-50);
-    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-parts-list-row {
     display: flex;
@@ -495,16 +477,9 @@
   :where(.mo-editor-contain-example > :not(:last-child)) {
     margin-block-end: var(--mo-ref-space-100);
   }
-  .mo-editor-contain-example-label {
-    font-size: var(--mo-sys-typescale-body-medium-size);
-    line-height: var(--mo-sys-typescale-body-medium-line-height);
+  /* The name above a sample in the parts gallery: one class, in the body-medium role (mo-type-body-medium). */
+  .mo-editor-parts-label {
     color: var(--mo-sys-color-on-surface-variant);
-  }
-  .mo-editor-contain-carousel-label {
-    position: absolute;
-    inset-block-end: var(--mo-ref-space-150);
-    inset-inline-start: var(--mo-ref-space-200);
-    font-weight: 500;
   }
   .mo-editor-contain-dialogs {
     display: grid;
@@ -521,19 +496,6 @@
   }
   .mo-editor-contain-choices > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-150);
-  }
-  .mo-editor-contain-dialog {
-    padding: var(--mo-ref-space-300);
-  }
-  .mo-editor-contain-dialog-heading {
-    font-size: var(--mo-sys-typescale-body-large-size);
-    line-height: var(--mo-sys-typescale-body-large-line-height);
-    letter-spacing: var(--mo-sys-typescale-body-large-tracking);
-    font-weight: 500;
-  }
-  .mo-editor-contain-dialog-text {
-    margin-block-start: var(--mo-ref-space-100);
-    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-contain-frame {
     container-type: size;
@@ -578,17 +540,6 @@
   }
   .mo-editor-nav-bars > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-200);
-  }
-  .mo-editor-nav-app-bar {
-    display: flex;
-    block-size: var(--mo-ref-space-800);
-    align-items: center;
-    gap: var(--mo-ref-space-200);
-    padding-inline: var(--mo-ref-space-200);
-  }
-  .mo-editor-nav-app-bar-title {
-    margin-inline-end: auto;
-    font-weight: 500;
   }
   .mo-editor-nav-menus {
     display: flex;
@@ -716,11 +667,6 @@
     align-items: center;
     gap: var(--mo-ref-space-150);
   }
-  /* A part in a row has the room of the row's gap round it (an example's own group takes no box), so its tap area (theme/styles/ui/target-size.css) stops half way to the next part. */
-  .mo-editor-parts-row > *,
-  .mo-editor-parts-row > [role='group'] > * {
-    --mo-sys-target-gap: var(--mo-ref-space-150);
-  }
   /* BlockParts.tsx (a constant) */
   .mo-editor-parts-field-grid {
     display: grid;
@@ -759,8 +705,3 @@
   }
 }
 
-@keyframes mo-editor-pulse {
-  50% {
-    opacity: 0.5;
-  }
-}

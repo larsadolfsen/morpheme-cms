@@ -1397,7 +1397,7 @@ function Form({
                   <FoldSection {...sectionProps('content')} fixed>
                     {post ? postHead : fieldsIn(collection, 'content').map(field)}
                     <div ref={textBox} className="mo-editor-text-anchor">
-                      <span className="mo-editor-field-title">{t.forms.text}</span>
+                      <span className="mo-type-title-small mo-editor-field-title">{t.forms.text}</span>
                       <MarkdownEditor
                         key={era}
                         ref={text}

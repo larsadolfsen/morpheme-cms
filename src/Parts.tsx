@@ -71,6 +71,7 @@ import {
   MenuRow,
   SectionList,
   SectionPane,
+  SupportingText,
 } from './ui';
 import { FieldList, Fields, useWrongField, WrongField, type FieldContext } from './fields';
 import { newValue, problemAt } from './check';
@@ -186,7 +187,7 @@ export default function Parts({ env }: { env: Env }) {
   return (
     <Screen title={t.parts.screens.editor} back={{ href: '#developer/parts', label: t.common.parts.editorParts }}>
       <div className="mo-editor-flow-10">
-        <p className="mo-editor-settings-muted">{t.parts.intro('packages/editor/src/ui.tsx')}</p>
+        <SupportingText size="medium">{t.parts.intro('packages/editor/src/ui.tsx')}</SupportingText>
         <PartsShown groups={GROUPS} keep="parts">
           <PartGroup group="buttons">
             <Part name="ToolbarButton" use={use.toolbarButton}>
@@ -1075,7 +1076,7 @@ function FieldTypes({ env }: { env: Env }) {
     <Fields.Provider value={context}>
       <WrongField.Provider value={wrongField.field}>
         <PartGroup group="fieldTypes">
-          {intro && <p className="mo-editor-settings-muted">{f.intro('packages/editor/src/fields.tsx')}</p>}
+          {intro && <SupportingText size="medium">{f.intro('packages/editor/src/fields.tsx')}</SupportingText>}
           {types.map((type) => (
             <Part key={type.name} name={type.name} use={type.use}>
               <div className="mo-editor-flow-5">

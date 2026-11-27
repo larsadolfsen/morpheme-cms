@@ -16,14 +16,13 @@ import {
   SiteNavigationRailItem,
   SiteNavigationRailSection,
   SiteSearch,
-  SiteSearchGroupLabel,
   SiteSearchView,
   SiteToolbar,
   SiteButton,
 } from './themeUi';
 import { useState } from 'react';
 import { Example, Part } from './PartsShown';
-import { Button, Preview, SearchBarButton } from './ui';
+import { Button, Preview, SearchBarButton, SupportingText } from './ui';
 import { t } from './i18n';
 
 const say = t.parts.screens.navigationRest;
@@ -162,7 +161,7 @@ export default function NavigationRestParts() {
                   <Destinations rail />
                 </SiteNavigationRail>
               </Example>
-              <p className="mo-editor-nav-note">{say.content}</p>
+              <SupportingText size="medium" className="mo-editor-nav-note">{say.content}</SupportingText>
             </div>
             <div className="mo-editor-nav-demo">
               <div className="mo-editor-nav-rail-row">
@@ -179,7 +178,7 @@ export default function NavigationRestParts() {
                     aria-expanded="false"
                     data-navigation-rail-menu=""
                   />
-                  <p className="mo-editor-nav-hint">{say.content}</p>
+                  <SupportingText size="medium" className="mo-editor-nav-note">{say.content}</SupportingText>
                 </div>
               </div>
               <div className="mo-editor-nav-rail-row">
@@ -188,7 +187,7 @@ export default function NavigationRestParts() {
                     <Destinations rail />
                   </SiteNavigationRail>
                 </Example>
-                <p className="mo-editor-nav-note">{say.content}</p>
+                <SupportingText size="medium" className="mo-editor-nav-note">{say.content}</SupportingText>
               </div>
             </div>
           </div>
@@ -243,9 +242,6 @@ export default function NavigationRestParts() {
             </Example>
             <SearchViewExample kind="divided" />
             <SearchBarButton label={say.searchLabel} open={false} keys="Control+K" onOpen={() => {}} />
-            <div className="mo-editor-nav-search-results">
-              <SiteSearchGroupLabel>{say.viewGroups[0]}</SiteSearchGroupLabel>
-            </div>
           </div>
         </Preview>
       </Part>

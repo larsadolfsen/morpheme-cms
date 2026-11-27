@@ -5,6 +5,7 @@
 import { FieldList } from './fields';
 import type { Field } from './schema';
 import { Option } from './ui';
+import { SiteList } from './themeUi';
 import { SECTION_COLORS } from '../lib/section-marker.mjs';
 import { t } from './i18n';
 import { materialIcon } from './icon';
@@ -41,7 +42,7 @@ export default function SectionSettings({
   const { color } = values;
   return (
     <div className="mo-editor-stack-250">
-      <ul role="group" aria-label={t.text.sectionColor}>
+      <SiteList kind="standard" role="group" aria-label={t.text.sectionColor}>
         <Option selected={!color} onClick={() => onChange({ ...values, color: '' })}>
           {t.text.sectionColors.none}
         </Option>
@@ -50,7 +51,7 @@ export default function SectionSettings({
             {t.text.sectionColors[name as keyof typeof t.text.sectionColors]}
           </Option>
         ))}
-      </ul>
+      </SiteList>
       {fields.length > 0 && (
         <FieldList
           fields={fields}

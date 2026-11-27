@@ -229,12 +229,6 @@
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-100);
   }
-  .mo-editor-selection-kind-label {
-    padding-inline: var(--mo-ref-space-200);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: var(--mo-sys-color-on-surface-variant);
-  }
   .mo-editor-selection-vertical-dividers {
     display: flex;
     block-size: var(--mo-ref-space-800);
@@ -242,23 +236,12 @@
     gap: var(--mo-ref-space-200);
     padding-inline: var(--mo-ref-space-200);
   }
-  .mo-editor-selection-small-label {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: var(--mo-sys-color-on-surface-variant);
-  }
   :where(.mo-editor-selection-sheets > :not(:last-child)) {
     margin-block-start: 0;
     margin-block-end: var(--mo-ref-space-300);
   }
   .mo-editor-selection-sheets > :not(:last-child, :has(+ [data-fold-section])) {
     margin-block-end: var(--mo-comp-editor-rhythm-300);
-  }
-  .mo-editor-selection-sheet-label {
-    padding-inline: var(--mo-ref-space-100);
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-selection-sheet-stage {
     display: flex;

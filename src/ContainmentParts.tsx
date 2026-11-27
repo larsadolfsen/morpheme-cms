@@ -7,7 +7,7 @@
 // and one with wide="sheet" stays a sheet); and the carousel in each of Material's
 // layouts. The modal sheet, the standard sheet and the carousels do something here; the other buttons lead nowhere.
 import type { ReactNode } from 'react';
-import { SiteBottomSheet, SiteButton, SiteCarousel, SiteCheckbox, SiteDialog } from './themeUi';
+import { SiteBottomSheet, SiteButton, SiteCard, SiteCarousel, SiteCheckbox, SiteDialog } from './themeUi';
 import ModalSheetSample from './ModalSheetSample';
 import FullScreenDialogSample from './FullScreenDialogSample';
 import { named, Part } from './PartsShown';
@@ -22,21 +22,24 @@ const numbers = [1, 2, 3, 4, 5, 6];
 function Shown({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="mo-editor-contain-example" {...named(label)}>
-      <p className="mo-editor-contain-example-label">{label}</p>
+      <p className="mo-type-body-medium mo-editor-parts-label">{label}</p>
       {children}
     </div>
   );
 }
 
-/** The plain image with its number, which fades as its item shrinks (--mo-comp-carousel-mask, carouselLayout.ts). */
+/** The image with its number as the theme draws a carousel item (the label on its scrim, title-medium), which fades as its item shrinks
+ * through the theme's own token (--mo-comp-carousel-mask, carouselLayout.ts). */
 function Image({ n }: { n: number }) {
   return (
-    <>
-      <img src={exampleImage} alt="" />
-      <span className="mo-editor-contain-carousel-label" style={{ opacity: 'calc(1 - 3 * var(--mo-comp-carousel-mask, 0))' }}>
-        {say.image(n)}
+    <span className="mo-block-cards__item">
+      <span className="mo-block-cards__item-media">
+        <img src={exampleImage} alt="" />
       </span>
-    </>
+      <span className="mo-block-cards__item-label">
+        <span className="mo-block-cards__item-title">{say.image(n)}</span>
+      </span>
+    </span>
   );
 }
 
@@ -65,10 +68,7 @@ function Dialogs() {
         <FullScreenDialogSample />
       </Shown>
       <Shown label={say.dialogKinds.container}>
-        <SiteDialog className="mo-editor-contain-dialog">
-          <p className="mo-editor-contain-dialog-heading">{say.heading}</p>
-          <p className="mo-editor-contain-dialog-text">{say.text}</p>
-        </SiteDialog>
+        <SiteDialog headline={say.heading} supportingText={say.text} />
       </Shown>
     </div>
   );
@@ -181,10 +181,7 @@ function Carousels() {
             key: String(n),
             label: say.card(n),
             content: (
-              <div className="mo-block-panel mo-editor-contain-panel">
-                <p className="mo-block-panel__title">{say.card(n)}</p>
-                <p className="mo-block-panel__text">{say.text}</p>
-              </div>
+              <SiteCard kind="outlined" headline={say.card(n)} supporting={say.text} className="mo-editor-contain-panel" />
             ),
           }))}
           indicatorLabels={numbers.slice(0, 5).map((n) => say.show(n))}
@@ -200,10 +197,7 @@ function Carousels() {
               key: String(n),
               label: say.card(n),
               content: (
-                <div className="mo-block-panel mo-editor-contain-panel">
-                  <p className="mo-block-panel__title">{say.card(n)}</p>
-                  <p className="mo-block-panel__text">{say.text}</p>
-                </div>
+                <SiteCard kind="outlined" headline={say.card(n)} supporting={say.text} className="mo-editor-contain-panel" />
               ),
             }))}
             indicatorLabels={numbers.slice(0, 5).map((n) => say.show(n))}
