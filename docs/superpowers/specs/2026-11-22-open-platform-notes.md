@@ -1,7 +1,7 @@
 # An open platform: notes
 
 > **Status:** the owner's direction from a discussion with the CTO, 22 November 2026. Not a spec: nothing here is designed or
-> built. It is the frame for the store track of the roadmap (`plans/2026-11-14-roadmap-0-18-to-0-24.md`, 0.28 to 0.32) and for
+> built. It is the frame for the store track of the roadmap (`plans/2026-11-14-roadmap-0-18-to-0-24.md`, 0.29 to 0.33) and for
 > what waits under *Later* there. The owner starts none of it before the editor is done (owner: "I will not start with this
 > before the editor is done").
 
@@ -57,8 +57,8 @@ later, with auto-update included ("I agree, but include auto update"). What that
 4. **Contract discipline from now:** mark what is settled; avoid changes that refuse older items.
 5. **The same experience for every item:** install, switch, remove, fall back to the built-in, keep the data.
 
-This is the order of the roadmap's store track: 0.28 replaceable functions, 0.29 contract discipline, 0.30 auto-update, 0.31
-Morpheme's free items one at a time, 0.32 the same experience for every item.
+This is the order of the roadmap's store track: 0.29 replaceable functions, 0.30 contract discipline, 0.31 auto-update, 0.32
+Morpheme's free items one at a time, 0.33 the same experience for every item.
 
 ## Later
 
