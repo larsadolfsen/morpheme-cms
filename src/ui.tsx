@@ -1893,20 +1893,9 @@ export function ChoiceCards<T extends string>({
         {options.map(({ value: v, label: text, icon: Glyph, disabled }) => {
           const chosen = v === value;
           return (
-            <div
-              key={v}
-              className={`${siteCardClass('outlined')} mo-editor-choice-card`}
-              onClick={() => !disabled && onChange(v)}
-            >
+            <div key={v} className={`${siteCardClass('outlined')} mo-editor-choice-card`} onClick={() => !disabled && onChange(v)}>
               {Glyph && <Glyph size={24} aria-hidden="true" />}
-              <SiteRadioButton
-                label={text}
-                name={name}
-                value={v}
-                checked={chosen}
-                disabled={disabled}
-                onChange={() => onChange(v)}
-              />
+              <SiteRadioButton label={text} name={name} value={v} checked={chosen} disabled={disabled} onChange={() => onChange(v)} />
             </div>
           );
         })}
@@ -1970,7 +1959,10 @@ export function ListItem({
   }
   // A LeadingImage or a LeadingToken is the part's own leading image (56 dp) or media slot.
   if (isValidElement(item.leading) && item.leading.type === LeadingImage) {
-    item.leadingImage = { src: safeImageSrc((item.leading.props as { src: string }).src), alt: (item.leading.props as { alt?: string }).alt };
+    item.leadingImage = {
+      src: safeImageSrc((item.leading.props as { src: string }).src),
+      alt: (item.leading.props as { alt?: string }).alt,
+    };
     item.leading = undefined;
   } else if (isValidElement(item.leading) && item.leading.type === LeadingToken) {
     item.leadingMedia = item.leading;

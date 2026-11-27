@@ -82,9 +82,7 @@ function UpdateStatus({ update }: { update: NonNullable<View['update']> }) {
   const bad = update.state === 'undone' || update.state === 'stuck';
   return (
     <div>
-      <StatusLine icon={bad ? materialIcon('error') : undefined}>
-        {t.cms[update.state](update.to)}
-      </StatusLine>
+      <StatusLine icon={bad ? materialIcon('error') : undefined}>{t.cms[update.state](update.to)}</StatusLine>
       <p className="mo-editor-small-note">{when(new Date(update.at))}</p>
       {update.state === 'stuck' && <BuildLink href={update.buildUrl} version={update.to} />}
     </div>
@@ -151,14 +149,10 @@ export default function CmsPage() {
             {view.update && <UpdateStatus update={view.update} />}
             {view.latest && (
               <div>
-                <StatusLine icon={materialIcon('stars')}>
-                  {t.cms.available(view.latest)}
-                </StatusLine>
+                <StatusLine icon={materialIcon('stars')}>{t.cms.available(view.latest)}</StatusLine>
                 {view.failed && (
                   <>
-                    <StatusLine icon={materialIcon('error')}>
-                      {failedText(view.failed)}
-                    </StatusLine>
+                    <StatusLine icon={materialIcon('error')}>{failedText(view.failed)}</StatusLine>
                     {view.failed.retryAt !== null && (
                       <p className="mo-editor-small-note">{t.cms.nextTry(when(new Date(view.failed.retryAt)))}</p>
                     )}
@@ -176,9 +170,7 @@ export default function CmsPage() {
               </div>
             )}
             {(view.blocked?.kind === 'contract' || view.blocked?.kind === 'unsafe-code') && (
-              <StatusLine icon={materialIcon('error')}>
-                {blockedText(view.blocked)}
-              </StatusLine>
+              <StatusLine icon={materialIcon('error')}>{blockedText(view.blocked)}</StatusLine>
             )}
             {view.blocked?.kind === 'unsafe-code' && (
               <p className="mo-editor-small-note">
