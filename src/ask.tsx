@@ -21,7 +21,7 @@ type Question = {
   /** The choices in one row in reading order, the confirming one last (M3's basic dialog: "The confirmation button is
    * always closest to the edge"), with no "Cancel" button; Esc is still null. The confirming one is `choices[0]` all the same. */
   confirmLast?: boolean;
-  /** The main choice deletes something: it is a filled button in the error role (Cancel stays outlined). */
+  /** The main choice deletes something: it is a text button with an error-colour label (every action of a dialog is a text button, as Material 3's basic dialog). */
   danger?: boolean;
   resolve: (answer: { choice: string; text: string } | null) => void;
 };
@@ -135,7 +135,7 @@ export function Ask() {
             [...choices].reverse().map((c, i, all) => (
               <Button
                 key={c.value}
-                kind={i === all.length - 1 ? 'filled' : 'outlined'}
+                kind="text"
                 tone={question?.danger && i === all.length - 1 ? 'error' : undefined}
                 onClick={() => answer(c.value)}
               >
@@ -143,23 +143,18 @@ export function Ask() {
               </Button>
             ))}
           {!many && !row && (
-            <Button kind="outlined" onClick={() => answer(null)}>
+            <Button kind="text" onClick={() => answer(null)}>
               {t.common.cancel}
             </Button>
           )}
           {!row &&
             choices.map((c, i) => (
-              <Button
-                key={c.value}
-                kind={i === 0 ? 'filled' : 'outlined'}
-                tone={question?.danger && i === 0 ? 'error' : undefined}
-                onClick={() => answer(c.value)}
-              >
+              <Button key={c.value} kind="text" tone={question?.danger && i === 0 ? 'error' : undefined} onClick={() => answer(c.value)}>
                 {c.label}
               </Button>
             ))}
           {many && question?.cancel !== false && (
-            <Button kind="outlined" onClick={() => answer(null)}>
+            <Button kind="text" onClick={() => answer(null)}>
               {t.common.cancel}
             </Button>
           )}

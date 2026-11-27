@@ -288,10 +288,10 @@ export default function TimePickerContainer({
         />
         {!inline && (
           <span className="mo-time-picker__actions-end">
-            <Button kind="outlined" data-time-picker-action="cancel">
+            <Button kind="text" data-time-picker-action="cancel">
               {texts.cancel}
             </Button>
-            <Button kind="outlined" data-time-picker-action="ok">
+            <Button kind="text" data-time-picker-action="ok">
               {texts.ok}
             </Button>
           </span>

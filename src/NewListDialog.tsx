@@ -123,10 +123,10 @@ export default function NewListDialog({ files, open, onClose }: { files: RepoFil
             <h2 className="mo-type-body-large mo-editor-dialog-title">{t.ownList.new}</h2>
             {nameField}
             <div className="mo-editor-dialog-actions">
-              <Button kind="outlined" type="button" onClick={() => void closeIt()}>
+              <Button kind="text" type="button" onClick={() => void closeIt()}>
                 {t.common.cancel}
               </Button>
-              <Button kind="filled" type="submit">
+              <Button kind="text" type="submit">
                 {t.ownList.make}
               </Button>
             </div>

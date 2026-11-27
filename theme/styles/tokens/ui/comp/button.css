@@ -162,11 +162,6 @@
       --mo-comp-snackbar-action-hover,
       color-mix(in srgb, currentColor calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%), transparent)
     );
-    --mo-comp-button-outlined-surface: transparent;
-    --mo-comp-button-outlined-label-text-color: var(--mo-comp-snackbar-action-label-text-color, var(--mo-sys-color-inverse-primary));
-    --mo-comp-button-outlined-hovered-label-text-color: var(--mo-comp-button-outlined-label-text-color);
-    --mo-comp-button-outlined-outline-color: var(--mo-comp-button-outlined-label-text-color);
-    --mo-comp-button-outlined-hovered-outline-color: var(--mo-comp-button-outlined-label-text-color);
   }
 }
 @layer components {
@@ -193,7 +188,7 @@
 }
 @layer components {
   /* A danger button (tone="error"; docs/material-deviations.md, TB6): filled in the error role with the on-error label, outlined with
-     the error role as label and edge. Hover is the state layer of the label colour. */
+     the error role as label and edge, text with the error role as label. Hover is the state layer of the label colour. */
   .mo-button.mo-is-error {
     --mo-comp-button-filled-container-color: var(--mo-sys-color-error);
     --mo-comp-button-filled-label-text-color: var(--mo-sys-color-on-error);
@@ -207,6 +202,12 @@
     --mo-comp-button-outlined-outline-color: var(--mo-sys-color-error);
     --mo-comp-button-outlined-hovered-label-text-color: var(--mo-sys-color-error);
     --mo-comp-button-outlined-hovered-outline-color: var(--mo-sys-color-error);
+    --mo-comp-button-text-label-text-color: var(--mo-sys-color-error);
+    --mo-comp-button-text-hover: color-mix(
+      in srgb,
+      var(--mo-sys-color-error) calc(var(--mo-sys-state-hover-state-layer-opacity) * 100%),
+      transparent
+    );
   }
   /* The outlined one's state layers take the label colour (M3), here the error role; the filled one's hover is its token above. */
   @media (hover: hover) {

@@ -1571,7 +1571,7 @@ export function MultiChoice({
         ))}
         {!full && (
           <Button
-            kind="outlined"
+            kind="text"
             icon={materialIcon('add')}
             aria-haspopup="dialog"
             onClick={() => {

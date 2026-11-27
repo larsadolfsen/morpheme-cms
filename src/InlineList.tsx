@@ -142,7 +142,7 @@ export default function InlineList({
           </span>
         ) : (
           <SiteButton
-            kind="outlined"
+            kind="text"
             data-add-button=""
             className="mo-editor-inline-card-next-button"
             onClick={() => setButtons(i, [{ label: '', href: '' }], true)}

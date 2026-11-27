@@ -304,10 +304,10 @@ export default function DatePickerContainer({
       </div>
 
       <div className="mo-date-picker__actions">
-        <Button kind="outlined" data-date-picker-action="cancel">
+        <Button kind="text" data-date-picker-action="cancel">
           {texts.cancel}
         </Button>
-        <Button kind="outlined" data-date-picker-action="ok">
+        <Button kind="text" data-date-picker-action="ok">
           {texts.ok}
         </Button>
       </div>

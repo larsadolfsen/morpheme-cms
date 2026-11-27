@@ -551,7 +551,7 @@ async function checkDangerAlign(width, height, dir) {
       const want = r.name === 'Delete page' ? 'filled' : 'outlined';
       if (r.kind !== want) problems.push(`${label}: "${r.name}" is ${r.kind}, not ${want}`);
     }
-    // A delete question's confirm is the dialog's main choice: filled in the error role; Cancel stays outlined, not red.
+    // A delete question's confirm is the dialog's main choice: a text button with the error colour as label (every dialog action is text; owner, 27 Nov 2026); Cancel is a plain text button, not red.
     await danger.getByRole('button', { name: 'Delete page', exact: true }).click();
     const dialog = page.getByRole('dialog');
     await dialog.waitFor({ timeout: 5000 });
@@ -559,13 +559,13 @@ async function checkDangerAlign(width, height, dir) {
       els.map((e) => ({
         name: e.textContent.trim(),
         error: e.classList.contains('mo-is-error'),
-        filled: e.classList.contains('mo-is-filled'),
+        text: e.classList.contains('mo-is-text'),
       })),
     );
     const yes = confirm.find((c) => c.name === 'Delete');
     const no = confirm.find((c) => c.name === 'Cancel');
-    if (!yes || !yes.error || !yes.filled)
-      problems.push(`${label}: the Delete confirm is not a filled error button (${JSON.stringify(confirm)})`);
+    if (!yes || !yes.error || !yes.text)
+      problems.push(`${label}: the Delete confirm is not a text button in the error colour (${JSON.stringify(confirm)})`);
     if (!no || no.error) problems.push(`${label}: Cancel is red or missing (${JSON.stringify(confirm)})`);
     await page.keyboard.press('Escape');
   } finally {

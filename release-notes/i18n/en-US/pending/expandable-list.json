@@ -3,5 +3,5 @@
   "kind": "paragraph",
   "mark": "improvement",
   "title": "Expandable list",
-  "text": "List - Expand is now called Expandable list, and its rows have only an icon or image, a title, a text and buttons, with no link. Add actions such as Add list row and Add button are outlined buttons in every block. A link stored on a row still shows on your site."
+  "text": "List - Expand is now called Expandable list, and its rows have only an icon or image, a title, a text and buttons, with no link. Add actions such as Add list row and Add button are text buttons in every block. A link stored on a row still shows on your site."
 }

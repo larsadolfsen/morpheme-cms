@@ -3,5 +3,5 @@
   "kind": "paragraph",
   "mark": "improvement",
   "title": "Udvidelig liste",
-  "text": "Liste - Udvid hedder nu Udvidelig liste, og rækkerne har kun et ikon eller billede, en titel, en tekst og knapper, uden link. Tilføj-handlinger som Tilføj listerække og Tilføj knap er outlined-knapper i alle blokke. Et link gemt på en række vises stadig på din hjemmeside."
+  "text": "Liste - Udvid hedder nu Udvidelig liste, og rækkerne har kun et ikon eller billede, en titel, en tekst og knapper, uden link. Tilføj-handlinger som Tilføj listerække og Tilføj knap er tekstknapper i alle blokke. Et link gemt på en række vises stadig på din hjemmeside."
 }
