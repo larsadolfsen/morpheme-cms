@@ -1777,33 +1777,6 @@ dialog {
   gap: 0.5rem;
 }
 
-/* The select-all box of the swapped top bar (SelectionBar.tsx): a 48 px target with its name after it, only the box on a
-   phone (the name stays for a screen reader). */
-.mo-editor-selection-bar-all {
-  align-items: center;
-  min-height: 3rem;
-  min-width: 3rem;
-  padding-inline: 0.5rem 0.75rem;
-  border-radius: var(--mo-sys-shape-corner-full);
-}
-.mo-editor-selection-bar-all .mo-checkbox__box {
-  margin: 0;
-}
-@media (width < 37.5rem) {
-  .mo-editor-selection-bar-all .mo-checkbox__text {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-  .mo-editor-selection-bar-all {
-    gap: 0;
-    padding-inline: 0.5rem;
-  }
-}
-
 /* The screen's own top padding (24 px, 32 px from a medium window up) takes the step too, from the medium width. */
 .mo-editor-screen {
   padding-top: calc(var(--mo-ref-space-300) + max(var(--mo-sys-density), -1) * var(--mo-sys-density-step));

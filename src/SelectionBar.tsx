@@ -6,7 +6,7 @@
 // checkbox allows for easy selection or deselection of all items"; indeterminate while some are selected, ticked when all are).
 // Uses Button and IconButton (ui.tsx), the theme's Checkbox and the texts in t.library.
 import type { ReactNode } from 'react';
-import { Button, Checkbox, IconButton } from './ui';
+import { Button, Checkbox, IconButton, useAtLeast } from './ui';
 import { t } from './i18n';
 import { materialIcon } from './icon';
 
@@ -31,6 +31,7 @@ export default function SelectionBar({
   kind?: 'icons' | 'buttons' | 'actions';
   children?: ReactNode;
 }) {
+  const medium = useAtLeast('medium');
   return (
     <>
       <span className="mo-visually-hidden" role="status" aria-live="polite">
@@ -44,7 +45,7 @@ export default function SelectionBar({
           {onSelectAll && total ? (
             <Checkbox
               label={t.library.selectAll}
-              className="mo-editor-selection-bar-all"
+              hideLabel={!medium}
               checked={count >= total}
               indeterminate={count > 0 && count < total}
               onChange={onSelectAll}

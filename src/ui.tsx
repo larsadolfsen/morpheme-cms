@@ -1120,6 +1120,7 @@ export function FormField({
  * on and off (Show/Hide) is a SwitchRow instead. */
 export function Checkbox({
   label,
+  hideLabel,
   hint,
   checked,
   indeterminate,
@@ -1127,6 +1128,8 @@ export function Checkbox({
   onChange,
 }: {
   label: string;
+  /** Only a screen reader says the name (a box in a bar that names it), as on the Switch. */
+  hideLabel?: boolean;
   hint?: ReactNode;
   checked: boolean;
   /** Neither ticked nor not: some of the choices it stands over are ticked. */
@@ -1137,6 +1140,7 @@ export function Checkbox({
   return (
     <SiteCheckbox
       label={label}
+      hideLabel={hideLabel}
       supporting={hint}
       checked={checked}
       indeterminate={indeterminate}
