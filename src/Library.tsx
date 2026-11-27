@@ -70,6 +70,7 @@ import {
   ColorSwatches,
   IconSwatches,
   ListItem,
+  LeadingImage,
   useAtLeast,
 } from './ui';
 import { openAtSeo } from './EntryForm';
@@ -103,16 +104,7 @@ import { restorable } from './Deleted';
 import { activeApps, kindsOffered, tabsOf } from './apps';
 import { appPartsIn, DeveloperRow } from './AppList';
 import { kindLists } from './BlockParts';
-import {
-  chosenPack,
-  chosenTheme,
-  ThemeImage,
-  ThemeStoreButtons,
-  themeInstalled,
-  themePending,
-  themeUpdateOf,
-  useThemeCatalog,
-} from './ThemeStore';
+import { chosenPack, chosenTheme, ThemeStoreButtons, themeInstalled, themePending, themeUpdateOf, useThemeCatalog } from './ThemeStore';
 import { STANDARD_THEME, STORE_ROUTE, INSTALLED_ROUTE } from './store';
 import { REDIRECTS_ROUTE } from './Redirects';
 import { MOTION_SCHEMES, schemeInUse, type MotionScheme } from '../lib/motion';
@@ -354,7 +346,7 @@ export function Themes({ env, files }: { env: Env; files: RepoFile[] }) {
             <ListItem
               key={x.id}
               href={`#appearance/themes/${x.id}`}
-              leading={<ThemeImage src={x.icon} />}
+              leading={<LeadingImage src={x.icon} alt="" />}
               headline={x.name}
               supporting={t.library.themeByline(x.version, x.author)}
               truncate

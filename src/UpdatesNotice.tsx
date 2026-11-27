@@ -18,7 +18,7 @@ import { changesSince, versioned, type Versions } from './startView.mjs';
 import { keepStored, SEEN, storedSeen } from './startStorage';
 import type { RepoFile } from './github';
 import { SiteCard, SiteDivider, SiteIconButton, SiteTooltip } from './themeUi';
-import { Button, LinkButton, ListItem, plainListClass } from './ui';
+import { ArrowLink, Button, ListItem, plainListClass } from './ui';
 import { materialIcon } from './icon';
 import { CMS_ROUTE } from './CmsPage';
 import { LICENSES_ROUTE } from './Licenses';
@@ -136,9 +136,9 @@ export function UpdatesNotice({ files }: { files: RepoFile[] }) {
               {t.common.close}
             </Button>
             {cms && (
-              <LinkButton kind="filled" href={`#${CMS_ROUTE}`} aria-label={t.library.readMoreOn(title)}>
+              <ArrowLink href={`#${CMS_ROUTE}`} aria-label={t.library.readMoreOn(title)}>
                 {t.library.readMore}
-              </LinkButton>
+              </ArrowLink>
             )}
           </div>
         </div>

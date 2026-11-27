@@ -3,7 +3,19 @@
 // Exposes AppAdds (default). Depends on BlockSettings.tsx (the switches), AppList.tsx (listsOf, entriesOf, kindsOf) and ./ui.
 import { useId, useRef, useState } from 'react';
 import { BlockSwitch, blockSwitchTexts, KindSwitch, kindSwitchTexts, pagesWith, useOnOff } from './BlockSettings';
-import { BottomSheet, Group, LeadingIcon, LinkButton, ListItem, listClass, SheetBody, SheetTitle, Switch, atLeastNow } from './ui';
+import {
+  BottomSheet,
+  Group,
+  ArrowLink,
+  LeadingIcon,
+  ListItem,
+  listClass,
+  SheetBody,
+  SupportingText,
+  SheetTitle,
+  Switch,
+  atLeastNow,
+} from './ui';
 import { usePane } from './PaneHost';
 import type { RepoFile } from './github';
 import type { Env } from './App';
@@ -70,9 +82,9 @@ function SwitchedRow({
       headline={add.label}
       supporting={add.hint}
       actions={
-        <span className="mo-editor-list-action">
+        <span>
           <Switch
-            label={t.apps.activeOf(add.label)}
+            label={add.label}
             selected={on}
             disabled={busy || saving}
             onChange={async (next) => {
@@ -146,22 +158,21 @@ export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: En
   // What the add-on shows: what it is, its switch and where it is used.
   const details = open && (
     <>
-      <div className="mo-editor-app-intro">
-        <LeadingIcon icon={open.icon} />
-        <p className="mo-editor-app-intro-text">{open.hint ?? open.label}</p>
-      </div>
+      <ul className={listClass}>
+        <ListItem leading={<LeadingIcon icon={open.icon} />} headline={open.label} supporting={open.hint} />
+      </ul>
       {open.block ? (
         <BlockSwitch block={open.block} env={env} files={files} />
       ) : (
         <KindSwitch app={app} list={open.key} env={env} files={files} />
       )}
       {open.create && !offBlocks(files).includes(kindKey(open.key, app.id)) && (
-        <LinkButton href={open.create.href} onClick={() => void closeIt()}>
+        <ArrowLink href={open.create.href} onClick={() => void closeIt()}>
           {open.create.label}
-        </LinkButton>
+        </ArrowLink>
       )}
       <div>
-        <p className="mo-editor-subtitle-tight">{t.apps.used}</p>
+        <p className="mo-type-title-small">{t.apps.used}</p>
         {open.uses.length ? (
           <ul className={listClass}>
             {open.uses.map((u) => (
@@ -169,7 +180,7 @@ export default function AppAdds({ app, env, files, on }: { app: SiteApp; env: En
             ))}
           </ul>
         ) : (
-          <p className="mo-editor-muted">{t.apps.notUsed}</p>
+          <SupportingText medium>{t.apps.notUsed}</SupportingText>
         )}
       </div>
     </>

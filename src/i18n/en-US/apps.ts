@@ -78,7 +78,6 @@ export const apps = {
   /** Asked before uninstalling. */
   askUninstall: (app: string) => `Uninstall ${app}? What the app adds disappears from the editor.`,
   /** The name of the switch in the row of one of its blocks (or kinds of a list), read by screen readers. */
-  activeOf: (block: string) => `On: ${block}`,
   /** Under "Uninstall". */
   uninstallHint: 'Can be uninstalled, as nothing on the website uses the app.',
   /** Over the pages and entries that use it (its blocks, its kind of pop-up). */

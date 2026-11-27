@@ -514,7 +514,7 @@ export default function Parts({ env }: { env: Env }) {
                   href="#developer/parts/editor"
                   headline={sample.pages}
                   actions={
-                    <span className="mo-editor-settings-trailing">
+                    <>
                       <UnfoldButton
                         open={unfolded}
                         count={3}
@@ -522,7 +522,7 @@ export default function Parts({ env }: { env: Env }) {
                         title={unfolded ? t.library.hideSubpages : t.library.showSubpages}
                         onClick={() => setUnfolded(!unfolded)}
                       />
-                    </span>
+                    </>
                   }
                 />
                 {unfolded && (
