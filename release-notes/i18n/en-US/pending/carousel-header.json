@@ -1,0 +1,7 @@
+{
+  "id": "carousel-header",
+  "kind": "paragraph",
+  "mark": "feature",
+  "title": "Carousel header",
+  "text": "A carousel can now name what it shows. Type a Header above the cards, and an arrow beside it shows every card in two columns; the back arrow returns. Without a header, the Show all button stays under the row as before."
+}

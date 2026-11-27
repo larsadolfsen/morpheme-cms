@@ -159,6 +159,24 @@ export default function InlineCards({
   return (
     <>
       {props.phone === 'carousel' && <span className="mo-editor-inline-cards-chip">{t.blocks.cards.carouselChip}</span>}
+      {/* The carousel's optional header, typed where it stands, as the site draws it (the arrow beside it is the site's, not drawn here). Empty: no header, `Show all` under the row. */}
+      {props.phone === 'carousel' && (
+        <div className="mo-block-cards__header mo-editor-inline-cards-header">
+          <span className="mo-block-cards__heading">
+            <InlineField
+              name="header"
+              value={typeof props.header === 'string' ? props.header : ''}
+              label={t.blocks.cards.header}
+              placeholder={t.blocks.cards.headerPlaceholder}
+              onType={(v) => onProps({ header: v })}
+              onFocus={() => {}}
+              onKeys={(e) => {
+                if (e.key === 'Enter') e.preventDefault();
+              }}
+            />
+          </span>
+        </div>
+      )}
       <InlineItems
         items={items}
         active={active}

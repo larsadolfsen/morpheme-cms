@@ -12,6 +12,7 @@ export default function Cards({ view }: { view: CardsView }) {
         color={view.color}
         phone={view.phone}
         layout={view.layout}
+        header={view.header}
         more={view.more}
         className={useInText() || undefined}
       />
