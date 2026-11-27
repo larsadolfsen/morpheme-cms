@@ -14,7 +14,7 @@ import {
   springCss,
 } from './support/context.mjs';
 import { previewReference } from './support/icon-pack.mjs';
-import { barTools, menusSettled, openStyleMenu, pressInsert } from './support/shared.mjs';
+import { barOrMore, barTools, menusSettled, openStyleMenu, pressInsert } from './support/shared.mjs';
 
 /** The bar has no divider (owner decision, 14 Nov) and Undo, Redo and Insert block stand at its right end in that order, then the ⋮ when there is one: `names` are the bar's buttons left to right,
  * `ends` the right edge of the last button and `edge` the bar's. Returns a problem text, or ''. */
@@ -1018,8 +1018,10 @@ async function checkDividerBlock(width) {
   await page.waitForTimeout(600);
   const names = await bar();
   if (got.pressed !== 'true' || !got.focus) problems.push(`${label}: a tap did not select the Divider (${JSON.stringify(got)})`);
+  // On the bar, or in the ⋮ where the bar has no room.
   for (const want of ['Remove', 'Add below', 'Add above'])
-    if (!names.includes(want)) problems.push(`${label}: no ${want} on the bar while the Divider is selected (${names.join(', ')})`);
+    if (!names.includes(want) && !(await barOrMore(page, want).count()))
+      problems.push(`${label}: no ${want} on the bar while the Divider is selected (${names.join(', ')})`);
   for (const not of ['Settings', 'Edit', 'Link'])
     if (names.includes(not)) problems.push(`${label}: ${not} on the bar for a Divider, which has none`);
   await page.keyboard.press('ArrowDown');
