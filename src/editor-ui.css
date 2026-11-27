@@ -237,7 +237,7 @@
   }
   .mo-editor-color-dots {
     display: flex;
-    gap: var(--mo-ref-space-75);
+    gap: var(--mo-ref-space-100);
   }
   .mo-editor-color-dot {
     inline-size: 1.5rem;
@@ -685,18 +685,16 @@
     min-block-size: 0;
     flex: 1;
     overflow: hidden;
-    border: 0 solid var(--mo-sys-color-outline-variant);
-    border-block-start-width: 1px;
-    background-color: color-mix(in oklab, var(--mo-sys-color-outline-variant) 40%, transparent);
+    background-color: var(--mo-sys-color-surface-container);
   }
-  /* The block's page is drawn on white, as the site draws it. */
+  /* The block's page is drawn on a surface role (dark in dark mode). */
   .mo-editor-block-preview-iframe {
     position: absolute;
     top: 0;
     left: 50%;
     transform-origin: top;
     border: 0 solid;
-    background-color: #fff;
+    background-color: var(--mo-sys-color-surface);
   }
 
   /* The screen (Screen.tsx's columns), the side sheet beside it and the section list. */

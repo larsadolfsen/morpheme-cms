@@ -5,24 +5,15 @@
 @layer utilities {
   /* ---- PreviewScreen.tsx: the row with the window sizes, the frame and the handles ---- */
 
-  /* The row across the top: the sizes (a scroll row of their own below the width on a phone) and the current width. */
+  /* The docked Toolbar part (64 dp, 16 dp outside padding, 8 dp between items): at the bottom of the window below 600 dp, at the top from 600 dp. */
   .mo-editor-preview-bar {
-    display: flex;
     flex-shrink: 0;
-    flex-wrap: wrap;
-    align-items: center;
-    column-gap: var(--mo-ref-space-100);
-    border-block-end: var(--mo-comp-divider-thickness, 1px) solid var(--mo-comp-divider-color, var(--mo-sys-color-outline-variant));
-    padding-block: var(--mo-ref-space-100);
-    padding-inline: var(--mo-ref-space-200);
+    order: 1;
   }
   .mo-editor-preview-sizes {
-    order: 9999;
     min-inline-size: 0;
-    flex-basis: 100%;
+    flex: 1;
     overflow-x: auto;
-    padding-inline-end: var(--mo-ref-space-100);
-    padding-block-end: var(--mo-ref-space-50);
   }
   .mo-editor-preview-sizes-inner {
     inline-size: max-content;
@@ -38,16 +29,7 @@
   }
   @media (width >= 37.5rem) {
     .mo-editor-preview-bar {
-      flex-wrap: nowrap;
-    }
-    .mo-editor-preview-sizes {
       order: 0;
-      flex: 1;
-      flex-basis: 0;
-      padding-block-end: 0;
-    }
-    .mo-editor-preview-width {
-      margin-inline-start: 0;
     }
   }
 
@@ -56,7 +38,7 @@
     position: relative;
     min-block-size: 0;
     flex: 1;
-    background-color: color-mix(in oklab, var(--mo-sys-color-outline-variant) 40%, transparent);
+    background-color: var(--mo-sys-color-surface-container-low);
   }
   .mo-editor-preview-stage {
     position: absolute;
@@ -70,15 +52,17 @@
     padding: var(--mo-ref-space-250);
     color: var(--mo-sys-color-on-surface-variant);
   }
-  /* The page itself: always white, as a site is on a browser's window. */
+  /* The page itself, on a surface role (dark in dark mode). */
   .mo-editor-preview-frame {
     flex-shrink: 0;
     transform-origin: 0 0;
     border: 0;
-    background-color: #fff;
+    background-color: var(--mo-sys-color-surface);
   }
-  /* A handle at each edge of the page, to drag it to any width. */
+  /* A handle at each edge of the page, to drag it to any width: a slider with a 48 dp target (the ::after reaches past the box), its grip
+     4 by 44 dp (the slider's handle, M3 prints no pane handle) and M3's state layers and focus ring. */
   .mo-editor-preview-handle {
+    position: relative;
     display: flex;
     flex-shrink: 0;
     align-items: center;
@@ -87,19 +71,42 @@
     touch-action: none;
     outline-style: none;
   }
+  .mo-editor-preview-handle::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline: calc((var(--mo-sys-target-size, 3rem) - 100%) / -2);
+  }
   .mo-editor-preview-handle-grip {
-    block-size: var(--mo-ref-space-600);
-    inline-size: var(--mo-ref-space-50);
-    border-radius: calc(infinity * 1px);
+    position: relative;
+    block-size: 2.75rem;
+    inline-size: 0.25rem;
+    border-radius: var(--mo-sys-shape-corner-full);
     background-color: var(--mo-sys-color-outline);
   }
+  /* The state layer: a round layer behind the grip. */
+  .mo-editor-preview-handle-grip::before {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline: calc((var(--mo-sys-target-size, 3rem) - 0.25rem) / -2);
+    border-radius: var(--mo-sys-shape-corner-full);
+    background-color: transparent;
+  }
   @media (hover: hover) {
-    .mo-editor-preview-handle:hover .mo-editor-preview-handle-grip {
-      background-color: var(--mo-sys-color-primary);
+    .mo-editor-preview-handle:hover .mo-editor-preview-handle-grip::before {
+      background-color: var(--mo-sys-state-hover-state-layer-color);
     }
   }
+  .mo-editor-preview-handle:focus-visible .mo-editor-preview-handle-grip::before {
+    background-color: var(--mo-sys-state-focus-state-layer-color, var(--mo-sys-state-hover-state-layer-color));
+  }
+  .mo-editor-preview-handle:active .mo-editor-preview-handle-grip::before {
+    background-color: var(--mo-sys-state-pressed-state-layer-color);
+  }
   .mo-editor-preview-handle:focus-visible .mo-editor-preview-handle-grip {
-    background-color: var(--mo-sys-color-primary);
+    outline: var(--mo-sys-state-focus-indicator-thickness, 3px) solid var(--mo-sys-state-focus-indicator-color);
+    outline-offset: var(--mo-sys-state-focus-indicator-outer-offset);
   }
 
   .mo-editor-photo-credit {

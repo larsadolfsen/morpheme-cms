@@ -1259,33 +1259,6 @@ html {
   color: var(--mo-comp-block-text);
 }
 
-/* The chosen icon's tile in the grid is filled with the picked color (Text, without one) and its icon is read on it. */
-[data-icon-grid] {
-  --mo-sys-tile-fill: var(--mo-sys-color-on-surface);
-  --mo-sys-tile-on: var(--mo-sys-color-surface);
-}
-[data-icon-grid][data-icon-color='primary'] {
-  --mo-sys-tile-fill: var(--mo-sys-color-primary);
-  --mo-sys-tile-on: var(--mo-sys-color-on-primary);
-}
-[data-icon-grid][data-icon-color='secondary'] {
-  --mo-sys-tile-fill: var(--mo-sys-color-secondary);
-  --mo-sys-tile-on: var(--mo-sys-color-on-secondary);
-}
-[data-icon-grid][data-icon-color='tertiary'] {
-  --mo-sys-tile-fill: var(--mo-sys-color-tertiary);
-  --mo-sys-tile-on: var(--mo-sys-color-on-tertiary);
-}
-[data-icon-grid] .mo-icon-button[aria-pressed='true'] {
-  background: var(--mo-sys-tile-fill);
-  color: var(--mo-sys-tile-on);
-}
-
-/* The icon picker's grid draws its icons in the color picked in the Icon color field (IconPicker, iconColor); the chosen one keeps its own colors. */
-[data-icon-grid][data-icon-color] .mo-icon-button:not([aria-pressed='true']) {
-  color: var(--mo-comp-icon-color);
-}
-
 /* Menus are placed by the theme's rules for a dropdown menu (ui.css, under the button, the other side when there is no room), the menu's width
    112 to 280 dp by the part. */
 /* On a phone the text's box (bar and body) is 354 dp wide at 375 px (352 inside its 1 dp edges), 10.5 dp from each edge instead of the screen's 16 dp (owner decision, 14 Nov:

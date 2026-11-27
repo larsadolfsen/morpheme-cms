@@ -1339,12 +1339,13 @@ export function IconPicker({
               </ChipSet>
             </div>
           )}
-          <div role="group" aria-label={label} data-icon-grid data-icon-color={iconColor} className="mo-editor-icon-picker-grid">
+          <div role="group" aria-label={label} data-icon-color={iconColor} className="mo-editor-icon-picker-grid">
             {hits.slice(0, shown).map((o) => (
               <ChoiceTile
                 key={o.value || 'none'}
                 selected={o.value !== '' && o.value === value}
                 label={o.label}
+                iconColor={iconColor}
                 onClick={() => {
                   onChange(o.value);
                   if (!startOpen) setOpen(false);
@@ -1791,13 +1792,23 @@ export function ChoiceTile({
   selected,
   label,
   onClick,
+  iconColor,
   children,
 }: {
   selected: boolean;
   label: string;
   onClick: () => void;
+  /** The color role a picked icon is drawn in (src/iconColor.ts): the selected tile takes it (and its on-role) through the part's tokens, and the rest draw their icons in it. */
+  iconColor?: string;
   children: ReactElement<{ size?: number; className?: string }>;
 }) {
+  // Set through the icon button's own tokens: selected, inverse surface (M3: outlined toggle), or the picked role and its on-role.
+  const role = iconColor === 'primary' || iconColor === 'secondary' || iconColor === 'tertiary' ? iconColor : undefined;
+  const style = {
+    '--mo-comp-icon-button-outlined-selected-surface': role ? `var(--mo-sys-color-${role})` : 'var(--mo-sys-color-inverse-surface)',
+    '--mo-comp-icon-button-outlined-selected-text': role ? `var(--mo-sys-color-on-${role})` : 'var(--mo-sys-color-inverse-on-surface)',
+    ...(iconColor ? { '--mo-comp-icon-button-outlined-icon-color': 'var(--mo-comp-icon-color)' } : {}),
+  } as CSSProperties;
   return (
     <SiteIconButton
       icon={children}
@@ -1807,6 +1818,7 @@ export function ChoiceTile({
       shape="square"
       selected={selected}
       className="mo-editor-choice-tile-image"
+      style={style}
       onClick={onClick}
     />
   );
