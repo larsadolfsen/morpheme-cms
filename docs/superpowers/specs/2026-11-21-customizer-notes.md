@@ -42,7 +42,9 @@ site; the open-licence rule above is for fonts the owner imports. Like an icon p
 scripts. *Typography* picks from the fonts the site has, imported or installed.
 
 Google Fonts come first, before 2.0, as roadmap line 1.6 (owner, 27 Nov 2026: "We will start by offering Google fonts. Add Google
-fonts before 2.0. this make it easy for vibe coders to change font."), downloaded into the site and served from it.
+fonts before 2.0. this make it easy for vibe coders to change font."), downloaded into the site and served from it. Fonts the
+person uploads through their AI come in the same line (owner, 27 Nov 2026: "And we need to support custom uploaded fonts through the
+ai"); for those the person confirms the licence allows web use, since no open licence comes with them.
 
 ## Customization is not a deviation
 
