@@ -63,7 +63,7 @@ export function blockActionsOf(state: BlockBarState, order: readonly string[]): 
     add({
       id: `block.${id}`,
       label: item.label,
-      icon: item.kind === 'settings' ? 'tune' : item.kind === 'visibility' ? undefined : ICONS[item.kind],
+      icon: item.kind === 'settings' ? 'tune' : item.kind === 'visibility' ? 'visibility' : ICONS[item.kind],
       meaning: item.kind === 'settings' ? 'settings-here' : undefined,
       group: 'block',
       where: { row: { order } },
@@ -115,6 +115,7 @@ export function blockActionsOf(state: BlockBarState, order: readonly string[]): 
       make: () => ({
         id: 'block.rows-from',
         label: dynamic.label,
+        icon: 'database',
         group: 'block',
         where: { bar: { context: 'block', order: order.indexOf('dynamic') } },
         pressed: () => dynamic.on,

@@ -1320,9 +1320,9 @@ function Form({
     <header className="mo-editor-post-head" data-post-head>
       <HeadTitle field={titleField} value={values.title} onChange={(v) => onTitle(String(v ?? ''))} />
       {author.name && (
-        <p className="mo-editor-byline-lines">
-          <span className="mo-editor-author-name">{author.name}</span>
-          {author.role && <span className="mo-editor-author-role">{author.role}</span>}
+        <p>
+          <span className="mo-type-title-small mo-editor-author-name">{author.name}</span>
+          {author.role && <span className="mo-type-body-medium mo-editor-author-role">{author.role}</span>}
         </p>
       )}
       <div className="mo-editor-flow-4">

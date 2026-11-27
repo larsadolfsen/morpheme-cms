@@ -274,7 +274,7 @@ export function LicensePage({ id }: { id: string }) {
           {photo && <img src={photo} alt={work!.name} className="mo-editor-license-photo" />}
           <section className="mo-editor-settings-section">
             <GroupTitle>{t.licenses.text}</GroupTitle>
-            {work?.standard && <SupportingText className="mo-editor-license-note">{t.licenses.standardText(work.license)}</SupportingText>}
+            {work?.standard && <SupportingText>{t.licenses.standardText(work.license)}</SupportingText>}
             {text ? (
               paragraphsOf(text).map((p, i) => (
                 <p key={i} className="mo-editor-license-paragraph">
@@ -282,7 +282,7 @@ export function LicensePage({ id }: { id: string }) {
                 </p>
               ))
             ) : (
-              <p className="mo-editor-license-none">{t.licenses.noText}</p>
+              <EmptyNote>{t.licenses.noText}</EmptyNote>
             )}
           </section>
         </>

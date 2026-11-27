@@ -412,7 +412,7 @@ export default function Colors({ env, files, fallback }: { env: Env; files: Repo
   function modeColors() {
     return (
       <>
-        <SupportingText size="medium">{changing.length ? t.colors.pages.fallbackIntro(appNames) : t.colors.intro}</SupportingText>
+        <SupportingText medium>{changing.length ? t.colors.pages.fallbackIntro(appNames) : t.colors.intro}</SupportingText>
         {loaded.unreadable && file && <ProblemNote>{t.colors.unreadable}</ProblemNote>}
         {/* On a wide computer screen the colours in the wide column, and the preview beside them, in view
           while they are changed. */}
@@ -511,7 +511,7 @@ function PageColors({ env, files, apps, mode }: { env: Env; files: RepoFile[]; a
 
   return (
     <>
-      <SupportingText size="medium">{p.intro}</SupportingText>
+      <SupportingText medium>{p.intro}</SupportingText>
       <Group title={p.apps}>
         {apps.map((app) => (
           <ListItem

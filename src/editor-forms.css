@@ -169,17 +169,8 @@
   .mo-editor-app-list-search {
     margin-block-end: var(--mo-comp-editor-rhythm-300);
   }
-  .mo-editor-app-list-empty {
-    margin-block-end: var(--mo-comp-editor-rhythm-400);
-    padding-inline: var(--mo-ref-space-50);
-    color: var(--mo-sys-color-on-surface-variant);
-  }
   .mo-editor-app-list-heading {
     margin-block-end: var(--mo-comp-editor-rhythm-400);
-  }
-  .mo-editor-app-list-hint {
-    margin-block-start: var(--mo-comp-editor-rhythm-150);
-    color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-app-list-actions {
     margin-block-end: var(--mo-comp-editor-rhythm-400);

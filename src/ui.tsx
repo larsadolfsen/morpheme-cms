@@ -928,16 +928,16 @@ export function SupportingText({
   id,
   children,
   className = '',
-  size = 'small',
+  medium,
 }: {
   id?: string;
   children: ReactNode;
   className?: string;
-  /** `medium`: body-medium, for a short text under a title (an intro); `small`: body-small, under a field. */
-  size?: 'small' | 'medium';
+  /** Body medium (14/20), the List part's supporting text, instead of body small. */
+  medium?: boolean;
 }) {
   return (
-    <span id={id} className={`mo-type-body-${size} mo-editor-supporting-text ${className}`}>
+    <span id={id} className={`${medium ? 'mo-type-body-medium' : 'mo-type-body-small'} mo-editor-supporting-text ${className}`}>
       {children}
     </span>
   );
@@ -1628,19 +1628,9 @@ export function MultiChoice({
 }
 
 /** A link to another screen (under a field's name: where it is edited): the theme's link, in the text's own type role. */
-export function ArrowLink({
-  href,
-  onClick,
-  className = '',
-  children,
-}: {
-  href: string;
-  onClick?: (e: MouseEvent<HTMLAnchorElement>) => void;
-  className?: string;
-  children: ReactNode;
-}) {
+export function ArrowLink({ className = '', children, ...rest }: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & { href: string }) {
   return (
-    <a href={href} className={`mo-link ${className}`.trim()} onClick={onClick}>
+    <a className={`mo-link ${className}`.trim()} {...rest}>
       {children}
     </a>
   );

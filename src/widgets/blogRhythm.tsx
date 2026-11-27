@@ -11,8 +11,7 @@ import { isDue, lastPostOf, nextDue, weeksSince } from '../blogRhythm.mjs';
 import { useStartData } from '../startData';
 import type { WidgetProps } from '../widgets';
 import { SiteCard } from '../themeUi';
-import { LinkButton } from '../ui';
-import { materialIcon } from '../icon';
+import { ArrowLink } from '../ui';
 
 const lists = collections.flatMap((c) => (c.kind === 'markdown' ? [{ id: c.id, folder: c.folder }] : []));
 const NEW_POST = '#new/blog';
@@ -41,9 +40,7 @@ export function BlogRhythmWidget({ settings, editing }: WidgetProps) {
       className="mo-editor-widget-text"
       actions={
         due ? (
-          <LinkButton href={NEW_POST} icon={materialIcon('edit')} kind="tonal">
-            {last === null ? t.library.blogRhythmWriteFirst : t.library.blogRhythmWriteNew}
-          </LinkButton>
+          <ArrowLink href={NEW_POST}>{last === null ? t.library.blogRhythmWriteFirst : t.library.blogRhythmWriteNew}</ArrowLink>
         ) : undefined
       }
     >

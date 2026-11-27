@@ -106,7 +106,7 @@ export default function MediaProviderPicker({
         }}
       >
         <p className="mo-editor-settings-strong">{text.keyTitle(provider.label)}</p>
-        <SupportingText size="medium">{text.keyText(provider.label)}</SupportingText>
+        <SupportingText medium>{text.keyText(provider.label)}</SupportingText>
         <TextField
           label={text.keyLabel}
           type="password"

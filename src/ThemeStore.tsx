@@ -11,7 +11,18 @@
 import { useEffect, useState } from 'react';
 import Screen from './Screen';
 import { busyFor } from './busyAction.mjs';
-import { Button, EmptyNote, Group, GroupTitle, ImageCarousel, ScoreRing, SupportingText, ListItem, plainListClass } from './ui';
+import {
+  Button,
+  EmptyNote,
+  Group,
+  GroupTitle,
+  ImageCarousel,
+  LeadingImage,
+  ScoreRing,
+  SupportingText,
+  ListItem,
+  plainListClass,
+} from './ui';
 import { ringScoreOf, statementOf } from './themeAccessibility.mjs';
 import { ConflictError, type RepoFile } from './github';
 import type { Env } from './App';
@@ -38,11 +49,6 @@ import { materialIcon } from './icon';
 
 /** A theme's page (installed, or in the store). */
 export const themeHref = (id: string) => `#appearance/themes/${id}`;
-
-/** A theme's image (its theme.json's icon), where a row has its icon. */
-export function ThemeImage({ src }: { src: string }) {
-  return <img src={src} alt="" className="mo-editor-store-icon" />;
-}
 
 /** The store's themes for a screen: null while they are read, 'failed' when they could not be. */
 export function useThemeCatalog(env: Env): ShownTheme[] | null | 'failed' {
@@ -256,7 +262,7 @@ export function ThemeRow({ of }: { of: ReturnType<typeof allThemes>[number] }) {
   return (
     <ListItem
       href={themeHref(of.id)}
-      leading={<ThemeImage src={of.icon} />}
+      leading={<LeadingImage src={of.icon} alt="" />}
       headline={of.name}
       supporting={t.library.themeByline(of.version, of.author)}
       truncate

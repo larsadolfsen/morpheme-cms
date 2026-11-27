@@ -128,7 +128,7 @@ export default function BrandForm({ env }: { env: Env }) {
     >
       <section>
         <h2 className="mo-type-title-medium mo-editor-brand-heading">{t.company.brand.logo}</h2>
-        <SupportingText size="medium" className="mo-editor-brand-hint">
+        <SupportingText medium className="mo-editor-brand-hint">
           {t.company.brand.logoHint}
         </SupportingText>
         <div className="mo-editor-brand-column">
@@ -145,7 +145,7 @@ export default function BrandForm({ env }: { env: Env }) {
       </section>
       <section>
         <h2 className="mo-type-title-medium mo-editor-brand-heading">{t.company.brand.icon}</h2>
-        <SupportingText size="medium" className="mo-editor-brand-hint">
+        <SupportingText medium className="mo-editor-brand-hint">
           {t.company.brand.iconHint}
         </SupportingText>
         <div className="mo-editor-brand-column">

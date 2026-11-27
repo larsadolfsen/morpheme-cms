@@ -161,7 +161,7 @@ export default function NavigationRestParts() {
                   <Destinations rail />
                 </SiteNavigationRail>
               </Example>
-              <SupportingText size="medium" className="mo-editor-nav-note">
+              <SupportingText medium className="mo-editor-nav-note">
                 {say.content}
               </SupportingText>
             </div>
@@ -180,7 +180,7 @@ export default function NavigationRestParts() {
                     aria-expanded="false"
                     data-navigation-rail-menu=""
                   />
-                  <SupportingText size="medium" className="mo-editor-nav-note">
+                  <SupportingText medium className="mo-editor-nav-note">
                     {say.content}
                   </SupportingText>
                 </div>
@@ -191,7 +191,7 @@ export default function NavigationRestParts() {
                     <Destinations rail />
                   </SiteNavigationRail>
                 </Example>
-                <SupportingText size="medium" className="mo-editor-nav-note">
+                <SupportingText medium className="mo-editor-nav-note">
                   {say.content}
                 </SupportingText>
               </div>

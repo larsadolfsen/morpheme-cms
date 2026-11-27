@@ -5,7 +5,7 @@
 // the container that changes, named for screen readers by what it shows (Accessibility, Labeling elements).
 import { useEffect } from 'react';
 import { SiteLinearProgressIndicator } from './themeUi';
-import { Button, LinkButton } from './ui';
+import { ArrowLink, Button } from './ui';
 import { materialIcon } from './icon';
 import { setBuildState, useBuildProgress } from './buildState';
 import { t } from './i18n';
@@ -29,11 +29,11 @@ export default function BuildProgress() {
     <div className="mo-editor-build-progress" data-step={progress.step} role="status">
       <div className="mo-editor-build-progress__row">
         <Glyph aria-hidden="true" />
-        <p>{failed ? text.notLive : live ? text.live : text.publishing}</p>
+        <p className="mo-type-body-medium">{failed ? text.notLive : live ? text.live : text.publishing}</p>
         {failed && progress.buildUrl && (
-          <LinkButton kind="text" href={progress.buildUrl} target="_blank" rel="noreferrer">
+          <ArrowLink href={progress.buildUrl} target="_blank" rel="noreferrer">
             {text.seeBuild}
-          </LinkButton>
+          </ArrowLink>
         )}
         {failed && (
           <Button kind="text" onClick={() => setBuildState('idle')}>

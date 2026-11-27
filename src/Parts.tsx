@@ -187,7 +187,7 @@ export default function Parts({ env }: { env: Env }) {
   return (
     <Screen title={t.parts.screens.editor} back={{ href: '#developer/parts', label: t.common.parts.editorParts }}>
       <div className="mo-editor-flow-10">
-        <SupportingText size="medium">{t.parts.intro('packages/editor/src/ui.tsx')}</SupportingText>
+        <SupportingText medium>{t.parts.intro('packages/editor/src/ui.tsx')}</SupportingText>
         <PartsShown groups={GROUPS} keep="parts">
           <PartGroup group="buttons">
             <Part name="ToolbarButton" use={use.toolbarButton}>
@@ -515,7 +515,7 @@ export default function Parts({ env }: { env: Env }) {
                   href="#developer/parts/editor"
                   headline={sample.pages}
                   actions={
-                    <span className="mo-editor-settings-trailing">
+                    <>
                       <UnfoldButton
                         open={unfolded}
                         count={3}
@@ -523,7 +523,7 @@ export default function Parts({ env }: { env: Env }) {
                         title={unfolded ? t.library.hideSubpages : t.library.showSubpages}
                         onClick={() => setUnfolded(!unfolded)}
                       />
-                    </span>
+                    </>
                   }
                 />
                 {unfolded && (
@@ -1076,7 +1076,7 @@ function FieldTypes({ env }: { env: Env }) {
     <Fields.Provider value={context}>
       <WrongField.Provider value={wrongField.field}>
         <PartGroup group="fieldTypes">
-          {intro && <SupportingText size="medium">{f.intro('packages/editor/src/fields.tsx')}</SupportingText>}
+          {intro && <SupportingText medium>{f.intro('packages/editor/src/fields.tsx')}</SupportingText>}
           {types.map((type) => (
             <Part key={type.name} name={type.name} use={type.use}>
               <div className="mo-editor-flow-5">

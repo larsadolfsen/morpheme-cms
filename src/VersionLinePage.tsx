@@ -5,11 +5,14 @@
 import Screen from './Screen';
 import { CMS_ROUTE } from './CmsPage';
 import { ReleaseNotes } from './ReleaseNotes';
-import { EmptyNote, Group, LinkButton, ListItem } from './ui';
+import { ArrowLink, EmptyNote, Group, ListItem } from './ui';
 import { runningLine, runningNotes } from './bundledNotes';
 import { versionLines } from '../lib/releaseNotes.mjs';
 import { t } from './i18n';
 import { materialIcon } from './icon';
+
+const ArrowBack = materialIcon('arrow_back');
+const ArrowForward = materialIcon('arrow_forward');
 
 /** Every line, newest first, and those older than the running one. */
 const lines = () => versionLines(runningNotes);
@@ -30,28 +33,18 @@ export function LineNav({ line }: { line: string }) {
   return (
     <nav aria-label={t.cms.otherVersions} className="mo-editor-version-nav">
       {newer ? (
-        <LinkButton
-          kind="outlined"
-
-          href={lineHref(newer.line)}
-          icon={materialIcon('arrow_back')}
-          aria-label={t.library.cmsVersion(newer.line)}
-        >
+        <ArrowLink href={lineHref(newer.line)} aria-label={t.library.cmsVersion(newer.line)} className="mo-editor-arrow-link">
+          <ArrowBack aria-hidden="true" />
           {newer.line}
-        </LinkButton>
+        </ArrowLink>
       ) : (
         <span />
       )}
       {older && (
-        <LinkButton
-          kind="outlined"
-
-          href={lineHref(older.line)}
-          icon={materialIcon('arrow_forward')}
-          aria-label={t.library.cmsVersion(older.line)}
-        >
+        <ArrowLink href={lineHref(older.line)} aria-label={t.library.cmsVersion(older.line)} className="mo-editor-arrow-link">
           {older.line}
-        </LinkButton>
+          <ArrowForward aria-hidden="true" />
+        </ArrowLink>
       )}
     </nav>
   );
