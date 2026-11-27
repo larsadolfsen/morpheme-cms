@@ -1030,7 +1030,8 @@ async function checkEmptyRow(width, height) {
     if (got.join('|') !== 'Cancel|Delete and publish')
       problems.push(`${label}: the dialog has "${got.join('|')}", not "Cancel|Delete and publish"`);
     const kinds = await dialog.getByRole('button').evaluateAll((b) => b.map((x) => x.className));
-    if (kinds.length !== 2 || kinds[0] === kinds[1]) problems.push(`${label}: the main choice is not the only filled button`);
+    if (kinds.length !== 2 || kinds.some((k) => !/\bmo-is-text\b/.test(k)))
+      problems.push(`${label}: the dialog actions are not both text buttons (${kinds.join(' | ')})`);
     if (await dialog.locator('button:focus').count()) problems.push(`${label}: a button has the focus`);
     const marked = await page.evaluate(() => {
       const el = document.querySelector('.mo-editor-wrong');
