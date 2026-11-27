@@ -199,7 +199,7 @@ export default function OwnListSheet({
           );
         })}
         <span ref={addAt} className="mo-editor-inline-block">
-          <Button kind="outlined" disabled={busy} aria-haspopup="menu" aria-expanded={adding} onClick={() => setAdding(!adding)}>
+          <Button kind="text" disabled={busy} aria-haspopup="menu" aria-expanded={adding} onClick={() => setAdding(!adding)}>
             {t.ownList.addField}
           </Button>
         </span>

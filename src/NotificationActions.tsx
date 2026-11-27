@@ -28,7 +28,7 @@ export default function NotificationActions({
     </SelectionBar>
   ) : (
     <>
-      <Button kind="outlined" tone="error" icon={materialIcon('delete')} disabled={!hasItems} onClick={onClear}>
+      <Button kind="text" icon={materialIcon('delete')} disabled={!hasItems} onClick={onClear}>
         {t.library.clearNotifications}
       </Button>
       <LinkButton kind="text" icon={materialIcon('tune')} href="#account">
