@@ -298,11 +298,7 @@
     display: flex;
     block-size: var(--mo-ref-space-800);
     align-items: center;
-    padding-inline: var(--mo-ref-space-100);
-    @media (width >= 37.5rem) {
-      gap: var(--mo-ref-space-150);
-      padding-inline: var(--mo-ref-space-300);
-    }
+    padding-inline: var(--mo-ref-space-50);
   }
   .mo-editor-screen-show-medium {
     display: none;
@@ -314,20 +310,6 @@
     display: none;
     @media (width >= 52.5rem) {
       display: flex;
-    }
-  }
-  .mo-editor-screen-back {
-    display: flex;
-    inline-size: var(--mo-ref-space-600);
-    block-size: var(--mo-ref-space-600);
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
-    border-radius: calc(infinity * 1px);
-    &:hover {
-      @media (hover: hover) {
-        background-color: var(--mo-sys-color-surface-container-high);
-      }
     }
   }
   .mo-editor-screen-title-sub {
@@ -353,8 +335,6 @@
     font-weight: 500;
   }
   .mo-editor-screen-status {
-    font-size: 0.75rem;
-    line-height: 1rem;
     color: var(--mo-sys-color-on-surface-variant);
   }
   .mo-editor-screen-bar-gap {
@@ -408,11 +388,10 @@
     min-inline-size: 0;
     flex: 1;
     flex-direction: column;
-    padding-inline: var(--mo-ref-space-200);
+    padding-inline: var(--mo-sys-grid-margin);
     padding-block-start: var(--mo-ref-space-300);
     padding-block-end: env(safe-area-inset-bottom);
     @media (width >= 37.5rem) {
-      padding-inline: var(--mo-ref-space-300);
       padding-block-start: var(--mo-ref-space-400);
       padding-block-end: var(--mo-ref-space-200);
     }
@@ -434,15 +413,15 @@
     }
   }
   .mo-editor-screen-search-bar {
-    margin-inline: var(--mo-ref-space-100);
-    margin-block-end: var(--mo-comp-editor-rhythm-300);
+    /* M3: the unfocused search bar is 24dp from the window's edges; the column's own margin is the grid's. */
+    margin-inline: calc(var(--mo-ref-space-300) - var(--mo-sys-grid-margin));
+    margin-block-end: var(--mo-ref-space-300);
     display: flex;
     @media (width >= 37.5rem) {
       display: none;
     }
   }
   .mo-editor-palette-bar {
-    max-inline-size: 45rem;
     min-inline-size: 0;
     flex: 1;
   }

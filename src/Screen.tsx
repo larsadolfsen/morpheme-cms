@@ -252,15 +252,13 @@ export default function Screen<T extends string>({
           <SiteLogoLink onClick={leave()} className={home ? 'mo-editor-screen-show-medium' : 'mo-editor-screen-show-expanded'} />
         )}
         {back && (
-          <a
+          <IconLink
+            icon="arrow_back"
+            label={t.common.backTo(back.label)}
             href={safeHref(back.href)}
             onClick={leave(() => up(back.href))}
-            title={t.common.backTo(back.label)}
-            aria-label={t.common.backTo(back.label)}
-            className={`mo-editor-screen-back ${full ? '' : 'mo-editor-screen-narrow-only'}`}
-          >
-            <Icon name="arrow_back" size={24} />
-          </a>
+            className={full ? '' : 'mo-editor-screen-narrow-only'}
+          />
         )}
         {/* The start screen: from medium the top bar is the search bar and the title and status stand under it; on a phone the title stays in the bar and the search bar is the first thing in the page. */}
         <div
@@ -270,7 +268,7 @@ export default function Screen<T extends string>({
             {title}
           </h1>
           {status && (
-            <p data-subtitle className="mo-truncate mo-editor-screen-status">
+            <p data-subtitle className="mo-truncate mo-type-label-medium mo-editor-screen-status">
               {status}
             </p>
           )}

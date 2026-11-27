@@ -868,9 +868,6 @@
     block-size: var(--mo-ref-space-600);
     margin-inline: -0.75rem 0;
   }
-  .mo-editor-main-drawer-divider {
-    margin-block: var(--mo-ref-space-200);
-  }
   .mo-editor-main-drawer-nav {
     display: flex;
     flex: 1;

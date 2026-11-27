@@ -3461,7 +3461,7 @@ function MainDrawerMenuButton({ onClick, header }: { onClick: () => void; header
           {close}
         </div>
       )}
-      <SiteDivider />
+      <SiteDivider kind="middle-inset" />
     </>
   );
 }
@@ -3474,7 +3474,7 @@ function MainDrawerBody({ label, footer, children }: { label: string; footer?: R
       <div>{children}</div>
       {footer && (
         <div className="mo-editor-main-footer">
-          <SiteDivider kind="middle-inset" className="mo-editor-main-drawer-divider" />
+          <SiteDivider kind="middle-inset" />
           {footer}
         </div>
       )}
